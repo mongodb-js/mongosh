@@ -169,6 +169,14 @@ describe('worker', () => {
     describe('shell-api results', () => {
       const testServer = startTestServer('shared');
       const db = `test-db-${Date.now().toString(16)}`;
+      let exposed: Exposed<unknown>;
+
+      afterEach(() => {
+        if (exposed) {
+          exposed[close]();
+          exposed = null;
+        }
+      });
 
       type CommandTestRecord =
         | [string | string[], string]
@@ -334,6 +342,12 @@ describe('worker', () => {
           }
 
           it(`"${command}" should return ${resultType} result`, async() => {
+            // Without this dummy evaluation listener, a request to getConfig()
+            // from the shell leads to a never-resolved Promise.
+            exposed = exposeAll({
+              getConfig() {}
+            }, worker);
+
             const { init, evaluate } = caller;
             await init(await testServer.connectionString(), {}, {});
 
@@ -462,7 +476,7 @@ describe('worker', () => {
         },
         getConfig() {},
         setConfig() {},
-        listConfigOptions() {},
+        listConfigOptions() { return []; },
         onRunInterruptible() {}
       };
 

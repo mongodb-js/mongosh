@@ -456,7 +456,7 @@ class MongoshNodeRepl implements EvaluationListener {
     return this.ioProvider.setConfig(key, value);
   }
 
-  listConfigOptions(): string[] {
+  listConfigOptions(): Promise<string[]> | string[] {
     return this.ioProvider.listConfigOptions();
   }
 

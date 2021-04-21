@@ -121,5 +121,5 @@ export class CliUserConfig extends ShellUserConfig {
 export interface ConfigProvider<T> {
   getConfig<K extends keyof T>(key: K): Promise<T[K]>;
   setConfig<K extends keyof T>(key: K, value: T[K]): Promise<'success' | 'ignored'>;
-  listConfigOptions(): string[];
+  listConfigOptions(): string[] | Promise<string[]>;
 }

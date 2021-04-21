@@ -59,7 +59,7 @@ class ShellConfig extends ShellApiClass {
 
   async [asPrintable](): Promise<Map<keyof ShellUserConfig, ShellUserConfig[keyof ShellUserConfig]>> {
     const { evaluationListener } = this._internalState;
-    const keys = (evaluationListener.listConfigOptions?.() ?? Object.keys(this.defaults)) as (keyof ShellUserConfig)[];
+    const keys = (await evaluationListener.listConfigOptions?.() ?? Object.keys(this.defaults)) as (keyof ShellUserConfig)[];
     return new Map(
       await Promise.all(
         keys.map(
