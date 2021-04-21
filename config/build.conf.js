@@ -99,6 +99,8 @@ module.exports = {
   appleNotarizationBundleId: APPLE_NOTARIZATION_BUNDLE_ID,
   appleNotarizationUsername: process.env.APPLE_NOTARIZATION_USERNAME,
   appleNotarizationApplicationPassword: process.env.APPLE_NOTARIZATION_APPLICATION_PASSWORD,
+  notarySigningKeyName: process.env.NOTARY_SIGNING_KEY_NAME,
+  notaryAuthToken: process.env.NOTARY_AUTH_TOKEN,
   repo: {
     owner: 'mongodb-js',
     repo: 'mongosh'

@@ -26,6 +26,8 @@ export interface Config {
   appleNotarizationApplicationPassword?: string;
   appleCodesignIdentity?: string;
   appleCodesignEntitlementsFile?: string;
+  notarySigningKeyName?: string;
+  notaryAuthToken?: string;
   isCi?: boolean;
   platform?: string;
   execNodeVersion: string;

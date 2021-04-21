@@ -35,11 +35,35 @@ if [ "$(uname)" == Linux ]; then
     --rm -v $PWD:/tmp/build --network host centos7-package \
     -c 'cd /tmp/build && npm run evergreen-release package && npm run evergreen-release upload'
 else
+  if [[ "$OS" == "Windows_NT" && "$DISTRIBUTION_BUILD_VARIANT" == "win32msi" ]]; then
+    # We have to setup a python venv for the notary client to work
+    # in order to sign the MSI
+    export PATH="/cygdrive/c/Python27:\$PATH"
+    # python --version prints to stderr...
+    if [[ ! "\$(python --version 2>&1 | tr -d '\r')" =~ "2.7" ]]; then
+      echo "FAIL: could not properly setup Python 2.7"
+      exit 1
+    fi
+
+    # These packages have to be installed for the notary client to work
+    python -m virtualenv .venv
+    cd .venv
+    # Activating venv on Windows is a little different
+    source Scripts/activate
+    pip install requests
+    pip install poster
+    # pycrypto does not install on Windows so we use pycryptodome
+    pip install pycryptodome
+    cd ..
+  fi
+
   npm run evergreen-release package
+
   if [ "$(uname)" == Darwin ]; then
     # Verify signing
     spctl -a -vvv -t install dist/mongosh
   fi
+
   if [ "$OS" == "Windows_NT" ]; then
     # Fix absolute path before handing over to node
     export ARTIFACT_URL_FILE="\$(cygpath -w "\$ARTIFACT_URL_FILE")"
