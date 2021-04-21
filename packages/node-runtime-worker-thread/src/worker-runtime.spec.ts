@@ -555,7 +555,9 @@ describe('worker', () => {
 
         await init('mongodb://nodb/', {}, { nodb: true });
 
-        await evaluate('config[Symbol.for("@@mongosh.asPrintable")]');
+        await evaluate(`
+        var JSSymbol = Object.getOwnPropertySymbols(Array.prototype)[0].constructor;
+        config[JSSymbol.for("@@mongosh.asPrintable")]`);
         expect(evalListener.listConfigOptions).to.have.been.calledWith();
       });
     });
