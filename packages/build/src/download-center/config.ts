@@ -40,6 +40,12 @@ export function createDownloadCenterConfig(version: string): DownloadCenterConfi
           },
           {
             'arch': 'x64',
+            'os': 'win32',
+            'name': 'Windows 64-bit (7+) (MSI)',
+            'download_link': `https://downloads.mongodb.com/compass/mongosh-${version}.msi`
+          },
+          {
+            'arch': 'x64',
             'os': 'linux',
             'name': 'Linux 64-bit',
             'download_link': `https://downloads.mongodb.com/compass/mongosh-${version}-linux.tgz`
