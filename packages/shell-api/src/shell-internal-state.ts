@@ -242,6 +242,17 @@ export default class ShellInternalState {
     );
   }
 
+  get currentServiceProvider(): ServiceProvider {
+    try {
+      return this.currentDb._mongo._serviceProvider;
+    } catch (err) {
+      if (err.code === ShellApiErrors.NotConnected) {
+        return this.initialServiceProvider;
+      }
+      throw err;
+    }
+  }
+
   public emitApiCall(event: ApiEvent): void {
     this.messageBus.emit('mongosh:api-call', event);
   }
@@ -255,7 +266,7 @@ export default class ShellInternalState {
       // eslint-disable-next-line complexity
       topology: () => {
         let topology: Topologies;
-        const topologyDescription = this.initialServiceProvider.getTopology()?.description as TopologyDescription;
+        const topologyDescription = this.currentServiceProvider.getTopology()?.description as TopologyDescription;
         const topologyType: TopologyTypeId | undefined = topologyDescription?.type;
         switch (topologyType) {
           case 'ReplicaSetNoPrimary':
@@ -326,11 +337,10 @@ export default class ShellInternalState {
   }
 
   private getTopologySpecificPrompt(): string {
-    const description = this.initialServiceProvider.getTopology()?.description;
+    const description = this.currentServiceProvider.getTopology()?.description;
     if (!description) {
       return '';
     }
-
 
     let replicaSet = description.setName;
     let serverTypePrompt = '';
@@ -348,7 +358,7 @@ export default class ShellInternalState {
         serverTypePrompt = '[primary]';
         break;
       case 'Sharded':
-        serverTypePrompt = '[mongos]';
+        serverTypePrompt = this.connectionInfo?.extraInfo?.is_atlas ? '[atlas proxy]' : '[mongos]';
         break;
       default:
         return '';

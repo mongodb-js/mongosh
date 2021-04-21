@@ -117,7 +117,7 @@ export default class Mongo extends ShellApiClass {
   // if used too early.
   get _serviceProvider(): ServiceProvider {
     if (this.__serviceProvider === null) {
-      throw new MongoshInternalError('No ServiceProvider available for this mongo');
+      throw new MongoshInternalError('No ServiceProvider available for this mongo', ShellApiErrors.NotConnected);
     }
     return this.__serviceProvider;
   }
