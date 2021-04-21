@@ -781,11 +781,12 @@ describe('CliServiceProvider', () => {
   describe('#getConnectionInfo', () => {
     let clientStub: any;
     let dbStub: any;
-    let firstCall = true;
+    let firstCall;
 
     beforeEach(() => {
       dbStub = stubInterface<Db>();
       clientStub = stubInterface<MongoClient>();
+      firstCall = true;
       dbStub.command.callsFake(() => {
         if (firstCall) {
           firstCall = false;
@@ -809,7 +810,7 @@ describe('CliServiceProvider', () => {
       const info = await serviceProvider.getConnectionInfo();
       expect(info.extraInfo.is_atlas).to.equal(false);
       expect(info.extraInfo.is_localhost).to.equal(true);
-      expect(dbStub.command).to.have.callCount(3);
+      expect(dbStub.command).to.have.callCount(4);
     });
   });
 });
