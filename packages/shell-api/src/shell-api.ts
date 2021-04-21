@@ -28,11 +28,12 @@ const internalStateSymbol = Symbol.for('@@mongosh.internalState');
 
 @shellApiClassDefault
 @hasAsyncChild
-class ShellConfig {
+class ShellConfig extends ShellApiClass {
   _internalState: ShellInternalState;
   defaults: Readonly<ShellUserConfig>;
 
   constructor(internalState: ShellInternalState) {
+    super();
     this._internalState = internalState;
     this.defaults = Object.freeze(new ShellUserConfig());
   }

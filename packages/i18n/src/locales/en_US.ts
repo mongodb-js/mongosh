@@ -150,6 +150,19 @@ const translations: Catalog = {
           }
         },
       },
+      ShellConfig: {
+        help: {
+          description: 'Shell configuration methods',
+          attributes: {
+            get: {
+              description: 'Get a configuration value with config.get(key)'
+            },
+            set: {
+              description: 'Change a configuration value with config.set(key, value)'
+            }
+          }
+        },
+      },
       AggregationCursor: {
         help: {
           description: 'Aggregation Class',
