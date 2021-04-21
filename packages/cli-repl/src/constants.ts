@@ -47,6 +47,12 @@ export const USAGE = `
         --tlsCertificateSelector [arg]         ${i18n.__('cli-repl.args.tlsCertificateSelector')}
         --tlsDisabledProtocols [arg]           ${i18n.__('cli-repl.args.tlsDisabledProtocols')}
 
+  ${clr(i18n.__('cli-repl.args.apiVersionOptions'), ['bold', 'yellow'])}
+
+        --apiVersion [arg]                     ${i18n.__('cli-repl.args.apiVersion')}
+        --apiStrict                            ${i18n.__('cli-repl.args.apiStrict')}
+        --apiDeprecationErrors                 ${i18n.__('cli-repl.args.apiDeprecationErrors')}
+
   ${clr(i18n.__('cli-repl.args.fleOptions'), ['bold', 'yellow'])}
 
         --awsAccessKeyId [arg]                 ${i18n.__('cli-repl.args.awsAccessKeyId')}
