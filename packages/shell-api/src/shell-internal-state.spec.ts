@@ -266,7 +266,7 @@ describe('ShellInternalState', () => {
 
         await internalState.fetchConnectionInfo();
         const prompt = await internalState.getDefaultPrompt();
-        expect(prompt).to.equal('[atlas]> ');
+        expect(prompt).to.equal('> ');
       });
     });
 
