@@ -260,8 +260,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     }
     const topology = this.getTopology() as Topology;
     const { version } = require('../package.json');
-    let cmdLineOpts = null;
-    const [cmdOptions = null, atlasVersion = null] = await Promise.all([
+    const [cmdLineOpts = null, atlasVersion = null] = await Promise.all([
       this.runCommandWithCheck('admin', { getCmdLineOpts: 1 }, this.baseCmdOptions).catch(() => {}),
       this.runCommandWithCheck('admin', { atlasVersion: 1 }, this.baseCmdOptions).catch(() => {})
     ])
