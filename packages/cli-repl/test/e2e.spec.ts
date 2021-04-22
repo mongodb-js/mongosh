@@ -13,7 +13,7 @@ import { readReplLogfile } from './repl-helpers';
 describe('e2e', function() {
   const testServer = startTestServer('shared');
 
-  afterEach(async() => await TestShell.killall());
+  afterEach(TestShell.cleanup);
 
   describe('--version', () => {
     it('shows version', async() => {
@@ -652,8 +652,8 @@ describe('e2e', function() {
       };
     });
 
-    afterEach(async() => {
-      await TestShell.killall();
+    afterEach(async function() {
+      await TestShell.killall.call(this);
       try {
         await promisify(rimraf)(homedir);
       } catch (err) {

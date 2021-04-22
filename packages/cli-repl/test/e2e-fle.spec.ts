@@ -32,8 +32,8 @@ describe('FLE tests', () => {
     const client = await MongoClient.connect(await testServer.connectionString(), {});
     await client.db(dbname).dropDatabase();
     await client.close();
-    await TestShell.killall();
   });
+  afterEach(TestShell.cleanup);
 
   context('with AWS KMS', () => {
     const accessKeyId = 'SxHpYMUtB1CEVg9tX0N1';

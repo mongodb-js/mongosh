@@ -33,8 +33,8 @@ describe('BSON e2e', function() {
     await db.dropDatabase();
 
     await client.close();
-    await TestShell.killall();
   });
+  afterEach(TestShell.cleanup);
   describe('printed BSON', () => {
     const outputDoc = {
       ObjectId: 'ObjectId("5f16b8bebe434dc98cdfc9ca")',

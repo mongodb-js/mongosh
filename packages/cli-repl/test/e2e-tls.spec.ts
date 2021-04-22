@@ -27,9 +27,7 @@ describe('e2e TLS', () => {
     assert((await fs.stat(CRL_INCLUDING_SERVER)).isFile());
   });
 
-  afterEach(async() => {
-    await TestShell.killall();
-  });
+  afterEach(TestShell.cleanup);
 
   context('for server < 4.2', () => {
     skipIfEnvServerVersion('>= 4.2');
@@ -65,8 +63,10 @@ describe('e2e TLS', () => {
         });
         await shell.waitForPrompt();
         await shell.executeLine('db.shutdownServer({ force: true })');
-        await TestShell.killall();
+        shell.kill();
+        await shell.waitForExit();
       });
+      afterEach(TestShell.cleanup);
 
       const server = startTestServer(
         'not-shared', '--hostname', 'localhost',
@@ -166,8 +166,10 @@ describe('e2e TLS', () => {
         });
         await shell.waitForPrompt();
         await shell.executeLine('db.shutdownServer({ force: true })');
-        await TestShell.killall();
+        shell.kill();
+        await shell.waitForExit();
       });
+      afterEach(TestShell.cleanup);
 
       const server = startTestServer(
         'not-shared', '--hostname', 'localhost',

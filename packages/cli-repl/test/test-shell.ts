@@ -1,3 +1,4 @@
+import type Mocha from 'mocha';
 import assert from 'assert';
 import { ChildProcess, spawn } from 'child_process';
 import { once } from 'events';
@@ -72,6 +73,15 @@ export class TestShell {
       exitPromises.push(shell.waitForExit());
     }
     await Promise.all(exitPromises);
+  }
+
+  static async cleanup(this: Mocha.Context): Promise<void> {
+    if (this.currentTest?.state === 'failed') {
+      for (const shell of TestShell._openShells) {
+        console.error({ pid: shell.process.pid, output: shell.output, rawOutput: shell.rawOutput });
+      }
+    }
+    await TestShell.killall();
   }
 
   private _process: ChildProcess;

@@ -4,7 +4,7 @@ import { expect } from 'chai';
 import { TestShell } from './test-shell';
 
 describe('e2e direct connection', () => {
-  afterEach(async() => await TestShell.killall());
+  afterEach(TestShell.cleanup);
 
   context('to a replica set', async() => {
     const replSetId = 'replset';
