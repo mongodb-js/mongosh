@@ -261,19 +261,10 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     const topology = this.getTopology() as Topology;
     const { version } = require('../package.json');
     let cmdLineOpts = null;
-    let atlasVersion = null;
-    await Promise.all([
-      (async() => {
-        cmdLineOpts = await this.runCommandWithCheck('admin', {
-          getCmdLineOpts: 1
-        }, this.baseCmdOptions).catch(e => e);
-      })(),
-      (async() => {
-        atlasVersion = await this.runCommandWithCheck('admin', {
-          atlasVersion: 1
-        }, this.baseCmdOptions).catch(e => e);
-      })()
-    ]);
+    const [cmdOptions = null, atlasVersion = null] = await Promise.all([
+      this.runCommandWithCheck('admin', { getCmdLineOpts: 1 }, this.baseCmdOptions).catch(() => {}),
+      this.runCommandWithCheck('admin', { atlasVersion: 1 }, this.baseCmdOptions).catch(() => {})
+    ])
 
     const extraConnectionInfo = getConnectInfo(
       this.uri?.toString() ?? '',
