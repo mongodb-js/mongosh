@@ -47,6 +47,12 @@ CLI interface for [MongoDB Shell][mongosh], an extension to Node.js REPL with Mo
         --keyVaultNamespace [arg]              database.collection to store encrypted FLE parameters
         --kmsURL [arg]                         Test parameter to override the URL of the KMS endpoint
 
+  API version options:
+
+        --apiVersion [arg]                     Specifies the API version to connect with
+        --apiStrict                            Use strict API version mode
+        --apiDeprecationErrors                 Fail deprecated commands for the specified API version
+
   DB Address Examples:
 
         foo                                    Foo database on local machine
