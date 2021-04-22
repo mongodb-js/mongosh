@@ -352,7 +352,7 @@ export default class ShellInternalState {
         serverTypePrompt = '[primary]';
         break;
       case 'Sharded':
-        serverTypePrompt = this.connectionInfo?.extraInfo?.is_atlas ? '[atlas proxy]' : '[mongos]';
+        serverTypePrompt = this.connectionInfo?.extraInfo?.atlas_version ? '' : '[mongos]';
         break;
       default:
         return '';

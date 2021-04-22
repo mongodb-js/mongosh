@@ -59,6 +59,11 @@ describe('getConnectInfo', function() {
     'ok': 1
   };
 
+  const ATLAS_VERSION = {
+    'atlasVersion': '20210330.0.0.1617063608',
+    'gitVersion': '8f7e5bdde713391e8123a463895bb7fb660a5ffd'
+  };
+
   const TOPOLOGY_WITH_CREDENTIALS = {
     's': {
       'credentials': {
@@ -71,7 +76,7 @@ describe('getConnectInfo', function() {
     's': {}
   };
 
-  const ATLAS_URI = 'mongodb+srv://admin:catscatscats@cat-data-sets.cats.mongodb.net/admin';
+  const ATLAS_URI = 'mongodb+srv://admin:catscatscats@cat-data-sets.cats.example.net/admin';
 
   it('reports on an enterprise version >=3.2 of mongodb with credentials', function() {
     const output = {
@@ -83,6 +88,7 @@ describe('getConnectInfo', function() {
       auth_type: 'LDAP',
       is_data_lake: false,
       dl_version: null,
+      atlas_version: '20210330.0.0.1617063608',
       is_genuine: true,
       non_genuine_server_name: 'mongodb',
       server_arch: 'x86_64',
@@ -95,6 +101,7 @@ describe('getConnectInfo', function() {
       '0.0.6',
       BUILD_INFO,
       CMD_LINE_OPTS,
+      ATLAS_VERSION,
       TOPOLOGY_WITH_CREDENTIALS)).to.deep.equal(output);
   });
 
@@ -108,6 +115,7 @@ describe('getConnectInfo', function() {
       auth_type: null,
       is_data_lake: false,
       dl_version: null,
+      atlas_version: '20210330.0.0.1617063608',
       is_genuine: true,
       non_genuine_server_name: 'mongodb',
       server_arch: 'x86_64',
@@ -120,6 +128,7 @@ describe('getConnectInfo', function() {
       '0.0.6',
       BUILD_INFO,
       CMD_LINE_OPTS,
+      ATLAS_VERSION,
       TOPOLOGY_NO_CREDENTIALS)).to.deep.equal(output);
   });
 
@@ -133,6 +142,7 @@ describe('getConnectInfo', function() {
       auth_type: 'LDAP',
       is_data_lake: false,
       dl_version: null,
+      atlas_version: null,
       is_genuine: true,
       non_genuine_server_name: 'mongodb',
       server_arch: 'x86_64',
@@ -145,6 +155,7 @@ describe('getConnectInfo', function() {
       '0.0.6',
       BUILD_INFO,
       CMD_LINE_OPTS,
+      null,
       TOPOLOGY_WITH_CREDENTIALS)).to.deep.equal(output);
   });
 });
