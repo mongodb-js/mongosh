@@ -249,6 +249,26 @@ describe('ShellInternalState', () => {
       });
     });
 
+    describe('topology Sharded but it’s Atlas', () => {
+      it('shows atlas proxy identifier', async() => {
+        serviceProvider.getTopology.returns({
+          description: {
+            type: 'Sharded'
+          }
+        });
+        serviceProvider.getConnectionInfo.resolves({
+          extraInfo: {
+            uri: 'mongodb://localhost/',
+            is_atlas: true
+          }
+        });
+
+        await internalState.fetchConnectionInfo();
+        const prompt = await internalState.getDefaultPrompt();
+        expect(prompt).to.equal('[atlas proxy]> ');
+      });
+    });
+
     describe('topology Unknown', () => {
       it('just shows the default prompt', async() => {
         const servers = new Map();

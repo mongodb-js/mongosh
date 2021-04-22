@@ -678,5 +678,36 @@ describe('MongoshNodeRepl', () => {
       expect(output).to.contain('> ');
       expect(output).to.not.contain('error');
     });
+
+    it('changes the prompt when db is reassigned', async() => {
+      const connectionInfo = {
+        extraInfo: {
+          uri: 'mongodb://localhost:27017/test',
+          is_localhost: true
+        },
+        buildInfo: {
+          version: '4.4.1',
+          modules: ['enterprise']
+        }
+      };
+
+      sp.getConnectionInfo.resolves(connectionInfo);
+      sp.getNewConnection.callsFake(async() => {
+        Object.assign(connectionInfo.extraInfo, {
+          is_localhost: true,
+          is_data_lake: true
+        });
+        return sp;
+      });
+      sp.platform = 2; // ReplPlatform.CLI ... let's maybe stop using an enum for this
+
+      const initialized = await mongoshRepl.initialize(serviceProvider);
+      await mongoshRepl.startRepl(initialized);
+      expect(output).to.contain('Enterprise > ');
+
+      input.write('db = Mongo("foo").getDB("bar")\n');
+      await waitEval(bus);
+      expect(output).to.contain('Atlas Data Lake > ');
+    });
   });
 });
