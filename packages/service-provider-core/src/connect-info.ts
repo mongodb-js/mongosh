@@ -35,7 +35,7 @@ export default function getConnectInfo(uri: string, mongoshVersion: string, buil
     = getBuildInfo.getBuildEnv(buildInfo);
 
   return {
-    is_atlas: !!atlasVersion?.atlasVersion,
+    is_atlas: !!atlasVersion?.atlasVersion || getBuildInfo.isAtlas(uri),
     is_localhost: getBuildInfo.isLocalhost(uri),
     server_version: buildInfo.version,
     node_version: process.version,

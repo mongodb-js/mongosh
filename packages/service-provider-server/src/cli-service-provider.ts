@@ -263,7 +263,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     const [cmdLineOpts = null, atlasVersion = null] = await Promise.all([
       this.runCommandWithCheck('admin', { getCmdLineOpts: 1 }, this.baseCmdOptions).catch(() => {}),
       this.runCommandWithCheck('admin', { atlasVersion: 1 }, this.baseCmdOptions).catch(() => {})
-    ])
+    ]);
 
     const extraConnectionInfo = getConnectInfo(
       this.uri?.toString() ?? '',

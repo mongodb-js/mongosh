@@ -259,13 +259,14 @@ describe('ShellInternalState', () => {
         serviceProvider.getConnectionInfo.resolves({
           extraInfo: {
             uri: 'mongodb://localhost/',
-            is_atlas: true
+            is_atlas: true,
+            atlas_version: '20210330.0.0.1617063608'
           }
         });
 
         await internalState.fetchConnectionInfo();
         const prompt = await internalState.getDefaultPrompt();
-        expect(prompt).to.equal('[atlas proxy]> ');
+        expect(prompt).to.equal('[atlas]> ');
       });
     });
 
