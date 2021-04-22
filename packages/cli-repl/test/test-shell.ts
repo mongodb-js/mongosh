@@ -5,7 +5,7 @@ import path from 'path';
 import stripAnsi from 'strip-ansi';
 import { eventually } from './helpers';
 
-export type TestShellStartupResult = { state: 'prompt' | 'exit'; exitCode?: number | undefined };
+export type TestShellStartupResult = { state: 'prompt' } | { state: 'exit'; exitCode: number };
 type SignalType = ChildProcess extends { kill: (signal: infer T) => any } ? T : never;
 
 // Assume that prompt strings are those that end in '> ' but do not contain

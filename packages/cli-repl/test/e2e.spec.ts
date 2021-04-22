@@ -878,5 +878,23 @@ describe('e2e', function() {
       });
     });
   });
+
+  describe('fail-fast connections', () => {
+    it('fails fast for ENOTFOUND errors', async() => {
+      const shell = TestShell.start({ args: [
+        'mongodb://' + 'verymuchnonexistentdomainname'.repeat(10) + '.mongodb.net/'
+      ] });
+      const result = await shell.waitForPromptOrExit();
+      expect(result).to.deep.equal({ state: 'exit', exitCode: 1 });
+    });
+
+    it('fails fast for ECONNREFUSED errors', async() => {
+      const shell = TestShell.start({ args: [
+        '--port', '0'
+      ] });
+      const result = await shell.waitForPromptOrExit();
+      expect(result).to.deep.equal({ state: 'exit', exitCode: 1 });
+    });
+  });
 });
 
