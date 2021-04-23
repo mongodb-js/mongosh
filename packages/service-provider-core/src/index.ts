@@ -26,6 +26,7 @@ import ShellAuthOptions from './shell-auth-options';
 import { ConnectionString } from './connection-string';
 export * from './all-transport-types';
 export * from './all-fle-types';
+import { isFastFailureConnectionError } from './fast-failure-connect';
 
 const bson = {
   ObjectId,
@@ -57,5 +58,6 @@ export {
   bson,
   bsonStringifiers,
   ConnectInfo,
-  ConnectionString
+  ConnectionString,
+  isFastFailureConnectionError
 };

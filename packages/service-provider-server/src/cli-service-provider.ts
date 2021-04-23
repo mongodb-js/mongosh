@@ -19,7 +19,8 @@ import {
   Topology,
   ReadPreferenceFromOptions,
   ReadPreferenceLike,
-  OperationOptions
+  OperationOptions,
+  ServerHeartbeatFailedEvent
 } from 'mongodb';
 
 import {
@@ -75,7 +76,8 @@ import {
   bson as BSON,
   ConnectionString,
   FLE,
-  AutoEncryptionOptions
+  AutoEncryptionOptions,
+  isFastFailureConnectionError
 } from '@mongosh/service-provider-core';
 
 import { MongoshCommandFailed, MongoshInternalError, MongoshRuntimeError } from '@mongosh/errors';
@@ -132,20 +134,44 @@ const DEFAULT_BASE_OPTIONS: OperationOptions = Object.freeze({
 });
 
 /**
+ * Takes an unconnected MongoClient and connects it, but fails fast for certain
+ * errors.
+ */
+async function connectWithFailFast(client: MongoClient): Promise<void> {
+  let failFastErr;
+  const heartbeatFailureListener = ({ failure }: ServerHeartbeatFailedEvent) => {
+    if (isFastFailureConnectionError(failure)) {
+      failFastErr = failure;
+      client.close();
+    }
+  };
+
+  client.addListener('serverHeartbeatFailed', heartbeatFailureListener);
+  try {
+    await client.connect();
+  } catch (err) {
+    throw failFastErr || err;
+  } finally {
+    client.removeListener('serverHeartbeatFailed', heartbeatFailureListener);
+  }
+}
+
+/**
  * Connect a MongoClient. If AutoEncryption is requested, first connect without the encryption options and verify that
  * the connection is to an enterprise cluster. If not, then error, otherwise close the connection and reconnect with the
  * options the user initially specified. Provide the client class as an additional argument in order to test.
  * @param uri {String}
  * @param clientOptions {MongoClientOptions}
- * @param mClient {MongoClient}
+ * @param MClient {MongoClient}
  */
-export async function connectMongoClient(uri: string, clientOptions: MongoClientOptions, mClient = MongoClient): Promise<MongoClient> {
+export async function connectMongoClient(uri: string, clientOptions: MongoClientOptions, MClient = MongoClient): Promise<MongoClient> {
   if (clientOptions.autoEncryption !== undefined &&
     !clientOptions.autoEncryption.bypassAutoEncryption) {
     // connect first without autoEncryptionOptions
     const optionsWithoutFLE = { ...clientOptions };
     delete optionsWithoutFLE.autoEncryption;
-    const client = await mClient.connect(uri, optionsWithoutFLE);
+    const client = new MClient(uri, optionsWithoutFLE);
+    await connectWithFailFast(client);
     const buildInfo = await client.db('admin').admin().command({ buildInfo: 1 });
     if (
       !(buildInfo.modules?.includes('enterprise')) &&
@@ -156,7 +182,9 @@ export async function connectMongoClient(uri: string, clientOptions: MongoClient
     }
     await client.close();
   }
-  return mClient.connect(uri, clientOptions);
+  const client = new MClient(uri, clientOptions);
+  await connectWithFailFast(client);
+  return client;
 }
 
 /**
