@@ -266,7 +266,14 @@ export default class Mongo extends ShellApiClass {
     }
   }
   async close(force: boolean): Promise<void> {
-    return await this._serviceProvider.close(force);
+    const index = this._internalState.mongos.indexOf(this);
+    if (index === -1) {
+      process.emitWarning(new MongoshInternalError(`Closing untracked Mongo instance ${this[asPrintable]()}`));
+    } else {
+      this._internalState.mongos.splice(index, 1);
+    }
+
+    await this._serviceProvider.close(force);
   }
 
   getReadPrefMode(): ReadPreferenceModeId {

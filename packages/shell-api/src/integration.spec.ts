@@ -4,7 +4,6 @@ import ShellInternalState from './shell-internal-state';
 import Cursor from './cursor';
 import Explainable from './explainable';
 import AggregationCursor from './aggregation-cursor';
-import ShellApi from './shell-api';
 import { startTestServer, skipIfServerVersion } from '../../../testing/integration-testing-hooks';
 import { toShellResult, Topologies } from './index';
 import { Document } from '@mongosh/service-provider-core';
@@ -105,7 +104,7 @@ describe('Shell API (integration)', function() {
     collectionName = 'docs';
 
     internalState = new ShellInternalState(serviceProvider);
-    shellApi = new ShellApi(internalState);
+    shellApi = internalState.shellApi;
     mongo = internalState.currentDb.getMongo();
     database = mongo.getDB(dbName);
     collection = database.getCollection(collectionName);
@@ -1733,6 +1732,15 @@ describe('Shell API (integration)', function() {
         await mongo.setReadPref('secondaryPreferred');
         expect((serviceProvider.mongoClient as any).s.options.readPreference.mode).to.equal('secondaryPreferred');
         expect(serviceProvider.mongoClient).to.not.equal(oldMC);
+      });
+    });
+    describe('close', () => {
+      it('removes the connection from the set of connections', async() => {
+        // eslint-disable-next-line new-cap
+        const newMongo = await shellApi.Mongo(mongo._uri);
+        expect(internalState.mongos).to.deep.equal([mongo, newMongo]);
+        await newMongo.close();
+        expect(internalState.mongos).to.deep.equal([mongo]);
       });
     });
   });
