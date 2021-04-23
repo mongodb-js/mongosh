@@ -128,7 +128,8 @@ export default class Mongo extends ShellApiClass {
   }
 
   async _batchSize(): Promise<number> {
-    return await this._internalState.shellApi.config.get('batchSize');
+    return this._internalState.batchSizeFromDBQuery ??
+      await this._internalState.shellApi.config.get('batchSize');
   }
 
   /**
