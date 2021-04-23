@@ -145,8 +145,8 @@ export default class ShellInternalState {
   }
 
   async close(force: boolean): Promise<void> {
-    for (let i = 0; i < this.mongos.length; i++) {
-      await this.mongos[i].close(force);
+    for (const mongo of [...this.mongos]) {
+      await mongo.close(force);
     }
   }
 
