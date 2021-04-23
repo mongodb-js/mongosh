@@ -499,21 +499,6 @@ describe('ShellApi', () => {
         expect(version).to.equal(expected);
       });
     });
-    describe('DBQuery', () => {
-      it('throws for shellBatchSize', () => {
-        try {
-          internalState.context.DBQuery.shellBatchSize();
-        } catch (e) {
-          expect(e.message).to.contain('deprecated');
-          expect(e.message).to.contain('find().batchSize');
-          return;
-        }
-        expect.fail();
-      });
-      it('throws for asPrintable', async() => {
-        expect((await toShellResult(internalState.context.DBQuery)).printable).to.contain('deprecated');
-      });
-    });
     for (const cmd of ['exit', 'quit']) {
       // eslint-disable-next-line no-loop-func
       describe(cmd, () => {
