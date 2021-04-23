@@ -89,9 +89,7 @@ describe('e2e AWS AUTH', () => {
       .replace('arn:aws:iam::', 'arn:aws:sts::')}/*`;
   });
 
-  afterEach(async() => {
-    await TestShell.killall();
-  });
+  afterEach(TestShell.cleanup);
 
   context('without environment variables being present', () => {
     context('specifying explicit parameters', () => {

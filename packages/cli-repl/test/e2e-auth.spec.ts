@@ -103,8 +103,8 @@ describe('Auth e2e', function() {
       await db.command({ dropAllUsersFromDatabase: 1 });
 
       client.close();
-      await TestShell.killall();
     });
+    afterEach(TestShell.cleanup);
 
     describe('user management', () => {
       describe('createUser', async() => {
@@ -991,7 +991,7 @@ describe('Auth e2e', function() {
       await db.command({ dropAllUsersFromDatabase: 1 });
 
       client.close();
-      await TestShell.killall();
     });
+    afterEach(TestShell.cleanup);
   });
 });

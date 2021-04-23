@@ -12,9 +12,7 @@ describe('e2e Analytics', () => {
     [ '--single', '--replSet', replSetName ]
   );
 
-  after(async() => {
-    await TestShell.killall();
-  });
+  after(TestShell.cleanup);
 
   before(async() => {
     const rsConfig = {
