@@ -127,4 +127,40 @@ describe('FLE tests', () => {
     const keyVaultContents = await shell.executeLine('db.keyVault.find()');
     expect(keyVaultContents).to.include(keyId.match(uuidRegexp)[1]);
   });
+
+  it('performs KeyVault data key management as expected', async() => {
+    const shell = TestShell.start({
+      args: [await testServer.connectionString()]
+    });
+    await shell.waitForPrompt();
+    // Wrapper for executeLine that expects single-line output
+    const runSingleLine = async(line) => (await shell.executeLine(line)).split('\n')[0].trim();
+    await runSingleLine('local = { key: BinData(0, "kh4Gv2N8qopZQMQYMEtww/AkPsIrXNmEMxTrs3tUoTQZbZu4msdRUaR8U5fXD7A7QXYHcEvuu4WctJLoT+NvvV3eeIg3MD+K8H9SR794m/safgRHdIfy6PD+rFpvmFbY") }');
+    await runSingleLine(`keyMongo = Mongo(db.getMongo()._uri, { \
+      keyVaultNamespace: '${dbname}.keyVault', \
+      kmsProviders: { local }, \
+      explicitEncryptionOnly: true \
+    });`);
+    await runSingleLine(`use('${dbname}')`);
+    await runSingleLine('keyVault = keyMongo.getKeyVault();');
+    await runSingleLine('keyId = keyVault.createKey("local", "", ["testaltname"]);');
+    expect(await runSingleLine('db.keyVault.countDocuments({ _id: keyId, keyAltNames: "testaltname" })'))
+      .to.equal('1');
+    expect(await runSingleLine('keyVault.getKey(keyId).next()._id.toString() == keyId.toString()'))
+      .to.equal('true');
+    expect(await runSingleLine('keyVault.getKeys().next()._id.toString() == keyId.toString()'))
+      .to.equal('true');
+    expect(await runSingleLine('keyVault.addKeyAlternateName(keyId, "otheraltname").keyAltNames.join(",")'))
+      .to.equal('testaltname');
+    expect(await runSingleLine('keyVault.getKeyByAltName("otheraltname").next().keyAltNames.join(",")'))
+      .to.equal('testaltname,otheraltname');
+    expect(await runSingleLine('keyVault.removeKeyAlternateName(keyId, "testaltname").keyAltNames.join(",")'))
+      .to.equal('testaltname,otheraltname');
+    expect(await runSingleLine('keyVault.getKeyByAltName("otheraltname").next().keyAltNames.join(",")'))
+      .to.equal('otheraltname');
+    expect(await runSingleLine('keyVault.deleteKey(keyId).deletedCount'))
+      .to.equal('1');
+    expect(await runSingleLine('db.keyVault.countDocuments()'))
+      .to.equal('0');
+  });
 });
