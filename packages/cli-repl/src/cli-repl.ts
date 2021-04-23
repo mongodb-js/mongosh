@@ -120,7 +120,7 @@ class CliRepl {
     }
 
     if (!this.cliOptions.quiet) {
-      this.output.write(`Current Mongosh Log ID: ${this.logId}\n`);
+      this.output.write(`Current Mongosh Log ID:\t${this.logId}\n`);
     }
 
     try {
@@ -298,7 +298,7 @@ class CliRepl {
    */
   async connect(driverUri: string, driverOptions: MongoClientOptions): Promise<CliServiceProvider> {
     if (!this.cliOptions.nodb && !this.cliOptions.quiet) {
-      this.output.write(i18n.__(CONNECTING) + '    ' + this.clr(redactCredentials(driverUri), ['bold', 'green']) + '\n');
+      this.output.write(i18n.__(CONNECTING) + '\t\t' + this.clr(redactCredentials(driverUri), ['bold', 'green']) + '\n');
     }
     const provider = await CliServiceProvider.connect(driverUri, driverOptions, this.cliOptions);
     this.bus.emit('mongosh:driver-initialized', provider.driverMetadata);
