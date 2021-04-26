@@ -28,7 +28,7 @@ export default class ExplainableCursor extends Cursor {
   }
 
   @returnType('ExplainableCursor')
-  map(f: (doc: Document) => Document): ExplainableCursor {
-    return super.map(f) as ExplainableCursor;
+  map(f: (doc: Document) => Document): this {
+    return super.map(f);
   }
 }

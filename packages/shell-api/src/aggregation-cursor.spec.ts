@@ -203,7 +203,7 @@ describe('AggregationCursor', () => {
 
       it('returns an ExplainOutput object', async() => {
         const explained = await shellApiCursor.explain();
-        expect(spCursor.explain).to.have.been.calledWith('queryPlanner');
+        expect(spCursor.explain).to.have.been.calledWith();
         expect((await toShellResult(explained)).type).to.equal('ExplainOutput');
         expect((await toShellResult(explained)).printable).to.deep.equal({ ok: 1 });
       });

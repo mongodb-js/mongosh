@@ -227,7 +227,7 @@ describe('Collection', () => {
           { explain: true }
         );
 
-        expect(explainResult).to.equal(expectedExplainResult);
+        expect(explainResult).to.deep.equal(expectedExplainResult);
         expect((await toShellResult(explainResult)).type).to.equal('ExplainOutput');
         expect(serviceProviderCursor.explain).to.have.been.calledOnce;
       });
