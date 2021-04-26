@@ -476,7 +476,7 @@ describe('worker', () => {
         },
         getConfig() {},
         setConfig() {},
-        listConfigOptions() { return []; },
+        listConfigOptions() { return ['batchSize']; },
         onRunInterruptible() {}
       };
 
@@ -555,8 +555,8 @@ describe('worker', () => {
 
         await init('mongodb://nodb/', {}, { nodb: true });
 
-        await evaluate('config.set("key", "value")');
-        expect(evalListener.setConfig).to.have.been.calledWith('key', 'value');
+        await evaluate('config.set("batchSize", 200)');
+        expect(evalListener.setConfig).to.have.been.calledWith('batchSize', 200);
       });
     });
 
