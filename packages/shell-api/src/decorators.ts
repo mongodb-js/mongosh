@@ -179,8 +179,8 @@ type ClassHelp = {
   attr: { name: string; description: string }[];
 };
 
-export const toIgnore = ['constructor'];
-export function shellApiClassDefault(constructor: Function): void {
+export const toIgnore = ['constructor', 'help'];
+export function shellApiClassGeneric(constructor: Function, hasHelp: boolean): void {
   const className = constructor.name;
   const classHelpKeyPrefix = `shell-api.classes.${className}.help`;
   const classHelp: ClassHelp = {
@@ -289,7 +289,17 @@ export function shellApiClassDefault(constructor: Function): void {
     constructor.prototype[asPrintable] ||
     ShellApiClass.prototype[asPrintable];
   addHiddenDataProperty(constructor.prototype, shellApiType, className);
-  signatures[className] = classSignature;
+  if (hasHelp) {
+    signatures[className] = classSignature;
+  }
+}
+
+export function shellApiClassDefault(constructor: Function): void {
+  shellApiClassGeneric(constructor, true);
+}
+
+export function shellApiClassNoHelp(constructor: Function): void {
+  shellApiClassGeneric(constructor, false);
 }
 
 function markImplicitlyAwaited<T extends(...args: any) => Promise<any>>(orig: T): ((...args: Parameters<T>) => Promise<any>) {

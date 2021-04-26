@@ -308,7 +308,7 @@ describe('Database', () => {
           { explain: true }
         );
 
-        expect(explainResult).to.equal(expectedExplainResult);
+        expect(explainResult).to.deep.equal(expectedExplainResult);
         expect(serviceProviderCursor.explain).to.have.been.calledOnce;
       });
 

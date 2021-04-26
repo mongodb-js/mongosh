@@ -206,6 +206,11 @@ const translations: Catalog = {
               description: 'Applies the first argument, a function, to each document visited by the cursor and collects the return values from successive application into an array.',
               example: 'db.collection.aggregate(pipeline, options).map(function)'
             },
+            maxTimeMS: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.maxTimeMS',
+              description: 'Specifies a cumulative time limit in milliseconds for processing operations on a cursor.',
+              example: 'db.collection.aggregate(pipeline, options).maxTimeMS(timeLimit)'
+            },
             next: {
               link: 'https://docs.mongodb.com/manual/reference/method/cursor.next',
               description: 'The next document in the cursor returned by the db.collection.aggregate() method. NOTE: if the cursor is tailable with awaitData then next will block until a document is returned. To check if a document is in the cursor\'s batch without waiting, use tryNext instead',
@@ -235,6 +240,21 @@ const translations: Catalog = {
             batchSize: {
               description: 'Specifies the number of documents that mongosh displays at once.',
               example: 'db.collection.aggregate(pipeline, options).batchSize(10)'
+            },
+            projection: {
+              link: '',
+              description: 'Sets a field projection for the query.',
+              example: 'db.collection.aggregate(pipeline, options).projection(field)'
+            },
+            sort: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.sort',
+              description: 'Specifies the order in which the query returns matching documents. You must apply sort() to the cursor before retrieving any documents from the database.',
+              example: 'db.collection.aggregate(pipeline, options).sort(sortDocument)'
+            },
+            skip: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.skip',
+              description: 'Call the cursor.skip() method on a cursor to control where MongoDB begins returning results. This approach may be useful in implementing paginated results.',
+              example: 'db.collection.aggregate(pipeline, options).skip(offsetNumber)'
             }
           }
         }
