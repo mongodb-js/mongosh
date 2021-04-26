@@ -222,7 +222,7 @@ export function shellApiClassGeneric(constructor: Function, hasHelp: boolean): v
       type: 'function',
       serverVersions: method.serverVersions,
       topologies: method.topologies,
-      returnType: method.returnType,
+      returnType: method.returnType === 'this' ? className : method.returnType,
       returnsPromise: method.returnsPromise,
       deprecated: method.deprecated,
       platforms: method.platforms
@@ -250,8 +250,11 @@ export function shellApiClassGeneric(constructor: Function, hasHelp: boolean): v
     });
   }
 
-  const superClass = Object.getPrototypeOf(constructor.prototype);
-  if (superClass.constructor.name !== 'ShellApiClass' && superClass.constructor !== Array) {
+  let superClass = constructor.prototype;
+  while ((superClass = Object.getPrototypeOf(superClass)) !== null) {
+    if (superClass.constructor.name === 'ShellApiClass' || superClass.constructor === Array) {
+      break;
+    }
     const superClassHelpKeyPrefix = `shell-api.classes.${superClass.constructor.name}.help`;
     for (const propertyName of Object.getOwnPropertyNames(superClass)) {
       const descriptor = Object.getOwnPropertyDescriptor(superClass, propertyName);
@@ -268,7 +271,7 @@ export function shellApiClassGeneric(constructor: Function, hasHelp: boolean): v
         type: 'function',
         serverVersions: method.serverVersions,
         topologies: method.topologies,
-        returnType: method.returnType,
+        returnType: method.returnType === 'this' ? className : method.returnType,
         returnsPromise: method.returnsPromise,
         deprecated: method.deprecated,
         platforms: method.platforms

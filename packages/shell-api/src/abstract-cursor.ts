@@ -3,7 +3,8 @@ import {
   hasAsyncChild,
   ShellApiClass,
   returnsPromise,
-  toShellResult
+  toShellResult,
+  returnType
 } from './decorators';
 import type Mongo from './mongo';
 import type {
@@ -43,6 +44,7 @@ export abstract class AbstractCursor extends ShellApiClass {
     return results;
   }
 
+  @returnType('this')
   batchSize(size: number): this {
     this._batchSize = size;
     return this;
@@ -92,11 +94,23 @@ export abstract class AbstractCursor extends ShellApiClass {
     return count;
   }
 
+  @returnsPromise
+  async toArray(): Promise<Document[]> {
+    return this._cursor.toArray();
+  }
+
+  @returnType('this')
+  pretty(): this {
+    return this;
+  }
+
+  @returnType('this')
   map(f: (doc: Document) => Document): this {
     this._cursor.map(f);
     return this;
   }
 
+  @returnType('this')
   maxTimeMS(value: number): this {
     this._cursor.maxTimeMS(value);
     return this;
@@ -107,16 +121,19 @@ export abstract class AbstractCursor extends ShellApiClass {
     return this._cursor.next();
   }
 
+  @returnType('this')
   projection(spec: Document): this {
     this._cursor.project(spec);
     return this;
   }
 
+  @returnType('this')
   skip(value: number): this {
     this._cursor.skip(value);
     return this;
   }
 
+  @returnType('this')
   sort(spec: Document): this {
     this._cursor.sort(spec);
     return this;
