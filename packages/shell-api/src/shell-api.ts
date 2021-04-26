@@ -42,7 +42,8 @@ class ShellConfig extends ShellApiClass {
   async set<K extends keyof ShellUserConfig>(key: K, value: ShellUserConfig[K]): Promise<string> {
     assertArgsDefinedType([key], ['string'], 'config.set');
     const { evaluationListener } = this._internalState;
-    const result = await evaluationListener.setConfig?.(key, value);
+    // Only allow known config keys here:
+    const result = (await this._allKeys()).includes(key) && await evaluationListener.setConfig?.(key, value);
     if (result !== 'success') {
       return `Option "${key}" is not available in this environment`;
     }
@@ -57,12 +58,15 @@ class ShellConfig extends ShellApiClass {
     return await evaluationListener.getConfig?.(key) ?? this.defaults[key];
   }
 
-  async [asPrintable](): Promise<Map<keyof ShellUserConfig, ShellUserConfig[keyof ShellUserConfig]>> {
+  async _allKeys(): Promise<(keyof ShellUserConfig)[]> {
     const { evaluationListener } = this._internalState;
-    const keys = (await evaluationListener.listConfigOptions?.() ?? Object.keys(this.defaults)) as (keyof ShellUserConfig)[];
+    return (await evaluationListener.listConfigOptions?.() ?? Object.keys(this.defaults)) as (keyof ShellUserConfig)[];
+  }
+
+  async [asPrintable](): Promise<Map<keyof ShellUserConfig, ShellUserConfig[keyof ShellUserConfig]>> {
     return new Map(
       await Promise.all(
-        keys.map(
+        (await this._allKeys()).map(
           async key => [key, await this.get(key)] as const)));
   }
 }

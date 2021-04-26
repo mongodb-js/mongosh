@@ -622,9 +622,9 @@ describe('ShellApi', () => {
 
         beforeEach(() => {
           config = internalState.context.config;
-          store = {};
+          store = { somekey: '' };
           evaluationListener.setConfig.callsFake(async(key, value) => {
-            if (key === 'unavailable' as any) return 'ignored';
+            if (key === 'ignoreme' as any) return 'ignored';
             store[key] = value;
             return 'success';
           });
@@ -646,6 +646,10 @@ describe('ShellApi', () => {
 
         it('rejects setting unavailable config keys', async() => {
           expect(await config.set('unavailable', 'value')).to.equal('Option "unavailable" is not available in this environment');
+        });
+
+        it('rejects setting explicitly ignored config keys', async() => {
+          expect(await config.set('ignoreme', 'value')).to.equal('Option "ignoreme" is not available in this environment');
         });
       });
 

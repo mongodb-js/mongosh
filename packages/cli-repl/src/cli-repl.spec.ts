@@ -161,6 +161,18 @@ describe('CliRepl', () => {
         ]);
       });
 
+      it('fails when trying to overwrite mongosh-owned config settings', async() => {
+        output = '';
+        input.write('config.set("userId", "foo")\n');
+        await waitEval(cliRepl.bus);
+        expect(output).to.include('Option "userId" is not available in this environment');
+
+        output = '';
+        input.write('config.get("userId")\n');
+        await waitEval(cliRepl.bus);
+        expect(output).to.match(/^[a-z0-9]{24}\n> $/);
+      });
+
       context('loading JS files from disk', () => {
         it('allows loading a file from the disk', async() => {
           const filenameA = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'a.js');
