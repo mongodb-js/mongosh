@@ -2,6 +2,7 @@
 import { MongoshCommandFailed } from '@mongosh/errors';
 import { bson, ServiceProvider } from '@mongosh/service-provider-core';
 import { ADMIN_DB } from '@mongosh/shell-api/lib/enums';
+import { CliUserConfig } from '@mongosh/types';
 import { EventEmitter, once } from 'events';
 import path from 'path';
 import { Duplex, PassThrough } from 'stream';
@@ -37,11 +38,12 @@ describe('MongoshNodeRepl', () => {
     outputStream.setEncoding('utf8').on('data', (chunk) => { output += chunk; });
     bus = new EventEmitter();
 
-    config = {};
+    config = new CliUserConfig();
     const cp = stubInterface<MongoshIOProvider>();
     cp.getHistoryFilePath.returns(path.join(tmpdir.path, 'history'));
     cp.getConfig.callsFake(async(key: string) => config[key]);
     cp.setConfig.callsFake(async(key: string, value: any) => { config[key] = value; return 'success'; });
+    cp.listConfigOptions.callsFake(() => Object.keys(config));
     cp.exit.callsFake(((code) => bus.emit('test-exit-event', code)) as any);
 
     ioProvider = cp;
