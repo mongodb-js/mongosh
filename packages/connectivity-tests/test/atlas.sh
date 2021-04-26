@@ -64,7 +64,7 @@ function test_atlas_in_logs() {
   printf "test_atlas_in_logs ... "
 
   CONNECTION_STRING="mongodb+srv://${ATLAS_USERNAME}:${ATLAS_PASSWORD}@${ATLAS_HOSTNAME}/admin"
-  LOG_ID=$(echo "exit" | mongosh "${CONNECTION_STRING}" | sed -n -e 's/Current Mongosh Log ID: //p')
+  LOG_ID=$(echo "exit" | mongosh "${CONNECTION_STRING}" | sed -n -e 's/Current Mongosh Log ID:\t//p')
   LOG_PATH="${HOME}/.mongodb/mongosh/${LOG_ID}_log"
 
   cat "${LOG_PATH}" | grep -Fq '\"is_atlas\":true' ||
