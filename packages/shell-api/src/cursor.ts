@@ -21,7 +21,7 @@ import type {
   TagSet,
   HedgeOptions
 } from '@mongosh/service-provider-core';
-import Mongo from './mongo';
+import type Mongo from './mongo';
 import { printWarning } from './deprecation-warning';
 import { AbstractCursor } from './abstract-cursor';
 
@@ -128,19 +128,9 @@ export default class Cursor extends AbstractCursor {
   }
 
   @returnType('Cursor')
-  map(f: (doc: Document) => Document): this {
-    return super.map(f);
-  }
-
-  @returnType('Cursor')
   max(indexBounds: Document): Cursor {
     this._cursor.max(indexBounds);
     return this;
-  }
-
-  @returnType('Cursor')
-  maxTimeMS(value: number): this {
-    return super.maxTimeMS(value);
   }
 
   @returnType('Cursor')
@@ -181,11 +171,6 @@ export default class Cursor extends AbstractCursor {
   }
 
   @returnType('Cursor')
-  projection(spec: Document): this {
-    return super.projection(spec);
-  }
-
-  @returnType('Cursor')
   readPref(mode: ReadPreferenceLike, tagSet?: TagSet[], hedgeOptions?: HedgeOptions): Cursor {
     let pref: ReadPreferenceLike;
 
@@ -216,16 +201,6 @@ export default class Cursor extends AbstractCursor {
   }
 
   @returnType('Cursor')
-  skip(value: number): this {
-    return super.skip(value);
-  }
-
-  @returnType('Cursor')
-  sort(spec: Document): this {
-    return super.sort(spec);
-  }
-
-  @returnType('Cursor')
   @serverVersions(['3.2.0', ServerVersions.latest])
   tailable(opts = { awaitData: false }): Cursor {
     this._tailable = true;
@@ -233,16 +208,6 @@ export default class Cursor extends AbstractCursor {
     if (opts.awaitData) {
       this._addFlag('awaitData' as CursorFlag);
     }
-    return this;
-  }
-
-  @returnsPromise
-  async toArray(): Promise<Document[]> {
-    return this._cursor.toArray();
-  }
-
-  @returnType('Cursor')
-  pretty(): this {
     return this;
   }
 

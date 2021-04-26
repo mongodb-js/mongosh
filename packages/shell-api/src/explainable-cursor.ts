@@ -1,8 +1,8 @@
-import { shellApiClassDefault, returnType } from './decorators';
+import { shellApiClassDefault } from './decorators';
 import Cursor from './cursor';
-import Mongo from './mongo';
+import type Mongo from './mongo';
 import { asPrintable } from './enums';
-import type { Document, ExplainVerbosityLike } from '@mongosh/service-provider-core';
+import type { ExplainVerbosityLike } from '@mongosh/service-provider-core';
 
 @shellApiClassDefault
 export default class ExplainableCursor extends Cursor {
@@ -25,10 +25,5 @@ export default class ExplainableCursor extends Cursor {
     // same object.
     this._explained ??= await this._baseCursor.explain(this._verbosity);
     return this._explained;
-  }
-
-  @returnType('ExplainableCursor')
-  map(f: (doc: Document) => Document): this {
-    return super.map(f);
   }
 }
