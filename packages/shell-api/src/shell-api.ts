@@ -17,7 +17,7 @@ import ShellInternalState from './shell-internal-state';
 import { assertArgsDefinedType, assertCLI } from './helpers';
 import { DEFAULT_DB, ReplPlatform, ServerApi, ServerApiVersionId } from '@mongosh/service-provider-core';
 import { CommonErrors, MongoshUnimplementedError, MongoshInternalError } from '@mongosh/errors';
-import { DBQuery } from './deprecated';
+import { DBQuery } from './dbquery';
 import { promisify } from 'util';
 import { ClientSideFieldLevelEncryptionOptions } from './field-level-encryption';
 import { dirname } from 'path';
@@ -80,7 +80,7 @@ export default class ShellApi extends ShellApiClass {
   constructor(internalState: ShellInternalState) {
     super();
     this[internalStateSymbol] = internalState;
-    this.DBQuery = new DBQuery();
+    this.DBQuery = new DBQuery(internalState);
     this.loadCallNestingLevel = 0;
     this.config = new ShellConfig(internalState);
   }

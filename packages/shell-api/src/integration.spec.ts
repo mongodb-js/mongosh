@@ -7,6 +7,7 @@ import AggregationCursor from './aggregation-cursor';
 import { startTestServer, skipIfServerVersion } from '../../../testing/integration-testing-hooks';
 import { toShellResult, Topologies } from './index';
 import { Document } from '@mongosh/service-provider-core';
+import { ShellUserConfig } from '@mongosh/types';
 
 // Compile JS code as an expression. We use this to generate some JS functions
 // whose code is stringified and compiled elsewhere, to make sure that the code
@@ -1926,6 +1927,36 @@ describe('Shell API (integration)', function() {
     // functionality.
     it('native addon is present', () => {
       expect(typeof serviceProvider.fle.ClientEncryption).to.equal('function');
+    });
+  });
+
+  describe('batchSize precedence', () => {
+    beforeEach(async() => {
+      await collection.insertMany([...Array(100).keys()].map(i => ({ i })));
+      const cfg = new ShellUserConfig();
+      internalState.setEvaluationListener({
+        getConfig(key: string) { return cfg[key]; },
+        setConfig(key: string, value: any) { cfg[key] = value; return 'success'; },
+        listConfigOptions() { return Object.keys(cfg); }
+      });
+      expect((await collection.find()._it()).documents).to.have.lengthOf(20);
+    });
+
+    it('config changes affect batchSize', async() => {
+      await shellApi.config.set('batchSize', 10);
+      expect((await collection.find()._it()).documents).to.have.lengthOf(10);
+    });
+
+    it('DBQuery.batchSize takes precedence over config', async() => {
+      await shellApi.config.set('batchSize', 10);
+      shellApi.DBQuery.batchSize = 30;
+      expect((await collection.find()._it()).documents).to.have.lengthOf(30);
+    });
+
+    it('cursor.batchSize takes precedence over config and DBQuery.batchSize', async() => {
+      await shellApi.config.set('batchSize', 10);
+      shellApi.DBQuery.batchSize = 30;
+      expect((await collection.find().batchSize(50)._it()).documents).to.have.lengthOf(50);
     });
   });
 });

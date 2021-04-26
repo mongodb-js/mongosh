@@ -1251,6 +1251,11 @@ const translations: Catalog = {
           }
         }
       },
+      DBQuery: {
+        help: {
+          description: 'Deprecated -- use cursor.batchSize(value) or config.set("batchSize", value) instead of DBQuery.batchSize = value',
+        }
+      },
       Explainable: {
         help: {
           description: 'Explainable Class',

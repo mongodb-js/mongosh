@@ -107,6 +107,7 @@ export default class ShellInternalState {
   public cliOptions: ShellCliOptions;
   public evaluationListener: EvaluationListener;
   public mongocryptdSpawnPath: string | null;
+  public batchSizeFromDBQuery: number | undefined = undefined;
 
   constructor(initialServiceProvider: ServiceProvider, messageBus: any = new EventEmitter(), cliOptions: ShellCliOptions = {}) {
     this.initialServiceProvider = initialServiceProvider;
