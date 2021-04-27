@@ -415,6 +415,13 @@ describe('MongoshNodeRepl', () => {
               'const a = 20'
             ]);
           });
+
+          it('does not crash if hitting enter and then up', async() => {
+            input.write('\n');
+            await once(mongoshRepl.runtimeState().repl, 'flushHistory');
+            input.write(`${arrowUp}`);
+            await tick();
+          });
         });
       }
     });

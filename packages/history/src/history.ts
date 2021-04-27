@@ -17,6 +17,7 @@ export function removeCommand(history: string, redact = false): string {
  * @param {boolean} redact - Option to redact sensitive info.
  */
 export function changeHistory(history: string[], redact = false): void {
+  if (history.length === 0) return;
   const hiddenCommands = new RegExp(HIDDEN_COMMANDS, 'g');
 
   if (hiddenCommands.test(history[0])) {

@@ -33,6 +33,12 @@ describe('changeHistory', () => {
       changeHistory(cloned);
       expect(cloned).to.deep.equal(i);
     });
+
+    it('does not modify an empty history', () => {
+      const i: string[] = [];
+      changeHistory(i);
+      expect(i).to.deep.equal([]);
+    });
   });
 
   context('when redact option is false', () => {
