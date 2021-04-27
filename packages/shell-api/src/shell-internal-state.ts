@@ -308,7 +308,7 @@ export default class ShellInternalState {
           const collectionNames = await this.currentDb._getCollectionNamesForCompletion();
           return collectionNames.filter((name) => name.startsWith(collName));
         } catch (err) {
-          if (err.code === ShellApiErrors.NotConnected) {
+          if (err.code === ShellApiErrors.NotConnected || err.codeName === 'Unauthorized') {
             return [];
           }
           throw err;

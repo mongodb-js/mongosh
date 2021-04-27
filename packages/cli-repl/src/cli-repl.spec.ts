@@ -766,6 +766,15 @@ describe('CliRepl', () => {
     });
   });
 
+  context('with an auth-required mongod', () => {
+    verifyAutocompletion({
+      testServer: startTestServer('not-shared', '--auth'),
+      wantWatch: false,
+      wantShardDistribution: false,
+      hasCollectionNames: false
+    });
+  });
+
   function verifyAutocompletion({ testServer, wantWatch, wantShardDistribution, hasCollectionNames }: {
     testServer: MongodSetup | null,
     wantWatch: boolean,
@@ -786,6 +795,8 @@ describe('CliRepl', () => {
 
       afterEach(async() => {
         await cliRepl.mongoshRepl.close();
+        expect(output).not.to.include('Tab completion error');
+        expect(output).not.to.include('listCollections requires authentication');
       });
 
       it(`${wantWatch ? 'completes' : 'does not complete'} the watch method`, async() => {
@@ -797,6 +808,13 @@ describe('CliRepl', () => {
         } else {
           expect(output).not.to.include('db.watch');
         }
+      });
+
+      it('completes the db.version method', async() => {
+        output = '';
+        input.write('db.vers\u0009\u0009');
+        await waitCompletion(cliRepl.bus);
+        expect(output).to.include('db.version');
       });
 
       it(`${wantShardDistribution ? 'completes' : 'does not complete'} the getShardDistribution method`, async() => {
