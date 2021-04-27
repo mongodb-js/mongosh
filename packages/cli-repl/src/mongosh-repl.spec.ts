@@ -464,6 +464,35 @@ describe('MongoshNodeRepl', () => {
         expect(history).to.have.lengthOf(2);
       });
     });
+
+    it('refreshes the prompt if a window resize occurs', async() => {
+      output = '';
+      outputStream.emit('resize');
+      await tick();
+      expect(stripAnsi(output)).to.equal('> ');
+    });
+
+    it('does not refresh the prompt if a window resize occurs while evaluating', async() => {
+      let resolveInProgress;
+      mongoshRepl.runtimeState().repl.context.inProgress =
+        new Promise(resolve => { resolveInProgress = resolve; });
+      input.write('inProgress\n');
+      await tick();
+
+      output = '';
+      outputStream.emit('resize');
+      await tick();
+      // The empty space is because the Node.js readline implementation still
+      // tries to make sure that something is printed when a resize happens.
+      // This is okay, though, because it also moves the cursor back to where
+      // it originally was.
+      expect(stripAnsi(output)).to.equal(' ');
+
+      output = '';
+      resolveInProgress();
+      await tick();
+      expect(stripAnsi(output)).to.equal('\n> ');
+    });
   });
 
   context('with fake TTY', () => {
