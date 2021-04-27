@@ -239,6 +239,21 @@ describe('arg-parser', () => {
                 expect.fail('parsing unknown parameter did not throw');
               });
             });
+
+            context('when providing a non-string parameter', () => {
+              const argv = [ ...baseArgv, uri, '1234' ];
+
+              it('raises an error', () => {
+                try {
+                  parseCliArgs(argv);
+                } catch (err) {
+                  return expect(
+                    stripAnsi(err.message)
+                  ).to.contain('Error parsing command line: unrecognized option: 1234');
+                }
+                expect.fail('parsing unknown parameter did not throw');
+              });
+            });
           });
 
           context('when providing authentication options', () => {

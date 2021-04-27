@@ -142,11 +142,12 @@ export function parseCliArgs(args: string[]): (CliOptions & { smokeTests: boolea
     if (arg === START) {
       return false;
     }
-    if (!arg.startsWith('-')) {
+    // mongosh is currently not taking any numerical positional arguments.
+    if (typeof arg === 'string' && !arg.startsWith('-')) {
       return true;
     }
     throw new Error(
-      `  ${clr(i18n.__(UNKNOWN), ['red', 'bold'])} ${clr(arg, 'bold')}
+      `  ${clr(i18n.__(UNKNOWN), ['red', 'bold'])} ${clr(String(arg), 'bold')}
       ${USAGE}`
     );
   });
