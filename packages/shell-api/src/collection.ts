@@ -1418,10 +1418,8 @@ export default class Collection extends ShellApiClass {
     };
     updateStats(result);
 
-    if (result.sharded) {
-      for (const shardName of result.shards) {
-        updateStats(result.shards[shardName]);
-      }
+    for (const shardName of Object.keys(result.shards ?? {})) {
+      updateStats(result.shards[shardName]);
     }
     return result;
   }
