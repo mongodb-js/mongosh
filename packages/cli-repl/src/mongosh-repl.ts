@@ -308,11 +308,12 @@ class MongoshNodeRepl implements EvaluationListener {
   }
 
   async eval(originalEval: asyncRepl.OriginalEvalFunction, input: string, context: any, filename: string): Promise<any> {
+    const { internalState, repl, shellEvaluator } = this.runtimeState();
+
     if (!this.insideAutoComplete) {
+      repl.setPrompt(''); // Disable printing prompts while we're evaluating code.
       this.lineByLineInput.enableBlockOnNewLine();
     }
-
-    const { internalState, repl, shellEvaluator } = this.runtimeState();
 
     try {
       const shellResult = await shellEvaluator.customEval(originalEval, input, context, filename);
