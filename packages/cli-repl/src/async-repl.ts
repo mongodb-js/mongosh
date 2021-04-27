@@ -64,6 +64,10 @@ export function start(opts: AsyncREPLOptions): REPLServer {
     let result;
     repl.emit(evalStart, { input } as EvalStartEvent);
 
+    // Use public getPrompt() API once available (Node.js 15+)
+    const origPrompt = (repl as any).getPrompt?.() ?? (repl as any)._prompt;
+    repl.setPrompt(''); // Disable printing prompts while we're evaluating code.
+
     try {
       let exitEventPending = false;
       const exitListener = () => { exitEventPending = true; };
@@ -115,6 +119,8 @@ export function start(opts: AsyncREPLOptions): REPLServer {
         // `as any` to the rescue!
         (replSigint as any)?.restore?.();
         (processSigint as any)?.restore?.();
+
+        repl.setPrompt(origPrompt);
 
         repl.removeListener('exit', exitListener);
         for (const listener of previousExitListeners) {
