@@ -287,6 +287,28 @@ for (const colors of [ false, true ]) {
         expect(output).to.not.contain('https://docs.mongodb.com');
         expect(output).to.contain('list available databases');
       });
+
+      it('handles multi-line descriptions', () => {
+        const output = stripAnsiColors(format({
+          value: {
+            help: 'Shell API',
+            attr: [{
+              name: 'show dbs',
+              description: 'list available\ndatabases\n\nwith line breaks'
+            }]
+          },
+          type: 'Help'
+        }));
+
+        expect(output).to.equal(`
+  Shell API:
+
+    show dbs                                   list available
+                                               databases
+
+                                               with line breaks
+`);
+      });
     });
 
     context('when the result is ExplainOutput or ExplainableCursor', () => {
