@@ -43,7 +43,7 @@ export default class ChangeStreamCursor extends ShellApiClass {
       throw new MongoshRuntimeError('ChangeStreamCursor is closed');
     }
     const result = this._currentIterationResult = new CursorIterationResult();
-    return iterate(result, this._cursor, this._batchSize ?? await this._mongo._batchSize());
+    return iterate(result, this, this._batchSize ?? await this._mongo._batchSize());
   }
 
   /**
