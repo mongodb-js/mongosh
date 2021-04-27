@@ -795,6 +795,7 @@ describe('CliRepl', () => {
   }): void {
     describe('autocompletion', () => {
       let cliRepl: CliRepl;
+      const tab = '\u0009';
 
       beforeEach(async() => {
         if (testServer === null) {
@@ -813,7 +814,7 @@ describe('CliRepl', () => {
 
       it(`${wantWatch ? 'completes' : 'does not complete'} the watch method`, async() => {
         output = '';
-        input.write('db.wat\u0009\u0009');
+        input.write(`db.wat${tab}${tab}`);
         await waitCompletion(cliRepl.bus);
         if (wantWatch) {
           expect(output).to.include('db.watch');
@@ -824,14 +825,14 @@ describe('CliRepl', () => {
 
       it('completes the db.version method', async() => {
         output = '';
-        input.write('db.vers\u0009\u0009');
+        input.write(`db.vers\${tab}${tab}`);
         await waitCompletion(cliRepl.bus);
         expect(output).to.include('db.version');
       });
 
       it(`${wantShardDistribution ? 'completes' : 'does not complete'} the getShardDistribution method`, async() => {
         output = '';
-        input.write('db.coll.getShardDis\u0009\u0009');
+        input.write(`db.coll.getShardDis${tab}${tab}`);
         await waitCompletion(cliRepl.bus);
         if (wantShardDistribution) {
           expect(output).to.include('db.coll.getShardDistribution');
@@ -847,7 +848,7 @@ describe('CliRepl', () => {
         await waitEval(cliRepl.bus);
 
         output = '';
-        input.write('db.testcoll\u0009\u0009');
+        input.write(`db.testcoll${tab}${tab}`);
         await waitCompletion(cliRepl.bus);
         expect(output).to.include(collname);
 
@@ -856,7 +857,7 @@ describe('CliRepl', () => {
       });
 
       it('completes JS value properties properly (incomplete, double tab)', async() => {
-        input.write('JSON.\u0009\u0009');
+        input.write(`JSON.${tab}${tab}`);
         await waitCompletion(cliRepl.bus);
         expect(output).to.include('JSON.parse');
         expect(output).to.include('JSON.stringify');
@@ -864,7 +865,7 @@ describe('CliRepl', () => {
       });
 
       it('completes JS value properties properly (complete, single tab)', async() => {
-        input.write('JSON.pa\u0009');
+        input.write(`JSON.pa${tab}`);
         await waitCompletion(cliRepl.bus);
         expect(output).to.include('JSON.parse');
         expect(output).not.to.include('JSON.stringify');
