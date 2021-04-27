@@ -246,13 +246,13 @@ class MongoshNodeRepl implements EvaluationListener {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async startRepl(_initializationToken: InitializationToken): Promise<void> {
+    this.started = true;
     const { repl, internalState } = this.runtimeState();
     // Only start reading from the input *after* we set up everything, including
     // internalState.setCtx().
     this.lineByLineInput.start();
     repl.setPrompt(await this.getShellPrompt(internalState));
     repl.displayPrompt();
-    this.started = true;
   }
 
   /**
