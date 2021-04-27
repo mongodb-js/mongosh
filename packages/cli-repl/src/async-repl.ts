@@ -49,7 +49,12 @@ function disableEvent(emitter: EventEmitter, event: string): RestoreEvents {
   };
 }
 
-// Start a REPLSever that supports asynchronous evaluation, rather than just
+function getPrompt(repl: any): string {
+  // Use public getPrompt() API once available (Node.js 15+)
+  return repl.getPrompt?.() ?? repl._prompt;
+}
+
+// Start a REPLServer that supports asynchronous evaluation, rather than just
 // synchronous, and integrates nicely with Ctrl+C handling in that respect.
 export function start(opts: AsyncREPLOptions): REPLServer {
   const repl = (opts.start ?? originalStart)(opts);
@@ -65,7 +70,7 @@ export function start(opts: AsyncREPLOptions): REPLServer {
     repl.emit(evalStart, { input } as EvalStartEvent);
 
     // Use public getPrompt() API once available (Node.js 15+)
-    const origPrompt = (repl as any).getPrompt?.() ?? (repl as any)._prompt;
+    const origPrompt = getPrompt(repl);
     repl.setPrompt(''); // Disable printing prompts while we're evaluating code.
 
     try {
@@ -120,7 +125,9 @@ export function start(opts: AsyncREPLOptions): REPLServer {
         (replSigint as any)?.restore?.();
         (processSigint as any)?.restore?.();
 
-        repl.setPrompt(origPrompt);
+        if (getPrompt(repl) === '') {
+          repl.setPrompt(origPrompt);
+        }
 
         repl.removeListener('exit', exitListener);
         for (const listener of previousExitListeners) {
