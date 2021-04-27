@@ -184,7 +184,7 @@ describe('git repository-status', () => {
     it('detectes pending file changes', () => {
       spawnSync.onFirstCall().returns({
         stdout: [
-          '## master...origin/master',
+          '## main...origin/main',
           'A  packages/build/src/helpers/index.ts',
           'A  packages/build/src/helpers/spawn-sync.spec.ts',
           '?? packages/build/src/helpers/test',
@@ -197,8 +197,8 @@ describe('git repository-status', () => {
       const status = getRepositoryStatus('somePath', spawnSync);
       expect(status).to.deep.equal({
         branch: {
-          local: 'master',
-          tracking: 'origin/master',
+          local: 'main',
+          tracking: 'origin/main',
           diverged: false
         },
         clean: false,
@@ -209,7 +209,7 @@ describe('git repository-status', () => {
     it('detectes diverging branches', () => {
       spawnSync.returns({
         stdout: [
-          '## master...origin/something [ahead 5, behind 3]',
+          '## main...origin/something [ahead 5, behind 3]',
           'A  packages/build/src/helpers/index.ts',
           'A  packages/build/src/helpers/spawn-sync.spec.ts',
           '?? packages/build/src/helpers/test',
@@ -222,7 +222,7 @@ describe('git repository-status', () => {
       const status = getRepositoryStatus('somePath', spawnSync);
       expect(status).to.deep.equal({
         branch: {
-          local: 'master',
+          local: 'main',
           tracking: 'origin/something',
           diverged: true
         },
@@ -234,7 +234,7 @@ describe('git repository-status', () => {
     it('detectes missing origin', () => {
       spawnSync.returns({
         stdout: [
-          '## master'
+          '## main'
         ].join('\n')
       });
       spawnSync.onSecondCall().returns({
@@ -244,7 +244,7 @@ describe('git repository-status', () => {
       const status = getRepositoryStatus('somePath', spawnSync);
       expect(status).to.deep.equal({
         branch: {
-          local: 'master',
+          local: 'main',
           tracking: undefined,
           diverged: false
         },
@@ -256,7 +256,7 @@ describe('git repository-status', () => {
     it('detects unpushed tags', () => {
       spawnSync.onFirstCall().returns({
         stdout: [
-          '## master...origin/master'
+          '## main...origin/main'
         ].join('\n')
       });
       spawnSync.onSecondCall().returns({
@@ -269,8 +269,8 @@ describe('git repository-status', () => {
       const status = getRepositoryStatus('somePath', spawnSync);
       expect(status).to.deep.equal({
         branch: {
-          local: 'master',
-          tracking: 'origin/master',
+          local: 'main',
+          tracking: 'origin/main',
           diverged: false
         },
         clean: true,
@@ -299,7 +299,7 @@ describe('git repository-status', () => {
     });
 
     it('returns undefined for non-release branches', () => {
-      const version = getReleaseVersionFromBranch('master');
+      const version = getReleaseVersionFromBranch('main');
       expect(version).to.be.undefined;
     });
   });

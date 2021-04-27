@@ -3,7 +3,7 @@
   "version": "0.0.0-dev.0",
   "description": "Types for mongosh internals",
   "author": "Anna Henningsen <anna.henningsen@mongodb.com>",
-  "homepage": "https://github.com/mongodb-js/mongosh/tree/master/packages/types#readme",
+  "homepage": "https://github.com/mongodb-js/mongosh/tree/main/packages/types#readme",
   "license": "Apache-2.0",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",

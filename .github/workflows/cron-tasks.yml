@@ -1,10 +1,10 @@
 on:
-  # Once a week or on pushes to master
+  # Once a week or on pushes to main
   schedule:
     - cron: "0 3 * * 0"
   push:
     branches:
-      - master
+      - main
 
 jobs:
   update_third_party_notices_and_authors:
