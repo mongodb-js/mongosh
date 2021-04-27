@@ -157,7 +157,7 @@ describe('CliRepl', () => {
 
       it('returns the list of available config options when asked to', () => {
         expect(cliRepl.listConfigOptions()).to.deep.equal([
-          'batchSize', 'enableTelemetry', 'inspectDepth', 'historyLength'
+          'batchSize', 'enableTelemetry', 'inspectDepth', 'historyLength', 'showStackTraces'
         ]);
       });
 

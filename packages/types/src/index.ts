@@ -116,6 +116,7 @@ export class CliUserConfig extends ShellUserConfig {
   disableGreetingMessage = false;
   inspectDepth = 6;
   historyLength = 1000;
+  showStackTraces = false;
 }
 
 export interface ConfigProvider<T> {

@@ -463,6 +463,22 @@ describe('MongoshNodeRepl', () => {
         const { history } = mongoshRepl.runtimeState().repl as any;
         expect(history).to.have.lengthOf(2);
       });
+
+      it('controls stack trace display', async() => {
+        output = '';
+        input.write('throw new Error("yellow")\n');
+        await waitEval(bus);
+        expect(stripAnsi(output)).to.match(/Error: yellow\n(> )+$/);
+
+        input.write('config.set("showStackTraces", true)\n');
+        await waitEval(bus);
+        expect(output).to.include('Setting "showStackTraces" has been changed');
+
+        output = '';
+        input.write('throw new Error("orange")\n');
+        await waitEval(bus);
+        expect(stripAnsi(output)).to.match(/Error: orange\n +at\b/);
+      });
     });
 
     it('refreshes the prompt if a window resize occurs', async() => {
