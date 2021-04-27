@@ -823,8 +823,7 @@ describe('CliRepl', () => {
         }
       });
 
-      it('completes the 
-         ion method', async() => {
+      it('completes the version method', async() => {
         output = '';
         input.write(`db.vers${tab}${tab}`);
         await waitCompletion(cliRepl.bus);
