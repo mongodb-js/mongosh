@@ -216,6 +216,8 @@ describe('MongoshNodeRepl', () => {
   });
 
   context('with terminal: true', () => {
+    const tab = '\u0009';
+
     beforeEach(async() => {
       // Node.js uses $TERM to determine what level of functionality to provide
       // in a way that goes beyond color support, in particular TERM=dumb
@@ -245,7 +247,7 @@ describe('MongoshNodeRepl', () => {
       await tick();
       expect(output).to.include('Entering editor mode');
       output = '';
-      input.write('db.\u0009\u0009');
+      input.write(`db.${tab}${tab}`);
       await tick();
       input.write('version()\n');
       input.write('\u0004'); // Ctrl+D
@@ -290,7 +292,7 @@ describe('MongoshNodeRepl', () => {
     context('autocompletion', () => {
       it('autocompletes collection methods', async() => {
         // this triggers an eval
-        input.write('db.coll.\u0009\u0009');
+        input.write(`db.coll.${tab}${tab}`);
         // first tab
         await waitEval(bus);
         // second tab
@@ -298,13 +300,13 @@ describe('MongoshNodeRepl', () => {
         expect(output).to.include('db.coll.updateOne');
       });
       it('autocompletes shell-api methods (once)', async() => {
-        input.write('vers\u0009\u0009'); // U+0009 is TAB
+        input.write(`vers${tab}${tab}`);
         await tick();
         expect(output).to.include('version');
         expect(output).to.not.match(/version\s+version/);
       });
       it('autocompletes async shell api methods', async() => {
-        input.write('db.coll.find().\u0009\u0009'); // U+0009 is TAB
+        input.write(`db.coll.find().${tab}${tab}`);
         await tick();
         expect(output).to.include('db.coll.find().close');
       });
@@ -312,7 +314,7 @@ describe('MongoshNodeRepl', () => {
         input.write('let somelongvariable = 0\n');
         await waitEval(bus);
         output = '';
-        input.write('somelong\u0009\u0009'); // U+0009 is TAB
+        input.write(`somelong${tab}${tab}`);
         await tick();
         expect(output).to.include('somelongvariable');
       });
@@ -321,7 +323,7 @@ describe('MongoshNodeRepl', () => {
         await tick();
         output = '';
         expect((mongoshRepl.runtimeState().repl as any)._prompt).to.equal('');
-        input.write('db.\u0009\u0009');
+        input.write(`db.${tab}${tab}`);
         await tick();
         input.write('foo\nbar\n');
         expect((mongoshRepl.runtimeState().repl as any)._prompt).to.equal('');
