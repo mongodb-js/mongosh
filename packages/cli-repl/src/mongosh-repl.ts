@@ -70,6 +70,7 @@ class MongoshNodeRepl implements EvaluationListener {
   onClearCommand?: EvaluationListener['onClearCommand'];
   insideAutoComplete: boolean;
   inspectDepth = 0;
+  started = false;
 
   constructor(options: MongoshNodeReplOptions) {
     this.input = options.input;
@@ -151,6 +152,9 @@ class MongoshNodeRepl implements EvaluationListener {
     const originalDisplayPrompt = repl.displayPrompt.bind(repl);
 
     repl.displayPrompt = (...args: any[]) => {
+      if (!this.started) {
+        return;
+      }
       originalDisplayPrompt(...args);
       this.lineByLineInput.nextLine();
     };
@@ -248,6 +252,7 @@ class MongoshNodeRepl implements EvaluationListener {
     this.lineByLineInput.start();
     repl.setPrompt(await this.getShellPrompt(internalState));
     repl.displayPrompt();
+    this.started = true;
   }
 
   /**
