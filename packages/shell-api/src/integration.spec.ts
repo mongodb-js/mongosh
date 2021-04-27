@@ -1922,11 +1922,23 @@ describe('Shell API (integration)', function() {
       });
     });
   });
-  describe('Field-level encryption', () => {
-    // This test is temporary and can go away once we actually implement FLE
-    // functionality.
-    it('native addon is present', () => {
-      expect(typeof serviceProvider.fle.ClientEncryption).to.equal('function');
+
+  describe('database commands', () => {
+    it('db.isMaster() works', async() => {
+      expect((await database.isMaster()).ismaster).to.equal(true);
+    });
+
+    context('with 5.0+ server', () => {
+      skipIfServerVersion(testServer, '<= 4.4');
+
+      it('db.hello() works', async() => {
+        expect((await database.hello()).isWritablePrimary).to.equal(true);
+      });
+
+      it('db.rotateCertificates() works', async() => {
+        expect((await database.rotateCertificates()).ok).to.equal(1);
+        expect((await database.rotateCertificates('message')).ok).to.equal(1);
+      });
     });
   });
 

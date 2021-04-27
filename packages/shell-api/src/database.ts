@@ -820,6 +820,17 @@ export default class Database extends ShellApiClass {
   }
 
   @returnsPromise
+  @serverVersions(['5.0.0', ServerVersions.latest])
+  async hello(): Promise<Document> {
+    this._emitDatabaseApiCall('hello', {});
+    return await this._runCommand(
+      {
+        hello: 1,
+      }
+    );
+  }
+
+  @returnsPromise
   async serverBuildInfo(): Promise<Document> {
     this._emitDatabaseApiCall('serverBuildInfo', {});
     return await this._runAdminCommand(
@@ -866,6 +877,17 @@ export default class Database extends ShellApiClass {
     return await this._runAdminCommand(
       {
         getCmdLineOpts: 1,
+      }
+    );
+  }
+
+  @returnsPromise
+  @serverVersions(['5.0.0', ServerVersions.latest])
+  async rotateCertificates(message?: string): Promise<Document> {
+    this._emitDatabaseApiCall('rotateCertificates', { message });
+    return await this._runAdminCommand(
+      {
+        serverStatus: 1, message
       }
     );
   }

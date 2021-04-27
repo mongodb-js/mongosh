@@ -1146,6 +1146,16 @@ const translations: Catalog = {
               description: 'Calls the isMaster command',
               example: 'db.isMaster()'
             },
+            hello: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.hello',
+              description: 'Calls the hello command',
+              example: 'db.hello()'
+            },
+            rotateCertificates: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.rotateCertificates',
+              description: 'Calls the rotateCertificates command',
+              example: 'db.rotateCertificates()'
+            },
             serverBuildInfo: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.serverBuildInfo',
               description: 'returns the db serverBuildInfo. uses the buildInfo command',
