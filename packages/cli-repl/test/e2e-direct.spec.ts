@@ -150,6 +150,34 @@ describe('e2e direct connection', () => {
           shell.assertContainsOutput(`me: '${await rs0.hostport()}'`);
           shell.assertContainsOutput(`setName: '${replSetId}'`);
         });
+        it('when specifying multiple seeds through --host', async() => {
+          const hostlist = replSetId + '/' + await rs2.hostport() + ',' + await rs1.hostport() + ',' + await rs0.hostport();
+          const shell = TestShell.start({ args: ['--host', hostlist] });
+          await shell.waitForPrompt();
+          await shell.executeLine('db.isMaster()');
+          await shell.executeLine('({ dbname: db.getName() })');
+          shell.assertContainsOutput('ismaster: true');
+          shell.assertContainsOutput(`me: '${await rs0.hostport()}'`);
+          shell.assertContainsOutput(`setName: '${replSetId}'`);
+          shell.assertContainsOutput("dbname: 'test'");
+        });
+        it('when specifying multiple seeds through --host with a db name', async() => {
+          const hostlist = replSetId + '/' + await rs2.hostport() + ',' + await rs1.hostport() + ',' + await rs0.hostport();
+          const shell = TestShell.start({ args: ['--host', hostlist, 'admin'] });
+          await shell.waitForPrompt();
+          await shell.executeLine('db.isMaster()');
+          await shell.executeLine('({ dbname: db.getName() })');
+          shell.assertContainsOutput('ismaster: true');
+          shell.assertContainsOutput(`me: '${await rs0.hostport()}'`);
+          shell.assertContainsOutput(`setName: '${replSetId}'`);
+          shell.assertContainsOutput("dbname: 'admin'");
+        });
+        it('when specifying multiple seeds through --host with a wrong replsetid', async() => {
+          const hostlist = 'wrongreplset/' + await rs2.hostport() + ',' + await rs1.hostport() + ',' + await rs0.hostport();
+          const shell = TestShell.start({ args: ['--host', hostlist, 'admin?serverSelectionTimeoutMS=2000'] });
+          await shell.waitForExit();
+          shell.assertContainsOutput('MongoServerSelectionError');
+        });
 
         it('lists collections and dbs using show by default', async() => {
           const shell = TestShell.start({ args: [`${await rs1.connectionString()}`] });
