@@ -4,6 +4,7 @@ import { downloadMongoDb } from './download-mongodb';
 import { getArtifactUrl } from './evergreen';
 import { triggerRelease } from './local';
 import { release, ReleaseCommand } from './release';
+import type { Config, BuildVariant } from './config';
 
 export { getArtifactUrl, downloadMongoDb };
 
@@ -17,14 +18,14 @@ if (require.main === module) {
     if (command === 'trigger-release') {
       await triggerRelease(process.argv.slice(3));
     } else {
-      const config = require(path.join(__dirname, '..', '..', '..', 'config', 'build.conf.js'));
+      const config: Config = require(path.join(__dirname, '..', '..', '..', 'config', 'build.conf.js'));
       const cliBuildVariant = process.argv
         .map((arg) => arg.match(/^--build-variant=(.+)$/))
         .filter(Boolean)[0];
       if (cliBuildVariant) {
-        config.buildVariant = cliBuildVariant[1];
-        if (!ALL_BUILD_VARIANTS.includes(config.buildVariant)) {
-          throw new Error(`Unknown build variant: ${config.buildVariant} - must be one of: ${ALL_BUILD_VARIANTS}`);
+        config.distributionBuildVariant = cliBuildVariant[1] as BuildVariant;
+        if (!ALL_BUILD_VARIANTS.includes(config.distributionBuildVariant)) {
+          throw new Error(`Unknown build variant: ${config.distributionBuildVariant} - must be one of: ${ALL_BUILD_VARIANTS}`);
         }
       }
 

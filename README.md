@@ -1,25 +1,23 @@
 # mongosh
 
-[Evergreen Waterfall](https://evergreen.mongodb.com/waterfall/mongosh)
+[Evergreen Waterfall CI](https://evergreen.mongodb.com/waterfall/mongosh)
 
 ## The MongoDB Shell
 
 This repository is a monorepo for all the various components in the MongoDB Shell across
-all environments (REPL, Browser, Compass, etc). For more information on
-currently available APIs and troubleshooting, go to [our wiki](https://github.com/mongodb-js/mongosh/wiki).
+all environments (REPL, Browser, Compass, etc).
 
 For our official documentation, please visit [MongoDB Docs
 page](https://docs.mongodb.com/mongodb-shell).
 
-MongoDB Shell works with MongoDB >= 3.6. However, please be aware that 3.6 is
-EOL in April 2021.
+MongoDB Shell works with MongoDB servers >= 4.0.
 
 ![MongoDB Shell Example](./mongosh.gif)
 
 ## Installation
 You can get the release tarball from our [Downloads
 Page](https://www.mongodb.com/try/download/shell). We currently maintain MongoDB
-Shell on three different platforms - Windows(zip), MacOS(tgz) and Linux(tgz).
+Shell on three different platforms - Windows (zip), MacOS (zip) and Linux (tgz, deb and rpm).
 Once downloaded, you will have to extract the binary and add it to your PATH
 variable. For detailed instructions for each of our supported platforms, please visit
 [installation documentation](https://docs.mongodb.com/mongodb-shell/install#mdb-shell-install).
@@ -34,7 +32,10 @@ variable. For detailed instructions for each of our supported platforms, please 
         --host [arg]                           Server to connect to
         --port [arg]                           Port to connect to
         --version                              Show version information
+        --shell                                Run the shell after executing files
         --nodb                                 Don't connect to mongod on startup - no 'db address' [arg] expected
+        --norc                                 Will not run the '.mongoshrc.js' file on start up
+        --eval [arg]                           Evaluate javascript
         --retryWrites                          Automatically retry write operations upon transient network errors
 
   Authentication Options:
@@ -53,8 +54,14 @@ variable. For detailed instructions for each of our supported platforms, please 
         --tlsCAFile [arg]                      Certificate Authority file for TLS
         --tlsAllowInvalidHostnames             Allow connections to servers with non-matching hostnames
         --tlsAllowInvalidCertificates          Allow connections to servers with invalid certificates
-        --tlsCertificateSelector [arg]         TLS Certificate in system store
+        --tlsCertificateSelector [arg]         TLS Certificate in system store (Windows and macOS only)
         --tlsDisabledProtocols [arg]           Comma separated list of TLS protocols to disable [TLS1_0,TLS1_1,TLS1_2]
+
+  API version options:
+
+        --apiVersion [arg]                     Specifies the API version to connect with
+        --apiStrict                            Use strict API version mode
+        --apiDeprecationErrors                 Fail deprecated commands for the specified API version
 
   FLE Options:
 
@@ -71,6 +78,10 @@ variable. For detailed instructions for each of our supported platforms, please 
         192.168.0.5:9999/foo                   Foo database on 192.168.0.5 machine on port 9999
         mongodb://192.168.0.5:9999/foo         Connection string URI can also be used
 
+  File Names:
+
+        A list of files to run. Files must end in .js and will exit after unless --shell is specified.
+
   Examples:
 
         Start mongosh using 'ships' database on specified connection string:
@@ -79,15 +90,11 @@ variable. For detailed instructions for each of our supported platforms, please 
   For more information on usage: https://docs.mongodb.com/mongodb-shell.
 ```
 
-## Releasing
-
-Refer to the [`build` package](./packages/build/README.md) documentation.
-
 ## Local Development
 
 ### Requirements
 
-- NodeJS `~12.18.4`
+- Node.js v14.x
 - Python 3.x
   - The test suite uses [mlaunch](http://blog.rueckstiess.com/mtools/mlaunch.html)
     for managing running mongod, you can install that manually as well via
@@ -103,7 +110,7 @@ npm run bootstrap
 
 ### Running Tests
 
-Run all tests:
+Run all tests (this may take some time):
 
 ```shell
 npm test
@@ -144,13 +151,13 @@ cd packages/cli-repl && npm run start
 Compile all Typescript:
 
 ```shell
-npm run compile-all
+npm run compile-ts
 ```
 
 Compile just the CLI:
 
 ```shell
-npm run compile-ts
+npm run compile-cli
 ```
 
 Compile the standalone executable (this may take some time):
@@ -163,10 +170,15 @@ Compile a specific package, e.g. the `.deb` for Debian:
 
 ```shell
 npm run compile-exec
-npm run evergreen-release package -- --build-variant=Debian
+npm run evergreen-release package -- --build-variant=debian
 ```
 
+### Releasing
+
+Refer to the [`build` package](./packages/build/README.md) documentation.
+
 ## Contributing
+
 For issues, please create a ticket in our
 [JIRA Project](https://jira.mongodb.org/browse/MONGOSH).
 
@@ -177,4 +189,5 @@ submitting suggestions in our [feedback
 forum](https://feedback.mongodb.com/forums/929233-mongodb-shell).
 
 ## License
+
 [Apache-2.0](./LICENSE)
