@@ -100,7 +100,7 @@
     "@typescript-eslint/eslint-plugin": "^4.6.0",
     "@typescript-eslint/parser": "^4.6.0",
     "aws-sdk": "^2.674.0",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "boxednode": "^1.10.1",
     "browserify": "^16.5.0",
     "chai": "^4.2.0",
