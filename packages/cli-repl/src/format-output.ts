@@ -18,6 +18,7 @@ type FormatOptions = {
   depth?: number;
   maxArrayLength?: number;
   maxStringLength?: number;
+  showStackTraces?: boolean;
 };
 
 /**
@@ -167,6 +168,8 @@ export function formatError(error: Error, options: FormatOptions): string {
     }
     // leave a bit of breathing room after the syntax error message output
     result += '\n\n';
+  } else if (options.showStackTraces && error.stack) {
+    result += error.stack.slice(error.stack.indexOf('\n'));
   }
 
   return result;

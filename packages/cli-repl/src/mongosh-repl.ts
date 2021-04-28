@@ -71,6 +71,7 @@ class MongoshNodeRepl implements EvaluationListener {
   insideAutoComplete: boolean;
   inspectDepth = 0;
   started = false;
+  showStackTraces = false;
 
   constructor(options: MongoshNodeReplOptions) {
     this.input = options.input;
@@ -95,6 +96,7 @@ class MongoshNodeRepl implements EvaluationListener {
     await this.printStartupLog(internalState);
 
     this.inspectDepth = await this.getConfig('inspectDepth');
+    this.showStackTraces = await this.getConfig('showStackTraces');
 
     const repl = asyncRepl.start({
       start: prettyRepl.start,
@@ -414,12 +416,13 @@ class MongoshNodeRepl implements EvaluationListener {
     return clr(text, style, this.getFormatOptions());
   }
 
-  getFormatOptions(): { colors: boolean, depth: number } {
+  getFormatOptions(): { colors: boolean, depth: number, showStackTraces: boolean } {
     const output = this.output as WriteStream;
     return {
       colors: this._runtimeState?.repl?.useColors ??
         (output.isTTY && output.getColorDepth() > 1),
-      depth: this.inspectDepth
+      depth: this.inspectDepth,
+      showStackTraces: this.showStackTraces
     };
   }
 
@@ -457,6 +460,9 @@ class MongoshNodeRepl implements EvaluationListener {
     }
     if (key === 'inspectDepth') {
       this.inspectDepth = +value;
+    }
+    if (key === 'showStackTraces') {
+      this.showStackTraces = !!value;
     }
     return this.ioProvider.setConfig(key, value);
   }
