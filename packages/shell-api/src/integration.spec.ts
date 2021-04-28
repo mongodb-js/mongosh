@@ -1959,4 +1959,52 @@ describe('Shell API (integration)', function() {
       expect((await collection.find().batchSize(50)._it()).documents).to.have.lengthOf(50);
     });
   });
+
+  describe('cursor map/forEach', () => {
+    beforeEach(async() => {
+      await collection.insertMany([...Array(10).keys()].map(i => ({ i })));
+    });
+
+    it('forEach() iterates over input but does not return anything', async() => {
+      let value = 0;
+      const result = await collection.find().forEach(({ i }) => { value += i; });
+      expect(result).to.equal(undefined);
+      expect(value).to.equal(45);
+    });
+
+    it('map() iterates over input and changes documents in-place', async() => {
+      const cursor = collection.find();
+      cursor.map(({ i }) => ({ j: i }));
+      expect((await cursor._it()).documents[0]).to.deep.equal({ j: 0 });
+    });
+
+    it('forEach() errors lead to a rejected promise', async() => {
+      const error = new Error();
+      let calls = 0;
+      try {
+        await collection.find().forEach(() => { calls++; throw error; });
+        expect.fail('missed exception');
+      } catch (err) {
+        expect(err).to.equal(error);
+      }
+      expect(calls).to.equal(1);
+    });
+
+    it('map() errors show up when reading the cursor', async() => {
+      const error = new Error();
+      const cursor = collection.find();
+      let calls = 0;
+      cursor.map(() => { calls++; throw error; });
+      for (let i = 0; i < 2; i++) {
+        // Try reading twice to make sure .map() is not called again for the second attempt.
+        try {
+          await cursor.tryNext();
+          expect.fail('missed exception');
+        } catch (err) {
+          expect(err).to.equal(error);
+        }
+      }
+      expect(calls).to.equal(1);
+    });
+  });
 });

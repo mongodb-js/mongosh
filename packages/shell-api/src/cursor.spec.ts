@@ -71,7 +71,7 @@ describe('Cursor', () => {
     it('calls wrappee.map with arguments', () => {
       const arg = {};
       cursor.map(arg);
-      expect(wrappee.map.calledWith(arg)).to.equal(true);
+      expect(wrappee.map).to.have.callCount(1);
     });
 
     it('has the correct metadata', () => {

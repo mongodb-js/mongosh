@@ -24,10 +24,35 @@ export abstract class AbstractCursor extends ShellApiClass {
   abstract _cursor: ServiceProviderAggregationCursor | ServiceProviderCursor;
   _currentIterationResult: CursorIterationResult | null = null;
   _batchSize: number | null = null;
+  _mapError: Error | null = null;
 
   constructor(mongo: Mongo) {
     super();
     this._mongo = mongo;
+  }
+
+  // Wrap a function with checks before and after that verify whether a .map()
+  // callback has resulted in an exception. Such an error would otherwise result
+  // in an uncaught exception, bringing the whole process down.
+  // The downside to this is that errors will not actually be visible until
+  // the caller tries to interact with this cursor in a way that triggers
+  // these checks. Since that is also the behavior for errors coming from the
+  // database server, it makes sense to match that.
+  // Ideally, this kind of code could be lifted into the driver (NODE-3231 and
+  // NODE-3232 are the tickets for that).
+  async _withCheckMapError<Ret>(fn: () => Ret): Promise<Ret> {
+    if (this._mapError) {
+      // If an error has already occurred, we don't want to call the function
+      // at all.
+      throw this._mapError;
+    }
+    const ret = await fn();
+    if (this._mapError) {
+      // If an error occurred during the function, we don't want to forward its
+      // results.
+      throw this._mapError;
+    }
+    return ret;
   }
 
   /**
@@ -39,7 +64,7 @@ export abstract class AbstractCursor extends ShellApiClass {
 
   async _it(): Promise<CursorIterationResult> {
     const results = this._currentIterationResult = new CursorIterationResult();
-    await iterate(results, this._cursor, this._batchSize ?? await this._mongo._batchSize());
+    await iterate(results, this, this._batchSize ?? await this._mongo._batchSize());
     results.cursorHasMore = !this.isExhausted();
     return results;
   }
@@ -57,17 +82,31 @@ export abstract class AbstractCursor extends ShellApiClass {
 
   @returnsPromise
   async forEach(f: (doc: Document) => void): Promise<void> {
-    return this._cursor.forEach(f);
+    // Work around https://jira.mongodb.org/browse/NODE-3231
+    let exception;
+    const wrapped = (doc: Document): boolean | undefined => {
+      try {
+        f(doc);
+        return undefined;
+      } catch (err) {
+        exception = err;
+        return false; // Stop iteration.
+      }
+    };
+    await this._cursor.forEach(wrapped);
+    if (exception) {
+      throw exception;
+    }
   }
 
   @returnsPromise
   async hasNext(): Promise<boolean> {
-    return this._cursor.hasNext();
+    return this._withCheckMapError(() => this._cursor.hasNext());
   }
 
   @returnsPromise
   async tryNext(): Promise<Document | null> {
-    return this._cursor.tryNext();
+    return this._withCheckMapError(() => this._cursor.tryNext());
   }
 
   async* [Symbol.asyncIterator]() {
@@ -96,7 +135,7 @@ export abstract class AbstractCursor extends ShellApiClass {
 
   @returnsPromise
   async toArray(): Promise<Document[]> {
-    return this._cursor.toArray();
+    return this._withCheckMapError(() => this._cursor.toArray());
   }
 
   @returnType('this')
@@ -106,7 +145,20 @@ export abstract class AbstractCursor extends ShellApiClass {
 
   @returnType('this')
   map(f: (doc: Document) => Document): this {
-    this._cursor.map(f);
+    // Work around https://jira.mongodb.org/browse/NODE-3232
+    const wrapped = (doc: Document): Document => {
+      if (this._mapError) {
+        // These errors should never become visible to the user.
+        return { __errored: true };
+      }
+      try {
+        return f(doc);
+      } catch (err) {
+        this._mapError = err;
+        return { __errored: true };
+      }
+    };
+    this._cursor.map(wrapped);
     return this;
   }
 
@@ -118,7 +170,7 @@ export abstract class AbstractCursor extends ShellApiClass {
 
   @returnsPromise
   async next(): Promise<Document | null> {
-    return this._cursor.next();
+    return this._withCheckMapError(() => this._cursor.next());
   }
 
   @returnType('this')

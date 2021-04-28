@@ -3,12 +3,9 @@ import type {
   DbOptions,
   Document,
   ExplainVerbosityLike,
-  FindCursor,
-  AggregationCursor as SPAggregationCursor,
   FindAndModifyOptions,
   DeleteOptions,
   MapReduceOptions,
-  ChangeStream,
   KMSProviders,
   ExplainOptions
 } from '@mongosh/service-provider-core';
@@ -22,6 +19,8 @@ import { BinaryType, ReplPlatform } from '@mongosh/service-provider-core';
 import { ClientSideFieldLevelEncryptionOptions } from './field-level-encryption';
 import { AutoEncryptionOptions } from 'mongodb';
 import { shellApiType } from './enums';
+import type { AbstractCursor } from './abstract-cursor';
+import type ChangeStreamCursor from './change-stream-cursor';
 
 /**
  * Helper method to adapt aggregation pipeline options.
@@ -525,9 +524,9 @@ export function addHiddenDataProperty<T = any>(target: T, key: string|symbol, va
 
 export async function iterate(
   results: CursorIterationResult,
-  cursor: FindCursor | SPAggregationCursor | ChangeStream,
+  cursor: AbstractCursor | ChangeStreamCursor,
   batchSize: number): Promise<CursorIterationResult> {
-  if (cursor.closed) {
+  if (cursor.isClosed()) {
     return results;
   }
 
