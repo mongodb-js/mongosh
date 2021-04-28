@@ -43,6 +43,7 @@ functions:
           {
           export NODE_JS_VERSION=${node_js_version}
           source .evergreen/.setup_env
+          npm --unsafe-perm=true run bootstrap-ci
           npm run check-ci
           }
   test:
@@ -59,6 +60,7 @@ functions:
           {
           export NODE_JS_VERSION=${node_js_version}
           source .evergreen/.setup_env
+          npm --unsafe-perm=true run bootstrap-ci
           npm run test-ci
           echo "Creating coverage tarball..."
           tar cvzf coverage.tgz coverage
@@ -83,6 +85,9 @@ functions:
         script: |
           set -e
           {
+          export NODE_JS_VERSION=${node_js_version}
+          source .evergreen/.setup_env
+          npm --unsafe-perm=true run bootstrap-ci
           (cd scripts/docker && docker build -t ubuntu18.04-xvfb -f ubuntu18.04-xvfb.Dockerfile .)
           docker run \
             --rm -v $PWD:/tmp/build ubuntu18.04-xvfb \
@@ -102,6 +107,7 @@ functions:
           {
           export NODE_JS_VERSION=${node_js_version}
           source .evergreen/.setup_env
+          npm --unsafe-perm=true run bootstrap-ci
           npm run test-connectivity
           }
 
@@ -536,6 +542,8 @@ tasks:
         vars:
           node_js_version: "12.20.0"
       - func: test_vscode
+        vars:
+          node_js_version: "12.20.0"
   - name: test_connectivity
     tags: ["extra-integration-test"]
     commands:
@@ -573,11 +581,11 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "14.15.1"
-  - name: e2e_tests_linux
+  - name: e2e_tests_linux_x64
     tags: ["e2e-test"]
     depends_on:
       - name: compile_artifact
-        variant: linux_build
+        variant: linux_x64_build
     commands:
       - func: checkout
       - func: install
@@ -585,7 +593,55 @@ tasks:
           node_js_version: "14.15.1"
       - func: download_compiled_artifact
         vars:
-          executable_os_id: linux
+          executable_os_id: linux-x64
+      - func: run_e2e_tests
+        vars:
+          node_js_version: "14.15.1"
+  - name: e2e_tests_linux_arm64
+    tags: ["e2e-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: linux_arm64_build
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.15.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64
+      - func: run_e2e_tests
+        vars:
+          node_js_version: "14.15.1"
+  - name: e2e_tests_linux_ppc64le
+    tags: ["e2e-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: linux_ppc64le_build
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.15.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-ppc64le
+      - func: run_e2e_tests
+        vars:
+          node_js_version: "14.15.1"
+  - name: e2e_tests_linux_s390x
+    tags: ["e2e-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: linux_s390x_build
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.15.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-s390x
       - func: run_e2e_tests
         vars:
           node_js_version: "14.15.1"
@@ -633,7 +689,7 @@ tasks:
       - name: ".unit-test"
         variant: linux
       - name: compile_artifact
-        variant: linux_build
+        variant: linux_x64_build
     commands:
       - func: checkout
       - func: install
@@ -650,7 +706,7 @@ tasks:
       - name: ".unit-test"
         variant: linux
       - name: compile_artifact
-        variant: linux_build
+        variant: linux_x64_build
     commands:
       - func: checkout
       - func: install
@@ -667,7 +723,7 @@ tasks:
       - name: ".unit-test"
         variant: linux
       - name: compile_artifact
-        variant: linux_build
+        variant: linux_x64_build
     commands:
       - func: checkout
       - func: install
@@ -909,10 +965,10 @@ buildvariants:
       - name: e2e_tests_darwin
 
   - name: linux
-    display_name: "Ubuntu 18.04"
+    display_name: "Ubuntu 18.04 x64"
     run_on: ubuntu1804-small
     expansions:
-      executable_os_id: linux
+      executable_os_id: linux-x64
     tasks:
       - name: check
       - name: test_m40xc_n12
@@ -934,44 +990,80 @@ buildvariants:
       - name: package_and_upload_artifact_linux
       - name: package_and_upload_artifact_debian
       - name: package_and_upload_artifact_rhel
-  - name: linux_build
-    display_name: "Ubuntu 18.04 (build)"
-    run_on: ubuntu1804-build
+  - name: linux_x64_build
+    display_name: "RHEL 7.0 x64 (build)"
+    run_on: rhel70-build
     expansions:
-      executable_os_id: linux
+      executable_os_id: linux-x64
+    tasks:
+      - name: compile_artifact
+  - name: linux_arm64_build
+    display_name: "Ubuntu 18.04 arm64 (build)"
+    run_on: ubuntu1804-arm64-small
+    expansions:
+      executable_os_id: linux-arm64
+    tasks:
+      - name: compile_artifact
+  - name: linux_ppc64le_build
+    display_name: "RHEL 7.1 PPC (build)"
+    run_on: rhel71-power8-small
+    expansions:
+      executable_os_id: linux-ppc64le
+    tasks:
+      - name: compile_artifact
+  - name: linux_s390x_build
+    display_name: "RHEL 7.2 s390x (build)"
+    run_on: rhel72-zseries-small
+    expansions:
+      executable_os_id: linux-s390x
     tasks:
       - name: compile_artifact
 
-  - name: rhel70
-    display_name: "RHEL 7.0 (E2E Tests)"
+  - name: e2e_rhel70_x64
+    display_name: "RHEL 7.0 x64 (E2E Tests)"
     run_on: rhel70-small
     tasks:
-      - name: e2e_tests_linux
-  - name: rhel76
-    display_name: "RHEL 7.6 (E2E Tests)"
+      - name: e2e_tests_linux_x64
+  - name: e2e_rhel76_x64
+    display_name: "RHEL 7.6 x64 (E2E Tests)"
     run_on: rhel76-small
     tasks:
-      - name: e2e_tests_linux
-  - name: ubuntu1604
-    display_name: "Ubuntu 16.04 (E2E Tests)"
+      - name: e2e_tests_linux_x64
+  - name: e2e_ubuntu1604_x64
+    display_name: "Ubuntu 16.04 x64 (E2E Tests)"
     run_on: ubuntu1604-small
     tasks:
-      - name: e2e_tests_linux
-  - name: ubuntu1804
-    display_name: "Ubuntu 18.04 (E2E Tests)"
+      - name: e2e_tests_linux_x64
+  - name: e2e_ubuntu1804_x64
+    display_name: "Ubuntu 18.04 x64 (E2E Tests)"
     run_on: ubuntu1804-small
     tasks:
-      - name: e2e_tests_linux
-  - name: ubuntu2004
-    display_name: "Ubuntu 20.04 (E2E Tests)"
+      - name: e2e_tests_linux_x64
+  - name: e2e_ubuntu2004_x64
+    display_name: "Ubuntu 20.04 x64 (E2E Tests)"
     run_on: ubuntu2004-small
     tasks:
-      - name: e2e_tests_linux
-  - name: debian10
-    display_name: "Debian 10 (E2E Tests)"
+      - name: e2e_tests_linux_x64
+  - name: e2e_debian10_x64
+    display_name: "Debian 10 x64 (E2E Tests)"
     run_on: debian10-small
     tasks:
-      - name: e2e_tests_linux
+      - name: e2e_tests_linux_x64
+  - name: e2e_ubuntu1804_arm64
+    display_name: "Ubuntu 18.04 arm64 (E2E Tests)"
+    run_on: ubuntu1804-arm64-small
+    tasks:
+      - name: e2e_tests_linux_arm64
+  - name: e2e_rhel71_ppc64le
+    display_name: "RHEL 7.1 PPC (E2E Tests)"
+    run_on: rhel71-power8-small
+    tasks:
+      - name: e2e_tests_linux_ppc64le
+  - name: e2e_rhel72_s390x
+    display_name: "RHEL 7.2 s390x (E2E Tests)"
+    run_on: rhel72-zseries-small
+    tasks:
+      - name: e2e_tests_linux_s390x
 
   - name: win32
     display_name: "Windows VS 2019"
