@@ -13,8 +13,8 @@ describe('local trigger-release-draft', () => {
 
     const cleanRepoStatus: RepositoryStatus = {
       branch: {
-        local: 'master',
-        tracking: 'origin/master',
+        local: 'main',
+        tracking: 'origin/main',
         diverged: false
       },
       clean: true,
@@ -59,7 +59,7 @@ describe('local trigger-release-draft', () => {
       expect(spawnSync.getCall(1)).calledWith('git', ['push', 'origin', 'v0.8.0-draft.8'], sinon.match.any);
     });
 
-    it('asks for the bump type and pushes a new draft if previous tag was a release on master', async() => {
+    it('asks for the bump type and pushes a new draft if previous tag was a release on main', async() => {
       const latestTag: TaggedCommit = {
         commit: 'hash',
         tag: {

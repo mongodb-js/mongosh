@@ -1,4 +1,4 @@
-# @mongosh/cli-repl [![Build Status][azure-build-url]][azure-build]
+# @mongosh/cli-repl
 
 [Evergreen Build][evergreen-url]
 
@@ -252,8 +252,6 @@ npm install --save @mongosh/cli-repl
 ```
 
 [mongosh]: https://github.com/mongodb-js/mongosh
-[azure-build-url]: https://dev.azure.com/team-compass/mongosh/_apis/build/status/mongodb-js.mongosh?branchName=master
-[azure-build]: https://dev.azure.com/team-compass/mongosh/_build/latest?definitionId=5&branchName=master
 [evergreen-url]: https://evergreen.mongodb.com/waterfall/mongosh
 [pino-js]: https://github.com/pinojs/pino
 [object-id]: https://docs.mongodb.com/manual/reference/method/ObjectId/

@@ -37,10 +37,10 @@ Execute the following steps to publish a new release:
    Follow the instructions and verify the inferred release version is correct.
 6. Wait for Evergreen to finish the publication stage.
 7. Close the Jira ticket for the release, post an update in the `#mongosh` Slack channel and ping the docs team.
-   
+
 
 ### Branches and Tags
-Typically, a release is always created from the main branch (currently `master`). The only exception are _patch releases_, i.e. when we need to fix an issue for an already published, already superseeded release. Patch releases are created from _release branches_ that match the following pattern:
+Typically, a release is always created from the main branch (currently `main`). The only exception are _patch releases_, i.e. when we need to fix an issue for an already published, already superseeded release. Patch releases are created from _release branches_ that match the following pattern:
 ```
 release/v[0-9]+\.[a-zA-Z0-9]+\.[a-zA-Z0-9]+
 ```
@@ -56,7 +56,7 @@ See the following image for a general overview on how we handle these branches a
 We use two different types of tags for the automated release process: draft and release tags. A release tag has the form `v<major>.<minor>.<patch>`, e.g. `v0.8.0`. A draft tag is `v<major>.<minor>.<patch>-draft.<draft>`, e.g. `v0.8.0-draft.0`.
 
 Draft tags are used to trigger the automated release process. Every draft tag in the end leads to the generation of _potentially_ distributable packages with compiled binaries.
-            
+
 Release tags are used to trigger the publication of a release and its corresponding distributable packages. A release tag must referenced the commit with the most recent draft tag for that release version (example: `v0.8.0` must reference the commit with the highest `v0.8.0-draft.x` tag).
 
 The automated release process for publication of a release will re-use the compiled binaries and packages that were created in the most recent draft tag. Thus, every release tag requires a prior draft tag to be present. The release automation process is handled by [Evergreen](#evergreen-ci).
@@ -69,7 +69,7 @@ For full details on the project's configuration see the Evergreen configuration 
 ### Evergreen Triggers
 Evergreen builds and _patches_ are triggered in multiple ways. The Mongo Shell project is setup to be triggered by:
 
-* New commits on the main branch (currently `master`, i.e. _waterfall builds_
+* New commits on the main branch (currently `main`, i.e. _waterfall builds_
 * New Pull Requests against the main branch on GitHub (i.e. _patches_)
 * A new tag matching `v0.0.0-draft.0` is pushed on the main or a release branch (i.e. a draft build is triggered)
 * A new tag matching `v0.0.0` is pushed on the main or a release branch (i.e. a release is to be published)
@@ -116,7 +116,7 @@ The _Publish_ stage is independent from all other stages. As mentioned at the be
 ## Package Structure
 
 The package has two major purposes:
-* Custom build commands to handle the stages outlined above 
+* Custom build commands to handle the stages outlined above
 * Provide easy helpers to trigger the release process
 
 See [index.ts](./src/index.ts) for the main entry point on the different commands.

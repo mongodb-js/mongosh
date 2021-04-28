@@ -17,8 +17,8 @@ export function shouldDoPublicRelease(config: Config): boolean {
     return false;
   }
 
-  if (config.branch !== 'master') {
-    console.info('mongosh: skip public release: is not master');
+  if (config.branch !== 'main') {
+    console.info('mongosh: skip public release: is not main');
     return false;
   }
 

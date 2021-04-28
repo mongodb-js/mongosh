@@ -1,6 +1,6 @@
 # Docker test images
 
-This folder contains scripts and Dockerfiles to test the master build of mongosh on different linux distributions.
+This folder contains scripts and Dockerfiles to test the main branch build of mongosh on different linux distributions.
 
 ## Usage
 
