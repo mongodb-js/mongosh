@@ -221,7 +221,14 @@ function formatHelp(value: HelpProperties, options: FormatOptions): string {
     if (method.name && method.description) {
       formatted = `    ${method.name}`;
       const extraSpaces = argLen - formatted.length;
-      formatted += `${' '.repeat(extraSpaces)}${method.description}`;
+      const descriptionLines = method.description.split('\n');
+      descriptionLines[0] = ' '.repeat(extraSpaces) + descriptionLines[0];
+      for (let i = 1; i < descriptionLines.length; i++) {
+        if (descriptionLines[i].trim() !== '') {
+          descriptionLines[i] = ' '.repeat(argLen) + descriptionLines[i];
+        }
+      }
+      formatted += descriptionLines.join('\n');
     }
     if (!method.name && method.description) {
       formatted = `  ${method.description}`;
