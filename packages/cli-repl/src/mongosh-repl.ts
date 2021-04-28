@@ -70,6 +70,7 @@ class MongoshNodeRepl implements EvaluationListener {
   onClearCommand?: EvaluationListener['onClearCommand'];
   insideAutoComplete: boolean;
   inspectDepth = 0;
+  started = false;
 
   constructor(options: MongoshNodeReplOptions) {
     this.input = options.input;
@@ -151,6 +152,9 @@ class MongoshNodeRepl implements EvaluationListener {
     const originalDisplayPrompt = repl.displayPrompt.bind(repl);
 
     repl.displayPrompt = (...args: any[]) => {
+      if (!this.started) {
+        return;
+      }
       originalDisplayPrompt(...args);
       this.lineByLineInput.nextLine();
     };
@@ -242,6 +246,7 @@ class MongoshNodeRepl implements EvaluationListener {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async startRepl(_initializationToken: InitializationToken): Promise<void> {
+    this.started = true;
     const { repl, internalState } = this.runtimeState();
     // Only start reading from the input *after* we set up everything, including
     // internalState.setCtx().

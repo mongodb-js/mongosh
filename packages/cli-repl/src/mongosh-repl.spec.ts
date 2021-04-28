@@ -750,4 +750,18 @@ describe('MongoshNodeRepl', () => {
       expect(output).to.contain('Atlas Data Lake > ');
     });
   });
+
+  context('before the REPL starts', () => {
+    beforeEach(async() => {
+      await mongoshRepl.initialize(serviceProvider);
+      // No .start() call here.
+    });
+
+    it('does not show a prompt', async() => {
+      await mongoshRepl.loadExternalCode('setImmediate(() => { throw new Error(); })', '<eval>');
+      await tick();
+      expect(output).to.include('Error: \n');
+      expect(output).not.to.include('>');
+    });
+  });
 });
