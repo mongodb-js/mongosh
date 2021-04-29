@@ -7,13 +7,15 @@ import {
   platforms,
   toShellResult,
   ShellResult,
-  directShellCommand
+  directShellCommand,
+  shellCommandCompleter,
+  ShellCommandAutocompleteParameters
 } from './decorators';
 import { asPrintable } from './enums';
 import Mongo from './mongo';
 import Database from './database';
 import { CommandResult, CursorIterationResult } from './result';
-import ShellInternalState from './shell-internal-state';
+import type ShellInternalState from './shell-internal-state';
 import { assertArgsDefinedType, assertCLI } from './helpers';
 import { DEFAULT_DB, ReplPlatform, ServerApi, ServerApiVersionId } from '@mongosh/service-provider-core';
 import { CommonErrors, MongoshUnimplementedError, MongoshInternalError } from '@mongosh/errors';
@@ -25,6 +27,7 @@ import { ShellUserConfig } from '@mongosh/types';
 import i18n from '@mongosh/i18n';
 
 const internalStateSymbol = Symbol.for('@@mongosh.internalState');
+const loadCallNestingLevelSymbol = Symbol.for('@@mongosh.loadCallNestingLevel');
 
 @shellApiClassDefault
 @hasAsyncChild
@@ -71,21 +74,38 @@ class ShellConfig extends ShellApiClass {
   }
 }
 
+// Complete e.g. `use adm` by returning `['admin']`.
+async function useCompleter(params: ShellCommandAutocompleteParameters, args: string[]): Promise<string[] | undefined> {
+  if (args.length > 2) return undefined;
+  return await params.getDatabaseCompletions(args[1] ?? '');
+}
+
+// Complete a `show` subcommand.
+async function showCompleter(params: ShellCommandAutocompleteParameters, args: string[]): Promise<string[] | undefined> {
+  if (args.length > 2) return undefined;
+  if (args[1] === 'd') {
+    // Special-case: The user might want `show dbs` or `show databases`, but they won't care about which they get.
+    return ['databases'];
+  }
+  const candidates = ['databases', 'dbs', 'collections', 'tables', 'profile', 'users', 'roles', 'log', 'logs'];
+  return candidates.filter(str => str.startsWith(args[1] ?? ''));
+}
+
 @shellApiClassDefault
 @hasAsyncChild
 export default class ShellApi extends ShellApiClass {
-  // Use a symbol to make sure this is *not* one of the things copied over into
+  // Use symbols to make sure these are *not* among the things copied over into
   // the global scope.
   [internalStateSymbol]: ShellInternalState;
-  public DBQuery: DBQuery;
-  loadCallNestingLevel: number;
+  [loadCallNestingLevelSymbol]: number;
+  DBQuery: DBQuery;
   config: ShellConfig;
 
   constructor(internalState: ShellInternalState) {
     super();
     this[internalStateSymbol] = internalState;
+    this[loadCallNestingLevelSymbol] = 0;
     this.DBQuery = new DBQuery(internalState);
-    this.loadCallNestingLevel = 0;
     this.config = new ShellConfig(internalState);
   }
 
@@ -93,13 +113,23 @@ export default class ShellApi extends ShellApiClass {
     return this[internalStateSymbol];
   }
 
+  get loadCallNestingLevel(): number {
+    return this[loadCallNestingLevelSymbol];
+  }
+
+  set loadCallNestingLevel(value: number) {
+    this[loadCallNestingLevelSymbol] = value;
+  }
+
   @directShellCommand
+  @shellCommandCompleter(useCompleter)
   use(db: string): any {
     return this.internalState.currentDb._mongo.use(db);
   }
 
   @directShellCommand
   @returnsPromise
+  @shellCommandCompleter(showCompleter)
   async show(cmd: string, arg?: string): Promise<CommandResult> {
     return await this.internalState.currentDb._mongo.show(cmd, arg);
   }

@@ -137,11 +137,20 @@ class MongoshNodeRepl implements EvaluationListener {
         this.insideAutoComplete = true;
         try {
           // Merge the results from the repl completer and the mongosh completer.
-          const [ [replResults], [mongoshResults] ] = await Promise.all([
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const [ [replResults], [mongoshResults, _, mongoshResultsExclusive] ] = await Promise.all([
             (async() => await origReplCompleter(text) || [[]])(),
             (async() => await mongoshCompleter(text))()
           ]);
           this.bus.emit('mongosh:autocompletion-complete'); // For testing.
+
+          // Sometimes the mongosh completion knows that what it is doing is right,
+          // and that autocompletion based on inspecting the actual objects that
+          // are being accessed will not be helpful, e.g. in `use a<tab>`, we know
+          // that we want *only* database names and not e.g. `assert`.
+          if (mongoshResultsExclusive) {
+            return [mongoshResults, text];
+          }
           // Remove duplicates, because shell API methods might otherwise show
           // up in both completions.
           const deduped = [...new Set([...replResults, ...mongoshResults])];

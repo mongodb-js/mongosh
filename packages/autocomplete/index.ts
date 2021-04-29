@@ -24,6 +24,7 @@ export interface AutocompleteParameters {
     server_version: string;
   },
   getCollectionCompletionsForCurrentDb: (collName: string) => string[] | Promise<string[]>;
+  getDatabaseCompletions: (dbName: string) => string[] | Promise<string[]>;
 }
 
 export const BASE_COMPLETIONS = EXPRESSION_OPERATORS.concat(
@@ -50,7 +51,7 @@ const GROUP = '$group';
  *
  * @returns {array} Matching Completions, Current User Input.
  */
-async function completer(params: AutocompleteParameters, line: string): Promise<[string[], string]> {
+async function completer(params: AutocompleteParameters, line: string): Promise<[string[], string, 'exclusive'] | [string[], string]> {
   const SHELL_COMPLETIONS = shellSignatures.ShellApi.attributes as TypeSignatureAttributes;
   const COLL_COMPLETIONS = shellSignatures.Collection.attributes as TypeSignatureAttributes;
   const DB_COMPLETIONS = shellSignatures.Database.attributes as TypeSignatureAttributes;
@@ -59,6 +60,26 @@ async function completer(params: AutocompleteParameters, line: string): Promise<
   const RS_COMPLETIONS = shellSignatures.ReplicaSet.attributes as TypeSignatureAttributes;
   const CONFIG_COMPLETIONS = shellSignatures.ShellConfig.attributes as TypeSignatureAttributes;
   const SHARD_COMPLETE = shellSignatures.Shard.attributes as TypeSignatureAttributes;
+
+  const splitLineWhitespace = line.split(' ');
+  const command = splitLineWhitespace[0];
+  if (SHELL_COMPLETIONS[command]?.isDirectShellCommand) {
+    // If we encounter a direct shell commmand, we know that we want completions
+    // specific to that command, so we set the 'exclusive' flag on the result.
+    // If the shell API provides us with a completer, use it.
+    const completer = SHELL_COMPLETIONS[command].shellCommandCompleter;
+    if (completer) {
+      if (splitLineWhitespace.length === 1) {
+        splitLineWhitespace.push(''); // Treat e.g. 'show' like 'show '.
+      }
+      const hits = await completer(params, splitLineWhitespace) || [];
+      // Adjust to full input, because `completer` only completed the last item
+      // in the line, e.g. ['profile'] -> ['show profile']
+      const fullLineHits = hits.map(hit => [...splitLineWhitespace.slice(0, -1), hit].join(' '));
+      return [fullLineHits, line, 'exclusive'];
+    }
+    return [[line], line, 'exclusive'];
+  }
 
   // keep initial line param intact to always return in return statement
   // check for contents of line with:

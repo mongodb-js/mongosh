@@ -23,6 +23,7 @@ import {
   ChangeStreamOptions,
   Document,
   generateUri,
+  ListDatabasesOptions,
   ReadConcernLevelId,
   ReadPreference,
   ReadPreferenceLike,
@@ -66,6 +67,7 @@ export default class Mongo extends ShellApiClass {
   private _clientEncryption: ClientEncryption | undefined;
   private _readPreferenceWasExplicitlyRequested = false;
   private _explicitEncryptionOnly = false;
+  private _cachedDatabaseNames: string[] = [];
 
   constructor(
     internalState: ShellInternalState,
@@ -216,6 +218,31 @@ export default class Mongo extends ShellApiClass {
     return `switched to db ${db}`;
   }
 
+  async _listDatabases(opts: ListDatabasesOptions = {}): Promise<{name: string, sizeOnDisk: number, empty: boolean}[]> {
+    const result = await this._serviceProvider.listDatabases('admin', { ...opts });
+    if (!('databases' in result)) {
+      const err = new MongoshRuntimeError('Got invalid result from "listDatabases"', CommonErrors.CommandFailed);
+      this._internalState.messageBus.emit('mongosh:error', err);
+      throw err;
+    }
+    this._cachedDatabaseNames = result.databases.map((db: any) => db.name);
+    return result.databases;
+  }
+
+  async _getDatabaseNamesForCompletion(): Promise<string[]> {
+    return await Promise.race([
+      (async() => {
+        return (await this._listDatabases({ readPreference: 'primaryPreferred' })).map(db => db.name);
+      })(),
+      (async() => {
+        // See the comment in _getCollectionNamesForCompletion/database.ts
+        // for the choice of 200 ms.
+        await new Promise(resolve => setTimeout(resolve, 200).unref());
+        return this._cachedDatabaseNames;
+      })()
+    ]);
+  }
+
   @returnsPromise
   async show(cmd: string, arg?: string): Promise<CommandResult> {
     this._internalState.messageBus.emit('mongosh:show', { method: `show ${cmd}` });
@@ -223,14 +250,8 @@ export default class Mongo extends ShellApiClass {
     switch (cmd) {
       case 'databases':
       case 'dbs':
-        const result = await this._serviceProvider.listDatabases('admin', { readPreference: 'primaryPreferred' });
-        if (!('databases' in result)) {
-          const err = new MongoshRuntimeError('Got invalid result from "listDatabases"', CommonErrors.CommandFailed);
-          this._internalState.messageBus.emit('mongosh:error', err);
-          throw err;
-        }
-
-        return new CommandResult('ShowDatabasesResult', result.databases);
+        const result = await this._listDatabases({ readPreference: 'primaryPreferred' });
+        return new CommandResult('ShowDatabasesResult', result);
       case 'collections':
       case 'tables':
         const collectionNames = await this._internalState.currentDb._getCollectionNames({ readPreference: 'primaryPreferred' });

@@ -133,6 +133,19 @@ function wrapWithAddSourceToResult(fn: Function): Function {
   return wrapper;
 }
 
+// This is a bit more restrictive than `AutocompleteParameters` used in the
+// internal state code, so that it can also be accessed by testing code in the
+// autocomplete package. You can expand this type to be closed to `AutocompleteParameters`
+// as needed.
+export interface ShellCommandAutocompleteParameters {
+  getCollectionCompletionsForCurrentDb: (collName: string) => string[] | Promise<string[]>;
+  getDatabaseCompletions: (dbName: string) => string[] | Promise<string[]>;
+}
+// Provide a suggested list of completions for the last item in a shell command,
+// e.g. `show pro` to `show profile` by returning ['profile'].
+export type ShellCommandCompleter =
+  (params: ShellCommandAutocompleteParameters, args: string[]) => Promise<string[] | undefined>;
+
 export interface TypeSignature {
   type: string;
   hasAsyncChild?: boolean;
@@ -142,6 +155,8 @@ export interface TypeSignature {
   deprecated?: boolean;
   returnType?: string | TypeSignature;
   attributes?: { [key: string]: TypeSignature };
+  isDirectShellCommand?: boolean;
+  shellCommandCompleter?: ShellCommandCompleter;
 }
 
 interface Signatures {
@@ -169,6 +184,8 @@ type ClassSignature = {
       returnsPromise: boolean;
       deprecated: boolean;
       platforms: ReplPlatform[];
+      isDirectShellCommand: boolean;
+      shellCommandCompleter?: ShellCommandCompleter;
     }
   };
 };
@@ -217,6 +234,8 @@ export function shellApiClassGeneric(constructor: Function, hasHelp: boolean): v
     method.returnsPromise = method.returnsPromise || false;
     method.deprecated = method.deprecated || false;
     method.platforms = method.platforms || ALL_PLATFORMS;
+    method.isDirectShellCommand = method.isDirectShellCommand || false;
+    method.shellCommandCompleter = method.shellCommandCompleter || undefined;
 
     classSignature.attributes[propertyName] = {
       type: 'function',
@@ -225,7 +244,9 @@ export function shellApiClassGeneric(constructor: Function, hasHelp: boolean): v
       returnType: method.returnType === 'this' ? className : method.returnType,
       returnsPromise: method.returnsPromise,
       deprecated: method.deprecated,
-      platforms: method.platforms
+      platforms: method.platforms,
+      isDirectShellCommand: method.isDirectShellCommand,
+      shellCommandCompleter: method.shellCommandCompleter
     };
 
     const attributeHelpKeyPrefix = `${classHelpKeyPrefix}.attributes.${propertyName}`;
@@ -274,7 +295,9 @@ export function shellApiClassGeneric(constructor: Function, hasHelp: boolean): v
         returnType: method.returnType === 'this' ? className : method.returnType,
         returnsPromise: method.returnsPromise,
         deprecated: method.deprecated,
-        platforms: method.platforms
+        platforms: method.platforms,
+        isDirectShellCommand: method.isDirectShellCommand,
+        shellCommandCompleter: method.shellCommandCompleter
       };
 
       const attributeHelpKeyPrefix = `${superClassHelpKeyPrefix}.attributes.${propertyName}`;
@@ -348,6 +371,15 @@ export function returnsPromise(_target: any, _propertyKey: string, descriptor: P
 }
 export function directShellCommand(_target: any, _propertyKey: string, descriptor: PropertyDescriptor): void {
   descriptor.value.isDirectShellCommand = true;
+}
+export function shellCommandCompleter(completer: ShellCommandCompleter): Function {
+  return function(
+    _target: any,
+    _propertyKey: string,
+    descriptor: PropertyDescriptor
+  ): void {
+    descriptor.value.shellCommandCompleter = completer;
+  };
 }
 export function returnType(type: string | TypeSignature): Function {
   return function(
