@@ -138,7 +138,7 @@ export class KeyVault extends ShellApiClass {
         masterKeyOrAltNames = undefined;
       } else {
         throw new MongoshInvalidInputError(
-          'KeyVault.createKey does not support providing masterKey as string anymore. For AWS please use createKey("aws", { region: ..., masterKey: ... })',
+          'KeyVault.createKey does not support providing masterKey as string anymore. For AWS please use createKey("aws", { region: ..., key: ... })',
           CommonErrors.Deprecated
         );
       }
