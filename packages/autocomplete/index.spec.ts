@@ -531,7 +531,7 @@ describe('completer.completer', () => {
     it('completes commands like exit', async() => {
       const i = 'exi';
       expect(await completer(noParams, i))
-        .to.deep.equal([['exit'], i, 'exclusive']);
+        .to.deep.equal([['exit'], i]);
     });
   });
 });
