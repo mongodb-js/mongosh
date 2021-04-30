@@ -812,22 +812,33 @@ export default class Database extends ShellApiClass {
   @returnsPromise
   async isMaster(): Promise<Document> {
     this._emitDatabaseApiCall('isMaster', {});
-    return await this._runCommand(
+    const result = await this._runCommand(
       {
         isMaster: 1,
       }
     );
+    result.isWritablePrimary = result.ismaster;
+    return result;
   }
 
   @returnsPromise
   @serverVersions(['5.0.0', ServerVersions.latest])
   async hello(): Promise<Document> {
     this._emitDatabaseApiCall('hello', {});
-    return await this._runCommand(
-      {
-        hello: 1,
+    try {
+      return await this._runCommand(
+        {
+          hello: 1,
+        }
+      );
+    } catch (err) {
+      if (err.codeName === 'CommandNotFound') {
+        const result = await this.isMaster();
+        delete result.ismaster;
+        return result;
       }
-    );
+      throw err;
+    }
   }
 
   @returnsPromise

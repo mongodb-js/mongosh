@@ -1927,14 +1927,17 @@ describe('Shell API (integration)', function() {
   describe('database commands', () => {
     it('db.isMaster() works', async() => {
       expect((await database.isMaster()).ismaster).to.equal(true);
+      expect((await database.isMaster()).isWritablePrimary).to.equal(true);
+    });
+
+    it('db.hello() works', async() => {
+      const result = await database.hello();
+      expect(result.ismaster).to.equal(undefined);
+      expect(result.isWritablePrimary).to.equal(true);
     });
 
     context('with 5.0+ server', () => {
       skipIfServerVersion(testServer, '<= 4.4');
-
-      it('db.hello() works', async() => {
-        expect((await database.hello()).isWritablePrimary).to.equal(true);
-      });
 
       it('db.rotateCertificates() works', async() => {
         expect((await database.rotateCertificates()).ok).to.equal(1);
