@@ -257,8 +257,10 @@ describe('<Shell />', () => {
     let onInputDone;
     wrapper = shallow(<Shell
       runtime={{
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         evaluate: (code: string): Promise<any> => {
+          if (code.includes('typeof prompt')) {
+            return Promise.resolve({});
+          }
           return new Promise(resolve => {
             onInputDone = resolve;
           });
@@ -347,7 +349,7 @@ describe('<Shell />', () => {
 
     wrapper.update();
 
-    expect(Element.prototype.scrollIntoView).to.have.been.calledThrice;
+    expect(Element.prototype.scrollIntoView).to.have.been.calledTwice;
   });
 
   it('focuses on the input when the background container is clicked', () => {
@@ -457,13 +459,15 @@ describe('<Shell />', () => {
     });
 
     it('updates after evaluation', async() => {
-      let called = false;
+      let called = 0;
       fakeRuntime.getShellPrompt = async() => {
-        if (!called) {
-          called = true;
+        if (called++ <= 1) {
           return 'mongos>';
         }
         return 'rs0:primary>';
+      };
+      fakeRuntime.evaluate = async() => {
+        return {};
       };
 
       wrapper = mount(<Shell runtime={fakeRuntime} />);
@@ -473,6 +477,20 @@ describe('<Shell />', () => {
 
       await onInput('some code');
       expect(wrapper.find('ShellInput').prop('prompt')).to.equal('rs0:primary>');
+    });
+
+    it('works with a custom user-provided prompt', async() => {
+      fakeRuntime.evaluate = async() => {
+        return {
+          type: null,
+          printable: 'abc>'
+        };
+      };
+
+      wrapper = mount(<Shell runtime={fakeRuntime} />);
+      await wait();
+      wrapper.update();
+      expect(wrapper.find('ShellInput').prop('prompt')).to.equal('abc>');
     });
   });
 });
