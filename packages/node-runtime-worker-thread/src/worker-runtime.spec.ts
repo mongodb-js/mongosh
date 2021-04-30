@@ -395,6 +395,24 @@ describe('worker', () => {
           .matches(/TypeError: Oh no, types!/);
       });
 
+      it('should preserve extra error properties', async() => {
+        const { init, evaluate } = caller;
+
+        await init('mongodb://nodb/', {}, { nodb: true });
+
+        let err: Error;
+        try {
+          await evaluate('throw Object.assign(new TypeError("Oh no, types!"), { errInfo: { message: "wrong type :S" } })');
+        } catch (e) {
+          err = e;
+        }
+
+        expect(err).to.be.instanceof(Error);
+        expect(err).to.have.property('name', 'TypeError');
+        expect(err).to.have.property('message', 'Oh no, types!');
+        expect((err as any).errInfo.message).to.equal('wrong type :S');
+      });
+
       it("should return an error if it's returned from evaluation", async() => {
         const { init, evaluate } = caller;
 

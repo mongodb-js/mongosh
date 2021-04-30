@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
+import { SimpleTypeOutput } from './simple-type-output';
 import { Expandable } from '../utils/expandable';
 
 
@@ -25,10 +26,32 @@ export class ErrorOutput extends Component<ErrorOutputProps> {
     return this.props.value.stack.split('\n').slice(1).join('\n');
   }
 
+  formatErrorInfo(): JSX.Element | undefined {
+    if (this.props.value.errInfo) {
+      return (<div>
+        Additional information:
+        <SimpleTypeOutput value={this.props.value.errInfo} />
+      </div>);
+    }
+    return undefined;
+  }
+
+  formatErrorResult(): JSX.Element | undefined {
+    if (this.props.value.result) {
+      return (<div>
+        Result:
+        <SimpleTypeOutput value={this.props.value.result} />
+      </div>);
+    }
+    return undefined;
+  }
+
   renderExpanded(toggle: () => void): JSX.Element {
     return (<div>
       {this.renderCollapsed(toggle)}
       <div>
+        {this.formatErrorInfo()}
+        {this.formatErrorResult()}
         <pre>{this.formatStack()}</pre>
       </div>
     </div>);
@@ -42,4 +65,3 @@ export class ErrorOutput extends Component<ErrorOutputProps> {
     }</Expandable>);
   }
 }
-
