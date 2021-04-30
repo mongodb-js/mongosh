@@ -137,8 +137,7 @@ class MongoshNodeRepl implements EvaluationListener {
         this.insideAutoComplete = true;
         try {
           // Merge the results from the repl completer and the mongosh completer.
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const [ [replResults], [mongoshResults, _, mongoshResultsExclusive] ] = await Promise.all([
+          const [ [replResults], [mongoshResults,, mongoshResultsExclusive] ] = await Promise.all([
             (async() => await origReplCompleter(text) || [[]])(),
             (async() => await mongoshCompleter(text))()
           ]);
