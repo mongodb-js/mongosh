@@ -146,10 +146,31 @@ export class Shell extends Component<ShellProps, ShellState> {
 
   private async updateShellPrompt(): Promise<void> {
     let shellPrompt = '>';
+    let hasCustomPrompt = false;
     try {
-      shellPrompt = (await this.props.runtime.getShellPrompt()) ?? '>';
-    } catch (e) {
+      this.props.runtime.setEvaluationListener(this);
+      const promptResult = await this.props.runtime.evaluate(`
+      (() => {
+        switch (typeof prompt) {
+          case 'function':
+            return prompt();
+          case 'string':
+            return prompt;
+        }
+      })()`);
+      if (promptResult.type === null && typeof promptResult.printable === 'string') {
+        shellPrompt = promptResult.printable;
+        hasCustomPrompt = true;
+      }
+    } catch {
       // Just ignore errors when getting the prompt...
+    }
+    if (!hasCustomPrompt) {
+      try {
+        shellPrompt = (await this.props.runtime.getShellPrompt()) ?? '>';
+      } catch {
+        // Just ignore errors when getting the prompt...
+      }
     }
     this.setState({ shellPrompt });
   }
