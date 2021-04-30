@@ -760,6 +760,23 @@ describe('CliRepl', () => {
         expect(exitCode).to.equal(0);
       });
     });
+
+    context('with a user-provided prompt', () => {
+      it('allows prompts that interact with shell API methods', async() => {
+        await cliRepl.start(await testServer.connectionString(), {});
+
+        input.write('use clirepltest\n');
+        await waitEval(cliRepl.bus);
+
+        input.write('prompt = () => `on ${db.getName()}> `;\n');
+        await waitEval(cliRepl.bus);
+
+        output = '';
+        input.write('1 + 2\n');
+        await waitEval(cliRepl.bus);
+        expect(output).to.include('on clirepltest> ');
+      });
+    });
   });
 
   context('with a replset node', () => {

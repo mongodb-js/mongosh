@@ -396,6 +396,28 @@ describe('MongoshNodeRepl', () => {
             ]);
           });
 
+          it('works for multi-line input when a prompt has been set before', async() => {
+            input.write('prompt = () => "abc> "\n');
+            await tick();
+
+            output = '';
+            input.write('obj = ({ foo: \n');
+            await tick();
+            input.write('"bar" })\n');
+            await tick();
+            expect(mongoshRepl.runtimeState().repl.context.obj).to.deep.equal({ foo: 'bar' });
+            expect(output).not.to.include('obj = ({ foo: "bar" })');
+
+            output = '';
+            input.write(`${arrowUp}\n`);
+            await tick();
+            expect(output).to.include('obj = ({ foo: "bar" })');
+            expect(getHistory()).to.deep.equal([
+              'obj = ({ foo: "bar" })',
+              'prompt = () => "abc> "'
+            ]);
+          });
+
           it('works for interrupted multi-line input', async() => {
             input.write('const a = 20\n');
             await tick();
@@ -764,6 +786,47 @@ describe('MongoshNodeRepl', () => {
       input.write('db = Mongo("foo").getDB("bar")\n');
       await waitEval(bus);
       expect(output).to.contain('Atlas Data Lake > ');
+    });
+
+    context('user-provided prompt', () => {
+      beforeEach(async() => {
+        const initialized = await mongoshRepl.initialize(serviceProvider);
+        await mongoshRepl.startRepl(initialized);
+        output = '';
+      });
+
+      it('accepts a custom user-provided prompt string', async() => {
+        input.write('prompt = "abc> "; 0\n');
+        await waitEval(bus);
+        expect(output).to.contain('abc> ');
+      });
+
+      it('accepts a custom user-provided prompt function', async() => {
+        input.write('prompt = () => { return "foo" + "> " }; 0\n');
+        await waitEval(bus);
+        expect(output).to.contain('foo> ');
+      });
+
+      it('ignores user-provided non-strings', async() => {
+        input.write('prompt = 123; 0\n');
+        await waitEval(bus);
+        expect(output).not.to.contain('123');
+        expect(output).to.contain('> ');
+      });
+
+      it('ignores user-provided non-string-returning functions', async() => {
+        input.write('prompt = () => 123; 0\n');
+        await waitEval(bus);
+        expect(output).not.to.contain('123');
+        expect(output).to.contain('> ');
+      });
+
+      it('ignores user-provided throwing functions', async() => {
+        input.write('prompt = () => { throw new Error("foobar") }; 0\n');
+        await waitEval(bus);
+        expect(output).not.to.contain('foobar');
+        expect(output).to.contain('> ');
+      });
     });
   });
 
