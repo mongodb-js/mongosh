@@ -9,7 +9,8 @@ const standalone440 = {
     is_data_lake: false,
     server_version: '4.4.0'
   }),
-  getCollectionCompletionsForCurrentDb: () => ['bananas']
+  getCollectionCompletionsForCurrentDb: () => ['bananas'],
+  getDatabaseCompletions: () => ['databaseOne']
 };
 
 describe('Autocompleter', () => {
@@ -41,6 +42,14 @@ describe('Autocompleter', () => {
 
       expect(completions).to.deep.contain({
         completion: 'db.bananas'
+      });
+    });
+
+    it('returns database names after use', async() => {
+      const completions = await autocompleter.getCompletions('use da');
+
+      expect(completions).to.deep.contain({
+        completion: 'use databaseOne'
       });
     });
   });

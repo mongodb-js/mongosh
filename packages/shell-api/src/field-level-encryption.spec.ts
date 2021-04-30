@@ -98,7 +98,9 @@ describe('Field Level Encryption', () => {
         returnType: { attributes: {}, type: 'unknown' },
         platforms: ALL_PLATFORMS,
         topologies: ALL_TOPOLOGIES,
-        serverVersions: ALL_SERVER_VERSIONS
+        serverVersions: ALL_SERVER_VERSIONS,
+        isDirectShellCommand: false,
+        shellCommandCompleter: undefined
       });
       expect(signatures.ClientEncryption.attributes.encrypt).to.deep.equal({
         type: 'function',
@@ -107,7 +109,9 @@ describe('Field Level Encryption', () => {
         returnType: { attributes: {}, type: 'unknown' },
         platforms: ALL_PLATFORMS,
         topologies: ALL_TOPOLOGIES,
-        serverVersions: ALL_SERVER_VERSIONS
+        serverVersions: ALL_SERVER_VERSIONS,
+        isDirectShellCommand: false,
+        shellCommandCompleter: undefined
       });
     });
     it('hasAsyncChild', () => {

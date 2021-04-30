@@ -403,7 +403,8 @@ describe('CliRepl', () => {
       testServer: null,
       wantWatch: true,
       wantShardDistribution: true,
-      hasCollectionNames: false
+      hasCollectionNames: false,
+      hasDatabaseNames: false
     });
   });
 
@@ -566,7 +567,8 @@ describe('CliRepl', () => {
       testServer: testServer,
       wantWatch: false,
       wantShardDistribution: false,
-      hasCollectionNames: true
+      hasCollectionNames: true,
+      hasDatabaseNames: true
     });
 
     context('analytics integration', () => {
@@ -765,7 +767,8 @@ describe('CliRepl', () => {
       testServer: startTestServer('not-shared', '--replicaset', '--nodes', '1'),
       wantWatch: true,
       wantShardDistribution: false,
-      hasCollectionNames: true
+      hasCollectionNames: true,
+      hasDatabaseNames: true
     });
   });
 
@@ -774,7 +777,8 @@ describe('CliRepl', () => {
       testServer: startTestServer('not-shared', '--replicaset', '--sharded', '0'),
       wantWatch: true,
       wantShardDistribution: true,
-      hasCollectionNames: false // We're only spinning up a mongos here
+      hasCollectionNames: false, // We're only spinning up a mongos here
+      hasDatabaseNames: true
     });
   });
 
@@ -783,15 +787,17 @@ describe('CliRepl', () => {
       testServer: startTestServer('not-shared', '--auth'),
       wantWatch: false,
       wantShardDistribution: false,
-      hasCollectionNames: false
+      hasCollectionNames: false,
+      hasDatabaseNames: false
     });
   });
 
-  function verifyAutocompletion({ testServer, wantWatch, wantShardDistribution, hasCollectionNames }: {
+  function verifyAutocompletion({ testServer, wantWatch, wantShardDistribution, hasCollectionNames, hasDatabaseNames }: {
     testServer: MongodSetup | null,
     wantWatch: boolean,
     wantShardDistribution: boolean,
-    hasCollectionNames: boolean
+    hasCollectionNames: boolean,
+    hasDatabaseNames: boolean
   }): void {
     describe('autocompletion', () => {
       let cliRepl: CliRepl;
@@ -870,6 +876,24 @@ describe('CliRepl', () => {
         expect(output).to.include('JSON.parse');
         expect(output).not.to.include('JSON.stringify');
         expect(output).not.to.include('rawValue');
+      });
+
+      it('completes shell commands', async() => {
+        input.write('const dSomeVariableStartingWithD = 10;\n');
+        await waitEval(cliRepl.bus);
+
+        output = '';
+        input.write(`show d${tab}`);
+        await waitCompletion(cliRepl.bus);
+        expect(output).to.include('show databases');
+        expect(output).not.to.include('dSomeVariableStartingWithD');
+      });
+
+      it('completes use <db>', async() => {
+        if (!hasDatabaseNames) return;
+        input.write(`use adm${tab}`);
+        await waitCompletion(cliRepl.bus);
+        expect(output).to.include('use admin');
       });
     });
   }

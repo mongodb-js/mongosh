@@ -4,6 +4,7 @@ import { signatures as shellSignatures, Topologies } from '@mongosh/shell-api';
 import { expect } from 'chai';
 
 let collections: string[];
+let databases: string[];
 const standalone440 = {
   topology: () => Topologies.Standalone,
   connectionInfo: () => ({
@@ -11,7 +12,8 @@ const standalone440 = {
     is_data_lake: false,
     server_version: '4.4.0'
   }),
-  getCollectionCompletionsForCurrentDb: () => collections
+  getCollectionCompletionsForCurrentDb: () => collections,
+  getDatabaseCompletions: () => databases
 };
 const sharded440 = {
   topology: () => Topologies.Sharded,
@@ -20,7 +22,8 @@ const sharded440 = {
     is_data_lake: false,
     server_version: '4.4.0'
   }),
-  getCollectionCompletionsForCurrentDb: () => collections
+  getCollectionCompletionsForCurrentDb: () => collections,
+  getDatabaseCompletions: () => databases
 };
 
 const standalone300 = {
@@ -30,7 +33,8 @@ const standalone300 = {
     is_data_lake: false,
     server_version: '3.0.0'
   }),
-  getCollectionCompletionsForCurrentDb: () => collections
+  getCollectionCompletionsForCurrentDb: () => collections,
+  getDatabaseCompletions: () => databases
 };
 const datalake440 = {
   topology: () => Topologies.Sharded,
@@ -39,13 +43,15 @@ const datalake440 = {
     is_data_lake: true,
     server_version: '4.4.0'
   }),
-  getCollectionCompletionsForCurrentDb: () => collections
+  getCollectionCompletionsForCurrentDb: () => collections,
+  getDatabaseCompletions: () => databases
 };
 
 const noParams = {
   topology: () => Topologies.Standalone,
   connectionInfo: () => undefined,
-  getCollectionCompletionsForCurrentDb: () => collections
+  getCollectionCompletionsForCurrentDb: () => collections,
+  getDatabaseCompletions: () => databases
 };
 
 describe('completer.completer', () => {
@@ -66,7 +72,7 @@ describe('completer.completer', () => {
 
     it('is an exact match to one of shell completions', async() => {
       const i = 'use';
-      expect(await completer(standalone440, i)).to.deep.equal([[i], i]);
+      expect(await completer(standalone440, i)).to.deep.equal([[], i, 'exclusive']);
     });
   });
 
@@ -480,6 +486,52 @@ describe('completer.completer', () => {
     it('does not match if it is not .find or .aggregate', async() => {
       const i = 'db.shipwrecks.moo({feature_type: "Wrecks - Visible"}).';
       expect(await completer(standalone440, i)).to.deep.equal([[], i]);
+    });
+  });
+
+  context('for shell commands', () => {
+    it('completes partial commands', async() => {
+      const i = 'sho';
+      expect(await completer(noParams, i))
+        .to.deep.equal([['show'], i]);
+    });
+
+    it('completes partial commands', async() => {
+      const i = 'show';
+      const result = await completer(noParams, i);
+      expect(result[0]).to.contain('show databases');
+    });
+
+    it('completes show databases', async() => {
+      const i = 'show d';
+      expect(await completer(noParams, i))
+        .to.deep.equal([['show databases'], i, 'exclusive']);
+    });
+
+    it('completes show profile', async() => {
+      const i = 'show pr';
+      expect(await completer(noParams, i))
+        .to.deep.equal([['show profile'], i, 'exclusive']);
+    });
+
+    it('completes use db', async() => {
+      databases = ['db1', 'db2'];
+      const i = 'use';
+      expect(await completer(noParams, i))
+        .to.deep.equal([['use db1', 'use db2'], i, 'exclusive']);
+    });
+
+    it('does not try to complete over-long commands', async() => {
+      databases = ['db1', 'db2'];
+      const i = 'use db1 d';
+      expect(await completer(noParams, i))
+        .to.deep.equal([[], i, 'exclusive']);
+    });
+
+    it('completes commands like exit', async() => {
+      const i = 'exi';
+      expect(await completer(noParams, i))
+        .to.deep.equal([['exit'], i]);
     });
   });
 });

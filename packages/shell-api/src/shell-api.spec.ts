@@ -40,7 +40,9 @@ describe('ShellApi', () => {
         returnType: { type: 'unknown', attributes: {} },
         platforms: ALL_PLATFORMS,
         topologies: ALL_TOPOLOGIES,
-        serverVersions: ALL_SERVER_VERSIONS
+        serverVersions: ALL_SERVER_VERSIONS,
+        isDirectShellCommand: true,
+        shellCommandCompleter: signatures.ShellApi.attributes.use.shellCommandCompleter
       });
       expect(signatures.ShellApi.attributes.show).to.deep.equal({
         type: 'function',
@@ -49,7 +51,9 @@ describe('ShellApi', () => {
         returnType: { type: 'unknown', attributes: {} },
         platforms: ALL_PLATFORMS,
         topologies: ALL_TOPOLOGIES,
-        serverVersions: ALL_SERVER_VERSIONS
+        serverVersions: ALL_SERVER_VERSIONS,
+        isDirectShellCommand: true,
+        shellCommandCompleter: signatures.ShellApi.attributes.show.shellCommandCompleter
       });
       expect(signatures.ShellApi.attributes.exit).to.deep.equal({
         type: 'function',
@@ -58,7 +62,9 @@ describe('ShellApi', () => {
         returnType: { type: 'unknown', attributes: {} },
         platforms: [ ReplPlatform.CLI ],
         topologies: ALL_TOPOLOGIES,
-        serverVersions: ALL_SERVER_VERSIONS
+        serverVersions: ALL_SERVER_VERSIONS,
+        isDirectShellCommand: true,
+        shellCommandCompleter: undefined
       });
       expect(signatures.ShellApi.attributes.it).to.deep.equal({
         type: 'function',
@@ -67,7 +73,9 @@ describe('ShellApi', () => {
         returnType: { type: 'unknown', attributes: {} },
         platforms: ALL_PLATFORMS,
         topologies: ALL_TOPOLOGIES,
-        serverVersions: ALL_SERVER_VERSIONS
+        serverVersions: ALL_SERVER_VERSIONS,
+        isDirectShellCommand: true,
+        shellCommandCompleter: undefined
       });
       expect(signatures.ShellApi.attributes.print).to.deep.equal({
         type: 'function',
@@ -76,7 +84,9 @@ describe('ShellApi', () => {
         returnType: { type: 'unknown', attributes: {} },
         platforms: ALL_PLATFORMS,
         topologies: ALL_TOPOLOGIES,
-        serverVersions: ALL_SERVER_VERSIONS
+        serverVersions: ALL_SERVER_VERSIONS,
+        isDirectShellCommand: false,
+        shellCommandCompleter: undefined
       });
       expect(signatures.ShellApi.attributes.printjson).to.deep.equal({
         type: 'function',
@@ -85,7 +95,9 @@ describe('ShellApi', () => {
         returnType: { type: 'unknown', attributes: {} },
         platforms: ALL_PLATFORMS,
         topologies: ALL_TOPOLOGIES,
-        serverVersions: ALL_SERVER_VERSIONS
+        serverVersions: ALL_SERVER_VERSIONS,
+        isDirectShellCommand: false,
+        shellCommandCompleter: undefined
       });
       expect(signatures.ShellApi.attributes.sleep).to.deep.equal({
         type: 'function',
@@ -94,7 +106,9 @@ describe('ShellApi', () => {
         returnType: { type: 'unknown', attributes: {} },
         platforms: ALL_PLATFORMS,
         topologies: ALL_TOPOLOGIES,
-        serverVersions: ALL_SERVER_VERSIONS
+        serverVersions: ALL_SERVER_VERSIONS,
+        isDirectShellCommand: false,
+        shellCommandCompleter: undefined
       });
       expect(signatures.ShellApi.attributes.cls).to.deep.equal({
         type: 'function',
@@ -103,7 +117,9 @@ describe('ShellApi', () => {
         returnType: { type: 'unknown', attributes: {} },
         platforms: ALL_PLATFORMS,
         topologies: ALL_TOPOLOGIES,
-        serverVersions: ALL_SERVER_VERSIONS
+        serverVersions: ALL_SERVER_VERSIONS,
+        isDirectShellCommand: true,
+        shellCommandCompleter: undefined
       });
       expect(signatures.ShellApi.attributes.Mongo).to.deep.equal({
         type: 'function',
@@ -112,7 +128,9 @@ describe('ShellApi', () => {
         returnType: 'Mongo',
         platforms: [ ReplPlatform.CLI ],
         topologies: ALL_TOPOLOGIES,
-        serverVersions: ALL_SERVER_VERSIONS
+        serverVersions: ALL_SERVER_VERSIONS,
+        isDirectShellCommand: false,
+        shellCommandCompleter: undefined
       });
       expect(signatures.ShellApi.attributes.connect).to.deep.equal({
         type: 'function',
@@ -121,7 +139,9 @@ describe('ShellApi', () => {
         returnType: 'Database',
         platforms: [ ReplPlatform.CLI ],
         topologies: ALL_TOPOLOGIES,
-        serverVersions: ALL_SERVER_VERSIONS
+        serverVersions: ALL_SERVER_VERSIONS,
+        isDirectShellCommand: false,
+        shellCommandCompleter: undefined
       });
     });
   });
@@ -670,6 +690,24 @@ describe('ShellApi', () => {
           expect(await config.set('somekey', 'value')).to.equal('Option "somekey" is not available in this environment');
         });
       });
+    });
+  });
+  describe('command completers', () => {
+    const params = {
+      getCollectionCompletionsForCurrentDb: () => [''],
+      getDatabaseCompletions: (dbName) => ['dbOne', 'dbTwo'].filter(s => s.startsWith(dbName))
+    };
+
+    it('provides completions for show', async() => {
+      const completer = signatures.ShellApi.attributes.show.shellCommandCompleter;
+      expect(await completer(params, ['show', ''])).to.contain('databases');
+      expect(await completer(params, ['show', 'pro'])).to.deep.equal(['profile']);
+    });
+
+    it('provides completions for use', async() => {
+      const completer = signatures.ShellApi.attributes.use.shellCommandCompleter;
+      expect(await completer(params, ['use', ''])).to.deep.equal(['dbOne', 'dbTwo']);
+      expect(await completer(params, ['use', 'dbO'])).to.deep.equal(['dbOne']);
     });
   });
 });

@@ -26,7 +26,9 @@ describe('PlanCache', () => {
         returnType: { attributes: {}, type: 'unknown' },
         platforms: ALL_PLATFORMS,
         topologies: ALL_TOPOLOGIES,
-        serverVersions: ['4.4.0', ServerVersions.latest]
+        serverVersions: ['4.4.0', ServerVersions.latest],
+        isDirectShellCommand: false,
+        shellCommandCompleter: undefined
       });
     });
     it('hasAsyncChild', () => {

@@ -1919,6 +1919,7 @@ describe('Shell API (integration)', function() {
         expect(await database._getCollectionNames()).to.deep.equal(['docs']);
         expect(await params.getCollectionCompletionsForCurrentDb('d')).to.deep.equal(['docs']);
         expect(await params.getCollectionCompletionsForCurrentDb('e')).to.deep.equal([]);
+        expect(await params.getDatabaseCompletions('test-')).to.deep.equal([database.getName()]);
       });
     });
   });

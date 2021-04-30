@@ -41,6 +41,7 @@ export interface AutocompleteParameters {
   topology: () => Topologies;
   connectionInfo: () => ConnectInfo | undefined;
   getCollectionCompletionsForCurrentDb: (collName: string) => Promise<string[]>;
+  getDatabaseCompletions: (dbName: string) => Promise<string[]>;
 }
 
 export interface OnLoadResult {
@@ -158,6 +159,7 @@ export default class ShellInternalState {
     this.fetchConnectionInfo().catch(err => this.messageBus.emit('mongosh:error', err));
     // Pre-fetch for autocompletion.
     this.currentDb._getCollectionNamesForCompletion().catch(err => this.messageBus.emit('mongosh:error', err));
+    this.currentDb._mongo._getDatabaseNamesForCompletion().catch(err => this.messageBus.emit('mongosh:error', err));
     return newDb;
   }
 
@@ -307,6 +309,17 @@ export default class ShellInternalState {
         try {
           const collectionNames = await this.currentDb._getCollectionNamesForCompletion();
           return collectionNames.filter((name) => name.startsWith(collName));
+        } catch (err) {
+          if (err.code === ShellApiErrors.NotConnected || err.codeName === 'Unauthorized') {
+            return [];
+          }
+          throw err;
+        }
+      },
+      getDatabaseCompletions: async(dbName: string): Promise<string[]> => {
+        try {
+          const dbNames = await this.currentDb._mongo._getDatabaseNamesForCompletion();
+          return dbNames.filter((name) => name.startsWith(dbName));
         } catch (err) {
           if (err.code === ShellApiErrors.NotConnected || err.codeName === 'Unauthorized') {
             return [];

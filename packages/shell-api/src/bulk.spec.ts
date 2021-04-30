@@ -39,7 +39,9 @@ describe('Bulk API', () => {
           returnType: 'BulkFindOp',
           platforms: ALL_PLATFORMS,
           topologies: ALL_TOPOLOGIES,
-          serverVersions: ALL_SERVER_VERSIONS
+          serverVersions: ALL_SERVER_VERSIONS,
+          isDirectShellCommand: false,
+          shellCommandCompleter: undefined
         });
       });
       it('hasAsyncChild', () => {
@@ -241,7 +243,9 @@ describe('Bulk API', () => {
           returnType: 'BulkFindOp',
           platforms: ALL_PLATFORMS,
           topologies: ALL_TOPOLOGIES,
-          serverVersions: ALL_SERVER_VERSIONS
+          serverVersions: ALL_SERVER_VERSIONS,
+          isDirectShellCommand: false,
+          shellCommandCompleter: undefined
         });
       });
       it('hasAsyncChild', () => {
