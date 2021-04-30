@@ -369,6 +369,8 @@ export function returnsPromise(_target: any, _propertyKey: string, descriptor: P
     nonAsyncFunctionsReturningPromises.push(orig.name);
   }
 }
+// This is use to mark functions that are executable in the shell in a POSIX-shell-like
+// fashion, e.g. `show foo` which is translated into a call to `show('foo')`.
 export function directShellCommand(_target: any, _propertyKey: string, descriptor: PropertyDescriptor): void {
   descriptor.value.isDirectShellCommand = true;
 }
