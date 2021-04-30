@@ -68,7 +68,7 @@ class MongoshNodeRepl implements EvaluationListener {
   shellCliOptions: Partial<MongoshCliOptions>;
   ioProvider: MongoshIOProvider;
   onClearCommand?: EvaluationListener['onClearCommand'];
-  insideAutoComplete: boolean;
+  insideAutoCompleteOrGetPrompt: boolean;
   inspectDepth = 0;
   started = false;
   showStackTraces = false;
@@ -81,7 +81,7 @@ class MongoshNodeRepl implements EvaluationListener {
     this.nodeReplOptions = options.nodeReplOptions || {};
     this.shellCliOptions = options.shellCliOptions || {};
     this.ioProvider = options.ioProvider;
-    this.insideAutoComplete = false;
+    this.insideAutoCompleteOrGetPrompt = false;
     this._runtimeState = null;
   }
 
@@ -134,7 +134,7 @@ class MongoshNodeRepl implements EvaluationListener {
       completer.bind(null, internalState.getAutocompleteParameters());
     (repl as Mutable<typeof repl>).completer =
       callbackify(async(text: string): Promise<[string[], string]> => {
-        this.insideAutoComplete = true;
+        this.insideAutoCompleteOrGetPrompt = true;
         try {
           // Merge the results from the repl completer and the mongosh completer.
           const [ [replResults], [mongoshResults,, mongoshResultsExclusive] ] = await Promise.all([
@@ -155,7 +155,7 @@ class MongoshNodeRepl implements EvaluationListener {
           const deduped = [...new Set([...replResults, ...mongoshResults])];
           return [deduped, text];
         } finally {
-          this.insideAutoComplete = false;
+          this.insideAutoCompleteOrGetPrompt = false;
         }
       });
 
@@ -205,6 +205,9 @@ class MongoshNodeRepl implements EvaluationListener {
       // per evaluation, so that arrow-up functionality is more useful.
       let originalHistory: string[] | null = null;
       (repl as any).on(asyncRepl.evalFinish, (ev: asyncRepl.EvalFinishEvent) => {
+        if (this.insideAutoCompleteOrGetPrompt) {
+          return; // These are not the evaluations we are looking for.
+        }
         const history: string[] = (repl as any).history;
         if (ev.success === false && ev.recoverable) {
           if (originalHistory === null) {
@@ -257,11 +260,11 @@ class MongoshNodeRepl implements EvaluationListener {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async startRepl(_initializationToken: InitializationToken): Promise<void> {
     this.started = true;
-    const { repl, internalState } = this.runtimeState();
+    const { repl } = this.runtimeState();
     // Only start reading from the input *after* we set up everything, including
     // internalState.setCtx().
     this.lineByLineInput.start();
-    repl.setPrompt(await this.getShellPrompt(internalState));
+    repl.setPrompt(await this.getShellPrompt());
     repl.displayPrompt();
   }
 
@@ -323,15 +326,15 @@ class MongoshNodeRepl implements EvaluationListener {
   }
 
   async eval(originalEval: asyncRepl.OriginalEvalFunction, input: string, context: any, filename: string): Promise<any> {
-    if (!this.insideAutoComplete) {
+    if (!this.insideAutoCompleteOrGetPrompt) {
       this.lineByLineInput.enableBlockOnNewLine();
     }
 
-    const { internalState, repl, shellEvaluator } = this.runtimeState();
+    const { repl, shellEvaluator } = this.runtimeState();
 
     try {
       const shellResult = await shellEvaluator.customEval(originalEval, input, context, filename);
-      if (!this.insideAutoComplete) {
+      if (!this.insideAutoCompleteOrGetPrompt) {
         return shellResult;
       }
       // The Node.js auto completion needs to access the raw values in order
@@ -341,8 +344,8 @@ class MongoshNodeRepl implements EvaluationListener {
       // at all and instead leave that to the @mongosh/autocomplete package.
       return shellResult.type !== null ? null : shellResult.rawValue;
     } finally {
-      if (!this.insideAutoComplete) {
-        repl.setPrompt(await this.getShellPrompt(internalState));
+      if (!this.insideAutoCompleteOrGetPrompt) {
+        repl.setPrompt(await this.getShellPrompt());
       }
       this.bus.emit('mongosh:eval-complete'); // For testing purposes.
     }
@@ -483,14 +486,36 @@ class MongoshNodeRepl implements EvaluationListener {
     return this.ioProvider.startMongocryptd();
   }
 
-  private async getShellPrompt(internalState: ShellInternalState): Promise<string> {
-    let prompt = '> ';
+  private async getShellPrompt(): Promise<string> {
+    const { repl, internalState } = this.runtimeState();
+
     try {
-      prompt = await internalState.getDefaultPrompt();
-    } catch (e) {
+      this.insideAutoCompleteOrGetPrompt = true;
+      if (typeof repl.context.prompt !== 'undefined') {
+        const promptResult = await this.loadExternalCode(`
+        (() => {
+          switch (typeof prompt) {
+            case 'function':
+              return prompt();
+            case 'string':
+              return prompt;
+          }
+        })()`, '<prompt loader>');
+        if (typeof promptResult === 'string') {
+          return promptResult;
+        }
+      }
+    } catch {
+      // ignore - we will use the default prompt
+    } finally {
+      this.insideAutoCompleteOrGetPrompt = false;
+    }
+    try {
+      return await internalState.getDefaultPrompt();
+    } catch {
       // ignore - we will use the default prompt
     }
-    return prompt;
+    return '> ';
   }
 }
 
