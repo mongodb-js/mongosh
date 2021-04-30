@@ -171,6 +171,14 @@ export function formatError(error: Error, options: FormatOptions): string {
   } else if (options.showStackTraces && error.stack) {
     result += error.stack.slice(error.stack.indexOf('\n'));
   }
+  if ((error as any).errInfo) {
+    result += `\n${clr(i18n.__('cli-repl.cli-repl.additionalErrorInfo'), ['yellow'], options)}: `;
+    result += inspect((error as any).errInfo, options);
+  }
+  if ((error as any).result) {
+    result += `\n${clr(i18n.__('cli-repl.cli-repl.additionalErrorResult'), ['yellow'], options)}: `;
+    result += inspect((error as any).result, options);
+  }
 
   return result;
 }

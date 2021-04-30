@@ -383,6 +383,47 @@ describe('e2e', function() {
       await shell.executeLine('explainOutput.a = {b:{c:{d:{e:{f:{g:{h:{i:{j:{}}}}}}}}}}');
       expect(await shell.executeLine('explainOutput')).to.match(/g:\s*\{\s*h:\s*\{\s*i:\s*\{\s*j:/);
     });
+
+    describe('document validation errors', () => {
+      context('post-4.4', () => {
+        skipIfServerVersion(testServer, '<= 4.4');
+
+        it('displays errInfo to the user', async() => {
+          await shell.executeLine(`db.createCollection('contacts', {
+            validator: {
+              $and: [
+                { phone: { $type: "string" } },
+                { email: { $regex: /@mongodb\.com$/ } },
+                { status: { $in: [ "Unknown", "Incomplete" ] } }
+              ]
+            }
+          });`);
+          const result = await shell.executeLine(`db.contacts.insertOne({
+            email: "test@mongodb.com", status: "Unknown"
+          });`);
+          expect(result).to.include('Additional information:');
+          expect(result).to.include("reason: 'field was missing'");
+        });
+
+        it('displays bulk result for failures to the user', async() => {
+          await shell.executeLine(`db.createCollection('contacts', {
+            validator: {
+              $and: [
+                { phone: { $type: "string" } },
+                { email: { $regex: /@mongodb\.com$/ } },
+                { status: { $in: [ "Unknown", "Incomplete" ] } }
+              ]
+            }
+          });`);
+          const result = await shell.executeLine(`db.contacts.insertMany([
+            { email: "test1@mongodb.com", status: "Unknown", phone: "123" },
+            { email: "test2@mongodb.com", status: "Unknown" }
+          ]);`);
+          expect(result).to.include('Result:');
+          expect(result).to.include('nInserted: 1');
+        });
+      });
+    });
   });
 
   describe('Ctrl+C aka SIGINT', () => {
