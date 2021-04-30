@@ -74,7 +74,9 @@ const translations: Catalog = {
       wiki: {
         info: 'For mongosh info see:',
         link: 'https://docs.mongodb.com/mongodb-shell/'
-      }
+      },
+      additionalErrorInfo: 'Additional information',
+      additionalErrorResult: 'Result'
     },
     'uri-generator': {
       'no-host-port': 'If a full URI is provided, you cannot also specify --host or --port',
