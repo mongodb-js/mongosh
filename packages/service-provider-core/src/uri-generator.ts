@@ -141,6 +141,18 @@ function generateUri(options: CliOptions): string {
 function generateUriNormalized(options: CliOptions): ConnectionString {
   const uri = options._?.[0];
 
+  // If the --host argument contains /, it has the format
+  // <replSetName>/<hostname1><:port>,<hostname2><:port>,<...>
+  const replSetHostMatch = (options.host ?? '').match(
+    /^(?<replSetName>[^/]+)\/(?<hosts>([A-Za-z0-9.-]+(:\d+)?,?)+)$/);
+  if (replSetHostMatch) {
+    const { replSetName, hosts } = replSetHostMatch.groups as { replSetName: string, hosts: string };
+    const connectionString = new ConnectionString(`${Scheme.Mongo}replacemeHost/${uri ?? DEFAULT_DB}`);
+    connectionString.hosts = hosts.split(',').filter(host => host.trim());
+    connectionString.searchParams.set('replicaSet', replSetName);
+    return addShellConnectionStringParameters(connectionString);
+  }
+
   // There is no URI provided, use default 127.0.0.1:27017
   if (!uri) {
     return new ConnectionString(`${Scheme.Mongo}${generateHost(options)}:${generatePort(options)}/?directConnection=true`);

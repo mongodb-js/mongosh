@@ -335,4 +335,16 @@ describe('uri-generator.generate-uri', () => {
       expect.fail('expected error');
     });
   });
+
+  context('when the --host option contains a replica set', () => {
+    it('returns a URI for the hosts and ports specified in --host', () => {
+      const options = { host: 'replsetname/host1:123,host2,host3:456,' };
+      expect(generateUri(options)).to.equal('mongodb://host1:123,host2,host3:456/test?replicaSet=replsetname');
+    });
+
+    it('returns a URI for the hosts and ports specified in --host and database name', () => {
+      const options = { host: 'replsetname/host1:123,host2,host3:456', _: ['admin'] };
+      expect(generateUri(options)).to.equal('mongodb://host1:123,host2,host3:456/admin?replicaSet=replsetname');
+    });
+  });
 });
