@@ -266,11 +266,10 @@ function getPortFromLogEntry(logEntry: LogEntry): number {
 async function filterLogStreamForSocketAndPort(input: Readable): Promise<{ port: number, socket: string }> {
   let port = -1;
   let socket = '';
-  const inputDuplicate = input.pipe(new PassThrough({ objectMode: true }));
+  const inputDuplicate: AsyncIterable<LogEntry> = input.pipe(new PassThrough({ objectMode: true }));
 
   for await (const logEntry of inputDuplicate) {
-    if ((logEntry.c ?? logEntry.component) !== 'NETWORK' ||
-        (logEntry.ctx ?? logEntry.thread) !== 'listener') {
+    if (logEntry.component !== 'NETWORK' || logEntry.context !== 'listener') {
       continue; // We are only interested in listening network events
     }
     socket ||= getSocketFromLogEntry(logEntry);
