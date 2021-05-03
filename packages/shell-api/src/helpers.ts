@@ -403,8 +403,8 @@ export async function getPrintableShardStatus(db: Database, verbose: boolean): P
 
   // Special case the config db, since it doesn't have a record in config.databases.
   databases.push({ '_id': 'config', 'primary': 'config', 'partitioned': true });
-  databases.sort((a: any, b: any): any => {
-    return a._id > b._id;
+  databases.sort((a: any, b: any): number => {
+    return a._id.localeCompare(b._id);
   });
 
   result.databases = await Promise.all(databases.map(async(db) => {
@@ -429,12 +429,15 @@ export async function getPrintableShardStatus(db: Database, verbose: boolean): P
           collRes.balancing = [ !coll.noBalance, { noBalance: coll.noBalance } ];
         }
         const chunksRes = [];
+        const chunksCollMatch =
+          coll.uuid ? { $or: [ { uuid: coll.uuid }, { ns: coll._id } ] } : { ns: coll._id };
         const chunks = await
-        (await chunksColl.aggregate({ $match: { ns: coll._id } },
+        (await chunksColl.aggregate([
+          { $match: chunksCollMatch },
           { $group: { _id: '$shard', cnt: { $sum: 1 } } },
           { $project: { _id: 0, shard: '$_id', nChunks: '$cnt' } },
-          { $sort: { shard: 1 } })
-        ).toArray();
+          { $sort: { shard: 1 } }
+        ])).toArray();
         let totalChunks = 0;
         chunks.forEach((z: any) => {
           totalChunks += z.nChunks;
@@ -443,7 +446,7 @@ export async function getPrintableShardStatus(db: Database, verbose: boolean): P
 
         // NOTE: this will return the chunk info as a string, and will print ugly BSON
         if (totalChunks < 20 || verbose) {
-          (await chunksColl.find({ 'ns': coll._id })
+          (await chunksColl.find(chunksCollMatch)
             .sort({ min: 1 }).toArray())
             .forEach((chunk: any) => {
               const c = {
@@ -461,7 +464,7 @@ export async function getPrintableShardStatus(db: Database, verbose: boolean): P
 
         const tagsRes: any[] = [];
         (await configDB.getCollection('tags')
-          .find({ ns: coll._id })
+          .find(chunksCollMatch)
           .sort({ min: 1 })
           .toArray())
           .forEach((tag: any) => {

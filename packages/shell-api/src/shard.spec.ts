@@ -1159,9 +1159,9 @@ describe('Shard', () => {
         expect((await sh.status()).value.databases.length).to.equal(2);
       });
       it('enableSharding for a collection and modify documents in it', async() => {
-        expect(Object.keys((await sh.status()).value.databases[0].collections).length).to.equal(0);
+        expect(Object.keys((await sh.status()).value.databases[1].collections).length).to.equal(0);
         expect((await sh.shardCollection(ns, { key: 1 })).collectionsharded).to.equal(ns);
-        expect((await sh.status()).value.databases[0].collections[ns].shardKey).to.deep.equal({ key: 1 });
+        expect((await sh.status()).value.databases[1].collections[ns].shardKey).to.deep.equal({ key: 1 });
 
         const db = internalState.currentDb.getSiblingDB(dbName);
         await db.coll.insertMany([{ key: 'A', value: 10 }, { key: 'B', value: 20 }]);
@@ -1189,20 +1189,20 @@ describe('Shard', () => {
       });
       it('sets a zone key range', async() => {
         expect((await sh.updateZoneKeyRange(ns, { key: 0 }, { key: 20 }, 'zone1')).ok).to.equal(1);
-        expect((await sh.status()).value.databases[0].collections[ns].tags[0]).to.deep.equal({
+        expect((await sh.status()).value.databases[1].collections[ns].tags[0]).to.deep.equal({
           tag: 'zone1', min: { key: 0 }, max: { key: 20 }
         });
         expect((await sh.addTagRange(ns, { key: 21 }, { key: 40 }, 'zone0')).ok).to.equal(1);
-        expect((await sh.status()).value.databases[0].collections[ns].tags[1]).to.deep.equal({
+        expect((await sh.status()).value.databases[1].collections[ns].tags[1]).to.deep.equal({
           tag: 'zone0', min: { key: 21 }, max: { key: 40 }
         });
       });
       it('removes a key range', async() => {
-        expect((await sh.status()).value.databases[0].collections[ns].tags.length).to.equal(2);
+        expect((await sh.status()).value.databases[1].collections[ns].tags.length).to.equal(2);
         expect((await sh.removeRangeFromZone(ns, { key: 0 }, { key: 20 })).ok).to.equal(1);
-        expect((await sh.status()).value.databases[0].collections[ns].tags.length).to.equal(1);
+        expect((await sh.status()).value.databases[1].collections[ns].tags.length).to.equal(1);
         expect((await sh.removeTagRange(ns, { key: 21 }, { key: 40 })).ok).to.equal(1);
-        expect((await sh.status()).value.databases[0].collections[ns].tags.length).to.equal(0);
+        expect((await sh.status()).value.databases[1].collections[ns].tags.length).to.equal(0);
       });
       it('removes zones', async() => {
         expect((await sh.removeShardFromZone(`${shardId}-1`, 'zone1')).ok).to.equal(1);
