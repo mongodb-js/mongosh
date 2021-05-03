@@ -12,7 +12,7 @@ import prettyRepl from 'pretty-repl';
 import { ReplOptions, REPLServer } from 'repl';
 import type { Readable, Writable } from 'stream';
 import type { ReadStream, WriteStream } from 'tty';
-import { callbackify, promisify } from 'util';
+import { callbackify, promisify, types } from 'util';
 import * as asyncRepl from './async-repl';
 import clr, { StyleDefinition } from './clr';
 import { MONGOSH_WIKI, TELEMETRY_GREETING_MESSAGE } from './constants';
@@ -343,6 +343,13 @@ class MongoshNodeRepl implements EvaluationListener {
       // topology, server version, etc., so for those, we do not autocomplete
       // at all and instead leave that to the @mongosh/autocomplete package.
       return shellResult.type !== null ? null : shellResult.rawValue;
+    } catch (err) {
+      if (!types.isNativeError(err)) {
+        throw new Error(this.formatOutput({
+          value: err
+        }));
+      }
+      throw err;
     } finally {
       if (!this.insideAutoCompleteOrGetPrompt) {
         repl.setPrompt(await this.getShellPrompt());
@@ -415,7 +422,7 @@ class MongoshNodeRepl implements EvaluationListener {
     return (await passwordPromise).toString();
   }
 
-  formatOutput(value: any): string {
+  formatOutput(value: { value: any, type?: string }): string {
     return formatOutput(value, this.getFormatOptions());
   }
 
