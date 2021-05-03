@@ -7,6 +7,7 @@ import { Readable, PassThrough } from 'stream';
 import { MongoshInternalError } from '@mongosh/errors';
 import { CliServiceProvider } from '@mongosh/service-provider-server';
 import type { MongoshBus } from '@mongosh/types';
+import { parseAnyLogEntry, LogEntry } from './log-entry';
 import { ShellHomeDirectory } from './config-directory';
 
 export async function getMongocryptdPaths(): Promise<string[][]> {
@@ -79,21 +80,15 @@ export class MongocryptdManager {
 
   // Create an async iterator over the individual lines in a mongo(crypt)d
   // process'es stdout, while also forwarding the log events to the bus.
-  async* createLogEntryIterator(stdout: Readable, pid: number) {
-    let isStructuredLog : boolean | undefined = undefined;
+  async* createLogEntryIterator(stdout: Readable, pid: number): AsyncIterable<LogEntry> {
     for await (const line of readline.createInterface({ input: stdout })) {
       if (!line.trim()) {
         continue;
       }
-      if (isStructuredLog === undefined) {
-        // 4.4 and above use structured logging, where the first entry always
-        // starts with '{'.
-        isStructuredLog = line.startsWith('{');
-      }
       try {
-        const logEntry = isStructuredLog ? JSON.parse(line) : parseOldLogEntry(line);
+        const logEntry = parseAnyLogEntry(line);
         this.bus.emit('mongosh:mongocryptd-log', { pid, logEntry });
-        yield { ...logEntry, isStructuredLog };
+        yield logEntry;
       } catch (error) {
         this.bus.emit('mongosh:mongocryptd-error', { cause: 'parse', error });
         break;
@@ -233,18 +228,7 @@ export class MongocryptdManager {
   }
 }
 
-// Parse a log line from mongod < 4.4, i.e. before structured logging came into
-// existence. You may have seen code like this before. :)
-function parseOldLogEntry(line: string): any {
-  const re = /^(?<timestamp>\S*) *(?<severity>\S*) *(?<component>\S*) *\[(?<thread>[^\]]+)\]\s*(?<message>.*)$/;
-  const match = line.trim().match(re);
-  if (!match) {
-    throw new Error(`Could not parse line ${JSON.stringify(line)}`);
-  }
-  return match.groups;
-}
-
-function getSocketFromLogEntry(logEntry: any): string {
+function getSocketFromLogEntry(logEntry: LogEntry): string {
   let match;
   // Log message id 23015 has the format
   // { t: <timestamp>, s: 'I', c: 'NETWORK', id: 23016, ctx: 'listener', msg: '...', attr: { address: '/tmp/q/mongocryptd.sock' } }
@@ -255,14 +239,15 @@ function getSocketFromLogEntry(logEntry: any): string {
   }
   // Or, 4.2-style: <timestamp> I  NETWORK  [listener] Listening on /tmp/mongocryptd.sock
   if (logEntry.id === undefined && (match = logEntry.message.match(/^Listening on (?<addr>.+)$/i))) {
-    if (!isIP(match.groups.addr)) {
-      return match.groups.addr;
+    const { addr } = match.groups as any;
+    if (!isIP(addr)) {
+      return addr;
     }
   }
   return '';
 }
 
-function getPortFromLogEntry(logEntry: any): number {
+function getPortFromLogEntry(logEntry: LogEntry): number {
   let match;
   // Log message id 23016 has the format
   // { t: <timestamp>, s: 'I', c: 'NETWORK', id: 23016, ctx: 'listener', msg: '...', attr: { port: 27020 } }
@@ -271,7 +256,7 @@ function getPortFromLogEntry(logEntry: any): number {
   }
   // Or, 4.2-style: <timestamp> I  NETWORK  [listener] waiting for connections on port 27020
   if (logEntry.id === undefined && (match = logEntry.message.match(/^waiting for connections on port (?<port>\d+)$/i))) {
-    return +match.groups.port;
+    return +(match.groups?.port ?? '0');
   }
   return -1;
 }

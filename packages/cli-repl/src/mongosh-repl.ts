@@ -18,6 +18,7 @@ import clr, { StyleDefinition } from './clr';
 import { MONGOSH_WIKI, TELEMETRY_GREETING_MESSAGE } from './constants';
 import formatOutput, { formatError } from './format-output';
 import { LineByLineInput } from './line-by-line-input';
+import { parseAnyLogEntry, LogEntry } from './log-entry';
 
 export type MongoshCliOptions = ShellCliOptions & {
   redactInfo?: boolean;
@@ -312,10 +313,9 @@ class MongoshNodeRepl implements EvaluationListener {
     text += `${this.clr('------', ['bold', 'yellow'])}\n`;
     text += `   ${this.clr('The server generated these startup warnings when booting:', ['bold', 'yellow'])}\n`;
     result.log.forEach(logLine => {
-      type LogEntry = { t: { $date: string }, msg: string };
       try {
-        const entry: LogEntry = JSON.parse(logLine);
-        text += `   ${entry.t.$date}: ${entry.msg}\n`;
+        const entry: LogEntry = parseAnyLogEntry(logLine);
+        text += `   ${entry.timestamp}: ${entry.message}\n`;
       } catch (e) {
         text += `   Unexpected log line format: ${logLine}\n`;
       }
