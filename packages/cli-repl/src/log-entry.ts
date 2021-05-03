@@ -24,7 +24,7 @@ export function parseAnyLogEntry(line: string): LogEntry {
     const newFormat = JSON.parse(line);
     return {
       id: newFormat.id,
-      timestamp: newFormat.t.$date,
+      timestamp: newFormat.t?.$date,
       severity: newFormat.s,
       component: newFormat.c,
       context: newFormat.ctx,
