@@ -1,11 +1,11 @@
 /* eslint-disable chai-friendly/no-unused-expressions */
-import type { REPLServer, ReplOptions } from 'repl';
-import { Interface, ReadLineOptions } from 'readline';
-import type { EventEmitter } from 'events';
-import { Recoverable, start as originalStart } from 'repl';
-import isRecoverableError from 'is-recoverable-error';
-import { promisify } from 'util';
 import { Domain } from 'domain';
+import type { EventEmitter } from 'events';
+import isRecoverableError from 'is-recoverable-error';
+import { Interface, ReadLineOptions } from 'readline';
+import type { ReplOptions, REPLServer } from 'repl';
+import { Recoverable, start as originalStart } from 'repl';
+import { promisify } from 'util';
 
 // Utility, inverse of Readonly<T>
 type Mutable<T> = {

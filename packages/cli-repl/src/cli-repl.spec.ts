@@ -6,7 +6,8 @@ import path from 'path';
 import { Duplex, PassThrough } from 'stream';
 import { promisify } from 'util';
 import { MongodSetup, startTestServer } from '../../../testing/integration-testing-hooks';
-import { expect, fakeTTYProps, readReplLogfile, useTmpdir, waitBus, waitCompletion, waitEval, tick } from '../test/repl-helpers';
+import { expect, fakeTTYProps, readReplLogfile, tick, useTmpdir, waitBus, waitCompletion, waitEval } from '../test/repl-helpers';
+import { evalFinish } from './async-repl';
 import CliRepl, { CliReplOptions } from './cli-repl';
 import { CliReplErrors } from './error-codes';
 
@@ -230,7 +231,6 @@ describe('CliRepl', () => {
       it('emits error for inaccessible home directory', async function() {
         if (process.platform === 'win32') {
           this.skip(); // TODO: Figure out why this doesn't work on Windows.
-          return;
         }
         cliReplOptions.shellHomePaths.shellRoamingDataPath = '/nonexistent/inaccesible';
         cliReplOptions.shellHomePaths.shellLocalDataPath = '/nonexistent/inaccesible';
@@ -776,6 +776,87 @@ describe('CliRepl', () => {
         await waitEval(cliRepl.bus);
         expect(output).to.include('on clirepltest> ');
       });
+    });
+
+    context('pressing CTRL-C', () => {
+      before(function() {
+        if (process.platform === 'win32') { // cannot trigger SIGINT on Windows
+          this.skip();
+        }
+      });
+
+      beforeEach(async() => {
+        await cliRepl.start(await testServer.connectionString(), {});
+        await tick();
+        input.write('db.ctrlc.insertOne({ hello: "there" })\n');
+        await waitEval(cliRepl.bus);
+      });
+
+      afterEach(async() => {
+        input.write('db.ctrlc.drop()\n');
+        await waitEval(cliRepl.bus);
+      });
+
+      it('terminates operations on the server side', async() => {
+        input.write('db.ctrlc.find({ $where: \'while(true) { /* loop1 */ }\' })\n');
+        await tick();
+        process.kill(process.pid, 'SIGINT');
+        await once(cliRepl.mongoshRepl._repl, evalFinish);
+        expect(output).to.include('execution was interrupted');
+
+        input.write('use admin\n');
+        await waitEval(cliRepl.bus);
+        input.write('db.aggregate([ {$currentOp: {} }, { $match: { \'command.find\': \'ctrlc\' } }, { $project: { command: 1 } } ])\n');
+        await waitEval(cliRepl.bus);
+
+        expect(output).to.not.include('MongoError');
+        expect(output).to.not.include('loop1');
+      });
+
+      it('terminates operations also for explicitly created Mongo instances', async() => {
+        input.write(`client = Mongo("${await testServer.connectionString()}")\n`);
+        await waitEval(cliRepl.bus);
+        input.write('clientCtrlcDb = client.getDB(\'ctrlc\');\n');
+        await waitEval(cliRepl.bus);
+        input.write('clientAdminDb = client.getDB(\'admin\');\n');
+        await waitEval(cliRepl.bus);
+
+        input.write('clientCtrlcDb.ctrlc.find({ $where: \'while(true) { /* loop2 */ }\' })\n');
+        await tick();
+        process.kill(process.pid, 'SIGINT');
+        await once(cliRepl.mongoshRepl._repl, evalFinish);
+        expect(output).to.include('execution was interrupted');
+
+        input.write('clientAdminDb.aggregate([ {$currentOp: {} }, { $match: { \'command.find\': \'ctrlc\' } }, { $project: { command: 1 } } ])\n');
+        await waitEval(cliRepl.bus);
+
+        expect(output).to.not.include('MongoError');
+        expect(output).to.not.include('loop2');
+      });
+
+      it('does not reconnect until the evaluation finishes', async() => {
+        input.write('sleep(500); print(db.ctrlc.find({}));\n');
+        await tick();
+        process.kill(process.pid, 'SIGINT');
+        await once(cliRepl.mongoshRepl._repl, evalFinish);
+        expect(output).to.include('execution was interrupted');
+
+        await delay(1000);
+        expect(output).to.not.include('hello');
+      });
+
+      // TODO: This test is an unstoppable infinite loop right now
+      // it('cancels shell API commands that do not use the server', async() => {
+      //   input.write('while(true) { print("I am alive") };\n');
+      //   await tick();
+      //   process.kill(process.pid, 'SIGINT');
+      //   await once(cliRepl.mongoshRepl._repl, evalFinish);
+      //   expect(output).to.include('execution was interrupted');
+
+      //   output = '';
+      //   await delay(100);
+      //   expect(output).to.not.include('alive');
+      // }).timeout(5000);
     });
   });
 

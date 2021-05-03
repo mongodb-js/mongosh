@@ -96,6 +96,8 @@ function fixupReplForNodeBug38314(repl: REPLServer): void {
  */
 class MongoshNodeRepl implements EvaluationListener {
   _runtimeState: MongoshRuntimeState | null;
+  _repl: REPLServer | undefined;
+
   input: Readable;
   lineByLineInput: LineByLineInput;
   output: Writable;
@@ -108,6 +110,7 @@ class MongoshNodeRepl implements EvaluationListener {
   inspectDepth = 0;
   started = false;
   showStackTraces = false;
+
 
   constructor(options: MongoshNodeReplOptions) {
     this.input = options.input;
@@ -294,6 +297,8 @@ class MongoshNodeRepl implements EvaluationListener {
         await this.onExit();
       } catch { /* ... */ }
     });
+
+    this._repl = repl;
 
     internalState.setCtx(repl.context);
     return { __initialized: 'yes' };

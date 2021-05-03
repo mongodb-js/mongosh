@@ -359,11 +359,11 @@ export function topologies(topologiesArray: Topologies[]): Function {
 }
 export const nonAsyncFunctionsReturningPromises: string[] = []; // For testing.
 export function returnsPromise(_target: any, _propertyKey: string, descriptor: PropertyDescriptor): void {
-  const orig = descriptor.value;
-  orig.returnsPromise = true;
-  descriptor.value = markImplicitlyAwaited(descriptor.value);
-  if (orig.constructor.name !== 'AsyncFunction') {
-    nonAsyncFunctionsReturningPromises.push(orig.name);
+  const originalFunction = descriptor.value;
+  originalFunction.returnsPromise = true;
+  descriptor.value = markImplicitlyAwaited(originalFunction);
+  if (originalFunction.constructor.name !== 'AsyncFunction') {
+    nonAsyncFunctionsReturningPromises.push(originalFunction.name);
   }
 }
 // This is use to mark functions that are executable in the shell in a POSIX-shell-like
