@@ -1530,14 +1530,15 @@ export default class Collection extends ShellApiClass {
 
     const result = {} as Document;
     const config = this._mongo.getDB('config');
+    const ns = `${this._database._name}.${this._name}`;
 
-    const isSharded = !!(await config.getCollection('collections').countDocuments({
-      _id: `${this._database._name}.${this._name}`,
+    const configCollectionsInfo = await config.getCollection('collections').findOne({
+      _id: ns,
       // dropped is gone on newer server versions, so check for !== true
       // rather than for === false (SERVER-51880 and related)
       dropped: { $ne: true }
-    }));
-    if (!isSharded) {
+    });
+    if (!configCollectionsInfo) {
       throw new MongoshInvalidInputError(
         `Collection ${this._name} is not sharded`,
         ShellApiErrors.NotConnectedToShardedCluster
@@ -1545,6 +1546,7 @@ export default class Collection extends ShellApiClass {
     }
 
     const collStats = await (await this.aggregate({ '$collStats': { storageStats: {} } })).toArray();
+    const uuid = configCollectionsInfo?.uuid ?? null;
 
     const totals = { numChunks: 0, size: 0, count: 0 };
     const conciseShardsStats: {
@@ -1559,12 +1561,18 @@ export default class Collection extends ShellApiClass {
     await Promise.all(collStats.map((extShardStats) => (
       (async(): Promise<void> => {
         // Extract and store only the relevant subset of the stats for this shard
+        const { shard } = extShardStats;
+
+        // If we have an UUID, use that for lookups. If we have only the ns,
+        // use that. (On 5.0+ servers, config.chunk has uses the UUID, before
+        // that it had the ns).
+        const countChunksQuery = uuid ? { $or: [ { uuid }, { ns } ], shard } : { ns, shard };
         const [ host, numChunks ] = await Promise.all([
           config.getCollection('shards').findOne({ _id: extShardStats.shard }),
-          config.getCollection('chunks').countDocuments({ ns: extShardStats.ns, shard: extShardStats.shard })
+          config.getCollection('chunks').countDocuments(countChunksQuery)
         ]);
         const shardStats = {
-          shardId: extShardStats.shard,
+          shardId: shard,
           host: host !== null ? host.host : null,
           size: extShardStats.storageStats.size,
           count: extShardStats.storageStats.count,
