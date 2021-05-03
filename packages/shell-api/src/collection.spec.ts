@@ -1622,6 +1622,10 @@ describe('Collection', () => {
     });
     describe('getShardDistribution', () => {
       it('throws when collection is not sharded', async() => {
+        const serviceProviderCursor = stubInterface<ServiceProviderCursor>();
+        serviceProviderCursor.limit.returns(serviceProviderCursor);
+        serviceProviderCursor.tryNext.returns(null);
+        serviceProvider.find.returns(serviceProviderCursor as any);
         const error = await collection.getShardDistribution().catch(e => e);
 
         expect(error).to.be.instanceOf(MongoshInvalidInputError);

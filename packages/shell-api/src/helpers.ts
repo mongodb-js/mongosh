@@ -429,7 +429,8 @@ export async function getPrintableShardStatus(db: Database, verbose: boolean): P
           collRes.balancing = [ !coll.noBalance, { noBalance: coll.noBalance } ];
         }
         const chunksRes = [];
-        const chunksCollMatch = coll.uuid ? { $or: [ { uuid: coll.uuid, ns: coll._id } ] } : { ns: coll._id };
+        const chunksCollMatch =
+          coll.uuid ? { $or: [ { uuid: coll.uuid }, { ns: coll._id } ] } : { ns: coll._id };
         const chunks = await
         (await chunksColl.aggregate([
           { $match: chunksCollMatch },
