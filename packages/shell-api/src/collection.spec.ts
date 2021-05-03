@@ -1346,13 +1346,34 @@ describe('Collection', () => {
         );
       });
 
+      it('accepts an explicit options object as its first command for legacy compatibility', async() => {
+        await collection.runCommand({ someCommand: 'differenttestns' });
+
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          collection._database._name,
+          {
+            someCommand: 'differenttestns'
+          }
+        );
+      });
+
       it('throws an error if commandName is not a string', async() => {
         const e = await collection.runCommand(
-          {} as any
+          42 as any
         ).catch(e => e);
 
         expect(e).to.be.instanceOf(MongoshInvalidInputError);
         expect(e.message).to.include('type string');
+        expect(e.code).to.equal(CommonErrors.InvalidArgument);
+      });
+
+      it('throws an error if both arguments are options objects', async() => {
+        const e = await collection.runCommand(
+          {}, {}
+        ).catch(e => e);
+
+        expect(e).to.be.instanceOf(MongoshInvalidInputError);
+        expect(e.message).to.include('takes a command string as its first arugment');
         expect(e.code).to.equal(CommonErrors.InvalidArgument);
       });
 

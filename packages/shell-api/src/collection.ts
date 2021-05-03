@@ -1312,27 +1312,33 @@ export default class Collection extends ShellApiClass {
   }
 
   @returnsPromise
-  async runCommand(commandName: string, options?: RunCommandOptions): Promise<Document> {
-    assertArgsDefinedType([commandName], ['string'], 'Collection.runCommand');
-
-    if (options && commandName in options) {
-      throw new MongoshInvalidInputError(
-        'The "commandName" argument cannot be passed as an option to "runCommand".',
-        CommonErrors.InvalidArgument
-      );
+  async runCommand(commandName: string | Document, options?: RunCommandOptions): Promise<Document> {
+    assertArgsDefinedType([commandName], [['string', 'object']], 'Collection.runCommand');
+    if (options) {
+      if (typeof commandName !== 'string') {
+        throw new MongoshInvalidInputError(
+          'Collection.runCommand takes a command string as its first arugment',
+          CommonErrors.InvalidArgument
+        );
+      } else if (commandName in options) {
+        throw new MongoshInvalidInputError(
+          'The "commandName" argument cannot be passed as an option to "runCommand".',
+          CommonErrors.InvalidArgument
+        );
+      }
     }
-
 
     const hiddenCommands = new RegExp(HIDDEN_COMMANDS);
-    if (!hiddenCommands.test(commandName)) {
+    if (typeof commandName === 'string' && !hiddenCommands.test(commandName)) {
       this._emitCollectionApiCall('runCommand', { commandName });
     }
+    const cmd = typeof commandName === 'string' ? {
+      [commandName]: this._name,
+      ...options
+    } : commandName;
     return await this._mongo._serviceProvider.runCommandWithCheck(
       this._database._name,
-      {
-        [commandName]: this._name,
-        ...options
-      },
+      cmd,
       this._database._baseOptions
     );
   }
