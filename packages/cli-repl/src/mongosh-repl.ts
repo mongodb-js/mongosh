@@ -12,7 +12,7 @@ import prettyRepl from 'pretty-repl';
 import { ReplOptions, REPLServer } from 'repl';
 import type { Readable, Writable } from 'stream';
 import type { ReadStream, WriteStream } from 'tty';
-import { callbackify, promisify, types } from 'util';
+import { callbackify, promisify } from 'util';
 import * as asyncRepl from './async-repl';
 import clr, { StyleDefinition } from './clr';
 import { MONGOSH_WIKI, TELEMETRY_GREETING_MESSAGE } from './constants';
@@ -344,7 +344,7 @@ class MongoshNodeRepl implements EvaluationListener {
       // at all and instead leave that to the @mongosh/autocomplete package.
       return shellResult.type !== null ? null : shellResult.rawValue;
     } catch (err) {
-      if (!types.isNativeError(err)) {
+      if (!isErrorLike(err)) {
         throw new Error(this.formatOutput({
           value: err
         }));
@@ -386,10 +386,7 @@ class MongoshNodeRepl implements EvaluationListener {
     // This checks for error instances.
     // The writer gets called immediately by the internal `repl.eval`
     // in case of errors.
-    if (result && (
-      (result.message !== undefined && typeof result.stack === 'string') ||
-      (result.code !== undefined && result.errmsg !== undefined)
-    )) {
+    if (isErrorLike(result)) {
       // eslint-disable-next-line chai-friendly/no-unused-expressions
       this._runtimeState?.shellEvaluator.revertState();
 
@@ -523,6 +520,17 @@ class MongoshNodeRepl implements EvaluationListener {
       // ignore - we will use the default prompt
     }
     return '> ';
+  }
+}
+
+function isErrorLike(value: any): boolean {
+  try {
+    return value && (
+      (value.message !== undefined && typeof value.stack === 'string') ||
+      (value.code !== undefined && value.errmsg !== undefined)
+    );
+  } catch (err) {
+    throw new MongoshInternalError(err?.message || String(err));
   }
 }
 
