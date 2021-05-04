@@ -531,6 +531,24 @@ describe('MongoshNodeRepl', () => {
       await tick();
       expect(stripAnsi(output)).to.equal('\n> ');
     });
+
+    context('thrown non-Errors', () => {
+      it('allows `throw null`', async() => {
+        output = '';
+        input.write('throw null;\n');
+        await waitEval(bus);
+        // We do verify that both `Error` and `null` are syntax-highlighted here.
+        expect(output).to.match(/\x1b\[\d+mError\x1b\[\d+m: \x1b\[\d+mnull\x1b\[\d+m/);
+      });
+
+      it('allows `throw number`', async() => {
+        output = '';
+        input.write('throw 123;\n');
+        await waitEval(bus);
+        // We do verify that both `Error` and `123` are syntax-highlighted here.
+        expect(output).to.match(/\x1b\[\d+mError\x1b\[\d+m: \x1b\[\d+m123\x1b\[\d+m/);
+      });
+    });
   });
 
   context('with fake TTY', () => {

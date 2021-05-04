@@ -343,6 +343,13 @@ class MongoshNodeRepl implements EvaluationListener {
       // topology, server version, etc., so for those, we do not autocomplete
       // at all and instead leave that to the @mongosh/autocomplete package.
       return shellResult.type !== null ? null : shellResult.rawValue;
+    } catch (err) {
+      if (!isErrorLike(err)) {
+        throw new Error(this.formatOutput({
+          value: err
+        }));
+      }
+      throw err;
     } finally {
       if (!this.insideAutoCompleteOrGetPrompt) {
         repl.setPrompt(await this.getShellPrompt());
@@ -379,10 +386,7 @@ class MongoshNodeRepl implements EvaluationListener {
     // This checks for error instances.
     // The writer gets called immediately by the internal `repl.eval`
     // in case of errors.
-    if (result && (
-      (result.message !== undefined && typeof result.stack === 'string') ||
-      (result.code !== undefined && result.errmsg !== undefined)
-    )) {
+    if (isErrorLike(result)) {
       // eslint-disable-next-line chai-friendly/no-unused-expressions
       this._runtimeState?.shellEvaluator.revertState();
 
@@ -415,7 +419,7 @@ class MongoshNodeRepl implements EvaluationListener {
     return (await passwordPromise).toString();
   }
 
-  formatOutput(value: any): string {
+  formatOutput(value: { value: any, type?: string }): string {
     return formatOutput(value, this.getFormatOptions());
   }
 
@@ -516,6 +520,17 @@ class MongoshNodeRepl implements EvaluationListener {
       // ignore - we will use the default prompt
     }
     return '> ';
+  }
+}
+
+function isErrorLike(value: any): boolean {
+  try {
+    return value && (
+      (value.message !== undefined && typeof value.stack === 'string') ||
+      (value.code !== undefined && value.errmsg !== undefined)
+    );
+  } catch (err) {
+    throw new MongoshInternalError(err?.message || String(err));
   }
 }
 
