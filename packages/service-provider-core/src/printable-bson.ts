@@ -37,7 +37,7 @@ export const bsonStringifiers: Record<string, (this: any) => string> = {
   },
 
   Decimal128: function(): string {
-    return `Decimal128("${this.toString()}")`;
+    return `Decimal128.fromString("${this.toString()}")`;
   },
 
   Int32: function(): string {
