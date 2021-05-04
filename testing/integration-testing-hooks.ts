@@ -98,7 +98,6 @@ export async function getMlaunchPath(): Promise<{ exec: string[], env: Record<st
     const filehandle: any = await fs.open(mlaunchBinary, 'r');
     try {
       const startOfMlaunchFile = (await filehandle.read({ length: 100 })).buffer.toString('utf8').trim();
-      console.log(startOfMlaunchFile)
       if (startOfMlaunchFile.match(/^#!(\S+)python3?\r?\n/)) {
         return mlaunchPath = { exec: [ await findPython3(), mlaunchBinary ], env: {} };
       }
