@@ -107,8 +107,26 @@ describe('setupLoggerAndTelemetry', () => {
 
     const mongosh_version = require('../package.json').version;
     expect(analyticsOutput).to.deep.equal([
-      [ 'identify', { userId: '53defe995fa47e6c13102d9d', traits: { platform: process.platform } } ],
-      [ 'identify', { userId: '53defe995fa47e6c13102d9d', traits: { platform: process.platform } } ],
+      [
+        'identify',
+        {
+          userId: '53defe995fa47e6c13102d9d',
+          traits: {
+            platform: process.platform,
+            arch: process.arch
+          }
+        }
+      ],
+      [
+        'identify',
+        {
+          userId: '53defe995fa47e6c13102d9d',
+          traits: {
+            platform: process.platform,
+            arch: process.arch
+          }
+        }
+      ],
       [
         'track',
         {

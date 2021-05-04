@@ -47,6 +47,10 @@ export default function setupLoggerAndTelemetry(
   const mongosh_version = require('../package.json').version;
   let userId: string;
   let telemetry: boolean;
+  const userTraits = {
+    platform: process.platform,
+    arch: process.arch
+  };
 
   let analytics: MongoshAnalytics = new NoopAnalytics();
   try {
@@ -97,13 +101,13 @@ export default function setupLoggerAndTelemetry(
   bus.on('mongosh:new-user', function(id: string, enableTelemetry: boolean) {
     userId = id;
     telemetry = enableTelemetry;
-    if (telemetry) analytics.identify({ userId, traits: { platform: process.platform } });
+    if (telemetry) analytics.identify({ userId, traits: userTraits });
   });
 
   bus.on('mongosh:update-user', function(id: string, enableTelemetry: boolean) {
     userId = id;
     telemetry = enableTelemetry;
-    if (telemetry) analytics.identify({ userId, traits: { platform: process.platform } });
+    if (telemetry) analytics.identify({ userId, traits: userTraits });
     log.info('mongosh:update-user', { enableTelemetry });
   });
 
