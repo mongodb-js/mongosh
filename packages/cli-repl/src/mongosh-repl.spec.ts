@@ -8,7 +8,7 @@ import path from 'path';
 import { Duplex, PassThrough } from 'stream';
 import { StubbedInstance, stubInterface } from 'ts-sinon';
 import { promisify } from 'util';
-import { expect, fakeTTYProps, tick, useTmpdir, waitEval } from '../test/repl-helpers';
+import { expect, fakeTTYProps, tick, useTmpdir, waitEval, hasNodeBug38314 } from '../test/repl-helpers';
 import MongoshNodeRepl, { MongoshIOProvider, MongoshNodeReplOptions } from './mongosh-repl';
 import { parseAnyLogEntry } from './log-entry';
 import stripAnsi from 'strip-ansi';
@@ -213,6 +213,15 @@ describe('MongoshNodeRepl', () => {
       input.write('db.coll.find().hasNext.help()\n');
       await waitEval(bus);
       expect(output).to.include('returns true if the cursor returned by the');
+    });
+
+    it('handles a long series of errors', async function() {
+      if (hasNodeBug38314()) {
+        return this.skip();
+      }
+      input.write('-asdf();\n'.repeat(20));
+      await waitEval(bus);
+      expect(mongoshRepl.runtimeState().repl.listenerCount('SIGINT')).to.equal(1);
     });
   });
 
