@@ -62,7 +62,7 @@ function fixupReplForNodeBug38314(repl: REPLServer): void {
     // Check whether bug is present:
     const input = new PassThrough();
     const output = new PassThrough();
-    const evalFn = () => cb(new Error('err'));
+    const evalFn = (code: any, ctx: any, filename: any, cb: any) => cb(new Error('err'));
     const prompt = 'prompt#';
     replStart({ input, output, eval: evalFn as any, prompt });
     input.end('s\n');
