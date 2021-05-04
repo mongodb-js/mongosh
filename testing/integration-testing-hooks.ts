@@ -53,6 +53,35 @@ async function tryExtensions(base: string): Promise<[ string, Error ]> {
   return [ '', lastErr ];
 }
 
+async function findPython3() {
+  try {
+    await which('python3');
+    return 'python3';
+  } catch {
+    ciLog('Did not find python3 in PATH');
+    try {
+      // Fun fact on the side: Python 2.x writes the version to stderr,
+      // Python 3.x writes to stdout.
+      const { stdout } = await execFile('python', ['-V']);
+      if (stdout.includes('Python 3')) {
+        return 'python';
+      } else {
+        throw new Error('python is not Python 3.x');
+      }
+    } catch {
+      ciLog('Did not find python as Python 3.x in PATH');
+      const pythonEnv = process.env.PYTHON;
+      if (pythonEnv) {
+        const { stdout } = await execFile(pythonEnv as string, ['-V']);
+        if (stdout.includes('Python 3')) {
+          return pythonEnv as string;
+        }
+      }
+    }
+  }
+  throw new Error('Could not find Python 3.x installation, install mlaunch manually');
+}
+
 // Get the path we use to spawn mlaunch, and potential environment variables
 // necessary to run it successfully. This tries to install it locally if it
 // cannot find an existing installation.
@@ -65,41 +94,24 @@ export async function getMlaunchPath(): Promise<{ exec: string[], env: Record<st
 
   try {
     // If `mlaunch` is already in the PATH: Great, we're done.
-    return mlaunchPath = { exec: [ await which('mlaunch') ], env: {} };
+    const mlaunchBinary = await which('mlaunch');
+    const filehandle: any = await fs.open(mlaunchBinary, 'r');
+    try {
+      const startOfMlaunchFile = (await filehandle.read({ length: 100 })).buffer.toString('utf8').trim();
+      console.log(startOfMlaunchFile)
+      if (startOfMlaunchFile.match(/^#!(\S+)python3?\r?\n/)) {
+        return mlaunchPath = { exec: [ await findPython3(), mlaunchBinary ], env: {} };
+      }
+    } finally {
+      await filehandle.close();
+    }
+    return mlaunchPath = { exec: [ mlaunchBinary ], env: {} };
   } catch {
     ciLog('Did not find mlaunch in PATH');
   }
 
   // Figure out where python3 might live (python3, python, $PYTHON).
-  let python = '';
-  try {
-    await which('python3');
-    python = 'python3';
-  } catch {
-    ciLog('Did not find python3 in PATH');
-    try {
-      // Fun fact on the side: Python 2.x writes the version to stderr,
-      // Python 3.x writes to stdout.
-      const { stdout } = await execFile('python', ['-V']);
-      if (stdout.includes('Python 3')) {
-        python = 'python';
-      } else {
-        throw new Error('python is not Python 3.x');
-      }
-    } catch {
-      ciLog('Did not find python as Python 3.x in PATH');
-      const pythonEnv = process.env.PYTHON;
-      if (pythonEnv) {
-        const { stdout } = await execFile(pythonEnv as string, ['-V']);
-        if (stdout.includes('Python 3')) {
-          python = pythonEnv as string;
-        }
-      }
-    }
-  }
-  if (!python) {
-    throw new Error('Could not find Python 3.x installation, install mlaunch manually');
-  }
+  const python = await findPython3();
 
   // Install mlaunch, preferably locally and otherwise attempt to do so globally.
   try {
