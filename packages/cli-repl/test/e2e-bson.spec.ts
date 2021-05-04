@@ -46,7 +46,7 @@ describe('BSON e2e', function() {
       Timestamp: 'Timestamp(1, 100)',
       Symbol: 'abc',
       Code: 'Code("abc")',
-      NumberDecimal: 'Decimal128("1")',
+      NumberDecimal: 'Decimal128.fromString("1")',
       BinData: 'Binary(Buffer.from("31323334", "hex"), 128)'
     };
     it('Entire doc prints when returned from the server', async() => {
@@ -172,7 +172,7 @@ describe('BSON e2e', function() {
       await db.collection('test').insertOne({ value: value });
       await shell.writeInputLine('db.test.findOne().value');
       await eventually(() => {
-        shell.assertContainsOutput('Decimal128("1")');
+        shell.assertContainsOutput('Decimal128.fromString("1")');
       });
       shell.assertNoErrors();
     });
@@ -279,7 +279,7 @@ describe('BSON e2e', function() {
       const value = 'NumberDecimal("100")';
       await shell.writeInputLine(value);
       await eventually(() => {
-        shell.assertContainsOutput('Decimal128("100")');
+        shell.assertContainsOutput('Decimal128.fromString("100")');
       });
       shell.assertNoErrors();
     });

@@ -32,7 +32,7 @@ describe('BSON printers', function() {
   });
 
   it('formats NumberDecimal correctly', function() {
-    expect(inspect(bson.Decimal128.fromString('1'))).to.equal('Decimal128("1")');
+    expect(inspect(bson.Decimal128.fromString('1'))).to.equal('Decimal128.fromString("1")');
   });
 
   it('formats Timestamp correctly', function() {
