@@ -590,7 +590,7 @@ describe('MongoshNodeRepl', () => {
     it('colorizes output', async() => {
       input.write('ISODate()\n');
       await waitEval(bus);
-      expect(output).to.match(/\x1b\[.*m\d+-\d+-\d+T\d+:\d+:\d+.\d+Z\x1b\[.*m/);
+      expect(output).to.match(/\x1b\[.*mISODate\(.+\)\x1b\[.*m/);
     });
 
     it('can ask for passwords', async() => {
