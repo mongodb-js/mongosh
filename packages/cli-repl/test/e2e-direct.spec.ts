@@ -114,7 +114,10 @@ describe('e2e direct connection', () => {
           expect(await shell.executeLine('show collections')).to.include('system.version');
           expect(await shell.executeLine('show dbs')).to.include('admin');
         });
-        it('autocompletes collection names', async() => {
+        it('autocompletes collection names', async function() {
+          if (process.arch === 's390x') {
+            return this.skip(); // https://jira.mongodb.org/browse/MONGOSH-746
+          }
           const shell = TestShell.start({ args: [`${await rs1.connectionString()}/${dbname}`], forceTerminal: true });
           await shell.waitForPrompt();
           shell.writeInput('db.testc\u0009\u0009');
@@ -186,7 +189,10 @@ describe('e2e direct connection', () => {
           expect(await shell.executeLine('show collections')).to.include('system.version');
           expect(await shell.executeLine('show dbs')).to.include('admin');
         });
-        it('autocompletes collection names', async() => {
+        it('autocompletes collection names', async function() {
+          if (process.arch === 's390x') {
+            return this.skip(); // https://jira.mongodb.org/browse/MONGOSH-746
+          }
           const shell = TestShell.start({ args: [`${await rs1.connectionString()}/${dbname}`], forceTerminal: true });
           await shell.waitForPrompt();
           shell.writeInput('db.testc\u0009\u0009');
