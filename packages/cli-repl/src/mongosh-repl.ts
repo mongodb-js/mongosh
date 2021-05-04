@@ -122,6 +122,10 @@ class MongoshNodeRepl implements EvaluationListener {
     this.onClearCommand = console.clear.bind(console);
     repl.context.console = console;
 
+    // Copy our context's Date object into the inner one because we have a custom
+    // util.inspect override for Date objects.
+    repl.context.Date = Date;
+
     this._runtimeState = {
       shellEvaluator,
       internalState,

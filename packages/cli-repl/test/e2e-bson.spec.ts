@@ -47,7 +47,9 @@ describe('BSON e2e', function() {
       Symbol: 'abc',
       Code: 'Code("abc")',
       NumberDecimal: 'Decimal128.fromString("1")',
-      BinData: 'Binary(Buffer.from("31323334", "hex"), 128)'
+      BinData: 'Binary(Buffer.from("31323334", "hex"), 128)',
+      ISODate: 'ISODate("2021-05-04T15:49:33.000Z")',
+      RegExp: '/match/'
     };
     it('Entire doc prints when returned from the server', async() => {
       const buffer = Buffer.from('MTIzNA==', 'base64');
@@ -60,7 +62,9 @@ describe('BSON e2e', function() {
         Symbol: new bson.BSONSymbol('abc'),
         Code: new bson.Code('abc'),
         NumberDecimal: bson.Decimal128.fromString('1'),
-        BinData: new bson.Binary(buffer, 128)
+        BinData: new bson.Binary(buffer, 128),
+        ISODate: new Date('2021-05-04T15:49:33.000Z'),
+        RegExp: /match/
       };
       await shell.writeInputLine(`use ${dbName}`);
       await db.collection('test').insertOne(inputDoc);
@@ -75,6 +79,8 @@ describe('BSON e2e', function() {
         shell.assertContainsOutput(outputDoc.Code);
         shell.assertContainsOutput(outputDoc.NumberDecimal);
         shell.assertContainsOutput(outputDoc.BinData);
+        shell.assertContainsOutput(outputDoc.ISODate);
+        shell.assertContainsOutput(outputDoc.RegExp);
       });
       shell.assertNoErrors();
     });
@@ -90,7 +96,9 @@ describe('BSON e2e', function() {
         Symbol: new Symbol('abc'),
         Code: new Code('abc'),
         NumberDecimal: NumberDecimal('1'),
-        BinData: BinData(128, 'MTIzNA==')
+        BinData: BinData(128, 'MTIzNA=='),
+        ISODate: ISODate("2021-05-04T15:49:33.000Z"),
+        RegExp: /match/
       }\n`;
       await shell.writeInputLine(value);
       await eventually(() => {
@@ -103,6 +111,8 @@ describe('BSON e2e', function() {
         shell.assertContainsOutput(outputDoc.Code);
         shell.assertContainsOutput(outputDoc.NumberDecimal);
         shell.assertContainsOutput(outputDoc.BinData);
+        shell.assertContainsOutput(outputDoc.ISODate);
+        shell.assertContainsOutput(outputDoc.RegExp);
       });
       shell.assertNoErrors();
     });
@@ -184,6 +194,26 @@ describe('BSON e2e', function() {
       await shell.writeInputLine('db.test.findOne().value');
       await eventually(() => {
         shell.assertContainsOutput('Binary(Buffer.from("31323334", "hex"), 128)');
+      });
+      shell.assertNoErrors();
+    });
+    it('ISODate prints when returned from the server', async() => {
+      const value = new Date('2021-05-04T15:49:33.000Z');
+      await shell.writeInputLine(`use ${dbName}`);
+      await db.collection('test').insertOne({ value: value });
+      await shell.writeInputLine('db.test.findOne().value');
+      await eventually(() => {
+        shell.assertContainsOutput('ISODate("2021-05-04T15:49:33.000Z")');
+      });
+      shell.assertNoErrors();
+    });
+    it('RegExp prints when returned from the server', async() => {
+      const value = /match/;
+      await shell.writeInputLine(`use ${dbName}`);
+      await db.collection('test').insertOne({ value: value });
+      await shell.writeInputLine('db.test.findOne().value');
+      await eventually(() => {
+        shell.assertContainsOutput('/match/');
       });
       shell.assertNoErrors();
     });
@@ -314,6 +344,22 @@ describe('BSON e2e', function() {
       await shell.writeInputLine(value);
       await eventually(() => {
         shell.assertContainsOutput('Binary(Buffer.from("abcdef", "hex"), 4)');
+      });
+      shell.assertNoErrors();
+    });
+    it('ISODate prints when created by user', async() => {
+      const value = 'ISODate("2021-05-04T15:49:33.000Z")';
+      await shell.writeInputLine(value);
+      await eventually(() => {
+        shell.assertContainsOutput('ISODate("2021-05-04T15:49:33.000Z")');
+      });
+      shell.assertNoErrors();
+    });
+    it('RegExp prints when created by user', async() => {
+      const value = '/match/';
+      await shell.writeInputLine(value);
+      await eventually(() => {
+        shell.assertContainsOutput('/match/');
       });
       shell.assertNoErrors();
     });
