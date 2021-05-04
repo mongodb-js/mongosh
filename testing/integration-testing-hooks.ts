@@ -53,28 +53,10 @@ async function tryExtensions(base: string): Promise<[ string, Error ]> {
   return [ '', lastErr ];
 }
 
-// Get the path we use to spawn mlaunch, and potential environment variables
-// necessary to run it successfully. This tries to install it locally if it
-// cannot find an existing installation.
-let mlaunchPath: { exec: string, env: Record<string,string> } | undefined;
-export async function getMlaunchPath(): Promise<{ exec: string, env: Record<string,string> }> {
-  const tmpdir = await getTmpdir();
-  if (mlaunchPath !== undefined) {
-    return mlaunchPath;
-  }
-
-  try {
-    // If `mlaunch` is already in the PATH: Great, we're done.
-    return mlaunchPath = { exec: await which('mlaunch'), env: {} };
-  } catch {
-    ciLog('Did not find mlaunch in PATH');
-  }
-
-  // Figure out where python3 might live (python3, python, $PYTHON).
-  let python = '';
+async function findPython3() {
   try {
     await which('python3');
-    python = 'python3';
+    return 'python3';
   } catch {
     ciLog('Did not find python3 in PATH');
     try {
@@ -82,7 +64,7 @@ export async function getMlaunchPath(): Promise<{ exec: string, env: Record<stri
       // Python 3.x writes to stdout.
       const { stdout } = await execFile('python', ['-V']);
       if (stdout.includes('Python 3')) {
-        python = 'python';
+        return 'python';
       } else {
         throw new Error('python is not Python 3.x');
       }
@@ -92,28 +74,58 @@ export async function getMlaunchPath(): Promise<{ exec: string, env: Record<stri
       if (pythonEnv) {
         const { stdout } = await execFile(pythonEnv as string, ['-V']);
         if (stdout.includes('Python 3')) {
-          python = pythonEnv as string;
+          return pythonEnv as string;
         }
       }
     }
   }
-  if (!python) {
-    throw new Error('Could not find Python 3.x installation, install mlaunch manually');
+  throw new Error('Could not find Python 3.x installation, install mlaunch manually');
+}
+
+// Get the path we use to spawn mlaunch, and potential environment variables
+// necessary to run it successfully. This tries to install it locally if it
+// cannot find an existing installation.
+let mlaunchPath: { exec: string[], env: Record<string,string> } | undefined;
+export async function getMlaunchPath(): Promise<{ exec: string[], env: Record<string,string> }> {
+  const tmpdir = await getTmpdir();
+  if (mlaunchPath !== undefined) {
+    return mlaunchPath;
   }
+
+  try {
+    // If `mlaunch` is already in the PATH: Great, we're done.
+    const mlaunchBinary = await which('mlaunch');
+    const filehandle: any = await fs.open(mlaunchBinary, 'r');
+    try {
+      const startOfMlaunchFile = (await filehandle.read({ length: 100 })).buffer.toString('utf8').trim();
+      console.log(startOfMlaunchFile)
+      if (startOfMlaunchFile.match(/^#!(\S+)python3?\r?\n/)) {
+        return mlaunchPath = { exec: [ await findPython3(), mlaunchBinary ], env: {} };
+      }
+    } finally {
+      await filehandle.close();
+    }
+    return mlaunchPath = { exec: [ mlaunchBinary ], env: {} };
+  } catch {
+    ciLog('Did not find mlaunch in PATH');
+  }
+
+  // Figure out where python3 might live (python3, python, $PYTHON).
+  const python = await findPython3();
 
   // Install mlaunch, preferably locally and otherwise attempt to do so globally.
   try {
     const mlaunchPy = path.join(tmpdir, 'bin', 'mlaunch');
     let [ exec ] = await tryExtensions(mlaunchPy);
     if (exec) {
-      return mlaunchPath = { exec, env: { PYTHONPATH: tmpdir } };
+      return mlaunchPath = { exec: [ python, exec ], env: { PYTHONPATH: tmpdir } };
     }
     ciLog('Trying to install mlaunch in ', tmpdir);
     await execFile('pip3', ['install', '--target', tmpdir, 'mtools[mlaunch]']);
     ciLog('Installation complete');
     [ exec ] = await tryExtensions(mlaunchPy);
     if (exec) {
-      return mlaunchPath = { exec, env: { PYTHONPATH: tmpdir } };
+      return mlaunchPath = { exec: [ python, exec ], env: { PYTHONPATH: tmpdir } };
     }
   } catch {}
 
@@ -125,7 +137,7 @@ export async function getMlaunchPath(): Promise<{ exec: string, env: Record<stri
   {
     const [ exec ] = await tryExtensions(mlaunchExec);
     if (exec) {
-      return { exec, env: { PYTHONPATH: pythonPath } };
+      return { exec: [ python, exec ], env: { PYTHONPATH: pythonPath } };
     }
   }
   ciLog('Trying to install mlaunch in ', { pythonBase, pythonPath });
@@ -133,7 +145,7 @@ export async function getMlaunchPath(): Promise<{ exec: string, env: Record<stri
   ciLog('Installation complete');
   const [ exec, lastErr ] = await tryExtensions(mlaunchExec);
   if (exec) {
-    return { exec, env: { PYTHONPATH: pythonPath } };
+    return { exec: [ python, exec ], env: { PYTHONPATH: pythonPath } };
   }
   throw lastErr;
 }
@@ -146,7 +158,7 @@ async function execMlaunch(command: MlaunchCommand, ...args: string[]): Promise<
 
   // command could be part of args, but the extra typechecking here has helped
   // me at least once.
-  const fullCmd = [mlaunchPath.exec, command, ...args];
+  const fullCmd = [...mlaunchPath.exec, command, ...args];
   // console.info('Running command', fullCmd.join(' '));
   const proc = child_process.spawn(fullCmd[0], fullCmd.slice(1), {
     env: { ...process.env, ...mlaunchPath.env },

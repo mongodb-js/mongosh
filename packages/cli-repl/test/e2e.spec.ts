@@ -767,7 +767,10 @@ describe('e2e', function() {
       });
 
       describe('history file', () => {
-        it('persists between sessions', async() => {
+        it('persists between sessions', async function() {
+          if (process.arch === 's390x') {
+            return this.skip(); // https://jira.mongodb.org/browse/MONGOSH-746
+          }
           await shell.executeLine('a = 42');
           shell.writeInput('.exit\n');
           await shell.waitForExit();
