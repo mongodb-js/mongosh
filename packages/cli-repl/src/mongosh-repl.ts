@@ -62,9 +62,9 @@ function fixupReplForNodeBug38314(repl: REPLServer): void {
     // Check whether bug is present:
     const input = new PassThrough();
     const output = new PassThrough();
-    const evalFn = (code, ctx, filename, cb) => cb(new Error('err'));
+    const evalFn = () => cb(new Error('err'));
     const prompt = 'prompt#';
-    replStart({ input, output, eval: evalFn, prompt });
+    replStart({ input, output, eval: evalFn as any, prompt });
     input.end('s\n');
     if (!String(output.read()).includes('prompt#prompt#')) {
       return; // All good, nothing to do here.
@@ -74,12 +74,12 @@ function fixupReplForNodeBug38314(repl: REPLServer): void {
   // If it is, fix up the REPL's domain 'error' listener to not call displayPrompt()
   const domain = (repl as any)._domain;
   const domainErrorListeners = domain.listeners('error');
-  const origListener = domainErrorListeners.find(fn => fn.name === 'debugDomainError');
+  const origListener = domainErrorListeners.find((fn: any) => fn.name === 'debugDomainError');
   if (!origListener) {
     throw new Error('Could not find REPL domain error listener');
   }
   domain.removeListener('error', origListener);
-  domain.on('error', function(err) {
+  domain.on('error', function(this: any, err: Error) {
     const origDisplayPrompt = repl.displayPrompt;
     repl.displayPrompt = () => {};
     try {
