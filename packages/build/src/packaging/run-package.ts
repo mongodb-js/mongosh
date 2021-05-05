@@ -1,9 +1,9 @@
 import { constants as fsConstants, promises as fs } from 'fs';
 import os from 'os';
 import { Config, Platform } from '../config';
-import { PackageFile, createPackage } from './package';
 import { downloadMongocrypt } from './download-mongocryptd';
 import { macOSSignAndNotarize } from './macos-sign';
+import { createPackage, PackageFile } from './package';
 
 export async function runPackage(
   config: Config,
@@ -23,8 +23,6 @@ export async function runPackage(
     );
   };
 
-  // Zip the executable, or, on macOS, do it as part of the
-  // notarization/signing step.
   if (os.platform() === Platform.MacOs) {
     return await macOSSignAndNotarize(
       [
@@ -35,5 +33,20 @@ export async function runPackage(
       runCreatePackage
     );
   }
-  return await runCreatePackage();
+
+  const packaged = await runCreatePackage();
+
+  // TODO: uncomment to ensure signing when we have the appropriate keys (BUILD-13072)
+  // if (distributionBuildVariant === BuildVariant.WindowsMSI) {
+  //   await notarizeMsi(
+  //     packaged.path,
+  //     {
+  //       signingKeyName: config.notarySigningKeyName || '',
+  //       authToken: config.notaryAuthToken || '',
+  //       signingComment: 'Evergreen Automatic Signing (mongosh)'
+  //     }
+  //   );
+  // }
+
+  return packaged;
 }
