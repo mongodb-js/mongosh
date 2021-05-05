@@ -214,6 +214,12 @@ describe('MongoshNodeRepl', () => {
       await waitEval(bus);
       expect(output).to.include('returns true if the cursor returned by the');
     });
+
+    it('prints Date objects using the ISODate constructor variant', async() => {
+      input.write('new Date(1620143373000)\n');
+      await waitEval(bus);
+      expect(output).to.include('ISODate("2021-05-04T15:49:33.000Z")');
+    });
   });
 
   context('with terminal: true', () => {
@@ -582,9 +588,9 @@ describe('MongoshNodeRepl', () => {
     });
 
     it('colorizes output', async() => {
-      input.write('ISODate()\n');
+      input.write('55 + 89\n');
       await waitEval(bus);
-      expect(output).to.match(/\x1b\[.*m\d+-\d+-\d+T\d+:\d+:\d+.\d+Z\x1b\[.*m/);
+      expect(output).to.match(/\x1b\[.*m144\x1b\[.*m/);
     });
 
     it('can ask for passwords', async() => {

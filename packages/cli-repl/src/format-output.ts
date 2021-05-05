@@ -187,14 +187,25 @@ function removeUndefinedValues<T>(obj: T) {
   return Object.fromEntries(Object.entries(obj).filter(keyValue => keyValue[1] !== undefined));
 }
 
+function dateInspect(this: Date): string {
+  return `ISODate("${this.toISOString()}")`;
+}
+
 function inspect(output: any, options: FormatOptions): any {
-  return util.inspect(output, removeUndefinedValues({
-    showProxy: false,
-    colors: options.colors ?? true,
-    depth: options.depth ?? 6,
-    maxArrayLength: options.maxArrayLength,
-    maxStringLength: options.maxStringLength
-  }));
+  // Set a custom inspection function for 'Date' objects. Since we only want this
+  // to affect mongosh scripts, we unset it later.
+  (Date.prototype as any)[util.inspect.custom] = dateInspect;
+  try {
+    return util.inspect(output, removeUndefinedValues({
+      showProxy: false,
+      colors: options.colors ?? true,
+      depth: options.depth ?? 6,
+      maxArrayLength: options.maxArrayLength,
+      maxStringLength: options.maxStringLength
+    }));
+  } finally {
+    delete (Date.prototype as any)[util.inspect.custom];
+  }
 }
 
 function formatCursor(value: any, options: FormatOptions): any {
