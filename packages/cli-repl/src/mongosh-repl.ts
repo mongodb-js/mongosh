@@ -282,7 +282,9 @@ class MongoshNodeRepl implements EvaluationListener {
     }
     const { version } = require('../package.json');
     let text = '';
-    text += `Using MongoDB:\t\t${mongodVersion}\n`;
+    if (!this.shellCliOptions.nodb) {
+      text += `Using MongoDB:\t\t${mongodVersion}\n`;
+    }
     text += `${this.clr('Using Mongosh Beta', ['bold', 'yellow'])}:\t${version}\n`;
     text += `${MONGOSH_WIKI}\n`;
     if (!await this.getConfig('disableGreetingMessage')) {
