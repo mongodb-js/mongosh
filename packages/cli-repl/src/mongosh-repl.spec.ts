@@ -679,7 +679,8 @@ describe('MongoshNodeRepl', () => {
           nodb: true
         };
         mongoshRepl = new MongoshNodeRepl(mongoshReplOptions);
-        await mongoshRepl.initialize(serviceProvider);
+        const initialized = await mongoshRepl.initialize(serviceProvider);
+        await mongoshRepl.startRepl(initialized);
       });
 
       it('does not show warnings', () => {
@@ -873,6 +874,20 @@ describe('MongoshNodeRepl', () => {
       await tick();
       expect(output).to.include('Error: \n');
       expect(output).not.to.include('>');
+    });
+  });
+
+  context('with nodb', () => {
+    beforeEach(async() => {
+      mongoshReplOptions.shellCliOptions = {
+        nodb: true
+      };
+      mongoshRepl = new MongoshNodeRepl(mongoshReplOptions);
+      await mongoshRepl.initialize(serviceProvider);
+    });
+
+    it('does not include MongoDB version', () => {
+      expect(output).to.not.match(/Using MongoDB/);
     });
   });
 });
