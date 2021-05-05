@@ -310,7 +310,7 @@ describe('MongoshNodeRepl', () => {
         input.write(`vers${tab}${tab}`);
         await tick();
         expect(output).to.include('version');
-        expect(output).to.not.match(/version\s+version/);
+        expect(output).to.not.match(/version[ \t]+version/);
       });
       it('autocompletes async shell api methods', async() => {
         input.write(`db.coll.find().${tab}${tab}`);
@@ -337,7 +337,7 @@ describe('MongoshNodeRepl', () => {
         input.write('\u0003'); // Ctrl+C for abort
         await tick();
         expect((mongoshRepl.runtimeState().repl as any)._prompt).to.equal('> ');
-        expect(stripAnsi(output)).to.equal('ddbdb.db.\tdb.\tfdb.\tfodb.\tfoo\r\nbbabar\r\n\r\n> ');
+        expect(stripAnsi(output)).to.equal('db.\tfoo\r\nbar\r\n\r\n> ');
       });
     });
 
@@ -572,19 +572,19 @@ describe('MongoshNodeRepl', () => {
     it('colorizes input statement', async() => {
       input.write('const cat = "Nori"');
       await tick();
-      expect(output).to.match(/const(\x1b\[.*m)+ cat = (\x1b\[.*m)+"Nori"(\x1b\[.*m)+/);
+      expect(output).to.match(/const(\x1b\[.*m)+ cat = (\x1b\[.*m)+"(\x1b\[.*m)+N(\x1b\[.*m)+o(\x1b\[.*m)+r(\x1b\[.*m)+i(\x1b\[.*m)+"(\x1b\[.*m)+/);
     });
 
     it('colorizes input function', async() => {
       input.write('function add (a, b) { return a + b }');
       await tick();
-      expect(output).to.match(/function(\x1b\[.*m)+ (\x1b\[.*m)+add(\x1b\[.*m)+ \(a, b\) \{ (\x1b\[.*m)+return(\x1b\[.*m)+ a \+ b/);
+      expect(output).to.match(/function(\x1b\[.*m)+ (\x1b\[.*m)+a(\x1b\[.*m)+d(\x1b\[.*m)+d(\x1b\[.*m)+ \(a, b\) \{ retur\x08+(\x1b\[.*m)+return(\x1b\[.*m)+ a \+ b/);
     });
 
     it('colorizes input integers', async() => {
       input.write('const sum = 42 + 7');
       await tick();
-      expect(output).to.match(/const(\x1b\[.*m)+ sum = (\x1b\[.*m)+42(\x1b\[.*m)+ \+ (\x1b\[.*m)+7(\x1b\[.*m)+/);
+      expect(output).to.match(/const(\x1b\[.*m)+ sum = (\x1b\[.*m)+4(\x1b\[.*m)+2(\x1b\[.*m)+ \+ (\x1b\[.*m)+7(\x1b\[.*m)+/);
     });
 
     it('colorizes output', async() => {
