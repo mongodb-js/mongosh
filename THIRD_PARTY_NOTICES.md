@@ -66,7 +66,6 @@ Package|Version|License
 **[acorn-static-class-features](#3c779e09cc5fc745047db9f63c306dacddb5362af521530a4090d32f7677a0fb)**|0.2.1|MIT
 **[acorn-walk](#cae19f5419e4b407d5e7bc3ee51fb868765bce1deda4733545981262a6ffaff7)**|7.2.0|MIT
 **[analytics-node](#e33a68b776c40ffdd39c56840eb80ac1402944026fd57ad4145c082dac7dcc0f)**|3.4.0-beta.1|MIT
-**[ansi](#5d042c35eab30d1a8e345f7670046a22bd8b491faf8981f60c931a395d037b68)**|0.3.1|MIT
 **[ansi-escape-sequences](#facc0b756e4e6b040bafa6604056a2290d18923d9c14a2e0a64f850d3477bac0)**|5.1.2|MIT
 **[ansi-regex](#4e22eb8971d3255ba68fad66a1be245aaf480c23e8b02cf0dae7022549aece7c)**|5.0.0|MIT
 **[ansi-regex](#945d39147a145d6a28d87154006fa731c2e69d2a19e76cc7012624a1109f9317)**|2.1.1|MIT
@@ -84,7 +83,7 @@ Package|Version|License
 **[bl](#914f886368f63b0b33239e048b8533119b0a42116c4ff7498b9373c4c305e2a4)**|2.2.1|MIT
 **[bl](#0e8c95ceb67a28a94b8caec6fa59d55974c80aab5dcf21bf1b17b0867f694c3c)**|4.1.0|MIT
 **[bson](#8de31a0bc299ac7c75fd033c95bcfe9c2ee599079ab7212e0a451eaddcc2ad12)**|4.3.0|Apache-2.0
-**[chalk](#355a5cdc09e868b61d9e38eb9b2f10853f45adba4928257892b02441c0b3a42e)**|4.1.0|MIT
+**[chalk](#55b313d63da011efa14c3e52c12e0c270cedd69ddf5893b2b35363dd4f5a752d)**|4.1.1|MIT
 **[chalk](#0c7c7a95e90c3fdaf99df4851bc949785311d8ea1d2d4498615f37af8fa16cf8)**|3.0.0|MIT
 **[chalk](#8b8d3d6ff6233601575f891628d83bd6b34978a103d513931ae45b00f0e07585)**|2.4.2|MIT
 **[charenc](#29e6f6a3e6b064640fcbe5e615fa79e7ac12500e916fe06affdb5e0f7ec89aed)**|0.0.2|BSD-3-Clause
@@ -177,7 +176,7 @@ Package|Version|License
 **[pino-std-serializers](#0fbaec0b4757a710a88df80bb60f61685813af251a9893a302cdd2e2dc1cb125)**|2.4.2|MIT
 **[prebuild-install](#2f21a89ebb2e5a3a0765b359b12d88a585d56924e3e0b7ab7bffbd5e029a4e54)**|6.0.1|MIT
 **[pretty-bytes](#84f0bf818b26f8bdbd4b37dee83e6335d12636108b0a299edcd3c786ae3beb96)**|5.3.0|MIT
-**[pretty-repl](#8d33681b4da4bc4dc7d0a00e4cea6fc7f728a2cf664920acb92d267ac1748771)**|2.4.0|MIT
+**[pretty-repl](#77b1b7d61eabd2f03c5fe54b42d78a3dad504d6fde178ea876e9c0d26f89cd95)**|3.0.0|MIT
 **[process-nextick-args](#449a33b1fb1386db92b40df9073f48703b67ff05c4da5043d007fdb90ed76aca)**|2.0.1|MIT
 **[pump](#147f1bd3a6380306e696f0574feda0b1490121a1d12e4500e91ffb6e888ffa3a)**|3.0.0|MIT
 **[quick-format-unescaped](#6847d0af564232ff133f19c1e546442055386145699c85cd5a7ede04f82fc17a)**|3.0.3|MIT
@@ -4171,46 +4170,6 @@ Authors:
 * Segment <[tools+npm@segment.com](nomail)> (https://segment.com)
 
 
-<a id="5d042c35eab30d1a8e345f7670046a22bd8b491faf8981f60c931a395d037b68"></a>
-### [ansi](https://www.npmjs.com/package/ansi) (version 0.3.1)
-<!-- initially found at packages/cli-repl/node_modules/ansi -->
-> Advanced ANSI formatting tool for Node.js
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      (The MIT License)
-      
-      Copyright (c) 2012 Nathan Rajlich <nathan@tootallnate.net>
-      
-      Permission is hereby granted, free of charge, to any person
-      obtaining a copy of this software and associated documentation
-      files (the "Software"), to deal in the Software without
-      restriction, including without limitation the rights to use,
-      copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the
-      Software is furnished to do so, subject to the following
-      conditions:
-      
-      The above copyright notice and this permission notice shall be
-      included in all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-      OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-      NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-      HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-      WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-      FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-      OTHER DEALINGS IN THE SOFTWARE.
-      
-
-Authors:
-* Nathan Rajlich <nathan@tootallnate.net> (http://tootallnate.net)
-
-
 <a id="facc0b756e4e6b040bafa6604056a2290d18923d9c14a2e0a64f850d3477bac0"></a>
 ### [ansi-escape-sequences](https://www.npmjs.com/package/ansi-escape-sequences) (version 5.1.2)
 <!-- initially found at packages/cli-repl/node_modules/ansi-escape-sequences -->
@@ -5096,8 +5055,8 @@ Authors:
 * Christian Amor Kvalheim <christkv@gmail.com>
 
 
-<a id="355a5cdc09e868b61d9e38eb9b2f10853f45adba4928257892b02441c0b3a42e"></a>
-### [chalk](https://www.npmjs.com/package/chalk) (version 4.1.0)
+<a id="55b313d63da011efa14c3e52c12e0c270cedd69ddf5893b2b35363dd4f5a752d"></a>
+### [chalk](https://www.npmjs.com/package/chalk) (version 4.1.1)
 <!-- initially found at packages/cli-repl/node_modules/chalk -->
 > Terminal string styling done right
 
@@ -9940,8 +9899,8 @@ Authors:
 * Sindre Sorhus <[sindresorhus@gmail.com](nomail)> (sindresorhus.com)
 
 
-<a id="8d33681b4da4bc4dc7d0a00e4cea6fc7f728a2cf664920acb92d267ac1748771"></a>
-### [pretty-repl](https://www.npmjs.com/package/pretty-repl) (version 2.4.0)
+<a id="77b1b7d61eabd2f03c5fe54b42d78a3dad504d6fde178ea876e9c0d26f89cd95"></a>
+### [pretty-repl](https://www.npmjs.com/package/pretty-repl) (version 3.0.0)
 <!-- initially found at packages/cli-repl/node_modules/pretty-repl -->
 > Extends repl.REPLServer to allow for a colorize function
 
