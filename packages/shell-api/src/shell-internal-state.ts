@@ -106,6 +106,12 @@ export default class ShellInternalState {
   public mongocryptdSpawnPath: string | null;
   public batchSizeFromDBQuery: number | undefined = undefined;
 
+  private isInterrupted = false;
+  private resumeMongosAfterInterrupt: Array<{
+    mongo: Mongo,
+    resume: (() => Promise<void>) | null
+  }> | undefined;
+
   constructor(initialServiceProvider: ServiceProvider, messageBus: any = new EventEmitter(), cliOptions: ShellCliOptions = {}) {
     this.initialServiceProvider = initialServiceProvider;
     this.messageBus = messageBus;
@@ -309,6 +315,51 @@ export default class ShellInternalState {
         }
       }
     };
+  }
+
+  get interrupted() {
+    return this.isInterrupted;
+  }
+
+  async onInterruptExecution(): Promise<boolean> {
+    this.isInterrupted = true;
+    this.resumeMongosAfterInterrupt = await Promise.all(this.mongos.map(async m => {
+      try {
+        return {
+          mongo: m,
+          resume: await m._suspend()
+        };
+      } catch (e) {
+        return {
+          mongo: m,
+          resume: null
+        };
+      }
+    }));
+    return !this.resumeMongosAfterInterrupt.find(r => r.resume === null);
+  }
+
+  async onResumeExecution(): Promise<boolean> {
+    const promises = this.resumeMongosAfterInterrupt?.map(async r => {
+      if (!this.mongos.find(m => m === r.mongo)) {
+        // we do not resume mongo instances that we don't track anymore
+        return true;
+      }
+      if (r.resume === null) {
+        return false;
+      }
+      try {
+        await r.resume();
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }) ?? [];
+    this.resumeMongosAfterInterrupt = undefined;
+
+    const result = await Promise.all(promises);
+    this.isInterrupted = false;
+    return !result.find(r => r === false);
   }
 
   async getDefaultPrompt(): Promise<string> {

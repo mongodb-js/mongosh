@@ -454,6 +454,13 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     return this.mongoClient.close(force);
   }
 
+  async suspend(): Promise<() => Promise<void>> {
+    await this.close(true);
+    return async() => {
+      await this.resetConnectionOptions({});
+    };
+  }
+
   /**
    * Deprecated count command.
    *

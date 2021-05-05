@@ -61,6 +61,9 @@ const messageBus: MongoshBus = Object.assign(
   {
     on() {
       throw new Error("Can't call `on` method on worker runtime MongoshBus");
+    },
+    once() {
+      throw new Error("Can't call `once` method on worker runtime MongoshBus");
     }
   }
 );

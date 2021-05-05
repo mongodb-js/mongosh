@@ -96,8 +96,6 @@ function fixupReplForNodeBug38314(repl: REPLServer): void {
  */
 class MongoshNodeRepl implements EvaluationListener {
   _runtimeState: MongoshRuntimeState | null;
-  _repl: REPLServer | undefined;
-
   input: Readable;
   lineByLineInput: LineByLineInput;
   output: Writable;
@@ -149,6 +147,7 @@ class MongoshNodeRepl implements EvaluationListener {
       historySize: await this.getConfig('historyLength'),
       wrapCallbackError:
         (err: Error) => Object.assign(new MongoshInternalError(err.message), { stack: err.stack }),
+      onAsyncSigint: this.onAsyncSigint.bind(this),
       ...this.nodeReplOptions
     });
     fixupReplForNodeBug38314(repl);
@@ -298,8 +297,6 @@ class MongoshNodeRepl implements EvaluationListener {
       } catch { /* ... */ }
     });
 
-    this._repl = repl;
-
     internalState.setCtx(repl.context);
     return { __initialized: 'yes' };
   }
@@ -392,6 +389,17 @@ class MongoshNodeRepl implements EvaluationListener {
       // at all and instead leave that to the @mongosh/autocomplete package.
       return shellResult.type !== null ? null : shellResult.rawValue;
     } catch (err) {
+      if (this.runtimeState().internalState.interrupted) {
+        // The shell is interrupted by CTRL-C - so we ignore any errors
+        // that happened during evaluation.
+        const result: ShellResult = {
+          type: null,
+          rawValue: undefined,
+          printable: undefined
+        };
+        return result;
+      }
+
       if (!isErrorLike(err)) {
         throw new Error(this.formatOutput({
           value: err
@@ -425,6 +433,27 @@ class MongoshNodeRepl implements EvaluationListener {
   async loadExternalCode(code: string, filename: string): Promise<ShellResult> {
     const { repl } = this.runtimeState();
     return await promisify(repl.eval.bind(repl))(code, repl.context, filename);
+  }
+
+  async onAsyncSigint(): Promise<boolean> {
+    const { internalState } = this.runtimeState();
+    const fullyInterrupted = await internalState.onInterruptExecution();
+
+    this.output.write(this.formatError(new Error('Asynchronous execution was interrupted by `SIGINT`')));
+
+    // this is an async interrupt - the evaluation is still running in the background
+    // we wait until it finally completes
+    await once(this.bus, 'mongosh:eval-complete');
+
+    const fullyResumed = await internalState.onResumeExecution();
+    if (!fullyInterrupted || !fullyResumed) {
+      this.output.write(this.formatError({
+        name: 'MongoshInternalError',
+        message: 'Could not re-establish all connections, we suggest to restart the shell.'
+      }));
+    }
+    this.bus.emit('mongosh:interrupt-complete'); // For testing purposes.
+    return true;
   }
 
   /**

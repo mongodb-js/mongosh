@@ -15,10 +15,11 @@ type Mutable<T> = {
 export type OriginalEvalFunction = (input: string, context: any, filename: string) => Promise<any>;
 export type AsyncEvalFunction = (originalEval: OriginalEvalFunction, input: string, context: any, filename: string) => Promise<any>;
 
-export type AsyncREPLOptions = ReadLineOptions & Omit<ReplOptions, 'eval'> & {
+export type AsyncREPLOptions = ReadLineOptions & Omit<ReplOptions, 'eval' | 'breakEvalOnSigint'> & {
   start?: typeof originalStart,
   wrapCallbackError?: (err: Error) => Error;
   asyncEval: AsyncEvalFunction;
+  onAsyncSigint?: () => Promise<boolean> | boolean;
 };
 
 export type EvalStartEvent = {
@@ -57,8 +58,16 @@ function getPrompt(repl: any): string {
 // Start a REPLServer that supports asynchronous evaluation, rather than just
 // synchronous, and integrates nicely with Ctrl+C handling in that respect.
 export function start(opts: AsyncREPLOptions): REPLServer {
+  const {
+    asyncEval,
+    wrapCallbackError = err => err,
+    onAsyncSigint
+  } = opts;
+  if (onAsyncSigint) {
+    (opts as ReplOptions).breakEvalOnSigint = true;
+  }
+
   const repl = (opts.start ?? originalStart)(opts);
-  const { asyncEval, wrapCallbackError = err => err, breakEvalOnSigint } = opts;
   const originalEval = promisify(wrapNoSyncDomainError(repl.eval.bind(repl)));
 
   (repl as Mutable<typeof repl>).eval = async(
@@ -97,14 +106,22 @@ export function start(opts: AsyncREPLOptions): REPLServer {
 
       try {
         result = await new Promise((resolve, reject) => {
-          if (breakEvalOnSigint) {
+          if (onAsyncSigint) {
             // Handle SIGINT (Ctrl+C) that occurs while we are stuck in `await`
             // by racing a listener for 'SIGINT' against the evalResult Promise.
             // We remove all 'SIGINT' listeners and install our own.
-            sigintListener = (): void => {
-              // Reject with an exception similar to one thrown by Node.js
-              // itself if the `customEval` itself is interrupted.
-              reject(new Error('Asynchronous execution was interrupted by `SIGINT`'));
+            sigintListener = async(): Promise<void> => {
+              let interruptHandled = false;
+              try {
+                interruptHandled = await onAsyncSigint();
+              } catch (e) {
+                // ignore
+              } finally {
+                // Reject with an exception similar to one thrown by Node.js
+                // itself if the `customEval` itself is interrupted
+                // and the asyncSigint handler did not deal with it
+                reject(interruptHandled ? undefined : new Error('Asynchronous execution was interrupted by `SIGINT`'));
+              }
             };
 
             replSigint = disableEvent(repl, 'SIGINT');

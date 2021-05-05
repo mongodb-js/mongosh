@@ -309,6 +309,10 @@ export default class Mongo extends ShellApiClass {
     await this._serviceProvider.close(force);
   }
 
+  async _suspend(): Promise<() => Promise<void>> {
+    return await this._serviceProvider.suspend();
+  }
+
   getReadPrefMode(): ReadPreferenceModeId {
     return this._serviceProvider.getReadPreference().mode;
   }
