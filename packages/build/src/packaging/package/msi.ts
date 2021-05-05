@@ -4,6 +4,7 @@ import rimraf from 'rimraf';
 import { promisify } from 'util';
 import { execFile as execFileFn, generateDirFromTemplate, sanitizeVersion } from './helpers';
 import { PackageInformation } from './package-information';
+import type { Arch } from '../../config';
 
 const { COPYFILE_FICLONE } = constants;
 
@@ -13,6 +14,7 @@ const { COPYFILE_FICLONE } = constants;
 export async function createMsiPackage(
   pkg: PackageInformation,
   templateDir: string,
+  arch: Arch,
   outFile: string,
   execFile: typeof execFileFn = execFileFn
 ): Promise<void> {
@@ -47,7 +49,7 @@ export async function createMsiPackage(
   const WIX = process.env.WIX;
   await execFile(`${WIX}\\bin\\candle.exe`, [
     '-out', 'obj\\Release\\',
-    '-arch', 'x64',
+    '-arch', arch,
     '-ext', `${WIX}\\bin\\WixUIExtension.dll`,
     'MongoshUI.wxs', 'Product.wxs'
   ], {

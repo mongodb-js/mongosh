@@ -4,14 +4,18 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import download from 'download';
 import getDownloadURL from 'mongodb-download-url';
+import type { Options as DownloadOptions } from 'mongodb-download-url';
+
+export type { DownloadOptions };
 
 // Download mongod + mongos and return the path to a directory containing them.
-export async function downloadMongoDb(tmpdir: string, targetVersionSemverSpecifier = '*'): Promise<string> {
-  let wantsEnterprise = true;
+export async function downloadMongoDb(tmpdir: string, targetVersionSemverSpecifier = '*', options: DownloadOptions = {}): Promise<string> {
+  let wantsEnterprise = options.enterprise ?? true;
   async function lookupDownloadUrl(): Promise<string> {
     return (await getDownloadURL({
       version: targetVersionSemverSpecifier,
-      enterprise: wantsEnterprise
+      enterprise: wantsEnterprise,
+      ...options
     })).url;
   }
 

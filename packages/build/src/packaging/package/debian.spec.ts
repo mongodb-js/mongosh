@@ -5,7 +5,6 @@ import { promises as fs } from 'fs';
 import * as path from 'path';
 import { promisify } from 'util';
 import { withTempPackageEach } from '../../../test/helpers';
-import { BuildVariant } from '../../config';
 import { createPackage } from './create-package';
 import { createDebianPackage } from './debian';
 
@@ -21,7 +20,7 @@ describe('tarball debian', () => {
       this.skip();
     }
 
-    const tarball = await createPackage(tmpPkg.tarballDir, BuildVariant.Debian, tmpPkg.pkgConfig);
+    const tarball = await createPackage(tmpPkg.tarballDir, 'debian-x64', tmpPkg.pkgConfig);
     await fs.access(tarball.path);
     {
       const { stdout } = await execFile('dpkg', ['-c', tarball.path]);
@@ -53,6 +52,7 @@ describe('tarball debian', () => {
     await createDebianPackage(
       tmpPkg.pkgConfig,
       tmpPkg.pkgConfig.debTemplateDir,
+      'x64',
       outFile,
       execFileStub as any
     );

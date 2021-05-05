@@ -3,7 +3,7 @@ import path from 'path';
 import sinon from 'ts-sinon';
 import type { writeAnalyticsConfig as writeAnalyticsConfigType } from './analytics';
 import { Barque } from './barque';
-import { BuildVariant, Config, shouldDoPublicRelease as shouldDoPublicReleaseFn } from './config';
+import { Config, shouldDoPublicRelease as shouldDoPublicReleaseFn } from './config';
 import { createAndPublishDownloadCenterConfig as createAndPublishDownloadCenterConfigFn } from './download-center';
 import { GithubRepo } from './github-repo';
 import type { publishToHomebrew as publishToHomebrewType } from './homebrew';
@@ -180,11 +180,11 @@ describe('publish', () => {
 
       expect(barque.releaseToBarque).to.have.been.callCount(2);
       expect(barque.releaseToBarque).to.have.been.calledWith(
-        BuildVariant.Redhat,
+        'rhel-x64',
         'https://s3.amazonaws.com/mciuploads/project/v0.7.0-draft.42/mongodb-mongosh-0.7.0-x86_64.rpm'
       );
       expect(barque.releaseToBarque).to.have.been.calledWith(
-        BuildVariant.Debian,
+        'debian-x64',
         'https://s3.amazonaws.com/mciuploads/project/v0.7.0-draft.42/mongodb-mongosh_0.7.0_amd64.deb'
       );
       expect(barque.waitUntilPackagesAreAvailable).to.have.been.called;

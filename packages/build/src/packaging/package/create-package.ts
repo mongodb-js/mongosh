@@ -1,5 +1,5 @@
 import path from 'path';
-import { BuildVariant } from '../../config';
+import { BuildVariant, getDistro, getArch } from '../../config';
 import { createDebianPackage as createDebianPackageFn } from './debian';
 import { getPackageFile, PackageFile } from './get-package-file';
 import { createMsiPackage as createMsiPackageFn } from './msi';
@@ -25,21 +25,21 @@ export async function createPackage(
   const fullTarballFilePath = path.join(outputDir, tarballFile.path);
   console.info('mongosh: gzipping:', fullTarballFilePath);
 
-  switch (buildVariant) {
-    case BuildVariant.Linux:
+  switch (getDistro(buildVariant)) {
+    case 'linux':
       await createTarballPackage(packageInformation, fullTarballFilePath);
       break;
-    case BuildVariant.Redhat:
-      await createRedhatPackage(packageInformation, packageInformation.rpmTemplateDir, fullTarballFilePath);
+    case 'rhel':
+      await createRedhatPackage(packageInformation, packageInformation.rpmTemplateDir, getArch(buildVariant), fullTarballFilePath);
       break;
-    case BuildVariant.Debian:
-      await createDebianPackage(packageInformation, packageInformation.debTemplateDir, fullTarballFilePath);
+    case 'debian':
+      await createDebianPackage(packageInformation, packageInformation.debTemplateDir, getArch(buildVariant), fullTarballFilePath);
       break;
-    case BuildVariant.WindowsMSI:
-      await createMsiPackage(packageInformation, packageInformation.msiTemplateDir, fullTarballFilePath);
+    case 'win32msi':
+      await createMsiPackage(packageInformation, packageInformation.msiTemplateDir, getArch(buildVariant), fullTarballFilePath);
       break;
-    case BuildVariant.MacOs:
-    case BuildVariant.Windows:
+    case 'darwin':
+    case 'win32':
       await createZipPackage(packageInformation, fullTarballFilePath);
       break;
     default:

@@ -1,6 +1,6 @@
 import { constants as fsConstants, promises as fs } from 'fs';
 import os from 'os';
-import { BuildVariant, Config, Platform } from '../config';
+import { Config, Platform, validateBuildVariant } from '../config';
 import { downloadMongocrypt } from './download-mongocryptd';
 import { macOSSignAndNotarize } from './macos-sign';
 import { notarizeMsi } from './msi-sign';
@@ -10,11 +10,12 @@ export async function runPackage(
   config: Config,
 ): Promise<PackageFile> {
   const distributionBuildVariant = config.distributionBuildVariant;
-  if (!distributionBuildVariant) {
-    throw new Error('distributionBuildVariant is missing in configuration - make sure the expansion is present');
-  }
+  validateBuildVariant(distributionBuildVariant);
 
-  await fs.copyFile(await downloadMongocrypt(), config.mongocryptdPath, fsConstants.COPYFILE_FICLONE);
+  await fs.copyFile(
+    await downloadMongocrypt(distributionBuildVariant),
+    config.mongocryptdPath,
+    fsConstants.COPYFILE_FICLONE);
 
   const runCreatePackage = async(): Promise<PackageFile> => {
     return await createPackage(
@@ -37,7 +38,7 @@ export async function runPackage(
 
   const packaged = await runCreatePackage();
 
-  if (distributionBuildVariant === BuildVariant.WindowsMSI) {
+  if (distributionBuildVariant === 'win32msi-x64') {
     await notarizeMsi(
       packaged.path,
       {

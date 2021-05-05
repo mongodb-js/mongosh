@@ -87,9 +87,9 @@ async function publishArtifactsToBarque(
   packageInformation: PackageInformation,
   getEvergreenArtifactUrl: typeof getArtifactUrlFn
 ): Promise<void> {
-  const variantsForBarque = [
-    BuildVariant.Debian,
-    BuildVariant.Redhat
+  const variantsForBarque: BuildVariant[] = [
+    'debian-x64',
+    'rhel-x64'
   ];
 
   const publishedPackages: string[] = [];

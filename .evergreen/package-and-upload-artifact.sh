@@ -10,18 +10,8 @@ export ARTIFACT_URL_FILE="$PWD/artifact-url.txt"
 
 source .evergreen/.setup_env
 tar xvzf dist.tgz
-dist/mongosh --version
 
 if [ "$(uname)" == Linux ]; then
-  # For the rpm, we want to download the RHEL/CentOS 7 mongocryptd binary.
-  # (We can/should probably remove this after https://jira.mongodb.org/browse/MONGOSH-541)
-  if [ "$DISTRIBUTION_BUILD_VARIANT" = rhel ]; then
-    export DISTRO_ID_OVERRIDE=rhel70
-  fi
-  if [ "$DISTRIBUTION_BUILD_VARIANT" = debian ]; then
-    # We need ubuntu1804 in order for mongocryptd to work on ubuntu1804 and above.
-    export DISTRO_ID_OVERRIDE=ubuntu1804
-  fi
   mkdir -p tmp
   cp "$(pwd)/../tmp/expansions.yaml" tmp/expansions.yaml
   (cd scripts/docker && docker build -t centos7-package -f centos7-package.Dockerfile .)
@@ -31,7 +21,6 @@ if [ "$(uname)" == Linux ]; then
     -e NODE_JS_VERSION \
     -e DISTRIBUTION_BUILD_VARIANT \
     -e ARTIFACT_URL_FILE="/tmp/build/artifact-url.txt" \
-    -e DISTRO_ID_OVERRIDE \
     --rm -v $PWD:/tmp/build --network host centos7-package \
     -c 'cd /tmp/build && npm run evergreen-release package && npm run evergreen-release upload'
 else

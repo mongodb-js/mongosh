@@ -1,7 +1,7 @@
 import chai, { expect } from 'chai';
 import path from 'path';
 import sinon from 'ts-sinon';
-import { BuildVariant, Config } from './config';
+import { Config } from './config';
 import { uploadArtifactToEvergreen } from './evergreen';
 import { PackageFile } from './packaging';
 import { runUpload } from './run-upload';
@@ -37,7 +37,7 @@ describe('do-upload', () => {
       appleCodesignIdentity: 'appleCodesignIdentity',
       isCi: true,
       platform: 'platform',
-      distributionBuildVariant: BuildVariant.Linux,
+      distributionBuildVariant: 'linux-x64',
       repo: {
         owner: 'owner',
         repo: 'repo',
