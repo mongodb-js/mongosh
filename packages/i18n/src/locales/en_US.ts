@@ -1979,6 +1979,16 @@ const translations: Catalog = {
               description: 'Adds an removeOne to the bulk operation.',
               example: 'bulkOp.find(...).removeOne()',
             },
+            'delete': {
+              link: 'https://docs.mongodb.com/manual/reference/method/Bulk.find.delete/',
+              description: 'Adds an delete to the bulk operation.',
+              example: 'bulkOp.find(...).delete()',
+            },
+            'deleteOne': {
+              link: 'https://docs.mongodb.com/manual/reference/method/Bulk.find.deleteOne/',
+              description: 'Adds an deleteOne to the bulk operation.',
+              example: 'bulkOp.find(...).deleteOne()',
+            },
             'replaceOne': {
               link: 'https://docs.mongodb.com/manual/reference/method/Bulk.find.replaceOne/',
               description: 'Adds an replaceOne to the bulk operation.',
