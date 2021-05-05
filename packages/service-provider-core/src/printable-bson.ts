@@ -45,7 +45,7 @@ export const bsonStringifiers: Record<string, (this: any) => string> = {
   },
 
   Long: function(): string {
-    return `Long("${this.toString()}")`;
+    return `Long.fromString("${this.toString()}"${this.unsigned ? ', true' : ''})`;
   },
 
   Binary: function(): string {

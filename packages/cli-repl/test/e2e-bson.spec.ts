@@ -42,7 +42,7 @@ describe('BSON e2e', function() {
       MinKey: 'MinKey()',
       MaxKey: 'MaxKey()',
       NumberInt: 'Int32(32)',
-      NumberLong: 'Long("64")',
+      NumberLong: 'Long.fromString("64")',
       Timestamp: 'Timestamp(1, 100)',
       Symbol: 'abc',
       Code: 'Code("abc")',
@@ -231,7 +231,7 @@ describe('BSON e2e', function() {
       const value = 'NumberLong("64")';
       await shell.writeInputLine(value);
       await eventually(() => {
-        shell.assertContainsOutput('Long("64")');
+        shell.assertContainsOutput('Long.fromString("64")');
       });
       shell.assertNoErrors();
     });
@@ -239,7 +239,7 @@ describe('BSON e2e', function() {
       const value = 'NumberLong("345678654321234561")';
       await shell.writeInputLine(value);
       await eventually(() => {
-        shell.assertContainsOutput('Long("345678654321234561")');
+        shell.assertContainsOutput('Long.fromString("345678654321234561")');
       });
       shell.assertNoErrors();
     });
