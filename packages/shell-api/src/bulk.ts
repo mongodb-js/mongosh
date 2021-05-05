@@ -1,4 +1,4 @@
-import { hasAsyncChild, returnsPromise, ShellApiClass, shellApiClassDefault, returnType } from './decorators';
+import { hasAsyncChild, returnsPromise, ShellApiClass, shellApiClassDefault, returnType, deprecated } from './decorators';
 import Mongo from './mongo';
 import { CommonErrors, MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
 import {
@@ -55,17 +55,29 @@ export class BulkFindOp extends ShellApiClass {
   }
 
   @returnType('Bulk')
-  remove(): Bulk {
+  delete(): Bulk {
     this._parentBulk._batchCounts.nRemoveOps++;
-    this._serviceProviderBulkFindOp.remove();
+    this._serviceProviderBulkFindOp.delete();
     return this._parentBulk;
   }
 
   @returnType('Bulk')
-  removeOne(): Bulk {
+  deleteOne(): Bulk {
     this._parentBulk._batchCounts.nRemoveOps++;
-    this._serviceProviderBulkFindOp.removeOne();
+    this._serviceProviderBulkFindOp.deleteOne();
     return this._parentBulk;
+  }
+
+  @returnType('Bulk')
+  @deprecated
+  remove(): Bulk {
+    return this.delete();
+  }
+
+  @returnType('Bulk')
+  @deprecated
+  removeOne(): Bulk {
+    return this.deleteOne();
   }
 
   @returnType('Bulk')
