@@ -8,7 +8,7 @@ import {
   TopologyDescription,
   TopologyTypeId
 } from '@mongosh/service-provider-core';
-import type { ApiEvent, MongoshBus, ConfigProvider, ShellUserConfig } from '@mongosh/types';
+import type { ApiEvent, ConfigProvider, MongoshBus, ShellUserConfig } from '@mongosh/types';
 import { EventEmitter } from 'events';
 import redactInfo from 'mongodb-redact';
 import ChangeStreamCursor from './change-stream-cursor';
@@ -106,8 +106,8 @@ export default class ShellInternalState {
   public mongocryptdSpawnPath: string | null;
   public batchSizeFromDBQuery: number | undefined = undefined;
 
-  private isInterrupted = false;
-  private resumeMongosAfterInterrupt: Array<{
+  public interrupted = false;
+  public resumeMongosAfterInterrupt: Array<{
     mongo: Mongo,
     resume: (() => Promise<void>) | null
   }> | undefined;
@@ -317,12 +317,8 @@ export default class ShellInternalState {
     };
   }
 
-  get interrupted() {
-    return this.isInterrupted;
-  }
-
   async onInterruptExecution(): Promise<boolean> {
-    this.isInterrupted = true;
+    this.interrupted = true;
     this.resumeMongosAfterInterrupt = await Promise.all(this.mongos.map(async m => {
       try {
         return {
@@ -358,7 +354,7 @@ export default class ShellInternalState {
     this.resumeMongosAfterInterrupt = undefined;
 
     const result = await Promise.all(promises);
-    this.isInterrupted = false;
+    this.interrupted = false;
     return !result.find(r => r === false);
   }
 

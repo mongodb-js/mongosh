@@ -1,4 +1,4 @@
-import { returnsPromise, ShellApiClass, shellApiClassDefault, returnType, deprecated } from './decorators';
+import { returnsPromise, shellApiClassDefault, returnType, deprecated, ShellApiWithMongoClass } from './decorators';
 import Mongo from './mongo';
 import { CommonErrors, MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
 import {
@@ -17,7 +17,7 @@ import { BulkWriteResult } from './result';
 import type Collection from './collection';
 
 @shellApiClassDefault
-export class BulkFindOp extends ShellApiClass {
+export class BulkFindOp extends ShellApiWithMongoClass {
   _serviceProviderBulkFindOp: FindOperators;
   _parentBulk: Bulk;
   _hint: Document | undefined;
@@ -26,6 +26,10 @@ export class BulkFindOp extends ShellApiClass {
     super();
     this._serviceProviderBulkFindOp = innerFind;
     this._parentBulk = parentBulk;
+  }
+
+  get _mongo(): Mongo {
+    return this._parentBulk._mongo;
   }
 
   [asPrintable](): string {
@@ -131,7 +135,7 @@ export class BulkFindOp extends ShellApiClass {
 
 
 @shellApiClassDefault
-export default class Bulk extends ShellApiClass {
+export default class Bulk extends ShellApiWithMongoClass {
   _mongo: Mongo;
   _collection: Collection;
   _batchCounts: any;
@@ -139,7 +143,7 @@ export default class Bulk extends ShellApiClass {
   _serviceProviderBulkOp: OrderedBulkOperation | UnorderedBulkOperation;
   _ordered: boolean;
 
-  constructor(collection: any, innerBulk: OrderedBulkOperation | UnorderedBulkOperation, ordered = false) {
+  constructor(collection: Collection, innerBulk: OrderedBulkOperation | UnorderedBulkOperation, ordered = false) {
     super();
     this._collection = collection;
     this._mongo = collection._mongo;

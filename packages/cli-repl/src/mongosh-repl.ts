@@ -477,9 +477,10 @@ class MongoshNodeRepl implements EvaluationListener {
     return this.formatOutput({ type: result.type, value: result.printable });
   }
 
-  onPrint(values: ShellResult[]): void {
+  async onPrint(values: ShellResult[]): Promise<void> {
     const joined = values.map((value) => this.writer(value)).join(' ');
     this.output.write(joined + '\n');
+    await new Promise(resolve => setImmediate(resolve));
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

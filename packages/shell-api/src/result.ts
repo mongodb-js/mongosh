@@ -1,9 +1,9 @@
-import { ShellApiClass, shellApiClassDefault } from './decorators';
+import { shellApiClassDefault, ShellApiValueClass } from './decorators';
 import { shellApiType, asPrintable } from './enums';
 import { Document, ObjectIdType } from '@mongosh/service-provider-core';
 
 @shellApiClassDefault
-export class CommandResult extends ShellApiClass {
+export class CommandResult extends ShellApiValueClass {
   value: unknown;
   type: string;
   constructor(type: string, value: unknown) {
@@ -22,7 +22,7 @@ export class CommandResult extends ShellApiClass {
 }
 
 @shellApiClassDefault
-export class BulkWriteResult extends ShellApiClass {
+export class BulkWriteResult extends ShellApiValueClass {
   acknowledged: boolean;
   insertedCount: number;
   insertedIds: {[index: number]: ObjectIdType};
@@ -53,7 +53,7 @@ export class BulkWriteResult extends ShellApiClass {
 }
 
 @shellApiClassDefault
-export class InsertManyResult extends ShellApiClass {
+export class InsertManyResult extends ShellApiValueClass {
   acknowledged: boolean;
   insertedIds: { [key: number]: ObjectIdType };
   constructor(acknowledged: boolean, insertedIds: { [key: number]: ObjectIdType }) {
@@ -64,7 +64,7 @@ export class InsertManyResult extends ShellApiClass {
 }
 
 @shellApiClassDefault
-export class InsertOneResult extends ShellApiClass {
+export class InsertOneResult extends ShellApiValueClass {
   acknowledged: boolean;
   insertedId: ObjectIdType | undefined;
   constructor(acknowledged: boolean, insertedId?: ObjectIdType) {
@@ -75,7 +75,7 @@ export class InsertOneResult extends ShellApiClass {
 }
 
 @shellApiClassDefault
-export class UpdateResult extends ShellApiClass {
+export class UpdateResult extends ShellApiValueClass {
   acknowledged: boolean;
   insertedId: ObjectIdType;
   matchedCount: number;
@@ -97,7 +97,7 @@ export class UpdateResult extends ShellApiClass {
 }
 
 @shellApiClassDefault
-export class DeleteResult extends ShellApiClass {
+export class DeleteResult extends ShellApiValueClass {
   acknowledged: boolean;
   deletedCount: number | undefined;
   constructor(acknowledged: boolean, deletedCount: number | undefined) {
@@ -108,7 +108,7 @@ export class DeleteResult extends ShellApiClass {
 }
 
 @shellApiClassDefault
-export class CursorIterationResult extends ShellApiClass {
+export class CursorIterationResult extends ShellApiValueClass {
   cursorHasMore: boolean;
   documents: Document[];
 

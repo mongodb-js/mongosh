@@ -6,10 +6,10 @@ import {
   returnsPromise,
   returnType,
   serverVersions,
-  ShellApiClass,
   shellApiClassDefault,
   topologies,
-  deprecated
+  deprecated,
+  ShellApiWithMongoClass
 } from './decorators';
 import { ADMIN_DB, asPrintable, namespaceInfo, ServerVersions, Topologies } from './enums';
 import {
@@ -79,7 +79,7 @@ type CollStatsShellOptions = CollStatsOptions & {
 
 @shellApiClassDefault
 @addSourceToResults
-export default class Collection extends ShellApiClass {
+export default class Collection extends ShellApiWithMongoClass {
   _mongo: Mongo;
   _database: Database;
   _name: string;

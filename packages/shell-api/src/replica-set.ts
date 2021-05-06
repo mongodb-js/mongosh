@@ -1,9 +1,9 @@
 import Database from './database';
 import {
   shellApiClassDefault,
-  ShellApiClass,
   returnsPromise,
-  deprecated
+  deprecated,
+  ShellApiWithMongoClass
 } from './decorators';
 import {
   Document
@@ -13,14 +13,19 @@ import { assertArgsDefinedType } from './helpers';
 import { CommonErrors, MongoshDeprecatedError, MongoshInvalidInputError, MongoshRuntimeError } from '@mongosh/errors';
 import { CommandResult } from './result';
 import { redactCredentials } from '@mongosh/history';
+import { Mongo } from '.';
 
 @shellApiClassDefault
-export default class ReplicaSet extends ShellApiClass {
+export default class ReplicaSet extends ShellApiWithMongoClass {
   _database: Database;
 
   constructor(database: Database) {
     super();
     this._database = database;
+  }
+
+  get _mongo(): Mongo {
+    return this._database._mongo;
   }
 
   /**

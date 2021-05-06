@@ -12,6 +12,8 @@ import {
 import { MongoshInternalError } from '@mongosh/errors';
 import type { ReplPlatform } from '@mongosh/service-provider-core';
 import { addHiddenDataProperty } from './helpers';
+import { checkInterrupted } from './interruptor';
+import { Mongo, ShellInternalState } from '.';
 
 const addSourceToResultsSymbol = Symbol.for('@@mongosh.addSourceToResults');
 const resultSource = Symbol.for('@@mongosh.resultSource');
@@ -52,8 +54,11 @@ export interface ShellResult {
   source?: ShellResultSourceInformation;
 }
 
-export class ShellApiClass implements ShellApiInterface {
-  help: any;
+export abstract class ShellApiClass implements ShellApiInterface {
+  public help: any;
+
+  abstract get _internalState(): ShellInternalState;
+
   get [shellApiType](): string {
     throw new MongoshInternalError('Shell API Type did not use decorators');
   }
@@ -65,6 +70,25 @@ export class ShellApiClass implements ShellApiInterface {
       return [...this];
     }
     return { ...this };
+  }
+}
+
+export abstract class ShellApiWithMongoClass extends ShellApiClass {
+  abstract get _mongo(): Mongo;
+
+  get _internalState(): ShellInternalState {
+    // _mongo can be undefined in tests
+    return this._mongo?._internalState;
+  }
+}
+
+export abstract class ShellApiValueClass extends ShellApiClass {
+  get _mongo(): Mongo {
+    throw new Error('Not supported on this value class');
+  }
+
+  get _internalState(): ShellInternalState {
+    throw new Error('Not supported on this value class');
   }
 }
 
@@ -127,6 +151,24 @@ function wrapWithAddSourceToResult(fn: Function): Function {
       return addSource(await fn.call(this, ...args), this);
     }) : function(this: any, ...args: any[]): any {
       return addSource(fn.call(this, ...args), this);
+    };
+  Object.setPrototypeOf(wrapper, Object.getPrototypeOf(fn));
+  Object.defineProperties(wrapper, Object.getOwnPropertyDescriptors(fn));
+  return wrapper;
+}
+
+function wrapWithInterruptChecks<T extends(...args: any[]) => any>(fn: T): (args: Parameters<T>) => ReturnType<T> {
+  const wrapper = (fn as any).returnsPromise ?
+    markImplicitlyAwaited(async function(this: any, ...args: any[]): Promise<any> {
+      checkInterrupted(this);
+      const result = await fn.call(this, ...args);
+      checkInterrupted(this);
+      return result;
+    }) : function(this: any, ...args: any[]): any {
+      checkInterrupted(this);
+      const result = fn.call(this, ...args);
+      checkInterrupted(this);
+      return result;
     };
   Object.setPrototypeOf(wrapper, Object.getPrototypeOf(fn));
   Object.defineProperties(wrapper, Object.getOwnPropertyDescriptors(fn));
@@ -224,6 +266,7 @@ export function shellApiClassGeneric(constructor: Function, hasHelp: boolean): v
     if ((constructor as any)[addSourceToResultsSymbol]) {
       method = wrapWithAddSourceToResult(method);
     }
+    method = wrapWithInterruptChecks(method);
 
     method.serverVersions = method.serverVersions || ALL_SERVER_VERSIONS;
     method.topologies = method.topologies || ALL_TOPOLOGIES;

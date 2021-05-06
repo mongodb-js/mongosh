@@ -2,8 +2,8 @@ import {
   classPlatforms,
   returnsPromise,
   returnType,
-  ShellApiClass,
-  shellApiClassDefault
+  shellApiClassDefault,
+  ShellApiWithMongoClass
 } from './decorators';
 import {
   ClientEncryption as MongoCryptClientEncryption,
@@ -44,7 +44,7 @@ export interface ClientSideFieldLevelEncryptionOptions {
 
 @shellApiClassDefault
 @classPlatforms([ ReplPlatform.CLI ] )
-export class ClientEncryption extends ShellApiClass {
+export class ClientEncryption extends ShellApiWithMongoClass {
   public _mongo: Mongo;
   public _libmongocrypt: MongoCryptClientEncryption;
 
@@ -96,7 +96,7 @@ export class ClientEncryption extends ShellApiClass {
 
 @shellApiClassDefault
 @classPlatforms([ ReplPlatform.CLI ] )
-export class KeyVault extends ShellApiClass {
+export class KeyVault extends ShellApiWithMongoClass {
   public _mongo: Mongo;
   public _clientEncryption: ClientEncryption;
   private _keyColl: Collection;

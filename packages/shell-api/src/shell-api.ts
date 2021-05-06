@@ -106,7 +106,7 @@ export default class ShellApi extends ShellApiClass {
     this.config = new ShellConfig(internalState);
   }
 
-  get internalState(): ShellInternalState {
+  get _internalState(): ShellInternalState {
     return this[internalStateSymbol];
   }
 
@@ -121,24 +121,24 @@ export default class ShellApi extends ShellApiClass {
   @directShellCommand
   @shellCommandCompleter(useCompleter)
   use(db: string): any {
-    return this.internalState.currentDb._mongo.use(db);
+    return this._internalState.currentDb._mongo.use(db);
   }
 
   @directShellCommand
   @returnsPromise
   @shellCommandCompleter(showCompleter)
   async show(cmd: string, arg?: string): Promise<CommandResult> {
-    return await this.internalState.currentDb._mongo.show(cmd, arg);
+    return await this._internalState.currentDb._mongo.show(cmd, arg);
   }
 
   @directShellCommand
   @returnsPromise
   @platforms([ ReplPlatform.CLI ] )
   async exit(): Promise<never> {
-    assertCLI(this.internalState.initialServiceProvider.platform, 'the exit/quit commands');
-    await this.internalState.close(true);
+    assertCLI(this._internalState.initialServiceProvider.platform, 'the exit/quit commands');
+    await this._internalState.close(true);
     // This should never actually return.
-    await this.internalState.evaluationListener.onExit?.();
+    await this._internalState.evaluationListener.onExit?.();
     throw new MongoshInternalError('.onExit listener returned');
   }
 
@@ -156,10 +156,10 @@ export default class ShellApi extends ShellApiClass {
     uri?: string,
     fleOptions?: ClientSideFieldLevelEncryptionOptions,
     otherOptions?: { api?: ServerApi | ServerApiVersionId }): Promise<Mongo> {
-    assertCLI(this.internalState.initialServiceProvider.platform, 'new Mongo connections');
-    const mongo = new Mongo(this.internalState, uri, fleOptions, otherOptions);
+    assertCLI(this._internalState.initialServiceProvider.platform, 'new Mongo connections');
+    const mongo = new Mongo(this._internalState, uri, fleOptions, otherOptions);
     await mongo.connect();
-    this.internalState.mongos.push(mongo);
+    this._internalState.mongos.push(mongo);
     return mongo;
   }
 
@@ -168,10 +168,10 @@ export default class ShellApi extends ShellApiClass {
   @platforms([ ReplPlatform.CLI ] )
   async connect(uri: string, user?: string, pwd?: string): Promise<Database> {
     assertArgsDefinedType([uri, user, pwd], ['string', [undefined, 'string'], [undefined, 'string']], 'connect');
-    assertCLI(this.internalState.initialServiceProvider.platform, 'new Mongo connections');
-    const mongo = new Mongo(this.internalState, uri);
+    assertCLI(this._internalState.initialServiceProvider.platform, 'new Mongo connections');
+    const mongo = new Mongo(this._internalState, uri);
     await mongo.connect(user, pwd);
-    this.internalState.mongos.push(mongo);
+    this._internalState.mongos.push(mongo);
     const db = mongo._serviceProvider.initialDb || DEFAULT_DB;
     return mongo.getDB(db);
   }
@@ -179,10 +179,10 @@ export default class ShellApi extends ShellApiClass {
   @directShellCommand
   @returnsPromise
   async it(): Promise<any> {
-    if (!this.internalState.currentCursor) {
+    if (!this._internalState.currentCursor) {
       return new CursorIterationResult();
     }
-    return await this.internalState.currentCursor._it();
+    return await this._internalState.currentCursor._it();
   }
 
   version(): string {
@@ -193,21 +193,21 @@ export default class ShellApi extends ShellApiClass {
   @returnsPromise
   async load(filename: string): Promise<true> {
     assertArgsDefinedType([filename], ['string'], 'load');
-    if (!this.internalState.evaluationListener.onLoad) {
+    if (!this._internalState.evaluationListener.onLoad) {
       throw new MongoshUnimplementedError(
         'load is not currently implemented for this platform',
         CommonErrors.NotImplemented
       );
     }
-    this.internalState.messageBus.emit('mongosh:api-load-file', {
+    this._internalState.messageBus.emit('mongosh:api-load-file', {
       nested: this.loadCallNestingLevel > 0,
       filename
     });
     const {
       resolvedFilename, evaluate
-    } = await this.internalState.evaluationListener.onLoad(filename);
+    } = await this._internalState.evaluationListener.onLoad(filename);
 
-    const context = this.internalState.context;
+    const context = this._internalState.context;
     const previousFilename = context.__filename;
     context.__filename = resolvedFilename;
     context.__dirname = dirname(resolvedFilename);
@@ -230,7 +230,7 @@ export default class ShellApi extends ShellApiClass {
   @returnsPromise
   @platforms([ ReplPlatform.CLI ] )
   async enableTelemetry(): Promise<any> {
-    const result = await this.internalState.evaluationListener.setConfig?.('enableTelemetry', true);
+    const result = await this._internalState.evaluationListener.setConfig?.('enableTelemetry', true);
     if (result === 'success') {
       return i18n.__('cli-repl.cli-repl.enabledTelemetry');
     }
@@ -239,7 +239,7 @@ export default class ShellApi extends ShellApiClass {
   @returnsPromise
   @platforms([ ReplPlatform.CLI ] )
   async disableTelemetry(): Promise<any> {
-    const result = await this.internalState.evaluationListener.setConfig?.('enableTelemetry', false);
+    const result = await this._internalState.evaluationListener.setConfig?.('enableTelemetry', false);
     if (result === 'success') {
       return i18n.__('cli-repl.cli-repl.disabledTelemetry');
     }
@@ -248,7 +248,7 @@ export default class ShellApi extends ShellApiClass {
   @returnsPromise
   @platforms([ ReplPlatform.CLI ] )
   async passwordPrompt(): Promise<string> {
-    const { evaluationListener } = this.internalState;
+    const { evaluationListener } = this._internalState;
     if (!evaluationListener.onPrompt) {
       throw new MongoshUnimplementedError('passwordPrompt() is not available in this shell', CommonErrors.NotImplemented);
     }
@@ -262,7 +262,7 @@ export default class ShellApi extends ShellApiClass {
 
   @returnsPromise
   async print(...origArgs: any[]): Promise<void> {
-    const { evaluationListener } = this.internalState;
+    const { evaluationListener } = this._internalState;
     const args: ShellResult[] =
       await Promise.all(origArgs.map(arg => toShellResult(arg)));
     await evaluationListener.onPrint?.(args);
@@ -276,7 +276,7 @@ export default class ShellApi extends ShellApiClass {
   @directShellCommand
   @returnsPromise
   async cls(): Promise<void> {
-    const { evaluationListener } = this.internalState;
+    const { evaluationListener } = this._internalState;
     await evaluationListener.onClearCommand?.();
   }
 }

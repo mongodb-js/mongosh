@@ -862,12 +862,22 @@ describe('CliRepl', () => {
       // it('cancels shell API commands that do not use the server', async() => {
       //   input.write('while(true) { print("I am alive") };\n');
       //   await tick();
+      //   console.log('Sending SIGINT...');
       //   process.kill(process.pid, 'SIGINT');
-      //   await once(cliRepl.mongoshRepl._repl, evalFinish);
-      //   expect(output).to.include('execution was interrupted');
 
       //   output = '';
+      //   await waitBus(cliRepl.bus, 'mongosh:eval-complete');
+      //   expect(output).to.include('execution was interrupted');
+      //   expect(output).to.not.match(/>\s+$/);
+
+      //   await waitBus(cliRepl.bus, 'mongosh:interrupt-complete');
+      //   output = '';
+
       //   await delay(100);
+      //   expect(output).to.include('execution was interrupted');
+      //   expect(output).to.not.include('MongoError');
+      //   expect(output).to.not.include('Mongosh');
+      //   expect(output).to.match(/>\s+$/);
       //   expect(output).to.not.include('alive');
       // }).timeout(5000);
     });

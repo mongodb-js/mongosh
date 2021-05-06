@@ -1,22 +1,27 @@
 import {
   returnsPromise,
   serverVersions,
-  ShellApiClass,
   shellApiClassDefault,
-  deprecated
+  deprecated,
+  ShellApiWithMongoClass
 } from './decorators';
 import { Document } from '@mongosh/service-provider-core';
 import Collection from './collection';
 import { asPrintable, ServerVersions } from './enums';
 import { MongoshDeprecatedError } from '@mongosh/errors';
+import Mongo from './mongo';
 
 @shellApiClassDefault
-export default class PlanCache extends ShellApiClass {
+export default class PlanCache extends ShellApiWithMongoClass {
   _collection: Collection;
 
   constructor(collection: Collection) {
     super();
     this._collection = collection;
+  }
+
+  get _mongo(): Mongo {
+    return this._collection._mongo;
   }
 
   /**
