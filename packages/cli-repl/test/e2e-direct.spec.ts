@@ -6,6 +6,13 @@ import { TestShell } from './test-shell';
 describe('e2e direct connection', () => {
   afterEach(TestShell.cleanup);
 
+  const tabtab = async(shell: TestShell) => {
+    await new Promise(resolve => setTimeout(resolve, 400));
+    shell.writeInput('\u0009');
+    await new Promise(resolve => setTimeout(resolve, 400));
+    shell.writeInput('\u0009');
+  };
+
   context('to a replica set', async() => {
     const replSetId = 'replset';
     const [rs0, rs1, rs2] = startTestCluster(
@@ -120,7 +127,8 @@ describe('e2e direct connection', () => {
           }
           const shell = TestShell.start({ args: [`${await rs1.connectionString()}/${dbname}`], forceTerminal: true });
           await shell.waitForPrompt();
-          shell.writeInput('db.testc\u0009\u0009');
+          shell.writeInput('db.testc');
+          await tabtab(shell);
           await eventually(() => {
             shell.assertContainsOutput('db.testcollection');
           });
@@ -195,7 +203,8 @@ describe('e2e direct connection', () => {
           }
           const shell = TestShell.start({ args: [`${await rs1.connectionString()}/${dbname}`], forceTerminal: true });
           await shell.waitForPrompt();
-          shell.writeInput('db.testc\u0009\u0009');
+          shell.writeInput('db.testc');
+          await tabtab(shell);
           await eventually(() => {
             shell.assertContainsOutput('db.testcollection');
           });

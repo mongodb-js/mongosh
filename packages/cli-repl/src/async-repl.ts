@@ -1,6 +1,6 @@
 /* eslint-disable chai-friendly/no-unused-expressions */
 import type { REPLServer, ReplOptions } from 'repl';
-import type { ReadLineOptions } from 'readline';
+import { Interface, ReadLineOptions } from 'readline';
 import type { EventEmitter } from 'events';
 import { Recoverable, start as originalStart } from 'repl';
 import isRecoverableError from 'is-recoverable-error';
@@ -71,7 +71,20 @@ export function start(opts: AsyncREPLOptions): REPLServer {
 
     // Use public getPrompt() API once available (Node.js 15+)
     const origPrompt = getPrompt(repl);
-    repl.setPrompt(''); // Disable printing prompts while we're evaluating code.
+    // Disable printing prompts while we're evaluating code. We're using the
+    // readline superclass method instead of the REPL one here, because the REPL
+    // one stores the prompt to later be reset in case of dropping into .editor
+    // mode. In particular, the following sequence of results is what we want
+    // to avoid:
+    // 1. .editor entered
+    // 2. Some code entered
+    // 3. Tab used for autocompletion, leading to this evaluation being called
+    //    while the REPL prompt is still turned off due to .editor
+    // 4. Evaluation ends, we use .setPrompt() to restore the prompt that has
+    //    temporarily been disable for .editor
+    // 5. The REPL thinks that the empty string is supposed to be the prompt
+    //    even after .editor is done.
+    Interface.prototype.setPrompt.call(repl, '');
 
     try {
       let exitEventPending = false;
@@ -126,7 +139,7 @@ export function start(opts: AsyncREPLOptions): REPLServer {
         (processSigint as any)?.restore?.();
 
         if (getPrompt(repl) === '') {
-          repl.setPrompt(origPrompt);
+          Interface.prototype.setPrompt.call(repl, origPrompt);
         }
 
         repl.removeListener('exit', exitListener);
