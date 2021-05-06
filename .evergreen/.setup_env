@@ -12,6 +12,7 @@ if [ "$OS" != "Windows_NT" ]; then
   echo "Setting NVM environment home: $NVM_DIR"
   [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
   nvm use $NODE_JS_VERSION
+  export PATH="$NVM_BIN:$PATH"
 
   export CC=gcc
   export CXX=c++
@@ -28,6 +29,9 @@ export EVERGREEN_EXPANSIONS_PATH="$BASEDIR/../../tmp/expansions.yaml"
 if [ "$OS" == "Windows_NT" ]; then
   export EVERGREEN_EXPANSIONS_PATH="$(cygpath -w "$EVERGREEN_EXPANSIONS_PATH")"
 fi
+
+echo "Full path:"
+echo $PATH
 
 echo "Using node version:"
 node --version
