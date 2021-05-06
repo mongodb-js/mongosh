@@ -142,10 +142,6 @@ describe('Shell BSON', () => {
       expect((await toShellResult(s.help)).type).to.equal('Help');
       expect((await toShellResult(s.help())).type).to.equal('Help');
     });
-    it('constructs with default args 1', () => {
-      const s = shellBson.BSONSymbol();
-      expect(s.toString()).to.equal('');
-    });
   });
   describe('Timestamp', () => {
     it('without new', () => {
