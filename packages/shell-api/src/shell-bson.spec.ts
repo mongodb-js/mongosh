@@ -126,24 +126,24 @@ describe('Shell BSON', () => {
       expect.fail('Expecting error, nothing thrown');
     });
   });
-  describe('Symbol', () => {
+  describe('BSONSymbol', () => {
     it('without new', () => {
-      const s = shellBson.Symbol('5ebbe8e2905bb493d6981b6b');
+      const s = shellBson.BSONSymbol('5ebbe8e2905bb493d6981b6b');
       expect(s._bsontype).to.equal('Symbol');
       expect(s.toString()).to.equal('5ebbe8e2905bb493d6981b6b');
     });
     it('with new', () => {
-      const s = new (shellBson.Symbol as any)('5ebbe8e2905bb493d6981b6b');
+      const s = new (shellBson.BSONSymbol as any)('5ebbe8e2905bb493d6981b6b');
       expect(s._bsontype).to.equal('Symbol');
       expect(s.toString()).to.equal('5ebbe8e2905bb493d6981b6b');
     });
     it('has help and other metadata', async() => {
-      const s = shellBson.Symbol('5ebbe8e2905bb493d6981b6b');
+      const s = shellBson.BSONSymbol('5ebbe8e2905bb493d6981b6b');
       expect((await toShellResult(s.help)).type).to.equal('Help');
       expect((await toShellResult(s.help())).type).to.equal('Help');
     });
     it('constructs with default args 1', () => {
-      const s = shellBson.Symbol();
+      const s = shellBson.BSONSymbol();
       expect(s.toString()).to.equal('');
     });
   });

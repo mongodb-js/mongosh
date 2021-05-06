@@ -31,9 +31,8 @@ internal class MongoShellEvaluator(client: MongoClient, private val context: Mon
         shellEvaluator = global.getMember("ShellEvaluator").newInstance(shellInternalState, resultHandler())
         toShellResultFn = global.getMember("toShellResult")
         getShellApiTypeFn = global.getMember("getShellApiType")
-        val jsSymbol = context.bindings["Symbol"]!!
         shellInternalState.invokeMember("setCtx", context.bindings)
-        initContext(context.bindings, jsSymbol)
+        initContext(context.bindings)
     }
 
     private fun resultHandler() = context.jsFun { args ->
@@ -47,9 +46,7 @@ internal class MongoShellEvaluator(client: MongoClient, private val context: Mon
         }
     }
 
-    private fun initContext(bindings: Value, jsSymbol: Value) {
-        bindings["BSONSymbol"] = bindings["Symbol"]
-        bindings["Symbol"] = jsSymbol
+    private fun initContext(bindings: Value) {
         val date = context.eval("(dateHelper) => function inner() { return dateHelper(new.target !== undefined, ...arguments) }", "dateHelper_script")
                 .execute(ProxyExecutable { args -> dateHelper(args[0].asBoolean(), args.drop(1)) })
         date["now"] = ProxyExecutable { System.currentTimeMillis() }
