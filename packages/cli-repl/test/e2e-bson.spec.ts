@@ -93,7 +93,7 @@ describe('BSON e2e', function() {
         NumberInt: NumberInt("32"),
         NumberLong: NumberLong("64"),
         Timestamp: new Timestamp(1, 100),
-        Symbol: new Symbol('abc'),
+        Symbol: new BSONSymbol('abc'),
         Code: new Code('abc'),
         NumberDecimal: NumberDecimal('1'),
         BinData: BinData(128, 'MTIzNA=='),
@@ -282,7 +282,7 @@ describe('BSON e2e', function() {
       shell.assertNoErrors();
     });
     it('Symbol prints when created by user', async() => {
-      const value = 'new Symbol("symbol")';
+      const value = 'new BSONSymbol("symbol")';
       await shell.writeInputLine(value);
       await eventually(() => {
         shell.assertContainsOutput('"symbol"');
@@ -504,7 +504,7 @@ describe('BSON e2e', function() {
       shell.assertNoErrors();
     });
     it('Symbol has help when created by user', async() => {
-      const value = 'new Symbol("1")';
+      const value = 'new BSONSymbol("1")';
       await shell.writeInputLine(`${value}.help`);
       await eventually(() => {
         shell.assertContainsOutput('BSON Class');

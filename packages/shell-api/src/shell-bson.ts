@@ -70,9 +70,6 @@ export default function constructShellBson(bson: typeof BSON, printWarning: (msg
       assertArgsDefinedType([id], [[undefined, 'string']], 'ObjectId');
       return new bson.ObjectId(id);
     }, { prototype: bson.ObjectId.prototype }),
-    Symbol: Object.assign(function(value = ''): any {
-      return new bson.BSONSymbol(value);
-    }, { prototype: bson.BSONSymbol.prototype }),
     Timestamp: Object.assign(function(low = 0, high = 0): any {
       assertArgsDefinedType([low, high], ['number', 'number'], 'Timestamp');
       return new bson.Timestamp(low, high);
