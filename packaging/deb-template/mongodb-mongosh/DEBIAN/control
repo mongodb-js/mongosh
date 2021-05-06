@@ -1,4 +1,5 @@
 Package: {{name}}
+Provides: {{providesName}}
 Version: {{version}}
 Section: utils
 Priority: optional

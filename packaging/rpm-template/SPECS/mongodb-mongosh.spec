@@ -6,6 +6,7 @@
 %define _libexecdir %{_exec_prefix}/libexec
 
 Name: {{name}}
+Provides: {{providesName}}
 Version: {{version}}
 Release: 1%{?dist}
 Group: Development/Tools
