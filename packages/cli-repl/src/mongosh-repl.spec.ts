@@ -220,6 +220,25 @@ describe('MongoshNodeRepl', () => {
       await waitEval(bus);
       expect(output).to.include('ISODate("2021-05-04T15:49:33.000Z")');
     });
+
+    it('handles a long series of errors', async function() {
+      input.write('-asdf();\n'.repeat(20));
+      await waitEval(bus);
+      expect(mongoshRepl.runtimeState().repl.listenerCount('SIGINT')).to.equal(1);
+    });
+
+    it('does not run statements that should not run', async() => {
+      input.write(`
+      sleep(0);
+      throw new Error();
+      if (false)
+        print ('!this should not run!');
+      `);
+      for (let i = 0; i < 20; i++) {
+        await tick();
+      }
+      expect(output).not.to.include('!this should not run!');
+    });
   });
 
   context('with terminal: true', () => {

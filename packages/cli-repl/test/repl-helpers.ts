@@ -7,8 +7,6 @@ import chai, { expect } from 'chai';
 import sinon from 'ts-sinon';
 import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
-import repl from 'repl';
-import { PassThrough } from 'stream';
 import type { MongoshBus, MongoshBusEventsMap } from '@mongosh/types';
 
 chai.use(sinonChai);
@@ -78,17 +76,6 @@ async function readReplLogfile(logPath: string) {
     .map((line) => JSON.parse(line));
 }
 
-// https://github.com/nodejs/node/pull/38314
-function hasNodeBug38314() {
-  const input = new PassThrough();
-  const output = new PassThrough();
-  const evalFn = (code, ctx, filename, cb) => cb(new Error('err'));
-  const prompt = 'prompt#';
-  repl.start({ input, output, eval: evalFn, prompt });
-  input.end('s\n');
-  return String(output.read()).includes('prompt#prompt#');
-}
-
 export {
   expect,
   sinon,
@@ -98,6 +85,5 @@ export {
   waitEval,
   waitCompletion,
   fakeTTYProps,
-  readReplLogfile,
-  hasNodeBug38314
+  readReplLogfile
 };

@@ -8,7 +8,7 @@ import { promises as fs, createReadStream } from 'fs';
 import { promisify } from 'util';
 import rimraf from 'rimraf';
 import path from 'path';
-import { readReplLogfile, hasNodeBug38314 } from './repl-helpers';
+import { readReplLogfile } from './repl-helpers';
 
 describe('e2e', function() {
   const testServer = startTestServer('shared');
@@ -558,8 +558,6 @@ describe('e2e', function() {
       let result;
       result = await shell.executeLine('require("a")');
       expect(result).to.match(/Error: Cannot find module 'a'/);
-      // Wait for double prompt because of Node.js REPL bug
-      if (hasNodeBug38314()) await eventually(() => shell.assertContainsOutput('> > '));
       result = await shell.executeLine('require("./a")');
       expect(result).to.match(/^A$/m);
       result = await shell.executeLine('require("b")');
