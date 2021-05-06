@@ -309,15 +309,15 @@ describe('Bulk API', () => {
 
         it('throws if serviceProviderBulkOp.deleteOne throws', async() => {
           const expectedError = new Error();
-          innerStub.removeOne.throws(expectedError);
-          expect(() => bulkFindOp.deleteOne()).to.throw(expectedError);
+          innerStub.deleteOne.throws(expectedError);
+          expect(() => bulkFindOp.removeOne()).to.throw(expectedError);
         });
       });
       describe('delete', () => {
         it('calls serviceProviderBulkOp.delete and returns parent', () => {
           bulkFindOp.delete();
           expect(innerStub.delete).to.have.been.calledWith();
-          expect(bulk._batchCounts.ndeleteOps).to.equal(1);
+          expect(bulk._batchCounts.nRemoveOps).to.equal(1);
         });
 
         it('returns self', () => {
@@ -334,7 +334,7 @@ describe('Bulk API', () => {
         it('calls serviceProviderBulkOp.deleteOne and returns parent', () => {
           bulkFindOp.deleteOne();
           expect(innerStub.deleteOne).to.have.been.calledWith();
-          expect(bulk._batchCounts.ndeleteOps).to.equal(1);
+          expect(bulk._batchCounts.nRemoveOps).to.equal(1);
         });
 
         it('returns self', () => {
