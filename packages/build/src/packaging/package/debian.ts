@@ -48,7 +48,7 @@ export async function createDebianPackage(
     cwd: path.dirname(dir)
   });
 
-  await fs.rename(path.join(dir, `${pkg.metadata.name}.deb`), outFile);
+  await fs.rename(path.join(dir, `${pkg.metadata.debName}.deb`), outFile);
 
   await promisify(rimraf)(dir);
 }
