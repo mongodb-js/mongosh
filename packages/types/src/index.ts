@@ -92,6 +92,7 @@ export interface MongoshBusEventsMap {
   'mongosh:mongoshrc-load': () => void;
   'mongosh:mongoshrc-mongorc-warn': () => void;
   'mongosh:eval-cli-script': () => void;
+  'mongosh:eval-interrupt': () => void;
   'mongosh:mongocryptd-tryspawn': (ev: MongocryptdTrySpawnEvent) => void;
   'mongosh:mongocryptd-error': (ev: MongocryptdErrorEvent) => void;
   'mongosh:mongocryptd-log': (ev: MongocryptdLogEvent) => void;

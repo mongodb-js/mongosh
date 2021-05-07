@@ -803,7 +803,7 @@ describe('CliRepl', () => {
       //   await tick();
       //   process.kill(process.pid, 'SIGINT');
       //   await waitBus(cliRepl.bus, 'mongosh:interrupt-complete');
-      //   expect(output).to.include('execution was interrupted');
+      //   expect(output).to.match(/^Stopping execution.../m);
 
       //   input.write('use admin\n');
       //   await waitEval(cliRepl.bus);
@@ -826,7 +826,7 @@ describe('CliRepl', () => {
       //   await tick();
       //   process.kill(process.pid, 'SIGINT');
       //   await waitBus(cliRepl.bus, 'mongosh:interrupt-complete');
-      //   expect(output).to.include('execution was interrupted');
+      //   expect(output).to.match(/^Stopping execution.../m);
 
       //   input.write('clientAdminDb.aggregate([ {$currentOp: {} }, { $match: { \'command.find\': \'ctrlc\' } }, { $project: { command: 1 } } ])\n');
       //   await waitEval(cliRepl.bus);
@@ -842,11 +842,11 @@ describe('CliRepl', () => {
 
         output = '';
         await waitBus(cliRepl.bus, 'mongosh:eval-complete');
-        expect(output).to.include('execution was interrupted');
+        expect(output).to.match(/^Stopping execution.../m);
         expect(output).to.not.match(/>\s+$/);
 
         await waitBus(cliRepl.bus, 'mongosh:interrupt-complete');
-        expect(output).to.include('execution was interrupted');
+        expect(output).to.match(/^Stopping execution.../m);
         expect(output).to.not.include('MongoError');
         expect(output).to.not.include('MongoshInternalError');
         expect(output).to.not.include('hello');
@@ -857,29 +857,22 @@ describe('CliRepl', () => {
         expect(output).to.be.empty;
       });
 
-      // TODO: This test is an unstoppable infinite loop right now
+      it('cancels shell API commands that do not use the server', async() => {
+        output = '';
+        input.write('while(true) { print("I am alive"); };\n');
+        await tick();
+        process.kill(process.pid, 'SIGINT');
 
-      // it('cancels shell API commands that do not use the server', async() => {
-      //   input.write('while(true) { print("I am alive") };\n');
-      //   await tick();
-      //   console.log('Sending SIGINT...');
-      //   process.kill(process.pid, 'SIGINT');
+        await waitBus(cliRepl.bus, 'mongosh:interrupt-complete');
+        expect(output).to.match(/^Stopping execution.../m);
+        expect(output).to.not.include('MongoError');
+        expect(output).to.not.include('Mongosh');
+        expect(output).to.match(/>\s+$/);
 
-      //   output = '';
-      //   await waitBus(cliRepl.bus, 'mongosh:eval-complete');
-      //   expect(output).to.include('execution was interrupted');
-      //   expect(output).to.not.match(/>\s+$/);
-
-      //   await waitBus(cliRepl.bus, 'mongosh:interrupt-complete');
-      //   output = '';
-
-      //   await delay(100);
-      //   expect(output).to.include('execution was interrupted');
-      //   expect(output).to.not.include('MongoError');
-      //   expect(output).to.not.include('Mongosh');
-      //   expect(output).to.match(/>\s+$/);
-      //   expect(output).to.not.include('alive');
-      // }).timeout(5000);
+        output = '';
+        await delay(100);
+        expect(output).to.not.include('alive');
+      });
     });
   });
 
