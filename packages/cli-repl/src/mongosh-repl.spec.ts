@@ -242,7 +242,14 @@ describe('MongoshNodeRepl', () => {
   });
 
   context('with terminal: true', () => {
-    const tab = '\u0009';
+    const tab = async() => {
+      await tick();
+      input.write('\u0009');
+    };
+    const tabtab = async() => {
+      await tab();
+      await tab();
+    };
 
     beforeEach(async() => {
       // Node.js uses $TERM to determine what level of functionality to provide
@@ -273,7 +280,8 @@ describe('MongoshNodeRepl', () => {
       await tick();
       expect(output).to.include('Entering editor mode');
       output = '';
-      input.write(`db.${tab}${tab}`);
+      input.write('db.');
+      await tabtab();
       await tick();
       input.write('version()\n');
       input.write('\u0004'); // Ctrl+D
@@ -317,22 +325,21 @@ describe('MongoshNodeRepl', () => {
 
     context('autocompletion', () => {
       it('autocompletes collection methods', async() => {
-        // this triggers an eval
-        input.write(`db.coll.${tab}${tab}`);
-        // first tab
-        await waitEval(bus);
-        // second tab
+        input.write('db.coll.');
+        await tabtab();
         await tick();
         expect(output).to.include('db.coll.updateOne');
       });
       it('autocompletes shell-api methods (once)', async() => {
-        input.write(`vers${tab}${tab}`);
+        input.write('vers');
+        await tabtab();
         await tick();
         expect(output).to.include('version');
         expect(output).to.not.match(/version[ \t]+version/);
       });
       it('autocompletes async shell api methods', async() => {
-        input.write(`db.coll.find().${tab}${tab}`);
+        input.write('db.coll.find().');
+        await tabtab();
         await tick();
         expect(output).to.include('db.coll.find().close');
       });
@@ -340,7 +347,8 @@ describe('MongoshNodeRepl', () => {
         input.write('let somelongvariable = 0\n');
         await waitEval(bus);
         output = '';
-        input.write(`somelong${tab}${tab}`);
+        input.write('somelong');
+        await tabtab();
         await tick();
         expect(output).to.include('somelongvariable');
       });
@@ -349,14 +357,21 @@ describe('MongoshNodeRepl', () => {
         await tick();
         output = '';
         expect((mongoshRepl.runtimeState().repl as any)._prompt).to.equal('');
-        input.write(`db.${tab}${tab}`);
+        input.write('db.');
+        await tabtab();
         await tick();
         input.write('foo\nbar\n');
         expect((mongoshRepl.runtimeState().repl as any)._prompt).to.equal('');
         input.write('\u0003'); // Ctrl+C for abort
         await tick();
         expect((mongoshRepl.runtimeState().repl as any)._prompt).to.equal('> ');
-        expect(stripAnsi(output)).to.equal('db.\tfoo\r\nbar\r\n\r\n> ');
+        expect(stripAnsi(output)).to.equal('db.foo\r\nbar\r\n\r\n> ');
+      });
+      it('does not autocomplete tab-indented code', async() => {
+        output = '';
+        input.write('\t\tfoo');
+        await tick();
+        expect(output).to.equal('\t\tfoo');
       });
     });
 

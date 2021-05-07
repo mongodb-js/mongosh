@@ -105,6 +105,11 @@ export class LineByLineInput extends Readable {
     for (const char of chars) {
       if (this._isCtrlC(char) || this._isCtrlD(char)) {
         this.push(char);
+      } else if (
+        this._isRegularCharacter(char) &&
+        this._charQueue.length > 0 &&
+        this._isRegularCharacter(this._charQueue[this._charQueue.length - 1])) {
+        (this._charQueue[this._charQueue.length - 1] as string) += char as string;
       } else {
         this._charQueue.push(char);
       }
@@ -160,6 +165,10 @@ export class LineByLineInput extends Readable {
 
       this.push(char);
     }
+  }
+
+  private _isRegularCharacter(char: string | null): boolean {
+    return char !== null && !this._isLineEnding(char) && !this._isCtrlC(char) && !this._isCtrlD(char);
   }
 
   private _isLineEnding(char: string | null): boolean {

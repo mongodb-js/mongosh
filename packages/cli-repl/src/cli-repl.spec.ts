@@ -6,7 +6,7 @@ import path from 'path';
 import { Duplex, PassThrough } from 'stream';
 import { promisify } from 'util';
 import { MongodSetup, startTestServer } from '../../../testing/integration-testing-hooks';
-import { expect, fakeTTYProps, readReplLogfile, useTmpdir, waitBus, waitCompletion, waitEval } from '../test/repl-helpers';
+import { expect, fakeTTYProps, readReplLogfile, useTmpdir, waitBus, waitCompletion, waitEval, tick } from '../test/repl-helpers';
 import CliRepl, { CliReplOptions } from './cli-repl';
 import { CliReplErrors } from './error-codes';
 
@@ -818,7 +818,14 @@ describe('CliRepl', () => {
   }): void {
     describe('autocompletion', () => {
       let cliRepl: CliRepl;
-      const tab = '\u0009';
+      const tab = async() => {
+        await tick();
+        input.write('\u0009');
+      };
+      const tabtab = async() => {
+        await tab();
+        await tab();
+      };
 
       beforeEach(async() => {
         if (testServer === null) {
@@ -837,7 +844,8 @@ describe('CliRepl', () => {
 
       it(`${wantWatch ? 'completes' : 'does not complete'} the watch method`, async() => {
         output = '';
-        input.write(`db.wat${tab}${tab}`);
+        input.write('db.wat');
+        await tabtab();
         await waitCompletion(cliRepl.bus);
         if (wantWatch) {
           expect(output).to.include('db.watch');
@@ -848,14 +856,16 @@ describe('CliRepl', () => {
 
       it('completes the version method', async() => {
         output = '';
-        input.write(`db.vers${tab}${tab}`);
+        input.write('db.vers');
+        await tabtab();
         await waitCompletion(cliRepl.bus);
         expect(output).to.include('db.version');
       });
 
       it(`${wantShardDistribution ? 'completes' : 'does not complete'} the getShardDistribution method`, async() => {
         output = '';
-        input.write(`db.coll.getShardDis${tab}${tab}`);
+        input.write('db.coll.getShardDis');
+        await tabtab();
         await waitCompletion(cliRepl.bus);
         if (wantShardDistribution) {
           expect(output).to.include('db.coll.getShardDistribution');
@@ -871,7 +881,8 @@ describe('CliRepl', () => {
         await waitEval(cliRepl.bus);
 
         output = '';
-        input.write(`db.testcoll${tab}${tab}`);
+        input.write('db.testcoll');
+        await tabtab();
         await waitCompletion(cliRepl.bus);
         expect(output).to.include(collname);
 
@@ -880,7 +891,8 @@ describe('CliRepl', () => {
       });
 
       it('completes JS value properties properly (incomplete, double tab)', async() => {
-        input.write(`JSON.${tab}${tab}`);
+        input.write('JSON.');
+        await tabtab();
         await waitCompletion(cliRepl.bus);
         expect(output).to.include('JSON.parse');
         expect(output).to.include('JSON.stringify');
@@ -888,7 +900,8 @@ describe('CliRepl', () => {
       });
 
       it('completes JS value properties properly (complete, single tab)', async() => {
-        input.write(`JSON.pa${tab}`);
+        input.write('JSON.pa');
+        await tab();
         await waitCompletion(cliRepl.bus);
         expect(output).to.include('JSON.parse');
         expect(output).not.to.include('JSON.stringify');
@@ -900,7 +913,8 @@ describe('CliRepl', () => {
         await waitEval(cliRepl.bus);
 
         output = '';
-        input.write(`show d${tab}`);
+        input.write('show d');
+        await tab();
         await waitCompletion(cliRepl.bus);
         expect(output).to.include('show databases');
         expect(output).not.to.include('dSomeVariableStartingWithD');
@@ -908,7 +922,8 @@ describe('CliRepl', () => {
 
       it('completes use <db>', async() => {
         if (!hasDatabaseNames) return;
-        input.write(`use adm${tab}`);
+        input.write('use adm');
+        await tab();
         await waitCompletion(cliRepl.bus);
         expect(output).to.include('use admin');
       });

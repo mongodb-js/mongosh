@@ -27,7 +27,7 @@ describe('LineByLineInput', () => {
   context('when block on newline is enabled (default)', () => {
     it('does not forward characters after newline', () => {
       stdinMock.emit('data', Buffer.from('ab\nc'));
-      expect(forwardedChunks).to.deep.equal(['a', 'b', '\n']);
+      expect(forwardedChunks).to.deep.equal(['ab', '\n']);
     });
 
     it('forwards CTRL-C anyway and as soon as is received', () => {
@@ -43,7 +43,7 @@ describe('LineByLineInput', () => {
     it('unblocks on nextline', () => {
       stdinMock.emit('data', Buffer.from('ab\nc'));
       lineByLineInput.nextLine();
-      expect(forwardedChunks).to.deep.equal(['a', 'b', '\n', 'c']);
+      expect(forwardedChunks).to.deep.equal(['ab', '\n', 'c']);
     });
   });
 
@@ -60,7 +60,7 @@ describe('LineByLineInput', () => {
       lineByLineInput.disableBlockOnNewline();
       lineByLineInput.enableBlockOnNewLine();
       stdinMock.emit('data', Buffer.from('ab\nc'));
-      expect(forwardedChunks).to.deep.equal(['a', 'b', '\n']);
+      expect(forwardedChunks).to.deep.equal(['ab', '\n']);
     });
   });
 
@@ -77,8 +77,8 @@ describe('LineByLineInput', () => {
         insideDataCalls--;
       });
       stdinMock.emit('data', Buffer.from('foo\n\u0003'));
-      expect(dataCalls).to.equal(5);
-      expect(forwardedChunks).to.deep.equal(['\u0003', 'f', 'o', 'o', '\n']);
+      expect(dataCalls).to.equal(3);
+      expect(forwardedChunks).to.deep.equal(['\u0003', 'foo', '\n']);
     });
   });
 });
