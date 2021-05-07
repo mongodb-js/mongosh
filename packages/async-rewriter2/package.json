@@ -29,9 +29,9 @@
   "dependencies": {
     "@babel/core": "^7.9.0",
     "@babel/parser": "^7.9.4",
-    "@babel/plugin-transform-shorthand-properties": "^7.12.13",
-    "@babel/plugin-transform-parameters": "^7.13.0",
     "@babel/plugin-transform-destructuring": "^7.13.0",
+    "@babel/plugin-transform-parameters": "^7.13.0",
+    "@babel/plugin-transform-shorthand-properties": "^7.12.13",
     "@babel/traverse": "^7.9.0",
     "@babel/types": "^7.9.0",
     "@types/babel__core": "^7.1.6",
