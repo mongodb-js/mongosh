@@ -14,6 +14,17 @@ describe('tarball getPackageFile', () => {
     });
   });
 
+  context('when the build variant is windows MSI', () => {
+    it('returns the windows MSI name', () => {
+      expect(
+        getPackageFile(BuildVariant.WindowsMSI, '1.0.0', 'mongosh')
+      ).to.deep.equal({
+        path: 'mongosh-1.0.0.msi',
+        contentType: 'application/x-msi'
+      });
+    });
+  });
+
   context('when the build variant is macos', () => {
     it('returns the tarball details', () => {
       expect(

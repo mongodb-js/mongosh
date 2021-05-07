@@ -33,11 +33,12 @@ describe('DownloadCenter config', () => {
       expect(platforms[0].download_link).to.include('mongosh-1.2.2-linux.tgz');
     });
 
-    it('has an artifact for windows', () => {
+    it('has an MSI and ZIP artifacts for windows', () => {
       const [version] = config.versions;
       const platforms = version.platform.filter(p => p.os === 'win32');
-      expect(platforms).to.have.length(1);
+      expect(platforms).to.have.length(2);
       expect(platforms[0].download_link).to.include('mongosh-1.2.2-win32.zip');
+      expect(platforms[1].download_link).to.include('mongosh-1.2.2.msi');
     });
 
     it('has an artifact for rhel', () => {
