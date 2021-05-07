@@ -57,7 +57,7 @@ export async function createRedhatPackage(
   // Create the package.
   const arch = 'x86_64';
   await execFile('rpmbuild', [
-    '-bb', path.join(dir, 'SPECS', `${pkg.metadata.name}.spec`),
+    '-bb', path.join(dir, 'SPECS', `${pkg.metadata.rpmName}.spec`),
     '--target', arch,
     '--define', `_topdir ${dir}`
   ], {

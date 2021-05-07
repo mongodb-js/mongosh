@@ -43,7 +43,7 @@ export async function createDebianPackage(
 
   // Create the package.
   await execFile('dpkg', [
-    '--build', path.join(dir, pkg.metadata.name)
+    '--build', path.join(dir, pkg.metadata.debName)
   ], {
     cwd: path.dirname(dir)
   });
