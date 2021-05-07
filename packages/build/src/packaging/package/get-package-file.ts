@@ -1,11 +1,13 @@
 import { BuildVariant } from '../../config';
+import type { PackageInformation } from './package-information';
 
 export interface PackageFile {
   path: string;
   contentType: string;
 }
 
-export function getPackageFile(buildVariant: BuildVariant, version: string, name: string): PackageFile {
+export function getPackageFile(buildVariant: BuildVariant, packageInformation: PackageInformation): PackageFile {
+  const { version, name, debName, rpmName } = packageInformation.metadata;
   switch (buildVariant) {
     case BuildVariant.Linux:
       return {
@@ -14,7 +16,7 @@ export function getPackageFile(buildVariant: BuildVariant, version: string, name
       };
     case BuildVariant.Redhat:
       return {
-        path: `${name}-${version}-x86_64.rpm`,
+        path: `${rpmName}-${version}-x86_64.rpm`,
         contentType: 'application/x-rpm'
       };
     case BuildVariant.Debian:
@@ -22,7 +24,7 @@ export function getPackageFile(buildVariant: BuildVariant, version: string, name
       // name: https://www.debian.org/doc/manuals/debian-faq/pkg-basics.en.html
       // sometimes there is also revision number, but we can add that later.
       return {
-        path: `${name}_${version}_amd64.deb`,
+        path: `${debName}_${version}_amd64.deb`,
         contentType: 'application/vnd.debian.binary-package'
       };
     case BuildVariant.MacOs:

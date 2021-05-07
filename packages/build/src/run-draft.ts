@@ -32,7 +32,7 @@ export async function runDraft(
   await fs.mkdir(tmpDir, { recursive: true });
 
   for await (const variant of ALL_BUILD_VARIANTS) {
-    const tarballFile = getPackageFile(variant, config.packageInformation.metadata.version, config.packageInformation.metadata.name);
+    const tarballFile = getPackageFile(variant, config.packageInformation);
     console.info(`mongosh: processing artifact for ${variant} - ${tarballFile.path}`);
 
     const downloadedArtifact = await downloadArtifactFromEvergreen(

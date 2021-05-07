@@ -143,7 +143,9 @@ module.exports = {
       }
     ],
     metadata: {
-      name: 'mongodb-mongosh',
+      name: 'mongosh',
+      rpmName: 'mongodb-mongosh',
+      debName: 'mongodb-mongosh',
       providesName: 'mongodb-shell',
       fullName: 'MongoDB Shell',
       version: CLI_REPL_PACKAGE_JSON.version,

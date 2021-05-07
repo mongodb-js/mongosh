@@ -1,4 +1,4 @@
-Package: {{name}}
+Package: {{debName}}
 Provides: {{providesName}}
 Version: {{version}}
 Section: utils
