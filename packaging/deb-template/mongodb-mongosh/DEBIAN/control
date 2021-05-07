@@ -1,5 +1,5 @@
 Package: {{debName}}
-Provides: {{providesName}}
+Provides: {{providesName}} (= {{providesVersion}})
 Version: {{version}}
 Section: utils
 Priority: optional
