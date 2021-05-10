@@ -39,7 +39,7 @@
     "node": ">=14.15.0"
   },
   "dependencies": {
-    "@babel/core": "^7.14.0",
+    "@babel/core": "^7.9.0",
     "@mongosh/autocomplete": "0.0.0-dev.0",
     "@mongosh/errors": "0.0.0-dev.0",
     "@mongosh/history": "0.0.0-dev.0",
