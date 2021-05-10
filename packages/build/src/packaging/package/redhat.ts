@@ -43,7 +43,7 @@ export async function createRedhatPackage(
     filelistRpm,
     version
   });
-    // Copy all files that we want to ship into the BUILD directory.
+  // Copy all files that we want to ship into the BUILD directory.
   for (const { sourceFilePath } of pkg.binaries) {
     await fs.copyFile(sourceFilePath, path.join(dir, 'BUILD', path.basename(sourceFilePath)), COPYFILE_FICLONE);
   }

@@ -27,7 +27,7 @@ export async function createDebianPackage(
     ...pkg.binaries.map(({ license }) => license)
   ];
   // Put documentation files in /usr/share/doc/.
-  const docdir = path.join(dir, pkg.metadata.name, 'usr', 'share', 'doc', pkg.metadata.name);
+  const docdir = path.join(dir, pkg.metadata.debName, 'usr', 'share', 'doc', pkg.metadata.debName);
   await fs.mkdir(docdir, { recursive: true });
   for (const { sourceFilePath, packagedFilePath } of docFiles) {
     await fs.copyFile(sourceFilePath, path.join(docdir, packagedFilePath), COPYFILE_FICLONE);
@@ -36,7 +36,7 @@ export async function createDebianPackage(
   // https://www.debian.org/doc/debian-policy/ch-archive.html#s-pkgcopyright
   await fs.writeFile(path.join(docdir, 'copyright'), await generateDebianCopyright(pkg));
   for (const { sourceFilePath, category } of pkg.binaries) {
-    const targetDir = path.join(dir, pkg.metadata.name, 'usr', category);
+    const targetDir = path.join(dir, pkg.metadata.debName, 'usr', category);
     await fs.mkdir(targetDir, { recursive: true });
     await fs.copyFile(sourceFilePath, path.join(targetDir, path.basename(sourceFilePath)), COPYFILE_FICLONE);
   }
