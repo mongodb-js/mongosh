@@ -176,7 +176,7 @@ Package|Version|License
 **[pino-std-serializers](#0fbaec0b4757a710a88df80bb60f61685813af251a9893a302cdd2e2dc1cb125)**|2.4.2|MIT
 **[prebuild-install](#2f21a89ebb2e5a3a0765b359b12d88a585d56924e3e0b7ab7bffbd5e029a4e54)**|6.0.1|MIT
 **[pretty-bytes](#84f0bf818b26f8bdbd4b37dee83e6335d12636108b0a299edcd3c786ae3beb96)**|5.3.0|MIT
-**[pretty-repl](#77b1b7d61eabd2f03c5fe54b42d78a3dad504d6fde178ea876e9c0d26f89cd95)**|3.0.0|MIT
+**[pretty-repl](#5a9e4001cb57d38ac406bc39dc039f65bde575d483bfe9d4dfec15ef26fbf25b)**|3.0.1|MIT
 **[process-nextick-args](#449a33b1fb1386db92b40df9073f48703b67ff05c4da5043d007fdb90ed76aca)**|2.0.1|MIT
 **[pump](#147f1bd3a6380306e696f0574feda0b1490121a1d12e4500e91ffb6e888ffa3a)**|3.0.0|MIT
 **[quick-format-unescaped](#6847d0af564232ff133f19c1e546442055386145699c85cd5a7ede04f82fc17a)**|3.0.3|MIT
@@ -9899,8 +9899,8 @@ Authors:
 * Sindre Sorhus <[sindresorhus@gmail.com](nomail)> (sindresorhus.com)
 
 
-<a id="77b1b7d61eabd2f03c5fe54b42d78a3dad504d6fde178ea876e9c0d26f89cd95"></a>
-### [pretty-repl](https://www.npmjs.com/package/pretty-repl) (version 3.0.0)
+<a id="5a9e4001cb57d38ac406bc39dc039f65bde575d483bfe9d4dfec15ef26fbf25b"></a>
+### [pretty-repl](https://www.npmjs.com/package/pretty-repl) (version 3.0.1)
 <!-- initially found at packages/cli-repl/node_modules/pretty-repl -->
 > Extends repl.REPLServer to allow for a colorize function
 
