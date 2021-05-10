@@ -19,6 +19,7 @@ import { MONGOSH_WIKI, TELEMETRY_GREETING_MESSAGE } from './constants';
 import formatOutput, { formatError } from './format-output';
 import { LineByLineInput } from './line-by-line-input';
 import { parseAnyLogEntry, LogEntry } from './log-entry';
+import { makeMultilineJSIntoSingleLine } from './js-multiline-to-singleline';
 
 export type MongoshCliOptions = ShellCliOptions & {
   redactInfo?: boolean;
@@ -199,6 +200,9 @@ class MongoshNodeRepl implements EvaluationListener {
         }
       });
 
+    // This is used below for multiline history manipulation.
+    let originalHistory: string[] | null = null;
+
     const originalDisplayPrompt = repl.displayPrompt.bind(repl);
 
     repl.displayPrompt = (...args: any[]) => {
@@ -213,6 +217,7 @@ class MongoshNodeRepl implements EvaluationListener {
       const originalEditorAction = repl.commands.editor.action.bind(repl);
 
       repl.commands.editor.action = (...args: Parameters<typeof originalEditorAction>): any => {
+        originalHistory = [...(repl as any).history];
         this.lineByLineInput.disableBlockOnNewline();
         return originalEditorAction(...args);
       };
@@ -241,9 +246,9 @@ class MongoshNodeRepl implements EvaluationListener {
         const history: string[] = (repl as any).history;
         changeHistory(history, redactInfo);
       });
-      // We also want to group multiline history entries into a single entry
-      // per evaluation, so that arrow-up functionality is more useful.
-      let originalHistory: string[] | null = null;
+      // We also want to group multiline history entries and .editor input into
+      // a single entry per evaluation, so that arrow-up functionality
+      // is more useful.
       (repl as any).on(asyncRepl.evalFinish, (ev: asyncRepl.EvalFinishEvent) => {
         if (this.insideAutoCompleteOrGetPrompt) {
           return; // These are not the evaluations we are looking for.
@@ -265,10 +270,7 @@ class MongoshNodeRepl implements EvaluationListener {
           // front of the history array. We restore the original history, i.e.
           // any intermediate lines added to the history while we were gathering
           // the multiline input are replaced at this point.
-          const newHistoryEntry = ev.input.split(/[\r\n]+/g)
-            .map(line => line.trim())
-            .join(' ')
-            .trim();
+          const newHistoryEntry = makeMultilineJSIntoSingleLine(ev.input);
           if (newHistoryEntry.length > 0) {
             originalHistory.unshift(newHistoryEntry);
           }
