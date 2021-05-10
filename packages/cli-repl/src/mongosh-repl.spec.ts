@@ -427,13 +427,38 @@ describe('MongoshNodeRepl', () => {
             await tick();
             expect(mongoshRepl.runtimeState().repl.context.obj).to.deep.equal({ foo: 'bar' });
             expect(output).not.to.include('obj = ({ foo: "bar" })');
+            expect(output).not.to.include('obj = { foo: "bar" }');
 
             output = '';
             input.write(`${arrowUp}\n`);
             await tick();
-            expect(output).to.include('obj = ({ foo: "bar" })');
+            expect(output).to.include('obj = { foo: "bar" }');
             expect(getHistory()).to.deep.equal([
-              'obj = ({ foo: "bar" })'
+              'obj = { foo: "bar" }'
+            ]);
+          });
+
+          it('works for multi-line input from .editor', async() => {
+            output = '';
+            input.write('.editor\n');
+            await tick();
+            input.write('obj = ({ foo: \n');
+            await tick();
+            input.write('"baz" })\n');
+            await tick();
+            input.write('\u0004'); // Ctrl+D
+            await tick();
+            expect(mongoshRepl.runtimeState().repl.context.obj).to.deep.equal({ foo: 'baz' });
+            expect(output).not.to.include('obj = ({ foo: "baz" })');
+            expect(output).not.to.include('obj = { foo: "baz" }');
+
+            output = '';
+            input.write(`${arrowUp}\n`);
+            await tick();
+            expect(output).to.include('obj = { foo: "baz" }');
+            expect(getHistory()).to.deep.equal([
+              'obj = { foo: "baz" }',
+              '.editor'
             ]);
           });
 
@@ -448,13 +473,14 @@ describe('MongoshNodeRepl', () => {
             await tick();
             expect(mongoshRepl.runtimeState().repl.context.obj).to.deep.equal({ foo: 'bar' });
             expect(output).not.to.include('obj = ({ foo: "bar" })');
+            expect(output).not.to.include('obj = { foo: "bar" }');
 
             output = '';
             input.write(`${arrowUp}\n`);
             await tick();
-            expect(output).to.include('obj = ({ foo: "bar" })');
+            expect(output).to.include('obj = { foo: "bar" }');
             expect(getHistory()).to.deep.equal([
-              'obj = ({ foo: "bar" })',
+              'obj = { foo: "bar" }',
               'prompt = () => "abc> "'
             ]);
           });
