@@ -26,6 +26,7 @@ import {
   ShellApi,
   ShellResult
 } from './index';
+import { InterruptFlag } from './interruptor';
 import NoDatabase from './no-db';
 import constructShellBson from './shell-bson';
 
@@ -106,7 +107,7 @@ export default class ShellInternalState {
   public mongocryptdSpawnPath: string | null;
   public batchSizeFromDBQuery: number | undefined = undefined;
 
-  public interrupted = false;
+  public readonly interrupted = new InterruptFlag();
   public resumeMongosAfterInterrupt: Array<{
     mongo: Mongo,
     resume: (() => Promise<void>) | null
@@ -318,7 +319,9 @@ export default class ShellInternalState {
   }
 
   async onInterruptExecution(): Promise<boolean> {
-    this.interrupted = true;
+    this.interrupted.set();
+    this.currentCursor = null;
+
     this.resumeMongosAfterInterrupt = await Promise.all(this.mongos.map(async m => {
       try {
         return {
@@ -354,7 +357,7 @@ export default class ShellInternalState {
     this.resumeMongosAfterInterrupt = undefined;
 
     const result = await Promise.all(promises);
-    this.interrupted = false;
+    this.interrupted.reset();
     return !result.find(r => r === false);
   }
 

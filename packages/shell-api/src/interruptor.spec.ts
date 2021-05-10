@@ -27,7 +27,7 @@ describe('interruptor', () => {
     });
 
     it('causes an interrupt error to be thrown on entry', async() => {
-      internalState.interrupted = true;
+      internalState.interrupted.set();
       try {
         await database.runCommand({ some: 1 });
       } catch (e) {
@@ -48,7 +48,7 @@ describe('interruptor', () => {
       });
 
       const runCommand = database.runCommand({ some: 1 });
-      internalState.interrupted = true;
+      internalState.interrupted.set();
       resolveCall({ ok: 1 });
 
       try {

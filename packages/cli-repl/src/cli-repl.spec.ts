@@ -838,12 +838,9 @@ describe('CliRepl', () => {
       it('does not reconnect until the evaluation finishes', async() => {
         input.write('sleep(500); print(db.ctrlc.find({}));\n');
         await tick();
-        process.kill(process.pid, 'SIGINT');
 
         output = '';
-        await waitBus(cliRepl.bus, 'mongosh:eval-complete');
-        expect(output).to.match(/^Stopping execution.../m);
-        expect(output).to.not.match(/>\s+$/);
+        process.kill(process.pid, 'SIGINT');
 
         await waitBus(cliRepl.bus, 'mongosh:interrupt-complete');
         expect(output).to.match(/^Stopping execution.../m);
@@ -855,6 +852,10 @@ describe('CliRepl', () => {
         output = '';
         await delay(1000);
         expect(output).to.be.empty;
+
+        input.write('db.ctrlc.find({})\n');
+        await waitEval(cliRepl.bus);
+        expect(output).to.contain('hello');
       });
 
       it('cancels shell API commands that do not use the server', async() => {

@@ -1,10 +1,10 @@
 import completer from '@mongosh/autocomplete';
 import { MongoshCommandFailed, MongoshInternalError, MongoshWarning } from '@mongosh/errors';
 import { changeHistory } from '@mongosh/history';
-import type { ServiceProvider, AutoEncryptionOptions } from '@mongosh/service-provider-core';
-import { EvaluationListener, ShellCliOptions, ShellInternalState, OnLoadResult } from '@mongosh/shell-api';
+import type { AutoEncryptionOptions, ServiceProvider } from '@mongosh/service-provider-core';
+import { EvaluationListener, OnLoadResult, ShellCliOptions, ShellInternalState } from '@mongosh/shell-api';
 import { ShellEvaluator, ShellResult } from '@mongosh/shell-evaluator';
-import type { MongoshBus, CliUserConfig, ConfigProvider } from '@mongosh/types';
+import type { CliUserConfig, ConfigProvider, MongoshBus } from '@mongosh/types';
 import askpassword from 'askpassword';
 import { Console } from 'console';
 import { once } from 'events';
@@ -389,8 +389,8 @@ class MongoshNodeRepl implements EvaluationListener {
       // at all and instead leave that to the @mongosh/autocomplete package.
       return shellResult.type !== null ? null : shellResult.rawValue;
     } catch (err) {
-      if (this.runtimeState().internalState.interrupted) {
-        this.bus.emit('mongosh:eval-interrupt');
+      if (this.runtimeState().internalState.interrupted.isSet()) {
+        this.bus.emit('mongosh:eval-interrupted');
         // The shell is interrupted by CTRL-C - so we ignore any errors
         // that happened during evaluation.
         const result: ShellResult = {
@@ -437,20 +437,19 @@ class MongoshNodeRepl implements EvaluationListener {
   }
 
   async onAsyncSigint(): Promise<boolean> {
-    const evalInterrupt = new Promise<void>(resolve => {
-      this.bus.once('mongosh:eval-interrupt', () => {
-        // We have to write the message immediate inside the event handler
-        // to prevent the REPL from printing the prompt before the message
-        this.output.write('Stopping execution...');
-        resolve();
-      });
-    });
     const { internalState } = this.runtimeState();
-    const fullyInterrupted = await internalState.onInterruptExecution();
+    if (internalState.interrupted.isSet()) {
+      return true;
+    }
+    this.output.write('Stopping execution...');
 
+    const fullyInterrupted = await internalState.onInterruptExecution();
     // this is an async interrupt - the evaluation is still running in the background
-    // we wait until it finally completes
-    await evalInterrupt;
+    // we wait until it finally completes (which should happen immediately)
+    await Promise.race([
+      once(this.bus, 'mongosh:eval-interrupted'),
+      new Promise(resolve => setImmediate(resolve))
+    ]);
 
     const fullyResumed = await internalState.onResumeExecution();
     if (!fullyInterrupted || !fullyResumed) {

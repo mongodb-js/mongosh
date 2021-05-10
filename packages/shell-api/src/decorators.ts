@@ -1,19 +1,17 @@
 /* eslint-disable complexity */
-import Help from './help';
-import {
-  Topologies,
-  ALL_PLATFORMS,
-  ALL_TOPOLOGIES,
-  ALL_SERVER_VERSIONS,
-  shellApiType,
-  asPrintable,
-  namespaceInfo
-} from './enums';
 import { MongoshInternalError } from '@mongosh/errors';
 import type { ReplPlatform } from '@mongosh/service-provider-core';
+import { Mongo, ShellInternalState } from '.';
+import {
+  ALL_PLATFORMS,
+  ALL_SERVER_VERSIONS,
+  ALL_TOPOLOGIES,
+  asPrintable,
+  namespaceInfo, shellApiType, Topologies
+} from './enums';
+import Help from './help';
 import { addHiddenDataProperty } from './helpers';
 import { checkInterrupted } from './interruptor';
-import { Mongo, ShellInternalState } from '.';
 
 const addSourceToResultsSymbol = Symbol.for('@@mongosh.addSourceToResults');
 const resultSource = Symbol.for('@@mongosh.resultSource');
@@ -160,8 +158,11 @@ function wrapWithAddSourceToResult(fn: Function): Function {
 function wrapWithInterruptChecks<T extends(...args: any[]) => any>(fn: T): (args: Parameters<T>) => ReturnType<T> {
   const wrapper = (fn as any).returnsPromise ?
     markImplicitlyAwaited(async function(this: any, ...args: any[]): Promise<any> {
-      checkInterrupted(this);
-      const result = await fn.call(this, ...args);
+      const internalState = checkInterrupted(this);
+      const result = await Promise.race([
+        internalState ? internalState.interrupted.asPromise() : new Promise(() => {}),
+        fn.call(this, ...args)
+      ]);
       checkInterrupted(this);
       return result;
     }) : function(this: any, ...args: any[]): any {
