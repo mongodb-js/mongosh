@@ -11,7 +11,7 @@ import { getArtifactUrl as getArtifactUrlFn } from './evergreen';
 import { GithubRepo } from './github-repo';
 import type { publishToHomebrew as publishToHomebrewType } from './homebrew';
 import type { publishNpmPackages as publishNpmPackagesType } from './npm-packages';
-import { getPackageFile } from './packaging';
+import { PackageInformation, getPackageFile } from './packaging';
 
 export async function runPublish(
   config: Config,
@@ -51,7 +51,7 @@ export async function runPublish(
     config.project as string,
     releaseVersion,
     latestDraftTag.name,
-    packageName,
+    config.packageInformation as PackageInformation,
     getEvergreenArtifactUrl
   );
 
@@ -84,7 +84,7 @@ async function publishArtifactsToBarque(
   project: string,
   releaseVersion: string,
   mostRecentDraftTag: string,
-  packageName: string,
+  packageInformation: PackageInformation,
   getEvergreenArtifactUrl: typeof getArtifactUrlFn
 ): Promise<void> {
   const variantsForBarque = [
@@ -94,7 +94,13 @@ async function publishArtifactsToBarque(
 
   const publishedPackages: string[] = [];
   for await (const variant of variantsForBarque) {
-    const packageFile = getPackageFile(variant, releaseVersion, packageName);
+    const packageFile = getPackageFile(variant, {
+      ...packageInformation,
+      metadata: {
+        ...packageInformation.metadata,
+        version: releaseVersion
+      }
+    });
     const packageUrl = getEvergreenArtifactUrl(project, mostRecentDraftTag, packageFile.path);
     console.info(`mongosh: Publishing ${variant} artifact to barque ${packageUrl}`);
     const packageUrls = await barque.releaseToBarque(variant, packageUrl);

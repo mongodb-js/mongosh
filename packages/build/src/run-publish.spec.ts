@@ -63,6 +63,8 @@ describe('publish', () => {
       packageInformation: {
         metadata: {
           name: 'mongosh',
+          rpmName: 'mongodb-mongosh',
+          debName: 'mongodb-mongosh',
           version: 'packageVersion',
           description: 'The best shell you ever had.',
           homepage: 'https://mongodb.com',
@@ -179,11 +181,11 @@ describe('publish', () => {
       expect(barque.releaseToBarque).to.have.been.callCount(2);
       expect(barque.releaseToBarque).to.have.been.calledWith(
         BuildVariant.Redhat,
-        'https://s3.amazonaws.com/mciuploads/project/v0.7.0-draft.42/mongosh-0.7.0-x86_64.rpm'
+        'https://s3.amazonaws.com/mciuploads/project/v0.7.0-draft.42/mongodb-mongosh-0.7.0-x86_64.rpm'
       );
       expect(barque.releaseToBarque).to.have.been.calledWith(
         BuildVariant.Debian,
-        'https://s3.amazonaws.com/mciuploads/project/v0.7.0-draft.42/mongosh_0.7.0_amd64.deb'
+        'https://s3.amazonaws.com/mciuploads/project/v0.7.0-draft.42/mongodb-mongosh_0.7.0_amd64.deb'
       );
       expect(barque.waitUntilPackagesAreAvailable).to.have.been.called;
     });

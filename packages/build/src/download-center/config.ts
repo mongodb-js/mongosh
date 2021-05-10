@@ -54,13 +54,13 @@ export function createDownloadCenterConfig(version: string): DownloadCenterConfi
             'arch': 'x64',
             'os': 'debian',
             'name': 'Debian 64-bit',
-            'download_link': `https://downloads.mongodb.com/compass/mongosh_${version}_amd64.deb`
+            'download_link': `https://downloads.mongodb.com/compass/mongodb-mongosh_${version}_amd64.deb`
           },
           {
             'arch': 'x64',
             'os': 'rhel',
             'name': 'Redhat / CentOS / SUSE / Amazon Linux 64-bit',
-            'download_link': `https://downloads.mongodb.com/compass/mongosh-${version}-x86_64.rpm`
+            'download_link': `https://downloads.mongodb.com/compass/mongodb-mongosh-${version}-x86_64.rpm`
           }
         ]
       }

@@ -19,6 +19,8 @@ export interface PackageInformation {
     otherDocFilePaths: DocumentationFile[];
     metadata: {
         name: string;
+        debName: string;
+        rpmName: string;
         version: string;
         description: string;
         homepage: string;

@@ -45,14 +45,14 @@ describe('DownloadCenter config', () => {
       const [version] = config.versions;
       const platforms = version.platform.filter(p => p.os === 'rhel');
       expect(platforms).to.have.length(1);
-      expect(platforms[0].download_link).to.include('mongosh-1.2.2-x86_64.rpm');
+      expect(platforms[0].download_link).to.include('mongodb-mongosh-1.2.2-x86_64.rpm');
     });
 
     it('has an artifact for debian', () => {
       const [version] = config.versions;
       const platforms = version.platform.filter(p => p.os === 'debian');
       expect(platforms).to.have.length(1);
-      expect(platforms[0].download_link).to.include('mongosh_1.2.2_amd64.deb');
+      expect(platforms[0].download_link).to.include('mongodb-mongosh_1.2.2_amd64.deb');
     });
   });
 

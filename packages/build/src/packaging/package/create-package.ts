@@ -21,7 +21,7 @@ export async function createPackage(
   createMsiPackage: typeof createMsiPackageFn = createMsiPackageFn,
   createZipPackage: typeof createZipPackageFn = createZipPackageFn
 ): Promise<PackageFile> {
-  const tarballFile = getPackageFile(buildVariant, packageInformation.metadata.version, packageInformation.metadata.name);
+  const tarballFile = getPackageFile(buildVariant, packageInformation);
   const fullTarballFilePath = path.join(outputDir, tarballFile.path);
   console.info('mongosh: gzipping:', fullTarballFilePath);
 

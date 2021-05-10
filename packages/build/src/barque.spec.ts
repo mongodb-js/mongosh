@@ -53,18 +53,18 @@ describe('Barque', () => {
         [
           {
             variant: BuildVariant.Debian,
-            url: 'https://s3.amazonaws.com/mciuploads/mongosh/5ed7ee5d8683818eb28d9d3b5c65837cde4a08f5/mongosh_0.1.0_amd64.deb',
+            url: 'https://s3.amazonaws.com/mciuploads/mongosh/5ed7ee5d8683818eb28d9d3b5c65837cde4a08f5/mongodb-mongosh_0.1.0_amd64.deb',
             publishedUrls: [
-              `${Barque.PPA_REPO_BASE_URL}/apt/debian/dists/buster/mongodb-org/4.4/main/binary-amd64/mongosh_0.1.0_amd64.deb`,
-              `${Barque.PPA_REPO_BASE_URL}/apt/ubuntu/dists/bionic/mongodb-org/4.4/multiverse/binary-amd64/mongosh_0.1.0_amd64.deb`,
-              `${Barque.PPA_REPO_BASE_URL}/apt/ubuntu/dists/focal/mongodb-org/4.4/multiverse/binary-amd64/mongosh_0.1.0_amd64.deb`,
+              `${Barque.PPA_REPO_BASE_URL}/apt/debian/dists/buster/mongodb-org/4.4/main/binary-amd64/mongodb-mongosh_0.1.0_amd64.deb`,
+              `${Barque.PPA_REPO_BASE_URL}/apt/ubuntu/dists/bionic/mongodb-org/4.4/multiverse/binary-amd64/mongodb-mongosh_0.1.0_amd64.deb`,
+              `${Barque.PPA_REPO_BASE_URL}/apt/ubuntu/dists/focal/mongodb-org/4.4/multiverse/binary-amd64/mongodb-mongosh_0.1.0_amd64.deb`,
             ]
           },
           {
             variant: BuildVariant.Redhat,
-            url: 'https://s3.amazonaws.com/mciuploads/mongosh/5ed7ee5d8683818eb28d9d3b5c65837cde4a08f5/mongosh-0.1.0-x86_64.rpm',
+            url: 'https://s3.amazonaws.com/mciuploads/mongosh/5ed7ee5d8683818eb28d9d3b5c65837cde4a08f5/mongodb-mongosh-0.1.0-x86_64.rpm',
             publishedUrls: [
-              `${Barque.PPA_REPO_BASE_URL}/yum/redhat/8/mongodb-org/4.4/x86_64/RPMS/mongosh-0.1.0-x86_64.rpm`,
+              `${Barque.PPA_REPO_BASE_URL}/yum/redhat/8/mongodb-org/4.4/x86_64/RPMS/mongodb-mongosh-0.1.0-x86_64.rpm`,
             ]
           }
         ].forEach(({ variant, url, publishedUrls }) => {
@@ -88,7 +88,7 @@ describe('Barque', () => {
         barque.createCuratorDir = sinon.stub().returns(Promise.resolve('./'));
         barque.extractLatestCurator = sinon.stub().returns(Promise.resolve(true));
 
-        const debUrl = 'https://s3.amazonaws.com/mciuploads/mongosh/5ed7ee5d8683818eb28d9d3b5c65837cde4a08f5/mongosh_0.1.0_amd64.deb';
+        const debUrl = 'https://s3.amazonaws.com/mciuploads/mongosh/5ed7ee5d8683818eb28d9d3b5c65837cde4a08f5/mongodb-mongosh_0.1.0_amd64.deb';
 
         try {
           await barque.releaseToBarque(BuildVariant.Debian, debUrl);

@@ -38,6 +38,8 @@ module.exports = {
     homepage: 'https://example.org',
     maintainer: 'Somebody <somebody@example.org>',
     name: 'foobar',
+    debName: 'foobar',
+    rpmName: 'foobar',
     manufacturer: 'Some Random Company Inc.'
   },
   debTemplateDir: path.resolve(__dirname, 'deb-template'),
