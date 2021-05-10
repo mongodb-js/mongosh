@@ -3,7 +3,6 @@ import { promises as fs } from 'fs';
 import * as path from 'path';
 import sinon from 'ts-sinon';
 import { withTempPackageEach } from '../../../test/helpers';
-import { BuildVariant } from '../../config';
 import { createPackage } from './create-package';
 import { createZipPackage } from './zip';
 
@@ -19,7 +18,7 @@ describe('package zip', () => {
   const tmpPkg = withTempPackageEach();
 
   it('packages the executable(s)', async() => {
-    const tarball = await createPackage(tmpPkg.tarballDir, BuildVariant.Windows, tmpPkg.pkgConfig);
+    const tarball = await createPackage(tmpPkg.tarballDir, 'win32-x64', tmpPkg.pkgConfig);
     await fs.access(tarball.path);
   });
 

@@ -30,25 +30,25 @@ export function createDownloadCenterConfig(version: string): DownloadCenterConfi
             'arch': 'x64',
             'os': 'darwin',
             'name': 'MacOS 64-bit (10.10+)',
-            'download_link': `https://downloads.mongodb.com/compass/mongosh-${version}-darwin.zip`
+            'download_link': `https://downloads.mongodb.com/compass/mongosh-${version}-darwin-x64.zip`
           },
           {
             'arch': 'x64',
             'os': 'win32',
-            'name': 'Windows 64-bit (7+)',
-            'download_link': `https://downloads.mongodb.com/compass/mongosh-${version}-win32.zip`
+            'name': 'Windows 64-bit (8.1+)',
+            'download_link': `https://downloads.mongodb.com/compass/mongosh-${version}-win32-x64.zip`
           },
           {
             'arch': 'x64',
             'os': 'win32',
-            'name': 'Windows 64-bit (7+) (MSI)',
-            'download_link': `https://downloads.mongodb.com/compass/mongosh-${version}.msi`
+            'name': 'Windows 64-bit (8.1+) (MSI)',
+            'download_link': `https://downloads.mongodb.com/compass/mongosh-${version}-x64.msi`
           },
           {
             'arch': 'x64',
             'os': 'linux',
             'name': 'Linux 64-bit',
-            'download_link': `https://downloads.mongodb.com/compass/mongosh-${version}-linux.tgz`
+            'download_link': `https://downloads.mongodb.com/compass/mongosh-${version}-linux-x64.tgz`
           },
           {
             'arch': 'x64',

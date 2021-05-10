@@ -4,6 +4,7 @@ import rimraf from 'rimraf';
 import { promisify } from 'util';
 import { execFile as execFileFn, generateDirFromTemplate, sanitizeVersion } from './helpers';
 import { PackageInformation } from './package-information';
+import { Arch, getRPMArchName } from '../../config';
 
 const { COPYFILE_FICLONE } = constants;
 
@@ -13,6 +14,7 @@ const { COPYFILE_FICLONE } = constants;
 export async function createRedhatPackage(
   pkg: PackageInformation,
   templateDir: string,
+  arch: Arch,
   filename: string,
   execFile: typeof execFileFn = execFileFn
 ): Promise<void> {
@@ -55,16 +57,15 @@ export async function createRedhatPackage(
   }
 
   // Create the package.
-  const arch = 'x86_64';
   await execFile('rpmbuild', [
     '-bb', path.join(dir, 'SPECS', `${pkg.metadata.rpmName}.spec`),
-    '--target', arch,
+    '--target', getRPMArchName(arch),
     '--define', `_topdir ${dir}`
   ], {
     cwd: path.dirname(dir)
   });
 
-  const rpmdir = path.join(dir, 'RPMS', arch);
+  const rpmdir = path.join(dir, 'RPMS', getRPMArchName(arch));
   const rpmnames = (await fs.readdir(rpmdir)).filter(name => name.endsWith('.rpm'));
   if (rpmnames.length !== 1) {
     throw new Error(`Don’t know which RPM from ${rpmdir} to pick: ${rpmnames}`);

@@ -1,5 +1,5 @@
 import path from 'path';
-import { ALL_BUILD_VARIANTS } from './config';
+import { validateBuildVariant } from './config';
 import { downloadMongoDb } from './download-mongodb';
 import { getArtifactUrl } from './evergreen';
 import { triggerRelease } from './local';
@@ -24,9 +24,7 @@ if (require.main === module) {
         .filter(Boolean)[0];
       if (cliBuildVariant) {
         config.distributionBuildVariant = cliBuildVariant[1] as BuildVariant;
-        if (!ALL_BUILD_VARIANTS.includes(config.distributionBuildVariant)) {
-          throw new Error(`Unknown build variant: ${config.distributionBuildVariant} - must be one of: ${ALL_BUILD_VARIANTS}`);
-        }
+        validateBuildVariant(config.distributionBuildVariant);
       }
 
       await release(command as ReleaseCommand, config);

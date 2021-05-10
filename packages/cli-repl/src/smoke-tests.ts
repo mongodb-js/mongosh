@@ -38,8 +38,9 @@ async function runSmokeTest(executable: string, args: string[], input: string, o
   await once(proc.stdout, 'end');
   try {
     assert.match(stdout, output);
+    console.error({ status: 'success', input, output, stdout, executable, args: args.map(redactCredentials) });
   } catch (err) {
-    console.error({ input, output, stdout, executable, args: args.map(redactCredentials) });
+    console.error({ status: 'failure', input, output, stdout, executable, args: args.map(redactCredentials) });
     throw err;
   }
 }

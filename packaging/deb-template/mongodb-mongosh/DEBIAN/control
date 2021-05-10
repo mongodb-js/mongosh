@@ -3,7 +3,7 @@ Provides: {{providesName}} (= {{providesVersion}})
 Version: {{version}}
 Section: utils
 Priority: optional
-Architecture: amd64
+Architecture: {{debianArch}}
 Installed-Size: {{size}}
 Maintainer: {{maintainer}}
 Homepage: {{homepage}}

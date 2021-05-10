@@ -23,22 +23,22 @@ describe('DownloadCenter config', () => {
       const [version] = config.versions;
       const platforms = version.platform.filter(p => p.os === 'darwin');
       expect(platforms).to.have.length(1);
-      expect(platforms[0].download_link).to.include('mongosh-1.2.2-darwin.zip');
+      expect(platforms[0].download_link).to.include('mongosh-1.2.2-darwin-x64.zip');
     });
 
     it('has an artifact for linux', () => {
       const [version] = config.versions;
       const platforms = version.platform.filter(p => p.os === 'linux');
       expect(platforms).to.have.length(1);
-      expect(platforms[0].download_link).to.include('mongosh-1.2.2-linux.tgz');
+      expect(platforms[0].download_link).to.include('mongosh-1.2.2-linux-x64.tgz');
     });
 
     it('has an MSI and ZIP artifacts for windows', () => {
       const [version] = config.versions;
       const platforms = version.platform.filter(p => p.os === 'win32');
       expect(platforms).to.have.length(2);
-      expect(platforms[0].download_link).to.include('mongosh-1.2.2-win32.zip');
-      expect(platforms[1].download_link).to.include('mongosh-1.2.2.msi');
+      expect(platforms[0].download_link).to.include('mongosh-1.2.2-win32-x64.zip');
+      expect(platforms[1].download_link).to.include('mongosh-1.2.2-x64.msi');
     });
 
     it('has an artifact for rhel', () => {

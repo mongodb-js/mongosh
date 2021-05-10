@@ -5,7 +5,6 @@ import { promises as fs } from 'fs';
 import * as path from 'path';
 import { promisify } from 'util';
 import { withTempPackageEach } from '../../../test/helpers';
-import { BuildVariant } from '../../config';
 import { createPackage } from './create-package';
 import { createRedhatPackage } from './redhat';
 
@@ -23,7 +22,7 @@ describe('tarball redhat', () => {
 
     const tarball = await createPackage(
       tmpPkg.tarballDir,
-      BuildVariant.Redhat,
+      'rhel-x64',
       tmpPkg.pkgConfig
     );
 
@@ -53,6 +52,7 @@ describe('tarball redhat', () => {
     await createRedhatPackage(
       tmpPkg.pkgConfig,
       tmpPkg.pkgConfig.rpmTemplateDir,
+      'x64',
       outFile,
       execFileStub as any
     );
@@ -73,8 +73,9 @@ describe('tarball redhat', () => {
       await createRedhatPackage(
         tmpPkg.pkgConfig,
         tmpPkg.pkgConfig.rpmTemplateDir,
+        'x64',
         outFile,
-          execFileStub as any
+        execFileStub as any
       );
     } catch (e) {
       expect(e.message).to.contain('Don’t know which RPM from');

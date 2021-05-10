@@ -170,7 +170,7 @@ Compile a specific package, e.g. the `.deb` for Debian:
 
 ```shell
 npm run compile-exec
-npm run evergreen-release package -- --build-variant=debian
+npm run evergreen-release package -- --build-variant=debian-x64
 ```
 
 ### Releasing

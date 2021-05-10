@@ -4,6 +4,7 @@ import rimraf from 'rimraf';
 import { promisify } from 'util';
 import { execFile as execFileFn, generateDirFromTemplate } from './helpers';
 import { PackageInformation } from './package-information';
+import { Arch, getDebArchName } from '../../config';
 
 const { COPYFILE_FICLONE } = constants;
 
@@ -13,6 +14,7 @@ const { COPYFILE_FICLONE } = constants;
 export async function createDebianPackage(
   pkg: PackageInformation,
   templateDir: string,
+  arch: Arch,
   outFile: string,
   execFile: typeof execFileFn = execFileFn
 ): Promise<void> {
@@ -20,7 +22,8 @@ export async function createDebianPackage(
   const size = await estimatePackageSize(pkg);
   const dir = await generateDirFromTemplate(templateDir, {
     ...pkg.metadata,
-    size
+    size,
+    debianArch: getDebArchName(arch)
   });
   const docFiles = [
     ...pkg.otherDocFilePaths,

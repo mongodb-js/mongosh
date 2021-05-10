@@ -2,7 +2,6 @@ import { expect } from 'chai';
 import { promises as fs } from 'fs';
 import * as path from 'path';
 import { withTempPackageEach } from '../../../test/helpers';
-import { BuildVariant } from '../../config';
 import { createPackage } from './create-package';
 import { createMsiPackage } from './msi';
 
@@ -14,7 +13,7 @@ describe('package windows', () => {
       this.skip();
     }
 
-    const tarball = await createPackage(tmpPkg.tarballDir, BuildVariant.WindowsMSI, tmpPkg.pkgConfig);
+    const tarball = await createPackage(tmpPkg.tarballDir, 'win32msi-x64', tmpPkg.pkgConfig);
     await fs.access(tarball.path);
   });
 
@@ -35,6 +34,7 @@ describe('package windows', () => {
     await createMsiPackage(
       tmpPkg.pkgConfig,
       tmpPkg.pkgConfig.msiTemplateDir,
+      'x64',
       outFile,
         execFileStub as any
     );

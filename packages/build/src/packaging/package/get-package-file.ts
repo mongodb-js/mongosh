@@ -1,4 +1,4 @@
-import { BuildVariant } from '../../config';
+import { BuildVariant, getDistro, getArch, getDebArchName, getRPMArchName } from '../../config';
 import type { PackageInformation } from './package-information';
 
 export interface PackageFile {
@@ -8,34 +8,34 @@ export interface PackageFile {
 
 export function getPackageFile(buildVariant: BuildVariant, packageInformation: PackageInformation): PackageFile {
   const { version, name, debName, rpmName } = packageInformation.metadata;
-  switch (buildVariant) {
-    case BuildVariant.Linux:
+  switch (getDistro(buildVariant)) {
+    case 'linux':
       return {
         path: `${name}-${version}-${buildVariant}.tgz`,
         contentType: 'application/gzip'
       };
-    case BuildVariant.Redhat:
+    case 'rhel':
       return {
-        path: `${rpmName}-${version}-x86_64.rpm`,
+        path: `${rpmName}-${version}-${getRPMArchName(getArch(buildVariant))}.rpm`,
         contentType: 'application/x-rpm'
       };
-    case BuildVariant.Debian:
+    case 'debian':
       // debian packages are required to be separated by _ and have arch in the
       // name: https://www.debian.org/doc/manuals/debian-faq/pkg-basics.en.html
       // sometimes there is also revision number, but we can add that later.
       return {
-        path: `${debName}_${version}_amd64.deb`,
+        path: `${debName}_${version}_${getDebArchName(getArch(buildVariant))}.deb`,
         contentType: 'application/vnd.debian.binary-package'
       };
-    case BuildVariant.MacOs:
-    case BuildVariant.Windows:
+    case 'darwin':
+    case 'win32':
       return {
         path: `${name}-${version}-${buildVariant}.zip`,
         contentType: 'application/zip'
       };
-    case BuildVariant.WindowsMSI:
+    case 'win32msi':
       return {
-        path: `${name}-${version}.msi`,
+        path: `${name}-${version}-${getArch(buildVariant)}.msi`,
         contentType: 'application/x-msi'
       };
     default:

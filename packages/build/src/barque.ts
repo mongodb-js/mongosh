@@ -132,9 +132,9 @@ export class Barque {
 
   getTargetArchitecture(variant: BuildVariant): Arch {
     switch (variant) {
-      case BuildVariant.Debian:
+      case 'debian-x64':
         return Arch.Amd64;
-      case BuildVariant.Redhat:
+      case 'rhel-x64':
         return Arch.X86_64;
       default:
         throw new Error('Unsupported variant for Barque publishing: ' + variant);
@@ -143,13 +143,13 @@ export class Barque {
 
   getTargetDistros(variant: BuildVariant): Distro[] {
     switch (variant) {
-      case BuildVariant.Debian:
+      case 'debian-x64':
         return [
           Distro.Debian10,
           Distro.Ubuntu1804,
           Distro.Ubuntu2004
         ];
-      case BuildVariant.Redhat:
+      case 'rhel-x64':
         return [
           Distro.Redhat80
         ];

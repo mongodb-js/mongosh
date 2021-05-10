@@ -6,7 +6,7 @@ import path from 'path';
 import sinon from 'sinon';
 import { URL } from 'url';
 import { Barque, LATEST_CURATOR } from './barque';
-import { ALL_BUILD_VARIANTS, BuildVariant, Config } from './config';
+import { ALL_BUILD_VARIANTS, Config } from './config';
 
 describe('Barque', () => {
   let barque: Barque;
@@ -50,9 +50,9 @@ describe('Barque', () => {
   describe('releaseToBarque', () => {
     context('platform is linux', () => {
       context('execCurator function succeeds', () => {
-        [
+        ([
           {
-            variant: BuildVariant.Debian,
+            variant: 'debian-x64',
             url: 'https://s3.amazonaws.com/mciuploads/mongosh/5ed7ee5d8683818eb28d9d3b5c65837cde4a08f5/mongodb-mongosh_0.1.0_amd64.deb',
             publishedUrls: [
               `${Barque.PPA_REPO_BASE_URL}/apt/debian/dists/buster/mongodb-org/4.4/main/binary-amd64/mongodb-mongosh_0.1.0_amd64.deb`,
@@ -61,13 +61,13 @@ describe('Barque', () => {
             ]
           },
           {
-            variant: BuildVariant.Redhat,
+            variant: 'rhel-x64',
             url: 'https://s3.amazonaws.com/mciuploads/mongosh/5ed7ee5d8683818eb28d9d3b5c65837cde4a08f5/mongodb-mongosh-0.1.0-x86_64.rpm',
             publishedUrls: [
               `${Barque.PPA_REPO_BASE_URL}/yum/redhat/8/mongodb-org/4.4/x86_64/RPMS/mongodb-mongosh-0.1.0-x86_64.rpm`,
             ]
           }
-        ].forEach(({ variant, url, publishedUrls }) => {
+        ] as const).forEach(({ variant, url, publishedUrls }) => {
           it(`publishes ${variant} packages`, async() => {
             barque.execCurator = sinon.stub().resolves(true);
             barque.createCuratorDir = sinon.stub().resolves('./');
@@ -91,7 +91,7 @@ describe('Barque', () => {
         const debUrl = 'https://s3.amazonaws.com/mciuploads/mongosh/5ed7ee5d8683818eb28d9d3b5c65837cde4a08f5/mongodb-mongosh_0.1.0_amd64.deb';
 
         try {
-          await barque.releaseToBarque(BuildVariant.Debian, debUrl);
+          await barque.releaseToBarque('debian-x64', debUrl);
         } catch (error) {
           expect(error.message).to.include('Curator is unable to upload to barque');
           expect(barque.createCuratorDir).to.have.been.called;
@@ -117,17 +117,17 @@ describe('Barque', () => {
 
   describe('getTargetDistro', () => {
     it('determines distro for debian build variant', async() => {
-      const distro = barque.getTargetDistros(BuildVariant.Debian);
+      const distro = barque.getTargetDistros('debian-x64');
       expect(distro).to.deep.equal(['debian10', 'ubuntu1804', 'ubuntu2004']);
     });
 
     it('determines distro for redhat build variant', async() => {
-      const distro = barque.getTargetDistros(BuildVariant.Redhat);
+      const distro = barque.getTargetDistros('rhel-x64');
       expect(distro).to.deep.equal(['rhel80']);
     });
 
     ALL_BUILD_VARIANTS
-      .filter(v => v !== BuildVariant.Debian && v !== BuildVariant.Redhat)
+      .filter(v => v !== 'debian-x64' && v !== 'rhel-x64')
       .forEach(variant => {
         it(`throws an error for ${variant}`, async() => {
           try {
@@ -143,17 +143,17 @@ describe('Barque', () => {
 
   describe('getTargetArchitecture', () => {
     it('determines arch for debian', async() => {
-      const distro = barque.getTargetArchitecture(BuildVariant.Debian);
+      const distro = barque.getTargetArchitecture('debian-x64');
       expect(distro).to.be.equal('amd64');
     });
 
     it('determines arch for redhat', async() => {
-      const distro = barque.getTargetArchitecture(BuildVariant.Redhat);
+      const distro = barque.getTargetArchitecture('rhel-x64');
       expect(distro).to.be.equal('x86_64');
     });
 
     ALL_BUILD_VARIANTS
-      .filter(v => v !== BuildVariant.Debian && v !== BuildVariant.Redhat)
+      .filter(v => v !== 'debian-x64' && v !== 'rhel-x64')
       .forEach(variant => {
         it(`throws an error for ${variant}`, async() => {
           try {
