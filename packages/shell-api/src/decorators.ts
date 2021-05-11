@@ -82,11 +82,11 @@ export abstract class ShellApiWithMongoClass extends ShellApiClass {
 
 export abstract class ShellApiValueClass extends ShellApiClass {
   get _mongo(): Mongo {
-    throw new Error('Not supported on this value class');
+    throw new MongoshInternalError('Not supported on this value class');
   }
 
   get _internalState(): ShellInternalState {
-    throw new Error('Not supported on this value class');
+    throw new MongoshInternalError('Not supported on this value class');
   }
 }
 
