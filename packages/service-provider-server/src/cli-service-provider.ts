@@ -80,6 +80,9 @@ import {
   isFastFailureConnectionError
 } from '@mongosh/service-provider-core';
 
+import resolveMongodbSrv from 'resolve-mongodb-srv';
+import osDns from 'os-dns-native';
+
 import { MongoshCommandFailed, MongoshInternalError, MongoshRuntimeError } from '@mongosh/errors';
 
 const bsonlib = {
@@ -181,6 +184,9 @@ export async function connectMongoClient(uri: string, clientOptions: MongoClient
       throw new MongoshRuntimeError('Automatic encryption is only available with Atlas and MongoDB Enterprise');
     }
     await client.close();
+  }
+  if (uri.startsWith('mongodb+srv://')) {
+    uri = await resolveMongodbSrv(uri, { dns: osDns.withNodeFallback });
   }
   const client = new MClient(uri, clientOptions);
   await connectWithFailFast(client);
