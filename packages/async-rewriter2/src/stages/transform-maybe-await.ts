@@ -46,16 +46,8 @@ export default ({ types: t }: { types: typeof BabelTypes }): babel.PluginObj<{ f
   // of helpers which are available inside the function.
   const identifierGroupKey = '@@mongosh.identifierGroup';
 
-  // We fetch the symbol constructor as
-  //   Object.getOwnPropertySymbols(Array.prototype)[0].constructor
-  // because Symbol refers to BSONSymbol inside the target mongosh context.
-  // (This is the only mongosh-specific hack in here.)
-  const symbolConstructor = babel.template.expression(`
-    Object.getOwnPropertySymbols(Array.prototype)[0].constructor
-  `)();
-
   const syntheticPromiseSymbolTemplate = babel.template.statement(`
-    const SP_IDENTIFIER = SYMBOL_CONSTRUCTOR.for("@@mongosh.syntheticPromise");
+    const SP_IDENTIFIER = Symbol.for("@@mongosh.syntheticPromise");
   `);
 
   const markSyntheticPromiseTemplate = babel.template.statement(`
@@ -224,8 +216,7 @@ export default ({ types: t }: { types: typeof BabelTypes }): babel.PluginObj<{ f
         const commonHelpers = existingIdentifiers ? [] : [
           Object.assign(
             syntheticPromiseSymbolTemplate({
-              SP_IDENTIFIER: syntheticPromiseSymbol,
-              SYMBOL_CONSTRUCTOR: symbolConstructor
+              SP_IDENTIFIER: syntheticPromiseSymbol
             }),
             { [isGeneratedHelper]: true }
           ),

@@ -1752,14 +1752,6 @@ const translations: Catalog = {
         },
         attributes: {}
       },
-      Symbol: {
-        help: {
-          description: 'The Symbol BSON Class helper method that constructs a BSONSymbol type. Deprecated since server version 1.6',
-          link: 'https://mongodb.github.io/node-mongodb-native/3.6/api/Symbol.html',
-          example: 'Symbol("abc")'
-        },
-        attributes: {}
-      },
       BSONSymbol: {
         help: {
           description: 'The Symbol BSON Class. Deprecated since server version 1.6',
