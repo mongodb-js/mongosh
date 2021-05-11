@@ -80,9 +80,6 @@ import {
   isFastFailureConnectionError
 } from '@mongosh/service-provider-core';
 
-import resolveMongodbSrv from 'resolve-mongodb-srv';
-import osDns from 'os-dns-native';
-
 import { MongoshCommandFailed, MongoshInternalError, MongoshRuntimeError } from '@mongosh/errors';
 
 const bsonlib = {
@@ -159,6 +156,28 @@ async function connectWithFailFast(client: MongoClient): Promise<void> {
   }
 }
 
+let resolveDnsHelpers: {
+  resolve: typeof import('resolve-mongodb-srv'),
+  osDns: typeof import('os-dns-native')
+} | undefined = undefined;
+
+async function resolveMongodbSrv(uri: string): Promise<string> {
+  if (uri.startsWith('mongodb+srv://')) {
+    try {
+      resolveDnsHelpers ??= {
+        resolve: require('resolve-mongodb-srv'),
+        osDns: require('os-dns-native')
+      };
+    } catch { /* ignore */ }
+    if (resolveDnsHelpers !== undefined) {
+      return await resolveDnsHelpers.resolve(uri, {
+        dns: resolveDnsHelpers.osDns.withNodeFallback
+      });
+    }
+  }
+  return uri;
+}
+
 /**
  * Connect a MongoClient. If AutoEncryption is requested, first connect without the encryption options and verify that
  * the connection is to an enterprise cluster. If not, then error, otherwise close the connection and reconnect with the
@@ -185,9 +204,7 @@ export async function connectMongoClient(uri: string, clientOptions: MongoClient
     }
     await client.close();
   }
-  if (uri.startsWith('mongodb+srv://')) {
-    uri = await resolveMongodbSrv(uri, { dns: osDns.withNodeFallback });
-  }
+  uri = await resolveMongodbSrv(uri);
   const client = new MClient(uri, clientOptions);
   await connectWithFailFast(client);
   return client;

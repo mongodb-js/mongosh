@@ -44,14 +44,14 @@
     "@types/sinon-chai": "^3.2.3",
     "aws4": "^1.11.0",
     "mongodb": "4.0.0-beta.3",
-    "os-dns-native": "^1.0.2",
-    "resolve-mongodb-srv": "^1.0.1",
     "saslprep": "mongodb-js/saslprep#v1.0.4"
   },
   "devDependencies": {
     "@types/bl": "^2.1.0"
   },
   "optionalDependencies": {
-    "mongodb-client-encryption": "^1.2.3"
+    "mongodb-client-encryption": "^1.2.3",
+    "os-dns-native": "^1.0.2",
+    "resolve-mongodb-srv": "^1.0.1"
   }
 }
