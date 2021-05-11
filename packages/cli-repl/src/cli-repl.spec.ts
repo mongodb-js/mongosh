@@ -803,15 +803,19 @@ describe('CliRepl', () => {
       //   await tick();
       //   process.kill(process.pid, 'SIGINT');
       //   await waitBus(cliRepl.bus, 'mongosh:interrupt-complete');
-      //   expect(output).to.match(/^Stopping execution.../m);
+      //   expect(output).to.match(/Stopping execution.../m);
 
       //   input.write('use admin\n');
       //   await waitEval(cliRepl.bus);
-      //   input.write('db.aggregate([ {$currentOp: {} }, { $match: { \'command.find\': \'ctrlc\' } }, { $project: { command: 1 } } ])\n');
-      //   await waitEval(cliRepl.bus);
 
-      //   expect(output).to.not.include('MongoError');
-      //   expect(output).to.not.include('loop1');
+      //   await eventually(async() => {
+      //     output = '';
+      //     input.write('db.aggregate([ {$currentOp: {} }, { $match: { \'command.find\': \'ctrlc\' } }, { $project: { command: 1 } } ])\n');
+      //     await waitEval(cliRepl.bus);
+
+      //     expect(output).to.not.include('MongoError');
+      //     expect(output).to.not.include('loop1');
+      //   });
       // });
 
       // it('terminates operations also for explicitly created Mongo instances', async() => {
@@ -826,13 +830,16 @@ describe('CliRepl', () => {
       //   await tick();
       //   process.kill(process.pid, 'SIGINT');
       //   await waitBus(cliRepl.bus, 'mongosh:interrupt-complete');
-      //   expect(output).to.match(/^Stopping execution.../m);
+      //   expect(output).to.match(/Stopping execution.../m);
 
-      //   input.write('clientAdminDb.aggregate([ {$currentOp: {} }, { $match: { \'command.find\': \'ctrlc\' } }, { $project: { command: 1 } } ])\n');
-      //   await waitEval(cliRepl.bus);
+      //   await eventually(async() => {
+      //     output = '';
+      //     input.write('clientAdminDb.aggregate([ {$currentOp: {} }, { $match: { \'command.find\': \'ctrlc\' } }, { $project: { command: 1 } } ])\n');
+      //     await waitEval(cliRepl.bus);
 
-      //   expect(output).to.not.include('MongoError');
-      //   expect(output).to.not.include('loop2');
+      //     expect(output).to.not.include('MongoError');
+      //     expect(output).to.not.include('loop2');
+      //   });
       // });
 
       it('does not reconnect until the evaluation finishes', async() => {
