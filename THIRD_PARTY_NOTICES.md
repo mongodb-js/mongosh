@@ -8352,7 +8352,7 @@ Authors:
 
 <a id="2c872687887891249ad246d9a6da5cb95e02a465c94ad2a9afdd7ce74b28e3a7"></a>
 ### [lodash](https://www.npmjs.com/package/lodash) (version 4.17.20)
-<!-- initially found at packages/history/node_modules/lodash -->
+<!-- initially found at packages/shell-api/node_modules/lodash -->
 > Lodash modular utilities.
 
 License tags: MIT
