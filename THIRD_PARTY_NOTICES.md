@@ -162,8 +162,6 @@ Package|Version|License
 **[json5](#09ffc110586bcf66cb9b8f0b4f993a330e4287d87d0ae06a70e22f01d16e6acf)**|2.2.0|MIT
 **[json5](#444323f82c691a75353d1da9532659aeffd06d9545eae45ab75923bf0dec4a21)**|2.1.3|MIT
 **[lodash](#adaac4144887ebc2c1b682380ff385210f681fc58b4bc1ef3986148cf8dcd28a)**|4.17.21|MIT
-**[lodash](#2c872687887891249ad246d9a6da5cb95e02a465c94ad2a9afdd7ce74b28e3a7)**|4.17.20|MIT
-**[lodash](#deccf5665fbd5b44b3f6c8c40d79cc8f4d318ffa15e6de1bd51a5ba3f19bbb09)**|4.17.15|MIT
 **[lodash.isstring](#0103ef60e6b5d9c04fe5527db0d91b50851203d166f29cbcf5fdf6c655194132)**|4.0.1|MIT
 **[lodash.set](#e73494d8b2d0fdbb5532d77690ba69e714fe663571119d7ef62ea6cc4fe372a9)**|4.3.2|MIT
 **[lodash.sortby](#b80f9cdaeb3bf9ab4600752efcb33f63bbfc5ad6fe7554b1eaa010acb129f5b5)**|4.7.0|MIT
@@ -953,7 +951,7 @@ Authors:
 
 <a id="877a04ce1fc733666ab60849154ca832c1b6c29050e749f5d1d87c2662a0eabb"></a>
 ### [@babel/helper-plugin-utils](https://www.npmjs.com/package/@babel/helper-plugin-utils) (version 7.13.0)
-<!-- initially found at packages/async-rewriter2/node_modules/@babel/plugin-transform-shorthand-properties/node_modules/@babel/helper-plugin-utils -->
+<!-- initially found at packages/async-rewriter2/node_modules/@babel/plugin-transform-destructuring/node_modules/@babel/helper-plugin-utils -->
 > General utilities for plugins to use
 
 License tags: MIT
@@ -8289,134 +8287,6 @@ Authors:
 <a id="adaac4144887ebc2c1b682380ff385210f681fc58b4bc1ef3986148cf8dcd28a"></a>
 ### [lodash](https://www.npmjs.com/package/lodash) (version 4.17.21)
 <!-- initially found at packages/cli-repl/node_modules/lodash -->
-> Lodash modular utilities.
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      Copyright OpenJS Foundation and other contributors <https://openjsf.org/>
-      
-      Based on Underscore.js, copyright Jeremy Ashkenas,
-      DocumentCloud and Investigative Reporters & Editors <http://underscorejs.org/>
-      
-      This software consists of voluntary contributions made by many
-      individuals. For exact contribution history, see the revision history
-      available at https://github.com/lodash/lodash
-      
-      The following license applies to all parts of this software except as
-      documented below:
-      
-      ====
-      
-      Permission is hereby granted, free of charge, to any person obtaining
-      a copy of this software and associated documentation files (the
-      "Software"), to deal in the Software without restriction, including
-      without limitation the rights to use, copy, modify, merge, publish,
-      distribute, sublicense, and/or sell copies of the Software, and to
-      permit persons to whom the Software is furnished to do so, subject to
-      the following conditions:
-      
-      The above copyright notice and this permission notice shall be
-      included in all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-      NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-      LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-      OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-      WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-      
-      ====
-      
-      Copyright and related rights for sample code are waived via CC0. Sample
-      code is defined as all source code displayed within the prose of the
-      documentation.
-      
-      CC0: http://creativecommons.org/publicdomain/zero/1.0/
-      
-      ====
-      
-      Files located in the node_modules and vendor directories are externally
-      maintained libraries used by this software which have their own
-      licenses; we recommend you read them, as their terms may differ from the
-      terms above.
-      
-
-Authors:
-* John-David Dalton <john.david.dalton@gmail.com>
-* Mathias Bynens <mathias@qiwi.be>
-
-
-<a id="2c872687887891249ad246d9a6da5cb95e02a465c94ad2a9afdd7ce74b28e3a7"></a>
-### [lodash](https://www.npmjs.com/package/lodash) (version 4.17.20)
-<!-- initially found at packages/shell-api/node_modules/lodash -->
-> Lodash modular utilities.
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      Copyright OpenJS Foundation and other contributors <https://openjsf.org/>
-      
-      Based on Underscore.js, copyright Jeremy Ashkenas,
-      DocumentCloud and Investigative Reporters & Editors <http://underscorejs.org/>
-      
-      This software consists of voluntary contributions made by many
-      individuals. For exact contribution history, see the revision history
-      available at https://github.com/lodash/lodash
-      
-      The following license applies to all parts of this software except as
-      documented below:
-      
-      ====
-      
-      Permission is hereby granted, free of charge, to any person obtaining
-      a copy of this software and associated documentation files (the
-      "Software"), to deal in the Software without restriction, including
-      without limitation the rights to use, copy, modify, merge, publish,
-      distribute, sublicense, and/or sell copies of the Software, and to
-      permit persons to whom the Software is furnished to do so, subject to
-      the following conditions:
-      
-      The above copyright notice and this permission notice shall be
-      included in all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-      NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-      LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-      OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-      WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-      
-      ====
-      
-      Copyright and related rights for sample code are waived via CC0. Sample
-      code is defined as all source code displayed within the prose of the
-      documentation.
-      
-      CC0: http://creativecommons.org/publicdomain/zero/1.0/
-      
-      ====
-      
-      Files located in the node_modules and vendor directories are externally
-      maintained libraries used by this software which have their own
-      licenses; we recommend you read them, as their terms may differ from the
-      terms above.
-      
-
-Authors:
-* John-David Dalton <john.david.dalton@gmail.com>
-* Mathias Bynens <mathias@qiwi.be>
-
-
-<a id="deccf5665fbd5b44b3f6c8c40d79cc8f4d318ffa15e6de1bd51a5ba3f19bbb09"></a>
-### [lodash](https://www.npmjs.com/package/lodash) (version 4.17.15)
-<!-- initially found at packages/async-rewriter/node_modules/lodash -->
 > Lodash modular utilities.
 
 License tags: MIT
