@@ -158,9 +158,9 @@ function wrapWithAddSourceToResult(fn: Function): Function {
 function wrapWithInterruptChecks<T extends(...args: any[]) => any>(fn: T): (args: Parameters<T>) => ReturnType<T> {
   const wrapper = (fn as any).returnsPromise ?
     markImplicitlyAwaited(async function(this: any, ...args: any[]): Promise<any> {
-      const internalState = checkInterrupted(this);
+      const interrupted = checkInterrupted(this);
       const result = await Promise.race([
-        internalState ? internalState.interrupted.asPromise() : new Promise(() => {}),
+        interrupted ? interrupted.asPromise() : new Promise(() => {}),
         fn.call(this, ...args)
       ]);
       checkInterrupted(this);
@@ -405,7 +405,16 @@ export const nonAsyncFunctionsReturningPromises: string[] = []; // For testing.
 export function returnsPromise(_target: any, _propertyKey: string, descriptor: PropertyDescriptor): void {
   const originalFunction = descriptor.value;
   originalFunction.returnsPromise = true;
-  descriptor.value = markImplicitlyAwaited(originalFunction);
+
+  async function wrapper(this: any, ...args: any[]) {
+    const result = await originalFunction.call(this, ...args);
+    await new Promise(setImmediate);
+    return result;
+  }
+  Object.setPrototypeOf(wrapper, Object.getPrototypeOf(originalFunction));
+  Object.defineProperties(wrapper, Object.getOwnPropertyDescriptors(originalFunction));
+  descriptor.value = markImplicitlyAwaited(wrapper);
+
   if (originalFunction.constructor.name !== 'AsyncFunction') {
     nonAsyncFunctionsReturningPromises.push(originalFunction.name);
   }

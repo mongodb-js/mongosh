@@ -1,7 +1,6 @@
 import { MongoshBaseError, MongoshInternalError } from '@mongosh/errors';
 import { ShellApiClass } from './decorators';
 import { shellApiType } from './enums';
-import type ShellInternalState from './shell-internal-state';
 
 export class MongoshInterruptedError extends MongoshBaseError {
   constructor() {
@@ -58,14 +57,14 @@ export class InterruptFlag {
   }
 }
 
-export function checkInterrupted(apiClass: any): ShellInternalState | undefined {
+export function checkInterrupted(apiClass: any): InterruptFlag | undefined {
   if (!apiClass[shellApiType]) {
     throw new MongoshInternalError('checkInterrupted can only be called for functions from shell API classes');
   }
   // internalState can be undefined in tests
   const internalState = (apiClass as ShellApiClass)._internalState;
-  if (internalState?.interrupted.isSet()) {
+  if (internalState?.interrupted?.isSet()) {
     throw new MongoshInterruptedError();
   }
-  return internalState;
+  return internalState?.interrupted;
 }
