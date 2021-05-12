@@ -33,7 +33,7 @@ they reach their first `await` expression, and the fact that we can determine
 which `Promise`s need `await`ing by marking them as such using decorators
 on the API surface.
 
-The transformation takes place in two main steps.
+The transformation takes place in three main steps.
 
 ### Step one: IIFE wrapping
 
@@ -63,7 +63,62 @@ function foo() {
 Note how identifiers remain accessible in the outside environment, including
 top-level functions being hoisted to the outside.
 
-### Step two: Async function wrapping
+### Step two: Making certain exceptions uncatchable
+
+In order to support Ctrl+C properly, we add a type of exception that is not
+catchable by userland code.
+
+For example,
+
+```js
+try {
+  foo3();
+} catch {
+  bar3();
+}
+```
+
+is transformed into
+
+```js
+try {
+  foo3();
+} catch (_err) {
+  if (!err || !_err[Symbol.for('@@mongosh.uncatchable')]) {
+    bar3();
+  }
+}
+```
+
+and
+
+```js
+try {
+  foo1();
+} catch (err) {
+  bar1(err);
+} finally {
+  baz();
+}
+```
+
+into
+
+```js
+let _isCatchable;
+
+try {
+  foo1();
+} catch (err) {
+  _isCatchable = !err || !err[Symbol.for('@@mongosh.uncatchable')];
+
+  if (_isCatchable) bar1(err); else throw err;
+} finally {
+  if (_isCatchable) baz();
+}
+```
+
+### Step three: Async function wrapping
 
 We perform three operations:
 

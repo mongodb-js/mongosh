@@ -2,13 +2,14 @@
 import * as babel from '@babel/core';
 import runtimeSupport from './runtime-support.nocov';
 import wrapAsFunctionPlugin from './stages/wrap-as-iife';
+import uncatchableExceptionPlugin from './stages/uncatchable-exceptions';
 import makeMaybeAsyncFunctionPlugin from './stages/transform-maybe-await';
 import { AsyncRewriterErrors } from './error-codes';
 
 /**
  * General notes for this package:
  *
- * This package contains two babel plugins used in async rewriting, plus a helper
+ * This package contains three babel plugins used in async rewriting, plus a helper
  * to apply these plugins to plain code.
  *
  * If you have not worked with babel plugins,
@@ -51,6 +52,7 @@ export default class AsyncWriter {
         require('@babel/plugin-transform-destructuring').default
       ]);
       code = this.step(code, [wrapAsFunctionPlugin]);
+      code = this.step(code, [uncatchableExceptionPlugin]);
       code = this.step(code, [
         [
           makeMaybeAsyncFunctionPlugin,
