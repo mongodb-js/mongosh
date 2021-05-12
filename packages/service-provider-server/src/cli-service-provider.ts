@@ -81,6 +81,7 @@ import {
 } from '@mongosh/service-provider-core';
 
 import { MongoshCommandFailed, MongoshInternalError, MongoshRuntimeError } from '@mongosh/errors';
+import { ensureMongoNodeNativePatchesAreApplied } from './mongodb-patches';
 
 const bsonlib = {
   Binary,
@@ -238,6 +239,8 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
    */
   constructor(mongoClient: MongoClient, clientOptions: MongoClientOptions = {}, uri?: ConnectionString) {
     super(bsonlib);
+    ensureMongoNodeNativePatchesAreApplied(mongoClient);
+
     this.mongoClient = mongoClient;
     this.uri = uri;
     this.platform = ReplPlatform.CLI;
