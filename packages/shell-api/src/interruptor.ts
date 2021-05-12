@@ -2,7 +2,11 @@ import { MongoshBaseError, MongoshInternalError } from '@mongosh/errors';
 import { ShellApiClass } from './decorators';
 import { shellApiType } from './enums';
 
+const kUncatchable = Symbol.for('@@mongosh.uncatchable');
+
 export class MongoshInterruptedError extends MongoshBaseError {
+  [kUncatchable] = true;
+
   constructor() {
     super('MongoshInterruptedError', 'execution was interrupted');
   }
