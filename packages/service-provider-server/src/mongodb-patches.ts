@@ -17,7 +17,7 @@ export function ensureMongoNodeNativePatchesAreApplied(): void {
 const poolToConnections = new Map<ConnectionPool, Set<Connection>>();
 
 function patchConnectionPoolTracking(): void {
-  const connectionPoolPrototype: ConnectionPool = Object.getPrototypeOf(require('mongodb/lib/cmap/connection_pool').ConnectionPool);
+  const connectionPoolPrototype: ConnectionPool = require('mongodb/lib/cmap/connection_pool').ConnectionPool.prototype;
   if (!connectionPoolPrototype) {
     throw new MongoshInternalError('Failed to setup connection handling');
   }

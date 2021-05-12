@@ -799,7 +799,7 @@ describe('CliRepl', () => {
 
       it('terminates operations on the server side', async() => {
         input.write('db.ctrlc.find({ $where: \'while(true) { /* loop1 */ }\' })\n');
-        await tick();
+        await delay(100);
         process.kill(process.pid, 'SIGINT');
         await waitBus(cliRepl.bus, 'mongosh:interrupt-complete');
         expect(output).to.match(/Stopping execution.../m);
@@ -818,15 +818,17 @@ describe('CliRepl', () => {
       });
 
       it('terminates operations also for explicitly created Mongo instances', async() => {
+        input.write('dbname = db.getName()\n');
+        await waitEval(cliRepl.bus);
         input.write(`client = Mongo("${await testServer.connectionString()}")\n`);
         await waitEval(cliRepl.bus);
-        input.write('clientCtrlcDb = client.getDB(\'ctrlc\');\n');
+        input.write('clientCtrlcDb = client.getDB(dbname);\n');
         await waitEval(cliRepl.bus);
         input.write('clientAdminDb = client.getDB(\'admin\');\n');
         await waitEval(cliRepl.bus);
 
         input.write('clientCtrlcDb.ctrlc.find({ $where: \'while(true) { /* loop2 */ }\' })\n');
-        await tick();
+        await delay(100);
         process.kill(process.pid, 'SIGINT');
         await waitBus(cliRepl.bus, 'mongosh:interrupt-complete');
         expect(output).to.match(/Stopping execution.../m);
@@ -843,7 +845,7 @@ describe('CliRepl', () => {
 
       it('does not reconnect until the evaluation finishes', async() => {
         input.write('sleep(500); print(db.ctrlc.find({}));\n');
-        await tick();
+        await delay(100);
 
         output = '';
         process.kill(process.pid, 'SIGINT');
