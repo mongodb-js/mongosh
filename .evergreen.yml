@@ -974,20 +974,6 @@ tasks:
           admin_user_name: Administrator
           onhost_script_path: .evergreen/test-package-win32.sh
           preload_script_path: preload.sh
-  - name: pkg_test_docker_ubuntu1604
-    tags: ["smoke-test"]
-    depends_on:
-      - name: package_and_upload_artifact_debian_x64
-        variant: linux
-    commands:
-      - func: checkout
-      - func: get_artifact_url
-        vars:
-          source_distribution_build_variant: debian-x64
-      - func: write_preload_script
-      - func: test_artifact_docker
-        vars:
-          dockerfile: ubuntu16.04-deb
   - name: pkg_test_docker_ubuntu1804
     tags: ["smoke-test"]
     depends_on:
@@ -1016,6 +1002,34 @@ tasks:
       - func: test_artifact_docker
         vars:
           dockerfile: ubuntu20.04-deb
+  - name: pkg_test_docker_debian9
+    tags: ["smoke-test"]
+    depends_on:
+      - name: package_and_upload_artifact_debian_x64
+        variant: linux
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          source_distribution_build_variant: debian-x64
+      - func: write_preload_script
+      - func: test_artifact_docker
+        vars:
+          dockerfile: debian9-deb
+  - name: pkg_test_docker_debian10
+    tags: ["smoke-test"]
+    depends_on:
+      - name: package_and_upload_artifact_debian_x64
+        variant: linux
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          source_distribution_build_variant: debian-x64
+      - func: write_preload_script
+      - func: test_artifact_docker
+        vars:
+          dockerfile: debian10-deb
   - name: pkg_test_docker_centos7
     tags: [ "smoke-test" ]
     depends_on:
@@ -1044,6 +1058,48 @@ tasks:
       - func: test_artifact_docker
         vars:
           dockerfile: centos8-rpm
+  - name: pkg_test_docker_suse12
+    tags: ["smoke-test"]
+    depends_on:
+      - name: package_and_upload_artifact_rhel_x64
+        variant: linux
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          source_distribution_build_variant: rhel-x64
+      - func: write_preload_script
+      - func: test_artifact_docker
+        vars:
+          dockerfile: suse12-rpm
+  - name: pkg_test_docker_suse15
+    tags: ["smoke-test"]
+    depends_on:
+      - name: package_and_upload_artifact_rhel_x64
+        variant: linux
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          source_distribution_build_variant: rhel-x64
+      - func: write_preload_script
+      - func: test_artifact_docker
+        vars:
+          dockerfile: suse15-rpm
+  - name: pkg_test_docker_amazonlinux2
+    tags: ["smoke-test"]
+    depends_on:
+      - name: package_and_upload_artifact_rhel_x64
+        variant: linux
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          source_distribution_build_variant: rhel-x64
+      - func: write_preload_script
+      - func: test_artifact_docker
+        vars:
+          dockerfile: amazonlinux2-rpm
   - name: pkg_test_macos1014
     tags: ["smoke-test"]
     depends_on:
@@ -1218,15 +1274,15 @@ buildvariants:
     tasks:
       - name: compile_artifact
   - name: linux_ppc64le_build
-    display_name: "RHEL 7.1 PPC (build)"
-    run_on: rhel71-power8-small
+    display_name: "RHEL 8.1 PPC (build)"
+    run_on: rhel81-power8-small
     expansions:
       executable_os_id: linux-ppc64le
     tasks:
       - name: compile_artifact
   - name: linux_s390x_build
-    display_name: "RHEL 7.2 s390x (build)"
-    run_on: rhel72-zseries-small
+    display_name: "RHEL 8.0 s390x (build)"
+    run_on: rhel80-zseries-small
     expansions:
       executable_os_id: linux-s390x
     tasks:
@@ -1242,9 +1298,9 @@ buildvariants:
     run_on: rhel76-small
     tasks:
       - name: e2e_tests_linux_x64
-  - name: e2e_ubuntu1604_x64
-    display_name: "Ubuntu 16.04 x64 (E2E Tests)"
-    run_on: ubuntu1604-small
+  - name: e2e_rhel80_x64
+    display_name: "RHEL 8.0 x64 (E2E Tests)"
+    run_on: rhel80-small
     tasks:
       - name: e2e_tests_linux_x64
   - name: e2e_ubuntu1804_x64
@@ -1257,9 +1313,29 @@ buildvariants:
     run_on: ubuntu2004-small
     tasks:
       - name: e2e_tests_linux_x64
+  - name: e2e_debian9_x64
+    display_name: "Debian 9 x64 (E2E Tests)"
+    run_on: debian92-small
+    tasks:
+      - name: e2e_tests_linux_x64
   - name: e2e_debian10_x64
     display_name: "Debian 10 x64 (E2E Tests)"
     run_on: debian10-small
+    tasks:
+      - name: e2e_tests_linux_x64
+  - name: e2e_amazon2_x64
+    display_name: "Amazon Linux 2 x64 (E2E Tests)"
+    run_on: amazon2-small
+    tasks:
+      - name: e2e_tests_linux_x64
+  - name: e2e_suse12_x64
+    display_name: "SLES 12 x64 (E2E Tests)"
+    run_on: suse12-small
+    tasks:
+      - name: e2e_tests_linux_x64
+  - name: e2e_suse15_x64
+    display_name: "SLES 15 x64 (E2E Tests)"
+    run_on: suse15-small
     tasks:
       - name: e2e_tests_linux_x64
   - name: e2e_ubuntu1804_arm64
@@ -1267,14 +1343,29 @@ buildvariants:
     run_on: ubuntu1804-arm64-small
     tasks:
       - name: e2e_tests_linux_arm64
-  - name: e2e_rhel71_ppc64le
-    display_name: "RHEL 7.1 PPC (E2E Tests)"
-    run_on: rhel71-power8-small
+  - name: e2e_ubuntu2004_arm64
+    display_name: "Ubuntu 20.04 arm64 (E2E Tests)"
+    run_on: ubuntu2004-arm64-small
+    tasks:
+      - name: e2e_tests_linux_arm64
+  - name: e2e_amazon2_arm64
+    display_name: "Amazon Linux 2 arm64 (E2E Tests)"
+    run_on: amazon2-arm64-small
+    tasks:
+      - name: e2e_tests_linux_arm64
+  - name: e2e_rhel82_arm64
+    display_name: "RHEL 8.2 arm64 (E2E Tests)"
+    run_on: rhel82-arm64-small
+    tasks:
+      - name: e2e_tests_linux_arm64
+  - name: e2e_rhel81_ppc64le
+    display_name: "RHEL 8.1 PPC (E2E Tests)"
+    run_on: rhel81-power8-small
     tasks:
       - name: e2e_tests_linux_ppc64le
-  - name: e2e_rhel72_s390x
-    display_name: "RHEL 7.2 s390x (E2E Tests)"
-    run_on: rhel72-zseries-small
+  - name: e2e_rhel80_s390x
+    display_name: "RHEL 8.0 s390x (E2E Tests)"
+    run_on: rhel80-zseries-small
     tasks:
       - name: e2e_tests_linux_s390x
 
@@ -1316,7 +1407,11 @@ buildvariants:
     tasks:
       - name: pkg_test_docker_centos7
       - name: pkg_test_docker_centos8
-      - name: pkg_test_docker_ubuntu1604
+      - name: pkg_test_docker_suse12
+      - name: pkg_test_docker_suse15
+      - name: pkg_test_docker_amazonlinux2
+      - name: pkg_test_docker_debian9
+      - name: pkg_test_docker_debian10
       - name: pkg_test_docker_ubuntu1804
       - name: pkg_test_docker_ubuntu2004
   - name: pkg_smoke_tests_win32
@@ -1335,19 +1430,29 @@ buildvariants:
     run_on: ubuntu1804-arm64-small
     tasks:
       - name: pkg_test_arm64_deb
+  - name: pkg_smoke_tests_ubuntu2004_arm64
+    display_name: "package smoke tests (Ubuntu 20.04 arm64)"
+    run_on: ubuntu2004-arm64-small
+    tasks:
+      - name: pkg_test_arm64_deb
+  - name: pkg_smoke_tests_amazon2_arm64
+    display_name: "package smoke tests (Amazon Linux 2 arm64)"
+    run_on: amazon2-arm64-small
+    tasks:
+      - name: pkg_test_arm64_rpm
   - name: pkg_smoke_tests_rhel82_arm64
     display_name: "package smoke tests (RHEL 8.2 arm64)"
     run_on: rhel82-arm64-small
     tasks:
       - name: pkg_test_arm64_rpm
-  - name: pkg_smoke_tests_rhel72_s390x
-    display_name: "package smoke tests (RHEL 7.2 s390x)"
-    run_on: rhel72-zseries-small
+  - name: pkg_smoke_tests_rhel80_s390x
+    display_name: "package smoke tests (RHEL 8.0 s390x)"
+    run_on: rhel80-zseries-small
     tasks:
       - name: pkg_test_s390x_rpm
-  - name: pkg_smoke_tests_rhel72_ppc64le
-    display_name: "package smoke tests (RHEL 7.1 ppc64le)"
-    run_on: rhel71-power8-small
+  - name: pkg_smoke_tests_rhel81_ppc64le
+    display_name: "package smoke tests (RHEL 8.1 ppc64le)"
+    run_on: rhel81-power8-small
     tasks:
       - name: pkg_test_ppc64le_rpm
 
