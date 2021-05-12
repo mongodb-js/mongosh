@@ -10,16 +10,16 @@ import { Console } from 'console';
 import { once } from 'events';
 import prettyRepl from 'pretty-repl';
 import { ReplOptions, REPLServer, start as replStart } from 'repl';
-import { Readable, Writable, PassThrough } from 'stream';
+import { PassThrough, Readable, Writable } from 'stream';
 import type { ReadStream, WriteStream } from 'tty';
 import { callbackify, promisify } from 'util';
 import * as asyncRepl from './async-repl';
 import clr, { StyleDefinition } from './clr';
 import { MONGOSH_WIKI, TELEMETRY_GREETING_MESSAGE } from './constants';
 import formatOutput, { formatError } from './format-output';
-import { LineByLineInput } from './line-by-line-input';
-import { parseAnyLogEntry, LogEntry } from './log-entry';
 import { makeMultilineJSIntoSingleLine } from './js-multiline-to-singleline';
+import { LineByLineInput } from './line-by-line-input';
+import { LogEntry, parseAnyLogEntry } from './log-entry';
 
 export type MongoshCliOptions = ShellCliOptions & {
   redactInfo?: boolean;
@@ -108,6 +108,7 @@ class MongoshNodeRepl implements EvaluationListener {
   inspectDepth = 0;
   started = false;
   showStackTraces = false;
+  loadNestingLevel = 0;
 
 
   constructor(options: MongoshNodeReplOptions) {
@@ -411,7 +412,10 @@ class MongoshNodeRepl implements EvaluationListener {
       if (!this.insideAutoCompleteOrGetPrompt) {
         repl.setPrompt(await this.getShellPrompt());
       }
-      this.bus.emit('mongosh:eval-complete'); // For testing purposes.
+
+      if (this.loadNestingLevel <= 1) {
+        this.bus.emit('mongosh:eval-complete'); // For testing purposes.
+      }
     }
   }
 
@@ -423,7 +427,14 @@ class MongoshNodeRepl implements EvaluationListener {
 
     return {
       resolvedFilename: absolutePath,
-      evaluate: async() => { await this.loadExternalCode(contents, absolutePath); }
+      evaluate: async() => {
+        this.loadNestingLevel += 1;
+        try {
+          await this.loadExternalCode(contents, absolutePath);
+        } finally {
+          this.loadNestingLevel -= 1;
+        }
+      }
     };
   }
 

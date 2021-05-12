@@ -179,6 +179,7 @@ describe('CliRepl', () => {
           const filenameA = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'a.js');
           input.write(`load(${JSON.stringify(filenameA)})\n`);
           await waitEval(cliRepl.bus);
+          expect(output).to.contain('Hi!');
           input.write('variableFromA\n');
           await waitEval(cliRepl.bus);
           expect(output).to.include('yes from A');
@@ -188,6 +189,7 @@ describe('CliRepl', () => {
           const filenameB = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'b.js');
           input.write(`load(${JSON.stringify(filenameB)})\n`);
           await waitEval(cliRepl.bus);
+          expect(output).to.contain('Hi!');
           input.write('variableFromA + " " + variableFromB\n');
           await waitEval(cliRepl.bus);
           expect(output).to.include('yes from A yes from A from B');
