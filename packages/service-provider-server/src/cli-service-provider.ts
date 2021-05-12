@@ -239,7 +239,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
    */
   constructor(mongoClient: MongoClient, clientOptions: MongoClientOptions = {}, uri?: ConnectionString) {
     super(bsonlib);
-    ensureMongoNodeNativePatchesAreApplied(mongoClient);
+    ensureMongoNodeNativePatchesAreApplied();
 
     this.mongoClient = mongoClient;
     this.uri = uri;

@@ -1,28 +1,24 @@
 import { MongoshInternalError } from '@mongosh/errors';
-import { Callback, CloseOptions, Connection, ConnectionPool, MongoClient, Server } from 'mongodb';
+import { Callback, CloseOptions, Connection, ConnectionPool } from 'mongodb';
 
 let alreadyPatched = false;
 
 // TODO: revisit whether we still need monkey patching in light of NODE-3263
-export function ensureMongoNodeNativePatchesAreApplied(mongoClient: MongoClient): void {
+export function ensureMongoNodeNativePatchesAreApplied(): void {
   if (alreadyPatched) {
     return;
   }
 
-  patchConnectionPoolTracking(mongoClient);
+  patchConnectionPoolTracking();
 
   alreadyPatched = true;
 }
 
 const poolToConnections = new Map<ConnectionPool, Set<Connection>>();
 
-function patchConnectionPoolTracking(mongoClient: MongoClient): void {
-  const connectionPoolPrototype = getConnectionPoolPrototype(mongoClient);
+function patchConnectionPoolTracking(): void {
+  const connectionPoolPrototype: ConnectionPool = Object.getPrototypeOf(require('mongodb/lib/cmap/connection_pool').ConnectionPool);
   if (!connectionPoolPrototype) {
-    if (Object.getPrototypeOf(mongoClient).constructor.name !== 'MongoClient') {
-      // this happens in tests with mocks - we ignore these cases
-      return;
-    }
     throw new MongoshInternalError('Failed to setup connection handling');
   }
 
@@ -77,13 +73,4 @@ function patchConnectionPoolTracking(mongoClient: MongoClient): void {
     originalClose.call(this, options as any, cb as any);
   };
   connectionPoolPrototype.close = newClose;
-}
-
-function getConnectionPoolPrototype(mongoClient: MongoClient): ConnectionPool | undefined {
-  const servers: Map<string, Server> | undefined = (mongoClient.topology as any)?.s.servers;
-  if (!servers) {
-    return undefined;
-  }
-  const aServer = [...servers.values()][0];
-  return Object.getPrototypeOf((aServer as any).s.pool);
 }
