@@ -23,10 +23,7 @@ describe('ShellEvaluator', () => {
     exitSpy = sinon.spy();
     internalStateMock = {
       messageBus: busMock,
-      shellApi: { use: useSpy, show: showSpy, it: itSpy, exit: exitSpy, quit: exitSpy },
-      asyncWriter: {
-        process: (i: string): string => (i)
-      }
+      shellApi: { use: useSpy, show: showSpy, it: itSpy, exit: exitSpy, quit: exitSpy }
     } as any;
     for (const name of ['use', 'show', 'it', 'exit', 'quit']) {
       internalStateMock.shellApi[name].isDirectShellCommand = true;
