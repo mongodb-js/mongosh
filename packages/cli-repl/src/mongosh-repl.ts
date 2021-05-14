@@ -430,9 +430,6 @@ class MongoshNodeRepl implements EvaluationListener {
     // The writer gets called immediately by the internal `repl.eval`
     // in case of errors.
     if (isErrorLike(result)) {
-      // eslint-disable-next-line chai-friendly/no-unused-expressions
-      this._runtimeState?.shellEvaluator.revertState();
-
       const output = {
         ...result,
         message: result.message || result.errmsg,
