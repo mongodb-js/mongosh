@@ -127,7 +127,7 @@ class MongoshNodeRepl implements EvaluationListener {
     internalState.setEvaluationListener(this);
     await internalState.fetchConnectionInfo();
 
-    const mongodVersion = internalState.connectionInfo.buildInfo.version;
+    const mongodVersion = internalState.connectionInfo.buildInfo?.version;
     await this.greet(mongodVersion);
     await this.printStartupLog(internalState);
 

@@ -158,4 +158,31 @@ describe('getConnectInfo', function() {
       null,
       TOPOLOGY_WITH_CREDENTIALS)).to.deep.equal(output);
   });
+
+  it('does not fail when buildInfo is unavailable', function() {
+    const output = {
+      is_atlas: false,
+      is_localhost: false,
+      server_version: undefined,
+      mongosh_version: '0.0.6',
+      is_enterprise: false,
+      auth_type: 'LDAP',
+      is_data_lake: false,
+      dl_version: null,
+      atlas_version: null,
+      is_genuine: true,
+      non_genuine_server_name: 'mongodb',
+      server_arch: null,
+      node_version: process.version,
+      server_os: null,
+      uri: ''
+    };
+    expect(getConnectInfo(
+      '',
+      '0.0.6',
+      null,
+      CMD_LINE_OPTS,
+      null,
+      TOPOLOGY_WITH_CREDENTIALS)).to.deep.equal(output);
+  });
 });

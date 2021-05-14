@@ -22,6 +22,7 @@ export interface ConnectInfo {
 }
 
 export default function getConnectInfo(uri: string, mongoshVersion: string, buildInfo: any, cmdLineOpts: any, atlasVersion: any, topology: any): ConnectInfo {
+  buildInfo ??= {}; // We're currently not getting buildInfo with --apiStrict.
   const { isGenuine: is_genuine, serverName: non_genuine_server_name } =
     getBuildInfo.getGenuineMongoDB(buildInfo, cmdLineOpts);
   const { isDataLake: is_data_lake, dlVersion: dl_version }
