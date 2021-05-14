@@ -30,6 +30,8 @@ export async function createPackage(
       await createTarballPackage(packageInformation, fullTarballFilePath);
       break;
     case 'rhel':
+    case 'suse':
+    case 'amzn2':
       await createRedhatPackage(packageInformation, packageInformation.rpmTemplateDir, getArch(buildVariant), fullTarballFilePath);
       break;
     case 'debian':

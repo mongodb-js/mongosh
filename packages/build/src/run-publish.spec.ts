@@ -181,7 +181,7 @@ describe('publish', () => {
       expect(barque.releaseToBarque).to.have.been.callCount(2);
       expect(barque.releaseToBarque).to.have.been.calledWith(
         'rhel-x64',
-        'https://s3.amazonaws.com/mciuploads/project/v0.7.0-draft.42/mongodb-mongosh-0.7.0-x86_64.rpm'
+        'https://s3.amazonaws.com/mciuploads/project/v0.7.0-draft.42/mongodb-mongosh-0.7.0.el7.x86_64.rpm'
       );
       expect(barque.releaseToBarque).to.have.been.calledWith(
         'debian-x64',
@@ -204,7 +204,7 @@ describe('publish', () => {
       );
 
       expect(createAndPublishDownloadCenterConfig).to.have.been.calledWith(
-        config.version,
+        config.packageInformation,
         config.downloadCenterAwsKey,
         config.downloadCenterAwsSecret
       );

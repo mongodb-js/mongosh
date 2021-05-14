@@ -5,13 +5,22 @@ import sinon from 'ts-sinon';
 import { createAndPublishDownloadCenterConfig, createDownloadCenterConfig } from './config';
 
 describe('DownloadCenter config', () => {
+  let config: DownloadCenterConfig;
+  let packageInformation: any;
+
+  before(() => {
+    packageInformation = {
+      metadata: {
+        version: '1.2.2',
+        name: 'mongosh',
+        debName: 'mongodb-mongosh',
+        rpmName: 'mongodb-mongosh'
+      }
+    };
+    config = createDownloadCenterConfig(packageInformation);
+  });
+
   describe('createDownloadCenterConfig', () => {
-    let config: DownloadCenterConfig;
-
-    before(() => {
-      config = createDownloadCenterConfig('1.2.2');
-    });
-
     it('sets the version correctly', () => {
       expect(config.versions).to.have.length(1);
       const [version] = config.versions;
@@ -28,14 +37,14 @@ describe('DownloadCenter config', () => {
 
     it('has an artifact for linux', () => {
       const [version] = config.versions;
-      const platforms = version.platform.filter(p => p.os === 'linux');
+      const platforms = version.platform.filter(p => p.os === 'linux' && p.arch === 'x64');
       expect(platforms).to.have.length(1);
       expect(platforms[0].download_link).to.include('mongosh-1.2.2-linux-x64.tgz');
     });
 
     it('has an MSI and ZIP artifacts for windows', () => {
       const [version] = config.versions;
-      const platforms = version.platform.filter(p => p.os === 'win32');
+      const platforms = version.platform.filter(p => p.os === 'win32' || p.os === 'win32msi');
       expect(platforms).to.have.length(2);
       expect(platforms[0].download_link).to.include('mongosh-1.2.2-win32-x64.zip');
       expect(platforms[1].download_link).to.include('mongosh-1.2.2-x64.msi');
@@ -43,14 +52,14 @@ describe('DownloadCenter config', () => {
 
     it('has an artifact for rhel', () => {
       const [version] = config.versions;
-      const platforms = version.platform.filter(p => p.os === 'rhel');
+      const platforms = version.platform.filter(p => p.os === 'rhel' && p.arch === 'x64');
       expect(platforms).to.have.length(1);
-      expect(platforms[0].download_link).to.include('mongodb-mongosh-1.2.2-x86_64.rpm');
+      expect(platforms[0].download_link).to.include('mongodb-mongosh-1.2.2.el7.x86_64.rpm');
     });
 
     it('has an artifact for debian', () => {
       const [version] = config.versions;
-      const platforms = version.platform.filter(p => p.os === 'debian');
+      const platforms = version.platform.filter(p => p.os === 'debian' && p.arch === 'x64');
       expect(platforms).to.have.length(1);
       expect(platforms[0].download_link).to.include('mongodb-mongosh_1.2.2_amd64.deb');
     });
@@ -69,7 +78,7 @@ describe('DownloadCenter config', () => {
 
     it('publishes the configuration', async() => {
       await createAndPublishDownloadCenterConfig(
-        '1.2.2',
+        packageInformation,
         'accessKey',
         'secretKey',
         dlCenter as any
@@ -82,7 +91,7 @@ describe('DownloadCenter config', () => {
       });
       expect(uploadConfig).to.have.been.calledWith(
         'com-download-center/mongosh.json',
-        createDownloadCenterConfig('1.2.2')
+        createDownloadCenterConfig(packageInformation)
       );
     });
   });

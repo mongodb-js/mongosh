@@ -56,7 +56,7 @@ export async function runPublish(
   );
 
   await createAndPublishDownloadCenterConfig(
-    config.version,
+    config.packageInformation as PackageInformation,
     config.downloadCenterAwsKey || '',
     config.downloadCenterAwsSecret || ''
   );

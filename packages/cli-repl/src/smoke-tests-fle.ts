@@ -10,16 +10,6 @@ const assert = function(value, message) {
     process.exit(1);
   }
 };
-try {
-  // The mongocryptd binary that we ship works on Ubuntu 18.04 and above,
-  // but not Ubuntu 16.04.
-  if (os.platform() === 'linux' && fs.readFileSync('/etc/issue', 'utf8').match(/Ubuntu 16/)) {
-    print('Test skipped')
-    process.exit(0);
-  }
-} catch(err) {
-  console.log(err);
-}
 if (db.version().startsWith('4.0.') ||
     !db.runCommand({buildInfo:1}).modules.includes('enterprise')) {
   // No FLE on mongod < 4.2 or community

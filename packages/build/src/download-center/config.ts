@@ -1,14 +1,16 @@
 import { DownloadCenter as DownloadCenterCls } from '@mongodb-js/dl-center';
 import { DownloadCenterConfig } from '@mongodb-js/dl-center/dist/download-center-config';
 import { CONFIGURATION_KEY, CONFIGURATIONS_BUCKET } from './constants';
+import { BuildVariant, ALL_BUILD_VARIANTS, getDownloadCenterDistroDescription, getArch, getDistro } from '../config';
+import { getPackageFile, PackageInformation } from '../packaging';
 
 export async function createAndPublishDownloadCenterConfig(
-  version: string,
+  packageInformation: PackageInformation,
   awsAccessKeyId: string,
   awsSecretAccessKey: string,
   DownloadCenter: typeof DownloadCenterCls = DownloadCenterCls
 ): Promise<void> {
-  const config = createDownloadCenterConfig(version);
+  const config = createDownloadCenterConfig(packageInformation);
 
   const dlcenter = new DownloadCenter({
     bucket: CONFIGURATIONS_BUCKET,
@@ -19,50 +21,19 @@ export async function createAndPublishDownloadCenterConfig(
   await dlcenter.uploadConfig(CONFIGURATION_KEY, config);
 }
 
-export function createDownloadCenterConfig(version: string): DownloadCenterConfig {
+export function createDownloadCenterConfig(packageInformation: PackageInformation): DownloadCenterConfig {
+  const { version } = packageInformation.metadata;
   return {
     'versions': [
       {
         '_id': version,
         'version': version,
-        'platform': [
-          {
-            'arch': 'x64',
-            'os': 'darwin',
-            'name': 'MacOS 64-bit (10.10+)',
-            'download_link': `https://downloads.mongodb.com/compass/mongosh-${version}-darwin-x64.zip`
-          },
-          {
-            'arch': 'x64',
-            'os': 'win32',
-            'name': 'Windows 64-bit (8.1+)',
-            'download_link': `https://downloads.mongodb.com/compass/mongosh-${version}-win32-x64.zip`
-          },
-          {
-            'arch': 'x64',
-            'os': 'win32',
-            'name': 'Windows 64-bit (8.1+) (MSI)',
-            'download_link': `https://downloads.mongodb.com/compass/mongosh-${version}-x64.msi`
-          },
-          {
-            'arch': 'x64',
-            'os': 'linux',
-            'name': 'Linux 64-bit',
-            'download_link': `https://downloads.mongodb.com/compass/mongosh-${version}-linux-x64.tgz`
-          },
-          {
-            'arch': 'x64',
-            'os': 'debian',
-            'name': 'Debian 64-bit',
-            'download_link': `https://downloads.mongodb.com/compass/mongodb-mongosh_${version}_amd64.deb`
-          },
-          {
-            'arch': 'x64',
-            'os': 'rhel',
-            'name': 'Redhat / CentOS / SUSE / Amazon Linux 64-bit',
-            'download_link': `https://downloads.mongodb.com/compass/mongodb-mongosh-${version}-x86_64.rpm`
-          }
-        ]
+        'platform': ALL_BUILD_VARIANTS.map((buildVariant: BuildVariant) => ({
+          arch: getArch(buildVariant),
+          os: getDistro(buildVariant),
+          name: getDownloadCenterDistroDescription(buildVariant),
+          download_link: 'https://downloads.mongodb.com/compass/' + getPackageFile(buildVariant, packageInformation).path
+        }))
       }
     ],
     'manual_link': 'https://docs.mongodb.org/manual/products/mongosh',
