@@ -1,7 +1,6 @@
 import Database from './database';
 import {
   shellApiClassDefault,
-  hasAsyncChild,
   ShellApiClass, returnsPromise, serverVersions
 } from './decorators';
 
@@ -12,7 +11,6 @@ import { CommandResult, UpdateResult } from './result';
 import { redactCredentials } from '@mongosh/history';
 
 @shellApiClassDefault
-@hasAsyncChild
 export default class Shard extends ShellApiClass {
   _database: Database;
 

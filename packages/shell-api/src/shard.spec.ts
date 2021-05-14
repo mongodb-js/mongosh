@@ -42,9 +42,6 @@ describe('Shard', () => {
         shellCommandCompleter: undefined
       });
     });
-    it('hasAsyncChild', () => {
-      expect(signatures.Shard.hasAsyncChild).to.equal(true);
-    });
   });
   describe('Metadata', () => {
     describe('toShellResult', () => {

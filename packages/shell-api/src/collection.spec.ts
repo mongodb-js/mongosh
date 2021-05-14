@@ -49,9 +49,6 @@ describe('Collection', () => {
         shellCommandCompleter: undefined
       });
     });
-    it('hasAsyncChild', () => {
-      expect(signatures.Collection.hasAsyncChild).to.equal(true);
-    });
   });
   describe('metadata', () => {
     describe('toShellResult', () => {

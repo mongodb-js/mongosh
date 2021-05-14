@@ -53,9 +53,6 @@ describe('Mongo', () => {
         shellCommandCompleter: undefined
       });
     });
-    it('hasAsyncChild', () => {
-      expect(signatures.Mongo.hasAsyncChild).to.equal(true);
-    });
   });
   describe('Metadata', () => {
     describe('toShellResult', () => {

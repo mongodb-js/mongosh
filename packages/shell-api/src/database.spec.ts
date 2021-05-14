@@ -89,9 +89,6 @@ describe('Database', () => {
         shellCommandCompleter: undefined
       });
     });
-    it('hasAsyncChild', () => {
-      expect(signatures.Database.hasAsyncChild).to.equal(true);
-    });
   });
   describe('Metadata', () => {
     describe('toShellResult', () => {

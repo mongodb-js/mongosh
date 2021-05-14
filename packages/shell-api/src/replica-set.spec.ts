@@ -53,10 +53,6 @@ describe('ReplicaSet', () => {
         shellCommandCompleter: undefined
       });
     });
-
-    it('hasAsyncChild', () => {
-      expect(signatures.ReplicaSet.hasAsyncChild).to.equal(true);
-    });
   });
 
   describe('unit', () => {

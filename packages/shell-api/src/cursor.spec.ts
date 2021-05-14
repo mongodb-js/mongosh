@@ -22,7 +22,6 @@ describe('Cursor', () => {
   describe('signature', () => {
     it('signature for class correct', () => {
       expect(signatures.Cursor.type).to.equal('Cursor');
-      expect(signatures.Cursor.hasAsyncChild).to.equal(true);
     });
     it('map signature', () => {
       expect(signatures.Cursor.attributes.map).to.deep.equal({

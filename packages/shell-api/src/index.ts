@@ -6,7 +6,6 @@ import Explainable from './explainable';
 import ExplainableCursor from './explainable-cursor';
 import Help, { HelpProperties } from './help';
 import ShellInternalState, { EvaluationListener, ShellCliOptions, OnLoadResult } from './shell-internal-state';
-import toIterator from './toIterator';
 import Shard from './shard';
 import ReplicaSet from './replica-set';
 import ShellApi from './shell-api';
@@ -53,7 +52,6 @@ export {
   Shard,
   ReplicaSet,
   UpdateResult,
-  toIterator,
   signatures,
   ShellApi,
   ServerVersions,

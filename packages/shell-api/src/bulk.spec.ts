@@ -44,9 +44,6 @@ describe('Bulk API', () => {
           shellCommandCompleter: undefined
         });
       });
-      it('hasAsyncChild', () => {
-        expect(signatures.Bulk.hasAsyncChild).to.equal(true);
-      });
     });
     describe('Metadata', () => {
       describe('toShellResult', () => {
@@ -247,9 +244,6 @@ describe('Bulk API', () => {
           isDirectShellCommand: false,
           shellCommandCompleter: undefined
         });
-      });
-      it('hasAsyncChild', () => {
-        expect(signatures.BulkFindOp.hasAsyncChild).to.equal(false);
       });
     });
     describe('Metadata', () => {

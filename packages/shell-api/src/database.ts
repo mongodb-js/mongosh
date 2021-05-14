@@ -2,7 +2,6 @@
 import Mongo from './mongo';
 import Collection from './collection';
 import {
-  hasAsyncChild,
   returnsPromise,
   returnType,
   serverVersions,
@@ -47,7 +46,6 @@ import { ShellApiErrors } from './error-codes';
 type AuthDoc = {user: string, pwd: string, authDb?: string, mechanism?: string};
 
 @shellApiClassDefault
-@hasAsyncChild
 export default class Database extends ShellApiClass {
   _mongo: Mongo;
   _name: string;

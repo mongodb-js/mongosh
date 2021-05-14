@@ -1,6 +1,5 @@
 import {
   shellApiClassNoHelp,
-  hasAsyncChild,
   ShellApiClass,
   returnsPromise,
   toShellResult,
@@ -18,7 +17,6 @@ import { CursorIterationResult } from './result';
 import { iterate, validateExplainableVerbosity, markAsExplainOutput } from './helpers';
 
 @shellApiClassNoHelp
-@hasAsyncChild
 export abstract class AbstractCursor extends ShellApiClass {
   _mongo: Mongo;
   abstract _cursor: ServiceProviderAggregationCursor | ServiceProviderCursor;

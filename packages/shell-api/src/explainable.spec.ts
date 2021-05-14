@@ -37,9 +37,6 @@ describe('Explainable', () => {
         shellCommandCompleter: undefined
       });
     });
-    it('hasAsyncChild', () => {
-      expect(signatures.Explainable.hasAsyncChild).to.equal(true);
-    });
   });
   describe('metadata', () => {
     const mongo: any = { _internalState: { emitApiCall: sinon.spy() } };

@@ -18,7 +18,6 @@ describe('AggregationCursor', () => {
   describe('signature', () => {
     it('signature for class correct', () => {
       expect(signatures.AggregationCursor.type).to.equal('AggregationCursor');
-      expect(signatures.AggregationCursor.hasAsyncChild).to.equal(true);
     });
     it('map signature', () => {
       expect(signatures.AggregationCursor.attributes.map).to.deep.equal({

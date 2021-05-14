@@ -24,7 +24,6 @@ describe('ChangeStreamCursor', () => {
   describe('signature', () => {
     it('signature for class correct', () => {
       expect(signatures.ChangeStreamCursor.type).to.equal('ChangeStreamCursor');
-      expect(signatures.ChangeStreamCursor.hasAsyncChild).to.equal(true);
     });
     it('next signature', () => {
       expect(signatures.ChangeStreamCursor.attributes.next).to.deep.equal({

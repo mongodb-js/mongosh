@@ -148,7 +148,6 @@ export type ShellCommandCompleter =
 
 export interface TypeSignature {
   type: string;
-  hasAsyncChild?: boolean;
   serverVersions?: [ string, string ];
   topologies?: Topologies[];
   returnsPromise?: boolean;
@@ -172,7 +171,6 @@ signatures.Document = { type: 'Document', attributes: {} };
 
 type ClassSignature = {
   type: string;
-  hasAsyncChild: boolean;
   returnsPromise: boolean;
   deprecated: boolean;
   attributes: {
@@ -207,7 +205,6 @@ export function shellApiClassGeneric(constructor: Function, hasHelp: boolean): v
   };
   const classSignature: ClassSignature = {
     type: className,
-    hasAsyncChild: constructor.prototype.hasAsyncChild || false,
     returnsPromise: constructor.prototype.returnsPromise || false,
     deprecated: constructor.prototype.deprecated || false,
     attributes: {}
@@ -391,9 +388,6 @@ export function returnType(type: string | TypeSignature): Function {
   ): void {
     descriptor.value.returnType = type;
   };
-}
-export function hasAsyncChild(constructor: Function): void {
-  constructor.prototype.hasAsyncChild = true;
 }
 export function classReturnsPromise(constructor: Function): void {
   constructor.prototype.returnsPromise = true;

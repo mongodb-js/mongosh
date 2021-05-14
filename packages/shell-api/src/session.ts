@@ -1,7 +1,6 @@
 import {
   classPlatforms,
   classReturnsPromise,
-  hasAsyncChild,
   returnsPromise,
   ShellApiClass,
   shellApiClassDefault
@@ -24,7 +23,6 @@ import { blockedByDriverMetadata } from './error-codes';
 import { assertArgsDefinedType } from './helpers';
 
 @shellApiClassDefault
-@hasAsyncChild
 @classReturnsPromise
 @classPlatforms([ ReplPlatform.CLI ] )
 export default class Session extends ShellApiClass {

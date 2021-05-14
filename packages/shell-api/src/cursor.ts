@@ -1,6 +1,5 @@
 import { CommonErrors, MongoshDeprecatedError, MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
 import {
-  hasAsyncChild,
   returnsPromise,
   returnType,
   serverVersions,
@@ -26,7 +25,6 @@ import { printWarning } from './deprecation-warning';
 import { AbstractCursor } from './abstract-cursor';
 
 @shellApiClassDefault
-@hasAsyncChild
 export default class Cursor extends AbstractCursor {
   _cursor: ServiceProviderCursor;
   _tailable = false;

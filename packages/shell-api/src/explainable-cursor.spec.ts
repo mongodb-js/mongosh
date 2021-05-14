@@ -15,7 +15,6 @@ describe('ExplainableCursor', () => {
   describe('signature', () => {
     it('signature for class correct', () => {
       expect(signatures.ExplainableCursor.type).to.equal('ExplainableCursor');
-      expect(signatures.ExplainableCursor.hasAsyncChild).to.equal(true);
     });
     it('inherited (map) signature', () => {
       expect(signatures.ExplainableCursor.attributes.map).to.deep.equal({
