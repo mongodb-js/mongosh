@@ -407,9 +407,14 @@ export function returnsPromise(_target: any, _propertyKey: string, descriptor: P
   originalFunction.returnsPromise = true;
 
   async function wrapper(this: any, ...args: any[]) {
-    const result = await originalFunction.call(this, ...args);
-    await new Promise(setImmediate);
-    return result;
+    try {
+      return await originalFunction.call(this, ...args);
+    } finally {
+       if (typeof setImmediate === 'function') {
+         // Not all JS environments have setImmediate
+         await new Promise(setImmediate);
+       }
+    }
   }
   Object.setPrototypeOf(wrapper, Object.getPrototypeOf(originalFunction));
   Object.defineProperties(wrapper, Object.getOwnPropertyDescriptors(originalFunction));
