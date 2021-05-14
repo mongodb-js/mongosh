@@ -218,7 +218,7 @@ export default class Mongo extends ShellApiClass {
     return `switched to db ${db}`;
   }
 
-  async _listDatabases(opts: ListDatabasesOptions = {}): Promise<{name: string, sizeOnDisk: number, empty: boolean}[]> {
+  async _listDatabases(opts: ListDatabasesOptions = {}): Promise<{ databases: {name: string, sizeOnDisk: number, empty: boolean}[] }> {
     const result = await this._serviceProvider.listDatabases('admin', { ...opts });
     if (!('databases' in result)) {
       const err = new MongoshRuntimeError('Got invalid result from "listDatabases"', CommonErrors.CommandFailed);
@@ -226,13 +226,13 @@ export default class Mongo extends ShellApiClass {
       throw err;
     }
     this._cachedDatabaseNames = result.databases.map((db: any) => db.name);
-    return result.databases;
+    return result as any;
   }
 
   async _getDatabaseNamesForCompletion(): Promise<string[]> {
     return await Promise.race([
       (async() => {
-        return (await this._listDatabases({ readPreference: 'primaryPreferred' })).map(db => db.name);
+        return (await this._listDatabases({ readPreference: 'primaryPreferred' })).databases.map(db => db.name);
       })(),
       (async() => {
         // See the comment in _getCollectionNamesForCompletion/database.ts
@@ -244,13 +244,25 @@ export default class Mongo extends ShellApiClass {
   }
 
   @returnsPromise
+  async getDBs(options: ListDatabasesOptions = {}): Promise<{ databases: {name: string, sizeOnDisk: number, empty: boolean}[] }> {
+    this._emitMongoApiCall('getDBs', { options });
+    return await this._listDatabases(options);
+  }
+
+  @returnsPromise
+  async getDBNames(options: ListDatabasesOptions = {}): Promise<string[]> {
+    this._emitMongoApiCall('getDBNames', { options });
+    return (await this._listDatabases(options)).databases.map(db => db.name);
+  }
+
+  @returnsPromise
   async show(cmd: string, arg?: string): Promise<CommandResult> {
     this._internalState.messageBus.emit('mongosh:show', { method: `show ${cmd}` });
 
     switch (cmd) {
       case 'databases':
       case 'dbs':
-        const result = await this._listDatabases({ readPreference: 'primaryPreferred' });
+        const result = (await this._listDatabases({ readPreference: 'primaryPreferred' })).databases;
         return new CommandResult('ShowDatabasesResult', result);
       case 'collections':
       case 'tables':
