@@ -1,13 +1,13 @@
 import childProcess from 'child_process';
-import fs from 'fs-extra';
-import gunzip from 'gunzip-maybe';
+import { promises as fs } from 'fs';
+import zlib from 'zlib';
 import fetch from 'node-fetch';
 import path from 'path';
 import stream from 'stream';
 import tar from 'tar-fs';
 import tmp from 'tmp-promise';
 import util, { promisify } from 'util';
-import { BuildVariant, Config, Platform } from './config';
+import { BuildVariant, getArch, getDistro, Config, getDebArchName, getRPMArchName, Platform } from './config';
 
 const pipeline = util.promisify(stream.pipeline);
 const execFile = util.promisify(childProcess.execFile);
@@ -19,26 +19,57 @@ export const LATEST_CURATOR =
 tmp.setGracefulCleanup();
 
 /**
- * Distro enum to be used when making a curator call.
+ * All the possible per-Linux-distro repositories that we publish to.
  */
-enum Distro {
-  Ubuntu1804 = 'ubuntu1804',
-  Ubuntu2004 = 'ubuntu2004',
-  Debian10 = 'debian10',
-  Redhat80 = 'rhel80'
-}
+type PPARepository =
+  'ubuntu1804' | 'ubuntu2004' | 'debian92' | 'debian10' |
+  'rhel70' | 'rhel80' | 'amazon2' | 'suse12' | 'suse15';
 
 /**
- * Target arch enum to be used when making a curator call.
+ * Return the full list of [distro, arch] combinations that we upload for
+ * a given build variant (where 'distro' refers to a distro in the package
+ * repository, e.g. Ubuntu 20.04).
  *
- * If we were to target a different arch for these distros, make sure
- * config/repo-config.yml and packages/build/src/tarball.ts are changed accordingly.
- *
- * This can be also moved to /config/build.conf.js in the future.
+ * /config/repo-config.yml needs to be kept in sync with this.
  */
-enum Arch {
-  Amd64 = 'amd64',
-  X86_64 = 'x86_64'
+export function getReposAndArch(buildVariant: BuildVariant): { ppas: PPARepository[], arch: string } {
+  switch (getDistro(buildVariant)) {
+    case 'win32':
+    case 'win32msi':
+    case 'darwin':
+    case 'linux':
+      return { ppas: [], arch: '' };
+    case 'debian':
+      return {
+        ppas: ['ubuntu1804', 'ubuntu2004', 'debian92', 'debian10'],
+        arch: getDebArchName(getArch(buildVariant))
+      };
+    case 'rhel':
+      if (getArch(buildVariant) === 'x64') {
+        return {
+          ppas: ['rhel70', 'rhel80', 'amazon2'],
+          arch: getRPMArchName(getArch(buildVariant))
+        };
+      } else if (getArch(buildVariant) === 'arm64') {
+        return {
+          ppas: ['rhel80'],
+          arch: getRPMArchName(getArch(buildVariant))
+        };
+      }
+      return { ppas: [], arch: '' };
+    case 'suse':
+      return {
+        ppas: ['suse12', 'suse15'],
+        arch: getRPMArchName(getArch(buildVariant))
+      };
+    case 'amzn2':
+      return {
+        ppas: ['amazon2'],
+        arch: getRPMArchName(getArch(buildVariant))
+      };
+    default:
+      throw new Error(`Unknown build variant ${buildVariant}`);
+  }
 }
 
 export class Barque {
@@ -78,25 +109,23 @@ export class Barque {
     const curatorDirPath = await this.createCuratorDir();
     await this.extractLatestCurator(curatorDirPath);
 
-    const targetDistros = this.getTargetDistros(buildVariant);
-    const targetArchitecture = this.getTargetArchitecture(buildVariant);
-
     const publishedPackageUrls: string[] = [];
-    for (const distro of targetDistros) {
+    const { ppas, arch } = getReposAndArch(buildVariant);
+    for (const ppa of ppas) {
       try {
         await this.execCurator(
           curatorDirPath,
           packageUrl,
           repoConfig,
-          distro,
-          targetArchitecture
+          ppa,
+          arch
         );
       } catch (error) {
         console.error('Curator failed', error);
-        throw new Error(`Curator is unable to upload to barque ${error}`);
+        throw new Error(`Curator is unable to upload ${packageUrl},${ppa},${arch} to barque ${error}`);
       }
 
-      publishedPackageUrls.push(this.computePublishedPackageUrl(distro, targetArchitecture, packageUrl));
+      publishedPackageUrls.push(this.computePublishedPackageUrl(ppa, arch, packageUrl));
     }
     return publishedPackageUrls;
   }
@@ -105,8 +134,8 @@ export class Barque {
     curatorDirPath: string,
     packageUrl: string,
     repoConfig: string,
-    distro: Distro,
-    architecture: Arch
+    ppa: PPARepository,
+    architecture: string
   ): Promise<any> {
     return await execFile(
       `${curatorDirPath}/curator`, [
@@ -114,7 +143,7 @@ export class Barque {
         'repo', 'submit',
         '--service', 'https://barque.corp.mongodb.com',
         '--config', repoConfig,
-        '--distro', distro,
+        '--distro', ppa,
         '--arch', architecture,
         '--edition', this.mongodbEdition,
         '--version', this.mongodbVersion,
@@ -130,48 +159,23 @@ export class Barque {
       });
   }
 
-  getTargetArchitecture(variant: BuildVariant): Arch {
-    switch (variant) {
-      case 'debian-x64':
-        return Arch.Amd64;
-      case 'rhel-x64':
-        return Arch.X86_64;
-      default:
-        throw new Error('Unsupported variant for Barque publishing: ' + variant);
-    }
-  }
-
-  getTargetDistros(variant: BuildVariant): Distro[] {
-    switch (variant) {
-      case 'debian-x64':
-        return [
-          Distro.Debian10,
-          Distro.Ubuntu1804,
-          Distro.Ubuntu2004
-        ];
-      case 'rhel-x64':
-        return [
-          Distro.Redhat80
-        ];
-      default:
-        throw new Error('Unsupported variant for Barque publishing: ' + variant);
-    }
-  }
-
-  computePublishedPackageUrl(distro: Distro, targetArchitecture: Arch, packageUrl: string): string {
+  computePublishedPackageUrl(ppa: PPARepository, targetArchitecture: string, packageUrl: string): string {
     const packageFileName = packageUrl.split('/').slice(-1);
     const packageFolderVersion = this.mongodbVersion.split('.').slice(0, 2).join('.');
-    switch (distro) {
-      case Distro.Debian10:
-        return `${Barque.PPA_REPO_BASE_URL}/apt/debian/dists/buster/mongodb-org/${packageFolderVersion}/main/binary-${targetArchitecture}/${packageFileName}`;
-      case Distro.Ubuntu1804:
-        return `${Barque.PPA_REPO_BASE_URL}/apt/ubuntu/dists/bionic/mongodb-org/${packageFolderVersion}/multiverse/binary-${targetArchitecture}/${packageFileName}`;
-      case Distro.Ubuntu2004:
-        return `${Barque.PPA_REPO_BASE_URL}/apt/ubuntu/dists/focal/mongodb-org/${packageFolderVersion}/multiverse/binary-${targetArchitecture}/${packageFileName}`;
-      case Distro.Redhat80:
-        return `${Barque.PPA_REPO_BASE_URL}/yum/redhat/8/mongodb-org/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
+    switch (ppa) {
+      /* eslint-disable no-multi-spaces */
+      case 'ubuntu1804': return `${Barque.PPA_REPO_BASE_URL}/apt/ubuntu/dists/bionic/mongodb-org/${packageFolderVersion}/multiverse/binary-${targetArchitecture}/${packageFileName}`;
+      case 'ubuntu2004': return `${Barque.PPA_REPO_BASE_URL}/apt/ubuntu/dists/focal/mongodb-org/${packageFolderVersion}/multiverse/binary-${targetArchitecture}/${packageFileName}`;
+      case 'debian92':   return `${Barque.PPA_REPO_BASE_URL}/apt/debian/dists/buster/mongodb-org/${packageFolderVersion}/main/binary-${targetArchitecture}/${packageFileName}`;
+      case 'debian10':   return `${Barque.PPA_REPO_BASE_URL}/apt/debian/dists/stretch/mongodb-org/${packageFolderVersion}/main/binary-${targetArchitecture}/${packageFileName}`;
+      case 'rhel70':     return `${Barque.PPA_REPO_BASE_URL}/yum/redhat/7/mongodb-org/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
+      case 'rhel80':     return `${Barque.PPA_REPO_BASE_URL}/yum/redhat/8/mongodb-org/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
+      case 'amazon2':    return `${Barque.PPA_REPO_BASE_URL}/yum/amazon/2/mongodb-org/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
+      case 'suse12':     return `${Barque.PPA_REPO_BASE_URL}/zypper/suse/12/mongodb-org/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
+      case 'suse15':     return `${Barque.PPA_REPO_BASE_URL}/zypper/suse/15/mongodb-org/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
+      /* eslint-enable no-multi-spaces */
       default:
-        throw new Error(`Unsupported distro: ${distro}`);
+        throw new Error(`Unsupported PPA: ${ppa}`);
     }
   }
 
@@ -220,7 +224,7 @@ export class Barque {
    */
   async createCuratorDir(): Promise<any> {
     const dir = await tmp.dir({ prefix: 'curator-', unsafeCleanup: true });
-    fs.ensureDir(dir.path, { mode: 0o755 });
+    await fs.mkdir(dir.path, { mode: 0o755, recursive: true });
 
     return dir.path;
   }
@@ -243,7 +247,7 @@ export class Barque {
     if (response.ok) {
       return pipeline(
         response.body,
-        gunzip(),
+        zlib.createGunzip(),
         tar.extract(dest)
       );
     }

@@ -1,7 +1,7 @@
 import type { writeAnalyticsConfig as writeAnalyticsConfigType } from './analytics';
 import { Barque } from './barque';
 import {
-  BuildVariant,
+  ALL_BUILD_VARIANTS,
   Config,
   getReleaseVersionFromTag,
   shouldDoPublicRelease as shouldDoPublicReleaseFn
@@ -87,13 +87,8 @@ async function publishArtifactsToBarque(
   packageInformation: PackageInformation,
   getEvergreenArtifactUrl: typeof getArtifactUrlFn
 ): Promise<void> {
-  const variantsForBarque: BuildVariant[] = [
-    'debian-x64',
-    'rhel-x64'
-  ];
-
   const publishedPackages: string[] = [];
-  for await (const variant of variantsForBarque) {
+  for await (const variant of ALL_BUILD_VARIANTS) {
     const packageFile = getPackageFile(variant, {
       ...packageInformation,
       metadata: {
@@ -102,8 +97,11 @@ async function publishArtifactsToBarque(
       }
     });
     const packageUrl = getEvergreenArtifactUrl(project, mostRecentDraftTag, packageFile.path);
-    console.info(`mongosh: Publishing ${variant} artifact to barque ${packageUrl}`);
+    console.info(`mongosh: Considering publishing ${variant} artifact to barque ${packageUrl}`);
     const packageUrls = await barque.releaseToBarque(variant, packageUrl);
+    for (const url of packageUrls) {
+      console.info(` -> ${url}`);
+    }
     publishedPackages.push(...packageUrls);
   }
 
