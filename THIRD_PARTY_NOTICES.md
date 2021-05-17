@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Sun May 16 2021.
+This document was automatically generated on Mon May 17 2021.
 
 ## List of dependencies
 
@@ -10,7 +10,6 @@ Package|Version|License
 **[@babel/core](#55f19b2c1928d8cc9ee6fa2dcb0c846e73449630a025f19c76b54a322f9ae7fe)**|7.9.0|MIT
 **[@babel/generator](#470fad08daca67f4e429433023fea51adbc9f7979d84981a786afdfa4a36e31c)**|7.14.1|MIT
 **[@babel/generator](#2b59141c1634bda0508d1cb8786d229b1f0cafb0d8f3e4bd154d66f11d8c6e1d)**|7.9.5|MIT
-**[@babel/helper-create-class-features-plugin](#07791203169bee23fea6f5391326fe12c35d7f3c08de6abb2861a1ed768d6972)**|7.9.5|MIT
 **[@babel/helper-function-name](#e4417acec4f5afb33a265e6cea9c616ec49fa9e9b5b7f261ca82b9938c3fe806)**|7.12.13|MIT
 **[@babel/helper-function-name](#1facc0dd83fff14f3d19368012a6ab43c6f651b1737cba4a2367a48bc31d959b)**|7.9.5|MIT
 **[@babel/helper-get-function-arity](#067e26d01657a0c26b47331e886ff1afb0988c5e7057593afe87c864b1a5b268)**|7.12.13|MIT
@@ -23,7 +22,6 @@ Package|Version|License
 **[@babel/helper-module-transforms](#b9f759ed97bc38a687398ac7238de46751471d1fa122ea7ce196fa58c3a04611)**|7.9.0|MIT
 **[@babel/helper-optimise-call-expression](#363c411300157af542742496beea6a11a3111661257d5a1956377f55c1cf055f)**|7.12.13|MIT
 **[@babel/helper-optimise-call-expression](#846400c1e6ac71119398201793c8df21ae11b18bb903aa8b1c662dec78f084f9)**|7.8.3|MIT
-**[@babel/helper-plugin-utils](#c4fdc2e17cad51ddc23da4bbb92eded297e0119492b93df3f622cf338ba1cb67)**|7.8.3|MIT
 **[@babel/helper-plugin-utils](#877a04ce1fc733666ab60849154ca832c1b6c29050e749f5d1d87c2662a0eabb)**|7.13.0|MIT
 **[@babel/helper-replace-supers](#c5a152c1d2b73fdbe2114759da4e358a18dac3374e14845f43c885af7e6961bc)**|7.13.12|MIT
 **[@babel/helper-replace-supers](#1cd430db425a3b1d9ae85ec67c5e83abf70c4056caf39f4d759e1a572f760f4c)**|7.8.6|MIT
@@ -39,19 +37,15 @@ Package|Version|License
 **[@babel/highlight](#46f12c84589d48e32f9fc6f821458febe7493a3182357a8c463188c502463738)**|7.9.0|MIT
 **[@babel/parser](#6498c1ecede9dddb91fb349a7c9f6927f664c2e7ec3dc73e45d87c09aae6113b)**|7.14.1|MIT
 **[@babel/parser](#480716ecf84b1db6000fe1506ad0305ae049408898bb6958cf2ffefda703cbbf)**|7.9.4|MIT
-**[@babel/plugin-syntax-typescript](#61b503ffc42bed5a83a3af74bb4fe5fa4f36d1e948df433ee8714864709faacf)**|7.8.3|MIT
 **[@babel/plugin-transform-destructuring](#b9b521a7cce4df58c251257a9cc7a99ba8c05aa24020e5045df5d3433eeaa21d)**|7.13.0|MIT
 **[@babel/plugin-transform-parameters](#405c50f234870fb4ee19ae4a2c7a94b2a01219b2bfacc63693a45c5a70928731)**|7.13.0|MIT
 **[@babel/plugin-transform-shorthand-properties](#f7df3a72014d3e74b1bf4dd5d6a5c753f3745a0bdf0eacf1751a48410f17db96)**|7.12.13|MIT
-**[@babel/plugin-transform-typescript](#a0930c2586cefefa278074cad470e81ce816cd623e6586ae3702b2af72589ed6)**|7.9.4|MIT
-**[@babel/preset-typescript](#d9c53716f1d63c864283e2749ff8a6bf1f1b55b846e16cabd23c81d90a4902d6)**|7.9.0|MIT
 **[@babel/template](#5cfc9108658d15bd8579195c4be3f95bf50c2126428e2a9bfc59ae32b50fad83)**|7.12.13|MIT
 **[@babel/template](#831304a27746f47ad530cde5042679089b6440ed9b6713742afb5ba5b9900dec)**|7.8.6|MIT
 **[@babel/traverse](#e90dcf9ca170ff9118ba291acdb9a294077a0058ba207267f1927c18f93e3204)**|7.14.0|MIT
 **[@babel/traverse](#645f43c4b43e54c2302efd47bed733ce344de7a79c858f356dfc74ca96ebca89)**|7.9.5|MIT
 **[@babel/types](#86f6af1b379032b2b332bb2c4ebe1ae2fbc08fcb664b3f2cd1fe5ec2146fb3d4)**|7.14.1|MIT
 **[@babel/types](#76081e1a91970048ea70546e509b9c1a5f943ff10f03b7e0ea49e962a26bca42)**|7.9.5|MIT
-**[@mongosh/async-rewriter](#6d08ea79053718e2c69ad2e0fa40a16f270a8247e2e407decd3d5c988a03c24c)**|0.0.0-dev.0|Apache-2.0
 **[@mongosh/async-rewriter2](#69676fe7ebd86bf4fddf69d015a9de3d5e5657481207dc3738ed4219996b4217)**|0.0.0-dev.0|Apache-2.0
 **[@mongosh/autocomplete](#7f32df49a0095be559b86efa94fcf3aa45364e108fdb44142a6df12d43825617)**|0.0.0-dev.0|Apache-2.0
 **[@mongosh/cli-repl](#f82eb484c756fd7304088239eeb725f267073d0efc350413d3c1d005a205fc1d)**|0.0.0-dev.0|Apache-2.0
@@ -72,17 +66,11 @@ Package|Version|License
 **[@types/sinon](#725d25542bdd70fdafa8c25453f70b158cede4bcfc539a569990c8b17ee78872)**|7.5.2|MIT
 **[@types/sinon-chai](#d1e86a93d7ef8073206c62f9815dd5db0438eaf693acd22d9f36c16c25e8538a)**|3.2.4|MIT
 **[acorn](#fc95bfb698293b3127755b9d97e2974c7df920d0c63b56dd59fb99de9867d4d0)**|7.4.1|MIT
-**[acorn](#796c5ed810f55c860d6e3eff1b89e111e6c1481a621791a431d37aa5e6498785)**|7.4.0|MIT
 **[acorn-class-fields](#da3cb6d1c6e6aee8f9491226e5b17e14e4f19efbfb7d9e3340a438304c465361)**|0.3.7|MIT
-**[acorn-class-fields](#496cdf23701b4cdd389942aa99f76bd586c59759d47d2c7292e09f66e9389fb2)**|0.3.2|MIT
 **[acorn-numeric-separator](#6940f4404e355b21617dccb71f5ebcba980bbd438d41f701bfa6a62deb33121c)**|0.3.6|MIT
-**[acorn-numeric-separator](#f5d416b26647e20eccb3054cbdf4515cd486536e1b8741e14aa65deaad0fab77)**|0.3.2|MIT
 **[acorn-private-class-elements](#769de6ffc9b4164cb45bba8d0827a642dd7b6c4df7f57acf9f84b87aaf4f3734)**|0.2.7|MIT
 **[acorn-private-methods](#30ca01483044bd8874ad69b4fbd17119e94cb570b1c74ca1d4e3597a2caf12a9)**|0.3.3|MIT
-**[acorn-private-methods](#e853a1a4c53f6f78043ea9d4f29975767993641480cb1051f5cc1c3fbb168e1e)**|0.3.1|MIT
 **[acorn-static-class-features](#25825f2f734233a80632b67c3114edc2c4957c4967d557be233361e00516f9a3)**|0.2.4|MIT
-**[acorn-static-class-features](#3c779e09cc5fc745047db9f63c306dacddb5362af521530a4090d32f7677a0fb)**|0.2.1|MIT
-**[acorn-walk](#cae19f5419e4b407d5e7bc3ee51fb868765bce1deda4733545981262a6ffaff7)**|7.2.0|MIT
 **[analytics-node](#e33a68b776c40ffdd39c56840eb80ac1402944026fd57ad4145c082dac7dcc0f)**|3.4.0-beta.1|MIT
 **[ansi-escape-sequences](#facc0b756e4e6b040bafa6604056a2290d18923d9c14a2e0a64f850d3477bac0)**|5.1.2|MIT
 **[ansi-regex](#4e22eb8971d3255ba68fad66a1be245aaf480c23e8b02cf0dae7022549aece7c)**|5.0.0|MIT
@@ -285,7 +273,7 @@ Authors:
 
 <a id="cbdec303ecc4877c74f8905d44cb3646f38e2f2983dcd9f551a1b500720f535a"></a>
 ### [@babel/code-frame](https://www.npmjs.com/package/@babel/code-frame) (version 7.8.3)
-<!-- initially found at packages/async-rewriter/node_modules/@babel/code-frame -->
+<!-- initially found at packages/async-rewriter2/node_modules/@babel/code-frame -->
 > Generate errors that contain a code frame that point to source locations.
 
 License tags: MIT
@@ -399,7 +387,7 @@ Authors:
 
 <a id="2b59141c1634bda0508d1cb8786d229b1f0cafb0d8f3e4bd154d66f11d8c6e1d"></a>
 ### [@babel/generator](https://www.npmjs.com/package/@babel/generator) (version 7.9.5)
-<!-- initially found at packages/async-rewriter/node_modules/@babel/generator -->
+<!-- initially found at packages/async-rewriter2/node_modules/@babel/generator -->
 > Turns an AST into code.
 
 License tags: MIT
@@ -433,44 +421,6 @@ License files:
 
 Authors:
 * Sebastian McKenzie <sebmck@gmail.com>
-
-
-<a id="07791203169bee23fea6f5391326fe12c35d7f3c08de6abb2861a1ed768d6972"></a>
-### [@babel/helper-create-class-features-plugin](https://www.npmjs.com/package/@babel/helper-create-class-features-plugin) (version 7.9.5)
-<!-- initially found at packages/async-rewriter/node_modules/@babel/helper-create-class-features-plugin -->
-> Compile class public and private fields, private methods and decorators to ES6
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      MIT License
-      
-      Copyright (c) 2014-present Sebastian McKenzie and other contributors
-      
-      Permission is hereby granted, free of charge, to any person obtaining
-      a copy of this software and associated documentation files (the
-      "Software"), to deal in the Software without restriction, including
-      without limitation the rights to use, copy, modify, merge, publish,
-      distribute, sublicense, and/or sell copies of the Software, and to
-      permit persons to whom the Software is furnished to do so, subject to
-      the following conditions:
-      
-      The above copyright notice and this permission notice shall be
-      included in all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-      NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-      LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-      OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-      WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-      
-
-Authors:
-* The Babel Team (https://babeljs.io/team)
 
 
 <a id="e4417acec4f5afb33a265e6cea9c616ec49fa9e9b5b7f261ca82b9938c3fe806"></a>
@@ -510,7 +460,7 @@ License files:
 
 <a id="1facc0dd83fff14f3d19368012a6ab43c6f651b1737cba4a2367a48bc31d959b"></a>
 ### [@babel/helper-function-name](https://www.npmjs.com/package/@babel/helper-function-name) (version 7.9.5)
-<!-- initially found at packages/async-rewriter/node_modules/@babel/helper-function-name -->
+<!-- initially found at packages/async-rewriter2/node_modules/@babel/helper-function-name -->
 > Helper function to change the property 'name' of every function
 
 License tags: MIT
@@ -580,7 +530,7 @@ License files:
 
 <a id="ce7a821fb610b26f13afae033016d14c72d71541aaf92762002d2fd9ca794169"></a>
 ### [@babel/helper-get-function-arity](https://www.npmjs.com/package/@babel/helper-get-function-arity) (version 7.8.3)
-<!-- initially found at packages/async-rewriter/node_modules/@babel/helper-get-function-arity -->
+<!-- initially found at packages/async-rewriter2/node_modules/@babel/helper-get-function-arity -->
 > Helper function to get function arity
 
 License tags: MIT
@@ -653,7 +603,7 @@ Authors:
 
 <a id="f8c942783ab08ebb2202269865d2b7c0e3505e2db15f2c46b200b888a676c247"></a>
 ### [@babel/helper-member-expression-to-functions](https://www.npmjs.com/package/@babel/helper-member-expression-to-functions) (version 7.8.3)
-<!-- initially found at packages/async-rewriter/node_modules/@babel/helper-member-expression-to-functions -->
+<!-- initially found at packages/async-rewriter2/node_modules/@babel/helper-member-expression-to-functions -->
 > Helper function to replace certain member expressions with function calls
 
 License tags: MIT
@@ -729,7 +679,7 @@ Authors:
 
 <a id="6521567923a811c14766044196f3ceb638acabf5db91b2e45046392ed6bcda99"></a>
 ### [@babel/helper-module-imports](https://www.npmjs.com/package/@babel/helper-module-imports) (version 7.8.3)
-<!-- initially found at packages/async-rewriter/node_modules/@babel/helper-module-imports -->
+<!-- initially found at packages/async-rewriter2/node_modules/@babel/helper-module-imports -->
 > Babel helper functions for inserting module loads
 
 License tags: MIT
@@ -805,7 +755,7 @@ Authors:
 
 <a id="b9f759ed97bc38a687398ac7238de46751471d1fa122ea7ce196fa58c3a04611"></a>
 ### [@babel/helper-module-transforms](https://www.npmjs.com/package/@babel/helper-module-transforms) (version 7.9.0)
-<!-- initially found at packages/async-rewriter/node_modules/@babel/helper-module-transforms -->
+<!-- initially found at packages/async-rewriter2/node_modules/@babel/helper-module-transforms -->
 > Babel helper functions for implementing ES6 module transformations
 
 License tags: MIT
@@ -878,7 +828,7 @@ License files:
 
 <a id="846400c1e6ac71119398201793c8df21ae11b18bb903aa8b1c662dec78f084f9"></a>
 ### [@babel/helper-optimise-call-expression](https://www.npmjs.com/package/@babel/helper-optimise-call-expression) (version 7.8.3)
-<!-- initially found at packages/async-rewriter/node_modules/@babel/helper-optimise-call-expression -->
+<!-- initially found at packages/async-rewriter2/node_modules/@babel/helper-optimise-call-expression -->
 > Helper function to optimise call expression
 
 License tags: MIT
@@ -909,44 +859,6 @@ License files:
       OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
       WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       
-
-
-<a id="c4fdc2e17cad51ddc23da4bbb92eded297e0119492b93df3f622cf338ba1cb67"></a>
-### [@babel/helper-plugin-utils](https://www.npmjs.com/package/@babel/helper-plugin-utils) (version 7.8.3)
-<!-- initially found at packages/async-rewriter/node_modules/@babel/helper-plugin-utils -->
-> General utilities for plugins to use
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      MIT License
-      
-      Copyright (c) 2014-present Sebastian McKenzie and other contributors
-      
-      Permission is hereby granted, free of charge, to any person obtaining
-      a copy of this software and associated documentation files (the
-      "Software"), to deal in the Software without restriction, including
-      without limitation the rights to use, copy, modify, merge, publish,
-      distribute, sublicense, and/or sell copies of the Software, and to
-      permit persons to whom the Software is furnished to do so, subject to
-      the following conditions:
-      
-      The above copyright notice and this permission notice shall be
-      included in all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-      NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-      LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-      OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-      WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-      
-
-Authors:
-* Logan Smyth <loganfsmyth@gmail.com>
 
 
 <a id="877a04ce1fc733666ab60849154ca832c1b6c29050e749f5d1d87c2662a0eabb"></a>
@@ -1024,7 +936,7 @@ License files:
 
 <a id="1cd430db425a3b1d9ae85ec67c5e83abf70c4056caf39f4d759e1a572f760f4c"></a>
 ### [@babel/helper-replace-supers](https://www.npmjs.com/package/@babel/helper-replace-supers) (version 7.8.6)
-<!-- initially found at packages/async-rewriter/node_modules/@babel/helper-replace-supers -->
+<!-- initially found at packages/async-rewriter2/node_modules/@babel/helper-replace-supers -->
 > Helper function to replace supers
 
 License tags: MIT
@@ -1097,7 +1009,7 @@ Authors:
 
 <a id="77a7269c88e9d5037d10d8cd914bfda03619a7ecb09a9d824575ceaa40dfcc79"></a>
 ### [@babel/helper-simple-access](https://www.npmjs.com/package/@babel/helper-simple-access) (version 7.8.3)
-<!-- initially found at packages/async-rewriter/node_modules/@babel/helper-simple-access -->
+<!-- initially found at packages/async-rewriter2/node_modules/@babel/helper-simple-access -->
 > Babel helper for ensuring that access to a given value is performed through simple accesses
 
 License tags: MIT
@@ -1168,7 +1080,7 @@ License files:
 
 <a id="e757aa8ea8f79dc382143f1990bf55bc1a39bc5bb777bd2d5676288e72571962"></a>
 ### [@babel/helper-split-export-declaration](https://www.npmjs.com/package/@babel/helper-split-export-declaration) (version 7.8.3)
-<!-- initially found at packages/async-rewriter/node_modules/@babel/helper-split-export-declaration -->
+<!-- initially found at packages/async-rewriter2/node_modules/@babel/helper-split-export-declaration -->
 License tags: MIT
 
 License files:
@@ -1236,7 +1148,7 @@ License files:
 
 <a id="476c70671fc2e58e0a2e9e3cad8a8342cd57c43fc60526b59d51c7053c4553b1"></a>
 ### [@babel/helper-validator-identifier](https://www.npmjs.com/package/@babel/helper-validator-identifier) (version 7.9.5)
-<!-- initially found at packages/async-rewriter/node_modules/@babel/helper-validator-identifier -->
+<!-- initially found at packages/async-rewriter2/node_modules/@babel/helper-validator-identifier -->
 > Validate identifier/keywords name
 
 License tags: MIT
@@ -1309,7 +1221,7 @@ Authors:
 
 <a id="ad57f9c0d647c683a006a4dee6f58652089bf1b5e56f17d9543588bf3e2b66dc"></a>
 ### [@babel/helpers](https://www.npmjs.com/package/@babel/helpers) (version 7.9.2)
-<!-- initially found at packages/async-rewriter/node_modules/@babel/helpers -->
+<!-- initially found at packages/async-rewriter2/node_modules/@babel/helpers -->
 > Collection of helper functions used by Babel transforms.
 
 License tags: MIT
@@ -1385,7 +1297,7 @@ Authors:
 
 <a id="46f12c84589d48e32f9fc6f821458febe7493a3182357a8c463188c502463738"></a>
 ### [@babel/highlight](https://www.npmjs.com/package/@babel/highlight) (version 7.9.0)
-<!-- initially found at packages/async-rewriter/node_modules/@babel/highlight -->
+<!-- initially found at packages/async-rewriter2/node_modules/@babel/highlight -->
 > Syntax highlight JavaScript strings for output in terminals.
 
 License tags: MIT
@@ -1458,7 +1370,7 @@ Authors:
 
 <a id="480716ecf84b1db6000fe1506ad0305ae049408898bb6958cf2ffefda703cbbf"></a>
 ### [@babel/parser](https://www.npmjs.com/package/@babel/parser) (version 7.9.4)
-<!-- initially found at packages/async-rewriter/node_modules/@babel/parser -->
+<!-- initially found at packages/async-rewriter2/node_modules/@babel/parser -->
 > A JavaScript parser
 
 License tags: MIT
@@ -1489,41 +1401,6 @@ License files:
 
 Authors:
 * Sebastian McKenzie <sebmck@gmail.com>
-
-
-<a id="61b503ffc42bed5a83a3af74bb4fe5fa4f36d1e948df433ee8714864709faacf"></a>
-### [@babel/plugin-syntax-typescript](https://www.npmjs.com/package/@babel/plugin-syntax-typescript) (version 7.8.3)
-<!-- initially found at packages/async-rewriter/node_modules/@babel/plugin-syntax-typescript -->
-> Allow parsing of TypeScript syntax
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      MIT License
-      
-      Copyright (c) 2014-present Sebastian McKenzie and other contributors
-      
-      Permission is hereby granted, free of charge, to any person obtaining
-      a copy of this software and associated documentation files (the
-      "Software"), to deal in the Software without restriction, including
-      without limitation the rights to use, copy, modify, merge, publish,
-      distribute, sublicense, and/or sell copies of the Software, and to
-      permit persons to whom the Software is furnished to do so, subject to
-      the following conditions:
-      
-      The above copyright notice and this permission notice shall be
-      included in all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-      NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-      LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-      OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-      WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-      
 
 
 <a id="b9b521a7cce4df58c251257a9cc7a99ba8c05aa24020e5045df5d3433eeaa21d"></a>
@@ -1631,76 +1508,6 @@ License files:
       
 
 
-<a id="a0930c2586cefefa278074cad470e81ce816cd623e6586ae3702b2af72589ed6"></a>
-### [@babel/plugin-transform-typescript](https://www.npmjs.com/package/@babel/plugin-transform-typescript) (version 7.9.4)
-<!-- initially found at packages/async-rewriter/node_modules/@babel/plugin-transform-typescript -->
-> Transform TypeScript into ES.next
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      MIT License
-      
-      Copyright (c) 2014-present Sebastian McKenzie and other contributors
-      
-      Permission is hereby granted, free of charge, to any person obtaining
-      a copy of this software and associated documentation files (the
-      "Software"), to deal in the Software without restriction, including
-      without limitation the rights to use, copy, modify, merge, publish,
-      distribute, sublicense, and/or sell copies of the Software, and to
-      permit persons to whom the Software is furnished to do so, subject to
-      the following conditions:
-      
-      The above copyright notice and this permission notice shall be
-      included in all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-      NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-      LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-      OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-      WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-      
-
-
-<a id="d9c53716f1d63c864283e2749ff8a6bf1f1b55b846e16cabd23c81d90a4902d6"></a>
-### [@babel/preset-typescript](https://www.npmjs.com/package/@babel/preset-typescript) (version 7.9.0)
-<!-- initially found at packages/async-rewriter/node_modules/@babel/preset-typescript -->
-> Babel preset for TypeScript.
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      MIT License
-      
-      Copyright (c) 2014-present Sebastian McKenzie and other contributors
-      
-      Permission is hereby granted, free of charge, to any person obtaining
-      a copy of this software and associated documentation files (the
-      "Software"), to deal in the Software without restriction, including
-      without limitation the rights to use, copy, modify, merge, publish,
-      distribute, sublicense, and/or sell copies of the Software, and to
-      permit persons to whom the Software is furnished to do so, subject to
-      the following conditions:
-      
-      The above copyright notice and this permission notice shall be
-      included in all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-      NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-      LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-      OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-      WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-      
-
-
 <a id="5cfc9108658d15bd8579195c4be3f95bf50c2126428e2a9bfc59ae32b50fad83"></a>
 ### [@babel/template](https://www.npmjs.com/package/@babel/template) (version 7.12.13)
 <!-- initially found at packages/cli-repl/node_modules/@babel/template -->
@@ -1741,7 +1548,7 @@ Authors:
 
 <a id="831304a27746f47ad530cde5042679089b6440ed9b6713742afb5ba5b9900dec"></a>
 ### [@babel/template](https://www.npmjs.com/package/@babel/template) (version 7.8.6)
-<!-- initially found at packages/async-rewriter/node_modules/@babel/template -->
+<!-- initially found at packages/async-rewriter2/node_modules/@babel/template -->
 > Generate an AST from a string template.
 
 License tags: MIT
@@ -1817,7 +1624,7 @@ Authors:
 
 <a id="645f43c4b43e54c2302efd47bed733ce344de7a79c858f356dfc74ca96ebca89"></a>
 ### [@babel/traverse](https://www.npmjs.com/package/@babel/traverse) (version 7.9.5)
-<!-- initially found at packages/async-rewriter/node_modules/@babel/traverse -->
+<!-- initially found at packages/async-rewriter2/node_modules/@babel/traverse -->
 > The Babel Traverse module maintains the overall tree state, and is responsible for replacing, removing, and adding nodes
 
 License tags: MIT
@@ -1893,7 +1700,7 @@ Authors:
 
 <a id="76081e1a91970048ea70546e509b9c1a5f943ff10f03b7e0ea49e962a26bca42"></a>
 ### [@babel/types](https://www.npmjs.com/package/@babel/types) (version 7.9.5)
-<!-- initially found at packages/async-rewriter/node_modules/@babel/types -->
+<!-- initially found at packages/async-rewriter2/node_modules/@babel/types -->
 > Babel Types is a Lodash-esque utility library for AST nodes
 
 License tags: MIT
@@ -1927,220 +1734,6 @@ License files:
 
 Authors:
 * Sebastian McKenzie <sebmck@gmail.com>
-
-
-<a id="6d08ea79053718e2c69ad2e0fa40a16f270a8247e2e407decd3d5c988a03c24c"></a>
-### [@mongosh/async-rewriter](https://www.npmjs.com/package/@mongosh/async-rewriter) (version 0.0.0-dev.0)
-<!-- initially found at packages/async-rewriter -->
-> MongoDB Shell Async Rewriter Package
-
-License tags: Apache-2.0
-
-License files:
-* LICENSE:
-
-      
-                                       Apache License
-                                 Version 2.0, January 2004
-                              http://www.apache.org/licenses/
-      
-         TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
-      
-         1. Definitions.
-      
-            "License" shall mean the terms and conditions for use, reproduction,
-            and distribution as defined by Sections 1 through 9 of this document.
-      
-            "Licensor" shall mean the copyright owner or entity authorized by
-            the copyright owner that is granting the License.
-      
-            "Legal Entity" shall mean the union of the acting entity and all
-            other entities that control, are controlled by, or are under common
-            control with that entity. For the purposes of this definition,
-            "control" means (i) the power, direct or indirect, to cause the
-            direction or management of such entity, whether by contract or
-            otherwise, or (ii) ownership of fifty percent (50%) or more of the
-            outstanding shares, or (iii) beneficial ownership of such entity.
-      
-            "You" (or "Your") shall mean an individual or Legal Entity
-            exercising permissions granted by this License.
-      
-            "Source" form shall mean the preferred form for making modifications,
-            including but not limited to software source code, documentation
-            source, and configuration files.
-      
-            "Object" form shall mean any form resulting from mechanical
-            transformation or translation of a Source form, including but
-            not limited to compiled object code, generated documentation,
-            and conversions to other media types.
-      
-            "Work" shall mean the work of authorship, whether in Source or
-            Object form, made available under the License, as indicated by a
-            copyright notice that is included in or attached to the work
-            (an example is provided in the Appendix below).
-      
-            "Derivative Works" shall mean any work, whether in Source or Object
-            form, that is based on (or derived from) the Work and for which the
-            editorial revisions, annotations, elaborations, or other modifications
-            represent, as a whole, an original work of authorship. For the purposes
-            of this License, Derivative Works shall not include works that remain
-            separable from, or merely link (or bind by name) to the interfaces of,
-            the Work and Derivative Works thereof.
-      
-            "Contribution" shall mean any work of authorship, including
-            the original version of the Work and any modifications or additions
-            to that Work or Derivative Works thereof, that is intentionally
-            submitted to Licensor for inclusion in the Work by the copyright owner
-            or by an individual or Legal Entity authorized to submit on behalf of
-            the copyright owner. For the purposes of this definition, "submitted"
-            means any form of electronic, verbal, or written communication sent
-            to the Licensor or its representatives, including but not limited to
-            communication on electronic mailing lists, source code control systems,
-            and issue tracking systems that are managed by, or on behalf of, the
-            Licensor for the purpose of discussing and improving the Work, but
-            excluding communication that is conspicuously marked or otherwise
-            designated in writing by the copyright owner as "Not a Contribution."
-      
-            "Contributor" shall mean Licensor and any individual or Legal Entity
-            on behalf of whom a Contribution has been received by Licensor and
-            subsequently incorporated within the Work.
-      
-         2. Grant of Copyright License. Subject to the terms and conditions of
-            this License, each Contributor hereby grants to You a perpetual,
-            worldwide, non-exclusive, no-charge, royalty-free, irrevocable
-            copyright license to reproduce, prepare Derivative Works of,
-            publicly display, publicly perform, sublicense, and distribute the
-            Work and such Derivative Works in Source or Object form.
-      
-         3. Grant of Patent License. Subject to the terms and conditions of
-            this License, each Contributor hereby grants to You a perpetual,
-            worldwide, non-exclusive, no-charge, royalty-free, irrevocable
-            (except as stated in this section) patent license to make, have made,
-            use, offer to sell, sell, import, and otherwise transfer the Work,
-            where such license applies only to those patent claims licensable
-            by such Contributor that are necessarily infringed by their
-            Contribution(s) alone or by combination of their Contribution(s)
-            with the Work to which such Contribution(s) was submitted. If You
-            institute patent litigation against any entity (including a
-            cross-claim or counterclaim in a lawsuit) alleging that the Work
-            or a Contribution incorporated within the Work constitutes direct
-            or contributory patent infringement, then any patent licenses
-            granted to You under this License for that Work shall terminate
-            as of the date such litigation is filed.
-      
-         4. Redistribution. You may reproduce and distribute copies of the
-            Work or Derivative Works thereof in any medium, with or without
-            modifications, and in Source or Object form, provided that You
-            meet the following conditions:
-      
-            (a) You must give any other recipients of the Work or
-                Derivative Works a copy of this License; and
-      
-            (b) You must cause any modified files to carry prominent notices
-                stating that You changed the files; and
-      
-            (c) You must retain, in the Source form of any Derivative Works
-                that You distribute, all copyright, patent, trademark, and
-                attribution notices from the Source form of the Work,
-                excluding those notices that do not pertain to any part of
-                the Derivative Works; and
-      
-            (d) If the Work includes a "NOTICE" text file as part of its
-                distribution, then any Derivative Works that You distribute must
-                include a readable copy of the attribution notices contained
-                within such NOTICE file, excluding those notices that do not
-                pertain to any part of the Derivative Works, in at least one
-                of the following places: within a NOTICE text file distributed
-                as part of the Derivative Works; within the Source form or
-                documentation, if provided along with the Derivative Works; or,
-                within a display generated by the Derivative Works, if and
-                wherever such third-party notices normally appear. The contents
-                of the NOTICE file are for informational purposes only and
-                do not modify the License. You may add Your own attribution
-                notices within Derivative Works that You distribute, alongside
-                or as an addendum to the NOTICE text from the Work, provided
-                that such additional attribution notices cannot be construed
-                as modifying the License.
-      
-            You may add Your own copyright statement to Your modifications and
-            may provide additional or different license terms and conditions
-            for use, reproduction, or distribution of Your modifications, or
-            for any such Derivative Works as a whole, provided Your use,
-            reproduction, and distribution of the Work otherwise complies with
-            the conditions stated in this License.
-      
-         5. Submission of Contributions. Unless You explicitly state otherwise,
-            any Contribution intentionally submitted for inclusion in the Work
-            by You to the Licensor shall be under the terms and conditions of
-            this License, without any additional terms or conditions.
-            Notwithstanding the above, nothing herein shall supersede or modify
-            the terms of any separate license agreement you may have executed
-            with Licensor regarding such Contributions.
-      
-         6. Trademarks. This License does not grant permission to use the trade
-            names, trademarks, service marks, or product names of the Licensor,
-            except as required for reasonable and customary use in describing the
-            origin of the Work and reproducing the content of the NOTICE file.
-      
-         7. Disclaimer of Warranty. Unless required by applicable law or
-            agreed to in writing, Licensor provides the Work (and each
-            Contributor provides its Contributions) on an "AS IS" BASIS,
-            WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
-            implied, including, without limitation, any warranties or conditions
-            of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
-            PARTICULAR PURPOSE. You are solely responsible for determining the
-            appropriateness of using or redistributing the Work and assume any
-            risks associated with Your exercise of permissions under this License.
-      
-         8. Limitation of Liability. In no event and under no legal theory,
-            whether in tort (including negligence), contract, or otherwise,
-            unless required by applicable law (such as deliberate and grossly
-            negligent acts) or agreed to in writing, shall any Contributor be
-            liable to You for damages, including any direct, indirect, special,
-            incidental, or consequential damages of any character arising as a
-            result of this License or out of the use or inability to use the
-            Work (including but not limited to damages for loss of goodwill,
-            work stoppage, computer failure or malfunction, or any and all
-            other commercial damages or losses), even if such Contributor
-            has been advised of the possibility of such damages.
-      
-         9. Accepting Warranty or Additional Liability. While redistributing
-            the Work or Derivative Works thereof, You may choose to offer,
-            and charge a fee for, acceptance of support, warranty, indemnity,
-            or other liability obligations and/or rights consistent with this
-            License. However, in accepting such obligations, You may act only
-            on Your own behalf and on Your sole responsibility, not on behalf
-            of any other Contributor, and only if You agree to indemnify,
-            defend, and hold each Contributor harmless for any liability
-            incurred by, or claims asserted against, such Contributor by reason
-            of your accepting any such warranty or additional liability.
-      
-         END OF TERMS AND CONDITIONS
-      
-         APPENDIX: How to apply the Apache License to your work.
-      
-            To apply the Apache License to your work, attach the following
-            boilerplate notice, with the fields enclosed by brackets "[]"
-            replaced with your own identifying information. (Don't include
-            the brackets!)  The text should be enclosed in the appropriate
-            comment syntax for the file format. We also recommend that a
-            file or class name and description of purpose be included on the
-            same "printed page" as the copyright notice for easier
-            identification within third-party archives.
-      
-         Copyright [yyyy] [name of copyright owner]
-      
-         Licensed under the Apache License, Version 2.0 (the "License");
-         you may not use this file except in compliance with the License.
-         You may obtain a copy of the License at
-      
-             http://www.apache.org/licenses/LICENSE-2.0
-      
-         Unless required by applicable law or agreed to in writing, software
-         distributed under the License is distributed on an "AS IS" BASIS,
-         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-         See the License for the specific language governing permissions and
-         limitations under the License.
 
 
 <a id="69676fe7ebd86bf4fddf69d015a9de3d5e5657481207dc3738ed4219996b4217"></a>
@@ -4120,7 +3713,7 @@ License files:
 
 <a id="74a0353d0e3227a8e1e4f1c29d810aefafdfd2679762b59996ee28ddd1a008ec"></a>
 ### [@types/babel__core](https://www.npmjs.com/package/@types/babel__core) (version 7.1.7)
-<!-- initially found at packages/async-rewriter/node_modules/@types/babel__core -->
+<!-- initially found at packages/async-rewriter2/node_modules/@types/babel__core -->
 > TypeScript definitions for @babel/core
 
 License tags: MIT
@@ -4160,7 +3753,7 @@ Authors:
 
 <a id="d3fbd875008bdfda125dbf2781e0248695257bc85e78882ad19dd086172545b6"></a>
 ### [@types/babel__generator](https://www.npmjs.com/package/@types/babel__generator) (version 7.6.1)
-<!-- initially found at packages/async-rewriter/node_modules/@types/babel__generator -->
+<!-- initially found at packages/async-rewriter2/node_modules/@types/babel__generator -->
 > TypeScript definitions for @babel/generator
 
 License tags: MIT
@@ -4201,7 +3794,7 @@ Authors:
 
 <a id="110825ba6017a170947005a99c10ee39b97f9592fc63852d21d94999b56a1919"></a>
 ### [@types/babel__template](https://www.npmjs.com/package/@types/babel__template) (version 7.0.2)
-<!-- initially found at packages/async-rewriter/node_modules/@types/babel__template -->
+<!-- initially found at packages/async-rewriter2/node_modules/@types/babel__template -->
 > TypeScript definitions for @babel/template
 
 License tags: MIT
@@ -4240,7 +3833,7 @@ Authors:
 
 <a id="e79f4e6ca9e366c3b8e3693fb97222e2386e170e4b687036a10910e10573a929"></a>
 ### [@types/babel__traverse](https://www.npmjs.com/package/@types/babel__traverse) (version 7.0.10)
-<!-- initially found at packages/async-rewriter/node_modules/@types/babel__traverse -->
+<!-- initially found at packages/async-rewriter2/node_modules/@types/babel__traverse -->
 > TypeScript definitions for @babel/traverse
 
 License tags: MIT
@@ -4448,40 +4041,6 @@ License files:
       
 
 
-<a id="796c5ed810f55c860d6e3eff1b89e111e6c1481a621791a431d37aa5e6498785"></a>
-### [acorn](https://www.npmjs.com/package/acorn) (version 7.4.0)
-<!-- initially found at packages/async-rewriter/node_modules/acorn -->
-> ECMAScript parser
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      MIT License
-      
-      Copyright (C) 2012-2018 by various contributors (see AUTHORS)
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in
-      all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-      THE SOFTWARE.
-      
-
-
 <a id="da3cb6d1c6e6aee8f9491226e5b17e14e4f19efbfb7d9e3340a438304c465361"></a>
 ### [acorn-class-fields](https://www.npmjs.com/package/acorn-class-fields) (version 0.3.7)
 <!-- initially found at packages/cli-repl/node_modules/acorn-class-fields -->
@@ -4517,79 +4076,9 @@ Authors:
 * Adrian Heine <mail@adrianheine.de>
 
 
-<a id="496cdf23701b4cdd389942aa99f76bd586c59759d47d2c7292e09f66e9389fb2"></a>
-### [acorn-class-fields](https://www.npmjs.com/package/acorn-class-fields) (version 0.3.2)
-<!-- initially found at packages/async-rewriter/node_modules/acorn-class-fields -->
-> Support for class fields in acorn
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      Copyright (C) 2017-2018 by Adrian Heine
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in
-      all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-      THE SOFTWARE.
-      
-
-Authors:
-* Adrian Heine <mail@adrianheine.de>
-
-
 <a id="6940f4404e355b21617dccb71f5ebcba980bbd438d41f701bfa6a62deb33121c"></a>
 ### [acorn-numeric-separator](https://www.npmjs.com/package/acorn-numeric-separator) (version 0.3.6)
 <!-- initially found at packages/cli-repl/node_modules/acorn-numeric-separator -->
-> Support for numeric separators in acorn
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      Copyright (C) 2017-2018 by Adrian Heine
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in
-      all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-      THE SOFTWARE.
-      
-
-Authors:
-* Adrian Heine <mail@adrianheine.de>
-
-
-<a id="f5d416b26647e20eccb3054cbdf4515cd486536e1b8741e14aa65deaad0fab77"></a>
-### [acorn-numeric-separator](https://www.npmjs.com/package/acorn-numeric-separator) (version 0.3.2)
-<!-- initially found at packages/async-rewriter/node_modules/acorn-numeric-separator -->
 > Support for numeric separators in acorn
 
 License tags: MIT
@@ -4692,41 +4181,6 @@ Authors:
 * Adrian Heine <mail@adrianheine.de>
 
 
-<a id="e853a1a4c53f6f78043ea9d4f29975767993641480cb1051f5cc1c3fbb168e1e"></a>
-### [acorn-private-methods](https://www.npmjs.com/package/acorn-private-methods) (version 0.3.1)
-<!-- initially found at packages/async-rewriter/node_modules/acorn-private-methods -->
-> Support for private methods in acorn
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      Copyright (C) 2017-2018 by Adrian Heine
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in
-      all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-      THE SOFTWARE.
-      
-
-Authors:
-* Adrian Heine <mail@adrianheine.de>
-
-
 <a id="25825f2f734233a80632b67c3114edc2c4957c4967d557be233361e00516f9a3"></a>
 ### [acorn-static-class-features](https://www.npmjs.com/package/acorn-static-class-features) (version 0.2.4)
 <!-- initially found at packages/cli-repl/node_modules/acorn-static-class-features -->
@@ -4760,73 +4214,6 @@ License files:
 
 Authors:
 * Adrian Heine <mail@adrianheine.de>
-
-
-<a id="3c779e09cc5fc745047db9f63c306dacddb5362af521530a4090d32f7677a0fb"></a>
-### [acorn-static-class-features](https://www.npmjs.com/package/acorn-static-class-features) (version 0.2.1)
-<!-- initially found at packages/async-rewriter/node_modules/acorn-static-class-features -->
-> Support for static class features in acorn
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      Copyright (C) 2017-2018 by Adrian Heine
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in
-      all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-      THE SOFTWARE.
-      
-
-Authors:
-* Adrian Heine <mail@adrianheine.de>
-
-
-<a id="cae19f5419e4b407d5e7bc3ee51fb868765bce1deda4733545981262a6ffaff7"></a>
-### [acorn-walk](https://www.npmjs.com/package/acorn-walk) (version 7.2.0)
-<!-- initially found at packages/async-rewriter/node_modules/acorn-walk -->
-> ECMAScript (ESTree) AST walker
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      Copyright (C) 2012-2018 by various contributors (see AUTHORS)
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in
-      all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-      THE SOFTWARE.
-      
 
 
 <a id="e33a68b776c40ffdd39c56840eb80ac1402944026fd57ad4145c082dac7dcc0f"></a>
@@ -6230,7 +5617,7 @@ Authors:
 
 <a id="eab5df8b125077c6a2241a15720c42fc45aef8f822c41a5ddd41fb76f63b58ea"></a>
 ### [debug](https://www.npmjs.com/package/debug) (version 4.1.1)
-<!-- initially found at packages/async-rewriter/node_modules/debug -->
+<!-- initially found at packages/async-rewriter2/node_modules/debug -->
 > small debugging utility
 
 License tags: MIT
@@ -7164,7 +6551,7 @@ Authors:
 
 <a id="99646184232b2831d94134eeb068563084125eb3e90532e5ba17117642fa716e"></a>
 ### [gensync](https://www.npmjs.com/package/gensync) (version 1.0.0-beta.1)
-<!-- initially found at packages/async-rewriter/node_modules/gensync -->
+<!-- initially found at packages/async-rewriter2/node_modules/gensync -->
 > Allows users to use generators in order to write common functions that can be both sync or async.
 
 License tags: MIT
@@ -8244,7 +7631,7 @@ Authors:
 
 <a id="444323f82c691a75353d1da9532659aeffd06d9545eae45ab75923bf0dec4a21"></a>
 ### [json5](https://www.npmjs.com/package/json5) (version 2.1.3)
-<!-- initially found at packages/async-rewriter/node_modules/json5 -->
+<!-- initially found at packages/async-rewriter2/node_modules/json5 -->
 > JSON for humans.
 
 License tags: MIT
@@ -11107,7 +10494,7 @@ Authors:
 
 <a id="cfbee28e2a147f6dd071acdfc869d048ce7f5f5dd0e4bd1263cb99aba1c40449"></a>
 ### [resolve](https://www.npmjs.com/package/resolve) (version 1.17.0)
-<!-- initially found at packages/async-rewriter/node_modules/resolve -->
+<!-- initially found at packages/async-rewriter2/node_modules/resolve -->
 > resolve like require.resolve() on behalf of files asynchronously and synchronously
 
 License tags: MIT
