@@ -456,9 +456,11 @@ class MongoshNodeRepl implements EvaluationListener {
 
     const mongodVersion: string = internalState.connectionInfo.buildInfo?.version;
     if (mongodVersion.match(/^(4\.0\.|3\.)\d+/)) {
-      this.output.write(
-        this.clr('\nWARNING: Operations running on the server cannot be killed automatically.\n         Please make sure to kill them manually.', ['bold', 'yellow'])
-      );
+      this.output.write(this.clr(
+        `\nWARNING: Operations running on the server cannot be killed automatically for MongoDB ${mongodVersion}.` +
+        '\n         Please make sure to kill them manually. Killing operations is supported starting with MongoDB 4.1.',
+        ['bold', 'yellow']
+      ));
     }
 
     const fullyInterrupted = await internalState.onInterruptExecution();
