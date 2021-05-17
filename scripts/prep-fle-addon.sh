@@ -35,7 +35,7 @@ echo Using libmongocrypt at git tag "$LIBMONGOCRYPT_VERSION"
 if [ x"$FLE_NODE_SOURCE_PATH" != x"" -a -z "$BUILD_FLE_FROM_SOURCE" ]; then
   # Use prebuilt binaries where available.
   case `uname -a` in
-      Darwin*)                          PREBUILT_OSNAME=macos;;
+      Darwin*x86_64*)                   PREBUILT_OSNAME=macos;;
       Linux*x86_64*)                    PREBUILT_OSNAME=rhel-70-64-bit;;
       Linux*s390x*)                     PREBUILT_OSNAME=rhel72-zseries-test;;
       Linux*aarch64*)                   PREBUILT_OSNAME=ubuntu1804-arm64;;

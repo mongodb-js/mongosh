@@ -10,7 +10,7 @@ export type BuildVariant = `${Distro}-${Arch}`;
 
 export const ALL_BUILD_VARIANTS: readonly BuildVariant[] = Object.freeze([
   'win32-x64', 'win32msi-x64',
-  'darwin-x64',
+  'darwin-x64', 'darwin-arm64',
   'linux-x64', 'linux-s390x', 'linux-arm64', 'linux-ppc64le',
   'debian-x64', 'debian-arm64',
   'rhel-x64', 'rhel-s390x', 'rhel-arm64', 'rhel-ppc64le',
@@ -59,6 +59,7 @@ export function getDownloadCenterDistroDescription(variant: BuildVariant): strin
   switch (variant) {
     case 'win32-x64': return 'Windows 64-bit (8.1+)';
     case 'win32msi-x64': return 'Windows 64-bit (8.1+) (MSI)';
+    case 'darwin-arm64': return 'MacOS M1 (11.0+)';
     case 'darwin-x64': return 'MacOS 64-bit (10.12+)';
     case 'linux-x64': return 'Linux Tarball 64-bit';
     case 'linux-s390x': return 'Linux Tarball s390x';

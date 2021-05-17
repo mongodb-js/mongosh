@@ -4,7 +4,7 @@ import { ALL_BUILD_VARIANTS } from './build-variant';
 describe('BuildVariant', () => {
   describe('all build variants', () => {
     it('has all of them', () => {
-      expect(ALL_BUILD_VARIANTS).to.have.length(15); // 4 × 3 linux + 3 others
+      expect(ALL_BUILD_VARIANTS).to.have.length(16); // 4 × 3 linux + 4 others
       expect(ALL_BUILD_VARIANTS).to.contain('win32-x64');
       expect(ALL_BUILD_VARIANTS).to.contain('win32msi-x64');
       expect(ALL_BUILD_VARIANTS).to.contain('darwin-x64');

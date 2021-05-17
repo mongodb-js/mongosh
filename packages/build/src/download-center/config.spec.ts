@@ -31,8 +31,9 @@ describe('DownloadCenter config', () => {
     it('has an artifact for darwin', () => {
       const [version] = config.versions;
       const platforms = version.platform.filter(p => p.os === 'darwin');
-      expect(platforms).to.have.length(1);
+      expect(platforms).to.have.length(2);
       expect(platforms[0].download_link).to.include('mongosh-1.2.2-darwin-x64.zip');
+      expect(platforms[1].download_link).to.include('mongosh-1.2.2-darwin-arm64.zip');
     });
 
     it('has an artifact for linux', () => {
