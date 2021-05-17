@@ -1660,6 +1660,15 @@ const translations: Catalog = {
               link: 'https://docs.mongodb.com/manual/reference/method/Mongo.getDB',
               description: 'Returns the specified Database of the Mongo object.'
             },
+            getDBs: {
+              link: 'https://docs.mongodb.com/manual/reference/method/Mongo.getDBs',
+              description: 'Returns information about all databases. Uses the listDatabases command.'
+            },
+            getDBNames: {
+              link: 'https://docs.mongodb.com/manual/reference/method/Mongo.getDBs',
+              description: 'Returns an array of all database names. Uses the listDatabases command.',
+              example: 'db.getMongo().getDBNames().map(name => db.getSiblingDB(name).getCollectionNames())'
+            },
             connect: {
               link: 'https://docs.mongodb.com/manual/reference/method/connect',
               description: 'Creates a connection to a MongoDB instance and returns the reference to the database.'

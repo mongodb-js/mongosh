@@ -1744,6 +1744,18 @@ describe('Shell API (integration)', function() {
         expect(internalState.mongos).to.deep.equal([mongo]);
       });
     });
+    describe('getDBs', () => {
+      it('lists all databases', async() => {
+        const result = await mongo.getDBs();
+        expect(result.ok).to.equal(1);
+        expect(result.databases.find(db => db.name === 'admin').sizeOnDisk).to.be.a('number');
+      });
+    });
+    describe('getDBNames', () => {
+      it('lists all database names', async() => {
+        expect(await mongo.getDBNames()).to.include('admin');
+      });
+    });
   });
   describe('PlanCache', () => {
     describe('list', () => {
