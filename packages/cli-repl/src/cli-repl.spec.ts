@@ -799,8 +799,24 @@ describe('CliRepl', () => {
         await waitEval(cliRepl.bus);
       });
 
-      context('for server > 4.0', () => {
-        skipIfServerVersion(testServer, '<= 4.0');
+      context('for server < 4.1', () => {
+        skipIfServerVersion(testServer, '>= 4.1');
+
+        it('prints a warning to manually terminate operations', async() => {
+          input.write('sleep(500); print(db.ctrlc.find({}));\n');
+          await delay(100);
+
+          output = '';
+          process.kill(process.pid, 'SIGINT');
+
+          await waitBus(cliRepl.bus, 'mongosh:interrupt-complete');
+          expect(output).to.match(/^Stopping execution.../m);
+          expect(output).to.match(/^WARNING: Operations running on the server cannot be killed automatically/m);
+        });
+      });
+
+      context('for server >= 4.1', () => {
+        skipIfServerVersion(testServer, '< 4.1');
 
         it('terminates operations on the server side', async() => {
           input.write('db.ctrlc.find({ $where: \'while(true) { /* loop1 */ }\' })\n');

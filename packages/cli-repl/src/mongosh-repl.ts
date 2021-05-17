@@ -454,6 +454,13 @@ class MongoshNodeRepl implements EvaluationListener {
     }
     this.output.write('Stopping execution...');
 
+    const mongodVersion: string = internalState.connectionInfo.buildInfo?.version;
+    if (mongodVersion.match(/^(4\.0\.|3\.)\d+/)) {
+      this.output.write(
+        this.clr('\nWARNING: Operations running on the server cannot be killed automatically.\n         Please make sure to kill them manually.', ['bold', 'yellow'])
+      );
+    }
+
     const fullyInterrupted = await internalState.onInterruptExecution();
     // this is an async interrupt - the evaluation is still running in the background
     // we wait until it finally completes (which should happen immediately)
