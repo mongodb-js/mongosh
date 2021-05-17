@@ -1,4 +1,4 @@
-FROM centos:7
+FROM amazonlinux:2
 
 ARG artifact_url=""
 ADD ${artifact_url} /tmp

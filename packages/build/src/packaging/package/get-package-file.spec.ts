@@ -62,7 +62,7 @@ describe('tarball getPackageFile', () => {
       expect(
         getPackageFile('rhel-x64', { metadata: { version: '1.0.0', rpmName: 'mongodb-mongosh' } } as any)
       ).to.deep.equal({
-        path: 'mongodb-mongosh-1.0.0-x86_64.rpm',
+        path: 'mongodb-mongosh-1.0.0.el7.x86_64.rpm',
         contentType: 'application/x-rpm'
       });
     });
