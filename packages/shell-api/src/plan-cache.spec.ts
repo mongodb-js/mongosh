@@ -31,9 +31,6 @@ describe('PlanCache', () => {
         shellCommandCompleter: undefined
       });
     });
-    it('hasAsyncChild', () => {
-      expect(signatures.PlanCache.hasAsyncChild).to.equal(true);
-    });
   });
   describe('Metadata', () => {
     describe('toShellResult', () => {

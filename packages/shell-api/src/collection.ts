@@ -2,7 +2,6 @@
 import Mongo from './mongo';
 import {
   addSourceToResults,
-  hasAsyncChild,
   Namespace,
   returnsPromise,
   returnType,
@@ -79,7 +78,6 @@ type CollStatsShellOptions = CollStatsOptions & {
 };
 
 @shellApiClassDefault
-@hasAsyncChild
 @addSourceToResults
 export default class Collection extends ShellApiClass {
   _mongo: Mongo;

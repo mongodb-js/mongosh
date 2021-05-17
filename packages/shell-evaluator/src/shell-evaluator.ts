@@ -15,24 +15,13 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
   private internalState: ShellInternalState;
   private resultHandler: ResultHandler<EvaluationResultType>;
   private hasAppliedAsyncWriterRuntimeSupport = true;
+  private asyncWriter: AsyncWriter;
 
   constructor(internalState: ShellInternalState, resultHandler: ResultHandler<EvaluationResultType> = toShellResult as any) {
     this.internalState = internalState;
     this.resultHandler = resultHandler;
-    if (process.env.MONGOSH_ASYNC_REWRITER2 !== '0') {
-      this.internalState.asyncWriter = new AsyncWriter();
-      this.hasAppliedAsyncWriterRuntimeSupport = false;
-    }
-  }
-
-  public revertState(): void {
-    // eslint-disable-next-line chai-friendly/no-unused-expressions
-    (this.internalState.asyncWriter as any)?.symbols?.revertState();
-  }
-
-  public saveState(): void {
-    // eslint-disable-next-line chai-friendly/no-unused-expressions
-    (this.internalState.asyncWriter as any)?.symbols?.saveState();
+    this.asyncWriter = new AsyncWriter();
+    this.hasAppliedAsyncWriterRuntimeSupport = false;
   }
 
   /**
@@ -51,8 +40,7 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
       return shellApi[cmd](...argv);
     }
 
-    this.saveState();
-    let rewrittenInput = this.internalState.asyncWriter.process(input);
+    let rewrittenInput = this.asyncWriter.process(input);
 
     const hiddenCommands = RegExp(HIDDEN_COMMANDS, 'g');
     if (!hiddenCommands.test(input) && !hiddenCommands.test(rewrittenInput)) {
@@ -64,7 +52,7 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
 
     if (!this.hasAppliedAsyncWriterRuntimeSupport) {
       this.hasAppliedAsyncWriterRuntimeSupport = true;
-      const supportCode = (this.internalState.asyncWriter as any).runtimeSupportCode();
+      const supportCode = this.asyncWriter.runtimeSupportCode();
       // Eval twice: We need the modified prototypes to be present in both
       // the evaluation context and the current one, because e.g. the value of
       // db.test.find().toArray() is a Promise for an Array from the context
@@ -75,13 +63,7 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
       rewrittenInput = supportCode + ';\n' + rewrittenInput;
     }
 
-    try {
-      return await originalEval(rewrittenInput, context, filename);
-    } catch (err) {
-      // This is for browser/Compass
-      this.revertState();
-      throw err;
-    }
+    return await originalEval(rewrittenInput, context, filename);
   }
 
   /**

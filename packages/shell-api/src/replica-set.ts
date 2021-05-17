@@ -1,7 +1,6 @@
 import Database from './database';
 import {
   shellApiClassDefault,
-  hasAsyncChild,
   ShellApiClass,
   returnsPromise,
   deprecated
@@ -16,7 +15,6 @@ import { CommandResult } from './result';
 import { redactCredentials } from '@mongosh/history';
 
 @shellApiClassDefault
-@hasAsyncChild
 export default class ReplicaSet extends ShellApiClass {
   _database: Database;
 

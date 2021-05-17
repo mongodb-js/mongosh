@@ -1,7 +1,6 @@
 import type Mongo from './mongo';
 import {
-  shellApiClassDefault,
-  hasAsyncChild
+  shellApiClassDefault
 } from './decorators';
 import type {
   AggregationCursor as ServiceProviderAggregationCursor
@@ -9,7 +8,6 @@ import type {
 import { AbstractCursor } from './abstract-cursor';
 
 @shellApiClassDefault
-@hasAsyncChild
 export default class AggregationCursor extends AbstractCursor {
   _cursor: ServiceProviderAggregationCursor;
 

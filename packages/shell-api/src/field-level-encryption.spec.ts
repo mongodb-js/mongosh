@@ -114,10 +114,6 @@ describe('Field Level Encryption', () => {
         shellCommandCompleter: undefined
       });
     });
-    it('hasAsyncChild', () => {
-      expect(signatures.KeyVault.hasAsyncChild).to.equal(true);
-      expect(signatures.ClientEncryption.hasAsyncChild).to.equal(true);
-    });
   });
   describe('commands', () => {
     beforeEach(() => {

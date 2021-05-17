@@ -1,4 +1,4 @@
-import { hasAsyncChild, returnsPromise, ShellApiClass, shellApiClassDefault, returnType, deprecated } from './decorators';
+import { returnsPromise, ShellApiClass, shellApiClassDefault, returnType, deprecated } from './decorators';
 import Mongo from './mongo';
 import { CommonErrors, MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
 import {
@@ -131,7 +131,6 @@ export class BulkFindOp extends ShellApiClass {
 
 
 @shellApiClassDefault
-@hasAsyncChild
 export default class Bulk extends ShellApiClass {
   _mongo: Mongo;
   _collection: Collection;

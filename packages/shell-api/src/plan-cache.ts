@@ -1,5 +1,4 @@
 import {
-  hasAsyncChild,
   returnsPromise,
   serverVersions,
   ShellApiClass,
@@ -12,7 +11,6 @@ import { asPrintable, ServerVersions } from './enums';
 import { MongoshDeprecatedError } from '@mongosh/errors';
 
 @shellApiClassDefault
-@hasAsyncChild
 export default class PlanCache extends ShellApiClass {
   _collection: Collection;
 

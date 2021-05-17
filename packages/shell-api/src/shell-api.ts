@@ -1,6 +1,5 @@
 import {
   shellApiClassDefault,
-  hasAsyncChild,
   ShellApiClass,
   returnsPromise,
   returnType,
@@ -30,7 +29,6 @@ const internalStateSymbol = Symbol.for('@@mongosh.internalState');
 const loadCallNestingLevelSymbol = Symbol.for('@@mongosh.loadCallNestingLevel');
 
 @shellApiClassDefault
-@hasAsyncChild
 class ShellConfig extends ShellApiClass {
   _internalState: ShellInternalState;
   defaults: Readonly<ShellUserConfig>;
@@ -92,7 +90,6 @@ async function showCompleter(params: ShellCommandAutocompleteParameters, args: s
 }
 
 @shellApiClassDefault
-@hasAsyncChild
 export default class ShellApi extends ShellApiClass {
   // Use symbols to make sure these are *not* among the things copied over into
   // the global scope.

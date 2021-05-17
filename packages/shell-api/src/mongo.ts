@@ -10,7 +10,7 @@ import {
 import {
   classPlatforms,
   classReturnsPromise,
-  hasAsyncChild, platforms,
+  platforms,
   returnsPromise,
   returnType,
   serverVersions,
@@ -53,7 +53,6 @@ import {
 import { ShellApiErrors } from './error-codes';
 
 @shellApiClassDefault
-@hasAsyncChild
 @classReturnsPromise
 @classPlatforms([ ReplPlatform.CLI ] )
 export default class Mongo extends ShellApiClass {

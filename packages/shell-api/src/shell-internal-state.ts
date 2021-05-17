@@ -1,4 +1,3 @@
-import AsyncWriter from '@mongosh/async-rewriter';
 import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
 import {
   AutoEncryptionOptions,
@@ -25,9 +24,7 @@ import {
   ReplicaSet,
   Shard,
   ShellApi,
-  ShellResult,
-  signatures,
-  toIterator
+  ShellResult
 } from './index';
 import NoDatabase from './no-db';
 import constructShellBson from './shell-bson';
@@ -98,7 +95,6 @@ export default class ShellInternalState {
   public currentCursor: Cursor | AggregationCursor | ChangeStreamCursor | null;
   public currentDb: Database;
   public messageBus: MongoshBus;
-  public asyncWriter: { process(code: string): string };
   public initialServiceProvider: ServiceProvider; // the initial service provider
   public connectionInfo: any;
   public context: any;
@@ -113,7 +109,6 @@ export default class ShellInternalState {
   constructor(initialServiceProvider: ServiceProvider, messageBus: any = new EventEmitter(), cliOptions: ShellCliOptions = {}) {
     this.initialServiceProvider = initialServiceProvider;
     this.messageBus = messageBus;
-    this.asyncWriter = new AsyncWriter(signatures);
     this.shellApi = new ShellApi(this);
     this.shellBson = constructShellBson(initialServiceProvider.bsonLibrary, (msg: string) => {
       if (this.context.print) {
@@ -164,8 +159,7 @@ export default class ShellInternalState {
   }
 
   /**
-   * Prepare a `contextObject` as global context and set it as context
-   * Add each attribute to the AsyncWriter also.
+   * Prepare a `contextObject` as global context and set it as context.
    *
    * The `contextObject` is prepared so that it can be used as global object
    * for the repl evaluation.
@@ -177,10 +171,9 @@ export default class ShellInternalState {
    */
   setCtx(contextObject: any): void {
     this.context = contextObject;
-    contextObject.toIterator = toIterator;
     Object.assign(contextObject, this.shellApi);
     for (const name of Object.getOwnPropertyNames(ShellApi.prototype)) {
-      if (toIgnore.concat(['hasAsyncChild', 'help']).includes(name) ||
+      if (toIgnore.concat(['help']).includes(name) ||
         typeof (this.shellApi as any)[name] !== 'function') {
         continue;
       }
@@ -203,18 +196,6 @@ export default class ShellInternalState {
 
     contextObject.rs = new ReplicaSet(this.currentDb);
     contextObject.sh = new Shard(this.currentDb);
-
-    // Add global shell objects
-    const apiObjects = {
-      db: signatures.Database,
-      rs: signatures.ReplicaSet,
-      sh: signatures.Shard,
-      config: signatures.ShellConfig
-    } as any;
-    Object.assign(apiObjects, signatures.ShellApi.attributes);
-    delete apiObjects.Mongo;
-    // eslint-disable-next-line chai-friendly/no-unused-expressions
-    (this.asyncWriter as any)?.symbols?.initializeApiObjects(apiObjects);
 
     const setFunc = (newDb: any): Database => {
       if (getShellApiType(newDb) !== 'Database') {

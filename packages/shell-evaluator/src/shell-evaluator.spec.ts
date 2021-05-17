@@ -23,13 +23,7 @@ describe('ShellEvaluator', () => {
     exitSpy = sinon.spy();
     internalStateMock = {
       messageBus: busMock,
-      shellApi: { use: useSpy, show: showSpy, it: itSpy, exit: exitSpy, quit: exitSpy },
-      asyncWriter: {
-        process: (i: string): string => (i),
-        symbols: {
-          saveState: sinon.spy(), revertState: sinon.spy()
-        }
-      }
+      shellApi: { use: useSpy, show: showSpy, it: itSpy, exit: exitSpy, quit: exitSpy }
     } as any;
     for (const name of ['use', 'show', 'it', 'exit', 'quit']) {
       internalStateMock.shellApi[name].isDirectShellCommand = true;
@@ -82,30 +76,6 @@ describe('ShellEvaluator', () => {
       expect(originalEval.firstCall.args[0]).to.include('doSomething');
       expect(originalEval.firstCall.args[1]).to.deep.equal({});
       expect(originalEval.firstCall.args[2]).to.equal('');
-    });
-    it('reverts state if error thrown', async() => {
-      const originalEval = (): any => { throw new Error(); };
-      const revertSpy = sinon.spy();
-      const saveSpy = sinon.spy();
-      shellEvaluator.revertState = revertSpy;
-      shellEvaluator.saveState = saveSpy;
-      try {
-        await shellEvaluator.customEval(originalEval, 'anything()', {}, '');
-        // eslint-disable-next-line no-empty
-      } catch (e) {
-      }
-      expect(revertSpy.calledOnce).to.be.true;
-      expect(saveSpy.calledOnce).to.be.true;
-    });
-    it('does not revert state with no error', async() => {
-      const originalEval = (): any => { return 1; };
-      const revertSpy = sinon.spy();
-      const saveSpy = sinon.spy();
-      shellEvaluator.revertState = revertSpy;
-      shellEvaluator.saveState = saveSpy;
-      await shellEvaluator.customEval(originalEval, 'anything()', {}, '');
-      expect(revertSpy.calledOnce).to.be.false;
-      expect(saveSpy.calledOnce).to.be.true;
     });
     it('allows specifying custom result handlers', async() => {
       const shellEvaluator = new ShellEvaluator<string>(internalStateMock, JSON.stringify);

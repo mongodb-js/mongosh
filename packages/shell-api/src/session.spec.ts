@@ -29,7 +29,6 @@ describe('Session', () => {
   describe('signature', () => {
     it('signature for class correct', () => {
       expect(signatures.Session.type).to.equal('Session');
-      expect(signatures.Session.hasAsyncChild).to.equal(true);
     });
     it('map signature', () => {
       expect(signatures.Session.attributes.endSession).to.deep.equal({

@@ -1,6 +1,5 @@
 import {
   classPlatforms,
-  hasAsyncChild,
   returnsPromise,
   returnType,
   ShellApiClass,
@@ -44,7 +43,6 @@ export interface ClientSideFieldLevelEncryptionOptions {
 }
 
 @shellApiClassDefault
-@hasAsyncChild
 @classPlatforms([ ReplPlatform.CLI ] )
 export class ClientEncryption extends ShellApiClass {
   public _mongo: Mongo;
@@ -97,7 +95,6 @@ export class ClientEncryption extends ShellApiClass {
 }
 
 @shellApiClassDefault
-@hasAsyncChild
 @classPlatforms([ ReplPlatform.CLI ] )
 export class KeyVault extends ShellApiClass {
   public _mongo: Mongo;

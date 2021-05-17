@@ -14,9 +14,6 @@ describe('Results', () => {
           it('attributes', () => {
             expect(signatures[res].attributes).to.deep.equal({});
           });
-          it('hasAsyncChild', () => {
-            expect(signatures[res].hasAsyncChild).to.equal(false);
-          });
         });
       });
     });

@@ -2,7 +2,6 @@ import type Collection from './collection';
 import type Mongo from './mongo';
 import ExplainableCursor from './explainable-cursor';
 import {
-  hasAsyncChild,
   returnsPromise,
   returnType,
   ShellApiClass,
@@ -30,7 +29,6 @@ import type {
 } from '@mongosh/service-provider-core';
 
 @shellApiClassDefault
-@hasAsyncChild
 export default class Explainable extends ShellApiClass {
   _mongo: Mongo;
   _collection: Collection;
