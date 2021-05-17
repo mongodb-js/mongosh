@@ -5,7 +5,7 @@ import http from 'http';
 import path from 'path';
 import { Duplex, PassThrough } from 'stream';
 import { promisify } from 'util';
-import { MongodSetup, startTestServer } from '../../../testing/integration-testing-hooks';
+import { MongodSetup, skipIfServerVersion, startTestServer } from '../../../testing/integration-testing-hooks';
 import { expect, fakeTTYProps, readReplLogfile, tick, useTmpdir, waitBus, waitCompletion, waitEval } from '../test/repl-helpers';
 import { eventually } from '../test/helpers';
 import CliRepl, { CliReplOptions } from './cli-repl';
@@ -799,49 +799,53 @@ describe('CliRepl', () => {
         await waitEval(cliRepl.bus);
       });
 
-      it('terminates operations on the server side', async() => {
-        input.write('db.ctrlc.find({ $where: \'while(true) { /* loop1 */ }\' })\n');
-        await delay(100);
-        process.kill(process.pid, 'SIGINT');
-        await waitBus(cliRepl.bus, 'mongosh:interrupt-complete');
-        expect(output).to.match(/Stopping execution.../m);
+      context('for server > 4.0', () => {
+        skipIfServerVersion(testServer, '<= 4.0');
 
-        input.write('use admin\n');
-        await waitEval(cliRepl.bus);
+        it('terminates operations on the server side', async() => {
+          input.write('db.ctrlc.find({ $where: \'while(true) { /* loop1 */ }\' })\n');
+          await delay(100);
+          process.kill(process.pid, 'SIGINT');
+          await waitBus(cliRepl.bus, 'mongosh:interrupt-complete');
+          expect(output).to.match(/Stopping execution.../m);
 
-        await eventually(async() => {
-          output = '';
-          input.write('db.aggregate([ {$currentOp: {} }, { $match: { \'command.find\': \'ctrlc\' } }, { $project: { command: 1 } } ])\n');
+          input.write('use admin\n');
           await waitEval(cliRepl.bus);
 
-          expect(output).to.not.include('MongoError');
-          expect(output).to.not.include('loop1');
+          await eventually(async() => {
+            output = '';
+            input.write('db.aggregate([ {$currentOp: {} }, { $match: { \'command.find\': \'ctrlc\' } }, { $project: { command: 1 } } ])\n');
+            await waitEval(cliRepl.bus);
+
+            expect(output).to.not.include('MongoError');
+            expect(output).to.not.include('loop1');
+          });
         });
-      });
 
-      it('terminates operations also for explicitly created Mongo instances', async() => {
-        input.write('dbname = db.getName()\n');
-        await waitEval(cliRepl.bus);
-        input.write(`client = Mongo("${await testServer.connectionString()}")\n`);
-        await waitEval(cliRepl.bus);
-        input.write('clientCtrlcDb = client.getDB(dbname);\n');
-        await waitEval(cliRepl.bus);
-        input.write('clientAdminDb = client.getDB(\'admin\');\n');
-        await waitEval(cliRepl.bus);
-
-        input.write('clientCtrlcDb.ctrlc.find({ $where: \'while(true) { /* loop2 */ }\' })\n');
-        await delay(100);
-        process.kill(process.pid, 'SIGINT');
-        await waitBus(cliRepl.bus, 'mongosh:interrupt-complete');
-        expect(output).to.match(/Stopping execution.../m);
-
-        await eventually(async() => {
-          output = '';
-          input.write('clientAdminDb.aggregate([ {$currentOp: {} }, { $match: { \'command.find\': \'ctrlc\' } }, { $project: { command: 1 } } ])\n');
+        it('terminates operations also for explicitly created Mongo instances', async() => {
+          input.write('dbname = db.getName()\n');
+          await waitEval(cliRepl.bus);
+          input.write(`client = Mongo("${await testServer.connectionString()}")\n`);
+          await waitEval(cliRepl.bus);
+          input.write('clientCtrlcDb = client.getDB(dbname);\n');
+          await waitEval(cliRepl.bus);
+          input.write('clientAdminDb = client.getDB(\'admin\');\n');
           await waitEval(cliRepl.bus);
 
-          expect(output).to.not.include('MongoError');
-          expect(output).to.not.include('loop2');
+          input.write('clientCtrlcDb.ctrlc.find({ $where: \'while(true) { /* loop2 */ }\' })\n');
+          await delay(100);
+          process.kill(process.pid, 'SIGINT');
+          await waitBus(cliRepl.bus, 'mongosh:interrupt-complete');
+          expect(output).to.match(/Stopping execution.../m);
+
+          await eventually(async() => {
+            output = '';
+            input.write('clientAdminDb.aggregate([ {$currentOp: {} }, { $match: { \'command.find\': \'ctrlc\' } }, { $project: { command: 1 } } ])\n');
+            await waitEval(cliRepl.bus);
+
+            expect(output).to.not.include('MongoError');
+            expect(output).to.not.include('loop2');
+          });
         });
       });
 
