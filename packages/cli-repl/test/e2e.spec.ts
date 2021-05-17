@@ -909,8 +909,12 @@ describe('e2e', function() {
         shell.assertNoErrors();
       });
 
-      it('can iterate cursors', async() => {
+      it('can iterate cursors', async function() {
         // Make sure SERVER-55593 doesn't happen to us.
+        // This is skipped, because in SERVER-56550 the server switched
+        // to *requiring* an API version for the getMore command used by the
+        // driver, but the driver does not support that yet (NODE-3249).
+        return this.skip();
         const shell = TestShell.start({ args: [
           `${await testServer.connectionString()}/${dbName}`, '--apiVersion', '1'
         ] });
