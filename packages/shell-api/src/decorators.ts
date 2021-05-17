@@ -410,7 +410,7 @@ export function returnsPromise(_target: any, _propertyKey: string, descriptor: P
     try {
       return await originalFunction.call(this, ...args);
     } finally {
-      if (typeof setImmediate === 'function') {
+      if (typeof setTimeout === 'function' && typeof setImmediate === 'function') {
         // Not all JS environments have setImmediate
         await new Promise(setImmediate);
       }
