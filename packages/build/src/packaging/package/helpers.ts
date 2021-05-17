@@ -61,15 +61,19 @@ export async function generateDirFromTemplate(sourceDir: string, interpolations:
         await copyDirAndApplyTemplates(sourceFile, targetFile);
       } else {
         const sourceText = await fs.readFile(sourceFile, 'utf8');
-        const interpolatedText = sourceText.replace(
-          /\{\{(\w+)\}\}/g,
-          (_match, identifier) => {
-            if (!(identifier in interpolations)) {
-              throw new Error(`Need ${identifier} for replacement in ${sourceFile}`);
-            }
-            return interpolations[identifier];
-          });
-        await fs.writeFile(targetFile, interpolatedText);
+        if (!sourceText.includes('\ufffd')) { // This is valid UTF-8, i.e. a text file
+          const interpolatedText = sourceText.replace(
+            /\{\{(\w+)\}\}/g,
+            (_match, identifier) => {
+              if (!(identifier in interpolations)) {
+                throw new Error(`Need ${identifier} for replacement in ${sourceFile}`);
+              }
+              return interpolations[identifier];
+            });
+          await fs.writeFile(targetFile, interpolatedText);
+        } else {
+          await fs.copyFile(sourceFile, targetFile);
+        }
       }
     }
   }
