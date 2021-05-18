@@ -48,6 +48,7 @@ const evaluationListener = createCaller<WorkerRuntimeEvaluationListener>(
     'onPrompt',
     'getConfig',
     'setConfig',
+    'validateConfig',
     'listConfigOptions',
     'onClearCommand',
     'onExit',
