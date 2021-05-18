@@ -429,16 +429,17 @@ describe('e2e', function() {
   describe('Ctrl+C aka SIGINT', () => {
     before(function() {
       if (process.platform === 'win32') {
-        this.skip(); // There is no SIGINT on Windows.
+        return this.skip(); // Cannot trigger SIGINT programmatically on Windows
       }
     });
 
-    let shell;
+    let shell: TestShell;
     beforeEach(async() => {
       shell = TestShell.start({ args: [ '--nodb' ], removeSigintListeners: true });
       await shell.waitForPrompt();
       shell.assertNoErrors();
     });
+
     it('interrupts sync execution', async() => {
       await shell.executeLine('void process.removeAllListeners("SIGINT")');
       const result = shell.executeLine('while(true);');
@@ -450,13 +451,14 @@ describe('e2e', function() {
       const result = shell.executeLine('new Promise(() => {});');
       setTimeout(() => shell.kill('SIGINT'), 3000);
       await result;
-      shell.assertContainsError('interrupted');
+      shell.assertContainsOutput('Stopping execution...');
     });
     it('interrupts load()', async() => {
       const filename = path.resolve(__dirname, 'fixtures', 'load', 'infinite-loop.js');
       const result = shell.executeLine(`load(${JSON.stringify(filename)})`);
       setTimeout(() => shell.kill('SIGINT'), 3000);
       await result;
+      // The while loop in the script is run as "sync" code
       shell.assertContainsError('interrupted');
     });
     it('behaves normally after an exception', async() => {
@@ -466,6 +468,7 @@ describe('e2e', function() {
       await shell.waitForPrompt();
       await new Promise((resolve) => setTimeout(resolve, 100));
       shell.assertNotContainsOutput('interrupted');
+      shell.assertNotContainsOutput('Stopping execution');
     });
   });
 
@@ -847,8 +850,7 @@ describe('e2e', function() {
 
       it('keeps working when the config file is present but not writable', async function() {
         if (process.platform === 'win32' || process.getuid() === 0 || process.geteuid() === 0) {
-          this.skip(); // There is no meaningful chmod on Windows, and root can ignore permissions.
-          return;
+          return this.skip(); // There is no meaningful chmod on Windows, and root can ignore permissions.
         }
         await fs.mkdir(path.dirname(configPath), { recursive: true });
         await fs.writeFile(configPath, '{}');

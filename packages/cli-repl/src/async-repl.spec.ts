@@ -67,11 +67,10 @@ describe('AsyncRepl', () => {
 
   it('allows sync interruption through SIGINT', async function() {
     if (process.platform === 'win32') {
-      this.skip(); // No SIGINT on Windows.
-      return;
+      return this.skip(); // No SIGINT on Windows.
     }
 
-    const { input, output } = createDefaultAsyncRepl({ breakEvalOnSigint: true });
+    const { input, output } = createDefaultAsyncRepl({ onAsyncSigint: () => false });
 
     input.write('while (true) { process.kill(process.pid, "SIGINT"); }\n');
     await expectInStream(output, 'execution was interrupted');
@@ -79,16 +78,17 @@ describe('AsyncRepl', () => {
 
   it('allows async interruption through SIGINT', async function() {
     if (process.platform === 'win32') {
-      this.skip(); // No SIGINT on Windows.
-      return;
+      return this.skip(); // No SIGINT on Windows.
     }
 
-    const { input, output } = createDefaultAsyncRepl({ breakEvalOnSigint: true });
+    const onAsyncSigint = sinon.stub().resolves(false);
+    const { input, output } = createDefaultAsyncRepl({ onAsyncSigint: onAsyncSigint });
 
     input.write('new Promise(oopsIdontResolve => 0)\n');
     await delay(100);
     process.kill(process.pid, 'SIGINT');
     await expectInStream(output, 'execution was interrupted');
+    expect(onAsyncSigint).to.have.been.calledOnce;
   });
 
   it('handles synchronous exceptions well', async() => {

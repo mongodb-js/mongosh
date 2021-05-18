@@ -13,6 +13,9 @@ export class ChildProcessMongoshBus {
         },
         on() {
           throw new Error("Can't use `on` method on ChildProcessMongoshBus");
+        },
+        once() {
+          throw new Error("Can't use `once` method on ChildProcessMongoshBus");
         }
       },
       childProcess

@@ -4,7 +4,7 @@ import { fail } from 'assert';
 import chai, { expect } from 'chai';
 import sinonChai from 'sinon-chai';
 import { EventEmitter } from 'events';
-import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
+import { StubbedInstance, stubInterface } from 'ts-sinon';
 import Bulk, { BulkFindOp } from './bulk';
 import Collection from './collection';
 import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';
@@ -47,8 +47,8 @@ describe('Bulk API', () => {
     });
     describe('Metadata', () => {
       describe('toShellResult', () => {
-        const mongo = sinon.spy();
-        const b = new Bulk(mongo, {
+        const collection = stubInterface<Collection>();
+        const b = new Bulk(collection, {
           batches: [1, 2, 3, 4]
         } as any);
         it('value', async() => {

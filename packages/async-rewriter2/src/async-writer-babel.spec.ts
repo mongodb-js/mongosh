@@ -49,6 +49,11 @@ describe('AsyncWriter', () => {
         return Object.assign(
           Promise.resolve(implicitlyAsyncValue),
           { [Symbol.for('@@mongosh.syntheticPromise')]: true });
+      },
+      throwUncatchable() {
+        throw Object.assign(
+          new Error('uncatchable!'),
+          { [Symbol.for('@@mongosh.uncatchable')]: true });
       }
     });
     runTranspiledCode = (code: string, context?: any) => {
@@ -758,6 +763,184 @@ describe('AsyncWriter', () => {
       ], {
         timeout: 15_000
       });
+    });
+  });
+
+  context('uncatchable exceptions', () => {
+    it('allows catching regular exceptions', () => {
+      const result = runTranspiledCode(`
+      (() => {
+        try {
+          throw new Error('generic error');
+        } catch (err) {
+          return ({ caught: err });
+        }
+      })();`);
+      expect(result.caught.message).to.equal('generic error');
+    });
+
+    it('allows catching regular exceptions with destructuring catch (object)', () => {
+      const result = runTranspiledCode(`
+      (() => {
+        try {
+          throw new Error('generic error');
+        } catch ({ message }) {
+          return ({ caught: message });
+        }
+      })();`);
+      expect(result.caught).to.equal('generic error');
+    });
+
+
+    it('allows catching regular exceptions with destructuring catch (array)', () => {
+      const result = runTranspiledCode(`
+      (() => {
+        try {
+          throw [ 'foo' ];
+        } catch ([message]) {
+          return ({ caught: message });
+        }
+      })();`);
+      expect(result.caught).to.equal('foo');
+    });
+
+    it('allows catching regular exceptions with destructuring catch (assignable)', () => {
+      const result = runTranspiledCode(`
+      (() => {
+        try {
+          throw [ 'foo' ];
+        } catch ([message]) {
+          message = 42;
+          return ({ caught: message });
+        }
+      })();`);
+      expect(result.caught).to.equal(42);
+    });
+
+    it('allows rethrowing regular exceptions', () => {
+      try {
+        runTranspiledCode(`
+        (() => {
+          try {
+            throw new Error('generic error');
+          } catch (err) {
+            throw err;
+          }
+        })();`);
+        expect.fail('missed exception');
+      } catch (err) {
+        expect(err.message).to.equal('generic error');
+      }
+    });
+
+    it('allows returning from finally', () => {
+      const result = runTranspiledCode(`
+      (() => {
+        try {
+          throw new Error('generic error');
+        } catch (err) {
+          return ({ caught: err });
+        } finally {
+          return 'finally';
+        }
+      })();`);
+      expect(result).to.equal('finally');
+    });
+
+    it('allows finally without catch', () => {
+      const result = runTranspiledCode(`
+      (() => {
+        try {
+          throw new Error('generic error');
+        } finally {
+          return 'finally';
+        }
+      })();`);
+      expect(result).to.equal('finally');
+    });
+
+    it('allows throwing primitives', () => {
+      const result = runTranspiledCode(`
+      (() => {
+        try {
+          throw null;
+        } catch (err) {
+          return ({ caught: err });
+        }
+      })();`);
+      expect(result.caught).to.equal(null);
+    });
+
+    it('allows throwing primitives with finally', () => {
+      const result = runTranspiledCode(`
+      (() => {
+        try {
+          throw null;
+        } catch (err) {
+          return ({ caught: err });
+        } finally {
+          return 'finally';
+        }
+      })();`);
+      expect(result).to.equal('finally');
+    });
+
+    it('does not catch uncatchable exceptions', () => {
+      try {
+        runTranspiledCode(`
+        (() => {
+          try {
+            throwUncatchable();
+          } catch (err) {
+            return ({ caught: err });
+          }
+        })();`);
+        expect.fail('missed exception');
+      } catch (err) {
+        expect(err.message).to.equal('uncatchable!');
+      }
+    });
+
+    it('does not catch uncatchable exceptions with empty catch clause', () => {
+      try {
+        runTranspiledCode(`
+        (() => {
+          try {
+            throwUncatchable();
+          } catch { }
+        })();`);
+        expect.fail('missed exception');
+      } catch (err) {
+        expect(err.message).to.equal('uncatchable!');
+      }
+    });
+
+    it('does not catch uncatchable exceptions with finalizer', () => {
+      try {
+        runTranspiledCode(`
+        (() => {
+          try {
+            throwUncatchable();
+          } catch { } finally { return; }
+        })();`);
+        expect.fail('missed exception');
+      } catch (err) {
+        expect(err.message).to.equal('uncatchable!');
+      }
+    });
+
+    it('does not catch uncatchable exceptions with only finalizer', () => {
+      try {
+        runTranspiledCode(`
+        (() => {
+          try {
+            throwUncatchable();
+          } finally { return; }
+        })();`);
+        expect.fail('missed exception');
+      } catch (err) {
+        expect(err.message).to.equal('uncatchable!');
+      }
     });
   });
 });

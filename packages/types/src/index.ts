@@ -92,17 +92,20 @@ export interface MongoshBusEventsMap {
   'mongosh:mongoshrc-load': () => void;
   'mongosh:mongoshrc-mongorc-warn': () => void;
   'mongosh:eval-cli-script': () => void;
+  'mongosh:eval-interrupted': () => void;
   'mongosh:mongocryptd-tryspawn': (ev: MongocryptdTrySpawnEvent) => void;
   'mongosh:mongocryptd-error': (ev: MongocryptdErrorEvent) => void;
   'mongosh:mongocryptd-log': (ev: MongocryptdLogEvent) => void;
   'mongosh:closed': () => void; // For testing.
   'mongosh:eval-complete': () => void; // For testing.
   'mongosh:autocompletion-complete': () => void; // For testing.
+  'mongosh:interrupt-complete': () => void; // For testing.
 }
 
 export interface MongoshBus {
   // TypeScript uses something like this itself for its EventTarget definitions.
   on<K extends keyof MongoshBusEventsMap>(event: K, listener: MongoshBusEventsMap[K]): this;
+  once<K extends keyof MongoshBusEventsMap>(event: K, listener: MongoshBusEventsMap[K]): this;
   emit<K extends keyof MongoshBusEventsMap>(event: K, ...args: MongoshBusEventsMap[K] extends (...args: infer P) => any ? P : never): unknown;
 }
 

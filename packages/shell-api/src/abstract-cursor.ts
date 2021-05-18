@@ -1,9 +1,9 @@
 import {
   shellApiClassNoHelp,
-  ShellApiClass,
-  returnsPromise,
   toShellResult,
-  returnType
+  returnType,
+  ShellApiWithMongoClass,
+  returnsPromise
 } from './decorators';
 import type Mongo from './mongo';
 import type {
@@ -17,7 +17,7 @@ import { CursorIterationResult } from './result';
 import { iterate, validateExplainableVerbosity, markAsExplainOutput } from './helpers';
 
 @shellApiClassNoHelp
-export abstract class AbstractCursor extends ShellApiClass {
+export abstract class AbstractCursor extends ShellApiWithMongoClass {
   _mongo: Mongo;
   abstract _cursor: ServiceProviderAggregationCursor | ServiceProviderCursor;
   _currentIterationResult: CursorIterationResult | null = null;

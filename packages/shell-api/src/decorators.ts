@@ -1,17 +1,17 @@
 /* eslint-disable complexity */
-import Help from './help';
-import {
-  Topologies,
-  ALL_PLATFORMS,
-  ALL_TOPOLOGIES,
-  ALL_SERVER_VERSIONS,
-  shellApiType,
-  asPrintable,
-  namespaceInfo
-} from './enums';
 import { MongoshInternalError } from '@mongosh/errors';
 import type { ReplPlatform } from '@mongosh/service-provider-core';
+import { Mongo, ShellInternalState } from '.';
+import {
+  ALL_PLATFORMS,
+  ALL_SERVER_VERSIONS,
+  ALL_TOPOLOGIES,
+  asPrintable,
+  namespaceInfo, shellApiType, Topologies
+} from './enums';
+import Help from './help';
 import { addHiddenDataProperty } from './helpers';
+import { checkInterrupted } from './interruptor';
 
 const addSourceToResultsSymbol = Symbol.for('@@mongosh.addSourceToResults');
 const resultSource = Symbol.for('@@mongosh.resultSource');
@@ -52,8 +52,11 @@ export interface ShellResult {
   source?: ShellResultSourceInformation;
 }
 
-export class ShellApiClass implements ShellApiInterface {
-  help: any;
+export abstract class ShellApiClass implements ShellApiInterface {
+  public help: any;
+
+  abstract get _internalState(): ShellInternalState;
+
   get [shellApiType](): string {
     throw new MongoshInternalError('Shell API Type did not use decorators');
   }
@@ -65,6 +68,25 @@ export class ShellApiClass implements ShellApiInterface {
       return [...this];
     }
     return { ...this };
+  }
+}
+
+export abstract class ShellApiWithMongoClass extends ShellApiClass {
+  abstract get _mongo(): Mongo;
+
+  get _internalState(): ShellInternalState {
+    // _mongo can be undefined in tests
+    return this._mongo?._internalState;
+  }
+}
+
+export abstract class ShellApiValueClass extends ShellApiClass {
+  get _mongo(): Mongo {
+    throw new MongoshInternalError('Not supported on this value class');
+  }
+
+  get _internalState(): ShellInternalState {
+    throw new MongoshInternalError('Not supported on this value class');
   }
 }
 
@@ -127,6 +149,27 @@ function wrapWithAddSourceToResult(fn: Function): Function {
       return addSource(await fn.call(this, ...args), this);
     }) : function(this: any, ...args: any[]): any {
       return addSource(fn.call(this, ...args), this);
+    };
+  Object.setPrototypeOf(wrapper, Object.getPrototypeOf(fn));
+  Object.defineProperties(wrapper, Object.getOwnPropertyDescriptors(fn));
+  return wrapper;
+}
+
+function wrapWithInterruptChecks<T extends(...args: any[]) => any>(fn: T): (args: Parameters<T>) => ReturnType<T> {
+  const wrapper = (fn as any).returnsPromise ?
+    markImplicitlyAwaited(async function(this: any, ...args: any[]): Promise<any> {
+      const interrupted = checkInterrupted(this);
+      const result = await Promise.race([
+        interrupted ? interrupted.asPromise() : new Promise(() => {}),
+        fn.call(this, ...args)
+      ]);
+      checkInterrupted(this);
+      return result;
+    }) : function(this: any, ...args: any[]): any {
+      checkInterrupted(this);
+      const result = fn.call(this, ...args);
+      checkInterrupted(this);
+      return result;
     };
   Object.setPrototypeOf(wrapper, Object.getPrototypeOf(fn));
   Object.defineProperties(wrapper, Object.getOwnPropertyDescriptors(fn));
@@ -224,6 +267,7 @@ export function shellApiClassGeneric(constructor: Function, hasHelp: boolean): v
     if ((constructor as any)[addSourceToResultsSymbol]) {
       method = wrapWithAddSourceToResult(method);
     }
+    method = wrapWithInterruptChecks(method);
 
     method.serverVersions = method.serverVersions || ALL_SERVER_VERSIONS;
     method.topologies = method.topologies || ALL_TOPOLOGIES;
@@ -359,11 +403,25 @@ export function topologies(topologiesArray: Topologies[]): Function {
 }
 export const nonAsyncFunctionsReturningPromises: string[] = []; // For testing.
 export function returnsPromise(_target: any, _propertyKey: string, descriptor: PropertyDescriptor): void {
-  const orig = descriptor.value;
-  orig.returnsPromise = true;
-  descriptor.value = markImplicitlyAwaited(descriptor.value);
-  if (orig.constructor.name !== 'AsyncFunction') {
-    nonAsyncFunctionsReturningPromises.push(orig.name);
+  const originalFunction = descriptor.value;
+  originalFunction.returnsPromise = true;
+
+  async function wrapper(this: any, ...args: any[]) {
+    try {
+      return await originalFunction.call(this, ...args);
+    } finally {
+      if (typeof setTimeout === 'function' && typeof setImmediate === 'function') {
+        // Not all JS environments have setImmediate
+        await new Promise(setImmediate);
+      }
+    }
+  }
+  Object.setPrototypeOf(wrapper, Object.getPrototypeOf(originalFunction));
+  Object.defineProperties(wrapper, Object.getOwnPropertyDescriptors(originalFunction));
+  descriptor.value = markImplicitlyAwaited(wrapper);
+
+  if (originalFunction.constructor.name !== 'AsyncFunction') {
+    nonAsyncFunctionsReturningPromises.push(originalFunction.name);
   }
 }
 // This is use to mark functions that are executable in the shell in a POSIX-shell-like

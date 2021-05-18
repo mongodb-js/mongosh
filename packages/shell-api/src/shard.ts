@@ -1,7 +1,7 @@
 import Database from './database';
 import {
   shellApiClassDefault,
-  ShellApiClass, returnsPromise, serverVersions
+  returnsPromise, serverVersions, ShellApiWithMongoClass
 } from './decorators';
 
 import type { Document } from '@mongosh/service-provider-core';
@@ -9,14 +9,19 @@ import { assertArgsDefinedType, getConfigDB, getPrintableShardStatus } from './h
 import { ServerVersions, asPrintable } from './enums';
 import { CommandResult, UpdateResult } from './result';
 import { redactCredentials } from '@mongosh/history';
+import Mongo from './mongo';
 
 @shellApiClassDefault
-export default class Shard extends ShellApiClass {
+export default class Shard extends ShellApiWithMongoClass {
   _database: Database;
 
   constructor(database: Database) {
     super();
     this._database = database;
+  }
+
+  get _mongo(): Mongo {
+    return this._database._mongo;
   }
 
   /**

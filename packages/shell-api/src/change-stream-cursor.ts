@@ -2,8 +2,8 @@ import {
   shellApiClassDefault,
   returnsPromise,
   returnType,
-  ShellApiClass,
-  deprecated
+  deprecated,
+  ShellApiWithMongoClass
 } from './decorators';
 import {
   ChangeStream,
@@ -22,7 +22,7 @@ import { printWarning } from './deprecation-warning';
 import Mongo from './mongo';
 
 @shellApiClassDefault
-export default class ChangeStreamCursor extends ShellApiClass {
+export default class ChangeStreamCursor extends ShellApiWithMongoClass {
   _mongo: Mongo;
   _cursor: ChangeStream;
   _currentIterationResult: CursorIterationResult | null = null;

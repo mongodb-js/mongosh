@@ -5,8 +5,9 @@ import http from 'http';
 import path from 'path';
 import { Duplex, PassThrough } from 'stream';
 import { promisify } from 'util';
-import { MongodSetup, startTestServer } from '../../../testing/integration-testing-hooks';
-import { expect, fakeTTYProps, readReplLogfile, useTmpdir, waitBus, waitCompletion, waitEval, tick } from '../test/repl-helpers';
+import { MongodSetup, skipIfServerVersion, startTestServer } from '../../../testing/integration-testing-hooks';
+import { expect, fakeTTYProps, readReplLogfile, tick, useTmpdir, waitBus, waitCompletion, waitEval } from '../test/repl-helpers';
+import { eventually } from '../test/helpers';
 import CliRepl, { CliReplOptions } from './cli-repl';
 import { CliReplErrors } from './error-codes';
 
@@ -178,6 +179,7 @@ describe('CliRepl', () => {
           const filenameA = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'a.js');
           input.write(`load(${JSON.stringify(filenameA)})\n`);
           await waitEval(cliRepl.bus);
+          expect(output).to.contain('Hi!');
           input.write('variableFromA\n');
           await waitEval(cliRepl.bus);
           expect(output).to.include('yes from A');
@@ -187,6 +189,7 @@ describe('CliRepl', () => {
           const filenameB = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'b.js');
           input.write(`load(${JSON.stringify(filenameB)})\n`);
           await waitEval(cliRepl.bus);
+          expect(output).to.contain('Hi!');
           input.write('variableFromA + " " + variableFromB\n');
           await waitEval(cliRepl.bus);
           expect(output).to.include('yes from A yes from A from B');
@@ -230,7 +233,6 @@ describe('CliRepl', () => {
       it('emits error for inaccessible home directory', async function() {
         if (process.platform === 'win32') {
           this.skip(); // TODO: Figure out why this doesn't work on Windows.
-          return;
         }
         cliReplOptions.shellHomePaths.shellRoamingDataPath = '/nonexistent/inaccesible';
         cliReplOptions.shellHomePaths.shellLocalDataPath = '/nonexistent/inaccesible';
@@ -775,6 +777,150 @@ describe('CliRepl', () => {
         input.write('1 + 2\n');
         await waitEval(cliRepl.bus);
         expect(output).to.include('on clirepltest> ');
+      });
+    });
+
+    context('pressing CTRL-C', () => {
+      before(function() {
+        if (process.platform === 'win32') { // cannot trigger SIGINT on Windows
+          this.skip();
+        }
+      });
+
+      beforeEach(async() => {
+        await cliRepl.start(await testServer.connectionString(), {});
+        await tick();
+        input.write('db.ctrlc.insertOne({ hello: "there" })\n');
+        await waitEval(cliRepl.bus);
+      });
+
+      afterEach(async() => {
+        input.write('db.ctrlc.drop()\n');
+        await waitEval(cliRepl.bus);
+      });
+
+      context('for server < 4.1', () => {
+        skipIfServerVersion(testServer, '>= 4.1');
+
+        it('prints a warning to manually terminate operations', async() => {
+          input.write('sleep(500); print(db.ctrlc.find({}));\n');
+          await delay(100);
+
+          output = '';
+          process.kill(process.pid, 'SIGINT');
+
+          await waitBus(cliRepl.bus, 'mongosh:interrupt-complete');
+          expect(output).to.match(/^Stopping execution.../m);
+          expect(output).to.match(/^WARNING: Operations running on the server cannot be killed automatically/m);
+        });
+      });
+
+      context('for server >= 4.1', () => {
+        skipIfServerVersion(testServer, '< 4.1');
+
+        it('terminates operations on the server side', async() => {
+          input.write('db.ctrlc.find({ $where: \'while(true) { /* loop1 */ }\' })\n');
+          await delay(100);
+          process.kill(process.pid, 'SIGINT');
+          await waitBus(cliRepl.bus, 'mongosh:interrupt-complete');
+          expect(output).to.match(/Stopping execution.../m);
+
+          input.write('use admin\n');
+          await waitEval(cliRepl.bus);
+
+          await eventually(async() => {
+            output = '';
+            input.write('db.aggregate([ {$currentOp: {} }, { $match: { \'command.find\': \'ctrlc\' } }, { $project: { command: 1 } } ])\n');
+            await waitEval(cliRepl.bus);
+
+            expect(output).to.not.include('MongoError');
+            expect(output).to.not.include('loop1');
+          });
+        });
+
+        it('terminates operations also for explicitly created Mongo instances', async() => {
+          input.write('dbname = db.getName()\n');
+          await waitEval(cliRepl.bus);
+          input.write(`client = Mongo("${await testServer.connectionString()}")\n`);
+          await waitEval(cliRepl.bus);
+          input.write('clientCtrlcDb = client.getDB(dbname);\n');
+          await waitEval(cliRepl.bus);
+          input.write('clientAdminDb = client.getDB(\'admin\');\n');
+          await waitEval(cliRepl.bus);
+
+          input.write('clientCtrlcDb.ctrlc.find({ $where: \'while(true) { /* loop2 */ }\' })\n');
+          await delay(100);
+          process.kill(process.pid, 'SIGINT');
+          await waitBus(cliRepl.bus, 'mongosh:interrupt-complete');
+          expect(output).to.match(/Stopping execution.../m);
+
+          await eventually(async() => {
+            output = '';
+            input.write('clientAdminDb.aggregate([ {$currentOp: {} }, { $match: { \'command.find\': \'ctrlc\' } }, { $project: { command: 1 } } ])\n');
+            await waitEval(cliRepl.bus);
+
+            expect(output).to.not.include('MongoError');
+            expect(output).to.not.include('loop2');
+          });
+        });
+      });
+
+      it('does not reconnect until the evaluation finishes', async() => {
+        input.write('sleep(500); print(db.ctrlc.find({}));\n');
+        await delay(100);
+
+        output = '';
+        process.kill(process.pid, 'SIGINT');
+
+        await waitBus(cliRepl.bus, 'mongosh:interrupt-complete');
+        expect(output).to.match(/^Stopping execution.../m);
+        expect(output).to.not.include('MongoError');
+        expect(output).to.not.include('MongoshInternalError');
+        expect(output).to.not.include('hello');
+        expect(output).to.match(/>\s+$/);
+
+        output = '';
+        await delay(1000);
+        expect(output).to.be.empty;
+
+        input.write('db.ctrlc.find({})\n');
+        await waitEval(cliRepl.bus);
+        expect(output).to.contain('hello');
+      });
+
+      it('cancels shell API commands that do not use the server', async() => {
+        output = '';
+        input.write('while(true) { print("I am alive"); };\n');
+        await tick();
+        process.kill(process.pid, 'SIGINT');
+
+        await waitBus(cliRepl.bus, 'mongosh:interrupt-complete');
+        expect(output).to.match(/^Stopping execution.../m);
+        expect(output).to.not.include('MongoError');
+        expect(output).to.not.include('Mongosh');
+        expect(output).to.match(/>\s+$/);
+
+        output = '';
+        await delay(100);
+        expect(output).to.not.include('alive');
+      });
+
+      it('ensures user code cannot catch the interrupt exception', async() => {
+        output = '';
+        input.write('nope = false; while(true) { try { print("I am alive"); } catch { nope = true; } };\n');
+        await tick();
+        process.kill(process.pid, 'SIGINT');
+
+        await waitBus(cliRepl.bus, 'mongosh:interrupt-complete');
+        expect(output).to.match(/^Stopping execution.../m);
+        expect(output).to.not.include('MongoError');
+        expect(output).to.not.include('Mongosh');
+        expect(output).to.match(/>\s+$/);
+
+        output = '';
+        input.write('nope\n');
+        await waitEval(cliRepl.bus);
+        expect(output).to.not.contain(true);
       });
     });
   });

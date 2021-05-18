@@ -1,25 +1,25 @@
 import completer from '@mongosh/autocomplete';
 import { MongoshCommandFailed, MongoshInternalError, MongoshWarning } from '@mongosh/errors';
 import { changeHistory } from '@mongosh/history';
-import type { ServiceProvider, AutoEncryptionOptions } from '@mongosh/service-provider-core';
-import { EvaluationListener, ShellCliOptions, ShellInternalState, OnLoadResult } from '@mongosh/shell-api';
+import type { AutoEncryptionOptions, ServiceProvider } from '@mongosh/service-provider-core';
+import { EvaluationListener, OnLoadResult, ShellCliOptions, ShellInternalState } from '@mongosh/shell-api';
 import { ShellEvaluator, ShellResult } from '@mongosh/shell-evaluator';
-import type { MongoshBus, CliUserConfig, ConfigProvider } from '@mongosh/types';
+import type { CliUserConfig, ConfigProvider, MongoshBus } from '@mongosh/types';
 import askpassword from 'askpassword';
 import { Console } from 'console';
 import { once } from 'events';
 import prettyRepl from 'pretty-repl';
 import { ReplOptions, REPLServer, start as replStart } from 'repl';
-import { Readable, Writable, PassThrough } from 'stream';
+import { PassThrough, Readable, Writable } from 'stream';
 import type { ReadStream, WriteStream } from 'tty';
 import { callbackify, promisify } from 'util';
 import * as asyncRepl from './async-repl';
 import clr, { StyleDefinition } from './clr';
 import { MONGOSH_WIKI, TELEMETRY_GREETING_MESSAGE } from './constants';
 import formatOutput, { formatError } from './format-output';
-import { LineByLineInput } from './line-by-line-input';
-import { parseAnyLogEntry, LogEntry } from './log-entry';
 import { makeMultilineJSIntoSingleLine } from './js-multiline-to-singleline';
+import { LineByLineInput } from './line-by-line-input';
+import { LogEntry, parseAnyLogEntry } from './log-entry';
 
 export type MongoshCliOptions = ShellCliOptions & {
   redactInfo?: boolean;
@@ -108,6 +108,8 @@ class MongoshNodeRepl implements EvaluationListener {
   inspectDepth = 0;
   started = false;
   showStackTraces = false;
+  loadNestingLevel = 0;
+
 
   constructor(options: MongoshNodeReplOptions) {
     this.input = options.input;
@@ -146,6 +148,7 @@ class MongoshNodeRepl implements EvaluationListener {
       historySize: await this.getConfig('historyLength'),
       wrapCallbackError:
         (err: Error) => Object.assign(new MongoshInternalError(err.message), { stack: err.stack }),
+      onAsyncSigint: this.onAsyncSigint.bind(this),
       ...this.nodeReplOptions
     });
     fixupReplForNodeBug38314(repl);
@@ -387,6 +390,18 @@ class MongoshNodeRepl implements EvaluationListener {
       // at all and instead leave that to the @mongosh/autocomplete package.
       return shellResult.type !== null ? null : shellResult.rawValue;
     } catch (err) {
+      if (this.runtimeState().internalState.interrupted.isSet()) {
+        this.bus.emit('mongosh:eval-interrupted');
+        // The shell is interrupted by CTRL-C - so we ignore any errors
+        // that happened during evaluation.
+        const result: ShellResult = {
+          type: null,
+          rawValue: undefined,
+          printable: undefined
+        };
+        return result;
+      }
+
       if (!isErrorLike(err)) {
         throw new Error(this.formatOutput({
           value: err
@@ -397,7 +412,10 @@ class MongoshNodeRepl implements EvaluationListener {
       if (!this.insideAutoCompleteOrGetPrompt) {
         repl.setPrompt(await this.getShellPrompt());
       }
-      this.bus.emit('mongosh:eval-complete'); // For testing purposes.
+
+      if (this.loadNestingLevel <= 1) {
+        this.bus.emit('mongosh:eval-complete'); // For testing purposes.
+      }
     }
   }
 
@@ -409,7 +427,14 @@ class MongoshNodeRepl implements EvaluationListener {
 
     return {
       resolvedFilename: absolutePath,
-      evaluate: async() => { await this.loadExternalCode(contents, absolutePath); }
+      evaluate: async() => {
+        this.loadNestingLevel += 1;
+        try {
+          await this.loadExternalCode(contents, absolutePath);
+        } finally {
+          this.loadNestingLevel -= 1;
+        }
+      }
     };
   }
 
@@ -420,6 +445,41 @@ class MongoshNodeRepl implements EvaluationListener {
   async loadExternalCode(code: string, filename: string): Promise<ShellResult> {
     const { repl } = this.runtimeState();
     return await promisify(repl.eval.bind(repl))(code, repl.context, filename);
+  }
+
+  async onAsyncSigint(): Promise<boolean> {
+    const { internalState } = this.runtimeState();
+    if (internalState.interrupted.isSet()) {
+      return true;
+    }
+    this.output.write('Stopping execution...');
+
+    const mongodVersion: string = internalState.connectionInfo.buildInfo?.version;
+    if (mongodVersion.match(/^(4\.0\.|3\.)\d+/)) {
+      this.output.write(this.clr(
+        `\nWARNING: Operations running on the server cannot be killed automatically for MongoDB ${mongodVersion}.` +
+        '\n         Please make sure to kill them manually. Killing operations is supported starting with MongoDB 4.1.',
+        ['bold', 'yellow']
+      ));
+    }
+
+    const fullyInterrupted = await internalState.onInterruptExecution();
+    // this is an async interrupt - the evaluation is still running in the background
+    // we wait until it finally completes (which should happen immediately)
+    await Promise.race([
+      once(this.bus, 'mongosh:eval-interrupted'),
+      new Promise(resolve => setImmediate(resolve))
+    ]);
+
+    const fullyResumed = await internalState.onResumeExecution();
+    if (!fullyInterrupted || !fullyResumed) {
+      this.output.write(this.formatError({
+        name: 'MongoshInternalError',
+        message: 'Could not re-establish all connections, we suggest to restart the shell.'
+      }));
+    }
+    this.bus.emit('mongosh:interrupt-complete'); // For testing purposes.
+    return true;
   }
 
   /**

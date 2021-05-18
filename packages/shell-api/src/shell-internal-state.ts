@@ -8,7 +8,7 @@ import {
   TopologyDescription,
   TopologyTypeId
 } from '@mongosh/service-provider-core';
-import type { ApiEvent, MongoshBus, ConfigProvider, ShellUserConfig } from '@mongosh/types';
+import type { ApiEvent, ConfigProvider, MongoshBus, ShellUserConfig } from '@mongosh/types';
 import { EventEmitter } from 'events';
 import redactInfo from 'mongodb-redact';
 import ChangeStreamCursor from './change-stream-cursor';
@@ -26,6 +26,7 @@ import {
   ShellApi,
   ShellResult
 } from './index';
+import { InterruptFlag } from './interruptor';
 import NoDatabase from './no-db';
 import constructShellBson from './shell-bson';
 
@@ -105,6 +106,12 @@ export default class ShellInternalState {
   public evaluationListener: EvaluationListener;
   public mongocryptdSpawnPath: string | null;
   public batchSizeFromDBQuery: number | undefined = undefined;
+
+  public readonly interrupted = new InterruptFlag();
+  public resumeMongosAfterInterrupt: Array<{
+    mongo: Mongo,
+    resume: (() => Promise<void>) | null
+  }> | undefined;
 
   constructor(initialServiceProvider: ServiceProvider, messageBus: any = new EventEmitter(), cliOptions: ShellCliOptions = {}) {
     this.initialServiceProvider = initialServiceProvider;
@@ -309,6 +316,49 @@ export default class ShellInternalState {
         }
       }
     };
+  }
+
+  async onInterruptExecution(): Promise<boolean> {
+    this.interrupted.set();
+    this.currentCursor = null;
+
+    this.resumeMongosAfterInterrupt = await Promise.all(this.mongos.map(async m => {
+      try {
+        return {
+          mongo: m,
+          resume: await m._suspend()
+        };
+      } catch (e) {
+        return {
+          mongo: m,
+          resume: null
+        };
+      }
+    }));
+    return !this.resumeMongosAfterInterrupt.find(r => r.resume === null);
+  }
+
+  async onResumeExecution(): Promise<boolean> {
+    const promises = this.resumeMongosAfterInterrupt?.map(async r => {
+      if (!this.mongos.find(m => m === r.mongo)) {
+        // we do not resume mongo instances that we don't track anymore
+        return true;
+      }
+      if (r.resume === null) {
+        return false;
+      }
+      try {
+        await r.resume();
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }) ?? [];
+    this.resumeMongosAfterInterrupt = undefined;
+
+    const result = await Promise.all(promises);
+    this.interrupted.reset();
+    return !result.find(r => r === false);
   }
 
   async getDefaultPrompt(): Promise<string> {
