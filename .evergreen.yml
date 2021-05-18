@@ -367,6 +367,7 @@ functions:
           export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
           echo "registry=https://registry.npmjs.org/" > .npmrc
           echo "//registry.npmjs.org/:_authToken=${devtoolsbot_npm_token}" >> .npmrc
+          npm --unsafe-perm=true run bootstrap-ci
           npm run evergreen-release publish
           }
 
