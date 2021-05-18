@@ -263,7 +263,7 @@ describe('arg-mapper.mapCliToDriver', () => {
 
 describe('arg-mapper.applyTlsCertificateSelector', () => {
   context('with fake ca provider', () => {
-    let exportCertificateAndPrivateKey;
+    let exportCertificateAndPrivateKey: sinon.SinonStub;
     beforeEach(() => {
       process.env.TEST_OS_EXPORT_CERTIFICATE_AND_KEY_PATH =
         path.resolve(__dirname, '..', 'test', 'fixtures', 'fake-os-ca-provider.js');

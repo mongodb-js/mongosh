@@ -82,7 +82,7 @@
     "moment": "^2.29.1"
   },
   "optionalDependencies": {
-    "macos-export-certificate-and-key": "^1.0.0",
+    "macos-export-certificate-and-key": "^1.0.1",
     "win-export-certificate-and-key": "^1.0.2"
   }
 }
