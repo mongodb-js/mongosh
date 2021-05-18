@@ -18,6 +18,14 @@ else
 
   nvm install --no-progress $NODE_JS_VERSION
   nvm alias default $NODE_JS_VERSION
+
+  if env PATH="/opt/chefdk/gitbin:$PATH" git --version | grep -q 'git version 1.'; then
+    (cd "$BASEDIR" &&
+      curl -sSfL https://github.com/git/git/archive/refs/tags/v2.31.1.tar.gz | tar -xvz &&
+      mv git-2.31.1 git-2 &&
+      cd git-2 &&
+      make -j8 NO_EXPAT=1)
+  fi
 fi
 
 . "$BASEDIR/.setup_env"
