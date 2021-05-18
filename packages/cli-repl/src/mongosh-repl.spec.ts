@@ -568,6 +568,13 @@ describe('MongoshNodeRepl', () => {
         await waitEval(bus);
         expect(stripAnsi(output)).to.match(/Error: orange\n +at\b/);
       });
+
+      it('bails out when setting invalid config options', async() => {
+        input.write('config.set("historyLength", true)\n');
+        await waitEval(bus);
+        expect(output).to.include('Cannot set option "historyLength": historyLength needs to be a positive number');
+        expect((mongoshRepl.runtimeState().repl as any).historySize).to.equal(1000);
+      });
     });
 
     it('refreshes the prompt if a window resize occurs', async() => {
