@@ -23,7 +23,7 @@ else
     (cd "$BASEDIR" &&
       curl -sSfL https://github.com/git/git/archive/refs/tags/v2.31.1.tar.gz | tar -xvz &&
       cd git-2.31.1 &&
-      make -j8)
+      make -j8 NO_EXPAT=1)
   fi
 fi
 
