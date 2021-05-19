@@ -43,7 +43,7 @@
     "@types/sinon": "^7.5.1",
     "@types/sinon-chai": "^3.2.3",
     "aws4": "^1.11.0",
-    "mongodb": "4.0.0-beta.3",
+    "mongodb": "4.0.0-beta.4",
     "saslprep": "mongodb-js/saslprep#v1.0.4"
   },
   "devDependencies": {

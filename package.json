@@ -121,7 +121,7 @@
     "karma-typescript": "^4.1.1",
     "lerna": "^3.10.7",
     "mocha": "^7.1.2",
-    "mongodb": "4.0.0-beta.3",
+    "mongodb": "4.0.0-beta.4",
     "mongodb-download-url": "^1.0.1",
     "mongodb-js-precommit": "^2.0.0",
     "nock": "^13.0.11",

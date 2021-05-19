@@ -28,15 +28,15 @@ describe('BSON printers', function() {
   });
 
   it('formats NumberLong correctly', function() {
-    expect(inspect(bson.Long.fromString('64'))).to.equal('Long.fromString("64")');
+    expect(inspect(bson.Long.fromString('64'))).to.equal('Long("64")');
   });
 
   it('formats unsigned NumberLong correctly', function() {
-    expect(inspect(bson.Long.fromString('64', true))).to.equal('Long.fromString("64", true)');
+    expect(inspect(bson.Long.fromString('64', true))).to.equal('Long("64", true)');
   });
 
   it('formats NumberDecimal correctly', function() {
-    expect(inspect(bson.Decimal128.fromString('1'))).to.equal('Decimal128.fromString("1")');
+    expect(inspect(bson.Decimal128.fromString('1'))).to.equal('Decimal128("1")');
   });
 
   it('formats Timestamp correctly', function() {

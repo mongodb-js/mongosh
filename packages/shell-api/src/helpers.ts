@@ -3,7 +3,9 @@ import type {
   DbOptions,
   Document,
   ExplainVerbosityLike,
-  FindAndModifyOptions,
+  FindOneAndDeleteOptions,
+  FindOneAndReplaceOptions,
+  FindOneAndUpdateOptions,
   DeleteOptions,
   MapReduceOptions,
   KMSProviders,
@@ -546,9 +548,10 @@ export async function iterate(
   return results;
 }
 
+// This is only used by collection.findAndModify() itself.
 export type FindAndModifyMethodShellOptions = {
   query: Document;
-  sort?: FindAndModifyOptions['sort'];
+  sort?: (FindOneAndDeleteOptions | FindOneAndReplaceOptions | FindOneAndUpdateOptions)['sort'];
   update?: Document | Document[];
   remove?: boolean;
   new?: boolean;
@@ -556,34 +559,52 @@ export type FindAndModifyMethodShellOptions = {
   upsert?: boolean;
   bypassDocumentValidation?: boolean;
   writeConcern?: Document;
-  collation?: FindAndModifyOptions['collation'];
+  collation?: (FindOneAndDeleteOptions | FindOneAndReplaceOptions | FindOneAndUpdateOptions)['collation'];
   arrayFilters?: Document[];
   explain?: ExplainVerbosityLike;
 };
 
-export type FindAndModifyShellOptions = FindAndModifyOptions & {
+// These are used by findOneAndUpdate + findOneAndReplace.
+export type FindAndModifyShellOptions<BaseOptions extends FindOneAndReplaceOptions | FindOneAndUpdateOptions> = BaseOptions & {
+  returnOriginal?: boolean;
   returnNewDocument?: boolean;
+  new?: boolean;
 };
 
-export function processFindAndModifyOptions(options: FindAndModifyShellOptions): FindAndModifyOptions {
+export function processFindAndModifyOptions<BaseOptions extends FindOneAndReplaceOptions | FindOneAndUpdateOptions>(options: FindAndModifyShellOptions<BaseOptions>): BaseOptions {
   options = { ...options };
+  if ('returnDocument' in options) {
+    if (options.returnDocument !== 'before' && options.returnDocument !== 'after') {
+      throw new MongoshInvalidInputError(
+        "returnDocument needs to be either 'before' or 'after'",
+        CommonErrors.InvalidArgument
+      );
+    }
+    delete options.returnNewDocument;
+    delete options.returnOriginal;
+    return options;
+  }
   if ('returnOriginal' in options) {
+    options.returnDocument = options.returnOriginal ? 'before' : 'after';
+    delete options.returnOriginal;
     delete options.returnNewDocument;
     return options;
   }
   if ('returnNewDocument' in options) {
-    options.returnOriginal = !options.returnNewDocument;
+    options.returnDocument = options.returnNewDocument ? 'after' : 'before';
+    delete options.returnOriginal;
     delete options.returnNewDocument;
     return options;
   }
   if ('new' in options) {
-    options.returnOriginal = !options.new;
-    delete options.new;
+    options.returnDocument = options.new ? 'after' : 'before';
+    delete options.returnOriginal;
+    delete options.returnNewDocument;
     return options;
   }
-  // No explicit option passed: We set 'returnOriginal' to true because the
+  // No explicit option passed: We set 'returnDocument' to 'before' because the
   // default of the shell differs from the default of the browser.
-  options.returnOriginal = true;
+  options.returnDocument = 'before';
   return options;
 }
 

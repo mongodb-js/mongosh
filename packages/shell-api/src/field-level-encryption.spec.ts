@@ -340,7 +340,7 @@ describe('Field Level Encryption', () => {
           COLL,
           { _id: KEY_ID },
           { $push: { 'keyAltNames': 'altname' }, $currentDate: { 'updateDate': true } },
-          { returnOriginal: true }
+          { returnDocument: 'before' }
         );
         expect(result).to.deep.equal({ ok: 1 });
       });
@@ -355,7 +355,7 @@ describe('Field Level Encryption', () => {
           COLL,
           { _id: KEY_ID },
           { $pull: { 'keyAltNames': 'altname' }, $currentDate: { 'updateDate': true } },
-          { returnOriginal: true }
+          { returnDocument: 'before' }
         );
         expect(result).to.deep.equal({ ok: 1, keyAltNames: ['other'] });
       });
@@ -372,14 +372,14 @@ describe('Field Level Encryption', () => {
           COLL,
           { _id: KEY_ID },
           { $pull: { 'keyAltNames': 'altname' }, $currentDate: { 'updateDate': true } },
-          { returnOriginal: true }
+          { returnDocument: 'before' }
         ]);
         expect(calls[1].args).to.deep.equal([
           DB,
           COLL,
           { _id: KEY_ID, keyAltNames: undefined },
           { $unset: { 'keyAltNames': '' }, $currentDate: { 'updateDate': true } },
-          { returnOriginal: true }
+          { returnDocument: 'before' }
         ]);
         expect(result).to.deep.equal(r2.value);
       });

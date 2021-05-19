@@ -460,7 +460,7 @@ describe('Collection', () => {
     });
 
     describe('findOneAndReplace', () => {
-      it('sets returnOriginal to true by default', async() => {
+      it('sets returnDocument to before by default', async() => {
         serviceProvider.findOneAndReplace = sinon.spy(() => Promise.resolve({
           result: { ok: 1, value: {} }
         })) as any;
@@ -472,11 +472,11 @@ describe('Collection', () => {
           'coll1',
           {},
           {},
-          { returnOriginal: true }
+          { returnDocument: 'before' }
         );
       });
 
-      it('lets returnNewDocument determine returnOriginal', async() => {
+      it('lets returnNewDocument determine returnDocument', async() => {
         serviceProvider.findOneAndReplace = sinon.spy(() => Promise.resolve({
           result: { ok: 1, value: {} }
         })) as any;
@@ -490,8 +490,39 @@ describe('Collection', () => {
           'coll1',
           {},
           {},
-          { returnOriginal: false }
+          { returnDocument: 'after' }
         );
+      });
+
+      it('lets returnOriginal determine returnDocument', async() => {
+        serviceProvider.findOneAndReplace = sinon.spy(() => Promise.resolve({
+          result: { ok: 1, value: {} }
+        })) as any;
+
+        await collection.findOneAndReplace({}, {}, {
+          returnOriginal: false
+        });
+
+        expect(serviceProvider.findOneAndReplace).to.have.been.calledWith(
+          'db1',
+          'coll1',
+          {},
+          {},
+          { returnDocument: 'after' }
+        );
+      });
+
+      it('throws when returnDocument is an invalid value', async() => {
+        try {
+          await collection.findOneAndReplace({}, {}, {
+            returnDocument: 'somethingelse' as any
+          });
+          expect.fail('missed exception');
+        } catch (error) {
+          expect(error).to.be.instanceOf(MongoshInvalidInputError);
+          expect(error.message).to.contain("returnDocument needs to be either 'before' or 'after'");
+          expect(error.code).to.equal(CommonErrors.InvalidArgument);
+        }
       });
 
       it('returns an ExplainOutput object when explained', async() => {
@@ -504,7 +535,7 @@ describe('Collection', () => {
     });
 
     describe('findOneAndUpdate', () => {
-      it('sets returnOriginal to true by default', async() => {
+      it('sets returnDocument to before by default', async() => {
         serviceProvider.findOneAndUpdate = sinon.spy(() => Promise.resolve({
           result: { ok: 1, value: {} }
         })) as any;
@@ -516,11 +547,11 @@ describe('Collection', () => {
           'coll1',
           {},
           {},
-          { returnOriginal: true }
+          { returnDocument: 'before' }
         );
       });
 
-      it('lets returnNewDocument determine returnOriginal', async() => {
+      it('lets returnNewDocument determine returnDocument', async() => {
         serviceProvider.findOneAndUpdate = sinon.spy(() => Promise.resolve({
           result: { ok: 1, value: {} }
         })) as any;
@@ -534,8 +565,39 @@ describe('Collection', () => {
           'coll1',
           {},
           {},
-          { returnOriginal: false }
+          { returnDocument: 'after' }
         );
+      });
+
+      it('lets returnOriginal determine returnDocument', async() => {
+        serviceProvider.findOneAndUpdate = sinon.spy(() => Promise.resolve({
+          result: { ok: 1, value: {} }
+        })) as any;
+
+        await collection.findOneAndUpdate({}, {}, {
+          returnOriginal: false
+        });
+
+        expect(serviceProvider.findOneAndUpdate).to.have.been.calledWith(
+          'db1',
+          'coll1',
+          {},
+          {},
+          { returnDocument: 'after' }
+        );
+      });
+
+      it('throws when returnDocument is an invalid value', async() => {
+        try {
+          await collection.findOneAndUpdate({}, {}, {
+            returnDocument: 'somethingelse' as any
+          });
+          expect.fail('missed exception');
+        } catch (error) {
+          expect(error).to.be.instanceOf(MongoshInvalidInputError);
+          expect(error.message).to.contain("returnDocument needs to be either 'before' or 'after'");
+          expect(error.code).to.equal(CommonErrors.InvalidArgument);
+        }
       });
 
       it('returns an ExplainOutput object when explained', async() => {

@@ -42,7 +42,9 @@ import {
   Document,
   EstimatedDocumentCountOptions,
   ExplainVerbosityLike,
-  FindAndModifyOptions,
+  FindOneAndDeleteOptions,
+  FindOneAndReplaceOptions,
+  FindOneAndUpdateOptions,
   FindOptions,
   InsertOneOptions,
   ReplaceOptions,
@@ -405,6 +407,7 @@ export default class Collection extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
+  @deprecated
   async findAndModify(options: FindAndModifyMethodShellOptions): Promise<Document> {
     assertArgsDefinedType([options], [true], 'Collection.findAndModify');
     assertKeysDefined(options, ['query']);
@@ -500,7 +503,7 @@ export default class Collection extends ShellApiWithMongoClass {
   @returnsPromise
   @returnType('Document')
   @serverVersions(['3.2.0', ServerVersions.latest])
-  async findOneAndDelete(filter: Document, options: FindAndModifyOptions = {}): Promise<Document> {
+  async findOneAndDelete(filter: Document, options: FindOneAndDeleteOptions = {}): Promise<Document> {
     assertArgsDefinedType([filter], [true], 'Collection.findOneAndDelete');
     this._emitCollectionApiCall('findOneAndDelete', { filter, options });
     const result = await this._mongo._serviceProvider.findOneAndDelete(
@@ -533,7 +536,7 @@ export default class Collection extends ShellApiWithMongoClass {
   @returnsPromise
   @returnType('Document')
   @serverVersions(['3.2.0', ServerVersions.latest])
-  async findOneAndReplace(filter: Document, replacement: Document, options: FindAndModifyShellOptions = {}): Promise<Document> {
+  async findOneAndReplace(filter: Document, replacement: Document, options: FindAndModifyShellOptions<FindOneAndReplaceOptions> = {}): Promise<Document> {
     assertArgsDefinedType([filter], [true], 'Collection.findOneAndReplace');
     const findOneAndReplaceOptions = processFindAndModifyOptions({
       ...this._database._baseOptions,
@@ -571,7 +574,7 @@ export default class Collection extends ShellApiWithMongoClass {
   @returnsPromise
   @returnType('Document')
   @serverVersions(['3.2.0', ServerVersions.latest])
-  async findOneAndUpdate(filter: Document, update: Document | Document[], options: FindAndModifyShellOptions = {}): Promise<Document> {
+  async findOneAndUpdate(filter: Document, update: Document | Document[], options: FindAndModifyShellOptions<FindOneAndUpdateOptions> = {}): Promise<Document> {
     assertArgsDefinedType([filter], [true], 'Collection.findOneAndUpdate');
     const findOneAndUpdateOptions = processFindAndModifyOptions({
       ...this._database._baseOptions,

@@ -53,7 +53,9 @@ import {
   DropCollectionOptions,
   DropDatabaseOptions,
   EstimatedDocumentCountOptions,
-  FindAndModifyOptions,
+  FindOneAndDeleteOptions,
+  FindOneAndReplaceOptions,
+  FindOneAndUpdateOptions,
   FindOptions,
   IndexDescription,
   InsertManyResult,
@@ -655,7 +657,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     database: string,
     collection: string,
     filter: Document = {},
-    options: FindAndModifyOptions = {},
+    options: FindOneAndDeleteOptions = {},
     dbOptions?: DbOptions): Promise<Document> {
     options = { ...this.baseCmdOptions, ...options };
     return this.db(database, dbOptions)
@@ -680,7 +682,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     collection: string,
     filter: Document = {},
     replacement: Document = {},
-    options: FindAndModifyOptions = {},
+    options: FindOneAndReplaceOptions = {},
     dbOptions?: DbOptions): Promise<Document> {
     const findOneAndReplaceOptions: any = { ...this.baseCmdOptions, ...options };
 
@@ -706,7 +708,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     collection: string,
     filter: Document = {},
     update: Document | Document[] = {},
-    options: FindAndModifyOptions = {},
+    options: FindOneAndUpdateOptions = {},
     dbOptions?: DbOptions): Promise<Document> {
     const findOneAndUpdateOptions = { ...this.baseCmdOptions, ...options };
 
@@ -1168,7 +1170,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     return this.mongoClient.startSession(options);
   }
 
-  watch(pipeline: Document[], options: ChangeStreamOptions, dbOptions: DbOptions = {}, db?: string, coll?: string): ChangeStream {
+  watch(pipeline: Document[], options: ChangeStreamOptions, dbOptions: DbOptions = {}, db?: string, coll?: string): ChangeStream<Document> {
     if (db === undefined && coll === undefined) { // TODO: watch not exported, see NODE-2934
       return (this.mongoClient as any).watch(pipeline, options);
     } else if (db !== undefined && coll === undefined) {

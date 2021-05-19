@@ -237,6 +237,6 @@ export default interface Readable {
     dbOptions?: DbOptions,
     db?: string,
     coll?: string
-  ): ChangeStream;
+  ): ChangeStream<Document>;
 }
 
