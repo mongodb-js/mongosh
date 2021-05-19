@@ -639,16 +639,19 @@ describe('ShellApi', () => {
       context('with a full-config evaluation listener', () => {
         let store;
         let config;
+        let validators;
 
         beforeEach(() => {
           config = internalState.context.config;
           store = { somekey: '' };
+          validators = {};
           evaluationListener.setConfig.callsFake(async(key, value) => {
             if (key === 'ignoreme' as any) return 'ignored';
             store[key] = value;
             return 'success';
           });
           evaluationListener.getConfig.callsFake(async key => store[key]);
+          evaluationListener.validateConfig.callsFake(async(key, value) => validators[key]?.(value));
           evaluationListener.listConfigOptions.callsFake(() => Object.keys(store));
         });
 
@@ -670,6 +673,12 @@ describe('ShellApi', () => {
 
         it('rejects setting explicitly ignored config keys', async() => {
           expect(await config.set('ignoreme', 'value')).to.equal('Option "ignoreme" is not available in this environment');
+        });
+
+        it('rejects setting explicitly invalid config values', async() => {
+          store.badvalue = 1; // Make sure the config option exists
+          validators.badvalue = (value) => `Bad value ${value} passed`;
+          expect(await config.set('badvalue', 'somevalue')).to.equal('Cannot set option "badvalue": Bad value somevalue passed');
         });
       });
 

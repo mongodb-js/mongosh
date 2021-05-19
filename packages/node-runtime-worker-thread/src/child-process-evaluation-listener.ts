@@ -20,6 +20,9 @@ export class ChildProcessEvaluationListener {
         setConfig(key, value) {
           return workerRuntime.evaluationListener?.setConfig?.(key, value) ?? Promise.resolve('ignored');
         },
+        validateConfig(key, value) {
+          return workerRuntime.evaluationListener?.validateConfig?.(key, value) ?? Promise.resolve(null);
+        },
         getConfig(key) {
           return workerRuntime.evaluationListener?.getConfig?.(key) as any;
         },

@@ -345,7 +345,8 @@ describe('worker', () => {
             // Without this dummy evaluation listener, a request to getConfig()
             // from the shell leads to a never-resolved Promise.
             exposed = exposeAll({
-              getConfig() {}
+              getConfig() {},
+              validateConfig() {}
             }, worker);
 
             const { init, evaluate } = caller;
@@ -494,6 +495,7 @@ describe('worker', () => {
         },
         getConfig() {},
         setConfig() {},
+        validateConfig() {},
         listConfigOptions() { return ['batchSize']; },
         onRunInterruptible() {}
       };
@@ -502,6 +504,7 @@ describe('worker', () => {
       spySandbox.spy(evalListener, 'onPrompt');
       spySandbox.spy(evalListener, 'getConfig');
       spySandbox.spy(evalListener, 'setConfig');
+      spySandbox.spy(evalListener, 'validateConfig');
       spySandbox.spy(evalListener, 'listConfigOptions');
       spySandbox.spy(evalListener, 'onRunInterruptible');
 
@@ -574,6 +577,7 @@ describe('worker', () => {
         await init('mongodb://nodb/', {}, { nodb: true });
 
         await evaluate('config.set("batchSize", 200)');
+        expect(evalListener.validateConfig).to.have.been.calledWith('batchSize', 200);
         expect(evalListener.setConfig).to.have.been.calledWith('batchSize', 200);
       });
     });

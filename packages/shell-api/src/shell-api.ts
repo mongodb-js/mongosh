@@ -44,7 +44,14 @@ class ShellConfig extends ShellApiClass {
     assertArgsDefinedType([key], ['string'], 'config.set');
     const { evaluationListener } = this._internalState;
     // Only allow known config keys here:
-    const result = (await this._allKeys()).includes(key) && await evaluationListener.setConfig?.(key, value);
+    const isValidKey = (await this._allKeys()).includes(key);
+    if (isValidKey) {
+      const validationResult = await evaluationListener.validateConfig?.(key, value);
+      if (validationResult) {
+        return `Cannot set option "${key}": ${validationResult}`;
+      }
+    }
+    const result = isValidKey && await evaluationListener.setConfig?.(key, value);
     if (result !== 'success') {
       return `Option "${key}" is not available in this environment`;
     }

@@ -114,6 +114,25 @@ export class ShellUserConfig {
   enableTelemetry = false;
 }
 
+export class ShellUserConfigValidator {
+  static async validate<K extends keyof ShellUserConfig>(key: K, value: ShellUserConfig[K]): Promise<string | null> {
+    switch (key) {
+      case 'batchSize':
+        if (typeof value !== 'number' || value <= 0) {
+          return `${key} must be a positive integer`;
+        }
+        return null;
+      case 'enableTelemetry':
+        if (typeof value !== 'boolean') {
+          return `${key} must be a boolean`;
+        }
+        return null;
+      default:
+        return `${key} is not a known config option`;
+    }
+  }
+}
+
 export class CliUserConfig extends ShellUserConfig {
   userId = '';
   disableGreetingMessage = false;
@@ -122,8 +141,32 @@ export class CliUserConfig extends ShellUserConfig {
   showStackTraces = false;
 }
 
+export class CliUserConfigValidator extends ShellUserConfigValidator {
+  static async validate<K extends keyof CliUserConfig>(key: K, value: CliUserConfig[K]): Promise<string | null> {
+    switch (key) {
+      case 'userId':
+      case 'disableGreetingMessage':
+        return null; // Not modifiable by the user anyway.
+      case 'inspectDepth':
+      case 'historyLength':
+        if (typeof value !== 'number' || value < 0) {
+          return `${key} must be a positive integer`;
+        }
+        return null;
+      case 'showStackTraces':
+        if (typeof value !== 'boolean') {
+          return `${key} must be a boolean`;
+        }
+        return null;
+      default:
+        return super.validate(key as keyof ShellUserConfig, value as any);
+    }
+  }
+}
+
 export interface ConfigProvider<T> {
   getConfig<K extends keyof T>(key: K): Promise<T[K]>;
   setConfig<K extends keyof T>(key: K, value: T[K]): Promise<'success' | 'ignored'>;
+  validateConfig<K extends keyof T>(key: K, value: T[K]): Promise<string | null>;
   listConfigOptions(): string[] | Promise<string[]>;
 }

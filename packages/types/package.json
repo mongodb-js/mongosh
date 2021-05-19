@@ -22,7 +22,8 @@
     "compile-ts": "tsc -p tsconfig.json",
     "lint": "eslint --report-unused-disable-directives \"**/*.{js,ts,tsx}\"",
     "prepublish": "npm run compile-ts",
-    "test-ci": "npm run test"
+    "test": "mocha --timeout 15000 --colors -r ts-node/register \"./src/*.spec.ts\"",
+    "test-ci": "mocha --timeout 15000 -r ts-node/register \"./src/*.spec.ts\""
   },
   "bugs": {
     "url": "https://github.com/mongodb-js/mongosh/issues"

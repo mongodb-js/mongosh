@@ -4,7 +4,7 @@ import { changeHistory } from '@mongosh/history';
 import type { AutoEncryptionOptions, ServiceProvider } from '@mongosh/service-provider-core';
 import { EvaluationListener, OnLoadResult, ShellCliOptions, ShellInternalState } from '@mongosh/shell-api';
 import { ShellEvaluator, ShellResult } from '@mongosh/shell-evaluator';
-import type { CliUserConfig, ConfigProvider, MongoshBus } from '@mongosh/types';
+import { CliUserConfig, ConfigProvider, CliUserConfigValidator, MongoshBus } from '@mongosh/types';
 import askpassword from 'askpassword';
 import { Console } from 'console';
 import { once } from 'events';
@@ -26,7 +26,7 @@ export type MongoshCliOptions = ShellCliOptions & {
   quiet?: boolean;
 };
 
-export type MongoshIOProvider = ConfigProvider<CliUserConfig> & {
+export type MongoshIOProvider = Omit<ConfigProvider<CliUserConfig>, 'validateConfig'> & {
   getHistoryFilePath(): string;
   exit(code: number): Promise<never>;
   readFileUTF8(filename: string): Promise<{ contents: string, absolutePath: string }>;
@@ -570,16 +570,23 @@ class MongoshNodeRepl implements EvaluationListener {
   }
 
   async setConfig<K extends keyof CliUserConfig>(key: K, value: CliUserConfig[K]): Promise<'success' | 'ignored'> {
-    if (key === 'historyLength' && this._runtimeState) {
-      (this.runtimeState().repl as any).historySize = value;
+    const result = await this.ioProvider.setConfig(key, value);
+    if (result === 'success') {
+      if (key === 'historyLength' && this._runtimeState) {
+        (this.runtimeState().repl as any).historySize = value;
+      }
+      if (key === 'inspectDepth') {
+        this.inspectDepth = +value;
+      }
+      if (key === 'showStackTraces') {
+        this.showStackTraces = !!value;
+      }
     }
-    if (key === 'inspectDepth') {
-      this.inspectDepth = +value;
-    }
-    if (key === 'showStackTraces') {
-      this.showStackTraces = !!value;
-    }
-    return this.ioProvider.setConfig(key, value);
+    return result;
+  }
+
+  async validateConfig<K extends keyof CliUserConfig>(key: K, value: CliUserConfig[K]): Promise<string | null> {
+    return CliUserConfigValidator.validate(key, value);
   }
 
   listConfigOptions(): Promise<string[]> | string[] {
