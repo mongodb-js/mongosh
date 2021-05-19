@@ -19,6 +19,17 @@ export async function runSmokeTests(smokeTestServer: string | undefined, executa
     output: /Hello World!/,
     testArgs: ['--nodb'],
   }].concat(smokeTestServer ? [{
+    input: `
+      const dbname = "testdb_simplesmoke" + new Date().getTime();
+      use(dbname);
+      db.testcoll.insertOne({ d: new Date() });
+      if (Object.keys(EJSON.serialize(db.testcoll.findOne()).d)[0] === '$date') {
+        print('Test succeeded');
+      }
+      db.dropDatabase();`,
+    output: /Test succeeded/,
+    testArgs: [smokeTestServer as string]
+  }, {
     input: fleSmokeTestScript,
     output: /Test succeeded|Test skipped/,
     testArgs: [smokeTestServer as string]
