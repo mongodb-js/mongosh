@@ -178,7 +178,7 @@ describe('publish', () => {
         shouldDoPublicRelease
       );
 
-      expect(barque.releaseToBarque).to.have.been.callCount(15);
+      expect(barque.releaseToBarque).to.have.been.callCount(16);
       expect(barque.releaseToBarque).to.have.been.calledWith(
         'rhel-x64',
         'https://s3.amazonaws.com/mciuploads/project/v0.7.0-draft.42/mongodb-mongosh-0.7.0.el7.x86_64.rpm'
