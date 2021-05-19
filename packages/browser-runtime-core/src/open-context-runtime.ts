@@ -37,6 +37,7 @@ export class OpenContextRuntime implements Runtime {
   ) {
     this.interpreterEnvironment = interpreterEnvironment;
     this.internalState = new ShellInternalState(serviceProvider, messageBus || new EventEmitter());
+    this.internalState.isInteractive = true;
     this.shellEvaluator = new ShellEvaluator(this.internalState);
     this.internalState.setCtx(this.interpreterEnvironment.getContextObject());
     this.interpreter = new Interpreter(this.interpreterEnvironment);

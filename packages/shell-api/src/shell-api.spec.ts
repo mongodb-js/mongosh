@@ -519,6 +519,13 @@ describe('ShellApi', () => {
         expect(version).to.equal(expected);
       });
     });
+    describe('isInteractive', () => {
+      it('returns a boolean', () => {
+        expect(internalState.context.isInteractive()).to.equal(false);
+        internalState.isInteractive = true;
+        expect(internalState.context.isInteractive()).to.equal(true);
+      });
+    });
     for (const cmd of ['exit', 'quit']) {
       // eslint-disable-next-line no-loop-func
       describe(cmd, () => {

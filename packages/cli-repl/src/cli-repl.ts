@@ -168,12 +168,15 @@ class CliRepl {
     const initialized = await this.mongoshRepl.initialize(initialServiceProvider);
     const commandLineLoadFiles = this.listCommandLineLoadFiles();
     if (commandLineLoadFiles.length > 0 || this.cliOptions.eval !== undefined) {
+      this.mongoshRepl.setIsInteractive(!!this.cliOptions.shell);
       this.bus.emit('mongosh:start-loading-cli-scripts', { usesShellOption: !!this.cliOptions.shell });
       await this.loadCommandLineFilesAndEval(commandLineLoadFiles);
       if (!this.cliOptions.shell) {
         await this.exit(0);
         return;
       }
+    } else {
+      this.mongoshRepl.setIsInteractive(true);
     }
     await this.loadRcFiles();
     this.bus.emit('mongosh:start-mongosh-repl', { version });

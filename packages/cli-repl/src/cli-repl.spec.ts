@@ -810,6 +810,61 @@ describe('CliRepl', () => {
         expect(output).to.include('--eval requires an argument, but no argument was given');
         expect(exitCode).to.equal(0);
       });
+
+      it('isInteractive() is false for --eval without --shell', async() => {
+        const filename1 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'printisinteractive.js');
+        cliReplOptions.shellCliOptions.eval = await fs.readFile(filename1, 'utf8');
+        cliRepl = new CliRepl(cliReplOptions);
+        await startWithExpectedImmediateExit(cliRepl, await testServer.connectionString());
+        expect(output).to.match(/isInteractive=false/);
+        expect(exitCode).to.equal(0);
+      });
+
+      it('isInteractive() is true for --eval with --shell', async() => {
+        const filename1 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'printisinteractive.js');
+        cliReplOptions.shellCliOptions.eval = await fs.readFile(filename1, 'utf8');
+        cliReplOptions.shellCliOptions.shell = true;
+        cliRepl = new CliRepl(cliReplOptions);
+        await cliRepl.start(await testServer.connectionString(), {});
+        expect(output).to.match(/isInteractive=true/);
+        expect(exitCode).to.equal(null);
+
+        input.write('exit\n');
+        await waitBus(cliRepl.bus, 'mongosh:closed');
+        expect(exitCode).to.equal(0);
+      });
+
+      it('isInteractive() is false for loaded file without --shell', async() => {
+        const filename1 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'printisinteractive.js');
+        cliReplOptions.shellCliOptions._.push(filename1);
+        cliRepl = new CliRepl(cliReplOptions);
+        await startWithExpectedImmediateExit(cliRepl, await testServer.connectionString());
+        expect(output).to.match(/isInteractive=false/);
+        expect(exitCode).to.equal(0);
+      });
+
+      it('isInteractive() is true for --eval with --shell', async() => {
+        const filename1 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'printisinteractive.js');
+        cliReplOptions.shellCliOptions._.push(filename1);
+        cliReplOptions.shellCliOptions.shell = true;
+        cliRepl = new CliRepl(cliReplOptions);
+        await cliRepl.start(await testServer.connectionString(), {});
+        expect(output).to.match(/isInteractive=true/);
+        expect(exitCode).to.equal(null);
+
+        input.write('exit\n');
+        await waitBus(cliRepl.bus, 'mongosh:closed');
+        expect(exitCode).to.equal(0);
+      });
+
+      it('isInteractive() is true for plain shell', async() => {
+        cliRepl = new CliRepl(cliReplOptions);
+        await cliRepl.start(await testServer.connectionString(), {});
+
+        input.write('print("isInteractive=" + isInteractive())\n');
+        await waitEval(cliRepl.bus);
+        expect(output).to.match(/isInteractive=true/);
+      });
     });
 
     context('with a user-provided prompt', () => {

@@ -154,6 +154,9 @@ const translations: Catalog = {
             },
             printjson: {
               description: 'Alias for print()'
+            },
+            isInteractive: {
+              description: 'Returns whether the shell will enter or has entered interactive mode'
             }
           }
         },

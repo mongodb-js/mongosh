@@ -123,6 +123,10 @@ class MongoshNodeRepl implements EvaluationListener {
     this._runtimeState = null;
   }
 
+  setIsInteractive(value: boolean): void {
+    this.runtimeState().internalState.isInteractive = value;
+  }
+
   async initialize(serviceProvider: ServiceProvider): Promise<InitializationToken> {
     const internalState = new ShellInternalState(serviceProvider, this.bus, this.shellCliOptions);
     const shellEvaluator = new ShellEvaluator(internalState);

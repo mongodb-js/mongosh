@@ -286,4 +286,8 @@ export default class ShellApi extends ShellApiClass {
     const { evaluationListener } = this._internalState;
     await evaluationListener.onClearCommand?.();
   }
+
+  isInteractive(): boolean {
+    return this._internalState.isInteractive;
+  }
 }

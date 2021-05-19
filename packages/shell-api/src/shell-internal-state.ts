@@ -106,6 +106,7 @@ export default class ShellInternalState {
   public evaluationListener: EvaluationListener;
   public mongocryptdSpawnPath: string | null;
   public batchSizeFromDBQuery: number | undefined = undefined;
+  public isInteractive = false;
 
   public readonly interrupted = new InterruptFlag();
   public resumeMongosAfterInterrupt: Array<{
