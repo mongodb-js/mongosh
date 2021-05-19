@@ -155,25 +155,46 @@ function wrapWithAddSourceToResult(fn: Function): Function {
   return wrapper;
 }
 
-function wrapWithInterruptChecks<T extends(...args: any[]) => any>(fn: T): (args: Parameters<T>) => ReturnType<T> {
+function wrapWithApiChecks<T extends(...args: any[]) => any>(fn: T, className: string): (args: Parameters<T>) => ReturnType<T> {
   const wrapper = (fn as any).returnsPromise ?
     markImplicitlyAwaited(async function(this: any, ...args: any[]): Promise<any> {
-      const interrupted = checkInterrupted(this);
+      const internalState = getShellInternalState(this);
+      checkForDeprecation(internalState, className, fn);
+      const interrupted = checkInterrupted(internalState);
       const result = await Promise.race([
         interrupted ? interrupted.asPromise() : new Promise(() => {}),
         fn.call(this, ...args)
       ]);
-      checkInterrupted(this);
+      checkInterrupted(internalState);
       return result;
     }) : function(this: any, ...args: any[]): any {
-      checkInterrupted(this);
+      const internalState = getShellInternalState(this);
+      checkForDeprecation(internalState, className, fn);
+      checkInterrupted(internalState);
       const result = fn.call(this, ...args);
-      checkInterrupted(this);
+      checkInterrupted(internalState);
       return result;
     };
   Object.setPrototypeOf(wrapper, Object.getPrototypeOf(fn));
   Object.defineProperties(wrapper, Object.getOwnPropertyDescriptors(fn));
   return wrapper;
+}
+
+function checkForDeprecation(internalState: ShellInternalState | undefined, className: string, fn: any) {
+  if (internalState && typeof fn === 'function' && fn.deprecated) {
+    internalState.emitDeprecatedApiCall({
+      method: fn.name,
+      class: className
+    });
+  }
+}
+
+function getShellInternalState(apiClass: any): ShellInternalState | undefined {
+  if (!apiClass[shellApiType]) {
+    throw new MongoshInternalError('getShellInternalState can only be called for functions from shell API classes');
+  }
+  // internalState can be undefined in tests
+  return (apiClass as ShellApiClass)._internalState;
 }
 
 // This is a bit more restrictive than `AutocompleteParameters` used in the
@@ -267,7 +288,7 @@ export function shellApiClassGeneric(constructor: Function, hasHelp: boolean): v
     if ((constructor as any)[addSourceToResultsSymbol]) {
       method = wrapWithAddSourceToResult(method);
     }
-    method = wrapWithInterruptChecks(method);
+    method = wrapWithApiChecks(method, className);
 
     method.serverVersions = method.serverVersions || ALL_SERVER_VERSIONS;
     method.topologies = method.topologies || ALL_TOPOLOGIES;

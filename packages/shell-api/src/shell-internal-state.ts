@@ -242,6 +242,10 @@ export default class ShellInternalState {
     this.messageBus.emit('mongosh:api-call', event);
   }
 
+  public emitDeprecatedApiCall(event: ApiEvent): void {
+    this.messageBus.emit('mongosh:deprecated-api-call', event);
+  }
+
   public setEvaluationListener(listener: EvaluationListener): void {
     this.evaluationListener = listener;
   }

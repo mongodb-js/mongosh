@@ -4,11 +4,12 @@ import setupLoggerAndTelemetry from './setup-logger-and-telemetry';
 import { EventEmitter } from 'events';
 import pino from 'pino';
 import { MongoshInvalidInputError } from '@mongosh/errors';
+import { MongoshBus } from '@mongosh/types';
 
 describe('setupLoggerAndTelemetry', () => {
   let logOutput: any[];
   let analyticsOutput: ['identify'|'track'|'log', any][];
-  let bus: EventEmitter;
+  let bus: MongoshBus;
 
   const logger = pino({ name: 'mongosh' }, {
     write(chunk: string) { logOutput.push(JSON.parse(chunk)); }
@@ -43,7 +44,7 @@ describe('setupLoggerAndTelemetry', () => {
         is_localhost: true,
         is_atlas: false,
         node_version: 'v12.19.0'
-      });
+      } as any);
       bus.emit('mongosh:error', new MongoshInvalidInputError('meow', 'CLIREPL-1005', { cause: 'x' }));
       bus.emit('mongosh:help');
       bus.emit('mongosh:use', { db: 'admin' });
@@ -52,7 +53,7 @@ describe('setupLoggerAndTelemetry', () => {
 
     bus.emit('mongosh:setCtx', { method: 'setCtx' });
     bus.emit('mongosh:api-call', { method: 'auth', class: 'Database', db: 'test-1603986682000', arguments: { } });
-    bus.emit('mongosh:api-call', { method: 'redactable', arguments: { email: 'mongosh@example.com' } });
+    bus.emit('mongosh:api-call', { method: 'redactable', arguments: { filter: { email: 'mongosh@example.com' } } });
     bus.emit('mongosh:evaluate-input', { input: '1+1' });
     bus.emit('mongosh:driver-initialized', { driver: { name: 'nodejs', version: '3.6.1' } });
 
@@ -237,6 +238,73 @@ describe('setupLoggerAndTelemetry', () => {
         }
       ]
     ]);
+  });
+
+  it('buffers deprecated API calls', () => {
+    setupLoggerAndTelemetry(logId, bus, () => logger, () => analytics);
+    expect(logOutput).to.be.empty;
+    expect(analyticsOutput).to.be.empty;
+
+    const mongosh_version = require('../package.json').version;
+    bus.emit('mongosh:new-user', userId, true);
+
+    logOutput = [];
+    analyticsOutput = [];
+
+    bus.emit('mongosh:deprecated-api-call', { method: 'cloneDatabase', class: 'Database' });
+    bus.emit('mongosh:deprecated-api-call', { method: 'cloneDatabase', class: 'Database' });
+    bus.emit('mongosh:deprecated-api-call', { method: 'copyDatabase', class: 'Database' });
+    bus.emit('mongosh:deprecated-api-call', { method: 'cloneDatabase', class: 'Database' });
+
+    expect(logOutput).to.be.empty;
+    expect(analyticsOutput).to.be.empty;
+
+    bus.emit('mongosh:evaluate-finished');
+    expect(logOutput).to.have.length(2);
+    expect(analyticsOutput).to.have.length(2);
+
+    expect(logOutput[0].msg).to.equal('mongosh:deprecated-api-call {"class":"Database","method":"cloneDatabase"}');
+    expect(logOutput[1].msg).to.equal('mongosh:deprecated-api-call {"class":"Database","method":"copyDatabase"}');
+    expect(analyticsOutput).to.deep.equal([
+      [
+        'track',
+        {
+          userId: '53defe995fa47e6c13102d9d',
+          event: 'Deprecated Method',
+          properties: {
+            mongosh_version,
+            class: 'Database',
+            method: 'cloneDatabase',
+          }
+        }
+      ],
+      [
+        'track',
+        {
+          userId: '53defe995fa47e6c13102d9d',
+          event: 'Deprecated Method',
+          properties: {
+            mongosh_version,
+            class: 'Database',
+            method: 'copyDatabase',
+          }
+        }
+      ]
+    ]);
+
+    bus.emit('mongosh:new-user', userId, false);
+    logOutput = [];
+    analyticsOutput = [];
+
+    bus.emit('mongosh:deprecated-api-call', { method: 'cloneDatabase', class: 'Database' });
+
+    expect(logOutput).to.be.empty;
+    expect(analyticsOutput).to.be.empty;
+
+    bus.emit('mongosh:evaluate-finished');
+    expect(logOutput).to.have.length(1);
+    expect(logOutput[0].msg).to.equal('mongosh:deprecated-api-call {"class":"Database","method":"cloneDatabase"}');
+    expect(analyticsOutput).to.be.empty;
   });
 
   it('works when analytics are not available', () => {
