@@ -906,6 +906,22 @@ describe('e2e', function() {
           `${await testServer.connectionString()}/${dbName}`, '--apiVersion', '1'
         ] });
         await shell.waitForPrompt();
+        shell.assertContainsOutput('(API Version 1)');
+        expect(await shell.executeLine('db.coll.find().toArray()'))
+          .to.include('[]');
+        shell.assertNoErrors();
+      });
+
+      it('can specify an API version and strict mode', async function() {
+        // Disable this until https://jira.mongodb.org/browse/NODE-3183
+        // is done because the server has started requiring hello instead of
+        // isMaster.
+        return this.skip();
+        const shell = TestShell.start({ args: [
+          `${await testServer.connectionString()}/${dbName}`, '--apiVersion', '1', '--apiStrict', '--apiDeprecationErrors'
+        ] });
+        await shell.waitForPrompt();
+        shell.assertContainsOutput('(API Version 1)');
         expect(await shell.executeLine('db.coll.find().toArray()'))
           .to.include('[]');
         shell.assertNoErrors();
