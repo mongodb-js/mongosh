@@ -129,7 +129,11 @@ class MongoshNodeRepl implements EvaluationListener {
     internalState.setEvaluationListener(this);
     await internalState.fetchConnectionInfo();
 
-    const mongodVersion = internalState.connectionInfo.buildInfo?.version;
+    let mongodVersion = internalState.connectionInfo.buildInfo?.version;
+    const apiVersion = serviceProvider.getRawClient()?.serverApi?.version;
+    if (apiVersion) {
+      mongodVersion = (mongodVersion ? mongodVersion + ' ' : '') + `(API Version ${apiVersion})`;
+    }
     await this.greet(mongodVersion);
     await this.printStartupLog(internalState);
 
