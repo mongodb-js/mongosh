@@ -72,6 +72,10 @@ export interface MongocryptdLogEvent {
   logEntry: any;
 }
 
+export interface StartMongoshReplEvent {
+  version: string;
+}
+
 export interface MongoshBusEventsMap {
   'mongosh:connect': (ev: ConnectEvent) => void;
   'mongosh:driver-initialized': (driverMetadata: any) => void;
@@ -90,7 +94,7 @@ export interface MongoshBusEventsMap {
   'mongosh:warn': (ev: ApiWarning) => void;
   'mongosh:api-load-file': (ev: ScriptLoadFileEvent) => void;
   'mongosh:start-loading-cli-scripts': (event: StartLoadingCliScriptsEvent) => void;
-  'mongosh:start-mongosh-repl': () => void;
+  'mongosh:start-mongosh-repl': (ev: StartMongoshReplEvent) => void;
   'mongosh:mongoshrc-load': () => void;
   'mongosh:mongoshrc-mongorc-warn': () => void;
   'mongosh:eval-cli-script': () => void;
