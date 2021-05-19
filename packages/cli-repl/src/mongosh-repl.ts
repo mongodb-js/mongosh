@@ -454,8 +454,8 @@ class MongoshNodeRepl implements EvaluationListener {
     }
     this.output.write('Stopping execution...');
 
-    const mongodVersion: string = internalState.connectionInfo.buildInfo?.version;
-    if (mongodVersion.match(/^(4\.0\.|3\.)\d+/)) {
+    const mongodVersion: string | undefined = internalState.connectionInfo.buildInfo?.version;
+    if (mongodVersion?.match(/^(4\.0\.|3\.)\d+/)) {
       this.output.write(this.clr(
         `\nWARNING: Operations running on the server cannot be killed automatically for MongoDB ${mongodVersion}.` +
         '\n         Please make sure to kill them manually. Killing operations is supported starting with MongoDB 4.1.',
@@ -468,7 +468,7 @@ class MongoshNodeRepl implements EvaluationListener {
     // we wait until it finally completes (which should happen immediately)
     await Promise.race([
       once(this.bus, 'mongosh:eval-interrupted'),
-      new Promise(resolve => setImmediate(resolve))
+      new Promise(setImmediate)
     ]);
 
     const fullyResumed = await internalState.onResumeExecution();
