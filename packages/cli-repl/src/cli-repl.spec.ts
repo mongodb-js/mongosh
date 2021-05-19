@@ -408,6 +408,55 @@ describe('CliRepl', () => {
       hasCollectionNames: false,
       hasDatabaseNames: false
     });
+
+    context('pressing CTRL-C', () => {
+      before(function() {
+        if (process.platform === 'win32') { // cannot trigger SIGINT on Windows
+          this.skip();
+        }
+        this.timeout(10_000);
+      });
+
+      beforeEach(async() => {
+        cliRepl = new CliRepl(cliReplOptions);
+        await cliRepl.start('', {});
+      });
+
+      it('cancels shell API commands that do not use the server', async() => {
+        output = '';
+        input.write('while(true) { print("I am alive"); };\n');
+        await tick();
+        process.kill(process.pid, 'SIGINT');
+
+        await waitBus(cliRepl.bus, 'mongosh:interrupt-complete');
+        expect(output).to.match(/^Stopping execution.../m);
+        expect(output).to.not.include('MongoError');
+        expect(output).to.not.include('Mongosh');
+        expect(output).to.match(/>\s+$/);
+
+        output = '';
+        await delay(100);
+        expect(output).to.not.include('alive');
+      });
+
+      it('ensures user code cannot catch the interrupt exception', async() => {
+        output = '';
+        input.write('nope = false; while(true) { try { print("I am alive"); } catch { nope = true; } };\n');
+        await tick();
+        process.kill(process.pid, 'SIGINT');
+
+        await waitBus(cliRepl.bus, 'mongosh:interrupt-complete');
+        expect(output).to.match(/^Stopping execution.../m);
+        expect(output).to.not.include('MongoError');
+        expect(output).to.not.include('Mongosh');
+        expect(output).to.match(/>\s+$/);
+
+        output = '';
+        input.write('nope\n');
+        await waitEval(cliRepl.bus);
+        expect(output).to.not.contain(true);
+      });
+    });
   });
 
   context('with an actual server', () => {
