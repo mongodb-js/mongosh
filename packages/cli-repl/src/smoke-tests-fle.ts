@@ -10,6 +10,11 @@ const assert = function(value, message) {
     process.exit(1);
   }
 };
+// There is no mongocryptd binary for darwin-x64 yet.
+if (os.platform() === 'darwin' && os.arch() === 'arm64') {
+  print('Test skipped')
+  process.exit(0);
+}
 if (db.version().startsWith('4.0.') ||
     !db.runCommand({buildInfo:1}).modules.includes('enterprise')) {
   // No FLE on mongod < 4.2 or community

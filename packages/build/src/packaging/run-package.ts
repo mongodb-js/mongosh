@@ -1,4 +1,5 @@
 import { constants as fsConstants, promises as fs } from 'fs';
+import path from 'path';
 import os from 'os';
 import { Config, Platform, validateBuildVariant } from '../config';
 import { downloadMongocrypt } from './download-mongocryptd';
@@ -12,10 +13,20 @@ export async function runPackage(
   const distributionBuildVariant = config.distributionBuildVariant;
   validateBuildVariant(distributionBuildVariant);
 
-  await fs.copyFile(
-    await downloadMongocrypt(distributionBuildVariant),
-    config.mongocryptdPath,
-    fsConstants.COPYFILE_FICLONE);
+  await fs.mkdir(path.dirname(config.mongocryptdPath), { recursive: true });
+  // TODO: add mongocryptd and E2E tests for darwin-arm64 once server builds
+  // are available for that platform.
+  if (distributionBuildVariant !== 'darwin-arm64') {
+    await fs.copyFile(
+      await downloadMongocrypt(distributionBuildVariant),
+      config.mongocryptdPath,
+      fsConstants.COPYFILE_FICLONE);
+  } else {
+    await fs.copyFile(
+      path.resolve(__dirname, '..', '..', '..', '..', 'scripts', 'no-mongocryptd.sh'),
+      config.mongocryptdPath,
+      fsConstants.COPYFILE_FICLONE);
+  }
 
   const runCreatePackage = async(): Promise<PackageFile> => {
     return await createPackage(
