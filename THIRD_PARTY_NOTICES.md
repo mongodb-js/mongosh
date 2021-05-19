@@ -88,7 +88,7 @@ Package|Version|License
 **[bindings](#acdb65ce90d2786593049f690752613250632fd5aeaa2960152abc4f0e8f3a44)**|1.5.0|MIT
 **[bl](#914f886368f63b0b33239e048b8533119b0a42116c4ff7498b9373c4c305e2a4)**|2.2.1|MIT
 **[bl](#0e8c95ceb67a28a94b8caec6fa59d55974c80aab5dcf21bf1b17b0867f694c3c)**|4.1.0|MIT
-**[bson](#8de31a0bc299ac7c75fd033c95bcfe9c2ee599079ab7212e0a451eaddcc2ad12)**|4.3.0|Apache-2.0
+**[bson](#3ed96fd027d2cc2660bd628ee5beaa2117648edb07e3a7777eca8de92f12e282)**|4.4.0|Apache-2.0
 **[chalk](#55b313d63da011efa14c3e52c12e0c270cedd69ddf5893b2b35363dd4f5a752d)**|4.1.1|MIT
 **[chalk](#0c7c7a95e90c3fdaf99df4851bc949785311d8ea1d2d4498615f37af8fa16cf8)**|3.0.0|MIT
 **[chalk](#8b8d3d6ff6233601575f891628d83bd6b34978a103d513931ae45b00f0e07585)**|2.4.2|MIT
@@ -159,7 +159,7 @@ Package|Version|License
 **[mimic-response](#0c868fd85c36cbce69ede58ff4693b89140b6a529a6794843f4985674d63642e)**|2.1.0|MIT
 **[minimist](#1d497ee3a918b9779d45ef4833686d5d33d0591a41bba29f22efbd4691b12eb0)**|1.2.5|MIT
 **[mkdirp-classic](#e79cc875152b50c2eb57a97163d99f0155bf4e4af7ba4a7e01c12a17a4a3305c)**|0.5.3|MIT
-**[mongodb](#46b489fb967bdc0aff55ee65a50b63e32f2c0115edf2c1af7c50c1cf1bf62579)**|4.0.0-beta.3|Apache-2.0
+**[mongodb](#638d31f762e92c531b589ea84bc6323a75f6d0c4294e162a2a8da629b9bb09fb)**|4.0.0-beta.4|Apache-2.0
 **[mongodb-ace-autocompleter](#5f8c32571122c25792bf4635ce9f1f6aaf49eb364b033f619b84e8ee9c29e011)**|0.4.8|Apache-2.0
 **[mongodb-ace-autocompleter](#25ec19f8e927ecab7f82f6f3336e34408f4a5cf94f265d521ce567583db05c91)**|0.4.14|Apache-2.0
 **[mongodb-build-info](#8a1ba45f0407e04bc40af593237b54961d4bb1ce23d4a6a2a4ab5284f00e0e4d)**|1.1.0|Apache-2.0
@@ -4909,8 +4909,8 @@ License files:
       
 
 
-<a id="8de31a0bc299ac7c75fd033c95bcfe9c2ee599079ab7212e0a451eaddcc2ad12"></a>
-### [bson](https://www.npmjs.com/package/bson) (version 4.3.0)
+<a id="3ed96fd027d2cc2660bd628ee5beaa2117648edb07e3a7777eca8de92f12e282"></a>
+### [bson](https://www.npmjs.com/package/bson) (version 4.4.0)
 <!-- initially found at packages/service-provider-core/node_modules/bson -->
 > A bson parser for node.js and the browser
 
@@ -8122,8 +8122,8 @@ Authors:
 * Mathias Buus (@mafintosh)
 
 
-<a id="46b489fb967bdc0aff55ee65a50b63e32f2c0115edf2c1af7c50c1cf1bf62579"></a>
-### [mongodb](https://www.npmjs.com/package/mongodb) (version 4.0.0-beta.3)
+<a id="638d31f762e92c531b589ea84bc6323a75f6d0c4294e162a2a8da629b9bb09fb"></a>
+### [mongodb](https://www.npmjs.com/package/mongodb) (version 4.0.0-beta.4)
 <!-- initially found at packages/service-provider-core/node_modules/mongodb -->
 > The official MongoDB driver for Node.js
 
