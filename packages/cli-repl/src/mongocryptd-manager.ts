@@ -168,6 +168,7 @@ export class MongocryptdManager {
 
       // No UNIX socket means we're on Windows, where we have to use networking.
       uri = !socket ? `mongodb://localhost:${port}` : `mongodb://${encodeURIComponent(socket)}`;
+      break;
     }
     if (!proc || !uri) {
       throw lastError ?? new MongoshInternalError('Could not successfully spawn mongocryptd');

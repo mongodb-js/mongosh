@@ -51,8 +51,8 @@ describe('MongocryptdManager', () => {
     expect(makeManager().close().state).to.equal(null);
   });
 
-  for (const otherMongocryptd of ['none', 'missing', 'broken', 'weirdlog']) {
-    for (const version of ['4.2', '4.4']) {
+  for (const otherMongocryptd of ['none', 'missing', 'broken', 'weirdlog', 'broken-after']) {
+    for (const version of ['4.2', '4.4']) { // This refers to the log format version
       for (const variant of ['withunix', 'nounix']) {
         // eslint-disable-next-line no-loop-func
         it(`spawns a working mongocryptd (${version}, ${variant}, other mongocryptd: ${otherMongocryptd})`, async() => {
@@ -71,6 +71,9 @@ describe('MongocryptdManager', () => {
           if (otherMongocryptd === 'weirdlog') {
             spawnPaths.unshift([ process.execPath, path.resolve(fakeMongocryptdDir, 'weirdlog') ]);
           }
+          if (otherMongocryptd === 'broken-after') {
+            spawnPaths.push([ process.execPath, path.resolve(fakeMongocryptdDir, 'exit1') ]);
+          }
           expect(await makeManager().start()).to.deep.equal({
             mongocryptdURI: variant === 'nounix' ?
               'mongodb://localhost:27020' :
@@ -79,7 +82,8 @@ describe('MongocryptdManager', () => {
           });
 
           const tryspawns = events.filter(({ event }) => event === 'mongosh:mongocryptd-tryspawn');
-          expect(tryspawns).to.have.lengthOf(otherMongocryptd === 'none' ? 1 : 2);
+          expect(tryspawns).to.have.lengthOf(
+            otherMongocryptd === 'none' || otherMongocryptd === 'broken-after' ? 1 : 2);
         });
       }
     }
