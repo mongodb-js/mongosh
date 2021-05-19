@@ -181,7 +181,7 @@ function wrapWithApiChecks<T extends(...args: any[]) => any>(fn: T, className: s
 }
 
 function checkForDeprecation(internalState: ShellInternalState | undefined, className: string, fn: any) {
-  if (internalState && typeof fn === 'function' && fn.deprecated) {
+  if (internalState && typeof internalState.emitDeprecatedApiCall === 'function' && typeof fn === 'function' && fn.deprecated) {
     internalState.emitDeprecatedApiCall({
       method: fn.name,
       class: className
