@@ -11,6 +11,7 @@ import type {
   ConnectEvent,
   ScriptLoadFileEvent,
   StartLoadingCliScriptsEvent,
+  StartMongoshReplEvent,
   MongocryptdTrySpawnEvent,
   MongocryptdLogEvent,
   MongocryptdErrorEvent
@@ -52,6 +53,12 @@ export default function setupLoggerAndTelemetry(
     arch: process.arch
   };
 
+  log.info('mongosh:start-logging', {
+    version: mongosh_version,
+    execPath: process.execPath,
+    isCompiledBinary: process.execPath === process.argv[1]
+  });
+
   let analytics: MongoshAnalytics = new NoopAnalytics();
   try {
     analytics = makeAnalytics();
@@ -64,8 +71,8 @@ export default function setupLoggerAndTelemetry(
   // state here so that the places where the events are emitted don't have to
   // be aware of this distinction.
   let hasStartedMongoshRepl = false;
-  bus.on('mongosh:start-mongosh-repl', () => {
-    log.info('mongosh:start-mongosh-repl');
+  bus.on('mongosh:start-mongosh-repl', (ev: StartMongoshReplEvent) => {
+    log.info('mongosh:start-mongosh-repl', ev);
     hasStartedMongoshRepl = true;
   });
 

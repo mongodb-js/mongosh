@@ -114,6 +114,7 @@ class CliRepl {
    * @param {MongoClientOptions} driverOptions - The driver options.
    */
   async start(driverUri: string, driverOptions: MongoClientOptions): Promise<void> {
+    const { version } = require('../package.json');
     await this.verifyNodeVersion();
     if (this.isPasswordMissing(driverOptions)) {
       await this.requirePassword(driverUri, driverOptions);
@@ -175,7 +176,7 @@ class CliRepl {
       }
     }
     await this.loadRcFiles();
-    this.bus.emit('mongosh:start-mongosh-repl');
+    this.bus.emit('mongosh:start-mongosh-repl', { version });
     await this.mongoshRepl.startRepl(initialized);
   }
 
