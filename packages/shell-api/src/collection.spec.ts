@@ -512,6 +512,19 @@ describe('Collection', () => {
         );
       });
 
+      it('throws when returnDocument is an invalid value', async() => {
+        try {
+          await collection.findOneAndReplace({}, {}, {
+            returnDocument: 'somethingelse' as any
+          });
+          expect.fail('missed exception');
+        } catch (error) {
+          expect(error).to.be.instanceOf(MongoshInvalidInputError);
+          expect(error.message).to.contain("returnDocument needs to be either 'before' or 'after'");
+          expect(error.code).to.equal(CommonErrors.InvalidArgument);
+        }
+      });
+
       it('returns an ExplainOutput object when explained', async() => {
         serviceProvider.findOneAndReplace.resolves({ ok: 1 });
 
@@ -572,6 +585,19 @@ describe('Collection', () => {
           {},
           { returnDocument: 'after' }
         );
+      });
+
+      it('throws when returnDocument is an invalid value', async() => {
+        try {
+          await collection.findOneAndUpdate({}, {}, {
+            returnDocument: 'somethingelse' as any
+          });
+          expect.fail('missed exception');
+        } catch (error) {
+          expect(error).to.be.instanceOf(MongoshInvalidInputError);
+          expect(error.message).to.contain("returnDocument needs to be either 'before' or 'after'");
+          expect(error.code).to.equal(CommonErrors.InvalidArgument);
+        }
       });
 
       it('returns an ExplainOutput object when explained', async() => {

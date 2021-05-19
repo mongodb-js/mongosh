@@ -574,6 +574,12 @@ export type FindAndModifyShellOptions<BaseOptions extends FindOneAndReplaceOptio
 export function processFindAndModifyOptions<BaseOptions extends FindOneAndReplaceOptions | FindOneAndUpdateOptions>(options: FindAndModifyShellOptions<BaseOptions>): BaseOptions {
   options = { ...options };
   if ('returnDocument' in options) {
+    if (options.returnDocument !== 'before' && options.returnDocument !== 'after') {
+      throw new MongoshInvalidInputError(
+        "returnDocument needs to be either 'before' or 'after'",
+        CommonErrors.InvalidArgument
+      );
+    }
     delete options.returnNewDocument;
     delete options.returnOriginal;
     return options;

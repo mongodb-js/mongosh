@@ -218,19 +218,19 @@ describe('completer.completer', () => {
 
   context('when context is collections', () => {
     it('matches a collection command', async() => {
-      const i = 'db.shipwrecks.findAnd';
-      expect(await completer(standalone440, i)).to.deep.equal([['db.shipwrecks.findAndModify'], i]);
+      const i = 'db.shipwrecks.findOneAndUp';
+      expect(await completer(standalone440, i)).to.deep.equal([['db.shipwrecks.findOneAndUpdate'], i]);
     });
 
     it('matches a collection command if part of an expression', async() => {
-      const i = 'var result = db.shipwrecks.findAnd';
-      expect(await completer(standalone440, i)).to.deep.equal([['var result = db.shipwrecks.findAndModify'], i]);
+      const i = 'var result = db.shipwrecks.findOneAndUp';
+      expect(await completer(standalone440, i)).to.deep.equal([['var result = db.shipwrecks.findOneAndUpdate'], i]);
     });
 
     it('returns all suggestions', async() => {
       const i = 'db.shipwrecks.';
       const collComplete = Object.keys(shellSignatures.Collection.attributes as any);
-      const adjusted = collComplete.filter(c => !['count', 'update', 'remove', 'insert', 'save'].includes(c)).map(c => `${i}${c}`);
+      const adjusted = collComplete.filter(c => !['count', 'update', 'remove', 'insert', 'save', 'findAndModify'].includes(c)).map(c => `${i}${c}`);
 
       expect(await completer(sharded440, i)).to.deep.equal([adjusted, i]);
     });
@@ -239,7 +239,7 @@ describe('completer.completer', () => {
       const i = 'db.shipwrecks.find';
       expect(await completer(standalone440, i)).to.deep.equal([
         [
-          'db.shipwrecks.find', 'db.shipwrecks.findAndModify',
+          'db.shipwrecks.find',
           'db.shipwrecks.findOne', 'db.shipwrecks.findOneAndDelete',
           'db.shipwrecks.findOneAndReplace', 'db.shipwrecks.findOneAndUpdate'
         ], i]);

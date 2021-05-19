@@ -316,8 +316,8 @@ internal val findOneAndReplaceOptionsConverters: Map<String, (FindOneAndReplaceO
         typed("upsert", Boolean::class.java) { opt, value ->
             opt.upsert(value)
         },
-        typed("returnOriginal", Boolean::class.java) { opt, value ->
-            opt.returnDocument(if (value) ReturnDocument.BEFORE else ReturnDocument.AFTER)
+        typed("returnDocument", String::class.java) { opt, value ->
+            opt.returnDocument(if (value == "before") ReturnDocument.BEFORE else ReturnDocument.AFTER)
         },
         typed("collation", Map::class.java) { opt, value ->
             val collation = convert(Collation.builder(), collationConverters, collationDefaultConverter, value)
@@ -371,8 +371,8 @@ internal val findOneAndUpdateConverters: Map<String, (FindOneAndUpdateOptions, A
         typed("upsert", Boolean::class.java) { opt, value ->
             opt.upsert(value)
         },
-        typed("returnOriginal", Boolean::class.java) { opt, value ->
-            opt.returnDocument(if (value) ReturnDocument.BEFORE else ReturnDocument.AFTER)
+        typed("returnDocument", String::class.java) { opt, value ->
+            opt.returnDocument(if (value == "before") ReturnDocument.BEFORE else ReturnDocument.AFTER)
         },
         typed("arrayFilters", List::class.java) { opt, value ->
             if (value.any { it !is Document }) {
