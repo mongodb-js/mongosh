@@ -70,10 +70,12 @@ describe('AsyncRepl', () => {
       return this.skip(); // No SIGINT on Windows.
     }
 
-    const { input, output } = createDefaultAsyncRepl({ onAsyncSigint: () => false });
+    const { input, output, repl } = createDefaultAsyncRepl({ onAsyncSigint: () => false });
 
+    const finished = once(repl, evalFinish);
     input.write('while (true) { process.kill(process.pid, "SIGINT"); }\n');
     await expectInStream(output, 'execution was interrupted');
+    await finished;
   });
 
   it('allows async interruption through SIGINT', async function() {
@@ -82,13 +84,15 @@ describe('AsyncRepl', () => {
     }
 
     const onAsyncSigint = sinon.stub().resolves(false);
-    const { input, output } = createDefaultAsyncRepl({ onAsyncSigint: onAsyncSigint });
+    const { input, output, repl } = createDefaultAsyncRepl({ onAsyncSigint: onAsyncSigint });
 
+    const finished = once(repl, evalFinish);
     input.write('new Promise(oopsIdontResolve => 0)\n');
     await delay(100);
     process.kill(process.pid, 'SIGINT');
     await expectInStream(output, 'execution was interrupted');
     expect(onAsyncSigint).to.have.been.calledOnce;
+    await finished;
   });
 
   it('handles synchronous exceptions well', async() => {

@@ -254,4 +254,28 @@ export default function setupLoggerAndTelemetry(
   bus.on('mongosh:mongocryptd-log', function(ev: MongocryptdLogEvent) {
     log.info('mongosh:mongocryptd-log', ev);
   });
+
+  const deprecatedApiCalls = new Set<string>();
+  bus.on('mongosh:deprecated-api-call', function(ev: ApiEvent) {
+    deprecatedApiCalls.add(`${ev.class}#${ev.method}`);
+  });
+  bus.on('mongosh:evaluate-finished', function() {
+    deprecatedApiCalls.forEach(e => {
+      const [clazz, method] = e.split('#');
+      log.info('mongosh:deprecated-api-call', { class: clazz, method });
+
+      if (telemetry) {
+        analytics.track({
+          userId,
+          event: 'Deprecated Method',
+          properties: {
+            mongosh_version,
+            class: clazz,
+            method
+          }
+        });
+      }
+    });
+    deprecatedApiCalls.clear();
+  });
 }

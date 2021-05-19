@@ -8,6 +8,7 @@ import { startTestServer, skipIfServerVersion } from '../../../testing/integrati
 import { toShellResult, Topologies } from './index';
 import { Document } from '@mongosh/service-provider-core';
 import { ShellUserConfig } from '@mongosh/types';
+import { once } from 'events';
 
 // Compile JS code as an expression. We use this to generate some JS functions
 // whose code is stringified and compiled elsewhere, to make sure that the code
@@ -2033,6 +2034,24 @@ describe('Shell API (integration)', function() {
         }
       }
       expect(calls).to.equal(1);
+    });
+  });
+
+  describe('deprecations', () => {
+    it('emit an event when a deprecated method is called', async() => {
+      const deprecatedCall = once(internalState.messageBus, 'mongosh:deprecated-api-call');
+      try {
+        mongo.setSlaveOk();
+        expect.fail('Expected error');
+      } catch (e) {
+        expect(e.message).to.contain('slaveOk is deprecated');
+      }
+      const events = await deprecatedCall;
+      expect(events).to.have.length(1);
+      expect(events[0]).to.deep.equal({
+        method: 'setSlaveOk',
+        class: 'Mongo'
+      });
     });
   });
 });

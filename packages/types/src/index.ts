@@ -79,12 +79,14 @@ export interface MongoshBusEventsMap {
   'mongosh:update-user': (id: string, enableTelemetry: boolean) => void;
   'mongosh:error': (error: Error) => void;
   'mongosh:help': () => void;
-  'mongosh:evaluate-input': (ev: EvaluateInputEvent) => void;
+  'mongosh:evaluate-input': (ev: EvaluateInputEvent) => void; // fired before user code is evaluated in ShellEvaluator
+  'mongosh:evaluate-finished': () => void; // fired when the code evaluation is completed (regardless of success / error / interrupt) in AsyncRepl
   'mongosh:use': (ev: UseEvent) => void;
   'mongosh:getDB': (ev: UseEvent) => void;
   'mongosh:show': (ev: ShowEvent) => void;
   'mongosh:setCtx': (ev: ApiEvent) => void;
   'mongosh:api-call': (ev: ApiEvent) => void;
+  'mongosh:deprecated-api-call': (ev: ApiEvent) => void;
   'mongosh:warn': (ev: ApiWarning) => void;
   'mongosh:api-load-file': (ev: ScriptLoadFileEvent) => void;
   'mongosh:start-loading-cli-scripts': (event: StartLoadingCliScriptsEvent) => void;
@@ -97,9 +99,9 @@ export interface MongoshBusEventsMap {
   'mongosh:mongocryptd-error': (ev: MongocryptdErrorEvent) => void;
   'mongosh:mongocryptd-log': (ev: MongocryptdLogEvent) => void;
   'mongosh:closed': () => void; // For testing.
-  'mongosh:eval-complete': () => void; // For testing.
+  'mongosh:eval-complete': () => void; // For testing - fired when the code evaluation in MongoshRepl finishes
   'mongosh:autocompletion-complete': () => void; // For testing.
-  'mongosh:interrupt-complete': () => void; // For testing.
+  'mongosh:interrupt-complete': () => void; // For testing - fired when the interrupt code in MongoshRepl finishes
 }
 
 export interface MongoshBus {
