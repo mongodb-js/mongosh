@@ -4,7 +4,9 @@ import type {
   InsertOneResult,
   Collection,
   RenameOptions,
-  FindAndModifyOptions,
+  FindOneAndDeleteOptions,
+  FindOneAndReplaceOptions,
+  FindOneAndUpdateOptions,
   BulkWriteOptions,
   AnyBulkWriteOperation,
   DeleteOptions,
@@ -140,7 +142,7 @@ export default interface Writable {
     database: string,
     collection: string,
     filter: Document,
-    options: FindAndModifyOptions,
+    options: FindOneAndDeleteOptions,
     dbOptions?: DbOptions): Promise<Document>;
 
   /**
@@ -160,7 +162,7 @@ export default interface Writable {
     collection: string,
     filter: Document,
     replacement: Document,
-    options: FindAndModifyOptions,
+    options: FindOneAndReplaceOptions,
     dbOptions?: DbOptions): Promise<Document>;
 
   /**
@@ -180,7 +182,7 @@ export default interface Writable {
     collection: string,
     filter: Document,
     update: Document | Document[],
-    options: FindAndModifyOptions,
+    options: FindOneAndUpdateOptions,
     dbOptions?: DbOptions): Promise<Document>;
 
   /**

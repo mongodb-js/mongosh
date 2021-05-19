@@ -24,12 +24,12 @@ import Mongo from './mongo';
 @shellApiClassDefault
 export default class ChangeStreamCursor extends ShellApiWithMongoClass {
   _mongo: Mongo;
-  _cursor: ChangeStream;
+  _cursor: ChangeStream<Document>;
   _currentIterationResult: CursorIterationResult | null = null;
   _on: string;
   _batchSize: number | null = null;
 
-  constructor(cursor: ChangeStream, on: string, mongo: Mongo) {
+  constructor(cursor: ChangeStream<Document>, on: string, mongo: Mongo) {
     super();
     this._cursor = cursor;
     this._on = on;
@@ -100,7 +100,7 @@ export default class ChangeStreamCursor extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
-  async next(): Promise<void> {
+  async next(): Promise<Document> {
     printWarning(
       'If there are no documents in the batch, next will block. Use tryNext if you want to check if there are ' +
       'any documents without waiting.',

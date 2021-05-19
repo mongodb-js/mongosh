@@ -42,11 +42,11 @@ describe('BSON e2e', function() {
       MinKey: 'MinKey()',
       MaxKey: 'MaxKey()',
       NumberInt: 'Int32(32)',
-      NumberLong: 'Long.fromString("64")',
+      NumberLong: 'Long("64")',
       Timestamp: 'Timestamp(1, 100)',
       Symbol: 'abc',
       Code: 'Code("abc")',
-      NumberDecimal: 'Decimal128.fromString("1")',
+      NumberDecimal: 'Decimal128("1")',
       BinData: 'Binary(Buffer.from("31323334", "hex"), 128)',
       ISODate: 'ISODate("2021-05-04T15:49:33.000Z")',
       RegExp: '/match/'
@@ -61,7 +61,7 @@ describe('BSON e2e', function() {
         Timestamp: new bson.Timestamp(1, 100),
         Symbol: new bson.BSONSymbol('abc'),
         Code: new bson.Code('abc'),
-        NumberDecimal: bson.Decimal128.fromString('1'),
+        NumberDecimal: new bson.Decimal128('1'),
         BinData: new bson.Binary(buffer, 128),
         ISODate: new Date('2021-05-04T15:49:33.000Z'),
         RegExp: /match/
@@ -177,12 +177,12 @@ describe('BSON e2e', function() {
       shell.assertNoErrors();
     });
     it('Decimal128 prints when returned from the server', async() => {
-      const value = bson.Decimal128.fromString('1');
+      const value = new bson.Decimal128('1');
       await shell.writeInputLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
       await shell.writeInputLine('db.test.findOne().value');
       await eventually(() => {
-        shell.assertContainsOutput('Decimal128.fromString("1")');
+        shell.assertContainsOutput('Decimal128("1")');
       });
       shell.assertNoErrors();
     });
@@ -261,7 +261,7 @@ describe('BSON e2e', function() {
       const value = 'NumberLong("64")';
       await shell.writeInputLine(value);
       await eventually(() => {
-        shell.assertContainsOutput('Long.fromString("64")');
+        shell.assertContainsOutput('Long("64")');
       });
       shell.assertNoErrors();
     });
@@ -269,7 +269,7 @@ describe('BSON e2e', function() {
       const value = 'NumberLong("345678654321234561")';
       await shell.writeInputLine(value);
       await eventually(() => {
-        shell.assertContainsOutput('Long.fromString("345678654321234561")');
+        shell.assertContainsOutput('Long("345678654321234561")');
       });
       shell.assertNoErrors();
     });
@@ -309,7 +309,7 @@ describe('BSON e2e', function() {
       const value = 'NumberDecimal("100")';
       await shell.writeInputLine(value);
       await eventually(() => {
-        shell.assertContainsOutput('Decimal128.fromString("100")');
+        shell.assertContainsOutput('Decimal128("100")');
       });
       shell.assertNoErrors();
     });
@@ -427,7 +427,7 @@ describe('BSON e2e', function() {
       shell.assertNoErrors();
     });
     it('Decimal128 has help when returned from the server', async() => {
-      const value = bson.Decimal128.fromString('1');
+      const value = new bson.Decimal128('1');
       await shell.writeInputLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
       await shell.writeInputLine('db.test.findOne().value.help()');

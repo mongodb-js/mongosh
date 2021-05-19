@@ -460,7 +460,7 @@ describe('Collection', () => {
     });
 
     describe('findOneAndReplace', () => {
-      it('sets returnOriginal to true by default', async() => {
+      it('sets returnDocument to before by default', async() => {
         serviceProvider.findOneAndReplace = sinon.spy(() => Promise.resolve({
           result: { ok: 1, value: {} }
         })) as any;
@@ -472,11 +472,11 @@ describe('Collection', () => {
           'coll1',
           {},
           {},
-          { returnOriginal: true }
+          { returnDocument: 'before' }
         );
       });
 
-      it('lets returnNewDocument determine returnOriginal', async() => {
+      it('lets returnNewDocument determine returnDocument', async() => {
         serviceProvider.findOneAndReplace = sinon.spy(() => Promise.resolve({
           result: { ok: 1, value: {} }
         })) as any;
@@ -490,7 +490,25 @@ describe('Collection', () => {
           'coll1',
           {},
           {},
-          { returnOriginal: false }
+          { returnDocument: 'after' }
+        );
+      });
+
+      it('lets returnOriginal determine returnDocument', async() => {
+        serviceProvider.findOneAndReplace = sinon.spy(() => Promise.resolve({
+          result: { ok: 1, value: {} }
+        })) as any;
+
+        await collection.findOneAndReplace({}, {}, {
+          returnOriginal: false
+        });
+
+        expect(serviceProvider.findOneAndReplace).to.have.been.calledWith(
+          'db1',
+          'coll1',
+          {},
+          {},
+          { returnDocument: 'after' }
         );
       });
 
@@ -504,7 +522,7 @@ describe('Collection', () => {
     });
 
     describe('findOneAndUpdate', () => {
-      it('sets returnOriginal to true by default', async() => {
+      it('sets returnDocument to before by default', async() => {
         serviceProvider.findOneAndUpdate = sinon.spy(() => Promise.resolve({
           result: { ok: 1, value: {} }
         })) as any;
@@ -516,11 +534,11 @@ describe('Collection', () => {
           'coll1',
           {},
           {},
-          { returnOriginal: true }
+          { returnDocument: 'before' }
         );
       });
 
-      it('lets returnNewDocument determine returnOriginal', async() => {
+      it('lets returnNewDocument determine returnDocument', async() => {
         serviceProvider.findOneAndUpdate = sinon.spy(() => Promise.resolve({
           result: { ok: 1, value: {} }
         })) as any;
@@ -534,7 +552,25 @@ describe('Collection', () => {
           'coll1',
           {},
           {},
-          { returnOriginal: false }
+          { returnDocument: 'after' }
+        );
+      });
+
+      it('lets returnOriginal determine returnDocument', async() => {
+        serviceProvider.findOneAndUpdate = sinon.spy(() => Promise.resolve({
+          result: { ok: 1, value: {} }
+        })) as any;
+
+        await collection.findOneAndUpdate({}, {}, {
+          returnOriginal: false
+        });
+
+        expect(serviceProvider.findOneAndUpdate).to.have.been.calledWith(
+          'db1',
+          'coll1',
+          {},
+          {},
+          { returnDocument: 'after' }
         );
       });
 

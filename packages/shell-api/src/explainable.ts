@@ -25,7 +25,9 @@ import type {
   CountOptions,
   DistinctOptions,
   UpdateOptions,
-  FindAndModifyOptions
+  FindOneAndDeleteOptions,
+  FindOneAndReplaceOptions,
+  FindOneAndUpdateOptions
 } from '@mongosh/service-provider-core';
 
 @shellApiClassDefault
@@ -125,19 +127,19 @@ export default class Explainable extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
-  async findOneAndDelete(filter: Document, options: FindAndModifyOptions = {}): Promise<Document> {
+  async findOneAndDelete(filter: Document, options: FindOneAndDeleteOptions = {}): Promise<Document> {
     this._emitExplainableApiCall('findOneAndDelete', { filter, options });
     return this._collection.findOneAndDelete(filter, { ...options, explain: this._verbosity });
   }
 
   @returnsPromise
-  async findOneAndReplace(filter: Document, replacement: Document, options: FindAndModifyShellOptions = {}): Promise<Document> {
+  async findOneAndReplace(filter: Document, replacement: Document, options: FindAndModifyShellOptions<FindOneAndReplaceOptions> = {}): Promise<Document> {
     this._emitExplainableApiCall('findOneAndReplace', { filter, options });
     return this._collection.findOneAndReplace(filter, replacement, { ...options, explain: this._verbosity });
   }
 
   @returnsPromise
-  async findOneAndUpdate(filter: Document, update: Document, options: FindAndModifyShellOptions = {}): Promise<Document> {
+  async findOneAndUpdate(filter: Document, update: Document, options: FindAndModifyShellOptions<FindOneAndUpdateOptions> = {}): Promise<Document> {
     this._emitExplainableApiCall('findOneAndUpdate', { filter, options });
     return this._collection.findOneAndUpdate(filter, update, { ...options, explain: this._verbosity });
   }

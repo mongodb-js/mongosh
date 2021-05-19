@@ -3,7 +3,7 @@ import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
 import { signatures, toShellResult } from './index';
 import ChangeStreamCursor from './change-stream-cursor';
 import { ADMIN_DB, ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';
-import { ChangeStream } from '@mongosh/service-provider-core';
+import { ChangeStream, Document } from '@mongosh/service-provider-core';
 import { startTestCluster } from '../../../testing/integration-testing-hooks';
 import { CliServiceProvider } from '../../service-provider-server/lib';
 import ShellInternalState from './shell-internal-state';
@@ -15,7 +15,7 @@ import { MongoshUnimplementedError } from '@mongosh/errors';
 
 describe('ChangeStreamCursor', () => {
   describe('help', () => {
-    const apiClass = new ChangeStreamCursor({} as ChangeStream, 'source', {} as Mongo);
+    const apiClass = new ChangeStreamCursor({} as ChangeStream<Document>, 'source', {} as Mongo);
     it('calls help function', async() => {
       expect((await toShellResult(apiClass.help())).type).to.equal('Help');
       expect((await toShellResult(apiClass.help)).type).to.equal('Help');
@@ -40,11 +40,11 @@ describe('ChangeStreamCursor', () => {
     });
   });
   describe('instance', () => {
-    let spCursor: StubbedInstance<ChangeStream>;
+    let spCursor: StubbedInstance<ChangeStream<Document>>;
     let cursor;
     let warnSpy;
     beforeEach(() => {
-      spCursor = stubInterface<ChangeStream>();
+      spCursor = stubInterface<ChangeStream<Document>>();
       warnSpy = sinon.spy();
 
       cursor = new ChangeStreamCursor(spCursor, 'source', {
@@ -281,7 +281,7 @@ describe('ChangeStreamCursor', () => {
   describe('unsupported methods', () => {
     let cursor;
     beforeEach(() => {
-      cursor = new ChangeStreamCursor({} as ChangeStream, 'source', {} as Mongo);
+      cursor = new ChangeStreamCursor({} as ChangeStream<Document>, 'source', {} as Mongo);
     });
 
     for (const name of ['map', 'forEach', 'toArray', 'objsLeftInBatch']) {
