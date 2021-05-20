@@ -8,7 +8,7 @@ const translations: Catalog = {
   build: {},
   'cli-repl': {
     args: {
-      usage: '$ mongosh [options] [db address] [file names (ending in .js or .mongo)]',
+      usage: '$ mongosh [options] [db address] [file names (ending in .js or .mongodb)]',
       options: 'Options:',
       help: 'Show this usage information',
       ipv6: 'Enable IPv6 support (disabled by default)',

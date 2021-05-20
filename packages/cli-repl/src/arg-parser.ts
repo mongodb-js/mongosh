@@ -132,7 +132,7 @@ function isConnectionSpecifier(arg?: string): boolean {
   return typeof arg === 'string' &&
     (arg.startsWith('mongodb://') ||
      arg.startsWith('mongodb+srv://') ||
-     !(arg.endsWith('.js') || arg.endsWith('.mongo')));
+     !(arg.endsWith('.js') || arg.endsWith('.mongodb')));
 }
 
 /**

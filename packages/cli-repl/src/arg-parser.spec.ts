@@ -591,16 +591,16 @@ describe('arg-parser', () => {
           });
         });
 
-        context('when the filenames end in .mongo', () => {
-          const argv = [ ...baseArgv, uri, 'test1.mongo', 'test2.mongo' ];
+        context('when the filenames end in .mongodb', () => {
+          const argv = [ ...baseArgv, uri, 'test1.mongodb', 'test2.mongodb' ];
 
           it('returns the URI in the object', () => {
             expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
           });
 
           it('sets the filenames', () => {
-            expect(parseCliArgs(argv).fileNames[0]).to.equal('test1.mongo');
-            expect(parseCliArgs(argv).fileNames[1]).to.equal('test2.mongo');
+            expect(parseCliArgs(argv).fileNames[0]).to.equal('test1.mongodb');
+            expect(parseCliArgs(argv).fileNames[1]).to.equal('test2.mongodb');
           });
         });
 
@@ -658,16 +658,16 @@ describe('arg-parser', () => {
           });
         });
 
-        context('when the filenames end in .mongo', () => {
-          const argv = [ ...baseArgv, 'test1.mongo', 'test2.mongo' ];
+        context('when the filenames end in .mongodb', () => {
+          const argv = [ ...baseArgv, 'test1.mongodb', 'test2.mongodb' ];
 
           it('returns no URI in the object', () => {
             expect(parseCliArgs(argv).connectionSpecifier).to.equal(undefined);
           });
 
           it('sets the filenames', () => {
-            expect(parseCliArgs(argv).fileNames[0]).to.equal('test1.mongo');
-            expect(parseCliArgs(argv).fileNames[1]).to.equal('test2.mongo');
+            expect(parseCliArgs(argv).fileNames[0]).to.equal('test1.mongodb');
+            expect(parseCliArgs(argv).fileNames[1]).to.equal('test2.mongodb');
           });
         });
 
