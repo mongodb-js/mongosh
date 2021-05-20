@@ -118,8 +118,12 @@ function formatSimpleType(output: any, options: FormatOptions): any {
   return inspect(output, options);
 }
 
-function formatCollections(output: string[], options: FormatOptions): string {
-  return clr(output.join('\n'), 'bold', options);
+function formatCollections(output: any[], options: FormatOptions): string {
+  const tableEntries = output.map(
+    (coll) => [clr(coll.name, 'bold', options), coll.badge]
+  );
+
+  return textTable(tableEntries, { align: ['l', 'l'] });
 }
 
 function formatDatabases(output: any[], options: FormatOptions): string {

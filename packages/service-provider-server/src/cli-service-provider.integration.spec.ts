@@ -651,6 +651,37 @@ describe('CliServiceProvider [integration]', function() {
         type: 'collection'
       });
     });
+
+    context('post-5.0', () => {
+      skipIfServerVersion(testServer, '< 5.0');
+
+      it('allows time-series', async() => {
+        await db.createCollection('coll1', { timeseries: { timeField: 'time' } } );
+
+        const collections = await serviceProvider.listCollections(dbName, {}, { nameOnly: true });
+
+        expect(
+          collections
+        ).to.deep.contain({
+          name: 'coll1',
+          type: 'timeseries'
+        });
+
+        expect(
+          collections
+        ).to.deep.contain({
+          name: 'system.buckets.coll1',
+          type: 'collection'
+        });
+
+        expect(
+          collections
+        ).to.deep.contain({
+          name: 'system.views',
+          type: 'collection'
+        });
+      });
+    });
   });
 
   describe('db fetching', () => {

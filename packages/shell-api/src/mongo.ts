@@ -276,7 +276,7 @@ export default class Mongo extends ShellApiClass {
         return new CommandResult('ShowDatabasesResult', result);
       case 'collections':
       case 'tables':
-        const collectionNames = await this._internalState.currentDb._getCollectionNames({ readPreference: 'primaryPreferred' });
+        const collectionNames = await this._internalState.currentDb._getCollectionNamesWithTypes({ readPreference: 'primaryPreferred' });
         return new CommandResult('ShowCollectionsResult', collectionNames);
       case 'profile':
         const sysprof = this._internalState.currentDb.getCollection('system.profile');

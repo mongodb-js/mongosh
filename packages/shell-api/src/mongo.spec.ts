@@ -117,17 +117,23 @@ describe('Mongo', () => {
       ['collections', 'tables'].forEach((t) => {
         describe(t, () => {
           it('calls database.getCollectionNames', async() => {
-            const expectedResult = ['a', 'b'];
-            database._getCollectionNames.resolves(expectedResult);
+            const expectedResult = [
+              { name: 'a', badge: '' },
+              { name: 'b', badge: '' }
+            ];
+            database._getCollectionNamesWithTypes.resolves(expectedResult);
             await mongo.show(t);
-            expect(database._getCollectionNames).to.have.been.calledWith({
+            expect(database._getCollectionNamesWithTypes).to.have.been.calledWith({
               readPreference: 'primaryPreferred'
             });
           });
 
           it('returns ShowCollectionsResult CommandResult', async() => {
-            const expectedResult = ['a', 'b'];
-            database._getCollectionNames.resolves(expectedResult);
+            const expectedResult = [
+              { name: 'a', badge: '' },
+              { name: 'b', badge: '' }
+            ];
+            database._getCollectionNamesWithTypes.resolves(expectedResult);
             const result = await mongo.show(t);
             expect(result.value).to.deep.equal(expectedResult);
             expect(result.type).to.equal('ShowCollectionsResult');
@@ -135,7 +141,7 @@ describe('Mongo', () => {
 
           it('throws if database.getCollectionNames rejects', async() => {
             const expectedError = new Error();
-            database._getCollectionNames.rejects(expectedError);
+            database._getCollectionNamesWithTypes.rejects(expectedError);
             const catchedError = await mongo.show(t)
               .catch(e => e);
             expect(catchedError).to.equal(expectedError);

@@ -144,6 +144,17 @@ export default class Database extends ShellApiWithMongoClass {
     return this._cachedCollectionNames;
   }
 
+  async _getCollectionNamesWithTypes(options?: ListCollectionsOptions): Promise<Document[]> {
+    const collections = await this._listCollections({}, { ...options, nameOnly: true });
+    const typesToBages: any = {
+      collection: '',
+      timeseries: '[time-series]',
+      view: '[view]'
+    };
+
+    return collections.map((collection: any) => ({ name: collection.name, badge: typesToBages[collection.type] }));
+  }
+
   async _getCollectionNamesForCompletion(): Promise<string[]> {
     return await Promise.race([
       (async() => {
