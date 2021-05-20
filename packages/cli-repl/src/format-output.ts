@@ -15,6 +15,7 @@ type EvaluationResult = {
 
 type FormatOptions = {
   colors: boolean;
+  compact?: boolean | number;
   depth?: number;
   maxArrayLength?: number;
   maxStringLength?: number;
@@ -201,7 +202,8 @@ function inspect(output: any, options: FormatOptions): any {
       colors: options.colors ?? true,
       depth: options.depth ?? 6,
       maxArrayLength: options.maxArrayLength,
-      maxStringLength: options.maxStringLength
+      maxStringLength: options.maxStringLength,
+      compact: options.compact
     }));
   } finally {
     delete (Date.prototype as any)[util.inspect.custom];

@@ -105,6 +105,7 @@ class MongoshNodeRepl implements EvaluationListener {
   ioProvider: MongoshIOProvider;
   onClearCommand?: EvaluationListener['onClearCommand'];
   insideAutoCompleteOrGetPrompt: boolean;
+  inspectCompact: number | boolean = 0;
   inspectDepth = 0;
   started = false;
   showStackTraces = false;
@@ -141,6 +142,7 @@ class MongoshNodeRepl implements EvaluationListener {
     await this.greet(mongodVersion);
     await this.printStartupLog(internalState);
 
+    this.inspectCompact = await this.getConfig('inspectCompact');
     this.inspectDepth = await this.getConfig('inspectDepth');
     this.showStackTraces = await this.getConfig('showStackTraces');
 
@@ -546,11 +548,12 @@ class MongoshNodeRepl implements EvaluationListener {
     return clr(text, style, this.getFormatOptions());
   }
 
-  getFormatOptions(): { colors: boolean, depth: number, showStackTraces: boolean } {
+  getFormatOptions(): { colors: boolean, compact: number | boolean, depth: number, showStackTraces: boolean } {
     const output = this.output as WriteStream;
     return {
       colors: this._runtimeState?.repl?.useColors ??
         (output.isTTY && output.getColorDepth() > 1),
+      compact: this.inspectCompact,
       depth: this.inspectDepth,
       showStackTraces: this.showStackTraces
     };
@@ -589,6 +592,9 @@ class MongoshNodeRepl implements EvaluationListener {
     if (result === 'success') {
       if (key === 'historyLength' && this._runtimeState) {
         (this.runtimeState().repl as any).historySize = value;
+      }
+      if (key === 'inspectCompact') {
+        this.inspectCompact = value as number | boolean;
       }
       if (key === 'inspectDepth') {
         this.inspectDepth = +value;
