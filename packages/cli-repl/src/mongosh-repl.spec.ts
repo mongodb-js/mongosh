@@ -520,6 +520,17 @@ describe('MongoshNodeRepl', () => {
     });
 
     context('with modified config values', () => {
+      it('controls inspect compact option', async() => {
+        input.write('config.set("inspectCompact", false)\n');
+        await waitEval(bus);
+        expect(output).to.include('Setting "inspectCompact" has been changed');
+
+        output = '';
+        input.write('({a:{b:{}}})\n');
+        await waitEval(bus);
+        expect(stripAnsi(output)).to.include('{\n  a: {\n    b: {}\n  }\n}\n');
+      });
+
       it('controls inspect depth', async() => {
         input.write('config.set("inspectDepth", 2)\n');
         await waitEval(bus);

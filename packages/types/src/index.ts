@@ -142,17 +142,24 @@ export class ShellUserConfigValidator {
 export class CliUserConfig extends ShellUserConfig {
   userId = '';
   disableGreetingMessage = false;
+  inspectCompact: number | boolean = 3;
   inspectDepth = 6;
   historyLength = 1000;
   showStackTraces = false;
 }
 
 export class CliUserConfigValidator extends ShellUserConfigValidator {
+  // eslint-disable-next-line complexity
   static async validate<K extends keyof CliUserConfig>(key: K, value: CliUserConfig[K]): Promise<string | null> {
     switch (key) {
       case 'userId':
       case 'disableGreetingMessage':
         return null; // Not modifiable by the user anyway.
+      case 'inspectCompact':
+        if (typeof value !== 'boolean' && (typeof value !== 'number' || value < 0)) {
+          return `${key} must be a boolean or a positive integer`;
+        }
+        return null;
       case 'inspectDepth':
       case 'historyLength':
         if (typeof value !== 'number' || value < 0) {
