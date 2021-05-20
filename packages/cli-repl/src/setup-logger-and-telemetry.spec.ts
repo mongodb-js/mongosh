@@ -243,7 +243,7 @@ describe('setupLoggerAndTelemetry', () => {
 
   it('buffers deprecated API calls', () => {
     setupLoggerAndTelemetry(logId, bus, () => logger, () => analytics);
-    expect(logOutput).to.be.empty;
+    expect(logOutput).to.have.lengthOf(1);
     expect(analyticsOutput).to.be.empty;
 
     const mongosh_version = require('../package.json').version;
