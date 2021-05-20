@@ -1656,6 +1656,11 @@ const translations: Catalog = {
               link: 'https://docs.mongodb.com/manual/reference/method/Mongo.startSession/',
               description: 'Starts a session for the connection.'
             },
+            getCollection: {
+              link: 'https://docs.mongodb.com/manual/reference/method/Mongo.getCollection',
+              description: 'Returns the specified Collection of the Mongo object.',
+              example: 'const collection = db.getMongo().getCollection("databaseName.collectionName")'
+            },
             getDB: {
               link: 'https://docs.mongodb.com/manual/reference/method/Mongo.getDB',
               description: 'Returns the specified Database of the Mongo object.'

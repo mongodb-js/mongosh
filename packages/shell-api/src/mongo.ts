@@ -36,6 +36,7 @@ import {
   ServerApi,
   ServerApiVersionId
 } from '@mongosh/service-provider-core';
+import type Collection from './collection';
 import Database from './database';
 import ShellInternalState from './shell-internal-state';
 import { CommandResult } from './result';
@@ -192,6 +193,16 @@ export default class Mongo extends ShellApiClass {
     assertArgsDefinedType([db], ['string'], 'Mongo.getDB');
     this._internalState.messageBus.emit('mongosh:getDB', { db });
     return this._getDb(db);
+  }
+
+  @returnType('Collection')
+  getCollection(name: string): Collection {
+    assertArgsDefinedType([name], ['string']);
+    const { db, coll } = name.match(/^(?<db>[^.]+)\.(?<coll>.+)$/)?.groups ?? {};
+    if (!db || !coll) {
+      throw new MongoshInvalidInputError('Collection must be of the format <db>.<collection>', CommonErrors.InvalidArgument);
+    }
+    return this._getDb(db).getCollection(coll);
   }
 
   use(db: string): string {

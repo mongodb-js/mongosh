@@ -609,6 +609,39 @@ describe('Mongo', () => {
         expect.fail('Failed to throw');
       });
     });
+    describe('getCollection', () => {
+      it('returns a collection for the database', async() => {
+        const coll = mongo.getCollection('db1.coll');
+        expect(coll).to.be.instanceOf(Collection);
+        expect(coll._name).to.equal('coll');
+        expect(coll._database._name).to.equal('db1');
+      });
+
+      it('returns a collection for the database with multiple .', async() => {
+        const coll = mongo.getCollection('db1.coll.subcoll');
+        expect(coll).to.be.instanceOf(Collection);
+        expect(coll._name).to.equal('coll.subcoll');
+        expect(coll._database._name).to.equal('db1');
+      });
+
+      it('throws if name is not a valid connection string', () => {
+        expect(() => {
+          mongo.getCollection('db');
+        }).to.throw('Collection must be of the format <db>.<collection>');
+      });
+
+      it('throws if name is empty', () => {
+        expect(() => {
+          mongo.getCollection('');
+        }).to.throw('Collection must be of the format <db>.<collection>');
+      });
+
+      it('throws if name starts with dot', () => {
+        expect(() => {
+          mongo.getCollection('.coll');
+        }).to.throw('Collection must be of the format <db>.<collection>');
+      });
+    });
   });
 
   describe('integration', () => {
