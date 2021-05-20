@@ -2,7 +2,11 @@
  * Valid options that can be parsed from the command line.
  */
 export default interface CliOptions {
-  _?: string[];
+  // Positional arguments:
+  connectionSpecifier?: string;
+  fileNames?: string[];
+
+  // Non-positional arguments:
   apiDeprecationErrors?: boolean;
   apiStrict?: boolean;
   apiVersion?: string;
@@ -16,7 +20,6 @@ export default interface CliOptions {
   eval?: string;
   gssapiHostName?: string;
   gssapiServiceName?: string;
-  h?: boolean;
   help?: boolean;
   host?: string;
   ipv6?: boolean;
@@ -24,7 +27,6 @@ export default interface CliOptions {
   kmsURL?: string;
   nodb?: boolean;
   norc?: boolean;
-  p?: string;
   password?: string;
   port?: string;
   quiet?: boolean;
@@ -42,7 +44,6 @@ export default interface CliOptions {
   tlsDisabledProtocols?: boolean;
   tlsFIPSMode?: boolean;
   username?: string;
-  u?: string;
   verbose?: boolean;
   version?: boolean;
 }

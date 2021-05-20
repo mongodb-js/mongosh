@@ -4,7 +4,7 @@ import generateUri from './uri-generator';
 
 describe('uri-generator.generate-uri', () => {
   context('when no arguments are provided', () => {
-    const options = { _: [] };
+    const options = { connectionSpecifier: undefined };
 
     it('returns the default uri', () => {
       expect(generateUri(options)).to.equal('mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000');
@@ -13,20 +13,20 @@ describe('uri-generator.generate-uri', () => {
 
   context('when no URI is provided', () => {
     it('handles host', () => {
-      expect(generateUri({ _: [], host: 'localhost' })).to.equal('mongodb://localhost:27017/?directConnection=true&serverSelectionTimeoutMS=2000');
+      expect(generateUri({ connectionSpecifier: undefined, host: 'localhost' })).to.equal('mongodb://localhost:27017/?directConnection=true&serverSelectionTimeoutMS=2000');
     });
     it('handles port', () => {
-      expect(generateUri({ _: [], port: '27018' })).to.equal('mongodb://127.0.0.1:27018/?directConnection=true&serverSelectionTimeoutMS=2000');
+      expect(generateUri({ connectionSpecifier: undefined, port: '27018' })).to.equal('mongodb://127.0.0.1:27018/?directConnection=true&serverSelectionTimeoutMS=2000');
     });
     it('handles both host and port', () => {
-      expect(generateUri({ _: [], host: 'localhost', port: '27018' })).to.equal('mongodb://localhost:27018/?directConnection=true&serverSelectionTimeoutMS=2000');
+      expect(generateUri({ connectionSpecifier: undefined, host: 'localhost', port: '27018' })).to.equal('mongodb://localhost:27018/?directConnection=true&serverSelectionTimeoutMS=2000');
     });
     it('handles host with port included', () => {
-      expect(generateUri({ _: [], host: 'localhost:27018' })).to.equal('mongodb://localhost:27018/?directConnection=true&serverSelectionTimeoutMS=2000');
+      expect(generateUri({ connectionSpecifier: undefined, host: 'localhost:27018' })).to.equal('mongodb://localhost:27018/?directConnection=true&serverSelectionTimeoutMS=2000');
     });
     it('throws if host has port AND port set to other value', () => {
       try {
-        generateUri({ _: [], host: 'localhost:27018', port: '27019' });
+        generateUri({ connectionSpecifier: undefined, host: 'localhost:27018', port: '27019' });
         expect.fail('expected error');
       } catch (e) {
         expect(e).to.be.instanceOf(MongoshInvalidInputError);
@@ -34,13 +34,13 @@ describe('uri-generator.generate-uri', () => {
       }
     });
     it('handles host has port AND port set to equal value', () => {
-      expect(generateUri({ _: [], host: 'localhost:27018', port: '27018' })).to.equal('mongodb://localhost:27018/?directConnection=true&serverSelectionTimeoutMS=2000');
+      expect(generateUri({ connectionSpecifier: undefined, host: 'localhost:27018', port: '27018' })).to.equal('mongodb://localhost:27018/?directConnection=true&serverSelectionTimeoutMS=2000');
     });
   });
 
   context('when a full URI is provided', () => {
     context('when no additional options are provided', () => {
-      const options = { _: ['mongodb://192.0.0.1:27018/foo'] };
+      const options = { connectionSpecifier: 'mongodb://192.0.0.1:27018/foo' };
 
       it('returns the uri', () => {
         expect(generateUri(options)).to.equal('mongodb://192.0.0.1:27018/foo?directConnection=true');
@@ -50,7 +50,7 @@ describe('uri-generator.generate-uri', () => {
     context('when additional options are provided', () => {
       context('when providing host with URI', () => {
         const uri = 'mongodb://192.0.0.1:27018/foo';
-        const options = { _: [uri], host: '127.0.0.1' };
+        const options = { connectionSpecifier: uri, host: '127.0.0.1' };
 
         it('throws an exception', () => {
           try {
@@ -65,7 +65,7 @@ describe('uri-generator.generate-uri', () => {
 
       context('when providing port with URI', () => {
         const uri = 'mongodb://192.0.0.1:27018/foo';
-        const options = { _: [uri], port: '27018' };
+        const options = { connectionSpecifier: uri, port: '27018' };
 
         it('throws an exception', () => {
           try {
@@ -82,7 +82,7 @@ describe('uri-generator.generate-uri', () => {
     context('when providing a URI with query parameters', () => {
       context('that do not conflict with directConnection', () => {
         const uri = 'mongodb://192.0.0.1:27018?readPreference=primary';
-        const options = { _: [uri] };
+        const options = { connectionSpecifier: uri };
         it('still includes directConnection', () => {
           expect(generateUri(options)).to.equal('mongodb://192.0.0.1:27018/?readPreference=primary&directConnection=true');
         });
@@ -90,7 +90,7 @@ describe('uri-generator.generate-uri', () => {
 
       context('including replicaSet', () => {
         const uri = 'mongodb://192.0.0.1:27018/db?replicaSet=replicaset';
-        const options = { _: [uri] };
+        const options = { connectionSpecifier: uri };
         it('does not add the directConnection parameter', () => {
           expect(generateUri(options)).to.equal(uri);
         });
@@ -98,7 +98,7 @@ describe('uri-generator.generate-uri', () => {
 
       context('including explicit directConnection', () => {
         const uri = 'mongodb://192.0.0.1:27018/db?directConnection=false';
-        const options = { _: [uri] };
+        const options = { connectionSpecifier: uri };
         it('does not change the directConnection parameter', () => {
           expect(generateUri(options)).to.equal(uri);
         });
@@ -107,7 +107,7 @@ describe('uri-generator.generate-uri', () => {
 
     context('when providing a URI with SRV record', () => {
       const uri = 'mongodb+srv://somehost/?readPreference=primary';
-      const options = { _: [uri] };
+      const options = { connectionSpecifier: uri };
       it('no directConnection is added', () => {
         expect(generateUri(options)).to.equal(uri);
       });
@@ -115,7 +115,7 @@ describe('uri-generator.generate-uri', () => {
 
     context('when providing a URI with multiple seeds', () => {
       const uri = 'mongodb://192.42.42.42:27017,192.0.0.1:27018/db?readPreference=primary';
-      const options = { _: [uri] };
+      const options = { connectionSpecifier: uri };
       it('no directConnection is added', () => {
         expect(generateUri(options)).to.equal(uri);
       });
@@ -125,7 +125,7 @@ describe('uri-generator.generate-uri', () => {
   context('when a URI is provided without a scheme', () => {
     context('when providing host', () => {
       const uri = '192.0.0.1';
-      const options = { _: [uri] };
+      const options = { connectionSpecifier: uri };
 
       it('returns the uri with the scheme', () => {
         expect(generateUri(options)).to.equal(`mongodb://${uri}:27017/test?directConnection=true`);
@@ -134,7 +134,7 @@ describe('uri-generator.generate-uri', () => {
 
     context('when providing host:port', () => {
       const uri = '192.0.0.1:27018';
-      const options = { _: [uri] };
+      const options = { connectionSpecifier: uri };
 
       it('returns the uri with the scheme', () => {
         expect(generateUri(options)).to.equal(`mongodb://${uri}/test?directConnection=true`);
@@ -143,7 +143,7 @@ describe('uri-generator.generate-uri', () => {
 
     context('when proving host + port option', () => {
       const uri = '192.0.0.1';
-      const options = { _: [uri], port: '27018' };
+      const options = { connectionSpecifier: uri, port: '27018' };
 
       it('throws an exception', () => {
         try {
@@ -158,7 +158,7 @@ describe('uri-generator.generate-uri', () => {
 
     context('when no additional options are provided without db', () => {
       const uri = '192.0.0.1:27018';
-      const options = { _: [uri] };
+      const options = { connectionSpecifier: uri };
 
       it('returns the uri with the scheme', () => {
         expect(generateUri(options)).to.equal(`mongodb://${uri}/test?directConnection=true`);
@@ -167,7 +167,7 @@ describe('uri-generator.generate-uri', () => {
 
     context('when no additional options are provided with empty db', () => {
       const uri = '192.0.0.1:27018/';
-      const options = { _: [uri] };
+      const options = { connectionSpecifier: uri };
 
       it('returns the uri with the scheme', () => {
         expect(generateUri(options)).to.equal(`mongodb://${uri}test?directConnection=true`);
@@ -176,7 +176,7 @@ describe('uri-generator.generate-uri', () => {
 
     context('when no additional options are provided with db', () => {
       const uri = '192.0.0.1:27018/foo';
-      const options = { _: [uri] };
+      const options = { connectionSpecifier: uri };
 
       it('returns the uri with the scheme', () => {
         expect(generateUri(options)).to.equal(`mongodb://${uri}?directConnection=true`);
@@ -186,7 +186,7 @@ describe('uri-generator.generate-uri', () => {
     context('when additional options are provided', () => {
       context('when providing host with URI', () => {
         const uri = '192.0.0.1:27018/foo';
-        const options = { _: [uri], host: '127.0.0.1' };
+        const options = { connectionSpecifier: uri, host: '127.0.0.1' };
 
         it('throws an exception', () => {
           try {
@@ -201,7 +201,7 @@ describe('uri-generator.generate-uri', () => {
 
       context('when providing host with db', () => {
         const uri = 'foo';
-        const options = { _: [uri], host: '127.0.0.2' };
+        const options = { connectionSpecifier: uri, host: '127.0.0.2' };
 
         it('uses the provided host with default port', () => {
           expect(generateUri(options)).to.equal('mongodb://127.0.0.2:27017/foo?directConnection=true');
@@ -210,7 +210,7 @@ describe('uri-generator.generate-uri', () => {
 
       context('when providing port with URI', () => {
         const uri = '192.0.0.1:27018/foo';
-        const options = { _: [uri], port: '27018' };
+        const options = { connectionSpecifier: uri, port: '27018' };
 
         it('throws an exception', () => {
           try {
@@ -225,7 +225,7 @@ describe('uri-generator.generate-uri', () => {
 
       context('when providing port with db', () => {
         const uri = 'foo';
-        const options = { _: [uri], port: '27018' };
+        const options = { connectionSpecifier: uri, port: '27018' };
 
         it('uses the provided host with default port', () => {
           expect(generateUri(options)).to.equal('mongodb://127.0.0.1:27018/foo?directConnection=true&serverSelectionTimeoutMS=2000');
@@ -234,7 +234,7 @@ describe('uri-generator.generate-uri', () => {
 
       context('when providing port with only a host URI', () => {
         const uri = '127.0.0.2/foo';
-        const options = { _: [uri], port: '27018' };
+        const options = { connectionSpecifier: uri, port: '27018' };
 
         it('throws an exception', () => {
           try {
@@ -249,7 +249,7 @@ describe('uri-generator.generate-uri', () => {
 
       context('when providing nodb', () => {
         const uri = 'mongodb://127.0.0.2/foo';
-        const options = { _: [uri], nodb: true };
+        const options = { connectionSpecifier: uri, nodb: true };
 
         it('returns an empty string', () => {
           expect(generateUri(options)).to.equal('');
@@ -258,7 +258,7 @@ describe('uri-generator.generate-uri', () => {
 
       context('when providing explicit serverSelectionTimeoutMS', () => {
         const uri = 'mongodb://127.0.0.2/foo?serverSelectionTimeoutMS=10';
-        const options = { _: [uri] };
+        const options = { connectionSpecifier: uri };
 
         it('does not override the existing value', () => {
           expect(generateUri(options)).to.equal('mongodb://127.0.0.2/foo?serverSelectionTimeoutMS=10&directConnection=true');
@@ -267,7 +267,7 @@ describe('uri-generator.generate-uri', () => {
 
       context('when providing explicit serverSelectionTimeoutMS (different case)', () => {
         const uri = 'mongodb://127.0.0.2/foo?SERVERSELECTIONTIMEOUTMS=10';
-        const options = { _: [uri] };
+        const options = { connectionSpecifier: uri };
 
         it('does not override the existing value', () => {
           expect(generateUri(options)).to.equal('mongodb://127.0.0.2/foo?SERVERSELECTIONTIMEOUTMS=10&directConnection=true');
@@ -278,7 +278,7 @@ describe('uri-generator.generate-uri', () => {
     context('when providing a URI with query parameters', () => {
       context('that do not conflict with directConnection', () => {
         const uri = '192.0.0.1:27018?readPreference=primary';
-        const options = { _: [uri] };
+        const options = { connectionSpecifier: uri };
         it('still includes directConnection', () => {
           expect(generateUri(options)).to.equal('mongodb://192.0.0.1:27018/?readPreference=primary&directConnection=true');
         });
@@ -286,7 +286,7 @@ describe('uri-generator.generate-uri', () => {
 
       context('including replicaSet', () => {
         const uri = '192.0.0.1:27018/db?replicaSet=replicaset';
-        const options = { _: [uri] };
+        const options = { connectionSpecifier: uri };
         it('does not add the directConnection parameter', () => {
           expect(generateUri(options)).to.equal(`mongodb://${uri}`);
         });
@@ -294,7 +294,7 @@ describe('uri-generator.generate-uri', () => {
 
       context('including explicit directConnection', () => {
         const uri = '192.0.0.1:27018?directConnection=false';
-        const options = { _: [uri] };
+        const options = { connectionSpecifier: uri };
         it('does not change the directConnection parameter', () => {
           expect(generateUri(options)).to.equal('mongodb://192.0.0.1:27018/?directConnection=false');
         });
@@ -305,7 +305,7 @@ describe('uri-generator.generate-uri', () => {
 
   context('when an invalid URI is provided', () => {
     const uri = '/x';
-    const options = { _: [uri] };
+    const options = { connectionSpecifier: uri };
 
     it('returns the uri', () => {
       try {
@@ -343,7 +343,7 @@ describe('uri-generator.generate-uri', () => {
     });
 
     it('returns a URI for the hosts and ports specified in --host and database name', () => {
-      const options = { host: 'replsetname/host1:123,host2,host3:456', _: ['admin'] };
+      const options = { host: 'replsetname/host1:123,host2,host3:456', connectionSpecifier: 'admin' };
       expect(generateUri(options)).to.equal('mongodb://host1:123,host2,host3:456/admin?replicaSet=replsetname');
     });
   });

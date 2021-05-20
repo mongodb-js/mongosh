@@ -139,7 +139,7 @@ function generateUri(options: CliOptions): string {
   return connectionString.toString();
 }
 function generateUriNormalized(options: CliOptions): ConnectionString {
-  const uri = options._?.[0];
+  const uri = options.connectionSpecifier;
 
   // If the --host argument contains /, it has the format
   // <replSetName>/<hostname1><:port>,<hostname2><:port>,<...>
