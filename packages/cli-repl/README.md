@@ -6,7 +6,7 @@ CLI interface for [MongoDB Shell][mongosh], an extension to Node.js REPL with Mo
 
 ## Usage
 ```shell
-  $ mongosh [options] [db address]
+  $ mongosh [options] [db address] [file names (ending in .js or .mongo)]
 
   Options:
 

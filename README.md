@@ -24,7 +24,7 @@ variable. For detailed instructions for each of our supported platforms, please 
 
 ## CLI Usage
 ```shell
-  $ mongosh [options] [db address]
+  $ mongosh [options] [db address] [file names (ending in .js or .mongo)]
 
   Options:
 

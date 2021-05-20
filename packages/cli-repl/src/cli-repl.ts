@@ -166,7 +166,7 @@ class CliRepl {
 
     const initialServiceProvider = await this.connect(driverUri, driverOptions);
     const initialized = await this.mongoshRepl.initialize(initialServiceProvider);
-    const commandLineLoadFiles = this.listCommandLineLoadFiles();
+    const commandLineLoadFiles = this.cliOptions.fileNames ?? [];
     if (commandLineLoadFiles.length > 0 || this.cliOptions.eval !== undefined) {
       this.mongoshRepl.setIsInteractive(!!this.cliOptions.shell);
       this.bus.emit('mongosh:start-loading-cli-scripts', { usesShellOption: !!this.cliOptions.shell });
@@ -181,11 +181,6 @@ class CliRepl {
     await this.loadRcFiles();
     this.bus.emit('mongosh:start-mongosh-repl', { version });
     await this.mongoshRepl.startRepl(initialized);
-  }
-
-  listCommandLineLoadFiles(): string[] {
-    const startIndex = this.cliOptions.nodb ? 0 : 1;
-    return (this.cliOptions._ ?? []).slice(startIndex);
   }
 
   async loadCommandLineFilesAndEval(files: string[]) {

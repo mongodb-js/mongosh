@@ -11,11 +11,6 @@ import { USAGE } from './constants';
 const UNKNOWN = 'cli-repl.arg-parser.unknown-option';
 
 /**
- * npm start constant.
- */
-const START = 'start';
-
-/**
  * The yargs-parser options configuration.
  */
 const OPTIONS = {
@@ -66,7 +61,7 @@ const OPTIONS = {
     'smokeTests',
     'ssl',
     'sslAllowInvalidCertificates',
-    'sslAllowInvalidHostname',
+    'sslAllowInvalidHostnames',
     'sslFIPSMode',
     'tls',
     'tlsAllowInvalidCertificates',
@@ -75,24 +70,31 @@ const OPTIONS = {
     'verbose',
     'version'
   ],
+  array: [
+    'file'
+  ],
   alias: {
     h: 'help',
     p: 'password',
-    u: 'username'
+    u: 'username',
+    f: 'file'
   },
   configuration: {
     'camel-case-expansion': false,
-    'unknown-options-as-args': true
+    'unknown-options-as-args': true,
+    'parse-positional-numbers': false,
+    'parse-numbers': false,
+    'greedy-arrays': false
   }
 };
 
 /**
  * Maps deprecated arguments to their new counterparts.
  */
-const DEPRECATED_ARGS_WITH_REPLACEMENT: Record<string, string> = {
+const DEPRECATED_ARGS_WITH_REPLACEMENT: Record<string, keyof CliOptions> = {
   ssl: 'tls',
   sslAllowInvalidCertificates: 'tlsAllowInvalidCertificates',
-  sslAllowInvalidHostname: 'tlsAllowInvalidHostname',
+  sslAllowInvalidHostnames: 'tlsAllowInvalidHostnames',
   sslFIPSMode: 'tlsFIPSMode',
   sslPEMKeyFile: 'tlsCertificateKeyFile',
   sslPEMKeyPassword: 'tlsCertificateKeyFilePassword',
@@ -126,6 +128,13 @@ export function getLocale(args: string[], env: any): string {
   return lang ? lang.split('.')[0] : lang;
 }
 
+function isConnectionSpecifier(arg?: string): boolean {
+  return typeof arg === 'string' &&
+    (arg.startsWith('mongodb://') ||
+     arg.startsWith('mongodb+srv://') ||
+     !(arg.endsWith('.js') || arg.endsWith('.mongo')));
+}
+
 /**
  * Parses arguments into a JS object.
  *
@@ -137,28 +146,37 @@ export function parseCliArgs(args: string[]): (CliOptions & { smokeTests: boolea
   const programArgs = args.slice(2);
   i18n.setLocale(getLocale(programArgs, process.env));
 
-  const parsed = parser(programArgs, OPTIONS);
-  parsed._ = parsed._.filter(arg => {
-    if (arg === START) {
-      return false;
+  const parsed = parser(programArgs, OPTIONS) as unknown as CliOptions & {
+    smokeTests: boolean;
+    _?: string[];
+    file?: string[];
+  };
+  const positionalArguments = parsed._ ?? [];
+  for (const arg of positionalArguments) {
+    if (arg.startsWith('-')) {
+      throw new Error(
+        `  ${clr(i18n.__(UNKNOWN), ['red', 'bold'])} ${clr(String(arg), 'bold')}
+        ${USAGE}`
+      );
     }
-    // mongosh is currently not taking any numerical positional arguments.
-    if (typeof arg === 'string' && !arg.startsWith('-')) {
-      return true;
-    }
-    throw new Error(
-      `  ${clr(i18n.__(UNKNOWN), ['red', 'bold'])} ${clr(String(arg), 'bold')}
-      ${USAGE}`
-    );
-  });
+  }
+
+  if (!parsed.nodb && isConnectionSpecifier(positionalArguments[0])) {
+    parsed.connectionSpecifier = positionalArguments.shift();
+  }
+  parsed.fileNames = [...(parsed.file ?? []), ...positionalArguments];
+
+  // All positional arguments are either in connectionSpecifier or fileNames,
+  // and should only be accessed that way now.
+  delete parsed._;
 
   const messages = verifyCliArguments(parsed);
   messages.forEach(m => console.warn(m));
 
-  return parsed as unknown as (CliOptions & { smokeTests: boolean });
+  return parsed;
 }
 
-export function verifyCliArguments(args: parser.Arguments): string[] {
+export function verifyCliArguments(args: any /* CliOptions */): string[] {
   for (const unsupported of UNSUPPORTED_ARGS) {
     if (unsupported in args) {
       throw new MongoshUnimplementedError(

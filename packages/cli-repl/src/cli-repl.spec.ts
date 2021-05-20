@@ -335,7 +335,7 @@ describe('CliRepl', () => {
       context('files loaded from command line', () => {
         it('load a file if it has been specified on the command line', async() => {
           const filename1 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'hello1.js');
-          cliReplOptions.shellCliOptions._ = [filename1];
+          cliReplOptions.shellCliOptions.fileNames = [filename1];
           cliRepl = new CliRepl(cliReplOptions);
           await startWithExpectedImmediateExit(cliRepl, '');
           expect(output).to.include(`Loading file: ${filename1}`);
@@ -346,7 +346,7 @@ describe('CliRepl', () => {
         it('load two files if it has been specified on the command line', async() => {
           const filename1 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'hello1.js');
           const filename2 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'hello2.js');
-          cliReplOptions.shellCliOptions._ = [filename1, filename2];
+          cliReplOptions.shellCliOptions.fileNames = [filename1, filename2];
           cliRepl = new CliRepl(cliReplOptions);
           await startWithExpectedImmediateExit(cliRepl, '');
           expect(output).to.include(`Loading file: ${filename1}`);
@@ -358,7 +358,7 @@ describe('CliRepl', () => {
 
         it('does not print filenames if --quiet is passed', async() => {
           const filename1 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'hello1.js');
-          cliReplOptions.shellCliOptions._ = [filename1];
+          cliReplOptions.shellCliOptions.fileNames = [filename1];
           cliReplOptions.shellCliOptions.quiet = true;
           cliRepl = new CliRepl(cliReplOptions);
           await startWithExpectedImmediateExit(cliRepl, '');
@@ -369,7 +369,7 @@ describe('CliRepl', () => {
 
         it('forwards the error it if loading the file throws', async() => {
           const filename1 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'throw.js');
-          cliReplOptions.shellCliOptions._ = [filename1];
+          cliReplOptions.shellCliOptions.fileNames = [filename1];
           cliRepl = new CliRepl(cliReplOptions);
           try {
             await cliRepl.start('', {});
@@ -464,7 +464,7 @@ describe('CliRepl', () => {
     let cliRepl: CliRepl;
 
     beforeEach(async() => {
-      cliReplOptions.shellCliOptions._ = [await testServer.connectionString()];
+      cliReplOptions.shellCliOptions.connectionSpecifier = await testServer.connectionString();
       cliRepl = new CliRepl(cliReplOptions);
     });
 
@@ -716,7 +716,7 @@ describe('CliRepl', () => {
     context('files loaded from command line', () => {
       it('load a file if it has been specified on the command line', async() => {
         const filename1 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'hello1.js');
-        cliReplOptions.shellCliOptions._.push(filename1);
+        cliReplOptions.shellCliOptions.fileNames = [filename1];
         cliRepl = new CliRepl(cliReplOptions);
         await startWithExpectedImmediateExit(cliRepl, await testServer.connectionString());
         expect(output).to.include(`Loading file: ${filename1}`);
@@ -727,7 +727,7 @@ describe('CliRepl', () => {
       it('load two files if it has been specified on the command line', async() => {
         const filename1 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'hello1.js');
         const filename2 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'hello2.js');
-        cliReplOptions.shellCliOptions._.push(filename1, filename2);
+        cliReplOptions.shellCliOptions.fileNames = [filename1, filename2];
         cliRepl = new CliRepl(cliReplOptions);
         await startWithExpectedImmediateExit(cliRepl, await testServer.connectionString());
         expect(output).to.include(`Loading file: ${filename1}`);
@@ -739,7 +739,7 @@ describe('CliRepl', () => {
 
       it('allows doing db ops', async() => {
         const filename1 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'insertintotest.js');
-        cliReplOptions.shellCliOptions._.push(filename1, filename1);
+        cliReplOptions.shellCliOptions.fileNames = [filename1, filename1];
         cliRepl = new CliRepl(cliReplOptions);
         await startWithExpectedImmediateExit(cliRepl, await testServer.connectionString());
         expect(output).to.match(/Inserted: ObjectId\("[a-z0-9]{24}"\)/);
@@ -757,7 +757,7 @@ describe('CliRepl', () => {
 
       it('drops into a shell if --shell is passed', async() => {
         const filename1 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'insertintotest.js');
-        cliReplOptions.shellCliOptions._.push(filename1);
+        cliReplOptions.shellCliOptions.fileNames = [filename1];
         cliReplOptions.shellCliOptions.shell = true;
 
         cliRepl = new CliRepl(cliReplOptions);
@@ -777,7 +777,7 @@ describe('CliRepl', () => {
       it('does not read .mongoshrc.js if --shell is not passed', async() => {
         await fs.writeFile(path.join(tmpdir.path, '.mongoshrc.js'), 'print("hi from mongoshrc")');
         const filename1 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'hello1.js');
-        cliReplOptions.shellCliOptions._.push(filename1);
+        cliReplOptions.shellCliOptions.fileNames = [filename1];
 
         cliRepl = new CliRepl(cliReplOptions);
         await startWithExpectedImmediateExit(cliRepl, await testServer.connectionString());
@@ -789,7 +789,7 @@ describe('CliRepl', () => {
       it('does read .mongoshrc.js if --shell is passed', async() => {
         await fs.writeFile(path.join(tmpdir.path, '.mongoshrc.js'), 'print("hi from mongoshrc")');
         const filename1 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'hello1.js');
-        cliReplOptions.shellCliOptions._.push(filename1);
+        cliReplOptions.shellCliOptions.fileNames = [filename1];
         cliReplOptions.shellCliOptions.shell = true;
 
         cliRepl = new CliRepl(cliReplOptions);
@@ -836,7 +836,7 @@ describe('CliRepl', () => {
 
       it('isInteractive() is false for loaded file without --shell', async() => {
         const filename1 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'printisinteractive.js');
-        cliReplOptions.shellCliOptions._.push(filename1);
+        cliReplOptions.shellCliOptions.fileNames = [filename1];
         cliRepl = new CliRepl(cliReplOptions);
         await startWithExpectedImmediateExit(cliRepl, await testServer.connectionString());
         expect(output).to.match(/isInteractive=false/);
@@ -845,7 +845,7 @@ describe('CliRepl', () => {
 
       it('isInteractive() is true for --eval with --shell', async() => {
         const filename1 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'printisinteractive.js');
-        cliReplOptions.shellCliOptions._.push(filename1);
+        cliReplOptions.shellCliOptions.fileNames = [filename1];
         cliReplOptions.shellCliOptions.shell = true;
         cliRepl = new CliRepl(cliReplOptions);
         await cliRepl.start(await testServer.connectionString(), {});

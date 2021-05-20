@@ -82,9 +82,9 @@ export default class Mongo extends ShellApiClass {
       this.__serviceProvider = sp;
     }
     if (typeof uri === 'string') {
-      this._uri = generateUri({ _: [uri] });
+      this._uri = generateUri({ connectionSpecifier: uri });
     } else {
-      this._uri = sp?.getURI?.() ?? generateUri({ _: ['mongodb://localhost/'] });
+      this._uri = sp?.getURI?.() ?? generateUri({ connectionSpecifier: 'mongodb://localhost/' });
     }
     this._readPreferenceWasExplicitlyRequested = /\breadPreference=/.test(this._uri);
     if (fleOptions) {
