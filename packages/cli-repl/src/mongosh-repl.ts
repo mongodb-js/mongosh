@@ -189,7 +189,7 @@ class MongoshNodeRepl implements EvaluationListener {
         this.insideAutoCompleteOrGetPrompt = true;
         try {
           // Merge the results from the repl completer and the mongosh completer.
-          const [ [replResults], [mongoshResults,, mongoshResultsExclusive] ] = await Promise.all([
+          const [ [replResults, replOrig], [mongoshResults,, mongoshResultsExclusive] ] = await Promise.all([
             (async() => await origReplCompleter(text) || [[]])(),
             (async() => await mongoshCompleter(text))()
           ]);
@@ -205,7 +205,10 @@ class MongoshNodeRepl implements EvaluationListener {
           // Remove duplicates, because shell API methods might otherwise show
           // up in both completions.
           const deduped = [...new Set([...replResults, ...mongoshResults])];
-          return [deduped, text];
+
+          // Use the REPL completer's original text when available, because that
+          // makes a difference for completion of REPL commands like `.editor`.
+          return [deduped, replOrig ?? text];
         } finally {
           this.insideAutoCompleteOrGetPrompt = false;
         }

@@ -352,6 +352,20 @@ describe('MongoshNodeRepl', () => {
         await tick();
         expect(output).to.include('somelongvariable');
       });
+      it('autocompletes partial repl commands', async() => {
+        input.write('.e');
+        await tabtab();
+        await tick();
+        expect(output).to.include('editor');
+        expect(output).to.include('exit');
+      });
+      it('autocompletes full repl commands', async() => {
+        input.write('.ed');
+        await tabtab();
+        await tick();
+        expect(output).to.include('.editor');
+        expect(output).not.to.include('exit');
+      });
       it('autocompletion during .editor does not reset the prompt', async() => {
         input.write('.editor\n');
         await tick();
