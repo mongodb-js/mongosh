@@ -86,7 +86,7 @@ __args:__
 
 `e.message` will be appended with the following information:
 ```
-This is an error inside Mongosh. Please file a bug report for the MONGOSH project here: https://jira.mongodb.org.
+This is an error inside mongosh. Please file a bug report for the MONGOSH project here: https://jira.mongodb.org/projects/MONGOSH/issues.
 ```
 
 _Note: The error code will automatically be set to `CommonErrors.UnexpectedInternalError`._

@@ -33,7 +33,7 @@ class MongoshInternalError extends MongoshBaseError {
     super(
       'MongoshInternalError',
       `${message}
-This is an error inside Mongosh. Please file a bug report for the MONGOSH project here: https://jira.mongodb.org.`,
+This is an error inside mongosh. Please file a bug report for the MONGOSH project here: https://jira.mongodb.org/projects/MONGOSH/issues.`,
       CommonErrors.UnexpectedInternalError,
       metadata
     );
