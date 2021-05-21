@@ -1,9 +1,10 @@
 import { CommonErrors, MongoshInvalidInputError, MongoshRuntimeError } from '@mongosh/errors';
-import { bson, FindCursor as ServiceProviderCursor, ServiceProvider } from '@mongosh/service-provider-core';
+import { bson, FindCursor as ServiceProviderCursor, ServiceProvider, Document } from '@mongosh/service-provider-core';
 import chai, { expect } from 'chai';
 import { EventEmitter } from 'events';
+import semver from 'semver';
 import sinonChai from 'sinon-chai';
-import { StubbedInstance, stubInterface } from 'ts-sinon';
+import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
 import { ensureMaster } from '../../../testing/helpers';
 import { MongodSetup, skipIfServerVersion, startTestCluster } from '../../../testing/integration-testing-hooks';
 import { CliServiceProvider } from '../../service-provider-server';
@@ -16,9 +17,13 @@ import {
 } from './enums';
 import { signatures, toShellResult } from './index';
 import Mongo from './mongo';
-import ReplicaSet from './replica-set';
-import ShellInternalState from './shell-internal-state';
+import ReplicaSet, { ReplSetMemberConfig, ReplSetConfig } from './replica-set';
+import ShellInternalState, { EvaluationListener } from './shell-internal-state';
 chai.use(sinonChai);
+
+function deepClone<T>(value: T): T {
+  return JSON.parse(JSON.stringify(value));
+}
 
 describe('ReplicaSet', () => {
   describe('help', () => {
@@ -58,6 +63,7 @@ describe('ReplicaSet', () => {
   describe('unit', () => {
     let mongo: Mongo;
     let serviceProvider: StubbedInstance<ServiceProvider>;
+    let evaluationListener: StubbedInstance<EvaluationListener>;
     let rs: ReplicaSet;
     let bus: StubbedInstance<EventEmitter>;
     let internalState: ShellInternalState;
@@ -76,7 +82,9 @@ describe('ReplicaSet', () => {
       serviceProvider.bsonLibrary = bson;
       serviceProvider.runCommand.resolves({ ok: 1 });
       serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
+      evaluationListener = stubInterface<EvaluationListener>();
       internalState = new ShellInternalState(serviceProvider, bus);
+      internalState.setEvaluationListener(evaluationListener);
       mongo = new Mongo(internalState, undefined, undefined, undefined, serviceProvider);
       db = new Database(mongo, 'testdb');
       rs = new ReplicaSet(db);
@@ -601,9 +609,168 @@ describe('ReplicaSet', () => {
         expect(catchedError).to.equal(expectedError);
       });
     });
+    describe('reconfigForPSASet', () => {
+      let secondary: ReplSetMemberConfig;
+      let config: Partial<ReplSetConfig>;
+      let oldConfig: ReplSetConfig;
+      let reconfigCalls: ReplSetConfig[];
+      let reconfigResults: Document[];
+      let sleepStub: any;
+
+      beforeEach(() => {
+        sleepStub = sinon.stub();
+        internalState.shellApi.sleep = sleepStub;
+        secondary = {
+          _id: 2, host: 'secondary.mongodb.net', priority: 1, votes: 1
+        };
+        oldConfig = {
+          _id: 'replSet',
+          members: [
+            { _id: 0, host: 'primary.monogdb.net', priority: 1, votes: 1 },
+            { _id: 1, host: 'arbiter.monogdb.net', priority: 1, votes: 0, arbiterOnly: true }
+          ],
+          protocolVersion: 1,
+          version: 1
+        };
+        config = deepClone(oldConfig);
+        config.members.push(secondary);
+        reconfigResults = [ { ok: 1 }, { ok: 1 } ];
+        reconfigCalls = [];
+
+        serviceProvider.runCommandWithCheck.callsFake(async(db: string, cmd: Document) => {
+          if (cmd.replSetGetConfig) {
+            return { config: oldConfig };
+          }
+          if (cmd.replSetReconfig) {
+            const result = reconfigResults.shift();
+            reconfigCalls.push(deepClone(cmd.replSetReconfig));
+            if (result.ok) {
+              oldConfig = deepClone(cmd.replSetReconfig);
+              return result;
+            }
+            throw new Error(`Reconfig failed: ${JSON.stringify(result)}`);
+          }
+        });
+      });
+
+      it('fails if index is incorrect', async() => {
+        try {
+          await rs.reconfigForPSASet(3, config);
+          expect.fail('missed exception');
+        } catch (err) {
+          expect(err.message).to.equal('[COMMON-10001] Node at index 3 does not exist in the new config');
+        }
+      });
+
+      it('fails if secondary.votes != 1', async() => {
+        secondary.votes = 0;
+        try {
+          await rs.reconfigForPSASet(2, config);
+          expect.fail('missed exception');
+        } catch (err) {
+          expect(err.message).to.equal('[COMMON-10001] Node at index 2 must have { votes: 1 } in the new config (actual: { votes: 0 })');
+        }
+      });
+
+      it('fails if old note had votes', async() => {
+        oldConfig.members.push(secondary);
+        try {
+          await rs.reconfigForPSASet(2, config);
+          expect.fail('missed exception');
+        } catch (err) {
+          expect(err.message).to.equal('[COMMON-10001] Node at index 2 must have { votes: 0 } in the old config (actual: { votes: 1 })');
+        }
+      });
+
+      it('warns if there is an existing member with the same host', async() => {
+        oldConfig.members.push(deepClone(secondary));
+        secondary._id = 3;
+        await rs.reconfigForPSASet(2, config);
+        expect(evaluationListener.onPrint).to.have.been.calledWith([
+          await toShellResult(
+            'Warning: Node at index 2 has { host: "secondary.mongodb.net" }, ' +
+              'which is also present in the old config, but with a different _id field.')
+        ]);
+      });
+
+      it('skips the second reconfig if priority is 0', async() => {
+        secondary.priority = 0;
+        await rs.reconfigForPSASet(2, config);
+        expect(reconfigCalls).to.deep.equal([
+          { ...config, version: 2 }
+        ]);
+        expect(evaluationListener.onPrint).to.have.been.calledWith([
+          await toShellResult('Running first reconfig to give member at index 2 { votes: 1, priority: 0 }')
+        ]);
+        expect(evaluationListener.onPrint).to.have.been.calledWith([
+          await toShellResult('No second reconfig necessary because .priority = 0')
+        ]);
+      });
+
+      it('does two reconfigs if priority is 1', async() => {
+        const origConfig = deepClone(config);
+        await rs.reconfigForPSASet(2, config);
+        expect(reconfigCalls).to.deep.equal([
+          { ...origConfig, members: [ config.members[0], config.members[1], { ...secondary, priority: 0 } ], version: 2 },
+          { ...origConfig, version: 3 }
+        ]);
+        expect(evaluationListener.onPrint).to.have.been.calledWith([
+          await toShellResult('Running first reconfig to give member at index 2 { votes: 1, priority: 0 }')
+        ]);
+        expect(evaluationListener.onPrint).to.have.been.calledWith([
+          await toShellResult('Running second reconfig to give member at index 2 { priority: 1 }')
+        ]);
+      });
+
+      it('does three reconfigs the second one fails', async() => {
+        reconfigResults = [{ ok: 1 }, { ok: 0 }, { ok: 1 }];
+        const origConfig = deepClone(config);
+        await rs.reconfigForPSASet(2, config);
+        expect(reconfigCalls).to.deep.equal([
+          { ...origConfig, members: [ config.members[0], config.members[1], { ...secondary, priority: 0 } ], version: 2 },
+          { ...origConfig, version: 3 },
+          { ...origConfig, version: 3 }
+        ]);
+        expect(evaluationListener.onPrint).to.have.been.calledWith([
+          await toShellResult('Running first reconfig to give member at index 2 { votes: 1, priority: 0 }')
+        ]);
+        expect(evaluationListener.onPrint).to.have.been.calledWith([
+          await toShellResult('Running second reconfig to give member at index 2 { priority: 1 }')
+        ]);
+        expect(sleepStub).to.have.been.calledWith(1000);
+      });
+
+      it('gives up after a number of attempts', async() => {
+        reconfigResults = [...Array(20).keys()].map((i) => ({ ok: i === 0 ? 1 : 0 }));
+        try {
+          await rs.reconfigForPSASet(2, config);
+          expect.fail('missed exception');
+        } catch (err) {
+          expect(err.message).to.equal('Reconfig failed: {"ok":0}');
+        }
+        expect(evaluationListener.onPrint).to.have.been.calledWith([
+          await toShellResult('Running first reconfig to give member at index 2 { votes: 1, priority: 0 }')
+        ]);
+        expect(evaluationListener.onPrint).to.have.been.calledWith([
+          await toShellResult('Running second reconfig to give member at index 2 { priority: 1 }')
+        ]);
+        expect(evaluationListener.onPrint).to.have.been.calledWith([
+          await toShellResult('Second reconfig did not succeed yet, starting new attempt...')
+        ]);
+        expect(evaluationListener.onPrint).to.have.been.calledWith([
+          await toShellResult('Second reconfig did not succeed, giving up')
+        ]);
+        const totalSleepLength = sleepStub.getCalls()
+          .map(({ firstArg }) => firstArg)
+          .reduce((x, y) => x + y, 0);
+        // Expect to spend about a minute sleeping here.
+        expect(totalSleepLength).to.be.closeTo(60_000, 5_000);
+        expect(reconfigCalls).to.have.lengthOf(1 + 12);
+      });
+    });
   });
 
-  describe('integration', () => {
+  describe('integration (standard setup)', () => {
     const replId = 'rs0';
 
     const [ srv0, srv1, srv2, srv3 ] = startTestCluster(
@@ -613,12 +780,7 @@ describe('ReplicaSet', () => {
       ['--single', '--replSet', replId]
     );
 
-    type ReplSetConfig = {
-      _id: string;
-      members: {_id: number, host: string, priority: number}[];
-      protocolVersion?: number;
-    };
-    let cfg: ReplSetConfig;
+    let cfg: Partial<ReplSetConfig>;
     let additionalServer: MongodSetup;
     let serviceProvider: CliServiceProvider;
     let internalState;
@@ -690,7 +852,7 @@ describe('ReplicaSet', () => {
     });
     describe('reconfig', () => {
       it('reconfig with one less secondary', async() => {
-        const newcfg: ReplSetConfig = {
+        const newcfg: Partial<ReplSetConfig> = {
           _id: replId,
           members: [ cfg.members[0], cfg.members[1] ]
         };
@@ -753,6 +915,82 @@ describe('ReplicaSet', () => {
         const status = await rs.conf();
         expect(status.members.length).to.equal(3);
       });
+    });
+  });
+
+  describe('integration (PA to PSA transition)', () => {
+    const replId = 'rspsa';
+
+    const [ srv0, srv1, srv2 ] = startTestCluster(
+      ['--single', '--replSet', replId],
+      ['--single', '--replSet', replId],
+      ['--single', '--replSet', replId]
+    );
+
+    let serviceProvider: CliServiceProvider;
+
+    beforeEach(async() => {
+      serviceProvider = await CliServiceProvider.connect(`${await srv0.connectionString()}?directConnection=true`);
+    });
+
+    afterEach(async() => {
+      return await serviceProvider.close(true);
+    });
+
+    it('fails with rs.reconfig but works with rs.reconfigForPSASet', async function() {
+      this.timeout(100_000);
+      const [primary, secondary, arbiter] = await Promise.all([
+        srv0.hostport(),
+        srv1.hostport(),
+        srv2.hostport()
+      ]);
+      const cfg = {
+        _id: replId,
+        members: [
+          { _id: 0, host: primary, priority: 1 }
+        ]
+      };
+
+      const internalState = new ShellInternalState(serviceProvider);
+      const db = internalState.currentDb;
+      const rs = new ReplicaSet(db);
+
+      expect((await rs.initiate(cfg)).ok).to.equal(1);
+      await ensureMaster(rs, 1000, primary);
+
+      await rs.addArb(arbiter);
+
+      if (semver.gt(await db.version(), '4.9.0')) { // Exception currently 5.0+ only
+        try {
+          await rs.add(secondary);
+          expect.fail('missed assertion');
+        } catch (err) {
+          expect(err.codeName).to.equal('NewReplicaSetConfigurationIncompatible');
+        }
+      }
+
+      const conf = await rs.conf();
+      conf.members.push({ _id: 2, host: secondary, votes: 1, priority: 1 });
+      await rs.reconfigForPSASet(2, conf);
+
+      const { members } = (await rs.status());
+      expect(members.map(({ _id, name, stateStr }) => ({ _id, name, stateStr }))).to.deep.equal([
+        {
+          _id: 0,
+          name: primary,
+          stateStr: 'PRIMARY'
+        },
+        {
+          _id: 1,
+          name: arbiter,
+          stateStr: 'ARBITER'
+        },
+        {
+          _id: 2,
+          name: secondary,
+          stateStr: 'SECONDARY'
+        }
+      ]);
     });
   });
 });
