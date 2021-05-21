@@ -308,6 +308,28 @@ describe('MongoshNodeRepl', () => {
       expect(output).not.to.include('Error');
     });
 
+    it('allows to enter and fix recoverable errors', async() => {
+      input.write('24 %\n');
+      await waitEval(bus);
+      expect(output).to.not.include('Error');
+
+      input.write('6\n');
+      await waitEval(bus);
+      expect(output).to.include(0);
+      expect(output).to.not.include('Error');
+    });
+
+    it('behaves correctly on non-recoverable multi-line errors', async() => {
+      input.write('24 %\n');
+      await waitEval(bus);
+      expect(output).to.not.include('Error');
+
+      input.write(';\n');
+      await waitEval(bus);
+      expect(output).to.not.include('MongoshInternalError');
+      expect(output).to.include('SyntaxError');
+    });
+
     it('pressing Ctrl+C twice exits the shell', async() => {
       input.write('\u0003');
       await tick();
