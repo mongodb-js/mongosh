@@ -136,20 +136,6 @@ export default function setupLoggerAndTelemetry(
     }
   });
 
-  bus.on('mongosh:help', function() {
-    log.info('mongosh:help');
-
-    if (telemetry) {
-      analytics.track({
-        userId,
-        event: 'Help',
-        properties: {
-          mongosh_version
-        }
-      });
-    }
-  });
-
   bus.on('mongosh:evaluate-input', function(args: EvaluateInputEvent) {
     log.info('mongosh:evaluate-input', args);
   });

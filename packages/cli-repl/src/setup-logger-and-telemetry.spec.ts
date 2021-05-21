@@ -46,7 +46,6 @@ describe('setupLoggerAndTelemetry', () => {
         node_version: 'v12.19.0'
       } as any);
       bus.emit('mongosh:error', new MongoshInvalidInputError('meow', 'CLIREPL-1005', { cause: 'x' }));
-      bus.emit('mongosh:help');
       bus.emit('mongosh:use', { db: 'admin' });
       bus.emit('mongosh:show', { method: 'dbs' });
     }
@@ -65,7 +64,7 @@ describe('setupLoggerAndTelemetry', () => {
     bus.emit('mongosh:mongoshrc-mongorc-warn');
     bus.emit('mongosh:eval-cli-script');
 
-    expect(logOutput).to.have.lengthOf(25);
+    expect(logOutput).to.have.lengthOf(23);
     expect(logOutput[0].msg).to.match(/^mongosh:start-logging \{"version":".+","execPath":".+","isCompiledBinary":.+\}$/);
     expect(logOutput[1].msg).to.equal('mongosh:update-user {"enableTelemetry":false}');
     expect(logOutput[2].msg).to.match(/^mongosh:connect/);
@@ -77,34 +76,32 @@ describe('setupLoggerAndTelemetry', () => {
     expect(logOutput[2].msg).to.match(/"node_version":"v12\.19\.0"/);
     expect(logOutput[3].type).to.equal('Error');
     expect(logOutput[3].msg).to.match(/meow/);
-    expect(logOutput[4].msg).to.equal('mongosh:help');
-    expect(logOutput[5].msg).to.equal('mongosh:use {"db":"admin"}');
-    expect(logOutput[6].msg).to.equal('mongosh:show {"method":"dbs"}');
-    expect(logOutput[7].msg).to.equal('mongosh:update-user {"enableTelemetry":true}');
-    expect(logOutput[8].msg).to.match(/^mongosh:connect/);
-    expect(logOutput[9].type).to.equal('Error');
-    expect(logOutput[9].msg).to.match(/meow/);
-    expect(logOutput[10].msg).to.equal('mongosh:help');
-    expect(logOutput[11].msg).to.equal('mongosh:use {"db":"admin"}');
-    expect(logOutput[12].msg).to.equal('mongosh:show {"method":"dbs"}');
-    expect(logOutput[13].msg).to.equal('mongosh:setCtx {"method":"setCtx"}');
-    expect(logOutput[14].msg).to.match(/^mongosh:api-call/);
-    expect(logOutput[14].msg).to.match(/"db":"test-1603986682000"/);
-    expect(logOutput[15].msg).to.match(/^mongosh:api-call/);
-    expect(logOutput[15].msg).to.match(/"email":"<email>"/);
-    expect(logOutput[16].msg).to.match(/^mongosh:evaluate-input/);
-    expect(logOutput[16].msg).to.match(/"input":"1\+1"/);
-    expect(logOutput[17].msg).to.match(/"version":"3.6.1"/);
-    expect(logOutput[18].msg).to.equal('mongosh:start-loading-cli-scripts');
-    expect(logOutput[19].msg).to.match(/^mongosh:api-load-file/);
-    expect(logOutput[19].msg).to.match(/"nested":true/);
+    expect(logOutput[4].msg).to.equal('mongosh:use {"db":"admin"}');
+    expect(logOutput[5].msg).to.equal('mongosh:show {"method":"dbs"}');
+    expect(logOutput[6].msg).to.equal('mongosh:update-user {"enableTelemetry":true}');
+    expect(logOutput[7].msg).to.match(/^mongosh:connect/);
+    expect(logOutput[8].type).to.equal('Error');
+    expect(logOutput[8].msg).to.match(/meow/);
+    expect(logOutput[9].msg).to.equal('mongosh:use {"db":"admin"}');
+    expect(logOutput[10].msg).to.equal('mongosh:show {"method":"dbs"}');
+    expect(logOutput[11].msg).to.equal('mongosh:setCtx {"method":"setCtx"}');
+    expect(logOutput[12].msg).to.match(/^mongosh:api-call/);
+    expect(logOutput[12].msg).to.match(/"db":"test-1603986682000"/);
+    expect(logOutput[13].msg).to.match(/^mongosh:api-call/);
+    expect(logOutput[13].msg).to.match(/"email":"<email>"/);
+    expect(logOutput[14].msg).to.match(/^mongosh:evaluate-input/);
+    expect(logOutput[14].msg).to.match(/"input":"1\+1"/);
+    expect(logOutput[15].msg).to.match(/"version":"3.6.1"/);
+    expect(logOutput[16].msg).to.equal('mongosh:start-loading-cli-scripts');
+    expect(logOutput[17].msg).to.match(/^mongosh:api-load-file/);
+    expect(logOutput[17].msg).to.match(/"nested":true/);
+    expect(logOutput[17].msg).to.match(/"filename":"foobar.js"/);
+    expect(logOutput[18].msg).to.equal('mongosh:start-mongosh-repl {"version":"1.0.0"}');
+    expect(logOutput[19].msg).to.match(/"nested":false/);
     expect(logOutput[19].msg).to.match(/"filename":"foobar.js"/);
-    expect(logOutput[20].msg).to.equal('mongosh:start-mongosh-repl {"version":"1.0.0"}');
-    expect(logOutput[21].msg).to.match(/"nested":false/);
-    expect(logOutput[21].msg).to.match(/"filename":"foobar.js"/);
-    expect(logOutput[22].msg).to.equal('mongosh:mongoshrc-load');
-    expect(logOutput[23].msg).to.equal('mongosh:mongoshrc-mongorc-warn');
-    expect(logOutput[24].msg).to.equal('mongosh:eval-cli-script');
+    expect(logOutput[20].msg).to.equal('mongosh:mongoshrc-load');
+    expect(logOutput[21].msg).to.equal('mongosh:mongoshrc-mongorc-warn');
+    expect(logOutput[22].msg).to.equal('mongosh:eval-cli-script');
 
 
     const mongosh_version = require('../package.json').version;
@@ -155,14 +152,6 @@ describe('setupLoggerAndTelemetry', () => {
             scope: 'CLIREPL',
             metadata: { cause: 'x' }
           }
-        }
-      ],
-      [
-        'track',
-        {
-          userId: '53defe995fa47e6c13102d9d',
-          event: 'Help',
-          properties: { mongosh_version }
         }
       ],
       [
@@ -315,8 +304,5 @@ describe('setupLoggerAndTelemetry', () => {
     expect(logOutput).to.have.lengthOf(2);
     expect(logOutput[1].type).to.equal('Error');
     expect(logOutput[1].name).to.equal('mongosh');
-    bus.emit('mongosh:help');
-    expect(analyticsOutput).to.be.empty;
-    expect(logOutput).to.have.lengthOf(3);
   });
 });

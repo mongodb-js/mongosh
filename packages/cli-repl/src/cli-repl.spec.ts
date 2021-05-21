@@ -126,19 +126,19 @@ describe('CliRepl', () => {
       it('writes syntax errors to the log file', async() => {
         expect((await log()).filter(entry => entry.stack?.startsWith('SyntaxError:'))).to.have.lengthOf(0);
         input.write('<cat>\n');
-        await waitEval(cliRepl.bus);
+        await waitBus(cliRepl.bus, 'mongosh:error');
         expect((await log()).filter(entry => entry.stack?.startsWith('SyntaxError:'))).to.have.lengthOf(1);
       });
 
       it('writes JS errors to the log file', async() => {
         input.write('throw new Error("plain js error")\n');
-        await waitEval(cliRepl.bus);
+        await waitBus(cliRepl.bus, 'mongosh:error');
         expect((await log()).filter(entry => entry.stack?.startsWith('Error: plain js error'))).to.have.lengthOf(1);
       });
 
       it('writes Mongosh errors to the log file', async() => {
         input.write('db.auth()\n');
-        await waitEval(cliRepl.bus);
+        await waitBus(cliRepl.bus, 'mongosh:error');
         expect((await log()).filter(entry => entry.stack?.startsWith('MongoshInvalidInputError:'))).to.have.lengthOf(1);
       });
 

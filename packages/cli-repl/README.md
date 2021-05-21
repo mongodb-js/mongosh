@@ -123,14 +123,6 @@ Example:
 bus.emit('mongosh:error', new Error('Unable to show collections'))
 ```
 
-### bus.on('mongosh:help')
-Used when `help` command was used.
-
-Example:
-```js
-bus.emit('mongosh:help')
-```
-
 ### bus.on('mongosh:rewritten-async-input', inputInfo)
 Used for internal debugging of async-rewriter. `inputInfo` is an object with the
 following interface:
