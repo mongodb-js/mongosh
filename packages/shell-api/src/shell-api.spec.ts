@@ -484,6 +484,11 @@ describe('ShellApi', () => {
         expect((await toShellResult(m)).type).to.equal('Mongo');
         expect(m._uri).to.equal('mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000');
       });
+      it('returns a new Mongo object with new', async() => {
+        const m = await new internalState.context.Mongo('mongodb://127.0.0.1:27017');
+        expect((await toShellResult(m)).type).to.equal('Mongo');
+        expect(m._uri).to.equal('mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000');
+      });
       it('fails for non-CLI', async() => {
         serviceProvider.platform = ReplPlatform.Browser;
         try {
