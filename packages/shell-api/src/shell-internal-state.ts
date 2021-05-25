@@ -181,14 +181,15 @@ export default class ShellInternalState {
     this.context = contextObject;
     Object.assign(contextObject, this.shellApi);
     for (const name of Object.getOwnPropertyNames(ShellApi.prototype)) {
+      const { shellApi } = this;
       if (toIgnore.concat(['help']).includes(name) ||
-        typeof (this.shellApi as any)[name] !== 'function') {
+        typeof (shellApi as any)[name] !== 'function') {
         continue;
       }
-      contextObject[name] = (...args: any[]): any => {
-        return (this.shellApi as any)[name](...args);
+      contextObject[name] = function(...args: any[]): any {
+        return (shellApi as any)[name](...args);
       };
-      contextObject[name].help = (this.shellApi as any)[name].help;
+      contextObject[name].help = (shellApi as any)[name].help;
     }
     contextObject.help = this.shellApi.help;
     Object.assign(contextObject, this.shellBson);
