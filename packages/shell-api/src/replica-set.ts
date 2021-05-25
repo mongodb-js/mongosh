@@ -60,14 +60,14 @@ export default class ReplicaSet extends ShellApiWithMongoClass {
         { replSetGetConfig: 1 }
       );
       if (result.config === undefined) {
-        throw new MongoshRuntimeError('Documented returned from command replSetReconfig does not contain \'config\'');
+        throw new MongoshRuntimeError('Documented returned from command replSetGetConfig does not contain \'config\'', CommonErrors.CommandFailed);
       }
       return result.config;
     } catch (error) {
       if (error.codeName === 'CommandNotFound') {
         const doc = await this._database.getSiblingDB('local').getCollection('system.replset').findOne() as ReplSetConfig | null;
         if (doc === null) {
-          throw new MongoshRuntimeError('No documents in local.system.replset');
+          throw new MongoshRuntimeError('No documents in local.system.replset', CommonErrors.CommandFailed);
         }
         return doc;
       }

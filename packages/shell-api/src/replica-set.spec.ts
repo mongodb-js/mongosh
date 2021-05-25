@@ -69,12 +69,6 @@ describe('ReplicaSet', () => {
     let internalState: ShellInternalState;
     let db: Database;
 
-    const findResolvesWith = (expectedResult): void => {
-      const findCursor = stubInterface<ServiceProviderCursor>();
-      findCursor.tryNext.resolves(expectedResult);
-      serviceProvider.find.returns(findCursor);
-    };
-
     beforeEach(() => {
       bus = stubInterface<EventEmitter>();
       serviceProvider = stubInterface<ServiceProvider>();
@@ -302,10 +296,11 @@ describe('ReplicaSet', () => {
       it('calls serviceProvider.runCommandWithCheck with no arb and string hostport', async() => {
         const configDoc = { version: 1, members: [{ _id: 0 }, { _id: 1 }] };
         const hostname = 'localhost:27017';
-        findResolvesWith(configDoc);
-        serviceProvider.countDocuments.resolves(1);
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommandWithCheck.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.callsFake(async(db, command) => {
+          if (command.replSetGetConfig) {return { ok: 1, config: configDoc };}
+          return expectedResult;
+        });
         const result = await rs.add(hostname);
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
@@ -326,10 +321,12 @@ describe('ReplicaSet', () => {
       it('calls serviceProvider.runCommandWithCheck with arb and string hostport', async() => {
         const configDoc = { version: 1, members: [{ _id: 0 }, { _id: 1 }] };
         const hostname = 'localhost:27017';
-        findResolvesWith(configDoc);
         serviceProvider.countDocuments.resolves(1);
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommandWithCheck.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.callsFake(async(db, command) => {
+          if (command.replSetGetConfig) {return { ok: 1, config: configDoc };}
+          return expectedResult;
+        });
         const result = await rs.add(hostname, true);
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
@@ -353,10 +350,12 @@ describe('ReplicaSet', () => {
         const hostname = {
           host: 'localhost:27017'
         };
-        findResolvesWith(configDoc);
         serviceProvider.countDocuments.resolves(1);
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommandWithCheck.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.callsFake(async(db, command) => {
+          if (command.replSetGetConfig) {return { ok: 1, config: configDoc };}
+          return expectedResult;
+        });
         const result = await rs.add(hostname);
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
@@ -380,10 +379,12 @@ describe('ReplicaSet', () => {
         const hostname = {
           host: 'localhost:27017', _id: 10
         };
-        findResolvesWith(configDoc);
         serviceProvider.countDocuments.resolves(1);
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommandWithCheck.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.callsFake(async(db, command) => {
+          if (command.replSetGetConfig) {return { ok: 1, config: configDoc };}
+          return expectedResult;
+        });
         const result = await rs.add(hostname);
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
@@ -405,37 +406,26 @@ describe('ReplicaSet', () => {
       it('throws with arb and object hostport', async() => {
         const configDoc = { version: 1, members: [{ _id: 0 }, { _id: 1 }] };
         const hostname = { host: 'localhost:27017' };
-        findResolvesWith(configDoc);
         serviceProvider.countDocuments.resolves(1);
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommandWithCheck.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.callsFake(async(db, command) => {
+          if (command.replSetGetConfig) {return { ok: 1, config: configDoc };}
+          return expectedResult;
+        });
 
         const error = await rs.add(hostname, true).catch(e => e);
         expect(error).to.be.instanceOf(MongoshInvalidInputError);
         expect(error.code).to.equal(CommonErrors.InvalidArgument);
       });
-      it('throws if local.system.replset.count <= 1', async() => {
-        const configDoc = { version: 1, members: [{ _id: 0 }, { _id: 1 }] };
-        const hostname = { host: 'localhost:27017' };
-        findResolvesWith(configDoc);
-        serviceProvider.countDocuments.resolves(2);
-        const error = await rs.add(hostname, true).catch(e => e);
-        expect(error).to.be.instanceOf(MongoshRuntimeError);
-        expect(error.code).to.equal(CommonErrors.CommandFailed);
-      });
       it('throws if local.system.replset.findOne has no docs', async() => {
         const hostname = { host: 'localhost:27017' };
-        findResolvesWith(null);
-        serviceProvider.countDocuments.resolves(1);
+        serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
         const error = await rs.add(hostname, true).catch(e => e);
         expect(error).to.be.instanceOf(MongoshRuntimeError);
         expect(error.code).to.equal(CommonErrors.CommandFailed);
       });
 
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
-        const configDoc = { version: 1, members: [{ _id: 0 }, { _id: 1 }] };
-        findResolvesWith(configDoc);
-        serviceProvider.countDocuments.resolves(1);
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
         const catchedError = await rs.add('hostname')
@@ -447,10 +437,11 @@ describe('ReplicaSet', () => {
       it('calls serviceProvider.runCommandWithCheck', async() => {
         const configDoc = { version: 1, members: [{ _id: 0, host: 'localhost:0' }, { _id: 1, host: 'localhost:1' }] };
         const hostname = 'localhost:0';
-        findResolvesWith(configDoc);
-        serviceProvider.countDocuments.resolves(1);
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommandWithCheck.resolves(expectedResult);
+        serviceProvider.runCommandWithCheck.callsFake(async(db, command) => {
+          if (command.replSetGetConfig) {return { ok: 1, config: configDoc };}
+          return expectedResult;
+        });
         const result = await rs.remove(hostname);
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
@@ -471,25 +462,7 @@ describe('ReplicaSet', () => {
         const error = await rs.remove(hostname).catch(e => e);
         expect(error.name).to.equal('MongoshInvalidInputError');
       });
-      it('throws if local.system.replset.count <= 1', async() => {
-        const configDoc = { version: 1, members: [{ _id: 0, host: 'localhost:0' }, { _id: 1, host: 'lcoalhost:1' }] };
-        findResolvesWith(configDoc);
-        serviceProvider.countDocuments.resolves(0);
-        const error = await rs.remove('').catch(e => e);
-        expect(error).to.be.instanceOf(MongoshRuntimeError);
-        expect(error.code).to.equal(CommonErrors.CommandFailed);
-      });
-      it('throws if local.system.replset.count <= 1', async() => {
-        findResolvesWith(null);
-        serviceProvider.countDocuments.resolves(1);
-        const error = await rs.remove('').catch(e => e);
-        expect(error).to.be.instanceOf(MongoshRuntimeError);
-        expect(error.code).to.equal(CommonErrors.CommandFailed);
-      });
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
-        const configDoc = { version: 1, members: [{ _id: 0, host: 'localhost:0' }, { _id: 1, host: 'localhost:1' }] };
-        findResolvesWith(configDoc);
-        serviceProvider.countDocuments.resolves(1);
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
         const catchedError = await rs.remove('localhost:1')
@@ -498,8 +471,7 @@ describe('ReplicaSet', () => {
       });
       it('throws if hostname not in members', async() => {
         const configDoc = { version: 1, members: [{ _id: 0, host: 'localhost:0' }, { _id: 1, host: 'lcoalhost:1' }] };
-        findResolvesWith(configDoc);
-        serviceProvider.countDocuments.resolves(1);
+        serviceProvider.runCommandWithCheck.resolves({ ok: 1, config: configDoc });
         const catchedError = await rs.remove('localhost:2')
           .catch(e => e);
         expect(catchedError).to.be.instanceOf(MongoshInvalidInputError);
