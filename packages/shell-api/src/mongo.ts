@@ -34,7 +34,8 @@ import {
   MongoClientOptions,
   AutoEncryptionOptions as SPAutoEncryption,
   ServerApi,
-  ServerApiVersionId
+  ServerApiVersionId,
+  WriteConcern
 } from '@mongosh/service-provider-core';
 import type Collection from './collection';
 import Database from './database';
@@ -351,6 +352,14 @@ export default class Mongo extends ShellApiClass {
     }
   }
 
+  getWriteConcern(): WriteConcern | undefined {
+    try {
+      return this._serviceProvider.getWriteConcern();
+    } catch {
+      throw new MongoshInternalError('Error retrieving WriteConcern.');
+    }
+  }
+
   @returnsPromise
   async setReadPref(mode: ReadPreferenceLike, tagSet?: Record<string, string>[], hedgeOptions?: Document): Promise<void> {
     await this._serviceProvider.resetConnectionOptions({
@@ -366,6 +375,59 @@ export default class Mongo extends ShellApiClass {
   @returnsPromise
   async setReadConcern(level: ReadConcernLevelId): Promise<void> {
     await this._serviceProvider.resetConnectionOptions({ readConcern: { level: level } });
+  }
+
+  async setWriteConcern(concern: WriteConcern): Promise<void>
+  async setWriteConcern(wValue: string | number, wtimeoutMSValue?: number | undefined, jValue?: boolean | undefined): Promise<void>
+  @returnsPromise
+  async setWriteConcern(concernOrWValue: WriteConcern | string | number, wtimeoutMSValue?: number | undefined, jValue?: boolean | undefined): Promise<void> {
+    const options: MongoClientOptions = {};
+    let concern: WriteConcern;
+
+    if (typeof concernOrWValue === 'object') {
+      if (wtimeoutMSValue !== undefined || jValue !== undefined) {
+        throw new MongoshInvalidInputError('If concern is given as an object no other arguments must be specified', CommonErrors.InvalidArgument);
+      }
+      concern = concernOrWValue;
+    } else {
+      concern = {};
+      if (typeof concernOrWValue !== 'string' && typeof concernOrWValue !== 'number') {
+        throw new MongoshInvalidInputError(`w value must be a number or string, got: ${typeof concernOrWValue}`, CommonErrors.InvalidArgument);
+      } else if (typeof concernOrWValue === 'number' && concernOrWValue < 0) {
+        throw new MongoshInvalidInputError(`w value must be equal to or greather than 0, got: ${concernOrWValue}`, CommonErrors.InvalidArgument);
+      }
+      concern.w = concernOrWValue as any;
+
+      if (wtimeoutMSValue !== undefined) {
+        if (typeof wtimeoutMSValue !== 'number') {
+          throw new MongoshInvalidInputError(`wtimeoutMS value must be a number, got: ${typeof wtimeoutMSValue}`, CommonErrors.InvalidArgument);
+        } else if (wtimeoutMSValue < 0) {
+          throw new MongoshInvalidInputError(`wtimeoutMS must be equal to or greather than 0, got: ${wtimeoutMSValue}`, CommonErrors.InvalidArgument);
+        }
+        concern.wtimeout = wtimeoutMSValue;
+      }
+
+      if (jValue !== undefined) {
+        if (typeof jValue !== 'boolean') {
+          throw new MongoshInvalidInputError(`j value must be a boolean, got: ${typeof jValue}`, CommonErrors.InvalidArgument);
+        }
+        concern.j = jValue;
+      }
+    }
+
+    if (concern.w !== undefined) {
+      options.w = concern.w;
+    }
+    if (concern.wtimeout !== undefined) {
+      options.wtimeoutMS = concern.wtimeout;
+    }
+    if (concern.j !== undefined) {
+      options.journal = concern.j;
+    }
+    if (concern.fsync !== undefined) {
+      options.journal = !!concern.fsync;
+    }
+    await this._serviceProvider.resetConnectionOptions(options);
   }
 
   @topologies([Topologies.ReplSet])
