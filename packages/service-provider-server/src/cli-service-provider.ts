@@ -170,9 +170,10 @@ async function connectWithFailFast(client: MongoClient): Promise<void> {
 export async function connectMongoClient(uri: string, clientOptions: MongoClientOptions, MClient = MongoClient): Promise<MongoClient> {
   if (clientOptions.autoEncryption !== undefined &&
     !clientOptions.autoEncryption.bypassAutoEncryption) {
-    // connect first without autoEncryptionOptions
+    // connect first without autoEncryption and serverApi options.
     const optionsWithoutFLE = { ...clientOptions };
     delete optionsWithoutFLE.autoEncryption;
+    delete optionsWithoutFLE.serverApi;
     const client = new MClient(uri, optionsWithoutFLE);
     await connectWithFailFast(client);
     const buildInfo = await client.db('admin').admin().command({ buildInfo: 1 });
