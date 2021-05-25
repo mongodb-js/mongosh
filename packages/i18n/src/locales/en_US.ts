@@ -1474,7 +1474,22 @@ const translations: Catalog = {
             shardCollection: {
               link: 'https://docs.mongodb.com/manual/reference/method/sh.shardCollection',
               description: 'Enables sharding for a collection. Uses the shardCollection command',
-              example: 'sh.shardCollection(namesapce, key, unique?, options?)',
+              example: 'sh.shardCollection(namespace, key, unique?, options?)',
+            },
+            reshardCollection: {
+              link: 'https://docs.mongodb.com/manual/reference/method/sh.reshardCollection',
+              description: 'Enables sharding for a collection. Uses the reshardCollection command',
+              example: 'sh.reshardCollection(namespace, key, unique?, options?)',
+            },
+            commitReshardCollection: {
+              link: 'https://docs.mongodb.com/manual/reference/method/sh.commitReshardCollection',
+              description: 'Commits the current reshardCollection on a given collection',
+              example: 'sh.commitReshardCollection(namespace)',
+            },
+            abortReshardCollection: {
+              link: 'https://docs.mongodb.com/manual/reference/method/sh.abortReshardCollection',
+              description: 'Abort the current reshardCollection on a given collection',
+              example: 'sh.abortReshardCollection(namespace)',
             },
             status: {
               link: 'https://docs.mongodb.com/manual/reference/method/sh.status',
