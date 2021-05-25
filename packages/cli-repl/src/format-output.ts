@@ -6,7 +6,7 @@ import i18n from '@mongosh/i18n';
 import util from 'util';
 import stripAnsi from 'strip-ansi';
 import clr from './clr';
-import { HelpProperties } from '@mongosh/shell-api';
+import { HelpProperties, CollectionNamesWithTypes } from '@mongosh/shell-api';
 
 type EvaluationResult = {
   value: any;
@@ -118,7 +118,7 @@ function formatSimpleType(output: any, options: FormatOptions): any {
   return inspect(output, options);
 }
 
-function formatCollections(output: any[], options: FormatOptions): string {
+function formatCollections(output: CollectionNamesWithTypes[], options: FormatOptions): string {
   const tableEntries = output.map(
     (coll) => [clr(coll.name, 'bold', options), coll.badge]
   );

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import textTable from 'text-table';
 
 interface ShowCollectionsOutputProps {
-  value: any;
+  value: CollectionObject[];
 }
 
 type CollectionObject = {

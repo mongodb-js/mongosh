@@ -43,6 +43,11 @@ import Session from './session';
 import ChangeStreamCursor from './change-stream-cursor';
 import { ShellApiErrors } from './error-codes';
 
+export type CollectionNamesWithTypes = {
+  name: string;
+  badge: string;
+};
+
 type AuthDoc = {user: string, pwd: string, authDb?: string, mechanism?: string};
 
 @shellApiClassDefault
@@ -144,15 +149,19 @@ export default class Database extends ShellApiWithMongoClass {
     return this._cachedCollectionNames;
   }
 
-  async _getCollectionNamesWithTypes(options?: ListCollectionsOptions): Promise<Document[]> {
+  async _getCollectionNamesWithTypes(options?: ListCollectionsOptions): Promise<CollectionNamesWithTypes[]> {
     const collections = await this._listCollections({}, { ...options, nameOnly: true });
     const typesToBages: any = {
-      collection: '',
       timeseries: '[time-series]',
       view: '[view]'
     };
 
-    return collections.map((collection: any) => ({ name: collection.name, badge: typesToBages[collection.type] }));
+    this._cachedCollectionNames = collections.map((collection: any) => collection.name);
+
+    return collections.map((collection: any) => ({
+      name: collection.name,
+      badge: typesToBages[collection.type] ? typesToBages[collection.type] : ''
+    }));
   }
 
   async _getCollectionNamesForCompletion(): Promise<string[]> {
