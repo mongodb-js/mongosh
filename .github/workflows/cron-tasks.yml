@@ -7,8 +7,8 @@ on:
       - main
 
 jobs:
-  update_third_party_notices_and_authors:
-    name: Update THIRD_PARTY_NOTICES and AUTHORS
+  update_generated_files:
+    name: Update automatically generated files
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
@@ -30,6 +30,14 @@ jobs:
         run: |
           git add AUTHORS \*/AUTHORS
           git commit --no-allow-empty -m "chore: update AUTHORS" || true
+      - name: Generate Error Documentation
+        run: |
+          npm run generate-error-overview
+          mv error-overview.md error-overview.rst packages/errors/generated/
+      - name: Commit Error Documentation changes
+        run: |
+          git add packages/errors/generated
+          git commit --no-allow-empty -m "chore: update error documentation" || true
       - name: Push updates
         uses: ad-m/github-push-action@v0.6.0
         with:

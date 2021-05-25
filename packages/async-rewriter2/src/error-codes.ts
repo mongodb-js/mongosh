@@ -9,7 +9,7 @@ enum AsyncRewriterErrors {
    * This occurs inside of constructors and (non-async) generator functions.
    *
    * Examples causing error:
-   * ```
+   * ```javascript
    * class SomeClass {
    *   constructor() {
    *     this.list = db.coll.find().toArray();

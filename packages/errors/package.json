@@ -23,6 +23,6 @@
     "check": "npm run lint",
     "compile-ts": "tsc -p tsconfig.json",
     "prepublish": "npm run compile-ts",
-    "generate-error-overview": "ts-node scripts/extract-errors.ts .. ../../error-overview.md"
+    "generate-error-overview": "ts-node scripts/extract-errors.ts .. ../../error-overview.md ../../error-overview.rst"
   }
 }

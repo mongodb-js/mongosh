@@ -10,8 +10,10 @@ type PackageErrors = { package: string, errors: PackageError[] };
 const MONGOSH_ERRORS_DOC_TAG = 'mongoshErrors';
 
 (async function() {
-  const pathToPackages = path.resolve(process.argv[process.argv.length - 2]);
-  const pathToOutput = path.resolve(process.argv[process.argv.length - 1]);
+  const pathToPackages = path.resolve(process.argv[process.argv.length - 3]);
+  const pathToMarkdownOutput = path.resolve(process.argv[process.argv.length - 2]);
+  const pathToRestructuredOutput = path.resolve(process.argv[process.argv.length - 1]);
+
   if (!pathToPackages || !(await isDirectory(pathToPackages))) {
     ux.fatal('Could not find given packages directory:', pathToPackages);
     return;
@@ -52,10 +54,13 @@ const MONGOSH_ERRORS_DOC_TAG = 'mongoshErrors';
     return;
   }
 
-  await renderErrorOverview(pathToOutput, packageErrors);
+  await renderErrorOverviewMarkdown(pathToMarkdownOutput, packageErrors);
+  await renderErrorOverviewRestructured(pathToRestructuredOutput, packageErrors);
 
   ux.success('👏👏👏👏');
-  ux.success(`Wrote generated overview page to: ${pathToOutput}`);
+  ux.success('Wrote generated overview page:');
+  ux.success(`  -> markdown:     ${pathToMarkdownOutput}`);
+  ux.success(`  -> restructured: ${pathToRestructuredOutput}`);
   ux.success('👏👏👏👏');
 })().catch(err => process.nextTick(() => { throw err; }));
 
@@ -198,7 +203,7 @@ function tryExtractMongoshErrorsEnumDeclaration(checker: ts.TypeChecker, node: t
   return { enumName, enumDeclaration };
 }
 
-async function renderErrorOverview(outputPath: string, packageErrors: PackageErrors[]): Promise<void> {
+async function renderErrorOverviewMarkdown(outputPath: string, packageErrors: PackageErrors[]): Promise<void> {
   const templateContent = await fs.readFile(
     path.resolve(__dirname, 'error-overview.tmpl.md'),
     { encoding: 'utf-8' }
@@ -214,4 +219,55 @@ async function renderErrorOverview(outputPath: string, packageErrors: PackageErr
     output,
     { encoding: 'utf-8' }
   );
+}
+
+async function renderErrorOverviewRestructured(outputPath: string, packageErrors: PackageErrors[]): Promise<void> {
+  const restructuredErrors = packageErrors.map(pe => {
+    return {
+      package: pe.package,
+      packageHeadlineSeparator: '-'.repeat(pe.package.length),
+      errors: pe.errors.map(convertMarkdownToRestructured)
+    };
+  });
+
+  const templateContent = await fs.readFile(
+    path.resolve(__dirname, 'error-overview.tmpl.rst'),
+    { encoding: 'utf-8' }
+  );
+
+  const template = compile(templateContent);
+  const output = template({
+    packages: restructuredErrors
+  });
+
+  await fs.writeFile(
+    outputPath,
+    output,
+    { encoding: 'utf-8' }
+  );
+}
+
+function convertMarkdownToRestructured(error: PackageError): PackageError & { codeHeadlineSeparator: string } {
+  // every odd element is _inside_ a code block (```)
+  const docWithCodeBlocks = error.documentation.split('```');
+  for (let i = 0; i < docWithCodeBlocks.length; i++) {
+    const text = docWithCodeBlocks[i];
+    let restructured = '';
+    if (i % 2 === 1) {
+      // we have a code block - prefix and indent
+      const codeLines = text.split('\n');
+      restructured += '.. code-block:: ' + codeLines.shift() + '\n\n';
+      restructured += codeLines.map(l => '   ' + l).join('\n');
+    } else {
+      const inlineCode = /`([^`]*)`/g;
+      restructured = text.replace(inlineCode, (_, code) => '``' + code + '``');
+    }
+    docWithCodeBlocks[i] = restructured;
+  }
+
+  return {
+    code: error.code,
+    codeHeadlineSeparator: '~'.repeat(error.code.length + 4),
+    documentation: docWithCodeBlocks.join('\n')
+  };
 }
