@@ -160,7 +160,7 @@ export default class Database extends ShellApiWithMongoClass {
 
     return collections.map((collection: any) => ({
       name: collection.name,
-      badge: typesToBages[collection.type] ? typesToBages[collection.type] : ''
+      badge: typesToBages[collection.type] ?? ''
     }));
   }
 

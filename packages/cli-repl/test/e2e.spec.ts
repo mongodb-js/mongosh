@@ -991,6 +991,7 @@ describe('e2e', function() {
 
         expect(result).to.include('coll2');
         expect(result).to.include('coll3');
+        expect(result).to.include('[time-series]');
       });
     });
   });
