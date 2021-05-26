@@ -68,12 +68,51 @@ export default class Shard extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
-  async shardCollection(namespace: string, key: Document, unique?: boolean, options?: Document): Promise<Document> {
-    assertArgsDefinedType([namespace, key, unique, options], ['string', 'object', [undefined, 'boolean'], [undefined, 'object']], 'Shard.shardCollection');
-    this._emitShardApiCall('shardCollection', { namespace, key, unique, options });
+  @serverVersions(['5.0.0', ServerVersions.latest])
+  async commitReshardCollection(namespace: string): Promise<Document> {
+    assertArgsDefinedType([namespace], ['string'], 'Shard.commitReshardCollection');
+    this._emitShardApiCall('commitReshardCollection', { namespace });
+    return await this._database._runAdminCommand({
+      commitReshardCollection: namespace
+    });
+  }
+
+  @returnsPromise
+  @serverVersions(['5.0.0', ServerVersions.latest])
+  async abortReshardCollection(namespace: string): Promise<Document> {
+    assertArgsDefinedType([namespace], ['string'], 'Shard.abortReshardCollection');
+    this._emitShardApiCall('abortReshardCollection', { namespace });
+    return await this._database._runAdminCommand({
+      abortReshardCollection: namespace
+    });
+  }
+
+  @returnsPromise
+  async shardCollection(namespace: string, key: Document, unique?: boolean | Document, options?: Document): Promise<Document> {
+    return await this._runShardCollection('shardCollection', namespace, key, unique, options);
+  }
+
+  @returnsPromise
+  @serverVersions(['5.0.0', ServerVersions.latest])
+  async reshardCollection(namespace: string, key: Document, unique?: boolean | Document, options?: Document): Promise<Document> {
+    return await this._runShardCollection('reshardCollection', namespace, key, unique, options);
+  }
+
+  async _runShardCollection(
+    command: 'shardCollection' | 'reshardCollection',
+    namespace: string,
+    key: Document,
+    unique?: boolean | Document,
+    options?: Document): Promise<Document> {
+    assertArgsDefinedType([namespace, key, unique, options], ['string', 'object', [undefined, 'boolean', 'object'], [undefined, 'object']], `Shard.${command}`);
+    this._emitShardApiCall(command, { namespace, key, unique, options });
+    if (typeof unique === 'object' && unique !== null) {
+      options = unique;
+      unique = undefined;
+    }
 
     const cmd = {
-      shardCollection: namespace,
+      [command]: namespace,
       key: key
     } as any;
     if (unique !== undefined) {

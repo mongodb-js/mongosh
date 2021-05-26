@@ -155,6 +155,98 @@ describe('Shard', () => {
         expect(catchedError).to.equal(expectedError);
       });
     });
+    describe('reshardCollection', () => {
+      it('calls serviceProvider.runCommandWithCheck without optional args', async() => {
+        await shard.reshardCollection('db.coll', { key: 1 } );
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            reshardCollection: 'db.coll',
+            key: { key: 1 }
+          }
+        );
+      });
+
+      it('calls serviceProvider.runCommandWithCheck with optional args', async() => {
+        await shard.reshardCollection('db.coll', { key: 1 }, true, { option1: 1 });
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            reshardCollection: 'db.coll',
+            key: { key: 1 },
+            unique: true,
+            option1: 1
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
+        const result = await shard.reshardCollection('db.coll', { key: 1 });
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
+        const catchedError = await shard.reshardCollection('db.coll', { key: 1 })
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+    describe('commitReshardCollection', () => {
+      it('calls serviceProvider.runCommandWithCheck', async() => {
+        await shard.commitReshardCollection('db.coll');
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            commitReshardCollection: 'db.coll'
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
+        const result = await shard.commitReshardCollection('db.coll');
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
+        const catchedError = await shard.commitReshardCollection('db.coll')
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
+    describe('abortReshardCollection', () => {
+      it('calls serviceProvider.runCommandWithCheck', async() => {
+        await shard.abortReshardCollection('db.coll');
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            abortReshardCollection: 'db.coll'
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
+        const result = await shard.abortReshardCollection('db.coll');
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
+        const catchedError = await shard.abortReshardCollection('db.coll')
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
     describe('addShard', () => {
       it('calls serviceProvider.runCommandWithCheck with arg', async() => {
         serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
