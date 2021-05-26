@@ -1991,6 +1991,7 @@ describe('Shell API (integration)', function() {
     it('DBQuery.batchSize takes precedence over config', async() => {
       await shellApi.config.set('batchSize', 10);
       shellApi.DBQuery.batchSize = 30;
+      expect(shellApi.DBQuery.batchSize).to.equal(30);
       expect((await collection.find()._it()).documents).to.have.lengthOf(30);
     });
 
@@ -2064,6 +2065,24 @@ describe('Shell API (integration)', function() {
         method: 'setSlaveOk',
         class: 'Mongo'
       });
+    });
+  });
+
+  describe('interruption', () => {
+    it('allows interrupting and resuming Mongo instances', async() => {
+      expect(internalState.interrupted.isSet()).to.equal(false);
+      expect(await database.runCommand({ ping: 1 })).to.deep.equal({ ok: 1 });
+      await internalState.onInterruptExecution();
+      expect(internalState.interrupted.isSet()).to.equal(true);
+      try {
+        await database.runCommand({ ping: 1 });
+        expect.fail('missed exceptino');
+      } catch (e) {
+        expect(e.name).to.equal('MongoshInterruptedError');
+      }
+      await internalState.onResumeExecution();
+      expect(internalState.interrupted.isSet()).to.equal(false);
+      expect(await database.runCommand({ ping: 1 })).to.deep.equal({ ok: 1 });
     });
   });
 });
