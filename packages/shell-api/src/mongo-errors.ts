@@ -1,12 +1,14 @@
 
 interface MongoErrorRephrase {
-  match: RegExp | string;
+  matchMessage?: RegExp | string;
+  code?: number;
   replacement: ((message: string) => string) | string;
 }
 const ERROR_REPHRASES: MongoErrorRephrase[] = [
   {
-    match: 'apiVersion parameter is required',
-    replacement: 'The apiVersion parameter is required, please run mongosh with the --apiVersion argument and make sure to specify the apiVersion option for Mongo(..) instances.'
+    // NotPrimaryNoSecondaryOk (also used for old terminology)
+    code: 13435,
+    replacement: 'not primary and secondaryOk=false - consider using db.getMongo().setReadPref() or readPref in the connection string'
   }
 ];
 
@@ -19,7 +21,10 @@ export function rephraseMongoError(error: any): any {
   const message = e.message;
 
   const rephrase = ERROR_REPHRASES.find(m => {
-    return typeof m.match === 'string' ? message.includes(m.match) : m.match.test(message);
+    if (m.matchMessage) {
+      return typeof m.matchMessage === 'string' ? message.includes(m.matchMessage) : m.matchMessage.test(message);
+    }
+    return m.code !== undefined && (e as any).code === m.code;
   });
 
   if (rephrase) {
