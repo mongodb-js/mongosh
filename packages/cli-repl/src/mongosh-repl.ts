@@ -204,13 +204,22 @@ class MongoshNodeRepl implements EvaluationListener {
           if (mongoshResultsExclusive) {
             return [mongoshResults, text];
           }
+
+          // The REPL completer may not complete the entire string; for example,
+          // when completing ".ed" to ".editor", it reports as having completed
+          // only the last piece ("ed"), or when completing "{ $g", it completes
+          // only "$g" and not the entire result.
+          // The mongosh completer always completes on the entire string.
+          // In order to align them, we always extend the REPL results to include
+          // the full string prefix.
+          const replResultPrefix = replOrig ? text.substr(0, text.lastIndexOf(replOrig)) : '';
+          const longReplResults = replResults.map((result: string) => replResultPrefix + result);
+
           // Remove duplicates, because shell API methods might otherwise show
           // up in both completions.
-          const deduped = [...new Set([...replResults, ...mongoshResults])];
+          const deduped = [...new Set([...longReplResults, ...mongoshResults])];
 
-          // Use the REPL completer's original text when available, because that
-          // makes a difference for completion of REPL commands like `.editor`.
-          return [deduped, replOrig ?? text];
+          return [deduped, text];
         } finally {
           this.insideAutoCompleteOrGetPrompt = false;
         }

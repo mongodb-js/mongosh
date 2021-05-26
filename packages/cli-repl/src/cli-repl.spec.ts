@@ -1177,6 +1177,13 @@ describe('CliRepl', () => {
         await waitCompletion(cliRepl.bus);
         expect(output).to.include('use admin');
       });
+
+      it('completes query operators', async() => {
+        input.write('db.movies.find({year: {$g');
+        await tabtab();
+        await waitCompletion(cliRepl.bus);
+        expect(output).to.include('db.movies.find({year: {$gte');
+      });
     });
   }
 });
