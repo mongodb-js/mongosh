@@ -114,10 +114,13 @@ export default class Explainable extends ShellApiWithMongoClass {
     }));
   }
 
+  async distinct(field: string): Promise<Document>
+  async distinct(field: string, query: Document): Promise<Document>
+  async distinct(field: string, query: Document, options: DistinctOptions): Promise<Document>
   @returnsPromise
-  async distinct(field: string, query: Document, options: DistinctOptions = {}): Promise<Document> {
+  async distinct(field: string, query?: Document, options: DistinctOptions = {}): Promise<Document> {
     this._emitExplainableApiCall('distinct', { field, query, options });
-    return this._collection.distinct(field, query, { ...options, explain: this._verbosity });
+    return this._collection.distinct(field, query ?? {}, { ...options, explain: this._verbosity });
   }
 
   @returnsPromise

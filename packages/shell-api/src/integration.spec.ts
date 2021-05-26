@@ -3,6 +3,7 @@ import { CliServiceProvider } from '../../service-provider-server'; // avoid cyc
 import ShellInternalState from './shell-internal-state';
 import Cursor from './cursor';
 import Explainable from './explainable';
+import Collection from './collection';
 import AggregationCursor from './aggregation-cursor';
 import { startTestServer, skipIfServerVersion } from '../../../testing/integration-testing-hooks';
 import { toShellResult, Topologies } from './index';
@@ -98,7 +99,7 @@ describe('Shell API (integration)', function() {
   let mongo;
   let dbName;
   let database;
-  let collection;
+  let collection: Collection;
   let collectionName;
 
   beforeEach(async() => {
@@ -468,7 +469,7 @@ describe('Shell API (integration)', function() {
           { key: { x: 1 } }
         ]);
 
-        result = await collection.getIndexes(collection);
+        result = await collection.getIndexes();
       });
 
       it('returns indexes for the collection', () => {
