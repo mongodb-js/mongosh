@@ -35,77 +35,87 @@ describe('FLE tests', () => {
   });
   afterEach(TestShell.cleanup);
 
-  context('with AWS KMS', () => {
-    const accessKeyId = 'SxHpYMUtB1CEVg9tX0N1';
-    const secretAccessKey = '44mjXTk34uMUmORma3w1viIAx4RCUv78bzwDY0R7';
-    const sessionToken = 'WXWHMnniSqij0CH27KK7H';
-    async function makeTestShell(withSessionToken: boolean): Promise<TestShell> {
-      return TestShell.start({
-        args: [
-          `--awsAccessKeyId=${accessKeyId}`,
-          `--awsSecretAccessKey=${secretAccessKey}`,
-          `--keyVaultNamespace=${dbname}.keyVault`,
-          ...(withSessionToken ? [`--awsSessionToken=${sessionToken}`] : []),
-          await testServer.connectionString()
-        ],
-        env: {
-          ...process.env,
-          NODE_OPTIONS: '--require ./redirect-network-io.js',
-          REDIRECT_NETWORK_SOURCES: serialize(fakeAWSHandlers.map(({ host }) => host)).toString('base64'),
-          REDIRECT_NETWORK_TARGET: `localhost:${(kmsServer.address() as any).port}`,
-        },
-        cwd: path.join(__dirname, 'fixtures')
-      });
-    }
-
+  for (const useApiStrict of [ false, true ]) {
     for (const withSessionToken of [ false, true ]) {
       // eslint-disable-next-line no-loop-func
-      it(`passes through command line options (${withSessionToken ? 'with' : 'without'} sessionToken)`, async() => {
-        const shell = await makeTestShell(withSessionToken);
-        await shell.executeLine(`use ${dbname}`);
-        await shell.executeLine(`db.keyVault.insertOne({
-          _id: UUID("e7b4abe7-ff70-48c3-9d3a-3526e18c2646"),
-          keyMaterial: new Binary(Buffer.from("010202007888b7b9089f9cf816059c4c02edf139d50227528b2a74a5c9910c89095d45a9d10133bd4c047f2ba610d7ad4efcc945f863000000c23081bf06092a864886f70d010706a081b13081ae0201003081a806092a864886f70d010701301e060960864801650304012e3011040cf406b9ccb00f83dd632e76e9020110807b9c2b3a676746e10486ec64468d45ec89cac30f59812b711fc24530188166c481f4f4ab376c258f8f54affdc8523468fdd07b84e77b21a14008a23fb6d111c05eb4287b7b973f3a60d5c7d87074119b424477366cbe72c31da8fc76b8f72e31f609c3b423c599d3e4a59c21e4a0fe227ebe1aa53038cb94f79c457b", "hex"), 0),
-          creationDate: ISODate('2021-02-10T15:51:00.567Z'),
-          updateDate: ISODate('2021-02-10T15:51:00.567Z'),
-          status: 0,
-          masterKey: {
-            provider: 'aws',
-            region: 'us-east-2',
-            key: 'arn:aws:kms:us-east-2:398471984214:key/174b7c1d-3651-4517-7521-21988befd8cb'
-          }
-        })`);
-        await shell.executeLine(`db.data.insertOne({
-          _id: ObjectId("602400ec9933cbed7fa92a1c"),
-          taxid: new Binary(Buffer.from("02e7b4abe7ff7048c39d3a3526e18c264602846f122fa8c1ae1b8aff3dc7c20a8a3dbc95541e8d0d75cb8daf0b7e3137d553a788ccb62e31fed2da98ea3a596972c6dc7c17bbe6f9a9edc3a7f3e2ad96a819", "hex"), 6)
-        });`);
-        // This will try to automatically decrypt the data, but it will not succeed.
-        // That does not matter here -- we're just checking that the HTTP requests
-        // made were successful.
-        await shell.executeLine('db.data.find();');
-
-        // The actual assertion here:
-        if (!kmsServer.requests.some(req => req.headers.authorization.includes(accessKeyId)) ||
-            (withSessionToken && !kmsServer.requests.some(req => req.headers['x-amz-security-token'] === sessionToken))) {
-          throw new Error(`Missed expected request to AWS\nShell output:\n${shell.output}\nRequests:\n${kmsServer.requests.map(req => inspect(req.headers))}`);
+      context(`with AWS KMS (apiStrict=${useApiStrict}, ${withSessionToken ? 'with' : 'without'} sessionToken)`, () => {
+        if (useApiStrict) {
+          // Disable this until https://jira.mongodb.org/browse/NODE-3183
+          // is done because the server has started requiring hello instead of
+          // isMaster.
+          return;
+          skipIfServerVersion(testServer, '< 5.0');
         }
-      });
 
-      // eslint-disable-next-line no-loop-func
-      it('forwards command line options to the main Mongo instance', async() => {
-        const shell = await makeTestShell(withSessionToken);
-        await shell.executeLine(`use ${dbname}`);
-        await shell.executeLine('keyId = db.getMongo().getKeyVault().createKey("aws", {' +
-          'region: "us-east-2", key: "arn:aws:kms:us-east-2:398471984214:key/174b7c1d-3651-4517-7521-21988befd8cb" });');
-        await shell.executeLine('clientEncryption = db.getMongo().getClientEncryption();');
-        await shell.executeLine('encrypted = clientEncryption.encrypt(' +
-          'keyId, { someValue: "foo" }, "AEAD_AES_256_CBC_HMAC_SHA_512-Random");');
-        const result = await shell.executeLine('({ decrypted: clientEncryption.decrypt(encrypted) })');
-        expect(result).to.include("{ decrypted: { someValue: 'foo' } }");
-        shell.assertNoErrors();
+        const accessKeyId = 'SxHpYMUtB1CEVg9tX0N1';
+        const secretAccessKey = '44mjXTk34uMUmORma3w1viIAx4RCUv78bzwDY0R7';
+        const sessionToken = 'WXWHMnniSqij0CH27KK7H';
+        async function makeTestShell(): Promise<TestShell> {
+          return TestShell.start({
+            args: [
+              `--awsAccessKeyId=${accessKeyId}`,
+              `--awsSecretAccessKey=${secretAccessKey}`,
+              `--keyVaultNamespace=${dbname}.keyVault`,
+              ...(withSessionToken ? [`--awsSessionToken=${sessionToken}`] : []),
+              ...(useApiStrict ? ['--apiStrict', '--apiVersion', '1'] : []),
+              await testServer.connectionString()
+            ],
+            env: {
+              ...process.env,
+              NODE_OPTIONS: '--require ./redirect-network-io.js',
+              REDIRECT_NETWORK_SOURCES: serialize(fakeAWSHandlers.map(({ host }) => host)).toString('base64'),
+              REDIRECT_NETWORK_TARGET: `localhost:${(kmsServer.address() as any).port}`,
+            },
+            cwd: path.join(__dirname, 'fixtures')
+          });
+        }
+
+        it('passes through command line options', async() => {
+          const shell = await makeTestShell();
+          await shell.executeLine(`use ${dbname}`);
+          await shell.executeLine(`db.keyVault.insertOne({
+            _id: UUID("e7b4abe7-ff70-48c3-9d3a-3526e18c2646"),
+            keyMaterial: new Binary(Buffer.from("010202007888b7b9089f9cf816059c4c02edf139d50227528b2a74a5c9910c89095d45a9d10133bd4c047f2ba610d7ad4efcc945f863000000c23081bf06092a864886f70d010706a081b13081ae0201003081a806092a864886f70d010701301e060960864801650304012e3011040cf406b9ccb00f83dd632e76e9020110807b9c2b3a676746e10486ec64468d45ec89cac30f59812b711fc24530188166c481f4f4ab376c258f8f54affdc8523468fdd07b84e77b21a14008a23fb6d111c05eb4287b7b973f3a60d5c7d87074119b424477366cbe72c31da8fc76b8f72e31f609c3b423c599d3e4a59c21e4a0fe227ebe1aa53038cb94f79c457b", "hex"), 0),
+            creationDate: ISODate('2021-02-10T15:51:00.567Z'),
+            updateDate: ISODate('2021-02-10T15:51:00.567Z'),
+            status: 0,
+            masterKey: {
+              provider: 'aws',
+              region: 'us-east-2',
+              key: 'arn:aws:kms:us-east-2:398471984214:key/174b7c1d-3651-4517-7521-21988befd8cb'
+            }
+          })`);
+          await shell.executeLine(`db.data.insertOne({
+            _id: ObjectId("602400ec9933cbed7fa92a1c"),
+            taxid: new Binary(Buffer.from("02e7b4abe7ff7048c39d3a3526e18c264602846f122fa8c1ae1b8aff3dc7c20a8a3dbc95541e8d0d75cb8daf0b7e3137d553a788ccb62e31fed2da98ea3a596972c6dc7c17bbe6f9a9edc3a7f3e2ad96a819", "hex"), 6)
+          });`);
+          // This will try to automatically decrypt the data, but it will not succeed.
+          // That does not matter here -- we're just checking that the HTTP requests
+          // made were successful.
+          await shell.executeLine('db.data.find();');
+
+          // The actual assertion here:
+          if (!kmsServer.requests.some(req => req.headers.authorization.includes(accessKeyId)) ||
+              (withSessionToken && !kmsServer.requests.some(req => req.headers['x-amz-security-token'] === sessionToken))) {
+            throw new Error(`Missed expected request to AWS\nShell output:\n${shell.output}\nRequests:\n${kmsServer.requests.map(req => inspect(req.headers))}`);
+          }
+        });
+
+        it('forwards command line options to the main Mongo instance', async() => {
+          const shell = await makeTestShell();
+          await shell.executeLine(`use ${dbname}`);
+          await shell.executeLine('keyId = db.getMongo().getKeyVault().createKey("aws", {' +
+            'region: "us-east-2", key: "arn:aws:kms:us-east-2:398471984214:key/174b7c1d-3651-4517-7521-21988befd8cb" });');
+          await shell.executeLine('clientEncryption = db.getMongo().getClientEncryption();');
+          await shell.executeLine('encrypted = clientEncryption.encrypt(' +
+            'keyId, { someValue: "foo" }, "AEAD_AES_256_CBC_HMAC_SHA_512-Random");');
+          const result = await shell.executeLine('({ decrypted: clientEncryption.decrypt(encrypted) })');
+          expect(result).to.include("{ decrypted: { someValue: 'foo' } }");
+          shell.assertNoErrors();
+        });
       });
     }
-  });
+  }
 
   it('works when the original shell was started with --nodb', async() => {
     const shell = TestShell.start({
