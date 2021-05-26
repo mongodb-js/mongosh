@@ -185,7 +185,7 @@ describe('e2e direct connection', () => {
         });
         it('when specifying multiple seeds through --host with a wrong replsetid', async() => {
           const hostlist = 'wrongreplset/' + await rs2.hostport() + ',' + await rs1.hostport() + ',' + await rs0.hostport();
-          const shell = TestShell.start({ args: ['--host', hostlist, 'admin?serverSelectionTimeoutMS=2000'] });
+          const shell = TestShell.start({ args: ['--host', hostlist, 'admin'] });
           await shell.waitForExit();
           shell.assertContainsOutput('MongoServerSelectionError');
         });

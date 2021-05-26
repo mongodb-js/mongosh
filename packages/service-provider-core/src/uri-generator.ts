@@ -129,8 +129,8 @@ function generateUri(options: CliOptions): string {
     return '';
   }
   const connectionString = generateUriNormalized(options);
-  if (connectionString.hosts.length === 1 &&
-      ['localhost', '127.0.0.1'].includes(connectionString.hosts[0].split(':')[0])) {
+  if (connectionString.hosts.every(host =>
+    ['localhost', '127.0.0.1'].includes(host.split(':')[0]))) {
     const params = connectionString.searchParams;
     if (!params.has('serverSelectionTimeoutMS')) {
       params.set('serverSelectionTimeoutMS', '2000');
@@ -147,7 +147,7 @@ function generateUriNormalized(options: CliOptions): ConnectionString {
     /^(?<replSetName>[^/]+)\/(?<hosts>([A-Za-z0-9.-]+(:\d+)?,?)+)$/);
   if (replSetHostMatch) {
     const { replSetName, hosts } = replSetHostMatch.groups as { replSetName: string, hosts: string };
-    const connectionString = new ConnectionString(`${Scheme.Mongo}replacemeHost/${uri ?? DEFAULT_DB}`);
+    const connectionString = new ConnectionString(`${Scheme.Mongo}replacemeHost/${encodeURIComponent(uri ?? DEFAULT_DB)}`);
     connectionString.hosts = hosts.split(',').filter(host => host.trim());
     connectionString.searchParams.set('replicaSet', replSetName);
     return addShellConnectionStringParameters(connectionString);
@@ -169,17 +169,22 @@ function generateUriNormalized(options: CliOptions): ConnectionString {
   }
 
   // Capture host, port and db from the string and generate a URI from
-  // the parts.
-  const uriMatch = /^([A-Za-z0-9][A-Za-z0-9.-]+):?(\d+)?[\/]?(\S+)?$/gi;
-  const parts = uriMatch.exec(uri);
+  // the parts. If there is a db part, it *must* start with /.
+  const uriMatch = /^([A-Za-z0-9][A-Za-z0-9.-]+):?(\d+)?(?:\/(\S*))?$/gi;
+  let parts: string[] | null = uriMatch.exec(uri);
 
   if (parts === null) {
-    throw new MongoshInvalidInputError(`Invalid URI: ${uri}`, CommonErrors.InvalidArgument);
+    if (/[/\\. "$]/.test(uri)) {
+      // This cannot be a database name because 'uri' contains characters invalid in a database.
+      throw new MongoshInvalidInputError(`Invalid URI: ${uri}`, CommonErrors.InvalidArgument);
+    } else {
+      parts = [ uri, uri ];
+    }
   }
 
-  let host: string | undefined = parts[1];
-  const port = parts[2];
-  let dbAndQueryString = parts[3];
+  let host: string | undefined = parts?.[1];
+  const port = parts?.[2];
+  let dbAndQueryString = parts?.[3];
 
   // If there is no port and db, host becomes db if there is no
   // '.' in the string. (legacy shell behaviour)
@@ -193,9 +198,8 @@ function generateUriNormalized(options: CliOptions): ConnectionString {
   if (host || port) {
     validateConflicts(options);
   }
-
   return addShellConnectionStringParameters(new ConnectionString(
-    `${Scheme.Mongo}${host || generateHost(options)}:${port || generatePort(options)}/${dbAndQueryString ?? DEFAULT_DB}`));
+    `${Scheme.Mongo}${host || generateHost(options)}:${port || generatePort(options)}/${encodeURIComponent(dbAndQueryString || DEFAULT_DB)}`));
 }
 
 /**
