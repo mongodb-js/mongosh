@@ -29,7 +29,6 @@ import type {
   FindOneAndReplaceOptions,
   FindOneAndUpdateOptions
 } from '@mongosh/service-provider-core';
-import { AggregationCursor } from '.';
 
 @shellApiClassDefault
 export default class Explainable extends ShellApiWithMongoClass {
@@ -91,11 +90,10 @@ export default class Explainable extends ShellApiWithMongoClass {
     return new ExplainableCursor(this._mongo, cursor, this._verbosity);
   }
 
-  async aggregate(pipeline: Document[], options: Document & { explain?: undefined | false }): Promise<AggregationCursor>
-  async aggregate(pipeline: Document[], options: Document & { explain: true }): Promise<Document>
-  async aggregate(...stages: Document[]): Promise<AggregationCursor>
+  async aggregate(pipeline: Document[], options: Document): Promise<Document>
+  async aggregate(...stages: Document[]): Promise<Document>
   @returnsPromise
-  async aggregate(...args: any[]): Promise<AggregationCursor> {
+  async aggregate(...args: any[]): Promise<Document> {
     this._emitExplainableApiCall('aggregate', { args });
     let options: Document;
     let pipeline: Document[];

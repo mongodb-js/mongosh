@@ -142,8 +142,8 @@ export default class Collection extends ShellApiWithMongoClass {
    *
    * @returns {Promise} The promise of aggregation results.
    */
-  async aggregate(pipeline: Document[], options: Document & { explain?: undefined | false }): Promise<AggregationCursor>
-  async aggregate(pipeline: Document[], options: Document & { explain: true }): Promise<Document>
+  async aggregate(pipeline: Document[], options: Document & { explain?: never }): Promise<AggregationCursor>
+  async aggregate(pipeline: Document[], options: Document & { explain: ExplainVerbosityLike }): Promise<Document>
   async aggregate(...stages: Document[]): Promise<AggregationCursor>
   @returnsPromise
   @returnType('AggregationCursor')
@@ -357,7 +357,7 @@ export default class Collection extends ShellApiWithMongoClass {
   async distinct(field: string, query: Document): Promise<Document>
   async distinct(field: string, query: Document, options: DistinctOptions): Promise<Document>
   @returnsPromise
-  async distinct(field: string, query?: Document | undefined, options: DistinctOptions = {}): Promise<Document> {
+  async distinct(field: string, query?: Document, options: DistinctOptions = {}): Promise<Document> {
     this._emitCollectionApiCall('distinct', { field, query, options });
     return maybeMarkAsExplainOutput(
       await this._mongo._serviceProvider.distinct(

@@ -898,20 +898,22 @@ describe('Shell API (integration)', function() {
         expect(await cursor.toArray()).to.have.length(0);
       });
 
-      it('runs an explain with explain: true', async() => {
-        await serviceProvider.insertOne(dbName, collectionName, { x: 1 });
+      [true, false, 'queryPlanner'].forEach(explain => {
+        it(`runs an explain with explain: ${explain}`, async() => {
+          await serviceProvider.insertOne(dbName, collectionName, { x: 1 });
 
-        const cursor = await collection.aggregate([{
-          $count: 'count'
-        }], {
-          explain: true
+          const cursor = await collection.aggregate([{
+            $count: 'count'
+          }], {
+            explain
+          });
+
+          const result = await toShellResult(cursor);
+          expect(result.printable).to.include.all.keys([
+            'ok',
+            'stages',
+          ]);
         });
-
-        const result = await toShellResult(cursor);
-        expect(result.printable).to.include.all.keys([
-          'ok',
-          'stages',
-        ]);
       });
     });
   });
