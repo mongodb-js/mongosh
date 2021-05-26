@@ -368,6 +368,33 @@ describe('Mongo', () => {
         expect.fail();
       });
     });
+    describe('getWriteConcern', () => {
+      it('calls serviceProvider.getWriteConcern', async() => {
+        const expectedResult: WriteConcern = { w: 'majority', wtimeout: 200 };
+        serviceProvider.getWriteConcern.returns(expectedResult as any);
+        const res = mongo.getWriteConcern();
+        expect(serviceProvider.getWriteConcern).to.have.been.calledWith();
+        expect(res).to.equal(expectedResult);
+      });
+
+      it('returns undefined if not set', async() => {
+        serviceProvider.getWriteConcern.returns(undefined);
+        const res = mongo.getWriteConcern();
+        expect(serviceProvider.getWriteConcern).to.have.been.calledWith();
+        expect(res).to.equal(undefined);
+      });
+
+      it('throws InternalError if getWriteConcern errors', async() => {
+        const expectedError = new Error();
+        serviceProvider.getWriteConcern.throws(expectedError);
+        try {
+          mongo.getWriteConcern();
+        } catch (catchedError) {
+          return expect(catchedError).to.be.instanceOf(MongoshInternalError);
+        }
+        expect.fail();
+      });
+    });
     describe('setReadPref', () => {
       it('calls serviceProvider.restConnectionOptions', async() => {
         serviceProvider.resetConnectionOptions.resolves();
@@ -394,7 +421,7 @@ describe('Mongo', () => {
       });
     });
     describe('setReadConcern', () => {
-      it('calls serviceProvider.restConnectionOptions', async() => {
+      it('calls serviceProvider.resetConnectionOptions', async() => {
         serviceProvider.resetConnectionOptions.resolves();
         await mongo.setReadConcern('majority');
         expect(serviceProvider.resetConnectionOptions).to.have.been.calledWith({
@@ -409,6 +436,32 @@ describe('Mongo', () => {
         serviceProvider.resetConnectionOptions.throws(expectedError);
         try {
           await mongo.setReadConcern('majority');
+        } catch (catchedError) {
+          return expect(catchedError).to.equal(expectedError);
+        }
+        expect.fail();
+      });
+    });
+    describe('setWriteConcern', () => {
+      [
+        { args: ['majority'], opts: { w: 'majority' } },
+        { args: ['majority', 200], opts: { w: 'majority', wtimeoutMS: 200 } },
+        { args: ['majority', 200, false], opts: { w: 'majority', wtimeoutMS: 200, journal: false } },
+        { args: ['majority', undefined, false], opts: { w: 'majority', journal: false } },
+        { args: [{ w: 'majority', wtimeout: 200, fsync: 1 }], opts: { w: 'majority', wtimeoutMS: 200, journal: true } }
+      ].forEach(({ args, opts }) => {
+        it(`calls serviceProvider.resetConnectionOptions for args ${JSON.stringify(args)}`, async() => {
+          serviceProvider.resetConnectionOptions.resolves();
+          await mongo.setWriteConcern.call(mongo, ...args); // tricking TS into thinking the arguments are correct
+          expect(serviceProvider.resetConnectionOptions).to.have.been.calledWith(opts);
+        });
+      });
+
+      it('throws if resetConnectionOptions errors', async() => {
+        const expectedError = new Error();
+        serviceProvider.resetConnectionOptions.throws(expectedError);
+        try {
+          await mongo.setWriteConcern('majority');
         } catch (catchedError) {
           return expect(catchedError).to.equal(expectedError);
         }

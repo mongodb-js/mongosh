@@ -1685,9 +1685,14 @@ const translations: Catalog = {
               description: 'Closes a Mongo object, disposing of related resources and closing the underlying connection.'
             },
             getReadConcern: {
-              link: 'https://docs.mongodb.com/manual/reference/method/db.getReadConcern',
-              description: 'Calls the getReadConcern command',
-              example: 'db.getReadConcern()'
+              link: 'https://docs.mongodb.com/manual/reference/method/Mongo.getReadConcern',
+              description: 'Returns the ReadConcern set for the connection.',
+              example: 'db.getMongo().getReadConcern()'
+            },
+            getWriteConcern: {
+              link: 'https://docs.mongodb.com/manual/reference/method/Mongo.getWriteConcern',
+              description: 'Returns the WriteConcern set for the connection.',
+              example: 'db.getMongo().getWriteConcern()'
             },
             getReadPref: {
               link: 'https://docs.mongodb.com/manual/reference/method/Mongo.getReadPref',
@@ -1713,6 +1718,11 @@ const translations: Catalog = {
               link: 'https://docs.mongodb.com/manual/reference/method/Mongo.setReadConcern',
               description: 'Sets the ReadConcern for the connection',
               example: 'db.getMongo().setReadConcern(level)'
+            },
+            setWriteConcern: {
+              link: 'https://docs.mongodb.com/manual/reference/method/Mongo.setWriteConcern',
+              description: 'Sets the WriteConcern for the connection',
+              example: 'db.getMongo().setWriteConcern(\'majority\')'
             },
             setCausalConsistency: {
               description: 'This method is deprecated. It is not possible to set causal consistency for an entire connection due to driver limitations, use startSession({causalConsistency: <>}) instead.'

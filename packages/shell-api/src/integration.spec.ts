@@ -1736,6 +1736,18 @@ describe('Shell API (integration)', function() {
         expect(serviceProvider.mongoClient).to.not.equal(oldMC);
       });
     });
+    describe('setWriteConcern', () => {
+      it('reconnects', async() => {
+        const oldMC = serviceProvider.mongoClient;
+        expect(mongo.getWriteConcern()).to.equal(undefined);
+        await mongo.setWriteConcern('majority', 200);
+        expect(mongo.getWriteConcern()).to.deep.equal({
+          w: 'majority',
+          wtimeout: 200
+        });
+        expect(serviceProvider.mongoClient).to.not.equal(oldMC);
+      });
+    });
     describe('close', () => {
       it('removes the connection from the set of connections', async() => {
         // eslint-disable-next-line new-cap
