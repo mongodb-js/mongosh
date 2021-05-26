@@ -884,7 +884,18 @@ describe('Shell API (integration)', function() {
           $count: 'count'
         }]);
 
-        expect(await (cursor as AggregationCursor).toArray()).to.deep.equal([{ count: 1 }]);
+        expect(await cursor.toArray()).to.deep.equal([{ count: 1 }]);
+      });
+
+      it('accepts multiple stages as individual arguments', async() => {
+        await serviceProvider.insertOne(dbName, collectionName, { x: 1 });
+
+        const cursor = await collection.aggregate(
+          { $match: { x: 0 } },
+          { $count: 'count' }
+        );
+
+        expect(await cursor.toArray()).to.have.length(0);
       });
 
       it('runs an explain with explain: true', async() => {
@@ -892,9 +903,15 @@ describe('Shell API (integration)', function() {
 
         const cursor = await collection.aggregate([{
           $count: 'count'
-        }]);
+        }], {
+          explain: true
+        });
 
-        expect(await (cursor as AggregationCursor).toArray()).to.deep.equal([{ count: 1 }]);
+        const result = await toShellResult(cursor);
+        expect(result.printable).to.include.all.keys([
+          'ok',
+          'stages',
+        ]);
       });
     });
   });
@@ -1081,7 +1098,7 @@ describe('Shell API (integration)', function() {
   });
 
   describe('explainable', () => {
-    let explainable;
+    let explainable: Explainable;
 
     beforeEach(() => {
       explainable = new Explainable(
@@ -1106,107 +1123,107 @@ describe('Shell API (integration)', function() {
     });
 
     describe('aggregate', () => {
-      describe('server before 4.2.2', () => {
-        skipIfServerVersion(testServer, '>= 4.2.2');
-        it('returns a cursor that has the explain as result of toShellResult', async() => {
-          const cursor = await collection.explain().aggregate([
-            { $match: {} }, { $skip: 1 }, { $limit: 1 }
-          ]);
-          const result = await toShellResult(cursor);
-          expect(result.printable).to.include.all.keys([
-            'ok',
-            'stages'
-          ]);
-          expect(result.printable.stages[0].$cursor).to.include.all.keys([
-            'queryPlanner'
-          ]);
-          expect(result.printable.stages[0].$cursor).to.not.include.any.keys([
-            'executionStats'
-          ]);
-        });
+      const stages = [
+        { $match: {} }, { $skip: 1 }, { $limit: 1 }
+      ];
 
-        it('includes executionStats when requested', async() => {
-          const cursor = await collection.explain('executionStats').aggregate([
-            { $match: {} }, { $skip: 1 }, { $limit: 1 }
-          ]);
-          const result = await toShellResult(cursor);
-          expect(result.printable).to.include.all.keys([
-            'ok',
-            'stages'
-          ]);
-          expect(result.printable.stages[0].$cursor).to.include.all.keys([
-            'queryPlanner',
-            'executionStats'
-          ]);
-        });
-      });
+      // we run the tests giving the stages either as a list of args or as an array
+      [
+        stages,
+        [stages]
+      ].forEach(args => {
+        context(`with stages as ${args.length === 1 ? 'pipeline array' : 'individual args'}`, () => {
+          describe('server before 4.2.2', () => {
+            skipIfServerVersion(testServer, '>= 4.2.2');
+            it('returns a cursor that has the explain as result of toShellResult', async() => {
+              const cursor = await collection.explain().aggregate(...args);
+              const result = await toShellResult(cursor);
+              expect(result.printable).to.include.all.keys([
+                'ok',
+                'stages'
+              ]);
+              expect(result.printable.stages[0].$cursor).to.include.all.keys([
+                'queryPlanner'
+              ]);
+              expect(result.printable.stages[0].$cursor).to.not.include.any.keys([
+                'executionStats'
+              ]);
+            });
 
-      describe('server from 4.2.2 till 4.4', () => {
-        skipIfServerVersion(testServer, '< 4.2.2');
-        skipIfServerVersion(testServer, '>= 4.5');
-        it('returns a cursor that has the explain as result of toShellResult', async() => {
-          const cursor = await collection.explain().aggregate([
-            { $match: {} }, { $skip: 1 }, { $limit: 1 }
-          ]);
-          const result = await toShellResult(cursor);
-          expect(result.printable).to.include.all.keys([
-            'ok',
-            'stages',
-            'serverInfo'
-          ]);
-          expect(result.printable.stages[0].$cursor).to.include.all.keys([
-            'queryPlanner'
-          ]);
-          expect(result.printable.stages[0].$cursor).to.not.include.any.keys([
-            'executionStats'
-          ]);
-        });
+            it('includes executionStats when requested', async() => {
+              const cursor = await collection.explain('executionStats').aggregate(...args);
+              const result = await toShellResult(cursor);
+              expect(result.printable).to.include.all.keys([
+                'ok',
+                'stages'
+              ]);
+              expect(result.printable.stages[0].$cursor).to.include.all.keys([
+                'queryPlanner',
+                'executionStats'
+              ]);
+            });
+          });
 
-        it('includes executionStats when requested', async() => {
-          const cursor = await collection.explain('executionStats').aggregate([
-            { $match: {} }, { $skip: 1 }, { $limit: 1 }
-          ]);
-          const result = await toShellResult(cursor);
-          expect(result.printable).to.include.all.keys([
-            'ok',
-            'stages',
-            'serverInfo'
-          ]);
-          expect(result.printable.stages[0].$cursor).to.include.all.keys([
-            'queryPlanner',
-            'executionStats'
-          ]);
-        });
-      });
+          describe('server from 4.2.2 till 4.4', () => {
+            skipIfServerVersion(testServer, '< 4.2.2');
+            skipIfServerVersion(testServer, '>= 4.5');
+            it('returns a cursor that has the explain as result of toShellResult', async() => {
+              const cursor = await collection.explain().aggregate(...args);
+              const result = await toShellResult(cursor);
+              expect(result.printable).to.include.all.keys([
+                'ok',
+                'stages',
+                'serverInfo'
+              ]);
+              expect(result.printable.stages[0].$cursor).to.include.all.keys([
+                'queryPlanner'
+              ]);
+              expect(result.printable.stages[0].$cursor).to.not.include.any.keys([
+                'executionStats'
+              ]);
+            });
 
-      describe('after server 4.4', () => {
-        skipIfServerVersion(testServer, '<= 4.4');
-        it('returns a cursor that has the explain as result of toShellResult', async() => {
-          const cursor = await collection.explain().aggregate([
-            { $match: {} }, { $skip: 1 }, { $limit: 1 }
-          ]);
-          const result = await toShellResult(cursor);
-          expect(result.printable).to.include.all.keys([
-            'ok',
-            'serverInfo',
-            'queryPlanner'
-          ]);
-          expect(result.printable).to.not.include.any.keys([
-            'executionStats'
-          ]);
-        });
+            it('includes executionStats when requested', async() => {
+              const cursor = await collection.explain('executionStats').aggregate(...args);
+              const result = await toShellResult(cursor);
+              expect(result.printable).to.include.all.keys([
+                'ok',
+                'stages',
+                'serverInfo'
+              ]);
+              expect(result.printable.stages[0].$cursor).to.include.all.keys([
+                'queryPlanner',
+                'executionStats'
+              ]);
+            });
+          });
 
-        it('includes executionStats when requested', async() => {
-          const cursor = await collection.explain('executionStats').aggregate([
-            { $match: {} }, { $skip: 1 }, { $limit: 1 }
-          ]);
-          const result = await toShellResult(cursor);
-          expect(result.printable).to.include.all.keys([
-            'ok',
-            'serverInfo',
-            'queryPlanner',
-            'executionStats'
-          ]);
+          describe('after server 4.4', () => {
+            skipIfServerVersion(testServer, '<= 4.4');
+            it('returns a cursor that has the explain as result of toShellResult', async() => {
+              const cursor = await collection.explain().aggregate(...args);
+              const result = await toShellResult(cursor);
+              expect(result.printable).to.include.all.keys([
+                'ok',
+                'serverInfo',
+                'queryPlanner'
+              ]);
+              expect(result.printable).to.not.include.any.keys([
+                'executionStats'
+              ]);
+            });
+
+            it('includes executionStats when requested', async() => {
+              const cursor = await collection.explain('executionStats').aggregate(...args);
+              const result = await toShellResult(cursor);
+              expect(result.printable).to.include.all.keys([
+                'ok',
+                'serverInfo',
+                'queryPlanner',
+                'executionStats'
+              ]);
+            });
+          });
         });
       });
     });

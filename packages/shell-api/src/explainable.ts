@@ -6,7 +6,7 @@ import {
   returnType,
   shellApiClassDefault,
   serverVersions,
-  ShellApiWithMongoClass
+  ShellApiWithMongoClass,
 } from './decorators';
 import { asPrintable, ServerVersions } from './enums';
 import {
@@ -29,6 +29,7 @@ import type {
   FindOneAndReplaceOptions,
   FindOneAndUpdateOptions
 } from '@mongosh/service-provider-core';
+import { AggregationCursor } from '.';
 
 @shellApiClassDefault
 export default class Explainable extends ShellApiWithMongoClass {
@@ -90,9 +91,21 @@ export default class Explainable extends ShellApiWithMongoClass {
     return new ExplainableCursor(this._mongo, cursor, this._verbosity);
   }
 
+  async aggregate(pipeline: Document[], options: Document & { explain?: undefined | false }): Promise<AggregationCursor>
+  async aggregate(pipeline: Document[], options: Document & { explain: true }): Promise<Document>
+  async aggregate(...stages: Document[]): Promise<AggregationCursor>
   @returnsPromise
-  async aggregate(pipeline?: Document, options?: Document): Promise<any> {
-    this._emitExplainableApiCall('aggregate', { pipeline, options });
+  async aggregate(...args: any[]): Promise<AggregationCursor> {
+    this._emitExplainableApiCall('aggregate', { args });
+    let options: Document;
+    let pipeline: Document[];
+    if (Array.isArray(args[0])) {
+      pipeline = args[0];
+      options = args[1] ?? {};
+    } else {
+      pipeline = args;
+      options = {};
+    }
 
     return await this._collection.aggregate(pipeline, {
       ...options,
