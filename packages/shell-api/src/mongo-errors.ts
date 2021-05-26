@@ -35,5 +35,5 @@ export function rephraseMongoError(error: any): any {
 }
 
 function isMongoError(error: any): boolean {
-  return /^Mongo([A-Z].*)?Error$/.test(Object.getPrototypeOf(error).constructor.name ?? '');
+  return /^Mongo([A-Z].*)?Error$/.test(Object.getPrototypeOf(error)?.constructor?.name ?? '');
 }
