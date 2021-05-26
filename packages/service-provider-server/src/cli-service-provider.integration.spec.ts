@@ -64,6 +64,21 @@ describe('CliServiceProvider [integration]', function() {
     });
   });
 
+  describe('.suspend', () => {
+    it('allows disconnecting and reconnecting the CliServiceProvider', async() => {
+      await serviceProvider.runCommandWithCheck('admin', { ping: 1 });
+      const reconnect = await serviceProvider.suspend();
+      try {
+        await serviceProvider.runCommandWithCheck('admin', { ping: 1 });
+        expect.fail('missed exception');
+      } catch (err) {
+        expect(err.name).to.equal('MongoError');
+      }
+      await reconnect();
+      await serviceProvider.runCommandWithCheck('admin', { ping: 1 });
+    });
+  });
+
   describe('.authenticate', () => {
     beforeEach(async() => {
       await serviceProvider.runCommandWithCheck('admin', {
