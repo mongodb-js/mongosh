@@ -50,6 +50,8 @@
     "@types/bl": "^2.1.0"
   },
   "optionalDependencies": {
-    "mongodb-client-encryption": "^1.2.3"
+    "mongodb-client-encryption": "^1.2.3",
+    "os-dns-native": "^1.0.3",
+    "resolve-mongodb-srv": "^1.0.1"
   }
 }

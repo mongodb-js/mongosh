@@ -66,6 +66,10 @@ export class SignableCompiler {
       path: await findModulePath('service-provider-server', 'mongodb-client-encryption'),
       requireRegexp: /\bmongocrypt\.node$/
     };
+    const osDnsAddon = {
+      path: await findModulePath('service-provider-server', 'os-dns-native'),
+      requireRegexp: /\bos_dns_native\.node$/
+    };
     const winCAAddon = process.platform === 'win32' ? {
       path: await findModulePath('cli-repl', 'win-export-certificate-and-key'),
       requireRegexp: /\bwin_export_cert\.node$/
@@ -93,7 +97,8 @@ export class SignableCompiler {
         AWS_SECRET_ACCESS_KEY: process.env.DEVTOOLS_CI_AWS_SECRET
       },
       addons: [
-        fleAddon
+        fleAddon,
+        osDnsAddon
       ].concat(winCAAddon ? [
         winCAAddon
       ] : []).concat(macKeychainAddon ? [
