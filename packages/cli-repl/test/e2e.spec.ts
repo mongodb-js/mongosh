@@ -949,8 +949,8 @@ describe('e2e', function() {
       const shell = TestShell.start({ args: [
         'mongodb://' + 'verymuchnonexistentdomainname'.repeat(10) + '.mongodb.net/'
       ] });
-      const result = await shell.waitForPromptOrExit();
-      expect(result).to.deep.equal({ state: 'exit', exitCode: 1 });
+      const exitCode = await shell.waitForExit();
+      expect(exitCode).to.equal(1);
     });
 
     it('fails fast for ECONNREFUSED errors', async() => {
