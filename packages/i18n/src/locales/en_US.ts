@@ -1399,6 +1399,11 @@ const translations: Catalog = {
               description: 'Reconfigures an existing replica set, overwriting the existing replica set configuration.',
               example: 'rs.reconfig()'
             },
+            reconfigForPSASet: {
+              link: 'https://docs.mongodb.com/manual/reference/method/rs.reconfigForPSASet',
+              description: 'Reconfigures an existing replica set, overwriting the existing replica set configuration, if the reconfiguration is a transition from a Primary-Arbiter to a Primary-Secondary-Arbiter set.',
+              example: 'rs.reconfigForPSASet(indexOfNewMemberInMembersArray, config)'
+            },
             conf: {
               link: 'https://docs.mongodb.com/manual/reference/method/rs.conf',
               description: 'Calls replSetConfig',
