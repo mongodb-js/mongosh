@@ -951,28 +951,9 @@ describe('ReplicaSet', () => {
       conf.members.push({ _id: 2, host: secondary, votes: 1, priority: 1 });
       await rs.reconfigForPSASet(2, conf);
 
-      const { members } = (await rs.status());
-      expect(members.map(({ _id, name, stateStr }) => ({
-        _id,
-        name,
-        stateStr: stateStr === 'STARTUP' || stateStr === 'STARTUP2' ? 'SECONDARY' : stateStr
-      }))).to.deep.equal([
-        {
-          _id: 0,
-          name: primary,
-          stateStr: 'PRIMARY'
-        },
-        {
-          _id: 1,
-          name: arbiter,
-          stateStr: 'ARBITER'
-        },
-        {
-          _id: 2,
-          name: secondary,
-          stateStr: 'SECONDARY'
-        }
-      ]);
+      const { members } = await rs.status();
+      expect(members).to.have.lengthOf(3);
+      expect(members.filter(member => member.stateStr === 'PRIMARY')).to.have.lengthOf(1);
     });
   });
 });
