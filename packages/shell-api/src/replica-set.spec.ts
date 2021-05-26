@@ -930,6 +930,12 @@ describe('ReplicaSet', () => {
       expect((await rs.initiate(cfg)).ok).to.equal(1);
       await ensureMaster(rs, 1000, primary);
 
+      if (semver.gte(await db.version(), '4.4.0')) { // setDefaultRWConcern is 4.4+ only
+        await db.getSiblingDB('admin').runCommand({
+          setDefaultRWConcern: 1,
+          defaultWriteConcern: { w: 'majority' }
+        });
+      }
       await rs.addArb(arbiter);
 
       if (semver.gt(await db.version(), '4.9.0')) { // Exception currently 5.0+ only
@@ -946,7 +952,11 @@ describe('ReplicaSet', () => {
       await rs.reconfigForPSASet(2, conf);
 
       const { members } = (await rs.status());
-      expect(members.map(({ _id, name, stateStr }) => ({ _id, name, stateStr }))).to.deep.equal([
+      expect(members.map(({ _id, name, stateStr }) => ({
+        _id,
+        name,
+        stateStr: stateStr === 'STARTUP' || stateStr === 'STARTUP2' ? 'SECONDARY' : stateStr
+      }))).to.deep.equal([
         {
           _id: 0,
           name: primary,
