@@ -77,57 +77,51 @@ describe('e2e', function() {
       expect(await onExit).to.equal(0);
     });
   });
-
   describe('set db', () => {
-    describe('via host:port/test', () => {
-      let shell;
-      beforeEach(async() => {
-        shell = TestShell.start({ args: [`${await testServer.hostport()}/testdb1`] });
-        await shell.waitForPrompt();
-        shell.assertNoErrors();
-      });
-      it('db set correctly', async() => {
-        await shell.executeLine('db');
-        shell.assertNoErrors();
-
-        await eventually(() => {
-          shell.assertContainsOutput('testdb1');
+    for (const { mode, dbname, dbnameUri } of [
+      { mode: 'no special characetrs', dbname: 'testdb1', dbnameUri: 'testdb1' },
+      { mode: 'special characters', dbname: 'ä:-,🐈_\'[!?%', dbnameUri: 'ä:-,🐈_\'[!%3F%25' }
+    ]) {
+      context(mode, () => {
+        describe('via host:port/test', () => {
+          let shell;
+          beforeEach(async() => {
+            shell = TestShell.start({ args: [`${await testServer.hostport()}/${dbname}`] });
+            await shell.waitForPrompt();
+            shell.assertNoErrors();
+          });
+          it('db set correctly', async() => {
+            expect(await shell.executeLine('db')).to.include(dbname);
+            shell.assertNoErrors();
+          });
+        });
+        describe('via mongodb://uri', () => {
+          let shell;
+          beforeEach(async() => {
+            shell = TestShell.start({ args: [`mongodb://${await testServer.hostport()}/${dbnameUri}`] });
+            await shell.waitForPrompt();
+            shell.assertNoErrors();
+          });
+          it('db set correctly', async() => {
+            expect(await shell.executeLine('db')).to.include(dbname);
+            shell.assertNoErrors();
+          });
+        });
+        describe('legacy db only', () => {
+          let shell;
+          beforeEach(async() => {
+            const port = await testServer.port();
+            shell = TestShell.start({ args: [dbname, `--port=${port}`] });
+            await shell.waitForPrompt();
+            shell.assertNoErrors();
+          });
+          it('db set correctly', async() => {
+            expect(await shell.executeLine('db')).to.include(dbname);
+            shell.assertNoErrors();
+          });
         });
       });
-    });
-    describe('via mongodb://uri', () => {
-      let shell;
-      beforeEach(async() => {
-        shell = TestShell.start({ args: [`mongodb://${await testServer.hostport()}/testdb2`] });
-        await shell.waitForPrompt();
-        shell.assertNoErrors();
-      });
-      it('db set correctly', async() => {
-        await shell.executeLine('db');
-        shell.assertNoErrors();
-
-        await eventually(() => {
-          shell.assertContainsOutput('testdb2');
-        });
-      });
-    });
-    describe('legacy db only', () => {
-      let shell;
-      beforeEach(async() => {
-        const port = await testServer.port();
-        shell = TestShell.start({ args: ['testdb3', `--port=${port}`] });
-        await shell.waitForPrompt();
-        shell.assertNoErrors();
-      });
-      it('db set correctly', async() => {
-        await shell.executeLine('db');
-        shell.assertNoErrors();
-
-        await eventually(() => {
-          shell.assertContainsOutput('testdb3');
-        });
-      });
-    });
+    }
   });
 
   describe('with connection string', () => {
