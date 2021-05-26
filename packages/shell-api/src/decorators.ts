@@ -12,6 +12,7 @@ import {
 import Help from './help';
 import { addHiddenDataProperty } from './helpers';
 import { checkInterrupted } from './interruptor';
+import { rephraseMongoError } from './mongo-errors';
 
 const addSourceToResultsSymbol = Symbol.for('@@mongosh.addSourceToResults');
 const resultSource = Symbol.for('@@mongosh.resultSource');
@@ -161,17 +162,27 @@ function wrapWithApiChecks<T extends(...args: any[]) => any>(fn: T, className: s
       const internalState = getShellInternalState(this);
       checkForDeprecation(internalState, className, fn);
       const interrupted = checkInterrupted(internalState);
-      const result = await Promise.race([
-        interrupted ? interrupted.asPromise() : new Promise(() => {}),
-        fn.call(this, ...args)
-      ]);
+      let result: any;
+      try {
+        result = await Promise.race([
+          interrupted ? interrupted.asPromise() : new Promise(() => {}),
+          fn.call(this, ...args)
+        ]);
+      } catch (e) {
+        throw rephraseMongoError(e);
+      }
       checkInterrupted(internalState);
       return result;
     }) : function(this: any, ...args: any[]): any {
       const internalState = getShellInternalState(this);
       checkForDeprecation(internalState, className, fn);
       checkInterrupted(internalState);
-      const result = fn.call(this, ...args);
+      let result: any;
+      try {
+        result = fn.call(this, ...args);
+      } catch (e) {
+        throw rephraseMongoError(e);
+      }
       checkInterrupted(internalState);
       return result;
     };
