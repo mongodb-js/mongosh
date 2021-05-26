@@ -6,7 +6,7 @@ import {
   returnType,
   shellApiClassDefault,
   serverVersions,
-  ShellApiWithMongoClass
+  ShellApiWithMongoClass,
 } from './decorators';
 import { asPrintable, ServerVersions } from './enums';
 import {
@@ -90,9 +90,20 @@ export default class Explainable extends ShellApiWithMongoClass {
     return new ExplainableCursor(this._mongo, cursor, this._verbosity);
   }
 
+  async aggregate(pipeline: Document[], options: Document): Promise<Document>
+  async aggregate(...stages: Document[]): Promise<Document>
   @returnsPromise
-  async aggregate(pipeline?: Document, options?: Document): Promise<any> {
-    this._emitExplainableApiCall('aggregate', { pipeline, options });
+  async aggregate(...args: any[]): Promise<Document> {
+    this._emitExplainableApiCall('aggregate', { args });
+    let options: Document;
+    let pipeline: Document[];
+    if (Array.isArray(args[0])) {
+      pipeline = args[0];
+      options = args[1] ?? {};
+    } else {
+      pipeline = args;
+      options = {};
+    }
 
     return await this._collection.aggregate(pipeline, {
       ...options,
@@ -114,10 +125,13 @@ export default class Explainable extends ShellApiWithMongoClass {
     }));
   }
 
+  async distinct(field: string): Promise<Document>
+  async distinct(field: string, query: Document): Promise<Document>
+  async distinct(field: string, query: Document, options: DistinctOptions): Promise<Document>
   @returnsPromise
-  async distinct(field: string, query: Document, options: DistinctOptions = {}): Promise<Document> {
+  async distinct(field: string, query?: Document, options: DistinctOptions = {}): Promise<Document> {
     this._emitExplainableApiCall('distinct', { field, query, options });
-    return this._collection.distinct(field, query, { ...options, explain: this._verbosity });
+    return this._collection.distinct(field, query ?? {}, { ...options, explain: this._verbosity });
   }
 
   @returnsPromise

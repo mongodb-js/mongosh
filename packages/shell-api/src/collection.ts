@@ -142,9 +142,12 @@ export default class Collection extends ShellApiWithMongoClass {
    *
    * @returns {Promise} The promise of aggregation results.
    */
+  async aggregate(pipeline: Document[], options: Document & { explain?: never }): Promise<AggregationCursor>
+  async aggregate(pipeline: Document[], options: Document & { explain: ExplainVerbosityLike }): Promise<Document>
+  async aggregate(...stages: Document[]): Promise<AggregationCursor>
   @returnsPromise
   @returnType('AggregationCursor')
-  async aggregate(...args: any[]): Promise<AggregationCursor> {
+  async aggregate(...args: any[]): Promise<any> {
     let options;
     let pipeline;
     if (args.length === 0 || Array.isArray(args[0])) {
@@ -262,7 +265,7 @@ export default class Collection extends ShellApiWithMongoClass {
    */
   @returnsPromise
   @serverVersions(['4.0.3', ServerVersions.latest])
-  async countDocuments(query: Document, options: CountDocumentsOptions = {}): Promise<number> {
+  async countDocuments(query?: Document, options: CountDocumentsOptions = {}): Promise<number> {
     this._emitCollectionApiCall('countDocuments', { query, options });
     return this._mongo._serviceProvider.countDocuments(
       this._database._name,
@@ -350,8 +353,11 @@ export default class Collection extends ShellApiWithMongoClass {
    *
    * @returns {Array} The promise of the result.
    */
+  async distinct(field: string): Promise<Document>
+  async distinct(field: string, query: Document): Promise<Document>
+  async distinct(field: string, query: Document, options: DistinctOptions): Promise<Document>
   @returnsPromise
-  async distinct(field: string, query: Document, options: DistinctOptions = {}): Promise<Document> {
+  async distinct(field: string, query?: Document, options: DistinctOptions = {}): Promise<Document> {
     this._emitCollectionApiCall('distinct', { field, query, options });
     return maybeMarkAsExplainOutput(
       await this._mongo._serviceProvider.distinct(

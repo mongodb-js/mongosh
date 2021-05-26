@@ -8,7 +8,7 @@ import Cursor from './cursor';
 import Mongo from './mongo';
 import Collection from './collection';
 import Explainable from './explainable';
-import { ServiceProvider, bson } from '@mongosh/service-provider-core';
+import { ServiceProvider, bson, Document } from '@mongosh/service-provider-core';
 import ShellInternalState from './shell-internal-state';
 import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
 
@@ -146,26 +146,54 @@ describe('Explainable', () => {
     });
 
     describe('aggregate', () => {
-      let explainResult;
+      let explainResult: Document;
       const expectedExplainResult = { ok: 1 };
-      beforeEach(async() => {
-        collection.aggregate = sinon.spy(() => Promise.resolve(expectedExplainResult)) as any;
 
-        explainResult = await explainable.aggregate(
-          { pipeline: 1 },
-          { aggregate: 1 }
-        );
+      context('without options', () => {
+        beforeEach(async() => {
+          collection.aggregate = sinon.spy(() => Promise.resolve(expectedExplainResult)) as any;
+        });
+
+        const stages = [{ pipeline: 1 }, { $count: 'count' }];
+        [ stages, [stages] ].forEach(args => {
+          describe(`and stages as ${args.length === 1 ? 'pipeline array' : 'individual args'}`, () => {
+            beforeEach(async() =>{
+              explainResult = await explainable.aggregate(...args);
+            });
+            it('calls collection.aggregate with arguments', () => {
+              expect(collection.aggregate).to.have.been.calledOnceWithExactly(
+                args.length === 1 ? args[0] : args,
+                { explain: 'queryPlanner' }
+              );
+            });
+
+            it('returns the explain result', () => {
+              expect(explainResult).to.equal(expectedExplainResult);
+            });
+          });
+        });
       });
 
-      it('calls collection.aggregate with arguments', () => {
-        expect(collection.aggregate).to.have.been.calledOnceWithExactly(
-          { pipeline: 1 },
-          { aggregate: 1, explain: 'queryPlanner' }
-        );
-      });
+      context('with options', () => {
+        beforeEach(async() => {
+          collection.aggregate = sinon.spy(() => Promise.resolve(expectedExplainResult)) as any;
 
-      it('returns the explain result', () => {
-        expect(explainResult).to.equal(expectedExplainResult);
+          explainResult = await explainable.aggregate(
+            [{ pipeline: 1 }],
+            { aggregate: 1 }
+          );
+        });
+
+        it('calls collection.aggregate with arguments', () => {
+          expect(collection.aggregate).to.have.been.calledOnceWithExactly(
+            [{ pipeline: 1 }],
+            { aggregate: 1, explain: 'queryPlanner' }
+          );
+        });
+
+        it('returns the explain result', () => {
+          expect(explainResult).to.equal(expectedExplainResult);
+        });
       });
     });
   });
