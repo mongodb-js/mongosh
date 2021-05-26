@@ -105,7 +105,7 @@ describe('<ShellOutputLine />', () => {
     const wrapper = mount(<ShellOutputLine entry={{
       format: 'output',
       type: 'ShowCollectionsResult',
-      value: 'value string'
+      value: [{ name: 'value string', badge: '' }]
     }} />);
 
     expect(wrapper.text()).to.contain('value string');
@@ -132,11 +132,15 @@ describe('<ShellOutputLine />', () => {
       format: 'output',
       type: 'ShowCollectionsResult',
       value: [
-        'nested_documents', 'decimal128', 'coll', 'people_imported', 'cats'
+        { name: 'nested_documents', badge: '' },
+        { name: 'decimal128', badge: '' },
+        { name: 'coll', badge: '' },
+        { name: 'people_imported', badge: '[view]' },
+        { name: 'cats', badge: '[time-series]' }
       ]
     }} />);
 
-    expect(wrapper.text()).to.contain('nested_documents\ndecimal128\ncoll\npeople_imported\ncats');
+    expect(wrapper.text()).to.contain('nested_documents\ndecimal128\ncoll\npeople_imported   [view]\ncats              [time-series]');
   });
 
   it('renders StatsResult', () => {

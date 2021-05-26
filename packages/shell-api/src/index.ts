@@ -1,7 +1,7 @@
 import AggregationCursor from './aggregation-cursor';
 import Collection from './collection';
 import Cursor from './cursor';
-import Database from './database';
+import Database, { CollectionNamesWithTypes } from './database';
 import Explainable from './explainable';
 import ExplainableCursor from './explainable-cursor';
 import Help, { HelpProperties } from './help';
@@ -33,6 +33,7 @@ import {
 
 export {
   AggregationCursor,
+  CollectionNamesWithTypes,
   Cursor,
   CursorIterationResult,
   Database,

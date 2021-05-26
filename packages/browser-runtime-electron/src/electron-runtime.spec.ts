@@ -55,13 +55,20 @@ describe('Electron runtime', function() {
     expect(result.type).to.equal('Help');
   });
 
-  it('can run show', async() => {
+  it('can run show dbs', async() => {
     serviceProvider.listDatabases.resolves({
       databases: []
     });
 
     const result = await electronRuntime.evaluate('show dbs');
     expect(result.type).to.equal('ShowDatabasesResult');
+  });
+
+  it('can run show collections', async() => {
+    serviceProvider.listCollections.resolves([]);
+
+    const result = await electronRuntime.evaluate('show collections');
+    expect(result.type).to.equal('ShowCollectionsResult');
   });
 
   it('allows to use require', async() => {

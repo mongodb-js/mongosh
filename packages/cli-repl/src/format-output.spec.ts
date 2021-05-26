@@ -156,12 +156,16 @@ for (const colors of [ false, true ]) {
       it('returns the help text', () => {
         const output = stripAnsiColors(format({
           value: [
-            'nested_documents', 'decimal128', 'coll', 'people_imported', 'cats'
+            { name: 'nested_documents', badge: '' },
+            { name: 'decimal128', badge: '' },
+            { name: 'coll', badge: '' },
+            { name: 'people_imported', badge: '[view]' },
+            { name: 'cats', badge: '[time-series]' }
           ],
           type: 'ShowCollectionsResult'
         }));
 
-        expect(output).to.contain('nested_documents\ndecimal128\ncoll\npeople_imported\ncats');
+        expect(output).to.contain('nested_documents\ndecimal128\ncoll\npeople_imported   [view]\ncats              [time-series]');
       });
     });
 

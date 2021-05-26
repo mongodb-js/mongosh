@@ -53,6 +53,18 @@ class DemoServiceProvider {
     };
   }
 
+  async listCollections(): Promise<any> {
+    await delay(2000);
+
+    return [
+      { name: 'nested_documents', type: 'collection' },
+      { name: 'decimal128', type: 'collection' },
+      { name: 'coll', type: 'collection' },
+      { name: 'people_imported', type: 'timeseries' },
+      { name: 'cats', type: 'view' }
+    ];
+  }
+
   async stats(): Promise<any> {
     return { size: 1000 };
   }

@@ -145,11 +145,32 @@ describe('Database', () => {
 
     describe('getCollectionNames', () => {
       it('returns the result of serviceProvider.listCollections', async() => {
-        const result = [{ name: 'coll1' }];
+        const result = [{ name: 'coll1', type: 'collection' }];
 
         serviceProvider.listCollections.resolves(result);
 
         expect(await database.getCollectionNames()).to.deep.equal(['coll1']);
+
+        expect(serviceProvider.listCollections).to.have.been.calledOnceWith(
+          'db1', {}, { nameOnly: true });
+      });
+    });
+
+    describe('_getCollectionNamesWithTypes', () => {
+      it('returns list of collections with their types', async() => {
+        const result = [
+          { name: 'coll1', type: 'collection' },
+          { name: 'coll2', type: 'newtype' },
+          { name: 'coll3', type: 'view' }
+        ];
+
+        serviceProvider.listCollections.resolves(result);
+
+        expect(await database._getCollectionNamesWithTypes()).to.deep.equal([
+          { name: 'coll1', badge: '' },
+          { name: 'coll2', badge: '' },
+          { name: 'coll3', badge: '[view]' }
+        ]);
 
         expect(serviceProvider.listCollections).to.have.been.calledOnceWith(
           'db1', {}, { nameOnly: true });

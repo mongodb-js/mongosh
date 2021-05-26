@@ -884,7 +884,6 @@ describe('e2e', function() {
       client.close();
     });
 
-
     context('pre-4.4', () => {
       skipIfServerVersion(testServer, '> 4.4');
 
@@ -960,6 +959,40 @@ describe('e2e', function() {
       ] });
       const result = await shell.waitForPromptOrExit();
       expect(result).to.deep.equal({ state: 'exit', exitCode: 1 });
+    });
+  });
+
+  describe('collection names with types', () => {
+    let shell: TestShell;
+
+    beforeEach(async() => {
+      shell = TestShell.start({ args: [ await testServer.connectionString() ] });
+    });
+
+    it('prints collections with their types', async() => {
+      const dbName = `test-${Date.now()}`;
+
+      await shell.executeLine(`use ${dbName};`);
+      await shell.executeLine('db.coll1.insertOne({ foo: 123 });');
+      expect(await shell.executeLine('show collections')).to.include('coll1');
+    });
+
+    context('post-5.0', () => {
+      skipIfServerVersion(testServer, '< 5.0');
+
+      it('prints collections with their types', async() => {
+        const dbName = `test-${Date.now()}`;
+
+        await shell.executeLine(`use ${dbName};`);
+        await shell.executeLine("db.coll2.insertOne({ some: 'field' });");
+        await shell.executeLine("db.createCollection('coll3', { timeseries: { timeField: 'time' } } );");
+
+        const result = await shell.executeLine('show collections');
+
+        expect(result).to.include('coll2');
+        expect(result).to.include('coll3');
+        expect(result).to.include('[time-series]');
+      });
     });
   });
 });

@@ -1,2 +1,2 @@
 { "acknowledged": true, "insertedId": "UNKNOWN" }
-[ "coll" ]
+[ { "name": "coll", "badge": "" } ]

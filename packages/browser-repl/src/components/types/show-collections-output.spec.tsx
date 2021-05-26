@@ -13,9 +13,13 @@ describe('ShowCollectionsOutput', () => {
 
   it('renders a ShowCollectionsOutput for each element in value', () => {
     const wrapper = shallow(<ShowCollectionsOutput value={[
-      'nested_documents', 'decimal128', 'coll', 'people_imported', 'cats'
+      { name: 'nested_documents', badge: '' },
+      { name: 'decimal128', badge: '' },
+      { name: 'coll', badge: '' },
+      { name: 'people_imported', badge: '[time-series]' },
+      { name: 'cats', badge: '[view]' }
     ]} />);
 
-    expect(wrapper.text()).to.contain('nested_documents\ndecimal128\ncoll\npeople_imported\ncats');
+    expect(wrapper.text()).to.contain('nested_documents\ndecimal128\ncoll\npeople_imported   [time-series]\ncats              [view]');
   });
 });
