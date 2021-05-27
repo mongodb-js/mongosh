@@ -16,7 +16,7 @@ import Database from './database';
 import { CommandResult, CursorIterationResult } from './result';
 import type ShellInternalState from './shell-internal-state';
 import { assertArgsDefinedType, assertCLI } from './helpers';
-import { DEFAULT_DB, ReplPlatform, ServerApi, ServerApiVersionId } from '@mongosh/service-provider-core';
+import { DEFAULT_DB, ReplPlatform, ServerApi, ServerApiVersion } from '@mongosh/service-provider-core';
 import { CommonErrors, MongoshUnimplementedError, MongoshInternalError } from '@mongosh/errors';
 import { DBQuery } from './dbquery';
 import { promisify } from 'util';
@@ -162,7 +162,7 @@ export default class ShellApi extends ShellApiClass {
   public async Mongo(
     uri?: string,
     fleOptions?: ClientSideFieldLevelEncryptionOptions,
-    otherOptions?: { api?: ServerApi | ServerApiVersionId }): Promise<Mongo> {
+    otherOptions?: { api?: ServerApi | ServerApiVersion }): Promise<Mongo> {
     assertCLI(this._internalState.initialServiceProvider.platform, 'new Mongo connections');
     const mongo = new Mongo(this._internalState, uri, fleOptions, otherOptions);
     await mongo.connect();

@@ -6,7 +6,7 @@ import {
   ReplPlatform,
   ServiceProvider,
   TopologyDescription,
-  TopologyTypeId
+  TopologyType
 } from '@mongosh/service-provider-core';
 import type { ApiEvent, ConfigProvider, MongoshBus, ShellUserConfig } from '@mongosh/types';
 import { EventEmitter } from 'events';
@@ -258,7 +258,7 @@ export default class ShellInternalState {
       topology: () => {
         let topology: Topologies;
         const topologyDescription = this.currentServiceProvider.getTopology()?.description as TopologyDescription;
-        const topologyType: TopologyTypeId | undefined = topologyDescription?.type;
+        const topologyType: TopologyType | undefined = topologyDescription?.type;
         switch (topologyType) {
           case 'ReplicaSetNoPrimary':
           case 'ReplicaSetWithPrimary':
