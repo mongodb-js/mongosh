@@ -160,7 +160,7 @@ Package|Version|License
 **[mimic-response](#0c868fd85c36cbce69ede58ff4693b89140b6a529a6794843f4985674d63642e)**|2.1.0|MIT
 **[minimist](#1d497ee3a918b9779d45ef4833686d5d33d0591a41bba29f22efbd4691b12eb0)**|1.2.5|MIT
 **[mkdirp-classic](#e79cc875152b50c2eb57a97163d99f0155bf4e4af7ba4a7e01c12a17a4a3305c)**|0.5.3|MIT
-**[mongodb](#638d31f762e92c531b589ea84bc6323a75f6d0c4294e162a2a8da629b9bb09fb)**|4.0.0-beta.4|Apache-2.0
+**[mongodb](#9598f0ffa44344322f696d3ea9199114c08c18b6763ae8ff3abe2a47aff27c6f)**|4.0.0-beta.5|Apache-2.0
 **[mongodb-ace-autocompleter](#5f8c32571122c25792bf4635ce9f1f6aaf49eb364b033f619b84e8ee9c29e011)**|0.4.8|Apache-2.0
 **[mongodb-ace-autocompleter](#25ec19f8e927ecab7f82f6f3336e34408f4a5cf94f265d521ce567583db05c91)**|0.4.14|Apache-2.0
 **[mongodb-build-info](#8a1ba45f0407e04bc40af593237b54961d4bb1ce23d4a6a2a4ab5284f00e0e4d)**|1.1.0|Apache-2.0
@@ -8138,8 +8138,8 @@ Authors:
 * Mathias Buus (@mafintosh)
 
 
-<a id="638d31f762e92c531b589ea84bc6323a75f6d0c4294e162a2a8da629b9bb09fb"></a>
-### [mongodb](https://www.npmjs.com/package/mongodb) (version 4.0.0-beta.4)
+<a id="9598f0ffa44344322f696d3ea9199114c08c18b6763ae8ff3abe2a47aff27c6f"></a>
+### [mongodb](https://www.npmjs.com/package/mongodb) (version 4.0.0-beta.5)
 <!-- initially found at packages/service-provider-core/node_modules/mongodb -->
 > The official MongoDB driver for Node.js
 
