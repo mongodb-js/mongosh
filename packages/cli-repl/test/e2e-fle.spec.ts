@@ -40,10 +40,6 @@ describe('FLE tests', () => {
       // eslint-disable-next-line no-loop-func
       context(`with AWS KMS (apiStrict=${useApiStrict}, ${withSessionToken ? 'with' : 'without'} sessionToken)`, () => {
         if (useApiStrict) {
-          // Disable this until https://jira.mongodb.org/browse/NODE-3183
-          // is done because the server has started requiring hello instead of
-          // isMaster.
-          return;
           skipIfServerVersion(testServer, '< 5.0');
         }
 
