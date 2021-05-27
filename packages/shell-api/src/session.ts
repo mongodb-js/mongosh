@@ -83,11 +83,11 @@ export default class Session extends ShellApiWithMongoClass {
   }
 
   getClusterTime(): ClusterTime | undefined {
-    return this._session.clusterTime;
+    return (this._session as any).clusterTime;
   }
 
   getOperationTime(): TimestampType | undefined {
-    return this._session.operationTime;
+    return (this._session as any).operationTime;
   }
 
   getOptions(): ClientSessionOptions {

@@ -1,4 +1,4 @@
-import { bson, ServiceProvider, Topology } from '@mongosh/service-provider-core';
+import { bson, ServiceProvider } from '@mongosh/service-provider-core';
 import { expect } from 'chai';
 import { EventEmitter } from 'events';
 import { StubbedInstance, stubInterface } from 'ts-sinon';
@@ -59,7 +59,7 @@ describe('ShellInternalState', () => {
   });
 
   describe('default prompt', () => {
-    const setupServiceProviderWithTopology = (topology: Topology) => {
+    const setupServiceProviderWithTopology = (topology: any) => {
       serviceProvider.getConnectionInfo.resolves({ extraInfo: { uri: 'mongodb://localhost/' } });
       serviceProvider.getTopology.returns(topology);
     };
@@ -152,7 +152,7 @@ describe('ShellInternalState', () => {
               setName: null, // This was observed behavior - the set was not updated even the single server had the set
               servers: servers
             }
-          } as Topology;
+          };
           setupServiceProviderWithTopology(topology);
 
           const prompt = await internalState.getDefaultPrompt();
@@ -182,7 +182,7 @@ describe('ShellInternalState', () => {
               setName: null,
               servers: servers
             }
-          } as Topology;
+          };
           setupServiceProviderWithTopology(topology);
 
           const prompt = await internalState.getDefaultPrompt();
@@ -199,7 +199,7 @@ describe('ShellInternalState', () => {
             type: 'ReplicaSetNoPrimary',
             setName: 'leSet'
           }
-        } as Topology;
+        };
         setupServiceProviderWithTopology(topology);
 
         const prompt = await internalState.getDefaultPrompt();
@@ -213,7 +213,7 @@ describe('ShellInternalState', () => {
             type: 'ReplicaSetWithPrimary',
             setName: 'leSet'
           }
-        } as Topology;
+        };
         setupServiceProviderWithTopology(topology);
 
         const prompt = await internalState.getDefaultPrompt();
@@ -228,7 +228,7 @@ describe('ShellInternalState', () => {
             // TODO: replace with TopologyType.Sharded - NODE-2973
             type: 'Sharded'
           }
-        } as Topology;
+        };
         setupServiceProviderWithTopology(topology);
 
         const prompt = await internalState.getDefaultPrompt();
@@ -241,7 +241,7 @@ describe('ShellInternalState', () => {
             type: 'Sharded',
             setName: 'leSet'
           }
-        } as Topology;
+        };
         setupServiceProviderWithTopology(topology);
 
         const prompt = await internalState.getDefaultPrompt();
@@ -287,7 +287,7 @@ describe('ShellInternalState', () => {
             setName: 'unknown',
             servers: servers
           }
-        } as Topology;
+        };
         setupServiceProviderWithTopology(topology);
 
         const prompt = await internalState.getDefaultPrompt();

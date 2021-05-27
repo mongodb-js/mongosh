@@ -1,5 +1,9 @@
 import { MongoshInternalError } from '@mongosh/errors';
-import { Callback, CloseOptions, Connection, ConnectionPool } from 'mongodb';
+import { Callback, CloseOptions } from 'mongodb';
+
+// We "rename" any here for more clarity below
+type ConnectionPool = any;
+type Connection = any;
 
 let alreadyPatched = false;
 
@@ -26,7 +30,7 @@ function patchConnectionPoolTracking(): void {
   const newCheckOut: typeof originalCheckOut = function(this: ConnectionPool, cb: Callback<Connection>): void {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const pool = this;
-    originalCheckOut.call(this, function(this: any, error, connection) {
+    originalCheckOut.call(this, function(this: any, error: any, connection: Connection) {
       if (connection) {
         let connections = poolToConnections.get(pool);
         if (!connections) {

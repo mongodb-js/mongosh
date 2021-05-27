@@ -1,6 +1,6 @@
 import {
   Auth,
-  AuthMechanismId,
+  AuthMechanism,
   MongoClient,
   ReadPreference,
   Binary,
@@ -16,7 +16,6 @@ import {
   Decimal128,
   BSONSymbol,
   ClientMetadata,
-  Topology,
   ReadPreferenceFromOptions,
   ReadPreferenceLike,
   OperationOptions,
@@ -110,7 +109,7 @@ type DropDatabaseResult = {
 
 type ConnectionInfo = {
   buildInfo: any;
-  topology: Topology;
+  topology: any;
   extraInfo: ExtraConnectionInfo;
 };
 type ExtraConnectionInfo = ReturnType<typeof getConnectInfo>;
@@ -315,7 +314,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
         }
       }
     }
-    const topology = this.getTopology() as Topology;
+    const topology = this.getTopology();
     const { version } = require('../package.json');
     const [cmdLineOpts = null, atlasVersion = null] = await Promise.all([
       this.runCommandWithCheck('admin', { getCmdLineOpts: 1 }, this.baseCmdOptions).catch(() => {}),
@@ -972,8 +971,8 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   /**
    * Get currently known topology information.
    */
-  getTopology(): Topology | undefined {
-    return this.mongoClient.topology;
+  getTopology(): any | undefined {
+    return (this.mongoClient as any).topology;
   }
 
   /**
@@ -1120,7 +1119,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     const auth: Auth = { username: authDoc.user, password: authDoc.pwd };
     await this.resetConnectionOptions({
       auth,
-      ...(authDoc.mechanism ? { authMechanism: authDoc.mechanism as AuthMechanismId } : {}),
+      ...(authDoc.mechanism ? { authMechanism: authDoc.mechanism as AuthMechanism } : {}),
       ...(authDoc.authDb ? { authSource: authDoc.authDb } : {})
     });
     return { ok: 1 };

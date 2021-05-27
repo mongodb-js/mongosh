@@ -116,11 +116,11 @@ describe('Session', () => {
       expect(serviceProviderSession.endSession).to.have.been.calledOnceWith();
     });
     it('getClusterTime', () => {
-      serviceProviderSession.clusterTime = 100 as any;
+      (serviceProviderSession as any).clusterTime = 100 as any;
       expect(session.getClusterTime()).to.equal(100);
     });
     it('getOperationTime', () => {
-      serviceProviderSession.operationTime = 200 as any;
+      (serviceProviderSession as any).operationTime = 200 as any;
       expect(session.getOperationTime()).to.equal(200);
     });
     it('hasEnded', () => {

@@ -24,17 +24,17 @@ import {
   Document,
   generateUri,
   ListDatabasesOptions,
-  ReadConcernLevelId,
+  ReadConcernLevel,
   ReadPreference,
   ReadPreferenceLike,
-  ReadPreferenceModeId,
+  ReadPreferenceMode,
   ReplPlatform,
   ServiceProvider,
   TransactionOptions,
   MongoClientOptions,
   AutoEncryptionOptions as SPAutoEncryption,
   ServerApi,
-  ServerApiVersionId,
+  ServerApiVersion,
   WriteConcern
 } from '@mongosh/service-provider-core';
 import type Collection from './collection';
@@ -74,7 +74,7 @@ export default class Mongo extends ShellApiClass {
     internalState: ShellInternalState,
     uri?: string,
     fleOptions?: ClientSideFieldLevelEncryptionOptions,
-    otherOptions?: { api?: ServerApi | ServerApiVersionId },
+    otherOptions?: { api?: ServerApi | ServerApiVersion },
     sp?: ServiceProvider
   ) {
     super();
@@ -325,7 +325,7 @@ export default class Mongo extends ShellApiClass {
     return await this._serviceProvider.suspend();
   }
 
-  getReadPrefMode(): ReadPreferenceModeId {
+  getReadPrefMode(): ReadPreferenceMode {
     return this._serviceProvider.getReadPreference().mode;
   }
 
@@ -373,7 +373,7 @@ export default class Mongo extends ShellApiClass {
   }
 
   @returnsPromise
-  async setReadConcern(level: ReadConcernLevelId): Promise<void> {
+  async setReadConcern(level: ReadConcernLevel): Promise<void> {
     await this._serviceProvider.resetConnectionOptions({ readConcern: { level: level } });
   }
 

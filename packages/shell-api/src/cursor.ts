@@ -16,7 +16,7 @@ import type {
   Document,
   CollationOptions,
   ReadPreferenceLike,
-  ReadConcernLevelId,
+  ReadConcernLevel,
   TagSet,
   HedgeOptions
 } from '@mongosh/service-provider-core';
@@ -225,7 +225,7 @@ export default class Cursor extends AbstractCursor {
   }
 
   @returnType('Cursor')
-  readConcern(level: ReadConcernLevelId): Cursor {
+  readConcern(level: ReadConcernLevel): Cursor {
     this._cursor = this._cursor.withReadConcern({ level });
     return this;
   }
