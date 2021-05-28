@@ -1,3 +1,4 @@
+import type { ShellPlugin } from './';
 
 interface MongoErrorRephrase {
   matchMessage?: RegExp | string;
@@ -36,4 +37,10 @@ export function rephraseMongoError(error: any): any {
 
 function isMongoError(error: any): boolean {
   return /^Mongo([A-Z].*)?Error$/.test(Object.getPrototypeOf(error)?.constructor?.name ?? '');
+}
+
+export class TransformMongoErrorPlugin implements ShellPlugin {
+  transformError(err: Error): Error {
+    return rephraseMongoError(err);
+  }
 }
