@@ -533,5 +533,11 @@ describe('completer.completer', () => {
       expect(await completer(noParams, i))
         .to.deep.equal([['exit'], i]);
     });
+
+    it('completes with multiple spaces', async() => {
+      const i = 'show  datab';
+      expect(await completer(noParams, i))
+        .to.deep.equal([['show  databases'], i, 'exclusive']);
+    });
   });
 });

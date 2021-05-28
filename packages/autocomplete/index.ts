@@ -61,21 +61,26 @@ async function completer(params: AutocompleteParameters, line: string): Promise<
   const CONFIG_COMPLETIONS = shellSignatures.ShellConfig.attributes as TypeSignatureAttributes;
   const SHARD_COMPLETE = shellSignatures.Shard.attributes as TypeSignatureAttributes;
 
-  const splitLineWhitespace = line.split(' ');
-  const command = splitLineWhitespace[0];
+  // Split at space-to-non-space transitions when looking at this as a command,
+  // because multiple spaces (e.g. 'show  collections') are valid in commands.
+  // This split keeps the spaces intact so we can join them back later.
+  const splitLineWhitespace = line.split(/(?<!\S)(?=\S)/);
+  const command = splitLineWhitespace[0].trim();
   if (SHELL_COMPLETIONS[command]?.isDirectShellCommand) {
     // If we encounter a direct shell commmand, we know that we want completions
     // specific to that command, so we set the 'exclusive' flag on the result.
     // If the shell API provides us with a completer, use it.
     const completer = SHELL_COMPLETIONS[command].shellCommandCompleter;
     if (completer) {
-      if (splitLineWhitespace.length === 1) {
-        splitLineWhitespace.push(''); // Treat e.g. 'show' like 'show '.
+      if (splitLineWhitespace.length === 1 && splitLineWhitespace[0].trimEnd() === splitLineWhitespace[0]) {
+        // Treat e.g. 'show' like 'show '.
+        splitLineWhitespace[0] += ' ';
+        splitLineWhitespace.push('');
       }
-      const hits = await completer(params, splitLineWhitespace) || [];
+      const hits = await completer(params, splitLineWhitespace.map(item => item.trim())) || [];
       // Adjust to full input, because `completer` only completed the last item
       // in the line, e.g. ['profile'] -> ['show profile']
-      const fullLineHits = hits.map(hit => [...splitLineWhitespace.slice(0, -1), hit].join(' '));
+      const fullLineHits = hits.map(hit => [...splitLineWhitespace.slice(0, -1), hit].join(''));
       return [fullLineHits, line, 'exclusive'];
     }
     return [[line], line, 'exclusive'];
