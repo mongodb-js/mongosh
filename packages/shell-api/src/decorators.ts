@@ -12,7 +12,6 @@ import {
 import Help from './help';
 import { addHiddenDataProperty } from './helpers';
 import { checkInterrupted } from './interruptor';
-import { rephraseMongoError } from './mongo-errors';
 
 const addSourceToResultsSymbol = Symbol.for('@@mongosh.addSourceToResults');
 const resultSource = Symbol.for('@@mongosh.resultSource');
@@ -171,7 +170,7 @@ function wrapWithApiChecks<T extends(...args: any[]) => any>(fn: T, className: s
           fn.call(this, ...args)
         ]);
       } catch (e) {
-        throw rephraseMongoError(e);
+        throw internalState?.transformError(e) ?? e;
       } finally {
         if (interrupt) {
           interrupt.destroy();
@@ -187,7 +186,7 @@ function wrapWithApiChecks<T extends(...args: any[]) => any>(fn: T, className: s
       try {
         result = fn.call(this, ...args);
       } catch (e) {
-        throw rephraseMongoError(e);
+        throw internalState?.transformError(e) ?? e;
       }
       checkInterrupted(internalState);
       return result;

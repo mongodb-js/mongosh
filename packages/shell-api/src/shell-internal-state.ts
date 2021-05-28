@@ -29,6 +29,7 @@ import {
 import { InterruptFlag } from './interruptor';
 import NoDatabase from './no-db';
 import constructShellBson from './shell-bson';
+import { TransformMongoErrorPlugin } from './mongo-errors';
 
 export interface ShellCliOptions {
   nodb?: boolean;
@@ -89,6 +90,10 @@ export interface EvaluationListener extends Partial<ConfigProvider<ShellUserConf
   startMongocryptd?: () => Promise<AutoEncryptionOptions['extraOptions']>;
 }
 
+export interface ShellPlugin {
+  transformError?: (err: Error) => Error;
+}
+
 /**
  * Anything to do with the internal shell state is stored here.
  */
@@ -113,6 +118,9 @@ export default class ShellInternalState {
     mongo: Mongo,
     resume: (() => Promise<void>) | null
   }> | undefined;
+
+  private plugins: ShellPlugin[] = [ new TransformMongoErrorPlugin() ];
+  private alreadyTransformedErrors = new WeakMap<Error, Error>();
 
   constructor(initialServiceProvider: ServiceProvider, messageBus: any = new EventEmitter(), cliOptions: ShellCliOptions = {}) {
     this.initialServiceProvider = initialServiceProvider;
@@ -449,5 +457,27 @@ export default class ShellInternalState {
       replicaSet: server.setName,
       serverType
     };
+  }
+
+  registerPlugin(plugin: ShellPlugin): void {
+    this.plugins.push(plugin);
+  }
+
+  transformError(err: any): any {
+    if (Object.prototype.toString.call(err) === '[object Error]') {
+      if (this.alreadyTransformedErrors.has(err)) {
+        return this.alreadyTransformedErrors.get(err);
+      }
+      const before = err;
+
+      for (const plugin of this.plugins) {
+        if (plugin.transformError) {
+          err = plugin.transformError(err);
+        }
+      }
+
+      this.alreadyTransformedErrors.set(before, err);
+    }
+    return err;
   }
 }
