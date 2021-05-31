@@ -111,6 +111,29 @@ describe('CliRepl', () => {
         expect(JSON.parse(content).enableTelemetry).to.be.false;
       });
 
+      it('does not store config options on disk that have not been changed', async() => {
+        let content = await fs.readFile(path.join(tmpdir.path, 'config'), { encoding: 'utf8' });
+        expect(Object.keys(JSON.parse(content))).to.deep.equal([
+          'userId', 'enableTelemetry', 'disableGreetingMessage'
+        ]);
+
+        input.write('config.set("inspectDepth", config.get("inspectDepth"))\n');
+
+        await waitEval(cliRepl.bus);
+        content = await fs.readFile(path.join(tmpdir.path, 'config'), { encoding: 'utf8' });
+        expect(Object.keys(JSON.parse(content))).to.deep.equal([
+          'userId', 'enableTelemetry', 'disableGreetingMessage', 'inspectDepth'
+        ]);
+
+        // When a new REPL is created:
+        cliRepl = new CliRepl(cliReplOptions);
+        await cliRepl.start('', {});
+        content = await fs.readFile(path.join(tmpdir.path, 'config'), { encoding: 'utf8' });
+        expect(Object.keys(JSON.parse(content))).to.deep.equal([
+          'userId', 'enableTelemetry', 'disableGreetingMessage', 'inspectDepth'
+        ]);
+      });
+
       it('emits exit when asked to, Node.js-style', async() => {
         input.write('.exit\n');
         await exitPromise;
