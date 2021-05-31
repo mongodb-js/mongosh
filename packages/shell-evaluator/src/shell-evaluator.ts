@@ -63,7 +63,11 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
       rewrittenInput = supportCode + ';\n' + rewrittenInput;
     }
 
-    return await originalEval(rewrittenInput, context, filename);
+    try {
+      return await originalEval(rewrittenInput, context, filename);
+    } catch (err) {
+      throw this.internalState.transformError(err);
+    }
   }
 
   /**

@@ -22,6 +22,17 @@ export class InterruptFlag {
   }
 
   /**
+   * Perform a checkpoint; reject immediately if an interruption has already
+   * occurred, and resolve immediately otherwise. This is useful to insert
+   * in operations consisting of multiple asynchronous steps.
+   */
+  public async checkpoint(): Promise<void> {
+    if (this.interrupted) {
+      await this.asPromise().promise;
+    }
+  }
+
+  /**
    * The returned promise will never be resolved but is rejected
    * when the interrupt is set. The rejection happens with an
    * instance of `MongoshInterruptedError`.
