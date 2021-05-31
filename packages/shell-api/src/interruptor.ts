@@ -1,6 +1,8 @@
 import { MongoshBaseError } from '@mongosh/errors';
+import { EventEmitter } from 'events';
 import ShellInternalState from './shell-internal-state';
 
+const interruptEvent = 'interrupted';
 const kUncatchable = Symbol.for('@@mongosh.uncatchable');
 
 export class MongoshInterruptedError extends MongoshBaseError {
@@ -13,14 +15,7 @@ export class MongoshInterruptedError extends MongoshBaseError {
 
 export class InterruptFlag {
   private interrupted = false;
-  private deferred: {
-    reject: (e: MongoshInterruptedError) => void;
-    promise: Promise<never>;
-  };
-
-  constructor() {
-    this.deferred = this.defer();
-  }
+  private onInterrupt = new EventEmitter();
 
   public isSet(): boolean {
     return this.interrupted;
@@ -32,31 +27,35 @@ export class InterruptFlag {
    * instance of `MongoshInterruptedError`.
    * @returns Promise that is rejected when the interrupt is set
    */
-  public asPromise(): Promise<never> {
-    return this.deferred.promise;
+  public asPromise(): { destroy: () => void; promise: Promise<never> } {
+    if (this.interrupted) {
+      return {
+        destroy: () => {},
+        promise: Promise.reject(new MongoshInterruptedError())
+      };
+    }
+
+    let destroy: (() => void) | undefined;
+    const promise = new Promise<never>((_, reject) => {
+      destroy = () => {
+        this.onInterrupt.removeListener(interruptEvent, reject);
+        reject(null);
+      };
+      this.onInterrupt.once(interruptEvent, reject);
+    });
+    return {
+      destroy: destroy as unknown as () => void,
+      promise
+    };
   }
 
   public set(): void {
     this.interrupted = true;
-    this.deferred.reject(new MongoshInterruptedError());
+    this.onInterrupt.emit(interruptEvent, new MongoshInterruptedError());
   }
 
   public reset(): void {
     this.interrupted = false;
-    this.deferred = this.defer();
-  }
-
-  private defer(): { reject: (e: MongoshInterruptedError) => void; promise: Promise<never>; } {
-    const result: any = {};
-    result.promise = new Promise<never>((_, reject) => {
-      result.reject = reject;
-    });
-    result.promise.catch(() => {
-      // we ignore the error here - all others should be notified
-      // we just have to ensure there's at least one handler for it
-      // to prevent an UnhandledPromiseRejection
-    });
-    return result;
   }
 }
 
