@@ -1,5 +1,6 @@
 import { CliRepl, parseCliArgs, mapCliToDriver, getStoragePaths, getMongocryptdPaths, runSmokeTests, USAGE } from './index';
 import { generateUri } from '@mongosh/service-provider-server';
+import { redactCredentials } from '@mongosh/history';
 
 (async() => {
   let repl;
@@ -38,10 +39,14 @@ import { generateUri } from '@mongosh/service-provider-server';
         process.removeAllListeners('SIGINT');
       }
 
-      process.title = 'mongosh';
       const driverOptions = await mapCliToDriver(options);
       const driverUri = generateUri(options);
-      const appName = `${process.title} ${version}`;
+
+      const title = `mongosh ${redactCredentials(driverUri)}`;
+      process.title = title;
+      setTerminalWindowTitle(title);
+
+      const appName = `mongosh ${version}`;
       const shellHomePaths = getStoragePaths();
       repl = new CliRepl({
         shellCliOptions: {
@@ -63,3 +68,17 @@ import { generateUri } from '@mongosh/service-provider-server';
     process.exit(1);
   }
 })();
+
+function setTerminalWindowTitle(title: string): void {
+  if (!process.stdout.isTTY) {
+    return;
+  }
+
+  // see: https://that.guru/blog/automatically-set-tmux-window-name/
+  const term = process.env.TERM ?? '';
+  if (/^(linux|xterm|rxvt)/.test(term)) {
+    process.stdout.write(`\u001b]0;${title}\u0007`);
+  } else if (/^screen/.test(term)) {
+    process.stdout.write(`\u001bk${title}\u001b\\`);
+  }
+}
