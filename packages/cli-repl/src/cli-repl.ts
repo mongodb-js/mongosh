@@ -42,6 +42,8 @@ export type CliReplOptions = {
   analyticsOptions?: AnalyticsOptions;
 } & Pick<MongoshNodeReplOptions, 'nodeReplOptions'>;
 
+type CliUserConfigOnDisk = Partial<CliUserConfig> & Pick<CliUserConfig, 'enableTelemetry' | 'userId'>;
+
 /**
  * The REPL used from the terminal.
  */
@@ -51,8 +53,8 @@ class CliRepl {
   cliOptions: CliOptions;
   mongocryptdManager: MongocryptdManager;
   shellHomeDirectory: ShellHomeDirectory;
-  configDirectory: ConfigManager<CliUserConfig>;
-  config: CliUserConfig = new CliUserConfig();
+  configDirectory: ConfigManager<CliUserConfigOnDisk>;
+  config: CliUserConfigOnDisk;
   input: Readable;
   output: Writable;
   logId: string;
@@ -73,15 +75,19 @@ class CliRepl {
     this.analyticsOptions = options.analyticsOptions;
     this.logId = new bson.ObjectId().toString();
     this.onExit = options.onExit;
+    this.config = {
+      userId: new bson.ObjectId().toString(),
+      enableTelemetry: true
+    };
 
     this.shellHomeDirectory = new ShellHomeDirectory(options.shellHomePaths);
-    this.configDirectory = new ConfigManager<CliUserConfig>(
+    this.configDirectory = new ConfigManager<CliUserConfigOnDisk>(
       this.shellHomeDirectory)
       .on('error', (err: Error) =>
         this.bus.emit('mongosh:error', err))
-      .on('new-config', (config: CliUserConfig) =>
+      .on('new-config', (config: CliUserConfigOnDisk) =>
         this.bus.emit('mongosh:new-user', config.userId, config.enableTelemetry))
-      .on('update-config', (config: CliUserConfig) =>
+      .on('update-config', (config: CliUserConfigOnDisk) =>
         this.bus.emit('mongosh:update-user', config.userId, config.enableTelemetry));
 
     this.mongocryptdManager = new MongocryptdManager(
@@ -147,8 +153,6 @@ class CliRepl {
         return this.analytics;
       });
 
-    this.config.userId = new bson.ObjectId().toString();
-    this.config.enableTelemetry = true;
     try {
       this.config = await this.configDirectory.generateOrReadConfig(this.config);
     } catch (err) {
@@ -309,7 +313,7 @@ class CliRepl {
   }
 
   async getConfig<K extends keyof CliUserConfig>(key: K): Promise<CliUserConfig[K]> {
-    return this.config[key];
+    return (this.config as CliUserConfig)[key] ?? (new CliUserConfig())[key];
   }
 
   async setConfig<K extends keyof CliUserConfig>(key: K, value: CliUserConfig[K]): Promise<'success'> {
@@ -326,7 +330,7 @@ class CliRepl {
   }
 
   listConfigOptions(): string[] {
-    const keys = Object.keys(this.config) as (keyof CliUserConfig)[];
+    const keys = Object.keys(new CliUserConfig()) as (keyof CliUserConfig)[];
     return keys.filter(key => key !== 'userId' && key !== 'disableGreetingMessage');
   }
 
