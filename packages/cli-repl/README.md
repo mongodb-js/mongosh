@@ -11,9 +11,12 @@ CLI interface for [MongoDB Shell][mongosh], an extension to Node.js REPL with Mo
   Options:
 
     -h, --help                                 Show this usage information
+    -f, --file [arg]                           Load the specified mongosh script
         --host [arg]                           Server to connect to
         --port [arg]                           Port to connect to
         --version                              Show version information
+        --verbose                              Increase the verbosity of the output of the shell
+        --quiet                                Silence output from the shell during the connection process
         --shell                                Run the shell after executing files
         --nodb                                 Don't connect to mongod on startup - no 'db address' [arg] expected
         --norc                                 Will not run the '.mongoshrc.js' file on start up
@@ -39,6 +42,12 @@ CLI interface for [MongoDB Shell][mongosh], an extension to Node.js REPL with Mo
         --tlsCertificateSelector [arg]         TLS Certificate in system store (Windows and macOS only)
         --tlsDisabledProtocols [arg]           Comma separated list of TLS protocols to disable [TLS1_0,TLS1_1,TLS1_2]
 
+  API version options:
+
+        --apiVersion [arg]                     Specifies the API version to connect with
+        --apiStrict                            Use strict API version mode
+        --apiDeprecationErrors                 Fail deprecated commands for the specified API version
+
   FLE Options:
 
         --awsAccessKeyId [arg]                 AWS Access Key for FLE Amazon KMS
@@ -46,12 +55,6 @@ CLI interface for [MongoDB Shell][mongosh], an extension to Node.js REPL with Mo
         --awsSessionToken [arg]                Optional AWS Session Token ID
         --keyVaultNamespace [arg]              database.collection to store encrypted FLE parameters
         --kmsURL [arg]                         Test parameter to override the URL of the KMS endpoint
-
-  API version options:
-
-        --apiVersion [arg]                     Specifies the API version to connect with
-        --apiStrict                            Use strict API version mode
-        --apiDeprecationErrors                 Fail deprecated commands for the specified API version
 
   DB Address Examples:
 
