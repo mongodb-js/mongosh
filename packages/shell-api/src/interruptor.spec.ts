@@ -4,9 +4,48 @@ import { EventEmitter } from 'events';
 import { StubbedInstance, stubInterface } from 'ts-sinon';
 import Database from './database';
 import Mongo from './mongo';
+import { InterruptFlag, MongoshInterruptedError } from './interruptor';
 import ShellInternalState from './shell-internal-state';
+import { promisify } from 'util';
 
 describe('interruptor', () => {
+  describe('InterruptFlag', () => {
+    let interruptFlag: InterruptFlag;
+
+    beforeEach(() => {
+      interruptFlag = new InterruptFlag();
+    });
+
+    describe('asPromise', () => {
+      let interruptPromise: { destroy: () => void; promise: Promise<never> };
+
+      it('rejects the promise on interrupt', async() => {
+        interruptPromise = interruptFlag.asPromise();
+        let interruptError: MongoshInterruptedError | undefined;
+        interruptPromise.promise.catch(e => {
+          interruptError = e;
+        });
+        expect(interruptError).to.be.undefined;
+        interruptFlag.set();
+        await promisify(process.nextTick)();
+        expect(interruptError).to.be.instanceOf(MongoshInterruptedError);
+      });
+
+      it('rejects immediately if the interrupt happened before', async() => {
+        interruptFlag.set();
+
+        interruptPromise = interruptFlag.asPromise();
+        let interruptError: MongoshInterruptedError | undefined;
+        interruptPromise.promise.catch(e => {
+          interruptError = e;
+        });
+
+        await promisify(process.nextTick)();
+        expect(interruptError).to.be.instanceOf(MongoshInterruptedError);
+      });
+    });
+  });
+
   describe('with Shell API functions', () => {
     let mongo: Mongo;
     let serviceProvider: StubbedInstance<ServiceProvider>;

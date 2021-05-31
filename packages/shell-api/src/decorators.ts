@@ -161,15 +161,21 @@ function wrapWithApiChecks<T extends(...args: any[]) => any>(fn: T, className: s
     markImplicitlyAwaited(async function(this: any, ...args: any[]): Promise<any> {
       const internalState = getShellInternalState(this);
       checkForDeprecation(internalState, className, fn);
-      const interrupted = checkInterrupted(internalState);
+      const interruptFlag = checkInterrupted(internalState);
+      const interrupt = interruptFlag?.asPromise();
+
       let result: any;
       try {
         result = await Promise.race([
-          interrupted ? interrupted.asPromise() : new Promise(() => {}),
+          interrupt?.promise ?? new Promise<never>(() => {}),
           fn.call(this, ...args)
         ]);
       } catch (e) {
         throw rephraseMongoError(e);
+      } finally {
+        if (interrupt) {
+          interrupt.destroy();
+        }
       }
       checkInterrupted(internalState);
       return result;
