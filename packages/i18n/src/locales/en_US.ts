@@ -10,6 +10,7 @@ const translations: Catalog = {
     args: {
       usage: '$ mongosh [options] [db address] [file names (ending in .js or .mongodb)]',
       options: 'Options:',
+      file: 'Load the specified mongosh script',
       help: 'Show this usage information',
       ipv6: 'Enable IPv6 support (disabled by default)',
       host: 'Server to connect to',

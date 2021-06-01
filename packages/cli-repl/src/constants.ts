@@ -19,6 +19,7 @@ export const USAGE = `
   ${clr(i18n.__('cli-repl.args.options'), ['bold', 'yellow'])}
 
     -h, --help                                 ${i18n.__('cli-repl.args.help')}
+    -f, --file [arg]                           ${i18n.__('cli-repl.args.file')}
         --host [arg]                           ${i18n.__('cli-repl.args.host')}
         --port [arg]                           ${i18n.__('cli-repl.args.port')}
         --version                              ${i18n.__('cli-repl.args.version')}

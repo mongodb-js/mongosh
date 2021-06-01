@@ -29,9 +29,12 @@ variable. For detailed instructions for each of our supported platforms, please 
   Options:
 
     -h, --help                                 Show this usage information
+    -f, --file [arg]                           Load the specified mongosh script
         --host [arg]                           Server to connect to
         --port [arg]                           Port to connect to
         --version                              Show version information
+        --verbose                              Increase the verbosity of the output of the shell
+        --quiet                                Silence output from the shell during the connection process
         --shell                                Run the shell after executing files
         --nodb                                 Don't connect to mongod on startup - no 'db address' [arg] expected
         --norc                                 Will not run the '.mongoshrc.js' file on start up
