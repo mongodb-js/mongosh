@@ -150,7 +150,9 @@ export default class Database extends ShellApiWithMongoClass {
   }
 
   async _getCollectionNamesWithTypes(options?: ListCollectionsOptions): Promise<CollectionNamesWithTypes[]> {
-    const collections = await this._listCollections({}, { ...options, nameOnly: true });
+    let collections = await this._listCollections({}, { ...options, nameOnly: true });
+    collections = collections.sort((c1, c2) => (c1.name).localeCompare(c2.name));
+
     const typesToBages: any = {
       timeseries: '[time-series]',
       view: '[view]'

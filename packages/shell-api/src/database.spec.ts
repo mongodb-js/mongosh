@@ -157,11 +157,11 @@ describe('Database', () => {
     });
 
     describe('_getCollectionNamesWithTypes', () => {
-      it('returns list of collections with their types', async() => {
+      it('returns sorted list of collections with their types', async() => {
         const result = [
+          { name: 'coll3', type: 'view' },
           { name: 'coll1', type: 'collection' },
           { name: 'coll2', type: 'newtype' },
-          { name: 'coll3', type: 'view' }
         ];
 
         serviceProvider.listCollections.resolves(result);
