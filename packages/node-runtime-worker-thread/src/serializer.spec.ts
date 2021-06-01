@@ -9,7 +9,7 @@ import {
 
 describe('serializer', () => {
   describe('serializeError', () => {
-    it('serializer Errot to plain object', () => {
+    it('serializer Error to plain object', () => {
       const serialized = serializeError(new TypeError('Uh-oh'));
 
       expect(serialized).to.have.own.property('name', 'TypeError');
