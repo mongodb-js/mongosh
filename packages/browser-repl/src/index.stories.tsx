@@ -61,7 +61,8 @@ class DemoServiceProvider {
       { name: 'decimal128', type: 'collection' },
       { name: 'coll', type: 'collection' },
       { name: 'people_imported', type: 'timeseries' },
-      { name: 'cats', type: 'view' }
+      { name: 'cats', type: 'view' },
+      { name: 'system.views', type: '' },
     ];
   }
 

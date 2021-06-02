@@ -119,9 +119,25 @@ function formatSimpleType(output: any, options: FormatOptions): any {
 }
 
 function formatCollections(output: CollectionNamesWithTypes[], options: FormatOptions): string {
-  const tableEntries = output.map(
-    (coll) => [clr(coll.name, 'bold', options), coll.badge]
-  );
+  const systemCollections: CollectionNamesWithTypes[] = [];
+  const otherCollections: CollectionNamesWithTypes[] = [];
+
+  output.forEach(coll => {
+    if (coll.name.startsWith('system.')) {
+      systemCollections.push(coll);
+    } else {
+      otherCollections.push(coll);
+    }
+  });
+
+  const tableEntries = [
+    ...otherCollections.map(
+      coll => [clr(coll.name, 'bold', options), coll.badge]
+    ),
+    ...systemCollections.map(
+      coll => [`${options.colors ? '\u001b[2m' : ''}${clr(coll.name, 'bold', options)}`, coll.badge]
+    )
+  ];
 
   return textTable(tableEntries, { align: ['l', 'l'] });
 }

@@ -105,10 +105,18 @@ describe('<ShellOutputLine />', () => {
     const wrapper = mount(<ShellOutputLine entry={{
       format: 'output',
       type: 'ShowCollectionsResult',
-      value: [{ name: 'value string', badge: '' }]
+      value: [
+        { name: 'cats', badge: '[time-series]' },
+        { name: 'coll', badge: '' },
+        { name: 'decimal128', badge: '' },
+        { name: 'nested_documents', badge: '' },
+        { name: 'people_imported', badge: '[view]' },
+        { name: 'system.views', badge: '' },
+        { name: 'test', badge: '[time-series]' }
+      ]
     }} />);
 
-    expect(wrapper.text()).to.contain('value string');
+    expect(wrapper.text()).to.match(/cats\s+\[time-series]()coll()decimal128()nested_documents()people_imported\s+\[view]()test\s+\[time-series]()system.views/);
   });
 
   it('renders ShowDatabasesResult', () => {
@@ -125,22 +133,6 @@ describe('<ShellOutputLine />', () => {
     }} />);
 
     expect(wrapper.text()).to.contain('admin     45.1 kB\ndxl       8.19 kB\nsupplies  2.24 MB\ntest      5.66 MB\ntest       600 GB');
-  });
-
-  it('renders ShowCollectionsResult', () => {
-    const wrapper = mount(<ShellOutputLine entry={{
-      format: 'output',
-      type: 'ShowCollectionsResult',
-      value: [
-        { name: 'nested_documents', badge: '' },
-        { name: 'decimal128', badge: '' },
-        { name: 'coll', badge: '' },
-        { name: 'people_imported', badge: '[view]' },
-        { name: 'cats', badge: '[time-series]' }
-      ]
-    }} />);
-
-    expect(wrapper.text()).to.contain('nested_documents\ndecimal128\ncoll\npeople_imported   [view]\ncats              [time-series]');
   });
 
   it('renders StatsResult', () => {
