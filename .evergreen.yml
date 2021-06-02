@@ -471,6 +471,30 @@ tasks:
           mongosh_server_test_version: "4.4.x"
           node_js_version: "12.20.0"
           mongosh_skip_node_version_check: "1"
+  - name: test_m50xc_n12
+    tags: ["unit-test"]
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "12.20.0"
+      - func: test
+        vars:
+          mongosh_server_test_version: "5.0.0-rc0-community"
+          node_js_version: "12.20.0"
+          mongosh_skip_node_version_check: "1"
+  - name: test_m50xe_n12
+    tags: ["unit-test"]
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "12.20.0"
+      - func: test
+        vars:
+          mongosh_server_test_version: "5.0.0-rc0"
+          node_js_version: "12.20.0"
+          mongosh_skip_node_version_check: "1"
   - name: test_mlatest_n12
     tags: ["unit-test", "mlatest"]
     commands:
@@ -548,6 +572,28 @@ tasks:
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x"
+          node_js_version: "14.17.0"
+  - name: test_m50xc_n14
+    tags: ["unit-test"]
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.17.0"
+      - func: test
+        vars:
+          mongosh_server_test_version: "5.0.0-rc0-community"
+          node_js_version: "14.17.0"
+  - name: test_m50xe_n14
+    tags: ["unit-test"]
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.17.0"
+      - func: test
+        vars:
+          mongosh_server_test_version: "5.0.0-rc0"
           node_js_version: "14.17.0"
   - name: test_mlatest_n14
     tags: ["unit-test", "mlatest"]
@@ -1296,6 +1342,8 @@ buildvariants:
       - name: test_m42xe_n12
       - name: test_m44xc_n12
       - name: test_m44xe_n12
+      - name: test_m50xc_n12
+      - name: test_m50xe_n12
       - name: test_mlatest_n12
       - name: test_m40xc_n14
       - name: test_m40xe_n14
@@ -1303,6 +1351,8 @@ buildvariants:
       - name: test_m42xe_n14
       - name: test_m44xc_n14
       - name: test_m44xe_n14
+      - name: test_m50xc_n14
+      - name: test_m50xe_n14
       - name: test_mlatest_n14
       - name: compile_artifact
       - name: e2e_tests_darwin_x64
@@ -1327,6 +1377,8 @@ buildvariants:
       - name: test_m42xe_n12
       - name: test_m44xc_n12
       - name: test_m44xe_n12
+      - name: test_m50xc_n12
+      - name: test_m50xe_n12
       - name: test_mlatest_n12
       - name: test_m40xc_n14
       - name: test_m40xe_n14
@@ -1334,6 +1386,8 @@ buildvariants:
       - name: test_m42xe_n14
       - name: test_m44xc_n14
       - name: test_m44xe_n14
+      - name: test_m50xc_n14
+      - name: test_m50xe_n14
       - name: test_mlatest_n14
       - name: test_vscode
       - name: test_connectivity
@@ -1472,6 +1526,8 @@ buildvariants:
       - name: test_m42xe_n12
       - name: test_m44xc_n12
       - name: test_m44xe_n12
+      - name: test_m50xc_n12
+      - name: test_m50xe_n12
       - name: test_mlatest_n12
       - name: test_m40xc_n14
       - name: test_m40xe_n14
@@ -1479,6 +1535,8 @@ buildvariants:
       - name: test_m42xe_n14
       - name: test_m44xc_n14
       - name: test_m44xe_n14
+      - name: test_m50xc_n14
+      - name: test_m50xe_n14
       - name: test_mlatest_n14
       - name: e2e_tests_win
       - name: package_and_upload_artifact_win
