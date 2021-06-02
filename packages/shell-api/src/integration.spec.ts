@@ -1781,7 +1781,7 @@ describe('Shell API (integration)', function() {
       it('lists all databases', async() => {
         const result = await mongo.getDBs();
         expect(result.ok).to.equal(1);
-        expect(result.databases.find(db => db.name === 'admin').sizeOnDisk).to.be.a('number');
+        expect(result.databases.find(db => db.name === 'admin').sizeOnDisk.constructor.name).to.equal('Long');
       });
     });
     describe('getDBNames', () => {

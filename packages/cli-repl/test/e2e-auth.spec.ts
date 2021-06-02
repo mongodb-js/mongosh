@@ -269,7 +269,7 @@ describe('Auth e2e', function() {
             'db.dropAllUsers()'
           );
           await eventually(async() => {
-            shell.assertContainsOutput('{ n: 2, ok: 1 }');
+            shell.assertContainsOutput('{ n: Long("2"), ok: 1 }');
           });
           const result = await db.command({ usersInfo: 1 });
           expect(result.users.length).to.equal(0);
@@ -493,7 +493,7 @@ describe('Auth e2e', function() {
             'db.dropAllRoles()'
           );
           await eventually(async() => {
-            shell.assertContainsOutput('{ n: 2, ok: 1 }');
+            shell.assertContainsOutput('{ n: Long("2"), ok: 1 }');
           });
           const result = await db.command({ rolesInfo: 1 });
           expect(result.roles.length).to.equal(0);
