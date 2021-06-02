@@ -1,19 +1,17 @@
+import { CommonErrors, MongoshDeprecatedError, MongoshInvalidInputError, MongoshRuntimeError } from '@mongosh/errors';
+import { redactCredentials } from '@mongosh/history';
+import { Document } from '@mongosh/service-provider-core';
+import Mongo from './mongo';
 import Database from './database';
 import {
-  shellApiClassDefault,
-  returnsPromise,
   deprecated,
+  returnsPromise,
+  shellApiClassDefault,
   ShellApiWithMongoClass
 } from './decorators';
-import {
-  Document
-} from '@mongosh/service-provider-core';
 import { asPrintable } from './enums';
 import { assertArgsDefinedType } from './helpers';
-import { CommonErrors, MongoshDeprecatedError, MongoshInvalidInputError, MongoshRuntimeError } from '@mongosh/errors';
 import { CommandResult } from './result';
-import { redactCredentials } from '@mongosh/history';
-import { Mongo } from '.';
 
 export type ReplSetMemberConfig = {
   _id: number;
@@ -106,13 +104,39 @@ export default class ReplicaSet extends ShellApiWithMongoClass {
     assertArgsDefinedType([ config, options ], ['object', [undefined, 'object']], 'ReplicaSet.reconfig');
     this._emitReplicaSetApiCall('reconfig', { config, options });
 
-    const conf = await this._getConfig();
+    const runReconfig = async(): Promise<Document> => {
+      const conf = await this._getConfig();
+      config.version = conf.version ? conf.version + 1 : 1;
+      config.protocolVersion ??= conf.protocolVersion; // Needed on mongod 4.0.x
+      const cmd = { replSetReconfig: config, ...options };
+      return await this._database._runAdminCommand(cmd);
+    };
 
-    config.version = conf.version ? conf.version + 1 : 1;
-    config.protocolVersion ??= conf.protocolVersion; // Needed on mongod 4.0.x
-    const cmd = { replSetReconfig: config, ...options };
+    let result: [ 'error', Error ] | [ 'success', Document ] = [ 'success', {} ];
+    let sleepInterval = 1000;
+    for (let i = 0; i < 12; i++) {
+      try {
+        if (result[0] === 'error') {
+          // Do a mild exponential backoff. If it's been a while since the last
+          // update, also tell the user that we're actually still working on
+          // the reconfig.
+          await this._internalState.shellApi.sleep(sleepInterval);
+          sleepInterval *= 1.3;
+          if (sleepInterval > 2500) {
+            await this._internalState.shellApi.print('Reconfig did not succeed yet, starting new attempt...');
+          }
+        }
+        result = [ 'success', await runReconfig() ];
+        break;
+      } catch (err) {
+        result = [ 'error', err ];
+      }
+    }
 
-    return this._database._runAdminCommand(cmd);
+    if (result[0] === 'error') {
+      throw result[1];
+    }
+    return result[1];
   }
 
   /**
@@ -120,7 +144,6 @@ export default class ReplicaSet extends ShellApiWithMongoClass {
    * to a Primary-Secondary-Arbiter set (PA to PSA for short).
    */
   @returnsPromise
-  // eslint-disable-next-line complexity
   async reconfigForPSASet(newMemberIndex: number, config: Partial<ReplSetConfig>, options = {}): Promise<Document> {
     assertArgsDefinedType(
       [ newMemberIndex, config, options ],
@@ -128,7 +151,6 @@ export default class ReplicaSet extends ShellApiWithMongoClass {
       'ReplicaSet.reconfigForPSASet');
     this._emitReplicaSetApiCall('reconfigForPSASet', { newMemberIndex, config, options });
     const print = (msg: string) => this._internalState.shellApi.print(msg);
-    const sleep = (duration: number) => this._internalState.shellApi.sleep(duration);
 
     // First, perform some validation on the combination of newMemberIndex + config.
     const newMemberConfig = config.members?.[newMemberIndex];
@@ -180,38 +202,15 @@ export default class ReplicaSet extends ShellApiWithMongoClass {
     await print(`Running second reconfig to give member at index ${newMemberIndex} { priority: ${newMemberPriority} }`);
     newMemberConfig.priority = newMemberPriority;
 
-    // If the first reconfig added a new node, the second config will not succeed until the
-    // automatic reconfig to remove the 'newlyAdded' field is completed. Retry the second reconfig
-    // until it succeeds in that case.
-    let result: [ 'error', Error ] | [ 'success', Document ] = [ 'success', {} ];
-    let sleepInterval = 1000;
-    for (let i = 0; i < 12; i++) {
-      try {
-        if (result[0] === 'error') {
-          // Do a mild exponential backoff. If it's been a while since the last
-          // update, also tell the user that we're actually still working on
-          // the reconfig.
-          await sleep(sleepInterval);
-          sleepInterval *= 1.3;
-          if (sleepInterval > 2500) {
-            await print('Second reconfig did not succeed yet, starting new attempt...');
-          }
-        }
-        result = [ 'success', await this.reconfig(config, options) ];
-        break;
-      } catch (err) {
-        result = [ 'error', err ];
-      }
-    }
-
-    if (result[0] === 'error') {
+    try {
+      return await this.reconfig(config, options);
+    } catch (e) {
       // If this did not work out, print the attempted command to give the user
       // a chance to complete the second reconfig manually.
       await print('Second reconfig did not succeed, giving up');
       await print(`Attempted command: rs.reconfig(${JSON.stringify(config, null, '  ')}, ${JSON.stringify(options)})`);
-      throw result[1];
+      throw e;
     }
-    return result[1];
   }
 
   @returnsPromise
