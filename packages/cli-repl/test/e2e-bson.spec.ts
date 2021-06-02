@@ -156,6 +156,26 @@ describe('BSON e2e', function() {
       });
       shell.assertNoErrors();
     });
+    it('NumberLong prints when returned from the server', async() => {
+      const value = new bson.Long('64');
+      await shell.writeInputLine(`use ${dbName}`);
+      await db.collection('test').insertOne({ value: value });
+      await shell.writeInputLine('db.test.findOne().value');
+      await eventually(() => {
+        shell.assertContainsOutput('Long("64")');
+      });
+      shell.assertNoErrors();
+    });
+    it('NumberLong prints when returned from the server (> MAX_SAFE_INTEGER)', async() => {
+      const value = new bson.Long('345678654321234561');
+      await shell.writeInputLine(`use ${dbName}`);
+      await db.collection('test').insertOne({ value: value });
+      await shell.writeInputLine('db.test.findOne().value');
+      await eventually(() => {
+        shell.assertContainsOutput('Long("345678654321234561")');
+      });
+      shell.assertNoErrors();
+    });
     it('Timestamp prints when returned from the server', async() => {
       const value = new bson.Timestamp(0, 100);
       await shell.writeInputLine(`use ${dbName}`);
@@ -365,7 +385,6 @@ describe('BSON e2e', function() {
     });
   });
   describe('help methods', () => {
-    // NOTE: the driver returns regular JS objects for Int32, Long
     it('ObjectId has help when returned from the server', async() => {
       const value = new bson.ObjectId();
       await shell.writeInputLine(`use ${dbName}`);
