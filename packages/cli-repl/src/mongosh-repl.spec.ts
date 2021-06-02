@@ -551,6 +551,57 @@ describe('MongoshNodeRepl', () => {
             input.write(`${arrowUp}`);
             await tick();
           });
+
+          context('redaction', () => {
+            it('removes sensitive commands by default', async() => {
+              input.write('connect\n');
+              await once(mongoshRepl.runtimeState().repl, 'flushHistory');
+              input.write('connection\n');
+              await once(mongoshRepl.runtimeState().repl, 'flushHistory');
+              input.write('db.test.insert({ email: "foo@example.org" })\n');
+              await once(mongoshRepl.runtimeState().repl, 'flushHistory');
+
+              expect(getHistory()).to.deep.equal([
+                'db.test.insert({ email: "foo@example.org" })',
+                'connection' // connection is okay, connect is considered sensitive
+              ]);
+            });
+
+            it('keeps sensitive commands when asked to', async() => {
+              input.write('config.set("redactHistory", "keep");\n');
+              await tick();
+              input.write('connect\n');
+              await once(mongoshRepl.runtimeState().repl, 'flushHistory');
+              input.write('connection\n');
+              await once(mongoshRepl.runtimeState().repl, 'flushHistory');
+              input.write('db.test.insert({ email: "foo@example.org" })\n');
+              await once(mongoshRepl.runtimeState().repl, 'flushHistory');
+
+              expect(getHistory()).to.deep.equal([
+                'db.test.insert({ email: "foo@example.org" })',
+                'connection',
+                'connect',
+                'config.set("redactHistory", "keep");'
+              ]);
+            });
+
+            it('removes other sensitive data when asked to', async() => {
+              input.write('config.set("redactHistory", "remove-redact");\n');
+              await tick();
+              input.write('connect\n');
+              await once(mongoshRepl.runtimeState().repl, 'flushHistory');
+              input.write('connection\n');
+              await once(mongoshRepl.runtimeState().repl, 'flushHistory');
+              input.write('db.test.insert({ email: "foo@example.org" })\n');
+              await once(mongoshRepl.runtimeState().repl, 'flushHistory');
+
+              expect(getHistory()).to.deep.equal([
+                'db.test.insert({ email: "<email>" })',
+                'connection',
+                'config.set("redactHistory", "remove-redact");'
+              ]);
+            });
+          });
         });
       }
     });
