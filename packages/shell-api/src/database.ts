@@ -1140,6 +1140,17 @@ export default class Database extends ShellApiWithMongoClass {
         CommonErrors.CommandFailed
       );
     }
+    for (const cmdDescription of Object.values(result.commands) as any[]) {
+      if ('slaveOk' in cmdDescription) {
+        cmdDescription.secondaryOk = cmdDescription.slaveOk;
+        delete cmdDescription.slaveOk;
+      }
+      if ('slaveOverrideOk' in cmdDescription) {
+        cmdDescription.secondaryOverrideOk = cmdDescription.slaveOverrideOk;
+        delete cmdDescription.slaveOverrideOk;
+      }
+    }
+
     return new CommandResult('ListCommandsResult', result.commands);
   }
 

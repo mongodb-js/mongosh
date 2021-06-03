@@ -2308,7 +2308,7 @@ describe('Database', () => {
       });
 
       it('returns ListCommandsResult', async() => {
-        const expectedResult = { ok: 1, commands: { c1: { requiresAuth: false, slaveOk: true, adminOnly: false, help: 'help string' } } };
+        const expectedResult = { ok: 1, commands: { c1: { requiresAuth: false, secondaryOk: true, adminOnly: false, help: 'help string' } } };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.listCommands();
         expect(result.value).to.deep.equal(expectedResult.commands);
