@@ -441,9 +441,10 @@ export async function getPrintableShardStatus(db: Database, verbose: boolean): P
           { $sort: { shard: 1 } }
         ])).toArray();
         let totalChunks = 0;
+        collRes.chunkMetadata = [];
         chunks.forEach((z: any) => {
           totalChunks += z.nChunks;
-          collRes.chunkMetadata = { shard: z.shard, nChunks: z.nChunks };
+          collRes.chunkMetadata.push({ shard: z.shard, nChunks: z.nChunks });
         });
 
         // NOTE: this will return the chunk info as a string, and will print ugly BSON
