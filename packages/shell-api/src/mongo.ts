@@ -174,7 +174,19 @@ export default class Mongo extends ShellApiClass {
       mongoClientOptions.serverApi = this._apiOptions;
     }
     const parentProvider = this._internalState.initialServiceProvider;
-    this.__serviceProvider = await parentProvider.getNewConnection(this._uri, mongoClientOptions);
+    try {
+      this.__serviceProvider = await parentProvider.getNewConnection(this._uri, mongoClientOptions);
+    } catch (e) {
+      // If the initial provider had TLS enabled, and we're not able to connect,
+      // and the new URL does not contain a SSL/TLS indicator, we add a notice
+      // about the fact that the behavior differs from the legacy shell here.
+      if (e?.name === 'MongoServerSelectionError' &&
+          parentProvider.getRawClient()?.options?.tls &&
+          !this._uri.match(/\b(ssl|tls)=/)) {
+        e.message += ' (is ?tls=true missing from the connection string?)';
+      }
+      throw e;
+    }
   }
 
   _getDb(name: string): Database {

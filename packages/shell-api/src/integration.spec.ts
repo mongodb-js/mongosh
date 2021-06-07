@@ -1800,6 +1800,34 @@ describe('Shell API (integration)', function() {
         expect(await mongo.getDBNames()).to.include('admin');
       });
     });
+    describe('connect with --tls but not tls=...', () => {
+      beforeEach(() => {
+        (serviceProvider as any).getRawClient = () => {
+          return { options: { tls: true } };
+        };
+      });
+      afterEach(() => {
+        delete serviceProvider.getRawClient;
+      });
+
+      it('adds a notice to the error message', async() => {
+        try {
+          // eslint-disable-next-line new-cap
+          await shellApi.Mongo(`${await testServer.connectionString()}/?replicaSet=notexist&serverSelectionTimeoutMS=100`);
+        } catch (e) {
+          expect(e.message).to.match(/Server selection timed out.+\(is \?tls=true missing from the connection string\?\)$/);
+        }
+      });
+
+      it('does not add a notice to the error message if tls= is already specified', async() => {
+        try {
+          // eslint-disable-next-line new-cap
+          await shellApi.Mongo(`${await testServer.connectionString()}/?replicaSet=notexist&serverSelectionTimeoutMS=100&tls=false`);
+        } catch (e) {
+          expect(e.message).to.match(/Server selection timed out[^()]+$/);
+        }
+      });
+    });
   });
   describe('PlanCache', () => {
     describe('list', () => {
