@@ -124,6 +124,7 @@ describe('Mongo', () => {
             database._getCollectionNamesWithTypes.resolves(expectedResult);
             await mongo.show(t);
             expect(database._getCollectionNamesWithTypes).to.have.been.calledWith({
+              promoteLongs: true,
               readPreference: 'primaryPreferred'
             });
           });

@@ -10,7 +10,7 @@ import { EventEmitter } from 'events';
 chai.use(sinonChai);
 
 
-const DEFAULT_BASE_OPTS = { serializeFunctions: true };
+const DEFAULT_BASE_OPTS = { serializeFunctions: true, promoteLongs: false };
 
 /**
  * Create a client stub from the provided collection stub.

@@ -132,7 +132,8 @@ function processDriverOptions(opts: MongoClientOptions): MongoClientOptions {
  * Default driver method options we always use.
  */
 const DEFAULT_BASE_OPTIONS: OperationOptions = Object.freeze({
-  serializeFunctions: true
+  serializeFunctions: true,
+  promoteLongs: false
 });
 
 /**
