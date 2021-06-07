@@ -1193,6 +1193,7 @@ export default class Collection extends ShellApiWithMongoClass {
    * @return {Promise}
    */
   @returnsPromise
+  @topologies([Topologies.Standalone])
   async reIndex(): Promise<Document> {
     this._emitCollectionApiCall('reIndex');
     return await this._mongo._serviceProvider.runCommandWithCheck(this._database._name, {
