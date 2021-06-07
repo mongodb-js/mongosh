@@ -97,7 +97,7 @@ describe('mongo-errors', () => {
         expect(e).to.equal(error);
         expect(e.message).to.contain('not primary and secondaryOk=false');
         expect(e.message).to.contain('db.getMongo().setReadPref()');
-        expect(e.message).to.contain('readPref');
+        expect(e.message).to.contain('readPreference');
       }
     });
   });
