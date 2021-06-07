@@ -1,28 +1,35 @@
+import * as semver from 'semver';
+import { GithubRepo } from '../github-repo';
 
-export function generateFormula(context: { version: string, sha: string }): string {
-  return `require "language/node"
+export async function generateUpdatedFormula(
+  context: { version: string, sha: string },
+  homebrewCoreFork: GithubRepo
+): Promise<string | null> {
+  const currentFormula = await homebrewCoreFork.getFileContent('Formula/mongosh.rb', 'master');
 
-class Mongosh < Formula
-  desc "The MongoDB Shell"
+  const urlMatch = /url \"([^"]+)\"/g.exec(currentFormula.content);
+  const shaMatch = /sha256 \"([^"]+)\"/g.exec(currentFormula.content);
 
-  homepage "https://github.com/mongodb-js/mongosh#readme"
-  url "https://registry.npmjs.org/@mongosh/cli-repl/-/cli-repl-${context.version}.tgz"
-  version "${context.version}"
+  if (!urlMatch || !shaMatch) {
+    throw new Error('mongosh: could not find url or sha field in homebrew/core formula');
+  }
 
-  # This is the checksum of the archive. Can be obtained with:
-  # curl -s https://registry.npmjs.org/@mongosh/cli-repl/-/cli-repl-${context.version}.tgz | shasum -a 256
-  sha256 "${context.sha}"
+  const currentUrl = urlMatch[1];
+  const currentSha = shaMatch[1];
 
-  depends_on "node@14"
+  const newUrl = `https://registry.npmjs.org/@mongosh/cli-repl/-/cli-repl-${context.version}.tgz`;
+  if (currentUrl === newUrl && currentSha === context.sha) {
+    console.info('mongosh: homebrew formula URL and SHA did not change');
+    return null;
+  }
 
-  def install
-    system "#{Formula["node@14"].bin}/npm", "install", *Language::Node.std_npm_install_args(libexec)
-    (bin/"mongosh").write_env_script libexec/"bin/mongosh", :PATH => "#{Formula["node@14"].opt_bin}:$PATH"
-  end
+  const currentVersion = /cli-repl-(\d+\.\d+\.\d+)\.tgz/.exec(currentUrl)?.[1];
+  if (currentVersion && semver.compare(currentVersion, context.version, { includePrerelease: true }) !== -1) {
+    throw new Error(`mongosh: new version ${context.version} is lower than or equal to current published version ${currentVersion}`);
+  }
 
-  test do
-    system "#{bin}/mongosh --version"
-  end
-end
-`;
+  let newFormula = currentFormula.content;
+  newFormula = newFormula.replace(/url \"([^"]+)\"/g, `url "${newUrl}"`);
+  newFormula = newFormula.replace(/sha256 \"([^"]+)\"/g, `sha256 "${context.sha}"`);
+  return newFormula;
 }

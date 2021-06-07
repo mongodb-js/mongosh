@@ -29,7 +29,8 @@ describe('publish', () => {
   let publishToHomebrew: typeof publishToHomebrewType;
   let shouldDoPublicRelease: typeof shouldDoPublicReleaseFn;
   let githubRepo: GithubRepo;
-  let mongoHomebrewRepo: GithubRepo;
+  let mongoHomebrewCoreForkRepo: GithubRepo;
+  let homebrewCoreRepo: GithubRepo;
   let barque: Barque;
 
   beforeEach(() => {
@@ -81,7 +82,8 @@ describe('publish', () => {
     publishToHomebrew = sinon.spy();
     shouldDoPublicRelease = sinon.spy();
     githubRepo = createStubRepo();
-    mongoHomebrewRepo = createStubRepo();
+    mongoHomebrewCoreForkRepo = createStubRepo();
+    homebrewCoreRepo = createStubRepo();
     barque = createStubBarque({
       releaseToBarque: sinon.stub().resolves(['package-url']),
       waitUntilPackagesAreAvailable: sinon.stub().resolves()
@@ -106,7 +108,8 @@ describe('publish', () => {
           await runPublish(
             config,
             githubRepo,
-            mongoHomebrewRepo,
+            mongoHomebrewCoreForkRepo,
+            homebrewCoreRepo,
             barque,
             createAndPublishDownloadCenterConfig,
             publishNpmPackages,
@@ -128,7 +131,8 @@ describe('publish', () => {
           await runPublish(
             config,
             githubRepo,
-            mongoHomebrewRepo,
+            mongoHomebrewCoreForkRepo,
+            homebrewCoreRepo,
             barque,
             createAndPublishDownloadCenterConfig,
             publishNpmPackages,
@@ -150,7 +154,8 @@ describe('publish', () => {
           await runPublish(
             config,
             githubRepo,
-            mongoHomebrewRepo,
+            mongoHomebrewCoreForkRepo,
+            homebrewCoreRepo,
             barque,
             createAndPublishDownloadCenterConfig,
             publishNpmPackages,
@@ -169,7 +174,8 @@ describe('publish', () => {
       await runPublish(
         config,
         githubRepo,
-        mongoHomebrewRepo,
+        mongoHomebrewCoreForkRepo,
+        homebrewCoreRepo,
         barque,
         createAndPublishDownloadCenterConfig,
         publishNpmPackages,
@@ -198,7 +204,8 @@ describe('publish', () => {
       await runPublish(
         config,
         githubRepo,
-        mongoHomebrewRepo,
+        mongoHomebrewCoreForkRepo,
+        homebrewCoreRepo,
         barque,
         createAndPublishDownloadCenterConfig,
         publishNpmPackages,
@@ -218,7 +225,8 @@ describe('publish', () => {
       await runPublish(
         config,
         githubRepo,
-        mongoHomebrewRepo,
+        mongoHomebrewCoreForkRepo,
+        homebrewCoreRepo,
         barque,
         createAndPublishDownloadCenterConfig,
         publishNpmPackages,
@@ -234,7 +242,8 @@ describe('publish', () => {
       await runPublish(
         config,
         githubRepo,
-        mongoHomebrewRepo,
+        mongoHomebrewCoreForkRepo,
+        homebrewCoreRepo,
         barque,
         createAndPublishDownloadCenterConfig,
         publishNpmPackages,
@@ -254,7 +263,8 @@ describe('publish', () => {
       await runPublish(
         config,
         githubRepo,
-        mongoHomebrewRepo,
+        mongoHomebrewCoreForkRepo,
+        homebrewCoreRepo,
         barque,
         createAndPublishDownloadCenterConfig,
         publishNpmPackages,
@@ -264,7 +274,8 @@ describe('publish', () => {
       );
 
       expect(publishToHomebrew).to.have.been.calledWith(
-        mongoHomebrewRepo,
+        homebrewCoreRepo,
+        mongoHomebrewCoreForkRepo,
         config.version
       );
       expect(publishToHomebrew).to.have.been.calledAfter(githubRepo.promoteRelease as any);
@@ -280,7 +291,8 @@ describe('publish', () => {
       await runPublish(
         config,
         githubRepo,
-        mongoHomebrewRepo,
+        mongoHomebrewCoreForkRepo,
+        homebrewCoreRepo,
         barque,
         createAndPublishDownloadCenterConfig,
         publishNpmPackages,
@@ -296,7 +308,8 @@ describe('publish', () => {
       await runPublish(
         config,
         githubRepo,
-        mongoHomebrewRepo,
+        mongoHomebrewCoreForkRepo,
+        homebrewCoreRepo,
         barque,
         createAndPublishDownloadCenterConfig,
         publishNpmPackages,
@@ -312,7 +325,8 @@ describe('publish', () => {
       await runPublish(
         config,
         githubRepo,
-        mongoHomebrewRepo,
+        mongoHomebrewCoreForkRepo,
+        homebrewCoreRepo,
         barque,
         createAndPublishDownloadCenterConfig,
         publishNpmPackages,
@@ -328,7 +342,8 @@ describe('publish', () => {
       await runPublish(
         config,
         githubRepo,
-        mongoHomebrewRepo,
+        mongoHomebrewCoreForkRepo,
+        homebrewCoreRepo,
         barque,
         createAndPublishDownloadCenterConfig,
         publishNpmPackages,
@@ -344,7 +359,8 @@ describe('publish', () => {
       await runPublish(
         config,
         githubRepo,
-        mongoHomebrewRepo,
+        mongoHomebrewCoreForkRepo,
+        homebrewCoreRepo,
         barque,
         createAndPublishDownloadCenterConfig,
         publishNpmPackages,
