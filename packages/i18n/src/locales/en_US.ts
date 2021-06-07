@@ -1420,6 +1420,11 @@ const translations: Catalog = {
               description: 'Calls isMaster',
               example: 'rs.isMaster()',
             },
+            hello: {
+              link: 'https://docs.mongodb.com/manual/reference/method/rs.hello',
+              description: 'Calls hello',
+              example: 'rs.hello()',
+            },
             printSecondaryReplicationInfo: {
               link: 'https://docs.mongodb.com/manual/reference/method/rs.printSecondaryReplicationInfo',
               description: 'Calls db.printSecondaryReplicationInfo',
