@@ -20,6 +20,12 @@ describe('config validation', () => {
     expect(await validate('showStackTraces', -1)).to.equal('showStackTraces must be a boolean');
     expect(await validate('showStackTraces', false)).to.equal(null);
     expect(await validate('showStackTraces', true)).to.equal(null);
+    expect(await validate('redactHistory', 'foo')).to.equal("redactHistory must be one of 'keep', 'remove', or 'remove-redact'");
+    expect(await validate('redactHistory', -1)).to.equal("redactHistory must be one of 'keep', 'remove', or 'remove-redact'");
+    expect(await validate('redactHistory', false)).to.equal("redactHistory must be one of 'keep', 'remove', or 'remove-redact'");
+    expect(await validate('redactHistory', 'keep')).to.equal(null);
+    expect(await validate('redactHistory', 'remove')).to.equal(null);
+    expect(await validate('redactHistory', 'remove-redact')).to.equal(null);
     expect(await validate('batchSize', 'foo')).to.equal('batchSize must be a positive integer');
     expect(await validate('batchSize', -1)).to.equal('batchSize must be a positive integer');
     expect(await validate('batchSize', 0)).to.equal('batchSize must be a positive integer');

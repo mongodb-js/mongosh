@@ -242,6 +242,7 @@ export class CliUserConfig extends ShellUserConfig {
   inspectDepth = 6;
   historyLength = 1000;
   showStackTraces = false;
+  redactHistory: 'keep' | 'remove' | 'remove-redact' = 'remove';
 }
 
 export class CliUserConfigValidator extends ShellUserConfigValidator {
@@ -265,6 +266,11 @@ export class CliUserConfigValidator extends ShellUserConfigValidator {
       case 'showStackTraces':
         if (typeof value !== 'boolean') {
           return `${key} must be a boolean`;
+        }
+        return null;
+      case 'redactHistory':
+        if (value !== 'keep' && value !== 'remove' && value !== 'remove-redact') {
+          return `${key} must be one of 'keep', 'remove', or 'remove-redact'`;
         }
         return null;
       default:

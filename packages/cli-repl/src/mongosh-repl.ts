@@ -22,7 +22,6 @@ import { LineByLineInput } from './line-by-line-input';
 import { LogEntry, parseAnyLogEntry } from './log-entry';
 
 export type MongoshCliOptions = ShellCliOptions & {
-  redactInfo?: boolean;
   quiet?: boolean;
 };
 
@@ -110,7 +109,7 @@ class MongoshNodeRepl implements EvaluationListener {
   started = false;
   showStackTraces = false;
   loadNestingLevel = 0;
-
+  redactHistory: 'keep' | 'remove' | 'remove-redact' = 'remove';
 
   constructor(options: MongoshNodeReplOptions) {
     this.input = options.input;
@@ -261,15 +260,16 @@ class MongoshNodeRepl implements EvaluationListener {
     (repl as Mutable<typeof repl>).line = '';
 
     const historyFile = this.ioProvider.getHistoryFilePath();
-    const { redactInfo } = this.shellCliOptions;
     try {
       await promisify(repl.setupHistory).call(repl, historyFile);
       // repl.history is an array of previous commands. We need to hijack the
       // value we just typed, and shift it off the history array if the info is
       // sensitive.
-      repl.on('flushHistory', function() {
-        const history: string[] = (repl as any).history;
-        changeHistory(history, redactInfo);
+      repl.on('flushHistory', () => {
+        if (this.redactHistory !== 'keep') {
+          const history: string[] = (repl as any).history;
+          changeHistory(history, this.redactHistory === 'remove-redact');
+        }
       });
       // We also want to group multiline history entries and .editor input into
       // a single entry per evaluation, so that arrow-up functionality
@@ -603,13 +603,16 @@ class MongoshNodeRepl implements EvaluationListener {
         (this.runtimeState().repl as any).historySize = value;
       }
       if (key === 'inspectCompact') {
-        this.inspectCompact = value as number | boolean;
+        this.inspectCompact = value as CliUserConfig['inspectCompact'];
       }
       if (key === 'inspectDepth') {
-        this.inspectDepth = +value;
+        this.inspectDepth = value as CliUserConfig['inspectDepth'];
       }
       if (key === 'showStackTraces') {
-        this.showStackTraces = !!value;
+        this.showStackTraces = value as CliUserConfig['showStackTraces'];
+      }
+      if (key === 'redactHistory') {
+        this.redactHistory = value as CliUserConfig['redactHistory'];
       }
     }
     return result;
