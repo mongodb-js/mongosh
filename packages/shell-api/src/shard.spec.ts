@@ -1257,6 +1257,8 @@ describe('Shard', () => {
         const original = await db.coll.findOneAndUpdate({ key: 'A' }, { $set: { value: 30 } });
         expect(original.key).to.equal('A');
         expect(original.value).to.equal(10);
+
+        expect((await sh.status()).value.databases[1].collections[ns].chunkMetadata).to.have.lengthOf(1);
       });
     });
     describe('autosplit', () => {
