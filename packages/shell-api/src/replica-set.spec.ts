@@ -1,5 +1,5 @@
 import { CommonErrors, MongoshInvalidInputError, MongoshRuntimeError } from '@mongosh/errors';
-import { bson, FindCursor as ServiceProviderCursor, ServiceProvider, Document } from '@mongosh/service-provider-core';
+import { bson, Document, FindCursor as ServiceProviderCursor, ServiceProvider } from '@mongosh/service-provider-core';
 import chai, { expect } from 'chai';
 import { EventEmitter } from 'events';
 import semver from 'semver';
@@ -17,7 +17,7 @@ import {
 } from './enums';
 import { signatures, toShellResult } from './index';
 import Mongo from './mongo';
-import ReplicaSet, { ReplSetMemberConfig, ReplSetConfig } from './replica-set';
+import ReplicaSet, { ReplSetConfig, ReplSetMemberConfig } from './replica-set';
 import ShellInternalState, { EvaluationListener } from './shell-internal-state';
 chai.use(sinonChai);
 
@@ -186,7 +186,7 @@ describe('ReplicaSet', () => {
     });
 
     describe('reconfig', () => {
-      const configDoc = {
+      const configDoc: Partial<ReplSetConfig> = {
         _id: 'my_replica_set',
         members: [
           { _id: 0, host: 'rs1.example.net:27017' },
@@ -236,6 +236,69 @@ describe('ReplicaSet', () => {
             force: true
           }
         );
+      });
+
+      describe('retry on errors', () => {
+        let oldConfig: Partial<ReplSetConfig>;
+        let reconfigCalls: ReplSetConfig[];
+        let reconfigResults: Document[];
+        let sleepStub: any;
+
+        beforeEach(() => {
+          sleepStub = sinon.stub();
+          internalState.shellApi.sleep = sleepStub;
+          reconfigCalls = [];
+
+          serviceProvider.runCommandWithCheck.callsFake(async(db: string, cmd: Document) => {
+            if (cmd.replSetGetConfig) {
+              return { config: { ...oldConfig, version: oldConfig.version ?? 1 } };
+            }
+            if (cmd.replSetReconfig) {
+              const result = reconfigResults.shift();
+              reconfigCalls.push(deepClone(cmd.replSetReconfig));
+              if (result.ok) {
+                return result;
+              }
+              oldConfig = { ...oldConfig, version: (oldConfig.version ?? 1) + 1 };
+              throw new Error(`Reconfig failed: ${JSON.stringify(result)}`);
+            }
+          });
+        });
+
+        it('does three reconfigs if the first two fail due to known issue', async() => {
+          oldConfig = deepClone(configDoc);
+          reconfigResults = [ { ok: 0 }, { ok: 0 }, { ok: 1 } ];
+
+          const origConfig = deepClone(configDoc);
+          await rs.reconfig(configDoc);
+          expect(reconfigCalls).to.deep.equal([
+            { ...origConfig, version: 2 },
+            { ...origConfig, version: 3 },
+            { ...origConfig, version: 4 }
+          ]);
+          expect(sleepStub).to.have.been.calledWith(1000);
+          expect(sleepStub).to.have.been.calledWith(1300);
+        });
+
+        it('gives up after a number of attempts', async() => {
+          oldConfig = deepClone(configDoc);
+          reconfigResults = [...Array(20).keys()].map(() => ({ ok: 0 }));
+          try {
+            await rs.reconfig(configDoc);
+            expect.fail('missed exception');
+          } catch (err) {
+            expect(err.message).to.equal('Reconfig failed: {"ok":0}');
+          }
+          expect(evaluationListener.onPrint).to.have.been.calledWith([
+            await toShellResult('Reconfig did not succeed yet, starting new attempt...')
+          ]);
+          const totalSleepLength = sleepStub.getCalls()
+            .map(({ firstArg }) => firstArg)
+            .reduce((x, y) => x + y, 0);
+          // Expect to spend about a minute sleeping here.
+          expect(totalSleepLength).to.be.closeTo(60_000, 5_000);
+          expect(reconfigCalls).to.have.lengthOf(12);
+        });
       });
     });
     describe('status', () => {
@@ -727,7 +790,7 @@ describe('ReplicaSet', () => {
           await toShellResult('Running second reconfig to give member at index 2 { priority: 1 }')
         ]);
         expect(evaluationListener.onPrint).to.have.been.calledWith([
-          await toShellResult('Second reconfig did not succeed yet, starting new attempt...')
+          await toShellResult('Reconfig did not succeed yet, starting new attempt...')
         ]);
         expect(evaluationListener.onPrint).to.have.been.calledWith([
           await toShellResult('Second reconfig did not succeed, giving up')
@@ -755,8 +818,8 @@ describe('ReplicaSet', () => {
     let cfg: Partial<ReplSetConfig>;
     let additionalServer: MongodSetup;
     let serviceProvider: CliServiceProvider;
-    let internalState;
-    let rs;
+    let internalState: ShellInternalState;
+    let rs: ReplicaSet;
 
     before(async function() {
       this.timeout(100_000);
@@ -843,9 +906,7 @@ describe('ReplicaSet', () => {
     });
 
     describe('add member', () => {
-      // TODO: Fix these tests? They are currently failing with
-      // MongoError: Cannot run replSetReconfig because the node is currently updating its configuration
-      skipIfServerVersion(srv0, '> 4.4');
+      skipIfServerVersion(srv0, '< 4.4');
       it('adds a regular member to the config', async() => {
         const version = (await rs.conf()).version;
         const result = await rs.add(`${await additionalServer.hostport()}`);
@@ -855,6 +916,12 @@ describe('ReplicaSet', () => {
         expect(conf.version).to.equal(version + 1);
       });
       it('adds a arbiter member to the config', async() => {
+        if (semver.gte(await internalState.currentDb.version(), '4.4.0')) { // setDefaultRWConcern is 4.4+ only
+          await internalState.currentDb.getSiblingDB('admin').runCommand({
+            setDefaultRWConcern: 1,
+            defaultWriteConcern: { w: 'majority' }
+          });
+        }
         const version = (await rs.conf()).version;
         const result = await rs.addArb(`${await additionalServer.hostport()}`);
         expect(result.ok).to.equal(1);
@@ -871,9 +938,6 @@ describe('ReplicaSet', () => {
     });
 
     describe('remove member', () => {
-      // TODO: Fix these tests? They are currently failing with
-      // MongoError: Cannot run replSetReconfig because the node is currently updating its configuration
-      skipIfServerVersion(srv0, '> 4.4');
       it('removes a member of the config', async() => {
         const version = (await rs.conf()).version;
         const result = await rs.remove(cfg.members[2].host);

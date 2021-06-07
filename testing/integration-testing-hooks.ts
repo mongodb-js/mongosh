@@ -461,9 +461,7 @@ export function startTestCluster(...argLists: string[][]): MongodSetup[] {
 }
 
 function skipIfVersion(test: any, testServerVersion: string, semverCondition: string): void {
-  // Strip -rc.0, -alpha, etc. from the server version because semver rejects those otherwise.
-  testServerVersion = testServerVersion.replace(/-.*$/, '');
-  if (semver.satisfies(testServerVersion, semverCondition)) {
+  if (semver.satisfies(testServerVersion, semverCondition, { includePrerelease: true })) {
     test.skip();
   }
 }
