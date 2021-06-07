@@ -133,6 +133,22 @@ describe('e2e direct connection', () => {
             shell.assertContainsOutput('db.testcollection');
           });
         });
+
+        it('allows aggregate with $merge with secondary readpref', async() => {
+          const shell = TestShell.start({ args: [
+            `${await rs1.connectionString()}/${dbname}?readPreference=secondary&directConnection=false&serverSelectionTimeoutMS=10000`
+          ] });
+          await shell.waitForPrompt();
+          await shell.executeLine(`db.testcollection.aggregate([
+            {$group:{_id:null,count:{$sum:1}}},
+            {$set:{_id:'count'}},
+            {$merge:{into:'testaggout',on:'_id'}}
+          ])`);
+          await eventually(async() => {
+            expect(await shell.executeLine('db.testaggout.find()')).to.include("[ { _id: 'count', count: 1 } ]");
+          });
+          shell.assertNoErrors();
+        });
       });
 
       context('connecting to primary', () => {
