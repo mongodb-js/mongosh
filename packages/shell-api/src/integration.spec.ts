@@ -1097,6 +1097,15 @@ describe('Shell API (integration)', function() {
         });
       });
     });
+
+    describe('listCommands', () => {
+      it('includes an entry for ping', async() => {
+        const { ping } = (await database.listCommands()).value;
+        expect(ping.help).to.be.a('string');
+        expect(ping.adminOnly).to.be.a('boolean');
+        expect(ping.secondaryOk).to.be.a('boolean');
+      });
+    });
   });
 
   describe('explainable', () => {
