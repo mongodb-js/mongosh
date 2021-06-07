@@ -272,6 +272,7 @@ describe('Auth e2e', function() {
             try {
               shell.assertContainsOutput('{ n: 2, ok: 1 }');
             } catch {
+              // The 5.0+ server responds with a Long.
               shell.assertContainsOutput('{ n: Long("2"), ok: 1 }');
             }
           });
@@ -500,6 +501,7 @@ describe('Auth e2e', function() {
             try {
               shell.assertContainsOutput('{ n: 2, ok: 1 }');
             } catch {
+              // The 5.0+ server responds with a Long.
               shell.assertContainsOutput('{ n: Long("2"), ok: 1 }');
             }
           });

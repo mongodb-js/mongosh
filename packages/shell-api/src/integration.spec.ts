@@ -1782,6 +1782,7 @@ describe('Shell API (integration)', function() {
         const result = await mongo.getDBs();
         expect(result.ok).to.equal(1);
         const admin = result.databases.find(db => db.name === 'admin');
+        // The 5.0+ server responds with a Long.
         expect(typeof admin.sizeOnDisk === 'number' || admin.sizeOnDisk.constructor.name === 'Long').to.equal(true);
       });
     });
