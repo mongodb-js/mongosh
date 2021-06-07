@@ -226,11 +226,13 @@ export default class ReplicaSet extends ShellApiWithMongoClass {
   @returnsPromise
   async isMaster(): Promise<Document> {
     this._emitReplicaSetApiCall('isMaster', {});
-    return this._database._runAdminCommand(
-      {
-        isMaster: 1,
-      }
-    );
+    return this._database.getSiblingDB('admin').isMaster();
+  }
+
+  @returnsPromise
+  async hello(): Promise<Document> {
+    this._emitReplicaSetApiCall('hello', {});
+    return this._database.getSiblingDB('admin').hello();
   }
 
   @returnsPromise
