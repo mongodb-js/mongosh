@@ -230,7 +230,7 @@ describe('completer.completer', () => {
     it('returns all suggestions', async() => {
       const i = 'db.shipwrecks.';
       const collComplete = Object.keys(shellSignatures.Collection.attributes as any);
-      const adjusted = collComplete.filter(c => !['count', 'update', 'remove', 'insert', 'save', 'findAndModify'].includes(c)).map(c => `${i}${c}`);
+      const adjusted = collComplete.filter(c => !['count', 'update', 'remove', 'insert', 'save', 'findAndModify', 'reIndex'].includes(c)).map(c => `${i}${c}`);
 
       expect(await completer(sharded440, i)).to.deep.equal([adjusted, i]);
     });
