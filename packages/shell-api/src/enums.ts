@@ -14,6 +14,7 @@ import { ReplPlatform } from '@mongosh/service-provider-core';
 export const ALL_SERVER_VERSIONS = [ ServerVersions.earliest, ServerVersions.latest ];
 export const ALL_TOPOLOGIES = [ Topologies.ReplSet, Topologies.Sharded, Topologies.Standalone ];
 export const ALL_PLATFORMS = [ ReplPlatform.Compass, ReplPlatform.Browser, ReplPlatform.CLI ];
+export const ALL_API_VERSIONS = [ 0, Infinity ];
 
 export const CURSOR_FLAGS = {
   2: 'tailable',

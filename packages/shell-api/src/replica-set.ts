@@ -6,6 +6,7 @@ import Database from './database';
 import {
   deprecated,
   returnsPromise,
+  apiVersions,
   shellApiClassDefault,
   ShellApiWithMongoClass
 } from './decorators';
@@ -79,6 +80,7 @@ export default class ReplicaSet extends ShellApiWithMongoClass {
    *  Returns a document that contains the current replica set configuration.
    */
   @returnsPromise
+  @apiVersions([1])
   async config(): Promise<ReplSetConfig> {
     this._emitReplicaSetApiCall('config', {});
     return this._getConfig();
@@ -88,6 +90,7 @@ export default class ReplicaSet extends ShellApiWithMongoClass {
    * Alias, conf is documented but config is not
    */
   @returnsPromise
+  @apiVersions([1])
   async conf(): Promise<ReplSetConfig> {
     this._emitReplicaSetApiCall('conf', {});
     return this._getConfig();
@@ -100,6 +103,7 @@ export default class ReplicaSet extends ShellApiWithMongoClass {
    *  @param options
    */
   @returnsPromise
+  @apiVersions([])
   async reconfig(config: Partial<ReplSetConfig>, options = {}): Promise<Document> {
     assertArgsDefinedType([ config, options ], ['object', [undefined, 'object']], 'ReplicaSet.reconfig');
     this._emitReplicaSetApiCall('reconfig', { config, options });
@@ -144,6 +148,7 @@ export default class ReplicaSet extends ShellApiWithMongoClass {
    * to a Primary-Secondary-Arbiter set (PA to PSA for short).
    */
   @returnsPromise
+  @apiVersions([])
   async reconfigForPSASet(newMemberIndex: number, config: Partial<ReplSetConfig>, options = {}): Promise<Document> {
     assertArgsDefinedType(
       [ newMemberIndex, config, options ],
@@ -214,6 +219,7 @@ export default class ReplicaSet extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
+  @apiVersions([])
   async status(): Promise<Document> {
     this._emitReplicaSetApiCall('status', {});
     return this._database._runAdminCommand(
@@ -224,18 +230,21 @@ export default class ReplicaSet extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
+  @apiVersions([])
   async isMaster(): Promise<Document> {
     this._emitReplicaSetApiCall('isMaster', {});
     return this._database.getSiblingDB('admin').isMaster();
   }
 
   @returnsPromise
+  @apiVersions([1])
   async hello(): Promise<Document> {
     this._emitReplicaSetApiCall('hello', {});
     return this._database.getSiblingDB('admin').hello();
   }
 
   @returnsPromise
+  @apiVersions([])
   async printSecondaryReplicationInfo(): Promise<CommandResult> {
     this._emitReplicaSetApiCall('printSecondaryReplicationInfo', {});
     return this._database.printSecondaryReplicationInfo();
@@ -243,17 +252,20 @@ export default class ReplicaSet extends ShellApiWithMongoClass {
 
   @deprecated
   @returnsPromise
+  @apiVersions([])
   async printSlaveReplicationInfo(): Promise<CommandResult> {
     throw new MongoshDeprecatedError('printSlaveReplicationInfo has been deprecated. Use printSecondaryReplicationInfo instead');
   }
 
   @returnsPromise
+  @apiVersions([])
   async printReplicationInfo(): Promise<CommandResult> {
     this._emitReplicaSetApiCall('printReplicationInfo', {});
     return this._database.printReplicationInfo();
   }
 
   @returnsPromise
+  @apiVersions([])
   async add(hostport: string | Partial<ReplSetMemberConfig>, arb?: boolean): Promise<Document> {
     assertArgsDefinedType([hostport, arb], [['string', 'object'], [undefined, 'boolean']], 'ReplicaSet.add');
     this._emitReplicaSetApiCall('add', { hostport, arb });
@@ -290,12 +302,14 @@ export default class ReplicaSet extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
+  @apiVersions([])
   async addArb(hostname: string): Promise<Document> {
     this._emitReplicaSetApiCall('addArb', { hostname });
     return this.add(hostname, true);
   }
 
   @returnsPromise
+  @apiVersions([])
   async remove(hostname: string): Promise<Document> {
     assertArgsDefinedType([hostname], ['string'], 'ReplicaSet.remove');
     this._emitReplicaSetApiCall('remove', { hostname });
@@ -319,6 +333,7 @@ export default class ReplicaSet extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
+  @apiVersions([])
   async freeze(secs: number): Promise<Document> {
     assertArgsDefinedType([secs], ['number'], 'ReplicaSet.freeze');
     this._emitReplicaSetApiCall('freeze', { secs });
@@ -330,6 +345,7 @@ export default class ReplicaSet extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
+  @apiVersions([])
   async stepDown(stepdownSecs?: number, catchUpSecs?: number): Promise<Document> {
     assertArgsDefinedType([stepdownSecs, catchUpSecs], [[undefined, 'number'], [undefined, 'number']], 'ReplicaSet.stepDown');
     this._emitReplicaSetApiCall('stepDown', { stepdownSecs, catchUpSecs });
@@ -345,6 +361,7 @@ export default class ReplicaSet extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
+  @apiVersions([])
   async syncFrom(host: string): Promise<Document> {
     assertArgsDefinedType([host], ['string'], 'ReplicaSet.syncFrom');
     this._emitReplicaSetApiCall('syncFrom', { host });

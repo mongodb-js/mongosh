@@ -14,6 +14,7 @@ import {
   returnsPromise,
   returnType,
   serverVersions,
+  apiVersions,
   ShellApiClass,
   shellApiClassDefault,
   topologies,
@@ -267,18 +268,21 @@ export default class Mongo extends ShellApiClass {
   }
 
   @returnsPromise
+  @apiVersions([1])
   async getDBs(options: ListDatabasesOptions = {}): Promise<{ databases: {name: string, sizeOnDisk: number, empty: boolean}[] }> {
     this._emitMongoApiCall('getDBs', { options });
     return await this._listDatabases(options);
   }
 
   @returnsPromise
+  @apiVersions([1])
   async getDBNames(options: ListDatabasesOptions = {}): Promise<string[]> {
     this._emitMongoApiCall('getDBNames', { options });
     return (await this._listDatabases(options)).databases.map(db => db.name);
   }
 
   @returnsPromise
+  @apiVersions([1])
   async show(cmd: string, arg?: string): Promise<CommandResult> {
     this._internalState.messageBus.emit('mongosh:show', { method: `show ${cmd}` });
 
@@ -322,6 +326,7 @@ export default class Mongo extends ShellApiClass {
         throw err;
     }
   }
+
   async close(force: boolean): Promise<void> {
     const index = this._internalState.mongos.indexOf(this);
     if (index === -1) {
@@ -491,6 +496,7 @@ export default class Mongo extends ShellApiClass {
 
   @serverVersions(['3.1.0', ServerVersions.latest])
   @topologies([Topologies.ReplSet, Topologies.Sharded])
+  @apiVersions([1])
   watch(pipeline: Document[] = [], options: ChangeStreamOptions = {}): ChangeStreamCursor {
     this._emitMongoApiCall('watch', { pipeline, options });
     const cursor = new ChangeStreamCursor(

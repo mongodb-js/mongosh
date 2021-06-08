@@ -1,4 +1,4 @@
-import { returnsPromise, shellApiClassDefault, returnType, deprecated, ShellApiWithMongoClass } from './decorators';
+import { returnsPromise, shellApiClassDefault, returnType, deprecated, apiVersions, ShellApiWithMongoClass } from './decorators';
 import Mongo from './mongo';
 import { CommonErrors, MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
 import {
@@ -37,12 +37,14 @@ export class BulkFindOp extends ShellApiWithMongoClass {
   }
 
   @returnType('BulkFindOp')
+  @apiVersions([1])
   collation(spec: CollationOptions): BulkFindOp {
     this._serviceProviderBulkFindOp.collation(spec);
     return this;
   }
 
   // Blocked by NODE-2751, bulk arrayFilters
+  @apiVersions([1])
   arrayFilters(): BulkFindOp {
     throw new MongoshUnimplementedError(
       'arrayFilters method on fluent Bulk API is not currently supported.',
@@ -52,6 +54,7 @@ export class BulkFindOp extends ShellApiWithMongoClass {
   }
 
   @returnType('BulkFindOp')
+  @apiVersions([1])
   hint(hintDoc: Document): BulkFindOp {
     assertArgsDefinedType([hintDoc], [true], 'BulkFindOp.hint');
     this._hint = hintDoc;
@@ -59,6 +62,7 @@ export class BulkFindOp extends ShellApiWithMongoClass {
   }
 
   @returnType('Bulk')
+  @apiVersions([1])
   delete(): Bulk {
     this._parentBulk._batchCounts.nRemoveOps++;
     this._serviceProviderBulkFindOp.delete();
@@ -66,6 +70,7 @@ export class BulkFindOp extends ShellApiWithMongoClass {
   }
 
   @returnType('Bulk')
+  @apiVersions([1])
   deleteOne(): Bulk {
     this._parentBulk._batchCounts.nRemoveOps++;
     this._serviceProviderBulkFindOp.deleteOne();
@@ -73,18 +78,21 @@ export class BulkFindOp extends ShellApiWithMongoClass {
   }
 
   @returnType('Bulk')
+  @apiVersions([1])
   @deprecated
   remove(): Bulk {
     return this.delete();
   }
 
   @returnType('Bulk')
+  @apiVersions([1])
   @deprecated
   removeOne(): Bulk {
     return this.deleteOne();
   }
 
   @returnType('Bulk')
+  @apiVersions([1])
   replaceOne(replacement: Document): Bulk {
     this._parentBulk._batchCounts.nUpdateOps++;
     assertArgsDefinedType([replacement], [true], 'BulkFindOp.replacement');
@@ -97,6 +105,7 @@ export class BulkFindOp extends ShellApiWithMongoClass {
   }
 
   @returnType('Bulk')
+  @apiVersions([1])
   updateOne(update: Document): Bulk {
     this._parentBulk._batchCounts.nUpdateOps++;
     assertArgsDefinedType([update], [true], 'BulkFindOp.update');
@@ -182,6 +191,7 @@ export default class Bulk extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
+  @apiVersions([1])
   async execute(writeConcern?: WriteConcern): Promise<BulkWriteResult> {
     const { result } = await this._serviceProviderBulkOp.execute() as any;
     this._executed = true;
@@ -199,12 +209,14 @@ export default class Bulk extends ShellApiWithMongoClass {
   }
 
   @returnType('BulkFindOp')
+  @apiVersions([1])
   find(query: Document): BulkFindOp {
     assertArgsDefinedType([query], [true], 'Bulk.find');
     return new BulkFindOp(this._serviceProviderBulkOp.find(query), this);
   }
 
   @returnType('Bulk')
+  @apiVersions([1])
   insert(document: Document): Bulk {
     this._batchCounts.nInsertOps++;
     assertArgsDefinedType([document], [true], 'Bulk.insert');

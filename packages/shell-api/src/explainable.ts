@@ -4,6 +4,7 @@ import ExplainableCursor from './explainable-cursor';
 import {
   returnsPromise,
   returnType,
+  apiVersions,
   shellApiClassDefault,
   serverVersions,
   ShellApiWithMongoClass,
@@ -83,6 +84,7 @@ export default class Explainable extends ShellApiWithMongoClass {
   }
 
   @returnType('ExplainableCursor')
+  @apiVersions([1])
   find(query?: Document, projection?: Document): ExplainableCursor {
     this._emitExplainableApiCall('find', { query, projection });
 
@@ -93,6 +95,7 @@ export default class Explainable extends ShellApiWithMongoClass {
   async aggregate(pipeline: Document[], options: Document): Promise<Document>
   async aggregate(...stages: Document[]): Promise<Document>
   @returnsPromise
+  @apiVersions([1])
   async aggregate(...args: any[]): Promise<Document> {
     this._emitExplainableApiCall('aggregate', { args });
     let options: Document;
@@ -112,6 +115,7 @@ export default class Explainable extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
+  @apiVersions([1])
   async count(query = {}, options: CountOptions = {}): Promise<Document> {
     this._emitExplainableApiCall('count', { query, options });
     // This is the only one that currently lacks explicit driver support.
@@ -129,36 +133,42 @@ export default class Explainable extends ShellApiWithMongoClass {
   async distinct(field: string, query: Document): Promise<Document>
   async distinct(field: string, query: Document, options: DistinctOptions): Promise<Document>
   @returnsPromise
+  @apiVersions([1])
   async distinct(field: string, query?: Document, options: DistinctOptions = {}): Promise<Document> {
     this._emitExplainableApiCall('distinct', { field, query, options });
     return this._collection.distinct(field, query ?? {}, { ...options, explain: this._verbosity });
   }
 
   @returnsPromise
+  @apiVersions([1])
   async findAndModify(options: FindAndModifyMethodShellOptions): Promise<Document> {
     this._emitExplainableApiCall('findAndModify', { options });
     return this._collection.findAndModify({ ...options, explain: this._verbosity });
   }
 
   @returnsPromise
+  @apiVersions([1])
   async findOneAndDelete(filter: Document, options: FindOneAndDeleteOptions = {}): Promise<Document> {
     this._emitExplainableApiCall('findOneAndDelete', { filter, options });
     return this._collection.findOneAndDelete(filter, { ...options, explain: this._verbosity });
   }
 
   @returnsPromise
+  @apiVersions([1])
   async findOneAndReplace(filter: Document, replacement: Document, options: FindAndModifyShellOptions<FindOneAndReplaceOptions> = {}): Promise<Document> {
     this._emitExplainableApiCall('findOneAndReplace', { filter, options });
     return this._collection.findOneAndReplace(filter, replacement, { ...options, explain: this._verbosity });
   }
 
   @returnsPromise
+  @apiVersions([1])
   async findOneAndUpdate(filter: Document, update: Document, options: FindAndModifyShellOptions<FindOneAndUpdateOptions> = {}): Promise<Document> {
     this._emitExplainableApiCall('findOneAndUpdate', { filter, options });
     return this._collection.findOneAndUpdate(filter, update, { ...options, explain: this._verbosity });
   }
 
   @returnsPromise
+  @apiVersions([1])
   async remove(query: Document, options: boolean | RemoveShellOptions = {}): Promise<Document> {
     this._emitExplainableApiCall('remove', { query, options });
     options = { ...processRemoveOptions(options), explain: this._verbosity };
@@ -166,6 +176,7 @@ export default class Explainable extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
+  @apiVersions([1])
   async update(filter: Document, update: Document, options: UpdateOptions = {}): Promise<Document> {
     this._emitExplainableApiCall('update', { filter, update, options });
     return this._collection.update(filter, update, { ...options, explain: this._verbosity });
@@ -173,6 +184,7 @@ export default class Explainable extends ShellApiWithMongoClass {
 
   @returnsPromise
   @serverVersions(['4.4.0', ServerVersions.latest])
+  @apiVersions([])
   async mapReduce(
     map: Function | string,
     reduce: Function | string,
