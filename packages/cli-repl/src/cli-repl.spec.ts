@@ -1207,6 +1207,23 @@ describe('CliRepl', () => {
         await waitCompletion(cliRepl.bus);
         expect(output).to.include('db.movies.find({year: {$gte');
       });
+
+      it('completes properties of shell API result types', async() => {
+        if (!hasCollectionNames) return;
+        input.write('res = db.autocompleteTestColl.deleteMany({ deletetestdummykey: 1 })\n');
+        await waitEval(cliRepl.bus);
+
+        // Consitency check: The result actually has a shell API type tag:
+        output = '';
+        input.write('res[Symbol.for("@@mongosh.shellApiType")]\n');
+        await waitEval(cliRepl.bus);
+        expect(output).to.include('DeleteResult');
+
+        input.write('res.a');
+        await tabtab();
+        await waitCompletion(cliRepl.bus);
+        expect(output).to.include('res.acknowledged');
+      });
     });
   }
 });

@@ -412,9 +412,15 @@ class MongoshNodeRepl implements EvaluationListener {
       // The Node.js auto completion needs to access the raw values in order
       // to be able to autocomplete their properties properly. One catch is
       // that we peform some filtering of mongosh methods depending on
-      // topology, server version, etc., so for those, we do not autocomplete
-      // at all and instead leave that to the @mongosh/autocomplete package.
-      return shellResult.type !== null ? null : shellResult.rawValue;
+      // topology, server version, etc., so for those, we only autocomplete
+      // own, enumerable, non-underscore-prefixed properties and instead leave
+      // the rest to the @mongosh/autocomplete package.
+      if (shellResult.type === null) {
+        return shellResult.rawValue;
+      }
+      return Object.fromEntries(
+        Object.entries(shellResult.rawValue)
+          .filter(([key]) => !key.startsWith('_')));
     } catch (err) {
       if (this.runtimeState().internalState.interrupted.isSet()) {
         this.bus.emit('mongosh:eval-interrupted');
