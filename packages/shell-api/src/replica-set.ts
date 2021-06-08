@@ -62,7 +62,7 @@ export default class ReplicaSet extends ShellApiWithMongoClass {
       }
       return result.config;
     } catch (error) {
-      if (error.codeName === 'CommandNotFound') {
+      if (error.codeName === 'CommandNotFound' || error.codeName === 'APIStrictError') {
         const doc = await this._database.getSiblingDB('local').getCollection('system.replset').findOne() as ReplSetConfig | null;
         if (doc === null) {
           throw new MongoshRuntimeError('No documents in local.system.replset', CommonErrors.CommandFailed);
