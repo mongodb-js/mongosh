@@ -48,7 +48,8 @@ export async function release(
   });
 
   const githubRepo = new GithubRepo(config.repo, octokit);
-  const mongoHomebrewRepo = new GithubRepo({ owner: 'mongodb', repo: 'homebrew-brew' }, octokit);
+  const homebrewCoreRepo = new GithubRepo({ owner: 'Homebrew', repo: 'homebrew-core' }, octokit);
+  const mongoHomebrewForkRepo = new GithubRepo({ owner: 'mongodb-js', repo: 'homebrew-core' }, octokit);
 
   if (command === 'compile') {
     await runCompile(
@@ -84,7 +85,8 @@ export async function release(
     await runPublish(
       config,
       githubRepo,
-      mongoHomebrewRepo,
+      mongoHomebrewForkRepo,
+      homebrewCoreRepo,
       barque,
       createAndPublishDownloadCenterConfig,
       publishNpmPackages,

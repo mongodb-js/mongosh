@@ -1,27 +1,27 @@
 import { GithubRepo } from '../github-repo';
 
-export interface UpdateMongoDBTapParameters {
+export interface UpdateHomebrewParameters {
     packageVersion: string;
     packageSha: string;
     homebrewFormula: string;
-    mongoHomebrewGithubRepo: GithubRepo
+    homebrewCoreFork: GithubRepo
 }
 
 /**
- * Updates the mongosh formula in the given homebrew tap repository and returns the
+ * Updates the mongosh formula in the given homebrew repository and returns the
  * name of the branch pushed to the repository.
  */
-export async function updateMongoDBTap(params: UpdateMongoDBTapParameters): Promise<string | undefined> {
+export async function updateHomebrewFork(params: UpdateHomebrewParameters): Promise<string | undefined> {
   const branchName = `mongosh-${params.packageVersion}-${params.packageSha}`;
   const formulaPath = 'Formula/mongosh.rb';
 
-  const { content: currentContent, blobSha } = await params.mongoHomebrewGithubRepo.getFileContent(formulaPath, 'master');
+  const { content: currentContent, blobSha } = await params.homebrewCoreFork.getFileContent(formulaPath, 'master');
   if (currentContent === params.homebrewFormula) {
     return undefined;
   }
 
-  await params.mongoHomebrewGithubRepo.createBranch(branchName, 'master');
-  const committedUpate = await params.mongoHomebrewGithubRepo.commitFileUpdate(
+  await params.homebrewCoreFork.createBranch(branchName, 'master');
+  const committedUpate = await params.homebrewCoreFork.commitFileUpdate(
     `mongosh ${params.packageVersion}`,
     blobSha,
     formulaPath,

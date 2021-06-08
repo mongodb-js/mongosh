@@ -1,11 +1,11 @@
 import chai, { expect } from 'chai';
 import sinon from 'ts-sinon';
 import { GithubRepo } from '../github-repo';
-import { updateMongoDBTap } from './update-mongodb-tap';
+import { updateHomebrewFork } from './update-homebrew-fork';
 
 chai.use(require('sinon-chai'));
 
-describe('Homebrew update-mongodb-tap', () => {
+describe('Homebrew update-homebrew-fork', () => {
   let getFileContent: sinon.SinonStub;
   let commitFileUpdate: sinon.SinonStub;
   let githubRepo: GithubRepo;
@@ -39,11 +39,11 @@ describe('Homebrew update-mongodb-tap', () => {
         commitSha: 'commitsha'
       });
 
-    const updated = await updateMongoDBTap({
+    const updated = await updateHomebrewFork({
       packageVersion: '1.0.0',
       packageSha: 'sha',
       homebrewFormula: 'updated formula',
-      mongoHomebrewGithubRepo: githubRepo
+      homebrewCoreFork: githubRepo
     });
 
     expect(updated).to.equal('mongosh-1.0.0-sha');
@@ -59,11 +59,11 @@ describe('Homebrew update-mongodb-tap', () => {
         content: 'formula'
       });
 
-    const updated = await updateMongoDBTap({
+    const updated = await updateHomebrewFork({
       packageVersion: '1.0.0',
       packageSha: 'sha',
       homebrewFormula: 'formula',
-      mongoHomebrewGithubRepo: githubRepo
+      homebrewCoreFork: githubRepo
     });
 
     expect(updated).to.equal(undefined);

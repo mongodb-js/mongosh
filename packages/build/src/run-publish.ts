@@ -16,7 +16,8 @@ import { PackageInformation, getPackageFile } from './packaging';
 export async function runPublish(
   config: Config,
   mongoshGithubRepo: GithubRepo,
-  mongoHomebrewGithubRepo: GithubRepo,
+  mongodbHomebrewForkGithubRepo: GithubRepo,
+  homebrewCoreGithubRepo: GithubRepo,
   barque: Barque,
   createAndPublishDownloadCenterConfig: typeof createAndPublishDownloadCenterConfigFn,
   publishNpmPackages: typeof publishNpmPackagesType,
@@ -72,7 +73,8 @@ export async function runPublish(
   publishNpmPackages();
 
   await publishToHomebrew(
-    mongoHomebrewGithubRepo,
+    homebrewCoreGithubRepo,
+    mongodbHomebrewForkGithubRepo,
     config.version
   );
 
