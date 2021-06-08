@@ -1,4 +1,4 @@
-import { MongoshInternalError, MongoshWarning } from '@mongosh/errors';
+import { MongoshInternalError, MongoshRuntimeError, MongoshWarning } from '@mongosh/errors';
 import { redactCredentials } from '@mongosh/history';
 import i18n from '@mongosh/i18n';
 import { bson, AutoEncryptionOptions } from '@mongosh/service-provider-core';
@@ -428,7 +428,14 @@ class CliRepl {
   }
 
   async startMongocryptd(): Promise<AutoEncryptionOptions['extraOptions']> {
-    return await this.mongocryptdManager.start();
+    try {
+      return await this.mongocryptdManager.start();
+    } catch (e) {
+      if (e.code === 'ENOENT') {
+        throw new MongoshRuntimeError('Could not find a working mongocryptd - ensure your local installation works correctly. See the mongosh log file for additional information. Please also refer to the documentation: https://docs.mongodb.com/manual/reference/security-client-side-encryption-appendix/');
+      }
+      throw e;
+    }
   }
 }
 
