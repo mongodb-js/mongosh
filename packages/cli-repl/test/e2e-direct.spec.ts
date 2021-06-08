@@ -1,4 +1,4 @@
-import { startTestCluster } from '../../../testing/integration-testing-hooks';
+import { startTestCluster, skipIfServerVersion } from '../../../testing/integration-testing-hooks';
 import { eventually } from './helpers';
 import { expect } from 'chai';
 import { TestShell } from './test-shell';
@@ -131,6 +131,26 @@ describe('e2e direct connection', () => {
           await tabtab(shell);
           await eventually(() => {
             shell.assertContainsOutput('db.testcollection');
+          });
+        });
+
+        context('post-4.0', () => {
+          skipIfServerVersion(rs0, '< 4.2');
+
+          it('allows aggregate with $merge with secondary readpref', async() => {
+            const shell = TestShell.start({ args: [
+              `${await rs1.connectionString()}/${dbname}?readPreference=secondary&directConnection=false&serverSelectionTimeoutMS=10000`
+            ] });
+            await shell.waitForPrompt();
+            await shell.executeLine(`db.testcollection.aggregate([
+              {$group:{_id:null,count:{$sum:1}}},
+              {$set:{_id:'count'}},
+              {$merge:{into:'testaggout',on:'_id'}}
+            ])`);
+            await eventually(async() => {
+              expect(await shell.executeLine('db.testaggout.find()')).to.include("[ { _id: 'count', count: 1 } ]");
+            });
+            shell.assertNoErrors();
           });
         });
       });
