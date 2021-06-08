@@ -429,6 +429,8 @@ export default ({ types: t }: { types: typeof BabelTypes }): babel.PluginObj<{ f
           if (path.parentPath.isForXStatement() && path.key === 'left') return;
           // ++ and -- count as assignments for our purposes.
           if (path.parentPath.isUpdateExpression()) return;
+          // So does `delete x.y`.
+          if (path.parentPath.isUnaryExpression() && path.parentPath.node.operator === 'delete') return;
 
           // There are a few types of expressions that we can skip.
           // We use this opt-out-list approach so that we don't miss any important
