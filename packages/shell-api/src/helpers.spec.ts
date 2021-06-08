@@ -96,7 +96,7 @@ describe('getPrintableShardStatus', () => {
 
     const origRunCommandWithCheck = serviceProvider.runCommandWithCheck;
     serviceProvider.runCommandWithCheck = async(db, cmd) => {
-      if (db === 'admin' && cmd.isMaster) {
+      if (cmd.hello) {
         return { ok: 1, msg: 'isdbgrid' };
       }
       if (db === 'admin' && cmd.balancerStatus) {

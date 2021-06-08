@@ -1240,6 +1240,31 @@ describe('Shard', () => {
           Object.keys(result.value).includes('active mongoses') ||
           Object.keys(result.value).includes('most recently active mongoses')).to.be.true;
       });
+      context('with 5.0+ server', () => {
+        skipIfServerVersion(mongos, '<= 4.4');
+        let apiStrictServiceProvider;
+
+        before(async() => {
+          apiStrictServiceProvider = await CliServiceProvider.connect(await mongos.connectionString(), {
+            serverApi: { version: '1', strict: true }
+          });
+        });
+
+        after(async() => {
+          await apiStrictServiceProvider.close(true);
+        });
+
+        it('returns the status when used with apiStrict', async() => {
+          const internalState = new ShellInternalState(apiStrictServiceProvider);
+          const sh = new Shard(internalState.currentDb);
+
+          const result = await sh.status();
+          expect(result.type).to.equal('StatsResult');
+          expect(Object.keys(result.value)).to.include.members([
+            'shardingVersion', 'shards', 'autosplit', 'balancer', 'databases'
+          ]);
+        });
+      });
     });
     describe('turn on sharding', () => {
       it('enableSharding for a db', async() => {

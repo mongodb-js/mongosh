@@ -487,8 +487,8 @@ export async function getPrintableShardStatus(db: Database, verbose: boolean): P
 }
 
 export async function getConfigDB(db: Database): Promise<Database> {
-  const isM = await db._runAdminCommand({ isMaster: 1 });
-  if (isM.msg !== 'isdbgrid') {
+  const helloResult = await db.hello();
+  if (helloResult.msg !== 'isdbgrid') {
     throw new MongoshInvalidInputError('Not connected to a mongos', ShellApiErrors.NotConnectedToMongos);
   }
   return db.getSiblingDB('config');

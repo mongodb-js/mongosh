@@ -355,6 +355,33 @@ describe('ReplicaSet', () => {
         expect(catchedError).to.equal(expectedError);
       });
     });
+    describe('hello', () => {
+      it('calls serviceProvider.runCommandWithCheck', async() => {
+        await rs.hello();
+
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            hello: 1
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
+        const result = await rs.hello();
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
+        const catchedError = await rs.hello()
+          .catch(e => e);
+        expect(catchedError).to.equal(expectedError);
+      });
+    });
     describe('add', () => {
       it('calls serviceProvider.runCommandWithCheck with no arb and string hostport', async() => {
         const configDoc = { version: 1, members: [{ _id: 0 }, { _id: 1 }] };

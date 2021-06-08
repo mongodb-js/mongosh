@@ -1988,7 +1988,7 @@ describe('Database', () => {
 
     describe('enableFreeMonitoring', () => {
       it('throws if serviceProvider isMaster is false', async() => {
-        serviceProvider.runCommand.resolves({ ismaster: false });
+        serviceProvider.runCommandWithCheck.resolves({ isWritablePrimary: false });
         const catchedError = await database.enableFreeMonitoring()
           .catch(e => e);
         expect(catchedError).to.be.instanceOf(MongoshInvalidInputError);
@@ -1996,8 +1996,8 @@ describe('Database', () => {
       });
 
       it('calls serviceProvider.runCommand on the database', async() => {
-        serviceProvider.runCommand.onCall(0).resolves({ ismaster: true });
-        serviceProvider.runCommand.onCall(1).resolves({ ok: 1 });
+        serviceProvider.runCommandWithCheck.resolves({ isWritablePrimary: true });
+        serviceProvider.runCommand.onCall(0).resolves({ ok: 1 });
         await database.enableFreeMonitoring();
 
         expect(serviceProvider.runCommand).to.have.been.calledWith(
@@ -2012,25 +2012,25 @@ describe('Database', () => {
       it('returns whatever serviceProvider.runCommand returns if enabled', async() => {
         const expectedFMState = { ok: 1, state: 'enabled' };
 
-        serviceProvider.runCommand.onCall(0).resolves({ ismaster: true });
-        serviceProvider.runCommand.onCall(1).resolves({ ok: 1 });
-        serviceProvider.runCommand.onCall(2).resolves(expectedFMState);
+        serviceProvider.runCommandWithCheck.resolves({ isWritablePrimary: true });
+        serviceProvider.runCommand.onCall(0).resolves({ ok: 1 });
+        serviceProvider.runCommand.onCall(1).resolves(expectedFMState);
         const result = await database.enableFreeMonitoring();
         expect(result).to.deep.equal(expectedFMState);
       });
       it('returns warning if not enabled', async() => {
-        serviceProvider.runCommand.onCall(0).resolves({ ismaster: true });
-        serviceProvider.runCommand.onCall(1).resolves({ ok: 1 });
-        serviceProvider.runCommand.onCall(2).resolves({ ok: 1, enabled: false });
-        serviceProvider.runCommand.onCall(3).resolves({ cloudFreeMonitoringEndpointURL: 'URL' });
+        serviceProvider.runCommandWithCheck.resolves({ isWritablePrimary: true });
+        serviceProvider.runCommand.onCall(0).resolves({ ok: 1 });
+        serviceProvider.runCommand.onCall(1).resolves({ ok: 1, enabled: false });
+        serviceProvider.runCommand.onCall(2).resolves({ cloudFreeMonitoringEndpointURL: 'URL' });
         const result = await database.enableFreeMonitoring();
         expect(result).to.include('URL');
       });
 
       it('returns warning if returns ok: 0 with auth error', async() => {
-        serviceProvider.runCommand.onCall(0).resolves({ ismaster: true });
-        serviceProvider.runCommand.onCall(1).resolves({ ok: 1 });
-        serviceProvider.runCommand.onCall(2).resolves({ ok: 0, codeName: 'Unauthorized' });
+        serviceProvider.runCommandWithCheck.resolves({ isWritablePrimary: true });
+        serviceProvider.runCommand.onCall(0).resolves({ ok: 1 });
+        serviceProvider.runCommand.onCall(1).resolves({ ok: 0, codeName: 'Unauthorized' });
         const result = await database.enableFreeMonitoring();
         expect(result).to.be.a('string');
         expect(result).to.include('privilege');
@@ -2038,18 +2038,18 @@ describe('Database', () => {
       it('returns warning if throws with auth error', async() => {
         const expectedError = new Error();
         (expectedError as any).codeName = 'Unauthorized';
-        serviceProvider.runCommand.onCall(0).resolves({ ismaster: true });
-        serviceProvider.runCommand.onCall(1).resolves({ ok: 1 });
-        serviceProvider.runCommand.onCall(2).rejects(expectedError);
+        serviceProvider.runCommandWithCheck.resolves({ isWritablePrimary: true });
+        serviceProvider.runCommand.onCall(0).resolves({ ok: 1 });
+        serviceProvider.runCommand.onCall(1).rejects(expectedError);
         const result = await database.enableFreeMonitoring();
         expect(result).to.be.a('string');
         expect(result).to.include('privilege');
       });
 
       it('throws if throws with non-auth error', async() => {
-        serviceProvider.runCommand.onCall(0).resolves({ ismaster: true });
-        serviceProvider.runCommand.onCall(1).resolves({ ok: 1 });
-        serviceProvider.runCommand.onCall(2).rejects(new Error());
+        serviceProvider.runCommandWithCheck.resolves({ isWritablePrimary: true });
+        serviceProvider.runCommand.onCall(0).resolves({ ok: 1 });
+        serviceProvider.runCommand.onCall(1).rejects(new Error());
 
         const error = await database.enableFreeMonitoring().catch(e => e);
         expect(error).to.be.instanceOf(MongoshRuntimeError);
@@ -2058,7 +2058,7 @@ describe('Database', () => {
 
       it('throws if serviceProvider.runCommand rejects without auth error', async() => {
         const expectedError = new Error();
-        serviceProvider.runCommand.rejects(expectedError);
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
         const catchedError = await database.enableFreeMonitoring()
           .catch(e => e);
         expect(catchedError).to.equal(expectedError);

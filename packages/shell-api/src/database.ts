@@ -968,8 +968,8 @@ export default class Database extends ShellApiWithMongoClass {
   @returnsPromise
   async enableFreeMonitoring(): Promise<Document | string> {
     this._emitDatabaseApiCall('enableFreeMonitoring', {});
-    const isMaster = await this._mongo._serviceProvider.runCommand(this._name, { isMaster: 1 }, this._baseOptions);
-    if (!isMaster.ismaster) {
+    const helloResult = await this.hello();
+    if (!helloResult.isWritablePrimary) {
       throw new MongoshInvalidInputError(
         'db.enableFreeMonitoring() may only be run on a primary',
         CommonErrors.InvalidOperation
@@ -1312,10 +1312,10 @@ export default class Database extends ShellApiWithMongoClass {
     try {
       replInfo = await this.getReplicationInfo();
     } catch (error) {
-      const isMaster = await this._runCommand({ isMaster: 1 });
-      if (isMaster.arbiterOnly) {
+      const helloResult = await this.hello();
+      if (helloResult.arbiterOnly) {
         return new CommandResult('StatsResult', { message: 'cannot provide replication status from an arbiter' });
-      } else if (!isMaster.ismaster) {
+      } else if (!helloResult.isWritablePrimary) {
         const secondaryInfo = await this.printSecondaryReplicationInfo();
         return new CommandResult('StatsResult', {
           message: 'this is a secondary, printing secondary replication info.',
