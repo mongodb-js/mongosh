@@ -370,8 +370,20 @@ describe('AsyncWriter', () => {
       expect(obj).to.deep.equal({});
     });
 
+    it('supports delete for implicitly awaited values (indexed)', async() => {
+      const obj = { foo: 'bar' };
+      implicitlyAsyncFn.resolves(obj);
+      expect(await runTranspiledCode('delete implicitlyAsyncFn()["foo"]')).to.equal(true);
+      expect(obj).to.deep.equal({});
+    });
+
     it('supports delete for plain values', async() => {
       expect(runTranspiledCode('const obj = { x: "x", y: "y" }; delete obj.x; obj'))
+        .to.deep.equal({ y: 'y' });
+    });
+
+    it('supports delete for plain values (idnexed)', async() => {
+      expect(runTranspiledCode('const obj = { x: "x", y: "y" }; delete obj["x"]; obj'))
         .to.deep.equal({ y: 'y' });
     });
 
