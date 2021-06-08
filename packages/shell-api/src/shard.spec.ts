@@ -1242,14 +1242,21 @@ describe('Shard', () => {
       });
       context('with 5.0+ server', () => {
         skipIfServerVersion(mongos, '<= 4.4');
+        let apiStrictServiceProvider;
 
-        it('returns the status when used with apiStrict', async() => {
-          await serviceProvider.close(true);
-          serviceProvider = await CliServiceProvider.connect(await mongos.connectionString(), {
+        before(async() => {
+          apiStrictServiceProvider = await CliServiceProvider.connect(await mongos.connectionString(), {
             serverApi: { version: '1', strict: true }
           });
-          internalState = new ShellInternalState(serviceProvider);
-          sh = new Shard(internalState.currentDb);
+        });
+
+        after(async() => {
+          await apiStrictServiceProvider.close(true);
+        });
+
+        it('returns the status when used with apiStrict', async() => {
+          const internalState = new ShellInternalState(apiStrictServiceProvider);
+          const sh = new Shard(internalState.currentDb);
 
           const result = await sh.status();
           expect(result.type).to.equal('StatsResult');
