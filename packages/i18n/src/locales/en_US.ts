@@ -40,6 +40,7 @@ const translations: Catalog = {
       tlsAllowInvalidHostnames: 'Allow connections to servers with non-matching hostnames',
       tlsAllowInvalidCertificates: 'Allow connections to servers with invalid certificates',
       tlsCertificateSelector: 'TLS Certificate in system store (Windows and macOS only)',
+      tlsCRLFile: 'Specifies the .pem file that contains the Certificate Revocation List',
       tlsDisabledProtocols: 'Comma separated list of TLS protocols to disable [TLS1_0,TLS1_1,TLS1_2]',
       apiVersionOptions: 'API version options:',
       apiVersion: 'Specifies the API version to connect with',

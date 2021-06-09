@@ -48,6 +48,7 @@ export const USAGE = `
         --tlsAllowInvalidHostnames             ${i18n.__('cli-repl.args.tlsAllowInvalidHostnames')}
         --tlsAllowInvalidCertificates          ${i18n.__('cli-repl.args.tlsAllowInvalidCertificates')}
         --tlsCertificateSelector [arg]         ${i18n.__('cli-repl.args.tlsCertificateSelector')}
+        --tlsCRLFile [arg]                     ${i18n.__('cli-repl.args.tlsCRLFile')}
         --tlsDisabledProtocols [arg]           ${i18n.__('cli-repl.args.tlsDisabledProtocols')}
 
   ${clr(i18n.__('cli-repl.args.apiVersionOptions'), ['bold', 'yellow'])}

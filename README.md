@@ -58,6 +58,7 @@ variable. For detailed instructions for each of our supported platforms, please 
         --tlsAllowInvalidHostnames             Allow connections to servers with non-matching hostnames
         --tlsAllowInvalidCertificates          Allow connections to servers with invalid certificates
         --tlsCertificateSelector [arg]         TLS Certificate in system store (Windows and macOS only)
+        --tlsCRLFile [arg]                     Specifies the .pem file that contains the Certificate Revocation List
         --tlsDisabledProtocols [arg]           Comma separated list of TLS protocols to disable [TLS1_0,TLS1_1,TLS1_2]
 
   API version options:
