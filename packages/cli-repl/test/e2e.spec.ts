@@ -953,6 +953,8 @@ describe('e2e', function() {
 
     beforeEach(async() => {
       shell = TestShell.start({ args: [ await testServer.connectionString() ] });
+      await shell.waitForPrompt();
+      shell.assertNoErrors();
     });
 
     it('prints collections with their types', async() => {
