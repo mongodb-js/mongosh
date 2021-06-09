@@ -66,6 +66,10 @@ export class SignableCompiler {
       path: await findModulePath('service-provider-server', 'mongodb-client-encryption'),
       requireRegexp: /\bmongocrypt\.node$/
     };
+    const kerberosAddon = {
+      path: await findModulePath('service-provider-server', 'kerberos'),
+      requireRegexp: /\bkerberos\.node$/
+    };
     const osDnsAddon = {
       path: await findModulePath('service-provider-server', 'os-dns-native'),
       requireRegexp: /\bos_dns_native\.node$/
@@ -98,7 +102,8 @@ export class SignableCompiler {
       },
       addons: [
         fleAddon,
-        osDnsAddon
+        osDnsAddon,
+        kerberosAddon
       ].concat(winCAAddon ? [
         winCAAddon
       ] : []).concat(macKeychainAddon ? [

@@ -39,7 +39,7 @@
     "@types/whatwg-url": "^8.0.0"
   },
   "optionalDependencies": {
-    "mongodb-client-encryption": "^1.2.3"
+    "mongodb-client-encryption": "^1.2.5"
   },
   "dependency-check": {
     "entries": [

@@ -995,6 +995,32 @@ describe('Auth e2e', function() {
           shell.assertContainsOutput('MongoError: Authentication failed.');
         });
       });
+      it('does not fail with kerberos not found for GSSAPI', async() => {
+        const connectionString = await testServer.connectionString();
+        shell = TestShell.start({ args: [
+          connectionString,
+          '-u', 'krbuser',
+          '-p', 'krbpwd',
+          '--authenticationDatabase', '$external',
+          '--authenticationMechanism', 'GSSAPI'
+        ] });
+        await shell.waitForExit();
+        // Failing to auth with kerberos fails with different error messages on each OS.
+        try {
+          try {
+            try {
+              shell.assertContainsOutput('Unspecified GSS failure');
+            } catch {
+              shell.assertContainsOutput('Error from KDC');
+            }
+          } catch {
+            shell.assertContainsOutput('No credentials cache file found');
+          }
+        } catch {
+          shell.assertContainsOutput('The logon attempt failed');
+        }
+        shell.assertNotContainsOutput('Optional module `kerberos` not found');
+      });
     });
     afterEach(async() => {
       await db.dropDatabase();
