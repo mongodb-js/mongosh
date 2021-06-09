@@ -54,6 +54,13 @@ const noParams = {
   getDatabaseCompletions: () => databases
 };
 
+const emptyConnectionInfoParams = {
+  topology: () => Topologies.Standalone,
+  connectionInfo: () => ({}),
+  getCollectionCompletionsForCurrentDb: () => collections,
+  getDatabaseCompletions: () => databases
+};
+
 describe('completer.completer', () => {
   beforeEach(() => {
     collections = [];
@@ -76,60 +83,65 @@ describe('completer.completer', () => {
     });
   });
 
-  context('when no version is passed to completer', () => {
-    it('matches all db completions', async() => {
-      const i = 'db.';
-      const c = await completer(noParams, i);
-      expect(c.length).to.equal(2);
-      expect(c[1]).to.equal(i);
-      expect(c[0]).to.include.members([
-        'db.getMongo',
-        'db.getName',
-        'db.getCollectionNames',
-        'db.getCollectionInfos',
-        'db.runCommand',
-        'db.adminCommand',
-        'db.aggregate',
-        'db.getSiblingDB',
-        'db.getCollection',
-        'db.dropDatabase',
-        'db.createUser',
-        'db.updateUser',
-        'db.changeUserPassword',
-        'db.logout',
-        'db.dropUser',
-        'db.dropAllUsers',
-        'db.auth',
-        'db.grantRolesToUser',
-        'db.revokeRolesFromUser',
-        'db.getUser',
-        'db.getUsers',
-        'db.createCollection',
-        'db.createView',
-        'db.createRole',
-        'db.updateRole',
-        'db.dropRole',
-        'db.dropAllRoles',
-        'db.grantRolesToRole',
-        'db.revokeRolesFromRole',
-        'db.grantPrivilegesToRole',
-        'db.revokePrivilegesFromRole',
-        'db.getRole',
-        'db.getRoles'
-      ]);
-    });
+  [
+    { params: noParams, label: 'no version' },
+    { params: emptyConnectionInfoParams, label: 'empty connection info' }
+  ].forEach(({ params, label }) => {
+    context(`when ${label} is passed to completer`, () => {
+      it('matches all db completions', async() => {
+        const i = 'db.';
+        const c = await completer(params as any, i);
+        expect(c.length).to.equal(2);
+        expect(c[1]).to.equal(i);
+        expect(c[0]).to.include.members([
+          'db.getMongo',
+          'db.getName',
+          'db.getCollectionNames',
+          'db.getCollectionInfos',
+          'db.runCommand',
+          'db.adminCommand',
+          'db.aggregate',
+          'db.getSiblingDB',
+          'db.getCollection',
+          'db.dropDatabase',
+          'db.createUser',
+          'db.updateUser',
+          'db.changeUserPassword',
+          'db.logout',
+          'db.dropUser',
+          'db.dropAllUsers',
+          'db.auth',
+          'db.grantRolesToUser',
+          'db.revokeRolesFromUser',
+          'db.getUser',
+          'db.getUsers',
+          'db.createCollection',
+          'db.createView',
+          'db.createRole',
+          'db.updateRole',
+          'db.dropRole',
+          'db.dropAllRoles',
+          'db.grantRolesToRole',
+          'db.revokeRolesFromRole',
+          'db.grantPrivilegesToRole',
+          'db.revokePrivilegesFromRole',
+          'db.getRole',
+          'db.getRoles'
+        ]);
+      });
 
-    it('does not have a match', async() => {
-      const i = 'db.shipwrecks.aggregate([ { $so';
-      expect(await completer(noParams, i)).to.deep.equal([
-        ['db.shipwrecks.aggregate([ { $sort',
-          'db.shipwrecks.aggregate([ { $sortByCount'], i]);
-    });
+      it('does not have a match', async() => {
+        const i = 'db.shipwrecks.aggregate([ { $so';
+        expect(await completer(noParams, i)).to.deep.equal([
+          ['db.shipwrecks.aggregate([ { $sort',
+            'db.shipwrecks.aggregate([ { $sortByCount'], i]);
+      });
 
-    it('is an exact match to one of shell completions', async() => {
-      const i = 'db.bios.find({ field: { $exis';
-      expect(await completer(noParams, i))
-        .to.deep.equal([['db.bios.find({ field: { $exists'], i]);
+      it('is an exact match to one of shell completions', async() => {
+        const i = 'db.bios.find({ field: { $exis';
+        expect(await completer(noParams, i))
+          .to.deep.equal([['db.bios.find({ field: { $exists'], i]);
+      });
     });
   });
 
@@ -308,6 +320,12 @@ describe('completer.completer', () => {
     it('matches an aggregation stage', async() => {
       const i = 'db.shipwrecks.aggregate([ { $proj';
       expect(await completer(standalone440, i)).to.deep.equal([
+        [ 'db.shipwrecks.aggregate([ { $project' ], i]);
+    });
+
+    it('does not fail when the server_version is not specified', async() => {
+      const i = 'db.shipwrecks.aggregate([ { $proj';
+      expect(await completer(emptyConnectionInfoParams as any, i)).to.deep.equal([
         [ 'db.shipwrecks.aggregate([ { $project' ], i]);
     });
   });
