@@ -175,7 +175,8 @@ function isAcceptable(
   const connectionInfo = params.connectionInfo();
   const isAcceptableVersion =
     !entry[versionKey] ||
-    !connectionInfo ||
+    // TODO: when https://jira.mongodb.org/browse/WRITING-8170 is done we can rely on server_version being present
+    !connectionInfo?.server_version ||
     semver.gte(connectionInfo.server_version, entry[versionKey] as string);
   const isAcceptableEnvironment =
     !entry.env ||
