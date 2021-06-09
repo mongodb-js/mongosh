@@ -918,7 +918,7 @@ export default class Database extends ShellApiWithMongoClass {
     this._emitDatabaseApiCall('rotateCertificates', { message });
     return await this._runAdminCommand(
       {
-        serverStatus: 1, message
+        rotateCertificates: 1, message
       }
     );
   }
