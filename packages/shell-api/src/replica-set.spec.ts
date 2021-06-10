@@ -6,7 +6,7 @@ import semver from 'semver';
 import sinonChai from 'sinon-chai';
 import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
 import { ensureMaster } from '../../../testing/helpers';
-import { MongodSetup, skipIfServerVersion, startTestCluster } from '../../../testing/integration-testing-hooks';
+import { MongodSetup, skipIfServerVersion, startTestCluster, skipIfApiStrict } from '../../../testing/integration-testing-hooks';
 import { CliServiceProvider } from '../../service-provider-server';
 import Database from './database';
 import {
@@ -27,6 +27,7 @@ function deepClone<T>(value: T): T {
 }
 
 describe('ReplicaSet', () => {
+  skipIfApiStrict();
   describe('help', () => {
     const apiClass: any = new ReplicaSet({} as any);
 

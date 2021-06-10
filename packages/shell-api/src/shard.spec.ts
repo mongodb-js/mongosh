@@ -9,11 +9,12 @@ import { EventEmitter } from 'events';
 import ShellInternalState from './shell-internal-state';
 import { UpdateResult } from './result';
 import { CliServiceProvider } from '../../service-provider-server';
-import { startTestCluster, skipIfServerVersion } from '../../../testing/integration-testing-hooks';
+import { startTestCluster, skipIfServerVersion, skipIfApiStrict } from '../../../testing/integration-testing-hooks';
 import Database from './database';
 import { ObjectId } from 'mongodb';
 
 describe('Shard', () => {
+  skipIfApiStrict();
   describe('help', () => {
     const apiClass: any = new Shard({} as any);
     it('calls help function', async() => {

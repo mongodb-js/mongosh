@@ -3,6 +3,9 @@ import { spawnSync } from 'child_process';
 import { TestShell } from './test-shell';
 
 function assertEnvVariable(variableName: string): string {
+  if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
+    return undefined;
+  }
   const value = process.env[variableName];
   if (!value) {
     if (process.env.IS_CI) {

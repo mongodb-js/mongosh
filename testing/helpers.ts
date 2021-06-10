@@ -3,9 +3,9 @@ import {expect} from 'chai';
 
 const delay = util.promisify(setTimeout);
 export const ensureMaster = async(cls, timeout, hp): Promise<void> => {
-  while (!(await cls.isMaster()).ismaster) {
+  while (!(await cls.hello()).isWritablePrimary) {
     if (timeout > 32000) {
-      return expect.fail(`Waited for ${hp} to become master, never happened`);
+      return expect.fail(`Waited for ${hp} to become primary, never happened`);
     }
     await delay(timeout);
     timeout *= 2; // try again but wait double

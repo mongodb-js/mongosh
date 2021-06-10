@@ -13,7 +13,7 @@ import {
   ALL_TOPOLOGIES
 } from './enums';
 import { CliServiceProvider } from '../../service-provider-server';
-import { startTestCluster } from '../../../testing/integration-testing-hooks';
+import { startTestCluster, skipIfApiStrict } from '../../../testing/integration-testing-hooks';
 import { ensureMaster, ensureSessionExists } from '../../../testing/helpers';
 import Database from './database';
 import { CommonErrors, MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
@@ -180,6 +180,7 @@ describe('Session', () => {
     });
 
     describe('server starts and stops sessions', () => {
+      skipIfApiStrict(); // ensureSessionExists needs $listLocalSessions
       it('starts a session', async() => {
         session = mongo.startSession();
         await session.getDatabase(databaseName).getCollection('coll').insertOne({});
@@ -293,6 +294,7 @@ describe('Session', () => {
       });
     });
     describe('after resetting connection will error with expired session', () => {
+      skipIfApiStrict();
       it('reset connection options', async() => {
         session = mongo.startSession();
         await mongo.setReadConcern('majority');

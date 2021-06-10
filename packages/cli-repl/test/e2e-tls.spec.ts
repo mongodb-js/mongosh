@@ -180,7 +180,10 @@ describe('e2e TLS', () => {
       );
       const certUser = 'emailAddress=tester@example.com,CN=Wonderwoman,OU=DevTools Testers,O=MongoDB';
 
-      before(async() => {
+      before(async function() {
+        if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
+          return this.skip(); // createUser is unversioned
+        }
         /* connect with cert to create user */
         const shell = TestShell.start({
           args: [

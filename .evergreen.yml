@@ -9,6 +9,7 @@ exec_timeout_secs: 3600
 #   test - Runs all tests.
 #   test_vscode - Clones the vscode extension repository and runs its tests.
 #   test_connectivity - Runs extra connectivity tests.
+#   test_apistrict - Runs shell API and CLI tests with --apiStrict --apiDeprecationErrors.
 #   compile_artifact - Compile the release binary.
 #   package_and_upload_artifact - Upload the release binary to S3.
 #   test_linux_artifact - Test that the built artifact works where we expect it to.
@@ -109,6 +110,22 @@ functions:
           source .evergreen/.setup_env
           npm --unsafe-perm=true run bootstrap-ci
           npm run test-connectivity
+          }
+  test_apistrict:
+    - command: expansions.write
+      params:
+        file: tmp/expansions.yaml
+        redacted: true
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          {
+          export NODE_JS_VERSION=${node_js_version}
+          source .evergreen/.setup_env
+          npm run test-apistrict-ci
           }
 
   ###
@@ -379,6 +396,7 @@ functions:
 #   test_{version} - Runs all tests, against a specified mongod version.
 #   test_vscode - Run the vscode extension integration tests.
 #   test_connectivity - Runs extra connectivity tests.
+#   test_apistrict - Runs shell API and CLI tests with --apiStrict --apiDeprecationErrors.
 #   compile_artifact - Compile the release binary.
 #   package_and_upload_artifact - Upload the release binary to S3.
 #   test_linux_artifact - Test that the built artifact works where we expect it to.
@@ -628,6 +646,18 @@ tasks:
         vars:
           node_js_version: "14.17.0"
       - func: test_connectivity
+  - name: test_apistrict
+    tags: ["extra-integration-test"]
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.17.0"
+      - func: test_apistrict
+        vars:
+          node_js_version: "14.17.0"
+          mongosh_server_test_version: "latest-alpha"
+          mongosh_test_force_api_strict: "1"
   - name: compile_artifact
     commands:
       - func: checkout
@@ -1391,6 +1421,7 @@ buildvariants:
       - name: test_mlatest_n14
       - name: test_vscode
       - name: test_connectivity
+      - name: test_apistrict
       - name: package_and_upload_artifact_linux_x64
       - name: package_and_upload_artifact_debian_x64
       - name: package_and_upload_artifact_rhel_x64

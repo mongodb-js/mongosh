@@ -496,6 +496,18 @@ export function skipIfCommunityServer(server: MongodSetup): void {
 }
 
 /**
+ * Skip tests if environment variables signal that every test runs with
+ * --apiStrict.
+ */
+export function skipIfApiStrict(): void {
+  before(function() {
+    if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
+      this.skip();
+    }
+  });
+}
+
+/**
  * Add the server tarball's bin/ directrory to the PATH for this section.
  * This enables using e.g. mongocryptd if available.
  *

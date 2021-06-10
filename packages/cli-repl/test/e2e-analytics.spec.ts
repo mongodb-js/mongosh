@@ -3,7 +3,7 @@ import { startTestCluster } from '../../../testing/integration-testing-hooks';
 import { eventually } from '../../../testing/eventually';
 import { TestShell } from './test-shell';
 
-describe('e2e Analytics', () => {
+describe('e2e Analytics Node', () => {
   const replSetName = 'replicaSet';
   const [rs0, rs1, rs2, rs3] = startTestCluster(
     [ '--single', '--replSet', replSetName ],
@@ -14,7 +14,10 @@ describe('e2e Analytics', () => {
 
   after(TestShell.cleanup);
 
-  before(async() => {
+  before(async function() {
+    if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
+      return this.skip();
+    }
     const rsConfig = {
       _id: replSetName,
       members: [

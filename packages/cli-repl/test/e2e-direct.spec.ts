@@ -1,9 +1,10 @@
-import { startTestCluster, skipIfServerVersion } from '../../../testing/integration-testing-hooks';
+import { startTestCluster, skipIfServerVersion, skipIfApiStrict } from '../../../testing/integration-testing-hooks';
 import { eventually } from '../../../testing/eventually';
 import { expect } from 'chai';
 import { TestShell } from './test-shell';
 
 describe('e2e direct connection', () => {
+  skipIfApiStrict();
   afterEach(TestShell.cleanup);
 
   const tabtab = async(shell: TestShell) => {

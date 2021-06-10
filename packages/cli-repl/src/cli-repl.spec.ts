@@ -954,7 +954,10 @@ describe('CliRepl', () => {
       context('for server >= 4.1', () => {
         skipIfServerVersion(testServer, '< 4.1');
 
-        it('terminates operations on the server side', async() => {
+        it('terminates operations on the server side', async function() {
+          if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
+            return this.skip(); // $currentOp is unversioned
+          }
           input.write('db.ctrlc.find({ $where: \'while(true) { /* loop1 */ }\' })\n');
           await delay(100);
           process.kill(process.pid, 'SIGINT');
@@ -1124,7 +1127,10 @@ describe('CliRepl', () => {
         expect(output).not.to.include('listCollections requires authentication');
       });
 
-      it(`${wantWatch ? 'completes' : 'does not complete'} the watch method`, async() => {
+      it(`${wantWatch ? 'completes' : 'does not complete'} the watch method`, async function() {
+        if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
+          return this.skip();
+        }
         output = '';
         input.write('db.wat');
         await tabtab();
@@ -1136,7 +1142,10 @@ describe('CliRepl', () => {
         }
       });
 
-      it('completes the version method', async() => {
+      it('completes the version method', async function() {
+        if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
+          return this.skip();
+        }
         output = '';
         input.write('db.vers');
         await tabtab();
@@ -1144,7 +1153,10 @@ describe('CliRepl', () => {
         expect(output).to.include('db.version');
       });
 
-      it(`${wantShardDistribution ? 'completes' : 'does not complete'} the getShardDistribution method`, async() => {
+      it(`${wantShardDistribution ? 'completes' : 'does not complete'} the getShardDistribution method`, async function() {
+        if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
+          return this.skip();
+        }
         output = '';
         input.write('db.coll.getShardDis');
         await tabtab();

@@ -336,7 +336,10 @@ describe('e2e', function() {
       shell.assertNoErrors();
     });
 
-    it('rewrites async properly for mapReduce', async() => {
+    it('rewrites async properly for mapReduce', async function() {
+      if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
+        return this.skip(); // mapReduce is unversioned
+      }
       await shell.executeLine(`use ${dbName}`);
       await shell.executeLine('db.test.insertMany([{i:1},{i:2},{i:3},{i:4}]);');
       const result = await shell.executeLine(`db.test.mapReduce(function() {
@@ -525,7 +528,10 @@ describe('e2e', function() {
       });
     });
 
-    it('treats piping a script into stdin line by line', async() => {
+    it('treats piping a script into stdin line by line', async function() {
+      if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
+        return this.skip(); // collStats is unversioned
+      }
       // This script doesn't work if evaluated as a whole, only when evaluated
       // line-by-line, due to Automatic Semicolon Insertion (ASI).
       createReadStream(path.resolve(__dirname, 'fixtures', 'asi-script.js'))
