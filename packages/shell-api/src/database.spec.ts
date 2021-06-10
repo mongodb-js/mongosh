@@ -84,6 +84,7 @@ describe('Database', () => {
         returnType: 'AggregationCursor',
         platforms: ALL_PLATFORMS,
         topologies: ALL_TOPOLOGIES,
+        apiVersions: [ 1, Infinity ],
         serverVersions: ALL_SERVER_VERSIONS,
         isDirectShellCommand: false,
         shellCommandCompleter: undefined
@@ -2440,6 +2441,7 @@ describe('Database', () => {
       updateUser: { a: ['username', { roles: [] }] },
       createRole: { a: [{ role: 'a', privileges: [], roles: [] }] },
       updateRole: { a: ['role', {}] },
+      commandHelp: { a: ['ping'] },
       getUser: { a: ['username'] },
       getRole: { a: ['rolename'] },
       dropUser: { a: ['username'] },
@@ -2470,7 +2472,7 @@ describe('Database', () => {
       serviceProvider.bsonLibrary = bson;
       internalSession = stubInterface<ServiceProviderSession>();
       serviceProvider.startSession.returns(internalSession);
-      serviceProvider.runCommandWithCheck.resolves({ ok: 1, version: 1, bits: 1, commands: 1, users: [], roles: [], logComponentVerbosity: 1 });
+      serviceProvider.runCommandWithCheck.resolves({ ok: 1, version: 1, bits: 1, commands: 1, users: [], roles: [], logComponentVerbosity: 1, help: 'blah' });
       serviceProvider.runCommand.resolves({ ok: 1 });
       serviceProvider.listCollections.resolves([]);
       const internalState = new ShellInternalState(serviceProvider, bus);

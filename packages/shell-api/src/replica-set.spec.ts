@@ -13,6 +13,7 @@ import {
   ADMIN_DB,
   ALL_PLATFORMS,
   ALL_SERVER_VERSIONS,
+  ALL_API_VERSIONS,
   ALL_TOPOLOGIES
 } from './enums';
 import { signatures, toShellResult } from './index';
@@ -53,6 +54,7 @@ describe('ReplicaSet', () => {
         returnType: { type: 'unknown', attributes: {} },
         platforms: ALL_PLATFORMS,
         topologies: ALL_TOPOLOGIES,
+        apiVersions: ALL_API_VERSIONS,
         serverVersions: ALL_SERVER_VERSIONS,
         isDirectShellCommand: false,
         shellCommandCompleter: undefined

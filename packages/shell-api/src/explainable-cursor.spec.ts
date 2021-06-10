@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import sinon from 'ts-sinon';
-import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, ServerVersions } from './enums';
+import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, ALL_API_VERSIONS, ServerVersions } from './enums';
 import { signatures, toShellResult } from './index';
 import ExplainableCursor from './explainable-cursor';
 
@@ -24,6 +24,7 @@ describe('ExplainableCursor', () => {
         returnType: 'ExplainableCursor',
         platforms: ALL_PLATFORMS,
         topologies: ALL_TOPOLOGIES,
+        apiVersions: ALL_API_VERSIONS,
         serverVersions: ALL_SERVER_VERSIONS,
         isDirectShellCommand: false,
         shellCommandCompleter: undefined

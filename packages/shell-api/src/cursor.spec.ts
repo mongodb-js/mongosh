@@ -1,7 +1,7 @@
 import { signatures, toShellResult } from './index';
 import Cursor from './cursor';
 import { ReplPlatform, FindCursor as ServiceProviderCursor } from '@mongosh/service-provider-core';
-import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, ServerVersions } from './enums';
+import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, ALL_API_VERSIONS, ServerVersions } from './enums';
 import chai from 'chai';
 import sinonChai from 'sinon-chai';
 import sinon, { stubInterface, StubbedInstance } from 'ts-sinon';
@@ -31,6 +31,7 @@ describe('Cursor', () => {
         returnType: 'Cursor',
         platforms: ALL_PLATFORMS,
         topologies: ALL_TOPOLOGIES,
+        apiVersions: ALL_API_VERSIONS,
         serverVersions: ALL_SERVER_VERSIONS,
         isDirectShellCommand: false,
         shellCommandCompleter: undefined

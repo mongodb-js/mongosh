@@ -6,7 +6,8 @@ import {
   ReplPlatform,
   ServiceProvider,
   TopologyDescription,
-  TopologyType
+  TopologyType,
+  ServerApi
 } from '@mongosh/service-provider-core';
 import type { ApiEvent, ConfigProvider, MongoshBus, ShellUserConfig } from '@mongosh/types';
 import { EventEmitter } from 'events';
@@ -38,6 +39,7 @@ export interface ShellCliOptions {
 
 export interface AutocompleteParameters {
   topology: () => Topologies;
+  apiVersionInfo: () => Required<ServerApi> | undefined;
   connectionInfo: () => ConnectInfo | undefined;
   getCollectionCompletionsForCurrentDb: (collName: string) => Promise<string[]>;
   getDatabaseCompletions: (dbName: string) => Promise<string[]>;
@@ -303,6 +305,10 @@ export default class ShellInternalState {
             break;
         }
         return topology;
+      },
+      apiVersionInfo: () => {
+        const { serverApi } = this.currentServiceProvider.getRawClient()?.options ?? {};
+        return serverApi?.version ? { strict: false, deprecationErrors: false, ...serverApi } : undefined;
       },
       connectionInfo: () => {
         return this.connectionInfo.extraInfo;

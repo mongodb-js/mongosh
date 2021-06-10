@@ -2,6 +2,7 @@ import { CommonErrors, MongoshDeprecatedError, MongoshInvalidInputError, Mongosh
 import {
   returnsPromise,
   returnType,
+  apiVersions,
   serverVersions,
   shellApiClassDefault,
   deprecated
@@ -70,7 +71,7 @@ export default class Cursor extends AbstractCursor {
 
   @returnType('Cursor')
   allowPartialResults(): Cursor {
-    this._addFlag('partial' as CursorFlag);
+    this._addFlag('partial');
     return this;
   }
 
@@ -158,13 +159,13 @@ export default class Cursor extends AbstractCursor {
 
   @returnType('Cursor')
   noCursorTimeout(): Cursor {
-    this._addFlag('noCursorTimeout' as CursorFlag);
+    this._addFlag('noCursorTimeout');
     return this;
   }
 
   @returnType('Cursor')
   oplogReplay(): Cursor {
-    this._addFlag('oplogReplay' as CursorFlag);
+    this._addFlag('oplogReplay');
     return this;
   }
 
@@ -200,11 +201,12 @@ export default class Cursor extends AbstractCursor {
 
   @returnType('Cursor')
   @serverVersions(['3.2.0', ServerVersions.latest])
+  @apiVersions([])
   tailable(opts = { awaitData: false }): Cursor {
     this._tailable = true;
-    this._addFlag('tailable' as CursorFlag);
+    this._addFlag('tailable');
     if (opts.awaitData) {
-      this._addFlag('awaitData' as CursorFlag);
+      this._addFlag('awaitData');
     }
     return this;
   }

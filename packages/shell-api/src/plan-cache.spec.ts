@@ -25,6 +25,7 @@ describe('PlanCache', () => {
         deprecated: false,
         returnType: { attributes: {}, type: 'unknown' },
         platforms: ALL_PLATFORMS,
+        apiVersions: [ 0, 0 ],
         topologies: ALL_TOPOLOGIES,
         serverVersions: ['4.4.0', ServerVersions.latest],
         isDirectShellCommand: false,

@@ -1,5 +1,6 @@
 import {
   returnsPromise,
+  apiVersions,
   serverVersions,
   shellApiClassDefault,
   deprecated,
@@ -32,11 +33,13 @@ export default class PlanCache extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
+  @apiVersions([])
   async clear(): Promise<Document> {
     return await this._collection.runCommand('planCacheClear');
   }
 
   @returnsPromise
+  @apiVersions([])
   async clearPlansByQuery(query: Document, projection?: Document, sort?: Document): Promise<Document> {
     const cmd = { query } as any;
     if (projection) {
@@ -50,7 +53,8 @@ export default class PlanCache extends ShellApiWithMongoClass {
 
   @serverVersions(['4.4.0', ServerVersions.latest])
   @returnsPromise
-  async list(pipeline?: Document[]): Promise<Document> {
+  @apiVersions([])
+  async list(pipeline?: Document[]): Promise<Document[]> {
     const p = pipeline || [];
     const agg = await this._collection.aggregate([{ $planCacheStats: {} }, ...p]);
     return await agg.toArray();

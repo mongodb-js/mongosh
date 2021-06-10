@@ -23,6 +23,7 @@ export interface AutocompleteParameters {
     is_data_lake: boolean;
     server_version: string;
   },
+  apiVersionInfo: () => { version: string, strict: boolean } | undefined;
   getCollectionCompletionsForCurrentDb: (collName: string) => string[] | Promise<string[]>;
   getDatabaseCompletions: (dbName: string) => string[] | Promise<string[]>;
 }
@@ -170,14 +171,20 @@ async function completer(params: AutocompleteParameters, line: string): Promise<
 
 function isAcceptable(
   params: AutocompleteParameters,
-  entry: { version?: string; projectVersion?: string; env?: string[]; },
+  entry: { version?: string; projectVersion?: string; env?: string[]; apiVersions?: number[] },
   versionKey: 'version' | 'projectVersion') {
   const connectionInfo = params.connectionInfo();
-  const isAcceptableVersion =
-    !entry[versionKey] ||
-    // TODO: when https://jira.mongodb.org/browse/WRITING-8170 is done we can rely on server_version being present
-    !connectionInfo?.server_version ||
-    semver.gte(connectionInfo.server_version, entry[versionKey] as string);
+  const apiVersionInfo = params.apiVersionInfo();
+  let isAcceptableVersion;
+  if (apiVersionInfo?.strict && entry.apiVersions) {
+    isAcceptableVersion = entry.apiVersions.includes(+apiVersionInfo.version);
+  } else {
+    isAcceptableVersion =
+      !entry[versionKey] ||
+      // TODO: when https://jira.mongodb.org/browse/PM-2327 is done we can rely on server_version being present
+      !connectionInfo?.server_version ||
+      semver.gte(connectionInfo.server_version, entry[versionKey] as string);
+  }
   const isAcceptableEnvironment =
     !entry.env ||
     !connectionInfo ||
@@ -217,14 +224,23 @@ function filterShellAPI(
     if (!c.startsWith(prefix)) return false;
     if (completions[c].deprecated) return false;
 
-    const serverVersion = params.connectionInfo()?.server_version;
-    if (!serverVersion) return true;
+    const apiVersionInfo = params.apiVersionInfo();
+    let isAcceptableVersion;
+    let acceptableApiVersions;
+    if (apiVersionInfo?.strict && (acceptableApiVersions = completions[c].apiVersions)) {
+      isAcceptableVersion =
+         +apiVersionInfo.version >= acceptableApiVersions[0] &&
+         +apiVersionInfo.version <= acceptableApiVersions[1];
+    } else {
+      const serverVersion = params.connectionInfo()?.server_version;
+      if (!serverVersion) return true;
 
-    const acceptableVersions = completions[c].serverVersions;
-    const isAcceptableVersion =
-      !acceptableVersions ||
-      (semver.gte(serverVersion, acceptableVersions[0]) &&
-       semver.lte(serverVersion, acceptableVersions[1]));
+      const acceptableVersions = completions[c].serverVersions;
+      isAcceptableVersion =
+        !acceptableVersions ||
+        (semver.gte(serverVersion, acceptableVersions[0]) &&
+         semver.lte(serverVersion, acceptableVersions[1]));
+    }
 
     const acceptableTopologies = completions[c].topologies;
     const isAcceptableTopology =

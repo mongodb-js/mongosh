@@ -39,6 +39,7 @@ describe('Bulk API', () => {
           returnType: 'BulkFindOp',
           platforms: ALL_PLATFORMS,
           topologies: ALL_TOPOLOGIES,
+          apiVersions: [ 1, Infinity ],
           serverVersions: ALL_SERVER_VERSIONS,
           isDirectShellCommand: false,
           shellCommandCompleter: undefined
@@ -240,6 +241,7 @@ describe('Bulk API', () => {
           returnType: 'BulkFindOp',
           platforms: ALL_PLATFORMS,
           topologies: ALL_TOPOLOGIES,
+          apiVersions: [ 1, Infinity ],
           serverVersions: ALL_SERVER_VERSIONS,
           isDirectShellCommand: false,
           shellCommandCompleter: undefined

@@ -3,7 +3,8 @@ import {
   toShellResult,
   returnType,
   ShellApiWithMongoClass,
-  returnsPromise
+  returnsPromise,
+  apiVersions
 } from './decorators';
 import type Mongo from './mongo';
 import type {
@@ -194,6 +195,7 @@ export abstract class AbstractCursor extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
+  @apiVersions([1])
   async explain(verbosity?: ExplainVerbosityLike): Promise<any> {
     // TODO: @maurizio we should probably move this in the Explain class?
     // NOTE: the node driver always returns the full explain plan

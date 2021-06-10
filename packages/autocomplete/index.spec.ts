@@ -7,6 +7,7 @@ let collections: string[];
 let databases: string[];
 const standalone440 = {
   topology: () => Topologies.Standalone,
+  apiVersionInfo: () => undefined,
   connectionInfo: () => ({
     is_atlas: false,
     is_data_lake: false,
@@ -15,8 +16,16 @@ const standalone440 = {
   getCollectionCompletionsForCurrentDb: () => collections,
   getDatabaseCompletions: () => databases
 };
+const apiStrictParams = {
+  topology: () => Topologies.Standalone,
+  apiVersionInfo: () => ({ version: '1', strict: true, deprecationErrors: false }),
+  connectionInfo: () => undefined,
+  getCollectionCompletionsForCurrentDb: () => collections,
+  getDatabaseCompletions: () => databases
+};
 const sharded440 = {
   topology: () => Topologies.Sharded,
+  apiVersionInfo: () => undefined,
   connectionInfo: () => ({
     is_atlas: false,
     is_data_lake: false,
@@ -28,6 +37,7 @@ const sharded440 = {
 
 const standalone300 = {
   topology: () => Topologies.Standalone,
+  apiVersionInfo: () => undefined,
   connectionInfo: () => ({
     is_atlas: false,
     is_data_lake: false,
@@ -38,6 +48,7 @@ const standalone300 = {
 };
 const datalake440 = {
   topology: () => Topologies.Sharded,
+  apiVersionInfo: () => undefined,
   connectionInfo: () => ({
     is_atlas: true,
     is_data_lake: true,
@@ -49,6 +60,7 @@ const datalake440 = {
 
 const noParams = {
   topology: () => Topologies.Standalone,
+  apiVersionInfo: () => undefined,
   connectionInfo: () => undefined,
   getCollectionCompletionsForCurrentDb: () => collections,
   getDatabaseCompletions: () => databases
@@ -56,6 +68,7 @@ const noParams = {
 
 const emptyConnectionInfoParams = {
   topology: () => Topologies.Standalone,
+  apiVersionInfo: () => undefined,
   connectionInfo: () => ({}),
   getCollectionCompletionsForCurrentDb: () => collections,
   getDatabaseCompletions: () => databases
@@ -556,6 +569,38 @@ describe('completer.completer', () => {
       const i = 'show  datab';
       expect(await completer(noParams, i))
         .to.deep.equal([['show  databases'], i, 'exclusive']);
+    });
+  });
+
+  context('with apiStrict', () => {
+    it('completes supported methods like db.test.findOneAndReplace', async() => {
+      const i = 'db.test.findOneAndR';
+      expect(await completer(apiStrictParams, i))
+        .to.deep.equal([['db.test.findOneAndReplace'], i]);
+    });
+
+    it('completes common methods like db.test.getName', async() => {
+      const i = 'db.test.getNam';
+      expect(await completer(apiStrictParams, i))
+        .to.deep.equal([['db.test.getName'], i]);
+    });
+
+    it('does not complete unsupported methods like db.test.renameCollection', async() => {
+      const i = 'db.test.renameC';
+      expect(await completer(apiStrictParams, i))
+        .to.deep.equal([[], i]);
+    });
+
+    it('completes supported aggregation stages', async() => {
+      const i = 'db.test.aggregate([{$mat';
+      expect(await completer(apiStrictParams, i))
+        .to.deep.equal([['db.test.aggregate([{$match'], i]);
+    });
+
+    it('does not complete unsupported aggregation stages', async() => {
+      const i = 'db.test.aggregate([{$indexSta';
+      expect(await completer(apiStrictParams, i))
+        .to.deep.equal([[], i]);
     });
   });
 });

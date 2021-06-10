@@ -5,6 +5,7 @@ import { Mongo, ShellInternalState } from '.';
 import {
   ALL_PLATFORMS,
   ALL_SERVER_VERSIONS,
+  ALL_API_VERSIONS,
   ALL_TOPOLOGIES,
   asPrintable,
   namespaceInfo, shellApiType, Topologies
@@ -20,6 +21,7 @@ export interface ShellApiInterface {
   [shellApiType]: string;
   [asPrintable]?: () => any;
   serverVersions?: [string, string];
+  apiVersions?: [number, number];
   topologies?: Topologies[];
   help?: Help;
   [key: string]: any;
@@ -229,6 +231,7 @@ export type ShellCommandCompleter =
 export interface TypeSignature {
   type: string;
   serverVersions?: [ string, string ];
+  apiVersions?: [ number, number ];
   topologies?: Topologies[];
   returnsPromise?: boolean;
   deprecated?: boolean;
@@ -257,6 +260,7 @@ type ClassSignature = {
     [methodName: string]: {
       type: 'function';
       serverVersions: [ string, string ];
+      apiVersions: [ number, number ];
       topologies: Topologies[];
       returnType: ClassSignature;
       returnsPromise: boolean;
@@ -307,6 +311,7 @@ export function shellApiClassGeneric(constructor: Function, hasHelp: boolean): v
     method = wrapWithApiChecks(method, className);
 
     method.serverVersions = method.serverVersions || ALL_SERVER_VERSIONS;
+    method.apiVersions = method.apiVersions || ALL_API_VERSIONS;
     method.topologies = method.topologies || ALL_TOPOLOGIES;
     method.returnType = method.returnType || { type: 'unknown', attributes: {} };
     method.returnsPromise = method.returnsPromise || false;
@@ -318,6 +323,7 @@ export function shellApiClassGeneric(constructor: Function, hasHelp: boolean): v
     classSignature.attributes[propertyName] = {
       type: 'function',
       serverVersions: method.serverVersions,
+      apiVersions: method.apiVersions,
       topologies: method.topologies,
       returnType: method.returnType === 'this' ? className : method.returnType,
       returnsPromise: method.returnsPromise,
@@ -369,6 +375,7 @@ export function shellApiClassGeneric(constructor: Function, hasHelp: boolean): v
       classSignature.attributes[propertyName] = {
         type: 'function',
         serverVersions: method.serverVersions,
+        apiVersions: method.apiVersions,
         topologies: method.topologies,
         returnType: method.returnType === 'this' ? className : method.returnType,
         returnsPromise: method.returnsPromise,
@@ -424,6 +431,20 @@ export function serverVersions(versionArray: [ string, string ]): Function {
     descriptor: PropertyDescriptor
   ): void {
     descriptor.value.serverVersions = versionArray;
+  };
+}
+export function apiVersions(versionArray: [] | [ number ] | [ number, number ]): Function {
+  return function(
+    _target: any,
+    _propertyKey: string,
+    descriptor: PropertyDescriptor
+  ): void {
+    if (versionArray.length === 0) {
+      versionArray = [ 0, 0 ];
+    } else if (versionArray.length === 1) {
+      versionArray = [ versionArray[0], Infinity ];
+    }
+    descriptor.value.apiVersions = versionArray;
   };
 }
 export function deprecated(_target: any, _propertyKey: string, descriptor: PropertyDescriptor): void {

@@ -1,7 +1,7 @@
 import Database from './database';
 import {
   shellApiClassDefault,
-  returnsPromise, serverVersions, ShellApiWithMongoClass
+  returnsPromise, serverVersions, apiVersions, ShellApiWithMongoClass
 } from './decorators';
 
 import type { Document } from '@mongosh/service-provider-core';
@@ -47,6 +47,7 @@ export default class Shard extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
+  @apiVersions([])
   async enableSharding(database: string, primaryShard?: string): Promise<Document> {
     assertArgsDefinedType([database, primaryShard], ['string', [undefined, 'string']], 'Shard.enableSharding');
     this._emitShardApiCall('enableSharding', { database, primaryShard });
@@ -68,6 +69,7 @@ export default class Shard extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
+  @apiVersions([])
   @serverVersions(['5.0.0', ServerVersions.latest])
   async commitReshardCollection(namespace: string): Promise<Document> {
     assertArgsDefinedType([namespace], ['string'], 'Shard.commitReshardCollection');
@@ -78,6 +80,7 @@ export default class Shard extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
+  @apiVersions([])
   @serverVersions(['5.0.0', ServerVersions.latest])
   async abortReshardCollection(namespace: string): Promise<Document> {
     assertArgsDefinedType([namespace], ['string'], 'Shard.abortReshardCollection');
@@ -88,11 +91,13 @@ export default class Shard extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
+  @apiVersions([])
   async shardCollection(namespace: string, key: Document, unique?: boolean | Document, options?: Document): Promise<Document> {
     return await this._runShardCollection('shardCollection', namespace, key, unique, options);
   }
 
   @returnsPromise
+  @apiVersions([])
   @serverVersions(['5.0.0', ServerVersions.latest])
   async reshardCollection(namespace: string, key: Document, unique?: boolean | Document, options?: Document): Promise<Document> {
     return await this._runShardCollection('reshardCollection', namespace, key, unique, options);
@@ -130,12 +135,14 @@ export default class Shard extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
+  @apiVersions([1])
   async status(verbose = false): Promise<CommandResult> {
     const result = await getPrintableShardStatus(this._database, verbose);
     return new CommandResult('StatsResult', result);
   }
 
   @returnsPromise
+  @apiVersions([])
   async addShard(url: string): Promise<Document> {
     assertArgsDefinedType([url], ['string'], 'Shard.addShard');
     await getConfigDB(this._database);
@@ -146,6 +153,7 @@ export default class Shard extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
+  @apiVersions([])
   @serverVersions(['3.4.0', ServerVersions.latest])
   async addShardToZone(shard: string, zone: string): Promise<Document> {
     assertArgsDefinedType([shard, zone], ['string', 'string'], 'Shard.addShardToZone');
@@ -158,6 +166,7 @@ export default class Shard extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
+  @apiVersions([])
   @serverVersions(['3.4.0', ServerVersions.latest])
   async addShardTag(shard: string, tag: string): Promise<Document> {
     assertArgsDefinedType([shard, tag], ['string', 'string'], 'Shard.addShardTag');
@@ -173,6 +182,7 @@ export default class Shard extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
+  @apiVersions([])
   async updateZoneKeyRange(namespace: string, min: Document, max: Document, zone: string | null): Promise<Document> {
     assertArgsDefinedType([namespace, min, max, zone], ['string', 'object', 'object', true], 'Shard.updateZoneKeyRange');
     this._emitShardApiCall('updateZoneKeyRange', { namespace, min, max, zone });
@@ -187,6 +197,7 @@ export default class Shard extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
+  @apiVersions([])
   @serverVersions(['3.4.0', ServerVersions.latest])
   async addTagRange(namespace: string, min: Document, max: Document, zone: string): Promise<Document> {
     assertArgsDefinedType([namespace, min, max, zone], ['string', 'object', 'object', true], 'Shard.addTagRange');
@@ -208,6 +219,7 @@ export default class Shard extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
+  @apiVersions([])
   @serverVersions(['3.4.0', ServerVersions.latest])
   async removeRangeFromZone(ns: string, min: Document, max: Document): Promise<Document> {
     assertArgsDefinedType([ns, min, max], ['string', 'object', 'object'], 'Shard.removeRangeFromZone');
@@ -216,6 +228,7 @@ export default class Shard extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
+  @apiVersions([])
   @serverVersions(['3.4.0', ServerVersions.latest])
   async removeTagRange(ns: string, min: Document, max: Document): Promise<Document> {
     assertArgsDefinedType([ns, min, max], ['string', 'object', 'object'], 'Shard.removeTagRange');
@@ -231,6 +244,7 @@ export default class Shard extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
+  @apiVersions([])
   @serverVersions(['3.4.0', ServerVersions.latest])
   async removeShardFromZone(shard: string, zone: string): Promise<Document> {
     assertArgsDefinedType([shard, zone], ['string', 'string'], 'Shard.removeShardFromZone');
@@ -244,6 +258,7 @@ export default class Shard extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
+  @apiVersions([])
   @serverVersions(['3.4.0', ServerVersions.latest])
   async removeShardTag(shard: string, tag: string): Promise<Document> {
     assertArgsDefinedType([shard, tag], ['string', 'string'], 'Shard.removeShardTag');
@@ -259,6 +274,7 @@ export default class Shard extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
+  @apiVersions([1])
   @serverVersions(['3.4.0', ServerVersions.latest])
   async enableAutoSplit(): Promise<UpdateResult> {
     this._emitShardApiCall('enableAutoSplit', {});
@@ -271,6 +287,7 @@ export default class Shard extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
+  @apiVersions([1])
   @serverVersions(['3.4.0', ServerVersions.latest])
   async disableAutoSplit(): Promise<UpdateResult> {
     this._emitShardApiCall('disableAutoSplit', {});
@@ -283,6 +300,7 @@ export default class Shard extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
+  @apiVersions([])
   async splitAt(ns: string, query: Document): Promise<Document> {
     assertArgsDefinedType([ns, query], ['string', 'object'], 'Shard.splitAt');
     this._emitShardApiCall('splitAt', { ns, query });
@@ -293,6 +311,7 @@ export default class Shard extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
+  @apiVersions([])
   async splitFind(ns: string, query: Document): Promise<Document> {
     assertArgsDefinedType([ns, query], ['string', 'object'], 'Shard.splitFind');
     this._emitShardApiCall('splitFind', { ns, query });
@@ -303,6 +322,7 @@ export default class Shard extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
+  @apiVersions([])
   async moveChunk(ns: string, query: Document, destination: string | undefined): Promise<Document> {
     assertArgsDefinedType([ns, query, destination], ['string', 'object', 'string'], 'Shard.moveChunk');
     this._emitShardApiCall('moveChunk', { ns, query, destination });
@@ -314,6 +334,7 @@ export default class Shard extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
+  @apiVersions([])
   @serverVersions(['4.4.0', ServerVersions.latest])
   async balancerCollectionStatus(ns: string): Promise<Document> {
     assertArgsDefinedType([ns], ['string'], 'Shard.balancerCollectionStatus');
@@ -325,6 +346,7 @@ export default class Shard extends ShellApiWithMongoClass {
 
 
   @returnsPromise
+  @apiVersions([])
   async enableBalancing(ns: string): Promise<UpdateResult> {
     assertArgsDefinedType([ns], ['string'], 'Shard.enableBalancing');
     this._emitShardApiCall('enableBalancing', { ns });
@@ -337,6 +359,7 @@ export default class Shard extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
+  @apiVersions([])
   async disableBalancing(ns: string): Promise<UpdateResult> {
     assertArgsDefinedType([ns], ['string'], 'Shard.disableBalancing');
     this._emitShardApiCall('disableBalancing', { ns });
@@ -349,6 +372,7 @@ export default class Shard extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
+  @apiVersions([])
   async getBalancerState(): Promise<boolean> {
     this._emitShardApiCall('getBalancerState', {});
     const config = await getConfigDB(this._database);
@@ -360,6 +384,7 @@ export default class Shard extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
+  @apiVersions([])
   async isBalancerRunning(): Promise<Document> {
     this._emitShardApiCall('isBalancerRunning', {});
     await getConfigDB(this._database);
@@ -369,6 +394,7 @@ export default class Shard extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
+  @apiVersions([])
   async startBalancer(timeout = 60000): Promise<Document> {
     assertArgsDefinedType([timeout], ['number'], 'Shard.startBalancer');
     this._emitShardApiCall('startBalancer', { timeout });
@@ -378,6 +404,7 @@ export default class Shard extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
+  @apiVersions([])
   async stopBalancer(timeout = 60000): Promise<Document> {
     assertArgsDefinedType([timeout], ['number'], 'Shard.stopBalancer');
     this._emitShardApiCall('stopBalancer', { timeout });
@@ -387,6 +414,7 @@ export default class Shard extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
+  @apiVersions([])
   async setBalancerState(state: boolean): Promise<Document> {
     assertArgsDefinedType([state], ['boolean'], 'Shard.setBalancerState');
     this._emitShardApiCall('setBalancerState', { state });

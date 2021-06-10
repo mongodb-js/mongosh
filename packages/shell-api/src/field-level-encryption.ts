@@ -2,6 +2,7 @@ import {
   classPlatforms,
   returnsPromise,
   returnType,
+  apiVersions,
   shellApiClassDefault,
   ShellApiWithMongoClass
 } from './decorators';
@@ -120,6 +121,7 @@ export class KeyVault extends ShellApiWithMongoClass {
   createKey(kms: ClientEncryptionDataKeyProvider, options: AWSEncryptionKeyOptions | AzureEncryptionKeyOptions | GCPEncryptionKeyOptions | undefined): Promise<Document>
   createKey(kms: ClientEncryptionDataKeyProvider, options: AWSEncryptionKeyOptions | AzureEncryptionKeyOptions | GCPEncryptionKeyOptions | undefined, keyAltNames: string[]): Promise<Document>
   @returnsPromise
+  @apiVersions([1])
   // eslint-disable-next-line complexity
   async createKey(
     kms: ClientEncryptionDataKeyProvider,
@@ -184,29 +186,34 @@ export class KeyVault extends ShellApiWithMongoClass {
   }
 
   @returnType('Cursor')
+  @apiVersions([1])
   getKey(keyId: BinaryType): Cursor {
     assertArgsDefinedType([keyId], [true], 'KeyVault.getKey');
     return this._keyColl.find({ '_id': keyId });
   }
 
   @returnType('Cursor')
+  @apiVersions([1])
   getKeyByAltName(keyAltName: string): Cursor {
     assertArgsDefinedType([keyAltName], ['string'], 'KeyVault.getKeyByAltName');
     return this._keyColl.find({ 'keyAltNames': keyAltName });
   }
 
   @returnType('Cursor')
+  @apiVersions([1])
   getKeys(): Cursor {
     return this._keyColl.find({});
   }
 
   @returnsPromise
+  @apiVersions([1])
   async deleteKey(keyId: BinaryType): Promise<DeleteResult | Document> {
     assertArgsDefinedType([keyId], [true], 'KeyVault.deleteKey');
     return this._keyColl.deleteOne({ '_id': keyId });
   }
 
   @returnsPromise
+  @apiVersions([1])
   async addKeyAlternateName(keyId: BinaryType, keyAltName: string): Promise<Document> {
     assertArgsDefinedType([keyId, keyAltName], [true, 'string'], 'KeyVault.addKeyAlternateName');
     return this._keyColl.findAndModify({
@@ -216,6 +223,7 @@ export class KeyVault extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
+  @apiVersions([1])
   async removeKeyAlternateName(keyId: BinaryType, keyAltName: string): Promise<Document> {
     assertArgsDefinedType([keyId, keyAltName], [true, 'string'], 'KeyVault.removeKeyAlternateName');
     const ret = await this._keyColl.findAndModify({
