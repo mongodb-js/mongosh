@@ -15,9 +15,10 @@ export async function ask(prompt: string): Promise<string> {
   });
 }
 
-export async function confirm(prompt: string): Promise<boolean> {
-  const answer = await ask(`${prompt} Y/[N]:`);
-  return !!answer.match(/^[yY]$/);
+export async function confirm(prompt: string, preselect = false): Promise<boolean> {
+  const preselectText = preselect ? '[Y]/N' : 'Y/[N]';
+  const answer = await ask(`${prompt} ${preselectText}:`);
+  return preselect ? !answer.match(/^[nN]$/) : !!answer.match(/^[yY]$/);
 }
 
 export async function choose(headline: string, options: string[], prompt: string): Promise<string> {

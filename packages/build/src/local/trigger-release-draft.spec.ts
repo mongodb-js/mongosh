@@ -124,7 +124,7 @@ describe('local trigger-release-draft', () => {
       );
 
       expect(verifyGitStatus).to.have.been.called;
-      expect(confirm).to.have.been.called;
+      expect(confirm).to.have.been.calledTwice;
       expect(spawnSync).to.have.been.calledTwice;
       expect(spawnSync.getCall(0)).calledWith('git', ['tag', 'v0.8.3-draft.0'], sinon.match.any);
       expect(spawnSync.getCall(1)).calledWith('git', ['push', 'origin', 'v0.8.3-draft.0'], sinon.match.any);
@@ -162,7 +162,8 @@ describe('local trigger-release-draft', () => {
         }
       };
       getLatestDraftOrReleaseTagFromLog.returns(latestTag);
-      confirm.resolves(false);
+      confirm.onFirstCall().resolves(true);
+      confirm.onSecondCall().resolves(false);
 
       try {
         await triggerReleaseDraft(
