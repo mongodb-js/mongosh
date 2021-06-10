@@ -4,6 +4,7 @@ import { Topologies } from '@mongosh/shell-api';
 
 const standalone440 = {
   topology: () => Topologies.Standalone,
+  apiVersionInfo: () => undefined,
   connectionInfo: () => ({
     is_atlas: false,
     is_data_lake: false,
