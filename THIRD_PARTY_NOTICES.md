@@ -181,7 +181,7 @@ Package|Version|License
 **[mkdirp-classic](#e79cc875152b50c2eb57a97163d99f0155bf4e4af7ba4a7e01c12a17a4a3305c)**|0.5.3|MIT
 **[mongodb](#9598f0ffa44344322f696d3ea9199114c08c18b6763ae8ff3abe2a47aff27c6f)**|4.0.0-beta.5|Apache-2.0
 **[mongodb-ace-autocompleter](#5f8c32571122c25792bf4635ce9f1f6aaf49eb364b033f619b84e8ee9c29e011)**|0.4.8|Apache-2.0
-**[mongodb-ace-autocompleter](#25ec19f8e927ecab7f82f6f3336e34408f4a5cf94f265d521ce567583db05c91)**|0.4.14|Apache-2.0
+**[mongodb-ace-autocompleter](#f8d74c39b8fd1bf8c68814e2006477bd7ae4df1586f48c43ec771797e1d3d064)**|0.5.0|Apache-2.0
 **[mongodb-build-info](#8a1ba45f0407e04bc40af593237b54961d4bb1ce23d4a6a2a4ab5284f00e0e4d)**|1.1.0|Apache-2.0
 **[mongodb-build-info](#7b92944dac466e442bbd1f2ef3f6b9f2cc37cc53375714306f73b29ca409ff37)**|1.1.1|Apache-2.0
 **[mongodb-client-encryption](#f2ba629859c0faa56418278b125a8854fe7542e196651c2eb935642b76973b25)**|1.2.3|Apache-2.0
@@ -9833,8 +9833,8 @@ Authors:
 * durran@gmail.com
 
 
-<a id="25ec19f8e927ecab7f82f6f3336e34408f4a5cf94f265d521ce567583db05c91"></a>
-### [mongodb-ace-autocompleter](https://www.npmjs.com/package/mongodb-ace-autocompleter) (version 0.4.14)
+<a id="f8d74c39b8fd1bf8c68814e2006477bd7ae4df1586f48c43ec771797e1d3d064"></a>
+### [mongodb-ace-autocompleter](https://www.npmjs.com/package/mongodb-ace-autocompleter) (version 0.5.0)
 <!-- initially found at packages/autocomplete/node_modules/mongodb-ace-autocompleter -->
 > Ace Editor Autocompleter for MongoDB Queries & Agg Pipelines
 
