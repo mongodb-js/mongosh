@@ -4,7 +4,7 @@ import ShellApi from './shell-api';
 import { signatures, toShellResult } from './index';
 import Cursor from './cursor';
 import { nonAsyncFunctionsReturningPromises } from './decorators';
-import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';
+import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, ALL_API_VERSIONS } from './enums';
 import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
 import Mongo from './mongo';
 import { ReplPlatform, ServiceProvider, bson, MongoClient } from '@mongosh/service-provider-core';
@@ -40,6 +40,7 @@ describe('ShellApi', () => {
         returnType: { type: 'unknown', attributes: {} },
         platforms: ALL_PLATFORMS,
         topologies: ALL_TOPOLOGIES,
+        apiVersions: ALL_API_VERSIONS,
         serverVersions: ALL_SERVER_VERSIONS,
         isDirectShellCommand: true,
         shellCommandCompleter: signatures.ShellApi.attributes.use.shellCommandCompleter
@@ -51,6 +52,7 @@ describe('ShellApi', () => {
         returnType: { type: 'unknown', attributes: {} },
         platforms: ALL_PLATFORMS,
         topologies: ALL_TOPOLOGIES,
+        apiVersions: ALL_API_VERSIONS,
         serverVersions: ALL_SERVER_VERSIONS,
         isDirectShellCommand: true,
         shellCommandCompleter: signatures.ShellApi.attributes.show.shellCommandCompleter
@@ -62,6 +64,7 @@ describe('ShellApi', () => {
         returnType: { type: 'unknown', attributes: {} },
         platforms: [ ReplPlatform.CLI ],
         topologies: ALL_TOPOLOGIES,
+        apiVersions: ALL_API_VERSIONS,
         serverVersions: ALL_SERVER_VERSIONS,
         isDirectShellCommand: true,
         shellCommandCompleter: undefined
@@ -73,6 +76,7 @@ describe('ShellApi', () => {
         returnType: { type: 'unknown', attributes: {} },
         platforms: ALL_PLATFORMS,
         topologies: ALL_TOPOLOGIES,
+        apiVersions: ALL_API_VERSIONS,
         serverVersions: ALL_SERVER_VERSIONS,
         isDirectShellCommand: true,
         shellCommandCompleter: undefined
@@ -84,6 +88,7 @@ describe('ShellApi', () => {
         returnType: { type: 'unknown', attributes: {} },
         platforms: ALL_PLATFORMS,
         topologies: ALL_TOPOLOGIES,
+        apiVersions: ALL_API_VERSIONS,
         serverVersions: ALL_SERVER_VERSIONS,
         isDirectShellCommand: false,
         shellCommandCompleter: undefined
@@ -95,6 +100,7 @@ describe('ShellApi', () => {
         returnType: { type: 'unknown', attributes: {} },
         platforms: ALL_PLATFORMS,
         topologies: ALL_TOPOLOGIES,
+        apiVersions: ALL_API_VERSIONS,
         serverVersions: ALL_SERVER_VERSIONS,
         isDirectShellCommand: false,
         shellCommandCompleter: undefined
@@ -106,6 +112,7 @@ describe('ShellApi', () => {
         returnType: { type: 'unknown', attributes: {} },
         platforms: ALL_PLATFORMS,
         topologies: ALL_TOPOLOGIES,
+        apiVersions: ALL_API_VERSIONS,
         serverVersions: ALL_SERVER_VERSIONS,
         isDirectShellCommand: false,
         shellCommandCompleter: undefined
@@ -117,6 +124,7 @@ describe('ShellApi', () => {
         returnType: { type: 'unknown', attributes: {} },
         platforms: ALL_PLATFORMS,
         topologies: ALL_TOPOLOGIES,
+        apiVersions: ALL_API_VERSIONS,
         serverVersions: ALL_SERVER_VERSIONS,
         isDirectShellCommand: true,
         shellCommandCompleter: undefined
@@ -128,6 +136,7 @@ describe('ShellApi', () => {
         returnType: 'Mongo',
         platforms: [ ReplPlatform.CLI ],
         topologies: ALL_TOPOLOGIES,
+        apiVersions: ALL_API_VERSIONS,
         serverVersions: ALL_SERVER_VERSIONS,
         isDirectShellCommand: false,
         shellCommandCompleter: undefined
@@ -139,6 +148,7 @@ describe('ShellApi', () => {
         returnType: 'Database',
         platforms: [ ReplPlatform.CLI ],
         topologies: ALL_TOPOLOGIES,
+        apiVersions: ALL_API_VERSIONS,
         serverVersions: ALL_SERVER_VERSIONS,
         isDirectShellCommand: false,
         shellCommandCompleter: undefined
