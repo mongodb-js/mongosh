@@ -24,16 +24,24 @@ export async function triggerReleaseDraft(
   }
   console.info(`-> Most recent tag: v${latestDraftOrReleaseTag.tag.semverName} on commit ${latestDraftOrReleaseTag.commit}`);
 
-  let bumpType: BumpType;
+  let bumpType: BumpType | undefined = undefined;
   if (branchReleaseVersion && latestDraftOrReleaseTag.tag.draftVersion === undefined) {
     console.info('-> You are on a release branch, last tag was a release - assuming patch...');
     bumpType = 'patch';
-  } else if (latestDraftOrReleaseTag.tag.draftVersion === undefined) {
+  } else if (latestDraftOrReleaseTag.tag.draftVersion !== undefined) {
+    console.info('-> Last tag was a draft - assuming another draft...');
+    bumpType = 'draft';
+  }
+
+  let confirmInferred = false;
+  if (bumpType) {
+    confirmInferred = await confirm(`-> Is it okay to continue with tag type ${bumpType}?`, true);
+  }
+
+  if (!bumpType || !confirmInferred) {
     bumpType = await choose('>  Select the type of increment for the new version', [
       'patch', 'minor', 'major'
     ], '... enter your choice:') as BumpType;
-  } else {
-    bumpType = 'draft';
   }
 
   const nextTagName = computeNextTagNameFn(latestDraftOrReleaseTag.tag, bumpType);
@@ -59,11 +67,10 @@ export async function triggerReleaseDraft(
 }
 
 export function computeNextTagNameFn(latestDraftOrReleaseTag: TagDetails, bumpType: BumpType): string {
-  if (latestDraftOrReleaseTag.draftVersion !== undefined) {
-    assert(bumpType === 'draft');
+  if (bumpType === 'draft') {
+    assert(latestDraftOrReleaseTag.draftVersion !== undefined);
     return `v${latestDraftOrReleaseTag.releaseVersion}-draft.${latestDraftOrReleaseTag.draftVersion + 1}`;
   }
-  assert(bumpType !== 'draft');
 
   let major = semver.major(latestDraftOrReleaseTag.releaseVersion);
   let minor = semver.minor(latestDraftOrReleaseTag.releaseVersion);
