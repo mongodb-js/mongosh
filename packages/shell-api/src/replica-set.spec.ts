@@ -925,7 +925,7 @@ describe('ReplicaSet', () => {
         expect(result.ok).to.equal(1);
         const status = await rs.conf();
         expect(status.members.length).to.equal(2);
-        expect(status.version).to.equal(version + 1);
+        expect(status.version).to.be.greaterThan(version);
       });
       afterEach(async() => {
         await rs.reconfig(cfg);
@@ -942,7 +942,7 @@ describe('ReplicaSet', () => {
         expect(result.ok).to.equal(1);
         const conf = await rs.conf();
         expect(conf.members.length).to.equal(4);
-        expect(conf.version).to.equal(version + 1);
+        expect(conf.version).to.be.greaterThan(version);
       });
       it('adds a arbiter member to the config', async() => {
         if (semver.gte(await internalState.currentDb.version(), '4.4.0')) { // setDefaultRWConcern is 4.4+ only
@@ -957,7 +957,7 @@ describe('ReplicaSet', () => {
         const conf = await rs.conf();
         expect(conf.members.length).to.equal(4);
         expect(conf.members[3].arbiterOnly).to.equal(true);
-        expect(conf.version).to.equal(version + 1);
+        expect(conf.version).to.be.greaterThan(version);
       });
       afterEach(async() => {
         await rs.reconfig(cfg);
@@ -973,7 +973,7 @@ describe('ReplicaSet', () => {
         expect(result.ok).to.equal(1);
         const conf = await rs.conf();
         expect(conf.members.length).to.equal(2);
-        expect(conf.version).to.equal(version + 1);
+        expect(conf.version).to.be.greaterThan(version);
       });
       afterEach(async() => {
         await rs.reconfig(cfg);
