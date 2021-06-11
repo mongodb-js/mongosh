@@ -88,7 +88,8 @@ describe('snippet integration tests', function() {
   });
 
   it('informs about the mongocompat snippet', async() => {
-    await shell.executeLine('sleep(2000)'); // "Ensure" index is up to date...
-    expect(await shell.executeLine('Date.timeFunc()')).to.match(/Date.timeFunc is not a function.+Try running `snippet install mongocompat`/);
+    await eventually(() => {
+      expect(await shell.executeLine('Date.timeFunc()')).to.match(/Date.timeFunc is not a function.+Try running `snippet install mongocompat`/);
+    }, { timeout: 30_000 });
   });
 });
