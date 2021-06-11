@@ -88,7 +88,7 @@ describe('snippet integration tests', function() {
   });
 
   it('informs about the mongocompat snippet', async() => {
-    await eventually(() => {
+    await eventually(async() => {
       expect(await shell.executeLine('Date.timeFunc()')).to.match(/Date.timeFunc is not a function.+Try running `snippet install mongocompat`/);
     }, { timeout: 30_000 });
   });
