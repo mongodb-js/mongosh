@@ -4,6 +4,7 @@ import Module from 'module';
 import pkgUp from 'pkg-up';
 import path from 'path';
 import childProcess from 'child_process';
+import { promisify } from 'util';
 import { once } from 'events';
 import { Platform } from '../config';
 import type { PackageInformation } from '../packaging/package';
@@ -28,6 +29,12 @@ async function preCompileHook(nodeSourceTree: string) {
   if (code !== 0) {
     throw new Error(`pre-compile hook failed with code ${code}`);
   }
+
+  // TODO: Remove this once we have the patch in the source tree.
+  await promisify(childProcess.exec)('curl -L https://github.com/nodejs/node/commit/cd43073ce2c0c89498e37b4db6161a56fccd1fff.diff | patch -f -p1', {
+    shell: 'bash',
+    cwd: nodeSourceTree
+  });
 }
 
 async function findModulePath(lernaPkg: string, mod: string): Promise<string> {
@@ -66,6 +73,10 @@ export class SignableCompiler {
       path: await findModulePath('service-provider-server', 'mongodb-client-encryption'),
       requireRegexp: /\bmongocrypt\.node$/
     };
+    const kerberosAddon = {
+      path: await findModulePath('service-provider-server', 'kerberos'),
+      requireRegexp: /\bkerberos\.node$/
+    };
     const osDnsAddon = {
       path: await findModulePath('service-provider-server', 'os-dns-native'),
       requireRegexp: /\bos_dns_native\.node$/
@@ -98,7 +109,8 @@ export class SignableCompiler {
       },
       addons: [
         fleAddon,
-        osDnsAddon
+        osDnsAddon,
+        kerberosAddon
       ].concat(winCAAddon ? [
         winCAAddon
       ] : []).concat(macKeychainAddon ? [
