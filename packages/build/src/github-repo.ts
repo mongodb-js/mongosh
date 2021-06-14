@@ -31,6 +31,7 @@ type ReleaseDetails = {
   upload_url: string;
   id: number;
   assets?: ReleaseAsset[]
+  html_url: string;
 };
 
 type ReleaseAsset = {
@@ -174,7 +175,7 @@ export class GithubRepo {
     return releases.find(({ tag_name }) => tag_name === tag);
   }
 
-  async promoteRelease(config: Config): Promise<void> {
+  async promoteRelease(config: Config): Promise<string> {
     const tag = `v${config.version}`;
 
     const releaseDetails = await this.getReleaseByTag(tag);
@@ -185,7 +186,7 @@ export class GithubRepo {
 
     if (!releaseDetails.draft) {
       console.info(`Release for ${tag} is already public.`);
-      return;
+      return releaseDetails.html_url;
     }
 
     const params = {
@@ -195,6 +196,7 @@ export class GithubRepo {
     };
 
     await this.octokit.repos.updateRelease(params);
+    return releaseDetails.html_url;
   }
 
   /**
@@ -279,12 +281,13 @@ export class GithubRepo {
     };
   }
 
-  async createPullRequest(title: string, fromBranch: string, toBaseBranch: string): Promise<{prNumber: number, url: string}> {
+  async createPullRequest(title: string, description: string, fromBranch: string, toBaseBranch: string): Promise<{prNumber: number, url: string}> {
     const response = await this.octokit.pulls.create({
       ...this.repo,
       base: toBaseBranch,
       head: fromBranch,
-      title
+      title,
+      body: description
     });
 
     return {

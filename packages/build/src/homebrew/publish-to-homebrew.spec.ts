@@ -57,13 +57,14 @@ describe('Homebrew publish-to-homebrew', () => {
 
     createPullRequest
       .rejects()
-      .withArgs('mongosh 1.0.0', 'mongodb-js:new-branch', 'master')
+      .withArgs('mongosh 1.0.0', sinon.match.string, 'mongodb-js:new-branch', 'master')
       .resolves({ prNumber: 42, url: 'url' });
 
     await publishToHomebrew(
       homebrewCore,
       homebrewFork,
       '1.0.0',
+      'githubRelease',
       httpsSha256,
       generateFormula,
       updateHomebrewFork
@@ -100,6 +101,7 @@ describe('Homebrew publish-to-homebrew', () => {
       homebrewCore,
       homebrewFork,
       '1.0.0',
+      'githubRelease',
       httpsSha256,
       generateFormula,
       updateHomebrewFork
@@ -134,13 +136,14 @@ describe('Homebrew publish-to-homebrew', () => {
 
     createPullRequest
       .rejects()
-      .withArgs('mongosh 1.0.0', 'mongodb-js:new-branch', 'master')
+      .withArgs('mongosh 1.0.0', sinon.match.string, 'mongodb-js:new-branch', 'master')
       .resolves({ prNumber: 42, url: 'url' });
 
     await publishToHomebrew(
       homebrewCore,
       homebrewFork,
       '1.0.0',
+      'githubRelease',
       httpsSha256,
       generateFormula,
       updateHomebrewFork

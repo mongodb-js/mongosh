@@ -62,7 +62,7 @@ export async function runPublish(
     config.downloadCenterAwsSecret || ''
   );
 
-  await mongoshGithubRepo.promoteRelease(config);
+  const releaseUrl = await mongoshGithubRepo.promoteRelease(config);
 
   // ensures the segment api key to be present in the published packages
   await writeAnalyticsConfig(
@@ -75,7 +75,8 @@ export async function runPublish(
   await publishToHomebrew(
     homebrewCoreGithubRepo,
     mongodbHomebrewForkGithubRepo,
-    config.version
+    config.version,
+    releaseUrl
   );
 
   console.info('mongosh: finished release process.');

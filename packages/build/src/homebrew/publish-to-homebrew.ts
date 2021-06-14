@@ -8,6 +8,7 @@ export async function publishToHomebrew(
   homebrewCore: GithubRepo,
   homebrewCoreFork: GithubRepo,
   packageVersion: string,
+  githubReleaseLink: string,
   httpsSha256Fn = httpsSha256,
   generateFormulaFn = generateUpdatedFormula,
   updateHomebrewForkFn = updateHomebrewFork
@@ -32,6 +33,13 @@ export async function publishToHomebrew(
     return;
   }
 
-  const pr = await homebrewCore.createPullRequest(`mongosh ${packageVersion}`, `${homebrewCoreFork.repo.owner}:${forkBranch}`, 'master');
+  const description = `This PR was created automatically and bumps \`mongosh\` to the latest published version \`${packageVersion}\`.\n\nFor additional details see ${githubReleaseLink}.`;
+
+  const pr = await homebrewCore.createPullRequest(
+    `mongosh ${packageVersion}`,
+    description,
+    `${homebrewCoreFork.repo.owner}:${forkBranch}`,
+    'master'
+  );
   console.info(`Created PR #${pr.prNumber} in ${homebrewCore.repo.owner}/${homebrewCore.repo.repo}: ${pr.url}`);
 }
