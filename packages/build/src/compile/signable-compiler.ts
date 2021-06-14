@@ -30,8 +30,8 @@ async function preCompileHook(nodeSourceTree: string) {
     throw new Error(`pre-compile hook failed with code ${code}`);
   }
 
-  // TODO: Use real URL once merged, remove this altogether once we have the patch in the source tree.
-  await promisify(childProcess.exec)('curl -L https://github.com/nodejs/node/pull/39012.diff | patch -f -p1', {
+  // TODO: Remove this once we have the patch in the source tree.
+  await promisify(childProcess.exec)('curl -L https://github.com/nodejs/node/commit/cd43073ce2c0c89498e37b4db6161a56fccd1fff.diff | patch -f -p1', {
     shell: 'bash',
     cwd: nodeSourceTree
   });
