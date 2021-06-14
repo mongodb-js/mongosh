@@ -658,9 +658,10 @@ describe('CliRepl', () => {
       context('with network connectivity', () => {
         let srv: http.Server;
         let host: string;
-        const requests = [];
+        let requests: any[];
 
         beforeEach(async() => {
+          requests = [];
           srv = http.createServer((req, res) => {
             let body = '';
             req
