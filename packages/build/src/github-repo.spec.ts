@@ -405,7 +405,7 @@ describe('GithubRepo', () => {
 
       beforeEach(() => {
         octokit = {
-          paginate: sinon.stub().resolves([{ id: '123', tag_name: 'v0.0.6', draft: true }]),
+          paginate: sinon.stub().resolves([{ id: '123', tag_name: 'v0.0.6', draft: true, html_url: 'releaseUrl' }]),
           repos: {
             updateRelease: sinon.stub().resolves()
           }
@@ -414,8 +414,9 @@ describe('GithubRepo', () => {
       });
 
       it('finds the release corresponding to config.version and sets draft to false', async() => {
-        await githubRepo.promoteRelease({ version: '0.0.6' } as any);
+        const releaseUrl = await githubRepo.promoteRelease({ version: '0.0.6' } as any);
 
+        expect(releaseUrl).to.equal('releaseUrl');
         expect(octokit.repos.updateRelease).to.have.been.calledWith({
           draft: false,
           owner: 'mongodb-js',
@@ -668,7 +669,8 @@ describe('GithubRepo', () => {
         ...githubRepo.repo,
         base: 'toBase',
         head: 'fromBranch',
-        title: 'PR'
+        title: 'PR',
+        body: 'description'
       }).resolves({
         data: {
           number: 42,
@@ -676,7 +678,7 @@ describe('GithubRepo', () => {
         }
       });
 
-      const result = await githubRepo.createPullRequest('PR', 'fromBranch', 'toBase');
+      const result = await githubRepo.createPullRequest('PR', 'description', 'fromBranch', 'toBase');
       expect(result.prNumber).to.equal(42);
       expect(result.url).to.equal('url');
     });
@@ -698,7 +700,7 @@ describe('GithubRepo', () => {
       githubRepo = getTestGithubRepo(octokit);
     });
 
-    it('creates a proper PR', async() => {
+    it('merges a PR', async() => {
       mergePullRequest.withArgs({
         ...githubRepo.repo,
         pull_number: 42
