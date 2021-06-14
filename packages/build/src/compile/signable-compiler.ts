@@ -4,6 +4,7 @@ import Module from 'module';
 import pkgUp from 'pkg-up';
 import path from 'path';
 import childProcess from 'child_process';
+import { promisify } from 'util';
 import { once } from 'events';
 import { Platform } from '../config';
 import type { PackageInformation } from '../packaging/package';
@@ -28,6 +29,12 @@ async function preCompileHook(nodeSourceTree: string) {
   if (code !== 0) {
     throw new Error(`pre-compile hook failed with code ${code}`);
   }
+
+  // TODO: Use real URL once merged, remove this altogether once we have the patch in the source tree.
+  await promisify(childProcess.exec)('curl -L https://github.com/nodejs/node/pull/39012.diff | patch -f -p1', {
+    shell: 'bash',
+    cwd: nodeSourceTree
+  });
 }
 
 async function findModulePath(lernaPkg: string, mod: string): Promise<string> {
