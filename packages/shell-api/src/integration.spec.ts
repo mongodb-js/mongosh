@@ -5,7 +5,7 @@ import Cursor from './cursor';
 import Explainable from './explainable';
 import Collection from './collection';
 import AggregationCursor from './aggregation-cursor';
-import { startTestServer, skipIfServerVersion } from '../../../testing/integration-testing-hooks';
+import { startTestServer, skipIfServerVersion, skipIfApiStrict } from '../../../testing/integration-testing-hooks';
 import { toShellResult, Topologies } from './index';
 import { Document } from '@mongosh/service-provider-core';
 import { ShellUserConfig } from '@mongosh/types';
@@ -371,6 +371,7 @@ describe('Shell API (integration)', function() {
     });
 
     describe('convertToCapped', () => {
+      skipIfApiStrict();
       let result;
 
       beforeEach(async() => {
@@ -527,6 +528,8 @@ describe('Shell API (integration)', function() {
     });
 
     describe('#reIndex', () => {
+      skipIfApiStrict();
+
       beforeEach(async() => {
         await serviceProvider.createCollection(dbName, collectionName);
       });
@@ -589,6 +592,8 @@ describe('Shell API (integration)', function() {
     });
 
     describe('totalIndexSize', () => {
+      skipIfApiStrict();
+
       beforeEach(async() => {
         await serviceProvider.createCollection(dbName, collectionName);
       });
@@ -599,6 +604,8 @@ describe('Shell API (integration)', function() {
     });
 
     describe('dataSize', () => {
+      skipIfApiStrict();
+
       beforeEach(async() => {
         await serviceProvider.createCollection(dbName, collectionName);
       });
@@ -609,6 +616,8 @@ describe('Shell API (integration)', function() {
     });
 
     describe('storageSize', () => {
+      skipIfApiStrict();
+
       beforeEach(async() => {
         await serviceProvider.createCollection(dbName, collectionName);
       });
@@ -619,6 +628,8 @@ describe('Shell API (integration)', function() {
     });
 
     describe('totalSize', () => {
+      skipIfApiStrict();
+
       beforeEach(async() => {
         await serviceProvider.createCollection(dbName, collectionName);
       });
@@ -629,6 +640,8 @@ describe('Shell API (integration)', function() {
     });
 
     describe('stats', () => {
+      skipIfApiStrict();
+
       beforeEach(async() => {
         await serviceProvider.createCollection(dbName, collectionName);
         await serviceProvider.insertOne(dbName, collectionName, { x: 1 });
@@ -712,6 +725,8 @@ describe('Shell API (integration)', function() {
     });
 
     describe('runCommand', () => {
+      skipIfApiStrict();
+
       beforeEach(async() => {
         await serviceProvider.createCollection(dbName, collectionName);
       });
@@ -822,6 +837,8 @@ describe('Shell API (integration)', function() {
     });
 
     describe('renameCollection', () => {
+      skipIfApiStrict();
+
       context('without dropTarget', () => {
         beforeEach(async() => {
           await serviceProvider.insertOne(dbName, collectionName, { doc: 1 });
@@ -953,6 +970,8 @@ describe('Shell API (integration)', function() {
     });
 
     describe('adminCommand', () => {
+      skipIfApiStrict();
+
       it('runs an adminCommand', async() => {
         const result = await database.adminCommand(
           { serverStatus: 1 }
@@ -963,6 +982,8 @@ describe('Shell API (integration)', function() {
     });
 
     describe('aggregate', () => {
+      skipIfApiStrict();
+
       it('runs an aggregate pipeline on the database', async() => {
         const cursor = await database.aggregate([{
           $listLocalSessions: {}
@@ -1014,11 +1035,14 @@ describe('Shell API (integration)', function() {
     });
 
     describe('createCollection', () => {
+      skipIfApiStrict();
+
       it('creates a collection without options', async() => {
         await database.createCollection('newcoll');
         const stats = await serviceProvider.runCommand(dbName, { collStats: 'newcoll' });
         expect(stats.nindexes).to.equal(1);
       });
+
       it('creates a collection with options', async() => {
         await database.createCollection('newcoll', {
           capped: true,
@@ -1099,6 +1123,8 @@ describe('Shell API (integration)', function() {
     });
 
     describe('listCommands', () => {
+      skipIfApiStrict();
+
       it('includes an entry for ping', async() => {
         const { ping } = (await database.listCommands()).value;
         expect(ping.help).to.be.a('string');
@@ -1830,6 +1856,8 @@ describe('Shell API (integration)', function() {
     });
   });
   describe('PlanCache', () => {
+    skipIfApiStrict();
+
     describe('list', () => {
       skipIfServerVersion(testServer, '< 4.4');
       it('lists all without args', async() => {
@@ -1882,6 +1910,8 @@ describe('Shell API (integration)', function() {
     });
   });
   describe('mapReduce', () => {
+    skipIfApiStrict();
+
     it('accepts function args and collection name as string', async() => {
       await loadMRExample(collection);
       const mapFn = `function() {
@@ -1976,6 +2006,8 @@ describe('Shell API (integration)', function() {
     });
 
     describe('fetchConnectionInfo', () => {
+      skipIfApiStrict();
+
       it('returns information about the connection', async() => {
         expect(internalState.connectionInfo.buildInfo.version).to.equal(await database.version());
       });
@@ -2009,18 +2041,24 @@ describe('Shell API (integration)', function() {
   });
 
   describe('database commands', () => {
-    it('db.isMaster() works', async() => {
-      expect((await database.isMaster()).ismaster).to.equal(true);
-      expect((await database.isMaster()).isWritablePrimary).to.equal(true);
+    context('hello as isMaster', () => {
+      skipIfApiStrict();
+      it('db.isMaster() works', async() => {
+        expect((await database.isMaster()).ismaster).to.equal(true);
+        expect((await database.isMaster()).isWritablePrimary).to.equal(true);
+      });
     });
 
-    it('db.hello() works', async() => {
-      const result = await database.hello();
-      expect(result.ismaster).to.equal(undefined);
-      expect(result.isWritablePrimary).to.equal(true);
+    context('hello as hello', () => {
+      it('db.hello() works', async() => {
+        const result = await database.hello();
+        expect(result.ismaster).to.equal(undefined);
+        expect(result.isWritablePrimary).to.equal(true);
+      });
     });
 
     context('with 5.0+ server', () => {
+      skipIfApiStrict();
       skipIfServerVersion(testServer, '<= 4.4');
 
       it('db.rotateCertificates() works', async() => {

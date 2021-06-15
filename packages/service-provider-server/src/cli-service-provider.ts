@@ -235,6 +235,14 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   ): Promise<CliServiceProvider> {
     const connectionString = new ConnectionString(uri || 'mongodb://nodb/');
     const clientOptions = processDriverOptions(driverOptions);
+    if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
+      clientOptions.serverApi = {
+        version: typeof clientOptions.serverApi === 'string' ? clientOptions.serverApi :
+          (clientOptions.serverApi?.version ?? '1'),
+        strict: true,
+        deprecationErrors: true
+      };
+    }
 
     const mongoClient = !cliOptions.nodb ?
       await connectMongoClient(

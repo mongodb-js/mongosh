@@ -30,6 +30,7 @@
     "test-ci-nocoverage": "lerna exec -- npm run test-ci",
     "test-e2e": "lerna run --stream test-e2e",
     "test-e2e-ci": "lerna run --stream test-e2e-ci",
+    "test-apistrict-ci": "lerna run --stream test-apistrict-ci",
     "test-connectivity": "lerna run --stream test-connectivity",
     "test-nodedriver": "node scripts/replace-package.js && npm run bootstrap -- --no-ci && npm run compile-ts && npm run test-ci-nocoverage",
     "compile-ts": "lerna run compile-ts",
