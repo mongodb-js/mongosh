@@ -939,9 +939,17 @@ describe('e2e', function() {
       expect(exitCode).to.equal(1);
     });
 
-    it('fails fast for ECONNREFUSED errors', async() => {
+    it('fails fast for ECONNREFUSED errors to a single host', async() => {
       const shell = TestShell.start({ args: [
-        '--port', '0'
+        '--port', '65535'
+      ] });
+      const result = await shell.waitForPromptOrExit();
+      expect(result).to.deep.equal({ state: 'exit', exitCode: 1 });
+    });
+
+    it('fails fast for ECONNREFUSED errors to multiple hosts', async() => {
+      const shell = TestShell.start({ args: [
+        'mongodb://127.0.0.1:65535,127.0.0.2:65535,127.0.0.3:65535/?replicaSet=foo&readPreference=secondary'
       ] });
       const result = await shell.waitForPromptOrExit();
       expect(result).to.deep.equal({ state: 'exit', exitCode: 1 });

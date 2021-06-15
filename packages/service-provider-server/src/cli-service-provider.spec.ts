@@ -41,6 +41,7 @@ describe('CliServiceProvider', () => {
       connect() {}
       db() {}
       close() {}
+      topology: any;
     }
 
     it('connects once when no AutoEncryption set', async() => {
@@ -141,9 +142,16 @@ describe('CliServiceProvider', () => {
       mClient.connect = () => new Promise((resolve, reject) => {
         rejectConnect = reject;
         setImmediate(() => {
-          mClient.emit('serverHeartbeatFailed', { failure: err });
+          mClient.emit('serverHeartbeatFailed', { failure: err, connectionId: uri });
         });
       });
+      mClient.topology = {
+        description: {
+          servers: new Map([
+            ['localhost:27017', {}]
+          ])
+        }
+      };
       try {
         await connectMongoClient(uri, {}, mClientType as any);
       } catch (e) {
