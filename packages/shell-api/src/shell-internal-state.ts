@@ -151,9 +151,13 @@ export default class ShellInternalState {
 
   async fetchConnectionInfo(): Promise<void> {
     if (!this.cliOptions.nodb) {
-      this.connectionInfo = await this.currentDb._mongo._serviceProvider.getConnectionInfo();
+      this.connectionInfo = await this.currentServiceProvider.getConnectionInfo();
+      const apiVersionInfo = this.apiVersionInfo();
       this.messageBus.emit('mongosh:connect', {
         ...this.connectionInfo.extraInfo,
+        api_version: apiVersionInfo?.version,
+        api_strict: apiVersionInfo?.strict,
+        api_deprecation_errors: apiVersionInfo?.deprecationErrors,
         uri: redactInfo(this.connectionInfo.extraInfo.uri)
       });
     }
@@ -307,8 +311,7 @@ export default class ShellInternalState {
         return topology;
       },
       apiVersionInfo: () => {
-        const { serverApi } = this.currentServiceProvider.getRawClient()?.options ?? {};
-        return serverApi?.version ? { strict: false, deprecationErrors: false, ...serverApi } : undefined;
+        return this.apiVersionInfo();
       },
       connectionInfo: () => {
         return this.connectionInfo.extraInfo;
@@ -336,6 +339,11 @@ export default class ShellInternalState {
         }
       }
     };
+  }
+
+  apiVersionInfo(): Required<ServerApi> | undefined {
+    const { serverApi } = this.currentServiceProvider.getRawClient()?.options ?? {};
+    return serverApi?.version ? { strict: false, deprecationErrors: false, ...serverApi } : undefined;
   }
 
   async onInterruptExecution(): Promise<boolean> {

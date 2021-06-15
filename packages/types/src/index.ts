@@ -43,6 +43,9 @@ export interface ConnectEvent {
   dl_version?: string;
   is_genuine: boolean;
   non_genuine_server_name: string;
+  api_version?: string;
+  api_strict?: boolean;
+  api_deprecation_errors?: boolean;
   node_version: string;
   uri: string;
 }
