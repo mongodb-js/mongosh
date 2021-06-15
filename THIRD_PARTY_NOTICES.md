@@ -234,7 +234,7 @@ Package|Version|License
 **[remove-trailing-slash](#c4aa47ea31cd2ba713e965864e0b6d76049e060ca2a20bebca0be359deecc718)**|0.1.0|MIT
 **[resolve](#cecdbfada86ae548bc67d1287c3ab44ac8f35906206b05d29f09ab8772b5a505)**|1.20.0|MIT
 **[resolve](#cfbee28e2a147f6dd071acdfc869d048ce7f5f5dd0e4bd1263cb99aba1c40449)**|1.17.0|MIT
-**[resolve-mongodb-srv](#00888583452f35a17c4e220e376c4a0b1bd3fd3d4690bb4d9b36c037b398db1b)**|1.0.1|Apache-2.0
+**[resolve-mongodb-srv](#3172bdb1738e12183814379be9f105351369bc416dad20f4d7ca16baf530cc06)**|1.1.0|Apache-2.0
 **[safe-buffer](#115052870841b125f6e9deb1b800b99ed9c660f269050eafb32c84bdd9211f12)**|5.1.2|MIT
 **[safe-buffer](#952cf236ee56e7de5ea7e772caf3e256866f9dbdffc492539c48cd8c15ac9674)**|5.2.1|MIT
 **[saslprep](#650475af3b2a0c96fc8e5d09155f96dccd1a6b720da0197b0ea1121968883b25)**|1.0.4|MIT
@@ -266,12 +266,13 @@ Package|Version|License
 **[to-buffer](#5934a0e0ea92470fb3bbe2a1d6869494c53208b1b06aaee8ffd31e4e040e4e85)**|1.1.1|MIT
 **[to-fast-properties](#79afe8c8f3cc0bb1187c6ffaf6105b49888137e917978e870d67727353aba954)**|2.0.0|MIT
 **[tr46](#ea9f887c545b5bf0b77a1359bbdefd249bd7caef35f5094febeb0de965480c4c)**|2.0.2|MIT
+**[tr46](#181343fca47e669c997ddb536b6caff3c769402b0674612e32d3c274719049c8)**|2.1.0|MIT
 **[tunnel-agent](#09f746d17a1777efda5a12a6072da10c6820d7f56ea8aa0af202a2c83d6ccb67)**|0.6.0|Apache-2.0
 **[util-deprecate](#a1bd80d6a50b36e34032c402c5204d6276747d8212b68b164a9e3f895b90c2d6)**|1.0.2|MIT
 **[uuid](#e023df51e61e43f45cd8882485cac21ba6eb49b42732a93fe4f1f967d3933beb)**|3.4.0|MIT
 **[webidl-conversions](#0868d5fd0f1744b732e4832b5dd5bd9ce27ffe9dcaa6cacda5a4efca750da5fb)**|6.1.0|BSD-2-Clause
 **[whatwg-url](#ef6d4d46ba99598bc906aaf357ea6fefa6708c0c1dfa4cba1ce5cbc10c1a721b)**|8.4.0|MIT
-**[whatwg-url](#34aa679c7cdb1c8229a8c96157d114830709cf6b3d87634db847aeb5c2b932b5)**|8.5.0|MIT
+**[whatwg-url](#1b9074bca64d1c71f4c40e9dffb78610493cda13a00a5ad06063ce2741751aff)**|8.6.0|MIT
 **[which](#5a71f2b741944bf107d6e7f067241798a6e277e42e8ca1e28c4608ccc233f8ec)**|2.0.2|ISC
 **[which-pm-runs](#52706f86df23330d11bd1b7736cb665692a56bb749511bc49fa54c0595974411)**|1.0.0|MIT
 **[wide-align](#c58d08bb85700ddf0f3ea9623adf6b3377301a5a4eeb3d115a63320de0cb59e6)**|1.1.3|ISC
@@ -12782,8 +12783,8 @@ Authors:
 * James Halliday <[mail@substack.net](nomail)> (http://substack.net)
 
 
-<a id="00888583452f35a17c4e220e376c4a0b1bd3fd3d4690bb4d9b36c037b398db1b"></a>
-### [resolve-mongodb-srv](https://www.npmjs.com/package/resolve-mongodb-srv) (version 1.0.1)
+<a id="3172bdb1738e12183814379be9f105351369bc416dad20f4d7ca16baf530cc06"></a>
+### [resolve-mongodb-srv](https://www.npmjs.com/package/resolve-mongodb-srv) (version 1.1.0)
 <!-- initially found at packages/service-provider-server/node_modules/resolve-mongodb-srv -->
 > Resolve mongodb+srv:// URLs to mongodb:// URLs
 
@@ -14060,6 +14061,44 @@ Authors:
 * Timothy Gu <timothygu99@gmail.com>
 
 
+<a id="181343fca47e669c997ddb536b6caff3c769402b0674612e32d3c274719049c8"></a>
+### [tr46](https://www.npmjs.com/package/tr46) (version 2.1.0)
+<!-- initially found at packages/service-provider-server/node_modules/tr46 -->
+> An implementation of the Unicode UTS #46: Unicode IDNA Compatibility Processing
+
+License tags: MIT
+
+License files:
+* LICENSE.md:
+
+      The MIT License (MIT)
+      
+      Copyright (c) 2016 Sebastian Mayr
+      
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+      
+      The above copyright notice and this permission notice shall be included in all
+      copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE.
+      
+
+Authors:
+* Sebastian Mayr <npm@smayr.name>
+* Timothy Gu <timothygu99@gmail.com>
+
+
 <a id="09f746d17a1777efda5a12a6072da10c6820d7f56ea8aa0af202a2c83d6ccb67"></a>
 ### [tunnel-agent](https://www.npmjs.com/package/tunnel-agent) (version 0.6.0)
 <!-- initially found at packages/service-provider-core/node_modules/tunnel-agent -->
@@ -14269,8 +14308,8 @@ Authors:
 * Sebastian Mayr <github@smayr.name>
 
 
-<a id="34aa679c7cdb1c8229a8c96157d114830709cf6b3d87634db847aeb5c2b932b5"></a>
-### [whatwg-url](https://www.npmjs.com/package/whatwg-url) (version 8.5.0)
+<a id="1b9074bca64d1c71f4c40e9dffb78610493cda13a00a5ad06063ce2741751aff"></a>
+### [whatwg-url](https://www.npmjs.com/package/whatwg-url) (version 8.6.0)
 <!-- initially found at packages/service-provider-server/node_modules/whatwg-url -->
 > An implementation of the WHATWG URL Standard's URL API and parsing machinery
 
