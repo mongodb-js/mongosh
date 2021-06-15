@@ -231,6 +231,16 @@ describe('e2e direct connection', () => {
           });
         });
       });
+
+      describe('fail-fast connections', () => {
+        it('does not fail fast for ECONNREFUSED errors when one host is reachable', async() => {
+          const shell = TestShell.start({ args: [
+            `mongodb://${await rs1.hostport()},127.0.0.1:1/?replicaSet=${replSetId}&readPreference=secondary`
+          ] });
+          const result = await shell.waitForPromptOrExit();
+          expect(result).to.deep.equal({ state: 'prompt' });
+        });
+      });
     });
   });
 });

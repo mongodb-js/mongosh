@@ -945,9 +945,23 @@ describe('e2e', function() {
       expect(exitCode).to.equal(1);
     });
 
-    it('fails fast for ECONNREFUSED errors', async() => {
+    it('fails fast for ECONNREFUSED errors to a single host', async() => {
       const shell = TestShell.start({ args: [
-        '--port', '0'
+        '--port', '1'
+      ] });
+      const result = await shell.waitForPromptOrExit();
+      expect(result).to.deep.equal({ state: 'exit', exitCode: 1 });
+    });
+
+    it('fails fast for ECONNREFUSED errors to multiple hosts', async function() {
+      if (process.platform === 'darwin') {
+        // On macOS, for some reason only connection that fails is the 127.0.0.1:1
+        // one, over and over. It should be fine to only skip the test there, as this
+        // isn't a shell-specific issue.
+        return this.skip();
+      }
+      const shell = TestShell.start({ args: [
+        'mongodb://127.0.0.1:1,127.0.0.2:1,127.0.0.3:1/?replicaSet=foo&readPreference=secondary'
       ] });
       const result = await shell.waitForPromptOrExit();
       expect(result).to.deep.equal({ state: 'exit', exitCode: 1 });

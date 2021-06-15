@@ -19,7 +19,9 @@ import {
   ReadPreferenceFromOptions,
   ReadPreferenceLike,
   OperationOptions,
-  ServerHeartbeatFailedEvent
+  ServerHeartbeatFailedEvent,
+  ServerHeartbeatSucceededEvent,
+  TopologyDescription
 } from 'mongodb';
 
 import {
@@ -141,21 +143,41 @@ const DEFAULT_BASE_OPTIONS: OperationOptions = Object.freeze({
  * errors.
  */
 async function connectWithFailFast(client: MongoClient): Promise<void> {
-  let failFastErr;
-  const heartbeatFailureListener = ({ failure }: ServerHeartbeatFailedEvent) => {
+  const failedConnections = new Map<string, Error>();
+  let failedEarly = false;
+
+  const heartbeatFailureListener = ({ failure, connectionId }: ServerHeartbeatFailedEvent) => {
+    const topologyDescription: TopologyDescription | undefined = (client as any).topology?.description;
+    const servers = topologyDescription?.servers;
+    if (!servers?.has(connectionId)) {
+      return; // TODO: Make a way to log this condition to the mongosh bus.
+    }
+
     if (isFastFailureConnectionError(failure)) {
-      failFastErr = failure;
-      client.close();
+      failedConnections.set(connectionId, failure);
+      if ([...servers.keys()].every(server => failedConnections.has(server))) {
+        failedEarly = true;
+        client.close();
+      }
     }
   };
 
+  const heartbeatSucceededListener = ({ connectionId }: ServerHeartbeatSucceededEvent) => {
+    failedConnections.delete(connectionId);
+  };
+
   client.addListener('serverHeartbeatFailed', heartbeatFailureListener);
+  client.addListener('serverHeartbeatSucceeded', heartbeatSucceededListener);
   try {
     await client.connect();
   } catch (err) {
-    throw failFastErr || err;
+    if (failedEarly) {
+      throw failedConnections.values().next().value; // Just use the first failure.
+    }
+    throw err;
   } finally {
     client.removeListener('serverHeartbeatFailed', heartbeatFailureListener);
+    client.removeListener('serverHeartbeatSucceeded', heartbeatSucceededListener);
   }
 }
 
