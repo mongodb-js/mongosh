@@ -1,4 +1,5 @@
 import { MongoshInternalError } from '@mongosh/errors';
+import bson from 'bson';
 import { once } from 'events';
 import { promises as fs } from 'fs';
 import http from 'http';
@@ -274,6 +275,22 @@ describe('CliRepl', () => {
           await cliRepl.start('', {});
         } catch { /* not empty */ }
         await onerror;
+      });
+
+      it('removes old log files', async() => {
+        const oldlogfile = path.join(tmpdir.path, '60a0064774d771e863d9a1e1_log');
+        const newerlogfile = path.join(tmpdir.path, `${new bson.ObjectId()}_log`);
+        await fs.writeFile(oldlogfile, 'ignoreme');
+        await fs.writeFile(newerlogfile, 'ignoreme');
+        cliRepl = new CliRepl(cliReplOptions);
+        await cliRepl.start('', {});
+        await fs.stat(newerlogfile);
+        try {
+          await fs.stat(oldlogfile);
+          expect.fail('missed exception');
+        } catch (err) {
+          expect(err.code).to.equal('ENOENT');
+        }
       });
 
       it('verifies the Node.js version', async() => {

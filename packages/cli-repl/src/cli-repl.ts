@@ -279,6 +279,7 @@ class CliRepl {
    */
   async openLogStream(): Promise<Writable> {
     const path = this.shellHomeDirectory.localPath(`${this.logId}_log`);
+    await this.cleanupOldLogfiles();
     try {
       const stream = createWriteStream(path, { mode: 0o600 });
       await once(stream, 'ready');
@@ -291,6 +292,23 @@ class CliRepl {
           cb();
         }
       });
+    }
+  }
+
+  async cleanupOldLogfiles(): Promise<void> {
+    const dir = this.shellHomeDirectory.localPath('');
+    for await (const dirent of await fs.opendir(dir)) {
+      if (!dirent.isFile()) continue;
+      const { id } = dirent.name.match(/^(?<id>[a-f0-9]+)_log$/i)?.groups ?? {};
+      if (!id) continue;
+      // Delete files older than 30 days
+      if (new bson.ObjectId(id).generationTime < (Date.now() / 1000) - 30 * 86400) {
+        try {
+          await fs.unlink(path.join(dir, dirent.name));
+        } catch (err) {
+          this.bus.emit('mongosh:error', err);
+        }
+      }
     }
   }
 
