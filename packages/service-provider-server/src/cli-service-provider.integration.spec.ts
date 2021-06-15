@@ -2,7 +2,8 @@ import CliServiceProvider from './cli-service-provider';
 import { expect } from 'chai';
 import { MongoClient } from 'mongodb';
 import { startTestServer, skipIfServerVersion } from '../../../testing/integration-testing-hooks';
-import { DbOptions, MongoClientOptions, ConnectionString } from '@mongosh/service-provider-core';
+import { DbOptions, MongoClientOptions } from '@mongosh/service-provider-core';
+import ConnectionString from 'mongodb-connection-string-url';
 
 describe('CliServiceProvider [integration]', function() {
   const testServer = startTestServer('shared');

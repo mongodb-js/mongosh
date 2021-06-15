@@ -1,3 +1,4 @@
+import './textencoder-polyfill'; // for mongodb-connection-string-url in the java-shell
 import ServiceProvider, { ServiceProviderCore } from './service-provider';
 import getConnectInfo, { ConnectInfo } from './connect-info';
 import { ReplPlatform } from './platform';
@@ -23,7 +24,6 @@ import {
 } from 'bson';
 import { bsonStringifiers } from './printable-bson';
 import ShellAuthOptions from './shell-auth-options';
-import { ConnectionString } from './connection-string';
 export * from './all-transport-types';
 export * from './all-fle-types';
 import { isFastFailureConnectionError } from './fast-failure-connect';
@@ -58,6 +58,5 @@ export {
   bson,
   bsonStringifiers,
   ConnectInfo,
-  ConnectionString,
   isFastFailureConnectionError
 };

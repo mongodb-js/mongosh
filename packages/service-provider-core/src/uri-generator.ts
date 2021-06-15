@@ -3,7 +3,7 @@
 import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
 import i18n from '@mongosh/i18n';
 import CliOptions from './cli-options';
-import { ConnectionString } from './connection-string';
+import ConnectionString from 'mongodb-connection-string-url';
 import { DEFAULT_DB } from './index';
 
 /**

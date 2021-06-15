@@ -1,4 +1,4 @@
-import { textEncodingPolyfill } from './whatwg-url';
+import { textEncodingPolyfill } from './textencoder-polyfill';
 import { expect } from 'chai';
 
 describe('TextDecoder/TextEncoder polyfill', () => {
