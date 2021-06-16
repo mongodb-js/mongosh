@@ -77,7 +77,6 @@ import {
   ChangeStreamOptions,
   ChangeStream,
   bson as BSON,
-  ConnectionString,
   FLE,
   AutoEncryptionOptions,
   isFastFailureConnectionError
@@ -85,6 +84,7 @@ import {
 
 import { MongoshCommandFailed, MongoshInternalError, MongoshRuntimeError } from '@mongosh/errors';
 import { ensureMongoNodeNativePatchesAreApplied } from './mongodb-patches';
+import ConnectionString from 'mongodb-connection-string-url';
 
 const bsonlib = {
   Binary,

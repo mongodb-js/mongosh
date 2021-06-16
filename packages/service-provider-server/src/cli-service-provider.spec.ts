@@ -4,7 +4,7 @@ import { Collection, Db, MongoClient } from 'mongodb';
 import sinonChai from 'sinon-chai';
 import sinon, { StubbedInstance, stubInterface, stubConstructor } from 'ts-sinon';
 import CliServiceProvider, { connectMongoClient } from './cli-service-provider';
-import { ConnectionString } from '@mongosh/service-provider-core';
+import ConnectionString from 'mongodb-connection-string-url';
 import { EventEmitter } from 'events';
 
 chai.use(sinonChai);

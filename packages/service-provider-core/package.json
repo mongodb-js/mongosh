@@ -32,11 +32,10 @@
     "bson": "^4.4.0",
     "mongodb": "4.0.0-beta.5",
     "mongodb-build-info": "^1.1.1",
-    "whatwg-url": "^8.4.0"
+    "mongodb-connection-string-url": "^1.0.0"
   },
   "devDependencies": {
-    "@types/bl": "^2.1.0",
-    "@types/whatwg-url": "^8.0.0"
+    "@types/bl": "^2.1.0"
   },
   "optionalDependencies": {
     "mongodb-client-encryption": "^1.2.5"
