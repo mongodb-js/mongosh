@@ -414,10 +414,13 @@ export class SnippetManager implements ShellPlugin {
         } else {
           output = await this.runNpm(args[0]);
         }
+
+        const firstLineEnd = output.indexOf('\n');
+        let packages = output.substr(firstLineEnd + 1);
         for (const { name, snippetName } of this.snippets) {
-          output = output.replace(new RegExp(escapeRegexp(name), 'g'), `mongosh:${snippetName}`);
+          packages = packages.replace(new RegExp(escapeRegexp(name), 'g'), `mongosh:${snippetName}`);
         }
-        return output;
+        return (firstLineEnd < 0 ? output : output.substr(0, firstLineEnd + 1)) + packages;
       }
       case 'search':
         return await this.search();

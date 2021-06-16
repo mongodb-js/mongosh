@@ -386,6 +386,7 @@ describe('SnippetManager', () => {
   });
 
   it('will fail when the index URI is inaccessible', async() => {
+    await snippetManager.inflightFetchIndexPromise;
     try {
       indexURL = `${baseURL}/404`;
       await snippetManager.runSnippetCommand(['refresh']);
@@ -396,6 +397,7 @@ describe('SnippetManager', () => {
   });
 
   it('will fail when the index URI returns data in the wrong format (not .br)', async() => {
+    await snippetManager.inflightFetchIndexPromise;
     try {
       indexURL = `${baseURL}/notindexfile`;
       await snippetManager.runSnippetCommand(['refresh']);
@@ -406,6 +408,7 @@ describe('SnippetManager', () => {
   });
 
   it('will fail when the index URI returns data in the wrong format (not .bson.br)', async() => {
+    await snippetManager.inflightFetchIndexPromise;
     try {
       indexURL = `${baseURL}/notindexfile2`;
       await snippetManager.runSnippetCommand(['refresh']);
@@ -537,6 +540,7 @@ describe('SnippetManager', () => {
   });
 
   it('can install from a tarball', async() => {
+    await snippetManager.inflightFetchIndexPromise;
     indexURL = `${baseURL}/index.bson.br;${baseURL}/index2.bson.br;`;
     (evaluationListener.onPrompt as any).resolves('yes');
     await snippetManager.runSnippetCommand(['install', 'tarballed-example']);
@@ -544,6 +548,7 @@ describe('SnippetManager', () => {
   });
 
   it('reports back errors if npm fails', async() => {
+    await snippetManager.inflightFetchIndexPromise;
     indexURL = `${baseURL}/index.bson.br;${baseURL}/index2.bson.br;`;
     (evaluationListener.onPrompt as any).resolves('yes');
     try {
@@ -724,6 +729,7 @@ describe('SnippetManager', () => {
 
   describe('interruption support', () => {
     it('commands methods like load-all perform interruption checkpoints', async() => {
+      await snippetManager.inflightFetchIndexPromise;
       indexURL = `${baseURL}/index.bson.br;${baseURL}/index2.bson.br;`;
       await snippetManager.runSnippetCommand(['refresh']);
 
