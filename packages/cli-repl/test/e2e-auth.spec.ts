@@ -1014,7 +1014,11 @@ describe('Auth e2e', function() {
             try {
               try {
                 try {
-                  shell.assertContainsOutput('Unspecified GSS failure');
+                  try {
+                    shell.assertContainsOutput('Unspecified GSS failure');
+                  } catch {
+                    shell.assertContainsOutput('The context has expired: Success');
+                  }
                 } catch {
                   shell.assertContainsOutput('The token supplied to the function is invalid');
                 }
