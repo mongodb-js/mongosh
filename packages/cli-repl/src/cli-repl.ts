@@ -297,9 +297,15 @@ class CliRepl {
 
   async cleanupOldLogfiles(): Promise<void> {
     const dir = this.shellHomeDirectory.localPath('');
-    for await (const dirent of await fs.opendir(dir)) {
+    let dirHandle;
+    try {
+      dirHandle = await fs.opendir(dir);
+    } catch {
+      return;
+    }
+    for await (const dirent of dirHandle) {
       if (!dirent.isFile()) continue;
-      const { id } = dirent.name.match(/^(?<id>[a-f0-9]+)_log$/i)?.groups ?? {};
+      const { id } = dirent.name.match(/^(?<id>[a-f0-9]{24})_log$/i)?.groups ?? {};
       if (!id) continue;
       // Delete files older than 30 days
       if (new bson.ObjectId(id).generationTime < (Date.now() / 1000) - 30 * 86400) {
