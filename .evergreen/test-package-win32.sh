@@ -2,7 +2,7 @@
 if echo "$ARTIFACT_URL" | grep -q .zip; then
   curl -sSfL "$ARTIFACT_URL" > mongosh.zip
   export ARTIFACT_PATH="$PWD/mongosh.zip"
-  (cd /cygdrive/c/Program\ Files/ && rm -rf mongosh && mkdir mongosh && cd mongosh && unzip "$ARTIFACT_PATH" && chmod -v +x bin/*)
+  (cd /cygdrive/c/Program\ Files/ && rm -rf mongosh && mkdir mongosh && cd mongosh && unzip "$ARTIFACT_PATH" && mv -v */bin . && chmod -v +x bin/*)
   export PATH="/cygdrive/c/Program Files/mongosh/bin:$PATH"
 else
   curl -sSfL "$ARTIFACT_URL" > mongosh.msi
