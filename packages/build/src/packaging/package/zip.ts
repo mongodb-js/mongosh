@@ -1,3 +1,4 @@
+import path from 'path';
 import rimraf from 'rimraf';
 import { promisify } from 'util';
 import { createCompressedArchiveContents, execFile as execFileFn } from './helpers';
@@ -15,7 +16,8 @@ export async function createZipPackage(
   // evergreen macOS and Windows machines, respectively, at this point.
   // In either case, using these has the advantage of preserving executable permissions
   // as opposed to using libraries like adm-zip.
-  const tmpDir = await createCompressedArchiveContents(pkg);
+  const filename = path.basename(outFile).replace(/\.[^.]+$/, '');
+  const tmpDir = await createCompressedArchiveContents(filename, pkg);
   try {
     await execFile('zip', ['-r', outFile, '.'], { cwd: tmpDir });
   } catch (err) {

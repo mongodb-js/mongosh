@@ -21,22 +21,27 @@ export async function execFile(...args: Parameters<typeof execFileWithoutLogging
 
 /**
  * Create a directory containing the contents of the to-be-generated tarball/zip.
+ *
+ * The tarball/zip will contain a top-level folder that will then contain all files instead of
+ * have all files directly in the archive.
  */
-export async function createCompressedArchiveContents(pkg: PackageInformation): Promise<string> {
-  // For the tarball and the zip file: We put license and readme texts at the
-  // root of the package, and put all binaries into /bin.
+export async function createCompressedArchiveContents(archiveRootName: string, pkg: PackageInformation): Promise<string> {
+  // For the tarball and the zip file:
+  // - We add a single top-level folder to contain all contents
+  // - We put license and readme texts directly in the top-level folder, and put all binaries into folder/bin.
   const tmpDir = path.join(__dirname, '..', '..', '..', 'tmp', `pkg-${Date.now()}-${Math.random()}`);
-  await fs.mkdir(tmpDir, { recursive: true });
+  const archiveRoot = path.join(tmpDir, archiveRootName);
+  await fs.mkdir(archiveRoot, { recursive: true });
   const docFiles = [
     ...pkg.otherDocFilePaths,
     ...pkg.binaries.map(({ license }) => license)
   ];
   for (const { sourceFilePath, packagedFilePath } of docFiles) {
-    await fs.copyFile(sourceFilePath, path.join(tmpDir, packagedFilePath), COPYFILE_FICLONE);
+    await fs.copyFile(sourceFilePath, path.join(archiveRoot, packagedFilePath), COPYFILE_FICLONE);
   }
-  await fs.mkdir(path.join(tmpDir, 'bin'));
+  await fs.mkdir(path.join(archiveRoot, 'bin'));
   for (const { sourceFilePath } of pkg.binaries) {
-    await fs.copyFile(sourceFilePath, path.join(tmpDir, 'bin', path.basename(sourceFilePath)), COPYFILE_FICLONE);
+    await fs.copyFile(sourceFilePath, path.join(archiveRoot, 'bin', path.basename(sourceFilePath)), COPYFILE_FICLONE);
   }
   return tmpDir;
 }
