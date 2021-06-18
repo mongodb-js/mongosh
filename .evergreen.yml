@@ -408,10 +408,10 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
       - func: check
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
 
   ###
   # UNIT TESTS
@@ -531,99 +531,99 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
       - func: test
         vars:
           mongosh_server_test_version: "4.0.x-community"
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
   - name: test_m40xe_n14
     tags: ["unit-test"]
     commands:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
       - func: test
         vars:
           mongosh_server_test_version: "4.0.x"
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
   - name: test_m42xc_n14
     tags: ["unit-test"]
     commands:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x-community"
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
   - name: test_m42xe_n14
     tags: ["unit-test"]
     commands:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x"
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
   - name: test_m44xc_n14
     tags: ["unit-test"]
     commands:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x-community"
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
   - name: test_m44xe_n14
     tags: ["unit-test"]
     commands:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x"
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
   - name: test_m50xc_n14
     tags: ["unit-test"]
     commands:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
       - func: test
         vars:
           mongosh_server_test_version: "5.0.0-rc0-community"
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
   - name: test_m50xe_n14
     tags: ["unit-test"]
     commands:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
       - func: test
         vars:
           mongosh_server_test_version: "5.0.0-rc0"
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
   - name: test_mlatest_n14
     tags: ["unit-test", "mlatest"]
     commands:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
       - func: test
         vars:
           mongosh_server_test_version: "latest-alpha"
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
 
   ###
   # INTEGRATION TESTS
@@ -644,7 +644,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
       - func: test_connectivity
   - name: test_apistrict
     tags: ["extra-integration-test"]
@@ -652,10 +652,10 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
       - func: test_apistrict
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
           mongosh_server_test_version: "latest-alpha"
           mongosh_test_force_api_strict: "1"
   - name: compile_artifact
@@ -663,10 +663,10 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
       - func: compile_artifact
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
 
   ###
   # E2E TESTS
@@ -680,13 +680,13 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: darwin-x64
       - func: run_e2e_tests
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
   - name: e2e_tests_linux_x64
     tags: ["e2e-test"]
     depends_on:
@@ -696,13 +696,13 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64
       - func: run_e2e_tests
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
   - name: e2e_tests_linux_arm64
     tags: ["e2e-test"]
     depends_on:
@@ -712,13 +712,13 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64
       - func: run_e2e_tests
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
   - name: e2e_tests_linux_ppc64le
     tags: ["e2e-test"]
     depends_on:
@@ -728,13 +728,13 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-ppc64le
       - func: run_e2e_tests
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
   - name: e2e_tests_linux_s390x
     tags: ["e2e-test"]
     depends_on:
@@ -744,13 +744,13 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-s390x
       - func: run_e2e_tests
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
   - name: e2e_tests_win
     tags: ["e2e-test"]
     depends_on:
@@ -760,13 +760,13 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
       - func: download_compiled_artifact
         vars:
           executable_os_id: win32
       - func: run_e2e_tests
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
 
   ###
   # PACKAGING
@@ -783,10 +783,10 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
       - func: package_and_upload_artifact
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
           distribution_build_variant: darwin-x64
           executable_os_id: darwin-x64
   - name: package_and_upload_artifact_macos_arm64
@@ -801,10 +801,10 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
       - func: package_and_upload_artifact
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
           distribution_build_variant: darwin-arm64
           executable_os_id: darwin-arm64
   - name: package_and_upload_artifact_linux_x64
@@ -819,10 +819,10 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
       - func: package_and_upload_artifact
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
           distribution_build_variant: linux-x64
           executable_os_id: linux-x64
   - name: package_and_upload_artifact_debian_x64
@@ -837,10 +837,10 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
       - func: package_and_upload_artifact
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
           distribution_build_variant: debian-x64
           executable_os_id: linux-x64
   - name: package_and_upload_artifact_rhel_x64
@@ -855,10 +855,10 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
       - func: package_and_upload_artifact
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
           distribution_build_variant: rhel-x64
           executable_os_id: linux-x64
   - name: package_and_upload_artifact_suse_x64
@@ -873,10 +873,10 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
       - func: package_and_upload_artifact
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
           distribution_build_variant: suse-x64
           executable_os_id: linux-x64
   - name: package_and_upload_artifact_linux_arm64
@@ -891,10 +891,10 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
       - func: package_and_upload_artifact
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
           distribution_build_variant: linux-arm64
           executable_os_id: linux-arm64
   - name: package_and_upload_artifact_debian_arm64
@@ -909,10 +909,10 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
       - func: package_and_upload_artifact
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
           distribution_build_variant: debian-arm64
           executable_os_id: linux-arm64
   - name: package_and_upload_artifact_rhel_arm64
@@ -927,10 +927,10 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
       - func: package_and_upload_artifact
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
           distribution_build_variant: rhel-arm64
           executable_os_id: linux-arm64
   - name: package_and_upload_artifact_amzn2_arm64
@@ -945,10 +945,10 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
       - func: package_and_upload_artifact
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
           distribution_build_variant: amzn2-arm64
           executable_os_id: linux-arm64
   - name: package_and_upload_artifact_linux_s390x
@@ -963,10 +963,10 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
       - func: package_and_upload_artifact
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
           distribution_build_variant: linux-s390x
           executable_os_id: linux-s390x
   - name: package_and_upload_artifact_rhel_s390x
@@ -981,10 +981,10 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
       - func: package_and_upload_artifact
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
           distribution_build_variant: rhel-s390x
           executable_os_id: linux-s390x
   - name: package_and_upload_artifact_linux_ppc64le
@@ -999,10 +999,10 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
       - func: package_and_upload_artifact
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
           distribution_build_variant: linux-ppc64le
           executable_os_id: linux-ppc64le
   - name: package_and_upload_artifact_rhel_ppc64le
@@ -1017,10 +1017,10 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
       - func: package_and_upload_artifact
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
           distribution_build_variant: rhel-ppc64le
           executable_os_id: linux-ppc64le
   - name: package_and_upload_artifact_win
@@ -1035,10 +1035,10 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
       - func: package_and_upload_artifact
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
           distribution_build_variant: win32-x64
   - name: package_and_upload_artifact_winmsi
     depends_on:
@@ -1052,10 +1052,10 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
       - func: package_and_upload_artifact
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
           distribution_build_variant: win32msi-x64
 
   ###
@@ -1335,10 +1335,10 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
       - func: release_draft
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
   - name: release_publish
     tags: ["publish"]
     git_tag_only: true
@@ -1346,10 +1346,10 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
       - func: release_publish
         vars:
-          node_js_version: "14.17.0"
+          node_js_version: "14.17.1"
 
 # Need to run builds for every possible build variant.
 buildvariants:
