@@ -14,7 +14,7 @@ describe('package tarball', () => {
     const tarname = path.basename(tarball.path).replace(/\.tgz$/, '');
 
     const unzip = spawnSync('tar', [
-      'tf', tarball.path
+      'tf', tarball.path, ...(process.platform === 'win32' ? ['--force-local'] : [])
     ], { encoding: 'utf-8' });
     expect(unzip.error).to.be.undefined;
     expect(unzip.stderr).to.be.empty;
