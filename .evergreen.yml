@@ -318,7 +318,7 @@ functions:
           . preload.sh
           curl -sSfL "$ARTIFACT_URL" > mongosh.zip
           unzip mongosh.zip
-          ./bin/mongosh --smokeTests
+          ./mongosh-*/bin/mongosh --smokeTests
           }
   test_artifact_rpmextract:
     - command: shell.exec
