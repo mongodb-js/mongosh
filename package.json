@@ -101,6 +101,7 @@
     "chai": "^4.2.0",
     "command-exists": "^1.2.9",
     "cross-env": "^6.0.3",
+    "depcheck": "^1.4.1",
     "download": "^8.0.0",
     "duplexpair": "^1.0.1",
     "electron-notarize": "mongodb-js/electron-notarize",
