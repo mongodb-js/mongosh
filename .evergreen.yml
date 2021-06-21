@@ -498,7 +498,7 @@ tasks:
           node_js_version: "12.20.0"
       - func: test
         vars:
-          mongosh_server_test_version: "5.0.0-rc0-community"
+          mongosh_server_test_version: "5.0.0-rc2-community"
           node_js_version: "12.20.0"
           mongosh_skip_node_version_check: "1"
   - name: test_m50xe_n12
@@ -510,7 +510,7 @@ tasks:
           node_js_version: "12.20.0"
       - func: test
         vars:
-          mongosh_server_test_version: "5.0.0-rc0"
+          mongosh_server_test_version: "5.0.0-rc2"
           node_js_version: "12.20.0"
           mongosh_skip_node_version_check: "1"
   - name: test_mlatest_n12
@@ -600,7 +600,7 @@ tasks:
           node_js_version: "14.17.1"
       - func: test
         vars:
-          mongosh_server_test_version: "5.0.0-rc0-community"
+          mongosh_server_test_version: "5.0.0-rc2-community"
           node_js_version: "14.17.1"
   - name: test_m50xe_n14
     tags: ["unit-test"]
@@ -611,7 +611,7 @@ tasks:
           node_js_version: "14.17.1"
       - func: test
         vars:
-          mongosh_server_test_version: "5.0.0-rc0"
+          mongosh_server_test_version: "5.0.0-rc2"
           node_js_version: "14.17.1"
   - name: test_mlatest_n14
     tags: ["unit-test", "mlatest"]
