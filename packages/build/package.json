@@ -18,7 +18,7 @@
     "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 30000 --colors -r ts-node/register \"./src/**/*.spec.ts\"",
     "test-ci": "mocha -r \"../../scripts/import-expansions.js\" --timeout 30000 -r ts-node/register \"./src/**/*.spec.ts\"",
     "lint": "eslint --report-unused-disable-directives \"**/*.{js,ts,tsx}\"",
-    "check": "npm run lint",
+    "check": "npm run lint && depcheck --skip-missing=true",
     "evergreen-release": "ts-node -r ../../scripts/import-expansions.js src/index.ts",
     "release": "ts-node src/index.ts trigger-release"
   },
@@ -37,7 +37,6 @@
   "devDependencies": {
     "@types/command-exists": "^1.2.0",
     "@types/cross-spawn": "^6.0.2",
-    "ajv": "^6.12.5",
     "cross-spawn": "^7.0.3",
     "sinon-chai": "^3.5.0"
   },

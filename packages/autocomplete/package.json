@@ -21,7 +21,7 @@
     "test": "mocha --timeout 15000 --colors -r ts-node/register \"./*.spec.ts\"",
     "test-ci": "mocha --timeout 15000 -r ts-node/register \"./*.spec.ts\"",
     "lint": "eslint --report-unused-disable-directives \"./*.{js,ts,tsx}\"",
-    "check": "npm run lint",
+    "check": "npm run lint && depcheck --skip-missing=true",
     "compile-ts": "tsc -p tsconfig.json",
     "prepublish": "npm run compile-ts"
   },

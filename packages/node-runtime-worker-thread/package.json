@@ -22,14 +22,13 @@
     "pretest-ci": "npm run webpack-build -- --no-stats --no-devtool",
     "test-ci": "cross-env TS_NODE_PROJECT=./tsconfig.test.json mocha -r \"../../scripts/import-expansions.js\" --timeout 15000 -r ts-node/register \"./src/**/*.spec.ts\"",
     "lint": "eslint --report-unused-disable-directives \"./src/**/*.{js,ts,tsx}\"",
-    "check": "npm run lint",
+    "check": "npm run lint && depcheck",
     "webpack-build": "webpack --mode production",
     "webpack-build-dev": "webpack --mode development",
     "compile-ts": "tsc -p tsconfig.json",
     "prepublish": "npm run webpack-build"
   },
   "devDependencies": {
-    "loader-utils": "^2.0.0",
     "mocha": "^7.1.2",
     "terser-webpack-plugin": "^4.2.3",
     "ts-loader": "^8.0.14",
