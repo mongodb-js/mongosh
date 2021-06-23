@@ -77,7 +77,11 @@ export class Barque {
 
   private config: Config;
   private mongodbEdition: string;
-  private mongodbVersion: string;
+  private mongodbVersions: {
+    version: string;
+    notaryKeyName: string;
+    notaryToken: string;
+  }[];
 
   constructor(config: Config) {
     if (config.platform !== Platform.Linux) {
@@ -87,9 +91,16 @@ export class Barque {
     this.config = config;
     // hard code mongodb edition to 'org' for now
     this.mongodbEdition = 'org';
-    // linux mongodb versions to release to. This should perhaps be an array of
-    // [4.3.0, 4.4.0], like mongo-tools
-    this.mongodbVersion = '4.4.0';
+    // linux mongodb versions to release to.
+    this.mongodbVersions = [{
+      version: '4.4.0',
+      notaryKeyName: 'server-4.4',
+      notaryToken: process.env.SIGNING_AUTH_TOKEN_44 ?? '',
+    }, {
+      version: '5.0.0',
+      notaryKeyName: 'server-5.0',
+      notaryToken: process.env.SIGNING_AUTH_TOKEN_50 ?? '',
+    }];
   }
 
   /**
@@ -125,7 +136,9 @@ export class Barque {
         throw new Error(`Curator is unable to upload ${packageUrl},${ppa},${arch} to barque ${error}`);
       }
 
-      publishedPackageUrls.push(this.computePublishedPackageUrl(ppa, arch, packageUrl));
+      for (const { version } of this.mongodbVersions) {
+        publishedPackageUrls.push(this.computePublishedPackageUrl(ppa, arch, version, packageUrl));
+      }
     }
     return publishedPackageUrls;
   }
@@ -137,31 +150,33 @@ export class Barque {
     ppa: PPARepository,
     architecture: string
   ): Promise<any> {
-    return await execFile(
-      `${curatorDirPath}/curator`, [
-        '--level', 'debug',
-        'repo', 'submit',
-        '--service', 'https://barque.corp.mongodb.com',
-        '--config', repoConfig,
-        '--distro', ppa,
-        '--arch', architecture,
-        '--edition', this.mongodbEdition,
-        '--version', this.mongodbVersion,
-        '--packages', packageUrl
-      ], {
-        // curator looks for these options in env
-        env: {
-          NOTARY_KEY_NAME: 'server-4.4',
-          NOTARY_TOKEN: process.env.SIGNING_AUTH_TOKEN_44,
-          BARQUE_API_KEY: process.env.BARQUE_API_KEY,
-          BARQUE_USERNAME: process.env.BARQUE_USERNAME
-        }
-      });
+    for (const { version, notaryKeyName, notaryToken } of this.mongodbVersions) {
+      return await execFile(
+        `${curatorDirPath}/curator`, [
+          '--level', 'debug',
+          'repo', 'submit',
+          '--service', 'https://barque.corp.mongodb.com',
+          '--config', repoConfig,
+          '--distro', ppa,
+          '--arch', architecture,
+          '--edition', this.mongodbEdition,
+          '--version', version,
+          '--packages', packageUrl
+        ], {
+          // curator looks for these options in env
+          env: {
+            NOTARY_KEY_NAME: notaryKeyName,
+            NOTARY_TOKEN: notaryToken,
+            BARQUE_API_KEY: process.env.BARQUE_API_KEY,
+            BARQUE_USERNAME: process.env.BARQUE_USERNAME
+          }
+        });
+    }
   }
 
-  computePublishedPackageUrl(ppa: PPARepository, targetArchitecture: string, packageUrl: string): string {
+  computePublishedPackageUrl(ppa: PPARepository, targetArchitecture: string, mongodbVersion: string, packageUrl: string): string {
     const packageFileName = packageUrl.split('/').slice(-1);
-    const packageFolderVersion = this.mongodbVersion.split('.').slice(0, 2).join('.');
+    const packageFolderVersion = mongodbVersion.split('.').slice(0, 2).join('.');
     switch (ppa) {
       /* eslint-disable no-multi-spaces */
       case 'ubuntu1804': return `${Barque.PPA_REPO_BASE_URL}/apt/ubuntu/dists/bionic/mongodb-org/${packageFolderVersion}/multiverse/binary-${targetArchitecture}/${packageFileName}`;

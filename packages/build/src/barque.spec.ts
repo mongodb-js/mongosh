@@ -56,9 +56,13 @@ describe('Barque', () => {
             url: 'https://s3.amazonaws.com/mciuploads/mongosh/5ed7ee5d8683818eb28d9d3b5c65837cde4a08f5/mongodb-mongosh_0.1.0_amd64.deb',
             publishedUrls: [
               `${Barque.PPA_REPO_BASE_URL}/apt/ubuntu/dists/bionic/mongodb-org/4.4/multiverse/binary-amd64/mongodb-mongosh_0.1.0_amd64.deb`,
+              `${Barque.PPA_REPO_BASE_URL}/apt/ubuntu/dists/bionic/mongodb-org/5.0/multiverse/binary-amd64/mongodb-mongosh_0.1.0_amd64.deb`,
               `${Barque.PPA_REPO_BASE_URL}/apt/ubuntu/dists/focal/mongodb-org/4.4/multiverse/binary-amd64/mongodb-mongosh_0.1.0_amd64.deb`,
+              `${Barque.PPA_REPO_BASE_URL}/apt/ubuntu/dists/focal/mongodb-org/5.0/multiverse/binary-amd64/mongodb-mongosh_0.1.0_amd64.deb`,
               `${Barque.PPA_REPO_BASE_URL}/apt/debian/dists/buster/mongodb-org/4.4/main/binary-amd64/mongodb-mongosh_0.1.0_amd64.deb`,
-              `${Barque.PPA_REPO_BASE_URL}/apt/debian/dists/stretch/mongodb-org/4.4/main/binary-amd64/mongodb-mongosh_0.1.0_amd64.deb`
+              `${Barque.PPA_REPO_BASE_URL}/apt/debian/dists/buster/mongodb-org/5.0/main/binary-amd64/mongodb-mongosh_0.1.0_amd64.deb`,
+              `${Barque.PPA_REPO_BASE_URL}/apt/debian/dists/stretch/mongodb-org/4.4/main/binary-amd64/mongodb-mongosh_0.1.0_amd64.deb`,
+              `${Barque.PPA_REPO_BASE_URL}/apt/debian/dists/stretch/mongodb-org/5.0/main/binary-amd64/mongodb-mongosh_0.1.0_amd64.deb`
             ]
           },
           {
@@ -66,8 +70,11 @@ describe('Barque', () => {
             url: 'https://s3.amazonaws.com/mciuploads/mongosh/5ed7ee5d8683818eb28d9d3b5c65837cde4a08f5/mongodb-mongosh-0.1.0.el7.x86_64.rpm',
             publishedUrls: [
               `${Barque.PPA_REPO_BASE_URL}/yum/redhat/7/mongodb-org/4.4/x86_64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm`,
+              `${Barque.PPA_REPO_BASE_URL}/yum/redhat/7/mongodb-org/5.0/x86_64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm`,
               `${Barque.PPA_REPO_BASE_URL}/yum/redhat/8/mongodb-org/4.4/x86_64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm`,
+              `${Barque.PPA_REPO_BASE_URL}/yum/redhat/8/mongodb-org/5.0/x86_64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm`,
               `${Barque.PPA_REPO_BASE_URL}/yum/amazon/2/mongodb-org/4.4/x86_64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm`,
+              `${Barque.PPA_REPO_BASE_URL}/yum/amazon/2/mongodb-org/5.0/x86_64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm`
             ]
           }
         ] as const).forEach(({ variant, url, publishedUrls }) => {
