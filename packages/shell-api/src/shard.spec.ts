@@ -11,7 +11,7 @@ import { UpdateResult } from './result';
 import { CliServiceProvider } from '../../service-provider-server';
 import { startTestCluster, skipIfServerVersion, skipIfApiStrict } from '../../../testing/integration-testing-hooks';
 import Database from './database';
-import { ObjectId } from 'mongodb';
+import { inspect } from 'util';
 
 describe('Shard', () => {
   skipIfApiStrict();
@@ -685,7 +685,7 @@ describe('Shard', () => {
 
       it('returns whatever serviceProvider.updateOne returns', async() => {
         serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
-        const oid = new ObjectId();
+        const oid = new bson.ObjectId();
         const expectedResult = {
           matchedCount: 1,
           modifiedCount: 1,
@@ -744,7 +744,7 @@ describe('Shard', () => {
 
       it('returns whatever serviceProvider.updateOne returns', async() => {
         serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
-        const oid = new ObjectId();
+        const oid = new bson.ObjectId();
         const expectedResult = {
           matchedCount: 1,
           modifiedCount: 1,
@@ -919,7 +919,7 @@ describe('Shard', () => {
 
       it('returns whatever serviceProvider.updateOne returns', async() => {
         serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
-        const oid = new ObjectId();
+        const oid = new bson.ObjectId();
         const expectedResult = {
           matchedCount: 1,
           modifiedCount: 1,
@@ -977,7 +977,7 @@ describe('Shard', () => {
 
       it('returns whatever serviceProvider.updateOne returns', async() => {
         serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
-        const oid = new ObjectId();
+        const oid = new bson.ObjectId();
         const expectedResult = {
           matchedCount: 1,
           modifiedCount: 1,
@@ -1285,7 +1285,14 @@ describe('Shard', () => {
         expect(original.key).to.equal('A');
         expect(original.value).to.equal(10);
 
-        expect((await sh.status()).value.databases[1].collections[ns].chunkMetadata).to.have.lengthOf(1);
+        const collectionInfo = (await sh.status()).value.databases[1].collections[ns];
+        expect(collectionInfo.chunkMetadata).to.have.lengthOf(1);
+        const inspectedCollectionInfo = inspect(collectionInfo);
+        // Make sure that each individual chunk in the output is on a single line
+        expect(inspectedCollectionInfo).to.include('chunks: [\n' +
+          '    { min: { key: MinKey() }, max: { key: MaxKey() }, ' +
+          `'on shard': '${collectionInfo.chunks[0]['on shard']}', 'last modified': Timestamp(0, 1) }\n` +
+          '  ],\n');
       });
     });
     describe('autosplit', () => {
