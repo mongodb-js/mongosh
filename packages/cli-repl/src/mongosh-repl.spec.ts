@@ -400,8 +400,8 @@ describe('MongoshNodeRepl', () => {
         expect((mongoshRepl.runtimeState().repl as any)._prompt).to.equal('');
         input.write('\u0003'); // Ctrl+C for abort
         await tick();
-        expect((mongoshRepl.runtimeState().repl as any)._prompt).to.equal('> ');
-        expect(stripAnsi(output)).to.equal('db.foo\r\nbar\r\n\r\n> ');
+        expect((mongoshRepl.runtimeState().repl as any)._prompt).to.equal('test> ');
+        expect(stripAnsi(output)).to.equal('db.foo\r\nbar\r\n\r\ntest> ');
       });
       it('does not autocomplete tab-indented code', async() => {
         output = '';
@@ -655,7 +655,7 @@ describe('MongoshNodeRepl', () => {
         output = '';
         input.write('throw new Error("yellow")\n');
         await waitEval(bus);
-        expect(stripAnsi(output)).to.match(/Error: yellow\n(> )+$/);
+        expect(stripAnsi(output)).to.match(/Error: yellow\n(test> )+$/);
 
         input.write('config.set("showStackTraces", true)\n');
         await waitEval(bus);
@@ -679,7 +679,7 @@ describe('MongoshNodeRepl', () => {
       output = '';
       outputStream.emit('resize');
       await tick();
-      expect(stripAnsi(output)).to.equal('> ');
+      expect(stripAnsi(output)).to.equal('test> ');
     });
 
     it('does not refresh the prompt if a window resize occurs while evaluating', async() => {
@@ -701,7 +701,7 @@ describe('MongoshNodeRepl', () => {
       output = '';
       resolveInProgress();
       await tick();
-      expect(stripAnsi(output)).to.equal('\n> ');
+      expect(stripAnsi(output)).to.equal('\ntest> ');
     });
 
     context('thrown non-Errors', () => {
@@ -1018,7 +1018,7 @@ describe('MongoshNodeRepl', () => {
 
       const initialized = await mongoshRepl.initialize(serviceProvider);
       await mongoshRepl.startRepl(initialized);
-      expect(output).to.contain('Enterprise > ');
+      expect(output).to.contain('Enterprise test> ');
     });
 
     it('defaults if an error occurs', async() => {
@@ -1057,11 +1057,11 @@ describe('MongoshNodeRepl', () => {
 
       const initialized = await mongoshRepl.initialize(serviceProvider);
       await mongoshRepl.startRepl(initialized);
-      expect(output).to.contain('Enterprise > ');
+      expect(output).to.contain('Enterprise test> ');
 
       input.write('db = Mongo("foo").getDB("bar")\n');
       await waitEval(bus);
-      expect(output).to.contain('Atlas Data Lake > ');
+      expect(output).to.contain('AtlasDataLake bar> ');
     });
 
     context('user-provided prompt', () => {

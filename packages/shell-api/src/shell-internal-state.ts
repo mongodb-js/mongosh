@@ -390,15 +390,21 @@ export default class ShellInternalState {
   }
 
   async getDefaultPrompt(): Promise<string> {
-    return `${this.getDefaultPromptPrefix()}${this.getTopologySpecificPrompt()}> `;
+    const prefix = this.getDefaultPromptPrefix();
+    const topologyInfo = this.getTopologySpecificPrompt();
+    let dbname = '';
+    try {
+      dbname = this.currentDb.getName();
+    } catch { /* nodb */ }
+    return `${[prefix, topologyInfo, dbname].filter(Boolean).join(' ')}> `;
   }
 
   private getDefaultPromptPrefix(): string {
     const extraConnectionInfo = this.connectionInfo?.extraInfo;
     if (extraConnectionInfo?.is_data_lake) {
-      return 'Atlas Data Lake ';
+      return 'AtlasDataLake';
     } else if (extraConnectionInfo?.is_enterprise || this.connectionInfo?.buildInfo?.modules?.indexOf('enterprise') >= 0) {
-      return 'Enterprise ';
+      return 'Enterprise';
     }
     return '';
   }
