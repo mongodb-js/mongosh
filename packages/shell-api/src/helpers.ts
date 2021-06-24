@@ -23,6 +23,7 @@ import { AutoEncryptionOptions } from 'mongodb';
 import { shellApiType } from './enums';
 import type { AbstractCursor } from './abstract-cursor';
 import type ChangeStreamCursor from './change-stream-cursor';
+import { inspect } from 'util';
 
 /**
  * Helper method to adapt aggregation pipeline options.
@@ -458,6 +459,17 @@ export async function getPrintableShardStatus(db: Database, verbose: boolean): P
                 'on shard': chunk.shard,
                 'last modified': chunk.lastmod
               } as any;
+              // Displaying a full, multi-line output for each chunk is a bit verbose,
+              // even if there are only a few chunks. Where supported, we use a custom
+              // inspection function to inspect a copy of this object with an unlimited
+              // line break length (i.e. all objects on a single line).
+              Object.defineProperty(c, Symbol.for('nodejs.util.inspect.custom'), {
+                value: function(depth: number, options: any): string {
+                  return inspect({ ...this }, { ...options, breakLength: Infinity });
+                },
+                writable: true,
+                configurable: true
+              });
               if (chunk.jumbo) c.jumbo = 'yes';
               chunksRes.push(c);
             });
