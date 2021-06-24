@@ -89,7 +89,7 @@ describe('ShellInternalState', () => {
 
         await internalState.fetchConnectionInfo();
         const prompt = await internalState.getDefaultPrompt();
-        expect(prompt).to.equal('Atlas Data Lake > ');
+        expect(prompt).to.equal('AtlasDataLake test> ');
       });
 
       it('wins against enterprise', async() => {
@@ -103,7 +103,7 @@ describe('ShellInternalState', () => {
 
         await internalState.fetchConnectionInfo();
         const prompt = await internalState.getDefaultPrompt();
-        expect(prompt).to.equal('Atlas Data Lake > ');
+        expect(prompt).to.equal('AtlasDataLake test> ');
       });
     });
 
@@ -113,7 +113,7 @@ describe('ShellInternalState', () => {
 
         await internalState.fetchConnectionInfo();
         const prompt = await internalState.getDefaultPrompt();
-        expect(prompt).to.equal('Enterprise > ');
+        expect(prompt).to.equal('Enterprise test> ');
       });
 
       it('inferred from buildInfo modules', async() => {
@@ -124,7 +124,7 @@ describe('ShellInternalState', () => {
 
         await internalState.fetchConnectionInfo();
         const prompt = await internalState.getDefaultPrompt();
-        expect(prompt).to.equal('Enterprise > ');
+        expect(prompt).to.equal('Enterprise test> ');
       });
     });
 
@@ -156,7 +156,7 @@ describe('ShellInternalState', () => {
           setupServiceProviderWithTopology(topology);
 
           const prompt = await internalState.getDefaultPrompt();
-          expect(prompt).to.equal(`configset [direct: ${p}]> `);
+          expect(prompt).to.equal(`configset [direct: ${p}] test> `);
         });
       });
 
@@ -186,7 +186,7 @@ describe('ShellInternalState', () => {
           setupServiceProviderWithTopology(topology);
 
           const prompt = await internalState.getDefaultPrompt();
-          expect(prompt).to.equal('> ');
+          expect(prompt).to.equal('test> ');
         });
       });
     });
@@ -203,7 +203,7 @@ describe('ShellInternalState', () => {
         setupServiceProviderWithTopology(topology);
 
         const prompt = await internalState.getDefaultPrompt();
-        expect(prompt).to.equal('leSet [secondary]> ');
+        expect(prompt).to.equal('leSet [secondary] test> ');
       });
 
       it('shows the setName and primary hint for ReplicaSetWithPrimary', async() => {
@@ -217,7 +217,7 @@ describe('ShellInternalState', () => {
         setupServiceProviderWithTopology(topology);
 
         const prompt = await internalState.getDefaultPrompt();
-        expect(prompt).to.equal('leSet [primary]> ');
+        expect(prompt).to.equal('leSet [primary] test> ');
       });
     });
 
@@ -232,7 +232,7 @@ describe('ShellInternalState', () => {
         setupServiceProviderWithTopology(topology);
 
         const prompt = await internalState.getDefaultPrompt();
-        expect(prompt).to.equal('[mongos]> ');
+        expect(prompt).to.equal('[mongos] test> ');
       });
       it('shows mongos and a setName', async() => {
         const topology = {
@@ -245,7 +245,7 @@ describe('ShellInternalState', () => {
         setupServiceProviderWithTopology(topology);
 
         const prompt = await internalState.getDefaultPrompt();
-        expect(prompt).to.equal('leSet [mongos]> ');
+        expect(prompt).to.equal('leSet [mongos] test> ');
       });
     });
 
@@ -266,7 +266,7 @@ describe('ShellInternalState', () => {
 
         await internalState.fetchConnectionInfo();
         const prompt = await internalState.getDefaultPrompt();
-        expect(prompt).to.equal('> ');
+        expect(prompt).to.equal('test> ');
       });
     });
 
@@ -291,7 +291,7 @@ describe('ShellInternalState', () => {
         setupServiceProviderWithTopology(topology);
 
         const prompt = await internalState.getDefaultPrompt();
-        expect(prompt).to.equal('> ');
+        expect(prompt).to.equal('test> ');
       });
     });
   });
