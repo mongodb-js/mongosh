@@ -150,3 +150,102 @@ repos:
       - x86_64
     repos:
       - yum/amazon/2/mongodb-org
+
+####################
+#
+# Enterprise Repos:
+#
+####################
+
+  - name: debian92
+    type: deb
+    code_name: "stretch"
+    bucket: repo.mongodb.com
+    edition: enterprise
+    component: main
+    architectures:
+      - amd64
+    repos:
+      - apt/debian/dists/stretch/mongodb-enterprise
+
+  - name: debian10
+    type: deb
+    code_name: "buster"
+    bucket: repo.mongodb.com
+    edition: enterprise
+    component: main
+    architectures:
+      - amd64
+    repos:
+      - apt/debian/dists/buster/mongodb-enterprise
+
+  - name: ubuntu1804
+    type: deb
+    code_name: "bionic"
+    edition: enterprise
+    bucket: repo.mongodb.com
+    component: multiverse
+    architectures:
+      - amd64
+      - arm64
+    repos:
+      - apt/ubuntu/dists/bionic/mongodb-enterprise
+
+  - name: ubuntu2004
+    type: deb
+    code_name: "focal"
+    edition: enterprise
+    bucket: repo.mongodb.com
+    component: multiverse
+    architectures:
+      - amd64
+      - arm64
+    repos:
+      - apt/ubuntu/dists/focal/mongodb-enterprise
+
+  - name: rhel70
+    type: rpm
+    edition: enterprise
+    bucket: repo.mongodb.com
+    architectures:
+      - x86_64
+    repos:
+      - yum/redhat/7/mongodb-enterprise
+      - yum/redhat/7Server/mongodb-enterprise
+
+  - name: rhel80
+    type: rpm
+    edition: enterprise
+    bucket: repo.mongodb.com
+    architectures:
+      - x86_64
+      - aarch64
+    repos:
+      - yum/redhat/8/mongodb-enterprise
+      - yum/redhat/8Server/mongodb-enterprise
+
+  - name: suse12
+    type: rpm
+    edition: enterprise
+    bucket: repo.mongodb.com
+    architectures:
+      - x86_64
+    repos:
+      - zypper/suse/12/mongodb-enterprise
+
+  - name: suse15
+    type: rpm
+    edition: enterprise
+    bucket: repo.mongodb.com
+    repos:
+      - zypper/suse/15/mongodb-enterprise
+
+  - name: amazon2
+    type: rpm
+    edition: enterprise
+    bucket: repo.mongodb.com
+    architectures:
+      - arm64
+      - x86_64
+    repos:
+      - yum/amazon/2/mongodb-enterprise
