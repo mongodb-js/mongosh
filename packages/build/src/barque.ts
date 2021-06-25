@@ -73,10 +73,8 @@ export function getReposAndArch(buildVariant: BuildVariant): { ppas: PPAReposito
 }
 
 export class Barque {
-  public static readonly PPA_REPO_BASE_URL = 'https://repo.mongodb.org' as const;
-
   private config: Config;
-  private mongodbEdition: string;
+  private mongodbEditions: string[];
   private mongodbVersions: {
     version: string;
     notaryKeyName: string;
@@ -89,8 +87,7 @@ export class Barque {
     }
 
     this.config = config;
-    // hard code mongodb edition to 'org' for now
-    this.mongodbEdition = 'org';
+    this.mongodbEditions = [ 'org', 'enterprise' ];
     // linux mongodb versions to release to.
     this.mongodbVersions = [{
       version: '4.4.0',
@@ -137,7 +134,9 @@ export class Barque {
       }
 
       for (const { version } of this.mongodbVersions) {
-        publishedPackageUrls.push(this.computePublishedPackageUrl(ppa, arch, version, packageUrl));
+        for (const edition of this.mongodbEditions) {
+          publishedPackageUrls.push(this.computePublishedPackageUrl(ppa, arch, version, edition, packageUrl));
+        }
       }
     }
     return publishedPackageUrls;
@@ -149,45 +148,51 @@ export class Barque {
     repoConfig: string,
     ppa: PPARepository,
     architecture: string
-  ): Promise<any> {
+  ): Promise<void> {
     for (const { version, notaryKeyName, notaryToken } of this.mongodbVersions) {
-      return await execFile(
-        `${curatorDirPath}/curator`, [
+      for (const edition of this.mongodbEditions) {
+        const args = [
           '--level', 'debug',
           'repo', 'submit',
           '--service', 'https://barque.corp.mongodb.com',
           '--config', repoConfig,
           '--distro', ppa,
           '--arch', architecture,
-          '--edition', this.mongodbEdition,
+          '--edition', edition,
           '--version', version,
           '--packages', packageUrl
-        ], {
-          // curator looks for these options in env
-          env: {
-            NOTARY_KEY_NAME: notaryKeyName,
-            NOTARY_TOKEN: notaryToken,
-            BARQUE_API_KEY: process.env.BARQUE_API_KEY,
-            BARQUE_USERNAME: process.env.BARQUE_USERNAME
-          }
-        });
+        ];
+        console.info(`Running ${curatorDirPath}/curator ${args.join(' ')}`);
+        const result = await execFile(
+          `${curatorDirPath}/curator`, args, {
+            // curator looks for these options in env
+            env: {
+              NOTARY_KEY_NAME: notaryKeyName,
+              NOTARY_TOKEN: notaryToken,
+              BARQUE_API_KEY: process.env.BARQUE_API_KEY,
+              BARQUE_USERNAME: process.env.BARQUE_USERNAME
+            }
+          });
+        console.info(result);
+      }
     }
   }
 
-  computePublishedPackageUrl(ppa: PPARepository, targetArchitecture: string, mongodbVersion: string, packageUrl: string): string {
+  computePublishedPackageUrl(ppa: PPARepository, targetArchitecture: string, mongodbVersion: string, edition: string, packageUrl: string): string {
     const packageFileName = packageUrl.split('/').slice(-1);
     const packageFolderVersion = mongodbVersion.split('.').slice(0, 2).join('.');
+    const base = edition === 'org' ? 'https://repo.mongodb.org' : 'https://repo.mongodb.com';
     switch (ppa) {
       /* eslint-disable no-multi-spaces */
-      case 'ubuntu1804': return `${Barque.PPA_REPO_BASE_URL}/apt/ubuntu/dists/bionic/mongodb-org/${packageFolderVersion}/multiverse/binary-${targetArchitecture}/${packageFileName}`;
-      case 'ubuntu2004': return `${Barque.PPA_REPO_BASE_URL}/apt/ubuntu/dists/focal/mongodb-org/${packageFolderVersion}/multiverse/binary-${targetArchitecture}/${packageFileName}`;
-      case 'debian92':   return `${Barque.PPA_REPO_BASE_URL}/apt/debian/dists/buster/mongodb-org/${packageFolderVersion}/main/binary-${targetArchitecture}/${packageFileName}`;
-      case 'debian10':   return `${Barque.PPA_REPO_BASE_URL}/apt/debian/dists/stretch/mongodb-org/${packageFolderVersion}/main/binary-${targetArchitecture}/${packageFileName}`;
-      case 'rhel70':     return `${Barque.PPA_REPO_BASE_URL}/yum/redhat/7/mongodb-org/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
-      case 'rhel80':     return `${Barque.PPA_REPO_BASE_URL}/yum/redhat/8/mongodb-org/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
-      case 'amazon2':    return `${Barque.PPA_REPO_BASE_URL}/yum/amazon/2/mongodb-org/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
-      case 'suse12':     return `${Barque.PPA_REPO_BASE_URL}/zypper/suse/12/mongodb-org/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
-      case 'suse15':     return `${Barque.PPA_REPO_BASE_URL}/zypper/suse/15/mongodb-org/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
+      case 'ubuntu1804': return `${base}/apt/ubuntu/dists/bionic/mongodb-${edition}/${packageFolderVersion}/multiverse/binary-${targetArchitecture}/${packageFileName}`;
+      case 'ubuntu2004': return `${base}/apt/ubuntu/dists/focal/mongodb-${edition}/${packageFolderVersion}/multiverse/binary-${targetArchitecture}/${packageFileName}`;
+      case 'debian92':   return `${base}/apt/debian/dists/buster/mongodb-${edition}/${packageFolderVersion}/main/binary-${targetArchitecture}/${packageFileName}`;
+      case 'debian10':   return `${base}/apt/debian/dists/stretch/mongodb-${edition}/${packageFolderVersion}/main/binary-${targetArchitecture}/${packageFileName}`;
+      case 'rhel70':     return `${base}/yum/redhat/7/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
+      case 'rhel80':     return `${base}/yum/redhat/8/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
+      case 'amazon2':    return `${base}/yum/amazon/2/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
+      case 'suse12':     return `${base}/zypper/suse/12/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
+      case 'suse15':     return `${base}/zypper/suse/15/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
       /* eslint-enable no-multi-spaces */
       default:
         throw new Error(`Unsupported PPA: ${ppa}`);
