@@ -315,6 +315,7 @@ functions:
           set -e
           set -x
           {
+          system_profiler SPSoftwareDataType # for debugging
           . preload.sh
           curl -sSfL "$ARTIFACT_URL" > mongosh.zip
           unzip mongosh.zip
