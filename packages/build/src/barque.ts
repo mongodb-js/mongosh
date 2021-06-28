@@ -117,65 +117,62 @@ export class Barque {
     const curatorDirPath = await this.createCuratorDir();
     await this.extractLatestCurator(curatorDirPath);
 
-    const publishedPackageUrls: string[] = [];
     const { ppas, arch } = getReposAndArch(buildVariant);
-    for (const ppa of ppas) {
-      try {
-        await this.execCurator(
-          curatorDirPath,
-          packageUrl,
-          repoConfig,
-          ppa,
-          arch
-        );
-      } catch (error) {
-        console.error('Curator failed', error);
-        throw new Error(`Curator is unable to upload ${packageUrl},${ppa},${arch} to barque ${error}`);
-      }
-
-      for (const { version } of this.mongodbVersions) {
-        for (const edition of this.mongodbEditions) {
-          publishedPackageUrls.push(this.computePublishedPackageUrl(ppa, arch, version, edition, packageUrl));
-        }
-      }
-    }
-    return publishedPackageUrls;
+    return await this.execCurator(
+      curatorDirPath,
+      packageUrl,
+      repoConfig,
+      ppas,
+      arch
+    );
   }
 
   async execCurator(
     curatorDirPath: string,
     packageUrl: string,
     repoConfig: string,
-    ppa: PPARepository,
+    ppas: PPARepository[],
     architecture: string
-  ): Promise<void> {
-    for (const { version, notaryKeyName, notaryToken } of this.mongodbVersions) {
-      for (const edition of this.mongodbEditions) {
-        const args = [
-          '--level', 'debug',
-          'repo', 'submit',
-          '--service', 'https://barque.corp.mongodb.com',
-          '--config', repoConfig,
-          '--distro', ppa,
-          '--arch', architecture,
-          '--edition', edition,
-          '--version', version,
-          '--packages', packageUrl
-        ];
-        console.info(`Running ${curatorDirPath}/curator ${args.join(' ')}`);
-        const result = await execFile(
-          `${curatorDirPath}/curator`, args, {
-            // curator looks for these options in env
-            env: {
-              NOTARY_KEY_NAME: notaryKeyName,
-              NOTARY_TOKEN: notaryToken,
-              BARQUE_API_KEY: process.env.BARQUE_API_KEY,
-              BARQUE_USERNAME: process.env.BARQUE_USERNAME
+  ): Promise<string[]> {
+    const results: Promise<string>[] = [];
+    for (const ppa of ppas) {
+      for (const { version, notaryKeyName, notaryToken } of this.mongodbVersions) {
+        for (const edition of this.mongodbEditions) {
+          const args = [
+            '--level', 'debug',
+            'repo', 'submit',
+            '--service', 'https://barque.corp.mongodb.com',
+            '--config', repoConfig,
+            '--distro', ppa,
+            '--arch', architecture,
+            '--edition', edition,
+            '--version', version,
+            '--packages', packageUrl
+          ];
+          console.info(`Running ${curatorDirPath}/curator ${args.join(' ')}`);
+          results.push((async() => {
+            try {
+              const result = await execFile(
+                `${curatorDirPath}/curator`, args, {
+                  // curator looks for these options in env
+                  env: {
+                    NOTARY_KEY_NAME: notaryKeyName,
+                    NOTARY_TOKEN: notaryToken,
+                    BARQUE_API_KEY: process.env.BARQUE_API_KEY,
+                    BARQUE_USERNAME: process.env.BARQUE_USERNAME
+                  }
+                });
+              console.info(`Result for curator with ${args.join(' ')}`, result);
+              return this.computePublishedPackageUrl(ppa, architecture, version, edition, packageUrl);
+            } catch (error) {
+              console.error(`Curator with ${args.join(' ')} failed`, error);
+              throw new Error(`Curator is unable to upload ${packageUrl},${ppa},${architecture} to barque ${error}`);
             }
-          });
-        console.info(result);
+          })());
+        }
       }
     }
+    return await Promise.all(results);
   }
 
   computePublishedPackageUrl(ppa: PPARepository, targetArchitecture: string, mongodbVersion: string, edition: string, packageUrl: string): string {
