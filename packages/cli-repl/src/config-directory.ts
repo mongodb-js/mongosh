@@ -2,6 +2,8 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
 import { EventEmitter } from 'events';
+import { bson } from '@mongosh/service-provider-core';
+const { EJSON } = bson;
 
 export type ShellHomePaths = {
   shellRoamingDataPath: string;
@@ -75,7 +77,7 @@ export class ConfigManager<Config> extends EventEmitter {
       if (fd !== undefined) {
         // Not the first access. Read the file and return it.
         try {
-          const config: Config = JSON.parse(await fd.readFile({ encoding: 'utf8' }));
+          const config: Config = EJSON.parse(await fd.readFile({ encoding: 'utf8' })) as any;
           this.emit('update-config', config);
           return { ...defaultConfig, ...config };
         } catch (err) {
@@ -99,7 +101,8 @@ export class ConfigManager<Config> extends EventEmitter {
   async writeConfigFile(config: Config): Promise<void> {
     await this.shellHomeDirectory.ensureExists();
     try {
-      await fs.writeFile(this.path(), JSON.stringify(config), { mode: 0o600 });
+      // TODO: { relaxed: false } can be removed once NODE-3390 is done.
+      await fs.writeFile(this.path(), EJSON.stringify(config, { relaxed: false }), { mode: 0o600 });
     } catch (err) {
       this.emit('error', err);
       throw err;

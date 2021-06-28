@@ -1,5 +1,4 @@
 import { MongoshInternalError } from '@mongosh/errors';
-import bson from 'bson';
 import { once } from 'events';
 import { promises as fs } from 'fs';
 import http from 'http';
@@ -11,6 +10,8 @@ import { expect, fakeTTYProps, readReplLogfile, tick, useTmpdir, waitBus, waitCo
 import { eventually } from '../../../testing/eventually';
 import CliRepl, { CliReplOptions } from './cli-repl';
 import { CliReplErrors } from './error-codes';
+import { bson } from '@mongosh/service-provider-core';
+const { EJSON } = bson;
 
 const delay = promisify(setTimeout);
 
@@ -109,12 +110,12 @@ describe('CliRepl', () => {
 
         await evalComplete; // eval-complete includes the fs.writeFile() call.
         const content = await fs.readFile(path.join(tmpdir.path, 'config'), { encoding: 'utf8' });
-        expect(JSON.parse(content).enableTelemetry).to.be.false;
+        expect((EJSON.parse(content) as any).enableTelemetry).to.be.false;
       });
 
       it('does not store config options on disk that have not been changed', async() => {
         let content = await fs.readFile(path.join(tmpdir.path, 'config'), { encoding: 'utf8' });
-        expect(Object.keys(JSON.parse(content))).to.deep.equal([
+        expect(Object.keys(EJSON.parse(content))).to.deep.equal([
           'userId', 'enableTelemetry', 'disableGreetingMessage'
         ]);
 
@@ -122,7 +123,7 @@ describe('CliRepl', () => {
 
         await waitEval(cliRepl.bus);
         content = await fs.readFile(path.join(tmpdir.path, 'config'), { encoding: 'utf8' });
-        expect(Object.keys(JSON.parse(content))).to.deep.equal([
+        expect(Object.keys(EJSON.parse(content))).to.deep.equal([
           'userId', 'enableTelemetry', 'disableGreetingMessage', 'inspectDepth'
         ]);
 
@@ -130,9 +131,17 @@ describe('CliRepl', () => {
         cliRepl = new CliRepl(cliReplOptions);
         await cliRepl.start('', {});
         content = await fs.readFile(path.join(tmpdir.path, 'config'), { encoding: 'utf8' });
-        expect(Object.keys(JSON.parse(content))).to.deep.equal([
+        expect(Object.keys(EJSON.parse(content))).to.deep.equal([
           'userId', 'enableTelemetry', 'disableGreetingMessage', 'inspectDepth'
         ]);
+      });
+
+      it('store config options on disk cannot be represented in traditional JSON', async() => {
+        input.write('config.set("inspectDepth", Infinity)\n');
+
+        await waitEval(cliRepl.bus);
+        const content = await fs.readFile(path.join(tmpdir.path, 'config'), { encoding: 'utf8' });
+        expect((EJSON.parse(content) as any).inspectDepth).equal(Infinity);
       });
 
       it('emits exit when asked to, Node.js-style', async() => {

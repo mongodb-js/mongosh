@@ -9,6 +9,8 @@ import { promisify } from 'util';
 import rimraf from 'rimraf';
 import path from 'path';
 import { readReplLogfile } from './repl-helpers';
+import { bson } from '@mongosh/service-provider-core';
+const { EJSON } = bson;
 
 describe('e2e', function() {
   const testServer = startTestServer('shared');
@@ -682,7 +684,7 @@ describe('e2e', function() {
         configPath = path.resolve(homedir, '.mongodb', 'mongosh', 'config');
         historyPath = path.resolve(homedir, '.mongodb', 'mongosh', 'mongosh_repl_history');
       }
-      readConfig = async() => JSON.parse(await fs.readFile(configPath, 'utf8'));
+      readConfig = async() => EJSON.parse(await fs.readFile(configPath, 'utf8'));
       readLogfile = async() => readReplLogfile(logPath);
       startTestShell = async(...extraArgs: string[]) => {
         const shell = TestShell.start({
