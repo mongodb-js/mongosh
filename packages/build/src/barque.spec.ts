@@ -93,23 +93,28 @@ describe('Barque', () => {
           }
         ] as const).forEach(({ variant, url, publishedUrls }) => {
           it(`publishes ${variant} packages`, async() => {
-            barque.execCurator = sinon.stub().resolves(true);
-            barque.createCuratorDir = sinon.stub().resolves('./');
+            barque.createCuratorDir = sinon.stub().resolves(path.join(__dirname, '..', 'test', 'fixtures', 'bin'));
             barque.extractLatestCurator = sinon.stub().resolves(true);
 
-            const releasedUrls = await barque.releaseToBarque(variant, url);
+            let releasedUrls;
+            try {
+              releasedUrls = await barque.releaseToBarque(variant, url);
+            } catch (err) {
+              if (process.platform === 'win32' && err.message.includes('ENOENT')) {
+                return; // Cannot spawn the fake curator on Windows
+              }
+              throw err;
+            }
 
             expect(releasedUrls).to.deep.equal(publishedUrls);
             expect(barque.createCuratorDir).to.have.been.called;
             expect(barque.extractLatestCurator).to.have.been.called;
-            expect(barque.execCurator).to.have.been.called;
           });
         });
       });
 
       it('execCurator function fails', async() => {
-        barque.execCurator = sinon.stub().rejects(new Error('error'));
-        barque.createCuratorDir = sinon.stub().returns(Promise.resolve('./'));
+        barque.createCuratorDir = sinon.stub().returns(Promise.resolve('/nonexistent/'));
         barque.extractLatestCurator = sinon.stub().returns(Promise.resolve(true));
 
         const debUrl = 'https://s3.amazonaws.com/mciuploads/mongosh/5ed7ee5d8683818eb28d9d3b5c65837cde4a08f5/mongodb-mongosh_0.1.0_amd64.deb';
@@ -117,15 +122,15 @@ describe('Barque', () => {
         try {
           await barque.releaseToBarque('debian-x64', debUrl);
         } catch (error) {
-          expect(error.message).to.include('Curator is unable to upload https://s3.amazonaws.com/mciuploads/mongosh/5ed7ee5d8683818eb28d9d3b5c65837cde4a08f5/mongodb-mongosh_0.1.0_amd64.deb,ubuntu1804,amd64 to barque');
+          expect(error.message).to.include(`Curator is unable to upload ${debUrl},ubuntu1804,amd64 to barque`);
           expect(barque.createCuratorDir).to.have.been.called;
           expect(barque.extractLatestCurator).to.have.been.called;
-          expect(barque.execCurator).to.have.been.called;
           return;
         }
         expect.fail('Expected error');
       });
     });
+
 
     it('platform is not linux', async() => {
       config.platform = 'macos';
