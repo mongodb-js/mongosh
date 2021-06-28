@@ -96,7 +96,15 @@ describe('Barque', () => {
             barque.createCuratorDir = sinon.stub().resolves(path.join(__dirname, '..', 'test', 'fixtures', 'bin'));
             barque.extractLatestCurator = sinon.stub().resolves(true);
 
-            const releasedUrls = await barque.releaseToBarque(variant, url);
+            let releasedUrls;
+            try {
+              releasedUrls = await barque.releaseToBarque(variant, url);
+            } catch (err) {
+              if (process.platform === 'win32' && err.message.includes('ENOENT')) {
+                return; // Cannot spawn the fake curator on Windows
+              }
+              throw err;
+            }
 
             expect(releasedUrls).to.deep.equal(publishedUrls);
             expect(barque.createCuratorDir).to.have.been.called;
