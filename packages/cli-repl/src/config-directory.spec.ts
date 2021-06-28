@@ -6,10 +6,13 @@ import { promisify } from 'util';
 import chai, { expect } from 'chai';
 import sinon from 'ts-sinon';
 import sinonChai from 'sinon-chai';
+import { bson } from '@mongosh/service-provider-core';
+const { EJSON } = bson;
 chai.use(sinonChai);
 
 class ExampleConfig {
   someProperty = 42;
+  someOtherProperty?: number = Infinity;
 }
 
 describe('home directory management', () => {
@@ -62,7 +65,7 @@ describe('home directory management', () => {
       const configPath = manager.path();
       await manager.writeConfigFile(new ExampleConfig());
       const contents = await fs.readFile(configPath, { encoding: 'utf8' });
-      expect(JSON.parse(contents)).to.deep.equal(new ExampleConfig());
+      expect(EJSON.parse(contents)).to.deep.equal(new ExampleConfig());
 
       expect(onError).to.not.have.been.called;
       expect(onNewConfig).to.not.have.been.called;
