@@ -1343,6 +1343,7 @@ tasks:
   - name: release_publish
     tags: ["publish"]
     git_tag_only: true
+    exec_timeout_secs: 7200
     commands:
       - func: checkout
       - func: install
