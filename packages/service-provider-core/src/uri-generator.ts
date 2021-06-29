@@ -25,18 +25,6 @@ const DEFAULT_HOST = '127.0.0.1';
 const DEFAULT_PORT = '27017';
 
 /**
- * GSSAPI options not supported as options in Node driver,
- * only in the URI.
- */
-// const GSSAPI_HOST_NAME = 'gssapiHostName';
-
-/**
- * GSSAPI options not supported as options in Node driver,
- * only in the URI.
- */
-// const GSSAPI_SERVICE_NAME = 'gssapiServiceName';
-
-/**
  * Conflicting host/port message.
  */
 const CONFLICT = 'cli-repl.uri-generator.no-host-port';
@@ -47,13 +35,33 @@ const CONFLICT = 'cli-repl.uri-generator.no-host-port';
 const INVALID_HOST = 'cli-repl.uri-generator.invalid-host';
 
 /**
- * Validate conflicts in the options.
- *
- * @param {CliOptions} options - The options.
+ * Diverging gssapiServiceName and SERVICE_NAME mechanism property
  */
-function validateConflicts(options: CliOptions): void {
+const DIVERGING_SERVICE_NAME = 'cli-repl.uri-generator.diverging-service-name';
+
+/**
+ * Usage of unsupported gssapiServiceName query parameter
+ */
+const GSSAPI_SERVICE_NAME_UNSUPPORTED = 'cli-repl.uri-generator.gssapi-service-name-unsupported';
+
+/**
+ * Validate conflicts in the options.
+ */
+function validateConflicts(options: CliOptions, connectionString?: ConnectionString): void {
   if (options.host || options.port) {
     throw new MongoshInvalidInputError(i18n.__(CONFLICT), CommonErrors.InvalidArgument);
+  }
+
+  if (options.gssapiServiceName && connectionString?.searchParams.has('authMechanismProperties')) {
+    const authProperties = connectionString.searchParams.get('authMechanismProperties') ?? '';
+    const serviceName = /,?SERVICE_NAME:([^,]+)/.exec(authProperties)?.[1];
+    if (serviceName !== undefined && options.gssapiServiceName !== serviceName) {
+      throw new MongoshInvalidInputError(i18n.__(DIVERGING_SERVICE_NAME), CommonErrors.InvalidArgument);
+    }
+  }
+
+  if (connectionString?.searchParams.has('gssapiServiceName')) {
+    throw new MongoshInvalidInputError(i18n.__(GSSAPI_SERVICE_NAME_UNSUPPORTED), CommonErrors.InvalidArgument);
   }
 }
 
@@ -120,9 +128,6 @@ function generatePort(options: CliOptions): string {
  * only if one of these conditions is met:
  *   - it contains no '.' after the last appearance of '\' or '/'
  *   - it doesn't end in '.js' and it doesn't specify a path to an existing file
- *
- * gssapiHostName?: string; // needs to go in URI
- * gssapiServiceName?: string; // needs to go in URI
  */
 function generateUri(options: CliOptions): string {
   if (options.nodb) {
@@ -160,12 +165,14 @@ function generateUriNormalized(options: CliOptions): ConnectionString {
 
   // mongodb+srv:// URI is provided, treat as correct and immediately return
   if (uri.startsWith(Scheme.MongoSrv)) {
-    validateConflicts(options);
-    return new ConnectionString(uri);
+    const connectionString = new ConnectionString(uri);
+    validateConflicts(options, connectionString);
+    return connectionString;
   } else if (uri.startsWith(Scheme.Mongo)) {
     // we need to figure out if we have to add the directConnection query parameter
-    validateConflicts(options);
-    return addShellConnectionStringParameters(new ConnectionString(uri));
+    const connectionString = new ConnectionString(uri);
+    validateConflicts(options, connectionString);
+    return addShellConnectionStringParameters(connectionString);
   }
 
   // Capture host, port and db from the string and generate a URI from

@@ -1,4 +1,4 @@
-import { MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
+import { CommonErrors, MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
 import { CliOptions, MongoClientOptions } from '@mongosh/service-provider-server';
 import setValue from 'lodash.set';
 
@@ -13,6 +13,9 @@ const MAPPINGS = {
   awsSecretAccessKey: 'autoEncryption.kmsProviders.aws.secretAccessKey',
   awsSessionToken: 'autoEncryption.kmsProviders.aws.sessionToken',
   awsIamSessionToken: 'authMechanismProperties.AWS_SESSION_TOKEN',
+  gssapiServiceName: 'authMechanismProperties.SERVICE_NAME',
+  sspiRealmOverride: 'authMechanismProperties.SERVICE_REALM',
+  sspiHostnameCanonicalization: { opt: 'authMechanismProperties.gssapiCanonicalizeHostName', fun: mapSspiHostnameCanonicalization },
   authenticationDatabase: 'authSource',
   authenticationMechanism: 'authMechanism',
   keyVaultNamespace: 'autoEncryption.keyVaultNamespace',
@@ -52,8 +55,16 @@ async function mapCliToDriver(options: CliOptions): Promise<MongoClientOptions> 
       if (typeof mapping === 'object') {
         const cliValue = (options as any)[cliOption];
         if (cliValue) {
-          const { opt, val } = mapping;
-          setValue(nodeOptions, opt, val);
+          let newValue: any;
+          if ('val' in mapping) {
+            newValue = mapping.val;
+          } else {
+            newValue = mapping.fun(cliValue);
+            if (newValue === undefined) {
+              return;
+            }
+          }
+          setValue(nodeOptions, mapping.opt, newValue);
         }
       } else {
         setValue(nodeOptions, mapping, (options as any)[cliOption]);
@@ -110,6 +121,19 @@ function getCertificateExporter(): TlsCertificateExporter | undefined {
     }
   } catch { /* os probably not supported */ }
   return undefined;
+}
+
+function mapSspiHostnameCanonicalization(value: string): string | undefined {
+  if (!value || value === 'none') {
+    return undefined;
+  }
+  if (value === 'forward') {
+    return 'true';
+  }
+  throw new MongoshInvalidInputError(
+    `--sspiHostnameCanonicalization value ${value} is not supported`,
+    CommonErrors.InvalidArgument
+  );
 }
 
 export default mapCliToDriver;

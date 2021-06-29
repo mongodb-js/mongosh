@@ -208,6 +208,66 @@ describe('arg-mapper.mapCliToDriver', () => {
     });
   });
 
+  context('when the cli args have gssapiServiceName', () => {
+    const cliOptions: CliOptions = { gssapiServiceName: 'alternate' };
+
+    it('maps to authMechanismProperties.SERVICE_NAME', async() => {
+      expect(await mapCliToDriver(cliOptions)).to.deep.equal({
+        authMechanismProperties: {
+          SERVICE_NAME: 'alternate'
+        }
+      });
+    });
+  });
+
+  context('when the cli args have sspiRealmOverride', () => {
+    const cliOptions: CliOptions = { sspiRealmOverride: 'REALM.COM' };
+
+    it('maps to authMechanismProperties.SERVICE_REALM', async() => {
+      expect(await mapCliToDriver(cliOptions)).to.deep.equal({
+        authMechanismProperties: {
+          SERVICE_REALM: 'REALM.COM'
+        }
+      });
+    });
+  });
+
+  context('when the cli args have sspiHostnameCanonicalization', () => {
+    context('with a value of none', () => {
+      const cliOptions: CliOptions = { sspiHostnameCanonicalization: 'none' };
+
+      it('is not mapped to authMechanismProperties', async() => {
+        expect(await mapCliToDriver(cliOptions)).to.deep.equal({});
+      });
+    });
+
+    context('with a value of forward', () => {
+      const cliOptions: CliOptions = { sspiHostnameCanonicalization: 'forward' };
+
+      it('is mapped to authMechanismProperties', async() => {
+        expect(await mapCliToDriver(cliOptions)).to.deep.equal({
+          authMechanismProperties: {
+            gssapiCanonicalizeHostName: 'true'
+          }
+        });
+      });
+    });
+
+    context('with a value of forwardAndReverse', () => {
+      const cliOptions: CliOptions = { sspiHostnameCanonicalization: 'forwardAndReverse' };
+
+      it('is mapped to authMechanismProperties', async() => {
+        try {
+          await mapCliToDriver(cliOptions);
+        } catch (e) {
+          expect(e.message).to.contain('forwardAndReverse is not supported');
+          return;
+        }
+        expect.fail('expected error');
+      });
+    });
+  });
+
   context('when the cli args have keyVaultNamespace', () => {
     const cliOptions: CliOptions = { keyVaultNamespace: 'db.datakeys' };
 

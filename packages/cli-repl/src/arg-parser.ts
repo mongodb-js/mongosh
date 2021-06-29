@@ -27,6 +27,8 @@ const OPTIONS = {
     'eval',
     'gssapiHostName',
     'gssapiServiceName',
+    'sspiHostnameCanonicalization',
+    'sspiRealmOverride',
     'host',
     'keyVaultNamespace',
     'kmsURL',
@@ -108,7 +110,8 @@ const DEPRECATED_ARGS_WITH_REPLACEMENT: Record<string, keyof CliOptions> = {
  */
 const UNSUPPORTED_ARGS: Readonly<string[]> = [
   'sslFIPSMode',
-  'tlsFIPSMode'
+  'tlsFIPSMode',
+  'gssapiHostName'
 ];
 
 /**
