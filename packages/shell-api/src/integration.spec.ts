@@ -1270,6 +1270,7 @@ describe('Shell API (integration)', function() {
         const explained = await collection.explain().count();
         expect(explained).to.include.all.keys(['ok', 'serverInfo', 'queryPlanner']);
         expect(explained).to.not.include.any.keys(['executionStats']);
+        expect(explained.queryPlanner.namespace).to.equal(`${dbName}.${collectionName}`);
       });
 
       it('includes executionStats when requested', async() => {
