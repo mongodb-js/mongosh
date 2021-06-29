@@ -121,7 +121,7 @@ export default class Explainable extends ShellApiWithMongoClass {
     // This is the only one that currently lacks explicit driver support.
     return markAsExplainOutput(await this._collection._database._runCommand({
       explain: {
-        count: `${this._collection._database._name}.${this._collection._name}`,
+        count: `${this._collection._name}`,
         query,
         ...options
       },
