@@ -406,8 +406,7 @@ export default class Collection extends ShellApiWithMongoClass {
    */
   @returnType('Cursor')
   @apiVersions([1])
-  find(query?: Document, projection?: Document): Cursor {
-    const options: FindOptions = {};
+  find(query?: Document, projection?: Document, options: FindOptions = {}): Cursor {
     if (projection) {
       options.projection = projection;
     }
@@ -463,8 +462,7 @@ export default class Collection extends ShellApiWithMongoClass {
   @returnsPromise
   @returnType('Document')
   @apiVersions([1])
-  async findOne(query: Document = {}, projection?: Document): Promise<Document | null> {
-    const options: any = {};
+  async findOne(query: Document = {}, projection?: Document, options: FindOptions = {}): Promise<Document | null> {
     if (projection) {
       options.projection = projection;
     }
