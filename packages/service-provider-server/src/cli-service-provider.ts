@@ -3,6 +3,7 @@ import {
   AuthMechanism,
   MongoClient,
   ReadPreference,
+  BSONRegExp,
   Binary,
   Code,
   DBRef,
@@ -101,7 +102,8 @@ const bsonlib = {
   BSONSymbol,
   Map: BSON.Map,
   calculateObjectSize: BSON.calculateObjectSize,
-  EJSON: BSON.EJSON
+  EJSON: BSON.EJSON,
+  BSONRegExp
 };
 
 type DropDatabaseResult = {

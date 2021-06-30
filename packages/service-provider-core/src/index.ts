@@ -20,7 +20,8 @@ import {
   Map,
   calculateObjectSize,
   Double,
-  EJSON
+  EJSON,
+  BSONRegExp
 } from 'bson';
 import { bsonStringifiers } from './printable-bson';
 import ShellAuthOptions from './shell-auth-options';
@@ -43,7 +44,8 @@ const bson = {
   Map,
   calculateObjectSize,
   Double,
-  EJSON
+  EJSON,
+  BSONRegExp
 };
 
 export {

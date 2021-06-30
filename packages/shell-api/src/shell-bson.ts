@@ -23,7 +23,8 @@ function constructHelp(className: string): Help {
 export default function constructShellBson(bson: typeof BSON, printWarning: (msg: string) => void): any {
   const bsonNames = [
     'Binary', 'Code', 'DBRef', 'Decimal128', 'Double', 'Int32', 'Long',
-    'MaxKey', 'MinKey', 'ObjectId', 'Timestamp', 'Map', 'BSONSymbol'
+    'MaxKey', 'MinKey', 'ObjectId', 'Timestamp', 'Map', 'BSONSymbol',
+    'BSONRegExp'
   ] as const; // Statically set this so we can error if any are missing
 
   // If the service provider doesn't provide a BSON version, use service-provider-core's BSON package (js-bson 4.x)
@@ -153,7 +154,8 @@ export default function constructShellBson(bson: typeof BSON, printWarning: (msg
     Long: bson.Long,
     Binary: bson.Binary,
     Double: bson.Double,
-    EJSON: bson.EJSON
+    EJSON: bson.EJSON,
+    BSONRegExp: bson.BSONRegExp
   } as any;
 
   Object.keys(bsonPkg).forEach((className) => {
