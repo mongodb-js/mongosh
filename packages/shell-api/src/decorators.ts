@@ -1,12 +1,12 @@
 /* eslint-disable complexity */
 import { MongoshInternalError } from '@mongosh/errors';
 import type { ReplPlatform } from '@mongosh/service-provider-core';
+import semver from 'semver';
 import { Mongo, ShellInternalState } from '.';
+import { printDeprecationWarning } from './deprecation-warning';
 import {
-  ALL_PLATFORMS,
-  ALL_SERVER_VERSIONS,
-  ALL_API_VERSIONS,
-  ALL_TOPOLOGIES,
+  ALL_API_VERSIONS, ALL_PLATFORMS,
+  ALL_SERVER_VERSIONS, ALL_TOPOLOGIES,
   asPrintable,
   namespaceInfo, shellApiType, Topologies
 } from './enums';
@@ -199,11 +199,30 @@ function wrapWithApiChecks<T extends(...args: any[]) => any>(fn: T, className: s
 }
 
 function checkForDeprecation(internalState: ShellInternalState | undefined, className: string, fn: any) {
-  if (internalState && typeof internalState.emitDeprecatedApiCall === 'function' && typeof fn === 'function' && fn.deprecated) {
+  if (typeof fn !== 'function' || !fn.deprecated || !internalState) {
+    return;
+  }
+
+  let deprecationMessage: string | undefined;
+  if (typeof fn.deprecated === 'object') {
+    const deprecated: DeprectationDetails = fn.deprecated;
+    const serverVersion = internalState.connectionInfo?.buildInfo?.version;
+    if (deprecated.since && (!serverVersion || semver.gt(deprecated.since, serverVersion, { includePrerelease: true }))) {
+      // not yet deprecated in the server's version
+      return;
+    }
+    deprecationMessage = deprecated.msg;
+  }
+
+  if (typeof internalState.emitDeprecatedApiCall === 'function') {
     internalState.emitDeprecatedApiCall({
       method: fn.name,
       class: className
     });
+  }
+
+  if (deprecationMessage) {
+    printDeprecationWarning(deprecationMessage, internalState.context?.print);
   }
 }
 
@@ -234,7 +253,7 @@ export interface TypeSignature {
   apiVersions?: [ number, number ];
   topologies?: Topologies[];
   returnsPromise?: boolean;
-  deprecated?: boolean;
+  deprecated?: boolean | DeprectationDetails;
   returnType?: string | TypeSignature;
   attributes?: { [key: string]: TypeSignature };
   isDirectShellCommand?: boolean;
@@ -447,8 +466,12 @@ export function apiVersions(versionArray: [] | [ number ] | [ number, number ]):
     descriptor.value.apiVersions = versionArray;
   };
 }
-export function deprecated(_target: any, _propertyKey: string, descriptor: PropertyDescriptor): void {
-  descriptor.value.deprecated = true;
+
+export type DeprectationDetails = { since?: string; msg?: string };
+export function deprecated(opts: DeprectationDetails | boolean = true): Function {
+  return function(_target: any, _propertyKey: string, descriptor: PropertyDescriptor): void {
+    descriptor.value.deprecated = opts;
+  };
 }
 export function topologies(topologiesArray: Topologies[]): Function {
   return function(

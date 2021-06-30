@@ -250,7 +250,7 @@ export default class ReplicaSet extends ShellApiWithMongoClass {
     return this._database.printSecondaryReplicationInfo();
   }
 
-  @deprecated
+  @deprecated()
   @returnsPromise
   @apiVersions([])
   async printSlaveReplicationInfo(): Promise<CommandResult> {

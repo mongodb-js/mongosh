@@ -20,6 +20,7 @@ import { ObjectId } from 'mongodb';
 import ShellInternalState from './shell-internal-state';
 import { ShellApiErrors } from './error-codes';
 import { CommonErrors, MongoshInvalidInputError, MongoshRuntimeError } from '@mongosh/errors';
+import { clearWarningsForTest } from './deprecation-warning';
 
 const sinonChai = require('sinon-chai'); // weird with import
 
@@ -696,6 +697,54 @@ describe('Collection', () => {
           {},
           { writeConcern: { w: 'majority' } }
         );
+      });
+    });
+
+    describe('update', () => {
+      let print: sinon.SinonStub;
+
+      beforeEach(() => {
+        print = sinon.stub();
+        internalState.context.print = print;
+        clearWarningsForTest();
+      });
+
+      afterEach(() => {
+        internalState.context.print = undefined;
+        clearWarningsForTest();
+      });
+
+      it('prints a deprecation warning once', async() => {
+        serviceProvider.updateOne = sinon.spy(() => Promise.resolve({
+          result: { ok: 1, matchedCount: 0, modifiedCount: 0, upsertedCount: 0, upsertedId: null }
+        })) as any;
+
+        await collection.update({}, {}, {
+          writeConcern: { w: 'majority' }
+        });
+
+        expect(serviceProvider.updateOne).to.have.been.calledWith(
+          'db1',
+          'coll1',
+          {},
+          {},
+          { writeConcern: { w: 'majority' } }
+        );
+        expect(print).to.have.been.calledOnce;
+        expect(print).to.have.been.calledWith('DeprecationWarning: Collection.update() is deprecated. Use updateOne, updateMany, or bulkWrite.');
+
+        await collection.update({}, {}, {
+          writeConcern: { w: 'majority' }
+        });
+
+        expect(serviceProvider.updateOne).to.have.been.calledWith(
+          'db1',
+          'coll1',
+          {},
+          {},
+          { writeConcern: { w: 'majority' } }
+        );
+        expect(print).to.have.been.calledOnce;
       });
     });
 
@@ -1619,12 +1668,23 @@ describe('Collection', () => {
     describe('mapReduce', () => {
       let mapFn;
       let reduceFn;
+      let print: sinon.SinonStub;
+
       beforeEach(() => {
         mapFn = function(): void {};
         reduceFn = function(keyCustId, valuesPrices): any {
           return valuesPrices.reduce((t, s) => (t + s));
         };
+        print = sinon.stub();
+        internalState.context.print = print;
+        clearWarningsForTest();
       });
+
+      afterEach(() => {
+        internalState.context.print = undefined;
+        clearWarningsForTest();
+      });
+
       it('calls serviceProvider.mapReduce on the collection with js args', async() => {
         serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
         await collection.mapReduce(mapFn, reduceFn, { out: 'map_reduce_example' });
@@ -1637,7 +1697,11 @@ describe('Collection', () => {
             out: 'map_reduce_example'
           }
         );
+        expect(print).to.not.have.been.calledWith(
+          'DeprecationWarning: Collection.mapReduce() is deprecated. Use an aggregation instead.\nSee https://docs.mongodb.com/manual/core/map-reduce for details.'
+        );
       });
+
       it('calls serviceProvider.runCommand on the collection with string args', async() => {
         serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
         await collection.mapReduce(mapFn.toString(), reduceFn.toString(), { out: 'map_reduce_example' });
@@ -1672,6 +1736,40 @@ describe('Collection', () => {
         expect(error).to.be.instanceOf(MongoshInvalidInputError);
         expect(error.message).to.contain('Missing \'out\' option');
         expect(error.code).to.equal(CommonErrors.InvalidArgument);
+      });
+
+      describe('for server version 5.0+', () => {
+        let connectionInfo: any;
+        beforeEach(() => {
+          connectionInfo = internalState.connectionInfo;
+          internalState.connectionInfo = {
+            buildInfo: {
+              version: '5.0.0'
+            }
+          };
+        });
+
+        afterEach(() => {
+          internalState.connectionInfo = connectionInfo;
+        });
+
+        it('prints a deprecation warning for 5.0', async() => {
+          serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
+          await collection.mapReduce(mapFn, reduceFn, { out: 'map_reduce_example' });
+          expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+            database._name,
+            {
+              mapReduce: collection._name,
+              map: mapFn,
+              reduce: reduceFn,
+              out: 'map_reduce_example'
+            }
+          );
+          expect(print).to.have.been.calledOnce;
+          expect(print).to.have.been.calledWith(
+            'DeprecationWarning: Collection.mapReduce() is deprecated. Use an aggregation instead.\nSee https://docs.mongodb.com/manual/core/map-reduce for details.'
+          );
+        });
       });
     });
     describe('getShardVersion', () => {

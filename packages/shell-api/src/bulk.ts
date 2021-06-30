@@ -79,14 +79,14 @@ export class BulkFindOp extends ShellApiWithMongoClass {
 
   @returnType('Bulk')
   @apiVersions([1])
-  @deprecated
+  @deprecated()
   remove(): Bulk {
     return this.delete();
   }
 
   @returnType('Bulk')
   @apiVersions([1])
-  @deprecated
+  @deprecated()
   removeOne(): Bulk {
     return this.deleteOne();
   }

@@ -57,7 +57,7 @@ export default class ChangeStreamCursor extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
-  @deprecated
+  @deprecated()
   async hasNext(): Promise<void> {
     printWarning(
       'If there are no documents in the batch, hasNext will block. Use tryNext if you want to check if there ' +

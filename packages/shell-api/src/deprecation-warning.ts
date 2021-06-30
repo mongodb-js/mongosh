@@ -25,3 +25,7 @@ export function printWarning(
     warn(`Warning: ${message}`);
   }
 }
+
+export function clearWarningsForTest(): void {
+  warningShown.clear();
+}

@@ -222,12 +222,14 @@ function filterShellAPI(
   split?: string[]): string[] {
   const hits: string[] = Object.keys(completions).filter((c: string) => {
     if (!c.startsWith(prefix)) return false;
-    if (completions[c].deprecated) return false;
+
+    const completion = completions[c];
+    if (completion.deprecated === true) return false;
 
     const apiVersionInfo = params.apiVersionInfo();
     let isAcceptableVersion;
     let acceptableApiVersions;
-    if (apiVersionInfo?.strict && (acceptableApiVersions = completions[c].apiVersions)) {
+    if (apiVersionInfo?.strict && (acceptableApiVersions = completion.apiVersions)) {
       isAcceptableVersion =
          +apiVersionInfo.version >= acceptableApiVersions[0] &&
          +apiVersionInfo.version <= acceptableApiVersions[1];
@@ -235,14 +237,18 @@ function filterShellAPI(
       const serverVersion = params.connectionInfo()?.server_version;
       if (!serverVersion) return true;
 
-      const acceptableVersions = completions[c].serverVersions;
+      const acceptableVersions = completion.serverVersions;
+      let deprecatedSince: string | undefined;
+      if (typeof completion.deprecated === 'object') {
+        deprecatedSince = completion.deprecated.since;
+      }
+
       isAcceptableVersion =
-        !acceptableVersions ||
-        (semver.gte(serverVersion, acceptableVersions[0]) &&
-         semver.lte(serverVersion, acceptableVersions[1]));
+       !acceptableVersions || (semver.gte(serverVersion, acceptableVersions[0]) && semver.lte(serverVersion, acceptableVersions[1]))
+       && (!deprecatedSince || semver.gt(deprecatedSince, serverVersion));
     }
 
-    const acceptableTopologies = completions[c].topologies;
+    const acceptableTopologies = completion.topologies;
     const isAcceptableTopology =
       !acceptableTopologies ||
       acceptableTopologies.includes(params.topology());

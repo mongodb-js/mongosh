@@ -46,6 +46,17 @@ const standalone300 = {
   getCollectionCompletionsForCurrentDb: () => collections,
   getDatabaseCompletions: () => databases
 };
+const standalone500 = {
+  topology: () => Topologies.Standalone,
+  apiVersionInfo: () => undefined,
+  connectionInfo: () => ({
+    is_atlas: false,
+    is_data_lake: false,
+    server_version: '5.0.0'
+  }),
+  getCollectionCompletionsForCurrentDb: () => collections,
+  getDatabaseCompletions: () => databases
+};
 const datalake440 = {
   topology: () => Topologies.Sharded,
   apiVersionInfo: () => undefined,
@@ -258,6 +269,11 @@ describe('completer.completer', () => {
       const adjusted = collComplete.filter(c => !['count', 'update', 'remove', 'insert', 'save', 'findAndModify', 'reIndex'].includes(c)).map(c => `${i}${c}`);
 
       expect(await completer(sharded440, i)).to.deep.equal([adjusted, i]);
+    });
+
+    it('does not include a deprecated command for server version >= deprecation', async() => {
+      const i = 'db.shipwrecks.';
+      expect(await completer(standalone500, i)).to.not.include('mapReduce');
     });
 
     it('matches several collection commands', async() => {

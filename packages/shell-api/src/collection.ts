@@ -241,7 +241,7 @@ export default class Collection extends ShellApiWithMongoClass {
    * @returns {Integer} The promise of the count.
    */
   @returnsPromise
-  @deprecated
+  @deprecated()
   @serverVersions([ServerVersions.earliest, '4.0.0'])
   @apiVersions([])
   async count(query = {}, options: CountOptions = {}): Promise<number> {
@@ -423,7 +423,7 @@ export default class Collection extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
-  @deprecated
+  @deprecated()
   @apiVersions([1])
   async findAndModify(options: FindAndModifyMethodShellOptions): Promise<Document> {
     assertArgsDefinedType([options], [true], 'Collection.findAndModify');
@@ -630,7 +630,7 @@ export default class Collection extends ShellApiWithMongoClass {
    * @return {InsertManyResult}
    */
   @returnsPromise
-  @deprecated
+  @deprecated()
   @serverVersions([ServerVersions.earliest, '3.6.0'])
   @apiVersions([1])
   async insert(docs: Document | Document[], options: BulkWriteOptions = {}): Promise<InsertManyResult> {
@@ -752,7 +752,7 @@ export default class Collection extends ShellApiWithMongoClass {
    * @return {Promise}
    */
   @returnsPromise
-  @deprecated
+  @deprecated()
   @serverVersions([ServerVersions.earliest, '3.2.0'])
   @apiVersions([1])
   async remove(query: Document, options: boolean | RemoveShellOptions = {}): Promise<DeleteResult | Document> {
@@ -781,7 +781,7 @@ export default class Collection extends ShellApiWithMongoClass {
     );
   }
 
-  @deprecated
+  @deprecated()
   save(): never {
     throw new MongoshInvalidInputError(
       'Collection.save() is deprecated. Use insertOne, insertMany, updateOne, or updateMany.'
@@ -827,7 +827,7 @@ export default class Collection extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
-  @deprecated
+  @deprecated()
   @serverVersions([ServerVersions.earliest, '3.2.0'])
   @apiVersions([1])
   async update(filter: Document, update: Document, options: UpdateOptions & { multi?: boolean } = {}): Promise<UpdateResult | Document> {
@@ -1533,6 +1533,10 @@ export default class Collection extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
+  @deprecated({
+    since: '5.0.0',
+    msg: 'Collection.mapReduce() is deprecated. Use an aggregation instead.\nSee https://docs.mongodb.com/manual/core/map-reduce for details.'
+  })
   @apiVersions([])
   async mapReduce(map: Function | string, reduce: Function | string, optionsOrOutString: MapReduceShellOptions): Promise<Document> {
     assertArgsDefinedType([map, reduce, optionsOrOutString], [true, true, true], 'Collection.mapReduce');

@@ -211,7 +211,7 @@ export default class Cursor extends AbstractCursor {
     return this;
   }
 
-  @deprecated
+  @deprecated()
   @serverVersions([ServerVersions.earliest, '4.0.0'])
   maxScan(): void {
     throw new MongoshDeprecatedError(

@@ -1143,17 +1143,17 @@ export default class Database extends ShellApiWithMongoClass {
     return result.logComponentVerbosity;
   }
 
-  @deprecated
+  @deprecated()
   cloneDatabase(): void {
     throw new MongoshDeprecatedError('`cloneDatabase()` was removed because it was deprecated in MongoDB 4.0');
   }
 
-  @deprecated
+  @deprecated()
   cloneCollection(): void {
     throw new MongoshDeprecatedError('`cloneCollection()` was removed because it was deprecated in MongoDB 4.0');
   }
 
-  @deprecated
+  @deprecated()
   copyDatabase(): void {
     throw new MongoshDeprecatedError('`copyDatabase()` was removed because it was deprecated in MongoDB 4.0');
   }
@@ -1391,7 +1391,7 @@ export default class Database extends ShellApiWithMongoClass {
     return new CommandResult('StatsResult', result);
   }
 
-  @deprecated
+  @deprecated()
   @returnsPromise
   async printSlaveReplicationInfo(): Promise<CommandResult> {
     throw new MongoshDeprecatedError('Method deprecated, use db.printSecondaryReplicationInfo instead');

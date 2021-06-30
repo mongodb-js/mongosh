@@ -484,12 +484,12 @@ export default class Mongo extends ShellApiClass {
     );
   }
 
-  @deprecated
+  @deprecated()
   setSlaveOk(): void {
     throw new MongoshDeprecatedError('Setting slaveOk is deprecated, use setReadPref instead.');
   }
 
-  @deprecated
+  @deprecated()
   setSecondaryOk(): void {
     throw new MongoshDeprecatedError('Setting secondaryOk is deprecated, use setReadPref instead.');
   }
