@@ -279,7 +279,7 @@ type ClassHelp = {
 };
 
 export const toIgnore = ['constructor', 'help'];
-export function shellApiClassGeneric(constructor: Function, hasHelp: boolean): void {
+function shellApiClassGeneric(constructor: Function, hasHelp: boolean): void {
   const className = constructor.name;
   const classHelpKeyPrefix = `shell-api.classes.${className}.help`;
   const classHelp: ClassHelp = {
@@ -405,10 +405,16 @@ export function shellApiClassGeneric(constructor: Function, hasHelp: boolean): v
   }
 }
 
+/**
+ * Marks a class as being a Shell API class including help information.
+ */
 export function shellApiClassDefault(constructor: Function): void {
   shellApiClassGeneric(constructor, true);
 }
 
+/**
+ * Marks a class as being a Shell API class without help information
+ */
 export function shellApiClassNoHelp(constructor: Function): void {
   shellApiClassGeneric(constructor, false);
 }
@@ -424,6 +430,19 @@ function markImplicitlyAwaited<T extends(...args: any) => Promise<any>>(orig: T)
 }
 
 export { signatures };
+/**
+ * Marks the decorated method as being supported for the given range of server versions.
+ * Server versions are given as `[min, max]` where both boundaries are **inclusive**.
+ * If the version of the server the user is connected to is not inside the range, the method
+ * will not be included in autocompletion.
+ *
+ * When a method is deprecated after a specific server version, the `versionArray` should include
+ * this version as the `max` value.
+ *
+ * See also `ServerVersions.earliest` and `ServerVersions.latest`.
+ *
+ * @param versionArray An array of supported server versions
+ */
 export function serverVersions(versionArray: [ string, string ]): Function {
   return function(
     _target: any,
@@ -433,6 +452,15 @@ export function serverVersions(versionArray: [ string, string ]): Function {
     descriptor.value.serverVersions = versionArray;
   };
 }
+
+/**
+ * Marks the decorated method as being supported for the given range of API versions.
+ * API versions are given as `[version]` or `[min, max]`.
+ * If the API version the user specified during connection is not inside the range, the method
+ * will not be included in autocompletion.
+ *
+ * @param versionArray An array of supported API versions
+ */
 export function apiVersions(versionArray: [] | [ number ] | [ number, number ]): Function {
   return function(
     _target: any,
@@ -447,9 +475,27 @@ export function apiVersions(versionArray: [] | [ number ] | [ number, number ]):
     descriptor.value.apiVersions = versionArray;
   };
 }
+
+/**
+ * Marks the decorated class/method as deprecated.
+ * A deprecated method will not be included in autocompletion.
+ *
+ * Calling a deprecated method will automatically emit a telemetry event but
+ * will **not** print an automatic deprecation warning (see `printDeprecationWarning`).
+ *
+ * **Important:** To exclude the method from autocompletion use `@serverVersions`.
+ */
 export function deprecated(_target: any, _propertyKey: string, descriptor: PropertyDescriptor): void {
   descriptor.value.deprecated = true;
 }
+
+/**
+ * Marks the decorated method as only being available for the given topologies.
+ * The method will not be included in autocomplete if the user is connected to a cluster
+ * of a topology type that is not present in `topologiesArray`.
+ *
+ * @param topologiesArray The topologies for which the method is available
+ */
 export function topologies(topologiesArray: Topologies[]): Function {
   return function(
     _target: any,
@@ -459,7 +505,15 @@ export function topologies(topologiesArray: Topologies[]): Function {
     descriptor.value.topologies = topologiesArray;
   };
 }
+
 export const nonAsyncFunctionsReturningPromises: string[] = []; // For testing.
+/**
+ * Marks the decorated method as having a synthetic promise return value that needs to be implicitly
+ * awaited by the async rewriter.
+ *
+ * Note: a test will verify that the `nonAsyncFunctionsReturningPromises` is empty, i.e. **every**
+ * method that is decorated with `@returnsPromise` must be an `async` method.
+ */
 export function returnsPromise(_target: any, _propertyKey: string, descriptor: PropertyDescriptor): void {
   const originalFunction = descriptor.value;
   originalFunction.returnsPromise = true;
@@ -482,11 +536,24 @@ export function returnsPromise(_target: any, _propertyKey: string, descriptor: P
     nonAsyncFunctionsReturningPromises.push(originalFunction.name);
   }
 }
-// This is use to mark functions that are executable in the shell in a POSIX-shell-like
-// fashion, e.g. `show foo` which is translated into a call to `show('foo')`.
+
+/**
+ * Marks the deocrated method as executable in the shell in a POSIX-shell-like
+ * fashion, e.g. `show foo` which is translated into a call to `show('foo')`.
+ */
 export function directShellCommand(_target: any, _propertyKey: string, descriptor: PropertyDescriptor): void {
   descriptor.value.isDirectShellCommand = true;
 }
+
+/**
+ * Marks the decorated method to provide a specific `completer` function to be
+ * called for autocomplete.
+ *
+ * This can be used to provide autocompletion for POSIX-shell-like commands,
+ * e.g. `show ...`.
+ *
+ * @param completer The completer to use for autocomplete
+ */
 export function shellCommandCompleter(completer: ShellCommandCompleter): Function {
   return function(
     _target: any,
@@ -496,7 +563,15 @@ export function shellCommandCompleter(completer: ShellCommandCompleter): Functio
     descriptor.value.shellCommandCompleter = completer;
   };
 }
-export function returnType(type: string | TypeSignature): Function {
+
+/**
+ * Marks the decorated method as returning a (resolved) value of the given Shell API type.
+ * The type is given as string being the classname of the Shell API class.
+ * Specify `'this'` in order to return a value of the methods surrounding class type.
+ *
+ * @param type The Shell API return type of the method
+ */
+export function returnType(type: string): Function {
   return function(
     _target: any,
     _propertyKey: string,
@@ -505,12 +580,21 @@ export function returnType(type: string | TypeSignature): Function {
     descriptor.value.returnType = type;
   };
 }
-export function classReturnsPromise(constructor: Function): void {
-  constructor.prototype.returnsPromise = true;
-}
+
+/**
+ * Marks the constructor of the decorated class as being deprecated.
+ *
+ * Calling the constructor will automatically emit a telemetry event but
+ * will **not** print an automatic deprecation warning (see `printDeprecationWarning`).
+ */
 export function classDeprecated(constructor: Function): void {
   constructor.prototype.deprecated = true;
 }
+
+/**
+ * Marks the decorated method as only being supported on the given platforms.
+ * @param platformsArray The platforms the method is supported on
+ */
 export function platforms(platformsArray: any[]): Function {
   return function(
     _target: any,
@@ -520,11 +604,21 @@ export function platforms(platformsArray: any[]): Function {
     descriptor.value.platforms = platformsArray;
   };
 }
+
+/**
+ * Marks the constructor of the decorated class as only being supported on the given platforms.
+ * @param platformsArray The platforms the method is supported on
+ */
 export function classPlatforms(platformsArray: any[]): Function {
   return function(constructor: Function): void {
     constructor.prototype.platforms = platformsArray;
   };
 }
+
+/**
+ * Marks the decorated class that for all methods in the class additional
+ * source information of the call will be added to the calls returned result.
+ */
 export function addSourceToResults(constructor: Function): void {
   (constructor as any)[addSourceToResultsSymbol] = true;
 }
