@@ -19,7 +19,7 @@ export async function createDebianPackage(
   execFile: typeof execFileFn = execFileFn
 ): Promise<void> {
   console.info('mongosh: writing deb package');
-  const size = await estimatePackageSize(pkg);
+  const size = await estimatePackageSizeKb(pkg);
   const dir = await generateDirFromTemplate(templateDir, {
     ...pkg.metadata,
     size,
@@ -56,12 +56,12 @@ export async function createDebianPackage(
   await promisify(rimraf)(dir);
 }
 
-async function estimatePackageSize(pkg: PackageInformation) {
+async function estimatePackageSizeKb(pkg: PackageInformation) {
   let size = 0;
   for (const { sourceFilePath } of pkg.binaries) {
     size += (await fs.stat(sourceFilePath)).size;
   }
-  return size;
+  return Math.ceil(size / 1024);
 }
 
 async function generateDebianCopyright(pkg: PackageInformation): Promise<string> {
