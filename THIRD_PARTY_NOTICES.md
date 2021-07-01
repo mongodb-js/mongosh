@@ -188,7 +188,7 @@ Package|Version|License
 **[mkdirp-classic](#e79cc875152b50c2eb57a97163d99f0155bf4e4af7ba4a7e01c12a17a4a3305c)**|0.5.3|MIT
 **[mongodb](#9598f0ffa44344322f696d3ea9199114c08c18b6763ae8ff3abe2a47aff27c6f)**|4.0.0-beta.5|Apache-2.0
 **[mongodb-ace-autocompleter](#f8d74c39b8fd1bf8c68814e2006477bd7ae4df1586f48c43ec771797e1d3d064)**|0.5.0|Apache-2.0
-**[mongodb-build-info](#7b92944dac466e442bbd1f2ef3f6b9f2cc37cc53375714306f73b29ca409ff37)**|1.1.1|Apache-2.0
+**[mongodb-build-info](#3e1ab3564d63f8a06a80cc2b752a458eabdaa33318303341aa6f7a9461115958)**|1.2.0|Apache-2.0
 **[mongodb-client-encryption](#4bdb45219f73908025ebd24ca2809e81a5c4866c5bcec60be103d1dbda24fee3)**|1.2.5|Apache-2.0
 **[mongodb-connection-string-url](#d842513739d9a848af83ab12b884b179e6e84eb165072b73472b59d20f103c0d)**|1.0.0|Apache-2.0
 **[mongodb-redact](#00a2cfed57df1e8b912b751b08bee4de24ad0189840c99820ebc00c1b219a421)**|0.2.2|Apache-2.0
@@ -10172,8 +10172,8 @@ Authors:
 * durran@gmail.com
 
 
-<a id="7b92944dac466e442bbd1f2ef3f6b9f2cc37cc53375714306f73b29ca409ff37"></a>
-### [mongodb-build-info](https://www.npmjs.com/package/mongodb-build-info) (version 1.1.1)
+<a id="3e1ab3564d63f8a06a80cc2b752a458eabdaa33318303341aa6f7a9461115958"></a>
+### [mongodb-build-info](https://www.npmjs.com/package/mongodb-build-info) (version 1.2.0)
 <!-- initially found at packages/service-provider-core/node_modules/mongodb-build-info -->
 > Extract information from mongodb's buildInfo
 
