@@ -34,6 +34,7 @@ export interface ShowEvent {
 export interface ConnectEvent {
   is_atlas: boolean;
   is_localhost: boolean;
+  is_do: boolean;
   server_version: string;
   server_os?: string;
   server_arch?: string;

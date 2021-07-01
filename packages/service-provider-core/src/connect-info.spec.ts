@@ -82,6 +82,7 @@ describe('getConnectInfo', function() {
     const output = {
       is_atlas: true,
       is_localhost: false,
+      is_do: false,
       server_version: '3.2.0-rc2',
       mongosh_version: '0.0.6',
       is_enterprise: true,
@@ -109,6 +110,7 @@ describe('getConnectInfo', function() {
     const output = {
       is_atlas: true,
       is_localhost: false,
+      is_do: false,
       server_version: '3.2.0-rc2',
       mongosh_version: '0.0.6',
       is_enterprise: true,
@@ -136,6 +138,7 @@ describe('getConnectInfo', function() {
     const output = {
       is_atlas: false,
       is_localhost: false,
+      is_do: false,
       server_version: '3.2.0-rc2',
       mongosh_version: '0.0.6',
       is_enterprise: true,
@@ -163,6 +166,7 @@ describe('getConnectInfo', function() {
     const output = {
       is_atlas: false,
       is_localhost: false,
+      is_do: false,
       server_version: undefined,
       mongosh_version: '0.0.6',
       is_enterprise: false,
