@@ -36,7 +36,7 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
     const { shellApi } = this.internalState;
     const argv = input.trim().replace(/;$/, '').split(/\s+/g);
     const cmd = argv.shift() as keyof typeof shellApi;
-    if (shellApi[cmd]?.isDirectShellCommand) {
+    if (shellApi[cmd]?.isDirectShellCommand && !(argv[0] ?? '').startsWith('(')) {
       return shellApi[cmd](...argv);
     }
 

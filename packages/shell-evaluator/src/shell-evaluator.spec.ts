@@ -44,6 +44,13 @@ describe('ShellEvaluator', () => {
       expect(useSpy).to.have.been.calledWith('somedb');
     });
 
+    it('does not apply special handling for commands when the first argument starts with (', async() => {
+      const originalEval = sinon.spy();
+      await shellEvaluator.customEval(originalEval, 'use   (somedb);', {}, '');
+      expect(originalEval.firstCall.args[0]).to.include('somedb');
+      expect(useSpy).to.have.callCount(0);
+    });
+
     it('forwards show commands', async() => {
       const dontCallEval = () => { throw new Error('unreachable'); };
       await shellEvaluator.customEval(dontCallEval, 'show dbs;', {}, '');
