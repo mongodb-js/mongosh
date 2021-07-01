@@ -6,6 +6,7 @@ import getBuildInfo from 'mongodb-build-info';
 export interface ConnectInfo {
   is_atlas: boolean;
   is_localhost: boolean;
+  is_do: boolean;
   server_version: string;
   mongosh_version: string;
   server_os?: string;
@@ -38,6 +39,7 @@ export default function getConnectInfo(uri: string, mongoshVersion: string, buil
   return {
     is_atlas: !!atlasVersion?.atlasVersion || getBuildInfo.isAtlas(uri),
     is_localhost: getBuildInfo.isLocalhost(uri),
+    is_do: getBuildInfo.isDigitalOcean(uri),
     server_version: buildInfo.version,
     node_version: process.version,
     mongosh_version: mongoshVersion,
