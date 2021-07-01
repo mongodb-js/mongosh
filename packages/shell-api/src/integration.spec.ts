@@ -933,6 +933,44 @@ describe('Shell API (integration)', function() {
         });
       });
     });
+
+    describe('find', () => {
+      it('uses default options for the driver (find)', async() => {
+        const longOne = new serviceProvider.bsonLibrary.Long('1');
+        await serviceProvider.insertOne(dbName, collectionName, { longOne, _id: 0 });
+
+        const cursor = await collection.find({});
+
+        expect(await cursor.toArray()).to.deep.equal([{ longOne, _id: 0 }]);
+      });
+
+      it('passes through options to the driver (find)', async() => {
+        const longOne = new serviceProvider.bsonLibrary.Long('1');
+        await serviceProvider.insertOne(dbName, collectionName, { longOne, _id: 0 });
+
+        const cursor = await collection.find({}, {}, { promoteLongs: true });
+
+        expect(await cursor.toArray()).to.deep.equal([{ longOne: 1, _id: 0 }]);
+      });
+
+      it('uses default options for the driver (findOne)', async() => {
+        const longOne = new serviceProvider.bsonLibrary.Long('1');
+        await serviceProvider.insertOne(dbName, collectionName, { longOne, _id: 0 });
+
+        const doc = await collection.findOne({});
+
+        expect(doc).to.deep.equal({ longOne, _id: 0 });
+      });
+
+      it('passes through options to the driver (findOne)', async() => {
+        const longOne = new serviceProvider.bsonLibrary.Long('1');
+        await serviceProvider.insertOne(dbName, collectionName, { longOne, _id: 0 });
+
+        const doc = await collection.findOne({}, {}, { promoteLongs: true });
+
+        expect(doc).to.deep.equal({ longOne: 1, _id: 0 });
+      });
+    });
   });
 
   describe('db', () => {
