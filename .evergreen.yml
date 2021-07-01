@@ -1544,11 +1544,14 @@ buildvariants:
     run_on: rhel72-zseries-small
     tasks:
       - name: e2e_tests_linux_s390x
-  - name: e2e_rhel80_s390x
-    display_name: "RHEL 8.0 s390x (E2E Tests)"
-    run_on: rhel80-zseries-small
-    tasks:
-      - name: e2e_tests_linux_s390x
+# TODO: reenable once /opt/mongodbtoolchain/v3 contains executables that
+# are actually compatible with the OS/architecture:
+# https://jira.mongodb.org/browse/BUILD-13551
+#  - name: e2e_rhel80_s390x
+#    display_name: "RHEL 8.0 s390x (E2E Tests)"
+#    run_on: rhel80-zseries-small
+#    tasks:
+#      - name: e2e_tests_linux_s390x
 
   - name: win32
     display_name: "Windows VS 2019"
