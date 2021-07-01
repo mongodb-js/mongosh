@@ -48,6 +48,10 @@ export const bsonStringifiers: Record<string, (this: any) => string> = {
     return `Long("${this.toString()}"${this.unsigned ? ', true' : ''})`;
   },
 
+  BSONRegExp: function(): string {
+    return `BSONRegExp(${JSON.stringify(this.pattern)}, ${JSON.stringify(this.options)})`;
+  },
+
   Binary: function(): string {
     const asBuffer = this.value(true);
     switch (this.sub_type) {

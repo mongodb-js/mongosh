@@ -55,6 +55,10 @@ describe('BSON printers', function() {
     expect(inspect(new bson.Binary('abc'))).to.equal('Binary(Buffer.from("616263", "hex"), 0)');
   });
 
+  it('formats BSONRegExp correctly', function() {
+    expect(inspect(new bson.BSONRegExp('(?-i)AA_', 'im'))).to.equal('BSONRegExp("(?-i)AA_", "im")');
+  });
+
   it('formats UUIDs correctly', function() {
     expect(inspect(new bson.Binary(Buffer.from('0123456789abcdef0123456789abcdef', 'hex'), 4)))
       .to.equal('UUID("01234567-89ab-cdef-0123-456789abcdef")');
