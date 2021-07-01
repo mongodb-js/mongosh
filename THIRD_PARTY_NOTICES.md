@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Tue Jun 29 2021.
+This document was automatically generated on Thu Jul 01 2021.
 
 ## List of dependencies
 
@@ -219,7 +219,7 @@ Package|Version|License
 **[prebuild-install](#a9493a602227065e2247bd0f1087615024e9e96d36d1bd1e70b8db5292f7bdda)**|6.1.2|MIT
 **[prebuild-install](#a5149c349a53cbc4fc91f141f06c2439fe7ffaeaf27ca4c268fde06a7812bf4f)**|5.3.0|MIT
 **[pretty-bytes](#84f0bf818b26f8bdbd4b37dee83e6335d12636108b0a299edcd3c786ae3beb96)**|5.3.0|MIT
-**[pretty-repl](#229fab044f662b0b2f05b22bad540e4634475579717ff60a11825e3f7e806e81)**|3.0.2|MIT
+**[pretty-repl](#58ffb3ce66e7ad0eb70a5fe71383761784692b23e956619c11e91adc6bb9ff40)**|3.1.0|MIT
 **[process-nextick-args](#449a33b1fb1386db92b40df9073f48703b67ff05c4da5043d007fdb90ed76aca)**|2.0.1|MIT
 **[pump](#147f1bd3a6380306e696f0574feda0b1490121a1d12e4500e91ffb6e888ffa3a)**|3.0.0|MIT
 **[pump](#6a3eb1e12d101ad807720be15837917dba7ca7abbec690099cd570a51c1883db)**|2.0.1|MIT
@@ -12179,8 +12179,8 @@ Authors:
 * Sindre Sorhus <[sindresorhus@gmail.com](nomail)> (sindresorhus.com)
 
 
-<a id="229fab044f662b0b2f05b22bad540e4634475579717ff60a11825e3f7e806e81"></a>
-### [pretty-repl](https://www.npmjs.com/package/pretty-repl) (version 3.0.2)
+<a id="58ffb3ce66e7ad0eb70a5fe71383761784692b23e956619c11e91adc6bb9ff40"></a>
+### [pretty-repl](https://www.npmjs.com/package/pretty-repl) (version 3.1.0)
 <!-- initially found at packages/cli-repl/node_modules/pretty-repl -->
 > Extends repl.REPLServer to allow for a colorize function
 
