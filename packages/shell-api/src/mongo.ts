@@ -9,7 +9,6 @@ import {
 } from '@mongosh/errors';
 import {
   classPlatforms,
-  classReturnsPromise,
   platforms,
   returnsPromise,
   returnType,
@@ -56,7 +55,6 @@ import {
 import { ShellApiErrors } from './error-codes';
 
 @shellApiClassDefault
-@classReturnsPromise
 @classPlatforms([ ReplPlatform.CLI ] )
 export default class Mongo extends ShellApiClass {
   private __serviceProvider: ServiceProvider | null = null;

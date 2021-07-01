@@ -1,6 +1,5 @@
 import {
   classPlatforms,
-  classReturnsPromise,
   returnsPromise,
   shellApiClassDefault,
   ShellApiWithMongoClass
@@ -23,7 +22,6 @@ import { blockedByDriverMetadata } from './error-codes';
 import { assertArgsDefinedType } from './helpers';
 
 @shellApiClassDefault
-@classReturnsPromise
 @classPlatforms([ ReplPlatform.CLI ] )
 export default class Session extends ShellApiWithMongoClass {
   public id: ServerSessionId | undefined;

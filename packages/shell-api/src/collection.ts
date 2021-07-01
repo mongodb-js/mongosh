@@ -1531,8 +1531,14 @@ export default class Collection extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
+  @deprecated
+  @serverVersions([ServerVersions.earliest, '4.9.0'])
   @apiVersions([])
   async mapReduce(map: Function | string, reduce: Function | string, optionsOrOutString: MapReduceShellOptions): Promise<Document> {
+    printDeprecationWarning(
+      'Collection.mapReduce() is deprecated. Use an aggregation instead.\nSee https://docs.mongodb.com/manual/core/map-reduce for details.',
+      this._mongo._internalState.context.print
+    );
     assertArgsDefinedType([map, reduce, optionsOrOutString], [true, true, true], 'Collection.mapReduce');
     this._emitCollectionApiCall('mapReduce', { map, reduce, out: optionsOrOutString });
 
