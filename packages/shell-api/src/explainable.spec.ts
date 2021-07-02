@@ -10,7 +10,6 @@ import Collection from './collection';
 import Explainable from './explainable';
 import { ServiceProvider, bson, Document } from '@mongosh/service-provider-core';
 import ShellInternalState from './shell-internal-state';
-import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
 
 describe('Explainable', () => {
   describe('help', () => {
@@ -93,15 +92,11 @@ describe('Explainable', () => {
         expect(explainable._verbosity).to.equal('allPlansExecution');
       });
 
-      it('validates the verbosity', () => {
-        try {
-          explainable.setVerbosity('badVerbosityArgument' as any);
-          expect.fail('expected error');
-        } catch (e) {
-          expect(e).to.be.instanceOf(MongoshInvalidInputError);
-          expect(e.message).to.contain('verbosity can only be one of queryPlanner, executionStats, allPlansExecution. Received badVerbosityArgument.');
-          expect(e.code).to.equal(CommonErrors.InvalidArgument);
-        }
+
+      it('throws in case of non valid verbosity', () => {
+        expect(() => {
+          collection.explain(0 as any);
+        }).to.throw('verbosity must be a string');
       });
     });
 
