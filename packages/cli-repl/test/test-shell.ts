@@ -158,8 +158,8 @@ export class TestShell {
 
   async waitForPromptOrExit(): Promise<TestShellStartupResult> {
     return Promise.race([
-      this.waitForPrompt().then(() => ({ state: 'prompt' } as TestShellStartupResult)),
-      this.waitForExit().then(c => ({ state: 'exit', exitCode: c }) as TestShellStartupResult),
+      this.waitForPrompt().then(() => ({ state: 'prompt' }) as const),
+      this.waitForExit().then(c => ({ state: 'exit', exitCode: c }) as const),
     ]);
   }
 

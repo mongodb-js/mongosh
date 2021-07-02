@@ -1759,7 +1759,7 @@ describe('Shell API (integration)', function() {
             try {
               await bulk.execute();
             } catch (err) {
-              expect(err.name).to.equal('MongoError');
+              expect(err.name).to.equal('MongoDriverError');
               return;
             }
             expect.fail('Error not thrown');

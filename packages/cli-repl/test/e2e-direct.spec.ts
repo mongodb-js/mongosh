@@ -95,7 +95,7 @@ describe('e2e direct connection', () => {
           await shell.waitForPrompt();
           await shell.executeLine('use admin');
           await shell.executeLine('db.runCommand({ listCollections: 1 })');
-          shell.assertContainsError('MongoError: not primary');
+          shell.assertContainsError('MongoServerError: not primary');
         });
 
         it('lists collections when readPreference is in the connection string', async() => {

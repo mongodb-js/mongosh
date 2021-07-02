@@ -726,16 +726,15 @@ describe('Mongo', () => {
         skipIfServerVersion(testServer, '> 4.4');
 
         it('errors if an API version is specified', async() => {
-          // eslint-disable-next-line new-cap
-          const mongo = await internalState.shellApi.Mongo(uri, null, {
-            api: { version: '1' }
-          });
-          expect(mongo._apiOptions).to.deep.equal({ version: '1' });
           try {
+            // eslint-disable-next-line new-cap
+            const mongo = await internalState.shellApi.Mongo(uri, null, {
+              api: { version: '1' }
+            });
             await mongo.getDB('test').getCollection('coll').find().toArray();
             expect.fail('missed exception');
           } catch (err) {
-            expect(err.message).to.include("Unrecognized field 'apiVersion'");
+            expect(err.name).to.match(/MongoServer(Selection)?Error/);
           }
         });
       });

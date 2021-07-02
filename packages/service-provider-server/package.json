@@ -41,7 +41,7 @@
     "@mongosh/errors": "0.0.0-dev.0",
     "@mongosh/service-provider-core": "0.0.0-dev.0",
     "@types/sinon-chai": "^3.2.3",
-    "mongodb": "4.0.0-beta.5",
+    "mongodb": "4.0.0-beta.6",
     "saslprep": "mongodb-js/saslprep#v1.0.4",
     "mongodb-connection-string-url": "^1.0.0"
   },
