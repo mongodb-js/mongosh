@@ -185,15 +185,6 @@ describe('Field Level Encryption', () => {
       });
     });
     describe('createKey', () => {
-      beforeEach(() => {
-        // This can/should be removed once https://jira.mongodb.org/browse/NODE-3118 is fixed
-        sinon.replace(keyVault, 'getKey', sinon.fake(() => {
-          return { next() { return { keyAltNames: ['altname'] }; } };
-        }));
-      });
-      afterEach(() => {
-        sinon.restore();
-      });
       it('calls createDataKey on libmongoc with no key for local', async() => {
         const raw = { result: 1 };
         const kms = 'local';

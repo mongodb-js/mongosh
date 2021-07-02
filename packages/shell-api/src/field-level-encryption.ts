@@ -122,7 +122,6 @@ export class KeyVault extends ShellApiWithMongoClass {
   createKey(kms: ClientEncryptionDataKeyProvider, options: AWSEncryptionKeyOptions | AzureEncryptionKeyOptions | GCPEncryptionKeyOptions | undefined, keyAltNames: string[]): Promise<Document>
   @returnsPromise
   @apiVersions([1])
-  // eslint-disable-next-line complexity
   async createKey(
     kms: ClientEncryptionDataKeyProvider,
     masterKeyOrAltNames?: AWSEncryptionKeyOptions | AzureEncryptionKeyOptions | GCPEncryptionKeyOptions | string | undefined | string[],
@@ -175,14 +174,7 @@ export class KeyVault extends ShellApiWithMongoClass {
       };
     }
 
-    const keyId = await this._clientEncryption._libmongocrypt.createDataKey(kms, options as ClientEncryptionCreateDataKeyProviderOptions);
-    // This can/should be removed once https://jira.mongodb.org/browse/NODE-3118 is fixed
-    if (options?.keyAltNames?.length && !(await this.getKey(keyId).next())?.keyAltNames?.length) {
-      for (const altname of options.keyAltNames) {
-        await this.addKeyAlternateName(keyId, altname);
-      }
-    }
-    return keyId;
+    return await this._clientEncryption._libmongocrypt.createDataKey(kms, options as ClientEncryptionCreateDataKeyProviderOptions);
   }
 
   @returnType('Cursor')
