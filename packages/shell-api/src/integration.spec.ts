@@ -1452,6 +1452,17 @@ describe('Shell API (integration)', function() {
         expect(explained.stages[0].$cursor).to.include.all.keys(['queryPlanner', 'executionStats']);
       });
     });
+
+    describe('invalid verbosity', () => {
+      it('rejects with a server error', async() => {
+        try {
+          await collection.find().explain('foo');
+          expect.fail('missed exception');
+        } catch (err) {
+          expect(err.name).to.equal('MongoServerError');
+        }
+      });
+    });
   });
 
   describe('Bulk API', async() => {

@@ -1477,8 +1477,8 @@ describe('Collection', () => {
 
       it('throws in case of non valid verbosity', () => {
         expect(() => {
-          collection.explain('badVerbosityArgument' as any);
-        }).to.throw('verbosity can only be one of queryPlanner, executionStats, allPlansExecution. Received badVerbosityArgument.');
+          collection.explain(0 as any);
+        }).to.throw('verbosity must be a string');
       });
 
       it('sets the right default verbosity', () => {

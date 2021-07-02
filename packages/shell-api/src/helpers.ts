@@ -67,17 +67,8 @@ export function validateExplainableVerbosity(verbosity: ExplainVerbosityLike): E
     verbosity = 'queryPlanner';
   }
 
-  const allowedVerbosity = [
-    'queryPlanner',
-    'executionStats',
-    'allPlansExecution'
-  ];
-
-  if (!allowedVerbosity.includes(verbosity as string)) {
-    throw new MongoshInvalidInputError(
-      `verbosity can only be one of ${allowedVerbosity.join(', ')}. Received ${verbosity}.`,
-      CommonErrors.InvalidArgument
-    );
+  if (typeof verbosity !== 'string') {
+    throw new MongoshInvalidInputError('verbosity must be a string', CommonErrors.InvalidArgument);
   }
 
   return verbosity;
