@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Thu Jul 01 2021.
+This document was automatically generated on Fri Jul 02 2021.
 
 ## List of dependencies
 
@@ -186,10 +186,10 @@ Package|Version|License
 **[mkdirp](#f34eebd27506e3aa07ba3b64064715e0c4f310dad1207ad88fff362353cd4cce)**|1.0.4|MIT
 **[mkdirp](#c9b61718830a71a4143ddf8aea40ecf5cd105a06f26074c1210c42bc0fcb3c2a)**|0.5.5|MIT
 **[mkdirp-classic](#e79cc875152b50c2eb57a97163d99f0155bf4e4af7ba4a7e01c12a17a4a3305c)**|0.5.3|MIT
-**[mongodb](#9598f0ffa44344322f696d3ea9199114c08c18b6763ae8ff3abe2a47aff27c6f)**|4.0.0-beta.5|Apache-2.0
+**[mongodb](#238ca94190dc6ecfefb8038eba61fdc9b317f49234c6775cac809521e13446af)**|4.0.0-beta.6|Apache-2.0
 **[mongodb-ace-autocompleter](#f8d74c39b8fd1bf8c68814e2006477bd7ae4df1586f48c43ec771797e1d3d064)**|0.5.0|Apache-2.0
 **[mongodb-build-info](#3e1ab3564d63f8a06a80cc2b752a458eabdaa33318303341aa6f7a9461115958)**|1.2.0|Apache-2.0
-**[mongodb-client-encryption](#4bdb45219f73908025ebd24ca2809e81a5c4866c5bcec60be103d1dbda24fee3)**|1.2.5|Apache-2.0
+**[mongodb-client-encryption](#2400753e4c313cbe1059fed67cfe07c83a8887810d236b84878dad8fdfba9ef7)**|1.2.6|Apache-2.0
 **[mongodb-connection-string-url](#d842513739d9a848af83ab12b884b179e6e84eb165072b73472b59d20f103c0d)**|1.0.0|Apache-2.0
 **[mongodb-redact](#00a2cfed57df1e8b912b751b08bee4de24ad0189840c99820ebc00c1b219a421)**|0.2.2|Apache-2.0
 **[ms](#0a987b2f79ff37005e452a5afa7dacd3042061a7077054d2ba9cabacd88506d2)**|2.1.2|MIT
@@ -9948,8 +9948,8 @@ Authors:
 * Mathias Buus (@mafintosh)
 
 
-<a id="9598f0ffa44344322f696d3ea9199114c08c18b6763ae8ff3abe2a47aff27c6f"></a>
-### [mongodb](https://www.npmjs.com/package/mongodb) (version 4.0.0-beta.5)
+<a id="238ca94190dc6ecfefb8038eba61fdc9b317f49234c6775cac809521e13446af"></a>
+### [mongodb](https://www.npmjs.com/package/mongodb) (version 4.0.0-beta.6)
 <!-- initially found at packages/service-provider-core/node_modules/mongodb -->
 > The official MongoDB driver for Node.js
 
@@ -10389,8 +10389,8 @@ Authors:
 * Irina Shestak <shestak.irina@gmail.com>
 
 
-<a id="4bdb45219f73908025ebd24ca2809e81a5c4866c5bcec60be103d1dbda24fee3"></a>
-### [mongodb-client-encryption](https://www.npmjs.com/package/mongodb-client-encryption) (version 1.2.5)
+<a id="2400753e4c313cbe1059fed67cfe07c83a8887810d236b84878dad8fdfba9ef7"></a>
+### [mongodb-client-encryption](https://www.npmjs.com/package/mongodb-client-encryption) (version 1.2.6)
 <!-- initially found at packages/service-provider-core/node_modules/mongodb-client-encryption -->
 > Official client encryption module for the MongoDB Node.js driver
 
