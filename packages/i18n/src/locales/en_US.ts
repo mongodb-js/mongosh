@@ -31,6 +31,8 @@ const translations: Catalog = {
       awsIamSessionToken: 'AWS IAM Temporary Session Token ID',
       gssapiServiceName: 'Service name to use when authenticating using GSSAPI/Kerberos',
       gssapiHostName: 'Remote host name to use for purpose of GSSAPI/Kerberos authentication',
+      sspiHostnameCanonicalization: 'Specify the SSPI hostname canonicalization (none or forward, available on Windows)',
+      sspiRealmOverride: 'Specify the SSPI server realm (available on Windows)',
       tlsOptions: 'TLS Options:',
       tls: 'Use TLS for all connections',
       tlsCertificateKeyFile: 'PEM certificate/key file for TLS',
@@ -82,7 +84,9 @@ const translations: Catalog = {
     },
     'uri-generator': {
       'no-host-port': 'If a full URI is provided, you cannot also specify --host or --port',
-      'invalid-host': 'The --host argument contains an invalid character'
+      'invalid-host': 'The --host argument contains an invalid character',
+      'diverging-service-name': 'Either the --gssapiServiceName parameter or the SERVICE_NAME authentication mechanism property in the connection string can be used but not both.',
+      'gssapi-service-name-unsupported': 'The gssapiServiceName query parameter is not supported anymore. Please use the --gssapiServiceName argument or the SERVICE_NAME authentication mechanism property (e.g. ?authMechanismProperties=SERVICE_NAME:<value>).',
     }
   },
   'service-provider-browser': {},

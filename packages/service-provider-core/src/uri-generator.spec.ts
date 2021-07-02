@@ -1,5 +1,6 @@
 import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
 import { expect } from 'chai';
+import CliOptions from './cli-options';
 import generateUri from './uri-generator';
 
 describe('uri-generator.generate-uri', () => {
@@ -77,6 +78,34 @@ describe('uri-generator.generate-uri', () => {
           }
         });
       });
+
+      context('when providing gssapiServiceName', () => {
+        context('and the URI does not include SERVICE_NAME in authMechanismProperties', () => {
+          const uri = 'mongodb+srv://some.host/foo';
+          const options: CliOptions = { connectionSpecifier: uri, gssapiServiceName: 'alternate' };
+
+          it('does not throw an error', () => {
+            expect(generateUri(options)).to.equal('mongodb+srv://some.host/foo');
+          });
+        });
+
+        context('and the URI includes SERVICE_NAME in authMechanismProperties', () => {
+          const uri = 'mongodb+srv://some.host/foo?authMechanismProperties=SERVICE_NAME:whatever';
+          const options: CliOptions = { connectionSpecifier: uri, gssapiServiceName: 'alternate' };
+
+          it('throws an error', () => {
+            try {
+              generateUri(options);
+            } catch (e) {
+              expect(e.name).to.equal('MongoshInvalidInputError');
+              expect(e.code).to.equal(CommonErrors.InvalidArgument);
+              expect(e.message).to.contain('--gssapiServiceName parameter or the SERVICE_NAME');
+              return;
+            }
+            expect.fail('expected error');
+          });
+        });
+      });
     });
 
     context('when providing a URI with query parameters', () => {
@@ -118,6 +147,23 @@ describe('uri-generator.generate-uri', () => {
       const options = { connectionSpecifier: uri };
       it('no directConnection is added', () => {
         expect(generateUri(options)).to.equal(uri);
+      });
+    });
+
+    context('when providing a URI with the legacy gssapiServiceName query parameter', () => {
+      const uri = 'mongodb://192.42.42.42:27017,192.0.0.1:27018/db?gssapiServiceName=primary';
+      const options = { connectionSpecifier: uri };
+
+      it('throws an error', () => {
+        try {
+          generateUri(options);
+        } catch (e) {
+          expect(e.name).to.equal('MongoshInvalidInputError');
+          expect(e.code).to.equal(CommonErrors.InvalidArgument);
+          expect(e.message).to.contain('gssapiServiceName query parameter is not supported');
+          return;
+        }
+        expect.fail('expected error');
       });
     });
   });

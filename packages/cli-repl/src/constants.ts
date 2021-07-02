@@ -38,6 +38,9 @@ export const USAGE = `
         --authenticationDatabase [arg]         ${i18n.__('cli-repl.args.authenticationDatabase')}
         --authenticationMechanism [arg]        ${i18n.__('cli-repl.args.authenticationMechanism')}
         --awsIamSessionToken [arg]             ${i18n.__('cli-repl.args.awsIamSessionToken')}
+        --gssapiServiceName [arg]              ${i18n.__('cli-repl.args.gssapiServiceName')}
+        --sspiHostnameCanonicalization [arg]   ${i18n.__('cli-repl.args.sspiHostnameCanonicalization')}
+        --sspiRealmOverride [arg]              ${i18n.__('cli-repl.args.sspiRealmOverride')}
 
   ${clr(i18n.__('cli-repl.args.tlsOptions'), ['bold', 'yellow'])}
 

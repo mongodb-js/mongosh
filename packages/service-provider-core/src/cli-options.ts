@@ -18,8 +18,9 @@ export default interface CliOptions {
   awsSessionToken?: string;
   db?: string;
   eval?: string;
-  gssapiHostName?: string;
   gssapiServiceName?: string;
+  sspiHostnameCanonicalization?: string;
+  sspiRealmOverride?: string;
   help?: boolean;
   host?: string;
   ipv6?: boolean;

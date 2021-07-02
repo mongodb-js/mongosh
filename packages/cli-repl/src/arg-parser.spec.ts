@@ -322,12 +322,47 @@ describe('arg-parser', () => {
         context('when providing --gssapiHostName', () => {
           const argv = [ ...baseArgv, uri, '--gssapiHostName', 'example.com' ];
 
+          it('throws an error since it is not yet supported', () => {
+            try {
+              parseCliArgs(argv);
+            } catch (e) {
+              expect(e).to.be.instanceOf(MongoshUnimplementedError);
+              expect(e.message).to.include('Argument --gssapiHostName is not yet supported in mongosh');
+              return;
+            }
+            expect.fail('Expected error');
+          });
+
+          // it('returns the URI in the object', () => {
+          //   expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+          // });
+
+          // it('sets the gssapiHostName in the object', () => {
+          //   expect(parseCliArgs(argv).gssapiHostName).to.equal('example.com');
+          // });
+        });
+
+        context('when providing --sspiHostnameCanonicalization', () => {
+          const argv = [ ...baseArgv, uri, '--sspiHostnameCanonicalization', 'forward' ];
+
           it('returns the URI in the object', () => {
             expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
           });
 
           it('sets the gssapiHostName in the object', () => {
-            expect(parseCliArgs(argv).gssapiHostName).to.equal('example.com');
+            expect(parseCliArgs(argv).sspiHostnameCanonicalization).to.equal('forward');
+          });
+        });
+
+        context('when providing --sspiRealmOverride', () => {
+          const argv = [ ...baseArgv, uri, '--sspiRealmOverride', 'example2.com' ];
+
+          it('returns the URI in the object', () => {
+            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+          });
+
+          it('sets the gssapiHostName in the object', () => {
+            expect(parseCliArgs(argv).sspiRealmOverride).to.equal('example2.com');
           });
         });
 
