@@ -111,6 +111,11 @@ describe('Shell BSON', () => {
       expect(s._bsontype).to.equal('ObjectID');
       expect(s.toHexString()).to.equal('5ebbe8e2905bb493d6981b6b');
     });
+    it('works with an integer argument', () => {
+      const s = new (shellBson.ObjectId as any)(0x12345678);
+      expect(s._bsontype).to.equal('ObjectID');
+      expect(s.toHexString().slice(0, 8)).to.equal('12345678');
+    });
     it('has help and other metadata', async() => {
       const s = shellBson.ObjectId();
       expect((await toShellResult(s.help)).type).to.equal('Help');
@@ -119,9 +124,9 @@ describe('Shell BSON', () => {
     });
     it('errors for wrong type of arg 1', () => {
       try {
-        (shellBson.ObjectId as any)(1);
+        (shellBson.ObjectId as any)(Symbol('foo'));
       } catch (e) {
-        return expect(e.message).to.contain('string, got number');
+        return expect(e.message).to.contain('object, got symbol');
       }
       expect.fail('Expecting error, nothing thrown');
     });
@@ -152,6 +157,11 @@ describe('Shell BSON', () => {
       const s = new (shellBson.Timestamp as any)(0, 100);
       expect(s._bsontype).to.equal('Timestamp');
     });
+    it('with a long argument', () => {
+      const s = shellBson.Timestamp(shellBson.Long(1, 2));
+      expect(s._bsontype).to.equal('Timestamp');
+      expect(s.toExtendedJSON()).to.deep.equal({ $timestamp: { t: 2, i: 1 } });
+    });
     it('has help and other metadata', async() => {
       const s = shellBson.Timestamp(0, 100);
       expect((await toShellResult(s.help)).type).to.equal('Help');
@@ -162,7 +172,7 @@ describe('Shell BSON', () => {
       try {
         (shellBson.Timestamp as any)('1');
       } catch (e) {
-        return expect(e.message).to.contain('number, got string');
+        return expect(e.message).to.contain('object, got string');
       }
       expect.fail('Expecting error, nothing thrown');
     });
@@ -191,6 +201,12 @@ describe('Shell BSON', () => {
       expect(code.code).to.equal('code');
       expect(code.scope).to.deep.equal({ k: 'v' });
     });
+    it('works with a function argument', () => {
+      const fn = function() { expect.fail(); };
+      const code = shellBson.Code(fn, { k: 'v' });
+      expect(code.code).to.equal(fn);
+      expect(code.scope).to.deep.equal({ k: 'v' });
+    });
     it('has help and other metadata', async() => {
       const s = shellBson.Code('code', { k: 'v' });
       expect((await toShellResult(s.help)).type).to.equal('Help');
@@ -201,7 +217,7 @@ describe('Shell BSON', () => {
       try {
         (shellBson.Code as any)(1);
       } catch (e) {
-        return expect(e.message).to.contain('string, got number');
+        return expect(e.message).to.contain('function, got number');
       }
       expect.fail('Expecting error, nothing thrown');
     });

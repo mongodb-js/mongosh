@@ -51,32 +51,32 @@ export default function constructShellBson(bson: typeof BSON, printWarning: (msg
   (bson.BSONSymbol as any).prototype.deprecated = true;
 
   const bsonPkg = {
-    DBRef: Object.assign(function(namespace: string, oid: any, db?: string): any {
+    DBRef: Object.assign(function(namespace: string, oid: any, db?: string): typeof bson.DBRef.prototype {
       assertArgsDefinedType([namespace, oid, db], ['string', true, [undefined, 'string']], 'DBRef');
       return new bson.DBRef(namespace, oid, db);
     }, { prototype: bson.DBRef.prototype }),
     // DBPointer not available in the bson 1.x library, but depreciated since 1.6
     Map: bson.Map,
-    bsonsize: function(object: any): any {
+    bsonsize: function(object: any): number {
       assertArgsDefinedType([object], ['object'], 'bsonsize');
       return bson.calculateObjectSize(object);
     },
-    MaxKey: Object.assign(function(): any {
+    MaxKey: Object.assign(function(): typeof bson.MaxKey.prototype {
       return new bson.MaxKey();
     }, { prototype: bson.MaxKey.prototype }),
-    MinKey: Object.assign(function(): any {
+    MinKey: Object.assign(function(): typeof bson.MinKey.prototype {
       return new bson.MinKey();
     }, { prototype: bson.MinKey.prototype }),
-    ObjectId: Object.assign(function(id?: string): any {
-      assertArgsDefinedType([id], [[undefined, 'string']], 'ObjectId');
+    ObjectId: Object.assign(function(id?: string | number | typeof bson.ObjectId.prototype | Buffer): typeof bson.ObjectId.prototype {
+      assertArgsDefinedType([id], [[undefined, 'string', 'number', 'object']], 'ObjectId');
       return new bson.ObjectId(id);
     }, { prototype: bson.ObjectId.prototype }),
-    Timestamp: Object.assign(function(low = 0, high = 0): any {
-      assertArgsDefinedType([low, high], ['number', 'number'], 'Timestamp');
-      return new bson.Timestamp(low, high);
+    Timestamp: Object.assign(function(low?: number | typeof bson.Long.prototype, high?: number): typeof bson.Timestamp.prototype {
+      assertArgsDefinedType([low, high], [['number', 'object', undefined], [undefined, 'number']], 'Timestamp');
+      return new bson.Timestamp(low as number, high as number);
     }, { prototype: bson.Timestamp.prototype }),
-    Code: Object.assign(function(c: any = '', s?: any): any {
-      assertArgsDefinedType([c, s], [[undefined, 'string'], [undefined, 'object']], 'Code');
+    Code: Object.assign(function(c: string | Function = '', s?: any): typeof bson.Code.prototype {
+      assertArgsDefinedType([c, s], [[undefined, 'string', 'function'], [undefined, 'object']], 'Code');
       return new bson.Code(c, s);
     }, { prototype: bson.Code.prototype }),
     NumberDecimal: Object.assign(function(s = '0'): any {
