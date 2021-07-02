@@ -893,9 +893,10 @@ describe('e2e', function() {
         const shell = TestShell.start({ args: [
           `${await testServer.connectionString()}/${dbName}`, '--apiVersion', '1'
         ] });
-        await shell.waitForPrompt();
-        expect(await shell.executeLine('db.coll.find().toArray()'))
-          .to.include("Unrecognized field 'apiVersion'");
+        if ((await shell.waitForPromptOrExit()).state === 'prompt') {
+          await shell.executeLine('db.coll.find().toArray()');
+        }
+        expect(shell.output).to.match(/MongoServer(Selection)?Error/);
       });
     });
 

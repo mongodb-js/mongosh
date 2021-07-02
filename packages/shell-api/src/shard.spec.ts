@@ -1247,13 +1247,15 @@ describe('Shard', () => {
         let apiStrictServiceProvider;
 
         before(async() => {
-          apiStrictServiceProvider = await CliServiceProvider.connect(await mongos.connectionString(), {
-            serverApi: { version: '1', strict: true }
-          });
+          try {
+            apiStrictServiceProvider = await CliServiceProvider.connect(await mongos.connectionString(), {
+              serverApi: { version: '1', strict: true }
+            });
+          } catch { /* Fails to connect to servers which do not understand api versions */ }
         });
 
         after(async() => {
-          await apiStrictServiceProvider.close(true);
+          await apiStrictServiceProvider?.close?.(true);
         });
 
         it('returns the status when used with apiStrict', async() => {
