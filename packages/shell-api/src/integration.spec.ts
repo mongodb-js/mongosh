@@ -971,6 +971,38 @@ describe('Shell API (integration)', function() {
         expect(doc).to.deep.equal({ longOne: 1, _id: 0 });
       });
     });
+
+    describe('dots and dollars in field names', () => {
+      skipIfServerVersion(testServer, '<= 4.4');
+      if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
+        // https://jira.mongodb.org/browse/SERVER-58076
+        skipIfServerVersion(testServer, '<= 5.1');
+      }
+      it('can insert, modify and retrieve fields with $-prefixed .-containing names', async() => {
+        await collection.insertOne({ '$x.y': 1, _id: '_id' });
+        expect(await collection.findOne()).to.deep.equal({ '$x.y': 1, _id: '_id' });
+        try {
+          await collection.updateOne({}, { $inc: { '$x.y': 1 } });
+          expect.fail('missed exception');
+        } catch (err) {
+          expect(err.name).to.equal('MongoServerError');
+        }
+        await collection.updateOne({}, [
+          {
+            $replaceWith: {
+              $setField: {
+                field: {
+                  $literal: '$x.y'
+                },
+                value: 2,
+                input: '$$ROOT'
+              }
+            }
+          }
+        ]);
+        expect(await collection.findOne()).to.deep.equal({ '$x.y': 2, _id: '_id' });
+      });
+    });
   });
 
   describe('db', () => {
