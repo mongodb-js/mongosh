@@ -88,7 +88,8 @@ const workerRuntime: WorkerRuntime = {
     provider = await CompassServiceProvider.connect(
       uri,
       driverOptions,
-      cliOptions
+      cliOptions,
+      messageBus
     );
     runtime = new ElectronRuntime(provider, messageBus);
     runtime.setEvaluationListener(evaluationListener);
