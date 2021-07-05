@@ -97,6 +97,12 @@ describe('publish', () => {
       githubRepo = createStubRepo({
         getMostRecentDraftTagForRelease: sinon.stub().resolves({ name: 'v0.7.0-draft.42', sha: 'revision' })
       });
+      Object.assign(githubRepo, {
+        repo: {
+          owner: 'mongodb-js',
+          repo: 'mongosh'
+        }
+      });
     });
 
     context('validates configuration', () => {

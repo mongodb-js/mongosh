@@ -7,7 +7,7 @@ chai.use(require('sinon-chai'));
 
 describe('Homebrew publish-to-homebrew', () => {
   let homebrewCore: GithubRepo;
-  let homebrewFork: GithubRepo;
+  let homebrewCoreFork: GithubRepo;
   let createPullRequest: sinon.SinonStub;
   let httpsSha256: sinon.SinonStub;
   let generateFormula: sinon.SinonStub;
@@ -26,7 +26,7 @@ describe('Homebrew publish-to-homebrew', () => {
       },
       createPullRequest: createPullRequest as any
     } as unknown as GithubRepo;
-    homebrewFork = {
+    homebrewCoreFork = {
       repo: {
         owner: 'mongodb-js',
         repo: 'homebrew-core'
@@ -51,7 +51,8 @@ describe('Homebrew publish-to-homebrew', () => {
         packageVersion: '1.0.0',
         packageSha: 'sha',
         homebrewFormula: 'new formula',
-        homebrewCoreFork: homebrewFork
+        homebrewCore,
+        homebrewCoreFork
       })
       .resolves('new-branch');
 
@@ -62,7 +63,7 @@ describe('Homebrew publish-to-homebrew', () => {
 
     await publishToHomebrew(
       homebrewCore,
-      homebrewFork,
+      homebrewCoreFork,
       '1.0.0',
       'githubRelease',
       httpsSha256,
@@ -93,13 +94,14 @@ describe('Homebrew publish-to-homebrew', () => {
         packageVersion: '1.0.0',
         packageSha: 'sha',
         homebrewFormula: 'formula',
-        homebrewCoreFork: homebrewFork
+        homebrewCore,
+        homebrewCoreFork
       })
       .resolves(undefined);
 
     await publishToHomebrew(
       homebrewCore,
-      homebrewFork,
+      homebrewCoreFork,
       '1.0.0',
       'githubRelease',
       httpsSha256,
@@ -130,7 +132,8 @@ describe('Homebrew publish-to-homebrew', () => {
         packageVersion: '1.0.0',
         packageSha: 'sha',
         homebrewFormula: 'new formula',
-        homebrewCoreFork: homebrewFork
+        homebrewCore,
+        homebrewCoreFork
       })
       .resolves('new-branch');
 
@@ -141,7 +144,7 @@ describe('Homebrew publish-to-homebrew', () => {
 
     await publishToHomebrew(
       homebrewCore,
-      homebrewFork,
+      homebrewCoreFork,
       '1.0.0',
       'githubRelease',
       httpsSha256,
