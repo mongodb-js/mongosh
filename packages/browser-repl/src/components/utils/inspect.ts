@@ -14,15 +14,15 @@ import { bsonStringifiers } from '@mongosh/service-provider-core';
 const customInspect = utilInspect.custom || 'inspect';
 const visitedObjects = new WeakSet();
 
-function tryAddInspect(obj: any, stringifier: (this: any) => string): void {
+function tryAddInspect(obj: any, stringifier: (this: any, depth: any, options: any) => string): void {
   try {
     Object.defineProperty(obj, customInspect, {
       writable: true,
       configurable: true,
       enumerable: false,
-      value: function() {
+      value: function(...args: [any, any]) {
         try {
-          return stringifier.call(this);
+          return stringifier.call(this, ...args);
         } catch (err) {
           console.warn('Could not inspect bson object', { obj: this, err });
           return utilInspect(this, { customInspect: false });
