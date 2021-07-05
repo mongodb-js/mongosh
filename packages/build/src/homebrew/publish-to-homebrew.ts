@@ -26,7 +26,7 @@ export async function publishToHomebrew(
   }
 
   const forkBranch = await updateHomebrewForkFn({
-    packageVersion, packageSha, homebrewFormula, homebrewCoreFork
+    packageVersion, packageSha, homebrewFormula, homebrewCore, homebrewCoreFork
   });
   if (!forkBranch) {
     console.warn('There are no changes to the homebrew formula');

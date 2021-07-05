@@ -484,25 +484,13 @@ describe('GithubRepo', () => {
     });
 
     it('creates the branch based on the given base', async() => {
-      getRef.withArgs({
-        ...githubRepo.repo,
-        ref: 'heads/base'
-      }).resolves({
-        data: {
-          object: {
-            sha: 'sha'
-          }
-        }
-      });
-
       createRef.withArgs({
         ...githubRepo.repo,
         ref: 'refs/heads/newBranch',
-        sha: 'sha'
+        sha: 'baseSha'
       }).resolves();
 
-      await githubRepo.createBranch('newBranch', 'base');
-      expect(getRef).to.have.been.called;
+      await githubRepo.createBranch('newBranch', 'baseSha');
       expect(createRef).to.have.been.called;
     });
   });

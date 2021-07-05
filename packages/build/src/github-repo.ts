@@ -40,6 +40,16 @@ type ReleaseAsset = {
   url: string;
 };
 
+type Branch = {
+  ref: string;
+  url: string;
+  object: {
+    sha: string;
+    type: string;
+    url: string;
+  }
+};
+
 export class GithubRepo {
   private octokit: Octokit;
   readonly repo: Readonly<Repo>;
@@ -202,19 +212,26 @@ export class GithubRepo {
   /**
    * Creates a new branch pointing to the latest commit of the given source branch.
    * @param branchName The name of the branch (not including refs/heads/)
-   * @param sourceBranch The name of the branch to branch off from (not including refs/heads/)
+   * @param sourceSha The SHA hash of the commit to branch off from
    */
-  async createBranch(branchName: string, sourceBranch: string): Promise<void> {
-    const result = await this.octokit.git.getRef({
-      ...this.repo,
-      ref: `heads/${sourceBranch}`
-    });
-
+  async createBranch(branchName: string, sourceSha: string): Promise<void> {
     await this.octokit.git.createRef({
       ...this.repo,
       ref: `refs/heads/${branchName}`,
-      sha: result.data.object.sha
+      sha: sourceSha
     });
+  }
+
+  /**
+   * Retrieves the details of the given branch.
+   * @param branchName The name of the branch (not including refs/heads/)
+   */
+  async getBranchDetails(branchName: string): Promise<Branch> {
+    const result = await this.octokit.git.getRef({
+      ...this.repo,
+      ref: `heads/${branchName}`
+    });
+    return result.data;
   }
 
   /**
