@@ -25,10 +25,11 @@ class CompassServiceProvider extends CliServiceProvider {
    */
   constructor(
     mongoClient: MongoClient,
-    driverOptions: MongoClientOptions = {},
+    bus: EventEmitter,
+    driverOptions?: MongoClientOptions,
     uri?: ConnectionString
   ) {
-    super(mongoClient, new EventEmitter(), driverOptions, uri);
+    super(mongoClient, bus, driverOptions, uri);
     this.platform = ReplPlatform.Compass;
   }
   /**
@@ -42,7 +43,7 @@ class CompassServiceProvider extends CliServiceProvider {
   static fromDataService(dataService: DataService): CompassServiceProvider {
     const mongoClient = dataService.client.client;
 
-    return new CompassServiceProvider(mongoClient);
+    return new CompassServiceProvider(mongoClient, new EventEmitter());
   }
 }
 
