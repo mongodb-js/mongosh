@@ -38,7 +38,9 @@ describe('BSON e2e', function() {
   describe('printed BSON', () => {
     const outputDoc = {
       ObjectId: 'ObjectId("5f16b8bebe434dc98cdfc9ca")',
-      DBRef: 'DBRef("a", "5f16b8bebe434dc98cdfc9cb", "db")',
+      DBRef1: 'DBRef("a", ObjectId("5f16b8bebe434dc98cdfc9cb"), "db")',
+      DBRef2: 'DBRef("a", \'5f16b8bebe434dc98cdfc9cb\', "db")',
+      DBRef3: 'DBRef("a", { x: \'5f16b8bebe434dc98cdfc9cb\' }, "db")',
       MinKey: 'MinKey()',
       MaxKey: 'MaxKey()',
       NumberInt: 'Int32(32)',
@@ -55,7 +57,9 @@ describe('BSON e2e', function() {
       const buffer = Buffer.from('MTIzNA==', 'base64');
       const inputDoc = {
         ObjectId: new bson.ObjectId('5f16b8bebe434dc98cdfc9ca'),
-        DBRef: new bson.DBRef('a', new bson.ObjectId('5f16b8bebe434dc98cdfc9cb'), 'db'),
+        DBRef1: new bson.DBRef('a', new bson.ObjectId('5f16b8bebe434dc98cdfc9cb'), 'db'),
+        DBRef2: new bson.DBRef('a', '5f16b8bebe434dc98cdfc9cb' as any, 'db'),
+        DBRef3: new bson.DBRef('a', { x: '5f16b8bebe434dc98cdfc9cb' } as any, 'db'),
         MinKey: new bson.MinKey(),
         MaxKey: new bson.MaxKey(),
         Timestamp: new bson.Timestamp(1, 100),
@@ -71,7 +75,9 @@ describe('BSON e2e', function() {
       await shell.writeInputLine('db.test.findOne()');
       await eventually(() => {
         shell.assertContainsOutput(outputDoc.ObjectId);
-        shell.assertContainsOutput(outputDoc.DBRef);
+        shell.assertContainsOutput(outputDoc.DBRef1);
+        shell.assertContainsOutput(outputDoc.DBRef2);
+        shell.assertContainsOutput(outputDoc.DBRef3);
         shell.assertContainsOutput(outputDoc.MinKey);
         shell.assertContainsOutput(outputDoc.MaxKey);
         shell.assertContainsOutput(outputDoc.Timestamp);
@@ -87,7 +93,9 @@ describe('BSON e2e', function() {
     it('Entire doc prints when created by user', async() => {
       const value = `doc = {
         ObjectId: new ObjectId('5f16b8bebe434dc98cdfc9ca'),
-        DBRef: new DBRef('a', '5f16b8bebe434dc98cdfc9cb', 'db'),
+        DBRef1: new DBRef('a', new ObjectId('5f16b8bebe434dc98cdfc9cb'), 'db'),
+        DBRef2: new DBRef('a', '5f16b8bebe434dc98cdfc9cb', 'db'),
+        DBRef3: new DBRef('a', { x: '5f16b8bebe434dc98cdfc9cb' }, 'db'),
         MinKey: new MinKey(),
         MaxKey: new MaxKey(),
         NumberInt: NumberInt("32"),
@@ -103,7 +111,9 @@ describe('BSON e2e', function() {
       await shell.writeInputLine(value);
       await eventually(() => {
         shell.assertContainsOutput(outputDoc.ObjectId);
-        shell.assertContainsOutput(outputDoc.DBRef);
+        shell.assertContainsOutput(outputDoc.DBRef1);
+        shell.assertContainsOutput(outputDoc.DBRef2);
+        shell.assertContainsOutput(outputDoc.DBRef3);
         shell.assertContainsOutput(outputDoc.MinKey);
         shell.assertContainsOutput(outputDoc.MaxKey);
         shell.assertContainsOutput(outputDoc.Timestamp);
@@ -132,7 +142,7 @@ describe('BSON e2e', function() {
       await db.collection('test').insertOne({ value: value });
       await shell.writeInputLine('db.test.findOne().value');
       await eventually(() => {
-        shell.assertContainsOutput('DBRef("coll", "5f16b8bebe434dc98cdfc9ca")');
+        shell.assertContainsOutput('DBRef("coll", ObjectId("5f16b8bebe434dc98cdfc9ca"))');
       });
       shell.assertNoErrors();
     });
@@ -256,7 +266,7 @@ describe('BSON e2e', function() {
       shell.assertNoErrors();
     });
     it('DBRef prints when created by user', async() => {
-      const value = 'DBRef("coll", "5f16b8bebe434dc98cdfc9ca")';
+      const value = 'DBRef("coll", ObjectId("5f16b8bebe434dc98cdfc9ca"))';
       await shell.writeInputLine(value);
       await eventually(() => {
         shell.assertContainsOutput(value);

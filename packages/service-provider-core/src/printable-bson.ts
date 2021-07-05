@@ -1,4 +1,5 @@
 import { bson as BSON } from './index';
+import { inspect } from 'util';
 const inspectCustom = Symbol.for('nodejs.util.inspect.custom');
 
 export const bsonStringifiers: Record<string, (this: any) => string> = {
@@ -6,13 +7,11 @@ export const bsonStringifiers: Record<string, (this: any) => string> = {
     return `ObjectId("${this.toHexString()}")`;
   },
 
-  DBRef: function(): string {
-    // NOTE: if OID is an ObjectId class it will just print the oid string.
-    return `DBRef("${this.namespace}", "${
-      this.oid === undefined || this.oid.toString === undefined ?
-        this.oid :
-        this.oid.toString()
-    }"${this.db ? `, "${this.db}"` : ''})`;
+  DBRef: function(depth: any, options: any): string {
+    return `DBRef("${this.namespace}", ` +
+      inspect(this.oid, options) +
+      (this.db ? `, "${this.db}"` : '') +
+      ')';
   },
 
   MaxKey: function(): string {
