@@ -2,7 +2,7 @@ import { bson as BSON } from './index';
 import { inspect } from 'util';
 const inspectCustom = Symbol.for('nodejs.util.inspect.custom');
 
-export const bsonStringifiers: Record<string, (this: any) => string> = {
+export const bsonStringifiers: Record<string, (this: any, depth: any, options: any) => string> = {
   ObjectId: function(): string {
     return `ObjectId("${this.toHexString()}")`;
   },
