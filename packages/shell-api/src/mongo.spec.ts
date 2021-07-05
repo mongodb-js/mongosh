@@ -713,7 +713,7 @@ describe('Mongo', () => {
 
     beforeEach(async() => {
       uri = await testServer.connectionString();
-      serviceProvider = await CliServiceProvider.connect(uri);
+      serviceProvider = await CliServiceProvider.connect(uri, {}, {}, new EventEmitter());
       internalState = new ShellInternalState(serviceProvider);
     });
 

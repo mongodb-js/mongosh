@@ -7,6 +7,7 @@ import { startTestServer } from '../../../testing/integration-testing-hooks';
 import { makeFakeConfigDatabase } from '../../../testing/shard-test-fake-data';
 import sinon from 'ts-sinon';
 import chai, { expect } from 'chai';
+import { EventEmitter } from 'events';
 import sinonChai from 'sinon-chai';
 chai.use(sinonChai);
 
@@ -81,7 +82,7 @@ describe('getPrintableShardStatus', () => {
   let inBalancerRound = false;
 
   beforeEach(async() => {
-    serviceProvider = await CliServiceProvider.connect(await testServer.connectionString());
+    serviceProvider = await CliServiceProvider.connect(await testServer.connectionString(), {}, {}, new EventEmitter());
     mongo = new Mongo(new ShellInternalState(serviceProvider), undefined, undefined, undefined, serviceProvider);
     database = new Database(mongo, 'db1');
     const origGetSiblingDB = database.getSiblingDB;

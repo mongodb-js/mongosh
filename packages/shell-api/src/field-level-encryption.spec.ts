@@ -461,7 +461,7 @@ describe('Field Level Encryption', () => {
     beforeEach(async() => {
       dbname = `test_fle_${Date.now()}`;
       uri = `${await testServer.connectionString()}/${dbname}`;
-      serviceProvider = await CliServiceProvider.connect(uri);
+      serviceProvider = await CliServiceProvider.connect(uri, {}, {}, new EventEmitter());
       internalState = new ShellInternalState(serviceProvider);
 
       connections = [];

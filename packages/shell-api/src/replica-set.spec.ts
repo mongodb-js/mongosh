@@ -863,7 +863,7 @@ describe('ReplicaSet', () => {
       };
       additionalServer = srv3;
 
-      serviceProvider = await CliServiceProvider.connect(`${await srv0.connectionString()}?directConnection=true`);
+      serviceProvider = await CliServiceProvider.connect(`${await srv0.connectionString()}?directConnection=true`, {}, {}, new EventEmitter());
       internalState = new ShellInternalState(serviceProvider);
       rs = new ReplicaSet(internalState.currentDb);
 
@@ -996,7 +996,7 @@ describe('ReplicaSet', () => {
     let serviceProvider: CliServiceProvider;
 
     beforeEach(async() => {
-      serviceProvider = await CliServiceProvider.connect(`${await srv0.connectionString()}?directConnection=true`);
+      serviceProvider = await CliServiceProvider.connect(`${await srv0.connectionString()}?directConnection=true`, {}, {}, new EventEmitter());
     });
 
     afterEach(async() => {
