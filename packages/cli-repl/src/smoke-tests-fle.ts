@@ -10,8 +10,9 @@ const assert = function(value, message) {
     process.exit(1);
   }
 };
-// There is no mongocryptd binary for darwin-x64 yet.
-if (os.platform() === 'darwin' && os.arch() === 'arm64') {
+// There is no mongocryptd binary for darwin-x64 or rhel80-s390x yet.
+if ((os.platform() === 'darwin' && os.arch() === 'arm64') ||
+    (os.platform() === 'linux' && os.arch() === 's390x' && fs.readFileSync('/etc/os-release', 'utf8').includes('VERSION_ID="8'))) {
   print('Test skipped')
   process.exit(0);
 }

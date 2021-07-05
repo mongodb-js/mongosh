@@ -48,3 +48,9 @@ git --version
 
 echo "Using python version:"
 python --version
+
+echo "Node.js OS info:"
+node -p '[os.arch(), os.platform(), os.endianness(), os.type(), os.release()]'
+
+echo "/etc/os-release contents:"
+cat /etc/os-release || true
