@@ -237,6 +237,16 @@ describe('BSON e2e', function() {
       });
       shell.assertNoErrors();
     });
+    it('BSONRegExp prints when returned from the server', async() => {
+      const value = new bson.BSONRegExp('(?-i)A"A_', 'im');
+      await shell.writeInputLine(`use ${dbName}`);
+      await db.collection('test').insertOne({ value: value });
+      await shell.writeInputLine('db.test.findOne({}, {}, { bsonRegExp: true }).value');
+      await eventually(() => {
+        shell.assertContainsOutput(String.raw `BSONRegExp("(?-i)A\"A_", "im")`);
+      });
+      shell.assertNoErrors();
+    });
     it('ObjectId prints when created by user', async() => {
       const value = 'ObjectId("5f16b8bebe434dc98cdfc9ca")';
       await shell.writeInputLine(value);
@@ -380,6 +390,14 @@ describe('BSON e2e', function() {
       await shell.writeInputLine(value);
       await eventually(() => {
         shell.assertContainsOutput('/match/');
+      });
+      shell.assertNoErrors();
+    });
+    it('BSONRegExp prints when created by user', async() => {
+      const value = 'BSONRegExp(`(?-i)A"A_`, "im")';
+      await shell.writeInputLine(value);
+      await eventually(() => {
+        shell.assertContainsOutput(String.raw `BSONRegExp("(?-i)A\"A_", "im")`);
       });
       shell.assertNoErrors();
     });
