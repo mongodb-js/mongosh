@@ -35,6 +35,11 @@ const createClientStub = (collectionStub): StubbedInstance<MongoClient> => {
 describe('CliServiceProvider', () => {
   let serviceProvider: CliServiceProvider;
   let collectionStub: StubbedInstance<Collection>;
+  let bus: EventEmitter;
+
+  beforeEach(() => {
+    bus = new EventEmitter();
+  });
 
   describe('connectMongoClient', () => {
     class FakeMongoClient extends EventEmitter {
@@ -49,7 +54,7 @@ describe('CliServiceProvider', () => {
       const mClient = stubConstructor(FakeMongoClient);
       const mClientType = sinon.stub().returns(mClient);
       mClient.connect.onFirstCall().resolves(mClient);
-      const result = await connectMongoClient(uri, {}, mClientType as any);
+      const result = await connectMongoClient(uri, {}, bus, mClientType as any);
       expect(mClientType.getCalls()).to.have.lengthOf(1);
       expect(mClientType.getCalls()[0].args).to.deep.equal([uri, {}]);
       expect(mClient.connect.getCalls()).to.have.lengthOf(1);
@@ -61,7 +66,7 @@ describe('CliServiceProvider', () => {
       const mClient = stubConstructor(FakeMongoClient);
       const mClientType = sinon.stub().returns(mClient);
       mClient.connect.onFirstCall().resolves(mClient);
-      const result = await connectMongoClient(uri, opts, mClientType as any);
+      const result = await connectMongoClient(uri, opts, bus, mClientType as any);
       expect(mClientType.getCalls()).to.have.lengthOf(1);
       expect(mClientType.getCalls()[0].args).to.deep.equal([uri, opts]);
       expect(mClient.connect.getCalls()).to.have.lengthOf(1);
@@ -80,7 +85,7 @@ describe('CliServiceProvider', () => {
       } } as any) } as any);
       mClientType.onFirstCall().returns(mClientFirst);
       mClientType.onSecondCall().returns(mClientSecond);
-      const result = await connectMongoClient(uri, opts, mClientType as any);
+      const result = await connectMongoClient(uri, opts, bus, mClientType as any);
       const calls = mClientType.getCalls();
       expect(calls.length).to.equal(2);
       expect(calls[0].args).to.deep.equal([
@@ -103,7 +108,7 @@ describe('CliServiceProvider', () => {
       mClientType.onFirstCall().returns(mClientFirst);
       mClientType.onSecondCall().returns(mClientSecond);
       try {
-        await connectMongoClient(uri, opts, mClientType as any);
+        await connectMongoClient(uri, opts, bus, mClientType as any);
       } catch (e) {
         return expect(e.message.toLowerCase()).to.include('automatic encryption');
       }
@@ -123,7 +128,7 @@ describe('CliServiceProvider', () => {
       mClientType.onFirstCall().returns(mClientFirst);
       mClientType.onSecondCall().returns(mClientSecond);
       try {
-        await connectMongoClient(uri, opts, mClientType as any);
+        await connectMongoClient(uri, opts, bus, mClientType as any);
       } catch (e) {
         return expect(e.message.toLowerCase()).to.include('automatic encryption');
       }
@@ -153,7 +158,7 @@ describe('CliServiceProvider', () => {
         }
       };
       try {
-        await connectMongoClient(uri, {}, mClientType as any);
+        await connectMongoClient(uri, {}, bus, mClientType as any);
       } catch (e) {
         expect((mClient.close as any).getCalls()).to.have.lengthOf(1);
         return expect(e).to.equal(err);
@@ -164,7 +169,7 @@ describe('CliServiceProvider', () => {
 
   describe('#constructor', () => {
     const mongoClient: any = sinon.spy();
-    serviceProvider = new CliServiceProvider(mongoClient);
+    serviceProvider = new CliServiceProvider(mongoClient, bus);
 
     it('sets the mongo client on the instance', () => {
       expect((serviceProvider as any).mongoClient).to.equal(mongoClient);
@@ -178,7 +183,7 @@ describe('CliServiceProvider', () => {
     beforeEach(() => {
       collectionStub = stubInterface<Collection>();
       collectionStub.aggregate.resolves({ toArray: async() => aggResult });
-      serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus);
     });
 
     it('executes the command against the database', async() => {
@@ -196,7 +201,7 @@ describe('CliServiceProvider', () => {
     beforeEach(() => {
       collectionStub = stubInterface<Collection>();
       collectionStub.bulkWrite.resolves(commandResult);
-      serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus);
     });
 
     it('executes the command against the database', async() => {
@@ -212,7 +217,7 @@ describe('CliServiceProvider', () => {
     beforeEach(() => {
       collectionStub = stubInterface<Collection>();
       collectionStub.countDocuments.resolves(countResult);
-      serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus);
     });
 
     it('executes the command against the database', async() => {
@@ -228,7 +233,7 @@ describe('CliServiceProvider', () => {
     beforeEach(() => {
       collectionStub = stubInterface<Collection>();
       collectionStub.deleteMany.resolves(commandResult);
-      serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus);
     });
 
     it('executes the command against the database', async() => {
@@ -244,7 +249,7 @@ describe('CliServiceProvider', () => {
     beforeEach(() => {
       collectionStub = stubInterface<Collection>();
       collectionStub.deleteOne.resolves(commandResult);
-      serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus);
     });
 
     it('executes the command against the database', async() => {
@@ -260,7 +265,7 @@ describe('CliServiceProvider', () => {
     beforeEach(() => {
       collectionStub = stubInterface<Collection>();
       collectionStub.distinct.resolves(distinctResult);
-      serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus);
     });
 
     it('executes the command against the database', async() => {
@@ -276,7 +281,7 @@ describe('CliServiceProvider', () => {
     beforeEach(() => {
       collectionStub = stubInterface<Collection>();
       collectionStub.estimatedDocumentCount.resolves(countResult);
-      serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus);
     });
 
     it('executes the command against the database', async() => {
@@ -293,7 +298,7 @@ describe('CliServiceProvider', () => {
     beforeEach(() => {
       collectionStub = stubInterface<Collection>();
       collectionStub.find.resolves({ toArray: async() => findResult });
-      serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus);
     });
 
     it('executes the command against the database', async() => {
@@ -311,7 +316,7 @@ describe('CliServiceProvider', () => {
     beforeEach(() => {
       collectionStub = stubInterface<Collection>();
       collectionStub.find.resolves({ toArray: async() => findResult });
-      serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus);
     });
 
     it('executes the command against the database', async() => {
@@ -328,7 +333,7 @@ describe('CliServiceProvider', () => {
     beforeEach(() => {
       collectionStub = stubInterface<Collection>();
       collectionStub.findOneAndDelete.resolves(commandResult);
-      serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus);
     });
 
     it('executes the command against the database', async() => {
@@ -346,7 +351,7 @@ describe('CliServiceProvider', () => {
     beforeEach(() => {
       collectionStub = stubInterface<Collection>();
       collectionStub.findOneAndReplace.resolves(commandResult);
-      serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus);
     });
 
     it('executes the command against the database', async() => {
@@ -365,7 +370,7 @@ describe('CliServiceProvider', () => {
     beforeEach(() => {
       collectionStub = stubInterface<Collection>();
       collectionStub.findOneAndUpdate.resolves(commandResult);
-      serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus);
     });
 
     it('executes the command against the database', async() => {
@@ -383,7 +388,7 @@ describe('CliServiceProvider', () => {
     beforeEach(() => {
       collectionStub = stubInterface<Collection>();
       collectionStub.insertMany.resolves(commandResult);
-      serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus);
     });
 
     it('executes the command against the database', async() => {
@@ -400,7 +405,7 @@ describe('CliServiceProvider', () => {
     beforeEach(() => {
       collectionStub = stubInterface<Collection>();
       collectionStub.insertOne.resolves(commandResult);
-      serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus);
     });
 
     it('executes the command against the database', async() => {
@@ -418,7 +423,7 @@ describe('CliServiceProvider', () => {
     beforeEach(() => {
       collectionStub = stubInterface<Collection>();
       collectionStub.replaceOne.resolves(commandResult);
-      serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus);
     });
 
     it('executes the command against the database', async() => {
@@ -438,7 +443,7 @@ describe('CliServiceProvider', () => {
       clientStub = stubInterface<MongoClient>();
       dbStub.command.resolves(commandResult);
       clientStub.db.returns(dbStub);
-      serviceProvider = new CliServiceProvider(clientStub);
+      serviceProvider = new CliServiceProvider(clientStub, bus);
     });
 
     afterEach(() => {
@@ -464,7 +469,7 @@ describe('CliServiceProvider', () => {
       clientStub = stubInterface<MongoClient>();
       dbStub.command.resolves(commandResult);
       clientStub.db.returns(dbStub);
-      serviceProvider = new CliServiceProvider(clientStub);
+      serviceProvider = new CliServiceProvider(clientStub, bus);
     });
 
     afterEach(() => {
@@ -494,7 +499,7 @@ describe('CliServiceProvider', () => {
     beforeEach(() => {
       collectionStub = stubInterface<Collection>();
       collectionStub.updateOne.resolves(commandResult);
-      serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus);
     });
 
     it('executes the command against the database', async() => {
@@ -512,7 +517,7 @@ describe('CliServiceProvider', () => {
     beforeEach(() => {
       collectionStub = stubInterface<Collection>();
       collectionStub.updateMany.resolves(commandResult);
-      serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus);
     });
 
     it('executes the command against the database', async() => {
@@ -531,7 +536,7 @@ describe('CliServiceProvider', () => {
       clientStub = stubInterface<MongoClient>();
       clientStub.db.returns(dbStub);
 
-      serviceProvider = new CliServiceProvider(clientStub);
+      serviceProvider = new CliServiceProvider(clientStub, bus);
     });
 
     it('returns ok: 1 if dropped', async() => {
@@ -588,7 +593,7 @@ describe('CliServiceProvider', () => {
 
       collectionStub = stubInterface<Collection>();
       collectionStub.createIndexes.resolves(nativeMethodResult);
-      serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus);
     });
 
     it('executes the command against the database', async() => {
@@ -617,7 +622,7 @@ describe('CliServiceProvider', () => {
       collectionStub = stubInterface<Collection>();
       collectionStub.listIndexes.returns(nativeMethodResult);
 
-      serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus);
     });
 
     it('executes the command against the database', async() => {
@@ -648,7 +653,7 @@ describe('CliServiceProvider', () => {
         }
       } as any);
       clientStub.db.returns(dbStub);
-      serviceProvider = new CliServiceProvider(clientStub);
+      serviceProvider = new CliServiceProvider(clientStub, bus);
     });
 
     it('executes the command', async() => {
@@ -674,7 +679,7 @@ describe('CliServiceProvider', () => {
 
       collectionStub = stubInterface<Collection>();
       collectionStub.stats.resolves(expectedResult);
-      serviceProvider = new CliServiceProvider(createClientStub(collectionStub));
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus);
     });
 
     it('executes the command against the database', async() => {
@@ -693,7 +698,7 @@ describe('CliServiceProvider', () => {
       clientStub = stubInterface<MongoClient>();
       dbStub.renameCollection.resolves({ ok: 1 });
       clientStub.db.returns(dbStub);
-      serviceProvider = new CliServiceProvider(clientStub);
+      serviceProvider = new CliServiceProvider(clientStub, bus);
     });
 
     it('executes the command against the database', async() => {
@@ -730,7 +735,7 @@ describe('CliServiceProvider', () => {
         }
       });
       clientStub.db.returns(dbStub);
-      serviceProvider = new CliServiceProvider(clientStub);
+      serviceProvider = new CliServiceProvider(clientStub, bus);
     });
 
     it('executes the command', async() => {
@@ -748,7 +753,7 @@ describe('CliServiceProvider', () => {
     let driverSession;
     beforeEach(() => {
       clientStub = stubInterface<MongoClient>();
-      serviceProvider = new CliServiceProvider(clientStub);
+      serviceProvider = new CliServiceProvider(clientStub, bus);
       driverSession = { dSession: 1 };
       clientStub.startSession.returns(driverSession);
       db = stubInterface<Db>();
@@ -793,7 +798,7 @@ describe('CliServiceProvider', () => {
         watch: watchMock
       }) as any;
 
-      serviceProvider = new CliServiceProvider(clientStub);
+      serviceProvider = new CliServiceProvider(clientStub, bus);
     });
 
     it('executes watch on MongoClient', () => {
@@ -831,7 +836,7 @@ describe('CliServiceProvider', () => {
       });
       clientStub.db.returns(dbStub);
       clientStub.topology = { s: {} };
-      serviceProvider = new CliServiceProvider(clientStub, {}, new ConnectionString('mongodb://localhost/'));
+      serviceProvider = new CliServiceProvider(clientStub, bus, {}, new ConnectionString('mongodb://localhost/'));
       serviceProvider.getNewConnection = async() => serviceProvider;
     });
 

@@ -341,7 +341,7 @@ class CliRepl {
     if (!this.cliOptions.nodb && !this.cliOptions.quiet) {
       this.output.write(i18n.__(CONNECTING) + '\t\t' + this.clr(redactCredentials(driverUri), ['bold', 'green']) + '\n');
     }
-    const provider = await CliServiceProvider.connect(driverUri, driverOptions, this.cliOptions);
+    const provider = await CliServiceProvider.connect(driverUri, driverOptions, this.cliOptions, this.bus);
     this.bus.emit('mongosh:driver-initialized', provider.driverMetadata);
     return provider;
   }

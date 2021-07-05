@@ -1,5 +1,6 @@
 import CliServiceProvider from './cli-service-provider';
 import { expect } from 'chai';
+import { EventEmitter } from 'events';
 import { MongoClient } from 'mongodb';
 import { startTestServer, skipIfServerVersion } from '../../../testing/integration-testing-hooks';
 import { DbOptions, MongoClientOptions } from '@mongosh/service-provider-core';
@@ -13,6 +14,7 @@ describe('CliServiceProvider [integration]', function() {
   let dbName: string;
   let db;
   let connectionString: string;
+  let bus: EventEmitter;
 
   beforeEach(async() => {
     connectionString = await testServer.connectionString();
@@ -23,7 +25,8 @@ describe('CliServiceProvider [integration]', function() {
 
     dbName = `test-db-${Date.now()}`;
     db = client.db(dbName);
-    serviceProvider = new CliServiceProvider(client, {}, new ConnectionString(connectionString));
+    bus = new EventEmitter();
+    serviceProvider = new CliServiceProvider(client, bus, {}, new ConnectionString(connectionString));
   });
 
   afterEach(() => {
@@ -33,7 +36,7 @@ describe('CliServiceProvider [integration]', function() {
   describe('.connect', () => {
     let instance: CliServiceProvider;
     beforeEach(async() => {
-      instance = await CliServiceProvider.connect(connectionString);
+      instance = await CliServiceProvider.connect(connectionString, {}, {}, bus);
     });
 
     afterEach(() => {
@@ -114,7 +117,7 @@ describe('CliServiceProvider [integration]', function() {
   describe('.getConnectionInfo', () => {
     context('when a uri has been passed', () => {
       it('returns the connection\'s info', async() => {
-        const instance = new CliServiceProvider(client, {}, new ConnectionString(connectionString));
+        const instance = new CliServiceProvider(client, bus, {}, new ConnectionString(connectionString));
         const connectionInfo = await instance.getConnectionInfo();
 
         expect(Object.keys(connectionInfo)).to.deep.equal([
@@ -128,7 +131,7 @@ describe('CliServiceProvider [integration]', function() {
 
     context('when the optional uri has not been passed', () => {
       it('returns the connection\'s info', async() => {
-        const instance = new CliServiceProvider(client);
+        const instance = new CliServiceProvider(client, bus);
         const connectionInfo = await instance.getConnectionInfo();
 
         expect(Object.keys(connectionInfo)).to.deep.equal([

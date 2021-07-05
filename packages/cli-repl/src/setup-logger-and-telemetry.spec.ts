@@ -79,6 +79,15 @@ describe('setupLoggerAndTelemetry', () => {
     bus.emit('mongosh-snippets:snippet-command', { args: ['install', 'foo'] });
     bus.emit('mongosh-snippets:transform-error', { error: 'failed', addition: 'oh no', name: 'foo' });
 
+    bus.emit('mongosh-sp:connect-heartbeat-failure', { connectionId: 'localhost', failure: new Error(), isFailFast: true, isKnownServer: true });
+    bus.emit('mongosh-sp:connect-heartbeat-succeeded', { connectionId: 'localhost' });
+    bus.emit('mongosh-sp:connect-fail-early');
+    bus.emit('mongosh-sp:connect-attempt-finished');
+    bus.emit('mongosh-sp:resolve-srv-error', { from: 'mongodb+srv://foo:bar@hello.world/', error: new Error('failed'), duringLoad: false });
+    bus.emit('mongosh-sp:resolve-srv-succeeded', { from: 'mongodb+srv://foo:bar@hello.world/', to: 'mongodb://foo:bar@db.hello.world/' });
+    bus.emit('mongosh-sp:reset-connection-options');
+    bus.emit('mongosh-sp:missing-optional-dependency', { name: 'kerberos', error: new Error('no kerberos') });
+
     let i = 0;
     expect(logOutput[i++].msg).to.match(/^mongosh:start-logging \{"version":".+","execPath":".+","isCompiledBinary":.+\}$/);
     expect(logOutput[i++].msg).to.equal('mongosh:update-user {"enableTelemetry":false}');
@@ -134,8 +143,15 @@ describe('setupLoggerAndTelemetry', () => {
     expect(logOutput[i++].msg).to.equal('mongosh-snippets:load-snippet {"source":"load-all","name":"foo"}');
     expect(logOutput[i++].msg).to.equal('mongosh-snippets:snippet-command {"args":["install","foo"]}');
     expect(logOutput[i++].msg).to.equal('mongosh-snippets:transform-error {"error":"failed","addition":"oh no","name":"foo"}');
+    expect(logOutput[i++].msg).to.equal('mongosh-sp:connect-heartbeat-failure {"connectionId":"localhost","failure":{},"isFailFast":true,"isKnownServer":true}');
+    expect(logOutput[i++].msg).to.equal('mongosh-sp:connect-heartbeat-succeeded {"connectionId":"localhost"}');
+    expect(logOutput[i++].msg).to.equal('mongosh-sp:connect-fail-early');
+    expect(logOutput[i++].msg).to.equal('mongosh-sp:connect-attempt-finished');
+    expect(logOutput[i++].msg).to.equal('mongosh-sp:resolve-srv-error {"from":"mongodb+srv://<credentials>@hello.world/","error":"failed","duringLoad":false}');
+    expect(logOutput[i++].msg).to.equal('mongosh-sp:resolve-srv-succeeded {"from":"mongodb+srv://<credentials>@hello.world/","to":"mongodb://<credentials>@db.hello.world/"}');
+    expect(logOutput[i++].msg).to.equal('mongosh-sp:reset-connection-options');
+    expect(logOutput[i++].msg).to.equal('mongosh-sp:missing-optional-dependency {"name":"kerberos","error":"no kerberos"}');
     expect(i).to.equal(logOutput.length);
-
 
     const mongosh_version = require('../package.json').version;
     expect(analyticsOutput).to.deep.equal([
