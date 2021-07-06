@@ -87,6 +87,7 @@ import { MongoshCommandFailed, MongoshInternalError, MongoshRuntimeError } from 
 import type { MongoshBus } from '@mongosh/types';
 import { ensureMongoNodeNativePatchesAreApplied } from './mongodb-patches';
 import ConnectionString from 'mongodb-connection-string-url';
+import { EventEmitter } from 'events';
 
 const bsonlib = {
   Binary,
@@ -304,9 +305,9 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   static async connect(
     this: typeof CliServiceProvider,
     uri: string,
-    driverOptions: MongoClientOptions,
-    cliOptions: { nodb?: boolean },
-    bus: MongoshBus
+    driverOptions: MongoClientOptions = {},
+    cliOptions: { nodb?: boolean } = {},
+    bus: MongoshBus = new EventEmitter() // TODO: Change VSCode to pass all arguments, then remove defaults
   ): Promise<CliServiceProvider> {
     const connectionString = new ConnectionString(uri || 'mongodb://nodb/');
     const clientOptions = processDriverOptions(driverOptions);
