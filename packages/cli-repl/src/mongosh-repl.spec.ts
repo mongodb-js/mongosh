@@ -97,7 +97,7 @@ describe('MongoshNodeRepl', () => {
 
     it('shows a nice message to say hello', () => {
       expect(output).to.match(/Using MongoDB:\s+4.4.1/);
-      expect(output).to.match(/Using Mongosh Beta:/);
+      expect(output).to.match(/Using Mongosh:/);
       expect(output).to.match(/You can opt-out by running the .*disableTelemetry\(\).* command/);
       expect(config.disableGreetingMessage).to.equal(true);
     });
