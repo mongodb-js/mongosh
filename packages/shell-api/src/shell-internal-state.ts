@@ -3,11 +3,8 @@ import {
   AutoEncryptionOptions,
   ConnectInfo,
   DEFAULT_DB,
-  ReplPlatform,
-  ServiceProvider,
-  TopologyDescription,
-  TopologyType,
-  ServerApi
+  ReplPlatform, ServerApi, ServiceProvider,
+  TopologyDescription
 } from '@mongosh/service-provider-core';
 import type { ApiEvent, ConfigProvider, MongoshBus, ShellUserConfig } from '@mongosh/types';
 import { EventEmitter } from 'events';
@@ -28,9 +25,9 @@ import {
   ShellResult
 } from './index';
 import { InterruptFlag } from './interruptor';
+import { TransformMongoErrorPlugin } from './mongo-errors';
 import NoDatabase from './no-db';
 import constructShellBson from './shell-bson';
-import { TransformMongoErrorPlugin } from './mongo-errors';
 
 export interface ShellCliOptions {
   nodb?: boolean;
@@ -272,7 +269,8 @@ export default class ShellInternalState {
       topology: () => {
         let topology: Topologies;
         const topologyDescription = this.currentServiceProvider.getTopology()?.description as TopologyDescription;
-        const topologyType: TopologyType | undefined = topologyDescription?.type;
+        // TODO: once a driver with NODE-3011 is available set type to TopologyType | undefined
+        const topologyType: string | undefined = topologyDescription?.type;
         switch (topologyType) {
           case 'ReplicaSetNoPrimary':
           case 'ReplicaSetWithPrimary':
@@ -280,6 +278,9 @@ export default class ShellInternalState {
             break;
           case 'Sharded':
             topology = Topologies.Sharded;
+            break;
+          case 'LoadBalanced':
+            topology = Topologies.LoadBalanced;
             break;
           default:
             topology = Topologies.Standalone;
@@ -303,6 +304,7 @@ export default class ShellInternalState {
                 default:
                   // Either Standalone, Unknown, or something so unknown that
                   // it isn't even listed in the enum right now.
+                  // LoadBalancer cannot be the case here as the topologyType MUST be set to LoadBalanced
                   break;
               }
             }
@@ -410,6 +412,7 @@ export default class ShellInternalState {
   }
 
   private getTopologySpecificPrompt(): string {
+    // TODO: once a driver with NODE-3011 is available set type to TopologyDescription
     const description = this.currentServiceProvider.getTopology()?.description;
     if (!description) {
       return '';
@@ -433,6 +436,7 @@ export default class ShellInternalState {
       case 'Sharded':
         serverTypePrompt = this.connectionInfo?.extraInfo?.atlas_version ? '' : '[mongos]';
         break;
+      case 'LoadBalanced':
       default:
         return '';
     }
@@ -465,11 +469,8 @@ export default class ShellInternalState {
       case 'RSOther':
         serverType = 'other';
         break;
-      case 'Standalone':
-      case 'PossiblePrimary':
-      case 'RSGhost':
-      case 'Unknown':
       default:
+        // Standalone, PossiblePrimary, RSGhost, LoadBalancer, Unknown
         serverType = '';
     }
 
