@@ -270,6 +270,22 @@ describe('ShellInternalState', () => {
       });
     });
 
+    describe('topology LoadBalanced', () => {
+      it('shows just the database', async() => {
+        const topology = {
+          description: {
+            // TODO: replace with TopologyType.LoadBalanced - NODE-2973
+            type: 'LoadBalanced'
+          }
+        };
+        setupServiceProviderWithTopology(topology);
+
+        const prompt = await internalState.getDefaultPrompt();
+        expect(prompt).to.equal('test> ');
+      });
+    });
+
+
     describe('topology Unknown', () => {
       it('just shows the default prompt', async() => {
         const servers = new Map();
