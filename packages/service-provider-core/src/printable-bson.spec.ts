@@ -15,7 +15,11 @@ describe('BSON printers', function() {
 
   it('formats DBRefs correctly', function() {
     expect(inspect(new bson.DBRef('a', new bson.ObjectId('5f16b8bebe434dc98cdfc9cb'), 'db')))
-      .to.equal('DBRef("a", "5f16b8bebe434dc98cdfc9cb", "db")');
+      .to.equal('DBRef("a", ObjectId("5f16b8bebe434dc98cdfc9cb"), "db")');
+    expect(inspect(new bson.DBRef('a', 'foo' as any, 'db')))
+      .to.equal('DBRef("a", \'foo\', "db")');
+    expect(inspect(new bson.DBRef('a', { x: 1 } as any, 'db')))
+      .to.equal('DBRef("a", { x: 1 }, "db")');
   });
 
   it('formats MinKey and MaxKey correctly', function() {
