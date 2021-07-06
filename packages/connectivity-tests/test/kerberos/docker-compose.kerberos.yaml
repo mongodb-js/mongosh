@@ -1,0 +1,15 @@
+version: "3"
+services:
+  kerberos_jumphost:
+    build:
+      context: $CONNECTIVITY_TEST_SOURCE_DIR/kerberos
+    depends_on: 
+      - kdc-kadmin
+      - kdc-kadmin2
+      - mongodb1
+      - mongodb2
+      - mongodb3
+    volumes:
+      - $CONNECTIVITY_TEST_SOURCE_DIR:/tmp/connectivity-tests
+      - $TEST_TMPDIR/test-envs:/tmp/test-envs
+      - $MONGOSH_ROOT_DIR:/tmp/mongosh
