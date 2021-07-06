@@ -2,6 +2,7 @@ import CliServiceProvider from '../cli-service-provider';
 import { MongoClient } from 'mongodb';
 import { ReplPlatform, MongoClientOptions } from '@mongosh/service-provider-core';
 import ConnectionString from 'mongodb-connection-string-url';
+import { EventEmitter } from 'events';
 
 interface DataService {
   client: {
@@ -24,10 +25,11 @@ class CompassServiceProvider extends CliServiceProvider {
    */
   constructor(
     mongoClient: MongoClient,
-    driverOptions: MongoClientOptions = {},
+    bus: EventEmitter,
+    driverOptions?: MongoClientOptions,
     uri?: ConnectionString
   ) {
-    super(mongoClient, driverOptions, uri);
+    super(mongoClient, bus, driverOptions, uri);
     this.platform = ReplPlatform.Compass;
   }
   /**
@@ -41,7 +43,7 @@ class CompassServiceProvider extends CliServiceProvider {
   static fromDataService(dataService: DataService): CompassServiceProvider {
     const mongoClient = dataService.client.client;
 
-    return new CompassServiceProvider(mongoClient);
+    return new CompassServiceProvider(mongoClient, new EventEmitter());
   }
 }
 

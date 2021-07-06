@@ -1211,7 +1211,7 @@ describe('Shard', () => {
     );
 
     before(async() => {
-      serviceProvider = await CliServiceProvider.connect(await mongos.connectionString());
+      serviceProvider = await CliServiceProvider.connect(await mongos.connectionString(), {}, {}, new EventEmitter());
       internalState = new ShellInternalState(serviceProvider);
       sh = new Shard(internalState.currentDb);
 
@@ -1250,7 +1250,7 @@ describe('Shard', () => {
           try {
             apiStrictServiceProvider = await CliServiceProvider.connect(await mongos.connectionString(), {
               serverApi: { version: '1', strict: true }
-            });
+            }, {}, new EventEmitter());
           } catch { /* Fails to connect to servers which do not understand api versions */ }
         });
 

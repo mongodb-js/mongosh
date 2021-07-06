@@ -180,7 +180,7 @@ export class MongocryptdManager {
       try {
         sp = await CliServiceProvider.connect(uri, {
           serverSelectionTimeoutMS: this.idleShutdownTimeoutSecs * 1000
-        });
+        }, {}, this.bus);
         await sp.runCommandWithCheck('admin', { isMaster: 1 });
       } catch (error) {
         this.bus.emit('mongosh:mongocryptd-error', { cause: 'ping', error });

@@ -25,7 +25,12 @@ import type {
   SnippetsNpmDownloadFailedEvent,
   SnippetsNpmLookupEvent,
   SnippetsRunNpmEvent,
-  SnippetsTransformErrorEvent
+  SnippetsTransformErrorEvent,
+  SpConnectHeartbeatFailureEvent,
+  SpConnectHeartbeatSucceededEvent,
+  SpResolveSrvErrorEvent,
+  SpResolveSrvSucceededEvent,
+  SpMissingOptionalDependencyEvent
 } from '@mongosh/types';
 
 interface MongoshAnalytics {
@@ -347,5 +352,44 @@ export default function setupLoggerAndTelemetry(
       }
     });
     deprecatedApiCalls.clear();
+  });
+
+  bus.on('mongosh-sp:connect-heartbeat-failure', function(ev: SpConnectHeartbeatFailureEvent) {
+    log.info('mongosh-sp:connect-heartbeat-failure', ev);
+  });
+
+  bus.on('mongosh-sp:connect-heartbeat-succeeded', function(ev: SpConnectHeartbeatSucceededEvent) {
+    log.info('mongosh-sp:connect-heartbeat-succeeded', ev);
+  });
+
+  bus.on('mongosh-sp:connect-fail-early', function() {
+    log.info('mongosh-sp:connect-fail-early');
+  });
+
+  bus.on('mongosh-sp:connect-attempt-finished', function() {
+    log.info('mongosh-sp:connect-attempt-finished');
+  });
+
+  bus.on('mongosh-sp:resolve-srv-error', function(ev: SpResolveSrvErrorEvent) {
+    log.info('mongosh-sp:resolve-srv-error', {
+      from: redactCredentials(ev.from),
+      error: ev.error?.message,
+      duringLoad: ev.duringLoad
+    });
+  });
+
+  bus.on('mongosh-sp:resolve-srv-succeeded', function(ev: SpResolveSrvSucceededEvent) {
+    log.info('mongosh-sp:resolve-srv-succeeded', {
+      from: redactCredentials(ev.from),
+      to: redactCredentials(ev.to)
+    });
+  });
+
+  bus.on('mongosh-sp:reset-connection-options', function() {
+    log.info('mongosh-sp:reset-connection-options');
+  });
+
+  bus.on('mongosh-sp:missing-optional-dependency', function(ev: SpMissingOptionalDependencyEvent) {
+    log.info('mongosh-sp:missing-optional-dependency', { name: ev.name, error: ev?.error.message });
   });
 }

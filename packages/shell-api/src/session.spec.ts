@@ -163,7 +163,7 @@ describe('Session', () => {
 
     beforeEach(async() => {
       databaseName = `test-${Date.now()}`;
-      serviceProvider = await CliServiceProvider.connect(await srv0.connectionString());
+      serviceProvider = await CliServiceProvider.connect(await srv0.connectionString(), {}, {}, new EventEmitter());
       internalState = new ShellInternalState(serviceProvider);
       mongo = new Mongo(internalState, undefined, undefined, undefined, serviceProvider);
       await ensureMaster(mongo.getDB(ADMIN_DB), 1000, await srv0.hostport());
