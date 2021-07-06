@@ -49,7 +49,7 @@ describe('Cursor', () => {
       };
       cursor = new Cursor({
         _serviceProvider: { platform: ReplPlatform.CLI },
-        _batchSize: () => 20
+        _displayBatchSize: () => 20
       } as any, wrappee);
     });
 
@@ -82,7 +82,7 @@ describe('Cursor', () => {
   });
   describe('Cursor Internals', () => {
     const mongo = {
-      _batchSize: () => 20
+      _displayBatchSize: () => 20
     } as any;
     describe('#addOption', () => {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
@@ -777,11 +777,11 @@ describe('Cursor', () => {
         expect(i).to.equal(40);
       });
 
-      it('lets .batchSize() control the output length', async() => {
+      it('.batchSize() does not control the output length', async() => {
         shellApiCursor.batchSize(10);
         const result = (await toShellResult(shellApiCursor)).printable;
-        expect(i).to.equal(10);
-        expect(result).to.have.nested.property('documents.length', 10);
+        expect(i).to.equal(20);
+        expect(result).to.have.nested.property('documents.length', 20);
       });
     });
   });

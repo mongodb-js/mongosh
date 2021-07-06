@@ -137,7 +137,7 @@ describe('Collection', () => {
         expect(serviceProvider.aggregate).to.have.been.calledWith(
           collection._database._name,
           collection._name,
-          [{ $piplelineStage: {} }],
+          [{ $piplelineStage: {} } ],
           {}
         );
       });
@@ -169,13 +169,13 @@ describe('Collection', () => {
       it('calls serviceProvider.aggregate with pipleline and options', async() => {
         await collection.aggregate(
           [{ $piplelineStage: {} }],
-          { options: true });
+          { options: true, batchSize: 10 });
 
         expect(serviceProvider.aggregate).to.have.been.calledWith(
           collection._database._name,
           collection._name,
           [{ $piplelineStage: {} }],
-          { options: true }
+          { options: true, batchSize: 10 }
         );
       });
 

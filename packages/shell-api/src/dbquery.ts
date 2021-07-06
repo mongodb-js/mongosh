@@ -16,13 +16,13 @@ export class DBQuery extends ShellApiClass {
     this._internalState = internalState;
   }
 
-  get batchSize(): number | undefined {
-    return this._internalState.batchSizeFromDBQuery;
+  get shellBatchSize(): number | undefined {
+    return this._internalState.displayBatchSizeFromDBQuery;
   }
 
-  set batchSize(value: number | undefined) {
+  set shellBatchSize(value: number | undefined) {
     printDeprecationWarning(
-      'DBQuery.batchSize is deprecated, please use \'batchSize\' on the cursor instead: db.coll.find().batchSize(<size>)');
-    this._internalState.batchSizeFromDBQuery = value;
+      'DBQuery.shellBatchSize is deprecated, please use config.set("displayBatchSize") instead');
+    this._internalState.displayBatchSizeFromDBQuery = value;
   }
 }

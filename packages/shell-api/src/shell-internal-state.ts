@@ -109,7 +109,7 @@ export default class ShellInternalState {
   public cliOptions: ShellCliOptions;
   public evaluationListener: EvaluationListener;
   public mongocryptdSpawnPath: string | null;
-  public batchSizeFromDBQuery: number | undefined = undefined;
+  public displayBatchSizeFromDBQuery: number | undefined = undefined;
   public isInteractive = false;
 
   public readonly interrupted = new InterruptFlag();

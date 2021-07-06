@@ -251,7 +251,7 @@ const translations: Catalog = {
               description: 'Deprecated. The shell provides auto-formatting so this method is no longer useful'
             },
             batchSize: {
-              description: 'Specifies the number of documents that mongosh displays at once.',
+              description: 'Specifies the number of documents to return in each batch of the response from the MongoDB instance.',
               example: 'db.collection.aggregate(pipeline, options).batchSize(10)'
             },
             projection: {
@@ -711,10 +711,6 @@ const translations: Catalog = {
             },
             isExhausted: {
               description: 'This method is deprecated because because after closing a cursor, the remaining documents in the batch are no longer accessible. If you want to see if the cursor is closed use cursor.isClosed. If you want to see if there are documents left in the batch, use cursor.tryNext. This is a breaking change'
-            },
-            batchSize: {
-              description: 'Specifies the number of documents that mongosh displays at once.',
-              example: 'db.collection.aggregate(pipeline, options).batchSize(10)'
             }
           }
         }
@@ -744,7 +740,7 @@ const translations: Catalog = {
             },
             batchSize: {
               link: 'https://docs.mongodb.com/manual/reference/method/cursor.batchSize',
-              description: 'Specifies the number of documents to return in each batch of the response from the MongoDB instance. In most cases, modifying the batch size will not affect the user or the application, as the mongo shell and most drivers return results as if MongoDB returned a single batch. This also specifies how many entries mongosh displays at once.',
+              description: 'Specifies the number of documents to return in each batch of the response from the MongoDB instance. In most cases, modifying the batch size will not affect the user or the application, as the mongo shell and most drivers return results as if MongoDB returned a single batch.',
               example: 'db.collection.find(query, projection).batchSize(10)'
             },
             close: {
@@ -1296,7 +1292,7 @@ const translations: Catalog = {
       },
       DBQuery: {
         help: {
-          description: 'Deprecated -- use cursor.batchSize(value) or config.set("batchSize", value) instead of DBQuery.batchSize = value',
+          description: 'Deprecated -- use config.set("displayBatchSize", value) instead of DBQuery.shellBatchSize = value',
         }
       },
       Explainable: {

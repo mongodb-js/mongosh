@@ -18,16 +18,17 @@ import { CursorIterationResult } from './result';
 import { iterate, validateExplainableVerbosity, markAsExplainOutput } from './helpers';
 
 @shellApiClassNoHelp
-export abstract class AbstractCursor extends ShellApiWithMongoClass {
+export abstract class AbstractCursor<CursorType extends ServiceProviderAggregationCursor | ServiceProviderCursor> extends ShellApiWithMongoClass {
   _mongo: Mongo;
-  abstract _cursor: ServiceProviderAggregationCursor | ServiceProviderCursor;
+  _cursor: CursorType;
+
   _currentIterationResult: CursorIterationResult | null = null;
-  _batchSize: number | null = null;
   _mapError: Error | null = null;
 
-  constructor(mongo: Mongo) {
+  constructor(mongo: Mongo, cursor: CursorType) {
     super();
     this._mongo = mongo;
+    this._cursor = cursor;
   }
 
   // Wrap a function with checks before and after that verify whether a .map()
@@ -63,14 +64,14 @@ export abstract class AbstractCursor extends ShellApiWithMongoClass {
 
   async _it(): Promise<CursorIterationResult> {
     const results = this._currentIterationResult = new CursorIterationResult();
-    await iterate(results, this, this._batchSize ?? await this._mongo._batchSize());
+    await iterate(results, this, await this._mongo._displayBatchSize());
     results.cursorHasMore = !this.isExhausted();
     return results;
   }
 
   @returnType('this')
   batchSize(size: number): this {
-    this._batchSize = size;
+    this._cursor.batchSize(size);
     return this;
   }
 

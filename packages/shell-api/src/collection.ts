@@ -414,7 +414,12 @@ export default class Collection extends ShellApiWithMongoClass {
     this._emitCollectionApiCall('find', { query, options });
     const cursor = new Cursor(
       this._mongo,
-      this._mongo._serviceProvider.find(this._database._name, this._name, query, { ...this._database._baseOptions, ...options })
+      this._mongo._serviceProvider.find(
+        this._database._name,
+        this._name,
+        query,
+        { ...this._database._baseOptions, ...options }
+      )
     );
 
     this._mongo._internalState.currentCursor = cursor;
@@ -470,7 +475,12 @@ export default class Collection extends ShellApiWithMongoClass {
     this._emitCollectionApiCall('findOne', { query, options });
     return new Cursor(
       this._mongo,
-      this._mongo._serviceProvider.find(this._database._name, this._name, query, { ...this._database._baseOptions, ...options })
+      this._mongo._serviceProvider.find(
+        this._database._name,
+        this._name,
+        query,
+        { ...this._database._baseOptions, ...options }
+      )
     ).limit(1).tryNext();
   }
 

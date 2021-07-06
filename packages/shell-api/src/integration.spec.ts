@@ -2150,7 +2150,7 @@ describe('Shell API (integration)', function() {
     });
   });
 
-  describe('batchSize precedence', () => {
+  describe('displayBatchSize precedence', () => {
     beforeEach(async() => {
       await collection.insertMany([...Array(100).keys()].map(i => ({ i })));
       const cfg = new ShellUserConfig();
@@ -2162,22 +2162,27 @@ describe('Shell API (integration)', function() {
       expect((await collection.find()._it()).documents).to.have.lengthOf(20);
     });
 
-    it('config changes affect batchSize', async() => {
-      await shellApi.config.set('batchSize', 10);
+    it('config changes affect displayBatchSize', async() => {
+      await shellApi.config.set('displayBatchSize', 10);
       expect((await collection.find()._it()).documents).to.have.lengthOf(10);
     });
 
-    it('DBQuery.batchSize takes precedence over config', async() => {
-      await shellApi.config.set('batchSize', 10);
-      shellApi.DBQuery.batchSize = 30;
-      expect(shellApi.DBQuery.batchSize).to.equal(30);
+    it('DBQuery.shellBatchSize takes precedence over config', async() => {
+      await shellApi.config.set('displayBatchSize', 10);
+      shellApi.DBQuery.shellBatchSize = 30;
+      expect(shellApi.DBQuery.shellBatchSize).to.equal(30);
       expect((await collection.find()._it()).documents).to.have.lengthOf(30);
     });
 
-    it('cursor.batchSize takes precedence over config and DBQuery.batchSize', async() => {
-      await shellApi.config.set('batchSize', 10);
-      shellApi.DBQuery.batchSize = 30;
-      expect((await collection.find().batchSize(50)._it()).documents).to.have.lengthOf(50);
+    it('cursor.batchSize does not override config displayBatchSize', async() => {
+      await shellApi.config.set('displayBatchSize', 10);
+      expect((await collection.find().batchSize(50)._it()).documents).to.have.lengthOf(10);
+    });
+
+    it('cursor.batchSize does not override DBQuery.shellBatchSize', async() => {
+      shellApi.DBQuery.shellBatchSize = 5;
+      expect(shellApi.DBQuery.shellBatchSize).to.equal(5);
+      expect((await collection.find().batchSize(50)._it()).documents).to.have.lengthOf(5);
     });
   });
 

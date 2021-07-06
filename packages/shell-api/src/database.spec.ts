@@ -285,6 +285,17 @@ describe('Database', () => {
         );
       });
 
+      it('calls serviceProvider.aggregateDb with explicit batchSize', async() => {
+        await database.aggregate(
+          [{ $piplelineStage: {} }], { options: true, batchSize: 10 });
+
+        expect(serviceProvider.aggregateDb).to.have.been.calledWith(
+          database._name,
+          [{ $piplelineStage: {} }],
+          { options: true, batchSize: 10 }
+        );
+      });
+
       it('returns an AggregationCursor that wraps the service provider one', async() => {
         const toArrayResult = [];
         serviceProviderCursor.toArray.resolves(toArrayResult);

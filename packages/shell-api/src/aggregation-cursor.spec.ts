@@ -45,7 +45,7 @@ describe('AggregationCursor', () => {
       };
       cursor = new AggregationCursor({
         _serviceProvider: { platform: ReplPlatform.CLI },
-        _batchSize: () => 20
+        _displayBatchSize: () => 20
       } as any, wrappee);
     });
 
@@ -75,7 +75,7 @@ describe('AggregationCursor', () => {
 
   describe('Cursor Internals', () => {
     const mongo = {
-      _batchSize: () => 20
+      _displayBatchSize: () => 20
     } as any;
     describe('#close', () => {
       let spCursor: StubbedInstance<SPAggregationCursor>;
@@ -212,8 +212,9 @@ describe('AggregationCursor', () => {
     });
 
     describe('toShellResult', () => {
-      let shellApiCursor;
-      let i;
+      let shellApiCursor: AggregationCursor;
+      let i: number;
+      let batchSize: number | undefined;
 
       beforeEach(() => {
         i = 0;
@@ -225,6 +226,9 @@ describe('AggregationCursor', () => {
             }
             if (prop === 'tryNext') {
               return async() => ({ key: i++ });
+            }
+            if (prop === 'batchSize') {
+              return (size: number) => { batchSize = size; };
             }
             return (target as any)[prop];
           }
@@ -243,11 +247,12 @@ describe('AggregationCursor', () => {
         expect(i).to.equal(40);
       });
 
-      it('lets .batchSize() control the output length', async() => {
+      it('.batchSize() does not control the output length', async() => {
         shellApiCursor.batchSize(10);
         const result = (await toShellResult(shellApiCursor)).printable;
-        expect(i).to.equal(10);
-        expect(result).to.have.nested.property('documents.length', 10);
+        expect(i).to.equal(20);
+        expect(batchSize).to.equal(10);
+        expect(result).to.have.nested.property('documents.length', 20);
       });
     });
   });
