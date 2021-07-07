@@ -125,6 +125,14 @@ describe('uri-generator.generate-uri', () => {
         });
       });
 
+      context('including loadBalanced', () => {
+        const uri = 'mongodb://192.0.0.1:27018/db?loadBalanced=true';
+        const options = { connectionSpecifier: uri };
+        it('does not add the directConnection parameter', () => {
+          expect(generateUri(options)).to.equal(uri);
+        });
+      });
+
       context('including explicit directConnection', () => {
         const uri = 'mongodb://192.0.0.1:27018/db?directConnection=false';
         const options = { connectionSpecifier: uri };
