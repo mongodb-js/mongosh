@@ -95,8 +95,8 @@ Package|Version|License
 **[bl](#914f886368f63b0b33239e048b8533119b0a42116c4ff7498b9373c4c305e2a4)**|2.2.1|MIT
 **[bl](#0e8c95ceb67a28a94b8caec6fa59d55974c80aab5dcf21bf1b17b0867f694c3c)**|4.1.0|MIT
 **[bl](#a665ea6dffc925870ff11bcb4b8b477d4db5bba410ea1ab72d2048190b34e19e)**|1.2.3|MIT
+**[bson](#394c5421206f2ec526852cb6fa0ee38d42b14e205104586179d37d18573f8f95)**|4.4.1|Apache-2.0
 **[bson](#3ed96fd027d2cc2660bd628ee5beaa2117648edb07e3a7777eca8de92f12e282)**|4.4.0|Apache-2.0
-**[bson](#8de31a0bc299ac7c75fd033c95bcfe9c2ee599079ab7212e0a451eaddcc2ad12)**|4.3.0|Apache-2.0
 **[buffer-alloc](#d5cbc95b9dde4a46cd45334630efe3bc9025c904074bee845376bd60651441c0)**|1.2.0|MIT
 **[buffer-alloc-unsafe](#1022220a813dd092d3ced592ac36121a00bd08a9c2020e08ad370dc29ed217f0)**|1.1.0|MIT
 **[buffer-fill](#c3747dfd267829ceeb564a1717d0c65d88d2b366e215f640067abefac59e3fd4)**|1.0.0|MIT
@@ -5481,8 +5481,8 @@ License files:
       
 
 
-<a id="3ed96fd027d2cc2660bd628ee5beaa2117648edb07e3a7777eca8de92f12e282"></a>
-### [bson](https://www.npmjs.com/package/bson) (version 4.4.0)
+<a id="394c5421206f2ec526852cb6fa0ee38d42b14e205104586179d37d18573f8f95"></a>
+### [bson](https://www.npmjs.com/package/bson) (version 4.4.1)
 <!-- initially found at packages/service-provider-core/node_modules/bson -->
 > A bson parser for node.js and the browser
 
@@ -5698,9 +5698,9 @@ Authors:
 * Christian Amor Kvalheim <christkv@gmail.com>
 
 
-<a id="8de31a0bc299ac7c75fd033c95bcfe9c2ee599079ab7212e0a451eaddcc2ad12"></a>
-### [bson](https://www.npmjs.com/package/bson) (version 4.3.0)
-<!-- initially found at packages/snippet-manager/node_modules/bson -->
+<a id="3ed96fd027d2cc2660bd628ee5beaa2117648edb07e3a7777eca8de92f12e282"></a>
+### [bson](https://www.npmjs.com/package/bson) (version 4.4.0)
+<!-- initially found at packages/service-provider-server/node_modules/bson -->
 > A bson parser for node.js and the browser
 
 License tags: Apache-2.0
