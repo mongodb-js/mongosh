@@ -101,8 +101,7 @@ export class ConfigManager<Config> extends EventEmitter {
   async writeConfigFile(config: Config): Promise<void> {
     await this.shellHomeDirectory.ensureExists();
     try {
-      // TODO: { relaxed: false } can be removed once NODE-3390 is done.
-      await fs.writeFile(this.path(), EJSON.stringify(config, { relaxed: false }), { mode: 0o600 });
+      await fs.writeFile(this.path(), EJSON.stringify(config), { mode: 0o600 });
     } catch (err) {
       this.emit('error', err);
       throw err;

@@ -29,7 +29,7 @@
     "@mongosh/errors": "0.0.0-dev.0",
     "@mongosh/shell-api": "0.0.0-dev.0",
     "@mongosh/types": "0.0.0-dev.0",
-    "bson": "^4.3.0",
+    "bson": "^4.4.1",
     "cross-spawn": "^7.0.3",
     "escape-string-regexp": "^4.0.0",
     "joi": "^17.4.0",
