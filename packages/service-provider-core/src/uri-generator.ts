@@ -218,7 +218,7 @@ function generateUriNormalized(options: CliOptions): ConnectionString {
 function addShellConnectionStringParameters(uri: ConnectionString): ConnectionString {
   uri = uri.clone();
   const params = uri.searchParams;
-  if (!params.has('replicaSet') && !params.has('directConnection') && uri.hosts.length === 1) {
+  if (!params.has('replicaSet') && !params.has('directConnection') && !params.has('loadBalanced') && uri.hosts.length === 1) {
     params.set('directConnection', 'true');
   }
   if (!params.has('tlsCertificateFile') && params.has('tlsCertificateKeyFile')) {
