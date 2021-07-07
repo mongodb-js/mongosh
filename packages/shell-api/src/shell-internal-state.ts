@@ -405,6 +405,8 @@ export default class ShellInternalState {
     const extraConnectionInfo = this.connectionInfo?.extraInfo;
     if (extraConnectionInfo?.is_data_lake) {
       return 'AtlasDataLake';
+    } else if (extraConnectionInfo?.is_atlas) {
+      return 'Atlas';
     } else if (extraConnectionInfo?.is_enterprise || this.connectionInfo?.buildInfo?.modules?.indexOf('enterprise') >= 0) {
       return 'Enterprise';
     }

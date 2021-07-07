@@ -92,11 +92,12 @@ describe('ShellInternalState', () => {
         expect(prompt).to.equal('AtlasDataLake test> ');
       });
 
-      it('wins against enterprise', async() => {
+      it('wins against enterprise and atlas', async() => {
         serviceProvider.getConnectionInfo.resolves({
           extraInfo: {
             uri: 'mongodb://localhost/',
             is_enterprise: true,
+            is_atlas: true,
             is_data_lake: true
           }
         });
@@ -106,6 +107,36 @@ describe('ShellInternalState', () => {
         expect(prompt).to.equal('AtlasDataLake test> ');
       });
     });
+
+    describe('Atlas prefix', () => {
+      it('inferred from extraInfo', async() => {
+        serviceProvider.getConnectionInfo.resolves({
+          extraInfo: {
+            uri: 'mongodb://localhost/',
+            is_atlas: true
+          }
+        });
+
+        await internalState.fetchConnectionInfo();
+        const prompt = await internalState.getDefaultPrompt();
+        expect(prompt).to.equal('Atlas test> ');
+      });
+
+      it('wins against enterprise', async() => {
+        serviceProvider.getConnectionInfo.resolves({
+          extraInfo: {
+            uri: 'mongodb://localhost/',
+            is_enterprise: true,
+            is_atlas: true
+          }
+        });
+
+        await internalState.fetchConnectionInfo();
+        const prompt = await internalState.getDefaultPrompt();
+        expect(prompt).to.equal('Atlas test> ');
+      });
+    });
+
 
     describe('MongoDB Enterprise prefix', () => {
       it('inferred from extraInfo', async() => {
@@ -266,7 +297,7 @@ describe('ShellInternalState', () => {
 
         await internalState.fetchConnectionInfo();
         const prompt = await internalState.getDefaultPrompt();
-        expect(prompt).to.equal('test> ');
+        expect(prompt).to.equal('Atlas test> ');
       });
     });
 
@@ -280,8 +311,29 @@ describe('ShellInternalState', () => {
         };
         setupServiceProviderWithTopology(topology);
 
+        await internalState.fetchConnectionInfo();
         const prompt = await internalState.getDefaultPrompt();
         expect(prompt).to.equal('test> ');
+      });
+
+      it('includes Atlas when we are there', async() => {
+        serviceProvider.getTopology.returns({
+          description: {
+            // TODO: replace with TopologyType.LoadBalanced - NODE-2973
+            type: 'LoadBalanced'
+          }
+        });
+        serviceProvider.getConnectionInfo.resolves({
+          extraInfo: {
+            uri: 'mongodb://localhost/',
+            is_atlas: true,
+            atlas_version: '20210330.0.0.1617063608'
+          }
+        });
+
+        await internalState.fetchConnectionInfo();
+        const prompt = await internalState.getDefaultPrompt();
+        expect(prompt).to.equal('Atlas test> ');
       });
     });
 
