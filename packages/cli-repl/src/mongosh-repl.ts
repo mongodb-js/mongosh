@@ -404,6 +404,7 @@ class MongoshNodeRepl implements EvaluationListener {
     }
 
     const { repl, shellEvaluator } = this.runtimeState();
+    let interrupted = false;
 
     try {
       const shellResult = await shellEvaluator.customEval(originalEval, input, context, filename);
@@ -424,6 +425,7 @@ class MongoshNodeRepl implements EvaluationListener {
           .filter(([key]) => !key.startsWith('_')));
     } catch (err) {
       if (this.runtimeState().internalState.interrupted.isSet()) {
+        interrupted = true;
         this.bus.emit('mongosh:eval-interrupted');
         // The shell is interrupted by CTRL-C - so we ignore any errors
         // that happened during evaluation.
@@ -442,7 +444,8 @@ class MongoshNodeRepl implements EvaluationListener {
       }
       throw err;
     } finally {
-      if (!this.insideAutoCompleteOrGetPrompt) {
+      if (!this.insideAutoCompleteOrGetPrompt && !interrupted) {
+        // In case of an interrupt, onAsyncSigint will print the prompt when completed
         repl.setPrompt(await this.getShellPrompt());
       }
 
@@ -512,6 +515,10 @@ class MongoshNodeRepl implements EvaluationListener {
       }));
     }
     this.bus.emit('mongosh:interrupt-complete'); // For testing purposes.
+
+    const { repl } = this.runtimeState();
+    repl.setPrompt(await this.getShellPrompt());
+
     return true;
   }
 

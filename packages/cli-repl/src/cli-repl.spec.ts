@@ -963,7 +963,7 @@ describe('CliRepl', () => {
     });
 
     context('with a user-provided prompt', () => {
-      it('allows prompts that interact with shell API methods', async() => {
+      beforeEach(async() => {
         await cliRepl.start(await testServer.connectionString(), {});
 
         input.write('use clirepltest\n');
@@ -973,9 +973,22 @@ describe('CliRepl', () => {
         await waitEval(cliRepl.bus);
 
         output = '';
+      });
+
+      it('allows prompts that interact with shell API methods', async() => {
         input.write('1 + 2\n');
         await waitEval(cliRepl.bus);
         expect(output).to.include('on clirepltest> ');
+      });
+
+      it('renders the prompt correctly on interrupt', async() => {
+        input.write('while(true) { sleep(500); }\n');
+        process.kill(process.pid, 'SIGINT');
+
+        await waitBus(cliRepl.bus, 'mongosh:interrupt-complete');
+
+        expect(output).to.contain('Stopping execution');
+        expect(output).to.contain('on clirepltest> ');
       });
     });
 
