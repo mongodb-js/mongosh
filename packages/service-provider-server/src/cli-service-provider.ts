@@ -284,6 +284,15 @@ export async function connectMongoClient(uri: string, clientOptions: MongoClient
     }
   }
   uri = await resolveMongodbSrv(uri, bus);
+  {
+    // Hack for Load Balancer support until the driver side is finished:
+    const cs = new ConnectionString(uri);
+    if (cs.searchParams.get('loadBalanced') === 'true' &&
+        !cs.searchParams.has('maxPoolSize')) {
+      cs.searchParams.set('maxPoolSize', '1');
+      uri = cs.href;
+    }
+  }
   const client = new MClient(uri, clientOptions);
   await connectWithFailFast(client, bus);
   return client;
