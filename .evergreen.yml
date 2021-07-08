@@ -1544,9 +1544,8 @@ buildvariants:
     run_on: rhel72-zseries-small
     tasks:
       - name: e2e_tests_linux_s390x
-# TODO: reenable once /opt/mongodbtoolchain/v3 contains executables that
-# are actually compatible with the OS/architecture:
-# https://jira.mongodb.org/browse/BUILD-13551
+# TODO: Re-enable once RHEL 8.0 distros are ready for use
+# (see also pkg_smoke_tests_rhel80_s390x)
 #  - name: e2e_rhel80_s390x
 #    display_name: "RHEL 8.0 s390x (E2E Tests)"
 #    run_on: rhel80-zseries-small
@@ -1643,11 +1642,11 @@ buildvariants:
     run_on: rhel72-zseries-small
     tasks:
       - name: pkg_test_s390x_rpm
-  - name: pkg_smoke_tests_rhel80_s390x
-    display_name: "package smoke tests (RHEL 8.0 s390x)"
-    run_on: rhel80-zseries-small
-    tasks:
-      - name: pkg_test_s390x_rpm
+  #- name: pkg_smoke_tests_rhel80_s390x
+  #  display_name: "package smoke tests (RHEL 8.0 s390x)"
+  #  run_on: rhel80-zseries-small
+  #  tasks:
+  #    - name: pkg_test_s390x_rpm
   - name: pkg_smoke_tests_rhel81_ppc64le
     display_name: "package smoke tests (RHEL 8.1 ppc64le)"
     run_on: rhel81-power8-small
