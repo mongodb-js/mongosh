@@ -119,7 +119,7 @@
     "karma-typescript": "^5.5.1",
     "lerna": "^4.0.0",
     "mocha": "^7.1.2",
-    "mongodb": "addaleax/node-mongodb-native#661395840dbd98b57ecb29b416c6fa931efdf981",
+    "mongodb": "addaleax/node-mongodb-native#279a119f89c0291b6a5ed548d9f563ae5af8296f",
     "mongodb-download-url": "^1.0.1",
     "mongodb-js-precommit": "^2.0.0",
     "nock": "^13.0.11",
