@@ -981,7 +981,10 @@ describe('CliRepl', () => {
         expect(output).to.include('on clirepltest> ');
       });
 
-      it('renders the prompt correctly on interrupt', async() => {
+      it('renders the prompt correctly on interrupt', async function() {
+        if (process.platform === 'win32') { // cannot trigger SIGINT on Windows
+          return this.skip();
+        }
         input.write('while(true) { sleep(500); }\n');
         process.kill(process.pid, 'SIGINT');
 
