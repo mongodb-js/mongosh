@@ -717,7 +717,7 @@ describe('Auth e2e', function() {
       afterEach(async() => {
         db.command({ dropAllUsersFromDatabase: 1 });
       });
-      describe('auth', async() => {
+      describe('auth', () => {
         it('logs in with simple user/pwd', async() => {
           shell.writeInputLine(`use ${dbName}`);
           shell.writeInputLine(
@@ -796,7 +796,7 @@ describe('Auth e2e', function() {
           });
         });
       });
-      describe('logout', async() => {
+      describe('logout', () => {
         it('logs out after authenticating', async() => {
           shell.writeInputLine(`use ${dbName}`);
           shell.writeInputLine(
@@ -823,6 +823,35 @@ describe('Auth e2e', function() {
           await eventually(async() => {
             shell.assertContainsOutput('authenticatedUsers: []');
           });
+          shell.assertNoErrors();
+        });
+      });
+      describe('resetting current cursor', () => {
+        beforeEach(async() => {
+          await db.collection('test').insertMany(
+            [...Array(200).keys()].map(i => ({ i }))
+          );
+        });
+        it('is reset after auth, db reassign and logout', async() => {
+          await shell.executeLine(`use ${dbName}`);
+          expect(await shell.executeLine('db.test.find()')).to.include('i: 10');
+          expect(await shell.executeLine('it')).to.include('i: 30');
+
+          expect(await shell.executeLine('db.auth("anna", "pwd")')).to.include('ok: 1');
+          expect(await shell.executeLine('it')).to.include('no cursor');
+          expect(await shell.executeLine('db.test.find()')).to.include('i: 10');
+          expect(await shell.executeLine('it')).to.include('i: 30');
+
+          expect(await shell.executeLine(`db = db.getSiblingDB("${dbName}")`)).to.include(`${dbName}\n`);
+          expect(await shell.executeLine('it')).to.include('no cursor');
+          expect(await shell.executeLine('db.test.find()')).to.include('i: 10');
+          expect(await shell.executeLine('it')).to.include('i: 30');
+
+          expect(await shell.executeLine('db.logout()')).to.include('ok: 1');
+          expect(await shell.executeLine('it')).to.include('no cursor');
+          expect(await shell.executeLine('db.test.find()')).to.include('i: 10');
+          expect(await shell.executeLine('it')).to.include('i: 30');
+
           shell.assertNoErrors();
         });
       });

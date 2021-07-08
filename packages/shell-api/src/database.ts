@@ -452,6 +452,7 @@ export default class Database extends ShellApiWithMongoClass {
   @apiVersions([])
   async logout(): Promise<Document> {
     this._emitDatabaseApiCall('logout', {});
+    this._mongo._internalState.currentCursor = null;
     return await this._runCommand({ logout: 1 });
   }
 
@@ -516,6 +517,7 @@ export default class Database extends ShellApiWithMongoClass {
       );
     }
     authDoc.authDb = this._name;
+    this._mongo._internalState.currentCursor = null;
     return await this._mongo._serviceProvider.authenticate(authDoc);
   }
 

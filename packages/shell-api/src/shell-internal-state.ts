@@ -174,6 +174,7 @@ export default class ShellInternalState {
     // Pre-fetch for autocompletion.
     this.currentDb._getCollectionNamesForCompletion().catch(err => this.messageBus.emit('mongosh:error', err));
     this.currentDb._mongo._getDatabaseNamesForCompletion().catch(err => this.messageBus.emit('mongosh:error', err));
+    this.currentCursor = null;
     return newDb;
   }
 
