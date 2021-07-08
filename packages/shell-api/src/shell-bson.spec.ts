@@ -116,6 +116,11 @@ describe('Shell BSON', () => {
       expect(s._bsontype).to.equal('ObjectID');
       expect(s.toHexString().slice(0, 8)).to.equal('12345678');
     });
+    it('can be created through createFromTime', () => {
+      const s = (shellBson.ObjectId as any).createFromTime(0x12345678);
+      expect(s._bsontype).to.equal('ObjectID');
+      expect(s.toHexString().slice(0, 8)).to.equal('12345678');
+    });
     it('has help and other metadata', async() => {
       const s = shellBson.ObjectId();
       expect((await toShellResult(s.help)).type).to.equal('Help');
@@ -582,6 +587,31 @@ describe('Shell BSON', () => {
       const input = { a: new Date() };
       const output = shellBson.EJSON.parse(shellBson.EJSON.stringify(input));
       expect(input).to.deep.equal(output);
+    });
+  });
+
+  describe('BSON constructor properties', () => {
+    it('matches original BSON constructor properties', () => {
+      for (const key of Object.keys(bson)) {
+        if (!(key in shellBson) || bson[key] === shellBson[key]) {
+          continue;
+        }
+
+        const bsonProperties = Object.getOwnPropertyDescriptors(bson[key]);
+        const shellProperties = Object.getOwnPropertyDescriptors(shellBson[key]);
+        delete shellProperties.help; // Not expected from the original BSON.
+        delete bsonProperties.get_inc; // Deprecated.
+        delete shellProperties.length; // Function length can vary depending on the specific arguments in TS.
+        delete bsonProperties.length;
+        delete shellProperties.index; // ObjectId.index is a random number
+        delete bsonProperties.index; // ObjectId.index is a random number
+        try {
+          expect(shellProperties).to.deep.equal(bsonProperties);
+        } catch (err) {
+          err.message += ` (${key})`;
+          throw err;
+        }
+      }
     });
   });
 });
