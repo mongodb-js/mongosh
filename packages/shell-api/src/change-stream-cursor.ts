@@ -27,7 +27,6 @@ export default class ChangeStreamCursor extends ShellApiWithMongoClass {
   _cursor: ChangeStream<Document>;
   _currentIterationResult: CursorIterationResult | null = null;
   _on: string;
-  _batchSize: number | null = null;
 
   constructor(cursor: ChangeStream<Document>, on: string, mongo: Mongo) {
     super();
@@ -41,7 +40,7 @@ export default class ChangeStreamCursor extends ShellApiWithMongoClass {
       throw new MongoshRuntimeError('ChangeStreamCursor is closed');
     }
     const result = this._currentIterationResult = new CursorIterationResult();
-    return iterate(result, this, this._batchSize ?? await this._mongo._batchSize());
+    return iterate(result, this, await this._mongo._displayBatchSize());
   }
 
   /**
@@ -128,12 +127,6 @@ export default class ChangeStreamCursor extends ShellApiWithMongoClass {
 
   @returnType('ChangeStreamCursor')
   pretty(): ChangeStreamCursor {
-    return this;
-  }
-
-  @returnType('ChangeStreamCursor')
-  batchSize(size: number): ChangeStreamCursor {
-    this._batchSize = size;
     return this;
   }
 }

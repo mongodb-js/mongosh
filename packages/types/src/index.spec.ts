@@ -26,11 +26,11 @@ describe('config validation', () => {
     expect(await validate('redactHistory', 'keep')).to.equal(null);
     expect(await validate('redactHistory', 'remove')).to.equal(null);
     expect(await validate('redactHistory', 'remove-redact')).to.equal(null);
-    expect(await validate('batchSize', 'foo')).to.equal('batchSize must be a positive integer');
-    expect(await validate('batchSize', -1)).to.equal('batchSize must be a positive integer');
-    expect(await validate('batchSize', 0)).to.equal('batchSize must be a positive integer');
-    expect(await validate('batchSize', 1)).to.equal(null);
-    expect(await validate('batchSize', Infinity)).to.equal(null);
+    expect(await validate('displayBatchSize', 'foo')).to.equal('displayBatchSize must be a positive integer');
+    expect(await validate('displayBatchSize', -1)).to.equal('displayBatchSize must be a positive integer');
+    expect(await validate('displayBatchSize', 0)).to.equal('displayBatchSize must be a positive integer');
+    expect(await validate('displayBatchSize', 1)).to.equal(null);
+    expect(await validate('displayBatchSize', Infinity)).to.equal(null);
     expect(await validate('enableTelemetry', 'foo')).to.equal('enableTelemetry must be a boolean');
     expect(await validate('enableTelemetry', -1)).to.equal('enableTelemetry must be a boolean');
     expect(await validate('enableTelemetry', false)).to.equal(null);

@@ -342,14 +342,14 @@ export interface MongoshBus {
 }
 
 export class ShellUserConfig {
-  batchSize = 20;
+  displayBatchSize = 20;
   enableTelemetry = false;
 }
 
 export class ShellUserConfigValidator {
   static async validate<K extends keyof ShellUserConfig>(key: K, value: ShellUserConfig[K]): Promise<string | null> {
     switch (key) {
-      case 'batchSize':
+      case 'displayBatchSize':
         if (typeof value !== 'number' || value <= 0) {
           return `${key} must be a positive integer`;
         }

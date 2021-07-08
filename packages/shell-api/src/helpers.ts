@@ -533,7 +533,7 @@ export function addHiddenDataProperty<T = any>(target: T, key: string|symbol, va
 
 export async function iterate(
   results: CursorIterationResult,
-  cursor: AbstractCursor | ChangeStreamCursor,
+  cursor: AbstractCursor<any> | ChangeStreamCursor,
   batchSize: number): Promise<CursorIterationResult> {
   if (cursor.isClosed()) {
     return results;

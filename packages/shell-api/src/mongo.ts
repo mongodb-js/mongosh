@@ -129,9 +129,9 @@ export default class Mongo extends ShellApiClass {
     this.__serviceProvider = sp;
   }
 
-  async _batchSize(): Promise<number> {
-    return this._internalState.batchSizeFromDBQuery ??
-      await this._internalState.shellApi.config.get('batchSize');
+  async _displayBatchSize(): Promise<number> {
+    return this._internalState.displayBatchSizeFromDBQuery ??
+      await this._internalState.shellApi.config.get('displayBatchSize');
   }
 
   /**
@@ -297,10 +297,10 @@ export default class Mongo extends ShellApiClass {
         const sysprof = this._internalState.currentDb.getCollection('system.profile');
         const profiles = { count: await sysprof.countDocuments({}) } as Document;
         if (profiles.count !== 0) {
-          profiles.result = await (sysprof.find({ millis: { $gt: 0 } })
+          profiles.result = await sysprof.find({ millis: { $gt: 0 } })
             .sort({ $natural: -1 })
             .limit(5)
-            .toArray());
+            .toArray();
         }
         return new CommandResult('ShowProfileResult', profiles);
       case 'users':

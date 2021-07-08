@@ -98,16 +98,6 @@ describe('ChangeStreamCursor', () => {
       expect(spCursor.next.calledWith()).to.equal(true);
       expect(warnSpy.calledOnce).to.equal(true);
     });
-    it('lets .batchSize() control iteration batch size', async() => {
-      const cursor2 = new ChangeStreamCursor({
-        tryNext: sinon.stub().resolves({ doc: 1 })
-      } as any, 'source', {
-        _internalState: {}
-      } as Mongo);
-      cursor2.batchSize(3);
-      const results = await cursor2._it();
-      expect(results.documents).to.deep.equal([{ doc: 1 }, { doc: 1 }, { doc: 1 }]);
-    });
   });
   describe('integration', () => {
     const [ srv0 ] = startTestCluster(['--replicaset'] );

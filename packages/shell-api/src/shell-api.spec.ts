@@ -686,7 +686,7 @@ describe('ShellApi', () => {
         });
 
         it('will fall back to defaults', async() => {
-          expect(await config.get('batchSize')).to.equal(20);
+          expect(await config.get('displayBatchSize')).to.equal(20);
         });
 
         it('rejects setting unavailable config keys', async() => {
@@ -712,9 +712,9 @@ describe('ShellApi', () => {
         });
 
         it('will work with defaults', async() => {
-          expect(await config.get('batchSize')).to.equal(20);
+          expect(await config.get('displayBatchSize')).to.equal(20);
           expect((await toShellResult(config)).printable).to.deep.equal(
-            new Map([['batchSize', 20], ['enableTelemetry', false]] as any));
+            new Map([['displayBatchSize', 20], ['enableTelemetry', false]] as any));
         });
 
         it('rejects setting all config keys', async() => {

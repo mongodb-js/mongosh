@@ -26,13 +26,11 @@ import { printWarning } from './deprecation-warning';
 import { AbstractCursor } from './abstract-cursor';
 
 @shellApiClassDefault
-export default class Cursor extends AbstractCursor {
-  _cursor: ServiceProviderCursor;
+export default class Cursor extends AbstractCursor<ServiceProviderCursor> {
   _tailable = false;
 
   constructor(mongo: Mongo, cursor: ServiceProviderCursor) {
-    super(mongo);
-    this._cursor = cursor;
+    super(mongo, cursor);
   }
 
   /**
@@ -72,13 +70,6 @@ export default class Cursor extends AbstractCursor {
   @returnType('Cursor')
   allowPartialResults(): Cursor {
     this._addFlag('partial');
-    return this;
-  }
-
-  @returnType('Cursor')
-  batchSize(size: number): this {
-    super.batchSize(size);
-    this._cursor.batchSize(size);
     return this;
   }
 
