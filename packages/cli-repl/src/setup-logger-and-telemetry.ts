@@ -32,6 +32,7 @@ import type {
   SpResolveSrvSucceededEvent,
   SpMissingOptionalDependencyEvent
 } from '@mongosh/types';
+import { inspect } from 'util';
 
 interface MongoshAnalytics {
   identify(message: {
@@ -47,6 +48,22 @@ interface MongoshAnalytics {
       [key: string]: any;
     }
   }): void;
+}
+
+// The default serializer for pino replaces circular properties it finds
+// anywhere in the object graph. In extreme cases, e.g. when a mongosh cursor
+// is passed to it, it follows the graph all the way to the network socket and
+// replaces random properties of its internal state with the string
+// '"[Circular"]':
+//   https://github.com/davidmarkclements/fast-safe-stringify/blob/0e011f068962e8f8974133a47afcabfc003f2183/index.js#L36
+// As a workaround, we do a JSON-based clone for any input that can contain
+// arbitrary values.
+function jsonClone<T>(input: T): T | { _inspected: string } {
+  try {
+    return JSON.parse(JSON.stringify(input));
+  } catch (error) {
+    return { _inspected: inspect(input) };
+  }
 }
 
 // set up a noop, in case we are not able to connect to segment.
@@ -102,7 +119,7 @@ export default function setupLoggerAndTelemetry(
     const connectionUri = redactCredentials(args.uri);
     const { uri: _uri, ...argsWithoutUri } = args; // eslint-disable-line @typescript-eslint/no-unused-vars
     const params = { session_id: logId, userId, connectionUri, ...argsWithoutUri };
-    log.info('mongosh:connect', params);
+    log.info('mongosh:connect', jsonClone(params));
 
     if (telemetry) {
       analytics.track({
@@ -118,7 +135,7 @@ export default function setupLoggerAndTelemetry(
   });
 
   bus.on('mongosh:driver-initialized', function(driverMetadata: any) {
-    log.info('mongosh:driver-initialized', driverMetadata);
+    log.info('mongosh:driver-initialized', jsonClone(driverMetadata));
   });
 
   bus.on('mongosh:new-user', function(id: string, enableTelemetry: boolean) {
@@ -186,11 +203,11 @@ export default function setupLoggerAndTelemetry(
   });
 
   bus.on('mongosh:setCtx', function(args: ApiEvent) {
-    log.info('mongosh:setCtx', args);
+    log.info('mongosh:setCtx', jsonClone(args));
   });
 
   bus.on('mongosh:api-call', function(args: ApiEvent) {
-    log.info('mongosh:api-call', redactInfo(args));
+    log.info('mongosh:api-call', redactInfo(jsonClone(args)));
   });
 
   bus.on('mongosh:api-load-file', function(args: ScriptLoadFileEvent) {
@@ -355,7 +372,10 @@ export default function setupLoggerAndTelemetry(
   });
 
   bus.on('mongosh-sp:connect-heartbeat-failure', function(ev: SpConnectHeartbeatFailureEvent) {
-    log.info('mongosh-sp:connect-heartbeat-failure', ev);
+    log.info('mongosh-sp:connect-heartbeat-failure', {
+      ...ev,
+      failure: ev.failure?.message
+    });
   });
 
   bus.on('mongosh-sp:connect-heartbeat-succeeded', function(ev: SpConnectHeartbeatSucceededEvent) {
