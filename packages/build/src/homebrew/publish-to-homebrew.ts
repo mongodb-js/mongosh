@@ -18,7 +18,7 @@ export async function publishToHomebrew(
 
   const homebrewFormula = await generateFormulaFn(
     { version: packageVersion, sha: packageSha },
-    homebrewCoreFork
+    homebrewCore
   );
   if (!homebrewFormula) {
     console.warn('There are no changes to the homebrew formula');

@@ -41,8 +41,8 @@ describe('Homebrew publish-to-homebrew', () => {
       .resolves('sha');
 
     generateFormula
-      .resolves('XXXX')
-      .withArgs({ version: '1.0.0', sha: 'sha' })
+      .rejects()
+      .withArgs({ version: '1.0.0', sha: 'sha' }, homebrewCore)
       .resolves('new formula');
 
     updateHomebrewFork
@@ -84,8 +84,8 @@ describe('Homebrew publish-to-homebrew', () => {
       .resolves('sha');
 
     generateFormula
-      .resolves('XXXX')
-      .withArgs({ version: '1.0.0', sha: 'sha' })
+      .rejects()
+      .withArgs({ version: '1.0.0', sha: 'sha' }, homebrewCore)
       .resolves('formula');
 
     updateHomebrewFork
@@ -122,8 +122,8 @@ describe('Homebrew publish-to-homebrew', () => {
       .resolves('sha');
 
     generateFormula
-      .resolves('XXXX')
-      .withArgs({ version: '1.0.0', sha: 'sha' })
+      .rejects()
+      .withArgs({ version: '1.0.0', sha: 'sha' }, homebrewCore)
       .resolves('new formula');
 
     updateHomebrewFork

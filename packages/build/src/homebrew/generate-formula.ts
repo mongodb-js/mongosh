@@ -3,9 +3,9 @@ import { GithubRepo } from '../github-repo';
 
 export async function generateUpdatedFormula(
   context: { version: string, sha: string },
-  homebrewCoreFork: GithubRepo
+  homebrewCore: GithubRepo
 ): Promise<string | null> {
-  const currentFormula = await homebrewCoreFork.getFileContent('Formula/mongosh.rb', 'master');
+  const currentFormula = await homebrewCore.getFileContent('Formula/mongosh.rb', 'master');
 
   const urlMatch = /url \"([^"]+)\"/g.exec(currentFormula.content);
   const shaMatch = /sha256 \"([^"]+)\"/g.exec(currentFormula.content);
