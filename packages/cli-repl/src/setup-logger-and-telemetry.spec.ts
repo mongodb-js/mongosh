@@ -56,6 +56,11 @@ describe('setupLoggerAndTelemetry', () => {
     bus.emit('mongosh:evaluate-input', { input: '1+1' });
     bus.emit('mongosh:driver-initialized', { driver: { name: 'nodejs', version: '3.6.1' } });
 
+    const circular: any = {};
+    circular.circular = circular;
+    bus.emit('mongosh:api-call', { method: 'circulararg', arguments: { options: { circular } } });
+    expect(circular.circular).to.equal(circular); // Make sure the argument is still intact afterwards
+
     bus.emit('mongosh:start-loading-cli-scripts', { usesShellOption: true });
     bus.emit('mongosh:api-load-file', { nested: true, filename: 'foobar.js' });
     bus.emit('mongosh:start-mongosh-repl', { version: '1.0.0' });
@@ -79,7 +84,7 @@ describe('setupLoggerAndTelemetry', () => {
     bus.emit('mongosh-snippets:snippet-command', { args: ['install', 'foo'] });
     bus.emit('mongosh-snippets:transform-error', { error: 'failed', addition: 'oh no', name: 'foo' });
 
-    bus.emit('mongosh-sp:connect-heartbeat-failure', { connectionId: 'localhost', failure: new Error(), isFailFast: true, isKnownServer: true });
+    bus.emit('mongosh-sp:connect-heartbeat-failure', { connectionId: 'localhost', failure: new Error('cause'), isFailFast: true, isKnownServer: true });
     bus.emit('mongosh-sp:connect-heartbeat-succeeded', { connectionId: 'localhost' });
     bus.emit('mongosh-sp:connect-fail-early');
     bus.emit('mongosh-sp:connect-attempt-finished');
@@ -116,6 +121,7 @@ describe('setupLoggerAndTelemetry', () => {
     expect(logOutput[i].msg).to.match(/^mongosh:evaluate-input/);
     expect(logOutput[i++].msg).to.match(/"input":"1\+1"/);
     expect(logOutput[i++].msg).to.match(/"version":"3.6.1"/);
+    expect(logOutput[i++].msg).to.match(/^mongosh:api-call \{"_inspected":"\{.+circular:.+\}/);
     expect(logOutput[i++].msg).to.equal('mongosh:start-loading-cli-scripts');
     expect(logOutput[i].msg).to.match(/^mongosh:api-load-file/);
     expect(logOutput[i].msg).to.match(/"nested":true/);
@@ -143,7 +149,7 @@ describe('setupLoggerAndTelemetry', () => {
     expect(logOutput[i++].msg).to.equal('mongosh-snippets:load-snippet {"source":"load-all","name":"foo"}');
     expect(logOutput[i++].msg).to.equal('mongosh-snippets:snippet-command {"args":["install","foo"]}');
     expect(logOutput[i++].msg).to.equal('mongosh-snippets:transform-error {"error":"failed","addition":"oh no","name":"foo"}');
-    expect(logOutput[i++].msg).to.equal('mongosh-sp:connect-heartbeat-failure {"connectionId":"localhost","failure":{},"isFailFast":true,"isKnownServer":true}');
+    expect(logOutput[i++].msg).to.equal('mongosh-sp:connect-heartbeat-failure {"connectionId":"localhost","failure":"cause","isFailFast":true,"isKnownServer":true}');
     expect(logOutput[i++].msg).to.equal('mongosh-sp:connect-heartbeat-succeeded {"connectionId":"localhost"}');
     expect(logOutput[i++].msg).to.equal('mongosh-sp:connect-fail-early');
     expect(logOutput[i++].msg).to.equal('mongosh-sp:connect-attempt-finished');
