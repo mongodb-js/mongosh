@@ -623,35 +623,41 @@ describe('Mongo', () => {
       });
     });
     describe('watch', () => {
-      it('calls serviceProvider.watch when given no args', () => {
-        mongo.watch();
+      let fakeSpCursor: any;
+      beforeEach(() => {
+        fakeSpCursor = {
+          closed: false,
+          tryNext: async() => {}
+        };
+        serviceProvider.watch.returns(fakeSpCursor);
+      });
+      it('calls serviceProvider.watch when given no args', async() => {
+        await mongo.watch();
         expect(serviceProvider.watch).to.have.been.calledWith([], {});
       });
-      it('calls serviceProvider.watch when given pipeline arg', () => {
+      it('calls serviceProvider.watch when given pipeline arg', async() => {
         const pipeline = [{ $match: { operationType: 'insertOne' } }];
-        mongo.watch(pipeline);
+        await mongo.watch(pipeline);
         expect(serviceProvider.watch).to.have.been.calledWith(pipeline, {});
       });
-      it('calls serviceProvider.watch when given no args', () => {
+      it('calls serviceProvider.watch when given no args', async() => {
         const pipeline = [{ $match: { operationType: 'insertOne' } }];
         const ops = { batchSize: 1 };
-        mongo.watch(pipeline, ops);
+        await mongo.watch(pipeline, ops);
         expect(serviceProvider.watch).to.have.been.calledWith(pipeline, ops);
       });
 
-      it('returns whatever serviceProvider.watch returns', () => {
-        const expectedResult = { ChangeStreamCursor: 1 } as any;
-        serviceProvider.watch.returns(expectedResult);
-        const result = mongo.watch();
-        expect(result).to.deep.equal(new ChangeStreamCursor(expectedResult, 'mongodb://localhost/?directConnection=true&serverSelectionTimeoutMS=2000', mongo));
+      it('returns whatever serviceProvider.watch returns', async() => {
+        const result = await mongo.watch();
+        expect(result).to.deep.equal(new ChangeStreamCursor(fakeSpCursor, 'mongodb://localhost/?directConnection=true&serverSelectionTimeoutMS=2000', mongo));
         expect(mongo._internalState.currentCursor).to.equal(result);
       });
 
-      it('throws if serviceProvider.watch throws', () => {
+      it('throws if serviceProvider.watch throws', async() => {
         const expectedError = new Error();
         serviceProvider.watch.throws(expectedError);
         try {
-          mongo.watch();
+          await mongo.watch();
         } catch (e) {
           expect(e).to.equal(expectedError);
           return;
