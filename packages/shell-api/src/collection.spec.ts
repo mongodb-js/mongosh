@@ -93,7 +93,7 @@ describe('Collection', () => {
     it('does not return a collection with invalid name', () => {
       const database: any = new Database({} as any, 'db1');
       const coll: any = new Collection({} as any, database, 'coll');
-      expect(coll['   ']).to.equal(undefined);
+      expect(coll.foo$bar).to.equal(undefined);
     });
 
     it('allows to access _name', () => {

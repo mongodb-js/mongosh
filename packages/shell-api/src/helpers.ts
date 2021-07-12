@@ -712,3 +712,12 @@ export function markAsExplainOutput<T extends NotAPromise>(value: T): T {
   }
   return value;
 }
+
+// https://docs.mongodb.com/v5.0/reference/limits/#naming-restrictions
+export function isValidDatabaseName(name: string): boolean {
+  return !!name && !/[/\\. "\$\0]/.test(name);
+}
+
+export function isValidCollectionName(name: string): boolean {
+  return !!name && !/[$\0]/.test(name);
+}

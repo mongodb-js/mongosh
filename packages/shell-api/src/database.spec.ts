@@ -59,7 +59,7 @@ describe('Database', () => {
 
     it('does not return a collection with invalid name', () => {
       const database: any = new Database({} as any, 'db1');
-      expect(database['   ']).to.equal(undefined);
+      expect(database.foo$bar).to.equal(undefined);
     });
 
     it('allows to access _name', () => {
@@ -372,7 +372,13 @@ describe('Database', () => {
       it('throws if name is empty', () => {
         expect(() => {
           database.getSiblingDB('');
-        }).to.throw('Database name cannot be empty.');
+        }).to.throw('Invalid database name:');
+      });
+
+      it('throws if name contains invalid characters', () => {
+        expect(() => {
+          database.getSiblingDB('foo"bar');
+        }).to.throw('Invalid database name: foo"bar');
       });
 
       it('reuses db instances', () => {
@@ -403,7 +409,29 @@ describe('Database', () => {
           expect.fail('expected error');
         } catch (e) {
           expect(e).to.be.instanceOf(MongoshInvalidInputError);
-          expect(e.message).to.contain('Collection name cannot be empty.');
+          expect(e.message).to.contain('Invalid collection name:');
+          expect(e.code).to.equal(CommonErrors.InvalidArgument);
+        }
+      });
+
+      it('throws if name contains $', () => {
+        try {
+          database.getCollection('foo$bar');
+          expect.fail('expected error');
+        } catch (e) {
+          expect(e).to.be.instanceOf(MongoshInvalidInputError);
+          expect(e.message).to.contain('Invalid collection name:');
+          expect(e.code).to.equal(CommonErrors.InvalidArgument);
+        }
+      });
+
+      it('throws if name contains \\0', () => {
+        try {
+          database.getCollection('foo\0bar');
+          expect.fail('expected error');
+        } catch (e) {
+          expect(e).to.be.instanceOf(MongoshInvalidInputError);
+          expect(e.message).to.contain('Invalid collection name:');
           expect(e.code).to.equal(CommonErrors.InvalidArgument);
         }
       });
