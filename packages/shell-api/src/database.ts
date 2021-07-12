@@ -1402,13 +1402,15 @@ export default class Database extends ShellApiWithMongoClass {
   @serverVersions(['3.1.0', ServerVersions.latest])
   @topologies([Topologies.ReplSet, Topologies.Sharded])
   @apiVersions([1])
-  watch(pipeline: Document[] = [], options: ChangeStreamOptions = {}): ChangeStreamCursor {
+  @returnsPromise
+  async watch(pipeline: Document[] = [], options: ChangeStreamOptions = {}): Promise<ChangeStreamCursor> {
     this._emitDatabaseApiCall('watch', { pipeline, options });
     const cursor = new ChangeStreamCursor(
       this._mongo._serviceProvider.watch(pipeline, options, {}, this._name),
       this._name,
       this._mongo
     );
+    await cursor.tryNext(); // See comment in coll.watch().
     this._mongo._internalState.currentCursor = cursor;
     return cursor;
   }
