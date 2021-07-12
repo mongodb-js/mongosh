@@ -1873,6 +1873,7 @@ describe('Collection', () => {
       hideIndex: { m: 'runCommandWithCheck', i: 2 },
       unhideIndex: { m: 'runCommandWithCheck', i: 2 },
       remove: { m: 'deleteMany' },
+      watch: { i: 1 }
     };
     const ignore = [ 'getShardDistribution', 'stats', 'isCapped', 'save' ];
     const args = [ { query: {} }, {}, { out: 'coll' } ];
@@ -1889,6 +1890,7 @@ describe('Collection', () => {
       serviceProvider.createIndexes.resolves(['index_1']);
       serviceProvider.stats.resolves({ storageSize: 1, totalIndexSize: 1 });
       serviceProvider.listCollections.resolves([]);
+      serviceProvider.watch.returns({ closed: false, tryNext: async() => {} } as any);
       serviceProvider.countDocuments.resolves(1);
 
       serviceProvider.runCommandWithCheck.resolves({ ok: 1, version: 1, bits: 1, commands: 1, users: [], roles: [], logComponentVerbosity: 1 });

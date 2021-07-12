@@ -1406,7 +1406,10 @@ export default class Database extends ShellApiWithMongoClass {
   async watch(pipeline: Document[] = [], options: ChangeStreamOptions = {}): Promise<ChangeStreamCursor> {
     this._emitDatabaseApiCall('watch', { pipeline, options });
     const cursor = new ChangeStreamCursor(
-      this._mongo._serviceProvider.watch(pipeline, options, {}, this._name),
+      this._mongo._serviceProvider.watch(pipeline, {
+        ...this._baseOptions,
+        ...options
+      }, {}, this._name),
       this._name,
       this._mongo
     );

@@ -1717,7 +1717,10 @@ export default class Collection extends ShellApiWithMongoClass {
   async watch(pipeline: Document[] = [], options: ChangeStreamOptions = {}): Promise<ChangeStreamCursor> {
     this._emitCollectionApiCall('watch', { pipeline, options });
     const cursor = new ChangeStreamCursor(
-      this._mongo._serviceProvider.watch(pipeline, options, {}, this._database._name, this._name),
+      this._mongo._serviceProvider.watch(pipeline, {
+        ...this._database._baseOptions,
+        ...options
+      }, {}, this._database._name, this._name),
       this._name,
       this._mongo
     );
