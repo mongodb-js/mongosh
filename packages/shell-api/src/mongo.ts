@@ -44,7 +44,7 @@ import { CommandResult } from './result';
 import { redactCredentials } from '@mongosh/history';
 import { asPrintable, ServerVersions, Topologies } from './enums';
 import Session from './session';
-import { assertArgsDefinedType, processFLEOptions } from './helpers';
+import { assertArgsDefinedType, processFLEOptions, isValidDatabaseName } from './helpers';
 import ChangeStreamCursor from './change-stream-cursor';
 import { blockedByDriverMetadata } from './error-codes';
 import {
@@ -190,8 +190,8 @@ export default class Mongo extends ShellApiClass {
 
   _getDb(name: string): Database {
     assertArgsDefinedType([name], ['string']);
-    if (!name.trim()) {
-      throw new MongoshInvalidInputError('Database name cannot be empty.', CommonErrors.InvalidArgument);
+    if (!isValidDatabaseName(name)) {
+      throw new MongoshInvalidInputError(`Invalid database name: ${name}`, CommonErrors.InvalidArgument);
     }
 
     if (!(name in this._databases)) {

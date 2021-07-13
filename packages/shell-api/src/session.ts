@@ -19,7 +19,7 @@ import Mongo from './mongo';
 import Database from './database';
 import { CommonErrors, MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
 import { blockedByDriverMetadata } from './error-codes';
-import { assertArgsDefinedType } from './helpers';
+import { assertArgsDefinedType, isValidDatabaseName } from './helpers';
 
 @shellApiClassDefault
 @classPlatforms([ ReplPlatform.CLI ] )
@@ -49,8 +49,8 @@ export default class Session extends ShellApiWithMongoClass {
   getDatabase(name: string): Database {
     assertArgsDefinedType([name], ['string'], 'Session.getDatabase');
 
-    if (!name.trim()) {
-      throw new MongoshInvalidInputError('Database name cannot be empty.', CommonErrors.InvalidArgument);
+    if (!isValidDatabaseName(name)) {
+      throw new MongoshInvalidInputError(`Invalid database name: ${name}`, CommonErrors.InvalidArgument);
     }
 
     if (!(name in this._databases)) {

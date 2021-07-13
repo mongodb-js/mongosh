@@ -19,7 +19,8 @@ import {
   assertKeysDefined,
   getPrintableShardStatus,
   processDigestPassword,
-  tsToSeconds
+  tsToSeconds,
+  isValidCollectionName
 } from './helpers';
 
 import type {
@@ -80,7 +81,7 @@ export default class Database extends ShellApiWithMongoClass {
         if (
           typeof prop !== 'string' ||
           prop.startsWith('_') ||
-          !prop.trim()
+          !isValidCollectionName(prop)
         ) {
           return;
         }
@@ -342,8 +343,8 @@ export default class Database extends ShellApiWithMongoClass {
   getCollection(coll: string): Collection {
     assertArgsDefinedType([coll], ['string'], 'Database.getColl');
     this._emitDatabaseApiCall('getCollection', { coll });
-    if (!coll.trim()) {
-      throw new MongoshInvalidInputError('Collection name cannot be empty.', CommonErrors.InvalidArgument);
+    if (!isValidCollectionName(coll)) {
+      throw new MongoshInvalidInputError(`Invalid collection name: ${coll}`, CommonErrors.InvalidArgument);
     }
 
     const collections: Record<string, Collection> = this._collections;

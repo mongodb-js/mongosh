@@ -28,7 +28,8 @@ import {
   setHideIndex,
   maybeMarkAsExplainOutput,
   markAsExplainOutput,
-  assertArgsDefinedType
+  assertArgsDefinedType,
+  isValidCollectionName
 } from './helpers';
 import {
   AnyBulkWriteOperation,
@@ -100,7 +101,7 @@ export default class Collection extends ShellApiWithMongoClass {
         if (
           typeof prop !== 'string' ||
           prop.startsWith('_') ||
-          !prop.trim()
+          !isValidCollectionName(prop)
         ) {
           return;
         }
