@@ -96,6 +96,32 @@ describe('AsyncWriter', () => {
     });
   });
 
+  context('use strict', () => {
+    it('parses a plain "use strict"; as a string literal', () => {
+      expect(runTranspiledCode('"use strict"')).to.equal('use strict');
+      expect(runTranspiledCode('"use strict";')).to.equal('use strict');
+      expect(runTranspiledCode("'use strict'")).to.equal('use strict');
+      expect(runTranspiledCode("'use strict';")).to.equal('use strict');
+    });
+
+    it('runs code that starts with "use strict"', () => {
+      expect(runTranspiledCode("'use strict'; 144 + 233;")).to.equal(377);
+    });
+
+    it('fails to run invalid strict-mode code', () => {
+      try {
+        runTranspiledCode("'use strict'; delete Object.prototype");
+        expect.fail('missed exception');
+      } catch (err) {
+        expect(err.name).to.equal('TypeError');
+      }
+    });
+
+    it('runs code in sloppy mode by default', () => {
+      expect(runTranspiledCode('delete Object.prototype')).to.equal(false);
+    });
+  });
+
   context('scoping', () => {
     it('adds functions to the global scope as expected', () => {
       const f = runTranspiledCode('function f() {}');
