@@ -127,8 +127,7 @@ describe('ChangeStreamCursor', () => {
 
     describe('collection watch', () => {
       beforeEach(async() => {
-        cursor = coll.watch([{ '$match': { 'operationType': 'insert' } }]);
-        await cursor.tryNext(); // first one always fails?
+        cursor = await coll.watch([{ '$match': { 'operationType': 'insert' } }]);
       });
       it('tryNext returns null when there is nothing', async() => {
         const result = await cursor.tryNext();
@@ -199,8 +198,7 @@ describe('ChangeStreamCursor', () => {
     });
     describe('database watch', () => {
       beforeEach(async() => {
-        cursor = db.watch([{ '$match': { 'operationType': 'insert' } }]);
-        await cursor.tryNext(); // first one always fails?
+        cursor = await db.watch([{ '$match': { 'operationType': 'insert' } }]);
       });
       it('tryNext returns null when there is nothing', async() => {
         const result = await cursor.tryNext();
@@ -235,8 +233,7 @@ describe('ChangeStreamCursor', () => {
     });
     describe('mongo watch', () => {
       beforeEach(async() => {
-        cursor = mongo.watch([{ '$match': { 'operationType': 'insert' } }]);
-        await cursor.tryNext(); // first one always fails?
+        cursor = await mongo.watch([{ '$match': { 'operationType': 'insert' } }]);
       });
       it('tryNext returns null when there is nothing', async() => {
         const result = await cursor.tryNext();

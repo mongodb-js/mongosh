@@ -1784,36 +1784,42 @@ describe('Collection', () => {
       });
     });
     describe('watch', () => {
-      it('calls serviceProvider.watch when given no args', () => {
-        collection.watch();
+      let fakeSpCursor: any;
+      beforeEach(() => {
+        fakeSpCursor = {
+          closed: false,
+          tryNext: async() => {}
+        };
+        serviceProvider.watch.returns(fakeSpCursor);
+      });
+      it('calls serviceProvider.watch when given no args', async() => {
+        await collection.watch();
         expect(serviceProvider.watch).to.have.been.calledWith([], {}, {}, collection._database._name, collection._name);
       });
-      it('calls serviceProvider.watch when given pipeline arg', () => {
+      it('calls serviceProvider.watch when given pipeline arg', async() => {
         const pipeline = [{ $match: { operationType: 'insertOne' } }];
-        collection.watch(pipeline);
+        await collection.watch(pipeline);
         expect(serviceProvider.watch).to.have.been.calledWith(pipeline, {}, {}, collection._database._name, collection._name);
       });
-      it('calls serviceProvider.watch when given no args', () => {
+      it('calls serviceProvider.watch when given no args', async() => {
         const pipeline = [{ $match: { operationType: 'insertOne' } }];
         const ops = { batchSize: 1 };
-        collection.watch(pipeline, ops);
+        await collection.watch(pipeline, ops);
         expect(serviceProvider.watch).to.have.been.calledWith(pipeline, ops, {}, collection._database._name, collection._name);
       });
 
-      it('returns whatever serviceProvider.watch returns', () => {
-        const expectedResult = { ChangeStreamCursor: 1 } as any;
-        const expectedCursor = new ChangeStreamCursor(expectedResult, collection._name, mongo);
-        serviceProvider.watch.returns(expectedResult);
-        const result = collection.watch();
+      it('returns whatever serviceProvider.watch returns', async() => {
+        const expectedCursor = new ChangeStreamCursor(fakeSpCursor, collection._name, mongo);
+        const result = await collection.watch();
         expect(result).to.deep.equal(expectedCursor);
         expect(collection._mongo._internalState.currentCursor).to.equal(result);
       });
 
-      it('throws if serviceProvider.watch throws', () => {
+      it('throws if serviceProvider.watch throws', async() => {
         const expectedError = new Error();
         serviceProvider.watch.throws(expectedError);
         try {
-          collection.watch();
+          await collection.watch();
         } catch (e) {
           expect(e).to.equal(expectedError);
           return;
@@ -1867,6 +1873,7 @@ describe('Collection', () => {
       hideIndex: { m: 'runCommandWithCheck', i: 2 },
       unhideIndex: { m: 'runCommandWithCheck', i: 2 },
       remove: { m: 'deleteMany' },
+      watch: { i: 1 }
     };
     const ignore = [ 'getShardDistribution', 'stats', 'isCapped', 'save' ];
     const args = [ { query: {} }, {}, { out: 'coll' } ];
@@ -1883,6 +1890,7 @@ describe('Collection', () => {
       serviceProvider.createIndexes.resolves(['index_1']);
       serviceProvider.stats.resolves({ storageSize: 1, totalIndexSize: 1 });
       serviceProvider.listCollections.resolves([]);
+      serviceProvider.watch.returns({ closed: false, tryNext: async() => {} } as any);
       serviceProvider.countDocuments.resolves(1);
 
       serviceProvider.runCommandWithCheck.resolves({ ok: 1, version: 1, bits: 1, commands: 1, users: [], roles: [], logComponentVerbosity: 1 });

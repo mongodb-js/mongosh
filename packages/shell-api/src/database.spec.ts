@@ -2399,35 +2399,41 @@ describe('Database', () => {
       });
     });
     describe('watch', () => {
-      it('calls serviceProvider.watch when given no args', () => {
-        database.watch();
+      let fakeSpCursor: any;
+      beforeEach(() => {
+        fakeSpCursor = {
+          closed: false,
+          tryNext: async() => {}
+        };
+        serviceProvider.watch.returns(fakeSpCursor);
+      });
+      it('calls serviceProvider.watch when given no args', async() => {
+        await database.watch();
         expect(serviceProvider.watch).to.have.been.calledWith([], {}, {}, database._name);
       });
-      it('calls serviceProvider.watch when given pipeline arg', () => {
+      it('calls serviceProvider.watch when given pipeline arg', async() => {
         const pipeline = [{ $match: { operationType: 'insertOne' } }];
-        database.watch(pipeline);
+        await database.watch(pipeline);
         expect(serviceProvider.watch).to.have.been.calledWith(pipeline, {}, {}, database._name);
       });
-      it('calls serviceProvider.watch when given no args', () => {
+      it('calls serviceProvider.watch when given no args', async() => {
         const pipeline = [{ $match: { operationType: 'insertOne' } }];
         const ops = { batchSize: 1 };
-        database.watch(pipeline, ops);
+        await database.watch(pipeline, ops);
         expect(serviceProvider.watch).to.have.been.calledWith(pipeline, ops, {}, database._name);
       });
 
-      it('returns whatever serviceProvider.watch returns', () => {
-        const expectedResult = { ChangeStreamCursor: 1 } as any;
-        serviceProvider.watch.returns(expectedResult);
-        const result = database.watch();
-        expect(result).to.deep.equal(new ChangeStreamCursor(expectedResult, database._name, mongo));
+      it('returns whatever serviceProvider.watch returns', async() => {
+        const result = await database.watch();
+        expect(result).to.deep.equal(new ChangeStreamCursor(fakeSpCursor, database._name, mongo));
         expect(database._mongo._internalState.currentCursor).to.equal(result);
       });
 
-      it('throws if serviceProvider.watch throws', () => {
+      it('throws if serviceProvider.watch throws', async() => {
         const expectedError = new Error();
         serviceProvider.watch.throws(expectedError);
         try {
-          database.watch();
+          await database.watch();
         } catch (e) {
           expect(e).to.equal(expectedError);
           return;
@@ -2486,6 +2492,7 @@ describe('Database', () => {
       serviceProvider.runCommandWithCheck.resolves({ ok: 1, version: 1, bits: 1, commands: 1, users: [], roles: [], logComponentVerbosity: 1, help: 'blah' });
       serviceProvider.runCommand.resolves({ ok: 1 });
       serviceProvider.listCollections.resolves([]);
+      serviceProvider.watch.returns({ closed: false, tryNext: async() => {} } as any);
       const internalState = new ShellInternalState(serviceProvider, bus);
       const mongo = new Mongo(internalState, undefined, undefined, undefined, serviceProvider);
       const session = mongo.startSession();

@@ -495,13 +495,15 @@ export default class Mongo extends ShellApiClass {
   @serverVersions(['3.1.0', ServerVersions.latest])
   @topologies([Topologies.ReplSet, Topologies.Sharded])
   @apiVersions([1])
-  watch(pipeline: Document[] = [], options: ChangeStreamOptions = {}): ChangeStreamCursor {
+  @returnsPromise
+  async watch(pipeline: Document[] = [], options: ChangeStreamOptions = {}): Promise<ChangeStreamCursor> {
     this._emitMongoApiCall('watch', { pipeline, options });
     const cursor = new ChangeStreamCursor(
       this._serviceProvider.watch(pipeline, options),
       redactCredentials(this._uri),
       this
     );
+    await cursor.tryNext(); // See comment in coll.watch().
     this._internalState.currentCursor = cursor;
     return cursor;
   }

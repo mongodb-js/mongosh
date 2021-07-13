@@ -1713,13 +1713,32 @@ export default class Collection extends ShellApiWithMongoClass {
   @serverVersions(['3.1.0', ServerVersions.latest])
   @topologies([Topologies.ReplSet, Topologies.Sharded])
   @apiVersions([1])
-  watch(pipeline: Document[] = [], options: ChangeStreamOptions = {}): ChangeStreamCursor {
+  @returnsPromise
+  async watch(pipeline: Document[] = [], options: ChangeStreamOptions = {}): Promise<ChangeStreamCursor> {
     this._emitCollectionApiCall('watch', { pipeline, options });
     const cursor = new ChangeStreamCursor(
-      this._mongo._serviceProvider.watch(pipeline, options, {}, this._database._name, this._name),
+      this._mongo._serviceProvider.watch(pipeline, {
+        ...this._database._baseOptions,
+        ...options
+      }, {}, this._database._name, this._name),
       this._name,
       this._mongo
     );
+    // Cursors are not actually initialized in the driver until we try to read
+    // from them. However, in the legacy shell as well as here the expectation
+    // is that the change stream cursor will include all events starting from
+    // the .watch() call itself. Therefore, we call .tryNext() here (and in the
+    // .watch() methods of the Database and Mongo classes).
+    // This should be fine, even though it means potentially ignoring one item
+    // from the cursor, because:
+    // - No events caused by this shell/connection can be missed, because it
+    //   immediately follows the service provider .watch() call
+    // - Events from another connection might be missed, but that is fine,
+    //   because an event that is observed to occur after the service provider
+    //   .watch() call and before the .tryNext() call could also have been
+    //   observed before the .watch() call, i.e. there is a race condition
+    //   here either way and we can use that to our advantage.
+    await cursor.tryNext();
     this._mongo._internalState.currentCursor = cursor;
     return cursor;
   }
