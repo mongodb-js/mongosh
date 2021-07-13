@@ -76,7 +76,7 @@ function patchConnectionPoolTracking(): void {
           // operations should *not* be retried. So, we just act as if something
           // had happened that interrupts all ongoing operations and also is
           // supposed to destroy the connection (which is a no-op at this point).
-          c.handleIssue({ destroy: true });
+          c.handleIssue({ destroy: new Error('connection canceled by force close') });
         }
 
         if (originalCallback) {
