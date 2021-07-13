@@ -128,10 +128,11 @@ export default ({ types: t }: { types: typeof BabelTypes }): babel.PluginObj<Wra
       Program: {
         enter(path) {
           // If the body of the program consists of a single string literal,
-          // we want to intepret it as such and not as a a directive (that is,
+          // we want to intepret it as such and not as a directive (that is,
           // a "use strict"-like thing).
           if (path.node.directives.length === 1 &&
-              path.node.directives[0].value.type === 'DirectiveLiteral') {
+              path.node.directives[0].value.type === 'DirectiveLiteral' &&
+              path.node.body.length === 0) {
             path.replaceWith(t.program([
               t.expressionStatement(
                 t.stringLiteral(path.node.directives[0].value.value))
@@ -147,15 +148,18 @@ export default ({ types: t }: { types: typeof BabelTypes }): babel.PluginObj<Wra
           this.completionRecordId = path.scope.generateUidIdentifier('cr');
           this.movedStatements.unshift(
             t.variableDeclaration('var', [t.variableDeclarator(this.completionRecordId)]));
-          path.replaceWith(t.program([
-            ...this.variables.map(
-              v => t.variableDeclaration('var', [t.variableDeclarator(t.identifier(v))])),
-            ...this.functionDeclarations,
-            t.expressionStatement(t.callExpression(
-              t.arrowFunctionExpression(
-                [],
-                t.blockStatement(this.movedStatements)
-              ), []))]));
+          path.replaceWith(t.program(
+            [
+              ...this.variables.map(
+                v => t.variableDeclaration('var', [t.variableDeclarator(t.identifier(v))])),
+              ...this.functionDeclarations,
+              t.expressionStatement(t.callExpression(
+                t.arrowFunctionExpression(
+                  [],
+                  t.blockStatement(this.movedStatements)
+                ), []))
+            ],
+            path.node.directives));
         }
       },
       BlockStatement: {
