@@ -230,6 +230,19 @@ describe('ChangeStreamCursor', () => {
           'itcount to return 1');
         expect(result).to.equal(1);
       });
+      it('can be interrupted when .next() blocks', async() => {
+        const nextPromise = cursor.next();
+        nextPromise.catch(() => {}); // Suppress UnhandledPromiseRejectionWarning
+        await new Promise(resolve => setTimeout(resolve, 100));
+        expect(await internalState.onInterruptExecution()).to.equal(true);
+        expect(await internalState.onResumeExecution()).to.equal(true);
+        try {
+          await nextPromise;
+          expect.fail('missed exception');
+        } catch (err) {
+          expect(err.name).to.equal('MongoshInterruptedError');
+        }
+      });
     });
     describe('mongo watch', () => {
       beforeEach(async() => {
