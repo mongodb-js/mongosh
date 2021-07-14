@@ -26,6 +26,14 @@ export async function downloadMongocrypt(variant: BuildVariant): Promise<string>
 
 // eslint-disable-next-line complexity
 function lookupReleaseDistro(variant: BuildVariant): string {
+  switch (getArch(variant)) {
+    case 'ppc64le':
+      return 'rhel81';
+    case 's390x':
+      return 'rhel72'; // TODO: switch to rhel80 once available
+    default:
+      break;
+  }
   switch (getDistro(variant)) {
     case 'win32':
     case 'win32msi':
@@ -34,7 +42,7 @@ function lookupReleaseDistro(variant: BuildVariant): string {
       return 'darwin';
     case 'linux':
     case 'debian':
-      return 'ubuntu1804';
+      return 'debian92';
     case 'suse':
       return 'suse12';
     case 'amzn2':
@@ -43,10 +51,6 @@ function lookupReleaseDistro(variant: BuildVariant): string {
       switch (getArch(variant)) {
         case 'x64':
           return 'rhel70';
-        case 'ppc64le':
-          return 'rhel81';
-        case 's390x':
-          return 'rhel72'; // TODO: switch to rhel80 once available
         case 'arm64':
           return 'rhel82';
         default:
