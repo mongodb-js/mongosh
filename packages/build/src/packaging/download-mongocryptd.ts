@@ -42,7 +42,7 @@ function lookupReleaseDistro(variant: BuildVariant): string {
       return 'darwin';
     case 'linux':
     case 'debian':
-      return 'ubuntu1804';
+      return 'debian92';
     case 'suse':
       return 'suse12';
     case 'amzn2':
