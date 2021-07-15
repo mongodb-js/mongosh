@@ -150,7 +150,7 @@ class CliRepl {
         }
         this.analytics = new Analytics(
           // analytics-config.js gets written as a part of a release
-          this.analyticsOptions?.apiKey ?? require('./buildinfo.json').segmentApiKey,
+          this.analyticsOptions?.apiKey ?? require('./build-info.json').segmentApiKey,
           this.analyticsOptions);
         return this.analytics;
       });
