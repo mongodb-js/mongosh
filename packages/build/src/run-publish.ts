@@ -1,4 +1,4 @@
-import type { writeAnalyticsConfig as writeAnalyticsConfigType } from './analytics';
+import type { writeBuildInfo as writeBuildInfoType } from './build-info';
 import { Barque } from './barque';
 import {
   ALL_BUILD_VARIANTS,
@@ -21,7 +21,7 @@ export async function runPublish(
   barque: Barque,
   createAndPublishDownloadCenterConfig: typeof createAndPublishDownloadCenterConfigFn,
   publishNpmPackages: typeof publishNpmPackagesType,
-  writeAnalyticsConfig: typeof writeAnalyticsConfigType,
+  writeBuildInfo: typeof writeBuildInfoType,
   publishToHomebrew: typeof publishToHomebrewType,
   shouldDoPublicRelease: typeof shouldDoPublicReleaseFn = shouldDoPublicReleaseFn,
   getEvergreenArtifactUrl: typeof getArtifactUrlFn = getArtifactUrlFn
@@ -65,10 +65,7 @@ export async function runPublish(
   await mongoshGithubRepo.promoteRelease(config);
 
   // ensures the segment api key to be present in the published packages
-  await writeAnalyticsConfig(
-    config.analyticsConfigFilePath,
-    config.segmentKey
-  );
+  await writeBuildInfo(config, 'packaged');
 
   publishNpmPackages();
 

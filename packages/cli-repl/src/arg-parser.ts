@@ -52,6 +52,7 @@ const OPTIONS = {
   boolean: [
     'apiDeprecationErrors',
     'apiStrict',
+    'buildInfo',
     'help',
     'ipv6',
     'nodb',
@@ -78,7 +79,8 @@ const OPTIONS = {
     h: 'help',
     p: 'password',
     u: 'username',
-    f: 'file'
+    f: 'file',
+    'build-info': 'buildInfo'
   },
   configuration: {
     'camel-case-expansion': false,
@@ -144,12 +146,13 @@ function isConnectionSpecifier(arg?: string): boolean {
  *
  * @returns The arguments as cli options.
  */
-export function parseCliArgs(args: string[]): (CliOptions & { smokeTests: boolean }) {
+export function parseCliArgs(args: string[]): (CliOptions & { smokeTests: boolean, buildInfo: boolean }) {
   const programArgs = args.slice(2);
   i18n.setLocale(getLocale(programArgs, process.env));
 
   const parsed = parser(programArgs, OPTIONS) as unknown as CliOptions & {
     smokeTests: boolean;
+    buildInfo: boolean;
     _?: string[];
     file?: string[];
   };

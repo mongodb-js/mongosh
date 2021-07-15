@@ -20,13 +20,39 @@ describe('e2e', function() {
   describe('--version', () => {
     it('shows version', async() => {
       const shell = TestShell.start({ args: [ '--version' ] });
-
       await shell.waitForExit();
 
       shell.assertNoErrors();
       shell.assertContainsOutput(
         require('../package.json').version
       );
+    });
+  });
+
+  describe('--build-info', () => {
+    it('shows build info in JSON format', async() => {
+      const shell = TestShell.start({ args: [ '--build-info' ] });
+      await shell.waitForExit();
+
+      shell.assertNoErrors();
+      const data = JSON.parse(shell.output);
+      expect(Object.keys(data)).to.deep.equal([
+        'version', 'distributionKind', 'buildArch', 'buildPlatform',
+        'buildTarget', 'buildTime', 'gitVersion'
+      ]);
+      expect(data.version).to.be.a('string');
+      expect(data.distributionKind).to.be.a('string');
+      expect(['unpackaged', 'packaged', 'compiled'].includes(data.distributionKind)).to.be.true;
+      expect(data.buildArch).to.be.a('string');
+      expect(data.buildPlatform).to.be.a('string');
+      expect(data.buildTarget).to.be.a('string');
+      if (data.distributionKind !== 'unpackaged') {
+        expect(data.buildTime).to.be.a('string');
+        expect(data.gitVersion).to.be.a('string');
+      } else {
+        expect(data.buildTime).to.equal(null);
+        expect(data.gitVersion).to.equal(null);
+      }
     });
   });
 

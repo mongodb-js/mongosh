@@ -5,7 +5,6 @@ import pkgUp from 'pkg-up';
 import path from 'path';
 import childProcess from 'child_process';
 import { once } from 'events';
-import { Platform } from '../config';
 import type { PackageInformation } from '../packaging/package';
 import { compileJSFileAsBinary } from 'boxednode';
 
@@ -88,8 +87,8 @@ export class SignableCompiler {
     // open ssl with asm so we revert back to the slower version.
     await compileJSFileAsBinary({
       configureArgs:
-        os.platform() === Platform.Windows ? ['openssl-no-asm'] :
-          os.platform() === Platform.MacOs ? ['--openssl-no-asm'] : [],
+        os.platform() === 'win32' ? ['openssl-no-asm'] :
+          os.platform() === 'darwin' ? ['--openssl-no-asm'] : [],
       sourceFile: this.sourceFile,
       targetFile: this.targetFile,
       nodeVersionRange: this.nodeVersionRange,

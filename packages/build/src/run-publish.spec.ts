@@ -1,7 +1,7 @@
 import chai, { expect } from 'chai';
 import path from 'path';
 import sinon from 'ts-sinon';
-import type { writeAnalyticsConfig as writeAnalyticsConfigType } from './analytics';
+import type { writeBuildInfo as writeBuildInfoType } from './build-info';
 import { Barque } from './barque';
 import { Config, shouldDoPublicRelease as shouldDoPublicReleaseFn } from './config';
 import { createAndPublishDownloadCenterConfig as createAndPublishDownloadCenterConfigFn } from './download-center';
@@ -25,7 +25,7 @@ describe('publish', () => {
   let config: Config;
   let createAndPublishDownloadCenterConfig: typeof createAndPublishDownloadCenterConfigFn;
   let publishNpmPackages: typeof publishNpmPackagesType;
-  let writeAnalyticsConfig: typeof writeAnalyticsConfigType;
+  let writeBuildInfo: typeof writeBuildInfoType;
   let publishToHomebrew: typeof publishToHomebrewType;
   let shouldDoPublicRelease: typeof shouldDoPublicReleaseFn;
   let githubRepo: GithubRepo;
@@ -42,7 +42,7 @@ describe('publish', () => {
       executablePath: 'executablePath',
       mongocryptdPath: 'mongocryptdPath',
       outputDir: 'outputDir',
-      analyticsConfigFilePath: 'analyticsConfigFilePath',
+      buildInfoFilePath: 'buildInfoFilePath',
       project: 'project',
       revision: 'revision',
       branch: 'branch',
@@ -78,7 +78,7 @@ describe('publish', () => {
 
     createAndPublishDownloadCenterConfig = sinon.spy();
     publishNpmPackages = sinon.spy();
-    writeAnalyticsConfig = sinon.spy();
+    writeBuildInfo = sinon.spy();
     publishToHomebrew = sinon.spy();
     shouldDoPublicRelease = sinon.spy();
     githubRepo = createStubRepo();
@@ -119,7 +119,7 @@ describe('publish', () => {
             barque,
             createAndPublishDownloadCenterConfig,
             publishNpmPackages,
-            writeAnalyticsConfig,
+            writeBuildInfo,
             publishToHomebrew,
             shouldDoPublicRelease
           );
@@ -142,7 +142,7 @@ describe('publish', () => {
             barque,
             createAndPublishDownloadCenterConfig,
             publishNpmPackages,
-            writeAnalyticsConfig,
+            writeBuildInfo,
             publishToHomebrew,
             shouldDoPublicRelease
           );
@@ -165,7 +165,7 @@ describe('publish', () => {
             barque,
             createAndPublishDownloadCenterConfig,
             publishNpmPackages,
-            writeAnalyticsConfig,
+            writeBuildInfo,
             publishToHomebrew,
             shouldDoPublicRelease
           );
@@ -185,7 +185,7 @@ describe('publish', () => {
         barque,
         createAndPublishDownloadCenterConfig,
         publishNpmPackages,
-        writeAnalyticsConfig,
+        writeBuildInfo,
         publishToHomebrew,
         shouldDoPublicRelease
       );
@@ -215,7 +215,7 @@ describe('publish', () => {
         barque,
         createAndPublishDownloadCenterConfig,
         publishNpmPackages,
-        writeAnalyticsConfig,
+        writeBuildInfo,
         publishToHomebrew,
         shouldDoPublicRelease
       );
@@ -236,7 +236,7 @@ describe('publish', () => {
         barque,
         createAndPublishDownloadCenterConfig,
         publishNpmPackages,
-        writeAnalyticsConfig,
+        writeBuildInfo,
         publishToHomebrew,
         shouldDoPublicRelease
       );
@@ -253,17 +253,14 @@ describe('publish', () => {
         barque,
         createAndPublishDownloadCenterConfig,
         publishNpmPackages,
-        writeAnalyticsConfig,
+        writeBuildInfo,
         publishToHomebrew,
         shouldDoPublicRelease
       );
 
-      expect(writeAnalyticsConfig).to.have.been.calledOnceWith(
-        config.analyticsConfigFilePath,
-        config.segmentKey
-      );
+      expect(writeBuildInfo).to.have.been.calledOnceWith(config);
       expect(publishNpmPackages).to.have.been.calledWith();
-      expect(publishNpmPackages).to.have.been.calledAfter(writeAnalyticsConfig as any);
+      expect(publishNpmPackages).to.have.been.calledAfter(writeBuildInfo as any);
     });
     it('publishes to homebrew', async() => {
       await runPublish(
@@ -274,7 +271,7 @@ describe('publish', () => {
         barque,
         createAndPublishDownloadCenterConfig,
         publishNpmPackages,
-        writeAnalyticsConfig,
+        writeBuildInfo,
         publishToHomebrew,
         shouldDoPublicRelease
       );
@@ -302,7 +299,7 @@ describe('publish', () => {
         barque,
         createAndPublishDownloadCenterConfig,
         publishNpmPackages,
-        writeAnalyticsConfig,
+        writeBuildInfo,
         publishToHomebrew,
         shouldDoPublicRelease
       );
@@ -319,7 +316,7 @@ describe('publish', () => {
         barque,
         createAndPublishDownloadCenterConfig,
         publishNpmPackages,
-        writeAnalyticsConfig,
+        writeBuildInfo,
         publishToHomebrew,
         shouldDoPublicRelease
       );
@@ -336,7 +333,7 @@ describe('publish', () => {
         barque,
         createAndPublishDownloadCenterConfig,
         publishNpmPackages,
-        writeAnalyticsConfig,
+        writeBuildInfo,
         publishToHomebrew,
         shouldDoPublicRelease
       );
@@ -353,7 +350,7 @@ describe('publish', () => {
         barque,
         createAndPublishDownloadCenterConfig,
         publishNpmPackages,
-        writeAnalyticsConfig,
+        writeBuildInfo,
         publishToHomebrew,
         shouldDoPublicRelease
       );
@@ -370,7 +367,7 @@ describe('publish', () => {
         barque,
         createAndPublishDownloadCenterConfig,
         publishNpmPackages,
-        writeAnalyticsConfig,
+        writeBuildInfo,
         publishToHomebrew,
         shouldDoPublicRelease
       );
