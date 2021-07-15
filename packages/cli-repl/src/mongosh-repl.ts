@@ -410,7 +410,7 @@ class MongoshNodeRepl implements EvaluationListener {
 
     try {
       const rawValue = await shellEvaluator.customEval(originalEval, input, context, filename);
-      if (typeof rawValue === 'object' && rawValue !== null) {
+      if ((typeof rawValue === 'object' && rawValue !== null) || typeof rawValue === 'function') {
         this.rawValueToShellResult.set(rawValue, await toShellResult(rawValue));
       }
       // The Node.js auto completion needs to access the raw values in order
