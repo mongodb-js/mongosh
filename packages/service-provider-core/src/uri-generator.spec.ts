@@ -399,13 +399,13 @@ describe('uri-generator.generate-uri', () => {
   });
 
   context('when the --host option contains invalid characters', () => {
-    const options = { host: 'a,b,c' };
+    const options = { host: 'a$b,c' };
 
     it('returns the uri', () => {
       try {
         generateUri(options);
       } catch (e) {
-        expect(e.message).to.contain('The --host argument contains an invalid character: ,');
+        expect(e.message).to.contain('The --host argument contains an invalid character: $');
         expect(e).to.be.instanceOf(MongoshInvalidInputError);
         expect(e.code).to.equal(CommonErrors.InvalidArgument);
         return;
@@ -414,20 +414,35 @@ describe('uri-generator.generate-uri', () => {
     });
   });
 
-  context('when the --host option contains a replica set', () => {
-    it('returns a URI for the hosts and ports specified in --host', () => {
-      const options = { host: 'replsetname/host1:123,host2,host3:456,' };
-      expect(generateUri(options)).to.equal('mongodb://host1:123,host2,host3:456/test?replicaSet=replsetname');
+  context('when the --host option contains a seed list', () => {
+    context('without a replica set', () => {
+      it('returns a URI for the hosts and ports specified in --host', () => {
+        const options = { host: 'host1:123,host2,host3:456,' };
+        expect(generateUri(options)).to.equal('mongodb://host1:123,host2,host3:456/');
+      });
+      it('returns a URI for the hosts and ports specified in --host and database name', () => {
+        const options = {
+          host: 'host1:123,host2,host3:456,',
+          connectionSpecifier: 'admin'
+        };
+        expect(generateUri(options)).to.equal('mongodb://host1:123,host2,host3:456/admin');
+      });
     });
+    context('with a replica set', () => {
+      it('returns a URI for the hosts and ports specified in --host', () => {
+        const options = { host: 'replsetname/host1:123,host2,host3:456,' };
+        expect(generateUri(options)).to.equal('mongodb://host1:123,host2,host3:456/?replicaSet=replsetname');
+      });
 
-    it('returns a URI for the hosts and ports specified in --host and database name', () => {
-      const options = { host: 'replsetname/host1:123,host2,host3:456', connectionSpecifier: 'admin' };
-      expect(generateUri(options)).to.equal('mongodb://host1:123,host2,host3:456/admin?replicaSet=replsetname');
-    });
+      it('returns a URI for the hosts and ports specified in --host and database name', () => {
+        const options = { host: 'replsetname/host1:123,host2,host3:456', connectionSpecifier: 'admin' };
+        expect(generateUri(options)).to.equal('mongodb://host1:123,host2,host3:456/admin?replicaSet=replsetname');
+      });
 
-    it('returns a URI for the hosts and ports specified in --host and database name with escaped chars', () => {
-      const options = { host: 'replsetname/host1:123,host2,host3:456', connectionSpecifier: 'admin?foo=bar' };
-      expect(generateUri(options)).to.equal('mongodb://host1:123,host2,host3:456/admin%3Ffoo%3Dbar?replicaSet=replsetname');
+      it('returns a URI for the hosts and ports specified in --host and database name with escaped chars', () => {
+        const options = { host: 'replsetname/host1:123,host2,host3:456', connectionSpecifier: 'admin?foo=bar' };
+        expect(generateUri(options)).to.equal('mongodb://host1:123,host2,host3:456/admin%3Ffoo%3Dbar?replicaSet=replsetname');
+      });
     });
   });
 });

@@ -1,16 +1,16 @@
 import { MongoshInternalError } from '@mongosh/errors';
+import { bson } from '@mongosh/service-provider-core';
 import { once } from 'events';
 import { promises as fs } from 'fs';
 import http from 'http';
 import path from 'path';
 import { Duplex, PassThrough } from 'stream';
 import { promisify } from 'util';
+import { eventually } from '../../../testing/eventually';
 import { MongodSetup, skipIfServerVersion, startTestServer } from '../../../testing/integration-testing-hooks';
 import { expect, fakeTTYProps, readReplLogfile, tick, useTmpdir, waitBus, waitCompletion, waitEval } from '../test/repl-helpers';
-import { eventually } from '../../../testing/eventually';
 import CliRepl, { CliReplOptions } from './cli-repl';
 import { CliReplErrors } from './error-codes';
-import { bson } from '@mongosh/service-provider-core';
 const { EJSON } = bson;
 
 const delay = promisify(setTimeout);

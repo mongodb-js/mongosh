@@ -149,12 +149,25 @@ function generateUriNormalized(options: CliOptions): ConnectionString {
   // If the --host argument contains /, it has the format
   // <replSetName>/<hostname1><:port>,<hostname2><:port>,<...>
   const replSetHostMatch = (options.host ?? '').match(
-    /^(?<replSetName>[^/]+)\/(?<hosts>([A-Za-z0-9.-]+(:\d+)?,?)+)$/);
+    /^(?<replSetName>[^/]+)\/(?<hosts>([A-Za-z0-9.-]+(:\d+)?,?)+)$/
+  );
   if (replSetHostMatch) {
     const { replSetName, hosts } = replSetHostMatch.groups as { replSetName: string, hosts: string };
-    const connectionString = new ConnectionString(`${Scheme.Mongo}replacemeHost/${encodeURIComponent(uri ?? DEFAULT_DB)}`);
+    const connectionString = new ConnectionString(`${Scheme.Mongo}replacemeHost/${encodeURIComponent(uri || '')}`);
     connectionString.hosts = hosts.split(',').filter(host => host.trim());
     connectionString.searchParams.set('replicaSet', replSetName);
+    return addShellConnectionStringParameters(connectionString);
+  }
+
+  // If the --host argument contains multiple hosts as a seed list
+  // we directly do not do additional host/port parsing
+  const seedList = (options.host ?? '').match(
+    /^(?<hosts>([A-Za-z0-9.-]+(:\d+)?,?)+)$/
+  );
+  if (seedList && options.host?.includes(',')) {
+    const { hosts } = seedList.groups as { hosts: string };
+    const connectionString = new ConnectionString(`${Scheme.Mongo}replacemeHost/${encodeURIComponent(uri || '')}`);
+    connectionString.hosts = hosts.split(',').filter(host => host.trim());
     return addShellConnectionStringParameters(connectionString);
   }
 
