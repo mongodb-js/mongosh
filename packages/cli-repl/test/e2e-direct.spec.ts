@@ -60,6 +60,11 @@ describe('e2e direct connection', () => {
           shell.assertContainsOutput(`me: '${await rs0.hostport()}'`);
           shell.assertContainsOutput(`setName: '${replSetId}'`);
         });
+
+        await shell.executeLine('use admin');
+        await shell.executeLine("db.createUser({ user: 'anna', pwd: 'pwd', roles: [] })");
+        shell.assertContainsOutput('ok: 1');
+
         dbname = `test-${Date.now()}-${(Math.random() * 100000) | 0}`;
         await shell.executeLine(`use ${dbname}`);
         await shell.executeLine('db.testcollection.insertOne({})');
@@ -173,7 +178,7 @@ describe('e2e direct connection', () => {
           shell.assertContainsOutput(`me: '${await rs0.hostport()}'`);
           shell.assertContainsOutput(`setName: '${replSetId}'`);
         });
-        it('when specifying multiple seeds', async() => {
+        it('when specifying multiple seeds in a connection string', async() => {
           const connectionString = 'mongodb://' + await rs2.hostport() + ',' + await rs1.hostport() + ',' + await rs0.hostport();
           const shell = TestShell.start({ args: [connectionString] });
           await shell.waitForPrompt();
@@ -182,7 +187,18 @@ describe('e2e direct connection', () => {
           shell.assertContainsOutput(`me: '${await rs0.hostport()}'`);
           shell.assertContainsOutput(`setName: '${replSetId}'`);
         });
-        it('when specifying multiple seeds through --host', async() => {
+        it('when specifying multiple seeds without replset through --host', async() => {
+          const hostlist = await rs2.hostport() + ',' + await rs1.hostport() + ',' + await rs0.hostport();
+          const shell = TestShell.start({ args: ['--host', hostlist] });
+          await shell.waitForPrompt();
+          await shell.executeLine('db.isMaster()');
+          await shell.executeLine('({ dbname: db.getName() })');
+          shell.assertContainsOutput('ismaster: true');
+          shell.assertContainsOutput(`me: '${await rs0.hostport()}'`);
+          shell.assertContainsOutput(`setName: '${replSetId}'`);
+          shell.assertContainsOutput("dbname: 'test'");
+        });
+        it('when specifying multiple seeds with replset through --host', async() => {
           const hostlist = replSetId + '/' + await rs2.hostport() + ',' + await rs1.hostport() + ',' + await rs0.hostport();
           const shell = TestShell.start({ args: ['--host', hostlist] });
           await shell.waitForPrompt();
@@ -229,6 +245,13 @@ describe('e2e direct connection', () => {
           await eventually(() => {
             shell.assertContainsOutput('db.testcollection');
           });
+        });
+        it('can authenticate when specifying multiple seeds with replset through --host', async() => {
+          const hostlist = replSetId + '/' + await rs2.hostport() + ',' + await rs1.hostport() + ',' + await rs0.hostport();
+          const shell = TestShell.start({ args: ['--host', hostlist, '--username', 'anna', '--password', 'pwd'] });
+          await shell.waitForPrompt();
+          await shell.executeLine('db.runCommand({connectionStatus: 1})');
+          shell.assertContainsOutput("user: 'anna'");
         });
       });
 
