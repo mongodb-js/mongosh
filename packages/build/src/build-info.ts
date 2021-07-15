@@ -17,6 +17,7 @@ export async function writeBuildInfo(config: Config, distributionKind: 'compiled
 
   const info = {
     segmentApiKey: config.segmentKey,
+    version: config.version,
     distributionKind,
     buildArch: os.arch(),
     buildPlatform: os.platform(),
