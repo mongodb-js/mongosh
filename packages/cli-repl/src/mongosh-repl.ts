@@ -705,7 +705,7 @@ class MongoshNodeRepl implements EvaluationListener {
 
 function isErrorLike(value: any): boolean {
   try {
-    return value && (
+    return value && getShellApiType(value) === null && (
       (value.message !== undefined && typeof value.stack === 'string') ||
       (value.code !== undefined && value.errmsg !== undefined)
     );
