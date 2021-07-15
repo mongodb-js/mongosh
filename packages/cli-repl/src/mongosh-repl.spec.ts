@@ -239,6 +239,36 @@ describe('MongoshNodeRepl', () => {
       }
       expect(output).not.to.include('!this should not run!');
     });
+
+    it('_ returns the last result', async() => {
+      input.write('42\n');
+      await waitEval(bus);
+      output = '';
+
+      input.write('_\n');
+      await waitEval(bus);
+      expect(output).to.include('42');
+    });
+
+    it('_ can be used like the last result in expressions', async() => {
+      input.write('({ foo: "bar", baz: "quux" });\n');
+      await waitEval(bus);
+      output = '';
+
+      input.write('JSON.stringify(_)\n');
+      await waitEval(bus);
+      expect(output).to.include('{"foo":"bar","baz":"quux"}');
+    });
+
+    it('_error yields the last exception', async() => {
+      input.write('throw new Error("blah")\n');
+      await waitEval(bus);
+      output = '';
+
+      input.write('_error.message\n');
+      await waitEval(bus);
+      expect(output).to.include('blah');
+    });
   });
 
   context('with terminal: true', () => {

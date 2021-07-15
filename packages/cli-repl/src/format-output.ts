@@ -10,7 +10,7 @@ import { HelpProperties, CollectionNamesWithTypes } from '@mongosh/shell-api';
 
 type EvaluationResult = {
   value: any;
-  type?: string;
+  type?: string | null;
 };
 
 type FormatOptions = {
