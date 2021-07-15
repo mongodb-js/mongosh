@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import childProcess from 'child_process';
 import { promises as fs } from 'fs';
+import os from 'os';
 import path from 'path';
 import rimraf from 'rimraf';
 import { promisify } from 'util';
