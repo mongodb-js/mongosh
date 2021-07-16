@@ -16,7 +16,7 @@ export async function runCompile(config: Config): Promise<string> {
   console.info('mongosh: creating binary:', config.executablePath);
 
   await new SignableCompiler(
-    config.execInput,
+    config.bundleSinglefileOutput,
     config.executablePath,
     config.execNodeVersion,
     (config.packageInformation?.metadata ?? {}) as PackageInformation['metadata'])

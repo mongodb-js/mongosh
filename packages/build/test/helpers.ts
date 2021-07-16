@@ -2,7 +2,8 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import rimraf from 'rimraf';
 import { promisify } from 'util';
-import { PackageInformation } from '../src/packaging/package';
+import type { PackageInformation } from '../src/packaging/package';
+import type { Config } from '../src/config';
 
 export function withTempPackageEach(): { tarballDir: string; pkgConfig: PackageInformation } {
   const tarballDir: string = path.resolve(__dirname, '..', '..', '..', 'tmp', `test-mongosh-build-${Date.now()}-${Math.random()}`);
@@ -22,3 +23,45 @@ export function withTempPackageEach(): { tarballDir: string; pkgConfig: PackageI
     pkgConfig
   };
 }
+
+export const dummyConfig: Config = Object.freeze({
+  version: 'version',
+  appleNotarizationBundleId: 'appleNotarizationBundleId',
+  bundleEntrypointInput: 'bundleEntrypointInput',
+  bundleSinglefileOutput: 'bundleSinglefileOutput',
+  executablePath: 'executablePath',
+  mongocryptdPath: 'mongocryptdPath',
+  outputDir: 'outputDir',
+  buildInfoFilePath: 'buildInfoFilePath',
+  project: 'project',
+  revision: 'revision',
+  branch: 'branch',
+  evgAwsKey: 'evgAwsKey',
+  evgAwsSecret: 'evgAwsSecret',
+  downloadCenterAwsKey: 'downloadCenterAwsKey',
+  downloadCenterAwsSecret: 'downloadCenterAwsSecret',
+  githubToken: 'githubToken',
+  segmentKey: 'segmentKey',
+  appleNotarizationUsername: 'appleNotarizationUsername',
+  appleNotarizationApplicationPassword: 'appleNotarizationApplicationPassword',
+  appleCodesignIdentity: 'appleCodesignIdentity',
+  isCi: true,
+  platform: 'linux',
+  repo: {
+    owner: 'owner',
+    repo: 'repo',
+  },
+  packageInformation: {
+    metadata: {
+      name: 'mongosh',
+      rpmName: 'mongodb-mongosh',
+      debName: 'mongodb-mongosh',
+      version: 'packageVersion',
+      description: 'A magic shell.',
+      homepage: 'https://mongodb.com',
+      maintainer: 'We, us, everyone.'
+    }
+  } as PackageInformation,
+  execNodeVersion: process.version,
+  rootDir: path.resolve(__dirname, '..', '..')
+});

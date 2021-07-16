@@ -1,13 +1,12 @@
 import chai, { expect } from 'chai';
-import path from 'path';
 import sinon from 'ts-sinon';
 import { ALL_BUILD_VARIANTS, Config } from './config';
 import { uploadArtifactToDownloadCenter as uploadArtifactToDownloadCenterFn } from './download-center';
 import { downloadArtifactFromEvergreen as downloadArtifactFromEvergreenFn } from './evergreen';
 import { generateChangelog as generateChangelogFn } from './git';
 import { GithubRepo } from './github-repo';
-import { PackageInformation } from './packaging';
 import { ensureGithubReleaseExistsAndUpdateChangelogFn, runDraft } from './run-draft';
+import { dummyConfig } from '../test/helpers';
 
 chai.use(require('sinon-chai'));
 
@@ -22,45 +21,7 @@ describe('draft', () => {
   let downloadArtifactFromEvergreen: typeof downloadArtifactFromEvergreenFn;
 
   beforeEach(() => {
-    config = {
-      version: 'version',
-      appleNotarizationBundleId: 'appleNotarizationBundleId',
-      input: 'input',
-      execInput: 'execInput',
-      executablePath: 'executablePath',
-      mongocryptdPath: 'mongocryptdPath',
-      outputDir: 'outputDir',
-      buildInfoFilePath: 'buildInfoFilePath',
-      project: 'project',
-      revision: 'revision',
-      branch: 'branch',
-      evgAwsKey: 'evgAwsKey',
-      evgAwsSecret: 'evgAwsSecret',
-      downloadCenterAwsKey: 'downloadCenterAwsKey',
-      downloadCenterAwsSecret: 'downloadCenterAwsSecret',
-      githubToken: 'githubToken',
-      segmentKey: 'segmentKey',
-      appleNotarizationUsername: 'appleNotarizationUsername',
-      appleNotarizationApplicationPassword: 'appleNotarizationApplicationPassword',
-      appleCodesignIdentity: 'appleCodesignIdentity',
-      isCi: true,
-      platform: 'platform',
-      repo: {
-        owner: 'owner',
-        repo: 'repo',
-      },
-      packageInformation: {
-        metadata: {
-          name: 'mongosh',
-          version: 'packageVersion',
-          description: 'The best shell you ever had.',
-          homepage: 'https://mongodb.com',
-          maintainer: 'We, us, everyone.'
-        }
-      } as PackageInformation,
-      execNodeVersion: process.version,
-      rootDir: path.resolve(__dirname, '..', '..')
-    };
+    config = { ...dummyConfig };
 
     uploadArtifactToDownloadCenter = sinon.spy();
     downloadArtifactFromEvergreen = sinon.spy();

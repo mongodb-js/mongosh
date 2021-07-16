@@ -34,8 +34,8 @@ describe('compile generateBundle', function() {
       }));
       `);
     await generateBundle({
-      input: path.join(tmpdir, 'b.js'),
-      execInput: path.join(tmpdir, 'compiled.js'),
+      bundleEntrypointInput: path.join(tmpdir, 'b.js'),
+      bundleSinglefileOutput: path.join(tmpdir, 'compiled.js'),
       buildInfoFilePath: path.join(tmpdir, 'buildInfo.json'),
       segmentKey: '...segment-key...'
     } as Partial<Config> as any);
@@ -61,8 +61,8 @@ describe('compile generateBundle', function() {
   console.log(require("some-fake-module"));
 `);
     await generateBundle({
-      input: path.join(tmpdir, 'b.js'),
-      execInput: path.join(tmpdir, 'compiled.js'),
+      bundleEntrypointInput: path.join(tmpdir, 'b.js'),
+      bundleSinglefileOutput: path.join(tmpdir, 'compiled.js'),
       buildInfoFilePath: path.join(tmpdir, 'buildInfo.json'),
       segmentKey: '...segment-key...'
     } as Partial<Config> as any);
@@ -80,8 +80,8 @@ describe('compile generateBundle', function() {
       console.log(require("some-fake-module"));
       `);
     await generateBundle({
-      input: path.join(tmpdir, 'b.js'),
-      execInput: path.join(tmpdir, 'compiled.js'),
+      bundleEntrypointInput: path.join(tmpdir, 'b.js'),
+      bundleSinglefileOutput: path.join(tmpdir, 'compiled.js'),
       buildInfoFilePath: path.join(tmpdir, 'buildInfo.json'),
       segmentKey: '...segment-key...'
     } as Partial<Config> as any);

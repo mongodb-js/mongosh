@@ -7,42 +7,14 @@ import sinon from 'sinon';
 import { URL } from 'url';
 import { Barque, LATEST_CURATOR, getReposAndArch } from './barque';
 import { ALL_BUILD_VARIANTS, Config } from './config';
+import { dummyConfig } from '../test/helpers';
 
 describe('Barque', () => {
   let barque: Barque;
   let config: Config;
 
   beforeEach(() => {
-    config = {
-      version: 'version',
-      appleNotarizationBundleId: 'appleNotarizationBundleId',
-      input: 'input',
-      execInput: 'execInput',
-      executablePath: 'executablePath',
-      mongocryptdPath: 'mongocryptdPath',
-      outputDir: 'outputDir',
-      buildInfoFilePath: 'buildInfoFilePath',
-      project: 'project',
-      revision: 'revision',
-      branch: 'branch',
-      evgAwsKey: 'evgAwsKey',
-      evgAwsSecret: 'evgAwsSecret',
-      downloadCenterAwsKey: 'downloadCenterAwsKey',
-      downloadCenterAwsSecret: 'downloadCenterAwsSecret',
-      githubToken: 'githubToken',
-      segmentKey: 'segmentKey',
-      rootDir: '../../../',
-      appleNotarizationUsername: 'appleNotarizationUsername',
-      appleNotarizationApplicationPassword: 'appleNotarizationApplicationPassword',
-      appleCodesignIdentity: 'appleCodesignIdentity',
-      isCi: true,
-      platform: 'linux',
-      repo: {
-        owner: 'owner',
-        repo: 'repo',
-      },
-      execNodeVersion: process.version
-    };
+    config = { ...dummyConfig };
 
     barque = new Barque(config);
   });

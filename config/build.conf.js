@@ -19,14 +19,15 @@ const CLI_REPL_DIR = path.join(ROOT, 'packages', 'cli-repl');
 const CLI_REPL_PACKAGE_JSON = require(path.join(CLI_REPL_DIR, 'package.json'));
 
 /**
- * The input for the build.
+ * The file from which we start the bundling process.
  */
-const INPUT = path.join(CLI_REPL_DIR, 'lib', 'run.js');
+const BUNDLE_ENTRYPOINT_INPUT = path.join(CLI_REPL_DIR, 'lib', 'run.js');
 
 /**
- * The input for the exec.
+ * The file to which the bundled output is written, which is used as the input
+ * for creating the standalone executable.
  */
-const EXEC_INPUT = path.join(CLI_REPL_DIR, 'dist', 'mongosh.js');
+const BUNDLE_SINGLEFILE_OUTPUT = path.join(CLI_REPL_DIR, 'dist', 'mongosh.js');
 
 /**
  * The output dir for the build.
@@ -72,8 +73,8 @@ module.exports = {
   version: CLI_REPL_PACKAGE_JSON.version,
   rootDir: ROOT,
   input: INPUT,
-  execInput: EXEC_INPUT,
-  executablePath: EXECUTABLE_PATH,
+  bundleEntrypointInput: BUNDLE_ENTRYPOINT_INPUT,
+  bundleSinglefileOutput: BUNDLE_SINGLEFILE_OUTPUT,
   outputDir: OUTPUT_DIR,
   buildInfoFilePath: BUILD_INFO_FILE_PATH,
   executableOsId: process.env.EXECUTABLE_OS_ID,

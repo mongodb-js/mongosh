@@ -1,10 +1,10 @@
 import chai, { expect } from 'chai';
-import path from 'path';
 import sinon from 'ts-sinon';
 import { Config } from './config';
 import { uploadArtifactToEvergreen } from './evergreen';
 import { PackageFile } from './packaging';
 import { runUpload } from './run-upload';
+import { dummyConfig } from '../test/helpers';
 
 chai.use(require('sinon-chai'));
 
@@ -14,37 +14,7 @@ describe('do-upload', () => {
   let uploadToEvergreen: typeof uploadArtifactToEvergreen;
 
   beforeEach(() => {
-    config = {
-      version: 'version',
-      appleNotarizationBundleId: 'appleNotarizationBundleId',
-      input: 'input',
-      execInput: 'execInput',
-      executablePath: 'executablePath',
-      mongocryptdPath: 'mongocryptdPath',
-      outputDir: 'outputDir',
-      buildInfoFilePath: 'buildInfoFilePath',
-      project: 'project',
-      revision: 'revision',
-      branch: 'branch',
-      evgAwsKey: 'evgAwsKey',
-      evgAwsSecret: 'evgAwsSecret',
-      downloadCenterAwsKey: 'downloadCenterAwsKey',
-      downloadCenterAwsSecret: 'downloadCenterAwsSecret',
-      githubToken: 'githubToken',
-      segmentKey: 'segmentKey',
-      appleNotarizationUsername: 'appleNotarizationUsername',
-      appleNotarizationApplicationPassword: 'appleNotarizationApplicationPassword',
-      appleCodesignIdentity: 'appleCodesignIdentity',
-      isCi: true,
-      platform: 'platform',
-      distributionBuildVariant: 'linux-x64',
-      repo: {
-        owner: 'owner',
-        repo: 'repo',
-      },
-      execNodeVersion: process.version,
-      rootDir: path.resolve(__dirname, '..', '..', '..')
-    };
+    config = { ...dummyConfig };
 
     tarballFile = { path: 'path', contentType: 'application/gzip' };
     uploadToEvergreen = sinon.spy();
