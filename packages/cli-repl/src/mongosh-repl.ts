@@ -2,7 +2,7 @@ import completer from '@mongosh/autocomplete';
 import { MongoshCommandFailed, MongoshInternalError, MongoshWarning } from '@mongosh/errors';
 import { changeHistory } from '@mongosh/history';
 import type { AutoEncryptionOptions, ServiceProvider } from '@mongosh/service-provider-core';
-import { EvaluationListener, OnLoadResult, ShellCliOptions, ShellInternalState } from '@mongosh/shell-api';
+import { EvaluationListener, OnLoadResult, ShellCliOptions, ShellInternalState, getShellApiType, toShellResult } from '@mongosh/shell-api';
 import { ShellEvaluator, ShellResult } from '@mongosh/shell-evaluator';
 import { CliUserConfig, ConfigProvider, CliUserConfigValidator, MongoshBus } from '@mongosh/types';
 import askcharacter from 'askcharacter';
@@ -46,7 +46,7 @@ export type MongoshNodeReplOptions = {
 export type InitializationToken = { __initialized: 'yes' };
 
 type MongoshRuntimeState = {
-  shellEvaluator: ShellEvaluator;
+  shellEvaluator: ShellEvaluator<any>;
   internalState: ShellInternalState;
   repl: REPLServer;
   console: Console;
@@ -111,6 +111,7 @@ class MongoshNodeRepl implements EvaluationListener {
   showStackTraces = false;
   loadNestingLevel = 0;
   redactHistory: 'keep' | 'remove' | 'remove-redact' = 'remove';
+  rawValueToShellResult: WeakMap<any, ShellResult> = new WeakMap();
 
   constructor(options: MongoshNodeReplOptions) {
     this.input = options.input;
@@ -130,7 +131,7 @@ class MongoshNodeRepl implements EvaluationListener {
 
   async initialize(serviceProvider: ServiceProvider): Promise<InitializationToken> {
     const internalState = new ShellInternalState(serviceProvider, this.bus, this.shellCliOptions);
-    const shellEvaluator = new ShellEvaluator(internalState);
+    const shellEvaluator = new ShellEvaluator(internalState, (value: any) => value);
     internalState.setEvaluationListener(this);
     await internalState.fetchConnectionInfo();
 
@@ -398,6 +399,7 @@ class MongoshNodeRepl implements EvaluationListener {
     this.output.write(text);
   }
 
+  // eslint-disable-next-line complexity
   async eval(originalEval: asyncRepl.OriginalEvalFunction, input: string, context: any, filename: string): Promise<any> {
     if (!this.insideAutoCompleteOrGetPrompt) {
       this.lineByLineInput.enableBlockOnNewLine();
@@ -407,9 +409,9 @@ class MongoshNodeRepl implements EvaluationListener {
     let interrupted = false;
 
     try {
-      const shellResult = await shellEvaluator.customEval(originalEval, input, context, filename);
-      if (!this.insideAutoCompleteOrGetPrompt) {
-        return shellResult;
+      const rawValue = await shellEvaluator.customEval(originalEval, input, context, filename);
+      if ((typeof rawValue === 'object' && rawValue !== null) || typeof rawValue === 'function') {
+        this.rawValueToShellResult.set(rawValue, await toShellResult(rawValue));
       }
       // The Node.js auto completion needs to access the raw values in order
       // to be able to autocomplete their properties properly. One catch is
@@ -417,11 +419,11 @@ class MongoshNodeRepl implements EvaluationListener {
       // topology, server version, etc., so for those, we only autocomplete
       // own, enumerable, non-underscore-prefixed properties and instead leave
       // the rest to the @mongosh/autocomplete package.
-      if (shellResult.type === null) {
-        return shellResult.rawValue;
+      if (!this.insideAutoCompleteOrGetPrompt || getShellApiType(rawValue) === null) {
+        return rawValue;
       }
       return Object.fromEntries(
-        Object.entries(shellResult.rawValue)
+        Object.entries(rawValue)
           .filter(([key]) => !key.startsWith('_')));
     } catch (err) {
       if (this.runtimeState().internalState.interrupted.isSet()) {
@@ -525,7 +527,7 @@ class MongoshNodeRepl implements EvaluationListener {
   /**
    * Format the result to a string so it can be written to the output stream.
    */
-  writer(result: any /* Error | ShellResult */): string {
+  writer(result: any): string {
     // This checks for error instances.
     // The writer gets called immediately by the internal `repl.eval`
     // in case of errors.
@@ -540,11 +542,15 @@ class MongoshNodeRepl implements EvaluationListener {
       return this.formatError(output);
     }
 
+    return this.formatShellResult(this.rawValueToShellResult.get(result) ?? { type: null, printable: result });
+  }
+
+  formatShellResult(result: { type: null | string, printable: any }): string {
     return this.formatOutput({ type: result.type, value: result.printable });
   }
 
   onPrint(values: ShellResult[]): void {
-    const joined = values.map((value) => this.writer(value)).join(' ');
+    const joined = values.map((value) => this.formatShellResult(value)).join(' ');
     this.output.write(joined + '\n');
   }
 
@@ -579,7 +585,7 @@ class MongoshNodeRepl implements EvaluationListener {
     throw new Error(`Unrecognized prompt type ${type}`);
   }
 
-  formatOutput(value: { value: any, type?: string }): string {
+  formatOutput(value: { value: any, type?: string | null }): string {
     return formatOutput(value, this.getFormatOptions());
   }
 
@@ -699,7 +705,7 @@ class MongoshNodeRepl implements EvaluationListener {
 
 function isErrorLike(value: any): boolean {
   try {
-    return value && (
+    return value && getShellApiType(value) === null && (
       (value.message !== undefined && typeof value.stack === 'string') ||
       (value.code !== undefined && value.errmsg !== undefined)
     );
