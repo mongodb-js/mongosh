@@ -4,10 +4,17 @@
     "outDir": "./lib",
     "allowJs": true
   },
+  "ts-node": {
+    "files": true
+  },
+  "files": [
+    "src/mongodb-ace-autocompleter.d.ts",
+    "src/index.ts"
+  ],
   "include": [
-    "./*"
+    "./src/**/*"
   ],
   "exclude": [
-    "./*.spec.*"
+    "./src/**/*.spec.*"
   ]
 }
