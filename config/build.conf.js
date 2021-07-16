@@ -46,9 +46,9 @@ const EXECUTABLE_PATH = path.join(OUTPUT_DIR, process.platform === 'win32' ? 'mo
 const MONGOCRYPTD_PATH = path.resolve(__dirname, '..', 'tmp', 'mongocryptd-mongosh' + (process.platform === 'win32' ? '.exe' : ''));
 
 /**
- * Analytics configuration file.
+ * Build info JSON data file.
  */
-const ANALYTICS_CONFIG_FILE_PATH = path.join(CLI_REPL_DIR, 'lib', 'analytics-config.js');
+const BUILD_INFO_FILE_PATH = path.join(CLI_REPL_DIR, 'lib', 'build-info.json');
 
 /**
  * The bundle id for MacOs.
@@ -58,10 +58,7 @@ const APPLE_NOTARIZATION_BUNDLE_ID = 'com.mongodb.mongosh';
 /**
  * The SHA for the current git HEAD.
  */
-// TODO: replace with "real" SHA after EVG-13919
-const REVISION = process.env.IS_PATCH ?
-  `pr-${process.env.GITHUB_PR_NUMBER}-${process.env.REVISION_ORDER_ID}` :
-  process.env.REVISION;
+const REVISION = process.env.GITHUB_COMMIT ?? process.env.REVISION;
 
 /**
  * The copyright notice for debian packages and .exe files
@@ -78,7 +75,8 @@ module.exports = {
   execInput: EXEC_INPUT,
   executablePath: EXECUTABLE_PATH,
   outputDir: OUTPUT_DIR,
-  analyticsConfigFilePath: ANALYTICS_CONFIG_FILE_PATH,
+  buildInfoFilePath: BUILD_INFO_FILE_PATH,
+  executableOsId: process.env.EXECUTABLE_OS_ID,
   project: process.env.PROJECT,
   revision: REVISION,
   branch: process.env.BRANCH_NAME,

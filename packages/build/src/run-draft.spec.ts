@@ -30,7 +30,7 @@ describe('draft', () => {
       executablePath: 'executablePath',
       mongocryptdPath: 'mongocryptdPath',
       outputDir: 'outputDir',
-      analyticsConfigFilePath: 'analyticsConfigFilePath',
+      buildInfoFilePath: 'buildInfoFilePath',
       project: 'project',
       revision: 'revision',
       branch: 'branch',

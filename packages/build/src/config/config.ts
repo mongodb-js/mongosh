@@ -11,7 +11,8 @@ export interface Config {
   execInput: string;
   executablePath: string;
   outputDir: string;
-  analyticsConfigFilePath?: string;
+  buildInfoFilePath?: string;
+  executableOsId?: string;
   rootDir: string;
   project?: string;
   revision?: string;

@@ -36,5 +36,7 @@ fi
 export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
 npm run evergreen-release compile
 dist/mongosh --version
+dist/mongosh --build-info
+dist/mongosh --build-info | grep -q '"distributionKind": "compiled"'
 
 tar cvzf dist.tgz dist

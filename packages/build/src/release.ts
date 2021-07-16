@@ -1,7 +1,7 @@
 import { Octokit } from '@octokit/rest';
 import { promises as fs } from 'fs';
 import path from 'path';
-import { writeAnalyticsConfig } from './analytics';
+import { writeBuildInfo } from './build-info';
 import { Barque } from './barque';
 import { runCompile } from './compile';
 import { Config, getReleaseVersionFromTag, redactConfig } from './config';
@@ -10,7 +10,6 @@ import { downloadArtifactFromEvergreen, uploadArtifactToEvergreen } from './ever
 import { GithubRepo } from './github-repo';
 import { publishToHomebrew } from './homebrew';
 import { bumpNpmPackages, publishNpmPackages } from './npm-packages';
-import type { PackageInformation } from './packaging';
 import { runPackage } from './packaging';
 import { runDraft } from './run-draft';
 import { runPublish } from './run-publish';
@@ -52,19 +51,9 @@ export async function release(
   const mongoHomebrewForkRepo = new GithubRepo({ owner: 'mongodb-js', repo: 'homebrew-core' }, octokit);
 
   if (command === 'compile') {
-    await runCompile(
-      config.input,
-      config.execInput,
-      config.executablePath,
-      config.execNodeVersion,
-      config.analyticsConfigFilePath ?? '',
-      config.segmentKey ?? '',
-      (config.packageInformation?.metadata ?? {}) as PackageInformation['metadata']
-    );
+    await runCompile(config);
   } else if (command === 'package') {
-    const tarballFile = await runPackage(
-      config
-    );
+    const tarballFile = await runPackage(config);
     await fs.writeFile(path.join(config.outputDir, '.artifact_metadata'), JSON.stringify(tarballFile));
   } else if (command === 'upload') {
     const tarballFile = JSON.parse(await fs.readFile(path.join(config.outputDir, '.artifact_metadata'), 'utf8'));
@@ -90,7 +79,7 @@ export async function release(
       barque,
       createAndPublishDownloadCenterConfig,
       publishNpmPackages,
-      writeAnalyticsConfig,
+      writeBuildInfo,
       publishToHomebrew
     );
   } else {

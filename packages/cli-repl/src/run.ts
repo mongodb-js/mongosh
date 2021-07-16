@@ -2,7 +2,9 @@ import { CliRepl, parseCliArgs, mapCliToDriver, getStoragePaths, getMongocryptdP
 import { generateUri } from '@mongosh/service-provider-server';
 import { redactCredentials } from '@mongosh/history';
 import { runMain } from 'module';
+import os from 'os';
 
+// eslint-disable-next-line complexity
 (async() => {
   if (process.env.MONGOSH_RUN_NODE_SCRIPT) {
     if (process.execPath !== process.argv[1]) {
@@ -24,6 +26,24 @@ import { runMain } from 'module';
     } else if (options.version) {
       // eslint-disable-next-line no-console
       console.log(version);
+    } else if (options.buildInfo) {
+      if (process.execPath === process.argv[1]) {
+        const buildInfo = require('./build-info.json');
+        delete buildInfo.segmentApiKey;
+        // eslint-disable-next-line no-console
+        console.log(JSON.stringify(buildInfo, null, '  '));
+      } else {
+        // eslint-disable-next-line no-console
+        console.log(JSON.stringify({
+          version,
+          distributionKind: 'unpackaged',
+          buildArch: os.arch(),
+          buildPlatform: os.platform(),
+          buildTarget: 'unknown',
+          buildTime: null,
+          gitVersion: null
+        }, null, '  '));
+      }
     } else if (options.smokeTests) {
       const smokeTestServer = process.env.MONGOSH_SMOKE_TEST_SERVER;
       if (process.execPath === process.argv[1]) {

@@ -1,10 +1,12 @@
 import { expect } from 'chai';
 import childProcess from 'child_process';
 import { promises as fs } from 'fs';
+import os from 'os';
 import path from 'path';
 import rimraf from 'rimraf';
 import { promisify } from 'util';
 import { generateBundle } from './generate-bundle';
+import type { Config } from '../config';
 
 const execFile = promisify(childProcess.execFile);
 
@@ -28,21 +30,25 @@ describe('compile generateBundle', function() {
     await fs.writeFile(path.join(tmpdir, 'b.js'), `
       console.log(JSON.stringify({
         main: 'it ' + require("./a") + '!',
-        analytics: require("./analytics")
+        buildInfo: require("./buildInfo.json")
       }));
       `);
-    await generateBundle(
-      path.join(tmpdir, 'b.js'),
-      path.join(tmpdir, 'compiled.js'),
-      path.join(tmpdir, 'analytics.js'),
-      '...segment-key...');
+    await generateBundle({
+      input: path.join(tmpdir, 'b.js'),
+      execInput: path.join(tmpdir, 'compiled.js'),
+      buildInfoFilePath: path.join(tmpdir, 'buildInfo.json'),
+      segmentKey: '...segment-key...'
+    } as Partial<Config> as any);
     await fs.unlink(path.join(tmpdir, 'a.js'));
     await fs.unlink(path.join(tmpdir, 'b.js'));
-    await fs.unlink(path.join(tmpdir, 'analytics.js'));
+    await fs.unlink(path.join(tmpdir, 'buildInfo.json'));
     const { stdout } = await execFile(process.execPath, [path.join(tmpdir, 'compiled.js')]);
     const parsed = JSON.parse(stdout);
     expect(parsed.main).to.equal('it works!');
-    expect(parsed.analytics.SEGMENT_API_KEY).to.equal('...segment-key...');
+    expect(parsed.buildInfo.segmentApiKey).to.equal('...segment-key...');
+    expect(parsed.buildInfo.buildArch).to.equal(os.arch());
+    expect(parsed.buildInfo.buildPlatform).to.equal(os.platform());
+    expect(parsed.buildInfo.buildTime).to.be.a('string');
   });
 
   it('does not attempt to load ES6 modules because parcel cannot handle them properly', async() => {
@@ -54,11 +60,12 @@ describe('compile generateBundle', function() {
     await fs.writeFile(path.join(tmpdir, 'b.js'), `
   console.log(require("some-fake-module"));
 `);
-    await generateBundle(
-      path.join(tmpdir, 'b.js'),
-      path.join(tmpdir, 'compiled.js'),
-      path.join(tmpdir, 'analytics.js'),
-      '...segment-key...');
+    await generateBundle({
+      input: path.join(tmpdir, 'b.js'),
+      execInput: path.join(tmpdir, 'compiled.js'),
+      buildInfoFilePath: path.join(tmpdir, 'buildInfo.json'),
+      segmentKey: '...segment-key...'
+    } as Partial<Config> as any);
     const { stdout } = await execFile(process.execPath, [path.join(tmpdir, 'compiled.js')]);
     expect(stdout.trim()).to.equal('cjs');
   });
@@ -72,11 +79,12 @@ describe('compile generateBundle', function() {
     await fs.writeFile(path.join(tmpdir, 'b.js'), `
       console.log(require("some-fake-module"));
       `);
-    await generateBundle(
-      path.join(tmpdir, 'b.js'),
-      path.join(tmpdir, 'compiled.js'),
-      path.join(tmpdir, 'analytics.js'),
-      '...segment-key...');
+    await generateBundle({
+      input: path.join(tmpdir, 'b.js'),
+      execInput: path.join(tmpdir, 'compiled.js'),
+      buildInfoFilePath: path.join(tmpdir, 'buildInfo.json'),
+      segmentKey: '...segment-key...'
+    } as Partial<Config> as any);
     const { stdout } = await execFile(process.execPath, [path.join(tmpdir, 'compiled.js')]);
     expect(stdout.trim()).to.equal('plain');
   });
