@@ -74,6 +74,7 @@ module.exports = {
   rootDir: ROOT,
   bundleEntrypointInput: BUNDLE_ENTRYPOINT_INPUT,
   bundleSinglefileOutput: BUNDLE_SINGLEFILE_OUTPUT,
+  executablePath: EXECUTABLE_PATH,
   outputDir: OUTPUT_DIR,
   buildInfoFilePath: BUILD_INFO_FILE_PATH,
   executableOsId: process.env.EXECUTABLE_OS_ID,
