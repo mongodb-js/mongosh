@@ -72,7 +72,6 @@ const COPYRIGHT = `${new Date().getYear() + 1900} MongoDB, Inc.`;
 module.exports = {
   version: CLI_REPL_PACKAGE_JSON.version,
   rootDir: ROOT,
-  input: INPUT,
   bundleEntrypointInput: BUNDLE_ENTRYPOINT_INPUT,
   bundleSinglefileOutput: BUNDLE_SINGLEFILE_OUTPUT,
   outputDir: OUTPUT_DIR,
