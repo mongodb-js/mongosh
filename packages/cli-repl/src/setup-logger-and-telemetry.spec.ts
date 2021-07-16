@@ -94,7 +94,7 @@ describe('setupLoggerAndTelemetry', () => {
     bus.emit('mongosh-sp:missing-optional-dependency', { name: 'kerberos', error: new Error('no kerberos') });
 
     let i = 0;
-    expect(logOutput[i++].msg).to.match(/^mongosh:start-logging \{"version":".+","execPath":".+","isCompiledBinary":.+\}$/);
+    expect(logOutput[i++].msg).to.match(/^mongosh:start-logging \{"execPath":".+","version":".+","distributionKind":.+\}$/);
     expect(logOutput[i++].msg).to.equal('mongosh:update-user {"enableTelemetry":false}');
     expect(logOutput[i].msg).to.match(/^mongosh:connect/);
     expect(logOutput[i].msg).to.match(/"session_id":"5fb3c20ee1507e894e5340f3"/);

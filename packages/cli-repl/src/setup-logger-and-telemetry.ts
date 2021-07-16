@@ -33,6 +33,7 @@ import type {
   SpMissingOptionalDependencyEvent
 } from '@mongosh/types';
 import { inspect } from 'util';
+import { buildInfo } from './build-info';
 
 interface MongoshAnalytics {
   identify(message: {
@@ -87,9 +88,8 @@ export default function setupLoggerAndTelemetry(
   };
 
   log.info('mongosh:start-logging', {
-    version: mongosh_version,
     execPath: process.execPath,
-    isCompiledBinary: process.execPath === process.argv[1]
+    ...buildInfo()
   });
 
   let analytics: MongoshAnalytics = new NoopAnalytics();

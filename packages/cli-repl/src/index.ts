@@ -6,6 +6,7 @@ import { getStoragePaths } from './config-directory';
 import { MONGOSH_WIKI, TELEMETRY_GREETING_MESSAGE, USAGE } from './constants';
 import { getMongocryptdPaths } from './mongocryptd-manager';
 import { runSmokeTests } from './smoke-tests';
+import { buildInfo } from './build-info';
 
 export default CliRepl;
 
@@ -19,5 +20,6 @@ export {
   mapCliToDriver,
   getStoragePaths,
   getMongocryptdPaths,
-  runSmokeTests
+  runSmokeTests,
+  buildInfo
 };
