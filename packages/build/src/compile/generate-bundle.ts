@@ -15,14 +15,14 @@ export async function generateBundle(config: Config): Promise<void> {
   // current build environment.
   await writeBuildInfo(config, 'compiled');
 
-  console.info('mongosh: creating bundle:', config.execInput);
+  console.info('mongosh: creating bundle:', config.bundleSinglefileOutput);
 
   // Parcel is the saviour here since it was the only bundling
   // tool that could figure out how to handle everything in a
   // complex lerna project with cyclic dependencies everywhere.
-  const bundler = new Bundler(config.input, {
-    outDir: path.dirname(config.execInput),
-    outFile: path.basename(config.execInput),
+  const bundler = new Bundler(config.bundleEntrypointInput, {
+    outDir: path.dirname(config.bundleSinglefileOutput),
+    outFile: path.basename(config.bundleSinglefileOutput),
     contentHash: false,
     target: 'node',
     bundleNodeModules: true,

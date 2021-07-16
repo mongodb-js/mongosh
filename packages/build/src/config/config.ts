@@ -7,8 +7,8 @@ import { BuildVariant } from './build-variant';
 export interface Config {
   version: string;
   appleNotarizationBundleId?: string;
-  input: string;
-  execInput: string;
+  bundleEntrypointInput: string;
+  bundleSinglefileOutput: string;
   executablePath: string;
   outputDir: string;
   buildInfoFilePath?: string;
