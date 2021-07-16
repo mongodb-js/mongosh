@@ -27,12 +27,12 @@ import os from 'os';
       // eslint-disable-next-line no-console
       console.log(version);
     } else if (options.buildInfo) {
-      if (process.execPath === process.argv[1]) {
+      try {
         const buildInfo = require('./build-info.json');
         delete buildInfo.segmentApiKey;
         // eslint-disable-next-line no-console
         console.log(JSON.stringify(buildInfo, null, '  '));
-      } else {
+      } catch {
         // eslint-disable-next-line no-console
         console.log(JSON.stringify({
           version,
