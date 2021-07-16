@@ -1,3 +1,4 @@
+# Regenerate using `npm run update-evergreen-config`
 exec_timeout_secs: 3600
 
 # Functions are any command that can be run.
@@ -515,7 +516,7 @@ tasks:
           node_js_version: "12.20.0"
           mongosh_skip_node_version_check: "1"
   - name: test_mlatest_n12
-    tags: ["unit-test", "mlatest"]
+    tags: ["unit-test","mlatest"]
     commands:
       - func: checkout
       - func: install
@@ -537,6 +538,7 @@ tasks:
         vars:
           mongosh_server_test_version: "4.0.x-community"
           node_js_version: "14.17.1"
+          mongosh_skip_node_version_check: ""
   - name: test_m40xe_n14
     tags: ["unit-test"]
     commands:
@@ -548,6 +550,7 @@ tasks:
         vars:
           mongosh_server_test_version: "4.0.x"
           node_js_version: "14.17.1"
+          mongosh_skip_node_version_check: ""
   - name: test_m42xc_n14
     tags: ["unit-test"]
     commands:
@@ -559,6 +562,7 @@ tasks:
         vars:
           mongosh_server_test_version: "4.2.x-community"
           node_js_version: "14.17.1"
+          mongosh_skip_node_version_check: ""
   - name: test_m42xe_n14
     tags: ["unit-test"]
     commands:
@@ -570,6 +574,7 @@ tasks:
         vars:
           mongosh_server_test_version: "4.2.x"
           node_js_version: "14.17.1"
+          mongosh_skip_node_version_check: ""
   - name: test_m44xc_n14
     tags: ["unit-test"]
     commands:
@@ -581,6 +586,7 @@ tasks:
         vars:
           mongosh_server_test_version: "4.4.x-community"
           node_js_version: "14.17.1"
+          mongosh_skip_node_version_check: ""
   - name: test_m44xe_n14
     tags: ["unit-test"]
     commands:
@@ -592,6 +598,7 @@ tasks:
         vars:
           mongosh_server_test_version: "4.4.x"
           node_js_version: "14.17.1"
+          mongosh_skip_node_version_check: ""
   - name: test_m50xc_n14
     tags: ["unit-test"]
     commands:
@@ -603,6 +610,7 @@ tasks:
         vars:
           mongosh_server_test_version: "5.0.x-community"
           node_js_version: "14.17.1"
+          mongosh_skip_node_version_check: ""
   - name: test_m50xe_n14
     tags: ["unit-test"]
     commands:
@@ -614,8 +622,9 @@ tasks:
         vars:
           mongosh_server_test_version: "5.0.x"
           node_js_version: "14.17.1"
+          mongosh_skip_node_version_check: ""
   - name: test_mlatest_n14
-    tags: ["unit-test", "mlatest"]
+    tags: ["unit-test","mlatest"]
     commands:
       - func: checkout
       - func: install
@@ -625,6 +634,7 @@ tasks:
         vars:
           mongosh_server_test_version: "latest-alpha"
           node_js_version: "14.17.1"
+          mongosh_skip_node_version_check: ""
 
   ###
   # INTEGRATION TESTS
@@ -752,7 +762,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "14.17.1"
-  - name: e2e_tests_win
+  - name: e2e_tests_win32
     tags: ["e2e-test"]
     depends_on:
       - name: compile_artifact
@@ -772,12 +782,8 @@ tasks:
   ###
   # PACKAGING
   ###
-  - name: package_and_upload_artifact_macos_x64
+  - name: package_and_upload_artifact_darwin_x64
     depends_on:
-      - name: check
-        variant: darwin
-      - name: ".unit-test"
-        variant: darwin
       - name: compile_artifact
         variant: darwin
     commands:
@@ -790,12 +796,8 @@ tasks:
           node_js_version: "14.17.1"
           distribution_build_variant: darwin-x64
           executable_os_id: darwin-x64
-  - name: package_and_upload_artifact_macos_arm64
+  - name: package_and_upload_artifact_darwin_arm64
     depends_on:
-      - name: check
-        variant: darwin
-      - name: ".unit-test"
-        variant: darwin
       - name: compile_artifact
         variant: darwin_arm64
     commands:
@@ -810,10 +812,6 @@ tasks:
           executable_os_id: darwin-arm64
   - name: package_and_upload_artifact_linux_x64
     depends_on:
-      - name: check
-        variant: linux
-      - name: ".unit-test"
-        variant: linux
       - name: compile_artifact
         variant: linux_x64_build
     commands:
@@ -828,10 +826,6 @@ tasks:
           executable_os_id: linux-x64
   - name: package_and_upload_artifact_debian_x64
     depends_on:
-      - name: check
-        variant: linux
-      - name: ".unit-test"
-        variant: linux
       - name: compile_artifact
         variant: linux_x64_build
     commands:
@@ -846,10 +840,6 @@ tasks:
           executable_os_id: linux-x64
   - name: package_and_upload_artifact_rhel_x64
     depends_on:
-      - name: check
-        variant: linux
-      - name: ".unit-test"
-        variant: linux
       - name: compile_artifact
         variant: linux_x64_build
     commands:
@@ -864,10 +854,6 @@ tasks:
           executable_os_id: linux-x64
   - name: package_and_upload_artifact_suse_x64
     depends_on:
-      - name: check
-        variant: linux
-      - name: ".unit-test"
-        variant: linux
       - name: compile_artifact
         variant: linux_x64_build
     commands:
@@ -882,10 +868,6 @@ tasks:
           executable_os_id: linux-x64
   - name: package_and_upload_artifact_linux_arm64
     depends_on:
-      - name: check
-        variant: linux
-      - name: ".unit-test"
-        variant: linux
       - name: compile_artifact
         variant: linux_arm64_build
     commands:
@@ -900,10 +882,6 @@ tasks:
           executable_os_id: linux-arm64
   - name: package_and_upload_artifact_debian_arm64
     depends_on:
-      - name: check
-        variant: linux
-      - name: ".unit-test"
-        variant: linux
       - name: compile_artifact
         variant: linux_arm64_build
     commands:
@@ -918,10 +896,6 @@ tasks:
           executable_os_id: linux-arm64
   - name: package_and_upload_artifact_rhel_arm64
     depends_on:
-      - name: check
-        variant: linux
-      - name: ".unit-test"
-        variant: linux
       - name: compile_artifact
         variant: linux_arm64_build
     commands:
@@ -936,10 +910,6 @@ tasks:
           executable_os_id: linux-arm64
   - name: package_and_upload_artifact_amzn2_arm64
     depends_on:
-      - name: check
-        variant: linux
-      - name: ".unit-test"
-        variant: linux
       - name: compile_artifact
         variant: linux_arm64_build
     commands:
@@ -952,48 +922,8 @@ tasks:
           node_js_version: "14.17.1"
           distribution_build_variant: amzn2-arm64
           executable_os_id: linux-arm64
-  - name: package_and_upload_artifact_linux_s390x
-    depends_on:
-      - name: check
-        variant: linux
-      - name: ".unit-test"
-        variant: linux
-      - name: compile_artifact
-        variant: linux_s390x_build
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          node_js_version: "14.17.1"
-      - func: package_and_upload_artifact
-        vars:
-          node_js_version: "14.17.1"
-          distribution_build_variant: linux-s390x
-          executable_os_id: linux-s390x
-  - name: package_and_upload_artifact_rhel_s390x
-    depends_on:
-      - name: check
-        variant: linux
-      - name: ".unit-test"
-        variant: linux
-      - name: compile_artifact
-        variant: linux_s390x_build
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          node_js_version: "14.17.1"
-      - func: package_and_upload_artifact
-        vars:
-          node_js_version: "14.17.1"
-          distribution_build_variant: rhel-s390x
-          executable_os_id: linux-s390x
   - name: package_and_upload_artifact_linux_ppc64le
     depends_on:
-      - name: check
-        variant: linux
-      - name: ".unit-test"
-        variant: linux
       - name: compile_artifact
         variant: linux_ppc64le_build
     commands:
@@ -1008,10 +938,6 @@ tasks:
           executable_os_id: linux-ppc64le
   - name: package_and_upload_artifact_rhel_ppc64le
     depends_on:
-      - name: check
-        variant: linux
-      - name: ".unit-test"
-        variant: linux
       - name: compile_artifact
         variant: linux_ppc64le_build
     commands:
@@ -1024,12 +950,36 @@ tasks:
           node_js_version: "14.17.1"
           distribution_build_variant: rhel-ppc64le
           executable_os_id: linux-ppc64le
-  - name: package_and_upload_artifact_win
+  - name: package_and_upload_artifact_linux_s390x
     depends_on:
-      - name: check
-        variant: win32
-      - name: ".unit-test"
-        variant: win32
+      - name: compile_artifact
+        variant: linux_s390x_build
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.17.1"
+      - func: package_and_upload_artifact
+        vars:
+          node_js_version: "14.17.1"
+          distribution_build_variant: linux-s390x
+          executable_os_id: linux-s390x
+  - name: package_and_upload_artifact_rhel_s390x
+    depends_on:
+      - name: compile_artifact
+        variant: linux_s390x_build
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.17.1"
+      - func: package_and_upload_artifact
+        vars:
+          node_js_version: "14.17.1"
+          distribution_build_variant: rhel-s390x
+          executable_os_id: linux-s390x
+  - name: package_and_upload_artifact_win32_x64
+    depends_on:
       - name: compile_artifact
         variant: win32_build
     commands:
@@ -1041,12 +991,9 @@ tasks:
         vars:
           node_js_version: "14.17.1"
           distribution_build_variant: win32-x64
-  - name: package_and_upload_artifact_winmsi
+          executable_os_id: win32
+  - name: package_and_upload_artifact_win32msi_x64
     depends_on:
-      - name: check
-        variant: win32
-      - name: ".unit-test"
-        variant: win32
       - name: compile_artifact
         variant: win32_build
     commands:
@@ -1058,14 +1005,225 @@ tasks:
         vars:
           node_js_version: "14.17.1"
           distribution_build_variant: win32msi-x64
+          executable_os_id: win32
 
   ###
   # SMOKE TESTS
   ###
-  - name: pkg_test_ssh_win32
+  - name: pkg_test_macos_darwin_x64
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_win
+      - name: package_and_upload_artifact_darwin_x64
+        variant: darwin_codesign
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          source_distribution_build_variant: darwin-x64
+      - func: write_preload_script
+      - func: test_artifact_macos
+  - name: pkg_test_macos_darwin_arm64
+    tags: ["smoke-test"]
+    depends_on:
+      - name: package_and_upload_artifact_darwin_arm64
+        variant: darwin_codesign
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          source_distribution_build_variant: darwin-arm64
+      - func: write_preload_script
+      - func: test_artifact_macos
+  - name: pkg_test_docker_ubuntu18_04_deb
+    tags: ["smoke-test"]
+    depends_on:
+      - name: package_and_upload_artifact_debian_x64
+        variant: linux
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          source_distribution_build_variant: debian-x64
+      - func: write_preload_script
+      - func: test_artifact_docker
+        vars:
+          dockerfile: ubuntu18.04-deb
+  - name: pkg_test_docker_ubuntu20_04_deb
+    tags: ["smoke-test"]
+    depends_on:
+      - name: package_and_upload_artifact_debian_x64
+        variant: linux
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          source_distribution_build_variant: debian-x64
+      - func: write_preload_script
+      - func: test_artifact_docker
+        vars:
+          dockerfile: ubuntu20.04-deb
+  - name: pkg_test_docker_debian9_deb
+    tags: ["smoke-test"]
+    depends_on:
+      - name: package_and_upload_artifact_debian_x64
+        variant: linux
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          source_distribution_build_variant: debian-x64
+      - func: write_preload_script
+      - func: test_artifact_docker
+        vars:
+          dockerfile: debian9-deb
+  - name: pkg_test_docker_debian10_deb
+    tags: ["smoke-test"]
+    depends_on:
+      - name: package_and_upload_artifact_debian_x64
+        variant: linux
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          source_distribution_build_variant: debian-x64
+      - func: write_preload_script
+      - func: test_artifact_docker
+        vars:
+          dockerfile: debian10-deb
+  - name: pkg_test_docker_centos7_rpm
+    tags: ["smoke-test"]
+    depends_on:
+      - name: package_and_upload_artifact_rhel_x64
+        variant: linux
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          source_distribution_build_variant: rhel-x64
+      - func: write_preload_script
+      - func: test_artifact_docker
+        vars:
+          dockerfile: centos7-rpm
+  - name: pkg_test_docker_centos8_rpm
+    tags: ["smoke-test"]
+    depends_on:
+      - name: package_and_upload_artifact_rhel_x64
+        variant: linux
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          source_distribution_build_variant: rhel-x64
+      - func: write_preload_script
+      - func: test_artifact_docker
+        vars:
+          dockerfile: centos8-rpm
+  - name: pkg_test_docker_amazonlinux2_rpm
+    tags: ["smoke-test"]
+    depends_on:
+      - name: package_and_upload_artifact_rhel_x64
+        variant: linux
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          source_distribution_build_variant: rhel-x64
+      - func: write_preload_script
+      - func: test_artifact_docker
+        vars:
+          dockerfile: amazonlinux2-rpm
+  - name: pkg_test_docker_suse12_rpm
+    tags: ["smoke-test"]
+    depends_on:
+      - name: package_and_upload_artifact_suse_x64
+        variant: linux
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          source_distribution_build_variant: suse-x64
+      - func: write_preload_script
+      - func: test_artifact_docker
+        vars:
+          dockerfile: suse12-rpm
+  - name: pkg_test_docker_suse15_rpm
+    tags: ["smoke-test"]
+    depends_on:
+      - name: package_and_upload_artifact_suse_x64
+        variant: linux
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          source_distribution_build_variant: suse-x64
+      - func: write_preload_script
+      - func: test_artifact_docker
+        vars:
+          dockerfile: suse15-rpm
+  - name: pkg_test_debextract_debian_arm64
+    tags: ["smoke-test"]
+    depends_on:
+      - name: package_and_upload_artifact_debian_arm64
+        variant: linux
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          source_distribution_build_variant: debian-arm64
+      - func: write_preload_script
+      - func: test_artifact_debextract
+  - name: pkg_test_rpmextract_rhel_arm64
+    tags: ["smoke-test"]
+    depends_on:
+      - name: package_and_upload_artifact_rhel_arm64
+        variant: linux
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          source_distribution_build_variant: rhel-arm64
+      - func: write_preload_script
+      - func: test_artifact_rpmextract
+  - name: pkg_test_rpmextract_amzn2_arm64
+    tags: ["smoke-test"]
+    depends_on:
+      - name: package_and_upload_artifact_amzn2_arm64
+        variant: linux
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          source_distribution_build_variant: amzn2-arm64
+      - func: write_preload_script
+      - func: test_artifact_rpmextract
+  - name: pkg_test_rpmextract_rhel_ppc64le
+    tags: ["smoke-test"]
+    depends_on:
+      - name: package_and_upload_artifact_rhel_ppc64le
+        variant: linux
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          source_distribution_build_variant: rhel-ppc64le
+      - func: write_preload_script
+      - func: test_artifact_rpmextract
+  - name: pkg_test_rpmextract_rhel_s390x
+    tags: ["smoke-test"]
+    depends_on:
+      - name: package_and_upload_artifact_rhel_s390x
+        variant: linux
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          source_distribution_build_variant: rhel-s390x
+      - func: write_preload_script
+      - func: test_artifact_rpmextract
+  - name: pkg_test_ssh_win32_x64
+    tags: ["smoke-test"]
+    depends_on:
+      - name: package_and_upload_artifact_win32_x64
         variant: win32
     commands:
       - func: checkout
@@ -1081,24 +1239,17 @@ tasks:
           admin_user_name: Administrator
           onhost_script_path: .evergreen/test-package-win32.sh
           preload_script_path: preload.sh
-  - name: pkg_test_ssh_win32msi
+  - name: pkg_test_ssh_win32msi_x64
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_winmsi
+      - name: package_and_upload_artifact_win32msi_x64
         variant: win32
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
           source_distribution_build_variant: win32msi-x64
-      - command: shell.exec
-        params:
-          working_dir: src
-          shell: bash
-          script: |
-            set -e
-            set -x
-            echo "export ARTIFACT_URL=$(cat ../artifact-url.txt)" >> preload.sh
+      - func: write_preload_script
       - func: spawn_host
         vars:
           distro: windows-64-vs2019-small-git-latest
@@ -1107,218 +1258,6 @@ tasks:
           admin_user_name: Administrator
           onhost_script_path: .evergreen/test-package-win32.sh
           preload_script_path: preload.sh
-  - name: pkg_test_docker_ubuntu1804
-    tags: ["smoke-test"]
-    depends_on:
-      - name: package_and_upload_artifact_debian_x64
-        variant: linux
-    commands:
-      - func: checkout
-      - func: get_artifact_url
-        vars:
-          source_distribution_build_variant: debian-x64
-      - func: write_preload_script
-      - func: test_artifact_docker
-        vars:
-          dockerfile: ubuntu18.04-deb
-  - name: pkg_test_docker_ubuntu2004
-    tags: ["smoke-test"]
-    depends_on:
-      - name: package_and_upload_artifact_debian_x64
-        variant: linux
-    commands:
-      - func: checkout
-      - func: get_artifact_url
-        vars:
-          source_distribution_build_variant: debian-x64
-      - func: write_preload_script
-      - func: test_artifact_docker
-        vars:
-          dockerfile: ubuntu20.04-deb
-  - name: pkg_test_docker_debian9
-    tags: ["smoke-test"]
-    depends_on:
-      - name: package_and_upload_artifact_debian_x64
-        variant: linux
-    commands:
-      - func: checkout
-      - func: get_artifact_url
-        vars:
-          source_distribution_build_variant: debian-x64
-      - func: write_preload_script
-      - func: test_artifact_docker
-        vars:
-          dockerfile: debian9-deb
-  - name: pkg_test_docker_debian10
-    tags: ["smoke-test"]
-    depends_on:
-      - name: package_and_upload_artifact_debian_x64
-        variant: linux
-    commands:
-      - func: checkout
-      - func: get_artifact_url
-        vars:
-          source_distribution_build_variant: debian-x64
-      - func: write_preload_script
-      - func: test_artifact_docker
-        vars:
-          dockerfile: debian10-deb
-  - name: pkg_test_docker_centos7
-    tags: [ "smoke-test" ]
-    depends_on:
-      - name: package_and_upload_artifact_rhel_x64
-        variant: linux
-    commands:
-      - func: checkout
-      - func: get_artifact_url
-        vars:
-          source_distribution_build_variant: rhel-x64
-      - func: write_preload_script
-      - func: test_artifact_docker
-        vars:
-          dockerfile: centos7-rpm
-  - name: pkg_test_docker_centos8
-    tags: ["smoke-test"]
-    depends_on:
-      - name: package_and_upload_artifact_rhel_x64
-        variant: linux
-    commands:
-      - func: checkout
-      - func: get_artifact_url
-        vars:
-          source_distribution_build_variant: rhel-x64
-      - func: write_preload_script
-      - func: test_artifact_docker
-        vars:
-          dockerfile: centos8-rpm
-  - name: pkg_test_docker_suse12
-    tags: ["smoke-test"]
-    depends_on:
-      - name: package_and_upload_artifact_suse_x64
-        variant: linux
-    commands:
-      - func: checkout
-      - func: get_artifact_url
-        vars:
-          source_distribution_build_variant: suse-x64
-      - func: write_preload_script
-      - func: test_artifact_docker
-        vars:
-          dockerfile: suse12-rpm
-  - name: pkg_test_docker_suse15
-    tags: ["smoke-test"]
-    depends_on:
-      - name: package_and_upload_artifact_suse_x64
-        variant: linux
-    commands:
-      - func: checkout
-      - func: get_artifact_url
-        vars:
-          source_distribution_build_variant: suse-x64
-      - func: write_preload_script
-      - func: test_artifact_docker
-        vars:
-          dockerfile: suse15-rpm
-  - name: pkg_test_docker_amazonlinux2
-    tags: ["smoke-test"]
-    depends_on:
-      - name: package_and_upload_artifact_rhel_x64
-        variant: linux
-    commands:
-      - func: checkout
-      - func: get_artifact_url
-        vars:
-          source_distribution_build_variant: rhel-x64
-      - func: write_preload_script
-      - func: test_artifact_docker
-        vars:
-          dockerfile: amazonlinux2-rpm
-  - name: pkg_test_macos1014_x64
-    tags: ["smoke-test"]
-    depends_on:
-      - name: package_and_upload_artifact_macos_x64
-        variant: darwin_codesign
-    commands:
-      - func: checkout
-      - func: get_artifact_url
-        vars:
-          source_distribution_build_variant: darwin-x64
-      - func: write_preload_script
-      - func: test_artifact_macos
-  - name: pkg_test_macos1100_arm64
-    tags: ["smoke-test"]
-    depends_on:
-      - name: package_and_upload_artifact_macos_arm64
-        variant: darwin_codesign
-    commands:
-      - func: checkout
-      - func: get_artifact_url
-        vars:
-          source_distribution_build_variant: darwin-arm64
-      - func: write_preload_script
-      - func: test_artifact_macos
-  # We don't have docker for platforms other than x64, so for those we just
-  # extract the archives locally.
-  - name: pkg_test_s390x_rpm
-    tags: ["smoke-test"]
-    depends_on:
-      - name: package_and_upload_artifact_rhel_s390x
-        variant: linux
-    commands:
-      - func: checkout
-      - func: get_artifact_url
-        vars:
-          source_distribution_build_variant: rhel-s390x
-      - func: write_preload_script
-      - func: test_artifact_rpmextract
-  - name: pkg_test_rhel_arm64_rpm
-    tags: ["smoke-test"]
-    depends_on:
-      - name: package_and_upload_artifact_rhel_arm64
-        variant: linux
-    commands:
-      - func: checkout
-      - func: get_artifact_url
-        vars:
-          source_distribution_build_variant: rhel-arm64
-      - func: write_preload_script
-      - func: test_artifact_rpmextract
-  - name: pkg_test_amzn2_arm64_rpm
-    tags: ["smoke-test"]
-    depends_on:
-      - name: package_and_upload_artifact_amzn2_arm64
-        variant: linux
-    commands:
-      - func: checkout
-      - func: get_artifact_url
-        vars:
-          source_distribution_build_variant: amzn2-arm64
-      - func: write_preload_script
-      - func: test_artifact_rpmextract
-  - name: pkg_test_arm64_deb
-    tags: ["smoke-test"]
-    depends_on:
-      - name: package_and_upload_artifact_debian_arm64
-        variant: linux
-    commands:
-      - func: checkout
-      - func: get_artifact_url
-        vars:
-          source_distribution_build_variant: debian-arm64
-      - func: write_preload_script
-      - func: test_artifact_debextract
-  - name: pkg_test_ppc64le_rpm
-    tags: ["smoke-test"]
-    depends_on:
-      - name: package_and_upload_artifact_rhel_ppc64le
-        variant: linux
-    commands:
-      - func: checkout
-      - func: get_artifact_url
-        vars:
-          source_distribution_build_variant: rhel-ppc64le
-      - func: write_preload_script
-      - func: test_artifact_rpmextract
 
   ###
   # RELEASE TASKS
@@ -1331,6 +1270,10 @@ tasks:
       - name: ".extra-integration-test"
         variant: "*"
       - name: ".e2e-test"
+        variant: "*"
+      - name: check
+        variant: "*"
+      - name: ".unit-test"
         variant: "*"
     commands:
       - func: checkout
@@ -1359,8 +1302,8 @@ buildvariants:
     display_name: "MacOS Mojave (codesign)"
     run_on: macos-1014-codesign
     tasks:
-      - name: package_and_upload_artifact_macos_x64
-      - name: package_and_upload_artifact_macos_arm64
+      - name: package_and_upload_artifact_darwin_x64
+      - name: package_and_upload_artifact_darwin_arm64
   - name: darwin
     display_name: "MacOS Mojave"
     run_on: macos-1014
@@ -1420,6 +1363,7 @@ buildvariants:
       - name: test_m44xe_n14
       - name: test_m50xc_n14
       - name: test_m50xe_n14
+      - name: test_mlatest_n14
       - name: test_mlatest_n14
       - name: test_vscode
       - name: test_connectivity
@@ -1578,9 +1522,9 @@ buildvariants:
       - name: test_m50xc_n14
       - name: test_m50xe_n14
       - name: test_mlatest_n14
-      - name: e2e_tests_win
-      - name: package_and_upload_artifact_win
-      - name: package_and_upload_artifact_winmsi
+      - name: e2e_tests_win32
+      - name: package_and_upload_artifact_win32_x64
+      - name: package_and_upload_artifact_win32msi_x64
   - name: win32_build
     display_name: "Windows VS 2019 (build)"
     run_on: windows-64-vs2019-build
@@ -1593,66 +1537,66 @@ buildvariants:
     display_name: "package smoke tests (Docker)"
     run_on: ubuntu1804-small
     tasks:
-      - name: pkg_test_docker_centos7
-      - name: pkg_test_docker_centos8
-      - name: pkg_test_docker_suse12
-      - name: pkg_test_docker_suse15
-      - name: pkg_test_docker_amazonlinux2
-      - name: pkg_test_docker_debian9
-      - name: pkg_test_docker_debian10
-      - name: pkg_test_docker_ubuntu1804
-      - name: pkg_test_docker_ubuntu2004
+      - name: pkg_test_docker_centos7_rpm
+      - name: pkg_test_docker_centos8_rpm
+      - name: pkg_test_docker_suse12_rpm
+      - name: pkg_test_docker_suse15_rpm
+      - name: pkg_test_docker_amazonlinux2_rpm
+      - name: pkg_test_docker_debian9_deb
+      - name: pkg_test_docker_debian10_deb
+      - name: pkg_test_docker_ubuntu18_04_deb
+      - name: pkg_test_docker_ubuntu20_04_deb
   - name: pkg_smoke_tests_win32
     display_name: "package smoke tests (win32)"
     run_on: ubuntu1804-small
     tasks:
-      - name: pkg_test_ssh_win32
-      - name: pkg_test_ssh_win32msi
+      - name: pkg_test_ssh_win32_x64
+      - name: pkg_test_ssh_win32msi_x64
   - name: pkg_smoke_tests_macos_x64
     display_name: "package smoke tests (macos x64)"
     run_on: macos-1014
     tasks:
-      - name: pkg_test_macos1014_x64
+      - name: pkg_test_macos_darwin_x64
   - name: pkg_smoke_tests_macos_arm64
     display_name: "package smoke tests (macos arm64)"
     run_on: macos-1100-arm64
     tasks:
-      - name: pkg_test_macos1100_arm64
+      - name: pkg_test_macos_darwin_arm64
   - name: pkg_smoke_tests_ubuntu1804_arm64
     display_name: "package smoke tests (Ubuntu 18.04 arm64)"
     run_on: ubuntu1804-arm64-small
     tasks:
-      - name: pkg_test_arm64_deb
+      - name: pkg_test_debextract_debian_arm64
   - name: pkg_smoke_tests_ubuntu2004_arm64
     display_name: "package smoke tests (Ubuntu 20.04 arm64)"
     run_on: ubuntu2004-arm64-small
     tasks:
-      - name: pkg_test_arm64_deb
+      - name: pkg_test_debextract_debian_arm64
   - name: pkg_smoke_tests_amazon2_arm64
     display_name: "package smoke tests (RHEL 8.2 arm64)"
     run_on: rhel82-arm64-small
     tasks:
-      - name: pkg_test_rhel_arm64_rpm
+      - name: pkg_test_rpmextract_rhel_arm64
   - name: pkg_smoke_tests_rhel82_arm64
     display_name: "package smoke tests (Amazon Linux 2 arm64)"
     run_on: amazon2-arm64-small
     tasks:
-      - name: pkg_test_amzn2_arm64_rpm
+      - name: pkg_test_rpmextract_amzn2_arm64
   - name: pkg_smoke_tests_rhel72_s390x
     display_name: "package smoke tests (RHEL 7.2 s390x)"
     run_on: rhel72-zseries-small
     tasks:
-      - name: pkg_test_s390x_rpm
+      - name: pkg_test_rpmextract_rhel_s390x
   #- name: pkg_smoke_tests_rhel80_s390x
   #  display_name: "package smoke tests (RHEL 8.0 s390x)"
   #  run_on: rhel80-zseries-small
   #  tasks:
-  #    - name: pkg_test_s390x_rpm
+  #    - name: pkg_test_rpmextract_rhel_s390x
   - name: pkg_smoke_tests_rhel81_ppc64le
     display_name: "package smoke tests (RHEL 8.1 ppc64le)"
     run_on: rhel81-power8-small
     tasks:
-      - name: pkg_test_ppc64le_rpm
+      - name: pkg_test_rpmextract_rhel_ppc64le
 
   - name: draft_publish_release
     display_name: "Draft/Publish Release"

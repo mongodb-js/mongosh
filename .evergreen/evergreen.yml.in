@@ -1,0 +1,951 @@
+# Regenerate using `npm run update-evergreen-config`
+<%
+const NODE_JS_VERSION_14 = '14.17.1';
+const NODE_JS_VERSION_12 = '12.20.0';
+
+const MONGODB_VERSIONS = [
+  { shortName: '40xc', versionSpec: '4.0.x-community' },
+  { shortName: '40xe', versionSpec: '4.0.x' },
+  { shortName: '42xc', versionSpec: '4.2.x-community' },
+  { shortName: '42xe', versionSpec: '4.2.x' },
+  { shortName: '44xc', versionSpec: '4.4.x-community' },
+  { shortName: '44xe', versionSpec: '4.4.x' },
+  { shortName: '50xc', versionSpec: '5.0.x-community' },
+  { shortName: '50xe', versionSpec: '5.0.x' },
+  { shortName: 'latest', versionSpec: 'latest-alpha' }
+];
+const NODE_VERSIONS = [
+  { shortName: '12', versionSpec: NODE_JS_VERSION_12, skipNodeVersionCheck: '1' },
+  { shortName: '14', versionSpec: NODE_JS_VERSION_14, skipNodeVersionCheck: '' }
+];
+const ALL_UNIT_TESTS = [];
+
+const EXECUTABLE_PKG_INFO = [
+  {
+    executableOsId: 'darwin-x64',
+    compileBuildVariant: 'darwin',
+    distributionBuildVariants: [
+      { name: 'darwin-x64', packageOn: 'darwin_codesign', smokeTestKind: 'macos' }
+    ]
+  },
+  {
+    executableOsId: 'darwin-arm64',
+    compileBuildVariant: 'darwin_arm64',
+    distributionBuildVariants: [
+      { name: 'darwin-arm64', packageOn: 'darwin_codesign', smokeTestKind: 'macos' }
+    ],
+    skipE2E: true
+  },
+  {
+    executableOsId: 'linux-x64',
+    compileBuildVariant: 'linux_x64_build',
+    distributionBuildVariants: [
+      { name: 'linux-x64', packageOn: 'linux', smokeTestKind: 'none' },
+      { name: 'debian-x64', packageOn: 'linux', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu18.04-deb', 'ubuntu20.04-deb', 'debian9-deb', 'debian10-deb'] },
+      { name: 'rhel-x64', packageOn: 'linux', smokeTestKind: 'docker', smokeTestDockerfiles: ['centos7-rpm', 'centos8-rpm', 'amazonlinux2-rpm'] },
+      { name: 'suse-x64', packageOn: 'linux', smokeTestKind: 'docker', smokeTestDockerfiles: ['suse12-rpm', 'suse15-rpm'] }
+    ]
+  },
+  {
+    executableOsId: 'linux-arm64',
+    compileBuildVariant: 'linux_arm64_build',
+    distributionBuildVariants: [
+      { name: 'linux-arm64', packageOn: 'linux', smokeTestKind: 'none' },
+      { name: 'debian-arm64', packageOn: 'linux', smokeTestKind: 'debextract' },
+      { name: 'rhel-arm64', packageOn: 'linux', smokeTestKind: 'rpmextract' },
+      { name: 'amzn2-arm64', packageOn: 'linux', smokeTestKind: 'rpmextract' }
+    ]
+  },
+  {
+    executableOsId: 'linux-ppc64le',
+    compileBuildVariant: 'linux_ppc64le_build',
+    distributionBuildVariants: [
+      { name: 'linux-ppc64le', packageOn: 'linux', smokeTestKind: 'none' },
+      { name: 'rhel-ppc64le', packageOn: 'linux', smokeTestKind: 'rpmextract' }
+    ]
+  },
+  {
+    executableOsId: 'linux-s390x',
+    compileBuildVariant: 'linux_s390x_build',
+    distributionBuildVariants: [
+      { name: 'linux-s390x', packageOn: 'linux', smokeTestKind: 'none' },
+      { name: 'rhel-s390x', packageOn: 'linux', smokeTestKind: 'rpmextract' }
+    ]
+  },
+  {
+    executableOsId: 'win32',
+    compileBuildVariant: 'win32_build',
+    distributionBuildVariants: [
+      { name: 'win32-x64', packageOn: 'win32', smokeTestKind: 'ssh' },
+      { name: 'win32msi-x64', packageOn: 'win32', smokeTestKind: 'ssh' }
+    ]
+  }
+];
+%>
+exec_timeout_secs: 3600
+
+# Functions are any command that can be run.
+#
+# Current functions:
+#   checkout - Checks out the project from git.
+#   install - Installs Node and all dependencies.
+#   check - Performs linter and dependency checks.
+#   test - Runs all tests.
+#   test_vscode - Clones the vscode extension repository and runs its tests.
+#   test_connectivity - Runs extra connectivity tests.
+#   test_apistrict - Runs shell API and CLI tests with --apiStrict --apiDeprecationErrors.
+#   compile_artifact - Compile the release binary.
+#   package_and_upload_artifact - Upload the release binary to S3.
+#   test_linux_artifact - Test that the built artifact works where we expect it to.
+#                         We use this to verify that e.g. the Ubuntu-built release
+#                         binary also works on RHEL and Debian.
+#   release_publish - Publishes the npm packages and uploads the tarballs.
+functions:
+  checkout:
+    - command: git.get_project
+      params:
+        directory: src
+  install:
+    - command: expansions.write
+      params:
+        file: tmp/expansions.yaml
+        redacted: true
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          export NODE_JS_VERSION=${node_js_version}
+          source .evergreen/.install_node
+          npm run evergreen-release bump
+  check:
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          {
+          export NODE_JS_VERSION=${node_js_version}
+          source .evergreen/.setup_env
+          npm --unsafe-perm=true run bootstrap-ci
+          npm run check-ci
+          }
+  test:
+    - command: expansions.write
+      params:
+        file: tmp/expansions.yaml
+        redacted: true
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          {
+          export NODE_JS_VERSION=${node_js_version}
+          source .evergreen/.setup_env
+          npm --unsafe-perm=true run bootstrap-ci
+          npm run test-ci
+          echo "Creating coverage tarball..."
+          tar cvzf coverage.tgz coverage
+          }
+        env:
+          AWS_AUTH_IAM_ACCESS_KEY_ID: ${devtools_ci_aws_key}
+          AWS_AUTH_IAM_SECRET_ACCESS_KEY: ${devtools_ci_aws_secret}
+    - command: s3.put
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/coverage.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/coverage-${build_variant}.tgz
+        bucket: mciuploads
+        permissions: public-read
+        content_type: application/x-gzip
+  test_vscode:
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          {
+          export NODE_JS_VERSION=${node_js_version}
+          source .evergreen/.setup_env
+          npm --unsafe-perm=true run bootstrap-ci
+          (cd scripts/docker && docker build -t ubuntu18.04-xvfb -f ubuntu18.04-xvfb.Dockerfile .)
+          docker run \
+            --rm -v $PWD:/tmp/build ubuntu18.04-xvfb \
+            -c 'cd /tmp/build && ./testing/test-vscode.sh'
+          }
+  test_connectivity:
+    - command: expansions.write
+      params:
+        file: tmp/expansions.yaml
+        redacted: true
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          {
+          export NODE_JS_VERSION=${node_js_version}
+          source .evergreen/.setup_env
+          npm --unsafe-perm=true run bootstrap-ci
+          npm run test-connectivity
+          }
+  test_apistrict:
+    - command: expansions.write
+      params:
+        file: tmp/expansions.yaml
+        redacted: true
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          {
+          export NODE_JS_VERSION=${node_js_version}
+          source .evergreen/.setup_env
+          npm run test-apistrict-ci
+          }
+
+  ###
+  # ARTIFACT COMPILATION
+  #
+  # compile_artifact generates the executable binary and uploads it as TGZ to S3 for later use.
+  # Use download_compiled_artifact to download the TGZ from S3.
+  #
+  # Both functions expect the following arguments:
+  # - executable_os_id
+  ###
+  compile_artifact:
+    - command: expansions.write
+      params:
+        file: tmp/expansions.yaml
+        redacted: true
+    - command: subprocess.exec
+      params:
+        working_dir: src
+        binary: bash .evergreen/compile-artifact.sh
+        env:
+          NODE_JS_VERSION: ${node_js_version}
+    - command: s3.put
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/dist.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-${executable_os_id}.tgz
+        bucket: mciuploads
+        permissions: public-read
+        content_type: application/x-gzip
+  download_compiled_artifact:
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/dist.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-${executable_os_id}.tgz
+        bucket: mciuploads
+
+  ###
+  # E2E TEST EXECUTION
+  #
+  # Runs the E2E tests against the compiled artifact, i.e. expects the compiled artifact to be already present.
+  ###
+  run_e2e_tests:
+    - command: expansions.write
+      params:
+        file: tmp/expansions.yaml
+        redacted: true
+    - command: subprocess.exec
+      params:
+        working_dir: src
+        binary: bash .evergreen/run-e2e-tests.sh
+        env:
+          NODE_JS_VERSION: ${node_js_version}
+          AWS_AUTH_IAM_ACCESS_KEY_ID: ${devtools_ci_aws_key}
+          AWS_AUTH_IAM_SECRET_ACCESS_KEY: ${devtools_ci_aws_secret}
+
+  ###
+  # PACKAGING AND UPLOADING
+  #
+  # package_and_upload_artifact generates a distributable package out of the compiled artifact,
+  # i.e. it expects it to have been downloaded already. The distributable package will be uploaded
+  # to a specifc Evergreen S3 bucket for later use.
+  #
+  # The URL to download the distributable package can be retrieved by get_artifact_url.
+  #
+  # package_and_upload_artifact expects the following arguments:
+  # - distro_id
+  # - distribution_build_variant
+  # - executable_os_id
+  #
+  # get_artifact_url expects the following arguments:
+  # - distribution_build_variant
+  ###
+  package_and_upload_artifact:
+    - command: expansions.write
+      params:
+        file: tmp/expansions.yaml
+        redacted: true
+        # TODO: REPLACE WITH CALLING download_compiled_artifact BEFORE
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/dist.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-${executable_os_id}.tgz
+        bucket: mciuploads
+    - command: subprocess.exec
+      params:
+        working_dir: src
+        binary: bash .evergreen/package-and-upload-artifact.sh
+        env:
+          NODE_JS_VERSION: ${node_js_version}
+          DISTRO_ID_OVERRIDE: ${distro_id}
+          DISTRIBUTION_BUILD_VARIANT: ${distribution_build_variant}
+    - command: s3.put
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/artifact-url.txt
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/artifact-url-${distribution_build_variant}.txt
+        bucket: mciuploads
+        permissions: public-read
+        content_type: application/x-gzip
+  get_artifact_url:
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: artifact-url.txt
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/artifact-url-${source_distribution_build_variant}.txt
+        bucket: mciuploads
+
+  write_preload_script:
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          set +x
+          cat <<PRELOAD_SCRIPT > preload.sh
+          echo "Preload script starting"
+          set -e
+          set -x
+          export ARTIFACT_URL=$(cat ../artifact-url.txt)
+          export IS_CI=1
+          set +x
+          export MONGOSH_SMOKE_TEST_SERVER="mongodb+srv://${connectivity_test_atlas_username}:${connectivity_test_atlas_password}@${connectivity_test_atlas_hostname}/"
+          echo "Preload script done"
+          set -x
+          PRELOAD_SCRIPT
+  spawn_host:
+    - command: host.create
+      params:
+        provider: ec2
+        distro: ${distro}
+        security_group_ids:
+          - sg-097bff6dd0d1d31d0 # Magic string that's needed for SSH'ing.
+    - command: host.list
+      params:
+        num_hosts: 1
+        path: buildhosts.yml # Write the host information to disk.
+        timeout_seconds: 1200
+        wait: true
+  run_pkg_tests_through_ssh:
+    - command: shell.exec
+      params:
+        shell: bash
+        script: |
+          set -e
+          {
+          set +x
+          echo '${__project_aws_ssh_key_value}' > ~/.ssh/mcipacker.pem
+          chmod 0600 ~/.ssh/mcipacker.pem
+          set -x
+          }
+    - command: subprocess.exec
+      params:
+        working_dir: src
+        binary: bash .evergreen/run-on-ssh-host.sh
+        env:
+          ADMIN_USER_NAME: ${admin_user_name}
+          ONHOST_SCRIPT_PATH: ${onhost_script_path}
+          PRELOAD_SCRIPT_PATH: ${preload_script_path}
+  test_artifact_docker:
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          set -x
+          {
+          . preload.sh
+          ./scripts/docker/build.sh ${dockerfile}
+          ./scripts/docker/run.sh ${dockerfile} --smokeTests
+          }
+  test_artifact_macos:
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          set -x
+          {
+          system_profiler SPSoftwareDataType # for debugging
+          . preload.sh
+          curl -sSfL "$ARTIFACT_URL" > mongosh.zip
+          unzip mongosh.zip
+          ./mongosh-*/bin/mongosh --smokeTests
+          }
+  test_artifact_rpmextract:
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          set -x
+          {
+          . preload.sh
+          curl -sSfL "$ARTIFACT_URL" > mongosh.rpm
+          rpm2cpio mongosh.rpm | cpio -idmv
+          ./usr/bin/mongosh --smokeTests
+          }
+  test_artifact_debextract:
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          set -x
+          {
+          . preload.sh
+          curl -sSfL "$ARTIFACT_URL" > mongosh.deb
+          dpkg -x mongosh.deb .
+          ./usr/bin/mongosh --smokeTests
+          }
+
+  release_draft:
+    - command: expansions.write
+      params:
+        file: tmp/expansions.yaml
+        redacted: true
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          {
+          export NODE_JS_VERSION=${node_js_version}
+          source .evergreen/.setup_env
+          export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
+          npm run evergreen-release draft
+          }
+
+  release_publish:
+    - command: expansions.write
+      params:
+        file: tmp/expansions.yaml
+        redacted: true
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          {
+          export NODE_JS_VERSION=${node_js_version}
+          source .evergreen/.setup_env
+          export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
+          echo "registry=https://registry.npmjs.org/" > .npmrc
+          echo "//registry.npmjs.org/:_authToken=${devtoolsbot_npm_token}" >> .npmrc
+          npm --unsafe-perm=true run bootstrap-ci
+          npm run evergreen-release publish
+          }
+
+# Tasks will show up as the individual blocks in the Evergreen UI that can
+# pass or fail.
+#
+# Current tasks:
+#   check - Performs linter and dependency checks.
+#   test_{version} - Runs all tests, against a specified mongod version.
+#   test_vscode - Run the vscode extension integration tests.
+#   test_connectivity - Runs extra connectivity tests.
+#   test_apistrict - Runs shell API and CLI tests with --apiStrict --apiDeprecationErrors.
+#   compile_artifact - Compile the release binary.
+#   package_and_upload_artifact - Upload the release binary to S3.
+#   test_linux_artifact - Test that the built artifact works where we expect it to.
+#   release_publish - Publishes the npm packages and uploads the tarballs.
+#   pkg_test_* - Run tests on the release packages
+tasks:
+  - name: check
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+      - func: check
+        vars:
+          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+
+  ###
+  # UNIT TESTS
+  # E.g. test_m40xc_n12 stands for mongod 4.0.x, community edition, Node.js 12
+  ###
+  <% for (const { shortName: nShort, versionSpec: nVersion, skipNodeVersionCheck } of NODE_VERSIONS) {
+       for (const { shortName: mShort, versionSpec: mVersion } of MONGODB_VERSIONS) { %>
+  - name: test_<% const id = `m${mShort}_n${nShort}`; ALL_UNIT_TESTS.push(id); out(id) %>
+    tags: <% out(["unit-test", ...(mShort === 'latest' ? ["mlatest"] : [])]) %>
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "<% out(nVersion) %>"
+      - func: test
+        vars:
+          mongosh_server_test_version: "<% out(mVersion) %>"
+          node_js_version: "<% out(nVersion) %>"
+          mongosh_skip_node_version_check: "<% out(skipNodeVersionCheck) %>"
+  <% } } %>
+
+  ###
+  # INTEGRATION TESTS
+  ###
+  - name: test_vscode
+    tags: ["extra-integration-test"]
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "<% out(NODE_JS_VERSION_12) %>"
+      - func: test_vscode
+        vars:
+          node_js_version: "<% out(NODE_JS_VERSION_12) %>"
+  - name: test_connectivity
+    tags: ["extra-integration-test"]
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+      - func: test_connectivity
+  - name: test_apistrict
+    tags: ["extra-integration-test"]
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+      - func: test_apistrict
+        vars:
+          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+          mongosh_server_test_version: "latest-alpha"
+          mongosh_test_force_api_strict: "1"
+  - name: compile_artifact
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+      - func: compile_artifact
+        vars:
+          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+
+  ###
+  # E2E TESTS
+  ###
+  <% for (const { executableOsId, compileBuildVariant, skipE2E } of EXECUTABLE_PKG_INFO) if (!skipE2E) { %>
+  - name: e2e_tests_<% out(executableOsId.replace(/-/g, '_')) %>
+    tags: ["e2e-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: <% out(compileBuildVariant) %>
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: <% out(executableOsId) %>
+      - func: run_e2e_tests
+        vars:
+          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+  <% } %>
+
+  ###
+  # PACKAGING
+  ###
+  <% for (const { executableOsId, compileBuildVariant, distributionBuildVariants } of EXECUTABLE_PKG_INFO) {
+       for (const { name: distributionBuildVariant } of distributionBuildVariants) { %>
+  - name: package_and_upload_artifact_<% out(distributionBuildVariant.replace(/-/g, '_')) %>
+    depends_on:
+      - name: compile_artifact
+        variant: <% out(compileBuildVariant) %>
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+      - func: package_and_upload_artifact
+        vars:
+          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+          distribution_build_variant: <% out(distributionBuildVariant) %>
+          executable_os_id: <% out(executableOsId) %>
+  <% } } %>
+
+  ###
+  # SMOKE TESTS
+  ###
+  <% for (const { distributionBuildVariants } of EXECUTABLE_PKG_INFO) {
+       for (const { name, packageOn, smokeTestKind, smokeTestDockerfiles } of distributionBuildVariants) if (smokeTestKind !== 'none') {
+        for (const dockerfile of smokeTestDockerfiles || ['']) { %>
+  - name: pkg_test_<% out(`${smokeTestKind}_${(dockerfile || name).replace(/[-.]/g, '_')}`) %>
+    tags: ["smoke-test"]
+    depends_on:
+      - name: package_and_upload_artifact_<% out(name.replace(/-/g, '_')) %>
+        variant: <% out(packageOn) %>
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          source_distribution_build_variant: <% out(name) %>
+      - func: write_preload_script
+    <% switch (smokeTestKind) {
+      case 'ssh': { %>
+      - func: spawn_host
+        vars:
+          distro: windows-64-vs2019-small-git-latest
+      - func: run_pkg_tests_through_ssh
+        vars:
+          admin_user_name: Administrator
+          onhost_script_path: .evergreen/test-package-win32.sh
+          preload_script_path: preload.sh
+    <% }; break;
+       case 'docker': { %>
+      - func: test_artifact_docker
+        vars:
+          dockerfile: <% out(dockerfile) %>
+    <% }; break;
+    // We don't have docker for platforms other than x64, so for those we just
+    // extract the archives locally.
+       case 'macos':
+       case 'rpmextract':
+       case 'debextract': { %>
+      - func: test_artifact_<% out(smokeTestKind) %>
+    <% }; break;
+      default:
+        throw new Error(`pkg ${name} is missing a valid smoke test indicator`);
+    } %>
+  <% } } } %>
+
+  ###
+  # RELEASE TASKS
+  ###
+  - name: release_draft
+    git_tag_only: true
+    depends_on:
+      - name: ".smoke-test"
+        variant: "*"
+      - name: ".extra-integration-test"
+        variant: "*"
+      - name: ".e2e-test"
+        variant: "*"
+      - name: check
+        variant: "*"
+      - name: ".unit-test"
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+      - func: release_draft
+        vars:
+          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+  - name: release_publish
+    tags: ["publish"]
+    git_tag_only: true
+    exec_timeout_secs: 7200
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+      - func: release_publish
+        vars:
+          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+
+# Need to run builds for every possible build variant.
+buildvariants:
+  - name: darwin_codesign
+    display_name: "MacOS Mojave (codesign)"
+    run_on: macos-1014-codesign
+    tasks:
+      - name: package_and_upload_artifact_darwin_x64
+      - name: package_and_upload_artifact_darwin_arm64
+  - name: darwin
+    display_name: "MacOS Mojave"
+    run_on: macos-1014
+    expansions:
+      executable_os_id: darwin-x64
+    tasks:
+      - name: check
+      <% for (const test of ALL_UNIT_TESTS) { %>
+      - name: test_<% out(test) %>
+      <% } %>
+      - name: compile_artifact
+      - name: e2e_tests_darwin_x64
+  - name: darwin_arm64
+    display_name: "MacOS Big Sur (arm64)"
+    run_on: macos-1100-arm64
+    expansions:
+      executable_os_id: darwin-arm64
+    tasks:
+      - name: compile_artifact
+      # - name: e2e_tests_darwin_arm64
+      # No E2E test for now because there are no server releases to run them against
+
+  - name: linux
+    display_name: "Ubuntu 18.04 x64"
+    run_on: ubuntu1804-small
+    tasks:
+      - name: check
+      <% for (const test of ALL_UNIT_TESTS) { %>
+      - name: test_<% out(test) %>
+      <% } %>
+      - name: test_mlatest_n14
+      - name: test_vscode
+      - name: test_connectivity
+      - name: test_apistrict
+      - name: package_and_upload_artifact_linux_x64
+      - name: package_and_upload_artifact_debian_x64
+      - name: package_and_upload_artifact_rhel_x64
+      - name: package_and_upload_artifact_suse_x64
+      - name: package_and_upload_artifact_linux_s390x
+      - name: package_and_upload_artifact_rhel_s390x
+      - name: package_and_upload_artifact_linux_arm64
+      - name: package_and_upload_artifact_debian_arm64
+      - name: package_and_upload_artifact_rhel_arm64
+      - name: package_and_upload_artifact_amzn2_arm64
+      - name: package_and_upload_artifact_linux_ppc64le
+      - name: package_and_upload_artifact_rhel_ppc64le
+  - name: linux_x64_build
+    display_name: "RHEL 7.0 x64 (build)"
+    run_on: rhel70-build
+    expansions:
+      executable_os_id: linux-x64
+    tasks:
+      - name: compile_artifact
+  - name: linux_arm64_build
+    display_name: "Ubuntu 18.04 arm64 (build)"
+    run_on: ubuntu1804-arm64-small
+    expansions:
+      executable_os_id: linux-arm64
+    tasks:
+      - name: compile_artifact
+  - name: linux_ppc64le_build
+    display_name: "RHEL 8.1 PPC (build)"
+    run_on: rhel81-power8-small
+    expansions:
+      executable_os_id: linux-ppc64le
+    tasks:
+      - name: compile_artifact
+  - name: linux_s390x_build
+    display_name: "RHEL 7.2 s390x (build)"
+    run_on: rhel72-zseries-small
+    expansions:
+      executable_os_id: linux-s390x
+    tasks:
+      - name: compile_artifact
+
+  - name: e2e_rhel70_x64
+    display_name: "RHEL 7.0 x64 (E2E Tests)"
+    run_on: rhel70-small
+    tasks:
+      - name: e2e_tests_linux_x64
+  - name: e2e_rhel76_x64
+    display_name: "RHEL 7.6 x64 (E2E Tests)"
+    run_on: rhel76-small
+    tasks:
+      - name: e2e_tests_linux_x64
+  - name: e2e_rhel80_x64
+    display_name: "RHEL 8.0 x64 (E2E Tests)"
+    run_on: rhel80-small
+    tasks:
+      - name: e2e_tests_linux_x64
+  - name: e2e_ubuntu1804_x64
+    display_name: "Ubuntu 18.04 x64 (E2E Tests)"
+    run_on: ubuntu1804-small
+    tasks:
+      - name: e2e_tests_linux_x64
+  - name: e2e_ubuntu2004_x64
+    display_name: "Ubuntu 20.04 x64 (E2E Tests)"
+    run_on: ubuntu2004-small
+    tasks:
+      - name: e2e_tests_linux_x64
+  - name: e2e_debian9_x64
+    display_name: "Debian 9 x64 (E2E Tests)"
+    run_on: debian92-small
+    tasks:
+      - name: e2e_tests_linux_x64
+  - name: e2e_debian10_x64
+    display_name: "Debian 10 x64 (E2E Tests)"
+    run_on: debian10-small
+    tasks:
+      - name: e2e_tests_linux_x64
+  - name: e2e_amazon2_x64
+    display_name: "Amazon Linux 2 x64 (E2E Tests)"
+    run_on: amazon2-small
+    tasks:
+      - name: e2e_tests_linux_x64
+  - name: e2e_suse12_x64
+    display_name: "SLES 12 x64 (E2E Tests)"
+    run_on: suse12-small
+    tasks:
+      - name: e2e_tests_linux_x64
+  - name: e2e_suse15_x64
+    display_name: "SLES 15 x64 (E2E Tests)"
+    run_on: suse15-small
+    tasks:
+      - name: e2e_tests_linux_x64
+  - name: e2e_ubuntu1804_arm64
+    display_name: "Ubuntu 18.04 arm64 (E2E Tests)"
+    run_on: ubuntu1804-arm64-small
+    tasks:
+      - name: e2e_tests_linux_arm64
+  - name: e2e_ubuntu2004_arm64
+    display_name: "Ubuntu 20.04 arm64 (E2E Tests)"
+    run_on: ubuntu2004-arm64-small
+    tasks:
+      - name: e2e_tests_linux_arm64
+  - name: e2e_amazon2_arm64
+    display_name: "Amazon Linux 2 arm64 (E2E Tests)"
+    run_on: amazon2-arm64-small
+    tasks:
+      - name: e2e_tests_linux_arm64
+  - name: e2e_rhel82_arm64
+    display_name: "RHEL 8.2 arm64 (E2E Tests)"
+    run_on: rhel82-arm64-small
+    tasks:
+      - name: e2e_tests_linux_arm64
+  - name: e2e_rhel81_ppc64le
+    display_name: "RHEL 8.1 PPC (E2E Tests)"
+    run_on: rhel81-power8-small
+    tasks:
+      - name: e2e_tests_linux_ppc64le
+  - name: e2e_rhel72_s390x
+    display_name: "RHEL 7.2 s390x (E2E Tests)"
+    run_on: rhel72-zseries-small
+    tasks:
+      - name: e2e_tests_linux_s390x
+# TODO: Re-enable once RHEL 8.0 distros are ready for use
+# (see also pkg_smoke_tests_rhel80_s390x)
+#  - name: e2e_rhel80_s390x
+#    display_name: "RHEL 8.0 s390x (E2E Tests)"
+#    run_on: rhel80-zseries-small
+#    tasks:
+#      - name: e2e_tests_linux_s390x
+
+  - name: win32
+    display_name: "Windows VS 2019"
+    run_on: windows-64-vs2019-small-git-latest
+    expansions:
+      executable_os_id: win32
+    tasks:
+      - name: check
+      <% for (const test of ALL_UNIT_TESTS) { %>
+      - name: test_<% out(test) %>
+      <% } %>
+      - name: e2e_tests_win32
+      - name: package_and_upload_artifact_win32_x64
+      - name: package_and_upload_artifact_win32msi_x64
+  - name: win32_build
+    display_name: "Windows VS 2019 (build)"
+    run_on: windows-64-vs2019-build
+    expansions:
+      executable_os_id: win32
+    tasks:
+      - name: compile_artifact
+
+  - name: pkg_smoke_tests_docker
+    display_name: "package smoke tests (Docker)"
+    run_on: ubuntu1804-small
+    tasks:
+      - name: pkg_test_docker_centos7_rpm
+      - name: pkg_test_docker_centos8_rpm
+      - name: pkg_test_docker_suse12_rpm
+      - name: pkg_test_docker_suse15_rpm
+      - name: pkg_test_docker_amazonlinux2_rpm
+      - name: pkg_test_docker_debian9_deb
+      - name: pkg_test_docker_debian10_deb
+      - name: pkg_test_docker_ubuntu18_04_deb
+      - name: pkg_test_docker_ubuntu20_04_deb
+  - name: pkg_smoke_tests_win32
+    display_name: "package smoke tests (win32)"
+    run_on: ubuntu1804-small
+    tasks:
+      - name: pkg_test_ssh_win32_x64
+      - name: pkg_test_ssh_win32msi_x64
+  - name: pkg_smoke_tests_macos_x64
+    display_name: "package smoke tests (macos x64)"
+    run_on: macos-1014
+    tasks:
+      - name: pkg_test_macos_darwin_x64
+  - name: pkg_smoke_tests_macos_arm64
+    display_name: "package smoke tests (macos arm64)"
+    run_on: macos-1100-arm64
+    tasks:
+      - name: pkg_test_macos_darwin_arm64
+  - name: pkg_smoke_tests_ubuntu1804_arm64
+    display_name: "package smoke tests (Ubuntu 18.04 arm64)"
+    run_on: ubuntu1804-arm64-small
+    tasks:
+      - name: pkg_test_debextract_debian_arm64
+  - name: pkg_smoke_tests_ubuntu2004_arm64
+    display_name: "package smoke tests (Ubuntu 20.04 arm64)"
+    run_on: ubuntu2004-arm64-small
+    tasks:
+      - name: pkg_test_debextract_debian_arm64
+  - name: pkg_smoke_tests_amazon2_arm64
+    display_name: "package smoke tests (RHEL 8.2 arm64)"
+    run_on: rhel82-arm64-small
+    tasks:
+      - name: pkg_test_rpmextract_rhel_arm64
+  - name: pkg_smoke_tests_rhel82_arm64
+    display_name: "package smoke tests (Amazon Linux 2 arm64)"
+    run_on: amazon2-arm64-small
+    tasks:
+      - name: pkg_test_rpmextract_amzn2_arm64
+  - name: pkg_smoke_tests_rhel72_s390x
+    display_name: "package smoke tests (RHEL 7.2 s390x)"
+    run_on: rhel72-zseries-small
+    tasks:
+      - name: pkg_test_rpmextract_rhel_s390x
+  #- name: pkg_smoke_tests_rhel80_s390x
+  #  display_name: "package smoke tests (RHEL 8.0 s390x)"
+  #  run_on: rhel80-zseries-small
+  #  tasks:
+  #    - name: pkg_test_rpmextract_rhel_s390x
+  - name: pkg_smoke_tests_rhel81_ppc64le
+    display_name: "package smoke tests (RHEL 8.1 ppc64le)"
+    run_on: rhel81-power8-small
+    tasks:
+      - name: pkg_test_rpmextract_rhel_ppc64le
+
+  - name: draft_publish_release
+    display_name: "Draft/Publish Release"
+    run_on: ubuntu1804-small
+    tasks:
+      - name: release_draft
+      - name: release_publish
