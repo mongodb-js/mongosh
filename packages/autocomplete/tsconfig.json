@@ -5,9 +5,9 @@
     "allowJs": true
   },
   "include": [
-    "./*"
+    "./src/**/*"
   ],
   "exclude": [
-    "./*.spec.*"
+    "./src/**/*.spec.*"
   ]
 }
