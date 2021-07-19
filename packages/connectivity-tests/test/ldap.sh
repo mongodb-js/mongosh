@@ -42,6 +42,7 @@ function test_for_version() {
 ANY_FAILED=no
 test_for_version '4.2'
 test_for_version '4.4'
+test_for_version '5.0'
 
 if [ $ANY_FAILED = yes ]; then
   exit 1
