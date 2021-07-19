@@ -351,6 +351,14 @@ export default ({ types: t }: { types: typeof BabelTypes }): babel.PluginObj<{ f
               t.returnStatement(path.node)
             ]));
           }
+
+          // If there is a [isGeneratedHelper] between the function we're in
+          // and this node, that means we've already handled this node.
+          if (path.find(
+            path => path.isFunction() || !!path.node[isGeneratedHelper]
+          )?.node?.[isGeneratedHelper]) {
+            return path.skip();
+          }
         },
         exit(path) {
           // We have seen an expression. If we're not inside an async function,
@@ -393,14 +401,6 @@ export default ({ types: t }: { types: typeof BabelTypes }): babel.PluginObj<{ f
           } else {
             // This is a regular async function. We also transformed these above.
             identifierGroup = path.getFunctionParent().getData(identifierGroupKey);
-          }
-
-          // If there is a [isGeneratedHelper] between the function we're in
-          // and this node, that means we've already handled this node.
-          if (path.find(
-            path => path.isFunction() || !!path.node[isGeneratedHelper]
-          ).node[isGeneratedHelper]) {
-            return;
           }
 
           // Do not transform foo.bar() into (expr = foo.bar, ... ? await expr : expr)(),
@@ -501,6 +501,8 @@ export default ({ types: t }: { types: typeof BabelTypes }): babel.PluginObj<{ f
             }),
             { [isGeneratedHelper]: true }
           ));
+          // We are exiting from the current path and don't need to visit it again.
+          path.skip();
         }
       },
       CatchClause: {
