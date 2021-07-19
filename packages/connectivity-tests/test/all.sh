@@ -14,7 +14,7 @@ export TEST_TMPDIR="$PWD"
 git clone git@github.com:mongodb-js/devtools-docker-test-envs.git test-envs
 cd test-envs
 
-git checkout e7fc1feeb724e262f6c12ebea76a82d4662dffaa
+git checkout fb075fd36a834bcd8a1695aeef691e766ca6bba6
 
 source "$CONNECTIVITY_TEST_SOURCE_DIR/ldap.sh"
 source "$CONNECTIVITY_TEST_SOURCE_DIR/localhost.sh"
