@@ -127,6 +127,7 @@ class CliRepl {
     if (this.isPasswordMissing(driverOptions)) {
       await this.requirePassword(driverUri, driverOptions);
     }
+    this.ensurePasswordFieldIsPresentInAuth(driverOptions);
 
     if (!this.cliOptions.quiet) {
       this.output.write(`Current Mongosh Log ID:\t${this.logId}\n`);
@@ -393,9 +394,23 @@ class CliRepl {
    * @returns {boolean} If the password is missing.
    */
   isPasswordMissing(driverOptions: MongoClientOptions): boolean {
-    return !!(driverOptions.auth &&
+    return !!(
+      driverOptions.auth &&
       driverOptions.auth.username &&
-      !driverOptions.auth.password);
+      !driverOptions.auth.password &&
+      driverOptions.authMechanism !== 'GSSAPI' // no need for a password for Kerberos
+    );
+  }
+
+  /**
+   * Sets the auth.password field to undefined in the driverOptions if the auth
+   * object is present with a truthy username. This is required by the driver, e.g.
+   * in the case of password-less Kerberos authentication.
+   */
+  ensurePasswordFieldIsPresentInAuth(driverOptions: MongoClientOptions): void {
+    if (driverOptions.auth && driverOptions.auth.username && !('password' in driverOptions.auth)) {
+      driverOptions.auth.password = undefined;
+    }
   }
 
   /**
