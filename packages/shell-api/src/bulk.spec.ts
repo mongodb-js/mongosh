@@ -115,9 +115,9 @@ describe('Bulk API', () => {
               expect(() => bulk.insert({})).to.throw(expectedError);
             });
           });
-          describe('tojson', () => {
+          describe('toJSON', () => {
             it('returns the batches length + currentInsert/Update/RemoveBatch?', () => {
-              expect(bulk.tojson()).to.deep.equal({
+              expect(bulk.toJSON()).to.deep.equal({
                 nInsertOps: 0, nUpdateOps: 0, nRemoveOps: 0, nBatches: 4
               });
             });

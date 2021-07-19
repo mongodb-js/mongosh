@@ -278,7 +278,7 @@ type ClassHelp = {
   attr: { name: string; description: string }[];
 };
 
-export const toIgnore = ['constructor', 'help'];
+export const toIgnore = ['constructor', 'help', 'toJSON'];
 function shellApiClassGeneric(constructor: Function, hasHelp: boolean): void {
   const className = constructor.name;
   const classHelpKeyPrefix = `shell-api.classes.${className}.help`;
