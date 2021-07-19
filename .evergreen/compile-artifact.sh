@@ -3,7 +3,7 @@ set -e
 
 cd $(pwd)
 
-source .evergreen/.setup_env
+source .evergreen/setup-env.sh
 
 if uname -a | grep -q 'Linux.*x86_64'; then
   rm -rf "tmp/.sccache"

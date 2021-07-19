@@ -2,7 +2,7 @@
 set -e
 export NODE_JS_VERSION=${NODE_JS_VERSION}
 
-source .evergreen/.setup_env
+source .evergreen/setup-env.sh
 tar xvzf dist.tgz
 dist/mongosh --version
 

@@ -8,7 +8,7 @@ cd $(pwd)
 export NODE_JS_VERSION=${NODE_JS_VERSION}
 export ARTIFACT_URL_FILE="$PWD/artifact-url.txt"
 
-source .evergreen/.setup_env
+source .evergreen/setup-env.sh
 tar xvzf dist.tgz
 
 if [ "$(uname)" == Linux ]; then

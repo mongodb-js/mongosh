@@ -34,6 +34,11 @@ if [ "$OS" == "Windows_NT" ]; then
   export EVERGREEN_EXPANSIONS_PATH="$(cygpath -w "$EVERGREEN_EXPANSIONS_PATH")"
 fi
 
+# On RHEL hosts, we run as root for some reason
+if [ `uname` = Linux ]; then
+  export npm_config_unsafe_perm=true
+fi
+
 echo "Full path:"
 echo $PATH
 
