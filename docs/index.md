@@ -1,0 +1,10 @@
+# Development Documentation
+
+This folder contains development-specific documentation on the inner workings of `mongosh` and its packages.
+
+> If you are looking for end-user documentation, please refer to: https://docs.mongodb.com/mongodb-shell/.
+
+## Topics
+Go to any of the linked topics for details:
+
+* [CLI REPL Code Evaluation](./cli-code-evaluation.md)
