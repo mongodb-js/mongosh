@@ -409,6 +409,14 @@ describe('e2e', function() {
       expect(await shell.executeLine('explainOutput')).to.match(/g:\s*\{\s*h:\s*\{\s*i:\s*\{\s*j:/);
     });
 
+    it('allows toJSON on results of db operations', async function() {
+      if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
+        return this.skip(); // listCommands is unversioned
+      }
+      expect(await shell.executeLine('typeof JSON.parse(JSON.stringify(db.listCommands())).ping.help')).to.include('string');
+      expect(await shell.executeLine('typeof JSON.parse(JSON.stringify(db.test.insertOne({}))).insertedId')).to.include('string');
+    });
+
     describe('document validation errors', () => {
       context('post-4.4', () => {
         skipIfServerVersion(testServer, '<= 4.4');

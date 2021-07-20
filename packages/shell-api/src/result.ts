@@ -19,6 +19,10 @@ export class CommandResult extends ShellApiValueClass {
   [asPrintable](): unknown {
     return this.value;
   }
+
+  toJSON(): unknown {
+    return this.value;
+  }
 }
 
 @shellApiClassDefault

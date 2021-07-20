@@ -2352,6 +2352,7 @@ describe('Database', () => {
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.listCommands();
         expect(result.value).to.deep.equal(expectedResult.commands);
+        expect(result.toJSON()).to.deep.equal(expectedResult.commands);
         expect(result.type).to.equal('ListCommandsResult');
       });
 

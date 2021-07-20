@@ -170,7 +170,7 @@ export default class Bulk extends ShellApiWithMongoClass {
    * Internal method to determine what is printed for this class.
    */
   [asPrintable](): any {
-    return this.tojson();
+    return this.toJSON();
   }
 
   /**
@@ -224,7 +224,7 @@ export default class Bulk extends ShellApiWithMongoClass {
     return this;
   }
 
-  tojson(): Record<'nInsertOps' | 'nUpdateOps' | 'nRemoveOps' | 'nBatches', number> {
+  toJSON(): Record<'nInsertOps' | 'nUpdateOps' | 'nRemoveOps' | 'nBatches', number> {
     const batches = this._serviceProviderBulkOp.batches.length;
 
     return {
@@ -234,7 +234,7 @@ export default class Bulk extends ShellApiWithMongoClass {
   }
 
   toString(): string {
-    return JSON.stringify(this.tojson());
+    return JSON.stringify(this.toJSON());
   }
 
   getOperations(): Pick<Batch, 'originalZeroIndex' | 'batchType' | 'operations'>[] {

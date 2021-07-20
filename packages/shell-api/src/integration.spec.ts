@@ -1511,8 +1511,8 @@ describe('Shell API (integration)', function() {
             expect(await collection.countDocuments()).to.equal(0);
             await bulk.execute();
           });
-          it('tojson returns correctly', async() => {
-            expect(bulk.tojson()).to.deep.equal({ nInsertOps: size, nUpdateOps: 0, nRemoveOps: 0, nBatches: 1 });
+          it('toJSON returns correctly', async() => {
+            expect(bulk.toJSON()).to.deep.equal({ nInsertOps: size, nUpdateOps: 0, nRemoveOps: 0, nBatches: 1 });
           });
           it('executes', async() => {
             expect(await collection.countDocuments()).to.equal(size);
@@ -1537,8 +1537,8 @@ describe('Shell API (integration)', function() {
             bulk.find({ x: { $mod: [ 2, 0 ] } }).remove();
             await bulk.execute();
           });
-          it('tojson returns correctly', async() => {
-            expect(bulk.tojson()).to.deep.equal({ nInsertOps: 0, nUpdateOps: 0, nRemoveOps: 1, nBatches: 1 });
+          it('toJSON returns correctly', async() => {
+            expect(bulk.toJSON()).to.deep.equal({ nInsertOps: 0, nUpdateOps: 0, nRemoveOps: 1, nBatches: 1 });
           });
           it('executes', async() => {
             expect(await collection.countDocuments()).to.equal(size / 2);
@@ -1562,8 +1562,8 @@ describe('Shell API (integration)', function() {
             bulk.find({ x: { $mod: [ 2, 0 ] } }).removeOne();
             await bulk.execute();
           });
-          it('tojson returns correctly', async() => {
-            expect(bulk.tojson()).to.deep.equal({ nInsertOps: 0, nUpdateOps: 0, nRemoveOps: 1, nBatches: 1 });
+          it('toJSON returns correctly', async() => {
+            expect(bulk.toJSON()).to.deep.equal({ nInsertOps: 0, nUpdateOps: 0, nRemoveOps: 1, nBatches: 1 });
           });
           it('executes', async() => {
             expect(await collection.countDocuments()).to.equal(size - 1);
@@ -1587,8 +1587,8 @@ describe('Shell API (integration)', function() {
             bulk.find({ x: 2 }).replaceOne({ x: 1 });
             await bulk.execute();
           });
-          it('tojson returns correctly', async() => {
-            expect(bulk.tojson()).to.deep.equal({ nInsertOps: 0, nUpdateOps: 1, nRemoveOps: 0, nBatches: 1 });
+          it('toJSON returns correctly', async() => {
+            expect(bulk.toJSON()).to.deep.equal({ nInsertOps: 0, nUpdateOps: 1, nRemoveOps: 0, nBatches: 1 });
           });
           it('executes', async() => {
             expect(await collection.countDocuments({ x: 1 })).to.equal(2);
@@ -1614,8 +1614,8 @@ describe('Shell API (integration)', function() {
             bulk.find({ x: 2 }).updateOne({ $inc: { x: -1 } });
             await bulk.execute();
           });
-          it('tojson returns correctly', async() => {
-            expect(bulk.tojson()).to.deep.equal({ nInsertOps: 0, nUpdateOps: 1, nRemoveOps: 0, nBatches: 1 });
+          it('toJSON returns correctly', async() => {
+            expect(bulk.toJSON()).to.deep.equal({ nInsertOps: 0, nUpdateOps: 1, nRemoveOps: 0, nBatches: 1 });
           });
           it('executes', async() => {
             expect(await collection.countDocuments({ x: 1 })).to.equal(2);
@@ -1641,8 +1641,8 @@ describe('Shell API (integration)', function() {
             bulk.find({ x: { $mod: [ 2, 0 ] } }).update({ $inc: { x: 1 } });
             await bulk.execute();
           });
-          it('tojson returns correctly', async() => {
-            expect(bulk.tojson()).to.deep.equal({ nInsertOps: 0, nUpdateOps: 1, nRemoveOps: 0, nBatches: 1 });
+          it('toJSON returns correctly', async() => {
+            expect(bulk.toJSON()).to.deep.equal({ nInsertOps: 0, nUpdateOps: 1, nRemoveOps: 0, nBatches: 1 });
           });
           it('executes', async() => {
             expect(await collection.countDocuments()).to.equal(size);
@@ -1671,8 +1671,8 @@ describe('Shell API (integration)', function() {
           afterEach(async() => {
             await collection.drop();
           });
-          it('tojson returns correctly', async() => {
-            expect(bulk.tojson()).to.deep.equal({ nInsertOps: 0, nUpdateOps: 1, nRemoveOps: 0, nBatches: 1 });
+          it('toJSON returns correctly', async() => {
+            expect(bulk.toJSON()).to.deep.equal({ nInsertOps: 0, nUpdateOps: 1, nRemoveOps: 0, nBatches: 1 });
           });
           it('executes', async() => {
             expect(await collection.countDocuments()).to.equal(size + 1);
@@ -1698,8 +1698,8 @@ describe('Shell API (integration)', function() {
             bulk.find({ y: 0 }).upsert().updateOne({ $set: { y: 1 } });
             await bulk.execute();
           });
-          it('tojson returns correctly', async() => {
-            expect(bulk.tojson()).to.deep.equal({ nInsertOps: 0, nUpdateOps: 1, nRemoveOps: 0, nBatches: 1 });
+          it('toJSON returns correctly', async() => {
+            expect(bulk.toJSON()).to.deep.equal({ nInsertOps: 0, nUpdateOps: 1, nRemoveOps: 0, nBatches: 1 });
           });
           it('executes', async() => {
             expect(await collection.countDocuments()).to.equal(size + 1);
@@ -1736,17 +1736,17 @@ describe('Shell API (integration)', function() {
             for (let i = 0; i < size; i++) {
               bulk.insert({ x: 1 });
             }
-            expect(bulk.tojson().nBatches).to.equal(1);
+            expect(bulk.toJSON().nBatches).to.equal(1);
             bulk.find({ x: 1 }).remove();
-            expect(bulk.tojson().nBatches).to.equal(2);
+            expect(bulk.toJSON().nBatches).to.equal(2);
             bulk.find({ x: 2 }).update({ $inc: { x: 1 } });
-            expect(bulk.tojson().nBatches).to.equal(3);
+            expect(bulk.toJSON().nBatches).to.equal(3);
             for (let i = 0; i < size; i++) {
               bulk.insert({ x: 1 });
             }
           });
           it('updates count depending on ordered or not', () => {
-            expect(bulk.tojson().nBatches).to.equal(m === 'initializeUnorderedBulkOp' ? 3 : 4);
+            expect(bulk.toJSON().nBatches).to.equal(m === 'initializeUnorderedBulkOp' ? 3 : 4);
           });
         });
         describe('collation', () => {
@@ -1777,8 +1777,8 @@ describe('Shell API (integration)', function() {
         //   afterEach(async() => {
         //     await collection.drop();
         //   });
-        //   it('tojson returns correctly', async() => {
-        //     expect(bulk.tojson()).to.deep.equal({ nInsertOps: 0, nUpdateOps: 1, nRemoveOps: 0, nBatches: 1 });
+        //   it('toJSON returns correctly', async() => {
+        //     expect(bulk.toJSON()).to.deep.equal({ nInsertOps: 0, nUpdateOps: 1, nRemoveOps: 0, nBatches: 1 });
         //   });
         //   it('executes', async() => {
         //     expect(await collection.countDocuments()).to.equal(10);
