@@ -5,7 +5,7 @@ plugins {
 }
 
 dependencies {
-    compile rootProject
+    implementation rootProject
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 }
 
