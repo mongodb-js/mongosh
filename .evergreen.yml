@@ -5,7 +5,8 @@ exec_timeout_secs: 3600
 #
 # Current functions:
 #   checkout - Checks out the project from git.
-#   install - Installs Node and all dependencies.
+#   compile_ts - Installs Node and all dependencies, and run all prepublish scripts.
+#   install - Installs Node and all dependencies, and download the result of running all prepublish scripts.
 #   check - Performs linter and dependency checks.
 #   test - Runs all tests.
 #   test_vscode - Clones the vscode extension repository and runs its tests.
@@ -22,6 +23,30 @@ functions:
     - command: git.get_project
       params:
         directory: src
+  compile_ts:
+    - command: expansions.write
+      params:
+        file: tmp/expansions.yaml
+        redacted: true
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          export NODE_JS_VERSION=${node_js_version}
+          source .evergreen/install-node.sh
+          npm run evergreen-release bump
+          npm run bootstrap-ci
+          tar cvzf compiled-ts.tgz packages/*/{lib,dist}
+    - command: s3.put
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/compiled-ts.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/compiled-ts.tgz
+        bucket: mciuploads
+        permissions: public-read
+        content_type: application/x-gzip
   install:
     - command: expansions.write
       params:
@@ -33,8 +58,21 @@ functions:
         shell: bash
         script: |
           export NODE_JS_VERSION=${node_js_version}
-          source .evergreen/.install_node
+          source .evergreen/install-node.sh
           npm run evergreen-release bump
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/compiled-ts.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/compiled-ts.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          tar xvzf compiled-ts.tgz
   check:
     - command: shell.exec
       params:
@@ -44,8 +82,8 @@ functions:
           set -e
           {
           export NODE_JS_VERSION=${node_js_version}
-          source .evergreen/.setup_env
-          npm --unsafe-perm=true run bootstrap-ci
+          source .evergreen/setup-env.sh
+          npm --unsafe-perm=true run bootstrap-ci -- --ignore-prepublish
           npm run check-ci
           }
   test:
@@ -61,8 +99,8 @@ functions:
           set -e
           {
           export NODE_JS_VERSION=${node_js_version}
-          source .evergreen/.setup_env
-          npm --unsafe-perm=true run bootstrap-ci
+          source .evergreen/setup-env.sh
+          npm --unsafe-perm=true run bootstrap-ci -- --ignore-prepublish
           npm run test-ci
           echo "Creating coverage tarball..."
           tar cvzf coverage.tgz coverage
@@ -88,8 +126,8 @@ functions:
           set -e
           {
           export NODE_JS_VERSION=${node_js_version}
-          source .evergreen/.setup_env
-          npm --unsafe-perm=true run bootstrap-ci
+          source .evergreen/setup-env.sh
+          npm --unsafe-perm=true run bootstrap-ci -- --ignore-prepublish
           (cd scripts/docker && docker build -t ubuntu18.04-xvfb -f ubuntu18.04-xvfb.Dockerfile .)
           docker run \
             --rm -v $PWD:/tmp/build ubuntu18.04-xvfb \
@@ -108,8 +146,8 @@ functions:
           set -e
           {
           export NODE_JS_VERSION=${node_js_version}
-          source .evergreen/.setup_env
-          npm --unsafe-perm=true run bootstrap-ci
+          source .evergreen/setup-env.sh
+          npm --unsafe-perm=true run bootstrap-ci -- --ignore-prepublish
           npm run test-connectivity
           }
   test_apistrict:
@@ -125,7 +163,7 @@ functions:
           set -e
           {
           export NODE_JS_VERSION=${node_js_version}
-          source .evergreen/.setup_env
+          source .evergreen/setup-env.sh
           npm run test-apistrict-ci
           }
 
@@ -364,7 +402,7 @@ functions:
           set -e
           {
           export NODE_JS_VERSION=${node_js_version}
-          source .evergreen/.setup_env
+          source .evergreen/setup-env.sh
           export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
           npm run evergreen-release draft
           }
@@ -382,11 +420,11 @@ functions:
           set -e
           {
           export NODE_JS_VERSION=${node_js_version}
-          source .evergreen/.setup_env
+          source .evergreen/setup-env.sh
           export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
           echo "registry=https://registry.npmjs.org/" > .npmrc
           echo "//registry.npmjs.org/:_authToken=${devtoolsbot_npm_token}" >> .npmrc
-          npm --unsafe-perm=true run bootstrap-ci
+          npm --unsafe-perm=true run bootstrap-ci -- --ignore-prepublish
           npm run evergreen-release publish
           }
 
@@ -394,6 +432,7 @@ functions:
 # pass or fail.
 #
 # Current tasks:
+#   compile_ts - Do the initial compilation of TS sources.
 #   check - Performs linter and dependency checks.
 #   test_{version} - Runs all tests, against a specified mongod version.
 #   test_vscode - Run the vscode extension integration tests.
@@ -405,7 +444,17 @@ functions:
 #   release_publish - Publishes the npm packages and uploads the tarballs.
 #   pkg_test_* - Run tests on the release packages
 tasks:
+  - name: compile_ts
+    commands:
+      - func: checkout
+      - func: compile_ts
+        vars:
+          node_js_version: "14.17.1"
+
   - name: check
+    depends_on:
+      - name: compile_ts
+        variant: linux
     commands:
       - func: checkout
       - func: install
@@ -421,6 +470,9 @@ tasks:
   ###
   - name: test_m40xc_n12
     tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux
     commands:
       - func: checkout
       - func: install
@@ -433,6 +485,9 @@ tasks:
           mongosh_skip_node_version_check: "1"
   - name: test_m40xe_n12
     tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux
     commands:
       - func: checkout
       - func: install
@@ -445,6 +500,9 @@ tasks:
           mongosh_skip_node_version_check: "1"
   - name: test_m42xc_n12
     tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux
     commands:
       - func: checkout
       - func: install
@@ -457,6 +515,9 @@ tasks:
           mongosh_skip_node_version_check: "1"
   - name: test_m42xe_n12
     tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux
     commands:
       - func: checkout
       - func: install
@@ -469,6 +530,9 @@ tasks:
           mongosh_skip_node_version_check: "1"
   - name: test_m44xc_n12
     tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux
     commands:
       - func: checkout
       - func: install
@@ -481,6 +545,9 @@ tasks:
           mongosh_skip_node_version_check: "1"
   - name: test_m44xe_n12
     tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux
     commands:
       - func: checkout
       - func: install
@@ -493,6 +560,9 @@ tasks:
           mongosh_skip_node_version_check: "1"
   - name: test_m50xc_n12
     tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux
     commands:
       - func: checkout
       - func: install
@@ -505,6 +575,9 @@ tasks:
           mongosh_skip_node_version_check: "1"
   - name: test_m50xe_n12
     tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux
     commands:
       - func: checkout
       - func: install
@@ -517,6 +590,9 @@ tasks:
           mongosh_skip_node_version_check: "1"
   - name: test_mlatest_n12
     tags: ["unit-test","mlatest"]
+    depends_on:
+      - name: compile_ts
+        variant: linux
     commands:
       - func: checkout
       - func: install
@@ -529,6 +605,9 @@ tasks:
           mongosh_skip_node_version_check: "1"
   - name: test_m40xc_n14
     tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux
     commands:
       - func: checkout
       - func: install
@@ -541,6 +620,9 @@ tasks:
           mongosh_skip_node_version_check: ""
   - name: test_m40xe_n14
     tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux
     commands:
       - func: checkout
       - func: install
@@ -553,6 +635,9 @@ tasks:
           mongosh_skip_node_version_check: ""
   - name: test_m42xc_n14
     tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux
     commands:
       - func: checkout
       - func: install
@@ -565,6 +650,9 @@ tasks:
           mongosh_skip_node_version_check: ""
   - name: test_m42xe_n14
     tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux
     commands:
       - func: checkout
       - func: install
@@ -577,6 +665,9 @@ tasks:
           mongosh_skip_node_version_check: ""
   - name: test_m44xc_n14
     tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux
     commands:
       - func: checkout
       - func: install
@@ -589,6 +680,9 @@ tasks:
           mongosh_skip_node_version_check: ""
   - name: test_m44xe_n14
     tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux
     commands:
       - func: checkout
       - func: install
@@ -601,6 +695,9 @@ tasks:
           mongosh_skip_node_version_check: ""
   - name: test_m50xc_n14
     tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux
     commands:
       - func: checkout
       - func: install
@@ -613,6 +710,9 @@ tasks:
           mongosh_skip_node_version_check: ""
   - name: test_m50xe_n14
     tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux
     commands:
       - func: checkout
       - func: install
@@ -625,6 +725,9 @@ tasks:
           mongosh_skip_node_version_check: ""
   - name: test_mlatest_n14
     tags: ["unit-test","mlatest"]
+    depends_on:
+      - name: compile_ts
+        variant: linux
     commands:
       - func: checkout
       - func: install
@@ -641,6 +744,9 @@ tasks:
   ###
   - name: test_vscode
     tags: ["extra-integration-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux
     commands:
       - func: checkout
       - func: install
@@ -651,6 +757,9 @@ tasks:
           node_js_version: "12.20.0"
   - name: test_connectivity
     tags: ["extra-integration-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux
     commands:
       - func: checkout
       - func: install
@@ -659,6 +768,9 @@ tasks:
       - func: test_connectivity
   - name: test_apistrict
     tags: ["extra-integration-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux
     commands:
       - func: checkout
       - func: install
@@ -670,6 +782,9 @@ tasks:
           mongosh_server_test_version: "latest-alpha"
           mongosh_test_force_api_strict: "1"
   - name: compile_artifact
+    depends_on:
+      - name: compile_ts
+        variant: linux
     commands:
       - func: checkout
       - func: install
@@ -1287,6 +1402,9 @@ tasks:
     tags: ["publish"]
     git_tag_only: true
     exec_timeout_secs: 7200
+    depends_on:
+      - name: compile_ts
+        variant: linux
     commands:
       - func: checkout
       - func: install
@@ -1345,6 +1463,7 @@ buildvariants:
     display_name: "Ubuntu 18.04 x64"
     run_on: ubuntu1804-small
     tasks:
+      - name: compile_ts
       - name: check
       - name: test_m40xc_n12
       - name: test_m40xe_n12

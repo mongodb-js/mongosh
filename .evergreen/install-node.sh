@@ -28,7 +28,7 @@ else
   fi
 fi
 
-. "$BASEDIR/.setup_env"
+. "$BASEDIR/setup-env.sh"
 
 # We need the build package for various tasks, and can bootstrap the cli-repl
 # package on all hosts, including dependencies.
@@ -39,6 +39,8 @@ fi
 # to installing with --ignore-scripts (i.e. do not attempt to build addons)
 # and only do the TypeScript compilation step, which is sufficient for the
 # executable compilation step.
-npm --unsafe-perm=true run bootstrap-ci -- --scope @mongosh/build
-npm --unsafe-perm=true run bootstrap-ci -- --scope @mongosh/cli-repl --include-dependencies || \
-  (npm --unsafe-perm=true run bootstrap-ci -- --scope @mongosh/cli-repl --include-dependencies --ignore-scripts && npm --unsafe-perm=true run compile-cli)
+npm ci --verbose
+
+npm run bootstrap-ci -- --scope @mongosh/build --ignore-prepublish
+(npm run bootstrap-ci -- --scope @mongosh/cli-repl --include-dependencies --ignore-prepublish && test -e packages/service-provider-server/node_modules/mongodb-client-encryption) || \
+  npm run bootstrap-ci -- --scope @mongosh/cli-repl --include-dependencies --ignore-prepublish --ignore-scripts

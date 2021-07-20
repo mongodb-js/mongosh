@@ -21,4 +21,5 @@ tmp/expansions.yaml
 .evergreen/mongodb
 tmp/
 dist.tgz
+compiled-ts.tgz
 mongocryptd.pid
