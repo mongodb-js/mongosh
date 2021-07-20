@@ -18,7 +18,18 @@ const NODE_VERSIONS = [
   { shortName: '12', versionSpec: NODE_JS_VERSION_12, skipNodeVersionCheck: '1' },
   { shortName: '14', versionSpec: NODE_JS_VERSION_14, skipNodeVersionCheck: '' }
 ];
+
 const ALL_UNIT_TESTS = [];
+for (const { shortName: nShort, versionSpec: nVersion, skipNodeVersionCheck } of NODE_VERSIONS) {
+  for (const { shortName: mShort, versionSpec: mVersion } of MONGODB_VERSIONS) {
+    const id = `m${mShort}_n${nShort}`;
+    ALL_UNIT_TESTS.push({
+      id, nShort, nVersion, mShort, mVersion, skipNodeVersionCheck
+    });
+  }
+}
+
+const ALL_UNIT_TEST_BUILD_VARIANTS = ['darwin', 'linux', 'win32'];
 
 const EXECUTABLE_PKG_INFO = [
   {
@@ -185,8 +196,8 @@ functions:
           source .evergreen/setup-env.sh
           npm --unsafe-perm=true run bootstrap-ci -- --ignore-prepublish
           npm run test-ci
-          echo "Creating coverage tarball..."
-          tar cvzf coverage.tgz coverage
+          echo "Archiving current coverage result..."
+          tar cvzf nyc-output.tgz .nyc_output
           }
         env:
           AWS_AUTH_IAM_ACCESS_KEY_ID: ${devtools_ci_aws_key}
@@ -195,11 +206,53 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/coverage.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/coverage-${build_variant}.tgz
+        local_file: src/nyc-output.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-${build_variant}-${mongosh_test_id}.tgz
         bucket: mciuploads
         permissions: public-read
         content_type: application/x-gzip
+
+  check_coverage:
+    <% for (let buildVariant of ALL_UNIT_TEST_BUILD_VARIANTS) {
+        for (let unitTest of ALL_UNIT_TESTS) { %>
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-<% out(buildVariant) %>-<% out(unitTest.id) %>.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-<% out(buildVariant) %>-<% out(unitTest.id) %>.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-<% out(buildVariant) %>-<% out(unitTest.id) %>.tgz
+    <% } } %>
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          {
+          export NODE_JS_VERSION=${node_js_version}
+          source .evergreen/setup-env.sh
+          npm run report-coverage-ci
+          echo "Creating coverage tarball..."
+          tar cvzf coverage.tgz coverage
+          }
+    - command: s3.put
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/coverage.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/coverage.tgz
+        bucket: mciuploads
+        permissions: public-read
+        content_type: application/x-gzip
+
   test_vscode:
     - command: shell.exec
       params:
@@ -516,6 +569,7 @@ functions:
 # Current tasks:
 #   compile_ts - Do the initial compilation of TS sources.
 #   check - Performs linter and dependency checks.
+#   check_coverage - Performs coverage check by merging all NYC outputs first
 #   test_{version} - Runs all tests, against a specified mongod version.
 #   test_vscode - Run the vscode extension integration tests.
 #   test_connectivity - Runs extra connectivity tests.
@@ -546,13 +600,25 @@ tasks:
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_14) %>"
 
+  - name: check_coverage
+    depends_on:
+      - name: ".unit-test"
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+      - func: check_coverage
+        vars:
+          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+
   ###
   # UNIT TESTS
   # E.g. test_m40xc_n12 stands for mongod 4.0.x, community edition, Node.js 12
   ###
-  <% for (const { shortName: nShort, versionSpec: nVersion, skipNodeVersionCheck } of NODE_VERSIONS) {
-       for (const { shortName: mShort, versionSpec: mVersion } of MONGODB_VERSIONS) { %>
-  - name: test_<% const id = `m${mShort}_n${nShort}`; ALL_UNIT_TESTS.push(id); out(id) %>
+  <% for (const { id, nShort, nVersion, mShort, mVersion, skipNodeVersionCheck } of ALL_UNIT_TESTS) { %>
+  - name: test_<% out(id) %>
     tags: <% out(["unit-test", ...(mShort === 'latest' ? ["mlatest"] : [])]) %>
     depends_on:
       - name: compile_ts
@@ -567,7 +633,8 @@ tasks:
           mongosh_server_test_version: "<% out(mVersion) %>"
           node_js_version: "<% out(nVersion) %>"
           mongosh_skip_node_version_check: "<% out(skipNodeVersionCheck) %>"
-  <% } } %>
+          mongosh_test_id: "<% out(id) %>"
+  <% } %>
 
   ###
   # INTEGRATION TESTS
@@ -768,7 +835,7 @@ buildvariants:
     tasks:
       - name: check
       <% for (const test of ALL_UNIT_TESTS) { %>
-      - name: test_<% out(test) %>
+      - name: test_<% out(test.id) %>
       <% } %>
       - name: compile_artifact
       - name: e2e_tests_darwin_x64
@@ -788,8 +855,9 @@ buildvariants:
     tasks:
       - name: compile_ts
       - name: check
+      - name: check_coverage
       <% for (const test of ALL_UNIT_TESTS) { %>
-      - name: test_<% out(test) %>
+      - name: test_<% out(test.id) %>
       <% } %>
       - name: test_mlatest_n14
       - name: test_vscode
@@ -932,7 +1000,7 @@ buildvariants:
     tasks:
       - name: check
       <% for (const test of ALL_UNIT_TESTS) { %>
-      - name: test_<% out(test) %>
+      - name: test_<% out(test.id) %>
       <% } %>
       - name: e2e_tests_win32
       - name: package_and_upload_artifact_win32_x64
