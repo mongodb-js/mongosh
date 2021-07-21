@@ -16,7 +16,7 @@ jobs:
       - name: Install Dependencies
         run: |
           npm ci
-          npm run bootstrap
+          npm run bootstrap-ci
       - name: Set up Git
         run: |
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
