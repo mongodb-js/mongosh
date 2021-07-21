@@ -4,6 +4,11 @@ export BASEDIR="$PWD/.evergreen"
 
 if [ "$OS" == "Windows_NT" ]; then
   powershell "$(cygpath -w "$BASEDIR")"/InstallNode.ps1
+
+  # Explicitly grab a fresh portable Git for Windows build
+  curl -L https://github.com/git-for-windows/git/releases/download/v2.32.0.windows.2/MinGit-2.32.0.2-busybox-64-bit.zip -o "$BASEDIR/mingit-2.32.0.zip"
+  mkdir "$BASEDIR/mingit"
+  unzip "$BASEDIR/mingit-2.32.0.zip" -d "$BASEDIR/mingit"
 else
   if which realpath; then # No realpath on macOS, but also not needed there
     export HOME="$(realpath "$HOME")" # Needed to de-confuse nvm when /home is a symlink

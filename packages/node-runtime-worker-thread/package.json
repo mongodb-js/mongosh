@@ -17,10 +17,9 @@
     "node": ">=12.4.0"
   },
   "scripts": {
-    "pretest": "npm run webpack-build-dev -- --no-stats --no-devtool",
-    "test": "cross-env TS_NODE_PROJECT=./tsconfig.test.json mocha -r \"../../scripts/import-expansions.js\" --timeout 15000 --colors -r ts-node/register \"./src/**/*.spec.ts\"",
-    "pretest-ci": "npm run webpack-build -- --no-stats --no-devtool",
-    "test-ci": "cross-env TS_NODE_PROJECT=./tsconfig.test.json mocha -r \"../../scripts/import-expansions.js\" --timeout 15000 -r ts-node/register \"./src/**/*.spec.ts\"",
+    "test": "cross-env TS_NODE_PROJECT=./tsconfig.test.json mocha -r \"../../scripts/import-expansions.js\" --timeout 15000 -r ts-node/register \"./src/**/*.spec.ts\"",
+    "pretest-ci": "node ../../scripts/run-if-package-requested.js npm run webpack-build -- --no-stats --no-devtool",
+    "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
     "lint": "eslint --report-unused-disable-directives \"./{src,test}/**/*.{js,ts,tsx}\"",
     "check": "npm run lint && depcheck",
     "webpack-build": "webpack --mode production",

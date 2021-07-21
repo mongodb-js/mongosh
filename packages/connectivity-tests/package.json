@@ -5,7 +5,7 @@
   "license": "Apache-2.0",
   "scripts": {
     "test-connectivity": "bash test/all.sh",
-    "test-ci": "npm run test"
+    "test-ci": "node ../../scripts/run-if-package-requested.js npm test"
   },
   "devDependencies": {
     "mongosh": "0.0.0-dev.0"
