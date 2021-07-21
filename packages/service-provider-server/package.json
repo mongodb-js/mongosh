@@ -50,6 +50,6 @@
     "mongodb-client-encryption": "^1.2.6",
     "os-dns-native": "^1.0.3",
     "resolve-mongodb-srv": "^1.1.0",
-    "kerberos": "^1.1.5"
+    "kerberos": "^1.1.6"
   }
 }
