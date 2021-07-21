@@ -240,6 +240,7 @@ class CliRepl {
         this.bus.emit('mongosh:mongoshrc-load');
         await this.mongoshRepl.loadExternalFile(mongoshrcPath);
       } catch (err) {
+        this.output.write(this.clr('Error while running ~/.mongoshrc.js:\n', ['bold', 'yellow']));
         this.output.write(this.mongoshRepl.writer(err) + '\n');
       }
       return;

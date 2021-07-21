@@ -388,6 +388,14 @@ describe('CliRepl', () => {
           await cliRepl.start('', {});
           expect(output).to.include('reached five');
         });
+
+        it('if an exception is thrown, indicates that it comes from mongoshrc', async() => {
+          await fs.writeFile(path.join(tmpdir.path, '.mongoshrc.js'), 'throw new Error("bananas")');
+          cliRepl = new CliRepl(cliReplOptions);
+          await cliRepl.start('', {});
+          expect(output).to.include('Error while running ~/.mongoshrc.js:');
+          expect(output).to.include('Error: bananas');
+        });
       });
 
       context('files loaded from command line', () => {
