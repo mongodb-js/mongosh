@@ -39,6 +39,8 @@ if [ `uname` = Linux ]; then
   export npm_config_unsafe_perm=true
 fi
 
+export npm_config_registry=https://registry.npmjs.org/
+
 echo "Full path:"
 echo $PATH
 
