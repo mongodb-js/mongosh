@@ -14,7 +14,9 @@ jobs:
       - uses: actions/checkout@v1
       - uses: actions/setup-node@v2
       - name: Install Dependencies
-        run: npm run bootstrap-ci
+        run: |
+          npm ci
+          npm run bootstrap
       - name: Set up Git
         run: |
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
