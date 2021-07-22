@@ -90,7 +90,24 @@ export async function gatherLicenses(startPath: string): Promise<Package[]> {
           }
           throw new Error(`Could not resolve ${dep} require from ${pkg.path}`);
         }
-        const pkgJson = await pkgUp({ cwd: path.dirname(resolved) });
+        const pkgJson = await findUp(
+          async (directory) => {
+            const candidate = path.join(directory, 'package.json');
+            try {
+              const { name, version } = require(candidate);
+              // Make sure that package.json that we found has the bare
+              // minimum of required package.json keys
+              if (name && version) {
+                return candidate;
+              }
+            } catch (e) {
+              // Ignore errors, just return undefined to continue
+              // traversal
+            }
+            return undefined;
+          },
+          { cwd: path.dirname(resolved) }
+        );
         if (!pkgJson) {
           throw new Error(`Could not find package.json for ${dep} required from ${pkg.path}`);
         }
