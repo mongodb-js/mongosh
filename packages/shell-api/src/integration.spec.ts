@@ -690,7 +690,7 @@ describe('Shell API (integration)', function() {
           result = await collection.drop();
         });
 
-        it('returns true', async() => {
+        it('returns true', () => {
           expect(result).to.be.true;
         });
 
@@ -939,7 +939,7 @@ describe('Shell API (integration)', function() {
         const longOne = new serviceProvider.bsonLibrary.Long('1');
         await serviceProvider.insertOne(dbName, collectionName, { longOne, _id: 0 });
 
-        const cursor = await collection.find({});
+        const cursor = collection.find({});
 
         expect(await cursor.toArray()).to.deep.equal([{ longOne, _id: 0 }]);
       });
@@ -948,7 +948,7 @@ describe('Shell API (integration)', function() {
         const longOne = new serviceProvider.bsonLibrary.Long('1');
         await serviceProvider.insertOne(dbName, collectionName, { longOne, _id: 0 });
 
-        const cursor = await collection.find({}, {}, { promoteLongs: true });
+        const cursor = collection.find({}, {}, { promoteLongs: true });
 
         expect(await cursor.toArray()).to.deep.equal([{ longOne: 1, _id: 0 }]);
       });
@@ -1217,9 +1217,7 @@ describe('Shell API (integration)', function() {
 
     describe('find', () => {
       it('returns a cursor that has the explain as result of toShellResult', async() => {
-        const cursor = await explainable.find()
-          .skip(1)
-          .limit(1);
+        const cursor = explainable.find().skip(1).limit(1);
         const result = await toShellResult(cursor);
         expect(result.printable).to.include.all.keys([
           'ok',
@@ -1497,7 +1495,7 @@ describe('Shell API (integration)', function() {
     });
   });
 
-  describe('Bulk API', async() => {
+  describe('Bulk API', () => {
     let bulk;
     const size = 100;
     ['initializeUnorderedBulkOp', 'initializeOrderedBulkOp'].forEach((m) => {
@@ -1511,7 +1509,7 @@ describe('Shell API (integration)', function() {
             expect(await collection.countDocuments()).to.equal(0);
             await bulk.execute();
           });
-          it('toJSON returns correctly', async() => {
+          it('toJSON returns correctly', () => {
             expect(bulk.toJSON()).to.deep.equal({ nInsertOps: size, nUpdateOps: 0, nRemoveOps: 0, nBatches: 1 });
           });
           it('executes', async() => {
@@ -1527,7 +1525,7 @@ describe('Shell API (integration)', function() {
             expect(op.operations[99].x).to.equal(99);
           });
         });
-        describe('remove', async() => {
+        describe('remove', () => {
           beforeEach(async() => {
             bulk = await collection[m]();
             for (let i = 0; i < size; i++) {
@@ -1537,7 +1535,7 @@ describe('Shell API (integration)', function() {
             bulk.find({ x: { $mod: [ 2, 0 ] } }).remove();
             await bulk.execute();
           });
-          it('toJSON returns correctly', async() => {
+          it('toJSON returns correctly', () => {
             expect(bulk.toJSON()).to.deep.equal({ nInsertOps: 0, nUpdateOps: 0, nRemoveOps: 1, nBatches: 1 });
           });
           it('executes', async() => {
@@ -1552,7 +1550,7 @@ describe('Shell API (integration)', function() {
             expect(op.operations.length).to.equal(1);
           });
         });
-        describe('removeOne', async() => {
+        describe('removeOne', () => {
           beforeEach(async() => {
             bulk = await collection[m]();
             for (let i = 0; i < size; i++) {
@@ -1562,7 +1560,7 @@ describe('Shell API (integration)', function() {
             bulk.find({ x: { $mod: [ 2, 0 ] } }).removeOne();
             await bulk.execute();
           });
-          it('toJSON returns correctly', async() => {
+          it('toJSON returns correctly', () => {
             expect(bulk.toJSON()).to.deep.equal({ nInsertOps: 0, nUpdateOps: 0, nRemoveOps: 1, nBatches: 1 });
           });
           it('executes', async() => {
@@ -1577,7 +1575,7 @@ describe('Shell API (integration)', function() {
             expect(op.operations.length).to.equal(1);
           });
         });
-        describe('replaceOne', async() => {
+        describe('replaceOne', () => {
           beforeEach(async() => {
             bulk = await collection[m]();
             for (let i = 0; i < size; i++) {
@@ -1587,7 +1585,7 @@ describe('Shell API (integration)', function() {
             bulk.find({ x: 2 }).replaceOne({ x: 1 });
             await bulk.execute();
           });
-          it('toJSON returns correctly', async() => {
+          it('toJSON returns correctly', () => {
             expect(bulk.toJSON()).to.deep.equal({ nInsertOps: 0, nUpdateOps: 1, nRemoveOps: 0, nBatches: 1 });
           });
           it('executes', async() => {
@@ -1604,7 +1602,7 @@ describe('Shell API (integration)', function() {
             expect(op.operations.length).to.equal(1);
           });
         });
-        describe('updateOne', async() => {
+        describe('updateOne', () => {
           beforeEach(async() => {
             bulk = await collection[m]();
             for (let i = 0; i < size; i++) {
@@ -1614,7 +1612,7 @@ describe('Shell API (integration)', function() {
             bulk.find({ x: 2 }).updateOne({ $inc: { x: -1 } });
             await bulk.execute();
           });
-          it('toJSON returns correctly', async() => {
+          it('toJSON returns correctly', () => {
             expect(bulk.toJSON()).to.deep.equal({ nInsertOps: 0, nUpdateOps: 1, nRemoveOps: 0, nBatches: 1 });
           });
           it('executes', async() => {
@@ -1631,7 +1629,7 @@ describe('Shell API (integration)', function() {
             expect(op.operations.length).to.equal(1);
           });
         });
-        describe('update', async() => {
+        describe('update', () => {
           beforeEach(async() => {
             bulk = await collection[m]();
             for (let i = 0; i < size; i++) {
@@ -1641,7 +1639,7 @@ describe('Shell API (integration)', function() {
             bulk.find({ x: { $mod: [ 2, 0 ] } }).update({ $inc: { x: 1 } });
             await bulk.execute();
           });
-          it('toJSON returns correctly', async() => {
+          it('toJSON returns correctly', () => {
             expect(bulk.toJSON()).to.deep.equal({ nInsertOps: 0, nUpdateOps: 1, nRemoveOps: 0, nBatches: 1 });
           });
           it('executes', async() => {
@@ -1657,7 +1655,7 @@ describe('Shell API (integration)', function() {
             expect(op.operations.length).to.equal(1);
           });
         });
-        describe('upsert().update', async() => {
+        describe('upsert().update', () => {
           beforeEach(async() => {
             bulk = await collection[m]();
             for (let i = 0; i < size; i++) {
@@ -1671,7 +1669,7 @@ describe('Shell API (integration)', function() {
           afterEach(async() => {
             await collection.drop();
           });
-          it('toJSON returns correctly', async() => {
+          it('toJSON returns correctly', () => {
             expect(bulk.toJSON()).to.deep.equal({ nInsertOps: 0, nUpdateOps: 1, nRemoveOps: 0, nBatches: 1 });
           });
           it('executes', async() => {
@@ -1687,7 +1685,7 @@ describe('Shell API (integration)', function() {
             expect(op.operations.length).to.equal(1);
           });
         });
-        describe('upsert().updateOne', async() => {
+        describe('upsert().updateOne', () => {
           beforeEach(async() => {
             bulk = await collection[m]();
             for (let i = 0; i < size; i++) {
@@ -1698,7 +1696,7 @@ describe('Shell API (integration)', function() {
             bulk.find({ y: 0 }).upsert().updateOne({ $set: { y: 1 } });
             await bulk.execute();
           });
-          it('toJSON returns correctly', async() => {
+          it('toJSON returns correctly', () => {
             expect(bulk.toJSON()).to.deep.equal({ nInsertOps: 0, nUpdateOps: 1, nRemoveOps: 0, nBatches: 1 });
           });
           it('executes', async() => {
@@ -1714,7 +1712,7 @@ describe('Shell API (integration)', function() {
             expect(op.operations.length).to.equal(1);
           });
         });
-        describe('update without upsert', async() => {
+        describe('update without upsert', () => {
           beforeEach(async() => {
             bulk = await collection[m]();
             for (let i = 0; i < size; i++) {
@@ -1730,7 +1728,7 @@ describe('Shell API (integration)', function() {
             expect(await collection.countDocuments({ y: { $exists: true } })).to.equal(0);
           });
         });
-        describe('multiple batches', async() => {
+        describe('multiple batches', () => {
           beforeEach(async() => {
             bulk = await collection[m]();
             for (let i = 0; i < size; i++) {
@@ -1763,37 +1761,36 @@ describe('Shell API (integration)', function() {
             }]);
           });
         });
-        // NOTE: blocked by NODE-2751
-        // describe('arrayFilters().update', async() => {
-        //   beforeEach(async() => {
-        //     bulk = await collection[m]();
-        //     for (let i = 0; i < 10; i++) {
-        //       await collection.insertOne({ x: i, array: [1, -1] });
-        //     }
-        //     expect(await collection.countDocuments({ x: { $exists: true } })).to.equal(10);
-        //     bulk.find({ x: { $exists: true } }).arrayFilters([{ element: { $gte: 0 } }]).update({ $set: { 'arr.$[element]': 1 } });
-        //     await bulk.execute();
-        //   });
-        //   afterEach(async() => {
-        //     await collection.drop();
-        //   });
-        //   it('toJSON returns correctly', async() => {
-        //     expect(bulk.toJSON()).to.deep.equal({ nInsertOps: 0, nUpdateOps: 1, nRemoveOps: 0, nBatches: 1 });
-        //   });
-        //   it('executes', async() => {
-        //     expect(await collection.countDocuments()).to.equal(10);
-        //     expect(await collection.countDocuments({ arr: [ -1, -1 ] })).to.equal(10);
-        //     expect(await collection.countDocuments({ arr: [ 1, -1 ] })).to.equal(0);
-        //   });
-        //   it('getOperations returns correctly', () => {
-        //     const ops = bulk.getOperations();
-        //     expect(ops.length).to.equal(1);
-        //     const op = ops[0];
-        //     expect(op.originalZeroIndex).to.equal(0);
-        //     expect(op.batchType).to.equal(2);
-        //     expect(op.operations.length).to.equal(1);
-        //   });
-        // });
+        describe('arrayFilters().update', () => {
+          beforeEach(async() => {
+            bulk = await collection[m]();
+            for (let i = 0; i < 10; i++) {
+              await collection.insertOne({ x: i, arr: [1, -1] });
+            }
+            expect(await collection.countDocuments({ x: { $exists: true } })).to.equal(10);
+            bulk.find({ x: { $exists: true } }).arrayFilters([{ element: { $gte: 0 } }]).update({ $set: { 'arr.$[element]': -1 } });
+            await bulk.execute();
+          });
+          afterEach(async() => {
+            await collection.drop();
+          });
+          it('toJSON returns correctly', () => {
+            expect(bulk.toJSON()).to.deep.equal({ nInsertOps: 0, nUpdateOps: 1, nRemoveOps: 0, nBatches: 1 });
+          });
+          it('executes', async() => {
+            expect(await collection.countDocuments()).to.equal(10);
+            expect(await collection.countDocuments({ arr: [ -1, -1 ] })).to.equal(10);
+            expect(await collection.countDocuments({ arr: [ 1, -1 ] })).to.equal(0);
+          });
+          it('getOperations returns correctly', () => {
+            const ops = bulk.getOperations();
+            expect(ops.length).to.equal(1);
+            const op = ops[0];
+            expect(op.originalZeroIndex).to.equal(0);
+            expect(op.batchType).to.equal(2);
+            expect(op.operations.length).to.equal(1);
+          });
+        });
         describe('error states', () => {
           it('cannot be executed twice', async() => {
             bulk = await collection[m]();
@@ -1835,16 +1832,6 @@ describe('Shell API (integration)', function() {
               await bulk.execute();
             } catch (err) {
               expect(err.name).to.include('BulkWriteError');
-              return;
-            }
-            expect.fail('Error not thrown');
-          });
-          it('arrayFilters', async() => {
-            bulk = await collection[m]();
-            try {
-              await bulk.find({}).arrayFilters([{}]);
-            } catch (err) {
-              expect(err.name).to.equal('MongoshUnimplementedError');
               return;
             }
             expect.fail('Error not thrown');

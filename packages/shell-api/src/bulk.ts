@@ -1,6 +1,6 @@
 import { returnsPromise, shellApiClassDefault, returnType, deprecated, apiVersions, ShellApiWithMongoClass } from './decorators';
 import Mongo from './mongo';
-import { CommonErrors, MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
+import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
 import {
   Batch,
   Document,
@@ -11,7 +11,6 @@ import {
   CollationOptions
 } from '@mongosh/service-provider-core';
 import { asPrintable } from './enums';
-import { blockedByDriverMetadata } from './error-codes';
 import { assertArgsDefinedType } from './helpers';
 import { BulkWriteResult } from './result';
 import type Collection from './collection';
@@ -43,14 +42,11 @@ export class BulkFindOp extends ShellApiWithMongoClass {
     return this;
   }
 
-  // Blocked by NODE-2751, bulk arrayFilters
+  @returnType('BulkFindOp')
   @apiVersions([1])
-  arrayFilters(): BulkFindOp {
-    throw new MongoshUnimplementedError(
-      'arrayFilters method on fluent Bulk API is not currently supported.',
-      CommonErrors.NotImplemented,
-      blockedByDriverMetadata('BulkFindOp.arrayFilters')
-    );
+  arrayFilters(filters: Document[]): BulkFindOp {
+    this._serviceProviderBulkFindOp.arrayFilters(filters);
+    return this;
   }
 
   @returnType('BulkFindOp')

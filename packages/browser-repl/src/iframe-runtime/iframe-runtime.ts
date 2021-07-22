@@ -79,6 +79,7 @@ export class IframeRuntime implements Runtime {
     return this.initialize();
   }
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   async destroy(): Promise<void> {
     if (!this.iframe) {
       return;

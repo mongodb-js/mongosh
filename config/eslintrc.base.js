@@ -7,6 +7,10 @@ const ruleOverridesForJs = Object.keys(typescriptEslintEslintPlugin.rules).reduc
 
 module.exports = {
   plugins: ['mocha'],
+  parser: '@typescript-eslint/parser',
+  parserOptions: {
+    project: './tsconfig.lint.json'
+  },
   extends: [
     'eslint-config-mongodb-js/react',
     'plugin:@typescript-eslint/recommended'
@@ -21,6 +25,9 @@ module.exports = {
     '@typescript-eslint/no-explicit-any': 0,
     '@typescript-eslint/no-var-requires': 0, // seems necessary to import less files
     '@typescript-eslint/no-unused-vars': 2,
+    '@typescript-eslint/no-floating-promises': 2,
+    '@typescript-eslint/await-thenable': 2,
+    '@typescript-eslint/require-await': 2,
     '@typescript-eslint/explicit-module-boundary-types': 0,
     '@typescript-eslint/ban-types': 0,
     'mocha/no-skipped-tests': 1,

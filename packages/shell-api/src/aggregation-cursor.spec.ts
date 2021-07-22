@@ -152,8 +152,8 @@ describe('AggregationCursor', () => {
             shellApiCursor = new AggregationCursor(mongo, spCursor);
           });
 
-          it(`returns ${expected}`, async() => {
-            expect(await shellApiCursor.isExhausted()).to.equal(expected);
+          it(`returns ${expected}`, () => {
+            expect(shellApiCursor.isExhausted()).to.equal(expected);
           });
         });
       });
@@ -225,7 +225,7 @@ describe('AggregationCursor', () => {
               return false;
             }
             if (prop === 'tryNext') {
-              return async() => ({ key: i++ });
+              return () => Promise.resolve({ key: i++ });
             }
             if (prop === 'batchSize') {
               return (size: number) => { batchSize = size; };

@@ -22,11 +22,13 @@ describe('Lock', () => {
   it('throws when trying to create locks when locked', () => {
     const lock = new Lock();
 
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     lock.lock();
 
     let err: Error;
 
     try {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       lock.lock();
     } catch (e) {
       err = e;
@@ -51,6 +53,7 @@ describe('Lock', () => {
     it('shoult return current lock status', () => {
       const lock = new Lock();
       expect(lock.isLocked()).to.equal(false);
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       lock.lock();
       expect(lock.isLocked()).to.equal(true);
       lock.unlock();

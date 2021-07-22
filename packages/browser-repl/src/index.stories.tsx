@@ -16,6 +16,7 @@ const delay = (msecs: number): Promise<void> => new Promise((resolve) => {
 });
 
 class DemoServiceProvider {
+  // eslint-disable-next-line @typescript-eslint/require-await
   async buildInfo(): Promise<object> {
     return { version: '4.0.0', modules: ['other', 'enterprise'] };
   }
@@ -66,6 +67,7 @@ class DemoServiceProvider {
     ];
   }
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   async stats(): Promise<any> {
     return { size: 1000 };
   }
@@ -75,9 +77,11 @@ const runtime = new IframeRuntime(new DemoServiceProvider() as any);
 
 export const IframeRuntimeExample: React.FunctionComponent = () => {
   useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     runtime.initialize();
 
     return (): void => {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       runtime.destroy();
     };
   }, []);

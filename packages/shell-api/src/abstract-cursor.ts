@@ -46,6 +46,7 @@ export abstract class AbstractCursor<CursorType extends ServiceProviderAggregati
       // at all.
       throw this._mapError;
     }
+    // eslint-disable-next-line @typescript-eslint/await-thenable
     const ret = await fn();
     if (this._mapError) {
       // If an error occurred during the function, we don't want to forward its

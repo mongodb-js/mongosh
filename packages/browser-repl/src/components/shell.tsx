@@ -111,6 +111,7 @@ export class Shell extends Component<ShellProps, ShellState> {
 
   componentDidMount(): void {
     this.scrollToBottom();
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.updateShellPrompt();
   }
 

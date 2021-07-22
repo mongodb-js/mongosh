@@ -32,7 +32,7 @@ describe('MongoshNodeRepl', () => {
   let config: Record<string, any>;
   const tmpdir = useTmpdir();
 
-  beforeEach(async() => {
+  beforeEach(() => {
     input = new PassThrough();
     outputStream = new PassThrough();
     output = '';
@@ -42,7 +42,9 @@ describe('MongoshNodeRepl', () => {
     config = new CliUserConfig();
     const cp = stubInterface<MongoshIOProvider>();
     cp.getHistoryFilePath.returns(path.join(tmpdir.path, 'history'));
+    // eslint-disable-next-line @typescript-eslint/require-await
     cp.getConfig.callsFake(async(key: string) => config[key]);
+    // eslint-disable-next-line @typescript-eslint/require-await
     cp.setConfig.callsFake(async(key: string, value: any) => { config[key] = value; return 'success'; });
     cp.listConfigOptions.callsFake(() => Object.keys(config));
     cp.exit.callsFake(((code) => bus.emit('test-exit-event', code)) as any);
@@ -85,7 +87,7 @@ describe('MongoshNodeRepl', () => {
     }
   });
 
-  it('throws an error if internal methods are used too early', async() => {
+  it('throws an error if internal methods are used too early', () => {
     expect(() => mongoshRepl.runtimeState()).to.throw('Mongosh not started yet');
   });
 
@@ -1076,6 +1078,7 @@ describe('MongoshNodeRepl', () => {
       };
 
       sp.getConnectionInfo.resolves(connectionInfo);
+      // eslint-disable-next-line @typescript-eslint/require-await
       sp.getNewConnection.callsFake(async() => {
         Object.assign(connectionInfo.extraInfo, {
           is_localhost: true,

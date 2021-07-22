@@ -252,6 +252,7 @@ describe('ReplicaSet', () => {
           internalState.shellApi.sleep = sleepStub;
           reconfigCalls = [];
 
+          // eslint-disable-next-line @typescript-eslint/require-await
           serviceProvider.runCommandWithCheck.callsFake(async(db: string, cmd: Document) => {
             if (cmd.replSetGetConfig) {
               return { config: { ...oldConfig, version: oldConfig.version ?? 1 } };
@@ -390,6 +391,7 @@ describe('ReplicaSet', () => {
         const configDoc = { version: 1, members: [{ _id: 0 }, { _id: 1 }] };
         const hostname = 'localhost:27017';
         const expectedResult = { ok: 1 };
+        // eslint-disable-next-line @typescript-eslint/require-await
         serviceProvider.runCommandWithCheck.callsFake(async(db, command) => {
           if (command.replSetGetConfig) {return { ok: 1, config: configDoc };}
           return expectedResult;
@@ -416,6 +418,7 @@ describe('ReplicaSet', () => {
         const hostname = 'localhost:27017';
         serviceProvider.countDocuments.resolves(1);
         const expectedResult = { ok: 1 };
+        // eslint-disable-next-line @typescript-eslint/require-await
         serviceProvider.runCommandWithCheck.callsFake(async(db, command) => {
           if (command.replSetGetConfig) {return { ok: 1, config: configDoc };}
           return expectedResult;
@@ -445,6 +448,7 @@ describe('ReplicaSet', () => {
         };
         serviceProvider.countDocuments.resolves(1);
         const expectedResult = { ok: 1 };
+        // eslint-disable-next-line @typescript-eslint/require-await
         serviceProvider.runCommandWithCheck.callsFake(async(db, command) => {
           if (command.replSetGetConfig) {return { ok: 1, config: configDoc };}
           return expectedResult;
@@ -474,6 +478,7 @@ describe('ReplicaSet', () => {
         };
         serviceProvider.countDocuments.resolves(1);
         const expectedResult = { ok: 1 };
+        // eslint-disable-next-line @typescript-eslint/require-await
         serviceProvider.runCommandWithCheck.callsFake(async(db, command) => {
           if (command.replSetGetConfig) {return { ok: 1, config: configDoc };}
           return expectedResult;
@@ -501,6 +506,7 @@ describe('ReplicaSet', () => {
         const hostname = { host: 'localhost:27017' };
         serviceProvider.countDocuments.resolves(1);
         const expectedResult = { ok: 1 };
+        // eslint-disable-next-line @typescript-eslint/require-await
         serviceProvider.runCommandWithCheck.callsFake(async(db, command) => {
           if (command.replSetGetConfig) {return { ok: 1, config: configDoc };}
           return expectedResult;
@@ -531,6 +537,7 @@ describe('ReplicaSet', () => {
         const configDoc = { version: 1, members: [{ _id: 0, host: 'localhost:0' }, { _id: 1, host: 'localhost:1' }] };
         const hostname = 'localhost:0';
         const expectedResult = { ok: 1 };
+        // eslint-disable-next-line @typescript-eslint/require-await
         serviceProvider.runCommandWithCheck.callsFake(async(db, command) => {
           if (command.replSetGetConfig) {return { ok: 1, config: configDoc };}
           return expectedResult;
@@ -702,6 +709,7 @@ describe('ReplicaSet', () => {
         reconfigResults = [ { ok: 1 }, { ok: 1 } ];
         reconfigCalls = [];
 
+        // eslint-disable-next-line @typescript-eslint/require-await
         serviceProvider.runCommandWithCheck.callsFake(async(db: string, cmd: Document) => {
           if (cmd.replSetGetConfig) {
             return { config: oldConfig };

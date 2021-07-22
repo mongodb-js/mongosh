@@ -182,12 +182,12 @@ describe('CliServiceProvider', () => {
 
     beforeEach(() => {
       collectionStub = stubInterface<Collection>();
-      collectionStub.aggregate.resolves({ toArray: async() => aggResult });
+      collectionStub.aggregate.returns({ toArray: () => Promise.resolve(aggResult) } as any);
       serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus);
     });
 
     it('executes the command against the database', async() => {
-      const cursor = await serviceProvider.aggregate('music', 'bands', pipeline);
+      const cursor = serviceProvider.aggregate('music', 'bands', pipeline);
       const result = await cursor.toArray();
       expect(result).to.deep.equal(aggResult);
       expect(collectionStub.aggregate).to.have.been.calledWith(pipeline);
@@ -297,12 +297,12 @@ describe('CliServiceProvider', () => {
 
     beforeEach(() => {
       collectionStub = stubInterface<Collection>();
-      collectionStub.find.resolves({ toArray: async() => findResult });
+      collectionStub.find.returns({ toArray: () => Promise.resolve(findResult) } as any);
       serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus);
     });
 
     it('executes the command against the database', async() => {
-      const cursor = await serviceProvider.find('music', 'bands', filter);
+      const cursor = serviceProvider.find('music', 'bands', filter);
       const result = await cursor.toArray();
       expect(result).to.deep.equal(findResult);
       expect(collectionStub.find).to.have.been.calledWith(filter);
@@ -315,12 +315,12 @@ describe('CliServiceProvider', () => {
 
     beforeEach(() => {
       collectionStub = stubInterface<Collection>();
-      collectionStub.find.resolves({ toArray: async() => findResult });
+      collectionStub.find.returns({ toArray: () => Promise.resolve(findResult) } as any);
       serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus);
     });
 
     it('executes the command against the database', async() => {
-      const cursor = await serviceProvider.find('music', 'bands', filter, options);
+      const cursor = serviceProvider.find('music', 'bands', filter, options);
       const result = await cursor.toArray();
       expect(result).to.deep.equal(findResult);
       expect(collectionStub.find).to.have.been.calledWith(filter, { ...DEFAULT_BASE_OPTS, ...options, partial: true, timeout: true });
@@ -837,7 +837,7 @@ describe('CliServiceProvider', () => {
       clientStub.db.returns(dbStub);
       clientStub.topology = { s: {} };
       serviceProvider = new CliServiceProvider(clientStub, bus, {}, new ConnectionString('mongodb://localhost/'));
-      serviceProvider.getNewConnection = async() => serviceProvider;
+      serviceProvider.getNewConnection = () => Promise.resolve(serviceProvider);
     });
 
     afterEach(() => {

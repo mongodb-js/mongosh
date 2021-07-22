@@ -1692,21 +1692,18 @@ export default class Collection extends ShellApiWithMongoClass {
       chunks: totals.numChunks
     } as Document;
 
-    // for (const shardStats of conciseShardsStats) {
-    await Promise.all(conciseShardsStats.map((shardStats) => (
-      (async(): Promise<void> => {
-        const estDataPercent =
-          (totals.size === 0) ? 0 : (Math.floor(shardStats.size / totals.size * 10000) / 100);
-        const estDocPercent =
-          (totals.count === 0) ? 0 : (Math.floor(shardStats.count / totals.count * 10000) / 100);
+    for (const shardStats of conciseShardsStats) {
+      const estDataPercent =
+        (totals.size === 0) ? 0 : (Math.floor(shardStats.size / totals.size * 10000) / 100);
+      const estDocPercent =
+        (totals.count === 0) ? 0 : (Math.floor(shardStats.count / totals.count * 10000) / 100);
 
-        totalValue[`Shard ${shardStats.shardId}`] = [
-          `${estDataPercent} % data`,
-          `${estDocPercent} % docs in cluster`,
-          `${dataFormat(shardStats.avgObjSize)} avg obj size on shard`
-        ];
-      })()
-    )));
+      totalValue[`Shard ${shardStats.shardId}`] = [
+        `${estDataPercent} % data`,
+        `${estDocPercent} % docs in cluster`,
+        `${dataFormat(shardStats.avgObjSize)} avg obj size on shard`
+      ];
+    }
     result.Totals = totalValue;
     return new CommandResult('StatsResult', result);
   }

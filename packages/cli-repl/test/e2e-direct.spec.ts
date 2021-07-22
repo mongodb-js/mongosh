@@ -14,7 +14,7 @@ describe('e2e direct connection', () => {
     shell.writeInput('\u0009');
   };
 
-  context('to a replica set', async() => {
+  context('to a replica set', () => {
     const replSetId = 'replset';
     const [rs0, rs1, rs2] = startTestCluster(
       ['--single', '--replSet', replSetId],

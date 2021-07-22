@@ -96,12 +96,12 @@ describe('e2e', function() {
     });
     it('closes the shell when "exit" is entered', async() => {
       const onExit = shell.waitForExit();
-      await shell.writeInputLine('exit');
+      shell.writeInputLine('exit');
       expect(await onExit).to.equal(0);
     });
     it('closes the shell when "quit" is entered', async() => {
       const onExit = shell.waitForExit();
-      await shell.writeInputLine('quit');
+      shell.writeInputLine('quit');
       expect(await onExit).to.equal(0);
     });
   });
@@ -212,75 +212,53 @@ describe('e2e', function() {
       shell.assertContainsError('SyntaxError: Unterminated string constant');
     });
 
-    describe('literals', async() => {
+    describe('literals', () => {
       it('number', async() => {
-        await shell.executeLine('1');
+        expect(await shell.executeLine('1')).to.include('1');
         shell.assertNoErrors();
-
-        await eventually(() => {
-          shell.assertContainsOutput('1');
-        });
         it('string', async() => {
-          await shell.executeLine('"string"');
+          expect(await shell.executeLine('"string"')).to.include('string');
           shell.assertNoErrors();
-
-          await eventually(() => {
-            shell.assertContainsOutput('string');
-          });
         });
         it('undefined', async() => {
           await shell.executeLine('undefined');
           shell.assertNoErrors();
         });
         it('null', async() => {
-          await shell.executeLine('null');
+          expect(await shell.executeLine('null')).to.include('null');
           shell.assertNoErrors();
-
-          await eventually(() => {
-            shell.assertContainsOutput('1');
-          });
         });
         it('bool', async() => {
-          await shell.executeLine('true');
+          expect(await shell.executeLine('true')).to.include('true');
           shell.assertNoErrors();
-
-          await eventually(() => {
-            shell.assertContainsOutput('true');
-          });
         });
       });
     });
-    it('runs an unterminated function', async() => {
-      await shell.writeInputLine('function x () {\nconsole.log(\'y\')\n }');
+    it('runs a complete function', async() => {
+      await shell.executeLine('function x () {\nconsole.log(\'y\')\n }');
       shell.assertNoErrors();
     });
 
     it('runs an unterminated function', async() => {
-      await shell.writeInputLine('function x () {');
+      shell.writeInputLine('function x () {');
+      await eventually(() => {
+        shell.assertContainsOutput('...');
+      });
       shell.assertNoErrors();
     });
 
     it('runs help command', async() => {
-      await shell.executeLine('help');
-
-      await eventually(() => {
-        shell.assertContainsOutput('Shell Help');
-      });
-
+      expect(await shell.executeLine('help')).to.include('Shell Help');
       shell.assertNoErrors();
     });
 
     it('db set correctly', async() => {
-      await shell.executeLine('db');
+      expect(await shell.executeLine('db')).to.include('test');
       shell.assertNoErrors();
-
-      await eventually(() => {
-        shell.assertContainsOutput('test');
-      });
     });
 
     it('allows to find documents', async() => {
-      await shell.writeInputLine(`use ${dbName}`);
+      await shell.executeLine(`use ${dbName}`);
 
       await db.collection('test').insertMany([
         { doc: 1 },
@@ -288,20 +266,17 @@ describe('e2e', function() {
         { doc: 3 }
       ]);
 
-      await shell.writeInputLine('db.test.find()');
+      const output = await shell.executeLine('db.test.find()');
+      expect(output).to.include('doc: 1');
+      expect(output).to.include('doc: 2');
+      expect(output).to.include('doc: 3');
 
-      await eventually(() => {
-        shell.assertContainsOutput('doc: 1');
-        shell.assertContainsOutput('doc: 2');
-        shell.assertContainsOutput('doc: 3');
-      });
       shell.assertNotContainsOutput('CursorIterationResult');
-
       shell.assertNoErrors();
     });
 
     it('allows to find documents using aggregate', async() => {
-      await shell.writeInputLine(`use ${dbName}`);
+      await shell.executeLine(`use ${dbName}`);
 
       await db.collection('test').insertMany([
         { doc: 1 },
@@ -309,20 +284,17 @@ describe('e2e', function() {
         { doc: 3 }
       ]);
 
-      await shell.writeInputLine('db.test.aggregate({ $match: {} })');
+      const output = await shell.executeLine('db.test.aggregate({ $match: {} })');
+      expect(output).to.include('doc: 1');
+      expect(output).to.include('doc: 2');
+      expect(output).to.include('doc: 3');
 
-      await eventually(() => {
-        shell.assertContainsOutput('doc: 1');
-        shell.assertContainsOutput('doc: 2');
-        shell.assertContainsOutput('doc: 3');
-      });
       shell.assertNotContainsOutput('CursorIterationResult');
-
       shell.assertNoErrors();
     });
 
     it('allows collections with .', async() => {
-      await shell.writeInputLine(`use ${dbName}`);
+      await shell.executeLine(`use ${dbName}`);
 
       await db.collection('test.dot').insertMany([
         { doc: 1 },
@@ -330,36 +302,25 @@ describe('e2e', function() {
         { doc: 3 }
       ]);
 
-      await shell.writeInputLine('db.test.dot.find()');
-
-      await eventually(() => {
-        shell.assertContainsOutput('doc: 1');
-        shell.assertContainsOutput('doc: 2');
-        shell.assertContainsOutput('doc: 3');
-      });
+      const output = await shell.executeLine('db.test.dot.find()');
+      expect(output).to.include('doc: 1');
+      expect(output).to.include('doc: 2');
+      expect(output).to.include('doc: 3');
 
       shell.assertNoErrors();
     });
 
     it('rewrites async for collections with .', async() => {
-      await shell.writeInputLine(`use ${dbName}`);
-      await shell.writeInputLine('const x = db.test.dot.insertOne({ d: 1 })');
-      await shell.writeInputLine('x.insertedId');
-
-      await eventually(() => {
-        shell.assertContainsOutput('ObjectId');
-      });
+      await shell.executeLine(`use ${dbName}`);
+      await shell.executeLine('const x = db.test.dot.insertOne({ d: 1 })');
+      expect(await shell.executeLine('x.insertedId')).to.include('ObjectId');
 
       shell.assertNoErrors();
     });
 
     it('rewrites async for collections in the same statement', async() => {
-      await shell.writeInputLine(`use ${dbName}`);
-      await shell.writeInputLine('db.test.insertOne({ d: 1 }).acknowledged');
-
-      await eventually(() => {
-        shell.assertContainsOutput('true');
-      });
+      await shell.executeLine(`use ${dbName}`);
+      expect(await shell.executeLine('db.test.insertOne({ d: 1 }).acknowledged')).to.include('true');
 
       shell.assertNoErrors();
     });
@@ -689,7 +650,7 @@ describe('e2e', function() {
     });
   });
 
-  describe('config, logging and rc file', async() => {
+  describe('config, logging and rc file', () => {
     let shell: TestShell;
     let homedir: string;
     let configPath: string;
@@ -750,7 +711,7 @@ describe('e2e', function() {
         logPath = path.join(logBasePath, `${shell.logId}_log`);
       });
 
-      describe('config file', async() => {
+      describe('config file', () => {
         it('sets up a config file', async() => {
           const config = await readConfig();
           expect(config.userId).to.match(/^[a-f0-9]{24}$/);
@@ -768,26 +729,19 @@ describe('e2e', function() {
 
       describe('telemetry toggling', () => {
         it('enableTelemetry() yields a success response', async() => {
-          await shell.executeLine('enableTelemetry()');
-          await eventually(() => {
-            expect(shell.output).to.include('Telemetry is now enabled');
-          });
+          expect(await shell.executeLine('enableTelemetry()')).to.include('Telemetry is now enabled');
           expect((await readConfig()).enableTelemetry).to.equal(true);
         });
         it('disableTelemetry() yields a success response', async() => {
-          await shell.executeLine('disableTelemetry();');
-          await eventually(() => {
-            expect(shell.output).to.include('Telemetry is now disabled');
-          });
+          expect(await shell.executeLine('disableTelemetry();')).to.include('Telemetry is now disabled');
           expect((await readConfig()).enableTelemetry).to.equal(false);
         });
       });
 
       describe('log file', () => {
         it('creates a log file that keeps track of session events', async() => {
-          await shell.executeLine('print(123 + 456)');
+          expect(await shell.executeLine('print(123 + 456)')).to.include('579');
           await eventually(async() => {
-            expect(shell.output).to.include('579');
             const log = await readLogfile();
             expect(log.filter(logEntry => /evaluate-input/.test(logEntry.msg)))
               .to.have.lengthOf(1);
@@ -861,10 +815,7 @@ describe('e2e', function() {
         await eventually(() => {
           expect(shell.output).to.include('Warning: Could not access file:');
         });
-        await shell.executeLine('print(123 + 456)');
-        await eventually(() => {
-          expect(shell.output).to.include('579');
-        });
+        expect(await shell.executeLine('print(123 + 456)')).to.include('579');
       });
 
       it('keeps working when the log files cannot be created', async() => {
@@ -874,14 +825,8 @@ describe('e2e', function() {
         await eventually(() => {
           expect(shell.output).to.include('Warning: Could not access file:');
         });
-        await shell.executeLine('print(123 + 456)');
-        await eventually(() => {
-          expect(shell.output).to.include('579');
-        });
-        await shell.executeLine('enableTelemetry()');
-        await eventually(() => {
-          expect(shell.output).to.include('Telemetry is now enabled');
-        });
+        expect(await shell.executeLine('print(123 + 456)')).to.include('579');
+        expect(await shell.executeLine('enableTelemetry()')).to.include('Telemetry is now enabled');
       });
 
       it('keeps working when the config file is present but not writable', async function() {
@@ -895,10 +840,7 @@ describe('e2e', function() {
         await eventually(() => {
           expect(shell.output).to.include('Warning: Could not access file:');
         });
-        await shell.executeLine('print(123 + 456)');
-        await eventually(() => {
-          expect(shell.output).to.include('579');
-        });
+        expect(await shell.executeLine('print(123 + 456)')).to.include('579');
       });
     });
   });

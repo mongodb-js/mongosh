@@ -223,11 +223,11 @@ describe('<Shell />', () => {
       expect(wrapper.state('history')).to.deep.equal([]);
     });
 
-    it('calls onOperationStarted', async() => {
+    it('calls onOperationStarted', () => {
       expect(onOperationStartedSpy).to.have.been.calledOnce;
     });
 
-    it('calls onOperationEnd', async() => {
+    it('calls onOperationEnd', () => {
       expect(onOperationEndSpy).to.have.been.calledOnce;
     });
   });
@@ -247,7 +247,7 @@ describe('<Shell />', () => {
       ]);
     });
 
-    it('does not update the history', async() => {
+    it('does not update the history', () => {
       expect(wrapper.find(ShellInput).prop('history')).to.deep.equal([]);
     });
   });
@@ -270,7 +270,7 @@ describe('<Shell />', () => {
     />);
 
     const onInputStub = wrapper.find(ShellInput).prop('onInput');
-    onInputStub('ok');
+    await onInputStub('ok');
 
     // Check operationInProgress is true while eval is called
     expect(wrapper.find(ShellInput).prop('operationInProgress')).to.equal(true);
@@ -295,7 +295,7 @@ describe('<Shell />', () => {
       await onInput('some code');
     });
 
-    it('adds the evaluated input and an error to the output if the evaluation fails', async() => {
+    it('adds the evaluated input and an error to the output if the evaluation fails', () => {
       const output = wrapper.find(ShellOutput).prop('output');
 
       expect(output).to.deep.equal([
@@ -304,7 +304,7 @@ describe('<Shell />', () => {
       ]);
     });
 
-    it('sets the editor as operationInProgress false after the execution', async() => {
+    it('sets the editor as operationInProgress false after the execution', () => {
       expect(wrapper.find(ShellInput).prop('operationInProgress')).to.equal(false);
     });
 
@@ -334,7 +334,7 @@ describe('<Shell />', () => {
       expect(onHistoryChangedSpy).to.have.been.calledOnceWith(['some code']);
     });
 
-    it('calls onOperationEnd', async() => {
+    it('calls onOperationEnd', () => {
       expect(onOperationEndSpy).to.have.been.calledOnce;
     });
   });
@@ -449,6 +449,7 @@ describe('<Shell />', () => {
     });
 
     it('initializes with the value of getShellPrompt', async() => {
+      // eslint-disable-next-line @typescript-eslint/require-await
       fakeRuntime.getShellPrompt = async() => {
         return 'mongos>';
       };
@@ -460,12 +461,14 @@ describe('<Shell />', () => {
 
     it('updates after evaluation', async() => {
       let called = 0;
+      // eslint-disable-next-line @typescript-eslint/require-await
       fakeRuntime.getShellPrompt = async() => {
         if (called++ <= 1) {
           return 'mongos>';
         }
         return 'rs0:primary>';
       };
+      // eslint-disable-next-line @typescript-eslint/require-await
       fakeRuntime.evaluate = async() => {
         return {};
       };
@@ -480,6 +483,7 @@ describe('<Shell />', () => {
     });
 
     it('works with a custom user-provided prompt', async() => {
+      // eslint-disable-next-line @typescript-eslint/require-await
       fakeRuntime.evaluate = async() => {
         return {
           type: null,

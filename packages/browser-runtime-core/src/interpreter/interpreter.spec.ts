@@ -9,7 +9,7 @@ describe('Interpreter', () => {
   let testEvaluate: (...arg: string[]) => Promise<any>;
   let testEnvironment: Environment;
 
-  beforeEach(async() => {
+  beforeEach(() => {
     const context = {};
 
     vm.createContext(context);

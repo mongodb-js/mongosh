@@ -109,7 +109,7 @@ describe('Bulk API', () => {
               expect(bulk.insert({})).to.equal(bulk);
             });
 
-            it('throws if innerBulk.insert throws', async() => {
+            it('throws if innerBulk.insert throws', () => {
               const expectedError = new Error();
               innerStub.insert.throws(expectedError);
               expect(() => bulk.insert({})).to.throw(expectedError);
@@ -140,10 +140,10 @@ describe('Bulk API', () => {
               expect(() => bulk.find({})).to.throw(expectedError);
             });
           });
-          describe('execute', async() => {
-            it('calls innerBulk.execute', () => {
+          describe('execute', () => {
+            it('calls innerBulk.execute', async() => {
               innerStub.execute.returns({ result: bulkWriteResult });
-              bulk.execute();
+              await bulk.execute();
               expect(innerStub.execute).to.have.been.calledWith();
             });
             it('returns new BulkWriteResult', async() => {
@@ -286,7 +286,7 @@ describe('Bulk API', () => {
           expect(bulkFindOp.remove()).to.equal(bulk);
         });
 
-        it('throws if serviceProviderBulkOp.delete throws', async() => {
+        it('throws if serviceProviderBulkOp.delete throws', () => {
           const expectedError = new Error();
           innerStub.delete.throws(expectedError);
           expect(() => bulkFindOp.remove()).to.throw(expectedError);
@@ -303,7 +303,7 @@ describe('Bulk API', () => {
           expect(bulkFindOp.deleteOne()).to.equal(bulk);
         });
 
-        it('throws if serviceProviderBulkOp.deleteOne throws', async() => {
+        it('throws if serviceProviderBulkOp.deleteOne throws', () => {
           const expectedError = new Error();
           innerStub.deleteOne.throws(expectedError);
           expect(() => bulkFindOp.removeOne()).to.throw(expectedError);
@@ -320,7 +320,7 @@ describe('Bulk API', () => {
           expect(bulkFindOp.delete()).to.equal(bulk);
         });
 
-        it('throws if serviceProviderBulkOp.delete throws', async() => {
+        it('throws if serviceProviderBulkOp.delete throws', () => {
           const expectedError = new Error();
           innerStub.delete.throws(expectedError);
           expect(() => bulkFindOp.delete()).to.throw(expectedError);
@@ -337,7 +337,7 @@ describe('Bulk API', () => {
           expect(bulkFindOp.deleteOne()).to.equal(bulk);
         });
 
-        it('throws if serviceProviderBulkOp.deleteOne throws', async() => {
+        it('throws if serviceProviderBulkOp.deleteOne throws', () => {
           const expectedError = new Error();
           innerStub.deleteOne.throws(expectedError);
           expect(() => bulkFindOp.deleteOne()).to.throw(expectedError);
@@ -354,7 +354,7 @@ describe('Bulk API', () => {
           expect(bulkFindOp.upsert()).to.equal(bulkFindOp);
         });
 
-        it('throws if serviceProviderBulkOp.upsert throws', async() => {
+        it('throws if serviceProviderBulkOp.upsert throws', () => {
           const expectedError = new Error();
           innerStub.upsert.throws(expectedError);
           expect(() => bulkFindOp.upsert()).to.throw(expectedError);
@@ -383,7 +383,7 @@ describe('Bulk API', () => {
           expect(bulkFindOp.update({})).to.equal(bulk);
         });
 
-        it('throws if serviceProviderBulkOp.update throws', async() => {
+        it('throws if serviceProviderBulkOp.update throws', () => {
           const expectedError = new Error();
           innerStub.update.throws(expectedError);
           expect(() => bulkFindOp.update({})).to.throw(expectedError);
@@ -413,7 +413,7 @@ describe('Bulk API', () => {
           expect(bulkFindOp.updateOne({})).to.equal(bulk);
         });
 
-        it('throws if serviceProviderBulkOp.updateOne throws', async() => {
+        it('throws if serviceProviderBulkOp.updateOne throws', () => {
           const expectedError = new Error();
           innerStub.updateOne.throws(expectedError);
           expect(() => bulkFindOp.updateOne({})).to.throw(expectedError);
@@ -440,7 +440,7 @@ describe('Bulk API', () => {
           expect(bulkFindOp.replaceOne({})).to.equal(bulk);
         });
 
-        it('throws if serviceProviderBulkOp.replaceOne throws', async() => {
+        it('throws if serviceProviderBulkOp.replaceOne throws', () => {
           const expectedError = new Error();
           innerStub.replaceOne.throws(expectedError);
           expect(() => bulkFindOp.replaceOne({})).to.throw(expectedError);
@@ -454,20 +454,10 @@ describe('Bulk API', () => {
         });
       });
       describe('arrayFilters', () => {
-        // it('sets the attribute and returns self', () => {
-        //   const attr = [1];
-        //   expect(bulkFindOp.arrayFilters(attr)).to.equal(bulkFindOp);
-        //   expect(bulkFindOp._arrayFilters).to.deep.equal(attr);
-        // });
-        it('throws as it is not implemented yet', () => {
-          try {
-            bulkFindOp.arrayFilters();
-            fail('expected error');
-          } catch (e) {
-            expect(e.name).to.equal('MongoshUnimplementedError');
-            expect(e.code).to.equal(CommonErrors.NotImplemented);
-            expect(e.metadata?.driverCaused).to.equal(true);
-          }
+        it('sets the attribute and returns self', () => {
+          const attr = [{}];
+          expect(bulkFindOp.arrayFilters(attr)).to.equal(bulkFindOp);
+          expect(innerStub.arrayFilters).to.have.been.calledWith(attr);
         });
       });
       describe('collation', () => {

@@ -113,6 +113,7 @@ describe('rpc', () => {
     let err: Error;
 
     try {
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       await caller.throws();
     } catch (e) {
       err = e;

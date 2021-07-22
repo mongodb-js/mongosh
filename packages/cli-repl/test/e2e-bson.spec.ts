@@ -4,7 +4,6 @@ import {
 } from 'mongodb';
 import { bson } from '@mongosh/service-provider-core';
 import { TestShell } from './test-shell';
-import { eventually } from '../../../testing/eventually';
 import {
   startTestServer
 } from '../../../testing/integration-testing-hooks';
@@ -70,24 +69,22 @@ describe('BSON e2e', function() {
         ISODate: new Date('2021-05-04T15:49:33.000Z'),
         RegExp: /match/
       };
-      await shell.writeInputLine(`use ${dbName}`);
+      await shell.executeLine(`use ${dbName}`);
       await db.collection('test').insertOne(inputDoc);
-      await shell.writeInputLine('db.test.findOne()');
-      await eventually(() => {
-        shell.assertContainsOutput(outputDoc.ObjectId);
-        shell.assertContainsOutput(outputDoc.DBRef1);
-        shell.assertContainsOutput(outputDoc.DBRef2);
-        shell.assertContainsOutput(outputDoc.DBRef3);
-        shell.assertContainsOutput(outputDoc.MinKey);
-        shell.assertContainsOutput(outputDoc.MaxKey);
-        shell.assertContainsOutput(outputDoc.Timestamp);
-        shell.assertContainsOutput(outputDoc.Symbol);
-        shell.assertContainsOutput(outputDoc.Code);
-        shell.assertContainsOutput(outputDoc.NumberDecimal);
-        shell.assertContainsOutput(outputDoc.BinData);
-        shell.assertContainsOutput(outputDoc.ISODate);
-        shell.assertContainsOutput(outputDoc.RegExp);
-      });
+      const output = await shell.executeLine('db.test.findOne()');
+      expect(output).to.include(outputDoc.ObjectId);
+      expect(output).to.include(outputDoc.DBRef1);
+      expect(output).to.include(outputDoc.DBRef2);
+      expect(output).to.include(outputDoc.DBRef3);
+      expect(output).to.include(outputDoc.MinKey);
+      expect(output).to.include(outputDoc.MaxKey);
+      expect(output).to.include(outputDoc.Timestamp);
+      expect(output).to.include(outputDoc.Symbol);
+      expect(output).to.include(outputDoc.Code);
+      expect(output).to.include(outputDoc.NumberDecimal);
+      expect(output).to.include(outputDoc.BinData);
+      expect(output).to.include(outputDoc.ISODate);
+      expect(output).to.include(outputDoc.RegExp);
       shell.assertNoErrors();
     });
     it('Entire doc prints when created by user', async() => {
@@ -108,558 +105,374 @@ describe('BSON e2e', function() {
         ISODate: ISODate("2021-05-04T15:49:33.000Z"),
         RegExp: /match/
       }\n`;
-      await shell.writeInputLine(value);
-      await eventually(() => {
-        shell.assertContainsOutput(outputDoc.ObjectId);
-        shell.assertContainsOutput(outputDoc.DBRef1);
-        shell.assertContainsOutput(outputDoc.DBRef2);
-        shell.assertContainsOutput(outputDoc.DBRef3);
-        shell.assertContainsOutput(outputDoc.MinKey);
-        shell.assertContainsOutput(outputDoc.MaxKey);
-        shell.assertContainsOutput(outputDoc.Timestamp);
-        shell.assertContainsOutput(outputDoc.Symbol);
-        shell.assertContainsOutput(outputDoc.Code);
-        shell.assertContainsOutput(outputDoc.NumberDecimal);
-        shell.assertContainsOutput(outputDoc.BinData);
-        shell.assertContainsOutput(outputDoc.ISODate);
-        shell.assertContainsOutput(outputDoc.RegExp);
-      });
+      const output = await shell.executeLine(value);
+      expect(output).to.include(outputDoc.ObjectId);
+      expect(output).to.include(outputDoc.DBRef1);
+      expect(output).to.include(outputDoc.DBRef2);
+      expect(output).to.include(outputDoc.DBRef3);
+      expect(output).to.include(outputDoc.MinKey);
+      expect(output).to.include(outputDoc.MaxKey);
+      expect(output).to.include(outputDoc.Timestamp);
+      expect(output).to.include(outputDoc.Symbol);
+      expect(output).to.include(outputDoc.Code);
+      expect(output).to.include(outputDoc.NumberDecimal);
+      expect(output).to.include(outputDoc.BinData);
+      expect(output).to.include(outputDoc.ISODate);
+      expect(output).to.include(outputDoc.RegExp);
       shell.assertNoErrors();
     });
     it('ObjectId prints when returned from the server', async() => {
-      const value = 'ObjectId("5f16b8bebe434dc98cdfc9ca")';
-      await shell.writeInputLine(`use ${dbName}`);
+      const value = new bson.ObjectId('5f16b8bebe434dc98cdfc9ca');
+      await shell.executeLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
-      await shell.writeInputLine('db.test.findOne().value');
-      await eventually(() => {
-        shell.assertContainsOutput(value);
-      });
+      expect(await shell.executeLine('db.test.findOne().value')).to.include('ObjectId("5f16b8bebe434dc98cdfc9ca")');
       shell.assertNoErrors();
     });
     it('DBRef prints when returned from the server', async() => {
       const value = new bson.DBRef('coll', new bson.ObjectId('5f16b8bebe434dc98cdfc9ca'));
-      await shell.writeInputLine(`use ${dbName}`);
+      await shell.executeLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
-      await shell.writeInputLine('db.test.findOne().value');
-      await eventually(() => {
-        shell.assertContainsOutput('DBRef("coll", ObjectId("5f16b8bebe434dc98cdfc9ca"))');
-      });
+      expect(await shell.executeLine('db.test.findOne().value')).to.include('DBRef("coll", ObjectId("5f16b8bebe434dc98cdfc9ca"))');
       shell.assertNoErrors();
     });
     it('MinKey prints when returned from the server', async() => {
       const value = new bson.MinKey();
-      await shell.writeInputLine(`use ${dbName}`);
+      await shell.executeLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
-      await shell.writeInputLine('db.test.findOne().value');
-      await eventually(() => {
-        shell.assertContainsOutput('MinKey()');
-      });
+      expect(await shell.executeLine('db.test.findOne().value')).to.include('MinKey()');
       shell.assertNoErrors();
     });
     it('MaxKey prints when returned from the server', async() => {
       const value = new bson.MaxKey();
-      await shell.writeInputLine(`use ${dbName}`);
+      await shell.executeLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
-      await shell.writeInputLine('db.test.findOne().value');
-      await eventually(() => {
-        shell.assertContainsOutput('MaxKey()');
-      });
+      expect(await shell.executeLine('db.test.findOne().value')).to.include('MaxKey()');
       shell.assertNoErrors();
     });
     it('NumberLong prints when returned from the server', async() => {
       const value = new bson.Long('64');
-      await shell.writeInputLine(`use ${dbName}`);
+      await shell.executeLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
-      await shell.writeInputLine('db.test.findOne().value');
-      await eventually(() => {
-        shell.assertContainsOutput('Long("64")');
-      });
+      expect(await shell.executeLine('db.test.findOne().value')).to.include('Long("64")');
       shell.assertNoErrors();
     });
     it('NumberLong prints when returned from the server (> MAX_SAFE_INTEGER)', async() => {
       const value = new bson.Long('345678654321234561');
-      await shell.writeInputLine(`use ${dbName}`);
+      await shell.executeLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
-      await shell.writeInputLine('db.test.findOne().value');
-      await eventually(() => {
-        shell.assertContainsOutput('Long("345678654321234561")');
-      });
+      expect(await shell.executeLine('db.test.findOne().value')).to.include('Long("345678654321234561")');
       shell.assertNoErrors();
     });
     it('Timestamp prints when returned from the server', async() => {
       const value = new bson.Timestamp(0, 100);
-      await shell.writeInputLine(`use ${dbName}`);
+      await shell.executeLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
-      await shell.writeInputLine('db.test.findOne().value');
-      await eventually(() => {
-        shell.assertContainsOutput('Timestamp(0, 100)');
-      });
+      expect(await shell.executeLine('db.test.findOne().value')).to.include('Timestamp(0, 100)');
       shell.assertNoErrors();
     });
     it('Code prints when returned from the server', async() => {
       const value = new bson.Code('abc');
-      await shell.writeInputLine(`use ${dbName}`);
+      await shell.executeLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
-      await shell.writeInputLine('db.test.findOne().value');
-      await eventually(() => {
-        shell.assertContainsOutput('Code("abc")');
-      });
+      expect(await shell.executeLine('db.test.findOne().value')).to.include('Code("abc")');
       shell.assertNoErrors();
     });
     it('Decimal128 prints when returned from the server', async() => {
       const value = new bson.Decimal128('1');
-      await shell.writeInputLine(`use ${dbName}`);
+      await shell.executeLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
-      await shell.writeInputLine('db.test.findOne().value');
-      await eventually(() => {
-        shell.assertContainsOutput('Decimal128("1")');
-      });
+      expect(await shell.executeLine('db.test.findOne().value')).to.include('Decimal128("1")');
       shell.assertNoErrors();
     });
     it('BinData prints when returned from the server', async() => {
       const buffer = Buffer.from('MTIzNA==', 'base64');
       const value = new bson.Binary(buffer, 128);
-      await shell.writeInputLine(`use ${dbName}`);
+      await shell.executeLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
-      await shell.writeInputLine('db.test.findOne().value');
-      await eventually(() => {
-        shell.assertContainsOutput('Binary(Buffer.from("31323334", "hex"), 128)');
-      });
+      expect(await shell.executeLine('db.test.findOne().value')).to.include('Binary(Buffer.from("31323334", "hex"), 128)');
       shell.assertNoErrors();
     });
     it('ISODate prints when returned from the server', async() => {
       const value = new Date('2021-05-04T15:49:33.000Z');
-      await shell.writeInputLine(`use ${dbName}`);
+      await shell.executeLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
-      await shell.writeInputLine('db.test.findOne().value');
-      await eventually(() => {
-        shell.assertContainsOutput('ISODate("2021-05-04T15:49:33.000Z")');
-      });
+      expect(await shell.executeLine('db.test.findOne().value')).to.include('ISODate("2021-05-04T15:49:33.000Z")');
       shell.assertNoErrors();
     });
     it('RegExp prints when returned from the server', async() => {
       const value = /match/;
-      await shell.writeInputLine(`use ${dbName}`);
+      await shell.executeLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
-      await shell.writeInputLine('db.test.findOne().value');
-      await eventually(() => {
-        shell.assertContainsOutput('/match/');
-      });
+      expect(await shell.executeLine('db.test.findOne().value')).to.include('/match/');
       shell.assertNoErrors();
     });
     it('BSONRegExp prints when returned from the server', async() => {
       const value = new bson.BSONRegExp('(?-i)A"A_', 'im');
-      await shell.writeInputLine(`use ${dbName}`);
+      await shell.executeLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
-      await shell.writeInputLine('db.test.findOne({}, {}, { bsonRegExp: true }).value');
-      await eventually(() => {
-        shell.assertContainsOutput(String.raw `BSONRegExp("(?-i)A\"A_", "im")`);
-      });
+      expect(await shell.executeLine('db.test.findOne({}, {}, { bsonRegExp: true }).value'))
+        .to.include(String.raw `BSONRegExp("(?-i)A\"A_", "im")`);
       shell.assertNoErrors();
     });
     it('ObjectId prints when created by user', async() => {
       const value = 'ObjectId("5f16b8bebe434dc98cdfc9ca")';
-      await shell.writeInputLine(value);
-      await eventually(() => {
-        shell.assertContainsOutput(value);
-      });
+      expect(await shell.executeLine(value)).to.include(value);
       shell.assertNoErrors();
     });
     it('DBRef prints when created by user', async() => {
       const value = 'DBRef("coll", ObjectId("5f16b8bebe434dc98cdfc9ca"))';
-      await shell.writeInputLine(value);
-      await eventually(() => {
-        shell.assertContainsOutput(value);
-      });
+      expect(await shell.executeLine(value)).to.include(value);
       shell.assertNoErrors();
     });
     it('MaxKey prints when created by user', async() => {
       const value = 'new MaxKey()';
-      await shell.writeInputLine(value);
-      await eventually(() => {
-        shell.assertContainsOutput('MaxKey()');
-      });
+      expect(await shell.executeLine(value)).to.include('MaxKey()');
       shell.assertNoErrors();
     });
     it('MinKey prints when created by user', async() => {
       const value = 'new MinKey()';
-      await shell.writeInputLine(value);
-      await eventually(() => {
-        shell.assertContainsOutput('MinKey()');
-      });
+      expect(await shell.executeLine(value)).to.include('MinKey()');
       shell.assertNoErrors();
     });
     it('NumberInt prints when created by user', async() => {
       const value = 'NumberInt("32.5")';
-      await shell.writeInputLine(value);
-      await eventually(() => {
-        shell.assertContainsOutput('Int32(32)');
-      });
+      expect(await shell.executeLine(value)).to.include('Int32(32)');
       shell.assertNoErrors();
     });
     it('NumberLong prints when created by user', async() => {
       const value = 'NumberLong("64")';
-      await shell.writeInputLine(value);
-      await eventually(() => {
-        shell.assertContainsOutput('Long("64")');
-      });
+      expect(await shell.executeLine(value)).to.include('Long("64")');
       shell.assertNoErrors();
     });
     it('NumberLong prints when created by user (> MAX_SAFE_INTEGER)', async() => {
       const value = 'NumberLong("345678654321234561")';
-      await shell.writeInputLine(value);
-      await eventually(() => {
-        shell.assertContainsOutput('Long("345678654321234561")');
-      });
+      expect(await shell.executeLine(value)).to.include('Long("345678654321234561")');
       shell.assertNoErrors();
     });
     it('Timestamp prints when created by user', async() => {
       const value = 'Timestamp(0, 100)';
-      await shell.writeInputLine(value);
-      await eventually(() => {
-        shell.assertContainsOutput(value);
-      });
+      expect(await shell.executeLine(value)).to.include(value);
       shell.assertNoErrors();
     });
     it('Symbol prints when created by user', async() => {
       const value = 'new BSONSymbol("symbol")';
-      await shell.writeInputLine(value);
-      await eventually(() => {
-        shell.assertContainsOutput('"symbol"');
-      });
+      expect(await shell.executeLine(value)).to.include('"symbol"');
       shell.assertNoErrors();
     });
     it('Code prints when created by user', async() => {
       const value = 'new Code("abc")';
-      await shell.writeInputLine(value);
-      await eventually(() => {
-        shell.assertContainsOutput('Code("abc")');
-      });
+      expect(await shell.executeLine(value)).to.include('Code("abc")');
       shell.assertNoErrors();
     });
     it('Code with scope prints when created by user', async() => {
       const value = 'new Code("abc", { s: 1 })';
-      await shell.writeInputLine(value);
-      await eventually(() => {
-        shell.assertContainsOutput('Code("abc", {"s":1})');
-      });
+      expect(await shell.executeLine(value)).to.include('Code("abc", {"s":1})');
       shell.assertNoErrors();
     });
     it('Decimal128 prints when created by user', async() => {
       const value = 'NumberDecimal("100")';
-      await shell.writeInputLine(value);
-      await eventually(() => {
-        shell.assertContainsOutput('Decimal128("100")');
-      });
+      expect(await shell.executeLine(value)).to.include('Decimal128("100")');
       shell.assertNoErrors();
     });
     // NOTE this is a slight change from the old shell, since the old shell just
     // printed the raw input, while this one converts it to a string.
     it('BinData prints when created by user', async() => {
       const value = 'BinData(128, "MTIzNA==")';
-      await shell.writeInputLine(value);
-      await eventually(() => {
-        shell.assertContainsOutput('Binary(Buffer.from("31323334", "hex"), 128)');
-      });
+      expect(await shell.executeLine(value)).to.include('Binary(Buffer.from("31323334", "hex"), 128)');
       shell.assertNoErrors();
     });
     it('BinData prints as UUID when created by user as such', async() => {
       const value = 'UUID("01234567-89ab-cdef-0123-456789abcdef")';
-      await shell.writeInputLine(value);
-      await eventually(() => {
-        shell.assertContainsOutput(value);
-      });
+      expect(await shell.executeLine(value)).to.include(value);
       shell.assertNoErrors();
     });
     it('BinData prints as MD5 when created by user as such', async() => {
       const value = 'MD5("0123456789abcdef0123456789abcdef")';
-      await shell.writeInputLine(value);
-      await eventually(() => {
-        shell.assertContainsOutput(value);
-      });
+      expect(await shell.executeLine(value)).to.include(value);
       shell.assertNoErrors();
     });
     it('BinData prints as BinData when created as invalid UUID', async() => {
       const value = 'UUID("abcdef")';
-      await shell.writeInputLine(value);
-      await eventually(() => {
-        shell.assertContainsOutput('Binary(Buffer.from("abcdef", "hex"), 4)');
-      });
+      expect(await shell.executeLine(value)).to.include('Binary(Buffer.from("abcdef", "hex"), 4)');
       shell.assertNoErrors();
     });
     it('ISODate prints when created by user', async() => {
       const value = 'ISODate("2021-05-04T15:49:33.000Z")';
-      await shell.writeInputLine(value);
-      await eventually(() => {
-        shell.assertContainsOutput('ISODate("2021-05-04T15:49:33.000Z")');
-      });
+      expect(await shell.executeLine(value)).to.include('ISODate("2021-05-04T15:49:33.000Z")');
       shell.assertNoErrors();
     });
     it('RegExp prints when created by user', async() => {
       const value = '/match/';
-      await shell.writeInputLine(value);
-      await eventually(() => {
-        shell.assertContainsOutput('/match/');
-      });
+      expect(await shell.executeLine(value)).to.include('/match/');
       shell.assertNoErrors();
     });
     it('BSONRegExp prints when created by user', async() => {
       const value = 'BSONRegExp(`(?-i)A"A_`, "im")';
-      await shell.writeInputLine(value);
-      await eventually(() => {
-        shell.assertContainsOutput(String.raw `BSONRegExp("(?-i)A\"A_", "im")`);
-      });
+      expect(await shell.executeLine(value)).to.include(String.raw `BSONRegExp("(?-i)A\"A_", "im")`);
       shell.assertNoErrors();
     });
   });
   describe('help methods', () => {
     it('ObjectId has help when returned from the server', async() => {
       const value = new bson.ObjectId();
-      await shell.writeInputLine(`use ${dbName}`);
+      await shell.executeLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
-      await shell.writeInputLine('db.test.findOne().value.help()');
-      await eventually(() => {
-        shell.assertContainsOutput('BSON Class');
-      });
+      expect(await shell.executeLine('db.test.findOne().value.help()')).to.include('BSON Class');
       shell.assertNoErrors();
     });
     it('DBRef has help when returned from the server', async() => {
       const value = new bson.DBRef('coll', new bson.ObjectId());
-      await shell.writeInputLine(`use ${dbName}`);
+      await shell.executeLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
-      await shell.writeInputLine('db.test.findOne().value.help');
-      await eventually(() => {
-        shell.assertContainsOutput('BSON Class');
-      });
+      expect(await shell.executeLine('db.test.findOne().value.help')).to.include('BSON Class');
       shell.assertNoErrors();
     });
     it('MinKey has help when returned from the server', async() => {
       const value = new bson.MinKey();
-      await shell.writeInputLine(`use ${dbName}`);
+      await shell.executeLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
-      await shell.writeInputLine('db.test.findOne().value.help()');
-      await eventually(() => {
-        shell.assertContainsOutput('BSON Class');
-      });
+      expect(await shell.executeLine('db.test.findOne().value.help()')).to.include('BSON Class');
       shell.assertNoErrors();
     });
     it('MaxKey has help when returned from the server', async() => {
       const value = new bson.MaxKey();
-      await shell.writeInputLine(`use ${dbName}`);
+      await shell.executeLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
-      await shell.writeInputLine('db.test.findOne().value.help');
-      await eventually(() => {
-        shell.assertContainsOutput('BSON Class');
-      });
+      expect(await shell.executeLine('db.test.findOne().value.help')).to.include('BSON Class');
       shell.assertNoErrors();
     });
     it('Timestamp has help when returned from the server', async() => {
       const value = new bson.Timestamp(0, 100);
-      await shell.writeInputLine(`use ${dbName}`);
+      await shell.executeLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
-      await shell.writeInputLine('db.test.findOne().value.help()');
-      await eventually(() => {
-        shell.assertContainsOutput('BSON Class');
-      });
+      expect(await shell.executeLine('db.test.findOne().value.help()')).to.include('BSON Class');
       shell.assertNoErrors();
     });
     it('Code has help when returned from the server', async() => {
       const value = new bson.Code('1');
-      await shell.writeInputLine(`use ${dbName}`);
+      await shell.executeLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
-      await shell.writeInputLine('db.test.findOne().value.help');
-      await eventually(() => {
-        shell.assertContainsOutput('BSON Class');
-      });
+      expect(await shell.executeLine('db.test.findOne().value.help')).to.include('BSON Class');
       shell.assertNoErrors();
     });
     it('Decimal128 has help when returned from the server', async() => {
       const value = new bson.Decimal128('1');
-      await shell.writeInputLine(`use ${dbName}`);
+      await shell.executeLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
-      await shell.writeInputLine('db.test.findOne().value.help()');
-      await eventually(() => {
-        shell.assertContainsOutput('BSON Class');
-      });
+      expect(await shell.executeLine('db.test.findOne().value.help()')).to.include('BSON Class');
       shell.assertNoErrors();
     });
     it('Binary has help when returned from the server', async() => {
       const buffer = Buffer.from('MTIzNA==', 'base64');
       const value = new bson.Binary(buffer, 128);
-      await shell.writeInputLine(`use ${dbName}`);
+      await shell.executeLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
-      await shell.writeInputLine('db.test.findOne().value.help');
-      await eventually(() => {
-        shell.assertContainsOutput('BSON Class');
-      });
+      expect(await shell.executeLine('db.test.findOne().value.help')).to.include('BSON Class');
       shell.assertNoErrors();
     });
     it('ObjectId has help when created by user', async() => {
       const value = 'new ObjectId()';
-      await shell.writeInputLine(`${value}.help`);
-      await eventually(() => {
-        shell.assertContainsOutput('BSON Class');
-      });
+      expect(await shell.executeLine(`${value}.help`)).to.include('BSON Class');
       shell.assertNoErrors();
     });
     it('DBRef has help when created by user', async() => {
       const value = 'new DBRef("namespace", "oid")';
-      await shell.writeInputLine(`${value}.help`);
-      await eventually(() => {
-        shell.assertContainsOutput('BSON Class');
-      });
+      expect(await shell.executeLine(`${value}.help`)).to.include('BSON Class');
       shell.assertNoErrors();
     });
     it('MinKey has help when created by user', async() => {
       const value = 'new MinKey()';
-      await shell.writeInputLine(`${value}.help`);
-      await eventually(() => {
-        shell.assertContainsOutput('BSON Class');
-      });
+      expect(await shell.executeLine(`${value}.help`)).to.include('BSON Class');
       shell.assertNoErrors();
     });
     it('MaxKey has help when created by user', async() => {
       const value = 'new MaxKey()';
-      await shell.writeInputLine(`${value}.help`);
-      await eventually(() => {
-        shell.assertContainsOutput('BSON Class');
-      });
+      expect(await shell.executeLine(`${value}.help`)).to.include('BSON Class');
       shell.assertNoErrors();
     });
     it('NumberInt prints when created by user', async() => {
       const value = 'NumberInt("32.5").help';
-      await shell.writeInputLine(value);
-      await eventually(() => {
-        shell.assertContainsOutput('BSON Class');
-      });
+      expect(await shell.executeLine(value)).to.include('BSON Class');
       shell.assertNoErrors();
     });
     it('NumberLong prints when created by user', async() => {
       const value = 'NumberLong("1").help';
-      await shell.writeInputLine(value);
-      await eventually(() => {
-        shell.assertContainsOutput('BSON Class');
-      });
+      expect(await shell.executeLine(value)).to.include('BSON Class');
       shell.assertNoErrors();
     });
     it('Timestamp has help when created by user', async() => {
       const value = 'new Timestamp(0, 100)';
-      await shell.writeInputLine(`${value}.help`);
-      await eventually(() => {
-        shell.assertContainsOutput('Timestamp BSON Class');
-      });
+      expect(await shell.executeLine(`${value}.help`)).to.include('BSON Class');
       shell.assertNoErrors();
     });
     it('Symbol has help when created by user', async() => {
       const value = 'new BSONSymbol("1")';
-      await shell.writeInputLine(`${value}.help`);
-      await eventually(() => {
-        shell.assertContainsOutput('BSON Class');
-      });
+      expect(await shell.executeLine(`${value}.help`)).to.include('BSON Class');
       shell.assertNoErrors();
     });
     it('Code has help when created by user', async() => {
       const value = 'new Code("1")';
-      await shell.writeInputLine(`${value}.help`);
-      await eventually(() => {
-        shell.assertContainsOutput('BSON Class');
-      });
+      expect(await shell.executeLine(`${value}.help`)).to.include('BSON Class');
       shell.assertNoErrors();
     });
     it('Decimal128 has help when created by user', async() => {
       const value = 'NumberDecimal("1")';
-      await shell.writeInputLine(`${value}.help`);
-      await eventually(() => {
-        shell.assertContainsOutput('BSON Class');
-      });
+      expect(await shell.executeLine(`${value}.help`)).to.include('BSON Class');
       shell.assertNoErrors();
     });
     it('BinData has help when created by user', async() => {
       const value = 'new BinData(128, "MTIzNA==")';
-      await shell.writeInputLine(`${value}.help`);
-      await eventually(() => {
-        shell.assertContainsOutput('BSON Class');
-      });
+      expect(await shell.executeLine(`${value}.help`)).to.include('BSON Class');
       shell.assertNoErrors();
     });
     it('ObjectId type has help when created by user', async() => {
       const value = 'ObjectId';
-      await shell.writeInputLine(`${value}.help`);
-      await eventually(() => {
-        shell.assertContainsOutput('BSON Class');
-      });
+      expect(await shell.executeLine(`${value}.help`)).to.include('BSON Class');
       shell.assertNoErrors();
     });
     it('DBRef type has help when created by user', async() => {
       const value = 'DBRef';
-      await shell.writeInputLine(`${value}.help`);
-      await eventually(() => {
-        shell.assertContainsOutput('BSON Class');
-      });
+      expect(await shell.executeLine(`${value}.help`)).to.include('BSON Class');
       shell.assertNoErrors();
     });
     it('MinKey type has help when created by user', async() => {
       const value = 'MinKey';
-      await shell.writeInputLine(`${value}.help`);
-      await eventually(() => {
-        shell.assertContainsOutput('BSON Class');
-      });
+      expect(await shell.executeLine(`${value}.help`)).to.include('BSON Class');
       shell.assertNoErrors();
     });
     it('MaxKey type has help when created by user', async() => {
       const value = 'MaxKey';
-      await shell.writeInputLine(`${value}.help`);
-      await eventually(() => {
-        shell.assertContainsOutput('BSON Class');
-      });
+      expect(await shell.executeLine(`${value}.help`)).to.include('BSON Class');
       shell.assertNoErrors();
     });
     it('NumberInt type prints when created by user', async() => {
       const value = 'NumberInt.help';
-      await shell.writeInputLine(value);
-      await eventually(() => {
-        shell.assertContainsOutput('BSON Class');
-      });
+      expect(await shell.executeLine(value)).to.include('BSON Class');
       shell.assertNoErrors();
     });
     it('NumberLong type prints when created by user', async() => {
       const value = 'NumberLong.help';
-      await shell.writeInputLine(value);
-      await eventually(() => {
-        shell.assertContainsOutput('BSON Class');
-      });
+      expect(await shell.executeLine(value)).to.include('BSON Class');
       shell.assertNoErrors();
     });
     it('Timestamp type has help when created by user', async() => {
       const value = 'Timestamp.help';
-      await shell.writeInputLine(`${value}.help`);
-      await eventually(() => {
-        shell.assertContainsOutput('BSON Class');
-      });
+      expect(await shell.executeLine(`${value}.help`)).to.include('BSON Class');
       shell.assertNoErrors();
     });
     it('Code type has help when created by user', async() => {
       const value = 'Code';
-      await shell.writeInputLine(`${value}.help`);
-      await eventually(() => {
-        shell.assertContainsOutput('BSON Class');
-      });
+      expect(await shell.executeLine(`${value}.help`)).to.include('BSON Class');
       shell.assertNoErrors();
     });
     it('Decimal128 type has help when created by user', async() => {
       const value = 'NumberDecimal';
-      await shell.writeInputLine(`${value}.help`);
-      await eventually(() => {
-        shell.assertContainsOutput('BSON Class');
-      });
+      expect(await shell.executeLine(`${value}.help`)).to.include('BSON Class');
       shell.assertNoErrors();
     });
     it('BinData type has help when created by user', async() => {
       const value = 'BinData';
-      await shell.writeInputLine(`${value}.help`);
-      await eventually(() => {
-        shell.assertContainsOutput('BSON Class');
-      });
+      expect(await shell.executeLine(`${value}.help`)).to.include('BSON Class');
       shell.assertNoErrors();
     });
   });

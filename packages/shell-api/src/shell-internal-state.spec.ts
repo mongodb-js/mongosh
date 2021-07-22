@@ -43,11 +43,11 @@ describe('ShellInternalState', () => {
         [{ printable: 42, rawValue: 42, type: null }]);
     });
 
-    it('throws when setting db to a non-db thing', async() => {
+    it('throws when setting db to a non-db thing', () => {
       expect(() => run('db = 42')).to.throw("[COMMON-10002] Cannot reassign 'db' to non-Database type");
     });
 
-    it('allows setting db to a db and causes prefetching', async() => {
+    it('allows setting db to a db and causes prefetching', () => {
       serviceProvider.listCollections
         .resolves([ { name: 'coll1' }, { name: 'coll2' } ]);
       expect(run('db = db.getSiblingDB("moo"); db.getName()')).to.equal('moo');

@@ -4,9 +4,9 @@ import {
   MongoshBaseError, MongoshInternalError,
   MongoshInvalidInputError, MongoshRuntimeError,
   MongoshUnimplementedError, MongoshWarning, MongoshDeprecatedError,
-  MongoshCommandFailed
+  MongoshCommandFailed,
+  CommonErrors
 } from './index';
-import { CommonErrors } from './lib';
 
 describe('errors', () => {
   it('properly extracts the scope from error codes', () => {

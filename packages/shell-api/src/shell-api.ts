@@ -86,6 +86,7 @@ async function useCompleter(params: ShellCommandAutocompleteParameters, args: st
 }
 
 // Complete a `show` subcommand.
+// eslint-disable-next-line @typescript-eslint/require-await
 async function showCompleter(params: ShellCommandAutocompleteParameters, args: string[]): Promise<string[] | undefined> {
   if (args.length > 2) return undefined;
   if (args[1] === 'd') {

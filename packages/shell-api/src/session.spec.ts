@@ -113,8 +113,8 @@ describe('Session', () => {
       }
       expect.fail('Error not thrown');
     });
-    it('endSession', () => {
-      session.endSession();
+    it('endSession', async() => {
+      await session.endSession();
       expect(serviceProviderSession.endSession).to.have.been.calledOnceWith();
     });
     it('getClusterTime', () => {
@@ -134,14 +134,14 @@ describe('Session', () => {
       session.startTransaction({ readPreference: options.readPreference });
       expect(serviceProviderSession.startTransaction).to.have.been.calledOnceWith({ readPreference: options.readPreference });
     });
-    it('commitTransaction', () => {
+    it('commitTransaction', async() => {
       serviceProviderSession.commitTransaction.resolves();
-      session.commitTransaction();
+      await session.commitTransaction();
       expect(serviceProviderSession.commitTransaction).to.have.been.calledOnceWith();
     });
-    it('abortTransaction', () => {
+    it('abortTransaction', async() => {
       serviceProviderSession.abortTransaction.resolves();
-      session.abortTransaction();
+      await session.abortTransaction();
       expect(serviceProviderSession.abortTransaction).to.have.been.calledOnceWith();
     });
   });
@@ -230,7 +230,7 @@ describe('Session', () => {
       });
     });
     describe('transaction methods are called', () => {
-      it('cannot call start transaction twice', async() => {
+      it('cannot call start transaction twice', () => {
         session = mongo.startSession();
         session.startTransaction();
         try {

@@ -104,7 +104,7 @@ describe('Barque', () => {
     });
 
 
-    it('platform is not linux', async() => {
+    it('platform is not linux', () => {
       config.platform = 'macos';
       try {
         barque = new Barque(config);

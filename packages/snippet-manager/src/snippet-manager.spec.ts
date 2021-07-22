@@ -243,6 +243,7 @@ describe('SnippetManager', () => {
     installdir = path.join(tmpdir, 'snippets');
     contextObject = {
       config: {
+        // eslint-disable-next-line @typescript-eslint/require-await
         async get(key: string): Promise<any> {
           switch (key) {
             case 'snippetIndexSourceURLs':
@@ -734,6 +735,7 @@ describe('SnippetManager', () => {
       await snippetManager.runSnippetCommand(['refresh']);
 
       (evaluationListener.onPrompt as any).resolves('yes');
+      // eslint-disable-next-line @typescript-eslint/require-await
       contextObject.load.callsFake(async() => {
         interrupted.checkpoint.rejects(new Error('interrupted'));
       });
@@ -762,6 +764,7 @@ describe('SnippetManager', () => {
         destroy: () => {}
       });
 
+      // eslint-disable-next-line @typescript-eslint/require-await
       snippetManager.ensureSetup = async() => {
         return [
           process.execPath,

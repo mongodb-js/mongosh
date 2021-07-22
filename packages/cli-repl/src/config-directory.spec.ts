@@ -54,7 +54,7 @@ describe('home directory management', () => {
       await fs.access(base);
     });
 
-    it('provides a way to access subpaths', async() => {
+    it('provides a way to access subpaths', () => {
       const subpath = shellHomeDirectory.localPath('banana');
       expect(subpath).to.equal(path.join(base, 'banana'));
     });

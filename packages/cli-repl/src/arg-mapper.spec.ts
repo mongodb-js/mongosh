@@ -10,8 +10,8 @@ describe('arg-mapper.mapCliToDriver', () => {
   context('when cli args have authenticationDatabase', () => {
     const cliOptions: CliOptions = { authenticationDatabase: 'authDb' };
 
-    it('maps to authSource', async() => {
-      expect(await mapCliToDriver(cliOptions)).to.deep.equal({
+    it('maps to authSource', () => {
+      expect(mapCliToDriver(cliOptions)).to.deep.equal({
         authSource: 'authDb'
       });
     });
@@ -20,8 +20,8 @@ describe('arg-mapper.mapCliToDriver', () => {
   context('when cli args have authenticationMechanism', () => {
     const cliOptions: CliOptions = { authenticationMechanism: 'SCRAM-SHA-1' };
 
-    it('maps to authMechanism', async() => {
-      expect(await mapCliToDriver(cliOptions)).to.deep.equal({
+    it('maps to authMechanism', () => {
+      expect(mapCliToDriver(cliOptions)).to.deep.equal({
         authMechanism: 'SCRAM-SHA-1'
       });
     });
@@ -30,8 +30,8 @@ describe('arg-mapper.mapCliToDriver', () => {
   context('when cli args have quiet', () => {
     const cliOptions: CliOptions = { quiet: true };
 
-    it('maps to loggerLevel', async() => {
-      expect(await mapCliToDriver(cliOptions)).to.deep.equal({
+    it('maps to loggerLevel', () => {
+      expect(mapCliToDriver(cliOptions)).to.deep.equal({
         loggerLevel: 'error'
       });
     });
@@ -40,8 +40,8 @@ describe('arg-mapper.mapCliToDriver', () => {
   context('when cli args have verbose', () => {
     const cliOptions: CliOptions = { verbose: true };
 
-    it('maps to loggerLevel', async() => {
-      expect(await mapCliToDriver(cliOptions)).to.deep.equal({
+    it('maps to loggerLevel', () => {
+      expect(mapCliToDriver(cliOptions)).to.deep.equal({
         loggerLevel: 'debug'
       });
     });
@@ -50,8 +50,8 @@ describe('arg-mapper.mapCliToDriver', () => {
   context('when cli args have username', () => {
     const cliOptions: CliOptions = { username: 'richard' };
 
-    it('maps to auth object', async() => {
-      expect(await mapCliToDriver(cliOptions)).to.deep.equal({
+    it('maps to auth object', () => {
+      expect(mapCliToDriver(cliOptions)).to.deep.equal({
         auth: {
           username: 'richard'
         }
@@ -62,8 +62,8 @@ describe('arg-mapper.mapCliToDriver', () => {
   context('when cli args have password', () => {
     const cliOptions: CliOptions = { password: 'aphextwin' };
 
-    it('maps to auth object', async() => {
-      expect(await mapCliToDriver(cliOptions)).to.deep.equal({
+    it('maps to auth object', () => {
+      expect(mapCliToDriver(cliOptions)).to.deep.equal({
         auth: {
           password: 'aphextwin'
         }
@@ -74,8 +74,8 @@ describe('arg-mapper.mapCliToDriver', () => {
   context('when cli args have username and password', () => {
     const cliOptions: CliOptions = { username: 'richard', password: 'aphextwin' };
 
-    it('maps to auth object', async() => {
-      expect(await mapCliToDriver(cliOptions)).to.deep.equal({
+    it('maps to auth object', () => {
+      expect(mapCliToDriver(cliOptions)).to.deep.equal({
         auth: {
           username: 'richard',
           password: 'aphextwin'
@@ -87,8 +87,8 @@ describe('arg-mapper.mapCliToDriver', () => {
   context('when cli args have retryWrites', () => {
     const cliOptions: CliOptions = { retryWrites: true };
 
-    it('maps the same argument', async() => {
-      expect(await mapCliToDriver(cliOptions)).to.deep.equal({
+    it('maps the same argument', () => {
+      expect(mapCliToDriver(cliOptions)).to.deep.equal({
         retryWrites: true
       });
     });
@@ -97,8 +97,8 @@ describe('arg-mapper.mapCliToDriver', () => {
   context('when cli args have tls', () => {
     const cliOptions: CliOptions = { tls: true };
 
-    it('maps the same argument', async() => {
-      expect(await mapCliToDriver(cliOptions)).to.deep.equal({
+    it('maps the same argument', () => {
+      expect(mapCliToDriver(cliOptions)).to.deep.equal({
         tls: true
       });
     });
@@ -107,8 +107,8 @@ describe('arg-mapper.mapCliToDriver', () => {
   context('when cli args have tlsAllowInvalidCertificates', () => {
     const cliOptions: CliOptions = { tlsAllowInvalidCertificates: true };
 
-    it('maps the same argument', async() => {
-      expect(await mapCliToDriver(cliOptions)).to.deep.equal({
+    it('maps the same argument', () => {
+      expect(mapCliToDriver(cliOptions)).to.deep.equal({
         tlsAllowInvalidCertificates: true
       });
     });
@@ -117,8 +117,8 @@ describe('arg-mapper.mapCliToDriver', () => {
   context('when cli args have tlsAllowInvalidHostnames', () => {
     const cliOptions: CliOptions = { tlsAllowInvalidHostnames: true };
 
-    it('maps the same argument', async() => {
-      expect(await mapCliToDriver(cliOptions)).to.deep.equal({
+    it('maps the same argument', () => {
+      expect(mapCliToDriver(cliOptions)).to.deep.equal({
         tlsAllowInvalidHostnames: true
       });
     });
@@ -127,8 +127,8 @@ describe('arg-mapper.mapCliToDriver', () => {
   context('when cli args have tlsCAFile', () => {
     const cliOptions: CliOptions = { tlsCAFile: 'ca' };
 
-    it('maps the same argument', async() => {
-      expect(await mapCliToDriver(cliOptions)).to.deep.equal({
+    it('maps the same argument', () => {
+      expect(mapCliToDriver(cliOptions)).to.deep.equal({
         tlsCAFile: 'ca'
       });
     });
@@ -137,8 +137,8 @@ describe('arg-mapper.mapCliToDriver', () => {
   context('when cli args have tlsCRLFile', () => {
     const cliOptions: CliOptions = { tlsCRLFile: 'key' };
 
-    it('maps to sslCRL', async() => {
-      expect(await mapCliToDriver(cliOptions)).to.deep.equal({
+    it('maps to sslCRL', () => {
+      expect(mapCliToDriver(cliOptions)).to.deep.equal({
         sslCRL: 'key'
       });
     });
@@ -147,8 +147,8 @@ describe('arg-mapper.mapCliToDriver', () => {
   context('when cli args have tlsCertificateKeyFile', () => {
     const cliOptions: CliOptions = { tlsCertificateKeyFile: 'key' };
 
-    it('maps the same argument', async() => {
-      expect(await mapCliToDriver(cliOptions)).to.deep.equal({
+    it('maps the same argument', () => {
+      expect(mapCliToDriver(cliOptions)).to.deep.equal({
         tlsCertificateKeyFile: 'key'
       });
     });
@@ -157,8 +157,8 @@ describe('arg-mapper.mapCliToDriver', () => {
   context('when cli args have tlsCertificateKeyFilePassword', () => {
     const cliOptions: CliOptions = { tlsCertificateKeyFilePassword: 'pw' };
 
-    it('maps the same argument', async() => {
-      expect(await mapCliToDriver(cliOptions)).to.deep.equal({
+    it('maps the same argument', () => {
+      expect(mapCliToDriver(cliOptions)).to.deep.equal({
         tlsCertificateKeyFilePassword: 'pw'
       });
     });
@@ -167,8 +167,8 @@ describe('arg-mapper.mapCliToDriver', () => {
   context('when the cli args have awsAccessKeyId', () => {
     const cliOptions: CliOptions = { awsAccessKeyId: 'awskey' };
 
-    it('maps to autoEncryption', async() => {
-      expect(await mapCliToDriver(cliOptions)).to.deep.equal({
+    it('maps to autoEncryption', () => {
+      expect(mapCliToDriver(cliOptions)).to.deep.equal({
         autoEncryption: {
           kmsProviders: {
             aws: {
@@ -183,8 +183,8 @@ describe('arg-mapper.mapCliToDriver', () => {
   context('when the cli args have awsSecretAccessKey', () => {
     const cliOptions: CliOptions = { awsSecretAccessKey: 'secretkey' };
 
-    it('maps to autoEncryption', async() => {
-      expect(await mapCliToDriver(cliOptions)).to.deep.equal({
+    it('maps to autoEncryption', () => {
+      expect(mapCliToDriver(cliOptions)).to.deep.equal({
         autoEncryption: {
           kmsProviders: {
             aws: {
@@ -199,8 +199,8 @@ describe('arg-mapper.mapCliToDriver', () => {
   context('when the cli args have awsIamSessionToken', () => {
     const cliOptions: CliOptions = { awsIamSessionToken: 'token' };
 
-    it('maps to authMechanismProperties.AWS_SESSION_TOKEN', async() => {
-      expect(await mapCliToDriver(cliOptions)).to.deep.equal({
+    it('maps to authMechanismProperties.AWS_SESSION_TOKEN', () => {
+      expect(mapCliToDriver(cliOptions)).to.deep.equal({
         authMechanismProperties: {
           AWS_SESSION_TOKEN: 'token'
         }
@@ -211,8 +211,8 @@ describe('arg-mapper.mapCliToDriver', () => {
   context('when the cli args have gssapiServiceName', () => {
     const cliOptions: CliOptions = { gssapiServiceName: 'alternate' };
 
-    it('maps to authMechanismProperties.SERVICE_NAME', async() => {
-      expect(await mapCliToDriver(cliOptions)).to.deep.equal({
+    it('maps to authMechanismProperties.SERVICE_NAME', () => {
+      expect(mapCliToDriver(cliOptions)).to.deep.equal({
         authMechanismProperties: {
           SERVICE_NAME: 'alternate'
         }
@@ -223,8 +223,8 @@ describe('arg-mapper.mapCliToDriver', () => {
   context('when the cli args have sspiRealmOverride', () => {
     const cliOptions: CliOptions = { sspiRealmOverride: 'REALM.COM' };
 
-    it('maps to authMechanismProperties.SERVICE_REALM', async() => {
-      expect(await mapCliToDriver(cliOptions)).to.deep.equal({
+    it('maps to authMechanismProperties.SERVICE_REALM', () => {
+      expect(mapCliToDriver(cliOptions)).to.deep.equal({
         authMechanismProperties: {
           SERVICE_REALM: 'REALM.COM'
         }
@@ -236,16 +236,16 @@ describe('arg-mapper.mapCliToDriver', () => {
     context('with a value of none', () => {
       const cliOptions: CliOptions = { sspiHostnameCanonicalization: 'none' };
 
-      it('is not mapped to authMechanismProperties', async() => {
-        expect(await mapCliToDriver(cliOptions)).to.deep.equal({});
+      it('is not mapped to authMechanismProperties', () => {
+        expect(mapCliToDriver(cliOptions)).to.deep.equal({});
       });
     });
 
     context('with a value of forward', () => {
       const cliOptions: CliOptions = { sspiHostnameCanonicalization: 'forward' };
 
-      it('is mapped to authMechanismProperties', async() => {
-        expect(await mapCliToDriver(cliOptions)).to.deep.equal({
+      it('is mapped to authMechanismProperties', () => {
+        expect(mapCliToDriver(cliOptions)).to.deep.equal({
           authMechanismProperties: {
             gssapiCanonicalizeHostName: 'true'
           }
@@ -256,9 +256,9 @@ describe('arg-mapper.mapCliToDriver', () => {
     context('with a value of forwardAndReverse', () => {
       const cliOptions: CliOptions = { sspiHostnameCanonicalization: 'forwardAndReverse' };
 
-      it('is mapped to authMechanismProperties', async() => {
+      it('is mapped to authMechanismProperties', () => {
         try {
-          await mapCliToDriver(cliOptions);
+          mapCliToDriver(cliOptions);
         } catch (e) {
           expect(e.message).to.contain('forwardAndReverse is not supported');
           return;
@@ -271,8 +271,8 @@ describe('arg-mapper.mapCliToDriver', () => {
   context('when the cli args have keyVaultNamespace', () => {
     const cliOptions: CliOptions = { keyVaultNamespace: 'db.datakeys' };
 
-    it('maps to autoEncryption', async() => {
-      expect(await mapCliToDriver(cliOptions)).to.deep.equal({
+    it('maps to autoEncryption', () => {
+      expect(mapCliToDriver(cliOptions)).to.deep.equal({
         autoEncryption: {
           keyVaultNamespace: 'db.datakeys'
         }
@@ -287,8 +287,8 @@ describe('arg-mapper.mapCliToDriver', () => {
       awsAccessKeyId: 'awskey'
     };
 
-    it('maps to autoEncryption', async() => {
-      expect(await mapCliToDriver(cliOptions)).to.deep.equal({
+    it('maps to autoEncryption', () => {
+      expect(mapCliToDriver(cliOptions)).to.deep.equal({
         autoEncryption: {
           keyVaultNamespace: 'db.datakeys',
           kmsProviders: {
@@ -309,8 +309,8 @@ describe('arg-mapper.mapCliToDriver', () => {
       apiVersion: '1'
     };
 
-    it('maps to serverApi', async() => {
-      expect(await mapCliToDriver(cliOptions)).to.deep.equal({
+    it('maps to serverApi', () => {
+      expect(mapCliToDriver(cliOptions)).to.deep.equal({
         serverApi: {
           strict: true,
           deprecationErrors: true,

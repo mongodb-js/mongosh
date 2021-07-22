@@ -38,7 +38,7 @@ describe('CliRepl', () => {
     }
   }
 
-  beforeEach(async() => {
+  beforeEach(() => {
     input = new PassThrough();
     outputStream = new PassThrough();
     output = '';
@@ -73,13 +73,9 @@ describe('CliRepl', () => {
       cliReplOptions.output.end();
     });
 
-    it("doesn't throw errors", (done) => {
-      const replCall = async() => {
-        input.write('21 + 13\n');
-        await waitEval(cliRepl.bus);
-      };
-
-      expect(replCall()).to.be.fulfilled.and.notify(done);
+    it("doesn't throw errors", async() => {
+      input.write('21 + 13\n');
+      await waitEval(cliRepl.bus);
     });
   });
 

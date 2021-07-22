@@ -111,6 +111,7 @@ export class Editor extends Component<EditorProps> {
           name: 'return',
           bindKey: { win: 'Return', mac: 'Return' },
           exec: (): void => {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.props.onEnter();
           }
         },
@@ -123,6 +124,7 @@ export class Editor extends Component<EditorProps> {
               return this.editor.selection.moveCursorUp();
             }
 
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.props.onArrowUpOnFirstLine();
           }
         },
@@ -137,6 +139,7 @@ export class Editor extends Component<EditorProps> {
               return this.editor.selection.moveCursorDown();
             }
 
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.props.onArrowDownOnLastLine();
           }
         },

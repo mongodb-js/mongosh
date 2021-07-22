@@ -352,6 +352,7 @@ class CliRepl {
     return this.shellHomeDirectory.roamingPath('mongosh_repl_history');
   }
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   async getConfig<K extends keyof CliUserConfig>(key: K): Promise<CliUserConfig[K]> {
     return (this.config as CliUserConfig)[key] ?? (new CliUserConfig())[key];
   }
@@ -456,7 +457,7 @@ class CliRepl {
         await promisify(analytics.flush.bind(analytics))();
       } catch { /* ignore */ }
     }
-    await this.mongocryptdManager.close();
+    this.mongocryptdManager.close();
     this.bus.emit('mongosh:closed');
   }
 

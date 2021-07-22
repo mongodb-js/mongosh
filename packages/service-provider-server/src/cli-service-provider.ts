@@ -148,7 +148,7 @@ const DEFAULT_BASE_OPTIONS: OperationOptions = Object.freeze({
  */
 async function connectWithFailFast(client: MongoClient, bus: MongoshBus): Promise<void> {
   const failedConnections = new Map<string, Error>();
-  let failedEarly = false;
+  let failEarlyClosePromise: Promise<void> | null = null;
 
   const heartbeatFailureListener = ({ failure, connectionId }: ServerHeartbeatFailedEvent) => {
     const topologyDescription: TopologyDescription | undefined = (client as any).topology?.description;
@@ -169,8 +169,8 @@ async function connectWithFailFast(client: MongoClient, bus: MongoshBus): Promis
       failedConnections.set(connectionId, failure);
       if ([...servers.keys()].every(server => failedConnections.has(server))) {
         bus.emit('mongosh-sp:connect-fail-early');
-        failedEarly = true;
-        client.close();
+        // Setting this variable indicates that we are failing early.
+        failEarlyClosePromise = client.close();
       }
     }
   };
@@ -185,7 +185,9 @@ async function connectWithFailFast(client: MongoClient, bus: MongoshBus): Promis
   try {
     await client.connect();
   } catch (err) {
-    if (failedEarly) {
+    if (failEarlyClosePromise !== null) {
+      // eslint-disable-next-line @typescript-eslint/await-thenable
+      await failEarlyClosePromise;
       throw failedConnections.values().next().value; // Just use the first failure.
     }
     throw err;
@@ -1236,17 +1238,18 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     return { ok: 1 };
   }
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   async initializeBulkOp(
     dbName: string,
     collName: string,
     ordered: boolean,
     options: BulkWriteOptions = {},
-    dbOptions?: any
-  ): Promise<any> { // Node 4.0 returns any type for bulk ops.
+    dbOptions?: DbOptions
+  ): Promise<any> { // Update to actual type after https://jira.mongodb.org/browse/MONGOSH-915
     if (ordered) {
-      return await this.db(dbName, dbOptions).collection(collName).initializeOrderedBulkOp(options);
+      return this.db(dbName, dbOptions).collection(collName).initializeOrderedBulkOp(options);
     }
-    return await this.db(dbName, dbOptions).collection(collName).initializeUnorderedBulkOp(options);
+    return this.db(dbName, dbOptions).collection(collName).initializeUnorderedBulkOp(options);
   }
 
   getReadPreference(): ReadPreference {
