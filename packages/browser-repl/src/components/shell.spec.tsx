@@ -270,7 +270,8 @@ describe('<Shell />', () => {
     />);
 
     const onInputStub = wrapper.find(ShellInput).prop('onInput');
-    await onInputStub('ok');
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    onInputStub('ok');
 
     // Check operationInProgress is true while eval is called
     expect(wrapper.find(ShellInput).prop('operationInProgress')).to.equal(true);
