@@ -57,8 +57,8 @@ describe('CliRepl', () => {
         shellLocalDataPath: tmpdir.path,
         shellRcPath: tmpdir.path,
       },
-      onExit: (code: number) => {
-        exitCode = code;
+      onExit: (code?: number) => {
+        exitCode = code ?? 0;
         resolveExitPromise();
         return Promise.resolve() as never;
       }
@@ -147,13 +147,13 @@ describe('CliRepl', () => {
       it('emits exit when asked to, Node.js-style', async() => {
         input.write('.exit\n');
         await exitPromise;
-        expect(exitCode).to.equal(undefined);
+        expect(exitCode).to.equal(0);
       });
 
       it('emits exit when asked to, mongosh-style', async() => {
         input.write('exit\n');
         await exitPromise;
-        expect(exitCode).to.equal(undefined);
+        expect(exitCode).to.equal(0);
       });
 
       it('emits exit when asked to, mongosh-style with an exit code + exit', async() => {
