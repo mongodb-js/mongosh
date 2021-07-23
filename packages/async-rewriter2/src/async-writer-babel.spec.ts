@@ -131,8 +131,8 @@ describe('AsyncWriter', () => {
 
     it('adds var declarations to the global scope as expected', () => {
       const a = runTranspiledCode('var a = 10;');
-      expect(a).to.equal(10);
-      expect(ctx.a).to.equal(a);
+      expect(a).to.equal(undefined);
+      expect(ctx.a).to.equal(10);
     });
 
     it('adds let declarations to the global scope as expected (unlike regular JS)', () => {
@@ -155,8 +155,8 @@ describe('AsyncWriter', () => {
 
     it('adds block-scoped var declarations to the global scope as expected', () => {
       const a = runTranspiledCode('{ var a = 10; }');
-      expect(a).to.equal(10);
-      expect(ctx.a).to.equal(a);
+      expect(a).to.equal(undefined);
+      expect(ctx.a).to.equal(10);
     });
 
     it('does not add block-scoped let declarations to the global scope', () => {
@@ -176,6 +176,11 @@ describe('AsyncWriter', () => {
       expect(a).to.equal(undefined);
       expect(ctx.a).to.equal(undefined);
     });
+
+    // enable after https://github.com/babel/babel/pull/13596
+    // it('ignores variable declarations for completion records', () => {
+    //   expect(runTranspiledCode('"foo" + "bar"; var a = 10;')).to.equal('foobar');
+    // });
 
     it('moves top-level classes into the top-level scope', () => {
       const A = runTranspiledCode('class A {}');
