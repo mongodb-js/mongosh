@@ -555,6 +555,17 @@ describe('ShellApi', () => {
           }
           expect(evaluationListener.onExit).to.have.been.calledWith();
         });
+        it('passes on the exit code, if provided', async() => {
+          evaluationListener.onExit.resolves();
+          try {
+            await internalState.context[cmd](1);
+            expect.fail('missed exception');
+          } catch (e) {
+            // We should be getting an exception because we’re not actually exiting.
+            expect(e.message).to.contain('onExit listener returned');
+          }
+          expect(evaluationListener.onExit).to.have.been.calledWith(1);
+        });
       });
     }
     describe('enableTelemetry', () => {

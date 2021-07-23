@@ -74,7 +74,7 @@ export interface EvaluationListener extends Partial<ConfigProvider<ShellUserConf
   /**
    * Called when exit/quit is entered in the shell.
    */
-  onExit?: () => Promise<never>;
+  onExit?: (exitCode?: number) => Promise<never>;
 
   /**
    * Called when load() is used in the shell.

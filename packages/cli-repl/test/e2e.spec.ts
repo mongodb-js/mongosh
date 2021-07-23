@@ -96,13 +96,33 @@ describe('e2e', function() {
     });
     it('closes the shell when "exit" is entered', async() => {
       const onExit = shell.waitForExit();
-      await shell.writeInputLine('exit');
+      shell.writeInputLine('exit');
       expect(await onExit).to.equal(0);
     });
     it('closes the shell when "quit" is entered', async() => {
       const onExit = shell.waitForExit();
-      await shell.writeInputLine('quit');
+      shell.writeInputLine('quit');
       expect(await onExit).to.equal(0);
+    });
+    it('closes the shell with the specified exit code when "exit(n)" is entered', async() => {
+      const onExit = shell.waitForExit();
+      shell.writeInputLine('exit(42)');
+      expect(await onExit).to.equal(42);
+    });
+    it('closes the shell with the specified exit code when "quit(n)" is entered', async() => {
+      const onExit = shell.waitForExit();
+      shell.writeInputLine('quit(42)');
+      expect(await onExit).to.equal(42);
+    });
+    it('closes the shell with the pre-specified exit code when "exit" is entered', async() => {
+      const onExit = shell.waitForExit();
+      shell.writeInputLine('process.exitCode = 42; exit()');
+      expect(await onExit).to.equal(42);
+    });
+    it('closes the shell with the pre-specified exit code when "quit" is entered', async() => {
+      const onExit = shell.waitForExit();
+      shell.writeInputLine('process.exitCode = 42; quit()');
+      expect(await onExit).to.equal(42);
     });
   });
   describe('set db', () => {

@@ -141,19 +141,20 @@ export default class ShellApi extends ShellApiClass {
   @directShellCommand
   @returnsPromise
   @platforms([ ReplPlatform.CLI ] )
-  async exit(): Promise<never> {
+  async exit(exitCode?: number): Promise<never> {
+    assertArgsDefinedType([exitCode], [[undefined, 'number']], 'exit');
     assertCLI(this._internalState.initialServiceProvider.platform, 'the exit/quit commands');
     await this._internalState.close(true);
     // This should never actually return.
-    await this._internalState.evaluationListener.onExit?.();
+    await this._internalState.evaluationListener.onExit?.(exitCode);
     throw new MongoshInternalError('.onExit listener returned');
   }
 
   @directShellCommand
   @returnsPromise
   @platforms([ ReplPlatform.CLI ] )
-  async quit(): Promise<never> {
-    return await this.exit();
+  async quit(exitCode?: number): Promise<never> {
+    return await this.exit(exitCode);
   }
 
   @returnsPromise

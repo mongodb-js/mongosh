@@ -39,7 +39,7 @@ export type CliReplOptions = {
   input: Readable;
   output: Writable;
   shellHomePaths: ShellHomePaths;
-  onExit: (code: number) => never;
+  onExit: (code?: number) => never;
   analyticsOptions?: AnalyticsOptions;
 } & Pick<MongoshNodeReplOptions, 'nodeReplOptions'>;
 
@@ -62,7 +62,7 @@ class CliRepl {
   analyticsOptions?: AnalyticsOptions;
   analytics?: Analytics;
   warnedAboutInaccessibleFiles = false;
-  onExit: (code: number) => Promise<never>;
+  onExit: (code?: number) => Promise<never>;
   closing = false;
 
   /**
@@ -460,7 +460,7 @@ class CliRepl {
     this.bus.emit('mongosh:closed');
   }
 
-  async exit(code: number): Promise<never> {
+  async exit(code?: number): Promise<never> {
     await this.close();
     await this.onExit(code);
     // onExit never returns. If it does, that's a bug.
