@@ -50,8 +50,6 @@ type WrapState = {
 };
 
 export default ({ types: t }: { types: typeof BabelTypes }): babel.PluginObj<WrapState> => {
-  function asNodeKey(v: any): keyof babel.types.Node { return v; }
-  const excludeFromCompletion = asNodeKey(Symbol('excludedFromCompletion'));
   return {
     pre() {
       this.movedStatements = [];
@@ -77,12 +75,14 @@ export default ({ types: t }: { types: typeof BabelTypes }): babel.PluginObj<Wra
                 this.variables.push((decl.id as babel.types.Identifier).name);
                 if (decl.init !== null) {
                   // If there is an initializer for this variable, turn it into
-                  // an assignment expression.
+                  // an assignment expression, then assign that assignment
+                  // expression to a dummy variable so that the completion record
+                  // computation is unaffected.
                   const expr = t.assignmentExpression('=', decl.id, decl.init);
-                  if (path.node.kind !== 'var') {
-                    Object.assign(expr, { [excludeFromCompletion]: true });
-                  }
-                  asAssignments.push(t.expressionStatement(expr));
+                  asAssignments.push(t.variableDeclaration(
+                    'const',
+                    [t.variableDeclarator(path.scope.generateUidIdentifier('v'), expr)]
+                  ));
                 }
               }
               if (path.parentPath.isProgram()) {
@@ -175,7 +175,7 @@ export default ({ types: t }: { types: typeof BabelTypes }): babel.PluginObj<Wra
           const records = path.getCompletionRecords();
           for (const record of records) {
             // ExpressionWrapper = ExpressionStatement | ParenthesizedExpression
-            if (record.isExpressionWrapper() && !record.node.expression[excludeFromCompletion]) {
+            if (record.isExpressionWrapper()) {
               record.replaceWith(t.expressionStatement(
                 t.assignmentExpression('=', this.completionRecordId, record.node.expression)));
             }
