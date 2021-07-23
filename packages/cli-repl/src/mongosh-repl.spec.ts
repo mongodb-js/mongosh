@@ -118,7 +118,7 @@ describe('MongoshNodeRepl', () => {
     it('emits exit events on exit', async() => {
       input.write('.exit\n');
       const [ code ] = await once(bus, 'test-exit-event');
-      expect(code).to.equal(0);
+      expect(code).to.equal(undefined);
     });
 
     it('emits error events when somebody throws something', async() => {
@@ -366,13 +366,13 @@ describe('MongoshNodeRepl', () => {
       expect(output).to.match(/To exit, press (Ctrl\+C|\^C) again/);
       input.write('\u0003');
       const [ code ] = await once(bus, 'test-exit-event');
-      expect(code).to.equal(0);
+      expect(code).to.equal(undefined);
     });
 
     it('pressing Ctrl+D exits the shell', async() => {
       input.write('\u0004');
       const [ code ] = await once(bus, 'test-exit-event');
-      expect(code).to.equal(0);
+      expect(code).to.equal(undefined);
     });
 
     context('autocompletion', () => {
