@@ -28,7 +28,7 @@ export type MongoshCliOptions = ShellCliOptions & {
 
 export type MongoshIOProvider = Omit<ConfigProvider<CliUserConfig>, 'validateConfig'> & {
   getHistoryFilePath(): string;
-  exit(code: number): Promise<never>;
+  exit(code?: number): Promise<never>;
   readFileUTF8(filename: string): Promise<{ contents: string, absolutePath: string }>;
   startMongocryptd(): Promise<AutoEncryptionOptions['extraOptions']>;
 };
@@ -627,9 +627,9 @@ class MongoshNodeRepl implements EvaluationListener {
     }
   }
 
-  async onExit(): Promise<never> {
+  async onExit(exitCode?: number): Promise<never> {
     await this.close();
-    return this.ioProvider.exit(0);
+    return this.ioProvider.exit(exitCode);
   }
 
   async getConfig<K extends keyof CliUserConfig>(key: K): Promise<CliUserConfig[K]> {

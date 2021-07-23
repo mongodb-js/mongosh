@@ -32,9 +32,9 @@ export class ChildProcessEvaluationListener {
         onClearCommand() {
           return workerRuntime.evaluationListener?.onClearCommand?.();
         },
-        onExit() {
+        onExit(exitCode) {
           return (
-            workerRuntime.evaluationListener?.onExit?.() ??
+            workerRuntime.evaluationListener?.onExit?.(exitCode) ??
             (Promise.resolve() as Promise<never>)
           );
         }
