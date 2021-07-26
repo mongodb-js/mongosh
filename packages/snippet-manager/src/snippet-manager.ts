@@ -119,6 +119,7 @@ export class SnippetManager implements ShellPlugin {
       type: 'function',
       returnsPromise: true,
       isDirectShellCommand: true,
+      // eslint-disable-next-line @typescript-eslint/require-await
       shellCommandCompleter: async(params: unknown, args: string[]): Promise<string[] | undefined> => {
         const plainCommands = ['update', 'search', 'ls', 'outdated', 'info', 'refresh', 'load-all'];
         const pkgCommands = ['install', 'uninstall', 'help'];
@@ -304,6 +305,7 @@ export class SnippetManager implements ShellPlugin {
       }
     }
     const origContent = JSON.parse(JSON.stringify(pjson));
+    // eslint-disable-next-line @typescript-eslint/await-thenable
     const result = await fn(pjson);
     if (!isDeepStrictEqual(origContent, result)) {
       await fs.writeFile(path.join(this.installdir, 'package.json'), JSON.stringify(pjson, null, '  '));

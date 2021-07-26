@@ -29,8 +29,8 @@ describe('CliServiceProvider [integration]', function() {
     serviceProvider = new CliServiceProvider(client, bus, {}, new ConnectionString(connectionString));
   });
 
-  afterEach(() => {
-    serviceProvider.close(true);
+  afterEach(async() => {
+    await serviceProvider.close(true);
   });
 
   describe('.connect', () => {
@@ -39,11 +39,11 @@ describe('CliServiceProvider [integration]', function() {
       instance = await CliServiceProvider.connect(connectionString, {}, {}, bus);
     });
 
-    afterEach(() => {
-      instance.close(true);
+    afterEach(async() => {
+      await instance.close(true);
     });
 
-    it('returns a CliServiceProvider', async() => {
+    it('returns a CliServiceProvider', () => {
       expect(instance).to.be.instanceOf(CliServiceProvider);
     });
   });
@@ -55,11 +55,11 @@ describe('CliServiceProvider [integration]', function() {
       instance = await serviceProvider.getNewConnection(connectionString);
     });
 
-    afterEach(() => {
-      instance.close(true);
+    afterEach(async() => {
+      await instance.close(true);
     });
 
-    it('returns a CliServiceProvider', async() => {
+    it('returns a CliServiceProvider', () => {
       expect(instance).to.be.instanceOf(CliServiceProvider);
     });
 
@@ -150,7 +150,7 @@ describe('CliServiceProvider [integration]', function() {
 
       let result;
 
-      beforeEach(async() => {
+      beforeEach(() => {
         const pipeline = [
           {
             '$addFields': {
@@ -164,7 +164,7 @@ describe('CliServiceProvider [integration]', function() {
             }
           }
         ];
-        result = await serviceProvider.aggregate('music', 'bands', pipeline);
+        result = serviceProvider.aggregate('music', 'bands', pipeline);
       });
 
       it('executes the command and resolves the result', async() => {
@@ -176,9 +176,8 @@ describe('CliServiceProvider [integration]', function() {
     context('when running against a collection', () => {
       let result;
 
-      beforeEach(async() => {
-        result = await serviceProvider.
-          aggregate('music', 'bands', [{ $match: { name: 'Aphex Twin' } }]);
+      beforeEach(() => {
+        result = serviceProvider.aggregate('music', 'bands', [{ $match: { name: 'Aphex Twin' } }]);
       });
 
       it('executes the command and resolves the result', async() => {
@@ -190,8 +189,8 @@ describe('CliServiceProvider [integration]', function() {
     context('when running against a database', () => {
       let result;
 
-      beforeEach(async() => {
-        result = await serviceProvider.aggregateDb('admin', [{ $currentOp: {} }]);
+      beforeEach(() => {
+        result = serviceProvider.aggregateDb('admin', [{ $currentOp: {} }]);
       });
 
       it('executes the command and resolves the result', async() => {
@@ -310,8 +309,8 @@ describe('CliServiceProvider [integration]', function() {
     context('when the find is valid', () => {
       let result;
 
-      beforeEach(async() => {
-        result = await serviceProvider.find('music', 'bands', { name: 'Aphex Twin' });
+      beforeEach(() => {
+        result = serviceProvider.find('music', 'bands', { name: 'Aphex Twin' });
       });
 
       it('executes the command and resolves the result', async() => {
@@ -552,7 +551,7 @@ describe('CliServiceProvider [integration]', function() {
         result = await serviceProvider.dropDatabase(dbName);
       });
 
-      it('returns {ok: 1}', async() => {
+      it('returns {ok: 1}', () => {
         expect(result.ok).to.equal(1);
       });
 

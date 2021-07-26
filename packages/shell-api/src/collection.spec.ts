@@ -247,7 +247,7 @@ describe('Collection', () => {
 
     describe('bulkWrite', () => {
       let requests;
-      beforeEach(async() => {
+      beforeEach(() => {
         requests = [
           { insertOne: { 'document': { doc: 1 } } }
         ];
@@ -756,7 +756,7 @@ describe('Collection', () => {
     });
 
     describe('createIndexes', () => {
-      beforeEach(async() => {
+      beforeEach(() => {
         serviceProvider.createIndexes.resolves(['index_1']);
       });
 
@@ -800,7 +800,7 @@ describe('Collection', () => {
 
     ['ensureIndex', 'createIndex'].forEach((method) => {
       describe(method, () => {
-        beforeEach(async() => {
+        beforeEach(() => {
           serviceProvider.createIndexes.resolves(['index_1']);
         });
 
@@ -846,7 +846,7 @@ describe('Collection', () => {
     ['getIndexes', 'getIndexSpecs', 'getIndices'].forEach((method) => {
       describe(method, () => {
         let result;
-        beforeEach(async() => {
+        beforeEach(() => {
           result = [{
             v: 2,
             key: {
@@ -866,7 +866,7 @@ describe('Collection', () => {
 
     describe('getIndexKeys', () => {
       let result;
-      beforeEach(async() => {
+      beforeEach(() => {
         result = [{
           v: 2,
           key: {
@@ -897,7 +897,7 @@ describe('Collection', () => {
     describe('dropIndexes', () => {
       context('when serviceProvider.dropIndexes resolves', () => {
         let result;
-        beforeEach(async() => {
+        beforeEach(() => {
           result = { nIndexesWas: 3, ok: 1 };
           serviceProvider.runCommandWithCheck.resolves(result);
         });
@@ -916,7 +916,7 @@ describe('Collection', () => {
       });
 
       context('when serviceProvider.dropIndexes rejects IndexNotFound', () => {
-        beforeEach(async() => {
+        beforeEach(() => {
           const error = new Error('index not found with name [index_1]');
           Object.assign(error, {
             ok: 0,
@@ -940,7 +940,7 @@ describe('Collection', () => {
       });
 
       context('when serviceProvider.dropIndexes rejects IndexNotFound because mongod 4.0 does not support arrays', () => {
-        beforeEach(async() => {
+        beforeEach(() => {
           const error = new Error('invalid index name spec');
           Object.assign(error, {
             ok: 0,
@@ -950,6 +950,7 @@ describe('Collection', () => {
             name: 'MongoError'
           });
 
+          // eslint-disable-next-line @typescript-eslint/require-await
           serviceProvider.runCommandWithCheck.callsFake(async(db, cmd) => {
             if (cmd.dropIndexes) {
               if (Array.isArray(cmd.index)) {
@@ -974,7 +975,7 @@ describe('Collection', () => {
 
       context('when serviceProvider.dropIndexes rejects any other error', () => {
         let error;
-        beforeEach(async() => {
+        beforeEach(() => {
           error = new Error('Some error');
           serviceProvider.runCommandWithCheck.rejects(new Error('Some error'));
         });
@@ -990,7 +991,7 @@ describe('Collection', () => {
     describe('dropIndex', () => {
       context('when collection.dropIndexes resolves', () => {
         let result;
-        beforeEach(async() => {
+        beforeEach(() => {
           result = { nIndexesWas: 3, ok: 1 };
           serviceProvider.runCommandWithCheck.resolves(result);
         });
@@ -1221,13 +1222,13 @@ describe('Collection', () => {
     });
 
     describe('getFullName', () => {
-      it('returns the namespaced collection name', async() => {
+      it('returns the namespaced collection name', () => {
         expect(collection.getFullName()).to.equal('db1.coll1');
       });
     });
 
     describe('getName', () => {
-      it('returns the namespaced collection name', async() => {
+      it('returns the namespaced collection name', () => {
         expect(collection.getName()).to.equal('coll1');
       });
     });
@@ -1489,6 +1490,7 @@ describe('Collection', () => {
 
     describe('latencyStats', () => {
       it('calls serviceProvider.aggregate on the database with options', async() => {
+        // eslint-disable-next-line @typescript-eslint/require-await
         serviceProvider.aggregate.returns({ toArray: async() => ([]) } as any);
         await collection.latencyStats({ histograms: true });
 
@@ -1503,6 +1505,7 @@ describe('Collection', () => {
       });
 
       it('returns whatever serviceProvider.aggregate returns', async() => {
+        // eslint-disable-next-line @typescript-eslint/require-await
         serviceProvider.aggregate.returns({ toArray: async() => ([{ 1: 'db1' }]) } as any);
         const result = await collection.latencyStats();
         expect(result).to.deep.equal([{ 1: 'db1' }]);
@@ -1715,7 +1718,7 @@ describe('Collection', () => {
       });
     });
 
-    describe('return information about the collection as metadata', async() => {
+    describe('return information about the collection as metadata', () => {
       let serviceProviderCursor: StubbedInstance<ServiceProviderCursor>;
       let proxyCursor;
 
@@ -1735,7 +1738,7 @@ describe('Collection', () => {
 
       it('works for find()', async() => {
         serviceProvider.find.returns(proxyCursor);
-        const cursor = await collection.find();
+        const cursor = collection.find();
         const result = await toShellResult(cursor);
         expect(result.type).to.equal('Cursor');
         expect(result)

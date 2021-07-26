@@ -46,7 +46,7 @@ export default class ChangeStreamCursor extends ShellApiWithMongoClass {
   /**
    * Internal method to determine what is printed for this class.
    */
-  async [asPrintable](): Promise<string> {
+  [asPrintable](): string {
     return `ChangeStreamCursor on ${this._on}`;
   }
 

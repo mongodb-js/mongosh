@@ -179,13 +179,13 @@ describe('Database', () => {
     });
 
     describe('getName', () => {
-      it('returns the name of the DB', async() => {
+      it('returns the name of the DB', () => {
         expect(database.getName()).to.equal('db1');
       });
     });
 
     describe('getMongo', () => {
-      it('returns the name of the DB', async() => {
+      it('returns the name of the DB', () => {
         expect(database.getMongo()).to.equal(mongo);
       });
     });
@@ -357,8 +357,8 @@ describe('Database', () => {
       });
     });
     describe('getSiblingDB', () => {
-      it('returns a database', async() => {
-        const otherDb = await database.getSiblingDB('otherdb');
+      it('returns a database', () => {
+        const otherDb = database.getSiblingDB('otherdb');
         expect(otherDb).to.be.instanceOf(Database);
         expect(otherDb._name).to.equal('otherdb');
       });
@@ -390,7 +390,7 @@ describe('Database', () => {
     });
 
     describe('getCollection', () => {
-      it('returns a collection for the database', async() => {
+      it('returns a collection for the database', () => {
         const coll = database.getCollection('coll');
         expect(coll).to.be.instanceOf(Collection);
         expect(coll._name).to.equal('coll');

@@ -14,7 +14,7 @@
   "scripts": {
     "compile-ts": "tsc -p tsconfig.json",
     "pretest": "npm run compile-ts",
-    "lint": "eslint --report-unused-disable-directives \"**/*.{js,ts,tsx}\"",
+    "lint": "eslint --report-unused-disable-directives \"./{src,test}/**/*.{js,ts,tsx}\"",
     "check": "npm run lint && depcheck --skip-missing=true",
     "report-missing-help": "ts-node bin/report-missing-help.ts",
     "report-supported-api": "ts-node bin/report-supported-api.ts",

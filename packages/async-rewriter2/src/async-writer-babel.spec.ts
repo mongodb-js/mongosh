@@ -408,12 +408,12 @@ describe('AsyncWriter', () => {
       expect(obj).to.deep.equal({});
     });
 
-    it('supports delete for plain values', async() => {
+    it('supports delete for plain values', () => {
       expect(runTranspiledCode('const obj = { x: "x", y: "y" }; delete obj.x; obj'))
         .to.deep.equal({ y: 'y' });
     });
 
-    it('supports delete for plain values (idnexed)', async() => {
+    it('supports delete for plain values (idnexed)', () => {
       expect(runTranspiledCode('const obj = { x: "x", y: "y" }; delete obj["x"]; obj'))
         .to.deep.equal({ y: 'y' });
     });
@@ -469,7 +469,7 @@ describe('AsyncWriter', () => {
   });
 
   context('recursion', () => {
-    it('can deal with calling a recursive function', async() => {
+    it('can deal with calling a recursive function', () => {
       const result = runTranspiledCode(`
         function sumToN(n) {
           if (n <= 1) return 1;

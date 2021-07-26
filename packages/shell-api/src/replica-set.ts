@@ -251,9 +251,8 @@ export default class ReplicaSet extends ShellApiWithMongoClass {
   }
 
   @deprecated
-  @returnsPromise
   @apiVersions([])
-  async printSlaveReplicationInfo(): Promise<CommandResult> {
+  printSlaveReplicationInfo(): never {
     throw new MongoshDeprecatedError('printSlaveReplicationInfo has been deprecated. Use printSecondaryReplicationInfo instead');
   }
 

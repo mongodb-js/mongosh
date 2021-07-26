@@ -183,7 +183,7 @@ describe('ChangeStreamCursor', () => {
         await cursor.close();
         expect(cursor.isClosed()).to.equal(true);
       });
-      it('getResumeToken returns a resumeToken', async() => {
+      it('getResumeToken returns a resumeToken', () => {
         expect(cursor.getResumeToken()).to.be.an('object');
       });
       it('itcount returns batch size', async() => {

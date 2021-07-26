@@ -3,7 +3,7 @@ import { generateUri } from '@mongosh/service-provider-server';
 import { redactCredentials } from '@mongosh/history';
 import { runMain } from 'module';
 
-// eslint-disable-next-line complexity
+// eslint-disable-next-line complexity, @typescript-eslint/no-floating-promises
 (async() => {
   if (process.env.MONGOSH_RUN_NODE_SCRIPT) {
     if (process.execPath !== process.argv[1]) {
@@ -53,7 +53,7 @@ import { runMain } from 'module';
         process.removeAllListeners('SIGINT');
       }
 
-      const driverOptions = await mapCliToDriver(options);
+      const driverOptions = mapCliToDriver(options);
       const driverUri = generateUri(options);
 
       const title = `mongosh ${redactCredentials(driverUri)}`;

@@ -109,6 +109,7 @@ const workerRuntime: WorkerRuntime = {
     try {
       evaluationPromise = runInterruptible((handle) => {
         try {
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           evaluationListener.onRunInterruptible(handle);
           return ensureRuntime('evaluate').evaluate(code);
         } finally {
@@ -116,6 +117,7 @@ const workerRuntime: WorkerRuntime = {
         }
       });
     } finally {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       evaluationListener.onRunInterruptible(null);
 
       if (interrupted) {

@@ -103,7 +103,7 @@ describe('Explainable', () => {
     describe('find', () => {
       let cursorStub;
       let explainResult;
-      beforeEach(async() => {
+      beforeEach(() => {
         explainResult = { ok: 1 };
 
         const cursorSpy = {
@@ -111,7 +111,7 @@ describe('Explainable', () => {
         } as unknown;
         collection.find = sinon.spy(() => (cursorSpy as Cursor));
 
-        cursorStub = await explainable.find(
+        cursorStub = explainable.find(
           { query: 1 },
           { projection: 1 }
         );
@@ -129,7 +129,7 @@ describe('Explainable', () => {
       });
 
       context('when calling toShellResult().printable on the result', () => {
-        it('calls explain with verbosity', async() => {
+        it('calls explain with verbosity', () => {
           expect(cursorStub._verbosity).to.equal('queryPlanner');
         });
 
@@ -146,7 +146,7 @@ describe('Explainable', () => {
       const expectedExplainResult = { ok: 1 };
 
       context('without options', () => {
-        beforeEach(async() => {
+        beforeEach(() => {
           collection.aggregate = sinon.spy(() => Promise.resolve(expectedExplainResult)) as any;
         });
 

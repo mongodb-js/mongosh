@@ -16,7 +16,7 @@ describe('Electron runtime', function() {
   let evaluationListener: SinonStubbedInstance<RuntimeEvaluationListener>;
   let electronRuntime: ElectronRuntime;
 
-  beforeEach(async() => {
+  beforeEach(() => {
     serviceProvider = sinon.createStubInstance(CliServiceProvider);
     serviceProvider.bsonLibrary = bson;
     serviceProvider.getConnectionInfo.resolves({ extraInfo: { uri: '' } } as any);

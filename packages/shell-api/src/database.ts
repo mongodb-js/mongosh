@@ -1408,8 +1408,7 @@ export default class Database extends ShellApiWithMongoClass {
   }
 
   @deprecated
-  @returnsPromise
-  async printSlaveReplicationInfo(): Promise<CommandResult> {
+  printSlaveReplicationInfo(): never {
     throw new MongoshDeprecatedError('Method deprecated, use db.printSecondaryReplicationInfo instead');
   }
 

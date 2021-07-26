@@ -200,7 +200,7 @@ describe('AsyncRepl', () => {
     });
   });
 
-  it('allows customizing the repl.start function', async() => {
+  it('allows customizing the repl.start function', () => {
     const { repl } = createDefaultAsyncRepl({
       start: (options) => {
         const repl = originalStart(options);

@@ -55,7 +55,7 @@ export default function spawnChildFromSource(
       childProcess.off('exit', onExit);
     }
 
-    async function onExit(exitCode: number | null) {
+    function onExit(exitCode: number | null) {
       if (exitCode && exitCode > 0) {
         cleanupListeners();
         reject(new Error('Child process exited with error before starting'));

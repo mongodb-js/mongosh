@@ -45,11 +45,9 @@ function isExistingMappingKey(key: string, options: CliOptions): key is keyof ty
  *
  * @returns {} The driver options.
  */
-async function mapCliToDriver(options: CliOptions): Promise<MongoClientOptions> {
-  // @note: Durran: TS wasn't liking shorter reduce function here.
-  //   come back an revisit to refactor.
+function mapCliToDriver(options: CliOptions): MongoClientOptions {
   const nodeOptions: MongoClientOptions = {};
-  await Promise.all(Object.keys(MAPPINGS).map(async(cliOption) => {
+  for (const cliOption of Object.keys(MAPPINGS)) {
     if (isExistingMappingKey(cliOption, options)) {
       const mapping = MAPPINGS[cliOption as keyof typeof MAPPINGS];
       if (typeof mapping === 'object') {
@@ -61,7 +59,7 @@ async function mapCliToDriver(options: CliOptions): Promise<MongoClientOptions> 
           } else {
             newValue = mapping.fun(cliValue);
             if (newValue === undefined) {
-              return;
+              continue;
             }
           }
           setValue(nodeOptions, mapping.opt, newValue);
@@ -70,7 +68,7 @@ async function mapCliToDriver(options: CliOptions): Promise<MongoClientOptions> 
         setValue(nodeOptions, mapping, (options as any)[cliOption]);
       }
     }
-  }));
+  }
   applyTlsCertificateSelector(options.tlsCertificateSelector, nodeOptions);
   return nodeOptions;
 }

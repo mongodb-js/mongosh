@@ -191,15 +191,15 @@ describe('ShellApi', () => {
       beforeEach(() => {
         internalState.shellApi.use('testdb');
       });
-      it('calls use with arg', async() => {
+      it('calls use with arg', () => {
         expect(mongo.use).to.have.been.calledWith('testdb');
       });
     });
     describe('show', () => {
-      beforeEach(() => {
-        internalState.shellApi.show('databases');
+      beforeEach(async() => {
+        await internalState.shellApi.show('databases');
       });
-      it('calls show with arg', async() => {
+      it('calls show with arg', () => {
         expect(mongo.show).to.have.been.calledWith('databases');
       });
     });
@@ -461,7 +461,7 @@ describe('ShellApi', () => {
       beforeEach(() => {
         internalState.context.use('testdb');
       });
-      it('calls use with arg', async() => {
+      it('calls use with arg', () => {
         expect(mongo.use).to.have.been.calledWith('testdb');
       });
     });
@@ -469,7 +469,7 @@ describe('ShellApi', () => {
       beforeEach(() => {
         internalState.context.show('databases');
       });
-      it('calls show with arg', async() => {
+      it('calls show with arg', () => {
         expect(mongo.show).to.have.been.calledWith('databases');
       });
     });
@@ -616,12 +616,14 @@ describe('ShellApi', () => {
       it('asks the evaluation listener to load a file', async() => {
         const apiLoadFileListener = sinon.stub();
         bus.on('mongosh:api-load-file', apiLoadFileListener);
+        // eslint-disable-next-line @typescript-eslint/require-await
         evaluationListener.onLoad.callsFake(async(filename: string) => {
           expect(filename).to.equal('abc.js');
           expect(internalState.context.__filename).to.equal(undefined);
           expect(internalState.context.__dirname).to.equal(undefined);
           return {
             resolvedFilename: '/resolved/abc.js',
+            // eslint-disable-next-line @typescript-eslint/require-await
             evaluate: async() => {
               expect(internalState.context.__filename).to.equal('/resolved/abc.js');
               expect(internalState.context.__dirname).to.equal('/resolved');
@@ -637,6 +639,7 @@ describe('ShellApi', () => {
       it('emits different events depending on nesting level', async() => {
         const apiLoadFileListener = sinon.stub();
         bus.on('mongosh:api-load-file', apiLoadFileListener);
+        // eslint-disable-next-line @typescript-eslint/require-await
         evaluationListener.onLoad.callsFake(async(filename: string) => {
           return {
             resolvedFilename: '/resolved/' + filename,
@@ -678,12 +681,15 @@ describe('ShellApi', () => {
           config = internalState.context.config;
           store = { somekey: '' };
           validators = {};
+          // eslint-disable-next-line @typescript-eslint/require-await
           evaluationListener.setConfig.callsFake(async(key, value) => {
             if (key === 'ignoreme' as any) return 'ignored';
             store[key] = value;
             return 'success';
           });
+          // eslint-disable-next-line @typescript-eslint/require-await
           evaluationListener.getConfig.callsFake(async key => store[key]);
+          // eslint-disable-next-line @typescript-eslint/require-await
           evaluationListener.validateConfig.callsFake(async(key, value) => validators[key]?.(value));
           evaluationListener.listConfigOptions.callsFake(() => Object.keys(store));
         });

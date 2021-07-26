@@ -347,6 +347,7 @@ export class ShellUserConfig {
 }
 
 export class ShellUserConfigValidator {
+  // eslint-disable-next-line @typescript-eslint/require-await
   static async validate<K extends keyof ShellUserConfig>(key: K, value: ShellUserConfig[K]): Promise<string | null> {
     switch (key) {
       case 'displayBatchSize':

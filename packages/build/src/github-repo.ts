@@ -321,6 +321,7 @@ export class GithubRepo {
   }
 
   private _ignoreAlreadyExistsError(): (error: any) => Promise<void> {
+    // eslint-disable-next-line @typescript-eslint/require-await
     return async(error: any): Promise<void> => {
       if (this._isAlreadyExistsError(error)) {
         return;

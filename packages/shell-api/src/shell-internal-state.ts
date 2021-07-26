@@ -392,6 +392,7 @@ export default class ShellInternalState {
     return !result.find(r => r === false);
   }
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   async getDefaultPrompt(): Promise<string> {
     const prefix = this.getDefaultPromptPrefix();
     const topologyInfo = this.getTopologySpecificPrompt();

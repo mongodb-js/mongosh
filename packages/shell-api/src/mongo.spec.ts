@@ -350,22 +350,22 @@ describe('Mongo', () => {
       });
     });
     describe('getReadConcern', () => {
-      it('calls serviceProvider.getReadConcern', async() => {
+      it('calls serviceProvider.getReadConcern', () => {
         const expectedResult = { level: 'majority' };
         serviceProvider.getReadConcern.returns(expectedResult as any);
-        const res = await mongo.getReadConcern();
+        const res = mongo.getReadConcern();
         expect(serviceProvider.getReadConcern).to.have.been.calledWith();
         expect(res).to.equal('majority');
       });
 
-      it('returns undefined if not set', async() => {
+      it('returns undefined if not set', () => {
         serviceProvider.getReadConcern.returns(undefined);
-        const res = await mongo.getReadConcern();
+        const res = mongo.getReadConcern();
         expect(serviceProvider.getReadConcern).to.have.been.calledWith();
         expect(res).to.equal(undefined);
       });
 
-      it('throws InternalError if getReadConcern errors', async() => {
+      it('throws InternalError if getReadConcern errors', () => {
         const expectedError = new Error();
         serviceProvider.getReadConcern.throws(expectedError);
         try {
@@ -377,7 +377,7 @@ describe('Mongo', () => {
       });
     });
     describe('getWriteConcern', () => {
-      it('calls serviceProvider.getWriteConcern', async() => {
+      it('calls serviceProvider.getWriteConcern', () => {
         const expectedResult: WriteConcern = { w: 'majority', wtimeout: 200 };
         serviceProvider.getWriteConcern.returns(expectedResult as any);
         const res = mongo.getWriteConcern();
@@ -385,14 +385,14 @@ describe('Mongo', () => {
         expect(res).to.equal(expectedResult);
       });
 
-      it('returns undefined if not set', async() => {
+      it('returns undefined if not set', () => {
         serviceProvider.getWriteConcern.returns(undefined);
         const res = mongo.getWriteConcern();
         expect(serviceProvider.getWriteConcern).to.have.been.calledWith();
         expect(res).to.equal(undefined);
       });
 
-      it('throws InternalError if getWriteConcern errors', async() => {
+      it('throws InternalError if getWriteConcern errors', () => {
         const expectedError = new Error();
         serviceProvider.getWriteConcern.throws(expectedError);
         try {
@@ -677,14 +677,14 @@ describe('Mongo', () => {
       });
     });
     describe('getCollection', () => {
-      it('returns a collection for the database', async() => {
+      it('returns a collection for the database', () => {
         const coll = mongo.getCollection('db1.coll');
         expect(coll).to.be.instanceOf(Collection);
         expect(coll._name).to.equal('coll');
         expect(coll._database._name).to.equal('db1');
       });
 
-      it('returns a collection for the database with multiple .', async() => {
+      it('returns a collection for the database with multiple .', () => {
         const coll = mongo.getCollection('db1.coll.subcoll');
         expect(coll).to.be.instanceOf(Collection);
         expect(coll._name).to.equal('coll.subcoll');
