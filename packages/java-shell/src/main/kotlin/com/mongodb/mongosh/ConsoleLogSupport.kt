@@ -14,7 +14,9 @@ internal class ConsoleLogSupport(context: MongoShellContext, converter: MongoShe
         @Suppress("JSPrimitiveTypeWrapperUsage")
         val console = context.eval("new Object()")
         console["log"] = print
+        console["warn"] = print
         console["error"] = print
+        console["info"] = print
         context.bindings["console"] = console
     }
 
