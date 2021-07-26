@@ -209,8 +209,8 @@ export default class ShellInternalState {
       contextObject.console = {};
     }
     for (const key of ['log', 'warn', 'info', 'error']) {
-      contextObject.console[key] = async(...args: any[]): Promise<void> => {
-        return await contextObject.print(...args);
+      contextObject.console[key] = (...args: any[]): Promise<void> => {
+        return contextObject.print(...args);
       };
     }
     contextObject.console.clear = contextObject.cls;

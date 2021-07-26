@@ -17,6 +17,12 @@ export class InterruptFlag {
   private interrupted = false;
   private onInterrupt = new EventEmitter();
 
+  constructor() {
+    // since we might have user code in a very high async fashion
+    // we don't know beforehand how many listeners we have to register
+    this.onInterrupt.setMaxListeners(Infinity);
+  }
+
   public isSet(): boolean {
     return this.interrupted;
   }
