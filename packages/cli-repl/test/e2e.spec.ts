@@ -484,6 +484,11 @@ describe('e2e', function() {
       shell.assertNotContainsOutput('interrupted');
       shell.assertNotContainsOutput('Stopping execution');
     });
+    it('does not trigger MaxListenersExceededWarning', async() => {
+      await shell.executeLine('for (let i = 0; i < 11; i++) { console.log("hi"); }\n');
+      await shell.executeLine('for (let i = 0; i < 20; i++) (async() => { await sleep(0) })()');
+      shell.assertNotContainsOutput('MaxListenersExceededWarning');
+    });
   });
 
   describe('printing', () => {
