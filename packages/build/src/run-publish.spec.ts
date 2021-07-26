@@ -149,7 +149,7 @@ describe('publish', () => {
         shouldDoPublicRelease
       );
 
-      expect(barque.releaseToBarque).to.have.been.callCount(16);
+      expect(barque.releaseToBarque).to.have.been.callCount(17);
       expect(barque.releaseToBarque).to.have.been.calledWith(
         'rhel-x64',
         'https://s3.amazonaws.com/mciuploads/project/v0.7.0-draft.42/mongodb-mongosh-0.7.0.el7.x86_64.rpm'
@@ -161,6 +161,10 @@ describe('publish', () => {
       expect(barque.releaseToBarque).to.have.been.calledWith(
         'amzn2-arm64',
         'https://s3.amazonaws.com/mciuploads/project/v0.7.0-draft.42/mongodb-mongosh-0.7.0.amzn2.aarch64.rpm'
+      );
+      expect(barque.releaseToBarque).to.have.been.calledWith(
+        'amzn1-x64',
+        'https://s3.amazonaws.com/mciuploads/project/v0.7.0-draft.42/mongodb-mongosh-0.7.0.amzn1.x86_64.rpm'
       );
       expect(barque.waitUntilPackagesAreAvailable).to.have.been.called;
     });

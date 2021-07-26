@@ -422,8 +422,7 @@ functions:
           export NODE_JS_VERSION=${node_js_version}
           source .evergreen/setup-env.sh
           export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
-          echo "registry=https://registry.npmjs.org/" > .npmrc
-          echo "//registry.npmjs.org/:_authToken=${devtoolsbot_npm_token}" >> .npmrc
+          echo "//registry.npmjs.org/:_authToken=${devtoolsbot_npm_token}" > .npmrc
           npm --unsafe-perm=true run bootstrap-ci -- --ignore-prepublish
           npm run evergreen-release publish
           }
@@ -981,6 +980,20 @@ tasks:
           node_js_version: "14.17.1"
           distribution_build_variant: suse-x64
           executable_os_id: linux-x64
+  - name: package_and_upload_artifact_amzn1_x64
+    depends_on:
+      - name: compile_artifact
+        variant: linux_x64_build
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.17.1"
+      - func: package_and_upload_artifact
+        vars:
+          node_js_version: "14.17.1"
+          distribution_build_variant: amzn1-x64
+          executable_os_id: linux-x64
   - name: package_and_upload_artifact_linux_arm64
     depends_on:
       - name: compile_artifact
@@ -1275,6 +1288,20 @@ tasks:
       - func: test_artifact_docker
         vars:
           dockerfile: suse15-rpm
+  - name: pkg_test_docker_amazonlinux1_rpm
+    tags: ["smoke-test"]
+    depends_on:
+      - name: package_and_upload_artifact_amzn1_x64
+        variant: linux
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          source_distribution_build_variant: amzn1-x64
+      - func: write_preload_script
+      - func: test_artifact_docker
+        vars:
+          dockerfile: amazonlinux1-rpm
   - name: pkg_test_debextract_debian_arm64
     tags: ["smoke-test"]
     depends_on:
@@ -1491,6 +1518,7 @@ buildvariants:
       - name: package_and_upload_artifact_debian_x64
       - name: package_and_upload_artifact_rhel_x64
       - name: package_and_upload_artifact_suse_x64
+      - name: package_and_upload_artifact_amzn1_x64
       - name: package_and_upload_artifact_linux_s390x
       - name: package_and_upload_artifact_rhel_s390x
       - name: package_and_upload_artifact_linux_arm64
@@ -1561,6 +1589,11 @@ buildvariants:
   - name: e2e_debian10_x64
     display_name: "Debian 10 x64 (E2E Tests)"
     run_on: debian10-small
+    tasks:
+      - name: e2e_tests_linux_x64
+  - name: e2e_amazon1_x64
+    display_name: "Amazon Linux 1 x64 (E2E Tests)"
+    run_on: amazon1-2018-small
     tasks:
       - name: e2e_tests_linux_x64
   - name: e2e_amazon2_x64
@@ -1660,6 +1693,7 @@ buildvariants:
       - name: pkg_test_docker_centos8_rpm
       - name: pkg_test_docker_suse12_rpm
       - name: pkg_test_docker_suse15_rpm
+      - name: pkg_test_docker_amazonlinux1_rpm
       - name: pkg_test_docker_amazonlinux2_rpm
       - name: pkg_test_docker_debian9_deb
       - name: pkg_test_docker_debian10_deb

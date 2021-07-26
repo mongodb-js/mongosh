@@ -4,7 +4,7 @@
  * Different from 'platform': platform is extracted from os.platform() and
  * build variant defines the desired distribution type to build for.
  */
-export type Distro = 'win32' | 'win32msi' | 'darwin' | 'linux' | 'debian' | 'rhel' | 'suse' | 'amzn2';
+export type Distro = 'win32' | 'win32msi' | 'darwin' | 'linux' | 'debian' | 'rhel' | 'suse' | 'amzn1' | 'amzn2';
 export type Arch = 'x64' | 's390x' | 'arm64' | 'ppc64le';
 export type BuildVariant = `${Distro}-${Arch}`;
 
@@ -15,6 +15,7 @@ export const ALL_BUILD_VARIANTS: readonly BuildVariant[] = Object.freeze([
   'debian-x64', 'debian-arm64',
   'rhel-x64', 'rhel-s390x', 'rhel-arm64', 'rhel-ppc64le',
   'suse-x64',
+  'amzn1-x64',
   'amzn2-arm64'
 ] as const);
 
@@ -72,6 +73,7 @@ export function getDownloadCenterDistroDescription(variant: BuildVariant): strin
     case 'rhel-ppc64le': return 'Redhat / Centos ppc64le';
     case 'rhel-arm64': return 'Redhat / Centos arm64';
     case 'suse-x64': return 'SUSE Linux 64-bit';
+    case 'amzn1-x64': return 'Amazon Linux 1 64-bit';
     case 'amzn2-arm64': return 'Amazon Linux 2 arm64';
     default: throw new Error(`${variant} is not a valid build variant`);
   }

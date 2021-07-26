@@ -31,6 +31,7 @@ export async function createPackage(
       break;
     case 'rhel':
     case 'suse':
+    case 'amzn1':
     case 'amzn2':
       await createRedhatPackage(packageInformation, packageInformation.rpmTemplateDir, getArch(buildVariant), fullTarballFilePath);
       break;
