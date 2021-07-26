@@ -1249,7 +1249,6 @@ export default class Database extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
-  @apiVersions([])
   @topologies([Topologies.ReplSet])
   @apiVersions([])
   async printSecondaryReplicationInfo(): Promise<CommandResult> {
