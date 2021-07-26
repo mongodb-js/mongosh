@@ -1,5 +1,5 @@
 import { MongoshInternalError, MongoshRuntimeError, MongoshWarning } from '@mongosh/errors';
-import { redactCredentials } from '@mongosh/history';
+import { redactURICredentials } from '@mongosh/history';
 import i18n from '@mongosh/i18n';
 import { bson, AutoEncryptionOptions } from '@mongosh/service-provider-core';
 import { CliOptions, CliServiceProvider, MongoClientOptions } from '@mongosh/service-provider-server';
@@ -341,7 +341,7 @@ class CliRepl {
    */
   async connect(driverUri: string, driverOptions: MongoClientOptions): Promise<CliServiceProvider> {
     if (!this.cliOptions.nodb && !this.cliOptions.quiet) {
-      this.output.write(i18n.__(CONNECTING) + '\t\t' + this.clr(redactCredentials(driverUri), ['bold', 'green']) + '\n');
+      this.output.write(i18n.__(CONNECTING) + '\t\t' + this.clr(redactURICredentials(driverUri), ['bold', 'green']) + '\n');
     }
     const provider = await CliServiceProvider.connect(driverUri, driverOptions, this.cliOptions, this.bus);
     this.bus.emit('mongosh:driver-initialized', provider.driverMetadata);

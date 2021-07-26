@@ -270,7 +270,9 @@ class MongoshNodeRepl implements EvaluationListener {
       repl.on('flushHistory', () => {
         if (this.redactHistory !== 'keep') {
           const history: string[] = (repl as any).history;
-          changeHistory(history, this.redactHistory === 'remove-redact');
+          changeHistory(
+            history,
+            this.redactHistory === 'remove-redact' ? 'redact-sensitive-data' : 'keep-sensitive-data');
         }
       });
       // We also want to group multiline history entries and .editor input into

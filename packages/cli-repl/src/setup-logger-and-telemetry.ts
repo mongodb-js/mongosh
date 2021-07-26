@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 import redactInfo from 'mongodb-redact';
-import { redactCredentials } from '@mongosh/history';
+import { redactURICredentials } from '@mongosh/history';
 import type { Logger } from 'pino';
 import type {
   MongoshBus,
@@ -116,7 +116,7 @@ export default function setupLoggerAndTelemetry(
   });
 
   bus.on('mongosh:connect', function(args: ConnectEvent) {
-    const connectionUri = redactCredentials(args.uri);
+    const connectionUri = redactURICredentials(args.uri);
     const { uri: _uri, ...argsWithoutUri } = args; // eslint-disable-line @typescript-eslint/no-unused-vars
     const params = { session_id: logId, userId, connectionUri, ...argsWithoutUri };
     log.info('mongosh:connect', jsonClone(params));
@@ -392,7 +392,7 @@ export default function setupLoggerAndTelemetry(
 
   bus.on('mongosh-sp:resolve-srv-error', function(ev: SpResolveSrvErrorEvent) {
     log.info('mongosh-sp:resolve-srv-error', {
-      from: redactCredentials(ev.from),
+      from: redactURICredentials(ev.from),
       error: ev.error?.message,
       duringLoad: ev.duringLoad
     });
@@ -400,8 +400,8 @@ export default function setupLoggerAndTelemetry(
 
   bus.on('mongosh-sp:resolve-srv-succeeded', function(ev: SpResolveSrvSucceededEvent) {
     log.info('mongosh-sp:resolve-srv-succeeded', {
-      from: redactCredentials(ev.from),
-      to: redactCredentials(ev.to)
+      from: redactURICredentials(ev.from),
+      to: redactURICredentials(ev.to)
     });
   });
 

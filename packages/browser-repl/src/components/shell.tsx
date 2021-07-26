@@ -182,7 +182,9 @@ export class Shell extends Component<ShellProps, ShellState> {
       ...this.state.history
     ];
 
-    changeHistory(history, this.props.redactInfo);
+    changeHistory(
+      history,
+      this.props.redactInfo ? 'redact-sensitive-data' : 'keep-sensitive-data');
     history.splice(this.props.maxHistoryLength);
 
     Object.freeze(history);

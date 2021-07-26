@@ -1,4 +1,4 @@
-export default function redactCredentials(uri: string): string {
+export function redactURICredentials(uri: string): string {
   const regexes = [
     // Username and password
     /(?<=\/\/)(.*)(?=\@)/g,
