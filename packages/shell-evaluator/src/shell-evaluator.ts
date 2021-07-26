@@ -8,7 +8,7 @@ import AsyncWriter from '@mongosh/async-rewriter2';
 
 type EvaluationFunction = (input: string, context: object, filename: string) => Promise<any>;
 
-import { HIDDEN_COMMANDS, removeCommand } from '@mongosh/history';
+import { HIDDEN_COMMANDS, redactSensitiveData } from '@mongosh/history';
 
 type ResultHandler<EvaluationResultType> = (value: any) => EvaluationResultType | Promise<EvaluationResultType>;
 class ShellEvaluator<EvaluationResultType = ShellResult> {
@@ -46,7 +46,7 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
     if (!hiddenCommands.test(input) && !hiddenCommands.test(rewrittenInput)) {
       this.internalState.messageBus.emit(
         'mongosh:evaluate-input',
-        { input: removeCommand(input.trim()) }
+        { input: redactSensitiveData(input.trim()) }
       );
     }
 

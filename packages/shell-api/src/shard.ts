@@ -8,7 +8,7 @@ import type { Document } from '@mongosh/service-provider-core';
 import { assertArgsDefinedType, getConfigDB, getPrintableShardStatus } from './helpers';
 import { ServerVersions, asPrintable } from './enums';
 import { CommandResult, UpdateResult } from './result';
-import { redactCredentials } from '@mongosh/history';
+import { redactURICredentials } from '@mongosh/history';
 import Mongo from './mongo';
 
 @shellApiClassDefault
@@ -28,7 +28,7 @@ export default class Shard extends ShellApiWithMongoClass {
    * Internal method to determine what is printed for this class.
    */
   [asPrintable](): string {
-    return `Shard class connected to ${redactCredentials(this._database._mongo._uri)} via db ${this._database._name}`;
+    return `Shard class connected to ${redactURICredentials(this._database._mongo._uri)} via db ${this._database._name}`;
   }
 
   /**

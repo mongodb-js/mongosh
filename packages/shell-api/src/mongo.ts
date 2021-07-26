@@ -41,7 +41,7 @@ import type Collection from './collection';
 import Database from './database';
 import ShellInternalState from './shell-internal-state';
 import { CommandResult } from './result';
-import { redactCredentials } from '@mongosh/history';
+import { redactURICredentials } from '@mongosh/history';
 import { asPrintable, ServerVersions, Topologies } from './enums';
 import Session from './session';
 import { assertArgsDefinedType, processFLEOptions, isValidDatabaseName } from './helpers';
@@ -138,7 +138,7 @@ export default class Mongo extends ShellApiClass {
    * Internal method to determine what is printed for this class.
    */
   [asPrintable](): string {
-    return redactCredentials(this._uri);
+    return redactURICredentials(this._uri);
   }
 
   /**
@@ -500,7 +500,7 @@ export default class Mongo extends ShellApiClass {
     this._emitMongoApiCall('watch', { pipeline, options });
     const cursor = new ChangeStreamCursor(
       this._serviceProvider.watch(pipeline, options),
-      redactCredentials(this._uri),
+      redactURICredentials(this._uri),
       this
     );
     await cursor.tryNext(); // See comment in coll.watch().

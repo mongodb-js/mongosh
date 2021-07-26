@@ -1,6 +1,6 @@
 import { CliRepl, parseCliArgs, mapCliToDriver, getStoragePaths, getMongocryptdPaths, runSmokeTests, USAGE, buildInfo } from './index';
 import { generateUri } from '@mongosh/service-provider-server';
-import { redactCredentials } from '@mongosh/history';
+import { redactURICredentials } from '@mongosh/history';
 import { runMain } from 'module';
 
 // eslint-disable-next-line complexity
@@ -56,7 +56,7 @@ import { runMain } from 'module';
       const driverOptions = await mapCliToDriver(options);
       const driverUri = generateUri(options);
 
-      const title = `mongosh ${redactCredentials(driverUri)}`;
+      const title = `mongosh ${redactURICredentials(driverUri)}`;
       process.title = title;
       setTerminalWindowTitle(title);
 
