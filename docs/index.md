@@ -8,3 +8,4 @@ This folder contains development-specific documentation on the inner workings of
 Go to any of the linked topics for details:
 
 * [CLI REPL Code Evaluation](./cli-code-evaluation.md)
+* [Interrupting Async Execution](./interrupting-async-execution.md)
