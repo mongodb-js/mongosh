@@ -1593,13 +1593,24 @@ describe('Collection', () => {
           }
         );
       });
-      it('calls serviceProvider.runCommand on the collection with options', async() => {
+      it('calls serviceProvider.runCommand on the collection with boolean argument', async() => {
         await collection.validate(true);
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
           {
             validate: collection._name,
             full: true
+          }
+        );
+      });
+      it('calls serviceProvider.runCommand on the collection with options', async() => {
+        await collection.validate({ full: true, repair: true });
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          database._name,
+          {
+            validate: collection._name,
+            full: true,
+            repair: true
           }
         );
       });

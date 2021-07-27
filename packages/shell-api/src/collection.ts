@@ -1578,13 +1578,16 @@ export default class Collection extends ShellApiWithMongoClass {
 
   @returnsPromise
   @apiVersions([])
-  async validate(full = false): Promise<Document> {
-    this._emitCollectionApiCall('validate', { full });
+  async validate(options: boolean | Document = false): Promise<Document> {
+    this._emitCollectionApiCall('validate', { options });
+    if (typeof options === 'boolean') {
+      options = { full: options };
+    }
     return await this._mongo._serviceProvider.runCommandWithCheck(
       this._database._name,
       {
         validate: this._name,
-        full: full
+        ...options
       },
       this._database._baseOptions
     );

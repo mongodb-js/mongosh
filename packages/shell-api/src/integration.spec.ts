@@ -1003,6 +1003,36 @@ describe('Shell API (integration)', function() {
         expect(await collection.findOne()).to.deep.equal({ '$x.y': 2, _id: '_id' });
       });
     });
+
+    describe('validate', () => {
+      skipIfApiStrict();
+      skipIfServerVersion(testServer, '< 5.0');
+
+      beforeEach(async() => {
+        await collection.insertOne({ foo: 'bar' });
+      });
+
+      it('validate can be used to validate a collection', async() => {
+        expect((await collection.validate({ full: true })).valid).to.equal(true);
+      });
+
+      it('validate accepts a repair option', async() => {
+        expect((await collection.validate({ full: true, repair: true })).valid).to.equal(true);
+      });
+
+      it('validate accepts a background option', async() => {
+        expect((await collection.validate({ full: false, background: true })).valid).to.equal(true);
+      });
+
+      it('validate fails with background: true and full: true', async() => {
+        try {
+          await collection.validate({ full: true, background: true });
+          expect.fail('missed exception');
+        } catch (err) {
+          expect(err.name).to.equal('MongoServerError');
+        }
+      });
+    });
   });
 
   describe('db', () => {
