@@ -124,6 +124,12 @@ describe('e2e', function() {
       shell.writeInputLine('process.exitCode = 42; quit()');
       expect(await onExit).to.equal(42);
     });
+    it('decorates internal errors with bug reporting information', async() => {
+      const err = await shell.executeLine('throw Object.assign(new Error("foo"), { code: "COMMON-90001" })');
+      expect(err).to.match(/^Error: foo$/m);
+      expect(err).to.match(/^This is an error inside mongosh\. Please file a bug report for the MONGOSH project here: https:\/\/jira.mongodb.org\/projects\/MONGOSH\/issues\.$/m);
+      expect(err).to.match(/^Please include the log file for this session \(.+[/\\][a-f0-9]{24}_log\)\.$/m);
+    });
   });
   describe('set db', () => {
     for (const { mode, dbname, dbnameUri } of [

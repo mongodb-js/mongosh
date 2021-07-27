@@ -8,6 +8,10 @@ function getScopeFromErrorCode(code: string | null | undefined): string | undefi
   return !match ? undefined : match[1];
 }
 
+function isShouldReportAsBugError(err: Error & { code?: string }): boolean {
+  return err?.code === CommonErrors.UnexpectedInternalError;
+}
+
 abstract class MongoshBaseError extends Error {
   readonly code: string | undefined;
   readonly scope: string | undefined;
@@ -32,8 +36,7 @@ class MongoshInternalError extends MongoshBaseError {
   constructor(message: string, metadata?: Object) {
     super(
       'MongoshInternalError',
-      `${message}
-This is an error inside mongosh. Please file a bug report for the MONGOSH project here: https://jira.mongodb.org/projects/MONGOSH/issues.`,
+      message,
       CommonErrors.UnexpectedInternalError,
       metadata
     );
@@ -82,6 +85,7 @@ class MongoshCommandFailed extends MongoshBaseError {
 
 export {
   getScopeFromErrorCode,
+  isShouldReportAsBugError,
   MongoshBaseError,
   MongoshWarning,
   MongoshRuntimeError,

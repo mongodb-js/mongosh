@@ -31,6 +31,7 @@ export type MongoshIOProvider = Omit<ConfigProvider<CliUserConfig>, 'validateCon
   exit(code?: number): Promise<never>;
   readFileUTF8(filename: string): Promise<{ contents: string, absolutePath: string }>;
   startMongocryptd(): Promise<AutoEncryptionOptions['extraOptions']>;
+  bugReportErrorMessageInfo?(): string | undefined;
 };
 
 export type MongoshNodeReplOptions = {
@@ -599,14 +600,15 @@ class MongoshNodeRepl implements EvaluationListener {
     return clr(text, style, this.getFormatOptions());
   }
 
-  getFormatOptions(): { colors: boolean, compact: number | boolean, depth: number, showStackTraces: boolean } {
+  getFormatOptions(): { colors: boolean, compact: number | boolean, depth: number, showStackTraces: boolean, bugReportErrorMessageInfo?: string } {
     const output = this.output as WriteStream;
     return {
       colors: this._runtimeState?.repl?.useColors ??
         (output.isTTY && output.getColorDepth() > 1),
       compact: this.inspectCompact,
       depth: this.inspectDepth,
-      showStackTraces: this.showStackTraces
+      showStackTraces: this.showStackTraces,
+      bugReportErrorMessageInfo: this.ioProvider.bugReportErrorMessageInfo?.()
     };
   }
 

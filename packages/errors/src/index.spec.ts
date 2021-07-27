@@ -26,7 +26,7 @@ describe('errors', () => {
     const error = new MongoshInternalError('Something went wrong.');
     expect(error).to.be.instanceOf(MongoshBaseError);
     expect(error.name).to.be.equal('MongoshInternalError');
-    expect(error.message).to.be.equal('[COMMON-90001] Something went wrong.\nThis is an error inside mongosh. Please file a bug report for the MONGOSH project here: https://jira.mongodb.org/projects/MONGOSH/issues.');
+    expect(error.message).to.be.equal('[COMMON-90001] Something went wrong.');
     expect(error.code).to.be.equal(CommonErrors.UnexpectedInternalError);
     expect(error.scope).to.be.equal('COMMON');
   });
