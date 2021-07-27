@@ -2,6 +2,7 @@ import os from 'os';
 
 export type BuildInfo = {
   version: string;
+  nodeVersion: string;
   distributionKind: 'unpackaged' | 'packaged' | 'compiled';
   buildArch: string;
   buildPlatform: string;
@@ -12,7 +13,7 @@ export type BuildInfo = {
 
 export function buildInfo(): BuildInfo {
   try {
-    const buildInfo = { ...require('./build-info.json') };
+    const buildInfo = { ...require('./build-info.json'), nodeVersion: process.version };
     delete buildInfo.segmentApiKey;
     return buildInfo;
   } catch {
@@ -24,7 +25,8 @@ export function buildInfo(): BuildInfo {
       buildPlatform: os.platform(),
       buildTarget: 'unknown',
       buildTime: null,
-      gitVersion: null
+      gitVersion: null,
+      nodeVersion: process.version
     };
   }
 }
