@@ -23,7 +23,7 @@ tmp.setGracefulCleanup();
  */
 type PPARepository =
   'ubuntu1804' | 'ubuntu2004' | 'debian92' | 'debian10' |
-  'rhel70' | 'rhel80' | 'amazon2' | 'suse12' | 'suse15';
+  'rhel70' | 'rhel80' | 'amazon1' | 'amazon2' | 'suse12' | 'suse15';
 
 /**
  * Return the full list of [distro, arch] combinations that we upload for
@@ -32,6 +32,7 @@ type PPARepository =
  *
  * /config/repo-config.yml needs to be kept in sync with this.
  */
+// eslint-disable-next-line complexity
 export function getReposAndArch(buildVariant: BuildVariant): { ppas: PPARepository[], arch: string } {
   switch (getDistro(buildVariant)) {
     case 'win32':
@@ -60,6 +61,11 @@ export function getReposAndArch(buildVariant: BuildVariant): { ppas: PPAReposito
     case 'suse':
       return {
         ppas: ['suse12', 'suse15'],
+        arch: getRPMArchName(getArch(buildVariant))
+      };
+    case 'amzn1':
+      return {
+        ppas: ['amazon1'],
         arch: getRPMArchName(getArch(buildVariant))
       };
     case 'amzn2':

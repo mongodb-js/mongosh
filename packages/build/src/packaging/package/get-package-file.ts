@@ -24,6 +24,11 @@ export function getPackageFile(buildVariant: BuildVariant, packageInformation: P
         path: `${rpmName}-${version}.suse12.${getRPMArchName(getArch(buildVariant))}.rpm`,
         contentType: 'application/x-rpm'
       };
+    case 'amzn1':
+      return {
+        path: `${rpmName}-${version}.amzn1.${getRPMArchName(getArch(buildVariant))}.rpm`,
+        contentType: 'application/x-rpm'
+      };
     case 'amzn2':
       return {
         path: `${rpmName}-${version}.amzn2.${getRPMArchName(getArch(buildVariant))}.rpm`,

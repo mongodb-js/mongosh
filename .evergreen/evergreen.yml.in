@@ -54,7 +54,8 @@ const EXECUTABLE_PKG_INFO = [
       { name: 'linux-x64', packageOn: 'linux', smokeTestKind: 'none' },
       { name: 'debian-x64', packageOn: 'linux', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu18.04-deb', 'ubuntu20.04-deb', 'debian9-deb', 'debian10-deb'] },
       { name: 'rhel-x64', packageOn: 'linux', smokeTestKind: 'docker', smokeTestDockerfiles: ['centos7-rpm', 'centos8-rpm', 'amazonlinux2-rpm'] },
-      { name: 'suse-x64', packageOn: 'linux', smokeTestKind: 'docker', smokeTestDockerfiles: ['suse12-rpm', 'suse15-rpm'] }
+      { name: 'suse-x64', packageOn: 'linux', smokeTestKind: 'docker', smokeTestDockerfiles: ['suse12-rpm', 'suse15-rpm'] },
+      { name: 'amzn1-x64', packageOn: 'linux', smokeTestKind: 'docker', smokeTestDockerfiles: ['amazonlinux1-rpm'] }
     ]
   },
   {
@@ -867,6 +868,7 @@ buildvariants:
       - name: package_and_upload_artifact_debian_x64
       - name: package_and_upload_artifact_rhel_x64
       - name: package_and_upload_artifact_suse_x64
+      - name: package_and_upload_artifact_amzn1_x64
       - name: package_and_upload_artifact_linux_s390x
       - name: package_and_upload_artifact_rhel_s390x
       - name: package_and_upload_artifact_linux_arm64
@@ -937,6 +939,11 @@ buildvariants:
   - name: e2e_debian10_x64
     display_name: "Debian 10 x64 (E2E Tests)"
     run_on: debian10-small
+    tasks:
+      - name: e2e_tests_linux_x64
+  - name: e2e_amazon1_x64
+    display_name: "Amazon Linux 1 x64 (E2E Tests)"
+    run_on: amazon1-2018-small
     tasks:
       - name: e2e_tests_linux_x64
   - name: e2e_amazon2_x64
@@ -1021,6 +1028,7 @@ buildvariants:
       - name: pkg_test_docker_centos8_rpm
       - name: pkg_test_docker_suse12_rpm
       - name: pkg_test_docker_suse15_rpm
+      - name: pkg_test_docker_amazonlinux1_rpm
       - name: pkg_test_docker_amazonlinux2_rpm
       - name: pkg_test_docker_debian9_deb
       - name: pkg_test_docker_debian10_deb

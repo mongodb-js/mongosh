@@ -45,6 +45,8 @@ function lookupReleaseDistro(variant: BuildVariant): string {
       return 'debian92';
     case 'suse':
       return 'suse12';
+    case 'amzn1':
+      return 'amazon';
     case 'amzn2':
       return 'amazon2';
     case 'rhel':

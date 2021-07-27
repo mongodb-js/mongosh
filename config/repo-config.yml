@@ -141,6 +141,15 @@ repos:
     repos:
       - zypper/suse/15/mongodb-org
 
+  - name: amazon1
+    type: rpm
+    edition: org
+    bucket: repo.mongodb.org
+    architectures:
+      - x86_64
+    repos:
+      - yum/amazon/2013.03/mongodb-org
+
   - name: amazon2
     type: rpm
     edition: org
@@ -239,6 +248,15 @@ repos:
     bucket: repo.mongodb.com
     repos:
       - zypper/suse/15/mongodb-enterprise
+
+  - name: amazon1
+    type: rpm
+    edition: enterprise
+    bucket: repo.mongodb.com
+    architectures:
+      - x86_64
+    repos:
+      - yum/amazon/2013.03/mongodb-enterprise
 
   - name: amazon2
     type: rpm
