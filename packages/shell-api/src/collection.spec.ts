@@ -58,7 +58,7 @@ describe('Collection', () => {
       const coll = new Collection(mongo as any, db, 'myCollection');
       it('toShellResult', async() => {
         expect((await toShellResult(coll)).type).to.equal('Collection');
-        expect((await toShellResult(coll)).printable).to.equal('myCollection');
+        expect((await toShellResult(coll)).printable).to.equal('myDB.myCollection');
       });
     });
   });
