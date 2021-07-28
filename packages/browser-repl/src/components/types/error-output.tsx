@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { isShouldReportAsBugError } from '@mongosh/errors';
 
 import { SimpleTypeOutput } from './simple-type-output';
 import { Expandable } from '../utils/expandable';
@@ -26,6 +27,16 @@ export class ErrorOutput extends Component<ErrorOutputProps> {
     return this.props.value.stack.split('\n').slice(1).join('\n');
   }
 
+  formatErrorBugReportInfo(): JSX.Element | undefined {
+    if (isShouldReportAsBugError(this.props.value)) {
+      return (<div>
+        This is an error inside mongosh.
+        Please <a href="https://jira.mongodb.org/projects/MONGOSH/issues" target="_blank">file a bug report for the MONGOSH project</a>.
+      </div>);
+    }
+    return undefined;
+  }
+
   formatErrorInfo(): JSX.Element | undefined {
     if (this.props.value.errInfo) {
       return (<div>
@@ -50,6 +61,7 @@ export class ErrorOutput extends Component<ErrorOutputProps> {
     return (<div>
       {this.renderCollapsed(toggle)}
       <div>
+        {this.formatErrorBugReportInfo()}
         {this.formatErrorInfo()}
         {this.formatErrorResult()}
         <pre>{this.formatStack()}</pre>

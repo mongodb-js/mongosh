@@ -7,6 +7,7 @@ import util from 'util';
 import stripAnsi from 'strip-ansi';
 import clr from './clr';
 import { HelpProperties, CollectionNamesWithTypes } from '@mongosh/shell-api';
+import { isShouldReportAsBugError } from '@mongosh/errors';
 
 type EvaluationResult = {
   value: any;
@@ -20,6 +21,7 @@ type FormatOptions = {
   maxArrayLength?: number;
   maxStringLength?: number;
   showStackTraces?: boolean;
+  bugReportErrorMessageInfo?: string;
 };
 
 /**
@@ -178,6 +180,12 @@ export function formatError(error: Error, options: FormatOptions): string {
   let result = '';
   if (error.name) result += `\r${clr(error.name, ['bold', 'red'], options)}: `;
   if (error.message) result += error.message;
+  if (isShouldReportAsBugError(error)) {
+    result += '\nThis is an error inside mongosh. Please file a bug report for the MONGOSH project here: https://jira.mongodb.org/projects/MONGOSH/issues.';
+    if (options.bugReportErrorMessageInfo) {
+      result += `\n${options.bugReportErrorMessageInfo}`;
+    }
+  }
   if (error.name === 'SyntaxError') {
     if (!options.colors) {
       // Babel applies syntax highlighting to its errors by default.

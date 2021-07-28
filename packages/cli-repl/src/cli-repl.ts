@@ -276,18 +276,21 @@ class CliRepl {
     }
   }
 
+  get logFilePath(): string {
+    return this.shellHomeDirectory.localPath(`${this.logId}_log`);
+  }
+
   /**
    * Open a writable stream for the current log file.
    */
   async openLogStream(): Promise<Writable> {
-    const path = this.shellHomeDirectory.localPath(`${this.logId}_log`);
     await this.cleanupOldLogfiles();
     try {
-      const stream = createWriteStream(path, { mode: 0o600 });
+      const stream = createWriteStream(this.logFilePath, { mode: 0o600 });
       await once(stream, 'ready');
       return stream;
     } catch (err) {
-      this.warnAboutInaccessibleFile(err, path);
+      this.warnAboutInaccessibleFile(err, this.logFilePath);
       return new Writable({
         write(chunk, enc, cb) {
           // Just ignore log data if there was an error.
@@ -491,6 +494,10 @@ class CliRepl {
       }
       throw e;
     }
+  }
+
+  bugReportErrorMessageInfo(): string {
+    return `Please include the log file for this session (${this.logFilePath}).`;
   }
 }
 
