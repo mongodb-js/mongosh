@@ -119,7 +119,7 @@ export default class Collection extends ShellApiWithMongoClass {
    * Internal method to determine what is printed for this class.
    */
   [asPrintable](): string {
-    return this._name;
+    return `${this._database.getName()}.${this._name}`;
   }
 
   /**
