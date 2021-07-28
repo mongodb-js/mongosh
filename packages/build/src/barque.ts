@@ -181,6 +181,7 @@ export class Barque {
     return await Promise.all(results);
   }
 
+  // eslint-disable-next-line complexity
   computePublishedPackageUrl(ppa: PPARepository, targetArchitecture: string, mongodbVersion: string, edition: string, packageUrl: string): string {
     const packageFileName = packageUrl.split('/').slice(-1);
     const packageFolderVersion = mongodbVersion.split('.').slice(0, 2).join('.');
@@ -193,12 +194,13 @@ export class Barque {
       case 'debian10':   return `${base}/apt/debian/dists/stretch/mongodb-${edition}/${packageFolderVersion}/main/binary-${targetArchitecture}/${packageFileName}`;
       case 'rhel70':     return `${base}/yum/redhat/7/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
       case 'rhel80':     return `${base}/yum/redhat/8/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
+      case 'amazon1':    return `${base}/yum/amazon/2013.03/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
       case 'amazon2':    return `${base}/yum/amazon/2/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
       case 'suse12':     return `${base}/zypper/suse/12/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
       case 'suse15':     return `${base}/zypper/suse/15/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
       /* eslint-enable no-multi-spaces */
       default:
-        throw new Error(`Unsupported PPA: ${ppa}`);
+        throw new Error(`Unsupported PPA, could not compute published mongosh package URL: ${ppa}`);
     }
   }
 
