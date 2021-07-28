@@ -73,7 +73,7 @@ export default ({ types: t }: { types: typeof BabelTypes }): babel.PluginObj<Wra
               for (const decl of path.node.declarations) {
                 // Copy variable names.
                 this.variables.push((decl.id as babel.types.Identifier).name);
-                if (decl.init !== null) {
+                if (decl.init) {
                   // If there is an initializer for this variable, turn it into
                   // an assignment expression, then assign that assignment
                   // expression to a dummy variable so that the completion record
