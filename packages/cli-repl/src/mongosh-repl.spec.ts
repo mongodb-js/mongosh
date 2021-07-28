@@ -178,11 +178,11 @@ describe('MongoshNodeRepl', () => {
     });
 
     it('prints a fancy syntax error when encountering one', async() => {
-      input.write('<cat>\n');
+      input.write(',cat,n');
       await waitEval(bus);
       expect(output).to.include('SyntaxError: Unexpected token');
       expect(output).to.include(`
-> 1 | <cat>
+> 1 | ,cat,
     | ^
   2 | `);
       expect(output).to.not.match(/ at [^ ]+ \n/g); // <- no stack trace lines
