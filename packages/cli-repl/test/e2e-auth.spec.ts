@@ -904,7 +904,9 @@ describe('Auth e2e', function() {
           'No credentials cache file found',
           'The logon attempt failed',
           'Received authentication for mechanism GSSAPI which is not enabled',
-          'Miscellaneous failure (see text): Unable to find realm of host localhost'
+          'Received authentication for mechanism GSSAPI which is unknown or not enabled',
+          'Miscellaneous failure (see text): Unable to find realm of host localhost',
+          "Unsupported mechanism 'GSSAPI' on authentication database '$external'"
         ];
         expect(messages.some(msg => shell.output.includes(msg)))
           .to.equal(true, `${shell.output} must include a valid kerberos failure message`);
