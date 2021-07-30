@@ -1,2 +1,2 @@
 // command checkResultClass
-new Timestamp(0, 100)
+new Timestamp(100, 0)
