@@ -27,5 +27,8 @@
   },
   "bugs": {
     "url": "https://github.com/mongodb-js/mongosh/issues"
+  },
+  "mongosh": {
+    "unitTestsOnly": true
   }
 }

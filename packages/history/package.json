@@ -25,6 +25,9 @@
   "engines": {
     "node": ">=12.4.0"
   },
+  "mongosh": {
+    "unitTestsOnly": true
+  },
   "dependencies": {
     "mongodb-redact": "^0.2.2"
   }

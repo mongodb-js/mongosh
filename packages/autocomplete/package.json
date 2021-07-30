@@ -24,6 +24,9 @@
     "compile-ts": "tsc -p tsconfig.json",
     "prepublish": "npm run compile-ts"
   },
+  "mongosh": {
+    "unitTestsOnly": true
+  },
   "devDependencies": {
     "mocha": "^7.1.2"
   },

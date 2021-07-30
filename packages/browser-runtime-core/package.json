@@ -28,6 +28,9 @@
   "publishConfig": {
     "access": "public"
   },
+  "mongosh": {
+    "unitTestsOnly": true
+  },
   "devDependencies": {
     "@mongosh/types": "0.0.0-dev.0",
     "@types/babel__generator": "^7.6.2",

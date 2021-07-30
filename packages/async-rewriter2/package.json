@@ -26,6 +26,9 @@
   "engines": {
     "node": ">=12.4.0"
   },
+  "mongosh": {
+    "unitTestsOnly": true
+  },
   "dependencies": {
     "@babel/core": "^7.14.8",
     "@babel/plugin-transform-destructuring": "^7.14.7",

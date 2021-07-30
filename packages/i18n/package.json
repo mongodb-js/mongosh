@@ -31,6 +31,9 @@
       "src/**/*.js"
     ]
   },
+  "mongosh": {
+    "unitTestsOnly": true
+  },
   "dependencies": {
     "@mongosh/errors": "0.0.0-dev.0",
     "mustache": "^4.0.0"

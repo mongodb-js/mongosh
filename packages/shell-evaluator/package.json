@@ -25,6 +25,9 @@
   "engines": {
     "node": ">=12.4.0"
   },
+  "mongosh": {
+    "unitTestsOnly": true
+  },
   "devDependencies": {
     "@types/sinon-chai": "^3.2.3"
   },

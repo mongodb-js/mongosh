@@ -28,6 +28,9 @@
   "publishConfig": {
     "access": "public"
   },
+  "mongosh": {
+    "unitTestsOnly": true
+  },
   "devDependencies": {
     "@mongosh/service-provider-server": "0.0.0-dev.0",
     "@types/sinon": "^7.5.1",
