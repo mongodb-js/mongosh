@@ -71,7 +71,7 @@ function validateConflicts(options: CliOptions, connectionString?: ConnectionStr
  * @param {string} host - The value of the --host option.
  */
 function validateHost(host: string): void {
-  const invalidCharacter = host.match(/[^a-zA-Z0-9.:\[\]-]/);
+  const invalidCharacter = host.match(/[^a-zA-Z0-9.:\[\]_-]/);
   if (invalidCharacter) {
     throw new MongoshInvalidInputError(
       i18n.__(INVALID_HOST) + ': ' + invalidCharacter[0],
@@ -149,7 +149,7 @@ function generateUriNormalized(options: CliOptions): ConnectionString {
   // If the --host argument contains /, it has the format
   // <replSetName>/<hostname1><:port>,<hostname2><:port>,<...>
   const replSetHostMatch = (options.host ?? '').match(
-    /^(?<replSetName>[^/]+)\/(?<hosts>([A-Za-z0-9.-]+(:\d+)?,?)+)$/
+    /^(?<replSetName>[^/]+)\/(?<hosts>([A-Za-z0-9._-]+(:\d+)?,?)+)$/
   );
   if (replSetHostMatch) {
     const { replSetName, hosts } = replSetHostMatch.groups as { replSetName: string, hosts: string };
@@ -162,7 +162,7 @@ function generateUriNormalized(options: CliOptions): ConnectionString {
   // If the --host argument contains multiple hosts as a seed list
   // we directly do not do additional host/port parsing
   const seedList = (options.host ?? '').match(
-    /^(?<hosts>([A-Za-z0-9.-]+(:\d+)?,?)+)$/
+    /^(?<hosts>([A-Za-z0-9._-]+(:\d+)?,?)+)$/
   );
   if (seedList && options.host?.includes(',')) {
     const { hosts } = seedList.groups as { hosts: string };
@@ -190,7 +190,7 @@ function generateUriNormalized(options: CliOptions): ConnectionString {
 
   // Capture host, port and db from the string and generate a URI from
   // the parts. If there is a db part, it *must* start with /.
-  const uriMatch = /^([A-Za-z0-9][A-Za-z0-9.-]+):?(\d+)?(?:\/(\S*))?$/gi;
+  const uriMatch = /^([A-Za-z0-9][A-Za-z0-9._-]+):?(\d+)?(?:\/(\S*))?$/gi;
   let parts: string[] | null = uriMatch.exec(uri);
 
   if (parts === null) {

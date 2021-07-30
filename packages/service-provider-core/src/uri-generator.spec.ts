@@ -25,6 +25,9 @@ describe('uri-generator.generate-uri', () => {
     it('handles host with port included', () => {
       expect(generateUri({ connectionSpecifier: undefined, host: 'localhost:27018' })).to.equal('mongodb://localhost:27018/?directConnection=true&serverSelectionTimeoutMS=2000');
     });
+    it('handles host with an underscore', () => {
+      expect(generateUri({ connectionSpecifier: undefined, host: 'some_host' })).to.equal('mongodb://some_host:27017/?directConnection=true');
+    });
     it('throws if host has port AND port set to other value', () => {
       try {
         generateUri({ connectionSpecifier: undefined, host: 'localhost:27018', port: '27019' });
@@ -422,10 +425,10 @@ describe('uri-generator.generate-uri', () => {
       });
       it('returns a URI for the hosts and ports specified in --host and database name', () => {
         const options = {
-          host: 'host1:123,host2,host3:456,',
+          host: 'host1:123,host_2,host3:456,',
           connectionSpecifier: 'admin'
         };
-        expect(generateUri(options)).to.equal('mongodb://host1:123,host2,host3:456/admin');
+        expect(generateUri(options)).to.equal('mongodb://host1:123,host_2,host3:456/admin');
       });
     });
     context('with a replica set', () => {
