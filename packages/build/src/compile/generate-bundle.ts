@@ -1,3 +1,4 @@
+import { promises as fs } from 'fs';
 import path from 'path';
 import Bundler from 'parcel-bundler';
 import { writeBuildInfo } from '../build-info';
@@ -56,6 +57,12 @@ export async function generateBundle(config: Config): Promise<void> {
     packageJsonContent.module = moduleField;
     return result;
   };
+
+  // Parcel also unfortunately does not know about the built-in 'v8' module
+  // of Node.js. We create a dummy version that points to it.
+  await fs.mkdir(path.join(__dirname, '../../../../node_modules/v8'), { recursive: true });
+  await fs.writeFile(path.join(__dirname, '../../../../node_modules/v8/index.js'),
+    'module.exports = require("module").createRequire(__filename)("v8")');
 
   await bundler.bundle();
 }

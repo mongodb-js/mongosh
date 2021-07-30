@@ -89,10 +89,10 @@ describe('e2e', function() {
       await shell.waitForPrompt();
       shell.assertNoErrors();
 
-      await shell.executeLine('<cat>\n');
+      await shell.executeLine(',cat,\n');
       await eventually(() => {
         expect(shell.rawOutput).to.match(/SyntaxError(\x1b\[.*m)+: Unexpected token/);
-        expect(shell.rawOutput).to.match(/>(\x1b\[.*m)+ 1 \| (\x1b\[.*m)+<(\x1b\[.*m)+cat(\x1b\[.*m)+>(\x1b\[.*m)+/);
+        expect(shell.rawOutput).to.match(/>(\x1b\[.*m)+ 1 \|(\x1b\[.*m)+ (\x1b\[.*m)+,(\x1b\[.*m)+cat(\x1b\[.*m)+,(\x1b\[.*m)+/);
       });
     });
     it('closes the shell when "exit" is entered', async() => {
@@ -218,7 +218,7 @@ describe('e2e', function() {
 
     describe('error formatting', () => {
       it('throws when a syntax error is encountered', async() => {
-        await shell.executeLine('<x');
+        await shell.executeLine(',x');
         shell.assertContainsError('SyntaxError: Unexpected token');
       });
       it('throws a runtime error', async() => {

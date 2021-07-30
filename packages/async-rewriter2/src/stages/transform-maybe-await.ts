@@ -34,7 +34,7 @@ interface AsyncFunctionIdentifiers {
   assertNotSyntheticPromise: babel.types.Identifier;
 }
 
-export default ({ types: t }: { types: typeof BabelTypes }): babel.PluginObj<{ file: babel.types.File }> => {
+export default ({ types: t }: { types: typeof BabelTypes }): babel.PluginObj<{ file: babel.BabelFile }> => {
   // We mark certain AST nodes as 'already visited' using these symbols.
   function asNodeKey(v: any): keyof babel.types.Node { return v; }
   const isGeneratedInnerFunction = asNodeKey(Symbol('isGeneratedInnerFunction'));
@@ -149,7 +149,7 @@ export default ({ types: t }: { types: typeof BabelTypes }): babel.PluginObj<{ f
   )`);
 
   return {
-    pre(file: babel.types.File) {
+    pre(file: babel.BabelFile) {
       this.file = file;
     },
     visitor: {
@@ -164,7 +164,7 @@ export default ({ types: t }: { types: typeof BabelTypes }): babel.PluginObj<{ f
         if (path.parentPath.node[isGeneratedHelper]) return;
 
         const originalSource = path.parent.start !== undefined ?
-          (this.file as any).code.slice(path.parent.start, path.parent.end) :
+          this.file.code.slice(path.parent.start ?? undefined, path.parent.end ?? undefined) :
           'function () { [unknown code] }';
         // Encode using UTF-16 + hex encoding so we don't have to worry about
         // special characters.
@@ -364,26 +364,30 @@ export default ({ types: t }: { types: typeof BabelTypes }): babel.PluginObj<{ f
           // We have seen an expression. If we're not inside an async function,
           // or a function that we explicitly marked as needing always-synchronous
           // treatment, we don't care.
-          if (!path.getFunctionParent()) return;
-          if (!path.getFunctionParent().node.async &&
-              !path.getFunctionParent().node[isAlwaysSyncFunction]) return;
+          const functionParent = path.getFunctionParent();
+          if (!functionParent) return;
+          if (!functionParent.node.async &&
+              !functionParent.node[isAlwaysSyncFunction]) return;
           // identifierGroup holds the list of helper identifiers available
           // inside this function.
           let identifierGroup: AsyncFunctionIdentifiers;
-          if (path.getFunctionParent().node[isGeneratedInnerFunction]) {
+          if (functionParent.node[isGeneratedInnerFunction]) {
             // We are inside a generated inner function. If there is no node
             // marked as [isOriginalBody] between it and the current node,
             // we skip this (for example, this applies to the catch and finally
             // blocks generated above).
             if (!path.findParent(
               path => path.isFunction() || !!path.node[isOriginalBody]
-            ).node[isOriginalBody]) {
+            )?.node?.[isOriginalBody]) {
               return;
             }
 
             // We know that the outer function of the inner function has
             // helpers available.
-            identifierGroup = path.getFunctionParent().getFunctionParent().getData(identifierGroupKey);
+            identifierGroup = functionParent.getFunctionParent()?.getData?.(identifierGroupKey);
+            if (!identifierGroup) {
+              throw new Error('Parent of generated inner function does not have existing identifiers available');
+            }
             if (path.parentPath.isReturnStatement() && !path.node[isGeneratedHelper]) {
               // If this is inside a return statement that we have not already handled,
               // we replace the `return ...` with
@@ -400,7 +404,7 @@ export default ({ types: t }: { types: typeof BabelTypes }): babel.PluginObj<{ f
             }
           } else {
             // This is a regular async function. We also transformed these above.
-            identifierGroup = path.getFunctionParent().getData(identifierGroupKey);
+            identifierGroup = functionParent.getData(identifierGroupKey);
           }
 
           // Do not transform foo.bar() into (expr = foo.bar, ... ? await expr : expr)(),
@@ -463,10 +467,10 @@ export default ({ types: t }: { types: typeof BabelTypes }): babel.PluginObj<{ f
           const { expressionHolder, isSyntheticPromise, assertNotSyntheticPromise } = identifierGroup;
           const prettyOriginalString = limitStringLength(
             path.node.start !== undefined ?
-              (this.file as any).code.slice(path.node.start, path.node.end) :
+              this.file.code.slice(path.node.start ?? undefined, path.node.end ?? undefined) :
               '<unknown>', 24);
 
-          if (!path.getFunctionParent().node.async) {
+          if (!functionParent.node.async) {
             // Transform expression `foo` into `assertNotSyntheticPromise(foo, 'foo')`.
             path.replaceWith(Object.assign(
               assertNotSyntheticExpressionTemplate({
