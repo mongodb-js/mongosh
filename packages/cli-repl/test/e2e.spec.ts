@@ -8,6 +8,7 @@ import { promises as fs, createReadStream } from 'fs';
 import { promisify } from 'util';
 import rimraf from 'rimraf';
 import path from 'path';
+import os from 'os';
 import { readReplLogfile } from './repl-helpers';
 import { bson } from '@mongosh/service-provider-core';
 const { EJSON } = bson;
@@ -444,6 +445,30 @@ describe('e2e', function() {
           expect(result).to.include('nInserted: 1');
         });
       });
+    });
+  });
+
+  describe('with --host', () => {
+    let shell: TestShell;
+    it('allows invalid hostnames with _', async() => {
+      shell = TestShell.start({
+        args: [ '--host', 'xx_invalid_domain_xx' ],
+        env: { ...process.env, FORCE_COLOR: 'true', TERM: 'xterm-256color' },
+        forceTerminal: true
+      });
+
+      const result = await Promise.race([
+        shell.waitForPromptOrExit(),
+        promisify(setTimeout)(5000)
+      ]);
+
+      shell.assertNotContainsOutput('host');
+      if (typeof result === 'object') {
+        expect(result.state).to.equal('exit');
+        shell.assertContainsOutput('MongoNetworkError');
+      } else {
+        shell.kill(os.constants.signals.SIGKILL);
+      }
     });
   });
 
