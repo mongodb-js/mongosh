@@ -22,10 +22,13 @@
     "compile-ts": "tsc -p tsconfig.json",
     "lint": "eslint --report-unused-disable-directives \"./{src,test}/**/*.{js,ts,tsx}\"",
     "prepublish": "npm run compile-ts",
-    "test": "mocha --timeout 15000 --colors -r ts-node/register \"./src/*.spec.ts\"",
-    "test-ci": "mocha --timeout 15000 -r ts-node/register \"./src/*.spec.ts\""
+    "test": "mocha --timeout 15000 -r ts-node/register \"./src/*.spec.ts\"",
+    "test-ci": "node ../../scripts/run-if-package-requested.js npm test"
   },
   "bugs": {
     "url": "https://github.com/mongodb-js/mongosh/issues"
+  },
+  "mongosh": {
+    "unitTestsOnly": true
   }
 }

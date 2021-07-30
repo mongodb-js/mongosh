@@ -1,5 +1,7 @@
 # Regenerate using `npm run update-evergreen-config`
 <%
+const path = require('path');
+
 const NODE_JS_VERSION_14 = '14.17.1';
 const NODE_JS_VERSION_12 = '12.20.0';
 
@@ -19,13 +21,34 @@ const NODE_VERSIONS = [
   { shortName: '14', versionSpec: NODE_JS_VERSION_14, skipNodeVersionCheck: '' }
 ];
 
+const pathToPackages = path.join(__dirname, '..', 'packages');
+const MONGOSH_PACKAGES = fs.readdirSync(pathToPackages, { withFileTypes: true })
+  .filter(d => d.isDirectory() && fs.existsSync(path.join(pathToPackages, d.name, 'package.json')))
+  .map(d => ({
+    name: d.name,
+    ...(JSON.parse(fs.readFileSync(path.join(pathToPackages, d.name, 'package.json'))).mongosh || {})
+  }));
+
 const ALL_UNIT_TESTS = [];
-for (const { shortName: nShort, versionSpec: nVersion, skipNodeVersionCheck } of NODE_VERSIONS) {
-  for (const { shortName: mShort, versionSpec: mVersion } of MONGODB_VERSIONS) {
-    const id = `m${mShort}_n${nShort}`;
-    ALL_UNIT_TESTS.push({
-      id, nShort, nVersion, mShort, mVersion, skipNodeVersionCheck
-    });
+for (const packageInfo of MONGOSH_PACKAGES) {
+  for (const { shortName: nShort, versionSpec: nVersion, skipNodeVersionCheck } of NODE_VERSIONS) {
+    if (packageInfo.unitTestsOnly) {
+      const id = `n${nShort}_${packageInfo.name.replace(/-/g, '_')}`;
+      ALL_UNIT_TESTS.push({
+        id, nShort, nVersion, skipNodeVersionCheck,
+        packageName: packageInfo.name,
+        variants: packageInfo.variants
+      });
+    } else {
+      for (const { shortName: mShort, versionSpec: mVersion } of MONGODB_VERSIONS) {
+        const id = `m${mShort}_n${nShort}_${packageInfo.name.replace(/-/g, '_')}`;
+        ALL_UNIT_TESTS.push({
+          id, nShort, nVersion, mShort, mVersion, skipNodeVersionCheck,
+          packageName: packageInfo.name,
+          variants: packageInfo.variants
+        });
+      }
+    }
   }
 }
 
@@ -93,6 +116,7 @@ const EXECUTABLE_PKG_INFO = [
     ]
   }
 ];
+
 %>
 exec_timeout_secs: 3600
 
@@ -103,7 +127,7 @@ exec_timeout_secs: 3600
 #   compile_ts - Installs Node and all dependencies, and run all prepublish scripts.
 #   install - Installs Node and all dependencies, and download the result of running all prepublish scripts.
 #   check - Performs linter and dependency checks.
-#   test - Runs all tests.
+#   test - Runs all tests for a specific package.
 #   test_vscode - Clones the vscode extension repository and runs its tests.
 #   test_connectivity - Runs extra connectivity tests.
 #   test_apistrict - Runs shell API and CLI tests with --apiStrict --apiDeprecationErrors.
@@ -194,6 +218,7 @@ functions:
           set -e
           {
           export NODE_JS_VERSION=${node_js_version}
+          export MONGOSH_RUN_ONLY_IN_PACKAGE=${mongosh_run_only_in_package}
           source .evergreen/setup-env.sh
           npm --unsafe-perm=true run bootstrap-ci -- --ignore-prepublish
           npm run test-ci
@@ -215,7 +240,7 @@ functions:
 
   check_coverage:
     <% for (let buildVariant of ALL_UNIT_TEST_BUILD_VARIANTS) {
-        for (let unitTest of ALL_UNIT_TESTS) { %>
+        for (let unitTest of ALL_UNIT_TESTS.filter(t => !t.variants || t.variants.includes(buildVariant))) { %>
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -618,7 +643,7 @@ tasks:
   # UNIT TESTS
   # E.g. test_m40xc_n12 stands for mongod 4.0.x, community edition, Node.js 12
   ###
-  <% for (const { id, nShort, nVersion, mShort, mVersion, skipNodeVersionCheck } of ALL_UNIT_TESTS) { %>
+  <% for (const { id, nShort, nVersion, mShort, mVersion, skipNodeVersionCheck, packageName } of ALL_UNIT_TESTS) { %>
   - name: test_<% out(id) %>
     tags: <% out(["unit-test", ...(mShort === 'latest' ? ["mlatest"] : [])]) %>
     depends_on:
@@ -631,10 +656,11 @@ tasks:
           node_js_version: "<% out(nVersion) %>"
       - func: test
         vars:
-          mongosh_server_test_version: "<% out(mVersion) %>"
+          mongosh_server_test_version: "<% out(mVersion || '') %>"
           node_js_version: "<% out(nVersion) %>"
           mongosh_skip_node_version_check: "<% out(skipNodeVersionCheck) %>"
           mongosh_test_id: "<% out(id) %>"
+          mongosh_run_only_in_package: "<% out(packageName) %>"
   <% } %>
 
   ###
@@ -756,7 +782,7 @@ tasks:
       case 'ssh': { %>
       - func: spawn_host
         vars:
-          distro: windows-64-vs2019-small-git-latest
+          distro: windows-64-vs2019-small
       - func: run_pkg_tests_through_ssh
         vars:
           admin_user_name: Administrator
@@ -835,7 +861,7 @@ buildvariants:
       executable_os_id: darwin-x64
     tasks:
       - name: check
-      <% for (const test of ALL_UNIT_TESTS) { %>
+      <% for (const test of ALL_UNIT_TESTS.filter(t => !t.variants || t.variants.includes('darwin'))) { %>
       - name: test_<% out(test.id) %>
       <% } %>
       - name: compile_artifact
@@ -857,10 +883,9 @@ buildvariants:
       - name: compile_ts
       - name: check
       - name: check_coverage
-      <% for (const test of ALL_UNIT_TESTS) { %>
+      <% for (const test of ALL_UNIT_TESTS.filter(t => !t.variants || t.variants.includes('linux'))) { %>
       - name: test_<% out(test.id) %>
       <% } %>
-      - name: test_mlatest_n14
       - name: test_vscode
       - name: test_connectivity
       - name: test_apistrict
@@ -1001,12 +1026,12 @@ buildvariants:
 
   - name: win32
     display_name: "Windows VS 2019"
-    run_on: windows-64-vs2019-small-git-latest
+    run_on: windows-64-vs2019-small
     expansions:
       executable_os_id: win32
     tasks:
       - name: check
-      <% for (const test of ALL_UNIT_TESTS) { %>
+      <% for (const test of ALL_UNIT_TESTS.filter(t => !t.variants || t.variants.includes('win32'))) { %>
       - name: test_<% out(test.id) %>
       <% } %>
       - name: e2e_tests_win32

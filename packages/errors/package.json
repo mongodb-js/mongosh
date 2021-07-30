@@ -17,12 +17,15 @@
     "node": ">=12.4.0"
   },
   "scripts": {
-    "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 15000 --colors -r ts-node/register \"./**/*.spec.ts\"",
-    "test-ci": "mocha -r \"../../scripts/import-expansions.js\" --timeout 15000 -r ts-node/register \"./**/*.spec.ts\"",
+    "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 15000 -r ts-node/register \"./src/**/*.spec.ts\"",
+    "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
     "lint": "eslint --report-unused-disable-directives \"./{src,test}/**/*.{js,ts,tsx}\"",
     "check": "npm run lint",
     "compile-ts": "tsc -p tsconfig.json",
     "prepublish": "npm run compile-ts",
     "generate-error-overview": "ts-node scripts/extract-errors.ts .. ../../error-overview.md ../../error-overview.rst"
+  },
+  "mongosh": {
+    "unitTestsOnly": true
   }
 }

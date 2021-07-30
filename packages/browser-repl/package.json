@@ -15,7 +15,7 @@
     "start": "npm run storybook",
     "storybook": "start-storybook -p 6006",
     "test": "karma start ./config/karma.conf.js --colors",
-    "test-ci": "node ../../scripts/run-if-platform.js darwin npm test",
+    "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
     "lint": "eslint --report-unused-disable-directives \"./{src,test}/**/*.{js,ts,tsx}\"",
     "check": "npm run lint && depcheck",
     "compile-ts": "npm run build"
@@ -30,6 +30,12 @@
   "license": "Apache-2.0",
   "publishConfig": {
     "access": "public"
+  },
+  "mongosh": {
+    "unitTestsOnly": true,
+    "variants": [
+      "darwin"
+    ]
   },
   "dependencies": {
     "@leafygreen-ui/icon": "^4.0.0",
