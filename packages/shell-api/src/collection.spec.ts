@@ -981,9 +981,9 @@ describe('Collection', () => {
         });
 
         it('rejects with error', async() => {
-          let catched;
-          await collection.dropIndexes('index_1').catch(err => { catched = err; });
-          expect(catched.message).to.equal(error.message);
+          let caught;
+          await collection.dropIndexes('index_1').catch(err => { caught = err; });
+          expect(caught.message).to.equal(error.message);
         });
       });
     });
@@ -1001,25 +1001,25 @@ describe('Collection', () => {
         });
 
         it('throws if index is "*"', async() => {
-          let catched;
-          await collection.dropIndex('*').catch(err => { catched = err; });
+          let caught;
+          await collection.dropIndex('*').catch(err => { caught = err; });
 
-          expect(catched).to.be.instanceOf(MongoshInvalidInputError);
-          expect(catched.message).to.contain(
+          expect(caught).to.be.instanceOf(MongoshInvalidInputError);
+          expect(caught.message).to.contain(
             'To drop indexes in the collection using \'*\', use db.collection.dropIndexes().'
           );
-          expect(catched.code).to.equal(CommonErrors.InvalidArgument);
+          expect(caught.code).to.equal(CommonErrors.InvalidArgument);
         });
 
         it('throws if index is an array', async() => {
-          let catched;
-          await collection.dropIndex(['index-1']).catch(err => { catched = err; });
+          let caught;
+          await collection.dropIndex(['index-1']).catch(err => { caught = err; });
 
-          expect(catched).to.be.instanceOf(MongoshInvalidInputError);
-          expect(catched.message).to.contain(
+          expect(caught).to.be.instanceOf(MongoshInvalidInputError);
+          expect(caught.message).to.contain(
             'The index to drop must be either the index name or the index specification document.'
           );
-          expect(catched.code).to.equal(CommonErrors.InvalidArgument);
+          expect(caught.code).to.equal(CommonErrors.InvalidArgument);
         });
       });
     });
@@ -1037,15 +1037,15 @@ describe('Collection', () => {
       });
 
       it('throws an error if called with verbose', async() => {
-        let catched;
+        let caught;
         await collection.totalIndexSize(true)
-          .catch(err => { catched = err; });
+          .catch(err => { caught = err; });
 
-        expect(catched).to.be.instanceOf(MongoshInvalidInputError);
-        expect(catched.message).to.contain(
+        expect(caught).to.be.instanceOf(MongoshInvalidInputError);
+        expect(caught.message).to.contain(
           '"totalIndexSize" takes no argument. Use db.collection.stats to get detailed information.'
         );
-        expect(catched.code).to.equal(CommonErrors.InvalidArgument);
+        expect(caught.code).to.equal(CommonErrors.InvalidArgument);
       });
     });
 
@@ -1155,9 +1155,9 @@ describe('Collection', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await collection.stats()
+        const caughtError = await collection.stats()
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
 
       it('throws is serviceProvider.runCommandWithCheck returns undefined', async() => {
@@ -1514,9 +1514,9 @@ describe('Collection', () => {
       it('throws if serviceProvider.aggregate rejects', async() => {
         const expectedError = new Error();
         serviceProvider.aggregate.throws(expectedError);
-        const catchedError = await collection.latencyStats()
+        const caughtError = await collection.latencyStats()
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
 
@@ -1542,9 +1542,9 @@ describe('Collection', () => {
       it('throws if serviceProvider.initializeBulkOp rejects', async() => {
         const expectedError = new Error();
         serviceProvider.initializeBulkOp.throws(expectedError);
-        const catchedError = await collection.initializeUnorderedBulkOp()
+        const caughtError = await collection.initializeUnorderedBulkOp()
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
     describe('initializeOrderedBulkOp', () => {
@@ -1569,9 +1569,9 @@ describe('Collection', () => {
       it('throws if serviceProvider rejects', async() => {
         const expectedError = new Error();
         serviceProvider.initializeBulkOp.throws(expectedError);
-        const catchedError = await collection.initializeOrderedBulkOp()
+        const caughtError = await collection.initializeOrderedBulkOp()
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
     describe('getPlanCache', () => {
@@ -1625,9 +1625,9 @@ describe('Collection', () => {
       it('throws if serviceProvider.runCommand rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await collection.validate()
+        const caughtError = await collection.validate()
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
     describe('mapReduce', () => {
@@ -1676,9 +1676,9 @@ describe('Collection', () => {
       it('throws if serviceProvider.mapReduce rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await collection.mapReduce(mapFn, reduceFn, { out: { inline: 1 } })
+        const caughtError = await collection.mapReduce(mapFn, reduceFn, { out: { inline: 1 } })
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
 
       it('throws if optiosn is an object and options.out is not defined', async() => {
@@ -1710,9 +1710,9 @@ describe('Collection', () => {
       it('throws if serviceProvider.runCommand rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await collection.getShardVersion()
+        const caughtError = await collection.getShardVersion()
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
     describe('getShardDistribution', () => {

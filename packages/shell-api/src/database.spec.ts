@@ -223,9 +223,9 @@ describe('Database', () => {
       it('throws if serviceProvider.runCommand rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await database.runCommand({ someCommand: 'someCollection' })
+        const caughtError = await database.runCommand({ someCommand: 'someCollection' })
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
 
@@ -261,9 +261,9 @@ describe('Database', () => {
       it('throws if serviceProvider.runCommand rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await database.adminCommand({ someCommand: 'someCollection' })
+        const caughtError = await database.adminCommand({ someCommand: 'someCollection' })
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
 
@@ -475,9 +475,9 @@ describe('Database', () => {
       it('throws if serviceProvider.dropDatabase rejects', async() => {
         const expectedError = new Error();
         serviceProvider.dropDatabase.rejects(expectedError);
-        const catchedError = await database.dropDatabase()
+        const caughtError = await database.dropDatabase()
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
     describe('createUser', () => {
@@ -560,45 +560,45 @@ describe('Database', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await database.createUser({
+        const caughtError = await database.createUser({
           user: 'anna',
           pwd: 'pwd',
           customData: { anything: true },
           roles: []
         }, { w: 1 })
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
 
       it('throws if roles is not provided', async() => {
-        const catchedError = await database.createUser({
+        const caughtError = await database.createUser({
           user: 'anna',
           pwd: 'pwd'
         }).catch(e => e);
-        expect(catchedError).to.be.instanceOf(MongoshInvalidInputError);
-        expect(catchedError.message).to.contain('Missing required property: "roles"');
-        expect(catchedError.code).to.equal(CommonErrors.InvalidArgument);
+        expect(caughtError).to.be.instanceOf(MongoshInvalidInputError);
+        expect(caughtError.message).to.contain('Missing required property: "roles"');
+        expect(caughtError.code).to.equal(CommonErrors.InvalidArgument);
       });
 
       it('throws if password is missing on database other than $external', async() => {
-        const catchedError = await database.createUser({
+        const caughtError = await database.createUser({
           user: 'anna'
         }).catch(e => e);
-        expect(catchedError).to.be.instanceOf(MongoshInvalidInputError);
-        expect(catchedError.message).to.contain('Missing required property: "roles"');
-        expect(catchedError.code).to.equal(CommonErrors.InvalidArgument);
+        expect(caughtError).to.be.instanceOf(MongoshInvalidInputError);
+        expect(caughtError.message).to.contain('Missing required property: "roles"');
+        expect(caughtError.code).to.equal(CommonErrors.InvalidArgument);
       });
 
       it('throws if createUser option is provided', async() => {
-        const catchedError = await database.createUser({
+        const caughtError = await database.createUser({
           user: 'anna',
           pwd: 'pwd',
           createUser: 1,
           roles: []
         }).catch(e => e);
-        expect(catchedError).to.be.instanceOf(MongoshInvalidInputError);
-        expect(catchedError.message).to.contain('Cannot set createUser field in helper method');
-        expect(catchedError.code).to.equal(CommonErrors.InvalidArgument);
+        expect(caughtError).to.be.instanceOf(MongoshInvalidInputError);
+        expect(caughtError.message).to.contain('Cannot set createUser field in helper method');
+        expect(caughtError.code).to.equal(CommonErrors.InvalidArgument);
       });
 
       context('on $external database', () => {
@@ -718,27 +718,27 @@ describe('Database', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await database.updateUser('anna', {
+        const caughtError = await database.updateUser('anna', {
           user: 'anna',
           pwd: 'pwd',
           customData: { anything: true },
           roles: []
         }, { w: 1 })
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
 
       it('throws if an invalid passwordDigestor is provided', async() => {
-        const catchedError = await database.updateUser('anna', {
+        const caughtError = await database.updateUser('anna', {
           user: 'anna',
           pwd: 'pwd',
           customData: { anything: true },
           roles: [],
           passwordDigestor: 'whatever'
         }, { w: 1 }).catch(e => e);
-        expect(catchedError).to.be.instanceOf(MongoshInvalidInputError);
-        expect(catchedError.message).to.contain('passwordDigestor must be \'client\' or \'server\'');
-        expect(catchedError.code).to.equal(CommonErrors.InvalidArgument);
+        expect(caughtError).to.be.instanceOf(MongoshInvalidInputError);
+        expect(caughtError.message).to.contain('passwordDigestor must be \'client\' or \'server\'');
+        expect(caughtError.code).to.equal(CommonErrors.InvalidArgument);
       });
     });
     describe('changeUserPassword', () => {
@@ -764,9 +764,9 @@ describe('Database', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await database.changeUserPassword('anna', 'pwd')
+        const caughtError = await database.changeUserPassword('anna', 'pwd')
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
     describe('logout', () => {
@@ -789,9 +789,9 @@ describe('Database', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await database.logout()
+        const caughtError = await database.logout()
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
     describe('dropUser', () => {
@@ -814,9 +814,9 @@ describe('Database', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await database.dropUser('anna')
+        const caughtError = await database.dropUser('anna')
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
     describe('dropAllUsers', () => {
@@ -839,9 +839,9 @@ describe('Database', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await database.dropAllUsers()
+        const caughtError = await database.dropAllUsers()
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
     describe('auth', () => {
@@ -883,27 +883,27 @@ describe('Database', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.authenticate.rejects(expectedError);
-        const catchedError = await database.auth('anna', 'pwd')
+        const caughtError = await database.auth('anna', 'pwd')
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
 
       [[{}], [{ user: 'anna', pass: 'pwd' }], ['name', 'pwd', 'hmm']].forEach(args => {
         it('throws for invalid arguments', async() => {
-          const catchedError = await database.auth(...args as any).catch(e => e);
-          expect(catchedError).to.be.instanceOf(MongoshInvalidInputError);
-          expect(catchedError.code).to.equal(CommonErrors.InvalidArgument);
+          const caughtError = await database.auth(...args as any).catch(e => e);
+          expect(caughtError).to.be.instanceOf(MongoshInvalidInputError);
+          expect(caughtError.code).to.equal(CommonErrors.InvalidArgument);
         });
       });
 
       it('throws if digestPassword is specified', async() => {
-        const catchedError = await database.auth({
+        const caughtError = await database.auth({
           user: 'anna',
           pwd: 'pwd',
           digestPassword: 'nope'
         } as any).catch(e => e);
-        expect(catchedError).to.be.instanceOf(MongoshUnimplementedError);
-        expect(catchedError.code).to.equal(CommonErrors.NotImplemented);
+        expect(caughtError).to.be.instanceOf(MongoshUnimplementedError);
+        expect(caughtError.code).to.equal(CommonErrors.NotImplemented);
       });
 
       it('asks for password if only username is passed', async() => {
@@ -943,9 +943,9 @@ describe('Database', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await database.grantRolesToUser('anna', [ 'role1' ])
+        const caughtError = await database.grantRolesToUser('anna', [ 'role1' ])
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
     describe('revokeRolesFromUser', () => {
@@ -968,9 +968,9 @@ describe('Database', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await database.revokeRolesFromUser('anna', [ 'role1' ])
+        const caughtError = await database.revokeRolesFromUser('anna', [ 'role1' ])
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
     describe('getUser', () => {
@@ -1020,9 +1020,9 @@ describe('Database', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await database.getUser('anna')
+        const caughtError = await database.getUser('anna')
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
     describe('getUsers', () => {
@@ -1060,9 +1060,9 @@ describe('Database', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await database.getUsers()
+        const caughtError = await database.getUsers()
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
     describe('createCollection', () => {
@@ -1103,9 +1103,9 @@ describe('Database', () => {
       it('throws if serviceProvider.createCollection rejects', async() => {
         const expectedError = new Error();
         serviceProvider.createCollection.rejects(expectedError);
-        const catchedError = await database.createCollection('newcoll')
+        const caughtError = await database.createCollection('newcoll')
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
     describe('createView', () => {
@@ -1145,9 +1145,9 @@ describe('Database', () => {
       it('throws if serviceProvider.createCollection rejects', async() => {
         const expectedError = new Error();
         serviceProvider.createCollection.rejects(expectedError);
-        const catchedError = await database.createView('newcoll', 'sourcecoll', [])
+        const caughtError = await database.createView('newcoll', 'sourcecoll', [])
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
     describe('createRole', () => {
@@ -1203,24 +1203,24 @@ describe('Database', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await database.createRole({
+        const caughtError = await database.createRole({
           role: 'anna',
           roles: [],
           privileges: []
         }, { w: 1 })
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
 
       it('throws if createRole is specified', async() => {
-        const catchedError = await database.createRole({
+        const caughtError = await database.createRole({
           createRole: 1,
           role: 'anna',
           roles: [],
           privileges: []
         }, { w: 1 }).catch(e => e);
-        expect(catchedError).to.be.instanceOf(MongoshInvalidInputError);
-        expect(catchedError.code).to.equal(CommonErrors.InvalidArgument);
+        expect(caughtError).to.be.instanceOf(MongoshInvalidInputError);
+        expect(caughtError.code).to.equal(CommonErrors.InvalidArgument);
       });
     });
     describe('updateRole', () => {
@@ -1271,13 +1271,13 @@ describe('Database', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await database.updateRole('anna', {
+        const caughtError = await database.updateRole('anna', {
           role: 'anna',
           privileges: [],
           roles: []
         }, { w: 1 })
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
     describe('dropRole', () => {
@@ -1300,9 +1300,9 @@ describe('Database', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await database.dropRole('anna')
+        const caughtError = await database.dropRole('anna')
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
     describe('dropAllRoles', () => {
@@ -1325,9 +1325,9 @@ describe('Database', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await database.dropAllRoles()
+        const caughtError = await database.dropAllRoles()
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
     describe('grantRolesToRole', () => {
@@ -1350,9 +1350,9 @@ describe('Database', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await database.grantRolesToRole('anna', [ 'role1' ])
+        const caughtError = await database.grantRolesToRole('anna', [ 'role1' ])
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
     describe('revokeRolesFromRole', () => {
@@ -1375,9 +1375,9 @@ describe('Database', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await database.revokeRolesFromRole('anna', [ 'role1' ])
+        const caughtError = await database.revokeRolesFromRole('anna', [ 'role1' ])
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
 
@@ -1401,9 +1401,9 @@ describe('Database', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await database.grantPrivilegesToRole('anna', [ 'privilege1' ])
+        const caughtError = await database.grantPrivilegesToRole('anna', [ 'privilege1' ])
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
     describe('revokePrivilegesFromRole', () => {
@@ -1426,9 +1426,9 @@ describe('Database', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await database.revokePrivilegesFromRole('anna', [ 'privilege1' ])
+        const caughtError = await database.revokePrivilegesFromRole('anna', [ 'privilege1' ])
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
     describe('getRole', () => {
@@ -1476,9 +1476,9 @@ describe('Database', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await database.getRole('anna')
+        const caughtError = await database.getRole('anna')
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
     describe('getRoles', () => {
@@ -1516,9 +1516,9 @@ describe('Database', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await database.getRoles()
+        const caughtError = await database.getRoles()
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
 
@@ -1559,9 +1559,9 @@ describe('Database', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await database.currentOp()
+        const caughtError = await database.currentOp()
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
 
@@ -1587,9 +1587,9 @@ describe('Database', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await database.killOp(123)
+        const caughtError = await database.killOp(123)
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
 
@@ -1628,9 +1628,9 @@ describe('Database', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await database.shutdownServer()
+        const caughtError = await database.shutdownServer()
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
 
@@ -1656,9 +1656,9 @@ describe('Database', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await database.fsyncLock()
+        const caughtError = await database.fsyncLock()
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
 
@@ -1684,9 +1684,9 @@ describe('Database', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await database.fsyncUnlock()
+        const caughtError = await database.fsyncUnlock()
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
 
@@ -1713,16 +1713,16 @@ describe('Database', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await database.version()
+        const caughtError = await database.version()
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
 
       it('throws if runCommand returns undefined', async() => {
         serviceProvider.runCommandWithCheck.resolves(undefined);
-        const catchedError = await database.version().catch(e => e);
-        expect(catchedError).to.be.instanceOf(MongoshRuntimeError);
-        expect(catchedError.code).to.equal(CommonErrors.CommandFailed);
+        const caughtError = await database.version().catch(e => e);
+        expect(caughtError).to.be.instanceOf(MongoshRuntimeError);
+        expect(caughtError.code).to.equal(CommonErrors.CommandFailed);
       });
     });
 
@@ -1749,16 +1749,16 @@ describe('Database', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await database.serverBits()
+        const caughtError = await database.serverBits()
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
 
       it('throws if runCommand returns undefined', async() => {
         serviceProvider.runCommandWithCheck.resolves(undefined);
-        const catchedError = await database.serverBits().catch(e => e);
-        expect(catchedError).to.be.instanceOf(MongoshRuntimeError);
-        expect(catchedError.code).to.equal(CommonErrors.CommandFailed);
+        const caughtError = await database.serverBits().catch(e => e);
+        expect(caughtError).to.be.instanceOf(MongoshRuntimeError);
+        expect(caughtError.code).to.equal(CommonErrors.CommandFailed);
       });
     });
 
@@ -1784,9 +1784,9 @@ describe('Database', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await database.isMaster()
+        const caughtError = await database.isMaster()
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
 
@@ -1812,9 +1812,9 @@ describe('Database', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await database.serverBuildInfo()
+        const caughtError = await database.serverBuildInfo()
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
 
@@ -1853,9 +1853,9 @@ describe('Database', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await database.stats(1)
+        const caughtError = await database.stats(1)
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
 
@@ -1891,9 +1891,9 @@ describe('Database', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await database.serverStatus()
+        const caughtError = await database.serverStatus()
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
 
@@ -1919,9 +1919,9 @@ describe('Database', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await database.hostInfo()
+        const caughtError = await database.hostInfo()
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
 
@@ -1947,9 +1947,9 @@ describe('Database', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await database.serverCmdLineOpts()
+        const caughtError = await database.serverCmdLineOpts()
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
 
@@ -1990,9 +1990,9 @@ describe('Database', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await database.getFreeMonitoringStatus()
+        const caughtError = await database.getFreeMonitoringStatus()
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
 
@@ -2020,19 +2020,19 @@ describe('Database', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await database.disableFreeMonitoring()
+        const caughtError = await database.disableFreeMonitoring()
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
 
     describe('enableFreeMonitoring', () => {
       it('throws if serviceProvider isMaster is false', async() => {
         serviceProvider.runCommandWithCheck.resolves({ isWritablePrimary: false });
-        const catchedError = await database.enableFreeMonitoring()
+        const caughtError = await database.enableFreeMonitoring()
           .catch(e => e);
-        expect(catchedError).to.be.instanceOf(MongoshInvalidInputError);
-        expect(catchedError.code).to.equal(CommonErrors.InvalidOperation);
+        expect(caughtError).to.be.instanceOf(MongoshInvalidInputError);
+        expect(caughtError.code).to.equal(CommonErrors.InvalidOperation);
       });
 
       it('calls serviceProvider.runCommand on the database', async() => {
@@ -2099,9 +2099,9 @@ describe('Database', () => {
       it('throws if serviceProvider.runCommand rejects without auth error', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await database.enableFreeMonitoring()
+        const caughtError = await database.enableFreeMonitoring()
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
 
@@ -2128,9 +2128,9 @@ describe('Database', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await database.getProfilingStatus()
+        const caughtError = await database.getProfilingStatus()
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
 
@@ -2184,15 +2184,15 @@ describe('Database', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await database.setProfilingLevel(1)
+        const caughtError = await database.setProfilingLevel(1)
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
 
       it('throws if profiling level is invalid', async() => {
-        const catchedError = await database.setProfilingLevel(4).catch(e => e);
-        expect(catchedError).to.be.instanceOf(MongoshInvalidInputError);
-        expect(catchedError.code).to.equal(CommonErrors.InvalidArgument);
+        const caughtError = await database.setProfilingLevel(4).catch(e => e);
+        expect(caughtError).to.be.instanceOf(MongoshInvalidInputError);
+        expect(caughtError.code).to.equal(CommonErrors.InvalidArgument);
       });
     });
 
@@ -2232,15 +2232,15 @@ describe('Database', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await database.setLogLevel(2)
+        const caughtError = await database.setLogLevel(2)
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
 
       it('throws if component is given but not a string', async() => {
-        const catchedError = await database.setLogLevel(1, {}).catch(e => e);
-        expect(catchedError).to.be.instanceOf(MongoshInvalidInputError);
-        expect(catchedError.code).to.equal(CommonErrors.InvalidArgument);
+        const caughtError = await database.setLogLevel(1, {}).catch(e => e);
+        expect(caughtError).to.be.instanceOf(MongoshInvalidInputError);
+        expect(caughtError.code).to.equal(CommonErrors.InvalidArgument);
       });
     });
 
@@ -2267,17 +2267,17 @@ describe('Database', () => {
 
       it('throws if serviceProvider.runCommandWithCheck returns undefined', async() => {
         serviceProvider.runCommandWithCheck.resolves(undefined);
-        const catchedError = await database.getLogComponents().catch(e => e);
-        expect(catchedError).to.be.instanceOf(MongoshRuntimeError);
-        expect(catchedError.code).to.equal(CommonErrors.CommandFailed);
+        const caughtError = await database.getLogComponents().catch(e => e);
+        expect(caughtError).to.be.instanceOf(MongoshRuntimeError);
+        expect(caughtError.code).to.equal(CommonErrors.CommandFailed);
       });
 
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await database.getLogComponents()
+        const caughtError = await database.getLogComponents()
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
 
@@ -2319,17 +2319,17 @@ describe('Database', () => {
 
       it('throws if serviceProvider.runCommandWithCheck returns undefined', async() => {
         serviceProvider.runCommandWithCheck.resolves(undefined);
-        const catchedError = await database.commandHelp('listDatabases').catch(e => e);
-        expect(catchedError).to.be.instanceOf(MongoshRuntimeError);
-        expect(catchedError.code).to.equal(CommonErrors.CommandFailed);
+        const caughtError = await database.commandHelp('listDatabases').catch(e => e);
+        expect(caughtError).to.be.instanceOf(MongoshRuntimeError);
+        expect(caughtError.code).to.equal(CommonErrors.CommandFailed);
       });
 
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await database.commandHelp('listDatabases')
+        const caughtError = await database.commandHelp('listDatabases')
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
 
@@ -2358,17 +2358,17 @@ describe('Database', () => {
 
       it('throws if serviceProvider.runCommandWithCheck returns undefined', async() => {
         serviceProvider.runCommandWithCheck.resolves(undefined);
-        const catchedError = await database.listCommands().catch(e => e);
-        expect(catchedError).to.be.instanceOf(MongoshRuntimeError);
-        expect(catchedError.code).to.equal(CommonErrors.CommandFailed);
+        const caughtError = await database.listCommands().catch(e => e);
+        expect(caughtError).to.be.instanceOf(MongoshRuntimeError);
+        expect(caughtError.code).to.equal(CommonErrors.CommandFailed);
       });
 
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await database.listCommands()
+        const caughtError = await database.listCommands()
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
     describe('getLastError', () => {

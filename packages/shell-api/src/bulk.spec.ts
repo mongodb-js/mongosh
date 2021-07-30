@@ -167,9 +167,9 @@ describe('Bulk API', () => {
             it('throws if innerBulk.execute rejects', async() => {
               const expectedError = new Error();
               innerStub.execute.rejects(expectedError);
-              const catchedError = await bulk.execute()
+              const caughtError = await bulk.execute()
                 .catch(e => e);
-              expect(catchedError).to.equal(expectedError);
+              expect(caughtError).to.equal(expectedError);
             });
           });
           describe('getOperations', () => {

@@ -69,9 +69,9 @@ describe('PlanCache', () => {
       it('throws if collection.runCommand rejects', async() => {
         const expectedError = new Error();
         collection.runCommand.rejects(expectedError);
-        const catchedError = await planCache.clear()
+        const caughtError = await planCache.clear()
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
     describe('clearPlansByQuery', () => {
@@ -100,9 +100,9 @@ describe('PlanCache', () => {
       it('throws if collection.runCommand rejects', async() => {
         const expectedError = new Error();
         collection.runCommand.rejects(expectedError);
-        const catchedError = await planCache.clearPlansByQuery({})
+        const caughtError = await planCache.clearPlansByQuery({})
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
     describe('list', () => {
@@ -132,9 +132,9 @@ describe('PlanCache', () => {
       it('throws if collection.aggregate rejects', async() => {
         const expectedError = new Error();
         collection.aggregate.rejects(expectedError);
-        const catchedError = await planCache.list()
+        const caughtError = await planCache.list()
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
   });
