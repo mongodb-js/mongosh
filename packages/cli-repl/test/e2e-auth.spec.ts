@@ -892,31 +892,24 @@ describe('Auth e2e', function() {
         ] });
         await shell.waitForExit();
         // Failing to auth with kerberos fails with different error messages on each OS.
-        try {
-          try {
-            try {
-              try {
-                try {
-                  try {
-                    shell.assertContainsOutput('Unspecified GSS failure');
-                  } catch {
-                    shell.assertContainsOutput('The context has expired: Success');
-                  }
-                } catch {
-                  shell.assertContainsOutput('The token supplied to the function is invalid');
-                }
-              } catch {
-                shell.assertContainsOutput('No authority could be contacted for authentication');
-              }
-            } catch {
-              shell.assertContainsOutput('Error from KDC');
-            }
-          } catch {
-            shell.assertContainsOutput('No credentials cache file found');
-          }
-        } catch {
-          shell.assertContainsOutput('The logon attempt failed');
-        }
+        // Sometimes in CI, it also fails because the server received kerberos
+        // credentials, most likely because of a successful login by another
+        // CI project on the same host.
+        const messages = [
+          'Unspecified GSS failure',
+          'The context has expired: Success',
+          'The token supplied to the function is invalid',
+          'No authority could be contacted for authentication',
+          'Error from KDC',
+          'No credentials cache file found',
+          'The logon attempt failed',
+          'Received authentication for mechanism GSSAPI which is not enabled',
+          'Received authentication for mechanism GSSAPI which is unknown or not enabled',
+          'Miscellaneous failure (see text): Unable to find realm of host localhost',
+          "Unsupported mechanism 'GSSAPI' on authentication database '$external'"
+        ];
+        expect(messages.some(msg => shell.output.includes(msg)))
+          .to.equal(true, `${shell.output} must include a valid kerberos failure message`);
         shell.assertNotContainsOutput('Optional module `kerberos` not found');
       });
     });
