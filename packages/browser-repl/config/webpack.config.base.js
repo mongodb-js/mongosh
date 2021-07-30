@@ -6,7 +6,7 @@ module.exports = {
     extensions: ['.tsx', '.ts', '.jsx', '.js', '.less'],
     alias: {
       // imports in service-provider-core that can break the browser build
-      'whatwg-url': path.resolve(__dirname, 'empty.js'),
+      'whatwg-url': path.resolve(__dirname, 'plain-url.js'),
     }
   },
   module: {
