@@ -44,7 +44,7 @@ describe('BSON printers', function() {
   });
 
   it('formats Timestamp correctly', function() {
-    expect(inspect(new bson.Timestamp(1, 100))).to.equal('Timestamp(1, 100)');
+    expect(inspect(new bson.Timestamp(new bson.Long(100, 1)))).to.equal('Timestamp({ t: 1, i: 100 })');
   });
 
   it('formats Symbol correctly', function() {

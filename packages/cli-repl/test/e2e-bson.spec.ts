@@ -44,7 +44,7 @@ describe('BSON e2e', function() {
       MaxKey: 'MaxKey()',
       NumberInt: 'Int32(32)',
       NumberLong: 'Long("64")',
-      Timestamp: 'Timestamp(1, 100)',
+      Timestamp: 'Timestamp({ t: 100, i: 1 })',
       Symbol: 'abc',
       Code: 'Code("abc")',
       NumberDecimal: 'Decimal128("1")',
@@ -61,7 +61,7 @@ describe('BSON e2e', function() {
         DBRef3: new bson.DBRef('a', { x: '5f16b8bebe434dc98cdfc9cb' } as any, 'db'),
         MinKey: new bson.MinKey(),
         MaxKey: new bson.MaxKey(),
-        Timestamp: new bson.Timestamp(1, 100),
+        Timestamp: new bson.Timestamp(new bson.Long(1, 100)),
         Symbol: new bson.BSONSymbol('abc'),
         Code: new bson.Code('abc'),
         NumberDecimal: new bson.Decimal128('1'),
@@ -97,7 +97,7 @@ describe('BSON e2e', function() {
         MaxKey: new MaxKey(),
         NumberInt: NumberInt("32"),
         NumberLong: NumberLong("64"),
-        Timestamp: new Timestamp(1, 100),
+        Timestamp: new Timestamp(100, 1),
         Symbol: new BSONSymbol('abc'),
         Code: new Code('abc'),
         NumberDecimal: NumberDecimal('1'),
@@ -164,10 +164,10 @@ describe('BSON e2e', function() {
       shell.assertNoErrors();
     });
     it('Timestamp prints when returned from the server', async() => {
-      const value = new bson.Timestamp(0, 100);
+      const value = new bson.Timestamp(new bson.Long(0, 100));
       await shell.executeLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
-      expect(await shell.executeLine('db.test.findOne().value')).to.include('Timestamp(0, 100)');
+      expect(await shell.executeLine('db.test.findOne().value')).to.include('Timestamp({ t: 100, i: 0 })');
       shell.assertNoErrors();
     });
     it('Code prints when returned from the server', async() => {
@@ -249,8 +249,13 @@ describe('BSON e2e', function() {
       expect(await shell.executeLine(value)).to.include('Long("345678654321234561")');
       shell.assertNoErrors();
     });
-    it('Timestamp prints when created by user', async() => {
-      const value = 'Timestamp(0, 100)';
+    it('Timestamp prints when created by user (legacy)', async() => {
+      const value = 'Timestamp(100, 0)';
+      expect(await shell.executeLine(value)).to.include('Timestamp({ t: 100, i: 0 })');
+      shell.assertNoErrors();
+    });
+    it('Timestamp prints when created by user ({t, i})', async() => {
+      const value = 'Timestamp({ t: 100, i: 0 })';
       expect(await shell.executeLine(value)).to.include(value);
       shell.assertNoErrors();
     });
