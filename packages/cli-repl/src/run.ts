@@ -2,6 +2,9 @@ import { CliRepl, parseCliArgs, mapCliToDriver, getStoragePaths, getMongocryptdP
 import { generateUri } from '@mongosh/service-provider-server';
 import { redactURICredentials } from '@mongosh/history';
 import { runMain } from 'module';
+import readline from 'readline';
+import askcharacter from 'askcharacter';
+import stream from 'stream';
 
 // eslint-disable-next-line complexity, @typescript-eslint/no-floating-promises
 (async() => {
@@ -15,6 +18,7 @@ import { runMain } from 'module';
   }
 
   let repl;
+  let isSingleConsoleProcess = false;
   try {
     const options = parseCliArgs(process.argv);
     const { version } = require('../package.json');
@@ -53,6 +57,25 @@ import { runMain } from 'module';
         process.removeAllListeners('SIGINT');
       }
 
+      // If we are spawned via Windows doubleclick, ask the user for an URI to
+      // connect to. Allow an environment variable to override this for testing.
+      isSingleConsoleProcess = !!process.env.MONGOSH_FORCE_CONNECTION_STRING_PROMPT;
+      if ((!options.connectionSpecifier &&
+            process.platform === 'win32' &&
+            process.stdin.isTTY &&
+            process.stdout.isTTY) ||
+          isSingleConsoleProcess) {
+        try {
+          isSingleConsoleProcess ||= require('get-console-process-list')().length === 1;
+        } catch { /* ignore */ }
+        if (isSingleConsoleProcess) {
+          const result = await ask('Please enter a MongoDB connection string (Default: mongodb://localhost/): ');
+          if (result.trim() !== '') {
+            options.connectionSpecifier = result.trim();
+          }
+        }
+      }
+
       const driverOptions = mapCliToDriver(options);
       const driverUri = generateUri(options);
 
@@ -79,6 +102,14 @@ import { runMain } from 'module';
     if (repl !== undefined) {
       repl.bus.emit('mongosh:error', e);
     }
+    if (isSingleConsoleProcess) {
+      // In single-process-console mode, it's confusing for the window to be
+      // closed immediately after receiving an error. In that case, ask the
+      // user to explicitly close the window.
+      process.stdout.write('Press any key to exit: ');
+      await askcharacter({ input: process.stdin, output: process.stdout });
+      process.stdout.write('\n');
+    }
     process.exit(1);
   }
 })();
@@ -94,5 +125,24 @@ function setTerminalWindowTitle(title: string): void {
     process.stdout.write(`\u001b]0;${title}\u0007`);
   } else if (/^screen/.test(term)) {
     process.stdout.write(`\u001bk${title}\u001b\\`);
+  }
+}
+
+async function ask(prompt: string): Promise<string> {
+  const stdinCopy = process.stdin.pipe(new stream.PassThrough());
+  try {
+    const readlineInterface = readline.createInterface({
+      input: stdinCopy,
+      output: process.stdout,
+      prompt,
+    });
+    readlineInterface.prompt();
+    // for-await automatically reads input lines + closes the readline instance again
+    for await (const line of readlineInterface) {
+      return line;
+    }
+    return ''; // Unreachable
+  } finally {
+    process.stdin.unpipe(stdinCopy);
   }
 }
