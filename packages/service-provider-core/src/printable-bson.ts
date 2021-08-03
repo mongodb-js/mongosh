@@ -23,7 +23,7 @@ export const bsonStringifiers: Record<string, (this: any, depth: any, options: a
   },
 
   Timestamp: function(): string {
-    return `Timestamp(${this.getLowBits().toString()}, ${this.getHighBits().toString()})`;
+    return `Timestamp({ t: ${this.getHighBits()}, i: ${this.getLowBits()} })`;
   },
 
   BSONSymbol: function(): string {

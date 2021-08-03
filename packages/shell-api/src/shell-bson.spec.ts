@@ -196,8 +196,14 @@ describe('Shell BSON', () => {
     });
     it('constructs with default args 1', () => {
       const s = shellBson.Timestamp(1);
-      expect(s.low).to.equal(1);
-      expect(s.high).to.equal(0);
+      expect(s.low).to.equal(0);
+      expect(s.high).to.equal(1);
+    });
+    it('constructs with { t, i } signature', () => {
+      const s = shellBson.Timestamp({ t: 10, i: 20 });
+      expect(s.low).to.equal(20);
+      expect(s.high).to.equal(10);
+      expect(s.toExtendedJSON()).to.deep.equal({ $timestamp: { t: 10, i: 20 } });
     });
   });
   describe('Code', () => {

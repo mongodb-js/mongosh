@@ -10,7 +10,7 @@ const res = db.coll.insertOne({
     date: new Date("2012-12-19"),
     isoDate: new ISODate("2012-12-19"),
     numberInt: NumberInt("24"),
-    timestamp: new Timestamp(0, 100),
+    timestamp: new Timestamp(100, 0),
     "undefined": undefined,
     "null": null,
     uuid: new UUID('01234567-89ab-cdef-0123-456789abcdef')

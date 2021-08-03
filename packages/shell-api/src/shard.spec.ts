@@ -1293,7 +1293,7 @@ describe('Shard', () => {
         // Make sure that each individual chunk in the output is on a single line
         expect(inspectedCollectionInfo).to.include('chunks: [\n' +
           '    { min: { key: MinKey() }, max: { key: MaxKey() }, ' +
-          `'on shard': '${collectionInfo.chunks[0]['on shard']}', 'last modified': Timestamp(0, 1) }\n` +
+          `'on shard': '${collectionInfo.chunks[0]['on shard']}', 'last modified': Timestamp({ t: 1, i: 0 }) }\n` +
           '  ],\n');
       });
     });

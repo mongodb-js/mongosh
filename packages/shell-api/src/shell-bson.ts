@@ -71,9 +71,16 @@ export default function constructShellBson(bson: typeof BSON, printWarning: (msg
       assertArgsDefinedType([id], [[undefined, 'string', 'number', 'object']], 'ObjectId');
       return new bson.ObjectId(id);
     }, { ...bson.ObjectId, prototype: bson.ObjectId.prototype }),
-    Timestamp: Object.assign(function Timestamp(low?: number | typeof bson.Long.prototype, high?: number): typeof bson.Timestamp.prototype {
-      assertArgsDefinedType([low, high], [['number', 'object', undefined], [undefined, 'number']], 'Timestamp');
-      return new bson.Timestamp(low as number, high as number);
+    Timestamp: Object.assign(function Timestamp(t?: number | typeof bson.Long.prototype | { t: number, i: number }, i?: number): typeof bson.Timestamp.prototype {
+      assertArgsDefinedType([t, i], [['number', 'object', undefined], [undefined, 'number']], 'Timestamp');
+      // Order of Timestamp() arguments is reversed in mongo/mongosh and the driver:
+      // https://jira.mongodb.org/browse/MONGOSH-930
+      if (typeof t === 'object' && t !== null && 't' in t && 'i' in t) {
+        return new bson.Timestamp(new bson.Long(t.i, t.t));
+      } else if (i !== undefined || typeof t === 'number') {
+        return new bson.Timestamp(new bson.Long((i ?? 0) as number, t as number));
+      }
+      return new bson.Timestamp(t as typeof bson.Long.prototype);
     }, { ...bson.Timestamp, prototype: bson.Timestamp.prototype }),
     Code: Object.assign(function Code(c: string | Function = '', s?: any): typeof bson.Code.prototype {
       assertArgsDefinedType([c, s], [[undefined, 'string', 'function'], [undefined, 'object']], 'Code');
