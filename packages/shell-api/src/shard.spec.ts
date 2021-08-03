@@ -112,9 +112,9 @@ describe('Shard', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await shard.enableSharding('dbname')
+        const caughtError = await shard.enableSharding('dbname')
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
     describe('shardCollection', () => {
@@ -152,9 +152,9 @@ describe('Shard', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await shard.shardCollection('db.coll', { key: 1 })
+        const caughtError = await shard.shardCollection('db.coll', { key: 1 })
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
     describe('reshardCollection', () => {
@@ -192,9 +192,9 @@ describe('Shard', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await shard.reshardCollection('db.coll', { key: 1 })
+        const caughtError = await shard.reshardCollection('db.coll', { key: 1 })
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
     describe('commitReshardCollection', () => {
@@ -218,9 +218,9 @@ describe('Shard', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await shard.commitReshardCollection('db.coll')
+        const caughtError = await shard.commitReshardCollection('db.coll')
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
     describe('abortReshardCollection', () => {
@@ -244,9 +244,9 @@ describe('Shard', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await shard.abortReshardCollection('db.coll')
+        const caughtError = await shard.abortReshardCollection('db.coll')
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
     describe('addShard', () => {
@@ -274,18 +274,18 @@ describe('Shard', () => {
         serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'isdbgrid' });
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.onCall(1).rejects(expectedError);
-        const catchedError = await shard.addShard('uri')
+        const caughtError = await shard.addShard('uri')
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
 
       it('throws if not mongos', async() => {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'not dbgrid' });
         serviceProvider.runCommandWithCheck.onCall(1).resolves(expectedResult);
-        const catchedError = await shard.addShard('uri')
+        const caughtError = await shard.addShard('uri')
           .catch(e => e);
-        expect(catchedError.message).to.include('Not connected to a mongos');
+        expect(caughtError.message).to.include('Not connected to a mongos');
       });
     });
     describe('addShardToZone', () => {
@@ -314,18 +314,18 @@ describe('Shard', () => {
         serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'isdbgrid' });
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.onCall(1).rejects(expectedError);
-        const catchedError = await shard.addShardToZone('shard', 'zone')
+        const caughtError = await shard.addShardToZone('shard', 'zone')
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
 
       it('throws if not mongos', async() => {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'not dbgrid' });
         serviceProvider.runCommandWithCheck.onCall(1).resolves(expectedResult);
-        const catchedError = await shard.addShardToZone('shard', 'zone')
+        const caughtError = await shard.addShardToZone('shard', 'zone')
           .catch(e => e);
-        expect(catchedError.message).to.include('Not connected to a mongos');
+        expect(caughtError.message).to.include('Not connected to a mongos');
       });
     });
     describe('addShardTag', () => {
@@ -354,18 +354,18 @@ describe('Shard', () => {
         serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'isdbgrid' });
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.onCall(1).rejects(expectedError);
-        const catchedError = await shard.addShardTag('shard', 'zone')
+        const caughtError = await shard.addShardTag('shard', 'zone')
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
 
       it('throws if not mongos', async() => {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'not dbgrid' });
         serviceProvider.runCommandWithCheck.onCall(1).resolves(expectedResult);
-        const catchedError = await shard.addShardTag('shard', 'zone')
+        const caughtError = await shard.addShardTag('shard', 'zone')
           .catch(e => e);
-        expect(catchedError.message).to.include('Not connected to a mongos');
+        expect(caughtError.message).to.include('Not connected to a mongos');
       });
 
       it('adds version suggestion if command not found', async() => {
@@ -373,9 +373,9 @@ describe('Shard', () => {
         const expectedError = new Error();
         (expectedError as any).codeName = 'CommandNotFound';
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await shard.addShardTag('shard', 'zone')
+        const caughtError = await shard.addShardTag('shard', 'zone')
           .catch(e => e);
-        expect(catchedError.message).to.include('> 3.4');
+        expect(caughtError.message).to.include('> 3.4');
       });
     });
     describe('updateZoneKeyRange', () => {
@@ -406,18 +406,18 @@ describe('Shard', () => {
         serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'isdbgrid' });
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.onCall(1).rejects(expectedError);
-        const catchedError = await shard.updateZoneKeyRange('ns', {}, {}, 'zone')
+        const caughtError = await shard.updateZoneKeyRange('ns', {}, {}, 'zone')
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
 
       it('throws if not mongos', async() => {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'not dbgrid' });
         serviceProvider.runCommandWithCheck.onCall(1).resolves(expectedResult);
-        const catchedError = await shard.updateZoneKeyRange('ns', {}, {}, 'zone')
+        const caughtError = await shard.updateZoneKeyRange('ns', {}, {}, 'zone')
           .catch(e => e);
-        expect(catchedError.message).to.include('Not connected to a mongos');
+        expect(caughtError.message).to.include('Not connected to a mongos');
       });
     });
     describe('addTagRange', () => {
@@ -448,18 +448,18 @@ describe('Shard', () => {
         serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'isdbgrid' });
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.onCall(1).rejects(expectedError);
-        const catchedError = await shard.addTagRange('ns', {}, {}, 'zone')
+        const caughtError = await shard.addTagRange('ns', {}, {}, 'zone')
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
 
       it('throws if not mongos', async() => {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'not dbgrid' });
         serviceProvider.runCommandWithCheck.onCall(1).resolves(expectedResult);
-        const catchedError = await shard.addTagRange('ns', {}, {}, 'zone')
+        const caughtError = await shard.addTagRange('ns', {}, {}, 'zone')
           .catch(e => e);
-        expect(catchedError.message).to.include('Not connected to a mongos');
+        expect(caughtError.message).to.include('Not connected to a mongos');
       });
 
       it('adds version suggestion if command not found', async() => {
@@ -467,9 +467,9 @@ describe('Shard', () => {
         const expectedError = new Error();
         (expectedError as any).codeName = 'CommandNotFound';
         serviceProvider.runCommandWithCheck.onCall(1).rejects(expectedError);
-        const catchedError = await shard.addTagRange('ns', {}, {}, 'zone')
+        const caughtError = await shard.addTagRange('ns', {}, {}, 'zone')
           .catch(e => e);
-        expect(catchedError.message).to.include('> 3.4');
+        expect(caughtError.message).to.include('> 3.4');
       });
     });
     describe('removeRangeFromZone', () => {
@@ -505,17 +505,17 @@ describe('Shard', () => {
         serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'isdbgrid' });
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.onCall(1).rejects(expectedError);
-        const catchedError = await shard.removeRangeFromZone('ns', { min: 1 }, { max: 1 })
+        const caughtError = await shard.removeRangeFromZone('ns', { min: 1 }, { max: 1 })
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
       it('throws if not mongos', async() => {
         const expectedResult = { ok: 1, msg: 'isdbgrid' };
         serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'not dbgrid' });
         serviceProvider.runCommandWithCheck.onCall(1).resolves(expectedResult);
-        const catchedError = await shard.removeRangeFromZone('ns', {}, {})
+        const caughtError = await shard.removeRangeFromZone('ns', {}, {})
           .catch(e => e);
-        expect(catchedError.message).to.include('Not connected to a mongos');
+        expect(caughtError.message).to.include('Not connected to a mongos');
       });
     });
     describe('removeTagRange', () => {
@@ -551,26 +551,26 @@ describe('Shard', () => {
         serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'isdbgrid' });
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.onCall(1).rejects(expectedError);
-        const catchedError = await shard.removeTagRange('ns', { min: 1 }, { max: 1 })
+        const caughtError = await shard.removeTagRange('ns', { min: 1 }, { max: 1 })
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
       it('throws if not mongos', async() => {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'not dbgrid' });
         serviceProvider.runCommandWithCheck.onCall(1).resolves(expectedResult);
-        const catchedError = await shard.removeTagRange('ns', {}, {})
+        const caughtError = await shard.removeTagRange('ns', {}, {})
           .catch(e => e);
-        expect(catchedError.message).to.include('Not connected to a mongos');
+        expect(caughtError.message).to.include('Not connected to a mongos');
       });
       it('adds version suggestion if command not found', async() => {
         serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'isdbgrid' });
         const expectedError = new Error();
         (expectedError as any).codeName = 'CommandNotFound';
         serviceProvider.runCommandWithCheck.onCall(1).rejects(expectedError);
-        const catchedError = await shard.removeTagRange('ns', {}, {})
+        const caughtError = await shard.removeTagRange('ns', {}, {})
           .catch(e => e);
-        expect(catchedError.message).to.include('> 3.4');
+        expect(caughtError.message).to.include('> 3.4');
       });
     });
     describe('removeShardFromZone', () => {
@@ -599,17 +599,17 @@ describe('Shard', () => {
         serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'isdbgrid' });
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.onCall(1).rejects(expectedError);
-        const catchedError = await shard.removeShardFromZone('shard', 'zone')
+        const caughtError = await shard.removeShardFromZone('shard', 'zone')
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
       it('throws if not mongos', async() => {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'not dbgrid' });
         serviceProvider.runCommandWithCheck.onCall(1).resolves(expectedResult);
-        const catchedError = await shard.removeShardFromZone('shard', 'zone')
+        const caughtError = await shard.removeShardFromZone('shard', 'zone')
           .catch(e => e);
-        expect(catchedError.message).to.include('Not connected to a mongos');
+        expect(caughtError.message).to.include('Not connected to a mongos');
       });
     });
     describe('removeShardTag', () => {
@@ -638,26 +638,26 @@ describe('Shard', () => {
         serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'isdbgrid' });
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.onCall(1).rejects(expectedError);
-        const catchedError = await shard.removeShardTag('shard', 'zone')
+        const caughtError = await shard.removeShardTag('shard', 'zone')
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
       it('throws if not mongos', async() => {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'not dbgrid' });
         serviceProvider.runCommandWithCheck.onCall(1).resolves(expectedResult);
-        const catchedError = await shard.removeShardTag('shard', 'zone')
+        const caughtError = await shard.removeShardTag('shard', 'zone')
           .catch(e => e);
-        expect(catchedError.message).to.include('Not connected to a mongos');
+        expect(caughtError.message).to.include('Not connected to a mongos');
       });
       it('adds version suggestion if command not found', async() => {
         serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'isdbgrid' });
         const expectedError = new Error();
         (expectedError as any).codeName = 'CommandNotFound';
         serviceProvider.runCommandWithCheck.onCall(1).rejects(expectedError);
-        const catchedError = await shard.removeShardTag('shard', 'tag')
+        const caughtError = await shard.removeShardTag('shard', 'tag')
           .catch(e => e);
-        expect(catchedError.message).to.include('> 3.4');
+        expect(caughtError.message).to.include('> 3.4');
       });
     });
     describe('enableAutoSplit', () => {
@@ -704,18 +704,18 @@ describe('Shard', () => {
         serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
         const expectedError = new Error();
         serviceProvider.updateOne.rejects(expectedError);
-        const catchedError = await shard.enableAutoSplit()
+        const caughtError = await shard.enableAutoSplit()
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
 
       it('throws if not mongos', async() => {
         const expectedResult = { acknowledged: 1 } as any;
         serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'not dbgrid' });
         serviceProvider.updateOne.resolves(expectedResult);
-        const catchedError = await shard.enableAutoSplit()
+        const caughtError = await shard.enableAutoSplit()
           .catch(e => e);
-        expect(catchedError.message).to.include('Not connected to a mongos');
+        expect(caughtError.message).to.include('Not connected to a mongos');
       });
     });
     describe('disableAutoSplit', () => {
@@ -763,18 +763,18 @@ describe('Shard', () => {
         serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
         const expectedError = new Error();
         serviceProvider.updateOne.rejects(expectedError);
-        const catchedError = await shard.disableAutoSplit()
+        const caughtError = await shard.disableAutoSplit()
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
 
       it('throws if not mongos', async() => {
         const expectedResult = { ok: 1 } as any;
         serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'not dbgrid' });
         serviceProvider.updateOne.resolves(expectedResult);
-        const catchedError = await shard.disableAutoSplit()
+        const caughtError = await shard.disableAutoSplit()
           .catch(e => e);
-        expect(catchedError.message).to.include('Not connected to a mongos');
+        expect(caughtError.message).to.include('Not connected to a mongos');
       });
     });
     describe('splitAt', () => {
@@ -803,9 +803,9 @@ describe('Shard', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await shard.splitAt('ns', { query: 1 })
+        const caughtError = await shard.splitAt('ns', { query: 1 })
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
     describe('splitFind', () => {
@@ -834,9 +834,9 @@ describe('Shard', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await shard.splitFind('ns', { query: 1 })
+        const caughtError = await shard.splitFind('ns', { query: 1 })
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
     describe('moveChunk', () => {
@@ -862,9 +862,9 @@ describe('Shard', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await shard.moveChunk('ns', { query: 1 }, 'destination')
+        const caughtError = await shard.moveChunk('ns', { query: 1 }, 'destination')
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
     describe('balancerCollectionStatus', () => {
@@ -889,9 +889,9 @@ describe('Shard', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await shard.balancerCollectionStatus('ns')
+        const caughtError = await shard.balancerCollectionStatus('ns')
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
     describe('disableBalancing', () => {
@@ -938,18 +938,18 @@ describe('Shard', () => {
         serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
         const expectedError = new Error();
         serviceProvider.updateOne.rejects(expectedError);
-        const catchedError = await shard.disableBalancing('ns')
+        const caughtError = await shard.disableBalancing('ns')
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
 
       it('throws if not mongos', async() => {
         const expectedResult = { ok: 1 } as any;
         serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'not dbgrid' });
         serviceProvider.updateOne.resolves(expectedResult);
-        const catchedError = await shard.disableBalancing('ns')
+        const caughtError = await shard.disableBalancing('ns')
           .catch(e => e);
-        expect(catchedError.message).to.include('Not connected to a mongos');
+        expect(caughtError.message).to.include('Not connected to a mongos');
       });
     });
     describe('enableBalancing', () => {
@@ -996,18 +996,18 @@ describe('Shard', () => {
         serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
         const expectedError = new Error();
         serviceProvider.updateOne.rejects(expectedError);
-        const catchedError = await shard.enableBalancing('ns')
+        const caughtError = await shard.enableBalancing('ns')
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
 
       it('throws if not mongos', async() => {
         const expectedResult = { ok: 1 } as any;
         serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'not dbgrid' });
         serviceProvider.updateOne.resolves(expectedResult);
-        const catchedError = await shard.enableBalancing('ns')
+        const caughtError = await shard.enableBalancing('ns')
           .catch(e => e);
-        expect(catchedError.message).to.include('Not connected to a mongos');
+        expect(caughtError.message).to.include('Not connected to a mongos');
       });
     });
     describe('getBalancerState', () => {
@@ -1031,18 +1031,18 @@ describe('Shard', () => {
         serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
         const expectedError = new Error();
         serviceProvider.find.throws(expectedError);
-        const catchedError = await shard.getBalancerState()
+        const caughtError = await shard.getBalancerState()
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
 
       it('throws if not mongos', async() => {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'not dbgrid' });
         serviceProvider.find.resolves(expectedResult);
-        const catchedError = await shard.getBalancerState()
+        const caughtError = await shard.getBalancerState()
           .catch(e => e);
-        expect(catchedError.message).to.include('Not connected to a mongos');
+        expect(caughtError.message).to.include('Not connected to a mongos');
       });
     });
     describe('isBalancerRunning', () => {
@@ -1070,17 +1070,17 @@ describe('Shard', () => {
         serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'isdbgrid' });
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.onCall(1).rejects(expectedError);
-        const catchedError = await shard.isBalancerRunning()
+        const caughtError = await shard.isBalancerRunning()
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
       it('throws if not mongos', async() => {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'not dbgrid' });
         serviceProvider.runCommandWithCheck.onCall(1).resolves(expectedResult);
-        const catchedError = await shard.isBalancerRunning()
+        const caughtError = await shard.isBalancerRunning()
           .catch(e => e);
-        expect(catchedError.message).to.include('Not connected to a mongos');
+        expect(caughtError.message).to.include('Not connected to a mongos');
       });
     });
     describe('startBalancer', () => {
@@ -1115,9 +1115,9 @@ describe('Shard', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await shard.startBalancer(10000)
+        const caughtError = await shard.startBalancer(10000)
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
     describe('stopBalancer', () => {
@@ -1152,9 +1152,9 @@ describe('Shard', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await shard.stopBalancer(10000)
+        const caughtError = await shard.stopBalancer(10000)
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
     describe('setBalancerState', () => {
@@ -1188,9 +1188,9 @@ describe('Shard', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await shard.setBalancerState(true)
+        const caughtError = await shard.setBalancerState(true)
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
   });

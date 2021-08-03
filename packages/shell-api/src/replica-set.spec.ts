@@ -327,9 +327,9 @@ describe('ReplicaSet', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await rs.status()
+        const caughtError = await rs.status()
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
     describe('isMaster', () => {
@@ -354,9 +354,9 @@ describe('ReplicaSet', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await rs.isMaster()
+        const caughtError = await rs.isMaster()
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
     describe('hello', () => {
@@ -381,9 +381,9 @@ describe('ReplicaSet', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await rs.hello()
+        const caughtError = await rs.hello()
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
     describe('add', () => {
@@ -527,9 +527,9 @@ describe('ReplicaSet', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await rs.add('hostname')
+        const caughtError = await rs.add('hostname')
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
     describe('remove', () => {
@@ -565,17 +565,17 @@ describe('ReplicaSet', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await rs.remove('localhost:1')
+        const caughtError = await rs.remove('localhost:1')
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
       it('throws if hostname not in members', async() => {
         const configDoc = { version: 1, members: [{ _id: 0, host: 'localhost:0' }, { _id: 1, host: 'lcoalhost:1' }] };
         serviceProvider.runCommandWithCheck.resolves({ ok: 1, config: configDoc });
-        const catchedError = await rs.remove('localhost:2')
+        const caughtError = await rs.remove('localhost:2')
           .catch(e => e);
-        expect(catchedError).to.be.instanceOf(MongoshInvalidInputError);
-        expect(catchedError.code).to.equal(CommonErrors.InvalidArgument);
+        expect(caughtError).to.be.instanceOf(MongoshInvalidInputError);
+        expect(caughtError.code).to.equal(CommonErrors.InvalidArgument);
       });
     });
     describe('freeze', () => {
@@ -600,9 +600,9 @@ describe('ReplicaSet', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await rs.freeze(100)
+        const caughtError = await rs.freeze(100)
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
     describe('syncFrom', () => {
@@ -627,9 +627,9 @@ describe('ReplicaSet', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await rs.syncFrom('localhost:27017')
+        const caughtError = await rs.syncFrom('localhost:27017')
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
     describe('stepDown', () => {
@@ -676,9 +676,9 @@ describe('ReplicaSet', () => {
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const catchedError = await rs.stepDown(10)
+        const caughtError = await rs.stepDown(10)
           .catch(e => e);
-        expect(catchedError).to.equal(expectedError);
+        expect(caughtError).to.equal(expectedError);
       });
     });
     describe('reconfigForPSASet', () => {

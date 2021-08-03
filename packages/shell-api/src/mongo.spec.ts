@@ -109,9 +109,9 @@ describe('Mongo', () => {
           it('throws if serviceProvider.listCommands rejects', async() => {
             const expectedError = new Error();
             serviceProvider.listDatabases.rejects(expectedError);
-            const catchedError = await mongo.show(t)
+            const caughtError = await mongo.show(t)
               .catch(e => e);
-            expect(catchedError).to.equal(expectedError);
+            expect(caughtError).to.equal(expectedError);
           });
         });
       });
@@ -144,9 +144,9 @@ describe('Mongo', () => {
           it('throws if database.getCollectionNames rejects', async() => {
             const expectedError = new Error();
             database._getCollectionNamesWithTypes.rejects(expectedError);
-            const catchedError = await mongo.show(t)
+            const caughtError = await mongo.show(t)
               .catch(e => e);
-            expect(catchedError).to.equal(expectedError);
+            expect(caughtError).to.equal(expectedError);
           });
         });
       });
@@ -171,9 +171,9 @@ describe('Mongo', () => {
         it('throws if database.getUsers rejects', async() => {
           const expectedError = new Error();
           database.getUsers.rejects(expectedError);
-          const catchedError = await mongo.show('users')
+          const caughtError = await mongo.show('users')
             .catch(e => e);
-          expect(catchedError).to.equal(expectedError);
+          expect(caughtError).to.equal(expectedError);
         });
       });
       describe('roles', () => {
@@ -197,9 +197,9 @@ describe('Mongo', () => {
         it('throws if database.getRoles rejects', async() => {
           const expectedError = new Error();
           database.getRoles.rejects(expectedError);
-          const catchedError = await mongo.show('roles')
+          const caughtError = await mongo.show('roles')
             .catch(e => e);
-          expect(catchedError).to.equal(expectedError);
+          expect(caughtError).to.equal(expectedError);
         });
       });
       describe('log', () => {
@@ -231,9 +231,9 @@ describe('Mongo', () => {
         it('throws if database.adminCommand rejects', async() => {
           const expectedError = new Error();
           database.adminCommand.rejects(expectedError);
-          const catchedError = await mongo.show('log')
+          const caughtError = await mongo.show('log')
             .catch(e => e);
-          expect(catchedError).to.equal(expectedError);
+          expect(caughtError).to.equal(expectedError);
         });
       });
       describe('logs', () => {
@@ -257,9 +257,9 @@ describe('Mongo', () => {
         it('throws if database.adminCommand rejects', async() => {
           const expectedError = new Error();
           database.adminCommand.rejects(expectedError);
-          const catchedError = await mongo.show('logs')
+          const caughtError = await mongo.show('logs')
             .catch(e => e);
-          expect(catchedError).to.equal(expectedError);
+          expect(caughtError).to.equal(expectedError);
         });
       });
       describe('profile', () => {
@@ -300,18 +300,18 @@ describe('Mongo', () => {
           syscoll.countDocuments.resolves(1);
           const expectedError = new Error();
           syscoll.find.throws(expectedError);
-          const catchedError = await mongo.show('profile')
+          const caughtError = await mongo.show('profile')
             .catch(e => e);
-          expect(catchedError).to.equal(expectedError);
+          expect(caughtError).to.equal(expectedError);
         });
         it('throws if collection.countDocuments rejects', async() => {
           const syscoll = stubInterface<Collection>();
           database.getCollection.returns(syscoll);
           const expectedError = new Error();
           syscoll.countDocuments.rejects(expectedError);
-          const catchedError = await mongo.show('profile')
+          const caughtError = await mongo.show('profile')
             .catch(e => e);
-          expect(catchedError).to.equal(expectedError);
+          expect(caughtError).to.equal(expectedError);
         });
       });
       describe('invalid command', () => {
@@ -370,8 +370,8 @@ describe('Mongo', () => {
         serviceProvider.getReadConcern.throws(expectedError);
         try {
           mongo.getReadConcern();
-        } catch (catchedError) {
-          return expect(catchedError).to.be.instanceOf(MongoshInternalError);
+        } catch (caughtError) {
+          return expect(caughtError).to.be.instanceOf(MongoshInternalError);
         }
         expect.fail();
       });
@@ -397,8 +397,8 @@ describe('Mongo', () => {
         serviceProvider.getWriteConcern.throws(expectedError);
         try {
           mongo.getWriteConcern();
-        } catch (catchedError) {
-          return expect(catchedError).to.be.instanceOf(MongoshInternalError);
+        } catch (caughtError) {
+          return expect(caughtError).to.be.instanceOf(MongoshInternalError);
         }
         expect.fail();
       });
@@ -422,8 +422,8 @@ describe('Mongo', () => {
         serviceProvider.resetConnectionOptions.throws(expectedError);
         try {
           await mongo.setReadPref('primary');
-        } catch (catchedError) {
-          return expect(catchedError).to.equal(expectedError);
+        } catch (caughtError) {
+          return expect(caughtError).to.equal(expectedError);
         }
         expect.fail();
       });
@@ -444,8 +444,8 @@ describe('Mongo', () => {
         serviceProvider.resetConnectionOptions.throws(expectedError);
         try {
           await mongo.setReadConcern('majority');
-        } catch (catchedError) {
-          return expect(catchedError).to.equal(expectedError);
+        } catch (caughtError) {
+          return expect(caughtError).to.equal(expectedError);
         }
         expect.fail();
       });
@@ -470,8 +470,8 @@ describe('Mongo', () => {
         serviceProvider.resetConnectionOptions.throws(expectedError);
         try {
           await mongo.setWriteConcern('majority');
-        } catch (catchedError) {
-          return expect(catchedError).to.equal(expectedError);
+        } catch (caughtError) {
+          return expect(caughtError).to.equal(expectedError);
         }
         expect.fail();
       });
@@ -494,8 +494,8 @@ describe('Mongo', () => {
         serviceProvider.startSession.throws(expectedError);
         try {
           mongo.startSession();
-        } catch (catchedError) {
-          return expect(catchedError).to.equal(expectedError);
+        } catch (caughtError) {
+          return expect(caughtError).to.equal(expectedError);
         }
         expect.fail();
       });
