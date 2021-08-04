@@ -85,6 +85,7 @@ const translations: Catalog = {
     'uri-generator': {
       'no-host-port': 'If a full URI is provided, you cannot also specify --host or --port',
       'invalid-host': 'The --host argument contains an invalid character',
+      'host-list-port-mismatch': 'The host list contains different ports than provided by --port',
       'diverging-service-name': 'Either the --gssapiServiceName parameter or the SERVICE_NAME authentication mechanism property in the connection string can be used but not both.',
       'gssapi-service-name-unsupported': 'The gssapiServiceName query parameter is not supported anymore. Please use the --gssapiServiceName argument or the SERVICE_NAME authentication mechanism property (e.g. ?authMechanismProperties=SERVICE_NAME:<value>).',
     }
