@@ -811,7 +811,7 @@ describe('Auth e2e', function() {
       ] });
       await shell.waitForPrompt();
       shell.assertNoErrors();
-      shell.writeInputLine('db');
+      await shell.executeLine('db');
       await shell.executeLine(`use ${dbName}`);
       expect(await shell.executeLine(
         'db.runCommand({connectionStatus: 1})'
