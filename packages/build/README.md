@@ -82,14 +82,15 @@ The following image shows an overview on the different stages of the build in Ev
 #### Tests
 The _Tests_ stage contains multiple tasks:
 * Checks that the code conforms to linting guidelines
-* Runs all unit tests in a matrix configuration (Node v12 and v14, server versions 4.0 / 4.2 / 4.4 / latest)
+* Runs all unit tests in a matrix configuration (Node v12 and v14, server versions 4.0 / 4.2 / 4.4 / latest) as needed per package.
+  _Note: Coverage is only computed after running all unit tests and combining results._
 * Runs additional verification tests (VS code integration and connectivity tests)
 
 #### Compile
 The _Compile_ stage produces an executable binary (leveraging [boxednode](https://github.com/mongodb-js/boxednode)) for every target platform and uploads it to the Evergreen S3 bucket for later user.
 
 #### Package
-The _Package_ stage depends on both stages _Tests_ and _Compile_ to complete successfully. It will then download the binary executable, package it into a distributable archive (e.g. a `.deb` package or a `.zip` file) and re-upload that to Evergreen S3 for every target platform.
+The _Package_ stage depends only on _Compile_ to complete successfully and not on _Tests_ to reduce overall execution time. It will download the binary executable, package it into a distributable archive (e.g. a `.deb` package or a `.zip` file) and re-upload that to Evergreen S3 for every target platform.
 
 #### E2E Tests
 The _E2E Tests_ stage depends on the _Compile_ stage to complete successfully. It will download the binary executable of the _Compile_ stage from Evergreen S3 and run JavaScript-defined E2E tests with it on all target platforms that we support.
@@ -98,7 +99,7 @@ The _E2E Tests_ stage depends on the _Compile_ stage to complete successfully. I
 The _Smoke Tests_ stage depends on the _Package_ stage to complete successfully. It will download the _packaged_ distributable and run it via Docker or SSH on different target operating systems to verify that the distributable can be installed and works as expected.
 
 #### Draft
-The _Draft_ stage depends on both stages _E2E Tests_ and _Smoke Tests_ to complete successfully. _Draft_ will download all distributable packages created in the _Package_ stage and re-upload them to:
+The _Draft_ stage depends on all three stages _Tests_, _E2E Tests_ and _Smoke Tests_ to complete successfully. _Draft_ will download all distributable packages created in the _Package_ stage and re-upload them to:
 
 1. MongoDB Download Center: uploads to the corresponding S3 bucket without publishing the Download Center configuration.
 2. GitHub Release: creates a new draft release if there is none for the release version yet and either uploads or removes and re-uploads the distributable packages. It will also generate a changelog and add it to the draft release.
@@ -110,7 +111,7 @@ The _Publish_ stage is independent from all other stages. As mentioned at the be
 2. Upload the full configuration to Download Center so the release is available there.
 3. Promote the GitHub release created in _Draft_ to a published release.
 4. Publishes the npm packages.
-5. Creates a new PR for the [MongoDB Homebrew Tap](https://github.com/mongodb/homebrew-brew) and automatically merges it.
+5. Creates a new PR for the [official Homebrew repository](https://github.com/homebrew/homebrew-core) to update the `mongosh` formula.
 
 
 ## Package Structure
