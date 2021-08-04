@@ -1829,7 +1829,7 @@ describe('Shell API (integration)', function() {
             try {
               await bulk.execute();
             } catch (err) {
-              expect(err.name).to.equal('MongoDriverError');
+              expect(err.name).to.equal('MongoBatchReExecutionError');
               return;
             }
             expect.fail('Error not thrown');
