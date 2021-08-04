@@ -177,10 +177,9 @@ describe('AsyncWriter', () => {
       expect(ctx.a).to.equal(undefined);
     });
 
-    // enable after https://github.com/babel/babel/pull/13596
-    // it('ignores variable declarations for completion records', () => {
-    //   expect(runTranspiledCode('"foo" + "bar"; var a = 10;')).to.equal('foobar');
-    // });
+    it('ignores variable declarations for completion records', () => {
+      expect(runTranspiledCode('"foo" + "bar"; var a = 10;')).to.equal('foobar');
+    });
 
     it('moves top-level classes into the top-level scope', () => {
       const A = runTranspiledCode('class A {}');
