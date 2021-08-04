@@ -12,6 +12,7 @@ Package|Version|License
 **[@babel/core](#8dadb9fb7f817cfb89e2f01007278e5f07c536b04c58bf574906431bb924d0e0)**|7.14.8|MIT
 **[@babel/generator](#470fad08daca67f4e429433023fea51adbc9f7979d84981a786afdfa4a36e31c)**|7.14.1|MIT
 **[@babel/generator](#debd1313325056e39db563d3f4f2428cd79e9ad99ed71531bba2f26de94af80b)**|7.14.8|MIT
+**[@babel/generator](#41b49ad5d837f129d4a8740dd85630e8e5d1b926250ade7124eeea8dfd697ef1)**|7.14.9|MIT
 **[@babel/helper-compilation-targets](#5dc4b464a18da9d162f1ecb8bd669f449170b02fcb01d324b342b3e313c07f8a)**|7.14.5|MIT
 **[@babel/helper-function-name](#e4417acec4f5afb33a265e6cea9c616ec49fa9e9b5b7f261ca82b9938c3fe806)**|7.12.13|MIT
 **[@babel/helper-function-name](#5db627ab4f5306311951f129e4ae74601d07aa3cb7471c5c6e3236650b9353f3)**|7.14.5|MIT
@@ -34,6 +35,7 @@ Package|Version|License
 **[@babel/helper-split-export-declaration](#8ae9cc353199d8cd7b30976c6ef9de41135ab1cbe6f21e653a64c35f74bdce04)**|7.12.13|MIT
 **[@babel/helper-split-export-declaration](#f86f3815edd3e1e98263e67c561e579939f54b62035f98fe8700e5db09f5c958)**|7.14.5|MIT
 **[@babel/helper-validator-identifier](#0371bd115e641e4bbe454d13d019c671d9b7c4685e5c0bd956ac716ba78503d2)**|7.14.0|MIT
+**[@babel/helper-validator-identifier](#433f3379dd7033391d15f58d21054c8ce6651116d7ef0b0f7c9102d13502fef5)**|7.14.9|MIT
 **[@babel/helper-validator-identifier](#aeb12b766a34d0c7424d2ff0c56a567cb7ce51f531f952776e8d323b0de035ca)**|7.14.8|MIT
 **[@babel/helper-validator-option](#346eb4840390092c2e31c7b7468ba74ea04b24fe92080ccbf6e0965b49fd49ab)**|7.14.5|MIT
 **[@babel/helpers](#87daa935f054a0a66c978a880525b200ce66d2162b54095f34951cdcf7f5b090)**|7.14.0|MIT
@@ -42,15 +44,16 @@ Package|Version|License
 **[@babel/highlight](#dbc6155fe656d9d71de721f31aa5508d54057d5cf4d61387559432eee493f246)**|7.14.5|MIT
 **[@babel/parser](#6498c1ecede9dddb91fb349a7c9f6927f664c2e7ec3dc73e45d87c09aae6113b)**|7.14.1|MIT
 **[@babel/parser](#06ec6cf0a175903193db40aa4f670d85bb0368ba8837898cb851bf75c3ec4725)**|7.14.8|MIT
+**[@babel/parser](#bb271e6154883eb05273e2b555cf0a0998808e09baf34a98debbcc58ee3833bf)**|7.14.9|MIT
 **[@babel/plugin-transform-destructuring](#1baa274ae86e308681bbce6715ee5c43e730d7c791d566a343ace9f5a2570e5c)**|7.14.7|MIT
 **[@babel/plugin-transform-parameters](#9b27d2f6c67e744003b6169d39f2f63f5b54c6c97a5a6df6d45a34c9a229ac40)**|7.14.5|MIT
 **[@babel/plugin-transform-shorthand-properties](#2f8c0e0f32b0760dd542bb9892fba0940fff597b550e344d34674dbc895c6804)**|7.14.5|MIT
 **[@babel/template](#5cfc9108658d15bd8579195c4be3f95bf50c2126428e2a9bfc59ae32b50fad83)**|7.12.13|MIT
 **[@babel/template](#b199a24ecdaaf3c5ce7900abcebfcea447f98d52b21bbf2701d0bb16efd158b1)**|7.14.5|MIT
 **[@babel/traverse](#e90dcf9ca170ff9118ba291acdb9a294077a0058ba207267f1927c18f93e3204)**|7.14.0|MIT
-**[@babel/traverse](#8377e5a30c267a4643aa7ab26f9f7bad1de76901e531c60a9378fade23e83980)**|7.14.8|MIT
+**[@babel/traverse](#beec965fedb7c57c0eed4e75c6b79732085a5b34abcdea9fe109dbf111cdef4e)**|7.14.9|MIT
 **[@babel/types](#86f6af1b379032b2b332bb2c4ebe1ae2fbc08fcb664b3f2cd1fe5ec2146fb3d4)**|7.14.1|MIT
-**[@babel/types](#8c70a62723ddd0ce0d52a3dac169202500543c72dc7d2e2dee24f7e9e3ba5a72)**|7.14.8|MIT
+**[@babel/types](#100e0cc79db9d3cf46a059bce213706fe64eddfe6bd145844c875a6f638e3a85)**|7.14.9|MIT
 **[@hapi/hoek](#7f05d0070d349a5d0b227054688e17afdd73fd7eb990eddee829e87a76e88dc7)**|9.2.0|BSD-3-Clause
 **[@hapi/topo](#dcf7d236517a0e70a3be3a60756ee2aef1b1e6a2862b23278e094b9155f6ef43)**|5.0.0|BSD-3-Clause
 **[@mongosh/async-rewriter2](#69676fe7ebd86bf4fddf69d015a9de3d5e5657481207dc3738ed4219996b4217)**|0.0.0-dev.0|Apache-2.0
@@ -506,6 +509,44 @@ Authors:
 <a id="debd1313325056e39db563d3f4f2428cd79e9ad99ed71531bba2f26de94af80b"></a>
 ### [@babel/generator](https://www.npmjs.com/package/@babel/generator) (version 7.14.8)
 <!-- initially found at packages/async-rewriter2/node_modules/@babel/generator -->
+> Turns an AST into code.
+
+License tags: MIT
+
+License files:
+* LICENSE:
+
+      MIT License
+      
+      Copyright (c) 2014-present Sebastian McKenzie and other contributors
+      
+      Permission is hereby granted, free of charge, to any person obtaining
+      a copy of this software and associated documentation files (the
+      "Software"), to deal in the Software without restriction, including
+      without limitation the rights to use, copy, modify, merge, publish,
+      distribute, sublicense, and/or sell copies of the Software, and to
+      permit persons to whom the Software is furnished to do so, subject to
+      the following conditions:
+      
+      The above copyright notice and this permission notice shall be
+      included in all copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+      NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+      LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+      OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+      WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+      
+
+Authors:
+* The Babel Team (https://babel.dev/team)
+
+
+<a id="41b49ad5d837f129d4a8740dd85630e8e5d1b926250ade7124eeea8dfd697ef1"></a>
+### [@babel/generator](https://www.npmjs.com/package/@babel/generator) (version 7.14.9)
+<!-- initially found at packages/async-rewriter2/node_modules/@babel/traverse/node_modules/@babel/generator -->
 > Turns an AST into code.
 
 License tags: MIT
@@ -1355,6 +1396,44 @@ License files:
       
 
 
+<a id="433f3379dd7033391d15f58d21054c8ce6651116d7ef0b0f7c9102d13502fef5"></a>
+### [@babel/helper-validator-identifier](https://www.npmjs.com/package/@babel/helper-validator-identifier) (version 7.14.9)
+<!-- initially found at packages/async-rewriter2/node_modules/@babel/types/node_modules/@babel/helper-validator-identifier -->
+> Validate identifier/keywords name
+
+License tags: MIT
+
+License files:
+* LICENSE:
+
+      MIT License
+      
+      Copyright (c) 2014-present Sebastian McKenzie and other contributors
+      
+      Permission is hereby granted, free of charge, to any person obtaining
+      a copy of this software and associated documentation files (the
+      "Software"), to deal in the Software without restriction, including
+      without limitation the rights to use, copy, modify, merge, publish,
+      distribute, sublicense, and/or sell copies of the Software, and to
+      permit persons to whom the Software is furnished to do so, subject to
+      the following conditions:
+      
+      The above copyright notice and this permission notice shall be
+      included in all copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+      NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+      LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+      OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+      WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+      
+
+Authors:
+* The Babel Team (https://babel.dev/team)
+
+
 <a id="aeb12b766a34d0c7424d2ff0c56a567cb7ce51f531f952776e8d323b0de035ca"></a>
 ### [@babel/helper-validator-identifier](https://www.npmjs.com/package/@babel/helper-validator-identifier) (version 7.14.8)
 <!-- initially found at packages/async-rewriter2/node_modules/@babel/helper-validator-identifier -->
@@ -1653,6 +1732,41 @@ Authors:
 * The Babel Team (https://babel.dev/team)
 
 
+<a id="bb271e6154883eb05273e2b555cf0a0998808e09baf34a98debbcc58ee3833bf"></a>
+### [@babel/parser](https://www.npmjs.com/package/@babel/parser) (version 7.14.9)
+<!-- initially found at packages/async-rewriter2/node_modules/@babel/traverse/node_modules/@babel/parser -->
+> A JavaScript parser
+
+License tags: MIT
+
+License files:
+* LICENSE:
+
+      Copyright (C) 2012-2014 by various contributors (see AUTHORS)
+      
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+      
+      The above copyright notice and this permission notice shall be included in
+      all copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+      THE SOFTWARE.
+      
+
+Authors:
+* The Babel Team (https://babel.dev/team)
+
+
 <a id="1baa274ae86e308681bbce6715ee5c43e730d7c791d566a343ace9f5a2570e5c"></a>
 ### [@babel/plugin-transform-destructuring](https://www.npmjs.com/package/@babel/plugin-transform-destructuring) (version 7.14.7)
 <!-- initially found at packages/async-rewriter2/node_modules/@babel/plugin-transform-destructuring -->
@@ -1881,8 +1995,8 @@ Authors:
 * Sebastian McKenzie <sebmck@gmail.com>
 
 
-<a id="8377e5a30c267a4643aa7ab26f9f7bad1de76901e531c60a9378fade23e83980"></a>
-### [@babel/traverse](https://www.npmjs.com/package/@babel/traverse) (version 7.14.8)
+<a id="beec965fedb7c57c0eed4e75c6b79732085a5b34abcdea9fe109dbf111cdef4e"></a>
+### [@babel/traverse](https://www.npmjs.com/package/@babel/traverse) (version 7.14.9)
 <!-- initially found at packages/async-rewriter2/node_modules/@babel/traverse -->
 > The Babel Traverse module maintains the overall tree state, and is responsible for replacing, removing, and adding nodes
 
@@ -1957,8 +2071,8 @@ Authors:
 * Sebastian McKenzie <sebmck@gmail.com>
 
 
-<a id="8c70a62723ddd0ce0d52a3dac169202500543c72dc7d2e2dee24f7e9e3ba5a72"></a>
-### [@babel/types](https://www.npmjs.com/package/@babel/types) (version 7.14.8)
+<a id="100e0cc79db9d3cf46a059bce213706fe64eddfe6bd145844c875a6f638e3a85"></a>
+### [@babel/types](https://www.npmjs.com/package/@babel/types) (version 7.14.9)
 <!-- initially found at packages/async-rewriter2/node_modules/@babel/types -->
 > Babel Types is a Lodash-esque utility library for AST nodes
 
