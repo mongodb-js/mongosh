@@ -42,7 +42,7 @@
     "@mongosh/service-provider-core": "0.0.0-dev.0",
     "@mongosh/types": "0.0.0-dev.0",
     "@types/sinon-chai": "^3.2.3",
-    "mongodb": "addaleax/node-mongodb-native#71d4c39e5c858f49d10e840df626eca4da653e28",
+    "mongodb": "^4.1.0",
     "saslprep": "mongodb-js/saslprep#v1.0.4",
     "mongodb-connection-string-url": "^1.0.0"
   },

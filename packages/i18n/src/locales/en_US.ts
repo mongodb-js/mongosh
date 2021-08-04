@@ -1667,7 +1667,7 @@ const translations: Catalog = {
               description: 'Aborts the session’s transaction.'
             },
             advanceClusterTime: {
-              description: 'advanceClusterTime is not currently supported due it not being supported in the driver, see NODE-2843.'
+              description: 'Advances the clusterTime for a Session to the provided clusterTime.'
             }
           }
         }

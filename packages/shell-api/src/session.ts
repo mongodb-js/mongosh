@@ -17,8 +17,7 @@ import {
 import { asPrintable } from './enums';
 import Mongo from './mongo';
 import Database from './database';
-import { CommonErrors, MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
-import { blockedByDriverMetadata } from './error-codes';
+import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
 import { assertArgsDefinedType, isValidDatabaseName } from './helpers';
 
 @shellApiClassDefault
@@ -63,12 +62,8 @@ export default class Session extends ShellApiWithMongoClass {
     this._session.advanceOperationTime(ts);
   }
 
-  advanceClusterTime(): void {
-    throw new MongoshUnimplementedError(
-      'Calling advanceClusterTime is not currently supported due it not being supported in the driver, see NODE-2843.',
-      CommonErrors.NotImplemented,
-      blockedByDriverMetadata('Session.advanceClusterTime')
-    );
+  advanceClusterTime(clusterTime: ClusterTime): void {
+    this._session.advanceClusterTime(clusterTime);
   }
 
   @returnsPromise
@@ -81,11 +76,11 @@ export default class Session extends ShellApiWithMongoClass {
   }
 
   getClusterTime(): ClusterTime | undefined {
-    return (this._session as any).clusterTime;
+    return this._session.clusterTime;
   }
 
   getOperationTime(): TimestampType | undefined {
-    return (this._session as any).operationTime;
+    return this._session.operationTime;
   }
 
   getOptions(): ClientSessionOptions {
