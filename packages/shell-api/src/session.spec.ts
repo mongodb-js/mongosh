@@ -16,7 +16,7 @@ import { CliServiceProvider } from '../../service-provider-server';
 import { startTestCluster, skipIfApiStrict } from '../../../testing/integration-testing-hooks';
 import { ensureMaster, ensureSessionExists } from '../../../testing/helpers';
 import Database from './database';
-import { CommonErrors, MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
+import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
 import { EventEmitter } from 'events';
 
 describe('Session', () => {
@@ -102,16 +102,9 @@ describe('Session', () => {
       expect(serviceProviderSession.advanceOperationTime).to.have.been.calledOnceWith(ts);
     });
     it('advanceClusterTime', () => {
-      try {
-        session.advanceClusterTime();
-      } catch (e) {
-        expect(e).to.be.instanceOf(MongoshUnimplementedError);
-        expect(e.code).to.equal(CommonErrors.NotImplemented);
-        expect(e.metadata?.driverCaused).to.equal(true);
-        expect(e.metadata?.api).to.equal('Session.advanceClusterTime');
-        return;
-      }
-      expect.fail('Error not thrown');
+      const ct = { clusterTime: { ts: 1 } } as any;
+      session.advanceClusterTime(ct);
+      expect(serviceProviderSession.advanceClusterTime).to.have.been.calledOnceWith(ct);
     });
     it('endSession', async() => {
       await session.endSession();
