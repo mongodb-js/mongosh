@@ -423,6 +423,7 @@ describe('uri-generator.generate-uri', () => {
         const options = { host: 'host1:123,host2,host3:456,' };
         expect(generateUri(options)).to.equal('mongodb://host1:123,host2,host3:456/');
       });
+
       it('returns a URI for the hosts and ports specified in --host and database name', () => {
         const options = {
           host: 'host1:123,host_2,host3:456,',
@@ -430,7 +431,26 @@ describe('uri-generator.generate-uri', () => {
         };
         expect(generateUri(options)).to.equal('mongodb://host1:123,host_2,host3:456/admin');
       });
+
+      it('returns a URI for the hosts in --host and fixed --port', () => {
+        const options = {
+          host: 'host1:1234,host_2',
+          port: '1234',
+          connectionSpecifier: 'admin'
+        };
+        expect(generateUri(options)).to.equal('mongodb://host1:1234,host_2:1234/admin');
+      });
+
+      it('throws an error if seed list in --host contains port mismatches from fixed --port', () => {
+        const options = {
+          host: 'host1,host_2:123',
+          port: '1234',
+          connectionSpecifier: 'admin'
+        };
+        expect(() => generateUri(options)).to.throw('The host list contains different ports than provided by --port');
+      });
     });
+
     context('with a replica set', () => {
       it('returns a URI for the hosts and ports specified in --host', () => {
         const options = { host: 'replsetname/host1:123,host2,host3:456,' };
@@ -445,6 +465,16 @@ describe('uri-generator.generate-uri', () => {
       it('returns a URI for the hosts and ports specified in --host and database name with escaped chars', () => {
         const options = { host: 'replsetname/host1:123,host2,host3:456', connectionSpecifier: 'admin?foo=bar' };
         expect(generateUri(options)).to.equal('mongodb://host1:123,host2,host3:456/admin%3Ffoo%3Dbar?replicaSet=replsetname');
+      });
+
+      it('returns a URI for the hosts specified in --host and explicit --port', () => {
+        const options = { host: 'replsetname/host1:123,host2,', port: '123' };
+        expect(generateUri(options)).to.equal('mongodb://host1:123,host2:123/?replicaSet=replsetname');
+      });
+
+      it('throws an error if the hosts contain ports that mismatch from --port', () => {
+        const options = { host: 'replsetname/host1:1234,host2,', port: '123' };
+        expect(() => generateUri(options)).to.throw('The host list contains different ports than provided by --port');
       });
     });
   });

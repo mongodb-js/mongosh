@@ -35,6 +35,11 @@ const CONFLICT = 'cli-repl.uri-generator.no-host-port';
 const INVALID_HOST = 'cli-repl.uri-generator.invalid-host';
 
 /**
+ * Host seed list contains a port that mismatches an explicit --port.
+ */
+const HOST_LIST_PORT_MISMATCH = 'cli-repl.uri-generator.host-list-port-mismatch';
+
+/**
  * Diverging gssapiServiceName and SERVICE_NAME mechanism property
  */
 const DIVERGING_SERVICE_NAME = 'cli-repl.uri-generator.diverging-service-name';
@@ -77,6 +82,26 @@ function validateHost(host: string): void {
       i18n.__(INVALID_HOST) + ': ' + invalidCharacter[0],
       CommonErrors.InvalidArgument);
   }
+}
+
+/**
+ * Validates a host seed list against a specified fixed port and
+ * returns an individual `<host>:<port>` array.
+ */
+function validateHostSeedList(hosts: string, fixedPort: string | undefined): string[] {
+  const trimmedHosts = hosts.split(',').map(h => h.trim()).filter(h => !!h);
+  const hostList: string[] = [];
+  trimmedHosts.forEach(h => {
+    const [host, port] = h.split(':');
+    if (fixedPort && port !== undefined && port !== fixedPort) {
+      throw new MongoshInvalidInputError(
+        i18n.__(HOST_LIST_PORT_MISMATCH),
+        CommonErrors.InvalidArgument
+      );
+    }
+    hostList.push(`${host}${(port || fixedPort) ? ':' + (port || fixedPort) : ''}`);
+  });
+  return hostList;
 }
 
 /**
@@ -154,7 +179,7 @@ function generateUriNormalized(options: CliOptions): ConnectionString {
   if (replSetHostMatch) {
     const { replSetName, hosts } = replSetHostMatch.groups as { replSetName: string, hosts: string };
     const connectionString = new ConnectionString(`${Scheme.Mongo}replacemeHost/${encodeURIComponent(uri || '')}`);
-    connectionString.hosts = hosts.split(',').filter(host => host.trim());
+    connectionString.hosts = validateHostSeedList(hosts, options.port);
     connectionString.searchParams.set('replicaSet', replSetName);
     return addShellConnectionStringParameters(connectionString);
   }
@@ -167,7 +192,7 @@ function generateUriNormalized(options: CliOptions): ConnectionString {
   if (seedList && options.host?.includes(',')) {
     const { hosts } = seedList.groups as { hosts: string };
     const connectionString = new ConnectionString(`${Scheme.Mongo}replacemeHost/${encodeURIComponent(uri || '')}`);
-    connectionString.hosts = hosts.split(',').filter(host => host.trim());
+    connectionString.hosts = validateHostSeedList(hosts, options.port);
     return addShellConnectionStringParameters(connectionString);
   }
 
