@@ -104,16 +104,6 @@ internal class Cursor(private var helper: BaseMongoIterableHelper<*>, private va
     }
 
     @HostAccess.Export
-    override fun forEach(func: Value) {
-        if (!func.canExecute()) {
-            throw IllegalArgumentException("Expected one argument of type function. Got: $func")
-        }
-        getOrCreateIterator().forEach { v ->
-            func.execute(converter.toJs(v))
-        }
-    }
-
-    @HostAccess.Export
     override fun hasNext(): Boolean = getOrCreateIterator().hasNext()
 
     @HostAccess.Export
@@ -145,16 +135,6 @@ internal class Cursor(private var helper: BaseMongoIterableHelper<*>, private va
     override fun limit(v: Int): Cursor {
         checkQueryNotExecuted()
         helper.limit(v)
-        return this
-    }
-
-    @HostAccess.Export
-    override fun map(func: Value): Cursor {
-        checkQueryNotExecuted()
-        if (!func.canExecute()) {
-            throw IllegalArgumentException("Expected one argument of type function. Got: $func")
-        }
-        helper = helper.map(func)
         return this
     }
 

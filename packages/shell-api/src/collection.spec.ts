@@ -180,15 +180,16 @@ describe('Collection', () => {
       });
 
       it('returns an AggregationCursor that wraps the service provider one', async() => {
-        const toArrayResult = [];
-        serviceProviderCursor.toArray.resolves(toArrayResult);
+        const toArrayResult = [{ foo: 'bar' }];
+        serviceProviderCursor.tryNext.onFirstCall().resolves({ foo: 'bar' });
+        serviceProviderCursor.tryNext.onSecondCall().resolves(null);
         serviceProvider.aggregate.returns(serviceProviderCursor);
 
         const cursor = await collection.aggregate([{
           $piplelineStage: {}
         }]);
 
-        expect(await (cursor as AggregationCursor).toArray()).to.equal(toArrayResult);
+        expect(await (cursor as AggregationCursor).toArray()).to.deep.equal(toArrayResult);
       });
 
       it('throws if serviceProvider.aggregate rejects', async() => {

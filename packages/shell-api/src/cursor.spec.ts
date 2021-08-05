@@ -70,12 +70,6 @@ describe('Cursor', () => {
       expect(cursor.pretty()).to.equal(cursor);
     });
 
-    it('calls wrappee.map with arguments', () => {
-      const arg = {};
-      cursor.map(arg);
-      expect(wrappee.map).to.have.callCount(1);
-    });
-
     it('has the correct metadata', () => {
       expect(cursor.collation.serverVersions).to.deep.equal(['3.4.0', ServerVersions.latest]);
     });

@@ -21,39 +21,15 @@ import { iterate, validateExplainableVerbosity, markAsExplainOutput } from './he
 export abstract class AbstractCursor<CursorType extends ServiceProviderAggregationCursor | ServiceProviderCursor> extends ShellApiWithMongoClass {
   _mongo: Mongo;
   _cursor: CursorType;
+  _transform: ((doc: any) => any) | null;
 
   _currentIterationResult: CursorIterationResult | null = null;
-  _mapError: Error | null = null;
 
   constructor(mongo: Mongo, cursor: CursorType) {
     super();
     this._mongo = mongo;
     this._cursor = cursor;
-  }
-
-  // Wrap a function with checks before and after that verify whether a .map()
-  // callback has resulted in an exception. Such an error would otherwise result
-  // in an uncaught exception, bringing the whole process down.
-  // The downside to this is that errors will not actually be visible until
-  // the caller tries to interact with this cursor in a way that triggers
-  // these checks. Since that is also the behavior for errors coming from the
-  // database server, it makes sense to match that.
-  // Ideally, this kind of code could be lifted into the driver (NODE-3231 and
-  // NODE-3232 are the tickets for that).
-  async _withCheckMapError<Ret>(fn: () => Ret): Promise<Ret> {
-    if (this._mapError) {
-      // If an error has already occurred, we don't want to call the function
-      // at all.
-      throw this._mapError;
-    }
-    // eslint-disable-next-line @typescript-eslint/await-thenable
-    const ret = await fn();
-    if (this._mapError) {
-      // If an error occurred during the function, we don't want to forward its
-      // results.
-      throw this._mapError;
-    }
-    return ret;
+    this._transform = null;
   }
 
   /**
@@ -82,32 +58,27 @@ export abstract class AbstractCursor<CursorType extends ServiceProviderAggregati
   }
 
   @returnsPromise
-  async forEach(f: (doc: Document) => void): Promise<void> {
-    // Work around https://jira.mongodb.org/browse/NODE-3231
-    let exception;
-    const wrapped = (doc: Document): boolean | undefined => {
-      try {
-        f(doc);
-        return undefined;
-      } catch (err) {
-        exception = err;
-        return false; // Stop iteration.
+  async forEach(f: (doc: Document) => void | boolean | Promise<void> | Promise<boolean>): Promise<void> {
+    // Do not use the driver method because it does not have Promise support.
+    for await (const doc of this) {
+      if ((await f(doc)) === false) {
+        break;
       }
-    };
-    await this._cursor.forEach(wrapped);
-    if (exception) {
-      throw exception;
     }
   }
 
   @returnsPromise
   async hasNext(): Promise<boolean> {
-    return this._withCheckMapError(() => this._cursor.hasNext());
+    return this._cursor.hasNext();
   }
 
   @returnsPromise
   async tryNext(): Promise<Document | null> {
-    return this._withCheckMapError(() => this._cursor.tryNext());
+    let result = await this._cursor.tryNext();
+    if (result !== null && this._transform !== null) {
+      result = await this._transform(result);
+    }
+    return result;
   }
 
   async* [Symbol.asyncIterator]() {
@@ -136,7 +107,11 @@ export abstract class AbstractCursor<CursorType extends ServiceProviderAggregati
 
   @returnsPromise
   async toArray(): Promise<Document[]> {
-    return this._withCheckMapError(() => this._cursor.toArray());
+    const result = [];
+    for await (const doc of this) {
+      result.push(doc);
+    }
+    return result;
   }
 
   @returnType('this')
@@ -146,20 +121,12 @@ export abstract class AbstractCursor<CursorType extends ServiceProviderAggregati
 
   @returnType('this')
   map(f: (doc: Document) => Document): this {
-    // Work around https://jira.mongodb.org/browse/NODE-3232
-    const wrapped = (doc: Document): Document => {
-      if (this._mapError) {
-        // These errors should never become visible to the user.
-        return { __errored: true };
-      }
-      try {
-        return f(doc);
-      } catch (err) {
-        this._mapError = err;
-        return { __errored: true };
-      }
-    };
-    this._cursor.map(wrapped);
+    if (this._transform === null) {
+      this._transform = f;
+    } else {
+      const g = this._transform;
+      this._transform = (doc: any) => f(g(doc));
+    }
     return this;
   }
 
@@ -171,7 +138,11 @@ export abstract class AbstractCursor<CursorType extends ServiceProviderAggregati
 
   @returnsPromise
   async next(): Promise<Document | null> {
-    return this._withCheckMapError(() => this._cursor.next());
+    let result = await this._cursor.next();
+    if (result !== null && this._transform !== null) {
+      result = await this._transform(result);
+    }
+    return result;
   }
 
   @returnType('this')

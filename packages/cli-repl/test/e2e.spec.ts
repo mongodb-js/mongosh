@@ -446,6 +446,59 @@ describe('e2e', function() {
         });
       });
     });
+
+    describe('cursor transform operations', () => {
+      beforeEach(async() => {
+        await shell.executeLine(`use ${dbName}`);
+        await shell.executeLine('for (let i = 0; i < 3; i++) db.coll.insertOne({i})');
+      });
+
+      it('works with .map() with immediate .toArray() iteration', async() => {
+        const result = await shell.executeLine(`const cs = db.coll.find().map((doc) => {
+          print('mapped');
+          return db.coll.find({_id:doc._id}).toArray()
+        }); print('after'); cs.toArray()`);
+        expect(result).to.include('after');
+        expect(result).to.include('mapped');
+        expect(result).to.include('i: 1');
+      });
+
+      it('works with .map() with later .toArray() iteration', async() => {
+        const before = await shell.executeLine(`const cs = db.coll.find().map((doc) => {
+          print('mapped');
+          return db.coll.find({_id:doc._id}).toArray()
+        }); print('after');`);
+        expect(before).to.include('after');
+        expect(before).not.to.include('mapped');
+        const result = await shell.executeLine('cs.toArray()');
+        expect(result).to.include('mapped');
+        expect(result).to.include('i: 1');
+      });
+
+      it('works with .map() with implicit iteration', async() => {
+        const before = await shell.executeLine(`const cs = db.coll.find().map((doc) => {
+          print('mapped');
+          return db.coll.findOne({_id:doc._id});
+        }); print('after');`);
+        expect(before).to.include('after');
+        expect(before).not.to.include('mapped');
+        const result = await shell.executeLine('cs');
+        expect(result).to.include('mapped');
+        expect(result).to.include('i: 1');
+      });
+
+      it('works with .forEach() iteration', async() => {
+        await shell.executeLine('out = [];');
+        const before = await shell.executeLine(`db.coll.find().forEach((doc) => {
+          print('enter forEach');
+          out.push(db.coll.findOne({_id:doc._id}));
+          print('leave forEach');
+        }); print('after');`);
+        expect(before).to.match(/(enter forEach\r?\nleave forEach\r?\n){3}after/);
+        const result = await shell.executeLine('out[1]');
+        expect(result).to.include('i: 1');
+      });
+    });
   });
 
   describe('with --host', () => {
