@@ -49,10 +49,12 @@ function lookupReleaseDistro(variant: BuildVariant): string {
       return 'amazon';
     case 'amzn2':
       return 'amazon2';
-    case 'rhel':
+    case 'rhel7':
+      return 'rhel70';
+    case 'rhel8':
       switch (getArch(variant)) {
         case 'x64':
-          return 'rhel70';
+          return 'rhel80';
         case 'arm64':
           return 'rhel82';
         default:

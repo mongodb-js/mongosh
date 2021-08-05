@@ -76,7 +76,8 @@ const EXECUTABLE_PKG_INFO = [
     distributionBuildVariants: [
       { name: 'linux-x64', packageOn: 'linux', smokeTestKind: 'none' },
       { name: 'debian-x64', packageOn: 'linux', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu18.04-deb', 'ubuntu20.04-deb', 'debian9-deb', 'debian10-deb'] },
-      { name: 'rhel-x64', packageOn: 'linux', smokeTestKind: 'docker', smokeTestDockerfiles: ['centos7-rpm', 'centos8-rpm', 'amazonlinux2-rpm'] },
+      { name: 'rhel7-x64', packageOn: 'linux', smokeTestKind: 'docker', smokeTestDockerfiles: ['centos7-rpm', 'amazonlinux2-rpm'] },
+      { name: 'rhel8-x64', packageOn: 'linux', smokeTestKind: 'docker', smokeTestDockerfiles: ['centos8-rpm', 'fedora34-rpm'] },
       { name: 'suse-x64', packageOn: 'linux', smokeTestKind: 'docker', smokeTestDockerfiles: ['suse12-rpm', 'suse15-rpm'] },
       { name: 'amzn1-x64', packageOn: 'linux', smokeTestKind: 'docker', smokeTestDockerfiles: ['amazonlinux1-rpm'] }
     ]
@@ -87,7 +88,7 @@ const EXECUTABLE_PKG_INFO = [
     distributionBuildVariants: [
       { name: 'linux-arm64', packageOn: 'linux', smokeTestKind: 'none' },
       { name: 'debian-arm64', packageOn: 'linux', smokeTestKind: 'debextract' },
-      { name: 'rhel-arm64', packageOn: 'linux', smokeTestKind: 'rpmextract' },
+      { name: 'rhel8-arm64', packageOn: 'linux', smokeTestKind: 'rpmextract' },
       { name: 'amzn2-arm64', packageOn: 'linux', smokeTestKind: 'rpmextract' }
     ]
   },
@@ -96,7 +97,7 @@ const EXECUTABLE_PKG_INFO = [
     compileBuildVariant: 'linux_ppc64le_build',
     distributionBuildVariants: [
       { name: 'linux-ppc64le', packageOn: 'linux', smokeTestKind: 'none' },
-      { name: 'rhel-ppc64le', packageOn: 'linux', smokeTestKind: 'rpmextract' }
+      { name: 'rhel8-ppc64le', packageOn: 'linux', smokeTestKind: 'rpmextract' }
     ]
   },
   {
@@ -104,7 +105,7 @@ const EXECUTABLE_PKG_INFO = [
     compileBuildVariant: 'linux_s390x_build',
     distributionBuildVariants: [
       { name: 'linux-s390x', packageOn: 'linux', smokeTestKind: 'none' },
-      { name: 'rhel-s390x', packageOn: 'linux', smokeTestKind: 'rpmextract' }
+      { name: 'rhel7-s390x', packageOn: 'linux', smokeTestKind: 'rpmextract' }
     ]
   },
   {
@@ -891,17 +892,18 @@ buildvariants:
       - name: test_apistrict
       - name: package_and_upload_artifact_linux_x64
       - name: package_and_upload_artifact_debian_x64
-      - name: package_and_upload_artifact_rhel_x64
+      - name: package_and_upload_artifact_rhel7_x64
+      - name: package_and_upload_artifact_rhel8_x64
       - name: package_and_upload_artifact_suse_x64
       - name: package_and_upload_artifact_amzn1_x64
       - name: package_and_upload_artifact_linux_s390x
-      - name: package_and_upload_artifact_rhel_s390x
+      - name: package_and_upload_artifact_rhel7_s390x
       - name: package_and_upload_artifact_linux_arm64
       - name: package_and_upload_artifact_debian_arm64
-      - name: package_and_upload_artifact_rhel_arm64
+      - name: package_and_upload_artifact_rhel8_arm64
       - name: package_and_upload_artifact_amzn2_arm64
       - name: package_and_upload_artifact_linux_ppc64le
-      - name: package_and_upload_artifact_rhel_ppc64le
+      - name: package_and_upload_artifact_rhel8_ppc64le
   - name: linux_x64_build
     display_name: "RHEL 7.0 x64 (build)"
     run_on: rhel70-build
@@ -1089,7 +1091,7 @@ buildvariants:
     display_name: "package smoke tests (RHEL 8.2 arm64)"
     run_on: rhel82-arm64-small
     tasks:
-      - name: pkg_test_rpmextract_rhel_arm64
+      - name: pkg_test_rpmextract_rhel8_arm64
   - name: pkg_smoke_tests_rhel82_arm64
     display_name: "package smoke tests (Amazon Linux 2 arm64)"
     run_on: amazon2-arm64-small
@@ -1099,17 +1101,17 @@ buildvariants:
     display_name: "package smoke tests (RHEL 7.2 s390x)"
     run_on: rhel72-zseries-small
     tasks:
-      - name: pkg_test_rpmextract_rhel_s390x
+      - name: pkg_test_rpmextract_rhel7_s390x
   #- name: pkg_smoke_tests_rhel80_s390x
   #  display_name: "package smoke tests (RHEL 8.0 s390x)"
   #  run_on: rhel80-zseries-small
   #  tasks:
-  #    - name: pkg_test_rpmextract_rhel_s390x
+  #    - name: pkg_test_rpmextract_rhel8_s390x
   - name: pkg_smoke_tests_rhel81_ppc64le
     display_name: "package smoke tests (RHEL 8.1 ppc64le)"
     run_on: rhel81-power8-small
     tasks:
-      - name: pkg_test_rpmextract_rhel_ppc64le
+      - name: pkg_test_rpmextract_rhel8_ppc64le
 
   - name: draft_publish_release
     display_name: "Draft/Publish Release"

@@ -51,11 +51,18 @@ describe('DownloadCenter config', () => {
       expect(platforms[1].download_link).to.include('mongosh-1.2.2-x64.msi');
     });
 
-    it('has an artifact for rhel', () => {
+    it('has an artifact for rhel7', () => {
       const [version] = config.versions;
-      const platforms = version.platform.filter(p => p.os === 'rhel' && p.arch === 'x64');
+      const platforms = version.platform.filter(p => p.os === 'rhel7' && p.arch === 'x64');
       expect(platforms).to.have.length(1);
       expect(platforms[0].download_link).to.include('mongodb-mongosh-1.2.2.el7.x86_64.rpm');
+    });
+
+    it('has an artifact for rhel8', () => {
+      const [version] = config.versions;
+      const platforms = version.platform.filter(p => p.os === 'rhel8' && p.arch === 'x64');
+      expect(platforms).to.have.length(1);
+      expect(platforms[0].download_link).to.include('mongodb-mongosh-1.2.2.el8.x86_64.rpm');
     });
 
     it('has an artifact for debian', () => {

@@ -14,9 +14,14 @@ export function getPackageFile(buildVariant: BuildVariant, packageInformation: P
         path: `${name}-${version}-${buildVariant}.tgz`,
         contentType: 'application/gzip'
       };
-    case 'rhel':
+    case 'rhel7':
       return {
         path: `${rpmName}-${version}.el7.${getRPMArchName(getArch(buildVariant))}.rpm`,
+        contentType: 'application/x-rpm'
+      };
+    case 'rhel8':
+      return {
+        path: `${rpmName}-${version}.el8.${getRPMArchName(getArch(buildVariant))}.rpm`,
         contentType: 'application/x-rpm'
       };
     case 'suse':

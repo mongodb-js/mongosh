@@ -57,12 +57,23 @@ describe('tarball getPackageFile', () => {
     });
   });
 
-  context('when the build variant is rhel', () => {
+  context('when the build variant is rhel7', () => {
     it('returns the tarball details', () => {
       expect(
-        getPackageFile('rhel-x64', { metadata: { version: '1.0.0', rpmName: 'mongodb-mongosh' } } as any)
+        getPackageFile('rhel7-x64', { metadata: { version: '1.0.0', rpmName: 'mongodb-mongosh' } } as any)
       ).to.deep.equal({
         path: 'mongodb-mongosh-1.0.0.el7.x86_64.rpm',
+        contentType: 'application/x-rpm'
+      });
+    });
+  });
+
+  context('when the build variant is rhel8', () => {
+    it('returns the tarball details', () => {
+      expect(
+        getPackageFile('rhel8-x64', { metadata: { version: '1.0.0', rpmName: 'mongodb-mongosh' } } as any)
+      ).to.deep.equal({
+        path: 'mongodb-mongosh-1.0.0.el8.x86_64.rpm',
         contentType: 'application/x-rpm'
       });
     });
