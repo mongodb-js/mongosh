@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Thu Aug 05 2021.
+This document was automatically generated on Fri Aug 06 2021.
 
 ## List of dependencies
 
@@ -197,7 +197,7 @@ Package|Version|License
 **[mongodb-ace-autocompleter](#f8d74c39b8fd1bf8c68814e2006477bd7ae4df1586f48c43ec771797e1d3d064)**|0.5.0|Apache-2.0
 **[mongodb-build-info](#3e1ab3564d63f8a06a80cc2b752a458eabdaa33318303341aa6f7a9461115958)**|1.2.0|Apache-2.0
 **[mongodb-client-encryption](#2400753e4c313cbe1059fed67cfe07c83a8887810d236b84878dad8fdfba9ef7)**|1.2.6|Apache-2.0
-**[mongodb-connection-string-url](#d842513739d9a848af83ab12b884b179e6e84eb165072b73472b59d20f103c0d)**|1.0.0|Apache-2.0
+**[mongodb-connection-string-url](#10675501732c0f00dc5538bcef826b80639bd37040ed5104a4d4b9cb044034cb)**|1.1.2|Apache-2.0
 **[mongodb-connection-string-url](#5d55c56f0938c1cee2fa2bbecfca8bd68d2ccc846a200b1d6da93e62e77dea3a)**|1.1.0|Apache-2.0
 **[mongodb-redact](#00a2cfed57df1e8b912b751b08bee4de24ad0189840c99820ebc00c1b219a421)**|0.2.2|Apache-2.0
 **[ms](#0a987b2f79ff37005e452a5afa7dacd3042061a7077054d2ba9cabacd88506d2)**|2.1.2|MIT
@@ -11227,8 +11227,8 @@ Authors:
 * Matt Broadstone <mbroadst@mongodb.com>
 
 
-<a id="d842513739d9a848af83ab12b884b179e6e84eb165072b73472b59d20f103c0d"></a>
-### [mongodb-connection-string-url](https://www.npmjs.com/package/mongodb-connection-string-url) (version 1.0.0)
+<a id="10675501732c0f00dc5538bcef826b80639bd37040ed5104a4d4b9cb044034cb"></a>
+### [mongodb-connection-string-url](https://www.npmjs.com/package/mongodb-connection-string-url) (version 1.1.2)
 <!-- initially found at packages/service-provider-core/node_modules/mongodb-connection-string-url -->
 > MongoDB connection strings, based on the WhatWG URL API
 
