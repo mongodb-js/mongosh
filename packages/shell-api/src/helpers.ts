@@ -170,7 +170,7 @@ export function processDigestPassword(
  * @param configDB
  * @param verbose
  */
-export async function getPrintableShardStatus(db: Database, verbose: boolean): Promise<any> {
+export async function getPrintableShardStatus(db: Database, verbose: boolean): Promise<Document> {
   const result = {} as any; // use array to maintain order
 
   // configDB is a DB object that contains the sharding metadata of interest.
@@ -185,8 +185,8 @@ export async function getPrintableShardStatus(db: Database, verbose: boolean): P
 
   const [ version, shards, mostRecentMongos ] = await Promise.all([
     versionColl.findOne(),
-    shardsColl.find().sort({ _id: 1 }).toArray(),
-    mongosColl.find().sort({ ping: -1 }).limit(1).tryNext()
+    shardsColl.find().then(cursor => cursor.sort({ _id: 1 }).toArray()),
+    mongosColl.find().then(cursor => cursor.sort({ ping: -1 }).limit(1).tryNext())
   ]);
   if (version === null) {
     throw new MongoshInvalidInputError(
@@ -228,8 +228,8 @@ export async function getPrintableShardStatus(db: Database, verbose: boolean): P
     };
 
     if (verbose) {
-      result[mongosAdjective] = await mongosColl
-        .find(recentMongosQuery)
+      result[mongosAdjective] = await (await mongosColl
+        .find(recentMongosQuery))
         .sort({ ping: -1 })
         .toArray();
     } else {
@@ -277,7 +277,7 @@ export async function getPrintableShardStatus(db: Database, verbose: boolean): P
     (async(): Promise<void> => {
       // Output the list of active migrations
       type Lock = { _id: string; when: Date };
-      const activeLocks: Lock[] = await configDB.getCollection('locks').find({ state: { $eq: 2 } }).toArray() as Lock[];
+      const activeLocks: Lock[] = await (await configDB.getCollection('locks').find({ state: { $eq: 2 } })).toArray() as Lock[];
       if (activeLocks?.length > 0) {
         balancerRes['Collections with active migrations'] = activeLocks.map((lock) => {
           return `${lock._id} started at ${lock.when}`;
@@ -300,7 +300,7 @@ export async function getPrintableShardStatus(db: Database, verbose: boolean): P
 
       if (versionHasActionlog) {
         // Review config.actionlog for errors
-        const balErrs = await configDB.getCollection('actionlog').find({ what: 'balancer.round' }).sort({ time: -1 }).limit(5).toArray();
+        const balErrs = await (await configDB.getCollection('actionlog').find({ what: 'balancer.round' })).sort({ time: -1 }).limit(5).toArray();
         const actionReport = { count: 0, lastErr: '', lastTime: ' ' };
         if (balErrs !== null) {
           balErrs.forEach((r: any) => {
@@ -393,7 +393,7 @@ export async function getPrintableShardStatus(db: Database, verbose: boolean): P
   const dbRes: any[] = [];
   result.databases = dbRes;
 
-  const databases = await configDB.getCollection('databases').find().sort({ name: 1 }).toArray();
+  const databases = await (await configDB.getCollection('databases').find()).sort({ name: 1 }).toArray();
 
   // Special case the config db, since it doesn't have a record in config.databases.
   databases.push({ '_id': 'config', 'primary': 'config', 'partitioned': true });
@@ -405,8 +405,8 @@ export async function getPrintableShardStatus(db: Database, verbose: boolean): P
     const escapeRegex = (string: string): string => {
       return string.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
     };
-    const colls = await configDB.getCollection('collections')
-      .find({ _id: new RegExp('^' + escapeRegex(db._id) + '\\.') })
+    const colls = await (await configDB.getCollection('collections')
+      .find({ _id: new RegExp('^' + escapeRegex(db._id) + '\\.') }))
       .sort({ _id: 1 })
       .toArray();
 
@@ -441,45 +441,39 @@ export async function getPrintableShardStatus(db: Database, verbose: boolean): P
 
         // NOTE: this will return the chunk info as a string, and will print ugly BSON
         if (totalChunks < 20 || verbose) {
-          (await chunksColl.find(chunksCollMatch)
-            .sort({ min: 1 }).toArray())
-            .forEach((chunk: any) => {
-              const c = {
-                min: chunk.min,
-                max: chunk.max,
-                'on shard': chunk.shard,
-                'last modified': chunk.lastmod
-              } as any;
-              // Displaying a full, multi-line output for each chunk is a bit verbose,
-              // even if there are only a few chunks. Where supported, we use a custom
-              // inspection function to inspect a copy of this object with an unlimited
-              // line break length (i.e. all objects on a single line).
-              Object.defineProperty(c, Symbol.for('nodejs.util.inspect.custom'), {
-                value: function(depth: number, options: any): string {
-                  return inspect({ ...this }, { ...options, breakLength: Infinity });
-                },
-                writable: true,
-                configurable: true
-              });
-              if (chunk.jumbo) c.jumbo = 'yes';
-              chunksRes.push(c);
+          for await (const chunk of (await chunksColl.find(chunksCollMatch)).sort({ min: 1 })) {
+            const c = {
+              min: chunk.min,
+              max: chunk.max,
+              'on shard': chunk.shard,
+              'last modified': chunk.lastmod
+            } as any;
+            // Displaying a full, multi-line output for each chunk is a bit verbose,
+            // even if there are only a few chunks. Where supported, we use a custom
+            // inspection function to inspect a copy of this object with an unlimited
+            // line break length (i.e. all objects on a single line).
+            Object.defineProperty(c, Symbol.for('nodejs.util.inspect.custom'), {
+              value: function(depth: number, options: any): string {
+                return inspect({ ...this }, { ...options, breakLength: Infinity });
+              },
+              writable: true,
+              configurable: true
             });
+            if (chunk.jumbo) c.jumbo = 'yes';
+            chunksRes.push(c);
+          }
         } else {
           chunksRes.push('too many chunks to print, use verbose if you want to force print');
         }
 
         const tagsRes: any[] = [];
-        (await configDB.getCollection('tags')
-          .find(chunksCollMatch)
-          .sort({ min: 1 })
-          .toArray())
-          .forEach((tag: any) => {
-            tagsRes.push({
-              tag: tag.tag,
-              min: tag.min,
-              max: tag.max
-            });
+        for await (const tag of (await configDB.getCollection('tags').find(chunksCollMatch)).sort({ min: 1 })) {
+          tagsRes.push({
+            tag: tag.tag,
+            min: tag.min,
+            max: tag.max
           });
+        }
         collRes.chunks = chunksRes;
         collRes.tags = tagsRes;
         return [coll._id, collRes];

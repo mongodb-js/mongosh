@@ -3,10 +3,10 @@ import { shellApiType, asPrintable } from './enums';
 import { Document, ObjectIdType } from '@mongosh/service-provider-core';
 
 @shellApiClassDefault
-export class CommandResult extends ShellApiValueClass {
-  value: unknown;
+export class CommandResult<T = unknown> extends ShellApiValueClass {
+  value: T;
   type: string;
-  constructor(type: string, value: unknown) {
+  constructor(type: string, value: T) {
     super();
     this.type = type;
     this.value = value;
@@ -16,11 +16,11 @@ export class CommandResult extends ShellApiValueClass {
   /**
    * Internal method to determine what is printed for this class.
    */
-  [asPrintable](): unknown {
+  [asPrintable](): T {
     return this.value;
   }
 
-  toJSON(): unknown {
+  toJSON(): T {
     return this.value;
   }
 }

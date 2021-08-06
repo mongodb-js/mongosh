@@ -1197,8 +1197,8 @@ describe('Shard', () => {
 
   describe('integration', () => {
     let serviceProvider: CliServiceProvider;
-    let internalState;
-    let sh;
+    let internalState: ShellInternalState;
+    let sh: Shard;
     const dbName = 'test';
     const ns = `${dbName}.coll`;
     const shardId = 'rs-shard0';
@@ -1216,13 +1216,13 @@ describe('Shard', () => {
       sh = new Shard(internalState.currentDb);
 
       // check replset uninitialized
-      let members = await sh._database.getSiblingDB('config').getCollection('shards').find().sort({ _id: 1 }).toArray();
+      let members = await (await sh._database.getSiblingDB('config').getCollection('shards').find()).sort({ _id: 1 }).toArray();
       expect(members.length).to.equal(0);
 
       // add new shards
       expect((await sh.addShard(`${shardId}-0/${await rs0.hostport()}`)).shardAdded).to.equal(`${shardId}-0`);
       expect((await sh.addShard(`${shardId}-1/${await rs1.hostport()}`)).shardAdded).to.equal(`${shardId}-1`);
-      members = await sh._database.getSiblingDB('config').getCollection('shards').find().sort({ _id: 1 }).toArray();
+      members = await (await sh._database.getSiblingDB('config').getCollection('shards').find()).sort({ _id: 1 }).toArray();
       expect(members.length).to.equal(2);
       await sh._database.getSiblingDB(dbName).dropDatabase();
     });
@@ -1282,8 +1282,8 @@ describe('Shard', () => {
         expect((await sh.status()).value.databases[1].collections[ns].shardKey).to.deep.equal({ key: 1 });
 
         const db = internalState.currentDb.getSiblingDB(dbName);
-        await db.coll.insertMany([{ key: 'A', value: 10 }, { key: 'B', value: 20 }]);
-        const original = await db.coll.findOneAndUpdate({ key: 'A' }, { $set: { value: 30 } });
+        await db.getCollection('coll').insertMany([{ key: 'A', value: 10 }, { key: 'B', value: 20 }]);
+        const original = await db.getCollection('coll').findOneAndUpdate({ key: 'A' }, { $set: { value: 30 } });
         expect(original.key).to.equal('A');
         expect(original.value).to.equal(10);
 

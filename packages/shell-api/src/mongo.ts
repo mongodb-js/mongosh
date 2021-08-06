@@ -297,7 +297,7 @@ export default class Mongo extends ShellApiClass {
         const sysprof = this._internalState.currentDb.getCollection('system.profile');
         const profiles = { count: await sysprof.countDocuments({}) } as Document;
         if (profiles.count !== 0) {
-          profiles.result = await sysprof.find({ millis: { $gt: 0 } })
+          profiles.result = await (await sysprof.find({ millis: { $gt: 0 } }))
             .sort({ $natural: -1 })
             .limit(5)
             .toArray();

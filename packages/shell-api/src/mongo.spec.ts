@@ -283,7 +283,7 @@ describe('Mongo', () => {
           cursor.toArray.resolves(expectedResult);
           database.getCollection.returns(syscoll);
           syscoll.countDocuments.resolves(1);
-          syscoll.find.returns(cursor);
+          syscoll.find.resolves(cursor);
           const result = await mongo.show('profile');
           expect(database.getCollection).to.have.been.calledWith('system.profile');
           expect(syscoll.countDocuments).to.have.been.calledWith({});

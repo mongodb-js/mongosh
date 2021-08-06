@@ -136,7 +136,7 @@ export default class Shard extends ShellApiWithMongoClass {
 
   @returnsPromise
   @apiVersions([1])
-  async status(verbose = false): Promise<CommandResult> {
+  async status(verbose = false): Promise<CommandResult<Document>> {
     const result = await getPrintableShardStatus(this._database, verbose);
     return new CommandResult('StatsResult', result);
   }
