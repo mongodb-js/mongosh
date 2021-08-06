@@ -3,7 +3,7 @@
 import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
 import i18n from '@mongosh/i18n';
 import CliOptions from './cli-options';
-import ConnectionString from 'mongodb-connection-string-url';
+import ConnectionString, { CommaAndColonSeparatedRecord } from 'mongodb-connection-string-url';
 import { DEFAULT_DB } from './index';
 
 /**
@@ -58,8 +58,9 @@ function validateConflicts(options: CliOptions, connectionString?: ConnectionStr
   }
 
   if (options.gssapiServiceName && connectionString?.searchParams.has('authMechanismProperties')) {
-    const authProperties = connectionString.searchParams.get('authMechanismProperties') ?? '';
-    const serviceName = /,?SERVICE_NAME:([^,]+)/.exec(authProperties)?.[1];
+    const authProperties = new CommaAndColonSeparatedRecord(
+      connectionString.searchParams.get('authMechanismProperties'));
+    const serviceName = authProperties.get('SERVICE_NAME');
     if (serviceName !== undefined && options.gssapiServiceName !== serviceName) {
       throw new MongoshInvalidInputError(i18n.__(DIVERGING_SERVICE_NAME), CommonErrors.InvalidArgument);
     }
