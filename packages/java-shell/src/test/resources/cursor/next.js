@@ -5,5 +5,7 @@ db.coll.insertOne({name: "value2", v: 2});
 db.coll.insertOne({name: "value2", v: 3});
 // command
 db.coll.find().next();
+// command
+db.coll.find().next().name;
 // clear
 db.coll.drop();
