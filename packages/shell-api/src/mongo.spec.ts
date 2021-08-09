@@ -283,7 +283,7 @@ describe('Mongo', () => {
           cursor.toArray.resolves(expectedResult);
           database.getCollection.returns(syscoll);
           syscoll.countDocuments.resolves(1);
-          syscoll.find.returns(cursor);
+          syscoll.find.resolves(cursor);
           const result = await mongo.show('profile');
           expect(database.getCollection).to.have.been.calledWith('system.profile');
           expect(syscoll.countDocuments).to.have.been.calledWith({});
@@ -714,7 +714,7 @@ describe('Mongo', () => {
   describe('integration', () => {
     const testServer = startTestServer('shared');
     let serviceProvider;
-    let internalState;
+    let internalState: ShellInternalState;
     let uri: string;
 
     beforeEach(async() => {
@@ -737,7 +737,7 @@ describe('Mongo', () => {
             const mongo = await internalState.shellApi.Mongo(uri, null, {
               api: { version: '1' }
             });
-            await mongo.getDB('test').getCollection('coll').find().toArray();
+            await (await mongo.getDB('test').getCollection('coll').find()).toArray();
             expect.fail('missed exception');
           } catch (err) {
             expect(err.name).to.match(/MongoServer(Selection)?Error/);
@@ -755,7 +755,7 @@ describe('Mongo', () => {
           });
           expect(mongo._apiOptions).to.deep.equal({ version: '1' });
           // Does not throw, unlike the 4.4 test case above:
-          await mongo.getDB('test').getCollection('coll').find().toArray();
+          await (await mongo.getDB('test').getCollection('coll').find()).toArray();
         });
       });
     });

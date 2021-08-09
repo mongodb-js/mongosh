@@ -26,7 +26,7 @@ describe('Explainable', () => {
     it('attributes', () => {
       expect(signatures.Explainable.attributes.find).to.deep.equal({
         type: 'function',
-        returnsPromise: false,
+        returnsPromise: true,
         deprecated: false,
         returnType: 'ExplainableCursor',
         platforms: ALL_PLATFORMS,
@@ -103,15 +103,15 @@ describe('Explainable', () => {
     describe('find', () => {
       let cursorStub;
       let explainResult;
-      beforeEach(() => {
+      beforeEach(async() => {
         explainResult = { ok: 1 };
 
         const cursorSpy = {
           explain: sinon.spy(() => explainResult)
         } as unknown;
-        collection.find = sinon.spy(() => (cursorSpy as Cursor));
+        collection.find = sinon.spy(() => Promise.resolve(cursorSpy as Cursor));
 
-        cursorStub = explainable.find(
+        cursorStub = await explainable.find(
           { query: 1 },
           { projection: 1 }
         );

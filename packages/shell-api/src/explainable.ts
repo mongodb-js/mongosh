@@ -85,10 +85,11 @@ export default class Explainable extends ShellApiWithMongoClass {
 
   @returnType('ExplainableCursor')
   @apiVersions([1])
-  find(query?: Document, projection?: Document): ExplainableCursor {
+  @returnsPromise
+  async find(query?: Document, projection?: Document): Promise<ExplainableCursor> {
     this._emitExplainableApiCall('find', { query, projection });
 
-    const cursor = this._collection.find(query, projection);
+    const cursor = await this._collection.find(query, projection);
     return new ExplainableCursor(this._mongo, cursor, this._verbosity);
   }
 

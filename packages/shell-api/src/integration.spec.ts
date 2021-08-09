@@ -1,13 +1,14 @@
 import { expect } from 'chai';
 import { CliServiceProvider } from '../../service-provider-server'; // avoid cyclic dep just for test
 import ShellInternalState from './shell-internal-state';
-import Cursor from './cursor';
+import type Cursor from './cursor';
 import Explainable from './explainable';
-import Collection from './collection';
-import AggregationCursor from './aggregation-cursor';
+import type Database from './database';
+import type Collection from './collection';
+import type AggregationCursor from './aggregation-cursor';
 import { startTestServer, skipIfServerVersion, skipIfApiStrict } from '../../../testing/integration-testing-hooks';
 import { toShellResult, Topologies } from './index';
-import { Document } from '@mongosh/service-provider-core';
+import type { Document } from '@mongosh/service-provider-core';
 import { ShellUserConfig } from '@mongosh/types';
 import { EventEmitter, once } from 'events';
 
@@ -49,7 +50,7 @@ describe('Shell API (integration)', function() {
     expect(collectionNames).to.not.include(collectionName);
   };
 
-  const loadQueryCache = async(collection): Promise<any> => {
+  const loadQueryCache = async(collection: Collection): Promise<any> => {
     const res = await collection.insertMany([
       { '_id': 1, 'item': 'abc', 'price': 12, 'quantity': 2, 'type': 'apparel' },
       { '_id': 2, 'item': 'jkl', 'price': 20, 'quantity': 1, 'type': 'electronics' },
@@ -64,13 +65,13 @@ describe('Shell API (integration)', function() {
     expect(await collection.createIndex({ quantity: 1 })).to.not.be.undefined;
     expect(await collection.createIndex({ quantity: 1, type: 1 })).to.not.be.undefined;
 
-    await collection.find( { item: 'abc', price: { $gte: 10 } } ).toArray();
-    await collection.find( { item: 'abc', price: { $gte: 5 } } ).toArray();
-    await collection.find( { quantity: { $gte: 20 } } ).toArray();
-    await collection.find( { quantity: { $gte: 5 }, type: 'apparel' } ).toArray();
+    await (await collection.find( { item: 'abc', price: { $gte: 10 } } )).toArray();
+    await (await collection.find( { item: 'abc', price: { $gte: 5 } } )).toArray();
+    await (await collection.find( { quantity: { $gte: 20 } } )).toArray();
+    await (await collection.find( { quantity: { $gte: 5 }, type: 'apparel' } )).toArray();
   };
 
-  const loadMRExample = async(collection): Promise<any> => {
+  const loadMRExample = async(collection: Collection): Promise<any> => {
     const res = await collection.insertMany([
       { _id: 1, cust_id: 'Ant O. Knee', ord_date: new Date('2020-03-01'), price: 25, items: [ { sku: 'oranges', qty: 5, price: 2.5 }, { sku: 'apples', qty: 5, price: 2.5 } ], status: 'A' },
       { _id: 2, cust_id: 'Ant O. Knee', ord_date: new Date('2020-03-08'), price: 70, items: [ { sku: 'oranges', qty: 8, price: 2.5 }, { sku: 'chocolates', qty: 5, price: 10 } ], status: 'A' },
@@ -98,7 +99,7 @@ describe('Shell API (integration)', function() {
   let shellApi;
   let mongo;
   let dbName;
-  let database;
+  let database: Database;
   let collection: Collection;
   let collectionName;
 
@@ -134,7 +135,7 @@ describe('Shell API (integration)', function() {
 
       describe('when calling it after find', () => {
         it('returns next batch of docs', async() => {
-          collection.find({}, { _id: 0 });
+          await collection.find({}, { _id: 0 });
           await shellApi.it();
           expect({ ...await shellApi.it() }).to.deep.equal({
             cursorHasMore: false,
@@ -146,8 +147,8 @@ describe('Shell API (integration)', function() {
       describe('when calling limit after skip', () => {
         let cursor: Cursor;
 
-        beforeEach(() => {
-          cursor = collection.find({}, { _id: 0 })
+        beforeEach(async() => {
+          cursor = (await collection.find({}, { _id: 0 }))
             .skip(1)
             .limit(1);
         });
@@ -939,7 +940,7 @@ describe('Shell API (integration)', function() {
         const longOne = new serviceProvider.bsonLibrary.Long('1');
         await serviceProvider.insertOne(dbName, collectionName, { longOne, _id: 0 });
 
-        const cursor = collection.find({});
+        const cursor = await collection.find({});
 
         expect(await cursor.toArray()).to.deep.equal([{ longOne, _id: 0 }]);
       });
@@ -948,7 +949,7 @@ describe('Shell API (integration)', function() {
         const longOne = new serviceProvider.bsonLibrary.Long('1');
         await serviceProvider.insertOne(dbName, collectionName, { longOne, _id: 0 });
 
-        const cursor = collection.find({}, {}, { promoteLongs: true });
+        const cursor = await collection.find({}, {}, { promoteLongs: true });
 
         expect(await cursor.toArray()).to.deep.equal([{ longOne: 1, _id: 0 }]);
       });
@@ -1226,7 +1227,7 @@ describe('Shell API (integration)', function() {
       skipIfApiStrict();
 
       it('includes an entry for ping', async() => {
-        const { ping } = (await database.listCommands()).value;
+        const { ping } = (await database.listCommands()).value as any;
         expect(ping.help).to.be.a('string');
         expect(ping.adminOnly).to.be.a('boolean');
         expect(ping.secondaryOk).to.be.a('boolean');
@@ -1247,7 +1248,7 @@ describe('Shell API (integration)', function() {
 
     describe('find', () => {
       it('returns a cursor that has the explain as result of toShellResult', async() => {
-        const cursor = explainable.find().skip(1).limit(1);
+        const cursor = (await explainable.find()).skip(1).limit(1);
         const result = await toShellResult(cursor);
         expect(result.printable).to.include.all.keys([
           'ok',
@@ -1516,7 +1517,7 @@ describe('Shell API (integration)', function() {
     describe('invalid verbosity', () => {
       it('rejects with a server error', async() => {
         try {
-          await collection.find().explain('foo');
+          await (await collection.find()).explain('foo');
           expect.fail('missed exception');
         } catch (err) {
           expect(err.name).to.equal('MongoServerError');
@@ -1786,7 +1787,7 @@ describe('Shell API (integration)', function() {
               .collation({ locale: 'fr', strength: 1 })
               .update({ $set: { customers: 20 } })
               .execute();
-            expect(await collection.find({ name: 'cafe' }, { _id: 0 }).toArray()).to.deep.equal([{
+            expect(await (await collection.find({ name: 'cafe' }, { _id: 0 })).toArray()).to.deep.equal([{
               name: 'cafe', customers: 20
             }]);
           });
@@ -2021,7 +2022,7 @@ describe('Shell API (integration)', function() {
       }`;
       const result = await collection.mapReduce(mapFn, reduceFn, 'map_reduce_example');
       expect(result.ok).to.equal(1);
-      const outRes = await database.map_reduce_example.find().sort({ _id: 1 }).toArray();
+      const outRes = await (await database.getCollection('map_reduce_example').find()).sort({ _id: 1 }).toArray();
       expect(outRes).to.deep.equal([
         { '_id': 'Ant O. Knee', 'value': 95 },
         { '_id': 'Busby Bee', 'value': 125 },
@@ -2040,7 +2041,7 @@ describe('Shell API (integration)', function() {
       const result = await collection.mapReduce(mapFn, reduceFn.toString(), 'map_reduce_example');
       expect(result.ok).to.equal(1);
       expect(result.result).to.equal('map_reduce_example');
-      const outRes = await database.map_reduce_example.find().sort({ _id: 1 }).toArray();
+      const outRes = await (await database.getCollection('map_reduce_example').find()).sort({ _id: 1 }).toArray();
       expect(outRes).to.deep.equal([
         { '_id': 'Ant O. Knee', 'value': 95 },
         { '_id': 'Busby Bee', 'value': 125 },
@@ -2176,30 +2177,30 @@ describe('Shell API (integration)', function() {
         setConfig(key: string, value: any) { cfg[key] = value; return 'success'; },
         listConfigOptions() { return Object.keys(cfg); }
       });
-      expect((await collection.find()._it()).documents).to.have.lengthOf(20);
+      expect((await (await collection.find())._it()).documents).to.have.lengthOf(20);
     });
 
     it('config changes affect displayBatchSize', async() => {
       await shellApi.config.set('displayBatchSize', 10);
-      expect((await collection.find()._it()).documents).to.have.lengthOf(10);
+      expect((await (await collection.find())._it()).documents).to.have.lengthOf(10);
     });
 
     it('DBQuery.shellBatchSize takes precedence over config', async() => {
       await shellApi.config.set('displayBatchSize', 10);
       shellApi.DBQuery.shellBatchSize = 30;
       expect(shellApi.DBQuery.shellBatchSize).to.equal(30);
-      expect((await collection.find()._it()).documents).to.have.lengthOf(30);
+      expect((await (await collection.find())._it()).documents).to.have.lengthOf(30);
     });
 
     it('cursor.batchSize does not override config displayBatchSize', async() => {
       await shellApi.config.set('displayBatchSize', 10);
-      expect((await collection.find().batchSize(50)._it()).documents).to.have.lengthOf(10);
+      expect((await (await collection.find()).batchSize(50)._it()).documents).to.have.lengthOf(10);
     });
 
     it('cursor.batchSize does not override DBQuery.shellBatchSize', async() => {
       shellApi.DBQuery.shellBatchSize = 5;
       expect(shellApi.DBQuery.shellBatchSize).to.equal(5);
-      expect((await collection.find().batchSize(50)._it()).documents).to.have.lengthOf(5);
+      expect((await (await collection.find()).batchSize(50)._it()).documents).to.have.lengthOf(5);
     });
   });
 
@@ -2210,13 +2211,13 @@ describe('Shell API (integration)', function() {
 
     it('forEach() iterates over input but does not return anything', async() => {
       let value = 0;
-      const result = await collection.find().forEach(({ i }) => { value += i; });
+      const result = await (await collection.find()).forEach(({ i }) => { value += i; });
       expect(result).to.equal(undefined);
       expect(value).to.equal(45);
     });
 
     it('map() iterates over input and changes documents in-place', async() => {
-      const cursor = collection.find();
+      const cursor = await collection.find();
       cursor.map(({ i }) => ({ j: i }));
       expect((await cursor._it()).documents[0]).to.deep.equal({ j: 0 });
     });
@@ -2225,7 +2226,7 @@ describe('Shell API (integration)', function() {
       const error = new Error();
       let calls = 0;
       try {
-        await collection.find().forEach(() => { calls++; throw error; });
+        await (await collection.find()).forEach(() => { calls++; throw error; });
         expect.fail('missed exception');
       } catch (err) {
         expect(err).to.equal(error);
@@ -2235,7 +2236,7 @@ describe('Shell API (integration)', function() {
 
     it('map() errors show up when reading the cursor', async() => {
       const error = new Error();
-      const cursor = collection.find();
+      const cursor = await collection.find();
       let calls = 0;
       cursor.map(() => { calls++; throw error; });
       for (let i = 0; i < 2; i++) {

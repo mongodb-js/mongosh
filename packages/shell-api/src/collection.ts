@@ -405,9 +405,11 @@ export default class Collection extends ShellApiWithMongoClass {
    *
    * @returns {Cursor} The promise of the cursor.
    */
+  // eslint-disable-next-line @typescript-eslint/require-await
   @returnType('Cursor')
   @apiVersions([1])
-  find(query?: Document, projection?: Document, options: FindOptions = {}): Cursor {
+  @returnsPromise
+  async find(query?: Document, projection?: Document, options: FindOptions = {}): Promise<Cursor> {
     if (projection) {
       options.projection = projection;
     }

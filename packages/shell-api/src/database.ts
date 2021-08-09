@@ -1351,8 +1351,8 @@ export default class Database extends ShellApiWithMongoClass {
     result.usedMB = olStats.size / (1024 * 1024);
     result.usedMB = Math.ceil(result.usedMB * 100) / 100;
 
-    const first = await ol.find().sort({ $natural: 1 }).limit(1).tryNext();
-    const last = await ol.find().sort({ $natural: -1 }).limit(1).tryNext();
+    const first = await (await ol.find()).sort({ $natural: 1 }).limit(1).tryNext();
+    const last = await (await ol.find()).sort({ $natural: -1 }).limit(1).tryNext();
     if (first === null || last === null) {
       throw new MongoshRuntimeError(
         'objects not found in local.oplog.$main -- is this a new and empty db instance?',

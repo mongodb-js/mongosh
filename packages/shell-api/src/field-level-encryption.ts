@@ -179,21 +179,24 @@ export class KeyVault extends ShellApiWithMongoClass {
 
   @returnType('Cursor')
   @apiVersions([1])
-  getKey(keyId: BinaryType): Cursor {
+  @returnsPromise
+  async getKey(keyId: BinaryType): Promise<Cursor> {
     assertArgsDefinedType([keyId], [true], 'KeyVault.getKey');
     return this._keyColl.find({ '_id': keyId });
   }
 
   @returnType('Cursor')
   @apiVersions([1])
-  getKeyByAltName(keyAltName: string): Cursor {
+  @returnsPromise
+  async getKeyByAltName(keyAltName: string): Promise<Cursor> {
     assertArgsDefinedType([keyAltName], ['string'], 'KeyVault.getKeyByAltName');
     return this._keyColl.find({ 'keyAltNames': keyAltName });
   }
 
   @returnType('Cursor')
   @apiVersions([1])
-  getKeys(): Cursor {
+  @returnsPromise
+  async getKeys(): Promise<Cursor> {
     return this._keyColl.find({});
   }
 

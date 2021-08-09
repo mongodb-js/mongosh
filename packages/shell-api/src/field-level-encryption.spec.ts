@@ -287,29 +287,29 @@ describe('Field Level Encryption', () => {
       });
     });
     describe('getKey', () => {
-      it('calls find on key coll', () => {
+      it('calls find on key coll', async() => {
         const c = { cursor: 1 } as any;
         sp.find.returns(c);
-        const result = keyVault.getKey(KEY_ID);
+        const result = await keyVault.getKey(KEY_ID);
         expect(sp.find).to.have.been.calledOnceWithExactly(DB, COLL, { _id: KEY_ID }, {});
         expect(result._cursor).to.deep.equal(c);
       });
     });
     describe('getKeyByAltName', () => {
-      it('calls find on key coll', () => {
+      it('calls find on key coll', async() => {
         const c = { cursor: 1 } as any;
         const keyaltname = 'abc';
         sp.find.returns(c);
-        const result = keyVault.getKeyByAltName(keyaltname);
+        const result = await keyVault.getKeyByAltName(keyaltname);
         expect(sp.find).to.have.been.calledOnceWithExactly(DB, COLL, { keyAltNames: keyaltname }, {});
         expect(result._cursor).to.deep.equal(c);
       });
     });
     describe('getKeys', () => {
-      it('calls find on key coll', () => {
+      it('calls find on key coll', async() => {
         const c = { cursor: 1 } as any;
         sp.find.returns(c);
-        const result = keyVault.getKeys();
+        const result = await keyVault.getKeys();
         expect(sp.find).to.have.been.calledOnceWithExactly(DB, COLL, {}, {});
         expect(result._cursor).to.deep.equal(c);
       });
