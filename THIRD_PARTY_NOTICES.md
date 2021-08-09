@@ -197,7 +197,7 @@ Package|Version|License
 **[mongodb-ace-autocompleter](#f8d74c39b8fd1bf8c68814e2006477bd7ae4df1586f48c43ec771797e1d3d064)**|0.5.0|Apache-2.0
 **[mongodb-build-info](#3e1ab3564d63f8a06a80cc2b752a458eabdaa33318303341aa6f7a9461115958)**|1.2.0|Apache-2.0
 **[mongodb-client-encryption](#2400753e4c313cbe1059fed67cfe07c83a8887810d236b84878dad8fdfba9ef7)**|1.2.6|Apache-2.0
-**[mongodb-connection-string-url](#10675501732c0f00dc5538bcef826b80639bd37040ed5104a4d4b9cb044034cb)**|1.1.2|Apache-2.0
+**[mongodb-connection-string-url](#151d9f737fe1a273e3e9915f9aa4c9194d52d2b9ed803047959027244af7036a)**|2.0.0|Apache-2.0
 **[mongodb-connection-string-url](#5d55c56f0938c1cee2fa2bbecfca8bd68d2ccc846a200b1d6da93e62e77dea3a)**|1.1.0|Apache-2.0
 **[mongodb-redact](#00a2cfed57df1e8b912b751b08bee4de24ad0189840c99820ebc00c1b219a421)**|0.2.2|Apache-2.0
 **[ms](#0a987b2f79ff37005e452a5afa7dacd3042061a7077054d2ba9cabacd88506d2)**|2.1.2|MIT
@@ -264,14 +264,15 @@ Package|Version|License
 **[tar-stream](#0dc8f500e45626ff1f83a8b3bb9d4dbae5ce9f2df7fc81b5eca6af1af2e85d27)**|2.2.0|MIT
 **[text-table](#408475075eb207dd5ae8858365d5b39a25bebe2b757601c43164cec36f315b23)**|0.2.0|MIT
 **[to-fast-properties](#79afe8c8f3cc0bb1187c6ffaf6105b49888137e917978e870d67727353aba954)**|2.0.0|MIT
-**[tr46](#ea9f887c545b5bf0b77a1359bbdefd249bd7caef35f5094febeb0de965480c4c)**|2.0.2|MIT
 **[tr46](#181343fca47e669c997ddb536b6caff3c769402b0674612e32d3c274719049c8)**|2.1.0|MIT
+**[tr46](#ea9f887c545b5bf0b77a1359bbdefd249bd7caef35f5094febeb0de965480c4c)**|2.0.2|MIT
 **[tunnel-agent](#09f746d17a1777efda5a12a6072da10c6820d7f56ea8aa0af202a2c83d6ccb67)**|0.6.0|Apache-2.0
 **[util-deprecate](#a1bd80d6a50b36e34032c402c5204d6276747d8212b68b164a9e3f895b90c2d6)**|1.0.2|MIT
 **[uuid](#e023df51e61e43f45cd8882485cac21ba6eb49b42732a93fe4f1f967d3933beb)**|3.4.0|MIT
 **[webidl-conversions](#0868d5fd0f1744b732e4832b5dd5bd9ce27ffe9dcaa6cacda5a4efca750da5fb)**|6.1.0|BSD-2-Clause
-**[whatwg-url](#ef6d4d46ba99598bc906aaf357ea6fefa6708c0c1dfa4cba1ce5cbc10c1a721b)**|8.4.0|MIT
+**[whatwg-url](#27c192a5f829a75dd40ddb7c74db291436ef4a59c16e9ed876ee2ecee80c460a)**|9.1.0|MIT
 **[whatwg-url](#1b9074bca64d1c71f4c40e9dffb78610493cda13a00a5ad06063ce2741751aff)**|8.6.0|MIT
+**[whatwg-url](#ef6d4d46ba99598bc906aaf357ea6fefa6708c0c1dfa4cba1ce5cbc10c1a721b)**|8.4.0|MIT
 **[which](#5a71f2b741944bf107d6e7f067241798a6e277e42e8ca1e28c4608ccc233f8ec)**|2.0.2|ISC
 **[wide-align](#c58d08bb85700ddf0f3ea9623adf6b3377301a5a4eeb3d115a63320de0cb59e6)**|1.1.3|ISC
 **[wrappy](#13cebf193d7ada5ee347b9ae819b96f5e6da21f9b53e7f268c7703b686158595)**|1.0.2|ISC
@@ -11227,8 +11228,8 @@ Authors:
 * Matt Broadstone <mbroadst@mongodb.com>
 
 
-<a id="10675501732c0f00dc5538bcef826b80639bd37040ed5104a4d4b9cb044034cb"></a>
-### [mongodb-connection-string-url](https://www.npmjs.com/package/mongodb-connection-string-url) (version 1.1.2)
+<a id="151d9f737fe1a273e3e9915f9aa4c9194d52d2b9ed803047959027244af7036a"></a>
+### [mongodb-connection-string-url](https://www.npmjs.com/package/mongodb-connection-string-url) (version 2.0.0)
 <!-- initially found at packages/service-provider-core/node_modules/mongodb-connection-string-url -->
 > MongoDB connection strings, based on the WhatWG URL API
 
@@ -14519,9 +14520,9 @@ Authors:
 * Sindre Sorhus <[sindresorhus@gmail.com](nomail)> (sindresorhus.com)
 
 
-<a id="ea9f887c545b5bf0b77a1359bbdefd249bd7caef35f5094febeb0de965480c4c"></a>
-### [tr46](https://www.npmjs.com/package/tr46) (version 2.0.2)
-<!-- initially found at packages/service-provider-core/node_modules/tr46 -->
+<a id="181343fca47e669c997ddb536b6caff3c769402b0674612e32d3c274719049c8"></a>
+### [tr46](https://www.npmjs.com/package/tr46) (version 2.1.0)
+<!-- initially found at packages/service-provider-core/node_modules/mongodb-connection-string-url/node_modules/tr46 -->
 > An implementation of the Unicode UTS #46: Unicode IDNA Compatibility Processing
 
 License tags: MIT
@@ -14557,9 +14558,9 @@ Authors:
 * Timothy Gu <timothygu99@gmail.com>
 
 
-<a id="181343fca47e669c997ddb536b6caff3c769402b0674612e32d3c274719049c8"></a>
-### [tr46](https://www.npmjs.com/package/tr46) (version 2.1.0)
-<!-- initially found at packages/service-provider-server/node_modules/tr46 -->
+<a id="ea9f887c545b5bf0b77a1359bbdefd249bd7caef35f5094febeb0de965480c4c"></a>
+### [tr46](https://www.npmjs.com/package/tr46) (version 2.0.2)
+<!-- initially found at packages/service-provider-core/node_modules/tr46 -->
 > An implementation of the Unicode UTS #46: Unicode IDNA Compatibility Processing
 
 License tags: MIT
@@ -14767,9 +14768,9 @@ Authors:
 * Domenic Denicola <d@domenic.me> (https://domenic.me/)
 
 
-<a id="ef6d4d46ba99598bc906aaf357ea6fefa6708c0c1dfa4cba1ce5cbc10c1a721b"></a>
-### [whatwg-url](https://www.npmjs.com/package/whatwg-url) (version 8.4.0)
-<!-- initially found at packages/service-provider-core/node_modules/whatwg-url -->
+<a id="27c192a5f829a75dd40ddb7c74db291436ef4a59c16e9ed876ee2ecee80c460a"></a>
+### [whatwg-url](https://www.npmjs.com/package/whatwg-url) (version 9.1.0)
+<!-- initially found at packages/service-provider-core/node_modules/mongodb-connection-string-url/node_modules/whatwg-url -->
 > An implementation of the WHATWG URL Standard's URL API and parsing machinery
 
 License tags: MIT
@@ -14807,6 +14808,43 @@ Authors:
 <a id="1b9074bca64d1c71f4c40e9dffb78610493cda13a00a5ad06063ce2741751aff"></a>
 ### [whatwg-url](https://www.npmjs.com/package/whatwg-url) (version 8.6.0)
 <!-- initially found at packages/service-provider-server/node_modules/whatwg-url -->
+> An implementation of the WHATWG URL Standard's URL API and parsing machinery
+
+License tags: MIT
+
+License files:
+* LICENSE.txt:
+
+      The MIT License (MIT)
+      
+      Copyright (c) 2015–2016 Sebastian Mayr
+      
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+      
+      The above copyright notice and this permission notice shall be included in
+      all copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+      THE SOFTWARE.
+      
+
+Authors:
+* Sebastian Mayr <github@smayr.name>
+
+
+<a id="ef6d4d46ba99598bc906aaf357ea6fefa6708c0c1dfa4cba1ce5cbc10c1a721b"></a>
+### [whatwg-url](https://www.npmjs.com/package/whatwg-url) (version 8.4.0)
+<!-- initially found at packages/service-provider-core/node_modules/whatwg-url -->
 > An implementation of the WHATWG URL Standard's URL API and parsing machinery
 
 License tags: MIT
