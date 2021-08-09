@@ -3,10 +3,12 @@
 // so we need to (crudely) polyfill that as well in order to use that
 // pure-JS implementation.
 if (
-  typeof require('util').TextDecoder !== 'function' ||
-  typeof require('util').TextEncoder !== 'function'
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  typeof TextDecoder !== 'function' || typeof TextEncoder !== 'function'
 ) {
-  Object.assign(require('util'), textEncodingPolyfill());
+  // eslint-disable-next-line no-new-func
+  Object.assign(Function('return this')(), textEncodingPolyfill());
 }
 
 // Basic encoder/decoder polyfill for java-shell environment (see above)
