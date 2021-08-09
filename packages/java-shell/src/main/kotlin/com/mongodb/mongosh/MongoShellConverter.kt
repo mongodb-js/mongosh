@@ -6,6 +6,7 @@ import com.mongodb.mongosh.result.*
 import com.mongodb.mongosh.service.Either
 import com.mongodb.mongosh.service.Left
 import com.mongodb.mongosh.service.Right
+import org.bson.BsonTimestamp
 import org.bson.Document
 import org.bson.json.JsonReader
 import org.bson.types.*
@@ -22,11 +23,22 @@ internal class MongoShellConverter(private val context: MongoShellContext, priva
 
     fun toJs(o: Any?): Any? {
         return when (o) {
-            is Iterable<*> -> toJs(o)
-            is Array<*> -> toJs(o)
-            is Map<*, *> -> toJs(o)
-            Unit -> context.eval("undefined")
-            else -> o
+            is Iterable<*>   -> toJs(o)
+            is Array<*>      -> toJs(o)
+            is Map<*, *>     -> toJs(o)
+            is Unit          -> context.eval("undefined")
+            is MaxKey        -> bsonTypes.maxKey.newInstance()
+            is MinKey        -> bsonTypes.minKey.newInstance()
+            is Binary        -> bsonTypes.binData.newInstance(toJs(o.data), o.type)
+            is Symbol        -> bsonTypes.bsonSymbol.newInstance(o.symbol)
+            is Decimal128    -> bsonTypes.numberDecimal.newInstance(o.bigDecimalValue().toPlainString())
+            is Long          -> bsonTypes.numberLong.newInstance(o.toString())
+            is Int           -> bsonTypes.numberInt.newInstance(o.toString())
+            is BsonTimestamp -> bsonTypes.timestamp.newInstance(o.inc, o.time)
+            is CodeWithScope -> bsonTypes.code.newInstance(o.code, toJs(o.scope))
+            is Code          -> bsonTypes.code.newInstance(o.code)
+            is DBRef         -> bsonTypes.dbRef.newInstance(o.collectionName, toJs(o.id), o.databaseName)
+            else             -> o
         }
     }
 
@@ -45,6 +57,14 @@ internal class MongoShellConverter(private val context: MongoShellContext, priva
             array.setArrayElement(index.toLong(), toJs(v))
         }
         return array
+    }
+
+    private fun toJs(array: ByteArray): Value {
+        val jsArray = context.eval("[]")
+        array.forEachIndexed { index, v ->
+            jsArray.setArrayElement(index.toLong(), v)
+        }
+        return jsArray
     }
 
     private fun toJs(list: Array<*>): Value {
@@ -96,25 +116,26 @@ internal class MongoShellConverter(private val context: MongoShellContext, priva
             // document with aggregation explain result also has type AggregationCursor, so we need to make sure that value contains cursor
             type == "AggregationCursor" && v.hasMember("_cursor") -> CursorResult(Cursor<Any?>(v, this))
             type == "InsertOneResult" -> InsertOneResult(v["acknowledged"]!!.asBoolean(), v["insertedId"]!!.asString())
-            type == "DeleteResult" -> DeleteResult(v["acknowledged"]!!.asBoolean(), v["deletedCount"]!!.asLong())
+            type == "DeleteResult" -> DeleteResult(v["acknowledged"]!!.asBoolean(), (toJava(v["deletedCount"]!!) as LongResult).value)
             type == "UpdateResult" -> {
                 val res = if (v["acknowledged"]!!.asBoolean()) {
                     UpdateResult.acknowledged(
-                            v["matchedCount"]!!.asLong(),
-                            v["modifiedCount"]!!.asLong(),
-                            null
+                        (toJava(v["matchedCount"]!!) as LongResult).value,
+                        (toJava(v["modifiedCount"]!!) as LongResult).value,
+                        null
                     )
                 } else UpdateResult.unacknowledged()
                 MongoShellUpdateResult(res)
             }
             type == "BulkWriteResult" -> BulkWriteResult(
-                    v["acknowledged"]!!.asBoolean(),
-                    v["insertedCount"]!!.asLong(),
-                    v["matchedCount"]!!.asLong(),
-                    v["modifiedCount"]!!.asLong(),
-                    v["deletedCount"]!!.asLong(),
-                    v["upsertedCount"]!!.asLong(),
-                    (toJava(v["upsertedIds"]!!) as ArrayResult).value)
+                v["acknowledged"]!!.asBoolean(),
+                (toJava(v["insertedCount"]!!) as IntResult).value,
+                (toJava(v["matchedCount"]!!) as IntResult).value,
+                (toJava(v["modifiedCount"]!!) as IntResult).value,
+                (toJava(v["deletedCount"]!!) as IntResult).value,
+                (toJava(v["upsertedCount"]!!) as IntResult).value,
+                (toJava(v["upsertedIds"]!!) as ArrayResult).value
+            )
             type == "InsertManyResult" -> InsertManyResult(v["acknowledged"]!!.asBoolean(), toJava(v["insertedIds"]!!).value as List<String>)
             v.instanceOf(context, "RegExp") -> {
                 val pattern = v["source"]!!.asString()
@@ -143,7 +164,7 @@ internal class MongoShellConverter(private val context: MongoShellContext, priva
             v.instanceOf(context, bsonTypes.dbRef) -> {
                 val databaseName = v["db"]?.let { if (it.isNull) null else it }?.asString()
                 val collectionName = v["collection"]!!.asString()
-                val value = toJava(v["oid"]!!).value
+                val value = toJava(v["oid"]!!).value!!
                 DBRefResult(DBRef(databaseName, collectionName, value))
             }
             v.instanceOf(context, bsonTypes.numberLong) -> LongResult(JsonReader(v.invokeMember("toExtendedJSON").toString()).readInt64())

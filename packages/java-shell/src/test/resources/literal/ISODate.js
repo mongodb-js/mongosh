@@ -1,3 +1,5 @@
+// before
+db.coll.insertOne({"_id": 1, v: new ISODate('2012-12-19T140505')});
 // command dontCheckValue
 ISODate()
 // command dontCheckValue
@@ -26,3 +28,7 @@ ISODate('20121219T14:05:05')
 ISODate('20121219T140505')
 // command checkResultClass
 ISODate('2012-12-19T140505')
+// command checkResultClass
+db.coll.find().toArray()[0].v;
+// clear
+db.coll.drop();

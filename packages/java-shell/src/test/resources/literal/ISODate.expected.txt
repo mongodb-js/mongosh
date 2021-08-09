@@ -12,3 +12,4 @@ DateResult: {"$date": {"$numberLong": "1355875200000"}}
 DateResult: {"$date": {"$numberLong": "1355925905000"}}
 DateResult: {"$date": {"$numberLong": "1355925905000"}}
 DateResult: {"$date": {"$numberLong": "1355925905000"}}
+DateResult: {"$date": {"$numberLong": "1355925905000"}}

@@ -1,1 +1,2 @@
 BSONTimestampResult: {"$timestamp": {"t": 100, "i": 0}}
+BSONTimestampResult: {"$timestamp": {"t": 100, "i": 0}}

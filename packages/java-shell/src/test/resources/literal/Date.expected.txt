@@ -9,3 +9,4 @@ DateResult: {"$date": {"$numberLong": "1355875200000"}}
 StringResult
 java.lang.IllegalArgumentException: Expected number or string. Got: {} (Document{{}})
 LongResult: 1355875200000
+DateResult: {"$date": {"$numberLong": "1355875200000"}}
