@@ -8374,7 +8374,7 @@ tasks:
           node_js_version: "14.17.4"
           distribution_build_variant: debian-x64
           executable_os_id: linux-x64
-  - name: package_and_upload_artifact_rhel_x64
+  - name: package_and_upload_artifact_rhel7_x64
     depends_on:
       - name: compile_artifact
         variant: linux_x64_build
@@ -8386,7 +8386,21 @@ tasks:
       - func: package_and_upload_artifact
         vars:
           node_js_version: "14.17.4"
-          distribution_build_variant: rhel-x64
+          distribution_build_variant: rhel7-x64
+          executable_os_id: linux-x64
+  - name: package_and_upload_artifact_rhel8_x64
+    depends_on:
+      - name: compile_artifact
+        variant: linux_x64_build
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.17.4"
+      - func: package_and_upload_artifact
+        vars:
+          node_js_version: "14.17.4"
+          distribution_build_variant: rhel8-x64
           executable_os_id: linux-x64
   - name: package_and_upload_artifact_suse_x64
     depends_on:
@@ -8444,7 +8458,7 @@ tasks:
           node_js_version: "14.17.4"
           distribution_build_variant: debian-arm64
           executable_os_id: linux-arm64
-  - name: package_and_upload_artifact_rhel_arm64
+  - name: package_and_upload_artifact_rhel8_arm64
     depends_on:
       - name: compile_artifact
         variant: linux_arm64_build
@@ -8456,7 +8470,7 @@ tasks:
       - func: package_and_upload_artifact
         vars:
           node_js_version: "14.17.4"
-          distribution_build_variant: rhel-arm64
+          distribution_build_variant: rhel8-arm64
           executable_os_id: linux-arm64
   - name: package_and_upload_artifact_amzn2_arm64
     depends_on:
@@ -8486,7 +8500,7 @@ tasks:
           node_js_version: "14.17.4"
           distribution_build_variant: linux-ppc64le
           executable_os_id: linux-ppc64le
-  - name: package_and_upload_artifact_rhel_ppc64le
+  - name: package_and_upload_artifact_rhel8_ppc64le
     depends_on:
       - name: compile_artifact
         variant: linux_ppc64le_build
@@ -8498,7 +8512,7 @@ tasks:
       - func: package_and_upload_artifact
         vars:
           node_js_version: "14.17.4"
-          distribution_build_variant: rhel-ppc64le
+          distribution_build_variant: rhel8-ppc64le
           executable_os_id: linux-ppc64le
   - name: package_and_upload_artifact_linux_s390x
     depends_on:
@@ -8514,7 +8528,7 @@ tasks:
           node_js_version: "14.17.4"
           distribution_build_variant: linux-s390x
           executable_os_id: linux-s390x
-  - name: package_and_upload_artifact_rhel_s390x
+  - name: package_and_upload_artifact_rhel7_s390x
     depends_on:
       - name: compile_artifact
         variant: linux_s390x_build
@@ -8526,7 +8540,7 @@ tasks:
       - func: package_and_upload_artifact
         vars:
           node_js_version: "14.17.4"
-          distribution_build_variant: rhel-s390x
+          distribution_build_variant: rhel7-s390x
           executable_os_id: linux-s390x
   - name: package_and_upload_artifact_win32_x64
     depends_on:
@@ -8643,45 +8657,59 @@ tasks:
   - name: pkg_test_docker_centos7_rpm
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_rhel_x64
+      - name: package_and_upload_artifact_rhel7_x64
         variant: linux
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_distribution_build_variant: rhel-x64
+          source_distribution_build_variant: rhel7-x64
       - func: write_preload_script
       - func: test_artifact_docker
         vars:
           dockerfile: centos7-rpm
-  - name: pkg_test_docker_centos8_rpm
-    tags: ["smoke-test"]
-    depends_on:
-      - name: package_and_upload_artifact_rhel_x64
-        variant: linux
-    commands:
-      - func: checkout
-      - func: get_artifact_url
-        vars:
-          source_distribution_build_variant: rhel-x64
-      - func: write_preload_script
-      - func: test_artifact_docker
-        vars:
-          dockerfile: centos8-rpm
   - name: pkg_test_docker_amazonlinux2_rpm
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_rhel_x64
+      - name: package_and_upload_artifact_rhel7_x64
         variant: linux
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_distribution_build_variant: rhel-x64
+          source_distribution_build_variant: rhel7-x64
       - func: write_preload_script
       - func: test_artifact_docker
         vars:
           dockerfile: amazonlinux2-rpm
+  - name: pkg_test_docker_centos8_rpm
+    tags: ["smoke-test"]
+    depends_on:
+      - name: package_and_upload_artifact_rhel8_x64
+        variant: linux
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          source_distribution_build_variant: rhel8-x64
+      - func: write_preload_script
+      - func: test_artifact_docker
+        vars:
+          dockerfile: centos8-rpm
+  - name: pkg_test_docker_fedora34_rpm
+    tags: ["smoke-test"]
+    depends_on:
+      - name: package_and_upload_artifact_rhel8_x64
+        variant: linux
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          source_distribution_build_variant: rhel8-x64
+      - func: write_preload_script
+      - func: test_artifact_docker
+        vars:
+          dockerfile: fedora34-rpm
   - name: pkg_test_docker_suse12_rpm
     tags: ["smoke-test"]
     depends_on:
@@ -8736,16 +8764,16 @@ tasks:
           source_distribution_build_variant: debian-arm64
       - func: write_preload_script
       - func: test_artifact_debextract
-  - name: pkg_test_rpmextract_rhel_arm64
+  - name: pkg_test_rpmextract_rhel8_arm64
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_rhel_arm64
+      - name: package_and_upload_artifact_rhel8_arm64
         variant: linux
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_distribution_build_variant: rhel-arm64
+          source_distribution_build_variant: rhel8-arm64
       - func: write_preload_script
       - func: test_artifact_rpmextract
   - name: pkg_test_rpmextract_amzn2_arm64
@@ -8760,28 +8788,28 @@ tasks:
           source_distribution_build_variant: amzn2-arm64
       - func: write_preload_script
       - func: test_artifact_rpmextract
-  - name: pkg_test_rpmextract_rhel_ppc64le
+  - name: pkg_test_rpmextract_rhel8_ppc64le
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_rhel_ppc64le
+      - name: package_and_upload_artifact_rhel8_ppc64le
         variant: linux
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_distribution_build_variant: rhel-ppc64le
+          source_distribution_build_variant: rhel8-ppc64le
       - func: write_preload_script
       - func: test_artifact_rpmextract
-  - name: pkg_test_rpmextract_rhel_s390x
+  - name: pkg_test_rpmextract_rhel7_s390x
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_rhel_s390x
+      - name: package_and_upload_artifact_rhel7_s390x
         variant: linux
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_distribution_build_variant: rhel-s390x
+          source_distribution_build_variant: rhel7-s390x
       - func: write_preload_script
       - func: test_artifact_rpmextract
   - name: pkg_test_ssh_win32_x64
@@ -9150,17 +9178,18 @@ buildvariants:
       - name: test_apistrict
       - name: package_and_upload_artifact_linux_x64
       - name: package_and_upload_artifact_debian_x64
-      - name: package_and_upload_artifact_rhel_x64
+      - name: package_and_upload_artifact_rhel7_x64
+      - name: package_and_upload_artifact_rhel8_x64
       - name: package_and_upload_artifact_suse_x64
       - name: package_and_upload_artifact_amzn1_x64
       - name: package_and_upload_artifact_linux_s390x
-      - name: package_and_upload_artifact_rhel_s390x
+      - name: package_and_upload_artifact_rhel7_s390x
       - name: package_and_upload_artifact_linux_arm64
       - name: package_and_upload_artifact_debian_arm64
-      - name: package_and_upload_artifact_rhel_arm64
+      - name: package_and_upload_artifact_rhel8_arm64
       - name: package_and_upload_artifact_amzn2_arm64
       - name: package_and_upload_artifact_linux_ppc64le
-      - name: package_and_upload_artifact_rhel_ppc64le
+      - name: package_and_upload_artifact_rhel8_ppc64le
   - name: linux_x64_build
     display_name: "RHEL 7.0 x64 (build)"
     run_on: rhel70-build
@@ -9459,7 +9488,7 @@ buildvariants:
     display_name: "package smoke tests (RHEL 8.2 arm64)"
     run_on: rhel82-arm64-small
     tasks:
-      - name: pkg_test_rpmextract_rhel_arm64
+      - name: pkg_test_rpmextract_rhel8_arm64
   - name: pkg_smoke_tests_rhel82_arm64
     display_name: "package smoke tests (Amazon Linux 2 arm64)"
     run_on: amazon2-arm64-small
@@ -9469,17 +9498,17 @@ buildvariants:
     display_name: "package smoke tests (RHEL 7.2 s390x)"
     run_on: rhel72-zseries-small
     tasks:
-      - name: pkg_test_rpmextract_rhel_s390x
+      - name: pkg_test_rpmextract_rhel7_s390x
   #- name: pkg_smoke_tests_rhel80_s390x
   #  display_name: "package smoke tests (RHEL 8.0 s390x)"
   #  run_on: rhel80-zseries-small
   #  tasks:
-  #    - name: pkg_test_rpmextract_rhel_s390x
+  #    - name: pkg_test_rpmextract_rhel8_s390x
   - name: pkg_smoke_tests_rhel81_ppc64le
     display_name: "package smoke tests (RHEL 8.1 ppc64le)"
     run_on: rhel81-power8-small
     tasks:
-      - name: pkg_test_rpmextract_rhel_ppc64le
+      - name: pkg_test_rpmextract_rhel8_ppc64le
 
   - name: draft_publish_release
     display_name: "Draft/Publish Release"

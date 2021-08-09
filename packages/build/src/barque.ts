@@ -45,13 +45,16 @@ export function getReposAndArch(buildVariant: BuildVariant): { ppas: PPAReposito
         ppas: ['ubuntu1804', 'ubuntu2004', 'debian92', 'debian10'],
         arch: getDebArchName(getArch(buildVariant))
       };
-    case 'rhel':
+    case 'rhel7':
       if (getArch(buildVariant) === 'x64') {
         return {
-          ppas: ['rhel70', 'rhel80', 'amazon2'],
+          ppas: ['rhel70', 'amazon2'],
           arch: getRPMArchName(getArch(buildVariant))
         };
-      } else if (getArch(buildVariant) === 'arm64') {
+      }
+      return { ppas: [], arch: '' };
+    case 'rhel8':
+      if (getArch(buildVariant) === 'x64' || getArch(buildVariant) === 'arm64') {
         return {
           ppas: ['rhel80'],
           arch: getRPMArchName(getArch(buildVariant))

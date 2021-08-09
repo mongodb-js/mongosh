@@ -46,21 +46,27 @@ describe('Barque', () => {
             ]
           },
           {
-            variant: 'rhel-x64',
+            variant: 'rhel7-x64',
             url: 'https://s3.amazonaws.com/mciuploads/mongosh/5ed7ee5d8683818eb28d9d3b5c65837cde4a08f5/mongodb-mongosh-0.1.0.el7.x86_64.rpm',
             publishedUrls: [
               'https://repo.mongodb.org/yum/redhat/7/mongodb-org/4.4/x86_64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm',
               'https://repo.mongodb.com/yum/redhat/7/mongodb-enterprise/4.4/x86_64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm',
               'https://repo.mongodb.org/yum/redhat/7/mongodb-org/5.0/x86_64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm',
               'https://repo.mongodb.com/yum/redhat/7/mongodb-enterprise/5.0/x86_64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm',
-              'https://repo.mongodb.org/yum/redhat/8/mongodb-org/4.4/x86_64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm',
-              'https://repo.mongodb.com/yum/redhat/8/mongodb-enterprise/4.4/x86_64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm',
-              'https://repo.mongodb.org/yum/redhat/8/mongodb-org/5.0/x86_64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm',
-              'https://repo.mongodb.com/yum/redhat/8/mongodb-enterprise/5.0/x86_64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm',
               'https://repo.mongodb.org/yum/amazon/2/mongodb-org/4.4/x86_64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm',
               'https://repo.mongodb.com/yum/amazon/2/mongodb-enterprise/4.4/x86_64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm',
               'https://repo.mongodb.org/yum/amazon/2/mongodb-org/5.0/x86_64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm',
               'https://repo.mongodb.com/yum/amazon/2/mongodb-enterprise/5.0/x86_64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm'
+            ]
+          },
+          {
+            variant: 'rhel8-x64',
+            url: 'https://s3.amazonaws.com/mciuploads/mongosh/5ed7ee5d8683818eb28d9d3b5c65837cde4a08f5/mongodb-mongosh-0.1.0.el7.x86_64.rpm',
+            publishedUrls: [
+              'https://repo.mongodb.org/yum/redhat/8/mongodb-org/4.4/x86_64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm',
+              'https://repo.mongodb.com/yum/redhat/8/mongodb-enterprise/4.4/x86_64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm',
+              'https://repo.mongodb.org/yum/redhat/8/mongodb-org/5.0/x86_64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm',
+              'https://repo.mongodb.com/yum/redhat/8/mongodb-enterprise/5.0/x86_64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm'
             ]
           }
         ] as const).forEach(({ variant, url, publishedUrls }) => {

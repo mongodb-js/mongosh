@@ -4,7 +4,7 @@
  * Different from 'platform': platform is extracted from os.platform() and
  * build variant defines the desired distribution type to build for.
  */
-export type Distro = 'win32' | 'win32msi' | 'darwin' | 'linux' | 'debian' | 'rhel' | 'suse' | 'amzn1' | 'amzn2';
+export type Distro = 'win32' | 'win32msi' | 'darwin' | 'linux' | 'debian' | 'rhel7' | 'rhel8' | 'suse' | 'amzn1' | 'amzn2';
 export type Arch = 'x64' | 's390x' | 'arm64' | 'ppc64le';
 export type BuildVariant = `${Distro}-${Arch}`;
 
@@ -13,7 +13,7 @@ export const ALL_BUILD_VARIANTS: readonly BuildVariant[] = Object.freeze([
   'darwin-x64', 'darwin-arm64',
   'linux-x64', 'linux-s390x', 'linux-arm64', 'linux-ppc64le',
   'debian-x64', 'debian-arm64',
-  'rhel-x64', 'rhel-s390x', 'rhel-arm64', 'rhel-ppc64le',
+  'rhel7-x64', 'rhel7-s390x', 'rhel8-x64', 'rhel8-arm64', 'rhel8-ppc64le',
   'suse-x64',
   'amzn1-x64',
   'amzn2-arm64'
@@ -68,10 +68,11 @@ export function getDownloadCenterDistroDescription(variant: BuildVariant): strin
     case 'linux-ppc64le': return 'Linux Tarball ppc64le';
     case 'debian-x64': return 'Debian / Ubuntu 64-bit';
     case 'debian-arm64': return 'Debian / Ubuntu arm64';
-    case 'rhel-x64': return 'Redhat / Centos / Amazon Linux 2 64-bit';
-    case 'rhel-s390x': return 'Redhat / Centos s390x';
-    case 'rhel-ppc64le': return 'Redhat / Centos ppc64le';
-    case 'rhel-arm64': return 'Redhat / Centos arm64';
+    case 'rhel7-x64': return 'Redhat 7 / Centos 7 / Amazon Linux 2 64-bit';
+    case 'rhel7-s390x': return 'Redhat 7 / Centos 7 s390x';
+    case 'rhel8-x64': return 'Redhat 8 / Centos 8 / Fedora 64-bit';
+    case 'rhel8-ppc64le': return 'Redhat 8 / Centos 8 ppc64le';
+    case 'rhel8-arm64': return 'Redhat 8 / Centos 8 arm64';
     case 'suse-x64': return 'SUSE Linux 64-bit';
     case 'amzn1-x64': return 'Amazon Linux 1 64-bit';
     case 'amzn2-arm64': return 'Amazon Linux 2 arm64';

@@ -29,7 +29,8 @@ export async function createPackage(
     case 'linux':
       await createTarballPackage(packageInformation, fullTarballFilePath);
       break;
-    case 'rhel':
+    case 'rhel7':
+    case 'rhel8':
     case 'suse':
     case 'amzn1':
     case 'amzn2':

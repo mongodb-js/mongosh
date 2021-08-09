@@ -22,7 +22,7 @@ describe('tarball redhat', () => {
 
     const tarball = await createPackage(
       tmpPkg.tarballDir,
-      'rhel-x64',
+      'rhel7-x64',
       tmpPkg.pkgConfig
     );
 
