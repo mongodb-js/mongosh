@@ -111,11 +111,11 @@ class DeleteResult(val acknowledged: Boolean, val deletedCount: Long) : MongoShe
 }
 
 class BulkWriteResult(val acknowledged: Boolean,
-                      val insertedCount: Long,
-                      val matchedCount: Long,
-                      val modifiedCount: Long,
-                      val deletedCount: Long,
-                      val upsertedCount: Long,
+                      val insertedCount: Int,
+                      val matchedCount: Int,
+                      val modifiedCount: Int,
+                      val deletedCount: Int,
+                      val upsertedCount: Int,
                       val upsertedIds: List<Any?>) : MongoShellResult<Map<String, Any>>() {
     override val value: Map<String, Any>
         get() = mapOf("acknowledged" to acknowledged,
