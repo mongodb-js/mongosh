@@ -58,7 +58,6 @@ export default class Database extends ShellApiWithMongoClass {
   _mongo: Mongo;
   _name: string;
   _collections: Record<string, Collection>;
-  _baseOptions: CommandOperationOptions;
   _session: Session | undefined;
   _cachedCollectionNames: string[] = [];
 
@@ -68,11 +67,7 @@ export default class Database extends ShellApiWithMongoClass {
     this._name = name;
     const collections: Record<string, Collection> = {};
     this._collections = collections;
-    this._baseOptions = {};
-    if (session !== undefined) {
-      this._session = session;
-      this._baseOptions.session = session._session;
-    }
+    this._session = session;
     const proxy = new Proxy(this, {
       get: (target, prop): any => {
         if (prop in target) {
@@ -95,6 +90,18 @@ export default class Database extends ShellApiWithMongoClass {
       }
     });
     return proxy;
+  }
+
+  async _baseOptions(): Promise<CommandOperationOptions> {
+    const options: CommandOperationOptions = {};
+    if (this._session) {
+      options.session = this._session._session;
+    }
+    const maxTimeMS = await this._internalState.shellApi.config.get('maxTimeMS');
+    if (typeof maxTimeMS === 'number') {
+      options.maxTimeMS = maxTimeMS;
+    }
+    return options;
   }
 
   /**
@@ -126,7 +133,7 @@ export default class Database extends ShellApiWithMongoClass {
     return this._mongo._serviceProvider.runCommandWithCheck(
       this._name,
       cmd,
-      { ...this._mongo._getExplicitlyRequestedReadPref(), ...this._baseOptions, ...options }
+      { ...this._mongo._getExplicitlyRequestedReadPref(), ...await this._baseOptions(), ...options }
     );
   }
 
@@ -134,7 +141,7 @@ export default class Database extends ShellApiWithMongoClass {
     return this._mongo._serviceProvider.runCommandWithCheck(
       ADMIN_DB,
       cmd,
-      { ...this._mongo._getExplicitlyRequestedReadPref(), ...this._baseOptions, ...options }
+      { ...this._mongo._getExplicitlyRequestedReadPref(), ...await this._baseOptions(), ...options }
     );
   }
 
@@ -142,7 +149,7 @@ export default class Database extends ShellApiWithMongoClass {
     return await this._mongo._serviceProvider.listCollections(
       this._name,
       filter,
-      { ...this._mongo._getExplicitlyRequestedReadPref(), ...this._baseOptions, ...options }
+      { ...this._mongo._getExplicitlyRequestedReadPref(), ...await this._baseOptions(), ...options }
     ) || [];
   }
 
@@ -202,7 +209,7 @@ export default class Database extends ShellApiWithMongoClass {
       return await this._mongo._serviceProvider.runCommand(
         this._name,
         cmd,
-        this._baseOptions
+        await this._baseOptions()
       );
     } catch (e) {
       return e;
@@ -317,7 +324,7 @@ export default class Database extends ShellApiWithMongoClass {
     const providerCursor = this._mongo._serviceProvider.aggregateDb(
       this._name,
       pipeline,
-      { ...this._baseOptions, ...aggOptions },
+      { ...await this._baseOptions(), ...aggOptions },
       dbOptions
     );
     const cursor = new AggregationCursor(this._mongo, providerCursor);
@@ -362,7 +369,7 @@ export default class Database extends ShellApiWithMongoClass {
   async dropDatabase(writeConcern?: WriteConcern): Promise<Document> {
     return await this._mongo._serviceProvider.dropDatabase(
       this._name,
-      { ...this._baseOptions, writeConcern }
+      { ...await this._baseOptions(), writeConcern }
     );
   }
 
@@ -591,7 +598,7 @@ export default class Database extends ShellApiWithMongoClass {
     return await this._mongo._serviceProvider.createCollection(
       this._name,
       name,
-      { ...this._baseOptions, ...options }
+      { ...await this._baseOptions(), ...options }
     );
   }
 
@@ -601,7 +608,7 @@ export default class Database extends ShellApiWithMongoClass {
     assertArgsDefinedType([name, source, pipeline], ['string', 'string', true], 'Database.createView');
     this._emitDatabaseApiCall('createView', { name, source, pipeline, options });
     const ccOpts = {
-      ...this._baseOptions,
+      ...await this._baseOptions(),
       viewOn: source,
       pipeline: pipeline
     } as Document;
@@ -1032,7 +1039,7 @@ export default class Database extends ShellApiWithMongoClass {
         setFreeMonitoring: 1,
         action: 'enable'
       },
-      this._baseOptions
+      await this._baseOptions()
     );
     let result: any;
     let error: any;
@@ -1040,7 +1047,7 @@ export default class Database extends ShellApiWithMongoClass {
       result = await this._mongo._serviceProvider.runCommand(
         ADMIN_DB,
         { getFreeMonitoringStatus: 1 },
-        this._baseOptions
+        await this._baseOptions()
       );
     } catch (err) {
       error = err;
@@ -1060,7 +1067,7 @@ export default class Database extends ShellApiWithMongoClass {
           getParameter: 1,
           cloudFreeMonitoringEndpointURL: 1
         },
-        this._baseOptions
+        await this._baseOptions()
       );
       return `Unable to get immediate response from the Cloud Monitoring service. Please check your firewall settings to ensure that mongod can communicate with '${urlResult.cloudFreeMonitoringEndpointURL || '<unknown>'}'`;
     }
@@ -1419,7 +1426,7 @@ export default class Database extends ShellApiWithMongoClass {
     this._emitDatabaseApiCall('watch', { pipeline, options });
     const cursor = new ChangeStreamCursor(
       this._mongo._serviceProvider.watch(pipeline, {
-        ...this._baseOptions,
+        ...await this._baseOptions(),
         ...options
       }, {}, this._name),
       this._name,

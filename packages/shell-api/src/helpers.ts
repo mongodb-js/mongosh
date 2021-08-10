@@ -636,7 +636,7 @@ export async function setHideIndex(coll: Collection, index: string | Document, h
       collMod: coll._name,
       index: cmd
     },
-    coll._database._baseOptions
+    await coll._database._baseOptions()
   );
 }
 

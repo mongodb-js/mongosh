@@ -343,6 +343,7 @@ export interface MongoshBus {
 
 export class ShellUserConfig {
   displayBatchSize = 20;
+  maxTimeMS: number | null = null;
   enableTelemetry = false;
 }
 
@@ -353,6 +354,11 @@ export class ShellUserConfigValidator {
       case 'displayBatchSize':
         if (typeof value !== 'number' || value <= 0) {
           return `${key} must be a positive integer`;
+        }
+        return null;
+      case 'maxTimeMS':
+        if (value !== null && (typeof value !== 'number' || value <= 0)) {
+          return `${key} must be null or a positive integer`;
         }
         return null;
       case 'enableTelemetry':
