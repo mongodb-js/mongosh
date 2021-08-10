@@ -147,7 +147,7 @@ describe('MongoLogManager', () => {
 
     writer.info('component', 12345, 'context', 'message', { foo: 'bar' });
     writer.end();
-    await once(writer, 'close');
+    await once(writer, 'finish');
 
     const log = (await fs.readFile(writer.logFilePath, 'utf8'))
       .split('\n')
@@ -166,7 +166,7 @@ describe('MongoLogManager', () => {
     const writer = await manager.createLogWriter();
     writer.info('component', 12345, 'context', 'message', { foo: 'bar' });
     writer.end();
-    await once(writer, 'close');
+    await once(writer, 'finish');
 
     await fs.stat(writer.logFilePath);
     await new Promise(resolve => setTimeout(resolve, 100));
@@ -198,6 +198,6 @@ describe('MongoLogManager', () => {
 
     writer.info('component', 12345, 'context', 'message', { foo: 'bar' });
     writer.end();
-    await once(writer, 'close');
+    await once(writer, 'finish');
   });
 });
