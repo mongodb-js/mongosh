@@ -15,12 +15,6 @@ internal abstract class BaseMongoIterableHelper<T : MongoIterable<*>>(val iterab
     abstract val converters: Map<String, (T, Any?) -> Either<T>>
     abstract val defaultConverter: (T, String, Any?) -> Either<T>
 
-    fun map(function: Value): BaseMongoIterableHelper<*> {
-        return helper(iterable.map { v ->
-            converter.toJava(function.execute(converter.toJs(v))).value
-        }, converter)
-    }
-
     fun itcount(): Int {
         return iterable.count()
     }

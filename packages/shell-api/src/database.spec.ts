@@ -297,12 +297,13 @@ describe('Database', () => {
       });
 
       it('returns an AggregationCursor that wraps the service provider one', async() => {
-        const toArrayResult = [];
-        serviceProviderCursor.toArray.resolves(toArrayResult);
+        const toArrayResult = [{ foo: 'bar' }];
+        serviceProviderCursor.tryNext.onFirstCall().resolves({ foo: 'bar' });
+        serviceProviderCursor.tryNext.onSecondCall().resolves(null);
         serviceProvider.aggregateDb.returns(serviceProviderCursor);
 
         const cursor = await database.aggregate([{ $piplelineStage: {} }]);
-        expect(await cursor.toArray()).to.equal(toArrayResult);
+        expect(await cursor.toArray()).to.deep.equal(toArrayResult);
       });
 
       it('throws if serviceProvider.aggregateDb rejects', async() => {

@@ -65,12 +65,6 @@ describe('AggregationCursor', () => {
     it('pretty returns the same cursor', () => {
       expect(cursor.pretty()).to.equal(cursor);
     });
-
-    it('calls wrappee.map with arguments', () => {
-      const arg = {};
-      cursor.map(arg);
-      expect(wrappee.map).to.have.callCount(1);
-    });
   });
 
   describe('Cursor Internals', () => {

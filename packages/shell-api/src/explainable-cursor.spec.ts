@@ -55,12 +55,6 @@ describe('ExplainableCursor', () => {
       expect(eCursor.map()).to.equal(eCursor);
     });
 
-    it('calls wrappee.map with arguments', () => {
-      const arg = () => {};
-      eCursor.map(arg);
-      expect(wrappee.map).to.have.callCount(1);
-    });
-
     it('has the correct metadata', () => {
       expect(eCursor.collation.serverVersions).to.deep.equal(['3.4.0', ServerVersions.latest]);
     });

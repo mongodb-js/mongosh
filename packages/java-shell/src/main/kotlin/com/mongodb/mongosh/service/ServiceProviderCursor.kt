@@ -13,13 +13,11 @@ interface ServiceProviderCursor {
   fun collation(v: Value): ServiceProviderCursor
   fun comment(v: String): ServiceProviderCursor
   fun count(): Long
-  fun forEach(func: Value)
   fun hasNext(): Boolean
   fun hint(v: Value): ServiceProviderCursor
   fun isExhausted(): Boolean
   fun itcount(): Int
   fun limit(v: Int): ServiceProviderCursor
-  fun map(func: Value): ServiceProviderCursor
   fun max(v: Value): ServiceProviderCursor
   fun maxTimeMS(v: Long): ServiceProviderCursor
   fun maxAwaitTimeMS(value: Int): ServiceProviderCursor
