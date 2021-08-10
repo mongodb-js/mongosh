@@ -8,6 +8,8 @@ export async function downloadMongocrypt(variant: BuildVariant): Promise<string>
   const opts: DownloadOptions = {};
   opts.arch = getArch(variant);
   opts.distro = lookupReleaseDistro(variant);
+  opts.enterprise = true;
+  opts.cryptd = true;
   console.info('mongosh: downloading latest mongocryptd for inclusion in package:', JSON.stringify(opts));
 
   const bindir = await downloadMongoDb(
