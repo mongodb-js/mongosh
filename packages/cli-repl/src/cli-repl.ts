@@ -7,18 +7,17 @@ import { SnippetManager } from '@mongosh/snippet-manager';
 import Analytics from 'analytics-node';
 import askpassword from 'askpassword';
 import Nanobus from 'nanobus';
-import pino from 'pino';
 import semver from 'semver';
 import { Readable, Writable } from 'stream';
 import type { StyleDefinition } from './clr';
 import { ConfigManager, ShellHomeDirectory, ShellHomePaths } from './config-directory';
 import { CliReplErrors } from './error-codes';
+import { MongoLogManager, MongoLogWriter } from './log-writer';
 import { MongocryptdManager } from './mongocryptd-manager';
 import MongoshNodeRepl, { MongoshNodeReplOptions } from './mongosh-repl';
 import setupLoggerAndTelemetry from './setup-logger-and-telemetry';
 import { MongoshBus, CliUserConfig } from '@mongosh/types';
-import { once } from 'events';
-import { createWriteStream, promises as fs } from 'fs';
+import { promises as fs } from 'fs';
 import path from 'path';
 import { promisify } from 'util';
 
@@ -56,9 +55,10 @@ class CliRepl {
   shellHomeDirectory: ShellHomeDirectory;
   configDirectory: ConfigManager<CliUserConfigOnDisk>;
   config: CliUserConfigOnDisk;
+  logManager: MongoLogManager;
+  logWriter?: MongoLogWriter;
   input: Readable;
   output: Writable;
-  logId: string;
   analyticsOptions?: AnalyticsOptions;
   analytics?: Analytics;
   warnedAboutInaccessibleFiles = false;
@@ -74,7 +74,6 @@ class CliRepl {
     this.input = options.input;
     this.output = options.output;
     this.analyticsOptions = options.analyticsOptions;
-    this.logId = new bson.ObjectId().toString();
     this.onExit = options.onExit;
     this.config = {
       userId: new bson.ObjectId().toString(),
@@ -85,7 +84,7 @@ class CliRepl {
     this.configDirectory = new ConfigManager<CliUserConfigOnDisk>(
       this.shellHomeDirectory)
       .on('error', (err: Error) =>
-        this.bus.emit('mongosh:error', err))
+        this.bus.emit('mongosh:error', err, 'config'))
       .on('new-config', (config: CliUserConfigOnDisk) =>
         this.bus.emit('mongosh:new-user', config.userId, config.enableTelemetry))
       .on('update-config', (config: CliUserConfigOnDisk) =>
@@ -96,11 +95,18 @@ class CliRepl {
       this.shellHomeDirectory,
       this.bus);
 
+    this.logManager = new MongoLogManager({
+      directory: this.shellHomeDirectory.localPath('.'),
+      retentionDays: 30,
+      onerror: (err: Error) => this.bus.emit('mongosh:error', err, 'log'),
+      onwarn: (err: Error, path: string) => this.warnAboutInaccessibleFile(err, path)
+    });
+
     // We can't really do anything meaningfull if the output stream is broken or
     // closed. To avoid throwing an error while writing to it, let's send it to
     // the telemetry instead
     this.output.on('error', (err: Error) => {
-      this.bus.emit('mongosh:error', err);
+      this.bus.emit('mongosh:error', err, 'io');
     });
 
     this.mongoshRepl = new MongoshNodeRepl({
@@ -129,21 +135,23 @@ class CliRepl {
     }
     this.ensurePasswordFieldIsPresentInAuth(driverOptions);
 
-    if (!this.cliOptions.quiet) {
-      this.output.write(`Current Mongosh Log ID:\t${this.logId}\n`);
-    }
-
     try {
       await this.shellHomeDirectory.ensureExists();
     } catch (err) {
       this.warnAboutInaccessibleFile(err);
     }
 
-    const logStream = await this.openLogStream();
+    await this.logManager.cleanupOldLogfiles();
+    const logger = await this.logManager.createLogWriter();
+    if (!this.cliOptions.quiet) {
+      this.output.write(`Current Mongosh Log ID:\t${logger.logId}\n`);
+    }
+    this.logWriter = logger;
+
     setupLoggerAndTelemetry(
-      this.logId,
+      logger.logId,
       this.bus,
-      () => pino({ name: 'mongosh' }, logStream),
+      () => logger,
       () => {
         if (process.env.IS_MONGOSH_EVERGREEN_CI && !this.analyticsOptions?.alwaysEnable) {
           // This error will be in the log file, but otherwise not visible to users
@@ -276,55 +284,8 @@ class CliRepl {
     }
   }
 
-  get logFilePath(): string {
-    return this.shellHomeDirectory.localPath(`${this.logId}_log`);
-  }
-
-  /**
-   * Open a writable stream for the current log file.
-   */
-  async openLogStream(): Promise<Writable> {
-    await this.cleanupOldLogfiles();
-    try {
-      const stream = createWriteStream(this.logFilePath, { mode: 0o600 });
-      await once(stream, 'ready');
-      return stream;
-    } catch (err) {
-      this.warnAboutInaccessibleFile(err, this.logFilePath);
-      return new Writable({
-        write(chunk, enc, cb) {
-          // Just ignore log data if there was an error.
-          cb();
-        }
-      });
-    }
-  }
-
-  async cleanupOldLogfiles(): Promise<void> {
-    const dir = this.shellHomeDirectory.localPath('');
-    let dirHandle;
-    try {
-      dirHandle = await fs.opendir(dir);
-    } catch {
-      return;
-    }
-    for await (const dirent of dirHandle) {
-      if (!dirent.isFile()) continue;
-      const { id } = dirent.name.match(/^(?<id>[a-f0-9]{24})_log$/i)?.groups ?? {};
-      if (!id) continue;
-      // Delete files older than 30 days
-      if (new bson.ObjectId(id).generationTime < (Date.now() / 1000) - 30 * 86400) {
-        try {
-          await fs.unlink(path.join(dir, dirent.name));
-        } catch (err) {
-          this.bus.emit('mongosh:error', err);
-        }
-      }
-    }
-  }
-
   warnAboutInaccessibleFile(err: Error, path?: string): void {
-    this.bus.emit('mongosh:error', err);
+    this.bus.emit('mongosh:error', err, 'config');
     if (this.warnedAboutInaccessibleFiles) {
       // If one of the files mongosh tries to access, it's also likely that
       // the others are as well. In that case, there is no point in spamming the
@@ -443,7 +404,7 @@ class CliRepl {
   }
 
   private async _fatalError(error: any): Promise<never> {
-    this.bus.emit('mongosh:error', error);
+    this.bus.emit('mongosh:error', error, 'fatal');
 
     this.output.write(this.mongoshRepl.formatError(error) + '\n');
     return this.exit(1);
@@ -461,6 +422,7 @@ class CliRepl {
       } catch { /* ignore */ }
     }
     this.mongocryptdManager.close();
+    await this.logWriter?.flush?.();
     this.bus.emit('mongosh:closed');
   }
 
@@ -469,7 +431,7 @@ class CliRepl {
     await this.onExit(code);
     // onExit never returns. If it does, that's a bug.
     const error = new MongoshInternalError('onExit() unexpectedly returned');
-    this.bus.emit('mongosh:error', error);
+    this.bus.emit('mongosh:error', error, 'fatal');
     throw error;
   }
 
@@ -497,7 +459,7 @@ class CliRepl {
   }
 
   bugReportErrorMessageInfo(): string {
-    return `Please include the log file for this session (${this.logFilePath}).`;
+    return `Please include the log file for this session (${this.logWriter?.logFilePath}).`;
   }
 }
 

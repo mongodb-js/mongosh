@@ -800,7 +800,7 @@ describe('e2e', function() {
           expect(await shell.executeLine('print(123 + 456)')).to.include('579');
           await eventually(async() => {
             const log = await readLogfile();
-            expect(log.filter(logEntry => /evaluate-input/.test(logEntry.msg)))
+            expect(log.filter(logEntry => /Evaluating input/.test(logEntry.msg)))
               .to.have.lengthOf(1);
           });
         });
@@ -808,7 +808,7 @@ describe('e2e', function() {
         it('includes information about the driver version', async() => {
           await eventually(async() => {
             const log = await readLogfile();
-            expect(log.filter(logEntry => /driver-initialized/.test(logEntry.msg)))
+            expect(log.filter(logEntry => /Driver initialized/.test(logEntry.msg)))
               .to.have.lengthOf(1);
           });
         });

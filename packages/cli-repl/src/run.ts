@@ -77,7 +77,7 @@ import { runMain } from 'module';
   } catch (e) {
     console.error(`${e.name}: ${e.message}`);
     if (repl !== undefined) {
-      repl.bus.emit('mongosh:error', e);
+      repl.bus.emit('mongosh:error', e, 'startup');
     }
     process.exit(1);
   }

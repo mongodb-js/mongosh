@@ -1,8 +1,8 @@
 /* eslint-disable camelcase */
 import { expect } from 'chai';
+import { MongoLogWriter } from './log-writer';
 import setupLoggerAndTelemetry from './setup-logger-and-telemetry';
 import { EventEmitter } from 'events';
-import pino from 'pino';
 import { MongoshInvalidInputError } from '@mongosh/errors';
 import { MongoshBus } from '@mongosh/types';
 
@@ -11,16 +11,17 @@ describe('setupLoggerAndTelemetry', () => {
   let analyticsOutput: ['identify'|'track'|'log', any][];
   let bus: MongoshBus;
 
-  const logger = pino({ name: 'mongosh' }, {
-    write(chunk: string) { logOutput.push(JSON.parse(chunk)); }
-  });
+  const userId = '53defe995fa47e6c13102d9d';
+  const logId = '5fb3c20ee1507e894e5340f3';
+
+  const logger = new MongoLogWriter(logId, `/tmp/${logId}_log`, {
+    write(chunk: string, cb: () => void) { logOutput.push(JSON.parse(chunk)); cb(); },
+    end(cb: () => void) { cb(); }
+  } as any);
   const analytics = {
     identify(info: any) { analyticsOutput.push(['identify', info]); },
     track(info: any) { analyticsOutput.push(['track', info]); }
   };
-
-  const userId = '53defe995fa47e6c13102d9d';
-  const logId = '5fb3c20ee1507e894e5340f3';
 
   beforeEach(() => {
     logOutput = [];
@@ -45,7 +46,7 @@ describe('setupLoggerAndTelemetry', () => {
         is_atlas: false,
         node_version: 'v12.19.0'
       } as any);
-      bus.emit('mongosh:error', new MongoshInvalidInputError('meow', 'CLIREPL-1005', { cause: 'x' }));
+      bus.emit('mongosh:error', new MongoshInvalidInputError('meow', 'CLIREPL-1005', { cause: 'x' }), 'repl');
       bus.emit('mongosh:use', { db: 'admin' });
       bus.emit('mongosh:show', { method: 'dbs' });
     }
@@ -94,69 +95,93 @@ describe('setupLoggerAndTelemetry', () => {
     bus.emit('mongosh-sp:missing-optional-dependency', { name: 'kerberos', error: new Error('no kerberos') });
 
     let i = 0;
-    expect(logOutput[i++].msg).to.match(/^mongosh:start-logging \{"execPath":".+","version":".+","distributionKind":.+\}$/);
-    expect(logOutput[i++].msg).to.equal('mongosh:update-user {"enableTelemetry":false}');
-    expect(logOutput[i].msg).to.match(/^mongosh:connect/);
-    expect(logOutput[i].msg).to.match(/"session_id":"5fb3c20ee1507e894e5340f3"/);
-    expect(logOutput[i].msg).to.match(/"userId":"53defe995fa47e6c13102d9d"/);
-    expect(logOutput[i].msg).to.match(/"connectionUri":"mongodb:\/\/localhost\/"/);
-    expect(logOutput[i].msg).to.match(/"is_localhost":true/);
-    expect(logOutput[i].msg).to.match(/"is_atlas":false/);
-    expect(logOutput[i++].msg).to.match(/"node_version":"v12\.19\.0"/);
-    expect(logOutput[i].type).to.equal('Error');
-    expect(logOutput[i++].msg).to.match(/meow/);
-    expect(logOutput[i++].msg).to.equal('mongosh:use {"db":"admin"}');
-    expect(logOutput[i++].msg).to.equal('mongosh:show {"method":"dbs"}');
-    expect(logOutput[i++].msg).to.equal('mongosh:update-user {"enableTelemetry":true}');
-    expect(logOutput[i++].msg).to.match(/^mongosh:connect/);
-    expect(logOutput[i].type).to.equal('Error');
-    expect(logOutput[i++].msg).to.match(/meow/);
-    expect(logOutput[i++].msg).to.equal('mongosh:use {"db":"admin"}');
-    expect(logOutput[i++].msg).to.equal('mongosh:show {"method":"dbs"}');
-    expect(logOutput[i++].msg).to.equal('mongosh:setCtx {"method":"setCtx"}');
-    expect(logOutput[i].msg).to.match(/^mongosh:api-call/);
-    expect(logOutput[i++].msg).to.match(/"db":"test-1603986682000"/);
-    expect(logOutput[i].msg).to.match(/^mongosh:api-call/);
-    expect(logOutput[i++].msg).to.match(/"email":"<email>"/);
-    expect(logOutput[i].msg).to.match(/^mongosh:evaluate-input/);
-    expect(logOutput[i++].msg).to.match(/"input":"1\+1"/);
-    expect(logOutput[i++].msg).to.match(/"version":"3.6.1"/);
-    expect(logOutput[i++].msg).to.match(/^mongosh:api-call \{"_inspected":"\{.+circular:.+\}/);
-    expect(logOutput[i++].msg).to.equal('mongosh:start-loading-cli-scripts');
-    expect(logOutput[i].msg).to.match(/^mongosh:api-load-file/);
-    expect(logOutput[i].msg).to.match(/"nested":true/);
-    expect(logOutput[i++].msg).to.match(/"filename":"foobar.js"/);
-    expect(logOutput[i++].msg).to.equal('mongosh:start-mongosh-repl {"version":"1.0.0"}');
-    expect(logOutput[i].msg).to.match(/"nested":false/);
-    expect(logOutput[i++].msg).to.match(/"filename":"foobar.js"/);
-    expect(logOutput[i++].msg).to.equal('mongosh:mongoshrc-load');
-    expect(logOutput[i++].msg).to.equal('mongosh:mongoshrc-mongorc-warn');
-    expect(logOutput[i++].msg).to.equal('mongosh:eval-cli-script');
-    expect(logOutput[i++].msg).to.equal('mongosh-snippets:loaded {"installdir":"/"}');
-    expect(logOutput[i++].msg).to.equal('mongosh-snippets:npm-lookup {"existingVersion":"v1.2.3"}');
-    expect(logOutput[i++].msg).to.equal('mongosh-snippets:npm-lookup-stopped');
-    expect(logOutput[i].msg).to.match(/^mongosh-snippets:npm-download-failed/);
-    expect(logOutput[i++].msg).to.match(/"npmMetadataURL":"https:\/\/example.com"/);
-    expect(logOutput[i].msg).to.match(/^mongosh-snippets:npm-download-active/);
-    expect(logOutput[i].msg).to.match(/"npmMetadataURL":"https:\/\/example.com"/);
-    expect(logOutput[i++].msg).to.match(/"npmTarballURL":"https:\/\/example.net"/);
-    expect(logOutput[i++].msg).to.equal('mongosh-snippets:fetch-index {"refreshMode":"always"}');
-    expect(logOutput[i++].msg).to.equal('mongosh-snippets:fetch-cache-invalid');
-    expect(logOutput[i++].msg).to.equal('mongosh-snippets:fetch-index-error {"action":"fetch","url":"https://localhost"}');
-    expect(logOutput[i++].msg).to.equal('mongosh-snippets:fetch-index-done');
-    expect(logOutput[i++].msg).to.equal('mongosh-snippets:package-json-edit-error {"error":"failed"}');
-    expect(logOutput[i++].msg).to.equal('mongosh-snippets:spawn-child {"args":["npm","install"]}');
-    expect(logOutput[i++].msg).to.equal('mongosh-snippets:load-snippet {"source":"load-all","name":"foo"}');
-    expect(logOutput[i++].msg).to.equal('mongosh-snippets:snippet-command {"args":["install","foo"]}');
-    expect(logOutput[i++].msg).to.equal('mongosh-snippets:transform-error {"error":"failed","addition":"oh no","name":"foo"}');
-    expect(logOutput[i++].msg).to.equal('mongosh-sp:connect-heartbeat-failure {"connectionId":"localhost","failure":"cause","isFailFast":true,"isKnownServer":true}');
-    expect(logOutput[i++].msg).to.equal('mongosh-sp:connect-heartbeat-succeeded {"connectionId":"localhost"}');
-    expect(logOutput[i++].msg).to.equal('mongosh-sp:connect-fail-early');
-    expect(logOutput[i++].msg).to.equal('mongosh-sp:connect-attempt-finished');
-    expect(logOutput[i++].msg).to.equal('mongosh-sp:resolve-srv-error {"from":"mongodb+srv://<credentials>@hello.world/","error":"failed","duringLoad":false}');
-    expect(logOutput[i++].msg).to.equal('mongosh-sp:resolve-srv-succeeded {"from":"mongodb+srv://<credentials>@hello.world/","to":"mongodb://<credentials>@db.hello.world/"}');
-    expect(logOutput[i++].msg).to.equal('mongosh-sp:reset-connection-options');
-    expect(logOutput[i++].msg).to.equal('mongosh-sp:missing-optional-dependency {"name":"kerberos","error":"no kerberos"}');
+    expect(logOutput[i].msg).to.equal('Starting log');
+    expect(logOutput[i++].attr).to.include.keys('execPath', 'version', 'distributionKind');
+    expect(logOutput[i].msg).to.equal('User updated');
+    expect(logOutput[i++].attr).to.deep.equal({ enableTelemetry: false });
+    expect(logOutput[i].msg).to.equal('Connecting to server');
+    expect(logOutput[i].attr.session_id).to.equal('5fb3c20ee1507e894e5340f3');
+    expect(logOutput[i].attr.userId).to.equal('53defe995fa47e6c13102d9d');
+    expect(logOutput[i].attr.connectionUri).to.equal('mongodb://localhost/');
+    expect(logOutput[i].attr.is_localhost).to.equal(true);
+    expect(logOutput[i].attr.is_atlas).to.equal(false);
+    expect(logOutput[i++].attr.node_version).to.equal('v12.19.0');
+    expect(logOutput[i].s).to.equal('E');
+    expect(logOutput[i++].attr.message).to.match(/meow/);
+    expect(logOutput[i].msg).to.equal('Used "use" command');
+    expect(logOutput[i++].attr).to.deep.equal({ db: 'admin' });
+    expect(logOutput[i].msg).to.equal('Used "show" command');
+    expect(logOutput[i++].attr).to.deep.equal({ method: 'dbs' });
+    expect(logOutput[i].msg).to.equal('User updated');
+    expect(logOutput[i++].attr).to.deep.equal({ enableTelemetry: true });
+    expect(logOutput[i++].msg).to.equal('Connecting to server');
+    expect(logOutput[i].s).to.equal('E');
+    expect(logOutput[i++].attr.message).to.match(/meow/);
+    expect(logOutput[i].msg).to.equal('Used "use" command');
+    expect(logOutput[i++].attr).to.deep.equal({ db: 'admin' });
+    expect(logOutput[i].msg).to.equal('Used "show" command');
+    expect(logOutput[i++].attr).to.deep.equal({ method: 'dbs' });
+    expect(logOutput[i++].msg).to.equal('Initialized context');
+    expect(logOutput[i].msg).to.equal('Performed API call');
+    expect(logOutput[i++].attr.db).to.equal('test-1603986682000');
+    expect(logOutput[i].msg).to.equal('Performed API call');
+    expect(logOutput[i++].attr.arguments.filter.email).to.equal('<email>');
+    expect(logOutput[i].msg).to.equal('Evaluating input');
+    expect(logOutput[i++].attr.input).to.equal('1+1');
+    expect(logOutput[i].msg).to.equal('Driver initialized');
+    expect(logOutput[i++].attr.driver.version).to.equal('3.6.1');
+    expect(logOutput[i].msg).to.equal('Performed API call');
+    expect(logOutput[i++].attr._inspected).to.match(/circular/);
+    expect(logOutput[i++].msg).to.equal('Start loading CLI scripts');
+    expect(logOutput[i].msg).to.equal('Loading file via load()');
+    expect(logOutput[i].attr.nested).to.equal(true);
+    expect(logOutput[i++].attr.filename).to.equal('foobar.js');
+    expect(logOutput[i].msg).to.equal('Started REPL');
+    expect(logOutput[i++].attr.version).to.equal('1.0.0');
+    expect(logOutput[i].attr.nested).to.equal(false);
+    expect(logOutput[i++].attr.filename).to.equal('foobar.js');
+    expect(logOutput[i++].msg).to.equal('Loading .mongoshrc.js');
+    expect(logOutput[i++].msg).to.equal('Warning about .mongorc.js/.mongoshrc.js mismatch');
+    expect(logOutput[i++].msg).to.equal('Evaluating script passed on the command line');
+    expect(logOutput[i].msg).to.equal('Loaded snippets');
+    expect(logOutput[i++].attr).to.deep.equal({ installdir: '/' });
+    expect(logOutput[i].msg).to.equal('Performing npm lookup');
+    expect(logOutput[i++].attr).to.deep.equal({ existingVersion: 'v1.2.3' });
+    expect(logOutput[i++].msg).to.equal('npm lookup stopped');
+    expect(logOutput[i].msg).to.equal('npm download failed');
+    expect(logOutput[i++].attr.npmMetadataURL).to.equal('https://example.com');
+    expect(logOutput[i].msg).to.equal('npm download active');
+    expect(logOutput[i].attr.npmMetadataURL).to.equal('https://example.com');
+    expect(logOutput[i++].attr.npmTarballURL).to.equal('https://example.net');
+    expect(logOutput[i].msg).to.equal('Fetching snippet index');
+    expect(logOutput[i++].attr.refreshMode).to.equal('always');
+    expect(logOutput[i++].msg).to.equal('Snippet cache invalid');
+    expect(logOutput[i].msg).to.equal('Fetching snippet index failed');
+    expect(logOutput[i++].attr).to.deep.equal({ action: 'fetch', url: 'https://localhost' });
+    expect(logOutput[i++].msg).to.equal('Fetching snippet index done');
+    expect(logOutput[i].msg).to.equal('Modifying snippets package.json failed');
+    expect(logOutput[i++].attr).to.deep.equal({ error: 'failed' });
+    expect(logOutput[i].msg).to.equal('Spawning helper');
+    expect(logOutput[i++].attr).to.deep.equal({ args: ['npm', 'install'] });
+    expect(logOutput[i].msg).to.equal('Loading snippet');
+    expect(logOutput[i++].attr).to.deep.equal({ source: 'load-all', name: 'foo' });
+    expect(logOutput[i].msg).to.equal('Running snippet command');
+    expect(logOutput[i++].attr).to.deep.equal({ args: ['install', 'foo'] });
+    expect(logOutput[i].msg).to.equal('Rewrote error message');
+    expect(logOutput[i++].attr).to.deep.equal({ error: 'failed', addition: 'oh no', name: 'foo' });
+    expect(logOutput[i].msg).to.equal('Server heartbeat failure');
+    expect(logOutput[i++].attr).to.deep.equal({ connectionId: 'localhost', failure: 'cause', isFailFast: true, isKnownServer: true });
+    expect(logOutput[i].msg).to.equal('Server heartbeat succeeded');
+    expect(logOutput[i++].attr).to.deep.equal({ connectionId: 'localhost' });
+    expect(logOutput[i++].msg).to.equal('Aborting connection attempt as irrecoverable');
+    expect(logOutput[i++].msg).to.equal('Connection attempt finished');
+    expect(logOutput[i].msg).to.equal('Resolving SRV record failed');
+    expect(logOutput[i++].attr).to.deep.equal({ from: 'mongodb+srv://<credentials>@hello.world/', error: 'failed', duringLoad: false });
+    expect(logOutput[i].msg).to.equal('Resolving SRV record succeeded');
+    expect(logOutput[i++].attr).to.deep.equal({ from: 'mongodb+srv://<credentials>@hello.world/', to: 'mongodb://<credentials>@db.hello.world/' });
+    expect(logOutput[i++].msg).to.equal('Reconnect because of changed connection options');
+    expect(logOutput[i].msg).to.equal('Missing optional dependency');
+    expect(logOutput[i++].attr).to.deep.equal({ name: 'kerberos', error: 'no kerberos' });
     expect(i).to.equal(logOutput.length);
 
     const mongosh_version = require('../package.json').version;
@@ -318,8 +343,10 @@ describe('setupLoggerAndTelemetry', () => {
     expect(logOutput).to.have.length(2);
     expect(analyticsOutput).to.have.length(2);
 
-    expect(logOutput[0].msg).to.equal('mongosh:deprecated-api-call {"class":"Database","method":"cloneDatabase"}');
-    expect(logOutput[1].msg).to.equal('mongosh:deprecated-api-call {"class":"Database","method":"copyDatabase"}');
+    expect(logOutput[0].msg).to.equal('Deprecated API call');
+    expect(logOutput[0].attr).to.deep.equal({ class: 'Database', method: 'cloneDatabase' });
+    expect(logOutput[1].msg).to.equal('Deprecated API call');
+    expect(logOutput[1].attr).to.deep.equal({ class: 'Database', method: 'copyDatabase' });
     expect(analyticsOutput).to.deep.equal([
       [
         'track',
@@ -358,7 +385,8 @@ describe('setupLoggerAndTelemetry', () => {
 
     bus.emit('mongosh:evaluate-finished');
     expect(logOutput).to.have.length(1);
-    expect(logOutput[0].msg).to.equal('mongosh:deprecated-api-call {"class":"Database","method":"cloneDatabase"}');
+    expect(logOutput[0].msg).to.equal('Deprecated API call');
+    expect(logOutput[0].attr).to.deep.equal({ class: 'Database', method: 'cloneDatabase' });
     expect(analyticsOutput).to.be.empty;
   });
 
@@ -367,7 +395,6 @@ describe('setupLoggerAndTelemetry', () => {
     bus.emit('mongosh:new-user', userId, true);
     expect(analyticsOutput).to.be.empty;
     expect(logOutput).to.have.lengthOf(2);
-    expect(logOutput[1].type).to.equal('Error');
-    expect(logOutput[1].name).to.equal('mongosh');
+    expect(logOutput[1].s).to.equal('E');
   });
 });

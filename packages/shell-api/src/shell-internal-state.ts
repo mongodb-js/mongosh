@@ -170,10 +170,10 @@ export default class ShellInternalState {
     this.currentDb = newDb;
     this.context.rs = new ReplicaSet(this.currentDb);
     this.context.sh = new Shard(this.currentDb);
-    this.fetchConnectionInfo().catch(err => this.messageBus.emit('mongosh:error', err));
+    this.fetchConnectionInfo().catch(err => this.messageBus.emit('mongosh:error', err, 'shell-api'));
     // Pre-fetch for autocompletion.
-    this.currentDb._getCollectionNamesForCompletion().catch(err => this.messageBus.emit('mongosh:error', err));
-    this.currentDb._mongo._getDatabaseNamesForCompletion().catch(err => this.messageBus.emit('mongosh:error', err));
+    this.currentDb._getCollectionNamesForCompletion().catch(err => this.messageBus.emit('mongosh:error', err, 'shell-api'));
+    this.currentDb._mongo._getDatabaseNamesForCompletion().catch(err => this.messageBus.emit('mongosh:error', err, 'shell-api'));
     this.currentCursor = null;
     return newDb;
   }

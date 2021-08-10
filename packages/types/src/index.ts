@@ -182,7 +182,7 @@ export interface MongoshBusEventsMap {
   /**
    * Signals an error that should be logged or potentially tracked by analytics.
    */
-  'mongosh:error': (error: Error) => void;
+  'mongosh:error': (error: Error, component: string) => void;
   /**
    * Signals the start of the evaluation of user code inside Shellevaluator.
    */
