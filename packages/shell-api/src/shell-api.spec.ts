@@ -731,7 +731,7 @@ describe('ShellApi', () => {
         it('will work with defaults', async() => {
           expect(await config.get('displayBatchSize')).to.equal(20);
           expect((await toShellResult(config)).printable).to.deep.equal(
-            new Map([['displayBatchSize', 20], ['enableTelemetry', false]] as any));
+            new Map([['displayBatchSize', 20], ['maxTimeMS', null], ['enableTelemetry', false]] as any));
         });
 
         it('rejects setting all config keys', async() => {
