@@ -8,6 +8,15 @@ import { Writable } from 'stream';
 import { inspect } from 'util';
 import v8 from 'v8';
 
+export interface MongoLogId {
+  /** Internal value -- always use mongoLogId() to create MongoLogId objects */
+  __value: number;
+}
+
+export function mongoLogId(id: number): MongoLogId {
+  return { __value: id };
+}
+
 export interface MongoLogEntry {
   /** Timestamp at which the log event occurred */
   t?: Date;
@@ -16,7 +25,7 @@ export interface MongoLogEntry {
   /** Component field */
   c: string;
   /** The message id field */
-  id: number;
+  id: MongoLogId;
   /** The context field */
   ctx: string;
   /** The message string field */
@@ -32,7 +41,7 @@ function validateLogEntry(info: MongoLogEntry): Error | null {
   if (typeof info.c !== 'string') {
     return new TypeError('Cannot log messages without a component field');
   }
-  if (typeof info.id !== 'number') {
+  if (typeof info.id?.__value !== 'number') {
     return new TypeError('Cannot log messages without an id field');
   }
   if (typeof info.ctx !== 'string') {
@@ -74,11 +83,11 @@ export class MongoLogWriter extends Writable {
     }
 
     // Copy the object to ensure the order of properties.
-    const fullInfo: MongoLogEntry = {
+    const fullInfo: Omit<MongoLogEntry, 'id'> & { id: number } = {
       t: info.t ?? this._now(),
       s: info.s,
       c: info.c,
-      id: info.id,
+      id: info.id.__value,
       ctx: info.ctx,
       msg: info.msg
     };
@@ -126,48 +135,52 @@ export class MongoLogWriter extends Writable {
     await new Promise(resolve => this._target.write('', resolve));
   }
 
-  info(component: string, id: number, context: string, message: string, attr?: any): void {
-    this.write({
+  info(component: string, id: MongoLogId, context: string, message: string, attr?: any): void {
+    const logEntry: MongoLogEntry = {
       s: 'I',
       c: component,
       id: id,
       ctx: context,
       msg: message,
       attr: attr
-    });
+    };
+    this.write(logEntry);
   }
 
-  warn(component: string, id: number, context: string, message: string, attr?: any): void {
-    this.write({
+  warn(component: string, id: MongoLogId, context: string, message: string, attr?: any): void {
+    const logEntry: MongoLogEntry = {
       s: 'W',
       c: component,
       id: id,
       ctx: context,
       msg: message,
       attr: attr
-    });
+    };
+    this.write(logEntry);
   }
 
-  error(component: string, id: number, context: string, message: string, attr?: any): void {
-    this.write({
+  error(component: string, id: MongoLogId, context: string, message: string, attr?: any): void {
+    const logEntry: MongoLogEntry = {
       s: 'E',
       c: component,
       id: id,
       ctx: context,
       msg: message,
       attr: attr
-    });
+    };
+    this.write(logEntry);
   }
 
-  fatal(component: string, id: number, context: string, message: string, attr?: any): void {
-    this.write({
+  fatal(component: string, id: MongoLogId, context: string, message: string, attr?: any): void {
+    const logEntry: MongoLogEntry = {
       s: 'F',
       c: component,
       id: id,
       ctx: context,
       msg: message,
       attr: attr
-    });
+    };
+    this.write(logEntry);
   }
 }
 

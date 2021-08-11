@@ -1,4 +1,4 @@
-import { MongoLogWriter, MongoLogManager } from './log-writer';
+import { MongoLogWriter, MongoLogManager, mongoLogId } from './log-writer';
 import { once } from 'events';
 import { promises as fs } from 'fs';
 import path from 'path';
@@ -15,15 +15,15 @@ describe('MongoLogWriter', () => {
     const now = new Date(1628591965386);
     const target = new stream.PassThrough().setEncoding('utf8');
     const writer = new MongoLogWriter('logid', null, target, () => now);
-    writer.info('component', 12345, 'context', 'message', { foo: 'bar' });
-    writer.warn('component', 12345, 'context', 'message', { foo: 'bar' });
-    writer.error('component', 12345, 'context', 'message', { foo: 'bar' });
-    writer.fatal('component', 12345, 'context', 'message', { foo: 'bar' });
+    writer.info('component', mongoLogId(12345), 'context', 'message', { foo: 'bar' });
+    writer.warn('component', mongoLogId(12345), 'context', 'message', { foo: 'bar' });
+    writer.error('component', mongoLogId(12345), 'context', 'message', { foo: 'bar' });
+    writer.fatal('component', mongoLogId(12345), 'context', 'message', { foo: 'bar' });
     writer.write({
       t: now,
       s: 'E',
       c: 'x',
-      id: 0,
+      id: mongoLogId(0),
       ctx: 'y',
       msg: 'z'
     });
@@ -64,7 +64,7 @@ describe('MongoLogWriter', () => {
     const now = new Date(1628591965386);
     const target = new stream.PassThrough().setEncoding('utf8');
     const writer = new MongoLogWriter('logid', null, target, () => now);
-    writer.error('component', 12345, 'context', 'message', new Error('foo'));
+    writer.error('component', mongoLogId(12345), 'context', 'message', new Error('foo'));
     await writer.flush();
     const log = target.read()
       .split('\n')
@@ -86,7 +86,7 @@ describe('MongoLogWriter', () => {
 
     const cyclic: any = {};
     cyclic.cyclic = cyclic;
-    writer.error('component', 12345, 'context', 'message', cyclic);
+    writer.error('component', mongoLogId(12345), 'context', 'message', cyclic);
 
     await writer.flush();
     const log = target.read()
@@ -109,9 +109,9 @@ describe('MongoLogWriter', () => {
     tryWrite({});
     tryWrite({ s: 'E' });
     tryWrite({ s: 'E', c: '' });
-    tryWrite({ s: 'E', c: '', id: 0 });
-    tryWrite({ s: 'E', c: '', id: 0, ctx: '' });
-    tryWrite({ s: 'E', c: '', id: 0, ctx: '', msg: '' });
+    tryWrite({ s: 'E', c: '', id: mongoLogId(0) });
+    tryWrite({ s: 'E', c: '', id: mongoLogId(0), ctx: '' });
+    tryWrite({ s: 'E', c: '', id: mongoLogId(0), ctx: '', msg: '' });
 
     await new Promise(setImmediate);
     expect(errors).to.have.lengthOf(5);
@@ -145,7 +145,7 @@ describe('MongoLogManager', () => {
     expect(path.relative(directory, writer.logFilePath)[0]).to.not.equal('.');
     expect(writer.logFilePath.includes(writer.logId)).to.equal(true);
 
-    writer.info('component', 12345, 'context', 'message', { foo: 'bar' });
+    writer.info('component', mongoLogId(12345), 'context', 'message', { foo: 'bar' });
     writer.end();
     await once(writer, 'finish');
 
@@ -164,7 +164,7 @@ describe('MongoLogManager', () => {
     });
 
     const writer = await manager.createLogWriter();
-    writer.info('component', 12345, 'context', 'message', { foo: 'bar' });
+    writer.info('component', mongoLogId(12345), 'context', 'message', { foo: 'bar' });
     writer.end();
     await once(writer, 'finish');
 
@@ -196,7 +196,7 @@ describe('MongoLogManager', () => {
     expect(onwarn).to.have.been.calledOnce;
     expect(writer.logFilePath).to.equal(null);
 
-    writer.info('component', 12345, 'context', 'message', { foo: 'bar' });
+    writer.info('component', mongoLogId(12345), 'context', 'message', { foo: 'bar' });
     writer.end();
     await once(writer, 'finish');
   });

@@ -33,7 +33,7 @@ import type {
 } from '@mongosh/types';
 import { inspect } from 'util';
 import { buildInfo } from './build-info';
-import type { MongoLogWriter } from './log-writer';
+import { MongoLogWriter, mongoLogId } from './log-writer';
 
 interface MongoshAnalytics {
   identify(message: {
@@ -71,7 +71,7 @@ export default function setupLoggerAndTelemetry(
     arch: process.arch
   };
 
-  log.info('MONGOSH', 1_000_000, 'log', 'Starting log', {
+  log.info('MONGOSH', mongoLogId(1_000_000), 'log', 'Starting log', {
     execPath: process.execPath,
     ...buildInfo()
   });
@@ -80,7 +80,7 @@ export default function setupLoggerAndTelemetry(
   try {
     analytics = makeAnalytics();
   } catch (e) {
-    log.error('MONGOSH', 1_000_001, 'analytics', 'Failed to instantiate analytics provider', e);
+    log.error('MONGOSH', mongoLogId(1_000_001), 'analytics', 'Failed to instantiate analytics provider', e);
   }
 
   // We emit different analytics events for loading files and evaluating scripts
@@ -89,13 +89,13 @@ export default function setupLoggerAndTelemetry(
   // be aware of this distinction.
   let hasStartedMongoshRepl = false;
   bus.on('mongosh:start-mongosh-repl', (ev: StartMongoshReplEvent) => {
-    log.info('MONGOSH', 1_000_002, 'repl', 'Started REPL', ev);
+    log.info('MONGOSH', mongoLogId(1_000_002), 'repl', 'Started REPL', ev);
     hasStartedMongoshRepl = true;
   });
 
   let usesShellOption = false;
   bus.on('mongosh:start-loading-cli-scripts', (event: StartLoadingCliScriptsEvent) => {
-    log.info('MONGOSH', 1_000_003, 'repl', 'Start loading CLI scripts');
+    log.info('MONGOSH', mongoLogId(1_000_003), 'repl', 'Start loading CLI scripts');
     usesShellOption = event.usesShellOption;
   });
 
@@ -103,7 +103,7 @@ export default function setupLoggerAndTelemetry(
     const connectionUri = redactURICredentials(args.uri);
     const { uri: _uri, ...argsWithoutUri } = args; // eslint-disable-line @typescript-eslint/no-unused-vars
     const params = { session_id: logId, userId, connectionUri, ...argsWithoutUri };
-    log.info('MONGOSH', 1_000_004, 'connect', 'Connecting to server', params);
+    log.info('MONGOSH', mongoLogId(1_000_004), 'connect', 'Connecting to server', params);
 
     if (telemetry) {
       analytics.track({
@@ -119,7 +119,7 @@ export default function setupLoggerAndTelemetry(
   });
 
   bus.on('mongosh:driver-initialized', function(driverMetadata: any) {
-    log.info('MONGOSH', 1_000_004, 'connect', 'Driver initialized', driverMetadata);
+    log.info('MONGOSH', mongoLogId(1_000_004), 'connect', 'Driver initialized', driverMetadata);
   });
 
   bus.on('mongosh:new-user', function(id: string, enableTelemetry: boolean) {
@@ -132,14 +132,14 @@ export default function setupLoggerAndTelemetry(
     userId = id;
     telemetry = enableTelemetry;
     if (telemetry) analytics.identify({ userId, traits: userTraits });
-    log.info('MONGOSH', 1_000_005, 'config', 'User updated', { enableTelemetry });
+    log.info('MONGOSH', mongoLogId(1_000_005), 'config', 'User updated', { enableTelemetry });
   });
 
   bus.on('mongosh:error', function(error: any, context: string) {
     if (context === 'fatal') {
-      log.fatal('MONGOSH', 1_000_006, context, `${error.name}: ${error.message}`, error);
+      log.fatal('MONGOSH', mongoLogId(1_000_006), context, `${error.name}: ${error.message}`, error);
     } else {
-      log.error('MONGOSH', 1_000_006, context, `${error.name}: ${error.message}`, error);
+      log.error('MONGOSH', mongoLogId(1_000_006), context, `${error.name}: ${error.message}`, error);
     }
 
     if (telemetry && error.name.includes('Mongosh')) {
@@ -158,11 +158,11 @@ export default function setupLoggerAndTelemetry(
   });
 
   bus.on('mongosh:evaluate-input', function(args: EvaluateInputEvent) {
-    log.info('MONGOSH', 1_000_007, 'repl', 'Evaluating input', args);
+    log.info('MONGOSH', mongoLogId(1_000_007), 'repl', 'Evaluating input', args);
   });
 
   bus.on('mongosh:use', function(args: UseEvent) {
-    log.info('MONGOSH', 1_000_008, 'shell-api', 'Used "use" command', args);
+    log.info('MONGOSH', mongoLogId(1_000_008), 'shell-api', 'Used "use" command', args);
 
     if (telemetry) {
       analytics.track({
@@ -176,7 +176,7 @@ export default function setupLoggerAndTelemetry(
   });
 
   bus.on('mongosh:show', function(args: ShowEvent) {
-    log.info('MONGOSH', 1_000_009, 'shell-api', 'Used "show" command', args);
+    log.info('MONGOSH', mongoLogId(1_000_009), 'shell-api', 'Used "show" command', args);
 
     if (telemetry) {
       analytics.track({
@@ -191,7 +191,7 @@ export default function setupLoggerAndTelemetry(
   });
 
   bus.on('mongosh:setCtx', function(args: ApiEvent) {
-    log.info('MONGOSH', 1_000_010, 'shell-api', 'Initialized context', args);
+    log.info('MONGOSH', mongoLogId(1_000_010), 'shell-api', 'Initialized context', args);
   });
 
   bus.on('mongosh:api-call', function(args: ApiEvent) {
@@ -202,11 +202,11 @@ export default function setupLoggerAndTelemetry(
     } catch {
       arg = { _inspected: inspect(args) };
     }
-    log.info('MONGOSH', 1_000_011, 'shell-api', 'Performed API call', redactInfo(arg));
+    log.info('MONGOSH', mongoLogId(1_000_011), 'shell-api', 'Performed API call', redactInfo(arg));
   });
 
   bus.on('mongosh:api-load-file', function(args: ScriptLoadFileEvent) {
-    log.info('MONGOSH', 1_000_012, 'shell-api', 'Loading file via load()', args);
+    log.info('MONGOSH', mongoLogId(1_000_012), 'shell-api', 'Loading file via load()', args);
 
     if (telemetry) {
       analytics.track({
@@ -222,7 +222,7 @@ export default function setupLoggerAndTelemetry(
   });
 
   bus.on('mongosh:eval-cli-script', function() {
-    log.info('MONGOSH', 1_000_013, 'repl', 'Evaluating script passed on the command line');
+    log.info('MONGOSH', mongoLogId(1_000_013), 'repl', 'Evaluating script passed on the command line');
 
     if (telemetry) {
       analytics.track({
@@ -237,7 +237,7 @@ export default function setupLoggerAndTelemetry(
   });
 
   bus.on('mongosh:mongoshrc-load', function() {
-    log.info('MONGOSH', 1_000_014, 'repl', 'Loading .mongoshrc.js');
+    log.info('MONGOSH', mongoLogId(1_000_014), 'repl', 'Loading .mongoshrc.js');
 
     if (telemetry) {
       analytics.track({
@@ -251,7 +251,7 @@ export default function setupLoggerAndTelemetry(
   });
 
   bus.on('mongosh:mongoshrc-mongorc-warn', function() {
-    log.info('MONGOSH', 1_000_015, 'repl', 'Warning about .mongorc.js/.mongoshrc.js mismatch');
+    log.info('MONGOSH', mongoLogId(1_000_015), 'repl', 'Warning about .mongorc.js/.mongoshrc.js mismatch');
 
     if (telemetry) {
       analytics.track({
@@ -265,67 +265,67 @@ export default function setupLoggerAndTelemetry(
   });
 
   bus.on('mongosh:mongocryptd-tryspawn', function(ev: MongocryptdTrySpawnEvent) {
-    log.info('MONGOCRYPTD', 1_000_016, 'mongocryptd', 'Trying to spawn mongocryptd', ev);
+    log.info('MONGOCRYPTD', mongoLogId(1_000_016), 'mongocryptd', 'Trying to spawn mongocryptd', ev);
   });
 
   bus.on('mongosh:mongocryptd-error', function(ev: MongocryptdErrorEvent) {
-    log.warn('MONGOCRYPTD', 1_000_017, 'mongocryptd', 'Error running mongocryptd', ev);
+    log.warn('MONGOCRYPTD', mongoLogId(1_000_017), 'mongocryptd', 'Error running mongocryptd', ev);
   });
 
   bus.on('mongosh:mongocryptd-log', function(ev: MongocryptdLogEvent) {
-    log.info('MONGOCRYPTD', 1_000_018, 'mongocryptd', 'mongocryptd log message', ev);
+    log.info('MONGOCRYPTD', mongoLogId(1_000_018), 'mongocryptd', 'mongocryptd log message', ev);
   });
 
   bus.on('mongosh-snippets:loaded', function(ev: SnippetsLoadedEvent) {
-    log.info('MONGOSH-SNIPPETS', 1_000_019, 'snippets', 'Loaded snippets', ev);
+    log.info('MONGOSH-SNIPPETS', mongoLogId(1_000_019), 'snippets', 'Loaded snippets', ev);
   });
 
   bus.on('mongosh-snippets:npm-lookup', function(ev: SnippetsNpmLookupEvent) {
-    log.info('MONGOSH-SNIPPETS', 1_000_020, 'snippets', 'Performing npm lookup', ev);
+    log.info('MONGOSH-SNIPPETS', mongoLogId(1_000_020), 'snippets', 'Performing npm lookup', ev);
   });
 
   bus.on('mongosh-snippets:npm-lookup-stopped', function() {
-    log.info('MONGOSH-SNIPPETS', 1_000_021, 'snippets', 'npm lookup stopped');
+    log.info('MONGOSH-SNIPPETS', mongoLogId(1_000_021), 'snippets', 'npm lookup stopped');
   });
 
   bus.on('mongosh-snippets:npm-download-failed', function(ev: SnippetsNpmDownloadFailedEvent) {
-    log.info('MONGOSH-SNIPPETS', 1_000_022, 'snippets', 'npm download failed', ev);
+    log.info('MONGOSH-SNIPPETS', mongoLogId(1_000_022), 'snippets', 'npm download failed', ev);
   });
 
   bus.on('mongosh-snippets:npm-download-active', function(ev: SnippetsNpmDownloadActiveEvent) {
-    log.info('MONGOSH-SNIPPETS', 1_000_023, 'snippets', 'npm download active', ev);
+    log.info('MONGOSH-SNIPPETS', mongoLogId(1_000_023), 'snippets', 'npm download active', ev);
   });
 
   bus.on('mongosh-snippets:fetch-index', function(ev: SnippetsFetchIndexEvent) {
-    log.info('MONGOSH-SNIPPETS', 1_000_024, 'snippets', 'Fetching snippet index', ev);
+    log.info('MONGOSH-SNIPPETS', mongoLogId(1_000_024), 'snippets', 'Fetching snippet index', ev);
   });
 
   bus.on('mongosh-snippets:fetch-cache-invalid', function() {
-    log.info('MONGOSH-SNIPPETS', 1_000_025, 'snippets', 'Snippet cache invalid');
+    log.info('MONGOSH-SNIPPETS', mongoLogId(1_000_025), 'snippets', 'Snippet cache invalid');
   });
 
   bus.on('mongosh-snippets:fetch-index-error', function(ev: SnippetsFetchIndexErrorEvent) {
-    log.info('MONGOSH-SNIPPETS', 1_000_026, 'snippets', 'Fetching snippet index failed', ev);
+    log.info('MONGOSH-SNIPPETS', mongoLogId(1_000_026), 'snippets', 'Fetching snippet index failed', ev);
   });
 
   bus.on('mongosh-snippets:fetch-index-done', function() {
-    log.info('MONGOSH-SNIPPETS', 1_000_027, 'snippets', 'Fetching snippet index done');
+    log.info('MONGOSH-SNIPPETS', mongoLogId(1_000_027), 'snippets', 'Fetching snippet index done');
   });
 
   bus.on('mongosh-snippets:package-json-edit-error', function(ev: SnippetsErrorEvent) {
-    log.info('MONGOSH-SNIPPETS', 1_000_028, 'snippets', 'Modifying snippets package.json failed', ev);
+    log.info('MONGOSH-SNIPPETS', mongoLogId(1_000_028), 'snippets', 'Modifying snippets package.json failed', ev);
   });
 
   bus.on('mongosh-snippets:spawn-child', function(ev: SnippetsRunNpmEvent) {
-    log.info('MONGOSH-SNIPPETS', 1_000_029, 'snippets', 'Spawning helper', ev);
+    log.info('MONGOSH-SNIPPETS', mongoLogId(1_000_029), 'snippets', 'Spawning helper', ev);
   });
 
   bus.on('mongosh-snippets:load-snippet', function(ev: SnippetsLoadSnippetEvent) {
-    log.info('MONGOSH-SNIPPETS', 1_000_030, 'snippets', 'Loading snippet', ev);
+    log.info('MONGOSH-SNIPPETS', mongoLogId(1_000_030), 'snippets', 'Loading snippet', ev);
   });
 
   bus.on('mongosh-snippets:snippet-command', function(ev: SnippetsCommandEvent) {
-    log.info('MONGOSH-SNIPPETS', 1_000_031, 'snippets', 'Running snippet command', ev);
+    log.info('MONGOSH-SNIPPETS', mongoLogId(1_000_031), 'snippets', 'Running snippet command', ev);
 
     if (telemetry && ev.args[0] === 'install') {
       analytics.track({
@@ -339,7 +339,7 @@ export default function setupLoggerAndTelemetry(
   });
 
   bus.on('mongosh-snippets:transform-error', function(ev: SnippetsTransformErrorEvent) {
-    log.info('MONGOSH-SNIPPETS', 1_000_032, 'snippets', 'Rewrote error message', ev);
+    log.info('MONGOSH-SNIPPETS', mongoLogId(1_000_032), 'snippets', 'Rewrote error message', ev);
   });
 
   const deprecatedApiCalls = new Set<string>();
@@ -349,7 +349,7 @@ export default function setupLoggerAndTelemetry(
   bus.on('mongosh:evaluate-finished', function() {
     deprecatedApiCalls.forEach(e => {
       const [clazz, method] = e.split('#');
-      log.warn('MONGOSH', 1_000_033, 'shell-api', 'Deprecated API call', { class: clazz, method });
+      log.warn('MONGOSH', mongoLogId(1_000_033), 'shell-api', 'Deprecated API call', { class: clazz, method });
 
       if (telemetry) {
         analytics.track({
@@ -367,26 +367,26 @@ export default function setupLoggerAndTelemetry(
   });
 
   bus.on('mongosh-sp:connect-heartbeat-failure', function(ev: SpConnectHeartbeatFailureEvent) {
-    log.warn('MONGOSH-SP', 1_000_034, 'connect', 'Server heartbeat failure', {
+    log.warn('MONGOSH-SP', mongoLogId(1_000_034), 'connect', 'Server heartbeat failure', {
       ...ev,
       failure: ev.failure?.message
     });
   });
 
   bus.on('mongosh-sp:connect-heartbeat-succeeded', function(ev: SpConnectHeartbeatSucceededEvent) {
-    log.info('MONGOSH-SP', 1_000_035, 'connect', 'Server heartbeat succeeded', ev);
+    log.info('MONGOSH-SP', mongoLogId(1_000_035), 'connect', 'Server heartbeat succeeded', ev);
   });
 
   bus.on('mongosh-sp:connect-fail-early', function() {
-    log.warn('MONGOSH-SP', 1_000_036, 'connect', 'Aborting connection attempt as irrecoverable');
+    log.warn('MONGOSH-SP', mongoLogId(1_000_036), 'connect', 'Aborting connection attempt as irrecoverable');
   });
 
   bus.on('mongosh-sp:connect-attempt-finished', function() {
-    log.info('MONGOSH-SP', 1_000_037, 'connect', 'Connection attempt finished');
+    log.info('MONGOSH-SP', mongoLogId(1_000_037), 'connect', 'Connection attempt finished');
   });
 
   bus.on('mongosh-sp:resolve-srv-error', function(ev: SpResolveSrvErrorEvent) {
-    log.error('MONGOSH-SP', 1_000_038, 'connect', 'Resolving SRV record failed', {
+    log.error('MONGOSH-SP', mongoLogId(1_000_038), 'connect', 'Resolving SRV record failed', {
       from: redactURICredentials(ev.from),
       error: ev.error?.message,
       duringLoad: ev.duringLoad
@@ -394,18 +394,18 @@ export default function setupLoggerAndTelemetry(
   });
 
   bus.on('mongosh-sp:resolve-srv-succeeded', function(ev: SpResolveSrvSucceededEvent) {
-    log.info('MONGOSH-SP', 1_000_039, 'connect', 'Resolving SRV record succeeded', {
+    log.info('MONGOSH-SP', mongoLogId(1_000_039), 'connect', 'Resolving SRV record succeeded', {
       from: redactURICredentials(ev.from),
       to: redactURICredentials(ev.to)
     });
   });
 
   bus.on('mongosh-sp:reset-connection-options', function() {
-    log.info('MONGOSH-SP', 1_000_040, 'connect', 'Reconnect because of changed connection options');
+    log.info('MONGOSH-SP', mongoLogId(1_000_040), 'connect', 'Reconnect because of changed connection options');
   });
 
   bus.on('mongosh-sp:missing-optional-dependency', function(ev: SpMissingOptionalDependencyEvent) {
-    log.error('MONGOSH-SP', 1_000_041, 'deps', 'Missing optional dependency', {
+    log.error('MONGOSH-SP', mongoLogId(1_000_041), 'deps', 'Missing optional dependency', {
       name: ev.name,
       error: ev?.error.message
     });
