@@ -379,7 +379,7 @@ class MongoshNodeRepl implements EvaluationListener {
         throw new MongoshCommandFailed('adminCommand getLog unexpectedly returned no result');
       }
     } catch (error) {
-      this.bus.emit('mongosh:error', error);
+      this.bus.emit('mongosh:error', error, 'repl');
       return;
     }
 
@@ -542,7 +542,7 @@ class MongoshNodeRepl implements EvaluationListener {
         name: result.name || 'MongoshInternalError',
         stack: result.stack
       };
-      this.bus.emit('mongosh:error', output);
+      this.bus.emit('mongosh:error', output, 'repl');
       return this.formatError(output);
     }
 

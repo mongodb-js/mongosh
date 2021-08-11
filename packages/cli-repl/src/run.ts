@@ -100,7 +100,7 @@ import stream from 'stream';
   } catch (e) {
     console.error(`${e.name}: ${e.message}`);
     if (repl !== undefined) {
-      repl.bus.emit('mongosh:error', e);
+      repl.bus.emit('mongosh:error', e, 'startup');
     }
     if (isSingleConsoleProcess) {
       // In single-process-console mode, it's confusing for the window to be

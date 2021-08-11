@@ -244,7 +244,7 @@ export default class Mongo extends ShellApiClass {
     const result = await this._serviceProvider.listDatabases('admin', { ...opts });
     if (!('databases' in result)) {
       const err = new MongoshRuntimeError('Got invalid result from "listDatabases"', CommonErrors.CommandFailed);
-      this._internalState.messageBus.emit('mongosh:error', err);
+      this._internalState.messageBus.emit('mongosh:error', err, 'shell-api');
       throw err;
     }
     this._cachedDatabaseNames = result.databases.map((db: any) => db.name);
@@ -320,7 +320,7 @@ export default class Mongo extends ShellApiClass {
           `'${cmd}' is not a valid argument for "show".`,
           CommonErrors.InvalidArgument
         );
-        this._internalState.messageBus.emit('mongosh:error', err);
+        this._internalState.messageBus.emit('mongosh:error', err, 'shell-api');
         throw err;
     }
   }
