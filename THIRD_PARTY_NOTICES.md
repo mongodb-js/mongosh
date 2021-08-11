@@ -99,7 +99,6 @@ Package|Version|License
 **[array-back](#d21c23dddedd084017eb841a79ffc469f66f68e195a48c53f20144d941b472f1)**|4.0.1|MIT
 **[askcharacter](#cb7238c8d3e6299f34f8808ce2bb65f6f9632b27f907d02e488d6918d33b93a2)**|1.0.0|Apache-2.0
 **[askpassword](#5623d58c516104595a6ca3884ba06bc77269b98085d3de58917a6655bea1116c)**|1.2.4|Apache-2.0
-**[atomic-sleep](#c2aa1160674677a67c8f8c4f84ce74846b64181defdd862ba85d82042577c2b9)**|1.0.0|MIT
 **[axios](#b90972744a253a068f0a15b11d8f9f73620a920283cd30aa808444b82e0548b2)**|0.18.1|MIT
 **[axios-retry](#a933fc75549ff5c33de504604749f9832d0619af4a680a36c912d08c5e01c678)**|3.1.5|Apache-2.0
 **[bindings](#acdb65ce90d2786593049f690752613250632fd5aeaa2960152abc4f0e8f3a44)**|1.5.0|MIT
@@ -142,11 +141,8 @@ Package|Version|License
 **[escape-string-regexp](#8c51af36cd574fcb38fb535dd3e485948143a1b5e8580efe21fcbf259b54c87c)**|4.0.0|MIT
 **[escape-string-regexp](#a9c53481a9db89e7cf01e302086c50fcfbde360978cdd2bbe1e52a430d3fee42)**|1.0.5|MIT
 **[expand-template](#46d3e73ca0d4a8c14e99252386f0a5c1a4fd8b2747331373d7b4da97105c15bb)**|2.0.3|(MIT OR WTFPL)
-**[fast-redact](#bf8cb5f8cf95e640c516924d212502a52fa8ba8ca697fb835709422fdd61d2e6)**|2.0.0|MIT
-**[fast-safe-stringify](#427b013d4ecd2bb6e8d7a9045c92a0bbd79ca72c05f23c558b7bcb566070dea5)**|2.0.7|MIT
 **[fault](#387740fc7544e813d0a9ad480550d0bb536270783b1ce8c1ee83cd7d18b1472e)**|1.0.4|MIT
 **[file-uri-to-path](#9eb41790b1cce0829afe7926edf4be80e0dd6927cd8376c00a54a8fc86f8943e)**|1.0.0|MIT
-**[flatstr](#5992264595d13f0a667502051097b5b1c96a8e4539371580b37b316952f7b724)**|1.0.12|MIT
 **[follow-redirects](#4b651a1217314da172fbfa687eb503fe460866e2b0cc253698b7ebeb3a7da1b5)**|1.5.10|MIT
 **[format](#353f24aaf04248dcf73d044f735588066fbd0102ebc5e29ef75c8ee4e4f285dc)**|0.2.2|MIT
 **[fs-constants](#9961a9f7535cded379a7696ad6d002a62d4826a3a8c2ffb5624383b942c879e5)**|1.0.0|MIT
@@ -222,14 +218,11 @@ Package|Version|License
 **[os-dns-native](#ca27ab1e249200708e6caced3591910c8dff6e5e8ba919d133af5857bd3e1cbe)**|1.0.3|MIT
 **[path-key](#e1a2a032096ace66b422351e00b11b0229e42e4b49c2146f439f8fe442218451)**|3.1.1|MIT
 **[path-parse](#ae79012b287ad3169c3381c589c4bae0e71eebd86fde18087ad7bec415d5905b)**|1.0.6|MIT
-**[pino](#ae3542049918b2ea239b7672d36eb0553131dd0a225ed7830d378f5cca269301)**|5.17.0|MIT
-**[pino-std-serializers](#0fbaec0b4757a710a88df80bb60f61685813af251a9893a302cdd2e2dc1cb125)**|2.4.2|MIT
 **[prebuild-install](#a9493a602227065e2247bd0f1087615024e9e96d36d1bd1e70b8db5292f7bdda)**|6.1.2|MIT
 **[pretty-bytes](#84f0bf818b26f8bdbd4b37dee83e6335d12636108b0a299edcd3c786ae3beb96)**|5.3.0|MIT
 **[pretty-repl](#91bf45a61fe193a0e000fb21572851df0d48fdb78901162aa4d2ed627c98a6fc)**|3.1.1|MIT
 **[process-nextick-args](#449a33b1fb1386db92b40df9073f48703b67ff05c4da5043d007fdb90ed76aca)**|2.0.1|MIT
 **[pump](#147f1bd3a6380306e696f0574feda0b1490121a1d12e4500e91ffb6e888ffa3a)**|3.0.0|MIT
-**[quick-format-unescaped](#6847d0af564232ff133f19c1e546442055386145699c85cd5a7ede04f82fc17a)**|3.0.3|MIT
 **[rc](#0dd705bd5862b4c60ed88e6b4a6f5ece23c627c97f6928233d32aefdd463c3f7)**|1.2.8|(BSD-2-Clause OR MIT OR Apache-2.0)
 **[readable-stream](#8f2e1b78e9d8c62cbe33ca0c9055ab55b3025f7c3ac146f29c102adbdc187bf1)**|2.3.7|MIT
 **[readable-stream](#75bd2243ec5ecc92b8d7e9a2e9a1aa142f20f6a5aad6dc0d923cdab997766174)**|3.6.0|MIT
@@ -250,7 +243,6 @@ Package|Version|License
 **[signal-exit](#e452c59b77b29cd391c67abe2e5c14f51a637e4b72e07cf78d31de57fd34ef41)**|3.0.3|ISC
 **[simple-concat](#7e08f893385d0a6d7059029da3885e8346ad01eb58d6e4561612d2fb653c15ec)**|1.0.1|MIT
 **[simple-get](#ade55c33f4d681462bccf90b122b9e974e43632f78545b6d8dc845e7f185e5da)**|3.1.0|MIT
-**[sonic-boom](#f56df8069cd20482626560a0a2f067e619d83e2e5ffe86fd9d0b9a796ad49891)**|0.7.7|MIT
 **[source-map](#40ab158a4f9c7e0cb2e7fc113cfd0df14cabf73f76ff90e255227d216f5ce28c)**|0.5.7|BSD-3-Clause
 **[sparse-bitfield](#0cbcf2cac3ff859d288ae5ffc2c793bbd2430b120f5930bd09b6dba7259086d7)**|3.0.3|MIT
 **[string-width](#b0725207ba4a78809dec9436283671608c6a6c89b5f5cc66db6ce6da7bfb0cc0)**|1.0.2|MIT
@@ -5749,44 +5741,6 @@ License files:
       
 
 
-<a id="c2aa1160674677a67c8f8c4f84ce74846b64181defdd862ba85d82042577c2b9"></a>
-### [atomic-sleep](https://www.npmjs.com/package/atomic-sleep) (version 1.0.0)
-<!-- initially found at packages/cli-repl/node_modules/atomic-sleep -->
-> Zero CPU overhead, zero dependency, true event-loop blocking sleep
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      The MIT License (MIT)
-      Copyright (c) 2020 David Mark Clements
-      
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all
-      copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-      IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-      DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-      OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
-      OR OTHER DEALINGS IN THE SOFTWARE.
-      
-      
-
-Authors:
-* David Mark Clements (@davidmarkclem)
-
-
 <a id="b90972744a253a068f0a15b11d8f9f73620a920283cd30aa808444b82e0548b2"></a>
 ### [axios](https://www.npmjs.com/package/axios) (version 0.18.1)
 <!-- initially found at packages/cli-repl/node_modules/axios -->
@@ -5978,7 +5932,7 @@ Authors:
 
 <a id="394c5421206f2ec526852cb6fa0ee38d42b14e205104586179d37d18573f8f95"></a>
 ### [bson](https://www.npmjs.com/package/bson) (version 4.4.1)
-<!-- initially found at packages/service-provider-core/node_modules/bson -->
+<!-- initially found at packages/cli-repl/node_modules/bson -->
 > A bson parser for node.js and the browser
 
 License tags: Apache-2.0
@@ -7862,88 +7816,6 @@ Authors:
 * LM <ralphtheninja@riseup.net>
 
 
-<a id="bf8cb5f8cf95e640c516924d212502a52fa8ba8ca697fb835709422fdd61d2e6"></a>
-### [fast-redact](https://www.npmjs.com/package/fast-redact) (version 2.0.0)
-<!-- initially found at packages/cli-repl/node_modules/fast-redact -->
-> very fast object redaction
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      The MIT License (MIT)
-      
-      Copyright (c) 2019-2020 David Mark Clements
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all
-      copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-      SOFTWARE.
-
-Authors:
-* David Mark Clements <david.clements@nearform.com>
-
-
-<a id="427b013d4ecd2bb6e8d7a9045c92a0bbd79ca72c05f23c558b7bcb566070dea5"></a>
-### [fast-safe-stringify](https://www.npmjs.com/package/fast-safe-stringify) (version 2.0.7)
-<!-- initially found at packages/cli-repl/node_modules/fast-safe-stringify -->
-> Safely and quickly serialize JavaScript objects
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      The MIT License (MIT)
-      
-      Copyright (c) 2016 David Mark Clements
-      Copyright (c) 2017 David Mark Clements & Matteo Collina
-      Copyright (c) 2018 David Mark Clements, Matteo Collina & Ruben Bridgewater 
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all
-      copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-      SOFTWARE.
-      
-
-Authors:
-* David Mark Clements
-* Ruben Bridgewater
-* Matteo Collina
-* Ben Gourley
-* Gabriel Lesperance
-* Alex Liu
-* Christoph Walcher
-* Nicholas Young
-
-
 <a id="387740fc7544e813d0a9ad480550d0bb536270783b1ce8c1ee83cd7d18b1472e"></a>
 ### [fault](https://www.npmjs.com/package/fault) (version 1.0.4)
 <!-- initially found at packages/cli-repl/node_modules/fault -->
@@ -8016,43 +7888,6 @@ License files:
 
 Authors:
 * Nathan Rajlich <nathan@tootallnate.net> (http://n8.io/)
-
-
-<a id="5992264595d13f0a667502051097b5b1c96a8e4539371580b37b316952f7b724"></a>
-### [flatstr](https://www.npmjs.com/package/flatstr) (version 1.0.12)
-<!-- initially found at packages/cli-repl/node_modules/flatstr -->
-> Flattens the underlying C structures of a concatenated JavaScript string
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      The MIT License (MIT)
-      
-      Copyright (c) 2016 David Mark Clements
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all
-      copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-      SOFTWARE.
-      
-
-Authors:
-* David Mark Clements
 
 
 <a id="4b651a1217314da172fbfa687eb503fe460866e2b0cc253698b7ebeb3a7da1b5"></a>
@@ -12827,72 +12662,6 @@ Authors:
 * Javier Blanco <http://jbgutierrez.info>
 
 
-<a id="ae3542049918b2ea239b7672d36eb0553131dd0a225ed7830d378f5cca269301"></a>
-### [pino](https://www.npmjs.com/package/pino) (version 5.17.0)
-<!-- initially found at packages/cli-repl/node_modules/pino -->
-> super fast, all natural json logger
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      The MIT License (MIT)
-      
-      Copyright (c) 2016-2019 Matteo Collina, David Mark Clements and the Pino contributors
-      
-      Pino contributors listed at https://github.com/pinojs/pino#the-team and in
-      the README file.
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all
-      copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-      SOFTWARE.
-      
-
-Authors:
-* Matteo Collina <hello@matteocollina.com>
-* David Mark Clements <huperekchuno@googlemail.com>
-* James Sumners <james.sumners@gmail.com>
-* Thomas Watson Steen <w@tson.dk> (https://twitter.com/wa7son)
-
-
-<a id="0fbaec0b4757a710a88df80bb60f61685813af251a9893a302cdd2e2dc1cb125"></a>
-### [pino-std-serializers](https://www.npmjs.com/package/pino-std-serializers) (version 2.4.2)
-<!-- initially found at packages/cli-repl/node_modules/pino-std-serializers -->
-> A collection of standard object serializers for Pino
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      Copyright Mateo Collina, David Mark Clements, James Sumners
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-      
-
-Authors:
-* James Sumners <james.sumners@gmail.com>
-
-
 <a id="a9493a602227065e2247bd0f1087615024e9e96d36d1bd1e70b8db5292f7bdda"></a>
 ### [prebuild-install](https://www.npmjs.com/package/prebuild-install) (version 6.1.2)
 <!-- initially found at packages/service-provider-core/node_modules/prebuild-install -->
@@ -13064,43 +12833,6 @@ License files:
 
 Authors:
 * Mathias Buus Madsen <mathiasbuus@gmail.com>
-
-
-<a id="6847d0af564232ff133f19c1e546442055386145699c85cd5a7ede04f82fc17a"></a>
-### [quick-format-unescaped](https://www.npmjs.com/package/quick-format-unescaped) (version 3.0.3)
-<!-- initially found at packages/cli-repl/node_modules/quick-format-unescaped -->
-> Solves a problem with util.format
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      The MIT License (MIT)
-      
-      Copyright (c) 2016-2019 David Mark Clements
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all
-      copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-      SOFTWARE.
-      
-
-Authors:
-* David Mark Clements
 
 
 <a id="0dd705bd5862b4c60ed88e6b4a6f5ece23c627c97f6928233d32aefdd463c3f7"></a>
@@ -14016,43 +13748,6 @@ License files:
 
 Authors:
 * Feross Aboukhadijeh <[feross@feross.org](nomail)> (http://feross.org/)
-
-
-<a id="f56df8069cd20482626560a0a2f067e619d83e2e5ffe86fd9d0b9a796ad49891"></a>
-### [sonic-boom](https://www.npmjs.com/package/sonic-boom) (version 0.7.7)
-<!-- initially found at packages/cli-repl/node_modules/sonic-boom -->
-> Extremely fast utf8 only stream implementation
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      MIT License
-      
-      Copyright (c) 2017 Matteo Collina
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all
-      copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-      SOFTWARE.
-      
-
-Authors:
-* Matteo Collina <hello@matteocollina.com>
 
 
 <a id="40ab158a4f9c7e0cb2e7fc113cfd0df14cabf73f76ff90e255227d216f5ce28c"></a>
