@@ -81,6 +81,10 @@ export class SignableCompiler {
       path: await findModulePath('cli-repl', 'macos-export-certificate-and-key'),
       requireRegexp: /\bmacos_export_certificate_and_key\.node$/
     } : null;
+    const winConsoleProcessListAddon = process.platform === 'win32' ? {
+      path: await findModulePath('cli-repl', 'get-console-process-list'),
+      requireRegexp: /\bget_console_process_list\.node$/
+    } : null;
 
     // This compiles the executable along with Node from source.
     // Evergreen and XCode don't have up to date libraries to compile
@@ -105,6 +109,8 @@ export class SignableCompiler {
         kerberosAddon
       ].concat(winCAAddon ? [
         winCAAddon
+      ] : []).concat(winConsoleProcessListAddon ? [
+        winConsoleProcessListAddon
       ] : []).concat(macKeychainAddon ? [
         macKeychainAddon
       ] : []),

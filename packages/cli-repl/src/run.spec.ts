@@ -2,15 +2,17 @@ import childProcess from 'child_process';
 import path from 'path';
 import { promisify } from 'util';
 import { expect } from 'chai';
+import { once } from 'events';
 const execFile = promisify(childProcess.execFile);
 
 describe('CLI entry point', () => {
+  const pathToRun = ['-r', 'ts-node/register', path.resolve(__dirname, 'run.ts')];
   async function run(args: string[], env?: Record<string, string>): Promise<{ stdout: string, stderr: string }> {
     // Use ts-node to run the .ts files directly so nyc can pick them up for
     // coverage.
     return await execFile(
       process.execPath,
-      ['-r', 'ts-node/register', path.resolve(__dirname, 'run.ts'), ...args],
+      [...pathToRun, ...args],
       { env: { ...process.env, ...(env ?? {}) } });
   }
 
@@ -32,5 +34,40 @@ describe('CLI entry point', () => {
   it('runs Node.js scripts if MONGOSH_RUN_NODE_SCRIPT is passed', async() => {
     const { stdout } = await run([path.resolve(__dirname, '..', 'test', 'fixtures', 'nodescript.js')], { MONGOSH_RUN_NODE_SCRIPT: '1' });
     expect(stdout).to.include('works!');
+  });
+
+  it('can load get-console-process-list on Windows', function() {
+    if (process.platform !== 'win32') {
+      return this.skip();
+    }
+    expect(require('get-console-process-list')).to.be.a('function');
+  });
+
+  it('asks for connection string when configured to do so', async() => {
+    const proc = childProcess.spawn(process.execPath, pathToRun, {
+      stdio: 'pipe',
+      env: { ...process.env, MONGOSH_FORCE_CONNECTION_STRING_PROMPT: '1' }
+    });
+    let stdout = '';
+    let stderr = '';
+    let wroteConnectionString = false;
+    proc.stdout.setEncoding('utf8').on('data', (chunk) => {
+      stdout += chunk;
+      if (!wroteConnectionString &&
+          stdout.includes('Please enter a MongoDB connection string')) {
+        proc.stdin.write('/\n');
+        wroteConnectionString = true;
+      }
+      if (stdout.includes('Press any key to exit')) {
+        proc.stdin.write('x');
+      }
+    });
+    proc.stderr.setEncoding('utf8').on('data', (chunk) => {
+      stderr += chunk;
+    });
+    const [code] = await once(proc, 'exit');
+    expect(code).to.equal(1);
+    expect(stdout).to.include('Press any key to exit');
+    expect(stderr).to.include('MongoshInvalidInputError: [COMMON-10001] Invalid URI: /');
   });
 });

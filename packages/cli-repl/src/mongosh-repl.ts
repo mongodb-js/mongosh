@@ -340,6 +340,7 @@ class MongoshNodeRepl implements EvaluationListener {
     // Only start reading from the input *after* we set up everything, including
     // internalState.setCtx().
     this.lineByLineInput.start();
+    this.input.resume();
     repl.setPrompt(await this.getShellPrompt());
     repl.displayPrompt();
   }

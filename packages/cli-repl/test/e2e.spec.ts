@@ -1092,5 +1092,32 @@ describe('e2e', function() {
       });
     });
   });
+
+  describe('ask-for-connection-string mode', () => {
+    let shell: TestShell;
+
+    beforeEach(() => {
+      shell = TestShell.start({
+        args: [],
+        env: { ...process.env, MONGOSH_FORCE_CONNECTION_STRING_PROMPT: '1' },
+        forceTerminal: true
+      });
+    });
+
+    it('allows connecting to a host and running commands against it', async() => {
+      const connectionString = await testServer.connectionString();
+      await eventually(() => {
+        shell.assertContainsOutput('Please enter a MongoDB connection string');
+      });
+      shell.writeInputLine(connectionString);
+      await shell.waitForPrompt();
+
+      expect(await shell.executeLine('db.runCommand({whatsmyuri:1})')).to.include('you:');
+
+      shell.writeInputLine('exit');
+      await shell.waitForExit();
+      shell.assertNoErrors();
+    });
+  });
 });
 
