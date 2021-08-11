@@ -80,13 +80,13 @@ describe('interruptor', () => {
 
     it('causes an interrupt error to be thrown on exit', async() => {
       let resolveCall: (result: any) => void;
-      serviceProvider.runCommandWithCheck.callsFake(() => {
-        return new Promise(resolve => {
-          resolveCall = resolve;
-        });
-      });
+      serviceProvider.runCommandWithCheck.resolves(new Promise(resolve => {
+        resolveCall = resolve;
+      }));
 
       const runCommand = database.runCommand({ some: 1 });
+      await new Promise(setImmediate);
+      await new Promise(setImmediate); // ticks due to db._baseOptions() being async
       internalState.interrupted.set();
       resolveCall({ ok: 1 });
 

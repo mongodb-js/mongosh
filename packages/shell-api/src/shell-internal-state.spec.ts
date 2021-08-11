@@ -47,10 +47,12 @@ describe('ShellInternalState', () => {
       expect(() => run('db = 42')).to.throw("[COMMON-10002] Cannot reassign 'db' to non-Database type");
     });
 
-    it('allows setting db to a db and causes prefetching', () => {
+    it('allows setting db to a db and causes prefetching', async() => {
       serviceProvider.listCollections
         .resolves([ { name: 'coll1' }, { name: 'coll2' } ]);
       expect(run('db = db.getSiblingDB("moo"); db.getName()')).to.equal('moo');
+      await new Promise(setImmediate);
+      await new Promise(setImmediate); // ticks due to db._baseOptions() being async
       expect(serviceProvider.listCollections.calledWith('moo', {}, {
         readPreference: 'primaryPreferred',
         nameOnly: true

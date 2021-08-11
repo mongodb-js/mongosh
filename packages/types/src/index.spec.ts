@@ -31,6 +31,11 @@ describe('config validation', () => {
     expect(await validate('displayBatchSize', 0)).to.equal('displayBatchSize must be a positive integer');
     expect(await validate('displayBatchSize', 1)).to.equal(null);
     expect(await validate('displayBatchSize', Infinity)).to.equal(null);
+    expect(await validate('maxTimeMS', 'foo')).to.equal('maxTimeMS must be null or a positive integer');
+    expect(await validate('maxTimeMS', -1)).to.equal('maxTimeMS must be null or a positive integer');
+    expect(await validate('maxTimeMS', 0)).to.equal('maxTimeMS must be null or a positive integer');
+    expect(await validate('maxTimeMS', 1)).to.equal(null);
+    expect(await validate('maxTimeMS', null)).to.equal(null);
     expect(await validate('enableTelemetry', 'foo')).to.equal('enableTelemetry must be a boolean');
     expect(await validate('enableTelemetry', -1)).to.equal('enableTelemetry must be a boolean');
     expect(await validate('enableTelemetry', false)).to.equal(null);

@@ -2204,6 +2204,42 @@ describe('Shell API (integration)', function() {
     });
   });
 
+  describe('maxTimeMS support', () => {
+    skipIfServerVersion(testServer, '< 4.2');
+
+    beforeEach(async() => {
+      await collection.insertMany([...Array(10).keys()].map(i => ({ i })));
+      const cfg = new ShellUserConfig();
+      internalState.setEvaluationListener({
+        getConfig(key: string) { return cfg[key]; },
+        setConfig(key: string, value: any) { cfg[key] = value; return 'success'; },
+        listConfigOptions() { return Object.keys(cfg); }
+      });
+    });
+
+    it('config changes affect maxTimeMS', async() => {
+      await shellApi.config.set('maxTimeMS', 100);
+      try {
+        // eslint-disable-next-line no-constant-condition
+        await (await collection.find({ $where: function() { while (true); } })).next();
+        expect.fail('missed exception');
+      } catch (err) {
+        expect(err.codeName).to.equal('MaxTimeMSExpired');
+      }
+    });
+
+    it('maxTimeMS can be passed explicitly', async() => {
+      await shellApi.config.set('maxTimeMS', null);
+      try {
+        // eslint-disable-next-line no-constant-condition
+        await (await collection.find({ $where: function() { while (true); } }, {}, { maxTimeMS: 100 })).next();
+        expect.fail('missed exception');
+      } catch (err) {
+        expect(err.codeName).to.equal('MaxTimeMSExpired');
+      }
+    });
+  });
+
   describe('cursor map/forEach', () => {
     beforeEach(async() => {
       await collection.insertMany([...Array(10).keys()].map(i => ({ i })));
