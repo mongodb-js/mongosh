@@ -2205,6 +2205,8 @@ describe('Shell API (integration)', function() {
   });
 
   describe('maxTimeMS support', () => {
+    skipIfServerVersion(testServer, '< 4.2');
+
     beforeEach(async() => {
       await collection.insertMany([...Array(10).keys()].map(i => ({ i })));
       const cfg = new ShellUserConfig();
