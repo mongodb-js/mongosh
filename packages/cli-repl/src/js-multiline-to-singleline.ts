@@ -1,4 +1,44 @@
-import { transformSync } from '@babel/core';
+import * as babel from '@babel/core';
+
+// Babel plugin that turns all single-line // comments into /* ... */ block comments
+function lineCommentToBlockComment(): babel.PluginObj {
+  const visitedComments = new Map<babel.types.Comment, babel.types.Comment>();
+
+  function turnCommentIntoBlock(original: babel.types.Comment): babel.types.Comment {
+    // Babel determines when to print a comment based on the comment's object
+    // identity, since the same comment can appear both as a trailing comment of
+    // one node and a leading commment of another, so we keep track of which
+    // comments we have transformed already.
+    const existing = visitedComments.get(original);
+    if (existing) {
+      return existing;
+    }
+    const replacement: babel.types.Comment = { ...original, type: 'CommentBlock' };
+    visitedComments.set(original, replacement);
+    return replacement;
+  }
+
+  function transformComments(path: babel.NodePath): void {
+    const node = path.node;
+    const keys = ['leadingComments', 'trailingComments', 'innerComments'] as const;
+    for (const key of keys) {
+      node[key] = node[key]?.map(turnCommentIntoBlock) ?? null;
+    }
+  }
+
+  return {
+    visitor: {
+      Program(path) {
+        transformComments(path);
+        path.traverse({
+          enter(path) {
+            transformComments(path);
+          }
+        });
+      }
+    }
+  };
+}
 
 export function makeMultilineJSIntoSingleLine(src: string): string {
   // We use babel without any actual transformation steps, and only for ASI
@@ -11,11 +51,13 @@ export function makeMultilineJSIntoSingleLine(src: string): string {
   // ASI and *only* ASI and leaves the source intact otherwise.
   let postASI: string;
   try {
-    postASI = transformSync(src, {
+    // eslint-disable-next-line no-sync
+    postASI = babel.transformSync(src, {
       retainLines: true,
       compact: false,
       code: true,
-      comments: false
+      comments: true,
+      plugins: [lineCommentToBlockComment]
     })?.code ?? src;
   } catch {
     // The src might still be invalid, e.g. because a recoverable error was not fixed
