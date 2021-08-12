@@ -1112,7 +1112,7 @@ describe('e2e', function() {
       shell.writeInputLine(connectionString);
       await shell.waitForPrompt();
 
-      expect(await shell.executeLine('db.runCommand({whatsmyuri:1})')).to.include('you:');
+      expect(await shell.executeLine('db.runCommand({ping: 1})')).to.include('ok: 1');
 
       shell.writeInputLine('exit');
       await shell.waitForExit();
