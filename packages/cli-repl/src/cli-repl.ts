@@ -4,6 +4,7 @@ import i18n from '@mongosh/i18n';
 import { bson, AutoEncryptionOptions } from '@mongosh/service-provider-core';
 import { CliOptions, CliServiceProvider, MongoClientOptions } from '@mongosh/service-provider-server';
 import { SnippetManager } from '@mongosh/snippet-manager';
+import { Editor } from '@mongosh/editor';
 import Analytics from 'analytics-node';
 import askpassword from 'askpassword';
 import ConnectionString from 'mongodb-connection-string-url';
@@ -228,6 +229,9 @@ class CliRepl {
         instanceState: this.mongoshRepl.runtimeState().instanceState
       });
     }
+
+    const editor = new Editor({ internalState: this.mongoshRepl.runtimeState().internalState });
+    editor.activate();
 
     const commandLineLoadFiles = this.cliOptions.fileNames ?? [];
     if (commandLineLoadFiles.length > 0 || this.cliOptions.eval !== undefined) {
