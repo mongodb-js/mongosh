@@ -1,0 +1,2 @@
+{ "_id": <ObjectID>, "v": "a", "number": 1 }
+[ { "_id": <ObjectID>, "v": "a", "number": 2 }, { "_id": <ObjectID>, "v": "b", "number": 1 } ]
