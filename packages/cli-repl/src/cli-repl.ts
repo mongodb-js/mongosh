@@ -231,7 +231,8 @@ class CliRepl {
     }
 
     const editor = new Editor({
-      tmpdir: this.shellHomeDirectory.roamingPath('editor'),
+      vscodeDir: this.shellHomeDirectory.rcPath('.vscode'),
+      tmpDir: this.shellHomeDirectory.roamingPath('editor'),
       internalState: this.mongoshRepl.runtimeState().internalState
     });
     editor.activate();
