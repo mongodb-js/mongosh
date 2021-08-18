@@ -161,6 +161,16 @@ export interface SpMissingOptionalDependencyEvent {
   error: Error;
 }
 
+export interface EditorRunEditCommandEvent {
+  tmpdoc: string;
+  args: string[];
+}
+
+export interface EditorRunEditCommandFailedEvent {
+  action: string;
+  error: string;
+}
+
 export interface MongoshBusEventsMap {
   /**
    * Signals a connection to a MongoDB instance has been established
@@ -333,6 +343,11 @@ export interface MongoshBusEventsMap {
   'mongosh-sp:reset-connection-options': () => void;
   /** Signals that an optional dependency of the mongodb package is missing. */
   'mongosh-sp:missing-optional-dependency': (ev: SpMissingOptionalDependencyEvent) => void;
+
+  /** Signals that a run edit command has started executing. */
+  'mongosh-editor:run-edit-command': (ev: EditorRunEditCommandEvent) => void;
+  /** Signals that a run edit command has failed. */
+  'mongosh-editor:run-edit-command-failed': (ev: EditorRunEditCommandFailedEvent) => void;
 }
 
 export interface MongoshBus {

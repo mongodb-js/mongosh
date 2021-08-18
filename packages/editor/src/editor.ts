@@ -2,15 +2,16 @@ import { signatures, ShellPlugin, ShellInternalState, TypeSignature } from '@mon
 import type { ShellUserConfig, MongoshBus } from '@mongosh/types';
 import spawn from 'cross-spawn';
 import * as fse from 'fs-extra';
-import * as os from 'os';
 import * as path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 
 export interface EditorOptions {
+  tmpdir: string,
   internalState: ShellInternalState;
 }
 
 export class Editor implements ShellPlugin {
+  _tmpdoc: string;
   _internalState: ShellInternalState;
   load: (filename: string) => Promise<void>;
   require: any;
@@ -18,8 +19,9 @@ export class Editor implements ShellPlugin {
   print: (...args: any[]) => Promise<void>;
   npmArgv: string[];
 
-  constructor({ internalState }: EditorOptions) {
+  constructor({ tmpdir, internalState }: EditorOptions) {
     const { load, config, print, require } = internalState.context;
+    this._tmpdoc = path.join(tmpdir, `edit-${uuidv4()}.js`);
     this._internalState = internalState;
     this.load = load;
     this.config = config;
@@ -48,16 +50,23 @@ export class Editor implements ShellPlugin {
 
   async runEditorCommand([ identifier, ...args ]: string[]): Promise<string> {
     await this.print('Opening an editor...');
+    await fse.ensureFile(this._tmpdoc);
 
-    const localDocPath = path.join(os.tmpdir(), 'mongosh-editor', `edit-${uuidv4()}.js`);
-    await fse.ensureFile(localDocPath);
+    this.messageBus.emit('mongosh-editor:run-edit-command', {
+      tmpdoc: this._tmpdoc,
+      args: [ identifier, ...args ]
+    });
 
-    const proc = spawn.sync('nano', [localDocPath], {
+    const proc = spawn.sync('nano', [this._tmpdoc], {
       env: { ...process.env, MONGOSH_RUN_NODE_SCRIPT: '1' },
       stdio: 'inherit'
     });
 
     if (proc.error) {
+      this.messageBus.emit('mongosh-editor:run-edit-command-failed', {
+        action: 'spawn-child-sync',
+        error: proc.error.message
+      });
       throw proc.error;
     }
 
@@ -65,10 +74,10 @@ export class Editor implements ShellPlugin {
     const stderr = proc.stderr?.toString();
 
     if (proc.status !== 0) {
-      throw new Error(`Command failed: ${[localDocPath, identifier, ...args].join(' ')} with exit code ${proc.status}: ${stderr} ${stdout}`);
+      throw new Error(`Command failed: ${[this._tmpdoc, identifier, ...args].join(' ')} with exit code ${proc.status}: ${stderr} ${stdout}`);
     }
 
-    return fse.readFile(localDocPath, 'utf8');
+    return fse.readFile(this._tmpdoc, 'utf8');
   }
 
   get messageBus(): MongoshBus {
