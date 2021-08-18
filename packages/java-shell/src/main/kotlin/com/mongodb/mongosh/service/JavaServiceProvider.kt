@@ -1,5 +1,6 @@
 package com.mongodb.mongosh.service
 
+import com.mongodb.MongoNamespace
 import com.mongodb.client.MongoClient
 import com.mongodb.client.MongoDatabase
 import com.mongodb.client.model.*
@@ -560,8 +561,13 @@ internal class JavaServiceProvider(private val client: MongoClient,
     }
 
     @HostAccess.Export
-    override fun renameCollection(database: String, oldName: String, newName: String, options: Value?, dbOptions: Value?): Value = promise<Any?> {
-        Left(NotImplementedError())
+    override fun renameCollection(database: String, oldName: String, newName: String, options: Value?): Value = promise<Any?> {
+        val options = toDocument(options, "options")
+        getDatabase(database, null).flatMap { db ->
+            convert(RenameCollectionOptions(), renameCollectionConverters, renameCollectionDefaultConverter, options).map { opt ->
+                db.getCollection(oldName).renameCollection(MongoNamespace(database, newName), opt)
+            }
+        }
     }
 
     @HostAccess.Export
