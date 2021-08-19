@@ -1,5 +1,6 @@
 import spawn from 'cross-spawn';
 import * as fse from 'fs-extra';
+import { once } from 'events';
 import * as path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -84,9 +85,7 @@ export class Editor implements ShellPlugin {
     }
   }
 
-  async runEditorCommand([ identifier, ...args ]: string[]): Promise<string> {
-    await this.print('Opening an editor...');
-
+  async getEditor(): Promise<string|null> {
     // Check for an external editor in the mongosh configuration.
     let editor: string | null = await this._internalState.shellApi.config.get('editor');
 
@@ -94,6 +93,14 @@ export class Editor implements ShellPlugin {
     if (!editor && process.env.EDITOR) {
       editor = process.env.EDITOR;
     }
+
+    return editor;
+  }
+
+  async runEditorCommand([ identifier, ...args ]: string[]): Promise<string> {
+    await this.print('Opening an editor...');
+
+    const editor: string|null = await this.getEditor();
 
     // If none of the above configurations are found return an error.
     if (!editor) {
@@ -112,28 +119,43 @@ export class Editor implements ShellPlugin {
       args: [ identifier, ...cmdArgs, ...args ]
     });
 
-    // Wait for an editor to close the file.
-    const proc = spawn.sync(cmd, [tmpdoc, ...cmdArgs, ...args], {
+    const proc = spawn(cmd, [tmpdoc, ...cmdArgs, ...args], {
       env: { ...process.env, MONGOSH_RUN_NODE_SCRIPT: '1' },
       stdio: 'inherit'
     });
 
-    if (proc.error) {
-      this.messageBus.emit('mongosh-editor:run-edit-command-failed', {
-        action: 'spawn-child-sync',
-        error: proc.error.message
-      });
-      throw proc.error;
+    let stdout = '';
+    let stderr = '';
+
+    if (proc.stdout) {
+      proc.stdout.on('data', (chunk) => { stdout += chunk; });
+    }
+    if (proc.stderr) {
+      proc.stderr.on('data', (chunk) => { stderr += chunk; });
     }
 
-    const stdout = proc.stdout?.toString();
-    const stderr = proc.stderr?.toString();
+    process.stdin.pause();
 
-    if (proc.status !== 0) {
-      throw new Error(`Command failed '${cmd} ${[identifier, ...args, ...cmdArgs].join(' ')}' with exit code ${proc.status}: ${stderr} ${stdout}`);
+    try {
+      const [ exitCode ] = await once(proc, 'close');
+
+      if (exitCode === 0) {
+        return fse.readFile(tmpdoc, 'utf8');
+      }
+
+      // Allow exit code 1 if stderr is empty, i.e. no error occurred, because
+      // that is how commands like `npm outdated` report their result.
+      if (exitCode === 1 && stderr === '' && stdout) {
+        return stdout;
+      }
+
+      throw new Error(`Command failed '${cmd} ${[identifier, ...args, ...cmdArgs].join(' ')}' with exit code ${exitCode}: ${stderr} ${stdout}`);
+    } finally {
+      process.stdin.resume();
+      if (proc.exitCode === null && proc.signalCode === null) {
+        proc.kill(); // Not exited yet, i.e. this was interrupted.
+      }
     }
-
-    return fse.readFile(tmpdoc, 'utf8');
   }
 
   get messageBus(): MongoshBus {

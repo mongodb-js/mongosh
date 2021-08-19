@@ -358,8 +358,6 @@ export interface MongoshBusEventsMap {
   /** Signals that a run edit command has started executing. */
   'mongosh-editor:run-edit-command': (ev: EditorRunEditCommandEvent) => void;
   /** Signals that a run edit command has failed. */
-  'mongosh-editor:run-edit-command-failed': (ev: EditorRunEditCommandFailedEvent) => void;
-  /** Signals that reading vscode extensions from disc has completed. */
   'mongosh-editor:read-vscode-extensions-done': (ev: EditorReadVscodeExtensionsDoneEvent) => void;
   /** Signals that reading vscode extensions from disc failed. */
   'mongosh-editor:read-vscode-extensions-failed': (ev: EditorReadVscodeExtensionsFailedEvent) => void;
