@@ -17,6 +17,7 @@ export class Editor implements ShellPlugin {
   _vscodeDir: string;
   _tmpDir: string;
   _tmpDocName: string;
+  _tmpDoc: string;
   _internalState: ShellInternalState;
   load: (filename: string) => Promise<void>;
   require: any;
@@ -29,6 +30,7 @@ export class Editor implements ShellPlugin {
     this._vscodeDir = vscodeDir;
     this._tmpDir = tmpDir;
     this._tmpDocName = `edit-${uuidv4()}`;
+    this._tmpDoc = '';
     this._internalState = internalState;
     this.load = load;
     this.config = config;
@@ -97,9 +99,16 @@ export class Editor implements ShellPlugin {
     return editor;
   }
 
+  async createTempFile(cmd: string) {
+    const ext = await this.getExtension(cmd);
+    this._tmpDoc = path.join(this._tmpDir, `${this._tmpDocName}.${ext}`);
+
+    // Create a temp file to store content that is being edited.
+    await fse.ensureFile(this._tmpDoc);
+  }
+
   async runEditorCommand([ identifier, ...args ]: string[]): Promise<string> {
     await this.print('Opening an editor...');
-
     const editor: string|null = await this.getEditor();
 
     // If none of the above configurations are found return an error.
@@ -108,25 +117,21 @@ export class Editor implements ShellPlugin {
     }
 
     const [ cmd, ...cmdArgs ] = editor.split(' ');
-    const ext = await this.getExtension(cmd);
-    const tmpdoc = path.join(this._tmpDir, `${this._tmpDocName}.${ext}`);
+    await this.createTempFile(cmd);
 
-    // Create a temp file to store content that is being edited.
-    await fse.ensureFile(tmpdoc);
     this.messageBus.emit('mongosh-editor:run-edit-command', {
-      tmpdoc,
+      tmpdoc: this._tmpDoc,
       editor,
       args: [ identifier, ...cmdArgs, ...args ]
     });
 
-    const proc = spawn(cmd, [tmpdoc, ...cmdArgs, ...args], {
+    const proc = spawn(cmd, [this._tmpDoc, ...cmdArgs, ...args], {
       env: { ...process.env, MONGOSH_RUN_NODE_SCRIPT: '1' },
       stdio: 'inherit'
     });
 
     let stdout = '';
     let stderr = '';
-
     if (proc.stdout) {
       proc.stdout.on('data', (chunk) => { stdout += chunk; });
     }
@@ -140,7 +145,7 @@ export class Editor implements ShellPlugin {
       const [ exitCode ] = await once(proc, 'close');
 
       if (exitCode === 0) {
-        return fse.readFile(tmpdoc, 'utf8');
+        return fse.readFile(this._tmpDoc, 'utf8');
       }
 
       // Allow exit code 1 if stderr is empty, i.e. no error occurred, because
