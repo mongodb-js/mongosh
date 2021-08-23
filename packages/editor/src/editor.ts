@@ -1,37 +1,44 @@
-import spawn from 'cross-spawn';
 import * as fse from 'fs-extra';
-import { once } from 'events';
 import * as path from 'path';
+import { once } from 'events';
+import { Readable } from 'stream';
+import spawn from 'cross-spawn';
 import { v4 as uuidv4 } from 'uuid';
 
-import { signatures, ShellPlugin, ShellInternalState, TypeSignature } from '@mongosh/shell-api';
 import type { ShellUserConfig, MongoshBus } from '@mongosh/types';
+import { signatures, ShellPlugin, ShellInternalState, TypeSignature } from '@mongosh/shell-api';
 
 export interface EditorOptions {
+  input: Readable;
   vscodeDir: string,
   tmpDir: string,
   internalState: ShellInternalState;
+  makeMultilineJSIntoSingleLine: any;
 }
 
 export class Editor implements ShellPlugin {
+  _input: Readable;
   _vscodeDir: string;
   _tmpDir: string;
   _tmpDocName: string;
   _tmpDoc: string;
   _internalState: ShellInternalState;
+  _makeMultilineJSIntoSingleLine: any;
   load: (filename: string) => Promise<void>;
   require: any;
   config: { get<T extends keyof ShellUserConfig>(key: T): Promise<ShellUserConfig[T]> };
   print: (...args: any[]) => Promise<void>;
   npmArgv: string[];
 
-  constructor({ vscodeDir, tmpDir, internalState }: EditorOptions) {
+  constructor({ input, vscodeDir, tmpDir, internalState, makeMultilineJSIntoSingleLine }: EditorOptions) {
     const { load, config, print, require } = internalState.context;
+    this._input = input;
     this._vscodeDir = vscodeDir;
     this._tmpDir = tmpDir;
     this._tmpDocName = `edit-${uuidv4()}`;
     this._tmpDoc = '';
     this._internalState = internalState;
+    this._makeMultilineJSIntoSingleLine = makeMultilineJSIntoSingleLine;
     this.load = load;
     this.config = config;
     this.print = print;
@@ -50,7 +57,7 @@ export class Editor implements ShellPlugin {
     (signatures.ShellApi.attributes as any).edit = {
       type: 'function',
       returnsPromise: true,
-      isDirectShellCommand: true,
+      isDirectShellCommand: true
     } as TypeSignature;
   }
 
@@ -99,6 +106,11 @@ export class Editor implements ShellPlugin {
     return editor;
   }
 
+  async readTempFile(): Promise<string> {
+    const content = await fse.readFile(this._tmpDoc, 'utf8');
+    return this._makeMultilineJSIntoSingleLine(content);
+  }
+
   async createTempFile(cmd: string) {
     const ext = await this.getExtension(cmd);
     this._tmpDoc = path.join(this._tmpDir, `${this._tmpDocName}.${ext}`);
@@ -107,7 +119,7 @@ export class Editor implements ShellPlugin {
     await fse.ensureFile(this._tmpDoc);
   }
 
-  async runEditorCommand([ identifier, ...args ]: string[]): Promise<string> {
+  async runEditorCommand([ identifier, ...args ]: string[]): Promise<void> {
     await this.print('Opening an editor...');
     const editor: string|null = await this.getEditor();
 
@@ -139,24 +151,26 @@ export class Editor implements ShellPlugin {
       proc.stderr.on('data', (chunk) => { stderr += chunk; });
     }
 
-    process.stdin.pause();
+    this._input.pause();
 
     try {
       const [ exitCode ] = await once(proc, 'close');
 
       if (exitCode === 0) {
-        return fse.readFile(this._tmpDoc, 'utf8');
+        const content = await this.readTempFile();
+        this._input.unshift(content);
+        return;
       }
 
       // Allow exit code 1 if stderr is empty, i.e. no error occurred, because
       // that is how commands like `npm outdated` report their result.
       if (exitCode === 1 && stderr === '' && stdout) {
-        return stdout;
+        stderr = stdout;
       }
 
       throw new Error(`Command failed '${cmd} ${[identifier, ...args, ...cmdArgs].join(' ')}' with exit code ${exitCode}: ${stderr} ${stdout}`);
     } finally {
-      process.stdin.resume();
+      this._input.resume();
       if (proc.exitCode === null && proc.signalCode === null) {
         proc.kill(); // Not exited yet, i.e. this was interrupted.
       }
