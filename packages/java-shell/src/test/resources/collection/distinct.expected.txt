@@ -1,1 +1,7 @@
-kotlin.NotImplementedError: An operation is not implemented.
+[ 1, 2, 3 ]
+[ "hello", "world" ]
+org.bson.BsonInvalidOperationException: Invalid numeric type, found: STRING
+[ 1 ]
+[ { }, { "a": 1 } ]
+[ "hello" ]
+com.mongodb.mongosh.result.CommandException: unrecognized distinct options field: collation

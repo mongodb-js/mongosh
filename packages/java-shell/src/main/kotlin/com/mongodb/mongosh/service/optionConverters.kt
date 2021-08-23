@@ -583,6 +583,10 @@ internal val insertManyConverters: Map<String, (InsertManyOptions, Any?) -> Eith
 
 internal val insertManyDefaultConverter = unrecognizedField<InsertManyOptions>("insert many options")
 
+internal val distinctConverters: Map<String, (Any?, Any?) -> Either<Any?>> = mapOf()
+
+internal val distinctDefaultConverter = unrecognizedField<Any?>("distinct options")
+
 internal val renameCollectionConverters: Map<String, (RenameCollectionOptions, Any?) -> Either<RenameCollectionOptions>> = mapOf(
     typed("dropTarget", Boolean::class.java) { opt, value ->
         opt.dropTarget(value)
