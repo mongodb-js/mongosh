@@ -24,6 +24,6 @@ internal interface WritableServiceProvider {
     fun remove(database: String, collection: String, query: Value, options: Value?): Value
     fun createIndexes(database: String, collection: String, indexSpecs: Value?, options: Value?): Value
     fun dropCollection(database: String, collection: String, options: Value?): Value
-    fun renameCollection(database: String, oldName: String, newName: String, options: Value?, dbOptions: Value?): Value
+    fun renameCollection(database: String, oldName: String, newName: String, options: Value?): Value
     fun initializeBulkOp(database: String, collection: String, ordered: Boolean, options: Value?, dbOptions: Value?): Value
 }
