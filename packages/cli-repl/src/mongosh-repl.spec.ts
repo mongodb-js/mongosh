@@ -16,6 +16,7 @@ import stripAnsi from 'strip-ansi';
 const delay = promisify(setTimeout);
 
 const multilineCode = `(function() {
+  // comment
   return 610 + 377;
 })();`;
 
@@ -193,8 +194,8 @@ describe('MongoshNodeRepl', () => {
         input.write(line + '\n');
         await waitEval(bus);
       }
-      // Two ... because we entered two incomplete lines.
-      expect(output).to.include('... ... 987');
+      // Three ... because we entered three incomplete lines.
+      expect(output).to.include('... ... ... 987');
       expect(output).not.to.include('Error');
     });
 

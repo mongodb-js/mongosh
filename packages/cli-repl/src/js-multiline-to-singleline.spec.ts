@@ -13,6 +13,7 @@ describe('makeMultilineJSIntoSingleLine', () => {
   });
 
   it('treats comments propertly', () => {
-    expect(toSingleLine('a // comment\n b')).to.equal('a; b');
+    expect(toSingleLine('a // comment\n b')).to.equal('a; /* comment*/ b');
+    expect(toSingleLine('a /* comment*/\n b')).to.equal('a; /* comment*/ b');
   });
 });
