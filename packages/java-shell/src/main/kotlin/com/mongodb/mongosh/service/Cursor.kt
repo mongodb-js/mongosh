@@ -15,6 +15,10 @@ internal class Cursor(private var helper: BaseMongoIterableHelper<*>, private va
     @HostAccess.Export
     var closed = false
 
+    @JvmField
+    @HostAccess.Export
+    var resultsUsedInScript = true
+
     private fun getOrCreateIterator(): MongoCursor<out Any?> {
         var it = iterator
         if (it == null) {
@@ -172,13 +176,13 @@ internal class Cursor(private var helper: BaseMongoIterableHelper<*>, private va
     @HostAccess.Export
     override fun next(): Any? {
         val value = getOrCreateIterator().next()
-        return converter.toJs(value)
+        return if (resultsUsedInScript) converter.toJs(value) else value
     }
 
     @HostAccess.Export
     override fun tryNext(): Any? {
         val value = getOrCreateIterator().tryNext()
-        return converter.toJs(value)
+        return if (resultsUsedInScript) converter.toJs(value) else value
     }
 
     @HostAccess.Export
