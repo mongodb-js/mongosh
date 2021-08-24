@@ -1,7 +1,6 @@
 import { Completion } from './autocompleter/autocompleter';
 import { ServiceProvider } from '@mongosh/service-provider-core';
 import { ShellApiAutocompleter } from './autocompleter/shell-api-autocompleter';
-import { Interpreter, InterpreterEnvironment } from './interpreter';
 import {
   Runtime,
   RuntimeEvaluationResult,
@@ -13,6 +12,13 @@ import { ShellInternalState } from '@mongosh/shell-api';
 import { ShellEvaluator } from '@mongosh/shell-evaluator';
 import type { MongoshBus } from '@mongosh/types';
 
+export type ContextValue = any;
+
+export interface InterpreterEnvironment {
+  sloppyEval(code: string): ContextValue;
+  getContextObject(): ContextValue;
+}
+
 /**
  * This class is the core implementation for a runtime which is not isolated
  * from the environment of the presentation layer.
@@ -22,7 +28,6 @@ import type { MongoshBus } from '@mongosh/types';
  * calls rather than requiring event emitter bridges or RPC.
  */
 export class OpenContextRuntime implements Runtime {
-  private interpreter: Interpreter;
   private interpreterEnvironment: InterpreterEnvironment;
   private autocompleter: ShellApiAutocompleter | null = null;
   private shellEvaluator: ShellEvaluator;
@@ -40,7 +45,6 @@ export class OpenContextRuntime implements Runtime {
     this.internalState.isInteractive = true;
     this.shellEvaluator = new ShellEvaluator(this.internalState);
     this.internalState.setCtx(this.interpreterEnvironment.getContextObject());
-    this.interpreter = new Interpreter(this.interpreterEnvironment);
   }
 
   async getCompletions(code: string): Promise<Completion[]> {
@@ -54,7 +58,7 @@ export class OpenContextRuntime implements Runtime {
   }
 
   async evaluate(code: string): Promise<RuntimeEvaluationResult> {
-    const evalFn = this.interpreter.evaluate.bind(this.interpreter);
+    const evalFn = this.interpreterEnvironment.sloppyEval.bind(this.interpreterEnvironment);
     const { type, printable, source } = await this.shellEvaluator.customEval(
       evalFn,
       code,
