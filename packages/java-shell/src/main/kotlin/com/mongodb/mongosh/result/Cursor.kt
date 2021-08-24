@@ -1,10 +1,18 @@
 package com.mongodb.mongosh.result
 
 import com.mongodb.mongosh.MongoShellConverter
+import com.mongodb.mongosh.get
+import com.mongodb.mongosh.set
 import org.graalvm.polyglot.Value
 
 open class Cursor<out T> internal constructor(protected var cursor: Value?, private var converter: MongoShellConverter?) : Iterator<T> {
     private var currentIterationResult: List<T>? = null
+
+    init {
+        if (cursor?.get("_transform")?.isNull == true) {
+            cursor?.get("_cursor")?.set("resultsUsedInScript", false)
+        }
+    }
 
     fun _asPrintable(): String = ArrayResult(currentIterationResult ?: it())._asPrintable()
 
