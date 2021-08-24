@@ -1331,12 +1331,10 @@ export default class Database extends ShellApiWithMongoClass {
   async getReplicationInfo(): Promise<Document> {
     const localdb = this.getSiblingDB('local');
 
-    const result = {} as Document;
-    let oplog;
+    const result: Document = {};
+    const oplog = 'oplog.rs';
     const localCollections = await localdb.getCollectionNames();
-    if (localCollections.indexOf('oplog.rs') >= 0) {
-      oplog = 'oplog.rs';
-    } else {
+    if (!localCollections.includes(oplog)) {
       throw new MongoshInvalidInputError(
         'Replication not detected. Are you connected to a replset?',
         ShellApiErrors.NotConnectedToReplicaSet
@@ -1344,22 +1342,26 @@ export default class Database extends ShellApiWithMongoClass {
     }
 
     const ol = localdb.getCollection(oplog);
-    const olStats = await ol.stats();
-    if (olStats && olStats.maxSize) {
-      // see MONGOSH-205
-      result.logSizeMB = Math.max(olStats.maxSize / (1024 * 1024), olStats.size);
-    } else {
+    const [ olStats, first, last ] = await Promise.all([
+      ol.stats(),
+      (async() => (await ol.find()).sort({ $natural: 1 }).limit(1).tryNext())(),
+      (async() => (await ol.find()).sort({ $natural: -1 }).limit(1).tryNext())()
+    ]);
+
+    if (!olStats?.maxSize) {
       throw new MongoshRuntimeError(
-        `Could not get stats for local. ${oplog} collection. collstats returned ${JSON.stringify(olStats)}`,
+        `Could not get stats for local.${oplog} collection. collstats returned ${JSON.stringify(olStats)}`,
         CommonErrors.CommandFailed
       );
     }
 
+    // see MONGOSH-205
+    result.configuredLogSizeMB = olStats.maxSize / (1024 * 1024);
+    result.logSizeMB = Math.max(olStats.maxSize, olStats.size) / (1024 * 1024);
+
     result.usedMB = olStats.size / (1024 * 1024);
     result.usedMB = Math.ceil(result.usedMB * 100) / 100;
 
-    const first = await (await ol.find()).sort({ $natural: 1 }).limit(1).tryNext();
-    const last = await (await ol.find()).sort({ $natural: -1 }).limit(1).tryNext();
     if (first === null || last === null) {
       throw new MongoshRuntimeError(
         'objects not found in local.oplog.$main -- is this a new and empty db instance?',
@@ -1405,7 +1407,8 @@ export default class Database extends ShellApiWithMongoClass {
       }
       throw error;
     }
-    result['configured oplog size'] = `${replInfo.logSizeMB} MB`;
+    result['actual oplog size'] = `${replInfo.logSizeMB} MB`;
+    result['configured oplog size'] = `${replInfo.configuredLogSizeMB} MB`;
     result['log length start to end'] = `${replInfo.timeDiff} secs (${replInfo.timeDiffHours} hrs)`;
     result['oplog first event time'] = replInfo.tFirst;
     result['oplog last event time'] = replInfo.tLast;
