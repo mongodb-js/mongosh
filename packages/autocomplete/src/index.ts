@@ -73,9 +73,13 @@ async function completer(params: AutocompleteParameters, line: string): Promise<
     // If the shell API provides us with a completer, use it.
     const completer = SHELL_COMPLETIONS[command].shellCommandCompleter;
     if (completer) {
-      if (splitLineWhitespace.length === 1 && splitLineWhitespace[0].trimEnd() === splitLineWhitespace[0]) {
-        // Treat e.g. 'show' like 'show '.
-        splitLineWhitespace[0] += ' ';
+      if (splitLineWhitespace.length === 1) {
+        if (splitLineWhitespace[0].trimEnd() === splitLineWhitespace[0]) {
+          // Treat e.g. 'show' like 'show '.
+          splitLineWhitespace[0] += ' ';
+        }
+
+        // Complete the first argument after the command.
         splitLineWhitespace.push('');
       }
       const hits = await completer(params, splitLineWhitespace.map(item => item.trim())) || [];

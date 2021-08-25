@@ -551,11 +551,32 @@ describe('completer.completer', () => {
         .to.deep.equal([['show profile'], i, 'exclusive']);
     });
 
-    it('completes use db', async() => {
+    it('completes use db with no space', async() => {
       databases = ['db1', 'db2'];
       const i = 'use';
       expect(await completer(noParams, i))
         .to.deep.equal([['use db1', 'use db2'], i, 'exclusive']);
+    });
+
+    it('completes use db with a space', async() => {
+      databases = ['db1', 'db2'];
+      const i = 'use ';
+      expect(await completer(noParams, i))
+        .to.deep.equal([['use db1', 'use db2'], i, 'exclusive']);
+    });
+
+    it('completes use db with single database and no space', async() => {
+      databases = ['db1'];
+      const i = 'use';
+      expect(await completer(noParams, i))
+        .to.deep.equal([['use db1'], i, 'exclusive']);
+    });
+
+    it('completes use db with single database and space', async() => {
+      databases = ['db1'];
+      const i = 'use ';
+      expect(await completer(noParams, i))
+        .to.deep.equal([['use db1'], i, 'exclusive']);
     });
 
     it('does not try to complete over-long commands', async() => {
