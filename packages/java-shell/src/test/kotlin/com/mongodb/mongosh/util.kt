@@ -49,13 +49,14 @@ fun doTest(testName: String, shell: MongoShell, testDataPath: String, db: String
             SectionHandler("before") { value, _ -> before = value },
             SectionHandler("command") { value, properties ->
                 val checkResultClass = properties.any { (key, _) -> key == "checkResultClass" }
-                val dontReplaceId = properties.any { (key, _) -> key == "dontReplaceId" }
-                val dontCheckValue = properties.any { (key, _) -> key == "dontCheckValue" }
+                val dontReplaceId = properties.any    { (key, _) -> key == "dontReplaceId" }
+                val dontCheckValue = properties.any   { (key, _) -> key == "dontCheckValue" }
                 val options = CompareOptions(checkResultClass, dontCheckValue, dontReplaceId, properties.mapNotNull { (key, value) ->
                     when (key) {
-                        "getArrayItem" -> GetArrayItemCommand(value.toInt())
-                        "extractProperty" -> ExtractPropertyCommand(value)
+                        "getArrayItem"     -> GetArrayItemCommand(value.toInt())
+                        "extractProperty"  -> ExtractPropertyCommand(value)
                         "containsProperty" -> ContainsPropertyCommand(value)
+                        "sort"             -> SortCommand
                         else -> null
                     }
                 })
@@ -123,13 +124,31 @@ private fun getActualValue(result: MongoShellResult<*>, options: CompareOptions)
             }
             is ContainsPropertyCommand -> {
                 assertTrue("To check property result must be an instance of ${Document::class.java}. Actual: ${unwrapped?.javaClass}", unwrapped is Document)
-                if (unwrapped is Document) unwrapped.containsKey(command.property)
-                else throw AssertionError()
+                (unwrapped as Document).containsKey(command.property)
+            }
+            is SortCommand -> {
+                assertTrue("To sort result must be an instance of ${List::class.java}. Actual: ${unwrapped?.javaClass}", unwrapped is List<*>)
+                (unwrapped as List<*>).sortedWith(AllTypesComparator)
             }
         }
     }
     sb.append(unwrapped.toLiteral())
     return sb.toString()
+}
+
+private object AllTypesComparator : Comparator<Any?> {
+    override fun compare(a: Any?, b: Any?): Int {
+        return when {
+            a is Document && b is Document -> a.toString().compareTo(b.toString())
+            a is String && b is String -> a.compareTo(b)
+            a is Int && b is Int -> a.compareTo(b)
+            a is Document -> 1
+            b is Document -> -1
+            a is String -> 1
+            b is String -> -1
+            else -> throw IllegalArgumentException("Unsupported types: ${a?.javaClass}, ${b?.javaClass}")
+        }
+    }
 }
 
 private class Command(val command: String, val options: CompareOptions)
@@ -138,6 +157,7 @@ private sealed class CompareCommand
 private class GetArrayItemCommand(val index: Int) : CompareCommand()
 private class ExtractPropertyCommand(val property: String) : CompareCommand()
 private class ContainsPropertyCommand(val property: String) : CompareCommand()
+private object SortCommand : CompareCommand()
 
 private fun withDb(shell: MongoShell, name: String?, block: () -> Unit) {
     val oldDb = if (name != null) (shell.eval("db") as StringResult).value else null

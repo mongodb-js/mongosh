@@ -389,10 +389,18 @@ internal class JavaServiceProvider(private val client: MongoClient,
         val filter = toDocument(filter, "filter") ?: Document()
         val options = toDocument(options, "options") ?: Document()
         getDatabase(database, null).flatMap { db ->
-            convert(null, distinctConverters, distinctDefaultConverter, options).map { _ ->
-                val fieldClass = db.getCollection(collection).find(filter).asSequence().take(1_000_000).firstNotNullOfOrNull { it[fieldName] }?.javaClass
-                    ?: throw Exception("Cannot determine type of field $fieldName")
-                converter.toJs(db.getCollection(collection).distinct(fieldName, filter, fieldClass))
+            val collationDoc = options["collation"] as? Document
+            convert(Collation.builder(), collationConverters, collationDefaultConverter, collationDoc).map { collation ->
+                val command = Document()
+                command["distinct"] = collection
+                command["key"] = fieldName
+                command["query"] = filter
+                if (options["collation"] != null) command["collation"] = options["collation"]
+                val res = db.runCommand(command)
+                if (!interpretAsBoolean(res["ok"]) || !res.containsKey("values")) {
+                    throw Exception("Command failed. Command: ${command.toJson()}. Result: ${res.toJson()}")
+                }
+                converter.toJs(res["values"])
             }
         }
     }
