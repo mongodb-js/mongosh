@@ -55,8 +55,10 @@ function getPrompt(repl: any): string {
   return repl.getPrompt?.() ?? repl._prompt;
 }
 
-// Start a REPLServer that supports asynchronous evaluation, rather than just
-// synchronous, and integrates nicely with Ctrl+C handling in that respect.
+/**
+ * Start a REPLServer that supports asynchronous evaluation, rather than just
+ * synchronous, and integrates nicely with Ctrl+C handling in that respect.
+ */
 export function start(opts: AsyncREPLOptions): REPLServer {
   const {
     asyncEval,
@@ -150,8 +152,8 @@ export function start(opts: AsyncREPLOptions): REPLServer {
           repl.removeListener('SIGINT', sigintListener);
           process.removeListener('SIGINT', sigintListener);
         }
-        // Oh no, a TypeScript bug? 🐞 https://github.com/microsoft/TypeScript/issues/43287
-        // `as any` to the rescue!
+        // See https://github.com/microsoft/TypeScript/issues/43287 for context on
+        // why `as any` is needed.
         (replSigint as any)?.restore?.();
         (processSigint as any)?.restore?.();
 

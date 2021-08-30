@@ -11,6 +11,10 @@ export type BuildInfo = {
   gitVersion: string | null;
 };
 
+/**
+ * Return an object with information about this mongosh instance,
+ * in particular, when it was built and how.
+ */
 export function buildInfo(): BuildInfo {
   try {
     const buildInfo = { ...require('./build-info.json'), nodeVersion: process.version };

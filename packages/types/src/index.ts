@@ -69,6 +69,7 @@ export interface MongocryptdErrorEvent {
   cause: string;
   error?: Error;
   stderr?: string;
+  pid?: number;
 }
 
 export interface MongocryptdLogEvent {

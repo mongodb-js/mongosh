@@ -5,12 +5,22 @@ import { EventEmitter } from 'events';
 import { bson } from '@mongosh/service-provider-core';
 const { EJSON } = bson;
 
+/**
+ * A set of paths that are used by the shell, typically located
+ * within the user's home directory.
+ */
 export type ShellHomePaths = {
+  /** A path to data the should be shared between machines if the same user is using them, e.g. config data */
   shellRoamingDataPath: string;
+  /** A path to data that should not be shared between machines, e.g. logs */
   shellLocalDataPath: string;
+  /** A path to a directory containing user-provided startup scripts (typically $HOME) */
   shellRcPath: string;
 };
 
+/**
+ * A helper class for accessing files that are stored under the paths typically used by the shell.
+ */
 export class ShellHomeDirectory {
   paths: ShellHomePaths;
   ensureExistsPromise: Promise<void> | null = null;
@@ -19,6 +29,10 @@ export class ShellHomeDirectory {
     this.paths = paths;
   }
 
+  /**
+   * Make sure that all necessary directories used by this shell instance
+   * actually exist.
+   */
   async ensureExists(): Promise<void> {
     this.ensureExistsPromise ??= (async() => {
       await fs.mkdir(this.paths.shellRoamingDataPath, { recursive: true, mode: 0o700 });
@@ -27,19 +41,32 @@ export class ShellHomeDirectory {
     return this.ensureExistsPromise;
   }
 
+  /**
+   * Return a path to a specific file in the roaming directory.
+   */
   roamingPath(subpath: string): string {
     return path.join(this.paths.shellRoamingDataPath, subpath);
   }
 
+  /**
+   * Return a path to a specific file in the local directory.
+   */
   localPath(subpath: string): string {
     return path.join(this.paths.shellLocalDataPath, subpath);
   }
 
+  /**
+   * Return a path to a specific file in the startup file directory.
+   */
   rcPath(subpath: string): string {
     return path.join(this.paths.shellRcPath, subpath);
   }
 }
 
+/**
+ * A helper class for managing a config file and its contents.
+ * The type of the config data object itself is `Config`.
+ */
 export class ConfigManager<Config> extends EventEmitter {
   shellHomeDirectory: ShellHomeDirectory;
   config: Config | null;
@@ -50,7 +77,10 @@ export class ConfigManager<Config> extends EventEmitter {
     this.config = null;
   }
 
-  path() {
+  /**
+   * Return the path to the config file.
+   */
+  path(): string {
     return this.shellHomeDirectory.roamingPath('config');
   }
 
@@ -109,6 +139,9 @@ export class ConfigManager<Config> extends EventEmitter {
   }
 }
 
+/**
+ * Compute the set of storage paths that mongosh uses, depending on the platform.
+ */
 export function getStoragePaths(): ShellHomePaths {
   let shellLocalDataPath;
   let shellRoamingDataPath;

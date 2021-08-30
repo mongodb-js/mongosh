@@ -10,6 +10,10 @@ import type { MongoshBus } from '@mongosh/types';
 import { parseAnyLogEntry, LogEntry } from './log-entry';
 import { ShellHomeDirectory } from './config-directory';
 
+/**
+ * Figure out the possible executable paths for the mongocryptd
+ * binary that we are supposed to use.
+ */
 export async function getMongocryptdPaths(): Promise<string[][]> {
   const bindir = path.dirname(process.execPath);
   const result = [];
@@ -28,12 +32,21 @@ export async function getMongocryptdPaths(): Promise<string[][]> {
   return [...result, ['mongocryptd']];
 }
 
-// The relevant information regarding the state of a mongocryptd process.
+/**
+ * The relevant information regarding the state of a mongocryptd process.
+ */
 type MongocryptdState = {
+  /** The connection string for the current mongocryptd instance. */
   uri: string;
+  /** The process handle for the current mongocryptd instance. */
   proc: ChildProcess;
+  /** An interval to prevent the mongocryptd instance from going idle. */
   interval: NodeJS.Timeout;
 };
+
+/**
+ * A helper class to manage mongocryptd child processes that we may need to spawn.
+ */
 export class MongocryptdManager {
   spawnPaths: string[][];
   bus: MongoshBus;
@@ -41,9 +54,11 @@ export class MongocryptdManager {
   state: MongocryptdState | null;
   idleShutdownTimeoutSecs = 60;
 
-  // spawnPaths: A list of executables to spawn
-  // shellHomeDirectory: A place for storing mongosh-related files
-  // bus: A message bus for sharing diagnostic events about mongocryptd lifetimes
+  /**
+   * @param spawnPaths A list of executables to spawn
+   * @param shellHomeDirectory A place for storing mongosh-related files
+   * @param bus A message bus for sharing diagnostic events about mongocryptd lifetimes
+   */
   constructor(spawnPaths: string[][], shellHomeDirectory: ShellHomeDirectory, bus: MongoshBus) {
     this.spawnPaths = spawnPaths;
     this.path = shellHomeDirectory.localPath(`mongocryptd-${process.pid}-${(Math.random() * 100000) | 0}`);
@@ -51,7 +66,9 @@ export class MongocryptdManager {
     this.state = null;
   }
 
-  // Start a mongocryptd process and return matching driver options for it.
+  /**
+   * Start a mongocryptd process and return matching driver options for it.
+   */
   async start(): Promise<{ mongocryptdURI: string, mongocryptdBypassSpawn: true }> {
     if (!this.state) {
       [ this.state ] = await Promise.all([
@@ -66,8 +83,10 @@ export class MongocryptdManager {
     };
   }
 
-  // Stop the managed mongocryptd process, if any. This is kept synchronous
-  // in order to be usable inside process.on('exit') listeners.
+  /**
+   * Stop the managed mongocryptd process, if any. This is kept synchronous
+   * in order to be usable inside process.on('exit') listeners.
+   */
   close = (): this => {
     process.removeListener('exit', this.close);
     if (this.state) {
@@ -78,8 +97,13 @@ export class MongocryptdManager {
     return this;
   };
 
-  // Create an async iterator over the individual lines in a mongo(crypt)d
-  // process'es stdout, while also forwarding the log events to the bus.
+  /**
+   * Create an async iterator over the individual log lines in a mongo(crypt)d
+   * process'es stdout, while also forwarding the log events to the bus.
+   *
+   * @param stdout Any Readable stream that follows the mongodb logv2 or logv1 formats.
+   * @param pid The process id, used for logging.
+   */
   async* createLogEntryIterator(stdout: Readable, pid: number): AsyncIterable<LogEntry> {
     for await (const line of readline.createInterface({ input: stdout })) {
       if (!line.trim()) {
@@ -90,13 +114,17 @@ export class MongocryptdManager {
         this.bus.emit('mongosh:mongocryptd-log', { pid, logEntry });
         yield logEntry;
       } catch (error) {
-        this.bus.emit('mongosh:mongocryptd-error', { cause: 'parse', error });
+        this.bus.emit('mongosh:mongocryptd-error', { pid, cause: 'parse', error });
         break;
       }
     }
   }
 
-  // Create a mongocryptd child process.
+  /**
+   * Create a mongocryptd child process.
+   *
+   * @param spawnPath The first arguments to pass on the command line.
+   */
   _spawnMongocryptdProcess(spawnPath: string[]): ChildProcess {
     const [ executable, ...args ] = [
       ...spawnPath,
@@ -116,8 +144,11 @@ export class MongocryptdManager {
     return proc;
   }
 
-  // Try the passed paths to executables for spawning, and parse the process'es
-  // log to understand on what path/port it is listening on.
+  /**
+   * Try to spawn mongocryptd using the paths passed to the constructor,
+   * and parse the process'es log to understand on what path/port it
+   * is listening on.
+   */
   async _spawn(): Promise<MongocryptdState> {
     if (this.spawnPaths.length === 0) {
       throw new MongoshInternalError('No mongocryptd spawn path given');
@@ -196,8 +227,10 @@ export class MongocryptdManager {
     return { uri, proc, interval };
   }
 
-  // Run when starting a new mongocryptd process. Clean up old, unused
-  // directories that were created by previous operations like this.
+  /**
+   * Run when starting a new mongocryptd process. Clean up old, unused
+   * directories that were created by previous operations like this.
+   */
   async _cleanupOldMongocryptdDirectories(): Promise<void> {
     try {
       const toBeRemoved = [];
@@ -229,6 +262,13 @@ export class MongocryptdManager {
   }
 }
 
+/**
+ * Look at a log entry to figure out whether we are listening on a
+ * UNIX domain socket.
+ *
+ * @param logEntry A parsed mongodb log line.
+ * @returns The domain socket in question, or an empty string if the log line did not match.
+ */
 function getSocketFromLogEntry(logEntry: LogEntry): string {
   let match;
   // Log message id 23015 has the format
@@ -248,6 +288,13 @@ function getSocketFromLogEntry(logEntry: LogEntry): string {
   return '';
 }
 
+/**
+ * Look at a log entry to figure out whether we are listening on a
+ * TCP port.
+ *
+ * @param logEntry A parsed mongodb log line.
+ * @returns The port in question, or an -1 if the log line did not match.
+ */
 function getPortFromLogEntry(logEntry: LogEntry): number {
   let match;
   // Log message id 23016 has the format
@@ -262,8 +309,13 @@ function getPortFromLogEntry(logEntry: LogEntry): number {
   return -1;
 }
 
-// Go through a stream of parsed log entry objects and return the port/path
-// data once found.
+/**
+ * Go through a stream of parsed log entry objects and return the port/path
+ * data once found.
+ *
+ * @input A mongodb logv2/logv1 stream.
+ * @returns The (UNIX domain socket and) port that the target process is listening on.
+ */
 async function filterLogStreamForSocketAndPort(input: Readable): Promise<{ port: number, socket: string }> {
   let port = -1;
   let socket = '';

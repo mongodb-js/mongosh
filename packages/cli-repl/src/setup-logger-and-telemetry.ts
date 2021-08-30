@@ -35,6 +35,9 @@ import { inspect } from 'util';
 import { buildInfo } from './build-info';
 import { MongoLogWriter, mongoLogId } from './log-writer';
 
+/**
+ * General interface for an Analytics provider that mongosh can use.
+ */
 interface MongoshAnalytics {
   identify(message: {
     userId: string,
@@ -51,12 +54,24 @@ interface MongoshAnalytics {
   }): void;
 }
 
-// set up a noop, in case we are not able to connect to segment.
+/**
+ * A no-op implementation of MongoshAnalytics that can be used when
+ * actually connecting to the telemetry provider is not possible
+ * (e.g. because we are running without an API key).
+ */
 class NoopAnalytics implements MongoshAnalytics {
   identify(_info: any): void {} // eslint-disable-line @typescript-eslint/no-unused-vars
   track(_info: any): void {} // eslint-disable-line @typescript-eslint/no-unused-vars
 }
 
+/**
+ * Connect a MongoshBus instance that emits events to logging and analytics providers.
+ *
+ * @param logId The id of the current session
+ * @param bus A MongoshBus instance
+ * @param makeLogger A function that returns a log file writer
+ * @param makeAnalytics A function that returns an analytics provider
+ */
 export default function setupLoggerAndTelemetry(
   logId: string,
   bus: MongoshBus,
