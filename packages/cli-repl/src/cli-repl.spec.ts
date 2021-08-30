@@ -1218,9 +1218,9 @@ describe('CliRepl', () => {
       });
 
       afterEach(async() => {
-        await cliRepl.mongoshRepl.close();
         expect(output).not.to.include('Tab completion error');
         expect(output).not.to.include('listCollections requires authentication');
+        await cliRepl.mongoshRepl.close();
       });
 
       it(`${wantWatch ? 'completes' : 'does not complete'} the watch method`, async function() {

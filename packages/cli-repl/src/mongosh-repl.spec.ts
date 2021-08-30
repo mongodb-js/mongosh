@@ -89,7 +89,7 @@ describe('MongoshNodeRepl', () => {
   });
 
   it('throws an error if internal methods are used too early', () => {
-    expect(() => mongoshRepl.runtimeState()).to.throw('Mongosh not started yet');
+    expect(() => mongoshRepl.runtimeState()).to.throw('Mongosh not initialized yet');
   });
 
   context('with default options', () => {
