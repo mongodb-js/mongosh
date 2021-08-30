@@ -435,12 +435,7 @@ class MongoshNodeRepl implements EvaluationListener {
         this.bus.emit('mongosh:eval-interrupted');
         // The shell is interrupted by CTRL-C - so we ignore any errors
         // that happened during evaluation.
-        const result: ShellResult = {
-          type: null,
-          rawValue: undefined,
-          printable: undefined
-        };
-        return result;
+        return undefined;
       }
 
       if (!isErrorLike(err)) {
