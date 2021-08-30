@@ -2082,7 +2082,7 @@ const translations: Catalog = {
             getPlansByQuery: {
               description: 'Deprecated. Please use PlanCache.list instead'
             },
-            planCacheQueryShapes: {
+            listQueryShapes: {
               description: 'Deprecated. Please use PlanCache.list instead'
             }
           }
