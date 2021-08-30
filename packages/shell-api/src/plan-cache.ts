@@ -61,12 +61,12 @@ export default class PlanCache extends ShellApiWithMongoClass {
   }
 
   @deprecated
-  planCacheQueryShapes(): void {
+  listQueryShapes(): never {
     throw new MongoshDeprecatedError('PlanCache.listQueryShapes was deprecated, please use PlanCache.list instead');
   }
 
   @deprecated
-  getPlansByQuery(): void {
+  getPlansByQuery(): never {
     throw new MongoshDeprecatedError('PlanCache.getPlansByQuery was deprecated, please use PlanCache.list instead');
   }
 }
