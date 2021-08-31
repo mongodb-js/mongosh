@@ -99,7 +99,7 @@ export class MongocryptdManager {
 
   /**
    * Create an async iterator over the individual log lines in a mongo(crypt)d
-   * process'es stdout, while also forwarding the log events to the bus.
+   * process's stdout, while also forwarding the log events to the bus.
    *
    * @param stdout Any Readable stream that follows the mongodb logv2 or logv1 formats.
    * @param pid The process id, used for logging.
@@ -146,7 +146,7 @@ export class MongocryptdManager {
 
   /**
    * Try to spawn mongocryptd using the paths passed to the constructor,
-   * and parse the process'es log to understand on what path/port it
+   * and parse the process's log to understand on what path/port it
    * is listening on.
    */
   async _spawn(): Promise<MongocryptdState> {

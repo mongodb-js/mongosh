@@ -10,7 +10,7 @@ const { EJSON } = bson;
  * within the user's home directory.
  */
 export type ShellHomePaths = {
-  /** A path to data the should be shared between machines if the same user is using them, e.g. config data */
+  /** A path to data that should be shared between machines if the same user is using them, e.g. config data */
   shellRoamingDataPath: string;
   /** A path to data that should not be shared between machines, e.g. logs */
   shellLocalDataPath: string;

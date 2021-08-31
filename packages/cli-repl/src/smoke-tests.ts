@@ -6,7 +6,7 @@ import { redactURICredentials } from '@mongosh/history';
 import fleSmokeTestScript from './smoke-tests-fle';
 
 /**
- * Run smoke tests on a executable, e.g.
+ * Run smoke tests on an executable, e.g.
  * runSmokeTests("mongodb://localhost", "/path/to/mongosh.exe") or
  * runSmokeTests(undefined, "/path/to/node", "packages/cli-repl/bin/mongosh.js").
  *
