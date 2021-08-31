@@ -1,5 +1,3 @@
-/* eslint no-use-before-define: ["error", { "functions": false }] */
-
 import prettyBytes from 'pretty-bytes';
 import textTable from 'text-table';
 import i18n from '@mongosh/i18n';
@@ -27,13 +25,13 @@ type FormatOptions = {
 /**
  * Return the pretty string for the output.
  *
- * @param {any} output - The evaluation result object, it holds the evaluated
+ * @param evaluationResult The evaluation result object, it holds the evaluated
  *  `value` and an optional `type` property, indicating the shell api type of
  *  the value.
  *
- * @param {string} type - The shell api type if known or undefined.
+ * @param options A set of options that indicate what kind of formatting to apply.
  *
- * @returns {string} The output.
+ * @returns {string} The formatted output.
  */
 // eslint-disable-next-line complexity
 export default function formatOutput(evaluationResult: EvaluationResult, options: FormatOptions): string {

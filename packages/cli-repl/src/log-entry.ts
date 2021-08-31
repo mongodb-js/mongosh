@@ -1,3 +1,4 @@
+/** A parsed MongoDB log entry. */
 export type LogEntry = {
   timestamp: string;
   severity: string;
@@ -8,8 +9,13 @@ export type LogEntry = {
   attr: any;
 };
 
-// Parse a log line from mongod < 4.4, i.e. before structured logging came into
-// existence. You may have seen code like this before. :)
+/**
+ * Parse a log line from mongod < 4.4, i.e. before structured logging came into
+ * existence. You may have seen code like this before. :)
+ *
+ * @param line The MongoDB logv1 line.
+ * @returns The parsed line information.
+ */
 function parseOldLogEntry(line: string): LogEntry {
   const re = /^(?<timestamp>\S*) *(?<severity>\S*) *(?<component>\S*) *\[(?<context>[^\]]+)\]\s*(?<message>.*)$/;
   const match = line.trim().match(re);
@@ -19,6 +25,12 @@ function parseOldLogEntry(line: string): LogEntry {
   return match.groups as unknown as LogEntry;
 }
 
+/**
+ * Parse a JSON (logv2) or legacy (logv1) log message.
+ *
+ * @param line The MongoDB log line.
+ * @returns The parsed line information.
+ */
 export function parseAnyLogEntry(line: string): LogEntry {
   try {
     const newFormat = JSON.parse(line);

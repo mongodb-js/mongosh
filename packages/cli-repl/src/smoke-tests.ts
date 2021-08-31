@@ -5,9 +5,15 @@ import { once } from 'events';
 import { redactURICredentials } from '@mongosh/history';
 import fleSmokeTestScript from './smoke-tests-fle';
 
-// Run smoke tests on a executable, e.g.
-// runSmokeTests("mongodb://localhost", "/path/to/mongosh.exe") or
-// runSmokeTests(undefined, "/path/to/node", "packages/cli-repl/bin/mongosh.js").
+/**
+ * Run smoke tests on an executable, e.g.
+ * runSmokeTests("mongodb://localhost", "/path/to/mongosh.exe") or
+ * runSmokeTests(undefined, "/path/to/node", "packages/cli-repl/bin/mongosh.js").
+ *
+ * @param smokeTestServer A connection string to run against
+ * @param executable The Node.js/mongosh executable to use
+ * @param args Arguments to pass to the Node.js/mongosh executable
+ */
 export async function runSmokeTests(smokeTestServer: string | undefined, executable: string, ...args: string[]): Promise<void> {
   console.log('MONGOSH_SMOKE_TEST_SERVER set?', !!smokeTestServer);
   if (process.env.IS_CI) {
@@ -39,6 +45,14 @@ export async function runSmokeTests(smokeTestServer: string | undefined, executa
   console.log('all tests passed');
 }
 
+/**
+ * Run a single smoke test.
+ *
+ * @param executable The Node.js/mongosh executable to use
+ * @param args Arguments to pass to the Node.js/mongosh executable
+ * @param input stdin contents of the executable
+ * @param output Expected contents of stdout
+ */
 async function runSmokeTest(executable: string, args: string[], input: string, output: RegExp): Promise<void> {
   const proc = spawn(executable, [...args], {
     stdio: ['pipe', 'pipe', 'inherit']

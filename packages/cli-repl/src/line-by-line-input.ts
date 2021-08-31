@@ -70,6 +70,7 @@ export class LineByLineInput extends Readable {
     return (proxy as unknown) as LineByLineInput;
   }
 
+  /** Start processing data from the original input stream. */
   start(): void {
     this._originalInput.on('data', (chunk) => this._onData(chunk));
     this._originalInput.on('end', () => this._onData(null));
@@ -78,15 +79,18 @@ export class LineByLineInput extends Readable {
   _read(): void {
   }
 
+  /** Proceed to read more data from the input stream. */
   nextLine(): void {
     this._resumeForwarding();
     this._flush();
   }
 
+  /** Set this LineByLineInput instance into block-on-newline mode. */
   enableBlockOnNewLine(): void {
     this._blockOnNewLineEnabled = true;
   }
 
+  /** Set this LineByLineInput instance into pass-through mode. */
   disableBlockOnNewline(): void {
     this._blockOnNewLineEnabled = false;
     this._flush();

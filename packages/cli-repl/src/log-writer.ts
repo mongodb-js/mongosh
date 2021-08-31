@@ -8,15 +8,21 @@ import { Writable } from 'stream';
 import { inspect } from 'util';
 import v8 from 'v8';
 
+/**
+ * A unique correlation ID for log lines. Always create these
+ * using {@link mongoLogId()}, never directly.
+ */
 export interface MongoLogId {
-  /** Internal value -- always use mongoLogId() to create MongoLogId objects */
+  /** @internal */
   __value: number;
 }
 
+/** Create an ID for a given log line. */
 export function mongoLogId(id: number): MongoLogId {
   return { __value: id };
 }
 
+/** An unformatted MongoDB log entry. */
 export interface MongoLogEntry {
   /** Timestamp at which the log event occurred */
   t?: Date;
@@ -34,6 +40,10 @@ export interface MongoLogEntry {
   attr?: any;
 }
 
+/**
+ * Verify that a given {@link MongoLogEntry} contains all necessary fields.
+ * @returns Either a TypeError if the log entry is invalid, or null.
+ */
 function validateLogEntry(info: MongoLogEntry): Error | null {
   if (typeof info.s !== 'string') {
     return new TypeError('Cannot log messages without a severity field');
@@ -53,12 +63,26 @@ function validateLogEntry(info: MongoLogEntry): Error | null {
   return null;
 }
 
+/**
+ * A helper class for writing formatted log information to an output stream.
+ * This class itself is an object-mode Writable stream to which
+ * {@link MongoLogEntry} objects can be written.
+ *
+ * This class does not do any I/O of its own, and only delegates that to
+ * the target stream.
+ */
 export class MongoLogWriter extends Writable {
   _logId: string;
   _logFilePath: string | null;
   _target: Pick<Writable, 'write' | 'end'>;
   _now: () => Date;
 
+  /**
+   * @param logId A unique identifier for this log file. This is not used outside the `logId` getter.
+   * @param logFilePath The target path for this log file, if any. This is not used outside the `logFilePath` getter.
+   * @param target The Writable stream to write data to.
+   * @param now An optional function that overrides computation of the current time. This is used for testing.
+   */
   constructor(logId: string, logFilePath: string | null, target: Pick<Writable, 'write' | 'end'>, now?: () => Date) {
     super({ objectMode: true });
     this._logId = logId;
@@ -67,10 +91,12 @@ export class MongoLogWriter extends Writable {
     this._now = now ?? (() => new Date());
   }
 
+  /** Return the logId passed to the constructor. */
   get logId(): string {
     return this._logId;
   }
 
+  /** Return the logFilePath passed to the constructor. */
   get logFilePath(): string | null {
     return this._logFilePath;
   }
@@ -131,10 +157,14 @@ export class MongoLogWriter extends Writable {
     this._target.end(callback);
   }
 
+  /** Wait until all pending data has been written to the underlying stream. */
   async flush(): Promise<void> {
     await new Promise(resolve => this._target.write('', resolve));
   }
 
+  /**
+   * Write a log entry with severity 'I'.
+   */
   info(component: string, id: MongoLogId, context: string, message: string, attr?: any): void {
     const logEntry: MongoLogEntry = {
       s: 'I',
@@ -147,6 +177,9 @@ export class MongoLogWriter extends Writable {
     this.write(logEntry);
   }
 
+  /**
+   * Write a log entry with severity 'W'.
+   */
   warn(component: string, id: MongoLogId, context: string, message: string, attr?: any): void {
     const logEntry: MongoLogEntry = {
       s: 'W',
@@ -159,6 +192,9 @@ export class MongoLogWriter extends Writable {
     this.write(logEntry);
   }
 
+  /**
+   * Write a log entry with severity 'E'.
+   */
   error(component: string, id: MongoLogId, context: string, message: string, attr?: any): void {
     const logEntry: MongoLogEntry = {
       s: 'E',
@@ -171,6 +207,9 @@ export class MongoLogWriter extends Writable {
     this.write(logEntry);
   }
 
+  /**
+   * Write a log entry with severity 'F'.
+   */
   fatal(component: string, id: MongoLogId, context: string, message: string, attr?: any): void {
     const logEntry: MongoLogEntry = {
       s: 'F',
@@ -184,13 +223,23 @@ export class MongoLogWriter extends Writable {
   }
 }
 
+/** Options used by MongoLogManager instances. */
 interface MongoLogOptions {
+  /** A base directory in which log files are stored. */
   directory: string;
+  /** The number of calendar days after which old log files are deleted. */
   retentionDays: number;
+  /** A handler for warnings related to a specific filesystem path. */
   onerror: (err: Error, path: string) => unknown | Promise<void>;
+  /** A handler for errors related to a specific filesystem path. */
   onwarn: (err: Error, path: string) => unknown | Promise<void>;
 }
 
+/**
+ * A manger for the log files of an application.
+ * Log files will be stored in a single directory, following the
+ * naming convention `${logId}_log`.
+ */
 export class MongoLogManager {
   _options: MongoLogOptions;
 
@@ -198,6 +247,7 @@ export class MongoLogManager {
     this._options = options;
   }
 
+  /** Clean up log files older than `retentionDays`. */
   async cleanupOldLogfiles(): Promise<void> {
     const dir = this._options.directory;
     let dirHandle;
@@ -222,6 +272,7 @@ export class MongoLogManager {
     }
   }
 
+  /** Create a MongoLogWriter stream for a new log file. */
   async createLogWriter(): Promise<MongoLogWriter> {
     const logId = new ObjectId().toString();
     const logFilePath = path.join(this._options.directory, `${logId}_log`);

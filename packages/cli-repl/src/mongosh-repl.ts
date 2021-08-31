@@ -22,10 +22,17 @@ import { makeMultilineJSIntoSingleLine } from './js-multiline-to-singleline';
 import { LineByLineInput } from './line-by-line-input';
 import { LogEntry, parseAnyLogEntry } from './log-entry';
 
+/**
+ * All CLI flags that are useful for {@link MongoshNodeRepl}.
+ */
 export type MongoshCliOptions = ShellCliOptions & {
   quiet?: boolean;
 };
 
+/**
+ * An interface that contains everything necessary for {@link MongoshNodeRepl}
+ * instances to actually perform I/O operations.
+ */
 export type MongoshIOProvider = Omit<ConfigProvider<CliUserConfig>, 'validateConfig'> & {
   getHistoryFilePath(): string;
   exit(code?: number): Promise<never>;
@@ -34,18 +41,35 @@ export type MongoshIOProvider = Omit<ConfigProvider<CliUserConfig>, 'validateCon
   bugReportErrorMessageInfo?(): string | undefined;
 };
 
+/**
+ * Options required for MongoshNodeRepl instance to communicate with
+ * other parts of the application.
+ */
 export type MongoshNodeReplOptions = {
+  /** Input stream from which to read input (e.g. process.stdin). */
   input: Readable;
+  /** Output stream to which to write output (e.g. process.stdout). */
   output: Writable;
+  /** A bus instance on which to emit events about REPL execution. */
   bus: MongoshBus;
+  /** Interface for communicating with the outside world, e.g. file I/O. */
   ioProvider: MongoshIOProvider;
+  /** All relevant CLI options (i.e. parsed command line flags). */
   shellCliOptions?: Partial<MongoshCliOptions>;
+  /** All relevant Node.js REPL options. */
   nodeReplOptions?: Partial<ReplOptions>;
 };
 
-// Used to make sure start() can only be called after initialize().
+/**
+ * Opaque token used to make sure that start() can only be called after
+ * having called initialize().
+ */
 export type InitializationToken = { __initialized: 'yes' };
 
+/**
+ * Grouped properties of MongoshNodeRepl that are only available
+ * after initialization.
+ */
 type MongoshRuntimeState = {
   shellEvaluator: ShellEvaluator<any>;
   internalState: ShellInternalState;
@@ -53,12 +77,18 @@ type MongoshRuntimeState = {
   console: Console;
 };
 
-// Utility, inverse of Readonly<T>
+/* Utility, inverse of Readonly<T> */
 type Mutable<T> = {
   -readonly[P in keyof T]: T[P]
 };
 
-// https://github.com/nodejs/node/pull/38314
+/**
+ * Helper function that tests whether the bug referenced in
+ * https://github.com/nodejs/node/pull/38314 is present, and if it is,
+ * monkey-patches the repl instance in question to avoid it.
+ *
+ * @param repl The REPLServer instance to patch
+ */
 function fixupReplForNodeBug38314(repl: REPLServer): void {
   {
     // Check whether bug is present:
@@ -94,6 +124,8 @@ function fixupReplForNodeBug38314(repl: REPLServer): void {
 
 /**
  * An instance of a `mongosh` REPL, without any of the actual I/O.
+ * Specifically, code called by this class should not do any
+ * filesystem I/O, network I/O or write to/read from stdio streams.
  */
 class MongoshNodeRepl implements EvaluationListener {
   _runtimeState: MongoshRuntimeState | null;
@@ -126,10 +158,22 @@ class MongoshNodeRepl implements EvaluationListener {
     this._runtimeState = null;
   }
 
+  /**
+   * Controls whether the shell considers itself to be in interactive mode,
+   * i.e. whether .start() will be called or not.
+   *
+   * @param value The new isInteractive value.
+   */
   setIsInteractive(value: boolean): void {
     this.runtimeState().internalState.isInteractive = value;
   }
 
+  /**
+   * Create a Node.js REPL instance that can run mongosh commands,
+   * print greeting messages, and set up autocompletion and
+   * history handling. This does not yet start evaluating any code
+   * or print any user prompt.
+   */
   async initialize(serviceProvider: ServiceProvider): Promise<InitializationToken> {
     const internalState = new ShellInternalState(serviceProvider, this.bus, this.shellCliOptions);
     const shellEvaluator = new ShellEvaluator(internalState, (value: any) => value);
@@ -333,6 +377,11 @@ class MongoshNodeRepl implements EvaluationListener {
     return { __initialized: 'yes' };
   }
 
+  /**
+   * Print a REPL prompt and start processing data from the input stream.
+   *
+   * @param _initializationToken A value obtained by calling {@link MongoshNodeRepl.initialize}.
+   */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async startRepl(_initializationToken: InitializationToken): Promise<void> {
     this.started = true;
@@ -346,7 +395,7 @@ class MongoshNodeRepl implements EvaluationListener {
   }
 
   /**
-   * The greeting for the shell.
+   * The greeting for the shell, showing server and shell version.
    */
   async greet(mongodVersion: string): Promise<void> {
     if (this.shellCliOptions.quiet) {
@@ -366,6 +415,9 @@ class MongoshNodeRepl implements EvaluationListener {
     this.output.write(text);
   }
 
+  /**
+   * Print warnings from the server startup log, if any.
+   */
   async printStartupLog(internalState: ShellInternalState): Promise<void> {
     if (this.shellCliOptions.nodb || this.shellCliOptions.quiet) {
       return;
@@ -403,6 +455,20 @@ class MongoshNodeRepl implements EvaluationListener {
     this.output.write(text);
   }
 
+  /**
+   * Evaluate a piece of input code. This is called by the AsyncRepl eval function
+   * and calls the {@link ShellEvaluator} eval function, passing along all of its
+   * arguments.
+   *
+   * It mostly handles interaction with input processing (stop accepting input until
+   * evaluation is complete) and full mongosh-specific Ctrl+C interruption support.
+   *
+   * @param originalEval The original Node.js REPL evaluation function
+   * @param input The input string to be evaluated
+   * @param context The REPL context object (the globalThis object seen by its scope)
+   * @param filename The filename used for this evaluation, for stack traces
+   * @returns The result of evaluating `input`
+   */
   // eslint-disable-next-line complexity
   async eval(originalEval: asyncRepl.OriginalEvalFunction, input: string, context: any, filename: string): Promise<any> {
     if (!this.insideAutoCompleteOrGetPrompt) {
@@ -456,6 +522,10 @@ class MongoshNodeRepl implements EvaluationListener {
     }
   }
 
+  /**
+   * Called when load() is called in the REPL.
+   * This is part of the EvaluationListener interface.
+   */
   async onLoad(filename: string): Promise<OnLoadResult> {
     const {
       contents,
@@ -475,15 +545,34 @@ class MongoshNodeRepl implements EvaluationListener {
     };
   }
 
+  /**
+   * Load and evaluate a specified file by its filename, using the shell load() method.
+   *
+   * @param filename The filename to be loaded.
+   */
   async loadExternalFile(filename: string): Promise<void> {
     await this.runtimeState().internalState.shellApi.load(filename);
   }
 
-  async loadExternalCode(code: string, filename: string): Promise<ShellResult> {
+  /**
+   * Load and evaluate a specified piece of code.
+   *
+   * @param input The code to be evaluated.
+   * @param filename The filename, for stack trace purposes.
+   * @returns The result of evaluating `input`.
+   */
+  async loadExternalCode(input: string, filename: string): Promise<ShellResult> {
     const { repl } = this.runtimeState();
-    return await promisify(repl.eval.bind(repl))(code, repl.context, filename);
+    return await promisify(repl.eval.bind(repl))(input, repl.context, filename);
   }
 
+  /**
+   * This function is called by the async REPL helpers when an interrupt occurs.
+   * It is called while .eval() is still running, and typically finishes
+   * asynchronously after it, once the driver connections have been restarted.
+   *
+   * @returns true
+   */
   async onAsyncSigint(): Promise<boolean> {
     const { internalState } = this.runtimeState();
     if (internalState.interrupted.isSet()) {
@@ -544,15 +633,33 @@ class MongoshNodeRepl implements EvaluationListener {
     return this.formatShellResult(this.rawValueToShellResult.get(result) ?? { type: null, printable: result });
   }
 
+  /**
+   * Format a ShellResult instance so that it can be written to the output stream.
+   *
+   * @param result A ShellResult (or similar) object.
+   * @returns The pretty-printed version of the input.
+   */
   formatShellResult(result: { type: null | string, printable: any }): string {
     return this.formatOutput({ type: result.type, value: result.printable });
   }
 
+  /**
+   * Called when print(), console.log() etc. are called from the shell.
+   *
+   * @param values A list of values to be printed.
+   */
   onPrint(values: ShellResult[]): void {
     const joined = values.map((value) => this.formatShellResult(value)).join(' ');
     this.output.write(joined + '\n');
   }
 
+  /**
+   * Called when the shell requests a prompt, e.g. through passwordPrompt().
+   *
+   * @param question The prompt to be displayed.
+   * @param type Which kind of answer to ask for.
+   * @returns 'yes'/'no' for 'yesno' prompts, otherwise the user input.
+   */
   async onPrompt(question: string, type: 'password' | 'yesno'): Promise<string> {
     if (type === 'password') {
       const passwordPromise = askpassword({
@@ -584,18 +691,40 @@ class MongoshNodeRepl implements EvaluationListener {
     throw new Error(`Unrecognized prompt type ${type}`);
   }
 
+  /**
+   * Format a shell evaluation result so that it can be written to the output stream.
+   *
+   * @param value A value, together with optional type information.
+   * @returns The pretty-printed version of the input.
+   */
   formatOutput(value: { value: any, type?: string | null }): string {
     return formatOutput(value, this.getFormatOptions());
   }
 
+  /**
+   * Format an Error object can be written to the output stream.
+   *
+   * @param value An Error object.
+   * @returns The pretty-printed version of the input.
+   */
   formatError(value: Error): string {
     return formatError(value, this.getFormatOptions());
   }
 
+  /**
+   * Colorize a given piece of text according to this shell's output formatting options.
+   *
+   * @param text The text to be colorized.
+   * @param style A style (or list of styles) to be applied.
+   * @returns The colorized string.
+   */
   clr(text: string, style: StyleDefinition): string {
     return clr(text, style, this.getFormatOptions());
   }
 
+  /**
+   * Provides the current set of output formatting options used for this shell.
+   */
   getFormatOptions(): { colors: boolean, compact: number | boolean, depth: number, showStackTraces: boolean, bugReportErrorMessageInfo?: string } {
     const output = this.output as WriteStream;
     return {
@@ -608,34 +737,53 @@ class MongoshNodeRepl implements EvaluationListener {
     };
   }
 
+  /**
+   * Returns state that is only available after initialize(), and throws
+   * an exception if the shell instance has not been initialized.
+   */
   runtimeState(): MongoshRuntimeState {
     if (this._runtimeState === null) {
-      throw new MongoshInternalError('Mongosh not started yet');
+      throw new MongoshInternalError('Mongosh not initialized yet');
     }
     return this._runtimeState;
   }
 
+  /**
+   * Close all resources held by this shell instance; in particular,
+   * close the ShellInternalState instance and the Node.js REPL
+   * instance, and wait for all output that is currently pending
+   * to be flushed.
+   */
   async close(): Promise<void> {
     const rs = this._runtimeState;
     if (rs) {
       this._runtimeState = null;
       rs.repl.close();
       await rs.internalState.close(true);
-      if (this.output.writableLength > 0) {
-        await once(this.output, 'drain');
-      }
+      await new Promise(resolve => this.output.write('', resolve));
     }
   }
 
+  /**
+   * Called when exit() or quit() is called from the shell.
+   *
+   * @param exitCode The user-specified exit code, if any.
+   */
   async onExit(exitCode?: number): Promise<never> {
     await this.close();
     return this.ioProvider.exit(exitCode);
   }
 
+  /**
+   * Implements getConfig from the {@link ConfigProvider} interface.
+   */
   async getConfig<K extends keyof CliUserConfig>(key: K): Promise<CliUserConfig[K]> {
     return this.ioProvider.getConfig(key);
   }
 
+  /**
+   * Implements setConfig from the {@link ConfigProvider} interface.
+   */
   async setConfig<K extends keyof CliUserConfig>(key: K, value: CliUserConfig[K]): Promise<'success' | 'ignored'> {
     const result = await this.ioProvider.setConfig(key, value);
     if (result === 'success') {
@@ -658,18 +806,32 @@ class MongoshNodeRepl implements EvaluationListener {
     return result;
   }
 
+  /**
+   * Implements validateConfig from the {@link ConfigProvider} interface.
+   */
   async validateConfig<K extends keyof CliUserConfig>(key: K, value: CliUserConfig[K]): Promise<string | null> {
     return CliUserConfigValidator.validate(key, value);
   }
 
+  /**
+   * Implements listConfigOptions from the {@link ConfigProvider} interface.
+   */
   listConfigOptions(): Promise<string[]> | string[] {
     return this.ioProvider.listConfigOptions();
   }
 
+  /**
+   * Start a mongocryptd instance that is required for automatic FLE.
+   *
+   * @returns Information about how to connect to the started mongocryptd instance.
+   */
   async startMongocryptd(): Promise<AutoEncryptionOptions['extraOptions']> {
     return this.ioProvider.startMongocryptd();
   }
 
+  /**
+   * Figure out the current prompt to use.
+   */
   private async getShellPrompt(): Promise<string> {
     const { repl, internalState } = this.runtimeState();
 
@@ -703,6 +865,9 @@ class MongoshNodeRepl implements EvaluationListener {
   }
 }
 
+/**
+ * Determines whether a given object should be interpreted as an Error object.
+ */
 function isErrorLike(value: any): boolean {
   try {
     return value && getShellApiType(value) === null && (

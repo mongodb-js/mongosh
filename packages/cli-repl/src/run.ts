@@ -114,6 +114,12 @@ import stream from 'stream';
   }
 })();
 
+/**
+ * Helper to set the window title for the terminal that stdout is
+ * connected to, if any.
+ *
+ * @param title The terminal window title
+ */
 function setTerminalWindowTitle(title: string): void {
   if (!process.stdout.isTTY) {
     return;
@@ -128,7 +134,16 @@ function setTerminalWindowTitle(title: string): void {
   }
 }
 
+/**
+ * Helper to wait for single-line input. Note that this only works until
+ * the actual mongosh REPL instance is created and attached to process.stdin.
+ *
+ * @param prompt The prompt to ask for
+ * @returns The written user input
+ */
 async function ask(prompt: string): Promise<string> {
+  // Copy stdin to a second stream so that we can still attach it
+  // to the main mongosh REPL instance later without conflicts.
   const stdinCopy = process.stdin.pipe(new stream.PassThrough());
   try {
     const readlineInterface = readline.createInterface({

@@ -1,6 +1,8 @@
-// Test script that verifies that automatic encryption using mongocryptd
-// works when using the Mongo() object to construct the encryption key and
-// to create an auto-encryption-aware connection.
+/**
+ * Test script that verifies that automatic encryption using mongocryptd
+ * works when using the Mongo() object to construct the encryption key and
+ * to create an auto-encryption-aware connection.
+ */
 
 export default String.raw `
 const assert = function(value, message) {

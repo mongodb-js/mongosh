@@ -26,26 +26,45 @@ import { promisify } from 'util';
  */
 const CONNECTING = 'cli-repl.cli-repl.connecting';
 
+/**
+ * The set of options for Segment analytics support.
+ */
 type AnalyticsOptions = {
+  /** The hostname of the HTTP endpoint for Segment. */
   host?: string;
+  /** The Segment API key. */
   apiKey?: string;
-  alwaysEnable?: boolean; // We skip this for dev versions by default
+  /** Whether to enable telemetry even if we are running in CI. */
+  alwaysEnable?: boolean;
 };
 
+/**
+ * The set of options taken by CliRepl instances.
+ */
 export type CliReplOptions = {
+  /** The set of parsed command line flags. */
   shellCliOptions: CliOptions;
+  /** The list of executable paths for mongocryptd. */
   mongocryptdSpawnPaths?: string[][],
+  /** The stream to read user input from. */
   input: Readable;
+  /** The stream to write shell output to. */
   output: Writable;
+  /** The set of home directory paths used by this shell instance. */
   shellHomePaths: ShellHomePaths;
+  /** A handler for when the REPL exits, e.g. for `exit()` */
   onExit: (code?: number) => never;
+  /** Optional analytics override options. */
   analyticsOptions?: AnalyticsOptions;
 } & Pick<MongoshNodeReplOptions, 'nodeReplOptions'>;
 
+/** The set of config options that is *always* available in config files stored on the file system. */
 type CliUserConfigOnDisk = Partial<CliUserConfig> & Pick<CliUserConfig, 'enableTelemetry' | 'userId'>;
 
 /**
  * The REPL used from the terminal.
+ *
+ * Unlike MongoshNodeRepl, this class implements I/O interactions.
  */
 class CliRepl {
   mongoshRepl: MongoshNodeRepl;
@@ -120,7 +139,7 @@ class CliRepl {
   }
 
   /**
-   * setup CLI environment: serviceProvider, ShellEvaluator, log connection
+   * Setup CLI environment: serviceProvider, ShellEvaluator, log connection
    * information, and finally start the repl.
    *
    * @param {string} driverUri - The driver URI.
@@ -230,6 +249,9 @@ class CliRepl {
     }
   }
 
+  /**
+   * Load the .mongoshrc.js file, and warn about mismatched filenames, if any.
+   */
   async loadRcFiles(): Promise<void> {
     if (this.cliOptions.norc) {
       return;
@@ -284,6 +306,9 @@ class CliRepl {
     }
   }
 
+  /**
+   * Use when a warning about an inaccessible config file needs to be written.
+   */
   warnAboutInaccessibleFile(err: Error, path?: string): void {
     this.bus.emit('mongosh:error', err, 'config');
     if (this.warnedAboutInaccessibleFiles) {
@@ -312,15 +337,22 @@ class CliRepl {
     return provider;
   }
 
+  /** Return the file path used for the REPL history. */
   getHistoryFilePath(): string {
     return this.shellHomeDirectory.roamingPath('mongosh_repl_history');
   }
 
+  /**
+   * Implements getConfig from the {@link ConfigProvider} interface.
+   */
   // eslint-disable-next-line @typescript-eslint/require-await
   async getConfig<K extends keyof CliUserConfig>(key: K): Promise<CliUserConfig[K]> {
     return (this.config as CliUserConfig)[key] ?? (new CliUserConfig())[key];
   }
 
+  /**
+   * Implements setConfig from the {@link ConfigProvider} interface.
+   */
   async setConfig<K extends keyof CliUserConfig>(key: K, value: CliUserConfig[K]): Promise<'success'> {
     this.config[key] = value;
     if (key === 'enableTelemetry') {
@@ -334,11 +366,17 @@ class CliRepl {
     return 'success';
   }
 
+  /**
+   * Implements listConfigOptions from the {@link ConfigProvider} interface.
+   */
   listConfigOptions(): string[] {
     const keys = Object.keys(new CliUserConfig()) as (keyof CliUserConfig)[];
     return keys.filter(key => key !== 'userId' && key !== 'disableGreetingMessage');
   }
 
+  /**
+   * Verify that we are running on a supported Node.js version, and error out if not.
+   */
   async verifyNodeVersion(): Promise<void> {
     if (process.env.MONGOSH_SKIP_NODE_VERSION_CHECK) {
       return;
@@ -410,6 +448,9 @@ class CliRepl {
     return this.exit(1);
   }
 
+  /**
+   * Close all open resources held by this REPL instance.
+   */
   async close(): Promise<void> {
     if (this.closing) {
       return;
@@ -426,6 +467,12 @@ class CliRepl {
     this.bus.emit('mongosh:closed');
   }
 
+  /**
+   * Called when exit() or quit() is called from the shell,
+   * or when the REPL is ended because the input stream ends.
+   *
+   * @param code The user-provided exit code, if any.
+   */
   async exit(code?: number): Promise<never> {
     await this.close();
     await this.onExit(code);
@@ -435,6 +482,7 @@ class CliRepl {
     throw error;
   }
 
+  /** Read a file from disk. */
   async readFileUTF8(filename: string): Promise<{ contents: string, absolutePath: string }> {
     const resolved = path.resolve(filename);
     return {
@@ -443,10 +491,12 @@ class CliRepl {
     };
   }
 
+  /** Colorize a string using a specified set of styles. */
   clr(text: string, style: StyleDefinition): string {
     return this.mongoshRepl.clr(text, style);
   }
 
+  /** Start a mongocryptd instance for automatic FLE. */
   async startMongocryptd(): Promise<AutoEncryptionOptions['extraOptions']> {
     try {
       return await this.mongocryptdManager.start();
@@ -458,6 +508,7 @@ class CliRepl {
     }
   }
 
+  /** Provide extra information for reporting internal errors */
   bugReportErrorMessageInfo(): string {
     return `Please include the log file for this session (${this.logWriter?.logFilePath}).`;
   }
