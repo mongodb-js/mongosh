@@ -246,6 +246,11 @@ export default class Collection extends ShellApiWithMongoClass {
   @serverVersions([ServerVersions.earliest, '4.0.0'])
   @apiVersions([])
   async count(query = {}, options: CountOptions = {}): Promise<number> {
+    printDeprecationWarning(
+      'Collection.count() is deprecated. Use countDocuments or estimatedDocumentCount.',
+      this._mongo._internalState.context.print
+    );
+
     this._emitCollectionApiCall(
       'count',
       { query, options }
