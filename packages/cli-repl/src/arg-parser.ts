@@ -87,7 +87,8 @@ const OPTIONS = {
     'unknown-options-as-args': true,
     'parse-positional-numbers': false,
     'parse-numbers': false,
-    'greedy-arrays': false
+    'greedy-arrays': false,
+    'short-option-groups': false
   }
 };
 
