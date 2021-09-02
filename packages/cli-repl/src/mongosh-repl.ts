@@ -208,12 +208,12 @@ class MongoshNodeRepl implements EvaluationListener {
       ...this.nodeReplOptions
     });
     fixupReplForNodeBug38314(repl);
-
     const console = new Console({
       stdout: this.output,
       stderr: this.output,
       colorMode: this.getFormatOptions().colors
     });
+    delete repl.context.parcelRequire; // MONGOSH-965
     this.onClearCommand = console.clear.bind(console);
     repl.context.console = console;
 
