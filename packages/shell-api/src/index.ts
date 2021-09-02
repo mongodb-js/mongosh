@@ -5,12 +5,12 @@ import Database, { CollectionNamesWithTypes } from './database';
 import Explainable from './explainable';
 import ExplainableCursor from './explainable-cursor';
 import Help, { HelpProperties } from './help';
-import ShellInternalState, {
+import ShellInstanceState, {
   EvaluationListener,
   ShellCliOptions,
   OnLoadResult,
   ShellPlugin
-} from './shell-internal-state';
+} from './shell-instance-state';
 import Shard from './shard';
 import ReplicaSet from './replica-set';
 import ShellApi from './shell-api';
@@ -47,7 +47,7 @@ export {
   ExplainableCursor,
   Help,
   HelpProperties,
-  ShellInternalState,
+  ShellInstanceState,
   EvaluationListener,
   BulkWriteResult,
   CommandResult,

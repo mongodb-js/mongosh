@@ -9,7 +9,7 @@ import Mongo from './mongo';
 import Collection from './collection';
 import Explainable from './explainable';
 import { ServiceProvider, bson, Document } from '@mongosh/service-provider-core';
-import ShellInternalState from './shell-internal-state';
+import ShellInstanceState from './shell-instance-state';
 
 describe('Explainable', () => {
   describe('help', () => {
@@ -39,7 +39,7 @@ describe('Explainable', () => {
     });
   });
   describe('metadata', () => {
-    const mongo: any = { _internalState: { emitApiCall: sinon.spy() } };
+    const mongo: any = { _instanceState: { emitApiCall: sinon.spy() } };
     const db = new Database(mongo, 'myDB');
     const coll = new Collection(mongo, db, 'myCollection');
     const explainable = new Explainable(mongo, coll, 'queryPlannerExtended');
@@ -54,7 +54,7 @@ describe('Explainable', () => {
     let serviceProvider: StubbedInstance<ServiceProvider>;
     let database: Database;
     let bus: StubbedInstance<EventEmitter>;
-    let internalState: ShellInternalState;
+    let instanceState: ShellInstanceState;
     let collection: Collection;
     let explainable: Explainable;
 
@@ -63,8 +63,8 @@ describe('Explainable', () => {
       serviceProvider = stubInterface<ServiceProvider>();
       serviceProvider.initialDb = 'test';
       serviceProvider.bsonLibrary = bson;
-      internalState = new ShellInternalState(serviceProvider, bus);
-      mongo = new Mongo(internalState, undefined, undefined, undefined, serviceProvider);
+      instanceState = new ShellInstanceState(serviceProvider, bus);
+      mongo = new Mongo(instanceState, undefined, undefined, undefined, serviceProvider);
       database = new Database(mongo, 'db1');
       collection = new Collection(mongo, database, 'coll1');
       explainable = new Explainable(mongo, collection, 'queryPlanner');

@@ -124,10 +124,10 @@ export default class ReplicaSet extends ShellApiWithMongoClass {
           // Do a mild exponential backoff. If it's been a while since the last
           // update, also tell the user that we're actually still working on
           // the reconfig.
-          await this._internalState.shellApi.sleep(sleepInterval);
+          await this._instanceState.shellApi.sleep(sleepInterval);
           sleepInterval *= 1.3;
           if (sleepInterval > 2500) {
-            await this._internalState.shellApi.print('Reconfig did not succeed yet, starting new attempt...');
+            await this._instanceState.shellApi.print('Reconfig did not succeed yet, starting new attempt...');
           }
         }
         result = [ 'success', await runReconfig() ];
@@ -155,7 +155,7 @@ export default class ReplicaSet extends ShellApiWithMongoClass {
       [ 'number', 'object', [undefined, 'object'] ],
       'ReplicaSet.reconfigForPSASet');
     this._emitReplicaSetApiCall('reconfigForPSASet', { newMemberIndex, config, options });
-    const print = (msg: string) => this._internalState.shellApi.print(msg);
+    const print = (msg: string) => this._instanceState.shellApi.print(msg);
 
     // First, perform some validation on the combination of newMemberIndex + config.
     const newMemberConfig = config.members?.[newMemberIndex];
@@ -386,7 +386,7 @@ export default class ReplicaSet extends ShellApiWithMongoClass {
    * @private
    */
   private _emitReplicaSetApiCall(methodName: string, methodArguments: Document = {}): void {
-    this._database._mongo._internalState.emitApiCall({
+    this._database._mongo._instanceState.emitApiCall({
       method: methodName,
       class: 'ReplicaSet',
       arguments: methodArguments

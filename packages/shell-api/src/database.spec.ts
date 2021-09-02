@@ -13,7 +13,7 @@ import {
   bson,
   ClientSession as ServiceProviderSession
 } from '@mongosh/service-provider-core';
-import ShellInternalState from './shell-internal-state';
+import ShellInstanceState from './shell-instance-state';
 import crypto from 'crypto';
 import { ADMIN_DB } from './enums';
 import ChangeStreamCursor from './change-stream-cursor';
@@ -115,7 +115,7 @@ describe('Database', () => {
     let serviceProvider: StubbedInstance<ServiceProvider>;
     let database: Database;
     let bus: StubbedInstance<EventEmitter>;
-    let internalState: ShellInternalState;
+    let instanceState: ShellInstanceState;
 
     beforeEach(() => {
       bus = stubInterface<EventEmitter>();
@@ -124,8 +124,8 @@ describe('Database', () => {
       serviceProvider.bsonLibrary = bson;
       serviceProvider.runCommand.resolves({ ok: 1 });
       serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
-      internalState = new ShellInternalState(serviceProvider, bus);
-      mongo = new Mongo(internalState, undefined, undefined, undefined, serviceProvider);
+      instanceState = new ShellInstanceState(serviceProvider, bus);
+      mongo = new Mongo(instanceState, undefined, undefined, undefined, serviceProvider);
       database = new Database(mongo, 'db1');
     });
     describe('getCollectionInfos', () => {
@@ -908,7 +908,7 @@ describe('Database', () => {
       });
 
       it('asks for password if only username is passed', async() => {
-        internalState.setEvaluationListener({
+        instanceState.setEvaluationListener({
           onPrompt: () => 'superSecretPassword'
         });
         const expectedResult = { ok: 1 } as any;
@@ -2456,7 +2456,7 @@ describe('Database', () => {
       it('returns whatever serviceProvider.watch returns', async() => {
         const result = await database.watch();
         expect(result).to.deep.equal(new ChangeStreamCursor(fakeSpCursor, database._name, mongo));
-        expect(database._mongo._internalState.currentCursor).to.equal(result);
+        expect(database._mongo._instanceState.currentCursor).to.equal(result);
       });
 
       it('throws if serviceProvider.watch throws', async() => {
@@ -2523,8 +2523,8 @@ describe('Database', () => {
       serviceProvider.runCommand.resolves({ ok: 1 });
       serviceProvider.listCollections.resolves([]);
       serviceProvider.watch.returns({ closed: false, tryNext: async() => {} } as any);
-      const internalState = new ShellInternalState(serviceProvider, bus);
-      const mongo = new Mongo(internalState, undefined, undefined, undefined, serviceProvider);
+      const instanceState = new ShellInstanceState(serviceProvider, bus);
+      const mongo = new Mongo(instanceState, undefined, undefined, undefined, serviceProvider);
       const session = mongo.startSession();
       database = session.getDatabase('db1');
     });

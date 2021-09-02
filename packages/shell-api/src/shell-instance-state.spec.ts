@@ -3,10 +3,10 @@ import { expect } from 'chai';
 import { EventEmitter } from 'events';
 import { StubbedInstance, stubInterface } from 'ts-sinon';
 import { Context, createContext, runInContext } from 'vm';
-import ShellInternalState, { EvaluationListener } from './shell-internal-state';
+import ShellInstanceState, { EvaluationListener } from './shell-instance-state';
 
-describe('ShellInternalState', () => {
-  let internalState: ShellInternalState;
+describe('ShellInstanceState', () => {
+  let instanceState: ShellInstanceState;
   let serviceProvider: StubbedInstance<ServiceProvider>;
   let evaluationListener: StubbedInstance<EvaluationListener>;
   let context: Context;
@@ -18,10 +18,10 @@ describe('ShellInternalState', () => {
     serviceProvider.bsonLibrary = bson;
     serviceProvider.getConnectionInfo.resolves({ extraInfo: { uri: 'mongodb://localhost/' } });
     evaluationListener = stubInterface<EvaluationListener>();
-    internalState = new ShellInternalState(serviceProvider);
+    instanceState = new ShellInstanceState(serviceProvider);
     context = createContext();
-    internalState.setEvaluationListener(evaluationListener);
-    internalState.setCtx(context);
+    instanceState.setEvaluationListener(evaluationListener);
+    instanceState.setCtx(context);
     run = (source: string) => runInContext(source, context);
   });
 
@@ -71,12 +71,12 @@ describe('ShellInternalState', () => {
       serviceProvider.initialDb = 'test';
       serviceProvider.bsonLibrary = bson;
       serviceProvider.getConnectionInfo.resolves({ extraInfo: { uri: 'mongodb://localhost/' } });
-      internalState = new ShellInternalState(serviceProvider, new EventEmitter(), { nodb: true });
-      internalState.setEvaluationListener(evaluationListener);
-      internalState.setCtx(context);
+      instanceState = new ShellInstanceState(serviceProvider, new EventEmitter(), { nodb: true });
+      instanceState.setEvaluationListener(evaluationListener);
+      instanceState.setCtx(context);
       run = (source: string) => runInContext(source, context);
 
-      const prompt = await internalState.getDefaultPrompt();
+      const prompt = await instanceState.getDefaultPrompt();
       expect(prompt).to.equal('> ');
     });
 
@@ -89,8 +89,8 @@ describe('ShellInternalState', () => {
           }
         });
 
-        await internalState.fetchConnectionInfo();
-        const prompt = await internalState.getDefaultPrompt();
+        await instanceState.fetchConnectionInfo();
+        const prompt = await instanceState.getDefaultPrompt();
         expect(prompt).to.equal('AtlasDataLake test> ');
       });
 
@@ -104,8 +104,8 @@ describe('ShellInternalState', () => {
           }
         });
 
-        await internalState.fetchConnectionInfo();
-        const prompt = await internalState.getDefaultPrompt();
+        await instanceState.fetchConnectionInfo();
+        const prompt = await instanceState.getDefaultPrompt();
         expect(prompt).to.equal('AtlasDataLake test> ');
       });
     });
@@ -119,8 +119,8 @@ describe('ShellInternalState', () => {
           }
         });
 
-        await internalState.fetchConnectionInfo();
-        const prompt = await internalState.getDefaultPrompt();
+        await instanceState.fetchConnectionInfo();
+        const prompt = await instanceState.getDefaultPrompt();
         expect(prompt).to.equal('Atlas test> ');
       });
 
@@ -133,8 +133,8 @@ describe('ShellInternalState', () => {
           }
         });
 
-        await internalState.fetchConnectionInfo();
-        const prompt = await internalState.getDefaultPrompt();
+        await instanceState.fetchConnectionInfo();
+        const prompt = await instanceState.getDefaultPrompt();
         expect(prompt).to.equal('Atlas test> ');
       });
     });
@@ -144,8 +144,8 @@ describe('ShellInternalState', () => {
       it('inferred from extraInfo', async() => {
         serviceProvider.getConnectionInfo.resolves({ extraInfo: { uri: 'mongodb://localhost/', is_enterprise: true } });
 
-        await internalState.fetchConnectionInfo();
-        const prompt = await internalState.getDefaultPrompt();
+        await instanceState.fetchConnectionInfo();
+        const prompt = await instanceState.getDefaultPrompt();
         expect(prompt).to.equal('Enterprise test> ');
       });
 
@@ -155,8 +155,8 @@ describe('ShellInternalState', () => {
           buildInfo: { modules: ['other', 'enterprise'] }
         });
 
-        await internalState.fetchConnectionInfo();
-        const prompt = await internalState.getDefaultPrompt();
+        await instanceState.fetchConnectionInfo();
+        const prompt = await instanceState.getDefaultPrompt();
         expect(prompt).to.equal('Enterprise test> ');
       });
     });
@@ -188,7 +188,7 @@ describe('ShellInternalState', () => {
           };
           setupServiceProviderWithTopology(topology);
 
-          const prompt = await internalState.getDefaultPrompt();
+          const prompt = await instanceState.getDefaultPrompt();
           expect(prompt).to.equal(`configset [direct: ${p}] test> `);
         });
       });
@@ -218,7 +218,7 @@ describe('ShellInternalState', () => {
           };
           setupServiceProviderWithTopology(topology);
 
-          const prompt = await internalState.getDefaultPrompt();
+          const prompt = await instanceState.getDefaultPrompt();
           expect(prompt).to.equal('test> ');
         });
       });
@@ -235,7 +235,7 @@ describe('ShellInternalState', () => {
         };
         setupServiceProviderWithTopology(topology);
 
-        const prompt = await internalState.getDefaultPrompt();
+        const prompt = await instanceState.getDefaultPrompt();
         expect(prompt).to.equal('leSet [secondary] test> ');
       });
 
@@ -249,7 +249,7 @@ describe('ShellInternalState', () => {
         };
         setupServiceProviderWithTopology(topology);
 
-        const prompt = await internalState.getDefaultPrompt();
+        const prompt = await instanceState.getDefaultPrompt();
         expect(prompt).to.equal('leSet [primary] test> ');
       });
     });
@@ -264,7 +264,7 @@ describe('ShellInternalState', () => {
         };
         setupServiceProviderWithTopology(topology);
 
-        const prompt = await internalState.getDefaultPrompt();
+        const prompt = await instanceState.getDefaultPrompt();
         expect(prompt).to.equal('[mongos] test> ');
       });
       it('shows mongos and a setName', async() => {
@@ -277,7 +277,7 @@ describe('ShellInternalState', () => {
         };
         setupServiceProviderWithTopology(topology);
 
-        const prompt = await internalState.getDefaultPrompt();
+        const prompt = await instanceState.getDefaultPrompt();
         expect(prompt).to.equal('leSet [mongos] test> ');
       });
     });
@@ -297,8 +297,8 @@ describe('ShellInternalState', () => {
           }
         });
 
-        await internalState.fetchConnectionInfo();
-        const prompt = await internalState.getDefaultPrompt();
+        await instanceState.fetchConnectionInfo();
+        const prompt = await instanceState.getDefaultPrompt();
         expect(prompt).to.equal('Atlas test> ');
       });
     });
@@ -313,8 +313,8 @@ describe('ShellInternalState', () => {
         };
         setupServiceProviderWithTopology(topology);
 
-        await internalState.fetchConnectionInfo();
-        const prompt = await internalState.getDefaultPrompt();
+        await instanceState.fetchConnectionInfo();
+        const prompt = await instanceState.getDefaultPrompt();
         expect(prompt).to.equal('test> ');
       });
 
@@ -333,8 +333,8 @@ describe('ShellInternalState', () => {
           }
         });
 
-        await internalState.fetchConnectionInfo();
-        const prompt = await internalState.getDefaultPrompt();
+        await instanceState.fetchConnectionInfo();
+        const prompt = await instanceState.getDefaultPrompt();
         expect(prompt).to.equal('Atlas test> ');
       });
     });
@@ -360,7 +360,7 @@ describe('ShellInternalState', () => {
         };
         setupServiceProviderWithTopology(topology);
 
-        const prompt = await internalState.getDefaultPrompt();
+        const prompt = await instanceState.getDefaultPrompt();
         expect(prompt).to.equal('test> ');
       });
     });

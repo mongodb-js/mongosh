@@ -205,7 +205,7 @@ class CliRepl {
     if (this.config.snippetIndexSourceURLs !== '') {
       snippetManager = new SnippetManager({
         installdir: this.shellHomeDirectory.roamingPath('snippets'),
-        internalState: this.mongoshRepl.runtimeState().internalState
+        instanceState: this.mongoshRepl.runtimeState().instanceState
       });
     }
 

@@ -97,7 +97,7 @@ export default class Database extends ShellApiWithMongoClass {
     if (this._session) {
       options.session = this._session._session;
     }
-    const maxTimeMS = await this._internalState.shellApi.config.get('maxTimeMS');
+    const maxTimeMS = await this._instanceState.shellApi.config.get('maxTimeMS');
     if (typeof maxTimeMS === 'number') {
       options.maxTimeMS = maxTimeMS;
     }
@@ -119,7 +119,7 @@ export default class Database extends ShellApiWithMongoClass {
    * @private
    */
   private _emitDatabaseApiCall(methodName: string, methodArguments: Document = {}): void {
-    this._mongo._internalState.emitApiCall({
+    this._mongo._instanceState.emitApiCall({
       method: methodName,
       class: 'Database',
       db: this._name,
@@ -333,7 +333,7 @@ export default class Database extends ShellApiWithMongoClass {
       return await cursor.explain(explain);
     }
 
-    this._mongo._internalState.currentCursor = cursor;
+    this._mongo._instanceState.currentCursor = cursor;
     return cursor;
   }
 
@@ -461,7 +461,7 @@ export default class Database extends ShellApiWithMongoClass {
   @apiVersions([])
   async logout(): Promise<Document> {
     this._emitDatabaseApiCall('logout', {});
-    this._mongo._internalState.currentCursor = null;
+    this._mongo._instanceState.currentCursor = null;
     return await this._runCommand({ logout: 1 });
   }
 
@@ -493,7 +493,7 @@ export default class Database extends ShellApiWithMongoClass {
     this._emitDatabaseApiCall('auth', {});
     let authDoc: AuthDoc;
     if (args.length === 1) {
-      const { evaluationListener } = this._mongo._internalState;
+      const { evaluationListener } = this._mongo._instanceState;
       if (typeof args[0] === 'string' && evaluationListener.onPrompt) {
         authDoc = {
           user: args[0],
@@ -526,7 +526,7 @@ export default class Database extends ShellApiWithMongoClass {
       );
     }
     authDoc.authDb = this._name;
-    this._mongo._internalState.currentCursor = null;
+    this._mongo._instanceState.currentCursor = null;
     return await this._mongo._serviceProvider.authenticate(authDoc);
   }
 
@@ -1225,7 +1225,7 @@ export default class Database extends ShellApiWithMongoClass {
   async getLastErrorObj(w?: number|string, wTimeout?: number, j?: boolean): Promise<Document> {
     printDeprecationWarning(
       'Database.getLastErrorObj() is deprecated and will be removed in the future.',
-      this._mongo._internalState.context.print
+      this._mongo._instanceState.context.print
     );
 
     this._emitDatabaseApiCall('getLastErrorObj', { w: w, wTimeout: wTimeout, j: j });
@@ -1238,7 +1238,7 @@ export default class Database extends ShellApiWithMongoClass {
   async getLastError(w?: number|string, wTimeout?: number): Promise<Document | null> {
     printDeprecationWarning(
       'Database.getLastError() is deprecated and will be removed in the future.',
-      this._mongo._internalState.context.print
+      this._mongo._instanceState.context.print
     );
 
     this._emitDatabaseApiCall('getLastError', { w: w, wTimeout: wTimeout });
@@ -1436,7 +1436,7 @@ export default class Database extends ShellApiWithMongoClass {
       this._mongo
     );
     await cursor.tryNext(); // See comment in coll.watch().
-    this._mongo._internalState.currentCursor = cursor;
+    this._mongo._instanceState.currentCursor = cursor;
     return cursor;
   }
 }

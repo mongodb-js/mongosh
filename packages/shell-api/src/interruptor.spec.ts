@@ -5,7 +5,7 @@ import { StubbedInstance, stubInterface } from 'ts-sinon';
 import Database from './database';
 import Mongo from './mongo';
 import { InterruptFlag, MongoshInterruptedError } from './interruptor';
-import ShellInternalState from './shell-internal-state';
+import ShellInstanceState from './shell-instance-state';
 import { promisify } from 'util';
 
 describe('interruptor', () => {
@@ -51,7 +51,7 @@ describe('interruptor', () => {
     let serviceProvider: StubbedInstance<ServiceProvider>;
     let database: Database;
     let bus: StubbedInstance<EventEmitter>;
-    let internalState: ShellInternalState;
+    let instanceState: ShellInstanceState;
 
     beforeEach(() => {
       bus = stubInterface<EventEmitter>();
@@ -60,13 +60,13 @@ describe('interruptor', () => {
       serviceProvider.bsonLibrary = bson;
       serviceProvider.runCommand.resolves({ ok: 1 });
       serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
-      internalState = new ShellInternalState(serviceProvider, bus);
-      mongo = new Mongo(internalState, undefined, undefined, undefined, serviceProvider);
+      instanceState = new ShellInstanceState(serviceProvider, bus);
+      mongo = new Mongo(instanceState, undefined, undefined, undefined, serviceProvider);
       database = new Database(mongo, 'db1');
     });
 
     it('causes an interrupt error to be thrown on entry', async() => {
-      internalState.interrupted.set();
+      instanceState.interrupted.set();
       try {
         await database.runCommand({ some: 1 });
       } catch (e) {
@@ -87,7 +87,7 @@ describe('interruptor', () => {
       const runCommand = database.runCommand({ some: 1 });
       await new Promise(setImmediate);
       await new Promise(setImmediate); // ticks due to db._baseOptions() being async
-      internalState.interrupted.set();
+      instanceState.interrupted.set();
       resolveCall({ ok: 1 });
 
       try {

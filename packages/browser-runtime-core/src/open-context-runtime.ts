@@ -7,7 +7,7 @@ import {
   RuntimeEvaluationListener
 } from './runtime';
 import { EventEmitter } from 'events';
-import { ShellInternalState } from '@mongosh/shell-api';
+import { ShellInstanceState } from '@mongosh/shell-api';
 
 import { ShellEvaluator } from '@mongosh/shell-evaluator';
 import type { MongoshBus } from '@mongosh/types';
@@ -31,7 +31,7 @@ export class OpenContextRuntime implements Runtime {
   private interpreterEnvironment: InterpreterEnvironment;
   private autocompleter: ShellApiAutocompleter | null = null;
   private shellEvaluator: ShellEvaluator;
-  private internalState: ShellInternalState;
+  private instanceState: ShellInstanceState;
   private evaluationListener: RuntimeEvaluationListener | null = null;
   private updatedConnectionInfo = false;
 
@@ -41,17 +41,17 @@ export class OpenContextRuntime implements Runtime {
     messageBus?: MongoshBus
   ) {
     this.interpreterEnvironment = interpreterEnvironment;
-    this.internalState = new ShellInternalState(serviceProvider, messageBus || new EventEmitter());
-    this.internalState.isInteractive = true;
-    this.shellEvaluator = new ShellEvaluator(this.internalState);
-    this.internalState.setCtx(this.interpreterEnvironment.getContextObject());
+    this.instanceState = new ShellInstanceState(serviceProvider, messageBus || new EventEmitter());
+    this.instanceState.isInteractive = true;
+    this.shellEvaluator = new ShellEvaluator(this.instanceState);
+    this.instanceState.setCtx(this.interpreterEnvironment.getContextObject());
   }
 
   async getCompletions(code: string): Promise<Completion[]> {
     if (!this.autocompleter) {
-      await this.internalState.fetchConnectionInfo();
+      await this.instanceState.fetchConnectionInfo();
       this.updatedConnectionInfo = true;
-      this.autocompleter = new ShellApiAutocompleter(this.internalState.getAutocompleteParameters());
+      this.autocompleter = new ShellApiAutocompleter(this.instanceState.getAutocompleteParameters());
     }
 
     return this.autocompleter.getCompletions(code);
@@ -71,15 +71,15 @@ export class OpenContextRuntime implements Runtime {
   setEvaluationListener(listener: RuntimeEvaluationListener): RuntimeEvaluationListener | null {
     const prev = this.evaluationListener;
     this.evaluationListener = listener;
-    this.internalState.setEvaluationListener(listener);
+    this.instanceState.setEvaluationListener(listener);
     return prev;
   }
 
   async getShellPrompt(): Promise<string> {
     if (!this.updatedConnectionInfo) {
-      await this.internalState.fetchConnectionInfo();
+      await this.instanceState.fetchConnectionInfo();
       this.updatedConnectionInfo = true;
     }
-    return await this.internalState.getDefaultPrompt();
+    return await this.instanceState.getDefaultPrompt();
   }
 }

@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { CliServiceProvider } from '../../service-provider-server'; // avoid cyclic dep just for test
-import ShellInternalState from './shell-internal-state';
+import ShellInstanceState from './shell-instance-state';
 import type Cursor from './cursor';
 import Explainable from './explainable';
 import type Database from './database';
@@ -95,7 +95,7 @@ describe('Shell API (integration)', function() {
     return serviceProvider.close(true);
   });
 
-  let internalState;
+  let instanceState;
   let shellApi;
   let mongo;
   let dbName;
@@ -107,9 +107,9 @@ describe('Shell API (integration)', function() {
     dbName = `test-${Date.now()}`;
     collectionName = 'docs';
 
-    internalState = new ShellInternalState(serviceProvider);
-    shellApi = internalState.shellApi;
-    mongo = internalState.currentDb.getMongo();
+    instanceState = new ShellInstanceState(serviceProvider);
+    shellApi = instanceState.shellApi;
+    mongo = instanceState.currentDb.getMongo();
     database = mongo.getDB(dbName);
     collection = database.getCollection(collectionName);
     await database.dropDatabase();
@@ -1907,9 +1907,9 @@ describe('Shell API (integration)', function() {
       it('removes the connection from the set of connections', async() => {
         // eslint-disable-next-line new-cap
         const newMongo = await shellApi.Mongo(mongo._uri);
-        expect(internalState.mongos).to.deep.equal([mongo, newMongo]);
+        expect(instanceState.mongos).to.deep.equal([mongo, newMongo]);
         await newMongo.close();
-        expect(internalState.mongos).to.deep.equal([mongo]);
+        expect(instanceState.mongos).to.deep.equal([mongo]);
       });
     });
     describe('getDBs', () => {
@@ -2100,16 +2100,16 @@ describe('Shell API (integration)', function() {
     });
   });
 
-  describe('ShellInternalState', () => {
+  describe('ShellInstanceState', () => {
     beforeEach(async() => {
-      await internalState.fetchConnectionInfo();
+      await instanceState.fetchConnectionInfo();
     });
 
     describe('fetchConnectionInfo', () => {
       skipIfApiStrict();
 
       it('returns information about the connection', async() => {
-        expect(internalState.connectionInfo.buildInfo.version).to.equal(await database.version());
+        expect(instanceState.connectionInfo.buildInfo.version).to.equal(await database.version());
       });
     });
 
@@ -2118,8 +2118,8 @@ describe('Shell API (integration)', function() {
       beforeEach(async() => {
         // Make sure the collection is present so it is included in autocompletion.
         await collection.insertOne({});
-        // Make sure 'database' is the current db in the eyes of the internal state object.
-        internalState.setDbFunc(database);
+        // Make sure 'database' is the current db in the eyes of the instance state object.
+        instanceState.setDbFunc(database);
         connectionString = await testServer.connectionString();
         if (!connectionString.endsWith('/')) {
           connectionString += '/';
@@ -2127,7 +2127,7 @@ describe('Shell API (integration)', function() {
       });
 
       it('returns information that is meaningful for autocompletion', async() => {
-        const params = await internalState.getAutocompleteParameters();
+        const params = await instanceState.getAutocompleteParameters();
         expect(params.topology()).to.equal(Topologies.Standalone);
         expect(params.connectionInfo().uri).to.equal(connectionString);
         expect(params.connectionInfo().is_atlas).to.equal(false);
@@ -2172,7 +2172,7 @@ describe('Shell API (integration)', function() {
     beforeEach(async() => {
       await collection.insertMany([...Array(100).keys()].map(i => ({ i })));
       const cfg = new ShellUserConfig();
-      internalState.setEvaluationListener({
+      instanceState.setEvaluationListener({
         getConfig(key: string) { return cfg[key]; },
         setConfig(key: string, value: any) { cfg[key] = value; return 'success'; },
         listConfigOptions() { return Object.keys(cfg); }
@@ -2210,7 +2210,7 @@ describe('Shell API (integration)', function() {
     beforeEach(async() => {
       await collection.insertMany([...Array(10).keys()].map(i => ({ i })));
       const cfg = new ShellUserConfig();
-      internalState.setEvaluationListener({
+      instanceState.setEvaluationListener({
         getConfig(key: string) { return cfg[key]; },
         setConfig(key: string, value: any) { cfg[key] = value; return 'success'; },
         listConfigOptions() { return Object.keys(cfg); }
@@ -2290,7 +2290,7 @@ describe('Shell API (integration)', function() {
 
   describe('deprecations', () => {
     it('emit an event when a deprecated method is called', async() => {
-      const deprecatedCall = once(internalState.messageBus, 'mongosh:deprecated-api-call');
+      const deprecatedCall = once(instanceState.messageBus, 'mongosh:deprecated-api-call');
       try {
         mongo.setSlaveOk();
         expect.fail('Expected error');
@@ -2308,18 +2308,18 @@ describe('Shell API (integration)', function() {
 
   describe('interruption', () => {
     it('allows interrupting and resuming Mongo instances', async() => {
-      expect(internalState.interrupted.isSet()).to.equal(false);
+      expect(instanceState.interrupted.isSet()).to.equal(false);
       expect(await database.runCommand({ ping: 1 })).to.deep.equal({ ok: 1 });
-      await internalState.onInterruptExecution();
-      expect(internalState.interrupted.isSet()).to.equal(true);
+      await instanceState.onInterruptExecution();
+      expect(instanceState.interrupted.isSet()).to.equal(true);
       try {
         await database.runCommand({ ping: 1 });
         expect.fail('missed exceptino');
       } catch (e) {
         expect(e.name).to.equal('MongoshInterruptedError');
       }
-      await internalState.onResumeExecution();
-      expect(internalState.interrupted.isSet()).to.equal(false);
+      await instanceState.onResumeExecution();
+      expect(instanceState.interrupted.isSet()).to.equal(false);
       expect(await database.runCommand({ ping: 1 })).to.deep.equal({ ok: 1 });
     });
   });

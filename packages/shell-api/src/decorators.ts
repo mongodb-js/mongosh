@@ -1,7 +1,7 @@
-/* eslint-disable complexity */
+/* eslint-disable complexity, chai-friendly/no-unused-expressions */
 import { MongoshInternalError } from '@mongosh/errors';
 import type { ReplPlatform } from '@mongosh/service-provider-core';
-import { Mongo, ShellInternalState } from '.';
+import { Mongo, ShellInstanceState } from '.';
 import {
   ALL_PLATFORMS,
   ALL_SERVER_VERSIONS,
@@ -12,59 +12,84 @@ import {
 } from './enums';
 import Help from './help';
 import { addHiddenDataProperty } from './helpers';
-import { checkInterrupted } from './interruptor';
 
 const addSourceToResultsSymbol = Symbol.for('@@mongosh.addSourceToResults');
 const resultSource = Symbol.for('@@mongosh.resultSource');
 
-export interface ShellApiInterface {
-  [shellApiType]: string;
-  [asPrintable]?: () => any;
-  serverVersions?: [string, string];
-  apiVersions?: [number, number];
-  topologies?: Topologies[];
-  help?: Help;
-  [key: string]: any;
-}
-
+/**
+ * Full name of a MongoDB collection.
+ */
 export interface Namespace {
   db: string;
   collection: string;
 }
 
+/**
+ * Information about the origin of a result returned by a shell API call.
+ */
 export interface ShellResultSourceInformation {
   namespace: Namespace;
 }
 
+/**
+ * Represents the result of a shell evaluation. The {@link toShellResult}
+ * function can be used to turn a raw JS value into an object of this form.
+ */
 export interface ShellResult {
-  /// The original result of the evaluation, as it would be stored e.g. as a
-  /// variable inside the shell.
+  /**
+   * The original result of the evaluation, as it would be stored e.g. as a
+   * variable inside the shell.
+   */
   rawValue: any;
 
-  /// A version of the raw value that is usable for printing, e.g. what the
-  /// shell would print.
+  /**
+   * A version of the raw value that is usable for printing, e.g. what the
+   * shell would print.
+   */
   printable: any;
 
-  /// The type of the shell result. This refers to built-in shell types, e.g.
-  /// `Cursor`; all unknown object types and primitives are given the
-  /// type `null`.
+  /**
+   * The type of the shell result. This refers to built-in shell types, e.g.
+   * `Cursor`; all unknown object types and primitives are given the
+   * type `null`.
+   */
   type: string | null;
 
-  /// Optional information about the original data source of the result.
+  /**
+   * Optional information about the original data source of the result.
+   */
   source?: ShellResultSourceInformation;
 }
 
-export abstract class ShellApiClass implements ShellApiInterface {
+/**
+ * Base class that most shell API classes inherit from. Some of our method
+ * decorators rely on these shared features (for example, `_instanceState`
+ * always being present).
+ */
+export abstract class ShellApiClass {
   public help: any;
 
-  abstract get _internalState(): ShellInternalState;
+  /**
+   * A reference to the shell instance to which this object belongs.
+   */
+  abstract get _instanceState(): ShellInstanceState;
 
+  /**
+   * This is reported as `type` in {@link ShellResult} instances.
+   * It is used by the output formatters in the different environments
+   * to figure out how to print this specific object.
+   */
   get [shellApiType](): string {
     throw new MongoshInternalError('Shell API Type did not use decorators');
   }
   set [shellApiType](value: string) {
     addHiddenDataProperty(this, shellApiType, value);
   }
+
+  /**
+   * Return the information required to format this object for presentation
+   * to the user. This method may return a Promise.
+   */
   [asPrintable](): any {
     if (Array.isArray(this)) {
       return [...this];
@@ -73,29 +98,49 @@ export abstract class ShellApiClass implements ShellApiInterface {
   }
 }
 
+/**
+ * Helper for shell API classes which have access to a {@link Mongo}
+ * object instance.
+ */
 export abstract class ShellApiWithMongoClass extends ShellApiClass {
   abstract get _mongo(): Mongo;
 
-  get _internalState(): ShellInternalState {
+  get _instanceState(): ShellInstanceState {
     // _mongo can be undefined in tests
-    return this._mongo?._internalState;
+    return this._mongo?._instanceState;
   }
 }
 
+/**
+ * Helper for shell API classes which do not have access to a
+ * {@link Mongo} object instance.
+ */
 export abstract class ShellApiValueClass extends ShellApiClass {
-  get _mongo(): Mongo {
+  get _mongo(): never {
     throw new MongoshInternalError('Not supported on this value class');
   }
 
-  get _internalState(): ShellInternalState {
+  get _instanceState(): never {
     throw new MongoshInternalError('Not supported on this value class');
   }
 }
 
+/**
+ * Look up the shell API type, if any, for a given JS object.
+ * Unlike {@link toShellResult}, this method completes synchronously.
+ *
+ * @param rawValue Any JS value.
+ */
 export function getShellApiType(rawValue: any): string | null {
-  return (rawValue && rawValue[shellApiType]) ?? null;
+  return rawValue?.[shellApiType] ?? null;
 }
 
+/**
+ * Look up an object's type and printable representation.
+ *
+ * @param rawValue Any JS value.
+ * @returns A {@link ShellResult} object with information about the value.
+ */
 export async function toShellResult(rawValue: any): Promise<ShellResult> {
   if ((typeof rawValue !== 'object' && typeof rawValue !== 'function') || rawValue === null) {
     return {
@@ -123,16 +168,27 @@ export async function toShellResult(rawValue: any): Promise<ShellResult> {
   };
 }
 
-// For classes like Collection, it can be useful to attach information to the
-// result about the original data source, so that downstream consumers of the
-// shell can e.g. figure out how to edit a document returned from the shell.
-// To that end, we wrap the methods of a class, and report back how the
-// result was generated.
-// We also attach the `shellApiType` property to the
-// return type (if that is possible and they are not already present), so that
-// we can also provide sensible information for methods that do not return
-// shell classes, like db.coll.findOne() which returns a Document (i.e. a plain
-// JavaScript object).
+/**
+ * Wrap a class method so that its return value will be decorated with
+ * a hidden data property indicating the source of that data.
+ *
+ * This applies exclusively to classes which use the {@link addSourceToResults}
+ * decorator. These classes need to implement a {@link namespaceInfo} getter.
+ *
+ * Specifically, for classes like Collection, it can be useful to attach
+ * information to the result about the original data source, so that downstream
+ * consumers of the shell can e.g. figure out how to edit a document returned
+ * from the shell.
+ *
+ * This helper also attach the `shellApiType` property to the
+ * return type (if that is possible and they are not already present), so that
+ * we can also provide sensible information for methods that do not return
+ * shell classes, like db.coll.findOne() which returns a Document (i.e. a plain
+ * JavaScript object).
+ *
+ * @param fn The class method to be wrapped.
+ * @returns The wrapped class method.
+ */
 function wrapWithAddSourceToResult(fn: Function): Function {
   function addSource<T extends {}>(result: T, obj: any): T {
     if (typeof result === 'object' && result !== null) {
@@ -157,12 +213,26 @@ function wrapWithAddSourceToResult(fn: Function): Function {
   return wrapper;
 }
 
+/**
+ * Wrap a method on a shell API class so that the wrapped function
+ * automatically checks whether a user interrupt has occurred
+ * (for example, Ctrl+C in the command line variant).
+ *
+ * This also adds checks to emit deprecation notifications on the bus
+ * so that we can gather telemetry about which deprecated methods are
+ * used and how frequently.
+ *
+ * @param fn The class method to wrap.
+ * @param className The name of the class on which the method is present.
+ * @returns The wrapped class method.
+ */
 function wrapWithApiChecks<T extends(...args: any[]) => any>(fn: T, className: string): (args: Parameters<T>) => ReturnType<T> {
   const wrapper = (fn as any).returnsPromise ?
     markImplicitlyAwaited(async function(this: any, ...args: any[]): Promise<any> {
-      const internalState = getShellInternalState(this);
-      checkForDeprecation(internalState, className, fn);
-      const interruptFlag = checkInterrupted(internalState);
+      const instanceState = getShellInstanceState(this);
+      checkForDeprecation(instanceState, className, fn);
+      const interruptFlag = instanceState?.interrupted;
+      interruptFlag?.checkpoint();
       const interrupt = interruptFlag?.asPromise();
 
       let result: any;
@@ -172,25 +242,26 @@ function wrapWithApiChecks<T extends(...args: any[]) => any>(fn: T, className: s
           fn.call(this, ...args)
         ]);
       } catch (e) {
-        throw internalState?.transformError(e) ?? e;
+        throw instanceState?.transformError(e) ?? e;
       } finally {
         if (interrupt) {
           interrupt.destroy();
         }
       }
-      checkInterrupted(internalState);
+      interruptFlag?.checkpoint();
       return result;
     }) : function(this: any, ...args: any[]): any {
-      const internalState = getShellInternalState(this);
-      checkForDeprecation(internalState, className, fn);
-      checkInterrupted(internalState);
+      const instanceState = getShellInstanceState(this);
+      checkForDeprecation(instanceState, className, fn);
+      const interruptFlag = instanceState?.interrupted;
+      interruptFlag?.checkpoint();
       let result: any;
       try {
         result = fn.call(this, ...args);
       } catch (e) {
-        throw internalState?.transformError(e) ?? e;
+        throw instanceState?.transformError(e) ?? e;
       }
-      checkInterrupted(internalState);
+      interruptFlag?.checkpoint();
       return result;
     };
   Object.setPrototypeOf(wrapper, Object.getPrototypeOf(fn));
@@ -198,36 +269,61 @@ function wrapWithApiChecks<T extends(...args: any[]) => any>(fn: T, className: s
   return wrapper;
 }
 
-function checkForDeprecation(internalState: ShellInternalState | undefined, className: string, fn: any) {
-  if (internalState && typeof internalState.emitDeprecatedApiCall === 'function' && typeof fn === 'function' && fn.deprecated) {
-    internalState.emitDeprecatedApiCall({
+/**
+ * Emit a 'mongosh:deprecated-api-call' event on the instance state's message bus
+ * if the function was marked with the {@link deprecated} decorator.
+ *
+ * @param instanceState A ShellInstanceState object.
+ * @param className The name of the class in question.
+ * @param fn The class method in question.
+ */
+function checkForDeprecation(instanceState: ShellInstanceState | undefined, className: string, fn: Function) {
+  if (instanceState && typeof instanceState.emitDeprecatedApiCall === 'function' && typeof fn === 'function' && (fn as any).deprecated) {
+    instanceState.emitDeprecatedApiCall({
       method: fn.name,
       class: className
     });
   }
 }
 
-function getShellInternalState(apiClass: any): ShellInternalState | undefined {
-  if (!apiClass[shellApiType]) {
-    throw new MongoshInternalError('getShellInternalState can only be called for functions from shell API classes');
+/**
+ * Look up the {@link ShellInstanceState} object associated with a shell API object.
+ *
+ * @param apiClass An object that subclasses {@link ShellApiClass}.
+ */
+function getShellInstanceState(apiObject: any): ShellInstanceState | undefined {
+  if (!apiObject[shellApiType]) {
+    throw new MongoshInternalError('getShellInstanceState can only be called for functions from shell API classes');
   }
-  // internalState can be undefined in tests
-  return (apiClass as ShellApiClass)._internalState;
+  // instanceState can be undefined in tests
+  return (apiObject as ShellApiClass)._instanceState;
 }
 
-// This is a bit more restrictive than `AutocompleteParameters` used in the
-// internal state code, so that it can also be accessed by testing code in the
-// autocomplete package. You can expand this type to be closed to `AutocompleteParameters`
-// as needed.
+/**
+ * A set of options and helpers that can be used by autocompletion support
+ * for built-in shell commands (e.g. `use` or `show`).
+ *
+ * This is a bit more restrictive than {@link AutocompleteParameters} used in the
+ * instance state code, so that it can also be accessed by testing code in the
+ * autocomplete package. You can expand this type to be closer to `AutocompleteParameters`
+ * as needed.
+ */
 export interface ShellCommandAutocompleteParameters {
   getCollectionCompletionsForCurrentDb: (collName: string) => string[] | Promise<string[]>;
   getDatabaseCompletions: (dbName: string) => string[] | Promise<string[]>;
 }
-// Provide a suggested list of completions for the last item in a shell command,
-// e.g. `show pro` to `show profile` by returning ['profile'].
+
+/**
+ * Provide a suggested list of completions for the last item in a shell command,
+ * e.g. `show pro` to `show profile` by returning ['profile'].
+ */
 export type ShellCommandCompleter =
   (params: ShellCommandAutocompleteParameters, args: string[]) => Promise<string[] | undefined>;
 
+/**
+ * Information about a class or a method that is used for
+ * e.g. autocompletion and i18n support.
+ */
 export interface TypeSignature {
   type: string;
   serverVersions?: [ string, string ];
@@ -241,9 +337,19 @@ export interface TypeSignature {
   shellCommandCompleter?: ShellCommandCompleter;
 }
 
+/**
+ * Signatures of all shell API classes.
+ */
 interface Signatures {
   [key: string]: TypeSignature;
 }
+
+// We currently store a list of all shell class signatures
+// on the global object. Ideally, this will go away
+// as part of a refactor of the autocompletion system, e.g.
+// by making the signatures accessible from a ShellInstanceState
+// object instead of a global list, or even more radical changes
+// such as removing the concept of signatures altogether.
 const signaturesGlobalIdentifier = '@@@mdb.signatures@@@';
 if (!(global as any)[signaturesGlobalIdentifier]) {
   (global as any)[signaturesGlobalIdentifier] = {};
@@ -251,7 +357,12 @@ if (!(global as any)[signaturesGlobalIdentifier]) {
 
 const signatures: Signatures = (global as any)[signaturesGlobalIdentifier];
 signatures.Document = { type: 'Document', attributes: {} };
+export { signatures };
 
+/**
+ * This is similar to {@link TypeSignature}, but differs in that it
+ * is specifically for classes and all properties are required, not optional.
+ */
 type ClassSignature = {
   type: string;
   returnsPromise: boolean;
@@ -272,6 +383,9 @@ type ClassSignature = {
   };
 };
 
+/**
+ * Contains the i18n keys for a class and its attributes.
+ */
 type ClassHelp = {
   help: string;
   docs: string;
@@ -279,6 +393,14 @@ type ClassHelp = {
 };
 
 export const toIgnore = ['constructor', 'help', 'toJSON'];
+
+/**
+ * Decorator helper for all shell API classes. Generates the signature for the
+ * class and its methods.
+ *
+ * @param constructor The target class.
+ * @param hasHelp Whether the class has own help information or not.
+ */
 function shellApiClassGeneric(constructor: Function, hasHelp: boolean): void {
   const className = constructor.name;
   const classHelpKeyPrefix = `shell-api.classes.${className}.help`;
@@ -414,11 +536,21 @@ export function shellApiClassDefault(constructor: Function): void {
 
 /**
  * Marks a class as being a Shell API class without help information
+ * (e.g. a superclass of other classes).
  */
 export function shellApiClassNoHelp(constructor: Function): void {
   shellApiClassGeneric(constructor, false);
 }
 
+/**
+ * Wrap a function so that its return value is a Promise which is
+ * decorated with the `@@mongosh.syntheticPromise` symbol, to tell
+ * the async rewriter that the result of this function should be
+ * implicitly `await`ed.
+ *
+ * @param orig The function to be wrapped.
+ * @returns The wrapped function.
+ */
 function markImplicitlyAwaited<T extends(...args: any) => Promise<any>>(orig: T): ((...args: Parameters<T>) => Promise<any>) {
   function wrapper(this: any, ...args: any[]) {
     const origResult = orig.call(this, ...args);
@@ -429,7 +561,6 @@ function markImplicitlyAwaited<T extends(...args: any) => Promise<any>>(orig: T)
   return wrapper;
 }
 
-export { signatures };
 /**
  * Marks the decorated method as being supported for the given range of server versions.
  * Server versions are given as `[min, max]` where both boundaries are **inclusive**.

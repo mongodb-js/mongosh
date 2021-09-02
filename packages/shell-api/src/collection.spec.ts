@@ -17,7 +17,7 @@ import {
   ClientSession as ServiceProviderSession
 } from '@mongosh/service-provider-core';
 import { ObjectId } from 'mongodb';
-import ShellInternalState from './shell-internal-state';
+import ShellInstanceState from './shell-instance-state';
 import { ShellApiErrors } from './error-codes';
 import { CommonErrors, MongoshInvalidInputError, MongoshRuntimeError } from '@mongosh/errors';
 
@@ -64,14 +64,14 @@ describe('Collection', () => {
   });
   describe('.collections', () => {
     it('allows to get a collection as property if is not one of the existing methods', () => {
-      const database = new Database({ _internalState: { emitApiCall: (): void => {} } } as any, 'db1');
+      const database = new Database({ _instanceState: { emitApiCall: (): void => {} } } as any, 'db1');
       const coll: any = new Collection({} as any, database, 'coll');
       expect(coll.someCollection).to.have.instanceOf(Collection);
       expect(coll.someCollection._name).to.equal('coll.someCollection');
     });
 
     it('reuses collections', () => {
-      const database: any = new Database({ _internalState: { emitApiCall: (): void => {} } } as any, 'db1');
+      const database: any = new Database({ _instanceState: { emitApiCall: (): void => {} } } as any, 'db1');
       const coll: any = new Collection({} as any, database, 'coll');
       expect(coll.someCollection).to.equal(database.getCollection('coll.someCollection'));
       expect(coll.someCollection).to.equal(database.coll.someCollection);
@@ -107,7 +107,7 @@ describe('Collection', () => {
     let serviceProvider: StubbedInstance<ServiceProvider>;
     let database: Database;
     let bus: StubbedInstance<EventEmitter>;
-    let internalState: ShellInternalState;
+    let instanceState: ShellInstanceState;
     let collection: Collection;
 
     beforeEach(() => {
@@ -117,8 +117,8 @@ describe('Collection', () => {
       serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
       serviceProvider.initialDb = 'test';
       serviceProvider.bsonLibrary = bson;
-      internalState = new ShellInternalState(serviceProvider, bus);
-      mongo = new Mongo(internalState, undefined, undefined, undefined, serviceProvider);
+      instanceState = new ShellInstanceState(serviceProvider, bus);
+      mongo = new Mongo(instanceState, undefined, undefined, undefined, serviceProvider);
       database = new Database(mongo, 'db1');
       collection = new Collection(mongo, database, 'coll1');
     });
@@ -1827,7 +1827,7 @@ describe('Collection', () => {
         const expectedCursor = new ChangeStreamCursor(fakeSpCursor, collection._name, mongo);
         const result = await collection.watch();
         expect(result).to.deep.equal(expectedCursor);
-        expect(collection._mongo._internalState.currentCursor).to.equal(result);
+        expect(collection._mongo._instanceState.currentCursor).to.equal(result);
       });
 
       it('throws if serviceProvider.watch throws', async() => {
@@ -1916,8 +1916,8 @@ describe('Collection', () => {
       ].forEach(
         k => serviceProvider[k].resolves({ result: {}, value: {} })
       );
-      const internalState = new ShellInternalState(serviceProvider, bus);
-      const mongo = new Mongo(internalState, undefined, undefined, undefined, serviceProvider);
+      const instanceState = new ShellInstanceState(serviceProvider, bus);
+      const mongo = new Mongo(instanceState, undefined, undefined, undefined, serviceProvider);
       const session = mongo.startSession();
       collection = session.getDatabase('db1').getCollection('coll');
     });

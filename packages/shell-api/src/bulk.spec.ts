@@ -11,7 +11,7 @@ import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';
 import { signatures, toShellResult } from './index';
 import { BulkWriteResult } from './result';
 import { ObjectId } from 'mongodb';
-import ShellInternalState from './shell-internal-state';
+import ShellInstanceState from './shell-instance-state';
 chai.use(sinonChai);
 
 describe('Bulk API', () => {
@@ -67,7 +67,7 @@ describe('Bulk API', () => {
           let serviceProvider: StubbedInstance<ServiceProvider>;
           let bulk: Bulk;
           let bus: StubbedInstance<EventEmitter>;
-          let internalState: ShellInternalState;
+          let instanceState: ShellInstanceState;
           let innerStub: StubbedInstance<any>;
           const bulkWriteResult = {
             ok: 1,
@@ -85,8 +85,8 @@ describe('Bulk API', () => {
             serviceProvider.initialDb = 'db1';
             serviceProvider.bsonLibrary = bson;
             serviceProvider.runCommand.resolves({ ok: 1 });
-            internalState = new ShellInternalState(serviceProvider, bus);
-            const db = internalState.currentDb;
+            instanceState = new ShellInstanceState(serviceProvider, bus);
+            const db = instanceState.currentDb;
             collection = new Collection(db._mongo, db, 'coll1');
             innerStub = stubInterface<any>();
             innerStub.batches = [

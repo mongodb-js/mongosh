@@ -19,7 +19,7 @@ import {
 import { signatures, toShellResult } from './index';
 import Mongo from './mongo';
 import ReplicaSet, { ReplSetConfig, ReplSetMemberConfig } from './replica-set';
-import ShellInternalState, { EvaluationListener } from './shell-internal-state';
+import ShellInstanceState, { EvaluationListener } from './shell-instance-state';
 chai.use(sinonChai);
 
 function deepClone<T>(value: T): T {
@@ -69,7 +69,7 @@ describe('ReplicaSet', () => {
     let evaluationListener: StubbedInstance<EvaluationListener>;
     let rs: ReplicaSet;
     let bus: StubbedInstance<EventEmitter>;
-    let internalState: ShellInternalState;
+    let instanceState: ShellInstanceState;
     let db: Database;
 
     beforeEach(() => {
@@ -80,9 +80,9 @@ describe('ReplicaSet', () => {
       serviceProvider.runCommand.resolves({ ok: 1 });
       serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
       evaluationListener = stubInterface<EvaluationListener>();
-      internalState = new ShellInternalState(serviceProvider, bus);
-      internalState.setEvaluationListener(evaluationListener);
-      mongo = new Mongo(internalState, undefined, undefined, undefined, serviceProvider);
+      instanceState = new ShellInstanceState(serviceProvider, bus);
+      instanceState.setEvaluationListener(evaluationListener);
+      mongo = new Mongo(instanceState, undefined, undefined, undefined, serviceProvider);
       db = new Database(mongo, 'testdb');
       rs = new ReplicaSet(db);
     });
@@ -249,7 +249,7 @@ describe('ReplicaSet', () => {
 
         beforeEach(() => {
           sleepStub = sinon.stub();
-          internalState.shellApi.sleep = sleepStub;
+          instanceState.shellApi.sleep = sleepStub;
           reconfigCalls = [];
 
           // eslint-disable-next-line @typescript-eslint/require-await
@@ -691,7 +691,7 @@ describe('ReplicaSet', () => {
 
       beforeEach(() => {
         sleepStub = sinon.stub();
-        internalState.shellApi.sleep = sleepStub;
+        instanceState.shellApi.sleep = sleepStub;
         secondary = {
           _id: 2, host: 'secondary.mongodb.net', priority: 1, votes: 1
         };
@@ -856,7 +856,7 @@ describe('ReplicaSet', () => {
     let cfg: Partial<ReplSetConfig>;
     let additionalServer: MongodSetup;
     let serviceProvider: CliServiceProvider;
-    let internalState: ShellInternalState;
+    let instanceState: ShellInstanceState;
     let rs: ReplicaSet;
 
     before(async function() {
@@ -872,8 +872,8 @@ describe('ReplicaSet', () => {
       additionalServer = srv3;
 
       serviceProvider = await CliServiceProvider.connect(`${await srv0.connectionString()}?directConnection=true`, {}, {}, new EventEmitter());
-      internalState = new ShellInternalState(serviceProvider);
-      rs = new ReplicaSet(internalState.currentDb);
+      instanceState = new ShellInstanceState(serviceProvider);
+      rs = new ReplicaSet(instanceState.currentDb);
 
       // check replset uninitialized
       try {
@@ -954,8 +954,8 @@ describe('ReplicaSet', () => {
         expect(conf.version).to.be.greaterThan(version);
       });
       it('adds a arbiter member to the config', async() => {
-        if (semver.gte(await internalState.currentDb.version(), '4.4.0')) { // setDefaultRWConcern is 4.4+ only
-          await internalState.currentDb.getSiblingDB('admin').runCommand({
+        if (semver.gte(await instanceState.currentDb.version(), '4.4.0')) { // setDefaultRWConcern is 4.4+ only
+          await instanceState.currentDb.getSiblingDB('admin').runCommand({
             setDefaultRWConcern: 1,
             defaultWriteConcern: { w: 'majority' }
           });
@@ -1025,8 +1025,8 @@ describe('ReplicaSet', () => {
         ]
       };
 
-      const internalState = new ShellInternalState(serviceProvider);
-      const db = internalState.currentDb;
+      const instanceState = new ShellInstanceState(serviceProvider);
+      const db = instanceState.currentDb;
       const rs = new ReplicaSet(db);
 
       expect((await rs.initiate(cfg)).ok).to.equal(1);

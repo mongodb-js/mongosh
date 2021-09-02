@@ -4,10 +4,10 @@ export enum ServerVersions {
 }
 
 export enum Topologies {
-  ReplSet = 0,
-  Standalone = 1,
-  Sharded = 2,
-  LoadBalanced = 3
+  ReplSet = 'ReplSet',
+  Standalone = 'Standalone',
+  Sharded = 'Sharded',
+  LoadBalanced = 'LoadBalanced'
 }
 
 import { ReplPlatform } from '@mongosh/service-provider-core';

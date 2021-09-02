@@ -39,7 +39,7 @@ export default class Shard extends ShellApiWithMongoClass {
    * @private
    */
   private _emitShardApiCall(methodName: string, methodArguments: Document = {}): void {
-    this._database._mongo._internalState.emitApiCall({
+    this._database._mongo._instanceState.emitApiCall({
       method: methodName,
       class: 'Shard',
       arguments: methodArguments

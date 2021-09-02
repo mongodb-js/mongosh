@@ -14,7 +14,7 @@ import { asPrintable } from './enums';
 import Mongo from './mongo';
 import Database from './database';
 import { CommandResult, CursorIterationResult } from './result';
-import type ShellInternalState from './shell-internal-state';
+import type ShellInstanceState from './shell-instance-state';
 import { assertArgsDefinedType, assertCLI } from './helpers';
 import { DEFAULT_DB, ReplPlatform, ServerApi, ServerApiVersion } from '@mongosh/service-provider-core';
 import { CommonErrors, MongoshUnimplementedError, MongoshInternalError } from '@mongosh/errors';
@@ -25,24 +25,27 @@ import { dirname } from 'path';
 import { ShellUserConfig } from '@mongosh/types';
 import i18n from '@mongosh/i18n';
 
-const internalStateSymbol = Symbol.for('@@mongosh.internalState');
+const instanceStateSymbol = Symbol.for('@@mongosh.instanceState');
 const loadCallNestingLevelSymbol = Symbol.for('@@mongosh.loadCallNestingLevel');
 
+/**
+ * Class for representing the `config` object in mongosh.
+ */
 @shellApiClassDefault
 class ShellConfig extends ShellApiClass {
-  _internalState: ShellInternalState;
+  _instanceState: ShellInstanceState;
   defaults: Readonly<ShellUserConfig>;
 
-  constructor(internalState: ShellInternalState) {
+  constructor(instanceState: ShellInstanceState) {
     super();
-    this._internalState = internalState;
+    this._instanceState = instanceState;
     this.defaults = Object.freeze(new ShellUserConfig());
   }
 
   @returnsPromise
   async set<K extends keyof ShellUserConfig>(key: K, value: ShellUserConfig[K]): Promise<string> {
     assertArgsDefinedType([key], ['string'], 'config.set');
-    const { evaluationListener } = this._internalState;
+    const { evaluationListener } = this._instanceState;
     // Only allow known config keys here:
     const isValidKey = (await this._allKeys()).includes(key);
     if (isValidKey) {
@@ -62,12 +65,12 @@ class ShellConfig extends ShellApiClass {
   @returnsPromise
   async get<K extends keyof ShellUserConfig>(key: K): Promise<ShellUserConfig[K]> {
     assertArgsDefinedType([key], ['string'], 'config.get');
-    const { evaluationListener } = this._internalState;
+    const { evaluationListener } = this._instanceState;
     return await evaluationListener.getConfig?.(key) ?? this.defaults[key];
   }
 
   async _allKeys(): Promise<(keyof ShellUserConfig)[]> {
-    const { evaluationListener } = this._internalState;
+    const { evaluationListener } = this._instanceState;
     return (await evaluationListener.listConfigOptions?.() ?? Object.keys(this.defaults)) as (keyof ShellUserConfig)[];
   }
 
@@ -79,13 +82,17 @@ class ShellConfig extends ShellApiClass {
   }
 }
 
-// Complete e.g. `use adm` by returning `['admin']`.
+/**
+ * Complete e.g. `use adm` by returning `['admin']`.
+ */
 async function useCompleter(params: ShellCommandAutocompleteParameters, args: string[]): Promise<string[] | undefined> {
   if (args.length > 2) return undefined;
   return await params.getDatabaseCompletions(args[1] ?? '');
 }
 
-// Complete a `show` subcommand.
+/**
+ * Complete a `show` subcommand.
+ */
 // eslint-disable-next-line @typescript-eslint/require-await
 async function showCompleter(params: ShellCommandAutocompleteParameters, args: string[]): Promise<string[] | undefined> {
   if (args.length > 2) return undefined;
@@ -97,25 +104,32 @@ async function showCompleter(params: ShellCommandAutocompleteParameters, args: s
   return candidates.filter(str => str.startsWith(args[1] ?? ''));
 }
 
+/**
+ * This class contains all the *global* properties that are considered part
+ * of the immediate shell API. Some of these properties are decorated with
+ * {@link directShellCommand}, which means that they will be usable without
+ * parentheses (`use foo` as an alias for `use('foo')`, for example).
+ * Those also specify a custom autocompletion helper.
+ */
 @shellApiClassDefault
 export default class ShellApi extends ShellApiClass {
   // Use symbols to make sure these are *not* among the things copied over into
   // the global scope.
-  [internalStateSymbol]: ShellInternalState;
+  [instanceStateSymbol]: ShellInstanceState;
   [loadCallNestingLevelSymbol]: number;
   DBQuery: DBQuery;
   config: ShellConfig;
 
-  constructor(internalState: ShellInternalState) {
+  constructor(instanceState: ShellInstanceState) {
     super();
-    this[internalStateSymbol] = internalState;
+    this[instanceStateSymbol] = instanceState;
     this[loadCallNestingLevelSymbol] = 0;
-    this.DBQuery = new DBQuery(internalState);
-    this.config = new ShellConfig(internalState);
+    this.DBQuery = new DBQuery(instanceState);
+    this.config = new ShellConfig(instanceState);
   }
 
-  get _internalState(): ShellInternalState {
-    return this[internalStateSymbol];
+  get _instanceState(): ShellInstanceState {
+    return this[instanceStateSymbol];
   }
 
   get loadCallNestingLevel(): number {
@@ -129,14 +143,14 @@ export default class ShellApi extends ShellApiClass {
   @directShellCommand
   @shellCommandCompleter(useCompleter)
   use(db: string): any {
-    return this._internalState.currentDb._mongo.use(db);
+    return this._instanceState.currentDb._mongo.use(db);
   }
 
   @directShellCommand
   @returnsPromise
   @shellCommandCompleter(showCompleter)
   async show(cmd: string, arg?: string): Promise<CommandResult> {
-    return await this._internalState.currentDb._mongo.show(cmd, arg);
+    return await this._instanceState.currentDb._mongo.show(cmd, arg);
   }
 
   @directShellCommand
@@ -144,10 +158,10 @@ export default class ShellApi extends ShellApiClass {
   @platforms([ ReplPlatform.CLI ] )
   async exit(exitCode?: number): Promise<never> {
     assertArgsDefinedType([exitCode], [[undefined, 'number']], 'exit');
-    assertCLI(this._internalState.initialServiceProvider.platform, 'the exit/quit commands');
-    await this._internalState.close(true);
+    assertCLI(this._instanceState.initialServiceProvider.platform, 'the exit/quit commands');
+    await this._instanceState.close(true);
     // This should never actually return.
-    await this._internalState.evaluationListener.onExit?.(exitCode);
+    await this._instanceState.evaluationListener.onExit?.(exitCode);
     throw new MongoshInternalError('.onExit listener returned');
   }
 
@@ -165,10 +179,10 @@ export default class ShellApi extends ShellApiClass {
     uri?: string,
     fleOptions?: ClientSideFieldLevelEncryptionOptions,
     otherOptions?: { api?: ServerApi | ServerApiVersion }): Promise<Mongo> {
-    assertCLI(this._internalState.initialServiceProvider.platform, 'new Mongo connections');
-    const mongo = new Mongo(this._internalState, uri, fleOptions, otherOptions);
+    assertCLI(this._instanceState.initialServiceProvider.platform, 'new Mongo connections');
+    const mongo = new Mongo(this._instanceState, uri, fleOptions, otherOptions);
     await mongo.connect();
-    this._internalState.mongos.push(mongo);
+    this._instanceState.mongos.push(mongo);
     return mongo;
   }
 
@@ -177,10 +191,10 @@ export default class ShellApi extends ShellApiClass {
   @platforms([ ReplPlatform.CLI ] )
   async connect(uri: string, user?: string, pwd?: string): Promise<Database> {
     assertArgsDefinedType([uri, user, pwd], ['string', [undefined, 'string'], [undefined, 'string']], 'connect');
-    assertCLI(this._internalState.initialServiceProvider.platform, 'new Mongo connections');
-    const mongo = new Mongo(this._internalState, uri);
+    assertCLI(this._instanceState.initialServiceProvider.platform, 'new Mongo connections');
+    const mongo = new Mongo(this._instanceState, uri);
     await mongo.connect(user, pwd);
-    this._internalState.mongos.push(mongo);
+    this._instanceState.mongos.push(mongo);
     const db = mongo._serviceProvider.initialDb || DEFAULT_DB;
     return mongo.getDB(db);
   }
@@ -188,10 +202,10 @@ export default class ShellApi extends ShellApiClass {
   @directShellCommand
   @returnsPromise
   async it(): Promise<any> {
-    if (!this._internalState.currentCursor) {
+    if (!this._instanceState.currentCursor) {
       return new CursorIterationResult();
     }
-    return await this._internalState.currentCursor._it();
+    return await this._instanceState.currentCursor._it();
   }
 
   version(): string {
@@ -202,21 +216,21 @@ export default class ShellApi extends ShellApiClass {
   @returnsPromise
   async load(filename: string): Promise<true> {
     assertArgsDefinedType([filename], ['string'], 'load');
-    if (!this._internalState.evaluationListener.onLoad) {
+    if (!this._instanceState.evaluationListener.onLoad) {
       throw new MongoshUnimplementedError(
         'load is not currently implemented for this platform',
         CommonErrors.NotImplemented
       );
     }
-    this._internalState.messageBus.emit('mongosh:api-load-file', {
+    this._instanceState.messageBus.emit('mongosh:api-load-file', {
       nested: this.loadCallNestingLevel > 0,
       filename
     });
     const {
       resolvedFilename, evaluate
-    } = await this._internalState.evaluationListener.onLoad(filename);
+    } = await this._instanceState.evaluationListener.onLoad(filename);
 
-    const context = this._internalState.context;
+    const context = this._instanceState.context;
     const previousFilename = context.__filename;
     context.__filename = resolvedFilename;
     context.__dirname = dirname(resolvedFilename);
@@ -239,7 +253,7 @@ export default class ShellApi extends ShellApiClass {
   @returnsPromise
   @platforms([ ReplPlatform.CLI ] )
   async enableTelemetry(): Promise<any> {
-    const result = await this._internalState.evaluationListener.setConfig?.('enableTelemetry', true);
+    const result = await this._instanceState.evaluationListener.setConfig?.('enableTelemetry', true);
     if (result === 'success') {
       return i18n.__('cli-repl.cli-repl.enabledTelemetry');
     }
@@ -248,7 +262,7 @@ export default class ShellApi extends ShellApiClass {
   @returnsPromise
   @platforms([ ReplPlatform.CLI ] )
   async disableTelemetry(): Promise<any> {
-    const result = await this._internalState.evaluationListener.setConfig?.('enableTelemetry', false);
+    const result = await this._instanceState.evaluationListener.setConfig?.('enableTelemetry', false);
     if (result === 'success') {
       return i18n.__('cli-repl.cli-repl.disabledTelemetry');
     }
@@ -257,7 +271,7 @@ export default class ShellApi extends ShellApiClass {
   @returnsPromise
   @platforms([ ReplPlatform.CLI ] )
   async passwordPrompt(): Promise<string> {
-    const { evaluationListener } = this._internalState;
+    const { evaluationListener } = this._instanceState;
     if (!evaluationListener.onPrompt) {
       throw new MongoshUnimplementedError('passwordPrompt() is not available in this shell', CommonErrors.NotImplemented);
     }
@@ -271,7 +285,7 @@ export default class ShellApi extends ShellApiClass {
 
   @returnsPromise
   async print(...origArgs: any[]): Promise<void> {
-    const { evaluationListener } = this._internalState;
+    const { evaluationListener } = this._instanceState;
     const args: ShellResult[] =
       await Promise.all(origArgs.map(arg => toShellResult(arg)));
     await evaluationListener.onPrint?.(args);
@@ -285,11 +299,11 @@ export default class ShellApi extends ShellApiClass {
   @directShellCommand
   @returnsPromise
   async cls(): Promise<void> {
-    const { evaluationListener } = this._internalState;
+    const { evaluationListener } = this._instanceState;
     await evaluationListener.onClearCommand?.();
   }
 
   isInteractive(): boolean {
-    return this._internalState.isInteractive;
+    return this._instanceState.isInteractive;
   }
 }

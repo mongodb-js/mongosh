@@ -29,11 +29,18 @@ import { TransformMongoErrorPlugin } from './mongo-errors';
 import NoDatabase from './no-db';
 import constructShellBson from './shell-bson';
 
+/**
+ * The subset of CLI options that is relevant for the shell API's behavior itself.
+ */
 export interface ShellCliOptions {
   nodb?: boolean;
-  mongocryptdSpawnPath?: string;
 }
 
+/**
+ * A set of parameters and lookup helpers for autocompletion support.
+ * This encapsulates connection- and shell-state-dependent information
+ * from the autocompleter implementation.
+ */
 export interface AutocompleteParameters {
   topology: () => Topologies;
   apiVersionInfo: () => Required<ServerApi> | undefined;
@@ -42,6 +49,10 @@ export interface AutocompleteParameters {
   getDatabaseCompletions: (dbName: string) => Promise<string[]>;
 }
 
+/**
+ * Internal object that represents a file that has been prepared for loading
+ * through load().
+ */
 export interface OnLoadResult {
   /**
    * The absolute path of the file that should be load()ed.
@@ -55,6 +66,10 @@ export interface OnLoadResult {
   evaluate(): Promise<void>;
 }
 
+/**
+ * A set of hooks that modify shell behavior, usually in response to some
+ * form of user input.
+ */
 export interface EvaluationListener extends Partial<ConfigProvider<ShellUserConfig>> {
   /**
    * Called when print() or printjson() is run from the shell.
@@ -89,14 +104,22 @@ export interface EvaluationListener extends Partial<ConfigProvider<ShellUserConf
   startMongocryptd?: () => Promise<AutoEncryptionOptions['extraOptions']>;
 }
 
+/**
+ * Currently, a 'Plugin' for the shell API only consists of a hook for transforming
+ * specific error instances, e.g. for extending the error message.
+ */
 export interface ShellPlugin {
   transformError?: (err: Error) => Error;
 }
 
 /**
- * Anything to do with the internal shell state is stored here.
+ * Anything to do with the state of the shell API and API objects is stored here.
+ *
+ * In particular, this class manages the global context object (as far as the
+ * shell API is concerned) and keeps track of all open connections (a.k.a. Mongo
+ * instances).
  */
-export default class ShellInternalState {
+export default class ShellInstanceState {
   public currentCursor: Cursor | AggregationCursor | ChangeStreamCursor | null;
   public currentDb: Database;
   public messageBus: MongoshBus;
@@ -108,7 +131,6 @@ export default class ShellInternalState {
   public shellBson: any;
   public cliOptions: ShellCliOptions;
   public evaluationListener: EvaluationListener;
-  public mongocryptdSpawnPath: string | null;
   public displayBatchSizeFromDBQuery: number | undefined = undefined;
   public isInteractive = false;
 
@@ -143,7 +165,6 @@ export default class ShellInternalState {
     this.context = {};
     this.cliOptions = cliOptions;
     this.evaluationListener = {};
-    this.mongocryptdSpawnPath = cliOptions.mongocryptdSpawnPath ?? null;
   }
 
   async fetchConnectionInfo(): Promise<void> {

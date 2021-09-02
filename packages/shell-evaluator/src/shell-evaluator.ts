@@ -1,5 +1,5 @@
 import {
-  ShellInternalState,
+  ShellInstanceState,
   toShellResult,
   ShellResult,
   EvaluationListener
@@ -12,13 +12,13 @@ import { HIDDEN_COMMANDS, redactSensitiveData } from '@mongosh/history';
 
 type ResultHandler<EvaluationResultType> = (value: any) => EvaluationResultType | Promise<EvaluationResultType>;
 class ShellEvaluator<EvaluationResultType = ShellResult> {
-  private internalState: ShellInternalState;
+  private instanceState: ShellInstanceState;
   private resultHandler: ResultHandler<EvaluationResultType>;
   private hasAppliedAsyncWriterRuntimeSupport = true;
   private asyncWriter: AsyncWriter;
 
-  constructor(internalState: ShellInternalState, resultHandler: ResultHandler<EvaluationResultType> = toShellResult as any) {
-    this.internalState = internalState;
+  constructor(instanceState: ShellInstanceState, resultHandler: ResultHandler<EvaluationResultType> = toShellResult as any) {
+    this.instanceState = instanceState;
     this.resultHandler = resultHandler;
     this.asyncWriter = new AsyncWriter();
     this.hasAppliedAsyncWriterRuntimeSupport = false;
@@ -33,7 +33,7 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
    * @param {String} filename
    */
   private async innerEval(originalEval: EvaluationFunction, input: string, context: object, filename: string): Promise<any> {
-    const { shellApi } = this.internalState;
+    const { shellApi } = this.instanceState;
     const argv = input.trim().replace(/;$/, '').split(/\s+/g);
     const cmd = argv.shift() as keyof typeof shellApi;
     if (shellApi[cmd]?.isDirectShellCommand && !(argv[0] ?? '').startsWith('(')) {
@@ -44,7 +44,7 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
 
     const hiddenCommands = RegExp(HIDDEN_COMMANDS, 'g');
     if (!hiddenCommands.test(input) && !hiddenCommands.test(rewrittenInput)) {
-      this.internalState.messageBus.emit(
+      this.instanceState.messageBus.emit(
         'mongosh:evaluate-input',
         { input: redactSensitiveData(input.trim()) }
       );
@@ -66,7 +66,7 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
     try {
       return await originalEval(rewrittenInput, context, filename);
     } catch (err) {
-      throw this.internalState.transformError(err);
+      throw this.instanceState.transformError(err);
     }
   }
 

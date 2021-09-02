@@ -6,7 +6,7 @@ import { ADMIN_DB, ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, ALL_API_V
 import { ChangeStream, Document } from '@mongosh/service-provider-core';
 import { startTestCluster } from '../../../testing/integration-testing-hooks';
 import { CliServiceProvider } from '../../service-provider-server/lib';
-import ShellInternalState from './shell-internal-state';
+import ShellInstanceState from './shell-instance-state';
 import Mongo from './mongo';
 import { ensureMaster, ensureResult } from '../../../testing/helpers';
 import Database from './database';
@@ -50,7 +50,7 @@ describe('ChangeStreamCursor', () => {
       warnSpy = sinon.spy();
 
       cursor = new ChangeStreamCursor(spCursor, 'source', {
-        _internalState: { context: { print: warnSpy } }
+        _instanceState: { context: { print: warnSpy } }
       } as Mongo);
     });
 
@@ -84,7 +84,7 @@ describe('ChangeStreamCursor', () => {
       const cursor2 = new ChangeStreamCursor({
         tryNext: tryNextSpy
       } as any, 'source', {
-        _internalState: { context: { print: warnSpy } }
+        _instanceState: { context: { print: warnSpy } }
       } as Mongo);
       const actual = await cursor2.tryNext();
       expect(actual).to.equal(result);
@@ -102,7 +102,7 @@ describe('ChangeStreamCursor', () => {
   describe('integration', () => {
     const [ srv0 ] = startTestCluster(['--replicaset'] );
     let serviceProvider: CliServiceProvider;
-    let internalState: ShellInternalState;
+    let instanceState: ShellInstanceState;
     let mongo: Mongo;
     let db: Database;
     let coll: Collection;
@@ -111,8 +111,8 @@ describe('ChangeStreamCursor', () => {
     before(async function() {
       this.timeout(100_000);
       serviceProvider = await CliServiceProvider.connect(await srv0.connectionString(), {}, {}, new EventEmitter());
-      internalState = new ShellInternalState(serviceProvider);
-      mongo = new Mongo(internalState, undefined, undefined, undefined, serviceProvider);
+      instanceState = new ShellInstanceState(serviceProvider);
+      mongo = new Mongo(instanceState, undefined, undefined, undefined, serviceProvider);
       db = mongo.getDB('testDb');
       coll = db.getCollection('testColl');
     });
@@ -234,8 +234,8 @@ describe('ChangeStreamCursor', () => {
         const nextPromise = cursor.next();
         nextPromise.catch(() => {}); // Suppress UnhandledPromiseRejectionWarning
         await new Promise(resolve => setTimeout(resolve, 100));
-        expect(await internalState.onInterruptExecution()).to.equal(true);
-        expect(await internalState.onResumeExecution()).to.equal(true);
+        expect(await instanceState.onInterruptExecution()).to.equal(true);
+        expect(await instanceState.onResumeExecution()).to.equal(true);
         try {
           await nextPromise;
           expect.fail('missed exception');

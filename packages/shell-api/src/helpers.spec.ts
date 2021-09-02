@@ -1,5 +1,5 @@
 import { assertArgsDefinedType, dataFormat, getPrintableShardStatus } from './helpers';
-import { Database, Mongo, ShellInternalState } from './index';
+import { Database, Mongo, ShellInstanceState } from './index';
 import constructShellBson from './shell-bson';
 import { ServiceProvider, bson } from '@mongosh/service-provider-core';
 import { CliServiceProvider } from '../../service-provider-server'; // avoid cyclic dep just for test
@@ -83,7 +83,7 @@ describe('getPrintableShardStatus', () => {
 
   beforeEach(async() => {
     serviceProvider = await CliServiceProvider.connect(await testServer.connectionString(), {}, {}, new EventEmitter());
-    mongo = new Mongo(new ShellInternalState(serviceProvider), undefined, undefined, undefined, serviceProvider);
+    mongo = new Mongo(new ShellInstanceState(serviceProvider), undefined, undefined, undefined, serviceProvider);
     database = new Database(mongo, 'db1');
     const origGetSiblingDB = database.getSiblingDB;
     database.getSiblingDB = (dbname) => {

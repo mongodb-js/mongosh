@@ -12,7 +12,7 @@ import {
 } from '@mongosh/service-provider-core';
 import Database from './database';
 import { EventEmitter } from 'events';
-import ShellInternalState from './shell-internal-state';
+import ShellInstanceState from './shell-instance-state';
 import Collection from './collection';
 import Cursor from './cursor';
 import ChangeStreamCursor from './change-stream-cursor';
@@ -72,7 +72,7 @@ describe('Mongo', () => {
     let serviceProvider: StubbedInstance<ServiceProvider>;
     let database: StubbedInstance<Database>;
     let bus: StubbedInstance<EventEmitter>;
-    let internalState: ShellInternalState;
+    let instanceState: ShellInstanceState;
 
     beforeEach(() => {
       bus = stubInterface<EventEmitter>();
@@ -81,10 +81,10 @@ describe('Mongo', () => {
       serviceProvider.bsonLibrary = bson;
       serviceProvider.runCommand.resolves({ ok: 1 });
       serviceProvider.startSession.returns({ driverSession: 1 } as any);
-      internalState = new ShellInternalState(serviceProvider, bus);
-      mongo = new Mongo(internalState, undefined, undefined, undefined, serviceProvider);
+      instanceState = new ShellInstanceState(serviceProvider, bus);
+      mongo = new Mongo(instanceState, undefined, undefined, undefined, serviceProvider);
       database = stubInterface<Database>();
-      internalState.currentDb = database;
+      instanceState.currentDb = database;
     });
     describe('show', () => {
       ['databases', 'dbs'].forEach((t) => {
@@ -588,26 +588,26 @@ describe('Mongo', () => {
       it('sets the current db', () => {
         const msg = mongo.use('moo');
         expect(msg).to.equal('switched to db moo');
-        expect(internalState.context.db.getName()).to.equal('moo');
+        expect(instanceState.context.db.getName()).to.equal('moo');
       });
       it('reports if no db switch has taken place', () => {
         mongo.use('moo1');
         const msg = mongo.use('moo1');
         expect(msg).to.equal('already on db moo1');
-        expect(internalState.context.db.getName()).to.equal('moo1');
+        expect(instanceState.context.db.getName()).to.equal('moo1');
       });
       it('reports if db has the same name but different Mongo objects', () => {
-        internalState.context.db = new Mongo(internalState, undefined, undefined, undefined, serviceProvider).getDB('moo1');
-        expect(internalState.context.db.getName()).to.equal('moo1');
+        instanceState.context.db = new Mongo(instanceState, undefined, undefined, undefined, serviceProvider).getDB('moo1');
+        expect(instanceState.context.db.getName()).to.equal('moo1');
         const msg = mongo.use('moo1');
         expect(msg).to.equal('switched to db moo1');
-        expect(internalState.context.db.getName()).to.equal('moo1');
+        expect(instanceState.context.db.getName()).to.equal('moo1');
       });
       it('works if previously there was no db', () => {
-        internalState.context.db = new NoDatabase();
+        instanceState.context.db = new NoDatabase();
         const msg = mongo.use('moo1');
         expect(msg).to.equal('switched to db moo1');
-        expect(internalState.context.db.getName()).to.equal('moo1');
+        expect(instanceState.context.db.getName()).to.equal('moo1');
       });
     });
     describe('deprecated mongo methods', () => {
@@ -650,7 +650,7 @@ describe('Mongo', () => {
       it('returns whatever serviceProvider.watch returns', async() => {
         const result = await mongo.watch();
         expect(result).to.deep.equal(new ChangeStreamCursor(fakeSpCursor, 'mongodb://localhost/?directConnection=true&serverSelectionTimeoutMS=2000', mongo));
-        expect(mongo._internalState.currentCursor).to.equal(result);
+        expect(mongo._instanceState.currentCursor).to.equal(result);
       });
 
       it('throws if serviceProvider.watch throws', async() => {
@@ -714,17 +714,17 @@ describe('Mongo', () => {
   describe('integration', () => {
     const testServer = startTestServer('shared');
     let serviceProvider;
-    let internalState: ShellInternalState;
+    let instanceState: ShellInstanceState;
     let uri: string;
 
     beforeEach(async() => {
       uri = await testServer.connectionString();
       serviceProvider = await CliServiceProvider.connect(uri, {}, {}, new EventEmitter());
-      internalState = new ShellInternalState(serviceProvider);
+      instanceState = new ShellInstanceState(serviceProvider);
     });
 
     afterEach(async() => {
-      await internalState.close(true);
+      await instanceState.close(true);
     });
 
     describe('versioned API', () => {
@@ -734,7 +734,7 @@ describe('Mongo', () => {
         it('errors if an API version is specified', async() => {
           try {
             // eslint-disable-next-line new-cap
-            const mongo = await internalState.shellApi.Mongo(uri, null, {
+            const mongo = await instanceState.shellApi.Mongo(uri, null, {
               api: { version: '1' }
             });
             await (await mongo.getDB('test').getCollection('coll').find()).toArray();
@@ -750,7 +750,7 @@ describe('Mongo', () => {
 
         it('can specify an API version', async() => {
           // eslint-disable-next-line new-cap
-          const mongo = await internalState.shellApi.Mongo(uri, null, {
+          const mongo = await instanceState.shellApi.Mongo(uri, null, {
             api: { version: '1' }
           });
           expect(mongo._apiOptions).to.deep.equal({ version: '1' });
