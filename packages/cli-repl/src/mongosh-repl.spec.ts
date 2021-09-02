@@ -1058,7 +1058,7 @@ describe('MongoshNodeRepl', () => {
       const initialized = await mongoshRepl.initialize(serviceProvider);
       await mongoshRepl.startRepl(initialized);
       expect(output).to.contain('> ');
-      mongoshRepl.runtimeState().internalState.getDefaultPrompt = () => { throw new Error('no prompt'); };
+      mongoshRepl.runtimeState().instanceState.getDefaultPrompt = () => { throw new Error('no prompt'); };
 
       input.write('21 + 21\n');
       await waitEval(bus);

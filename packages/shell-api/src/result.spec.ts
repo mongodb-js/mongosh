@@ -117,7 +117,7 @@ describe('Results', () => {
   });
   describe('CursorIterationResult', () => {
     const r = new results.CursorIterationResult();
-    r.documents.push(1, 2, 3);
+    r.documents.push({ _id: 1 }, { _id: 2 }, { _id: 3 });
     it('superclass attributes set', () => {
       expect(r.documents.length).to.equal(3);
     });
