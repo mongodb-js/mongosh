@@ -21,6 +21,10 @@ import stream from 'stream';
   let isSingleConsoleProcess = false;
   try {
     const options = parseCliArgs(process.argv);
+    for (const warning of options._argParseWarnings) {
+      console.warn(warning);
+    }
+
     const { version } = require('../package.json');
 
     if (options.help) {
