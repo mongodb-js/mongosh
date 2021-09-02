@@ -12,7 +12,7 @@ import { Readable, Writable } from 'stream';
 import type { StyleDefinition } from './clr';
 import { ConfigManager, ShellHomeDirectory, ShellHomePaths } from './config-directory';
 import { CliReplErrors } from './error-codes';
-import { MongoLogManager, MongoLogWriter } from './log-writer';
+import { MongoLogManager, MongoLogWriter } from 'mongodb-log-writer';
 import { MongocryptdManager } from './mongocryptd-manager';
 import MongoshNodeRepl, { MongoshNodeReplOptions } from './mongosh-repl';
 import setupLoggerAndTelemetry from './setup-logger-and-telemetry';
