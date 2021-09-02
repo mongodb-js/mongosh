@@ -275,7 +275,7 @@ describe('SnippetManager', () => {
     const messageBus = new Nanobus('mongosh-snippet-test');
     makeSnippetManager = () => new SnippetManager({
       installdir,
-      internalState: {
+      instanceState: {
         context: contextObject,
         shellApi: contextObject,
         evaluationListener,
