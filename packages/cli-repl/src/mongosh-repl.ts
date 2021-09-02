@@ -208,6 +208,7 @@ class MongoshNodeRepl implements EvaluationListener {
       ...this.nodeReplOptions
     });
     fixupReplForNodeBug38314(repl);
+
     const console = new Console({
       stdout: this.output,
       stderr: this.output,
