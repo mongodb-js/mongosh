@@ -506,11 +506,15 @@ describe('Shell BSON', () => {
       expect(shellBson.NumberLong('345678654321234552').toString()).to.equal('345678654321234552');
     });
 
+    it('correctly constructs large numbers < MAX_SAFE_INTEGER from their JS number value', () => {
+      expect(shellBson.NumberLong(68719476736).toString()).to.equal('68719476736');
+    });
+
     it('creates a bson.Long for unrecommended integer and prints warning', () => {
       const n = shellBson.NumberLong(123.5);
       expect(n).to.be.instanceOf(bson.Long);
       expect(bson.Long.fromString('123').eq(n)).to.be.true;
-      expect(printWarning).to.have.been.calledWith('NumberLong: specifying a number as argument is deprecated and may lead to loss of precision');
+      expect(printWarning).to.have.been.calledWith('NumberLong: specifying a number as argument is deprecated and may lead to loss of precision, pass a string instead');
     });
 
     it('errors for wrong type of arg 1', () => {
@@ -542,7 +546,7 @@ describe('Shell BSON', () => {
       const n = shellBson.NumberDecimal(123);
       expect(n).to.be.instanceOf(bson.Decimal128);
       expect(bson.Decimal128.fromString('123').toString()).to.equal(n.toString());
-      expect(printWarning).to.have.been.calledWith('NumberDecimal: specifying a number as argument is deprecated and may lead to loss of precision');
+      expect(printWarning).to.have.been.calledWith('NumberDecimal: specifying a number as argument is deprecated and may lead to loss of precision, pass a string instead');
     });
 
     it('errors for wrong type of arg 1', () => {
