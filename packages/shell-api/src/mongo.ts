@@ -39,6 +39,7 @@ import {
 } from '@mongosh/service-provider-core';
 import type Collection from './collection';
 import Database from './database';
+import { printDeprecationWarning } from './deprecation-warning';
 import ShellInstanceState from './shell-instance-state';
 import { CommandResult } from './result';
 import { redactURICredentials } from '@mongosh/history';
@@ -488,8 +489,20 @@ export default class Mongo extends ShellApiClass {
   }
 
   @deprecated
-  setSecondaryOk(): void {
-    throw new MongoshDeprecatedError('Setting secondaryOk is deprecated, use setReadPref instead.');
+  @returnsPromise
+  async setSecondaryOk(): Promise<void> {
+    printDeprecationWarning(
+      '.setSecondaryOk() is deprecated. Use .setReadPref("primaryPreferred") instead',
+      this._instanceState.context.print
+    );
+
+    const currentReadPref = this.getReadPrefMode();
+    if (currentReadPref === 'primary') {
+      await this._instanceState.shellApi.print('Setting read preference from "primary" to "primaryPreferred"');
+      await this.setReadPref('primaryPreferred');
+    } else {
+      await this._instanceState.shellApi.print(`Leaving read preference unchanged (is already "${currentReadPref}")`);
+    }
   }
 
   @serverVersions(['3.1.0', ServerVersions.latest])
