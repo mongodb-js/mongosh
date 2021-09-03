@@ -392,8 +392,32 @@ describe('arg-parser', () => {
           });
         });
 
+        context('when providing -tls (single dash)', () => {
+          const argv = [ ...baseArgv, uri, '-tls' ];
+
+          it('returns the URI in the object', () => {
+            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+          });
+
+          it('sets the tls in the object', () => {
+            expect(parseCliArgs(argv).tls).to.equal(true);
+          });
+        });
+
         context('when providing --tlsCertificateKeyFile', () => {
           const argv = [ ...baseArgv, uri, '--tlsCertificateKeyFile', 'test' ];
+
+          it('returns the URI in the object', () => {
+            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+          });
+
+          it('sets the tlsCertificateKeyFile in the object', () => {
+            expect(parseCliArgs(argv).tlsCertificateKeyFile).to.equal('test');
+          });
+        });
+
+        context('when providing -tlsCertificateKeyFile (single dash)', () => {
+          const argv = [ ...baseArgv, uri, '-tlsCertificateKeyFile', 'test' ];
 
           it('returns the URI in the object', () => {
             expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
