@@ -132,6 +132,10 @@ describe('e2e', function() {
       expect(err).to.match(/^This is an error inside mongosh\. Please file a bug report for the MONGOSH project here: https:\/\/jira.mongodb.org\/projects\/MONGOSH\/issues\.$/m);
       expect(err).to.match(/^Please include the log file for this session \(.+[/\\][a-f0-9]{24}_log\)\.$/m);
     });
+    it('does not expose parcelRequire', async() => {
+      const err = await shell.executeLine('parcelRequire');
+      expect(err).to.match(/ReferenceError: parcelRequire is not defined/);
+    });
   });
   describe('set db', () => {
     for (const { mode, dbname, dbnameUri } of [
