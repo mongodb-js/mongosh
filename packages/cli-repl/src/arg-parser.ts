@@ -146,13 +146,14 @@ function isConnectionSpecifier(arg?: string): boolean {
  *
  * @returns The arguments as cli options.
  */
-export function parseCliArgs(args: string[]): (CliOptions & { smokeTests: boolean, buildInfo: boolean }) {
+export function parseCliArgs(args: string[]): (CliOptions & { smokeTests: boolean, buildInfo: boolean, _argParseWarnings: string[] }) {
   const programArgs = args.slice(2);
   i18n.setLocale(getLocale(programArgs, process.env));
 
   const parsed = parser(programArgs, OPTIONS) as unknown as CliOptions & {
     smokeTests: boolean;
     buildInfo: boolean;
+    _argParseWarnings: string[];
     _?: string[];
     file?: string[];
   };
@@ -175,8 +176,7 @@ export function parseCliArgs(args: string[]): (CliOptions & { smokeTests: boolea
   // and should only be accessed that way now.
   delete parsed._;
 
-  const messages = verifyCliArguments(parsed);
-  messages.forEach(m => console.warn(m));
+  parsed._argParseWarnings = verifyCliArguments(parsed);
 
   return parsed;
 }
