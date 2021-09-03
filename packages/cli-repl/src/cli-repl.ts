@@ -150,16 +150,19 @@ class CliRepl {
   async start(driverUri: string, driverOptions: MongoClientOptions): Promise<void> {
     const { version } = require('../package.json');
     await this.verifyNodeVersion();
-    if (this.isPasswordMissingOptions(driverOptions)) {
-      (driverOptions.auth as any).password = await this.requirePassword();
-    } else {
-      const cs = new ConnectionString(driverUri);
-      if (this.isPasswordMissingURI(cs)) {
-        cs.password = await this.requirePassword();
-        driverUri = cs.href;
+
+    if (!this.cliOptions.nodb) {
+      if (this.isPasswordMissingOptions(driverOptions)) {
+        (driverOptions.auth as any).password = await this.requirePassword();
+      } else if (driverUri !== '') {
+        const cs = new ConnectionString(driverUri);
+        if (this.isPasswordMissingURI(cs)) {
+          cs.password = await this.requirePassword();
+          driverUri = cs.href;
+        }
       }
+      this.ensurePasswordFieldIsPresentInAuth(driverOptions);
     }
-    this.ensurePasswordFieldIsPresentInAuth(driverOptions);
 
     try {
       await this.shellHomeDirectory.ensureExists();
