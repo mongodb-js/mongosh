@@ -270,7 +270,7 @@ describe('SnippetManager', () => {
       destroy: () => {},
       promise: new Promise(() => {})
     }));
-    interrupted.checkpoint.resolves();
+    interrupted.checkpoint.returns();
 
     const messageBus = new Nanobus('mongosh-snippet-test');
     makeSnippetManager = () => new SnippetManager({
@@ -737,7 +737,7 @@ describe('SnippetManager', () => {
       (evaluationListener.onPrompt as any).resolves('yes');
       // eslint-disable-next-line @typescript-eslint/require-await
       contextObject.load.callsFake(async() => {
-        interrupted.checkpoint.rejects(new Error('interrupted'));
+        interrupted.checkpoint.throws(new Error('interrupted'));
       });
       try {
         await snippetManager.runSnippetCommand(['install', 'bson-example', 'tarballed-example']);
