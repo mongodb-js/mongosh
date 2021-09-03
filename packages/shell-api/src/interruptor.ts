@@ -17,7 +17,7 @@ export class MongoshInterruptedError extends MongoshBaseError {
 
 /**
  * Contains the interruption state for a given shell instance and
- * informs exposes ways to listen to changes of that state.
+ * exposes ways to listen to changes of that state.
  */
 export class InterruptFlag {
   private interrupted = false;
