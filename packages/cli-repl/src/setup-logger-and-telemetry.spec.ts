@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 import { expect } from 'chai';
-import { MongoLogWriter } from './log-writer';
+import { MongoLogWriter } from 'mongodb-log-writer';
 import setupLoggerAndTelemetry from './setup-logger-and-telemetry';
 import { EventEmitter } from 'events';
 import { MongoshInvalidInputError } from '@mongosh/errors';

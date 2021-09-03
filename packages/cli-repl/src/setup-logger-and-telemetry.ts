@@ -33,7 +33,7 @@ import type {
 } from '@mongosh/types';
 import { inspect } from 'util';
 import { buildInfo } from './build-info';
-import { MongoLogWriter, mongoLogId } from './log-writer';
+import { MongoLogWriter, mongoLogId } from 'mongodb-log-writer';
 
 /**
  * General interface for an Analytics provider that mongosh can use.
