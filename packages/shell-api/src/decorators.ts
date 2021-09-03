@@ -180,7 +180,7 @@ export async function toShellResult(rawValue: any): Promise<ShellResult> {
  * consumers of the shell can e.g. figure out how to edit a document returned
  * from the shell.
  *
- * This helper also attach the `shellApiType` property to the
+ * This helper also attaches the `shellApiType` property to the
  * return type (if that is possible and they are not already present), so that
  * we can also provide sensible information for methods that do not return
  * shell classes, like db.coll.findOne() which returns a Document (i.e. a plain
