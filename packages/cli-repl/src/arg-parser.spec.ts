@@ -417,7 +417,7 @@ describe('arg-parser', () => {
         });
 
         context('when providing -tlsCertificateKeyFile (single dash)', () => {
-          const argv = [ ...baseArgv, uri, '--tlsCertificateKeyFile', 'test' ];
+          const argv = [ ...baseArgv, uri, '-tlsCertificateKeyFile', 'test' ];
 
           it('returns the URI in the object', () => {
             expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
