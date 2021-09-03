@@ -6,6 +6,7 @@ import { CliOptions, CliServiceProvider, MongoClientOptions } from '@mongosh/ser
 import { SnippetManager } from '@mongosh/snippet-manager';
 import Analytics from 'analytics-node';
 import askpassword from 'askpassword';
+import ConnectionString from 'mongodb-connection-string-url';
 import Nanobus from 'nanobus';
 import semver from 'semver';
 import { Readable, Writable } from 'stream';
@@ -149,8 +150,14 @@ class CliRepl {
   async start(driverUri: string, driverOptions: MongoClientOptions): Promise<void> {
     const { version } = require('../package.json');
     await this.verifyNodeVersion();
-    if (this.isPasswordMissing(driverOptions)) {
-      await this.requirePassword(driverUri, driverOptions);
+    if (this.isPasswordMissingOptions(driverOptions)) {
+      (driverOptions.auth as any).password = await this.requirePassword();
+    } else {
+      const cs = new ConnectionString(driverUri);
+      if (this.isPasswordMissingURI(cs)) {
+        cs.password = await this.requirePassword();
+        driverUri = cs.href;
+      }
     }
     this.ensurePasswordFieldIsPresentInAuth(driverOptions);
 
@@ -397,12 +404,27 @@ class CliRepl {
    *
    * @returns {boolean} If the password is missing.
    */
-  isPasswordMissing(driverOptions: MongoClientOptions): boolean {
+  isPasswordMissingOptions(driverOptions: MongoClientOptions): boolean {
     return !!(
       driverOptions.auth &&
       driverOptions.auth.username &&
       !driverOptions.auth.password &&
       driverOptions.authMechanism !== 'GSSAPI' // no need for a password for Kerberos
+    );
+  }
+
+  /**
+   * Is the password missing from the connection string?
+   *
+   * @param {ConnectionString} cs - The existing connection string.
+   *
+   * @returns {boolean} If the password is missing.
+   */
+  isPasswordMissingURI(cs: ConnectionString): boolean {
+    return !!(
+      cs.username &&
+      !cs.password &&
+      cs.searchParams.get('authMechanism') !== 'GSSAPI' // no need for a password for Kerberos
     );
   }
 
@@ -423,7 +445,7 @@ class CliRepl {
    * @param {string} driverUrl - The driver URI.
    * @param {MongoClientOptions} driverOptions - The driver options.
    */
-  async requirePassword(driverUri: string, driverOptions: MongoClientOptions): Promise<void> {
+  async requirePassword(): Promise<string> {
     const passwordPromise = askpassword({
       input: this.input,
       output: this.output,
@@ -432,13 +454,14 @@ class CliRepl {
     this.output.write('Enter password: ');
     try {
       try {
-        (driverOptions.auth as any).password = (await passwordPromise).toString();
+        return (await passwordPromise).toString();
       } finally {
         this.output.write('\n');
       }
     } catch (error) {
       await this._fatalError(error);
     }
+    return ''; // unreachable
   }
 
   private async _fatalError(error: any): Promise<never> {
