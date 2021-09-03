@@ -1,4 +1,4 @@
-import { signatures, ShellPlugin, ShellInternalState, TypeSignature } from '@mongosh/shell-api';
+import { signatures, ShellPlugin, ShellInstanceState, TypeSignature } from '@mongosh/shell-api';
 import { MongoshRuntimeError, MongoshInvalidInputError } from '@mongosh/errors';
 import type { SnippetShellUserConfig, MongoshBus } from '@mongosh/types';
 import escapeRegexp from 'escape-string-regexp';
@@ -20,7 +20,7 @@ const brotliDecompress = promisify(zlib.brotliDecompress);
 
 export interface SnippetOptions {
   installdir: string;
-  internalState: ShellInternalState;
+  instanceState: ShellInstanceState;
 }
 
 export interface ErrorMatcher {
@@ -80,7 +80,7 @@ async function packBSON(data: any): Promise<Buffer> {
 }
 
 export class SnippetManager implements ShellPlugin {
-  _internalState: ShellInternalState;
+  _instanceState: ShellInstanceState;
   installdir: string;
   repos: SnippetIndexFile[] | null;
   load: (filename: string) => Promise<void>;
@@ -90,9 +90,9 @@ export class SnippetManager implements ShellPlugin {
   npmArgv: string[];
   inflightFetchIndexPromise: Promise<SnippetIndexFile[]> | null = null;
 
-  constructor({ installdir, internalState }: SnippetOptions) {
-    const { load, config, print, require } = internalState.context;
-    this._internalState = internalState;
+  constructor({ installdir, instanceState }: SnippetOptions) {
+    const { load, config, print, require } = instanceState.context;
+    this._instanceState = instanceState;
     this.load = load;
     this.config = config;
     this.print = print;
@@ -114,7 +114,7 @@ export class SnippetManager implements ShellPlugin {
     };
     wrapperFn.isDirectShellCommand = true;
     wrapperFn.returnsPromise = true;
-    (internalState.shellApi as any).snippet = internalState.context.snippet = wrapperFn;
+    (instanceState.shellApi as any).snippet = instanceState.context.snippet = wrapperFn;
     (signatures.ShellApi.attributes as any).snippet = {
       type: 'function',
       returnsPromise: true,
@@ -135,13 +135,13 @@ export class SnippetManager implements ShellPlugin {
         return undefined;
       }
     } as TypeSignature;
-    internalState.registerPlugin(this);
+    instanceState.registerPlugin(this);
 
     this.messageBus.emit('mongosh-snippets:loaded', { installdir });
   }
 
   get messageBus(): MongoshBus {
-    return this._internalState.messageBus;
+    return this._instanceState.messageBus;
   }
 
   async prepareNpm(): Promise<string[]> {
@@ -161,8 +161,8 @@ export class SnippetManager implements ShellPlugin {
       if (major >= 6) return ['npm'];
     } catch { /* ignore */ }
 
-    const { evaluationListener, interrupted } = this._internalState;
-    await interrupted.checkpoint();
+    const { evaluationListener, interrupted } = this._instanceState;
+    interrupted.checkpoint();
     const result = await evaluationListener.onPrompt?.(
       'This operation requires downloading a recent release of npm. Do you want to proceed? [Y/n]',
       'yesno');
@@ -172,19 +172,19 @@ export class SnippetManager implements ShellPlugin {
     }
 
     const npmMetadataURL = (await this.registryBaseUrl()) + '/npm/latest';
-    await interrupted.checkpoint();
+    interrupted.checkpoint();
     const npmMetadataResponse = await fetch(npmMetadataURL);
     if (!npmMetadataResponse.ok) {
       this.messageBus.emit('mongosh-snippets:npm-download-failed', { npmMetadataURL, status: npmMetadataResponse.status });
       throw new MongoshRuntimeError(`Failed to download npm: ${npmMetadataURL}: ${npmMetadataResponse.statusText}`);
     }
-    await interrupted.checkpoint();
+    interrupted.checkpoint();
     const npmTarballURL = (await npmMetadataResponse.json())?.dist?.tarball;
     if (!npmTarballURL) {
       this.messageBus.emit('mongosh-snippets:npm-download-failed', { npmMetadataURL, npmTarballURL });
       throw new MongoshRuntimeError(`Failed to download npm: ${npmMetadataURL}: Registry returned no download source`);
     }
-    await interrupted.checkpoint();
+    interrupted.checkpoint();
     await this.print(`Downloading npm from ${npmTarballURL}...`);
     const npmTarball = await fetch(npmTarballURL);
     if (!npmTarball.ok) {
@@ -192,7 +192,7 @@ export class SnippetManager implements ShellPlugin {
       throw new MongoshRuntimeError(`Failed to download npm: ${npmTarballURL}: ${npmTarball.statusText}`);
     }
     this.messageBus.emit('mongosh-snippets:npm-download-active', { npmMetadataURL, npmTarballURL });
-    await interrupted.checkpoint();
+    interrupted.checkpoint();
     await fs.mkdir(npmdir, { recursive: true });
     await pipeline(npmTarball.body, tar.x({ strip: 1, C: npmdir }));
     await this.editPackageJSON((pjson) => { (pjson.dependencies ??= {}).npm = '*'; });
@@ -286,7 +286,7 @@ export class SnippetManager implements ShellPlugin {
       return this.npmArgv;
     }
 
-    await this._internalState.interrupted.checkpoint();
+    this._instanceState.interrupted.checkpoint();
     [ this.npmArgv, this.repos ] = await Promise.all([
       this.prepareNpm(),
       this.prepareIndex()
@@ -325,9 +325,9 @@ export class SnippetManager implements ShellPlugin {
   }
 
   async execFile([ cmd, ...args ]: string[]) {
-    const { interrupted } = this._internalState;
+    const { interrupted } = this._instanceState;
     this.messageBus.emit('mongosh-snippets:spawn-child', { args: [ cmd, ...args ] });
-    await interrupted.checkpoint();
+    interrupted.checkpoint();
     const proc = spawn(cmd, args, {
       cwd: this.installdir,
       env: { ...process.env, MONGOSH_RUN_NODE_SCRIPT: '1' },
@@ -390,7 +390,7 @@ export class SnippetManager implements ShellPlugin {
       }
       const packagePath = path.resolve(this.installdir, 'node_modules', name);
       this.messageBus.emit('mongosh-snippets:load-snippet', { source: 'load-all', name });
-      await this._internalState.interrupted.checkpoint();
+      this._instanceState.interrupted.checkpoint();
       await this.load(this.require.resolve(packagePath));
     }
   }
@@ -437,7 +437,7 @@ export class SnippetManager implements ShellPlugin {
   }
 
   async runInstallLikeCmd(args: string[]): Promise<string> {
-    const { evaluationListener } = this._internalState;
+    const { evaluationListener } = this._instanceState;
     await this.ensureSetup();
 
     const snippetDescs: SnippetDescription[] = [];
@@ -461,14 +461,14 @@ export class SnippetManager implements ShellPlugin {
     await this.print(`Running ${args[0]}...`);
     await this.runNpm(args[0], '--save', ...npmArguments);
     if (args[0] === 'install' && snippetDescs.length > 0) {
-      await this._internalState.interrupted.checkpoint();
+      this._instanceState.interrupted.checkpoint();
       const loadNow = await evaluationListener.onPrompt?.(
         `Installed new snippets ${args.slice(1)}. Do you want to load them now? [Y/n]`,
         'yesno');
       if (loadNow !== 'no') {
         for (const { name } of snippetDescs) {
           this.messageBus.emit('mongosh-snippets:load-snippet', { source: 'install', name });
-          await this._internalState.interrupted.checkpoint();
+          this._instanceState.interrupted.checkpoint();
           await this.load(this.require.resolve(path.join(this.installdir, 'node_modules', name)));
         }
       }

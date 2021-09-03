@@ -2,7 +2,7 @@ import completer from '@mongosh/autocomplete';
 import { MongoshCommandFailed, MongoshInternalError, MongoshWarning } from '@mongosh/errors';
 import { changeHistory } from '@mongosh/history';
 import type { AutoEncryptionOptions, ServiceProvider } from '@mongosh/service-provider-core';
-import { EvaluationListener, OnLoadResult, ShellCliOptions, ShellInternalState, getShellApiType, toShellResult } from '@mongosh/shell-api';
+import { EvaluationListener, OnLoadResult, ShellCliOptions, ShellInstanceState, getShellApiType, toShellResult } from '@mongosh/shell-api';
 import { ShellEvaluator, ShellResult } from '@mongosh/shell-evaluator';
 import { CliUserConfig, ConfigProvider, CliUserConfigValidator, MongoshBus } from '@mongosh/types';
 import askcharacter from 'askcharacter';
@@ -72,7 +72,7 @@ export type InitializationToken = { __initialized: 'yes' };
  */
 type MongoshRuntimeState = {
   shellEvaluator: ShellEvaluator<any>;
-  internalState: ShellInternalState;
+  instanceState: ShellInstanceState;
   repl: REPLServer;
   console: Console;
 };
@@ -165,7 +165,7 @@ class MongoshNodeRepl implements EvaluationListener {
    * @param value The new isInteractive value.
    */
   setIsInteractive(value: boolean): void {
-    this.runtimeState().internalState.isInteractive = value;
+    this.runtimeState().instanceState.isInteractive = value;
   }
 
   /**
@@ -175,18 +175,18 @@ class MongoshNodeRepl implements EvaluationListener {
    * or print any user prompt.
    */
   async initialize(serviceProvider: ServiceProvider): Promise<InitializationToken> {
-    const internalState = new ShellInternalState(serviceProvider, this.bus, this.shellCliOptions);
-    const shellEvaluator = new ShellEvaluator(internalState, (value: any) => value);
-    internalState.setEvaluationListener(this);
-    await internalState.fetchConnectionInfo();
+    const instanceState = new ShellInstanceState(serviceProvider, this.bus, this.shellCliOptions);
+    const shellEvaluator = new ShellEvaluator(instanceState, (value: any) => value);
+    instanceState.setEvaluationListener(this);
+    await instanceState.fetchConnectionInfo();
 
-    let mongodVersion = internalState.connectionInfo.buildInfo?.version;
+    let mongodVersion = instanceState.connectionInfo.buildInfo?.version;
     const apiVersion = serviceProvider.getRawClient()?.serverApi?.version;
     if (apiVersion) {
       mongodVersion = (mongodVersion ? mongodVersion + ' ' : '') + `(API Version ${apiVersion})`;
     }
     await this.greet(mongodVersion);
-    await this.printStartupLog(internalState);
+    await this.printStartupLog(instanceState);
 
     this.inspectCompact = await this.getConfig('inspectCompact');
     this.inspectDepth = await this.getConfig('inspectDepth');
@@ -224,7 +224,7 @@ class MongoshNodeRepl implements EvaluationListener {
 
     this._runtimeState = {
       shellEvaluator,
-      internalState,
+      instanceState,
       repl,
       console
     };
@@ -232,7 +232,7 @@ class MongoshNodeRepl implements EvaluationListener {
     const origReplCompleter =
       promisify(repl.completer.bind(repl)); // repl.completer is callback-style
     const mongoshCompleter =
-      completer.bind(null, internalState.getAutocompleteParameters());
+      completer.bind(null, instanceState.getAutocompleteParameters());
     (repl as Mutable<typeof repl>).completer =
       callbackify(async(text: string): Promise<[string[], string]> => {
         this.insideAutoCompleteOrGetPrompt = true;
@@ -374,7 +374,7 @@ class MongoshNodeRepl implements EvaluationListener {
       } catch { /* ... */ }
     });
 
-    internalState.setCtx(repl.context);
+    instanceState.setCtx(repl.context);
     return { __initialized: 'yes' };
   }
 
@@ -388,7 +388,7 @@ class MongoshNodeRepl implements EvaluationListener {
     this.started = true;
     const { repl } = this.runtimeState();
     // Only start reading from the input *after* we set up everything, including
-    // internalState.setCtx().
+    // instanceState.setCtx().
     this.lineByLineInput.start();
     this.input.resume();
     repl.setPrompt(await this.getShellPrompt());
@@ -419,7 +419,7 @@ class MongoshNodeRepl implements EvaluationListener {
   /**
    * Print warnings from the server startup log, if any.
    */
-  async printStartupLog(internalState: ShellInternalState): Promise<void> {
+  async printStartupLog(instanceState: ShellInstanceState): Promise<void> {
     if (this.shellCliOptions.nodb || this.shellCliOptions.quiet) {
       return;
     }
@@ -427,7 +427,7 @@ class MongoshNodeRepl implements EvaluationListener {
     type GetLogResult = { ok: number, totalLinesWritten: number, log: string[] | undefined };
     let result;
     try {
-      result = await internalState.currentDb.adminCommand({ getLog: 'startupWarnings' }) as GetLogResult;
+      result = await instanceState.currentDb.adminCommand({ getLog: 'startupWarnings' }) as GetLogResult;
       if (!result) {
         throw new MongoshCommandFailed('adminCommand getLog unexpectedly returned no result');
       }
@@ -497,7 +497,7 @@ class MongoshNodeRepl implements EvaluationListener {
         Object.entries(rawValue)
           .filter(([key]) => !key.startsWith('_')));
     } catch (err) {
-      if (this.runtimeState().internalState.interrupted.isSet()) {
+      if (this.runtimeState().instanceState.interrupted.isSet()) {
         interrupted = true;
         this.bus.emit('mongosh:eval-interrupted');
         // The shell is interrupted by CTRL-C - so we ignore any errors
@@ -552,7 +552,7 @@ class MongoshNodeRepl implements EvaluationListener {
    * @param filename The filename to be loaded.
    */
   async loadExternalFile(filename: string): Promise<void> {
-    await this.runtimeState().internalState.shellApi.load(filename);
+    await this.runtimeState().instanceState.shellApi.load(filename);
   }
 
   /**
@@ -575,13 +575,13 @@ class MongoshNodeRepl implements EvaluationListener {
    * @returns true
    */
   async onAsyncSigint(): Promise<boolean> {
-    const { internalState } = this.runtimeState();
-    if (internalState.interrupted.isSet()) {
+    const { instanceState } = this.runtimeState();
+    if (instanceState.interrupted.isSet()) {
       return true;
     }
     this.output.write('Stopping execution...');
 
-    const mongodVersion: string | undefined = internalState.connectionInfo.buildInfo?.version;
+    const mongodVersion: string | undefined = instanceState.connectionInfo.buildInfo?.version;
     if (mongodVersion?.match(/^(4\.0\.|3\.)\d+/)) {
       this.output.write(this.clr(
         `\nWARNING: Operations running on the server cannot be killed automatically for MongoDB ${mongodVersion}.` +
@@ -590,7 +590,7 @@ class MongoshNodeRepl implements EvaluationListener {
       ));
     }
 
-    const fullyInterrupted = await internalState.onInterruptExecution();
+    const fullyInterrupted = await instanceState.onInterruptExecution();
     // this is an async interrupt - the evaluation is still running in the background
     // we wait until it finally completes (which should happen immediately)
     await Promise.race([
@@ -598,7 +598,7 @@ class MongoshNodeRepl implements EvaluationListener {
       new Promise(setImmediate)
     ]);
 
-    const fullyResumed = await internalState.onResumeExecution();
+    const fullyResumed = await instanceState.onResumeExecution();
     if (!fullyInterrupted || !fullyResumed) {
       this.output.write(this.formatError({
         name: 'MongoshInternalError',
@@ -751,7 +751,7 @@ class MongoshNodeRepl implements EvaluationListener {
 
   /**
    * Close all resources held by this shell instance; in particular,
-   * close the ShellInternalState instance and the Node.js REPL
+   * close the ShellInstanceState instance and the Node.js REPL
    * instance, and wait for all output that is currently pending
    * to be flushed.
    */
@@ -760,7 +760,7 @@ class MongoshNodeRepl implements EvaluationListener {
     if (rs) {
       this._runtimeState = null;
       rs.repl.close();
-      await rs.internalState.close(true);
+      await rs.instanceState.close(true);
       await new Promise(resolve => this.output.write('', resolve));
     }
   }
@@ -834,7 +834,7 @@ class MongoshNodeRepl implements EvaluationListener {
    * Figure out the current prompt to use.
    */
   private async getShellPrompt(): Promise<string> {
-    const { repl, internalState } = this.runtimeState();
+    const { repl, instanceState } = this.runtimeState();
 
     try {
       this.insideAutoCompleteOrGetPrompt = true;
@@ -858,7 +858,7 @@ class MongoshNodeRepl implements EvaluationListener {
       this.insideAutoCompleteOrGetPrompt = false;
     }
     try {
-      return await internalState.getDefaultPrompt();
+      return await instanceState.getDefaultPrompt();
     } catch {
       // ignore - we will use the default prompt
     }

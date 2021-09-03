@@ -39,7 +39,7 @@ import {
 } from '@mongosh/service-provider-core';
 import type Collection from './collection';
 import Database from './database';
-import ShellInternalState from './shell-internal-state';
+import ShellInstanceState from './shell-instance-state';
 import { CommandResult } from './result';
 import { redactURICredentials } from '@mongosh/history';
 import { asPrintable, ServerVersions, Topologies } from './enums';
@@ -59,7 +59,7 @@ import { ShellApiErrors } from './error-codes';
 export default class Mongo extends ShellApiClass {
   private __serviceProvider: ServiceProvider | null = null;
   public _databases: Record<string, Database>;
-  public _internalState: ShellInternalState;
+  public _instanceState: ShellInstanceState;
   public _uri: string;
   public _fleOptions: SPAutoEncryption | undefined;
   public _apiOptions?: ServerApi;
@@ -70,14 +70,14 @@ export default class Mongo extends ShellApiClass {
   private _cachedDatabaseNames: string[] = [];
 
   constructor(
-    internalState: ShellInternalState,
+    instanceState: ShellInstanceState,
     uri?: string,
     fleOptions?: ClientSideFieldLevelEncryptionOptions,
     otherOptions?: { api?: ServerApi | ServerApiVersion },
     sp?: ServiceProvider
   ) {
     super();
-    this._internalState = internalState;
+    this._instanceState = instanceState;
     this._databases = {};
     if (sp) {
       this.__serviceProvider = sp;
@@ -130,8 +130,8 @@ export default class Mongo extends ShellApiClass {
   }
 
   async _displayBatchSize(): Promise<number> {
-    return this._internalState.displayBatchSizeFromDBQuery ??
-      await this._internalState.shellApi.config.get('displayBatchSize');
+    return this._instanceState.displayBatchSizeFromDBQuery ??
+      await this._instanceState.shellApi.config.get('displayBatchSize');
   }
 
   /**
@@ -149,7 +149,7 @@ export default class Mongo extends ShellApiClass {
    * @private
    */
   private _emitMongoApiCall(methodName: string, methodArguments: Document = {}): void {
-    this._internalState.emitApiCall({
+    this._instanceState.emitApiCall({
       method: methodName,
       class: 'Mongo',
       uri: this._uri,
@@ -164,7 +164,7 @@ export default class Mongo extends ShellApiClass {
     if (this._fleOptions && !this._explicitEncryptionOnly) {
       const extraOptions = {
         ...(this._fleOptions.extraOptions ?? {}),
-        ...(await this._internalState.evaluationListener?.startMongocryptd?.() ?? {})
+        ...(await this._instanceState.evaluationListener?.startMongocryptd?.() ?? {})
       };
 
       mongoClientOptions.autoEncryption = { ...this._fleOptions, extraOptions };
@@ -172,7 +172,7 @@ export default class Mongo extends ShellApiClass {
     if (this._apiOptions) {
       mongoClientOptions.serverApi = this._apiOptions;
     }
-    const parentProvider = this._internalState.initialServiceProvider;
+    const parentProvider = this._instanceState.initialServiceProvider;
     try {
       this.__serviceProvider = await parentProvider.getNewConnection(this._uri, mongoClientOptions);
     } catch (e) {
@@ -203,7 +203,7 @@ export default class Mongo extends ShellApiClass {
   @returnType('Database')
   getDB(db: string): Database {
     assertArgsDefinedType([db], ['string'], 'Mongo.getDB');
-    this._internalState.messageBus.emit('mongosh:getDB', { db });
+    this._instanceState.messageBus.emit('mongosh:getDB', { db });
     return this._getDb(db);
   }
 
@@ -219,12 +219,12 @@ export default class Mongo extends ShellApiClass {
 
   use(db: string): string {
     assertArgsDefinedType([db], ['string'], 'Mongo.use');
-    this._internalState.messageBus.emit('mongosh:use', { db });
+    this._instanceState.messageBus.emit('mongosh:use', { db });
 
     let previousDbName;
     let previousDbMongo;
     try {
-      const previousDb = this._internalState.context.db;
+      const previousDb = this._instanceState.context.db;
       previousDbName = previousDb?.getName?.();
       previousDbMongo = previousDb?._mongo;
     } catch (e) {
@@ -233,7 +233,7 @@ export default class Mongo extends ShellApiClass {
       }
     }
 
-    this._internalState.context.db = this._getDb(db);
+    this._instanceState.context.db = this._getDb(db);
     if (db === previousDbName && previousDbMongo === this) {
       return `already on db ${db}`;
     }
@@ -244,7 +244,7 @@ export default class Mongo extends ShellApiClass {
     const result = await this._serviceProvider.listDatabases('admin', { ...opts });
     if (!('databases' in result)) {
       const err = new MongoshRuntimeError('Got invalid result from "listDatabases"', CommonErrors.CommandFailed);
-      this._internalState.messageBus.emit('mongosh:error', err, 'shell-api');
+      this._instanceState.messageBus.emit('mongosh:error', err, 'shell-api');
       throw err;
     }
     this._cachedDatabaseNames = result.databases.map((db: any) => db.name);
@@ -282,7 +282,7 @@ export default class Mongo extends ShellApiClass {
   @returnsPromise
   @apiVersions([1])
   async show(cmd: string, arg?: string): Promise<CommandResult> {
-    this._internalState.messageBus.emit('mongosh:show', { method: `show ${cmd}` });
+    this._instanceState.messageBus.emit('mongosh:show', { method: `show ${cmd}` });
 
     switch (cmd) {
       case 'databases':
@@ -291,10 +291,10 @@ export default class Mongo extends ShellApiClass {
         return new CommandResult('ShowDatabasesResult', result);
       case 'collections':
       case 'tables':
-        const collectionNames = await this._internalState.currentDb._getCollectionNamesWithTypes({ readPreference: 'primaryPreferred', promoteLongs: true });
+        const collectionNames = await this._instanceState.currentDb._getCollectionNamesWithTypes({ readPreference: 'primaryPreferred', promoteLongs: true });
         return new CommandResult('ShowCollectionsResult', collectionNames);
       case 'profile':
-        const sysprof = this._internalState.currentDb.getCollection('system.profile');
+        const sysprof = this._instanceState.currentDb.getCollection('system.profile');
         const profiles = { count: await sysprof.countDocuments({}) } as Document;
         if (profiles.count !== 0) {
           profiles.result = await (await sysprof.find({ millis: { $gt: 0 } }))
@@ -304,33 +304,33 @@ export default class Mongo extends ShellApiClass {
         }
         return new CommandResult('ShowProfileResult', profiles);
       case 'users':
-        const users = await this._internalState.currentDb.getUsers();
+        const users = await this._instanceState.currentDb.getUsers();
         return new CommandResult('ShowResult', users.users);
       case 'roles':
-        const roles = await this._internalState.currentDb.getRoles({ showBuiltinRoles: true });
+        const roles = await this._instanceState.currentDb.getRoles({ showBuiltinRoles: true });
         return new CommandResult('ShowResult', roles.roles);
       case 'log':
-        const log = await this._internalState.currentDb.adminCommand({ getLog: arg || 'global' });
+        const log = await this._instanceState.currentDb.adminCommand({ getLog: arg || 'global' });
         return new CommandResult('ShowResult', log.log);
       case 'logs':
-        const logs = await this._internalState.currentDb.adminCommand({ getLog: '*' });
+        const logs = await this._instanceState.currentDb.adminCommand({ getLog: '*' });
         return new CommandResult('ShowResult', logs.names);
       default:
         const err = new MongoshInvalidInputError(
           `'${cmd}' is not a valid argument for "show".`,
           CommonErrors.InvalidArgument
         );
-        this._internalState.messageBus.emit('mongosh:error', err, 'shell-api');
+        this._instanceState.messageBus.emit('mongosh:error', err, 'shell-api');
         throw err;
     }
   }
 
   async close(force: boolean): Promise<void> {
-    const index = this._internalState.mongos.indexOf(this);
+    const index = this._instanceState.mongos.indexOf(this);
     if (index === -1) {
       process.emitWarning(new MongoshInternalError(`Closing untracked Mongo instance ${this[asPrintable]()}`));
     } else {
-      this._internalState.mongos.splice(index, 1);
+      this._instanceState.mongos.splice(index, 1);
     }
 
     await this._serviceProvider.close(force);
@@ -504,7 +504,7 @@ export default class Mongo extends ShellApiClass {
       this
     );
     await cursor.tryNext(); // See comment in coll.watch().
-    this._internalState.currentCursor = cursor;
+    this._instanceState.currentCursor = cursor;
     return cursor;
   }
 

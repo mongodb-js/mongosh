@@ -1,10 +1,12 @@
 import { MongoshBaseError } from '@mongosh/errors';
-import { EventEmitter } from 'events';
-import ShellInternalState from './shell-internal-state';
 
-const interruptEvent = 'interrupted';
 const kUncatchable = Symbol.for('@@mongosh.uncatchable');
 
+/**
+ * Class for interruption errors. This is specially marked so
+ * that the async rewriter removes the ability to catch it from
+ * user code.
+ */
 export class MongoshInterruptedError extends MongoshBaseError {
   [kUncatchable] = true;
 
@@ -13,28 +15,30 @@ export class MongoshInterruptedError extends MongoshBaseError {
   }
 }
 
+/**
+ * Contains the interruption state for a given shell instance and
+ * exposes ways to listen to changes of that state.
+ */
 export class InterruptFlag {
   private interrupted = false;
-  private onInterrupt = new EventEmitter();
+  private onInterruptListeners: ((err: Error) => void)[] = [];
 
-  constructor() {
-    // since we might have user code in a very high async fashion
-    // we don't know beforehand how many listeners we have to register
-    this.onInterrupt.setMaxListeners(Infinity);
-  }
-
+  /**
+   * Returns whether an interrupt is currently in progress, i.e.
+   * whether operations should currently abort or not.
+   */
   public isSet(): boolean {
     return this.interrupted;
   }
 
   /**
-   * Perform a checkpoint; reject immediately if an interruption has already
-   * occurred, and resolve immediately otherwise. This is useful to insert
+   * Perform a checkpoint; throw immediately if an interruption has already
+   * occurred, and do nothing otherwise. This is useful to insert
    * in operations consisting of multiple asynchronous steps.
    */
-  public async checkpoint(): Promise<void> {
+  public checkpoint(): void {
     if (this.interrupted) {
-      await this.asPromise().promise;
+      throw new MongoshInterruptedError();
     }
   }
 
@@ -55,10 +59,13 @@ export class InterruptFlag {
     let destroy: (() => void) | undefined;
     const promise = new Promise<never>((_, reject) => {
       destroy = () => {
-        this.onInterrupt.removeListener(interruptEvent, reject);
+        const index = this.onInterruptListeners.indexOf(reject);
+        if (index !== -1) {
+          this.onInterruptListeners.splice(index, 1);
+        }
         reject(null);
       };
-      this.onInterrupt.once(interruptEvent, reject);
+      this.onInterruptListeners.push(reject);
     });
     return {
       destroy: destroy as unknown as () => void,
@@ -66,19 +73,21 @@ export class InterruptFlag {
     };
   }
 
+  /**
+   * Mark an interrupt as having occurred.
+   */
   public set(): void {
     this.interrupted = true;
-    this.onInterrupt.emit(interruptEvent, new MongoshInterruptedError());
+    const err = new MongoshInterruptedError();
+    for (const listener of [...this.onInterruptListeners]) {
+      listener(err);
+    }
   }
 
+  /**
+   * Clear the current interrupt state.
+   */
   public reset(): void {
     this.interrupted = false;
   }
-}
-
-export function checkInterrupted(internalState: ShellInternalState | undefined): InterruptFlag | undefined {
-  if (internalState?.interrupted?.isSet()) {
-    throw new MongoshInterruptedError();
-  }
-  return internalState?.interrupted;
 }

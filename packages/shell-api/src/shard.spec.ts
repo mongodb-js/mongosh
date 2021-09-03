@@ -6,7 +6,7 @@ import { signatures, toShellResult } from './index';
 import Mongo from './mongo';
 import { bson, ServiceProvider, FindCursor as ServiceProviderCursor } from '@mongosh/service-provider-core';
 import { EventEmitter } from 'events';
-import ShellInternalState from './shell-internal-state';
+import ShellInstanceState from './shell-instance-state';
 import { UpdateResult } from './result';
 import { CliServiceProvider } from '../../service-provider-server';
 import { startTestCluster, skipIfServerVersion, skipIfApiStrict } from '../../../testing/integration-testing-hooks';
@@ -63,7 +63,7 @@ describe('Shard', () => {
     let serviceProvider: StubbedInstance<ServiceProvider>;
     let shard: Shard;
     let bus: StubbedInstance<EventEmitter>;
-    let internalState: ShellInternalState;
+    let instanceState: ShellInstanceState;
     let db: Database;
 
     beforeEach(() => {
@@ -73,8 +73,8 @@ describe('Shard', () => {
       serviceProvider.bsonLibrary = bson;
       serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
       serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
-      internalState = new ShellInternalState(serviceProvider, bus);
-      mongo = new Mongo(internalState, undefined, undefined, undefined, serviceProvider);
+      instanceState = new ShellInstanceState(serviceProvider, bus);
+      mongo = new Mongo(instanceState, undefined, undefined, undefined, serviceProvider);
       db = new Database(mongo, 'testDb');
       shard = new Shard(db);
     });
@@ -1197,7 +1197,7 @@ describe('Shard', () => {
 
   describe('integration', () => {
     let serviceProvider: CliServiceProvider;
-    let internalState: ShellInternalState;
+    let instanceState: ShellInstanceState;
     let sh: Shard;
     const dbName = 'test';
     const ns = `${dbName}.coll`;
@@ -1212,8 +1212,8 @@ describe('Shard', () => {
 
     before(async() => {
       serviceProvider = await CliServiceProvider.connect(await mongos.connectionString(), {}, {}, new EventEmitter());
-      internalState = new ShellInternalState(serviceProvider);
-      sh = new Shard(internalState.currentDb);
+      instanceState = new ShellInstanceState(serviceProvider);
+      sh = new Shard(instanceState.currentDb);
 
       // check replset uninitialized
       let members = await (await sh._database.getSiblingDB('config').getCollection('shards').find()).sort({ _id: 1 }).toArray();
@@ -1259,8 +1259,8 @@ describe('Shard', () => {
         });
 
         it('returns the status when used with apiStrict', async() => {
-          const internalState = new ShellInternalState(apiStrictServiceProvider);
-          const sh = new Shard(internalState.currentDb);
+          const instanceState = new ShellInstanceState(apiStrictServiceProvider);
+          const sh = new Shard(instanceState.currentDb);
 
           const result = await sh.status();
           expect(result.type).to.equal('StatsResult');
@@ -1281,7 +1281,7 @@ describe('Shard', () => {
         expect((await sh.shardCollection(ns, { key: 1 })).collectionsharded).to.equal(ns);
         expect((await sh.status()).value.databases[1].collections[ns].shardKey).to.deep.equal({ key: 1 });
 
-        const db = internalState.currentDb.getSiblingDB(dbName);
+        const db = instanceState.currentDb.getSiblingDB(dbName);
         await db.getCollection('coll').insertMany([{ key: 'A', value: 10 }, { key: 'B', value: 20 }]);
         const original = await db.getCollection('coll').findOneAndUpdate({ key: 'A' }, { $set: { value: 30 } });
         expect(original.key).to.equal('A');

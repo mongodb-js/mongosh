@@ -130,7 +130,7 @@ export default class Collection extends ShellApiWithMongoClass {
    * @private
    */
   private _emitCollectionApiCall(methodName: string, methodArguments: Document = {}): void {
-    this._mongo._internalState.emitApiCall({
+    this._mongo._instanceState.emitApiCall({
       method: methodName,
       class: 'Collection',
       db: this._database._name,
@@ -183,7 +183,7 @@ export default class Collection extends ShellApiWithMongoClass {
       return await cursor.explain(explain);
     }
 
-    this._mongo._internalState.currentCursor = cursor;
+    this._mongo._instanceState.currentCursor = cursor;
     return cursor;
   }
 
@@ -248,7 +248,7 @@ export default class Collection extends ShellApiWithMongoClass {
   async count(query = {}, options: CountOptions = {}): Promise<number> {
     printDeprecationWarning(
       'Collection.count() is deprecated. Use countDocuments or estimatedDocumentCount.',
-      this._mongo._internalState.context.print
+      this._mongo._instanceState.context.print
     );
 
     this._emitCollectionApiCall(
@@ -429,7 +429,7 @@ export default class Collection extends ShellApiWithMongoClass {
       )
     );
 
-    this._mongo._internalState.currentCursor = cursor;
+    this._mongo._instanceState.currentCursor = cursor;
     return cursor;
   }
 
@@ -651,7 +651,7 @@ export default class Collection extends ShellApiWithMongoClass {
   async insert(docs: Document | Document[], options: BulkWriteOptions = {}): Promise<InsertManyResult> {
     printDeprecationWarning(
       'Collection.insert() is deprecated. Use insertOne, insertMany, or bulkWrite.',
-      this._mongo._internalState.context.print
+      this._mongo._instanceState.context.print
     );
     assertArgsDefinedType([docs], [true], 'Collection.insert');
     // When inserting documents into MongoDB that do not contain the _id field,
@@ -773,7 +773,7 @@ export default class Collection extends ShellApiWithMongoClass {
   async remove(query: Document, options: boolean | RemoveShellOptions = {}): Promise<DeleteResult | Document> {
     printDeprecationWarning(
       'Collection.remove() is deprecated. Use deleteOne, deleteMany, findOneAndDelete, or bulkWrite.',
-      this._mongo._internalState.context.print
+      this._mongo._instanceState.context.print
     );
     assertArgsDefinedType([query], [true], 'Collection.remove');
     const removeOptions = processRemoveOptions(options);
@@ -848,7 +848,7 @@ export default class Collection extends ShellApiWithMongoClass {
   async update(filter: Document, update: Document, options: UpdateOptions & { multi?: boolean } = {}): Promise<UpdateResult | Document> {
     printDeprecationWarning(
       'Collection.update() is deprecated. Use updateOne, updateMany, or bulkWrite.',
-      this._mongo._internalState.context.print
+      this._mongo._instanceState.context.print
     );
     assertArgsDefinedType([filter, update], [true, true], 'Collection.update');
     this._emitCollectionApiCall('update', { filter, options });
@@ -1332,7 +1332,7 @@ export default class Collection extends ShellApiWithMongoClass {
       );
     } catch (error) {
       if (error.codeName === 'NamespaceNotFound') {
-        this._mongo._internalState.messageBus.emit(
+        this._mongo._instanceState.messageBus.emit(
           'mongosh:warn',
           {
             method: 'drop',
@@ -1554,7 +1554,7 @@ export default class Collection extends ShellApiWithMongoClass {
   async mapReduce(map: Function | string, reduce: Function | string, optionsOrOutString: MapReduceShellOptions): Promise<Document> {
     printDeprecationWarning(
       'Collection.mapReduce() is deprecated. Use an aggregation instead.\nSee https://docs.mongodb.com/manual/core/map-reduce for details.',
-      this._mongo._internalState.context.print
+      this._mongo._instanceState.context.print
     );
     assertArgsDefinedType([map, reduce, optionsOrOutString], [true, true, true], 'Collection.mapReduce');
     this._emitCollectionApiCall('mapReduce', { map, reduce, out: optionsOrOutString });
@@ -1746,7 +1746,7 @@ export default class Collection extends ShellApiWithMongoClass {
     //   observed before the .watch() call, i.e. there is a race condition
     //   here either way and we can use that to our advantage.
     await cursor.tryNext();
-    this._mongo._internalState.currentCursor = cursor;
+    this._mongo._instanceState.currentCursor = cursor;
     return cursor;
   }
 

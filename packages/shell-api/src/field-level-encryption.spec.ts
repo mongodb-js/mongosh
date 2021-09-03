@@ -9,7 +9,7 @@ import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, ALL_API_VERSIONS } 
 import { ClientEncryption, ClientSideFieldLevelEncryptionOptions, ClientSideFieldLevelEncryptionKmsProvider as KMSProvider, KeyVault } from './field-level-encryption';
 import Mongo from './mongo';
 import { DeleteResult } from './result';
-import ShellInternalState from './shell-internal-state';
+import ShellInstanceState from './shell-instance-state';
 import { CliServiceProvider } from '../../service-provider-server';
 import { startTestServer } from '../../../testing/integration-testing-hooks';
 import { makeFakeHTTPConnection, fakeAWSHandlers } from '../../../testing/fake-kms';
@@ -50,7 +50,7 @@ const RAW_CLIENT = { client: 1 } as any;
 describe('Field Level Encryption', () => {
   let sp: StubbedInstance<ServiceProvider>;
   let mongo: Mongo;
-  let internalState: ShellInternalState;
+  let instanceState: ShellInstanceState;
   let libmongoc: StubbedInstance<FLEClientEncryption>;
   let clientEncryption: ClientEncryption;
   let keyVault: KeyVault;
@@ -64,9 +64,9 @@ describe('Field Level Encryption', () => {
         ClientEncryption: function() { return libmongoc; }
       } as any;
       sp.initialDb = 'test';
-      internalState = new ShellInternalState(sp, stubInterface<EventEmitter>());
-      internalState.currentDb = stubInterface<Database>();
-      mongo = new Mongo(internalState, 'localhost:27017', AWS_KMS, undefined, sp);
+      instanceState = new ShellInstanceState(sp, stubInterface<EventEmitter>());
+      instanceState.currentDb = stubInterface<Database>();
+      mongo = new Mongo(instanceState, 'localhost:27017', AWS_KMS, undefined, sp);
       clientEncryption = new ClientEncryption(mongo);
       keyVault = new KeyVault(clientEncryption);
     });
@@ -131,9 +131,9 @@ describe('Field Level Encryption', () => {
         }
       } as any;
       sp.initialDb = 'test';
-      internalState = new ShellInternalState(sp, stubInterface<EventEmitter>());
-      internalState.currentDb = stubInterface<Database>();
-      mongo = new Mongo(internalState, 'localhost:27017', AWS_KMS, undefined, sp);
+      instanceState = new ShellInstanceState(sp, stubInterface<EventEmitter>());
+      instanceState.currentDb = stubInterface<Database>();
+      mongo = new Mongo(instanceState, 'localhost:27017', AWS_KMS, undefined, sp);
       clientEncryption = new ClientEncryption(mongo);
       keyVault = new KeyVault(clientEncryption);
     });
@@ -385,8 +385,8 @@ describe('Field Level Encryption', () => {
       sp.bsonLibrary = bson;
       sp.fle = { ClientEncryption: function() { return libmongoc; } } as any;
       sp.initialDb = 'test';
-      internalState = new ShellInternalState(sp, stubInterface<EventEmitter>());
-      internalState.currentDb = stubInterface<Database>();
+      instanceState = new ShellInstanceState(sp, stubInterface<EventEmitter>());
+      instanceState.currentDb = stubInterface<Database>();
     });
     it('accepts the same local key twice', () => {
       const localKmsOptions: ClientSideFieldLevelEncryptionOptions = {
@@ -400,9 +400,9 @@ describe('Field Level Encryption', () => {
         bypassAutoEncryption: true
       };
       // eslint-disable-next-line no-new
-      new Mongo(internalState, 'localhost:27017', localKmsOptions, undefined, sp);
+      new Mongo(instanceState, 'localhost:27017', localKmsOptions, undefined, sp);
       // eslint-disable-next-line no-new
-      new Mongo(internalState, 'localhost:27017', localKmsOptions, undefined, sp);
+      new Mongo(instanceState, 'localhost:27017', localKmsOptions, undefined, sp);
     });
     it('fails if both explicitEncryptionOnly and schemaMap are passed', () => {
       const localKmsOptions: ClientSideFieldLevelEncryptionOptions = {
@@ -416,7 +416,7 @@ describe('Field Level Encryption', () => {
         explicitEncryptionOnly: true
       };
       try {
-        void new Mongo(internalState, 'localhost:27017', localKmsOptions, undefined, sp);
+        void new Mongo(instanceState, 'localhost:27017', localKmsOptions, undefined, sp);
       } catch (e) {
         return expect(e.message).to.contain('explicitEncryptionOnly and schemaMap are mutually exclusive');
       }
@@ -435,11 +435,11 @@ describe('Field Level Encryption', () => {
         }
       } as any;
       sp.initialDb = 'test';
-      internalState = new ShellInternalState(sp, stubInterface<EventEmitter>());
-      internalState.currentDb = stubInterface<Database>();
+      instanceState = new ShellInstanceState(sp, stubInterface<EventEmitter>());
+      instanceState.currentDb = stubInterface<Database>();
     });
     it('fails to construct when FLE options are missing on Mongo', () => {
-      mongo = new Mongo(internalState, 'localhost:27017', undefined, undefined, sp);
+      mongo = new Mongo(instanceState, 'localhost:27017', undefined, undefined, sp);
       clientEncryption = new ClientEncryption(mongo);
       try {
         void new KeyVault(clientEncryption);
@@ -455,14 +455,14 @@ describe('Field Level Encryption', () => {
     let dbname: string;
     let uri: string;
     let serviceProvider;
-    let internalState;
+    let instanceState;
     let connections: any[];
 
     beforeEach(async() => {
       dbname = `test_fle_${Date.now()}`;
       uri = `${await testServer.connectionString()}/${dbname}`;
       serviceProvider = await CliServiceProvider.connect(uri, {}, {}, new EventEmitter());
-      internalState = new ShellInternalState(serviceProvider);
+      instanceState = new ShellInstanceState(serviceProvider);
 
       connections = [];
       sinon.replace(require('tls'), 'connect', sinon.fake((options, onConnect) => {
@@ -478,7 +478,7 @@ describe('Field Level Encryption', () => {
 
     afterEach(async() => {
       await serviceProvider.dropDatabase(dbname);
-      await internalState.close(true);
+      await instanceState.close(true);
       sinon.restore();
     });
 
@@ -517,13 +517,13 @@ srDVjIT3LsvTqw==`
     for (const [ kmsName, kmsOptions ] of kms) {
       // eslint-disable-next-line no-loop-func
       it(`provides ClientEncryption for kms=${kmsName}`, async() => {
-        const mongo = new Mongo(internalState, uri, {
+        const mongo = new Mongo(instanceState, uri, {
           keyVaultNamespace: `${dbname}.__keyVault`,
           kmsProviders: { [kmsName]: kmsOptions } as any,
           explicitEncryptionOnly: true
         }, serviceProvider);
         await mongo.connect();
-        internalState.mongos.push(mongo);
+        instanceState.mongos.push(mongo);
 
         const keyVault = mongo.getKeyVault();
         let keyId;

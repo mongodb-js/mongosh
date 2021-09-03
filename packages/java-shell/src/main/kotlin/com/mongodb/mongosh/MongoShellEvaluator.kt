@@ -18,7 +18,7 @@ import java.util.*
 internal class MongoShellEvaluator(client: MongoClient, private val context: MongoShellContext, private val converter: MongoShellConverter, wrapper: ValueWrapper) {
     private val serviceProvider = JavaServiceProvider(client, converter, wrapper)
     private val shellEvaluator: Value
-    private val shellInternalState: Value
+    private val shellInstanceState: Value
     private val toShellResultFn: Value
     private val getShellApiTypeFn: Value
 
@@ -27,11 +27,11 @@ internal class MongoShellEvaluator(client: MongoClient, private val context: Mon
         context.eval(setupScript, "all-standalone.js")
         val global = context.bindings["_global"]!!
         context.bindings.removeMember("_global")
-        shellInternalState = global.getMember("ShellInternalState").newInstance(serviceProvider)
-        shellEvaluator = global.getMember("ShellEvaluator").newInstance(shellInternalState, resultHandler())
+        shellInstanceState = global.getMember("ShellInstanceState").newInstance(serviceProvider)
+        shellEvaluator = global.getMember("ShellEvaluator").newInstance(shellInstanceState, resultHandler())
         toShellResultFn = global.getMember("toShellResult")
         getShellApiTypeFn = global.getMember("getShellApiType")
-        shellInternalState.invokeMember("setCtx", context.bindings)
+        shellInstanceState.invokeMember("setCtx", context.bindings)
         initContext(context.bindings)
     }
 
@@ -124,12 +124,12 @@ internal class MongoShellEvaluator(client: MongoClient, private val context: Mon
     }
 
     private fun updateDatabase() {
-        // graaljs does not allow to define property on top context, so we need to update internal state manually
+        // graaljs does not allow to define property on top context, so we need to update instance state manually
         val currentDb = context.eval("db")
         val currentDbName = currentDb.invokeMember("getName").asString()
-        val stateDbName = shellInternalState["currentDb"]?.invokeMember("getName")?.asString()
+        val stateDbName = shellInstanceState["currentDb"]?.invokeMember("getName")?.asString()
         if (currentDbName != stateDbName) {
-            shellInternalState.invokeMember("setDbFunc", currentDb)
+            shellInstanceState.invokeMember("setDbFunc", currentDb)
         }
     }
 

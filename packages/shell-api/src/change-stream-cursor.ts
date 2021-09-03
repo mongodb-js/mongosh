@@ -61,7 +61,7 @@ export default class ChangeStreamCursor extends ShellApiWithMongoClass {
     printWarning(
       'If there are no documents in the batch, hasNext will block. Use tryNext if you want to check if there ' +
       'are any documents without waiting.',
-      this._mongo._internalState.context.print
+      this._mongo._instanceState.context.print
     );
     return this._cursor.hasNext();
   }
@@ -103,7 +103,7 @@ export default class ChangeStreamCursor extends ShellApiWithMongoClass {
     printWarning(
       'If there are no documents in the batch, next will block. Use tryNext if you want to check if there are ' +
       'any documents without waiting.',
-      this._mongo._internalState.context.print
+      this._mongo._instanceState.context.print
     );
     return this._cursor.next();
   }

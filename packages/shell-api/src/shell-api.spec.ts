@@ -9,7 +9,7 @@ import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
 import Mongo from './mongo';
 import { ReplPlatform, ServiceProvider, bson, MongoClient } from '@mongosh/service-provider-core';
 import { EventEmitter } from 'events';
-import ShellInternalState, { EvaluationListener } from './shell-internal-state';
+import ShellInstanceState, { EvaluationListener } from './shell-instance-state';
 
 const b641234 = 'MTIzNA==';
 const schemaMap = {
@@ -167,7 +167,7 @@ describe('ShellApi', () => {
     let newSP: StubbedInstance<ServiceProvider>;
     let rawClientStub: StubbedInstance<MongoClient>;
     let bus: EventEmitter;
-    let internalState: ShellInternalState;
+    let instanceState: ShellInstanceState;
     let mongo: Mongo;
 
     beforeEach(() => {
@@ -183,13 +183,13 @@ describe('ShellApi', () => {
       serviceProvider.getRawClient.returns(rawClientStub);
       mongo = stubInterface<Mongo>();
       mongo._serviceProvider = serviceProvider;
-      internalState = new ShellInternalState(serviceProvider, bus);
-      internalState.currentDb._mongo = mongo;
+      instanceState = new ShellInstanceState(serviceProvider, bus);
+      instanceState.currentDb._mongo = mongo;
       serviceProvider.platform = ReplPlatform.CLI;
     });
     describe('use', () => {
       beforeEach(() => {
-        internalState.shellApi.use('testdb');
+        instanceState.shellApi.use('testdb');
       });
       it('calls use with arg', () => {
         expect(mongo.use).to.have.been.calledWith('testdb');
@@ -197,7 +197,7 @@ describe('ShellApi', () => {
     });
     describe('show', () => {
       beforeEach(async() => {
-        await internalState.shellApi.show('databases');
+        await instanceState.shellApi.show('databases');
       });
       it('calls show with arg', () => {
         expect(mongo.show).to.have.been.calledWith('databases');
@@ -205,14 +205,14 @@ describe('ShellApi', () => {
     });
     describe('it', () => {
       it('returns empty result if no current cursor', async() => {
-        internalState.currentCursor = null;
-        const res: any = await internalState.shellApi.it();
+        instanceState.currentCursor = null;
+        const res: any = await instanceState.shellApi.it();
         expect((await toShellResult(res)).type).to.deep.equal('CursorIterationResult');
       });
       it('calls _it on current Cursor', async() => {
-        internalState.currentCursor = stubInterface<Cursor>();
-        await internalState.shellApi.it();
-        expect(internalState.currentCursor._it).to.have.been.called;
+        instanceState.currentCursor = stubInterface<Cursor>();
+        await instanceState.shellApi.it();
+        expect(instanceState.currentCursor._it).to.have.been.called;
       });
     });
     describe('Mongo', () => {
@@ -220,25 +220,25 @@ describe('ShellApi', () => {
         serviceProvider.platform = ReplPlatform.CLI;
       });
       it('returns a new Mongo object', async() => {
-        const m = await internalState.shellApi.Mongo('localhost:27017');
+        const m = await instanceState.shellApi.Mongo('localhost:27017');
         expect((await toShellResult(m)).type).to.equal('Mongo');
         expect(m._uri).to.equal('mongodb://localhost:27017/test?directConnection=true&serverSelectionTimeoutMS=2000');
       });
       it('fails for non-CLI', async() => {
         serviceProvider.platform = ReplPlatform.Browser;
         try {
-          await internalState.shellApi.Mongo('uri');
+          await instanceState.shellApi.Mongo('uri');
         } catch (e) {
           return expect(e.name).to.equal('MongoshUnimplementedError');
         }
         expect.fail('MongoshInvalidInputError not thrown for Mongo');
       });
       it('parses URI with mongodb://', async() => {
-        const m = await internalState.shellApi.Mongo('mongodb://127.0.0.1:27017');
+        const m = await instanceState.shellApi.Mongo('mongodb://127.0.0.1:27017');
         expect(m._uri).to.equal('mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000');
       });
       it('parses URI with just db', async() => {
-        const m = await internalState.shellApi.Mongo('dbname');
+        const m = await instanceState.shellApi.Mongo('dbname');
         expect(m._uri).to.equal('mongodb://127.0.0.1:27017/dbname?directConnection=true&serverSelectionTimeoutMS=2000');
       });
       context('FLE', () => {
@@ -248,7 +248,7 @@ describe('ShellApi', () => {
           { type: 'BinData', key: new bson.Binary(Buffer.from(b641234, 'base64'), 128), expectedKey: Buffer.from(b641234, 'base64') }
         ].forEach(({ type, key, expectedKey }) => {
           it(`local kms provider - key is ${type}`, async() => {
-            await internalState.shellApi.Mongo('dbname', {
+            await instanceState.shellApi.Mongo('dbname', {
               keyVaultNamespace: 'encryption.dataKeys',
               kmsProviders: {
                 local: {
@@ -269,7 +269,7 @@ describe('ShellApi', () => {
           });
         });
         it('aws kms provider', async() => {
-          await internalState.shellApi.Mongo('dbname', {
+          await instanceState.shellApi.Mongo('dbname', {
             keyVaultNamespace: 'encryption.dataKeys',
             kmsProviders: {
               aws: {
@@ -290,7 +290,7 @@ describe('ShellApi', () => {
             });
         });
         it('local kms provider with current as Mongo', async() => {
-          await internalState.shellApi.Mongo('dbname', {
+          await instanceState.shellApi.Mongo('dbname', {
             keyVaultNamespace: 'encryption.dataKeys',
             kmsProviders: {
               local: {
@@ -315,7 +315,7 @@ describe('ShellApi', () => {
           const rc = stubInterface<MongoClient>();
           sp.getRawClient.returns(rc);
           const m = new Mongo({ initialServiceProvider: sp } as any, 'dbName', undefined, undefined, sp);
-          await internalState.shellApi.Mongo('dbname', {
+          await instanceState.shellApi.Mongo('dbname', {
             keyVaultNamespace: 'encryption.dataKeys',
             kmsProviders: {
               local: {
@@ -337,7 +337,7 @@ describe('ShellApi', () => {
         });
         it('throws if missing namespace', async() => {
           try {
-            await internalState.shellApi.Mongo('dbname', {
+            await instanceState.shellApi.Mongo('dbname', {
               kmsProviders: {
                 aws: {
                   accessKeyId: 'abc',
@@ -352,7 +352,7 @@ describe('ShellApi', () => {
         });
         it('throws if missing kmsProviders', async() => {
           try {
-            await internalState.shellApi.Mongo('dbname', {
+            await instanceState.shellApi.Mongo('dbname', {
               keyVaultNamespace: 'encryption.dataKeys'
             } as any);
           } catch (e) {
@@ -362,7 +362,7 @@ describe('ShellApi', () => {
         });
         it('throws for unknown args', async() => {
           try {
-            await internalState.shellApi.Mongo('dbname', {
+            await instanceState.shellApi.Mongo('dbname', {
               keyVaultNamespace: 'encryption.dataKeys',
               kmsProviders: {
                 aws: {
@@ -378,7 +378,7 @@ describe('ShellApi', () => {
           expect.fail('failed to throw expected error');
         });
         it('passes along optional arguments', async() => {
-          await internalState.shellApi.Mongo('dbname', {
+          await instanceState.shellApi.Mongo('dbname', {
             keyVaultNamespace: 'encryption.dataKeys',
             kmsProviders: {
               local: {
@@ -406,14 +406,14 @@ describe('ShellApi', () => {
     describe('connect', () => {
       it('returns a new DB', async() => {
         serviceProvider.platform = ReplPlatform.CLI;
-        const db = await internalState.shellApi.connect('localhost:27017', 'username', 'pwd');
+        const db = await instanceState.shellApi.connect('localhost:27017', 'username', 'pwd');
         expect((await toShellResult(db)).type).to.equal('Database');
         expect(db.getMongo()._uri).to.equal('mongodb://localhost:27017/test?directConnection=true&serverSelectionTimeoutMS=2000');
       });
       it('fails with no arg', async() => {
         serviceProvider.platform = ReplPlatform.CLI;
         try {
-          await (internalState.shellApi as any).connect();
+          await (instanceState.shellApi as any).connect();
         } catch (e) {
           return expect(e.name).to.equal('MongoshInvalidInputError');
         }
@@ -422,7 +422,7 @@ describe('ShellApi', () => {
     });
     describe('version', () => {
       it('returns a string for the version', () => {
-        const version = internalState.shellApi.version();
+        const version = instanceState.shellApi.version();
         const expected = require('../package.json').version;
         expect(version).to.be.a('string');
         expect(version).to.equal(expected);
@@ -432,7 +432,7 @@ describe('ShellApi', () => {
   describe('from context', () => {
     let serviceProvider: StubbedInstance<ServiceProvider>;
     let bus: EventEmitter;
-    let internalState: ShellInternalState;
+    let instanceState: ShellInstanceState;
     let mongo: Mongo;
     let evaluationListener: StubbedInstance<EvaluationListener>;
 
@@ -447,19 +447,19 @@ describe('ShellApi', () => {
       mongo = stubInterface<Mongo>();
       mongo._serviceProvider = serviceProvider;
       evaluationListener = stubInterface<EvaluationListener>();
-      internalState = new ShellInternalState(serviceProvider, bus);
-      internalState.setCtx({});
-      internalState.mongos.push(mongo);
-      internalState.currentDb._mongo = mongo;
-      internalState.setEvaluationListener(evaluationListener);
+      instanceState = new ShellInstanceState(serviceProvider, bus);
+      instanceState.setCtx({});
+      instanceState.mongos.push(mongo);
+      instanceState.currentDb._mongo = mongo;
+      instanceState.setEvaluationListener(evaluationListener);
     });
     it('calls help function', async() => {
-      expect((await toShellResult(internalState.context.use.help())).type).to.equal('Help');
-      expect((await toShellResult(internalState.context.use.help)).type).to.equal('Help');
+      expect((await toShellResult(instanceState.context.use.help())).type).to.equal('Help');
+      expect((await toShellResult(instanceState.context.use.help)).type).to.equal('Help');
     });
     describe('use', () => {
       beforeEach(() => {
-        internalState.context.use('testdb');
+        instanceState.context.use('testdb');
       });
       it('calls use with arg', () => {
         expect(mongo.use).to.have.been.calledWith('testdb');
@@ -467,7 +467,7 @@ describe('ShellApi', () => {
     });
     describe('show', () => {
       beforeEach(() => {
-        internalState.context.show('databases');
+        instanceState.context.show('databases');
       });
       it('calls show with arg', () => {
         expect(mongo.show).to.have.been.calledWith('databases');
@@ -475,14 +475,14 @@ describe('ShellApi', () => {
     });
     describe('it', () => {
       it('returns empty result if no current cursor', async() => {
-        internalState.currentCursor = null;
-        const res: any = await internalState.context.it();
+        instanceState.currentCursor = null;
+        const res: any = await instanceState.context.it();
         expect((await toShellResult(res)).type).to.deep.equal('CursorIterationResult');
       });
       it('calls _it on current Cursor', async() => {
-        internalState.currentCursor = stubInterface<Cursor>();
-        await internalState.context.it();
-        expect(internalState.currentCursor._it).to.have.been.called;
+        instanceState.currentCursor = stubInterface<Cursor>();
+        await instanceState.context.it();
+        expect(instanceState.currentCursor._it).to.have.been.called;
       });
     });
     describe('Mongo', () => {
@@ -490,19 +490,19 @@ describe('ShellApi', () => {
         serviceProvider.platform = ReplPlatform.CLI;
       });
       it('returns a new Mongo object', async() => {
-        const m = await internalState.context.Mongo('mongodb://127.0.0.1:27017');
+        const m = await instanceState.context.Mongo('mongodb://127.0.0.1:27017');
         expect((await toShellResult(m)).type).to.equal('Mongo');
         expect(m._uri).to.equal('mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000');
       });
       it('returns a new Mongo object with new', async() => {
-        const m = await new internalState.context.Mongo('mongodb://127.0.0.1:27017');
+        const m = await new instanceState.context.Mongo('mongodb://127.0.0.1:27017');
         expect((await toShellResult(m)).type).to.equal('Mongo');
         expect(m._uri).to.equal('mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000');
       });
       it('fails for non-CLI', async() => {
         serviceProvider.platform = ReplPlatform.Browser;
         try {
-          await internalState.shellApi.Mongo('mongodb://127.0.0.1:27017');
+          await instanceState.shellApi.Mongo('mongodb://127.0.0.1:27017');
         } catch (e) {
           return expect(e.name).to.equal('MongoshUnimplementedError');
         }
@@ -512,13 +512,13 @@ describe('ShellApi', () => {
     describe('connect', () => {
       it('returns a new DB', async() => {
         serviceProvider.platform = ReplPlatform.CLI;
-        const db = await internalState.context.connect('mongodb://127.0.0.1:27017');
+        const db = await instanceState.context.connect('mongodb://127.0.0.1:27017');
         expect((await toShellResult(db)).type).to.equal('Database');
         expect(db.getMongo()._uri).to.equal('mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000');
       });
       it('handles username/pwd', async() => {
         serviceProvider.platform = ReplPlatform.CLI;
-        const db = await internalState.context.connect('mongodb://127.0.0.1:27017', 'username', 'pwd');
+        const db = await instanceState.context.connect('mongodb://127.0.0.1:27017', 'username', 'pwd');
         expect((await toShellResult(db)).type).to.equal('Database');
         expect(db.getMongo()._uri).to.equal('mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000');
         expect(serviceProvider.getNewConnection).to.have.been.calledOnceWithExactly(
@@ -528,7 +528,7 @@ describe('ShellApi', () => {
     });
     describe('version', () => {
       it('returns a string for the version', () => {
-        const version = internalState.context.version();
+        const version = instanceState.context.version();
         const expected = require('../package.json').version;
         expect(version).to.be.a('string');
         expect(version).to.equal(expected);
@@ -536,9 +536,9 @@ describe('ShellApi', () => {
     });
     describe('isInteractive', () => {
       it('returns a boolean', () => {
-        expect(internalState.context.isInteractive()).to.equal(false);
-        internalState.isInteractive = true;
-        expect(internalState.context.isInteractive()).to.equal(true);
+        expect(instanceState.context.isInteractive()).to.equal(false);
+        instanceState.isInteractive = true;
+        expect(instanceState.context.isInteractive()).to.equal(true);
       });
     });
     for (const cmd of ['exit', 'quit']) {
@@ -547,7 +547,7 @@ describe('ShellApi', () => {
         it('instructs the shell to exit', async() => {
           evaluationListener.onExit.resolves();
           try {
-            await internalState.context[cmd]();
+            await instanceState.context[cmd]();
             expect.fail('missed exception');
           } catch (e) {
             // We should be getting an exception because we’re not actually exiting.
@@ -558,7 +558,7 @@ describe('ShellApi', () => {
         it('passes on the exit code, if provided', async() => {
           evaluationListener.onExit.resolves();
           try {
-            await internalState.context[cmd](1);
+            await instanceState.context[cmd](1);
             expect.fail('missed exception');
           } catch (e) {
             // We should be getting an exception because we’re not actually exiting.
@@ -570,27 +570,27 @@ describe('ShellApi', () => {
     }
     describe('enableTelemetry', () => {
       it('calls .setConfig("enableTelemetry") with true', () => {
-        internalState.context.enableTelemetry();
+        instanceState.context.enableTelemetry();
         expect(evaluationListener.setConfig).to.have.been.calledWith('enableTelemetry', true);
       });
     });
     describe('disableTelemetry', () => {
       it('calls .setConfig("enableTelemetry") with false', () => {
-        internalState.context.disableTelemetry();
+        instanceState.context.disableTelemetry();
         expect(evaluationListener.setConfig).to.have.been.calledWith('enableTelemetry', false);
       });
     });
     describe('passwordPrompt', () => {
       it('asks the evaluation listener for a password', async() => {
         evaluationListener.onPrompt.resolves('passw0rd');
-        const pwd = await internalState.context.passwordPrompt();
+        const pwd = await instanceState.context.passwordPrompt();
         expect(pwd).to.equal('passw0rd');
         expect(evaluationListener.onPrompt).to.have.been.calledWith('Enter password', 'password');
       });
       it('fails for currently unsupported platforms', async() => {
-        internalState.setEvaluationListener({});
+        instanceState.setEvaluationListener({});
         try {
-          await internalState.context.passwordPrompt();
+          await instanceState.context.passwordPrompt();
           expect.fail('missed exception');
         } catch (err) {
           expect(err.message).to.equal('[COMMON-90002] passwordPrompt() is not available in this shell');
@@ -600,7 +600,7 @@ describe('ShellApi', () => {
     describe('sleep', () => {
       it('suspends execution', async() => {
         const now = Date.now();
-        await internalState.context.sleep(50);
+        await instanceState.context.sleep(50);
         const then = Date.now();
         expect(then - now).to.be.greaterThan(40);
       });
@@ -608,7 +608,7 @@ describe('ShellApi', () => {
     describe('cls', () => {
       it('clears the screen', async() => {
         evaluationListener.onClearCommand.resolves();
-        await internalState.context.cls();
+        await instanceState.context.cls();
         expect(evaluationListener.onClearCommand).to.have.been.calledWith();
       });
     });
@@ -619,21 +619,21 @@ describe('ShellApi', () => {
         // eslint-disable-next-line @typescript-eslint/require-await
         evaluationListener.onLoad.callsFake(async(filename: string) => {
           expect(filename).to.equal('abc.js');
-          expect(internalState.context.__filename).to.equal(undefined);
-          expect(internalState.context.__dirname).to.equal(undefined);
+          expect(instanceState.context.__filename).to.equal(undefined);
+          expect(instanceState.context.__dirname).to.equal(undefined);
           return {
             resolvedFilename: '/resolved/abc.js',
             // eslint-disable-next-line @typescript-eslint/require-await
             evaluate: async() => {
-              expect(internalState.context.__filename).to.equal('/resolved/abc.js');
-              expect(internalState.context.__dirname).to.equal('/resolved');
+              expect(instanceState.context.__filename).to.equal('/resolved/abc.js');
+              expect(instanceState.context.__dirname).to.equal('/resolved');
             }
           };
         });
-        await internalState.context.load('abc.js');
+        await instanceState.context.load('abc.js');
         expect(evaluationListener.onLoad).to.have.callCount(1);
-        expect(internalState.context.__filename).to.equal(undefined);
-        expect(internalState.context.__dirname).to.equal(undefined);
+        expect(instanceState.context.__filename).to.equal(undefined);
+        expect(instanceState.context.__dirname).to.equal(undefined);
         expect(apiLoadFileListener).to.have.been.calledWith({ nested: false, filename: 'abc.js' });
       });
       it('emits different events depending on nesting level', async() => {
@@ -647,11 +647,11 @@ describe('ShellApi', () => {
               if (filename === 'def.js') {
                 return;
               }
-              await internalState.context.load('def.js');
+              await instanceState.context.load('def.js');
             }
           };
         });
-        await internalState.context.load('abc.js');
+        await instanceState.context.load('abc.js');
         expect(apiLoadFileListener).to.have.callCount(2);
         expect(apiLoadFileListener).to.have.been.calledWith({ nested: false, filename: 'abc.js' });
         expect(apiLoadFileListener).to.have.been.calledWith({ nested: true, filename: 'def.js' });
@@ -662,7 +662,7 @@ describe('ShellApi', () => {
       describe(cmd, () => {
         it('prints values', async() => {
           evaluationListener.onPrint.resolves();
-          await internalState.context[cmd](1, 2);
+          await instanceState.context[cmd](1, 2);
           expect(evaluationListener.onPrint).to.have.been.calledWith([
             { printable: 1, rawValue: 1, type: null },
             { printable: 2, rawValue: 2, type: null }
@@ -678,7 +678,7 @@ describe('ShellApi', () => {
         let validators;
 
         beforeEach(() => {
-          config = internalState.context.config;
+          config = instanceState.context.config;
           store = { somekey: '' };
           validators = {};
           // eslint-disable-next-line @typescript-eslint/require-await
@@ -725,7 +725,7 @@ describe('ShellApi', () => {
         let config;
 
         beforeEach(() => {
-          config = internalState.context.config;
+          config = instanceState.context.config;
         });
 
         it('will work with defaults', async() => {

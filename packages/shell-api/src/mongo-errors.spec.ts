@@ -6,7 +6,7 @@ import { StubbedInstance, stubInterface } from 'ts-sinon';
 import { bson, ServiceProvider } from '@mongosh/service-provider-core';
 import Database from './database';
 import { EventEmitter } from 'events';
-import ShellInternalState from './shell-internal-state';
+import ShellInstanceState from './shell-instance-state';
 import Collection from './collection';
 
 class MongoshInternalError extends Error {
@@ -69,7 +69,7 @@ describe('mongo-errors', () => {
     let serviceProvider: StubbedInstance<ServiceProvider>;
     let database: Database;
     let bus: StubbedInstance<EventEmitter>;
-    let internalState: ShellInternalState;
+    let instanceState: ShellInstanceState;
     let collection: Collection;
 
     beforeEach(() => {
@@ -79,8 +79,8 @@ describe('mongo-errors', () => {
       serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
       serviceProvider.initialDb = 'test';
       serviceProvider.bsonLibrary = bson;
-      internalState = new ShellInternalState(serviceProvider, bus);
-      mongo = new Mongo(internalState, undefined, undefined, undefined, serviceProvider);
+      instanceState = new ShellInstanceState(serviceProvider, bus);
+      mongo = new Mongo(instanceState, undefined, undefined, undefined, serviceProvider);
       database = new Database(mongo, 'db1');
       collection = new Collection(mongo, database, 'coll1');
     });

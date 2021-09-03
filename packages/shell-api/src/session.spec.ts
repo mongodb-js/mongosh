@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import Session from './session';
 import { ServiceProvider, ClientSession as ServiceProviderSession, bson } from '@mongosh/service-provider-core';
 import { StubbedInstance, stubInterface } from 'ts-sinon';
-import ShellInternalState from './shell-internal-state';
+import ShellInstanceState from './shell-instance-state';
 import { signatures, toShellResult } from './index';
 import Mongo from './mongo';
 import {
@@ -51,7 +51,7 @@ describe('Session', () => {
     let mongo: Mongo;
     let options;
     let session: Session;
-    let internalState: ShellInternalState;
+    let instanceState: ShellInstanceState;
     let serviceProvider: StubbedInstance<ServiceProvider>;
     beforeEach(() => {
       options = {
@@ -65,8 +65,8 @@ describe('Session', () => {
       serviceProvider = stubInterface<ServiceProvider>();
       serviceProvider.initialDb = 'test';
       serviceProvider.bsonLibrary = bson;
-      internalState = new ShellInternalState(serviceProvider, new EventEmitter());
-      mongo = new Mongo(internalState, undefined, undefined, undefined, serviceProvider);
+      instanceState = new ShellInstanceState(serviceProvider, new EventEmitter());
+      mongo = new Mongo(instanceState, undefined, undefined, undefined, serviceProvider);
       session = new Session(mongo, options, serviceProviderSession);
     });
 
@@ -141,7 +141,7 @@ describe('Session', () => {
   describe('integration', () => {
     const [ srv0 ] = startTestCluster(['--replicaset']);
     let serviceProvider: CliServiceProvider;
-    let internalState: ShellInternalState;
+    let instanceState: ShellInstanceState;
     let mongo: Mongo;
     let session: Session;
     let databaseName: string;
@@ -157,8 +157,8 @@ describe('Session', () => {
     beforeEach(async() => {
       databaseName = `test-${Date.now()}`;
       serviceProvider = await CliServiceProvider.connect(await srv0.connectionString(), {}, {}, new EventEmitter());
-      internalState = new ShellInternalState(serviceProvider);
-      mongo = new Mongo(internalState, undefined, undefined, undefined, serviceProvider);
+      instanceState = new ShellInstanceState(serviceProvider);
+      mongo = new Mongo(instanceState, undefined, undefined, undefined, serviceProvider);
       await ensureMaster(mongo.getDB(ADMIN_DB), 1000, await srv0.hostport());
     });
 

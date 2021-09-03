@@ -4,25 +4,25 @@ import {
   classDeprecated
 } from './decorators';
 import { printDeprecationWarning } from './deprecation-warning';
-import ShellInternalState from './shell-internal-state';
+import ShellInstanceState from './shell-instance-state';
 
 @shellApiClassDefault
 @classDeprecated
 export class DBQuery extends ShellApiClass {
-  _internalState: ShellInternalState;
+  _instanceState: ShellInstanceState;
 
-  constructor(internalState: ShellInternalState) {
+  constructor(instanceState: ShellInstanceState) {
     super();
-    this._internalState = internalState;
+    this._instanceState = instanceState;
   }
 
   get shellBatchSize(): number | undefined {
-    return this._internalState.displayBatchSizeFromDBQuery;
+    return this._instanceState.displayBatchSizeFromDBQuery;
   }
 
   set shellBatchSize(value: number | undefined) {
     printDeprecationWarning(
       'DBQuery.shellBatchSize is deprecated, please use config.set("displayBatchSize") instead');
-    this._internalState.displayBatchSizeFromDBQuery = value;
+    this._instanceState.displayBatchSizeFromDBQuery = value;
   }
 }
