@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Sun Sep 05 2021.
+This document was automatically generated on Mon Sep 06 2021.
 
 ## List of dependencies
 
@@ -69,6 +69,7 @@ Package|Version|License
 **[@types/babel__template](#10a3b95570c9b42a3ac3a0bcb3695ffb5252513019e944d4f137e2f05d64f66d)**|7.4.1|MIT
 **[@types/babel__traverse](#49354c25e4c67737cbe7e9a64e5afd2eb9dd5a2d86fa15625409b0959c2e0381)**|7.14.2|MIT
 **[@types/chai](#f1c196dcf5d38202d6c4b2fc2058a414fe9341c59206d408c11714f97952f0ab)**|4.2.11|MIT
+**[@types/node](#05b4f940bbcecb5d857d91cbbe07beeefbcc3e42f2c9cbe94d2667128baddd0d)**|14.14.6|MIT
 **[@types/node](#1983b54da813160115ceb31cab9acb6f515e8382fef467917b3117b9e2d651f9)**|16.4.11|MIT
 **[@types/sinon](#725d25542bdd70fdafa8c25453f70b158cede4bcfc539a569990c8b17ee78872)**|7.5.2|MIT
 **[@types/sinon-chai](#d1e86a93d7ef8073206c62f9815dd5db0438eaf693acd22d9f36c16c25e8538a)**|3.2.4|MIT
@@ -185,7 +186,7 @@ Package|Version|License
 **[mongodb-build-info](#3e1ab3564d63f8a06a80cc2b752a458eabdaa33318303341aa6f7a9461115958)**|1.2.0|Apache-2.0
 **[mongodb-client-encryption](#2400753e4c313cbe1059fed67cfe07c83a8887810d236b84878dad8fdfba9ef7)**|1.2.6|Apache-2.0
 **[mongodb-connection-string-url](#151d9f737fe1a273e3e9915f9aa4c9194d52d2b9ed803047959027244af7036a)**|2.0.0|Apache-2.0
-**[mongodb-log-writer](#61290c69a13d866ac241e8bb0839613707dd668161a2e2ea98b63fdd3fb6bfb4)**|1.0.0|Apache-2.0
+**[mongodb-log-writer](#e2f16e6ca6f48b57b31b3f55efb66af0fb0a5343e1fe83c2fe62cab63d7e0f37)**|1.0.2|Apache-2.0
 **[mongodb-redact](#00a2cfed57df1e8b912b751b08bee4de24ad0189840c99820ebc00c1b219a421)**|0.2.2|Apache-2.0
 **[ms](#0a987b2f79ff37005e452a5afa7dacd3042061a7077054d2ba9cabacd88506d2)**|2.1.2|MIT
 **[ms](#484b814b85d5028e34246147c8fc901d33570202bd7cdc3703c0ed1078eba0aa)**|2.0.0|MIT
@@ -4322,6 +4323,86 @@ Authors:
 * Joey Kilpatrick (https://github.com/joeykilpatrick)
 
 
+<a id="05b4f940bbcecb5d857d91cbbe07beeefbcc3e42f2c9cbe94d2667128baddd0d"></a>
+### [@types/node](https://www.npmjs.com/package/@types/node) (version 14.14.6)
+<!-- initially found at packages/cli-repl/node_modules/@types/node -->
+> TypeScript definitions for Node.js
+
+License tags: MIT
+
+License files:
+* LICENSE:
+
+          MIT License
+      
+          Copyright (c) Microsoft Corporation.
+      
+          Permission is hereby granted, free of charge, to any person obtaining a copy
+          of this software and associated documentation files (the "Software"), to deal
+          in the Software without restriction, including without limitation the rights
+          to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+          copies of the Software, and to permit persons to whom the Software is
+          furnished to do so, subject to the following conditions:
+      
+          The above copyright notice and this permission notice shall be included in all
+          copies or substantial portions of the Software.
+      
+          THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+          IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+          FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+          AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+          LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+          OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+          SOFTWARE
+      
+
+Authors:
+* Microsoft TypeScript (https://github.com/Microsoft)
+* DefinitelyTyped (https://github.com/DefinitelyTyped)
+* Alberto Schiabel (https://github.com/jkomyno)
+* Alexander T. (https://github.com/a-tarasyuk)
+* Alvis HT Tang (https://github.com/alvis)
+* Andrew Makarov (https://github.com/r3nya)
+* Benjamin Toueg (https://github.com/btoueg)
+* Bruno Scheufler (https://github.com/brunoscheufler)
+* Chigozirim C. (https://github.com/smac89)
+* David Junger (https://github.com/touffy)
+* Deividas Bakanas (https://github.com/DeividasBakanas)
+* Eugene Y. Q. Shen (https://github.com/eyqs)
+* Flarna (https://github.com/Flarna)
+* Hannes Magnusson (https://github.com/Hannes-Magnusson-CK)
+* Hoàng Văn Khải (https://github.com/KSXGitHub)
+* Huw (https://github.com/hoo29)
+* Kelvin Jin (https://github.com/kjin)
+* Klaus Meinhardt (https://github.com/ajafff)
+* Lishude (https://github.com/islishude)
+* Mariusz Wiktorczyk (https://github.com/mwiktorczyk)
+* Mohsen Azimi (https://github.com/mohsen1)
+* Nicolas Even (https://github.com/n-e)
+* Nikita Galkin (https://github.com/galkin)
+* Parambir Singh (https://github.com/parambirs)
+* Sebastian Silbermann (https://github.com/eps1lon)
+* Simon Schick (https://github.com/SimonSchick)
+* Thomas den Hollander (https://github.com/ThomasdenH)
+* Wilco Bakker (https://github.com/WilcoBakker)
+* wwwy3y3 (https://github.com/wwwy3y3)
+* Samuel Ainsworth (https://github.com/samuela)
+* Kyle Uehlein (https://github.com/kuehlein)
+* Jordi Oliveras Rovira (https://github.com/j-oliveras)
+* Thanik Bhongbhibhat (https://github.com/bhongy)
+* Marcin Kopacz (https://github.com/chyzwar)
+* Trivikram Kamat (https://github.com/trivikr)
+* Minh Son Nguyen (https://github.com/nguymin4)
+* Junxiao Shi (https://github.com/yoursunny)
+* Ilia Baryshnikov (https://github.com/qwelias)
+* ExE Boss (https://github.com/ExE-Boss)
+* Surasak Chaisurin (https://github.com/Ryan-Willpower)
+* Piotr Błażejewicz (https://github.com/peterblazejewicz)
+* Anna Henningsen (https://github.com/addaleax)
+* Jason Kwok (https://github.com/JasonHK)
+* Victor Perin (https://github.com/victorperin)
+
+
 <a id="1983b54da813160115ceb31cab9acb6f515e8382fef467917b3117b9e2d651f9"></a>
 ### [@types/node](https://www.npmjs.com/package/@types/node) (version 16.4.11)
 <!-- initially found at packages/service-provider-core/node_modules/@types/node -->
@@ -4489,7 +4570,7 @@ Authors:
 
 <a id="e9aa0fc153af1bc4c2a1570ac028926fd49e92fde54bb80018b3cdda575c7b25"></a>
 ### [@types/webidl-conversions](https://www.npmjs.com/package/@types/webidl-conversions) (version 6.1.1)
-<!-- initially found at packages/service-provider-core/node_modules/@types/webidl-conversions -->
+<!-- initially found at packages/cli-repl/node_modules/@types/webidl-conversions -->
 > TypeScript definitions for webidl-conversions
 
 License tags: MIT
@@ -4526,7 +4607,7 @@ Authors:
 
 <a id="642118a8c80bc0e1bdb85217ed44e18ec26884fa5350dd6e807d7ef943c9a849"></a>
 ### [@types/whatwg-url](https://www.npmjs.com/package/@types/whatwg-url) (version 8.2.1)
-<!-- initially found at packages/service-provider-core/node_modules/@types/whatwg-url -->
+<!-- initially found at packages/cli-repl/node_modules/@types/whatwg-url -->
 > TypeScript definitions for whatwg-url
 
 License tags: MIT
@@ -5887,7 +5968,7 @@ Authors:
 
 <a id="c7b75d2e1bf262ee22e74016f241060d719d7a72ef2c84c523cf190e21ec6462"></a>
 ### [bson](https://www.npmjs.com/package/bson) (version 4.5.1)
-<!-- initially found at packages/cli-repl/node_modules/mongodb-log-writer/node_modules/bson -->
+<!-- initially found at packages/cli-repl/node_modules/bson -->
 > A bson parser for node.js and the browser
 
 License tags: Apache-2.0
@@ -11221,7 +11302,7 @@ Authors:
 
 <a id="151d9f737fe1a273e3e9915f9aa4c9194d52d2b9ed803047959027244af7036a"></a>
 ### [mongodb-connection-string-url](https://www.npmjs.com/package/mongodb-connection-string-url) (version 2.0.0)
-<!-- initially found at packages/service-provider-core/node_modules/mongodb-connection-string-url -->
+<!-- initially found at packages/cli-repl/node_modules/mongodb-connection-string-url -->
 > MongoDB connection strings, based on the WhatWG URL API
 
 License tags: Apache-2.0
@@ -11424,8 +11505,8 @@ License files:
       
 
 
-<a id="61290c69a13d866ac241e8bb0839613707dd668161a2e2ea98b63fdd3fb6bfb4"></a>
-### [mongodb-log-writer](https://www.npmjs.com/package/mongodb-log-writer) (version 1.0.0)
+<a id="e2f16e6ca6f48b57b31b3f55efb66af0fb0a5343e1fe83c2fe62cab63d7e0f37"></a>
+### [mongodb-log-writer](https://www.npmjs.com/package/mongodb-log-writer) (version 1.0.2)
 <!-- initially found at packages/cli-repl/node_modules/mongodb-log-writer -->
 > A library for writing MongoDB logv2 messages
 
@@ -14336,7 +14417,7 @@ Authors:
 
 <a id="181343fca47e669c997ddb536b6caff3c769402b0674612e32d3c274719049c8"></a>
 ### [tr46](https://www.npmjs.com/package/tr46) (version 2.1.0)
-<!-- initially found at packages/service-provider-core/node_modules/mongodb-connection-string-url/node_modules/tr46 -->
+<!-- initially found at packages/cli-repl/node_modules/tr46 -->
 > An implementation of the Unicode UTS #46: Unicode IDNA Compatibility Processing
 
 License tags: MIT
@@ -14518,7 +14599,7 @@ License files:
 
 <a id="0868d5fd0f1744b732e4832b5dd5bd9ce27ffe9dcaa6cacda5a4efca750da5fb"></a>
 ### [webidl-conversions](https://www.npmjs.com/package/webidl-conversions) (version 6.1.0)
-<!-- initially found at packages/service-provider-core/node_modules/webidl-conversions -->
+<!-- initially found at packages/cli-repl/node_modules/webidl-conversions -->
 > Implements the WebIDL algorithms for converting to and from JavaScript values
 
 License tags: BSD-2-Clause
@@ -14546,7 +14627,7 @@ Authors:
 
 <a id="27c192a5f829a75dd40ddb7c74db291436ef4a59c16e9ed876ee2ecee80c460a"></a>
 ### [whatwg-url](https://www.npmjs.com/package/whatwg-url) (version 9.1.0)
-<!-- initially found at packages/service-provider-core/node_modules/mongodb-connection-string-url/node_modules/whatwg-url -->
+<!-- initially found at packages/cli-repl/node_modules/whatwg-url -->
 > An implementation of the WHATWG URL Standard's URL API and parsing machinery
 
 License tags: MIT
