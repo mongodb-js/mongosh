@@ -9,6 +9,7 @@ import { promisify } from 'util';
 import { eventually } from '../../../testing/eventually';
 import { MongodSetup, skipIfServerVersion, startTestServer } from '../../../testing/integration-testing-hooks';
 import { expect, fakeTTYProps, readReplLogfile, tick, useTmpdir, waitBus, waitCompletion, waitEval } from '../test/repl-helpers';
+import ConnectionString from 'mongodb-connection-string-url';
 import CliRepl, { CliReplOptions } from './cli-repl';
 import { CliReplErrors } from './error-codes';
 const { EJSON } = bson;
@@ -613,7 +614,7 @@ describe('CliRepl', () => {
       input.write('.exit\n');
     });
 
-    it('asks for a password if one is required', async() => {
+    it('asks for a password if one is required, options edition', async() => {
       outputStream.on('data', (chunk) => {
         if (chunk.includes('Enter password')) {
           setImmediate(() => input.write('i want food\n'));
@@ -629,6 +630,26 @@ describe('CliRepl', () => {
       }
       expect(threw).to.be.true;
       expect(auth.password).to.equal('i want food');
+      expect(output).to.match(/^Enter password: \**$/m);
+      input.write('.exit\n');
+    });
+
+    it('asks for a password if one is required, connection string edition', async() => {
+      outputStream.on('data', (chunk) => {
+        if (chunk.includes('Enter password')) {
+          setImmediate(() => input.write('i want food\n'));
+        }
+      });
+      const cs = new ConnectionString(await testServer.connectionString());
+      cs.username = 'amy';
+      let threw = true;
+      try {
+        await cliRepl.start(cs.href, {});
+        threw = false;
+      } catch (err) {
+        expect(err.message).to.equal('Authentication failed.');
+      }
+      expect(threw).to.be.true;
       expect(output).to.match(/^Enter password: \**$/m);
       input.write('.exit\n');
     });
