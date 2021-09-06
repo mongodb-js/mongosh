@@ -1287,6 +1287,9 @@ const translations: Catalog = {
               link: 'https://docs.mongodb.com/manual/reference/method/db.printReplicationInfo',
               description: 'Formats sh.getReplicationInfo',
               example: 'db.printReplicationInfo()'
+            },
+            setSecondaryOk: {
+              description: 'This method is deprecated. Use db.getMongo().setReadPref() instead'
             }
           }
         }
@@ -1471,6 +1474,9 @@ const translations: Catalog = {
               link: 'https://docs.mongodb.com/manual/reference/method/rs.syncFrom',
               description: 'Sets the member that this replica set member will sync from, overriding the default sync target selection logic.',
               example: 'rs.syncFrom(host)',
+            },
+            secondaryOk: {
+              description: 'This method is deprecated. Use db.getMongo().setReadPref() instead'
             }
           }
         }
@@ -1759,7 +1765,7 @@ const translations: Catalog = {
               description: 'This method is deprecated'
             },
             setSecondaryOk: {
-              description: 'This method is deprecated'
+              description: 'This method is deprecated. Use .setReadPref() instead'
             },
             isCausalConsistency: {
               description: 'This method is deprecated. Causal consistency for drivers is set via Mongo.startSession and can be checked via session.getOptions. The default value is true'
