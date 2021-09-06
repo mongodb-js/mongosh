@@ -1421,6 +1421,12 @@ export default class Database extends ShellApiWithMongoClass {
     throw new MongoshDeprecatedError('Method deprecated, use db.printSecondaryReplicationInfo instead');
   }
 
+  @deprecated
+  @returnsPromise
+  async setSecondaryOk(): Promise<void> {
+    await this._mongo.setSecondaryOk();
+  }
+
   @serverVersions(['3.1.0', ServerVersions.latest])
   @topologies([Topologies.ReplSet, Topologies.Sharded])
   @apiVersions([1])

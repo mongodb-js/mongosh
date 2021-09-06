@@ -611,15 +611,52 @@ describe('Mongo', () => {
       });
     });
     describe('deprecated mongo methods', () => {
-      ['setSlaveOk', 'setSecondaryOk'].forEach((t) => {
-        it(t, () => {
-          try {
-            mongo[t]();
-          } catch (e) {
-            return expect(e).to.be.instanceOf(MongoshDeprecatedError);
+      it('setSlaveOk', () => {
+        try {
+          mongo.setSlaveOk();
+        } catch (e) {
+          return expect(e).to.be.instanceOf(MongoshDeprecatedError);
+        }
+        expect.fail();
+      });
+      it('setSecondaryOk (starts as primary)', async() => {
+        instanceState.setCtx({}); // Needed for instanceState.context.print(); Should be instanceState.shellApi.print() anyway.
+        const printCalls = [];
+        instanceState.setEvaluationListener({
+          onPrint(...args: any[]) {
+            printCalls.push(args);
           }
-          expect.fail();
         });
+        serviceProvider.getReadPreference.returns({ mode: 'primary' } as any);
+        serviceProvider.resetConnectionOptions.resolves();
+        await mongo.setSecondaryOk();
+        expect((mongo as any)._readPreferenceWasExplicitlyRequested).to.equal(true);
+        expect(printCalls.map(call => call[0][0].printable))
+          .to.deep.equal([
+            'DeprecationWarning: .setSecondaryOk() is deprecated. Use .setReadPref("primaryPreferred") instead',
+            'Setting read preference from "primary" to "primaryPreferred"'
+          ]);
+      });
+      it('setSecondaryOk (starts as secondary)', async() => {
+        instanceState.setCtx({}); // Needed for instanceState.context.print(); Should be instanceState.shellApi.print() anyway.
+        const printCalls = [];
+        instanceState.setEvaluationListener({
+          onPrint(...args: any[]) {
+            printCalls.push(args);
+          }
+        });
+        serviceProvider.getReadPreference.returns({ mode: 'secondary' } as any);
+        serviceProvider.resetConnectionOptions.resolves();
+        await mongo.setSecondaryOk();
+        expect((mongo as any)._readPreferenceWasExplicitlyRequested).to.equal(false);
+        expect(printCalls.map(call => call[0][0].printable))
+          .to.deep.equal([
+            // XXX Whether the deprecation warning is printed or not depends on whether
+            // the test above it runs or not. This is not good! See the TODO comment
+            // in deprecation-warning.ts.
+            // 'DeprecationWarning: .setSecondaryOk() is deprecated. Use .setReadPref("primaryPreferred") instead',
+            'Leaving read preference unchanged (is already "secondary")'
+          ]);
       });
     });
     describe('watch', () => {

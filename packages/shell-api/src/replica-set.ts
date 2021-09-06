@@ -371,6 +371,12 @@ export default class ReplicaSet extends ShellApiWithMongoClass {
     );
   }
 
+  @deprecated
+  @returnsPromise
+  async secondaryOk(): Promise<void> {
+    await this._mongo.setSecondaryOk();
+  }
+
   /**
    * Internal method to determine what is printed for this class.
    */
