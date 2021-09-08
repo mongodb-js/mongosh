@@ -30,7 +30,7 @@ const tsRules = {
 module.exports = {
   plugins: ['mocha'],
   overrides: [{
-    files: ['**/*.js'],
+    files: ['**/*.js', '**/*.jsx'],
     extends: [
       'eslint-config-mongodb-js/react'
     ],
@@ -39,7 +39,7 @@ module.exports = {
     }
   },
   {
-    files: ['**/*.ts'],
+    files: ['**/*.ts', '**/*.tsx'],
     parser: '@typescript-eslint/parser',
     extends: [
       'eslint-config-mongodb-js/react',
