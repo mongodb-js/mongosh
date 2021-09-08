@@ -337,7 +337,8 @@ export interface MongoshBusEventsMap {
 
 export interface MongoshBus {
   // TypeScript uses something like this itself for its EventTarget definitions.
-  on<K extends keyof MongoshBusEventsMap>(event: K, listener: MongoshBusEventsMap[K]): this;
+  addListener<K extends keyof MongoshBusEventsMap>(event: K, listener: MongoshBusEventsMap[K]): this;
+  removeListener<K extends keyof MongoshBusEventsMap>(event: K, listener: MongoshBusEventsMap[K]): this;
   once<K extends keyof MongoshBusEventsMap>(event: K, listener: MongoshBusEventsMap[K]): this;
   emit<K extends keyof MongoshBusEventsMap>(event: K, ...args: MongoshBusEventsMap[K] extends (...args: infer P) => any ? P : never): unknown;
 }

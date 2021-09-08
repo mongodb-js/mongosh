@@ -4,6 +4,7 @@ import i18n from '@mongosh/i18n';
 import { bson, AutoEncryptionOptions } from '@mongosh/service-provider-core';
 import { CliOptions, CliServiceProvider, MongoClientOptions } from '@mongosh/service-provider-server';
 import { SnippetManager } from '@mongosh/snippet-manager';
+import { GettingStartedManager } from '@mongosh/getting-started';
 import Analytics from 'analytics-node';
 import askpassword from 'askpassword';
 import ConnectionString from 'mongodb-connection-string-url';
@@ -218,6 +219,11 @@ class CliRepl {
         instanceState: this.mongoshRepl.runtimeState().instanceState
       });
     }
+
+    new GettingStartedManager({
+      instanceState: this.mongoshRepl.runtimeState().instanceState,
+      displayPrompt: () => this.mongoshRepl.runtimeState().repl.displayPrompt()
+    })
 
     const commandLineLoadFiles = this.cliOptions.fileNames ?? [];
     if (commandLineLoadFiles.length > 0 || this.cliOptions.eval !== undefined) {
