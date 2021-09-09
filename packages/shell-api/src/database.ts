@@ -1427,7 +1427,7 @@ export default class Database extends ShellApiWithMongoClass {
     await this._mongo.setSecondaryOk();
   }
 
-  @serverVersions(['3.1.0', ServerVersions.latest])
+  @serverVersions(['4.4.0', ServerVersions.latest])
   @topologies([Topologies.ReplSet, Topologies.Sharded])
   @apiVersions([1])
   @returnsPromise
@@ -1444,5 +1444,19 @@ export default class Database extends ShellApiWithMongoClass {
     await cursor.tryNext(); // See comment in coll.watch().
     this._mongo._instanceState.currentCursor = cursor;
     return cursor;
+  }
+
+  @returnsPromise
+  @returnType('AggregationCursor')
+  async sql(sqlString: string, options?: Document): Promise<AggregationCursor> {
+    this._emitDatabaseApiCall('sql', { sqlString: sqlString, options });
+    return await this.aggregate([{
+      $sql: {
+        statement: sqlString,
+        format: 'jdbc',
+        dialect: 'mongosql',
+        formatVersion: 1
+      }
+    }], options);
   }
 }

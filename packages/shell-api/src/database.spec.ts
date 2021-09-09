@@ -2471,6 +2471,31 @@ describe('Database', () => {
         expect.fail('Failed to throw');
       });
     });
+    describe('sql', () => {
+      it('runs a $sql aggregation', async() => {
+        const serviceProviderCursor = stubInterface<ServiceProviderAggCursor>();
+        serviceProvider.aggregateDb.returns(serviceProviderCursor as any);
+        await database.sql('SELECT * FROM somecollection;', { options: true });
+        expect(serviceProvider.aggregateDb).to.have.been.calledWith(
+          database._name,
+          [{
+            $sql: {
+              dialect: 'mongosql',
+              format: 'jdbc',
+              formatVersion: 1,
+              statement: 'SELECT * FROM somecollection;'
+            }
+          }],
+          { options: true }
+        );
+      });
+
+      it('throws if aggregateDb fails', async() => {
+        serviceProvider.aggregateDb.throws(new Error('err'));
+        const error: any = await database.sql('SELECT * FROM somecollection;').catch(err => err);
+        expect(error.message).to.be.equal('err');
+      });
+    });
   });
   describe('with session', () => {
     let serviceProvider: StubbedInstance<ServiceProvider>;
