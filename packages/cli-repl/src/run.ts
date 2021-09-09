@@ -9,10 +9,9 @@ import stream from 'stream';
 // eslint-disable-next-line complexity, @typescript-eslint/no-floating-promises
 (async() => {
   if (process.env.MONGOSH_RUN_NODE_SCRIPT) {
-    if (process.execPath !== process.argv[1]) {
-      // node /path/to/this/file script ... -> node script ...
-      process.argv.splice(1, 1);
-    }
+    // For uncompiled mongosh: node /path/to/this/file script ... -> node script ...
+    // FOr compiled mongosh: mongosh mongosh script ... -> mongosh script ...
+    process.argv.splice(1, 1);
     (runMain as any)(process.argv[1]);
     return;
   }

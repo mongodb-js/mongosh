@@ -1123,5 +1123,17 @@ describe('e2e', function() {
       shell.assertNoErrors();
     });
   });
+
+  describe('run Node.js scripts as-is', () => {
+    it('runs Node.js scripts as they are when using MONGOSH_RUN_NODE_SCRIPT', async() => {
+      const filename = path.resolve(__dirname, 'fixtures', 'simple-console-log.js');
+      const shell = TestShell.start({
+        args: [filename],
+        env: { ...process.env, MONGOSH_RUN_NODE_SCRIPT: '1' }
+      });
+      expect(await shell.waitForExit()).to.equal(0);
+      shell.assertContainsOutput('610');
+    });
+  });
 });
 
