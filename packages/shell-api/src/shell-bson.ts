@@ -91,7 +91,7 @@ export default function constructShellBson(bson: typeof BSON, printWarning: (msg
       if (typeof s === 'string') {
         return bson.Decimal128.fromString(s);
       }
-      printWarning('NumberDecimal: specifying a number as argument is deprecated and may lead to loss of precision');
+      printWarning('NumberDecimal: specifying a number as argument is deprecated and may lead to loss of precision, pass a string instead');
       return bson.Decimal128.fromString(`${s}`);
     }, { prototype: bson.Decimal128.prototype }),
     NumberInt: Object.assign(function(v = '0'): any {
@@ -103,8 +103,8 @@ export default function constructShellBson(bson: typeof BSON, printWarning: (msg
       if (typeof s === 'string') {
         return bson.Long.fromString(s);
       }
-      printWarning('NumberLong: specifying a number as argument is deprecated and may lead to loss of precision');
-      return bson.Long.fromInt(s);
+      printWarning('NumberLong: specifying a number as argument is deprecated and may lead to loss of precision, pass a string instead');
+      return bson.Long.fromNumber(s);
     }, { prototype: bson.Long.prototype }),
     ISODate: function(input?: string): Date {
       if (!input) input = new Date().toISOString();
