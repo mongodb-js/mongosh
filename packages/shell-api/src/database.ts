@@ -20,7 +20,8 @@ import {
   getPrintableShardStatus,
   processDigestPassword,
   tsToSeconds,
-  isValidCollectionName
+  isValidCollectionName,
+  getConfigDB
 } from './helpers';
 
 import type {
@@ -59,6 +60,7 @@ export default class Database extends ShellApiWithMongoClass {
   _collections: Record<string, Collection>;
   _session: Session | undefined;
   _cachedCollectionNames: string[] = [];
+  _cachedHello: Document | null = null;
 
   constructor(mongo: Mongo, name: string, session?: Session) {
     super();
@@ -101,6 +103,10 @@ export default class Database extends ShellApiWithMongoClass {
       options.maxTimeMS = maxTimeMS;
     }
     return options;
+  }
+
+  async _maybeCachedHello(): Promise<Document> {
+    return this._cachedHello ?? await this.hello();
   }
 
   /**
@@ -891,16 +897,18 @@ export default class Database extends ShellApiWithMongoClass {
   async hello(): Promise<Document> {
     this._emitDatabaseApiCall('hello', {});
     try {
-      return await this._runCommand(
+      this._cachedHello = await this._runCommand(
         {
           hello: 1,
         }
       );
+      return this._cachedHello;
     } catch (err) {
       if (err.codeName === 'CommandNotFound') {
         const result = await this.isMaster();
         delete result.ismaster;
-        return result;
+        this._cachedHello = result;
+        return this._cachedHello;
       }
       throw err;
     }
@@ -1248,7 +1256,7 @@ export default class Database extends ShellApiWithMongoClass {
   @apiVersions([1])
   async printShardingStatus(verbose = false): Promise<CommandResult> {
     this._emitDatabaseApiCall('printShardingStatus', { verbose });
-    const result = await getPrintableShardStatus(this, verbose);
+    const result = await getPrintableShardStatus(await getConfigDB(this), verbose);
     return new CommandResult('StatsResult', result);
   }
 

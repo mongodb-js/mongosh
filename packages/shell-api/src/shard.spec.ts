@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { StubbedInstance, stubInterface } from 'ts-sinon';
+import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
 import Shard from './shard';
 import { ADMIN_DB, ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';
 import { signatures, toShellResult } from './index';
@@ -65,6 +65,7 @@ describe('Shard', () => {
     let bus: StubbedInstance<EventEmitter>;
     let instanceState: ShellInstanceState;
     let db: Database;
+    let warnSpy: any;
 
     beforeEach(() => {
       bus = stubInterface<EventEmitter>();
@@ -73,7 +74,9 @@ describe('Shard', () => {
       serviceProvider.bsonLibrary = bson;
       serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
       serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
+      warnSpy = sinon.spy();
       instanceState = new ShellInstanceState(serviceProvider, bus);
+      instanceState.printWarning = warnSpy;
       mongo = new Mongo(instanceState, undefined, undefined, undefined, serviceProvider);
       db = new Database(mongo, 'testDb');
       shard = new Shard(db);
@@ -283,9 +286,8 @@ describe('Shard', () => {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'not dbgrid' });
         serviceProvider.runCommandWithCheck.onCall(1).resolves(expectedResult);
-        const caughtError = await shard.addShard('uri')
-          .catch(e => e);
-        expect(caughtError.message).to.include('Not connected to a mongos');
+        await shard.addShard('uri');
+        expect(warnSpy.calledOnce).to.equal(true);
       });
     });
     describe('addShardToZone', () => {
@@ -323,9 +325,8 @@ describe('Shard', () => {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'not dbgrid' });
         serviceProvider.runCommandWithCheck.onCall(1).resolves(expectedResult);
-        const caughtError = await shard.addShardToZone('shard', 'zone')
-          .catch(e => e);
-        expect(caughtError.message).to.include('Not connected to a mongos');
+        await shard.addShardToZone('shard', 'zone');
+        expect(warnSpy.calledOnce).to.equal(true);
       });
     });
     describe('addShardTag', () => {
@@ -363,9 +364,8 @@ describe('Shard', () => {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'not dbgrid' });
         serviceProvider.runCommandWithCheck.onCall(1).resolves(expectedResult);
-        const caughtError = await shard.addShardTag('shard', 'zone')
-          .catch(e => e);
-        expect(caughtError.message).to.include('Not connected to a mongos');
+        await shard.addShardTag('shard', 'zone');
+        expect(warnSpy.calledOnce).to.equal(true);
       });
 
       it('adds version suggestion if command not found', async() => {
@@ -415,9 +415,8 @@ describe('Shard', () => {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'not dbgrid' });
         serviceProvider.runCommandWithCheck.onCall(1).resolves(expectedResult);
-        const caughtError = await shard.updateZoneKeyRange('ns', {}, {}, 'zone')
-          .catch(e => e);
-        expect(caughtError.message).to.include('Not connected to a mongos');
+        await shard.updateZoneKeyRange('ns', {}, {}, 'zone');
+        expect(warnSpy.calledOnce).to.equal(true);
       });
     });
     describe('addTagRange', () => {
@@ -457,9 +456,8 @@ describe('Shard', () => {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'not dbgrid' });
         serviceProvider.runCommandWithCheck.onCall(1).resolves(expectedResult);
-        const caughtError = await shard.addTagRange('ns', {}, {}, 'zone')
-          .catch(e => e);
-        expect(caughtError.message).to.include('Not connected to a mongos');
+        await shard.addTagRange('ns', {}, {}, 'zone');
+        expect(warnSpy.calledOnce).to.equal(true);
       });
 
       it('adds version suggestion if command not found', async() => {
@@ -513,9 +511,8 @@ describe('Shard', () => {
         const expectedResult = { ok: 1, msg: 'isdbgrid' };
         serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'not dbgrid' });
         serviceProvider.runCommandWithCheck.onCall(1).resolves(expectedResult);
-        const caughtError = await shard.removeRangeFromZone('ns', {}, {})
-          .catch(e => e);
-        expect(caughtError.message).to.include('Not connected to a mongos');
+        await shard.removeRangeFromZone('ns', {}, {});
+        expect(warnSpy.calledOnce).to.equal(true);
       });
     });
     describe('removeTagRange', () => {
@@ -559,9 +556,8 @@ describe('Shard', () => {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'not dbgrid' });
         serviceProvider.runCommandWithCheck.onCall(1).resolves(expectedResult);
-        const caughtError = await shard.removeTagRange('ns', {}, {})
-          .catch(e => e);
-        expect(caughtError.message).to.include('Not connected to a mongos');
+        await shard.removeTagRange('ns', {}, {});
+        expect(warnSpy.calledOnce).to.equal(true);
       });
       it('adds version suggestion if command not found', async() => {
         serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'isdbgrid' });
@@ -607,9 +603,8 @@ describe('Shard', () => {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'not dbgrid' });
         serviceProvider.runCommandWithCheck.onCall(1).resolves(expectedResult);
-        const caughtError = await shard.removeShardFromZone('shard', 'zone')
-          .catch(e => e);
-        expect(caughtError.message).to.include('Not connected to a mongos');
+        await shard.removeShardFromZone('shard', 'zone');
+        expect(warnSpy.calledOnce).to.equal(true);
       });
     });
     describe('removeShardTag', () => {
@@ -646,9 +641,8 @@ describe('Shard', () => {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'not dbgrid' });
         serviceProvider.runCommandWithCheck.onCall(1).resolves(expectedResult);
-        const caughtError = await shard.removeShardTag('shard', 'zone')
-          .catch(e => e);
-        expect(caughtError.message).to.include('Not connected to a mongos');
+        await shard.removeShardTag('shard', 'zone');
+        expect(warnSpy.calledOnce).to.equal(true);
       });
       it('adds version suggestion if command not found', async() => {
         serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'isdbgrid' });
@@ -713,9 +707,8 @@ describe('Shard', () => {
         const expectedResult = { acknowledged: 1 } as any;
         serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'not dbgrid' });
         serviceProvider.updateOne.resolves(expectedResult);
-        const caughtError = await shard.enableAutoSplit()
-          .catch(e => e);
-        expect(caughtError.message).to.include('Not connected to a mongos');
+        await shard.enableAutoSplit();
+        expect(warnSpy.calledOnce).to.equal(true);
       });
     });
     describe('disableAutoSplit', () => {
@@ -772,9 +765,8 @@ describe('Shard', () => {
         const expectedResult = { ok: 1 } as any;
         serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'not dbgrid' });
         serviceProvider.updateOne.resolves(expectedResult);
-        const caughtError = await shard.disableAutoSplit()
-          .catch(e => e);
-        expect(caughtError.message).to.include('Not connected to a mongos');
+        await shard.disableAutoSplit();
+        expect(warnSpy.calledOnce).to.equal(true);
       });
     });
     describe('splitAt', () => {
@@ -947,9 +939,8 @@ describe('Shard', () => {
         const expectedResult = { ok: 1 } as any;
         serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'not dbgrid' });
         serviceProvider.updateOne.resolves(expectedResult);
-        const caughtError = await shard.disableBalancing('ns')
-          .catch(e => e);
-        expect(caughtError.message).to.include('Not connected to a mongos');
+        await shard.disableBalancing('ns');
+        expect(warnSpy.calledOnce).to.equal(true);
       });
     });
     describe('enableBalancing', () => {
@@ -1005,9 +996,8 @@ describe('Shard', () => {
         const expectedResult = { ok: 1 } as any;
         serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'not dbgrid' });
         serviceProvider.updateOne.resolves(expectedResult);
-        const caughtError = await shard.enableBalancing('ns')
-          .catch(e => e);
-        expect(caughtError.message).to.include('Not connected to a mongos');
+        await shard.enableBalancing('ns');
+        expect(warnSpy.calledOnce).to.equal(true);
       });
     });
     describe('getBalancerState', () => {
@@ -1039,10 +1029,11 @@ describe('Shard', () => {
       it('throws if not mongos', async() => {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'not dbgrid' });
-        serviceProvider.find.resolves(expectedResult);
-        const caughtError = await shard.getBalancerState()
-          .catch(e => e);
-        expect(caughtError.message).to.include('Not connected to a mongos');
+        const findCursor = stubInterface<ServiceProviderCursor>();
+        findCursor.tryNext.resolves(expectedResult);
+        serviceProvider.find.returns(findCursor);
+        await shard.getBalancerState();
+        expect(warnSpy.calledOnce).to.equal(true);
       });
     });
     describe('isBalancerRunning', () => {
@@ -1078,9 +1069,8 @@ describe('Shard', () => {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'not dbgrid' });
         serviceProvider.runCommandWithCheck.onCall(1).resolves(expectedResult);
-        const caughtError = await shard.isBalancerRunning()
-          .catch(e => e);
-        expect(caughtError.message).to.include('Not connected to a mongos');
+        await shard.isBalancerRunning();
+        expect(warnSpy.calledOnce).to.equal(true);
       });
     });
     describe('startBalancer', () => {
