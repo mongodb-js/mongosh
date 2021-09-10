@@ -6,13 +6,13 @@ import spawn from 'cross-spawn';
 import { v4 as uuidv4 } from 'uuid';
 
 import type { ShellUserConfig, MongoshBus } from '@mongosh/types';
-import { signatures, ShellPlugin, ShellInternalState, TypeSignature } from '@mongosh/shell-api';
+import { signatures, ShellPlugin, ShellInstanceState, TypeSignature } from '@mongosh/shell-api';
 
 export interface EditorOptions {
   input: Readable;
   vscodeDir: string,
   tmpDir: string,
-  internalState: ShellInternalState;
+  instanceState: ShellInstanceState;
   makeMultilineJSIntoSingleLine: any;
 }
 
@@ -22,7 +22,7 @@ export class Editor implements ShellPlugin {
   _tmpDir: string;
   _tmpDocName: string;
   _tmpDoc: string;
-  _internalState: ShellInternalState;
+  _instanceState: ShellInstanceState;
   _makeMultilineJSIntoSingleLine: any;
   load: (filename: string) => Promise<void>;
   require: any;
@@ -30,14 +30,14 @@ export class Editor implements ShellPlugin {
   print: (...args: any[]) => Promise<void>;
   npmArgv: string[];
 
-  constructor({ input, vscodeDir, tmpDir, internalState, makeMultilineJSIntoSingleLine }: EditorOptions) {
-    const { load, config, print, require } = internalState.context;
+  constructor({ input, vscodeDir, tmpDir, instanceState, makeMultilineJSIntoSingleLine }: EditorOptions) {
+    const { load, config, print, require } = instanceState.context;
     this._input = input;
     this._vscodeDir = vscodeDir;
     this._tmpDir = tmpDir;
     this._tmpDocName = `edit-${uuidv4()}`;
     this._tmpDoc = '';
-    this._internalState = internalState;
+    this._instanceState = instanceState;
     this._makeMultilineJSIntoSingleLine = makeMultilineJSIntoSingleLine;
     this.load = load;
     this.config = config;
@@ -53,7 +53,7 @@ export class Editor implements ShellPlugin {
     };
     wrapperFn.isDirectShellCommand = true;
     wrapperFn.returnsPromise = true;
-    (internalState.shellApi as any).edit = internalState.context.edit = wrapperFn;
+    (instanceState.shellApi as any).edit = instanceState.context.edit = wrapperFn;
     (signatures.ShellApi.attributes as any).edit = {
       type: 'function',
       returnsPromise: true,
@@ -62,7 +62,7 @@ export class Editor implements ShellPlugin {
   }
 
   activate(): void {
-    this._internalState.registerPlugin(this);
+    this._instanceState.registerPlugin(this);
   }
 
   // In the case of using VSCode as an external editor,
@@ -96,7 +96,7 @@ export class Editor implements ShellPlugin {
 
   async getEditor(): Promise<string|null> {
     // Check for an external editor in the mongosh configuration.
-    let editor: string | null = await this._internalState.shellApi.config.get('editor');
+    let editor: string | null = await this._instanceState.shellApi.config.get('editor');
 
     // Check for an external editor in the environment variable.
     if (!editor && process.env.EDITOR) {
@@ -178,7 +178,7 @@ export class Editor implements ShellPlugin {
   }
 
   get messageBus(): MongoshBus {
-    return this._internalState.messageBus;
+    return this._instanceState.messageBus;
   }
 
   transformError(err: Error): Error {
