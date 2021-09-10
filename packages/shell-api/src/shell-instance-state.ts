@@ -536,9 +536,9 @@ export default class ShellInstanceState {
   async printDeprecationWarning(message: string): Promise<void> {
     if (!this.warningsShown.has(message)) {
       this.warningsShown.add(message);
-      // TODO: This should be this.shellApi.print once the java-shell package
+      // TODO: This should be just this.shellApi.print once the java-shell package
       // does not do its own console.log()/print() implementation anymore
-      await this.context.print(`DeprecationWarning: ${message}`);
+      await (this.context.print ?? this.shellApi.print)(`DeprecationWarning: ${message}`);
     }
   }
 
@@ -550,9 +550,9 @@ export default class ShellInstanceState {
   async printWarning(message: string): Promise<void> {
     if (!this.warningsShown.has(message)) {
       this.warningsShown.add(message);
-      // TODO: This should be this.shellApi.print once the java-shell package
+      // TODO: This should be just this.shellApi.print once the java-shell package
       // does not do its own console.log()/print() implementation anymore
-      await this.context.print(`Warning: ${message}`);
+      await (this.context.print ?? this.shellApi.print)(`Warning: ${message}`);
     }
   }
 }
