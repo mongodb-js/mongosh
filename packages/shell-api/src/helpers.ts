@@ -170,12 +170,10 @@ export function processDigestPassword(
  * @param configDB
  * @param verbose
  */
-export async function getPrintableShardStatus(db: Database, verbose: boolean): Promise<Document> {
-  const result = {} as any; // use array to maintain order
+export async function getPrintableShardStatus(configDB: Database, verbose: boolean): Promise<Document> {
+  const result = {} as any;
 
   // configDB is a DB object that contains the sharding metadata of interest.
-  // Defaults to the db named "config" on the current connection.
-  const configDB = await getConfigDB(db);
   const mongosColl = configDB.getCollection('mongos');
   const versionColl = configDB.getCollection('version');
   const shardsColl = configDB.getCollection('shards');
@@ -292,7 +290,7 @@ export async function getPrintableShardStatus(db: Database, verbose: boolean): P
         versionHasActionlog = true;
       }
       if (metaDataVersion === 5) {
-        const verArray = (await db.serverBuildInfo()).versionArray;
+        const verArray = (await configDB.serverBuildInfo()).versionArray;
         if (verArray[0] === 2 && verArray[1] > 6) {
           versionHasActionlog = true;
         }
@@ -484,9 +482,10 @@ export async function getPrintableShardStatus(db: Database, verbose: boolean): P
 }
 
 export async function getConfigDB(db: Database): Promise<Database> {
-  const helloResult = await db.hello();
+  const helloResult = await db._maybeCachedHello();
   if (helloResult.msg !== 'isdbgrid') {
-    throw new MongoshInvalidInputError('Not connected to a mongos', ShellApiErrors.NotConnectedToMongos);
+    await db._instanceState.printWarning(
+      'MongoshWarning: [SHAPI-10003] You are not connected to a mongos. This command may not work as expected.');
   }
   return db.getSiblingDB('config');
 }

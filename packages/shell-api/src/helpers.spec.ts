@@ -76,7 +76,6 @@ describe('getPrintableShardStatus', () => {
   const testServer = startTestServer('shared');
 
   let mongo: Mongo;
-  let database: Database;
   let configDatabase: Database;
   let serviceProvider: ServiceProvider;
   let inBalancerRound = false;
@@ -84,15 +83,7 @@ describe('getPrintableShardStatus', () => {
   beforeEach(async() => {
     serviceProvider = await CliServiceProvider.connect(await testServer.connectionString(), {}, {}, new EventEmitter());
     mongo = new Mongo(new ShellInstanceState(serviceProvider), undefined, undefined, undefined, serviceProvider);
-    database = new Database(mongo, 'db1');
-    const origGetSiblingDB = database.getSiblingDB;
-    database.getSiblingDB = (dbname) => {
-      if (dbname === 'config') {
-        dbname = 'config_test';
-      }
-      return origGetSiblingDB.call(database, dbname);
-    };
-    configDatabase = database.getSiblingDB('config');
+    configDatabase = new Database(mongo, 'config_test');
     expect(configDatabase.getName()).to.equal('config_test');
 
     const origRunCommandWithCheck = serviceProvider.runCommandWithCheck;
@@ -125,7 +116,7 @@ describe('getPrintableShardStatus', () => {
   });
 
   it('returns an object with sharding information', async() => {
-    const status = await getPrintableShardStatus(database, false);
+    const status = await getPrintableShardStatus(configDatabase, false);
     expect(status.shardingVersion.currentVersion).to.be.a('number');
     expect(status.shards.map(({ host }) => host)).to.include('shard01/localhost:27018,localhost:27019,localhost:27020');
     expect(status['most recently active mongoses']).to.have.lengthOf(1);
@@ -140,19 +131,19 @@ describe('getPrintableShardStatus', () => {
   it('returns whether the balancer is currently running', async() => {
     {
       inBalancerRound = true;
-      const status = await getPrintableShardStatus(database, true);
+      const status = await getPrintableShardStatus(configDatabase, true);
       expect(status.balancer['Currently running']).to.equal('yes');
     }
 
     {
       inBalancerRound = false;
-      const status = await getPrintableShardStatus(database, true);
+      const status = await getPrintableShardStatus(configDatabase, true);
       expect(status.balancer['Currently running']).to.equal('no');
     }
   });
 
   it('returns an object with verbose sharding information if requested', async() => {
-    const status = await getPrintableShardStatus(database, true);
+    const status = await getPrintableShardStatus(configDatabase, true);
     expect(status['most recently active mongoses'][0].up).to.be.a('number');
     expect(status['most recently active mongoses'][0].waiting).to.be.a('boolean');
   });
@@ -162,7 +153,7 @@ describe('getPrintableShardStatus', () => {
       _id: 'balancer',
       activeWindow: { start: '00:00', stop: '23:59' }
     });
-    const status = await getPrintableShardStatus(database, false);
+    const status = await getPrintableShardStatus(configDatabase, false);
     expect(status.balancer['Balancer active window is set between'])
       .to.equal('00:00 and 23:59 server local time');
   });
@@ -177,7 +168,7 @@ describe('getPrintableShardStatus', () => {
       what: 'balancer.round',
       ns: ''
     });
-    const status = await getPrintableShardStatus(database, false);
+    const status = await getPrintableShardStatus(configDatabase, false);
     expect(status.balancer['Failed balancer rounds in last 5 attempts']).to.equal(1);
     expect(status.balancer['Last reported error']).to.equal('Some error');
   });
@@ -189,7 +180,7 @@ describe('getPrintableShardStatus', () => {
       ts: new bson.ObjectId('5fce116c579db766a198a176'),
       when: new Date('2020-12-07T11:26:36.803Z'),
     });
-    const status = await getPrintableShardStatus(database, false);
+    const status = await getPrintableShardStatus(configDatabase, false);
     expect(status.balancer['Collections with active migrations']).to.have.lengthOf(1);
     expect(status.balancer['Collections with active migrations'].join('')).to.include('asdf');
   });
@@ -200,7 +191,7 @@ describe('getPrintableShardStatus', () => {
       what: 'moveChunk.from',
       details: { from: 'shard0', to: 'shard1', note: 'success' }
     });
-    const status = await getPrintableShardStatus(database, false);
+    const status = await getPrintableShardStatus(configDatabase, false);
     expect(status.balancer['Migration Results for the last 24 hours'])
       .to.deep.equal({ 1: 'Success' });
   });
@@ -211,7 +202,7 @@ describe('getPrintableShardStatus', () => {
       what: 'moveChunk.from',
       details: { from: 'shard0', to: 'shard1', errmsg: 'oopsie' }
     });
-    const status = await getPrintableShardStatus(database, false);
+    const status = await getPrintableShardStatus(configDatabase, false);
 
     expect(status.balancer['Migration Results for the last 24 hours'])
       .to.deep.equal({ 1: "Failed with error 'oopsie', from shard0 to shard1" });
@@ -220,7 +211,7 @@ describe('getPrintableShardStatus', () => {
   it('fails when config.version is empty', async() => {
     await configDatabase.getCollection('version').drop();
     try {
-      await getPrintableShardStatus(database, false);
+      await getPrintableShardStatus(configDatabase, false);
     } catch (err) {
       expect(err.name).to.equal('MongoshInvalidInputError');
       return;
