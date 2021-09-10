@@ -71,7 +71,6 @@ import {
 import Bulk from './bulk';
 import { HIDDEN_COMMANDS } from '@mongosh/history';
 import PlanCache from './plan-cache';
-import { printDeprecationWarning } from './deprecation-warning';
 import ChangeStreamCursor from './change-stream-cursor';
 import { ShellApiErrors } from './error-codes';
 
@@ -246,9 +245,8 @@ export default class Collection extends ShellApiWithMongoClass {
   @serverVersions([ServerVersions.earliest, '4.0.0'])
   @apiVersions([])
   async count(query = {}, options: CountOptions = {}): Promise<number> {
-    printDeprecationWarning(
-      'Collection.count() is deprecated. Use countDocuments or estimatedDocumentCount.',
-      this._mongo._instanceState.context.print
+    await this._instanceState.printDeprecationWarning(
+      'Collection.count() is deprecated. Use countDocuments or estimatedDocumentCount.'
     );
 
     this._emitCollectionApiCall(
@@ -649,9 +647,8 @@ export default class Collection extends ShellApiWithMongoClass {
   @serverVersions([ServerVersions.earliest, '3.6.0'])
   @apiVersions([1])
   async insert(docs: Document | Document[], options: BulkWriteOptions = {}): Promise<InsertManyResult> {
-    printDeprecationWarning(
-      'Collection.insert() is deprecated. Use insertOne, insertMany, or bulkWrite.',
-      this._mongo._instanceState.context.print
+    await this._instanceState.printDeprecationWarning(
+      'Collection.insert() is deprecated. Use insertOne, insertMany, or bulkWrite.'
     );
     assertArgsDefinedType([docs], [true], 'Collection.insert');
     // When inserting documents into MongoDB that do not contain the _id field,
@@ -771,9 +768,8 @@ export default class Collection extends ShellApiWithMongoClass {
   @serverVersions([ServerVersions.earliest, '3.2.0'])
   @apiVersions([1])
   async remove(query: Document, options: boolean | RemoveShellOptions = {}): Promise<DeleteResult | Document> {
-    printDeprecationWarning(
-      'Collection.remove() is deprecated. Use deleteOne, deleteMany, findOneAndDelete, or bulkWrite.',
-      this._mongo._instanceState.context.print
+    await this._instanceState.printDeprecationWarning(
+      'Collection.remove() is deprecated. Use deleteOne, deleteMany, findOneAndDelete, or bulkWrite.'
     );
     assertArgsDefinedType([query], [true], 'Collection.remove');
     const removeOptions = processRemoveOptions(options);
@@ -846,9 +842,8 @@ export default class Collection extends ShellApiWithMongoClass {
   @serverVersions([ServerVersions.earliest, '3.2.0'])
   @apiVersions([1])
   async update(filter: Document, update: Document, options: UpdateOptions & { multi?: boolean } = {}): Promise<UpdateResult | Document> {
-    printDeprecationWarning(
-      'Collection.update() is deprecated. Use updateOne, updateMany, or bulkWrite.',
-      this._mongo._instanceState.context.print
+    await this._instanceState.printDeprecationWarning(
+      'Collection.update() is deprecated. Use updateOne, updateMany, or bulkWrite.'
     );
     assertArgsDefinedType([filter, update], [true, true], 'Collection.update');
     this._emitCollectionApiCall('update', { filter, options });
@@ -1552,9 +1547,8 @@ export default class Collection extends ShellApiWithMongoClass {
   @serverVersions([ServerVersions.earliest, '4.9.0'])
   @apiVersions([])
   async mapReduce(map: Function | string, reduce: Function | string, optionsOrOutString: MapReduceShellOptions): Promise<Document> {
-    printDeprecationWarning(
-      'Collection.mapReduce() is deprecated. Use an aggregation instead.\nSee https://docs.mongodb.com/manual/core/map-reduce for details.',
-      this._mongo._instanceState.context.print
+    await this._instanceState.printDeprecationWarning(
+      'Collection.mapReduce() is deprecated. Use an aggregation instead.\nSee https://docs.mongodb.com/manual/core/map-reduce for details.'
     );
     assertArgsDefinedType([map, reduce, optionsOrOutString], [true, true, true], 'Collection.mapReduce');
     this._emitCollectionApiCall('mapReduce', { map, reduce, out: optionsOrOutString });

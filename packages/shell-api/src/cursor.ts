@@ -22,7 +22,6 @@ import type {
   HedgeOptions
 } from '@mongosh/service-provider-core';
 import type Mongo from './mongo';
-import { printWarning } from './deprecation-warning';
 import { AbstractCursor } from './abstract-cursor';
 
 @shellApiClassDefault
@@ -96,10 +95,9 @@ export default class Cursor extends AbstractCursor<ServiceProviderCursor> {
   @returnsPromise
   async hasNext(): Promise<boolean> {
     if (this._tailable) {
-      printWarning(
+      await this._instanceState.printWarning(
         'If this is a tailable cursor with awaitData, and there are no documents in the batch, this method ' +
-        'will will block. Use tryNext if you want to check if there are any documents without waiting.',
-        this._mongo._instanceState.context.print
+        'will will block. Use tryNext if you want to check if there are any documents without waiting.'
       );
     }
     return super.hasNext();
@@ -139,10 +137,9 @@ export default class Cursor extends AbstractCursor<ServiceProviderCursor> {
   @returnsPromise
   async next(): Promise<Document | null> {
     if (this._tailable) {
-      printWarning(
+      await this._instanceState.printWarning(
         'If this is a tailable cursor with awaitData, and there are no documents in the batch, this' +
-        ' method will will block. Use tryNext if you want to check if there are any documents without waiting.',
-        this._mongo._instanceState.context.print
+        ' method will will block. Use tryNext if you want to check if there are any documents without waiting.'
       );
     }
     return super.next();

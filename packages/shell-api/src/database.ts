@@ -44,7 +44,6 @@ import { HIDDEN_COMMANDS } from '@mongosh/history';
 import Session from './session';
 import ChangeStreamCursor from './change-stream-cursor';
 import { ShellApiErrors } from './error-codes';
-import { printDeprecationWarning } from './deprecation-warning';
 
 export type CollectionNamesWithTypes = {
   name: string;
@@ -1223,9 +1222,8 @@ export default class Database extends ShellApiWithMongoClass {
   @returnsPromise
   @apiVersions([])
   async getLastErrorObj(w?: number|string, wTimeout?: number, j?: boolean): Promise<Document> {
-    printDeprecationWarning(
-      'Database.getLastErrorObj() is deprecated and will be removed in the future.',
-      this._mongo._instanceState.context.print
+    await this._instanceState.printDeprecationWarning(
+      'Database.getLastErrorObj() is deprecated and will be removed in the future.'
     );
 
     this._emitDatabaseApiCall('getLastErrorObj', { w: w, wTimeout: wTimeout, j: j });
@@ -1236,9 +1234,8 @@ export default class Database extends ShellApiWithMongoClass {
   @returnsPromise
   @apiVersions([])
   async getLastError(w?: number|string, wTimeout?: number): Promise<Document | null> {
-    printDeprecationWarning(
-      'Database.getLastError() is deprecated and will be removed in the future.',
-      this._mongo._instanceState.context.print
+    await this._instanceState.printDeprecationWarning(
+      'Database.getLastError() is deprecated and will be removed in the future.'
     );
 
     this._emitDatabaseApiCall('getLastError', { w: w, wTimeout: wTimeout });

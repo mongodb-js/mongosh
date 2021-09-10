@@ -18,7 +18,6 @@ import {
   MongoshUnimplementedError
 } from '@mongosh/errors';
 import { iterate } from './helpers';
-import { printWarning } from './deprecation-warning';
 import Mongo from './mongo';
 
 @shellApiClassDefault
@@ -58,10 +57,9 @@ export default class ChangeStreamCursor extends ShellApiWithMongoClass {
   @returnsPromise
   @deprecated
   async hasNext(): Promise<void> {
-    printWarning(
+    await this._instanceState.printWarning(
       'If there are no documents in the batch, hasNext will block. Use tryNext if you want to check if there ' +
-      'are any documents without waiting.',
-      this._mongo._instanceState.context.print
+      'are any documents without waiting.'
     );
     return this._cursor.hasNext();
   }
@@ -100,10 +98,9 @@ export default class ChangeStreamCursor extends ShellApiWithMongoClass {
 
   @returnsPromise
   async next(): Promise<Document> {
-    printWarning(
+    await this._instanceState.printWarning(
       'If there are no documents in the batch, next will block. Use tryNext if you want to check if there are ' +
-      'any documents without waiting.',
-      this._mongo._instanceState.context.print
+      'any documents without waiting.'
     );
     return this._cursor.next();
   }
