@@ -3,7 +3,6 @@ import {
   shellApiClassDefault,
   classDeprecated
 } from './decorators';
-import { printDeprecationWarning } from './deprecation-warning';
 import ShellInstanceState from './shell-instance-state';
 
 @shellApiClassDefault
@@ -21,7 +20,7 @@ export class DBQuery extends ShellApiClass {
   }
 
   set shellBatchSize(value: number | undefined) {
-    printDeprecationWarning(
+    void this._instanceState.printDeprecationWarning(
       'DBQuery.shellBatchSize is deprecated, please use config.set("displayBatchSize") instead');
     this._instanceState.displayBatchSizeFromDBQuery = value;
   }

@@ -133,6 +133,7 @@ export default class ShellInstanceState {
   public evaluationListener: EvaluationListener;
   public displayBatchSizeFromDBQuery: number | undefined = undefined;
   public isInteractive = false;
+  private warningsShown: Set<string> = new Set();
 
   public readonly interrupted = new InterruptFlag();
   public resumeMongosAfterInterrupt: Array<{
@@ -525,5 +526,29 @@ export default class ShellInstanceState {
       this.alreadyTransformedErrors.set(before, err);
     }
     return err;
+  }
+
+  /**
+   * Prints a deprecation warning message once.
+   *
+   * @param message Deprecation message
+   */
+  async printDeprecationWarning(message: string): Promise<void> {
+    if (!this.warningsShown.has(message)) {
+      this.warningsShown.add(message);
+      await this.shellApi.print(`DeprecationWarning: ${message}`);
+    }
+  }
+
+  /**
+   * Prints a warning message once.
+   *
+   * @param message A warning message
+   */
+  async printWarning(message: string): Promise<void> {
+    if (!this.warningsShown.has(message)) {
+      this.warningsShown.add(message);
+      await this.shellApi.print(`Warning: ${message}`);
+    }
   }
 }

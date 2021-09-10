@@ -620,7 +620,6 @@ describe('Mongo', () => {
         expect.fail();
       });
       it('setSecondaryOk (starts as primary)', async() => {
-        instanceState.setCtx({}); // Needed for instanceState.context.print(); Should be instanceState.shellApi.print() anyway.
         const printCalls = [];
         instanceState.setEvaluationListener({
           onPrint(...args: any[]) {
@@ -638,7 +637,6 @@ describe('Mongo', () => {
           ]);
       });
       it('setSecondaryOk (starts as secondary)', async() => {
-        instanceState.setCtx({}); // Needed for instanceState.context.print(); Should be instanceState.shellApi.print() anyway.
         const printCalls = [];
         instanceState.setEvaluationListener({
           onPrint(...args: any[]) {
@@ -651,10 +649,7 @@ describe('Mongo', () => {
         expect((mongo as any)._readPreferenceWasExplicitlyRequested).to.equal(false);
         expect(printCalls.map(call => call[0][0].printable))
           .to.deep.equal([
-            // XXX Whether the deprecation warning is printed or not depends on whether
-            // the test above it runs or not. This is not good! See the TODO comment
-            // in deprecation-warning.ts.
-            // 'DeprecationWarning: .setSecondaryOk() is deprecated. Use .setReadPref("primaryPreferred") instead',
+            'DeprecationWarning: .setSecondaryOk() is deprecated. Use .setReadPref("primaryPreferred") instead',
             'Leaving read preference unchanged (is already "secondary")'
           ]);
       });

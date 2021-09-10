@@ -39,7 +39,6 @@ import {
 } from '@mongosh/service-provider-core';
 import type Collection from './collection';
 import Database from './database';
-import { printDeprecationWarning } from './deprecation-warning';
 import ShellInstanceState from './shell-instance-state';
 import { CommandResult } from './result';
 import { redactURICredentials } from '@mongosh/history';
@@ -491,9 +490,8 @@ export default class Mongo extends ShellApiClass {
   @deprecated
   @returnsPromise
   async setSecondaryOk(): Promise<void> {
-    printDeprecationWarning(
-      '.setSecondaryOk() is deprecated. Use .setReadPref("primaryPreferred") instead',
-      this._instanceState.context.print
+    await this._instanceState.printDeprecationWarning(
+      '.setSecondaryOk() is deprecated. Use .setReadPref("primaryPreferred") instead'
     );
 
     const currentReadPref = this.getReadPrefMode();

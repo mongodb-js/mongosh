@@ -50,7 +50,7 @@ describe('ChangeStreamCursor', () => {
       warnSpy = sinon.spy();
 
       cursor = new ChangeStreamCursor(spCursor, 'source', {
-        _instanceState: { context: { print: warnSpy } }
+        _instanceState: { printWarning: warnSpy }
       } as Mongo);
     });
 
