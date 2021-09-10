@@ -946,6 +946,11 @@ const translations: Catalog = {
         help: {
           description: 'Database Class',
           attributes: {
+            sql: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.sql',
+              description: 'Queries an Altas Data Lake database using SQL',
+              example: 'const cursor = db.sql("SELECT * FROM myCollection", options)'
+            },
             watch: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.watch',
               description: 'Opens a change stream cursor on the database',
