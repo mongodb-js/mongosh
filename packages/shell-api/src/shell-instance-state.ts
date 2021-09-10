@@ -539,7 +539,7 @@ export default class ShellInstanceState {
       // TODO: This should be just this.shellApi.print once the java-shell package
       // does not do its own console.log()/print() implementation anymore
       if (this.context.print) {
-        await this.context.print(`DeprecationWarning: ${message}`);
+        await this.context.print.call(this.shellApi, `DeprecationWarning: ${message}`);
       } else {
         await this.shellApi.print(`DeprecationWarning: ${message}`);
       }
@@ -557,7 +557,7 @@ export default class ShellInstanceState {
       // TODO: This should be just this.shellApi.print once the java-shell package
       // does not do its own console.log()/print() implementation anymore
       if (this.context.print) {
-        await this.context.print(`Warning: ${message}`);
+        await this.context.print.call(this.shellApi, `Warning: ${message}`);
       } else {
         await this.shellApi.print(`Warning: ${message}`);
       }
