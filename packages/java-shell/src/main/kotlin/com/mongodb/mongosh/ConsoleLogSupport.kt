@@ -10,6 +10,8 @@ internal class ConsoleLogSupport(context: MongoShellContext, converter: MongoShe
         val print = context.jsFun { args ->
             printedValues?.add(args.map { converter.toJava(it).value })
         }
+        // TODO: These should specify an EvaluationListener, not modify
+        // the context directly
         context.bindings["print"] = print
         @Suppress("JSPrimitiveTypeWrapperUsage")
         val console = context.eval("new Object()")
