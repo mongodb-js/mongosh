@@ -51,7 +51,8 @@ fun doTest(testName: String, shell: MongoShell, testDataPath: String, db: String
                 val checkResultClass = properties.any { (key, _) -> key == "checkResultClass" }
                 val dontReplaceId = properties.any    { (key, _) -> key == "dontReplaceId" }
                 val dontCheckValue = properties.any   { (key, _) -> key == "dontCheckValue" }
-                val options = CompareOptions(checkResultClass, dontCheckValue, dontReplaceId, properties.mapNotNull { (key, value) ->
+                val printStackTrace = properties.any  { (key, _) -> key == "printStackTrace" }
+                val options = CompareOptions(checkResultClass, dontCheckValue, dontReplaceId, printStackTrace, properties.mapNotNull { (key, value) ->
                     when (key) {
                         "getArrayItem"     -> GetArrayItemCommand(value.toInt())
                         "extractProperty"  -> ExtractPropertyCommand(value)
@@ -89,7 +90,7 @@ fun doTest(testName: String, shell: MongoShell, testDataPath: String, db: String
                     System.err.println("IGNORED:")
                     e.printStackTrace()
                     val message = e.message
-                    val msg = if (message != null && message.contains('\n')) message.substring(0, message.indexOf('\n')) else message
+                    val msg = if (message != null && message.contains('\n') && !cmd.options.printStackTrace) message.substring(0, message.indexOf('\n')) else message
                     sb.append(e.javaClass.name).append(": ").append(msg?.trim())
                 }
             }
@@ -152,7 +153,7 @@ private object AllTypesComparator : Comparator<Any?> {
 }
 
 private class Command(val command: String, val options: CompareOptions)
-private class CompareOptions(val checkResultClass: Boolean, val dontCheckValue: Boolean, val dontReplaceId: Boolean, val commands: List<CompareCommand>)
+private class CompareOptions(val checkResultClass: Boolean, val dontCheckValue: Boolean, val dontReplaceId: Boolean, val printStackTrace: Boolean, val commands: List<CompareCommand>)
 private sealed class CompareCommand
 private class GetArrayItemCommand(val index: Int) : CompareCommand()
 private class ExtractPropertyCommand(val property: String) : CompareCommand()

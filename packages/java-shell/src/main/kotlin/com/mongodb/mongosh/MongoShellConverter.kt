@@ -92,7 +92,7 @@ internal class MongoShellConverter(private val context: MongoShellContext, priva
                     if (error.isHostObject && error.asHostObject<Any>() is Throwable) {
                         future.completeExceptionally(error.asHostObject<Any>() as Throwable)
                     } else {
-                        val message = error.toString() + (if (error.instanceOf(context, "Error")) "\n${error.getMember("stack").asString()}" else "")
+                        val message =  if (error.instanceOf(context, "Error")) error.getMember("stack").asString() else error.toString()
                         future.completeExceptionally(Exception(message))
                     }
                 })

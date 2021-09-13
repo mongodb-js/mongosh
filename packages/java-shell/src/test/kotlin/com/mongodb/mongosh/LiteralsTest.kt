@@ -32,6 +32,7 @@ class LiteralsTest : ShellTestCase() {
     @Test fun testObjectId()      = test()
     @Test fun testString()        = test()
     @Test fun testSymbol()        = test()
+    @Test fun testSyntaxError()   = test()
     @Test fun testTimestamp()     = test()
     @Test fun testUndefined()     = test()
     @Test fun testUnknownSymbol() = test()
