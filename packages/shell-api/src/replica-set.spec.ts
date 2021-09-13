@@ -857,6 +857,7 @@ describe('ReplicaSet', () => {
     let additionalServer: MongodSetup;
     let serviceProvider: CliServiceProvider;
     let instanceState: ShellInstanceState;
+    let db: Database;
     let rs: ReplicaSet;
 
     before(async function() {
@@ -873,7 +874,8 @@ describe('ReplicaSet', () => {
 
       serviceProvider = await CliServiceProvider.connect(`${await srv0.connectionString()}?directConnection=true`, {}, {}, new EventEmitter());
       instanceState = new ShellInstanceState(serviceProvider);
-      rs = new ReplicaSet(instanceState.currentDb);
+      db = instanceState.currentDb;
+      rs = new ReplicaSet(db);
 
       // check replset uninitialized
       try {
@@ -923,6 +925,33 @@ describe('ReplicaSet', () => {
         expect(Object.keys(result)).to.include('logSizeMB');
       });
     });
+
+    describe('watch', () => {
+      afterEach(async() => {
+        await db.dropDatabase();
+      });
+
+      it('allows watching changes as they happen', async() => {
+        const coll = db.getCollection('cstest');
+        const cs = await coll.watch();
+        await coll.insertOne({ i: 42 });
+        expect((await cs.next()).fullDocument.i).to.equal(42);
+      });
+
+      it('allow to resume watching changes as they happen', async() => {
+        const coll = db.getCollection('cstest');
+        const cs = await coll.watch();
+        await coll.insertOne({ i: 123 });
+        expect((await cs.next()).fullDocument.i).to.equal(123);
+        const token = cs.getResumeToken();
+        await coll.insertOne({ i: 456 });
+        expect((await cs.next()).fullDocument.i).to.equal(456);
+
+        const cs2 = await coll.watch({ resumeAfter: token });
+        expect((await cs2.next()).fullDocument.i).to.equal(456);
+      });
+    });
+
     describe('reconfig', () => {
       it('reconfig with one less secondary', async() => {
         const newcfg: Partial<ReplSetConfig> = {

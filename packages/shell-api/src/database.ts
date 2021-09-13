@@ -1436,7 +1436,11 @@ export default class Database extends ShellApiWithMongoClass {
   @topologies([Topologies.ReplSet, Topologies.Sharded])
   @apiVersions([1])
   @returnsPromise
-  async watch(pipeline: Document[] = [], options: ChangeStreamOptions = {}): Promise<ChangeStreamCursor> {
+  async watch(pipeline: Document[] | ChangeStreamOptions = [], options: ChangeStreamOptions = {}): Promise<ChangeStreamCursor> {
+    if (!Array.isArray(pipeline)) {
+      options = pipeline;
+      pipeline = [];
+    }
     this._emitDatabaseApiCall('watch', { pipeline, options });
     const cursor = new ChangeStreamCursor(
       this._mongo._serviceProvider.watch(pipeline, {
@@ -1446,7 +1450,9 @@ export default class Database extends ShellApiWithMongoClass {
       this._name,
       this._mongo
     );
-    await cursor.tryNext(); // See comment in coll.watch().
+    if (!options.resumeAfter && !options.startAfter && !options.startAtOperationTime) {
+      await cursor.tryNext(); // See comment in coll.watch().
+    }
     this._mongo._instanceState.currentCursor = cursor;
     return cursor;
   }
