@@ -136,6 +136,14 @@ describe('e2e', function() {
       const err = await shell.executeLine('parcelRequire');
       expect(err).to.match(/ReferenceError: parcelRequire is not defined/);
     });
+    it('parses code in sloppy mode by default (single line)', async() => {
+      const result = await shell.executeLine('"<\\101>"');
+      expect(result).to.match(/<A>/);
+    });
+    it('parses code in sloppy mode by default (multiline)', async() => {
+      const result = await shell.executeLine('"a"+\n"<\\101>"');
+      expect(result).to.match(/a<A>/);
+    });
   });
   describe('set db', () => {
     for (const { mode, dbname, dbnameUri } of [

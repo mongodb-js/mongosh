@@ -32,7 +32,8 @@ export default class AsyncWriter {
       code: true,
       configFile: false,
       babelrc: false,
-      compact: code.length > 10_000
+      compact: code.length > 10_000,
+      sourceType: 'script'
     })?.code as string;
   }
 

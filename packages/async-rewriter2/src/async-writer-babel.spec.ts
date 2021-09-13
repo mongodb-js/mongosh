@@ -120,6 +120,15 @@ describe('AsyncWriter', () => {
     it('runs code in sloppy mode by default', () => {
       expect(runTranspiledCode('delete Object.prototype')).to.equal(false);
     });
+
+    it('parses code in sloppy mode by default', () => {
+      expect(runTranspiledCode('"<\\101>"')).to.equal('<A>');
+      expect(runTranspiledCode('"x" + "<\\101>"')).to.equal('x<A>');
+    });
+
+    it('parses code in strict mode if strict mode is explicitly enabled', () => {
+      expect(() => runTranspiledCode('"use strict"; "<\\101>"')).to.throw(SyntaxError);
+    });
   });
 
   context('scoping', () => {

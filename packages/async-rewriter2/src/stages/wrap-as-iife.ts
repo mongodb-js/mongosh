@@ -135,7 +135,7 @@ export default ({ types: t }: { types: typeof BabelTypes }): babel.PluginObj<Wra
               path.node.body.length === 0) {
             path.replaceWith(t.program([
               t.expressionStatement(
-                t.stringLiteral(path.node.directives[0].value.value))
+                { ...path.node.directives[0].value, type: 'StringLiteral' })
             ]));
           }
         },

@@ -57,7 +57,8 @@ export function makeMultilineJSIntoSingleLine(src: string): string {
       compact: false,
       code: true,
       comments: true,
-      plugins: [lineCommentToBlockComment]
+      plugins: [lineCommentToBlockComment],
+      sourceType: 'script'
     })?.code ?? src;
   } catch {
     // The src might still be invalid, e.g. because a recoverable error was not fixed
