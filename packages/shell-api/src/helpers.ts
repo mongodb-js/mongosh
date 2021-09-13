@@ -716,3 +716,9 @@ export function isValidDatabaseName(name: string): boolean {
 export function isValidCollectionName(name: string): boolean {
   return !!name && !/[$\0]/.test(name);
 }
+
+export function shouldRunAggregationImmediately(pipeline: Document[]): boolean {
+  return pipeline.some(stage =>
+    Object.keys(stage).some(
+      stageName => stageName === '$merge' || stageName === '$out'));
+}
