@@ -128,7 +128,7 @@ export class Editor implements ShellPlugin {
   }
 
   _isVscodeApp(cmd: string): boolean {
-    const regex = /^((.*\/)([^/]*))?code(.exe)?$/;
+    const regex = /^((.*[\/\\])*)?[cC]ode(.exe)?$/;
 
     try {
       return !!regex.exec(cmd);
@@ -176,7 +176,7 @@ export class Editor implements ShellPlugin {
     this.messageBus.emit('mongosh-editor:run-edit-command', {
       tmpdoc: this._editorSession.tmpDoc,
       editor,
-      args: [ code, ...cmdArgs, ...args ]
+      args: this._editorSession.args
     });
 
     await this._createTempFile();
@@ -185,7 +185,6 @@ export class Editor implements ShellPlugin {
 
   async _runInChildProcess(): Promise<void> {
     const { cmd, tmpDoc, args, code } = this._editorSession;
-
     const proc = spawn(cmd, [tmpDoc, ...args], {
       env: { ...process.env, MONGOSH_RUN_NODE_SCRIPT: '1' },
       stdio: 'inherit'
@@ -193,6 +192,7 @@ export class Editor implements ShellPlugin {
 
     let stdout = '';
     let stderr = '';
+
     if (proc.stdout) {
       proc.stdout.on('data', (chunk) => { stdout += chunk; });
     }

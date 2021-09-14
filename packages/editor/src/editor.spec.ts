@@ -21,19 +21,20 @@ describe('Editor', () => {
   let editor: Editor;
   let makeEditor: () => Editor;
   let busMessages: ({ ev: any, data?: any })[];
+  let cmd: string | null;
 
-  beforeEach(async() => {
+  beforeEach(() => {
     input = new PassThrough();
     base = path.resolve(__dirname, '..', '..', '..', 'tmp', 'test', `${Date.now()}`, `${uuidv4()}`);
     vscodeDir = path.join(base, '.vscode');
     tmpDir = path.join(base, 'editor');
+    cmd = 'notexistingeditor';
     contextObject = {
       config: {
-        // eslint-disable-next-line @typescript-eslint/require-await
-        async get(key: string): Promise<any> {
+        get(key: string): any {
           switch (key) {
             case 'editor':
-              return 'notexistingeditor';
+              return cmd;
             default:
               throw new Error(`Don’t know what to do with config key ${key}`);
           }
@@ -67,9 +68,6 @@ describe('Editor', () => {
         busMessages.push({ ev, data });
       }
     });
-
-    // make nyc happy when we spawn npm below
-    await fs.mkdir(path.resolve(__dirname, '..', '..', '..', 'tmp', '.nyc_output', 'processinfo'), { recursive: true });
   });
 
   afterEach(async() => {
@@ -80,11 +78,62 @@ describe('Editor', () => {
     });
   });
 
-  it('returns an error for not existing editor', async() => {
+  it('runEditCommand returns an error for not existing editor', async() => {
     try {
       await editor.runEditCommand([]);
     } catch (error) {
       expect(error.message).to.include('spawn notexistingeditor ENOENT');
     }
   });
+
+  it('_isVscodeApp returns true if command is code', () => {
+    const isVscodeApp = editor._isVscodeApp('code');
+    expect(isVscodeApp).to.be.equal(true);
+  });
+
+  it('_isVscodeApp returns true if command is path to code', () => {
+    const isVscodeApp = editor._isVscodeApp('/usr/local/bin/code');
+    expect(isVscodeApp).to.be.equal(true);
+  });
+
+  it('_isVscodeApp returns true if command is path to code on windows', () => {
+    const isVscodeApp = editor._isVscodeApp('C:\\Program Files\\Microsoft VS Code\\Code.exe');
+    expect(isVscodeApp).to.be.equal(true);
+  });
+
+  it('_isVscodeApp returns false if command is nano', () => {
+    const isVscodeApp = editor._isVscodeApp('nano');
+    expect(isVscodeApp).to.be.equal(false);
+  });
+
+  it('_isStatement returns true if command is an empty find statement', () => {
+    const isStatement = editor._isStatement('db.test.find()');
+    expect(isStatement).to.be.equal(true);
+  });
+
+  it('_isStatement returns true if command is a find statement with a query', () => {
+    const isStatement = editor._isStatement("db.test.find({ name: 'lena' })");
+    expect(isStatement).to.be.equal(true);
+  });
+
+  it('_isStatement returns false if command is an identifier', () => {
+    const isStatement = editor._isStatement('db.test.find');
+    expect(isStatement).to.be.equal(false);
+  });
+
+  it('_getEditor returns an editor value from the mongosh config', async() => {
+    cmd = 'neweditor';
+    const editorName = await editor._getEditor();
+    expect(editorName).to.be.equal(cmd);
+    expect(editorName).to.not.be.equal(process.env.EDITOR);
+  });
+
+  it('_getEditor returns an editor value from process.env.EDITOR', async() => {
+    cmd = null;
+    const editorName = await editor._getEditor();
+    expect(editorName).to.be.equal(process.env.EDITOR);
+  });
+
+  // TODO: e2e or mock tests for _getExtension
+  // TODO: Write a node script that acts as an external editor and write e2e tests
 });
