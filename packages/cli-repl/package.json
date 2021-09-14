@@ -58,7 +58,7 @@
     "lodash.set": "^4.3.2",
     "mongodb-connection-string-url": "^2.0.0",
     "mongodb-redact": "^0.2.2",
-    "mongodb-log-writer": "^1.0.2",
+    "mongodb-log-writer": "^1.0.3",
     "nanobus": "^4.4.0",
     "pretty-bytes": "^5.3.0",
     "pretty-repl": "^3.1.1",
