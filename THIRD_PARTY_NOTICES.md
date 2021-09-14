@@ -186,7 +186,7 @@ Package|Version|License
 **[mongodb-build-info](#3e1ab3564d63f8a06a80cc2b752a458eabdaa33318303341aa6f7a9461115958)**|1.2.0|Apache-2.0
 **[mongodb-client-encryption](#2400753e4c313cbe1059fed67cfe07c83a8887810d236b84878dad8fdfba9ef7)**|1.2.6|Apache-2.0
 **[mongodb-connection-string-url](#151d9f737fe1a273e3e9915f9aa4c9194d52d2b9ed803047959027244af7036a)**|2.0.0|Apache-2.0
-**[mongodb-log-writer](#e2f16e6ca6f48b57b31b3f55efb66af0fb0a5343e1fe83c2fe62cab63d7e0f37)**|1.0.2|Apache-2.0
+**[mongodb-log-writer](#8a1799a23f75e9ecd7b5954ead5e790d26a6037ee0a64f4676ce6f5febbd6aa5)**|1.0.3|Apache-2.0
 **[mongodb-redact](#00a2cfed57df1e8b912b751b08bee4de24ad0189840c99820ebc00c1b219a421)**|0.2.2|Apache-2.0
 **[ms](#0a987b2f79ff37005e452a5afa7dacd3042061a7077054d2ba9cabacd88506d2)**|2.1.2|MIT
 **[ms](#484b814b85d5028e34246147c8fc901d33570202bd7cdc3703c0ed1078eba0aa)**|2.0.0|MIT
@@ -11505,8 +11505,8 @@ License files:
       
 
 
-<a id="e2f16e6ca6f48b57b31b3f55efb66af0fb0a5343e1fe83c2fe62cab63d7e0f37"></a>
-### [mongodb-log-writer](https://www.npmjs.com/package/mongodb-log-writer) (version 1.0.2)
+<a id="8a1799a23f75e9ecd7b5954ead5e790d26a6037ee0a64f4676ce6f5febbd6aa5"></a>
+### [mongodb-log-writer](https://www.npmjs.com/package/mongodb-log-writer) (version 1.0.3)
 <!-- initially found at packages/cli-repl/node_modules/mongodb-log-writer -->
 > A library for writing MongoDB logv2 messages
 
