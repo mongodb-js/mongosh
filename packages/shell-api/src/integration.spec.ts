@@ -916,6 +916,18 @@ describe('Shell API (integration)', function() {
         expect(await cursor.toArray()).to.have.length(0);
       });
 
+      it('runs the aggregation immediately if it is $merge/$out', async() => {
+        const x = 123456789;
+        await collection.insertOne({ x });
+
+        await collection.aggregate(
+          { $match: {} },
+          { $out: 'copy' }
+        ); // ignore the result
+
+        expect((await database.getCollection('copy').findOne()).x).to.equal(x);
+      });
+
       [true, false, 'queryPlanner'].forEach(explain => {
         it(`runs an explain with explain: ${explain}`, async() => {
           await serviceProvider.insertOne(dbName, collectionName, { x: 1 });

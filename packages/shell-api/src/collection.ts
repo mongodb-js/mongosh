@@ -29,7 +29,8 @@ import {
   maybeMarkAsExplainOutput,
   markAsExplainOutput,
   assertArgsDefinedType,
-  isValidCollectionName
+  isValidCollectionName,
+  shouldRunAggregationImmediately
 } from './helpers';
 import {
   AnyBulkWriteOperation,
@@ -180,6 +181,8 @@ export default class Collection extends ShellApiWithMongoClass {
 
     if (explain) {
       return await cursor.explain(explain);
+    } else if (shouldRunAggregationImmediately(pipeline)) {
+      await cursor.hasNext();
     }
 
     this._mongo._instanceState.currentCursor = cursor;

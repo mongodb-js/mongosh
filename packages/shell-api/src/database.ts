@@ -21,7 +21,8 @@ import {
   processDigestPassword,
   tsToSeconds,
   isValidCollectionName,
-  getConfigDB
+  getConfigDB,
+  shouldRunAggregationImmediately
 } from './helpers';
 
 import type {
@@ -336,6 +337,8 @@ export default class Database extends ShellApiWithMongoClass {
 
     if (explain) {
       return await cursor.explain(explain);
+    } else if (shouldRunAggregationImmediately(pipeline)) {
+      await cursor.hasNext();
     }
 
     this._mongo._instanceState.currentCursor = cursor;

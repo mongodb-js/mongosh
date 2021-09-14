@@ -2479,7 +2479,7 @@ describe('Database', () => {
     const exceptions = {
       getCollectionNames: { m: 'listCollections' },
       getCollectionInfos: { m: 'listCollections' },
-      aggregate: { m: 'aggregateDb' },
+      aggregate: { m: 'aggregateDb', a: [[]] },
       dropDatabase: { m: 'dropDatabase', i: 1 },
       createCollection: { m: 'createCollection', a: ['coll'] },
       createView: { m: 'createCollection', a: ['coll', 'source', []] },
