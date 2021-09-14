@@ -182,6 +182,16 @@ export interface EditorReadVscodeExtensionsFailedEvent {
   error: string;
 }
 
+export interface EditorIsVscodeAppRegexFailedEvent {
+  regex: RegExp;
+  cmd: string;
+}
+
+export interface EditorIsStatementRegexFailedEvent {
+  regex: RegExp;
+  code: string;
+}
+
 export interface MongoshBusEventsMap {
   /**
    * Signals a connection to a MongoDB instance has been established
@@ -355,12 +365,16 @@ export interface MongoshBusEventsMap {
   /** Signals that an optional dependency of the mongodb package is missing. */
   'mongosh-sp:missing-optional-dependency': (ev: SpMissingOptionalDependencyEvent) => void;
 
-  /** Signals that a run edit command has started executing. */
+  /** Signals that open external editor command was called. */
   'mongosh-editor:run-edit-command': (ev: EditorRunEditCommandEvent) => void;
-  /** Signals that a run edit command has failed. */
+  /** Signals that reading vscode extensions from disc succeeded. */
   'mongosh-editor:read-vscode-extensions-done': (ev: EditorReadVscodeExtensionsDoneEvent) => void;
   /** Signals that reading vscode extensions from disc failed. */
   'mongosh-editor:read-vscode-extensions-failed': (ev: EditorReadVscodeExtensionsFailedEvent) => void;
+  /** Signals that regex failed to parse path to an external editor. */
+  'mongosh-editor:is-vscode-app-regex-failed': (ev: EditorIsVscodeAppRegexFailedEvent) => void;
+  /** Signals that regex failed to parse code for an external editor. */
+  'mongosh-editor:is-statement-regex-failed': (ev: EditorIsStatementRegexFailedEvent) => void;
 }
 
 export interface MongoshBus {

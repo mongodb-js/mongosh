@@ -236,7 +236,8 @@ class CliRepl {
       vscodeDir: this.shellHomeDirectory.rcPath('.vscode'),
       tmpDir: this.shellHomeDirectory.roamingPath('editor'),
       instanceState: this.mongoshRepl.runtimeState().instanceState,
-      makeMultilineJSIntoSingleLine: makeMultilineJSIntoSingleLine // TODO: move to its own package
+      makeMultilineJSIntoSingleLine: makeMultilineJSIntoSingleLine, // TODO: move to its own package
+      loadExternalCode: this.mongoshRepl.loadExternalCode.bind(this.mongoshRepl)
     });
     editor.activate();
 

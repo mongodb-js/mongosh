@@ -4,53 +4,57 @@ import { once } from 'events';
 import { Readable } from 'stream';
 import spawn from 'cross-spawn';
 import { v4 as uuidv4 } from 'uuid';
-
-import type { ShellUserConfig, MongoshBus } from '@mongosh/types';
 import { signatures, ShellPlugin, ShellInstanceState, TypeSignature } from '@mongosh/shell-api';
+
+import type { MongoshBus } from '@mongosh/types';
+
+const beautify = require('js-beautify').js;
+
+interface EditorSession {
+  cmd: string;
+  args: string[];
+  content: string;
+  code: string;
+  tmpDoc: string;
+}
 
 export interface EditorOptions {
   input: Readable;
-  vscodeDir: string,
-  tmpDir: string,
+  vscodeDir: string;
+  tmpDir: string;
   instanceState: ShellInstanceState;
   makeMultilineJSIntoSingleLine: any;
+  loadExternalCode: any;
 }
 
 export class Editor implements ShellPlugin {
   _input: Readable;
   _vscodeDir: string;
   _tmpDir: string;
-  _tmpDocName: string;
-  _tmpDoc: string;
   _instanceState: ShellInstanceState;
   _makeMultilineJSIntoSingleLine: any;
-  load: (filename: string) => Promise<void>;
+  _loadExternalCode: any;
   require: any;
-  config: { get<T extends keyof ShellUserConfig>(key: T): Promise<ShellUserConfig[T]> };
+  _editorSession: EditorSession;
   print: (...args: any[]) => Promise<void>;
-  npmArgv: string[];
 
-  constructor({ input, vscodeDir, tmpDir, instanceState, makeMultilineJSIntoSingleLine }: EditorOptions) {
-    const { load, config, print, require } = instanceState.context;
+  constructor({ input, vscodeDir, tmpDir, instanceState, makeMultilineJSIntoSingleLine, loadExternalCode }: EditorOptions) {
     this._input = input;
     this._vscodeDir = vscodeDir;
     this._tmpDir = tmpDir;
-    this._tmpDocName = `edit-${uuidv4()}`;
-    this._tmpDoc = '';
     this._instanceState = instanceState;
     this._makeMultilineJSIntoSingleLine = makeMultilineJSIntoSingleLine;
-    this.load = load;
-    this.config = config;
-    this.print = print;
-    this.require = require;
-    this.npmArgv = [];
+    this._loadExternalCode = loadExternalCode;
+    this._editorSession = { cmd: '', args: [], content: '', code: '', tmpDoc: '' };
+    this.print = instanceState.context.print;
 
     // Add edit command support to shell api.
     const wrapperFn = (...args: string[]) => {
-      return Object.assign(this.runEditorCommand(args), {
+      return Object.assign(this.runEditCommand(args), {
         [Symbol.for('@@mongosh.syntheticPromise')]: true
       });
     };
+
     wrapperFn.isDirectShellCommand = true;
     wrapperFn.returnsPromise = true;
     (instanceState.shellApi as any).edit = instanceState.context.edit = wrapperFn;
@@ -68,8 +72,8 @@ export class Editor implements ShellPlugin {
   // In the case of using VSCode as an external editor,
   // we should detect whether the MongoDB extension is installed and open a .mongodb file.
   // In all other cases we should open a .js file.
-  async getExtension(cmd: string): Promise<string> {
-    if (!cmd.includes('code')) {
+  async _getExtension(cmd: string): Promise<string> {
+    if (!this._isVscodeApp(cmd)) {
       return 'js';
     }
 
@@ -94,7 +98,7 @@ export class Editor implements ShellPlugin {
     }
   }
 
-  async getEditor(): Promise<string|null> {
+  async _getEditor(): Promise<string|null> {
     // Check for an external editor in the mongosh configuration.
     let editor: string | null = await this._instanceState.shellApi.config.get('editor');
 
@@ -106,38 +110,83 @@ export class Editor implements ShellPlugin {
     return editor;
   }
 
-  async readTempFile(): Promise<string> {
-    const content = await fse.readFile(this._tmpDoc, 'utf8');
+  async _createTempFile(): Promise<void> {
+    const ext = await this._getExtension(this._editorSession.cmd);
+    const content = await this._getEditorContent();
+
+    this._editorSession.tmpDoc = path.join(this._tmpDir, `edit-${uuidv4()}.${ext}`);
+
+    // Create a temp file to store content that is being edited.
+    await fse.ensureFile(this._editorSession.tmpDoc);
+    await fse.writeFile(this._editorSession.tmpDoc, beautify(content));
+  }
+
+  async _readTempFile(tmpDoc: string): Promise<string> {
+    const content = await fse.readFile(tmpDoc, 'utf8');
+    await fse.unlink(tmpDoc);
     return this._makeMultilineJSIntoSingleLine(content);
   }
 
-  async createTempFile(cmd: string) {
-    const ext = await this.getExtension(cmd);
-    this._tmpDoc = path.join(this._tmpDir, `${this._tmpDocName}.${ext}`);
+  _isVscodeApp(cmd: string): boolean {
+    const regex = /^((.*\/)([^/]*))?code(.exe)?$/;
 
-    // Create a temp file to store content that is being edited.
-    await fse.ensureFile(this._tmpDoc);
+    try {
+      return !!regex.exec(cmd);
+    } catch (error) {
+      this.messageBus.emit('mongosh-editor:is-vscode-app-regex-failed', { regex, cmd });
+      return false;
+    }
   }
 
-  async runEditorCommand([ identifier, ...args ]: string[]): Promise<void> {
+  _isStatement(code: string): boolean {
+    const regex = /\b[^()]+\((.*)\)$/;
+
+    try {
+      return !!regex.exec(code);
+    } catch (error) {
+      this.messageBus.emit('mongosh-editor:is-statement-regex-failed', { regex, code });
+      return false;
+    }
+  }
+
+  async _getEditorContent(): Promise<string> {
+    if (!this._editorSession.code) {
+      return this._editorSession.content;
+    }
+
+    const evalResult = await this._loadExternalCode(this._editorSession.code, '@(shell eval)');
+    return this._isStatement(this._editorSession.code) ? this._editorSession.code : evalResult.toString();
+  }
+
+  async runEditCommand([ code, ...args ]: string[]): Promise<void> {
     await this.print('Opening an editor...');
-    const editor: string|null = await this.getEditor();
+    const editor: string|null = await this._getEditor();
 
     // If none of the above configurations are found return an error.
     if (!editor) {
-      throw new Error(`Command failed: ${[identifier, ...args].join(' ')} with an error: please define an external editor`);
+      throw new Error(`Command failed: ${[code, ...args].join(' ')} with an error: please define an external editor`);
     }
 
     const [ cmd, ...cmdArgs ] = editor.split(' ');
-    await this.createTempFile(cmd);
+
+    this._editorSession.cmd = cmd;
+    this._editorSession.args = [ ...args, ...cmdArgs ];
+    this._editorSession.code = code;
 
     this.messageBus.emit('mongosh-editor:run-edit-command', {
-      tmpdoc: this._tmpDoc,
+      tmpdoc: this._editorSession.tmpDoc,
       editor,
-      args: [ identifier, ...cmdArgs, ...args ]
+      args: [ code, ...cmdArgs, ...args ]
     });
 
-    const proc = spawn(cmd, [this._tmpDoc, ...cmdArgs, ...args], {
+    await this._createTempFile();
+    await this._runInChildProcess();
+  }
+
+  async _runInChildProcess(): Promise<void> {
+    const { cmd, tmpDoc, args, code } = this._editorSession;
+
+    const proc = spawn(cmd, [tmpDoc, ...args], {
       env: { ...process.env, MONGOSH_RUN_NODE_SCRIPT: '1' },
       stdio: 'inherit'
     });
@@ -157,7 +206,7 @@ export class Editor implements ShellPlugin {
       const [ exitCode ] = await once(proc, 'close');
 
       if (exitCode === 0) {
-        const content = await this.readTempFile();
+        const content = await this._readTempFile(tmpDoc);
         this._input.unshift(content);
         return;
       }
@@ -168,7 +217,7 @@ export class Editor implements ShellPlugin {
         stderr = stdout;
       }
 
-      throw new Error(`Command failed '${cmd} ${[identifier, ...args, ...cmdArgs].join(' ')}' with exit code ${exitCode}: ${stderr} ${stdout}`);
+      throw new Error(`Command failed '${cmd} ${[code, ...args].join(' ')}' with exit code ${exitCode}: ${stderr} ${stdout}`);
     } finally {
       this._input.resume();
       if (proc.exitCode === null && proc.signalCode === null) {
