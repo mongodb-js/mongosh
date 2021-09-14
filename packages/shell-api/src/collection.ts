@@ -1715,7 +1715,11 @@ export default class Collection extends ShellApiWithMongoClass {
   @topologies([Topologies.ReplSet, Topologies.Sharded])
   @apiVersions([1])
   @returnsPromise
-  async watch(pipeline: Document[] = [], options: ChangeStreamOptions = {}): Promise<ChangeStreamCursor> {
+  async watch(pipeline: Document[] | ChangeStreamOptions = [], options: ChangeStreamOptions = {}): Promise<ChangeStreamCursor> {
+    if (!Array.isArray(pipeline)) {
+      options = pipeline;
+      pipeline = [];
+    }
     this._emitCollectionApiCall('watch', { pipeline, options });
     const cursor = new ChangeStreamCursor(
       this._mongo._serviceProvider.watch(pipeline, {
@@ -1739,7 +1743,11 @@ export default class Collection extends ShellApiWithMongoClass {
     //   .watch() call and before the .tryNext() call could also have been
     //   observed before the .watch() call, i.e. there is a race condition
     //   here either way and we can use that to our advantage.
-    await cursor.tryNext();
+    // We only do this for change streams that do not specify from a specified
+    // point in time, i.e. start from the current time.
+    if (!options.resumeAfter && !options.startAfter && !options.startAtOperationTime) {
+      await cursor.tryNext();
+    }
     this._mongo._instanceState.currentCursor = cursor;
     return cursor;
   }
