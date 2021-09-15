@@ -29,17 +29,15 @@
     "unitTestsOnly": true
   },
   "dependencies": {
+    "@mongosh/service-provider-core": "0.0.0-dev.0",
     "@mongosh/shell-api": "0.0.0-dev.0",
+    "@mongosh/shell-evaluator": "0.0.0-dev.0",
     "@mongosh/types": "0.0.0-dev.0",
     "cross-spawn": "^7.0.3",
-    "fs-extra": "^10.0.0",
-    "js-beautify": "^1.14.0",
-    "uuid": "^8.3.2"
+    "js-beautify": "^1.14.0"
   },
   "devDependencies": {
     "@types/cross-spawn": "^6.0.2",
-    "@types/fs-extra": "^9.0.12",
-    "@types/uuid": "^8.3.1",
     "nanobus": "^4.5.0"
   }
 }

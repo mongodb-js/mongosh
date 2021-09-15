@@ -225,21 +225,20 @@ class CliRepl {
 
     let snippetManager: SnippetManager | undefined;
     if (this.config.snippetIndexSourceURLs !== '') {
-      snippetManager = new SnippetManager({
+      snippetManager = SnippetManager.create({
         installdir: this.shellHomeDirectory.roamingPath('snippets'),
         instanceState: this.mongoshRepl.runtimeState().instanceState
       });
     }
 
-    const editor = new Editor({
+    Editor.create({
       input: this.input,
       vscodeDir: this.shellHomeDirectory.rcPath('.vscode'),
-      tmpDir: this.shellHomeDirectory.roamingPath('editor'),
+      tmpDir: this.shellHomeDirectory.localPath('editor'),
       instanceState: this.mongoshRepl.runtimeState().instanceState,
       makeMultilineJSIntoSingleLine: makeMultilineJSIntoSingleLine, // TODO: move to its own package
       loadExternalCode: this.mongoshRepl.loadExternalCode.bind(this.mongoshRepl)
     });
-    editor.activate();
 
     const commandLineLoadFiles = this.cliOptions.fileNames ?? [];
     if (commandLineLoadFiles.length > 0 || this.cliOptions.eval !== undefined) {

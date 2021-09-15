@@ -162,7 +162,7 @@ export interface SpMissingOptionalDependencyEvent {
 }
 
 export interface EditorRunEditCommandEvent {
-  tmpdoc: string;
+  tmpDoc: string;
   editor: string;
   args: string[];
 }
@@ -180,16 +180,6 @@ export interface EditorReadVscodeExtensionsDoneEvent {
 export interface EditorReadVscodeExtensionsFailedEvent {
   action: string;
   error: string;
-}
-
-export interface EditorIsVscodeAppRegexFailedEvent {
-  regex: RegExp;
-  cmd: string;
-}
-
-export interface EditorIsStatementRegexFailedEvent {
-  regex: RegExp;
-  code: string;
 }
 
 export interface MongoshBusEventsMap {
@@ -371,10 +361,6 @@ export interface MongoshBusEventsMap {
   'mongosh-editor:read-vscode-extensions-done': (ev: EditorReadVscodeExtensionsDoneEvent) => void;
   /** Signals that reading vscode extensions from disc failed. */
   'mongosh-editor:read-vscode-extensions-failed': (ev: EditorReadVscodeExtensionsFailedEvent) => void;
-  /** Signals that regex failed to parse path to an external editor. */
-  'mongosh-editor:is-vscode-app-regex-failed': (ev: EditorIsVscodeAppRegexFailedEvent) => void;
-  /** Signals that regex failed to parse code for an external editor. */
-  'mongosh-editor:is-statement-regex-failed': (ev: EditorIsStatementRegexFailedEvent) => void;
 }
 
 export interface MongoshBus {
