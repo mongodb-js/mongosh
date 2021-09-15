@@ -1,3 +1,20 @@
+// The BSON package tries to use crypto.randomBytes(), but that throws
+// in the current browserify replacement for that package.
+// We provide a low-quality polyfill for now.
+// https://jira.mongodb.org/browse/MONGOSH-988
+const crypto = require('crypto');
+try {
+    crypto.randomBytes(1);
+} catch (err) {
+    crypto.randomBytes = function(size) {
+        const uint8Array = new Uint8Array(size);
+        for (var i = 0; i < uint8Array.length; i++) {
+            uint8Array[i] = Math.random() * 256;
+        }
+        return size;
+    };
+};
+
 const ShellApi = require('../../../../shell-api/');
 const ShellEvaluator = require('../../../../shell-evaluator/').default;
 
