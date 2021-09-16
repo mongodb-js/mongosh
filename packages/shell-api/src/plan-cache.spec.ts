@@ -29,6 +29,7 @@ describe('PlanCache', () => {
         topologies: ALL_TOPOLOGIES,
         serverVersions: ['4.4.0', ServerVersions.latest],
         isDirectShellCommand: false,
+        acceptsRawInput: false,
         shellCommandCompleter: undefined
       });
     });

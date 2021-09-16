@@ -101,6 +101,7 @@ describe('Field Level Encryption', () => {
         apiVersions: [ 1, Infinity ],
         serverVersions: ALL_SERVER_VERSIONS,
         isDirectShellCommand: false,
+        acceptsRawInput: false,
         shellCommandCompleter: undefined
       });
       expect(signatures.ClientEncryption.attributes.encrypt).to.deep.equal({
@@ -113,6 +114,7 @@ describe('Field Level Encryption', () => {
         apiVersions: ALL_API_VERSIONS,
         serverVersions: ALL_SERVER_VERSIONS,
         isDirectShellCommand: false,
+        acceptsRawInput: false,
         shellCommandCompleter: undefined
       });
     });

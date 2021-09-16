@@ -164,7 +164,7 @@ describe('Editor', () => {
 
   it('runEditCommand returns an error for not existing editor', async() => {
     try {
-      await editor.runEditCommand([]);
+      await editor.runEditCommand('');
     } catch (error) {
       expect(error.message).to.include('Command failed with an error: please define an external editor');
     }

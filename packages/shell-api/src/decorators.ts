@@ -334,6 +334,7 @@ export interface TypeSignature {
   returnType?: string | TypeSignature;
   attributes?: { [key: string]: TypeSignature };
   isDirectShellCommand?: boolean;
+  acceptsRawInput?: boolean;
   shellCommandCompleter?: ShellCommandCompleter;
 }
 
@@ -378,6 +379,7 @@ type ClassSignature = {
       deprecated: boolean;
       platforms: ReplPlatform[];
       isDirectShellCommand: boolean;
+      acceptsRawInput?: boolean;
       shellCommandCompleter?: ShellCommandCompleter;
     }
   };
@@ -440,6 +442,7 @@ function shellApiClassGeneric(constructor: Function, hasHelp: boolean): void {
     method.deprecated = method.deprecated || false;
     method.platforms = method.platforms || ALL_PLATFORMS;
     method.isDirectShellCommand = method.isDirectShellCommand || false;
+    method.acceptsRawInput = method.acceptsRawInput || false;
     method.shellCommandCompleter = method.shellCommandCompleter || undefined;
 
     classSignature.attributes[propertyName] = {
@@ -452,6 +455,7 @@ function shellApiClassGeneric(constructor: Function, hasHelp: boolean): void {
       deprecated: method.deprecated,
       platforms: method.platforms,
       isDirectShellCommand: method.isDirectShellCommand,
+      acceptsRawInput: method.acceptsRawInput,
       shellCommandCompleter: method.shellCommandCompleter
     };
 
@@ -504,6 +508,7 @@ function shellApiClassGeneric(constructor: Function, hasHelp: boolean): void {
         deprecated: method.deprecated,
         platforms: method.platforms,
         isDirectShellCommand: method.isDirectShellCommand,
+        acceptsRawInput: method.acceptsRawInput,
         shellCommandCompleter: method.shellCommandCompleter
       };
 

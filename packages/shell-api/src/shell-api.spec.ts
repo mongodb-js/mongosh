@@ -43,6 +43,7 @@ describe('ShellApi', () => {
         apiVersions: ALL_API_VERSIONS,
         serverVersions: ALL_SERVER_VERSIONS,
         isDirectShellCommand: true,
+        acceptsRawInput: false,
         shellCommandCompleter: signatures.ShellApi.attributes.use.shellCommandCompleter
       });
       expect(signatures.ShellApi.attributes.show).to.deep.equal({
@@ -55,6 +56,7 @@ describe('ShellApi', () => {
         apiVersions: ALL_API_VERSIONS,
         serverVersions: ALL_SERVER_VERSIONS,
         isDirectShellCommand: true,
+        acceptsRawInput: false,
         shellCommandCompleter: signatures.ShellApi.attributes.show.shellCommandCompleter
       });
       expect(signatures.ShellApi.attributes.exit).to.deep.equal({
@@ -67,6 +69,7 @@ describe('ShellApi', () => {
         apiVersions: ALL_API_VERSIONS,
         serverVersions: ALL_SERVER_VERSIONS,
         isDirectShellCommand: true,
+        acceptsRawInput: false,
         shellCommandCompleter: undefined
       });
       expect(signatures.ShellApi.attributes.it).to.deep.equal({
@@ -79,6 +82,7 @@ describe('ShellApi', () => {
         apiVersions: ALL_API_VERSIONS,
         serverVersions: ALL_SERVER_VERSIONS,
         isDirectShellCommand: true,
+        acceptsRawInput: false,
         shellCommandCompleter: undefined
       });
       expect(signatures.ShellApi.attributes.print).to.deep.equal({
@@ -91,6 +95,7 @@ describe('ShellApi', () => {
         apiVersions: ALL_API_VERSIONS,
         serverVersions: ALL_SERVER_VERSIONS,
         isDirectShellCommand: false,
+        acceptsRawInput: false,
         shellCommandCompleter: undefined
       });
       expect(signatures.ShellApi.attributes.printjson).to.deep.equal({
@@ -103,6 +108,7 @@ describe('ShellApi', () => {
         apiVersions: ALL_API_VERSIONS,
         serverVersions: ALL_SERVER_VERSIONS,
         isDirectShellCommand: false,
+        acceptsRawInput: false,
         shellCommandCompleter: undefined
       });
       expect(signatures.ShellApi.attributes.sleep).to.deep.equal({
@@ -115,6 +121,7 @@ describe('ShellApi', () => {
         apiVersions: ALL_API_VERSIONS,
         serverVersions: ALL_SERVER_VERSIONS,
         isDirectShellCommand: false,
+        acceptsRawInput: false,
         shellCommandCompleter: undefined
       });
       expect(signatures.ShellApi.attributes.cls).to.deep.equal({
@@ -127,6 +134,7 @@ describe('ShellApi', () => {
         apiVersions: ALL_API_VERSIONS,
         serverVersions: ALL_SERVER_VERSIONS,
         isDirectShellCommand: true,
+        acceptsRawInput: false,
         shellCommandCompleter: undefined
       });
       expect(signatures.ShellApi.attributes.Mongo).to.deep.equal({
@@ -139,6 +147,7 @@ describe('ShellApi', () => {
         apiVersions: ALL_API_VERSIONS,
         serverVersions: ALL_SERVER_VERSIONS,
         isDirectShellCommand: false,
+        acceptsRawInput: false,
         shellCommandCompleter: undefined
       });
       expect(signatures.ShellApi.attributes.connect).to.deep.equal({
@@ -151,6 +160,7 @@ describe('ShellApi', () => {
         apiVersions: ALL_API_VERSIONS,
         serverVersions: ALL_SERVER_VERSIONS,
         isDirectShellCommand: false,
+        acceptsRawInput: false,
         shellCommandCompleter: undefined
       });
     });
@@ -730,8 +740,16 @@ describe('ShellApi', () => {
 
         it('will work with defaults', async() => {
           expect(await config.get('displayBatchSize')).to.equal(20);
-          expect((await toShellResult(config)).printable).to.deep.equal(
-            new Map([['displayBatchSize', 20], ['maxTimeMS', null], ['enableTelemetry', false]] as any));
+
+          const shellResult = await toShellResult(config);
+          const expectedResult = new Map([
+            ['displayBatchSize', 20],
+            ['maxTimeMS', null],
+            ['enableTelemetry', false],
+            ['editor', null]
+          ] as any);
+
+          expect(shellResult.printable).to.deep.equal(expectedResult);
         });
 
         it('rejects setting all config keys', async() => {

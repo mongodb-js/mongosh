@@ -20,6 +20,10 @@ import ChangeStreamCursor from './change-stream-cursor';
 import { CommonErrors, MongoshDeprecatedError, MongoshInvalidInputError, MongoshRuntimeError, MongoshUnimplementedError } from '@mongosh/errors';
 chai.use(sinonChai);
 
+type ShellApiErrorsWrapper = Error & {
+  codeName: string
+};
+
 describe('Database', () => {
   const MD5_HASH = crypto.createHash('md5').update('anna:mongo:pwd').digest('hex');
   describe('help', () => {
@@ -87,6 +91,7 @@ describe('Database', () => {
         apiVersions: [ 1, Infinity ],
         serverVersions: ALL_SERVER_VERSIONS,
         isDirectShellCommand: false,
+        acceptsRawInput: false,
         shellCommandCompleter: undefined
       });
     });
@@ -2078,7 +2083,7 @@ describe('Database', () => {
       });
       it('returns warning if throws with auth error', async() => {
         const expectedError = new Error();
-        (expectedError as any).codeName = 'Unauthorized';
+        (expectedError as ShellApiErrorsWrapper).codeName = 'Unauthorized';
         serviceProvider.runCommandWithCheck.resolves({ isWritablePrimary: true });
         serviceProvider.runCommand.onCall(0).resolves({ ok: 1 });
         serviceProvider.runCommand.onCall(1).rejects(expectedError);

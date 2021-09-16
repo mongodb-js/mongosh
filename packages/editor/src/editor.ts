@@ -42,19 +42,21 @@ export class Editor {
     this.print = instanceState.context.print;
 
     // Add edit command support to shell api.
-    const wrapperFn = (...args: string[]) => {
-      return Object.assign(this.runEditCommand(args), {
+    const wrapperFn = (input: string) => {
+      return Object.assign(this.runEditCommand(input), {
         [Symbol.for('@@mongosh.syntheticPromise')]: true
       });
     };
 
     wrapperFn.isDirectShellCommand = true;
     wrapperFn.returnsPromise = true;
+    wrapperFn.acceptsRawInput = true;
     (instanceState.shellApi as any).edit = instanceState.context.edit = wrapperFn;
     (signatures.ShellApi.attributes as any).edit = {
       type: 'function',
       returnsPromise: true,
-      isDirectShellCommand: true
+      isDirectShellCommand: true,
+      acceptsRawInput: true
     } as TypeSignature;
   }
 
@@ -143,10 +145,10 @@ export class Editor {
     return evalResult.toString();
   }
 
-  async runEditCommand(args: string[]): Promise<void> {
+  async runEditCommand(input: string): Promise<void> {
     await this.print('Opening an editor...');
 
-    const code = args.join(' ');
+    const code = input.replace('edit ', '');
     const editor: string|null = await this._getEditor();
 
     // If none of the above configurations are found return an error.

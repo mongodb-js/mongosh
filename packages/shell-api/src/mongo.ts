@@ -54,6 +54,10 @@ import {
 } from './field-level-encryption';
 import { ShellApiErrors } from './error-codes';
 
+type ShellApiErrorsWrapper = Error & {
+  code: string
+};
+
 @shellApiClassDefault
 @classPlatforms([ ReplPlatform.CLI ] )
 export default class Mongo extends ShellApiClass {
@@ -179,10 +183,10 @@ export default class Mongo extends ShellApiClass {
       // If the initial provider had TLS enabled, and we're not able to connect,
       // and the new URL does not contain a SSL/TLS indicator, we add a notice
       // about the fact that the behavior differs from the legacy shell here.
-      if (e?.name === 'MongoServerSelectionError' &&
+      if ((e as ShellApiErrorsWrapper)?.name === 'MongoServerSelectionError' &&
           parentProvider.getRawClient()?.options?.tls &&
           !this._uri.match(/\b(ssl|tls)=/)) {
-        e.message += ' (is ?tls=true missing from the connection string?)';
+        (e as ShellApiErrorsWrapper).message += ' (is ?tls=true missing from the connection string?)';
       }
       throw e;
     }
@@ -228,7 +232,7 @@ export default class Mongo extends ShellApiClass {
       previousDbName = previousDb?.getName?.();
       previousDbMongo = previousDb?._mongo;
     } catch (e) {
-      if (e.code !== ShellApiErrors.NotConnected) {
+      if ((e as ShellApiErrorsWrapper).code !== ShellApiErrors.NotConnected) {
         throw e;
       }
     }
