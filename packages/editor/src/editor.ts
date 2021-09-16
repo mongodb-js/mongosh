@@ -17,8 +17,8 @@ export interface EditorOptions {
   vscodeDir: string;
   tmpDir: string;
   instanceState: ShellInstanceState;
-  makeMultilineJSIntoSingleLine: any;
-  loadExternalCode: any;
+  makeMultilineJSIntoSingleLine: (code: string) => string;
+  loadExternalCode: (input: string, filename: string) => Promise<ShellResult>;
 }
 
 export class Editor {
@@ -28,7 +28,7 @@ export class Editor {
   _instanceState: ShellInstanceState;
   _makeMultilineJSIntoSingleLine: (code: string) => string;
   _loadExternalCode: (input: string, filename: string) => Promise<ShellResult>;
-  _content: string;
+  _lastContent: string;
   print: (...args: any[]) => Promise<void>;
 
   constructor({ input, vscodeDir, tmpDir, instanceState, makeMultilineJSIntoSingleLine, loadExternalCode }: EditorOptions) {
@@ -38,7 +38,7 @@ export class Editor {
     this._instanceState = instanceState;
     this._makeMultilineJSIntoSingleLine = makeMultilineJSIntoSingleLine;
     this._loadExternalCode = loadExternalCode;
-    this._content = '';
+    this._lastContent = '';
     this.print = instanceState.context.print;
 
     // Add edit command support to shell api.
@@ -116,6 +116,7 @@ export class Editor {
   async _readTempFile(tmpDoc: string): Promise<string> {
     const content = await fs.readFile(tmpDoc, 'utf8');
     await fs.unlink(tmpDoc);
+    this._lastContent = content;
     return this._makeMultilineJSIntoSingleLine(content);
   }
 
@@ -131,14 +132,14 @@ export class Editor {
 
   async _getEditorContent(code: string): Promise<string> {
     if (!code) {
-      return this._content;
+      return this._lastContent;
     }
 
     if (!this._isIdentifier(code)) {
       return code;
     }
 
-    const evalResult = await this._loadExternalCode(code, '@(shell eval)');
+    const evalResult = await this._loadExternalCode(code, '@(editor)');
     return evalResult.toString();
   }
 
@@ -164,16 +165,6 @@ export class Editor {
     });
 
     const proc = spawn(editor, [tmpDoc], { stdio: 'inherit' });
-    let stdout = '';
-    let stderr = '';
-
-    if (proc.stdout) {
-      (proc.stdout as NodeJS.ReadableStream).setEncoding('utf8').on('data', (chunk) => { stdout += chunk; });
-    }
-    if (proc.stderr) {
-      (proc.stdout as NodeJS.ReadableStream).setEncoding('utf8').on('data', (chunk) => { stderr += chunk; });
-    }
-
     this._input.pause();
 
     try {
@@ -185,13 +176,7 @@ export class Editor {
         return;
       }
 
-      // Allow exit code 1 if stderr is empty, i.e. no error occurred, because
-      // that is how commands like `npm outdated` report their result.
-      if (exitCode === 1 && stderr === '' && stdout) {
-        stderr = stdout;
-      }
-
-      throw new Error(`Command '${code}' failed with an exit code ${exitCode}: ${stderr} ${stdout}`);
+      throw new Error(`Command '${code}' failed with an exit code ${exitCode}`);
     } finally {
       this._input.resume();
 

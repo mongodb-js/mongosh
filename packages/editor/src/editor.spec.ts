@@ -22,6 +22,7 @@ describe('Editor', () => {
   let makeEditor: () => Editor;
   let busMessages: ({ ev: any, data?: any })[];
   let cmd: string | null;
+  let mockLoadExternalCodeResult: (...args: any[]) => { args: any[]; done: boolean };
 
   beforeEach(() => {
     input = new PassThrough();
@@ -42,6 +43,9 @@ describe('Editor', () => {
       },
       print: sinon.stub()
     };
+    mockLoadExternalCodeResult = function wrapper(...args: any[]) {
+      return { args, done: true };
+    };
 
     delete process.env.EDITOR;
 
@@ -59,7 +63,7 @@ describe('Editor', () => {
         messageBus
       } as any,
       makeMultilineJSIntoSingleLine: sinon.stub(),
-      loadExternalCode: sinon.stub()
+      loadExternalCode: (): any => mockLoadExternalCodeResult
     });
 
     editor = makeEditor();
@@ -145,14 +149,6 @@ describe('Editor', () => {
     expect(isIdentifier).to.be.equal(true);
   });
 
-  it('runEditCommand returns an error for not existing editor', async() => {
-    try {
-      await editor.runEditCommand([]);
-    } catch (error) {
-      expect(error.message).to.include('Command failed with an error: please define an external editor');
-    }
-  });
-
   it('_getEditor returns an editor value from process.env.EDITOR', async() => {
     process.env.EDITOR = 'neweprocessditor';
     const editorName = await editor._getEditor();
@@ -164,6 +160,44 @@ describe('Editor', () => {
     process.env.EDITOR = 'neweprocessditor';
     const editorName = await editor._getEditor();
     expect(editorName).to.be.equal(cmd);
+  });
+
+  it('runEditCommand returns an error for not existing editor', async() => {
+    try {
+      await editor.runEditCommand([]);
+    } catch (error) {
+      expect(error.message).to.include('Command failed with an error: please define an external editor');
+    }
+  });
+
+  it('_getEditorContent returns function implementation', async() => {
+    const code = 'db.test.find';
+    const content = await editor._getEditorContent(code);
+    expect(content).to.be.equal('function wrapper(...args) {\n            return { args, done: true };\n        }');
+  });
+
+  it('_getEditorContent returns function', async() => {
+    const code = "function foo() { return 'a b'; }";
+    const content = await editor._getEditorContent(code);
+    expect(content).to.be.equal(code);
+  });
+
+  it('_getEditorContent returns an unmodified statment', async() => {
+    const code = 'db.coll.find()';
+    const content = await editor._getEditorContent(code);
+    expect(content).to.be.equal(code);
+  });
+
+  it('_getEditorContent returns the last opened content for the empty edit command', async() => {
+    editor._lastContent = 'db.test.find()';
+    const content = await editor._getEditorContent('');
+    expect(content).to.be.equal('db.test.find()');
+  });
+
+  it('_getEditorContent returns a new content for not empty edit command', async() => {
+    editor._lastContent = 'db.coll.find()';
+    const content = await editor._getEditorContent('1 + 1');
+    expect(content).to.be.equal('1 + 1');
   });
 
   // TODO: e2e or mock tests for _getExtension
