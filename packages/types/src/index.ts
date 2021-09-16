@@ -164,7 +164,7 @@ export interface SpMissingOptionalDependencyEvent {
 export interface EditorRunEditCommandEvent {
   tmpDoc: string;
   editor: string;
-  args: string[];
+  code: string;
 }
 
 export interface EditorRunEditCommandFailedEvent {

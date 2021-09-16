@@ -29,7 +29,6 @@ export class Editor {
   _makeMultilineJSIntoSingleLine: (code: string) => string;
   _loadExternalCode: (input: string, filename: string) => Promise<ShellResult>;
   _content: string;
-  require: any;
   print: (...args: any[]) => Promise<void>;
 
   constructor({ input, vscodeDir, tmpDir, instanceState, makeMultilineJSIntoSingleLine, loadExternalCode }: EditorOptions) {
@@ -85,7 +84,7 @@ export class Editor {
     } catch (error) {
       this.messageBus.emit('mongosh-editor:read-vscode-extensions-failed', {
         action: 'mongosh-editor:read-vscode-extensions-failed',
-        error: error.message
+        error: (error as Error).message
       });
 
       return 'js';
@@ -108,7 +107,7 @@ export class Editor {
     const tmpDoc = path.join(this._tmpDir, `edit-${new bson.ObjectId()}.${ext}`);
 
     // Create a temp file to store content that is being edited.
-    await fs.mkdir(path.dirname(tmpDoc), { recursive: true, mode: 0o600 });
+    await fs.mkdir(path.dirname(tmpDoc), { recursive: true, mode: 0o700 });
     await fs.writeFile(tmpDoc, beautify(content));
 
     return tmpDoc;
@@ -125,8 +124,8 @@ export class Editor {
     return regex.test(cmd);
   }
 
-  _isStatement(code: string): boolean {
-    const regex = /\b[^()]+\((.*)\)$/;
+  _isIdentifier(code: string): boolean {
+    const regex = /^([^!#%&()*+,\-/\\^`{|}~]+)$/;
     return regex.test(code);
   }
 
@@ -135,7 +134,7 @@ export class Editor {
       return this._content;
     }
 
-    if (this._isStatement(code)) {
+    if (!this._isIdentifier(code)) {
       return code;
     }
 
@@ -143,31 +142,28 @@ export class Editor {
     return evalResult.toString();
   }
 
-  async runEditCommand([ code, ...codeArgs ]: string[]): Promise<void> {
+  async runEditCommand(args: string[]): Promise<void> {
     await this.print('Opening an editor...');
+
+    const code = args.join(' ');
     const editor: string|null = await this._getEditor();
 
     // If none of the above configurations are found return an error.
     if (!editor) {
-      throw new Error(`Command failed: ${[code, ...codeArgs].join(' ')} with an error: please define an external editor`);
+      throw new Error('Command failed with an error: please define an external editor');
     }
 
-    const [ editorName, ...editorArgs ] = editor.split(' ');
     const content = await this._getEditorContent(code);
-    const ext = await this._getExtension(editorName);
-    const args = [ ...codeArgs, ...editorArgs ];
+    const ext = await this._getExtension(editor);
     const tmpDoc = await this._createTempFile({ content, ext });
 
     this.messageBus.emit('mongosh-editor:run-edit-command', {
       tmpDoc,
       editor,
-      args
+      code
     });
 
-    const proc = spawn(editorName, [tmpDoc, ...args], {
-      stdio: 'inherit'
-    });
-
+    const proc = spawn(editor, [tmpDoc], { stdio: 'inherit' });
     let stdout = '';
     let stderr = '';
 
@@ -195,9 +191,10 @@ export class Editor {
         stderr = stdout;
       }
 
-      throw new Error(`Command failed '${editorName} ${[code, ...args].join(' ')}' with exit code ${exitCode}: ${stderr} ${stdout}`);
+      throw new Error(`Command '${code}' failed with an exit code ${exitCode}: ${stderr} ${stdout}`);
     } finally {
       this._input.resume();
+
       if (proc.exitCode === null && proc.signalCode === null) {
         proc.kill(); // Not exited yet, i.e. this was interrupted.
       }

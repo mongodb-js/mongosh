@@ -1,13 +1,13 @@
+import { bson } from '@mongosh/service-provider-core';
 import chai, { expect } from 'chai';
 import { Duplex, PassThrough } from 'stream';
+import Nanobus from 'nanobus';
 import path from 'path';
 import { promises as fs } from 'fs';
-import sinonChai from 'sinon-chai';
 import sinon from 'ts-sinon';
-import { v4 as uuidv4 } from 'uuid';
+import sinonChai from 'sinon-chai';
 
 import { Editor } from './editor';
-import Nanobus from 'nanobus';
 import { eventually } from '../../../testing/eventually';
 
 chai.use(sinonChai);
@@ -25,10 +25,10 @@ describe('Editor', () => {
 
   beforeEach(() => {
     input = new PassThrough();
-    base = path.resolve(__dirname, '..', '..', '..', 'tmp', 'test', `${Date.now()}`, `${uuidv4()}`);
+    base = path.resolve(__dirname, '..', '..', '..', 'tmp', 'test', `${Date.now()}`, `${new bson.ObjectId()}`);
     vscodeDir = path.join(base, '.vscode');
     tmpDir = path.join(base, 'editor');
-    cmd = 'notexistingeditor';
+    cmd = null;
     contextObject = {
       config: {
         get(key: string): any {
@@ -42,9 +42,11 @@ describe('Editor', () => {
       },
       print: sinon.stub()
     };
-    busMessages = [];
+
+    delete process.env.EDITOR;
 
     const messageBus = new Nanobus('mongosh-editor-test');
+    busMessages = [];
 
     makeEditor = () => new Editor({
       input,
@@ -78,14 +80,6 @@ describe('Editor', () => {
     });
   });
 
-  it('runEditCommand returns an error for not existing editor', async() => {
-    try {
-      await editor.runEditCommand([]);
-    } catch (error) {
-      expect(error.message).to.include('spawn notexistingeditor ENOENT');
-    }
-  });
-
   it('_isVscodeApp returns true if command is code', () => {
     const isVscodeApp = editor._isVscodeApp('code');
     expect(isVscodeApp).to.be.equal(true);
@@ -106,32 +100,70 @@ describe('Editor', () => {
     expect(isVscodeApp).to.be.equal(false);
   });
 
-  it('_isStatement returns true if command is an empty find statement', () => {
-    const isStatement = editor._isStatement('db.test.find()');
-    expect(isStatement).to.be.equal(true);
+  it('_isIdentifier returns false if a command is an empty find statement', () => {
+    const isIdentifier = editor._isIdentifier('db.test.find()');
+    expect(isIdentifier).to.be.equal(false);
   });
 
-  it('_isStatement returns true if command is a find statement with a query', () => {
-    const isStatement = editor._isStatement("db.test.find({ name: 'lena' })");
-    expect(isStatement).to.be.equal(true);
+  it('_isIdentifier returns false if a command is a find statement with a query', () => {
+    const isIdentifier = editor._isIdentifier("db.test.find({ name: 'lena' })");
+    expect(isIdentifier).to.be.equal(false);
   });
 
-  it('_isStatement returns false if command is an identifier', () => {
-    const isStatement = editor._isStatement('db.test.find');
-    expect(isStatement).to.be.equal(false);
+  it('_isIdentifier returns true if a command is an identifier written with dots', () => {
+    const isIdentifier = editor._isIdentifier('db.test.find');
+    expect(isIdentifier).to.be.equal(true);
   });
 
-  it('_getEditor returns an editor value from the mongosh config', async() => {
-    cmd = 'neweditor';
-    const editorName = await editor._getEditor();
-    expect(editorName).to.be.equal(cmd);
-    expect(editorName).to.not.be.equal(process.env.EDITOR);
+  it('_isIdentifier returns true if a command is an identifier written as an array and double quotes', () => {
+    const isIdentifier = editor._isIdentifier('db["test"]find');
+    expect(isIdentifier).to.be.equal(true);
+  });
+
+  it('_isIdentifier returns true if a command is an identifier written as an array and single quotes', () => {
+    const isIdentifier = editor._isIdentifier("db['test']find");
+    expect(isIdentifier).to.be.equal(true);
+  });
+
+  it('_isIdentifier returns true if it contains $', () => {
+    const isIdentifier = editor._isIdentifier('$something');
+    expect(isIdentifier).to.be.equal(true);
+  });
+
+  it('_isIdentifier returns false for sum of numbers', () => {
+    const isIdentifier = editor._isIdentifier('1 + 2');
+    expect(isIdentifier).to.be.equal(false);
+  });
+
+  it('_isIdentifier returns false for a class', () => {
+    const isIdentifier = editor._isIdentifier('class A {}');
+    expect(isIdentifier).to.be.equal(false);
+  });
+
+  it('_isIdentifier returns true for a string', () => {
+    const isIdentifier = editor._isIdentifier('"some string"');
+    expect(isIdentifier).to.be.equal(true);
+  });
+
+  it('runEditCommand returns an error for not existing editor', async() => {
+    try {
+      await editor.runEditCommand([]);
+    } catch (error) {
+      expect(error.message).to.include('Command failed with an error: please define an external editor');
+    }
   });
 
   it('_getEditor returns an editor value from process.env.EDITOR', async() => {
-    cmd = null;
+    process.env.EDITOR = 'neweprocessditor';
     const editorName = await editor._getEditor();
     expect(editorName).to.be.equal(process.env.EDITOR);
+  });
+
+  it('_getEditor returns an editor value from the mongosh config', async() => {
+    cmd = 'newecmdditor';
+    process.env.EDITOR = 'neweprocessditor';
+    const editorName = await editor._getEditor();
+    expect(editorName).to.be.equal(cmd);
   });
 
   // TODO: e2e or mock tests for _getExtension
