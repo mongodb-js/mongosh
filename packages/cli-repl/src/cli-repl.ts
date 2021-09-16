@@ -10,13 +10,14 @@ import ConnectionString from 'mongodb-connection-string-url';
 import Nanobus from 'nanobus';
 import semver from 'semver';
 import { Readable, Writable } from 'stream';
+import { buildInfo } from './build-info';
 import type { StyleDefinition } from './clr';
 import { ConfigManager, ShellHomeDirectory, ShellHomePaths } from './config-directory';
 import { CliReplErrors } from './error-codes';
-import { MongoLogManager, MongoLogWriter } from 'mongodb-log-writer';
+import { MongoLogManager, MongoLogWriter, mongoLogId } from 'mongodb-log-writer';
 import { MongocryptdManager } from './mongocryptd-manager';
 import MongoshNodeRepl, { MongoshNodeReplOptions } from './mongosh-repl';
-import setupLoggerAndTelemetry from './setup-logger-and-telemetry';
+import { setupLoggerAndTelemetry } from '@mongosh/logging';
 import { MongoshBus, CliUserConfig } from '@mongosh/types';
 import { promises as fs } from 'fs';
 import path from 'path';
@@ -177,10 +178,14 @@ class CliRepl {
     }
     this.logWriter = logger;
 
+    logger.info('MONGOSH', mongoLogId(1_000_000_000), 'log', 'Starting log', {
+      execPath: process.execPath,
+      ...buildInfo()
+    });
+
     setupLoggerAndTelemetry(
-      logger.logId,
       this.bus,
-      () => logger,
+      logger,
       () => {
         if (process.env.IS_MONGOSH_EVERGREEN_CI && !this.analyticsOptions?.alwaysEnable) {
           // This error will be in the log file, but otherwise not visible to users
@@ -191,7 +196,12 @@ class CliRepl {
           this.analyticsOptions?.apiKey ?? require('./build-info.json').segmentApiKey,
           this.analyticsOptions);
         return this.analytics;
-      });
+      },
+      {
+        platform: process.platform,
+        arch: process.arch
+      },
+      require('../package.json').version);
 
     try {
       this.config = await this.configDirectory.generateOrReadConfig(this.config);

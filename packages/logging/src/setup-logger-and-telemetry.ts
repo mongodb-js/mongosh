@@ -32,13 +32,12 @@ import type {
   SpMissingOptionalDependencyEvent
 } from '@mongosh/types';
 import { inspect } from 'util';
-import { buildInfo } from './build-info';
 import { MongoLogWriter, mongoLogId } from 'mongodb-log-writer';
 
 /**
  * General interface for an Analytics provider that mongosh can use.
  */
-interface MongoshAnalytics {
+export interface MongoshAnalytics {
   identify(message: {
     userId: string,
     traits: { platform: string }
@@ -67,29 +66,19 @@ class NoopAnalytics implements MongoshAnalytics {
 /**
  * Connect a MongoshBus instance that emits events to logging and analytics providers.
  *
- * @param logId The id of the current session
  * @param bus A MongoshBus instance
- * @param makeLogger A function that returns a log file writer
- * @param makeAnalytics A function that returns an analytics provider
+ * @param log A MongoLogWriter instance
+ * @param makeAnalytics A function that returns an analytics provider (or throws otherwise)
  */
-export default function setupLoggerAndTelemetry(
-  logId: string,
+export function setupLoggerAndTelemetry(
   bus: MongoshBus,
-  makeLogger: () => MongoLogWriter,
-  makeAnalytics: () => MongoshAnalytics): void {
-  const log = makeLogger();
-  const mongosh_version = require('../package.json').version;
+  log: MongoLogWriter,
+  makeAnalytics: () => MongoshAnalytics,
+  userTraits: any,
+  mongosh_version: string): void {
+  const { logId } = log;
   let userId: string;
   let telemetry: boolean;
-  const userTraits = {
-    platform: process.platform,
-    arch: process.arch
-  };
-
-  log.info('MONGOSH', mongoLogId(1_000_000_000), 'log', 'Starting log', {
-    execPath: process.execPath,
-    ...buildInfo()
-  });
 
   let analytics: MongoshAnalytics = new NoopAnalytics();
   try {
