@@ -116,10 +116,9 @@ export class Editor {
   }
 
   async _readTempFile(tmpDoc: string): Promise<string> {
-    const content = await fs.readFile(tmpDoc, 'utf8');
+    this._lastContent = await fs.readFile(tmpDoc, 'utf8');
     await fs.unlink(tmpDoc);
-    this._lastContent = content;
-    return this._makeMultilineJSIntoSingleLine(content);
+    return this._makeMultilineJSIntoSingleLine(this._lastContent);
   }
 
   _isVscodeApp(cmd: string): boolean {
@@ -148,7 +147,7 @@ export class Editor {
   async runEditCommand(input: string): Promise<void> {
     await this.print('Opening an editor...');
 
-    const code = input.replace('edit ', '');
+    const code = input.replace('edit', '').trim();
     const editor: string|null = await this._getEditor();
 
     // If none of the above configurations are found return an error.
