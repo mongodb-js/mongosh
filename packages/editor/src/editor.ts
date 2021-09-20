@@ -64,9 +64,9 @@ export class Editor {
     return new Editor(options);
   }
 
-  // In the case of using VSCode as an external editor,
+  // In case of using VSCode as an external editor,
   // detect whether the MongoDB extension is installed and open a .mongodb file.
-  // In all other cases open a .js file.
+  // If not open a .js file instead.
   async _getExtension(cmd: string): Promise<string> {
     if (!this._isVscodeApp(cmd)) {
       return 'js';
@@ -108,16 +108,18 @@ export class Editor {
   async _createTempFile({ content, ext }: { content: string; ext: string }): Promise<string> {
     const tmpDoc = path.join(this._tmpDir, `edit-${new bson.ObjectId()}.${ext}`);
 
-    // Create a temp file to store content that is being edited.
+    // Create a temp file to store a content that is being edited.
     await fs.mkdir(path.dirname(tmpDoc), { recursive: true, mode: 0o700 });
     await fs.writeFile(tmpDoc, beautify(content));
 
     return tmpDoc;
   }
 
-  async _readTempFile(tmpDoc: string): Promise<string> {
+  async _deleteTempFile(tmpDoc: string): Promise<string> {
+    // Store the last opened content inside the class and delete a temp file.
     this._lastContent = await fs.readFile(tmpDoc, 'utf8');
     await fs.unlink(tmpDoc);
+    // Transform a multi-line content to a single line.
     return this._makeMultilineJSIntoSingleLine(this._lastContent);
   }
 
@@ -132,14 +134,17 @@ export class Editor {
   }
 
   async _getEditorContent(code: string): Promise<string> {
+    // If an empty edit command was called, return the last opened content.
     if (!code) {
       return this._lastContent;
     }
 
+    // If code is a statement return the original input string.
     if (!this._isIdentifier(code)) {
       return code;
     }
 
+    // If code is an identifier evaluate the string to see what the result is.
     const evalResult = await this._loadExternalCode(code, '@(editor)');
     return evalResult.toString();
   }
@@ -166,19 +171,23 @@ export class Editor {
     });
 
     const proc = spawn(editor, [tmpDoc], { stdio: 'inherit' });
+    // Pause the parent readable stream to stop emitting data events
+    // and get a child the total control over the input.
     this._input.pause();
 
     try {
       const [ exitCode ] = await once(proc, 'exit');
 
       if (exitCode === 0) {
-        const content = await this._readTempFile(tmpDoc);
+        await this._deleteTempFile(tmpDoc);
+        // Write a content from the editor to the parent readable stream.
         this._input.unshift(content);
         return;
       }
 
       throw new Error(`Command '${code}' failed with an exit code ${exitCode}`);
     } finally {
+      // Resume the parent readable stream to recive data events.
       this._input.resume();
 
       if (proc.exitCode === null && proc.signalCode === null) {

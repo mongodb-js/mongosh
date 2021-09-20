@@ -144,7 +144,7 @@ class CliRepl {
 
   /**
    * Setup CLI environment: serviceProvider, ShellEvaluator, log connection
-   * information, and finally start the repl.
+   * information, external editor, and finally start the repl.
    *
    * @param {string} driverUri - The driver URI.
    * @param {MongoClientOptions} driverOptions - The driver options.
