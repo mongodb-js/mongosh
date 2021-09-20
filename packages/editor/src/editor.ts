@@ -115,7 +115,7 @@ export class Editor {
     return tmpDoc;
   }
 
-  async _deleteTempFile(tmpDoc: string): Promise<string> {
+  async _readAndDeleteTempFile(tmpDoc: string): Promise<string> {
     // Store the last opened content inside the class and delete a temp file.
     this._lastContent = await fs.readFile(tmpDoc, 'utf8');
     await fs.unlink(tmpDoc);
@@ -179,9 +179,9 @@ export class Editor {
       const [ exitCode ] = await once(proc, 'exit');
 
       if (exitCode === 0) {
-        await this._deleteTempFile(tmpDoc);
+        const result = await this._readAndDeleteTempFile(tmpDoc);
         // Write a content from the editor to the parent readable stream.
-        this._input.unshift(content);
+        this._input.unshift(result);
         return;
       }
 
