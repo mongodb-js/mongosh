@@ -203,6 +203,7 @@ describe('CliRepl', () => {
           'displayBatchSize',
           'maxTimeMS',
           'enableTelemetry',
+          'editor',
           'snippetIndexSourceURLs',
           'snippetRegistryURL',
           'snippetAutoload',

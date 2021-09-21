@@ -41,6 +41,7 @@ describe('Shard', () => {
         apiVersions: [ 0, 0 ],
         serverVersions: ALL_SERVER_VERSIONS,
         isDirectShellCommand: false,
+        acceptsRawInput: false,
         shellCommandCompleter: undefined
       });
     });

@@ -4,6 +4,7 @@ import i18n from '@mongosh/i18n';
 import { bson, AutoEncryptionOptions } from '@mongosh/service-provider-core';
 import { CliOptions, CliServiceProvider, MongoClientOptions } from '@mongosh/service-provider-server';
 import { SnippetManager } from '@mongosh/snippet-manager';
+import { Editor } from '@mongosh/editor';
 import Analytics from 'analytics-node';
 import askpassword from 'askpassword';
 import ConnectionString from 'mongodb-connection-string-url';
@@ -22,6 +23,7 @@ import { MongoshBus, CliUserConfig } from '@mongosh/types';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { promisify } from 'util';
+import { makeMultilineJSIntoSingleLine } from './js-multiline-to-singleline';
 
 /**
  * Connecting text key.
@@ -142,7 +144,7 @@ class CliRepl {
 
   /**
    * Setup CLI environment: serviceProvider, ShellEvaluator, log connection
-   * information, and finally start the repl.
+   * information, external editor, and finally start the repl.
    *
    * @param {string} driverUri - The driver URI.
    * @param {MongoClientOptions} driverOptions - The driver options.
@@ -223,11 +225,20 @@ class CliRepl {
 
     let snippetManager: SnippetManager | undefined;
     if (this.config.snippetIndexSourceURLs !== '') {
-      snippetManager = new SnippetManager({
+      snippetManager = SnippetManager.create({
         installdir: this.shellHomeDirectory.roamingPath('snippets'),
         instanceState: this.mongoshRepl.runtimeState().instanceState
       });
     }
+
+    Editor.create({
+      input: this.input,
+      vscodeDir: this.shellHomeDirectory.rcPath('.vscode'),
+      tmpDir: this.shellHomeDirectory.localPath('editor'),
+      instanceState: this.mongoshRepl.runtimeState().instanceState,
+      makeMultilineJSIntoSingleLine: makeMultilineJSIntoSingleLine, // TODO: move to its own package
+      loadExternalCode: this.mongoshRepl.loadExternalCode.bind(this.mongoshRepl)
+    });
 
     const commandLineLoadFiles = this.cliOptions.fileNames ?? [];
     if (commandLineLoadFiles.length > 0 || this.cliOptions.eval !== undefined) {

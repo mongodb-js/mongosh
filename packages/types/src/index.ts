@@ -161,6 +161,27 @@ export interface SpMissingOptionalDependencyEvent {
   error: Error;
 }
 
+export interface EditorRunEditCommandEvent {
+  tmpDoc: string;
+  editor: string;
+  code: string;
+}
+
+export interface EditorRunEditCommandFailedEvent {
+  action: string;
+  error: string;
+}
+
+export interface EditorReadVscodeExtensionsDoneEvent {
+  vscodeDir: string;
+  hasMongodbExtension: boolean;
+}
+
+export interface EditorReadVscodeExtensionsFailedEvent {
+  action: string;
+  error: string;
+}
+
 export interface MongoshBusEventsMap {
   /**
    * Signals a connection to a MongoDB instance has been established
@@ -333,6 +354,13 @@ export interface MongoshBusEventsMap {
   'mongosh-sp:reset-connection-options': () => void;
   /** Signals that an optional dependency of the mongodb package is missing. */
   'mongosh-sp:missing-optional-dependency': (ev: SpMissingOptionalDependencyEvent) => void;
+
+  /** Signals that open external editor command was called. */
+  'mongosh-editor:run-edit-command': (ev: EditorRunEditCommandEvent) => void;
+  /** Signals that reading vscode extensions from disc succeeded. */
+  'mongosh-editor:read-vscode-extensions-done': (ev: EditorReadVscodeExtensionsDoneEvent) => void;
+  /** Signals that reading vscode extensions from disc failed. */
+  'mongosh-editor:read-vscode-extensions-failed': (ev: EditorReadVscodeExtensionsFailedEvent) => void;
 }
 
 export interface MongoshBus {
@@ -346,10 +374,11 @@ export class ShellUserConfig {
   displayBatchSize = 20;
   maxTimeMS: number | null = null;
   enableTelemetry = false;
+  editor: string | null = null;
 }
 
 export class ShellUserConfigValidator {
-  // eslint-disable-next-line @typescript-eslint/require-await
+  // eslint-disable-next-line complexity, @typescript-eslint/require-await
   static async validate<K extends keyof ShellUserConfig>(key: K, value: ShellUserConfig[K]): Promise<string | null> {
     switch (key) {
       case 'displayBatchSize':
@@ -365,6 +394,11 @@ export class ShellUserConfigValidator {
       case 'enableTelemetry':
         if (typeof value !== 'boolean') {
           return `${key} must be a boolean`;
+        }
+        return null;
+      case 'editor':
+        if (typeof value !== 'string' && value !== null) {
+          return `${key} must be a string or null`;
         }
         return null;
       default:

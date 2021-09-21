@@ -29,7 +29,10 @@ import type {
   SpConnectHeartbeatSucceededEvent,
   SpResolveSrvErrorEvent,
   SpResolveSrvSucceededEvent,
-  SpMissingOptionalDependencyEvent
+  SpMissingOptionalDependencyEvent,
+  EditorRunEditCommandEvent,
+  EditorReadVscodeExtensionsDoneEvent,
+  EditorReadVscodeExtensionsFailedEvent
 } from '@mongosh/types';
 import { inspect } from 'util';
 import { MongoLogWriter, mongoLogId } from 'mongodb-log-writer';
@@ -413,5 +416,17 @@ export function setupLoggerAndTelemetry(
       name: ev.name,
       error: ev?.error.message
     });
+  });
+
+  bus.on('mongosh-editor:run-edit-command', function(ev: EditorRunEditCommandEvent) {
+    log.error('MONGOSH-EDITOR', mongoLogId(1_000_000_042), 'editor', 'Open external editor', ev);
+  });
+
+  bus.on('mongosh-editor:read-vscode-extensions-done', function(ev: EditorReadVscodeExtensionsDoneEvent) {
+    log.error('MONGOSH-EDITOR', mongoLogId(1_000_000_043), 'editor', 'Reading vscode extensions from disc succeeded', ev);
+  });
+
+  bus.on('mongosh-editor:read-vscode-extensions-failed', function(ev: EditorReadVscodeExtensionsFailedEvent) {
+    log.error('MONGOSH-EDITOR', mongoLogId(1_000_000_044), 'editor', 'Reading vscode extensions from disc failed', ev);
   });
 }

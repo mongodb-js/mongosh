@@ -13,6 +13,7 @@ describe('ShellEvaluator', () => {
   let showSpy: any;
   let itSpy: any;
   let exitSpy: any;
+  let editSpy: any;
   let useSpy: any;
   const dontCallEval = () => { throw new Error('unreachable'); };
 
@@ -21,12 +22,14 @@ describe('ShellEvaluator', () => {
     showSpy = sinon.spy();
     itSpy = sinon.spy();
     exitSpy = sinon.spy();
+    editSpy = sinon.spy();
     internalStateMock = {
       messageBus: busMock,
-      shellApi: { use: useSpy, show: showSpy, it: itSpy, exit: exitSpy, quit: exitSpy }
+      shellApi: { use: useSpy, show: showSpy, it: itSpy, exit: exitSpy, quit: exitSpy, edit: editSpy }
     } as any;
-    for (const name of ['use', 'show', 'it', 'exit', 'quit']) {
+    for (const name of ['use', 'show', 'it', 'exit', 'quit', 'edit']) {
       internalStateMock.shellApi[name].isDirectShellCommand = true;
+      internalStateMock.shellApi[name].acceptsRawInput = (name === 'edit') ? true : false;
     }
     busMock = new EventEmitter();
 
@@ -84,12 +87,18 @@ describe('ShellEvaluator', () => {
       expect(originalEval.firstCall.args[1]).to.deep.equal({});
       expect(originalEval.firstCall.args[2]).to.equal('');
     });
+
     it('allows specifying custom result handlers', async() => {
       const shellEvaluator = new ShellEvaluator<string>(internalStateMock, JSON.stringify);
       const originalEval = sinon.stub();
       originalEval.returns({ a: 1 });
       const result = await shellEvaluator.customEval(originalEval, 'doSomething();', {}, '');
       expect(result).to.equal('{"a":1}');
+    });
+
+    it('edit accepts raw input', async() => {
+      await shellEvaluator.customEval(dontCallEval, 'edit "1     2"', {}, '');
+      expect(editSpy).to.have.been.calledWith('edit "1     2"');
     });
   });
 });

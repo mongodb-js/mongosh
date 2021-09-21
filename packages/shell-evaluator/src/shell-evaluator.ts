@@ -32,10 +32,20 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
    * @param {Context} context - the execution context.
    * @param {String} filename
    */
+  // eslint-disable-next-line complexity
   private async innerEval(originalEval: EvaluationFunction, input: string, context: object, filename: string): Promise<any> {
     const { shellApi } = this.instanceState;
     const argv = input.trim().replace(/;$/, '').split(/\s+/g);
     const cmd = argv.shift() as keyof typeof shellApi;
+
+    if (
+      shellApi[cmd]?.isDirectShellCommand &&
+      shellApi[cmd]?.acceptsRawInput &&
+      !(argv[0] ?? '').startsWith('(')
+    ) {
+      return shellApi[cmd](input);
+    }
+
     if (shellApi[cmd]?.isDirectShellCommand && !(argv[0] ?? '').startsWith('(')) {
       return shellApi[cmd](...argv);
     }

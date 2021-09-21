@@ -1,0 +1,43 @@
+{
+  "name": "@mongosh/editor",
+  "version": "0.0.0-dev.0",
+  "description": "MongoDB Shell External Editor",
+  "main": "./lib/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mongodb-js/mongosh.git"
+  },
+  "config": {
+    "unsafe-perm": true
+  },
+  "scripts": {
+    "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 -r ts-node/register \"./{src,lib}/**/*.spec.ts\"",
+    "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
+    "lint": "eslint --report-unused-disable-directives \"./{src,test}/**/*.{js,ts,tsx}\"",
+    "check": "npm run lint && depcheck --skip-missing=true",
+    "compile-ts": "tsc -p tsconfig.json",
+    "prepublish": "npm run compile-ts"
+  },
+  "license": "Apache-2.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=14.15.0"
+  },
+  "mongosh": {
+    "unitTestsOnly": true
+  },
+  "dependencies": {
+    "@mongosh/service-provider-core": "0.0.0-dev.0",
+    "@mongosh/shell-api": "0.0.0-dev.0",
+    "@mongosh/shell-evaluator": "0.0.0-dev.0",
+    "@mongosh/types": "0.0.0-dev.0",
+    "cross-spawn": "^7.0.3",
+    "js-beautify": "^1.14.0"
+  },
+  "devDependencies": {
+    "@types/cross-spawn": "^6.0.2",
+    "nanobus": "^4.5.0"
+  }
+}

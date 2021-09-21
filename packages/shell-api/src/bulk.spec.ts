@@ -42,6 +42,7 @@ describe('Bulk API', () => {
           apiVersions: [ 1, Infinity ],
           serverVersions: ALL_SERVER_VERSIONS,
           isDirectShellCommand: false,
+          acceptsRawInput: false,
           shellCommandCompleter: undefined
         });
       });
@@ -244,6 +245,7 @@ describe('Bulk API', () => {
           apiVersions: [ 1, Infinity ],
           serverVersions: ALL_SERVER_VERSIONS,
           isDirectShellCommand: false,
+          acceptsRawInput: false,
           shellCommandCompleter: undefined
         });
       });

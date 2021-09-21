@@ -181,7 +181,8 @@ export default class Mongo extends ShellApiClass {
       // about the fact that the behavior differs from the legacy shell here.
       if (e?.name === 'MongoServerSelectionError' &&
           parentProvider.getRawClient()?.options?.tls &&
-          !this._uri.match(/\b(ssl|tls)=/)) {
+          !this._uri.match(/\b(ssl|tls)=/)
+      ) {
         e.message += ' (is ?tls=true missing from the connection string?)';
       }
       throw e;

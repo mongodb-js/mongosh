@@ -140,6 +140,10 @@ export class SnippetManager implements ShellPlugin {
     this.messageBus.emit('mongosh-snippets:loaded', { installdir });
   }
 
+  static create(options: SnippetOptions): SnippetManager {
+    return new SnippetManager(options);
+  }
+
   get messageBus(): MongoshBus {
     return this._instanceState.messageBus;
   }
