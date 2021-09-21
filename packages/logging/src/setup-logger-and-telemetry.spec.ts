@@ -1,7 +1,6 @@
-/* eslint-disable camelcase */
 import { expect } from 'chai';
 import { MongoLogWriter } from 'mongodb-log-writer';
-import setupLoggerAndTelemetry from './setup-logger-and-telemetry';
+import { setupLoggerAndTelemetry } from './';
 import { EventEmitter } from 'events';
 import { MongoshInvalidInputError } from '@mongosh/errors';
 import { MongoshBus } from '@mongosh/types';
@@ -30,8 +29,11 @@ describe('setupLoggerAndTelemetry', () => {
   });
 
   it('works', () => {
-    setupLoggerAndTelemetry(logId, bus, () => logger, () => analytics);
-    expect(logOutput).to.have.lengthOf(1);
+    setupLoggerAndTelemetry(bus, logger, () => analytics, {
+      platform: process.platform,
+      arch: process.arch
+    }, '1.0.0');
+    expect(logOutput).to.have.lengthOf(0);
     expect(analyticsOutput).to.be.empty;
 
     bus.emit('mongosh:new-user', userId, false);
@@ -95,8 +97,6 @@ describe('setupLoggerAndTelemetry', () => {
     bus.emit('mongosh-sp:missing-optional-dependency', { name: 'kerberos', error: new Error('no kerberos') });
 
     let i = 0;
-    expect(logOutput[i].msg).to.equal('Starting log');
-    expect(logOutput[i++].attr).to.include.keys('execPath', 'version', 'distributionKind');
     expect(logOutput[i].msg).to.equal('User updated');
     expect(logOutput[i++].attr).to.deep.equal({ enableTelemetry: false });
     expect(logOutput[i].msg).to.equal('Connecting to server');
@@ -184,7 +184,6 @@ describe('setupLoggerAndTelemetry', () => {
     expect(logOutput[i++].attr).to.deep.equal({ name: 'kerberos', error: 'no kerberos' });
     expect(i).to.equal(logOutput.length);
 
-    const mongosh_version = require('../package.json').version;
     expect(analyticsOutput).to.deep.equal([
       [
         'identify',
@@ -212,7 +211,7 @@ describe('setupLoggerAndTelemetry', () => {
           userId: '53defe995fa47e6c13102d9d',
           event: 'New Connection',
           properties: {
-            mongosh_version,
+            mongosh_version: '1.0.0',
             session_id: '5fb3c20ee1507e894e5340f3',
             is_localhost: true,
             is_atlas: false,
@@ -226,7 +225,7 @@ describe('setupLoggerAndTelemetry', () => {
           userId: '53defe995fa47e6c13102d9d',
           event: 'Error',
           properties: {
-            mongosh_version,
+            mongosh_version: '1.0.0',
             name: 'MongoshInvalidInputError',
             code: 'CLIREPL-1005',
             scope: 'CLIREPL',
@@ -239,7 +238,7 @@ describe('setupLoggerAndTelemetry', () => {
         {
           userId: '53defe995fa47e6c13102d9d',
           event: 'Use',
-          properties: { mongosh_version }
+          properties: { mongosh_version: '1.0.0' }
         }
       ],
       [
@@ -248,7 +247,7 @@ describe('setupLoggerAndTelemetry', () => {
           userId: '53defe995fa47e6c13102d9d',
           event: 'Show',
           properties: {
-            mongosh_version,
+            mongosh_version: '1.0.0',
             method: 'dbs'
           }
         }
@@ -258,7 +257,7 @@ describe('setupLoggerAndTelemetry', () => {
         {
           event: 'Script Loaded CLI',
           properties: {
-            mongosh_version,
+            mongosh_version: '1.0.0',
             nested: true,
             shell: true
           },
@@ -270,7 +269,7 @@ describe('setupLoggerAndTelemetry', () => {
         {
           event: 'Script Loaded',
           properties: {
-            mongosh_version,
+            mongosh_version: '1.0.0',
             nested: false
           },
           userId: '53defe995fa47e6c13102d9d'
@@ -281,7 +280,7 @@ describe('setupLoggerAndTelemetry', () => {
         {
           event: 'Mongoshrc Loaded',
           properties: {
-            mongosh_version,
+            mongosh_version: '1.0.0',
           },
           userId: '53defe995fa47e6c13102d9d'
         }
@@ -291,7 +290,7 @@ describe('setupLoggerAndTelemetry', () => {
         {
           event: 'Mongorc Warning',
           properties: {
-            mongosh_version,
+            mongosh_version: '1.0.0',
           },
           userId: '53defe995fa47e6c13102d9d'
         }
@@ -301,7 +300,7 @@ describe('setupLoggerAndTelemetry', () => {
         {
           event: 'Script Evaluated',
           properties: {
-            mongosh_version,
+            mongosh_version: '1.0.0',
             shell: true
           },
           userId: '53defe995fa47e6c13102d9d'
@@ -313,7 +312,7 @@ describe('setupLoggerAndTelemetry', () => {
           userId: '53defe995fa47e6c13102d9d',
           event: 'Snippet Install',
           properties: {
-            mongosh_version
+            mongosh_version: '1.0.0'
           }
         }
       ]
@@ -321,11 +320,10 @@ describe('setupLoggerAndTelemetry', () => {
   });
 
   it('buffers deprecated API calls', () => {
-    setupLoggerAndTelemetry(logId, bus, () => logger, () => analytics);
-    expect(logOutput).to.have.lengthOf(1);
+    setupLoggerAndTelemetry(bus, logger, () => analytics, {}, '1.0.0');
+    expect(logOutput).to.have.lengthOf(0);
     expect(analyticsOutput).to.be.empty;
 
-    const mongosh_version = require('../package.json').version;
     bus.emit('mongosh:new-user', userId, true);
 
     logOutput = [];
@@ -354,7 +352,7 @@ describe('setupLoggerAndTelemetry', () => {
           userId: '53defe995fa47e6c13102d9d',
           event: 'Deprecated Method',
           properties: {
-            mongosh_version,
+            mongosh_version: '1.0.0',
             class: 'Database',
             method: 'cloneDatabase',
           }
@@ -366,7 +364,7 @@ describe('setupLoggerAndTelemetry', () => {
           userId: '53defe995fa47e6c13102d9d',
           event: 'Deprecated Method',
           properties: {
-            mongosh_version,
+            mongosh_version: '1.0.0',
             class: 'Database',
             method: 'copyDatabase',
           }
@@ -391,10 +389,10 @@ describe('setupLoggerAndTelemetry', () => {
   });
 
   it('works when analytics are not available', () => {
-    setupLoggerAndTelemetry('5fb3c20ee1507e894e5340f3', bus, () => logger, () => { throw new Error(); });
+    setupLoggerAndTelemetry(bus, logger, () => { throw new Error(); }, {}, '1.0.0');
     bus.emit('mongosh:new-user', userId, true);
     expect(analyticsOutput).to.be.empty;
-    expect(logOutput).to.have.lengthOf(2);
-    expect(logOutput[1].s).to.equal('E');
+    expect(logOutput).to.have.lengthOf(1);
+    expect(logOutput[0].s).to.equal('E');
   });
 });
