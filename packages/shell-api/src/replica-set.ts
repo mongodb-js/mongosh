@@ -14,10 +14,6 @@ import { asPrintable } from './enums';
 import { assertArgsDefinedType } from './helpers';
 import { CommandResult } from './result';
 
-type ShellApiErrorsWrapper = Error & {
-  codeName: string
-};
-
 export type ReplSetMemberConfig = {
   _id: number;
   host: string;
@@ -67,7 +63,7 @@ export default class ReplicaSet extends ShellApiWithMongoClass {
       }
       return result.config;
     } catch (error) {
-      if ((error as ShellApiErrorsWrapper).codeName === 'CommandNotFound' || (error as ShellApiErrorsWrapper).codeName === 'APIStrictError') {
+      if (error.codeName === 'CommandNotFound' || error.codeName === 'APIStrictError') {
         const doc = await this._database.getSiblingDB('local').getCollection('system.replset').findOne() as ReplSetConfig | null;
         if (doc === null) {
           throw new MongoshRuntimeError('No documents in local.system.replset', CommonErrors.CommandFailed);
@@ -137,7 +133,7 @@ export default class ReplicaSet extends ShellApiWithMongoClass {
         result = [ 'success', await runReconfig() ];
         break;
       } catch (err) {
-        result = [ 'error', (err as ShellApiErrorsWrapper) ];
+        result = [ 'error', err ];
       }
     }
 

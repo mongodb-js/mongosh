@@ -29,11 +29,6 @@ import { TransformMongoErrorPlugin } from './mongo-errors';
 import NoDatabase from './no-db';
 import constructShellBson from './shell-bson';
 
-type ShellApiErrorsWrapper = Error & {
-  code: ShellApiErrors;
-  codeName: string
-};
-
 /**
  * The subset of CLI options that is relevant for the shell API's behavior itself.
  */
@@ -272,7 +267,7 @@ export default class ShellInstanceState {
     try {
       return this.currentDb._mongo._serviceProvider;
     } catch (err) {
-      if ((err as ShellApiErrorsWrapper).code === ShellApiErrors.NotConnected) {
+      if (err.code === ShellApiErrors.NotConnected) {
         return this.initialServiceProvider;
       }
       throw err;
@@ -352,8 +347,8 @@ export default class ShellInstanceState {
           return collectionNames.filter((name) => name.startsWith(collName));
         } catch (err) {
           if (
-            (err as ShellApiErrorsWrapper).code === ShellApiErrors.NotConnected ||
-            (err as ShellApiErrorsWrapper).codeName === 'Unauthorized'
+            err.code === ShellApiErrors.NotConnected ||
+            err.codeName === 'Unauthorized'
           ) {
             return [];
           }
@@ -366,8 +361,8 @@ export default class ShellInstanceState {
           return dbNames.filter((name) => name.startsWith(dbName));
         } catch (err) {
           if (
-            (err as ShellApiErrorsWrapper).code === ShellApiErrors.NotConnected ||
-            (err as ShellApiErrorsWrapper).codeName === 'Unauthorized'
+            err.code === ShellApiErrors.NotConnected ||
+            err.codeName === 'Unauthorized'
           ) {
             return [];
           }

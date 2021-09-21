@@ -81,13 +81,6 @@ type CollStatsShellOptions = CollStatsOptions & {
   indexDetailsName?: string;
 };
 
-type ShellApiErrorsWrapper = Error & {
-  codeName: string;
-  code: string;
-  errmsg: string;
-  ok: number;
-};
-
 @shellApiClassDefault
 @addSourceToResults
 export default class Collection extends ShellApiWithMongoClass {
@@ -520,12 +513,12 @@ export default class Collection extends ShellApiWithMongoClass {
         ok: 1
       };
     } catch (e) {
-      if ((e as ShellApiErrorsWrapper).name === 'MongoError') {
+      if (e.name === 'MongoError') {
         return {
           ok: 0,
-          errmsg: (e as ShellApiErrorsWrapper).errmsg,
-          code: (e as ShellApiErrorsWrapper).code,
-          codeName: (e as ShellApiErrorsWrapper).codeName
+          errmsg: e.errmsg,
+          code: e.code,
+          codeName: e.codeName
         };
       }
 
@@ -1170,8 +1163,8 @@ export default class Collection extends ShellApiWithMongoClass {
       // trying to drop all the indexes individually because that's what's supported
       // on mongod 4.0. In the java-shell, error properties are unavailable,
       // so we are a bit more generous there in terms of situation in which we retry.
-      if (((error as ShellApiErrorsWrapper).codeName === 'IndexNotFound' || (error as ShellApiErrorsWrapper).codeName === undefined) &&
-          ((error as ShellApiErrorsWrapper).errmsg === 'invalid index name spec' || (error as ShellApiErrorsWrapper).errmsg === undefined) &&
+      if ((error.codeName === 'IndexNotFound' || error.codeName === undefined) &&
+          (error.errmsg === 'invalid index name spec' || error.errmsg === undefined) &&
           Array.isArray(indexes) &&
           indexes.length > 0 &&
           (await this._database.version()).match(/^4\.0\./)) {
@@ -1183,12 +1176,12 @@ export default class Collection extends ShellApiWithMongoClass {
         return all.sort((a, b) => b.nIndexesWas - a.nIndexesWas)[0];
       }
 
-      if ((error as ShellApiErrorsWrapper).codeName === 'IndexNotFound') {
+      if (error.codeName === 'IndexNotFound') {
         return {
-          ok: (error as ShellApiErrorsWrapper).ok,
-          errmsg: (error as ShellApiErrorsWrapper).errmsg,
-          code: (error as ShellApiErrorsWrapper).code,
-          codeName: (error as ShellApiErrorsWrapper).codeName
+          ok: error.ok,
+          errmsg: error.errmsg,
+          code: error.code,
+          codeName: error.codeName
         };
       }
 
@@ -1336,7 +1329,7 @@ export default class Collection extends ShellApiWithMongoClass {
         await this._database._baseOptions()
       );
     } catch (error) {
-      if ((error as ShellApiErrorsWrapper).codeName === 'NamespaceNotFound') {
+      if (error.codeName === 'NamespaceNotFound') {
         this._mongo._instanceState.messageBus.emit(
           'mongosh:warn',
           {

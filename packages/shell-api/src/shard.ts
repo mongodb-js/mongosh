@@ -11,10 +11,6 @@ import { CommandResult, UpdateResult } from './result';
 import { redactURICredentials } from '@mongosh/history';
 import Mongo from './mongo';
 
-type ShellApiErrorsWrapper = Error & {
-  codeName: string
-};
-
 @shellApiClassDefault
 export default class Shard extends ShellApiWithMongoClass {
   _database: Database;
@@ -65,8 +61,8 @@ export default class Shard extends ShellApiWithMongoClass {
     try {
       return await this._database._runAdminCommand(cmd);
     } catch (error) {
-      if ((error as ShellApiErrorsWrapper).codeName === 'CommandNotFound') {
-        (error as ShellApiErrorsWrapper).message = `${(error as ShellApiErrorsWrapper).message}. Are you connected to mongos?`;
+      if (error.codeName === 'CommandNotFound') {
+        error.message = `${error.message}. Are you connected to mongos?`;
       }
       throw error;
     }
@@ -131,8 +127,8 @@ export default class Shard extends ShellApiWithMongoClass {
     try {
       return await this._database._runAdminCommand(orderedCmd);
     } catch (error) {
-      if ((error as ShellApiErrorsWrapper).codeName === 'CommandNotFound') {
-        (error as ShellApiErrorsWrapper).message = `${(error as ShellApiErrorsWrapper).message}. Are you connected to mongos?`;
+      if (error.codeName === 'CommandNotFound') {
+        error.message = `${error.message}. Are you connected to mongos?`;
       }
       throw error;
     }
@@ -180,8 +176,8 @@ export default class Shard extends ShellApiWithMongoClass {
     try {
       return await this.addShardToZone(shard, tag);
     } catch (error) {
-      if ((error as ShellApiErrorsWrapper).codeName === 'CommandNotFound') {
-        (error as ShellApiErrorsWrapper).message = `${(error as ShellApiErrorsWrapper).message}. This method aliases to addShardToZone which exists only for server versions > 3.4.`;
+      if (error.codeName === 'CommandNotFound') {
+        error.message = `${error.message}. This method aliases to addShardToZone which exists only for server versions > 3.4.`;
       }
       throw error;
     }
@@ -217,8 +213,8 @@ export default class Shard extends ShellApiWithMongoClass {
         zone
       );
     } catch (error) {
-      if ((error as ShellApiErrorsWrapper).codeName === 'CommandNotFound') {
-        (error as ShellApiErrorsWrapper).message = `${(error as ShellApiErrorsWrapper).message}. This method aliases to updateZoneKeyRange which exists only for server versions > 3.4.`;
+      if (error.codeName === 'CommandNotFound') {
+        error.message = `${error.message}. This method aliases to updateZoneKeyRange which exists only for server versions > 3.4.`;
       }
       throw error;
     }
@@ -242,8 +238,8 @@ export default class Shard extends ShellApiWithMongoClass {
     try {
       return await this.updateZoneKeyRange(ns, min, max, null);
     } catch (error) {
-      if ((error as ShellApiErrorsWrapper).codeName === 'CommandNotFound') {
-        (error as ShellApiErrorsWrapper).message = `${(error as ShellApiErrorsWrapper).message}. This method aliases to updateZoneKeyRange which exists only for server versions > 3.4.`;
+      if (error.codeName === 'CommandNotFound') {
+        error.message = `${error.message}. This method aliases to updateZoneKeyRange which exists only for server versions > 3.4.`;
       }
       throw error;
     }
@@ -272,8 +268,8 @@ export default class Shard extends ShellApiWithMongoClass {
     try {
       return await this.removeShardFromZone(shard, tag);
     } catch (error) {
-      if ((error as ShellApiErrorsWrapper).codeName === 'CommandNotFound') {
-        (error as ShellApiErrorsWrapper).message = `${(error as ShellApiErrorsWrapper).message}. This method aliases to removeShardFromZone which exists only for server versions > 3.4.`;
+      if (error.codeName === 'CommandNotFound') {
+        error.message = `${error.message}. This method aliases to removeShardFromZone which exists only for server versions > 3.4.`;
       }
       throw error;
     }

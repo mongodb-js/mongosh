@@ -54,10 +54,6 @@ export type CollectionNamesWithTypes = {
 
 type AuthDoc = {user: string, pwd: string, authDb?: string, mechanism?: string};
 
-type ShellApiErrorsWrapper = Error & {
-  codeName: string
-};
-
 @shellApiClassDefault
 export default class Database extends ShellApiWithMongoClass {
   _mongo: Mongo;
@@ -222,7 +218,7 @@ export default class Database extends ShellApiWithMongoClass {
         await this._baseOptions()
       );
     } catch (e) {
-      return (e as ShellApiErrorsWrapper);
+      return e;
     }
   }
 
@@ -911,7 +907,7 @@ export default class Database extends ShellApiWithMongoClass {
       );
       return this._cachedHello;
     } catch (err) {
-      if ((err as ShellApiErrorsWrapper).codeName === 'CommandNotFound') {
+      if (err.codeName === 'CommandNotFound') {
         const result = await this.isMaster();
         delete result.ismaster;
         this._cachedHello = result;
@@ -1005,7 +1001,7 @@ export default class Database extends ShellApiWithMongoClass {
       try {
         result[c] = await this.getCollection(c).stats({ scale });
       } catch (error) {
-        result[c] = { ok: 0, errmsg: (error as ShellApiErrorsWrapper).message };
+        result[c] = { ok: 0, errmsg: error.message };
       }
     }
     return new CommandResult('StatsResult', result);
