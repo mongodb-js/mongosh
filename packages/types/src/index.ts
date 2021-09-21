@@ -134,6 +134,12 @@ export interface SnippetsTransformErrorEvent {
   name: string;
 }
 
+export interface SpConnectAttemptInitializedEvent {
+  driver: { name: string, version: string };
+  serviceProviderVersion: string;
+  host: string;
+}
+
 export interface SpConnectHeartbeatFailureEvent {
   connectionId: string;
   failure: Error;
@@ -188,11 +194,6 @@ export interface MongoshBusEventsMap {
    * or the used database changed.
    */
   'mongosh:connect': (ev: ConnectEvent) => void;
-  /**
-   * Signals the creation of a new Mongo client with metadata provided
-   * by the underlying driver implementation.
-   */
-  'mongosh:driver-initialized': (driverMetadata: any) => void;
   /**
    * Signals that the shell is started by a new user.
    */
@@ -338,6 +339,8 @@ export interface MongoshBusEventsMap {
   /** Signals that a snippet has modified an error message. */
   'mongosh-snippets:transform-error': (ev: SnippetsTransformErrorEvent) => void;
 
+  /** Signals that a connection attempt is about to be performed. */
+  'mongosh-sp:connect-attempt-initialized': (ev: SpConnectAttemptInitializedEvent) => void;
   /** Signals that communicating to a specific server during connection did not succeed. */
   'mongosh-sp:connect-heartbeat-failure': (ev: SpConnectHeartbeatFailureEvent) => void;
   /** Signals that communicating to a specific server during connection succeeded. */
