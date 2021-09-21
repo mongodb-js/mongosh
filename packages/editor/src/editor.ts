@@ -110,7 +110,7 @@ export class Editor {
 
     // Create a temp file to store a content that is being edited.
     await fs.mkdir(path.dirname(tmpDoc), { recursive: true, mode: 0o700 });
-    await fs.writeFile(tmpDoc, beautify(content));
+    await fs.writeFile(tmpDoc, beautify(content), { mode: 0o600 });
 
     return tmpDoc;
   }
