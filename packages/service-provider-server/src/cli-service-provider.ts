@@ -149,6 +149,11 @@ const DEFAULT_BASE_OPTIONS: OperationOptions = Object.freeze({
 async function connectWithFailFast(client: MongoClient, bus: MongoshBus): Promise<void> {
   const failedConnections = new Map<string, Error>();
   let failEarlyClosePromise: Promise<void> | null = null;
+  bus.emit('mongosh-sp:connect-attempt-initialized', {
+    driver: client.options.metadata.driver,
+    serviceProviderVersion: require('../package.json').version,
+    host: client.options.srvHost ?? client.options.hosts.join(',')
+  });
 
   const heartbeatFailureListener = ({ failure, connectionId }: ServerHeartbeatFailedEvent) => {
     const topologyDescription: TopologyDescription | undefined = (client as any).topology?.description;

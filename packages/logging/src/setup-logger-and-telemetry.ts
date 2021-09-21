@@ -25,6 +25,7 @@ import type {
   SnippetsNpmLookupEvent,
   SnippetsRunNpmEvent,
   SnippetsTransformErrorEvent,
+  SpConnectAttemptInitializedEvent,
   SpConnectHeartbeatFailureEvent,
   SpConnectHeartbeatSucceededEvent,
   SpResolveSrvErrorEvent,
@@ -120,10 +121,6 @@ export function setupLoggerAndTelemetry(
         }
       });
     }
-  });
-
-  bus.on('mongosh:driver-initialized', function(driverMetadata: any) {
-    log.info('MONGOSH', mongoLogId(1_000_000_004), 'connect', 'Driver initialized', driverMetadata);
   });
 
   bus.on('mongosh:new-user', function(id: string, enableTelemetry: boolean) {
@@ -368,6 +365,10 @@ export function setupLoggerAndTelemetry(
       }
     });
     deprecatedApiCalls.clear();
+  });
+
+  bus.on('mongosh-sp:connect-attempt-initialized', function(ev: SpConnectAttemptInitializedEvent) {
+    log.info('MONGOSH-SP', mongoLogId(1_000_000_042), 'connect', 'Initiating connection attempt', ev);
   });
 
   bus.on('mongosh-sp:connect-heartbeat-failure', function(ev: SpConnectHeartbeatFailureEvent) {

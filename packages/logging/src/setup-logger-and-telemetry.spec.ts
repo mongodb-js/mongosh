@@ -57,7 +57,6 @@ describe('setupLoggerAndTelemetry', () => {
     bus.emit('mongosh:api-call', { method: 'auth', class: 'Database', db: 'test-1603986682000', arguments: { } });
     bus.emit('mongosh:api-call', { method: 'redactable', arguments: { filter: { email: 'mongosh@example.com' } } });
     bus.emit('mongosh:evaluate-input', { input: '1+1' });
-    bus.emit('mongosh:driver-initialized', { driver: { name: 'nodejs', version: '3.6.1' } });
 
     const circular: any = {};
     circular.circular = circular;
@@ -87,6 +86,12 @@ describe('setupLoggerAndTelemetry', () => {
     bus.emit('mongosh-snippets:snippet-command', { args: ['install', 'foo'] });
     bus.emit('mongosh-snippets:transform-error', { error: 'failed', addition: 'oh no', name: 'foo' });
 
+    const connAttemptData = {
+      driver: { name: 'nodejs', version: '3.6.1' },
+      serviceProviderVersion: '1.0.0',
+      host: 'localhost'
+    };
+    bus.emit('mongosh-sp:connect-attempt-initialized', connAttemptData);
     bus.emit('mongosh-sp:connect-heartbeat-failure', { connectionId: 'localhost', failure: new Error('cause'), isFailFast: true, isKnownServer: true });
     bus.emit('mongosh-sp:connect-heartbeat-succeeded', { connectionId: 'localhost' });
     bus.emit('mongosh-sp:connect-fail-early');
@@ -128,8 +133,6 @@ describe('setupLoggerAndTelemetry', () => {
     expect(logOutput[i++].attr.arguments.filter.email).to.equal('<email>');
     expect(logOutput[i].msg).to.equal('Evaluating input');
     expect(logOutput[i++].attr.input).to.equal('1+1');
-    expect(logOutput[i].msg).to.equal('Driver initialized');
-    expect(logOutput[i++].attr.driver.version).to.equal('3.6.1');
     expect(logOutput[i].msg).to.equal('Performed API call');
     expect(logOutput[i++].attr._inspected).to.match(/circular/);
     expect(logOutput[i++].msg).to.equal('Start loading CLI scripts');
@@ -169,6 +172,8 @@ describe('setupLoggerAndTelemetry', () => {
     expect(logOutput[i++].attr).to.deep.equal({ args: ['install', 'foo'] });
     expect(logOutput[i].msg).to.equal('Rewrote error message');
     expect(logOutput[i++].attr).to.deep.equal({ error: 'failed', addition: 'oh no', name: 'foo' });
+    expect(logOutput[i].msg).to.equal('Initiating connection attempt');
+    expect(logOutput[i++].attr).to.deep.equal(connAttemptData);
     expect(logOutput[i].msg).to.equal('Server heartbeat failure');
     expect(logOutput[i++].attr).to.deep.equal({ connectionId: 'localhost', failure: 'cause', isFailFast: true, isKnownServer: true });
     expect(logOutput[i].msg).to.equal('Server heartbeat succeeded');
