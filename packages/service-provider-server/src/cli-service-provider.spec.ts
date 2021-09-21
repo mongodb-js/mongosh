@@ -47,6 +47,12 @@ describe('CliServiceProvider', () => {
       db() {}
       close() {}
       topology: any;
+      get options(): any {
+        return {
+          metadata: { driver: { name: 'nodejs', version: '3.6.1' } },
+          hosts: ['localhost']
+        };
+      }
     }
 
     it('connects once when no AutoEncryption set', async() => {
