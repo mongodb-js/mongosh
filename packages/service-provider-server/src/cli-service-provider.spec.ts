@@ -856,7 +856,8 @@ describe('CliServiceProvider', () => {
       const info = await serviceProvider.getConnectionInfo();
       expect(info.extraInfo.is_atlas).to.equal(false);
       expect(info.extraInfo.is_localhost).to.equal(true);
-      expect(dbStub.command).to.have.callCount(4);
+      expect(info.extraInfo.fcv).to.equal(undefined);
+      expect(dbStub.command).to.have.callCount(5);
     });
   });
 });

@@ -118,7 +118,7 @@ type ConnectionInfo = {
   topology: any;
   extraInfo: ExtraConnectionInfo;
 };
-type ExtraConnectionInfo = ReturnType<typeof getConnectInfo>;
+type ExtraConnectionInfo = ReturnType<typeof getConnectInfo> & { fcv?: string };
 
 /**
  * Default driver options we always use.
@@ -412,9 +412,10 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     }
     const topology = this.getTopology();
     const { version } = require('../package.json');
-    const [cmdLineOpts = null, atlasVersion = null] = await Promise.all([
+    const [cmdLineOpts = null, atlasVersion = null, fcv = null] = await Promise.all([
       this.runCommandWithCheck('admin', { getCmdLineOpts: 1 }, this.baseCmdOptions).catch(() => {}),
-      this.runCommandWithCheck('admin', { atlasVersion: 1 }, this.baseCmdOptions).catch(() => {})
+      this.runCommandWithCheck('admin', { atlasVersion: 1 }, this.baseCmdOptions).catch(() => {}),
+      this.runCommandWithCheck('admin', { getParameter: 1, featureCompatibilityVersion: 1 }, this.baseCmdOptions).catch(() => {})
     ]);
 
     const extraConnectionInfo = getConnectInfo(
@@ -429,7 +430,10 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     return {
       buildInfo: buildInfo,
       topology: topology,
-      extraInfo: extraConnectionInfo
+      extraInfo: {
+        ...extraConnectionInfo,
+        fcv: fcv?.featureCompatibilityVersion?.version
+      }
     };
   }
 
