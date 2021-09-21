@@ -2079,7 +2079,7 @@ describe('Database', () => {
       });
       it('returns warning if throws with auth error', async() => {
         const expectedError = new Error();
-        expectedError.codeName = 'Unauthorized';
+        (expectedError as any).codeName = 'Unauthorized';
         serviceProvider.runCommandWithCheck.resolves({ isWritablePrimary: true });
         serviceProvider.runCommand.onCall(0).resolves({ ok: 1 });
         serviceProvider.runCommand.onCall(1).rejects(expectedError);

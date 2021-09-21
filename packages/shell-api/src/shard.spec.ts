@@ -372,7 +372,7 @@ describe('Shard', () => {
       it('adds version suggestion if command not found', async() => {
         serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
         const expectedError = new Error();
-        expectedError.codeName = 'CommandNotFound';
+        (expectedError as any).codeName = 'CommandNotFound';
         serviceProvider.runCommandWithCheck.rejects(expectedError);
         const caughtError = await shard.addShardTag('shard', 'zone')
           .catch(e => e);
@@ -464,7 +464,7 @@ describe('Shard', () => {
       it('adds version suggestion if command not found', async() => {
         serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'isdbgrid' });
         const expectedError = new Error();
-        expectedError.codeName = 'CommandNotFound';
+        (expectedError as any).codeName = 'CommandNotFound';
         serviceProvider.runCommandWithCheck.onCall(1).rejects(expectedError);
         const caughtError = await shard.addTagRange('ns', {}, {}, 'zone')
           .catch(e => e);
@@ -563,7 +563,7 @@ describe('Shard', () => {
       it('adds version suggestion if command not found', async() => {
         serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'isdbgrid' });
         const expectedError = new Error();
-        expectedError.codeName = 'CommandNotFound';
+        (expectedError as any).codeName = 'CommandNotFound';
         serviceProvider.runCommandWithCheck.onCall(1).rejects(expectedError);
         const caughtError = await shard.removeTagRange('ns', {}, {})
           .catch(e => e);
@@ -648,7 +648,7 @@ describe('Shard', () => {
       it('adds version suggestion if command not found', async() => {
         serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'isdbgrid' });
         const expectedError = new Error();
-        expectedError.codeName = 'CommandNotFound';
+        (expectedError as any).codeName = 'CommandNotFound';
         serviceProvider.runCommandWithCheck.onCall(1).rejects(expectedError);
         const caughtError = await shard.removeShardTag('shard', 'tag')
           .catch(e => e);
