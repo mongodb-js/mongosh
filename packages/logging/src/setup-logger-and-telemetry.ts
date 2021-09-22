@@ -371,7 +371,10 @@ export function setupLoggerAndTelemetry(
   });
 
   bus.on('mongosh-sp:connect-attempt-initialized', function(ev: SpConnectAttemptInitializedEvent) {
-    log.info('MONGOSH-SP', mongoLogId(1_000_000_042), 'connect', 'Initiating connection attempt', ev);
+    log.info('MONGOSH-SP', mongoLogId(1_000_000_042), 'connect', 'Initiating connection attempt', {
+      ...ev,
+      uri: redactURICredentials(ev.uri)
+    });
   });
 
   bus.on('mongosh-sp:connect-heartbeat-failure', function(ev: SpConnectHeartbeatFailureEvent) {

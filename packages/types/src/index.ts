@@ -135,6 +135,7 @@ export interface SnippetsTransformErrorEvent {
 }
 
 export interface SpConnectAttemptInitializedEvent {
+  uri: string;
   driver: { name: string, version: string };
   serviceProviderVersion: string;
   host: string;
