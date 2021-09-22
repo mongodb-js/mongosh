@@ -5,6 +5,7 @@ import { Readable } from 'stream';
 import spawn from 'cross-spawn';
 
 import { bson } from '@mongosh/service-provider-core';
+import { makeMultilineJSIntoSingleLine } from '@mongosh/js-multiline-to-singleline';
 import { signatures, ShellInstanceState, TypeSignature } from '@mongosh/shell-api';
 import { ShellResult } from '@mongosh/shell-evaluator';
 
@@ -17,7 +18,6 @@ export interface EditorOptions {
   vscodeDir: string;
   tmpDir: string;
   instanceState: ShellInstanceState;
-  makeMultilineJSIntoSingleLine: (code: string) => string;
   loadExternalCode: (input: string, filename: string) => Promise<ShellResult>;
 }
 
@@ -26,17 +26,15 @@ export class Editor {
   _vscodeDir: string;
   _tmpDir: string;
   _instanceState: ShellInstanceState;
-  _makeMultilineJSIntoSingleLine: (code: string) => string;
   _loadExternalCode: (input: string, filename: string) => Promise<ShellResult>;
   _lastContent: string;
   print: (...args: any[]) => Promise<void>;
 
-  constructor({ input, vscodeDir, tmpDir, instanceState, makeMultilineJSIntoSingleLine, loadExternalCode }: EditorOptions) {
+  constructor({ input, vscodeDir, tmpDir, instanceState, loadExternalCode }: EditorOptions) {
     this._input = input;
     this._vscodeDir = vscodeDir;
     this._tmpDir = tmpDir;
     this._instanceState = instanceState;
-    this._makeMultilineJSIntoSingleLine = makeMultilineJSIntoSingleLine;
     this._loadExternalCode = loadExternalCode;
     this._lastContent = '';
     this.print = instanceState.context.print;
@@ -120,7 +118,7 @@ export class Editor {
     this._lastContent = await fs.readFile(tmpDoc, 'utf8');
     await fs.unlink(tmpDoc);
     // Transform a multi-line content to a single line.
-    return this._makeMultilineJSIntoSingleLine(this._lastContent);
+    return makeMultilineJSIntoSingleLine(this._lastContent);
   }
 
   _isVscodeApp(cmd: string): boolean {

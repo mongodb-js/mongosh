@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { makeMultilineJSIntoSingleLine as toSingleLine } from './js-multiline-to-singleline';
+import { makeMultilineJSIntoSingleLine as toSingleLine } from './';
 
 describe('makeMultilineJSIntoSingleLine', () => {
   it('handles simple input well', () => {
