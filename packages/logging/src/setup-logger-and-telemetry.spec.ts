@@ -89,7 +89,8 @@ describe('setupLoggerAndTelemetry', () => {
     const connAttemptData = {
       driver: { name: 'nodejs', version: '3.6.1' },
       serviceProviderVersion: '1.0.0',
-      host: 'localhost'
+      host: 'localhost',
+      uri: 'mongodb://localhost/'
     };
     bus.emit('mongosh-sp:connect-attempt-initialized', connAttemptData);
     bus.emit('mongosh-sp:connect-heartbeat-failure', { connectionId: 'localhost', failure: new Error('cause'), isFailFast: true, isKnownServer: true });

@@ -146,10 +146,11 @@ const DEFAULT_BASE_OPTIONS: OperationOptions = Object.freeze({
  * Takes an unconnected MongoClient and connects it, but fails fast for certain
  * errors.
  */
-async function connectWithFailFast(client: MongoClient, bus: MongoshBus): Promise<void> {
+async function connectWithFailFast(uri: string, client: MongoClient, bus: MongoshBus): Promise<void> {
   const failedConnections = new Map<string, Error>();
   let failEarlyClosePromise: Promise<void> | null = null;
   bus.emit('mongosh-sp:connect-attempt-initialized', {
+    uri,
     driver: client.options.metadata.driver,
     serviceProviderVersion: require('../package.json').version,
     host: client.options.srvHost ?? client.options.hosts.join(',')
@@ -280,7 +281,7 @@ export async function connectMongoClient(uri: string, clientOptions: MongoClient
     delete optionsWithoutFLE.autoEncryption;
     delete optionsWithoutFLE.serverApi;
     const client = new MClient(uri, optionsWithoutFLE);
-    await connectWithFailFast(client, bus);
+    await connectWithFailFast(uri, client, bus);
     const buildInfo = await client.db('admin').admin().command({ buildInfo: 1 });
     await client.close();
     if (
@@ -292,7 +293,7 @@ export async function connectMongoClient(uri: string, clientOptions: MongoClient
   }
   uri = await resolveMongodbSrv(uri, bus);
   const client = new MClient(uri, clientOptions);
-  await connectWithFailFast(client, bus);
+  await connectWithFailFast(uri, client, bus);
   return client;
 }
 
