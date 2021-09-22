@@ -66,7 +66,7 @@ export class Editor {
 
   // In case of using VSCode as an external editor,
   // detect whether the MongoDB extension is installed and open a .mongodb file.
-  // If not open a .js file instead.
+  // If not open a .js file.
   async _getExtension(cmd: string): Promise<string> {
     if (!this._isVscodeApp(cmd)) {
       return 'js';
