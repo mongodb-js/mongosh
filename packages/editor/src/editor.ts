@@ -170,7 +170,11 @@ export class Editor {
       code
     });
 
-    const proc = spawn(editor, [tmpDoc], { stdio: 'inherit' });
+    const proc = spawn(editor, [path.basename(tmpDoc)], {
+      stdio: 'inherit',
+      cwd: path.dirname(tmpDoc),
+      shell: true
+    });
     // Pause the parent readable stream to stop emitting data events
     // and get a child the total control over the input.
     this._input.pause();
