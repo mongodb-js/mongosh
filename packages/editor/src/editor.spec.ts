@@ -62,7 +62,6 @@ describe('Editor', () => {
         registerPlugin: sinon.stub(),
         messageBus
       } as any,
-      makeMultilineJSIntoSingleLine: sinon.stub(),
       loadExternalCode: (): any => mockLoadExternalCodeResult
     });
 

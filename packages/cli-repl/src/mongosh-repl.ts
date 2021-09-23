@@ -18,7 +18,7 @@ import * as asyncRepl from './async-repl';
 import clr, { StyleDefinition } from './clr';
 import { MONGOSH_WIKI, TELEMETRY_GREETING_MESSAGE } from './constants';
 import formatOutput, { formatError } from './format-output';
-import { makeMultilineJSIntoSingleLine } from './js-multiline-to-singleline';
+import { makeMultilineJSIntoSingleLine } from '@mongosh/js-multiline-to-singleline';
 import { LineByLineInput } from './line-by-line-input';
 import { LogEntry, parseAnyLogEntry } from './log-entry';
 

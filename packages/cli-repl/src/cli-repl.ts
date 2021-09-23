@@ -23,7 +23,6 @@ import { MongoshBus, CliUserConfig } from '@mongosh/types';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { promisify } from 'util';
-import { makeMultilineJSIntoSingleLine } from './js-multiline-to-singleline';
 
 /**
  * Connecting text key.
@@ -236,7 +235,6 @@ class CliRepl {
       vscodeDir: this.shellHomeDirectory.rcPath('.vscode'),
       tmpDir: this.shellHomeDirectory.localPath('editor'),
       instanceState: this.mongoshRepl.runtimeState().instanceState,
-      makeMultilineJSIntoSingleLine: makeMultilineJSIntoSingleLine, // TODO: move to its own package
       loadExternalCode: this.mongoshRepl.loadExternalCode.bind(this.mongoshRepl)
     });
 

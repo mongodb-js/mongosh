@@ -1,7 +1,7 @@
 {
-  "name": "@mongosh/editor",
+  "name": "@mongosh/js-multiline-to-singleline",
   "version": "0.0.0-dev.0",
-  "description": "MongoDB Shell External Editor",
+  "description": "Make multiline JS into a single line",
   "main": "./lib/index.js",
   "repository": {
     "type": "git",
@@ -29,16 +29,9 @@
     "unitTestsOnly": true
   },
   "dependencies": {
-    "@mongosh/js-multiline-to-singleline": "0.0.0-dev.0",
-    "@mongosh/service-provider-core": "0.0.0-dev.0",
-    "@mongosh/shell-api": "0.0.0-dev.0",
-    "@mongosh/shell-evaluator": "0.0.0-dev.0",
-    "@mongosh/types": "0.0.0-dev.0",
-    "cross-spawn": "^7.0.3",
-    "js-beautify": "^1.14.0"
+    "@babel/core": "^7.14.8"
   },
   "devDependencies": {
-    "@types/cross-spawn": "^6.0.2",
-    "nanobus": "^4.5.0"
+    "@types/babel__core": "^7.1.15"
   }
 }
