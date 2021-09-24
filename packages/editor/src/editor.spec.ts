@@ -12,16 +12,8 @@ import { eventually } from '../../../testing/eventually';
 
 chai.use(sinonChai);
 
-const setupExternalEditor = async(base: string): Promise<string> => {
+const fakeExternalEditor = async(base: string, output: string) => {
   const tmpDoc = path.join(base, 'editor-script.js');
-
-  await fs.mkdir(path.dirname(tmpDoc), { recursive: true, mode: 0o700 });
-  await fs.writeFile(tmpDoc, '', { mode: 0o600 });
-
-  return tmpDoc;
-};
-
-const fakeExternalEditorOutput = async(tmpDoc: string, output: string) => {
   const script = `(async () => {
     const tmpDoc = process.argv[process.argv.length - 1];
     const { promises: { writeFile } } = require('fs');
@@ -29,6 +21,7 @@ const fakeExternalEditorOutput = async(tmpDoc: string, output: string) => {
     await writeFile(tmpDoc, \`${output}\`, { mode: 0o600 });
   })()`;
 
+  await fs.mkdir(path.dirname(tmpDoc), { recursive: true, mode: 0o700 });
   await fs.writeFile(tmpDoc, script, { mode: 0o600 });
 
   return `node ${tmpDoc}`;
@@ -103,6 +96,10 @@ describe('Editor', () => {
       // the directory; hence, try again.
       await fs.rmdir(tmpDir, { recursive: true });
     });
+  });
+
+  after(async() => {
+    await fs.rmdir(base, { recursive: true });
   });
 
   it('_isVscodeApp returns true if command is code', () => {
@@ -222,53 +219,49 @@ describe('Editor', () => {
   });
 
   context('runEditCommand', () => {
-    let externalEditor: string;
+    context('when editor is not defined', () => {
+      before(() => {
+        cmd = null;
+        delete process.env.EDITOR;
+      });
 
-    beforeEach(async() => {
-      externalEditor = await setupExternalEditor(base);
+      it('returns please define an external editor error', async() => {
+        try {
+          await editor.runEditCommand('edit');
+        } catch (error) {
+          expect(error.message).to.include('Command failed with an error: please define an external editor');
+        }
+      });
     });
 
-    afterEach(async() => {
-      await fs.unlink(externalEditor);
-    });
+    context('when editor is defined', () => {
+      it('writes a modified statement to the mongosh input stream', async() => {
+        const input = 'edit db.test.find()';
+        const editorModifiedContentMultiLine = `db.test.find({
+          field: 'new     value'
+        })`;
+        const editorModifiedContentSingleLine = "db.test.find({ field: 'new     value' })";
 
-    it('returns an error if editor is not defined', async() => {
-      cmd = null;
-      delete process.env.EDITOR;
+        cmd = await fakeExternalEditor(base, editorModifiedContentMultiLine);
+        await editor.runEditCommand(input);
 
-      try {
-        await editor.runEditCommand('edit');
-      } catch (error) {
-        expect(error.message).to.include('Command failed with an error: please define an external editor');
-      }
-    });
+        const mongoshModifiedInput = editor._input.read().toString();
+        expect(mongoshModifiedInput).to.be.equal(editorModifiedContentSingleLine);
+      });
 
-    it('writes a modified statement to the mongosh input stream', async() => {
-      const input = 'edit db.test.find()';
-      const editorModifiedContentMultiLine = `db.test.find({
-        field: 'new     value'
-      })`;
-      const editorModifiedContentSingleLine = "db.test.find({ field: 'new     value' })";
+      it('writes a modified identifier to the mongosh input stream', async() => {
+        const input = 'edit function () {}';
+        const editorModifiedContentMultiLine = `function () {
+          console.log(111);
+        }`;
+        const editorModifiedContentSingleLine = 'function () { console.log(111); }';
 
-      cmd = await fakeExternalEditorOutput(externalEditor, editorModifiedContentMultiLine);
-      await editor.runEditCommand(input);
+        cmd = await fakeExternalEditor(base, editorModifiedContentMultiLine);
+        await editor.runEditCommand(input);
 
-      const mongoshModifiedInput = editor._input.read().toString();
-      expect(mongoshModifiedInput).to.be.equal(editorModifiedContentSingleLine);
-    });
-
-    it('writes a modified identifier to the mongosh input stream', async() => {
-      const input = 'edit function () {}';
-      const editorModifiedContentMultiLine = `function () {
-        console.log(111);
-      }`;
-      const editorModifiedContentSingleLine = 'function () { console.log(111); }';
-
-      cmd = await fakeExternalEditorOutput(externalEditor, editorModifiedContentMultiLine);
-      await editor.runEditCommand(input);
-
-      const mongoshModifiedInput = editor._input.read().toString();
-      expect(mongoshModifiedInput).to.be.equal(editorModifiedContentSingleLine);
+        const mongoshModifiedInput = editor._input.read().toString();
+        expect(mongoshModifiedInput).to.be.equal(editorModifiedContentSingleLine);
+      });
     });
   });
 });
