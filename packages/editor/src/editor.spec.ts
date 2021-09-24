@@ -13,7 +13,7 @@ import { eventually } from '../../../testing/eventually';
 chai.use(sinonChai);
 
 const setupExternalEditor = async(base: string): Promise<string> => {
-  const tmpDoc = path.join(base, 'editor-stream.js');
+  const tmpDoc = path.join(base, 'editor-script.js');
 
   await fs.mkdir(path.dirname(tmpDoc), { recursive: true, mode: 0o700 });
   await fs.writeFile(tmpDoc, '', { mode: 0o600 });
