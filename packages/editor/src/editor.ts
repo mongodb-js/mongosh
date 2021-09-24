@@ -173,6 +173,7 @@ export class Editor {
       cwd: path.dirname(tmpDoc),
       shell: true
     });
+
     // Pause the parent readable stream to stop emitting data events
     // and get a child the total control over the input.
     this._input.pause();

@@ -12,6 +12,29 @@ import { eventually } from '../../../testing/eventually';
 
 chai.use(sinonChai);
 
+const setupExternalEditor = async(base: string): Promise<string> => {
+  const tmpDoc = path.join(base, 'editor-stream.js');
+
+  await fs.mkdir(path.dirname(tmpDoc), { recursive: true, mode: 0o700 });
+  await fs.writeFile(tmpDoc, '', { mode: 0o600 });
+
+  return tmpDoc;
+};
+
+const fakeExternalEditorOutput = async(scriptDir: string, output: string) => {
+  const script = `(async () => {
+    const tmpDoc = process.argv[process.argv.length - 1];
+    const { promises: { writeFile } } = require('fs');
+
+    await writeFile(tmpDoc, \`${output}\`, { mode: 0o600 });
+  })()`;
+
+  await fs.mkdir(path.dirname(scriptDir), { recursive: true, mode: 0o700 });
+  await fs.writeFile(scriptDir, script, { mode: 0o600 });
+
+  return `node ${scriptDir}`;
+};
+
 describe('Editor', () => {
   let input: Duplex;
   let base: string;
@@ -199,6 +222,54 @@ describe('Editor', () => {
     expect(content).to.be.equal('1 + 1');
   });
 
-  // TODO: e2e or mock tests for _getExtension
-  // TODO: Write a node script that acts as an external editor and write e2e tests
+  context('runEditCommand', () => {
+    let externalEditor: string;
+
+    beforeEach(async() => {
+      externalEditor = await setupExternalEditor(base);
+    });
+
+    afterEach(async() => {
+      await fs.unlink(externalEditor);
+    });
+
+    it('returns an error if editor is not defined', async() => {
+      cmd = null;
+      delete process.env.EDITOR;
+
+      try {
+        await editor.runEditCommand('edit');
+      } catch (error) {
+        expect(error.message).to.include('Command failed with an error: please define an external editor');
+      }
+    });
+
+    it('writes a modified statement to the mongosh input stream', async() => {
+      const input = 'edit db.test.find()';
+      const editorModifiedContentMultiLine = `db.test.find({
+        field: 'new     value'
+      })`;
+      const editorModifiedContentSingleLine = "db.test.find({ field: 'new     value' })";
+
+      cmd = await fakeExternalEditorOutput(externalEditor, editorModifiedContentMultiLine);
+      await editor.runEditCommand(input);
+
+      const mongoshModifiedInput = editor._input.read().toString();
+      expect(mongoshModifiedInput).to.be.equal(editorModifiedContentSingleLine);
+    });
+
+    it('writes a modified identifier to the mongosh input stream', async() => {
+      const input = 'edit function () {}';
+      const editorModifiedContentMultiLine = `function () {
+        console.log(111);
+      }`;
+      const editorModifiedContentSingleLine = 'function () { console.log(111); }';
+
+      cmd = await fakeExternalEditorOutput(externalEditor, editorModifiedContentMultiLine);
+      await editor.runEditCommand(input);
+
+      const mongoshModifiedInput = editor._input.read().toString();
+      expect(mongoshModifiedInput).to.be.equal(editorModifiedContentSingleLine);
+    });
+  });
 });
