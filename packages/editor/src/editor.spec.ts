@@ -29,7 +29,6 @@ const fakeExternalEditorOutput = async(tmpDoc: string, output: string) => {
     await writeFile(tmpDoc, \`${output}\`, { mode: 0o600 });
   })()`;
 
-  await fs.mkdir(path.dirname(tmpDoc), { recursive: true, mode: 0o700 });
   await fs.writeFile(tmpDoc, script, { mode: 0o600 });
 
   return `node ${tmpDoc}`;
