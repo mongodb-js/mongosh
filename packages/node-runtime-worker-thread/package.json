@@ -28,20 +28,20 @@
     "prepublish": "npm run webpack-build"
   },
   "devDependencies": {
-    "mocha": "^7.1.2",
-    "terser-webpack-plugin": "^4.2.3",
-    "ts-loader": "^8.0.14",
-    "webpack": "^4.44.2",
-    "webpack-cli": "^4.3.1"
-  },
-  "dependencies": {
     "@mongosh/browser-runtime-core": "0.0.0-dev.0",
     "@mongosh/browser-runtime-electron": "0.0.0-dev.0",
     "@mongosh/service-provider-core": "0.0.0-dev.0",
     "@mongosh/service-provider-server": "0.0.0-dev.0",
     "@mongosh/types": "0.0.0-dev.0",
     "bson": "^4.5.2",
-    "interruptor": "^1.0.1",
-    "postmsg-rpc": "^2.4.0"
+    "mocha": "^7.1.2",
+    "postmsg-rpc": "^2.4.0",
+    "terser-webpack-plugin": "^4.2.3",
+    "ts-loader": "^8.0.14",
+    "webpack": "^4.44.2",
+    "webpack-cli": "^4.3.1"
+  },
+  "dependencies": {
+    "interruptor": "^1.0.1"
   }
 }
