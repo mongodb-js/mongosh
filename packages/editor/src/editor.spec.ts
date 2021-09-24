@@ -21,7 +21,7 @@ const setupExternalEditor = async(base: string): Promise<string> => {
   return tmpDoc;
 };
 
-const fakeExternalEditorOutput = async(scriptDir: string, output: string) => {
+const fakeExternalEditorOutput = async(tmpDoc: string, output: string) => {
   const script = `(async () => {
     const tmpDoc = process.argv[process.argv.length - 1];
     const { promises: { writeFile } } = require('fs');
@@ -29,10 +29,10 @@ const fakeExternalEditorOutput = async(scriptDir: string, output: string) => {
     await writeFile(tmpDoc, \`${output}\`, { mode: 0o600 });
   })()`;
 
-  await fs.mkdir(path.dirname(scriptDir), { recursive: true, mode: 0o700 });
-  await fs.writeFile(scriptDir, script, { mode: 0o600 });
+  await fs.mkdir(path.dirname(tmpDoc), { recursive: true, mode: 0o700 });
+  await fs.writeFile(tmpDoc, script, { mode: 0o600 });
 
-  return `node ${scriptDir}`;
+  return `node ${tmpDoc}`;
 };
 
 describe('Editor', () => {
