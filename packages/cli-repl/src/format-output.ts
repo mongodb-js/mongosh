@@ -214,7 +214,10 @@ function removeUndefinedValues<T>(obj: T) {
   return Object.fromEntries(Object.entries(obj).filter(keyValue => keyValue[1] !== undefined));
 }
 
-function dateInspect(this: Date): string {
+function dateInspect(this: Date, depth: number, options: any): string {
+  if (isNaN(this.valueOf())) {
+    return options.stylize('Invalid Date', 'date');
+  }
   return `ISODate("${this.toISOString()}")`;
 }
 
