@@ -39,7 +39,8 @@ describe('e2e direct connection', () => {
     context('after rs.initiate()', () => {
       let dbname: string;
 
-      before(async() => {
+      before(async function() {
+        this.timeout(60_000);
         const replSetConfig = {
           _id: replSetId,
           version: 1,
