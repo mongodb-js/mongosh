@@ -18,6 +18,7 @@ describe('e2e Analytics Node', () => {
     if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
       return this.skip();
     }
+    this.timeout(60_000);
     const rsConfig = {
       _id: replSetName,
       members: [
