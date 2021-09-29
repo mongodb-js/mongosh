@@ -27,7 +27,8 @@ describe('CliRepl', () => {
   const tmpdir = useTmpdir();
 
   async function log(): Promise<any[]> {
-    return readReplLogfile(path.join(tmpdir.path, `${cliRepl.logWriter.logId}_log`));
+    await cliRepl.logWriter.flush(); // Ensure any pending data is written first
+    return readReplLogfile(cliRepl.logWriter.logFilePath);
   }
 
   async function startWithExpectedImmediateExit(cliRepl: CliRepl, host: string): Promise<void> {
@@ -169,19 +170,25 @@ describe('CliRepl', () => {
         expect((await log()).filter(entry => entry.attr?.stack?.startsWith('SyntaxError:'))).to.have.lengthOf(0);
         input.write('<cat>\n');
         await waitBus(cliRepl.bus, 'mongosh:error');
-        expect((await log()).filter(entry => entry.attr?.stack?.startsWith('SyntaxError:'))).to.have.lengthOf(1);
+        await eventually(async() => {
+          expect((await log()).filter(entry => entry.attr?.stack?.startsWith('SyntaxError:'))).to.have.lengthOf(1);
+        });
       });
 
       it('writes JS errors to the log file', async() => {
         input.write('throw new Error("plain js error")\n');
         await waitBus(cliRepl.bus, 'mongosh:error');
-        expect((await log()).filter(entry => entry.attr?.stack?.startsWith('Error: plain js error'))).to.have.lengthOf(1);
+        await eventually(async() => {
+          expect((await log()).filter(entry => entry.attr?.stack?.startsWith('Error: plain js error'))).to.have.lengthOf(1);
+        });
       });
 
       it('writes Mongosh errors to the log file', async() => {
         input.write('db.auth()\n');
         await waitBus(cliRepl.bus, 'mongosh:error');
-        expect((await log()).filter(entry => entry.attr?.stack?.startsWith('MongoshInvalidInputError:'))).to.have.lengthOf(1);
+        await eventually(async() => {
+          expect((await log()).filter(entry => entry.attr?.stack?.startsWith('MongoshInvalidInputError:'))).to.have.lengthOf(1);
+        });
       });
 
       it('emits the error event when exit() fails', async() => {
@@ -192,7 +199,9 @@ describe('CliRepl', () => {
         } catch (e) {
           const [emitted] = await onerror;
           expect(emitted).to.be.instanceOf(MongoshInternalError);
-          expect((await log()).filter(entry => entry.attr?.stack?.startsWith('MongoshInternalError:'))).to.have.lengthOf(1);
+          await eventually(async() => {
+            expect((await log()).filter(entry => entry.attr?.stack?.startsWith('MongoshInternalError:'))).to.have.lengthOf(1);
+          });
           return;
         }
         expect.fail('expected error');

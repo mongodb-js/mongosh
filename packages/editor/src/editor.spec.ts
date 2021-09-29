@@ -171,7 +171,7 @@ describe('Editor', () => {
 
   it('_getEditorContent returns function implementation', async() => {
     const code = 'db.test.find';
-    const content = await editor._getEditorContent(code);
+    const content = (await editor._getEditorContent(code)).replace(/\r\n/g, '\n');
     expect(content).to.be.equal('function wrapper(...args) {\n            return { args, done: true };\n        }');
   });
 
