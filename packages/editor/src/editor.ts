@@ -83,8 +83,8 @@ export class Editor {
       return hasMongodbExtension ? 'mongodb' : 'js';
     } catch (error) {
       this.messageBus.emit('mongosh-editor:read-vscode-extensions-failed', {
-        action: 'mongosh-editor:read-vscode-extensions-failed',
-        error: (error as Error).message
+        vscodeDir: this._vscodeDir,
+        error: error as Error
       });
 
       return 'js';
@@ -187,7 +187,7 @@ export class Editor {
         return;
       }
 
-      throw new Error(`Command '${code}' failed with an exit code ${exitCode}`);
+      throw new Error(`Command '${editor} ${path.basename(tmpDoc)}' failed with an exit code ${exitCode}`);
     } finally {
       // Resume the parent readable stream to recive data events.
       this._input.resume();

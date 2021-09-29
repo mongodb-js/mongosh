@@ -16,4 +16,8 @@ describe('makeMultilineJSIntoSingleLine', () => {
     expect(toSingleLine('a // comment\n b')).to.equal('a; /* comment*/ b');
     expect(toSingleLine('a /* comment*/\n b')).to.equal('a; /* comment*/ b');
   });
+
+  it('keeps invalid code as-is', () => {
+    expect(toSingleLine('---\n---')).to.equal('--- ---');
+  });
 });

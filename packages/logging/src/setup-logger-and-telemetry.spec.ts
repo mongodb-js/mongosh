@@ -49,6 +49,7 @@ describe('setupLoggerAndTelemetry', () => {
         node_version: 'v12.19.0'
       } as any);
       bus.emit('mongosh:error', new MongoshInvalidInputError('meow', 'CLIREPL-1005', { cause: 'x' }), 'repl');
+      bus.emit('mongosh:error', new MongoshInvalidInputError('meow', 'CLIREPL-1005', { cause: 'x' }), 'fatal');
       bus.emit('mongosh:use', { db: 'admin' });
       bus.emit('mongosh:show', { method: 'dbs' });
     }
@@ -70,6 +71,10 @@ describe('setupLoggerAndTelemetry', () => {
     bus.emit('mongosh:mongoshrc-load');
     bus.emit('mongosh:mongoshrc-mongorc-warn');
     bus.emit('mongosh:eval-cli-script');
+
+    bus.emit('mongosh:mongocryptd-tryspawn', { spawnPath: ['mongocryptd'], path: 'path' });
+    bus.emit('mongosh:mongocryptd-error', { cause: 'something', error: new Error('mongocryptd error!'), stderr: 'stderr', pid: 12345 });
+    bus.emit('mongosh:mongocryptd-log', { pid: 12345, logEntry: {} });
 
     bus.emit('mongosh-snippets:loaded', { installdir: '/' });
     bus.emit('mongosh-snippets:npm-lookup', { existingVersion: 'v1.2.3' });
@@ -102,6 +107,10 @@ describe('setupLoggerAndTelemetry', () => {
     bus.emit('mongosh-sp:reset-connection-options');
     bus.emit('mongosh-sp:missing-optional-dependency', { name: 'kerberos', error: new Error('no kerberos') });
 
+    bus.emit('mongosh-editor:run-edit-command', { tmpDoc: 'tmpDoc', editor: 'editor', code: '<code>' });
+    bus.emit('mongosh-editor:read-vscode-extensions-done', { vscodeDir: 'vscodir', hasMongodbExtension: false });
+    bus.emit('mongosh-editor:read-vscode-extensions-failed', { vscodeDir: 'vscodir', error: new Error('failed') });
+
     let i = 0;
     expect(logOutput[i].msg).to.equal('User updated');
     expect(logOutput[i++].attr).to.deep.equal({ enableTelemetry: false });
@@ -114,6 +123,8 @@ describe('setupLoggerAndTelemetry', () => {
     expect(logOutput[i++].attr.node_version).to.equal('v12.19.0');
     expect(logOutput[i].s).to.equal('E');
     expect(logOutput[i++].attr.message).to.match(/meow/);
+    expect(logOutput[i].s).to.equal('F');
+    expect(logOutput[i++].attr.message).to.match(/meow/);
     expect(logOutput[i].msg).to.equal('Used "use" command');
     expect(logOutput[i++].attr).to.deep.equal({ db: 'admin' });
     expect(logOutput[i].msg).to.equal('Used "show" command');
@@ -122,6 +133,8 @@ describe('setupLoggerAndTelemetry', () => {
     expect(logOutput[i++].attr).to.deep.equal({ enableTelemetry: true });
     expect(logOutput[i++].msg).to.equal('Connecting to server');
     expect(logOutput[i].s).to.equal('E');
+    expect(logOutput[i++].attr.message).to.match(/meow/);
+    expect(logOutput[i].s).to.equal('F');
     expect(logOutput[i++].attr.message).to.match(/meow/);
     expect(logOutput[i].msg).to.equal('Used "use" command');
     expect(logOutput[i++].attr).to.deep.equal({ db: 'admin' });
@@ -147,6 +160,12 @@ describe('setupLoggerAndTelemetry', () => {
     expect(logOutput[i++].msg).to.equal('Loading .mongoshrc.js');
     expect(logOutput[i++].msg).to.equal('Warning about .mongorc.js/.mongoshrc.js mismatch');
     expect(logOutput[i++].msg).to.equal('Evaluating script passed on the command line');
+    expect(logOutput[i].msg).to.equal('Trying to spawn mongocryptd');
+    expect(logOutput[i++].attr).to.deep.equal({ spawnPath: ['mongocryptd'], path: 'path' });
+    expect(logOutput[i].msg).to.equal('Error running mongocryptd');
+    expect(logOutput[i++].attr).to.deep.equal({ cause: 'something', error: 'mongocryptd error!', stderr: 'stderr', pid: 12345 });
+    expect(logOutput[i].msg).to.equal('mongocryptd log message');
+    expect(logOutput[i++].attr).to.deep.equal({ pid: 12345, logEntry: {} });
     expect(logOutput[i].msg).to.equal('Loaded snippets');
     expect(logOutput[i++].attr).to.deep.equal({ installdir: '/' });
     expect(logOutput[i].msg).to.equal('Performing npm lookup');
@@ -188,6 +207,12 @@ describe('setupLoggerAndTelemetry', () => {
     expect(logOutput[i++].msg).to.equal('Reconnect because of changed connection options');
     expect(logOutput[i].msg).to.equal('Missing optional dependency');
     expect(logOutput[i++].attr).to.deep.equal({ name: 'kerberos', error: 'no kerberos' });
+    expect(logOutput[i].msg).to.equal('Open external editor');
+    expect(logOutput[i++].attr).to.deep.equal({ tmpDoc: 'tmpDoc', editor: 'editor', code: '<code>' });
+    expect(logOutput[i].msg).to.equal('Reading vscode extensions from file system succeeded');
+    expect(logOutput[i++].attr).to.deep.equal({ vscodeDir: 'vscodir', hasMongodbExtension: false });
+    expect(logOutput[i].msg).to.equal('Reading vscode extensions from file system failed');
+    expect(logOutput[i++].attr).to.deep.equal({ vscodeDir: 'vscodir', error: 'failed' });
     expect(i).to.equal(logOutput.length);
 
     expect(analyticsOutput).to.deep.equal([
@@ -222,6 +247,20 @@ describe('setupLoggerAndTelemetry', () => {
             is_localhost: true,
             is_atlas: false,
             node_version: 'v12.19.0'
+          }
+        }
+      ],
+      [
+        'track',
+        {
+          userId: '53defe995fa47e6c13102d9d',
+          event: 'Error',
+          properties: {
+            mongosh_version: '1.0.0',
+            name: 'MongoshInvalidInputError',
+            code: 'CLIREPL-1005',
+            scope: 'CLIREPL',
+            metadata: { cause: 'x' }
           }
         }
       ],
