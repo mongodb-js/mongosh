@@ -11,7 +11,7 @@ import {
   deprecated,
   ShellApiWithMongoClass
 } from './decorators';
-import { ADMIN_DB, asPrintable, ServerVersions, Topologies } from './enums';
+import { asPrintable, ServerVersions, Topologies } from './enums';
 import {
   adaptAggregateOptions,
   adaptOptions,
@@ -144,10 +144,9 @@ export default class Database extends ShellApiWithMongoClass {
   }
 
   public async _runAdminCommand(cmd: Document, options: CommandOperationOptions = {}): Promise<Document> {
-    return this._mongo._serviceProvider.runCommandWithCheck(
-      ADMIN_DB,
+    return this.getSiblingDB('admin')._runCommand(
       cmd,
-      { ...this._mongo._getExplicitlyRequestedReadPref(), ...await this._baseOptions(), ...options }
+      { ...await this._baseOptions(), ...options }
     );
   }
 
@@ -1043,21 +1042,17 @@ export default class Database extends ShellApiWithMongoClass {
     }
 
     // driver should check that ok: 1
-    await this._mongo._serviceProvider.runCommand(
-      ADMIN_DB,
+    await this._runAdminCommand(
       {
         setFreeMonitoring: 1,
         action: 'enable'
-      },
-      await this._baseOptions()
+      }
     );
     let result: any;
     let error: any;
     try {
-      result = await this._mongo._serviceProvider.runCommand(
-        ADMIN_DB,
-        { getFreeMonitoringStatus: 1 },
-        await this._baseOptions()
+      result = await this._runAdminCommand(
+        { getFreeMonitoringStatus: 1 }
       );
     } catch (err) {
       error = err;
@@ -1071,13 +1066,11 @@ export default class Database extends ShellApiWithMongoClass {
       );
     }
     if (result.state !== 'enabled') {
-      const urlResult = await this._mongo._serviceProvider.runCommand(
-        ADMIN_DB,
+      const urlResult = await this._runAdminCommand(
         {
           getParameter: 1,
           cloudFreeMonitoringEndpointURL: 1
-        },
-        await this._baseOptions()
+        }
       );
       return `Unable to get immediate response from the Cloud Monitoring service. Please check your firewall settings to ensure that mongod can communicate with '${urlResult.cloudFreeMonitoringEndpointURL || '<unknown>'}'`;
     }
@@ -1269,10 +1262,9 @@ export default class Database extends ShellApiWithMongoClass {
   async printSecondaryReplicationInfo(): Promise<CommandResult> {
     let startOptimeDate = null;
     const local = this.getSiblingDB('local');
-    const admin = this.getSiblingDB(ADMIN_DB);
 
     if (await local.getCollection('system.replset').countDocuments({}) !== 0) {
-      const status = await admin.runCommand({ 'replSetGetStatus': 1 });
+      const status = await this._runAdminCommand({ 'replSetGetStatus': 1 });
       // get primary
       let primary = null;
       for (const member of status.members) {
