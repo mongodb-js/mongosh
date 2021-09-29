@@ -230,11 +230,6 @@ describe('Editor', () => {
 
   context('runEditCommand', () => {
     context('when editor is not defined', () => {
-      before(() => {
-        cmd = null;
-        delete process.env.EDITOR;
-      });
-
       it('returns please define an external editor error', async() => {
         try {
           await editor.runEditCommand('edit');
