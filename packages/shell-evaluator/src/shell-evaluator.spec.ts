@@ -98,7 +98,7 @@ describe('ShellEvaluator', () => {
 
     it('edit accepts raw input', async() => {
       await shellEvaluator.customEval(dontCallEval, 'edit "1     2"', {}, '');
-      expect(editSpy).to.have.been.calledWith('edit "1     2"');
+      expect(editSpy).to.have.been.calledWith('"1     2"');
     });
   });
 });

@@ -76,6 +76,41 @@ async function readReplLogfile(logPath: string) {
     .map((line) => JSON.parse(line));
 }
 
+
+const fakeExternalEditor = async(output?: string) => {
+  const base = path.resolve(__dirname, '..', '..', '..', 'tmp', 'test', `${Date.now()}`, `${Math.random()}`);
+  const tmpDoc = path.join(base, 'editor-script.js');
+  let script: string;
+
+  if (typeof output === 'string') {
+    script = `(async () => {
+      const tmpDoc = process.argv[process.argv.length - 1];
+      const { promises: { writeFile } } = require('fs');
+  
+      await writeFile(tmpDoc, \`${output}\`, { mode: 0o600 });
+    })()`;
+  } else {
+    script = 'process.exit(1)';
+  }
+
+  await fs.mkdir(path.dirname(tmpDoc), { recursive: true, mode: 0o700 });
+  await fs.writeFile(tmpDoc, script, { mode: 0o600 });
+
+  return `node ${tmpDoc}`;
+};
+
+const setTemporaryHomeDirectory = () => {
+  const homedir: string = path.resolve(__dirname, '..', '..', '..', 'tmp', `cli-repl-home-${Date.now()}-${Math.random()}`);
+  const env: Record<string, string> = { ...process.env, HOME: homedir, USERPROFILE: homedir };
+
+  if (process.platform === 'win32') {
+    env.LOCALAPPDATA = path.join(homedir, 'local');
+    env.APPDATA = path.join(homedir, 'roaming');
+  }
+
+  return { homedir, env };
+};
+
 export {
   expect,
   sinon,
@@ -85,5 +120,7 @@ export {
   waitEval,
   waitCompletion,
   fakeTTYProps,
-  readReplLogfile
+  readReplLogfile,
+  fakeExternalEditor,
+  setTemporaryHomeDirectory
 };
