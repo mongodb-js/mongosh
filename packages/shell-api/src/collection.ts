@@ -12,7 +12,7 @@ import {
   deprecated,
   ShellApiWithMongoClass
 } from './decorators';
-import { ADMIN_DB, asPrintable, namespaceInfo, ServerVersions, Topologies } from './enums';
+import { asPrintable, namespaceInfo, ServerVersions, Topologies } from './enums';
 import {
   adaptAggregateOptions,
   assertKeysDefined,
@@ -974,12 +974,11 @@ export default class Collection extends ShellApiWithMongoClass {
   @apiVersions([])
   async convertToCapped(size: number): Promise<Document> {
     this._emitCollectionApiCall('convertToCapped', { size });
-    return await this._mongo._serviceProvider.runCommandWithCheck(
-      this._database._name, {
+    return await this._database._runCommand(
+      {
         convertToCapped: this._name,
         size
-      },
-      await this._database._baseOptions()
+      }
     );
   }
 
@@ -1151,13 +1150,11 @@ export default class Collection extends ShellApiWithMongoClass {
   async dropIndexes(indexes: string|string[]|Document|Document[] = '*'): Promise<Document> {
     this._emitCollectionApiCall('dropIndexes', { indexes });
     try {
-      return await this._mongo._serviceProvider.runCommandWithCheck(
-        this._database._name,
+      return await this._database._runCommand(
         {
           dropIndexes: this._name,
           index: indexes,
-        },
-        await this._database._baseOptions());
+        });
     } catch (error) {
       // If indexes is an array and we're failing because of that, we fall back to
       // trying to drop all the indexes individually because that's what's supported
@@ -1246,9 +1243,9 @@ export default class Collection extends ShellApiWithMongoClass {
   @apiVersions([])
   async reIndex(): Promise<Document> {
     this._emitCollectionApiCall('reIndex');
-    return await this._mongo._serviceProvider.runCommandWithCheck(this._database._name, {
+    return await this._database._runCommand({
       reIndex: this._name
-    }, await this._database._baseOptions());
+    });
   }
 
   /**
@@ -1400,11 +1397,7 @@ export default class Collection extends ShellApiWithMongoClass {
       [commandName]: this._name,
       ...options
     } : commandName;
-    return await this._mongo._serviceProvider.runCommandWithCheck(
-      this._database._name,
-      cmd,
-      await this._database._baseOptions()
-    );
+    return await this._database._runCommand(cmd);
   }
 
   @returnType('Explainable')
@@ -1443,12 +1436,10 @@ export default class Collection extends ShellApiWithMongoClass {
     options.indexDetails = options.indexDetails || false;
 
     this._emitCollectionApiCall('stats', { options });
-    const result = await this._mongo._serviceProvider.runCommandWithCheck(
-      this._database._name,
+    const result = await this._database._runCommand(
       {
         collStats: this._name, scale: options.scale
-      },
-      await this._database._baseOptions()
+      }
     );
     if (!result) {
       throw new MongoshRuntimeError(
@@ -1572,11 +1563,7 @@ export default class Collection extends ShellApiWithMongoClass {
       };
     }
 
-    return await this._mongo._serviceProvider.runCommandWithCheck(
-      this._database._name,
-      cmd,
-      await this._database._baseOptions()
-    );
+    return await this._database._runCommand(cmd);
   }
 
   @returnsPromise
@@ -1586,13 +1573,11 @@ export default class Collection extends ShellApiWithMongoClass {
     if (typeof options === 'boolean') {
       options = { full: options };
     }
-    return await this._mongo._serviceProvider.runCommandWithCheck(
-      this._database._name,
+    return await this._database._runCommand(
       {
         validate: this._name,
         ...options
-      },
-      await this._database._baseOptions()
+      }
     );
   }
 
@@ -1601,12 +1586,10 @@ export default class Collection extends ShellApiWithMongoClass {
   @apiVersions([])
   async getShardVersion(): Promise<Document> {
     this._emitCollectionApiCall('getShardVersion', {});
-    return await this._mongo._serviceProvider.runCommandWithCheck(
-      ADMIN_DB,
+    return await this._database._runAdminCommand(
       {
         getShardVersion: `${this._database._name}.${this._name}`
-      },
-      await this._database._baseOptions()
+      }
     );
   }
 

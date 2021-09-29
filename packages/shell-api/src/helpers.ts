@@ -630,13 +630,10 @@ export async function setHideIndex(coll: Collection, index: string | Document, h
   } : {
     keyPattern: index, hidden
   };
-  return await coll._mongo._serviceProvider.runCommandWithCheck(
-    coll._database._name, {
-      collMod: coll._name,
-      index: cmd
-    },
-    await coll._database._baseOptions()
-  );
+  return await coll._database._runCommand({
+    collMod: coll._name,
+    index: cmd
+  });
 }
 
 export function assertCLI(platform: ReplPlatform, features: string): void {
