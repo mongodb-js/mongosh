@@ -22,7 +22,8 @@ import {
   tsToSeconds,
   isValidCollectionName,
   getConfigDB,
-  shouldRunAggregationImmediately
+  shouldRunAggregationImmediately,
+  adjustRunCommand
 } from './helpers';
 
 import type {
@@ -138,7 +139,7 @@ export default class Database extends ShellApiWithMongoClass {
   public async _runCommand(cmd: Document, options: CommandOperationOptions = {}): Promise<Document> {
     return this._mongo._serviceProvider.runCommandWithCheck(
       this._name,
-      cmd,
+      adjustRunCommand(cmd, this._instanceState.shellBson),
       { ...this._mongo._getExplicitlyRequestedReadPref(), ...await this._baseOptions(), ...options }
     );
   }
