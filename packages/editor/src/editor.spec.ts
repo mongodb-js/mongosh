@@ -21,7 +21,7 @@ const fakeExternalEditor = async(
     const tmpDoc = process.argv[process.argv.length - 1];
     const { promises: { writeFile } } = require('fs');
 
-    await writeFile(tmpDoc, \`${output}\`, { mode: 0o600 });
+    await writeFile(tmpDoc, ${JSON.stringify(output)}, { mode: 0o600 });
   })()`;
 
   await fs.mkdir(path.dirname(tmpDoc), { recursive: true, mode: 0o700 });
