@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import { MongoClient } from 'mongodb';
 import { TestShell } from './test-shell';
+import { eventually } from '../../../testing/eventually';
 import { startTestServer, useBinaryPath, skipIfServerVersion, skipIfCommunityServer } from '../../../testing/integration-testing-hooks';
 import { makeFakeHTTPServer, fakeAWSHandlers } from '../../../testing/fake-kms';
 import { once } from 'events';
@@ -88,7 +89,10 @@ describe('FLE tests', () => {
           // This will try to automatically decrypt the data, but it will not succeed.
           // That does not matter here -- we're just checking that the HTTP requests
           // made were successful.
-          await shell.executeLine('db.data.find();');
+          await eventually(async() => {
+            await shell.executeLine('db.data.find();');
+            shell.assertContainsError('MongoCryptError: decrypted key is incorrect length');
+          });
 
           // The actual assertion here:
           if (!kmsServer.requests.some(req => req.headers.authorization.includes(accessKeyId)) ||
