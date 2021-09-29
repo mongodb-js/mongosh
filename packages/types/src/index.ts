@@ -174,19 +174,14 @@ export interface EditorRunEditCommandEvent {
   code: string;
 }
 
-export interface EditorRunEditCommandFailedEvent {
-  action: string;
-  error: string;
-}
-
 export interface EditorReadVscodeExtensionsDoneEvent {
   vscodeDir: string;
   hasMongodbExtension: boolean;
 }
 
 export interface EditorReadVscodeExtensionsFailedEvent {
-  action: string;
-  error: string;
+  vscodeDir: string;
+  error: Error;
 }
 
 export interface MongoshBusEventsMap {

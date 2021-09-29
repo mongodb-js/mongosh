@@ -273,7 +273,10 @@ export function setupLoggerAndTelemetry(
   });
 
   bus.on('mongosh:mongocryptd-error', function(ev: MongocryptdErrorEvent) {
-    log.warn('MONGOCRYPTD', mongoLogId(1_000_000_017), 'mongocryptd', 'Error running mongocryptd', ev);
+    log.warn('MONGOCRYPTD', mongoLogId(1_000_000_017), 'mongocryptd', 'Error running mongocryptd', {
+      ...ev,
+      error: ev.error?.message
+    });
   });
 
   bus.on('mongosh:mongocryptd-log', function(ev: MongocryptdLogEvent) {
@@ -423,14 +426,17 @@ export function setupLoggerAndTelemetry(
   });
 
   bus.on('mongosh-editor:run-edit-command', function(ev: EditorRunEditCommandEvent) {
-    log.error('MONGOSH-EDITOR', mongoLogId(1_000_000_042), 'editor', 'Open external editor', ev);
+    log.error('MONGOSH-EDITOR', mongoLogId(1_000_000_042), 'editor', 'Open external editor', redactInfo(ev));
   });
 
   bus.on('mongosh-editor:read-vscode-extensions-done', function(ev: EditorReadVscodeExtensionsDoneEvent) {
-    log.error('MONGOSH-EDITOR', mongoLogId(1_000_000_043), 'editor', 'Reading vscode extensions from disc succeeded', ev);
+    log.error('MONGOSH-EDITOR', mongoLogId(1_000_000_043), 'editor', 'Reading vscode extensions from file system succeeded', ev);
   });
 
   bus.on('mongosh-editor:read-vscode-extensions-failed', function(ev: EditorReadVscodeExtensionsFailedEvent) {
-    log.error('MONGOSH-EDITOR', mongoLogId(1_000_000_044), 'editor', 'Reading vscode extensions from disc failed', ev);
+    log.error('MONGOSH-EDITOR', mongoLogId(1_000_000_044), 'editor', 'Reading vscode extensions from file system failed', {
+      ...ev,
+      error: ev.error.message
+    });
   });
 }
