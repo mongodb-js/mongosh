@@ -27,7 +27,8 @@ describe('CliRepl', () => {
   const tmpdir = useTmpdir();
 
   async function log(): Promise<any[]> {
-    return readReplLogfile(path.join(tmpdir.path, `${cliRepl.logWriter.logId}_log`));
+    await cliRepl.logWriter.flush(); // Ensure any pending data is written first
+    return readReplLogfile(cliRepl.logWriter.logFilePath);
   }
 
   async function startWithExpectedImmediateExit(cliRepl: CliRepl, host: string): Promise<void> {
