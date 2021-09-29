@@ -27,7 +27,7 @@ import {
 import { InterruptFlag } from './interruptor';
 import { TransformMongoErrorPlugin } from './mongo-errors';
 import NoDatabase from './no-db';
-import constructShellBson from './shell-bson';
+import constructShellBson, { ShellBson } from './shell-bson';
 
 /**
  * The subset of CLI options that is relevant for the shell API's behavior itself.
@@ -128,7 +128,7 @@ export default class ShellInstanceState {
   public context: any;
   public mongos: Mongo[];
   public shellApi: ShellApi;
-  public shellBson: any;
+  public shellBson: ShellBson;
   public cliOptions: ShellCliOptions;
   public evaluationListener: EvaluationListener;
   public displayBatchSizeFromDBQuery: number | undefined = undefined;
@@ -149,9 +149,7 @@ export default class ShellInstanceState {
     this.messageBus = messageBus;
     this.shellApi = new ShellApi(this);
     this.shellBson = constructShellBson(initialServiceProvider.bsonLibrary, (msg: string) => {
-      if (this.context.print) {
-        this.context.print(`Warning: ${msg}`);
-      }
+      void this.shellApi.print(`Warning: ${msg}`);
     });
     this.mongos = [];
     this.connectionInfo = { buildInfo: {} };
