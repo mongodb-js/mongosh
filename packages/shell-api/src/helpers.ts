@@ -23,6 +23,7 @@ import { AutoEncryptionOptions } from 'mongodb';
 import { shellApiType } from './enums';
 import type { AbstractCursor } from './abstract-cursor';
 import type ChangeStreamCursor from './change-stream-cursor';
+import type { ShellBson } from './shell-bson';
 import { inspect } from 'util';
 
 /**
@@ -718,4 +719,25 @@ export function shouldRunAggregationImmediately(pipeline: Document[]): boolean {
   return pipeline.some(stage =>
     Object.keys(stage).some(
       stageName => stageName === '$merge' || stageName === '$out'));
+}
+
+function isBSONDoubleConvertible(val: any): boolean {
+  return (typeof val === 'number' && Number.isInteger(val)) || val?._bsontype === 'Int32';
+}
+
+export function adjustRunCommand(cmd: Document, shellBson: ShellBson): Document {
+  if (cmd.replSetResizeOplog) {
+    if ('size' in cmd && isBSONDoubleConvertible(cmd.size)) {
+      return adjustRunCommand({ ...cmd, size: new shellBson.Double(+cmd.size) }, shellBson);
+    }
+    if ('minRetentionHours' in cmd && isBSONDoubleConvertible(cmd.minRetentionHours)) {
+      return adjustRunCommand({ ...cmd, minRetentionHours: new shellBson.Double(+cmd.minRetentionHours) }, shellBson);
+    }
+  }
+  if (cmd.profile) {
+    if ('sampleRate' in cmd && isBSONDoubleConvertible(cmd.sampleRate)) {
+      return adjustRunCommand({ ...cmd, sampleRate: new shellBson.Double(+cmd.sampleRate) }, shellBson);
+    }
+  }
+  return cmd;
 }

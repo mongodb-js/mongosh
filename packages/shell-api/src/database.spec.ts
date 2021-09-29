@@ -228,6 +228,28 @@ describe('Database', () => {
           .catch(e => e);
         expect(caughtError).to.equal(expectedError);
       });
+
+      it('automatically adjusts replSetResizeOplog parameter types', async() => {
+        await database.runCommand({ replSetResizeOplog: 1, size: 990, minRetentionHours: 3 });
+
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          database._name,
+          {
+            replSetResizeOplog: 1, minRetentionHours: new bson.Double(3), size: new bson.Double(990)
+          }
+        );
+      });
+
+      it('automatically adjusts profile parameter types', async() => {
+        await database.runCommand({ profile: 1, sampleRate: 0 });
+
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          database._name,
+          {
+            profile: 1, sampleRate: new bson.Double(0)
+          }
+        );
+      });
     });
 
     describe('adminCommand', () => {
