@@ -16,11 +16,44 @@ function constructHelp(className: string): Help {
   return new Help(classHelp);
 }
 
+interface ShellBsonBase {
+  DBRef: (namespace: string, oid: any, db?: string, fields?: Document) => typeof BSON.DBRef.prototype;
+  Map: typeof BSON.Map;
+  bsonsize: (object: any) => number;
+  MaxKey: () => typeof BSON.MaxKey.prototype;
+  MinKey: () => typeof BSON.MinKey.prototype;
+  ObjectId: (id?: string | number | typeof BSON.ObjectId.prototype | Buffer) => typeof BSON.ObjectId.prototype;
+  Timestamp: (t?: number | typeof BSON.Long.prototype | { t: number, i: number }, i?: number) => typeof BSON.Timestamp.prototype;
+  Code: (c?: string | Function, s?: any) => typeof BSON.Code.prototype;
+  NumberDecimal: (s?: string) => typeof BSON.Decimal128.prototype;
+  NumberInt: (v?: string) => typeof BSON.Int32.prototype;
+  NumberLong: (s?: string | number) => typeof BSON.Long.prototype;
+  ISODate: (input?: string) => Date;
+  BinData: (subtype: number, b64string: string) => BinaryType;
+  HexData: (subtype: number, hexstr: string) => BinaryType;
+  UUID: (hexstr?: string) => BinaryType;
+  MD5: (hexstr: string) => BinaryType;
+  Decimal128: typeof BSON.Decimal128;
+  BSONSymbol: typeof BSON.BSONSymbol;
+  Int32: typeof BSON.Int32;
+  Long: typeof BSON.Long;
+  Binary: typeof BSON.Binary;
+  Double: typeof BSON.Double;
+  EJSON: typeof BSON.EJSON;
+  BSONRegExp: typeof BSON.BSONRegExp;
+}
+
+type WithHelp<T> = {
+  [prop in keyof T]: T[prop] & { help?: () => Help };
+};
+
+export type ShellBson = WithHelp<ShellBsonBase>;
+
 /**
  * This method modifies the BSON class passed in as argument. This is required so that
  * we can have help, serverVersions, and other metadata on the bson classes constructed by the user.
  */
-export default function constructShellBson(bson: typeof BSON, printWarning: (msg: string) => void): any {
+export default function constructShellBson(bson: typeof BSON, printWarning: (msg: string) => void): ShellBson {
   const bsonNames = [
     'Binary', 'Code', 'DBRef', 'Decimal128', 'Double', 'Int32', 'Long',
     'MaxKey', 'MinKey', 'ObjectId', 'Timestamp', 'Map', 'BSONSymbol',
@@ -50,7 +83,7 @@ export default function constructShellBson(bson: typeof BSON, printWarning: (msg
   (bson.BSONSymbol as any).prototype.serverVersions = [ ServerVersions.earliest, '1.6.0' ];
   (bson.BSONSymbol as any).prototype.deprecated = true;
 
-  const bsonPkg = {
+  const bsonPkg: ShellBson = {
     DBRef: Object.assign(function DBRef(namespace: string, oid: any, db?: string, fields?: Document): typeof bson.DBRef.prototype {
       assertArgsDefinedType([namespace, oid, db], ['string', true, [undefined, 'string'], [undefined, 'object']], 'DBRef');
       return new bson.DBRef(namespace, oid, db, fields);
@@ -86,7 +119,7 @@ export default function constructShellBson(bson: typeof BSON, printWarning: (msg
       assertArgsDefinedType([c, s], [[undefined, 'string', 'function'], [undefined, 'object']], 'Code');
       return new bson.Code(c, s);
     }, { ...bson.Code, prototype: bson.Code.prototype }),
-    NumberDecimal: Object.assign(function(s = '0'): any {
+    NumberDecimal: Object.assign(function NumberDecimal(s = '0'): typeof bson.Decimal128.prototype {
       assertArgsDefinedType([s], [['string', 'number']], 'NumberDecimal');
       if (typeof s === 'string') {
         return bson.Decimal128.fromString(s);
@@ -94,11 +127,11 @@ export default function constructShellBson(bson: typeof BSON, printWarning: (msg
       printWarning('NumberDecimal: specifying a number as argument is deprecated and may lead to loss of precision, pass a string instead');
       return bson.Decimal128.fromString(`${s}`);
     }, { prototype: bson.Decimal128.prototype }),
-    NumberInt: Object.assign(function(v = '0'): any {
+    NumberInt: Object.assign(function NumberInt(v = '0'): typeof bson.Int32.prototype {
       assertArgsDefinedType([v], [['string', 'number']], 'NumberInt');
       return new bson.Int32(parseInt(`${v}`, 10));
     }, { prototype: bson.Int32.prototype }),
-    NumberLong: Object.assign(function(s: string | number = '0'): any {
+    NumberLong: Object.assign(function NumberLong(s: string | number = '0'): typeof bson.Long.prototype {
       assertArgsDefinedType([s], [['string', 'number']], 'NumberLong');
       if (typeof s === 'string') {
         return bson.Long.fromString(s);
@@ -106,7 +139,7 @@ export default function constructShellBson(bson: typeof BSON, printWarning: (msg
       printWarning('NumberLong: specifying a number as argument is deprecated and may lead to loss of precision, pass a string instead');
       return bson.Long.fromNumber(s);
     }, { prototype: bson.Long.prototype }),
-    ISODate: function(input?: string): Date {
+    ISODate: function ISODate(input?: string): Date {
       if (!input) input = new Date().toISOString();
       const isoDateRegex =
         /^(?<Y>\d{4})-?(?<M>\d{2})-?(?<D>\d{2})([T ](?<h>\d{2})(:?(?<m>\d{2})(:?((?<s>\d{2})(\.(?<ms>\d+))?))?)?(?<tz>Z|([+-])(\d{2}):?(\d{2})?)?)?$/;
@@ -125,17 +158,17 @@ export default function constructShellBson(bson: typeof BSON, printWarning: (msg
       }
       throw new MongoshInvalidInputError(`${JSON.stringify(input)} is not a valid ISODate`, CommonErrors.InvalidArgument);
     },
-    BinData: Object.assign(function(subtype: number, b64string: string): BinaryType { // this from 'help misc' in old shell
+    BinData: Object.assign(function BinData(subtype: number, b64string: string): BinaryType { // this from 'help misc' in old shell
       assertArgsDefinedType([subtype, b64string], ['number', 'string'], 'BinData');
       const buffer = Buffer.from(b64string, 'base64');
       return new bson.Binary(buffer, subtype);
     }, { prototype: bson.Binary.prototype }),
-    HexData: Object.assign(function(subtype: number, hexstr: string): BinaryType {
+    HexData: Object.assign(function HexData(subtype: number, hexstr: string): BinaryType {
       assertArgsDefinedType([subtype, hexstr], ['number', 'string'], 'HexData');
       const buffer = Buffer.from(hexstr, 'hex');
       return new bson.Binary(buffer, subtype);
     }, { prototype: bson.Binary.prototype }),
-    UUID: Object.assign(function(hexstr?: string): BinaryType {
+    UUID: Object.assign(function UUID(hexstr?: string): BinaryType {
       if (hexstr === undefined) {
         // Generate a version 4, variant 1 UUID, like the old shell did.
         const uuid = randomBytes(16);
@@ -149,7 +182,7 @@ export default function constructShellBson(bson: typeof BSON, printWarning: (msg
       const buffer = Buffer.from((hexstr as string).replace(/-/g, ''), 'hex');
       return new bson.Binary(buffer, bson.Binary.SUBTYPE_UUID);
     }, { prototype: bson.Binary.prototype }),
-    MD5: Object.assign(function(hexstr: string): BinaryType {
+    MD5: Object.assign(function MD5(hexstr: string): BinaryType {
       assertArgsDefinedType([hexstr], ['string'], 'MD5');
       const buffer = Buffer.from(hexstr, 'hex');
       return new bson.Binary(buffer, bson.Binary.SUBTYPE_MD5);
@@ -163,12 +196,12 @@ export default function constructShellBson(bson: typeof BSON, printWarning: (msg
     Double: bson.Double,
     EJSON: bson.EJSON,
     BSONRegExp: bson.BSONRegExp
-  } as any;
+  };
 
-  Object.keys(bsonPkg).forEach((className) => {
+  for (const className of Object.keys(bsonPkg) as (keyof ShellBson)[]) {
     const help = helps[className] || constructHelp(className);
     bsonPkg[className].help = (): Help => (help);
     Object.setPrototypeOf(bsonPkg[className].help, help);
-  });
+  }
   return bsonPkg;
 }
