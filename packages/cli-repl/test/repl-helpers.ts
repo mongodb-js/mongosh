@@ -90,7 +90,9 @@ const fakeExternalEditor = async(output?: string) => {
       await writeFile(tmpDoc, ${JSON.stringify(output)}, { mode: 0o600 });
     })()`;
   } else {
-    script = 'process.exit(1)';
+    script = `const pid = process.pid;
+
+    exec('taskkill -F -T -PID ' + pid)`;
   }
 
   await fs.mkdir(path.dirname(tmpDoc), { recursive: true, mode: 0o700 });

@@ -27,7 +27,7 @@ const fakeExternalEditor = async(
   await fs.mkdir(path.dirname(tmpDoc), { recursive: true, mode: 0o700 });
   await fs.writeFile(tmpDoc, script, { mode: 0o600 });
 
-  return `node '${tmpDoc}' ${flags}`;
+  return `node "${tmpDoc}" ${flags}`;
 };
 
 describe('Editor', () => {
@@ -42,7 +42,7 @@ describe('Editor', () => {
   let cmd: string | null;
   let mockLoadExternalCodeResult: (...args: any[]) => { args: any[]; done: boolean };
 
-  beforeEach(() => {
+  beforeEach(async() => {
     input = new PassThrough();
     base = path.resolve(__dirname, '..', '..', '..', 'tmp', 'test', `${Date.now()}`, `${new bson.ObjectId()}`);
     vscodeDir = path.join(base, '.vscode');
@@ -91,6 +91,9 @@ describe('Editor', () => {
         busMessages.push({ ev, data });
       }
     });
+
+    // make nyc happy when we spawn npm below
+    await fs.mkdir(path.resolve(__dirname, '..', '..', '..', 'tmp', '.nyc_output', 'processinfo'), { recursive: true });
   });
 
   afterEach(async() => {
