@@ -1,12 +1,15 @@
 import { expect } from 'chai';
+import path from 'path';
+import { promises as fs } from 'fs';
 import { promisify } from 'util';
 import rimraf from 'rimraf';
 
 import { eventually } from '../../../testing/eventually';
-import { fakeExternalEditor, setTemporaryHomeDirectory } from './repl-helpers';
+import { useTmpdir, fakeExternalEditor, setTemporaryHomeDirectory } from './repl-helpers';
 import { TestShell } from './test-shell';
 
 describe('external editor e2e', () => {
+  const tmpdir = useTmpdir();
   let homedir: string;
   let env: Record<string, string>;
   let shell: TestShell;
@@ -25,6 +28,10 @@ describe('external editor e2e', () => {
 
     await shell.waitForPrompt();
     shell.assertNoErrors();
+
+    // make nyc happy when spawning npm below
+    await fs.mkdir(path.join(tmpdir.path, '.mongodb', '.nyc_output', 'processinfo'), { recursive: true });
+    await fs.mkdir(path.join(tmpdir.path, 'mongodb', '.nyc_output', 'processinfo'), { recursive: true });
   });
 
   afterEach(async() => {
