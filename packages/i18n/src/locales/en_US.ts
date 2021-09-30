@@ -1673,6 +1673,11 @@ const translations: Catalog = {
               link: 'https://docs.mongodb.com/manual/reference/method/Session.abortTransaction/#Session.abortTransaction',
               description: 'Aborts the session’s transaction.'
             },
+            withTransaction: {
+              link: 'https://docs.mongodb.com/manual/reference/method/Session.abortTransaction/#Session.withTransaction',
+              description: 'Run a function within a transaction context.',
+              example: 'session.withTransaction(() => { session.getDatabase("test").test.insertOne({ doc: 1 }); })'
+            },
             advanceClusterTime: {
               description: 'Advances the clusterTime for a Session to the provided clusterTime.'
             }

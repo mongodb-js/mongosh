@@ -138,6 +138,11 @@ describe('Session', () => {
       await session.abortTransaction();
       expect(serviceProviderSession.abortTransaction).to.have.been.calledOnceWith();
     });
+    it('withTransaction', async() => {
+      serviceProviderSession.withTransaction.resolves();
+      await session.withTransaction(() => {});
+      expect(serviceProviderSession.withTransaction).to.have.been.calledOnce;
+    });
   });
   describe('integration', () => {
     const [ srv0 ] = startTestCluster(['--replicaset']);
@@ -284,6 +289,42 @@ describe('Session', () => {
         )).acknowledged).to.be.true;
         expect((await testColl.findOne({ value: 'test' })).count).to.equal(0);
         await session.abortTransaction();
+        expect((await testColl.findOne({ value: 'test' })).count).to.equal(0);
+      });
+      it('can run withTransaction in the success case', async() => {
+        const doc = { value: 'test', count: 0 };
+        const testColl = mongo.getDB(databaseName).getCollection('coll');
+        await testColl.drop();
+        await testColl.insertOne(doc);
+        expect((await testColl.findOne({ value: 'test' })).count).to.equal(0);
+        session = mongo.startSession();
+        await session.withTransaction(async() => {
+          const sessionColl = session.getDatabase(databaseName).getCollection('coll');
+          expect((await sessionColl.updateOne(
+            { value: 'test' },
+            { $inc: { count: 1 } }
+          )).acknowledged).to.be.true;
+          expect((await testColl.findOne({ value: 'test' })).count).to.equal(0);
+        });
+        expect((await testColl.findOne({ value: 'test' })).count).to.equal(1);
+      });
+      it('can run withTransaction in the failure case', async() => {
+        const doc = { value: 'test', count: 0 };
+        const testColl = mongo.getDB(databaseName).getCollection('coll');
+        await testColl.drop();
+        await testColl.insertOne(doc);
+        expect((await testColl.findOne({ value: 'test' })).count).to.equal(0);
+        session = mongo.startSession();
+        const { err } = await session.withTransaction(async() => {
+          const sessionColl = session.getDatabase(databaseName).getCollection('coll');
+          expect((await sessionColl.updateOne(
+            { value: 'test' },
+            { $inc: { count: 1 } }
+          )).acknowledged).to.be.true;
+          expect((await testColl.findOne({ value: 'test' })).count).to.equal(0);
+          throw new Error('fails');
+        }).catch(err => ({ err }));
+        expect(err.message).to.equal('fails');
         expect((await testColl.findOne({ value: 'test' })).count).to.equal(0);
       });
     });
