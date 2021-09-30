@@ -2146,8 +2146,10 @@ describe('Shell API (integration)', function() {
         expect(params.connectionInfo().is_localhost).to.equal(true);
         expect(await database._getCollectionNames()).to.deep.equal(['docs']);
         expect(await params.getCollectionCompletionsForCurrentDb('d')).to.deep.equal(['docs']);
+        expect(await params.getCollectionCompletionsForCurrentDb('D')).to.deep.equal(['docs']);
         expect(await params.getCollectionCompletionsForCurrentDb('e')).to.deep.equal([]);
         expect(await params.getDatabaseCompletions('test-')).to.deep.equal([database.getName()]);
+        expect(await params.getDatabaseCompletions('TEST-')).to.deep.equal([database.getName()]);
       });
     });
   });
