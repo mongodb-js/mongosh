@@ -85,14 +85,16 @@ const fakeExternalEditor = async(output?: string) => {
   if (typeof output === 'string') {
     script = `(async () => {
       const tmpDoc = process.argv[process.argv.length - 1];
-      const { promises: { writeFile } } = require('fs');
-  
+      const { promises: { writeFile } } = require("fs");
       await writeFile(tmpDoc, ${JSON.stringify(output)}, { mode: 0o600 });
     })()`;
   } else {
-    script = `const pid = process.pid;
-
-    exec("taskkill -F -T -PID " + pid)`;
+    script = `const os = require("os");
+    if (os.platform() === "win32") {
+      process.exec("taskkill -F -T -PID " + process.pid);
+    } else {
+      process.kill();
+    }`;
   }
 
   await fs.mkdir(path.dirname(tmpDoc), { recursive: true, mode: 0o700 });
