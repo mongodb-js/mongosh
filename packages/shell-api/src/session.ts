@@ -21,7 +21,7 @@ import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
 import { assertArgsDefinedType, isValidDatabaseName } from './helpers';
 
 @shellApiClassDefault
-@classPlatforms([ ReplPlatform.CLI ] )
+@classPlatforms([ ReplPlatform.CLI ])
 export default class Session extends ShellApiWithMongoClass {
   public id: ServerSessionId | undefined;
   public _session: ClientSession;
@@ -99,5 +99,13 @@ export default class Session extends ShellApiWithMongoClass {
   @returnsPromise
   async abortTransaction(): Promise<Document> {
     return await this._session.abortTransaction();
+  }
+
+  @returnsPromise
+  async withTransaction<T extends(...args: any) => any>(fn: T, options: TransactionOptions = {}): Promise<ReturnType<T>> {
+    assertArgsDefinedType([fn, options], ['function', [undefined, 'object']]);
+    // The driver doesn't automatically ensure that fn is an async
+    // function/convert its return type to a Promise, so we do that here.
+    return await this._session.withTransaction(async() => await fn(), options);
   }
 }
