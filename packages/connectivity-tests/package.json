@@ -4,10 +4,15 @@
   "private": true,
   "license": "Apache-2.0",
   "scripts": {
+    "test": "echo only run as part of test-connectivity",
     "test-connectivity": "bash test/all.sh",
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test"
   },
   "devDependencies": {
     "mongosh": "0.0.0-dev.0"
+  },
+  "mongosh": {
+    "unitTestsOnly": true,
+    "variants": []
   }
 }
