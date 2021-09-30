@@ -43,7 +43,7 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
       shellApi[cmd]?.acceptsRawInput &&
       !(argv[0] ?? '').startsWith('(')
     ) {
-      return shellApi[cmd](input.trim().split(/\s+/).slice(1).join(' '));
+      return shellApi[cmd](input.trim().replace(/^\S+\s+/, ''));
     }
 
     if (shellApi[cmd]?.isDirectShellCommand && !(argv[0] ?? '').startsWith('(')) {
