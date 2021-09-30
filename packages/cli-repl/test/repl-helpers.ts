@@ -91,7 +91,8 @@ const fakeExternalEditor = async(output?: string) => {
   } else {
     script = `const os = require("os");
     if (os.platform() === "win32") {
-      process.exec("taskkill -F -T -PID " + process.pid);
+      const child_process = require("child_process"),
+      child_process.exec("taskkill -F -T -PID " + process.pid);
     } else {
       process.kill();
     }`;
