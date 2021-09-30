@@ -45,7 +45,7 @@ describe('external editor e2e', () => {
     };`;
     const shellModifiedInput = 'fn = function () { console.log(222); };';
     const editor = await fakeExternalEditor(editorOutput);
-    const result = await shell.executeLine(`config.set("editor", "${editor}");`);
+    const result = await shell.executeLine(`config.set("editor", ${JSON.stringify(editor)});`);
 
     expect(result).to.include('"editor" has been changed');
     shell.writeInputLine(shellOriginalInput);
@@ -59,7 +59,7 @@ describe('external editor e2e', () => {
     const editorOutput = "const myVar = '222';";
     const shellModifiedInput = "myVar = '222';";
     const editor = await fakeExternalEditor(editorOutput);
-    const result = await shell.executeLine(`config.set("editor", "${editor}");`);
+    const result = await shell.executeLine(`config.set("editor", ${JSON.stringify(editor)});`);
 
     expect(result).to.include('"editor" has been changed');
     shell.writeInputLine(shellOriginalInput);
@@ -77,7 +77,7 @@ describe('external editor e2e', () => {
     };`;
     const shellModifiedInput = "myObj = { field: { child: 'new   value' } };";
     const editor = await fakeExternalEditor(editorOutput);
-    const result = await shell.executeLine(`config.set("editor", "${editor}");`);
+    const result = await shell.executeLine(`config.set("editor", ${JSON.stringify(editor)});`);
 
     expect(result).to.include('"editor" has been changed');
     shell.writeInputLine(shellOriginalInput);
@@ -89,7 +89,7 @@ describe('external editor e2e', () => {
   it('returns an error when editor exits with exitCode 1', async() => {
     const shellOriginalInput = 'edit function() {}';
     const editor = await fakeExternalEditor();
-    const result = await shell.executeLine(`config.set("editor", "${editor}");`);
+    const result = await shell.executeLine(`config.set("editor", ${JSON.stringify(editor)});`);
 
     expect(result).to.include('"editor" has been changed');
     shell.writeInputLine(shellOriginalInput);
@@ -101,7 +101,7 @@ describe('external editor e2e', () => {
   it('opens an empty editor', async() => {
     const output = '';
     const editor = await fakeExternalEditor(output);
-    const result = await shell.executeLine(`config.set("editor", "${editor}");`);
+    const result = await shell.executeLine(`config.set("editor", ${JSON.stringify(editor)});`);
 
     expect(result).to.include('"editor" has been changed');
     shell.writeInputLine('edit');
