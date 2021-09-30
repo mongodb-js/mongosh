@@ -97,6 +97,7 @@ describe('external editor e2e', () => {
     const shellOriginalInput = 'edit function() {}';
     const editor = await fakeExternalEditor();
     const result = await shell.executeLine(`config.set("editor", ${JSON.stringify(editor)});`);
+    await shell.executeLine('config.set("showStackTraces", true); print(process.env.PATH);');
 
     expect(result).to.include('"editor" has been changed');
     shell.writeInputLine(shellOriginalInput);
