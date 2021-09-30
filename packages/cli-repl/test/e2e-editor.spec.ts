@@ -7,10 +7,16 @@ import { fakeExternalEditor, setTemporaryHomeDirectory } from './repl-helpers';
 import { TestShell } from './test-shell';
 
 describe('external editor e2e', () => {
-  const { homedir, env } = setTemporaryHomeDirectory();
+  let homedir: string;
+  let env: Record<string, string>;
   let shell: TestShell;
 
   beforeEach(async() => {
+    const homeInfo = setTemporaryHomeDirectory();
+
+    homedir = homeInfo.homedir;
+    env = homeInfo.env;
+
     shell = TestShell.start({
       args: [ '--nodb' ],
       forceTerminal: true,

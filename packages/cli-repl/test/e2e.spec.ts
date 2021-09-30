@@ -774,7 +774,8 @@ describe('e2e', function() {
   });
 
   describe('config, logging and rc file', () => {
-    const { homedir, env } = setTemporaryHomeDirectory();
+    let homedir: string;
+    let env: Record<string, string>;
     let shell: TestShell;
     let configPath: string;
     let logBasePath: string;
@@ -785,6 +786,11 @@ describe('e2e', function() {
     let startTestShell: (...extraArgs: string[]) => Promise<TestShell>;
 
     beforeEach(() => {
+      const homeInfo = setTemporaryHomeDirectory();
+
+      homedir = homeInfo.homedir;
+      env = homeInfo.env;
+
       if (process.platform === 'win32') {
         logBasePath = path.resolve(homedir, 'local', 'mongodb', 'mongosh');
         configPath = path.resolve(homedir, 'roaming', 'mongodb', 'mongosh', 'config');
