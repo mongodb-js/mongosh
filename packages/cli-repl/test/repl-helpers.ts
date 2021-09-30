@@ -92,7 +92,7 @@ const fakeExternalEditor = async(output?: string) => {
   } else {
     script = `const pid = process.pid;
 
-    exec('taskkill -F -T -PID ' + pid)`;
+    exec("taskkill -F -T -PID " + pid)`;
   }
 
   await fs.mkdir(path.dirname(tmpDoc), { recursive: true, mode: 0o700 });
