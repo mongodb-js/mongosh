@@ -342,7 +342,8 @@ export default class ShellInstanceState {
       getCollectionCompletionsForCurrentDb: async(collName: string): Promise<string[]> => {
         try {
           const collectionNames = await this.currentDb._getCollectionNamesForCompletion();
-          return collectionNames.filter((name) => name.startsWith(collName));
+          return collectionNames.filter((name) =>
+            name.toLowerCase().startsWith(collName.toLowerCase()));
         } catch (err) {
           if (
             err.code === ShellApiErrors.NotConnected ||
@@ -356,7 +357,8 @@ export default class ShellInstanceState {
       getDatabaseCompletions: async(dbName: string): Promise<string[]> => {
         try {
           const dbNames = await this.currentDb._mongo._getDatabaseNamesForCompletion();
-          return dbNames.filter((name) => name.startsWith(dbName));
+          return dbNames.filter((name) =>
+            name.toLowerCase().startsWith(dbName.toLowerCase()));
         } catch (err) {
           if (
             err.code === ShellApiErrors.NotConnected ||
