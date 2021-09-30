@@ -44,8 +44,8 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
       shellApi[cmd]?.acceptsRawInput &&
       !(argv[0] ?? '').startsWith('(')
     ) {
-      const code = /^(\S+)$/.test(trimmedInput) ? '' : trimmedInput.replace(/^\S+\s+/, '');
-      return shellApi[cmd](code);
+      const rawArg = trimmedInput.replace(/^\S+\s*/, '');
+      return shellApi[cmd](rawArg);
     }
 
     if (shellApi[cmd]?.isDirectShellCommand && !(argv[0] ?? '').startsWith('(')) {
