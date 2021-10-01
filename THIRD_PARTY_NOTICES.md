@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Thu Sep 30 2021.
+This document was automatically generated on Fri Oct 01 2021.
 
 ## List of dependencies
 
@@ -8699,7 +8699,7 @@ Authors:
 
 <a id="67de3a765808182ee1018c35bc07d7a023a8d645e98cc32814dcac2fc2c427ff"></a>
 ### [cross-spawn](https://www.npmjs.com/package/cross-spawn) (version 7.0.3)
-<!-- initially found at packages/editor/node_modules/cross-spawn -->
+<!-- initially found at packages/snippet-manager/node_modules/cross-spawn -->
 > Cross platform child_process#spawn and child_process#spawnSync
 
 License tags: MIT
@@ -11314,7 +11314,7 @@ Authors:
 
 <a id="2f62e711a6921973ef3f9650fd3e06585fd3842e34078c8fa959481738600405"></a>
 ### [isexe](https://www.npmjs.com/package/isexe) (version 2.0.0)
-<!-- initially found at packages/editor/node_modules/isexe -->
+<!-- initially found at packages/snippet-manager/node_modules/isexe -->
 > Minimal module to check if a file is executable.
 
 License tags: ISC
@@ -14600,7 +14600,7 @@ Authors:
 
 <a id="e1a2a032096ace66b422351e00b11b0229e42e4b49c2146f439f8fe442218451"></a>
 ### [path-key](https://www.npmjs.com/package/path-key) (version 3.1.1)
-<!-- initially found at packages/editor/node_modules/path-key -->
+<!-- initially found at packages/snippet-manager/node_modules/path-key -->
 > Get the PATH environment variable key cross-platform
 
 License tags: MIT
@@ -15584,7 +15584,7 @@ Authors:
 
 <a id="a9cba97b71b818fb0a4978f8b14875ae118f292a19ffa97c8b2d848f9a897d89"></a>
 ### [shebang-command](https://www.npmjs.com/package/shebang-command) (version 2.0.0)
-<!-- initially found at packages/editor/node_modules/shebang-command -->
+<!-- initially found at packages/snippet-manager/node_modules/shebang-command -->
 > Get the command from a shebang
 
 License tags: MIT
@@ -15609,7 +15609,7 @@ Authors:
 
 <a id="849fb37298f1c4dcdeb6065edc4242918c7533bcfda5c67747e6ce4620c587bb"></a>
 ### [shebang-regex](https://www.npmjs.com/package/shebang-regex) (version 3.0.0)
-<!-- initially found at packages/editor/node_modules/shebang-regex -->
+<!-- initially found at packages/snippet-manager/node_modules/shebang-regex -->
 > Regular expression for matching a shebang line
 
 License tags: MIT
@@ -16518,7 +16518,7 @@ Authors:
 
 <a id="5a71f2b741944bf107d6e7f067241798a6e277e42e8ca1e28c4608ccc233f8ec"></a>
 ### [which](https://www.npmjs.com/package/which) (version 2.0.2)
-<!-- initially found at packages/editor/node_modules/which -->
+<!-- initially found at packages/snippet-manager/node_modules/which -->
 > Like which(1) unix command. Find the first instance of an executable in the PATH.
 
 License tags: ISC
