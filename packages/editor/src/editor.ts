@@ -2,7 +2,7 @@ import * as path from 'path';
 import { once } from 'events';
 import { promises as fs } from 'fs';
 import { Readable } from 'stream';
-import spawn from 'cross-spawn';
+import childProcess from 'child_process';
 
 import { bson } from '@mongosh/service-provider-core';
 import { makeMultilineJSIntoSingleLine } from '@mongosh/js-multiline-to-singleline';
@@ -188,7 +188,7 @@ export class Editor {
       code
     });
 
-    const proc = spawn(editor, [path.basename(tmpDoc)], {
+    const proc = childProcess.spawn(editor, [path.basename(tmpDoc)], {
       stdio: 'inherit',
       cwd: path.dirname(tmpDoc),
       shell: true

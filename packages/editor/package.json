@@ -34,11 +34,9 @@
     "@mongosh/shell-api": "0.0.0-dev.0",
     "@mongosh/shell-evaluator": "0.0.0-dev.0",
     "@mongosh/types": "0.0.0-dev.0",
-    "cross-spawn": "^7.0.3",
     "js-beautify": "^1.14.0"
   },
   "devDependencies": {
-    "@types/cross-spawn": "^6.0.2",
     "nanobus": "^4.5.0"
   }
 }

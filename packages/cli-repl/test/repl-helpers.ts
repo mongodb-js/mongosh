@@ -89,12 +89,7 @@ const fakeExternalEditor = async(output?: string) => {
       await writeFile(tmpDoc, ${JSON.stringify(output)}, { mode: 0o600 });
     })()`;
   } else {
-    script = `const os = require("os");
-    if (os.platform() === "win32") {
-      require("child_process").execSync("taskkill /F /T /PID " + process.pid);
-    } else {
-      process.kill();
-    }`;
+    script = 'process.exit(1);';
   }
 
   await fs.mkdir(path.dirname(tmpDoc), { recursive: true, mode: 0o700 });
