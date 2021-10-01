@@ -2,7 +2,7 @@ import * as path from 'path';
 import { once } from 'events';
 import { promises as fs } from 'fs';
 import { Readable } from 'stream';
-import spawn from 'cross-spawn';
+import childProcess from 'child_process';
 
 import { bson } from '@mongosh/service-provider-core';
 import { makeMultilineJSIntoSingleLine } from '@mongosh/js-multiline-to-singleline';
@@ -40,8 +40,8 @@ export class Editor {
     this.print = instanceState.context.print;
 
     // Add edit command support to shell api.
-    const wrapperFn = (input: string) => {
-      return Object.assign(this.runEditCommand(input), {
+    const wrapperFn = (code: string) => {
+      return Object.assign(this.runEditCommand(code), {
         [Symbol.for('@@mongosh.syntheticPromise')]: true
       });
     };
@@ -127,7 +127,16 @@ export class Editor {
   }
 
   _isIdentifier(code: string): boolean {
-    const regex = /^([^!#%&()*+,\-/\\^`{|}~]+)$/;
+    if (this._isNumeric(code)) {
+      return false;
+    }
+
+    const regex = /^([^!"#%&'()*+,\-/\[\]\\^`{|}~]+)$/;
+    return regex.test(code);
+  }
+
+  _isNumeric(code: string) {
+    const regex = /^-?\d+$/;
     return regex.test(code);
   }
 
@@ -147,10 +156,21 @@ export class Editor {
     return evalResult.toString();
   }
 
-  async runEditCommand(input: string): Promise<void> {
+  _prepareResult({ originalCode, modifiedCode }: {
+    originalCode: string,
+    modifiedCode: string
+  }): string {
+    // If code is a statement return the original input string.
+    if (!this._isIdentifier(originalCode)) {
+      return modifiedCode;
+    }
+
+    return `${originalCode} = ${modifiedCode}`;
+  }
+
+  async runEditCommand(code: string): Promise<void> {
     await this.print('Opening an editor...');
 
-    const code = input.replace('edit', '').trim();
     const editor: string|null = await this._getEditor();
 
     // If none of the above configurations are found return an error.
@@ -168,11 +188,12 @@ export class Editor {
       code
     });
 
-    const proc = spawn(editor, [path.basename(tmpDoc)], {
+    const proc = childProcess.spawn(editor, [path.basename(tmpDoc)], {
       stdio: 'inherit',
       cwd: path.dirname(tmpDoc),
       shell: true
     });
+
     // Pause the parent readable stream to stop emitting data events
     // and get a child the total control over the input.
     this._input.pause();
@@ -181,7 +202,8 @@ export class Editor {
       const [ exitCode ] = await once(proc, 'exit');
 
       if (exitCode === 0) {
-        const result = await this._readAndDeleteTempFile(tmpDoc);
+        const modifiedCode = await this._readAndDeleteTempFile(tmpDoc);
+        const result = this._prepareResult({ originalCode: code, modifiedCode });
         // Write a content from the editor to the parent readable stream.
         this._input.unshift(result);
         return;

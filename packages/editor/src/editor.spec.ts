@@ -4,13 +4,31 @@ import { Duplex, PassThrough } from 'stream';
 import Nanobus from 'nanobus';
 import path from 'path';
 import { promises as fs } from 'fs';
+import { promisify } from 'util';
+import rimraf from 'rimraf';
 import sinon from 'ts-sinon';
 import sinonChai from 'sinon-chai';
 
 import { Editor } from './editor';
-import { eventually } from '../../../testing/eventually';
 
 chai.use(sinonChai);
+
+const fakeExternalEditor = async(
+  { base, name, flags = '', output }: { base: string, name: string, flags?: string, output: string }
+): Promise<string> => {
+  const tmpDoc = path.join(base, name);
+  const script = `(async () => {
+    const tmpDoc = process.argv[process.argv.length - 1];
+    const { promises: { writeFile } } = require('fs');
+
+    await writeFile(tmpDoc, ${JSON.stringify(output)}, { mode: 0o600 });
+  })()`;
+
+  await fs.mkdir(path.dirname(tmpDoc), { recursive: true, mode: 0o700 });
+  await fs.writeFile(tmpDoc, script, { mode: 0o600 });
+
+  return `node "${tmpDoc}" ${flags}`;
+};
 
 describe('Editor', () => {
   let input: Duplex;
@@ -24,7 +42,7 @@ describe('Editor', () => {
   let cmd: string | null;
   let mockLoadExternalCodeResult: (...args: any[]) => { args: any[]; done: boolean };
 
-  beforeEach(() => {
+  beforeEach(async() => {
     input = new PassThrough();
     base = path.resolve(__dirname, '..', '..', '..', 'tmp', 'test', `${Date.now()}`, `${new bson.ObjectId()}`);
     vscodeDir = path.join(base, '.vscode');
@@ -73,14 +91,13 @@ describe('Editor', () => {
         busMessages.push({ ev, data });
       }
     });
+
+    // make nyc happy when we spawn npm below
+    await fs.mkdir(path.resolve(__dirname, '..', '..', '..', 'tmp', '.nyc_output', 'processinfo'), { recursive: true });
   });
 
   afterEach(async() => {
-    await eventually(async() => {
-      // This can fail when an index fetch is being written while we are removing
-      // the directory; hence, try again.
-      await fs.rmdir(tmpDir, { recursive: true });
-    });
+    await promisify(rimraf)(path.resolve(base, '..'));
   });
 
   it('_isVscodeApp returns true if command is code', () => {
@@ -118,14 +135,14 @@ describe('Editor', () => {
     expect(isIdentifier).to.be.equal(true);
   });
 
-  it('_isIdentifier returns true if a command is an identifier written as an array and double quotes', () => {
+  it('_isIdentifier returns false if a command is an identifier written as an array and double quotes', () => {
     const isIdentifier = editor._isIdentifier('db["test"]find');
-    expect(isIdentifier).to.be.equal(true);
+    expect(isIdentifier).to.be.equal(false);
   });
 
-  it('_isIdentifier returns true if a command is an identifier written as an array and single quotes', () => {
+  it('_isIdentifier returns false if a command is an identifier written as an array and single quotes', () => {
     const isIdentifier = editor._isIdentifier("db['test']find");
-    expect(isIdentifier).to.be.equal(true);
+    expect(isIdentifier).to.be.equal(false);
   });
 
   it('_isIdentifier returns true if it contains $', () => {
@@ -143,9 +160,14 @@ describe('Editor', () => {
     expect(isIdentifier).to.be.equal(false);
   });
 
-  it('_isIdentifier returns true for a string', () => {
+  it('_isIdentifier returns false for a string', () => {
     const isIdentifier = editor._isIdentifier('"some string"');
-    expect(isIdentifier).to.be.equal(true);
+    expect(isIdentifier).to.be.equal(false);
+  });
+
+  it('_isIdentifier returns false for a number', () => {
+    const isIdentifier = editor._isIdentifier('111');
+    expect(isIdentifier).to.be.equal(false);
   });
 
   it('_getEditor returns an editor value from process.env.EDITOR', async() => {
@@ -199,6 +221,79 @@ describe('Editor', () => {
     expect(content).to.be.equal('1 + 1');
   });
 
-  // TODO: e2e or mock tests for _getExtension
-  // TODO: Write a node script that acts as an external editor and write e2e tests
+  it('_prepareResult returns an assignment statement for an identifier', () => {
+    const result = editor._prepareResult({ originalCode: 'fn', modifiedCode: 'function() { console.log(222); };' });
+    expect(result).to.be.equal('fn = function() { console.log(222); };');
+  });
+
+  it('_prepareResult returns an assignment statement for an identifier', () => {
+    const result = editor._prepareResult({ originalCode: '111', modifiedCode: '222' });
+    expect(result).to.be.equal('222');
+  });
+
+  context('runEditCommand', () => {
+    context('when editor is not defined', () => {
+      it('returns please define an external editor error', async() => {
+        try {
+          await editor.runEditCommand('edit');
+        } catch (error) {
+          expect(error.message).to.include('Command failed with an error: please define an external editor');
+        }
+      });
+    });
+
+    context('when editor is defined', () => {
+      it('returns a modified find statement to the mongosh input', async() => {
+        const shellOriginalInput = 'db.test.find()';
+        const editorOutput = `db.test.find({
+          field: 'new     value'
+        })`;
+        const shellModifiedInput = "db.test.find({ field: 'new     value' })";
+
+        cmd = await fakeExternalEditor({ base, name: 'editor-script.js', output: editorOutput });
+        await editor.runEditCommand(shellOriginalInput);
+
+        const mongoshModifiedInput = editor._input.read().toString();
+        expect(mongoshModifiedInput).to.be.equal(shellModifiedInput);
+      });
+
+      it('writes a modified function statement to the mongosh input', async() => {
+        const shellOriginalInput = 'function () {}';
+        const editorOutput = `function () {
+          console.log(111);
+        }`;
+        const shellModifiedInput = 'function () { console.log(111); }';
+
+        cmd = await fakeExternalEditor({ base, name: 'editor-script.js', output: editorOutput });
+        await editor.runEditCommand(shellOriginalInput);
+
+        const mongoshModifiedInput = editor._input.read().toString();
+        expect(mongoshModifiedInput).to.be.equal(shellModifiedInput);
+      });
+
+      it('allows spaces in the editor name', async() => {
+        const shellOriginalInput = '"some string"';
+        const editorOutput = '"some modified string"';
+        const shellModifiedInput = '"some modified string"';
+
+        cmd = await fakeExternalEditor({ base, name: 'editor script.js', output: editorOutput });
+        await editor.runEditCommand(shellOriginalInput);
+
+        const mongoshModifiedInput = editor._input.read().toString();
+        expect(mongoshModifiedInput).to.be.equal(shellModifiedInput);
+      });
+
+      it('allows flags in the editor', async() => {
+        const shellOriginalInput = '"some string"';
+        const editorOutput = '"some modified string"';
+        const shellModifiedInput = '"some modified string"';
+
+        cmd = await fakeExternalEditor({ base, name: 'editor-script.js', flags: '--trace-warnings', output: editorOutput });
+        await editor.runEditCommand(shellOriginalInput);
+
+        const mongoshModifiedInput = editor._input.read().toString();
+        expect(mongoshModifiedInput).to.be.equal(shellModifiedInput);
+      });
+    });
+  });
 });

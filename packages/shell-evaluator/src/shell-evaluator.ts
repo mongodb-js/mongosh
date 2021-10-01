@@ -35,7 +35,8 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
   // eslint-disable-next-line complexity
   private async innerEval(originalEval: EvaluationFunction, input: string, context: object, filename: string): Promise<any> {
     const { shellApi } = this.instanceState;
-    const argv = input.trim().replace(/;$/, '').split(/\s+/g);
+    const trimmedInput = input.trim();
+    const argv = trimmedInput.replace(/;$/, '').split(/\s+/g);
     const cmd = argv.shift() as keyof typeof shellApi;
 
     if (
@@ -43,7 +44,8 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
       shellApi[cmd]?.acceptsRawInput &&
       !(argv[0] ?? '').startsWith('(')
     ) {
-      return shellApi[cmd](input);
+      const rawArg = trimmedInput.replace(/^\S+\s*/, '');
+      return shellApi[cmd](rawArg);
     }
 
     if (shellApi[cmd]?.isDirectShellCommand && !(argv[0] ?? '').startsWith('(')) {
@@ -56,7 +58,7 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
     if (!hiddenCommands.test(input) && !hiddenCommands.test(rewrittenInput)) {
       this.instanceState.messageBus.emit(
         'mongosh:evaluate-input',
-        { input: redactSensitiveData(input.trim()) }
+        { input: redactSensitiveData(trimmedInput) }
       );
     }
 

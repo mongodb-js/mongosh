@@ -9,7 +9,7 @@ import { promisify } from 'util';
 import rimraf from 'rimraf';
 import path from 'path';
 import os from 'os';
-import { readReplLogfile } from './repl-helpers';
+import { readReplLogfile, setTemporaryHomeDirectory } from './repl-helpers';
 import { bson } from '@mongosh/service-provider-core';
 const { EJSON } = bson;
 
@@ -145,6 +145,7 @@ describe('e2e', function() {
       expect(result).to.match(/a<A>/);
     });
   });
+
   describe('set db', () => {
     for (const { mode, dbname, dbnameUri } of [
       { mode: 'no special characetrs', dbname: 'testdb1', dbnameUri: 'testdb1' },
@@ -773,8 +774,9 @@ describe('e2e', function() {
   });
 
   describe('config, logging and rc file', () => {
-    let shell: TestShell;
     let homedir: string;
+    let env: Record<string, string>;
+    let shell: TestShell;
     let configPath: string;
     let logBasePath: string;
     let logPath: string;
@@ -782,17 +784,14 @@ describe('e2e', function() {
     let readConfig: () => Promise<any>;
     let readLogfile: () => Promise<any[]>;
     let startTestShell: (...extraArgs: string[]) => Promise<TestShell>;
-    let env: Record<string, string>;
 
     beforeEach(() => {
-      homedir = path.resolve(
-        __dirname, '..', '..', '..', 'tmp', `cli-repl-home-${Date.now()}-${Math.random()}`);
-      env = {
-        ...process.env, HOME: homedir, USERPROFILE: homedir
-      };
+      const homeInfo = setTemporaryHomeDirectory();
+
+      homedir = homeInfo.homedir;
+      env = homeInfo.env;
+
       if (process.platform === 'win32') {
-        env.LOCALAPPDATA = path.join(homedir, 'local');
-        env.APPDATA = path.join(homedir, 'roaming');
         logBasePath = path.resolve(homedir, 'local', 'mongodb', 'mongosh');
         configPath = path.resolve(homedir, 'roaming', 'mongodb', 'mongosh', 'config');
         historyPath = path.resolve(homedir, 'roaming', 'mongodb', 'mongosh', 'mongosh_repl_history');
