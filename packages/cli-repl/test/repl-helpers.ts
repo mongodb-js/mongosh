@@ -78,9 +78,10 @@ async function readReplLogfile(logPath: string) {
 
 
 const fakeExternalEditor = async(
-  { output, tmpdir, name }: { output?: string, tmpdir: string, name: string }
+  { output, expectedExtension, tmpdir }: { output?: string, expectedExtension?: string, tmpdir: string }
 ) => {
-  const tmpDoc = path.join(tmpdir, name);
+  const editor = (expectedExtension === '.mongodb') ? 'code' : 'editor';
+  const tmpDoc = path.join(tmpdir, editor);
   let script: string;
 
   if (typeof output === 'string') {
@@ -88,8 +89,15 @@ const fakeExternalEditor = async(
     (async () => {
       const tmpDoc = process.argv[process.argv.length - 1];
       const { promises: { writeFile } } = require("fs");
+      const assert = require("assert");
+      const path = require("path");
+
       await writeFile(tmpDoc, ${JSON.stringify(output)}, { mode: 0o600 });
-    })()`;
+
+      if (${JSON.stringify(expectedExtension ?? '')}) {
+        assert.strictEqual(path.extname(tmpDoc), ${JSON.stringify(expectedExtension)});
+      }
+    })().catch((err) => { process.nextTick(() => { throw err; }); });`;
   } else {
     script = `#!/usr/bin/env node
     process.exit(1);`;
