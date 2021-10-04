@@ -103,7 +103,7 @@ const fakeExternalEditor = async(
 
       if (${JSON.stringify(flags ?? '')}) {
         assert.strictEqual(
-          (${JSON.stringify(flags ?? '')}).split(/\s+/).every((val) => process.argv.includes(val)),
+          (${JSON.stringify(flags)}).split(/\s+/).every((val) => process.argv.includes(val)),
           true
         );
       }
