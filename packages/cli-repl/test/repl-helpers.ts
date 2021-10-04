@@ -77,29 +77,32 @@ async function readReplLogfile(logPath: string) {
 }
 
 
-const fakeExternalEditor = async(output?: string) => {
-  const base = path.resolve(__dirname, '..', '..', '..', 'tmp', 'test', `${Date.now()}`, `${Math.random()}`);
-  const tmpDoc = path.join(base, 'editor-script.js');
+const fakeExternalEditor = async(
+  { output, tmpdir, name }: { output?: string, tmpdir: string, name: string }
+) => {
+  const tmpDoc = path.join(tmpdir, name);
   let script: string;
 
   if (typeof output === 'string') {
-    script = `(async () => {
+    script = `#!/usr/bin/env node
+    (async () => {
       const tmpDoc = process.argv[process.argv.length - 1];
       const { promises: { writeFile } } = require("fs");
       await writeFile(tmpDoc, ${JSON.stringify(output)}, { mode: 0o600 });
     })()`;
   } else {
-    script = 'process.exit(1);';
+    script = `#!/usr/bin/env node
+    process.exit(1);`;
   }
 
   await fs.mkdir(path.dirname(tmpDoc), { recursive: true, mode: 0o700 });
-  await fs.writeFile(tmpDoc, script, { mode: 0o600 });
+  await fs.writeFile(tmpDoc, script, { mode: 0o700 });
 
-  return `node ${tmpDoc}`;
+  return tmpDoc;
 };
 
 const setTemporaryHomeDirectory = () => {
-  const homedir: string = path.resolve(__dirname, '..', '..', '..', 'tmp', `cli-repl-home-${Date.now()}-${Math.random()}`);
+  const homedir: string = path.resolve(__dirname, '..', '..', '..', 'tmp', 'test', `cli-repl-home-${Date.now()}-${Math.random()}`);
   const env: Record<string, string> = { ...process.env, HOME: homedir, USERPROFILE: homedir };
 
   if (process.platform === 'win32') {
