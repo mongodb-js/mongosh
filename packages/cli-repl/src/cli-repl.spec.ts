@@ -1280,6 +1280,21 @@ describe('CliRepl', () => {
         expect(output).to.include('db.version');
       });
 
+      it('does not complete legacy JS get/set definitions', async function() {
+        if (+process.version.split('.')[0].slice(1) < 14) {
+          return this.skip();
+        }
+        output = '';
+        input.write('JSON.');
+        await tabtab();
+        await waitCompletion(cliRepl.bus);
+        expect(output).to.include('JSON.__proto__');
+        expect(output).not.to.include('JSON.__defineGetter__');
+        expect(output).not.to.include('JSON.__defineSetter__');
+        expect(output).not.to.include('JSON.__lookupGetter__');
+        expect(output).not.to.include('JSON.__lookupSetter__');
+      });
+
       it(`${wantShardDistribution ? 'completes' : 'does not complete'} the getShardDistribution method`, async function() {
         if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
           return this.skip();
