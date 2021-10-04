@@ -50,7 +50,11 @@ describe('external editor e2e', () => {
       const shellOriginalInput = 'edit 111';
       const editorOutput = 'edit 222';
       const shellModifiedInput = 'edit 222';
-      const editor = await fakeExternalEditor({ output: editorOutput, tmpdir: tmpdir.path });
+      const editor = await fakeExternalEditor({
+        output: editorOutput,
+        expectedExtension: '.js',
+        tmpdir: tmpdir.path
+      });
       const result = await shell.executeLine(`config.set("editor", ${JSON.stringify(editor)});`);
 
       expect(result).to.include('"editor" has been changed');
@@ -67,11 +71,7 @@ describe('external editor e2e', () => {
         console.log(222);
       };`;
       const shellModifiedInput = 'fn = function () { console.log(222); };';
-      const editor = await fakeExternalEditor({
-        output: editorOutput,
-        expectedExtension: '.js',
-        tmpdir: tmpdir.path
-      });
+      const editor = await fakeExternalEditor({ output: editorOutput, tmpdir: tmpdir.path });
       const result = await shell.executeLine(`config.set("editor", ${JSON.stringify(editor)});`);
 
       expect(result).to.include('"editor" has been changed');
