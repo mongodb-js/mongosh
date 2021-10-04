@@ -49,11 +49,12 @@ describe('external editor e2e', () => {
     it('creates a file with .js extension', async() => {
       const shellOriginalInput = 'edit 111';
       const editorOutput = 'edit 222';
-      const shellModifiedInput = 'edit 222';
+      const shellModifiedInput = '222';
       const editor = await fakeExternalEditor({
         output: editorOutput,
         expectedExtension: '.js',
-        tmpdir: tmpdir.path
+        tmpdir: tmpdir.path,
+        name: 'editor'
       });
       const result = await shell.executeLine(`config.set("editor", ${JSON.stringify(editor)});`);
 
@@ -71,7 +72,11 @@ describe('external editor e2e', () => {
         console.log(222);
       };`;
       const shellModifiedInput = 'fn = function () { console.log(222); };';
-      const editor = await fakeExternalEditor({ output: editorOutput, tmpdir: tmpdir.path });
+      const editor = await fakeExternalEditor({
+        output: editorOutput,
+        tmpdir: tmpdir.path,
+        name: 'editor'
+      });
       const result = await shell.executeLine(`config.set("editor", ${JSON.stringify(editor)});`);
 
       expect(result).to.include('"editor" has been changed');
@@ -85,7 +90,11 @@ describe('external editor e2e', () => {
       const shellOriginalInput = "const myVar = '111'; edit('myVar')";
       const editorOutput = "const myVar = '222';";
       const shellModifiedInput = "myVar = '222';";
-      const editor = await fakeExternalEditor({ output: editorOutput, tmpdir: tmpdir.path });
+      const editor = await fakeExternalEditor({
+        output: editorOutput,
+        tmpdir: tmpdir.path,
+        name: 'editor'
+      });
       const result = await shell.executeLine(`config.set("editor", ${JSON.stringify(editor)});`);
 
       expect(result).to.include('"editor" has been changed');
@@ -103,7 +112,11 @@ describe('external editor e2e', () => {
         }
       };`;
       const shellModifiedInput = "myObj = { field: { child: 'new   value' } };";
-      const editor = await fakeExternalEditor({ output: editorOutput, tmpdir: tmpdir.path });
+      const editor = await fakeExternalEditor({
+        output: editorOutput,
+        tmpdir: tmpdir.path,
+        name: 'editor'
+      });
       const result = await shell.executeLine(`config.set("editor", ${JSON.stringify(editor)});`);
 
       expect(result).to.include('"editor" has been changed');
@@ -115,7 +128,10 @@ describe('external editor e2e', () => {
 
     it('returns an error when editor exits with exitCode 1', async() => {
       const shellOriginalInput = 'edit function() {}';
-      const editor = await fakeExternalEditor({ tmpdir: tmpdir.path });
+      const editor = await fakeExternalEditor({
+        tmpdir: tmpdir.path,
+        name: 'editor'
+      });
       const result = await shell.executeLine(`config.set("editor", ${JSON.stringify(editor)});`);
 
       expect(result).to.include('"editor" has been changed');
@@ -127,7 +143,11 @@ describe('external editor e2e', () => {
 
     it('opens an empty editor', async() => {
       const output = '';
-      const editor = await fakeExternalEditor({ output, tmpdir: tmpdir.path });
+      const editor = await fakeExternalEditor({
+        output,
+        tmpdir: tmpdir.path,
+        name: 'editor'
+      });
       const result = await shell.executeLine(`config.set("editor", ${JSON.stringify(editor)});`);
 
       expect(result).to.include('"editor" has been changed');
@@ -139,29 +159,74 @@ describe('external editor e2e', () => {
   });
 
   context('when vscode editor', () => {
-    beforeEach(async() => {
-      // make a fake dir for vscode mongodb extension
-      await fs.mkdir(path.join(homedir, '.vscode', 'extensions', 'mongodb.mongodb-vscode-0.0.0'), { recursive: true });
+    context('when mongodb extension is installed', () => {
+      beforeEach(async() => {
+        // make a fake dir for vscode mongodb extension
+        await fs.mkdir(path.join(homedir, '.vscode', 'extensions', 'mongodb.mongodb-vscode-0.0.0'), { recursive: true });
+      });
+
+      it('creates a file with .mongodb extension', async() => {
+        const shellOriginalInput = 'edit 111';
+        const editorOutput = 'edit 222';
+        const shellModifiedInput = '222';
+        const editor = await fakeExternalEditor({
+          output: editorOutput,
+          expectedExtension: '.mongodb',
+          tmpdir: tmpdir.path,
+          name: 'code'
+        });
+        const result = await shell.executeLine(`config.set("editor", ${JSON.stringify(editor)});`);
+
+        expect(result).to.include('"editor" has been changed');
+        shell.writeInputLine(shellOriginalInput);
+        await eventually(() => {
+          shell.assertContainsOutput(shellModifiedInput);
+        });
+        shell.assertNoErrors();
+      });
+
+      it('allows using flags along with file names', async() => {
+        const shellOriginalInput = "edit 'string    with   whitespaces'";
+        const editorOutput = "'string    with   whitespaces and const x = 0;'";
+        const shellModifiedInput = "'string    with   whitespaces and const x = 0;'";
+        const editor = await fakeExternalEditor({
+          output: editorOutput,
+          expectedExtension: '.mongodb',
+          tmpdir: tmpdir.path,
+          name: 'code',
+          flags: '--wait'
+        });
+        const result = await shell.executeLine(`config.set("editor", ${JSON.stringify(editor)});`);
+
+        expect(result).to.include('"editor" has been changed');
+        shell.writeInputLine(shellOriginalInput);
+        await eventually(() => {
+          shell.assertContainsOutput(shellModifiedInput);
+        });
+        shell.assertNoErrors();
+      });
     });
 
-    it('creates a file with .mongodb extension', async() => {
-      const shellOriginalInput = 'edit 111';
-      const editorOutput = 'edit 222';
-      const shellModifiedInput = 'edit 222';
-      const editor = await fakeExternalEditor({
-        output: editorOutput,
-        expectedExtension: '.mongodb',
-        tmpdir: tmpdir.path
-      });
-      const editorWithFlag = JSON.stringify(`${editor} --wait`);
-      const result = await shell.executeLine(`config.set("editor", ${editorWithFlag});`);
+    context('when mongodb extension is not installed', () => {
+      it('creates a file with .js extension', async() => {
+        const shellOriginalInput = "edit const x = 'y';";
+        const editorOutput = "const x = 'zyz';";
+        const shellModifiedInput = "const x = 'zyz';";
+        const editor = await fakeExternalEditor({
+          output: editorOutput,
+          expectedExtension: '.js',
+          tmpdir: tmpdir.path,
+          name: 'code'
+        });
+        const result = await shell.executeLine(`config.set("editor", ${JSON.stringify(editor)});`);
 
-      expect(result).to.include('"editor" has been changed');
-      shell.writeInputLine(shellOriginalInput);
-      await eventually(() => {
-        shell.assertContainsOutput(shellModifiedInput);
+        expect(result).to.include('"editor" has been changed');
+        shell.writeInputLine(shellOriginalInput);
+        await eventually(() => {
+          shell.assertContainsOutput(shellModifiedInput);
+        });
+        shell.assertNoErrors();
       });
-      shell.assertNoErrors();
     });
   });
 });
