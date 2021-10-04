@@ -78,12 +78,13 @@ async function readReplLogfile(logPath: string) {
 
 
 const fakeExternalEditor = async(
-  { output, expectedExtension, tmpdir, name, flags }: {
+  { output, expectedExtension, tmpdir, name, flags, isNodeCommand }: {
     output?: string,
     expectedExtension?: string,
     tmpdir: string,
     name: string,
-    flags?: string
+    flags?: string,
+    isNodeCommand: boolean
   }
 ) => {
   const tmpDoc = path.join(tmpdir, name);
@@ -115,7 +116,9 @@ const fakeExternalEditor = async(
   await fs.mkdir(path.dirname(tmpDoc), { recursive: true, mode: 0o700 });
   await fs.writeFile(tmpDoc, script, { mode: 0o700 });
 
-  return flags ? `${tmpDoc} ${flags}` : tmpDoc;
+  const editor = isNodeCommand ? `node ${tmpDoc}` : tmpDoc;
+
+  return flags ? `${editor} ${flags}` : editor;
 };
 
 const setTemporaryHomeDirectory = () => {
