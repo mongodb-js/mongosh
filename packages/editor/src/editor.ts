@@ -152,8 +152,13 @@ export class Editor {
     }
 
     // If code is an identifier evaluate the string to see what the result is.
-    const evalResult = await this._loadExternalCode(code, '@(editor)');
-    return evalResult.toString();
+    const evalResult: any = await this._loadExternalCode(code, '@(editor)');
+
+    if (typeof evalResult === 'function') {
+      return evalResult.toString();
+    }
+
+    return JSON.stringify(evalResult);
   }
 
   _prepareResult({ originalCode, modifiedCode }: {
@@ -204,6 +209,7 @@ export class Editor {
       if (exitCode === 0) {
         const modifiedCode = await this._readAndDeleteTempFile(tmpDoc);
         const result = this._prepareResult({ originalCode: code, modifiedCode });
+
         // Write a content from the editor to the parent readable stream.
         this._input.unshift(result);
         return;

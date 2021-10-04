@@ -472,7 +472,7 @@ describe('SnippetManager', () => {
           exists = true;
         } catch { /* does not exist, all good */ }
         if (exists) {
-          await fs.rm(hiddenPkgLock);
+          await fs.unlink(hiddenPkgLock);
         }
       });
       const result = await snippetManager.runSnippetCommand(['outdated']);

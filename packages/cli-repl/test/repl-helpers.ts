@@ -88,6 +88,7 @@ const fakeExternalEditor = async(
   }
 ) => {
   const tmpDoc = path.join(tmpdir, name);
+  const editor = isNodeCommand ? `node ${tmpDoc}` : tmpDoc;
   let script: string;
 
   if (typeof output === 'string') {
@@ -115,8 +116,6 @@ const fakeExternalEditor = async(
 
   await fs.mkdir(path.dirname(tmpDoc), { recursive: true, mode: 0o700 });
   await fs.writeFile(tmpDoc, script, { mode: 0o700 });
-
-  const editor = isNodeCommand ? `node ${tmpDoc}` : tmpDoc;
 
   return flags ? `${editor} ${flags}` : editor;
 };

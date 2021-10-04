@@ -48,7 +48,7 @@ describe('external editor e2e', () => {
   context('when editor is node command', () => {
     it('creates a file with .js extension', async() => {
       const shellOriginalInput = 'edit 111';
-      const editorOutput = 'edit 222';
+      const editorOutput = '222';
       const shellModifiedInput = '222';
       const editor = await fakeExternalEditor({
         output: editorOutput,
@@ -64,7 +64,6 @@ describe('external editor e2e', () => {
       await eventually(() => {
         shell.assertContainsOutput(shellModifiedInput);
       });
-      shell.assertNoErrors();
     });
 
     it('returns a modified identifier for fn', async() => {
@@ -90,8 +89,8 @@ describe('external editor e2e', () => {
 
     it('returns a modified identifier for var', async() => {
       const shellOriginalInput = "const myVar = '111'; edit('myVar')";
-      const editorOutput = "const myVar = '222';";
-      const shellModifiedInput = "myVar = '222';";
+      const editorOutput = '"222"';
+      const shellModifiedInput = 'myVar = "222"';
       const editor = await fakeExternalEditor({
         output: editorOutput,
         tmpdir: tmpdir.path,
@@ -109,12 +108,12 @@ describe('external editor e2e', () => {
 
     it('returns a modified identifier for a.b.c', async() => {
       const shellOriginalInput = "const myObj = { field: { child: 'string value' } }; edit('myObj')";
-      const editorOutput = `const myObj = {
-        field: {
-          child: 'new   value'
+      const editorOutput = `{
+        "field": {
+          "child": "new   value"
         }
-      };`;
-      const shellModifiedInput = "myObj = { field: { child: 'new   value' } };";
+      }`;
+      const shellModifiedInput = 'myObj = { "field": { "child": "new   value" } }';
       const editor = await fakeExternalEditor({
         output: editorOutput,
         tmpdir: tmpdir.path,
@@ -173,7 +172,6 @@ describe('external editor e2e', () => {
 
     context('not vscode', () => {
       it('creates a file with .js extension', async() => {
-        const shellOriginalInput = 'edit name';
         const editorOutput = "const name = 'Succeeded!'";
         const shellModifiedInput = "const name = 'Succeeded!'";
         const editor = await fakeExternalEditor({
@@ -188,11 +186,10 @@ describe('external editor e2e', () => {
 
         expect(result).to.include('"editor" has been changed');
         shell.writeInputLine("const name = 'I want to test a sequence of writeInputLine'");
-        shell.writeInputLine(shellOriginalInput);
+        shell.writeInputLine('edit name');
         await eventually(() => {
           shell.assertContainsOutput(shellModifiedInput);
         });
-        shell.assertNoErrors();
       });
     });
 
@@ -221,7 +218,6 @@ describe('external editor e2e', () => {
           await eventually(() => {
             shell.assertContainsOutput(shellModifiedInput);
           });
-          shell.assertNoErrors();
         });
 
         it('allows using flags along with file names', async() => {
@@ -243,7 +239,6 @@ describe('external editor e2e', () => {
           await eventually(() => {
             shell.assertContainsOutput(shellModifiedInput);
           });
-          shell.assertNoErrors();
         });
       });
 
@@ -266,7 +261,6 @@ describe('external editor e2e', () => {
           await eventually(() => {
             shell.assertContainsOutput(shellModifiedInput);
           });
-          shell.assertNoErrors();
         });
       });
     });
