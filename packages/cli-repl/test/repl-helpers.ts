@@ -77,29 +77,51 @@ async function readReplLogfile(logPath: string) {
 }
 
 
-const fakeExternalEditor = async(output?: string) => {
-  const base = path.resolve(__dirname, '..', '..', '..', 'tmp', 'test', `${Date.now()}`, `${Math.random()}`);
-  const tmpDoc = path.join(base, 'editor-script.js');
+const fakeExternalEditor = async(
+  { output, expectedExtension, tmpdir, name, flags, isNodeCommand }: {
+    output?: string,
+    expectedExtension?: string,
+    tmpdir: string,
+    name: string,
+    flags?: string,
+    isNodeCommand: boolean
+  }
+) => {
+  const tmpDoc = path.join(tmpdir, name);
+  const editor = isNodeCommand ? `node ${tmpDoc}` : tmpDoc;
   let script: string;
 
   if (typeof output === 'string') {
-    script = `(async () => {
+    script = `#!/usr/bin/env node
+    (async () => {
       const tmpDoc = process.argv[process.argv.length - 1];
       const { promises: { writeFile } } = require("fs");
+      const assert = require("assert");
+      const path = require("path");
+
+      if (${JSON.stringify(expectedExtension ?? '')}) {
+        assert.strictEqual(path.extname(tmpDoc), ${JSON.stringify(expectedExtension)});
+      }
+
+      if (${JSON.stringify(flags ?? '')}) {
+        assert.deepStrictEqual((${JSON.stringify(flags)}).split(/\s+/), process.argv.slice(2, -1));
+      }
+
       await writeFile(tmpDoc, ${JSON.stringify(output)}, { mode: 0o600 });
-    })()`;
+    })().catch((err) => { process.nextTick(() => { throw err; }); });`;
   } else {
-    script = 'process.exit(1);';
+    script = `#!/usr/bin/env node
+    process.exit(1);`;
   }
 
   await fs.mkdir(path.dirname(tmpDoc), { recursive: true, mode: 0o700 });
-  await fs.writeFile(tmpDoc, script, { mode: 0o600 });
+  await fs.writeFile(tmpDoc, script, { mode: 0o700 });
 
-  return `node ${tmpDoc}`;
+  return flags ? `${editor} ${flags}` : editor;
 };
 
 const setTemporaryHomeDirectory = () => {
-  const homedir: string = path.resolve(__dirname, '..', '..', '..', 'tmp', `cli-repl-home-${Date.now()}-${Math.random()}`);
+  const homedir: string = path.resolve(__dirname, '..', '..', '..', 'tmp', 'test', `cli-repl-home-${Date.now()}-${Math.random()}`);
   const env: Record<string, string> = { ...process.env, HOME: homedir, USERPROFILE: homedir };
 
   if (process.platform === 'win32') {

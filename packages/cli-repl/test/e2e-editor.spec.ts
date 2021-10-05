@@ -5,8 +5,8 @@ import { promisify } from 'util';
 import rimraf from 'rimraf';
 
 import { eventually } from '../../../testing/eventually';
-import { useTmpdir, fakeExternalEditor, setTemporaryHomeDirectory } from './repl-helpers';
 import { TestShell } from './test-shell';
+import { useTmpdir, fakeExternalEditor, setTemporaryHomeDirectory } from './repl-helpers';
 
 describe('external editor e2e', () => {
   const tmpdir = useTmpdir();
@@ -45,76 +45,224 @@ describe('external editor e2e', () => {
     }
   });
 
-  it('returns a modified identifier for fn', async() => {
-    const shellOriginalInput = "const fn = function () { console.log(111); }; edit('fn')";
-    const editorOutput = `function () {
-      console.log(222);
-    };`;
-    const shellModifiedInput = 'fn = function () { console.log(222); };';
-    const editor = await fakeExternalEditor(editorOutput);
-    const result = await shell.executeLine(`config.set("editor", ${JSON.stringify(editor)});`);
+  context('when editor is node command', () => {
+    it('creates a file with .js extension', async() => {
+      const shellOriginalInput = 'edit 111';
+      const editorOutput = '222';
+      const shellModifiedInput = '222';
+      const editor = await fakeExternalEditor({
+        output: editorOutput,
+        expectedExtension: '.js',
+        tmpdir: tmpdir.path,
+        name: 'editor',
+        isNodeCommand: true
+      });
+      const result = await shell.executeLine(`config.set("editor", ${JSON.stringify(editor)});`);
 
-    expect(result).to.include('"editor" has been changed');
-    shell.writeInputLine(shellOriginalInput);
-    await eventually(() => {
-      shell.assertContainsOutput(shellModifiedInput);
+      expect(result).to.include('"editor" has been changed');
+      shell.writeInputLine(shellOriginalInput);
+      await eventually(() => {
+        shell.assertContainsOutput(shellModifiedInput);
+      });
+    });
+
+    it('returns a modified identifier for fn', async() => {
+      const shellOriginalInput = "const fn = function () { console.log(111); }; edit('fn')";
+      const editorOutput = `function () {
+        console.log(222);
+      };`;
+      const shellModifiedInput = 'fn = function () { console.log(222); };';
+      const editor = await fakeExternalEditor({
+        output: editorOutput,
+        tmpdir: tmpdir.path,
+        name: 'editor',
+        isNodeCommand: true
+      });
+      const result = await shell.executeLine(`config.set("editor", ${JSON.stringify(editor)});`);
+
+      expect(result).to.include('"editor" has been changed');
+      shell.writeInputLine(shellOriginalInput);
+      await eventually(() => {
+        shell.assertContainsOutput(shellModifiedInput);
+      });
+    });
+
+    it('returns a modified identifier for var', async() => {
+      const shellOriginalInput = "const myVar = '111'; edit('myVar')";
+      const editorOutput = '"222"';
+      const shellModifiedInput = 'myVar = "222"';
+      const editor = await fakeExternalEditor({
+        output: editorOutput,
+        tmpdir: tmpdir.path,
+        name: 'editor',
+        isNodeCommand: true
+      });
+      const result = await shell.executeLine(`config.set("editor", ${JSON.stringify(editor)});`);
+
+      expect(result).to.include('"editor" has been changed');
+      shell.writeInputLine(shellOriginalInput);
+      await eventually(() => {
+        shell.assertContainsOutput(shellModifiedInput);
+      });
+    });
+
+    it('returns a modified identifier for a.b.c', async() => {
+      const shellOriginalInput = "const myObj = { field: { child: 'string value' } }; edit('myObj')";
+      const editorOutput = `{
+        "field": {
+          "child": "new   value"
+        }
+      }`;
+      const shellModifiedInput = 'myObj = { "field": { "child": "new   value" } }';
+      const editor = await fakeExternalEditor({
+        output: editorOutput,
+        tmpdir: tmpdir.path,
+        name: 'editor',
+        isNodeCommand: true
+      });
+      const result = await shell.executeLine(`config.set("editor", ${JSON.stringify(editor)});`);
+
+      expect(result).to.include('"editor" has been changed');
+      shell.writeInputLine(shellOriginalInput);
+      await eventually(() => {
+        shell.assertContainsOutput(shellModifiedInput);
+      });
+    });
+
+    it('returns an error when editor exits with exitCode 1', async() => {
+      const shellOriginalInput = 'edit function() {}';
+      const editor = await fakeExternalEditor({
+        tmpdir: tmpdir.path,
+        name: 'editor',
+        isNodeCommand: true
+      });
+      const result = await shell.executeLine(`config.set("editor", ${JSON.stringify(editor)});`);
+
+      expect(result).to.include('"editor" has been changed');
+      shell.writeInputLine(shellOriginalInput);
+      await eventually(() => {
+        shell.assertContainsError('failed with an exit code 1');
+      });
+    });
+
+    it('opens an empty editor', async() => {
+      const output = '';
+      const editor = await fakeExternalEditor({
+        output,
+        tmpdir: tmpdir.path,
+        name: 'editor',
+        isNodeCommand: true
+      });
+      const result = await shell.executeLine(`config.set("editor", ${JSON.stringify(editor)});`);
+
+      expect(result).to.include('"editor" has been changed');
+      shell.writeInputLine('edit');
+      await eventually(() => {
+        shell.assertContainsOutput(output);
+      });
     });
   });
 
-  it('returns a modified identifier for var', async() => {
-    const shellOriginalInput = "const myVar = '111'; edit('myVar')";
-    const editorOutput = "const myVar = '222';";
-    const shellModifiedInput = "myVar = '222';";
-    const editor = await fakeExternalEditor(editorOutput);
-    const result = await shell.executeLine(`config.set("editor", ${JSON.stringify(editor)});`);
-
-    expect(result).to.include('"editor" has been changed');
-    shell.writeInputLine(shellOriginalInput);
-    await eventually(() => {
-      shell.assertContainsOutput(shellModifiedInput);
-    });
-  });
-
-  it('returns a modified identifier for a.b.c', async() => {
-    const shellOriginalInput = "const myObj = { field: { child: 'string value' } }; edit('myObj')";
-    const editorOutput = `const myObj = {
-      field: {
-        child: 'new   value'
+  context('when editor is executable file', () => {
+    before(function() {
+      if (process.platform === 'win32') {
+        return this.skip(); // Shebangs don't work on windows.
       }
-    };`;
-    const shellModifiedInput = "myObj = { field: { child: 'new   value' } };";
-    const editor = await fakeExternalEditor(editorOutput);
-    const result = await shell.executeLine(`config.set("editor", ${JSON.stringify(editor)});`);
-
-    expect(result).to.include('"editor" has been changed');
-    shell.writeInputLine(shellOriginalInput);
-    await eventually(() => {
-      shell.assertContainsOutput(shellModifiedInput);
     });
-  });
 
-  it('returns an error when editor exits with exitCode 1', async() => {
-    const shellOriginalInput = 'edit function() {}';
-    const editor = await fakeExternalEditor();
-    const result = await shell.executeLine(`config.set("editor", ${JSON.stringify(editor)});`);
-    await shell.executeLine('config.set("showStackTraces", true); print(process.env.PATH);');
+    context('not vscode', () => {
+      it('creates a file with .js extension', async() => {
+        const editorOutput = "const name = 'Succeeded!'";
+        const shellModifiedInput = "const name = 'Succeeded!'";
+        const editor = await fakeExternalEditor({
+          output: editorOutput,
+          expectedExtension: '.js',
+          tmpdir: tmpdir.path,
+          name: 'editor',
+          isNodeCommand: false,
+          flags: '--trace-uncaught'
+        });
+        const result = await shell.executeLine(`config.set("editor", ${JSON.stringify(editor)});`);
 
-    expect(result).to.include('"editor" has been changed');
-    shell.writeInputLine(shellOriginalInput);
-    await eventually(() => {
-      shell.assertContainsError('failed with an exit code 1');
+        expect(result).to.include('"editor" has been changed');
+        shell.writeInputLine("const name = 'I want to test a sequence of writeInputLine'");
+        shell.writeInputLine('edit name');
+        await eventually(() => {
+          shell.assertContainsOutput(shellModifiedInput);
+        });
+      });
     });
-  });
 
-  it('opens an empty editor', async() => {
-    const output = '';
-    const editor = await fakeExternalEditor(output);
-    const result = await shell.executeLine(`config.set("editor", ${JSON.stringify(editor)});`);
+    context('vscode', () => {
+      context('when mongodb extension is installed', () => {
+        beforeEach(async() => {
+          // make a fake dir for vscode mongodb extension
+          await fs.mkdir(path.join(homedir, '.vscode', 'extensions', 'mongodb.mongodb-vscode-0.0.0'), { recursive: true });
+        });
 
-    expect(result).to.include('"editor" has been changed');
-    shell.writeInputLine('edit');
-    await eventually(() => {
-      shell.assertContainsOutput(output);
+        it('creates a file with .mongodb extension', async() => {
+          const shellOriginalInput = 'edit 111';
+          const editorOutput = 'edit 222';
+          const shellModifiedInput = '222';
+          const editor = await fakeExternalEditor({
+            output: editorOutput,
+            expectedExtension: '.mongodb',
+            tmpdir: tmpdir.path,
+            name: 'code',
+            isNodeCommand: false
+          });
+          const result = await shell.executeLine(`config.set("editor", ${JSON.stringify(editor)});`);
+
+          expect(result).to.include('"editor" has been changed');
+          shell.writeInputLine(shellOriginalInput);
+          await eventually(() => {
+            shell.assertContainsOutput(shellModifiedInput);
+          });
+        });
+
+        it('allows using flags along with file names', async() => {
+          const shellOriginalInput = "edit 'string    with   whitespaces'";
+          const editorOutput = "'string    with   whitespaces and const x = 0;'";
+          const shellModifiedInput = "'string    with   whitespaces and const x = 0;'";
+          const editor = await fakeExternalEditor({
+            output: editorOutput,
+            expectedExtension: '.mongodb',
+            tmpdir: tmpdir.path,
+            name: 'code',
+            flags: '--wait',
+            isNodeCommand: false
+          });
+          const result = await shell.executeLine(`config.set("editor", ${JSON.stringify(editor)});`);
+
+          expect(result).to.include('"editor" has been changed');
+          shell.writeInputLine(shellOriginalInput);
+          await eventually(() => {
+            shell.assertContainsOutput(shellModifiedInput);
+          });
+        });
+      });
+
+      context('when mongodb extension is not installed', () => {
+        it('creates a file with .js extension', async() => {
+          const shellOriginalInput = "edit const x = 'y';";
+          const editorOutput = "const x = 'zyz';";
+          const shellModifiedInput = "const x = 'zyz';";
+          const editor = await fakeExternalEditor({
+            output: editorOutput,
+            expectedExtension: '.js',
+            tmpdir: tmpdir.path,
+            name: 'code',
+            isNodeCommand: false
+          });
+          const result = await shell.executeLine(`config.set("editor", ${JSON.stringify(editor)});`);
+
+          expect(result).to.include('"editor" has been changed');
+          shell.writeInputLine(shellOriginalInput);
+          await eventually(() => {
+            shell.assertContainsOutput(shellModifiedInput);
+          });
+        });
+      });
     });
   });
 });
