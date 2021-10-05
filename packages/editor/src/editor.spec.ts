@@ -261,13 +261,11 @@ describe('Editor', () => {
     });
 
     it('returns a function implementation', async() => {
-      const fakeLoadExternalCodeResult = function wrapper(...args: any[]) {
-        return { args, done: true };
-      };
+      const fakeLoadExternalCodeResult = function wrapper(...args: any[]) { return { args, done: true }; };
       editor = makeEditor(fakeLoadExternalCodeResult);
       const code = 'db.test.find';
       const content = (await editor._getEditorContent(code));
-      expect(content).to.be.equal('function wrapper(...args) {\n                return { args, done: true };\n            }');
+      expect(content).to.be.equal('function wrapper(...args) { return { args, done: true }; }');
     });
 
     it('returns var', async() => {

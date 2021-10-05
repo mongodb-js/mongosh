@@ -163,7 +163,7 @@ describe('external editor e2e', () => {
     });
   });
 
-  context('when editor is path', () => {
+  context('when editor is executable file', () => {
     before(function() {
       if (process.platform === 'win32') {
         return this.skip(); // Shebangs don't work on windows.
