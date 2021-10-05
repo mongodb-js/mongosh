@@ -9,20 +9,32 @@ import rimraf from 'rimraf';
 import sinon from 'ts-sinon';
 import sinonChai from 'sinon-chai';
 
-import { Editor } from './editor';
+import { Editor, EditorOptions } from './editor';
 
 chai.use(sinonChai);
 
+interface FakeEditor {
+  fakeLoadExternalCodeResult?: any;
+  cmd?: string,
+  contextObject?: any
+}
+
 const fakeExternalEditor = async(
-  { base, name, flags = '', output }: { base: string, name: string, flags?: string, output: string }
+  { base, name, flags = '', output }: { base: string, name: string, flags?: string, output?: string }
 ): Promise<string> => {
   const tmpDoc = path.join(base, name);
-  const script = `(async () => {
-    const tmpDoc = process.argv[process.argv.length - 1];
-    const { promises: { writeFile } } = require('fs');
+  let script: string;
 
-    await writeFile(tmpDoc, ${JSON.stringify(output)}, { mode: 0o600 });
-  })()`;
+  if (typeof output === 'string') {
+    script = `(async () => {
+      const tmpDoc = process.argv[process.argv.length - 1];
+      const { promises: { writeFile } } = require('fs');
+  
+      await writeFile(tmpDoc, ${JSON.stringify(output)}, { mode: 0o600 });
+    })()`;
+  } else {
+    script = 'process.exit(1);';
+  }
 
   await fs.mkdir(path.dirname(tmpDoc), { recursive: true, mode: 0o700 });
   await fs.writeFile(tmpDoc, script, { mode: 0o600 });
@@ -35,10 +47,10 @@ describe('Editor', () => {
   let base: string;
   let vscodeDir: string;
   let tmpDir: string;
-  let contextObject: any;
   let busMessages: ({ ev: any, data?: any })[];
-  let cmd: string | null;
-  let makeEditor: any;
+  let makeEditor: (data?: FakeEditor) => Editor;
+  let makeEditorOptions: (data?: FakeEditor) => EditorOptions;
+  let makeContextObject: (cmd?: string | null) => any;
 
   beforeEach(async() => {
     input = new PassThrough();
@@ -56,18 +68,42 @@ describe('Editor', () => {
       }
     });
 
-    makeEditor = (fakeLoadExternalCodeResult: any) => new Editor({
-      input,
-      vscodeDir,
-      tmpDir,
-      instanceState: {
-        context: contextObject,
-        shellApi: contextObject,
-        registerPlugin: sinon.stub(),
-        messageBus
-      } as any,
-      loadExternalCode: (): Promise<any> => fakeLoadExternalCodeResult
+    makeContextObject = (cmd: string | null = null) => ({
+      config: {
+        get(key: string): any {
+          switch (key) {
+            case 'editor':
+              return cmd;
+            default:
+              throw new Error(`Don’t know what to do with config key ${key}`);
+          }
+        }
+      },
+      print: sinon.stub()
     });
+
+    makeEditorOptions = (data: FakeEditor = {}): EditorOptions => {
+      const {
+        fakeLoadExternalCodeResult,
+        cmd,
+        contextObject = makeContextObject(cmd)
+      } = data;
+
+      return {
+        input,
+        vscodeDir,
+        tmpDir,
+        instanceState: {
+          context: contextObject,
+          shellApi: contextObject,
+          registerPlugin: sinon.stub(),
+          messageBus
+        } as any,
+        loadExternalCode: (): Promise<any> => Promise.resolve(fakeLoadExternalCodeResult)
+      };
+    };
+
+    makeEditor = (data: FakeEditor = {}) => new Editor(makeEditorOptions(data));
 
     // make nyc happy when we spawn npm below
     await fs.mkdir(path.resolve(__dirname, '..', '..', '..', 'tmp', '.nyc_output', 'processinfo'), { recursive: true });
@@ -77,43 +113,130 @@ describe('Editor', () => {
     await promisify(rimraf)(path.resolve(base, '..'));
   });
 
-  describe('_getExtension', () => {
+  describe('create', () => {
+    it('returns an editor instance', () => {
+      const editor = Editor.create(makeEditorOptions());
+      expect(typeof editor).to.be.equal('object');
+      expect(editor instanceof Editor).to.be.equal(true);
+    });
+  });
 
+  describe('wrapper fn', () => {
+    it('fails with an error when editor is not defined', async() => {
+      const contextObject = makeContextObject();
+      Editor.create(makeEditorOptions({ contextObject }));
+
+      try {
+        await contextObject.edit();
+      } catch (error) {
+        expect(error.message).to.include('Command failed with an error: please define an external editor');
+      }
+    });
+
+    it('returns a "synthetic" promise', async() => {
+      const cmd = await fakeExternalEditor({
+        base,
+        name: 'editor-script.js',
+        output: ''
+      });
+      const contextObject = makeContextObject(cmd);
+      Editor.create(makeEditorOptions({ contextObject }));
+      const result = contextObject.edit();
+      expect(result[Symbol.for('@@mongosh.syntheticPromise')]).to.equal(true);
+      expect(await result).to.not.exist;
+    });
+  });
+
+  describe('_getExtension', () => {
+    let editor: Editor;
+
+    beforeEach(() => {
+      delete process.env.EDITOR;
+      editor = makeEditor();
+    });
+
+    context('when editor is node command', () => {
+      it('returns js', async() => {
+        const cmd = 'node editor-script.js';
+        const extension = await editor._getExtension(cmd);
+        expect(extension).to.be.equal('js');
+      });
+    });
+
+    context('when editor is executable file', () => {
+      context('not vscode', () => {
+        it('returns js', async() => {
+          const cmd = '/path/to/some/executable';
+          const extension = await editor._getExtension(cmd);
+          expect(extension).to.be.equal('js');
+        });
+      });
+
+      context('vscode', () => {
+        context('when mongodb extension is not installed', () => {
+          it('returns js', async() => {
+            const cmd = 'code';
+            const extension = await editor._getExtension(cmd);
+            expect(extension).to.be.equal('js');
+          });
+        });
+
+        context('when mongodb extension is installed', () => {
+          beforeEach(async() => {
+            // make a fake dir for vscode mongodb extension
+            await fs.mkdir(
+              path.join(vscodeDir, 'extensions', 'mongodb.mongodb-vscode-0.0.0'),
+              { recursive: true }
+            );
+          });
+
+          it('returns mongodb for code command', async() => {
+            const cmd = 'code';
+            const extension = await editor._getExtension(cmd);
+            expect(extension).to.be.equal('mongodb');
+          });
+
+          it('returns mongodb for code path', async() => {
+            const cmd = '/usr/local/bin/code';
+            const extension = await editor._getExtension(cmd);
+            expect(extension).to.be.equal('mongodb');
+          });
+
+          it('returns mongodb for code.exe', async() => {
+            const cmd = '/usr/local/bin/code.exe';
+            const extension = await editor._getExtension(cmd);
+            expect(extension).to.be.equal('mongodb');
+          });
+
+          it('returns mongodb for code path with flag', async() => {
+            const cmd = '/usr/local/bin/code --wait';
+            const extension = await editor._getExtension(cmd);
+            expect(extension).to.be.equal('mongodb');
+          });
+        });
+      });
+    });
   });
 
   describe('_getEditor', () => {
     let editor: Editor;
 
     beforeEach(() => {
-      cmd = null;
-      contextObject = {
-        config: {
-          get(key: string): any {
-            switch (key) {
-              case 'editor':
-                return cmd;
-              default:
-                throw new Error(`Don’t know what to do with config key ${key}`);
-            }
-          }
-        },
-        print: sinon.stub()
-      };
       delete process.env.EDITOR;
-      editor = makeEditor();
     });
 
     it('returns an editor value from process.env.EDITOR', async() => {
       process.env.EDITOR = 'neweprocessditor';
+      editor = makeEditor();
       const editorName = await editor._getEditor();
       expect(editorName).to.be.equal(process.env.EDITOR);
     });
 
     it('returns an editor value from the mongosh config', async() => {
-      cmd = 'newecmdditor';
       process.env.EDITOR = 'neweprocessditor';
+      editor = makeEditor({ cmd: 'newecmdditor' });
       const editorName = await editor._getEditor();
-      expect(editorName).to.be.equal(cmd);
+      expect(editorName).to.be.equal('newecmdditor');
     });
   });
 
@@ -129,19 +252,6 @@ describe('Editor', () => {
     let editor: Editor;
 
     beforeEach(() => {
-      contextObject = {
-        config: {
-          get(key: string): any {
-            switch (key) {
-              case 'editor':
-                return null;
-              default:
-                throw new Error(`Don’t know what to do with config key ${key}`);
-            }
-          }
-        },
-        print: sinon.stub()
-      };
       editor = makeEditor();
     });
 
@@ -170,19 +280,6 @@ describe('Editor', () => {
     let editor: Editor;
 
     beforeEach(() => {
-      contextObject = {
-        config: {
-          get(key: string): any {
-            switch (key) {
-              case 'editor':
-                return cmd;
-              default:
-                throw new Error(`Don’t know what to do with config key ${key}`);
-            }
-          }
-        },
-        print: sinon.stub()
-      };
       editor = makeEditor();
     });
 
@@ -244,48 +341,32 @@ describe('Editor', () => {
   describe('_getEditorContent', () => {
     let editor: Editor;
 
-    beforeEach(() => {
-      contextObject = {
-        config: {
-          get(key: string): any {
-            switch (key) {
-              case 'editor':
-                return null;
-              default:
-                throw new Error(`Don’t know what to do with config key ${key}`);
-            }
-          }
-        },
-        print: sinon.stub()
-      };
-    });
-
     it('returns a function implementation', async() => {
       const fakeLoadExternalCodeResult = function wrapper(...args: any[]) {
         return { args, done: true };
       };
-      editor = makeEditor(fakeLoadExternalCodeResult);
+      editor = makeEditor({ fakeLoadExternalCodeResult });
       const code = 'db.test.find';
       const content = (await editor._getEditorContent(code)).replace(/\r\n/g, '\n');
       expect(content).to.be.equal('function wrapper(...args) {\n                return { args, done: true };\n            }');
     });
 
     it('returns var', async() => {
-      editor = makeEditor(111);
+      editor = makeEditor({ fakeLoadExternalCodeResult: 111 });
       const code = 'myVar';
       const content = (await editor._getEditorContent(code));
       expect(content).to.be.equal('111');
     });
 
     it('returns a.b.c', async() => {
-      editor = makeEditor({ field: { child: 'string value' } });
+      editor = makeEditor({ fakeLoadExternalCodeResult: { field: { child: 'string value' } } });
       const code = 'myObj';
       const content = (await editor._getEditorContent(code));
       expect(content).to.be.equal('{"field":{"child":"string value"}}');
     });
 
     it('returns function', async() => {
-      editor = makeEditor({ field: { child: 'string value' } });
+      editor = makeEditor();
       const code = "function foo() { return 'a b'; }";
       const content = await editor._getEditorContent(code);
       expect(content).to.be.equal(code);
@@ -299,7 +380,7 @@ describe('Editor', () => {
     });
 
     it('returns a string', async() => {
-      editor = makeEditor(111);
+      editor = makeEditor({ fakeLoadExternalCodeResult: 111 });
       const code = '"111"';
       const content = await editor._getEditorContent(code);
       expect(content).to.be.equal(code);
@@ -324,19 +405,6 @@ describe('Editor', () => {
     let editor: Editor;
 
     beforeEach(() => {
-      contextObject = {
-        config: {
-          get(key: string): any {
-            switch (key) {
-              case 'editor':
-                return cmd;
-              default:
-                throw new Error(`Don’t know what to do with config key ${key}`);
-            }
-          }
-        },
-        print: sinon.stub()
-      };
       editor = makeEditor();
     });
 
@@ -355,28 +423,14 @@ describe('Editor', () => {
     let editor: Editor;
 
     beforeEach(() => {
-      cmd = null;
-      contextObject = {
-        config: {
-          get(key: string): any {
-            switch (key) {
-              case 'editor':
-                return cmd;
-              default:
-                throw new Error(`Don’t know what to do with config key ${key}`);
-            }
-          }
-        },
-        print: sinon.stub()
-      };
       delete process.env.EDITOR;
-      editor = makeEditor();
     });
 
     context('when editor is not defined', () => {
       it('returns please define an external editor error', async() => {
+        editor = makeEditor();
         try {
-          await editor.runEditCommand('edit');
+          await editor.runEditCommand('');
         } catch (error) {
           expect(error.message).to.include('Command failed with an error: please define an external editor');
         }
@@ -384,18 +438,30 @@ describe('Editor', () => {
     });
 
     context('when editor is defined', () => {
+      it('returns an error when editor exits with exitCode 1', async() => {
+        const cmd = await fakeExternalEditor({ base, name: 'editor-script.js' });
+        editor = makeEditor({ cmd });
+
+        try {
+          await editor.runEditCommand('function() {}');
+        } catch (error) {
+          expect(error.message).to.include('failed with an exit code 1');
+        }
+      });
+
       it('returns a modified find statement to the mongosh input', async() => {
         const shellOriginalInput = 'db.test.find()';
         const editorOutput = `db.test.find({
           field: 'new     value'
         })`;
         const shellModifiedInput = "db.test.find({ field: 'new     value' })";
+        const cmd = await fakeExternalEditor({ base, name: 'editor-script.js', output: editorOutput });
 
-        cmd = await fakeExternalEditor({ base, name: 'editor-script.js', output: editorOutput });
+        editor = makeEditor({ cmd });
         await editor.runEditCommand(shellOriginalInput);
 
-        const mongoshModifiedInput = editor._input.read().toString();
-        expect(mongoshModifiedInput).to.be.equal(shellModifiedInput);
+        const shellResult = editor._input.read().toString();
+        expect(shellResult).to.be.equal(shellModifiedInput);
       });
 
       it('writes a modified function statement to the mongosh input', async() => {
@@ -404,24 +470,26 @@ describe('Editor', () => {
           console.log(111);
         }`;
         const shellModifiedInput = 'function () { console.log(111); }';
+        const cmd = await fakeExternalEditor({ base, name: 'editor-script.js', output: editorOutput });
 
-        cmd = await fakeExternalEditor({ base, name: 'editor-script.js', output: editorOutput });
+        editor = makeEditor({ cmd });
         await editor.runEditCommand(shellOriginalInput);
 
-        const mongoshModifiedInput = editor._input.read().toString();
-        expect(mongoshModifiedInput).to.be.equal(shellModifiedInput);
+        const shellResult = editor._input.read().toString();
+        expect(shellResult).to.be.equal(shellModifiedInput);
       });
 
       it('allows spaces in the editor name', async() => {
         const shellOriginalInput = '"some string"';
         const editorOutput = '"some modified string"';
         const shellModifiedInput = '"some modified string"';
+        const cmd = await fakeExternalEditor({ base, name: 'editor script.js', output: editorOutput });
 
-        cmd = await fakeExternalEditor({ base, name: 'editor script.js', output: editorOutput });
+        editor = makeEditor({ cmd });
         await editor.runEditCommand(shellOriginalInput);
 
-        const mongoshModifiedInput = editor._input.read().toString();
-        expect(mongoshModifiedInput).to.be.equal(shellModifiedInput);
+        const shellResult = editor._input.read().toString();
+        expect(shellResult).to.be.equal(shellModifiedInput);
       });
 
       it('allows flags in the editor', async() => {
@@ -429,11 +497,18 @@ describe('Editor', () => {
         const editorOutput = '"some modified string"';
         const shellModifiedInput = '"some modified string"';
 
-        cmd = await fakeExternalEditor({ base, name: 'editor-script.js', flags: '--trace-warnings', output: editorOutput });
+        const cmd = await fakeExternalEditor({
+          base,
+          name: 'editor-script.js',
+          flags: '--trace-warnings',
+          output: editorOutput
+        });
+
+        editor = makeEditor({ cmd });
         await editor.runEditCommand(shellOriginalInput);
 
-        const mongoshModifiedInput = editor._input.read().toString();
-        expect(mongoshModifiedInput).to.be.equal(shellModifiedInput);
+        const shellResult = editor._input.read().toString();
+        expect(shellResult).to.be.equal(shellModifiedInput);
       });
     });
   });
