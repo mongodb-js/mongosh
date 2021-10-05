@@ -234,9 +234,9 @@ describe('Editor', () => {
 
     it('returns an editor value from the mongosh config', async() => {
       process.env.EDITOR = 'neweprocessditor';
-      editor = makeEditor({ cmd: 'newecmdditor' });
+      editor = makeEditor({ cmd: 'newcmdeditor' });
       const editorName = await editor._getEditor();
-      expect(editorName).to.be.equal('newecmdditor');
+      expect(editorName).to.be.equal('newcmdeditor');
     });
   });
 
