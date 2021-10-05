@@ -19,6 +19,29 @@ interface FakeEditor {
   contextObject?: any
 }
 
+function useTmpdir(): { readonly path: string } {
+  let tmpdir: string;
+
+  beforeEach(async() => {
+    tmpdir = path.resolve(__dirname, '..', '..', '..', 'tmp', 'test', `editor-${Date.now()}-${new bson.ObjectId()}`);
+    await fs.mkdir(tmpdir, { recursive: true });
+  });
+
+  afterEach(async() => {
+    try {
+      await promisify(rimraf)(tmpdir);
+    } catch (err) {
+      // On Windows in CI, this can fail with EPERM for some reason.
+      // If it does, just log the error instead of failing all tests.
+      console.error('Could not remove fake home directory:', err);
+    }
+  });
+
+  return {
+    get path(): string { return tmpdir; }
+  };
+}
+
 const fakeExternalEditor = async(
   { base, name, flags = '', output }: { base: string, name: string, flags?: string, output?: string }
 ): Promise<string> => {
@@ -43,8 +66,8 @@ const fakeExternalEditor = async(
 };
 
 describe('Editor', () => {
+  const base = useTmpdir();
   let input: Duplex;
-  let base: string;
   let vscodeDir: string;
   let tmpDir: string;
   let busMessages: ({ ev: any, data?: any })[];
@@ -54,9 +77,8 @@ describe('Editor', () => {
 
   beforeEach(async() => {
     input = new PassThrough();
-    base = path.resolve(__dirname, '..', '..', '..', 'tmp', 'test', `${Date.now()}`, `${new bson.ObjectId()}`);
-    vscodeDir = path.join(base, '.vscode');
-    tmpDir = path.join(base, 'editor');
+    vscodeDir = path.join(base.path, '.vscode');
+    tmpDir = path.join(base.path, 'editor');
 
     const messageBus = new Nanobus('mongosh-editor-test');
     busMessages = [];
@@ -106,11 +128,8 @@ describe('Editor', () => {
     makeEditor = (data: FakeEditor = {}) => new Editor(makeEditorOptions(data));
 
     // make nyc happy when we spawn npm below
-    await fs.mkdir(path.resolve(__dirname, '..', '..', '..', 'tmp', '.nyc_output', 'processinfo'), { recursive: true });
-  });
-
-  afterEach(async() => {
-    await promisify(rimraf)(path.resolve(base, '..'));
+    await fs.mkdir(path.resolve(base.path, '.mongodb', '.nyc_output', 'processinfo'), { recursive: true });
+    await fs.mkdir(path.resolve(base.path, 'mongodb', '.nyc_output', 'processinfo'), { recursive: true });
   });
 
   describe('create', () => {
@@ -122,20 +141,9 @@ describe('Editor', () => {
   });
 
   describe('wrapper fn', () => {
-    it('fails with an error when editor is not defined', async() => {
-      const contextObject = makeContextObject();
-      Editor.create(makeEditorOptions({ contextObject }));
-
-      try {
-        await contextObject.edit();
-      } catch (error) {
-        expect(error.message).to.include('Command failed with an error: please define an external editor');
-      }
-    });
-
     it('returns a "synthetic" promise', async() => {
       const cmd = await fakeExternalEditor({
-        base,
+        base: base.path,
         name: 'editor-script.js',
         output: ''
       });
@@ -427,7 +435,7 @@ describe('Editor', () => {
 
     context('when editor is defined', () => {
       it('returns an error when editor exits with exitCode 1', async() => {
-        const cmd = await fakeExternalEditor({ base, name: 'editor-script.js' });
+        const cmd = await fakeExternalEditor({ base: base.path, name: 'editor-script.js' });
         editor = makeEditor({ cmd });
 
         try {
@@ -443,7 +451,11 @@ describe('Editor', () => {
           field: 'new     value'
         })`;
         const shellModifiedInput = "db.test.find({ field: 'new     value' })";
-        const cmd = await fakeExternalEditor({ base, name: 'editor-script.js', output: editorOutput });
+        const cmd = await fakeExternalEditor({
+          base: base.path,
+          name: 'editor-script.js',
+          output: editorOutput
+        });
 
         editor = makeEditor({ cmd });
         await editor.runEditCommand(shellOriginalInput);
@@ -458,7 +470,11 @@ describe('Editor', () => {
           console.log(111);
         }`;
         const shellModifiedInput = 'function () { console.log(111); }';
-        const cmd = await fakeExternalEditor({ base, name: 'editor-script.js', output: editorOutput });
+        const cmd = await fakeExternalEditor({
+          base: base.path,
+          name: 'editor-script.js',
+          output: editorOutput
+        });
 
         editor = makeEditor({ cmd });
         await editor.runEditCommand(shellOriginalInput);
@@ -471,7 +487,11 @@ describe('Editor', () => {
         const shellOriginalInput = '"some string"';
         const editorOutput = '"some modified string"';
         const shellModifiedInput = '"some modified string"';
-        const cmd = await fakeExternalEditor({ base, name: 'editor script.js', output: editorOutput });
+        const cmd = await fakeExternalEditor({
+          base: base.path,
+          name: 'editor script.js',
+          output: editorOutput
+        });
 
         editor = makeEditor({ cmd });
         await editor.runEditCommand(shellOriginalInput);
@@ -486,7 +506,7 @@ describe('Editor', () => {
         const shellModifiedInput = '"some modified string"';
 
         const cmd = await fakeExternalEditor({
-          base,
+          base: base.path,
           name: 'editor-script.js',
           flags: '--trace-warnings',
           output: editorOutput
