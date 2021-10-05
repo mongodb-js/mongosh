@@ -36,41 +36,27 @@ describe('Editor', () => {
   let vscodeDir: string;
   let tmpDir: string;
   let contextObject: any;
-  let editor: Editor;
-  let makeEditor: () => Editor;
   let busMessages: ({ ev: any, data?: any })[];
   let cmd: string | null;
-  let mockLoadExternalCodeResult: (...args: any[]) => { args: any[]; done: boolean };
+  let makeEditor: any;
 
   beforeEach(async() => {
     input = new PassThrough();
     base = path.resolve(__dirname, '..', '..', '..', 'tmp', 'test', `${Date.now()}`, `${new bson.ObjectId()}`);
     vscodeDir = path.join(base, '.vscode');
     tmpDir = path.join(base, 'editor');
-    cmd = null;
-    contextObject = {
-      config: {
-        get(key: string): any {
-          switch (key) {
-            case 'editor':
-              return cmd;
-            default:
-              throw new Error(`Don’t know what to do with config key ${key}`);
-          }
-        }
-      },
-      print: sinon.stub()
-    };
-    mockLoadExternalCodeResult = function wrapper(...args: any[]) {
-      return { args, done: true };
-    };
-
-    delete process.env.EDITOR;
 
     const messageBus = new Nanobus('mongosh-editor-test');
     busMessages = [];
+    messageBus.on('*', (ev: any, data: any) => {
+      if (typeof data === 'number') {
+        busMessages.push({ ev });
+      } else {
+        busMessages.push({ ev, data });
+      }
+    });
 
-    makeEditor = () => new Editor({
+    makeEditor = (fakeLoadExternalCodeResult: any) => new Editor({
       input,
       vscodeDir,
       tmpDir,
@@ -80,16 +66,7 @@ describe('Editor', () => {
         registerPlugin: sinon.stub(),
         messageBus
       } as any,
-      loadExternalCode: (): any => mockLoadExternalCodeResult
-    });
-
-    editor = makeEditor();
-    messageBus.on('*', (ev: any, data: any) => {
-      if (typeof data === 'number') {
-        busMessages.push({ ev });
-      } else {
-        busMessages.push({ ev, data });
-      }
+      loadExternalCode: (): Promise<any> => fakeLoadExternalCodeResult
     });
 
     // make nyc happy when we spawn npm below
@@ -100,138 +77,302 @@ describe('Editor', () => {
     await promisify(rimraf)(path.resolve(base, '..'));
   });
 
-  it('_isVscodeApp returns true if command is code', () => {
-    const isVscodeApp = editor._isVscodeApp('code');
-    expect(isVscodeApp).to.be.equal(true);
+  describe('_getExtension', () => {
+
   });
 
-  it('_isVscodeApp returns true if command is path to code', () => {
-    const isVscodeApp = editor._isVscodeApp('/usr/local/bin/code');
-    expect(isVscodeApp).to.be.equal(true);
+  describe('_getEditor', () => {
+    let editor: Editor;
+
+    beforeEach(() => {
+      cmd = null;
+      contextObject = {
+        config: {
+          get(key: string): any {
+            switch (key) {
+              case 'editor':
+                return cmd;
+              default:
+                throw new Error(`Don’t know what to do with config key ${key}`);
+            }
+          }
+        },
+        print: sinon.stub()
+      };
+      delete process.env.EDITOR;
+      editor = makeEditor();
+    });
+
+    it('returns an editor value from process.env.EDITOR', async() => {
+      process.env.EDITOR = 'neweprocessditor';
+      const editorName = await editor._getEditor();
+      expect(editorName).to.be.equal(process.env.EDITOR);
+    });
+
+    it('returns an editor value from the mongosh config', async() => {
+      cmd = 'newecmdditor';
+      process.env.EDITOR = 'neweprocessditor';
+      const editorName = await editor._getEditor();
+      expect(editorName).to.be.equal(cmd);
+    });
   });
 
-  it('_isVscodeApp returns true if command is path to code on windows', () => {
-    const isVscodeApp = editor._isVscodeApp('C:\\Program Files\\Microsoft VS Code\\Code.exe');
-    expect(isVscodeApp).to.be.equal(true);
+  describe('_createTempFile', () => {
+
   });
 
-  it('_isVscodeApp returns false if command is nano', () => {
-    const isVscodeApp = editor._isVscodeApp('nano');
-    expect(isVscodeApp).to.be.equal(false);
+  describe('_readAndDeleteTempFile', () => {
+
   });
 
-  it('_isIdentifier returns false if a command is an empty find statement', () => {
-    const isIdentifier = editor._isIdentifier('db.test.find()');
-    expect(isIdentifier).to.be.equal(false);
+  describe('_isVscodeApp', () => {
+    let editor: Editor;
+
+    beforeEach(() => {
+      contextObject = {
+        config: {
+          get(key: string): any {
+            switch (key) {
+              case 'editor':
+                return null;
+              default:
+                throw new Error(`Don’t know what to do with config key ${key}`);
+            }
+          }
+        },
+        print: sinon.stub()
+      };
+      editor = makeEditor();
+    });
+
+    it('returns true if command is code', () => {
+      const isVscodeApp = editor._isVscodeApp('code');
+      expect(isVscodeApp).to.be.equal(true);
+    });
+
+    it('returns true if command is path to code', () => {
+      const isVscodeApp = editor._isVscodeApp('/usr/local/bin/code');
+      expect(isVscodeApp).to.be.equal(true);
+    });
+
+    it('returns true if command is path to code on windows', () => {
+      const isVscodeApp = editor._isVscodeApp('C:\\Program Files\\Microsoft VS Code\\Code.exe');
+      expect(isVscodeApp).to.be.equal(true);
+    });
+
+    it('returns false if command is nano', () => {
+      const isVscodeApp = editor._isVscodeApp('nano');
+      expect(isVscodeApp).to.be.equal(false);
+    });
   });
 
-  it('_isIdentifier returns false if a command is a find statement with a query', () => {
-    const isIdentifier = editor._isIdentifier("db.test.find({ name: 'lena' })");
-    expect(isIdentifier).to.be.equal(false);
+  describe('_isIdentifier', () => {
+    let editor: Editor;
+
+    beforeEach(() => {
+      contextObject = {
+        config: {
+          get(key: string): any {
+            switch (key) {
+              case 'editor':
+                return cmd;
+              default:
+                throw new Error(`Don’t know what to do with config key ${key}`);
+            }
+          }
+        },
+        print: sinon.stub()
+      };
+      editor = makeEditor();
+    });
+
+    it('returns false if a command is an empty find statement', () => {
+      const isIdentifier = editor._isIdentifier('db.test.find()');
+      expect(isIdentifier).to.be.equal(false);
+    });
+
+    it('returns false if a command is a find statement with a query', () => {
+      const isIdentifier = editor._isIdentifier("db.test.find({ name: 'lena' })");
+      expect(isIdentifier).to.be.equal(false);
+    });
+
+    it('returns true if a command is an identifier written with dots', () => {
+      const isIdentifier = editor._isIdentifier('db.test.find');
+      expect(isIdentifier).to.be.equal(true);
+    });
+
+    it('returns false if a command is an identifier written as an array and double quotes', () => {
+      const isIdentifier = editor._isIdentifier('db["test"]find');
+      expect(isIdentifier).to.be.equal(false);
+    });
+
+    it('returns false if a command is an identifier written as an array and single quotes', () => {
+      const isIdentifier = editor._isIdentifier("db['test']find");
+      expect(isIdentifier).to.be.equal(false);
+    });
+
+    it('returns true if it contains $', () => {
+      const isIdentifier = editor._isIdentifier('$something');
+      expect(isIdentifier).to.be.equal(true);
+    });
+
+    it('returns false for sum of numbers', () => {
+      const isIdentifier = editor._isIdentifier('1 + 2');
+      expect(isIdentifier).to.be.equal(false);
+    });
+
+    it('returns false for a class', () => {
+      const isIdentifier = editor._isIdentifier('class A {}');
+      expect(isIdentifier).to.be.equal(false);
+    });
+
+    it('returns false for a string', () => {
+      const isIdentifier = editor._isIdentifier('"some string"');
+      expect(isIdentifier).to.be.equal(false);
+    });
+
+    it('returns false for a number', () => {
+      const isIdentifier = editor._isIdentifier('111');
+      expect(isIdentifier).to.be.equal(false);
+    });
   });
 
-  it('_isIdentifier returns true if a command is an identifier written with dots', () => {
-    const isIdentifier = editor._isIdentifier('db.test.find');
-    expect(isIdentifier).to.be.equal(true);
+  describe('_isNumeric', () => {
+
   });
 
-  it('_isIdentifier returns false if a command is an identifier written as an array and double quotes', () => {
-    const isIdentifier = editor._isIdentifier('db["test"]find');
-    expect(isIdentifier).to.be.equal(false);
+  describe('_getEditorContent', () => {
+    let editor: Editor;
+
+    beforeEach(() => {
+      contextObject = {
+        config: {
+          get(key: string): any {
+            switch (key) {
+              case 'editor':
+                return null;
+              default:
+                throw new Error(`Don’t know what to do with config key ${key}`);
+            }
+          }
+        },
+        print: sinon.stub()
+      };
+    });
+
+    it('returns a function implementation', async() => {
+      const fakeLoadExternalCodeResult = function wrapper(...args: any[]) {
+        return { args, done: true };
+      };
+      editor = makeEditor(fakeLoadExternalCodeResult);
+      const code = 'db.test.find';
+      const content = (await editor._getEditorContent(code));
+      expect(content).to.be.equal('function wrapper(...args) {\n                return { args, done: true };\n            }');
+    });
+
+    it('returns var', async() => {
+      editor = makeEditor(111);
+      const code = 'myVar';
+      const content = (await editor._getEditorContent(code));
+      expect(content).to.be.equal('111');
+    });
+
+    it('returns a.b.c', async() => {
+      editor = makeEditor({ field: { child: 'string value' } });
+      const code = 'myObj';
+      const content = (await editor._getEditorContent(code));
+      expect(content).to.be.equal('{"field":{"child":"string value"}}');
+    });
+
+    it('returns function', async() => {
+      editor = makeEditor({ field: { child: 'string value' } });
+      const code = "function foo() { return 'a b'; }";
+      const content = await editor._getEditorContent(code);
+      expect(content).to.be.equal(code);
+    });
+
+    it('returns an unmodified statment', async() => {
+      editor = makeEditor();
+      const code = 'db.coll.find()';
+      const content = await editor._getEditorContent(code);
+      expect(content).to.be.equal(code);
+    });
+
+    it('returns a string', async() => {
+      editor = makeEditor(111);
+      const code = '"111"';
+      const content = await editor._getEditorContent(code);
+      expect(content).to.be.equal(code);
+    });
+
+    it('returns the last opened content for the empty edit command', async() => {
+      editor = makeEditor();
+      editor._lastContent = 'db.test.find()';
+      const content = await editor._getEditorContent('');
+      expect(content).to.be.equal('db.test.find()');
+    });
+
+    it('returns a new content for not empty edit command', async() => {
+      editor = makeEditor();
+      editor._lastContent = 'db.coll.find()';
+      const content = await editor._getEditorContent('1 + 1');
+      expect(content).to.be.equal('1 + 1');
+    });
   });
 
-  it('_isIdentifier returns false if a command is an identifier written as an array and single quotes', () => {
-    const isIdentifier = editor._isIdentifier("db['test']find");
-    expect(isIdentifier).to.be.equal(false);
+  describe('_prepareResult', () => {
+    let editor: Editor;
+
+    beforeEach(() => {
+      contextObject = {
+        config: {
+          get(key: string): any {
+            switch (key) {
+              case 'editor':
+                return cmd;
+              default:
+                throw new Error(`Don’t know what to do with config key ${key}`);
+            }
+          }
+        },
+        print: sinon.stub()
+      };
+      editor = makeEditor();
+    });
+
+    it('returns an assignment statement for an identifier', () => {
+      const result = editor._prepareResult({ originalCode: 'fn', modifiedCode: 'function() { console.log(222); };' });
+      expect(result).to.be.equal('fn = function() { console.log(222); };');
+    });
+
+    it('returns an assignment statement for an identifier', () => {
+      const result = editor._prepareResult({ originalCode: '111', modifiedCode: '222' });
+      expect(result).to.be.equal('222');
+    });
   });
 
-  it('_isIdentifier returns true if it contains $', () => {
-    const isIdentifier = editor._isIdentifier('$something');
-    expect(isIdentifier).to.be.equal(true);
-  });
+  describe('runEditCommand', () => {
+    let editor: Editor;
 
-  it('_isIdentifier returns false for sum of numbers', () => {
-    const isIdentifier = editor._isIdentifier('1 + 2');
-    expect(isIdentifier).to.be.equal(false);
-  });
+    beforeEach(() => {
+      cmd = null;
+      contextObject = {
+        config: {
+          get(key: string): any {
+            switch (key) {
+              case 'editor':
+                return cmd;
+              default:
+                throw new Error(`Don’t know what to do with config key ${key}`);
+            }
+          }
+        },
+        print: sinon.stub()
+      };
+      delete process.env.EDITOR;
+      editor = makeEditor();
+    });
 
-  it('_isIdentifier returns false for a class', () => {
-    const isIdentifier = editor._isIdentifier('class A {}');
-    expect(isIdentifier).to.be.equal(false);
-  });
-
-  it('_isIdentifier returns false for a string', () => {
-    const isIdentifier = editor._isIdentifier('"some string"');
-    expect(isIdentifier).to.be.equal(false);
-  });
-
-  it('_isIdentifier returns false for a number', () => {
-    const isIdentifier = editor._isIdentifier('111');
-    expect(isIdentifier).to.be.equal(false);
-  });
-
-  it('_getEditor returns an editor value from process.env.EDITOR', async() => {
-    process.env.EDITOR = 'neweprocessditor';
-    const editorName = await editor._getEditor();
-    expect(editorName).to.be.equal(process.env.EDITOR);
-  });
-
-  it('_getEditor returns an editor value from the mongosh config', async() => {
-    cmd = 'newecmdditor';
-    process.env.EDITOR = 'neweprocessditor';
-    const editorName = await editor._getEditor();
-    expect(editorName).to.be.equal(cmd);
-  });
-
-  it('runEditCommand returns an error for not existing editor', async() => {
-    try {
-      await editor.runEditCommand('');
-    } catch (error) {
-      expect(error.message).to.include('Command failed with an error: please define an external editor');
-    }
-  });
-
-  it('_getEditorContent returns function implementation', async() => {
-    const code = 'db.test.find';
-    const content = (await editor._getEditorContent(code)).replace(/\r\n/g, '\n');
-    expect(content).to.be.equal('function wrapper(...args) {\n            return { args, done: true };\n        }');
-  });
-
-  it('_getEditorContent returns function', async() => {
-    const code = "function foo() { return 'a b'; }";
-    const content = await editor._getEditorContent(code);
-    expect(content).to.be.equal(code);
-  });
-
-  it('_getEditorContent returns an unmodified statment', async() => {
-    const code = 'db.coll.find()';
-    const content = await editor._getEditorContent(code);
-    expect(content).to.be.equal(code);
-  });
-
-  it('_getEditorContent returns the last opened content for the empty edit command', async() => {
-    editor._lastContent = 'db.test.find()';
-    const content = await editor._getEditorContent('');
-    expect(content).to.be.equal('db.test.find()');
-  });
-
-  it('_getEditorContent returns a new content for not empty edit command', async() => {
-    editor._lastContent = 'db.coll.find()';
-    const content = await editor._getEditorContent('1 + 1');
-    expect(content).to.be.equal('1 + 1');
-  });
-
-  it('_prepareResult returns an assignment statement for an identifier', () => {
-    const result = editor._prepareResult({ originalCode: 'fn', modifiedCode: 'function() { console.log(222); };' });
-    expect(result).to.be.equal('fn = function() { console.log(222); };');
-  });
-
-  it('_prepareResult returns an assignment statement for an identifier', () => {
-    const result = editor._prepareResult({ originalCode: '111', modifiedCode: '222' });
-    expect(result).to.be.equal('222');
-  });
-
-  context('runEditCommand', () => {
     context('when editor is not defined', () => {
       it('returns please define an external editor error', async() => {
         try {
