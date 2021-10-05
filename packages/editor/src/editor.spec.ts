@@ -240,14 +240,6 @@ describe('Editor', () => {
     });
   });
 
-  describe('_createTempFile', () => {
-
-  });
-
-  describe('_readAndDeleteTempFile', () => {
-
-  });
-
   describe('_isVscodeApp', () => {
     let editor: Editor;
 
@@ -332,10 +324,6 @@ describe('Editor', () => {
       const isIdentifier = editor._isIdentifier('111');
       expect(isIdentifier).to.be.equal(false);
     });
-  });
-
-  describe('_isNumeric', () => {
-
   });
 
   describe('_getEditorContent', () => {
