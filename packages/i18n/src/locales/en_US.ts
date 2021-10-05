@@ -948,7 +948,7 @@ const translations: Catalog = {
           attributes: {
             sql: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.sql',
-              description: 'Queries an Altas Data Lake database using SQL',
+              description: '(Experimental) Runs a SQL query against Atlas Data Lake. Note: this is an experimental feature that may be subject to change in future releases.',
               example: 'const cursor = db.sql("SELECT * FROM myCollection", options)'
             },
             watch: {
