@@ -197,7 +197,10 @@ describe('external editor e2e', () => {
       context('when mongodb extension is installed', () => {
         beforeEach(async() => {
           // make a fake dir for vscode mongodb extension
-          await fs.mkdir(path.join(homedir, '.vscode', 'extensions', 'mongodb.mongodb-vscode-0.0.0'), { recursive: true });
+          await fs.mkdir(
+            path.join(homedir, '.vscode', 'extensions', 'mongodb.mongodb-vscode-0.0.0'),
+            { recursive: true }
+          );
         });
 
         it('creates a file with .mongodb extension', async() => {
