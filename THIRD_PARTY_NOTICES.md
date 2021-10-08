@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Thu Oct 07 2021.
+This document was automatically generated on Fri Oct 08 2021.
 
 ## List of dependencies
 
@@ -209,14 +209,13 @@ Package|Version|License
 **[mongodb](#375a9e5941918673611ba99a08290d66d24b566f8380bc1020c39390fe355574)**|4.1.3|Apache-2.0
 **[mongodb-ace-autocompleter](#f8d74c39b8fd1bf8c68814e2006477bd7ae4df1586f48c43ec771797e1d3d064)**|0.5.0|Apache-2.0
 **[mongodb-build-info](#3e1ab3564d63f8a06a80cc2b752a458eabdaa33318303341aa6f7a9461115958)**|1.2.0|Apache-2.0
-**[mongodb-client-encryption](#1def2de804a6e1649a1ff5aa730c072953c593162348ea5ac1059d5230e2529c)**|1.2.7|Apache-2.0
+**[mongodb-client-encryption](#2670432992a4ec6240bc245a26b98695623fdbe720a667f90fbfe03c9de2e4ab)**|2.0.0-beta.0|Apache-2.0
 **[mongodb-connection-string-url](#151d9f737fe1a273e3e9915f9aa4c9194d52d2b9ed803047959027244af7036a)**|2.0.0|Apache-2.0
 **[mongodb-log-writer](#8a1799a23f75e9ecd7b5954ead5e790d26a6037ee0a64f4676ce6f5febbd6aa5)**|1.0.3|Apache-2.0
 **[mongodb-redact](#00a2cfed57df1e8b912b751b08bee4de24ad0189840c99820ebc00c1b219a421)**|0.2.2|Apache-2.0
 **[ms](#0a987b2f79ff37005e452a5afa7dacd3042061a7077054d2ba9cabacd88506d2)**|2.1.2|MIT
 **[ms](#484b814b85d5028e34246147c8fc901d33570202bd7cdc3703c0ed1078eba0aa)**|2.0.0|MIT
 **[mustache](#19c51734a1071367ceb7e458ef9b27508d8c2f52753fb026bb1bc286438a1374)**|4.0.1|MIT
-**[nan](#892162f391bba23a69bb48c8661fdb8ee8c809f1d86a64ff303c0909607c0be1)**|2.15.0|MIT
 **[nanoassert](#9503c6d8111d50d337bd2e4bbae247b3d4bdd8b9ced4454215f19e4531e3c7a9)**|1.1.0|ISC
 **[nanobus](#8a5f068aa1d0f96c8326a63cfb1d05d7712a5d6cd433786a85a35d476322d418)**|4.4.0|MIT
 **[nanocolors](#b813857a005a23911a20758dd90f22d5bd8f85fc11c3b2bdb3533913caffd0a5)**|0.1.6|MIT
@@ -224,8 +223,8 @@ Package|Version|License
 **[nanotiming](#46361ba2e1f38c014a80c142afc1a467c605fd18925765f7c5ad9b6f5c4bc22f)**|7.3.1|MIT
 **[napi-build-utils](#26912b5ff7632f262d64273f99cd1a869376c5c378960e24501585e35b31054a)**|1.0.2|MIT
 **[node-abi](#bb53669212fd74e16f59c5534da9b2228071894097da5b2595d9d40fb2945b36)**|2.30.1|MIT
-**[node-addon-api](#45e1200816a85530cea9189fdceaf7148b593964c496868fdcf5024966f98b24)**|3.1.0|MIT
 **[node-addon-api](#41cf4a77f0b640214c5bcc5fa57dc986f9dc30676e63e34e74f23b134fe518e0)**|4.2.0|MIT
+**[node-addon-api](#45e1200816a85530cea9189fdceaf7148b593964c496868fdcf5024966f98b24)**|3.1.0|MIT
 **[node-fetch](#8be7688285d7790e99dfe0add4d936f8acee3a89a3404ad673d71bbb86dc4db5)**|2.6.1|MIT
 **[node-releases](#159c0f209cc0c5cc0c9f9f10fd3944e1ccf477ec3a475f90ad6dd5e151547fc0)**|1.1.76|MIT
 **[node-releases](#5900fdf09a4442dffdeb5e459ccbd92133377f6d0980011c1befb9afe6ec9a3e)**|1.1.73|MIT
@@ -262,6 +261,7 @@ Package|Version|License
 **[shebang-command](#a9cba97b71b818fb0a4978f8b14875ae118f292a19ffa97c8b2d848f9a897d89)**|2.0.0|MIT
 **[shebang-regex](#849fb37298f1c4dcdeb6065edc4242918c7533bcfda5c67747e6ce4620c587bb)**|3.0.0|MIT
 **[sigmund](#b7bc393e5a232bcdbb43c9634479890abf328baafea4bd42382331ef113761e9)**|1.0.1|ISC
+**[signal-exit](#a40d424b5e0c2087f7fd91078f5cc9a6b050d65fcc28d34a4931e51606c4a113)**|3.0.5|ISC
 **[signal-exit](#e452c59b77b29cd391c67abe2e5c14f51a637e4b72e07cf78d31de57fd34ef41)**|3.0.3|ISC
 **[simple-concat](#7e08f893385d0a6d7059029da3885e8346ad01eb58d6e4561612d2fb653c15ec)**|1.0.1|MIT
 **[simple-get](#ade55c33f4d681462bccf90b122b9e974e43632f78545b6d8dc845e7f185e5da)**|3.1.0|MIT
@@ -12958,8 +12958,8 @@ Authors:
 * Irina Shestak <shestak.irina@gmail.com>
 
 
-<a id="1def2de804a6e1649a1ff5aa730c072953c593162348ea5ac1059d5230e2529c"></a>
-### [mongodb-client-encryption](https://www.npmjs.com/package/mongodb-client-encryption) (version 1.2.7)
+<a id="2670432992a4ec6240bc245a26b98695623fdbe720a667f90fbfe03c9de2e4ab"></a>
+### [mongodb-client-encryption](https://www.npmjs.com/package/mongodb-client-encryption) (version 2.0.0-beta.0)
 <!-- initially found at packages/service-provider-core/node_modules/mongodb-client-encryption -->
 > Official client encryption module for the MongoDB Node.js driver
 
@@ -13897,42 +13897,6 @@ Authors:
 * mustache.js Authors <http://github.com/janl/mustache.js>
 
 
-<a id="892162f391bba23a69bb48c8661fdb8ee8c809f1d86a64ff303c0909607c0be1"></a>
-### [nan](https://www.npmjs.com/package/nan) (version 2.15.0)
-<!-- initially found at packages/service-provider-core/node_modules/nan -->
-> Native Abstractions for Node.js: C++ header for Node 0.8 -> 14 compatibility
-
-License tags: MIT
-
-License files:
-* LICENSE.md:
-
-      The MIT License (MIT)
-      =====================
-      
-      Copyright (c) 2018 NAN contributors
-      -----------------------------------
-      
-      *NAN contributors listed at <https://github.com/nodejs/nan#contributors>*
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-      
-
-Authors:
-* Rod Vagg <r@va.gg> (https://github.com/rvagg)
-* Benjamin Byholm <bbyholm@abo.fi> (https://github.com/kkoopa/)
-* Trevor Norris <trev.norris@gmail.com> (https://github.com/trevnorris)
-* Nathan Rajlich <nathan@tootallnate.net> (https://github.com/TooTallNate)
-* Brett Lawson <brett19@gmail.com> (https://github.com/brett19)
-* Ben Noordhuis <info@bnoordhuis.nl> (https://github.com/bnoordhuis)
-* David Siegel <david@artcom.de> (https://github.com/agnat)
-* Michael Ira Krufky <mkrufky@gmail.com> (https://github.com/mkrufky)
-
-
 <a id="9503c6d8111d50d337bd2e4bbae247b3d4bdd8b9ced4454215f19e4531e3c7a9"></a>
 ### [nanoassert](https://www.npmjs.com/package/nanoassert) (version 1.1.0)
 <!-- initially found at packages/cli-repl/node_modules/nanoassert -->
@@ -14355,109 +14319,9 @@ Authors:
 * Lukas Geiger
 
 
-<a id="45e1200816a85530cea9189fdceaf7148b593964c496868fdcf5024966f98b24"></a>
-### [node-addon-api](https://www.npmjs.com/package/node-addon-api) (version 3.1.0)
-<!-- initially found at packages/service-provider-server/node_modules/node-addon-api -->
-> Node.js API (N-API)
-
-License tags: MIT
-
-License files:
-* LICENSE.md:
-
-      The MIT License (MIT)
-      =====================
-      
-      Copyright (c) 2017 Node.js API collaborators
-      -----------------------------------
-      
-      *Node.js API collaborators listed at <https://github.com/nodejs/node-addon-api#collaborators>*
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-Authors:
-* Abhishek Kumar Singh (https://github.com/abhi11210646)
-* Alba Mendez (https://github.com/jmendeth)
-* András Timár, Dr (https://github.com/timarandras)
-* Andrew Petersen (https://github.com/kirbysayshi)
-* Anisha Rohra (https://github.com/anisha-rohra)
-* Anna Henningsen (https://github.com/addaleax)
-* Arnaud Botella (https://github.com/BotellaA)
-* Arunesh Chandra (https://github.com/aruneshchandra)
-* Azlan Mukhtar (https://github.com/azlan)
-* Ben Berman (https://github.com/rivertam)
-* Benjamin Byholm (https://github.com/kkoopa)
-* Bill Gallafent (https://github.com/gallafent)
-* blagoev (https://github.com/blagoev)
-* Bruce A. MacNaughton (https://github.com/bmacnaughton)
-* Cory Mickelson (https://github.com/corymickelson)
-* Daniel Bevenius (https://github.com/danbev)
-* Darshan Sen (https://github.com/RaisinTen)
-* David Halls (https://github.com/davedoesdev)
-* Dmitry Ashkadov (https://github.com/dmitryash)
-* Dongjin Na (https://github.com/nadongguri)
-* Ferdinand Holzer (https://github.com/fholzer)
-* Eric Bickle (https://github.com/ebickle)
-* Gabriel Schulhof (https://github.com/gabrielschulhof)
-* Guenter Sandner (https://github.com/gms1)
-* Gus Caplan (https://github.com/devsnek)
-* Helio Frota (https://github.com/helio-frota)
-* Hitesh Kanwathirtha (https://github.com/digitalinfinity)
-* ikokostya (https://github.com/ikokostya)
-* Jake Barnes (https://github.com/DuBistKomisch)
-* Jake Yoon (https://github.com/yjaeseok)
-* Jason Ginchereau (https://github.com/jasongin)
-* Jeroen Janssen (https://github.com/japj)
-* Jim Schlight (https://github.com/jschlight)
-* Jinho Bang (https://github.com/romandev)
-* joshgarde (https://github.com/joshgarde)
-* Kasumi Hanazuki (https://github.com/hanazuki)
-* Kelvin (https://github.com/kelvinhammond)
-* Kevin Eady (https://github.com/KevinEady)
-* kidneysolo (https://github.com/kidneysolo)
-* Koki Nishihara (https://github.com/Nishikoh)
-* Konstantin Tarkus (https://github.com/koistya)
-* Kyle Farnung (https://github.com/kfarnung)
-* legendecas (https://github.com/legendecas)
-* Lovell Fuller (https://github.com/lovell)
-* Luciano Martorella (https://github.com/lmartorella)
-* mastergberry (https://github.com/mastergberry)
-* Mathias Küsel (https://github.com/mathiask88)
-* Matteo Collina (https://github.com/mcollina)
-* Michael Dawson (https://github.com/mhdawson)
-* Michael Price (https://github.com/mikepricedev)
-* Michele Campus (https://github.com/kYroL01)
-* Mikhail Cheshkov (https://github.com/mcheshkov)
-* nempoBu4 (https://github.com/nempoBu4)
-* Nicola Del Gobbo (https://github.com/NickNaso)
-* Nick Soggin (https://github.com/iSkore)
-* Nikolai Vavilov (https://github.com/seishun)
-* Nurbol Alpysbayev (https://github.com/anurbol)
-* pacop (https://github.com/pacop)
-* Philipp Renoth (https://github.com/DaAitch)
-* Rolf Timmermans (https://github.com/rolftimmermans)
-* Ross Weir (https://github.com/ross-weir)
-* Ryuichi Okumura (https://github.com/okuryu)
-* Sampson Gao (https://github.com/sampsongao)
-* Sam Roberts (https://github.com/sam-github)
-* Taylor Woll (https://github.com/boingoing)
-* Thomas Gentilhomme (https://github.com/fraxken)
-* Tim Rach (https://github.com/timrach)
-* Tobias Nießen (https://github.com/tniessen)
-* Tux3 (https://github.com/tux3)
-* Vlad Velmisov (https://github.com/Velmisov)
-* Yohei Kishimoto (https://github.com/morokosi)
-* Yulong Wang (https://github.com/fs-eire)
-* Ziqiu Zhao (https://github.com/ZzqiZQute)
-
-
 <a id="41cf4a77f0b640214c5bcc5fa57dc986f9dc30676e63e34e74f23b134fe518e0"></a>
 ### [node-addon-api](https://www.npmjs.com/package/node-addon-api) (version 4.2.0)
-<!-- initially found at packages/service-provider-server/node_modules/kerberos/node_modules/node-addon-api -->
+<!-- initially found at packages/service-provider-core/node_modules/node-addon-api -->
 > Node.js API (Node-API)
 
 License tags: MIT
@@ -14555,6 +14419,106 @@ Authors:
 * Tim Rach (https://github.com/timrach)
 * Tobias Nießen (https://github.com/tniessen)
 * todoroff (https://github.com/todoroff)
+* Tux3 (https://github.com/tux3)
+* Vlad Velmisov (https://github.com/Velmisov)
+* Yohei Kishimoto (https://github.com/morokosi)
+* Yulong Wang (https://github.com/fs-eire)
+* Ziqiu Zhao (https://github.com/ZzqiZQute)
+
+
+<a id="45e1200816a85530cea9189fdceaf7148b593964c496868fdcf5024966f98b24"></a>
+### [node-addon-api](https://www.npmjs.com/package/node-addon-api) (version 3.1.0)
+<!-- initially found at packages/service-provider-server/node_modules/node-addon-api -->
+> Node.js API (N-API)
+
+License tags: MIT
+
+License files:
+* LICENSE.md:
+
+      The MIT License (MIT)
+      =====================
+      
+      Copyright (c) 2017 Node.js API collaborators
+      -----------------------------------
+      
+      *Node.js API collaborators listed at <https://github.com/nodejs/node-addon-api#collaborators>*
+      
+      Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+      
+      The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+Authors:
+* Abhishek Kumar Singh (https://github.com/abhi11210646)
+* Alba Mendez (https://github.com/jmendeth)
+* András Timár, Dr (https://github.com/timarandras)
+* Andrew Petersen (https://github.com/kirbysayshi)
+* Anisha Rohra (https://github.com/anisha-rohra)
+* Anna Henningsen (https://github.com/addaleax)
+* Arnaud Botella (https://github.com/BotellaA)
+* Arunesh Chandra (https://github.com/aruneshchandra)
+* Azlan Mukhtar (https://github.com/azlan)
+* Ben Berman (https://github.com/rivertam)
+* Benjamin Byholm (https://github.com/kkoopa)
+* Bill Gallafent (https://github.com/gallafent)
+* blagoev (https://github.com/blagoev)
+* Bruce A. MacNaughton (https://github.com/bmacnaughton)
+* Cory Mickelson (https://github.com/corymickelson)
+* Daniel Bevenius (https://github.com/danbev)
+* Darshan Sen (https://github.com/RaisinTen)
+* David Halls (https://github.com/davedoesdev)
+* Dmitry Ashkadov (https://github.com/dmitryash)
+* Dongjin Na (https://github.com/nadongguri)
+* Ferdinand Holzer (https://github.com/fholzer)
+* Eric Bickle (https://github.com/ebickle)
+* Gabriel Schulhof (https://github.com/gabrielschulhof)
+* Guenter Sandner (https://github.com/gms1)
+* Gus Caplan (https://github.com/devsnek)
+* Helio Frota (https://github.com/helio-frota)
+* Hitesh Kanwathirtha (https://github.com/digitalinfinity)
+* ikokostya (https://github.com/ikokostya)
+* Jake Barnes (https://github.com/DuBistKomisch)
+* Jake Yoon (https://github.com/yjaeseok)
+* Jason Ginchereau (https://github.com/jasongin)
+* Jeroen Janssen (https://github.com/japj)
+* Jim Schlight (https://github.com/jschlight)
+* Jinho Bang (https://github.com/romandev)
+* joshgarde (https://github.com/joshgarde)
+* Kasumi Hanazuki (https://github.com/hanazuki)
+* Kelvin (https://github.com/kelvinhammond)
+* Kevin Eady (https://github.com/KevinEady)
+* kidneysolo (https://github.com/kidneysolo)
+* Koki Nishihara (https://github.com/Nishikoh)
+* Konstantin Tarkus (https://github.com/koistya)
+* Kyle Farnung (https://github.com/kfarnung)
+* legendecas (https://github.com/legendecas)
+* Lovell Fuller (https://github.com/lovell)
+* Luciano Martorella (https://github.com/lmartorella)
+* mastergberry (https://github.com/mastergberry)
+* Mathias Küsel (https://github.com/mathiask88)
+* Matteo Collina (https://github.com/mcollina)
+* Michael Dawson (https://github.com/mhdawson)
+* Michael Price (https://github.com/mikepricedev)
+* Michele Campus (https://github.com/kYroL01)
+* Mikhail Cheshkov (https://github.com/mcheshkov)
+* nempoBu4 (https://github.com/nempoBu4)
+* Nicola Del Gobbo (https://github.com/NickNaso)
+* Nick Soggin (https://github.com/iSkore)
+* Nikolai Vavilov (https://github.com/seishun)
+* Nurbol Alpysbayev (https://github.com/anurbol)
+* pacop (https://github.com/pacop)
+* Philipp Renoth (https://github.com/DaAitch)
+* Rolf Timmermans (https://github.com/rolftimmermans)
+* Ross Weir (https://github.com/ross-weir)
+* Ryuichi Okumura (https://github.com/okuryu)
+* Sampson Gao (https://github.com/sampsongao)
+* Sam Roberts (https://github.com/sam-github)
+* Taylor Woll (https://github.com/boingoing)
+* Thomas Gentilhomme (https://github.com/fraxken)
+* Tim Rach (https://github.com/timrach)
+* Tobias Nießen (https://github.com/tniessen)
 * Tux3 (https://github.com/tux3)
 * Vlad Velmisov (https://github.com/Velmisov)
 * Yohei Kishimoto (https://github.com/morokosi)
@@ -15989,9 +15953,41 @@ Authors:
 * Isaac Z. Schlueter <i@izs.me> (http://blog.izs.me/)
 
 
+<a id="a40d424b5e0c2087f7fd91078f5cc9a6b050d65fcc28d34a4931e51606c4a113"></a>
+### [signal-exit](https://www.npmjs.com/package/signal-exit) (version 3.0.5)
+<!-- initially found at packages/service-provider-core/node_modules/signal-exit -->
+> when you want to fire an event no matter how a process exits.
+
+License tags: ISC
+
+License files:
+* LICENSE.txt:
+
+      The ISC License
+      
+      Copyright (c) 2015, Contributors
+      
+      Permission to use, copy, modify, and/or distribute this software
+      for any purpose with or without fee is hereby granted, provided
+      that the above copyright notice and this permission notice
+      appear in all copies.
+      
+      THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+      WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES
+      OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE
+      LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES
+      OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
+      WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
+      ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+      
+
+Authors:
+* Ben Coe <ben@npmjs.com>
+
+
 <a id="e452c59b77b29cd391c67abe2e5c14f51a637e4b72e07cf78d31de57fd34ef41"></a>
 ### [signal-exit](https://www.npmjs.com/package/signal-exit) (version 3.0.3)
-<!-- initially found at packages/service-provider-core/node_modules/signal-exit -->
+<!-- initially found at packages/service-provider-server/node_modules/signal-exit -->
 > when you want to fire an event no matter how a process exits.
 
 License tags: ISC
