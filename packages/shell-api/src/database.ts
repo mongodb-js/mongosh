@@ -1458,7 +1458,11 @@ export default class Database extends ShellApiWithMongoClass {
   @returnType('AggregationCursor')
   async sql(sqlString: string, options?: Document): Promise<AggregationCursor> {
     this._emitDatabaseApiCall('sql', { sqlString: sqlString, options });
-    return await this.aggregate([{
+    await this._instanceState.shellApi.print(
+      'Note: this is an experimental feature that may be subject to change in future releases.'
+    );
+
+    const cursor = await this.aggregate([{
       $sql: {
         statement: sqlString,
         format: 'jdbc',
@@ -1466,5 +1470,20 @@ export default class Database extends ShellApiWithMongoClass {
         formatVersion: 1
       }
     }], options);
+
+    try {
+      await cursor.hasNext();
+    } catch (err: any) {
+      if (err.code?.valueOf() === 40324) { // unrecognized stage error
+        throw new MongoshRuntimeError(
+          'db.sql currently only works when connected to a Data Lake',
+          CommonErrors.CommandFailed
+        );
+      }
+
+      throw err;
+    }
+
+    return cursor;
   }
 }

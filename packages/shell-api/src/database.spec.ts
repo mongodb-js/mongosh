@@ -2519,6 +2519,30 @@ describe('Database', () => {
         const error: any = await database.sql('SELECT * FROM somecollection;').catch(err => err);
         expect(error.message).to.be.equal('err');
       });
+
+      it('throws if connecting to an unsupported server', async() => {
+        const serviceProviderCursor = stubInterface<ServiceProviderAggCursor>();
+        serviceProvider.aggregateDb.returns(serviceProviderCursor as any);
+        serviceProviderCursor.hasNext.throws(Object.assign(new Error(), { code: 40324 }));
+        const error: any = await database.sql('SELECT * FROM somecollection;').catch(err => err);
+        expect(error.message).to.match(/db\.sql currently only works when connected to a Data Lake/);
+      });
+
+      it('forwards other driver errors', async() => {
+        const serviceProviderCursor = stubInterface<ServiceProviderAggCursor>();
+        serviceProvider.aggregateDb.returns(serviceProviderCursor as any);
+        serviceProviderCursor.hasNext.throws(Object.assign(new Error('any error'), { code: 12345 }));
+        const error: any = await database.sql('SELECT * FROM somecollection;').catch(err => err);
+        expect(error.message).to.be.equal('any error');
+      });
+
+      it('forwards generic cursor errors', async() => {
+        const serviceProviderCursor = stubInterface<ServiceProviderAggCursor>();
+        serviceProvider.aggregateDb.returns(serviceProviderCursor as any);
+        serviceProviderCursor.hasNext.throws(Object.assign(new Error('any error')));
+        const error: any = await database.sql('SELECT * FROM somecollection;').catch(err => err);
+        expect(error.message).to.be.equal('any error');
+      });
     });
   });
   describe('with session', () => {
