@@ -2583,7 +2583,8 @@ describe('Database', () => {
       'cloneCollection',
       'copyDatabase',
       'getReplicationInfo',
-      'setSecondaryOk'
+      'setSecondaryOk',
+      'sql'
     ];
     const args = [ {}, {}, {} ];
     beforeEach(() => {
