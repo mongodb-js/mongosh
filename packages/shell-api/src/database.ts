@@ -126,7 +126,7 @@ export default class Database extends ShellApiWithMongoClass {
    * @private
    */
   private _emitDatabaseApiCall(methodName: string, methodArguments: Document = {}): void {
-    this._mongo._instanceState.emitApiCall({
+    this._mongo._instanceState.emitApiCallWithArgs({
       method: methodName,
       class: 'Database',
       db: this._name,

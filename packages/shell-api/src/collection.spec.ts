@@ -65,14 +65,14 @@ describe('Collection', () => {
   });
   describe('.collections', () => {
     it('allows to get a collection as property if is not one of the existing methods', () => {
-      const database = new Database({ _instanceState: { emitApiCall: (): void => {} } } as any, 'db1');
+      const database = new Database({ _instanceState: { emitApiCallWithArgs: (): void => {} } } as any, 'db1');
       const coll: any = new Collection({} as any, database, 'coll');
       expect(coll.someCollection).to.have.instanceOf(Collection);
       expect(coll.someCollection._name).to.equal('coll.someCollection');
     });
 
     it('reuses collections', () => {
-      const database: any = new Database({ _instanceState: { emitApiCall: (): void => {} } } as any, 'db1');
+      const database: any = new Database({ _instanceState: { emitApiCallWithArgs: (): void => {} } } as any, 'db1');
       const coll: any = new Collection({} as any, database, 'coll');
       expect(coll.someCollection).to.equal(database.getCollection('coll.someCollection'));
       expect(coll.someCollection).to.equal(database.coll.someCollection);

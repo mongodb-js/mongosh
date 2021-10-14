@@ -40,7 +40,7 @@ describe('Explainable', () => {
     });
   });
   describe('metadata', () => {
-    const mongo: any = { _instanceState: { emitApiCall: sinon.spy() } };
+    const mongo: any = { _instanceState: { emitApiCallWithArgs: sinon.spy() } };
     const db = new Database(mongo, 'myDB');
     const coll = new Collection(mongo, db, 'myCollection');
     const explainable = new Explainable(mongo, coll, 'queryPlannerExtended');

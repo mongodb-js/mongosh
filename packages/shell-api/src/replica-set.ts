@@ -392,7 +392,7 @@ export default class ReplicaSet extends ShellApiWithMongoClass {
    * @private
    */
   private _emitReplicaSetApiCall(methodName: string, methodArguments: Document = {}): void {
-    this._database._mongo._instanceState.emitApiCall({
+    this._database._mongo._instanceState.emitApiCallWithArgs({
       method: methodName,
       class: 'ReplicaSet',
       arguments: methodArguments

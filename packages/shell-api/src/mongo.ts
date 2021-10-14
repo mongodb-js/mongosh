@@ -149,7 +149,7 @@ export default class Mongo extends ShellApiClass {
    * @private
    */
   private _emitMongoApiCall(methodName: string, methodArguments: Document = {}): void {
-    this._instanceState.emitApiCall({
+    this._instanceState.emitApiCallWithArgs({
       method: methodName,
       class: 'Mongo',
       uri: this._uri,

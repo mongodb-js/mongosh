@@ -130,7 +130,7 @@ export default class Collection extends ShellApiWithMongoClass {
    * @private
    */
   private _emitCollectionApiCall(methodName: string, methodArguments: Document = {}): void {
-    this._mongo._instanceState.emitApiCall({
+    this._mongo._instanceState.emitApiCallWithArgs({
       method: methodName,
       class: 'Collection',
       db: this._database._name,

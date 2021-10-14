@@ -177,7 +177,7 @@ export default class Bulk extends ShellApiWithMongoClass {
    * @private
    */
   private _emitBulkApiCall(methodName: string, methodArguments: Document = {}): void {
-    this._mongo._instanceState.emitApiCall({
+    this._mongo._instanceState.emitApiCallWithArgs({
       method: methodName,
       class: 'Bulk',
       db: this._collection._database._name,

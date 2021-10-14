@@ -175,7 +175,7 @@ describe('WorkerRuntime', () => {
 
       await runtime.evaluate('db.getCollectionNames()');
 
-      expect(eventEmitter.emit).to.have.been.calledWith('mongosh:api-call', {
+      expect(eventEmitter.emit).to.have.been.calledWith('mongosh:api-call-with-arguments', {
         arguments: {},
         class: 'Database',
         db: 'test',

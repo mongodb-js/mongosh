@@ -58,7 +58,7 @@ export default class Explainable extends ShellApiWithMongoClass {
    * @private
    */
   private _emitExplainableApiCall(methodName: string, methodArguments: Document = {}): void {
-    this._mongo._instanceState.emitApiCall({
+    this._mongo._instanceState.emitApiCallWithArgs({
       method: methodName,
       class: 'Explainable',
       db: this._collection._database._name,
