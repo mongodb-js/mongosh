@@ -1988,10 +1988,12 @@ describe('Shell API (integration)', function() {
         const planCache = collection.getPlanCache();
         const res = await planCache.list([{ $project: { createdFromQuery: 1, queryHash: 1 } }]);
         expect(res).to.deep.equal([
-          { createdFromQuery: { query: { quantity: { $gte: 5 }, type: 'apparel' }, sort: { }, projection: { } }, queryHash: '4D151C4C' },
-          { createdFromQuery: { query: { quantity: { $gte: 20 } }, sort: { }, projection: { } }, queryHash: '23B19B75' },
-          { createdFromQuery: { query: { item: 'abc', price: { $gte: 5 } }, sort: { }, projection: { } }, queryHash: '117A6B10' },
-          { createdFromQuery: { query: { item: 'abc', price: { $gte: 10 } }, sort: { }, projection: { } }, queryHash: '117A6B10' }
+          // We do not test for the exact query hashes here, as they can vary between
+          // server versions. Hashes for queries 3 and 4 are always equal currently.
+          { createdFromQuery: { query: { quantity: { $gte: 5 }, type: 'apparel' }, sort: { }, projection: { } }, queryHash: `${res[0].queryHash}` },
+          { createdFromQuery: { query: { quantity: { $gte: 20 } }, sort: { }, projection: { } }, queryHash: `${res[1].queryHash}` },
+          { createdFromQuery: { query: { item: 'abc', price: { $gte: 5 } }, sort: { }, projection: { } }, queryHash: `${res[2].queryHash}` },
+          { createdFromQuery: { query: { item: 'abc', price: { $gte: 10 } }, sort: { }, projection: { } }, queryHash: `${res[2].queryHash}` }
         ]);
       });
     });
