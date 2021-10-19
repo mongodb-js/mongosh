@@ -84,7 +84,7 @@ is transformed into
 try {
   foo3();
 } catch (_err) {
-  if (!err || !_err[Symbol.for('@@mongosh.uncatchable')]) {
+  if (!_err || !_err[Symbol.for('@@mongosh.uncatchable')]) {
     bar3();
   } else {
     throw _err;
