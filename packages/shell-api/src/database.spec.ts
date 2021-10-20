@@ -2495,6 +2495,55 @@ describe('Database', () => {
         expect.fail('Failed to throw');
       });
     });
+    describe('sql', () => {
+      it('runs a $sql aggregation', async() => {
+        const serviceProviderCursor = stubInterface<ServiceProviderAggCursor>();
+        serviceProvider.aggregateDb.returns(serviceProviderCursor as any);
+        await database.sql('SELECT * FROM somecollection;', { options: true });
+        expect(serviceProvider.aggregateDb).to.have.been.calledWith(
+          database._name,
+          [{
+            $sql: {
+              dialect: 'mongosql',
+              format: 'jdbc',
+              formatVersion: 1,
+              statement: 'SELECT * FROM somecollection;'
+            }
+          }],
+          { options: true }
+        );
+      });
+
+      it('throws if aggregateDb fails', async() => {
+        serviceProvider.aggregateDb.throws(new Error('err'));
+        const error: any = await database.sql('SELECT * FROM somecollection;').catch(err => err);
+        expect(error.message).to.be.equal('err');
+      });
+
+      it('throws if connecting to an unsupported server', async() => {
+        const serviceProviderCursor = stubInterface<ServiceProviderAggCursor>();
+        serviceProvider.aggregateDb.returns(serviceProviderCursor as any);
+        serviceProviderCursor.hasNext.throws(Object.assign(new Error(), { code: 40324 }));
+        const error: any = await database.sql('SELECT * FROM somecollection;').catch(err => err);
+        expect(error.message).to.match(/db\.sql currently only works when connected to a Data Lake/);
+      });
+
+      it('forwards other driver errors', async() => {
+        const serviceProviderCursor = stubInterface<ServiceProviderAggCursor>();
+        serviceProvider.aggregateDb.returns(serviceProviderCursor as any);
+        serviceProviderCursor.hasNext.throws(Object.assign(new Error('any error'), { code: 12345 }));
+        const error: any = await database.sql('SELECT * FROM somecollection;').catch(err => err);
+        expect(error.message).to.be.equal('any error');
+      });
+
+      it('forwards generic cursor errors', async() => {
+        const serviceProviderCursor = stubInterface<ServiceProviderAggCursor>();
+        serviceProvider.aggregateDb.returns(serviceProviderCursor as any);
+        serviceProviderCursor.hasNext.throws(Object.assign(new Error('any error')));
+        const error: any = await database.sql('SELECT * FROM somecollection;').catch(err => err);
+        expect(error.message).to.be.equal('any error');
+      });
+    });
   });
   describe('with session', () => {
     let serviceProvider: StubbedInstance<ServiceProvider>;
@@ -2534,7 +2583,8 @@ describe('Database', () => {
       'cloneCollection',
       'copyDatabase',
       'getReplicationInfo',
-      'setSecondaryOk'
+      'setSecondaryOk',
+      'sql'
     ];
     const args = [ {}, {}, {} ];
     beforeEach(() => {
