@@ -230,7 +230,7 @@ function wrapWithApiChecks<T extends(...args: any[]) => any>(fn: T, className: s
   const wrapper = (fn as any).returnsPromise ?
     markImplicitlyAwaited(async function(this: any, ...args: any[]): Promise<any> {
       const instanceState = getShellInstanceState(this);
-      emitAPICallTelemetry(instanceState, className, fn, true);
+      emitApiCallTelemetry(instanceState, className, fn, true);
       const interruptFlag = instanceState?.interrupted;
       interruptFlag?.checkpoint();
       const interrupt = interruptFlag?.asPromise();
@@ -258,7 +258,7 @@ function wrapWithApiChecks<T extends(...args: any[]) => any>(fn: T, className: s
       return result;
     }) : function(this: any, ...args: any[]): any {
       const instanceState = getShellInstanceState(this);
-      emitAPICallTelemetry(instanceState, className, fn, false);
+      emitApiCallTelemetry(instanceState, className, fn, false);
       const interruptFlag = instanceState?.interrupted;
       interruptFlag?.checkpoint();
       let result: any;
@@ -291,7 +291,7 @@ function wrapWithApiChecks<T extends(...args: any[]) => any>(fn: T, className: s
  * @param className The name of the class in question.
  * @param fn The class method in question.
  */
-function emitAPICallTelemetry(instanceState: ShellInstanceState | undefined, className: string, fn: Function, isAsync: boolean) {
+function emitApiCallTelemetry(instanceState: ShellInstanceState | undefined, className: string, fn: Function, isAsync: boolean) {
   instanceState?.emitApiCall?.({
     method: fn.name,
     class: className,
