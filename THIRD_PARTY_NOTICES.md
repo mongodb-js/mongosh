@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Wed Oct 20 2021.
+This document was automatically generated on Thu Oct 21 2021.
 
 ## List of dependencies
 
@@ -196,6 +196,7 @@ Package|Version|License
 **[lodash.isstring](#0103ef60e6b5d9c04fe5527db0d91b50851203d166f29cbcf5fdf6c655194132)**|4.0.1|MIT
 **[lodash.set](#e73494d8b2d0fdbb5532d77690ba69e714fe663571119d7ef62ea6cc4fe372a9)**|4.3.2|MIT
 **[lowlight](#9878eb9f16a4960a47f5e2b9d1cb8ec4efccced7536cd3fed54e13439a1d2459)**|1.9.2|MIT
+**[lru-cache](#938513411a6603ce29334db15563fb94b7d52f839d32b9bd78c18f5d3f98aa5a)**|6.0.0|ISC
 **[lru-cache](#e9bdfc6d4c069cb30d7db0580dd3e93b11cd6f58466a905efa95e503e3dd3442)**|4.1.5|ISC
 **[md5](#ce1b25b9f1df907c07fb1a889dddec9785ca40602fd268d91eb6539999221883)**|2.2.1|BSD-3-Clause
 **[memory-pager](#7fbdeab18f48c3527cae276a51cd879e42d15337aba1acb44fedcf748137608b)**|1.5.0|MIT
@@ -207,7 +208,7 @@ Package|Version|License
 **[mkdirp](#f34eebd27506e3aa07ba3b64064715e0c4f310dad1207ad88fff362353cd4cce)**|1.0.4|MIT
 **[mkdirp-classic](#e79cc875152b50c2eb57a97163d99f0155bf4e4af7ba4a7e01c12a17a4a3305c)**|0.5.3|MIT
 **[mongodb](#375a9e5941918673611ba99a08290d66d24b566f8380bc1020c39390fe355574)**|4.1.3|Apache-2.0
-**[mongodb-ace-autocompleter](#f8d74c39b8fd1bf8c68814e2006477bd7ae4df1586f48c43ec771797e1d3d064)**|0.5.0|Apache-2.0
+**[mongodb-ace-autocompleter](#748ac40e1ac4fccd1d280b4f71f958b447c1aa63e92dee2e61c119d66898781f)**|0.8.0|Apache-2.0
 **[mongodb-build-info](#3e1ab3564d63f8a06a80cc2b752a458eabdaa33318303341aa6f7a9461115958)**|1.2.0|Apache-2.0
 **[mongodb-client-encryption](#2670432992a4ec6240bc245a26b98695623fdbe720a667f90fbfe03c9de2e4ab)**|2.0.0-beta.0|Apache-2.0
 **[mongodb-connection-string-url](#151d9f737fe1a273e3e9915f9aa4c9194d52d2b9ed803047959027244af7036a)**|2.0.0|Apache-2.0
@@ -255,6 +256,7 @@ Package|Version|License
 **[saslprep](#650475af3b2a0c96fc8e5d09155f96dccd1a6b720da0197b0ea1121968883b25)**|1.0.4|MIT
 **[saslprep](#389f3437d8f4e9fc233f3bfe272ef028498b199b5233a8d682fda54c1d4dbefb)**|1.0.3|MIT
 **[semver](#13b404da6fd05d3c1ee8a5509a622c03d1e821fd5be5416e2533148c2ee5aee5)**|7.3.2|ISC
+**[semver](#e2f1c7bd615a3b61317d37fe215dc55bcd042a778ca15ab45bda8d9c8c39d54e)**|7.3.5|ISC
 **[semver](#24cd86d9f27cebacf43c9e9870102fe20fe9d787608ebd41dca9afe1d2e4790c)**|6.3.0|ISC
 **[semver](#e166af9700b507cf6e45c57af6bf29f9ba7059e4535e65fac0f3d5c37970544d)**|5.7.1|ISC
 **[set-blocking](#d10823126ec31b1e665e321d110e1fde8413f70e2df17b24b0c71c43fe2c0558)**|2.0.0|ISC
@@ -12168,6 +12170,37 @@ Authors:
 * Shu Uesugi <shu@chibicode.com>
 
 
+<a id="938513411a6603ce29334db15563fb94b7d52f839d32b9bd78c18f5d3f98aa5a"></a>
+### [lru-cache](https://www.npmjs.com/package/lru-cache) (version 6.0.0)
+<!-- initially found at packages/autocomplete/node_modules/lru-cache -->
+> A cache object that deletes the least-recently-used items.
+
+License tags: ISC
+
+License files:
+* LICENSE:
+
+      The ISC License
+      
+      Copyright (c) Isaac Z. Schlueter and Contributors
+      
+      Permission to use, copy, modify, and/or distribute this software for any
+      purpose with or without fee is hereby granted, provided that the above
+      copyright notice and this permission notice appear in all copies.
+      
+      THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+      WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+      MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+      ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+      WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+      ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
+      IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+      
+
+Authors:
+* Isaac Z. Schlueter <i@izs.me>
+
+
 <a id="e9bdfc6d4c069cb30d7db0580dd3e93b11cd6f58466a905efa95e503e3dd3442"></a>
 ### [lru-cache](https://www.npmjs.com/package/lru-cache) (version 4.1.5)
 <!-- initially found at packages/editor/node_modules/lru-cache -->
@@ -12730,8 +12763,8 @@ Authors:
 * The MongoDB NodeJS Team <[dbx-node@mongodb.com](nomail)>
 
 
-<a id="f8d74c39b8fd1bf8c68814e2006477bd7ae4df1586f48c43ec771797e1d3d064"></a>
-### [mongodb-ace-autocompleter](https://www.npmjs.com/package/mongodb-ace-autocompleter) (version 0.5.0)
+<a id="748ac40e1ac4fccd1d280b4f71f958b447c1aa63e92dee2e61c119d66898781f"></a>
+### [mongodb-ace-autocompleter](https://www.npmjs.com/package/mongodb-ace-autocompleter) (version 0.8.0)
 <!-- initially found at packages/autocomplete/node_modules/mongodb-ace-autocompleter -->
 > Ace Editor Autocompleter for MongoDB Queries & Agg Pipelines
 
@@ -15761,6 +15794,34 @@ Authors:
 <a id="13b404da6fd05d3c1ee8a5509a622c03d1e821fd5be5416e2533148c2ee5aee5"></a>
 ### [semver](https://www.npmjs.com/package/semver) (version 7.3.2)
 <!-- initially found at packages/cli-repl/node_modules/semver -->
+> The semantic version parser used by npm.
+
+License tags: ISC
+
+License files:
+* LICENSE:
+
+      The ISC License
+      
+      Copyright (c) Isaac Z. Schlueter and Contributors
+      
+      Permission to use, copy, modify, and/or distribute this software for any
+      purpose with or without fee is hereby granted, provided that the above
+      copyright notice and this permission notice appear in all copies.
+      
+      THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+      WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+      MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+      ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+      WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+      ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
+      IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+      
+
+
+<a id="e2f1c7bd615a3b61317d37fe215dc55bcd042a778ca15ab45bda8d9c8c39d54e"></a>
+### [semver](https://www.npmjs.com/package/semver) (version 7.3.5)
+<!-- initially found at packages/autocomplete/node_modules/mongodb-ace-autocompleter/node_modules/semver -->
 > The semantic version parser used by npm.
 
 License tags: ISC
