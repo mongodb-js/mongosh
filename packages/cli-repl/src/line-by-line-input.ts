@@ -104,15 +104,27 @@ export class LineByLineInput extends Readable {
     return this._forwardWithoutBlocking(chunk);
   };
 
+  // eslint-disable-next-line complexity
   private _forwardAndBlockOnNewline(chunk: Buffer | null): void {
     const chars = chunk === null ? [null] : this._decoder.write(chunk);
     for (const char of chars) {
+      // Look up the last character we have queued up, if any:
+      const lastCharQueueEntry = this._charQueue.length ?
+        this._charQueue[this._charQueue.length - 1] : '';
+      const lastCharQueueChar = lastCharQueueEntry?.length ?
+        lastCharQueueEntry[lastCharQueueEntry.length - 1] : '';
+
       if (this._isCtrlC(char) || this._isCtrlD(char)) {
         this.push(char);
       } else if (
-        this._isRegularCharacter(char) &&
-        this._charQueue.length > 0 &&
-        this._isRegularCharacter(this._charQueue[this._charQueue.length - 1])) {
+        (
+          char === '\n' && lastCharQueueChar === '\r'
+        ) || (
+          this._isRegularCharacter(char) &&
+          lastCharQueueChar !== '' &&
+          this._isRegularCharacter(lastCharQueueChar)
+        )
+      ) {
         (this._charQueue[this._charQueue.length - 1] as string) += char as string;
       } else {
         this._charQueue.push(char);

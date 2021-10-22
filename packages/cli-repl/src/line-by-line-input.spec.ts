@@ -45,6 +45,12 @@ describe('LineByLineInput', () => {
       lineByLineInput.nextLine();
       expect(forwardedChunks).to.deep.equal(['ab', '\n', 'c']);
     });
+
+    it('groups \\r\\n together', () => {
+      stdinMock.emit('data', Buffer.from('ab\r\nc'));
+      lineByLineInput.nextLine();
+      expect(forwardedChunks).to.deep.equal(['ab', '\r\n', 'c']);
+    });
   });
 
   context('when block on newline is disabled', () => {
