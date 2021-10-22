@@ -144,6 +144,16 @@ describe('e2e', function() {
       const result = await shell.executeLine('"a"+\n"<\\101>"');
       expect(result).to.match(/a<A>/);
     });
+    it('handles \\r\\n newline input properly', async() => {
+      shell.writeInput('34+55\r\n');
+      await promisify(setTimeout)(100);
+      shell.writeInput('_+55\r\n');
+      await promisify(setTimeout)(100);
+      shell.writeInput('_+89\r\n');
+      await eventually(() => {
+        shell.assertContainsOutput('233');
+      });
+    });
   });
 
   describe('set db', () => {
