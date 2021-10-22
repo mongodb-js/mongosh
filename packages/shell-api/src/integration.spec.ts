@@ -989,7 +989,7 @@ describe('Shell API (integration)', function() {
       skipIfServerVersion(testServer, '<= 4.4');
       if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
         // https://jira.mongodb.org/browse/SERVER-58076
-        skipIfServerVersion(testServer, '<= 5.1');
+        skipIfServerVersion(testServer, '<= 5.2');
       }
       it('can insert, modify and retrieve fields with $-prefixed .-containing names', async() => {
         await collection.insertOne({ '$x.y': 1, _id: '_id' });
