@@ -55,13 +55,13 @@ describe('setupLoggerAndTelemetry', () => {
     }
 
     bus.emit('mongosh:setCtx', { method: 'setCtx' });
-    bus.emit('mongosh:api-call', { method: 'auth', class: 'Database', db: 'test-1603986682000', arguments: { } });
-    bus.emit('mongosh:api-call', { method: 'redactable', arguments: { filter: { email: 'mongosh@example.com' } } });
+    bus.emit('mongosh:api-call-with-arguments', { method: 'auth', class: 'Database', db: 'test-1603986682000', arguments: { } });
+    bus.emit('mongosh:api-call-with-arguments', { method: 'redactable', arguments: { filter: { email: 'mongosh@example.com' } } });
     bus.emit('mongosh:evaluate-input', { input: '1+1' });
 
     const circular: any = {};
     circular.circular = circular;
-    bus.emit('mongosh:api-call', { method: 'circulararg', arguments: { options: { circular } } });
+    bus.emit('mongosh:api-call-with-arguments', { method: 'circulararg', arguments: { options: { circular } } });
     expect(circular.circular).to.equal(circular); // Make sure the argument is still intact afterwards
 
     bus.emit('mongosh:start-loading-cli-scripts', { usesShellOption: true });
@@ -374,22 +374,26 @@ describe('setupLoggerAndTelemetry', () => {
     logOutput = [];
     analyticsOutput = [];
 
-    bus.emit('mongosh:deprecated-api-call', { method: 'cloneDatabase', class: 'Database' });
-    bus.emit('mongosh:deprecated-api-call', { method: 'cloneDatabase', class: 'Database' });
-    bus.emit('mongosh:deprecated-api-call', { method: 'copyDatabase', class: 'Database' });
-    bus.emit('mongosh:deprecated-api-call', { method: 'cloneDatabase', class: 'Database' });
+    bus.emit('mongosh:api-call', { method: 'cloneDatabase', class: 'Database', deprecated: true, callDepth: 0, isAsync: true });
+    bus.emit('mongosh:api-call', { method: 'cloneDatabase', class: 'Database', deprecated: true, callDepth: 0, isAsync: true });
+    bus.emit('mongosh:api-call', { method: 'copyDatabase', class: 'Database', deprecated: true, callDepth: 0, isAsync: true });
+    bus.emit('mongosh:api-call', { method: 'cloneDatabase', class: 'Database', deprecated: true, callDepth: 0, isAsync: true });
+    bus.emit('mongosh:api-call', { method: 'mangleDatabase', class: 'Database', deprecated: true, callDepth: 1, isAsync: true });
+    bus.emit('mongosh:api-call', { method: 'getName', class: 'Database', deprecated: false, callDepth: 0, isAsync: false });
 
     expect(logOutput).to.be.empty;
     expect(analyticsOutput).to.be.empty;
 
     bus.emit('mongosh:evaluate-finished');
-    expect(logOutput).to.have.length(2);
-    expect(analyticsOutput).to.have.length(2);
+    expect(logOutput).to.have.length(3);
+    expect(analyticsOutput).to.have.length(5);
 
     expect(logOutput[0].msg).to.equal('Deprecated API call');
     expect(logOutput[0].attr).to.deep.equal({ class: 'Database', method: 'cloneDatabase' });
     expect(logOutput[1].msg).to.equal('Deprecated API call');
     expect(logOutput[1].attr).to.deep.equal({ class: 'Database', method: 'copyDatabase' });
+    expect(logOutput[2].msg).to.equal('Deprecated API call');
+    expect(logOutput[2].attr).to.deep.equal({ class: 'Database', method: 'mangleDatabase' });
     expect(analyticsOutput).to.deep.equal([
       [
         'track',
@@ -414,14 +418,52 @@ describe('setupLoggerAndTelemetry', () => {
             method: 'copyDatabase',
           }
         }
-      ]
+      ],
+      [
+        'track',
+        {
+          userId: '53defe995fa47e6c13102d9d',
+          event: 'Deprecated Method',
+          properties: {
+            mongosh_version: '1.0.0',
+            class: 'Database',
+            method: 'mangleDatabase',
+          }
+        }
+      ],
+      [
+        'track',
+        {
+          userId: '53defe995fa47e6c13102d9d',
+          event: 'API Call',
+          properties: {
+            mongosh_version: '1.0.0',
+            class: 'Database',
+            method: 'cloneDatabase',
+            count: 3
+          }
+        }
+      ],
+      [
+        'track',
+        {
+          userId: '53defe995fa47e6c13102d9d',
+          event: 'API Call',
+          properties: {
+            mongosh_version: '1.0.0',
+            class: 'Database',
+            method: 'copyDatabase',
+            count: 1
+          }
+        }
+      ],
     ]);
 
     bus.emit('mongosh:new-user', userId, false);
     logOutput = [];
     analyticsOutput = [];
 
-    bus.emit('mongosh:deprecated-api-call', { method: 'cloneDatabase', class: 'Database' });
+    bus.emit('mongosh:api-call', { method: 'cloneDatabase', class: 'Database', deprecated: true, callDepth: 0, isAsync: true });
 
     expect(logOutput).to.be.empty;
     expect(analyticsOutput).to.be.empty;

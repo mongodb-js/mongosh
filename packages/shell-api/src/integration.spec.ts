@@ -9,7 +9,7 @@ import type AggregationCursor from './aggregation-cursor';
 import { startTestServer, skipIfServerVersion, skipIfApiStrict } from '../../../testing/integration-testing-hooks';
 import { toShellResult, Topologies } from './index';
 import type { Document } from '@mongosh/service-provider-core';
-import { ShellUserConfig } from '@mongosh/types';
+import { ShellUserConfig, ApiEvent } from '@mongosh/types';
 import { EventEmitter, once } from 'events';
 
 // Compile JS code as an expression. We use this to generate some JS functions
@@ -2304,9 +2304,9 @@ describe('Shell API (integration)', function() {
     });
   });
 
-  describe('deprecations', () => {
-    it('emit an event when a deprecated method is called', async() => {
-      const deprecatedCall = once(instanceState.messageBus, 'mongosh:deprecated-api-call');
+  describe('method tracking', () => {
+    it('emits an event when a deprecated method is called', async() => {
+      const deprecatedCall = once(instanceState.messageBus, 'mongosh:api-call');
       try {
         mongo.setSlaveOk();
         expect.fail('Expected error');
@@ -2317,8 +2317,33 @@ describe('Shell API (integration)', function() {
       expect(events).to.have.length(1);
       expect(events[0]).to.deep.equal({
         method: 'setSlaveOk',
-        class: 'Mongo'
+        class: 'Mongo',
+        deprecated: true,
+        callDepth: 0,
+        isAsync: false
       });
+    });
+
+    it('keeps track of whether a call is a top-level call or not', async() => {
+      const events: ApiEvent[] = [];
+      instanceState.messageBus.on('mongosh:api-call', (ev: ApiEvent) => events.push(ev));
+      try {
+        await database.printShardingStatus();
+        expect.fail('Expected error');
+      } catch (e) {
+        expect(e.message).to.contain('This db does not have sharding enabled');
+      }
+      expect(events.length).to.be.greaterThan(1);
+      expect(events[0]).to.deep.equal({
+        method: 'printShardingStatus',
+        class: 'Database',
+        deprecated: false,
+        callDepth: 0,
+        isAsync: true
+      });
+      expect(events.filter(ev => ev.method === 'find').length).to.be.greaterThan(1);
+      expect(events.filter(ev => ev.method === 'print').length).to.equal(1);
+      expect(events.filter(ev => ev.callDepth === 0).length).to.equal(1);
     });
   });
 

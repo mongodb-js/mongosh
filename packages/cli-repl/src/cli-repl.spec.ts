@@ -804,6 +804,19 @@ describe('CliRepl', () => {
           expect(loadEvents[1].properties.nested).to.equal(true);
         });
 
+        it('posts analytics event for shell API calls', async() => {
+          await cliRepl.start(await testServer.connectionString(), {});
+          input.write('db.printShardingStatus()\n');
+          input.write('exit\n');
+          await waitBus(cliRepl.bus, 'mongosh:closed');
+          const apiEvents = requests.map(
+            req => JSON.parse(req.body).batch.filter(entry => entry.event === 'API Call')).flat();
+          expect(apiEvents).to.have.lengthOf(1);
+          expect(apiEvents[0].properties.class).to.equal('Database');
+          expect(apiEvents[0].properties.method).to.equal('printShardingStatus');
+          expect(apiEvents[0].properties.count).to.equal(1);
+        });
+
         context('with a 5.0+ server', () => {
           skipIfServerVersion(testServer, '<= 4.4');
 

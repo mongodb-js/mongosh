@@ -3,6 +3,7 @@ import redactInfo from 'mongodb-redact';
 import { redactURICredentials } from '@mongosh/history';
 import type {
   MongoshBus,
+  ApiEventWithArguments,
   ApiEvent,
   UseEvent,
   EvaluateInputEvent,
@@ -65,6 +66,28 @@ export interface MongoshAnalytics {
 class NoopAnalytics implements MongoshAnalytics {
   identify(_info: any): void {} // eslint-disable-line @typescript-eslint/no-unused-vars
   track(_info: any): void {} // eslint-disable-line @typescript-eslint/no-unused-vars
+}
+
+/**
+ * A helper class for keeping track of how often specific events occurred.
+ */
+class MultiSet<T> {
+  _entries: Map<string, number> = new Map();
+
+  add(entry: T): void {
+    const key = JSON.stringify(Object.entries(entry).sort());
+    this._entries.set(key, (this._entries.get(key) ?? 0) + 1);
+  }
+
+  clear(): void {
+    this._entries.clear();
+  }
+
+  *[Symbol.iterator](): Iterator<[T, number]> {
+    for (const [key, count] of this._entries) {
+      yield [Object.fromEntries(JSON.parse(key)) as T, count];
+    }
+  }
 }
 
 /**
@@ -194,11 +217,11 @@ export function setupLoggerAndTelemetry(
     }
   });
 
-  bus.on('mongosh:setCtx', function(args: ApiEvent) {
+  bus.on('mongosh:setCtx', function(args: ApiEventWithArguments) {
     log.info('MONGOSH', mongoLogId(1_000_000_010), 'shell-api', 'Initialized context', args);
   });
 
-  bus.on('mongosh:api-call', function(args: ApiEvent) {
+  bus.on('mongosh:api-call-with-arguments', function(args: ApiEventWithArguments) {
     // TODO: redactInfo cannot handle circular or otherwise nontrivial input
     let arg;
     try {
@@ -349,14 +372,27 @@ export function setupLoggerAndTelemetry(
     log.info('MONGOSH-SNIPPETS', mongoLogId(1_000_000_032), 'snippets', 'Rewrote error message', ev);
   });
 
-  const deprecatedApiCalls = new Set<string>();
-  bus.on('mongosh:deprecated-api-call', function(ev: ApiEvent) {
-    deprecatedApiCalls.add(`${ev.class}#${ev.method}`);
+  const deprecatedApiCalls = new MultiSet<Pick<ApiEvent, 'class' | 'method'>>();
+  const apiCalls = new MultiSet<Pick<ApiEvent, 'class' | 'method'>>();
+  bus.on('mongosh:api-call', function(ev: ApiEvent) {
+    if (ev.deprecated) {
+      deprecatedApiCalls.add({ class: ev.class, method: ev.method });
+    }
+    if (ev.callDepth === 0 && ev.isAsync) {
+      apiCalls.add({ class: ev.class, method: ev.method });
+    }
+  });
+  bus.on('mongosh:evaluate-started', function() {
+    // Clear API calls before evaluation starts. This is important because
+    // some API calls are also emitted by mongosh CLI repl internals,
+    // but we only care about those emitted from user code (i.e. during
+    // evaluation).
+    deprecatedApiCalls.clear();
+    apiCalls.clear();
   });
   bus.on('mongosh:evaluate-finished', function() {
-    deprecatedApiCalls.forEach(e => {
-      const [clazz, method] = e.split('#');
-      log.warn('MONGOSH', mongoLogId(1_000_000_033), 'shell-api', 'Deprecated API call', { class: clazz, method });
+    for (const [entry] of deprecatedApiCalls) {
+      log.warn('MONGOSH', mongoLogId(1_000_000_033), 'shell-api', 'Deprecated API call', entry);
 
       if (telemetry) {
         analytics.track({
@@ -364,13 +400,26 @@ export function setupLoggerAndTelemetry(
           event: 'Deprecated Method',
           properties: {
             mongosh_version,
-            class: clazz,
-            method
+            ...entry
           }
         });
       }
-    });
+    }
+    for (const [entry, count] of apiCalls) {
+      if (telemetry) {
+        analytics.track({
+          userId,
+          event: 'API Call',
+          properties: {
+            mongosh_version,
+            ...entry,
+            count
+          }
+        });
+      }
+    }
     deprecatedApiCalls.clear();
+    apiCalls.clear();
   });
 
   bus.on('mongosh-sp:connect-attempt-initialized', function(ev: SpConnectAttemptInitializedEvent) {

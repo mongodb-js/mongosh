@@ -230,13 +230,16 @@ function wrapWithApiChecks<T extends(...args: any[]) => any>(fn: T, className: s
   const wrapper = (fn as any).returnsPromise ?
     markImplicitlyAwaited(async function(this: any, ...args: any[]): Promise<any> {
       const instanceState = getShellInstanceState(this);
-      checkForDeprecation(instanceState, className, fn);
+      emitApiCallTelemetry(instanceState, className, fn, true);
       const interruptFlag = instanceState?.interrupted;
       interruptFlag?.checkpoint();
       const interrupt = interruptFlag?.asPromise();
 
       let result: any;
       try {
+        if (instanceState) {
+          instanceState.apiCallDepth++;
+        }
         result = await Promise.race([
           interrupt?.promise ?? new Promise<never>(() => {}),
           fn.call(this, ...args)
@@ -244,6 +247,9 @@ function wrapWithApiChecks<T extends(...args: any[]) => any>(fn: T, className: s
       } catch (e) {
         throw instanceState?.transformError(e) ?? e;
       } finally {
+        if (instanceState) {
+          instanceState.apiCallDepth--;
+        }
         if (interrupt) {
           interrupt.destroy();
         }
@@ -252,14 +258,21 @@ function wrapWithApiChecks<T extends(...args: any[]) => any>(fn: T, className: s
       return result;
     }) : function(this: any, ...args: any[]): any {
       const instanceState = getShellInstanceState(this);
-      checkForDeprecation(instanceState, className, fn);
+      emitApiCallTelemetry(instanceState, className, fn, false);
       const interruptFlag = instanceState?.interrupted;
       interruptFlag?.checkpoint();
       let result: any;
       try {
+        if (instanceState) {
+          instanceState.apiCallDepth++;
+        }
         result = fn.call(this, ...args);
       } catch (e) {
         throw instanceState?.transformError(e) ?? e;
+      } finally {
+        if (instanceState) {
+          instanceState.apiCallDepth--;
+        }
       }
       interruptFlag?.checkpoint();
       return result;
@@ -270,20 +283,21 @@ function wrapWithApiChecks<T extends(...args: any[]) => any>(fn: T, className: s
 }
 
 /**
- * Emit a 'mongosh:deprecated-api-call' event on the instance state's message bus
- * if the function was marked with the {@link deprecated} decorator.
+ * Emit a 'mongosh:api-call' event on the instance state's message bus,
+ * with the 'deprecated' property set if the function was marked with
+ * the {@link deprecated} decorator.
  *
  * @param instanceState A ShellInstanceState object.
  * @param className The name of the class in question.
  * @param fn The class method in question.
  */
-function checkForDeprecation(instanceState: ShellInstanceState | undefined, className: string, fn: Function) {
-  if (instanceState && typeof instanceState.emitDeprecatedApiCall === 'function' && typeof fn === 'function' && (fn as any).deprecated) {
-    instanceState.emitDeprecatedApiCall({
-      method: fn.name,
-      class: className
-    });
-  }
+function emitApiCallTelemetry(instanceState: ShellInstanceState | undefined, className: string, fn: Function, isAsync: boolean) {
+  instanceState?.emitApiCall?.({
+    method: fn.name,
+    class: className,
+    deprecated: !!(fn as any).deprecated,
+    isAsync
+  });
 }
 
 /**

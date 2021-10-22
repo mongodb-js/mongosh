@@ -6,7 +6,7 @@ import {
   ReplPlatform, ServerApi, ServiceProvider,
   TopologyDescription
 } from '@mongosh/service-provider-core';
-import type { ApiEvent, ConfigProvider, MongoshBus, ShellUserConfig } from '@mongosh/types';
+import type { ApiEvent, ApiEventWithArguments, ConfigProvider, MongoshBus, ShellUserConfig } from '@mongosh/types';
 import { EventEmitter } from 'events';
 import redactInfo from 'mongodb-redact';
 import ChangeStreamCursor from './change-stream-cursor';
@@ -133,6 +133,7 @@ export default class ShellInstanceState {
   public evaluationListener: EvaluationListener;
   public displayBatchSizeFromDBQuery: number | undefined = undefined;
   public isInteractive = false;
+  public apiCallDepth = 0;
   private warningsShown: Set<string> = new Set();
 
   public readonly interrupted = new InterruptFlag();
@@ -272,12 +273,15 @@ export default class ShellInstanceState {
     }
   }
 
-  public emitApiCall(event: ApiEvent): void {
-    this.messageBus.emit('mongosh:api-call', event);
+  public emitApiCallWithArgs(event: ApiEventWithArguments): void {
+    this.messageBus.emit('mongosh:api-call-with-arguments', event);
   }
 
-  public emitDeprecatedApiCall(event: ApiEvent): void {
-    this.messageBus.emit('mongosh:deprecated-api-call', event);
+  public emitApiCall(event: Omit<ApiEvent, 'callDepth'>): void {
+    this.messageBus.emit('mongosh:api-call', {
+      ...event,
+      callDepth: this.apiCallDepth
+    });
   }
 
   public setEvaluationListener(listener: EvaluationListener): void {

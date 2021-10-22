@@ -6,8 +6,8 @@ export interface ApiEventArguments {
   filter?: object;
 }
 
-export interface ApiEvent {
-  method?: string;
+export interface ApiEventWithArguments {
+  method: string;
   class?: string;
   db?: string;
   coll?: string;
@@ -15,7 +15,17 @@ export interface ApiEvent {
   arguments?: ApiEventArguments;
 }
 
-export interface ApiWarning extends ApiEvent {
+export interface ApiEvent {
+  method: string;
+  class: string;
+  deprecated: boolean;
+  isAsync: boolean;
+  callDepth: number;
+}
+
+export interface ApiWarning {
+  method: string;
+  class: string;
   message: string;
 }
 
@@ -207,6 +217,10 @@ export interface MongoshBusEventsMap {
    */
   'mongosh:evaluate-input': (ev: EvaluateInputEvent) => void;
   /**
+   * Signals the initiation of the evaluation of user code in AsyncRepl (final step of the evaluation).
+   */
+  'mongosh:evaluate-started': () => void;
+  /**
    * Signals the completion of the evaluation of user code in AsyncRepl (final step of the evaluation)
    * regardless of success, error, or being interrupted.
    */
@@ -226,15 +240,15 @@ export interface MongoshBusEventsMap {
   /**
    * Signals the global context for the shell evaluation has been initialized.
    */
-  'mongosh:setCtx': (ev: ApiEvent) => void;
+  'mongosh:setCtx': (ev: ApiEventWithArguments) => void;
   /**
-   * Signals usage of a shell API method.
+   * Signals usage of a shell API method. This includes arguments and is not suitable for telemetry.
+   */
+  'mongosh:api-call-with-arguments': (ev: ApiEventWithArguments) => void;
+  /**
+   * Signals usage of a shell API method as an API entry point, suitable for telemetry.
    */
   'mongosh:api-call': (ev: ApiEvent) => void;
-  /**
-   * Signals usage of a deprecated shell API method.
-   */
-  'mongosh:deprecated-api-call': (ev: ApiEvent) => void;
   /**
    * Signals an error for an operation that we can silently ignore but still warn about.
    */

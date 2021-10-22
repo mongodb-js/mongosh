@@ -364,6 +364,9 @@ class MongoshNodeRepl implements EvaluationListener {
       this.output.write(this.writer(warn) + '\n');
     }
 
+    (repl as any).on(asyncRepl.evalStart, () => {
+      this.bus.emit('mongosh:evaluate-started');
+    });
     (repl as any).on(asyncRepl.evalFinish, () => {
       this.bus.emit('mongosh:evaluate-finished');
     });
