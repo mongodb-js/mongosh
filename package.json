@@ -49,6 +49,7 @@
     "report-supported-api": "lerna run --stream --scope @mongosh/shell-api report-supported-api",
     "post-process-nyc": "ts-node scripts/nyc/post-process-nyc-output.ts",
     "pre-process-coverage": "ts-node scripts/nyc/pre-process-coverage.ts",
+    "pull-manfile": "ts-node -P config/tsconfig.base.json scripts/pull-manfile.ts",
     "report-coverage": "nyc report --reporter=text --reporter=html && nyc check-coverage --lines=95",
     "report-coverage-ci": "npm run pre-process-coverage && nyc report --reporter=text --reporter=html && nyc check-coverage --lines=95",
     "generate-error-overview": "lerna run --stream --scope @mongosh/errors generate-error-overview",
