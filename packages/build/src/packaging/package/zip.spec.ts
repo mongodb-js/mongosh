@@ -30,7 +30,7 @@ describe('package zip', () => {
     expect(unzip.stderr).to.be.empty;
 
     const lines = unzip.stdout.split('\n');
-    expect(lines).to.have.length(13);
+    expect(lines).to.have.length(14);
 
     for (let i = 3; i < 10; i++) {
       const filename = /([^\s]+)$/.exec(lines[i])?.[1] ?? '';
