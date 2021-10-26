@@ -12,7 +12,6 @@ import { PackageInformation } from './package-information';
 export async function createTarballPackage(pkg: PackageInformation, outFile: string): Promise<void> {
   const filename = path.basename(outFile).replace(/\.[^.]+$/, '');
   const tmpDir = await createCompressedArchiveContents(filename, pkg);
-
   await tar.c({
     gzip: true,
     file: outFile,
