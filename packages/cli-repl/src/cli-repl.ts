@@ -222,11 +222,16 @@ class CliRepl {
     const initialServiceProvider = await this.connect(driverUri, driverOptions);
     const initialized = await this.mongoshRepl.initialize(initialServiceProvider);
 
+    const commandLineLoadFiles = this.cliOptions.fileNames ?? [];
+    const willExecuteCommandLineScripts = commandLineLoadFiles.length > 0 || this.cliOptions.eval !== undefined;
+    const willEnterInteractiveMode = !willExecuteCommandLineScripts || !!this.cliOptions.shell;
+
     let snippetManager: SnippetManager | undefined;
     if (this.config.snippetIndexSourceURLs !== '') {
       snippetManager = SnippetManager.create({
         installdir: this.shellHomeDirectory.roamingPath('snippets'),
-        instanceState: this.mongoshRepl.runtimeState().instanceState
+        instanceState: this.mongoshRepl.runtimeState().instanceState,
+        skipInitialIndexLoad: !willEnterInteractiveMode
       });
     }
 
@@ -238,9 +243,8 @@ class CliRepl {
       loadExternalCode: this.mongoshRepl.loadExternalCode.bind(this.mongoshRepl)
     });
 
-    const commandLineLoadFiles = this.cliOptions.fileNames ?? [];
-    if (commandLineLoadFiles.length > 0 || this.cliOptions.eval !== undefined) {
-      this.mongoshRepl.setIsInteractive(!!this.cliOptions.shell);
+    if (willExecuteCommandLineScripts) {
+      this.mongoshRepl.setIsInteractive(willEnterInteractiveMode);
       this.bus.emit('mongosh:start-loading-cli-scripts', { usesShellOption: !!this.cliOptions.shell });
       await this.loadCommandLineFilesAndEval(commandLineLoadFiles);
       if (!this.cliOptions.shell) {
