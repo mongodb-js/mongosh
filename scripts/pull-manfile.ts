@@ -3,6 +3,7 @@ import { writeFileSync } from 'fs';
 import { join } from 'path';
 
 const MAN_URL = 'https://docs.mongodb.com/mongodb-shell/manpages.tar.gz';
+const MAN_FILE_NAME = 'manpages.tar.gz';
 
 const fetchData = async (): Promise<Buffer> => {
   const response = await fetch(MAN_URL);
@@ -17,7 +18,7 @@ const writeDataToFile = (data: Buffer, file: string): void => {
 (async () => {
   try {
     const data = await fetchData();
-    const file = join(__dirname, '..', 'manpages.tar.gz');
+    const file = join(__dirname, '..', MAN_FILE_NAME);
     writeDataToFile(data, file);
     console.log('Manual file saved.');
   } catch (e) {
