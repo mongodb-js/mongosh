@@ -131,6 +131,10 @@ module.exports = {
         }
       }
     ],
+    manualFile: {
+      sourceFilePath: path.resolve(__dirname, '..', 'manpages.tar.gz'),
+      packagedFilePath: 'manpages.tar.gz'
+    },
     otherDocFilePaths: [
       {
         sourceFilePath: path.resolve(__dirname, '..', 'packaging', 'README'),

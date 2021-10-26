@@ -3,6 +3,8 @@ interface DocumentationFile {
     packagedFilePath: string;
 }
 
+type ManualFile = DocumentationFile;
+
 interface LicenseInformation extends DocumentationFile {
     debIdentifier: string;
     debCopyright: string;
@@ -16,6 +18,7 @@ export interface PackageInformation {
         category: 'bin' | 'libexec';
         license: LicenseInformation;
     }[];
+    manualFile: ManualFile;
     otherDocFilePaths: DocumentationFile[];
     metadata: {
         name: string;

@@ -1,4 +1,4 @@
-import { promises as fs } from 'fs';
+import { promises as fs, copyFileSync, constants } from 'fs';
 import path from 'path';
 import rimraf from 'rimraf';
 import tar from 'tar';
@@ -12,6 +12,11 @@ import { PackageInformation } from './package-information';
 export async function createTarballPackage(pkg: PackageInformation, outFile: string): Promise<void> {
   const filename = path.basename(outFile).replace(/\.[^.]+$/, '');
   const tmpDir = await createCompressedArchiveContents(filename, pkg);
+
+  // Copy MAN file in tmpDir
+  const { sourceFilePath: manualSource, packagedFilePath: manualName } = pkg.manualFile;
+  copyFileSync(manualSource, path.join(tmpDir, manualName), constants.COPYFILE_FICLONE);
+
   await tar.c({
     gzip: true,
     file: outFile,
