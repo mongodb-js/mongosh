@@ -28,6 +28,7 @@ export class Editor {
   _instanceState: ShellInstanceState;
   _loadExternalCode: (input: string, filename: string) => Promise<ShellResult>;
   _lastContent: string;
+  _lastInputCode: string;
   print: (...args: any[]) => Promise<void>;
 
   constructor({ input, vscodeDir, tmpDir, instanceState, loadExternalCode }: EditorOptions) {
@@ -37,6 +38,7 @@ export class Editor {
     this._instanceState = instanceState;
     this._loadExternalCode = loadExternalCode;
     this._lastContent = '';
+    this._lastInputCode = '';
     this.print = instanceState.context.print;
 
     // Add edit command support to shell api.
@@ -173,6 +175,19 @@ export class Editor {
     return `${originalCode} = ${modifiedCode}`;
   }
 
+  _setLastInputCode(code: string): void {
+    if (code !== '') {
+      this._lastInputCode = code;
+    }
+  }
+
+  _getLastInputCode(code: string): string {
+    if (code !== '') {
+      return code;
+    }
+    return this._lastInputCode;
+  }
+
   async runEditCommand(code: string): Promise<void> {
     await this.print('Opening an editor...');
 
@@ -182,6 +197,8 @@ export class Editor {
     if (!editor) {
       throw new Error('Command failed with an error: please define an external editor');
     }
+
+    this._setLastInputCode(code);
 
     const content = await this._getEditorContent(code);
     const ext = await this._getExtension(editor);
@@ -208,7 +225,7 @@ export class Editor {
 
       if (exitCode === 0) {
         const modifiedCode = await this._readAndDeleteTempFile(tmpDoc);
-        const result = this._prepareResult({ originalCode: code, modifiedCode });
+        const result = this._prepareResult({ originalCode: this._getLastInputCode(code), modifiedCode });
 
         // Write a content from the editor to the parent readable stream.
         this._input.unshift(result);

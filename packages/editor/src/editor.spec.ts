@@ -518,6 +518,50 @@ describe('Editor', () => {
         const shellResult = editor._input.read().toString();
         expect(shellResult).to.be.equal(shellModifiedInput);
       });
+
+      it('returns a proper statement when editing previous code - input is not a statement', async() => {
+        const shellOriginalInput = 'foo';
+        const editorOutput = '20';
+        const shellModifiedInput = 'foo = 20';
+        const cmd = await fakeExternalEditor({
+          base: base.path,
+          name: 'editor-script.js',
+          output: editorOutput
+        });
+
+        editor = makeEditor({ cmd });
+
+        await editor.runEditCommand(shellOriginalInput);
+        let shellResult = editor._input.read().toString();
+        expect(shellResult).to.be.equal(shellModifiedInput);
+
+        await editor.runEditCommand('');
+        shellResult = editor._input.read().toString();
+        expect(shellResult).to.be.equal(shellModifiedInput);
+      });
+
+      it('returns a proper statement when editing previous code - input is a statement', async() => {
+        const shellOriginalInput = 'function () {}';
+        const editorOutput = `function () {
+          console.log(111);
+        }`;
+        const shellModifiedInput = 'function () { console.log(111); }';
+        const cmd = await fakeExternalEditor({
+          base: base.path,
+          name: 'editor-script.js',
+          output: editorOutput
+        });
+
+        editor = makeEditor({ cmd });
+
+        await editor.runEditCommand(shellOriginalInput);
+        let shellResult = editor._input.read().toString();
+        expect(shellResult).to.be.equal(shellModifiedInput);
+
+        await editor.runEditCommand('');
+        shellResult = editor._input.read().toString();
+        expect(shellResult).to.be.equal(shellModifiedInput);
+      });
     });
   });
 });
