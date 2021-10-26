@@ -131,10 +131,6 @@ module.exports = {
         }
       }
     ],
-    manualFile: {
-      sourceFilePath: path.resolve(__dirname, '..', 'manpages.tar.gz'),
-      packagedFilePath: 'manpages.tar.gz'
-    },
     otherDocFilePaths: [
       {
         sourceFilePath: path.resolve(__dirname, '..', 'packaging', 'README'),
@@ -143,7 +139,11 @@ module.exports = {
       {
         sourceFilePath: path.resolve(__dirname, '..', 'THIRD_PARTY_NOTICES.md'),
         packagedFilePath: 'THIRD_PARTY_NOTICES'
-      }
+      },
+      {
+        sourceFilePath: path.resolve(__dirname, '..', 'manpages.tar.gz'),
+        packagedFilePath: 'manpages.tar.gz'
+      },
     ],
     metadata: {
       name: 'mongosh',
