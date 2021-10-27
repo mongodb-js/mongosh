@@ -35,8 +35,11 @@ export async function createCompressedArchiveContents(archiveRootName: string, p
   const docFiles = [
     ...pkg.otherDocFilePaths,
     ...pkg.binaries.map(({ license }) => license),
-    pkg.manfile,
   ];
+  if (pkg.manfile) {
+    docFiles.push(pkg.manfile);
+  }
+
   for (const { sourceFilePath, packagedFilePath } of docFiles) {
     await fs.copyFile(sourceFilePath, path.join(archiveRoot, packagedFilePath), COPYFILE_FICLONE);
   }

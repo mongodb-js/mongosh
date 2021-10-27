@@ -19,7 +19,7 @@ export interface PackageInformation {
         license: LicenseInformation;
     }[];
     otherDocFilePaths: DocumentationFile[];
-    manfile: Manfile;
+    manfile?: Manfile;
     metadata: {
         name: string;
         debName: string;
