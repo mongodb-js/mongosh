@@ -38,6 +38,7 @@ describe('tarball redhat', () => {
     expect(stdout).to.match(/^\/usr\/share\/doc\/foobar-1.0.0\/README$/m);
     expect(stdout).to.match(/^\/usr\/share\/licenses\/foobar-1.0.0\/LICENSE_bar$/m);
     expect(stdout).to.match(/^\/usr\/share\/licenses\/foobar-1.0.0\/LICENSE_foo$/m);
+    expect(stdout).to.match(/^\/usr\/share\/man\/man1\/mongosh.1.gz$/m);
   });
 
   it('determines and copies created RPM', async() => {

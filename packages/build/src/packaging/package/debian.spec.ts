@@ -30,6 +30,7 @@ describe('tarball debian', () => {
       expect(stdout).to.match(/^-rw-r.-r--.+\/usr\/share\/doc\/foobar\/LICENSE_foo$/m);
       expect(stdout).to.match(/^-rw-r.-r--.+\/usr\/share\/doc\/foobar\/README$/m);
       expect(stdout).to.match(/^-rw-r.-r--.+\/usr\/share\/doc\/foobar\/copyright$/m);
+      expect(stdout).to.match(/^-rw-r.-r--.+\/usr\/share\/man\/man1\/mongosh.1.gz$/m);
     }
     {
       const { stdout } = await execFile('dpkg', ['-I', tarball.path]);
