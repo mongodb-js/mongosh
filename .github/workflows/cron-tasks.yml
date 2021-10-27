@@ -52,8 +52,3 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: main
-      - name: Update manpages.tar.gz
-        run: npm run pull-manfile
-      - name: Commit manpages.tar.gz changes
-        run: |
-          git commit --no-allow-empty -m "chore: update manpages.tar.gz" || true

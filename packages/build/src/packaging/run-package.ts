@@ -3,6 +3,7 @@ import path from 'path';
 import os from 'os';
 import { Config, Platform, validateBuildVariant } from '../config';
 import { downloadMongocrypt } from './download-mongocryptd';
+import { downloadManpage } from './download-manfile';
 import { macOSSignAndNotarize } from './macos-sign';
 import { notarizeMsi } from './msi-sign';
 import { createPackage, PackageFile } from './package';
@@ -27,6 +28,10 @@ export async function runPackage(
       config.mongocryptdPath,
       fsConstants.COPYFILE_FICLONE);
   }
+
+  await downloadManpage(
+    path.resolve(__dirname, '..', '..', '..', '..', 'tmp') // ./mongosh/tmp
+  );
 
   const runCreatePackage = async(): Promise<PackageFile> => {
     return await createPackage(

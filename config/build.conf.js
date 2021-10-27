@@ -146,7 +146,7 @@ module.exports = {
       },
     ],
     manfile: {
-      sourceFilePath: path.resolve(__dirname, '..', 'manpages.tar.gz'),
+      sourceFilePath: path.resolve(__dirname, '..', 'tmp', 'manpages.tar.gz'),
       packagedFilePath: 'mongosh.1.gz'
     },
     metadata: {
