@@ -35,6 +35,12 @@ export async function createDebianPackage(
   for (const { sourceFilePath, packagedFilePath } of docFiles) {
     await fs.copyFile(sourceFilePath, path.join(docdir, packagedFilePath), COPYFILE_FICLONE);
   }
+
+  // Put manfile file in /usr/share/man/man1/.
+  const manualDir = path.join(dir, pkg.metadata.debName, 'usr', 'share', 'man', 'man1');
+  await fs.mkdir(manualDir, { recursive: true });
+  await fs.copyFile(pkg.manfile.sourceFilePath, path.join(manualDir, pkg.manfile.packagedFilePath), COPYFILE_FICLONE);
+
   // Debian packages should contain a 'copyright' file.
   // https://www.debian.org/doc/debian-policy/ch-archive.html#s-pkgcopyright
   await fs.writeFile(path.join(docdir, 'copyright'), await generateDebianCopyright(pkg));

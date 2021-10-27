@@ -35,7 +35,8 @@ export async function createRedhatPackage(
   const filelistRpm = [
     ...pkg.binaries.map(({ sourceFilePath, category }) => `%{_${category}dir}/${path.basename(sourceFilePath)}`),
     ...pkg.binaries.map(({ license }) => `%license ${license.packagedFilePath}`),
-    ...pkg.otherDocFilePaths.map(({ packagedFilePath }) => `%doc ${packagedFilePath}`)
+    ...pkg.otherDocFilePaths.map(({ packagedFilePath }) => `%doc ${packagedFilePath}`),
+    `%doc ${pkg.manfile.packagedFilePath}`,
   ].join('\n');
   const version = sanitizeVersion(pkg.metadata.version, 'rpm');
   const dir = await generateDirFromTemplate(templateDir, {
@@ -55,6 +56,8 @@ export async function createRedhatPackage(
   for (const { sourceFilePath, packagedFilePath } of pkg.otherDocFilePaths) {
     await fs.copyFile(sourceFilePath, path.join(dir, 'BUILD', packagedFilePath), COPYFILE_FICLONE);
   }
+  // Copy manual file
+  await fs.copyFile(pkg.manfile.sourceFilePath, path.join(dir, 'BUILD', pkg.manfile.packagedFilePath), COPYFILE_FICLONE);
 
   // Create the package.
   await execFile('rpmbuild', [

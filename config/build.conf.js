@@ -145,6 +145,10 @@ module.exports = {
         packagedFilePath: 'manpages.tar.gz'
       },
     ],
+    manfile: {
+      sourceFilePath: path.resolve(__dirname, '..', 'manpages.tar.gz'),
+      packagedFilePath: 'mongosh.1.gz'
+    },
     metadata: {
       name: 'mongosh',
       rpmName: 'mongodb-mongosh',

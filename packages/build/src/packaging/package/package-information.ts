@@ -9,6 +9,8 @@ interface LicenseInformation extends DocumentationFile {
     rpmIdentifier: string;
 }
 
+type Manfile = DocumentationFile;
+
 // This is filled in by the build config file.
 export interface PackageInformation {
     binaries: {
@@ -17,6 +19,7 @@ export interface PackageInformation {
         license: LicenseInformation;
     }[];
     otherDocFilePaths: DocumentationFile[];
+    manfile: Manfile;
     metadata: {
         name: string;
         debName: string;
