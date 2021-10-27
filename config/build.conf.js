@@ -139,11 +139,7 @@ module.exports = {
       {
         sourceFilePath: path.resolve(__dirname, '..', 'THIRD_PARTY_NOTICES.md'),
         packagedFilePath: 'THIRD_PARTY_NOTICES'
-      },
-      {
-        sourceFilePath: path.resolve(__dirname, '..', 'manpages.tar.gz'),
-        packagedFilePath: 'manpages.tar.gz'
-      },
+      }
     ],
     manfile: {
       sourceFilePath: path.resolve(__dirname, '..', 'tmp', 'manpages.tar.gz'),
