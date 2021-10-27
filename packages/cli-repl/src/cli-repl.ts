@@ -500,13 +500,25 @@ class CliRepl {
     }
     this.closing = true;
     const analytics = this.analytics;
+    let flushError: string | null = null;
+    let flushDuration: number | null = null;
     if (analytics) {
+      const flushStart = Date.now();
       try {
         await promisify(analytics.flush.bind(analytics))();
-      } catch { /* ignore */ }
+      } catch (err: any) {
+        flushError = err.message;
+      } finally {
+        flushDuration = Date.now() - flushStart;
+      }
     }
     this.mongocryptdManager.close();
-    await this.logWriter?.flush?.();
+    // eslint-disable-next-line chai-friendly/no-unused-expressions
+    this.logWriter?.info('MONGOSH', mongoLogId(1_000_000_045), 'analytics', 'Flushed outstanding data', {
+      flushError,
+      flushDuration
+    });
+    await this.logWriter?.flush();
     this.bus.emit('mongosh:closed');
   }
 

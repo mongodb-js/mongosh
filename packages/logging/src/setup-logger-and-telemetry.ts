@@ -488,4 +488,6 @@ export function setupLoggerAndTelemetry(
       error: ev.error.message
     });
   });
+
+  // NB: mongoLogId(1_000_000_045) is used in cli-repl itself
 }
