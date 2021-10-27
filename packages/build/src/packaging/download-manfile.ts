@@ -1,5 +1,5 @@
 import fetch from 'node-fetch';
-import { writeFileSync } from 'fs';
+import { promises as fs } from 'fs';
 import { join } from 'path';
 
 const MANPAGE_URL = 'https://docs.mongodb.com/mongodb-shell/manpages.tar.gz';
@@ -11,13 +11,8 @@ const fetchData = async(): Promise<Buffer> => {
   return Buffer.from(data);
 };
 
-const writeDataToFile = (data: Buffer, file: string): void => {
-  writeFileSync(file, data);
-};
-
 export async function downloadManpage(destination: string) {
   const data = await fetchData();
-  const file = join(destination, MANPAGE_NAME);
-  writeDataToFile(data, file);
+  await fs.writeFile(data, join(destination, MANPAGE_NAME));
   console.info('Manual file saved.');
 }
