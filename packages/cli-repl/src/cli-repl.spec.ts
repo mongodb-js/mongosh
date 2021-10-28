@@ -817,6 +817,17 @@ describe('CliRepl', () => {
           expect(apiEvents[0].properties.count).to.equal(1);
         });
 
+        it('includes a statement about flushed telemetry in the log', async() => {
+          await cliRepl.start(await testServer.connectionString(), {});
+          const { logFilePath } = cliRepl.logWriter;
+          input.write('db.hello()\n');
+          input.write('exit\n');
+          await waitBus(cliRepl.bus, 'mongosh:closed');
+          const flushEntry = (await readReplLogfile(logFilePath)).find(entry => entry.id === 1_000_000_045);
+          expect(flushEntry.attr.flushError).to.equal(null);
+          expect(flushEntry.attr.flushDuration).to.be.a('number');
+        });
+
         context('with a 5.0+ server', () => {
           skipIfServerVersion(testServer, '<= 4.4');
 
