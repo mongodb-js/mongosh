@@ -4,4 +4,3 @@ export * from './get-release-version-from-tag';
 export * from './platform';
 export * from './should-do-public-release';
 export * from './redact-config';
-export * from './manpage-config';
