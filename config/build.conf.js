@@ -72,8 +72,7 @@ const REVISION = process.env.GITHUB_COMMIT ?? process.env.REVISION;
 const COPYRIGHT = `${new Date().getYear() + 1900} MongoDB, Inc.`;
 
 /**
- * The manual page name. Will be downloaded with this name,
- * extracted and then compressed correctly (gz) into same.
+ * The manual page file name
  */
 const MANPAGE_NAME = 'manpages.tar.gz';
 
@@ -153,7 +152,7 @@ module.exports = {
       }
     ],
     manpage: {
-      sourceFilePath: path.resolve(TMP_DIR, MANPAGE_NAME),
+      sourceFilePath: path.resolve(TMP_DIR, 'manpage', MANPAGE_NAME),
       packagedFilePath: 'mongosh.1.gz'
     },
     metadata: {
@@ -177,7 +176,7 @@ module.exports = {
   },
   manpage: {
     sourceUrl: 'https://docs.mongodb.com/mongodb-shell/manpages.tar.gz',
-    downloadPath: TMP_DIR,
+    downloadPath: path.resolve(TMP_DIR, 'manpage'),
     fileName: MANPAGE_NAME,
   },
 };

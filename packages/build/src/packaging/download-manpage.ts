@@ -1,26 +1,18 @@
 import fetch from 'node-fetch';
 import tar from 'tar';
 import { promises as fs } from 'fs';
+import { promisify } from 'util';
 import { join } from 'path';
-
-const fetchData = async(url: string): Promise<Buffer> => {
-  const response = await fetch(url);
-  const data = await response.arrayBuffer();
-  return Buffer.from(data);
-};
+import { pipeline } from 'stream';
+import { execFile } from './package/helpers';
 
 export async function downloadManpage(url: string, destination: string, name: string) {
-  const data = await fetchData(url);
-
-  const manPagePath = join(destination, name);
-  await fs.writeFile(manPagePath, data);
-
-  await tar.x({ file: manPagePath, cwd: destination });
-
-  await tar.c({
-    gzip: true,
-    file: manPagePath,
-  }, [join(destination, 'mongosh.1')]);
-
-  console.info('Manual page saved.');
+  await fs.mkdir(destination, { recursive: true });
+  const response = await fetch(url);
+  await promisify(pipeline)(
+    response.body,
+    tar.x({ cwd: destination })
+  );
+  await execFile('zip', ['-r', name, '.'], { cwd: destination });
+  console.info(`Saved manpage: ${join(destination, name)}`);
 }
