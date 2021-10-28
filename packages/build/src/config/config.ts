@@ -1,7 +1,7 @@
 import type { PackageInformation } from '../packaging/package';
 import { BuildVariant } from './build-variant';
 
-interface ManFileConfig {
+interface ManPageConfig {
   sourceUrl: string;
   downloadPath: string;
   fileName: string;
@@ -48,5 +48,5 @@ export interface Config {
   mongocryptdPath: string;
   packageInformation?: PackageInformation;
   artifactUrlFile?: string;
-  manfile?: ManFileConfig;
+  manpage?: ManPageConfig;
 }

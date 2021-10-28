@@ -12,15 +12,15 @@ const fetchData = async(url: string): Promise<Buffer> => {
 export async function downloadManpage(url: string, destination: string, name: string) {
   const data = await fetchData(url);
 
-  const manFilePath = join(destination, name);
-  await fs.writeFile(manFilePath, data);
+  const manPagePath = join(destination, name);
+  await fs.writeFile(manPagePath, data);
 
-  await tar.x({ file: manFilePath, cwd: destination });
+  await tar.x({ file: manPagePath, cwd: destination });
 
   await tar.c({
     gzip: true,
-    file: manFilePath,
+    file: manPagePath,
   }, [join(destination, 'mongosh.1')]);
 
-  console.info('Manual file saved.');
+  console.info('Manual page saved.');
 }

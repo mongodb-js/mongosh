@@ -3,7 +3,7 @@ import path from 'path';
 import os from 'os';
 import { Config, Platform, validateBuildVariant } from '../config';
 import { downloadMongocrypt } from './download-mongocryptd';
-import { downloadManpage } from './download-manfile';
+import { downloadManpage } from './download-manpage';
 import { macOSSignAndNotarize } from './macos-sign';
 import { notarizeMsi } from './msi-sign';
 import { createPackage, PackageFile } from './package';
@@ -29,12 +29,12 @@ export async function runPackage(
       fsConstants.COPYFILE_FICLONE);
   }
 
-  const { manfile } = config;
-  if (manfile) {
+  const { manpage } = config;
+  if (manpage) {
     await downloadManpage(
-      manfile.sourceUrl,
-      manfile.downloadPath,
-      manfile.fileName
+      manpage.sourceUrl,
+      manpage.downloadPath,
+      manpage.fileName
     );
   }
 

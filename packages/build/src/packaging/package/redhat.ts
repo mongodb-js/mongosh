@@ -37,8 +37,8 @@ export async function createRedhatPackage(
     ...pkg.binaries.map(({ license }) => `%license ${license.packagedFilePath}`),
     ...pkg.otherDocFilePaths.map(({ packagedFilePath }) => `%doc ${packagedFilePath}`),
   ];
-  if (pkg.manfile) {
-    filelistRpm.push(`%doc ${pkg.manfile.packagedFilePath}`);
+  if (pkg.manpage) {
+    filelistRpm.push(`%doc ${pkg.manpage.packagedFilePath}`);
   }
   const version = sanitizeVersion(pkg.metadata.version, 'rpm');
   const dir = await generateDirFromTemplate(templateDir, {
@@ -59,8 +59,8 @@ export async function createRedhatPackage(
     await fs.copyFile(sourceFilePath, path.join(dir, 'BUILD', packagedFilePath), COPYFILE_FICLONE);
   }
 
-  if (pkg.manfile) {
-    await fs.copyFile(pkg.manfile.sourceFilePath, path.join(dir, 'BUILD', pkg.manfile.packagedFilePath), COPYFILE_FICLONE);
+  if (pkg.manpage) {
+    await fs.copyFile(pkg.manpage.sourceFilePath, path.join(dir, 'BUILD', pkg.manpage.packagedFilePath), COPYFILE_FICLONE);
   }
 
   // Create the package.

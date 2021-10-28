@@ -36,8 +36,8 @@ export async function createCompressedArchiveContents(archiveRootName: string, p
     ...pkg.otherDocFilePaths,
     ...pkg.binaries.map(({ license }) => license),
   ];
-  if (pkg.manfile) {
-    docFiles.push(pkg.manfile);
+  if (pkg.manpage) {
+    docFiles.push(pkg.manpage);
   }
 
   for (const { sourceFilePath, packagedFilePath } of docFiles) {
