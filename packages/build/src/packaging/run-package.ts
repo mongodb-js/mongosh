@@ -29,9 +29,14 @@ export async function runPackage(
       fsConstants.COPYFILE_FICLONE);
   }
 
-  await downloadManpage(
-    path.resolve(__dirname, '..', '..', '..', '..', 'tmp') // ./mongosh/tmp
-  );
+  const { manfile } = config;
+  if (manfile) {
+    await downloadManpage(
+      manfile.sourceUrl,
+      manfile.downloadPath,
+      manfile.fileName
+    );
+  }
 
   const runCreatePackage = async(): Promise<PackageFile> => {
     return await createPackage(
