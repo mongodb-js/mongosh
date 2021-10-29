@@ -1,6 +1,6 @@
 import chai, { expect } from 'chai';
 import sinon from 'ts-sinon';
-import { GithubRepo } from '../github-repo';
+import { GithubRepo } from '@mongodb-js/devtools-github-repo';
 import { generateUpdatedFormula } from './generate-formula';
 
 chai.use(require('sinon-chai'));

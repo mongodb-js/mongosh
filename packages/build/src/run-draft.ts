@@ -4,7 +4,7 @@ import { ALL_BUILD_VARIANTS, Config, getReleaseVersionFromTag } from './config';
 import { uploadArtifactToDownloadCenter as uploadArtifactToDownloadCenterFn } from './download-center';
 import { downloadArtifactFromEvergreen as downloadArtifactFromEvergreenFn } from './evergreen';
 import { generateChangelog as generateChangelogFn } from './git';
-import { GithubRepo } from './github-repo';
+import { GithubRepo } from '@mongodb-js/devtools-github-repo';
 import { getPackageFile } from './packaging';
 
 export async function runDraft(

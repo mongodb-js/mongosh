@@ -4,7 +4,7 @@ import { ALL_BUILD_VARIANTS, Config } from './config';
 import { uploadArtifactToDownloadCenter as uploadArtifactToDownloadCenterFn } from './download-center';
 import { downloadArtifactFromEvergreen as downloadArtifactFromEvergreenFn } from './evergreen';
 import { generateChangelog as generateChangelogFn } from './git';
-import { GithubRepo } from './github-repo';
+import { GithubRepo } from '@mongodb-js/devtools-github-repo';
 import { ensureGithubReleaseExistsAndUpdateChangelogFn, runDraft } from './run-draft';
 import { dummyConfig } from '../test/helpers';
 

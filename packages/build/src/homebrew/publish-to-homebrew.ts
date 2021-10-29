@@ -1,4 +1,4 @@
-import { GithubRepo } from '../github-repo';
+import { GithubRepo } from '@mongodb-js/devtools-github-repo';
 import { generateUpdatedFormula } from './generate-formula';
 import { updateHomebrewFork } from './update-homebrew-fork';
 import { httpsSha256 } from './utils';
