@@ -70,7 +70,10 @@ export function start(opts: AsyncREPLOptions): REPLServer {
   }
 
   const repl = (opts.start ?? originalStart)(opts);
-  const originalEval = promisify(wrapNoSyncDomainError(repl.eval.bind(repl)));
+  const originalEval = promisify(
+    wrapPauseInput(
+      repl.input,
+      wrapNoSyncDomainError(repl.eval.bind(repl))));
 
   (repl as Mutable<typeof repl>).eval = async(
     input: string,
@@ -232,3 +235,77 @@ function wrapNoSyncDomainError<Args extends any[], Ret>(fn: (...args: Args) => R
   };
 }
 
+function wrapPauseInput<Args extends any[], Ret>(input: any, fn: (...args: Args) => Ret) {
+  return (...args: Args): Ret => {
+    // This is a hack to temporarily stop processing of input data if the
+    // input stream is a libuv-backed Node.js TTY stream.
+    // Part of the `breakEvalOnSigint` implementation in the Node.js REPL
+    // consists of disabling raw mode before evaluation and re-enabling it after,
+    // so that Ctrl+C events can actually be received by the application
+    // (instead of being read as raw input characters, which cannot be processed
+    // while the evaluation is still ongoing).
+    // This works fine everywhere except for Windows. On Windows, setting and
+    // un-setting raw mode for TTY streams in libuv actually involves first
+    // canceling a potential pending read operation, then changing the mode,
+    // and then re-scheduling that read operation, because libuv uses two different
+    // mechanisms to read from the Windows console depending on whether it is in
+    // raw mode or not.
+    // This is problematic, because the "canceling" part here does not involve
+    // actually waiting for that pending-but-now-canceled read to finish, possibly
+    // leaving it waiting for more input (and then discarding it when it sees that
+    // it was actually supposed to be canceled).
+    //
+    // In mongosh, this problem could be reproduced by running the following lines
+    // inside a Windows console window:
+    //
+    // > prompt = '>'
+    // > db.test.findOne()
+    // > db.test.findOne()
+    // > db.test.findOne() // <--- This line is discarded by libuv!
+    //
+    // (The timing here is subtle, and thus depends on the db operations here being
+    // async calls.)
+    // I did not manage to create a minimal reproduction that uses only Node.js stream
+    // APIs, or only using libuv APIs, although theoretically that should be possible.
+    // This workaround avoids the whole problem by stopping input reads during evaluation
+    // and re-scheduling them later, essentially doing the same thing as libuv
+    // already does but on a wider level. It is not *guaranteed* to be correct, but
+    // I consider the chances of it breaking something to be fairly low, and the chances
+    // of addressing the problem decent, even without a full understanding of the
+    // underlying problem (which might require significantly more time to address).
+    //
+    // This workaround uses internal Node.js APIs which are not guaranteed to be stable
+    // across major versions (i.e. _handle and its properties are all supposed to
+    // be internal). As of Node.js 16, it is still present, and it is unlikely to be
+    // removed without semver-major classification.
+    // If this does turn out to be a problem again in the future, I would recommend to
+    // investigate the issue more deeply on the libuv level, and creating a minimal
+    // reproduction using only the Node.js streams APIs first, and then basing a new
+    // workaround off of that and submitting the issue to the Node.js or libuv issue
+    // trackers.
+    // (The last state of debugging this inside libuv is captured in
+    // https://github.com/addaleax/node/commit/aef27e698da0dcb5c28d026324a33cb9383b222e,
+    // should that ever be needed again. On the mongosh side, this was tracked in
+    // https://jira.mongodb.org/browse/MONGOSH-998.)
+    const wasReadingAndNeedToWorkaroundWindowsBug =
+      process.platform = 'win32' &&
+      input.isTTY &&
+      input._handle &&
+      input._handle.reading &&
+      typeof input._handle.readStop === 'function' &&
+      typeof input._handle.readStart === 'function';
+    if (wasReadingAndNeedToWorkaroundWindowsBug) {
+      input._handle.reading = false;
+      input._handle.readStop();
+    }
+
+    try {
+      return fn(...args);
+    } finally {
+      if (wasReadingAndNeedToWorkaroundWindowsBug && !input._handle.reading) {
+        input._handle.reading = true;
+        input._handle.readStart();
+      }
+    }
+  };
+}
