@@ -288,7 +288,7 @@ function wrapPauseInput<Args extends any[], Ret>(input: any, fn: (...args: Args)
     // should that ever be needed again. On the mongosh side, this was tracked in
     // https://jira.mongodb.org/browse/MONGOSH-998.)
     const wasReadingAndNeedToWorkaroundWindowsBug =
-      process.platform = 'win32' &&
+      process.platform === 'win32' &&
       input.isTTY &&
       input._handle &&
       input._handle.reading &&
