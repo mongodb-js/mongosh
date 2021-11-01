@@ -74,7 +74,7 @@ const COPYRIGHT = `${new Date().getYear() + 1900} MongoDB, Inc.`;
 /**
  * The manual page file name
  */
-const MANPAGE_NAME = 'manpages.tar.gz';
+const MANPAGE_NAME = 'mongosh.1.gz'
 
 /**
  * Export the configuration for the build.
@@ -153,7 +153,7 @@ module.exports = {
     ],
     manpage: {
       sourceFilePath: path.resolve(TMP_DIR, 'manpage', MANPAGE_NAME),
-      packagedFilePath: 'mongosh.1.gz'
+      packagedFilePath: MANPAGE_NAME,
     },
     metadata: {
       name: 'mongosh',
