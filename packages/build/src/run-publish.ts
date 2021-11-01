@@ -8,7 +8,7 @@ import {
 } from './config';
 import { createAndPublishDownloadCenterConfig as createAndPublishDownloadCenterConfigFn } from './download-center';
 import { getArtifactUrl as getArtifactUrlFn } from './evergreen';
-import { GithubRepo } from './github-repo';
+import { GithubRepo } from '@mongodb-js/devtools-github-repo';
 import type { publishToHomebrew as publishToHomebrewType } from './homebrew';
 import type { publishNpmPackages as publishNpmPackagesType } from './npm-packages';
 import { PackageInformation, getPackageFile } from './packaging';

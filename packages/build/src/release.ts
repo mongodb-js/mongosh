@@ -7,7 +7,7 @@ import { runCompile } from './compile';
 import { Config, getReleaseVersionFromTag, redactConfig } from './config';
 import { createAndPublishDownloadCenterConfig, uploadArtifactToDownloadCenter } from './download-center';
 import { downloadArtifactFromEvergreen, uploadArtifactToEvergreen } from './evergreen';
-import { GithubRepo } from './github-repo';
+import { GithubRepo } from '@mongodb-js/devtools-github-repo';
 import { publishToHomebrew } from './homebrew';
 import { bumpNpmPackages, publishNpmPackages } from './npm-packages';
 import { runPackage } from './packaging';

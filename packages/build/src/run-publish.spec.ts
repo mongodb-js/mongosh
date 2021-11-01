@@ -4,7 +4,7 @@ import type { writeBuildInfo as writeBuildInfoType } from './build-info';
 import { Barque } from './barque';
 import { Config, shouldDoPublicRelease as shouldDoPublicReleaseFn } from './config';
 import { createAndPublishDownloadCenterConfig as createAndPublishDownloadCenterConfigFn } from './download-center';
-import { GithubRepo } from './github-repo';
+import { GithubRepo } from '@mongodb-js/devtools-github-repo';
 import type { publishToHomebrew as publishToHomebrewType } from './homebrew';
 import type { publishNpmPackages as publishNpmPackagesType } from './npm-packages';
 import { runPublish } from './run-publish';

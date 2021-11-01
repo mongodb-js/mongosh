@@ -1,6 +1,6 @@
 import chai, { expect } from 'chai';
 import sinon from 'ts-sinon';
-import { GithubRepo } from '../github-repo';
+import { GithubRepo } from '@mongodb-js/devtools-github-repo';
 import { updateHomebrewFork } from './update-homebrew-fork';
 
 chai.use(require('sinon-chai'));
