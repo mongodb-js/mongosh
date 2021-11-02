@@ -9,6 +9,11 @@ const os = require('os');
 const ROOT = path.join(__dirname, '..');
 
 /**
+ * The tmp folder location.
+ */
+ const TMP_DIR = path.join(ROOT, 'tmp');
+
+/**
  * The mongosh package.
  */
 const CLI_REPL_DIR = path.join(ROOT, 'packages', 'cli-repl');
@@ -44,7 +49,7 @@ const EXECUTABLE_PATH = path.join(OUTPUT_DIR, process.platform === 'win32' ? 'mo
  * We use the name mongocryptd-mongosh to avoid conflicts with users
  * potentially installing the 'proper' mongocryptd package.
  */
-const MONGOCRYPTD_PATH = path.resolve(__dirname, '..', 'tmp', 'mongocryptd-mongosh' + (process.platform === 'win32' ? '.exe' : ''));
+const MONGOCRYPTD_PATH = path.resolve(TMP_DIR, 'mongocryptd-mongosh' + (process.platform === 'win32' ? '.exe' : ''));
 
 /**
  * Build info JSON data file.
@@ -65,6 +70,11 @@ const REVISION = process.env.GITHUB_COMMIT ?? process.env.REVISION;
  * The copyright notice for debian packages and .exe files
  */
 const COPYRIGHT = `${new Date().getYear() + 1900} MongoDB, Inc.`;
+
+/**
+ * The manual page file name
+ */
+const MANPAGE_NAME = 'mongosh.1.gz'
 
 /**
  * Export the configuration for the build.
@@ -141,6 +151,10 @@ module.exports = {
         packagedFilePath: 'THIRD_PARTY_NOTICES'
       }
     ],
+    manpage: {
+      sourceFilePath: path.resolve(TMP_DIR, 'manpage', MANPAGE_NAME),
+      packagedFilePath: MANPAGE_NAME,
+    },
     metadata: {
       name: 'mongosh',
       rpmName: 'mongodb-mongosh',
@@ -159,5 +173,10 @@ module.exports = {
     debTemplateDir: path.resolve(__dirname, '..', 'packaging', 'deb-template'),
     rpmTemplateDir: path.resolve(__dirname, '..', 'packaging', 'rpm-template'),
     msiTemplateDir: path.resolve(__dirname, '..', 'packaging', 'msi-template')
-  }
+  },
+  manpage: {
+    sourceUrl: 'https://docs.mongodb.com/mongodb-shell/manpages.tar.gz',
+    downloadPath: path.resolve(TMP_DIR, 'manpage'),
+    fileName: MANPAGE_NAME,
+  },
 };

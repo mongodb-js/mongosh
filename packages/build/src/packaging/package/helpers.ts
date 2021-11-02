@@ -34,8 +34,12 @@ export async function createCompressedArchiveContents(archiveRootName: string, p
   await fs.mkdir(archiveRoot, { recursive: true });
   const docFiles = [
     ...pkg.otherDocFilePaths,
-    ...pkg.binaries.map(({ license }) => license)
+    ...pkg.binaries.map(({ license }) => license),
   ];
+  if (pkg.manpage) {
+    docFiles.push(pkg.manpage);
+  }
+
   for (const { sourceFilePath, packagedFilePath } of docFiles) {
     await fs.copyFile(sourceFilePath, path.join(archiveRoot, packagedFilePath), COPYFILE_FICLONE);
   }

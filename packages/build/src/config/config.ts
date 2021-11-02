@@ -1,6 +1,12 @@
 import type { PackageInformation } from '../packaging/package';
 import { BuildVariant } from './build-variant';
 
+interface ManPageConfig {
+  sourceUrl: string;
+  downloadPath: string;
+  fileName: string;
+}
+
 /**
  * Defines the configuration interface for the build system.
  */
@@ -42,4 +48,5 @@ export interface Config {
   mongocryptdPath: string;
   packageInformation?: PackageInformation;
   artifactUrlFile?: string;
+  manpage?: ManPageConfig;
 }

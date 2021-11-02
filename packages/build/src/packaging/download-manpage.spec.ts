@@ -1,0 +1,20 @@
+import nock from 'nock';
+import { join } from 'path';
+import { promises as fs } from 'fs';
+import { downloadManpage } from './download-manpage';
+
+describe('packaging download manpage', () => {
+  it('downloads manpage', async() => {
+    nock('http://example.com')
+      .get('/')
+      .replyWithFile(
+        200,
+        join(__dirname, '..', '..', 'test', 'fixtures', 'manpages.tar.gz')
+      );
+
+    const destination = join(__dirname, '..', '..', 'tmp', 'manpage');
+    const name = 'manpages.gz';
+    await downloadManpage('http://example.com', destination, name);
+    await fs.access(join(destination, name));
+  });
+});

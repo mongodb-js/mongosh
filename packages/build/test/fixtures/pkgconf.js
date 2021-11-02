@@ -31,6 +31,10 @@ module.exports = {
       packagedFilePath: 'README'
     },
   ],
+  manpage: {
+    sourceFilePath: path.resolve(__dirname, 'manpages.tar.gz'),
+    packagedFilePath: 'mongosh.1.gz'
+  },
   metadata: {
     version: '1.0.0',
     fullName: 'Very dumb dummy package',

@@ -35,14 +35,17 @@ export async function createRedhatPackage(
   const filelistRpm = [
     ...pkg.binaries.map(({ sourceFilePath, category }) => `%{_${category}dir}/${path.basename(sourceFilePath)}`),
     ...pkg.binaries.map(({ license }) => `%license ${license.packagedFilePath}`),
-    ...pkg.otherDocFilePaths.map(({ packagedFilePath }) => `%doc ${packagedFilePath}`)
-  ].join('\n');
+    ...pkg.otherDocFilePaths.map(({ packagedFilePath }) => `%doc ${packagedFilePath}`),
+  ];
+  if (pkg.manpage) {
+    filelistRpm.push(`%doc ${pkg.manpage.packagedFilePath}`);
+  }
   const version = sanitizeVersion(pkg.metadata.version, 'rpm');
   const dir = await generateDirFromTemplate(templateDir, {
     ...pkg.metadata,
     licenseRpm,
     installscriptRpm,
-    filelistRpm,
+    filelistRpm: filelistRpm.join('\n'),
     version
   });
   // Copy all files that we want to ship into the BUILD directory.
@@ -54,6 +57,10 @@ export async function createRedhatPackage(
   }
   for (const { sourceFilePath, packagedFilePath } of pkg.otherDocFilePaths) {
     await fs.copyFile(sourceFilePath, path.join(dir, 'BUILD', packagedFilePath), COPYFILE_FICLONE);
+  }
+
+  if (pkg.manpage) {
+    await fs.copyFile(pkg.manpage.sourceFilePath, path.join(dir, 'BUILD', pkg.manpage.packagedFilePath), COPYFILE_FICLONE);
   }
 
   // Create the package.
