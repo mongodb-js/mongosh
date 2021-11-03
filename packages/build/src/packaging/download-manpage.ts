@@ -14,7 +14,7 @@ export async function downloadManpage(url: string, destination: string, name: st
     tar.x({ cwd: destination })
   );
   await promisify(pipeline)(
-    createReadStream(join(destination, 'mongosh.1')),
+    createReadStream(join(destination, path.basename(name, '.gz'))),
     createGzip(),
     createWriteStream(join(destination, name))
   );
