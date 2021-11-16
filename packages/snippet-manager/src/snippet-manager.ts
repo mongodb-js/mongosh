@@ -21,6 +21,7 @@ const brotliDecompress = promisify(zlib.brotliDecompress);
 export interface SnippetOptions {
   installdir: string;
   instanceState: ShellInstanceState;
+  skipInitialIndexLoad?: boolean;
 }
 
 export interface ErrorMatcher {
@@ -90,7 +91,7 @@ export class SnippetManager implements ShellPlugin {
   npmArgv: string[];
   inflightFetchIndexPromise: Promise<SnippetIndexFile[]> | null = null;
 
-  constructor({ installdir, instanceState }: SnippetOptions) {
+  constructor({ installdir, instanceState, skipInitialIndexLoad }: SnippetOptions) {
     const { load, config, print, require } = instanceState.context;
     this._instanceState = instanceState;
     this.load = load;
@@ -103,7 +104,10 @@ export class SnippetManager implements ShellPlugin {
     this.installdir = installdir;
     this.repos = null;
     this.npmArgv = [];
-    this.prepareIndex().catch(() => {});
+
+    if (!skipInitialIndexLoad) {
+      this.prepareIndex().catch(() => {});
+    }
 
     // TODO: This is a terrible way to add functionality to the shell and
     // currently forces SnippetManager to be a singleton.
