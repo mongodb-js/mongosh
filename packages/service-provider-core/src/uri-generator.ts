@@ -249,9 +249,7 @@ function generateUriNormalized(options: CliOptions): ConnectionString {
 }
 
 /**
- * Adds the `directConnection=true` query parameter if required, and copy
- * tlsCertificateKeyFile to tlsCertificateFile if the former is set but
- * the latter is not.
+ * Adds the `directConnection=true` query parameter if required.
  * @param uri mongodb:// connection string
  */
 function addShellConnectionStringParameters(uri: ConnectionString): ConnectionString {
@@ -259,9 +257,6 @@ function addShellConnectionStringParameters(uri: ConnectionString): ConnectionSt
   const params = uri.searchParams;
   if (!params.has('replicaSet') && !params.has('directConnection') && !params.has('loadBalanced') && uri.hosts.length === 1) {
     params.set('directConnection', 'true');
-  }
-  if (!params.has('tlsCertificateFile') && params.has('tlsCertificateKeyFile')) {
-    params.set('tlsCertificateFile', params.get('tlsCertificateKeyFile') as string);
   }
   return uri;
 }
