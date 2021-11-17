@@ -1,6 +1,7 @@
 /* eslint camelcase: 0, new-cap: 0 */
 import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
 import { bson } from '@mongosh/service-provider-core';
+import { serialize as bsonSerialize, deserialize as bsonDeserialize } from 'bson';
 import { expect } from 'chai';
 import sinon from 'ts-sinon';
 import { ALL_SERVER_VERSIONS } from './enums';
@@ -77,6 +78,10 @@ describe('Shell BSON', () => {
       const s = new (shellBson.MaxKey as any)();
       expect(s._bsontype).to.equal('MaxKey');
     });
+    it('using toBSON', () => {
+      const s = (shellBson.MaxKey as any).toBSON();
+      expect(s._bsontype).to.equal('MaxKey');
+    });
     it('has help and other metadata', async() => {
       const s = shellBson.MaxKey();
       expect((await toShellResult(s.help)).type).to.equal('Help');
@@ -93,11 +98,29 @@ describe('Shell BSON', () => {
       const s = new (shellBson.MinKey as any)();
       expect(s._bsontype).to.equal('MinKey');
     });
+    it('using toBSON', () => {
+      const s = (shellBson.MinKey as any).toBSON();
+      expect(s._bsontype).to.equal('MinKey');
+    });
     it('has help and other metadata', async() => {
       const s = shellBson.MinKey();
       expect((await toShellResult(s.help)).type).to.equal('Help');
       expect((await toShellResult(s.help())).type).to.equal('Help');
       expect(s.serverVersions).to.deep.equal(ALL_SERVER_VERSIONS);
+    });
+  });
+  describe('MinKey & MaxKey constructor special handling', () => {
+    it('round-trips through bson as expected', () => {
+      const { MinKey, MaxKey } = shellBson as any;
+      const expected = { a: { $minKey: 1 }, b: { $maxKey: 1 } };
+      function roundtrip(value: any): any {
+        return bson.EJSON.serialize(bsonDeserialize(bsonSerialize(value)));
+      }
+
+      expect(roundtrip({ a: new MinKey(), b: new MaxKey() })).to.deep.equal(expected);
+      expect(roundtrip({ a: MinKey(), b: MaxKey() })).to.deep.equal(expected);
+      expect(roundtrip({ a: MinKey.toBSON(), b: MaxKey.toBSON() })).to.deep.equal(expected);
+      expect(roundtrip({ a: MinKey, b: MaxKey })).to.deep.equal(expected);
     });
   });
   describe('ObjectId', () => {
@@ -615,6 +638,7 @@ describe('Shell BSON', () => {
         delete bsonProperties.length;
         delete shellProperties.index; // ObjectId.index is a random number
         delete bsonProperties.index; // ObjectId.index is a random number
+        delete shellProperties.toBSON; // toBSON is something we add for MaxKey/MinKey as a shell-specific extension
         try {
           expect(shellProperties).to.deep.equal(bsonProperties);
         } catch (err) {

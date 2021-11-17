@@ -317,6 +317,19 @@ describe('BSON e2e', function() {
       shell.assertNoErrors();
     });
   });
+  describe('MaxKey/MinKey special handling', () => {
+    it('inserts and retrieves MaxKey/MinKey regardless of whether they have been called as functions', async() => {
+      await shell.executeLine(`use ${dbName}`);
+      await shell.executeLine(`db.test.insertOne({
+        maxfn: MaxKey, maxval: MaxKey(), minfn: MinKey, minval: MinKey()
+      })`);
+      const output = await shell.executeLine('db.test.findOne()');
+      expect(output).to.include('maxfn: MaxKey()');
+      expect(output).to.include('maxval: MaxKey()');
+      expect(output).to.include('minfn: MinKey()');
+      expect(output).to.include('minval: MinKey()');
+    });
+  });
   describe('help methods', () => {
     it('ObjectId has help when returned from the server', async() => {
       const value = new bson.ObjectId();

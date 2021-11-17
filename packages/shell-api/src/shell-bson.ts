@@ -94,12 +94,13 @@ export default function constructShellBson(bson: typeof BSON, printWarning: (msg
       assertArgsDefinedType([object], ['object'], 'bsonsize');
       return bson.calculateObjectSize(object);
     },
+    // See https://jira.mongodb.org/browse/MONGOSH-1024 for context on the toBSON additions
     MaxKey: Object.assign(function MaxKey(): typeof bson.MaxKey.prototype {
       return new bson.MaxKey();
-    }, { ...bson.MaxKey, prototype: bson.MaxKey.prototype }),
+    }, { ...bson.MaxKey, toBSON: () => new bson.MaxKey(), prototype: bson.MaxKey.prototype }),
     MinKey: Object.assign(function MinKey(): typeof bson.MinKey.prototype {
       return new bson.MinKey();
-    }, { ...bson.MinKey, prototype: bson.MinKey.prototype }),
+    }, { ...bson.MinKey, toBSON: () => new bson.MinKey(), prototype: bson.MinKey.prototype }),
     ObjectId: Object.assign(function ObjectId(id?: string | number | typeof bson.ObjectId.prototype | Buffer): typeof bson.ObjectId.prototype {
       assertArgsDefinedType([id], [[undefined, 'string', 'number', 'object']], 'ObjectId');
       return new bson.ObjectId(id);
