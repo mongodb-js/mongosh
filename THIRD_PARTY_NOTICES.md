@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Tue Nov 16 2021.
+This document was automatically generated on Wed Nov 17 2021.
 
 ## List of dependencies
 
@@ -212,7 +212,7 @@ Package|Version|License
 **[mongodb-ace-autocompleter](#748ac40e1ac4fccd1d280b4f71f958b447c1aa63e92dee2e61c119d66898781f)**|0.8.0|Apache-2.0
 **[mongodb-build-info](#3e1ab3564d63f8a06a80cc2b752a458eabdaa33318303341aa6f7a9461115958)**|1.2.0|Apache-2.0
 **[mongodb-client-encryption](#2670432992a4ec6240bc245a26b98695623fdbe720a667f90fbfe03c9de2e4ab)**|2.0.0-beta.0|Apache-2.0
-**[mongodb-connection-string-url](#151d9f737fe1a273e3e9915f9aa4c9194d52d2b9ed803047959027244af7036a)**|2.0.0|Apache-2.0
+**[mongodb-connection-string-url](#c542b3e550f874e4430ceda860a8eb55f388653722d8e9a8670e1974a7f8b0e5)**|2.2.0|Apache-2.0
 **[mongodb-connection-string-url](#e8163c3294b37c51a6783668136228e0c9c8e0ca415ecb1f6e98ad712e7758ba)**|2.1.0|Apache-2.0
 **[mongodb-log-writer](#8a1799a23f75e9ecd7b5954ead5e790d26a6037ee0a64f4676ce6f5febbd6aa5)**|1.0.3|Apache-2.0
 **[mongodb-redact](#00a2cfed57df1e8b912b751b08bee4de24ad0189840c99820ebc00c1b219a421)**|0.2.2|Apache-2.0
@@ -282,13 +282,16 @@ Package|Version|License
 **[tar-stream](#0dc8f500e45626ff1f83a8b3bb9d4dbae5ce9f2df7fc81b5eca6af1af2e85d27)**|2.2.0|MIT
 **[text-table](#408475075eb207dd5ae8858365d5b39a25bebe2b757601c43164cec36f315b23)**|0.2.0|MIT
 **[to-fast-properties](#79afe8c8f3cc0bb1187c6ffaf6105b49888137e917978e870d67727353aba954)**|2.0.0|MIT
+**[tr46](#68f1ee14543e0adeddce4bb4422886f20da6ce5cb83508383fa092c15689cf8a)**|3.0.0|MIT
 **[tr46](#181343fca47e669c997ddb536b6caff3c769402b0674612e32d3c274719049c8)**|2.1.0|MIT
 **[tunnel-agent](#09f746d17a1777efda5a12a6072da10c6820d7f56ea8aa0af202a2c83d6ccb67)**|0.6.0|Apache-2.0
 **[util-deprecate](#a1bd80d6a50b36e34032c402c5204d6276747d8212b68b164a9e3f895b90c2d6)**|1.0.2|MIT
 **[uuid](#e023df51e61e43f45cd8882485cac21ba6eb49b42732a93fe4f1f967d3933beb)**|3.4.0|MIT
+**[webidl-conversions](#cb7c681998e7ee3c598e6e37432bcf448946924eefe816636c3cb122bae46e1c)**|7.0.0|BSD-2-Clause
 **[webidl-conversions](#0868d5fd0f1744b732e4832b5dd5bd9ce27ffe9dcaa6cacda5a4efca750da5fb)**|6.1.0|BSD-2-Clause
-**[whatwg-url](#27c192a5f829a75dd40ddb7c74db291436ef4a59c16e9ed876ee2ecee80c460a)**|9.1.0|MIT
+**[whatwg-url](#5d2cdcc7276796013d4573d401d239ff04971bb5a44fbb0e1bc62cae6f5ca911)**|11.0.0|MIT
 **[whatwg-url](#1b9074bca64d1c71f4c40e9dffb78610493cda13a00a5ad06063ce2741751aff)**|8.6.0|MIT
+**[whatwg-url](#27c192a5f829a75dd40ddb7c74db291436ef4a59c16e9ed876ee2ecee80c460a)**|9.1.0|MIT
 **[which](#5a71f2b741944bf107d6e7f067241798a6e277e42e8ca1e28c4608ccc233f8ec)**|2.0.2|ISC
 **[wide-align](#c58d08bb85700ddf0f3ea9623adf6b3377301a5a4eeb3d115a63320de0cb59e6)**|1.1.3|ISC
 **[wrappy](#13cebf193d7ada5ee347b9ae819b96f5e6da21f9b53e7f268c7703b686158595)**|1.0.2|ISC
@@ -13245,8 +13248,8 @@ Authors:
 * The MongoDB NodeJS Team <[dbx-node@mongodb.com](nomail)>
 
 
-<a id="151d9f737fe1a273e3e9915f9aa4c9194d52d2b9ed803047959027244af7036a"></a>
-### [mongodb-connection-string-url](https://www.npmjs.com/package/mongodb-connection-string-url) (version 2.0.0)
+<a id="c542b3e550f874e4430ceda860a8eb55f388653722d8e9a8670e1974a7f8b0e5"></a>
+### [mongodb-connection-string-url](https://www.npmjs.com/package/mongodb-connection-string-url) (version 2.2.0)
 <!-- initially found at packages/cli-repl/node_modules/mongodb-connection-string-url -->
 > MongoDB connection strings, based on the WhatWG URL API
 
@@ -16857,9 +16860,47 @@ Authors:
 * Sindre Sorhus <[sindresorhus@gmail.com](nomail)> (sindresorhus.com)
 
 
+<a id="68f1ee14543e0adeddce4bb4422886f20da6ce5cb83508383fa092c15689cf8a"></a>
+### [tr46](https://www.npmjs.com/package/tr46) (version 3.0.0)
+<!-- initially found at packages/cli-repl/node_modules/tr46 -->
+> An implementation of the Unicode UTS #46: Unicode IDNA Compatibility Processing
+
+License tags: MIT
+
+License files:
+* LICENSE.md:
+
+      The MIT License (MIT)
+      
+      Copyright (c) Sebastian Mayr
+      
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+      
+      The above copyright notice and this permission notice shall be included in all
+      copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE.
+      
+
+Authors:
+* Sebastian Mayr <npm@smayr.name>
+* Timothy Gu <timothygu99@gmail.com>
+
+
 <a id="181343fca47e669c997ddb536b6caff3c769402b0674612e32d3c274719049c8"></a>
 ### [tr46](https://www.npmjs.com/package/tr46) (version 2.1.0)
-<!-- initially found at packages/cli-repl/node_modules/tr46 -->
+<!-- initially found at packages/service-provider-server/node_modules/tr46 -->
 > An implementation of the Unicode UTS #46: Unicode IDNA Compatibility Processing
 
 License tags: MIT
@@ -17039,8 +17080,8 @@ License files:
       
 
 
-<a id="0868d5fd0f1744b732e4832b5dd5bd9ce27ffe9dcaa6cacda5a4efca750da5fb"></a>
-### [webidl-conversions](https://www.npmjs.com/package/webidl-conversions) (version 6.1.0)
+<a id="cb7c681998e7ee3c598e6e37432bcf448946924eefe816636c3cb122bae46e1c"></a>
+### [webidl-conversions](https://www.npmjs.com/package/webidl-conversions) (version 7.0.0)
 <!-- initially found at packages/cli-repl/node_modules/webidl-conversions -->
 > Implements the WebIDL algorithms for converting to and from JavaScript values
 
@@ -17067,9 +17108,74 @@ Authors:
 * Domenic Denicola <d@domenic.me> (https://domenic.me/)
 
 
-<a id="27c192a5f829a75dd40ddb7c74db291436ef4a59c16e9ed876ee2ecee80c460a"></a>
-### [whatwg-url](https://www.npmjs.com/package/whatwg-url) (version 9.1.0)
+<a id="0868d5fd0f1744b732e4832b5dd5bd9ce27ffe9dcaa6cacda5a4efca750da5fb"></a>
+### [webidl-conversions](https://www.npmjs.com/package/webidl-conversions) (version 6.1.0)
+<!-- initially found at packages/service-provider-server/node_modules/webidl-conversions -->
+> Implements the WebIDL algorithms for converting to and from JavaScript values
+
+License tags: BSD-2-Clause
+
+License files:
+* LICENSE.md:
+
+      # The BSD 2-Clause License
+      
+      Copyright (c) 2014, Domenic Denicola
+      All rights reserved.
+      
+      Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+      
+      1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+      
+      2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+      
+      THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+      
+
+Authors:
+* Domenic Denicola <d@domenic.me> (https://domenic.me/)
+
+
+<a id="5d2cdcc7276796013d4573d401d239ff04971bb5a44fbb0e1bc62cae6f5ca911"></a>
+### [whatwg-url](https://www.npmjs.com/package/whatwg-url) (version 11.0.0)
 <!-- initially found at packages/cli-repl/node_modules/whatwg-url -->
+> An implementation of the WHATWG URL Standard's URL API and parsing machinery
+
+License tags: MIT
+
+License files:
+* LICENSE.txt:
+
+      The MIT License (MIT)
+      
+      Copyright (c) Sebastian Mayr
+      
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+      
+      The above copyright notice and this permission notice shall be included in
+      all copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+      THE SOFTWARE.
+      
+
+Authors:
+* Sebastian Mayr <github@smayr.name>
+
+
+<a id="1b9074bca64d1c71f4c40e9dffb78610493cda13a00a5ad06063ce2741751aff"></a>
+### [whatwg-url](https://www.npmjs.com/package/whatwg-url) (version 8.6.0)
+<!-- initially found at packages/service-provider-server/node_modules/whatwg-url -->
 > An implementation of the WHATWG URL Standard's URL API and parsing machinery
 
 License tags: MIT
@@ -17104,9 +17210,9 @@ Authors:
 * Sebastian Mayr <github@smayr.name>
 
 
-<a id="1b9074bca64d1c71f4c40e9dffb78610493cda13a00a5ad06063ce2741751aff"></a>
-### [whatwg-url](https://www.npmjs.com/package/whatwg-url) (version 8.6.0)
-<!-- initially found at packages/service-provider-server/node_modules/whatwg-url -->
+<a id="27c192a5f829a75dd40ddb7c74db291436ef4a59c16e9ed876ee2ecee80c460a"></a>
+### [whatwg-url](https://www.npmjs.com/package/whatwg-url) (version 9.1.0)
+<!-- initially found at packages/service-provider-core/node_modules/whatwg-url -->
 > An implementation of the WHATWG URL Standard's URL API and parsing machinery
 
 License tags: MIT
