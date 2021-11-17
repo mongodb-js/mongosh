@@ -121,6 +121,31 @@ describe('e2e direct connection', () => {
           shell.assertContainsOutput("name: 'system.version'");
         });
 
+        it('fails to list databases without explicit readPreference', async() => {
+          const shell = TestShell.start({ args: [`${await rs1.connectionString()}`] });
+          await shell.waitForPrompt();
+          await shell.executeLine('use admin');
+          await shell.executeLine('db.getMongo().getDBs()');
+          shell.assertContainsError('MongoServerError: not primary');
+        });
+
+        it('lists databases when readPreference is in the connection string', async() => {
+          const shell = TestShell.start({ args: [`${await rs1.connectionString()}?readPreference=secondaryPreferred`] });
+          await shell.waitForPrompt();
+          await shell.executeLine('use admin');
+          await shell.executeLine('db.getMongo().getDBs()');
+          shell.assertContainsOutput("name: 'admin'");
+        });
+
+        it('lists databases when readPreference is set via Mongo', async() => {
+          const shell = TestShell.start({ args: [`${await rs1.connectionString()}`] });
+          await shell.waitForPrompt();
+          await shell.executeLine('use admin');
+          await shell.executeLine('db.getMongo().setReadPref("secondaryPreferred")');
+          await shell.executeLine('db.getMongo().getDBs()');
+          shell.assertContainsOutput("name: 'admin'");
+        });
+
         it('lists collections and dbs using show by default', async() => {
           const shell = TestShell.start({ args: [`${await rs1.connectionString()}`] });
           await shell.waitForPrompt();
@@ -128,6 +153,7 @@ describe('e2e direct connection', () => {
           expect(await shell.executeLine('show collections')).to.include('system.version');
           expect(await shell.executeLine('show dbs')).to.include('admin');
         });
+
         it('autocompletes collection names', async function() {
           if (process.arch === 's390x') {
             return this.skip(); // https://jira.mongodb.org/browse/MONGOSH-746

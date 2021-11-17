@@ -242,7 +242,10 @@ export default class Mongo extends ShellApiClass {
   }
 
   async _listDatabases(opts: ListDatabasesOptions = {}): Promise<{ databases: {name: string, sizeOnDisk: number, empty: boolean}[] }> {
-    const result = await this._serviceProvider.listDatabases('admin', { ...opts });
+    const result = await this._serviceProvider.listDatabases('admin', {
+      ...this._getExplicitlyRequestedReadPref(),
+      ...opts
+    });
     if (!('databases' in result)) {
       const err = new MongoshRuntimeError('Got invalid result from "listDatabases"', CommonErrors.CommandFailed);
       this._instanceState.messageBus.emit('mongosh:error', err, 'shell-api');
