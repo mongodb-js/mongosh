@@ -61,7 +61,17 @@ describe('AsyncWriter', () => {
       return runUntranspiledCode(transpiled, context);
     };
     runUntranspiledCode = (code: string, context?: any) => {
-      return vm.runInContext(code, context ?? ctx);
+      return vm.runInContext(code, context ?? ctx, {
+        async importModuleDynamically(specifier: string) {
+          if (specifier === 'forty-two') {
+            const mod = new (vm as any).SourceTextModule('export const value = 42');
+            await mod.link(() => {});
+            await mod.evaluate();
+            return mod;
+          }
+          throw new Error('Module not found');
+        }
+      } as any);
     };
   });
 
@@ -375,6 +385,11 @@ describe('AsyncWriter', () => {
       expect(await runTranspiledCode(`(() => {
         globalThis.eval = implicitlyAsyncFn; return eval("b");
       })()`)).to.equal('yes');
+    });
+
+    it('works with import', async() => {
+      const ret = runTranspiledCode('(async() => (await import("forty-two")).value)()');
+      expect(await ret).to.equal(42);
     });
 
     it('allows re-declaring variables in separate snippets', () => {
