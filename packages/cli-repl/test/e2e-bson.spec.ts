@@ -323,7 +323,7 @@ describe('BSON e2e', function() {
       await shell.executeLine(`db.test.insertOne({
         maxfn: MaxKey, maxval: MaxKey(), minfn: MinKey, minval: MinKey()
       })`);
-      const output = await shell.executeLine(`db.test.findOne()`);
+      const output = await shell.executeLine('db.test.findOne()');
       expect(output).to.include('maxfn: MaxKey()');
       expect(output).to.include('maxval: MaxKey()');
       expect(output).to.include('minfn: MinKey()');
