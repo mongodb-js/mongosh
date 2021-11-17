@@ -35,7 +35,7 @@
     "bson": "^4.5.4",
     "mongodb": "^4.1.4",
     "mongodb-build-info": "^1.2.0",
-    "mongodb-connection-string-url": "^2.0.0"
+    "mongodb-connection-string-url": "^2.2.0"
   },
   "optionalDependencies": {
     "mongodb-client-encryption": "^2.0.0-beta.0"
