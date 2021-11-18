@@ -2,7 +2,7 @@ import fetch from 'node-fetch';
 import tar from 'tar';
 import { createReadStream, createWriteStream, promises as fs } from 'fs';
 import { promisify } from 'util';
-import { join } from 'path';
+import { join, basename } from 'path';
 import { pipeline } from 'stream';
 import { createGzip } from 'zlib';
 
@@ -14,7 +14,7 @@ export async function downloadManpage(url: string, destination: string, name: st
     tar.x({ cwd: destination })
   );
   await promisify(pipeline)(
-    createReadStream(join(destination, path.basename(name, '.gz'))),
+    createReadStream(join(destination, basename(name, '.gz'))),
     createGzip(),
     createWriteStream(join(destination, name))
   );
