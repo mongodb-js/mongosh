@@ -1,15 +1,13 @@
 import React, { Component } from 'react';
 import AceEditor from 'react-ace';
+import 'ace-builds';
+import 'ace-builds/webpack-resolver';
 import { Autocompleter } from '@mongosh/browser-runtime-core';
 import { AceAutocompleterAdapter } from './ace-autocompleter-adapter';
 
-import 'ace-builds/src-noconflict/ext-language_tools';
+import tools from 'ace-builds/src-noconflict/ext-language_tools';
 import 'ace-builds/src-noconflict/mode-javascript';
 import './ace-theme';
-
-import ace from 'ace-builds';
-// TODO: can we not just import this?
-const tools = ace.require('ace/ext/language_tools');
 
 const noop = (): void => {};
 
