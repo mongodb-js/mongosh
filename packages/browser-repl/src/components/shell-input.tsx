@@ -15,7 +15,7 @@ interface ShellInputProps {
   onInput?(code: string): void | Promise<void>;
   operationInProgress?: boolean;
   prompt?: string;
-  setInputRef?(ref: { editor?: HTMLElement }): void;
+  setInputRef?(ref: { container?: HTMLElement }): void;
   onSigInt?(): Promise<boolean>;
 }
 

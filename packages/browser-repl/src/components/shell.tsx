@@ -96,7 +96,7 @@ export class Shell extends Component<ShellProps, ShellState> {
 
   private shellInputElement: HTMLElement | null = null;
   private shellInputRef?: {
-    editor?: HTMLElement;
+    container?: HTMLElement;
   };
   private onFinishPasswordPrompt: ((input: string) => void) = noop;
   private onCancelPasswordPrompt: (() => void) = noop;
@@ -309,8 +309,8 @@ export class Shell extends Component<ShellProps, ShellState> {
   };
 
   private focusEditor = (): void => {
-    if (this.shellInputRef && this.shellInputRef.editor) {
-      this.shellInputRef.editor.focus();
+    if (this.shellInputRef && this.shellInputRef.container) {
+      this.shellInputRef.container.focus();
     }
   };
 
@@ -344,7 +344,7 @@ export class Shell extends Component<ShellProps, ShellState> {
         onClearCommand={this.onClearCommand}
         onInput={this.onInput}
         operationInProgress={this.state.operationInProgress}
-        setInputRef={(ref: { editor?: HTMLElement }): void => {
+        setInputRef={(ref: { container?: HTMLElement }): void => {
           this.shellInputRef = ref;
         }}
         onSigInt={this.onSigInt}

@@ -3,12 +3,13 @@ import AceEditor from 'react-ace';
 import { Autocompleter } from '@mongosh/browser-runtime-core';
 import { AceAutocompleterAdapter } from './ace-autocompleter-adapter';
 
-import 'brace/ext/language_tools';
-import 'brace/mode/javascript';
+import 'ace-builds/src-noconflict/ext-language_tools';
+import 'ace-builds/src-noconflict/mode-javascript';
 import './ace-theme';
 
-import ace from 'brace';
-const tools = ace.acequire('ace/ext/language_tools');
+import ace from 'ace-builds';
+// TODO: can we not just import this?
+const tools = ace.require('ace/ext/language_tools');
 
 const noop = (): void => {};
 
@@ -22,7 +23,7 @@ interface EditorProps {
   onClearCommand(): void | Promise<void>;
   onSigInt(): Promise<boolean>;
   operationInProgress: boolean;
-  setInputRef?(ref: { editor?: HTMLElement }): void;
+  setInputRef?(ref: { container?: HTMLElement }): void;
   value: string;
 }
 
@@ -100,7 +101,7 @@ export class Editor extends Component<EditorProps> {
       mode="javascript"
       ref={(ref: AceEditor | null): void => {
         if (this.props.setInputRef && ref !== null) {
-          this.props.setInputRef(ref as { editor?: HTMLElement });
+          this.props.setInputRef(ref as { container?: HTMLElement });
         }
       }}
       theme="mongosh"
