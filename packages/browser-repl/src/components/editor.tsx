@@ -8,6 +8,7 @@ import { AceAutocompleterAdapter } from './ace-autocompleter-adapter';
 import tools from 'ace-builds/src-noconflict/ext-language_tools';
 import 'ace-builds/src-noconflict/mode-javascript';
 import './ace-theme';
+import { IAceEditor } from 'react-ace/lib/types';
 
 const noop = (): void => {};
 
@@ -21,7 +22,7 @@ interface EditorProps {
   onClearCommand(): void | Promise<void>;
   onSigInt(): Promise<boolean>;
   operationInProgress: boolean;
-  setInputRef?(ref: { container?: HTMLElement }): void;
+  setInputRef?(ref: { editor?: IAceEditor }): void;
   value: string;
 }
 
@@ -99,7 +100,7 @@ export class Editor extends Component<EditorProps> {
       mode="javascript"
       ref={(ref: AceEditor | null): void => {
         if (this.props.setInputRef && ref !== null) {
-          this.props.setInputRef(ref as { container?: HTMLElement });
+          this.props.setInputRef(ref as { editor?: IAceEditor });
         }
       }}
       theme="mongosh"

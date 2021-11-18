@@ -6,6 +6,7 @@ import { ShellOutput, ShellOutputEntry } from './shell-output';
 import type { Runtime } from '@mongosh/browser-runtime-core';
 import { changeHistory } from '@mongosh/history';
 import type { WorkerRuntime } from '@mongosh/node-runtime-worker-thread';
+import { IAceEditor } from 'react-ace/lib/types';
 
 const styles = require('./shell.less');
 
@@ -96,7 +97,7 @@ export class Shell extends Component<ShellProps, ShellState> {
 
   private shellInputElement: HTMLElement | null = null;
   private shellInputRef?: {
-    container?: HTMLElement;
+      editor?: IAceEditor
   };
   private onFinishPasswordPrompt: ((input: string) => void) = noop;
   private onCancelPasswordPrompt: (() => void) = noop;
@@ -309,8 +310,8 @@ export class Shell extends Component<ShellProps, ShellState> {
   };
 
   private focusEditor = (): void => {
-    if (this.shellInputRef && this.shellInputRef.container) {
-      this.shellInputRef.container.focus();
+    if (this.shellInputRef && this.shellInputRef.editor) {
+      this.shellInputRef.editor.focus();
     }
   };
 
@@ -344,7 +345,7 @@ export class Shell extends Component<ShellProps, ShellState> {
         onClearCommand={this.onClearCommand}
         onInput={this.onInput}
         operationInProgress={this.state.operationInProgress}
-        setInputRef={(ref: { container?: HTMLElement }): void => {
+        setInputRef={(ref: { editor?: IAceEditor }): void => {
           this.shellInputRef = ref;
         }}
         onSigInt={this.onSigInt}
