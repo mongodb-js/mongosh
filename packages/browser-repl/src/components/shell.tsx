@@ -1,12 +1,12 @@
-import React, { Component } from 'react';
 import classnames from 'classnames';
-import { PasswordPrompt } from './password-prompt';
-import { ShellInput } from './shell-input';
-import { ShellOutput, ShellOutputEntry } from './shell-output';
+import React, { Component } from 'react';
+import { IAceEditor } from 'react-ace/lib/types';
 import type { Runtime } from '@mongosh/browser-runtime-core';
 import { changeHistory } from '@mongosh/history';
 import type { WorkerRuntime } from '@mongosh/node-runtime-worker-thread';
-import { IAceEditor } from 'react-ace/lib/types';
+import { PasswordPrompt } from './password-prompt';
+import { ShellInput } from './shell-input';
+import { ShellOutput, ShellOutputEntry } from './shell-output';
 
 const styles = require('./shell.less');
 
@@ -97,7 +97,7 @@ export class Shell extends Component<ShellProps, ShellState> {
 
   private shellInputElement: HTMLElement | null = null;
   private shellInputRef?: {
-      editor?: IAceEditor
+    editor?: IAceEditor
   };
   private onFinishPasswordPrompt: ((input: string) => void) = noop;
   private onCancelPasswordPrompt: (() => void) = noop;

@@ -1,14 +1,13 @@
 import React, { Component } from 'react';
 import AceEditor from 'react-ace';
+import { IAceEditor } from 'react-ace/lib/types';
 import 'ace-builds';
 import 'ace-builds/webpack-resolver';
-import { Autocompleter } from '@mongosh/browser-runtime-core';
-import { AceAutocompleterAdapter } from './ace-autocompleter-adapter';
-
 import tools from 'ace-builds/src-noconflict/ext-language_tools';
 import 'ace-builds/src-noconflict/mode-javascript';
+import { Autocompleter } from '@mongosh/browser-runtime-core';
+import { AceAutocompleterAdapter } from './ace-autocompleter-adapter';
 import './ace-theme';
-import { IAceEditor } from 'react-ace/lib/types';
 
 const noop = (): void => {};
 
