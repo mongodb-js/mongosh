@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import AceEditor from 'react-ace';
-import { IAceEditor } from 'react-ace/lib/types';
+import type { IAceEditor } from 'react-ace/lib/types';
 import 'ace-builds';
 import 'ace-builds/webpack-resolver';
 import tools from 'ace-builds/src-noconflict/ext-language_tools';
