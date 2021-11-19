@@ -8,6 +8,9 @@ export class IframeInterpreterEnvironment implements InterpreterEnvironment {
 
   constructor(window: Window) {
     this.window = window;
+    // we don't want window.prompt to confuse the shell into thinking a custom
+    // prompt was set
+    this.sloppyEval('delete window.prompt');
   }
 
   sloppyEval(code: string): ContextValue {
