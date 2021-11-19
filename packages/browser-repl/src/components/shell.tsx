@@ -1,11 +1,12 @@
-import React, { Component } from 'react';
 import classnames from 'classnames';
-import { PasswordPrompt } from './password-prompt';
-import { ShellInput } from './shell-input';
-import { ShellOutput, ShellOutputEntry } from './shell-output';
+import React, { Component } from 'react';
+import { IAceEditor } from 'react-ace/lib/types';
 import type { Runtime } from '@mongosh/browser-runtime-core';
 import { changeHistory } from '@mongosh/history';
 import type { WorkerRuntime } from '@mongosh/node-runtime-worker-thread';
+import { PasswordPrompt } from './password-prompt';
+import { ShellInput } from './shell-input';
+import { ShellOutput, ShellOutputEntry } from './shell-output';
 
 const styles = require('./shell.less');
 
@@ -96,7 +97,7 @@ export class Shell extends Component<ShellProps, ShellState> {
 
   private shellInputElement: HTMLElement | null = null;
   private shellInputRef?: {
-    editor?: HTMLElement;
+    editor?: IAceEditor
   };
   private onFinishPasswordPrompt: ((input: string) => void) = noop;
   private onCancelPasswordPrompt: (() => void) = noop;
@@ -344,7 +345,7 @@ export class Shell extends Component<ShellProps, ShellState> {
         onClearCommand={this.onClearCommand}
         onInput={this.onInput}
         operationInProgress={this.state.operationInProgress}
-        setInputRef={(ref: { editor?: HTMLElement }): void => {
+        setInputRef={(ref: { editor?: IAceEditor }): void => {
           this.shellInputRef = ref;
         }}
         onSigInt={this.onSigInt}

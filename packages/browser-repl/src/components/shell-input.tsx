@@ -1,7 +1,8 @@
-import Icon from '@leafygreen-ui/icon';
-import { Autocompleter } from '@mongosh/browser-runtime-core';
 import classnames from 'classnames';
 import React, { Component } from 'react';
+import { IAceEditor } from 'react-ace/lib/types';
+import Icon from '@leafygreen-ui/icon';
+import { Autocompleter } from '@mongosh/browser-runtime-core';
 import { Editor } from './editor';
 import ShellLoader from './shell-loader';
 import { LineWithIcon } from './utils/line-with-icon';
@@ -15,7 +16,7 @@ interface ShellInputProps {
   onInput?(code: string): void | Promise<void>;
   operationInProgress?: boolean;
   prompt?: string;
-  setInputRef?(ref: { editor?: HTMLElement }): void;
+  setInputRef?(ref: { editor?: IAceEditor }): void;
   onSigInt?(): Promise<boolean>;
 }
 

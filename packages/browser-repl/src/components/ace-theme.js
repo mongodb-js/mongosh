@@ -17,7 +17,7 @@ const commentsColor = uiColors.gray.light1;
 const variablesColor = '#FF6F44';
 
 const layoutCss = `
-  .ace-mongosh.ace_editor {
+  .ace_dark.ace-mongosh.ace_editor {
     font-family: Menlo, Monaco, 'Courier New', monospace;
     font-size: 13px;
     line-height: 24px;
@@ -25,87 +25,88 @@ const layoutCss = `
     background: transparent;
     color: ${foregroundColor};
   }
-  .ace-mongosh .ace_cursor {
+  .ace_dark.ace-mongosh .ace_cursor {
     background: transparent;
     color: ${cursorColor};
     border-color: ${cursorColor};
   }
-  .ace-mongosh .ace_hidden-cursors .ace_cursor {
+  .ace_dark.ace-mongosh .ace_hidden-cursors .ace_cursor {
     opacity: 0;
     visibility: hidden;
   }
-  .ace-mongosh.ace_focus .ace_marker-layer .ace_active-line {
+  .ace_dark.ace-mongosh.ace_focus .ace_marker-layer .ace_active-line {
     background: transparent;
   }
-  .ace-mongosh .ace_marker-layer .ace_active-line {
+  .ace_dark.ace-mongosh .ace_marker-layer .ace_active-line {
     background: transparent;
   }
-  .ace-mongosh .ace_marker-layer .ace_selection {
+  .ace_dark.ace-mongosh .ace_marker-layer .ace_selection {
     background: ${selectionColor};
   }
 `;
 
 const syntaxCss = `
-  .ace-mongosh .ace_keyword {
+  .ace_dark.ace-mongosh .ace_keyword {
     color: ${keywordsColor};
     font-weight: normal;
   }
-  .ace-mongosh .ace_identifier {
+  .ace_dark.ace-mongosh .ace_identifier {
     color: ${foregroundColor}
   }
-  .ace-mongosh .ace_string {
+  .ace_dark.ace-mongosh .ace_string {
     color: ${stringsColor};
   }
-  .ace-mongosh .ace_boolean {
+  .ace_dark.ace-mongosh .ace_boolean {
     color: ${literalsColor};
     font-weight: normal;
   }
-  .ace-mongosh .ace_constant.ace_numeric {
+  .ace_dark.ace-mongosh .ace_constant.ace_numeric {
     color: ${variablesColor};
   }
-  .ace-mongosh .ace_string.ace_regexp {
+  .ace_dark.ace-mongosh .ace_string.ace_regexp {
     color: ${supportColor};
   }
-  .ace-mongosh .ace_variable.ace_class {
+  .ace_dark.ace-mongosh .ace_variable.ace_class {
     color: ${classesColor};
   }
-  .ace-mongosh .ace_constant.ace_buildin {
+  .ace_dark.ace-mongosh .ace_constant.ace_buildin {
     color: ${literalsColor};
   }
-  .ace-mongosh .ace_support.ace_function {
+  .ace_dark.ace-mongosh .ace_support.ace_function {
     color: ${literalsColor};
   }
-  .ace-mongosh .ace_comment {
+  .ace_dark.ace-mongosh .ace_comment {
     color: ${commentsColor};
     font-style: italic;
   }
-  .ace-mongosh .ace_variable  {
+  .ace_dark.ace-mongosh .ace_variable  {
     color: ${variablesColor};
   }
-  .ace-mongosh .ace_variable.ace_instance {
+  .ace_dark.ace-mongosh .ace_variable.ace_instance {
     color: ${variablesColor};
   }
-  .ace-mongosh .ace_paren {
+  .ace_dark.ace-mongosh .ace_paren {
     font-weight: normal;
   }
 `;
 
 const autocompleteCss = `
-  .ace-mongosh.ace_editor.ace_autocomplete {
+  .ace_dark.ace-mongosh.ace_editor.ace_autocomplete {
     box-sizing: border-box;
     border: 1px solid ${borderColor};
     background-color: ${backgroundColor};
     box-shadow: 0 5px 8px 0 rgba(0,0,0,0.5);
     color: ${commentsColor};
+    line-height: 24px;
   }
 
-  .ace-mongosh.ace_editor.ace_autocomplete .ace_completion-highlight {
+  .ace_dark.ace-mongosh.ace_editor.ace_autocomplete .ace_completion-highlight {
     color: ${foregroundColor};
     text-shadow: none;
     font-weight: bold;
   }
 
-  .ace-mongosh.ace_editor.ace_autocomplete .ace_marker-layer .ace_active-line {
+  .ace_dark.ace-mongosh.ace_editor.ace_autocomplete .ace_marker-layer .ace_active-line {
     background-color: ${activeLineColor};
   }
 `;
