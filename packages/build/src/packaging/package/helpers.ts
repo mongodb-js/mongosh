@@ -93,3 +93,12 @@ export function sanitizeVersion(version: string, variant: 'rpm' | 'msi'): string
   if (variant === 'rpm') return rpmVersion;
   return rpmVersion.split('.').slice(0, 3).join('.');
 }
+
+/// Transforms e.g. 'mongosh.1.gz' -> '1'
+export function getManSection(filename: string): string {
+  const { section } = filename.match(/^.+\.(?<section>\d+)(?:\.gz)?$/)?.groups ?? {};
+  if (!section) {
+    throw new Error(`Invalid man page name: ${filename}`);
+  }
+  return section;
+}

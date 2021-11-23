@@ -2,7 +2,7 @@ import { constants, promises as fs } from 'fs';
 import path from 'path';
 import rimraf from 'rimraf';
 import { promisify } from 'util';
-import { execFile as execFileFn, generateDirFromTemplate } from './helpers';
+import { execFile as execFileFn, generateDirFromTemplate, getManSection } from './helpers';
 import { PackageInformation } from './package-information';
 import { Arch, getDebArchName } from '../../config';
 
@@ -38,7 +38,7 @@ export async function createDebianPackage(
 
   if (pkg.manpage) {
     // Put manpage file in /usr/share/man/man1/.
-    const manualDir = path.join(dir, pkg.metadata.debName, 'usr', 'share', 'man', 'man1');
+    const manualDir = path.join(dir, pkg.metadata.debName, 'usr', 'share', 'man', 'man' + getManSection(pkg.manpage.packagedFilePath));
     await fs.mkdir(manualDir, { recursive: true });
     await fs.copyFile(pkg.manpage.sourceFilePath, path.join(manualDir, pkg.manpage.packagedFilePath), COPYFILE_FICLONE);
   }

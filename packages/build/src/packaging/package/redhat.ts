@@ -2,11 +2,18 @@ import { constants, promises as fs } from 'fs';
 import path from 'path';
 import rimraf from 'rimraf';
 import { promisify } from 'util';
-import { execFile as execFileFn, generateDirFromTemplate, sanitizeVersion } from './helpers';
+import { execFile as execFileFn, generateDirFromTemplate, sanitizeVersion, getManSection } from './helpers';
 import { PackageInformation } from './package-information';
 import { Arch, getRPMArchName } from '../../config';
 
 const { COPYFILE_FICLONE } = constants;
+
+interface InstallFile {
+  fromFilename: string;
+  toFilename: string;
+  category: 'man' | 'bin' | 'libexec';
+  mode: string;
+}
 
 /**
  * Creates an RPM archive.
@@ -23,10 +30,26 @@ export async function createRedhatPackage(
   // this package contains both Apache-2.0 and non-free software.
   // https://fedoraproject.org/wiki/Packaging:LicensingGuidelines#Multiple_Licensing_Scenarios
   const licenseRpm = pkg.binaries.map(({ license }) => license.rpmIdentifier).join(' and ');
-  // Put the binaries in their expected locations.
-  const installscriptRpm = pkg.binaries.map(({ sourceFilePath, category }) =>
-    `mkdir -p %{buildroot}/%{_${category}dir}\n` +
-        `install -m 755 ${path.basename(sourceFilePath)} %{buildroot}/%{_${category}dir}/${path.basename(sourceFilePath)}`)
+  // Put buildroot files in their expected locations. This includes the binary files
+  // and the man page.
+  const installFiles: InstallFile[] = pkg.binaries.map(({ sourceFilePath, category }) =>
+    ({
+      fromFilename: path.basename(sourceFilePath),
+      toFilename: path.basename(sourceFilePath),
+      category,
+      mode: '755'
+    }));
+  if (pkg.manpage) {
+    installFiles.push({
+      fromFilename: pkg.manpage.packagedFilePath,
+      toFilename: `man${getManSection(pkg.manpage.packagedFilePath)}/${pkg.manpage.packagedFilePath}`,
+      category: 'man',
+      mode: '644'
+    });
+  }
+  const installscriptRpm = installFiles.map(({ fromFilename, toFilename, category, mode }) =>
+    `mkdir -p %{buildroot}/%{_${category}dir}/${path.dirname(toFilename)}\n` +
+        `install -m ${mode} ${fromFilename} %{buildroot}/%{_${category}dir}/${toFilename}`)
     .join('\n');
     // Add binaries to the package, and list license and other documentation files.
     // rpm will automatically put license and doc files in the directories where
@@ -38,7 +61,7 @@ export async function createRedhatPackage(
     ...pkg.otherDocFilePaths.map(({ packagedFilePath }) => `%doc ${packagedFilePath}`),
   ];
   if (pkg.manpage) {
-    filelistRpm.push(`%doc ${pkg.manpage.packagedFilePath}`);
+    filelistRpm.push(`%{_mandir}/man${getManSection(pkg.manpage.packagedFilePath)}/${pkg.manpage.packagedFilePath}`);
   }
   const version = sanitizeVersion(pkg.metadata.version, 'rpm');
   const dir = await generateDirFromTemplate(templateDir, {
