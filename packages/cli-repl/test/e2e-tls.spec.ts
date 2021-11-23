@@ -214,8 +214,13 @@ describe('e2e TLS', () => {
         });
         const prompt = await shell.waitForPromptOrExit();
         expect(prompt.state).to.equal('prompt');
-        await shell.executeLine('db.runCommand({ connectionStatus: 1 })');
-        shell.assertContainsOutput(`user: '${certUser}'`);
+        expect(await shell.executeLine('db.runCommand({ connectionStatus: 1 })'))
+          .to.include(`user: '${certUser}'`);
+
+        expect(await shell.executeLine('db.getSiblingDB("$external").auth({mechanism: "MONGODB-X509"})'))
+          .to.include('ok: 1');
+        expect(await shell.executeLine('db.runCommand({ connectionStatus: 1 })'))
+          .to.include(`user: '${certUser}'`);
       });
 
       it('works with valid cert (connection string)', async() => {
@@ -228,8 +233,13 @@ describe('e2e TLS', () => {
         });
         const prompt = await shell.waitForPromptOrExit();
         expect(prompt.state).to.equal('prompt');
-        await shell.executeLine('db.runCommand({ connectionStatus: 1 })');
-        shell.assertContainsOutput(`user: '${certUser}'`);
+        expect(await shell.executeLine('db.runCommand({ connectionStatus: 1 })'))
+          .to.include(`user: '${certUser}'`);
+
+        expect(await shell.executeLine('db.getSiblingDB("$external").auth({mechanism: "MONGODB-X509"})'))
+          .to.include('ok: 1');
+        expect(await shell.executeLine('db.runCommand({ connectionStatus: 1 })'))
+          .to.include(`user: '${certUser}'`);
       });
 
       it('fails with invalid cert (args)', async() => {

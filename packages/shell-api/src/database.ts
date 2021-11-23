@@ -521,9 +521,9 @@ export default class Database extends ShellApiWithMongoClass {
         CommonErrors.InvalidArgument
       );
     }
-    if (!authDoc.user || !authDoc.pwd) {
+    if ((!authDoc.user || !authDoc.pwd) && !authDoc.mechanism) {
       throw new MongoshInvalidInputError(
-        'auth expects user document with \'user\' and \'pwd\' fields',
+        'auth expects user document with at least \'user\' and \'pwd\' or \'mechanism\' fields',
         CommonErrors.InvalidArgument
       );
     }
