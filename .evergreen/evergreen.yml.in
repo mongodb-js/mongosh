@@ -834,7 +834,7 @@ tasks:
   - name: release_publish
     tags: ["publish"]
     git_tag_only: true
-    exec_timeout_secs: 7200
+    exec_timeout_secs: 10800
     depends_on:
       - name: compile_ts
         variant: linux
