@@ -8740,6 +8740,7 @@ buildvariants:
     tasks:
       - name: pkg_test_docker_centos7_rpm
       - name: pkg_test_docker_centos8_rpm
+      - name: pkg_test_docker_fedora34_rpm
       - name: pkg_test_docker_suse12_rpm
       - name: pkg_test_docker_suse15_rpm
       - name: pkg_test_docker_amazonlinux1_rpm

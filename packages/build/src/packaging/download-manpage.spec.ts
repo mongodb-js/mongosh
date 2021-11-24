@@ -13,7 +13,7 @@ describe('packaging download manpage', () => {
       );
 
     const destination = join(__dirname, '..', '..', 'tmp', 'manpage');
-    const name = 'manpages.gz';
+    const name = 'foobar.1.gz';
     await downloadManpage('http://example.com', destination, name);
     await fs.access(join(destination, name));
   });
