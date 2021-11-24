@@ -5,6 +5,7 @@ import { bson, AutoEncryptionOptions } from '@mongosh/service-provider-core';
 import { CliOptions, CliServiceProvider, MongoClientOptions } from '@mongosh/service-provider-server';
 import { SnippetManager } from '@mongosh/snippet-manager';
 import { Editor } from '@mongosh/editor';
+import { redactSensitiveData } from '@mongosh/history';
 import Analytics from 'analytics-node';
 import askpassword from 'askpassword';
 import ConnectionString from 'mongodb-connection-string-url';
@@ -181,6 +182,7 @@ class CliRepl {
 
     logger.info('MONGOSH', mongoLogId(1_000_000_000), 'log', 'Starting log', {
       execPath: process.execPath,
+      envInfo: redactSensitiveData(this.getLoggedEnvironmentVariables()),
       ...buildInfo()
     });
 
@@ -570,6 +572,12 @@ class CliRepl {
   /** Provide extra information for reporting internal errors */
   bugReportErrorMessageInfo(): string {
     return `Please include the log file for this session (${this.logWriter?.logFilePath}).`;
+  }
+
+  /** Return environment variables that can be useful for troubleshooting */
+  getLoggedEnvironmentVariables(): Record<string, string | undefined> {
+    const { EDITOR, NODE_OPTIONS, TERM } = process.env;
+    return { EDITOR, NODE_OPTIONS, TERM };
   }
 }
 
