@@ -252,7 +252,7 @@ Package|Version|License
 **[readable-stream](#75bd2243ec5ecc92b8d7e9a2e9a1aa142f20f6a5aad6dc0d923cdab997766174)**|3.6.0|MIT
 **[remove-array-items](#f13d4ea4ad6d2e91fde9a79ec185429676521efe83ab086a9280e5e55764fbe8)**|1.1.1|MIT
 **[remove-trailing-slash](#c4aa47ea31cd2ba713e965864e0b6d76049e060ca2a20bebca0be359deecc718)**|0.1.0|MIT
-**[resolve-mongodb-srv](#3172bdb1738e12183814379be9f105351369bc416dad20f4d7ca16baf530cc06)**|1.1.0|Apache-2.0
+**[resolve-mongodb-srv](#871f9c1109a7c892b16c36b55b008fcb5c2c8ab9bef37b7dd698163098770a1e)**|1.1.1|Apache-2.0
 **[safe-buffer](#115052870841b125f6e9deb1b800b99ed9c660f269050eafb32c84bdd9211f12)**|5.1.2|MIT
 **[safe-buffer](#952cf236ee56e7de5ea7e772caf3e256866f9dbdffc492539c48cd8c15ac9674)**|5.2.1|MIT
 **[saslprep](#650475af3b2a0c96fc8e5d09155f96dccd1a6b720da0197b0ea1121968883b25)**|1.0.4|MIT
@@ -290,7 +290,7 @@ Package|Version|License
 **[webidl-conversions](#cb7c681998e7ee3c598e6e37432bcf448946924eefe816636c3cb122bae46e1c)**|7.0.0|BSD-2-Clause
 **[webidl-conversions](#0868d5fd0f1744b732e4832b5dd5bd9ce27ffe9dcaa6cacda5a4efca750da5fb)**|6.1.0|BSD-2-Clause
 **[whatwg-url](#5d2cdcc7276796013d4573d401d239ff04971bb5a44fbb0e1bc62cae6f5ca911)**|11.0.0|MIT
-**[whatwg-url](#1b9074bca64d1c71f4c40e9dffb78610493cda13a00a5ad06063ce2741751aff)**|8.6.0|MIT
+**[whatwg-url](#2db4c3c174b1cdd0ec3bf9cb2d4bdd0eeede67228f92d99cdc150febb5406085)**|8.7.0|MIT
 **[whatwg-url](#27c192a5f829a75dd40ddb7c74db291436ef4a59c16e9ed876ee2ecee80c460a)**|9.1.0|MIT
 **[which](#5a71f2b741944bf107d6e7f067241798a6e277e42e8ca1e28c4608ccc233f8ec)**|2.0.2|ISC
 **[wide-align](#c58d08bb85700ddf0f3ea9623adf6b3377301a5a4eeb3d115a63320de0cb59e6)**|1.1.3|ISC
@@ -15683,8 +15683,8 @@ Authors:
 * Stephen Mathieson <me@stephenmathieson.com>
 
 
-<a id="3172bdb1738e12183814379be9f105351369bc416dad20f4d7ca16baf530cc06"></a>
-### [resolve-mongodb-srv](https://www.npmjs.com/package/resolve-mongodb-srv) (version 1.1.0)
+<a id="871f9c1109a7c892b16c36b55b008fcb5c2c8ab9bef37b7dd698163098770a1e"></a>
+### [resolve-mongodb-srv](https://www.npmjs.com/package/resolve-mongodb-srv) (version 1.1.1)
 <!-- initially found at packages/service-provider-server/node_modules/resolve-mongodb-srv -->
 > Resolve mongodb+srv:// URLs to mongodb:// URLs
 
@@ -17173,8 +17173,8 @@ Authors:
 * Sebastian Mayr <github@smayr.name>
 
 
-<a id="1b9074bca64d1c71f4c40e9dffb78610493cda13a00a5ad06063ce2741751aff"></a>
-### [whatwg-url](https://www.npmjs.com/package/whatwg-url) (version 8.6.0)
+<a id="2db4c3c174b1cdd0ec3bf9cb2d4bdd0eeede67228f92d99cdc150febb5406085"></a>
+### [whatwg-url](https://www.npmjs.com/package/whatwg-url) (version 8.7.0)
 <!-- initially found at packages/service-provider-server/node_modules/whatwg-url -->
 > An implementation of the WHATWG URL Standard's URL API and parsing machinery
 
