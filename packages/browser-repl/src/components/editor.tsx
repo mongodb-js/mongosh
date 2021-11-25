@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import AceEditor from 'react-ace';
 import type { IAceEditor } from 'react-ace/lib/types';
-import 'ace-builds';
-import 'ace-builds/webpack-resolver';
+import ace from 'ace-builds';
+// @ts-ignore
+import jsWorkerUrl from "file-loader!ace-builds/src-noconflict/worker-javascript";
+ace.config.setModuleUrl("ace/mode/javascript_worker", jsWorkerUrl);
 import tools from 'ace-builds/src-noconflict/ext-language_tools';
 import 'ace-builds/src-noconflict/mode-javascript';
 import { Autocompleter } from '@mongosh/browser-runtime-core';
