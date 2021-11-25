@@ -50,7 +50,7 @@
   "optionalDependencies": {
     "mongodb-client-encryption": "^2.0.0-beta.0",
     "os-dns-native": "^1.0.3",
-    "resolve-mongodb-srv": "^1.1.0",
+    "resolve-mongodb-srv": "^1.1.1",
     "kerberos": "^2.0.0-beta.0"
   }
 }
