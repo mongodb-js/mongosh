@@ -1,13 +1,9 @@
 import React, { Component } from 'react';
-import AceEditor from 'react-ace';
-import type { IAceEditor } from 'react-ace/lib/types';
-import ace from 'ace-builds';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import jsWorkerUrl from 'file-loader!ace-builds/src-noconflict/worker-javascript';
-ace.config.setModuleUrl('ace/mode/javascript_worker', jsWorkerUrl);
+import 'ace-builds';
 import tools from 'ace-builds/src-noconflict/ext-language_tools';
 import 'ace-builds/src-noconflict/mode-javascript';
+import type { IAceEditor } from 'react-ace/lib/types';
+import AceEditor from 'react-ace';
 import { Autocompleter } from '@mongosh/browser-runtime-core';
 import { AceAutocompleterAdapter } from './ace-autocompleter-adapter';
 import './ace-theme';
@@ -96,7 +92,8 @@ export class Editor extends Component<EditorProps> {
         enableLiveAutocompletion: !!this.props.autocompleter,
         enableSnippets: false,
         showLineNumbers: false,
-        tabSize: 2
+        tabSize: 2,
+        useWorker: false
       }}
       name={`mongosh-ace-${Date.now()}`}
       mode="javascript"
