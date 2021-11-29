@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
 import AceEditor from 'react-ace';
-import type { IAceEditor } from 'react-ace/lib/types';
-import 'ace-builds';
-import 'ace-builds/webpack-resolver';
-import tools from 'ace-builds/src-noconflict/ext-language_tools';
-import 'ace-builds/src-noconflict/mode-javascript';
 import { Autocompleter } from '@mongosh/browser-runtime-core';
 import { AceAutocompleterAdapter } from './ace-autocompleter-adapter';
+
+import 'brace/ext/language_tools';
+import 'brace/mode/javascript';
 import './ace-theme';
+
+import ace from 'brace';
+const tools = ace.acequire('ace/ext/language_tools');
 
 const noop = (): void => {};
 
@@ -21,7 +22,7 @@ interface EditorProps {
   onClearCommand(): void | Promise<void>;
   onSigInt(): Promise<boolean>;
   operationInProgress: boolean;
-  setInputRef?(ref: { editor?: IAceEditor }): void;
+  setInputRef?(ref: { editor?: HTMLElement }): void;
   value: string;
 }
 
@@ -99,7 +100,7 @@ export class Editor extends Component<EditorProps> {
       mode="javascript"
       ref={(ref: AceEditor | null): void => {
         if (this.props.setInputRef && ref !== null) {
-          this.props.setInputRef(ref as { editor?: IAceEditor });
+          this.props.setInputRef(ref as { editor?: HTMLElement });
         }
       }}
       theme="mongosh"
