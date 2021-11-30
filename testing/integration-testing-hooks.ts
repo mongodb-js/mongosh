@@ -120,7 +120,9 @@ export async function getMlaunchPath(): Promise<{ exec: string[], env: Record<st
       return mlaunchPath = { exec: [ python, exec ], env: { PYTHONPATH: tmpdir } };
     }
     ciLog('Trying to install mlaunch in ', tmpdir);
-    await execFile('pip3', ['install', '--target', tmpdir, 'mtools[mlaunch]']);
+    // Pin pymongo to 3.12.2 because mlaunch does not seem to be compatible
+    // with 4.0, see https://jira.mongodb.org/browse/MONGOSH-1072
+    await execFile('pip3', ['install', '--target', tmpdir, 'mtools[mlaunch]', 'pymongo==3.12.2']);
     ciLog('Installation complete');
     [ exec ] = await tryExtensions(mlaunchPy);
     if (exec) {
