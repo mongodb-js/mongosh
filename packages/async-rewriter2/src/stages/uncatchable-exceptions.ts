@@ -75,8 +75,10 @@ export default ({ types: t }: { types: typeof BabelTypes }): babel.PluginObj<{}>
           // (i.e. whether the finalizer is allowed to run) outside of the
           // try/catch/finally block.
           const isCatchable = path.scope.generateUidIdentifier('_isCatchable');
+          const exceptionFromCatchIdentifier = path.scope.generateUidIdentifier('_innerExc');
           path.replaceWithMultiple([
-            t.variableDeclaration('let', [t.variableDeclarator(isCatchable)]),
+            // let isCatchable = true /* for the case in which no exception is thrown */
+            t.variableDeclaration('let', [t.variableDeclarator(isCatchable, t.booleanLiteral(true))]),
             Object.assign(
               t.tryStatement(
                 block,
@@ -89,7 +91,26 @@ export default ({ types: t }: { types: typeof BabelTypes }): babel.PluginObj<{}>
                         isCatchable,
                         notUncatchableCheck({ ERR_IDENTIFIER: catchParam }))),
                     // if (isCatchable) { ... } else throw err;
-                    t.ifStatement(isCatchable, handler.body, t.throwStatement(catchParam))
+                    t.ifStatement(
+                      isCatchable,
+                      // try/catch around the catch body so we know whether finally should run here
+                      Object.assign(t.tryStatement(
+                        handler.body,
+                        // catch (err) {
+                        t.catchClause(
+                          exceptionFromCatchIdentifier,
+                          t.blockStatement([
+                            // isCatchable = !err[isUncatchableSymbol]
+                            t.expressionStatement(
+                              t.assignmentExpression('=',
+                                isCatchable,
+                                notUncatchableCheck({ ERR_IDENTIFIER: exceptionFromCatchIdentifier }))),
+                            // throw err;
+                            t.throwStatement(exceptionFromCatchIdentifier)
+                          ])
+                        )
+                      ), { [isGeneratedTryCatch]: true }),
+                      t.throwStatement(catchParam))
                   ]),
                 ),
                 t.blockStatement([

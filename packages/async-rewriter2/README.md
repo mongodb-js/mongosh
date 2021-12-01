@@ -107,14 +107,21 @@ try {
 into
 
 ```js
-let _isCatchable;
+let _isCatchable = true;
 
 try {
   foo1();
 } catch (err) {
   _isCatchable = !err || !err[Symbol.for('@@mongosh.uncatchable')];
 
-  if (_isCatchable) bar1(err); else throw err;
+  if (_isCatchable) {
+    try {
+      bar1(err);
+    } catch (innerErr) {
+      _isCatchable = !innerErr || !innerErr[Symbol.for('@@mongosh.uncatchable')];
+      throw innerErr;
+    }
+  } else throw err;
 } finally {
   if (_isCatchable) baz();
 }
