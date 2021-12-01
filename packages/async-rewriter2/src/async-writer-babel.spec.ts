@@ -925,11 +925,50 @@ describe('AsyncWriter', () => {
       expect(result).to.equal('finally');
     });
 
+    it('allows returning from finally when exception was thrown in catch block', () => {
+      const result = runTranspiledCode(`
+      (() => {
+        try {
+          throw new Error('first error');
+        } catch (err) {
+          throw new Error('second error');
+        } finally {
+          return 'finally';
+        }
+      })();`);
+      expect(result).to.equal('finally');
+    });
+
+    it('allows returning from finally when no exception is thrown', () => {
+      const result = runTranspiledCode(`
+      (() => {
+        try {
+        } catch (err) {
+          return 'catch';
+        } finally {
+          return 'finally';
+        }
+      })();`);
+      expect(result).to.equal('finally');
+    });
+
     it('allows finally without catch', () => {
       const result = runTranspiledCode(`
       (() => {
         try {
           throw new Error('generic error');
+        } finally {
+          return 'finally';
+        }
+      })();`);
+      expect(result).to.equal('finally');
+    });
+
+    it('allows finally without catch with return from try block', () => {
+      const result = runTranspiledCode(`
+      (() => {
+        try {
+          return 'try';
         } finally {
           return 'finally';
         }
@@ -1014,6 +1053,24 @@ describe('AsyncWriter', () => {
           try {
             throwUncatchable();
           } finally { return; }
+        })();`);
+        expect.fail('missed exception');
+      } catch (err) {
+        expect(err.message).to.equal('uncatchable!');
+      }
+    });
+
+    it('does not catch uncatchable exceptions thrown from catch block', () => {
+      try {
+        runTranspiledCode(`
+        (() => {
+          try {
+            throw new Error('regular error');
+          } catch {
+            throwUncatchable();
+          } finally {
+            return;
+          }
         })();`);
         expect.fail('missed exception');
       } catch (err) {
