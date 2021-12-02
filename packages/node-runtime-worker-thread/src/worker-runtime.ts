@@ -85,13 +85,21 @@ const workerRuntime: WorkerRuntime = {
     driverOptions: MongoClientOptions = {},
     cliOptions: { nodb?: boolean } = {}
   ) {
-    provider = await CompassServiceProvider.connect(
+    // XXX The types here work out fine, and tsc accepts this code
+    // without 'as any'. However, since a change to the driver's
+    // .find() method signature (https://github.com/mongodb/node-mongodb-native/commit/307d623ea597c5d89c548b6731bd692fec7a8047)
+    // the webpack integration build fails with:
+    // [tsl] ERROR in /home/addaleax/src/mongosh/packages/node-runtime-worker-thread/src/worker-runtime.ts(88,5)
+    //       TS2589: Type instantiation is excessively deep and possibly infinite.
+    // I could not figure out why exactly that was the case, so 'as any'
+    // will have to do for now.
+    provider = await (CompassServiceProvider as any).connect(
       uri,
       driverOptions,
       cliOptions,
       messageBus
     );
-    runtime = new ElectronRuntime(provider, messageBus);
+    runtime = new ElectronRuntime(provider as ServiceProvider, messageBus);
     runtime.setEvaluationListener(evaluationListener);
   },
 
