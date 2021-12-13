@@ -1141,6 +1141,15 @@ describe('e2e', function() {
     });
   });
 
+  describe('with incomplete loadBalanced connectivity', () => {
+    it('prints a warning at startup', async() => {
+      const shell = TestShell.start({ args: [ 'mongodb://nonexistent/?loadBalanced=true' ] });
+      await shell.waitForPrompt();
+      shell.assertContainsOutput('The server failed to respond to a ping and may be unavailable');
+      shell.assertContainsOutput('MongoNetworkError');
+    });
+  });
+
   describe('run Node.js scripts as-is', () => {
     it('runs Node.js scripts as they are when using MONGOSH_RUN_NODE_SCRIPT', async() => {
       const filename = path.resolve(__dirname, 'fixtures', 'simple-console-log.js');
