@@ -1143,7 +1143,7 @@ describe('e2e', function() {
 
   describe('with incomplete loadBalanced connectivity', () => {
     it('prints a warning at startup', async() => {
-      const shell = TestShell.start({ args: [ 'mongodb://nonexistent/?loadBalanced=true' ] });
+      const shell = TestShell.start({ args: [ 'mongodb://localhost:1/?loadBalanced=true' ] });
       await shell.waitForPrompt();
       shell.assertContainsOutput('The server failed to respond to a ping and may be unavailable');
       shell.assertContainsOutput('MongoNetworkError');
