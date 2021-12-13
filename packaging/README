@@ -1,4 +1,9 @@
-This package contains mongosh, the mongo shell, and a helper binary, mongocryptd.
+This package contains `mongosh`, the mongo shell.
+Additionally, it includes a helper binary, `mongocryptd` (under the name
+`mongocryptd-mongosh`), as well as a manual page `mongosh.1.gz`
+that can be viewed using the `man` command line utility, and their
+respective licensing files.
+
 Extract them to a suitable location.
 
 For licensing information:
