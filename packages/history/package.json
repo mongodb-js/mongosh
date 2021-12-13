@@ -29,6 +29,7 @@
     "unitTestsOnly": true
   },
   "dependencies": {
-    "mongodb-redact": "^0.2.2"
+    "mongodb-redact": "^0.2.2",
+    "mongodb-connection-string-url": "^2.3.0"
   }
 }
