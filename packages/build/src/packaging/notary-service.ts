@@ -3,13 +3,15 @@ import os from 'os';
 import path from 'path';
 import { spawnSync as spawnSyncFn } from '../helpers';
 
-const DEFAULT_OPTIONS: Partial<NotarizeMsiOptions> = {
+const DEFAULT_OPTIONS: Partial<NotarizeOptions> = {
   serverUrl: 'http://notary-service.build.10gen.cc:5000/',
-  clientPath: 'C:\\cygwin\\usr\\local\\bin\\notary-client.py',
+  clientPath: process.platform === 'win32' ?
+    'C:\\cygwin\\usr\\local\\bin\\notary-client.py' :
+    '/usr/local/bin/notary-client.py',
   pythonExecutable: 'python'
 };
 
-export interface NotarizeMsiOptions {
+export interface NotarizeOptions {
   signingKeyName: string;
   authToken: string;
   signingComment: string;
@@ -18,19 +20,20 @@ export interface NotarizeMsiOptions {
   pythonExecutable?: string;
 }
 
-export async function notarizeMsi(
+export async function notarizeArtifact(
   file: string,
-  opts: NotarizeMsiOptions,
+  opts: NotarizeOptions,
   spawnSync: typeof spawnSyncFn = spawnSyncFn
 ): Promise<void> {
   if (!file) {
-    throw new Error('notarize MSI: missing file');
+    throw new Error('notarize artifact: missing file');
   }
   const options = validateOptions(opts);
 
-  const authTokenFile = path.join(os.homedir(), '.notary-mongosh-token.tmp');
+  const authTokenFile = path.join(os.homedir(), `.notary-mongosh-token.${Date.now()}.tmp`);
   await fs.writeFile(authTokenFile, options.authToken, {
-    encoding: 'utf8'
+    encoding: 'utf8',
+    mode: 0o600
   });
 
   try {
@@ -56,19 +59,19 @@ export async function notarizeMsi(
   }
 }
 
-function validateOptions(options: NotarizeMsiOptions): Required<NotarizeMsiOptions> {
+function validateOptions(options: NotarizeOptions): Required<NotarizeOptions> {
   const opts = {
     ...DEFAULT_OPTIONS,
     ...options
   };
   if (!opts.signingKeyName) {
-    throw new Error('notarize MSI: missing signing key name');
+    throw new Error('notarize artifact: missing signing key name');
   }
   if (!opts.authToken) {
-    throw new Error('notarize MSI: missing auth token');
+    throw new Error('notarize artifact: missing auth token');
   }
   if (!opts.signingComment) {
-    throw new Error('notarize MSI: missing signing comment');
+    throw new Error('notarize artifact: missing signing comment');
   }
-  return opts as Required<NotarizeMsiOptions>;
+  return opts as Required<NotarizeOptions>;
 }

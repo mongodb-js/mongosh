@@ -5,3 +5,7 @@ export {
   PackageFile,
   PackageInformation
 } from './package';
+
+export {
+  notarizeArtifact
+} from './notary-service';

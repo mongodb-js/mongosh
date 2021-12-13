@@ -5,7 +5,7 @@ import { Config, Platform, validateBuildVariant } from '../config';
 import { downloadMongocrypt } from './download-mongocryptd';
 import { downloadManpage } from './download-manpage';
 import { macOSSignAndNotarize } from './macos-sign';
-import { notarizeMsi } from './msi-sign';
+import { notarizeArtifact } from './notary-service';
 import { createPackage, PackageFile } from './package';
 
 export async function runPackage(
@@ -60,7 +60,7 @@ export async function runPackage(
   const packaged = await runCreatePackage();
 
   if (distributionBuildVariant === 'win32msi-x64') {
-    await notarizeMsi(
+    await notarizeArtifact(
       packaged.path,
       {
         signingKeyName: config.notarySigningKeyName || '',

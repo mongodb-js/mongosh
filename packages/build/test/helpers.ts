@@ -45,6 +45,8 @@ export const dummyConfig: Config = Object.freeze({
   appleNotarizationUsername: 'appleNotarizationUsername',
   appleNotarizationApplicationPassword: 'appleNotarizationApplicationPassword',
   appleCodesignIdentity: 'appleCodesignIdentity',
+  notarySigningKeyName: 'notarySigningKey',
+  notaryAuthToken: 'notaryAuthToken',
   isCi: true,
   platform: 'linux',
   repo: {

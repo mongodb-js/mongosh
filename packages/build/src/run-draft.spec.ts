@@ -3,6 +3,7 @@ import sinon from 'ts-sinon';
 import { ALL_BUILD_VARIANTS, Config } from './config';
 import { uploadArtifactToDownloadCenter as uploadArtifactToDownloadCenterFn } from './download-center';
 import { downloadArtifactFromEvergreen as downloadArtifactFromEvergreenFn } from './evergreen';
+import { notarizeArtifact as notarizeArtifactFn } from './packaging';
 import { generateChangelog as generateChangelogFn } from './git';
 import { GithubRepo } from '@mongodb-js/devtools-github-repo';
 import { ensureGithubReleaseExistsAndUpdateChangelogFn, runDraft } from './run-draft';
@@ -19,12 +20,14 @@ describe('draft', () => {
   let githubRepo: GithubRepo;
   let uploadArtifactToDownloadCenter: typeof uploadArtifactToDownloadCenterFn;
   let downloadArtifactFromEvergreen: typeof downloadArtifactFromEvergreenFn;
+  let notarizeArtifact: typeof notarizeArtifactFn;
 
   beforeEach(() => {
     config = { ...dummyConfig };
 
     uploadArtifactToDownloadCenter = sinon.spy();
     downloadArtifactFromEvergreen = sinon.spy();
+    notarizeArtifact = sinon.spy();
   });
 
   describe('runDraft', () => {
@@ -49,7 +52,8 @@ describe('draft', () => {
           githubRepo,
           uploadArtifactToDownloadCenter,
           downloadArtifactFromEvergreen,
-          ensureGithubReleaseExistsAndUpdateChangelog
+          ensureGithubReleaseExistsAndUpdateChangelog,
+          notarizeArtifact
         );
       });
 
@@ -63,12 +67,16 @@ describe('draft', () => {
         expect(downloadArtifactFromEvergreen).to.have.been.callCount(ALL_BUILD_VARIANTS.length);
       });
 
+      it('asks the notary service to sign files', () => {
+        expect(notarizeArtifact).to.have.been.callCount(ALL_BUILD_VARIANTS.length);
+      });
+
       it('uploads artifacts to download center', () => {
-        expect(uploadArtifactToDownloadCenter).to.have.been.callCount(ALL_BUILD_VARIANTS.length);
+        expect(uploadArtifactToDownloadCenter).to.have.been.callCount(ALL_BUILD_VARIANTS.length * 2);
       });
 
       it('uploads the artifacts to the github release', () => {
-        expect(uploadReleaseAsset).to.have.been.callCount(ALL_BUILD_VARIANTS.length);
+        expect(uploadReleaseAsset).to.have.been.callCount(ALL_BUILD_VARIANTS.length * 2);
       });
     });
 
@@ -83,7 +91,8 @@ describe('draft', () => {
         githubRepo,
         uploadArtifactToDownloadCenter,
         downloadArtifactFromEvergreen,
-        ensureGithubReleaseExistsAndUpdateChangelog
+        ensureGithubReleaseExistsAndUpdateChangelog,
+        notarizeArtifact
       );
       expect(ensureGithubReleaseExistsAndUpdateChangelog).to.not.have.been.called;
       expect(downloadArtifactFromEvergreen).to.not.have.been.called;
@@ -105,7 +114,8 @@ describe('draft', () => {
           githubRepo,
           uploadArtifactToDownloadCenter,
           downloadArtifactFromEvergreen,
-          ensureGithubReleaseExistsAndUpdateChangelog
+          ensureGithubReleaseExistsAndUpdateChangelog,
+          notarizeArtifact
         );
       } catch (e) {
         expect(e.message).to.contain('Missing package information from config');
@@ -113,6 +123,7 @@ describe('draft', () => {
         expect(downloadArtifactFromEvergreen).to.not.have.been.called;
         expect(uploadArtifactToDownloadCenter).to.not.have.been.called;
         expect(uploadReleaseAsset).to.not.have.been.called;
+        expect(notarizeArtifact).to.not.have.been.called;
         return;
       }
       expect.fail('Expected error');

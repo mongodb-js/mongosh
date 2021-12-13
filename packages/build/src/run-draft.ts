@@ -3,6 +3,7 @@ import path from 'path';
 import { ALL_BUILD_VARIANTS, Config, getReleaseVersionFromTag } from './config';
 import { uploadArtifactToDownloadCenter as uploadArtifactToDownloadCenterFn } from './download-center';
 import { downloadArtifactFromEvergreen as downloadArtifactFromEvergreenFn } from './evergreen';
+import { notarizeArtifact as notarizeArtifactFn } from './packaging';
 import { generateChangelog as generateChangelogFn } from './git';
 import { GithubRepo } from '@mongodb-js/devtools-github-repo';
 import { getPackageFile } from './packaging';
@@ -12,7 +13,8 @@ export async function runDraft(
   githubRepo: GithubRepo,
   uploadToDownloadCenter: typeof uploadArtifactToDownloadCenterFn = uploadArtifactToDownloadCenterFn,
   downloadArtifactFromEvergreen: typeof downloadArtifactFromEvergreenFn = downloadArtifactFromEvergreenFn,
-  ensureGithubReleaseExistsAndUpdateChangelog: typeof ensureGithubReleaseExistsAndUpdateChangelogFn = ensureGithubReleaseExistsAndUpdateChangelogFn
+  ensureGithubReleaseExistsAndUpdateChangelog: typeof ensureGithubReleaseExistsAndUpdateChangelogFn = ensureGithubReleaseExistsAndUpdateChangelogFn,
+  notarizeArtifact: typeof notarizeArtifactFn = notarizeArtifactFn
 ): Promise<void> {
   if (!config.triggeringGitTag || !getReleaseVersionFromTag(config.triggeringGitTag)) {
     console.error('mongosh: skipping draft as not triggered by a git tag that matches a draft/release tag');
@@ -42,19 +44,31 @@ export async function runDraft(
       tmpDir
     );
 
-    await uploadToDownloadCenter(
-      downloadedArtifact,
-      config.downloadCenterAwsKey as string,
-      config.downloadCenterAwsSecret as string
-    );
-
-    await githubRepo.uploadReleaseAsset(
-      githubReleaseTag,
+    await notarizeArtifact(
+      tarballFile.path,
       {
-        path: downloadedArtifact,
-        contentType: tarballFile.contentType
+        signingKeyName: config.notarySigningKeyName || '',
+        authToken: config.notaryAuthToken || '',
+        signingComment: 'Evergreen Automatic Signing (mongosh)'
       }
     );
+    const signatureFile = tarballFile.path + '.sig';
+
+    await Promise.all([
+      [ downloadedArtifact, tarballFile.contentType ],
+      [ signatureFile, 'application/pgp-signature' ]
+    ].flatMap(([ path, contentType ]) => [
+      uploadToDownloadCenter(
+        path,
+        config.downloadCenterAwsKey as string,
+        config.downloadCenterAwsSecret as string
+      ),
+
+      githubRepo.uploadReleaseAsset(
+        githubReleaseTag,
+        { path, contentType }
+      )
+    ]));
   }
 }
 
