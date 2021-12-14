@@ -208,7 +208,7 @@ Package|Version|License
 **[minizlib](#cce17959eefb79a78461796cc716519d9f9ba1b56fa35ae9bb2f589c61514cd2)**|2.1.2|MIT
 **[mkdirp](#f34eebd27506e3aa07ba3b64064715e0c4f310dad1207ad88fff362353cd4cce)**|1.0.4|MIT
 **[mkdirp-classic](#e79cc875152b50c2eb57a97163d99f0155bf4e4af7ba4a7e01c12a17a4a3305c)**|0.5.3|MIT
-**[mongodb](#844a21e16f4b56cd29740ad1e909c00f53dbb0c39c3a1aa9b3233df29aa0fef0)**|4.2.1|Apache-2.0
+**[mongodb](#4abb7c3781a5679cc44b0fd54eae0b926ff16813b880e3f8da515eb51beee123)**|4.2.2|Apache-2.0
 **[mongodb-ace-autocompleter](#748ac40e1ac4fccd1d280b4f71f958b447c1aa63e92dee2e61c119d66898781f)**|0.8.0|Apache-2.0
 **[mongodb-build-info](#3e1ab3564d63f8a06a80cc2b752a458eabdaa33318303341aa6f7a9461115958)**|1.2.0|Apache-2.0
 **[mongodb-client-encryption](#2670432992a4ec6240bc245a26b98695623fdbe720a667f90fbfe03c9de2e4ab)**|2.0.0-beta.0|Apache-2.0
@@ -12584,8 +12584,8 @@ Authors:
 * Mathias Buus (@mafintosh)
 
 
-<a id="844a21e16f4b56cd29740ad1e909c00f53dbb0c39c3a1aa9b3233df29aa0fef0"></a>
-### [mongodb](https://www.npmjs.com/package/mongodb) (version 4.2.1)
+<a id="4abb7c3781a5679cc44b0fd54eae0b926ff16813b880e3f8da515eb51beee123"></a>
+### [mongodb](https://www.npmjs.com/package/mongodb) (version 4.2.2)
 <!-- initially found at packages/service-provider-core/node_modules/mongodb -->
 > The official MongoDB driver for Node.js
 
