@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Mon Dec 13 2021.
+This document was automatically generated on Tue Dec 14 2021.
 
 ## List of dependencies
 
@@ -82,7 +82,7 @@ Package|Version|License
 **[@types/babel__traverse](#49354c25e4c67737cbe7e9a64e5afd2eb9dd5a2d86fa15625409b0959c2e0381)**|7.14.2|MIT
 **[@types/chai](#f1c196dcf5d38202d6c4b2fc2058a414fe9341c59206d408c11714f97952f0ab)**|4.2.11|MIT
 **[@types/node](#05b4f940bbcecb5d857d91cbbe07beeefbcc3e42f2c9cbe94d2667128baddd0d)**|14.14.6|MIT
-**[@types/node](#1983b54da813160115ceb31cab9acb6f515e8382fef467917b3117b9e2d651f9)**|16.4.11|MIT
+**[@types/node](#52dd8f78972ac0751f0c2e6bdca3c87cb4877733b5b3e33a7d126e21775bff15)**|16.11.12|MIT
 **[@types/sinon](#725d25542bdd70fdafa8c25453f70b158cede4bcfc539a569990c8b17ee78872)**|7.5.2|MIT
 **[@types/sinon-chai](#d1e86a93d7ef8073206c62f9815dd5db0438eaf693acd22d9f36c16c25e8538a)**|3.2.4|MIT
 **[@types/webidl-conversions](#e9aa0fc153af1bc4c2a1570ac028926fd49e92fde54bb80018b3cdda575c7b25)**|6.1.1|MIT
@@ -212,7 +212,7 @@ Package|Version|License
 **[mongodb-ace-autocompleter](#748ac40e1ac4fccd1d280b4f71f958b447c1aa63e92dee2e61c119d66898781f)**|0.8.0|Apache-2.0
 **[mongodb-build-info](#3e1ab3564d63f8a06a80cc2b752a458eabdaa33318303341aa6f7a9461115958)**|1.2.0|Apache-2.0
 **[mongodb-client-encryption](#2670432992a4ec6240bc245a26b98695623fdbe720a667f90fbfe03c9de2e4ab)**|2.0.0-beta.0|Apache-2.0
-**[mongodb-connection-string-url](#c542b3e550f874e4430ceda860a8eb55f388653722d8e9a8670e1974a7f8b0e5)**|2.2.0|Apache-2.0
+**[mongodb-connection-string-url](#3e30d136c6556714addecc9208a97d864d84c9b5df4d85615dc1904cfaed971b)**|2.3.2|Apache-2.0
 **[mongodb-log-writer](#8a1799a23f75e9ecd7b5954ead5e790d26a6037ee0a64f4676ce6f5febbd6aa5)**|1.0.3|Apache-2.0
 **[mongodb-redact](#00a2cfed57df1e8b912b751b08bee4de24ad0189840c99820ebc00c1b219a421)**|0.2.2|Apache-2.0
 **[ms](#0a987b2f79ff37005e452a5afa7dacd3042061a7077054d2ba9cabacd88506d2)**|2.1.2|MIT
@@ -5421,9 +5421,9 @@ Authors:
 * Victor Perin (https://github.com/victorperin)
 
 
-<a id="1983b54da813160115ceb31cab9acb6f515e8382fef467917b3117b9e2d651f9"></a>
-### [@types/node](https://www.npmjs.com/package/@types/node) (version 16.4.11)
-<!-- initially found at packages/service-provider-core/node_modules/@types/node -->
+<a id="52dd8f78972ac0751f0c2e6bdca3c87cb4877733b5b3e33a7d126e21775bff15"></a>
+### [@types/node](https://www.npmjs.com/package/@types/node) (version 16.11.12)
+<!-- initially found at packages/history/node_modules/@types/node -->
 > TypeScript definitions for Node.js
 
 License tags: MIT
@@ -5466,7 +5466,6 @@ Authors:
 * Deividas Bakanas (https://github.com/DeividasBakanas)
 * Eugene Y. Q. Shen (https://github.com/eyqs)
 * Hannes Magnusson (https://github.com/Hannes-Magnusson-CK)
-* Hoàng Văn Khải (https://github.com/KSXGitHub)
 * Huw (https://github.com/hoo29)
 * Kelvin Jin (https://github.com/kjin)
 * Klaus Meinhardt (https://github.com/ajafff)
@@ -5477,6 +5476,7 @@ Authors:
 * Nikita Galkin (https://github.com/galkin)
 * Parambir Singh (https://github.com/parambirs)
 * Sebastian Silbermann (https://github.com/eps1lon)
+* Seth Westphal (https://github.com/westy92)
 * Simon Schick (https://github.com/SimonSchick)
 * Thomas den Hollander (https://github.com/ThomasdenH)
 * Wilco Bakker (https://github.com/WilcoBakker)
@@ -5486,18 +5486,17 @@ Authors:
 * Thanik Bhongbhibhat (https://github.com/bhongy)
 * Marcin Kopacz (https://github.com/chyzwar)
 * Trivikram Kamat (https://github.com/trivikr)
-* Minh Son Nguyen (https://github.com/nguymin4)
 * Junxiao Shi (https://github.com/yoursunny)
 * Ilia Baryshnikov (https://github.com/qwelias)
 * ExE Boss (https://github.com/ExE-Boss)
 * Surasak Chaisurin (https://github.com/Ryan-Willpower)
 * Piotr Błażejewicz (https://github.com/peterblazejewicz)
 * Anna Henningsen (https://github.com/addaleax)
-* Jason Kwok (https://github.com/JasonHK)
 * Victor Perin (https://github.com/victorperin)
 * Yongsheng Zhang (https://github.com/ZYSzys)
 * NodeJS Contributors (https://github.com/NodeJS)
 * Linus Unnebäck (https://github.com/LinusU)
+* wafuwafu13 (https://github.com/wafuwafu13)
 
 
 <a id="725d25542bdd70fdafa8c25453f70b158cede4bcfc539a569990c8b17ee78872"></a>
@@ -13246,8 +13245,8 @@ Authors:
 * The MongoDB NodeJS Team <[dbx-node@mongodb.com](nomail)>
 
 
-<a id="c542b3e550f874e4430ceda860a8eb55f388653722d8e9a8670e1974a7f8b0e5"></a>
-### [mongodb-connection-string-url](https://www.npmjs.com/package/mongodb-connection-string-url) (version 2.2.0)
+<a id="3e30d136c6556714addecc9208a97d864d84c9b5df4d85615dc1904cfaed971b"></a>
+### [mongodb-connection-string-url](https://www.npmjs.com/package/mongodb-connection-string-url) (version 2.3.2)
 <!-- initially found at packages/cli-repl/node_modules/mongodb-connection-string-url -->
 > MongoDB connection strings, based on the WhatWG URL API
 
