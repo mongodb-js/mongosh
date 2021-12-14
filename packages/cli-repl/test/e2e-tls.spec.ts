@@ -2,8 +2,10 @@ import { assert, expect } from 'chai';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { skipIfEnvServerVersion, startTestServer } from '../../../testing/integration-testing-hooks';
-import { useTmpdir } from './repl-helpers';
+import { useTmpdir, setTemporaryHomeDirectory } from './repl-helpers';
 import { TestShell } from './test-shell';
+import { promisify } from 'util';
+import rimraf from 'rimraf';
 
 function getCertPath(filename: string): string {
   return path.join(__dirname, 'fixtures', 'certificates', filename);
@@ -12,6 +14,8 @@ const CA_CERT = getCertPath('ca.crt');
 const NON_CA_CERT = getCertPath('non-ca.crt');
 const CLIENT_CERT = getCertPath('client.bundle.pem');
 const CLIENT_CERT_PFX = getCertPath('client.bundle.pfx');
+const CLIENT_CERT_ENCRYPTED = getCertPath('client.bundle.encrypted.pem');
+const CLIENT_CERT_PASSWORD = 'p4ssw0rd';
 const INVALID_CLIENT_CERT = getCertPath('invalid-client.bundle.pem');
 const SERVER_KEY = getCertPath('server.bundle.pem');
 const SERVER_INVALIDHOST_KEY = getCertPath('server-invalidhost.bundle.pem');
@@ -156,8 +160,11 @@ describe('e2e TLS', () => {
 
     context('connecting with client cert to server with valid cert', () => {
       const tmpdir = useTmpdir();
+      let homedir: string;
+      let env: Record<string, string>;
+      let logBasePath: string;
 
-      after(async() => {
+      after(async function() {
         const shell = TestShell.start({ args:
           [
             await server.connectionString(),
@@ -169,8 +176,16 @@ describe('e2e TLS', () => {
         await shell.executeLine('db.shutdownServer({ force: true })');
         shell.kill();
         await shell.waitForExit();
+
+        await TestShell.cleanup.call(this);
+        try {
+          await promisify(rimraf)(homedir);
+        } catch (err) {
+          // On Windows in CI, this can fail with EPERM for some reason.
+          // If it does, just log the error instead of failing all tests.
+          console.error('Could not remove fake home directory:', err);
+        }
       });
-      afterEach(TestShell.cleanup);
 
       const server = startTestServer(
         'not-shared', '--hostname', 'localhost',
@@ -183,6 +198,15 @@ describe('e2e TLS', () => {
       before(async function() {
         if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
           return this.skip(); // createUser is unversioned
+        }
+        const homeInfo = setTemporaryHomeDirectory();
+        homedir = homeInfo.homedir;
+        env = homeInfo.env;
+
+        if (process.platform === 'win32') {
+          logBasePath = path.resolve(homedir, 'local', 'mongodb', 'mongosh');
+        } else {
+          logBasePath = path.resolve(homedir, '.mongodb', 'mongosh');
         }
         /* connect with cert to create user */
         const shell = TestShell.start({
@@ -223,6 +247,32 @@ describe('e2e TLS', () => {
           .to.include(`user: '${certUser}'`);
       });
 
+      it('works with valid cert (args, encrypted)', async() => {
+        const shell = TestShell.start({
+          args: [
+            `${await server.connectionString()}?serverSelectionTimeoutMS=1500`,
+            '--authenticationMechanism', 'MONGODB-X509',
+            '--tls', '--tlsCAFile', CA_CERT,
+            '--tlsCertificateKeyFile', CLIENT_CERT_ENCRYPTED,
+            '--tlsCertificateKeyFilePassword', CLIENT_CERT_PASSWORD
+          ],
+          env
+        });
+        const prompt = await shell.waitForPromptOrExit();
+        expect(prompt.state).to.equal('prompt');
+        expect(await shell.executeLine('db.runCommand({ connectionStatus: 1 })'))
+          .to.include(`user: '${certUser}'`);
+
+        expect(await shell.executeLine('db.getSiblingDB("$external").auth({mechanism: "MONGODB-X509"})'))
+          .to.include('ok: 1');
+        expect(await shell.executeLine('db.runCommand({ connectionStatus: 1 })'))
+          .to.include(`user: '${certUser}'`);
+
+        const logPath = path.join(logBasePath, `${shell.logId}_log`);
+        const logFileContents = await fs.readFile(logPath, 'utf8');
+        expect(logFileContents).not.to.include(CLIENT_CERT_PASSWORD);
+      });
+
       it('works with valid cert (connection string)', async() => {
         const shell = TestShell.start({
           args: [
@@ -240,6 +290,32 @@ describe('e2e TLS', () => {
           .to.include('ok: 1');
         expect(await shell.executeLine('db.runCommand({ connectionStatus: 1 })'))
           .to.include(`user: '${certUser}'`);
+      });
+
+      it('works with valid cert (connection string, encrypted)', async() => {
+        const shell = TestShell.start({
+          args: [
+            `${await server.connectionString()}?serverSelectionTimeoutMS=1500`
+            + '&authMechanism=MONGODB-X509'
+            + `&tls=true&tlsCAFile=${encodeURIComponent(CA_CERT)}`
+            + `&tlsCertificateKeyFile=${encodeURIComponent(CLIENT_CERT_ENCRYPTED)}`
+            + `&tlsCertificateKeyFilePassword=${encodeURIComponent(CLIENT_CERT_PASSWORD)}`
+          ],
+          env
+        });
+        const prompt = await shell.waitForPromptOrExit();
+        expect(prompt.state).to.equal('prompt');
+        expect(await shell.executeLine('db.runCommand({ connectionStatus: 1 })'))
+          .to.include(`user: '${certUser}'`);
+
+        expect(await shell.executeLine('db.getSiblingDB("$external").auth({mechanism: "MONGODB-X509"})'))
+          .to.include('ok: 1');
+        expect(await shell.executeLine('db.runCommand({ connectionStatus: 1 })'))
+          .to.include(`user: '${certUser}'`);
+
+        const logPath = path.join(logBasePath, `${shell.logId}_log`);
+        const logFileContents = await fs.readFile(logPath, 'utf8');
+        expect(logFileContents).not.to.include(CLIENT_CERT_PASSWORD);
       });
 
       it('fails with invalid cert (args)', async() => {
