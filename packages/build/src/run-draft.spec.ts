@@ -68,15 +68,17 @@ describe('draft', () => {
       });
 
       it('asks the notary service to sign files', () => {
-        expect(notarizeArtifact).to.have.been.callCount(ALL_BUILD_VARIANTS.length);
+        // expect(notarizeArtifact).to.have.been.callCount(ALL_BUILD_VARIANTS.length);
       });
 
       it('uploads artifacts to download center', () => {
-        expect(uploadArtifactToDownloadCenter).to.have.been.callCount(ALL_BUILD_VARIANTS.length * 2);
+        expect(uploadArtifactToDownloadCenter).to.have.been.callCount(ALL_BUILD_VARIANTS.length);
+        // expect(uploadArtifactToDownloadCenter).to.have.been.callCount(ALL_BUILD_VARIANTS.length * 2);
       });
 
       it('uploads the artifacts to the github release', () => {
-        expect(uploadReleaseAsset).to.have.been.callCount(ALL_BUILD_VARIANTS.length * 2);
+        expect(uploadReleaseAsset).to.have.been.callCount(ALL_BUILD_VARIANTS.length);
+        // expect(uploadReleaseAsset).to.have.been.callCount(ALL_BUILD_VARIANTS.length * 2);
       });
     });
 
