@@ -44,6 +44,8 @@ export async function runDraft(
       tmpDir
     );
 
+    /*
+    // pending https://jira.mongodb.org/browse/BUILD-14385
     await notarizeArtifact(
       tarballFile.path,
       {
@@ -53,10 +55,12 @@ export async function runDraft(
       }
     );
     const signatureFile = tarballFile.path + '.sig';
+    */
+    void notarizeArtifact;
 
     await Promise.all([
       [ downloadedArtifact, tarballFile.contentType ],
-      [ signatureFile, 'application/pgp-signature' ]
+      // [ signatureFile, 'application/pgp-signature' ]
     ].flatMap(([ path, contentType ]) => [
       uploadToDownloadCenter(
         path,
