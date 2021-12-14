@@ -44,7 +44,7 @@
     "@types/sinon-chai": "^3.2.3",
     "aws4": "^1.11.0",
     "mongodb": "^4.2.1",
-    "mongodb-connection-string-url": "^2.2.0",
+    "mongodb-connection-string-url": "^2.3.2",
     "saslprep": "mongodb-js/saslprep#v1.0.4"
   },
   "optionalDependencies": {
