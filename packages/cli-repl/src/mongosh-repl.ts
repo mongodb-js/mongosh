@@ -187,6 +187,7 @@ class MongoshNodeRepl implements EvaluationListener {
     }
     await this.greet(mongodVersion);
     await this.printStartupLog(instanceState);
+    await this.printBasicConnectivityWarning(instanceState);
 
     this.inspectCompact = await this.getConfig('inspectCompact');
     this.inspectDepth = await this.getConfig('inspectDepth');
@@ -457,6 +458,27 @@ class MongoshNodeRepl implements EvaluationListener {
     text += `${this.clr('------', ['bold', 'yellow'])}\n`;
     text += '\n';
     this.output.write(text);
+  }
+
+  /**
+   * Print a warning if the server is not able to respond to commands.
+   * This can happen in load balanced mode, for example.
+   */
+  async printBasicConnectivityWarning(instanceState: ShellInstanceState): Promise<void> {
+    if (this.shellCliOptions.nodb || this.shellCliOptions.quiet) {
+      return;
+    }
+
+    let err: Error;
+    try {
+      await instanceState.currentDb.adminCommand({ ping: 1 });
+      return;
+    } catch (error: any) {
+      err = error;
+    }
+
+    const text = this.clr('The server failed to respond to a ping and may be unavailable:', ['bold', 'yellow']);
+    this.output.write(text + '\n' + this.formatError(err) + '\n');
   }
 
   /**
