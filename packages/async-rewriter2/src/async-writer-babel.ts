@@ -32,9 +32,10 @@ export default class AsyncWriter {
       code: true,
       configFile: false,
       babelrc: false,
+      browserslistConfigFile: false,
       compact: code.length > 10_000,
       sourceType: 'script'
-    })?.code as string;
+    } as any /* https://github.com/DefinitelyTyped/DefinitelyTyped/pull/57732 */)?.code as string;
   }
 
   /**
