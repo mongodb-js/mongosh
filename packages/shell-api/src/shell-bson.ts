@@ -121,24 +121,25 @@ export default function constructShellBson(bson: typeof BSON, printWarning: (msg
       return new bson.Code(c, s);
     }, { ...bson.Code, prototype: bson.Code.prototype }),
     NumberDecimal: Object.assign(function NumberDecimal(s = '0'): typeof bson.Decimal128.prototype {
-      assertArgsDefinedType([s], [['string', 'number']], 'NumberDecimal');
-      if (typeof s === 'string') {
-        return bson.Decimal128.fromString(s);
+      assertArgsDefinedType([s], [['string', 'number', 'bson:Long', 'bson:Int32', 'bson:Decimal128']], 'NumberDecimal');
+      if (typeof s === 'number') {
+        printWarning('NumberDecimal: specifying a number as argument is deprecated and may lead to loss of precision, pass a string instead');
       }
-      printWarning('NumberDecimal: specifying a number as argument is deprecated and may lead to loss of precision, pass a string instead');
       return bson.Decimal128.fromString(`${s}`);
     }, { prototype: bson.Decimal128.prototype }),
     NumberInt: Object.assign(function NumberInt(v = '0'): typeof bson.Int32.prototype {
-      assertArgsDefinedType([v], [['string', 'number']], 'NumberInt');
+      v ??= '0';
+      assertArgsDefinedType([v], [['string', 'number', 'bson:Long', 'bson:Int32']], 'NumberInt');
       return new bson.Int32(parseInt(`${v}`, 10));
     }, { prototype: bson.Int32.prototype }),
     NumberLong: Object.assign(function NumberLong(s: string | number = '0'): typeof bson.Long.prototype {
-      assertArgsDefinedType([s], [['string', 'number']], 'NumberLong');
-      if (typeof s === 'string') {
-        return bson.Long.fromString(s);
+      s ??= '0';
+      assertArgsDefinedType([s], [['string', 'number', 'bson:Long', 'bson:Int32']], 'NumberLong');
+      if (typeof s === 'number') {
+        printWarning('NumberLong: specifying a number as argument is deprecated and may lead to loss of precision, pass a string instead');
+        return bson.Long.fromNumber(s);
       }
-      printWarning('NumberLong: specifying a number as argument is deprecated and may lead to loss of precision, pass a string instead');
-      return bson.Long.fromNumber(s);
+      return bson.Long.fromString(`${s}`);
     }, { prototype: bson.Long.prototype }),
     ISODate: function ISODate(input?: string): Date {
       if (!input) input = new Date().toISOString();
