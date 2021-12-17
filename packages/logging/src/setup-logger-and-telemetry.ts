@@ -26,18 +26,13 @@ import type {
   SnippetsNpmLookupEvent,
   SnippetsRunNpmEvent,
   SnippetsTransformErrorEvent,
-  SpConnectAttemptInitializedEvent,
-  SpConnectHeartbeatFailureEvent,
-  SpConnectHeartbeatSucceededEvent,
-  SpResolveSrvErrorEvent,
-  SpResolveSrvSucceededEvent,
-  SpMissingOptionalDependencyEvent,
   EditorRunEditCommandEvent,
   EditorReadVscodeExtensionsDoneEvent,
   EditorReadVscodeExtensionsFailedEvent
 } from '@mongosh/types';
 import { inspect } from 'util';
 import { MongoLogWriter, mongoLogId } from 'mongodb-log-writer';
+import { hookLogger as devtoolsConnectHookLogger } from '@mongodb-js/devtools-connect';
 
 /**
  * General interface for an Analytics provider that mongosh can use.
@@ -422,60 +417,16 @@ export function setupLoggerAndTelemetry(
     apiCalls.clear();
   });
 
-  bus.on('mongosh-sp:connect-attempt-initialized', function(ev: SpConnectAttemptInitializedEvent) {
-    log.info('MONGOSH-SP', mongoLogId(1_000_000_042), 'connect', 'Initiating connection attempt', {
-      ...ev,
-      uri: redactURICredentials(ev.uri)
-    });
-  });
-
-  bus.on('mongosh-sp:connect-heartbeat-failure', function(ev: SpConnectHeartbeatFailureEvent) {
-    log.warn('MONGOSH-SP', mongoLogId(1_000_000_034), 'connect', 'Server heartbeat failure', {
-      ...ev,
-      failure: ev.failure?.message
-    });
-  });
-
-  bus.on('mongosh-sp:connect-heartbeat-succeeded', function(ev: SpConnectHeartbeatSucceededEvent) {
-    log.info('MONGOSH-SP', mongoLogId(1_000_000_035), 'connect', 'Server heartbeat succeeded', ev);
-  });
-
-  bus.on('mongosh-sp:connect-fail-early', function() {
-    log.warn('MONGOSH-SP', mongoLogId(1_000_000_036), 'connect', 'Aborting connection attempt as irrecoverable');
-  });
-
-  bus.on('mongosh-sp:connect-attempt-finished', function() {
-    log.info('MONGOSH-SP', mongoLogId(1_000_000_037), 'connect', 'Connection attempt finished');
-  });
-
-  bus.on('mongosh-sp:resolve-srv-error', function(ev: SpResolveSrvErrorEvent) {
-    log.error('MONGOSH-SP', mongoLogId(1_000_000_038), 'connect', 'Resolving SRV record failed', {
-      from: redactURICredentials(ev.from),
-      error: ev.error?.message,
-      duringLoad: ev.duringLoad
-    });
-  });
-
-  bus.on('mongosh-sp:resolve-srv-succeeded', function(ev: SpResolveSrvSucceededEvent) {
-    log.info('MONGOSH-SP', mongoLogId(1_000_000_039), 'connect', 'Resolving SRV record succeeded', {
-      from: redactURICredentials(ev.from),
-      to: redactURICredentials(ev.to)
-    });
-  });
+  // Log ids 1_000_000_034 through 1_000_000_042 are reserved for the
+  // devtools-connect package which was split out from mongosh.
+  devtoolsConnectHookLogger(bus, log, 'mongosh', redactURICredentials);
 
   bus.on('mongosh-sp:reset-connection-options', function() {
     log.info('MONGOSH-SP', mongoLogId(1_000_000_040), 'connect', 'Reconnect because of changed connection options');
   });
 
-  bus.on('mongosh-sp:missing-optional-dependency', function(ev: SpMissingOptionalDependencyEvent) {
-    log.error('MONGOSH-SP', mongoLogId(1_000_000_041), 'deps', 'Missing optional dependency', {
-      name: ev.name,
-      error: ev?.error.message
-    });
-  });
-
   bus.on('mongosh-editor:run-edit-command', function(ev: EditorRunEditCommandEvent) {
-    log.error('MONGOSH-EDITOR', mongoLogId(1_000_000_042), 'editor', 'Open external editor', redactInfo(ev));
+    log.error('MONGOSH-EDITOR', mongoLogId(1_000_000_045), 'editor', 'Open external editor', redactInfo(ev));
   });
 
   bus.on('mongosh-editor:read-vscode-extensions-done', function(ev: EditorReadVscodeExtensionsDoneEvent) {

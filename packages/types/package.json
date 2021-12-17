@@ -30,5 +30,8 @@
   },
   "mongosh": {
     "unitTestsOnly": true
+  },
+  "dependencies": {
+    "@mongodb-js/devtools-connect": "^1.0.0"
   }
 }

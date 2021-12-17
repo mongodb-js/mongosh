@@ -19,10 +19,7 @@ import {
   ClientMetadata,
   ReadPreferenceFromOptions,
   ReadPreferenceLike,
-  OperationOptions,
-  ServerHeartbeatFailedEvent,
-  ServerHeartbeatSucceededEvent,
-  TopologyDescription
+  OperationOptions
 } from 'mongodb';
 
 import {
@@ -79,11 +76,11 @@ import {
   ChangeStream,
   bson as BSON,
   FLE,
-  AutoEncryptionOptions,
-  isFastFailureConnectionError
+  AutoEncryptionOptions
 } from '@mongosh/service-provider-core';
 
-import { MongoshCommandFailed, MongoshInternalError, MongoshRuntimeError } from '@mongosh/errors';
+import { connectMongoClient } from '@mongodb-js/devtools-connect';
+import { MongoshCommandFailed, MongoshInternalError } from '@mongosh/errors';
 import type { MongoshBus } from '@mongosh/types';
 import { ensureMongoNodeNativePatchesAreApplied } from './mongodb-patches';
 import ConnectionString from 'mongodb-connection-string-url';
@@ -127,11 +124,7 @@ const DEFAULT_DRIVER_OPTIONS: MongoClientOptions = Object.freeze({
 });
 
 function processDriverOptions(opts: MongoClientOptions): MongoClientOptions {
-  const ret = { ...DEFAULT_DRIVER_OPTIONS, ...opts };
-  if (ret.tlsCertificateKeyFile && !ret.tlsCertificateFile) {
-    ret.tlsCertificateFile = ret.tlsCertificateKeyFile;
-  }
-  return ret;
+  return { ...DEFAULT_DRIVER_OPTIONS, ...opts };
 }
 
 /**
@@ -141,161 +134,6 @@ const DEFAULT_BASE_OPTIONS: OperationOptions = Object.freeze({
   serializeFunctions: true,
   promoteLongs: false
 });
-
-/**
- * Takes an unconnected MongoClient and connects it, but fails fast for certain
- * errors.
- */
-async function connectWithFailFast(uri: string, client: MongoClient, bus: MongoshBus): Promise<void> {
-  const failedConnections = new Map<string, Error>();
-  let failEarlyClosePromise: Promise<void> | null = null;
-  bus.emit('mongosh-sp:connect-attempt-initialized', {
-    uri,
-    driver: client.options.metadata.driver,
-    serviceProviderVersion: require('../package.json').version,
-    host: client.options.srvHost ?? client.options.hosts.join(',')
-  });
-
-  const heartbeatFailureListener = ({ failure, connectionId }: ServerHeartbeatFailedEvent) => {
-    const topologyDescription: TopologyDescription | undefined = (client as any).topology?.description;
-    const servers = topologyDescription?.servers;
-    const isFailFast = isFastFailureConnectionError(failure);
-    const isKnownServer = !!servers?.has(connectionId);
-    bus.emit('mongosh-sp:connect-heartbeat-failure', {
-      connectionId,
-      failure,
-      isFailFast,
-      isKnownServer
-    });
-    if (!isKnownServer) {
-      return;
-    }
-
-    if (isFailFast && servers) {
-      failedConnections.set(connectionId, failure);
-      if ([...servers.keys()].every(server => failedConnections.has(server))) {
-        bus.emit('mongosh-sp:connect-fail-early');
-        // Setting this variable indicates that we are failing early.
-        failEarlyClosePromise = client.close();
-      }
-    }
-  };
-
-  const heartbeatSucceededListener = ({ connectionId }: ServerHeartbeatSucceededEvent) => {
-    bus.emit('mongosh-sp:connect-heartbeat-succeeded', { connectionId });
-    failedConnections.delete(connectionId);
-  };
-
-  client.addListener('serverHeartbeatFailed', heartbeatFailureListener);
-  client.addListener('serverHeartbeatSucceeded', heartbeatSucceededListener);
-  try {
-    await client.connect();
-  } catch (err) {
-    if (failEarlyClosePromise !== null) {
-      // eslint-disable-next-line @typescript-eslint/await-thenable
-      await failEarlyClosePromise;
-      throw failedConnections.values().next().value; // Just use the first failure.
-    }
-    throw err;
-  } finally {
-    client.removeListener('serverHeartbeatFailed', heartbeatFailureListener);
-    client.removeListener('serverHeartbeatSucceeded', heartbeatSucceededListener);
-    bus.emit('mongosh-sp:connect-attempt-finished');
-  }
-}
-
-let resolveDnsHelpers: {
-  resolve: typeof import('resolve-mongodb-srv'),
-  osDns: typeof import('os-dns-native')
-} | undefined = undefined;
-
-async function resolveMongodbSrv(uri: string, bus: MongoshBus): Promise<string> {
-  if (uri.startsWith('mongodb+srv://')) {
-    try {
-      resolveDnsHelpers ??= {
-        resolve: require('resolve-mongodb-srv'),
-        osDns: require('os-dns-native')
-      };
-    } catch (error) {
-      bus.emit('mongosh-sp:resolve-srv-error', { from: '', error, duringLoad: true });
-    }
-    if (resolveDnsHelpers !== undefined) {
-      try {
-        const resolved = await resolveDnsHelpers.resolve(uri, {
-          dns: resolveDnsHelpers.osDns.withNodeFallback
-        });
-        bus.emit('mongosh-sp:resolve-srv-succeeded', { from: uri, to: resolved });
-        return resolved;
-      } catch (error) {
-        bus.emit('mongosh-sp:resolve-srv-error', { from: uri, error, duringLoad: false });
-        throw error;
-      }
-    }
-  }
-  return uri;
-}
-
-function detectAndLogMissingOptionalDependencies(bus: MongoshBus) {
-  // These need to be literal require('string') calls for the bundler.
-  try {
-    require('saslprep');
-  } catch (error) {
-    bus.emit('mongosh-sp:missing-optional-dependency', { name: 'saslprep', error });
-  }
-  try {
-    require('mongodb-client-encryption');
-  } catch (error) {
-    bus.emit('mongosh-sp:missing-optional-dependency', { name: 'mongodb-client-encryption', error });
-  }
-  try {
-    require('os-dns-native');
-  } catch (error) {
-    bus.emit('mongosh-sp:missing-optional-dependency', { name: 'os-dns-native', error });
-  }
-  try {
-    require('resolve-mongodb-srv');
-  } catch (error) {
-    bus.emit('mongosh-sp:missing-optional-dependency', { name: 'resolve-mongodb-srv', error });
-  }
-  try {
-    require('kerberos');
-  } catch (error) {
-    bus.emit('mongosh-sp:missing-optional-dependency', { name: 'kerberos', error });
-  }
-}
-
-/**
- * Connect a MongoClient. If AutoEncryption is requested, first connect without the encryption options and verify that
- * the connection is to an enterprise cluster. If not, then error, otherwise close the connection and reconnect with the
- * options the user initially specified. Provide the client class as an additional argument in order to test.
- * @param uri {String}
- * @param clientOptions {MongoClientOptions}
- * @param MClient {MongoClient}
- */
-export async function connectMongoClient(uri: string, clientOptions: MongoClientOptions, bus: MongoshBus, MClient = MongoClient): Promise<MongoClient> {
-  detectAndLogMissingOptionalDependencies(bus);
-  if (clientOptions.autoEncryption !== undefined &&
-    !clientOptions.autoEncryption.bypassAutoEncryption) {
-    // connect first without autoEncryption and serverApi options.
-    const optionsWithoutFLE = { ...clientOptions };
-    delete optionsWithoutFLE.autoEncryption;
-    delete optionsWithoutFLE.serverApi;
-    const client = new MClient(uri, optionsWithoutFLE);
-    await connectWithFailFast(uri, client, bus);
-    const buildInfo = await client.db('admin').admin().command({ buildInfo: 1 });
-    await client.close();
-    if (
-      !(buildInfo.modules?.includes('enterprise')) &&
-      !(buildInfo.gitVersion?.match(/enterprise/))
-    ) {
-      throw new MongoshRuntimeError('Automatic encryption is only available with Atlas and MongoDB Enterprise');
-    }
-  }
-  uri = await resolveMongodbSrv(uri, bus);
-  const client = new MClient(uri, clientOptions);
-  await connectWithFailFast(uri, client, bus);
-  return client;
-}
 
 /**
    * Encapsulates logic for the service provider for the mongosh CLI.
@@ -332,7 +170,8 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
       await connectMongoClient(
         connectionString.toString(),
         clientOptions,
-        bus
+        bus,
+        MongoClient
       ) :
       new MongoClient(connectionString.toString(), clientOptions);
 
@@ -384,7 +223,8 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     const mongoClient = await connectMongoClient(
       connectionString.toString(),
       clientOptions,
-      this.bus
+      this.bus,
+      MongoClient
     );
     return new CliServiceProvider(mongoClient, this.bus, clientOptions, connectionString);
   }
@@ -1284,7 +1124,8 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     const mc = await connectMongoClient(
       (this.uri as ConnectionString).toString(),
       clientOptions,
-      this.bus
+      this.bus,
+      MongoClient
     );
     try {
       await this.mongoClient.close();
