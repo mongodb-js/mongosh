@@ -146,7 +146,8 @@ describe('completer.completer', () => {
       it('does not have a match', async() => {
         const i = 'db.shipwrecks.aggregate([ { $so';
         expect(await completer(noParams, i)).to.deep.equal([
-          ['db.shipwrecks.aggregate([ { $sort',
+          [ 'db.shipwrecks.aggregate([ { $sortArray',
+            'db.shipwrecks.aggregate([ { $sort',
             'db.shipwrecks.aggregate([ { $sortByCount'], i]);
       });
 
