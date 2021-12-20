@@ -27,7 +27,6 @@ import { bsonStringifiers } from './printable-bson';
 import ShellAuthOptions from './shell-auth-options';
 export * from './all-transport-types';
 export * from './all-fle-types';
-import { isFastFailureConnectionError } from './fast-failure-connect';
 
 const bson = {
   ObjectId,
@@ -59,6 +58,5 @@ export {
   ServiceProviderCore,
   bson,
   bsonStringifiers,
-  ConnectInfo,
-  isFastFailureConnectionError
+  ConnectInfo
 };

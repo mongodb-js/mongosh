@@ -93,19 +93,19 @@ describe('setupLoggerAndTelemetry', () => {
 
     const connAttemptData = {
       driver: { name: 'nodejs', version: '3.6.1' },
-      serviceProviderVersion: '1.0.0',
+      devtoolsConnectVersion: '1.0.0',
       host: 'localhost',
       uri: 'mongodb://localhost/'
     };
-    bus.emit('mongosh-sp:connect-attempt-initialized', connAttemptData);
-    bus.emit('mongosh-sp:connect-heartbeat-failure', { connectionId: 'localhost', failure: new Error('cause'), isFailFast: true, isKnownServer: true });
-    bus.emit('mongosh-sp:connect-heartbeat-succeeded', { connectionId: 'localhost' });
-    bus.emit('mongosh-sp:connect-fail-early');
-    bus.emit('mongosh-sp:connect-attempt-finished');
-    bus.emit('mongosh-sp:resolve-srv-error', { from: 'mongodb+srv://foo:bar@hello.world/', error: new Error('failed'), duringLoad: false });
-    bus.emit('mongosh-sp:resolve-srv-succeeded', { from: 'mongodb+srv://foo:bar@hello.world/', to: 'mongodb://foo:bar@db.hello.world/' });
+    bus.emit('devtools-connect:connect-attempt-initialized', connAttemptData);
+    bus.emit('devtools-connect:connect-heartbeat-failure', { connectionId: 'localhost', failure: new Error('cause'), isFailFast: true, isKnownServer: true });
+    bus.emit('devtools-connect:connect-heartbeat-succeeded', { connectionId: 'localhost' });
+    bus.emit('devtools-connect:connect-fail-early');
+    bus.emit('devtools-connect:connect-attempt-finished');
+    bus.emit('devtools-connect:resolve-srv-error', { from: 'mongodb+srv://foo:bar@hello.world/', error: new Error('failed'), duringLoad: false });
+    bus.emit('devtools-connect:resolve-srv-succeeded', { from: 'mongodb+srv://foo:bar@hello.world/', to: 'mongodb://foo:bar@db.hello.world/' });
+    bus.emit('devtools-connect:missing-optional-dependency', { name: 'kerberos', error: new Error('no kerberos') });
     bus.emit('mongosh-sp:reset-connection-options');
-    bus.emit('mongosh-sp:missing-optional-dependency', { name: 'kerberos', error: new Error('no kerberos') });
 
     bus.emit('mongosh-editor:run-edit-command', { tmpDoc: 'tmpDoc', editor: 'editor', code: '<code>' });
     bus.emit('mongosh-editor:read-vscode-extensions-done', { vscodeDir: 'vscodir', hasMongodbExtension: false });
@@ -204,9 +204,9 @@ describe('setupLoggerAndTelemetry', () => {
     expect(logOutput[i++].attr).to.deep.equal({ from: 'mongodb+srv://<credentials>@hello.world/', error: 'failed', duringLoad: false });
     expect(logOutput[i].msg).to.equal('Resolving SRV record succeeded');
     expect(logOutput[i++].attr).to.deep.equal({ from: 'mongodb+srv://<credentials>@hello.world/', to: 'mongodb://<credentials>@db.hello.world/' });
-    expect(logOutput[i++].msg).to.equal('Reconnect because of changed connection options');
     expect(logOutput[i].msg).to.equal('Missing optional dependency');
     expect(logOutput[i++].attr).to.deep.equal({ name: 'kerberos', error: 'no kerberos' });
+    expect(logOutput[i++].msg).to.equal('Reconnect because of changed connection options');
     expect(logOutput[i].msg).to.equal('Open external editor');
     expect(logOutput[i++].attr).to.deep.equal({ tmpDoc: 'tmpDoc', editor: 'editor', code: '<code>' });
     expect(logOutput[i].msg).to.equal('Reading vscode extensions from file system succeeded');

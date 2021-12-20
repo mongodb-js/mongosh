@@ -1,4 +1,6 @@
 /* eslint camelcase: 0 */
+import type { ConnectEventMap } from '@mongodb-js/devtools-connect';
+
 export interface ApiEventArguments {
   pipeline?: any[];
   query?: object;
@@ -144,40 +146,6 @@ export interface SnippetsTransformErrorEvent {
   name: string;
 }
 
-export interface SpConnectAttemptInitializedEvent {
-  uri: string;
-  driver: { name: string, version: string };
-  serviceProviderVersion: string;
-  host: string;
-}
-
-export interface SpConnectHeartbeatFailureEvent {
-  connectionId: string;
-  failure: Error;
-  isFailFast: boolean;
-  isKnownServer: boolean;
-}
-
-export interface SpConnectHeartbeatSucceededEvent {
-  connectionId: string;
-}
-
-export interface SpResolveSrvErrorEvent {
-  from: string;
-  error: Error;
-  duringLoad: boolean;
-}
-
-export interface SpResolveSrvSucceededEvent {
-  from: string;
-  to: string;
-}
-
-export interface SpMissingOptionalDependencyEvent {
-  name: string;
-  error: Error;
-}
-
 export interface EditorRunEditCommandEvent {
   tmpDoc: string;
   editor: string;
@@ -194,7 +162,7 @@ export interface EditorReadVscodeExtensionsFailedEvent {
   error: Error;
 }
 
-export interface MongoshBusEventsMap {
+export interface MongoshBusEventsMap extends ConnectEventMap {
   /**
    * Signals a connection to a MongoDB instance has been established
    * or the used database changed.
@@ -349,24 +317,8 @@ export interface MongoshBusEventsMap {
   /** Signals that a snippet has modified an error message. */
   'mongosh-snippets:transform-error': (ev: SnippetsTransformErrorEvent) => void;
 
-  /** Signals that a connection attempt is about to be performed. */
-  'mongosh-sp:connect-attempt-initialized': (ev: SpConnectAttemptInitializedEvent) => void;
-  /** Signals that communicating to a specific server during connection did not succeed. */
-  'mongosh-sp:connect-heartbeat-failure': (ev: SpConnectHeartbeatFailureEvent) => void;
-  /** Signals that communicating to a specific server during connection succeeded. */
-  'mongosh-sp:connect-heartbeat-succeeded': (ev: SpConnectHeartbeatSucceededEvent) => void;
-  /** Signals that the service provider failed to connect because it deemed further attempts futile. */
-  'mongosh-sp:connect-fail-early': () => void;
-  /** Signals that the service provider finished attempting to connect, regardless of success. */
-  'mongosh-sp:connect-attempt-finished': () => void;
-  /** Signals that resolving an mongodb+srv:// URL failed. */
-  'mongosh-sp:resolve-srv-error': (ev: SpResolveSrvErrorEvent) => void;
-  /** Signals that resolving an mongodb+srv:// URL succeeded. */
-  'mongosh-sp:resolve-srv-succeeded': (ev: SpResolveSrvSucceededEvent) => void;
   /** Signals that the service provider is opening a new connection because options have changed. */
   'mongosh-sp:reset-connection-options': () => void;
-  /** Signals that an optional dependency of the mongodb package is missing. */
-  'mongosh-sp:missing-optional-dependency': (ev: SpMissingOptionalDependencyEvent) => void;
 
   /** Signals that open external editor command was called. */
   'mongosh-editor:run-edit-command': (ev: EditorRunEditCommandEvent) => void;
