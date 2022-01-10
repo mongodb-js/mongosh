@@ -33,7 +33,7 @@
     "@mongosh/service-provider-core": "0.0.0-dev.0",
     "@mongosh/service-provider-server": "0.0.0-dev.0",
     "@mongosh/types": "0.0.0-dev.0",
-    "bson": "^4.6.0",
+    "bson": "^4.6.1",
     "mocha": "^7.1.2",
     "postmsg-rpc": "^2.4.0",
     "terser-webpack-plugin": "^4.2.3",
