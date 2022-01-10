@@ -68,7 +68,7 @@ describe('packaging artifact signing', () => {
           '--notary-url', 'http://notary-service.build.10gen.cc:5000/',
           '--outputs', 'sig',
           '--package-file-suffix', '',
-          __filename
+          path.basename(__filename)
         ],
         {
           encoding: 'utf8',

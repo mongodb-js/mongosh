@@ -45,7 +45,7 @@ export async function runDraft(
     );
 
     await notarizeArtifact(
-      tarballFile.path,
+      downloadedArtifact,
       {
         signingKeyName: config.notarySigningKeyName || '',
         authToken: config.notaryAuthToken || '',

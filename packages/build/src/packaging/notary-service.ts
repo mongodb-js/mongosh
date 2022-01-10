@@ -35,6 +35,7 @@ export async function notarizeArtifact(
     encoding: 'utf8',
     mode: 0o600
   });
+  console.log('Notarizing file', options.signingKeyName, options.signingComment, file);
 
   try {
     spawnSync(options.pythonExecutable, [
@@ -45,7 +46,7 @@ export async function notarizeArtifact(
       '--notary-url', options.serverUrl,
       '--outputs', 'sig',
       '--package-file-suffix', '',
-      file
+      path.basename(file)
     ], {
       cwd: path.dirname(file),
       encoding: 'utf8'
