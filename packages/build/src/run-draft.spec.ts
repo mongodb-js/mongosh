@@ -72,11 +72,11 @@ describe('draft', () => {
       });
 
       it('uploads artifacts to download center', () => {
-        expect(uploadArtifactToDownloadCenter).to.have.been.callCount(ALL_BUILD_VARIANTS.length * 2);
+        expect(uploadArtifactToDownloadCenter).to.have.been.callCount(ALL_BUILD_VARIANTS.length);
       });
 
       it('uploads the artifacts to the github release', () => {
-        expect(uploadReleaseAsset).to.have.been.callCount(ALL_BUILD_VARIANTS.length * 2);
+        expect(uploadReleaseAsset).to.have.been.callCount(ALL_BUILD_VARIANTS.length);
       });
     });
 

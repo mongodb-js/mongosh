@@ -1,4 +1,4 @@
-import { promises as fs } from 'fs';
+import { promises as fs, constants as fsConstants } from 'fs';
 import path from 'path';
 import { ALL_BUILD_VARIANTS, Config, getReleaseVersionFromTag } from './config';
 import { uploadArtifactToDownloadCenter as uploadArtifactToDownloadCenterFn } from './download-center';
@@ -52,12 +52,18 @@ export async function runDraft(
         signingComment: 'Evergreen Automatic Signing (mongosh)'
       }
     );
-    const signatureFile = downloadedArtifact + '.sig';
+    let signatureFile: string | undefined = downloadedArtifact + '.sig';
+    try {
+      await fs.access(signatureFile, fsConstants.R_OK);
+    } catch (err: any) {
+      signatureFile = undefined;
+      console.info(`Skipping expected signature file ${signatureFile}: ${err.message}`);
+    }
 
     await Promise.all([
       [ downloadedArtifact, tarballFile.contentType ],
       [ signatureFile, 'application/pgp-signature' ]
-    ].flatMap(([ path, contentType ]) => [
+    ].flatMap(([ path, contentType ]) => path ? [
       uploadToDownloadCenter(
         path,
         config.downloadCenterAwsKey as string,
@@ -68,7 +74,7 @@ export async function runDraft(
         githubReleaseTag,
         { path, contentType }
       )
-    ]));
+    ] : []));
   }
 }
 
