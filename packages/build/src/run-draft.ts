@@ -56,8 +56,8 @@ export async function runDraft(
     try {
       await fs.access(signatureFile, fsConstants.R_OK);
     } catch (err: any) {
-      signatureFile = undefined;
       console.info(`Skipping expected signature file ${signatureFile}: ${err.message}`);
+      signatureFile = undefined;
     }
 
     await Promise.all([

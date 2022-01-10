@@ -26,7 +26,7 @@ describe('draft', () => {
     config = { ...dummyConfig };
 
     uploadArtifactToDownloadCenter = sinon.spy();
-    downloadArtifactFromEvergreen = sinon.spy();
+    downloadArtifactFromEvergreen = sinon.spy(() => Promise.resolve('filename'));
     notarizeArtifact = sinon.spy();
   });
 
