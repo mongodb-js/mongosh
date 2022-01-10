@@ -52,7 +52,7 @@ export async function runDraft(
         signingComment: 'Evergreen Automatic Signing (mongosh)'
       }
     );
-    const signatureFile = tarballFile.path + '.sig';
+    const signatureFile = downloadedArtifact + '.sig';
 
     await Promise.all([
       [ downloadedArtifact, tarballFile.contentType ],
