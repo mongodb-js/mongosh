@@ -62,10 +62,6 @@ if [ x"$PREBUILT_OSNAME" != x"" ]; then
   mv -v prebuilts/nocrypto/include include
   mv -v prebuilts/$LIB/*bson* lib
   rm -rf prebuilts
-  if [ ! -e lib/bson-static-1.0.lib ]; then # Windows, work around MONGOCRYPT-301
-    curl -sSfL -o libmongocrypt-windows-with-static-bson.tar.gz https://mciuploads.s3.amazonaws.com/libmongocrypt/windows-test/master/latest/5fea04b22fbabe3a83ad533c/libmongocrypt.tar.gz
-    tar -xzvf libmongocrypt-windows-with-static-bson.tar.gz lib/bson-static-1.0.lib
-  fi
 else
   if [ `uname` = Darwin ]; then
     export CFLAGS="-mmacosx-version-min=10.13";
