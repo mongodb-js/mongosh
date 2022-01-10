@@ -8,7 +8,7 @@ const DEFAULT_OPTIONS: Partial<NotarizeOptions> = {
   clientPath: process.platform === 'win32' ?
     'C:\\cygwin\\usr\\local\\bin\\notary-client.py' :
     '/usr/local/bin/notary-client.py',
-  pythonExecutable: 'python'
+  pythonExecutable: process.platform === 'win32' ? 'python' : '/usr/bin/python'
 };
 
 export interface NotarizeOptions {
