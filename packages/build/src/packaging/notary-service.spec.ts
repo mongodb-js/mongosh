@@ -57,7 +57,7 @@ describe('packaging artifact signing', () => {
         .find((arg: string) => arg.includes('notary-mongosh-token'));
 
       expect(spawnSync).to.have.been.calledWith(
-        'python',
+        process.platform === 'win32' ? 'python' : '/usr/bin/python',
         [
           process.platform === 'win32' ?
             'C:\\cygwin\\usr\\local\\bin\\notary-client.py' :
