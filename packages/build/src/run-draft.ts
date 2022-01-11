@@ -44,19 +44,20 @@ export async function runDraft(
       tmpDir
     );
 
-    await notarizeArtifact(
-      downloadedArtifact,
-      {
-        signingKeyName: config.notarySigningKeyName || '',
-        authToken: config.notaryAuthToken || '',
-        signingComment: 'Evergreen Automatic Signing (mongosh)'
-      }
-    );
-    let signatureFile: string | undefined = downloadedArtifact + '.sig';
+    let signatureFile: string | undefined;
     try {
+      await notarizeArtifact(
+        downloadedArtifact,
+        {
+          signingKeyName: config.notarySigningKeyName || '',
+          authToken: config.notaryAuthToken || '',
+          signingComment: 'Evergreen Automatic Signing (mongosh)'
+        }
+      );
+      signatureFile = downloadedArtifact + '.sig';
       await fs.access(signatureFile, fsConstants.R_OK);
     } catch (err: any) {
-      console.info(`Skipping expected signature file ${signatureFile}: ${err.message}`);
+      console.warn(`Skipping expected signature file for ${downloadedArtifact}: ${err.message}`);
       signatureFile = undefined;
     }
 
