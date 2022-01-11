@@ -41,6 +41,9 @@ fi
 
 export npm_config_registry=https://registry.npmjs.org/
 
+# hopefully avoid `npm ERR! Host key verification failed`
+mkdir -p ~/.ssh && ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
+
 echo "Running on:"
 uname -a
 
