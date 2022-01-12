@@ -70,6 +70,7 @@ function mapCliToDriver(options: CliOptions): MongoClientOptions {
     }
   }
   applyTlsCertificateSelector(options.tlsCertificateSelector, nodeOptions);
+  applyDriverInfo(nodeOptions);
   return nodeOptions;
 }
 
@@ -101,6 +102,25 @@ export function applyTlsCertificateSelector(
   } catch (err) {
     throw new MongoshInvalidInputError(`Could not resolve certificate specification '${selector}': ${err.message}`);
   }
+}
+
+/**
+   * Applies driverInfo to track usage of mongosh,
+   * because appName can be overwritten by a user in their connection string.
+   *
+   * @param {MongoClientOptions} nodeOptions - The MongoClient options.
+   *
+   * @returns {DriverInfo} The driverInfo metadata.
+   */
+export function applyDriverInfo(
+  nodeOptions: MongoClientOptions
+): void {
+  const { version } = require('../package.json');
+  nodeOptions.driverInfo = {
+    name: 'mongosh',
+    version,
+    platform: process.platform
+  };
 }
 
 function getCertificateExporter(): TlsCertificateExporter | undefined {
