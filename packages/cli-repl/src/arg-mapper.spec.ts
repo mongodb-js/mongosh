@@ -3,8 +3,10 @@ import chai, { expect } from 'chai';
 import path from 'path';
 import sinonChai from 'sinon-chai';
 import sinon from 'ts-sinon';
-import mapCliToDriver, { applyTlsCertificateSelector } from './arg-mapper';
+import mapCliToDriver, { getTlsCertificateSelector } from './arg-mapper';
 chai.use(sinonChai);
+
+const packageJSON = require('../package.json');
 
 describe('arg-mapper.mapCliToDriver', () => {
   context('when cli args have authenticationDatabase', () => {
@@ -15,8 +17,7 @@ describe('arg-mapper.mapCliToDriver', () => {
         authSource: 'authDb',
         driverInfo: {
           name: 'mongosh',
-          platform: 'darwin',
-          version: '0.0.0-dev.0'
+          version: packageJSON.version
         }
       });
     });
@@ -30,8 +31,7 @@ describe('arg-mapper.mapCliToDriver', () => {
         authMechanism: 'SCRAM-SHA-1',
         driverInfo: {
           name: 'mongosh',
-          platform: 'darwin',
-          version: '0.0.0-dev.0'
+          version: packageJSON.version
         }
       });
     });
@@ -45,8 +45,7 @@ describe('arg-mapper.mapCliToDriver', () => {
         loggerLevel: 'error',
         driverInfo: {
           name: 'mongosh',
-          platform: 'darwin',
-          version: '0.0.0-dev.0'
+          version: packageJSON.version
         }
       });
     });
@@ -60,8 +59,7 @@ describe('arg-mapper.mapCliToDriver', () => {
         loggerLevel: 'debug',
         driverInfo: {
           name: 'mongosh',
-          platform: 'darwin',
-          version: '0.0.0-dev.0'
+          version: packageJSON.version
         }
       });
     });
@@ -77,8 +75,7 @@ describe('arg-mapper.mapCliToDriver', () => {
         },
         driverInfo: {
           name: 'mongosh',
-          platform: 'darwin',
-          version: '0.0.0-dev.0'
+          version: packageJSON.version
         }
       });
     });
@@ -94,8 +91,7 @@ describe('arg-mapper.mapCliToDriver', () => {
         },
         driverInfo: {
           name: 'mongosh',
-          platform: 'darwin',
-          version: '0.0.0-dev.0'
+          version: packageJSON.version
         }
       });
     });
@@ -112,8 +108,7 @@ describe('arg-mapper.mapCliToDriver', () => {
         },
         driverInfo: {
           name: 'mongosh',
-          platform: 'darwin',
-          version: '0.0.0-dev.0'
+          version: packageJSON.version
         }
       });
     });
@@ -127,8 +122,7 @@ describe('arg-mapper.mapCliToDriver', () => {
         retryWrites: true,
         driverInfo: {
           name: 'mongosh',
-          platform: 'darwin',
-          version: '0.0.0-dev.0'
+          version: packageJSON.version
         }
       });
     });
@@ -142,8 +136,7 @@ describe('arg-mapper.mapCliToDriver', () => {
         tls: true,
         driverInfo: {
           name: 'mongosh',
-          platform: 'darwin',
-          version: '0.0.0-dev.0'
+          version: packageJSON.version
         }
       });
     });
@@ -157,8 +150,7 @@ describe('arg-mapper.mapCliToDriver', () => {
         tlsAllowInvalidCertificates: true,
         driverInfo: {
           name: 'mongosh',
-          platform: 'darwin',
-          version: '0.0.0-dev.0'
+          version: packageJSON.version
         }
       });
     });
@@ -172,8 +164,7 @@ describe('arg-mapper.mapCliToDriver', () => {
         tlsAllowInvalidHostnames: true,
         driverInfo: {
           name: 'mongosh',
-          platform: 'darwin',
-          version: '0.0.0-dev.0'
+          version: packageJSON.version
         }
       });
     });
@@ -187,8 +178,7 @@ describe('arg-mapper.mapCliToDriver', () => {
         tlsCAFile: 'ca',
         driverInfo: {
           name: 'mongosh',
-          platform: 'darwin',
-          version: '0.0.0-dev.0'
+          version: packageJSON.version
         }
       });
     });
@@ -202,8 +192,7 @@ describe('arg-mapper.mapCliToDriver', () => {
         sslCRL: 'key',
         driverInfo: {
           name: 'mongosh',
-          platform: 'darwin',
-          version: '0.0.0-dev.0'
+          version: packageJSON.version
         }
       });
     });
@@ -217,8 +206,7 @@ describe('arg-mapper.mapCliToDriver', () => {
         tlsCertificateKeyFile: 'key',
         driverInfo: {
           name: 'mongosh',
-          platform: 'darwin',
-          version: '0.0.0-dev.0'
+          version: packageJSON.version
         }
       });
     });
@@ -232,8 +220,7 @@ describe('arg-mapper.mapCliToDriver', () => {
         tlsCertificateKeyFilePassword: 'pw',
         driverInfo: {
           name: 'mongosh',
-          platform: 'darwin',
-          version: '0.0.0-dev.0'
+          version: packageJSON.version
         }
       });
     });
@@ -253,8 +240,7 @@ describe('arg-mapper.mapCliToDriver', () => {
         },
         driverInfo: {
           name: 'mongosh',
-          platform: 'darwin',
-          version: '0.0.0-dev.0'
+          version: packageJSON.version
         }
       });
     });
@@ -274,8 +260,7 @@ describe('arg-mapper.mapCliToDriver', () => {
         },
         driverInfo: {
           name: 'mongosh',
-          platform: 'darwin',
-          version: '0.0.0-dev.0'
+          version: packageJSON.version
         }
       });
     });
@@ -291,8 +276,7 @@ describe('arg-mapper.mapCliToDriver', () => {
         },
         driverInfo: {
           name: 'mongosh',
-          platform: 'darwin',
-          version: '0.0.0-dev.0'
+          version: packageJSON.version
         }
       });
     });
@@ -308,8 +292,7 @@ describe('arg-mapper.mapCliToDriver', () => {
         },
         driverInfo: {
           name: 'mongosh',
-          platform: 'darwin',
-          version: '0.0.0-dev.0'
+          version: packageJSON.version
         }
       });
     });
@@ -325,8 +308,7 @@ describe('arg-mapper.mapCliToDriver', () => {
         },
         driverInfo: {
           name: 'mongosh',
-          platform: 'darwin',
-          version: '0.0.0-dev.0'
+          version: packageJSON.version
         }
       });
     });
@@ -340,8 +322,7 @@ describe('arg-mapper.mapCliToDriver', () => {
         expect(mapCliToDriver(cliOptions)).to.deep.equal({
           driverInfo: {
             name: 'mongosh',
-            platform: 'darwin',
-            version: '0.0.0-dev.0'
+            version: packageJSON.version
           }
         });
       });
@@ -357,8 +338,7 @@ describe('arg-mapper.mapCliToDriver', () => {
           },
           driverInfo: {
             name: 'mongosh',
-            platform: 'darwin',
-            version: '0.0.0-dev.0'
+            version: packageJSON.version
           }
         });
       });
@@ -389,8 +369,7 @@ describe('arg-mapper.mapCliToDriver', () => {
         },
         driverInfo: {
           name: 'mongosh',
-          platform: 'darwin',
-          version: '0.0.0-dev.0'
+          version: packageJSON.version
         }
       });
     });
@@ -416,8 +395,7 @@ describe('arg-mapper.mapCliToDriver', () => {
         },
         driverInfo: {
           name: 'mongosh',
-          platform: 'darwin',
-          version: '0.0.0-dev.0'
+          version: packageJSON.version
         }
       });
     });
@@ -439,8 +417,7 @@ describe('arg-mapper.mapCliToDriver', () => {
         },
         driverInfo: {
           name: 'mongosh',
-          platform: 'darwin',
-          version: '0.0.0-dev.0'
+          version: packageJSON.version
         }
       });
     });
@@ -462,16 +439,13 @@ describe('arg-mapper.applyTlsCertificateSelector', () => {
     });
 
     it('leaves node options unchanged when no selector is given', () => {
-      const options = {};
-      applyTlsCertificateSelector(undefined, options);
-      expect(options).to.deep.equal({});
+      const applyTlsCertificateSelector = getTlsCertificateSelector(undefined);
+      expect(applyTlsCertificateSelector).to.not.exist;
     });
 
     it('throws when the selector has an odd format', () => {
-      const options = {};
-      expect(() => applyTlsCertificateSelector('foo=bar', options))
+      expect(() => getTlsCertificateSelector('foo=bar'))
         .to.throw(/tlsCertificateSelector needs to include subject or thumbprint/);
-      expect(options).to.deep.equal({});
     });
 
     it('returns passphrase and pfx as given by the (fake) OS', () => {
@@ -480,9 +454,8 @@ describe('arg-mapper.applyTlsCertificateSelector', () => {
       exportCertificateAndPrivateKey.returns({
         passphrase, pfx
       });
-      const options = {};
-      applyTlsCertificateSelector('subject=Foo Bar', options);
-      expect(options).to.deep.equal({
+      const applyTlsCertificateSelector = getTlsCertificateSelector('subject=Foo Bar');
+      expect(applyTlsCertificateSelector).to.deep.equal({
         passphrase, pfx
       });
     });
@@ -493,8 +466,7 @@ describe('arg-mapper.applyTlsCertificateSelector', () => {
       if (process.platform === 'win32' || process.platform === 'darwin') {
         return this.skip();
       }
-      const options = {};
-      expect(() => applyTlsCertificateSelector('subject=Foo Bar', options))
+      expect(() => getTlsCertificateSelector('subject=Foo Bar'))
         .to.throw(/tlsCertificateSelector is not supported on this platform/);
     });
 
@@ -502,8 +474,7 @@ describe('arg-mapper.applyTlsCertificateSelector', () => {
       if (process.platform !== 'win32') {
         return this.skip();
       }
-      const options = {};
-      expect(() => applyTlsCertificateSelector('subject=Foo Bar', options))
+      expect(() => getTlsCertificateSelector('subject=Foo Bar'))
         .to.throw(/Could not resolve certificate specification/);
     });
 
@@ -511,8 +482,7 @@ describe('arg-mapper.applyTlsCertificateSelector', () => {
       if (process.platform !== 'darwin') {
         return this.skip();
       }
-      const options = {};
-      expect(() => applyTlsCertificateSelector('subject=Foo Bar', options))
+      expect(() => getTlsCertificateSelector('subject=Foo Bar'))
         .to.throw(/Could not find a matching certificate/);
     });
   });

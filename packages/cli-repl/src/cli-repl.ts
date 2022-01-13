@@ -155,19 +155,25 @@ class CliRepl {
     await this.verifyNodeVersion();
 
     if (!this.cliOptions.nodb) {
-      if (this.isPasswordMissingOptions(driverOptions)) {
-        (driverOptions.auth as any).password = await this.requirePassword();
-      } else if (driverUri !== '') {
-        const cs = new ConnectionString(driverUri);
-        if (this.isPasswordMissingURI(cs)) {
-          cs.password = await this.requirePassword();
-          driverUri = cs.href;
-        }
-        if (this.isAppNameMissingURI(cs)) {
+      let cs;
+      if (driverUri !== '') {
+        cs = new ConnectionString(driverUri);
+
+        if (!cs.searchParams.get('appName')) {
           cs.searchParams.set('appName', `mongosh ${version}`);
           driverUri = cs.href;
         }
       }
+
+      if (this.isPasswordMissingOptions(driverOptions)) {
+        (driverOptions.auth as any).password = await this.requirePassword();
+      } else if (cs) {
+        if (this.isPasswordMissingURI(cs)) {
+          cs.password = await this.requirePassword();
+          driverUri = cs.href;
+        }
+      }
+
       this.ensurePasswordFieldIsPresentInAuth(driverOptions);
     }
 
@@ -456,17 +462,6 @@ class CliRepl {
       !cs.password &&
       cs.searchParams.get('authMechanism') !== 'GSSAPI' // no need for a password for Kerberos
     );
-  }
-
-  /**
-   * Is the appName missing from the connection string?
-   *
-   * @param {ConnectionString} cs - The existing connection string.
-   *
-   * @returns {boolean} If the appName is missing.
-   */
-  isAppNameMissingURI(cs: ConnectionString): boolean {
-    return !cs.searchParams.get('appName');
   }
 
   /**

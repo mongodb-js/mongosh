@@ -69,16 +69,23 @@ function mapCliToDriver(options: CliOptions): MongoClientOptions {
       }
     }
   }
-  applyTlsCertificateSelector(options.tlsCertificateSelector, nodeOptions);
-  applyDriverInfo(nodeOptions);
+
+  const tlsCertificateSelector = getTlsCertificateSelector(options.tlsCertificateSelector);
+  if (tlsCertificateSelector) {
+    nodeOptions.passphrase = tlsCertificateSelector.passphrase;
+    nodeOptions.pfx = tlsCertificateSelector.pfx;
+  }
+
+  const { version } = require('../package.json');
+  nodeOptions.driverInfo = { name: 'mongosh', version };
+
   return nodeOptions;
 }
 
 type TlsCertificateExporter = (search: { subject: string } | { thumbprint: Buffer }) => { passphrase: string, pfx: Buffer };
-export function applyTlsCertificateSelector(
-  selector: string | undefined,
-  nodeOptions: MongoClientOptions
-): void {
+export function getTlsCertificateSelector(
+  selector: string | undefined
+): { passphrase: string, pfx: Buffer }|undefined {
   if (!selector) {
     return;
   }
@@ -97,30 +104,10 @@ export function applyTlsCertificateSelector(
 
   try {
     const { passphrase, pfx } = exportCertificateAndPrivateKey(search);
-    nodeOptions.passphrase = passphrase;
-    nodeOptions.pfx = pfx;
+    return { passphrase, pfx };
   } catch (err) {
     throw new MongoshInvalidInputError(`Could not resolve certificate specification '${selector}': ${err.message}`);
   }
-}
-
-/**
-   * Applies driverInfo to track usage of mongosh,
-   * because appName can be overwritten by a user in their connection string.
-   *
-   * @param {MongoClientOptions} nodeOptions - The MongoClient options.
-   *
-   * @returns {DriverInfo} The driverInfo metadata.
-   */
-export function applyDriverInfo(
-  nodeOptions: MongoClientOptions
-): void {
-  const { version } = require('../package.json');
-  nodeOptions.driverInfo = {
-    name: 'mongosh',
-    version,
-    platform: process.platform
-  };
 }
 
 function getCertificateExporter(): TlsCertificateExporter | undefined {
