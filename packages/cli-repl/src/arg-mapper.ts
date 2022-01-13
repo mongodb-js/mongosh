@@ -70,16 +70,12 @@ function mapCliToDriver(options: CliOptions): MongoClientOptions {
     }
   }
 
-  const tlsCertificateSelector = getTlsCertificateSelector(options.tlsCertificateSelector);
-  if (tlsCertificateSelector) {
-    nodeOptions.passphrase = tlsCertificateSelector.passphrase;
-    nodeOptions.pfx = tlsCertificateSelector.pfx;
-  }
-
   const { version } = require('../package.json');
-  nodeOptions.driverInfo = { name: 'mongosh', version };
-
-  return nodeOptions;
+  return {
+    ...nodeOptions,
+    ...getTlsCertificateSelector(options.tlsCertificateSelector),
+    driverInfo: { name: 'mongosh', version }
+  };
 }
 
 type TlsCertificateExporter = (search: { subject: string } | { thumbprint: Buffer }) => { passphrase: string, pfx: Buffer };
