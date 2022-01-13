@@ -211,7 +211,10 @@ describe('e2e', function() {
         await shell.waitForPrompt();
         shell.assertNoErrors();
       });
-      it('appName set correctly', async() => {
+      it('appName set correctly', async function() {
+        if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
+          return this.skip(); // $currentOp is unversioned
+        }
         const currentOp = await shell.executeLine('db.currentOp()');
         expect(currentOp).to.include("appName: 'mongosh 0.0.0-dev.0'");
         expect(currentOp).to.include("name: 'nodejs|mongosh'");
@@ -226,7 +229,10 @@ describe('e2e', function() {
         await shell.waitForPrompt();
         shell.assertNoErrors();
       });
-      it('appName set correctly', async() => {
+      it('appName set correctly', async function() {
+        if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
+          return this.skip(); // $currentOp is unversioned
+        }
         const currentOp = await shell.executeLine('db.currentOp()');
         expect(currentOp).to.include("appName: 'Felicia'");
         expect(currentOp).to.include("name: 'nodejs|mongosh'");
