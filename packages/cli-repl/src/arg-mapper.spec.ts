@@ -12,7 +12,12 @@ describe('arg-mapper.mapCliToDriver', () => {
 
     it('maps to authSource', () => {
       expect(mapCliToDriver(cliOptions)).to.deep.equal({
-        authSource: 'authDb'
+        authSource: 'authDb',
+        driverInfo: {
+          name: 'mongosh',
+          platform: 'darwin',
+          version: '0.0.0-dev.0'
+        }
       });
     });
   });
@@ -22,7 +27,12 @@ describe('arg-mapper.mapCliToDriver', () => {
 
     it('maps to authMechanism', () => {
       expect(mapCliToDriver(cliOptions)).to.deep.equal({
-        authMechanism: 'SCRAM-SHA-1'
+        authMechanism: 'SCRAM-SHA-1',
+        driverInfo: {
+          name: 'mongosh',
+          platform: 'darwin',
+          version: '0.0.0-dev.0'
+        }
       });
     });
   });
@@ -32,7 +42,12 @@ describe('arg-mapper.mapCliToDriver', () => {
 
     it('maps to loggerLevel', () => {
       expect(mapCliToDriver(cliOptions)).to.deep.equal({
-        loggerLevel: 'error'
+        loggerLevel: 'error',
+        driverInfo: {
+          name: 'mongosh',
+          platform: 'darwin',
+          version: '0.0.0-dev.0'
+        }
       });
     });
   });
@@ -42,7 +57,12 @@ describe('arg-mapper.mapCliToDriver', () => {
 
     it('maps to loggerLevel', () => {
       expect(mapCliToDriver(cliOptions)).to.deep.equal({
-        loggerLevel: 'debug'
+        loggerLevel: 'debug',
+        driverInfo: {
+          name: 'mongosh',
+          platform: 'darwin',
+          version: '0.0.0-dev.0'
+        }
       });
     });
   });
@@ -54,6 +74,11 @@ describe('arg-mapper.mapCliToDriver', () => {
       expect(mapCliToDriver(cliOptions)).to.deep.equal({
         auth: {
           username: 'richard'
+        },
+        driverInfo: {
+          name: 'mongosh',
+          platform: 'darwin',
+          version: '0.0.0-dev.0'
         }
       });
     });
@@ -66,6 +91,11 @@ describe('arg-mapper.mapCliToDriver', () => {
       expect(mapCliToDriver(cliOptions)).to.deep.equal({
         auth: {
           password: 'aphextwin'
+        },
+        driverInfo: {
+          name: 'mongosh',
+          platform: 'darwin',
+          version: '0.0.0-dev.0'
         }
       });
     });
@@ -79,6 +109,11 @@ describe('arg-mapper.mapCliToDriver', () => {
         auth: {
           username: 'richard',
           password: 'aphextwin'
+        },
+        driverInfo: {
+          name: 'mongosh',
+          platform: 'darwin',
+          version: '0.0.0-dev.0'
         }
       });
     });
@@ -89,7 +124,12 @@ describe('arg-mapper.mapCliToDriver', () => {
 
     it('maps the same argument', () => {
       expect(mapCliToDriver(cliOptions)).to.deep.equal({
-        retryWrites: true
+        retryWrites: true,
+        driverInfo: {
+          name: 'mongosh',
+          platform: 'darwin',
+          version: '0.0.0-dev.0'
+        }
       });
     });
   });
@@ -99,7 +139,12 @@ describe('arg-mapper.mapCliToDriver', () => {
 
     it('maps the same argument', () => {
       expect(mapCliToDriver(cliOptions)).to.deep.equal({
-        tls: true
+        tls: true,
+        driverInfo: {
+          name: 'mongosh',
+          platform: 'darwin',
+          version: '0.0.0-dev.0'
+        }
       });
     });
   });
@@ -109,7 +154,12 @@ describe('arg-mapper.mapCliToDriver', () => {
 
     it('maps the same argument', () => {
       expect(mapCliToDriver(cliOptions)).to.deep.equal({
-        tlsAllowInvalidCertificates: true
+        tlsAllowInvalidCertificates: true,
+        driverInfo: {
+          name: 'mongosh',
+          platform: 'darwin',
+          version: '0.0.0-dev.0'
+        }
       });
     });
   });
@@ -119,7 +169,12 @@ describe('arg-mapper.mapCliToDriver', () => {
 
     it('maps the same argument', () => {
       expect(mapCliToDriver(cliOptions)).to.deep.equal({
-        tlsAllowInvalidHostnames: true
+        tlsAllowInvalidHostnames: true,
+        driverInfo: {
+          name: 'mongosh',
+          platform: 'darwin',
+          version: '0.0.0-dev.0'
+        }
       });
     });
   });
@@ -129,7 +184,12 @@ describe('arg-mapper.mapCliToDriver', () => {
 
     it('maps the same argument', () => {
       expect(mapCliToDriver(cliOptions)).to.deep.equal({
-        tlsCAFile: 'ca'
+        tlsCAFile: 'ca',
+        driverInfo: {
+          name: 'mongosh',
+          platform: 'darwin',
+          version: '0.0.0-dev.0'
+        }
       });
     });
   });
@@ -139,7 +199,12 @@ describe('arg-mapper.mapCliToDriver', () => {
 
     it('maps to sslCRL', () => {
       expect(mapCliToDriver(cliOptions)).to.deep.equal({
-        sslCRL: 'key'
+        sslCRL: 'key',
+        driverInfo: {
+          name: 'mongosh',
+          platform: 'darwin',
+          version: '0.0.0-dev.0'
+        }
       });
     });
   });
@@ -149,7 +214,12 @@ describe('arg-mapper.mapCliToDriver', () => {
 
     it('maps the same argument', () => {
       expect(mapCliToDriver(cliOptions)).to.deep.equal({
-        tlsCertificateKeyFile: 'key'
+        tlsCertificateKeyFile: 'key',
+        driverInfo: {
+          name: 'mongosh',
+          platform: 'darwin',
+          version: '0.0.0-dev.0'
+        }
       });
     });
   });
@@ -159,7 +229,12 @@ describe('arg-mapper.mapCliToDriver', () => {
 
     it('maps the same argument', () => {
       expect(mapCliToDriver(cliOptions)).to.deep.equal({
-        tlsCertificateKeyFilePassword: 'pw'
+        tlsCertificateKeyFilePassword: 'pw',
+        driverInfo: {
+          name: 'mongosh',
+          platform: 'darwin',
+          version: '0.0.0-dev.0'
+        }
       });
     });
   });
@@ -175,6 +250,11 @@ describe('arg-mapper.mapCliToDriver', () => {
               accessKeyId: 'awskey'
             }
           }
+        },
+        driverInfo: {
+          name: 'mongosh',
+          platform: 'darwin',
+          version: '0.0.0-dev.0'
         }
       });
     });
@@ -191,6 +271,11 @@ describe('arg-mapper.mapCliToDriver', () => {
               secretAccessKey: 'secretkey'
             }
           }
+        },
+        driverInfo: {
+          name: 'mongosh',
+          platform: 'darwin',
+          version: '0.0.0-dev.0'
         }
       });
     });
@@ -203,6 +288,11 @@ describe('arg-mapper.mapCliToDriver', () => {
       expect(mapCliToDriver(cliOptions)).to.deep.equal({
         authMechanismProperties: {
           AWS_SESSION_TOKEN: 'token'
+        },
+        driverInfo: {
+          name: 'mongosh',
+          platform: 'darwin',
+          version: '0.0.0-dev.0'
         }
       });
     });
@@ -215,6 +305,11 @@ describe('arg-mapper.mapCliToDriver', () => {
       expect(mapCliToDriver(cliOptions)).to.deep.equal({
         authMechanismProperties: {
           SERVICE_NAME: 'alternate'
+        },
+        driverInfo: {
+          name: 'mongosh',
+          platform: 'darwin',
+          version: '0.0.0-dev.0'
         }
       });
     });
@@ -227,6 +322,11 @@ describe('arg-mapper.mapCliToDriver', () => {
       expect(mapCliToDriver(cliOptions)).to.deep.equal({
         authMechanismProperties: {
           SERVICE_REALM: 'REALM.COM'
+        },
+        driverInfo: {
+          name: 'mongosh',
+          platform: 'darwin',
+          version: '0.0.0-dev.0'
         }
       });
     });
@@ -237,7 +337,13 @@ describe('arg-mapper.mapCliToDriver', () => {
       const cliOptions: CliOptions = { sspiHostnameCanonicalization: 'none' };
 
       it('is not mapped to authMechanismProperties', () => {
-        expect(mapCliToDriver(cliOptions)).to.deep.equal({});
+        expect(mapCliToDriver(cliOptions)).to.deep.equal({
+          driverInfo: {
+            name: 'mongosh',
+            platform: 'darwin',
+            version: '0.0.0-dev.0'
+          }
+        });
       });
     });
 
@@ -248,6 +354,11 @@ describe('arg-mapper.mapCliToDriver', () => {
         expect(mapCliToDriver(cliOptions)).to.deep.equal({
           authMechanismProperties: {
             gssapiCanonicalizeHostName: 'true'
+          },
+          driverInfo: {
+            name: 'mongosh',
+            platform: 'darwin',
+            version: '0.0.0-dev.0'
           }
         });
       });
@@ -275,6 +386,11 @@ describe('arg-mapper.mapCliToDriver', () => {
       expect(mapCliToDriver(cliOptions)).to.deep.equal({
         autoEncryption: {
           keyVaultNamespace: 'db.datakeys'
+        },
+        driverInfo: {
+          name: 'mongosh',
+          platform: 'darwin',
+          version: '0.0.0-dev.0'
         }
       });
     });
@@ -297,6 +413,11 @@ describe('arg-mapper.mapCliToDriver', () => {
               secretAccessKey: 'secretkey'
             }
           }
+        },
+        driverInfo: {
+          name: 'mongosh',
+          platform: 'darwin',
+          version: '0.0.0-dev.0'
         }
       });
     });
@@ -315,6 +436,11 @@ describe('arg-mapper.mapCliToDriver', () => {
           strict: true,
           deprecationErrors: true,
           version: '1'
+        },
+        driverInfo: {
+          name: 'mongosh',
+          platform: 'darwin',
+          version: '0.0.0-dev.0'
         }
       });
     });
