@@ -69,15 +69,19 @@ function mapCliToDriver(options: CliOptions): MongoClientOptions {
       }
     }
   }
-  applyTlsCertificateSelector(options.tlsCertificateSelector, nodeOptions);
-  return nodeOptions;
+
+  const { version } = require('../package.json');
+  return {
+    ...nodeOptions,
+    ...getTlsCertificateSelector(options.tlsCertificateSelector),
+    driverInfo: { name: 'mongosh', version }
+  };
 }
 
 type TlsCertificateExporter = (search: { subject: string } | { thumbprint: Buffer }) => { passphrase: string, pfx: Buffer };
-export function applyTlsCertificateSelector(
-  selector: string | undefined,
-  nodeOptions: MongoClientOptions
-): void {
+export function getTlsCertificateSelector(
+  selector: string | undefined
+): { passphrase: string, pfx: Buffer }|undefined {
   if (!selector) {
     return;
   }
@@ -96,8 +100,7 @@ export function applyTlsCertificateSelector(
 
   try {
     const { passphrase, pfx } = exportCertificateAndPrivateKey(search);
-    nodeOptions.passphrase = passphrase;
-    nodeOptions.pfx = pfx;
+    return { passphrase, pfx };
   } catch (err) {
     throw new MongoshInvalidInputError(`Could not resolve certificate specification '${selector}': ${err.message}`);
   }

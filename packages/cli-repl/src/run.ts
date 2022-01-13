@@ -86,7 +86,6 @@ import stream from 'stream';
       process.title = title;
       setTerminalWindowTitle(title);
 
-      const appName = `mongosh ${version}`;
       const shellHomePaths = getStoragePaths();
       repl = new CliRepl({
         shellCliOptions: {
@@ -98,7 +97,7 @@ import stream from 'stream';
         onExit: process.exit,
         shellHomePaths: shellHomePaths
       });
-      await repl.start(driverUri, { appName, ...driverOptions });
+      await repl.start(driverUri, driverOptions);
     }
   } catch (e) {
     console.error(`${e.name}: ${e.message}`);

@@ -3,8 +3,10 @@ import chai, { expect } from 'chai';
 import path from 'path';
 import sinonChai from 'sinon-chai';
 import sinon from 'ts-sinon';
-import mapCliToDriver, { applyTlsCertificateSelector } from './arg-mapper';
+import mapCliToDriver, { getTlsCertificateSelector } from './arg-mapper';
 chai.use(sinonChai);
+
+const packageJSON = require('../package.json');
 
 describe('arg-mapper.mapCliToDriver', () => {
   context('when cli args have authenticationDatabase', () => {
@@ -12,7 +14,11 @@ describe('arg-mapper.mapCliToDriver', () => {
 
     it('maps to authSource', () => {
       expect(mapCliToDriver(cliOptions)).to.deep.equal({
-        authSource: 'authDb'
+        authSource: 'authDb',
+        driverInfo: {
+          name: 'mongosh',
+          version: packageJSON.version
+        }
       });
     });
   });
@@ -22,7 +28,11 @@ describe('arg-mapper.mapCliToDriver', () => {
 
     it('maps to authMechanism', () => {
       expect(mapCliToDriver(cliOptions)).to.deep.equal({
-        authMechanism: 'SCRAM-SHA-1'
+        authMechanism: 'SCRAM-SHA-1',
+        driverInfo: {
+          name: 'mongosh',
+          version: packageJSON.version
+        }
       });
     });
   });
@@ -32,7 +42,11 @@ describe('arg-mapper.mapCliToDriver', () => {
 
     it('maps to loggerLevel', () => {
       expect(mapCliToDriver(cliOptions)).to.deep.equal({
-        loggerLevel: 'error'
+        loggerLevel: 'error',
+        driverInfo: {
+          name: 'mongosh',
+          version: packageJSON.version
+        }
       });
     });
   });
@@ -42,7 +56,11 @@ describe('arg-mapper.mapCliToDriver', () => {
 
     it('maps to loggerLevel', () => {
       expect(mapCliToDriver(cliOptions)).to.deep.equal({
-        loggerLevel: 'debug'
+        loggerLevel: 'debug',
+        driverInfo: {
+          name: 'mongosh',
+          version: packageJSON.version
+        }
       });
     });
   });
@@ -54,6 +72,10 @@ describe('arg-mapper.mapCliToDriver', () => {
       expect(mapCliToDriver(cliOptions)).to.deep.equal({
         auth: {
           username: 'richard'
+        },
+        driverInfo: {
+          name: 'mongosh',
+          version: packageJSON.version
         }
       });
     });
@@ -66,6 +88,10 @@ describe('arg-mapper.mapCliToDriver', () => {
       expect(mapCliToDriver(cliOptions)).to.deep.equal({
         auth: {
           password: 'aphextwin'
+        },
+        driverInfo: {
+          name: 'mongosh',
+          version: packageJSON.version
         }
       });
     });
@@ -79,6 +105,10 @@ describe('arg-mapper.mapCliToDriver', () => {
         auth: {
           username: 'richard',
           password: 'aphextwin'
+        },
+        driverInfo: {
+          name: 'mongosh',
+          version: packageJSON.version
         }
       });
     });
@@ -89,7 +119,11 @@ describe('arg-mapper.mapCliToDriver', () => {
 
     it('maps the same argument', () => {
       expect(mapCliToDriver(cliOptions)).to.deep.equal({
-        retryWrites: true
+        retryWrites: true,
+        driverInfo: {
+          name: 'mongosh',
+          version: packageJSON.version
+        }
       });
     });
   });
@@ -99,7 +133,11 @@ describe('arg-mapper.mapCliToDriver', () => {
 
     it('maps the same argument', () => {
       expect(mapCliToDriver(cliOptions)).to.deep.equal({
-        tls: true
+        tls: true,
+        driverInfo: {
+          name: 'mongosh',
+          version: packageJSON.version
+        }
       });
     });
   });
@@ -109,7 +147,11 @@ describe('arg-mapper.mapCliToDriver', () => {
 
     it('maps the same argument', () => {
       expect(mapCliToDriver(cliOptions)).to.deep.equal({
-        tlsAllowInvalidCertificates: true
+        tlsAllowInvalidCertificates: true,
+        driverInfo: {
+          name: 'mongosh',
+          version: packageJSON.version
+        }
       });
     });
   });
@@ -119,7 +161,11 @@ describe('arg-mapper.mapCliToDriver', () => {
 
     it('maps the same argument', () => {
       expect(mapCliToDriver(cliOptions)).to.deep.equal({
-        tlsAllowInvalidHostnames: true
+        tlsAllowInvalidHostnames: true,
+        driverInfo: {
+          name: 'mongosh',
+          version: packageJSON.version
+        }
       });
     });
   });
@@ -129,7 +175,11 @@ describe('arg-mapper.mapCliToDriver', () => {
 
     it('maps the same argument', () => {
       expect(mapCliToDriver(cliOptions)).to.deep.equal({
-        tlsCAFile: 'ca'
+        tlsCAFile: 'ca',
+        driverInfo: {
+          name: 'mongosh',
+          version: packageJSON.version
+        }
       });
     });
   });
@@ -139,7 +189,11 @@ describe('arg-mapper.mapCliToDriver', () => {
 
     it('maps to sslCRL', () => {
       expect(mapCliToDriver(cliOptions)).to.deep.equal({
-        sslCRL: 'key'
+        sslCRL: 'key',
+        driverInfo: {
+          name: 'mongosh',
+          version: packageJSON.version
+        }
       });
     });
   });
@@ -149,7 +203,11 @@ describe('arg-mapper.mapCliToDriver', () => {
 
     it('maps the same argument', () => {
       expect(mapCliToDriver(cliOptions)).to.deep.equal({
-        tlsCertificateKeyFile: 'key'
+        tlsCertificateKeyFile: 'key',
+        driverInfo: {
+          name: 'mongosh',
+          version: packageJSON.version
+        }
       });
     });
   });
@@ -159,7 +217,11 @@ describe('arg-mapper.mapCliToDriver', () => {
 
     it('maps the same argument', () => {
       expect(mapCliToDriver(cliOptions)).to.deep.equal({
-        tlsCertificateKeyFilePassword: 'pw'
+        tlsCertificateKeyFilePassword: 'pw',
+        driverInfo: {
+          name: 'mongosh',
+          version: packageJSON.version
+        }
       });
     });
   });
@@ -175,6 +237,10 @@ describe('arg-mapper.mapCliToDriver', () => {
               accessKeyId: 'awskey'
             }
           }
+        },
+        driverInfo: {
+          name: 'mongosh',
+          version: packageJSON.version
         }
       });
     });
@@ -191,6 +257,10 @@ describe('arg-mapper.mapCliToDriver', () => {
               secretAccessKey: 'secretkey'
             }
           }
+        },
+        driverInfo: {
+          name: 'mongosh',
+          version: packageJSON.version
         }
       });
     });
@@ -203,6 +273,10 @@ describe('arg-mapper.mapCliToDriver', () => {
       expect(mapCliToDriver(cliOptions)).to.deep.equal({
         authMechanismProperties: {
           AWS_SESSION_TOKEN: 'token'
+        },
+        driverInfo: {
+          name: 'mongosh',
+          version: packageJSON.version
         }
       });
     });
@@ -215,6 +289,10 @@ describe('arg-mapper.mapCliToDriver', () => {
       expect(mapCliToDriver(cliOptions)).to.deep.equal({
         authMechanismProperties: {
           SERVICE_NAME: 'alternate'
+        },
+        driverInfo: {
+          name: 'mongosh',
+          version: packageJSON.version
         }
       });
     });
@@ -227,6 +305,10 @@ describe('arg-mapper.mapCliToDriver', () => {
       expect(mapCliToDriver(cliOptions)).to.deep.equal({
         authMechanismProperties: {
           SERVICE_REALM: 'REALM.COM'
+        },
+        driverInfo: {
+          name: 'mongosh',
+          version: packageJSON.version
         }
       });
     });
@@ -237,7 +319,12 @@ describe('arg-mapper.mapCliToDriver', () => {
       const cliOptions: CliOptions = { sspiHostnameCanonicalization: 'none' };
 
       it('is not mapped to authMechanismProperties', () => {
-        expect(mapCliToDriver(cliOptions)).to.deep.equal({});
+        expect(mapCliToDriver(cliOptions)).to.deep.equal({
+          driverInfo: {
+            name: 'mongosh',
+            version: packageJSON.version
+          }
+        });
       });
     });
 
@@ -248,6 +335,10 @@ describe('arg-mapper.mapCliToDriver', () => {
         expect(mapCliToDriver(cliOptions)).to.deep.equal({
           authMechanismProperties: {
             gssapiCanonicalizeHostName: 'true'
+          },
+          driverInfo: {
+            name: 'mongosh',
+            version: packageJSON.version
           }
         });
       });
@@ -275,6 +366,10 @@ describe('arg-mapper.mapCliToDriver', () => {
       expect(mapCliToDriver(cliOptions)).to.deep.equal({
         autoEncryption: {
           keyVaultNamespace: 'db.datakeys'
+        },
+        driverInfo: {
+          name: 'mongosh',
+          version: packageJSON.version
         }
       });
     });
@@ -297,6 +392,10 @@ describe('arg-mapper.mapCliToDriver', () => {
               secretAccessKey: 'secretkey'
             }
           }
+        },
+        driverInfo: {
+          name: 'mongosh',
+          version: packageJSON.version
         }
       });
     });
@@ -315,6 +414,10 @@ describe('arg-mapper.mapCliToDriver', () => {
           strict: true,
           deprecationErrors: true,
           version: '1'
+        },
+        driverInfo: {
+          name: 'mongosh',
+          version: packageJSON.version
         }
       });
     });
@@ -336,16 +439,13 @@ describe('arg-mapper.applyTlsCertificateSelector', () => {
     });
 
     it('leaves node options unchanged when no selector is given', () => {
-      const options = {};
-      applyTlsCertificateSelector(undefined, options);
-      expect(options).to.deep.equal({});
+      const applyTlsCertificateSelector = getTlsCertificateSelector(undefined);
+      expect(applyTlsCertificateSelector).to.not.exist;
     });
 
     it('throws when the selector has an odd format', () => {
-      const options = {};
-      expect(() => applyTlsCertificateSelector('foo=bar', options))
+      expect(() => getTlsCertificateSelector('foo=bar'))
         .to.throw(/tlsCertificateSelector needs to include subject or thumbprint/);
-      expect(options).to.deep.equal({});
     });
 
     it('returns passphrase and pfx as given by the (fake) OS', () => {
@@ -354,9 +454,8 @@ describe('arg-mapper.applyTlsCertificateSelector', () => {
       exportCertificateAndPrivateKey.returns({
         passphrase, pfx
       });
-      const options = {};
-      applyTlsCertificateSelector('subject=Foo Bar', options);
-      expect(options).to.deep.equal({
+      const applyTlsCertificateSelector = getTlsCertificateSelector('subject=Foo Bar');
+      expect(applyTlsCertificateSelector).to.deep.equal({
         passphrase, pfx
       });
     });
@@ -367,8 +466,7 @@ describe('arg-mapper.applyTlsCertificateSelector', () => {
       if (process.platform === 'win32' || process.platform === 'darwin') {
         return this.skip();
       }
-      const options = {};
-      expect(() => applyTlsCertificateSelector('subject=Foo Bar', options))
+      expect(() => getTlsCertificateSelector('subject=Foo Bar'))
         .to.throw(/tlsCertificateSelector is not supported on this platform/);
     });
 
@@ -376,8 +474,7 @@ describe('arg-mapper.applyTlsCertificateSelector', () => {
       if (process.platform !== 'win32') {
         return this.skip();
       }
-      const options = {};
-      expect(() => applyTlsCertificateSelector('subject=Foo Bar', options))
+      expect(() => getTlsCertificateSelector('subject=Foo Bar'))
         .to.throw(/Could not resolve certificate specification/);
     });
 
@@ -385,8 +482,7 @@ describe('arg-mapper.applyTlsCertificateSelector', () => {
       if (process.platform !== 'darwin') {
         return this.skip();
       }
-      const options = {};
-      expect(() => applyTlsCertificateSelector('subject=Foo Bar', options))
+      expect(() => getTlsCertificateSelector('subject=Foo Bar'))
         .to.throw(/Could not find a matching certificate/);
     });
   });

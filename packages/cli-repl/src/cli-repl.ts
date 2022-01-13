@@ -155,16 +155,19 @@ class CliRepl {
     await this.verifyNodeVersion();
 
     if (!this.cliOptions.nodb) {
+      const cs = new ConnectionString(driverUri);
+      if (!cs.searchParams.get('appName')) {
+        cs.searchParams.set('appName', `mongosh ${version}`);
+      }
+
       if (this.isPasswordMissingOptions(driverOptions)) {
         (driverOptions.auth as any).password = await this.requirePassword();
-      } else if (driverUri !== '') {
-        const cs = new ConnectionString(driverUri);
-        if (this.isPasswordMissingURI(cs)) {
-          cs.password = await this.requirePassword();
-          driverUri = cs.href;
-        }
+      } else if (this.isPasswordMissingURI(cs)) {
+        cs.password = await this.requirePassword();
       }
       this.ensurePasswordFieldIsPresentInAuth(driverOptions);
+
+      driverUri = cs.href;
     }
 
     try {
