@@ -544,7 +544,7 @@ describe('Shell BSON', () => {
       try {
         (shellBson.NumberLong as any)({});
       } catch (e) {
-        return expect(e.message).to.match(/string or number, got object.+\(NumberLong\)/);
+        return expect(e.message).to.match(/string or number or Long or Int32, got object.+\(NumberLong\)/);
       }
       expect.fail('Expecting error, nothing thrown');
     });
@@ -576,7 +576,7 @@ describe('Shell BSON', () => {
       try {
         (shellBson.NumberDecimal as any)({});
       } catch (e) {
-        return expect(e.message).to.match(/string or number, got object.+\(NumberDecimal\)/);
+        return expect(e.message).to.match(/string or number or Long or Int32 or Decimal128, got object.+\(NumberDecimal\)/);
       }
       expect.fail('Expecting error, nothing thrown');
     });
@@ -609,9 +609,26 @@ describe('Shell BSON', () => {
       try {
         (shellBson.NumberInt as any)({});
       } catch (e) {
-        return expect(e.message).to.match(/string or number, got object.+\(NumberInt\)/);
+        return expect(e.message).to.match(/string or number or Long or Int32, got object.+\(NumberInt\)/);
       }
       expect.fail('Expecting error, nothing thrown');
+    });
+  });
+
+  describe('Number type cross-construction', () => {
+    it('matches the legacy shell', () => {
+      const { NumberInt, NumberLong, NumberDecimal } = shellBson as any;
+      expect(NumberInt(null).toString()).to.equal('0');
+      expect(NumberLong(null).toString()).to.equal('0');
+
+      expect(NumberInt(NumberInt(1234)).toString()).to.equal('1234');
+      expect(NumberInt(NumberLong(1234)).toString()).to.equal('1234');
+      expect(NumberInt(NumberLong(1234)).toString()).to.equal('1234');
+      expect(NumberLong(NumberInt(1234)).toString()).to.equal('1234');
+      expect(NumberLong(NumberLong(1234)).toString()).to.equal('1234');
+      expect(NumberDecimal(NumberInt(1234)).toString()).to.equal('1234');
+      expect(NumberDecimal(NumberLong(1234)).toString()).to.equal('1234');
+      expect(NumberDecimal(NumberDecimal(1234)).toString()).to.equal('1234');
     });
   });
 

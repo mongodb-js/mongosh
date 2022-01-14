@@ -94,8 +94,16 @@ export function assertArgsDefinedType(args: any[], expectedTypes: Array<true|str
       return;
     }
 
-    if (((typeof expected === 'string' && typeof arg !== expected) || !expected.includes(typeof arg))) {
-      const expectedMsg = typeof expected === 'string' ? expected : expected.filter(e => e !== undefined).join(' or ');
+    const expectedTypesList: Array<string | undefined> =
+      typeof expected === 'string' ? [expected] : expected;
+    const isExpectedTypeof = expectedTypesList.includes(typeof arg);
+    const isExpectedBson = expectedTypesList.includes(`bson:${arg?._bsontype}`);
+
+    if (!isExpectedTypeof && !isExpectedBson) {
+      const expectedMsg = expectedTypesList
+        .filter(e => e !== undefined)
+        .map(e => e?.replace(/^bson:/, ''))
+        .join(' or ');
       throw new MongoshInvalidInputError(
         `Argument at position ${i} must be of type ${expectedMsg}, got ${typeof arg} instead${getAssertCaller(func)}`,
         CommonErrors.InvalidArgument
