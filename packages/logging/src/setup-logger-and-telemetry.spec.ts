@@ -102,8 +102,17 @@ describe('setupLoggerAndTelemetry', () => {
     bus.emit('devtools-connect:connect-heartbeat-succeeded', { connectionId: 'localhost' });
     bus.emit('devtools-connect:connect-fail-early');
     bus.emit('devtools-connect:connect-attempt-finished');
-    bus.emit('devtools-connect:resolve-srv-error', { from: 'mongodb+srv://foo:bar@hello.world/', error: new Error('failed'), duringLoad: false });
-    bus.emit('devtools-connect:resolve-srv-succeeded', { from: 'mongodb+srv://foo:bar@hello.world/', to: 'mongodb://foo:bar@db.hello.world/' });
+    bus.emit('devtools-connect:resolve-srv-error', {
+      from: 'mongodb+srv://foo:bar@hello.world/',
+      error: new Error('failed'),
+      duringLoad: false,
+      resolutionDetails: []
+    });
+    bus.emit('devtools-connect:resolve-srv-succeeded', {
+      from: 'mongodb+srv://foo:bar@hello.world/',
+      to: 'mongodb://foo:bar@db.hello.world/',
+      resolutionDetails: []
+    });
     bus.emit('devtools-connect:missing-optional-dependency', { name: 'kerberos', error: new Error('no kerberos') });
     bus.emit('mongosh-sp:reset-connection-options');
 
@@ -201,9 +210,9 @@ describe('setupLoggerAndTelemetry', () => {
     expect(logOutput[i++].msg).to.equal('Aborting connection attempt as irrecoverable');
     expect(logOutput[i++].msg).to.equal('Connection attempt finished');
     expect(logOutput[i].msg).to.equal('Resolving SRV record failed');
-    expect(logOutput[i++].attr).to.deep.equal({ from: 'mongodb+srv://<credentials>@hello.world/', error: 'failed', duringLoad: false });
+    expect(logOutput[i++].attr).to.deep.equal({ from: 'mongodb+srv://<credentials>@hello.world/', error: 'failed', duringLoad: false, resolutionDetails: [] });
     expect(logOutput[i].msg).to.equal('Resolving SRV record succeeded');
-    expect(logOutput[i++].attr).to.deep.equal({ from: 'mongodb+srv://<credentials>@hello.world/', to: 'mongodb://<credentials>@db.hello.world/' });
+    expect(logOutput[i++].attr).to.deep.equal({ from: 'mongodb+srv://<credentials>@hello.world/', to: 'mongodb://<credentials>@db.hello.world/', resolutionDetails: [] });
     expect(logOutput[i].msg).to.equal('Missing optional dependency');
     expect(logOutput[i++].attr).to.deep.equal({ name: 'kerberos', error: 'no kerberos' });
     expect(logOutput[i++].msg).to.equal('Reconnect because of changed connection options');
