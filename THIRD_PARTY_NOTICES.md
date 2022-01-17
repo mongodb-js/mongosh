@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Sun Jan 16 2022.
+This document was automatically generated on Mon Jan 17 2022.
 
 ## List of dependencies
 
@@ -57,7 +57,7 @@ Package|Version|License
 **[@babel/types](#100e0cc79db9d3cf46a059bce213706fe64eddfe6bd145844c875a6f638e3a85)**|7.14.9|MIT
 **[@hapi/hoek](#7f05d0070d349a5d0b227054688e17afdd73fd7eb990eddee829e87a76e88dc7)**|9.2.0|BSD-3-Clause
 **[@hapi/topo](#dcf7d236517a0e70a3be3a60756ee2aef1b1e6a2862b23278e094b9155f6ef43)**|5.0.0|BSD-3-Clause
-**[@mongodb-js/devtools-connect](#6d257a8c802120586f6e865cd94f13dc07a1cf98b66433a079f54de7b44a98c6)**|1.0.0|Apache-2.0
+**[@mongodb-js/devtools-connect](#b9cf5302c5af7ad12032dd2faa98a77cdb439e53e13a6c40d15dead7374f7ca4)**|1.1.1|Apache-2.0
 **[@mongosh/async-rewriter2](#69676fe7ebd86bf4fddf69d015a9de3d5e5657481207dc3738ed4219996b4217)**|0.0.0-dev.0|Apache-2.0
 **[@mongosh/autocomplete](#7f32df49a0095be559b86efa94fcf3aa45364e108fdb44142a6df12d43825617)**|0.0.0-dev.0|Apache-2.0
 **[@mongosh/cli-repl](#f82eb484c756fd7304088239eeb725f267073d0efc350413d3c1d005a205fc1d)**|0.0.0-dev.0|Apache-2.0
@@ -237,7 +237,7 @@ Package|Version|License
 **[number-is-nan](#044063cb59ac16c3146a6aa01521f5bd00ae1e6c7a197f31df253f357faf9f75)**|1.0.1|MIT
 **[object-assign](#598e372231bb5bef26b7d61105282eb20e14ade430143052d064d2d406769b95)**|4.1.1|MIT
 **[once](#d0d1303998dfae04e4f898f477380aac35568f4d6679f4ea913c2441cf9ebb0b)**|1.4.0|ISC
-**[os-dns-native](#5d45311b03654011d1c3b954ab04e39e677b9383924a5d261ad2ef880af38162)**|1.0.4|MIT
+**[os-dns-native](#ba8dc45d4ba1cab6cd3a45e6be7d62e9a77da5e07fa33324e930bdeabafd5718)**|1.1.1|MIT
 **[path-is-absolute](#4e27c6801c87897a2e351cd898ca28074dc33c7053687a25cb2ca7d1e457eeb7)**|1.0.1|MIT
 **[path-key](#e1a2a032096ace66b422351e00b11b0229e42e4b49c2146f439f8fe442218451)**|3.1.1|MIT
 **[prebuild-install](#a9493a602227065e2247bd0f1087615024e9e96d36d1bd1e70b8db5292f7bdda)**|6.1.2|MIT
@@ -2233,8 +2233,8 @@ License files:
       
 
 
-<a id="6d257a8c802120586f6e865cd94f13dc07a1cf98b66433a079f54de7b44a98c6"></a>
-### [@mongodb-js/devtools-connect](https://www.npmjs.com/package/@mongodb-js/devtools-connect) (version 1.0.0)
+<a id="b9cf5302c5af7ad12032dd2faa98a77cdb439e53e13a6c40d15dead7374f7ca4"></a>
+### [@mongodb-js/devtools-connect](https://www.npmjs.com/package/@mongodb-js/devtools-connect) (version 1.1.1)
 <!-- initially found at packages/logging/node_modules/@mongodb-js/devtools-connect -->
 > A connection establishment utility for MongoDB developer tools
 
@@ -14887,8 +14887,8 @@ Authors:
 * Isaac Z. Schlueter <i@izs.me> (http://blog.izs.me/)
 
 
-<a id="5d45311b03654011d1c3b954ab04e39e677b9383924a5d261ad2ef880af38162"></a>
-### [os-dns-native](https://www.npmjs.com/package/os-dns-native) (version 1.0.4)
+<a id="ba8dc45d4ba1cab6cd3a45e6be7d62e9a77da5e07fa33324e930bdeabafd5718"></a>
+### [os-dns-native](https://www.npmjs.com/package/os-dns-native) (version 1.1.1)
 <!-- initially found at packages/logging/node_modules/os-dns-native -->
 > Perform DNS queries using OS APIs
 
