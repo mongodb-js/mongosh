@@ -42,7 +42,8 @@ const config = {
     'mongodb-client-encryption': 'commonjs2 mongodb-client-encryption',
     kerberos: 'commonjs2 kerberos',
     snappy: 'commonjs2 snappy',
-    interruptor: 'commonjs2 interruptor'
+    interruptor: 'commonjs2 interruptor',
+    'os-dns-native': 'commonjs2 os-dns-native',
   }
 };
 
