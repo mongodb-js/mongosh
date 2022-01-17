@@ -70,7 +70,9 @@ const OPTIONS = {
     'tlsAllowInvalidHostnames',
     'tlsFIPSMode',
     'verbose',
-    'version'
+    'version',
+    'debugUseKrbDomain',
+    'debugUseKrbDropEmptyPassword'
   ],
   array: [
     'file'

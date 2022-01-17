@@ -45,6 +45,10 @@ if [ "$OS" == "Windows_NT" ]; then
   python --version
 fi
 
+cp -v ./kerberos_sspi.cc packages/service-provider-server/node_modules/kerberos/src/win32
+cp -v ./mongo_credentials.js packages/service-provider-server/node_modules/mongodb/lib/cmap/auth
+cp -v ./gssapi.js packages/service-provider-server/node_modules/mongodb/lib/cmap/auth
+
 export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
 npm run evergreen-release compile
 dist/mongosh --version
