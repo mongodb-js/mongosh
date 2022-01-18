@@ -57,7 +57,7 @@ Package|Version|License
 **[@babel/types](#100e0cc79db9d3cf46a059bce213706fe64eddfe6bd145844c875a6f638e3a85)**|7.14.9|MIT
 **[@hapi/hoek](#7f05d0070d349a5d0b227054688e17afdd73fd7eb990eddee829e87a76e88dc7)**|9.2.0|BSD-3-Clause
 **[@hapi/topo](#dcf7d236517a0e70a3be3a60756ee2aef1b1e6a2862b23278e094b9155f6ef43)**|5.0.0|BSD-3-Clause
-**[@mongodb-js/devtools-connect](#b9cf5302c5af7ad12032dd2faa98a77cdb439e53e13a6c40d15dead7374f7ca4)**|1.1.1|Apache-2.0
+**[@mongodb-js/devtools-connect](#1ab55906d8116abf76244cc7b8d0775a6a688d80fabec12996e29c09178834d2)**|1.1.2|Apache-2.0
 **[@mongosh/async-rewriter2](#69676fe7ebd86bf4fddf69d015a9de3d5e5657481207dc3738ed4219996b4217)**|0.0.0-dev.0|Apache-2.0
 **[@mongosh/autocomplete](#7f32df49a0095be559b86efa94fcf3aa45364e108fdb44142a6df12d43825617)**|0.0.0-dev.0|Apache-2.0
 **[@mongosh/cli-repl](#f82eb484c756fd7304088239eeb725f267073d0efc350413d3c1d005a205fc1d)**|0.0.0-dev.0|Apache-2.0
@@ -2233,8 +2233,8 @@ License files:
       
 
 
-<a id="b9cf5302c5af7ad12032dd2faa98a77cdb439e53e13a6c40d15dead7374f7ca4"></a>
-### [@mongodb-js/devtools-connect](https://www.npmjs.com/package/@mongodb-js/devtools-connect) (version 1.1.1)
+<a id="1ab55906d8116abf76244cc7b8d0775a6a688d80fabec12996e29c09178834d2"></a>
+### [@mongodb-js/devtools-connect](https://www.npmjs.com/package/@mongodb-js/devtools-connect) (version 1.1.2)
 <!-- initially found at packages/logging/node_modules/@mongodb-js/devtools-connect -->
 > A connection establishment utility for MongoDB developer tools
 
