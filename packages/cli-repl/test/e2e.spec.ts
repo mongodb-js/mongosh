@@ -216,7 +216,8 @@ describe('e2e', function() {
           return this.skip(); // $currentOp is unversioned
         }
         const currentOp = await shell.executeLine('db.currentOp()');
-        expect(currentOp).to.include("appName: 'mongosh 0.0.0-dev.0'");
+        const { version } = require('../package.json');
+        expect(currentOp).to.include(`appName: 'mongosh ${version}'`);
         expect(currentOp).to.include("name: 'nodejs|mongosh'");
         shell.assertNoErrors();
       });
