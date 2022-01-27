@@ -788,6 +788,8 @@ describe('AsyncWriter', () => {
           .to.equal('() => {\n    method();\n  }');
         expect(runTranspiledCode('Function.prototype.toString.call(() => { const 八 = 8; })'))
           .to.equal('() => {\n    const 八 = 8;\n  }');
+        expect(runTranspiledCode('Function.prototype.toString.call(() => { const str = \'"extra quotes"\'; })'))
+          .to.equal('() => {\n    const str = \'"extra quotes"\';\n  }');
       });
     });
   });
