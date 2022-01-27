@@ -441,6 +441,45 @@ describe('AsyncWriter', () => {
         .to.deep.equal({ y: 'y' });
     });
 
+    it('supports awaiting destructured objects', async() => {
+      implicitlyAsyncFn.resolves({ foo: 'bar' });
+      const ret = runTranspiledCode(`
+      const { foo } = implicitlyAsyncFn();
+      foo`);
+      expect(ret.constructor.name).to.equal('Promise');
+      expect(ret[Symbol.for('@@mongosh.syntheticPromise')]).to.equal(true);
+      expect(await ret).to.equal('bar');
+    });
+
+    it('supports awaiting destructured arrays', async() => {
+      implicitlyAsyncFn.resolves([ 'bar' ]);
+      const ret = runTranspiledCode(`
+      const [ foo ] = implicitlyAsyncFn();
+      foo`);
+      expect(ret.constructor.name).to.equal('Promise');
+      expect(ret[Symbol.for('@@mongosh.syntheticPromise')]).to.equal(true);
+      expect(await ret).to.equal('bar');
+    });
+
+    it('supports awaiting nested destructured objects', async() => {
+      implicitlyAsyncFn.resolves({ nested: [{ foo: 'bar' }] });
+      const ret = runTranspiledCode(`
+      const { nested: [{ foo }] } = implicitlyAsyncFn();
+      foo`);
+      expect(ret.constructor.name).to.equal('Promise');
+      expect(ret[Symbol.for('@@mongosh.syntheticPromise')]).to.equal(true);
+      expect(await ret).to.equal('bar');
+    });
+
+    it('supports awaiting destructured function parameters', async() => {
+      implicitlyAsyncFn.resolves({ nested: [{ foo: 'bar' }] });
+      const ret = runTranspiledCode(`
+      (({ nested: [{ foo }] } = {}) => foo)(implicitlyAsyncFn())`);
+      expect(ret.constructor.name).to.equal('Promise');
+      expect(ret[Symbol.for('@@mongosh.syntheticPromise')]).to.equal(true);
+      expect(await ret).to.equal('bar');
+    });
+
     context('invalid implicit awaits', () => {
       beforeEach(() => {
         runUntranspiledCode(asyncWriter.runtimeSupportCode());
