@@ -495,11 +495,10 @@ module.exports = '(' + function() {
   const origFptS = Function.prototype.toString;
   Function.prototype.toString = function() {
     const source = origFptS.call(this, arguments);
-    const match = source.match(/^[^"]*"<async_rewriter>(?<encoded>[a-z0-9]+)<\/>";/);
+    const match = source.match(/^[^"]*"<async_rewriter>(?<encoded>[^<]*)<\/>";/);
     if (match) {
-      // Decode using hex + UTF-16
-      return String.fromCharCode(
-        ...match.groups.encoded.match(/.{4}/g).map(hex => parseInt(hex, 16)));
+      // Decode using percent encoding
+      return decodeURIComponent(match.groups.encoded);
     }
     return source;
   };

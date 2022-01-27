@@ -166,10 +166,9 @@ export default ({ types: t }: { types: typeof BabelTypes }): babel.PluginObj<{ f
         const originalSource = path.parent.start !== undefined ?
           this.file.code.slice(path.parent.start ?? undefined, path.parent.end ?? undefined) :
           'function () { [unknown code] }';
-        // Encode using UTF-16 + hex encoding so we don't have to worry about
+        // Encode using percent encoding so we don't have to worry about
         // special characters.
-        const encodedOriginalSource =
-          [...originalSource].map(char => char.charCodeAt(0).toString(16).padStart(4, '0')).join('');
+        const encodedOriginalSource = encodeURIComponent(originalSource);
         const originalSourceNode = t.expressionStatement(
           t.stringLiteral(`<async_rewriter>${encodedOriginalSource}</>`));
 
