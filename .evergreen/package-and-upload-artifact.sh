@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
 set -e
-
-cat <<RELEASE_MONGOSH > ~/release_mongosh.sh
-set -e
-cd $(pwd)
+set -x
 
 export NODE_JS_VERSION=${NODE_JS_VERSION}
 export ARTIFACT_URL_FILE="$PWD/artifact-url.txt"
@@ -48,10 +45,30 @@ else
   fi
 
   npm run evergreen-release package
+  ls -lh dist/
 
   if [ "$(uname)" == Darwin ]; then
+    # download macnotary client
+    curl -LO https://macos-notary-1628249594.s3.amazonaws.com/releases/client/v3.1.0/darwin_amd64.zip
+    unzip darwin_amd64.zip
+    chmod +x ./darwin_amd64/macnotary
+    ./darwin_amd64/macnotary -v
+
+    FILE=$(echo ./dist/*.zip)
+    echo "notarizing $FILE ..."
+
+    # notarize the client
+    ./darwin_amd64/macnotary \
+      -f "$FILE" \
+      -m notarizeAndSign -u https://dev.macos-notary.build.10gen.cc/api \
+      -b com.mongodb.mongosh \
+      -e config/macos-entitlements.xml \
+      -o "$FILE-signed.zip"
+    mv -v "$FILE-signed.zip" "$FILE"
+
     # Verify signing
-    spctl -a -vvv -t install dist/mongosh
+    unzip "$FILE"
+    spctl -a -vvv -t install mongosh-*/bin/mongosh
   fi
 
   if [ "$OS" == "Windows_NT" ]; then
@@ -59,13 +76,4 @@ else
     export ARTIFACT_URL_FILE="\$(cygpath -w "\$ARTIFACT_URL_FILE")"
   fi
   npm run evergreen-release upload
-fi
-RELEASE_MONGOSH
-
-if [ "$(uname)" == Darwin ]; then
-  # Using this trick to prevent any issues with macOS signing
-  # Using the SSH session makes signing non-interactive
-  ssh -v -p 2222 localhost "bash ~/release_mongosh.sh"
-else
-  bash ~/release_mongosh.sh
 fi

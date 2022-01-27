@@ -26,7 +26,6 @@ export function withTempPackageEach(): { tarballDir: string; pkgConfig: PackageI
 
 export const dummyConfig: Config = Object.freeze({
   version: 'version',
-  appleNotarizationBundleId: 'appleNotarizationBundleId',
   bundleEntrypointInput: 'bundleEntrypointInput',
   bundleSinglefileOutput: 'bundleSinglefileOutput',
   executablePath: 'executablePath',
@@ -42,9 +41,6 @@ export const dummyConfig: Config = Object.freeze({
   downloadCenterAwsSecret: 'downloadCenterAwsSecret',
   githubToken: 'githubToken',
   segmentKey: 'segmentKey',
-  appleNotarizationUsername: 'appleNotarizationUsername',
-  appleNotarizationApplicationPassword: 'appleNotarizationApplicationPassword',
-  appleCodesignIdentity: 'appleCodesignIdentity',
   notarySigningKeyName: 'notarySigningKey',
   notaryAuthToken: 'notaryAuthToken',
   isCi: true,
