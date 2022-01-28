@@ -941,12 +941,17 @@ export default class Database extends ShellApiWithMongoClass {
 
   @returnsPromise
   @apiVersions([])
-  async stats(scale = 1): Promise<Document> {
-    this._emitDatabaseApiCall('stats', { scale: scale });
+  async stats(scaleOrOptions: number | Document = 1): Promise<Document> {
+    assertArgsDefinedType([scaleOrOptions], [['number', 'object']], 'Database.stats');
+    if (typeof scaleOrOptions === 'number') {
+      scaleOrOptions = { scale: scaleOrOptions };
+    }
+    this._emitDatabaseApiCall('stats', { scale: scaleOrOptions.scale });
     return await this._runCommand(
       {
         dbStats: 1,
-        scale: scale
+        scale: 1,
+        ...scaleOrOptions
       }
     );
   }

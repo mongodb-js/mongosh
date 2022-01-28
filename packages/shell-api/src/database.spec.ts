@@ -1843,7 +1843,7 @@ describe('Database', () => {
     });
 
     describe('stats', () => {
-      it('calls serviceProvider.runCommandWithCheck on the database with options', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database with scale argument', async() => {
         await database.stats(1);
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
@@ -1851,6 +1851,32 @@ describe('Database', () => {
           {
             dbStats: 1,
             scale: 1
+          }
+        );
+      });
+
+      it('calls serviceProvider.runCommandWithCheck on the database with options object', async() => {
+        await database.stats({ scale: 1, freeStorage: 1 });
+
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          database._name,
+          {
+            dbStats: 1,
+            scale: 1,
+            freeStorage: 1
+          }
+        );
+      });
+
+      it('calls serviceProvider.runCommandWithCheck on the database with options object without explicit scale', async() => {
+        await database.stats({ freeStorage: 1 });
+
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          database._name,
+          {
+            dbStats: 1,
+            scale: 1,
+            freeStorage: 1
           }
         );
       });
