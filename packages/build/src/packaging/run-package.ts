@@ -1,10 +1,8 @@
 import { constants as fsConstants, promises as fs } from 'fs';
 import path from 'path';
-import os from 'os';
-import { Config, Platform, validateBuildVariant } from '../config';
+import { Config, validateBuildVariant } from '../config';
 import { downloadMongocrypt } from './download-mongocryptd';
 import { downloadManpage } from './download-manpage';
-import { macOSSignAndNotarize } from './macos-sign';
 import { notarizeArtifact } from './notary-service';
 import { createPackage, PackageFile } from './package';
 
@@ -45,17 +43,6 @@ export async function runPackage(
       config.packageInformation as (Required<Config>['packageInformation'])
     );
   };
-
-  if (os.platform() === Platform.MacOs) {
-    return await macOSSignAndNotarize(
-      [
-        config.executablePath,
-        config.mongocryptdPath
-      ],
-      config,
-      runCreatePackage
-    );
-  }
 
   const packaged = await runCreatePackage();
 

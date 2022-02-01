@@ -12,7 +12,6 @@ interface ManPageConfig {
  */
 export interface Config {
   version: string;
-  appleNotarizationBundleId?: string;
   bundleEntrypointInput: string;
   bundleSinglefileOutput: string;
   executablePath: string;
@@ -29,10 +28,6 @@ export interface Config {
   downloadCenterAwsSecret?: string;
   githubToken?: string;
   segmentKey?: string;
-  appleNotarizationUsername?: string;
-  appleNotarizationApplicationPassword?: string;
-  appleCodesignIdentity?: string;
-  appleCodesignEntitlementsFile?: string;
   notarySigningKeyName?: string;
   notaryAuthToken?: string;
   isCi?: boolean;

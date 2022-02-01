@@ -57,11 +57,6 @@ const MONGOCRYPTD_PATH = path.resolve(TMP_DIR, 'mongocryptd-mongosh' + (process.
 const BUILD_INFO_FILE_PATH = path.join(CLI_REPL_DIR, 'lib', 'build-info.json');
 
 /**
- * The bundle id for MacOs.
- */
-const APPLE_NOTARIZATION_BUNDLE_ID = 'com.mongodb.mongosh';
-
-/**
  * The SHA for the current git HEAD.
  */
 const REVISION = process.env.GITHUB_COMMIT ?? process.env.REVISION;
@@ -103,11 +98,6 @@ module.exports = {
   platform: os.platform(),
   execNodeVersion: process.env.NODE_JS_VERSION || `^${process.version.slice(1)}`,
   distributionBuildVariant: process.env.DISTRIBUTION_BUILD_VARIANT,
-  appleCodesignIdentity: process.env.APPLE_CODESIGN_IDENTITY,
-  appleCodesignEntitlementsFile: path.resolve(__dirname, 'macos-entitlements.xml'),
-  appleNotarizationBundleId: APPLE_NOTARIZATION_BUNDLE_ID,
-  appleNotarizationUsername: process.env.APPLE_NOTARIZATION_USERNAME,
-  appleNotarizationApplicationPassword: process.env.APPLE_NOTARIZATION_APPLICATION_PASSWORD,
   notarySigningKeyName: process.env.NOTARY_SIGNING_KEY_NAME,
   notaryAuthToken: process.env.NOTARY_AUTH_TOKEN,
   repo: {
