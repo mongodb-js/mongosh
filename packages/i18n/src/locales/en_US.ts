@@ -1184,7 +1184,7 @@ const translations: Catalog = {
             stats: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.stats',
               description: 'returns the db stats. uses the dbStats command',
-              example: 'db.stats(<scale>)',
+              example: 'db.stats(<scale>) or db.stats({ scale: <scale> })',
             },
             hostInfo: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.hostInfo',
