@@ -26,16 +26,26 @@ import { AsyncRewriterErrors } from './error-codes';
  */
 
 export default class AsyncWriter {
-  step(code: string, plugins: babel.PluginItem[]): string {
-    return babel.transformSync(code, {
+  step(
+    ast: babel.types.Node | null | undefined,
+    originalSource: string,
+    plugins: babel.PluginItem[] = [],
+    opts: babel.TransformOptions = {}): babel.BabelFileResult | null {
+    const transform = (opts: babel.TransformOptions) => ast ?
+      babel.transformFromAstSync(ast, originalSource, opts) :
+      babel.transformSync(originalSource, opts);
+    return transform({
       plugins,
-      code: true,
+      code: false,
+      ast: true,
+      cloneInputAst: false,
       configFile: false,
       babelrc: false,
       browserslistConfigFile: false,
-      compact: code.length > 10_000,
-      sourceType: 'script'
-    } as any /* https://github.com/DefinitelyTyped/DefinitelyTyped/pull/57732 */)?.code as string;
+      compact: originalSource.length > 10_000,
+      sourceType: 'script',
+      ...opts
+    });
   }
 
   /**
@@ -48,20 +58,19 @@ export default class AsyncWriter {
       // that are necessary in order for subsequent steps to succeed
       // (in particular, shorthand properties and parameters would otherwise
       // mess with detecting expressions in their proper locations).
-      code = this.step(code, [
+      let ast = this.step(undefined, code, [
         require('@babel/plugin-transform-shorthand-properties').default,
         require('@babel/plugin-transform-parameters').default,
         require('@babel/plugin-transform-destructuring').default
-      ]);
-      code = this.step(code, [wrapAsFunctionPlugin]);
-      code = this.step(code, [uncatchableExceptionPlugin]);
-      code = this.step(code, [
+      ])?.ast;
+      ast = this.step(ast, code, [wrapAsFunctionPlugin])?.ast;
+      ast = this.step(ast, code, [uncatchableExceptionPlugin])?.ast;
+      return this.step(ast, code, [
         [
           makeMaybeAsyncFunctionPlugin,
           { customErrorBuilder: babel.types.identifier('MongoshAsyncWriterError') }
         ]
-      ]);
-      return code;
+      ], { code: true, ast: false })?.code as string;
     } catch (e) {
       e.message = e.message.replace('unknown: ', '');
       throw e;

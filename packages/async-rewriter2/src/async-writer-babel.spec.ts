@@ -824,11 +824,11 @@ describe('AsyncWriter', () => {
 
       it('lets us not worry about special characters', () => {
         expect(runTranspiledCode('Function.prototype.toString.call(() => {\n  method();\n})'))
-          .to.equal('() => {\n    method();\n  }');
+          .to.equal('() => {\n  method();\n}');
         expect(runTranspiledCode('Function.prototype.toString.call(() => { const 八 = 8; })'))
-          .to.equal('() => {\n    const 八 = 8;\n  }');
+          .to.equal('() => { const 八 = 8; }');
         expect(runTranspiledCode('Function.prototype.toString.call(() => { const str = \'"extra quotes"\'; })'))
-          .to.equal('() => {\n    const str = \'"extra quotes"\';\n  }');
+          .to.equal('() => { const str = \'"extra quotes"\'; }');
       });
     });
   });
