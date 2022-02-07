@@ -134,7 +134,7 @@ describe('CliRepl', () => {
         ]);
       });
 
-      it('store config options on disk cannot be represented in traditional JSON', async() => {
+      it('stores config options on disk cannot be represented in traditional JSON', async() => {
         input.write('config.set("inspectDepth", Infinity)\n');
 
         await waitEval(cliRepl.bus);
@@ -483,6 +483,76 @@ describe('CliRepl', () => {
             expect(err.message).to.include('oh no');
           }
           expect(output).not.to.include('oh no');
+        });
+      });
+
+      context('with a global configuration file', () => {
+        it('loads a global config file as YAML if present', async() => {
+          const globalConfigFile = path.join(tmpdir.path, 'globalconfig.conf');
+          await fs.writeFile(globalConfigFile, 'mongosh:\n  redactHistory: remove-redact');
+
+          cliReplOptions.globalConfigPaths = [ globalConfigFile ];
+          cliRepl = new CliRepl(cliReplOptions);
+          await cliRepl.start('', {});
+
+          output = '';
+          input.write('config.get("redactHistory")\n');
+          await waitEval(cliRepl.bus);
+          expect(output).to.include('remove-redact');
+        });
+
+        it('lets the local config file have preference over the global one', async() => {
+          const localConfigFile = path.join(tmpdir.path, 'config');
+          await fs.writeFile(localConfigFile, '{"redactHistory":"remove"}');
+          const globalConfigFile = path.join(tmpdir.path, 'globalconfig.conf');
+          await fs.writeFile(globalConfigFile, 'mongosh:\n  redactHistory: remove-redact');
+
+          cliReplOptions.globalConfigPaths = [ globalConfigFile ];
+          cliRepl = new CliRepl(cliReplOptions);
+          await cliRepl.start('', {});
+
+          output = '';
+          input.write('config.get("redactHistory")\n');
+          await waitEval(cliRepl.bus);
+          expect(output).to.include('remove');
+        });
+
+        it('loads a global config file as EJSON if present', async() => {
+          const globalConfigFile = path.join(tmpdir.path, 'globalconfig.conf');
+          await fs.writeFile(globalConfigFile, '{ "redactHistory": "remove-redact" }');
+
+          cliReplOptions.globalConfigPaths = [ globalConfigFile ];
+          cliRepl = new CliRepl(cliReplOptions);
+          await cliRepl.start('', {});
+
+          output = '';
+          input.write('config.get("redactHistory")\n');
+          await waitEval(cliRepl.bus);
+          expect(output).to.include('remove-redact');
+        });
+
+        it('warns if a global config file is present but could not be parsed', async() => {
+          const globalConfigFile = path.join(tmpdir.path, 'globalconfig.conf');
+          await fs.writeFile(globalConfigFile, 'a: b: c\n');
+
+          cliReplOptions.globalConfigPaths = [ globalConfigFile ];
+          cliRepl = new CliRepl(cliReplOptions);
+          await cliRepl.start('', {});
+
+          expect(output).to.include('Could not parse global configuration file at');
+          expect(output).to.include('a: b: c'); // echoes back the offending line
+        });
+
+        it('warns if a global config file is present but its values are invalid', async() => {
+          const globalConfigFile = path.join(tmpdir.path, 'globalconfig.conf');
+          await fs.writeFile(globalConfigFile, 'mongosh:\n  redactHistory: meow');
+
+          cliReplOptions.globalConfigPaths = [ globalConfigFile ];
+          cliRepl = new CliRepl(cliReplOptions);
+          await cliRepl.start('', {});
+
+          expect(output).to.include('Warning: Ignoring config option "redactHistory" from');
+          expect(output).to.include("redactHistory must be one of 'keep', 'remove', or 'remove-redact'");
         });
       });
     });

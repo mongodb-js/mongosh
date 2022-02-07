@@ -71,6 +71,7 @@ describe('setupLoggerAndTelemetry', () => {
     bus.emit('mongosh:mongoshrc-load');
     bus.emit('mongosh:mongoshrc-mongorc-warn');
     bus.emit('mongosh:eval-cli-script');
+    bus.emit('mongosh:globalconfig-load', { filename: '/etc/mongosh.conf', found: true });
 
     bus.emit('mongosh:mongocryptd-tryspawn', { spawnPath: ['mongocryptd'], path: 'path' });
     bus.emit('mongosh:mongocryptd-error', { cause: 'something', error: new Error('mongocryptd error!'), stderr: 'stderr', pid: 12345 });
@@ -169,6 +170,8 @@ describe('setupLoggerAndTelemetry', () => {
     expect(logOutput[i++].msg).to.equal('Loading .mongoshrc.js');
     expect(logOutput[i++].msg).to.equal('Warning about .mongorc.js/.mongoshrc.js mismatch');
     expect(logOutput[i++].msg).to.equal('Evaluating script passed on the command line');
+    expect(logOutput[i].msg).to.equal('Loading global configuration file');
+    expect(logOutput[i++].attr.filename).to.equal('/etc/mongosh.conf');
     expect(logOutput[i].msg).to.equal('Trying to spawn mongocryptd');
     expect(logOutput[i++].attr).to.deep.equal({ spawnPath: ['mongocryptd'], path: 'path' });
     expect(logOutput[i].msg).to.equal('Error running mongocryptd');

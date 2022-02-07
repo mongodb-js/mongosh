@@ -12,6 +12,7 @@ import type {
   ScriptLoadFileEvent,
   StartLoadingCliScriptsEvent,
   StartMongoshReplEvent,
+  GlobalConfigFileLoadEvent,
   MongocryptdTrySpawnEvent,
   MongocryptdLogEvent,
   MongocryptdErrorEvent,
@@ -177,6 +178,10 @@ export function setupLoggerAndTelemetry(
         }
       });
     }
+  });
+
+  bus.on('mongosh:globalconfig-load', function(args: GlobalConfigFileLoadEvent) {
+    log.info('MONGOSH', mongoLogId(1_000_000_048), 'config', 'Loading global configuration file', args);
   });
 
   bus.on('mongosh:evaluate-input', function(args: EvaluateInputEvent) {
@@ -426,7 +431,7 @@ export function setupLoggerAndTelemetry(
   });
 
   bus.on('mongosh-editor:run-edit-command', function(ev: EditorRunEditCommandEvent) {
-    log.error('MONGOSH-EDITOR', mongoLogId(1_000_000_045), 'editor', 'Open external editor', redactInfo(ev));
+    log.error('MONGOSH-EDITOR', mongoLogId(1_000_000_047), 'editor', 'Open external editor', redactInfo(ev));
   });
 
   bus.on('mongosh-editor:read-vscode-extensions-done', function(ev: EditorReadVscodeExtensionsDoneEvent) {
