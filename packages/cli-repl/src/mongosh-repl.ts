@@ -192,6 +192,7 @@ class MongoshNodeRepl implements EvaluationListener {
     this.inspectCompact = await this.getConfig('inspectCompact');
     this.inspectDepth = await this.getConfig('inspectDepth');
     this.showStackTraces = await this.getConfig('showStackTraces');
+    this.redactHistory = await this.getConfig('redactHistory');
 
     const repl = asyncRepl.start({
       start: prettyRepl.start,
