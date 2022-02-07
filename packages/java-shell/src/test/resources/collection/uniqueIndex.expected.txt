@@ -1,2 +1,2 @@
 category_1
-com.mongodb.MongoWriteException: Write operation error on server %mongohostport%. Write error: WriteError{code=11000, message='E11000 duplicate key error collection: admin.coll index: category_1 dup key: { category: "cat1" }', details={}}.
+com.mongodb.MongoWriteException: Write operation error on server %mongohostport%. Write error: WriteError{code=11000, message='E11000 duplicate key error collection: admin.coll index: category_1 dup key: { : "cat1" }', details={}}.
