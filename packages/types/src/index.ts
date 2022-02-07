@@ -72,6 +72,11 @@ export interface StartLoadingCliScriptsEvent {
   usesShellOption: boolean;
 }
 
+export interface GlobalConfigFileLoadEvent {
+  filename: string;
+  found: boolean;
+}
+
 export interface MongocryptdTrySpawnEvent {
   spawnPath: string[];
   path: string;
@@ -238,6 +243,10 @@ export interface MongoshBusEventsMap extends ConnectEventMap {
    * Signals the start of loading a mongosh configuration file.
    */
   'mongosh:mongoshrc-load': () => void;
+  /**
+   * Signals the start of loading a global mongosh configuration file.
+   */
+  'mongosh:globalconfig-load': (ev: GlobalConfigFileLoadEvent) => void;
   /**
    * Signals the detection of a legacy `mongo` configuration file or a misnamed mongosh configuration file.
    */

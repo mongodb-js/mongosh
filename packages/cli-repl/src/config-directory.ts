@@ -162,3 +162,30 @@ export function getStoragePaths(): ShellHomePaths {
     shellRcPath: os.homedir()
   };
 }
+
+/**
+ * Compute the list of global configuration files that mongosh uses,
+ * depending on the platform.
+ */
+export function getGlobalConfigPaths(): string[] {
+  const paths: string[] = [];
+
+  if (process.env.MONGOSH_GLOBAL_CONFIG_FILE_FOR_TESTING) {
+    paths.push(process.env.MONGOSH_GLOBAL_CONFIG_FILE_FOR_TESTING);
+  }
+
+  switch (process.platform) {
+    case 'win32':
+      if (process.execPath === process.argv[1]) {
+        paths.push(path.resolve(process.execPath, '..', 'mongosh.cfg'));
+      }
+      return paths;
+    case 'darwin':
+      paths.push('/usr/local/etc/mongosh.conf');
+      paths.push('/opt/homebrew/etc/mongosh.conf');
+      // fallthrough
+    default:
+      paths.push('/etc/mongosh.conf');
+      return paths;
+  }
+}

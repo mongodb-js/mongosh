@@ -8,6 +8,7 @@ import { Editor } from '@mongosh/editor';
 import { redactSensitiveData } from '@mongosh/history';
 import Analytics from 'analytics-node';
 import askpassword from 'askpassword';
+import yaml from 'js-yaml';
 import ConnectionString from 'mongodb-connection-string-url';
 import Nanobus from 'nanobus';
 import semver from 'semver';
@@ -20,7 +21,7 @@ import { MongoLogManager, MongoLogWriter, mongoLogId } from 'mongodb-log-writer'
 import { MongocryptdManager } from './mongocryptd-manager';
 import MongoshNodeRepl, { MongoshNodeReplOptions } from './mongosh-repl';
 import { setupLoggerAndTelemetry } from '@mongosh/logging';
-import { MongoshBus, CliUserConfig } from '@mongosh/types';
+import { MongoshBus, CliUserConfig, CliUserConfigValidator } from '@mongosh/types';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { promisify } from 'util';
@@ -56,6 +57,8 @@ export type CliReplOptions = {
   output: Writable;
   /** The set of home directory paths used by this shell instance. */
   shellHomePaths: ShellHomePaths;
+  /** The ordered list of paths in which to look for a global configuration file. */
+  globalConfigPaths?: string[];
   /** A handler for when the REPL exits, e.g. for `exit()` */
   onExit: (code?: number) => never;
   /** Optional analytics override options. */
@@ -78,6 +81,8 @@ class CliRepl {
   shellHomeDirectory: ShellHomeDirectory;
   configDirectory: ConfigManager<CliUserConfigOnDisk>;
   config: CliUserConfigOnDisk;
+  globalConfig: Partial<CliUserConfig>;
+  globalConfigPaths: string[];
   logManager: MongoLogManager;
   logWriter?: MongoLogWriter;
   input: Readable;
@@ -103,6 +108,7 @@ class CliRepl {
       enableTelemetry: true
     };
 
+    this.globalConfigPaths = options.globalConfigPaths ?? [];
     this.shellHomeDirectory = new ShellHomeDirectory(options.shellHomePaths);
     this.configDirectory = new ConfigManager<CliUserConfigOnDisk>(
       this.shellHomeDirectory)
@@ -112,6 +118,7 @@ class CliRepl {
         this.bus.emit('mongosh:new-user', config.userId, config.enableTelemetry))
       .on('update-config', (config: CliUserConfigOnDisk) =>
         this.bus.emit('mongosh:update-user', config.userId, config.enableTelemetry));
+    this.globalConfig = {};
 
     this.mongocryptdManager = new MongocryptdManager(
       options.mongocryptdSpawnPaths ?? [],
@@ -214,6 +221,8 @@ class CliRepl {
     } catch (err) {
       this.warnAboutInaccessibleFile(err);
     }
+
+    this.globalConfig = await this.loadGlobalConfigFile();
 
     if (driverOptions.autoEncryption) {
       const extraOptions = {
@@ -344,6 +353,44 @@ class CliRepl {
     }
   }
 
+  async loadGlobalConfigFile(): Promise<Partial<CliUserConfig>> {
+    let fileContents = '';
+    let filename = '';
+    for (filename of this.globalConfigPaths) {
+      try {
+        fileContents = await fs.readFile(filename, 'utf8');
+        break;
+      } catch (err) {
+        if (err.code !== 'ENOENT') {
+          this.bus.emit('mongosh:error', err, 'config');
+        }
+      }
+    }
+    this.bus.emit('mongosh:globalconfig-load', { filename, found: fileContents.length > 0 });
+    try {
+      let config: CliUserConfig;
+      if (fileContents.trim().startsWith('{')) {
+        config = bson.EJSON.parse(fileContents) as any;
+      } else {
+        config = (yaml.load(fileContents) as any)?.mongosh ?? {};
+      }
+      for (const [key, value] of Object.entries(config) as [keyof CliUserConfig, any][]) {
+        const validationResult = await CliUserConfigValidator.validate(key, value);
+        if (validationResult) {
+          const msg = `Warning: Ignoring config option "${key}" from ${filename}: ${validationResult}\n`;
+          this.output.write(this.clr(msg, ['bold', 'yellow']));
+          delete config[key];
+        }
+      }
+      return config;
+    } catch (err) {
+      this.bus.emit('mongosh:error', err, 'config');
+      const msg = `Warning: Could not parse global configuration file at ${filename}: ${err.message}\n`;
+      this.output.write(this.clr(msg, ['bold', 'yellow']));
+      return {};
+    }
+  }
+
   /**
    * Use when a warning about an inaccessible config file needs to be written.
    */
@@ -383,7 +430,9 @@ class CliRepl {
    */
   // eslint-disable-next-line @typescript-eslint/require-await
   async getConfig<K extends keyof CliUserConfig>(key: K): Promise<CliUserConfig[K]> {
-    return (this.config as CliUserConfig)[key] ?? (new CliUserConfig())[key];
+    return (this.config as CliUserConfig)[key]
+      ?? (this.globalConfig as CliUserConfig)?.[key]
+      ?? (new CliUserConfig())[key];
   }
 
   /**

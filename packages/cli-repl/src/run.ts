@@ -1,4 +1,5 @@
-import { CliRepl, parseCliArgs, mapCliToDriver, getStoragePaths, getMongocryptdPaths, runSmokeTests, USAGE, buildInfo } from './index';
+import { CliRepl, parseCliArgs, mapCliToDriver, getMongocryptdPaths, runSmokeTests, USAGE, buildInfo } from './index';
+import { getStoragePaths, getGlobalConfigPaths } from './config-directory';
 import { generateUri } from '@mongosh/service-provider-server';
 import { redactURICredentials } from '@mongosh/history';
 import { runMain } from 'module';
@@ -87,6 +88,7 @@ import stream from 'stream';
       setTerminalWindowTitle(title);
 
       const shellHomePaths = getStoragePaths();
+      const globalConfigPaths = getGlobalConfigPaths();
       repl = new CliRepl({
         shellCliOptions: {
           ...options,
@@ -95,7 +97,8 @@ import stream from 'stream';
         input: process.stdin,
         output: process.stdout,
         onExit: process.exit,
-        shellHomePaths: shellHomePaths
+        shellHomePaths: shellHomePaths,
+        globalConfigPaths: globalConfigPaths
       });
       await repl.start(driverUri, driverOptions);
     }

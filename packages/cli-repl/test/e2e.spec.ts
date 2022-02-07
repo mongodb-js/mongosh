@@ -895,6 +895,22 @@ describe('e2e', function() {
           const config2 = await readConfig();
           expect(config1.userId).to.equal(config2.userId);
         });
+
+        it('loads a global config file if present', async() => {
+          const globalConfig = path.join(homedir, 'globalconfig.conf');
+          await fs.writeFile(globalConfig, 'mongosh:\n  redactHistory: remove-redact');
+          shell = TestShell.start({
+            args: [ '--nodb' ],
+            env: {
+              ...env,
+              MONGOSH_GLOBAL_CONFIG_FILE_FOR_TESTING: globalConfig
+            },
+            forceTerminal: true
+          });
+          await shell.waitForPrompt();
+          expect(await shell.executeLine('config.get("redactHistory")')).to.include('remove-redact');
+          shell.assertNoErrors();
+        });
       });
 
       describe('telemetry toggling', () => {
