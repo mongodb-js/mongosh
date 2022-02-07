@@ -91,7 +91,8 @@ fun doTest(testName: String, shell: MongoShell, testDataPath: String, db: String
                     e.printStackTrace()
                     val message = e.message
                     val msg = if (message != null && message.contains('\n') && !cmd.options.printStackTrace) message.substring(0, message.indexOf('\n')) else message
-                    sb.append(e.javaClass.name).append(": ").append(msg?.trim())
+                    val normalized = if (cmd.options.dontReplaceId) msg?.trim() else normalize(msg)
+                    sb.append(e.javaClass.name).append(": ").append(normalized)
                 }
             }
             compare(testDataPath, name, sb.toString())
@@ -201,7 +202,7 @@ private fun replaceUUID(value: String): String {
     return MONGO_UUID_PATTERN.matcher(value).replaceAll("<UUID>")
 }
 
-fun normalize(value: String) = replaceUUID(replaceId(value)).trim()
+fun normalize(value: String?): String? = if (value == null) null else replaceUUID(replaceId(value)).trim()
 
 private val HEADER_PATTERN = Pattern.compile("//\\s*(?<name>\\S+)(?<properties>(\\s+\\S+)+)?")
 
