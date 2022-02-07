@@ -36,7 +36,7 @@ private fun getHostPort(uri: String): String = URI(uri).let { "${it.host}:${it.p
 fun doTest(testName: String, shell: MongoShell, testDataPath: String, db: String? = null) {
     // Some tests start with a lowercase variant of testName, some don't
     // (e.g. for BSON types like ISODate, we don't use iSODate.).
-    var name = testName[0].toLowerCase() + testName.substring(1)
+    var name = testName[0].lowercaseChar() + testName.substring(1)
     if (!File("$testDataPath/$name.js").exists() && !File("$testDataPath/$name-ignored.js").exists()) {
         name = testName
     }
