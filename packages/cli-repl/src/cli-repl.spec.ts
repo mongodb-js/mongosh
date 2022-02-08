@@ -830,7 +830,8 @@ describe('CliRepl', () => {
         it('posts analytics data', async() => {
           await cliRepl.start(await testServer.connectionString(), {});
           if (requests.length < 1) {
-            await once(srv, 'request');
+            const [, res] = await once(srv, 'request');
+            await once(res, 'close'); // Wait until HTTP response is written
           }
           expect(requests[0].req.headers.authorization)
             .to.include(Buffer.from('🔑:').toString('base64'));
@@ -895,6 +896,54 @@ describe('CliRepl', () => {
           const flushEntry = (await readReplLogfile(logFilePath)).find(entry => entry.id === 1_000_000_045);
           expect(flushEntry.attr.flushError).to.equal(null);
           expect(flushEntry.attr.flushDuration).to.be.a('number');
+          expect(requests).to.have.lengthOf(2);
+        });
+
+        it('sends out telemetry data for command line scripts', async() => {
+          cliReplOptions.shellCliOptions.eval = 'db.hello()';
+          cliRepl = new CliRepl(cliReplOptions);
+          await startWithExpectedImmediateExit(cliRepl, await testServer.connectionString());
+          expect(requests).to.have.lengthOf(2);
+        });
+
+        it('does not send out telemetry if the user starts with a no-telemetry config', async() => {
+          await fs.writeFile(path.join(tmpdir.path, 'config'), EJSON.stringify({ enableTelemetry: false }));
+          await cliRepl.start(await testServer.connectionString(), {});
+          input.write('db.hello()\n');
+          input.write('exit\n');
+          await waitBus(cliRepl.bus, 'mongosh:closed');
+          expect(requests).to.have.lengthOf(0);
+        });
+
+        it('does not send out telemetry if the user starts with global force-disable-telemetry config', async() => {
+          const globalConfigFile = path.join(tmpdir.path, 'globalconfig.conf');
+          await fs.writeFile(globalConfigFile, 'mongosh:\n  forceDisableTelemetry: true');
+
+          cliReplOptions.globalConfigPaths = [ globalConfigFile ];
+          cliRepl = new CliRepl(cliReplOptions);
+          await cliRepl.start(await testServer.connectionString(), {});
+          input.write('db.hello()\n');
+          input.write('exit\n');
+          await waitBus(cliRepl.bus, 'mongosh:closed');
+          expect(requests).to.have.lengthOf(0);
+        });
+
+        it('does not send out telemetry if the user only runs a script for disabling telemetry', async() => {
+          cliReplOptions.shellCliOptions.eval = 'disableTelemetry()';
+          cliRepl = new CliRepl(cliReplOptions);
+          await startWithExpectedImmediateExit(cliRepl, await testServer.connectionString());
+          expect(requests).to.have.lengthOf(0);
+        });
+
+        it('does not send out telemetry if the user runs a script for disabling telemetry and drops into the shell', async() => {
+          cliReplOptions.shellCliOptions.eval = 'disableTelemetry()';
+          cliReplOptions.shellCliOptions.shell = true;
+          cliRepl = new CliRepl(cliReplOptions);
+          await cliRepl.start(await testServer.connectionString(), {});
+          input.write('db.hello()\n');
+          input.write('exit\n');
+          await waitBus(cliRepl.bus, 'mongosh:closed');
+          expect(requests).to.have.lengthOf(0);
         });
 
         context('with a 5.0+ server', () => {
