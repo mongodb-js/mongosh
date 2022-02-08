@@ -698,6 +698,11 @@ describe('ShellApi', () => {
             return 'success';
           });
           // eslint-disable-next-line @typescript-eslint/require-await
+          evaluationListener.resetConfig.callsFake(async(key) => {
+            store[key] = '';
+            return 'success';
+          });
+          // eslint-disable-next-line @typescript-eslint/require-await
           evaluationListener.getConfig.callsFake(async key => store[key]);
           // eslint-disable-next-line @typescript-eslint/require-await
           evaluationListener.validateConfig.callsFake(async(key, value) => validators[key]?.(value));
@@ -710,6 +715,8 @@ describe('ShellApi', () => {
           expect(await config.get('somekey')).to.deep.equal(value);
           expect((await toShellResult(config)).printable).to.deep.equal(
             new Map([['somekey', value]]));
+          expect(await config.reset('somekey')).to.deep.equal('Setting "somekey" has been reset to its default value');
+          expect(await config.get('somekey')).to.deep.equal('');
         });
 
         it('will fall back to defaults', async() => {

@@ -33,7 +33,7 @@ export type MongoshCliOptions = ShellCliOptions & {
  * An interface that contains everything necessary for {@link MongoshNodeRepl}
  * instances to actually perform I/O operations.
  */
-export type MongoshIOProvider = Omit<ConfigProvider<CliUserConfig>, 'validateConfig'> & {
+export type MongoshIOProvider = Omit<ConfigProvider<CliUserConfig>, 'validateConfig' | 'resetConfig'> & {
   getHistoryFilePath(): string;
   exit(code?: number): Promise<never>;
   readFileUTF8(filename: string): Promise<{ contents: string, absolutePath: string }>;
@@ -831,6 +831,13 @@ class MongoshNodeRepl implements EvaluationListener {
       }
     }
     return result;
+  }
+
+  /**
+   * Implements resetConfig from the {@link ConfigProvider} interface.
+   */
+  async resetConfig<K extends keyof CliUserConfig>(key: K): Promise<'success' | 'ignored'> {
+    return await this.setConfig(key, (new CliUserConfig())[key]);
   }
 
   /**

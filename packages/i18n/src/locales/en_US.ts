@@ -177,6 +177,9 @@ const translations: Catalog = {
             },
             set: {
               description: 'Change a configuration value with config.set(key, value)'
+            },
+            reset: {
+              description: 'Reset a configuration value to its default value with config.reset(key)'
             }
           }
         },

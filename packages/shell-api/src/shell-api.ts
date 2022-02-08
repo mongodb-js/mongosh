@@ -69,6 +69,18 @@ class ShellConfig extends ShellApiClass {
     return await evaluationListener.getConfig?.(key) ?? this.defaults[key];
   }
 
+  @returnsPromise
+  async reset<K extends keyof ShellUserConfig>(key: K): Promise<string> {
+    assertArgsDefinedType([key], ['string'], 'config.reset');
+    const { evaluationListener } = this._instanceState;
+    const result = await evaluationListener.resetConfig?.(key);
+    if (result !== 'success') {
+      return `Option "${key}" cannot be changed in this environment`;
+    }
+
+    return `Setting "${key}" has been reset to its default value`;
+  }
+
   async _allKeys(): Promise<(keyof ShellUserConfig)[]> {
     const { evaluationListener } = this._instanceState;
     return (await evaluationListener.listConfigOptions?.() ?? Object.keys(this.defaults)) as (keyof ShellUserConfig)[];
