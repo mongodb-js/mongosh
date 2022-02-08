@@ -176,11 +176,11 @@ export interface MongoshBusEventsMap extends ConnectEventMap {
   /**
    * Signals that the shell is started by a new user.
    */
-  'mongosh:new-user': (id: string, enableTelemetry: boolean) => void;
+  'mongosh:new-user': (id: string) => void;
   /**
    * Signals a change of the user telemetry settings.
    */
-  'mongosh:update-user': (id: string, enableTelemetry: boolean) => void;
+  'mongosh:update-user': (id: string) => void;
   /**
    * Signals an error that should be logged or potentially tracked by analytics.
    */

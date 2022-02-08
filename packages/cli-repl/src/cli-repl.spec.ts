@@ -102,9 +102,8 @@ describe('CliRepl', () => {
         const updateUser = waitBus(cliRepl.bus, 'mongosh:update-user');
         const evalComplete = waitBus(cliRepl.bus, 'mongosh:eval-complete');
         input.write('disableTelemetry()\n');
-        const [ userId, enableTelemetry ] = await updateUser;
+        const [ userId ] = await updateUser;
         expect(typeof userId).to.equal('string');
-        expect(enableTelemetry).to.equal(false);
 
         await evalComplete; // eval-complete includes the fs.writeFile() call.
         const content = await fs.readFile(path.join(tmpdir.path, 'config'), { encoding: 'utf8' });
