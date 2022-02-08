@@ -2191,6 +2191,7 @@ describe('Shell API (integration)', function() {
       instanceState.setEvaluationListener({
         getConfig(key: string) { return cfg[key]; },
         setConfig(key: string, value: any) { cfg[key] = value; return 'success'; },
+        resetConfig(key: string) { cfg[key] = (new ShellUserConfig())[key]; return 'success'; },
         listConfigOptions() { return Object.keys(cfg); }
       });
       expect((await (await collection.find())._it()).documents).to.have.lengthOf(20);

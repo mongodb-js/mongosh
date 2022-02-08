@@ -495,6 +495,7 @@ describe('worker', () => {
         },
         getConfig() {},
         setConfig() {},
+        resetConfig() {},
         validateConfig() {},
         listConfigOptions() { return ['displayBatchSize']; },
         onRunInterruptible() {}
@@ -504,6 +505,7 @@ describe('worker', () => {
       spySandbox.spy(evalListener, 'onPrompt');
       spySandbox.spy(evalListener, 'getConfig');
       spySandbox.spy(evalListener, 'setConfig');
+      spySandbox.spy(evalListener, 'resetConfig');
       spySandbox.spy(evalListener, 'validateConfig');
       spySandbox.spy(evalListener, 'listConfigOptions');
       spySandbox.spy(evalListener, 'onRunInterruptible');
@@ -579,6 +581,20 @@ describe('worker', () => {
         await evaluate('config.set("displayBatchSize", 200)');
         expect(evalListener.validateConfig).to.have.been.calledWith('displayBatchSize', 200);
         expect(evalListener.setConfig).to.have.been.calledWith('displayBatchSize', 200);
+      });
+    });
+
+    describe('resetConfig', () => {
+      it('should be called when shell evaluates `config.reset()`', async() => {
+        const { init, evaluate } = caller;
+        const evalListener = createSpiedEvaluationListener();
+
+        exposed = exposeAll(evalListener, worker);
+
+        await init('mongodb://nodb/', {}, { nodb: true });
+
+        await evaluate('config.reset("displayBatchSize")');
+        expect(evalListener.resetConfig).to.have.been.calledWith('displayBatchSize');
       });
     });
 

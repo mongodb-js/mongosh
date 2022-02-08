@@ -235,6 +235,23 @@ describe('CliRepl', () => {
         expect(output).to.match(/^[a-z0-9]{24}\n> $/);
       });
 
+      it('can restore previous config settings', async() => {
+        output = '';
+        input.write('config.set("editor", "vim")\n');
+        await waitEval(cliRepl.bus);
+        expect(output).to.include('Setting "editor" has been changed');
+
+        output = '';
+        input.write('config.reset("editor")\n');
+        await waitEval(cliRepl.bus);
+        expect(output).to.include('Setting "editor" has been reset to its default value');
+
+        output = '';
+        input.write('config.get("editor")\n');
+        await waitEval(cliRepl.bus);
+        expect(output).to.include('null');
+      });
+
       context('loading JS files from disk', () => {
         it('allows loading a file from the disk', async() => {
           const filenameA = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'a.js');
