@@ -1,1 +1,1 @@
-com.mongodb.MongoWriteException: Document failed validation
+com.mongodb.MongoWriteException: Write operation error on server %mongohostport%. Write error: WriteError{code=121, message='Document failed validation', details={}}.
