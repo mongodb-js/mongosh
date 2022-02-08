@@ -29,30 +29,26 @@ describe('setupLoggerAndTelemetry', () => {
   });
 
   it('works', () => {
-    setupLoggerAndTelemetry(bus, logger, () => analytics, {
+    setupLoggerAndTelemetry(bus, logger, analytics, {
       platform: process.platform,
       arch: process.arch
     }, '1.0.0');
     expect(logOutput).to.have.lengthOf(0);
     expect(analyticsOutput).to.be.empty;
 
-    bus.emit('mongosh:new-user', userId, false);
-    bus.emit('mongosh:new-user', userId, true);
+    bus.emit('mongosh:new-user', userId);
 
-    // Test some events with and without telemetry enabled
-    for (const telemetry of [ false, true ]) {
-      bus.emit('mongosh:update-user', userId, telemetry);
-      bus.emit('mongosh:connect', {
-        uri: 'mongodb://localhost/',
-        is_localhost: true,
-        is_atlas: false,
-        node_version: 'v12.19.0'
-      } as any);
-      bus.emit('mongosh:error', new MongoshInvalidInputError('meow', 'CLIREPL-1005', { cause: 'x' }), 'repl');
-      bus.emit('mongosh:error', new MongoshInvalidInputError('meow', 'CLIREPL-1005', { cause: 'x' }), 'fatal');
-      bus.emit('mongosh:use', { db: 'admin' });
-      bus.emit('mongosh:show', { method: 'dbs' });
-    }
+    bus.emit('mongosh:update-user', userId);
+    bus.emit('mongosh:connect', {
+      uri: 'mongodb://localhost/',
+      is_localhost: true,
+      is_atlas: false,
+      node_version: 'v12.19.0'
+    } as any);
+    bus.emit('mongosh:error', new MongoshInvalidInputError('meow', 'CLIREPL-1005', { cause: 'x' }), 'repl');
+    bus.emit('mongosh:error', new MongoshInvalidInputError('meow', 'CLIREPL-1005', { cause: 'x' }), 'fatal');
+    bus.emit('mongosh:use', { db: 'admin' });
+    bus.emit('mongosh:show', { method: 'dbs' });
 
     bus.emit('mongosh:setCtx', { method: 'setCtx' });
     bus.emit('mongosh:api-call-with-arguments', { method: 'auth', class: 'Database', db: 'test-1603986682000', arguments: { } });
@@ -122,8 +118,7 @@ describe('setupLoggerAndTelemetry', () => {
     bus.emit('mongosh-editor:read-vscode-extensions-failed', { vscodeDir: 'vscodir', error: new Error('failed') });
 
     let i = 0;
-    expect(logOutput[i].msg).to.equal('User updated');
-    expect(logOutput[i++].attr).to.deep.equal({ enableTelemetry: false });
+    expect(logOutput[i++].msg).to.equal('User updated');
     expect(logOutput[i].msg).to.equal('Connecting to server');
     expect(logOutput[i].attr.session_id).to.equal('5fb3c20ee1507e894e5340f3');
     expect(logOutput[i].attr.userId).to.equal('53defe995fa47e6c13102d9d');
@@ -131,17 +126,6 @@ describe('setupLoggerAndTelemetry', () => {
     expect(logOutput[i].attr.is_localhost).to.equal(true);
     expect(logOutput[i].attr.is_atlas).to.equal(false);
     expect(logOutput[i++].attr.node_version).to.equal('v12.19.0');
-    expect(logOutput[i].s).to.equal('E');
-    expect(logOutput[i++].attr.message).to.match(/meow/);
-    expect(logOutput[i].s).to.equal('F');
-    expect(logOutput[i++].attr.message).to.match(/meow/);
-    expect(logOutput[i].msg).to.equal('Used "use" command');
-    expect(logOutput[i++].attr).to.deep.equal({ db: 'admin' });
-    expect(logOutput[i].msg).to.equal('Used "show" command');
-    expect(logOutput[i++].attr).to.deep.equal({ method: 'dbs' });
-    expect(logOutput[i].msg).to.equal('User updated');
-    expect(logOutput[i++].attr).to.deep.equal({ enableTelemetry: true });
-    expect(logOutput[i++].msg).to.equal('Connecting to server');
     expect(logOutput[i].s).to.equal('E');
     expect(logOutput[i++].attr.message).to.match(/meow/);
     expect(logOutput[i].s).to.equal('F');
@@ -377,11 +361,11 @@ describe('setupLoggerAndTelemetry', () => {
   });
 
   it('buffers deprecated API calls', () => {
-    setupLoggerAndTelemetry(bus, logger, () => analytics, {}, '1.0.0');
+    setupLoggerAndTelemetry(bus, logger, analytics, {}, '1.0.0');
     expect(logOutput).to.have.lengthOf(0);
     expect(analyticsOutput).to.be.empty;
 
-    bus.emit('mongosh:new-user', userId, true);
+    bus.emit('mongosh:new-user', userId);
 
     logOutput = [];
     analyticsOutput = [];
@@ -471,7 +455,7 @@ describe('setupLoggerAndTelemetry', () => {
       ],
     ]);
 
-    bus.emit('mongosh:new-user', userId, false);
+    bus.emit('mongosh:new-user', userId);
     logOutput = [];
     analyticsOutput = [];
 
@@ -484,14 +468,6 @@ describe('setupLoggerAndTelemetry', () => {
     expect(logOutput).to.have.length(1);
     expect(logOutput[0].msg).to.equal('Deprecated API call');
     expect(logOutput[0].attr).to.deep.equal({ class: 'Database', method: 'cloneDatabase' });
-    expect(analyticsOutput).to.be.empty;
-  });
-
-  it('works when analytics are not available', () => {
-    setupLoggerAndTelemetry(bus, logger, () => { throw new Error(); }, {}, '1.0.0');
-    bus.emit('mongosh:new-user', userId, true);
-    expect(analyticsOutput).to.be.empty;
-    expect(logOutput).to.have.lengthOf(1);
-    expect(logOutput[0].s).to.equal('E');
+    expect(analyticsOutput).to.have.lengthOf(2);
   });
 });

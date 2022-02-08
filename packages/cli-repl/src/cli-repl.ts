@@ -20,7 +20,7 @@ import { CliReplErrors } from './error-codes';
 import { MongoLogManager, MongoLogWriter, mongoLogId } from 'mongodb-log-writer';
 import { MongocryptdManager } from './mongocryptd-manager';
 import MongoshNodeRepl, { MongoshNodeReplOptions } from './mongosh-repl';
-import { setupLoggerAndTelemetry } from '@mongosh/logging';
+import { setupLoggerAndTelemetry, ToggleableAnalytics } from '@mongosh/logging';
 import { MongoshBus, CliUserConfig, CliUserConfigValidator } from '@mongosh/types';
 import { promises as fs } from 'fs';
 import path from 'path';
@@ -88,7 +88,8 @@ class CliRepl {
   input: Readable;
   output: Writable;
   analyticsOptions?: AnalyticsOptions;
-  analytics?: Analytics;
+  segmentAnalytics?: Analytics;
+  toggleableAnalytics: ToggleableAnalytics = new ToggleableAnalytics();
   warnedAboutInaccessibleFiles = false;
   onExit: (code?: number) => Promise<never>;
   closing = false;
@@ -112,12 +113,17 @@ class CliRepl {
     this.shellHomeDirectory = new ShellHomeDirectory(options.shellHomePaths);
     this.configDirectory = new ConfigManager<CliUserConfigOnDisk>(
       this.shellHomeDirectory)
-      .on('error', (err: Error) =>
-        this.bus.emit('mongosh:error', err, 'config'))
-      .on('new-config', (config: CliUserConfigOnDisk) =>
-        this.bus.emit('mongosh:new-user', config.userId, config.enableTelemetry))
-      .on('update-config', (config: CliUserConfigOnDisk) =>
-        this.bus.emit('mongosh:update-user', config.userId, config.enableTelemetry));
+      .on('error', (err: Error) => {
+        this.bus.emit('mongosh:error', err, 'config');
+      })
+      .on('new-config', (config: CliUserConfigOnDisk) => {
+        this.setTelemetryEnabled(config.enableTelemetry);
+        this.bus.emit('mongosh:new-user', config.userId);
+      })
+      .on('update-config', (config: CliUserConfigOnDisk) => {
+        this.setTelemetryEnabled(config.enableTelemetry);
+        this.bus.emit('mongosh:update-user', config.userId);
+      });
     this.globalConfig = {};
 
     this.mongocryptdManager = new MongocryptdManager(
@@ -132,7 +138,7 @@ class CliRepl {
       onwarn: (err: Error, path: string) => this.warnAboutInaccessibleFile(err, path)
     });
 
-    // We can't really do anything meaningfull if the output stream is broken or
+    // We can't really do anything meaningful if the output stream is broken or
     // closed. To avoid throwing an error while writing to it, let's send it to
     // the telemetry instead
     this.output.on('error', (err: Error) => {
@@ -196,25 +202,28 @@ class CliRepl {
       ...buildInfo()
     });
 
+    let analyticsSetupError: Error | null = null;
+    try {
+      this.setupAnalytics();
+    } catch (err) {
+      // Need to delay emitting the error on the bus so that logging is in place
+      // as well
+      analyticsSetupError = err;
+    }
+
     setupLoggerAndTelemetry(
       this.bus,
       logger,
-      () => {
-        if (process.env.IS_MONGOSH_EVERGREEN_CI && !this.analyticsOptions?.alwaysEnable) {
-          // This error will be in the log file, but otherwise not visible to users
-          throw new Error('no analytics setup for the mongosh CI environment');
-        }
-        this.analytics = new Analytics(
-          // analytics-config.js gets written as a part of a release
-          this.analyticsOptions?.apiKey ?? require('./build-info.json').segmentApiKey,
-          this.analyticsOptions);
-        return this.analytics;
-      },
+      this.toggleableAnalytics,
       {
         platform: process.platform,
         arch: process.arch
       },
       require('../package.json').version);
+
+    if (analyticsSetupError) {
+      this.bus.emit('mongosh:error', analyticsSetupError, 'analytics');
+    }
 
     try {
       this.config = await this.configDirectory.generateOrReadConfig(this.config);
@@ -223,6 +232,7 @@ class CliRepl {
     }
 
     this.globalConfig = await this.loadGlobalConfigFile();
+    this.setTelemetryEnabled(await this.getConfig('enableTelemetry'));
 
     if (driverOptions.autoEncryption) {
       const extraOptions = {
@@ -274,6 +284,26 @@ class CliRepl {
     await this.loadRcFiles();
     this.bus.emit('mongosh:start-mongosh-repl', { version });
     await this.mongoshRepl.startRepl(initialized);
+  }
+
+  setupAnalytics(): void {
+    if (process.env.IS_MONGOSH_EVERGREEN_CI && !this.analyticsOptions?.alwaysEnable) {
+      throw new Error('no analytics setup for the mongosh CI environment');
+    }
+    // build-info.json is created as a part of the release process
+    const apiKey = this.analyticsOptions?.apiKey ?? require('./build-info.json').segmentApiKey;
+    this.segmentAnalytics = new Analytics(
+      apiKey,
+      this.analyticsOptions);
+    this.toggleableAnalytics = new ToggleableAnalytics(this.segmentAnalytics);
+  }
+
+  setTelemetryEnabled(enabled: boolean): void {
+    if (enabled) {
+      this.toggleableAnalytics.enable();
+    } else {
+      this.toggleableAnalytics.disable();
+    }
   }
 
   async loadCommandLineFilesAndEval(files: string[]) {
@@ -441,7 +471,8 @@ class CliRepl {
   async setConfig<K extends keyof CliUserConfig>(key: K, value: CliUserConfig[K]): Promise<'success'> {
     this.config[key] = value;
     if (key === 'enableTelemetry') {
-      this.bus.emit('mongosh:update-user', this.config.userId, this.config.enableTelemetry);
+      this.setTelemetryEnabled(this.config.enableTelemetry);
+      this.bus.emit('mongosh:update-user', this.config.userId);
     }
     try {
       await this.configDirectory.writeConfigFile(this.config);
@@ -557,7 +588,7 @@ class CliRepl {
       return;
     }
     this.closing = true;
-    const analytics = this.analytics;
+    const analytics = this.segmentAnalytics;
     let flushError: string | null = null;
     let flushDuration: number | null = null;
     if (analytics) {

@@ -1,1 +1,2 @@
-export { MongoshAnalytics, setupLoggerAndTelemetry } from './setup-logger-and-telemetry';
+export { setupLoggerAndTelemetry } from './setup-logger-and-telemetry';
+export { MongoshAnalytics, ToggleableAnalytics, NoopAnalytics } from './analytics-helpers';
