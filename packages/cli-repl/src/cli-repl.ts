@@ -81,7 +81,7 @@ class CliRepl {
   shellHomeDirectory: ShellHomeDirectory;
   configDirectory: ConfigManager<CliUserConfigOnDisk>;
   config: CliUserConfigOnDisk;
-  globalConfig: Partial<CliUserConfig>;
+  globalConfig: Partial<CliUserConfig> | null = null;
   globalConfigPaths: string[];
   logManager: MongoLogManager;
   logWriter?: MongoLogWriter;
@@ -124,7 +124,6 @@ class CliRepl {
         this.setTelemetryEnabled(config.enableTelemetry);
         this.bus.emit('mongosh:update-user', config.userId);
       });
-    this.globalConfig = {};
 
     this.mongocryptdManager = new MongocryptdManager(
       options.mongocryptdSpawnPaths ?? [],
@@ -232,7 +231,6 @@ class CliRepl {
     }
 
     this.globalConfig = await this.loadGlobalConfigFile();
-    this.setTelemetryEnabled(await this.getConfig('enableTelemetry'));
 
     if (driverOptions.autoEncryption) {
       const extraOptions = {
@@ -272,6 +270,9 @@ class CliRepl {
       this.bus.emit('mongosh:start-loading-cli-scripts', { usesShellOption: !!this.cliOptions.shell });
       await this.loadCommandLineFilesAndEval(commandLineLoadFiles);
       if (!this.cliOptions.shell) {
+        // We flush the telemetry data as part of exiting. Make sure we have
+        // the right config value.
+        this.setTelemetryEnabled(await this.getConfig('enableTelemetry'));
         await this.exit(0);
         return;
       }
@@ -282,6 +283,9 @@ class CliRepl {
       await snippetManager?.loadAllSnippets();
     }
     await this.loadRcFiles();
+    // We only enable/disable here, since the rc file/command line scripts
+    // can disable the telemetry setting.
+    this.setTelemetryEnabled(await this.getConfig('enableTelemetry'));
     this.bus.emit('mongosh:start-mongosh-repl', { version });
     await this.mongoshRepl.startRepl(initialized);
   }
@@ -299,7 +303,13 @@ class CliRepl {
   }
 
   setTelemetryEnabled(enabled: boolean): void {
-    if (enabled) {
+    if (this.globalConfig === null) {
+      // This happens when the per-user config file is loaded before we have
+      // started loading the global config file. Keep telemetry paused in that
+      // case.
+      return;
+    }
+    if (enabled && !this.globalConfig.forceDisableTelemetry) {
       this.toggleableAnalytics.enable();
     } else {
       this.toggleableAnalytics.disable();
@@ -469,6 +479,9 @@ class CliRepl {
    * Implements setConfig from the {@link ConfigProvider} interface.
    */
   async setConfig<K extends keyof CliUserConfig>(key: K, value: CliUserConfig[K]): Promise<'success'> {
+    if (key === 'forceDisableTelemetry') {
+      throw new MongoshRuntimeError("The 'forceDisableTelemetry' setting cannot be modified");
+    }
     this.config[key] = value;
     if (key === 'enableTelemetry') {
       this.setTelemetryEnabled(this.config.enableTelemetry);
@@ -486,8 +499,9 @@ class CliRepl {
    * Implements listConfigOptions from the {@link ConfigProvider} interface.
    */
   listConfigOptions(): string[] {
-    const keys = Object.keys(new CliUserConfig()) as (keyof CliUserConfig)[];
-    return keys.filter(key => key !== 'userId' && key !== 'disableGreetingMessage');
+    const hiddenKeys = ['userId', 'disableGreetingMessage', 'forceDisableTelemetry'];
+    const keys = Object.keys(new CliUserConfig());
+    return keys.filter(key => !hiddenKeys.includes(key));
   }
 
   /**

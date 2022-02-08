@@ -414,6 +414,7 @@ export class SnippetShellUserConfigValidator extends ShellUserConfigValidator {
 export class CliUserConfig extends SnippetShellUserConfig {
   userId = '';
   disableGreetingMessage = false;
+  forceDisableTelemetry = false;
   inspectCompact: number | boolean = 3;
   inspectDepth = 6;
   historyLength = 1000;
@@ -439,6 +440,7 @@ export class CliUserConfigValidator extends SnippetShellUserConfigValidator {
           return `${key} must be a positive integer`;
         }
         return null;
+      case 'forceDisableTelemetry':
       case 'showStackTraces':
         if (typeof value !== 'boolean') {
           return `${key} must be a boolean`;
