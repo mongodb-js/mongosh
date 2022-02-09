@@ -152,7 +152,7 @@ function formatDatabases(output: any[], options: FormatOptions): string {
 
 function formatStats(output: Record<string, any>, options: FormatOptions): string {
   return Object.keys(output).map((c) => {
-    return `${clr(c, ['bold', 'yellow'], options)}\n` +
+    return `${clr(c, 'mongosh:section-header', options)}\n` +
       `${inspect(output[c], options)}`;
   }).join('\n---\n');
 }
@@ -166,7 +166,7 @@ function formatListCommands(output: Record<string, any>, options: FormatOptions)
           return `${str} ${clr(k, ['bold', 'white'], options)}`;
         }
         return str;
-      }, `${clr(cmd, ['bold', 'yellow'], options)}: `);
+      }, `${clr(cmd, 'mongosh:section-header', options)}: `);
       result += val.help ? `\n${clr(val.help, 'green', options)}` : '';
       return result;
     }
@@ -176,7 +176,7 @@ function formatListCommands(output: Record<string, any>, options: FormatOptions)
 
 export function formatError(error: Error, options: FormatOptions): string {
   let result = '';
-  if (error.name) result += `\r${clr(error.name, ['bold', 'red'], options)}: `;
+  if (error.name) result += `\r${clr(error.name, 'mongosh:error', options)}: `;
   if (error.message) result += error.message;
   if (isShouldReportAsBugError(error)) {
     result += '\nThis is an error inside mongosh. Please file a bug report for the MONGOSH project here: https://jira.mongodb.org/projects/MONGOSH/issues.';
@@ -199,11 +199,11 @@ export function formatError(error: Error, options: FormatOptions): string {
     result += error.stack.slice(error.stack.indexOf('\n'));
   }
   if ((error as any).errInfo) {
-    result += `\n${clr(i18n.__('cli-repl.cli-repl.additionalErrorInfo'), ['yellow'], options)}: `;
+    result += `\n${clr(i18n.__('cli-repl.cli-repl.additionalErrorInfo'), 'mongosh:additional-error-info', options)}: `;
     result += inspect((error as any).errInfo, options);
   }
   if ((error as any).result) {
-    result += `\n${clr(i18n.__('cli-repl.cli-repl.additionalErrorResult'), ['yellow'], options)}: `;
+    result += `\n${clr(i18n.__('cli-repl.cli-repl.additionalErrorResult'), 'mongosh:additional-error-info', options)}: `;
     result += inspect((error as any).result, options);
   }
 
@@ -266,7 +266,7 @@ function formatHelp(value: HelpProperties, options: FormatOptions): string {
   let helpMenu = '';
 
   if (value.help) {
-    helpMenu += `\n  ${clr(`${value.help}:`, ['yellow', 'bold'], options)}\n\n`;
+    helpMenu += `\n  ${clr(`${value.help}:`, 'mongosh:section-header', options)}\n\n`;
   }
 
   (value.attr || []).forEach((method) => {
@@ -294,7 +294,7 @@ function formatHelp(value: HelpProperties, options: FormatOptions): string {
 
   if (value.docs) {
     helpMenu += `\n  ${clr(i18n.__('cli-repl.args.moreInformation'), 'bold', options)} ` +
-      `${clr(value.docs, ['green', 'bold'], options)}`;
+      `${clr(value.docs, 'mongosh:uri', options)}`;
   }
 
   return helpMenu;

@@ -1,10 +1,31 @@
 import ansi from 'ansi-escape-sequences';
 
-export type StyleDefinition = Parameters<typeof ansi.format>[1];
+type MongoshStyle = 'warning' | 'error' | 'section-header' | 'uri' | 'filename' | 'additional-error-info';
+export type StyleDefinition = Parameters<typeof ansi.format>[1] | `mongosh:${MongoshStyle}`;
 
 /** Optionally colorize a string, given a set of style definition(s). */
 export default function colorize(text: string, style: StyleDefinition, options: { colors: boolean }): string {
   if (options.colors) {
+    switch (style) {
+      case 'mongosh:section-header':
+      case 'mongosh:warning':
+        style = ['bold', 'yellow'];
+        break;
+      case 'mongosh:error':
+        style = ['bold', 'red'];
+        break;
+      case 'mongosh:filename':
+        style = ['bold', 'blue'];
+        break;
+      case 'mongosh:uri':
+        style = ['bold', 'green'];
+        break;
+      case 'mongosh:additional-error-info':
+        style = ['yellow'];
+        break;
+      default:
+        break;
+    }
     return ansi.format(text, style);
   }
   return text;

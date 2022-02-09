@@ -326,11 +326,11 @@ class CliRepl {
       // when running `mongosh --eval --shell "eval script"`, which can happen
       // if you're like me and sometimes insert options in the wrong place
       const msg = 'Warning: --eval requires an argument, but no argument was given\n';
-      this.output.write(this.clr(msg, ['bold', 'yellow']));
+      this.output.write(this.clr(msg, 'mongosh:warning'));
     }
     for (const file of files) {
       if (!this.cliOptions.quiet) {
-        this.output.write(`Loading file: ${this.clr(file, ['bold', 'blue'])}\n`);
+        this.output.write(`Loading file: ${this.clr(file, 'mongosh:filename')}\n`);
       }
       await this.mongoshRepl.loadExternalFile(file);
     }
@@ -357,7 +357,7 @@ class CliRepl {
         this.bus.emit('mongosh:mongoshrc-load');
         await this.mongoshRepl.loadExternalFile(mongoshrcPath);
       } catch (err) {
-        this.output.write(this.clr('Error while running ~/.mongoshrc.js:\n', ['bold', 'yellow']));
+        this.output.write(this.clr('Error while running ~/.mongoshrc.js:\n', 'mongosh:warning'));
         this.output.write(this.mongoshRepl.writer(err) + '\n');
       }
       return;
@@ -377,7 +377,7 @@ class CliRepl {
       const msg =
         'Warning: Found ~/.mongorc.js, but not ~/.mongoshrc.js. ~/.mongorc.js will not be loaded.\n' +
         '  You may want to copy or rename ~/.mongorc.js to ~/.mongoshrc.js.\n';
-      this.output.write(this.clr(msg, ['bold', 'yellow']));
+      this.output.write(this.clr(msg, 'mongosh:warning'));
       return;
     }
 
@@ -389,7 +389,7 @@ class CliRepl {
     if (hasMisspelledFilename) {
       const msg =
         'Warning: Found ~/.mongoshrc, but not ~/.mongoshrc.js. Did you forget to add .js?\n';
-      this.output.write(this.clr(msg, ['bold', 'yellow']));
+      this.output.write(this.clr(msg, 'mongosh:warning'));
     }
   }
 
@@ -418,7 +418,7 @@ class CliRepl {
         const validationResult = await CliUserConfigValidator.validate(key, value);
         if (validationResult) {
           const msg = `Warning: Ignoring config option "${key}" from ${filename}: ${validationResult}\n`;
-          this.output.write(this.clr(msg, ['bold', 'yellow']));
+          this.output.write(this.clr(msg, 'mongosh:warning'));
           delete config[key];
         }
       }
@@ -426,7 +426,7 @@ class CliRepl {
     } catch (err) {
       this.bus.emit('mongosh:error', err, 'config');
       const msg = `Warning: Could not parse global configuration file at ${filename}: ${err.message}\n`;
-      this.output.write(this.clr(msg, ['bold', 'yellow']));
+      this.output.write(this.clr(msg, 'mongosh:warning'));
       return {};
     }
   }
@@ -444,7 +444,7 @@ class CliRepl {
     }
     this.warnedAboutInaccessibleFiles = true;
     const msg = `Warning: Could not access file${path ? 'at ' + path : ''}: ${err.message}\n`;
-    this.output.write(this.clr(msg, ['bold', 'yellow']));
+    this.output.write(this.clr(msg, 'mongosh:warning'));
   }
 
   /**
@@ -455,7 +455,7 @@ class CliRepl {
    */
   async connect(driverUri: string, driverOptions: MongoClientOptions): Promise<CliServiceProvider> {
     if (!this.cliOptions.nodb && !this.cliOptions.quiet) {
-      this.output.write(i18n.__(CONNECTING) + '\t\t' + this.clr(redactURICredentials(driverUri), ['bold', 'green']) + '\n');
+      this.output.write(i18n.__(CONNECTING) + '\t\t' + this.clr(redactURICredentials(driverUri), 'mongosh:uri') + '\n');
     }
     return await CliServiceProvider.connect(driverUri, driverOptions, this.cliOptions, this.bus);
   }

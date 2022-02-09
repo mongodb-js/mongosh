@@ -162,7 +162,7 @@ export function parseCliArgs(args: string[]): (CliOptions & { smokeTests: boolea
   for (const arg of positionalArguments) {
     if (arg.startsWith('-')) {
       throw new Error(
-        `  ${clr(i18n.__(UNKNOWN), ['red', 'bold'])} ${clr(String(arg), 'bold')}
+        `  ${clr(i18n.__(UNKNOWN), 'mongosh:error')} ${clr(String(arg), 'bold')}
         ${USAGE}`
       );
     }
