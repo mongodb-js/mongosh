@@ -412,7 +412,7 @@ class MongoshNodeRepl implements EvaluationListener {
     if (!this.shellCliOptions.nodb) {
       text += `Using MongoDB:\t\t${mongodVersion}\n`;
     }
-    text += `${this.clr('Using Mongosh', ['bold', 'yellow'])}:\t\t${version}\n`;
+    text += `${this.clr('Using Mongosh', 'mongosh:section-header')}:\t\t${version}\n`;
     text += `${MONGOSH_WIKI}\n`;
     if (!await this.getConfig('disableGreetingMessage')) {
       text += `${TELEMETRY_GREETING_MESSAGE}\n`;
@@ -446,8 +446,8 @@ class MongoshNodeRepl implements EvaluationListener {
     }
 
     let text = '';
-    text += `${this.clr('------', ['bold', 'yellow'])}\n`;
-    text += `   ${this.clr('The server generated these startup warnings when booting:', ['bold', 'yellow'])}\n`;
+    text += `${this.clr('------', 'mongosh:section-header')}\n`;
+    text += `   ${this.clr('The server generated these startup warnings when booting:', 'mongosh:warning')}\n`;
     result.log.forEach(logLine => {
       try {
         const entry: LogEntry = parseAnyLogEntry(logLine);
@@ -456,7 +456,7 @@ class MongoshNodeRepl implements EvaluationListener {
         text += `   Unexpected log line format: ${logLine}\n`;
       }
     });
-    text += `${this.clr('------', ['bold', 'yellow'])}\n`;
+    text += `${this.clr('------', 'mongosh:section-header')}\n`;
     text += '\n';
     this.output.write(text);
   }
@@ -478,7 +478,7 @@ class MongoshNodeRepl implements EvaluationListener {
       err = error;
     }
 
-    const text = this.clr('The server failed to respond to a ping and may be unavailable:', ['bold', 'yellow']);
+    const text = this.clr('The server failed to respond to a ping and may be unavailable:', 'mongosh:warning');
     this.output.write(text + '\n' + this.formatError(err) + '\n');
   }
 
@@ -612,7 +612,7 @@ class MongoshNodeRepl implements EvaluationListener {
       this.output.write(this.clr(
         `\nWARNING: Operations running on the server cannot be killed automatically for MongoDB ${mongodVersion}.` +
         '\n         Please make sure to kill them manually. Killing operations is supported starting with MongoDB 4.1.',
-        ['bold', 'yellow']
+        'mongosh:warning'
       ));
     }
 

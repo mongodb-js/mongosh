@@ -16,7 +16,7 @@ export const USAGE = `
 
   ${clr(i18n.__('cli-repl.args.usage'), 'bold')}
 
-  ${clr(i18n.__('cli-repl.args.options'), ['bold', 'yellow'])}
+  ${clr(i18n.__('cli-repl.args.options'), 'mongosh:section-header')}
 
     -h, --help                                 ${i18n.__('cli-repl.args.help')}
     -f, --file [arg]                           ${i18n.__('cli-repl.args.file')}
@@ -31,7 +31,7 @@ export const USAGE = `
         --eval [arg]                           ${i18n.__('cli-repl.args.eval')}
         --retryWrites                          ${i18n.__('cli-repl.args.retryWrites')}
 
-  ${clr(i18n.__('cli-repl.args.authenticationOptions'), ['bold', 'yellow'])}
+  ${clr(i18n.__('cli-repl.args.authenticationOptions'), 'mongosh:section-header')}
 
     -u, --username [arg]                       ${i18n.__('cli-repl.args.username')}
     -p, --password [arg]                       ${i18n.__('cli-repl.args.password')}
@@ -42,7 +42,7 @@ export const USAGE = `
         --sspiHostnameCanonicalization [arg]   ${i18n.__('cli-repl.args.sspiHostnameCanonicalization')}
         --sspiRealmOverride [arg]              ${i18n.__('cli-repl.args.sspiRealmOverride')}
 
-  ${clr(i18n.__('cli-repl.args.tlsOptions'), ['bold', 'yellow'])}
+  ${clr(i18n.__('cli-repl.args.tlsOptions'), 'mongosh:section-header')}
 
         --tls                                  ${i18n.__('cli-repl.args.tls')}
         --tlsCertificateKeyFile [arg]          ${i18n.__('cli-repl.args.tlsCertificateKeyFile')}
@@ -54,13 +54,13 @@ export const USAGE = `
         --tlsCRLFile [arg]                     ${i18n.__('cli-repl.args.tlsCRLFile')}
         --tlsDisabledProtocols [arg]           ${i18n.__('cli-repl.args.tlsDisabledProtocols')}
 
-  ${clr(i18n.__('cli-repl.args.apiVersionOptions'), ['bold', 'yellow'])}
+  ${clr(i18n.__('cli-repl.args.apiVersionOptions'), 'mongosh:section-header')}
 
         --apiVersion [arg]                     ${i18n.__('cli-repl.args.apiVersion')}
         --apiStrict                            ${i18n.__('cli-repl.args.apiStrict')}
         --apiDeprecationErrors                 ${i18n.__('cli-repl.args.apiDeprecationErrors')}
 
-  ${clr(i18n.__('cli-repl.args.fleOptions'), ['bold', 'yellow'])}
+  ${clr(i18n.__('cli-repl.args.fleOptions'), 'mongosh:section-header')}
 
         --awsAccessKeyId [arg]                 ${i18n.__('cli-repl.args.awsAccessKeyId')}
         --awsSecretAccessKey [arg]             ${i18n.__('cli-repl.args.awsSecretAccessKey')}
@@ -68,21 +68,21 @@ export const USAGE = `
         --keyVaultNamespace [arg]              ${i18n.__('cli-repl.args.keyVaultNamespace')}
         --kmsURL [arg]                         ${i18n.__('cli-repl.args.kmsURL')}
 
-  ${clr(i18n.__('cli-repl.args.dbAddressOptions'), ['bold', 'yellow'])}
+  ${clr(i18n.__('cli-repl.args.dbAddressOptions'), 'mongosh:section-header')}
 
         foo                                    ${i18n.__('cli-repl.args.dbAddress/foo')}
         192.168.0.5/foo                        ${i18n.__('cli-repl.args.dbAddress/192/foo')}
         192.168.0.5:9999/foo                   ${i18n.__('cli-repl.args.dbAddress/192/host/foo')}
         mongodb://192.168.0.5:9999/foo         ${i18n.__('cli-repl.args.dbAddress/connectionURI')}
 
-  ${clr(i18n.__('cli-repl.args.fileNames'), ['bold', 'yellow'])}
+  ${clr(i18n.__('cli-repl.args.fileNames'), 'mongosh:section-header')}
 
         ${i18n.__('cli-repl.args.filenameDescription')}
 
-  ${clr(i18n.__('cli-repl.args.examples'), ['bold', 'yellow'])}
+  ${clr(i18n.__('cli-repl.args.examples'), 'mongosh:section-header')}
 
         ${i18n.__('cli-repl.args.connectionExampleWithDatabase')}
-        ${clr('$ mongosh mongodb://192.168.0.5:9999/ships', 'green')}
+        ${clr('$ mongosh mongodb://192.168.0.5:9999/ships', 'mongosh:uri')}
 
-  ${clr(i18n.__('cli-repl.args.moreInformation'), 'bold')} ${clr('https://docs.mongodb.com/mongodb-shell', 'green')}.
+  ${clr(i18n.__('cli-repl.args.moreInformation'), 'bold')} ${clr('https://docs.mongodb.com/mongodb-shell', 'mongosh:uri')}.
 `.replace(/\n$/, '').replace(/^\n/, '');
