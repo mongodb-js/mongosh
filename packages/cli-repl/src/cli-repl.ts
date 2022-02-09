@@ -19,7 +19,7 @@ import { ConfigManager, ShellHomeDirectory, ShellHomePaths } from './config-dire
 import { CliReplErrors } from './error-codes';
 import { MongoLogManager, MongoLogWriter, mongoLogId } from 'mongodb-log-writer';
 import { MongocryptdManager } from './mongocryptd-manager';
-import MongoshNodeRepl, { MongoshNodeReplOptions } from './mongosh-repl';
+import MongoshNodeRepl, { MongoshNodeReplOptions, MongoshIOProvider } from './mongosh-repl';
 import { setupLoggerAndTelemetry, ToggleableAnalytics } from '@mongosh/logging';
 import { MongoshBus, CliUserConfig, CliUserConfigValidator } from '@mongosh/types';
 import { promises as fs } from 'fs';
@@ -73,7 +73,7 @@ type CliUserConfigOnDisk = Partial<CliUserConfig> & Pick<CliUserConfig, 'enableT
  *
  * Unlike MongoshNodeRepl, this class implements I/O interactions.
  */
-class CliRepl {
+class CliRepl implements MongoshIOProvider {
   mongoshRepl: MongoshNodeRepl;
   bus: MongoshBus;
   cliOptions: CliOptions;
