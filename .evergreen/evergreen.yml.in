@@ -77,7 +77,7 @@ const EXECUTABLE_PKG_INFO = [
       { name: 'linux-x64', packageOn: 'linux', smokeTestKind: 'none' },
       { name: 'debian-x64', packageOn: 'linux', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu18.04-deb', 'ubuntu20.04-deb', 'debian9-deb', 'debian10-deb'] },
       { name: 'rhel7-x64', packageOn: 'linux', smokeTestKind: 'docker', smokeTestDockerfiles: ['centos7-rpm', 'amazonlinux2-rpm'] },
-      { name: 'rhel8-x64', packageOn: 'linux', smokeTestKind: 'docker', smokeTestDockerfiles: ['centos8-rpm', 'fedora34-rpm'] },
+      { name: 'rhel8-x64', packageOn: 'linux', smokeTestKind: 'docker', smokeTestDockerfiles: ['rocky8-rpm', 'fedora34-rpm'] },
       { name: 'suse-x64', packageOn: 'linux', smokeTestKind: 'docker', smokeTestDockerfiles: ['suse12-rpm', 'suse15-rpm'] },
       { name: 'amzn1-x64', packageOn: 'linux', smokeTestKind: 'docker', smokeTestDockerfiles: ['amazonlinux1-rpm'] }
     ]
@@ -1050,7 +1050,7 @@ buildvariants:
     run_on: ubuntu1804-small
     tasks:
       - name: pkg_test_docker_centos7_rpm
-      - name: pkg_test_docker_centos8_rpm
+      - name: pkg_test_docker_rocky8_rpm
       - name: pkg_test_docker_fedora34_rpm
       - name: pkg_test_docker_suse12_rpm
       - name: pkg_test_docker_suse15_rpm
