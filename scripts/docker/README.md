@@ -5,9 +5,9 @@ This folder contains scripts and Dockerfiles to test the main branch build of mo
 ## Usage
 
 ```
-bash scripts/docker/build.sh centos8-rpm
+bash scripts/docker/build.sh ubuntu20.04-deb
 ```
 
 ```
-bash scripts/docker/run.sh centos8-rpm arg1 arg2 ...
+bash scripts/docker/run.sh ubuntu20.04-deb arg1 arg2 ...
 ```

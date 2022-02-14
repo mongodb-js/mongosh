@@ -1,4 +1,4 @@
-FROM centos:8
+FROM rockylinux:8
 
 ARG artifact_url=""
 ADD ${artifact_url} /tmp
