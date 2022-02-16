@@ -148,7 +148,6 @@ export default class ShellInstanceState {
   constructor(initialServiceProvider: ServiceProvider, messageBus: any = new EventEmitter(), cliOptions: ShellCliOptions = {}) {
     this.initialServiceProvider = initialServiceProvider;
     this.messageBus = messageBus;
-    console.log('here');
     this.shellApi = new ShellApi(this);
     this.shellBson = constructShellBson(initialServiceProvider.bsonLibrary, (msg: string) => {
       void this.shellApi.print(`Warning: ${msg}`);
