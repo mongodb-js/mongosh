@@ -38,9 +38,9 @@
     ]
   },
   "dependencies": {
-    "@leafygreen-ui/icon": "^4.0.0",
-    "@leafygreen-ui/palette": "^2.0.0",
-    "@leafygreen-ui/syntax": "^2.2.0",
+    "@leafygreen-ui/code": "^9.4.0",
+    "@leafygreen-ui/icon": "^11.6.1",
+    "@leafygreen-ui/palette": "^3.3.1",
     "@mongosh/browser-runtime-core": "0.0.0-dev.0",
     "@mongosh/errors": "0.0.0-dev.0",
     "@mongosh/history": "0.0.0-dev.0",
