@@ -38,9 +38,6 @@
     ]
   },
   "dependencies": {
-    "@leafygreen-ui/icon": "^4.0.0",
-    "@leafygreen-ui/palette": "^2.0.0",
-    "@leafygreen-ui/syntax": "^2.2.0",
     "@mongosh/browser-runtime-core": "0.0.0-dev.0",
     "@mongosh/errors": "0.0.0-dev.0",
     "@mongosh/history": "0.0.0-dev.0",
@@ -58,6 +55,9 @@
     "@babel/preset-env": "^7.9.5",
     "@babel/preset-react": "^7.9.4",
     "@babel/preset-typescript": "^7.9.0",
+    "@leafygreen-ui/code": "^9.4.0",
+    "@leafygreen-ui/icon": "^11.6.1",
+    "@leafygreen-ui/palette": "^3.3.1",
     "@storybook/addon-knobs": "^5.3.10",
     "@storybook/react": "^5.3.1",
     "@types/classnames": "^2.2.11",
@@ -88,6 +88,9 @@
     "webpack-visualizer-plugin": "^0.1.11"
   },
   "peerDependencies": {
+    "@leafygreen-ui/code": "^9.4.0",
+    "@leafygreen-ui/icon": "^11.6.1",
+    "@leafygreen-ui/palette": "^3.3.1",
     "mongodb-ace-theme": "^0.0.1",
     "prop-types": "^15.7.2",
     "react": "^16.12.0",

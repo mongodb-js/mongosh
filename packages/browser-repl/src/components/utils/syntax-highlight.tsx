@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
-
-import Syntax from '@leafygreen-ui/syntax';
+import Code from '@leafygreen-ui/code';
 
 const styles = require('./syntax-highlight.less');
 
@@ -16,10 +14,13 @@ export class SyntaxHighlight extends Component<SyntaxHighlightProps> {
   };
 
   render(): JSX.Element {
-    return (<div className={classnames(styles['syntax-highlight'])}>
-      <pre><Syntax language="javascript" variant="dark">{this.props.code}</Syntax></pre>
-    </div>);
+    return (
+      <Code
+        language="javascript"
+        darkMode
+        className={styles['syntax-highlight']}
+        copyable={false}
+      >{this.props.code}</Code>
+    );
   }
 }
-
-
