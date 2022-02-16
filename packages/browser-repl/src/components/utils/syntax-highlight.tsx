@@ -14,12 +14,13 @@ export class SyntaxHighlight extends Component<SyntaxHighlightProps> {
   };
 
   render(): JSX.Element {
-    return (<div className={styles['syntax-highlight']}>
-      <pre>
-        <Code language="javascript" darkMode>{this.props.code}</Code>
-      </pre>
-    </div>);
+    return (
+      <Code
+        language="javascript"
+        darkMode
+        className={styles['syntax-highlight']}
+        copyable={false}
+      >{this.props.code}</Code>
+    );
   }
 }
-
-
