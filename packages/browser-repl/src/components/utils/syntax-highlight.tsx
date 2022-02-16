@@ -15,9 +15,9 @@ export class SyntaxHighlight extends Component<SyntaxHighlightProps> {
 
   render(): JSX.Element {
     return (<div className={styles['syntax-highlight']}>
-      {/* <pre> */}
+      <pre>
         <Code language="javascript" darkMode>{this.props.code}</Code>
-      {/* </pre> */}
+      </pre>
     </div>);
   }
 }
