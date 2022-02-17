@@ -2,7 +2,7 @@ import { MongoshInternalError, MongoshRuntimeError, MongoshWarning } from '@mong
 import { redactURICredentials } from '@mongosh/history';
 import i18n from '@mongosh/i18n';
 import { bson, AutoEncryptionOptions } from '@mongosh/service-provider-core';
-import { CliOptions, CliServiceProvider, MongoClientOptions } from '@mongosh/service-provider-server';
+import { CliOptions, CliServiceProvider, DevtoolsConnectOptions } from '@mongosh/service-provider-server';
 import { SnippetManager } from '@mongosh/snippet-manager';
 import { Editor } from '@mongosh/editor';
 import { redactSensitiveData } from '@mongosh/history';
@@ -159,10 +159,10 @@ class CliRepl implements MongoshIOProvider {
    * information, external editor, and finally start the repl.
    *
    * @param {string} driverUri - The driver URI.
-   * @param {MongoClientOptions} driverOptions - The driver options.
+   * @param {DevtoolsConnectOptions} driverOptions - The driver options.
    */
   // eslint-disable-next-line complexity
-  async start(driverUri: string, driverOptions: MongoClientOptions): Promise<void> {
+  async start(driverUri: string, driverOptions: DevtoolsConnectOptions): Promise<void> {
     const { version } = require('../package.json');
     await this.verifyNodeVersion();
 
@@ -451,9 +451,9 @@ class CliRepl implements MongoshIOProvider {
    * Connect to the cluster.
    *
    * @param {string} driverUri - The driver URI.
-   * @param {MongoClientOptions} driverOptions - The driver options.
+   * @param {DevtoolsConnectOptions} driverOptions - The driver options.
    */
-  async connect(driverUri: string, driverOptions: MongoClientOptions): Promise<CliServiceProvider> {
+  async connect(driverUri: string, driverOptions: DevtoolsConnectOptions): Promise<CliServiceProvider> {
     if (!this.cliOptions.nodb && !this.cliOptions.quiet) {
       this.output.write(i18n.__(CONNECTING) + '\t\t' + this.clr(redactURICredentials(driverUri), 'mongosh:uri') + '\n');
     }
@@ -523,11 +523,11 @@ class CliRepl implements MongoshIOProvider {
   /**
    * Is the password missing from the options?
    *
-   * @param {MongoClientOptions} driverOptions - The driver options.
+   * @param {DevtoolsConnectOptions} driverOptions - The driver options.
    *
    * @returns {boolean} If the password is missing.
    */
-  isPasswordMissingOptions(driverOptions: MongoClientOptions): boolean {
+  isPasswordMissingOptions(driverOptions: DevtoolsConnectOptions): boolean {
     return !!(
       driverOptions.auth &&
       driverOptions.auth.username &&
@@ -556,7 +556,7 @@ class CliRepl implements MongoshIOProvider {
    * object is present with a truthy username. This is required by the driver, e.g.
    * in the case of password-less Kerberos authentication.
    */
-  ensurePasswordFieldIsPresentInAuth(driverOptions: MongoClientOptions): void {
+  ensurePasswordFieldIsPresentInAuth(driverOptions: DevtoolsConnectOptions): void {
     if (driverOptions.auth && driverOptions.auth.username && !('password' in driverOptions.auth)) {
       driverOptions.auth.password = undefined;
     }
@@ -566,7 +566,7 @@ class CliRepl implements MongoshIOProvider {
    * Require the user to enter a password.
    *
    * @param {string} driverUrl - The driver URI.
-   * @param {MongoClientOptions} driverOptions - The driver options.
+   * @param {DevtoolsConnectOptions} driverOptions - The driver options.
    */
   async requirePassword(): Promise<string> {
     const passwordPromise = askpassword({

@@ -390,4 +390,6 @@ export function setupLoggerAndTelemetry(
   });
 
   // NB: mongoLogId(1_000_000_045) is used in cli-repl itself
+  // NB: mongoLogId(1_000_000_034) through mongoLogId(1_000_000_042) are used in devtools-connect
+  // NB: mongoLogId(1_000_000_049) is used in devtools-connect
 }

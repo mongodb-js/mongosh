@@ -79,7 +79,7 @@ import {
   AutoEncryptionOptions
 } from '@mongosh/service-provider-core';
 
-import { connectMongoClient } from '@mongodb-js/devtools-connect';
+import { connectMongoClient, DevtoolsConnectOptions } from '@mongodb-js/devtools-connect';
 import { MongoshCommandFailed, MongoshInternalError } from '@mongosh/errors';
 import type { MongoshBus } from '@mongosh/types';
 import { ensureMongoNodeNativePatchesAreApplied } from './mongodb-patches';
@@ -123,7 +123,7 @@ type ExtraConnectionInfo = ReturnType<typeof getConnectInfo> & { fcv?: string };
 const DEFAULT_DRIVER_OPTIONS: MongoClientOptions = Object.freeze({
 });
 
-function processDriverOptions(opts: MongoClientOptions): MongoClientOptions {
+function processDriverOptions(opts: DevtoolsConnectOptions): DevtoolsConnectOptions {
   return { ...DEFAULT_DRIVER_OPTIONS, ...opts };
 }
 
@@ -151,7 +151,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   static async connect(
     this: typeof CliServiceProvider,
     uri: string,
-    driverOptions: MongoClientOptions = {},
+    driverOptions: DevtoolsConnectOptions = {},
     cliOptions: { nodb?: boolean } = {},
     bus: MongoshBus = new EventEmitter() // TODO: Change VSCode to pass all arguments, then remove defaults
   ): Promise<CliServiceProvider> {
@@ -182,7 +182,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   public readonly initialDb: string;
   public mongoClient: MongoClient; // public for testing
   private readonly uri?: ConnectionString;
-  private currentClientOptions: MongoClientOptions;
+  private currentClientOptions: DevtoolsConnectOptions;
   private dbcache: WeakMap<MongoClient, Map<string, Db>>;
   public baseCmdOptions: OperationOptions; // public for testing
   public fle: FLE | undefined;
@@ -217,7 +217,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     } catch { /* not empty */ }
   }
 
-  async getNewConnection(uri: string, options: MongoClientOptions = {}): Promise<CliServiceProvider> {
+  async getNewConnection(uri: string, options: DevtoolsConnectOptions = {}): Promise<CliServiceProvider> {
     const connectionString = new ConnectionString(uri);
     const clientOptions = processDriverOptions(options);
     const mongoClient = await connectMongoClient(
@@ -1167,3 +1167,4 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
 }
 
 export default CliServiceProvider;
+export { DevtoolsConnectOptions };

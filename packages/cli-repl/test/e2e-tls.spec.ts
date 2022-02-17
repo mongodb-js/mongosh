@@ -2,7 +2,7 @@ import { assert, expect } from 'chai';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { skipIfEnvServerVersion, startTestServer } from '../../../testing/integration-testing-hooks';
-import { useTmpdir, setTemporaryHomeDirectory } from './repl-helpers';
+import { useTmpdir, setTemporaryHomeDirectory, readReplLogfile } from './repl-helpers';
 import { TestShell } from './test-shell';
 import { promisify } from 'util';
 import rimraf from 'rimraf';
@@ -54,6 +54,33 @@ describe('e2e TLS', () => {
   });
 
   function registerTlsTests({ tlsMode: serverTlsModeOption, tlsModeValue: serverTlsModeValue, tlsCertificateFile: serverTlsCertificateKeyFileOption, tlsCaFile: serverTlsCAFileOption }) {
+    let homedir: string;
+    let env: Record<string, string>;
+    let logBasePath: string;
+    const tmpdir = useTmpdir();
+
+    before(function() {
+      const homeInfo = setTemporaryHomeDirectory();
+      homedir = homeInfo.homedir;
+      env = homeInfo.env;
+
+      if (process.platform === 'win32') {
+        logBasePath = path.resolve(homedir, 'local', 'mongodb', 'mongosh');
+      } else {
+        logBasePath = path.resolve(homedir, '.mongodb', 'mongosh');
+      }
+    });
+
+    after(async function() {
+      try {
+        await promisify(rimraf)(homedir);
+      } catch (err) {
+        // On Windows in CI, this can fail with EPERM for some reason.
+        // If it does, just log the error instead of failing all tests.
+        console.error('Could not remove fake home directory:', err);
+      }
+    });
+
     context('connecting without client cert to server with valid cert', () => {
       after(async() => {
         // mlaunch has some trouble interpreting all the server options correctly,
@@ -156,14 +183,82 @@ describe('e2e TLS', () => {
         expect(result.state).to.equal('exit');
         shell.assertContainsOutput('certificate revoked');
       });
+
+      it('works with system CA on Linux with SSL_CERT_DIR', async function() {
+        if (process.platform !== 'linux') {
+          return this.skip();
+        }
+        await fs.mkdir(path.join(tmpdir.path, 'certs'), { recursive: true });
+        await fs.copyFile(CA_CERT, path.join(tmpdir.path, 'certs', 'somefilename.crt'));
+        const shell = TestShell.start({
+          args: [
+            `${await server.connectionString()}?serverSelectionTimeoutMS=1500`,
+            '--tls', '--tlsUseSystemCA'
+          ],
+          env: {
+            ...env,
+            SSL_CERT_DIR: path.join(tmpdir.path, 'certs') + ':/nonexistent/other/path'
+          }
+        });
+
+        const prompt = await shell.waitForPromptOrExit();
+        expect(prompt.state).to.equal('prompt');
+
+        const logPath = path.join(logBasePath, `${shell.logId}_log`);
+        const logContents = await readReplLogfile(logPath);
+        expect(logContents.find(line => line.id === 1_000_000_049).attr.asyncFallbackError)
+          .to.equal(null); // Ensure that system CA loading happened asynchronously.
+      });
+
+      it('works with system CA on Linux with SSL_CERT_FILE', async function() {
+        if (process.platform !== 'linux') {
+          return this.skip();
+        }
+        await fs.mkdir(path.join(tmpdir.path, 'certs'), { recursive: true });
+        await fs.copyFile(CA_CERT, path.join(tmpdir.path, 'certs', 'somefilename.crt'));
+        const shell = TestShell.start({
+          args: [
+            `${await server.connectionString()}?serverSelectionTimeoutMS=1500`,
+            '--tls', '--tlsUseSystemCA'
+          ],
+          env: {
+            ...env,
+            SSL_CERT_FILE: path.join(tmpdir.path, 'certs', 'somefilename.crt')
+          }
+        });
+
+        const prompt = await shell.waitForPromptOrExit();
+        expect(prompt.state).to.equal('prompt');
+
+        const logPath = path.join(logBasePath, `${shell.logId}_log`);
+        const logContents = await readReplLogfile(logPath);
+        expect(logContents.find(line => line.id === 1_000_000_049).attr.asyncFallbackError)
+          .to.equal(null); // Ensure that system CA loading happened asynchronously.
+      });
+
+      it('fails on macOS/Windows with system CA', async function() {
+        // No good way to programmatically add certs to the system CA from our tests.
+        if (process.platform !== 'darwin' && process.platform !== 'win32') {
+          return this.skip();
+        }
+        const shell = TestShell.start({
+          args: [
+            `${await server.connectionString()}?serverSelectionTimeoutMS=1500`,
+            '--tls', '--tlsUseSystemCA'
+          ],
+          env
+        });
+
+        const prompt = await shell.waitForPromptOrExit();
+        expect(prompt.state).to.equal('exit');
+
+        const logPath = path.join(logBasePath, `${shell.logId}_log`);
+        const logContents = await readReplLogfile(logPath);
+        expect(logContents.find(line => line.id === 1_000_000_049)).to.exist;
+      });
     });
 
     context('connecting with client cert to server with valid cert', () => {
-      const tmpdir = useTmpdir();
-      let homedir: string;
-      let env: Record<string, string>;
-      let logBasePath: string;
-
       after(async function() {
         const shell = TestShell.start({ args:
           [
@@ -178,13 +273,6 @@ describe('e2e TLS', () => {
         await shell.waitForExit();
 
         await TestShell.cleanup.call(this);
-        try {
-          await promisify(rimraf)(homedir);
-        } catch (err) {
-          // On Windows in CI, this can fail with EPERM for some reason.
-          // If it does, just log the error instead of failing all tests.
-          console.error('Could not remove fake home directory:', err);
-        }
       });
 
       const server = startTestServer(
@@ -198,15 +286,6 @@ describe('e2e TLS', () => {
       before(async function() {
         if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
           return this.skip(); // createUser is unversioned
-        }
-        const homeInfo = setTemporaryHomeDirectory();
-        homedir = homeInfo.homedir;
-        env = homeInfo.env;
-
-        if (process.platform === 'win32') {
-          logBasePath = path.resolve(homedir, 'local', 'mongodb', 'mongosh');
-        } else {
-          logBasePath = path.resolve(homedir, '.mongodb', 'mongosh');
         }
         /* connect with cert to create user */
         const shell = TestShell.start({

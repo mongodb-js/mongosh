@@ -73,6 +73,10 @@ export class SignableCompiler {
       path: await findModulePath('service-provider-server', 'os-dns-native'),
       requireRegexp: /\bos_dns_native\.node$/
     };
+    // Warning! Until https://jira.mongodb.org/browse/MONGOSH-990,
+    // packages/service-provider-server *also* has a copy of these.
+    // We use the versions included in packages/cli-repl here, so these
+    // should be kept in sync!
     const winCAAddon = process.platform === 'win32' ? {
       path: await findModulePath('cli-repl', 'win-export-certificate-and-key'),
       requireRegexp: /\bwin_export_cert\.node$/

@@ -69,6 +69,7 @@ const OPTIONS = {
     'tlsAllowInvalidCertificates',
     'tlsAllowInvalidHostnames',
     'tlsFIPSMode',
+    'tlsUseSystemCA',
     'verbose',
     'version'
   ],
