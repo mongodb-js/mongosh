@@ -49,7 +49,7 @@
     "saslprep": "mongodb-js/saslprep#v1.0.4"
   },
   "optionalDependencies": {
-    "mongodb-client-encryption": "^2.0.0-beta.0",
+    "mongodb-client-encryption": "^2.0.0",
     "kerberos": "^2.0.0-beta.0"
   }
 }
