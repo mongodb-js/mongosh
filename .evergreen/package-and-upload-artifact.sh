@@ -25,9 +25,9 @@ else
   if [[ "$OS" == "Windows_NT" && "$DISTRIBUTION_BUILD_VARIANT" == "win32msi-x64" ]]; then
     # We have to setup a python venv for the notary client to work
     # in order to sign the MSI
-    export PATH="/cygdrive/c/Python27:\$PATH"
+    export PATH="/cygdrive/c/Python27:$PATH"
     # python --version prints to stderr...
-    if [[ ! "\$(python --version 2>&1 | tr -d '\r')" =~ "2.7" ]]; then
+    if [[ ! "$(python --version 2>&1 | tr -d '\r')" =~ "2.7" ]]; then
       echo "FAIL: could not properly setup Python 2.7"
       exit 1
     fi
