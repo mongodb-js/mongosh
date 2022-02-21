@@ -84,6 +84,6 @@
   "optionalDependencies": {
     "macos-export-certificate-and-key": "^1.0.2",
     "win-export-certificate-and-key": "^1.0.4",
-    "get-console-process-list": "^1.0.2"
+    "get-console-process-list": "^1.0.4"
   }
 }
