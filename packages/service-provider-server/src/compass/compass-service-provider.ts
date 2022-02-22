@@ -1,6 +1,6 @@
-import CliServiceProvider from '../cli-service-provider';
+import CliServiceProvider, { DevtoolsConnectOptions } from '../cli-service-provider';
 import { MongoClient } from 'mongodb';
-import { ReplPlatform, MongoClientOptions } from '@mongosh/service-provider-core';
+import { ReplPlatform } from '@mongosh/service-provider-core';
 import ConnectionString from 'mongodb-connection-string-url';
 import { EventEmitter } from 'events';
 
@@ -26,7 +26,7 @@ class CompassServiceProvider extends CliServiceProvider {
   constructor(
     mongoClient: MongoClient,
     bus: EventEmitter,
-    driverOptions?: MongoClientOptions,
+    driverOptions?: DevtoolsConnectOptions,
     uri?: ConnectionString
   ) {
     super(mongoClient, bus, driverOptions, uri);

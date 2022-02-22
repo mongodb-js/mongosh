@@ -41,6 +41,7 @@ CLI interface for [MongoDB Shell][mongosh], an extension to Node.js REPL with Mo
         --tlsAllowInvalidCertificates          Allow connections to servers with invalid certificates
         --tlsCertificateSelector [arg]         TLS Certificate in system store (Windows and macOS only)
         --tlsDisabledProtocols [arg]           Comma separated list of TLS protocols to disable [TLS1_0,TLS1_1,TLS1_2]
+        --tlsUseSystemCA                       Load the operating system trusted certificate list
 
   API version options:
 

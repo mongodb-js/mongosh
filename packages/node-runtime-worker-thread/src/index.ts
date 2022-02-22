@@ -2,13 +2,13 @@
 /* ^^^ we test the dist directly, so isntanbul can't calculate the coverage correctly */
 
 import { ChildProcess, spawn, SpawnOptionsWithoutStdio } from 'child_process';
-import { MongoClientOptions } from '@mongosh/service-provider-core';
+import type { DevtoolsConnectOptions } from '@mongosh/service-provider-server';
 import {
   Runtime,
   RuntimeEvaluationListener,
   RuntimeEvaluationResult
 } from '@mongosh/browser-runtime-core';
-import { MongoshBus } from '@mongosh/types';
+import type { MongoshBus } from '@mongosh/types';
 import path from 'path';
 import { EventEmitter, once } from 'events';
 import { kill } from './spawn-child-from-source';
@@ -48,7 +48,7 @@ function parseStderrToError(str: string): Error | null {
 class WorkerRuntime implements Runtime {
   private initOptions: {
     uri: string;
-    driverOptions: MongoClientOptions;
+    driverOptions: DevtoolsConnectOptions;
     cliOptions: { nodb?: boolean };
     spawnOptions: SpawnOptionsWithoutStdio;
   };
@@ -74,7 +74,7 @@ class WorkerRuntime implements Runtime {
 
   constructor(
     uri: string,
-    driverOptions: MongoClientOptions = {},
+    driverOptions: DevtoolsConnectOptions = {},
     cliOptions: { nodb?: boolean } = {},
     spawnOptions: SpawnOptionsWithoutStdio = {},
     eventEmitter: MongoshBus = new EventEmitter()

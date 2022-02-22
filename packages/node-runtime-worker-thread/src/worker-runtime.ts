@@ -8,14 +8,16 @@ import {
   RuntimeEvaluationResult
 } from '@mongosh/browser-runtime-core';
 import { ElectronRuntime } from '@mongosh/browser-runtime-electron';
-import {
-  MongoClientOptions,
+import type {
   ServiceProvider
 } from '@mongosh/service-provider-core';
-import { CompassServiceProvider } from '@mongosh/service-provider-server';
+import {
+  CompassServiceProvider,
+  DevtoolsConnectOptions
+} from '@mongosh/service-provider-server';
 import { exposeAll, createCaller } from './rpc';
 import { serializeEvaluationResult } from './serializer';
-import { MongoshBus } from '@mongosh/types';
+import type { MongoshBus } from '@mongosh/types';
 import { Lock, UNLOCKED } from './lock';
 import { runInterruptible, InterruptHandle } from 'interruptor';
 
@@ -73,7 +75,7 @@ const messageBus: MongoshBus = Object.assign(
 export type WorkerRuntime = Runtime & {
   init(
     uri: string,
-    driverOptions?: MongoClientOptions,
+    driverOptions?: DevtoolsConnectOptions,
     cliOptions?: { nodb?: boolean }
   ): Promise<void>;
 
@@ -83,7 +85,7 @@ export type WorkerRuntime = Runtime & {
 const workerRuntime: WorkerRuntime = {
   async init(
     uri: string,
-    driverOptions: MongoClientOptions = {},
+    driverOptions: DevtoolsConnectOptions = {},
     cliOptions: { nodb?: boolean } = {}
   ) {
     // XXX The types here work out fine, and tsc accepts this code

@@ -1,5 +1,5 @@
 import { CommonErrors, MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
-import { CliOptions, MongoClientOptions } from '@mongosh/service-provider-server';
+import { CliOptions, DevtoolsConnectOptions } from '@mongosh/service-provider-server';
 import setValue from 'lodash.set';
 
 /**
@@ -29,6 +29,7 @@ const MAPPINGS = {
   tlsCRLFile: 'sslCRL',
   tlsCertificateKeyFile: 'tlsCertificateKeyFile',
   tlsCertificateKeyFilePassword: 'tlsCertificateKeyFilePassword',
+  tlsUseSystemCA: 'useSystemCA',
   username: 'auth.username',
   verbose: { opt: 'loggerLevel', val: 'debug' }
 };
@@ -45,8 +46,8 @@ function isExistingMappingKey(key: string, options: CliOptions): key is keyof ty
  *
  * @returns {} The driver options.
  */
-function mapCliToDriver(options: CliOptions): MongoClientOptions {
-  const nodeOptions: MongoClientOptions = {};
+function mapCliToDriver(options: CliOptions): DevtoolsConnectOptions {
+  const nodeOptions: DevtoolsConnectOptions = {};
   for (const cliOption of Object.keys(MAPPINGS)) {
     if (isExistingMappingKey(cliOption, options)) {
       const mapping = MAPPINGS[cliOption as keyof typeof MAPPINGS];
