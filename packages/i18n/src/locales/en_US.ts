@@ -44,6 +44,7 @@ const translations: Catalog = {
       tlsCertificateSelector: 'TLS Certificate in system store (Windows and macOS only)',
       tlsCRLFile: 'Specifies the .pem file that contains the Certificate Revocation List',
       tlsDisabledProtocols: 'Comma separated list of TLS protocols to disable [TLS1_0,TLS1_1,TLS1_2]',
+      tlsUseSystemCA: 'Load the operating system trusted certificate list',
       apiVersionOptions: 'API version options:',
       apiVersion: 'Specifies the API version to connect with',
       apiStrict: 'Use strict API version mode',
