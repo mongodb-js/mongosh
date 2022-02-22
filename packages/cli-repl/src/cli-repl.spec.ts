@@ -1067,7 +1067,7 @@ describe('CliRepl', () => {
         expect(output).to.match(/Inserted: ObjectId\("[a-z0-9]{24}"\)/);
         expect(exitCode).to.equal(null);
 
-        input.write('print("doc count", insertTestCollection.count())\n');
+        input.write('print("doc count", insertTestCollection.countDocuments())\n');
         await waitEval(cliRepl.bus);
         expect(output).to.include('doc count 1');
 
