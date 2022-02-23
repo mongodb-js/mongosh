@@ -19,6 +19,14 @@
     <SetProperty Id="ARPINSTALLLOCATION" Value="[INSTALLFOLDER]" Sequence="execute" Before="InstallInitialize"/>
     <SetDirectory Id="INSTALLFOLDER" Sequence="first" Value="[PREV_INSTALLFOLDER_]"><![CDATA[Not INSTALLFOLDER And PREV_INSTALLFOLDER_]]></SetDirectory>
 
+    <!-- Restore per user/machine context on upgrade -->
+    <Property Id="IS_PER_USER_">
+      <RegistrySearch Type="raw" Root="HKCU" Key="Software\Microsoft\Windows\CurrentVersion\Uninstall\[WIX_UPGRADE_DETECTED]" Name="InstallLocation" Id="HKCU.upgrade.InstallLocation1"/>
+      <RegistrySearch Type="raw" Root="HKCU" Key="Software\Microsoft\Windows\CurrentVersion\Uninstall\[ProductCode]" Name="InstallLocation" Id="HKCU.curr.InstallLocation1"/>
+    </Property>
+    <SetProperty Id="MSIINSTALLPERUSER" Value="1" Sequence="first" After="AppSearch"><![CDATA[IS_PER_USER_]]></SetProperty>
+    <SetProperty Id="MSIINSTALLPERUSER" Action="UnsetMSIINSTALLPERUSER" Value="[nothing]" Sequence="first" After="AppSearch"><![CDATA[Not IS_PER_USER_ And WIX_UPGRADE_DETECTED]]></SetProperty>
+
     <Feature Id="Mongosh" Title="Mongosh" Level="1">
       <ComponentGroupRef Id="Files" />
     </Feature>
