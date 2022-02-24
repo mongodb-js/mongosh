@@ -57,6 +57,7 @@
     "askcharacter": "^1.0.0",
     "askpassword": "^1.2.4",
     "is-recoverable-error": "^1.0.2",
+    "js-yaml": "^4.1.0",
     "lodash.set": "^4.3.2",
     "mongodb-connection-string-url": "^2.3.2",
     "mongodb-log-writer": "^1.1.3",
