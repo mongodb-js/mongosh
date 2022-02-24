@@ -1202,15 +1202,16 @@ describe('Collection', () => {
     });
 
     describe('totalSize', () => {
-      let result;
-
-      beforeEach(() => {
-        result = { storageSize: 1000, totalIndexSize: 1000 };
-        serviceProvider.stats.resolves(result);
-      });
-
       it('returns sum of storageSize and totalIndexSize', async() => {
+        const result = { storageSize: 1000, totalIndexSize: 1000 };
+        serviceProvider.stats.resolves(result);
         expect(await collection.totalSize()).to.equal(2000);
+        expect(serviceProvider.stats).to.have.been.calledOnceWith('db1', 'coll1');
+      });
+      it('should handle Long numbers correctly', async() => {
+        const result = { storageSize: bson.Long.fromNumber(1732749910016), totalIndexSize: 10559533056 };
+        serviceProvider.stats.resolves(result);
+        expect(await collection.totalSize()).to.equal(1743309443072);
         expect(serviceProvider.stats).to.have.been.calledOnceWith('db1', 'coll1');
       });
     });

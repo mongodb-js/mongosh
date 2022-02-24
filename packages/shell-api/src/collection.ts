@@ -1306,7 +1306,7 @@ export default class Collection extends ShellApiWithMongoClass {
   async totalSize(): Promise<number> {
     this._emitCollectionApiCall('totalSize');
     const stats = await this._mongo._serviceProvider.stats(this._database._name, this._name, await this._database._baseOptions());
-    return (stats.storageSize || 0) + (stats.totalIndexSize || 0);
+    return (Number(stats.storageSize) || 0) + (Number(stats.totalIndexSize) || 0);
   }
 
   /**
