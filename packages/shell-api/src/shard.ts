@@ -123,9 +123,8 @@ export default class Shard extends ShellApiWithMongoClass {
     if (unique !== undefined) {
       cmd.unique = unique;
     }
-    const orderedCmd = options !== undefined ? { ...cmd, ...options } : cmd;
     try {
-      return await this._database._runAdminCommand(orderedCmd);
+      return await this._database._runAdminCommand({ ...cmd, ...options });
     } catch (error) {
       if (error.codeName === 'CommandNotFound') {
         error.message = `${error.message}. Are you connected to mongos?`;
