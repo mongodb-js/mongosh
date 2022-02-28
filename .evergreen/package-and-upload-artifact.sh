@@ -12,14 +12,14 @@ tar xvzf dist.tgz
 if [ "$(uname)" == Linux ]; then
   mkdir -p tmp
   cp "$(pwd)/../tmp/expansions.yaml" tmp/expansions.yaml
-  (cd scripts/docker && docker build -t centos7-package -f centos7-package.Dockerfile .)
+  (cd scripts/docker && docker build -t rocky8-package -f rocky8-package.Dockerfile .)
   echo Starting Docker container packaging
   docker run -e PUPPETEER_SKIP_CHROMIUM_DOWNLOAD \
     -e EVERGREEN_EXPANSIONS_PATH=/tmp/build/tmp/expansions.yaml \
     -e NODE_JS_VERSION \
     -e DISTRIBUTION_BUILD_VARIANT \
     -e ARTIFACT_URL_FILE="/tmp/build/artifact-url.txt" \
-    --rm -v $PWD:/tmp/build --network host centos7-package \
+    --rm -v $PWD:/tmp/build --network host rocky8-package \
     -c 'cd /tmp/build && npm run evergreen-release package && npm run evergreen-release upload'
 else
   if [[ "$OS" == "Windows_NT" && "$DISTRIBUTION_BUILD_VARIANT" == "win32msi-x64" ]]; then
