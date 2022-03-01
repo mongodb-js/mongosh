@@ -789,8 +789,8 @@ export default class Database extends ShellApiWithMongoClass {
   @apiVersions([])
   async currentOp(opts: Document | boolean = {}): Promise<Document> {
     this._emitDatabaseApiCall('currentOp', { opts: opts });
-    if (opts === true) {
-      opts = { $all: true };
+    if (typeof opts === 'boolean') {
+      opts = { $all: opts };
     }
     return await this._runAdminCommand(
       {
