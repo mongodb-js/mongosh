@@ -997,7 +997,8 @@ export default class Collection extends ShellApiWithMongoClass {
   @apiVersions([1])
   async createIndexes(
     keyPatterns: Document[],
-    options: CreateIndexesOptions = {}
+    options: CreateIndexesOptions = {},
+    commitQuorum?: number | string
   ): Promise<string[]> {
     assertArgsDefinedType([keyPatterns], [true], 'Collection.createIndexes');
     if (typeof options !== 'object' || Array.isArray(options)) {
@@ -1012,9 +1013,12 @@ export default class Collection extends ShellApiWithMongoClass {
     }));
 
     this._emitCollectionApiCall('createIndexes', { specs });
-
+    const createIndexesOptions: CreateIndexesOptions = { ...await this._database._baseOptions(), ...options };
+    if (undefined !== commitQuorum) {
+      createIndexesOptions.commitQuorum = commitQuorum;
+    }
     return await this._mongo._serviceProvider.createIndexes(
-      this._database._name, this._name, specs, { ...await this._database._baseOptions(), ...options });
+      this._database._name, this._name, specs, createIndexesOptions);
   }
 
   /**
@@ -1032,7 +1036,8 @@ export default class Collection extends ShellApiWithMongoClass {
   @apiVersions([1])
   async createIndex(
     keys: Document,
-    options: CreateIndexesOptions = {}
+    options: CreateIndexesOptions = {},
+    commitQuorum?: number | string
   ): Promise<string> {
     assertArgsDefinedType([keys], [true], 'Collection.createIndex');
     if (typeof options !== 'object' || Array.isArray(options)) {
@@ -1044,8 +1049,9 @@ export default class Collection extends ShellApiWithMongoClass {
     this._emitCollectionApiCall('createIndex', { keys, options });
 
     const spec = { key: keys, ...options }; // keep options for java
+    const createIndexesOptions: CreateIndexesOptions = { ...await this._database._baseOptions(), ...options, commitQuorum };
     const names = await this._mongo._serviceProvider.createIndexes(
-      this._database._name, this._name, [spec], { ...await this._database._baseOptions(), ...options });
+      this._database._name, this._name, [spec], createIndexesOptions);
     if (!Array.isArray(names) || names.length !== 1) {
       throw new MongoshInternalError(
         `Expected createIndexes() to return array of length 1, saw ${names}`);
@@ -1068,7 +1074,8 @@ export default class Collection extends ShellApiWithMongoClass {
   @apiVersions([1])
   async ensureIndex(
     keys: Document,
-    options: CreateIndexesOptions = {}
+    options: CreateIndexesOptions = {},
+    commitQuorum?: number | string
   ): Promise<Document> {
     assertArgsDefinedType([keys], [true], 'Collection.ensureIndex');
     if (typeof options !== 'object' || Array.isArray(options)) {
@@ -1080,7 +1087,7 @@ export default class Collection extends ShellApiWithMongoClass {
     this._emitCollectionApiCall('ensureIndex', { keys, options });
 
     const spec = { key: keys, ...options };
-    return await this._mongo._serviceProvider.createIndexes(this._database._name, this._name, [spec], { ...await this._database._baseOptions(), ...options });
+    return await this._mongo._serviceProvider.createIndexes(this._database._name, this._name, [spec], { ...await this._database._baseOptions(), ...options, commitQuorum });
   }
 
   /**
