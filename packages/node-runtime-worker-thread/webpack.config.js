@@ -44,6 +44,7 @@ const config = {
     snappy: 'commonjs2 snappy',
     interruptor: 'commonjs2 interruptor',
     'os-dns-native': 'commonjs2 os-dns-native',
+    'system-ca': 'commonjs2 system-ca'
   }
 };
 
