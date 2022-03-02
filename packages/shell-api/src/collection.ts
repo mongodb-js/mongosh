@@ -1049,7 +1049,10 @@ export default class Collection extends ShellApiWithMongoClass {
     this._emitCollectionApiCall('createIndex', { keys, options });
 
     const spec = { key: keys, ...options }; // keep options for java
-    const createIndexesOptions: CreateIndexesOptions = { ...await this._database._baseOptions(), ...options, commitQuorum };
+    const createIndexesOptions: CreateIndexesOptions = { ...await this._database._baseOptions(), ...options };
+    if (undefined !== commitQuorum) {
+      createIndexesOptions.commitQuorum = commitQuorum;
+    }
     const names = await this._mongo._serviceProvider.createIndexes(
       this._database._name, this._name, [spec], createIndexesOptions);
     if (!Array.isArray(names) || names.length !== 1) {
@@ -1085,9 +1088,12 @@ export default class Collection extends ShellApiWithMongoClass {
       );
     }
     this._emitCollectionApiCall('ensureIndex', { keys, options });
-
+    const createIndexesOptions: CreateIndexesOptions = { ...await this._database._baseOptions(), ...options };
+    if (undefined !== commitQuorum) {
+      createIndexesOptions.commitQuorum = commitQuorum;
+    }
     const spec = { key: keys, ...options };
-    return await this._mongo._serviceProvider.createIndexes(this._database._name, this._name, [spec], { ...await this._database._baseOptions(), ...options, commitQuorum });
+    return await this._mongo._serviceProvider.createIndexes(this._database._name, this._name, [spec], createIndexesOptions);
   }
 
   /**

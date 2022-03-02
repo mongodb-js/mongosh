@@ -822,8 +822,7 @@ describe('Collection', () => {
             expect(serviceProvider.createIndexes).to.have.been.calledWith(
               'db1',
               'coll1',
-              [{ key: { x: 1 } }],
-              { commitQuorum: undefined }
+              [{ key: { x: 1 } }]
             );
           });
         });
@@ -836,12 +835,12 @@ describe('Collection', () => {
               'db1',
               'coll1',
               [{ key: { x: 1 }, name: 'index-1' }],
-              { name: 'index-1', commitQuorum: undefined }
+              { name: 'index-1' }
             );
           });
           it('should allow commitQuorum parameter', async() => {
-            await collection[method]([{ x: 1 }], { name: 'index-1' }, 3);
-  
+            await collection[method]({ x: 1 }, { name: 'index-1' }, 3);
+
             expect(serviceProvider.createIndexes).to.have.been.calledWith(
               'db1',
               'coll1',
