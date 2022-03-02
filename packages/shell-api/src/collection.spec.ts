@@ -785,8 +785,17 @@ describe('Collection', () => {
             { name: 'index-1' }
           );
         });
-      });
+        it('should allow commitQuorum parameter', async() => {
+          await collection.createIndexes([{ x: 1 }], { name: 'index-1' }, 3);
 
+          expect(serviceProvider.createIndexes).to.have.been.calledWith(
+            'db1',
+            'coll1',
+            [{ key: { x: 1 }, name: 'index-1' }],
+            { name: 'index-1', commitQuorum: 3 }
+          );
+        });
+      });
       context('when options is not an object', () => {
         it('throws an error', async() => {
           const error = await collection.createIndexes(
@@ -827,6 +836,16 @@ describe('Collection', () => {
               'coll1',
               [{ key: { x: 1 }, name: 'index-1' }],
               { name: 'index-1' }
+            );
+          });
+          it('should allow commitQuorum parameter', async() => {
+            await collection[method]({ x: 1 }, { name: 'index-1' }, 3);
+
+            expect(serviceProvider.createIndexes).to.have.been.calledWith(
+              'db1',
+              'coll1',
+              [{ key: { x: 1 }, name: 'index-1' }],
+              { name: 'index-1', commitQuorum: 3 }
             );
           });
         });

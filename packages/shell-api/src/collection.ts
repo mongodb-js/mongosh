@@ -981,7 +981,39 @@ export default class Collection extends ShellApiWithMongoClass {
       }
     );
   }
-
+  /**
+   * Internal function which calls the Service Provider createIndexes function.
+   * This function is used also by createIndex and ensureIndex
+   * 
+   * @param {Document} keyPatterns - An array of documents that contains
+   *  the field and value pairs where the field is the index key and the
+   *  value describes the type of index for that field.
+   * @param {Document} options - createIndexes options (
+   *  name, background, sparse ...)
+   * @return {Promise}
+   */
+  async _createIndexes(
+    keyPatterns: Document[],
+    options: CreateIndexesOptions = {},
+    commitQuorum?: number | string
+  ): Promise<string[]> {
+    assertArgsDefinedType([keyPatterns], [true], 'Collection.createIndexes');
+    if (typeof options !== 'object' || Array.isArray(options)) {
+      throw new MongoshInvalidInputError(
+        'The "options" argument must be an object.',
+        CommonErrors.InvalidArgument
+      );
+    }
+    const specs = keyPatterns.map((pattern) => ({
+      ...options, key: pattern
+    }));
+    const createIndexesOptions: CreateIndexesOptions = { ...await this._database._baseOptions(), ...options };
+    if (undefined !== commitQuorum) {
+      createIndexesOptions.commitQuorum = commitQuorum;
+    }
+    return await this._mongo._serviceProvider.createIndexes(
+      this._database._name, this._name, specs, createIndexesOptions);
+  }
   /**
    * Create indexes for a collection
    *
@@ -997,24 +1029,14 @@ export default class Collection extends ShellApiWithMongoClass {
   @apiVersions([1])
   async createIndexes(
     keyPatterns: Document[],
-    options: CreateIndexesOptions = {}
+    options: CreateIndexesOptions = {},
+    commitQuorum?: number | string
   ): Promise<string[]> {
-    assertArgsDefinedType([keyPatterns], [true], 'Collection.createIndexes');
-    if (typeof options !== 'object' || Array.isArray(options)) {
-      throw new MongoshInvalidInputError(
-        'The "options" argument must be an object.',
-        CommonErrors.InvalidArgument
-      );
-    }
-
     const specs = keyPatterns.map((pattern) => ({
       ...options, key: pattern
     }));
-
     this._emitCollectionApiCall('createIndexes', { specs });
-
-    return await this._mongo._serviceProvider.createIndexes(
-      this._database._name, this._name, specs, { ...await this._database._baseOptions(), ...options });
+    return this._createIndexes(keyPatterns, options, commitQuorum)
   }
 
   /**
@@ -1032,7 +1054,8 @@ export default class Collection extends ShellApiWithMongoClass {
   @apiVersions([1])
   async createIndex(
     keys: Document,
-    options: CreateIndexesOptions = {}
+    options: CreateIndexesOptions = {},
+    commitQuorum?: number | string
   ): Promise<string> {
     assertArgsDefinedType([keys], [true], 'Collection.createIndex');
     if (typeof options !== 'object' || Array.isArray(options)) {
@@ -1042,10 +1065,7 @@ export default class Collection extends ShellApiWithMongoClass {
       );
     }
     this._emitCollectionApiCall('createIndex', { keys, options });
-
-    const spec = { key: keys, ...options }; // keep options for java
-    const names = await this._mongo._serviceProvider.createIndexes(
-      this._database._name, this._name, [spec], { ...await this._database._baseOptions(), ...options });
+    const names = await this._createIndexes([ keys ], options, commitQuorum);
     if (!Array.isArray(names) || names.length !== 1) {
       throw new MongoshInternalError(
         `Expected createIndexes() to return array of length 1, saw ${names}`);
@@ -1068,19 +1088,11 @@ export default class Collection extends ShellApiWithMongoClass {
   @apiVersions([1])
   async ensureIndex(
     keys: Document,
-    options: CreateIndexesOptions = {}
+    options: CreateIndexesOptions = {},
+    commitQuorum?: number | string
   ): Promise<Document> {
-    assertArgsDefinedType([keys], [true], 'Collection.ensureIndex');
-    if (typeof options !== 'object' || Array.isArray(options)) {
-      throw new MongoshInvalidInputError(
-        'The "options" argument must be an object.',
-        CommonErrors.InvalidArgument
-      );
-    }
     this._emitCollectionApiCall('ensureIndex', { keys, options });
-
-    const spec = { key: keys, ...options };
-    return await this._mongo._serviceProvider.createIndexes(this._database._name, this._name, [spec], { ...await this._database._baseOptions(), ...options });
+    return await this._createIndexes([ keys ], options, commitQuorum);
   }
 
   /**
