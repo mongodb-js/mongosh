@@ -1,2 +1,2 @@
-ignores: ['webpack-cli']
+ignores: ['webpack-cli', 'system-ca']
 skip-missing: true
