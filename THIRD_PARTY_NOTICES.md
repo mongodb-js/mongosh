@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Wed Mar 02 2022.
+This document was automatically generated on Fri Mar 04 2022.
 
 ## List of dependencies
 
@@ -210,7 +210,7 @@ Package|Version|License
 **[mkdirp](#f34eebd27506e3aa07ba3b64064715e0c4f310dad1207ad88fff362353cd4cce)**|1.0.4|MIT
 **[mkdirp-classic](#e79cc875152b50c2eb57a97163d99f0155bf4e4af7ba4a7e01c12a17a4a3305c)**|0.5.3|MIT
 **[mongodb](#fa7d1f897a56c25489f72e62168d9e565dd7d911fedcd63a165f7e29437fa9cd)**|4.4.0|Apache-2.0
-**[mongodb-ace-autocompleter](#64b6d73d0ec7a20b4fe452326eb6d406fd077716b0da2bd762a8ee85f36f5ad8)**|0.10.0|Apache-2.0
+**[mongodb-ace-autocompleter](#77d4f48b8f17bee83995284d4449d815e79f6a3ab4f1984e0793407939336d0e)**|0.11.0|Apache-2.0
 **[mongodb-build-info](#3e1ab3564d63f8a06a80cc2b752a458eabdaa33318303341aa6f7a9461115958)**|1.2.0|Apache-2.0
 **[mongodb-client-encryption](#469e453bdb465e72a6ab0cd1aec7f2eaaff12493dad08019013a963134a3b4bd)**|2.0.0|Apache-2.0
 **[mongodb-connection-string-url](#3e30d136c6556714addecc9208a97d864d84c9b5df4d85615dc1904cfaed971b)**|2.3.2|Apache-2.0
@@ -13059,8 +13059,8 @@ Authors:
 * The MongoDB NodeJS Team <[dbx-node@mongodb.com](nomail)>
 
 
-<a id="64b6d73d0ec7a20b4fe452326eb6d406fd077716b0da2bd762a8ee85f36f5ad8"></a>
-### [mongodb-ace-autocompleter](https://www.npmjs.com/package/mongodb-ace-autocompleter) (version 0.10.0)
+<a id="77d4f48b8f17bee83995284d4449d815e79f6a3ab4f1984e0793407939336d0e"></a>
+### [mongodb-ace-autocompleter](https://www.npmjs.com/package/mongodb-ace-autocompleter) (version 0.11.0)
 <!-- initially found at packages/autocomplete/node_modules/mongodb-ace-autocompleter -->
 > Ace Editor Autocompleter for MongoDB Queries & Agg Pipelines
 
