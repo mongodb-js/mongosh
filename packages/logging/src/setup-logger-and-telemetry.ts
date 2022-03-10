@@ -120,17 +120,15 @@ export function setupLoggerAndTelemetry(
   });
 
   bus.on('mongosh:update-user', function(updatedTelemetryUserIdentity: TelemetryUserIdentity) {
-    const telemetryIdentifyArg: {
-      userId?: string;
-      anonymousId: string;
-      traits: any;
-    } = {
-      anonymousId: updatedTelemetryUserIdentity.anonymousId,
+    telemetryUserIdentity = updatedTelemetryUserIdentity;
+
+    const telemetryIdentifyArg: TelemetryUserIdentity & { traits: any } = {
+      anonymousId: telemetryUserIdentity.anonymousId,
       traits: userTraits
     };
 
-    if (updatedTelemetryUserIdentity?.userId) {
-      telemetryIdentifyArg.userId = updatedTelemetryUserIdentity?.userId;
+    if (telemetryUserIdentity?.userId) {
+      telemetryIdentifyArg.userId = telemetryUserIdentity.userId;
     }
 
     analytics.identify(telemetryIdentifyArg);
