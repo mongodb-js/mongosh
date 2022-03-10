@@ -116,7 +116,7 @@ export function setupLoggerAndTelemetry(
 
   bus.on('mongosh:new-user', function(anonymousId: string) {
     telemetryUserIdentity = { anonymousId };
-    analytics.identify({ ...telemetryUserIdentity, traits: userTraits });
+    analytics.identify({ anonymousId, traits: userTraits });
   });
 
   bus.on('mongosh:update-user', function(updatedTelemetryUserIdentity: TelemetryUserIdentity) {
