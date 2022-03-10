@@ -984,7 +984,7 @@ export default class Collection extends ShellApiWithMongoClass {
   /**
    * Internal function which calls the Service Provider createIndexes function.
    * This function is used also by createIndex and ensureIndex
-   * 
+   *
    * @param {Document} keyPatterns - An array of documents that contains
    *  the field and value pairs where the field is the index key and the
    *  value describes the type of index for that field.
@@ -1036,7 +1036,7 @@ export default class Collection extends ShellApiWithMongoClass {
       ...options, key: pattern
     }));
     this._emitCollectionApiCall('createIndexes', { specs });
-    return this._createIndexes(keyPatterns, options, commitQuorum)
+    return this._createIndexes(keyPatterns, options, commitQuorum);
   }
 
   /**
