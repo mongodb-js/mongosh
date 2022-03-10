@@ -120,8 +120,6 @@ export function setupLoggerAndTelemetry(
   });
 
   bus.on('mongosh:update-user', function(updatedTelemetryUserIdentity: TelemetryUserIdentity) {
-    console.log(updatedTelemetryUserIdentity);
-
     const telemetryIdentifyArg: {
       userId?: string;
       anonymousId: string;
