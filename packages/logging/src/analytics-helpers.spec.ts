@@ -17,18 +17,18 @@ describe('ToggleableAnalytics', () => {
     const toggleable = new ToggleableAnalytics(target);
     expect(events).to.have.lengthOf(0);
 
-    toggleable.identify({ userId: 'me', traits: { platform: '1234' } });
-    toggleable.track({ userId: 'me', event: 'something', properties: { mongosh_version: '1.2.3' } });
+    toggleable.identify({ anonymousId: 'me', traits: { platform: '1234' } });
+    toggleable.track({ anonymousId: 'me', event: 'something', properties: { mongosh_version: '1.2.3' } });
     expect(events).to.have.lengthOf(0);
 
     toggleable.enable();
     expect(events).to.have.lengthOf(2);
 
-    toggleable.track({ userId: 'me', event: 'something2', properties: { mongosh_version: '1.2.3' } });
+    toggleable.track({ anonymousId: 'me', event: 'something2', properties: { mongosh_version: '1.2.3' } });
     expect(events).to.have.lengthOf(3);
 
     toggleable.pause();
-    toggleable.track({ userId: 'me', event: 'something3', properties: { mongosh_version: '1.2.3' } });
+    toggleable.track({ anonymousId: 'me', event: 'something3', properties: { mongosh_version: '1.2.3' } });
     expect(events).to.have.lengthOf(3);
 
     toggleable.disable();
@@ -36,9 +36,9 @@ describe('ToggleableAnalytics', () => {
     toggleable.enable();
 
     expect(events).to.deep.equal([
-      [ 'identify', { userId: 'me', traits: { platform: '1234' } } ],
-      [ 'track', { userId: 'me', event: 'something', properties: { mongosh_version: '1.2.3' } } ],
-      [ 'track', { userId: 'me', event: 'something2', properties: { mongosh_version: '1.2.3' } } ]
+      [ 'identify', { anonymousId: 'me', traits: { platform: '1234' } } ],
+      [ 'track', { anonymousId: 'me', event: 'something', properties: { mongosh_version: '1.2.3' } } ],
+      [ 'track', { anonymousId: 'me', event: 'something2', properties: { mongosh_version: '1.2.3' } } ]
     ]);
   });
 });

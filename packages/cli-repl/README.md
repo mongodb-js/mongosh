@@ -99,8 +99,8 @@ bus.emit('mongosh:connect', {
 })
 ```
 
-### bus.on('mongosh:new-user', userID, enableTelemetry)
-Where `userID` is a [BSON ObjectID][object-id] and `enableTelemetry` is a boolean flag.
+### bus.on('mongosh:new-user', telemetryAnonymousId, enableTelemetry)
+Where `telemetryAnonymousId` is a [BSON ObjectID][object-id] and `enableTelemetry` is a boolean flag.
 This is used for telemetry tracking when the user initially uses mongosh.
 
 Example:
@@ -108,14 +108,16 @@ Example:
 bus.emit('mongosh:new-user', '12394dfjvnaw3uw3erdf', true)
 ```
 
-### bus.on('mongosh:update-user', id, enableTelemetry)
-Where `userID` is a [BSON ObjectID][object-id] and `enableTelemetry` is a boolean flag.
-This is used internally to update telemetry preferences and userID in the
+### bus.on('mongosh:update-user', telemetryUserIdentity, enableTelemetry)
+Initially, we used `userId` as Segment user identifier, but this usage is being deprecated.
+The `anonymousId` should be used instead. We keep sending `userId` to Segment for old users though to preserve their analytics.
+Where `userID`/`anonymousId` is a [BSON ObjectID][object-id] and `enableTelemetry` is a boolean flag.
+This is used internally to update telemetry preferences and `userID`/`anonymousId` in the
 logger.
 
 Example:
 ```js
-bus.emit('mongosh:update-user', '12394dfjvnaw3uw3erdf', false)
+bus.emit('mongosh:update-user', { userId: undefined, anonymousId: '12394dfjvnaw3uw3erdf' } , false)
 ```
 
 ### bus.on('mongosh:error', error)

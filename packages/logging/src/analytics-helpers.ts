@@ -3,12 +3,14 @@
  */
 export interface MongoshAnalytics {
   identify(message: {
-    userId: string,
+    userId?: string,
+    anonymousId: string,
     traits: { platform: string }
   }): void;
 
   track(message: {
-    userId: string,
+    userId?: string,
+    anonymousId: string,
     event: string,
     properties: {
       // eslint-disable-next-line camelcase
