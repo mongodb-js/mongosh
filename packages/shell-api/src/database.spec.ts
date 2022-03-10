@@ -1555,6 +1555,28 @@ describe('Database', () => {
           { currentOp: 1 }
         );
       });
+      it('allows boolean parameter', async() => {
+        await database.currentOp(true);
+
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            currentOp: 1,
+            $all: true
+          }
+        );
+      });
+      it('allows boolean parameter false', async() => {
+        await database.currentOp(false);
+
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            $all: false,
+            currentOp: 1
+          }
+        );
+      });
       it('calls serviceProvider.runCommandWithCheck on the database with options', async() => {
         await database.currentOp({
           $ownOps: true,
