@@ -138,6 +138,35 @@ describe('FLE tests', () => {
     expect(keyVaultContents).to.include(keyId.match(uuidRegexp)[1]);
   });
 
+  it('works when a schemaMap option has been passed', async() => {
+    const shell = TestShell.start({
+      args: ['--nodb']
+    });
+    await shell.waitForPrompt();
+    await shell.executeLine('local = { key: BinData(0, "kh4Gv2N8qopZQMQYMEtww/AkPsIrXNmEMxTrs3tUoTQZbZu4msdRUaR8U5fXD7A7QXYHcEvuu4WctJLoT+NvvV3eeIg3MD+K8H9SR794m/safgRHdIfy6PD+rFpvmFbY") }');
+    await shell.executeLine(`keyMongo = Mongo(${JSON.stringify(await testServer.connectionString())}, { \
+      keyVaultNamespace: '${dbname}.keyVault', \
+      kmsProviders: { local }, \
+      schemaMap: {} \
+    });`);
+
+    await shell.executeLine('keyVault = keyMongo.getKeyVault();');
+    const keyId = await shell.executeLine('keyId = keyVault.createKey("local");');
+    const uuidRegexp = /UUID([^)])/;
+    expect(keyId).to.match(uuidRegexp);
+
+    await shell.executeLine(`plainMongo = Mongo(${JSON.stringify(await testServer.connectionString())})`);
+    await shell.executeLine(`db = plainMongo.getDB('${dbname}')`);
+    const keyVaultContents = await shell.executeLine('db.keyVault.find()');
+    expect(keyVaultContents).to.include(keyId.match(uuidRegexp)[1]);
+
+    await shell.executeLine('clientEncryption = keyMongo.getClientEncryption();');
+    await shell.executeLine('encrypted = clientEncryption.encrypt(' +
+      'keyId, { someValue: "foo" }, "AEAD_AES_256_CBC_HMAC_SHA_512-Random");');
+    const result = await shell.executeLine('({ decrypted: clientEncryption.decrypt(encrypted) })');
+    expect(result).to.include("{ decrypted: { someValue: 'foo' } }");
+  });
+
   it('performs KeyVault data key management as expected', async() => {
     const shell = TestShell.start({
       args: [await testServer.connectionString()]

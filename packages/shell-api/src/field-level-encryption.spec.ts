@@ -148,8 +148,7 @@ describe('Field Level Encryption', () => {
             keyVaultClient: undefined,
             keyVaultNamespace: AWS_KMS.keyVaultNamespace,
             kmsProviders: AWS_KMS.kmsProviders,
-            bypassAutoEncryption: AWS_KMS.bypassAutoEncryption,
-            schemaMap: AWS_KMS.schemaMap
+            bypassAutoEncryption: AWS_KMS.bypassAutoEncryption
           }
         );
       });
@@ -406,6 +405,21 @@ describe('Field Level Encryption', () => {
       // eslint-disable-next-line no-new
       new Mongo(instanceState, 'localhost:27017', localKmsOptions, undefined, sp);
     });
+    it('allows getting ClientEncryption if a schema map is provided', () => {
+      const localKmsOptions: ClientSideFieldLevelEncryptionOptions = {
+        keyVaultNamespace: `${DB}.${COLL}`,
+        kmsProviders: {
+          local: {
+            key: new bson.Binary(Buffer.alloc(96).toString('base64'))
+          }
+        },
+        schemaMap: SCHEMA_MAP,
+        bypassAutoEncryption: true
+      };
+      const mongo = new Mongo(instanceState, 'localhost:27017', localKmsOptions, undefined, sp);
+      expect(mongo.getClientEncryption()).to.be.instanceOf(ClientEncryption);
+      expect(mongo.getKeyVault()).to.be.instanceOf(KeyVault);
+    });
     it('fails if both explicitEncryptionOnly and schemaMap are passed', () => {
       const localKmsOptions: ClientSideFieldLevelEncryptionOptions = {
         keyVaultNamespace: `${DB}.${COLL}`,
@@ -496,7 +510,7 @@ describe('Field Level Encryption', () => {
         accessKeyId: 'SxHpYMUtB1CEVg9tX0N1',
         secretAccessKey: '44mjXTk34uMUmORma3w1viIAx4RCUv78bzwDY0R7',
         sessionToken: 'WXWHMnniSqij0CH27KK7H'
-      } as any], // As any until we have NODE-3107
+      }],
       ['azure', {
         tenantId: 'MUtB1CEVg9tX0',
         clientId: 'SxHpYMUtB1CEVg9tX0N1',
