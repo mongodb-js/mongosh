@@ -1,16 +1,18 @@
+export type MongoshAnalyticsIdentity = {
+  userId: string;
+} | {
+  anonymousId: string;
+}
+
 /**
  * General interface for an Analytics provider that mongosh can use.
  */
 export interface MongoshAnalytics {
-  identify(message: {
-    userId?: string,
-    anonymousId: string,
+  identify(message: MongoshAnalyticsIdentity & {
     traits: { platform: string }
   }): void;
 
-  track(message: {
-    userId?: string,
-    anonymousId: string,
+  track(message: MongoshAnalyticsIdentity & {
     event: string,
     properties: {
       // eslint-disable-next-line camelcase

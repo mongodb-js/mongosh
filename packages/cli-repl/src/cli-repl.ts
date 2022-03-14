@@ -66,7 +66,7 @@ export type CliReplOptions = {
 } & Pick<MongoshNodeReplOptions, 'nodeReplOptions'>;
 
 /** The set of config options that is *always* available in config files stored on the file system. */
-type CliUserConfigOnDisk = Partial<CliUserConfig> & Pick<CliUserConfig, 'enableTelemetry' | 'telemetryAnonymousId'>;
+type CliUserConfigOnDisk = Partial<CliUserConfig> & Pick<CliUserConfig, 'enableTelemetry' | 'userId' | 'telemetryAnonymousId'>;
 
 /**
  * The REPL used from the terminal.
@@ -104,8 +104,11 @@ class CliRepl implements MongoshIOProvider {
     this.output = options.output;
     this.analyticsOptions = options.analyticsOptions;
     this.onExit = options.onExit;
+
+    const id = new bson.ObjectId().toString();
     this.config = {
-      telemetryAnonymousId: new bson.ObjectId().toString(),
+      userId: id,
+      telemetryAnonymousId: id,
       enableTelemetry: true
     };
 
@@ -118,11 +121,11 @@ class CliRepl implements MongoshIOProvider {
       })
       .on('new-config', (config: CliUserConfigOnDisk) => {
         this.setTelemetryEnabled(config.enableTelemetry);
-        this.bus.emit('mongosh:new-user', config.telemetryAnonymousId);
+        this.bus.emit('mongosh:new-user', { userId: config.userId, anonymousId: config.telemetryAnonymousId });
       })
       .on('update-config', (config: CliUserConfigOnDisk) => {
         this.setTelemetryEnabled(config.enableTelemetry);
-        this.bus.emit('mongosh:update-user', { userId: config.userId, anonymousId: config.telemetryAnonymousId ?? config.userId });
+        this.bus.emit('mongosh:update-user', { userId: config.userId, anonymousId: config.telemetryAnonymousId });
       });
 
     this.mongocryptdManager = new MongocryptdManager(

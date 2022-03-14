@@ -167,11 +167,6 @@ export interface EditorReadVscodeExtensionsFailedEvent {
   error: Error;
 }
 
-export interface TelemetryUserIdentity {
-  userId?: string;
-  anonymousId: string;
-}
-
 export interface MongoshBusEventsMap extends ConnectEventMap {
   /**
    * Signals a connection to a MongoDB instance has been established
@@ -181,11 +176,11 @@ export interface MongoshBusEventsMap extends ConnectEventMap {
   /**
    * Signals that the shell is started by a new user.
    */
-  'mongosh:new-user': (id: string) => void;
+  'mongosh:new-user': (identity: { userId: string; anonymousId: string }) => void;
   /**
    * Signals a change of the user telemetry settings.
    */
-  'mongosh:update-user': (identity: TelemetryUserIdentity) => void;
+  'mongosh:update-user': (identity: { userId: string; anonymousId?: string }) => void;
   /**
    * Signals an error that should be logged or potentially tracked by analytics.
    */
@@ -417,7 +412,7 @@ export class SnippetShellUserConfigValidator extends ShellUserConfigValidator {
 }
 
 export class CliUserConfig extends SnippetShellUserConfig {
-  userId?: string;
+  userId = '';
   telemetryAnonymousId = '';
   disableGreetingMessage = false;
   forceDisableTelemetry = false;
