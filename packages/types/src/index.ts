@@ -167,6 +167,11 @@ export interface EditorReadVscodeExtensionsFailedEvent {
   error: Error;
 }
 
+export interface TelemetryUserIdentity {
+  userId?: string;
+  anonymousId: string;
+}
+
 export interface MongoshBusEventsMap extends ConnectEventMap {
   /**
    * Signals a connection to a MongoDB instance has been established
@@ -180,7 +185,7 @@ export interface MongoshBusEventsMap extends ConnectEventMap {
   /**
    * Signals a change of the user telemetry settings.
    */
-  'mongosh:update-user': (id: string) => void;
+  'mongosh:update-user': (identity: TelemetryUserIdentity) => void;
   /**
    * Signals an error that should be logged or potentially tracked by analytics.
    */
@@ -412,7 +417,8 @@ export class SnippetShellUserConfigValidator extends ShellUserConfigValidator {
 }
 
 export class CliUserConfig extends SnippetShellUserConfig {
-  userId = '';
+  userId?: string;
+  telemetryAnonymousId = '';
   disableGreetingMessage = false;
   forceDisableTelemetry = false;
   inspectCompact: number | boolean = 3;
@@ -427,6 +433,7 @@ export class CliUserConfigValidator extends SnippetShellUserConfigValidator {
   static async validate<K extends keyof CliUserConfig>(key: K, value: CliUserConfig[K]): Promise<string | null> {
     switch (key) {
       case 'userId':
+      case 'telemetryAnonymousId':
       case 'disableGreetingMessage':
         return null; // Not modifiable by the user anyway.
       case 'inspectCompact':

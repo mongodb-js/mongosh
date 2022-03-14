@@ -102,8 +102,8 @@ describe('CliRepl', () => {
         const updateUser = waitBus(cliRepl.bus, 'mongosh:update-user');
         const evalComplete = waitBus(cliRepl.bus, 'mongosh:eval-complete');
         input.write('disableTelemetry()\n');
-        const [ userId ] = await updateUser;
-        expect(typeof userId).to.equal('string');
+        const [ telemetryUserIdentity ] = await updateUser;
+        expect(typeof telemetryUserIdentity).to.equal('object');
 
         await evalComplete; // eval-complete includes the fs.writeFile() call.
         const content = await fs.readFile(path.join(tmpdir.path, 'config'), { encoding: 'utf8' });
@@ -113,7 +113,7 @@ describe('CliRepl', () => {
       it('does not store config options on disk that have not been changed', async() => {
         let content = await fs.readFile(path.join(tmpdir.path, 'config'), { encoding: 'utf8' });
         expect(Object.keys(EJSON.parse(content))).to.deep.equal([
-          'userId', 'enableTelemetry', 'disableGreetingMessage'
+          'telemetryAnonymousId', 'enableTelemetry', 'disableGreetingMessage'
         ]);
 
         input.write('config.set("inspectDepth", config.get("inspectDepth"))\n');
@@ -121,7 +121,7 @@ describe('CliRepl', () => {
         await waitEval(cliRepl.bus);
         content = await fs.readFile(path.join(tmpdir.path, 'config'), { encoding: 'utf8' });
         expect(Object.keys(EJSON.parse(content))).to.deep.equal([
-          'userId', 'enableTelemetry', 'disableGreetingMessage', 'inspectDepth'
+          'telemetryAnonymousId', 'enableTelemetry', 'disableGreetingMessage', 'inspectDepth'
         ]);
 
         // When a new REPL is created:
@@ -129,7 +129,7 @@ describe('CliRepl', () => {
         await cliRepl.start('', {});
         content = await fs.readFile(path.join(tmpdir.path, 'config'), { encoding: 'utf8' });
         expect(Object.keys(EJSON.parse(content))).to.deep.equal([
-          'userId', 'enableTelemetry', 'disableGreetingMessage', 'inspectDepth'
+          'telemetryAnonymousId', 'enableTelemetry', 'disableGreetingMessage', 'inspectDepth'
         ]);
       });
 
@@ -225,12 +225,12 @@ describe('CliRepl', () => {
 
       it('fails when trying to overwrite mongosh-owned config settings', async() => {
         output = '';
-        input.write('config.set("userId", "foo")\n');
+        input.write('config.set("telemetryAnonymousId", "foo")\n');
         await waitEval(cliRepl.bus);
-        expect(output).to.include('Option "userId" is not available in this environment');
+        expect(output).to.include('Option "telemetryAnonymousId" is not available in this environment');
 
         output = '';
-        input.write('config.get("userId")\n');
+        input.write('config.get("telemetryAnonymousId")\n');
         await waitEval(cliRepl.bus);
         expect(output).to.match(/^[a-z0-9]{24}\n> $/);
       });
@@ -286,16 +286,16 @@ describe('CliRepl', () => {
     });
 
     context('during startup', () => {
-      it('persists userId', async() => {
-        const userIds: string[] = [];
+      it('persists telemetryAnonymousId', async() => {
+        const telemetryAnonymousIds: string[] = [];
         for (let i = 0; i < 2; i++) {
           cliRepl = new CliRepl(cliReplOptions);
-          cliRepl.bus.on('mongosh:new-user', userId => userIds.push(userId));
-          cliRepl.bus.on('mongosh:update-user', userId => userIds.push(userId));
+          cliRepl.bus.on('mongosh:new-user', telemetryAnonymousId => telemetryAnonymousIds.push(telemetryAnonymousId));
+          cliRepl.bus.on('mongosh:update-user', telemetryUserIdentity => telemetryAnonymousIds.push(telemetryUserIdentity.anonymousId));
           await cliRepl.start('', {});
         }
-        expect(userIds).to.have.lengthOf(2);
-        expect([...new Set(userIds)]).to.have.lengthOf(1);
+        expect(telemetryAnonymousIds).to.have.lengthOf(2);
+        expect([...new Set(telemetryAnonymousIds)]).to.have.lengthOf(1);
       });
 
       it('emits error for invalid config', async() => {
@@ -985,7 +985,7 @@ describe('CliRepl', () => {
             const connectEvents = requests.flatMap(
               req => JSON.parse(req.body).batch.filter(entry => entry.event === 'New Connection'));
             expect(connectEvents).to.have.lengthOf(1);
-            expect(connectEvents[0].userId).to.be.a('string');
+            expect(connectEvents[0].anonymousId).to.be.a('string');
             const { properties } = connectEvents[0];
             expect(properties.mongosh_version).to.be.a('string');
             expect(properties.session_id).to.be.a('string');

@@ -66,7 +66,7 @@ export type CliReplOptions = {
 } & Pick<MongoshNodeReplOptions, 'nodeReplOptions'>;
 
 /** The set of config options that is *always* available in config files stored on the file system. */
-type CliUserConfigOnDisk = Partial<CliUserConfig> & Pick<CliUserConfig, 'enableTelemetry' | 'userId'>;
+type CliUserConfigOnDisk = Partial<CliUserConfig> & Pick<CliUserConfig, 'enableTelemetry' | 'telemetryAnonymousId'>;
 
 /**
  * The REPL used from the terminal.
@@ -105,7 +105,7 @@ class CliRepl implements MongoshIOProvider {
     this.analyticsOptions = options.analyticsOptions;
     this.onExit = options.onExit;
     this.config = {
-      userId: new bson.ObjectId().toString(),
+      telemetryAnonymousId: new bson.ObjectId().toString(),
       enableTelemetry: true
     };
 
@@ -118,11 +118,11 @@ class CliRepl implements MongoshIOProvider {
       })
       .on('new-config', (config: CliUserConfigOnDisk) => {
         this.setTelemetryEnabled(config.enableTelemetry);
-        this.bus.emit('mongosh:new-user', config.userId);
+        this.bus.emit('mongosh:new-user', config.telemetryAnonymousId);
       })
       .on('update-config', (config: CliUserConfigOnDisk) => {
         this.setTelemetryEnabled(config.enableTelemetry);
-        this.bus.emit('mongosh:update-user', config.userId);
+        this.bus.emit('mongosh:update-user', { userId: config.userId, anonymousId: config.telemetryAnonymousId ?? config.userId });
       });
 
     this.mongocryptdManager = new MongocryptdManager(
@@ -485,7 +485,7 @@ class CliRepl implements MongoshIOProvider {
     this.config[key] = value;
     if (key === 'enableTelemetry') {
       this.setTelemetryEnabled(this.config.enableTelemetry);
-      this.bus.emit('mongosh:update-user', this.config.userId);
+      this.bus.emit('mongosh:update-user', { userId: this.config.userId, anonymousId: this.config.telemetryAnonymousId });
     }
     try {
       await this.configDirectory.writeConfigFile(this.config);
@@ -499,7 +499,7 @@ class CliRepl implements MongoshIOProvider {
    * Implements listConfigOptions from the {@link ConfigProvider} interface.
    */
   listConfigOptions(): string[] {
-    const hiddenKeys = ['userId', 'disableGreetingMessage', 'forceDisableTelemetry'];
+    const hiddenKeys = ['userId', 'telemetryAnonymousId', 'disableGreetingMessage', 'forceDisableTelemetry'];
     const keys = Object.keys(new CliUserConfig());
     return keys.filter(key => !hiddenKeys.includes(key));
   }

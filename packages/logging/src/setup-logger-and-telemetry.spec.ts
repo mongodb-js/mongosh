@@ -10,7 +10,7 @@ describe('setupLoggerAndTelemetry', () => {
   let analyticsOutput: ['identify'|'track'|'log', any][];
   let bus: MongoshBus;
 
-  const userId = '53defe995fa47e6c13102d9d';
+  const telemetryAnonymousId = '53defe995fa47e6c13102d9d';
   const logId = '5fb3c20ee1507e894e5340f3';
 
   const logger = new MongoLogWriter(logId, `/tmp/${logId}_log`, {
@@ -36,9 +36,8 @@ describe('setupLoggerAndTelemetry', () => {
     expect(logOutput).to.have.lengthOf(0);
     expect(analyticsOutput).to.be.empty;
 
-    bus.emit('mongosh:new-user', userId);
-
-    bus.emit('mongosh:update-user', userId);
+    bus.emit('mongosh:new-user', telemetryAnonymousId);
+    bus.emit('mongosh:update-user', { anonymousId: telemetryAnonymousId });
     bus.emit('mongosh:connect', {
       uri: 'mongodb://localhost/',
       is_localhost: true,
@@ -121,7 +120,7 @@ describe('setupLoggerAndTelemetry', () => {
     expect(logOutput[i++].msg).to.equal('User updated');
     expect(logOutput[i].msg).to.equal('Connecting to server');
     expect(logOutput[i].attr.session_id).to.equal('5fb3c20ee1507e894e5340f3');
-    expect(logOutput[i].attr.userId).to.equal('53defe995fa47e6c13102d9d');
+    expect(logOutput[i].attr.telemetryAnonymousId).to.equal('53defe995fa47e6c13102d9d');
     expect(logOutput[i].attr.connectionUri).to.equal('mongodb://localhost/');
     expect(logOutput[i].attr.is_localhost).to.equal(true);
     expect(logOutput[i].attr.is_atlas).to.equal(false);
@@ -215,7 +214,7 @@ describe('setupLoggerAndTelemetry', () => {
       [
         'identify',
         {
-          userId: '53defe995fa47e6c13102d9d',
+          anonymousId: '53defe995fa47e6c13102d9d',
           traits: {
             platform: process.platform,
             arch: process.arch
@@ -225,7 +224,7 @@ describe('setupLoggerAndTelemetry', () => {
       [
         'identify',
         {
-          userId: '53defe995fa47e6c13102d9d',
+          anonymousId: '53defe995fa47e6c13102d9d',
           traits: {
             platform: process.platform,
             arch: process.arch
@@ -235,7 +234,7 @@ describe('setupLoggerAndTelemetry', () => {
       [
         'track',
         {
-          userId: '53defe995fa47e6c13102d9d',
+          anonymousId: '53defe995fa47e6c13102d9d',
           event: 'New Connection',
           properties: {
             mongosh_version: '1.0.0',
@@ -249,7 +248,7 @@ describe('setupLoggerAndTelemetry', () => {
       [
         'track',
         {
-          userId: '53defe995fa47e6c13102d9d',
+          anonymousId: '53defe995fa47e6c13102d9d',
           event: 'Error',
           properties: {
             mongosh_version: '1.0.0',
@@ -263,7 +262,7 @@ describe('setupLoggerAndTelemetry', () => {
       [
         'track',
         {
-          userId: '53defe995fa47e6c13102d9d',
+          anonymousId: '53defe995fa47e6c13102d9d',
           event: 'Error',
           properties: {
             mongosh_version: '1.0.0',
@@ -277,7 +276,7 @@ describe('setupLoggerAndTelemetry', () => {
       [
         'track',
         {
-          userId: '53defe995fa47e6c13102d9d',
+          anonymousId: '53defe995fa47e6c13102d9d',
           event: 'Use',
           properties: { mongosh_version: '1.0.0' }
         }
@@ -285,7 +284,7 @@ describe('setupLoggerAndTelemetry', () => {
       [
         'track',
         {
-          userId: '53defe995fa47e6c13102d9d',
+          anonymousId: '53defe995fa47e6c13102d9d',
           event: 'Show',
           properties: {
             mongosh_version: '1.0.0',
@@ -302,7 +301,7 @@ describe('setupLoggerAndTelemetry', () => {
             nested: true,
             shell: true
           },
-          userId: '53defe995fa47e6c13102d9d'
+          anonymousId: '53defe995fa47e6c13102d9d'
         }
       ],
       [
@@ -313,7 +312,7 @@ describe('setupLoggerAndTelemetry', () => {
             mongosh_version: '1.0.0',
             nested: false
           },
-          userId: '53defe995fa47e6c13102d9d'
+          anonymousId: '53defe995fa47e6c13102d9d'
         }
       ],
       [
@@ -323,7 +322,7 @@ describe('setupLoggerAndTelemetry', () => {
           properties: {
             mongosh_version: '1.0.0',
           },
-          userId: '53defe995fa47e6c13102d9d'
+          anonymousId: '53defe995fa47e6c13102d9d'
         }
       ],
       [
@@ -333,7 +332,7 @@ describe('setupLoggerAndTelemetry', () => {
           properties: {
             mongosh_version: '1.0.0',
           },
-          userId: '53defe995fa47e6c13102d9d'
+          anonymousId: '53defe995fa47e6c13102d9d'
         }
       ],
       [
@@ -344,13 +343,13 @@ describe('setupLoggerAndTelemetry', () => {
             mongosh_version: '1.0.0',
             shell: true
           },
-          userId: '53defe995fa47e6c13102d9d'
+          anonymousId: '53defe995fa47e6c13102d9d'
         }
       ],
       [
         'track',
         {
-          userId: '53defe995fa47e6c13102d9d',
+          anonymousId: '53defe995fa47e6c13102d9d',
           event: 'Snippet Install',
           properties: {
             mongosh_version: '1.0.0'
@@ -365,7 +364,7 @@ describe('setupLoggerAndTelemetry', () => {
     expect(logOutput).to.have.lengthOf(0);
     expect(analyticsOutput).to.be.empty;
 
-    bus.emit('mongosh:new-user', userId);
+    bus.emit('mongosh:new-user', telemetryAnonymousId);
 
     logOutput = [];
     analyticsOutput = [];
@@ -394,7 +393,7 @@ describe('setupLoggerAndTelemetry', () => {
       [
         'track',
         {
-          userId: '53defe995fa47e6c13102d9d',
+          anonymousId: '53defe995fa47e6c13102d9d',
           event: 'Deprecated Method',
           properties: {
             mongosh_version: '1.0.0',
@@ -406,7 +405,7 @@ describe('setupLoggerAndTelemetry', () => {
       [
         'track',
         {
-          userId: '53defe995fa47e6c13102d9d',
+          anonymousId: '53defe995fa47e6c13102d9d',
           event: 'Deprecated Method',
           properties: {
             mongosh_version: '1.0.0',
@@ -418,7 +417,7 @@ describe('setupLoggerAndTelemetry', () => {
       [
         'track',
         {
-          userId: '53defe995fa47e6c13102d9d',
+          anonymousId: '53defe995fa47e6c13102d9d',
           event: 'Deprecated Method',
           properties: {
             mongosh_version: '1.0.0',
@@ -430,7 +429,7 @@ describe('setupLoggerAndTelemetry', () => {
       [
         'track',
         {
-          userId: '53defe995fa47e6c13102d9d',
+          anonymousId: '53defe995fa47e6c13102d9d',
           event: 'API Call',
           properties: {
             mongosh_version: '1.0.0',
@@ -443,7 +442,7 @@ describe('setupLoggerAndTelemetry', () => {
       [
         'track',
         {
-          userId: '53defe995fa47e6c13102d9d',
+          anonymousId: '53defe995fa47e6c13102d9d',
           event: 'API Call',
           properties: {
             mongosh_version: '1.0.0',
@@ -455,7 +454,7 @@ describe('setupLoggerAndTelemetry', () => {
       ],
     ]);
 
-    bus.emit('mongosh:new-user', userId);
+    bus.emit('mongosh:new-user', telemetryAnonymousId);
     logOutput = [];
     analyticsOutput = [];
 
