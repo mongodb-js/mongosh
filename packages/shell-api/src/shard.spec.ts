@@ -1529,7 +1529,8 @@ describe('Shard', () => {
         const databasesDbItem = result.value.databases.find((item) => (item.database._id === 'db'));
         expect(databasesDbItem.database.partitioned).to.equal(false);
         const databasesDbShItem = result.value.databases.find((item) => (item.database._id === 'dbSh'));
-        expect(databasesDbShItem.database.partitioned).to.equal(true);
+        // Cannot get strict guarantees about the value of this field since SERVER-60926
+        expect(databasesDbShItem.database.partitioned).to.be.a('boolean');
       });
     });
   });
