@@ -113,7 +113,7 @@ describe('CliRepl', () => {
       it('does not store config options on disk that have not been changed', async() => {
         let content = await fs.readFile(path.join(tmpdir.path, 'config'), { encoding: 'utf8' });
         expect(Object.keys(EJSON.parse(content))).to.deep.equal([
-          'telemetryAnonymousId', 'enableTelemetry', 'disableGreetingMessage'
+          'userId', 'telemetryAnonymousId', 'enableTelemetry', 'disableGreetingMessage'
         ]);
 
         input.write('config.set("inspectDepth", config.get("inspectDepth"))\n');
@@ -121,7 +121,7 @@ describe('CliRepl', () => {
         await waitEval(cliRepl.bus);
         content = await fs.readFile(path.join(tmpdir.path, 'config'), { encoding: 'utf8' });
         expect(Object.keys(EJSON.parse(content))).to.deep.equal([
-          'telemetryAnonymousId', 'enableTelemetry', 'disableGreetingMessage', 'inspectDepth'
+          'userId', 'telemetryAnonymousId', 'enableTelemetry', 'disableGreetingMessage', 'inspectDepth'
         ]);
 
         // When a new REPL is created:
@@ -129,7 +129,7 @@ describe('CliRepl', () => {
         await cliRepl.start('', {});
         content = await fs.readFile(path.join(tmpdir.path, 'config'), { encoding: 'utf8' });
         expect(Object.keys(EJSON.parse(content))).to.deep.equal([
-          'telemetryAnonymousId', 'enableTelemetry', 'disableGreetingMessage', 'inspectDepth'
+          'userId', 'telemetryAnonymousId', 'enableTelemetry', 'disableGreetingMessage', 'inspectDepth'
         ]);
       });
 
@@ -286,16 +286,16 @@ describe('CliRepl', () => {
     });
 
     context('during startup', () => {
-      it('persists telemetryAnonymousId', async() => {
-        const telemetryAnonymousIds: string[] = [];
+      it('persists userId and telemetryAnonymousId', async() => {
+        const telemetryUserIdentitys: { userId?: string; anonymousId?: string }[] = [];
         for (let i = 0; i < 2; i++) {
           cliRepl = new CliRepl(cliReplOptions);
-          cliRepl.bus.on('mongosh:new-user', telemetryAnonymousId => telemetryAnonymousIds.push(telemetryAnonymousId));
-          cliRepl.bus.on('mongosh:update-user', telemetryUserIdentity => telemetryAnonymousIds.push(telemetryUserIdentity.anonymousId));
+          cliRepl.bus.on('mongosh:new-user', telemetryUserIdentity => telemetryUserIdentitys.push(telemetryUserIdentity));
+          cliRepl.bus.on('mongosh:update-user', telemetryUserIdentity => telemetryUserIdentitys.push(telemetryUserIdentity));
           await cliRepl.start('', {});
         }
-        expect(telemetryAnonymousIds).to.have.lengthOf(2);
-        expect([...new Set(telemetryAnonymousIds)]).to.have.lengthOf(1);
+        expect(telemetryUserIdentitys).to.have.lengthOf(2);
+        expect(telemetryUserIdentitys[0]).to.deep.equal(telemetryUserIdentitys[1])
       });
 
       it('emits error for invalid config', async() => {

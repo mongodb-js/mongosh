@@ -10,7 +10,7 @@ describe('setupLoggerAndTelemetry', () => {
   let analyticsOutput: ['identify'|'track'|'log', any][];
   let bus: MongoshBus;
 
-  const telemetryAnonymousId = '53defe995fa47e6c13102d9d';
+  const userId = '53defe995fa47e6c13102d9d';
   const logId = '5fb3c20ee1507e894e5340f3';
 
   const logger = new MongoLogWriter(logId, `/tmp/${logId}_log`, {
@@ -36,8 +36,8 @@ describe('setupLoggerAndTelemetry', () => {
     expect(logOutput).to.have.lengthOf(0);
     expect(analyticsOutput).to.be.empty;
 
-    bus.emit('mongosh:new-user', telemetryAnonymousId);
-    bus.emit('mongosh:update-user', { anonymousId: telemetryAnonymousId });
+    bus.emit('mongosh:new-user', { userId, anonymousId: userId });
+    bus.emit('mongosh:update-user', { userId, anonymousId: userId });
     bus.emit('mongosh:connect', {
       uri: 'mongodb://localhost/',
       is_localhost: true,
@@ -364,7 +364,7 @@ describe('setupLoggerAndTelemetry', () => {
     expect(logOutput).to.have.lengthOf(0);
     expect(analyticsOutput).to.be.empty;
 
-    bus.emit('mongosh:new-user', telemetryAnonymousId);
+    bus.emit('mongosh:new-user', { userId, anonymousId: userId });
 
     logOutput = [];
     analyticsOutput = [];
@@ -454,7 +454,7 @@ describe('setupLoggerAndTelemetry', () => {
       ],
     ]);
 
-    bus.emit('mongosh:new-user', telemetryAnonymousId);
+    bus.emit('mongosh:new-user', { userId, anonymousId: userId });
     logOutput = [];
     analyticsOutput = [];
 

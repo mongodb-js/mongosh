@@ -29,8 +29,7 @@ import type {
   SnippetsTransformErrorEvent,
   EditorRunEditCommandEvent,
   EditorReadVscodeExtensionsDoneEvent,
-  EditorReadVscodeExtensionsFailedEvent,
-  TelemetryUserIdentity
+  EditorReadVscodeExtensionsFailedEvent
 } from '@mongosh/types';
 import { inspect } from 'util';
 import { MongoLogWriter, mongoLogId } from 'mongodb-log-writer';
@@ -73,7 +72,18 @@ export function setupLoggerAndTelemetry(
   userTraits: any,
   mongosh_version: string): void {
   const { logId } = log;
-  let telemetryUserIdentity: TelemetryUserIdentity;
+  let userId: string;
+  let telemetryAnonymousId: string;
+
+  const getTelemetryUserIdentity = () => {
+    if (telemetryAnonymousId) {
+      return {
+        anonymousId: telemetryAnonymousId
+      };
+    }
+
+    return { userId };
+  };
 
   // We emit different analytics events for loading files and evaluating scripts
   // depending on whether we're already in the REPL or not yet. We store the
@@ -96,15 +106,15 @@ export function setupLoggerAndTelemetry(
     const { uri: _uri, ...argsWithoutUri } = args; // eslint-disable-line @typescript-eslint/no-unused-vars
     const params = {
       session_id: logId,
-      userId: telemetryUserIdentity?.userId,
-      telemetryAnonymousId: telemetryUserIdentity?.anonymousId,
+      userId,
+      telemetryAnonymousId,
       connectionUri,
       ...argsWithoutUri
     };
     log.info('MONGOSH', mongoLogId(1_000_000_004), 'connect', 'Connecting to server', params);
 
     analytics.track({
-      ...telemetryUserIdentity,
+      ...getTelemetryUserIdentity(),
       event: 'New Connection',
       properties: {
         mongosh_version,
@@ -114,24 +124,31 @@ export function setupLoggerAndTelemetry(
     });
   });
 
-  bus.on('mongosh:new-user', function(anonymousId: string) {
-    telemetryUserIdentity = { anonymousId };
-    analytics.identify({ anonymousId, traits: userTraits });
+  bus.on('mongosh:new-user', function(newTelemetryUserIdentity: { userId: string; anonymousId: string }) {
+    if (!newTelemetryUserIdentity.anonymousId) {
+      userId = newTelemetryUserIdentity.userId;
+    }
+    telemetryAnonymousId = newTelemetryUserIdentity.anonymousId;
+    analytics.identify({
+      anonymousId: newTelemetryUserIdentity.anonymousId,
+      traits: userTraits
+    });
   });
 
-  bus.on('mongosh:update-user', function(updatedTelemetryUserIdentity: TelemetryUserIdentity) {
-    telemetryUserIdentity = updatedTelemetryUserIdentity;
-
-    const telemetryIdentifyArg: TelemetryUserIdentity & { traits: any } = {
-      anonymousId: telemetryUserIdentity.anonymousId,
-      traits: userTraits
-    };
-
-    if (telemetryUserIdentity?.userId) {
-      telemetryIdentifyArg.userId = telemetryUserIdentity.userId;
+  bus.on('mongosh:update-user', function(updatedTelemetryUserIdentity: { userId: string; anonymousId?: string }) {
+    if (updatedTelemetryUserIdentity.anonymousId) {
+      telemetryAnonymousId = updatedTelemetryUserIdentity.anonymousId;
+      analytics.identify({
+        anonymousId: updatedTelemetryUserIdentity.anonymousId,
+        traits: userTraits
+      });
+    } else {
+      userId = updatedTelemetryUserIdentity.userId;
+      analytics.identify({
+        userId: updatedTelemetryUserIdentity.userId,
+        traits: userTraits
+      });
     }
-
-    analytics.identify(telemetryIdentifyArg);
     log.info('MONGOSH', mongoLogId(1_000_000_005), 'config', 'User updated');
   });
 
@@ -144,7 +161,7 @@ export function setupLoggerAndTelemetry(
 
     if (error.name.includes('Mongosh')) {
       analytics.track({
-        ...telemetryUserIdentity,
+        ...getTelemetryUserIdentity(),
         event: 'Error',
         properties: {
           mongosh_version,
@@ -169,7 +186,7 @@ export function setupLoggerAndTelemetry(
     log.info('MONGOSH', mongoLogId(1_000_000_008), 'shell-api', 'Used "use" command', args);
 
     analytics.track({
-      ...telemetryUserIdentity,
+      ...getTelemetryUserIdentity(),
       event: 'Use',
       properties: {
         mongosh_version
@@ -181,7 +198,7 @@ export function setupLoggerAndTelemetry(
     log.info('MONGOSH', mongoLogId(1_000_000_009), 'shell-api', 'Used "show" command', args);
 
     analytics.track({
-      ...telemetryUserIdentity,
+      ...getTelemetryUserIdentity(),
       event: 'Show',
       properties: {
         mongosh_version,
@@ -209,7 +226,7 @@ export function setupLoggerAndTelemetry(
     log.info('MONGOSH', mongoLogId(1_000_000_012), 'shell-api', 'Loading file via load()', args);
 
     analytics.track({
-      ...telemetryUserIdentity,
+      ...getTelemetryUserIdentity(),
       event: hasStartedMongoshRepl ? 'Script Loaded' : 'Script Loaded CLI',
       properties: {
         mongosh_version,
@@ -223,7 +240,7 @@ export function setupLoggerAndTelemetry(
     log.info('MONGOSH', mongoLogId(1_000_000_013), 'repl', 'Evaluating script passed on the command line');
 
     analytics.track({
-      ...telemetryUserIdentity,
+      ...getTelemetryUserIdentity(),
       event: 'Script Evaluated',
       properties: {
         mongosh_version,
@@ -236,7 +253,7 @@ export function setupLoggerAndTelemetry(
     log.info('MONGOSH', mongoLogId(1_000_000_014), 'repl', 'Loading .mongoshrc.js');
 
     analytics.track({
-      ...telemetryUserIdentity,
+      ...getTelemetryUserIdentity(),
       event: 'Mongoshrc Loaded',
       properties: {
         mongosh_version
@@ -248,7 +265,7 @@ export function setupLoggerAndTelemetry(
     log.info('MONGOSH', mongoLogId(1_000_000_015), 'repl', 'Warning about .mongorc.js/.mongoshrc.js mismatch');
 
     analytics.track({
-      ...telemetryUserIdentity,
+      ...getTelemetryUserIdentity(),
       event: 'Mongorc Warning',
       properties: {
         mongosh_version
@@ -324,7 +341,7 @@ export function setupLoggerAndTelemetry(
 
     if (ev.args[0] === 'install') {
       analytics.track({
-        ...telemetryUserIdentity,
+        ...getTelemetryUserIdentity(),
         event: 'Snippet Install',
         properties: {
           mongosh_version
@@ -360,7 +377,7 @@ export function setupLoggerAndTelemetry(
       log.warn('MONGOSH', mongoLogId(1_000_000_033), 'shell-api', 'Deprecated API call', entry);
 
       analytics.track({
-        ...telemetryUserIdentity,
+        ...getTelemetryUserIdentity(),
         event: 'Deprecated Method',
         properties: {
           mongosh_version,
@@ -370,7 +387,7 @@ export function setupLoggerAndTelemetry(
     }
     for (const [entry, count] of apiCalls) {
       analytics.track({
-        ...telemetryUserIdentity,
+        ...getTelemetryUserIdentity(),
         event: 'API Call',
         properties: {
           mongosh_version,
