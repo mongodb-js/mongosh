@@ -17,7 +17,7 @@ export function redactConfig(config: Config): Partial<Config> {
     repo: config.repo,
     isPatch: config.isPatch,
     packageInformation: config.packageInformation,
-    mongocryptdPath: config.mongocryptdPath,
+    csfleLibraryPath: config.csfleLibraryPath,
     artifactUrlFile: config.artifactUrlFile
   };
 }

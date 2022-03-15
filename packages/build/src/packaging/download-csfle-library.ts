@@ -4,26 +4,41 @@ import { promises as fs, constants as fsConstants } from 'fs';
 import { downloadMongoDb, DownloadOptions } from '../download-mongodb';
 import { BuildVariant, getDistro, getArch } from '../config';
 
-export async function downloadMongocrypt(variant: BuildVariant): Promise<string> {
+export async function downloadCsfleLibrary(variant: BuildVariant): Promise<string> {
   const opts: DownloadOptions = {};
   opts.arch = getArch(variant);
   opts.distro = lookupReleaseDistro(variant);
   opts.enterprise = true;
-  opts.cryptd = true;
-  console.info('mongosh: downloading latest mongocryptd for inclusion in package:', JSON.stringify(opts));
+  opts.csfle = true;
+  console.info('mongosh: downloading latest csfle shared library for inclusion in package:', JSON.stringify(opts));
 
-  const bindir = await downloadMongoDb(
-    path.resolve(__dirname, '..', '..', '..', '..', 'tmp', 'mongocryptd-store', variant),
-    '*',
-    opts); // Download mongodb for latest server version.
-  let mongocryptd = path.join(bindir, 'mongocryptd');
-  if (opts.distro === 'win32') {
-    mongocryptd += '.exe';
+  let libdir = '';
+  const csfleTmpTargetDir = path.resolve(__dirname, '..', '..', '..', '..', 'tmp', 'csfle-store', variant);
+  // Download mongodb for latest server version. Since the CSFLE shared
+  // library is not part of a non-rc release yet and 5.3.0 not released yet, try:
+  // 1. release server version, 2. '5.3.0' specifically, 3. any version at all
+  let error: Error | undefined;
+  for (const version of [ 'stable', '5.3.0', 'unstable' ]) {
+    try {
+      libdir = await downloadMongoDb(csfleTmpTargetDir, version, opts);
+      break;
+    } catch (e: any) {
+      error = e;
+    }
   }
-  // Make sure that the binary exists and is executable.
-  await fs.access(mongocryptd, fsConstants.X_OK);
-  console.info('mongosh: downloaded', mongocryptd);
-  return mongocryptd;
+  if (!libdir) throw error;
+  let csfleLibrary = path.join(libdir, 'mongo_csfle_v1');
+  if (opts.distro === 'win32') {
+    csfleLibrary += '.dll';
+  } else if (opts.distro === 'darwin') {
+    csfleLibrary += '.dylib';
+  } else {
+    csfleLibrary += '.so';
+  }
+  // Make sure that the binary exists and is readable.
+  await fs.access(csfleLibrary, fsConstants.R_OK);
+  console.info('mongosh: downloaded', csfleLibrary);
+  return csfleLibrary;
 }
 
 // eslint-disable-next-line complexity

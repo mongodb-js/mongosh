@@ -11,7 +11,7 @@ const { COPYFILE_FICLONE } = constants;
 interface InstallFile {
   fromFilename: string;
   toFilename: string;
-  category: 'man' | 'bin' | 'libexec';
+  category: 'man' | 'bin' | 'libexec' | 'lib';
   mode: string;
 }
 
@@ -37,7 +37,7 @@ export async function createRedhatPackage(
       fromFilename: path.basename(sourceFilePath),
       toFilename: path.basename(sourceFilePath),
       category,
-      mode: '755'
+      mode: category === 'lib' ? '644' : '755'
     }));
   if (pkg.manpage) {
     installFiles.push({

@@ -1,8 +1,11 @@
 /* eslint-disable no-return-assign, no-empty */
 /* istanbul ignore file */
+import fetch from 'node-fetch';
+import tar from 'tar';
+import { promisify } from 'util';
 import { promises as fs } from 'fs';
 import path from 'path';
-import download from 'download';
+import { pipeline } from 'stream';
 import getDownloadURL from 'mongodb-download-url';
 import type { Options as DownloadOptions } from 'mongodb-download-url';
 
@@ -21,7 +24,7 @@ export async function downloadMongoDb(tmpdir: string, targetVersionSemverSpecifi
 
   await fs.mkdir(tmpdir, { recursive: true });
   if (targetVersionSemverSpecifier === 'latest-alpha') {
-    return await doDownload(tmpdir, 'latest-alpha', lookupDownloadUrl);
+    return await doDownload(tmpdir, !!options.csfle, 'latest-alpha', lookupDownloadUrl);
   }
 
   if (/-community$/.test(targetVersionSemverSpecifier)) {
@@ -31,18 +34,23 @@ export async function downloadMongoDb(tmpdir: string, targetVersionSemverSpecifi
 
   return await doDownload(
     tmpdir,
+    !!options.csfle,
     targetVersionSemverSpecifier + (wantsEnterprise ? '-enterprise' : '-community'),
     () => lookupDownloadUrl());
 }
 
 const downloadPromises: Record<string, Promise<string>> = {};
-async function doDownload(tmpdir: string, version: string, lookupDownloadUrl: () => Promise<string>) {
+async function doDownload(
+  tmpdir: string,
+  isCsfle: boolean,
+  version: string,
+  lookupDownloadUrl: () => Promise<string>) {
   const downloadTarget = path.resolve(
     tmpdir,
     `mongodb-${process.platform}-${process.env.DISTRO_ID || 'none'}-${process.arch}-${version}`
       .replace(/[^a-zA-Z0-9_-]/g, ''));
   return downloadPromises[downloadTarget] ??= (async() => {
-    const bindir = path.resolve(downloadTarget, 'bin');
+    const bindir = path.resolve(downloadTarget, isCsfle ? 'lib' : 'bin');
     try {
       await fs.stat(bindir);
       console.info(`Skipping download because ${downloadTarget} exists`);
@@ -50,9 +58,14 @@ async function doDownload(tmpdir: string, version: string, lookupDownloadUrl: ()
     } catch {}
 
     await fs.mkdir(downloadTarget, { recursive: true });
-    const downloadInfo = await lookupDownloadUrl();
-    console.info('Downloading...', downloadInfo);
-    await download(downloadInfo, downloadTarget, { extract: true, strip: 1 });
+    const url = await lookupDownloadUrl();
+    console.info('Downloading...', url);
+
+    const response = await fetch(url);
+    await promisify(pipeline)(
+      response.body,
+      tar.x({ cwd: downloadTarget, strip: isCsfle ? 0 : 1 })
+    );
 
     await fs.stat(bindir); // Make sure it exists.
     return bindir;
