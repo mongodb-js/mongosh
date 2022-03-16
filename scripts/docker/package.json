@@ -10,6 +10,13 @@
   "publishConfig": {
     "access": "public"
   },
+  "scripts": {
+    "test": "exit 0",
+    "test-ci": "node ../../scripts/run-if-package-requested.js npm test"
+  },
+  "mongosh": {
+    "variants": []
+  },
   "engines": {
     "node": ">=12.4.0"
   },
