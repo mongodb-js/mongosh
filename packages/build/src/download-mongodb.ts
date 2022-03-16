@@ -5,6 +5,7 @@ import tar from 'tar';
 import { promisify } from 'util';
 import { promises as fs } from 'fs';
 import path from 'path';
+import download from 'download';
 import { pipeline } from 'stream';
 import getDownloadURL from 'mongodb-download-url';
 import type { Options as DownloadOptions } from 'mongodb-download-url';
@@ -61,11 +62,17 @@ async function doDownload(
     const url = await lookupDownloadUrl();
     console.info('Downloading...', url);
 
-    const response = await fetch(url);
-    await promisify(pipeline)(
-      response.body,
-      tar.x({ cwd: downloadTarget, strip: isCsfle ? 0 : 1 })
-    );
+    if (url.match(/\.tgz$|\.tar(\.[^.]+)?$/)) {
+      // the server's tarballs can contain hard links, which the (unmaintained?)
+      // `download` package is unable to handle (https://github.com/kevva/decompress/issues/93)
+      const response = await fetch(url);
+      await promisify(pipeline)(
+        response.body,
+        tar.x({ cwd: downloadTarget, strip: isCsfle ? 0 : 1 })
+      );
+    } else {
+      await download(url, downloadTarget, { extract: true, strip: 1 });
+    }
 
     await fs.stat(bindir); // Make sure it exists.
     return bindir;
