@@ -227,17 +227,21 @@ describe('Session', () => {
         }
         expect.fail('Error not thrown');
       });
-      it('starts a session with snapshot reads if requested', async() => {
-        session = mongo.startSession({ snapshot: true });
-        await session.getDatabase(databaseName).getCollection('coll').findOne({});
-        try {
-          await session.getDatabase(databaseName).getCollection('coll').insertOne({});
-          expect.fail('missed exception');
-        } catch (e) {
-          expect(e.message).to.include('snapshot'); // Cannot do writes with snapshot: true
-        }
-        expect(session._session.snapshotEnabled).to.equal(true);
-        await session.endSession();
+      context('with 5.0+ server', () => {
+        skipIfApiStrict();
+        skipIfServerVersion(testServer, '< 5.0');
+        it('starts a session with snapshot reads if requested', async() => {
+          session = mongo.startSession({ snapshot: true });
+          await session.getDatabase(databaseName).getCollection('coll').findOne({});
+          try {
+            await session.getDatabase(databaseName).getCollection('coll').insertOne({});
+            expect.fail('missed exception');
+          } catch (e) {
+            expect(e.message).to.include('snapshot'); // Cannot do writes with snapshot: true
+          }
+          expect(session._session.snapshotEnabled).to.equal(true);
+          await session.endSession();
+        });
       });
     });
     describe('transaction methods are called', () => {
