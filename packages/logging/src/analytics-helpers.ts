@@ -2,7 +2,7 @@ export type MongoshAnalyticsIdentity = {
   userId: string;
 } | {
   anonymousId: string;
-}
+};
 
 /**
  * General interface for an Analytics provider that mongosh can use.
