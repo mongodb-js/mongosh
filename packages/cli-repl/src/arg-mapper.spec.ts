@@ -320,6 +320,9 @@ describe('arg-mapper.mapCliToDriver', () => {
 
       it('is not mapped to authMechanismProperties', () => {
         expect(mapCliToDriver(cliOptions)).to.deep.equal({
+          authMechanismProperties: {
+            CANONICALIZE_HOSTNAME: 'none'
+          },
           driverInfo: {
             name: 'mongosh',
             version: packageJSON.version
@@ -334,7 +337,7 @@ describe('arg-mapper.mapCliToDriver', () => {
       it('is mapped to authMechanismProperties', () => {
         expect(mapCliToDriver(cliOptions)).to.deep.equal({
           authMechanismProperties: {
-            gssapiCanonicalizeHostName: 'true'
+            gssapiCanonicalizeHostName: 'forward'
           },
           driverInfo: {
             name: 'mongosh',
@@ -344,17 +347,19 @@ describe('arg-mapper.mapCliToDriver', () => {
       });
     });
 
-    context('with a value of forwardAndReverse', () => {
-      const cliOptions: CliOptions = { sspiHostnameCanonicalization: 'forwardAndReverse' };
+    context('with a value of true', () => {
+      const cliOptions: CliOptions = { sspiHostnameCanonicalization: 'true' };
 
       it('is mapped to authMechanismProperties', () => {
-        try {
-          mapCliToDriver(cliOptions);
-        } catch (e) {
-          expect(e.message).to.contain('forwardAndReverse is not supported');
-          return;
-        }
-        expect.fail('expected error');
+        expect(mapCliToDriver(cliOptions)).to.deep.equal({
+          authMechanismProperties: {
+            gssapiCanonicalizeHostName: true
+          },
+          driverInfo: {
+            name: 'mongosh',
+            version: packageJSON.version
+          }
+        });
       });
     });
   });

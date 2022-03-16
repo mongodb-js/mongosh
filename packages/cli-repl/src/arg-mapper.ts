@@ -1,4 +1,4 @@
-import { CommonErrors, MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
+import { MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
 import { CliOptions, DevtoolsConnectOptions } from '@mongosh/service-provider-server';
 import setValue from 'lodash.set';
 
@@ -15,7 +15,7 @@ const MAPPINGS = {
   awsIamSessionToken: 'authMechanismProperties.AWS_SESSION_TOKEN',
   gssapiServiceName: 'authMechanismProperties.SERVICE_NAME',
   sspiRealmOverride: 'authMechanismProperties.SERVICE_REALM',
-  sspiHostnameCanonicalization: { opt: 'authMechanismProperties.gssapiCanonicalizeHostName', fun: mapSspiHostnameCanonicalization },
+  sspiHostnameCanonicalization: { opt: 'authMechanismProperties.CANONICALIZE_HOST_NAME', fun: mapGSSAPIHostnameCanonicalization },
   authenticationDatabase: 'authSource',
   authenticationMechanism: 'authMechanism',
   keyVaultNamespace: 'autoEncryption.keyVaultNamespace',
@@ -125,17 +125,16 @@ function getCertificateExporter(): TlsCertificateExporter | undefined {
   return undefined;
 }
 
-function mapSspiHostnameCanonicalization(value: string): string | undefined {
-  if (!value || value === 'none') {
+function mapGSSAPIHostnameCanonicalization(value: string): string | boolean | undefined {
+  // Here for backwards compatibility reasons -- ideally, users should always
+  // just either not specify this, or use none/forward/forwardAndReverse.
+  if (value === '') {
     return undefined;
   }
-  if (value === 'forward') {
-    return 'true';
+  if (value === 'true' || value === 'false') {
+    return value === 'true';
   }
-  throw new MongoshInvalidInputError(
-    `--sspiHostnameCanonicalization value ${value} is not supported`,
-    CommonErrors.InvalidArgument
-  );
+  return value;
 }
 
 export default mapCliToDriver;
