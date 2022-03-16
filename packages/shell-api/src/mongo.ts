@@ -21,6 +21,8 @@ import {
 } from './decorators';
 import {
   ChangeStreamOptions,
+  ClientSessionOptions,
+  CommandOperationOptions,
   Document,
   generateUri,
   ListDatabasesOptions,
@@ -451,22 +453,34 @@ export default class Mongo extends ShellApiClass {
 
   @topologies([Topologies.ReplSet])
   startSession(options: Document = {}): Session {
-    const driverOptions = {};
-    if (options === undefined) {
-      return new Session(this, driverOptions, this._serviceProvider.startSession(driverOptions));
+    const allTransactionOptions = [
+      'readConcern', 'writeConcern', 'readPreference', 'maxCommitTimeMS'
+    ] as const;
+    // These typechecks might look weird, but will tell us if we are missing
+    // support for a newly introduced driver option when it is being added
+    // to the driver API.
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const __typecheck1: (typeof allTransactionOptions)[number] = '' as Exclude<keyof TransactionOptions, keyof CommandOperationOptions>;
+    const defaultTransactionOptions: TransactionOptions = {};
+    for (const key of allTransactionOptions) {
+      if (typeof options[key] !== 'undefined') {
+        defaultTransactionOptions[key] = options[key];
+      }
     }
-    const defaultTransactionOptions = {} as TransactionOptions;
 
-    // Only include option if not undef
-    Object.assign(defaultTransactionOptions,
-      options.readConcern && { readConcern: options.readConcern },
-      options.writeConcern && { writeConcern: options.writeConcern },
-      options.readPreference && { readPreference: options.readPreference }
-    );
-    Object.assign(driverOptions,
-      Object.keys(defaultTransactionOptions).length > 0 && { defaultTransactionOptions: defaultTransactionOptions },
-      options.causalConsistency !== undefined && { causalConsistency: options.causalConsistency }
-    );
+    const allSessionOptions = [ 'causalConsistency', 'snapshot' ] as const;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const __typecheck2: (typeof allSessionOptions)[number] | 'defaultTransactionOptions' = '' as keyof ClientSessionOptions;
+    const driverOptions: ClientSessionOptions = {};
+    if (Object.keys(defaultTransactionOptions).length > 0) {
+      driverOptions.defaultTransactionOptions = defaultTransactionOptions;
+    }
+    for (const key of allSessionOptions) {
+      if (typeof options[key] !== 'undefined') {
+        driverOptions[key] = options[key];
+      }
+    }
+
     return new Session(this, driverOptions, this._serviceProvider.startSession(driverOptions));
   }
 
