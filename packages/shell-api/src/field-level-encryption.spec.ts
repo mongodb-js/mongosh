@@ -1,7 +1,10 @@
 import { MongoshInvalidInputError } from '@mongosh/errors';
-import { bson, ClientEncryption as FLEClientEncryption, ServiceProvider } from '@mongosh/service-provider-core';
+import { bson, ClientEncryption as FLEClientEncryption, ClientEncryptionTlsOptions, ServiceProvider } from '@mongosh/service-provider-core';
 import { expect } from 'chai';
 import { EventEmitter } from 'events';
+import { promises as fs } from 'fs';
+import path from 'path';
+import { Duplex } from 'stream';
 import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
 import Database from './database';
 import { signatures, toShellResult } from './decorators';
@@ -46,6 +49,10 @@ const AWS_KMS = {
 const ALGO = 'AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic';
 
 const RAW_CLIENT = { client: 1 } as any;
+
+function getCertPath(filename: string): string {
+  return path.join(__dirname, '..', '..', '..', 'testing', 'certificates', filename);
+}
 
 describe('Field Level Encryption', () => {
   let sp: StubbedInstance<ServiceProvider>;
@@ -482,6 +489,17 @@ describe('Field Level Encryption', () => {
 
       connections = [];
       sinon.replace(require('tls'), 'connect', sinon.fake((options, onConnect) => {
+        if (options.host === 'kmip.example.com') {
+          // KMIP is not http(s)-based, we don't implement strong fakes for it
+          // and instead only verify that a connection has occurred.
+          connections.push({ options });
+          process.nextTick(onConnect);
+          const conn = new Duplex({
+            read() { setImmediate(() => this.destroy(new Error('mock connection broken'))); },
+            write(chunk, enc, cb) { cb(); }
+          });
+          return conn;
+        }
         if (!fakeAWSHandlers.some(handler => handler.host.test(options.host))) {
           throw new Error(`Unexpected TLS connection to ${options.host}`);
         }
@@ -498,7 +516,7 @@ describe('Field Level Encryption', () => {
       sinon.restore();
     });
 
-    const kms: [keyof KMSProvider, KMSProvider[keyof KMSProvider]][] = [
+    const kms: [keyof KMSProvider, KMSProvider[keyof KMSProvider] & { tlsOptions?: ClientEncryptionTlsOptions }][] = [
       ['local', {
         key: new bson.Binary(Buffer.from('kh4Gv2N8qopZQMQYMEtww/AkPsIrXNmEMxTrs3tUoTQZbZu4msdRUaR8U5fXD7A7QXYHcEvuu4WctJLoT+NvvV3eeIg3MD+K8H9SR794m/safgRHdIfy6PD+rFpvmFbY', 'base64'), 0)
       }],
@@ -528,15 +546,25 @@ lt6waE7I2uSPqIC20LcCIQDJQYIHQII+3YaPqyhGgqMexuuuGx+lDKD6/Fu/JwPb
 5QIhAKthiYcYKlL9h8bjDsQhZDUACPasjzdsDEdq8inDyLOFAiEAmCr/tZwA3qeA
 ZoBzI10DGPIuoKXBd3nk/eBxPkaxlEECIQCNymjsoI7GldtujVnr1qT+3yedLfHK
 srDVjIT3LsvTqw==`
+      }],
+      ['kmip', {
+        endpoint: 'kmip.example.com:123',
+        tlsOptions: {
+          tlsCertificateKeyFile: getCertPath('client.bundle.encrypted.pem'),
+          tlsCertificateKeyFilePassword: 'p4ssw0rd',
+          tlsCAFile: getCertPath('ca.crt')
+        }
       }]
     ];
-    for (const [ kmsName, kmsOptions ] of kms) {
+    for (const [ kmsName, kmsAndTlsOptions ] of kms) {
       // eslint-disable-next-line no-loop-func
       it(`provides ClientEncryption for kms=${kmsName}`, async() => {
+        const kmsOptions = { ...kmsAndTlsOptions, tlsOptions: undefined };
         const mongo = new Mongo(instanceState, uri, {
           keyVaultNamespace: `${dbname}.__keyVault`,
           kmsProviders: { [kmsName]: kmsOptions } as any,
-          explicitEncryptionOnly: true
+          explicitEncryptionOnly: true,
+          tlsOptions: { [kmsName]: kmsAndTlsOptions.tlsOptions ?? undefined }
         }, serviceProvider);
         await mongo.connect();
         instanceState.mongos.push(mongo);
@@ -567,6 +595,28 @@ srDVjIT3LsvTqw==`
               keyName: 'foobar'
             });
             break;
+          case 'kmip':
+            try {
+              await keyVault.createKey('kmip', undefined);
+            } catch (err) {
+              // See above, we don't attempt to successfully encrypt/decrypt
+              // when using KMIP
+              expect(err.message).to.include('KMS request failed');
+              expect(connections).to.deep.equal([{
+                options: {
+                  host: 'kmip.example.com',
+                  servername: 'kmip.example.com',
+                  port: 123,
+                  passphrase: 'p4ssw0rd',
+                  ca: await fs.readFile(getCertPath('ca.crt')),
+                  cert: await fs.readFile(getCertPath('client.bundle.encrypted.pem')),
+                  key: await fs.readFile(getCertPath('client.bundle.encrypted.pem'))
+                }
+              }]);
+              return;
+            }
+            expect.fail('missed exception');
+            break;
           default:
             throw new Error(`unreachable ${kmsName}`);
         }
@@ -584,12 +634,12 @@ srDVjIT3LsvTqw==`
         expect(encrypted.sub_type).to.equal(6); // Encrypted
         expect(decrypted).to.deep.equal(plaintextValue);
 
-        if ((kmsOptions as any).sessionToken) { // as any -> NODE-3107
+        if ('sessionToken' in kmsOptions) {
           expect(
             connections.map(
               conn => conn.requests.map(
                 req => req.headers['x-amz-security-token'])).flat())
-            .to.include((kmsOptions as any).sessionToken);
+            .to.include(kmsOptions.sessionToken);
         }
       });
     }

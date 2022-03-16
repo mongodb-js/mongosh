@@ -659,7 +659,7 @@ export function assertCLI(platform: ReplPlatform, features: string): void {
 export function processFLEOptions(fleOptions: ClientSideFieldLevelEncryptionOptions): AutoEncryptionOptions {
   assertKeysDefined(fleOptions, ['keyVaultNamespace', 'kmsProviders']);
   Object.keys(fleOptions).forEach(k => {
-    if (['keyVaultClient', 'keyVaultNamespace', 'kmsProviders', 'schemaMap', 'bypassAutoEncryption'].indexOf(k) === -1) {
+    if (['keyVaultClient', 'keyVaultNamespace', 'kmsProviders', 'schemaMap', 'bypassAutoEncryption', 'tlsOptions'].indexOf(k) === -1) {
       throw new MongoshInvalidInputError(`Unrecognized FLE Client Option ${k}`);
     }
   });
@@ -690,6 +690,9 @@ export function processFLEOptions(fleOptions: ClientSideFieldLevelEncryptionOpti
   }
   if (fleOptions.bypassAutoEncryption !== undefined) {
     autoEncryption.bypassAutoEncryption = fleOptions.bypassAutoEncryption;
+  }
+  if (fleOptions.tlsOptions !== undefined) {
+    autoEncryption.tlsOptions = fleOptions.tlsOptions;
   }
   return autoEncryption;
 }
