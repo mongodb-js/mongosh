@@ -20,10 +20,10 @@ function get_domain_ip() {
 function resolve_hosts() {
   MONGODB_1_IP=$(get_domain_ip "mongodb-kerberos-1.example.com")
   MONGODB_2_IP=$(get_domain_ip "mongodb-kerberos-2.example.com")
-  MONGODB_3_IP=$(get_domain_ip "mongodb-kerberos-3.examplewrong.com")
+  MONGODB_3_IP=$(get_domain_ip "mongodb-kerberos-3.examplecrossrealm.com")
   echo "$MONGODB_1_IP mongodb-kerberos-1.example.com" >> /etc/hosts
   echo "$MONGODB_2_IP mongodb-kerberos-2.example.com" >> /etc/hosts
-  echo "$MONGODB_3_IP mongodb-kerberos-3.examplewrong.com" >> /etc/hosts
+  echo "$MONGODB_3_IP mongodb-kerberos-3.examplecrossrealm.com" >> /etc/hosts
 }
 
 function setup_kerberos() {
@@ -33,7 +33,7 @@ function setup_kerberos() {
 }
 
 function update_kerberos_cross_realm() {
-  printf "\n[domain_realm]\n  .examplewrong.com = EXAMPLE2.COM\n" >> /etc/krb5.conf
+  printf "\n[domain_realm]\n  .examplecrossrealm.com = EXAMPLE2.COM\n" >> /etc/krb5.conf
 }
 
 function check_failed() {
@@ -94,7 +94,7 @@ function test_alternate_gssapi_uri() {
 function test_cross_gssapi_explicit_expect_fail() {
   printf "test_cross_gssapi_explicit_expect_fail ... "
 
-  $MONGOSH --host mongodb-kerberos-3.examplewrong.com  --port 27017 --username 'mongodb.user@EXAMPLE.COM' --authenticationMechanism GSSAPI --quiet --eval "${CONNECTION_STATUS_COMMAND}" |
+  $MONGOSH --host mongodb-kerberos-3.examplecrossrealm.com  --port 27017 --username 'mongodb.user@EXAMPLE.COM' --authenticationMechanism GSSAPI --quiet --eval "${CONNECTION_STATUS_COMMAND}" |
     grep -Fq "${CONNECTION_STATUS_CHECK_STRING}" && FAILED="Can't connect to mongodb-kerberos-3 using explicit parameters"
 
   check_failed
@@ -103,7 +103,7 @@ function test_cross_gssapi_explicit_expect_fail() {
 function test_cross_gssapi_explicit() {
   printf "test_cross_gssapi_explicit ... "
 
-  $MONGOSH --host mongodb-kerberos-3.examplewrong.com  --port 27017 --username 'mongodb.user@EXAMPLE.COM' --authenticationMechanism GSSAPI --quiet --eval "${CONNECTION_STATUS_COMMAND}" |
+  $MONGOSH --host mongodb-kerberos-3.examplecrossrealm.com  --port 27017 --username 'mongodb.user@EXAMPLE.COM' --authenticationMechanism GSSAPI --quiet --eval "${CONNECTION_STATUS_COMMAND}" |
     grep -Fq "${CONNECTION_STATUS_CHECK_STRING}" ||
     FAILED="Can't connect to mongodb-kerberos-3 using explicit parameters"
 
@@ -113,7 +113,7 @@ function test_cross_gssapi_explicit() {
 function test_cross_gssapi_uri() {
   printf "test_cross_gssapi_uri ... "
 
-  CONNECTION_STRING="mongodb://mongodb.user%40EXAMPLE.COM@mongodb-kerberos-3.examplewrong.com:27017/?authMechanism=GSSAPI"
+  CONNECTION_STRING="mongodb://mongodb.user%40EXAMPLE.COM@mongodb-kerberos-3.examplecrossrealm.com:27017/?authMechanism=GSSAPI"
 
   $MONGOSH "${CONNECTION_STRING}" --quiet --eval "${CONNECTION_STATUS_COMMAND}" |
     grep -Fq "${CONNECTION_STATUS_CHECK_STRING}" ||
