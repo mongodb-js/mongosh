@@ -13,13 +13,13 @@ function try_connect_connection_string() {
 }
 
 function test_for_version() {
-  MONGODB_VERSION="$1" docker-compose -f enterprise/docker-compose.yaml up -d
+  MONGODB_VERSION="$1" docker-compose -f docker/enterprise/docker-compose.yaml up -d
 
   sleep 10 # let mongod start up
   FAILED_EXPLICIT=$(try_connect_explicit)
   FAILED_CONNECTION_STRING=$(try_connect_connection_string)
 
-  MONGODB_VERSION="$1" docker-compose -f enterprise/docker-compose.yaml down
+  MONGODB_VERSION="$1" docker-compose -f docker/enterprise/docker-compose.yaml down
 
   if [ $FAILED_EXPLICIT = yes ]; then
     ANY_FAILED=yes
