@@ -295,7 +295,7 @@ describe('CliRepl', () => {
           await cliRepl.start('', {});
         }
         expect(telemetryUserIdentitys).to.have.lengthOf(2);
-        expect(telemetryUserIdentitys[0]).to.deep.equal(telemetryUserIdentitys[1])
+        expect(telemetryUserIdentitys[0]).to.deep.equal(telemetryUserIdentitys[1]);
       });
 
       it('emits error for invalid config', async() => {
