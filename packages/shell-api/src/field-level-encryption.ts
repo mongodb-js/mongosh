@@ -12,6 +12,7 @@ import {
   ClientEncryptionDataKeyProvider,
   ClientEncryptionOptions,
   ClientEncryptionEncryptOptions,
+  ClientEncryptionTlsOptions,
   KMSProviders,
   ReplPlatform,
   AWSEncryptionKeyOptions,
@@ -41,6 +42,7 @@ export interface ClientSideFieldLevelEncryptionOptions {
   schemaMap?: Document,
   bypassAutoEncryption?: boolean;
   explicitEncryptionOnly?: boolean;
+  tlsOptions?: { [k in keyof ClientSideFieldLevelEncryptionKmsProvider]?: ClientEncryptionTlsOptions };
 }
 
 @shellApiClassDefault

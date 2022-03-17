@@ -10,6 +10,7 @@ export type {
   ClientEncryptionEncryptCallback,
   ClientEncryptionEncryptOptions,
   ClientEncryptionOptions,
+  ClientEncryptionTlsOptions,
   KMSProviders
 } from 'mongodb-client-encryption';
 

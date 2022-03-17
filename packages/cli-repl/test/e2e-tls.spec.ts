@@ -8,7 +8,7 @@ import { promisify } from 'util';
 import rimraf from 'rimraf';
 
 function getCertPath(filename: string): string {
-  return path.join(__dirname, 'fixtures', 'certificates', filename);
+  return path.join(__dirname, '..', '..', '..', 'testing', 'certificates', filename);
 }
 const CA_CERT = getCertPath('ca.crt');
 const NON_CA_CERT = getCertPath('non-ca.crt');
