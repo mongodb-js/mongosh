@@ -22,7 +22,7 @@ const translations: Catalog = {
       nodb: "Don't connect to mongod on startup - no 'db address' [arg] expected",
       norc: "Will not run the '.mongoshrc.js' file on start up",
       eval: 'Evaluate javascript',
-      retryWrites: 'Automatically retry write operations upon transient network errors',
+      retryWrites: 'Automatically retry write operations upon transient network errors (Default: true)',
       authenticationOptions: 'Authentication Options:',
       username: 'Username for authentication',
       password: 'Password for authentication',
