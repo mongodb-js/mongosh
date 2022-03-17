@@ -39,7 +39,7 @@ variable. For detailed instructions for each of our supported platforms, please 
         --nodb                                 Don't connect to mongod on startup - no 'db address' [arg] expected
         --norc                                 Will not run the '.mongoshrc.js' file on start up
         --eval [arg]                           Evaluate javascript
-        --retryWrites                          Automatically retry write operations upon transient network errors
+        --retryWrites=[true|false]             Automatically retry write operations upon transient network errors (Default: true)
 
   Authentication Options:
 
