@@ -337,7 +337,7 @@ describe('arg-mapper.mapCliToDriver', () => {
       it('is mapped to authMechanismProperties', () => {
         expect(mapCliToDriver(cliOptions)).to.deep.equal({
           authMechanismProperties: {
-            gssapiCanonicalizeHostName: 'forward'
+            CANONICALIZE_HOST_NAME: 'forward'
           },
           driverInfo: {
             name: 'mongosh',
@@ -353,7 +353,7 @@ describe('arg-mapper.mapCliToDriver', () => {
       it('is mapped to authMechanismProperties', () => {
         expect(mapCliToDriver(cliOptions)).to.deep.equal({
           authMechanismProperties: {
-            gssapiCanonicalizeHostName: true
+            CANONICALIZE_HOST_NAME: true
           },
           driverInfo: {
             name: 'mongosh',
