@@ -42,7 +42,7 @@ internal class MongoShellEvaluator(client: MongoClient, private val context: Mon
         val rawValue = args[0]
         when (val type = getShellApiType(rawValue)) {
             "Cursor", "AggregationCursor" -> shellResult(rawValue, type)
-            else -> toShellResult(rawValue)
+            else -> toShellResultFn.execute(rawValue)
         }
     }
 
@@ -109,10 +109,6 @@ internal class MongoShellEvaluator(client: MongoClient, private val context: Mon
     fun getShellApiType(rawValue: Value): String? {
         val rawType = getShellApiTypeFn.execute(rawValue)
         return if (rawType.isString) rawType.asString() else null
-    }
-
-    fun toShellResult(rawValue: Value): Value {
-        return converter.unwrapPromise(toShellResultFn.execute(rawValue))
     }
 
     fun eval(@Language("js") script: String, name: String): Value {
