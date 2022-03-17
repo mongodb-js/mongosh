@@ -321,7 +321,7 @@ describe('arg-mapper.mapCliToDriver', () => {
       it('is not mapped to authMechanismProperties', () => {
         expect(mapCliToDriver(cliOptions)).to.deep.equal({
           authMechanismProperties: {
-            CANONICALIZE_HOSTNAME: 'none'
+            CANONICALIZE_HOST_NAME: 'none'
           },
           driverInfo: {
             name: 'mongosh',
