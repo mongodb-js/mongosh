@@ -456,11 +456,13 @@ export default class Mongo extends ShellApiClass {
     const allTransactionOptions = [
       'readConcern', 'writeConcern', 'readPreference', 'maxCommitTimeMS'
     ] as const;
-    // These typechecks might look weird, but will tell us if we are missing
-    // support for a newly introduced driver option when it is being added
-    // to the driver API.
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const __typecheck1: (typeof allTransactionOptions)[number] = '' as Exclude<keyof TransactionOptions, keyof CommandOperationOptions>;
+    function assertAllTransactionOptionsUsed(_options: (typeof allTransactionOptions)[number]) {
+      // These typechecks might look weird, but will tell us if we are missing
+      // support for a newly introduced driver option when it is being added
+      // to the driver API.
+    }
+    assertAllTransactionOptionsUsed('' as Exclude<keyof TransactionOptions, keyof CommandOperationOptions>);
     const defaultTransactionOptions: TransactionOptions = {};
     for (const key of allTransactionOptions) {
       if (typeof options[key] !== 'undefined') {
@@ -470,7 +472,8 @@ export default class Mongo extends ShellApiClass {
 
     const allSessionOptions = [ 'causalConsistency', 'snapshot' ] as const;
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const __typecheck2: (typeof allSessionOptions)[number] | 'defaultTransactionOptions' = '' as keyof ClientSessionOptions;
+    function assertAllSessionOptionsUsed(_options: (typeof allSessionOptions)[number] | 'defaultTransactionOptions') {}
+    assertAllSessionOptionsUsed('' as keyof ClientSessionOptions);
     const driverOptions: ClientSessionOptions = {};
     if (Object.keys(defaultTransactionOptions).length > 0) {
       driverOptions.defaultTransactionOptions = defaultTransactionOptions;
