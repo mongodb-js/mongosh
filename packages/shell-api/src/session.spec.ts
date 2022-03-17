@@ -13,7 +13,7 @@ import {
   ALL_TOPOLOGIES
 } from './enums';
 import { CliServiceProvider } from '../../service-provider-server';
-import { startTestCluster, skipIfApiStrict } from '../../../testing/integration-testing-hooks';
+import { startTestCluster, skipIfServerVersion, skipIfApiStrict } from '../../../testing/integration-testing-hooks';
 import { ensureMaster, ensureSessionExists } from '../../../testing/helpers';
 import Database from './database';
 import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
@@ -229,7 +229,7 @@ describe('Session', () => {
       });
       context('with 5.0+ server', () => {
         skipIfApiStrict();
-        skipIfServerVersion(testServer, '< 5.0');
+        skipIfServerVersion(srv0, '< 5.0');
         it('starts a session with snapshot reads if requested', async() => {
           session = mongo.startSession({ snapshot: true });
           await session.getDatabase(databaseName).getCollection('coll').findOne({});
