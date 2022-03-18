@@ -23,7 +23,7 @@ describe('spawnChildFromSource', () => {
         // @ts-expect-error
         stdio: 'ignore'
       });
-    } catch (e) {
+    } catch (e: any) {
       err = e;
     }
 
@@ -58,7 +58,7 @@ describe('spawnChildFromSource', () => {
         'ignore',
         'ignore'
       );
-    } catch (e) {
+    } catch (e: any) {
       err = e;
     }
 
@@ -77,7 +77,7 @@ describe('spawnChildFromSource', () => {
         {},
         10
       );
-    } catch (e) {
+    } catch (e: any) {
       err = e;
     }
 

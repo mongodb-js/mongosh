@@ -74,7 +74,7 @@ describe('e2e TLS', () => {
     after(async function() {
       try {
         await promisify(rimraf)(homedir);
-      } catch (err) {
+      } catch (err: any) {
         // On Windows in CI, this can fail with EPERM for some reason.
         // If it does, just log the error instead of failing all tests.
         console.error('Could not remove fake home directory:', err);

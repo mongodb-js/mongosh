@@ -119,7 +119,7 @@ export function start(opts: AsyncREPLOptions): REPLServer {
               let interruptHandled = false;
               try {
                 interruptHandled = await onAsyncSigint();
-              } catch (e) {
+              } catch (e: any) {
                 // ignore
               } finally {
                 // Reject with an exception similar to one thrown by Node.js
@@ -172,7 +172,7 @@ export function start(opts: AsyncREPLOptions): REPLServer {
           process.nextTick(() => repl.emit('exit'));
         }
       }
-    } catch (err) {
+    } catch (err: any) {
       try {
         if (isRecoverableError(input)) {
           repl.emit(evalFinish, { input, success: false, err, recoverable: true } as EvalFinishEvent);
@@ -180,14 +180,14 @@ export function start(opts: AsyncREPLOptions): REPLServer {
         }
         repl.emit(evalFinish, { input, success: false, err, recoverable: false } as EvalFinishEvent);
         return callback(err);
-      } catch (callbackErr) {
+      } catch (callbackErr: any) {
         return callback(wrapCallbackError(callbackErr));
       }
     }
     try {
       repl.emit(evalFinish, { input, success: true } as EvalFinishEvent);
       return callback(null, result);
-    } catch (callbackErr) {
+    } catch (callbackErr: any) {
       return callback(wrapCallbackError(callbackErr));
     }
   };

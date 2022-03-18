@@ -117,7 +117,7 @@ describe('draft', () => {
           ensureGithubReleaseExistsAndUpdateChangelog,
           notarizeArtifact
         );
-      } catch (e) {
+      } catch (e: any) {
         expect(e.message).to.contain('Missing package information from config');
         expect(ensureGithubReleaseExistsAndUpdateChangelog).to.not.have.been.called;
         expect(downloadArtifactFromEvergreen).to.not.have.been.called;

@@ -77,7 +77,7 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
 
     try {
       return await originalEval(rewrittenInput, context, filename);
-    } catch (err) {
+    } catch (err: any) {
       throw this.instanceState.transformError(err);
     }
   }

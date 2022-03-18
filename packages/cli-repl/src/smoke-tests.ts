@@ -64,7 +64,7 @@ async function runSmokeTest(executable: string, args: string[], input: string, o
   try {
     assert.match(stdout, output);
     console.error({ status: 'success', input, output, stdout, executable, args: args.map(arg => redactURICredentials(arg)) });
-  } catch (err) {
+  } catch (err: any) {
     console.error({ status: 'failure', input, output, stdout, executable, args: args.map(arg => redactURICredentials(arg)) });
     throw err;
   }

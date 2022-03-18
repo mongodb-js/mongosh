@@ -56,7 +56,7 @@ describe('package zip', () => {
 
     try {
       await createZipPackage(tmpPkg.pkgConfig, path.join(tmpPkg.tarballDir, 'outfile.zip'), execFileStub);
-    } catch (e) {
+    } catch (e: any) {
       return expect(e).to.equal(expectedError);
     }
     expect.fail('Expected error');

@@ -69,7 +69,7 @@ describe('interruptor', () => {
       instanceState.interrupted.set();
       try {
         await database.runCommand({ some: 1 });
-      } catch (e) {
+      } catch (e: any) {
         expect(e.name).to.equal('MongoshInterruptedError');
         expect(serviceProvider.runCommand).to.not.have.been.called;
         expect(serviceProvider.runCommandWithCheck).to.not.have.been.called;
@@ -92,7 +92,7 @@ describe('interruptor', () => {
 
       try {
         await runCommand;
-      } catch (e) {
+      } catch (e: any) {
         expect(e.name).to.equal('MongoshInterruptedError');
         expect(serviceProvider.runCommandWithCheck).to.have.been.called;
         return;

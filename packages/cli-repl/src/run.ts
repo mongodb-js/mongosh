@@ -102,8 +102,8 @@ import stream from 'stream';
       });
       await repl.start(driverUri, driverOptions);
     }
-  } catch (e) {
-    console.error(`${e.name}: ${e.message}`);
+  } catch (e: any) {
+    console.error(`${e?.name}: ${e?.message}`);
     if (repl !== undefined) {
       repl.bus.emit('mongosh:error', e, 'startup');
     }

@@ -431,7 +431,7 @@ describe('Database', () => {
         try {
           database.getCollection('');
           expect.fail('expected error');
-        } catch (e) {
+        } catch (e: any) {
           expect(e).to.be.instanceOf(MongoshInvalidInputError);
           expect(e.message).to.contain('Invalid collection name:');
           expect(e.code).to.equal(CommonErrors.InvalidArgument);
@@ -442,7 +442,7 @@ describe('Database', () => {
         try {
           database.getCollection('foo$bar');
           expect.fail('expected error');
-        } catch (e) {
+        } catch (e: any) {
           expect(e).to.be.instanceOf(MongoshInvalidInputError);
           expect(e.message).to.contain('Invalid collection name:');
           expect(e.code).to.equal(CommonErrors.InvalidArgument);
@@ -453,7 +453,7 @@ describe('Database', () => {
         try {
           database.getCollection('foo\0bar');
           expect.fail('expected error');
-        } catch (e) {
+        } catch (e: any) {
           expect(e).to.be.instanceOf(MongoshInvalidInputError);
           expect(e.message).to.contain('Invalid collection name:');
           expect(e.code).to.equal(CommonErrors.InvalidArgument);
@@ -657,7 +657,7 @@ describe('Database', () => {
                 { role: 'root', db: 'admin' }
               ]
             });
-          } catch (e) {
+          } catch (e: any) {
             expect(e).to.be.instanceOf(MongoshInvalidInputError);
             expect(e.message).to.contain('Cannot set password');
             return;
@@ -2360,7 +2360,7 @@ describe('Database', () => {
           try {
             database[method]();
             expect.fail('expected error');
-          } catch (e) {
+          } catch (e: any) {
             expect(e).to.be.instanceOf(MongoshDeprecatedError);
             expect(e.message).to.contain(`\`${method}()\` was removed because it was deprecated in MongoDB 4.0`);
           }
@@ -2536,7 +2536,7 @@ describe('Database', () => {
         serviceProvider.watch.throws(expectedError);
         try {
           await database.watch();
-        } catch (e) {
+        } catch (e: any) {
           expect(e).to.equal(expectedError);
           return;
         }
@@ -2660,7 +2660,7 @@ describe('Database', () => {
             database[method].returnsPromise) {
           try {
             await database[method](...args);
-          } catch (e) {
+          } catch (e: any) {
             expect.fail(`${method} failed, error thrown ${e.message}`);
           }
           expect(serviceProvider.runCommandWithCheck.called).to.be.true;
@@ -2675,7 +2675,7 @@ describe('Database', () => {
         const customI = exceptions[method].i || 2;
         try {
           await database[method](...customA);
-        } catch (e) {
+        } catch (e: any) {
           expect.fail(`${method} failed, error thrown ${e.message}`);
         }
         expect(serviceProvider[customM].called).to.equal(true, `expecting ${customM} to be called but it was not`);

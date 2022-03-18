@@ -78,7 +78,7 @@ describe('tarball redhat', () => {
         outFile,
         execFileStub as any
       );
-    } catch (e) {
+    } catch (e: any) {
       expect(e.message).to.contain('Don’t know which RPM from');
       return;
     }

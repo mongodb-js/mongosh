@@ -173,7 +173,7 @@ export class Barque {
                 });
               console.info(`Result for curator with ${args.join(' ')}`, result);
               return this.computePublishedPackageUrl(ppa, architecture, version, edition, packageUrl);
-            } catch (error) {
+            } catch (error: any) {
               console.error(`Curator with ${args.join(' ')} failed`, error);
               throw new Error(`Curator is unable to upload ${packageUrl},${ppa},${architecture} to barque ${error}`);
             }

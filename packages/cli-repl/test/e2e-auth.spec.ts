@@ -58,7 +58,7 @@ function createAssertUserAuth(db, connectionString, dbName): Function {
         return c;
       }
       await c.close();
-    } catch (e) {
+    } catch (e: any) {
       expect.fail(`Could not authenticate user to initialize test: ${e.message}`);
     }
   };

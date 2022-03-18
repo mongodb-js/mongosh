@@ -122,7 +122,7 @@ describe('Translator', () => {
       try {
         translator.__('testing.testing.testing');
         fail('expected error');
-      } catch (e) {
+      } catch (e: any) {
         expect(e).to.be.instanceOf(MongoshInternalError);
       }
     });

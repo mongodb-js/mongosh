@@ -28,7 +28,7 @@ describe('assertArgsDefinedType', () => {
   it('allows to specify an argument must be defined', () => {
     try {
       assertArgsDefinedType([1, undefined], [true, true], 'helper.test');
-    } catch (e) {
+    } catch (e: any) {
       expect(e.message).to.contain('Missing required argument at position 1');
       expect(e.message).to.contain('helper.test');
       return;
@@ -39,7 +39,7 @@ describe('assertArgsDefinedType', () => {
     [null, 2, {}].forEach(value => {
       try {
         assertArgsDefinedType([1, value], [true, 'string'], 'helper.test');
-      } catch (e) {
+      } catch (e: any) {
         expect(e.message).to.contain('Argument at position 1 must be of type string');
         expect(e.message).to.contain('helper.test');
         return;
@@ -52,7 +52,7 @@ describe('assertArgsDefinedType', () => {
     [null, {}].forEach(value => {
       try {
         assertArgsDefinedType([1, value], [true, ['number', 'string']]);
-      } catch (e) {
+      } catch (e: any) {
         return expect(e.message).to.contain('Argument at position 1 must be of type number or string');
       }
       expect.fail('Expected error');
@@ -65,7 +65,7 @@ describe('assertArgsDefinedType', () => {
     expect(() => assertArgsDefinedType([1, 'test'], [true, [undefined, 'string']])).to.not.throw;
     try {
       assertArgsDefinedType([1, 2], [true, [undefined, 'string']]);
-    } catch (e) {
+    } catch (e: any) {
       return expect(e.message).to.contain('Argument at position 1 must be of type string');
     }
     expect.fail('Expected error');
@@ -212,7 +212,7 @@ describe('getPrintableShardStatus', () => {
     await configDatabase.getCollection('version').drop();
     try {
       await getPrintableShardStatus(configDatabase, false);
-    } catch (err) {
+    } catch (err: any) {
       expect(err.name).to.equal('MongoshInvalidInputError');
       return;
     }

@@ -265,8 +265,8 @@ export default class ShellInstanceState {
   get currentServiceProvider(): ServiceProvider {
     try {
       return this.currentDb._mongo._serviceProvider;
-    } catch (err) {
-      if (err.code === ShellApiErrors.NotConnected) {
+    } catch (err: any) {
+      if (err?.code === ShellApiErrors.NotConnected) {
         return this.initialServiceProvider;
       }
       throw err;
@@ -348,10 +348,10 @@ export default class ShellInstanceState {
           const collectionNames = await this.currentDb._getCollectionNamesForCompletion();
           return collectionNames.filter((name) =>
             name.toLowerCase().startsWith(collName.toLowerCase()));
-        } catch (err) {
+        } catch (err: any) {
           if (
-            err.code === ShellApiErrors.NotConnected ||
-            err.codeName === 'Unauthorized'
+            err?.code === ShellApiErrors.NotConnected ||
+            err?.codeName === 'Unauthorized'
           ) {
             return [];
           }
@@ -363,10 +363,10 @@ export default class ShellInstanceState {
           const dbNames = await this.currentDb._mongo._getDatabaseNamesForCompletion();
           return dbNames.filter((name) =>
             name.toLowerCase().startsWith(dbName.toLowerCase()));
-        } catch (err) {
+        } catch (err: any) {
           if (
-            err.code === ShellApiErrors.NotConnected ||
-            err.codeName === 'Unauthorized'
+            err?.code === ShellApiErrors.NotConnected ||
+            err?.codeName === 'Unauthorized'
           ) {
             return [];
           }
@@ -391,7 +391,7 @@ export default class ShellInstanceState {
           mongo: m,
           resume: await m._suspend()
         };
-      } catch (e) {
+      } catch (e: any) {
         return {
           mongo: m,
           resume: null
@@ -413,7 +413,7 @@ export default class ShellInstanceState {
       try {
         await r.resume();
         return true;
-      } catch (e) {
+      } catch (e: any) {
         return false;
       }
     }) ?? [];

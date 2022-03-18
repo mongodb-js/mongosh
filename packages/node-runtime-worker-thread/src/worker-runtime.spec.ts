@@ -82,7 +82,7 @@ describe('worker', () => {
 
     try {
       await evaluate('1 + 1');
-    } catch (e) {
+    } catch (e: any) {
       err = e;
     }
 
@@ -384,7 +384,7 @@ describe('worker', () => {
         let err: Error;
         try {
           await evaluate('throw new TypeError("Oh no, types!")');
-        } catch (e) {
+        } catch (e: any) {
           err = e;
         }
 
@@ -404,7 +404,7 @@ describe('worker', () => {
         let err: Error;
         try {
           await evaluate('throw Object.assign(new TypeError("Oh no, types!"), { errInfo: { message: "wrong type :S" } })');
-        } catch (e) {
+        } catch (e: any) {
           err = e;
         }
 
@@ -440,7 +440,7 @@ describe('worker', () => {
             evaluate('sleep(50); 1+1'),
             evaluate('sleep(50); 1+1')
           ]);
-        } catch (e) {
+        } catch (e: any) {
           err = e;
         }
 
@@ -653,7 +653,7 @@ describe('worker', () => {
               interrupt(handle);
             })()
           ]);
-        } catch (e) {
+        } catch (e: any) {
           err = e;
         }
 
@@ -681,7 +681,7 @@ describe('worker', () => {
             await interrupt();
           })()
         ]);
-      } catch (e) {
+      } catch (e: any) {
         err = e;
       }
 

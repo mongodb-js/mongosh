@@ -250,7 +250,7 @@ describe('Field Level Encryption', () => {
         libmongoc.createDataKey.resolves(raw);
         try {
           await keyVault.createKey('aws' as any, ['altkey']);
-        } catch (e) {
+        } catch (e: any) {
           expect(e).to.be.instanceOf(MongoshInvalidInputError);
           expect(e.message).to.contain('requires masterKey to be given as second argument');
           return;
@@ -262,7 +262,7 @@ describe('Field Level Encryption', () => {
         libmongoc.createDataKey.resolves(raw);
         try {
           await keyVault.createKey('local', ['altkey'] as any, ['altkeyx']);
-        } catch (e) {
+        } catch (e: any) {
           expect(e).to.be.instanceOf(MongoshInvalidInputError);
           expect(e.message).to.contain('array for the masterKey and keyAltNames');
           return;
@@ -274,7 +274,7 @@ describe('Field Level Encryption', () => {
         libmongoc.createDataKey.resolves(raw);
         try {
           await keyVault.createKey('aws', 'oldstyle');
-        } catch (e) {
+        } catch (e: any) {
           expect(e).to.be.instanceOf(MongoshInvalidInputError);
           expect(e.message).to.contain('For AWS please use createKey');
           return;
@@ -286,7 +286,7 @@ describe('Field Level Encryption', () => {
         libmongoc.createDataKey.resolves(raw);
         try {
           await keyVault.createKey('aws', 'oldstyle', ['altname']);
-        } catch (e) {
+        } catch (e: any) {
           expect(e).to.be.instanceOf(MongoshInvalidInputError);
           expect(e.message).to.contain('For AWS please use createKey');
           return;
@@ -440,7 +440,7 @@ describe('Field Level Encryption', () => {
       };
       try {
         void new Mongo(instanceState, 'localhost:27017', localKmsOptions, undefined, sp);
-      } catch (e) {
+      } catch (e: any) {
         return expect(e.message).to.contain('explicitEncryptionOnly and schemaMap are mutually exclusive');
       }
       expect.fail('Expected error');
@@ -466,7 +466,7 @@ describe('Field Level Encryption', () => {
       clientEncryption = new ClientEncryption(mongo);
       try {
         void new KeyVault(clientEncryption);
-      } catch (e) {
+      } catch (e: any) {
         return expect(e.message).to.contain('FLE options must be passed to the Mongo object');
       }
       expect.fail('Expected error');
@@ -598,7 +598,7 @@ srDVjIT3LsvTqw==`
           case 'kmip':
             try {
               await keyVault.createKey('kmip', undefined);
-            } catch (err) {
+            } catch (err: any) {
               // See above, we don't attempt to successfully encrypt/decrypt
               // when using KMIP
               expect(err.message).to.include('KMS request failed');

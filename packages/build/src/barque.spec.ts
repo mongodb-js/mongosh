@@ -77,7 +77,7 @@ describe('Barque', () => {
             let releasedUrls;
             try {
               releasedUrls = await barque.releaseToBarque(variant, url);
-            } catch (err) {
+            } catch (err: any) {
               if (process.platform === 'win32' && err.message.includes('ENOENT')) {
                 return; // Cannot spawn the fake curator on Windows
               }
@@ -99,7 +99,7 @@ describe('Barque', () => {
 
         try {
           await barque.releaseToBarque('debian-x64', debUrl);
-        } catch (error) {
+        } catch (error: any) {
           expect(error.message).to.include(`Curator is unable to upload ${debUrl},ubuntu1804,amd64 to barque`);
           expect(barque.createCuratorDir).to.have.been.called;
           expect(barque.extractLatestCurator).to.have.been.called;
@@ -114,7 +114,7 @@ describe('Barque', () => {
       config.platform = 'macos';
       try {
         barque = new Barque(config);
-      } catch (e) {
+      } catch (e: any) {
         expect(e.message).to.contain('only supported on linux');
         return;
       }
@@ -139,7 +139,7 @@ describe('Barque', () => {
       let accessErr: Error | undefined = undefined;
       try {
         await fs.access(curatorDirPath);
-      } catch (e) {
+      } catch (e: any) {
         accessErr = e;
       }
       expect(accessErr).to.be.undefined;
@@ -192,7 +192,7 @@ describe('Barque', () => {
             'https://repo.mongodb.org/apt/dist/package1.deb',
             'https://repo.mongodb.org/apt/dist/package2.deb',
           ], 5, 1);
-        } catch (e) {
+        } catch (e: any) {
           expect(e.message).to.contain('the following packages are still not available');
           expect(e.message).to.contain('package2.deb');
         }
@@ -234,7 +234,7 @@ describe('Barque', () => {
       let accessErr: Error | undefined = undefined;
       try {
         await fs.access(curatorPath);
-      } catch (e) {
+      } catch (e: any) {
         accessErr = e;
       }
       expect(accessErr).to.be.undefined;

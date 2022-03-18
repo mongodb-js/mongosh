@@ -46,7 +46,7 @@ describe('home directory management', () => {
       try {
         await fs.access(base);
         threw = false;
-      } catch (err) {
+      } catch (err: any) {
         expect(err.code).to.equal('ENOENT');
       }
       expect(threw).to.be.true;
@@ -82,7 +82,7 @@ describe('home directory management', () => {
       try {
         await manager.writeConfigFile(new ExampleConfig());
         threw = false;
-      } catch (err) {
+      } catch (err: any) {
         expect(err.code).to.equal('EISDIR');
       }
       expect(threw).to.be.true;
@@ -123,7 +123,7 @@ describe('home directory management', () => {
         try {
           await manager.generateOrReadConfig({ someProperty: 3 });
           threw = false;
-        } catch (err) {
+        } catch (err: any) {
           expect(err.code).to.be.oneOf(['EPERM', 'EACCES']);
         }
         expect(threw).to.be.true;

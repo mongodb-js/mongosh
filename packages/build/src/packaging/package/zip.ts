@@ -20,8 +20,8 @@ export async function createZipPackage(
   const tmpDir = await createCompressedArchiveContents(filename, pkg);
   try {
     await execFile('zip', ['-r', outFile, '.'], { cwd: tmpDir });
-  } catch (err) {
-    if (err.code === 'ENOENT') {
+  } catch (err: any) {
+    if (err?.code === 'ENOENT') {
       await execFile('7z', ['a', outFile, '.'], { cwd: tmpDir });
     } else {
       throw err;

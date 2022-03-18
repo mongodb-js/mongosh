@@ -238,7 +238,7 @@ describe('ShellApi', () => {
         serviceProvider.platform = ReplPlatform.Browser;
         try {
           await instanceState.shellApi.Mongo('uri');
-        } catch (e) {
+        } catch (e: any) {
           return expect(e.name).to.equal('MongoshUnimplementedError');
         }
         expect.fail('MongoshInvalidInputError not thrown for Mongo');
@@ -355,7 +355,7 @@ describe('ShellApi', () => {
                 }
               }
             } as any);
-          } catch (e) {
+          } catch (e: any) {
             return expect(e.message).to.contain('required property');
           }
           expect.fail('failed to throw expected error');
@@ -365,7 +365,7 @@ describe('ShellApi', () => {
             await instanceState.shellApi.Mongo('dbname', {
               keyVaultNamespace: 'encryption.dataKeys'
             } as any);
-          } catch (e) {
+          } catch (e: any) {
             return expect(e.message).to.contain('required property');
           }
           expect.fail('failed to throw expected error');
@@ -382,7 +382,7 @@ describe('ShellApi', () => {
               },
               unknownKey: 1
             } as any);
-          } catch (e) {
+          } catch (e: any) {
             return expect(e.message).to.contain('unknownKey');
           }
           expect.fail('failed to throw expected error');
@@ -424,7 +424,7 @@ describe('ShellApi', () => {
         serviceProvider.platform = ReplPlatform.CLI;
         try {
           await (instanceState.shellApi as any).connect();
-        } catch (e) {
+        } catch (e: any) {
           return expect(e.name).to.equal('MongoshInvalidInputError');
         }
         expect.fail('MongoshInvalidInputError not thrown for connect');
@@ -513,7 +513,7 @@ describe('ShellApi', () => {
         serviceProvider.platform = ReplPlatform.Browser;
         try {
           await instanceState.shellApi.Mongo('mongodb://127.0.0.1:27017');
-        } catch (e) {
+        } catch (e: any) {
           return expect(e.name).to.equal('MongoshUnimplementedError');
         }
         expect.fail('MongoshInvalidInputError not thrown for Mongo');
@@ -559,7 +559,7 @@ describe('ShellApi', () => {
           try {
             await instanceState.context[cmd]();
             expect.fail('missed exception');
-          } catch (e) {
+          } catch (e: any) {
             // We should be getting an exception because we’re not actually exiting.
             expect(e.message).to.contain('onExit listener returned');
           }
@@ -570,7 +570,7 @@ describe('ShellApi', () => {
           try {
             await instanceState.context[cmd](1);
             expect.fail('missed exception');
-          } catch (e) {
+          } catch (e: any) {
             // We should be getting an exception because we’re not actually exiting.
             expect(e.message).to.contain('onExit listener returned');
           }
@@ -602,7 +602,7 @@ describe('ShellApi', () => {
         try {
           await instanceState.context.passwordPrompt();
           expect.fail('missed exception');
-        } catch (err) {
+        } catch (err: any) {
           expect(err.message).to.equal('[COMMON-90002] passwordPrompt() is not available in this shell');
         }
       });

@@ -25,7 +25,7 @@ describe('npm-packages publishNpmPackages', () => {
         markBumpedFilesAsAssumeUnchanged,
         spawnSync
       );
-    } catch (e) {
+    } catch (e: any) {
       expect(markBumpedFilesAsAssumeUnchanged).to.not.have.been.called;
       expect(spawnSync).to.not.have.been.called;
       return;
@@ -44,7 +44,7 @@ describe('npm-packages publishNpmPackages', () => {
         markBumpedFilesAsAssumeUnchanged,
         spawnSync
       );
-    } catch (e) {
+    } catch (e: any) {
       expect(markBumpedFilesAsAssumeUnchanged).to.not.have.been.called;
       expect(spawnSync).to.not.have.been.called;
       return;
@@ -87,7 +87,7 @@ describe('npm-packages publishNpmPackages', () => {
         markBumpedFilesAsAssumeUnchanged,
         spawnSync
       );
-    } catch (e) {
+    } catch (e: any) {
       expect(markBumpedFilesAsAssumeUnchanged).to.have.been.calledWith(packages, true);
       expect(spawnSync).to.have.been.called;
       expect(markBumpedFilesAsAssumeUnchanged).to.have.been.calledWith(packages, false);

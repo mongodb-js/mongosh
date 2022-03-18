@@ -1372,7 +1372,7 @@ describe('Shard', () => {
       it('fails when running against an unsharded collection', async() => {
         try {
           await db.getCollection('test').getShardDistribution();
-        } catch (err) {
+        } catch (err: any) {
           expect(err.name).to.equal('MongoshInvalidInputError');
           return;
         }

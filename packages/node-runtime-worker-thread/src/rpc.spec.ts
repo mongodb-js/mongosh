@@ -115,7 +115,7 @@ describe('rpc', () => {
     try {
       // eslint-disable-next-line @typescript-eslint/await-thenable
       await caller.throws();
-    } catch (e) {
+    } catch (e: any) {
       err = e;
     }
 
@@ -144,7 +144,7 @@ describe('rpc', () => {
 
     try {
       await caller.callMe((a: number, b: number) => a + b);
-    } catch (e) {
+    } catch (e: any) {
       err = e;
     }
 
@@ -171,7 +171,7 @@ describe('rpc', () => {
 
     try {
       await caller.returnsFunction();
-    } catch (e) {
+    } catch (e: any) {
       err = e;
     }
 
@@ -217,7 +217,7 @@ describe('rpc', () => {
               caller[cancel]();
             })()
           ]);
-        } catch (e) {
+        } catch (e: any) {
           err = e;
         }
         expect(err).to.be.instanceof(Error);

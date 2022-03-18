@@ -340,13 +340,13 @@ describe('SnippetManager', () => {
     try {
       await snippetManager.runSnippetCommand(['help', 'mongodb-example']);
       expect.fail('missed exception');
-    } catch (err) {
+    } catch (err: any) {
       expect(err.message).to.equal('No help information available for "mongodb-example"');
     }
     try {
       await snippetManager.runSnippetCommand(['help', 'alhjgfakjhf']);
       expect.fail('missed exception');
-    } catch (err) {
+    } catch (err: any) {
       expect(err.message).to.equal('Unknown snippet "alhjgfakjhf"');
     }
   });
@@ -371,7 +371,7 @@ describe('SnippetManager', () => {
     try {
       await snippetManager.runSnippetCommand(['install', 'unknownsnippet']);
       expect.fail('missed exception');
-    } catch (err) {
+    } catch (err: any) {
       expect(err.message).to.equal('Unknown snippet "unknownsnippet"');
     }
   });
@@ -381,7 +381,7 @@ describe('SnippetManager', () => {
       indexData.indexFileVersion = 20000;
       await snippetManager.runSnippetCommand(['refresh']);
       expect.fail('missed exception');
-    } catch (err) {
+    } catch (err: any) {
       expect(err.message).to.equal(`The specified index file ${indexURL} is not a valid index file: "indexFileVersion" must be less than or equal to 1`);
     }
   });
@@ -392,7 +392,7 @@ describe('SnippetManager', () => {
       indexURL = `${baseURL}/404`;
       await snippetManager.runSnippetCommand(['refresh']);
       expect.fail('missed exception');
-    } catch (err) {
+    } catch (err: any) {
       expect(err.message).to.equal(`The specified index file ${indexURL} could not be read: Not Found`);
     }
   });
@@ -403,7 +403,7 @@ describe('SnippetManager', () => {
       indexURL = `${baseURL}/notindexfile`;
       await snippetManager.runSnippetCommand(['refresh']);
       expect.fail('missed exception');
-    } catch (err) {
+    } catch (err: any) {
       expect(err.message).to.equal(`The specified index file ${indexURL} could not be parsed: Decompression failed`);
     }
   });
@@ -414,7 +414,7 @@ describe('SnippetManager', () => {
       indexURL = `${baseURL}/notindexfile2`;
       await snippetManager.runSnippetCommand(['refresh']);
       expect.fail('missed exception');
-    } catch (err) {
+    } catch (err: any) {
       expect(err.message).to.equal(`The specified index file ${indexURL} could not be parsed: buffer length 13 must === bson size 544501582`);
     }
   });
@@ -535,7 +535,7 @@ describe('SnippetManager', () => {
     try {
       await snippetManager.runSnippetCommand(['install', 'tarballed-example']);
       expect.fail('missed exception');
-    } catch (err) {
+    } catch (err: any) {
       expect(err.message).to.equal('Unknown snippet "tarballed-example"');
     }
   });
@@ -555,7 +555,7 @@ describe('SnippetManager', () => {
     try {
       await snippetManager.runSnippetCommand(['install', 'snippet-without-installation-candidate']);
       expect.fail('missed exception');
-    } catch (err) {
+    } catch (err: any) {
       expect(err.message).to.match(/^Command failed:.+npm/);
       expect(err.message).to.include('E404');
     }
@@ -567,7 +567,7 @@ describe('SnippetManager', () => {
     try {
       await snippetManager.runSnippetCommand(['install', 'bson-example']);
       expect.fail('missed exception');
-    } catch (err) {
+    } catch (err: any) {
       expect(err.name).to.equal('SyntaxError');
       expect(err.message).to.include('JSON');
     }
@@ -589,7 +589,7 @@ describe('SnippetManager', () => {
       try {
         await snippetManager.runSnippetCommand(['install', 'bson-example']);
         expect.fail('missed exception');
-      } catch (err) {
+      } catch (err: any) {
         expect(err.message).to.equal('Stopped by user request');
       }
     });
@@ -632,7 +632,7 @@ describe('SnippetManager', () => {
       try {
         await snippetManager.runSnippetCommand(['install', 'bson-example']);
         expect.fail('missed exception');
-      } catch (err) {
+      } catch (err: any) {
         expect(err.message).to.equal(`Failed to download npm: ${registryURL}/npm/latest: Not Found`);
       }
     });
@@ -644,7 +644,7 @@ describe('SnippetManager', () => {
       try {
         await snippetManager.runSnippetCommand(['install', 'bson-example']);
         expect.fail('missed exception');
-      } catch (err) {
+      } catch (err: any) {
         expect(err.message).to.equal(`Failed to download npm: ${registryURL}/npm/latest: Registry returned no download source`);
       }
     });
@@ -656,7 +656,7 @@ describe('SnippetManager', () => {
       try {
         await snippetManager.runSnippetCommand(['install', 'bson-example']);
         expect.fail('missed exception');
-      } catch (err) {
+      } catch (err: any) {
         expect(err.message).to.equal(`Failed to download npm: ${baseURL}/notfound.tgz: Not Found`);
       }
     });
@@ -723,7 +723,7 @@ describe('SnippetManager', () => {
     try {
       await snippetManager.loadAllSnippets('always'); // yes exception
       expect.fail('missed exception');
-    } catch (err) {
+    } catch (err: any) {
       expect(err.code).to.equal('ENOENT');
     }
   });
@@ -742,7 +742,7 @@ describe('SnippetManager', () => {
       try {
         await snippetManager.runSnippetCommand(['install', 'bson-example', 'tarballed-example']);
         expect.fail('missed exception');
-      } catch (err) {
+      } catch (err: any) {
         expect(err.message).to.equal('interrupted');
       }
       expect(contextObject.load).to.have.callCount(1);
@@ -784,7 +784,7 @@ describe('SnippetManager', () => {
       try {
         await npmPromise;
         expect.fail('missed exception');
-      } catch (err) {
+      } catch (err: any) {
         expect(err.message).to.equal('interrupted');
       }
 

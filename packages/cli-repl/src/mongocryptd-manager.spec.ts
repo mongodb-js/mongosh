@@ -116,7 +116,7 @@ describe('MongocryptdManager', () => {
     try {
       await makeManager().start();
       expect.fail('missed exception');
-    } catch (e) {
+    } catch (e: any) {
       expect(e.code).to.equal('ERR_INVALID_ARG_VALUE');
     }
   });
@@ -126,7 +126,7 @@ describe('MongocryptdManager', () => {
     try {
       await makeManager().start();
       expect.fail('missed exception');
-    } catch (e) {
+    } catch (e: any) {
       expect(e.name).to.equal('MongoshInternalError');
     }
   });
@@ -136,7 +136,7 @@ describe('MongocryptdManager', () => {
     try {
       await makeManager().start();
       expect.fail('missed exception');
-    } catch (e) {
+    } catch (e: any) {
       expect(e.name).to.equal('MongoshInternalError');
     }
     const nostdoutErrors = events.filter(({ event, data }) => {
@@ -163,7 +163,7 @@ describe('MongocryptdManager', () => {
     try {
       await fs.stat(pidfile);
       expect.fail('missed exception');
-    } catch (e) {
+    } catch (e: any) {
       expect(e.code).to.equal('ENOENT');
     }
   });

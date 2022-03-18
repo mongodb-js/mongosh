@@ -71,7 +71,7 @@ export default class AsyncWriter {
           { customErrorBuilder: babel.types.identifier('MongoshAsyncWriterError') }
         ]
       ], { code: true, ast: false })?.code as string;
-    } catch (e) {
+    } catch (e: any) {
       e.message = e.message.replace('unknown: ', '');
       throw e;
     }

@@ -371,7 +371,7 @@ describe('Mongo', () => {
         serviceProvider.getReadConcern.throws(expectedError);
         try {
           mongo.getReadConcern();
-        } catch (caughtError) {
+        } catch (caughtError: any) {
           return expect(caughtError).to.be.instanceOf(MongoshInternalError);
         }
         expect.fail();
@@ -398,7 +398,7 @@ describe('Mongo', () => {
         serviceProvider.getWriteConcern.throws(expectedError);
         try {
           mongo.getWriteConcern();
-        } catch (caughtError) {
+        } catch (caughtError: any) {
           return expect(caughtError).to.be.instanceOf(MongoshInternalError);
         }
         expect.fail();
@@ -423,7 +423,7 @@ describe('Mongo', () => {
         serviceProvider.resetConnectionOptions.throws(expectedError);
         try {
           await mongo.setReadPref('primary');
-        } catch (caughtError) {
+        } catch (caughtError: any) {
           return expect(caughtError).to.equal(expectedError);
         }
         expect.fail();
@@ -445,7 +445,7 @@ describe('Mongo', () => {
         serviceProvider.resetConnectionOptions.throws(expectedError);
         try {
           await mongo.setReadConcern('majority');
-        } catch (caughtError) {
+        } catch (caughtError: any) {
           return expect(caughtError).to.equal(expectedError);
         }
         expect.fail();
@@ -471,7 +471,7 @@ describe('Mongo', () => {
         serviceProvider.resetConnectionOptions.throws(expectedError);
         try {
           await mongo.setWriteConcern('majority');
-        } catch (caughtError) {
+        } catch (caughtError: any) {
           return expect(caughtError).to.equal(expectedError);
         }
         expect.fail();
@@ -495,7 +495,7 @@ describe('Mongo', () => {
         serviceProvider.startSession.throws(expectedError);
         try {
           mongo.startSession();
-        } catch (caughtError) {
+        } catch (caughtError: any) {
           return expect(caughtError).to.equal(expectedError);
         }
         expect.fail();
@@ -566,7 +566,7 @@ describe('Mongo', () => {
         try {
           mongo.setCausalConsistency();
           expect.fail('expected error');
-        } catch (e) {
+        } catch (e: any) {
           expect(e).to.be.instanceOf(MongoshUnimplementedError);
           expect(e.metadata?.driverCaused).to.equal(true);
           expect(e.metadata?.api).to.equal('Mongo.setCausalConsistency');
@@ -578,7 +578,7 @@ describe('Mongo', () => {
         try {
           mongo.isCausalConsistency();
           expect.fail('expected error');
-        } catch (e) {
+        } catch (e: any) {
           expect(e).to.be.instanceOf(MongoshUnimplementedError);
           expect(e.metadata?.driverCaused).to.equal(true);
           expect(e.metadata?.api).to.equal('Mongo.isCausalConsistency');
@@ -615,7 +615,7 @@ describe('Mongo', () => {
       it('setSlaveOk', () => {
         try {
           mongo.setSlaveOk();
-        } catch (e) {
+        } catch (e: any) {
           return expect(e).to.be.instanceOf(MongoshDeprecatedError);
         }
         expect.fail();
@@ -691,7 +691,7 @@ describe('Mongo', () => {
         serviceProvider.watch.throws(expectedError);
         try {
           await mongo.watch();
-        } catch (e) {
+        } catch (e: any) {
           expect(e).to.equal(expectedError);
           return;
         }
@@ -702,7 +702,7 @@ describe('Mongo', () => {
       it('throws an error if no FLE options were provided', () => {
         try {
           mongo.getClientEncryption();
-        } catch (e) {
+        } catch (e: any) {
           expect(e.name).to.equal('MongoshInvalidInputError');
           return;
         }
@@ -772,7 +772,7 @@ describe('Mongo', () => {
             });
             await (await mongo.getDB('test').getCollection('coll').find()).toArray();
             expect.fail('missed exception');
-          } catch (err) {
+          } catch (err: any) {
             expect(err.name).to.match(/MongoServer(Selection)?Error/);
           }
         });

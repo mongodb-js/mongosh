@@ -206,7 +206,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     this.platform = ReplPlatform.CLI;
     try {
       this.initialDb = (mongoClient as any).s.options.dbName || DEFAULT_DB;
-    } catch (err) {
+    } catch (err: any) {
       this.initialDb = DEFAULT_DB;
     }
     this.currentClientOptions = clientOptions;
@@ -236,8 +236,8 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
       buildInfo = await this.runCommandWithCheck('admin', {
         buildInfo: 1
       }, this.baseCmdOptions);
-    } catch (e) {
-      if (e.message.includes('not supported for auto encryption')) {
+    } catch (e: unknown) {
+      if ((e as Error)?.message.includes('not supported for auto encryption')) {
         const options = { ...this.currentClientOptions };
         delete options.autoEncryption;
         const unencrypted =
