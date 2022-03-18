@@ -141,7 +141,7 @@ describe('local trigger-release-draft', () => {
           confirm,
           spawnSync
         );
-      } catch (e) {
+      } catch (e: any) {
         expect(e.message).to.contain('Could not find a previous draft or release tag.');
         expect(verifyGitStatus).to.have.been.called;
         expect(choose).to.not.have.been.called;
@@ -174,7 +174,7 @@ describe('local trigger-release-draft', () => {
           confirm,
           spawnSync
         );
-      } catch (e) {
+      } catch (e: any) {
         expect(e.message).to.contain('User aborted');
         expect(verifyGitStatus).to.have.been.called;
         expect(choose).to.not.have.been.called;
@@ -217,7 +217,7 @@ describe('local trigger-release-draft', () => {
     it('fails on unknown bump type', () => {
       try {
         computeNextTagNameFn(releaseTag, 'what' as any);
-      } catch (e) {
+      } catch (e: any) {
         expect(e.message).to.contain('unexpected bump type');
         return;
       }

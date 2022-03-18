@@ -97,7 +97,7 @@ describe('Cursor', () => {
         try {
           shellApiCursor.addOption(4);
           expect.fail('expected error');
-        } catch (e) {
+        } catch (e: any) {
           expect(e).to.be.instanceOf(MongoshUnimplementedError);
           expect(e.message).to.contain('the slaveOk option is not supported.');
           expect(e.code).to.equal(CommonErrors.NotImplemented);
@@ -108,7 +108,7 @@ describe('Cursor', () => {
         try {
           shellApiCursor.addOption(123123);
           expect.fail('expected error');
-        } catch (e) {
+        } catch (e: any) {
           expect(e).to.be.instanceOf(MongoshInvalidInputError);
           expect(e.message).to.contain('Unknown option flag number: 123123');
           expect(e.code).to.equal(CommonErrors.InvalidArgument);
@@ -730,7 +730,7 @@ describe('Cursor', () => {
         try {
           shellApiCursor.maxScan();
           expect.fail('expected error');
-        } catch (e) {
+        } catch (e: any) {
           expect(e).to.be.instanceOf(MongoshDeprecatedError);
           expect(e.message).to.contain('`maxScan()` was removed because it was deprecated in MongoDB 4.0');
         }

@@ -240,7 +240,7 @@ describe('ChangeStreamCursor', () => {
         try {
           await nextPromise;
           expect.fail('missed exception');
-        } catch (err) {
+        } catch (err: any) {
           expect(err.name).to.equal('MongoshInterruptedError');
         }
       });
@@ -297,7 +297,7 @@ describe('ChangeStreamCursor', () => {
       try {
         await cursor.isExhausted();
         expect.fail('missed exception');
-      } catch (err) {
+      } catch (err: any) {
         expect(err.name).to.equal('MongoshInvalidInputError');
       }
     });

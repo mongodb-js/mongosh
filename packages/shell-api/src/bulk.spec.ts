@@ -208,7 +208,7 @@ describe('Bulk API', () => {
               try {
                 bulk.getOperations();
                 fail('expected error');
-              } catch (e) {
+              } catch (e: any) {
                 expect(e.name).to.equal('MongoshInvalidInputError');
                 expect(e.code).to.equal(CommonErrors.InvalidOperation);
               }

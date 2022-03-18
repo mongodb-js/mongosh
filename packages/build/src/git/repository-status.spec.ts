@@ -44,7 +44,7 @@ describe('git repository-status', () => {
       getRepositoryStatus.returns(status);
       try {
         verifyGitStatus('root', getRepositoryStatus, spawnSync);
-      } catch (e) {
+      } catch (e: any) {
         expect(e.message).to.contain('Could not determine local repository information');
         return;
       }
@@ -64,7 +64,7 @@ describe('git repository-status', () => {
       getRepositoryStatus.returns(status);
       try {
         verifyGitStatus('root', getRepositoryStatus, spawnSync);
-      } catch (e) {
+      } catch (e: any) {
         expect(e.message).to.contain('The current branch does not match');
         return;
       }
@@ -84,7 +84,7 @@ describe('git repository-status', () => {
       getRepositoryStatus.returns(status);
       try {
         verifyGitStatus('root', getRepositoryStatus, spawnSync);
-      } catch (e) {
+      } catch (e: any) {
         expect(e.message).to.contain('The branch you are on is not tracking any remote branch.');
         return;
       }
@@ -104,7 +104,7 @@ describe('git repository-status', () => {
       getRepositoryStatus.returns(status);
       try {
         verifyGitStatus('root', getRepositoryStatus, spawnSync);
-      } catch (e) {
+      } catch (e: any) {
         expect(e.message).to.contain('Your local repository is not clean or diverged from the remote branch');
         return;
       }
@@ -124,7 +124,7 @@ describe('git repository-status', () => {
       getRepositoryStatus.returns(status);
       try {
         verifyGitStatus('root', getRepositoryStatus, spawnSync);
-      } catch (e) {
+      } catch (e: any) {
         expect(e.message).to.contain('Your local repository is not clean or diverged from the remote branch');
         return;
       }
@@ -144,7 +144,7 @@ describe('git repository-status', () => {
       getRepositoryStatus.returns(status);
       try {
         verifyGitStatus('root', getRepositoryStatus, spawnSync);
-      } catch (e) {
+      } catch (e: any) {
         expect(e.message).to.contain('You have local tags that are not pushed to the remote');
         return;
       }

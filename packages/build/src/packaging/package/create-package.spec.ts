@@ -41,7 +41,7 @@ describe('archive create-archive', () => {
     it('throws an error for an unknown variant', async() => {
       try {
         await createPackage(tmpPkg.tarballDir, 'nope' as any, tmpPkg.pkgConfig);
-      } catch (e) {
+      } catch (e: any) {
         expect(e).to.not.be.undefined;
         return;
       }

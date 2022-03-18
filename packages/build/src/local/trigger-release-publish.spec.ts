@@ -60,7 +60,7 @@ describe('local trigger-release-publish', () => {
           verifyEvergreenStatus,
           spawnSync
         );
-      } catch (e) {
+      } catch (e: any) {
         expect(e.message).to.contain('Failed to find a prior tag to release from');
         expect(verifyGitStatus).to.have.been.called;
         expect(confirm).to.not.have.been.called;
@@ -91,7 +91,7 @@ describe('local trigger-release-publish', () => {
           verifyEvergreenStatus,
           spawnSync
         );
-      } catch (e) {
+      } catch (e: any) {
         expect(e.message).to.contain('but it\'s not a draft');
         expect(verifyGitStatus).to.have.been.called;
         expect(confirm).to.not.have.been.called;
@@ -125,7 +125,7 @@ describe('local trigger-release-publish', () => {
           verifyEvergreenStatus,
           spawnSync
         );
-      } catch (e) {
+      } catch (e: any) {
         expect(e).to.equal(expectedError);
         expect(verifyGitStatus).to.have.been.called;
         expect(confirm).to.have.been.called;
@@ -156,7 +156,7 @@ describe('local trigger-release-publish', () => {
           verifyEvergreenStatus,
           spawnSync
         );
-      } catch (e) {
+      } catch (e: any) {
         expect(e.message).to.contain('User aborted');
         expect(verifyGitStatus).to.have.been.called;
         expect(confirm).to.have.been.called;
@@ -213,7 +213,7 @@ describe('local trigger-release-publish', () => {
       getTasks.rejects(expectedError);
       try {
         await verifyEvergreenStatusFn(exampleTag, evergreenProvider);
-      } catch (e) {
+      } catch (e: any) {
         expect(e).to.equal(expectedError);
         return;
       }
@@ -225,7 +225,7 @@ describe('local trigger-release-publish', () => {
       const confirm = sinon.stub().resolves(false);
       try {
         await verifyEvergreenStatusFn(exampleTag, evergreenProvider, confirm);
-      } catch (e) {
+      } catch (e: any) {
         expect(e.message).to.contain('Some Evergreen tasks were not successful');
         expect(getTasks).to.have.been.calledWith('mongosh', 'sha', 'v0.8.2-draft.5');
         return;

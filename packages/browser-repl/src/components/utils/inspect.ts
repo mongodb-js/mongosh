@@ -23,13 +23,13 @@ function tryAddInspect(obj: any, stringifier: (this: any, depth: any, options: a
       value: function(...args: [any, any]) {
         try {
           return stringifier.call(this, ...args);
-        } catch (err) {
+        } catch (err: any) {
           console.warn('Could not inspect bson object', { obj: this, err });
           return utilInspect(this, { customInspect: false });
         }
       }
     });
-  } catch (err) {
+  } catch (err: any) {
     console.warn('Could not add inspect key to object', { obj, err });
   }
 }

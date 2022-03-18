@@ -30,7 +30,7 @@ describe('evergreen rest-api', () => {
     it('throws an error when the configuration file does not exist', async() => {
       try {
         await EvergreenApi.fromUserConfiguration('kasldjflasjk dfalsd jfsdfk');
-      } catch (e) {
+      } catch (e: any) {
         expect(e.message).to.contain('Could not find local evergreen configuration');
         return;
       }
@@ -46,7 +46,7 @@ describe('evergreen rest-api', () => {
         const configFile = await writeEvergreenConfiguration(YAML.stringify(data));
         try {
           await EvergreenApi.fromUserConfiguration(configFile);
-        } catch (e) {
+        } catch (e: any) {
           expect(e.message).to.contain(key);
         }
       });
@@ -131,7 +131,7 @@ describe('evergreen rest-api', () => {
 
       try {
         await api.getTasks('mongosh', 'sha');
-      } catch (e) {
+      } catch (e: any) {
         expect(e.message).to.equal('Unexpected response status: 404 - ERR: Not found');
         return;
       }

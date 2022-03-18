@@ -102,8 +102,8 @@ export function getTlsCertificateSelector(
   try {
     const { passphrase, pfx } = exportCertificateAndPrivateKey(search);
     return { passphrase, pfx };
-  } catch (err) {
-    throw new MongoshInvalidInputError(`Could not resolve certificate specification '${selector}': ${err.message}`);
+  } catch (err: any) {
+    throw new MongoshInvalidInputError(`Could not resolve certificate specification '${selector}': ${err?.message}`);
   }
 }
 

@@ -26,7 +26,7 @@ describe('evergreen artifacts', () => {
           'wrong',
           tmpDir
         );
-      } catch (e) {
+      } catch (e: any) {
         return expect(e).to.not.be.undefined;
       }
       expect.fail('Expected error');

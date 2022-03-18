@@ -32,7 +32,7 @@ describe('uri-generator.generate-uri', () => {
       try {
         generateUri({ connectionSpecifier: undefined, host: 'localhost:27018', port: '27019' });
         expect.fail('expected error');
-      } catch (e) {
+      } catch (e: any) {
         expect(e).to.be.instanceOf(MongoshInvalidInputError);
         expect(e.code).to.equal(CommonErrors.InvalidArgument);
       }
@@ -60,7 +60,7 @@ describe('uri-generator.generate-uri', () => {
           try {
             generateUri(options);
             expect.fail('expected error');
-          } catch (e) {
+          } catch (e: any) {
             expect(e).to.be.instanceOf(MongoshInvalidInputError);
             expect(e.code).to.equal(CommonErrors.InvalidArgument);
           }
@@ -75,7 +75,7 @@ describe('uri-generator.generate-uri', () => {
           try {
             generateUri(options);
             expect.fail('expected error');
-          } catch (e) {
+          } catch (e: any) {
             expect(e.name).to.equal('MongoshInvalidInputError');
             expect(e.code).to.equal(CommonErrors.InvalidArgument);
           }
@@ -99,7 +99,7 @@ describe('uri-generator.generate-uri', () => {
           it('throws an error', () => {
             try {
               generateUri(options);
-            } catch (e) {
+            } catch (e: any) {
               expect(e.name).to.equal('MongoshInvalidInputError');
               expect(e.code).to.equal(CommonErrors.InvalidArgument);
               expect(e.message).to.contain('--gssapiServiceName parameter or the SERVICE_NAME');
@@ -168,7 +168,7 @@ describe('uri-generator.generate-uri', () => {
       it('throws an error', () => {
         try {
           generateUri(options);
-        } catch (e) {
+        } catch (e: any) {
           expect(e.name).to.equal('MongoshInvalidInputError');
           expect(e.code).to.equal(CommonErrors.InvalidArgument);
           expect(e.message).to.contain('gssapiServiceName query parameter is not supported');
@@ -206,7 +206,7 @@ describe('uri-generator.generate-uri', () => {
         try {
           generateUri(options);
           expect.fail('expected error');
-        } catch (e) {
+        } catch (e: any) {
           expect(e).to.be.instanceOf(MongoshInvalidInputError);
           expect(e.code).to.equal(CommonErrors.InvalidArgument);
         }
@@ -257,7 +257,7 @@ describe('uri-generator.generate-uri', () => {
         try {
           generateUri(options);
           expect.fail('expected error');
-        } catch (e) {
+        } catch (e: any) {
           expect(e).to.be.instanceOf(MongoshInvalidInputError);
           expect(e.code).to.equal(CommonErrors.InvalidArgument);
         }
@@ -273,7 +273,7 @@ describe('uri-generator.generate-uri', () => {
           try {
             generateUri(options);
             expect.fail('expected error');
-          } catch (e) {
+          } catch (e: any) {
             expect(e).to.be.instanceOf(MongoshInvalidInputError);
             expect(e.code).to.equal(CommonErrors.InvalidArgument);
           }
@@ -297,7 +297,7 @@ describe('uri-generator.generate-uri', () => {
           try {
             generateUri(options);
             expect.fail('expected error');
-          } catch (e) {
+          } catch (e: any) {
             expect(e).to.be.instanceOf(MongoshInvalidInputError);
             expect(e.code).to.equal(CommonErrors.InvalidArgument);
           }
@@ -321,7 +321,7 @@ describe('uri-generator.generate-uri', () => {
           try {
             generateUri(options);
             expect.fail('expected error');
-          } catch (e) {
+          } catch (e: any) {
             expect(e).to.be.instanceOf(MongoshInvalidInputError);
             expect(e.code).to.equal(CommonErrors.InvalidArgument);
           }
@@ -391,7 +391,7 @@ describe('uri-generator.generate-uri', () => {
     it('returns the uri', () => {
       try {
         generateUri(options);
-      } catch (e) {
+      } catch (e: any) {
         expect(e.message).to.contain('Invalid URI: /x');
         expect(e).to.be.instanceOf(MongoshInvalidInputError);
         expect(e.code).to.equal(CommonErrors.InvalidArgument);
@@ -407,7 +407,7 @@ describe('uri-generator.generate-uri', () => {
     it('returns the uri', () => {
       try {
         generateUri(options);
-      } catch (e) {
+      } catch (e: any) {
         expect(e.message).to.contain('The --host argument contains an invalid character: $');
         expect(e).to.be.instanceOf(MongoshInvalidInputError);
         expect(e.code).to.equal(CommonErrors.InvalidArgument);

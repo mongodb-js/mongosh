@@ -38,7 +38,7 @@ async function getPackageInfo(packagePath: string): Promise<Package> {
   let packageJSON: PackageJSON;
   try {
     packageJSON = JSON.parse(await fs.readFile(packageJSONPath, 'utf8'));
-  } catch (e) {
+  } catch (e: any) {
     throw new Error(`Could not read ${packageJSONPath}: ${e.message}`);
   }
   // Normalize the 'contributors' list.
@@ -78,7 +78,7 @@ export async function gatherLicenses(startPath: string): Promise<Package[]> {
           if (!path.isAbsolute(resolved)) {
             continue; // Node.js builtin
           }
-        } catch (err) {
+        } catch (err: any) {
           resolved = await findUp(async directory => {
             const candidate = path.join(directory, 'node_modules', dep, 'package.json');
             return await findUp.exists(candidate) ? candidate : undefined;
@@ -100,7 +100,7 @@ export async function gatherLicenses(startPath: string): Promise<Package[]> {
               if (name && version) {
                 return candidate;
               }
-            } catch (e) {
+            } catch (e: any) {
               // Ignore errors, just return undefined to continue
               // traversal
             }

@@ -997,7 +997,7 @@ describe('Shell API (integration)', function() {
         try {
           await collection.updateOne({}, { $inc: { '$x.y': 1 } });
           expect.fail('missed exception');
-        } catch (err) {
+        } catch (err: any) {
           expect(err.name).to.equal('MongoServerError');
         }
         await collection.updateOne({}, [
@@ -1041,7 +1041,7 @@ describe('Shell API (integration)', function() {
         try {
           await collection.validate({ full: true, background: true });
           expect.fail('missed exception');
-        } catch (err) {
+        } catch (err: any) {
           expect(err.name).to.equal('MongoServerError');
         }
       });
@@ -1053,7 +1053,7 @@ describe('Shell API (integration)', function() {
       it('fails for non-sharded dbs', async() => {
         try {
           await database.printShardingStatus();
-        } catch (err) {
+        } catch (err: any) {
           expect(err.name).to.equal('MongoshInvalidInputError');
           return;
         }
@@ -1531,7 +1531,7 @@ describe('Shell API (integration)', function() {
         try {
           await (await collection.find()).explain('foo');
           expect.fail('missed exception');
-        } catch (err) {
+        } catch (err: any) {
           expect(err.name).to.equal('MongoServerError');
         }
       });
@@ -1841,7 +1841,7 @@ describe('Shell API (integration)', function() {
             await bulk.execute();
             try {
               await bulk.execute();
-            } catch (err) {
+            } catch (err: any) {
               expect(err.name).to.equal('MongoBatchReExecutionError');
               return;
             }
@@ -1852,7 +1852,7 @@ describe('Shell API (integration)', function() {
             bulk.insert({ x: 1 });
             try {
               bulk.getOperations();
-            } catch (err) {
+            } catch (err: any) {
               expect(err.name).to.equal('MongoshInvalidInputError');
               return;
             }
@@ -1862,7 +1862,7 @@ describe('Shell API (integration)', function() {
             bulk = await collection[m]();
             try {
               await bulk.execute();
-            } catch (err) {
+            } catch (err: any) {
               expect(err.name).to.include('Error');
               return;
             }
@@ -1873,7 +1873,7 @@ describe('Shell API (integration)', function() {
             bulk.find({}).update({ x: 1 });
             try {
               await bulk.execute();
-            } catch (err) {
+            } catch (err: any) {
               expect(err.name).to.include('BulkWriteError');
               return;
             }
@@ -1952,7 +1952,7 @@ describe('Shell API (integration)', function() {
         try {
           // eslint-disable-next-line new-cap
           await shellApi.Mongo(`${await testServer.connectionString()}/?replicaSet=notexist&serverSelectionTimeoutMS=100`);
-        } catch (e) {
+        } catch (e: any) {
           expect(e.message).to.match(/Server selection timed out.+\(is \?tls=true missing from the connection string\?\)$/);
         }
       });
@@ -1961,7 +1961,7 @@ describe('Shell API (integration)', function() {
         try {
           // eslint-disable-next-line new-cap
           await shellApi.Mongo(`${await testServer.connectionString()}/?replicaSet=notexist&serverSelectionTimeoutMS=100&tls=false`);
-        } catch (e) {
+        } catch (e: any) {
           expect(e.message).to.match(/Server selection timed out[^()]+$/);
         }
       });
@@ -2240,7 +2240,7 @@ describe('Shell API (integration)', function() {
         // eslint-disable-next-line no-constant-condition
         await (await collection.find({ $where: function() { while (true); } })).next();
         expect.fail('missed exception');
-      } catch (err) {
+      } catch (err: any) {
         expect(err.codeName).to.equal('MaxTimeMSExpired');
       }
     });
@@ -2251,7 +2251,7 @@ describe('Shell API (integration)', function() {
         // eslint-disable-next-line no-constant-condition
         await (await collection.find({ $where: function() { while (true); } }, {}, { maxTimeMS: 100 })).next();
         expect.fail('missed exception');
-      } catch (err) {
+      } catch (err: any) {
         expect(err.codeName).to.equal('MaxTimeMSExpired');
       }
     });
@@ -2281,7 +2281,7 @@ describe('Shell API (integration)', function() {
       try {
         await (await collection.find()).forEach(() => { calls++; throw error; });
         expect.fail('missed exception');
-      } catch (err) {
+      } catch (err: any) {
         expect(err).to.equal(error);
       }
       expect(calls).to.equal(1);
@@ -2297,7 +2297,7 @@ describe('Shell API (integration)', function() {
         try {
           await cursor.tryNext();
           expect.fail('missed exception');
-        } catch (err) {
+        } catch (err: any) {
           expect(err).to.equal(error);
         }
       }
@@ -2311,7 +2311,7 @@ describe('Shell API (integration)', function() {
       try {
         mongo.setSlaveOk();
         expect.fail('Expected error');
-      } catch (e) {
+      } catch (e: any) {
         expect(e.message).to.contain('slaveOk is deprecated');
       }
       const events = await deprecatedCall;
@@ -2331,7 +2331,7 @@ describe('Shell API (integration)', function() {
       try {
         await database.printShardingStatus();
         expect.fail('Expected error');
-      } catch (e) {
+      } catch (e: any) {
         expect(e.message).to.contain('This db does not have sharding enabled');
       }
       expect(events.length).to.be.greaterThan(1);
@@ -2357,7 +2357,7 @@ describe('Shell API (integration)', function() {
       try {
         await database.runCommand({ ping: 1 });
         expect.fail('missed exceptino');
-      } catch (e) {
+      } catch (e: any) {
         expect(e.name).to.equal('MongoshInterruptedError');
       }
       await instanceState.onResumeExecution();

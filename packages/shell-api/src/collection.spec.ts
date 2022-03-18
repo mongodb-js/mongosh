@@ -521,7 +521,7 @@ describe('Collection', () => {
             returnDocument: 'somethingelse' as any
           });
           expect.fail('missed exception');
-        } catch (error) {
+        } catch (error: any) {
           expect(error).to.be.instanceOf(MongoshInvalidInputError);
           expect(error.message).to.contain("returnDocument needs to be either 'before' or 'after'");
           expect(error.code).to.equal(CommonErrors.InvalidArgument);
@@ -596,7 +596,7 @@ describe('Collection', () => {
             returnDocument: 'somethingelse' as any
           });
           expect.fail('missed exception');
-        } catch (error) {
+        } catch (error: any) {
           expect(error).to.be.instanceOf(MongoshInvalidInputError);
           expect(error.message).to.contain("returnDocument needs to be either 'before' or 'after'");
           expect(error.code).to.equal(CommonErrors.InvalidArgument);
@@ -1278,7 +1278,7 @@ describe('Collection', () => {
       it('throws if no query is provided', async() => {
         try {
           await collection.findAndModify({} as any);
-        } catch (e) {
+        } catch (e: any) {
           return expect(e.name).to.equal('MongoshInvalidInputError');
         }
         expect.fail('MongoshInvalidInputError not thrown for findAndModify');
@@ -1286,7 +1286,7 @@ describe('Collection', () => {
       it('throws if no argument is provided', async() => {
         try {
           await (collection.findAndModify as any)();
-        } catch (e) {
+        } catch (e: any) {
           return expect(e.name).to.equal('MongoshInvalidInputError');
         }
         expect.fail('MongoshInvalidInputError not thrown for findAndModify');
@@ -1395,7 +1395,7 @@ describe('Collection', () => {
         try {
           await collection.renameCollection({} as any);
           expect.fail('expected error');
-        } catch (e) {
+        } catch (e: any) {
           expect(e.message).to.include('type string');
           expect(e.name).to.equal('MongoshInvalidInputError');
           expect(e.code).to.equal(CommonErrors.InvalidArgument);
@@ -1856,7 +1856,7 @@ describe('Collection', () => {
         serviceProvider.watch.throws(expectedError);
         try {
           await collection.watch();
-        } catch (e) {
+        } catch (e: any) {
           expect(e).to.equal(expectedError);
           return;
         }
@@ -1951,7 +1951,7 @@ describe('Collection', () => {
           collection[method].returnsPromise) {
           try {
             await collection[method](...args);
-          } catch (e) {
+          } catch (e: any) {
             expect.fail(`Collection.${method} failed, error thrown ${e.message}`);
           }
           expect(serviceProvider[method].calledOnce).to.equal(true, `expected sp.${method} to be called but it was not`);
@@ -1966,7 +1966,7 @@ describe('Collection', () => {
         const customI = exceptions[method].i || 3;
         try {
           await collection[method](...customA);
-        } catch (e) {
+        } catch (e: any) {
           expect.fail(`${method} failed, error thrown ${e.stack}`);
         }
         expect(serviceProvider[customM].called).to.equal(true, `expecting sp.${customM} to be called but it was not`);

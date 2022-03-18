@@ -54,7 +54,7 @@ export async function notarizeArtifact(
   } finally {
     try {
       await fs.unlink(authTokenFile);
-    } catch (e) {
+    } catch (e: any) {
       console.error('mongosh: Failed to remove auth token file', e);
     }
   }

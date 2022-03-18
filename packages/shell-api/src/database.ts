@@ -217,7 +217,7 @@ export default class Database extends ShellApiWithMongoClass {
         cmd,
         await this._baseOptions()
       );
-    } catch (e) {
+    } catch (e: any) {
       return e;
     }
   }
@@ -909,8 +909,8 @@ export default class Database extends ShellApiWithMongoClass {
         }
       );
       return this._cachedHello;
-    } catch (err) {
-      if (err.codeName === 'CommandNotFound') {
+    } catch (err: any) {
+      if (err?.codeName === 'CommandNotFound') {
         const result = await this.isMaster();
         delete result.ismaster;
         this._cachedHello = result;
@@ -1008,8 +1008,8 @@ export default class Database extends ShellApiWithMongoClass {
     for (const c of colls) {
       try {
         result[c] = await this.getCollection(c).stats({ scale });
-      } catch (error) {
-        result[c] = { ok: 0, errmsg: error.message };
+      } catch (error: any) {
+        result[c] = { ok: 0, errmsg: error?.message };
       }
     }
     return new CommandResult('StatsResult', result);
@@ -1063,7 +1063,7 @@ export default class Database extends ShellApiWithMongoClass {
       result = await this._runAdminCommand(
         { getFreeMonitoringStatus: 1 }
       );
-    } catch (err) {
+    } catch (err: any) {
       error = err;
     }
     if (error && error.codeName === 'Unauthorized' || (result && !result.ok && result.codeName === 'Unauthorized')) {
@@ -1403,7 +1403,7 @@ export default class Database extends ShellApiWithMongoClass {
     let replInfo;
     try {
       replInfo = await this.getReplicationInfo();
-    } catch (error) {
+    } catch (error: any) {
       const helloResult = await this.hello();
       if (helloResult.arbiterOnly) {
         return new CommandResult('StatsResult', { message: 'cannot provide replication status from an arbiter' });

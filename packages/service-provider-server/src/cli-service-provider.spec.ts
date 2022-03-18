@@ -355,7 +355,7 @@ describe('CliServiceProvider', () => {
     it('executes the command against the database and throws if ok: 0', async() => {
       try {
         await serviceProvider.runCommandWithCheck('admin', { ismaster: 1 });
-      } catch (e) {
+      } catch (e: any) {
         expect(e.message).to.include(JSON.stringify({ ismaster: 1 }));
         expect(e.name).to.equal('MongoshCommandFailed');
         expect(e.code).to.equal(CommonErrors.CommandFailed);

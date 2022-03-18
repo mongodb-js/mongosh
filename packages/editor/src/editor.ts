@@ -83,7 +83,7 @@ export class Editor {
       });
 
       return hasMongodbExtension ? 'mongodb' : 'js';
-    } catch (error) {
+    } catch (error: any) {
       this.messageBus.emit('mongosh-editor:read-vscode-extensions-failed', {
         vscodeDir: this._vscodeDir,
         error: error as Error

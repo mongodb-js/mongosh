@@ -47,7 +47,7 @@ describe('WorkerRuntime', () => {
 
       try {
         await runtime.evaluate('1+1');
-      } catch (e) {
+      } catch (e: any) {
         err = e;
       }
 
@@ -66,7 +66,7 @@ describe('WorkerRuntime', () => {
 
       try {
         await runtime.evaluate('1+1');
-      } catch (e) {
+      } catch (e: any) {
         err = e;
       }
 
@@ -91,7 +91,7 @@ describe('WorkerRuntime', () => {
 
         try {
           await runtime.evaluate('throw new TypeError("Oh no, types!")');
-        } catch (e) {
+        } catch (e: any) {
           err = e;
         }
 
@@ -189,7 +189,7 @@ describe('WorkerRuntime', () => {
       try {
         process.kill(pid, 0);
         return true;
-      } catch (e) {
+      } catch (e: any) {
         return false;
       }
     }
@@ -223,7 +223,7 @@ describe('WorkerRuntime', () => {
             await runtime.terminate();
           })()
         ]);
-      } catch (e) {
+      } catch (e: any) {
         err = e;
       }
       expect(err).to.be.instanceof(Error);
@@ -250,7 +250,7 @@ describe('WorkerRuntime', () => {
             await runtime.interrupt();
           })()
         ]);
-      } catch (e) {
+      } catch (e: any) {
         err = e;
       }
 
@@ -275,7 +275,7 @@ describe('WorkerRuntime', () => {
             await runtime.interrupt();
           })()
         ]);
-      } catch (e) {
+      } catch (e: any) {
         err = e;
       }
 
@@ -298,7 +298,7 @@ describe('WorkerRuntime', () => {
             await runtime.interrupt();
           })()
         ]);
-      } catch (e) {
+      } catch (e: any) {
         // ignore
       }
 

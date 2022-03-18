@@ -75,7 +75,7 @@ describe('CliServiceProvider [integration]', function() {
       try {
         await serviceProvider.runCommandWithCheck('admin', { ping: 1 });
         expect.fail('missed exception');
-      } catch (err) {
+      } catch (err: any) {
         expect(err.name).to.equal('MongoNotConnectedError');
       }
       await reconnect();

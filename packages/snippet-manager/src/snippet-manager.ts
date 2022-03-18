@@ -250,8 +250,8 @@ export class SnippetManager implements ShellPlugin {
           let data;
           try {
             data = await unpackBSON<Omit<SnippetIndexFile, 'sourceURL'>>(rawData);
-          } catch (err) {
-            this.messageBus.emit('mongosh-snippets:fetch-index-error', { action: 'parse-fetched', url, error: err.message });
+          } catch (err: any) {
+            this.messageBus.emit('mongosh-snippets:fetch-index-error', { action: 'parse-fetched', url, error: err?.message });
             throw new MongoshRuntimeError(`The specified index file ${url} could not be parsed: ${err.message}`);
           }
           const { error } = indexFileSchema.validate(data, { allowUnknown: true });
@@ -264,8 +264,8 @@ export class SnippetManager implements ShellPlugin {
         // If possible, write the result to disk for caching.
         try {
           await fs.writeFile(cachePath, await packBSON({ repoData }));
-        } catch (err) {
-          this.messageBus.emit('mongosh-snippets:fetch-index-error', { action: 'save', error: err.message });
+        } catch (err: any) {
+          this.messageBus.emit('mongosh-snippets:fetch-index-error', { action: 'save', error: err?.message });
         }
       }
       this.messageBus.emit('mongosh-snippets:fetch-index-done');
@@ -306,8 +306,8 @@ export class SnippetManager implements ShellPlugin {
     let pjson = {};
     try {
       pjson = JSON.parse(await fs.readFile(path.join(this.installdir, 'package.json'), 'utf8'));
-    } catch (err) {
-      this.messageBus.emit('mongosh-snippets:package-json-edit-error', { error: err.message });
+    } catch (err: any) {
+      this.messageBus.emit('mongosh-snippets:package-json-edit-error', { error: err?.message });
       if (err.code !== 'ENOENT') {
         throw err;
       }
@@ -386,7 +386,7 @@ export class SnippetManager implements ShellPlugin {
     let installedPackages;
     try {
       installedPackages = await this.editPackageJSON((pjson) => Object.keys(pjson.dependencies ?? {}));
-    } catch (err) {
+    } catch (err: any) {
       if (autoloadMode === 'only-autoload') {
         return; // Could not load snippets. The user will be aware of this soon enough, most likely.
       }

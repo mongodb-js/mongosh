@@ -62,8 +62,8 @@ export default class ReplicaSet extends ShellApiWithMongoClass {
         throw new MongoshRuntimeError('Documented returned from command replSetGetConfig does not contain \'config\'', CommonErrors.CommandFailed);
       }
       return result.config;
-    } catch (error) {
-      if (error.codeName === 'CommandNotFound' || error.codeName === 'APIStrictError') {
+    } catch (error: any) {
+      if (error?.codeName === 'CommandNotFound' || error?.codeName === 'APIStrictError') {
         const doc = await this._database.getSiblingDB('local').getCollection('system.replset').findOne() as ReplSetConfig | null;
         if (doc === null) {
           throw new MongoshRuntimeError('No documents in local.system.replset', CommonErrors.CommandFailed);
@@ -132,7 +132,7 @@ export default class ReplicaSet extends ShellApiWithMongoClass {
         }
         result = [ 'success', await runReconfig() ];
         break;
-      } catch (err) {
+      } catch (err: any) {
         result = [ 'error', err ];
       }
     }
@@ -209,7 +209,7 @@ export default class ReplicaSet extends ShellApiWithMongoClass {
 
     try {
       return await this.reconfig(config, options);
-    } catch (e) {
+    } catch (e: any) {
       // If this did not work out, print the attempted command to give the user
       // a chance to complete the second reconfig manually.
       await print('Second reconfig did not succeed, giving up');

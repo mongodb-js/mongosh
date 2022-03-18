@@ -11,7 +11,7 @@ describe('npm-packages spawnSync', () => {
   it('throws on ENOENT error', () => {
     try {
       spawnSync('notaprogram', [], { encoding: 'utf8' });
-    } catch (e) {
+    } catch (e: any) {
       return expect(e).to.not.be.undefined;
     }
     expect.fail('Expected error');
@@ -20,7 +20,7 @@ describe('npm-packages spawnSync', () => {
   it('throws on non-zero exit code', () => {
     try {
       spawnSync('bash', ['-c', 'exit 1'], { encoding: 'utf8' });
-    } catch (e) {
+    } catch (e: any) {
       return expect(e).to.not.be.undefined;
     }
     expect.fail('Expected error');

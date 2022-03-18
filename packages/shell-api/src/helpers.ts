@@ -268,7 +268,7 @@ export async function getPrintableShardStatus(configDB: Database, verbose: boole
       try {
         const balancerStatus = await configDB.adminCommand({ balancerStatus: 1 });
         balancerRunning = balancerStatus.inBalancerRound ? 'yes' : 'no';
-      } catch (err) {
+      } catch (err: any) {
         // pass, ignore all error messages
       }
       balancerRes['Currently running'] = balancerRunning;

@@ -24,7 +24,7 @@ function ciLog(...args: any[]) {
 async function statIfExists(path: string): Promise<ReturnType<typeof fs.stat> | undefined> {
   try {
     return await fs.stat(path);
-  } catch (err) {
+  } catch (err: any) {
     if (err.code === 'ENOENT') {
       return undefined;
     }
@@ -45,7 +45,7 @@ async function tryExtensions(base: string): Promise<[ string, Error ]> {
     try {
       await fs.stat(base + ext);
       return [ base + ext, lastErr ];
-    } catch (err) {
+    } catch (err: any) {
       lastErr = err;
       ciLog('File does not exist or is inaccessible', base + ext);
     }
@@ -181,7 +181,7 @@ export async function clearMlaunch({ killAllMongod = false } = {}) {
         } else {
           await execFile('killall', [proc]);
         }
-      } catch (err) {
+      } catch (err: any) {
         console.warn(`Cleaning up ${proc} instances failed:`, err);
       }
     }
@@ -192,12 +192,12 @@ export async function clearMlaunch({ killAllMongod = false } = {}) {
       const fullPath = path.join(tmpdir, name);
       try {
         await execMlaunch('kill', '--dir', fullPath);
-      } catch (err) {
+      } catch (err: any) {
         console.warn(`mlaunch kill in ${fullPath} failed:`, err);
       }
       try {
         await promisify(rimraf)(fullPath);
-      } catch (err) {
+      } catch (err: any) {
         console.warn(`Removing ${fullPath} failed:`, err);
       }
     }
@@ -359,7 +359,7 @@ class MlaunchSetup extends MongodSetup {
     await execMlaunch('stop', '--dir', this._mlaunchdir);
     try {
       await promisify(rimraf)(this._mlaunchdir);
-    } catch (err) {
+    } catch (err: any) {
       console.error(`Cannot remove directory ${this._mlaunchdir}`, err);
     }
   }
@@ -554,7 +554,7 @@ export function skipIfEnvServerVersion(semverCondition: string): void {
     if (!testServerVersion) {
       try {
         testServerVersion = await getInstalledMongodVersion();
-      } catch(e) {
+      } catch(e: any) {
         // no explicitly specified version but also no local mongod installation
         testServerVersion = '9999.9999.9999';
       }

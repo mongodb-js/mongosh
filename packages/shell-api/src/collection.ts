@@ -512,8 +512,8 @@ export default class Collection extends ShellApiWithMongoClass {
       return {
         ok: 1
       };
-    } catch (e) {
-      if (e.name === 'MongoError') {
+    } catch (e: any) {
+      if (e?.name === 'MongoError') {
         return {
           ok: 0,
           errmsg: e.errmsg,
@@ -1167,13 +1167,13 @@ export default class Collection extends ShellApiWithMongoClass {
           dropIndexes: this._name,
           index: indexes,
         });
-    } catch (error) {
+    } catch (error: any) {
       // If indexes is an array and we're failing because of that, we fall back to
       // trying to drop all the indexes individually because that's what's supported
       // on mongod 4.0. In the java-shell, error properties are unavailable,
       // so we are a bit more generous there in terms of situation in which we retry.
-      if ((error.codeName === 'IndexNotFound' || error.codeName === undefined) &&
-          (error.errmsg === 'invalid index name spec' || error.errmsg === undefined) &&
+      if ((error?.codeName === 'IndexNotFound' || error?.codeName === undefined) &&
+          (error?.errmsg === 'invalid index name spec' || error?.errmsg === undefined) &&
           Array.isArray(indexes) &&
           indexes.length > 0 &&
           (await this._database.version()).match(/^4\.0\./)) {
@@ -1185,7 +1185,7 @@ export default class Collection extends ShellApiWithMongoClass {
         return all.sort((a, b) => b.nIndexesWas - a.nIndexesWas)[0];
       }
 
-      if (error.codeName === 'IndexNotFound') {
+      if (error?.codeName === 'IndexNotFound') {
         return {
           ok: error.ok,
           errmsg: error.errmsg,
@@ -1337,8 +1337,8 @@ export default class Collection extends ShellApiWithMongoClass {
         this._name,
         await this._database._baseOptions()
       );
-    } catch (error) {
-      if (error.codeName === 'NamespaceNotFound') {
+    } catch (error: any) {
+      if (error?.codeName === 'NamespaceNotFound') {
         this._mongo._instanceState.messageBus.emit(
           'mongosh:warn',
           {

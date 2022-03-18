@@ -224,7 +224,7 @@ describe('arg-parser', () => {
           it('raises an error', () => {
             try {
               parseCliArgs(argv);
-            } catch (err) {
+            } catch (err: any) {
               return expect(
                 stripAnsi(err.message)
               ).to.contain('Error parsing command line: unrecognized option: --what');
@@ -325,7 +325,7 @@ describe('arg-parser', () => {
           it('throws an error since it is not yet supported', () => {
             try {
               parseCliArgs(argv);
-            } catch (e) {
+            } catch (e: any) {
               expect(e).to.be.instanceOf(MongoshUnimplementedError);
               expect(e.message).to.include('Argument --gssapiHostName is not yet supported in mongosh');
               return;
@@ -494,7 +494,7 @@ describe('arg-parser', () => {
           it('throws an error since it is not yet supported', () => {
             try {
               parseCliArgs(argv);
-            } catch (e) {
+            } catch (e: any) {
               expect(e).to.be.instanceOf(MongoshUnimplementedError);
               expect(e.message).to.include('Argument --tlsFIPSMode is not yet supported in mongosh');
               return;

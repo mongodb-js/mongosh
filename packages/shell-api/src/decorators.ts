@@ -244,7 +244,7 @@ function wrapWithApiChecks<T extends(...args: any[]) => any>(fn: T, className: s
           interrupt?.promise ?? new Promise<never>(() => {}),
           fn.call(this, ...args)
         ]);
-      } catch (e) {
+      } catch (e: any) {
         throw instanceState?.transformError(e) ?? e;
       } finally {
         if (instanceState) {
@@ -267,7 +267,7 @@ function wrapWithApiChecks<T extends(...args: any[]) => any>(fn: T, className: s
           instanceState.apiCallDepth++;
         }
         result = fn.call(this, ...args);
-      } catch (e) {
+      } catch (e: any) {
         throw instanceState?.transformError(e) ?? e;
       } finally {
         if (instanceState) {

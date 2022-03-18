@@ -91,7 +91,7 @@ describe('Session', () => {
         try {
           session.getDatabase('');
           expect.fail('expected error');
-        } catch (e) {
+        } catch (e: any) {
           expect(e).to.be.instanceOf(MongoshInvalidInputError);
           expect(e.code).to.equal(CommonErrors.InvalidArgument);
         }
@@ -189,7 +189,7 @@ describe('Session', () => {
         expect(session.hasEnded()).to.be.true;
         try {
           await session.getDatabase(databaseName).getCollection('coll').insertOne({});
-        } catch (e) {
+        } catch (e: any) {
           return expect(e.message).to.include('expired sessions');
         }
         expect.fail('Error not thrown');
@@ -210,7 +210,7 @@ describe('Session', () => {
           expect(s.hasEnded()).to.be.true;
           try {
             await s.getDatabase(databaseName).getCollection('coll').insertOne({});
-          } catch (e) {
+          } catch (e: any) {
             expect(e.message).to.include('expired sessions');
             continue;
           }
@@ -222,7 +222,7 @@ describe('Session', () => {
         await session.endSession();
         try {
           await session.getDatabase(databaseName).getCollection('coll').insertOne({});
-        } catch (e) {
+        } catch (e: any) {
           return expect(e.message).to.include('expired');
         }
         expect.fail('Error not thrown');
@@ -236,7 +236,7 @@ describe('Session', () => {
           try {
             await session.getDatabase(databaseName).getCollection('coll').insertOne({});
             expect.fail('missed exception');
-          } catch (e) {
+          } catch (e: any) {
             expect(e.message).to.include('snapshot'); // Cannot do writes with snapshot: true
           }
           expect(session._session.snapshotEnabled).to.equal(true);
@@ -250,7 +250,7 @@ describe('Session', () => {
         session.startTransaction();
         try {
           session.startTransaction();
-        } catch (e) {
+        } catch (e: any) {
           return expect(e.message).to.include('in progress');
         }
         expect.fail('Error not thrown');
@@ -259,7 +259,7 @@ describe('Session', () => {
         session = mongo.startSession();
         try {
           await session.abortTransaction();
-        } catch (e) {
+        } catch (e: any) {
           return expect(e.message).to.include('transaction started');
         }
         expect.fail('Error not thrown');
@@ -268,7 +268,7 @@ describe('Session', () => {
         session = mongo.startSession();
         try {
           await session.commitTransaction();
-        } catch (e) {
+        } catch (e: any) {
           return expect(e.message).to.include('transaction started');
         }
         expect.fail('Error not thrown');
@@ -351,7 +351,7 @@ describe('Session', () => {
         await mongo.setReadConcern('majority');
         try {
           await session.getDatabase(databaseName).getCollection('coll').insertOne({});
-        } catch (e) {
+        } catch (e: any) {
           return expect(e.message).to.include('expired');
         }
       });
@@ -361,7 +361,7 @@ describe('Session', () => {
         await mongo.getDB(databaseName).auth('anna', 'pwd');
         try {
           await session.getDatabase(databaseName).getCollection('coll').insertOne({});
-        } catch (e) {
+        } catch (e: any) {
           await mongo.getDB(databaseName).logout();
           return expect(e.message).to.include('expired');
         }

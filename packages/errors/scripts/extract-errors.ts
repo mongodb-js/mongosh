@@ -68,7 +68,7 @@ async function isDirectory(path: string): Promise<boolean> {
   try {
     const stat = await fs.lstat(path);
     return stat.isDirectory();
-  } catch (e) {
+  } catch (e: any) {
     return false;
   }
 }
@@ -77,7 +77,7 @@ async function isFile(path: string): Promise<boolean> {
   try {
     const stat = await fs.lstat(path);
     return stat.isFile();
-  } catch (e) {
+  } catch (e: any) {
     return false;
   }
 }

@@ -82,7 +82,7 @@ describe('publish', () => {
             publishToHomebrew,
             shouldDoPublicRelease
           );
-        } catch (e) {
+        } catch (e: any) {
           return expect(e.message).to.contain('Could not find prior draft tag');
         }
         expect.fail('Expected error');
@@ -105,7 +105,7 @@ describe('publish', () => {
             publishToHomebrew,
             shouldDoPublicRelease
           );
-        } catch (e) {
+        } catch (e: any) {
           return expect(e.message).to.contain('Version mismatch');
         }
         expect.fail('Expected error');
@@ -128,7 +128,7 @@ describe('publish', () => {
             publishToHomebrew,
             shouldDoPublicRelease
           );
-        } catch (e) {
+        } catch (e: any) {
           return expect(e.message).to.contain('Missing package name');
         }
         expect.fail('Expected error');

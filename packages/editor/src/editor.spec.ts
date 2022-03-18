@@ -30,7 +30,7 @@ function useTmpdir(): { readonly path: string } {
   afterEach(async() => {
     try {
       await promisify(rimraf)(tmpdir);
-    } catch (err) {
+    } catch (err: any) {
       // On Windows in CI, this can fail with EPERM for some reason.
       // If it does, just log the error instead of failing all tests.
       console.error('Could not remove fake home directory:', err);
@@ -52,7 +52,7 @@ const fakeExternalEditor = async(
     script = `(async () => {
       const tmpDoc = process.argv[process.argv.length - 1];
       const { promises: { writeFile } } = require('fs');
-  
+
       await writeFile(tmpDoc, ${JSON.stringify(output)}, { mode: 0o600 });
     })()`;
   } else {
@@ -427,7 +427,7 @@ describe('Editor', () => {
         editor = makeEditor();
         try {
           await editor.runEditCommand('');
-        } catch (error) {
+        } catch (error: any) {
           expect(error.message).to.include('Command failed with an error: please define an external editor');
         }
       });
@@ -440,7 +440,7 @@ describe('Editor', () => {
 
         try {
           await editor.runEditCommand('function() {}');
-        } catch (error) {
+        } catch (error: any) {
           expect(error.message).to.include('failed with an exit code 1');
         }
       });

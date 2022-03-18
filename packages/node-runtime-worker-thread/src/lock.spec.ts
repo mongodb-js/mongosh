@@ -30,7 +30,7 @@ describe('Lock', () => {
     try {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       lock.lock();
-    } catch (e) {
+    } catch (e: any) {
       err = e;
     } finally {
       lock.unlock();

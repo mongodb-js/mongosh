@@ -187,7 +187,7 @@ class CliRepl implements MongoshIOProvider {
 
     try {
       await this.shellHomeDirectory.ensureExists();
-    } catch (err) {
+    } catch (err: any) {
       this.warnAboutInaccessibleFile(err);
     }
 
@@ -207,7 +207,7 @@ class CliRepl implements MongoshIOProvider {
     let analyticsSetupError: Error | null = null;
     try {
       this.setupAnalytics();
-    } catch (err) {
+    } catch (err: any) {
       // Need to delay emitting the error on the bus so that logging is in place
       // as well
       analyticsSetupError = err;
@@ -229,7 +229,7 @@ class CliRepl implements MongoshIOProvider {
 
     try {
       this.config = await this.configDirectory.generateOrReadConfig(this.config);
-    } catch (err) {
+    } catch (err: any) {
       this.warnAboutInaccessibleFile(err);
     }
 
@@ -359,7 +359,7 @@ class CliRepl implements MongoshIOProvider {
       try {
         this.bus.emit('mongosh:mongoshrc-load');
         await this.mongoshRepl.loadExternalFile(mongoshrcPath);
-      } catch (err) {
+      } catch (err: any) {
         this.output.write(this.clr('Error while running ~/.mongoshrc.js:\n', 'mongosh:warning'));
         this.output.write(this.mongoshRepl.writer(err) + '\n');
       }
@@ -403,8 +403,8 @@ class CliRepl implements MongoshIOProvider {
       try {
         fileContents = await fs.readFile(filename, 'utf8');
         break;
-      } catch (err) {
-        if (err.code !== 'ENOENT') {
+      } catch (err: any) {
+        if (err?.code !== 'ENOENT') {
           this.bus.emit('mongosh:error', err, 'config');
         }
       }
@@ -426,9 +426,9 @@ class CliRepl implements MongoshIOProvider {
         }
       }
       return config;
-    } catch (err) {
+    } catch (err: any) {
       this.bus.emit('mongosh:error', err, 'config');
-      const msg = `Warning: Could not parse global configuration file at ${filename}: ${err.message}\n`;
+      const msg = `Warning: Could not parse global configuration file at ${filename}: ${err?.message}\n`;
       this.output.write(this.clr(msg, 'mongosh:warning'));
       return {};
     }
@@ -492,7 +492,7 @@ class CliRepl implements MongoshIOProvider {
     }
     try {
       await this.configDirectory.writeConfigFile(this.config);
-    } catch (err) {
+    } catch (err: any) {
       this.warnAboutInaccessibleFile(err, this.configDirectory.path());
     }
     return 'success';
@@ -584,7 +584,7 @@ class CliRepl implements MongoshIOProvider {
       } finally {
         this.output.write('\n');
       }
-    } catch (error) {
+    } catch (error: any) {
       await this._fatalError(error);
     }
     return ''; // unreachable
@@ -661,8 +661,8 @@ class CliRepl implements MongoshIOProvider {
   async startMongocryptd(): Promise<AutoEncryptionOptions['extraOptions']> {
     try {
       return await this.mongocryptdManager.start();
-    } catch (e) {
-      if (e.code === 'ENOENT') {
+    } catch (e: any) {
+      if (e?.code === 'ENOENT') {
         throw new MongoshRuntimeError('Could not find a working mongocryptd - ensure your local installation works correctly. See the mongosh log file for additional information. Please also refer to the documentation: https://docs.mongodb.com/manual/reference/security-client-side-encryption-appendix/');
       }
       throw e;

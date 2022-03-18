@@ -291,7 +291,7 @@ describe('ReplicaSet', () => {
           try {
             await rs.reconfig(configDoc);
             expect.fail('missed exception');
-          } catch (err) {
+          } catch (err: any) {
             expect(err.message).to.equal('Reconfig failed: {"ok":0}');
           }
           expect(evaluationListener.onPrint).to.have.been.calledWith([
@@ -731,7 +731,7 @@ describe('ReplicaSet', () => {
         try {
           await rs.reconfigForPSASet(3, config);
           expect.fail('missed exception');
-        } catch (err) {
+        } catch (err: any) {
           expect(err.message).to.equal('[COMMON-10001] Node at index 3 does not exist in the new config');
         }
       });
@@ -741,7 +741,7 @@ describe('ReplicaSet', () => {
         try {
           await rs.reconfigForPSASet(2, config);
           expect.fail('missed exception');
-        } catch (err) {
+        } catch (err: any) {
           expect(err.message).to.equal('[COMMON-10001] Node at index 2 must have { votes: 1 } in the new config (actual: { votes: 0 })');
         }
       });
@@ -751,7 +751,7 @@ describe('ReplicaSet', () => {
         try {
           await rs.reconfigForPSASet(2, config);
           expect.fail('missed exception');
-        } catch (err) {
+        } catch (err: any) {
           expect(err.message).to.equal('[COMMON-10001] Node at index 2 must have { votes: 0 } in the old config (actual: { votes: 1 })');
         }
       });
@@ -819,7 +819,7 @@ describe('ReplicaSet', () => {
         try {
           await rs.reconfigForPSASet(2, config);
           expect.fail('missed exception');
-        } catch (err) {
+        } catch (err: any) {
           expect(err.message).to.equal('Reconfig failed: {"ok":0}');
         }
         expect(evaluationListener.onPrint).to.have.been.calledWith([
@@ -882,7 +882,7 @@ describe('ReplicaSet', () => {
       try {
         await rs.status();
         expect.fail();
-      } catch (error) {
+      } catch (error: any) {
         expect(error.message).to.include('no replset config');
       }
       const result = await rs.initiate(cfg);
@@ -1074,7 +1074,7 @@ describe('ReplicaSet', () => {
         try {
           await rs.add(secondary);
           expect.fail('missed assertion');
-        } catch (err) {
+        } catch (err: any) {
           expect(err.codeName).to.equal('NewReplicaSetConfigurationIncompatible');
         }
       }

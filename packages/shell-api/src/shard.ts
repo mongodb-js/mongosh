@@ -60,8 +60,8 @@ export default class Shard extends ShellApiWithMongoClass {
     }
     try {
       return await this._database._runAdminCommand(cmd);
-    } catch (error) {
-      if (error.codeName === 'CommandNotFound') {
+    } catch (error: any) {
+      if (error?.codeName === 'CommandNotFound') {
         error.message = `${error.message}. Are you connected to mongos?`;
       }
       throw error;
@@ -125,8 +125,8 @@ export default class Shard extends ShellApiWithMongoClass {
     }
     try {
       return await this._database._runAdminCommand({ ...cmd, ...options });
-    } catch (error) {
-      if (error.codeName === 'CommandNotFound') {
+    } catch (error: any) {
+      if (error?.codeName === 'CommandNotFound') {
         error.message = `${error.message}. Are you connected to mongos?`;
       }
       throw error;
@@ -174,8 +174,8 @@ export default class Shard extends ShellApiWithMongoClass {
     this._emitShardApiCall('addShardTag', { shard, tag });
     try {
       return await this.addShardToZone(shard, tag);
-    } catch (error) {
-      if (error.codeName === 'CommandNotFound') {
+    } catch (error: any) {
+      if (error?.codeName === 'CommandNotFound') {
         error.message = `${error.message}. This method aliases to addShardToZone which exists only for server versions > 3.4.`;
       }
       throw error;
@@ -211,8 +211,8 @@ export default class Shard extends ShellApiWithMongoClass {
         max,
         zone
       );
-    } catch (error) {
-      if (error.codeName === 'CommandNotFound') {
+    } catch (error: any) {
+      if (error?.codeName === 'CommandNotFound') {
         error.message = `${error.message}. This method aliases to updateZoneKeyRange which exists only for server versions > 3.4.`;
       }
       throw error;
@@ -236,8 +236,8 @@ export default class Shard extends ShellApiWithMongoClass {
     this._emitShardApiCall('removeTagRange', { ns, min, max });
     try {
       return await this.updateZoneKeyRange(ns, min, max, null);
-    } catch (error) {
-      if (error.codeName === 'CommandNotFound') {
+    } catch (error: any) {
+      if (error?.codeName === 'CommandNotFound') {
         error.message = `${error.message}. This method aliases to updateZoneKeyRange which exists only for server versions > 3.4.`;
       }
       throw error;
@@ -266,8 +266,8 @@ export default class Shard extends ShellApiWithMongoClass {
     this._emitShardApiCall('removeTagRange', { shard, tag });
     try {
       return await this.removeShardFromZone(shard, tag);
-    } catch (error) {
-      if (error.codeName === 'CommandNotFound') {
+    } catch (error: any) {
+      if (error?.codeName === 'CommandNotFound') {
         error.message = `${error.message}. This method aliases to removeShardFromZone which exists only for server versions > 3.4.`;
       }
       throw error;

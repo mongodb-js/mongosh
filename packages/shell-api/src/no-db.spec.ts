@@ -10,7 +10,7 @@ describe('NoDatabase', () => {
   it('throws for show', () => {
     try {
       nodb._mongo.show('dbs');
-    } catch (e) {
+    } catch (e: any) {
       return expect(e.name).to.equal('MongoshInvalidInputError');
     }
     expect.fail('no error thrown for NoDb._mongo.use');
@@ -18,7 +18,7 @@ describe('NoDatabase', () => {
   it('throws for nomongo.use', () => {
     try {
       nomongo.use('test');
-    } catch (e) {
+    } catch (e: any) {
       return expect(e.name).to.equal('MongoshInvalidInputError');
     }
     expect.fail('no error thrown for NoDb');

@@ -101,7 +101,7 @@ end`;
         homebrewCore
       );
       expect.fail('expected error');
-    } catch (e) {
+    } catch (e: any) {
       expect(e.message).to.contain('is lower than');
     }
     expect(getFileContent).to.have.been.calledOnce;

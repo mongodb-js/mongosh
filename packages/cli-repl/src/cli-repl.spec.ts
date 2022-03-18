@@ -35,7 +35,7 @@ describe('CliRepl', () => {
     try {
       await cliRepl.start(host, {});
       expect.fail('Expected start() to also exit immediately');
-    } catch (err) {
+    } catch (err: any) {
       expect(err.message).to.include('onExit() unexpectedly returned');
     }
   }
@@ -195,7 +195,7 @@ describe('CliRepl', () => {
         try {
           // calling exit will not "exit" since we are not stopping the process
           await cliRepl.exit(1);
-        } catch (e) {
+        } catch (e: any) {
           const [emitted] = await onerror;
           expect(emitted).to.be.instanceOf(MongoshInternalError);
           await eventually(async() => {
@@ -333,7 +333,7 @@ describe('CliRepl', () => {
         try {
           await fs.stat(oldlogfile);
           expect.fail('missed exception');
-        } catch (err) {
+        } catch (err: any) {
           expect(err.code).to.equal('ENOENT');
         }
       });
@@ -475,7 +475,7 @@ describe('CliRepl', () => {
           cliRepl = new CliRepl(cliReplOptions);
           try {
             await cliRepl.start('', {});
-          } catch (err) {
+          } catch (err: any) {
             expect(err.message).to.include('uh oh');
           }
           expect(output).to.include('Loading file');
@@ -495,7 +495,7 @@ describe('CliRepl', () => {
           cliRepl = new CliRepl(cliReplOptions);
           try {
             await cliRepl.start('', {});
-          } catch (err) {
+          } catch (err: any) {
             expect(err.message).to.include('oh no');
           }
           expect(output).not.to.include('oh no');
@@ -721,7 +721,7 @@ describe('CliRepl', () => {
       try {
         await cliRepl.start(await testServer.connectionString(), { auth });
         threw = false;
-      } catch (err) {
+      } catch (err: any) {
         expect(err.message).to.equal('Authentication failed.');
       }
       expect(threw).to.be.true;
@@ -742,7 +742,7 @@ describe('CliRepl', () => {
       try {
         await cliRepl.start(cs.href, {});
         threw = false;
-      } catch (err) {
+      } catch (err: any) {
         expect(err.message).to.equal('Authentication failed.');
       }
       expect(threw).to.be.true;

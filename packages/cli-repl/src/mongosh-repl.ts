@@ -358,11 +358,11 @@ class MongoshNodeRepl implements EvaluationListener {
           originalHistory = null;
         }
       });
-    } catch (err) {
+    } catch (err: any) {
       // repl.setupHistory() only reports failure when something went wrong
       // *after* the file was already opened for the first time. If the initial
       // open fails, it will print a warning to the REPL and report success to us.
-      const warn = new MongoshWarning('Error processing history file: ' + err.message);
+      const warn = new MongoshWarning('Error processing history file: ' + err?.message);
       this.output.write(this.writer(warn) + '\n');
     }
 
@@ -436,7 +436,7 @@ class MongoshNodeRepl implements EvaluationListener {
       if (!result) {
         throw new MongoshCommandFailed('adminCommand getLog unexpectedly returned no result');
       }
-    } catch (error) {
+    } catch (error: any) {
       this.bus.emit('mongosh:error', error, 'repl');
       return;
     }
@@ -452,7 +452,7 @@ class MongoshNodeRepl implements EvaluationListener {
       try {
         const entry: LogEntry = parseAnyLogEntry(logLine);
         text += `   ${entry.timestamp}: ${entry.message}\n`;
-      } catch (e) {
+      } catch (e: any) {
         text += `   Unexpected log line format: ${logLine}\n`;
       }
     });
@@ -522,7 +522,7 @@ class MongoshNodeRepl implements EvaluationListener {
       return Object.fromEntries(
         Object.entries(rawValue)
           .filter(([key]) => !key.startsWith('_')));
-    } catch (err) {
+    } catch (err: any) {
       if (this.runtimeState().instanceState.interrupted.isSet()) {
         interrupted = true;
         this.bus.emit('mongosh:eval-interrupted');
@@ -908,7 +908,7 @@ function isErrorLike(value: any): boolean {
       (value.message !== undefined && typeof value.stack === 'string') ||
       (value.code !== undefined && value.errmsg !== undefined)
     );
-  } catch (err) {
+  } catch (err: any) {
     throw new MongoshInternalError(err?.message || String(err));
   }
 }

@@ -100,7 +100,7 @@ describe('AsyncWriter', () => {
       try {
         await runTranspiledCode('Promise.reject(42)');
         expect.fail('missed exception');
-      } catch (err) {
+      } catch (err: any) {
         expect(err).to.equal(42);
       }
     });
@@ -122,7 +122,7 @@ describe('AsyncWriter', () => {
       try {
         runTranspiledCode("'use strict'; delete Object.prototype");
         expect.fail('missed exception');
-      } catch (err) {
+      } catch (err: any) {
         expect(err.name).to.equal('TypeError');
       }
     });
@@ -864,7 +864,7 @@ describe('AsyncWriter', () => {
       try {
         await runTranspiledCode('(async () => { var foo; foo(); })()');
         expect.fail('missed exception');
-      } catch (err) {
+      } catch (err: any) {
         expect(err.message).to.equal('foo is not a function');
       }
     });
@@ -891,7 +891,7 @@ describe('AsyncWriter', () => {
       (() => {
         try {
           throw new Error('generic error');
-        } catch (err) {
+        } catch (err: any) {
           return ({ caught: err });
         }
       })();`);
@@ -903,7 +903,7 @@ describe('AsyncWriter', () => {
       (() => {
         try {
           throw new Error('generic error');
-        } catch ({ message }) {
+        } catch ({ message }: any) {
           return ({ caught: message });
         }
       })();`);
@@ -916,7 +916,7 @@ describe('AsyncWriter', () => {
       (() => {
         try {
           throw [ 'foo' ];
-        } catch ([message]) {
+        } catch ([message]: any) {
           return ({ caught: message });
         }
       })();`);
@@ -928,7 +928,7 @@ describe('AsyncWriter', () => {
       (() => {
         try {
           throw [ 'foo' ];
-        } catch ([message]) {
+        } catch ([message]: any) {
           message = 42;
           return ({ caught: message });
         }
@@ -942,12 +942,12 @@ describe('AsyncWriter', () => {
         (() => {
           try {
             throw new Error('generic error');
-          } catch (err) {
+          } catch (err: any) {
             throw err;
           }
         })();`);
         expect.fail('missed exception');
-      } catch (err) {
+      } catch (err: any) {
         expect(err.message).to.equal('generic error');
       }
     });
@@ -957,7 +957,7 @@ describe('AsyncWriter', () => {
       (() => {
         try {
           throw new Error('generic error');
-        } catch (err) {
+        } catch (err: any) {
           return ({ caught: err });
         } finally {
           return 'finally';
@@ -971,7 +971,7 @@ describe('AsyncWriter', () => {
       (() => {
         try {
           throw new Error('first error');
-        } catch (err) {
+        } catch (err: any) {
           throw new Error('second error');
         } finally {
           return 'finally';
@@ -984,7 +984,7 @@ describe('AsyncWriter', () => {
       const result = runTranspiledCode(`
       (() => {
         try {
-        } catch (err) {
+        } catch (err: any) {
           return 'catch';
         } finally {
           return 'finally';
@@ -1022,7 +1022,7 @@ describe('AsyncWriter', () => {
       (() => {
         try {
           throw null;
-        } catch (err) {
+        } catch (err: any) {
           return ({ caught: err });
         }
       })();`);
@@ -1034,7 +1034,7 @@ describe('AsyncWriter', () => {
       (() => {
         try {
           throw null;
-        } catch (err) {
+        } catch (err: any) {
           return ({ caught: err });
         } finally {
           return 'finally';
@@ -1049,12 +1049,12 @@ describe('AsyncWriter', () => {
         (() => {
           try {
             throwUncatchable();
-          } catch (err) {
+          } catch (err: any) {
             return ({ caught: err });
           }
         })();`);
         expect.fail('missed exception');
-      } catch (err) {
+      } catch (err: any) {
         expect(err.message).to.equal('uncatchable!');
       }
     });
@@ -1068,7 +1068,7 @@ describe('AsyncWriter', () => {
           } catch { }
         })();`);
         expect.fail('missed exception');
-      } catch (err) {
+      } catch (err: any) {
         expect(err.message).to.equal('uncatchable!');
       }
     });
@@ -1082,7 +1082,7 @@ describe('AsyncWriter', () => {
           } catch { } finally { return; }
         })();`);
         expect.fail('missed exception');
-      } catch (err) {
+      } catch (err: any) {
         expect(err.message).to.equal('uncatchable!');
       }
     });
@@ -1096,7 +1096,7 @@ describe('AsyncWriter', () => {
           } finally { return; }
         })();`);
         expect.fail('missed exception');
-      } catch (err) {
+      } catch (err: any) {
         expect(err.message).to.equal('uncatchable!');
       }
     });
@@ -1114,7 +1114,7 @@ describe('AsyncWriter', () => {
           }
         })();`);
         expect.fail('missed exception');
-      } catch (err) {
+      } catch (err: any) {
         expect(err.message).to.equal('uncatchable!');
       }
     });

@@ -93,7 +93,7 @@ describe('mongo-errors', () => {
       try {
         await collection.insertOne({ fails: true });
         expect.fail('expected error');
-      } catch (e) {
+      } catch (e: any) {
         expect(e).to.equal(error);
         expect(e.message).to.contain('not primary and secondaryOk=false');
         expect(e.message).to.contain('db.getMongo().setReadPref()');

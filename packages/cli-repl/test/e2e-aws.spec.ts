@@ -74,7 +74,7 @@ describe('e2e AWS AUTH', () => {
       if (result.status === 0) {
         awsCliFound = true;
       }
-    } catch (e) {
+    } catch (e: any) {
       // pass
     }
     if (!awsCliFound) {

@@ -113,7 +113,7 @@ export class MongocryptdManager {
         const logEntry = parseAnyLogEntry(line);
         this.bus.emit('mongosh:mongocryptd-log', { pid, logEntry });
         yield logEntry;
-      } catch (error) {
+      } catch (error: any) {
         this.bus.emit('mongosh:mongocryptd-error', { pid, cause: 'parse', error });
         break;
       }
@@ -164,7 +164,7 @@ export class MongocryptdManager {
       this.bus.emit('mongosh:mongocryptd-tryspawn', { spawnPath, path: this.path });
       try {
         proc = this._spawnMongocryptdProcess(spawnPath);
-      } catch (error) {
+      } catch (error: any) {
         // Spawn can fail both synchronously and asynchronously.
         // We log the error either way and just try the next one.
         lastError = error;
@@ -213,7 +213,7 @@ export class MongocryptdManager {
           serverSelectionTimeoutMS: this.idleShutdownTimeoutSecs * 1000
         }, {}, this.bus);
         await sp.runCommandWithCheck('admin', { isMaster: 1 });
-      } catch (error) {
+      } catch (error: any) {
         this.bus.emit('mongosh:mongocryptd-error', { cause: 'ping', error });
       } finally {
         if (sp !== undefined) {
@@ -241,8 +241,8 @@ export class MongocryptdManager {
           let size = 0;
           try {
             size = (await fs.stat(path.join(dirent.name, 'mongocryptd.pid'))).size;
-          } catch (err) {
-            if (err.code !== 'ENOENT') {
+          } catch (err: any) {
+            if (err?.code !== 'ENOENT') {
               throw err;
             }
           }
@@ -256,7 +256,7 @@ export class MongocryptdManager {
           await fs.rmdir(dir, { recursive: true });
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       this.bus.emit('mongosh:mongocryptd-error', { cause: 'cleanup', error });
     }
   }

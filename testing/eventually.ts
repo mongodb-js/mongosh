@@ -14,7 +14,7 @@ export async function eventually(fn: Function, opts: { frequency?: number; timeo
     try {
       await fn();
       return;
-    } catch (e) {
+    } catch (e: any) {
       err = e;
     }
 

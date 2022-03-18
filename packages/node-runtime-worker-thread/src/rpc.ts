@@ -98,7 +98,7 @@ function getRPCOptions(messageBus: RPCMessageBus): PostmsgRpcOptions {
         // that was executing the method.
         try {
           data.res = serialize(data.res);
-        } catch (e) {
+        } catch (e: any) {
           data.res = serialize({
             type: RPCMessageTypes.Error,
             payload: serializeError(e)
@@ -141,7 +141,7 @@ export function exposeAll<O>(obj: O, messageBus: RPCMessageBus): Exposed<O> {
       async(...args: unknown[]) => {
         try {
           return { type: RPCMessageTypes.Message, payload: await val(...args) };
-        } catch (e) {
+        } catch (e: any) {
           // If server (whatever is executing the exposed method) throws during
           // the execution, we want to propagate error to the client (whatever
           // issued the call) and re-throw there. We will do this with a special

@@ -97,8 +97,8 @@ export class ConfigManager<Config> extends EventEmitter {
     try {
       try {
         fd = await fs.open(this.path(), 'r');
-      } catch (err) {
-        if (err.code !== 'ENOENT') {
+      } catch (err: any) {
+        if (err?.code !== 'ENOENT') {
           this.emit('error', err);
           throw err;
         }
@@ -110,7 +110,7 @@ export class ConfigManager<Config> extends EventEmitter {
           const config: Config = EJSON.parse(await fd.readFile({ encoding: 'utf8' })) as any;
           this.emit('update-config', config);
           return { ...defaultConfig, ...config };
-        } catch (err) {
+        } catch (err: any) {
           this.emit('error', err);
           return defaultConfig;
         }
@@ -132,7 +132,7 @@ export class ConfigManager<Config> extends EventEmitter {
     await this.shellHomeDirectory.ensureExists();
     try {
       await fs.writeFile(this.path(), EJSON.stringify(config), { mode: 0o600 });
-    } catch (err) {
+    } catch (err: any) {
       this.emit('error', err);
       throw err;
     }
