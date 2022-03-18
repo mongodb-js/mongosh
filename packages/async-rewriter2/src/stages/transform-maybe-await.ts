@@ -79,7 +79,7 @@ export default ({ types: t }: { types: typeof BabelTypes }): babel.PluginObj<{ f
     async () => {
       try {
         ORIGINAL_CODE;
-      } catch (err: any) {
+      } catch (err) {
         if (FUNCTION_STATE_IDENTIFIER === "sync") {
           SYNC_RETURN_VALUE_IDENTIFIER = err;
           FUNCTION_STATE_IDENTIFIER = "threw";
@@ -122,7 +122,7 @@ export default ({ types: t }: { types: typeof BabelTypes }): babel.PluginObj<{ f
   const rethrowTemplate = babel.template.statement(`
     try {
       ORIGINAL_CODE;
-    } catch (err: any) {
+    } catch (err) {
       throw err;
     }
   `);
