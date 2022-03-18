@@ -891,7 +891,7 @@ describe('AsyncWriter', () => {
       (() => {
         try {
           throw new Error('generic error');
-        } catch (err: any) {
+        } catch (err) {
           return ({ caught: err });
         }
       })();`);
@@ -903,7 +903,7 @@ describe('AsyncWriter', () => {
       (() => {
         try {
           throw new Error('generic error');
-        } catch ({ message }: any) {
+        } catch ({ message }) {
           return ({ caught: message });
         }
       })();`);
@@ -916,7 +916,7 @@ describe('AsyncWriter', () => {
       (() => {
         try {
           throw [ 'foo' ];
-        } catch ([message]: any) {
+        } catch ([message]) {
           return ({ caught: message });
         }
       })();`);
@@ -928,7 +928,7 @@ describe('AsyncWriter', () => {
       (() => {
         try {
           throw [ 'foo' ];
-        } catch ([message]: any) {
+        } catch ([message]) {
           message = 42;
           return ({ caught: message });
         }
@@ -942,7 +942,7 @@ describe('AsyncWriter', () => {
         (() => {
           try {
             throw new Error('generic error');
-          } catch (err: any) {
+          } catch (err) {
             throw err;
           }
         })();`);
@@ -957,7 +957,7 @@ describe('AsyncWriter', () => {
       (() => {
         try {
           throw new Error('generic error');
-        } catch (err: any) {
+        } catch (err) {
           return ({ caught: err });
         } finally {
           return 'finally';
@@ -971,7 +971,7 @@ describe('AsyncWriter', () => {
       (() => {
         try {
           throw new Error('first error');
-        } catch (err: any) {
+        } catch (err) {
           throw new Error('second error');
         } finally {
           return 'finally';
@@ -984,7 +984,7 @@ describe('AsyncWriter', () => {
       const result = runTranspiledCode(`
       (() => {
         try {
-        } catch (err: any) {
+        } catch (err) {
           return 'catch';
         } finally {
           return 'finally';
@@ -1022,7 +1022,7 @@ describe('AsyncWriter', () => {
       (() => {
         try {
           throw null;
-        } catch (err: any) {
+        } catch (err) {
           return ({ caught: err });
         }
       })();`);
@@ -1034,7 +1034,7 @@ describe('AsyncWriter', () => {
       (() => {
         try {
           throw null;
-        } catch (err: any) {
+        } catch (err) {
           return ({ caught: err });
         } finally {
           return 'finally';
@@ -1049,7 +1049,7 @@ describe('AsyncWriter', () => {
         (() => {
           try {
             throwUncatchable();
-          } catch (err: any) {
+          } catch (err) {
             return ({ caught: err });
           }
         })();`);
