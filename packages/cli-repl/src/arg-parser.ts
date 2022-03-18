@@ -1,6 +1,6 @@
 import { CommonErrors, MongoshUnimplementedError } from '@mongosh/errors';
 import i18n from '@mongosh/i18n';
-import { CliOptions } from '@mongosh/service-provider-server';
+import type { CliOptions } from '@mongosh/arg-parser';
 import parser from 'yargs-parser';
 import { colorizeForStderr as clr } from './clr';
 import { USAGE } from './constants';

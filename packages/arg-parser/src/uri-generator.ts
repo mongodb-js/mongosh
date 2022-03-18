@@ -1,18 +1,8 @@
-/* eslint complexity: 0*/
-
+/* eslint-disable complexity */
 import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
 import i18n from '@mongosh/i18n';
-import CliOptions from './cli-options';
-import ConnectionString, { CommaAndColonSeparatedRecord } from 'mongodb-connection-string-url';
-import { DEFAULT_DB } from './index';
-
-/**
- * URI schemes.
- */
-enum Scheme {
-  Mongo = 'mongodb://',
-  MongoSrv = 'mongodb+srv://'
-}
+import type { CliOptions } from './cli-options';
+import { ConnectionString, CommaAndColonSeparatedRecord } from 'mongodb-connection-string-url';
 
 /**
  * The default host.
@@ -57,6 +47,9 @@ function validateConflicts(options: CliOptions, connectionString?: ConnectionStr
     throw new MongoshInvalidInputError(i18n.__(CONFLICT), CommonErrors.InvalidArgument);
   }
 
+  // TODO: Eventually remove this in favor of more generic conflict detection
+  // in the arg mapper code. It's not clear why we only have this for
+  // SERVICE_NAME specifically.
   if (options.gssapiServiceName && connectionString?.searchParams.has('authMechanismProperties')) {
     const authProperties = new CommaAndColonSeparatedRecord(
       connectionString.searchParams.get('authMechanismProperties'));
@@ -155,7 +148,7 @@ function generatePort(options: CliOptions): string {
  *   - it contains no '.' after the last appearance of '\' or '/'
  *   - it doesn't end in '.js' and it doesn't specify a path to an existing file
  */
-function generateUri(options: CliOptions): string {
+export function generateUri(options: Readonly<CliOptions>): string {
   if (options.nodb) {
     return '';
   }
@@ -179,7 +172,7 @@ function generateUriNormalized(options: CliOptions): ConnectionString {
   );
   if (replSetHostMatch) {
     const { replSetName, hosts } = replSetHostMatch.groups as { replSetName: string, hosts: string };
-    const connectionString = new ConnectionString(`${Scheme.Mongo}replacemeHost/${encodeURIComponent(uri || '')}`);
+    const connectionString = new ConnectionString(`mongodb://replacemeHost/${encodeURIComponent(uri || '')}`);
     connectionString.hosts = validateHostSeedList(hosts, options.port);
     connectionString.searchParams.set('replicaSet', replSetName);
     return addShellConnectionStringParameters(connectionString);
@@ -192,22 +185,22 @@ function generateUriNormalized(options: CliOptions): ConnectionString {
   );
   if (seedList && options.host?.includes(',')) {
     const { hosts } = seedList.groups as { hosts: string };
-    const connectionString = new ConnectionString(`${Scheme.Mongo}replacemeHost/${encodeURIComponent(uri || '')}`);
+    const connectionString = new ConnectionString(`mongodb://replacemeHost/${encodeURIComponent(uri || '')}`);
     connectionString.hosts = validateHostSeedList(hosts, options.port);
     return addShellConnectionStringParameters(connectionString);
   }
 
   // There is no URI provided, use default 127.0.0.1:27017
   if (!uri) {
-    return new ConnectionString(`${Scheme.Mongo}${generateHost(options)}:${generatePort(options)}/?directConnection=true`);
+    return new ConnectionString(`mongodb://${generateHost(options)}:${generatePort(options)}/?directConnection=true`);
   }
 
   // mongodb+srv:// URI is provided, treat as correct and immediately return
-  if (uri.startsWith(Scheme.MongoSrv)) {
+  if (uri.startsWith('mongodb+srv://')) {
     const connectionString = new ConnectionString(uri);
     validateConflicts(options, connectionString);
     return connectionString;
-  } else if (uri.startsWith(Scheme.Mongo)) {
+  } else if (uri.startsWith('mongodb://')) {
     // we need to figure out if we have to add the directConnection query parameter
     const connectionString = new ConnectionString(uri);
     validateConflicts(options, connectionString);
@@ -245,7 +238,7 @@ function generateUriNormalized(options: CliOptions): ConnectionString {
     validateConflicts(options);
   }
   return addShellConnectionStringParameters(new ConnectionString(
-    `${Scheme.Mongo}${host || generateHost(options)}:${port || generatePort(options)}/${encodeURIComponent(dbAndQueryString || DEFAULT_DB)}`));
+    `mongodb://${host || generateHost(options)}:${port || generatePort(options)}/${encodeURIComponent(dbAndQueryString || '')}`));
 }
 
 /**
@@ -260,6 +253,3 @@ function addShellConnectionStringParameters(uri: ConnectionString): ConnectionSt
   }
   return uri;
 }
-
-export default generateUri;
-export { Scheme };

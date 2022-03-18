@@ -24,7 +24,6 @@ import {
   ClientSessionOptions,
   CommandOperationOptions,
   Document,
-  generateUri,
   ListDatabasesOptions,
   ReadConcernLevel,
   ReadPreference,
@@ -39,6 +38,11 @@ import {
   ServerApiVersion,
   WriteConcern
 } from '@mongosh/service-provider-core';
+import {
+  ConnectionInfo,
+  mapCliToDriver,
+  generateConnectionInfoFromCliArgs
+} from '@mongosh/arg-parser';
 import type Collection from './collection';
 import Database from './database';
 import ShellInstanceState from './shell-instance-state';
@@ -62,13 +66,11 @@ export default class Mongo extends ShellApiClass {
   private __serviceProvider: ServiceProvider | null = null;
   public _databases: Record<string, Database>;
   public _instanceState: ShellInstanceState;
-  public _uri: string;
-  public _fleOptions: SPAutoEncryption | undefined;
-  public _apiOptions?: ServerApi;
+  private _connectionInfo: ConnectionInfo;
+  private _explicitEncryptionOnly = false;
   private _keyVault: KeyVault | undefined; // need to keep it around so that the ShellApi ClientEncryption class can access it
   private _clientEncryption: ClientEncryption | undefined;
   private _readPreferenceWasExplicitlyRequested = false;
-  private _explicitEncryptionOnly = false;
   private _cachedDatabaseNames: string[] = [];
 
   constructor(
@@ -84,11 +86,12 @@ export default class Mongo extends ShellApiClass {
     if (sp) {
       this.__serviceProvider = sp;
     }
-    if (typeof uri === 'string') {
-      this._uri = generateUri({ connectionSpecifier: uri });
-    } else {
-      this._uri = sp?.getURI?.() ?? generateUri({ connectionSpecifier: 'mongodb://localhost/' });
+    if (typeof uri !== 'string') {
+      uri = sp?.getURI?.() ?? 'mongodb://localhost/';
     }
+    this._connectionInfo = generateConnectionInfoFromCliArgs({
+      connectionSpecifier: uri
+    });
     this._readPreferenceWasExplicitlyRequested = /\breadPreference=/.test(this._uri);
     if (fleOptions) {
       if (fleOptions.explicitEncryptionOnly !== undefined) {
@@ -99,20 +102,34 @@ export default class Mongo extends ShellApiClass {
         this._explicitEncryptionOnly = !!fleOptions.explicitEncryptionOnly;
         delete fleOptions.explicitEncryptionOnly;
       }
-      this._fleOptions = processFLEOptions(fleOptions);
+      this._connectionInfo.driverOptions.autoEncryption = processFLEOptions(fleOptions);
     } else {
+      // TODO: We may want to look into whether it makes sense
+      // to inherit more options than just the FLE ones from
+      // the parent service provider. For example, it could
+      // appear to be odd that --awsAccessKeyId applies to
+      // programmatically created Mongo() instances but
+      // --apiVersion or --tlsUseSystemCA does not.
       const spFleOptions = sp?.getFleOptions?.();
       if (spFleOptions) {
-        this._fleOptions = spFleOptions;
+        this._connectionInfo.driverOptions.autoEncryption = spFleOptions;
       }
     }
     if (otherOptions?.api) {
       if (typeof otherOptions.api === 'string') {
-        this._apiOptions = { version: otherOptions.api };
+        this._connectionInfo.driverOptions.serverApi = { version: otherOptions.api };
       } else {
-        this._apiOptions = otherOptions.api;
+        this._connectionInfo.driverOptions.serverApi = otherOptions.api;
       }
     }
+  }
+
+  get _uri(): string {
+    return this._connectionInfo.connectionString;
+  }
+
+  get _fleOptions(): SPAutoEncryption | undefined {
+    return this._connectionInfo.driverOptions.autoEncryption;
   }
 
   // We don't have a ServiceProvider available until we are connected, but
@@ -159,24 +176,28 @@ export default class Mongo extends ShellApiClass {
     });
   }
 
-  async connect(user?: string, pwd?: string): Promise<void> {
-    const mongoClientOptions: MongoClientOptions = user || pwd ? {
-      auth: { username: user, password: pwd }
-    } : {};
-    if (this._fleOptions && !this._explicitEncryptionOnly) {
-      const extraOptions = {
-        ...(this._fleOptions.extraOptions ?? {}),
-        ...(await this._instanceState.evaluationListener?.startMongocryptd?.() ?? {})
-      };
-
-      mongoClientOptions.autoEncryption = { ...this._fleOptions, extraOptions };
+  async connect(username?: string, password?: string): Promise<void> {
+    if (username || password) {
+      this._connectionInfo = mapCliToDriver({
+        username, password
+      }, this._connectionInfo);
     }
-    if (this._apiOptions) {
-      mongoClientOptions.serverApi = this._apiOptions;
+
+    const driverOptions = { ...this._connectionInfo.driverOptions };
+    if (this._explicitEncryptionOnly) {
+      // Delete autoEncryption options from the copy of the options that
+      // is actually used for connecting. The driver itself will not
+      // know that this is a connection with CSFLE parameters.
+      delete driverOptions.autoEncryption;
+    } else if (driverOptions.autoEncryption) {
+      driverOptions.autoEncryption.extraOptions = {
+        ...driverOptions.autoEncryption.extraOptions,
+        ...await this._instanceState.evaluationListener?.startMongocryptd?.()
+      };
     }
     const parentProvider = this._instanceState.initialServiceProvider;
     try {
-      this.__serviceProvider = await parentProvider.getNewConnection(this._uri, mongoClientOptions);
+      this.__serviceProvider = await parentProvider.getNewConnection(this._uri, driverOptions);
     } catch (e: any) {
       // If the initial provider had TLS enabled, and we're not able to connect,
       // and the new URL does not contain a SSL/TLS indicator, we add a notice
