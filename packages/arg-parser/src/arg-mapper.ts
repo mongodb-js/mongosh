@@ -2,6 +2,8 @@ import type { CliOptions, ConnectionInfo } from './';
 import type { DevtoolsConnectOptions } from '@mongodb-js/devtools-connect';
 import { ConnectionString, CommaAndColonSeparatedRecord } from 'mongodb-connection-string-url';
 
+// Each of these helper functions take a ConnectionInfo as an input,
+// and return a transformed ConnectionInfo as their output.
 function setDriver<Key extends keyof DevtoolsConnectOptions>(
   i: Readonly<ConnectionInfo>,
   key: Key,
