@@ -8498,8 +8498,8 @@ buildvariants:
     tasks:
       - name: compile_artifact
   - name: linux_arm64_build
-    display_name: "Ubuntu 18.04 arm64 (build)"
-    run_on: ubuntu1804-arm64-small
+    display_name: "Amazon 2 arm64 (build)"
+    run_on: amazon2-arm64-small
     expansions:
       executable_os_id: linux-arm64
     tasks:
