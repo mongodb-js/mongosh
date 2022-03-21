@@ -732,21 +732,6 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   }
 
   /**
-   * Is the collection capped?
-   *
-   * @param {String} database - The database name.
-   * @param {String} collection - The collection name.
-   * @param dbOptions
-   * @returns {Promise} The promise of the result.
-   */
-  isCapped(
-    database: string,
-    collection: string,
-    dbOptions?: DbOptions): Promise<boolean> {
-    return this.db(database, dbOptions).collection(collection).isCapped();
-  }
-
-  /**
    * Deprecated remove command.
    *
    * @param {String} database - The db name.

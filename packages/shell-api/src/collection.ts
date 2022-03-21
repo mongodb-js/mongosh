@@ -751,7 +751,13 @@ export default class Collection extends ShellApiWithMongoClass {
   @apiVersions([1])
   async isCapped(): Promise<boolean> {
     this._emitCollectionApiCall('isCapped');
-    return this._mongo._serviceProvider.isCapped(this._database._name, this._name);
+
+    // Not implemented using the Node.js driver helper to make this easier for the java shell
+    const colls = await this._database._listCollections({ name: this._name }, { nameOnly: false });
+    if (colls.length === 0) {
+      throw new MongoshRuntimeError(`collection ${this.getFullName()} not found`);
+    }
+    return !!(colls[0]?.options?.capped);
   }
 
   /**

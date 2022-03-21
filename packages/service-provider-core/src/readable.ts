@@ -155,20 +155,6 @@ export default interface Readable {
   getTopology(): any;
 
   /**
-   * Is the collection capped?
-   *
-   * @param {String} database - The database name.
-   * @param {String} collection - The collection name.
-   * @param {DbOptions} dbOptions - The database options
-   *
-   * @returns {Promise} The promise of the result.
-   */
-  isCapped(
-    database: string,
-    collection: string,
-    dbOptions?: DbOptions): Promise<boolean>;
-
-  /**
    * Returns an array that holds a list of documents that identify and
    * describe the existing indexes on the collection.
    *
