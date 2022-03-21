@@ -90,6 +90,18 @@ export default class Database extends ShellApiWithMongoClass {
         }
 
         return collections[prop];
+      },
+      getOwnPropertyDescriptor: (target, prop): PropertyDescriptor | undefined => {
+        // Workaround for Java Shell.
+        // GraalJS library doesn't allow invoking methods of objects wrapped in Proxy.
+        // Database.getName method is used in MongoShellEvaluator to check
+        // whether we should update current database in ShellInstanceState.
+        // More about the issue and the workaround: https://github.com/oracle/graaljs/issues/441#issuecomment-823890292
+        return prop === 'getName' ? {
+          configurable: true,
+          enumerable: true,
+          value: () => target.getName()
+        } : Object.getOwnPropertyDescriptor(target, prop);
       }
     });
     return proxy;
