@@ -8055,6 +8055,9 @@ tasks:
         vars:
           source_distribution_build_variant: debian-x64
       - func: write_preload_script
+      - func: install
+        vars:
+          node_js_version: "14.18.3"
       - func: test_artifact_docker
         vars:
           dockerfile: ubuntu18.04-deb
@@ -8069,6 +8072,9 @@ tasks:
         vars:
           source_distribution_build_variant: debian-x64
       - func: write_preload_script
+      - func: install
+        vars:
+          node_js_version: "14.18.3"
       - func: test_artifact_docker
         vars:
           dockerfile: ubuntu20.04-deb
@@ -8083,6 +8089,9 @@ tasks:
         vars:
           source_distribution_build_variant: debian-x64
       - func: write_preload_script
+      - func: install
+        vars:
+          node_js_version: "14.18.3"
       - func: test_artifact_docker
         vars:
           dockerfile: debian9-deb
@@ -8097,6 +8106,9 @@ tasks:
         vars:
           source_distribution_build_variant: debian-x64
       - func: write_preload_script
+      - func: install
+        vars:
+          node_js_version: "14.18.3"
       - func: test_artifact_docker
         vars:
           dockerfile: debian10-deb
@@ -8111,6 +8123,9 @@ tasks:
         vars:
           source_distribution_build_variant: rhel7-x64
       - func: write_preload_script
+      - func: install
+        vars:
+          node_js_version: "14.18.3"
       - func: test_artifact_docker
         vars:
           dockerfile: centos7-rpm
@@ -8125,6 +8140,9 @@ tasks:
         vars:
           source_distribution_build_variant: rhel7-x64
       - func: write_preload_script
+      - func: install
+        vars:
+          node_js_version: "14.18.3"
       - func: test_artifact_docker
         vars:
           dockerfile: amazonlinux2-rpm
@@ -8139,6 +8157,9 @@ tasks:
         vars:
           source_distribution_build_variant: rhel8-x64
       - func: write_preload_script
+      - func: install
+        vars:
+          node_js_version: "14.18.3"
       - func: test_artifact_docker
         vars:
           dockerfile: rocky8-rpm
@@ -8153,6 +8174,9 @@ tasks:
         vars:
           source_distribution_build_variant: rhel8-x64
       - func: write_preload_script
+      - func: install
+        vars:
+          node_js_version: "14.18.3"
       - func: test_artifact_docker
         vars:
           dockerfile: fedora34-rpm
@@ -8167,6 +8191,9 @@ tasks:
         vars:
           source_distribution_build_variant: suse-x64
       - func: write_preload_script
+      - func: install
+        vars:
+          node_js_version: "14.18.3"
       - func: test_artifact_docker
         vars:
           dockerfile: suse12-rpm
@@ -8181,6 +8208,9 @@ tasks:
         vars:
           source_distribution_build_variant: suse-x64
       - func: write_preload_script
+      - func: install
+        vars:
+          node_js_version: "14.18.3"
       - func: test_artifact_docker
         vars:
           dockerfile: suse15-rpm
@@ -8195,6 +8225,9 @@ tasks:
         vars:
           source_distribution_build_variant: amzn1-x64
       - func: write_preload_script
+      - func: install
+        vars:
+          node_js_version: "14.18.3"
       - func: test_artifact_docker
         vars:
           dockerfile: amazonlinux1-rpm

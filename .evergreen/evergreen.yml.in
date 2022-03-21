@@ -793,6 +793,9 @@ tasks:
           preload_script_path: preload.sh
     <% }; break;
        case 'docker': { %>
+      - func: install
+        vars:
+          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
       - func: test_artifact_docker
         vars:
           dockerfile: <% out(dockerfile) %>

@@ -29,7 +29,7 @@ export const dummyConfig: Config = Object.freeze({
   bundleEntrypointInput: 'bundleEntrypointInput',
   bundleSinglefileOutput: 'bundleSinglefileOutput',
   executablePath: 'executablePath',
-  mongocryptdPath: 'mongocryptdPath',
+  csfleLibraryPath: 'csfleLibraryPath',
   outputDir: 'outputDir',
   buildInfoFilePath: 'buildInfoFilePath',
   project: 'project',

@@ -1,7 +1,7 @@
 import { constants as fsConstants, promises as fs } from 'fs';
 import path from 'path';
 import { Config, validateBuildVariant } from '../config';
-import { downloadMongocrypt } from './download-mongocryptd';
+import { downloadCsfleLibrary } from './download-csfle-library';
 import { downloadManpage } from './download-manpage';
 import { notarizeArtifact } from './notary-service';
 import { createPackage, PackageFile } from './package';
@@ -12,18 +12,13 @@ export async function runPackage(
   const distributionBuildVariant = config.distributionBuildVariant;
   validateBuildVariant(distributionBuildVariant);
 
-  await fs.mkdir(path.dirname(config.mongocryptdPath), { recursive: true });
-  // TODO: add mongocryptd and E2E tests for darwin-arm64 once server builds
+  await fs.mkdir(path.dirname(config.csfleLibraryPath), { recursive: true });
+  // TODO: add csfle and E2E tests for darwin-arm64 once server builds
   // are available for that platform.
   if (distributionBuildVariant !== 'darwin-arm64') {
     await fs.copyFile(
-      await downloadMongocrypt(distributionBuildVariant),
-      config.mongocryptdPath,
-      fsConstants.COPYFILE_FICLONE);
-  } else {
-    await fs.copyFile(
-      path.resolve(__dirname, '..', '..', '..', '..', 'scripts', 'no-mongocryptd.sh'),
-      config.mongocryptdPath,
+      await downloadCsfleLibrary(distributionBuildVariant),
+      config.csfleLibraryPath,
       fsConstants.COPYFILE_FICLONE);
   }
 
