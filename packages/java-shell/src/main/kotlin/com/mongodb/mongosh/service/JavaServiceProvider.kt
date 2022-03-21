@@ -474,15 +474,6 @@ internal class JavaServiceProvider(private var client: MongoClient?,
     }
 
     @HostAccess.Export
-    override fun isCapped(database: String, collection: String): Value = promise {
-        getDatabase(database, null).flatMap { db ->
-            val doc = db.runCommand(Document("collStats", collection))
-            if (doc.containsKey("capped") && doc["capped"] is Boolean) Right<Boolean>(doc["capped"] as Boolean)
-            else Left<Boolean>(CommandException("Cannot find boolean property 'capped'. Response $doc", ""))
-        }
-    }
-
-    @HostAccess.Export
     override fun getIndexes(database: String, collection: String, options: Value?): Value = promise {
         getDatabase(database, null).map { db ->
             db.getCollection(collection).listIndexes()

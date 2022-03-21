@@ -378,10 +378,7 @@ describe('Shell API (integration)', function() {
       beforeEach(async() => {
         await serviceProvider.createCollection(dbName, collectionName);
 
-        expect(await serviceProvider.isCapped(
-          dbName,
-          collectionName
-        )).to.be.false;
+        expect(await collection.isCapped()).to.be.false;
 
         result = await collection.convertToCapped(
           1000
@@ -393,10 +390,7 @@ describe('Shell API (integration)', function() {
       });
 
       it('converts the collection', async() => {
-        expect(await serviceProvider.isCapped(
-          dbName,
-          collectionName
-        )).to.be.true;
+        expect(await collection.isCapped()).to.be.true;
       });
     });
 

@@ -405,20 +405,6 @@ describe('CliServiceProvider [integration]', function() {
     });
   });
 
-  describe('#isCapped', () => {
-    context('for regular collections', () => {
-      let result;
-
-      beforeEach(async() => {
-        result = await serviceProvider.isCapped('music', 'bands');
-      });
-
-      it('returns false', () => {
-        expect(result).to.equal(false);
-      });
-    });
-  });
-
   describe('#listDatabases', () => {
     let result;
 
