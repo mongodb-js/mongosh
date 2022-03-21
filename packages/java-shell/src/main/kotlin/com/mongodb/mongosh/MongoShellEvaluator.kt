@@ -120,10 +120,14 @@ internal class MongoShellEvaluator(client: MongoClient, private val context: Mon
     }
 
     private fun updateDatabase() {
-        // graaljs does not allow to define property on top context, so we need to update instance state manually
+        // GraalJS does not allow defining property on top context, so we need to update instance state manually.
         val currentDb = context.eval("db")
-        val currentDbName = currentDb.invokeMember("getName").asString()
-        val stateDbName = shellInstanceState["currentDb"]?.invokeMember("getName")?.asString()
+        // GraalJS doesn't allow invoking methods on Proxy objects from Java code
+        // so we need to do it from JS code.
+        // See https://github.com/oracle/graaljs/issues/441
+        val nameGetter = context.eval("(db) => db.getName()")
+        val currentDbName = nameGetter.execute(currentDb).asString()
+        val stateDbName = shellInstanceState["currentDb"]?.let { nameGetter.execute(it).asString() }
         if (currentDbName != stateDbName) {
             shellInstanceState.invokeMember("setDbFunc", currentDb)
         }
