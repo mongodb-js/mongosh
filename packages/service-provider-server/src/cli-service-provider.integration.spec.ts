@@ -591,32 +591,6 @@ describe('CliServiceProvider [integration]', function() {
     });
   });
 
-  describe('stats', () => {
-    it('returns collection stats', async() => {
-      const collName = 'coll1';
-      await db.createCollection(collName);
-
-      const stats = await serviceProvider.stats(
-        dbName,
-        collName
-      );
-
-      expect(Object.keys(stats)).to.contain.members([
-        'ns',
-        'size',
-        'count',
-        'storageSize',
-        'capped',
-        'wiredTiger',
-        'nindexes',
-        'indexDetails',
-        'totalIndexSize',
-        'indexSizes',
-        'ok'
-      ]);
-    });
-  });
-
   describe('#listCollections', () => {
     it('returns the list of collections', async() => {
       await db.createCollection('coll1');

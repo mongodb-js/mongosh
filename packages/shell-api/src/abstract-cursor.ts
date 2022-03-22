@@ -53,7 +53,7 @@ export abstract class AbstractCursor<CursorType extends ServiceProviderAggregati
   }
 
   @returnsPromise
-  async close(options: Document): Promise<void> {
+  async close(options: Document = {}): Promise<void> {
     await this._cursor.close(options);
   }
 
@@ -83,7 +83,9 @@ export abstract class AbstractCursor<CursorType extends ServiceProviderAggregati
 
   async* [Symbol.asyncIterator]() {
     let doc;
-    while ((doc = await this.tryNext()) !== null) {
+    // !== null should suffice, but some stubs in our tests return 'undefined'
+    // eslint-disable-next-line eqeqeq
+    while ((doc = await this.tryNext()) != null) {
       yield doc;
     }
   }

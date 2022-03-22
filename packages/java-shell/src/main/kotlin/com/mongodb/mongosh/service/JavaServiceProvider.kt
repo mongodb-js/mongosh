@@ -491,13 +491,6 @@ internal class JavaServiceProvider(private val client: MongoClient,
     }
 
     @HostAccess.Export
-    override fun stats(database: String, collection: String, options: Value?): Value = promise<Any?> {
-        getDatabase(database, null).map { db ->
-            db.runCommand(Document("collStats", collection))
-        }
-    }
-
-    @HostAccess.Export
     override fun remove(database: String, collection: String, query: Value, options: Value?): Value = deleteMany(database, collection, query, options)
 
     @HostAccess.Export

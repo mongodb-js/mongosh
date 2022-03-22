@@ -7,7 +7,6 @@ import type {
   EstimatedDocumentCountOptions,
   FindOptions,
   ListCollectionsOptions,
-  CollStatsOptions,
   ListIndexesOptions,
   AggregationCursor,
   FindCursor,
@@ -191,23 +190,6 @@ export default interface Readable {
    * Create a ReadPreference object from a set of options
    */
   readPreferenceFromOptions(options?: Omit<ReadPreferenceFromOptions, 'session'>): ReadPreferenceLike | undefined;
-
-  /**
-   * Get all the collection statistics.
-   *
-   * @param {String} database - The db name.
-   * @param {String} collection - The collection name.
-   * @param {Object} options - The count options.
-   * @param {DbOptions} dbOptions - The database options
-   *
-   * @return {Promise} returns Promise
-   */
-  stats(
-    database: string,
-    collection: string,
-    options?: CollStatsOptions,
-    dbOptions?: DbOptions
-  ): Promise<Document>;
 
   /**
    * Start a change stream cursor on either the client, db, or collection.
