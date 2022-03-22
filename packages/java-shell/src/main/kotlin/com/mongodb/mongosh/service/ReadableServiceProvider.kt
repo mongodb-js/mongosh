@@ -16,5 +16,4 @@ internal interface ReadableServiceProvider {
     fun getTopology(): Value
     fun getIndexes(database: String, collection: String, options: Value?): Value
     fun listCollections(database: String, filter: Value?, options: Value?): Value
-    fun stats(database: String, collection: String, options: Value?): Value
 }

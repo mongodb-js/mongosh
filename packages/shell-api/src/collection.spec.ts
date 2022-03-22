@@ -1047,14 +1047,15 @@ describe('Collection', () => {
 
     describe('totalIndexSize', () => {
       beforeEach(() => {
-        serviceProvider.stats.resolves({
-          totalIndexSize: 1000
-        });
+        const tryNext = sinon.stub();
+        tryNext.onCall(0).resolves({ value: 1000 });
+        tryNext.onCall(1).resolves(null);
+        serviceProvider.aggregate.returns({ tryNext } as any);
       });
 
       it('returns totalIndexSize', async() => {
         expect(await collection.totalIndexSize()).to.equal(1000);
-        expect(serviceProvider.stats).to.have.been.calledOnceWith('db1', 'coll1');
+        expect(serviceProvider.aggregate).to.have.been.calledOnce;
       });
 
       it('throws an error if called with verbose', async() => {
@@ -1193,45 +1194,44 @@ describe('Collection', () => {
     });
 
     describe('dataSize', () => {
-      let result;
-
       beforeEach(() => {
-        result = { size: 1000 };
-        serviceProvider.stats.resolves(result);
+        const tryNext = sinon.stub();
+        tryNext.onCall(0).resolves({ value: 1000 });
+        tryNext.onCall(1).resolves(null);
+        serviceProvider.aggregate.returns({ tryNext } as any);
       });
 
       it('returns stats.size', async() => {
         expect(await collection.dataSize()).to.equal(1000);
-        expect(serviceProvider.stats).to.have.been.calledOnceWith('db1', 'coll1');
+        expect(serviceProvider.aggregate).to.have.been.calledOnce;
       });
     });
 
     describe('storageSize', () => {
-      let result;
-
       beforeEach(() => {
-        result = { storageSize: 1000 };
-        serviceProvider.stats.resolves(result);
+        const tryNext = sinon.stub();
+        tryNext.onCall(0).resolves({ value: 1000 });
+        tryNext.onCall(1).resolves(null);
+        serviceProvider.aggregate.returns({ tryNext } as any);
       });
 
       it('returns stats.storageSize', async() => {
         expect(await collection.storageSize()).to.equal(1000);
-        expect(serviceProvider.stats).to.have.been.calledOnceWith('db1', 'coll1');
+        expect(serviceProvider.aggregate).to.have.been.calledOnce;
       });
     });
 
     describe('totalSize', () => {
-      it('returns sum of storageSize and totalIndexSize', async() => {
-        const result = { storageSize: 1000, totalIndexSize: 1000 };
-        serviceProvider.stats.resolves(result);
-        expect(await collection.totalSize()).to.equal(2000);
-        expect(serviceProvider.stats).to.have.been.calledOnceWith('db1', 'coll1');
+      beforeEach(() => {
+        const tryNext = sinon.stub();
+        tryNext.onCall(0).resolves({ value: 1000 });
+        tryNext.onCall(1).resolves(null);
+        serviceProvider.aggregate.returns({ tryNext } as any);
       });
-      it('should handle Long numbers correctly', async() => {
-        const result = { storageSize: bson.Long.fromNumber(1732749910016), totalIndexSize: 10559533056 };
-        serviceProvider.stats.resolves(result);
-        expect(await collection.totalSize()).to.equal(1743309443072);
-        expect(serviceProvider.stats).to.have.been.calledOnceWith('db1', 'coll1');
+
+      it('returns stats.totalSize', async() => {
+        expect(await collection.totalSize()).to.equal(1000);
+        expect(serviceProvider.aggregate).to.have.been.calledOnce;
       });
     });
 
@@ -1513,7 +1513,7 @@ describe('Collection', () => {
     describe('latencyStats', () => {
       it('calls serviceProvider.aggregate on the database with options', async() => {
         // eslint-disable-next-line @typescript-eslint/require-await
-        serviceProvider.aggregate.returns({ toArray: async() => ([]) } as any);
+        serviceProvider.aggregate.returns({ tryNext: async() => null } as any);
         await collection.latencyStats({ histograms: true });
 
         expect(serviceProvider.aggregate).to.have.been.calledWith(
@@ -1527,8 +1527,10 @@ describe('Collection', () => {
       });
 
       it('returns whatever serviceProvider.aggregate returns', async() => {
-        // eslint-disable-next-line @typescript-eslint/require-await
-        serviceProvider.aggregate.returns({ toArray: async() => ([{ 1: 'db1' }]) } as any);
+        const tryNext = sinon.stub();
+        tryNext.onCall(0).resolves({ 1: 'db1' });
+        tryNext.onCall(1).resolves(null);
+        serviceProvider.aggregate.returns({ tryNext } as any);
         const result = await collection.latencyStats();
         expect(result).to.deep.equal([{ 1: 'db1' }]);
       });
@@ -1868,7 +1870,14 @@ describe('Collection', () => {
     let serviceProvider: StubbedInstance<ServiceProvider>;
     let collection: Collection;
     let internalSession: StubbedInstance<ServiceProviderSession>;
-    const exceptions = {
+    const exceptions: {
+      [key in keyof (typeof Collection)['prototype']]?: {
+        a?: any;
+        m?: string;
+        i?: number;
+        e?: boolean;
+      }
+    } = {
       renameCollection: { a: ['name'] },
       createIndexes: { a: [[]] },
       runCommand: { a: ['coll', {} ], m: 'runCommandWithCheck', i: 2 },
@@ -1883,10 +1892,10 @@ describe('Collection', () => {
       dropIndex: { m: 'runCommandWithCheck', i: 2 },
       dropIndexes: { m: 'runCommandWithCheck', i: 2 },
       convertToCapped: { m: 'runCommandWithCheck', i: 2 },
-      dataSize: { m: 'stats', i: 2 },
-      storageSize: { m: 'stats', i: 2 },
-      totalSize: { m: 'stats', i: 2 },
-      totalIndexSize: { a: [], m: 'stats', i: 2 },
+      dataSize: { m: 'aggregate', e: true },
+      storageSize: { m: 'aggregate', e: true },
+      totalSize: { m: 'aggregate', e: true },
+      totalIndexSize: { m: 'aggregate', e: true, a: [] },
       drop: { m: 'dropCollection', i: 2 },
       exists: { m: 'listCollections', i: 2 },
       stats: { m: 'runCommandWithCheck', i: 2 },
@@ -1911,7 +1920,9 @@ describe('Collection', () => {
       remove: { m: 'deleteMany' },
       watch: { i: 1 }
     };
-    const ignore = [ 'getShardDistribution', 'stats', 'isCapped', 'save' ];
+    const ignore: (keyof (typeof Collection)['prototype'])[] = [
+      'getShardDistribution', 'stats', 'isCapped', 'save'
+    ];
     const args = [ { query: {} }, {}, { out: 'coll' } ];
     beforeEach(() => {
       const bus = stubInterface<EventEmitter>();
@@ -1924,7 +1935,6 @@ describe('Collection', () => {
       serviceProvider.find.returns(stubInterface<ServiceProviderCursor>());
       serviceProvider.getIndexes.resolves([]);
       serviceProvider.createIndexes.resolves(['index_1']);
-      serviceProvider.stats.resolves({ storageSize: 1, totalIndexSize: 1 });
       serviceProvider.listCollections.resolves([]);
       serviceProvider.watch.returns({ closed: false, tryNext: async() => {} } as any);
       serviceProvider.countDocuments.resolves(1);
@@ -1942,42 +1952,54 @@ describe('Collection', () => {
       const session = mongo.startSession();
       collection = session.getDatabase('db1').getCollection('coll');
     });
-    it('all commands that use the same command in sp', async() => {
+    context('all commands that use the same command in sp', () => {
       for (const method of Object.getOwnPropertyNames(Collection.prototype).filter(
-        k => !ignore.includes(k) && !Object.keys(exceptions).includes(k)
+        k => !ignore.includes(k as any) && !Object.keys(exceptions).includes(k)
       )) {
         if (!method.startsWith('_') &&
           !method.startsWith('print') &&
-          collection[method].returnsPromise) {
-          try {
-            await collection[method](...args);
-          } catch (e: any) {
-            expect.fail(`Collection.${method} failed, error thrown ${e.message}`);
-          }
-          expect(serviceProvider[method].calledOnce).to.equal(true, `expected sp.${method} to be called but it was not`);
-          expect((serviceProvider[method].getCall(-1).args[3] as any).session).to.equal(internalSession);
+          Collection.prototype[method].returnsPromise) {
+          // eslint-disable-next-line no-loop-func
+          it(`passes the session through for ${method}`, async() => {
+            try {
+              await collection[method](...args);
+            } catch (e: any) {
+              expect.fail(`Collection.${method} failed, error thrown ${e.message}`);
+            }
+            expect(serviceProvider[method].calledOnce).to.equal(true, `expected sp.${method} to be called but it was not`);
+            expect((serviceProvider[method].getCall(-1).args[3] as any).session).to.equal(internalSession);
+          });
         }
       }
     });
-    it('all commands that use other methods', async() => {
+    context('all commands that use other methods', () => {
       for (const method of Object.keys(exceptions)) {
         const customA = exceptions[method].a || args;
         const customM = exceptions[method].m || method;
         const customI = exceptions[method].i || 3;
-        try {
-          await collection[method](...customA);
-        } catch (e: any) {
-          expect.fail(`${method} failed, error thrown ${e.stack}`);
-        }
-        expect(serviceProvider[customM].called).to.equal(true, `expecting sp.${customM} to be called but it was not`);
-        const call = serviceProvider[customM].getCall(-1).args[customI];
-        if (Array.isArray(call)) {
-          for (const k of call) {
-            expect(k.session).to.equal(internalSession, `method ${method} supposed to call sp.${customM} with options at arg ${customI}`);
+        const customE = exceptions[method].e || false;
+        // eslint-disable-next-line no-loop-func
+        it(`passes the session through for ${method} (args=${JSON.stringify(customA)}, sp method = ${customM}, index=${customI}, expectFail=${customE})`, async() => {
+          try {
+            await collection[method](...customA);
+            if (customE) {
+              expect.fail('missed exception');
+            }
+          } catch (e: any) {
+            if (!customE) {
+              expect.fail(`${method} failed, error thrown ${e.stack}`);
+            }
           }
-        } else {
-          expect(call.session).to.equal(internalSession, `method ${method} supposed to call sp.${customM} with options at arg ${customI}`);
-        }
+          expect(serviceProvider[customM].called).to.equal(true, `expecting sp.${customM} to be called but it was not`);
+          const call = serviceProvider[customM].getCall(-1).args[customI];
+          if (Array.isArray(call)) {
+            for (const k of call) {
+              expect(k.session).to.equal(internalSession, `method ${method} supposed to call sp.${customM} with options at arg ${customI}`);
+            }
+          } else {
+            expect(call.session).to.equal(internalSession, `method ${method} supposed to call sp.${customM} with options at arg ${customI}`);
+          }
+        });
       }
     });
   });
