@@ -66,7 +66,7 @@ export default class Mongo extends ShellApiClass {
   private __serviceProvider: ServiceProvider | null = null;
   public _databases: Record<string, Database>;
   public _instanceState: ShellInstanceState;
-  private _connectionInfo: ConnectionInfo;
+  public _connectionInfo: ConnectionInfo;
   private _explicitEncryptionOnly = false;
   private _keyVault: KeyVault | undefined; // need to keep it around so that the ShellApi ClientEncryption class can access it
   private _clientEncryption: ClientEncryption | undefined;
