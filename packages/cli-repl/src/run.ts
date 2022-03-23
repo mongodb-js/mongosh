@@ -1,5 +1,6 @@
-import { CliRepl, parseCliArgs, getMongocryptdPaths, runSmokeTests, USAGE, buildInfo } from './index';
+import { CliRepl, parseCliArgs, runSmokeTests, USAGE, buildInfo } from './index';
 import { getStoragePaths, getGlobalConfigPaths } from './config-directory';
+import { getCSFLELibraryPaths } from './csfle-library-paths';
 import { getTlsCertificateSelector } from './tls-certificate-selector';
 import { redactURICredentials } from '@mongosh/history';
 import { generateConnectionInfoFromCliArgs } from '@mongosh/arg-parser';
@@ -39,22 +40,22 @@ import stream from 'stream';
       console.log(JSON.stringify(buildInfo(), null, '  '));
     } else if (options.smokeTests) {
       const smokeTestServer = process.env.MONGOSH_SMOKE_TEST_SERVER;
+      const csfleLibraryOpts = [
+        options.csfleLibraryPath ? `--csfleLibraryPath=${options.csfleLibraryPath}` : '',
+        ...(options.csfleLibrarySearchPath ?? []).map(p => `--csfleLibraryPath=${p}`)
+      ].filter(Boolean);
       if (process.execPath === process.argv[1]) {
         // This is the compiled binary. Use only the path to it.
-        await runSmokeTests(smokeTestServer, process.execPath);
+        await runSmokeTests(smokeTestServer, process.execPath, ...csfleLibraryOpts);
       } else {
         // This is not the compiled binary. Use node + this script.
-        await runSmokeTests(smokeTestServer, process.execPath, process.argv[1]);
+        await runSmokeTests(smokeTestServer, process.execPath, process.argv[1], ...csfleLibraryOpts);
       }
     } else {
-      let mongocryptdSpawnPaths = [['mongocryptd']];
       if (process.execPath === process.argv[1]) {
         // Remove the built-in Node.js listener that prints e.g. deprecation
         // warnings in single-binary release mode.
         process.removeAllListeners('warning');
-        // Look for mongocryptd in the locations where our packaging would
-        // have put it.
-        mongocryptdSpawnPaths = await getMongocryptdPaths();
       }
 
       // This is for testing under coverage, see the the comment in the tests
@@ -98,7 +99,7 @@ import stream from 'stream';
         shellCliOptions: {
           ...options,
         },
-        mongocryptdSpawnPaths,
+        getCSFLELibraryPaths,
         input: process.stdin,
         output: process.stdout,
         onExit: process.exit,

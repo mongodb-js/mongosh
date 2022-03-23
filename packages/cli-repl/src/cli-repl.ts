@@ -18,8 +18,8 @@ import { buildInfo } from './build-info';
 import type { StyleDefinition } from './clr';
 import { ConfigManager, ShellHomeDirectory, ShellHomePaths } from './config-directory';
 import { CliReplErrors } from './error-codes';
+import type { CSFLELibraryPathResult } from './csfle-library-paths';
 import { MongoLogManager, MongoLogWriter, mongoLogId } from 'mongodb-log-writer';
-import { MongocryptdManager } from './mongocryptd-manager';
 import MongoshNodeRepl, { MongoshNodeReplOptions, MongoshIOProvider } from './mongosh-repl';
 import { setupLoggerAndTelemetry, ToggleableAnalytics } from '@mongosh/logging';
 import { MongoshBus, CliUserConfig, CliUserConfigValidator } from '@mongosh/types';
@@ -50,8 +50,8 @@ type AnalyticsOptions = {
 export type CliReplOptions = {
   /** The set of parsed command line flags. */
   shellCliOptions: CliOptions;
-  /** The list of executable paths for mongocryptd. */
-  mongocryptdSpawnPaths?: string[][],
+  /** A function for getting the shared library path for CSFLE. */
+  getCSFLELibraryPaths?: (bus: MongoshBus) => Promise<CSFLELibraryPathResult>;
   /** The stream to read user input from. */
   input: Readable;
   /** The stream to write shell output to. */
@@ -78,7 +78,8 @@ class CliRepl implements MongoshIOProvider {
   mongoshRepl: MongoshNodeRepl;
   bus: MongoshBus;
   cliOptions: CliOptions;
-  mongocryptdManager: MongocryptdManager;
+  getCSFLELibraryPaths?: (bus: MongoshBus) => Promise<CSFLELibraryPathResult>;
+  cachedCSFLELibraryPaths?: Promise<CSFLELibraryPathResult>;
   shellHomeDirectory: ShellHomeDirectory;
   configDirectory: ConfigManager<CliUserConfigOnDisk>;
   config: CliUserConfigOnDisk;
@@ -113,6 +114,7 @@ class CliRepl implements MongoshIOProvider {
       enableTelemetry: true
     };
 
+    this.getCSFLELibraryPaths = options.getCSFLELibraryPaths;
     this.globalConfigPaths = options.globalConfigPaths ?? [];
     this.shellHomeDirectory = new ShellHomeDirectory(options.shellHomePaths);
     this.configDirectory = new ConfigManager<CliUserConfigOnDisk>(
@@ -128,11 +130,6 @@ class CliRepl implements MongoshIOProvider {
         this.setTelemetryEnabled(config.enableTelemetry);
         this.bus.emit('mongosh:update-user', { userId: config.userId, anonymousId: config.telemetryAnonymousId });
       });
-
-    this.mongocryptdManager = new MongocryptdManager(
-      options.mongocryptdSpawnPaths ?? [],
-      this.shellHomeDirectory,
-      this.bus);
 
     this.logManager = new MongoLogManager({
       directory: this.shellHomeDirectory.localPath('.'),
@@ -235,12 +232,26 @@ class CliRepl implements MongoshIOProvider {
     this.globalConfig = await this.loadGlobalConfigFile();
 
     if (driverOptions.autoEncryption) {
+      const origExtraOptions = driverOptions.autoEncryption.extraOptions ?? {};
+      if (origExtraOptions.csflePath || origExtraOptions.csfleSearchPaths) {
+        // If a CSFLE path has been specified through 'driverOptions', save it
+        // for later use.
+        this.cachedCSFLELibraryPaths = Promise.resolve({
+          csflePath: origExtraOptions.csflePath,
+          csfleSearchPaths: origExtraOptions.csfleSearchPaths
+        });
+      }
+
       const extraOptions = {
-        ...(driverOptions.autoEncryption.extraOptions ?? {}),
-        ...(await this.startMongocryptd())
+        ...origExtraOptions,
+        ...await this.getCSFLELibraryOptions()
       };
 
       driverOptions.autoEncryption = { ...driverOptions.autoEncryption, extraOptions };
+    }
+    if (Object.keys(driverOptions.autoEncryption ?? {}).join(',') === 'extraOptions') {
+      // In this case, autoEncryption opts were only specified for CSFLE library specs
+      delete driverOptions.autoEncryption;
     }
 
     const initialServiceProvider = await this.connect(driverUri, driverOptions);
@@ -601,7 +612,6 @@ class CliRepl implements MongoshIOProvider {
         flushDuration = Date.now() - flushStart;
       }
     }
-    this.mongocryptdManager.close();
     // eslint-disable-next-line chai-friendly/no-unused-expressions
     this.logWriter?.info('MONGOSH', mongoLogId(1_000_000_045), 'analytics', 'Flushed outstanding data', {
       flushError,
@@ -640,16 +650,12 @@ class CliRepl implements MongoshIOProvider {
     return this.mongoshRepl.clr(text, style);
   }
 
-  /** Start a mongocryptd instance for automatic FLE. */
-  async startMongocryptd(): Promise<AutoEncryptionOptions['extraOptions']> {
-    try {
-      return await this.mongocryptdManager.start();
-    } catch (e: any) {
-      if (e?.code === 'ENOENT') {
-        throw new MongoshRuntimeError('Could not find a working mongocryptd - ensure your local installation works correctly. See the mongosh log file for additional information. Please also refer to the documentation: https://docs.mongodb.com/manual/reference/security-client-side-encryption-appendix/');
-      }
-      throw e;
+  /** Get the right CSFLE shared library loading options. */
+  async getCSFLELibraryOptions(): Promise<AutoEncryptionOptions['extraOptions']> {
+    if (!this.getCSFLELibraryPaths) {
+      throw new MongoshInternalError('This instance of mongosh is not configured for CSFLE');
     }
+    return (this.cachedCSFLELibraryPaths ??= this.getCSFLELibraryPaths(this.bus));
   }
 
   /** Provide extra information for reporting internal errors */

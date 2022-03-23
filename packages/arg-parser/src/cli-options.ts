@@ -16,6 +16,8 @@ export interface CliOptions {
   awsIamSessionToken?: string;
   awsSecretAccessKey?: string;
   awsSessionToken?: string;
+  csfleLibraryPath?: string;
+  csfleLibrarySearchPath?: string[];
   db?: string;
   eval?: string;
   gssapiServiceName?: string;

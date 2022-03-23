@@ -23,6 +23,7 @@ const OPTIONS = {
     'awsSecretAccessKey',
     'awsSessionToken',
     'awsIamSessionToken',
+    'csfleLibraryPath',
     'db',
     'eval',
     'gssapiHostName',
@@ -74,7 +75,8 @@ const OPTIONS = {
     'version'
   ],
   array: [
-    'file'
+    'file',
+    'csfleLibrarySearchPath'
   ],
   alias: {
     h: 'help',
