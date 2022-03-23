@@ -1,7 +1,8 @@
-import { CliRepl, parseCliArgs, mapCliToDriver, getMongocryptdPaths, runSmokeTests, USAGE, buildInfo } from './index';
+import { CliRepl, parseCliArgs, getMongocryptdPaths, runSmokeTests, USAGE, buildInfo } from './index';
 import { getStoragePaths, getGlobalConfigPaths } from './config-directory';
-import { generateUri } from '@mongosh/service-provider-server';
+import { getTlsCertificateSelector } from './tls-certificate-selector';
 import { redactURICredentials } from '@mongosh/history';
+import { generateConnectionInfoFromCliArgs } from '@mongosh/arg-parser';
 import { runMain } from 'module';
 import readline from 'readline';
 import askcharacter from 'askcharacter';
@@ -80,10 +81,14 @@ import stream from 'stream';
         }
       }
 
-      const driverOptions = mapCliToDriver(options);
-      const driverUri = generateUri(options);
+      const connectionInfo = generateConnectionInfoFromCliArgs(options);
+      connectionInfo.driverOptions = {
+        ...connectionInfo.driverOptions,
+        ...getTlsCertificateSelector(options.tlsCertificateSelector),
+        driverInfo: { name: 'mongosh', version }
+      };
 
-      const title = `mongosh ${redactURICredentials(driverUri)}`;
+      const title = `mongosh ${redactURICredentials(connectionInfo.connectionString)}`;
       process.title = title;
       setTerminalWindowTitle(title);
 
@@ -100,7 +105,7 @@ import stream from 'stream';
         shellHomePaths: shellHomePaths,
         globalConfigPaths: globalConfigPaths
       });
-      await repl.start(driverUri, driverOptions);
+      await repl.start(connectionInfo.connectionString, connectionInfo.driverOptions);
     }
   } catch (e: any) {
     console.error(`${e?.name}: ${e?.message}`);

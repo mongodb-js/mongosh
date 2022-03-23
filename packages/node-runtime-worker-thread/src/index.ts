@@ -2,7 +2,6 @@
 /* ^^^ we test the dist directly, so isntanbul can't calculate the coverage correctly */
 
 import { ChildProcess, spawn, SpawnOptionsWithoutStdio } from 'child_process';
-import type { DevtoolsConnectOptions } from '@mongosh/service-provider-server';
 import {
   Runtime,
   RuntimeEvaluationListener,
@@ -17,7 +16,9 @@ import { ChildProcessEvaluationListener } from './child-process-evaluation-liste
 import type { WorkerRuntime as WorkerThreadWorkerRuntime } from './worker-runtime';
 import { deserializeEvaluationResult } from './serializer';
 import { ChildProcessMongoshBus } from './child-process-mongosh-bus';
+import type { CompassServiceProvider } from '@mongosh/service-provider-server';
 
+type DevtoolsConnectOptions = Parameters<(typeof CompassServiceProvider)['connect']>[1];
 type ChildProcessRuntime = Caller<WorkerThreadWorkerRuntime>;
 
 function parseStderrToError(str: string): Error | null {

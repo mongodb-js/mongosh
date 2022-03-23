@@ -60,7 +60,7 @@ describe('Mongo', () => {
     describe('toShellResult', () => {
       const mongo = new Mongo({} as any, 'localhost:37017');
       it('value', async() => {
-        expect((await toShellResult(mongo)).printable).to.equal('mongodb://localhost:37017/test?directConnection=true&serverSelectionTimeoutMS=2000');
+        expect((await toShellResult(mongo)).printable).to.equal('mongodb://localhost:37017/?directConnection=true&serverSelectionTimeoutMS=2000');
       });
       it('type', async() => {
         expect((await toShellResult(mongo)).type).to.equal('Mongo');
@@ -786,7 +786,7 @@ describe('Mongo', () => {
           const mongo = await instanceState.shellApi.Mongo(uri, null, {
             api: { version: '1' }
           });
-          expect(mongo._apiOptions).to.deep.equal({ version: '1' });
+          expect(mongo._connectionInfo.driverOptions).to.deep.equal({ serverApi: { version: '1' } });
           // Does not throw, unlike the 4.4 test case above:
           await (await mongo.getDB('test').getCollection('coll').find()).toArray();
         });

@@ -2,7 +2,8 @@ import { MongoshInternalError, MongoshRuntimeError, MongoshWarning } from '@mong
 import { redactURICredentials } from '@mongosh/history';
 import i18n from '@mongosh/i18n';
 import { bson, AutoEncryptionOptions } from '@mongosh/service-provider-core';
-import { CliOptions, CliServiceProvider, DevtoolsConnectOptions } from '@mongosh/service-provider-server';
+import { CliServiceProvider } from '@mongosh/service-provider-server';
+import type { CliOptions, DevtoolsConnectOptions } from '@mongosh/arg-parser';
 import { SnippetManager } from '@mongosh/snippet-manager';
 import { Editor } from '@mongosh/editor';
 import { redactSensitiveData } from '@mongosh/history';
@@ -171,18 +172,16 @@ class CliRepl implements MongoshIOProvider {
 
     if (!this.cliOptions.nodb) {
       const cs = new ConnectionString(driverUri);
-      if (!cs.searchParams.get('appName')) {
-        cs.searchParams.set('appName', `mongosh ${version}`);
+      const searchParams = cs.typedSearchParams<DevtoolsConnectOptions>();
+      if (!searchParams.get('appName')) {
+        searchParams.set('appName', `mongosh ${version}`);
       }
 
-      if (this.isPasswordMissingOptions(driverOptions)) {
-        (driverOptions.auth as any).password = await this.requirePassword();
-      } else if (this.isPasswordMissingURI(cs)) {
-        cs.password = await this.requirePassword();
+      if (this.isPasswordMissingURI(cs)) {
+        cs.password = encodeURIComponent(await this.requirePassword());
       }
       this.ensurePasswordFieldIsPresentInAuth(driverOptions);
-
-      driverUri = cs.href;
+      driverUri = cs.toString();
     }
 
     try {
@@ -521,22 +520,6 @@ class CliRepl implements MongoshIOProvider {
       const warning = new MongoshWarning(`Mismatched node version. Required version: ${engines.node}. Currently using: ${process.version}. Exiting...\n\n`, CliReplErrors.NodeVersionMismatch);
       await this._fatalError(warning);
     }
-  }
-
-  /**
-   * Is the password missing from the options?
-   *
-   * @param {DevtoolsConnectOptions} driverOptions - The driver options.
-   *
-   * @returns {boolean} If the password is missing.
-   */
-  isPasswordMissingOptions(driverOptions: DevtoolsConnectOptions): boolean {
-    return !!(
-      driverOptions.auth &&
-      driverOptions.auth.username &&
-      !driverOptions.auth.password &&
-      driverOptions.authMechanism !== 'GSSAPI' // no need for a password for Kerberos
-    );
   }
 
   /**

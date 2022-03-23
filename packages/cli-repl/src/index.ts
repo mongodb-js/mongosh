@@ -1,4 +1,3 @@
-import mapCliToDriver from './arg-mapper';
 import { parseCliArgs } from './arg-parser';
 import CliRepl from './cli-repl';
 import clr from './clr';
@@ -17,7 +16,6 @@ export {
   MONGOSH_WIKI,
   CliRepl,
   parseCliArgs,
-  mapCliToDriver,
   getStoragePaths,
   getMongocryptdPaths,
   runSmokeTests,

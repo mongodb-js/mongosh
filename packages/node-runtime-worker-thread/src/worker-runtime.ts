@@ -8,18 +8,17 @@ import {
   RuntimeEvaluationResult
 } from '@mongosh/browser-runtime-core';
 import { ElectronRuntime } from '@mongosh/browser-runtime-electron';
-import type {
-  ServiceProvider
-} from '@mongosh/service-provider-core';
+import type { ServiceProvider } from '@mongosh/service-provider-core';
 import {
-  CompassServiceProvider,
-  DevtoolsConnectOptions
+  CompassServiceProvider
 } from '@mongosh/service-provider-server';
 import { exposeAll, createCaller } from './rpc';
 import { serializeEvaluationResult } from './serializer';
 import type { MongoshBus } from '@mongosh/types';
 import { Lock, UNLOCKED } from './lock';
 import { runInterruptible, InterruptHandle } from 'interruptor';
+
+type DevtoolsConnectOptions = Parameters<(typeof CompassServiceProvider)['connect']>[1];
 
 if (!parentPort || isMainThread) {
   throw new Error('Worker runtime can be used only in a worker thread');

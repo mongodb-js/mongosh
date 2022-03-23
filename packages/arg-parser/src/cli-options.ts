@@ -1,7 +1,7 @@
 /**
  * Valid options that can be parsed from the command line.
  */
-export default interface CliOptions {
+export interface CliOptions {
   // Positional arguments:
   connectionSpecifier?: string;
   fileNames?: string[];
@@ -43,6 +43,7 @@ export default interface CliOptions {
   tlsCRLFile?: string;
   tlsDisabledProtocols?: boolean;
   tlsFIPSMode?: boolean;
+  tlsUseSystemCA?: boolean;
   username?: string;
   verbose?: boolean;
   version?: boolean;
