@@ -5166,11 +5166,11 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "12.22.9"
+          node_js_version: "12.22.11"
       - func: test
         vars:
           mongosh_server_test_version: ""
-          node_js_version: "12.22.9"
+          node_js_version: "12.22.11"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "n12_arg_parser"
           mongosh_run_only_in_package: "arg-parser"
@@ -5183,11 +5183,11 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.18.3"
+          node_js_version: "14.19.1"
       - func: test
         vars:
           mongosh_server_test_version: ""
-          node_js_version: "14.18.3"
+          node_js_version: "14.19.1"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n14_arg_parser"
           mongosh_run_only_in_package: "arg-parser"
