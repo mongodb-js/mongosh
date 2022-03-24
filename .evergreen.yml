@@ -124,6 +124,34 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
+        local_file: src/nyc-output-darwin-n12_arg_parser.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-n12_arg_parser.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-darwin-n12_arg_parser.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-darwin-n14_arg_parser.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-n14_arg_parser.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-darwin-n14_arg_parser.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
         local_file: src/nyc-output-darwin-n12_async_rewriter2.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin-n12_async_rewriter2.tgz
         bucket: mciuploads
@@ -1576,6 +1604,34 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-darwin-n14_types.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-linux-n12_arg_parser.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-n12_arg_parser.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-linux-n12_arg_parser.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-linux-n14_arg_parser.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux-n14_arg_parser.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-linux-n14_arg_parser.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -3256,6 +3312,34 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-linux-n14_types.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-win32-n12_arg_parser.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-n12_arg_parser.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-win32-n12_arg_parser.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-win32-n14_arg_parser.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32-n14_arg_parser.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-win32-n14_arg_parser.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -5073,6 +5157,40 @@ tasks:
   # UNIT TESTS
   # E.g. test_m40xc_n12 stands for mongod 4.0.x, community edition, Node.js 12
   ###
+  - name: test_n12_arg_parser
+    tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "12.22.11"
+      - func: test
+        vars:
+          mongosh_server_test_version: ""
+          node_js_version: "12.22.11"
+          mongosh_skip_node_version_check: "1"
+          mongosh_test_id: "n12_arg_parser"
+          mongosh_run_only_in_package: "arg-parser"
+  - name: test_n14_arg_parser
+    tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.19.1"
+      - func: test
+        vars:
+          mongosh_server_test_version: ""
+          node_js_version: "14.19.1"
+          mongosh_skip_node_version_check: ""
+          mongosh_test_id: "n14_arg_parser"
+          mongosh_run_only_in_package: "arg-parser"
   - name: test_n12_async_rewriter2
     tags: ["unit-test"]
     depends_on:
@@ -8228,6 +8346,8 @@ buildvariants:
       executable_os_id: darwin-x64
     tasks:
       - name: check
+      - name: test_n12_arg_parser
+      - name: test_n14_arg_parser
       - name: test_n12_async_rewriter2
       - name: test_n14_async_rewriter2
       - name: test_n12_autocomplete
@@ -8353,6 +8473,8 @@ buildvariants:
       - name: compile_ts
       - name: check
       - name: check_coverage
+      - name: test_n12_arg_parser
+      - name: test_n14_arg_parser
       - name: test_n12_async_rewriter2
       - name: test_n14_async_rewriter2
       - name: test_n12_autocomplete
@@ -8619,6 +8741,8 @@ buildvariants:
       executable_os_id: win32
     tasks:
       - name: check
+      - name: test_n12_arg_parser
+      - name: test_n14_arg_parser
       - name: test_n12_async_rewriter2
       - name: test_n14_async_rewriter2
       - name: test_n12_autocomplete

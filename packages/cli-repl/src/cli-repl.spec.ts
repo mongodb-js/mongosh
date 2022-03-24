@@ -709,27 +709,6 @@ describe('CliRepl', () => {
 
       input.write('.exit\n');
     });
-
-    it('asks for a password if one is required, options edition', async() => {
-      outputStream.on('data', (chunk) => {
-        if (chunk.includes('Enter password')) {
-          setImmediate(() => input.write('i want food\n'));
-        }
-      });
-      const auth = { username: 'amy', password: '' };
-      let threw = true;
-      try {
-        await cliRepl.start(await testServer.connectionString(), { auth });
-        threw = false;
-      } catch (err: any) {
-        expect(err.message).to.equal('Authentication failed.');
-      }
-      expect(threw).to.be.true;
-      expect(auth.password).to.equal('i want food');
-      expect(output).to.match(/^Enter password: \**$/m);
-      input.write('.exit\n');
-    });
-
     it('asks for a password if one is required, connection string edition', async() => {
       outputStream.on('data', (chunk) => {
         if (chunk.includes('Enter password')) {
@@ -758,10 +737,11 @@ describe('CliRepl', () => {
       });
       Object.assign(outputStream, fakeTTYProps);
       Object.assign(input, fakeTTYProps);
-      const auth = { username: 'foo', password: '' };
+      const cs = new ConnectionString(await testServer.connectionString());
+      cs.username = 'amy';
       const errored = waitBus(cliRepl.bus, 'mongosh:error');
       try {
-        await cliRepl.start(await testServer.connectionString(), { auth });
+        await cliRepl.start(cs.toString(), {});
       } catch { /* not empty */ }
       const [ err ] = await errored;
       expect(err.message).to.equal('The request was aborted by the user');

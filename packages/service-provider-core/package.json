@@ -31,11 +31,9 @@
   },
   "dependencies": {
     "@mongosh/errors": "0.0.0-dev.0",
-    "@mongosh/i18n": "0.0.0-dev.0",
     "bson": "^4.6.2",
     "mongodb": "^4.4.0",
-    "mongodb-build-info": "^1.2.0",
-    "mongodb-connection-string-url": "^2.3.2"
+    "mongodb-build-info": "^1.2.0"
   },
   "optionalDependencies": {
     "mongodb-client-encryption": "^2.0.0"

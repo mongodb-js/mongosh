@@ -1,7 +1,7 @@
 import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
 import { expect } from 'chai';
-import CliOptions from './cli-options';
-import generateUri from './uri-generator';
+import { CliOptions } from './cli-options';
+import { generateUri } from './uri-generator';
 
 describe('uri-generator.generate-uri', () => {
   context('when no arguments are provided', () => {
@@ -185,7 +185,7 @@ describe('uri-generator.generate-uri', () => {
       const options = { connectionSpecifier: uri };
 
       it('returns the uri with the scheme', () => {
-        expect(generateUri(options)).to.equal(`mongodb://${uri}:27017/test?directConnection=true`);
+        expect(generateUri(options)).to.equal(`mongodb://${uri}:27017/?directConnection=true`);
       });
     });
 
@@ -194,7 +194,7 @@ describe('uri-generator.generate-uri', () => {
       const options = { connectionSpecifier: uri };
 
       it('returns the uri with the scheme', () => {
-        expect(generateUri(options)).to.equal(`mongodb://${uri}/test?directConnection=true`);
+        expect(generateUri(options)).to.equal(`mongodb://${uri}/?directConnection=true`);
       });
     });
 
@@ -218,7 +218,7 @@ describe('uri-generator.generate-uri', () => {
       const options = { connectionSpecifier: uri };
 
       it('returns the uri with the scheme', () => {
-        expect(generateUri(options)).to.equal(`mongodb://${uri}/test?directConnection=true`);
+        expect(generateUri(options)).to.equal(`mongodb://${uri}/?directConnection=true`);
       });
     });
 
@@ -227,7 +227,7 @@ describe('uri-generator.generate-uri', () => {
       const options = { connectionSpecifier: uri };
 
       it('returns the uri with the scheme', () => {
-        expect(generateUri(options)).to.equal(`mongodb://${uri}test?directConnection=true`);
+        expect(generateUri(options)).to.equal(`mongodb://${uri}?directConnection=true`);
       });
     });
 

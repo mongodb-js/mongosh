@@ -232,7 +232,7 @@ describe('ShellApi', () => {
       it('returns a new Mongo object', async() => {
         const m = await instanceState.shellApi.Mongo('localhost:27017');
         expect((await toShellResult(m)).type).to.equal('Mongo');
-        expect(m._uri).to.equal('mongodb://localhost:27017/test?directConnection=true&serverSelectionTimeoutMS=2000');
+        expect(m._uri).to.equal('mongodb://localhost:27017/?directConnection=true&serverSelectionTimeoutMS=2000');
       });
       it('fails for non-CLI', async() => {
         serviceProvider.platform = ReplPlatform.Browser;
@@ -418,7 +418,7 @@ describe('ShellApi', () => {
         serviceProvider.platform = ReplPlatform.CLI;
         const db = await instanceState.shellApi.connect('localhost:27017', 'username', 'pwd');
         expect((await toShellResult(db)).type).to.equal('Database');
-        expect(db.getMongo()._uri).to.equal('mongodb://localhost:27017/test?directConnection=true&serverSelectionTimeoutMS=2000');
+        expect(db.getMongo()._uri).to.equal('mongodb://username:pwd@localhost:27017/?directConnection=true&serverSelectionTimeoutMS=2000');
       });
       it('fails with no arg', async() => {
         serviceProvider.platform = ReplPlatform.CLI;
@@ -530,10 +530,10 @@ describe('ShellApi', () => {
         serviceProvider.platform = ReplPlatform.CLI;
         const db = await instanceState.context.connect('mongodb://127.0.0.1:27017', 'username', 'pwd');
         expect((await toShellResult(db)).type).to.equal('Database');
-        expect(db.getMongo()._uri).to.equal('mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000');
+        expect(db.getMongo()._uri).to.equal('mongodb://username:pwd@127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000');
         expect(serviceProvider.getNewConnection).to.have.been.calledOnceWithExactly(
-          'mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000',
-          { auth: { username: 'username', password: 'pwd' } });
+          'mongodb://username:pwd@127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000',
+          { });
       });
     });
     describe('version', () => {
