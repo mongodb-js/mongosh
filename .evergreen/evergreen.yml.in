@@ -52,7 +52,7 @@ for (const packageInfo of MONGOSH_PACKAGES) {
   }
 }
 
-const ALL_UNIT_TEST_BUILD_VARIANTS = ['darwin', 'linux', 'win32'];
+const ALL_UNIT_TEST_BUILD_VARIANTS = ['darwin_unit', 'linux_unit', 'win32_unit'];
 
 const EXECUTABLE_PKG_INFO = [
   {
@@ -241,7 +241,7 @@ functions:
 
   check_coverage:
     <% for (let buildVariant of ALL_UNIT_TEST_BUILD_VARIANTS) {
-        for (let unitTest of ALL_UNIT_TESTS.filter(t => !t.variants || t.variants.includes(buildVariant))) { %>
+        for (let unitTest of ALL_UNIT_TESTS.filter(t => !t.variants || t.variants.includes(buildVariant.replace(/_unit$/, '')))) { %>
     - command: s3.get
       params:
         aws_key: ${aws_key}
