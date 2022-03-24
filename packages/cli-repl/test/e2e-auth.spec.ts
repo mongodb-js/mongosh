@@ -906,6 +906,7 @@ describe('Auth e2e', function() {
           'Received authentication for mechanism GSSAPI which is not enabled',
           'Received authentication for mechanism GSSAPI which is unknown or not enabled',
           'Miscellaneous failure (see text): Unable to find realm of host localhost',
+          'Miscellaneous failure (see text): no credential for',
           "Unsupported mechanism 'GSSAPI' on authentication database '$external'"
         ];
         expect(messages.some(msg => shell.output.includes(msg)))
