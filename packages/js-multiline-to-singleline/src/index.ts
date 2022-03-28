@@ -57,6 +57,9 @@ export function makeMultilineJSIntoSingleLine(src: string): string {
       compact: false,
       code: true,
       comments: true,
+      configFile: false,
+      babelrc: false,
+      browserslistConfigFile: false,
       plugins: [lineCommentToBlockComment],
       sourceType: 'script'
     })?.code ?? src;
