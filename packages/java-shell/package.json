@@ -11,12 +11,13 @@
     "url": "git://github.com/mongodb-js/mongosh.git"
   },
   "scripts": {
-    "browserify-shell-api": "browserify src/main/js/all.js -o src/main/resources/js/all-standalone.js -dv",
+    "browserify-shell-api": "browserify -g uglifyify src/main/js/all.js -o src/main/resources/js/all-standalone.js -dv",
     "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 --colors -r ts-node/register \"./src/test/js/run-tests.ts\"",
     "test-ci": "node ../../scripts/run-if-package-requested.js npm run test"
   },
   "devDependencies": {
-    "browserify": "latest"
+    "browserify": "latest",
+    "uglifyify": "latest"
   },
   "license": "SSPL",
   "publishConfig": {
