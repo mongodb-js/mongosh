@@ -15,7 +15,7 @@ import java.time.temporal.TemporalField
 import java.time.temporal.UnsupportedTemporalTypeException
 import java.util.*
 
-internal class MongoShellEvaluator(client: MongoClient, private val context: MongoShellContext, private val converter: MongoShellConverter, wrapper: ValueWrapper) {
+internal class MongoShellEvaluator(client: MongoClient?, private val context: MongoShellContext, private val converter: MongoShellConverter, wrapper: ValueWrapper) {
     private val serviceProvider = JavaServiceProvider(client, converter, wrapper)
     private val shellEvaluator: Value
     private val shellInstanceState: Value
@@ -136,6 +136,8 @@ internal class MongoShellEvaluator(client: MongoClient, private val context: Mon
     fun close() {
         context.close()
     }
+
+    fun setClient(client: MongoClient): Unit = serviceProvider.setClient(client)
 }
 
 private val COLON = DateTimeFormatterBuilder().appendLiteral(":").toFormatter()
