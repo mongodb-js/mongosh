@@ -202,8 +202,30 @@ export default function constructShellBson(bson: typeof BSON, printWarning: (msg
 
   for (const className of Object.keys(bsonPkg) as (keyof ShellBson)[]) {
     const help = helps[className] || constructHelp(className);
+    if (typeof bsonPkg[className] === 'function') {
+      // We use the same bson package internally in a few places
+      // that we also expose to users.
+      bsonPkg[className] = shallowCloneClass(bsonPkg[className] as Function) as any;
+    }
     bsonPkg[className].help = (): Help => (help);
     Object.setPrototypeOf(bsonPkg[className].help, help);
   }
   return bsonPkg;
+}
+
+function shallowCloneClass<T extends Function>(orig: T): T {
+  const fn: T = function(this: unknown, ...args: unknown[]): unknown {
+    return orig.call(this, ...args);
+  } as unknown as T;
+  // Copy all properties of the original function, and shallow-clone
+  // the class prototype as well.
+  Object.setPrototypeOf(fn, Object.getPrototypeOf(orig));
+  const descriptors = Object.getOwnPropertyDescriptors(orig);
+  descriptors.prototype.value = shallowCloneObj(descriptors.prototype.value as any);
+  Object.defineProperties(fn, descriptors);
+  return fn;
+}
+
+function shallowCloneObj<T extends Object>(orig: T): T {
+  return Object.create(Object.getPrototypeOf(orig), Object.getOwnPropertyDescriptors(orig));
 }

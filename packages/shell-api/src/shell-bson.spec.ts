@@ -21,6 +21,15 @@ describe('Shell BSON', () => {
     shellBson = constructShellBson(bson, printWarning);
   });
 
+  describe('BSON object construction', () => {
+    it('clones methods and their prototypes', () => {
+      expect(shellBson.ObjectId).to.not.equal(bson.ObjectId);
+      expect(shellBson.ObjectId.prototype).to.not.equal(bson.ObjectId.prototype);
+      expect(shellBson.Binary).to.not.equal(bson.Binary);
+      expect(shellBson.Binary.prototype).to.not.equal(bson.Binary.prototype);
+    });
+  });
+
   describe('DBRef', () => {
     it('without new', () => {
       const s = shellBson.DBRef('namespace', 'oid');
