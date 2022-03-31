@@ -1,6 +1,7 @@
 import { inspect } from 'util';
 import { EJSON } from 'bson';
 import { RuntimeEvaluationResult } from '@mongosh/browser-runtime-core';
+import type { DevtoolsConnectOptions } from '@mongosh/service-provider-server/lib/cli-service-provider';
 
 function isPrimitive(
   val: any
@@ -109,4 +110,37 @@ export function deserializeEvaluationResult({
   }
 
   return { type, printable, source };
+}
+
+const autoEncryptionBSONOptions = [
+  'schemaMap',
+  // Note: This is an educated guess for what the name of this option will be.
+  // This may need to be adjusted later.
+  'encryptedFieldConfigMap'
+] as const;
+
+export function serializeConnectOptions(options: Readonly<DevtoolsConnectOptions> = {}): DevtoolsConnectOptions {
+  const serializedOptions: any = { ...options };
+  for (const autoEncryptionOption of autoEncryptionBSONOptions) {
+    if (serializedOptions.autoEncryption?.[autoEncryptionOption]) {
+      serializedOptions.autoEncryption = {
+        ...serializedOptions.autoEncryption,
+        [autoEncryptionOption]: EJSON.serialize(serializedOptions.autoEncryption[autoEncryptionOption])
+      };
+    }
+  }
+  return serializedOptions;
+}
+
+export function deserializeConnectOptions(options: Readonly<DevtoolsConnectOptions>): DevtoolsConnectOptions {
+  const deserializedOptions: any = { ...options };
+  for (const autoEncryptionOption of autoEncryptionBSONOptions) {
+    if (deserializedOptions.autoEncryption?.[autoEncryptionOption]) {
+      deserializedOptions.autoEncryption = {
+        ...deserializedOptions.autoEncryption,
+        [autoEncryptionOption]: EJSON.deserialize(deserializedOptions.autoEncryption[autoEncryptionOption])
+      };
+    }
+  }
+  return deserializedOptions;
 }
