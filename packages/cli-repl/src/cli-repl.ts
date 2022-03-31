@@ -106,7 +106,7 @@ class CliRepl implements MongoshIOProvider {
     this.analyticsOptions = options.analyticsOptions;
     this.onExit = options.onExit;
 
-    const id = new bson.ObjectId().toString();
+    const id = new bson.ObjectId().toHexString();
     this.config = {
       userId: id,
       telemetryAnonymousId: id,
