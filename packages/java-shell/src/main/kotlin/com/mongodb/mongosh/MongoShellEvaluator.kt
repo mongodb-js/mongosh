@@ -2,6 +2,7 @@ package com.mongodb.mongosh
 
 import com.mongodb.client.MongoClient
 import com.mongodb.mongosh.service.JavaServiceProvider
+import org.graalvm.polyglot.Source
 import org.graalvm.polyglot.Value
 import org.graalvm.polyglot.proxy.ProxyExecutable
 import org.intellij.lang.annotations.Language
@@ -15,6 +16,11 @@ import java.time.temporal.TemporalField
 import java.time.temporal.UnsupportedTemporalTypeException
 import java.util.*
 
+private val setupScript: Source by lazy {
+    val setupScript = MongoShell::class.java.getResource("/js/all-standalone.js")!!.readText()
+    Source.newBuilder("js", setupScript, "all-standalone.js").build()
+}
+
 internal class MongoShellEvaluator(client: MongoClient?, private val context: MongoShellContext, private val converter: MongoShellConverter, wrapper: ValueWrapper) {
     private val serviceProvider = JavaServiceProvider(client, converter, wrapper)
     private val shellEvaluator: Value
@@ -23,8 +29,7 @@ internal class MongoShellEvaluator(client: MongoClient?, private val context: Mo
     private val getShellApiTypeFn: Value
 
     init {
-        val setupScript = MongoShell::class.java.getResource("/js/all-standalone.js")!!.readText()
-        context.eval(setupScript, "all-standalone.js")
+        context.eval(setupScript)
         val global = context.bindings["_global"]!!
         context.bindings.removeMember("_global")
         shellInstanceState = global.getMember("ShellInstanceState").newInstance(serviceProvider)
