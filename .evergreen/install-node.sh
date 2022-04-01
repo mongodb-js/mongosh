@@ -28,9 +28,12 @@ else
   fi
 fi
 
+. "$BASEDIR/setup-env.sh"
+
 npm i -g npm@8.x
 
-. "$BASEDIR/setup-env.sh"
+echo "Using npm version (has been updated by install script):"
+npm --version
 
 # We need the build package for various tasks, and can bootstrap the cli-repl
 # package on all hosts, including dependencies.
