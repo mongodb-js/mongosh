@@ -1,6 +1,5 @@
 import { DownloadCenterConfig } from '@mongodb-js/dl-center/dist/download-center-config';
 import { expect } from 'chai';
-import { SinonStub } from 'sinon';
 import sinon from 'ts-sinon';
 import { createAndPublishDownloadCenterConfig, createDownloadCenterConfig } from './config';
 
@@ -74,8 +73,8 @@ describe('DownloadCenter config', () => {
   });
 
   describe('createAndPublishDownloadCenterConfig', () => {
-    let dlCenter: SinonStub;
-    let uploadConfig: SinonStub;
+    let dlCenter: sinon.SinonStub;
+    let uploadConfig: sinon.SinonStub;
 
     beforeEach(() => {
       uploadConfig = sinon.stub();
