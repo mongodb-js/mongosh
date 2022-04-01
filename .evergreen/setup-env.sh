@@ -50,7 +50,7 @@ echo $PATH
 echo "Using node version:"
 node --version
 
-echo "Using npm version (may be updated by install script):"
+echo "Using npm version:"
 npm --version
 
 echo "Using git version:"
