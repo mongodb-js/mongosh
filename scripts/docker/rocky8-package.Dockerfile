@@ -10,5 +10,7 @@ RUN dnf -y install python3 rpm-build dpkg-devel dpkg-dev git
 RUN curl -sL https://rpm.nodesource.com/setup_14.x | bash -
 RUN dnf install -y nodejs
 RUN npm i -g npm@8.x
+RUN mkdir -p /tmp/home
+ENV HOME=/tmp/home
 
 ENTRYPOINT [ "bash" ]

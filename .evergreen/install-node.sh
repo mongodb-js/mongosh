@@ -5,7 +5,7 @@ export BASEDIR="$PWD/.evergreen"
 if [ "$OS" == "Windows_NT" ]; then
   powershell "$(cygpath -w "$BASEDIR")"/InstallNode.ps1
   . "$BASEDIR/setup-env.sh"
-  mkdir -p npm-8 && (cd npm-8 && echo '{}' > package.json && npm i npm@8.x)
+  mkdir -p "$BASEDIR/npm-8" && (cd "$BASEDIR/npm-8" && echo '{}' > package.json && npm i npm@8.x)
 else
   if which realpath; then # No realpath on macOS, but also not needed there
     export HOME="$(realpath "$HOME")" # Needed to de-confuse nvm when /home is a symlink
