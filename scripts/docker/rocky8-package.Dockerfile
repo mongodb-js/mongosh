@@ -9,5 +9,6 @@ RUN dnf -y install python3 rpm-build dpkg-devel dpkg-dev git
 # Add Node.js
 RUN curl -sL https://rpm.nodesource.com/setup_14.x | bash -
 RUN dnf install -y nodejs
+RUN npm i -g npm@8.x
 
 ENTRYPOINT [ "bash" ]

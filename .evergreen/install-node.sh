@@ -28,6 +28,8 @@ else
   fi
 fi
 
+npm i -g npm@8.x
+
 . "$BASEDIR/setup-env.sh"
 
 # We need the build package for various tasks, and can bootstrap the cli-repl
