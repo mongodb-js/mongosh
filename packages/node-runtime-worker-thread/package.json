@@ -22,8 +22,8 @@
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
     "lint": "eslint --report-unused-disable-directives \"./{src,test}/**/*.{js,ts,tsx}\"",
     "check": "npm run lint && depcheck",
-    "webpack-build": "webpack --mode production",
-    "webpack-build-dev": "webpack --mode development",
+    "webpack-build": "npm run compile-ts && webpack --mode production",
+    "webpack-build-dev": "npm run compile-ts && webpack --mode development",
     "compile-ts": "tsc -p tsconfig.json",
     "prepublish": "npm run webpack-build"
   },
