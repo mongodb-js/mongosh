@@ -254,6 +254,7 @@ describe('e2e TLS', () => {
 
         const logPath = path.join(logBasePath, `${shell.logId}_log`);
         const logContents = await readReplLogfile(logPath);
+        console.log({ logContents });
         expect(logContents.find(line => line.id === 1_000_000_049)).to.exist;
       });
     });
