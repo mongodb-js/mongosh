@@ -1,6 +1,24 @@
 # Regenerate using `npm run update-evergreen-config`
 exec_timeout_secs: 3600
 
+post_error_fails_task: true
+post:
+  - command: shell.exec
+    params:
+      shell: bash
+      script: |
+        mkdir -p npm-logs
+        tar cvzf npm-logs.tgz npm-logs
+  - command: s3.put
+    params:
+      aws_key: ${aws_key}
+      aws_secret: ${aws_secret}
+      local_file: npm-logs.tgz
+      remote_file: mongosh/binaries/${revision}/${revision_order_id}/npm-logs-${build_variant}-${task_name}-${task_id}.tgz
+      bucket: mciuploads
+      permissions: public-read
+      content_type: application/x-gzip
+
 # Functions are any command that can be run.
 #
 # Current functions:

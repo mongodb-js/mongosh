@@ -40,6 +40,11 @@ if [ `uname` = Linux ]; then
 fi
 
 export npm_config_registry=https://registry.npmjs.org/
+export npm_config_logs_dir="$PWD/../npm-logs"
+mkdir -p "$npm_config_logs_dir"
+if [ "$OS" == "Windows_NT" ]; then
+  export npm_config_logs_dir="$(cygpath -w "$npm_config_logs_dir")"
+fi
 
 echo "Running on:"
 uname -a
