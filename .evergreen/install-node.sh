@@ -50,6 +50,6 @@ npm ci --verbose
 # make lerna give us a useful debugging experience
 sed -i -e 's/opts.stdio = stdio/opts.stdio = "inherit"/' node_modules/@lerna/npm-install/npm-install.js
 
-npm run bootstrap-ci -- --scope @mongosh/build --ignore-prepublish --concurrency=1
-(npm run bootstrap-ci -- --scope @mongosh/cli-repl --include-dependencies --ignore-prepublish --concurrency=1 && test -e packages/service-provider-server/node_modules/mongodb-client-encryption) || \
-  npm run bootstrap-ci -- --scope @mongosh/cli-repl --include-dependencies --ignore-prepublish --ignore-scripts --concurrency=1
+npm run bootstrap-ci -- --scope @mongosh/build --ignore-prepublish
+(npm run bootstrap-ci -- --scope @mongosh/cli-repl --include-dependencies --ignore-prepublish && test -e packages/service-provider-server/node_modules/mongodb-client-encryption) || \
+  npm run bootstrap-ci -- --scope @mongosh/cli-repl --include-dependencies --ignore-prepublish --ignore-scripts
