@@ -32,6 +32,6 @@
     "unitTestsOnly": true
   },
   "dependencies": {
-    "@mongodb-js/devtools-connect": "^1.2.4"
+    "@mongodb-js/devtools-connect": "^1.3.0"
   }
 }
