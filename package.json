@@ -54,7 +54,8 @@
     "generate-error-overview": "lerna run --stream --scope @mongosh/errors generate-error-overview",
     "update-authors": "ts-node -P config/tsconfig.base.json scripts/generate-authors.ts",
     "update-third-party-notices": "ts-node -P config/tsconfig.base.json scripts/gather-licenses.ts packages/cli-repl/ > THIRD_PARTY_NOTICES.md",
-    "update-evergreen-config": "node .evergreen/generate-evergreen-yml.js .evergreen/evergreen.yml.in > .evergreen.yml"
+    "update-evergreen-config": "node .evergreen/generate-evergreen-yml.js .evergreen/evergreen.yml.in > .evergreen.yml",
+    "mark-ci-required-optional-dependencies": "lerna exec ts-node ../../scripts/mark-ci-required-optional-dependencies.ts"
   },
   "config": {
     "unsafe-perm": true

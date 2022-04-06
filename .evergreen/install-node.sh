@@ -36,6 +36,11 @@ fi
 
 . "$BASEDIR/setup-env.sh"
 
+# In CI, dependencies that are otherwise optional can be required.
+# Mark them as necessary here, so that we get decent error messages
+# if installing one of them fails.
+npm run mark-ci-required-optional-dependencies
+
 # We need the build package for various tasks, and can bootstrap the cli-repl
 # package on all hosts, including dependencies.
 # mongodb-client-encryption cannot be installed everywhere without prerequisites
@@ -46,9 +51,6 @@ fi
 # and only do the TypeScript compilation step, which is sufficient for the
 # executable compilation step.
 npm ci --verbose
-
-# make lerna give us a useful debugging experience
-sed -i -e 's/opts.stdio = stdio/opts.stdio = "inherit"/' node_modules/@lerna/npm-install/npm-install.js
 
 npm run bootstrap-ci -- --scope @mongosh/build --ignore-prepublish
 (npm run bootstrap-ci -- --scope @mongosh/cli-repl --include-dependencies --ignore-prepublish && test -e packages/service-provider-server/node_modules/mongodb-client-encryption) || \
