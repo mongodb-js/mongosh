@@ -42,7 +42,11 @@ describe('Barque', () => {
               'https://repo.mongodb.org/apt/debian/dists/stretch/mongodb-org/4.4/main/binary-amd64/mongodb-mongosh_0.1.0_amd64.deb',
               'https://repo.mongodb.com/apt/debian/dists/stretch/mongodb-enterprise/4.4/main/binary-amd64/mongodb-mongosh_0.1.0_amd64.deb',
               'https://repo.mongodb.org/apt/debian/dists/stretch/mongodb-org/5.0/main/binary-amd64/mongodb-mongosh_0.1.0_amd64.deb',
-              'https://repo.mongodb.com/apt/debian/dists/stretch/mongodb-enterprise/5.0/main/binary-amd64/mongodb-mongosh_0.1.0_amd64.deb'
+              'https://repo.mongodb.com/apt/debian/dists/stretch/mongodb-enterprise/5.0/main/binary-amd64/mongodb-mongosh_0.1.0_amd64.deb',
+              'https://repo.mongodb.org/apt/debian/dists/bullseye/mongodb-org/4.4/main/binary-amd64/mongodb-mongosh_0.1.0_amd64.deb',
+              'https://repo.mongodb.com/apt/debian/dists/bullseye/mongodb-enterprise/4.4/main/binary-amd64/mongodb-mongosh_0.1.0_amd64.deb',
+              'https://repo.mongodb.org/apt/debian/dists/bullseye/mongodb-org/5.0/main/binary-amd64/mongodb-mongosh_0.1.0_amd64.deb',
+              'https://repo.mongodb.com/apt/debian/dists/bullseye/mongodb-enterprise/5.0/main/binary-amd64/mongodb-mongosh_0.1.0_amd64.deb'
             ]
           },
           {
