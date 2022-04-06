@@ -3,7 +3,7 @@ import {
   AutoEncryptionOptions,
   ConnectInfo,
   DEFAULT_DB,
-  ReplPlatform, ServerApi, ServiceProvider,
+  ServerApi, ServiceProvider,
   TopologyDescription
 } from '@mongosh/service-provider-core';
 import type { ApiEvent, ApiEventWithArguments, ConfigProvider, MongoshBus, ShellUserConfig } from '@mongosh/types';
@@ -246,7 +246,7 @@ export default class ShellInstanceState {
       return this.setDbFunc(newDb);
     };
 
-    if (this.initialServiceProvider.platform === ReplPlatform.JavaShell) {
+    if (this.initialServiceProvider.platform === 'JavaShell') {
       contextObject.db = this.setDbFunc(this.currentDb); // java shell, can't use getters/setters
     } else {
       Object.defineProperty(contextObject, 'db', {

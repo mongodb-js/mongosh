@@ -14,7 +14,6 @@ import {
   ClientEncryptionEncryptOptions,
   ClientEncryptionTlsOptions,
   KMSProviders,
-  ReplPlatform,
   AWSEncryptionKeyOptions,
   AzureEncryptionKeyOptions,
   GCPEncryptionKeyOptions
@@ -138,7 +137,7 @@ async function makeSingleDocReturnValue(makeCursor: () => Promise<Cursor>, metho
 }
 
 @shellApiClassDefault
-@classPlatforms([ ReplPlatform.CLI ] )
+@classPlatforms([ 'CLI' ] )
 export class ClientEncryption extends ShellApiWithMongoClass {
   public _mongo: Mongo;
   public _libmongocrypt: MongoCryptClientEncryption;
@@ -202,7 +201,7 @@ export class ClientEncryption extends ShellApiWithMongoClass {
 }
 
 @shellApiClassDefault
-@classPlatforms([ ReplPlatform.CLI ] )
+@classPlatforms([ 'CLI' ] )
 export class KeyVault extends ShellApiWithMongoClass {
   public _mongo: Mongo;
   public _clientEncryption: ClientEncryption;

@@ -30,7 +30,6 @@ import {
   ReadPreference,
   ReadPreferenceLike,
   ReadPreferenceMode,
-  ReplPlatform,
   ServiceProvider,
   TransactionOptions,
   MongoClientOptions,
@@ -68,7 +67,7 @@ import { ShellApiErrors } from './error-codes';
 import { LogEntry, parseAnyLogEntry } from './log-entry';
 
 @shellApiClassDefault
-@classPlatforms([ ReplPlatform.CLI ] )
+@classPlatforms([ 'CLI' ] )
 export default class Mongo extends ShellApiClass {
   private __serviceProvider: ServiceProvider | null = null;
   public _databases: Record<string, Database>;
@@ -641,7 +640,7 @@ export default class Mongo extends ShellApiClass {
     return cursor;
   }
 
-  @platforms([ReplPlatform.CLI])
+  @platforms(['CLI'])
   @serverVersions(['4.2.0', ServerVersions.latest])
   @returnType('ClientEncryption')
   getClientEncryption(): ClientEncryption {
@@ -655,7 +654,7 @@ export default class Mongo extends ShellApiClass {
     return this._clientEncryption;
   }
 
-  @platforms([ReplPlatform.CLI])
+  @platforms(['CLI'])
   @serverVersions(['4.2.0', ServerVersions.latest])
   @returnType('KeyVault')
   @returnsPromise

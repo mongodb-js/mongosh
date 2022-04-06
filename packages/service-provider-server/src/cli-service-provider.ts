@@ -202,7 +202,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     this.bus = bus;
     this.mongoClient = mongoClient;
     this.uri = uri;
-    this.platform = ReplPlatform.CLI;
+    this.platform = 'CLI';
     try {
       this.initialDb = (mongoClient as any).s.options.dbName || DEFAULT_DB;
     } catch (err: any) {
