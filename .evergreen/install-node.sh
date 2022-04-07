@@ -12,11 +12,6 @@ else
   if which realpath; then # No realpath on macOS, but also not needed there
     export HOME="$(realpath "$HOME")" # Needed to de-confuse nvm when /home is a symlink
   fi
-
-  if [ `whoami` = root ]; then
-    export npm_config_unsafe_perm=true
-  fi
-
   export NVM_DIR="$HOME/.nvm"
 
   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash

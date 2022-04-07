@@ -57,6 +57,9 @@
     "update-evergreen-config": "node .evergreen/generate-evergreen-yml.js .evergreen/evergreen.yml.in > .evergreen.yml",
     "mark-ci-required-optional-dependencies": "lerna exec ts-node ../../scripts/mark-ci-required-optional-dependencies.ts"
   },
+  "config": {
+    "unsafe-perm": true
+  },
   "repository": {
     "type": "git",
     "url": "git://github.com/mongodb-js/mongosh.git"

@@ -35,7 +35,7 @@ if [ "$OS" == "Windows_NT" ]; then
 fi
 
 # On RHEL hosts, we run as root for some reason
-if [ `whoami` = root ]; then
+if [ `uname` = Linux ]; then
   export npm_config_unsafe_perm=true
 fi
 

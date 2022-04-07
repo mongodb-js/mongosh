@@ -8,6 +8,9 @@
     "type": "git",
     "url": "git://github.com/mongodb-js/mongosh.git"
   },
+  "config": {
+    "unsafe-perm": true
+  },
   "scripts": {
     "compile-ts": "tsc -p tsconfig.json",
     "prepublish": "npm run compile-ts",
