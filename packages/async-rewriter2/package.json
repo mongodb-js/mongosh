@@ -10,8 +10,11 @@
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
     "lint": "eslint --report-unused-disable-directives \"./{src,test}/**/*.{js,ts,tsx}\"",
     "check": "npm run lint && depcheck --skip-missing=true",
-    "compile-ts": "tsc -p tsconfig.json",
+    "compile-ts": "node bin/make-runtime-support.js --firstpass && tsc -p tsconfig.json && node bin/make-runtime-support.js --secondpass",
     "prepublish": "npm run compile-ts"
+  },
+  "bin": {
+    "async-rewrite": "bin/async-rewrite.js"
   },
   "config": {
     "unsafe-perm": true

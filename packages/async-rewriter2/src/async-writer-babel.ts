@@ -1,6 +1,6 @@
 /* eslint-disable no-sync */
 import * as babel from '@babel/core';
-import runtimeSupport from './runtime-support.nocov';
+import compiledRuntimeSupport from './runtime-support.out.nocov';
 import wrapAsFunctionPlugin from './stages/wrap-as-iife';
 import uncatchableExceptionPlugin from './stages/uncatchable-exceptions';
 import makeMaybeAsyncFunctionPlugin from './stages/transform-maybe-await';
@@ -77,7 +77,7 @@ export default class AsyncWriter {
     }
   }
 
-  runtimeSupportCode(): string {
+  unprocessedRuntimeSupportCode(): string {
     // The definition of MongoshAsyncWriterError is kept separately from other
     // code, as it is one of the few actually mongosh-specific pieces of code here.
     return this.process(`
@@ -87,7 +87,10 @@ export default class AsyncWriter {
         super(\`[\${code}] \${message}\`);
         this.code = code;
       }
-    }
-    ${runtimeSupport}`);
+    }`);
+  }
+
+  runtimeSupportCode(): string {
+    return compiledRuntimeSupport;
   }
 }
