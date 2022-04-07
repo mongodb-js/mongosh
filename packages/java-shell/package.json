@@ -3,9 +3,6 @@
   "version": "0.0.0-dev.0",
   "private": true,
   "description": "Java application that uses mongosh-shell-api node module and MongoDB java driver to run mongo shell on JVM",
-  "config": {
-    "unsafe-perm": true
-  },
   "repository": {
     "type": "git",
     "url": "git://github.com/mongodb-js/mongosh.git"
