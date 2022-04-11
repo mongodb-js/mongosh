@@ -77,9 +77,9 @@
     "mongodb-ace-theme": "^0.0.1",
     "prop-types": "^15.7.2",
     "puppeteer": "^2.0.0",
-    "react": "^16.12.0",
+    "react": "^16.14.0",
     "react-ace": "^9.5.0",
-    "react-dom": "^16.12.0",
+    "react-dom": "^16.14.0",
     "rimraf": "^3.0.2",
     "style-loader": "^1.1.2",
     "ts-loader": "^7.0.2",
@@ -96,5 +96,9 @@
     "react": "^16.12.0",
     "react-ace": "^9.5.0",
     "react-dom": "^16.12.0"
+  },
+  "overrides": {
+    "react": "^16.14.0",
+    "react-dom": "^16.14.0"
   }
 }
