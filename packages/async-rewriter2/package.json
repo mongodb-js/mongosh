@@ -31,7 +31,7 @@
     "unitTestsOnly": true
   },
   "dependencies": {
-    "@babel/core": "^7.16.12",
+    "@babel/core": "7.16.x",
     "@babel/plugin-transform-destructuring": "^7.16.7",
     "@babel/plugin-transform-parameters": "^7.16.7",
     "@babel/plugin-transform-shorthand-properties": "^7.16.7",

@@ -3,8 +3,6 @@ set -x
 set -e
 # just to make sure: we are in the mongosh root dir
 test -x packages && grep -q '"name": "mongosh"' package.json
-# the vscode extension needs npm7 for installing
-npm i -g npm@7
 npm -v
 # we pick a target directory that is not affected by the mongosh node_modules directory
 mongosh_root_dir=$PWD
