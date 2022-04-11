@@ -32,7 +32,7 @@ describe('MongocryptdManager', () => {
   beforeEach(() => {
     const nanobus = new Nanobus();
     events = [];
-    nanobus.on('*', (event, data) => events.push({ event, data }));
+    nanobus.on('*', (event, data) => events.push({ event: event as string, data }));
     bus = nanobus;
 
     spawnPaths = [];

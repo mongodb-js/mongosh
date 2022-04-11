@@ -1,6 +1,24 @@
 # Regenerate using `npm run update-evergreen-config`
 exec_timeout_secs: 3600
 
+post_error_fails_task: true
+post:
+  - command: shell.exec
+    params:
+      shell: bash
+      script: |
+        mkdir -p npm-logs
+        tar cvzf npm-logs.tgz npm-logs
+  - command: s3.put
+    params:
+      aws_key: ${aws_key}
+      aws_secret: ${aws_secret}
+      local_file: npm-logs.tgz
+      remote_file: mongosh/binaries/${revision}/${revision_order_id}/npm-logs-${build_variant}-${task_name}-${task_id}.tgz
+      bucket: mciuploads
+      permissions: public-read
+      content_type: application/x-gzip
+
 # Functions are any command that can be run.
 #
 # Current functions:
@@ -34,8 +52,9 @@ functions:
         shell: bash
         script: |
           export NODE_JS_VERSION=${node_js_version}
+          export NPM_DEPS_MODE=cli_build
           source .evergreen/install-node.sh
-          npm run evergreen-release bump
+          source .evergreen/install-npm-deps.sh
           npm run bootstrap-ci
           tar cvzf compiled-ts.tgz packages/*/{lib,dist}
     - command: s3.put
@@ -58,8 +77,9 @@ functions:
         shell: bash
         script: |
           export NODE_JS_VERSION=${node_js_version}
+          export NPM_DEPS_MODE=${npm_deps_mode}
           source .evergreen/install-node.sh
-          npm run evergreen-release bump
+          source .evergreen/install-npm-deps.sh
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -83,7 +103,6 @@ functions:
           {
           export NODE_JS_VERSION=${node_js_version}
           source .evergreen/setup-env.sh
-          npm --unsafe-perm=true run bootstrap-ci -- --ignore-prepublish
           npm run check-ci
           }
   test:
@@ -101,7 +120,6 @@ functions:
           export NODE_JS_VERSION=${node_js_version}
           export MONGOSH_RUN_ONLY_IN_PACKAGE=${mongosh_run_only_in_package}
           source .evergreen/setup-env.sh
-          npm --unsafe-perm=true run bootstrap-ci -- --ignore-prepublish
           npm run test-ci
           echo "Archiving current coverage result..."
           tar cvzf nyc-output.tgz .nyc_output
@@ -4801,7 +4819,6 @@ functions:
           {
           export NODE_JS_VERSION=${node_js_version}
           source .evergreen/setup-env.sh
-          npm --unsafe-perm=true run bootstrap-ci -- --ignore-prepublish
           (cd scripts/docker && docker build -t ubuntu18.04-xvfb -f ubuntu18.04-xvfb.Dockerfile .)
           docker run \
             --rm -v $PWD:/tmp/build ubuntu18.04-xvfb \
@@ -4821,7 +4838,6 @@ functions:
           {
           export NODE_JS_VERSION=${node_js_version}
           source .evergreen/setup-env.sh
-          npm --unsafe-perm=true run bootstrap-ci -- --ignore-prepublish
           npm run test-connectivity
           }
   test_apistrict:
@@ -5099,7 +5115,6 @@ functions:
           source .evergreen/setup-env.sh
           export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
           echo "//registry.npmjs.org/:_authToken=${devtoolsbot_npm_token}" > .npmrc
-          npm --unsafe-perm=true run bootstrap-ci -- --ignore-prepublish
           npm run evergreen-release publish
           }
 
@@ -5136,6 +5151,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: check
         vars:
           node_js_version: "14.19.1"
@@ -5149,6 +5165,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: cli_build
       - func: check_coverage
         vars:
           node_js_version: "14.19.1"
@@ -5167,6 +5184,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -5184,6 +5202,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -5201,6 +5220,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -5218,6 +5238,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -5235,6 +5256,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -5252,6 +5274,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -5269,6 +5292,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -5286,6 +5310,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -5303,6 +5328,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -5320,6 +5346,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -5337,6 +5364,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -5354,6 +5382,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -5371,6 +5400,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -5388,6 +5418,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -5405,6 +5436,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.0.x-community"
@@ -5422,6 +5454,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.0.x"
@@ -5439,6 +5472,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x-community"
@@ -5456,6 +5490,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x"
@@ -5473,6 +5508,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x-community"
@@ -5490,6 +5526,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x"
@@ -5507,6 +5544,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x-community"
@@ -5524,6 +5562,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x"
@@ -5541,6 +5580,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "latest-alpha"
@@ -5558,6 +5598,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.0.x-community"
@@ -5575,6 +5616,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.0.x"
@@ -5592,6 +5634,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x-community"
@@ -5609,6 +5652,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x"
@@ -5626,6 +5670,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x-community"
@@ -5643,6 +5688,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x"
@@ -5660,6 +5706,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x-community"
@@ -5677,6 +5724,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x"
@@ -5694,6 +5742,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "latest-alpha"
@@ -5711,6 +5760,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -5728,6 +5778,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -5745,6 +5796,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -5762,6 +5814,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -5779,6 +5832,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -5796,6 +5850,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -5813,6 +5868,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -5830,6 +5886,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -5847,6 +5904,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -5864,6 +5922,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -5881,6 +5940,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.0.x-community"
@@ -5898,6 +5958,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.0.x"
@@ -5915,6 +5976,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x-community"
@@ -5932,6 +5994,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x"
@@ -5949,6 +6012,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x-community"
@@ -5966,6 +6030,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x"
@@ -5983,6 +6048,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x-community"
@@ -6000,6 +6066,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x"
@@ -6017,6 +6084,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "latest-alpha"
@@ -6034,6 +6102,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.0.x-community"
@@ -6051,6 +6120,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.0.x"
@@ -6068,6 +6138,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x-community"
@@ -6085,6 +6156,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x"
@@ -6102,6 +6174,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x-community"
@@ -6119,6 +6192,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x"
@@ -6136,6 +6210,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x-community"
@@ -6153,6 +6228,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x"
@@ -6170,6 +6246,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "latest-alpha"
@@ -6187,6 +6264,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -6204,6 +6282,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -6221,6 +6300,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -6238,6 +6318,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -6255,6 +6336,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.0.x-community"
@@ -6272,6 +6354,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.0.x"
@@ -6289,6 +6372,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x-community"
@@ -6306,6 +6390,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x"
@@ -6323,6 +6408,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x-community"
@@ -6340,6 +6426,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x"
@@ -6357,6 +6444,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x-community"
@@ -6374,6 +6462,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x"
@@ -6391,6 +6480,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "latest-alpha"
@@ -6408,6 +6498,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.0.x-community"
@@ -6425,6 +6516,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.0.x"
@@ -6442,6 +6534,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x-community"
@@ -6459,6 +6552,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x"
@@ -6476,6 +6570,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x-community"
@@ -6493,6 +6588,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x"
@@ -6510,6 +6606,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x-community"
@@ -6527,6 +6624,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x"
@@ -6544,6 +6642,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "latest-alpha"
@@ -6561,6 +6660,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.0.x-community"
@@ -6578,6 +6678,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.0.x"
@@ -6595,6 +6696,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x-community"
@@ -6612,6 +6714,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x"
@@ -6629,6 +6732,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x-community"
@@ -6646,6 +6750,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x"
@@ -6663,6 +6768,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x-community"
@@ -6680,6 +6786,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x"
@@ -6697,6 +6804,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "latest-alpha"
@@ -6714,6 +6822,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.0.x-community"
@@ -6731,6 +6840,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.0.x"
@@ -6748,6 +6858,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x-community"
@@ -6765,6 +6876,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x"
@@ -6782,6 +6894,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x-community"
@@ -6799,6 +6912,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x"
@@ -6816,6 +6930,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x-community"
@@ -6833,6 +6948,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x"
@@ -6850,6 +6966,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "latest-alpha"
@@ -6867,6 +6984,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -6884,6 +7002,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -6901,6 +7020,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.0.x-community"
@@ -6918,6 +7038,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.0.x"
@@ -6935,6 +7056,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x-community"
@@ -6952,6 +7074,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x"
@@ -6969,6 +7092,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x-community"
@@ -6986,6 +7110,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x"
@@ -7003,6 +7128,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x-community"
@@ -7020,6 +7146,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x"
@@ -7037,6 +7164,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "latest-alpha"
@@ -7054,6 +7182,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.0.x-community"
@@ -7071,6 +7200,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.0.x"
@@ -7088,6 +7218,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x-community"
@@ -7105,6 +7236,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x"
@@ -7122,6 +7254,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x-community"
@@ -7139,6 +7272,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x"
@@ -7156,6 +7290,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x-community"
@@ -7173,6 +7308,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x"
@@ -7190,6 +7326,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "latest-alpha"
@@ -7207,6 +7344,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.0.x-community"
@@ -7224,6 +7362,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.0.x"
@@ -7241,6 +7380,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x-community"
@@ -7258,6 +7398,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x"
@@ -7275,6 +7416,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x-community"
@@ -7292,6 +7434,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x"
@@ -7309,6 +7452,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x-community"
@@ -7326,6 +7470,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x"
@@ -7343,6 +7488,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "latest-alpha"
@@ -7360,6 +7506,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.0.x-community"
@@ -7377,6 +7524,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.0.x"
@@ -7394,6 +7542,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x-community"
@@ -7411,6 +7560,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x"
@@ -7428,6 +7578,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x-community"
@@ -7445,6 +7596,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x"
@@ -7462,6 +7614,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x-community"
@@ -7479,6 +7632,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x"
@@ -7496,6 +7650,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "latest-alpha"
@@ -7513,6 +7668,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -7530,6 +7686,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -7547,6 +7704,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -7564,6 +7722,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -7581,6 +7740,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -7598,6 +7758,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -7619,6 +7780,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "12.22.11"
+          npm_deps_mode: all
       - func: test_vscode
         vars:
           node_js_version: "12.22.11"
@@ -7632,6 +7794,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: test_connectivity
   - name: test_apistrict
     tags: ["extra-integration-test"]
@@ -7643,6 +7806,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: cli_build
       - func: test_apistrict
         vars:
           node_js_version: "14.19.1"
@@ -7657,6 +7821,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: cli_build
       - func: compile_artifact
         vars:
           node_js_version: "14.19.1"
@@ -7674,6 +7839,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: darwin-x64
@@ -7690,6 +7856,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64
@@ -7706,6 +7873,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64
@@ -7722,6 +7890,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-ppc64le
@@ -7738,6 +7907,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-s390x
@@ -7754,6 +7924,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: win32
@@ -7772,6 +7943,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
+          npm_deps_mode: cli_build
           node_js_version: "14.19.1"
       - func: package_and_upload_artifact
         vars:
@@ -7786,6 +7958,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
+          npm_deps_mode: cli_build
           node_js_version: "14.19.1"
       - func: package_and_upload_artifact
         vars:
@@ -7800,6 +7973,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
+          npm_deps_mode: cli_build
           node_js_version: "14.19.1"
       - func: package_and_upload_artifact
         vars:
@@ -7814,6 +7988,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
+          npm_deps_mode: cli_build
           node_js_version: "14.19.1"
       - func: package_and_upload_artifact
         vars:
@@ -7828,6 +8003,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
+          npm_deps_mode: cli_build
           node_js_version: "14.19.1"
       - func: package_and_upload_artifact
         vars:
@@ -7842,6 +8018,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
+          npm_deps_mode: cli_build
           node_js_version: "14.19.1"
       - func: package_and_upload_artifact
         vars:
@@ -7856,6 +8033,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
+          npm_deps_mode: cli_build
           node_js_version: "14.19.1"
       - func: package_and_upload_artifact
         vars:
@@ -7870,6 +8048,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
+          npm_deps_mode: cli_build
           node_js_version: "14.19.1"
       - func: package_and_upload_artifact
         vars:
@@ -7884,6 +8063,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
+          npm_deps_mode: cli_build
           node_js_version: "14.19.1"
       - func: package_and_upload_artifact
         vars:
@@ -7898,6 +8078,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
+          npm_deps_mode: cli_build
           node_js_version: "14.19.1"
       - func: package_and_upload_artifact
         vars:
@@ -7912,6 +8093,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
+          npm_deps_mode: cli_build
           node_js_version: "14.19.1"
       - func: package_and_upload_artifact
         vars:
@@ -7926,6 +8108,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
+          npm_deps_mode: cli_build
           node_js_version: "14.19.1"
       - func: package_and_upload_artifact
         vars:
@@ -7940,6 +8123,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
+          npm_deps_mode: cli_build
           node_js_version: "14.19.1"
       - func: package_and_upload_artifact
         vars:
@@ -7954,6 +8138,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
+          npm_deps_mode: cli_build
           node_js_version: "14.19.1"
       - func: package_and_upload_artifact
         vars:
@@ -7968,6 +8153,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
+          npm_deps_mode: cli_build
           node_js_version: "14.19.1"
       - func: package_and_upload_artifact
         vars:
@@ -7982,6 +8168,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
+          npm_deps_mode: cli_build
           node_js_version: "14.19.1"
       - func: package_and_upload_artifact
         vars:
@@ -7996,6 +8183,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
+          npm_deps_mode: cli_build
           node_js_version: "14.19.1"
       - func: package_and_upload_artifact
         vars:
@@ -8010,6 +8198,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
+          npm_deps_mode: cli_build
           node_js_version: "14.19.1"
       - func: package_and_upload_artifact
         vars:
@@ -8318,6 +8507,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: release_draft
         vars:
           node_js_version: "14.19.1"
@@ -8333,6 +8523,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "14.19.1"
+          npm_deps_mode: all
       - func: release_publish
         vars:
           node_js_version: "14.19.1"

@@ -72,7 +72,9 @@ export default class AsyncWriter {
         ]
       ], { code: true, ast: false })?.code as string;
     } catch (e: any) {
-      e.message = e.message.replace('unknown: ', '');
+      const { message } = e;
+      delete e.message; // e.message may have been non-writable
+      e.message = message.replace('unknown: ', '');
       throw e;
     }
   }

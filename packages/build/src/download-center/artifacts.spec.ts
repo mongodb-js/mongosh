@@ -1,12 +1,11 @@
 import { expect } from 'chai';
-import { SinonStub } from 'sinon';
 import sinon from 'ts-sinon';
 import { uploadArtifactToDownloadCenter } from './artifacts';
 
 describe('DownloadCenter artifacts', () => {
   describe('uploadArtifactToDownloadCenter', () => {
-    let dlCenter: SinonStub;
-    let uploadAsset: SinonStub;
+    let dlCenter: sinon.SinonStub;
+    let uploadAsset: sinon.SinonStub;
 
     beforeEach(() => {
       uploadAsset = sinon.stub();

@@ -27,7 +27,10 @@
     "node": ">=12.4.0"
   },
   "mongosh": {
-    "unitTestsOnly": true
+    "unitTestsOnly": true,
+    "ciRequiredOptionalDependencies": {
+      "mongodb-client-encryption": ["darwin", "linux", "win32"]
+    }
   },
   "dependencies": {
     "@mongosh/errors": "0.0.0-dev.0",
