@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Tue Apr 12 2022.
+This document was automatically generated on Wed Apr 13 2022.
 
 ## List of dependencies
 
@@ -38,7 +38,7 @@ Package|Version|License
 **[@jridgewell/resolve-uri](#de90c77984596a7d095ca05496ea7038104ea7a16e762e9198e30e37c34fdb0c)**|3.0.5|MIT
 **[@jridgewell/sourcemap-codec](#2362c6f5bbe609f91a300a2918f8646fd243143baf641faf1191c0aed6cb59d7)**|1.4.11|MIT
 **[@jridgewell/trace-mapping](#6cb367cbe4c02122aeaa0210f7d039f0356c64ad251f61ae4dc3383c07dff425)**|0.3.4|MIT
-**[@mongodb-js/devtools-connect](#071bbfe24c65da0880569147ca01b2ec6f4deeab1f3570897ab517b3a7068f67)**|1.2.4|Apache-2.0
+**[@mongodb-js/devtools-connect](#155c178510af1677542273e6d6cc96e5d39399c1ac4648a3e71ddf5daa27f4f2)**|1.3.0|Apache-2.0
 **[@mongosh/arg-parser](#5e9fd9c9d630182d86d92c944915511aeab21246b770d28f9a732bab98f57c53)**|0.0.0-dev.0|Apache-2.0
 **[@mongosh/async-rewriter2](#69676fe7ebd86bf4fddf69d015a9de3d5e5657481207dc3738ed4219996b4217)**|0.0.0-dev.0|Apache-2.0
 **[@mongosh/autocomplete](#7f32df49a0095be559b86efa94fcf3aa45364e108fdb44142a6df12d43825617)**|0.0.0-dev.0|Apache-2.0
@@ -1668,8 +1668,8 @@ Authors:
 * Justin Ridgewell <justin@ridgewell.name>
 
 
-<a id="071bbfe24c65da0880569147ca01b2ec6f4deeab1f3570897ab517b3a7068f67"></a>
-### [@mongodb-js/devtools-connect](https://www.npmjs.com/package/@mongodb-js/devtools-connect) (version 1.2.4)
+<a id="155c178510af1677542273e6d6cc96e5d39399c1ac4648a3e71ddf5daa27f4f2"></a>
+### [@mongodb-js/devtools-connect](https://www.npmjs.com/package/@mongodb-js/devtools-connect) (version 1.3.0)
 <!-- initially found at packages/logging/node_modules/@mongodb-js/devtools-connect -->
 > A connection establishment utility for MongoDB developer tools
 
