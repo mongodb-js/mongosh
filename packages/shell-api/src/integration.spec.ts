@@ -456,20 +456,16 @@ describe('Shell API (integration)', function() {
     });
 
     describe('getIndexes', () => {
-      let result;
-
-      beforeEach(async() => {
+      it('returns indexes for the collection', async() => {
         await serviceProvider.createCollection(dbName, collectionName);
         await serviceProvider.createIndexes(dbName, collectionName, [
           { key: { x: 1 } }
         ]);
 
-        result = await collection.getIndexes();
-      });
+        const indexes = await collection.getIndexes();
 
-      it('returns indexes for the collection', () => {
-        expect(result.length).to.equal(2);
-        expect(result[0]).to.deep.include(
+        expect(indexes.length).to.equal(2);
+        expect(indexes[0]).to.deep.include(
           {
             key: {
               _id: 1
@@ -477,7 +473,7 @@ describe('Shell API (integration)', function() {
             name: '_id_',
             v: 2
           });
-        expect(result[1]).to.deep.include(
+        expect(indexes[1]).to.deep.include(
           {
             key: {
               x: 1
@@ -485,6 +481,45 @@ describe('Shell API (integration)', function() {
             name: 'x_1',
             v: 2
           });
+      });
+
+      context('post-5.3', () => {
+        skipIfServerVersion(testServer, '< 5.3');
+
+        beforeEach(async() => {
+          await serviceProvider.createCollection(
+            dbName,
+            collectionName,
+            {
+              clusteredIndex: {
+                key: { _id: 1 },
+                unique: true
+              },
+            }
+          );
+        });
+
+        it('returns clustered indexes for the collection', async() => {
+          const indexes = await collection.getIndexes();
+
+          expect(indexes.length).to.equal(2);
+          expect(indexes[0]).to.deep.include({
+            key: {
+              _id: 1
+            },
+            name: '_id_',
+            v: 2
+          });
+          expect(indexes[1]).to.deep.include({
+            key: {
+              _id: 1
+            },
+            name: '_id_1',
+            v: 2,
+            clustered: true,
+            unique: true
+          });
+        });
       });
     });
 
