@@ -109,11 +109,26 @@ export class KeyVault extends ShellApiWithMongoClass {
     super();
     this._mongo = clientEncryption._mongo;
     this._clientEncryption = clientEncryption;
-    if (!this._mongo._fleOptions || !this._mongo._fleOptions.keyVaultNamespace) {
+    const keyVaultNamespace = this._mongo?._fleOptions?.keyVaultNamespace;
+    if (!keyVaultNamespace) {
       throw new MongoshInvalidInputError('FLE options must be passed to the Mongo object');
     }
-    const [ db, coll ] = this._mongo._fleOptions.keyVaultNamespace.split('.');
+    const parsedNamespace = keyVaultNamespace.match(/^(?<db>[^.]+)\.(?<coll>.+)$/)?.groups;
+    if (!parsedNamespace) {
+      throw new MongoshInvalidInputError(`Invalid keyVaultNamespace '${keyVaultNamespace}'`);
+    }
+    const { db, coll } = parsedNamespace;
     this._keyColl = this._mongo.getDB(db).getCollection(coll);
+  }
+
+  async _init(): Promise<void> {
+    try {
+      await this._keyColl.createIndex(
+        { keyAltNames: 1 },
+        { unique: true, partialFilterExpression: { keyAltNames: { $exists: true } } });
+    } catch (err: any) {
+      await this._instanceState.printWarning(`Creating 'keyAltNames' index on '${this._keyColl.getFullName()}' failed: ${err.message}`);
+    }
   }
 
   [asPrintable](): string {

@@ -412,7 +412,7 @@ describe('Field Level Encryption', () => {
       // eslint-disable-next-line no-new
       new Mongo(instanceState, 'localhost:27017', localKmsOptions, undefined, sp);
     });
-    it('allows getting ClientEncryption if a schema map is provided', () => {
+    it('allows getting ClientEncryption if a schema map is provided', async() => {
       const localKmsOptions: ClientSideFieldLevelEncryptionOptions = {
         keyVaultNamespace: `${DB}.${COLL}`,
         kmsProviders: {
@@ -425,7 +425,7 @@ describe('Field Level Encryption', () => {
       };
       const mongo = new Mongo(instanceState, 'localhost:27017', localKmsOptions, undefined, sp);
       expect(mongo.getClientEncryption()).to.be.instanceOf(ClientEncryption);
-      expect(mongo.getKeyVault()).to.be.instanceOf(KeyVault);
+      expect(await mongo.getKeyVault()).to.be.instanceOf(KeyVault);
     });
     it('fails if both explicitEncryptionOnly and schemaMap are passed', () => {
       const localKmsOptions: ClientSideFieldLevelEncryptionOptions = {
@@ -471,6 +471,19 @@ describe('Field Level Encryption', () => {
       }
       expect.fail('Expected error');
     });
+    it('fails to construct when the keyVaultNamespace option is invalid', () => {
+      mongo = new Mongo(instanceState, 'localhost:27017', {
+        keyVaultNamespace: 'asdf',
+        kmsProviders: {}
+      }, undefined, sp);
+      clientEncryption = new ClientEncryption(mongo);
+      try {
+        void new KeyVault(clientEncryption);
+      } catch (e: any) {
+        return expect(e.message).to.contain("Invalid keyVaultNamespace 'asdf'");
+      }
+      expect.fail('Expected error');
+    });
   });
 
   describe('integration', () => {
@@ -480,12 +493,17 @@ describe('Field Level Encryption', () => {
     let serviceProvider;
     let instanceState;
     let connections: any[];
+    let printedOutput: any[];
 
     beforeEach(async() => {
       dbname = `test_fle_${Date.now()}`;
       uri = `${await testServer.connectionString()}/${dbname}`;
       serviceProvider = await CliServiceProvider.connect(uri, {}, {}, new EventEmitter());
       instanceState = new ShellInstanceState(serviceProvider);
+      instanceState.setEvaluationListener({
+        onPrint: (value: any[]) => printedOutput.push(...value)
+      });
+      printedOutput = [];
 
       connections = [];
       sinon.replace(require('tls'), 'connect', sinon.fake((options, onConnect) => {
@@ -569,7 +587,12 @@ srDVjIT3LsvTqw==`
         await mongo.connect();
         instanceState.mongos.push(mongo);
 
-        const keyVault = mongo.getKeyVault();
+        const keyVault = await mongo.getKeyVault();
+        expect(await mongo.getDB(dbname).getCollection('__keyVault').getIndexKeys()).to.deep.equal([
+          { _id: 1 },
+          { keyAltNames: 1 }
+        ]);
+
         let keyId;
         switch (kmsName) {
           case 'local':
@@ -641,7 +664,29 @@ srDVjIT3LsvTqw==`
                 req => req.headers['x-amz-security-token'])).flat())
             .to.include(kmsOptions.sessionToken);
         }
+
+        expect(printedOutput).to.deep.equal([]);
       });
     }
+
+    it('prints a warning when creating the keyAltNames index fails', async() => {
+      const mongo = new Mongo(instanceState, uri, {
+        keyVaultNamespace: `${dbname}.__keyVault`,
+        kmsProviders: { local: { key: 'A'.repeat(128) } },
+        explicitEncryptionOnly: true
+      }, serviceProvider);
+      await mongo.connect();
+      instanceState.mongos.push(mongo);
+
+      // Make building a unique index over keyAltNames fail by starting out with duplicate values
+      await mongo.getDB(dbname).getCollection('__keyVault').insertMany([
+        { keyAltNames: 'a' }, { keyAltNames: 'a' }
+      ]);
+
+      await mongo.getKeyVault();
+      expect(printedOutput).to.have.lengthOf(1);
+      expect(printedOutput[0].printable).to.match(new RegExp(
+        String.raw `^Warning: Creating 'keyAltNames' index on '${dbname}\.__keyVault' failed: Index build failed`));
+    });
   });
 });
