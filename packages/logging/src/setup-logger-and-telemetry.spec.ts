@@ -97,7 +97,7 @@ describe('setupLoggerAndTelemetry', () => {
     bus.emit('devtools-connect:connect-heartbeat-failure', { connectionId: 'localhost', failure: new Error('cause'), isFailFast: true, isKnownServer: true });
     bus.emit('devtools-connect:connect-heartbeat-succeeded', { connectionId: 'localhost' });
     bus.emit('devtools-connect:connect-fail-early');
-    bus.emit('devtools-connect:connect-attempt-finished');
+    bus.emit('devtools-connect:connect-attempt-finished', {});
     bus.emit('devtools-connect:resolve-srv-error', {
       from: 'mongodb+srv://foo:bar@hello.world/',
       error: new Error('failed'),

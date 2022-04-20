@@ -106,7 +106,7 @@ export class Editor {
   }
 
   async _createTempFile({ content, ext }: { content: string; ext: string }): Promise<string> {
-    const tmpDoc = path.join(this._tmpDir, `edit-${new bson.ObjectId()}.${ext}`);
+    const tmpDoc = path.join(this._tmpDir, `edit-${new bson.ObjectId().toHexString()}.${ext}`);
 
     // Create a temp file to store a content that is being edited.
     await fs.mkdir(path.dirname(tmpDoc), { recursive: true, mode: 0o700 });

@@ -405,20 +405,6 @@ describe('CliServiceProvider [integration]', function() {
     });
   });
 
-  describe('#isCapped', () => {
-    context('for regular collections', () => {
-      let result;
-
-      beforeEach(async() => {
-        result = await serviceProvider.isCapped('music', 'bands');
-      });
-
-      it('returns false', () => {
-        expect(result).to.equal(false);
-      });
-    });
-  });
-
   describe('#listDatabases', () => {
     let result;
 
@@ -602,32 +588,6 @@ describe('CliServiceProvider [integration]', function() {
       expect(
         result.map((spec) => spec.key)
       ).to.deep.equal([{ _id: 1 }, { x: 1 }]);
-    });
-  });
-
-  describe('stats', () => {
-    it('returns collection stats', async() => {
-      const collName = 'coll1';
-      await db.createCollection(collName);
-
-      const stats = await serviceProvider.stats(
-        dbName,
-        collName
-      );
-
-      expect(Object.keys(stats)).to.contain.members([
-        'ns',
-        'size',
-        'count',
-        'storageSize',
-        'capped',
-        'wiredTiger',
-        'nindexes',
-        'indexDetails',
-        'totalIndexSize',
-        'indexSizes',
-        'ok'
-      ]);
     });
   });
 

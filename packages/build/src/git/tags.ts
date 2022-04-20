@@ -81,7 +81,7 @@ function extractTags(gitTags: string[], versionRestriction: ReleaseVersion | und
     return {
       semverName: semverTag,
       releaseVersion: `${major}.${minor}.${patch}`,
-      draftVersion: prerelease ? parseInt(prerelease[1], 10) : undefined
+      draftVersion: prerelease ? parseInt(String(prerelease[1]), 10) : undefined
     };
   }).filter(t => !!t) as TagDetails[];
 }

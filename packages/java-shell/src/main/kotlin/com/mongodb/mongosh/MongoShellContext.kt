@@ -1,14 +1,17 @@
 package com.mongodb.mongosh
 
 import org.graalvm.polyglot.Context
+import org.graalvm.polyglot.Engine
 import org.graalvm.polyglot.Source
 import org.graalvm.polyglot.Value
 import org.graalvm.polyglot.proxy.ProxyExecutable
 import org.intellij.lang.annotations.Language
 import java.lang.IllegalStateException
 
-internal class MongoShellContext {
-    private var ctx: Context? = Context.create()
+internal class MongoShellContext(engine: Engine?) {
+    private var ctx: Context? = Context.newBuilder("js")
+        .also { if (engine != null) it.engine(engine) }
+        .build()
     val bindings: Value = ctx!!.getBindings("js")
 
     /** Java functions don't have js methods such as apply, bind, call etc.
@@ -19,6 +22,10 @@ internal class MongoShellContext {
 
     fun eval(@Language("js") script: String, name: String = "Unnamed"): Value {
         return getCtx().eval(Source.newBuilder("js", script, name).build())
+    }
+
+    fun eval(source: Source): Value {
+        return getCtx().eval(source)
     }
 
     fun close() {

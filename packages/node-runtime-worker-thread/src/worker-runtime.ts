@@ -13,7 +13,7 @@ import {
   CompassServiceProvider
 } from '@mongosh/service-provider-server';
 import { exposeAll, createCaller } from './rpc';
-import { serializeEvaluationResult } from './serializer';
+import { serializeEvaluationResult, deserializeConnectOptions } from './serializer';
 import type { MongoshBus } from '@mongosh/types';
 import { Lock, UNLOCKED } from './lock';
 import { runInterruptible, InterruptHandle } from 'interruptor';
@@ -97,7 +97,7 @@ const workerRuntime: WorkerRuntime = {
     // will have to do for now.
     provider = await (CompassServiceProvider as any).connect(
       uri,
-      driverOptions,
+      deserializeConnectOptions(driverOptions),
       cliOptions,
       messageBus
     );

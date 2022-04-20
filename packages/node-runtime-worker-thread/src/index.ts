@@ -14,7 +14,7 @@ import { kill } from './spawn-child-from-source';
 import { Caller, createCaller, cancel } from './rpc';
 import { ChildProcessEvaluationListener } from './child-process-evaluation-listener';
 import type { WorkerRuntime as WorkerThreadWorkerRuntime } from './worker-runtime';
-import { deserializeEvaluationResult } from './serializer';
+import { deserializeEvaluationResult, serializeConnectOptions } from './serializer';
 import { ChildProcessMongoshBus } from './child-process-mongosh-bus';
 import type { CompassServiceProvider } from '@mongosh/service-provider-server';
 
@@ -159,7 +159,7 @@ class WorkerRuntime implements Runtime {
       this.childProcess
     );
 
-    await this.childProcessRuntime.init(uri, driverOptions, cliOptions);
+    await this.childProcessRuntime.init(uri, serializeConnectOptions(driverOptions), cliOptions);
   }
 
   async evaluate(code: string): Promise<RuntimeEvaluationResult> {

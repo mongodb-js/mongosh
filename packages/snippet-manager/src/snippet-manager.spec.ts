@@ -492,7 +492,9 @@ describe('SnippetManager', () => {
       expect(contextObject.print).to.have.been.calledWith('Running uninstall...');
     }
 
-    const npmlog = ['npm', '--no-package-lock', '--ignore-scripts', `--registry=${registryURL}`];
+    const npmlog = [
+      'npm', '--no-package-lock', '--ignore-scripts', '--loglevel=notice', `--registry=${registryURL}`
+    ];
     for (const { ev, data } of busMessages) {
       // We don't want to compare against a fixed npm version here.
       if (ev === 'mongosh-snippets:npm-lookup') {
