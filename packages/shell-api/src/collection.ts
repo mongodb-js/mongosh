@@ -751,7 +751,13 @@ export default class Collection extends ShellApiWithMongoClass {
   @apiVersions([1])
   async isCapped(): Promise<boolean> {
     this._emitCollectionApiCall('isCapped');
-    return this._mongo._serviceProvider.isCapped(this._database._name, this._name);
+
+    // Not implemented using the Node.js driver helper to make this easier for the java shell
+    const colls = await this._database._listCollections({ name: this._name }, { nameOnly: false });
+    if (colls.length === 0) {
+      throw new MongoshRuntimeError(`collection ${this.getFullName()} not found`);
+    }
+    return !!(colls[0]?.options?.capped);
   }
 
   /**
@@ -1225,6 +1231,15 @@ export default class Collection extends ShellApiWithMongoClass {
     return this.dropIndexes(index);
   }
 
+  async _getSingleStorageStatValue(key: string): Promise<number> {
+    const cursor = await this.aggregate([
+      { $collStats: { storageStats: {} } },
+      { $group: { _id: null, value: { $sum: `$storageStats.${key}` } } }
+    ]);
+    const [{ value }] = await cursor.toArray();
+    return value;
+  }
+
   /**
    * Returns the total size of all indexes for the collection.
    *
@@ -1241,8 +1256,7 @@ export default class Collection extends ShellApiWithMongoClass {
       );
     }
 
-    const stats = await this._mongo._serviceProvider.stats(this._database._name, this._name, await this._database._baseOptions());
-    return stats.totalIndexSize;
+    return this._getSingleStorageStatValue('totalIndexSize');
   }
 
   /**
@@ -1291,8 +1305,8 @@ export default class Collection extends ShellApiWithMongoClass {
   @apiVersions([])
   async dataSize(): Promise<number> {
     this._emitCollectionApiCall('dataSize');
-    const stats = await this._mongo._serviceProvider.stats(this._database._name, this._name, await this._database._baseOptions());
-    return stats.size;
+
+    return this._getSingleStorageStatValue('size');
   }
 
   /**
@@ -1304,8 +1318,8 @@ export default class Collection extends ShellApiWithMongoClass {
   @apiVersions([])
   async storageSize(): Promise<number> {
     this._emitCollectionApiCall('storageSize');
-    const stats = await this._mongo._serviceProvider.stats(this._database._name, this._name, await this._database._baseOptions());
-    return stats.storageSize;
+
+    return this._getSingleStorageStatValue('storageSize');
   }
 
   /**
@@ -1317,8 +1331,8 @@ export default class Collection extends ShellApiWithMongoClass {
   @apiVersions([])
   async totalSize(): Promise<number> {
     this._emitCollectionApiCall('totalSize');
-    const stats = await this._mongo._serviceProvider.stats(this._database._name, this._name, await this._database._baseOptions());
-    return (Number(stats.storageSize) || 0) + (Number(stats.totalIndexSize) || 0);
+
+    return this._getSingleStorageStatValue('totalSize');
   }
 
   /**
@@ -1448,6 +1462,8 @@ export default class Collection extends ShellApiWithMongoClass {
     options.indexDetails = options.indexDetails || false;
 
     this._emitCollectionApiCall('stats', { options });
+    // TODO(MONGOSH-1157): Adjust along the lines of the mongos code in
+    // https://github.com/mongodb/mongo/blob/master/src/mongo/s/commands/cluster_coll_stats_cmd.cpp
     const result = await this._database._runCommand(
       {
         collStats: this._name, scale: options.scale
@@ -1459,6 +1475,7 @@ export default class Collection extends ShellApiWithMongoClass {
         CommonErrors.CommandFailed
       );
     }
+
     let filterIndexName = options.indexDetailsName;
     if (!filterIndexName && options.indexDetailsKey) {
       const indexes = await this._mongo._serviceProvider.getIndexes(this._database._name, this._name, await this._database._baseOptions());
@@ -1503,14 +1520,7 @@ export default class Collection extends ShellApiWithMongoClass {
   @apiVersions([])
   async latencyStats(options: Document = {}): Promise<Document[]> {
     this._emitCollectionApiCall('latencyStats', { options });
-    const pipeline = [{ $collStats: { latencyStats: options } }];
-    const providerCursor = this._mongo._serviceProvider.aggregate(
-      this._database._name,
-      this._name,
-      pipeline,
-      await this._database._baseOptions()
-    );
-    return await providerCursor.toArray();
+    return await (await this.aggregate([{ $collStats: { latencyStats: options } }])).toArray();
   }
 
   @returnsPromise

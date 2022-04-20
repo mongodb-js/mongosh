@@ -20,6 +20,7 @@ module.exports = {
     'no-empty-function': 0,
     'valid-jsdoc': 0,
     'react/sort-comp': 0, // does not seem work as expected with typescript
+    'react/prop-types': 0,
     '@typescript-eslint/no-empty-function': 0,
     '@typescript-eslint/no-use-before-define': 0,
     '@typescript-eslint/no-explicit-any': 0,

@@ -15,7 +15,7 @@ import org.graalvm.polyglot.HostAccess
 import org.graalvm.polyglot.Value
 
 @Suppress("NAME_SHADOWING")
-internal class JavaServiceProvider(private val client: MongoClient,
+internal class JavaServiceProvider(private var client: MongoClient?,
                                    private val converter: MongoShellConverter,
                                    private val wrapper: ValueWrapper) : ReadableServiceProvider, WritableServiceProvider, AdminServiceProvider {
 
@@ -141,7 +141,7 @@ internal class JavaServiceProvider(private val client: MongoClient,
 
     @HostAccess.Export
     private fun getDatabase(database: String, dbOptions: Map<String, Any?>?): Either<MongoDatabase> {
-        val db = client.getDatabase(database)
+        val db = client!!.getDatabase(database)
         return if (dbOptions == null) Right(db) else convert(db, dbConverters, dbDefaultConverter, dbOptions)
     }
 
@@ -390,7 +390,7 @@ internal class JavaServiceProvider(private val client: MongoClient,
         val options = toDocument(options, "options") ?: Document()
         getDatabase(database, null).flatMap { db ->
             val collationDoc = options["collation"] as? Document
-            convert(Collation.builder(), collationConverters, collationDefaultConverter, collationDoc).map { collation ->
+            convert(Collation.builder(), collationConverters, collationDefaultConverter, collationDoc).map { _ ->
                 val command = Document()
                 command["distinct"] = collection
                 command["key"] = fieldName
@@ -421,7 +421,7 @@ internal class JavaServiceProvider(private val client: MongoClient,
     override fun find(database: String, collection: String, filter: Value?, options: Value?): Cursor {
         val filter = toDocument(filter, "filter")
         val options = toDocument(options, "options")
-        val db = client.getDatabase(database)
+        val db = client!!.getDatabase(database)
         val createOptions = FindCreateOptions(db, collection, filter ?: Document())
         val opt = options ?: Document()
         return Cursor(FindIterableHelper(find(opt, createOptions), converter, opt, createOptions), converter, wrapper)
@@ -450,7 +450,7 @@ internal class JavaServiceProvider(private val client: MongoClient,
 
     @HostAccess.Export
     override fun listDatabases(database: String, options: Value?): Value = promise {
-        Right(mapOf("databases" to client.listDatabases()))
+        Right(mapOf("databases" to client!!.listDatabases()))
     }
 
     @HostAccess.Export
@@ -474,15 +474,6 @@ internal class JavaServiceProvider(private val client: MongoClient,
     }
 
     @HostAccess.Export
-    override fun isCapped(database: String, collection: String): Value = promise {
-        getDatabase(database, null).flatMap { db ->
-            val doc = db.runCommand(Document("collStats", collection))
-            if (doc.containsKey("capped") && doc["capped"] is Boolean) Right<Boolean>(doc["capped"] as Boolean)
-            else Left<Boolean>(CommandException("Cannot find boolean property 'capped'. Response $doc", ""))
-        }
-    }
-
-    @HostAccess.Export
     override fun getIndexes(database: String, collection: String, options: Value?): Value = promise {
         getDatabase(database, null).map { db ->
             db.getCollection(collection).listIndexes()
@@ -496,13 +487,6 @@ internal class JavaServiceProvider(private val client: MongoClient,
             val list = db.listCollections()
             if (filter != null) list.filter(filter)
             list
-        }
-    }
-
-    @HostAccess.Export
-    override fun stats(database: String, collection: String, options: Value?): Value = promise<Any?> {
-        getDatabase(database, null).map { db ->
-            db.runCommand(Document("collStats", collection))
         }
     }
 
@@ -593,5 +577,9 @@ internal class JavaServiceProvider(private val client: MongoClient,
 
     private fun <T> promise(block: () -> Either<T>): Value {
         return converter.toJsPromise(block())
+    }
+
+    fun setClient(client: MongoClient) {
+        this.client = client
     }
 }

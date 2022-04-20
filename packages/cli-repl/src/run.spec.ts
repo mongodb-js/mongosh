@@ -43,6 +43,21 @@ describe('CLI entry point', () => {
     expect(require('get-console-process-list')).to.be.a('function');
   });
 
+  it('can load win-export-certificate-and-key on Windows', function() {
+    if (process.platform !== 'win32') {
+      return this.skip();
+    }
+    expect(require('win-export-certificate-and-key')).to.be.a('function');
+  });
+
+  it('can load macos-export-certificate-and-key on macOS', function() {
+    if (process.platform !== 'darwin') {
+      return this.skip();
+    }
+    expect(require('macos-export-certificate-and-key')).to.be.a('function');
+  });
+
+
   it('asks for connection string when configured to do so', async() => {
     const proc = childProcess.spawn(process.execPath, pathToRun, {
       stdio: 'pipe',

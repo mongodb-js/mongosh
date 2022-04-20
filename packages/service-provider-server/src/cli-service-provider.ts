@@ -36,7 +36,6 @@ import {
   BulkWriteOptions,
   BulkWriteResult,
   ClientSessionOptions,
-  CollStatsOptions,
   Collection,
   CountDocumentsOptions,
   CountOptions,
@@ -732,21 +731,6 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   }
 
   /**
-   * Is the collection capped?
-   *
-   * @param {String} database - The database name.
-   * @param {String} collection - The collection name.
-   * @param dbOptions
-   * @returns {Promise} The promise of the result.
-   */
-  isCapped(
-    database: string,
-    collection: string,
-    dbOptions?: DbOptions): Promise<boolean> {
-    return this.db(database, dbOptions).collection(collection).isCapped();
-  }
-
-  /**
    * Deprecated remove command.
    *
    * @param {String} database - The db name.
@@ -1005,26 +989,6 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     return await this.db(database, dbOptions).listCollections(
       filter, options
     ).toArray();
-  }
-
-  /**
-   * Get all the collection statistics.
-   *
-   * @param {String} database - The db name.
-   * @param {String} collection - The collection name.
-   * @param {Object} options - The count options.
-   * @param {Object} dbOptions - The database options
-   * @return {Promise} returns Promise
-   */
-  async stats(
-    database: string,
-    collection: string,
-    options: CollStatsOptions = {},
-    dbOptions?: DbOptions): Promise<Document> {
-    options = { ...this.baseCmdOptions, ...options };
-    return await this.db(database, dbOptions)
-      .collection(collection)
-      .stats(options as { scale: 1 });
   }
 
   /**

@@ -543,26 +543,6 @@ describe('CliServiceProvider', () => {
     });
   });
 
-  describe('#stats', () => {
-    let options;
-    let expectedResult;
-
-    beforeEach(() => {
-      options = { ...DEFAULT_BASE_OPTS, scale: 1 };
-      expectedResult = { ok: 1 };
-
-      collectionStub = stubInterface<Collection>();
-      collectionStub.stats.resolves(expectedResult);
-      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus);
-    });
-
-    it('executes the command against the database', async() => {
-      const result = await serviceProvider.stats('db1', 'coll1', options);
-      expect(result).to.deep.equal(expectedResult);
-      expect(collectionStub.stats).to.have.been.calledWith(options);
-    });
-  });
-
   describe('#renameCollection', () => {
     let dbStub: StubbedInstance<Db>;
     let clientStub: StubbedInstance<MongoClient>;

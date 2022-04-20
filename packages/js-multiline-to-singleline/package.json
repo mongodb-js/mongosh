@@ -29,9 +29,9 @@
     "unitTestsOnly": true
   },
   "dependencies": {
-    "@babel/core": "^7.14.8"
+    "@babel/core": "^7.16.12"
   },
   "devDependencies": {
-    "@types/babel__core": "^7.1.15"
+    "@types/babel__core": "^7.1.18"
   }
 }

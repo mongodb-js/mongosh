@@ -1,10 +1,14 @@
+import { DevtoolsConnectOptions } from '@mongosh/service-provider-server/lib/cli-service-provider';
 import { expect } from 'chai';
+import { UUID } from 'bson';
 import {
   serializeError,
   deserializeError,
   serializeEvaluationResult,
   deserializeEvaluationResult,
-  SerializedResultTypes
+  SerializedResultTypes,
+  serializeConnectOptions,
+  deserializeConnectOptions
 } from './serializer';
 
 describe('serializer', () => {
@@ -133,6 +137,52 @@ describe('serializer', () => {
 
       expect(deserialized).to.have.property('type', 'SomethingSomethingResultType');
       expect(deserialized).to.have.property('printable', 'Hello');
+    });
+  });
+
+  describe('connection options', () => {
+    it('should serialize and deserialize connection options', () => {
+      const options: DevtoolsConnectOptions = {
+        autoEncryption: {
+          schemaMap: {
+            'hr.employees': {
+              bsonType: 'object',
+              properties: {
+                taxid: {
+                  encrypt: {
+                    keyId: [ new UUID('a21ddc6a-8806-4384-9fdf-8ba02a767b5f').toBinary() ],
+                    bsonType: 'string',
+                    algorithm: 'AEAD_AES_256_CBC_HMAC_SHA_512-Random'
+                  }
+                }
+              }
+            }
+          }
+        }
+      };
+
+      const serialized = serializeConnectOptions(options);
+
+      expect(serialized).to.deep.equal({
+        autoEncryption: {
+          schemaMap: {
+            'hr.employees': {
+              bsonType: 'object',
+              properties: {
+                taxid: {
+                  encrypt: {
+                    keyId: [ { $binary: { base64: 'oh3caogGQ4Sf34ugKnZ7Xw==', subType: '04' } } ],
+                    bsonType: 'string',
+                    algorithm: 'AEAD_AES_256_CBC_HMAC_SHA_512-Random'
+                  }
+                }
+              }
+            }
+          }
+        }
+      });
+
+      expect(deserializeConnectOptions(serialized)).to.deep.equal(options);
     });
   });
 });

@@ -161,13 +161,12 @@ describe('Shell API (integration)', function() {
 
         describe('when calling toShellResult on the cursor', () => {
           it('returns the right documents', async() => {
-            expect(await toShellResult(cursor)).to.have.nested.property(
-              'printable.documents.constructor',
+            const { printable: { documents } } = await toShellResult(cursor);
+            expect(documents).to.have.property(
+              'constructor',
               Array
             );
-            expect(await toShellResult(cursor))
-              .to.have.nested.property('printable.documents')
-              .deep.equal([{ doc: 2 }]);
+            expect(documents).to.deep.equal([{ doc: 2 }]);
           });
         });
       });
@@ -378,10 +377,7 @@ describe('Shell API (integration)', function() {
       beforeEach(async() => {
         await serviceProvider.createCollection(dbName, collectionName);
 
-        expect(await serviceProvider.isCapped(
-          dbName,
-          collectionName
-        )).to.be.false;
+        expect(await collection.isCapped()).to.be.false;
 
         result = await collection.convertToCapped(
           1000
@@ -393,10 +389,7 @@ describe('Shell API (integration)', function() {
       });
 
       it('converts the collection', async() => {
-        expect(await serviceProvider.isCapped(
-          dbName,
-          collectionName
-        )).to.be.true;
+        expect(await collection.isCapped()).to.be.true;
       });
     });
 

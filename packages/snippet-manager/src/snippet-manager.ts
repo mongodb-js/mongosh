@@ -327,6 +327,7 @@ export class SnippetManager implements ShellPlugin {
       ...await this.ensureSetup(),
       '--no-package-lock',
       '--ignore-scripts',
+      '--loglevel=notice',
       `--registry=${await this.registryBaseUrl()}`,
       ...npmArgs
     ]);

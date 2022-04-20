@@ -151,7 +151,7 @@ export default class Database extends ShellApiWithMongoClass {
     );
   }
 
-  private async _listCollections(filter: Document, options: ListCollectionsOptions): Promise<Document[]> {
+  async _listCollections(filter: Document, options: ListCollectionsOptions): Promise<Document[]> {
     return await this._mongo._serviceProvider.listCollections(
       this._name,
       filter,
