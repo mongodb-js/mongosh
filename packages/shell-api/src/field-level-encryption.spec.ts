@@ -340,7 +340,7 @@ describe('Field Level Encryption', () => {
           DB,
           COLL,
           { _id: KEY_ID },
-          { $push: { 'keyAltNames': 'altname' }, $currentDate: { 'updateDate': true } },
+          { $addToSet: { 'keyAltNames': 'altname' }, $currentDate: { 'updateDate': true } },
           { returnDocument: 'before' }
         );
         expect(result).to.deep.equal({ ok: 1 });
@@ -378,7 +378,7 @@ describe('Field Level Encryption', () => {
         expect(calls[1].args).to.deep.equal([
           DB,
           COLL,
-          { _id: KEY_ID, keyAltNames: undefined },
+          { _id: KEY_ID, keyAltNames: { $size: 0 } },
           { $unset: { 'keyAltNames': '' }, $currentDate: { 'updateDate': true } },
           { returnDocument: 'before' }
         ]);
@@ -669,6 +669,52 @@ srDVjIT3LsvTqw==`
       });
     }
 
+    it('does not add duplicate keyAltNames when addKeyAlternateName is called twice', async() => {
+      const mongo = new Mongo(instanceState, uri, {
+        keyVaultNamespace: `${dbname}.__keyVault`,
+        kmsProviders: { local: { key: 'A'.repeat(128) } },
+        explicitEncryptionOnly: true
+      }, serviceProvider);
+      await mongo.connect();
+      instanceState.mongos.push(mongo);
+      const kv = mongo.getDB(dbname).getCollection('__keyVault');
+
+      const keyVault = await mongo.getKeyVault();
+      const uuid = await keyVault.createKey('local', ['b']);
+      await keyVault.addKeyAlternateName(uuid, 'a');
+      await keyVault.addKeyAlternateName(uuid, 'a');
+
+      expect((await kv.findOne({}, { keyAltNames: 1, _id: 0 })).keyAltNames.sort()).to.deep.equal(
+        ['a', 'b']
+      );
+
+      expect(printedOutput).to.deep.equal([]);
+    });
+
+    it('removes empty keyAltNames arrays from keyVault before initializing index', async() => {
+      const mongo = new Mongo(instanceState, uri, {
+        keyVaultNamespace: `${dbname}.__keyVault`,
+        kmsProviders: { local: { key: 'A'.repeat(128) } },
+        explicitEncryptionOnly: true
+      }, serviceProvider);
+      await mongo.connect();
+      instanceState.mongos.push(mongo);
+      const kv = mongo.getDB(dbname).getCollection('__keyVault');
+
+      await kv.insertMany([
+        { keyAltNames: [] }, { keyAltNames: [] }, { keyAltNames: ['a'] }
+      ]);
+
+      await mongo.getKeyVault();
+
+      expect(await (await kv.find({}, { keyAltNames: 1, _id: 0 })).toArray()).to.deep.equal([
+        {}, {}, { keyAltNames: ['a'] }
+      ]);
+      expect(await kv.getIndexKeys()).to.deep.equal([{ _id: 1 }, { keyAltNames: 1 }]);
+
+      expect(printedOutput).to.deep.equal([]);
+    });
+
     it('prints a warning when creating the keyAltNames index fails', async() => {
       const mongo = new Mongo(instanceState, uri, {
         keyVaultNamespace: `${dbname}.__keyVault`,
@@ -680,7 +726,7 @@ srDVjIT3LsvTqw==`
 
       // Make building a unique index over keyAltNames fail by starting out with duplicate values
       await mongo.getDB(dbname).getCollection('__keyVault').insertMany([
-        { keyAltNames: 'a' }, { keyAltNames: 'a' }
+        { keyAltNames: ['a'] }, { keyAltNames: ['a'] }
       ]);
 
       await mongo.getKeyVault();
