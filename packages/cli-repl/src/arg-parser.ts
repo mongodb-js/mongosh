@@ -75,8 +75,7 @@ const OPTIONS = {
     'version'
   ],
   array: [
-    'file',
-    'csfleLibrarySearchPath'
+    'file'
   ],
   alias: {
     h: 'help',

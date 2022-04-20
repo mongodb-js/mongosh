@@ -9,7 +9,6 @@ export const SHARED_LIBRARY_SUFFIX =
 
 export interface CSFLELibraryPathResult {
   csflePath?: string;
-  csfleSearchPaths?: string[];
   expectedVersion?: { version: bigint; versionStr: string };
 }
 
@@ -69,7 +68,7 @@ export async function getCSFLELibraryPaths(
       reason: 'Skipping CSFLE library searching because this is not a single-executable mongosh'
     });
   }
-  return { csfleSearchPaths: ['$SYSTEM'] };
+  return {};
 }
 
 async function ensureMatchingPermissions(filename: string, execPathStat: { uid: number, gid: number }): Promise<null | object> {

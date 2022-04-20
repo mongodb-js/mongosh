@@ -59,9 +59,7 @@ describe('getCSFLELibraryPaths', () => {
     const csflePath = path.join(tmpdir.path, 'lib', csfleFilename);
     await fs.copyFile(csfleLibraryDummy, csflePath);
     await fs.chmod(csflePath, 0o000);
-    expect(await getCSFLELibraryPaths(bus, fakeMongoshExecPath)).to.deep.equal({
-      csfleSearchPaths: ['$SYSTEM']
-    });
+    expect(await getCSFLELibraryPaths(bus, fakeMongoshExecPath)).to.deep.equal({});
     expect(events[0][0]).to.equal('mongosh:csfle-load-skip');
     expect(events[0][1].reason).to.include('EACCES');
   });
@@ -73,9 +71,7 @@ describe('getCSFLELibraryPaths', () => {
     const csflePath = path.join(tmpdir.path, 'lib', csfleFilename);
     await fs.copyFile(csfleLibraryDummy, csflePath);
     await fs.chmod(csflePath, 0o777);
-    expect(await getCSFLELibraryPaths(bus, fakeMongoshExecPath)).to.deep.equal({
-      csfleSearchPaths: ['$SYSTEM']
-    });
+    expect(await getCSFLELibraryPaths(bus, fakeMongoshExecPath)).to.deep.equal({});
     expect(events[0][0]).to.equal('mongosh:csfle-load-skip');
     expect(events[0][1].reason).to.include('permissions mismatch');
   });

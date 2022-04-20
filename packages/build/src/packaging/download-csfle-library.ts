@@ -14,12 +14,10 @@ export async function downloadCsfleLibrary(variant: BuildVariant | 'host'): Prom
 
   let libdir = '';
   const csfleTmpTargetDir = path.resolve(__dirname, '..', '..', '..', '..', 'tmp', 'csfle-store', variant);
-  // Download mongodb for latest server version. Since the CSFLE shared
-  // library is not part of a non-rc release yet and 5.3.0 not released yet, try:
-  // 1. release server version, 2. '5.3.1' specifically, 3. a '6.0-rc*' version
-  // for uncommon platforms not included in 5.3.1, 4. any version at all
+  // Download mongodb for latest server version. Fall back to the 6.0.0-rcX
+  // version if no stable version is available.
   let error: Error | undefined;
-  for (const version of [ 'stable', '5.3.1', '>= 6.0.0-rc0', 'unstable' ]) {
+  for (const version of [ 'stable', '>= 6.0.0-rc0' ]) {
     try {
       libdir = await downloadMongoDb(csfleTmpTargetDir, version, opts);
       break;

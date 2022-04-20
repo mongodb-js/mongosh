@@ -79,7 +79,7 @@ class CliRepl implements MongoshIOProvider {
   bus: MongoshBus;
   cliOptions: CliOptions;
   getCSFLELibraryPaths?: (bus: MongoshBus) => Promise<CSFLELibraryPathResult>;
-  cachedCSFLELibraryPaths?: Promise<CSFLELibraryPathResult>;
+  cachedCSFLELibraryPath?: Promise<CSFLELibraryPathResult>;
   shellHomeDirectory: ShellHomeDirectory;
   configDirectory: ConfigManager<CliUserConfigOnDisk>;
   config: CliUserConfigOnDisk;
@@ -233,12 +233,11 @@ class CliRepl implements MongoshIOProvider {
 
     if (driverOptions.autoEncryption) {
       const origExtraOptions = driverOptions.autoEncryption.extraOptions ?? {};
-      if (origExtraOptions.csflePath || origExtraOptions.csfleSearchPaths) {
+      if (origExtraOptions.csflePath) {
         // If a CSFLE path has been specified through 'driverOptions', save it
         // for later use.
-        this.cachedCSFLELibraryPaths = Promise.resolve({
-          csflePath: origExtraOptions.csflePath,
-          csfleSearchPaths: origExtraOptions.csfleSearchPaths
+        this.cachedCSFLELibraryPath = Promise.resolve({
+          csflePath: origExtraOptions.csflePath
         });
       }
 
@@ -655,7 +654,7 @@ class CliRepl implements MongoshIOProvider {
     if (!this.getCSFLELibraryPaths) {
       throw new MongoshInternalError('This instance of mongosh is not configured for CSFLE');
     }
-    return (this.cachedCSFLELibraryPaths ??= this.getCSFLELibraryPaths(this.bus));
+    return (this.cachedCSFLELibraryPath ??= this.getCSFLELibraryPaths(this.bus));
   }
 
   /** Provide extra information for reporting internal errors */

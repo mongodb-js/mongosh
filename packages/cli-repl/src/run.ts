@@ -40,10 +40,9 @@ import stream from 'stream';
       console.log(JSON.stringify(buildInfo(), null, '  '));
     } else if (options.smokeTests) {
       const smokeTestServer = process.env.MONGOSH_SMOKE_TEST_SERVER;
-      const csfleLibraryOpts = [
-        options.csfleLibraryPath ? `--csfleLibraryPath=${options.csfleLibraryPath}` : '',
-        ...(options.csfleLibrarySearchPath ?? []).map(p => `--csfleLibraryPath=${p}`)
-      ].filter(Boolean);
+      const csfleLibraryOpts = options.csfleLibraryPath ? [
+        `--csfleLibraryPath=${options.csfleLibraryPath}`
+      ] : [];
       if (process.execPath === process.argv[1]) {
         // This is the compiled binary. Use only the path to it.
         await runSmokeTests(smokeTestServer, process.execPath, ...csfleLibraryOpts);

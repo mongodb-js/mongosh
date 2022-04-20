@@ -106,7 +106,6 @@ const MAPPINGS: {
   awsSessionToken: (i, v) => setAWSKMS(i, 'sessionToken', v),
   awsIamSessionToken: (i, v) => setAuthMechProp(i, 'AWS_SESSION_TOKEN', v),
   csfleLibraryPath: (i, v) => setAutoEncryptExtra(i, 'csflePath', v),
-  csfleLibrarySearchPath: (i, v) => setAutoEncryptExtra(i, 'csfleSearchPaths', v),
   gssapiServiceName: (i, v) => setAuthMechProp(i, 'SERVICE_NAME', v),
   sspiRealmOverride: (i, v) => setAuthMechProp(i, 'SERVICE_REALM', v),
   sspiHostnameCanonicalization:
