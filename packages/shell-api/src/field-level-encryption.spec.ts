@@ -732,7 +732,7 @@ srDVjIT3LsvTqw==`
       await mongo.getKeyVault();
       expect(printedOutput).to.have.lengthOf(1);
       expect(printedOutput[0].printable).to.match(new RegExp(
-        String.raw `^Warning: Creating 'keyAltNames' index on '${dbname}\.__keyVault' failed: Index build failed`));
+        String.raw `^Warning: Creating 'keyAltNames' index on '${dbname}\.__keyVault' failed:`));
     });
   });
 });
