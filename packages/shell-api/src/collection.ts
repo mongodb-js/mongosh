@@ -1265,6 +1265,7 @@ export default class Collection extends ShellApiWithMongoClass {
    * @return {Promise}
    */
   @returnsPromise
+  @deprecated
   @topologies([Topologies.Standalone])
   @apiVersions([])
   async reIndex(): Promise<Document> {
