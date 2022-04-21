@@ -11,6 +11,7 @@ import com.mongodb.client.MongoIterable
 import com.mongodb.client.model.*
 import com.mongodb.mongosh.result.CommandException
 import org.bson.Document
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 
@@ -111,6 +112,20 @@ internal val readPreferenceConverters: Map<String, (MongoDatabase, Any?) -> Eith
 )
 
 internal val readPreferenceDefaultConverter = unrecognizedField<MongoDatabase>("read preference")
+
+internal val timeSeriesConverters: Map<String, (TimeSeriesOptions, Any?) -> Either<TimeSeriesOptions>> = mapOf(
+    typed("timeField", String::class.java) { opt, value ->
+        TimeSeriesOptions(value).metaField(opt.metaField).granularity(opt.granularity)
+    },
+    typed("metaField", String::class.java) { opt, value ->
+        opt.metaField(value)
+    },
+    typed("granularity", String::class.java) { opt, value ->
+        opt.granularity(TimeSeriesGranularity.valueOf(value.uppercase(Locale.ENGLISH)))
+    }
+)
+
+internal val timeSeriesDefaultConverter = unrecognizedField<TimeSeriesOptions>("timeseries")
 
 internal val collationConverters: Map<String, (Collation.Builder, Any?) -> Either<Collation.Builder>> = mapOf(
         typed("locale", String::class.java) { collation, value ->
@@ -498,6 +513,13 @@ internal val indexModelDefaultConverter = unrecognizedField<IndexModel>("index m
 internal val createCollectionOptionsConverters: Map<String, (CreateCollectionOptions, Any?) -> Either<CreateCollectionOptions>> = mapOf(
         typed("capped", Boolean::class.java) { opt, value ->
             opt.capped(value)
+        },
+        typed("timeseries", Document::class.java) { opt, value ->
+            val timeSeries = convert(TimeSeriesOptions(""), timeSeriesConverters, timeSeriesDefaultConverter, value).getOrThrow()
+            opt.timeSeriesOptions(timeSeries)
+        },
+        typed("expireAfterSeconds", Number::class.java) { opt, value ->
+            opt.expireAfter(value.toLong(), TimeUnit.SECONDS)
         },
         typed("autoIndexId", Boolean::class.java) { _, _ ->
             throw IllegalArgumentException("autoIndexId was deprecated and removed")
