@@ -600,12 +600,14 @@ export function processFindAndModifyOptions<BaseOptions extends FindOneAndReplac
     options.returnDocument = options.returnNewDocument ? 'after' : 'before';
     delete options.returnOriginal;
     delete options.returnNewDocument;
+    delete options.new;
     return options;
   }
   if ('new' in options) {
     options.returnDocument = options.new ? 'after' : 'before';
     delete options.returnOriginal;
     delete options.returnNewDocument;
+    delete options.new;
     return options;
   }
   // No explicit option passed: We set 'returnDocument' to 'before' because the
