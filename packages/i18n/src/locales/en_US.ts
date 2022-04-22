@@ -498,11 +498,6 @@ const translations: Catalog = {
               description: 'Removes documents from a collection.',
               example: 'db.collection.remove(query, options)'
             },
-            save: {
-              link: 'https://docs.mongodb.com/manual/reference/method/db.collection.save',
-              description: 'Updates an existing document or inserts a new document, depending on its document parameter.',
-              example: 'db.collection.save(document, options)'
-            },
             stats: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.stats',
               description: 'Returns statistics about the collection.',
