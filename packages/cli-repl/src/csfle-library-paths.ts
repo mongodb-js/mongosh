@@ -71,15 +71,22 @@ export async function getCSFLELibraryPaths(
   return {};
 }
 
+// Check whether permissions for a file match what we expect them to be.
+// Returns 'null' in case of no mismatch and information that is useful
+// for debugging/logging in the mismatch case.
 async function ensureMatchingPermissions(filename: string, execPathStat: { uid: number, gid: number }): Promise<null | object> {
+  if (process.platform === 'win32') {
+    // On Windows systems, there are no permissions checks that
+    // we could reasonably do here.
+    return null;
+  }
   await fs.access(filename, fsConstants.R_OK);
   const stat = await fs.stat(filename);
   // On UNIX systems, only load shared libraries if they are coming
   // from a user we can consider trusted (current user or the one who owns
   // the mongosh binary to begin with) and they are not writable by other
-  // users. On Windows, no such check is feasible.
-  if (process.platform !== 'win32' &&
-      ((stat.uid !== execPathStat.uid && stat.uid !== process.getuid()) ||
+  // users.
+  if (((stat.uid !== execPathStat.uid && stat.uid !== process.getuid()) ||
        (stat.gid !== execPathStat.gid && stat.gid !== process.getgid()) ||
        stat.mode & 0o002 /* world-writable */)) {
     return {
