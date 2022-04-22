@@ -105,6 +105,7 @@ const MAPPINGS: {
   awsSecretAccessKey: (i, v) => setAWSKMS(i, 'secretAccessKey', v),
   awsSessionToken: (i, v) => setAWSKMS(i, 'sessionToken', v),
   awsIamSessionToken: (i, v) => setAuthMechProp(i, 'AWS_SESSION_TOKEN', v),
+  // @ts-expect-error waiting for driver release
   csfleLibraryPath: (i, v) => setAutoEncryptExtra(i, 'csflePath', v),
   gssapiServiceName: (i, v) => setAuthMechProp(i, 'SERVICE_NAME', v),
   sspiRealmOverride: (i, v) => setAuthMechProp(i, 'SERVICE_REALM', v),
