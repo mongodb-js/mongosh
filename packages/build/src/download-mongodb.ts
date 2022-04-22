@@ -51,7 +51,9 @@ async function doDownload(
     `mongodb-${process.platform}-${process.env.DISTRO_ID || 'none'}-${process.arch}-${version}`
       .replace(/[^a-zA-Z0-9_-]/g, ''));
   return downloadPromises[downloadTarget] ??= (async() => {
-    const bindir = path.resolve(downloadTarget, isCsfle ? 'lib' : 'bin');
+    const bindir = path.resolve(
+      downloadTarget,
+      isCsfle && process.platform !== 'win32' ? 'lib' : 'bin');
     try {
       await fs.stat(bindir);
       console.info(`Skipping download because ${downloadTarget} exists`);
