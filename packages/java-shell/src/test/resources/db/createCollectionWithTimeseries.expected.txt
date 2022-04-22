@@ -1,2 +1,2 @@
 { "acknowledged": true, "insertedId": "UNKNOWN" }
-{ "timestamp": {"$date": {"$numberLong": "1621296000000"}}, "metadata": { "sensorId": 5578, "type": "temperature" }, "temp": 12, "_id": <ObjectID> }
+{ "timestamp": {"$date": {"$numberLong": "1621296000000"}} }

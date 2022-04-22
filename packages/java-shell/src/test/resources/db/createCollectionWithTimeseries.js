@@ -19,6 +19,6 @@ db.coll.insertOne(
 // command
 db.coll.findOne({
     "timestamp": ISODate("2021-05-18T00:00:00.000Z")
-})
+}, {_id: 0, timestamp: 1});
 // clear
 db.coll.drop();
