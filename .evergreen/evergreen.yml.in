@@ -820,6 +820,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           dockerfile: <% out(dockerfile) %>

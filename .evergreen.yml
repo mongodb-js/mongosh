@@ -8246,7 +8246,8 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "14.18.3"
+          node_js_version: "14.19.1"
+          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           dockerfile: ubuntu18.04-deb
@@ -8263,7 +8264,8 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "14.18.3"
+          node_js_version: "14.19.1"
+          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           dockerfile: ubuntu20.04-deb
@@ -8280,7 +8282,8 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "14.18.3"
+          node_js_version: "14.19.1"
+          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           dockerfile: debian9-deb
@@ -8297,7 +8300,8 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "14.18.3"
+          node_js_version: "14.19.1"
+          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           dockerfile: debian10-deb
@@ -8314,7 +8318,8 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "14.18.3"
+          node_js_version: "14.19.1"
+          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           dockerfile: centos7-rpm
@@ -8331,7 +8336,8 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "14.18.3"
+          node_js_version: "14.19.1"
+          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           dockerfile: amazonlinux2-rpm
@@ -8348,7 +8354,8 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "14.18.3"
+          node_js_version: "14.19.1"
+          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           dockerfile: rocky8-rpm
@@ -8365,7 +8372,8 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "14.18.3"
+          node_js_version: "14.19.1"
+          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           dockerfile: fedora34-rpm
@@ -8382,7 +8390,8 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "14.18.3"
+          node_js_version: "14.19.1"
+          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           dockerfile: suse12-rpm
@@ -8399,7 +8408,8 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "14.18.3"
+          node_js_version: "14.19.1"
+          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           dockerfile: suse15-rpm
@@ -8416,7 +8426,8 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "14.18.3"
+          node_js_version: "14.19.1"
+          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           dockerfile: amazonlinux1-rpm
