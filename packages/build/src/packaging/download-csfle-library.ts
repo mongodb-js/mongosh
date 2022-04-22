@@ -4,21 +4,20 @@ import { promises as fs, constants as fsConstants } from 'fs';
 import { downloadMongoDb, DownloadOptions } from '../download-mongodb';
 import { BuildVariant, getDistro, getArch } from '../config';
 
-export async function downloadCsfleLibrary(variant: BuildVariant): Promise<string> {
+export async function downloadCsfleLibrary(variant: BuildVariant | 'host'): Promise<string> {
   const opts: DownloadOptions = {};
-  opts.arch = getArch(variant);
-  opts.distro = lookupReleaseDistro(variant);
+  opts.arch = variant === 'host' ? undefined : getArch(variant);
+  opts.distro = variant === 'host' ? undefined : lookupReleaseDistro(variant);
   opts.enterprise = true;
   opts.csfle = true;
   console.info('mongosh: downloading latest csfle shared library for inclusion in package:', JSON.stringify(opts));
 
   let libdir = '';
   const csfleTmpTargetDir = path.resolve(__dirname, '..', '..', '..', '..', 'tmp', 'csfle-store', variant);
-  // Download mongodb for latest server version. Since the CSFLE shared
-  // library is not part of a non-rc release yet and 5.3.0 not released yet, try:
-  // 1. release server version, 2. '5.3.0' specifically, 3. any version at all
+  // Download mongodb for latest server version. Fall back to the 6.0.0-rcX
+  // version if no stable version is available.
   let error: Error | undefined;
-  for (const version of [ 'stable', '5.3.0', 'unstable' ]) {
+  for (const version of [ 'stable', '>= 6.0.0-rc0' ]) {
     try {
       libdir = await downloadMongoDb(csfleTmpTargetDir, version, opts);
       break;

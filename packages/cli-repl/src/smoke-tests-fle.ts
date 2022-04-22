@@ -1,6 +1,6 @@
 /**
- * Test script that verifies that automatic encryption using mongocryptd
- * works when using the Mongo() object to construct the encryption key and
+ * Test script that verifies that automatic encryption using the CSFLE shared
+ * library works when using the Mongo() object to construct the encryption key and
  * to create an auto-encryption-aware connection.
  */
 
@@ -12,7 +12,7 @@ const assert = function(value, message) {
     process.exit(1);
   }
 };
-// There is no mongocryptd binary for darwin-x64 or rhel80-s390x yet.
+// There is no CSFLE shared library binary for darwin-x64 or rhel80-s390x yet.
 if ((os.platform() === 'darwin' && os.arch() === 'arm64') ||
     (os.platform() === 'linux' && os.arch() === 's390x' && fs.readFileSync('/etc/os-release', 'utf8').includes('VERSION_ID="8'))) {
   print('Test skipped')

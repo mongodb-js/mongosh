@@ -37,7 +37,7 @@ export type MongoshIOProvider = Omit<ConfigProvider<CliUserConfig>, 'validateCon
   getHistoryFilePath(): string;
   exit(code?: number): Promise<never>;
   readFileUTF8(filename: string): Promise<{ contents: string, absolutePath: string }>;
-  startMongocryptd(): Promise<AutoEncryptionOptions['extraOptions']>;
+  getCSFLELibraryOptions(): Promise<AutoEncryptionOptions['extraOptions']>;
   bugReportErrorMessageInfo?(): string | undefined;
 };
 
@@ -855,12 +855,10 @@ class MongoshNodeRepl implements EvaluationListener {
   }
 
   /**
-   * Start a mongocryptd instance that is required for automatic FLE.
-   *
-   * @returns Information about how to connect to the started mongocryptd instance.
+   * Get the right CSFLE shared library loading options.
    */
-  async startMongocryptd(): Promise<AutoEncryptionOptions['extraOptions']> {
-    return this.ioProvider.startMongocryptd();
+  async getCSFLELibraryOptions(): Promise<AutoEncryptionOptions['extraOptions']> {
+    return this.ioProvider.getCSFLELibraryOptions();
   }
 
   /**
