@@ -23,11 +23,24 @@ describe('getCSFLELibraryPaths', () => {
     fakeMongoshExecPath = path.join(tmpdir.path, 'bin', 'mongosh');
     await fs.mkdir(path.join(tmpdir.path, 'bin'), { recursive: true });
     await fs.mkdir(path.join(tmpdir.path, 'lib'), { recursive: true });
+    await fs.mkdir(path.join(tmpdir.path, 'lib64'), { recursive: true });
     await fs.writeFile(fakeMongoshExecPath, '# dummy', { mode: 0o755 });
   });
 
   it('will look up a shared library located in <bindir>/../lib/', async function() {
     const csflePath = path.join(tmpdir.path, 'lib', csfleFilename);
+    await fs.copyFile(csfleLibraryDummy, csflePath);
+    expect(await getCSFLELibraryPaths(bus, fakeMongoshExecPath)).to.deep.equal({
+      csflePath,
+      expectedVersion
+    });
+    expect(events).to.deep.equal([
+      [ 'mongosh:csfle-load-found', { csflePath, expectedVersion } ]
+    ]);
+  });
+
+  it('will look up a shared library located in <bindir>/../lib64/', async function() {
+    const csflePath = path.join(tmpdir.path, 'lib64', csfleFilename);
     await fs.copyFile(csfleLibraryDummy, csflePath);
     expect(await getCSFLELibraryPaths(bus, fakeMongoshExecPath)).to.deep.equal({
       csflePath,
@@ -46,7 +59,7 @@ describe('getCSFLELibraryPaths', () => {
       expectedVersion
     });
     expect(events[0][0]).to.equal('mongosh:csfle-load-skip');
-    expect(events[0][1].reason).to.include('ENOENT');
+    expect(events[0][1].reason).to.match(/ENOENT|LoadLibraryW failed/);
     expect(events.slice(1)).to.deep.equal([
       [ 'mongosh:csfle-load-found', { csflePath, expectedVersion } ]
     ]);

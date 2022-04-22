@@ -13,14 +13,10 @@ export async function runPackage(
   validateBuildVariant(distributionBuildVariant);
 
   await fs.mkdir(path.dirname(config.csfleLibraryPath), { recursive: true });
-  // TODO: add csfle and E2E tests for darwin-arm64 once server builds
-  // are available for that platform.
-  if (distributionBuildVariant !== 'darwin-arm64') {
-    await fs.copyFile(
-      await downloadCsfleLibrary(distributionBuildVariant),
-      config.csfleLibraryPath,
-      fsConstants.COPYFILE_FICLONE);
-  }
+  await fs.copyFile(
+    await downloadCsfleLibrary(distributionBuildVariant),
+    config.csfleLibraryPath,
+    fsConstants.COPYFILE_FICLONE);
 
   const { manpage } = config;
   if (manpage) {

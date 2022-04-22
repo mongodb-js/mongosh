@@ -522,6 +522,7 @@ functions:
           set -e
           set -x
           {
+          . .evergreen/setup-env.sh
           . preload.sh
           ./scripts/docker/build.sh ${dockerfile}
           ./scripts/docker/run.sh ${dockerfile} --smokeTests
