@@ -34,7 +34,7 @@ describe('getCSFLELibraryPaths', () => {
       csflePath,
       expectedVersion
     });
-    expect(events).to.deep.equal([
+    expect(events.slice(1)).to.deep.equal([
       [ 'mongosh:csfle-load-found', { csflePath, expectedVersion } ]
     ]);
   });
@@ -60,7 +60,7 @@ describe('getCSFLELibraryPaths', () => {
     });
     expect(events[0][0]).to.equal('mongosh:csfle-load-skip');
     expect(events[0][1].reason).to.match(/ENOENT|LoadLibraryW failed/);
-    expect(events.slice(1)).to.deep.equal([
+    expect(events.slice(2)).to.deep.equal([
       [ 'mongosh:csfle-load-found', { csflePath, expectedVersion } ]
     ]);
   });
@@ -73,8 +73,8 @@ describe('getCSFLELibraryPaths', () => {
     await fs.copyFile(csfleLibraryDummy, csflePath);
     await fs.chmod(csflePath, 0o000);
     expect(await getCSFLELibraryPaths(bus, fakeMongoshExecPath)).to.deep.equal({});
-    expect(events[0][0]).to.equal('mongosh:csfle-load-skip');
-    expect(events[0][1].reason).to.include('EACCES');
+    expect(events[1][0]).to.equal('mongosh:csfle-load-skip');
+    expect(events[1][1].reason).to.include('EACCES');
   });
 
   it('will reject a shared library if its permissions are world-writable', async function() {
@@ -85,7 +85,7 @@ describe('getCSFLELibraryPaths', () => {
     await fs.copyFile(csfleLibraryDummy, csflePath);
     await fs.chmod(csflePath, 0o777);
     expect(await getCSFLELibraryPaths(bus, fakeMongoshExecPath)).to.deep.equal({});
-    expect(events[0][0]).to.equal('mongosh:csfle-load-skip');
-    expect(events[0][1].reason).to.include('permissions mismatch');
+    expect(events[1][0]).to.equal('mongosh:csfle-load-skip');
+    expect(events[1][1].reason).to.include('permissions mismatch');
   });
 });
