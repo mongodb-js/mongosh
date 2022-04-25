@@ -6,8 +6,7 @@ import com.mongodb.mongosh.result.*
 import com.mongodb.mongosh.service.Either
 import com.mongodb.mongosh.service.Left
 import com.mongodb.mongosh.service.Right
-import org.bson.BsonTimestamp
-import org.bson.Document
+import org.bson.*
 import org.bson.json.JsonReader
 import org.bson.types.*
 import org.graalvm.polyglot.Value
@@ -34,10 +33,29 @@ internal class MongoShellConverter(private val context: MongoShellContext, priva
             is Decimal128    -> bsonTypes.numberDecimal.newInstance(o.bigDecimalValue().toPlainString())
             is Long          -> bsonTypes.numberLong.newInstance(o.toString())
             is Int           -> bsonTypes.numberInt.newInstance(o.toString())
-            is BsonTimestamp -> bsonTypes.timestamp.newInstance(o.inc, o.time)
             is CodeWithScope -> bsonTypes.code.newInstance(o.code, toJs(o.scope))
             is Code          -> bsonTypes.code.newInstance(o.code)
             is DBRef         -> bsonTypes.dbRef.newInstance(o.collectionName, toJs(o.id), o.databaseName)
+            is BsonValue     -> when (o) {
+                is BsonSymbol     -> bsonTypes.bsonSymbol.newInstance(o.symbol)
+                is BsonNull       -> null
+                is BsonObjectId   -> bsonTypes.objectId.newInstance(o.value.toHexString())
+                is BsonBoolean    -> o.value
+                is BsonMaxKey     -> bsonTypes.maxKey.newInstance()
+                is BsonString     -> o.value
+                is BsonMinKey     -> bsonTypes.minKey.newInstance()
+                is BsonDateTime   -> MongoshDate(o.value)
+                is BsonJavaScript -> bsonTypes.code.newInstance(o.code)
+                is BsonJavaScriptWithScope -> bsonTypes.code.newInstance(o.code, toJs(o.scope))
+                is BsonTimestamp   -> bsonTypes.timestamp.newInstance(o.inc, o.time)
+                is BsonInt64       -> bsonTypes.numberLong.newInstance(o.value)
+                is BsonInt32       -> bsonTypes.numberInt.newInstance(o.value)
+                is BsonDecimal128  -> bsonTypes.numberDecimal.newInstance(o.value)
+                is BsonDouble      -> o.value
+                is BsonUndefined   -> context.eval("undefined")
+                is BsonBinary      -> bsonTypes.binData.newInstance(toJs(o.data), o.type)
+                else               -> o
+            }
             else             -> o
         }
     }
@@ -115,7 +133,7 @@ internal class MongoShellConverter(private val context: MongoShellContext, priva
             type == "Cursor" -> FindCursorResult(FindCursor<Any?>(v, this))
             // document with aggregation explain result also has type AggregationCursor, so we need to make sure that value contains cursor
             type == "AggregationCursor" && v.hasMember("_cursor") -> CursorResult(Cursor<Any?>(v, this))
-            type == "InsertOneResult" -> InsertOneResult(v["acknowledged"]!!.asBoolean(), v["insertedId"]!!.asString())
+            type == "InsertOneResult" -> InsertOneResult(v["acknowledged"]!!.asBoolean(), v["insertedId"]?.let { toJava(it).value })
             type == "DeleteResult" -> DeleteResult(v["acknowledged"]!!.asBoolean(), (toJava(v["deletedCount"]!!) as LongResult).value)
             type == "UpdateResult" -> {
                 val res = if (v["acknowledged"]!!.asBoolean()) {
@@ -130,6 +148,7 @@ internal class MongoShellConverter(private val context: MongoShellContext, priva
             type == "BulkWriteResult" -> BulkWriteResult(
                 v["acknowledged"]!!.asBoolean(),
                 (toJava(v["insertedCount"]!!) as IntResult).value,
+                v["insertedIds"]?.let { (toJava(it) as DocumentResult).value } ?: emptyMap(),
                 (toJava(v["matchedCount"]!!) as IntResult).value,
                 (toJava(v["modifiedCount"]!!) as IntResult).value,
                 (toJava(v["deletedCount"]!!) as IntResult).value,
