@@ -555,6 +555,7 @@ internal class JavaServiceProvider(private var client: MongoClient?,
     override fun dropCollection(database: String, collection: String, options: Value?): Value = promise {
         val options = toDocument(options, "options")
         val dbOptions = options?.filterKeys { dbConverters.containsKey(it) }
+        // TODO: pass through options once the java driver supports it
         getDatabase(database, dbOptions).map { db ->
             db.getCollection(collection).drop()
         }

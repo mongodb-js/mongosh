@@ -1009,7 +1009,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   ): Promise<boolean> {
     return this.db(database, dbOptions)
       .collection(collection)
-      .drop({ ...this.baseCmdOptions, ...options } as DropCollectionOptions);
+      .drop({ ...this.baseCmdOptions, ...options });
   }
 
   /**
