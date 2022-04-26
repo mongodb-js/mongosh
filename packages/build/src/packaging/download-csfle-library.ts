@@ -26,14 +26,10 @@ export async function downloadCsfleLibrary(variant: BuildVariant | 'host'): Prom
     }
   }
   if (!libdir) throw error;
-  let csfleLibrary = path.join(libdir, 'mongo_csfle_v1');
-  if (opts.distro === 'win32') {
-    csfleLibrary += '.dll';
-  } else if (opts.distro === 'darwin') {
-    csfleLibrary += '.dylib';
-  } else {
-    csfleLibrary += '.so';
-  }
+  const csfleLibrary = path.join(
+    libdir,
+    (await fs.readdir(libdir)).find(filename => filename.match(/^mongo_csfle_v1\.(so|dylib|dll)$/)) as string
+  );
   // Make sure that the binary exists and is readable.
   await fs.access(csfleLibrary, fsConstants.R_OK);
   console.info('mongosh: downloaded', csfleLibrary);

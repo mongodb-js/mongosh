@@ -522,6 +522,8 @@ functions:
           set -e
           set -x
           {
+          export NODE_JS_VERSION=${node_js_version}
+          . .evergreen/setup-env.sh
           . preload.sh
           ./scripts/docker/build.sh ${dockerfile}
           ./scripts/docker/run.sh ${dockerfile} --smokeTests
@@ -820,8 +822,10 @@ tasks:
       - func: install
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
+          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
           dockerfile: <% out(dockerfile) %>
     <% }; break;
     // We don't have docker for platforms other than x64, so for those we just

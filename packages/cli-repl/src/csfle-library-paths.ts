@@ -32,7 +32,8 @@ export async function getCSFLELibraryPaths(
     const bindir = path.dirname(execPath);
     const execPathStat = await fs.stat(execPath);
     for await (const libraryCandidate of [
-      // Location of the shared library in the deb and rpm packages
+      // Locations of the shared library in the deb and rpm packages
+      path.resolve(bindir, '..', 'lib64', `mongosh_csfle_v1.${SHARED_LIBRARY_SUFFIX}`),
       path.resolve(bindir, '..', 'lib', `mongosh_csfle_v1.${SHARED_LIBRARY_SUFFIX}`),
       // Location of the shared library in the zip and tgz packages
       path.resolve(bindir, `mongosh_csfle_v1.${SHARED_LIBRARY_SUFFIX}`)
