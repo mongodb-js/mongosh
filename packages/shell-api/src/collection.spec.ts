@@ -1921,7 +1921,7 @@ describe('Collection', () => {
       watch: { i: 1 }
     };
     const ignore: (keyof (typeof Collection)['prototype'])[] = [
-      'getShardDistribution', 'stats', 'isCapped', 'save'
+      'getShardDistribution', 'stats', 'isCapped'
     ];
     const args = [ { query: {} }, {}, { out: 'coll' } ];
     beforeEach(() => {

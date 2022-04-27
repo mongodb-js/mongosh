@@ -801,13 +801,6 @@ export default class Collection extends ShellApiWithMongoClass {
     );
   }
 
-  @deprecated
-  save(): never {
-    throw new MongoshInvalidInputError(
-      'Collection.save() is deprecated. Use insertOne, insertMany, updateOne, or updateMany.'
-    );
-  }
-
   /**
    * Replace a document with another.
    *
@@ -1265,6 +1258,7 @@ export default class Collection extends ShellApiWithMongoClass {
    * @return {Promise}
    */
   @returnsPromise
+  @deprecated
   @topologies([Topologies.Standalone])
   @apiVersions([])
   async reIndex(): Promise<Document> {
