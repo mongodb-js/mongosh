@@ -668,7 +668,9 @@ describe('CliServiceProvider [integration]', function() {
       it('allows clustered indexes on collections', async() => {
         await db.createCollection(
           'coll1',
-          { clusteredIndex: { key: { _id: 1 } }, unique: true }
+          // TODO: Remove `any` usage once there is driver type support
+          // for clustered collection indexes. NODE-4189
+          { clusteredIndex: { key: { _id: 1 } }, unique: true } as any
         );
 
         const collections = await serviceProvider.listCollections(dbName, {}, { nameOnly: true });

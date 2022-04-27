@@ -490,12 +490,14 @@ describe('Shell API (integration)', function() {
           await serviceProvider.createCollection(
             dbName,
             collectionName,
+            // TODO: Remove `any` usage once there is driver type support
+            // for clustered collection indexes. NODE-4189
             {
               clusteredIndex: {
                 key: { _id: 1 },
                 unique: true
               },
-            }
+            } as any
           );
         });
 
