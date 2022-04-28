@@ -690,7 +690,7 @@ describe('CliServiceProvider [integration]', function() {
           key: {
             _id: 1
           },
-          name: '_id_1',
+          name: '_id_',
           v: 2,
           clustered: true,
           unique: true
