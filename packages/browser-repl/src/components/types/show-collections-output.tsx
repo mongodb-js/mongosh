@@ -25,7 +25,7 @@ export class ShowCollectionsOutput extends Component<ShowCollectionsOutputProps>
     let maxCollectionNameLength = 0;
     value.forEach(coll => {
       maxCollectionNameLength = Math.max(maxCollectionNameLength, coll.name.length);
-      if (coll.name.startsWith('system.')) {
+      if (coll.name.startsWith('system.') || coll.name.startsWith('enxcol_.')) {
         systemCollections.push(coll);
       } else {
         otherCollections.push(coll);

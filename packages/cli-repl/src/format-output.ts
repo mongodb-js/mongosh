@@ -123,7 +123,7 @@ function formatCollections(output: CollectionNamesWithTypes[], options: FormatOp
   const otherCollections: CollectionNamesWithTypes[] = [];
 
   output.forEach(coll => {
-    if (coll.name.startsWith('system.')) {
+    if (coll.name.startsWith('system.') || coll.name.startsWith('enxcol_.')) {
       systemCollections.push(coll);
     } else {
       otherCollections.push(coll);
