@@ -504,15 +504,8 @@ describe('Shell API (integration)', function() {
         it('returns clustered indexes for the collection', async() => {
           const indexes = await collection.getIndexes();
 
-          expect(indexes.length).to.equal(2);
+          expect(indexes.length).to.equal(1);
           expect(indexes[0]).to.deep.include({
-            key: {
-              _id: 1
-            },
-            name: '_id_',
-            v: 2
-          });
-          expect(indexes[1]).to.deep.include({
             key: {
               _id: 1
             },
