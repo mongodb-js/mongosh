@@ -159,6 +159,31 @@ export default class Database extends ShellApiWithMongoClass {
     ) || [];
   }
 
+  _isFLE2Collection(collections: Document[], index: number): boolean {
+    return (
+      !collections[index].name.startsWith('enxcol_.') && 
+      !!collections.find(coll => coll.name === `enxcol_.${collections[index].name}.esc`) &&
+      !!collections.find(coll => coll.name === `enxcol_.${collections[index].name}.ecc`) &&
+      !!collections.find(coll => coll.name === `enxcol_.${collections[index].name}.ecoc`)
+    );
+  }
+
+  _getBadge(collections: Document[], index: number): string {
+    if (collections[index].type === 'timeseries') {
+      return '[time-series]';
+    }
+
+    if (collections[index].type === 'view') {
+      return '[view]';
+    }
+
+    if (this._isFLE2Collection(collections, index)) {
+      return '[rich-encrypted-query]';
+    }
+
+    return '';
+  }
+
   async _getCollectionNames(options?: ListCollectionsOptions): Promise<string[]> {
     const infos = await this._listCollections({}, { ...options, nameOnly: true });
     this._cachedCollectionNames = infos.map((collection: any) => collection.name);
@@ -169,16 +194,11 @@ export default class Database extends ShellApiWithMongoClass {
     let collections = await this._listCollections({}, { ...options, nameOnly: true });
     collections = collections.sort((c1, c2) => (c1.name).localeCompare(c2.name));
 
-    const typesToBages: any = {
-      timeseries: '[time-series]',
-      view: '[view]'
-    };
+    this._cachedCollectionNames = collections.map((collection: Document) => collection.name);
 
-    this._cachedCollectionNames = collections.map((collection: any) => collection.name);
-
-    return collections.map((collection: any) => ({
+    return collections.map((collection: Document, index: number) => ({
       name: collection.name,
-      badge: typesToBages[collection.type] ?? ''
+      badge: this._getBadge(collections, index)
     }));
   }
 
