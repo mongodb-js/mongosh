@@ -162,9 +162,9 @@ export default class Database extends ShellApiWithMongoClass {
   _isFLE2Collection(collections: Document[], index: number): boolean {
     return (
       !collections[index].name.startsWith('enxcol_.') &&
-      !!collections.find(coll => coll.name === `enxcol_.${collections[index].name}.esc`) &&
-      !!collections.find(coll => coll.name === `enxcol_.${collections[index].name}.ecc`) &&
-      !!collections.find(coll => coll.name === `enxcol_.${collections[index].name}.ecoc`)
+      collections.some(coll => coll.name === `enxcol_.${collections[index].name}.esc`) &&
+      collections.some(coll => coll.name === `enxcol_.${collections[index].name}.ecc`) &&
+      collections.some(coll => coll.name === `enxcol_.${collections[index].name}.ecoc`)
     );
   }
 
