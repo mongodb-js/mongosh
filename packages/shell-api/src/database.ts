@@ -23,7 +23,8 @@ import {
   isValidCollectionName,
   getConfigDB,
   shouldRunAggregationImmediately,
-  adjustRunCommand
+  adjustRunCommand,
+  getBadge
 } from './helpers';
 
 import type {
@@ -159,31 +160,6 @@ export default class Database extends ShellApiWithMongoClass {
     ) || [];
   }
 
-  _isFLE2Collection(collections: Document[], index: number): boolean {
-    return (
-      !collections[index].name.startsWith('enxcol_.') &&
-      collections.some(coll => coll.name === `enxcol_.${collections[index].name}.esc`) &&
-      collections.some(coll => coll.name === `enxcol_.${collections[index].name}.ecc`) &&
-      collections.some(coll => coll.name === `enxcol_.${collections[index].name}.ecoc`)
-    );
-  }
-
-  _getBadge(collections: Document[], index: number): string {
-    if (collections[index].type === 'timeseries') {
-      return '[time-series]';
-    }
-
-    if (collections[index].type === 'view') {
-      return '[view]';
-    }
-
-    if (this._isFLE2Collection(collections, index)) {
-      return '[rich-encrypted-query]';
-    }
-
-    return '';
-  }
-
   async _getCollectionNames(options?: ListCollectionsOptions): Promise<string[]> {
     const infos = await this._listCollections({}, { ...options, nameOnly: true });
     this._cachedCollectionNames = infos.map((collection: any) => collection.name);
@@ -198,7 +174,7 @@ export default class Database extends ShellApiWithMongoClass {
 
     return collections.map((collection: Document, index: number) => ({
       name: collection.name,
-      badge: this._getBadge(collections, index)
+      badge: getBadge(collections, index)
     }));
   }
 

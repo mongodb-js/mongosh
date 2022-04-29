@@ -754,3 +754,28 @@ export function adjustRunCommand(cmd: Document, shellBson: ShellBson): Document 
   }
   return cmd;
 }
+
+const isFLE2Collection = (collections: Document[], index: number): boolean => {
+  return (
+    !collections[index].name.startsWith('enxcol_.') &&
+    collections.some(coll => coll.name === `enxcol_.${collections[index].name}.esc`) &&
+    collections.some(coll => coll.name === `enxcol_.${collections[index].name}.ecc`) &&
+    collections.some(coll => coll.name === `enxcol_.${collections[index].name}.ecoc`)
+  );
+};
+
+export function getBadge(collections: Document[], index: number): string {
+  if (collections[index].type === 'timeseries') {
+    return '[time-series]';
+  }
+
+  if (collections[index].type === 'view') {
+    return '[view]';
+  }
+
+  if (isFLE2Collection(collections, index)) {
+    return '[rich-encrypted-query]';
+  }
+
+  return '';
+}
