@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import prettyBytes from 'pretty-bytes';
+import numeral from 'numeral';
 import PropTypes from 'prop-types';
 import textTable from 'text-table';
 
@@ -12,6 +12,11 @@ type DatabaseObject = {
   map: any;
 };
 
+function formatBytes(value: number): string {
+  const precision = value <= 1000 ? '0' : '0.0';
+  return numeral(value).format(precision + 'b');
+}
+
 export class ShowDbsOutput extends Component<ShowDbsOutputProps> {
   static propTypes = {
     value: PropTypes.any
@@ -19,7 +24,7 @@ export class ShowDbsOutput extends Component<ShowDbsOutputProps> {
 
   renderTable = (value: DatabaseObject): string => {
     const tableEntries = value.map(
-      (db: any) => [db.name, prettyBytes(db.sizeOnDisk)]
+      (db: any) => [db.name, formatBytes(db.sizeOnDisk)]
     );
 
     return textTable(tableEntries, { align: ['l', 'r'] });
