@@ -95,8 +95,8 @@ class PatternResult(override val value: Pattern) : MongoShellResult<Pattern>()
 
 class MongoShellUpdateResult(override val value: UpdateResult) : MongoShellResult<UpdateResult>()
 
-class InsertOneResult(val acknowledged: Boolean, val insertedId: String) : MongoShellResult<Map<String, Any>>() {
-    override val value: Map<String, Any>
+class InsertOneResult(val acknowledged: Boolean, val insertedId: Any?) : MongoShellResult<Map<String, Any?>>() {
+    override val value: Map<String, Any?>
         get() = mapOf("acknowledged" to acknowledged, "insertedId" to insertedId)
 }
 
@@ -112,6 +112,7 @@ class DeleteResult(val acknowledged: Boolean, val deletedCount: Long) : MongoShe
 
 class BulkWriteResult(val acknowledged: Boolean,
                       val insertedCount: Int,
+                      val insertedIds: Map<String, Any?>,
                       val matchedCount: Int,
                       val modifiedCount: Int,
                       val deletedCount: Int,
@@ -120,6 +121,7 @@ class BulkWriteResult(val acknowledged: Boolean,
     override val value: Map<String, Any>
         get() = mapOf("acknowledged" to acknowledged,
                 "insertedCount" to insertedCount,
+                "insertedIds" to insertedIds,
                 "matchedCount" to matchedCount,
                 "modifiedCount" to modifiedCount,
                 "deletedCount" to deletedCount,
