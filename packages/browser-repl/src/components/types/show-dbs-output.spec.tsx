@@ -20,6 +20,12 @@ describe('ShowDbsOutput', () => {
       { name: 'test', sizeOnDisk: 599999768000, empty: false }
     ]} />);
 
-    expect(wrapper.text()).to.contain('admin      45.1KB\ndxl         8.2KB\nsupplies    2.2MB\ntest        5.7MB\ntest      600.0GB');
+    expect(wrapper.text()).to.equal(`
+admin      44.00 KiB
+dxl         8.00 KiB
+supplies    2.13 MiB
+test        5.40 MiB
+test      558.79 GiB
+`.trim());
   });
 });

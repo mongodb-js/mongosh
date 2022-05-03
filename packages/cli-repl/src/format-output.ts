@@ -23,8 +23,8 @@ type FormatOptions = {
 };
 
 function formatBytes(value: number): string {
-  const precision = value <= 1000 ? '0' : '0.0';
-  return numeral(value).format(precision + 'b');
+  const precision = value <= 1000 ? '0' : '0.00';
+  return numeral(value).format(precision + ' ib');
 }
 
 /**
