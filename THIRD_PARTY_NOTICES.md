@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Mon May 02 2022.
+This document was automatically generated on Tue May 03 2022.
 
 ## List of dependencies
 
@@ -208,6 +208,7 @@ Package|Version|License
 **[nopt](#fbf206ce137e18ded38133b05fa8623c287129749e1a5575956a2c0c4388e471)**|5.0.0|ISC
 **[npmlog](#ee61305241ab0f8e87a6dc2160efc46973e046400e72fe10858cc36309d51f9b)**|4.1.2|ISC
 **[number-is-nan](#044063cb59ac16c3146a6aa01521f5bd00ae1e6c7a197f31df253f357faf9f75)**|1.0.1|MIT
+**[numeral](#d274a180ad09fc1ae9325f01bf5dc1296caf553888d952fab7ebf524dfdc56a1)**|2.0.6|MIT
 **[object-assign](#598e372231bb5bef26b7d61105282eb20e14ade430143052d064d2d406769b95)**|4.1.1|MIT
 **[once](#d0d1303998dfae04e4f898f477380aac35568f4d6679f4ea913c2441cf9ebb0b)**|1.4.0|ISC
 **[os-dns-native](#ccaac4b6b7b65be11aed2a61b109713be87bd047a65d3f552022671ab10b4872)**|1.2.0|MIT
@@ -215,7 +216,6 @@ Package|Version|License
 **[path-key](#e1a2a032096ace66b422351e00b11b0229e42e4b49c2146f439f8fe442218451)**|3.1.1|MIT
 **[picocolors](#990b3f27d922745f1d3503b8f3cf9cb5d20f553c2f4c1168abe2a411b8cd5da0)**|1.0.0|ISC
 **[prebuild-install](#e755204a5da2a0c525c1c306c36568e122273f24c0cac31a68cd274b9401771f)**|7.0.1|MIT
-**[pretty-bytes](#9e33688b6e1c9e20b4c01df3ef7f62225265b012eb4f58f56897d7a7aed4ca4e)**|5.6.0|MIT
 **[pretty-repl](#91bf45a61fe193a0e000fb21572851df0d48fdb78901162aa4d2ed627c98a6fc)**|3.1.1|MIT
 **[process-nextick-args](#449a33b1fb1386db92b40df9073f48703b67ff05c4da5043d007fdb90ed76aca)**|2.0.1|MIT
 **[proto-list](#d4d3609bf7b212ffd3a73f3a8f8e7b69fedcf74d6e9843ee217046ab37b32260)**|1.2.4|ISC
@@ -13944,6 +13944,44 @@ Authors:
 * Sindre Sorhus <[sindresorhus@gmail.com](nomail)> (sindresorhus.com)
 
 
+<a id="d274a180ad09fc1ae9325f01bf5dc1296caf553888d952fab7ebf524dfdc56a1"></a>
+### [numeral](https://www.npmjs.com/package/numeral) (version 2.0.6)
+<!-- initially found at packages/cli-repl/node_modules/numeral -->
+> Format and manipulate numbers.
+
+License tags: MIT
+
+License files:
+* LICENSE:
+
+      Copyright (c) 2016 Adam Draper
+      
+      Permission is hereby granted, free of charge, to any person
+      obtaining a copy of this software and associated documentation
+      files (the "Software"), to deal in the Software without
+      restriction, including without limitation the rights to use,
+      copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the
+      Software is furnished to do so, subject to the following
+      conditions:
+      
+      The above copyright notice and this permission notice shall be
+      included in all copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+      OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+      NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+      HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+      WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+      FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+      OTHER DEALINGS IN THE SOFTWARE.
+      
+
+Authors:
+* Adam Draper <[adamwdraper@gmail.com](nomail)> (http://github.com/adamwdraper)
+
+
 <a id="598e372231bb5bef26b7d61105282eb20e14ade430143052d064d2d406769b95"></a>
 ### [object-assign](https://www.npmjs.com/package/object-assign) (version 4.1.1)
 <!-- initially found at packages/service-provider-core/node_modules/object-assign -->
@@ -14185,31 +14223,6 @@ Authors:
 * Jesús Leganés Combarro <piranna@gmail.com> (https://github.com/piranna)
 * Mathias Küsel <mathiask@hotmail.de> (https://github.com/mathiask88)
 * Lukas Geiger <lukas.geiger94@gmail.com> (https://github.com/lgeiger)
-
-
-<a id="9e33688b6e1c9e20b4c01df3ef7f62225265b012eb4f58f56897d7a7aed4ca4e"></a>
-### [pretty-bytes](https://www.npmjs.com/package/pretty-bytes) (version 5.6.0)
-<!-- initially found at packages/cli-repl/node_modules/pretty-bytes -->
-> Convert bytes to a human readable string: 1337 → 1.34 kB
-
-License tags: MIT
-
-License files:
-* license:
-
-      MIT License
-      
-      Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com)
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-      
-
-Authors:
-* Sindre Sorhus <[sindresorhus@gmail.com](nomail)> (https://sindresorhus.com)
 
 
 <a id="91bf45a61fe193a0e000fb21572851df0d48fdb78901162aa4d2ed627c98a6fc"></a>
