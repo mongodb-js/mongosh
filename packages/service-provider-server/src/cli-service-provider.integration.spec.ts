@@ -670,16 +670,27 @@ describe('CliServiceProvider [integration]', function() {
           'coll1',
           // TODO: Remove `any` usage once there is driver type support
           // for clustered collection indexes. NODE-4189
-          { clusteredIndex: { key: { _id: 1 }, unique: true } } as any
+          {
+            clusteredIndex: {
+              key: { _id: 1 },
+              unique: true
+            }
+          } as any
         );
 
-        const collections = await serviceProvider.listCollections(dbName, {}, { nameOnly: true });
+        const collections = await serviceProvider.listCollections(dbName, {}, {});
 
+        const matchingCollection = collections.find(collection => collection.name === 'coll1');
+        expect(matchingCollection).to.not.be.undefined;
         expect(
-          collections
+          matchingCollection.options
         ).to.deep.contain({
-          name: 'coll1',
-          options: { clusteredIndex: { key: { _id: 1 } } }
+          clusteredIndex: {
+            v: 2,
+            key: { _id: 1 },
+            name: '_id_',
+            unique: true
+          }
         });
 
         const indexes = await serviceProvider.getIndexes(dbName, 'coll1');
