@@ -2,6 +2,7 @@ import CliServiceProvider from './cli-service-provider';
 import { expect } from 'chai';
 import { EventEmitter } from 'events';
 import { MongoClient } from 'mongodb';
+import type { Db } from 'mongodb';
 import { startTestServer, skipIfServerVersion } from '../../../testing/integration-testing-hooks';
 import { DbOptions, MongoClientOptions } from '@mongosh/service-provider-core';
 import ConnectionString from 'mongodb-connection-string-url';
@@ -12,7 +13,7 @@ describe('CliServiceProvider [integration]', function() {
   let serviceProvider: CliServiceProvider;
   let client: MongoClient;
   let dbName: string;
-  let db;
+  let db: Db;
   let connectionString: string;
   let bus: EventEmitter;
 
@@ -657,6 +658,53 @@ describe('CliServiceProvider [integration]', function() {
         ).to.deep.contain({
           name: 'system.views',
           type: 'collection'
+        });
+      });
+    });
+
+    context('post-5.3', () => {
+      skipIfServerVersion(testServer, '< 5.3');
+
+      it('allows clustered indexes on collections', async() => {
+        await db.createCollection(
+          'coll1',
+          // TODO: Remove `any` usage once there is driver type support
+          // for clustered collection indexes. NODE-4189
+          {
+            clusteredIndex: {
+              key: { _id: 1 },
+              unique: true
+            }
+          } as any
+        );
+
+        const collections = await serviceProvider.listCollections(dbName, {}, {});
+
+        const matchingCollection = collections.find(collection => collection.name === 'coll1');
+        expect(matchingCollection).to.not.be.undefined;
+        expect(
+          matchingCollection.options
+        ).to.deep.contain({
+          clusteredIndex: {
+            v: 2,
+            key: { _id: 1 },
+            name: '_id_',
+            unique: true
+          }
+        });
+
+        const indexes = await serviceProvider.getIndexes(dbName, 'coll1');
+
+        expect(
+          indexes
+        ).to.deep.contain({
+          key: {
+            _id: 1
+          },
+          name: '_id_',
+          v: 2,
+          clustered: true,
+          unique: true
         });
       });
     });

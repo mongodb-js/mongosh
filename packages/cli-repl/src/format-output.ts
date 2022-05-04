@@ -1,4 +1,4 @@
-import prettyBytes from 'pretty-bytes';
+import numeral from 'numeral';
 import textTable from 'text-table';
 import i18n from '@mongosh/i18n';
 import util from 'util';
@@ -21,6 +21,11 @@ type FormatOptions = {
   showStackTraces?: boolean;
   bugReportErrorMessageInfo?: string;
 };
+
+function formatBytes(value: number): string {
+  const precision = value <= 1000 ? '0' : '0.00';
+  return numeral(value).format(precision + ' ib');
+}
 
 /**
  * Return the pretty string for the output.
@@ -144,7 +149,7 @@ function formatCollections(output: CollectionNamesWithTypes[], options: FormatOp
 
 function formatDatabases(output: any[], options: FormatOptions): string {
   const tableEntries = output.map(
-    (db) => [clr(db.name, 'bold', options), prettyBytes(db.sizeOnDisk)]
+    (db) => [clr(db.name, 'bold', options), formatBytes(db.sizeOnDisk)]
   );
 
   return textTable(tableEntries, { align: ['l', 'r'] });

@@ -132,7 +132,13 @@ describe('<ShellOutputLine />', () => {
       ]
     }} />);
 
-    expect(wrapper.text()).to.contain('admin     45.1 kB\ndxl       8.19 kB\nsupplies  2.24 MB\ntest      5.66 MB\ntest       600 GB');
+    expect(wrapper.text()).to.equal(`
+admin      44.00 KiB
+dxl         8.00 KiB
+supplies    2.13 MiB
+test        5.40 MiB
+test      558.79 GiB
+`.trim());
   });
 
   it('renders StatsResult', () => {
