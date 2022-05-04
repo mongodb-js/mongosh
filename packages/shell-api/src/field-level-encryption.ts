@@ -43,6 +43,8 @@ export interface ClientSideFieldLevelEncryptionOptions {
   bypassAutoEncryption?: boolean;
   explicitEncryptionOnly?: boolean;
   tlsOptions?: { [k in keyof ClientSideFieldLevelEncryptionKmsProvider]?: ClientEncryptionTlsOptions };
+  encryptedFieldsMap?: Document;
+  bypassQueryAnalysis?: boolean;
 }
 
 @shellApiClassDefault
