@@ -1331,6 +1331,17 @@ export default class Collection extends ShellApiWithMongoClass {
   }
 
   /**
+   * Check if a collection is listed in the Mongo() encryptedFieldsMap.
+   *
+   * @return {Promise} returns Promise
+   */
+  _isCollectionInEncryptedFieldsMap() {
+    // @ts-expect-error waiting for driver release
+    const encryptedFieldsMap = this._mongo._fleOptions?.encryptedFieldsMap;
+    return encryptedFieldsMap && encryptedFieldsMap[this._name];
+  }
+
+  /**
    * Drop a collection.
    *
    * @return {Promise} returns Promise
@@ -1340,11 +1351,28 @@ export default class Collection extends ShellApiWithMongoClass {
   async drop(options: DropCollectionOptions = {}): Promise<boolean> {
     this._emitCollectionApiCall('drop');
 
+    let encryptedFieldsOptions = {};
+
+    if (!this._isCollectionInEncryptedFieldsMap() && !options.encryptedFields) {
+      const collectionInfos = await this._mongo._serviceProvider.listCollections(
+        this._database._name,
+        {
+          name: this._name
+        },
+        await this._database._baseOptions()
+      );
+
+      if (collectionInfos) {
+        const encryptedFields: Document | undefined = collectionInfos[0].options.encryptedFields;
+        encryptedFieldsOptions = { encryptedFields };
+      }
+    }
+
     try {
       return await this._mongo._serviceProvider.dropCollection(
         this._database._name,
         this._name,
-        { ...await this._database._baseOptions(), ...options }
+        { ...await this._database._baseOptions(), ...options, ...encryptedFieldsOptions }
       );
     } catch (error: any) {
       if (error?.codeName === 'NamespaceNotFound') {
