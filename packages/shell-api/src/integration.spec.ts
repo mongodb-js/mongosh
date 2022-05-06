@@ -456,20 +456,16 @@ describe('Shell API (integration)', function() {
     });
 
     describe('getIndexes', () => {
-      let result;
-
-      beforeEach(async() => {
+      it('returns indexes for the collection', async() => {
         await serviceProvider.createCollection(dbName, collectionName);
         await serviceProvider.createIndexes(dbName, collectionName, [
           { key: { x: 1 } }
         ]);
 
-        result = await collection.getIndexes();
-      });
+        const indexes = await collection.getIndexes();
 
-      it('returns indexes for the collection', () => {
-        expect(result.length).to.equal(2);
-        expect(result[0]).to.deep.include(
+        expect(indexes.length).to.equal(2);
+        expect(indexes[0]).to.deep.include(
           {
             key: {
               _id: 1
@@ -477,7 +473,7 @@ describe('Shell API (integration)', function() {
             name: '_id_',
             v: 2
           });
-        expect(result[1]).to.deep.include(
+        expect(indexes[1]).to.deep.include(
           {
             key: {
               x: 1
@@ -485,6 +481,40 @@ describe('Shell API (integration)', function() {
             name: 'x_1',
             v: 2
           });
+      });
+
+      context('post-5.3', () => {
+        skipIfServerVersion(testServer, '< 5.3');
+
+        beforeEach(async() => {
+          await serviceProvider.createCollection(
+            dbName,
+            collectionName,
+            // TODO: Remove `any` usage once there is driver type support
+            // for clustered collection indexes. NODE-4189
+            {
+              clusteredIndex: {
+                key: { _id: 1 },
+                unique: true
+              },
+            } as any
+          );
+        });
+
+        it('returns clustered indexes for the collection', async() => {
+          const indexes = await collection.getIndexes();
+
+          expect(indexes.length).to.equal(1);
+          expect(indexes[0]).to.deep.include({
+            key: {
+              _id: 1
+            },
+            name: '_id_',
+            v: 2,
+            clustered: true,
+            unique: true
+          });
+        });
       });
     });
 
@@ -1970,23 +2000,18 @@ describe('Shell API (integration)', function() {
         const planCache = collection.getPlanCache();
         const res = await planCache.list();
         expect(res.length).to.equal(4);
-        expect(res[0].createdFromQuery).to.deep.equal({
-          query: { quantity: { $gte: 5 }, type: 'apparel' },
-          sort: {},
-          projection: {}
-        });
       });
       it('lists projection with args', async() => {
         await loadQueryCache(collection);
         const planCache = collection.getPlanCache();
-        const res = await planCache.list([{ $project: { createdFromQuery: 1, queryHash: 1 } }]);
+        const res = await planCache.list([{ $project: { queryHash: 1 } }]);
         expect(res).to.deep.equal([
           // We do not test for the exact query hashes here, as they can vary between
           // server versions. Hashes for queries 3 and 4 are always equal currently.
-          { createdFromQuery: { query: { quantity: { $gte: 5 }, type: 'apparel' }, sort: { }, projection: { } }, queryHash: `${res[0].queryHash}` },
-          { createdFromQuery: { query: { quantity: { $gte: 20 } }, sort: { }, projection: { } }, queryHash: `${res[1].queryHash}` },
-          { createdFromQuery: { query: { item: 'abc', price: { $gte: 5 } }, sort: { }, projection: { } }, queryHash: `${res[2].queryHash}` },
-          { createdFromQuery: { query: { item: 'abc', price: { $gte: 10 } }, sort: { }, projection: { } }, queryHash: `${res[2].queryHash}` }
+          { queryHash: `${res[0].queryHash}` },
+          { queryHash: `${res[1].queryHash}` },
+          { queryHash: `${res[2].queryHash}` },
+          { queryHash: `${res[2].queryHash}` }
         ]);
       });
     });
@@ -2008,11 +2033,9 @@ describe('Shell API (integration)', function() {
         await loadQueryCache(collection);
         const planCache = collection.getPlanCache();
         expect((await planCache.list()).length).to.equal(4);
-        expect((await planCache.list())[0].createdFromQuery.query).to.deep.equal(query);
         const clearRes = await planCache.clearPlansByQuery(query);
         expect(clearRes.ok).to.equal(1);
         expect((await planCache.list()).length).to.equal(3);
-        expect((await planCache.list())[0].createdFromQuery.query).to.not.deep.equal(query);
       });
     });
   });

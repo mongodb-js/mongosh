@@ -8,7 +8,6 @@ import com.mongodb.client.result.UpdateResult
 import com.mongodb.mongosh.MongoShellConverter
 import com.mongodb.mongosh.ValueWrapper
 import com.mongodb.mongosh.result.ArrayResult
-import com.mongodb.mongosh.result.CommandException
 import com.mongodb.mongosh.result.DocumentResult
 import org.bson.Document
 import org.graalvm.polyglot.HostAccess
@@ -61,8 +60,8 @@ internal class JavaServiceProvider(private var client: MongoClient?,
         val options = toDocument(options, "options")
         val dbOptions = options?.filterKeys { dbConverters.containsKey(it) }
         getDatabase(database, dbOptions).map { db ->
-            db.getCollection(collection).insertOne(document)
-            mapOf("acknowledged" to true, "insertedId" to "UNKNOWN")
+            val result = db.getCollection(collection).insertOne(document)
+            mapOf("acknowledged" to result.wasAcknowledged(), "insertedId" to result.insertedId)
         }
     }
 
@@ -168,7 +167,7 @@ internal class JavaServiceProvider(private var client: MongoClient?,
                     mapOf(
                             "ok" to result.wasAcknowledged(),
                             "insertedCount" to result.insertedCount,
-                            "insertedIds" to "UNKNOWN",
+                            "insertedIds" to result.inserts.associate { Pair(it.index.toString(), it.id) },
                             "matchedCount" to result.matchedCount,
                             "modifiedCount" to result.modifiedCount,
                             "deletedCount" to result.deletedCount,
@@ -555,6 +554,7 @@ internal class JavaServiceProvider(private var client: MongoClient?,
     override fun dropCollection(database: String, collection: String, options: Value?): Value = promise {
         val options = toDocument(options, "options")
         val dbOptions = options?.filterKeys { dbConverters.containsKey(it) }
+        // TODO: pass through options once the java driver supports it
         getDatabase(database, dbOptions).map { db ->
             db.getCollection(collection).drop()
         }

@@ -1241,6 +1241,13 @@ describe('Collection', () => {
         serviceProvider.dropCollection.rejects(error);
         expect(await (collection.drop().catch((e) => e))).to.equal(error);
       });
+
+      it('passes through options', async() => {
+        serviceProvider.dropCollection.resolves();
+        await collection.drop({ promoteValues: false });
+        expect(serviceProvider.dropCollection).to.have.been.calledWith(
+          'db1', 'coll1', { promoteValues: false });
+      });
     });
 
     describe('getFullName', () => {
@@ -1921,7 +1928,7 @@ describe('Collection', () => {
       watch: { i: 1 }
     };
     const ignore: (keyof (typeof Collection)['prototype'])[] = [
-      'getShardDistribution', 'stats', 'isCapped', 'save'
+      'getShardDistribution', 'stats', 'isCapped'
     ];
     const args = [ { query: {} }, {}, { out: 'coll' } ];
     beforeEach(() => {

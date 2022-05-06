@@ -43,6 +43,8 @@ export interface ClientSideFieldLevelEncryptionOptions {
   bypassAutoEncryption?: boolean;
   explicitEncryptionOnly?: boolean;
   tlsOptions?: { [k in keyof ClientSideFieldLevelEncryptionKmsProvider]?: ClientEncryptionTlsOptions };
+  encryptedFieldsMap?: Document;
+  bypassQueryAnalysis?: boolean;
 }
 
 @shellApiClassDefault
@@ -109,28 +111,64 @@ export class KeyVault extends ShellApiWithMongoClass {
     super();
     this._mongo = clientEncryption._mongo;
     this._clientEncryption = clientEncryption;
-    if (!this._mongo._fleOptions || !this._mongo._fleOptions.keyVaultNamespace) {
+    const keyVaultNamespace = this._mongo?._fleOptions?.keyVaultNamespace;
+    if (!keyVaultNamespace) {
       throw new MongoshInvalidInputError('FLE options must be passed to the Mongo object');
     }
-    const [ db, coll ] = this._mongo._fleOptions.keyVaultNamespace.split('.');
+    const parsedNamespace = keyVaultNamespace.match(/^(?<db>[^.]+)\.(?<coll>.+)$/)?.groups;
+    if (!parsedNamespace) {
+      throw new MongoshInvalidInputError(`Invalid keyVaultNamespace '${keyVaultNamespace}'`);
+    }
+    const { db, coll } = parsedNamespace;
     this._keyColl = this._mongo.getDB(db).getCollection(coll);
+  }
+
+  async _init(): Promise<void> {
+    try {
+      const existingIndexKeys = await this._keyColl.getIndexKeys();
+      if (existingIndexKeys.some(key => key.keyAltNames)) {
+        return; // keyAltNames index already exists
+      }
+    } catch {
+      // Probably failed because the collection does not exist to begin with.
+    }
+
+    try {
+      // Both the legacy shell and mongosh previously attempted to
+      // remove empty keyAltNames arrays that resulted from calls to
+      // removeKeyAlternateName, but did not do so properly.
+      // mongosh also did not create the keyAltNames index as intended
+      // in the past.
+      // To avoid problems with creating the unique index, we remove
+      // empty arrays here explicitly.
+      await this._keyColl.updateMany(
+        { 'keyAltNames': { $size: 0 } },
+        { $unset: { 'keyAltNames': '' }, $currentDate: { 'updateDate': true } }
+      );
+
+      await this._keyColl.createIndex(
+        { keyAltNames: 1 },
+        { unique: true, partialFilterExpression: { keyAltNames: { $exists: true } } });
+    } catch (err: any) {
+      await this._instanceState.printWarning(`Creating 'keyAltNames' index on '${this._keyColl.getFullName()}' failed: ${err.message}`);
+    }
   }
 
   [asPrintable](): string {
     return `KeyVault class for ${redactURICredentials(this._mongo._uri)}`;
   }
 
-  createKey(kms: 'local', keyAltNames?: string[]): Promise<Document>
-  createKey(kms: ClientEncryptionDataKeyProvider, legacyMasterKey: string, keyAltNames?: string[]): Promise<Document>
-  createKey(kms: ClientEncryptionDataKeyProvider, options: AWSEncryptionKeyOptions | AzureEncryptionKeyOptions | GCPEncryptionKeyOptions | undefined): Promise<Document>
-  createKey(kms: ClientEncryptionDataKeyProvider, options: AWSEncryptionKeyOptions | AzureEncryptionKeyOptions | GCPEncryptionKeyOptions | undefined, keyAltNames: string[]): Promise<Document>
+  createKey(kms: 'local', keyAltNames?: string[]): Promise<BinaryType>
+  createKey(kms: ClientEncryptionDataKeyProvider, legacyMasterKey: string, keyAltNames?: string[]): Promise<BinaryType>
+  createKey(kms: ClientEncryptionDataKeyProvider, options: AWSEncryptionKeyOptions | AzureEncryptionKeyOptions | GCPEncryptionKeyOptions | undefined): Promise<BinaryType>
+  createKey(kms: ClientEncryptionDataKeyProvider, options: AWSEncryptionKeyOptions | AzureEncryptionKeyOptions | GCPEncryptionKeyOptions | undefined, keyAltNames: string[]): Promise<BinaryType>
   @returnsPromise
   @apiVersions([1])
   async createKey(
     kms: ClientEncryptionDataKeyProvider,
     masterKeyOrAltNames?: AWSEncryptionKeyOptions | AzureEncryptionKeyOptions | GCPEncryptionKeyOptions | string | undefined | string[],
     keyAltNames?: string[]
-  ): Promise<Document> {
+  ): Promise<BinaryType> {
     assertArgsDefinedType([kms], [true], 'KeyVault.createKey');
 
     if (typeof masterKeyOrAltNames === 'string') {
@@ -217,7 +255,7 @@ export class KeyVault extends ShellApiWithMongoClass {
     assertArgsDefinedType([keyId, keyAltName], [true, 'string'], 'KeyVault.addKeyAlternateName');
     return this._keyColl.findAndModify({
       query: { '_id': keyId },
-      update: { $push: { 'keyAltNames': keyAltName }, $currentDate: { 'updateDate': true } },
+      update: { $addToSet: { 'keyAltNames': keyAltName }, $currentDate: { 'updateDate': true } },
     });
   }
 
@@ -233,7 +271,7 @@ export class KeyVault extends ShellApiWithMongoClass {
     if (ret !== null && ret.keyAltNames !== undefined && ret.keyAltNames.length === 1 && ret.keyAltNames[0] === keyAltName) {
       // Remove the empty array to prevent duplicate key violations
       return this._keyColl.findAndModify({
-        query: { '_id': keyId, 'keyAltNames': undefined },
+        query: { '_id': keyId, 'keyAltNames': { $size: 0 } },
         update: { $unset: { 'keyAltNames': '' }, $currentDate: { 'updateDate': true } }
       });
     }

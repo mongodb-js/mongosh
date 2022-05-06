@@ -174,6 +174,76 @@ describe('FLE tests', () => {
     expect(result).to.include("{ decrypted: { someValue: 'foo' } }");
   });
 
+  it('skips encryption when a bypassQueryAnalysis option has been passed', async() => {
+    const shell = TestShell.start({
+      args: ['--nodb']
+    });
+    const uri = JSON.stringify(await testServer.connectionString());
+
+    await shell.waitForPrompt();
+
+    await shell.executeLine('local = { key: BinData(0, "kh4Gv2N8qopZQMQYMEtww/AkPsIrXNmEMxTrs3tUoTQZbZu4msdRUaR8U5fXD7A7QXYHcEvuu4WctJLoT+NvvV3eeIg3MD+K8H9SR794m/safgRHdIfy6PD+rFpvmFbY") }');
+
+    await shell.executeLine(`keyMongo = Mongo(${uri}, { \
+      keyVaultNamespace: '${dbname}.keyVault', \
+      kmsProviders: { local }, \
+      bypassQueryAnalysis: true \
+    });`);
+
+    await shell.executeLine('keyVault = keyMongo.getKeyVault();');
+    await shell.executeLine('keyId = keyVault.createKey("local");');
+
+    await shell.executeLine(`schemaMap = { \
+      '${dbname}.coll': { \
+        bsonType: 'object', \
+        properties: { \
+          phoneNumber: { \
+            encrypt: { \
+              bsonType: 'string', \
+              keyId: [keyId], \
+              algorithm: 'AEAD_AES_256_CBC_HMAC_SHA_512-Random' \
+            } \
+          } \
+        } \
+      } \
+    };`);
+
+    await shell.executeLine(`autoMongo = Mongo(${uri}, { \
+      keyVaultNamespace: '${dbname}.keyVault', \
+      kmsProviders: { local }, \
+      schemaMap: schemaMap \
+    });`);
+
+
+    await shell.executeLine(`bypassMongo = Mongo(${uri}, { \
+      keyVaultNamespace: '${dbname}.keyVault', \
+      kmsProviders: { local }, \
+      bypassQueryAnalysis: true \
+    });`);
+
+    await shell.executeLine(`plainMongo = Mongo(${uri});`);
+
+    await shell.executeLine(`autoMongo.getDB('${dbname}').coll.insertOne({ \
+      phoneNumber: '+12874627836445' \
+    });`);
+    await shell.executeLine(`bypassMongo.getDB('${dbname}').coll.insertOne({
+      phoneNumber: '+98173247931847'
+    });`);
+
+    const autoMongoResult = await shell.executeLine(`autoMongo.getDB('${dbname}').coll.find()`);
+    expect(autoMongoResult).to.include("phoneNumber: '+12874627836445'");
+    expect(autoMongoResult).to.include("phoneNumber: '+98173247931847'");
+
+    const bypassMongoResult = await shell.executeLine(`bypassMongo.getDB('${dbname}').coll.find()`);
+    expect(bypassMongoResult).to.include("phoneNumber: '+12874627836445'");
+    expect(bypassMongoResult).to.include("phoneNumber: '+98173247931847'");
+
+    const plainMongoResult = await shell.executeLine(`plainMongo.getDB('${dbname}').coll.find()`);
+    expect(plainMongoResult).to.include("phoneNumber: '+98173247931847'");
+    expect(plainMongoResult).to.include('phoneNumber: Binary(Buffer.from');
+    expect(plainMongoResult).to.not.include("phoneNumber: '+12874627836445'");
+  });
+
   it('performs KeyVault data key management as expected', async() => {
     const shell = TestShell.start({
       args: [await testServer.connectionString(), `--csfleLibraryPath=${csfleLibrary}`]

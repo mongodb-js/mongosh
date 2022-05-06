@@ -53,6 +53,7 @@ import {
   ReplaceOptions,
   RunCommandOptions,
   UpdateOptions,
+  DropCollectionOptions
 } from '@mongosh/service-provider-core';
 import {
   AggregationCursor,
@@ -801,13 +802,6 @@ export default class Collection extends ShellApiWithMongoClass {
     );
   }
 
-  @deprecated
-  save(): never {
-    throw new MongoshInvalidInputError(
-      'Collection.save() is deprecated. Use insertOne, insertMany, updateOne, or updateMany.'
-    );
-  }
-
   /**
    * Replace a document with another.
    *
@@ -1265,6 +1259,7 @@ export default class Collection extends ShellApiWithMongoClass {
    * @return {Promise}
    */
   @returnsPromise
+  @deprecated
   @topologies([Topologies.Standalone])
   @apiVersions([])
   async reIndex(): Promise<Document> {
@@ -1342,14 +1337,14 @@ export default class Collection extends ShellApiWithMongoClass {
    */
   @returnsPromise
   @apiVersions([1])
-  async drop(): Promise<boolean> {
+  async drop(options: DropCollectionOptions = {}): Promise<boolean> {
     this._emitCollectionApiCall('drop');
 
     try {
       return await this._mongo._serviceProvider.dropCollection(
         this._database._name,
         this._name,
-        await this._database._baseOptions()
+        { ...await this._database._baseOptions(), ...options }
       );
     } catch (error: any) {
       if (error?.codeName === 'NamespaceNotFound') {

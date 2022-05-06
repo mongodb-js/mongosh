@@ -67,15 +67,14 @@ const EXECUTABLE_PKG_INFO = [
     compileBuildVariant: 'darwin_arm64',
     distributionBuildVariants: [
       { name: 'darwin-arm64', packageOn: 'darwin', smokeTestKind: 'macos' }
-    ],
-    skipE2E: true
+    ]
   },
   {
     executableOsId: 'linux-x64',
     compileBuildVariant: 'linux_x64_build',
     distributionBuildVariants: [
       { name: 'linux-x64', packageOn: 'linux_package', smokeTestKind: 'none' },
-      { name: 'debian-x64', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu18.04-deb', 'ubuntu20.04-deb', 'debian9-deb', 'debian10-deb'] },
+      { name: 'debian-x64', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu18.04-deb', 'ubuntu20.04-deb', 'debian9-deb', 'debian10-deb', 'debian11-deb'] },
       { name: 'rhel7-x64', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['centos7-rpm', 'amazonlinux2-rpm'] },
       { name: 'rhel8-x64', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['rocky8-rpm', 'fedora34-rpm'] },
       { name: 'suse-x64', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['suse12-rpm', 'suse15-rpm'] },
@@ -748,8 +747,10 @@ tasks:
   ###
   # E2E TESTS
   ###
-  <% for (const { executableOsId, compileBuildVariant, skipE2E } of EXECUTABLE_PKG_INFO) if (!skipE2E) { %>
-  - name: e2e_tests_<% out(executableOsId.replace(/-/g, '_')) %>
+  <% for (const { executableOsId, compileBuildVariant } of EXECUTABLE_PKG_INFO) {
+    for (const mVersion of ['stable', 'unstable']) {
+    %>
+  - name: e2e_tests_<% out(executableOsId.replace(/-/g, '_')) %><% out(mVersion === 'stable' ? '' : '_unstable') %>
     tags: ["e2e-test"]
     depends_on:
       - name: compile_artifact
@@ -766,7 +767,8 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_14) %>"
-  <% } %>
+          mongosh_server_test_version: "<% out(mVersion) %>"
+  <% } } %>
 
   ###
   # PACKAGING
@@ -1020,6 +1022,11 @@ buildvariants:
     run_on: debian10-small
     tasks:
       - name: e2e_tests_linux_x64
+  - name: e2e_debian11_x64
+    display_name: "Debian 11 x64 (E2E Tests)"
+    run_on: debian11-small
+    tasks:
+      - name: e2e_tests_linux_x64_unstable
   - name: e2e_amazon1_x64
     display_name: "Amazon Linux 1 x64 (E2E Tests)"
     run_on: amazon1-2018-small
@@ -1032,7 +1039,7 @@ buildvariants:
       - name: e2e_tests_linux_x64
   - name: e2e_suse12_x64
     display_name: "SLES 12 x64 (E2E Tests)"
-    run_on: suse12-small
+    run_on: suse12-sp5-small
     tasks:
       - name: e2e_tests_linux_x64
   - name: e2e_suse15_x64
@@ -1118,6 +1125,7 @@ buildvariants:
       - name: pkg_test_docker_amazonlinux2_rpm
       - name: pkg_test_docker_debian9_deb
       - name: pkg_test_docker_debian10_deb
+      - name: pkg_test_docker_debian11_deb
       - name: pkg_test_docker_ubuntu18_04_deb
       - name: pkg_test_docker_ubuntu20_04_deb
   - name: pkg_smoke_tests_win32

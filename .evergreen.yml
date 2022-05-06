@@ -7848,6 +7848,61 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "14.19.1"
+          mongosh_server_test_version: "stable"
+  - name: e2e_tests_darwin_x64_unstable
+    tags: ["e2e-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: darwin
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.19.1"
+          npm_deps_mode: cli_build
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: darwin-x64
+      - func: run_e2e_tests
+        vars:
+          node_js_version: "14.19.1"
+          mongosh_server_test_version: "unstable"
+  - name: e2e_tests_darwin_arm64
+    tags: ["e2e-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: darwin_arm64
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.19.1"
+          npm_deps_mode: cli_build
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: darwin-arm64
+      - func: run_e2e_tests
+        vars:
+          node_js_version: "14.19.1"
+          mongosh_server_test_version: "stable"
+  - name: e2e_tests_darwin_arm64_unstable
+    tags: ["e2e-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: darwin_arm64
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.19.1"
+          npm_deps_mode: cli_build
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: darwin-arm64
+      - func: run_e2e_tests
+        vars:
+          node_js_version: "14.19.1"
+          mongosh_server_test_version: "unstable"
   - name: e2e_tests_linux_x64
     tags: ["e2e-test"]
     depends_on:
@@ -7865,6 +7920,25 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "14.19.1"
+          mongosh_server_test_version: "stable"
+  - name: e2e_tests_linux_x64_unstable
+    tags: ["e2e-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: linux_x64_build
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.19.1"
+          npm_deps_mode: cli_build
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-x64
+      - func: run_e2e_tests
+        vars:
+          node_js_version: "14.19.1"
+          mongosh_server_test_version: "unstable"
   - name: e2e_tests_linux_arm64
     tags: ["e2e-test"]
     depends_on:
@@ -7882,6 +7956,25 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "14.19.1"
+          mongosh_server_test_version: "stable"
+  - name: e2e_tests_linux_arm64_unstable
+    tags: ["e2e-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: linux_arm64_build
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.19.1"
+          npm_deps_mode: cli_build
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64
+      - func: run_e2e_tests
+        vars:
+          node_js_version: "14.19.1"
+          mongosh_server_test_version: "unstable"
   - name: e2e_tests_linux_ppc64le
     tags: ["e2e-test"]
     depends_on:
@@ -7899,6 +7992,25 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "14.19.1"
+          mongosh_server_test_version: "stable"
+  - name: e2e_tests_linux_ppc64le_unstable
+    tags: ["e2e-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: linux_ppc64le_build
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.19.1"
+          npm_deps_mode: cli_build
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-ppc64le
+      - func: run_e2e_tests
+        vars:
+          node_js_version: "14.19.1"
+          mongosh_server_test_version: "unstable"
   - name: e2e_tests_linux_s390x
     tags: ["e2e-test"]
     depends_on:
@@ -7916,6 +8028,25 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "14.19.1"
+          mongosh_server_test_version: "stable"
+  - name: e2e_tests_linux_s390x_unstable
+    tags: ["e2e-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: linux_s390x_build
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.19.1"
+          npm_deps_mode: cli_build
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-s390x
+      - func: run_e2e_tests
+        vars:
+          node_js_version: "14.19.1"
+          mongosh_server_test_version: "unstable"
   - name: e2e_tests_win32
     tags: ["e2e-test"]
     depends_on:
@@ -7933,6 +8064,25 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "14.19.1"
+          mongosh_server_test_version: "stable"
+  - name: e2e_tests_win32_unstable
+    tags: ["e2e-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: win32_build
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "14.19.1"
+          npm_deps_mode: cli_build
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: win32
+      - func: run_e2e_tests
+        vars:
+          node_js_version: "14.19.1"
+          mongosh_server_test_version: "unstable"
 
   ###
   # PACKAGING
@@ -8311,6 +8461,20 @@ tasks:
         vars:
           node_js_version: "14.19.1"
           dockerfile: debian10-deb
+  - name: pkg_test_docker_debian11_deb
+    tags: ["smoke-test"]
+    depends_on:
+      - name: package_and_upload_artifact_debian_x64
+        variant: linux_package
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          source_distribution_build_variant: debian-x64
+      - func: write_preload_script
+      - func: test_artifact_docker
+        vars:
+          dockerfile: debian11-deb
   - name: pkg_test_docker_centos7_rpm
     tags: ["smoke-test"]
     depends_on:
@@ -8945,6 +9109,11 @@ buildvariants:
     run_on: debian10-small
     tasks:
       - name: e2e_tests_linux_x64
+  - name: e2e_debian11_x64
+    display_name: "Debian 11 x64 (E2E Tests)"
+    run_on: debian11-small
+    tasks:
+      - name: e2e_tests_linux_x64_unstable
   - name: e2e_amazon1_x64
     display_name: "Amazon Linux 1 x64 (E2E Tests)"
     run_on: amazon1-2018-small
@@ -8957,7 +9126,7 @@ buildvariants:
       - name: e2e_tests_linux_x64
   - name: e2e_suse12_x64
     display_name: "SLES 12 x64 (E2E Tests)"
-    run_on: suse12-small
+    run_on: suse12-sp5-small
     tasks:
       - name: e2e_tests_linux_x64
   - name: e2e_suse15_x64
@@ -9144,6 +9313,7 @@ buildvariants:
       - name: pkg_test_docker_amazonlinux2_rpm
       - name: pkg_test_docker_debian9_deb
       - name: pkg_test_docker_debian10_deb
+      - name: pkg_test_docker_debian11_deb
       - name: pkg_test_docker_ubuntu18_04_deb
       - name: pkg_test_docker_ubuntu20_04_deb
   - name: pkg_smoke_tests_win32

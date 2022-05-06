@@ -22,6 +22,13 @@ import {
   OperationOptions
 } from 'mongodb';
 
+import { MongoClient as FLEMongoClient } from 'mongodb-fle';
+
+const BaseMongoClient =
+    process.env.MONGOSH_FLE2_SUPPORT === 'true'
+      ? (FLEMongoClient as unknown as typeof MongoClient)
+      : MongoClient;
+
 import {
   ServiceProvider,
   getConnectInfo,
@@ -170,9 +177,9 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
         connectionString.toString(),
         clientOptions,
         bus,
-        MongoClient
+        BaseMongoClient
       ) :
-      new MongoClient(connectionString.toString(), clientOptions);
+      new BaseMongoClient(connectionString.toString(), clientOptions);
 
     return new this(mongoClient, bus, clientOptions, connectionString);
   }
@@ -223,7 +230,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
       connectionString.toString(),
       clientOptions,
       this.bus,
-      MongoClient
+      BaseMongoClient
     );
     return new CliServiceProvider(mongoClient, this.bus, clientOptions, connectionString);
   }
@@ -1009,7 +1016,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   ): Promise<boolean> {
     return this.db(database, dbOptions)
       .collection(collection)
-      .drop({ ...this.baseCmdOptions, ...options } as DropCollectionOptions);
+      .drop({ ...this.baseCmdOptions, ...options });
   }
 
   /**
@@ -1089,7 +1096,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
       (this.uri as ConnectionString).toString(),
       clientOptions,
       this.bus,
-      MongoClient
+      BaseMongoClient
     );
     try {
       await this.mongoClient.close();

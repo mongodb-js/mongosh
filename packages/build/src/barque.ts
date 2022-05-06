@@ -22,7 +22,7 @@ tmp.setGracefulCleanup();
  * All the possible per-Linux-distro repositories that we publish to.
  */
 type PPARepository =
-  'ubuntu1804' | 'ubuntu2004' | 'debian92' | 'debian10' |
+  'ubuntu1804' | 'ubuntu2004' | 'debian92' | 'debian10' | 'debian11' |
   'rhel70' | 'rhel80' | 'amazon1' | 'amazon2' | 'suse12' | 'suse15';
 
 /**
@@ -42,7 +42,7 @@ export function getReposAndArch(buildVariant: BuildVariant): { ppas: PPAReposito
       return { ppas: [], arch: '' };
     case 'debian':
       return {
-        ppas: ['ubuntu1804', 'ubuntu2004', 'debian92', 'debian10'],
+        ppas: ['ubuntu1804', 'ubuntu2004', 'debian92', 'debian10', 'debian11'],
         arch: getDebArchName(getArch(buildVariant))
       };
     case 'rhel7':
@@ -195,6 +195,7 @@ export class Barque {
       case 'ubuntu2004': return `${base}/apt/ubuntu/dists/focal/mongodb-${edition}/${packageFolderVersion}/multiverse/binary-${targetArchitecture}/${packageFileName}`;
       case 'debian92':   return `${base}/apt/debian/dists/buster/mongodb-${edition}/${packageFolderVersion}/main/binary-${targetArchitecture}/${packageFileName}`;
       case 'debian10':   return `${base}/apt/debian/dists/stretch/mongodb-${edition}/${packageFolderVersion}/main/binary-${targetArchitecture}/${packageFileName}`;
+      case 'debian11':   return `${base}/apt/debian/dists/bullseye/mongodb-${edition}/${packageFolderVersion}/main/binary-${targetArchitecture}/${packageFileName}`;
       case 'rhel70':     return `${base}/yum/redhat/7/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
       case 'rhel80':     return `${base}/yum/redhat/8/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
       case 'amazon1':    return `${base}/yum/amazon/2013.03/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;

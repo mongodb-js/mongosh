@@ -584,8 +584,12 @@ export default class Mongo extends ShellApiClass {
   @platforms([ReplPlatform.CLI])
   @serverVersions(['4.2.0', ServerVersions.latest])
   @returnType('KeyVault')
-  getKeyVault(): KeyVault {
-    this._keyVault = new KeyVault(this.getClientEncryption());
+  @returnsPromise
+  async getKeyVault(): Promise<KeyVault> {
+    if (!this._keyVault) {
+      this._keyVault = new KeyVault(this.getClientEncryption());
+      await this._keyVault._init();
+    }
     return this._keyVault;
   }
 }

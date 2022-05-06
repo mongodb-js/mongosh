@@ -600,12 +600,14 @@ export function processFindAndModifyOptions<BaseOptions extends FindOneAndReplac
     options.returnDocument = options.returnNewDocument ? 'after' : 'before';
     delete options.returnOriginal;
     delete options.returnNewDocument;
+    delete options.new;
     return options;
   }
   if ('new' in options) {
     options.returnDocument = options.new ? 'after' : 'before';
     delete options.returnOriginal;
     delete options.returnNewDocument;
+    delete options.new;
     return options;
   }
   // No explicit option passed: We set 'returnDocument' to 'before' because the
@@ -659,7 +661,16 @@ export function assertCLI(platform: ReplPlatform, features: string): void {
 export function processFLEOptions(fleOptions: ClientSideFieldLevelEncryptionOptions): AutoEncryptionOptions {
   assertKeysDefined(fleOptions, ['keyVaultNamespace', 'kmsProviders']);
   Object.keys(fleOptions).forEach(k => {
-    if (['keyVaultClient', 'keyVaultNamespace', 'kmsProviders', 'schemaMap', 'bypassAutoEncryption', 'tlsOptions'].indexOf(k) === -1) {
+    if ([
+      'keyVaultClient',
+      'keyVaultNamespace',
+      'kmsProviders',
+      'schemaMap',
+      'bypassAutoEncryption',
+      'tlsOptions',
+      'bypassQueryAnalysis',
+      'encryptedFieldsMap'
+    ].indexOf(k) === -1) {
       throw new MongoshInvalidInputError(`Unrecognized FLE Client Option ${k}`);
     }
   });
@@ -690,6 +701,14 @@ export function processFLEOptions(fleOptions: ClientSideFieldLevelEncryptionOpti
   }
   if (fleOptions.bypassAutoEncryption !== undefined) {
     autoEncryption.bypassAutoEncryption = fleOptions.bypassAutoEncryption;
+  }
+  if (fleOptions.encryptedFieldsMap) {
+    // @ts-expect-error waiting for driver release
+    autoEncryption.encryptedFieldsMap = fleOptions.encryptedFieldsMap;
+  }
+  if (fleOptions.bypassQueryAnalysis !== undefined) {
+    // @ts-expect-error waiting for driver release
+    autoEncryption.bypassQueryAnalysis = fleOptions.bypassQueryAnalysis;
   }
   if (fleOptions.tlsOptions !== undefined) {
     autoEncryption.tlsOptions = fleOptions.tlsOptions;
