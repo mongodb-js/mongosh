@@ -1346,6 +1346,7 @@ export default class Collection extends ShellApiWithMongoClass {
     const encryptedFieldsMap = this._mongo._fleOptions?.encryptedFieldsMap;
     const encryptedFields: Document | undefined = encryptedFieldsMap?.[`${this._database._name}.${ this._name}`];
 
+    // @ts-expect-error waiting for driver release
     if (!encryptedFields && !options.encryptedFields) {
       const collectionInfos = await this._mongo._serviceProvider.listCollections(
         this._database._name,
