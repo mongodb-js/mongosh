@@ -239,7 +239,7 @@ describe('FLE tests', () => {
   context('6.0+', () => {
     skipIfServerVersion(testServer, '< 6.0'); // FLE2 only available on 6.0+
 
-    it('drops fle2 collection with all helper collections when encryptedFields in collections listd', async() => {
+    it('drops fle2 collection with all helper collections when encryptedFields options are in listCollections', async() => {
       const shell = TestShell.start({
         args: ['--nodb'],
         env: {
