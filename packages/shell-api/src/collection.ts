@@ -1331,17 +1331,6 @@ export default class Collection extends ShellApiWithMongoClass {
   }
 
   /**
-   * Check if a collection is listed in the Mongo() encryptedFieldsMap.
-   *
-   * @return {Promise} returns Promise
-   */
-  _isCollectionInEncryptedFieldsMap() {
-    // @ts-expect-error waiting for driver release
-    const encryptedFieldsMap = this._mongo._fleOptions?.encryptedFieldsMap;
-    return encryptedFieldsMap && encryptedFieldsMap[this._name];
-  }
-
-  /**
    * Drop a collection.
    *
    * @return {Promise} returns Promise
@@ -1353,7 +1342,11 @@ export default class Collection extends ShellApiWithMongoClass {
 
     let encryptedFieldsOptions = {};
 
-    if (!this._isCollectionInEncryptedFieldsMap() && !options.encryptedFields) {
+    // @ts-expect-error waiting for driver release
+    const encryptedFieldsMap = this._mongo._fleOptions?.encryptedFieldsMap;
+    const encryptedFields: Document | undefined = encryptedFieldsMap?.[`${this._database._name}.${ this._name}`];
+
+    if (!encryptedFields && !options.encryptedFields) {
       const collectionInfos = await this._mongo._serviceProvider.listCollections(
         this._database._name,
         {
@@ -1362,8 +1355,9 @@ export default class Collection extends ShellApiWithMongoClass {
         await this._database._baseOptions()
       );
 
-      if (collectionInfos) {
-        const encryptedFields: Document | undefined = collectionInfos[0].options.encryptedFields;
+      const encryptedFields: Document | undefined = collectionInfos?.[0]?.options?.encryptedFields;
+
+      if (encryptedFields) {
         encryptedFieldsOptions = { encryptedFields };
       }
     }

@@ -8,6 +8,7 @@ import { once } from 'events';
 import { serialize } from 'v8';
 import { inspect } from 'util';
 import path from 'path';
+import stripAnsi from 'strip-ansi';
 
 describe('FLE tests', () => {
   const testServer = startTestServer('shared');
@@ -204,9 +205,8 @@ describe('FLE tests', () => {
     await shell.executeLine(`autoMongo = Mongo(${uri}, { \
       keyVaultNamespace: '${dbname}.keyVault', \
       kmsProviders: { local }, \
-      schemaMap: schemaMap \
+      schemaMap \
     });`);
-
 
     await shell.executeLine(`bypassMongo = Mongo(${uri}, { \
       keyVaultNamespace: '${dbname}.keyVault', \
@@ -235,6 +235,53 @@ describe('FLE tests', () => {
     expect(plainMongoResult).to.include("phoneNumber: '+98173247931847'");
     expect(plainMongoResult).to.include('phoneNumber: Binary(Buffer.from');
     expect(plainMongoResult).to.not.include("phoneNumber: '+12874627836445'");
+  });
+
+  it('works when a encryptedFieldsMap option has been passed', async() => {
+    const shell = TestShell.start({
+      args: ['--nodb']
+    });
+    const uri = JSON.stringify(await testServer.connectionString());
+
+    await shell.waitForPrompt();
+
+    await shell.executeLine('local = { key: BinData(0, "kh4Gv2N8qopZQMQYMEtww/AkPsIrXNmEMxTrs3tUoTQZbZu4msdRUaR8U5fXD7A7QXYHcEvuu4WctJLoT+NvvV3eeIg3MD+K8H9SR794m/safgRHdIfy6PD+rFpvmFbY") }');
+
+    await shell.executeLine(`keyMongo = Mongo(${uri}, { \
+      keyVaultNamespace: '${dbname}.keyVault', \
+      kmsProviders: { local } \
+    });`);
+
+    await shell.executeLine('keyVault = keyMongo.getKeyVault();');
+    await shell.executeLine('keyId = keyVault.createKey("local");');
+
+    await shell.executeLine(`encryptedFieldsMap = { \
+      '${dbname}.collfle2': { \
+        fields: [{ path: 'phoneNumber', keyId, bsonType: 'string' }] \
+      } \
+    };`);
+
+    await shell.executeLine(`autoMongo = Mongo(${uri}, { \
+      keyVaultNamespace: '${dbname}.keyVault', \
+      kmsProviders: { local }, \
+      encryptedFieldsMap \
+    });`);
+
+    await shell.executeLine(`plainMongo = Mongo(${uri});`);
+
+    await shell.executeLine(`autoMongo.getDB('${dbname}').collfle2.insertOne({ \
+      phoneNumber: '+12874627836445' \
+    });`);
+
+    const autoMongoResult = await shell.executeLine(`autoMongo.getDB('${dbname}').collfle2.find()`);
+    expect(autoMongoResult).to.include("phoneNumber: '+12874627836445'");
+
+    const plainMongoResult = await shell.executeLine(`plainMongo.getDB('${dbname}').collfle2.find()`);
+    expect(plainMongoResult).to.include('phoneNumber: Binary(Buffer.from');
+    expect(plainMongoResult).to.not.include("phoneNumber: '+12874627836445'");
+
+    const encryptedFieldsMap = await shell.executeLine('autoMongo._fleOptions.encryptedFieldsMap');
+    expect(stripAnsi(encryptedFieldsMap).replace(/\s+/g, ' ')).to.include(`{ '${dbname}.collfle2': { fields: [ { path: 'phoneNumber'`);
   });
 
   it('performs KeyVault data key management as expected', async() => {

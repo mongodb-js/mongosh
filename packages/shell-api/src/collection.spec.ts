@@ -1243,6 +1243,7 @@ describe('Collection', () => {
       });
 
       it('passes through options', async() => {
+        serviceProvider.listCollections.resolves([{}]);
         serviceProvider.dropCollection.resolves();
         await collection.drop({ promoteValues: false });
         expect(serviceProvider.dropCollection).to.have.been.calledWith(
@@ -1870,6 +1871,72 @@ describe('Collection', () => {
           return;
         }
         expect.fail('Failed to throw');
+      });
+    });
+  });
+  describe('fle2', () => {
+    let mongo1: Mongo;
+    let mongo2: Mongo;
+    let serviceProvider: StubbedInstance<ServiceProvider>;
+    let database: Database;
+    let bus: StubbedInstance<EventEmitter>;
+    let instanceState: ShellInstanceState;
+    let collection: Collection;
+    let keyId: any[]
+;
+    beforeEach(() => {
+      bus = stubInterface<EventEmitter>();
+      serviceProvider = stubInterface<ServiceProvider>();
+      serviceProvider.runCommand.resolves({ ok: 1 });
+      serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
+      serviceProvider.initialDb = 'test';
+      serviceProvider.bsonLibrary = bson;
+      instanceState = new ShellInstanceState(serviceProvider, bus);
+      keyId = [ { $binary: { base64: 'oh3caogGQ4Sf34ugKnZ7Xw==', subType: '04' } } ];
+      mongo1 = new Mongo(
+        instanceState,
+        undefined,
+        {
+          keyVaultNamespace: 'db1.keyvault',
+          kmsProviders: { local: { key: 'A'.repeat(128) } },
+          encryptedFieldsMap: {
+            'db1.collfle2': {
+              fields: [{ path: 'phoneNumber', keyId, bsonType: 'string' }],
+            }
+          }
+        },
+        undefined,
+        serviceProvider
+      );
+      database = new Database(mongo1, 'db1');
+      collection = new Collection(mongo1, database, 'collfle2');
+      mongo2 = new Mongo(
+        instanceState,
+        undefined,
+        undefined,
+        undefined,
+        serviceProvider
+      );
+    });
+
+    describe('drop', () => {
+      it('does not pass encryptedFields through options when collection is in encryptedFieldsMap', async() => {
+        serviceProvider.dropCollection.resolves();
+        await collection.drop();
+        expect(serviceProvider.dropCollection).to.have.been.calledWith(
+          'db1', 'collfle2', {}
+        );
+      });
+
+      it('passes encryptedFields through options when collection is not in encryptedFieldsMap', async() => {
+        serviceProvider.listCollections.resolves([{
+          options: { encryptedFields: { fields: [ { path: 'phoneNumber', keyId, bsonType: 'string' } ] } }
+        }]);
+        serviceProvider.dropCollection.resolves();
+        await mongo2.getDB('db1').getCollection('collfle2').drop();
+        expect(serviceProvider.dropCollection).to.have.been.calledWith(
+          'db1', 'collfle2', { encryptedFields: { fields: [ { path: 'phoneNumber', keyId, bsonType: 'string' } ] } }
+        );
       });
     });
   });
