@@ -8,10 +8,9 @@ import { once } from 'events';
 import { serialize } from 'v8';
 import { inspect } from 'util';
 import path from 'path';
-import stripAnsi from 'strip-ansi';
 
 describe('FLE tests', () => {
-  const testServer = startTestServer('shared');
+  const testServer = startTestServer('not-shared', '--replicaset', '--nodes', '1');
   skipIfServerVersion(testServer, '< 4.2'); // FLE only available on 4.2+
   skipIfCommunityServer(testServer); // FLE is enterprise-only
   useBinaryPath(testServer); // Get mongocryptd in the PATH for this test
@@ -237,51 +236,70 @@ describe('FLE tests', () => {
     expect(plainMongoResult).to.not.include("phoneNumber: '+12874627836445'");
   });
 
-  it('works when a encryptedFieldsMap option has been passed', async() => {
-    const shell = TestShell.start({
-      args: ['--nodb']
+  context('6.0+', () => {
+    skipIfServerVersion(testServer, '< 6.0'); // FLE2 only available on 6.0+
+
+    it('drops fle2 collection with all helper collections when encryptedFields in collections listd', async() => {
+      const shell = TestShell.start({
+        args: ['--nodb'],
+        env: {
+          ...process.env,
+          MONGOSH_FLE2_SUPPORT: 'true'
+        },
+      });
+      const uri = JSON.stringify(await testServer.connectionString());
+
+      await shell.waitForPrompt();
+
+      await shell.executeLine('local = { key: BinData(0, "kh4Gv2N8qopZQMQYMEtww/AkPsIrXNmEMxTrs3tUoTQZbZu4msdRUaR8U5fXD7A7QXYHcEvuu4WctJLoT+NvvV3eeIg3MD+K8H9SR794m/safgRHdIfy6PD+rFpvmFbY") }');
+
+      await shell.executeLine(`keyMongo = Mongo(${uri}, { \
+        keyVaultNamespace: '${dbname}.keyVault', \
+        kmsProviders: { local } \
+      });`);
+
+      await shell.executeLine('keyVault = keyMongo.getKeyVault();');
+      await shell.executeLine('keyId = keyVault.createKey("local");');
+
+      await shell.executeLine(`encryptedFieldsMap = { \
+        '${dbname}.collfle2': { \
+          fields: [{ path: 'phoneNumber', keyId, bsonType: 'string' }] \
+        } \
+      };`);
+
+      await shell.executeLine(`autoMongo = Mongo(${uri}, { \
+        keyVaultNamespace: '${dbname}.keyVault', \
+        kmsProviders: { local }, \
+        encryptedFieldsMap \
+      });`);
+
+      // Drivers will create the auxilliary FLE2 collections only when explicitly creating collections
+      // via the createCollection() command.
+      await shell.executeLine(`autoMongo.getDB('${dbname}').createCollection('collfle2');`);
+      await shell.executeLine(`autoMongo.getDB('${dbname}').collfle2.insertOne({ \
+        phoneNumber: '+12874627836445' \
+      });`);
+
+      const autoMongoResult = await shell.executeLine(`autoMongo.getDB('${dbname}').collfle2.find()`);
+      expect(autoMongoResult).to.include("phoneNumber: '+12874627836445'");
+
+      await shell.executeLine(`plainMongo = Mongo(${uri});`);
+      let collections = await shell.executeLine(`plainMongo.getDB('${dbname}').getCollectionNames()`);
+
+      expect(collections).to.include('enxcol_.collfle2.ecc');
+      expect(collections).to.include('enxcol_.collfle2.esc');
+      expect(collections).to.include('enxcol_.collfle2.ecoc');
+      expect(collections).to.include('collfle2');
+
+      await shell.executeLine(`plainMongo.getDB('${dbname}').collfle2.drop();`);
+
+      collections = await shell.executeLine(`plainMongo.getDB('${dbname}').getCollectionNames()`);
+
+      expect(collections).to.not.include('enxcol_.collfle2.ecc');
+      expect(collections).to.not.include('enxcol_.collfle2.esc');
+      expect(collections).to.not.include('enxcol_.collfle2.ecoc');
+      expect(collections).to.not.include('collfle2');
     });
-    const uri = JSON.stringify(await testServer.connectionString());
-
-    await shell.waitForPrompt();
-
-    await shell.executeLine('local = { key: BinData(0, "kh4Gv2N8qopZQMQYMEtww/AkPsIrXNmEMxTrs3tUoTQZbZu4msdRUaR8U5fXD7A7QXYHcEvuu4WctJLoT+NvvV3eeIg3MD+K8H9SR794m/safgRHdIfy6PD+rFpvmFbY") }');
-
-    await shell.executeLine(`keyMongo = Mongo(${uri}, { \
-      keyVaultNamespace: '${dbname}.keyVault', \
-      kmsProviders: { local } \
-    });`);
-
-    await shell.executeLine('keyVault = keyMongo.getKeyVault();');
-    await shell.executeLine('keyId = keyVault.createKey("local");');
-
-    await shell.executeLine(`encryptedFieldsMap = { \
-      '${dbname}.collfle2': { \
-        fields: [{ path: 'phoneNumber', keyId, bsonType: 'string' }] \
-      } \
-    };`);
-
-    await shell.executeLine(`autoMongo = Mongo(${uri}, { \
-      keyVaultNamespace: '${dbname}.keyVault', \
-      kmsProviders: { local }, \
-      encryptedFieldsMap \
-    });`);
-
-    await shell.executeLine(`plainMongo = Mongo(${uri});`);
-
-    await shell.executeLine(`autoMongo.getDB('${dbname}').collfle2.insertOne({ \
-      phoneNumber: '+12874627836445' \
-    });`);
-
-    const autoMongoResult = await shell.executeLine(`autoMongo.getDB('${dbname}').collfle2.find()`);
-    expect(autoMongoResult).to.include("phoneNumber: '+12874627836445'");
-
-    const plainMongoResult = await shell.executeLine(`plainMongo.getDB('${dbname}').collfle2.find()`);
-    expect(plainMongoResult).to.include('phoneNumber: Binary(Buffer.from');
-    expect(plainMongoResult).to.not.include("phoneNumber: '+12874627836445'");
-
-    const encryptedFieldsMap = await shell.executeLine('autoMongo._fleOptions.encryptedFieldsMap');
-    expect(stripAnsi(encryptedFieldsMap).replace(/\s+/g, ' ')).to.include(`{ '${dbname}.collfle2': { fields: [ { path: 'phoneNumber'`);
   });
 
   it('performs KeyVault data key management as expected', async() => {
