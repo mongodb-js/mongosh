@@ -2005,13 +2005,11 @@ describe('Shell API (integration)', function() {
         await loadQueryCache(collection);
         const planCache = collection.getPlanCache();
         const res = await planCache.list([{ $project: { queryHash: 1 } }]);
-        expect(res).to.deep.equal([
-          // We do not test for the exact query hashes here, as they can vary between
-          // server versions. Hashes for queries 3 and 4 are always equal currently.
-          { queryHash: `${res[0].queryHash}` },
-          { queryHash: `${res[1].queryHash}` },
-          { queryHash: `${res[2].queryHash}` },
-          { queryHash: `${res[2].queryHash}` }
+        // The 6.0 server greatly reduces the expectations we can make here,
+        // so just assert that query hashes are returned.
+        expect(res).to.have.lengthOf(4);
+        expect(res.map(doc => Object.keys(doc))).to.deep.equal([
+          ['queryHash'], ['queryHash'], ['queryHash'], ['queryHash']
         ]);
       });
     });
