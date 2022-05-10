@@ -284,6 +284,11 @@ describe('FLE tests', () => {
       expect(autoMongoResult).to.include("phoneNumber: '+12874627836445'");
 
       await shell.executeLine(`plainMongo = Mongo(${uri});`);
+
+      const plainMongoResult = await shell.executeLine(`plainMongo.getDB('${dbname}').collfle2.find()`);
+      expect(plainMongoResult).to.include('phoneNumber: Binary(Buffer.from');
+      expect(plainMongoResult).to.not.include("phoneNumber: '+12874627836445'");
+
       let collections = await shell.executeLine(`plainMongo.getDB('${dbname}').getCollectionNames()`);
 
       expect(collections).to.include('enxcol_.collfle2.ecc');
