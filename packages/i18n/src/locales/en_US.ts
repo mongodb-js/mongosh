@@ -528,6 +528,11 @@ const translations: Catalog = {
               description: 'Updates all documents that match the specified filter for a collection.',
               example: 'db.collection.updateMany(filter, update, options)'
             },
+            compactStructuredEncryptionData: {
+              link: '',
+              description: 'Compacts structured encrypted data.',
+              example: 'db.collection.compactStructuredEncryptionData()'
+            },
             convertToCapped: {
               link: '',
               description: "calls {convertToCapped:'coll', size:maxBytes}} command",

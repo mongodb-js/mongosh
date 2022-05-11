@@ -236,6 +236,31 @@ describe('FLE tests', () => {
     expect(plainMongoResult).to.not.include("phoneNumber: '+12874627836445'");
   });
 
+  it('does not allow compactStructuredEncryptionData command when mongo instance configured without auto encryption', async() => {
+    const shell = TestShell.start({
+      args: ['--nodb'],
+      env: {
+        ...process.env,
+        MONGOSH_FLE2_SUPPORT: 'true'
+      },
+    });
+    const uri = JSON.stringify(await testServer.connectionString());
+
+    await shell.waitForPrompt();
+
+    await shell.executeLine(`plainMongo = Mongo(${uri});`);
+    await shell.executeLine(`plainMongo.getDB('${dbname}').plain.insertOne({ \
+      phoneNumber: '+12874627836445' \
+    });`);
+
+    const autoMongoResult = await shell.executeLine(`plainMongo.getDB('${dbname}').plain.find()`);
+    expect(autoMongoResult).to.include("phoneNumber: '+12874627836445'");
+
+    const compactResult = await shell.executeLine(`plainMongo.getDB('${dbname}').plain.compactStructuredEncryptionData()`);
+
+    expect(compactResult).to.include('The "compactStructuredEncryptionData" command requires Mongo instance configured with auto encryption.');
+  });
+
   context('6.0+', () => {
     skipIfServerVersion(testServer, '< 6.0'); // FLE2 only available on 6.0+
 
@@ -304,6 +329,56 @@ describe('FLE tests', () => {
       expect(collections).to.not.include('enxcol_.collfle2.esc');
       expect(collections).to.not.include('enxcol_.collfle2.ecoc');
       expect(collections).to.not.include('collfle2');
+    });
+
+    it('allows compactStructuredEncryptionData command when mongo instance configured with auto encryption', async() => {
+      const shell = TestShell.start({
+        args: ['--nodb'],
+        env: {
+          ...process.env,
+          MONGOSH_FLE2_SUPPORT: 'true'
+        },
+      });
+      const uri = JSON.stringify(await testServer.connectionString());
+
+      await shell.waitForPrompt();
+
+      await shell.executeLine('local = { key: BinData(0, "kh4Gv2N8qopZQMQYMEtww/AkPsIrXNmEMxTrs3tUoTQZbZu4msdRUaR8U5fXD7A7QXYHcEvuu4WctJLoT+NvvV3eeIg3MD+K8H9SR794m/safgRHdIfy6PD+rFpvmFbY") }');
+
+      await shell.executeLine(`keyMongo = Mongo(${uri}, { \
+        keyVaultNamespace: '${dbname}.keyVault', \
+        kmsProviders: { local } \
+      });`);
+
+      await shell.executeLine('keyVault = keyMongo.getKeyVault();');
+      await shell.executeLine('keyId = keyVault.createKey("local");');
+
+      await shell.executeLine(`encryptedFieldsMap = { \
+        '${dbname}.test': { \
+          fields: [{ path: 'phoneNumber', keyId, bsonType: 'string' }] \
+        } \
+      };`);
+
+      await shell.executeLine(`autoMongo = Mongo(${uri}, { \
+        keyVaultNamespace: '${dbname}.keyVault', \
+        kmsProviders: { local }, \
+        encryptedFieldsMap \
+      });`);
+
+      await shell.executeLine(`autoMongo.getDB('${dbname}').createCollection('test', { encryptedFields: { fields: [] } });`);
+      await shell.executeLine(`autoMongo.getDB('${dbname}').test.insertOne({ \
+        phoneNumber: '+12874627836445' \
+      });`);
+
+      await shell.executeLine(`plainMongo = Mongo(${uri});`);
+
+      const plainMongoResult = await shell.executeLine(`plainMongo.getDB('${dbname}').test.find()`);
+      expect(plainMongoResult).to.include('phoneNumber: Binary(Buffer.from');
+      expect(plainMongoResult).to.not.include("phoneNumber: '+12874627836445'");
+
+      const compactResult = await shell.executeLine(`autoMongo.getDB('${dbname}').test.compactStructuredEncryptionData()`);
+
+      expect(compactResult).to.include("'$clusterTime'");
     });
   });
 

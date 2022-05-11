@@ -964,6 +964,29 @@ export default class Collection extends ShellApiWithMongoClass {
   }
 
   /**
+   * Compacts structured encryption data.
+   *
+   * @return {Promise}
+   */
+   @returnsPromise
+   @apiVersions([])
+  async compactStructuredEncryptionData(): Promise<Document> {
+    // @ts-expect-error waiting for driver release
+    const encryptedFieldsMap = this._mongo._fleOptions?.encryptedFieldsMap;
+    const encryptedFields: Document | undefined = encryptedFieldsMap?.[`${this._database._name}.${ this._name}`];
+
+    if (!encryptedFields) {
+      throw new MongoshInvalidInputError(
+        'The "compactStructuredEncryptionData" command requires Mongo instance configured with auto encryption.',
+        CommonErrors.InvalidArgument
+      );
+    }
+
+    this._emitCollectionApiCall('compact');
+    return await this._database._runCommand({ compactStructuredEncryptionData: this._name });
+  }
+
+  /**
    * Converts a collection to capped
    *
    * @param {String} size - The maximum size, in bytes, for the capped collection.
@@ -972,15 +995,16 @@ export default class Collection extends ShellApiWithMongoClass {
    */
   @returnsPromise
   @apiVersions([])
-  async convertToCapped(size: number): Promise<Document> {
-    this._emitCollectionApiCall('convertToCapped', { size });
-    return await this._database._runCommand(
-      {
-        convertToCapped: this._name,
-        size
-      }
-    );
-  }
+   async convertToCapped(size: number): Promise<Document> {
+     this._emitCollectionApiCall('convertToCapped', { size });
+     return await this._database._runCommand(
+       {
+         convertToCapped: this._name,
+         size
+       }
+     );
+   }
+
   /**
    * Internal function which calls the Service Provider createIndexes function.
    * This function is used also by createIndex and ensureIndex

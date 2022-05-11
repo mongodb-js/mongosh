@@ -316,6 +316,17 @@ describe('Collection', () => {
       });
     });
 
+    describe('compactStructuredEncryptionData', () => {
+      it('calls service provider runCommandWithCheck', async() => {
+        const result = await collection.compactStructuredEncryptionData();
+
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith({
+          compactStructuredEncryptionData: 'coll1'
+        });
+        expect(result).to.deep.equal({ ok: 1 });
+      });
+    });
+
     describe('convertToCapped', () => {
       it('calls service provider runCommandWithCheck', async() => {
         const result = await collection.convertToCapped(1000);
@@ -1965,6 +1976,7 @@ describe('Collection', () => {
       getIndexKeys: { m: 'getIndexes', i: 2 },
       dropIndex: { m: 'runCommandWithCheck', i: 2 },
       dropIndexes: { m: 'runCommandWithCheck', i: 2 },
+      compactStructuredEncryptionData: { m: 'runCommandWithCheck' },
       convertToCapped: { m: 'runCommandWithCheck', i: 2 },
       dataSize: { m: 'aggregate', e: true },
       storageSize: { m: 'aggregate', e: true },
