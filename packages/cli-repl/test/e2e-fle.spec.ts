@@ -238,11 +238,7 @@ describe('FLE tests', () => {
 
   it('does not allow compactStructuredEncryptionData command when mongo instance configured without auto encryption', async() => {
     const shell = TestShell.start({
-      args: ['--nodb'],
-      env: {
-        ...process.env,
-        MONGOSH_FLE2_SUPPORT: 'true'
-      },
+      args: ['--nodb']
     });
     const uri = JSON.stringify(await testServer.connectionString());
 
@@ -253,11 +249,7 @@ describe('FLE tests', () => {
       phoneNumber: '+12874627836445' \
     });`);
 
-    const autoMongoResult = await shell.executeLine(`plainMongo.getDB('${dbname}').plain.find()`);
-    expect(autoMongoResult).to.include("phoneNumber: '+12874627836445'");
-
     const compactResult = await shell.executeLine(`plainMongo.getDB('${dbname}').plain.compactStructuredEncryptionData()`);
-
     expect(compactResult).to.include('The "compactStructuredEncryptionData" command requires Mongo instance configured with auto encryption.');
   });
 
@@ -370,15 +362,8 @@ describe('FLE tests', () => {
         phoneNumber: '+12874627836445' \
       });`);
 
-      await shell.executeLine(`plainMongo = Mongo(${uri});`);
-
-      const plainMongoResult = await shell.executeLine(`plainMongo.getDB('${dbname}').test.find()`);
-      expect(plainMongoResult).to.include('phoneNumber: Binary(Buffer.from');
-      expect(plainMongoResult).to.not.include("phoneNumber: '+12874627836445'");
-
       const compactResult = await shell.executeLine(`autoMongo.getDB('${dbname}').test.compactStructuredEncryptionData()`);
-
-      expect(compactResult).to.include("'$clusterTime'");
+      expect(compactResult).to.include('ok: 1');
     });
   });
 

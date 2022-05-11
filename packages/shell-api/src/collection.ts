@@ -971,11 +971,7 @@ export default class Collection extends ShellApiWithMongoClass {
   @returnsPromise
   @apiVersions([])
   async compactStructuredEncryptionData(): Promise<Document> {
-    // @ts-expect-error waiting for driver release
-    const encryptedFieldsMap = this._mongo._fleOptions?.encryptedFieldsMap;
-    const encryptedFields: Document | undefined = encryptedFieldsMap?.[`${this._database._name}.${ this._name}`];
-
-    if (!encryptedFields) {
+    if (!this._mongo._fleOptions) {
       throw new MongoshInvalidInputError(
         'The "compactStructuredEncryptionData" command requires Mongo instance configured with auto encryption.',
         CommonErrors.InvalidArgument
