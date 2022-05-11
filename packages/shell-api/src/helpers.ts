@@ -703,11 +703,9 @@ export function processFLEOptions(fleOptions: ClientSideFieldLevelEncryptionOpti
     autoEncryption.bypassAutoEncryption = fleOptions.bypassAutoEncryption;
   }
   if (fleOptions.encryptedFieldsMap) {
-    // @ts-expect-error waiting for driver release
     autoEncryption.encryptedFieldsMap = fleOptions.encryptedFieldsMap;
   }
   if (fleOptions.bypassQueryAnalysis !== undefined) {
-    // @ts-expect-error waiting for driver release
     autoEncryption.bypassQueryAnalysis = fleOptions.bypassQueryAnalysis;
   }
   if (fleOptions.tlsOptions !== undefined) {

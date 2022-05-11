@@ -22,13 +22,6 @@ import {
   OperationOptions
 } from 'mongodb';
 
-import { MongoClient as FLEMongoClient } from 'mongodb-fle';
-
-const BaseMongoClient =
-    process.env.MONGOSH_FLE2_SUPPORT === 'true'
-      ? (FLEMongoClient as unknown as typeof MongoClient)
-      : MongoClient;
-
 import {
   ServiceProvider,
   getConnectInfo,
@@ -177,9 +170,9 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
         connectionString.toString(),
         clientOptions,
         bus,
-        BaseMongoClient
+        MongoClient
       ) :
-      new BaseMongoClient(connectionString.toString(), clientOptions);
+      new MongoClient(connectionString.toString(), clientOptions);
 
     return new this(mongoClient, bus, clientOptions, connectionString);
   }
@@ -230,7 +223,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
       connectionString.toString(),
       clientOptions,
       this.bus,
-      BaseMongoClient
+      MongoClient
     );
     return new CliServiceProvider(mongoClient, this.bus, clientOptions, connectionString);
   }
@@ -1096,7 +1089,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
       (this.uri as ConnectionString).toString(),
       clientOptions,
       this.bus,
-      BaseMongoClient
+      MongoClient
     );
     try {
       await this.mongoClient.close();

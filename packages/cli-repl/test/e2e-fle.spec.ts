@@ -240,13 +240,7 @@ describe('FLE tests', () => {
     skipIfServerVersion(testServer, '< 6.0'); // FLE2 only available on 6.0+
 
     it('drops fle2 collection with all helper collections when encryptedFields options are in listCollections', async() => {
-      const shell = TestShell.start({
-        args: ['--nodb'],
-        env: {
-          ...process.env,
-          MONGOSH_FLE2_SUPPORT: 'true'
-        },
-      });
+      const shell = TestShell.start({ args: ['--nodb'] });
       const uri = JSON.stringify(await testServer.connectionString());
 
       await shell.waitForPrompt();
