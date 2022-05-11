@@ -530,7 +530,7 @@ const translations: Catalog = {
             },
             compactStructuredEncryptionData: {
               link: '',
-              description: 'Compacts structured encrypted data.',
+              description: 'Compacts structured encryption data',
               example: 'db.collection.compactStructuredEncryptionData()'
             },
             convertToCapped: {
