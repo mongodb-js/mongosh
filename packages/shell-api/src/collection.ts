@@ -968,8 +968,8 @@ export default class Collection extends ShellApiWithMongoClass {
    *
    * @return {Promise}
    */
-   @returnsPromise
-   @apiVersions([])
+  @returnsPromise
+  @apiVersions([])
   async compactStructuredEncryptionData(): Promise<Document> {
     // @ts-expect-error waiting for driver release
     const encryptedFieldsMap = this._mongo._fleOptions?.encryptedFieldsMap;
@@ -995,15 +995,15 @@ export default class Collection extends ShellApiWithMongoClass {
    */
   @returnsPromise
   @apiVersions([])
-   async convertToCapped(size: number): Promise<Document> {
-     this._emitCollectionApiCall('convertToCapped', { size });
-     return await this._database._runCommand(
-       {
-         convertToCapped: this._name,
-         size
-       }
-     );
-   }
+  async convertToCapped(size: number): Promise<Document> {
+    this._emitCollectionApiCall('convertToCapped', { size });
+    return await this._database._runCommand(
+      {
+        convertToCapped: this._name,
+        size
+      }
+    );
+  }
 
   /**
    * Internal function which calls the Service Provider createIndexes function.
