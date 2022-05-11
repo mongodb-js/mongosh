@@ -176,7 +176,7 @@ describe('FLE tests', () => {
 
   it('skips encryption when a bypassQueryAnalysis option has been passed', async() => {
     const shell = TestShell.start({
-      args: ['--nodb']
+      args: ['--nodb', `--csfleLibraryPath=${csfleLibrary}`]
     });
     const uri = JSON.stringify(await testServer.connectionString());
 
@@ -248,7 +248,7 @@ describe('FLE tests', () => {
 
     it('drops fle2 collection with all helper collections when encryptedFields options are in listCollections', async() => {
       const shell = TestShell.start({
-        args: ['--nodb'],
+        args: ['--nodb', `--csfleLibraryPath=${csfleLibrary}`],
         env: {
           ...process.env,
           MONGOSH_FLE2_SUPPORT: 'true'

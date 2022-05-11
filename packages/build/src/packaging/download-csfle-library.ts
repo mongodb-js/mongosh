@@ -36,43 +36,24 @@ export async function downloadCsfleLibrary(variant: BuildVariant | 'host'): Prom
   return csfleLibrary;
 }
 
-// eslint-disable-next-line complexity
 function lookupReleaseDistro(variant: BuildVariant): string {
-  switch (getArch(variant)) {
-    case 'ppc64le':
-      return 'rhel81';
-    case 's390x':
-      return 'rhel72'; // TODO: switch to rhel80 once available
-    default:
-      break;
-  }
   switch (getDistro(variant)) {
     case 'win32':
     case 'win32msi':
       return 'win32';
     case 'darwin':
       return 'darwin';
-    case 'linux':
-    case 'debian':
-      return 'debian92';
-    case 'suse':
-      return 'suse12';
-    case 'amzn1':
-      return 'amazon';
-    case 'amzn2':
+    default: break;
+  }
+  switch (getArch(variant)) {
+    case 'ppc64le':
+      return 'rhel81';
+    case 's390x':
+      return 'rhel83';
+    case 'arm64':
       return 'amazon2';
-    case 'rhel7':
+    case 'x64':
       return 'rhel70';
-    case 'rhel8':
-      switch (getArch(variant)) {
-        case 'x64':
-          return 'rhel80';
-        case 'arm64':
-          return 'rhel82';
-        default:
-          break;
-      }
-      break;
     default:
       break;
   }
