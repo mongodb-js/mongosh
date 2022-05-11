@@ -238,18 +238,11 @@ describe('FLE tests', () => {
 
   it('does not allow compactStructuredEncryptionData command when mongo instance configured without auto encryption', async() => {
     const shell = TestShell.start({
-      args: ['--nodb']
+      args: [await testServer.connectionString()]
     });
-    const uri = JSON.stringify(await testServer.connectionString());
-
     await shell.waitForPrompt();
 
-    await shell.executeLine(`plainMongo = Mongo(${uri});`);
-    await shell.executeLine(`plainMongo.getDB('${dbname}').plain.insertOne({ \
-      phoneNumber: '+12874627836445' \
-    });`);
-
-    const compactResult = await shell.executeLine(`plainMongo.getDB('${dbname}').plain.compactStructuredEncryptionData()`);
+    const compactResult = await shell.executeLine('db.test.compactStructuredEncryptionData()');
     expect(compactResult).to.include('The "compactStructuredEncryptionData" command requires Mongo instance configured with auto encryption.');
   });
 

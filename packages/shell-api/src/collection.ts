@@ -978,7 +978,7 @@ export default class Collection extends ShellApiWithMongoClass {
       );
     }
 
-    this._emitCollectionApiCall('compact');
+    this._emitCollectionApiCall('compactStructuredEncryptionData');
     return await this._database._runCommand({ compactStructuredEncryptionData: this._name });
   }
 
