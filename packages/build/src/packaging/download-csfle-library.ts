@@ -17,7 +17,7 @@ export async function downloadCsfleLibrary(variant: BuildVariant | 'host'): Prom
   // Download mongodb for latest server version. Fall back to the 6.0.0-rcX
   // version if no stable version is available.
   let error: Error | undefined;
-  for (const version of [ 'stable', '>= 6.0.0-rc0' ]) {
+  for (const version of [ 'stable', '>= 6.0.0-rc5' ]) {
     try {
       libdir = await downloadMongoDb(csfleTmpTargetDir, version, opts);
       break;
