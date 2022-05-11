@@ -508,6 +508,21 @@ export function skipIfCommunityServer(server: MongodSetup): void {
 }
 
 /**
+ * Skip tests in the suite if the test server is an enterprise server.
+ *
+ * describe('...', () => {
+ *   e.g. skipIfEnterpriseServer(testServer)
+ * });
+ */
+ export function skipIfEnterpriseServer(server: MongodSetup): void {
+  before(async function() {
+    if (!await server.isCommunityServer()) {
+      this.skip();
+    }
+  });
+}
+
+/**
  * Skip tests if environment variables signal that every test runs with
  * --apiStrict.
  */

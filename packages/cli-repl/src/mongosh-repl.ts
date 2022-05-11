@@ -1,5 +1,5 @@
 import completer from '@mongosh/autocomplete';
-import { MongoshCommandFailed, MongoshInternalError, MongoshWarning } from '@mongosh/errors';
+import { MongoshInternalError, MongoshWarning } from '@mongosh/errors';
 import { changeHistory } from '@mongosh/history';
 import type { AutoEncryptionOptions, ServiceProvider } from '@mongosh/service-provider-core';
 import { EvaluationListener, OnLoadResult, ShellCliOptions, ShellInstanceState, getShellApiType, toShellResult } from '@mongosh/shell-api';
@@ -20,7 +20,6 @@ import { MONGOSH_WIKI, TELEMETRY_GREETING_MESSAGE } from './constants';
 import formatOutput, { formatError } from './format-output';
 import { makeMultilineJSIntoSingleLine } from '@mongosh/js-multiline-to-singleline';
 import { LineByLineInput } from './line-by-line-input';
-import { LogEntry, parseAnyLogEntry } from './log-entry';
 
 /**
  * All CLI flags that are useful for {@link MongoshNodeRepl}.
@@ -186,7 +185,6 @@ class MongoshNodeRepl implements EvaluationListener {
       mongodVersion = (mongodVersion ? mongodVersion + ' ' : '') + `(API Version ${apiVersion})`;
     }
     await this.greet(mongodVersion);
-    await this.printStartupLog(instanceState);
     await this.printBasicConnectivityWarning(instanceState);
 
     this.inspectCompact = await this.getConfig('inspectCompact');
@@ -380,6 +378,25 @@ class MongoshNodeRepl implements EvaluationListener {
     });
 
     instanceState.setCtx(repl.context);
+
+    if (!this.shellCliOptions.nodb && !this.shellCliOptions.quiet) {
+      // cf. legacy shell:
+      // https://github.com/mongodb/mongo/blob/a6df396047a77b90bf1ce9463eecffbee16fb864/src/mongo/shell/mongo_main.cpp#L1003-L1026
+      await this.loadExternalCode(`
+      (async() => {
+        const banners = await Promise.all([
+          (async() => await show("startupWarnings"))(),
+          (async() => await show("freeMonitoring"))(),
+          (async() => await show("automationNotices"))()
+        ]);
+        for (const banner of banners) {
+          if (banner.value) print(banner);
+        }
+      })()
+      `, '<startup>');
+      // Omitted, see MONGOSH-57: 'show nonGenuineMongoDBCheck'
+    }
+
     return { __initialized: 'yes' };
   }
 
@@ -418,46 +435,6 @@ class MongoshNodeRepl implements EvaluationListener {
       text += `${TELEMETRY_GREETING_MESSAGE}\n`;
       await this.setConfig('disableGreetingMessage', true);
     }
-    this.output.write(text);
-  }
-
-  /**
-   * Print warnings from the server startup log, if any.
-   */
-  async printStartupLog(instanceState: ShellInstanceState): Promise<void> {
-    if (this.shellCliOptions.nodb || this.shellCliOptions.quiet) {
-      return;
-    }
-
-    type GetLogResult = { ok: number, totalLinesWritten: number, log: string[] | undefined };
-    let result;
-    try {
-      result = await instanceState.currentDb.adminCommand({ getLog: 'startupWarnings' }) as GetLogResult;
-      if (!result) {
-        throw new MongoshCommandFailed('adminCommand getLog unexpectedly returned no result');
-      }
-    } catch (error: any) {
-      this.bus.emit('mongosh:error', error, 'repl');
-      return;
-    }
-
-    if (!result.log || !result.log.length) {
-      return;
-    }
-
-    let text = '';
-    text += `${this.clr('------', 'mongosh:section-header')}\n`;
-    text += `   ${this.clr('The server generated these startup warnings when booting:', 'mongosh:warning')}\n`;
-    result.log.forEach(logLine => {
-      try {
-        const entry: LogEntry = parseAnyLogEntry(logLine);
-        text += `   ${entry.timestamp}: ${entry.message}\n`;
-      } catch (e: any) {
-        text += `   Unexpected log line format: ${logLine}\n`;
-      }
-    });
-    text += `${this.clr('------', 'mongosh:section-header')}\n`;
-    text += '\n';
     this.output.write(text);
   }
 

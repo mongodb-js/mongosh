@@ -10,7 +10,7 @@ import { StubbedInstance, stubInterface } from 'ts-sinon';
 import { promisify } from 'util';
 import { expect, fakeTTYProps, tick, useTmpdir, waitEval } from '../test/repl-helpers';
 import MongoshNodeRepl, { MongoshIOProvider, MongoshNodeReplOptions } from './mongosh-repl';
-import { parseAnyLogEntry } from './log-entry';
+import { parseAnyLogEntry } from '../../shell-api/src/log-entry';
 import stripAnsi from 'strip-ansi';
 
 const delay = promisify(setTimeout);

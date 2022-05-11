@@ -112,7 +112,10 @@ async function showCompleter(params: ShellCommandAutocompleteParameters, args: s
     // Special-case: The user might want `show dbs` or `show databases`, but they won't care about which they get.
     return ['databases'];
   }
-  const candidates = ['databases', 'dbs', 'collections', 'tables', 'profile', 'users', 'roles', 'log', 'logs'];
+  const candidates = [
+    'databases', 'dbs', 'collections', 'tables', 'profile', 'users', 'roles', 'log', 'logs',
+    'startupWarnings', 'freeMonitoring', 'automationNotices'
+  ];
   return candidates.filter(str => str.startsWith(args[1] ?? ''));
 }
 
