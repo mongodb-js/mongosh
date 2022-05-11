@@ -12,9 +12,9 @@ const assert = function(value, message) {
     process.exit(1);
   }
 };
-// There is no CSFLE shared library binary for darwin-x64 or rhel80-s390x yet.
-if ((os.platform() === 'darwin' && os.arch() === 'arm64') ||
-    (os.platform() === 'linux' && os.arch() === 's390x' && fs.readFileSync('/etc/os-release', 'utf8').includes('VERSION_ID="8'))) {
+if (process.platform === 'linux' && process.arch === 's390x') {
+  // There is no CSFLE shared library binary for the rhel72 s390x that we test on.
+  // We will address this in MONGOSH-862.
   print('Test skipped')
   process.exit(0);
 }

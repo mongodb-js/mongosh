@@ -22,7 +22,13 @@ describe('FLE tests', () => {
   let dbname: string;
   let csfleLibrary: string;
 
-  before(async() => {
+  before(async function() {
+    if (process.platform === 'linux' && process.arch === 's390x') {
+      return this.skip();
+      // There is no CSFLE shared library binary for the rhel72 s390x that we test on.
+      // We will address this in MONGOSH-862.
+    }
+
     kmsServer = makeFakeHTTPServer(fakeAWSHandlers);
     kmsServer.listen(0);
     await once(kmsServer, 'listening');

@@ -391,6 +391,9 @@ export async function ensureMongodAvailable(mongodVersion = process.env.MONGOSH_
 }
 
 export async function downloadCurrentCsfleSharedLibrary(): Promise<string> {
+  if (process.platform === 'linux') {
+    return await downloadCsfleLibrary(`linux-${process.arch.replace('ppc64', 'ppc64le')}` as any);
+  }
   return downloadCsfleLibrary('host');
 }
 
