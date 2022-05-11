@@ -233,12 +233,10 @@ class CliRepl implements MongoshIOProvider {
 
     if (driverOptions.autoEncryption) {
       const origExtraOptions = driverOptions.autoEncryption.extraOptions ?? {};
-      // @ts-expect-error waiting for driver release
       if (origExtraOptions.csflePath) {
         // If a CSFLE path has been specified through 'driverOptions', save it
         // for later use.
         this.cachedCSFLELibraryPath = Promise.resolve({
-          // @ts-expect-error waiting for driver release
           csflePath: origExtraOptions.csflePath
         });
       }
@@ -656,7 +654,6 @@ class CliRepl implements MongoshIOProvider {
     if (!this.getCSFLELibraryPaths) {
       throw new MongoshInternalError('This instance of mongosh is not configured for CSFLE');
     }
-    // @ts-expect-error waiting for driver release
     return (this.cachedCSFLELibraryPath ??= this.getCSFLELibraryPaths(this.bus));
   }
 
