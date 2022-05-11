@@ -2,7 +2,12 @@ import { expect } from 'chai';
 import { MongoClient } from 'mongodb';
 import { TestShell } from './test-shell';
 import { eventually } from '../../../testing/eventually';
-import { startTestServer, useBinaryPath, skipIfServerVersion, skipIfCommunityServer } from '../../../testing/integration-testing-hooks';
+import {
+  startTestServer,
+  skipIfServerVersion,
+  skipIfCommunityServer,
+  downloadCurrentCsfleSharedLibrary
+} from '../../../testing/integration-testing-hooks';
 import { makeFakeHTTPServer, fakeAWSHandlers } from '../../../testing/fake-kms';
 import { once } from 'events';
 import { serialize } from 'v8';
@@ -13,17 +18,25 @@ describe('FLE tests', () => {
   const testServer = startTestServer('not-shared', '--replicaset', '--nodes', '1');
   skipIfServerVersion(testServer, '< 4.2'); // FLE only available on 4.2+
   skipIfCommunityServer(testServer); // FLE is enterprise-only
-  useBinaryPath(testServer); // Get mongocryptd in the PATH for this test
   let kmsServer: ReturnType<typeof makeFakeHTTPServer>;
   let dbname: string;
+  let csfleLibrary: string;
 
-  before(async() => {
+  before(async function() {
+    if (process.platform === 'linux' && process.arch === 's390x') {
+      return this.skip();
+      // There is no CSFLE shared library binary for the rhel72 s390x that we test on.
+      // We will address this in MONGOSH-862.
+    }
+
     kmsServer = makeFakeHTTPServer(fakeAWSHandlers);
     kmsServer.listen(0);
     await once(kmsServer, 'listening');
+    csfleLibrary = await downloadCurrentCsfleSharedLibrary();
   });
   after(() => {
-    kmsServer.close();
+    // eslint-disable-next-line chai-friendly/no-unused-expressions
+    kmsServer?.close();
   });
   beforeEach(() => {
     kmsServer.requests = [];
@@ -50,6 +63,7 @@ describe('FLE tests', () => {
         async function makeTestShell(): Promise<TestShell> {
           return TestShell.start({
             args: [
+              `--csfleLibraryPath=${csfleLibrary}`,
               `--awsAccessKeyId=${accessKeyId}`,
               `--awsSecretAccessKey=${secretAccessKey}`,
               `--keyVaultNamespace=${dbname}.keyVault`,
@@ -140,7 +154,7 @@ describe('FLE tests', () => {
 
   it('works when a schemaMap option has been passed', async() => {
     const shell = TestShell.start({
-      args: ['--nodb']
+      args: ['--nodb', `--csfleLibraryPath=${csfleLibrary}`]
     });
     await shell.waitForPrompt();
     await shell.executeLine('local = { key: BinData(0, "kh4Gv2N8qopZQMQYMEtww/AkPsIrXNmEMxTrs3tUoTQZbZu4msdRUaR8U5fXD7A7QXYHcEvuu4WctJLoT+NvvV3eeIg3MD+K8H9SR794m/safgRHdIfy6PD+rFpvmFbY") }');
@@ -169,7 +183,7 @@ describe('FLE tests', () => {
 
   it('skips encryption when a bypassQueryAnalysis option has been passed', async() => {
     const shell = TestShell.start({
-      args: ['--nodb']
+      args: ['--nodb', `--csfleLibraryPath=${csfleLibrary}`]
     });
     const uri = JSON.stringify(await testServer.connectionString());
 
@@ -240,7 +254,7 @@ describe('FLE tests', () => {
     skipIfServerVersion(testServer, '< 6.0'); // FLE2 only available on 6.0+
 
     it('drops fle2 collection with all helper collections when encryptedFields options are in listCollections', async() => {
-      const shell = TestShell.start({ args: ['--nodb'] });
+      const shell = TestShell.start({ args: ['--nodb', `--csfleLibraryPath=${csfleLibrary}`] });
       const uri = JSON.stringify(await testServer.connectionString());
 
       await shell.waitForPrompt();
@@ -303,7 +317,7 @@ describe('FLE tests', () => {
 
   it('performs KeyVault data key management as expected', async() => {
     const shell = TestShell.start({
-      args: [await testServer.connectionString()]
+      args: [await testServer.connectionString(), `--csfleLibraryPath=${csfleLibrary}`]
     });
     await shell.waitForPrompt();
     // Wrapper for executeLine that expects single-line output

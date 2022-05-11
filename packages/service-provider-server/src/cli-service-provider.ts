@@ -213,6 +213,35 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     this.dbcache = new WeakMap();
     try {
       this.fle = require('mongodb-client-encryption');
+
+      // Monkey-patch to work around missing NODE-4242
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      const origExtension = this.fle.extension;
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      this.fle.extension = (mongodb) => {
+        const exports = origExtension(mongodb);
+        const OrigAutoEncrypter = exports.AutoEncrypter;
+        exports.AutoEncrypter = class AutoEncrypter extends OrigAutoEncrypter {
+          _bypassQueryAnalysis?: boolean;
+
+          constructor(client: any, options: any) {
+            super(client, options);
+            if (options?.bypassQueryAnalysis) {
+              this._bypassQueryAnalysis = true;
+            }
+          }
+
+          init(callback: any) {
+            if (this._bypassQueryAnalysis) {
+              return callback();
+            }
+            super.init(callback);
+          }
+        };
+        return exports;
+      };
     } catch { /* not empty */ }
   }
 

@@ -5033,6 +5033,8 @@ functions:
           set -e
           set -x
           {
+          export NODE_JS_VERSION=${node_js_version}
+          . .evergreen/setup-env.sh
           . preload.sh
           ./scripts/docker/build.sh ${dockerfile}
           ./scripts/docker/run.sh ${dockerfile} --smokeTests
@@ -8394,8 +8396,13 @@ tasks:
         vars:
           source_distribution_build_variant: debian-x64
       - func: write_preload_script
+      - func: install
+        vars:
+          node_js_version: "14.19.1"
+          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
+          node_js_version: "14.19.1"
           dockerfile: ubuntu18.04-deb
   - name: pkg_test_docker_ubuntu20_04_deb
     tags: ["smoke-test"]
@@ -8408,8 +8415,13 @@ tasks:
         vars:
           source_distribution_build_variant: debian-x64
       - func: write_preload_script
+      - func: install
+        vars:
+          node_js_version: "14.19.1"
+          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
+          node_js_version: "14.19.1"
           dockerfile: ubuntu20.04-deb
   - name: pkg_test_docker_debian9_deb
     tags: ["smoke-test"]
@@ -8422,8 +8434,13 @@ tasks:
         vars:
           source_distribution_build_variant: debian-x64
       - func: write_preload_script
+      - func: install
+        vars:
+          node_js_version: "14.19.1"
+          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
+          node_js_version: "14.19.1"
           dockerfile: debian9-deb
   - name: pkg_test_docker_debian10_deb
     tags: ["smoke-test"]
@@ -8436,8 +8453,13 @@ tasks:
         vars:
           source_distribution_build_variant: debian-x64
       - func: write_preload_script
+      - func: install
+        vars:
+          node_js_version: "14.19.1"
+          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
+          node_js_version: "14.19.1"
           dockerfile: debian10-deb
   - name: pkg_test_docker_debian11_deb
     tags: ["smoke-test"]
@@ -8450,8 +8472,13 @@ tasks:
         vars:
           source_distribution_build_variant: debian-x64
       - func: write_preload_script
+      - func: install
+        vars:
+          node_js_version: "14.19.1"
+          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
+          node_js_version: "14.19.1"
           dockerfile: debian11-deb
   - name: pkg_test_docker_centos7_rpm
     tags: ["smoke-test"]
@@ -8464,8 +8491,13 @@ tasks:
         vars:
           source_distribution_build_variant: rhel7-x64
       - func: write_preload_script
+      - func: install
+        vars:
+          node_js_version: "14.19.1"
+          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
+          node_js_version: "14.19.1"
           dockerfile: centos7-rpm
   - name: pkg_test_docker_amazonlinux2_rpm
     tags: ["smoke-test"]
@@ -8478,8 +8510,13 @@ tasks:
         vars:
           source_distribution_build_variant: rhel7-x64
       - func: write_preload_script
+      - func: install
+        vars:
+          node_js_version: "14.19.1"
+          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
+          node_js_version: "14.19.1"
           dockerfile: amazonlinux2-rpm
   - name: pkg_test_docker_rocky8_rpm
     tags: ["smoke-test"]
@@ -8492,8 +8529,13 @@ tasks:
         vars:
           source_distribution_build_variant: rhel8-x64
       - func: write_preload_script
+      - func: install
+        vars:
+          node_js_version: "14.19.1"
+          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
+          node_js_version: "14.19.1"
           dockerfile: rocky8-rpm
   - name: pkg_test_docker_fedora34_rpm
     tags: ["smoke-test"]
@@ -8506,8 +8548,13 @@ tasks:
         vars:
           source_distribution_build_variant: rhel8-x64
       - func: write_preload_script
+      - func: install
+        vars:
+          node_js_version: "14.19.1"
+          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
+          node_js_version: "14.19.1"
           dockerfile: fedora34-rpm
   - name: pkg_test_docker_suse12_rpm
     tags: ["smoke-test"]
@@ -8520,8 +8567,13 @@ tasks:
         vars:
           source_distribution_build_variant: suse-x64
       - func: write_preload_script
+      - func: install
+        vars:
+          node_js_version: "14.19.1"
+          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
+          node_js_version: "14.19.1"
           dockerfile: suse12-rpm
   - name: pkg_test_docker_suse15_rpm
     tags: ["smoke-test"]
@@ -8534,8 +8586,13 @@ tasks:
         vars:
           source_distribution_build_variant: suse-x64
       - func: write_preload_script
+      - func: install
+        vars:
+          node_js_version: "14.19.1"
+          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
+          node_js_version: "14.19.1"
           dockerfile: suse15-rpm
   - name: pkg_test_docker_amazonlinux1_rpm
     tags: ["smoke-test"]
@@ -8548,8 +8605,13 @@ tasks:
         vars:
           source_distribution_build_variant: amzn1-x64
       - func: write_preload_script
+      - func: install
+        vars:
+          node_js_version: "14.19.1"
+          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
+          node_js_version: "14.19.1"
           dockerfile: amazonlinux1-rpm
   - name: pkg_test_debextract_debian_arm64
     tags: ["smoke-test"]

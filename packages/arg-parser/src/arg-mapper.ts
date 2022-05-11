@@ -32,6 +32,16 @@ function setAutoEncrypt<Key extends keyof AutoEncryptionOptions>(
   return setDriver(i, 'autoEncryption', autoEncryption);
 }
 
+type AutoEncryptionExtraOptions = NonNullable<AutoEncryptionOptions['extraOptions']>;
+function setAutoEncryptExtra<Key extends keyof AutoEncryptionExtraOptions>(
+  i: Readonly<ConnectionInfo>,
+  key: Key,
+  value: AutoEncryptionExtraOptions[Key]): ConnectionInfo {
+  const extraOptions = i.driverOptions.autoEncryption?.extraOptions ?? {};
+  extraOptions[key] = value;
+  return setAutoEncrypt(i, 'extraOptions', extraOptions);
+}
+
 type AWSKMSOptions = NonNullable<NonNullable<AutoEncryptionOptions['kmsProviders']>['aws']>;
 function setAWSKMS<Key extends keyof AWSKMSOptions>(
   i: Readonly<ConnectionInfo>,
@@ -95,6 +105,7 @@ const MAPPINGS: {
   awsSecretAccessKey: (i, v) => setAWSKMS(i, 'secretAccessKey', v),
   awsSessionToken: (i, v) => setAWSKMS(i, 'sessionToken', v),
   awsIamSessionToken: (i, v) => setAuthMechProp(i, 'AWS_SESSION_TOKEN', v),
+  csfleLibraryPath: (i, v) => setAutoEncryptExtra(i, 'csflePath', v),
   gssapiServiceName: (i, v) => setAuthMechProp(i, 'SERVICE_NAME', v),
   sspiRealmOverride: (i, v) => setAuthMechProp(i, 'SERVICE_REALM', v),
   sspiHostnameCanonicalization:

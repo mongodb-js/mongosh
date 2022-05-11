@@ -3,7 +3,6 @@ import CliRepl from './cli-repl';
 import clr from './clr';
 import { getStoragePaths } from './config-directory';
 import { MONGOSH_WIKI, TELEMETRY_GREETING_MESSAGE, USAGE } from './constants';
-import { getMongocryptdPaths } from './mongocryptd-manager';
 import { runSmokeTests } from './smoke-tests';
 import { buildInfo } from './build-info';
 
@@ -17,7 +16,6 @@ export {
   CliRepl,
   parseCliArgs,
   getStoragePaths,
-  getMongocryptdPaths,
   runSmokeTests,
   buildInfo
 };

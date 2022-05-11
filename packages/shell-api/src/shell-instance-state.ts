@@ -98,10 +98,10 @@ export interface EvaluationListener extends Partial<ConfigProvider<ShellUserConf
 
   /**
    * Called when initiating a connection that uses FLE in the shell.
-   * This should start a mongocryptd process and return the relevant options
-   * used to access it.
+   * This should locate a CSFLE shared libraray instance and return the relevant
+   * options used to access it.
    */
-  startMongocryptd?: () => Promise<AutoEncryptionOptions['extraOptions']>;
+  getCSFLELibraryOptions?: () => Promise<AutoEncryptionOptions['extraOptions']>;
 }
 
 /**

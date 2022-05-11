@@ -3,6 +3,10 @@
 const path = require('path');
 const os = require('os');
 
+const SHARED_LIBRARY_SUFFIX =
+  process.platform === 'win32' ? 'dll' :
+  process.platform === 'darwin' ? 'dylib' : 'so';
+
 /**
  * The project root.
  */
@@ -45,11 +49,11 @@ const OUTPUT_DIR = path.join(ROOT, 'dist');
 const EXECUTABLE_PATH = path.join(OUTPUT_DIR, process.platform === 'win32' ? 'mongosh.exe' : 'mongosh');
 
 /**
- * The name of the downloaded mongocryptd executable.
- * We use the name mongocryptd-mongosh to avoid conflicts with users
- * potentially installing the 'proper' mongocryptd package.
+ * The path to the downloaded csfe shared library.
+ * We use the name mongosh_csfle_v1 to avoid conflicts with users
+ * potentially installing the 'proper' csfle shared library.
  */
-const MONGOCRYPTD_PATH = path.resolve(TMP_DIR, 'mongocryptd-mongosh' + (process.platform === 'win32' ? '.exe' : ''));
+const CSFLE_LIBRARY_PATH = path.resolve(TMP_DIR, 'mongosh_csfle_v1.' + SHARED_LIBRARY_SUFFIX);
 
 /**
  * Build info JSON data file.
@@ -105,7 +109,7 @@ module.exports = {
     repo: 'mongosh'
   },
   artifactUrlFile: process.env.ARTIFACT_URL_FILE,
-  mongocryptdPath: MONGOCRYPTD_PATH,
+  csfleLibraryPath: CSFLE_LIBRARY_PATH,
   packageInformation: {
     binaries: [
       {
@@ -120,11 +124,11 @@ module.exports = {
         }
       },
       {
-        sourceFilePath: MONGOCRYPTD_PATH,
-        category: 'libexec',
+        sourceFilePath: CSFLE_LIBRARY_PATH,
+        category: 'lib',
         license: {
-          sourceFilePath: path.resolve(__dirname, '..', 'packaging', 'LICENSE-mongocryptd'),
-          packagedFilePath: 'LICENSE-mongocryptd',
+          sourceFilePath: path.resolve(__dirname, '..', 'packaging', 'LICENSE-csfle'),
+          packagedFilePath: 'LICENSE-csfle',
           debCopyright: COPYRIGHT,
           debIdentifier: 'Proprietary',
           rpmIdentifier: 'Proprietary'

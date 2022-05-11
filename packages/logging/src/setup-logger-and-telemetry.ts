@@ -13,9 +13,8 @@ import type {
   StartLoadingCliScriptsEvent,
   StartMongoshReplEvent,
   GlobalConfigFileLoadEvent,
-  MongocryptdTrySpawnEvent,
-  MongocryptdLogEvent,
-  MongocryptdErrorEvent,
+  CSFLELibrarySkipEvent,
+  CSFLELibraryFoundEvent,
   SnippetsCommandEvent,
   SnippetsErrorEvent,
   SnippetsFetchIndexErrorEvent,
@@ -273,19 +272,15 @@ export function setupLoggerAndTelemetry(
     });
   });
 
-  bus.on('mongosh:mongocryptd-tryspawn', function(ev: MongocryptdTrySpawnEvent) {
-    log.info('MONGOCRYPTD', mongoLogId(1_000_000_016), 'mongocryptd', 'Trying to spawn mongocryptd', ev);
+  bus.on('mongosh:csfle-load-skip', function(ev: CSFLELibrarySkipEvent) {
+    log.info('CSFLE', mongoLogId(1_000_000_050), 'csfle', 'Skipping shared library candidate', ev);
   });
 
-  bus.on('mongosh:mongocryptd-error', function(ev: MongocryptdErrorEvent) {
-    log.warn('MONGOCRYPTD', mongoLogId(1_000_000_017), 'mongocryptd', 'Error running mongocryptd', {
-      ...ev,
-      error: ev.error?.message
+  bus.on('mongosh:csfle-load-found', function(ev: CSFLELibraryFoundEvent) {
+    log.warn('CSFLE', mongoLogId(1_000_000_051), 'csfle', 'Accepted shared library candidate', {
+      csflePath: ev.csflePath,
+      expectedVersion: ev.expectedVersion.versionStr
     });
-  });
-
-  bus.on('mongosh:mongocryptd-log', function(ev: MongocryptdLogEvent) {
-    log.info('MONGOCRYPTD', mongoLogId(1_000_000_018), 'mongocryptd', 'mongocryptd log message', ev);
   });
 
   bus.on('mongosh-snippets:loaded', function(ev: SnippetsLoadedEvent) {

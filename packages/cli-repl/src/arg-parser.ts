@@ -23,6 +23,7 @@ const OPTIONS = {
     'awsSecretAccessKey',
     'awsSessionToken',
     'awsIamSessionToken',
+    'csfleLibraryPath',
     'db',
     'eval',
     'gssapiHostName',
