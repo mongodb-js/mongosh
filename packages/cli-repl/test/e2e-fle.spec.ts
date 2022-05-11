@@ -35,7 +35,8 @@ describe('FLE tests', () => {
     csfleLibrary = await downloadCurrentCsfleSharedLibrary();
   });
   after(() => {
-    kmsServer.close();
+    // eslint-disable-next-line chai-friendly/no-unused-expressions
+    kmsServer?.close();
   });
   beforeEach(() => {
     kmsServer.requests = [];

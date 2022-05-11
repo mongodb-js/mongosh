@@ -8472,8 +8472,13 @@ tasks:
         vars:
           source_distribution_build_variant: debian-x64
       - func: write_preload_script
+      - func: install
+        vars:
+          node_js_version: "14.19.1"
+          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
+          node_js_version: "14.19.1"
           dockerfile: debian11-deb
   - name: pkg_test_docker_centos7_rpm
     tags: ["smoke-test"]
