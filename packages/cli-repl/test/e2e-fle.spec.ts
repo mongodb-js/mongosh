@@ -326,11 +326,7 @@ describe('FLE tests', () => {
 
     it('allows compactStructuredEncryptionData command when mongo instance configured with auto encryption', async() => {
       const shell = TestShell.start({
-        args: ['--nodb'],
-        env: {
-          ...process.env,
-          MONGOSH_FLE2_SUPPORT: 'true'
-        },
+        args: ['--nodb', `--csfleLibraryPath=${csfleLibrary}`]
       });
       const uri = JSON.stringify(await testServer.connectionString());
 
