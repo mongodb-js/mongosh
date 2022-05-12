@@ -42,7 +42,7 @@ export function getReposAndArch(buildVariant: BuildVariant): { ppas: PPAReposito
       return { ppas: [], arch: '' };
     case 'debian':
       return {
-        ppas: ['ubuntu1804', 'ubuntu2004', 'debian92', 'debian10'/* , 'debian11'*/],
+        ppas: ['ubuntu1804', 'ubuntu2004', 'debian92', 'debian10', 'debian11'],
         arch: getDebArchName(getArch(buildVariant))
       };
     case 'rhel7':
