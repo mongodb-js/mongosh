@@ -2,8 +2,8 @@
 <%
 const path = require('path');
 
-const NODE_JS_VERSION_14 = '14.19.1';
-const NODE_JS_VERSION_12 = '12.22.11';
+const NODE_JS_VERSION_14 = '14.19.2';
+const NODE_JS_VERSION_16 = '16.15.0';
 
 const MONGODB_VERSIONS = [
   { shortName: '40xc', versionSpec: '4.0.x-community' },
@@ -17,8 +17,8 @@ const MONGODB_VERSIONS = [
   { shortName: 'latest', versionSpec: 'latest-alpha' }
 ];
 const NODE_VERSIONS = [
-  { shortName: '12', versionSpec: NODE_JS_VERSION_12, skipNodeVersionCheck: '1' },
-  { shortName: '14', versionSpec: NODE_JS_VERSION_14, skipNodeVersionCheck: '' }
+  { shortName: '16', versionSpec: NODE_JS_VERSION_16, skipNodeVersionCheck: '' },
+  { shortName: '14', versionSpec: NODE_JS_VERSION_14, skipNodeVersionCheck: '1' }
 ];
 
 const pathToPackages = path.join(__dirname, '..', 'packages');
@@ -630,7 +630,7 @@ tasks:
       - func: checkout
       - func: compile_ts
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
 
   - name: check
     depends_on:
@@ -640,11 +640,11 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
           npm_deps_mode: all
       - func: check
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
 
   - name: check_coverage
     depends_on:
@@ -654,11 +654,11 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
           npm_deps_mode: cli_build
       - func: check_coverage
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
 
   ###
   # UNIT TESTS
@@ -697,11 +697,11 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_12) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
           npm_deps_mode: all
       - func: test_vscode
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_12) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
   - name: test_connectivity
     tags: ["extra-integration-test"]
     depends_on:
@@ -711,7 +711,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
           npm_deps_mode: all
       - func: test_connectivity
   - name: test_apistrict
@@ -723,11 +723,11 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
           npm_deps_mode: cli_build
       - func: test_apistrict
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
           mongosh_server_test_version: "latest-alpha"
           mongosh_test_force_api_strict: "1"
   - name: compile_artifact
@@ -738,11 +738,11 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
           npm_deps_mode: cli_build
       - func: compile_artifact
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
 
   ###
   # E2E TESTS
@@ -759,14 +759,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: <% out(executableOsId) %>
       - func: run_e2e_tests
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
           mongosh_server_test_version: "<% out(mVersion) %>"
   <% } } %>
 
@@ -784,10 +784,10 @@ tasks:
       - func: install
         vars:
           npm_deps_mode: cli_build
-          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
       - func: package_and_upload_artifact
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
           distribution_build_variant: <% out(distributionBuildVariant) %>
           executable_os_id: <% out(executableOsId) %>
   <% } } %>
@@ -823,11 +823,11 @@ tasks:
        case 'docker': { %>
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
           dockerfile: <% out(dockerfile) %>
     <% }; break;
     // We don't have docker for platforms other than x64, so for those we just
@@ -862,11 +862,11 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
           npm_deps_mode: all
       - func: release_draft
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
   - name: release_publish
     tags: ["publish"]
     git_tag_only: true
@@ -878,11 +878,11 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
           npm_deps_mode: all
       - func: release_publish
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
 
 # Need to run builds for every possible build variant.
 buildvariants:
