@@ -46,7 +46,8 @@ if [ "$OS" == "Windows_NT" ]; then
 fi
 
 export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
-npm run evergreen-release compile
+mkdir -pv /tmp/m # Node.js compilation can fail on long path prefixes
+(env TMP=/tmp/m TMPDIR=/tmp/m npm run evergreen-release compile && rm -rf /tmp/m) || (rm -rf /tmp/m; false)
 dist/mongosh --version
 dist/mongosh --build-info
 dist/mongosh --build-info | grep -q '"distributionKind": "compiled"'
