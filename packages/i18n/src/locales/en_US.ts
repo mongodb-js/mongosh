@@ -735,8 +735,8 @@ const translations: Catalog = {
             },
             allowDiskUse: {
               link: 'https://docs.mongodb.com/manual/reference/method/cursor.allowDiskUse',
-              description: "Sets the 'allowDiskUse' option to true.",
-              example: 'db.collection.find(query, projection).allowDiskUse()'
+              description: "Sets the 'allowDiskUse' option. If no argument is passed, the default is true.",
+              example: 'db.collection.find(query, projection).sort(sort).allowDiskUse(false)'
             },
             batchSize: {
               link: 'https://docs.mongodb.com/manual/reference/method/cursor.batchSize',

@@ -144,6 +144,16 @@ describe('Cursor', () => {
         expect(shellApiCursor.allowDiskUse()).to.equal(shellApiCursor);
         expect(spCursor.allowDiskUse).to.have.been.calledWith();
       });
+
+      it('calls the driver method for true', () => {
+        expect(shellApiCursor.allowDiskUse(true)).to.equal(shellApiCursor);
+        expect(spCursor.allowDiskUse).to.have.been.calledWith(true);
+      });
+
+      it('calls the driver method for false', () => {
+        expect(shellApiCursor.allowDiskUse(false)).to.equal(shellApiCursor);
+        expect(spCursor.allowDiskUse).to.have.been.calledWith(false);
+      });
     });
 
     describe('#batchSize', () => {

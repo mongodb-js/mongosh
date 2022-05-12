@@ -61,8 +61,8 @@ export default class Cursor extends AbstractCursor<ServiceProviderCursor> {
 
   @returnType('Cursor')
   @serverVersions(['4.4.0', ServerVersions.latest])
-  allowDiskUse(): Cursor {
-    this._cursor.allowDiskUse();
+  allowDiskUse(allow?: boolean): Cursor {
+    this._cursor.allowDiskUse(allow);
     return this;
   }
 
