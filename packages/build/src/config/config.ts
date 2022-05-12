@@ -40,7 +40,7 @@ export interface Config {
   };
   isPatch?: boolean;
   triggeringGitTag?: string;
-  mongocryptdPath: string;
+  csfleLibraryPath: string;
   packageInformation?: PackageInformation;
   artifactUrlFile?: string;
   manpage?: ManPageConfig;

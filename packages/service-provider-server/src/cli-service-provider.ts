@@ -22,13 +22,6 @@ import {
   OperationOptions
 } from 'mongodb';
 
-import { MongoClient as FLEMongoClient } from 'mongodb-fle';
-
-const BaseMongoClient =
-    process.env.MONGOSH_FLE2_SUPPORT === 'true'
-      ? (FLEMongoClient as unknown as typeof MongoClient)
-      : MongoClient;
-
 import {
   ServiceProvider,
   getConnectInfo,
@@ -177,9 +170,9 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
         connectionString.toString(),
         clientOptions,
         bus,
-        BaseMongoClient
+        MongoClient
       ) :
-      new BaseMongoClient(connectionString.toString(), clientOptions);
+      new MongoClient(connectionString.toString(), clientOptions);
 
     return new this(mongoClient, bus, clientOptions, connectionString);
   }
@@ -220,6 +213,35 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     this.dbcache = new WeakMap();
     try {
       this.fle = require('mongodb-client-encryption');
+
+      // Monkey-patch to work around missing NODE-4242
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      const origExtension = this.fle.extension;
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      this.fle.extension = (mongodb) => {
+        const exports = origExtension(mongodb);
+        const OrigAutoEncrypter = exports.AutoEncrypter;
+        exports.AutoEncrypter = class AutoEncrypter extends OrigAutoEncrypter {
+          _bypassQueryAnalysis?: boolean;
+
+          constructor(client: any, options: any) {
+            super(client, options);
+            if (options?.bypassQueryAnalysis) {
+              this._bypassQueryAnalysis = true;
+            }
+          }
+
+          init(callback: any) {
+            if (this._bypassQueryAnalysis) {
+              return callback();
+            }
+            super.init(callback);
+          }
+        };
+        return exports;
+      };
     } catch { /* not empty */ }
   }
 
@@ -230,7 +252,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
       connectionString.toString(),
       clientOptions,
       this.bus,
-      BaseMongoClient
+      MongoClient
     );
     return new CliServiceProvider(mongoClient, this.bus, clientOptions, connectionString);
   }
@@ -1096,7 +1118,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
       (this.uri as ConnectionString).toString(),
       clientOptions,
       this.bus,
-      BaseMongoClient
+      MongoClient
     );
     try {
       await this.mongoClient.close();

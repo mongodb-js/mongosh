@@ -10,6 +10,7 @@ import { URL } from 'url';
 import { promisify } from 'util';
 import which from 'which';
 import { downloadMongoDb } from '../packages/build/src/download-mongodb';
+import { downloadCsfleLibrary } from '../packages/build/src/packaging/download-csfle-library';
 
 const execFile = promisify(child_process.execFile);
 
@@ -389,6 +390,13 @@ export async function ensureMongodAvailable(mongodVersion = process.env.MONGOSH_
   }
 }
 
+export async function downloadCurrentCsfleSharedLibrary(): Promise<string> {
+  if (process.platform === 'linux') {
+    return await downloadCsfleLibrary(`linux-${process.arch.replace('ppc64', 'ppc64le')}` as any);
+  }
+  return downloadCsfleLibrary('host');
+}
+
 /**
  * Starts a local server unless the `MONGOSH_TEST_SERVER_URL`
  * environment variable is set.
@@ -508,29 +516,6 @@ export function skipIfApiStrict(): void {
     if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
       this.skip();
     }
-  });
-}
-
-/**
- * Add the server tarball's bin/ directrory to the PATH for this section.
- * This enables using e.g. mongocryptd if available.
- *
- * describe('...', () => {
- *   useBinaryPath(testServer)
- * });
- */
-export function useBinaryPath(server: MongodSetup): void {
-  let pathBefore: string;
-  before(async() => {
-    await server.start();
-    pathBefore = process.env.PATH ?? '';
-    const extraPath = server.bindir;
-    if (extraPath !== null) {
-      process.env.PATH += path.delimiter + extraPath;
-    }
-  });
-  after(() => {
-    process.env.PATH = pathBefore;
   });
 }
 

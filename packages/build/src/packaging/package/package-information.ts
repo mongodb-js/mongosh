@@ -15,7 +15,7 @@ type ManPage = DocumentationFile;
 export interface PackageInformation {
     binaries: {
         sourceFilePath: string;
-        category: 'bin' | 'libexec';
+        category: 'bin' | 'lib';
         license: LicenseInformation;
     }[];
     otherDocFilePaths: DocumentationFile[];
