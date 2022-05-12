@@ -66,6 +66,7 @@ repos:
     component: main
     architectures:
       - amd64
+      - arm64
     repos:
       - apt/debian/dists/stretch/mongodb-org
 
@@ -77,8 +78,21 @@ repos:
     component: main
     architectures:
       - amd64
+      - arm64
     repos:
       - apt/debian/dists/buster/mongodb-org
+
+  - name: debian11
+    type: deb
+    code_name: "bullseye"
+    bucket: repo.mongodb.org
+    edition: org
+    component: main
+    architectures:
+      - amd64
+      - arm64
+    repos:
+      - apt/debian/dists/bullseye/mongodb-org
 
   - name: ubuntu1804
     type: deb
