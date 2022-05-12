@@ -316,17 +316,6 @@ describe('Collection', () => {
       });
     });
 
-    describe('compactStructuredEncryptionData', () => {
-      it('calls service provider runCommandWithCheck', async() => {
-        const result = await collection.compactStructuredEncryptionData();
-
-        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith({
-          compactStructuredEncryptionData: 'coll1'
-        });
-        expect(result).to.deep.equal({ ok: 1 });
-      });
-    });
-
     describe('convertToCapped', () => {
       it('calls service provider runCommandWithCheck', async() => {
         const result = await collection.convertToCapped(1000);
@@ -1950,6 +1939,18 @@ describe('Collection', () => {
         );
       });
     });
+
+    describe('compactStructuredEncryptionData', () => {
+      it('calls service provider runCommandWithCheck', async() => {
+        const result = await collection.compactStructuredEncryptionData();
+
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          'db1',
+          { compactStructuredEncryptionData: 'collfle2' }
+        );
+        expect(result).to.be.deep.equal({ ok: 1 });
+      });
+    });
   });
   describe('with session', () => {
     let serviceProvider: StubbedInstance<ServiceProvider>;
@@ -2007,7 +2008,7 @@ describe('Collection', () => {
       watch: { i: 1 }
     };
     const ignore: (keyof (typeof Collection)['prototype'])[] = [
-      'getShardDistribution', 'stats', 'isCapped'
+      'getShardDistribution', 'stats', 'isCapped', 'compactStructuredEncryptionData'
     ];
     const args = [ { query: {} }, {}, { out: 'coll' } ];
     beforeEach(() => {
@@ -2059,7 +2060,9 @@ describe('Collection', () => {
       }
     });
     context('all commands that use other methods', () => {
-      for (const method of Object.keys(exceptions)) {
+      for (const method of Object.keys(exceptions).filter(
+        k => !ignore.includes(k as any)
+      )) {
         const customA = exceptions[method].a || args;
         const customM = exceptions[method].m || method;
         const customI = exceptions[method].i || 3;
