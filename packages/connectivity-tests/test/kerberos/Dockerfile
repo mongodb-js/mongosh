@@ -1,4 +1,4 @@
-FROM node:14
+FROM node:16
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update

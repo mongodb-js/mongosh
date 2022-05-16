@@ -29,7 +29,7 @@ if
 then
   echo "Atlas credentials are not provided"
 
-  if [[ -z "${IS_CI}" ]] || [[ -z "${CI}" ]]; then
+  if [[ -n "${IS_CI}" ]] || [[ -n "${CI}" ]]; then
     exit 1
   else
     exit 0
