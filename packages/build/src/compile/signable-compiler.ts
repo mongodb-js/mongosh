@@ -1,6 +1,6 @@
 /* eslint-disable no-nested-ternary */
 import os from 'os';
-import { promises as fs, createReadStream } from 'fs';
+import { promises as fs } from 'fs';
 import Module from 'module';
 import pkgUp from 'pkg-up';
 import path from 'path';
@@ -33,14 +33,14 @@ async function preCompileHook(nodeSourceTree: string) {
   for await (const entry of (await fs.readdir(patchDirectory)).sort()) {
     const patchFile = path.resolve(patchDirectory, entry);
     console.warn(`Applying patch from ${patchFile}...`);
+    // NB: git apply doesn't need to be run in a git repository in order to work
     const proc = childProcess.spawn(
-      'patch', ['-p1'],
+      'git', ['apply', patchFile],
       {
         cwd: nodeSourceTree,
-        stdio: ['pipe', 'inherit', 'inherit']
+        stdio: 'inherit'
       }
     );
-    createReadStream(patchFile).pipe(proc.stdin);
     const [ code ] = await once(proc, 'exit');
     if (code !== 0) {
       throw new Error(`applying patch failed with code ${code}`);
