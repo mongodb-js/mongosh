@@ -1,5 +1,6 @@
 /* eslint-disable no-nested-ternary */
 import os from 'os';
+import { promises as fs, createReadStream } from 'fs';
 import Module from 'module';
 import pkgUp from 'pkg-up';
 import path from 'path';
@@ -26,6 +27,24 @@ async function preCompileHook(nodeSourceTree: string) {
   const [ code ] = await once(proc, 'exit');
   if (code !== 0) {
     throw new Error(`pre-compile hook failed with code ${code}`);
+  }
+
+  const patchDirectory = path.resolve(__dirname, '..', '..', '..', '..', 'scripts', 'nodejs-patches');
+  for await (const entry of (await fs.readdir(patchDirectory)).sort()) {
+    const patchFile = path.resolve(patchDirectory, entry);
+    console.warn(`Applying patch from ${patchFile}...`);
+    const proc = childProcess.spawn(
+      'patch', ['-p1'],
+      {
+        cwd: nodeSourceTree,
+        stdio: ['pipe', 'inherit', 'inherit']
+      }
+    );
+    createReadStream(patchFile).pipe(proc.stdin);
+    const [ code ] = await once(proc, 'exit');
+    if (code !== 0) {
+      throw new Error(`applying patch failed with code ${code}`);
+    }
   }
 }
 
