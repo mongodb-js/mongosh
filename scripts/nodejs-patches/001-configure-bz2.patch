@@ -1,5 +1,5 @@
 diff --git a/configure.py b/configure.py
-index 95b31769cb57..5068348255e2 100755
+index 95b31769cb57..cf11e9527c71 100755
 --- a/configure.py
 +++ b/configure.py
 @@ -11,7 +11,7 @@ import re
@@ -9,26 +9,25 @@ index 95b31769cb57..5068348255e2 100755
 -import bz2
 +#import bz2
  import io
- 
+
  from distutils.version import StrictVersion
-@@ -1789,12 +1789,14 @@ def configure_intl(o):
+@@ -1789,12 +1789,18 @@ def configure_intl(o):
        shutil.rmtree(icu_tmp_path)
      os.mkdir(icu_tmp_path)
      icu_data_path = os.path.join(icu_tmp_path, icu_data_file_l)
 -    with open(icu_data_path, 'wb') as outf:
--        inf = bz2.BZ2File(compressed_data, 'rb')
--        try:
--          shutil.copyfileobj(inf, outf)
--        finally:
--          inf.close()
-+    print('Decompressing icu data using bzip2 -d')
-+    subprocess.run(["sh", "-c", "bzip2 -d < '%s' > '%s'" % (compressed_data, icu_data_path)]).check_returncode()
-+    #with open(icu_data_path, 'wb') as outf:
-+    #    inf = bz2.BZ2File(compressed_data, 'rb')
-+    #    try:
-+    #      shutil.copyfileobj(inf, outf)
-+    #    finally:
-+    #      inf.close()
++    if os.name == 'nt':
++      print('Decompressing icu data using python bz2')
++      import bz2
++      with open(icu_data_path, 'wb') as outf:
+         inf = bz2.BZ2File(compressed_data, 'rb')
+         try:
+           shutil.copyfileobj(inf, outf)
+         finally:
+           inf.close()
++    else:
++      print('Decompressing icu data using bzip2 -d')
++      subprocess.run(["sh", "-c", "bzip2 -d < '%s' > '%s'" % (compressed_data, icu_data_path)]).check_returncode()
      # Now, proceed..
- 
+
    # relative to dep..
