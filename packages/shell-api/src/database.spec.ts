@@ -178,7 +178,7 @@ describe('Database', () => {
           { name: 'coll1', badge: '' },
           { name: 'coll2', badge: '' },
           { name: 'coll3', badge: '[view]' },
-          { name: 'coll4', badge: '[rich-encrypted-query]' },
+          { name: 'coll4', badge: '[queryable-encryption]' },
           { name: 'coll6', badge: '[time-series]' },
           { name: 'enxcol_.coll4.ecc', badge: '' },
           { name: 'enxcol_.coll4.ecoc', badge: '' },
