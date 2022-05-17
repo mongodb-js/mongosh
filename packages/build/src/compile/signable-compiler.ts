@@ -30,7 +30,10 @@ async function preCompileHook(nodeSourceTree: string) {
   }
 
   const patchDirectory = path.resolve(__dirname, '..', '..', '..', '..', 'scripts', 'nodejs-patches');
-  for await (const entry of (await fs.readdir(patchDirectory)).sort()) {
+  // Sort all entries in the directory so that they are applied
+  // in order 001-(...).patch, 002-(...).patch, etc.
+  const patchFiles = (await fs.readdir(patchDirectory)).sort();
+  for (const entry of patchFiles) {
     const patchFile = path.resolve(patchDirectory, entry);
     console.warn(`Applying patch from ${patchFile}...`);
     // NB: git apply doesn't need to be run in a git repository in order to work
