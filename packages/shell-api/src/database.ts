@@ -23,7 +23,8 @@ import {
   isValidCollectionName,
   getConfigDB,
   shouldRunAggregationImmediately,
-  adjustRunCommand
+  adjustRunCommand,
+  getBadge
 } from './helpers';
 
 import type {
@@ -169,16 +170,11 @@ export default class Database extends ShellApiWithMongoClass {
     let collections = await this._listCollections({}, { ...options, nameOnly: true });
     collections = collections.sort((c1, c2) => (c1.name).localeCompare(c2.name));
 
-    const typesToBages: any = {
-      timeseries: '[time-series]',
-      view: '[view]'
-    };
+    this._cachedCollectionNames = collections.map((collection: Document) => collection.name);
 
-    this._cachedCollectionNames = collections.map((collection: any) => collection.name);
-
-    return collections.map((collection: any) => ({
+    return collections.map((collection: Document, index: number) => ({
       name: collection.name,
-      badge: typesToBages[collection.type] ?? ''
+      badge: getBadge(collections, index)
     }));
   }
 
