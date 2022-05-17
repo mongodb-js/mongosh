@@ -964,6 +964,25 @@ export default class Collection extends ShellApiWithMongoClass {
   }
 
   /**
+   * Compacts structured encryption data.
+   *
+   * @return {Promise}
+   */
+  @returnsPromise
+  @apiVersions([])
+  async compactStructuredEncryptionData(): Promise<Document> {
+    if (!this._mongo._fleOptions) {
+      throw new MongoshInvalidInputError(
+        'The "compactStructuredEncryptionData" command requires Mongo instance configured with auto encryption.',
+        CommonErrors.InvalidArgument
+      );
+    }
+
+    this._emitCollectionApiCall('compactStructuredEncryptionData');
+    return await this._database._runCommand({ compactStructuredEncryptionData: this._name });
+  }
+
+  /**
    * Converts a collection to capped
    *
    * @param {String} size - The maximum size, in bytes, for the capped collection.
@@ -981,6 +1000,7 @@ export default class Collection extends ShellApiWithMongoClass {
       }
     );
   }
+
   /**
    * Internal function which calls the Service Provider createIndexes function.
    * This function is used also by createIndex and ensureIndex
