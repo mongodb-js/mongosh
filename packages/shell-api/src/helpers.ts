@@ -774,7 +774,7 @@ export function getBadge(collections: Document[], index: number): string {
   }
 
   if (isFLE2Collection(collections, index)) {
-    return '[rich-encrypted-query]';
+    return '[queryable-encryption]';
   }
 
   return '';
