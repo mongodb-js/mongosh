@@ -114,9 +114,7 @@ export function deserializeEvaluationResult({
 
 const autoEncryptionBSONOptions = [
   'schemaMap',
-  // Note: This is an educated guess for what the name of this option will be.
-  // This may need to be adjusted later.
-  'encryptedFieldConfigMap'
+  'encryptedFieldsMap'
 ] as const;
 
 export function serializeConnectOptions(options: Readonly<DevtoolsConnectOptions> = {}): DevtoolsConnectOptions {
@@ -125,7 +123,7 @@ export function serializeConnectOptions(options: Readonly<DevtoolsConnectOptions
     if (serializedOptions.autoEncryption?.[autoEncryptionOption]) {
       serializedOptions.autoEncryption = {
         ...serializedOptions.autoEncryption,
-        [autoEncryptionOption]: EJSON.serialize(serializedOptions.autoEncryption[autoEncryptionOption])
+        [autoEncryptionOption]: EJSON.serialize(serializedOptions.autoEncryption[autoEncryptionOption], { relaxed: false })
       };
     }
   }
@@ -138,7 +136,7 @@ export function deserializeConnectOptions(options: Readonly<DevtoolsConnectOptio
     if (deserializedOptions.autoEncryption?.[autoEncryptionOption]) {
       deserializedOptions.autoEncryption = {
         ...deserializedOptions.autoEncryption,
-        [autoEncryptionOption]: EJSON.deserialize(deserializedOptions.autoEncryption[autoEncryptionOption])
+        [autoEncryptionOption]: EJSON.deserialize(deserializedOptions.autoEncryption[autoEncryptionOption], { relaxed: false })
       };
     }
   }
