@@ -23,7 +23,7 @@ Please include as much information as possible about your environment.
 
 ## Node.js versions
 
-We support Node.js 12.x+ for the individual packages, and Node.js 14.x only for
+We support Node.js 14.x+ for the individual packages, and Node.js 16.x only for
 the CLI repl specifically. These versions are mentioned:
 
 - In the individual packages’ package.json files

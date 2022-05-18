@@ -3,7 +3,7 @@
   "version": "0.0.0-dev.0",
   "description": "Browser presentation component for Mongo Shell",
   "engines": {
-    "node": ">=12.4.0"
+    "node": ">=14.15.1"
   },
   "main": "lib/mongosh-browser-repl.js",
   "scripts": {

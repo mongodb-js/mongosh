@@ -14,7 +14,7 @@
     "url": "https://github.com/mongodb-js/mongosh"
   },
   "engines": {
-    "node": ">=12.4.0"
+    "node": ">=14.15.1"
   },
   "scripts": {
     "test": "cross-env TS_NODE_PROJECT=./tsconfig.test.json mocha -r \"../../scripts/import-expansions.js\" --timeout 15000 -r ts-node/register \"./src/**/*.spec.ts\"",
