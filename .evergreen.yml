@@ -4877,6 +4877,7 @@ functions:
         binary: bash .evergreen/compile-artifact.sh
         env:
           NODE_JS_VERSION: ${node_js_version}
+          MONGOSH_SHARED_OPENSSL: ${mongosh_shared_openssl}
     - command: s3.put
       params:
         aws_key: ${aws_key}
@@ -9057,11 +9058,35 @@ buildvariants:
       executable_os_id: linux-x64
     tasks:
       - name: compile_artifact
+  - name: linux_x64_build_openssl11
+    display_name: "RHEL 7.0 x64 (build, shared OpenSSL 1.1)"
+    run_on: rhel70-build
+    expansions:
+      executable_os_id: linux-x64-openssl11
+      mongosh_shared_openssl: openssl11
+    tasks:
+      - name: compile_artifact
+  - name: linux_x64_build_openssl3
+    display_name: "RHEL 7.0 x64 (build, shared OpenSSL 3)"
+    run_on: rhel70-build
+    expansions:
+      executable_os_id: linux-x64-openssl3
+      mongosh_shared_openssl: openssl3
+    tasks:
+      - name: compile_artifact
   - name: linux_arm64_build
     display_name: "Amazon 2 arm64 (build)"
     run_on: amazon2-arm64-small
     expansions:
       executable_os_id: linux-arm64
+    tasks:
+      - name: compile_artifact
+  - name: linux_arm64_build_openssl11
+    display_name: "Amazon 2 arm64 (build, shared OpenSSL 1.1)"
+    run_on: amazon2-arm64-small
+    expansions:
+      executable_os_id: linux-arm64-openssl11
+      mongosh_shared_openssl: openssl11
     tasks:
       - name: compile_artifact
   - name: linux_ppc64le_build
