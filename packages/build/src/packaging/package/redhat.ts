@@ -69,7 +69,8 @@ export async function createRedhatPackage(
     licenseRpm,
     installscriptRpm,
     filelistRpm: filelistRpm.join('\n'),
-    version
+    version,
+    provides: pkg.metadata.provides.map(({ name, version }) => `${name} = ${version}`).join(', ')
   });
   // Copy all files that we want to ship into the BUILD directory.
   for (const { sourceFilePath } of pkg.binaries) {

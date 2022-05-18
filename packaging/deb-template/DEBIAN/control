@@ -1,5 +1,5 @@
 Package: {{debName}}
-Provides: {{providesName}} (= {{providesVersion}})
+Provides: {{provides}}
 Version: {{version}}
 Section: utils
 Priority: optional
@@ -8,5 +8,4 @@ Installed-Size: {{size}}
 Maintainer: {{maintainer}}
 Homepage: {{homepage}}
 Description: {{description}}
-Depends: libc6 (>= 2.17), libgssapi-krb5-2
-Recommends: libsasl2-2, libcurl4, libssl1.1
+Depends: {{debDepends}}

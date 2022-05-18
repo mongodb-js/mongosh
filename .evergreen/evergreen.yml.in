@@ -73,8 +73,8 @@ const EXECUTABLE_PKG_INFO = [
     executableOsId: 'linux-x64',
     compileBuildVariant: 'linux_x64_build',
     distributionBuildVariants: [
-      { name: 'linux-x64', packageOn: 'linux_package', smokeTestKind: 'none' },
-      { name: 'debian-x64', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu18.04-deb', 'ubuntu20.04-deb', 'debian9-deb', 'debian10-deb', 'debian11-deb'] },
+      { name: 'linux-x64', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu20.04-tgz'] },
+      { name: 'debian-x64', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu18.04-deb', 'ubuntu20.04-deb', 'ubuntu22.04-deb', 'debian9-deb', 'debian10-deb', 'debian11-deb'] },
       { name: 'rhel7-x64', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['centos7-rpm', 'amazonlinux2-rpm'] },
       { name: 'rhel8-x64', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['rocky8-rpm', 'fedora34-rpm'] },
       { name: 'suse-x64', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['suse12-rpm', 'suse15-rpm'] },
@@ -82,13 +82,42 @@ const EXECUTABLE_PKG_INFO = [
     ]
   },
   {
+    executableOsId: 'linux-x64-openssl11',
+    compileBuildVariant: 'linux_x64_build_openssl11',
+    distributionBuildVariants: [
+      { name: 'linux-x64-openssl11', packageOn: 'linux_package', smokeTestKind: 'none' },
+      { name: 'debian-x64-openssl11', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu20.04-deb', 'debian10-deb', 'debian11-deb'] },
+      { name: 'rhel7-x64-openssl11', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['centos7-epel-rpm', 'amazonlinux2-rpm'] },
+      { name: 'rhel8-x64-openssl11', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['rocky8-rpm', 'fedora34-rpm'] }
+    ]
+  },
+  {
+    executableOsId: 'linux-x64-openssl3',
+    compileBuildVariant: 'linux_x64_build_openssl3',
+    distributionBuildVariants: [
+      { name: 'linux-x64-openssl3', packageOn: 'linux_package', smokeTestKind: 'none' },
+      { name: 'debian-x64-openssl3', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu22.04-deb'] },
+      { name: 'rhel8-x64-openssl3', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['rocky8-epel-rpm'] }
+    ]
+  },
+  {
     executableOsId: 'linux-arm64',
     compileBuildVariant: 'linux_arm64_build',
     distributionBuildVariants: [
-      { name: 'linux-arm64', packageOn: 'linux_package', smokeTestKind: 'none' },
-      { name: 'debian-arm64', packageOn: 'linux_package', smokeTestKind: 'debextract' },
-      { name: 'rhel8-arm64', packageOn: 'linux_package', smokeTestKind: 'rpmextract' },
-      { name: 'amzn2-arm64', packageOn: 'linux_package', smokeTestKind: 'rpmextract' }
+      { name: 'linux-arm64', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu20.04-tgz'] },
+      { name: 'debian-arm64', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu18.04-deb', 'ubuntu20.04-deb', 'ubuntu22.04-deb', 'debian10-deb', 'debian11-deb'] },
+      { name: 'rhel8-arm64', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['rocky8-rpm', 'fedora34-rpm'] },
+      { name: 'amzn2-arm64', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['amazonlinux2-rpm'] }
+    ]
+  },
+  {
+    executableOsId: 'linux-arm64-openssl11',
+    compileBuildVariant: 'linux_arm64_build_openssl11',
+    distributionBuildVariants: [
+      { name: 'linux-arm64-openssl11', packageOn: 'linux_package', smokeTestKind: 'none' },
+      { name: 'debian-arm64-openssl11', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu20.04-deb', 'debian10-deb', 'debian11-deb'] },
+      { name: 'rhel8-arm64-openssl11', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['rocky8-rpm', 'fedora34-rpm'] },
+      { name: 'amzn2-arm64-openssl11', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['amazonlinux2-rpm'] }
     ]
   },
   {
@@ -799,7 +828,7 @@ tasks:
   <% for (const { distributionBuildVariants } of EXECUTABLE_PKG_INFO) {
        for (const { name, packageOn, smokeTestKind, smokeTestDockerfiles } of distributionBuildVariants) if (smokeTestKind !== 'none') {
         for (const dockerfile of smokeTestDockerfiles || ['']) { %>
-  - name: pkg_test_<% out(`${smokeTestKind}_${(dockerfile || name).replace(/[-.]/g, '_')}`) %>
+  - name: pkg_test_<% out(`${smokeTestKind}_${name}${dockerfile ? `_${dockerfile}` : ''}`.replace(/[-.]/g, '_')) %>
     tags: ["smoke-test"]
     depends_on:
       - name: package_and_upload_artifact_<% out(name.replace(/-/g, '_')) %>
@@ -921,8 +950,6 @@ buildvariants:
       executable_os_id: darwin-arm64
     tasks:
       - name: compile_artifact
-      # - name: e2e_tests_darwin_arm64
-      # No E2E test for now because there are no server releases to run them against
 
   - name: linux_unit
     display_name: "Ubuntu 18.04 x64 (Unit tests)"
@@ -945,20 +972,11 @@ buildvariants:
     display_name: "Ubuntu 18.04 x64 (Packaging)"
     run_on: ubuntu1804-small
     tasks:
-      - name: package_and_upload_artifact_linux_x64
-      - name: package_and_upload_artifact_debian_x64
-      - name: package_and_upload_artifact_rhel7_x64
-      - name: package_and_upload_artifact_rhel8_x64
-      - name: package_and_upload_artifact_suse_x64
-      - name: package_and_upload_artifact_amzn1_x64
-      - name: package_and_upload_artifact_linux_s390x
-      - name: package_and_upload_artifact_rhel7_s390x
-      - name: package_and_upload_artifact_linux_arm64
-      - name: package_and_upload_artifact_debian_arm64
-      - name: package_and_upload_artifact_rhel8_arm64
-      - name: package_and_upload_artifact_amzn2_arm64
-      - name: package_and_upload_artifact_linux_ppc64le
-      - name: package_and_upload_artifact_rhel8_ppc64le
+      <% for (const { executableOsId, distributionBuildVariants } of EXECUTABLE_PKG_INFO) {
+          for (const { name: distributionBuildVariant } of distributionBuildVariants) {
+            if (executableOsId.startsWith('linux')) { %>
+      - name: package_and_upload_artifact_<% out(distributionBuildVariant.replace(/-/g, '_')) %>
+      <% } } } %>
   - name: linux_x64_build
     display_name: "RHEL 7.0 x64 (build)"
     run_on: rhel70-build
@@ -1027,6 +1045,12 @@ buildvariants:
     run_on: rhel80-small
     tasks:
       - name: e2e_tests_linux_x64
+  - name: e2e_rhel83_x64
+    display_name: "RHEL 8.3 x64 (E2E Tests, FIPS-available OS)"
+    run_on: rhel83-fips
+    tasks:
+      - name: e2e_tests_linux_x64
+      - name: e2e_tests_linux_x64_openssl11
   - name: e2e_ubuntu1804_x64
     display_name: "Ubuntu 18.04 x64 (E2E Tests)"
     run_on: ubuntu1804-small
@@ -1037,6 +1061,7 @@ buildvariants:
     run_on: ubuntu2004-small
     tasks:
       - name: e2e_tests_linux_x64
+      - name: e2e_tests_linux_x64_openssl11
   - name: e2e_debian9_x64
     display_name: "Debian 9 x64 (E2E Tests)"
     run_on: debian92-small
@@ -1047,11 +1072,13 @@ buildvariants:
     run_on: debian10-small
     tasks:
       - name: e2e_tests_linux_x64
+      - name: e2e_tests_linux_x64_openssl11
   - name: e2e_debian11_x64
     display_name: "Debian 11 x64 (E2E Tests)"
     run_on: debian11-small
     tasks:
       - name: e2e_tests_linux_x64_unstable
+      - name: e2e_tests_linux_x64_openssl11_unstable
   - name: e2e_amazon1_x64
     display_name: "Amazon Linux 1 x64 (E2E Tests)"
     run_on: amazon1-2018-small
@@ -1082,6 +1109,7 @@ buildvariants:
     run_on: ubuntu2004-arm64-small
     tasks:
       - name: e2e_tests_linux_arm64
+      - name: e2e_tests_linux_arm64_openssl11
   - name: e2e_amazon2_arm64
     display_name: "Amazon Linux 2 arm64 (E2E Tests)"
     run_on: amazon2-arm64-small
@@ -1137,22 +1165,26 @@ buildvariants:
     tasks:
       - name: compile_artifact
 
-  - name: pkg_smoke_tests_docker
-    display_name: "package smoke tests (Docker)"
+  - name: pkg_smoke_tests_docker_x64
+    display_name: "package smoke tests (x64 Docker)"
     run_on: ubuntu1804-small
     tasks:
-      - name: pkg_test_docker_centos7_rpm
-      - name: pkg_test_docker_rocky8_rpm
-      - name: pkg_test_docker_fedora34_rpm
-      - name: pkg_test_docker_suse12_rpm
-      - name: pkg_test_docker_suse15_rpm
-      - name: pkg_test_docker_amazonlinux1_rpm
-      - name: pkg_test_docker_amazonlinux2_rpm
-      - name: pkg_test_docker_debian9_deb
-      - name: pkg_test_docker_debian10_deb
-      - name: pkg_test_docker_debian11_deb
-      - name: pkg_test_docker_ubuntu18_04_deb
-      - name: pkg_test_docker_ubuntu20_04_deb
+  <% for (const { distributionBuildVariants, executableOsId } of EXECUTABLE_PKG_INFO) {
+      if (executableOsId.includes('linux-x64')) {
+       for (const { name, smokeTestKind, smokeTestDockerfiles } of distributionBuildVariants) if (smokeTestKind !== 'none') {
+        for (const dockerfile of smokeTestDockerfiles || []) { %>
+      - name: pkg_test_<% out(`${smokeTestKind}_${name}${dockerfile ? `_${dockerfile}` : ''}`.replace(/[-.]/g, '_')) %>
+  <% } } } } %>
+  - name: pkg_smoke_tests_docker_arm64
+    display_name: "package smoke tests (arm64 Docker)"
+    run_on: ubuntu1804-arm64-small
+    tasks:
+  <% for (const { distributionBuildVariants, executableOsId } of EXECUTABLE_PKG_INFO) {
+      if (executableOsId.includes('linux-arm64')) {
+       for (const { name, smokeTestKind, smokeTestDockerfiles } of distributionBuildVariants) if (smokeTestKind !== 'none') {
+        for (const dockerfile of smokeTestDockerfiles || []) { %>
+      - name: pkg_test_<% out(`${smokeTestKind}_${name}${dockerfile ? `_${dockerfile}` : ''}`.replace(/[-.]/g, '_')) %>
+  <% } } } } %>
   - name: pkg_smoke_tests_win32
     display_name: "package smoke tests (win32)"
     run_on: ubuntu1804-small
@@ -1174,26 +1206,6 @@ buildvariants:
     run_on: macos-1100-arm64
     tasks:
       - name: pkg_test_macos_darwin_arm64
-  - name: pkg_smoke_tests_ubuntu1804_arm64
-    display_name: "package smoke tests (Ubuntu 18.04 arm64)"
-    run_on: ubuntu1804-arm64-small
-    tasks:
-      - name: pkg_test_debextract_debian_arm64
-  - name: pkg_smoke_tests_ubuntu2004_arm64
-    display_name: "package smoke tests (Ubuntu 20.04 arm64)"
-    run_on: ubuntu2004-arm64-small
-    tasks:
-      - name: pkg_test_debextract_debian_arm64
-  - name: pkg_smoke_tests_amazon2_arm64
-    display_name: "package smoke tests (RHEL 8.2 arm64)"
-    run_on: rhel82-arm64-small
-    tasks:
-      - name: pkg_test_rpmextract_rhel8_arm64
-  - name: pkg_smoke_tests_rhel82_arm64
-    display_name: "package smoke tests (Amazon Linux 2 arm64)"
-    run_on: amazon2-arm64-small
-    tasks:
-      - name: pkg_test_rpmextract_amzn2_arm64
   - name: pkg_smoke_tests_rhel72_s390x
     display_name: "package smoke tests (RHEL 7.2 s390x)"
     run_on: rhel72-zseries-small
