@@ -1,19 +1,14 @@
 import { serialize, Long } from 'bson';
 import { once } from 'events';
 import { createServer } from 'http';
-import { startTestServer, skipIfApiStrict, skipIfEnterpriseServer } from '../../../testing/integration-testing-hooks';
+import { startTestServer, skipIfApiStrict } from '../../../testing/integration-testing-hooks';
 import { TestShell } from './test-shell';
 
 describe('e2e startup banners', () => {
   skipIfApiStrict();
   afterEach(TestShell.cleanup);
 
-  // Using a non-shared server so we can change the server configuration
-  // in isolation here.
-  const testServer = startTestServer(
-    'not-shared',
-    '--setParameter', 'cloudFreeMonitoringEndpointURL=http://127.0.0.1:42123/',
-    '--setParameter', 'testingDiagnosticsEnabled=true');
+  const testServer = startTestServer('shared');
 
   let freeMonitoringHttpServer;
   before(async() => {
@@ -71,7 +66,17 @@ describe('e2e startup banners', () => {
   });
 
   context('with free monitoring', () => {
-    skipIfEnterpriseServer(testServer);
+    if (!process.env.MONGOSH_SERVER_TEST_VERSION?.includes('community')) {
+      // Enterprise servers do not even know about the setParameter flags below.
+      before(function() { this.skip(); });
+    }
+
+    // Using a non-shared server so we can change the server configuration
+    // in isolation here.
+    const testServer = startTestServer(
+      'not-shared',
+      '--setParameter', 'cloudFreeMonitoringEndpointURL=http://127.0.0.1:42123/',
+      '--setParameter', 'testingDiagnosticsEnabled=true');
 
     it('shows free monitoring notice by default', async() => {
       const shell = TestShell.start({ args: [await testServer.connectionString()] });
