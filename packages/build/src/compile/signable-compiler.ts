@@ -1,5 +1,3 @@
-/* eslint-disable no-nested-ternary */
-import os from 'os';
 import { promises as fs } from 'fs';
 import Module from 'module';
 import pkgUp from 'pkg-up';
@@ -116,13 +114,15 @@ export class SignableCompiler {
       requireRegexp: /\bget_console_process_list\.node$/
     } : null;
 
+    let configureArgs: string[] = [];
+
+    if (process.env.NODE_JS_CONFIGURE_ARGS) {
+      configureArgs = JSON.parse(process.env.NODE_JS_CONFIGURE_ARGS);
+    }
+
     // This compiles the executable along with Node from source.
-    // Evergreen and XCode don't have up to date libraries to compile
-    // open ssl with asm so we revert back to the slower version.
     await compileJSFileAsBinary({
-      configureArgs:
-        os.platform() === 'win32' ? ['openssl-no-asm'] :
-          os.platform() === 'darwin' ? ['--openssl-no-asm'] : [],
+      configureArgs,
       sourceFile: this.sourceFile,
       targetFile: this.targetFile,
       nodeVersionRange: this.nodeVersionRange,

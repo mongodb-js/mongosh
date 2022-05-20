@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -e
+set -x
 
 cd $(pwd)
 
@@ -13,9 +14,52 @@ if uname -a | grep -q 'Linux.*x86_64'; then
   export CXX="$PWD/tmp/.sccache/sccache g++"
 fi
 
+rm -rf /tmp/m && mkdir -pv /tmp/m # Node.js compilation can fail on long path prefixes
+trap "rm -rf /tmp/m" EXIT
+export TMP=/tmp/m
+export TMPDIR=/tmp/m
+
+# The CI machines we have for Windows and x64 macOS are not
+# able to compile OpenSSL with assembly support,
+# so we revert back to the slower version.
+if [ "$OS" == "Windows_NT" ]; then
+  export NODE_JS_CONFIGURE_ARGS='["openssl-no-asm"]'
+elif uname -a | grep -q 'Darwin.*x86_64'; then
+  export NODE_JS_CONFIGURE_ARGS='["--openssl-no-asm"]'
+elif [ -n "$MONGOSH_SHARED_OPENSSL" ]; then
+  pushd /tmp/m
+  if [ "$MONGOSH_SHARED_OPENSSL" == "openssl11" ]; then
+    curl -sSfLO https://www.openssl.org/source/openssl-1.1.1o.tar.gz
+    MONGOSH_OPENSSL_LIBNAME=:libcrypto.so.1.1,:libssl.so.1.1
+  elif [ "$MONGOSH_SHARED_OPENSSL" == "openssl3" ]; then
+    curl -sSfLO https://www.openssl.org/source/openssl-3.0.2.tar.gz
+    MONGOSH_OPENSSL_LIBNAME=:libcrypto.so.3,:libssl.so.3
+  else
+    echo "Unknown MONGOSH_SHARED_OPENSSL value: $MONGOSH_SHARED_OPENSSL"
+    exit 1
+  fi
+
+  tar xzvf openssl-*.tar.gz
+  pushd openssl-*
+  ./config --prefix=/tmp/m/opt --libdir=lib shared
+  make -j12
+  make -j12 install install_ssldirs
+
+  popd # openssl-*
+  popd # /tmp/m
+
+  export NODE_JS_CONFIGURE_ARGS='[
+    "--shared-openssl",
+    "--shared-openssl-includes=/tmp/m/opt/include",
+    "--shared-openssl-libpath=/tmp/m/opt/lib",
+    "--shared-openssl-libname='"$MONGOSH_OPENSSL_LIBNAME"'",
+    "--shared-zlib"
+  ]'
+  export LD_LIBRARY_PATH=/tmp/m/opt/lib
+fi
+
 export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
-mkdir -pv /tmp/m # Node.js compilation can fail on long path prefixes
-(env TMP=/tmp/m TMPDIR=/tmp/m npm run evergreen-release compile && rm -rf /tmp/m) || (rm -rf /tmp/m; false)
+npm run evergreen-release compile
 dist/mongosh --version
 dist/mongosh --build-info
 dist/mongosh --build-info | grep -q '"distributionKind": "compiled"'
