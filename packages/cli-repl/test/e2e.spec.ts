@@ -156,6 +156,20 @@ describe('e2e', function() {
         shell.assertContainsOutput('233');
       });
     });
+    it('accepts a --tlsFIPSMode argument', async() => {
+      shell = TestShell.start({
+        args: [ '--nodb', '--tlsFIPSMode' ]
+      });
+      const result = await shell.waitForPromptOrExit();
+      // Whether this worked depends on the environment the test is running in.
+      // We check both possibilities.
+      if (result.state === 'exit') {
+        shell.assertContainsOutput('Could not enable FIPS mode');
+        expect(result.exitCode).to.equal(1);
+      } else {
+        expect(await shell.executeLine('[crypto.getFips()]')).to.include('[1]');
+      }
+    });
   });
 
   describe('set db', () => {
