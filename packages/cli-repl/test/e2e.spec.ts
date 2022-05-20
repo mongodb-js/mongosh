@@ -39,7 +39,8 @@ describe('e2e', function() {
       const data = JSON.parse(shell.output);
       expect(Object.keys(data)).to.deep.equal([
         'version', 'distributionKind', 'buildArch', 'buildPlatform',
-        'buildTarget', 'buildTime', 'gitVersion', 'nodeVersion'
+        'buildTarget', 'buildTime', 'gitVersion', 'nodeVersion',
+        'opensslVersion', 'sharedOpenssl'
       ]);
       expect(data.version).to.be.a('string');
       expect(data.nodeVersion).to.be.a('string');
@@ -47,7 +48,8 @@ describe('e2e', function() {
       expect(['unpackaged', 'packaged', 'compiled'].includes(data.distributionKind)).to.be.true;
       expect(data.buildArch).to.be.a('string');
       expect(data.buildPlatform).to.be.a('string');
-      expect(data.buildTarget).to.be.a('string');
+      expect(data.opensslVersion).to.be.a('string');
+      expect(data.sharedOpenssl).to.be.a('boolean');
       if (data.distributionKind !== 'unpackaged') {
         expect(data.buildTime).to.be.a('string');
         expect(data.gitVersion).to.be.a('string');
