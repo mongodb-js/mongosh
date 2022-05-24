@@ -590,7 +590,7 @@ functions:
           npm run evergreen-release draft
           }
 
-  release_publish:
+  release_publish_dry_run:
     - command: expansions.write
       params:
         file: tmp/expansions.yaml
@@ -605,7 +605,25 @@ functions:
           export NODE_JS_VERSION=${node_js_version}
           source .evergreen/setup-env.sh
           export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
+          npm run evergreen-release publish -- --dry-run
+          }
+
+  release_publish:
+    - command: expansions.write
+      params:
+        file: tmp/expansions.yaml
+        redacted: true
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          {
           echo "//registry.npmjs.org/:_authToken=${devtoolsbot_npm_token}" > .npmrc
+          export NODE_JS_VERSION=${node_js_version}
+          source .evergreen/setup-env.sh
+          export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
           npm run evergreen-release publish
           }
 
@@ -866,6 +884,20 @@ tasks:
           node_js_version: "<% out(NODE_JS_VERSION_16) %>"
           npm_deps_mode: all
       - func: release_draft
+        vars:
+          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+  - name: release_publish_dry_run
+    git_tag_only: true
+    exec_timeout_secs: 86400
+    depends_on:
+      - name: release_draft
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          npm_deps_mode: all
+      - func: release_publish_dry_run
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_16) %>"
   - name: release_publish
@@ -1215,4 +1247,5 @@ buildvariants:
     run_on: ubuntu1804-small
     tasks:
       - name: release_draft
+      - name: release_publish_dry_run
       - name: release_publish

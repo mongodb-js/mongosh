@@ -24,7 +24,7 @@ export async function generateUpdatedFormula(
   }
 
   const currentVersion = /cli-repl-(\d+\.\d+\.\d+)\.tgz/.exec(currentUrl)?.[1];
-  if (currentVersion && semver.compare(currentVersion, context.version, { includePrerelease: true }) !== -1) {
+  if (currentVersion && semver.compare(currentVersion, context.version, { includePrerelease: true }) !== -1 && !context.sha.includes('dryRun')) {
     throw new Error(`mongosh: new version ${context.version} is lower than or equal to current published version ${currentVersion}`);
   }
 

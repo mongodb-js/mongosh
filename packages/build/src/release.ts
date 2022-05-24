@@ -46,6 +46,16 @@ export async function release(
     auth: config.githubToken
   });
 
+  if (config.isDryRun) {
+    octokit.hook.wrap('request', (request, options) => {
+      if (options.method === 'GET') {
+        return request(options);
+      }
+
+      return { headers: {}, data: { content: { sha: '0'.repeat(40) }, commit: { sha: '0'.repeat(40) } } };
+    });
+  }
+
   const githubRepo = new GithubRepo(config.repo, octokit);
   const homebrewCoreRepo = new GithubRepo({ owner: 'Homebrew', repo: 'homebrew-core' }, octokit);
   const mongoHomebrewForkRepo = new GithubRepo({ owner: 'mongodb-js', repo: 'homebrew-core' }, octokit);

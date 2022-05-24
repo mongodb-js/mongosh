@@ -1,4 +1,4 @@
-import { DownloadCenter as DownloadCenterCls } from '@mongodb-js/dl-center';
+import { DownloadCenter as DownloadCenterCls, validateConfigSchema } from '@mongodb-js/dl-center';
 import { DownloadCenterConfig } from '@mongodb-js/dl-center/dist/download-center-config';
 import { CONFIGURATION_KEY, CONFIGURATIONS_BUCKET } from './constants';
 import { BuildVariant, ALL_BUILD_VARIANTS, getDownloadCenterDistroDescription, getArch, getDistro } from '../config';
@@ -8,9 +8,21 @@ export async function createAndPublishDownloadCenterConfig(
   packageInformation: PackageInformation,
   awsAccessKeyId: string,
   awsSecretAccessKey: string,
+  isDryRun: boolean,
   DownloadCenter: typeof DownloadCenterCls = DownloadCenterCls
 ): Promise<void> {
   const config = createDownloadCenterConfig(packageInformation);
+
+  console.warn('Created download center config:');
+  // eslint-disable-next-line no-console
+  console.dir(config, { depth: Infinity });
+
+  validateConfigSchema(config);
+
+  if (isDryRun) {
+    console.warn('Not uploading download center config in dry-run mode');
+    return;
+  }
 
   const dlcenter = new DownloadCenter({
     bucket: CONFIGURATIONS_BUCKET,

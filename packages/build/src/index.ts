@@ -19,6 +19,7 @@ if (require.main === module) {
       await triggerRelease(process.argv.slice(3));
     } else {
       const config: Config = require(path.join(__dirname, '..', '..', '..', 'config', 'build.conf.js'));
+
       const cliBuildVariant = process.argv
         .map((arg) => arg.match(/^--build-variant=(.+)$/))
         .filter(Boolean)[0];
@@ -26,6 +27,8 @@ if (require.main === module) {
         config.distributionBuildVariant = cliBuildVariant[1] as BuildVariant;
         validateBuildVariant(config.distributionBuildVariant);
       }
+
+      config.isDryRun ||= process.argv.includes('--dry-run');
 
       await release(command as ReleaseCommand, config);
     }

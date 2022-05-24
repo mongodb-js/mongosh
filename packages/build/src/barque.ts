@@ -4,6 +4,8 @@ import zlib from 'zlib';
 import fetch from 'node-fetch';
 import path from 'path';
 import stream from 'stream';
+import http from 'http';
+import { once } from 'events';
 import tar from 'tar-fs';
 import tmp from 'tmp-promise';
 import util, { promisify } from 'util';
@@ -89,6 +91,7 @@ export class Barque {
     notaryKeyName: string;
     notaryToken: string;
   }[];
+  private downloadedCuratorPromise: Promise<string> | undefined;
 
   constructor(config: Config) {
     if (config.platform !== Platform.Linux) {
@@ -122,13 +125,31 @@ export class Barque {
    *
    * @param buildVariant - The distributable package build variant to publish.
    * @param packageUrl - The Evergreen URL of the distributable package.
+   * @param isDryRun - Whether to pass --dry-run to curator.
    *
    * @returns The URLs where the packages will be available.
    */
-  async releaseToBarque(buildVariant: BuildVariant, packageUrl: string): Promise<string[]> {
+  async releaseToBarque(buildVariant: BuildVariant, packageUrl: string, isDryRun: boolean): Promise<string[]> {
     const repoConfig = path.join(this.config.rootDir, 'config', 'repo-config.yml');
-    const curatorDirPath = await this.createCuratorDir();
-    await this.extractLatestCurator(curatorDirPath);
+    this.downloadedCuratorPromise ??= (async() => {
+      const curatorDirPath = await this.createCuratorDir();
+      await this.extractLatestCurator(curatorDirPath);
+      return curatorDirPath;
+    })();
+    const curatorDirPath = await this.downloadedCuratorPromise;
+
+    let curatorService = 'https://barque.corp.mongodb.com';
+    if (isDryRun) {
+      const fauxService = http.createServer((req, res) => {
+        req.resume().on('end', () => {
+          res.end('{"Status":{"Completed":true}}');
+        });
+      });
+      fauxService.listen(0);
+      fauxService.unref();
+      await once(fauxService, 'listening');
+      curatorService = `http://localhost:${(fauxService.address() as any).port}`;
+    }
 
     const { ppas, arch } = getReposAndArch(buildVariant);
     return await this.execCurator(
@@ -136,7 +157,8 @@ export class Barque {
       packageUrl,
       repoConfig,
       ppas,
-      arch
+      arch,
+      curatorService
     );
   }
 
@@ -145,7 +167,8 @@ export class Barque {
     packageUrl: string,
     repoConfig: string,
     ppas: PPARepository[],
-    architecture: string
+    architecture: string,
+    curatorService: string
   ): Promise<string[]> {
     const results: Promise<string>[] = [];
     for (const ppa of ppas) {
@@ -154,7 +177,7 @@ export class Barque {
           const args = [
             '--level', 'debug',
             'repo', 'submit',
-            '--service', 'https://barque.corp.mongodb.com',
+            '--service', curatorService,
             '--config', repoConfig,
             '--distro', ppa,
             '--arch', architecture,

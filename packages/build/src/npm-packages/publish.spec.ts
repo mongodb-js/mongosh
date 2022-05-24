@@ -21,6 +21,7 @@ describe('npm-packages publishNpmPackages', () => {
     ]);
     try {
       publishNpmPackages(
+        false,
         listNpmPackages,
         markBumpedFilesAsAssumeUnchanged,
         spawnSync
@@ -40,6 +41,7 @@ describe('npm-packages publishNpmPackages', () => {
     ]);
     try {
       publishNpmPackages(
+        false,
         listNpmPackages,
         markBumpedFilesAsAssumeUnchanged,
         spawnSync
@@ -60,6 +62,7 @@ describe('npm-packages publishNpmPackages', () => {
     listNpmPackages.returns(packages);
 
     publishNpmPackages(
+      false,
       listNpmPackages,
       markBumpedFilesAsAssumeUnchanged,
       spawnSync
@@ -83,6 +86,7 @@ describe('npm-packages publishNpmPackages', () => {
 
     try {
       publishNpmPackages(
+        false,
         listNpmPackages,
         markBumpedFilesAsAssumeUnchanged,
         spawnSync

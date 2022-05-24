@@ -9,12 +9,15 @@ export async function publishToHomebrew(
   homebrewCoreFork: GithubRepo,
   packageVersion: string,
   githubReleaseLink: string,
+  isDryRun: boolean,
   httpsSha256Fn = httpsSha256,
   generateFormulaFn = generateUpdatedFormula,
   updateHomebrewForkFn = updateHomebrewFork
 ): Promise<void> {
   const cliReplPackageUrl = `https://registry.npmjs.org/@mongosh/cli-repl/-/cli-repl-${packageVersion}.tgz`;
-  const packageSha = await httpsSha256Fn(cliReplPackageUrl);
+  const packageSha = isDryRun ?
+    `dryRun-fakesha256-${Date.now()}` :
+    await httpsSha256Fn(cliReplPackageUrl);
 
   const homebrewFormula = await generateFormulaFn(
     { version: packageVersion, sha: packageSha },
@@ -26,7 +29,7 @@ export async function publishToHomebrew(
   }
 
   const forkBranch = await updateHomebrewForkFn({
-    packageVersion, packageSha, homebrewFormula, homebrewCore, homebrewCoreFork
+    packageVersion, packageSha, homebrewFormula, homebrewCore, homebrewCoreFork, isDryRun
   });
   if (!forkBranch) {
     console.warn('There are no changes to the homebrew formula');
@@ -35,6 +38,11 @@ export async function publishToHomebrew(
 
   const description = `This PR was created automatically and bumps \`mongosh\` to the latest published version \`${packageVersion}\`.\n\nFor additional details see ${githubReleaseLink}.`;
 
+  if (isDryRun) {
+    await homebrewCoreFork.deleteBranch(forkBranch);
+    console.warn('Deleted branch instead of creating homebrew PR');
+    return;
+  }
   const pr = await homebrewCore.createPullRequest(
     `mongosh ${packageVersion}`,
     description,

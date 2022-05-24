@@ -69,7 +69,8 @@ describe('Homebrew update-homebrew-fork', () => {
       packageSha: 'sha',
       homebrewFormula: 'updated formula',
       homebrewCore,
-      homebrewCoreFork
+      homebrewCoreFork,
+      isDryRun: false
     });
 
     expect(updated).to.equal('mongosh-1.0.0-sha');
@@ -91,7 +92,8 @@ describe('Homebrew update-homebrew-fork', () => {
       packageSha: 'sha',
       homebrewFormula: 'formula',
       homebrewCore,
-      homebrewCoreFork
+      homebrewCoreFork,
+      isDryRun: false
     });
 
     expect(updated).to.equal(undefined);

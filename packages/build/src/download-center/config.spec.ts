@@ -88,6 +88,7 @@ describe('DownloadCenter config', () => {
         packageInformation,
         'accessKey',
         'secretKey',
+        false,
         dlCenter as any
       );
 
