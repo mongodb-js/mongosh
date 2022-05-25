@@ -115,7 +115,6 @@ const DEPRECATED_ARGS_WITH_REPLACEMENT: Record<string, keyof CliOptions> = {
  */
 const UNSUPPORTED_ARGS: Readonly<string[]> = [
   'sslFIPSMode',
-  'tlsFIPSMode',
   'gssapiHostName'
 ];
 
@@ -188,7 +187,7 @@ export function verifyCliArguments(args: any /* CliOptions */): string[] {
   for (const unsupported of UNSUPPORTED_ARGS) {
     if (unsupported in args) {
       throw new MongoshUnimplementedError(
-        `Argument --${unsupported} is not yet supported in mongosh`,
+        `Argument --${unsupported} is not supported in mongosh`,
         CommonErrors.InvalidArgument
       );
     }

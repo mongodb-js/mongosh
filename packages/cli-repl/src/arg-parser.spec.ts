@@ -322,12 +322,12 @@ describe('arg-parser', () => {
         context('when providing --gssapiHostName', () => {
           const argv = [ ...baseArgv, uri, '--gssapiHostName', 'example.com' ];
 
-          it('throws an error since it is not yet supported', () => {
+          it('throws an error since it is not supported', () => {
             try {
               parseCliArgs(argv);
             } catch (e: any) {
               expect(e).to.be.instanceOf(MongoshUnimplementedError);
-              expect(e.message).to.include('Argument --gssapiHostName is not yet supported in mongosh');
+              expect(e.message).to.include('Argument --gssapiHostName is not supported in mongosh');
               return;
             }
             expect.fail('Expected error');
@@ -488,15 +488,15 @@ describe('arg-parser', () => {
           });
         });
 
-        context('when providing --tlsFIPSMode', () => {
-          const argv = [ ...baseArgv, uri, '--tlsFIPSMode' ];
+        context('when providing --sslFIPSMode', () => {
+          const argv = [ ...baseArgv, uri, '--sslFIPSMode' ];
 
-          it('throws an error since it is not yet supported', () => {
+          it('throws an error since it is not supported', () => {
             try {
               parseCliArgs(argv);
             } catch (e: any) {
               expect(e).to.be.instanceOf(MongoshUnimplementedError);
-              expect(e.message).to.include('Argument --tlsFIPSMode is not yet supported in mongosh');
+              expect(e.message).to.include('Argument --sslFIPSMode is not supported in mongosh');
               return;
             }
             expect.fail('Expected error');
