@@ -64,6 +64,7 @@ describe('MongoshNodeRepl', () => {
         version: '4.4.1'
       }
     });
+    sp.runCommandWithCheck.resolves({ ok: 1 });
     serviceProvider = sp;
 
     mongoshReplOptions = {

@@ -382,18 +382,17 @@ class MongoshNodeRepl implements EvaluationListener {
     if (!this.shellCliOptions.nodb && !this.shellCliOptions.quiet) {
       // cf. legacy shell:
       // https://github.com/mongodb/mongo/blob/a6df396047a77b90bf1ce9463eecffbee16fb864/src/mongo/shell/mongo_main.cpp#L1003-L1026
-      await this.loadExternalCode(`
-      (async() => {
-        const banners = await Promise.all([
-          (async() => await show("startupWarnings"))(),
-          (async() => await show("freeMonitoring"))(),
-          (async() => await show("automationNotices"))()
-        ]);
-        for (const banner of banners) {
-          if (banner.value) print(banner);
+      const { shellApi } = instanceState;
+      const banners = await Promise.all([
+        (async() => await shellApi.show('startupWarnings'))(),
+        (async() => await shellApi.show('freeMonitoring'))(),
+        (async() => await shellApi.show('automationNotices'))()
+      ]);
+      for (const banner of banners) {
+        if (banner.value) {
+          await shellApi.print(banner);
         }
-      })()
-      `, '<startup>');
+      }
       // Omitted, see MONGOSH-57: 'show nonGenuineMongoDBCheck'
     }
 
