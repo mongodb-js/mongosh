@@ -81,7 +81,8 @@ class Mongosh < Formula
 end`;
     expect(await generateUpdatedFormula(
       { version: '0.14.2', sha: 'hash' },
-      homebrewCore
+      homebrewCore,
+      false
     )).to.equal(updatedFormula);
     expect(getFileContent).to.have.been.calledOnce;
   });
@@ -89,7 +90,8 @@ end`;
   it('does not update the formula if neither artifact nor URL changed', async() => {
     expect(await generateUpdatedFormula(
       { version: '0.14.0', sha: '7b5a140689b4460a8b87008e6b7e7cb19acbc6e6cd1ab713e1a8923f3a995ca8' },
-      homebrewCore
+      homebrewCore,
+      false
     )).to.be.null;
     expect(getFileContent).to.have.been.calledOnce;
   });
@@ -98,7 +100,8 @@ end`;
     try {
       await generateUpdatedFormula(
         { version: '0.13.0', sha: 'differentsha' },
-        homebrewCore
+        homebrewCore,
+        false
       );
       expect.fail('expected error');
     } catch (e: any) {

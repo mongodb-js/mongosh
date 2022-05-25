@@ -3,7 +3,8 @@ import { GithubRepo } from '@mongodb-js/devtools-github-repo';
 
 export async function generateUpdatedFormula(
   context: { version: string, sha: string },
-  homebrewCore: GithubRepo
+  homebrewCore: GithubRepo,
+  isDryRun: boolean
 ): Promise<string | null> {
   const currentFormula = await homebrewCore.getFileContent('Formula/mongosh.rb', 'master');
 
@@ -24,7 +25,7 @@ export async function generateUpdatedFormula(
   }
 
   const currentVersion = /cli-repl-(\d+\.\d+\.\d+)\.tgz/.exec(currentUrl)?.[1];
-  if (currentVersion && semver.compare(currentVersion, context.version, { includePrerelease: true }) !== -1 && !context.sha.includes('dryRun')) {
+  if (currentVersion && semver.compare(currentVersion, context.version, { includePrerelease: true }) !== -1 && !isDryRun) {
     throw new Error(`mongosh: new version ${context.version} is lower than or equal to current published version ${currentVersion}`);
   }
 
