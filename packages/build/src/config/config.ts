@@ -44,4 +44,5 @@ export interface Config {
   packageInformation?: PackageInformation;
   artifactUrlFile?: string;
   manpage?: ManPageConfig;
+  isDryRun?: boolean;
 }

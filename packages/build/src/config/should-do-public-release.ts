@@ -2,9 +2,9 @@ import semver from 'semver';
 import { Config } from './config';
 
 /**
- * Checks if current build needs to be released to github and the downloads
- * centre.
- * Returns true if current branch is master, there is a commit tag, and if
+ * Checks if current build needs to be released to github and the download
+ * center.
+ * Returns true if current branch is main, there is a commit tag, and if
  * current version matches current revision's tag.
  */
 export function shouldDoPublicRelease(config: Config): boolean {
@@ -22,7 +22,7 @@ export function shouldDoPublicRelease(config: Config): boolean {
     return false;
   }
 
-  if (semver.neq(config.triggeringGitTag, config.version)) {
+  if (semver.neq(config.triggeringGitTag, config.version) && !config.isDryRun) {
     console.info(
       'mongosh: skip public release: the commit tag', config.triggeringGitTag,
       'is different from the release version', config.version

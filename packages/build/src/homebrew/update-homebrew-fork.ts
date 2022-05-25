@@ -4,8 +4,9 @@ export interface UpdateHomebrewParameters {
   packageVersion: string;
   packageSha: string;
   homebrewFormula: string;
-  homebrewCore: GithubRepo,
-  homebrewCoreFork: GithubRepo
+  homebrewCore: GithubRepo;
+  homebrewCoreFork: GithubRepo;
+  isDryRun: boolean;
 }
 
 /**

@@ -18,6 +18,7 @@ export function redactConfig(config: Config): Partial<Config> {
     isPatch: config.isPatch,
     packageInformation: config.packageInformation,
     csfleLibraryPath: config.csfleLibraryPath,
-    artifactUrlFile: config.artifactUrlFile
+    artifactUrlFile: config.artifactUrlFile,
+    isDryRun: config.isDryRun
   };
 }

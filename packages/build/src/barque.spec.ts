@@ -96,7 +96,7 @@ describe('Barque', () => {
 
             let releasedUrls;
             try {
-              releasedUrls = await barque.releaseToBarque(variant, url);
+              releasedUrls = await barque.releaseToBarque(variant, url, false);
             } catch (err: any) {
               if (process.platform === 'win32' && err.message.includes('ENOENT')) {
                 return; // Cannot spawn the fake curator on Windows
@@ -118,7 +118,7 @@ describe('Barque', () => {
         const debUrl = 'https://s3.amazonaws.com/mciuploads/mongosh/5ed7ee5d8683818eb28d9d3b5c65837cde4a08f5/mongodb-mongosh_0.1.0_amd64.deb';
 
         try {
-          await barque.releaseToBarque('debian-x64', debUrl);
+          await barque.releaseToBarque('debian-x64', debUrl, false);
         } catch (error: any) {
           expect(error.message).to.include(`Curator is unable to upload ${debUrl},ubuntu1804,amd64 to barque`);
           expect(barque.createCuratorDir).to.have.been.called;

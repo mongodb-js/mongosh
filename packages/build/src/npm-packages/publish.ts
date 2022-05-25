@@ -4,6 +4,7 @@ import { LernaPackageDescription, listNpmPackages as listNpmPackagesFn } from '.
 import { spawnSync } from '../helpers/spawn-sync';
 
 export function publishNpmPackages(
+  isDryRun: boolean,
   listNpmPackages: typeof listNpmPackagesFn = listNpmPackagesFn,
   markBumpedFilesAsAssumeUnchangedFn: typeof markBumpedFilesAsAssumeUnchanged = markBumpedFilesAsAssumeUnchanged,
   spawnSyncFn: typeof spawnSync = spawnSync
@@ -36,7 +37,11 @@ export function publishNpmPackages(
     ], {
       stdio: 'inherit',
       cwd: PROJECT_ROOT,
-      encoding: 'utf8'
+      encoding: 'utf8',
+      env: {
+        ...process.env,
+        ...(isDryRun ? { npm_config_dry_run: 'true' } : {})
+      }
     });
   } finally {
     markBumpedFilesAsAssumeUnchangedFn(packages, false);

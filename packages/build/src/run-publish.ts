@@ -31,6 +31,10 @@ export async function runPublish(
     return;
   }
 
+  if (config.isDryRun) {
+    console.warn('Performing dry-run publish only');
+  }
+
   const releaseVersion = getReleaseVersionFromTag(config.triggeringGitTag);
   const latestDraftTag = await mongoshGithubRepo.getMostRecentDraftTagForRelease(releaseVersion);
   if (!latestDraftTag || !releaseVersion) {
@@ -53,13 +57,15 @@ export async function runPublish(
     releaseVersion,
     latestDraftTag.name,
     config.packageInformation as PackageInformation,
+    !!config.isDryRun,
     getEvergreenArtifactUrl
   );
 
   await createAndPublishDownloadCenterConfig(
     config.packageInformation as PackageInformation,
     config.downloadCenterAwsKey || '',
-    config.downloadCenterAwsSecret || ''
+    config.downloadCenterAwsSecret || '',
+    !!config.isDryRun
   );
 
   await mongoshGithubRepo.promoteRelease(config);
@@ -67,13 +73,14 @@ export async function runPublish(
   // ensures the segment api key to be present in the published packages
   await writeBuildInfo(config, 'packaged');
 
-  publishNpmPackages();
+  publishNpmPackages(!!config.isDryRun);
 
   await publishToHomebrew(
     homebrewCoreGithubRepo,
     mongodbHomebrewForkGithubRepo,
     config.version,
-    `https://github.com/${mongoshGithubRepo.repo.owner}/${mongoshGithubRepo.repo.repo}/releases/tag/v${config.version}`
+    `https://github.com/${mongoshGithubRepo.repo.owner}/${mongoshGithubRepo.repo.repo}/releases/tag/v${config.version}`,
+    !!config.isDryRun
   );
 
   console.info('mongosh: finished release process.');
@@ -85,6 +92,7 @@ async function publishArtifactsToBarque(
   releaseVersion: string,
   mostRecentDraftTag: string,
   packageInformation: PackageInformation,
+  isDryRun: boolean,
   getEvergreenArtifactUrl: typeof getArtifactUrlFn
 ): Promise<void> {
   const publishedPackages: string[] = [];
@@ -98,14 +106,18 @@ async function publishArtifactsToBarque(
     });
     const packageUrl = getEvergreenArtifactUrl(project, mostRecentDraftTag, packageFile.path);
     console.info(`mongosh: Considering publishing ${variant} artifact to barque ${packageUrl}`);
-    const packageUrls = await barque.releaseToBarque(variant, packageUrl);
+    const packageUrls = await barque.releaseToBarque(variant, packageUrl, isDryRun);
     for (const url of packageUrls) {
       console.info(` -> ${url}`);
     }
     publishedPackages.push(...packageUrls);
   }
 
-  await barque.waitUntilPackagesAreAvailable(publishedPackages, 300);
+  if (isDryRun) {
+    console.warn('Not waiting for package availability in dry run...');
+  } else {
+    await barque.waitUntilPackagesAreAvailable(publishedPackages, 300);
+  }
 
   console.info('mongosh: Submitting to barque complete');
 }
