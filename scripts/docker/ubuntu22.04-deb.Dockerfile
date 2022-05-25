@@ -1,9 +1,10 @@
-FROM debian:11
+FROM ubuntu:22.04
 
 ARG artifact_url=""
 ADD ${artifact_url} /tmp
 ADD node_modules /usr/share/mongodb-csfle-library-version/node_modules
 RUN apt-get update
+RUN yes | unminimize
 RUN apt-get install -y man-db
 RUN apt-get install -y /tmp/*mongosh*.deb
 RUN /usr/bin/mongosh --version

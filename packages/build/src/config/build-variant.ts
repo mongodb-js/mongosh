@@ -6,7 +6,8 @@
  */
 export type Distro = 'win32' | 'win32msi' | 'darwin' | 'linux' | 'debian' | 'rhel7' | 'rhel8' | 'suse' | 'amzn1' | 'amzn2';
 export type Arch = 'x64' | 's390x' | 'arm64' | 'ppc64le';
-export type BuildVariant = `${Distro}-${Arch}`;
+export type OpenSSLTag = '' | '-openssl11' | '-openssl3';
+export type BuildVariant = `${Distro}-${Arch}${OpenSSLTag}`;
 
 export const ALL_BUILD_VARIANTS: readonly BuildVariant[] = Object.freeze([
   'win32-x64', 'win32msi-x64',
@@ -20,7 +21,10 @@ export const ALL_BUILD_VARIANTS: readonly BuildVariant[] = Object.freeze([
 ] as const);
 
 export function validateBuildVariant(variant?: BuildVariant): asserts variant is BuildVariant {
-  if (typeof variant === 'undefined' || !ALL_BUILD_VARIANTS.includes(variant)) {
+  if (
+    typeof variant === 'undefined' ||
+    !ALL_BUILD_VARIANTS.includes(variant.replace(/-openssl(11|3)$/, '') as BuildVariant)
+  ) {
     throw new Error(`${variant} is not a valid build variant identifier`);
   }
 }

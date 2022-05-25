@@ -23,8 +23,19 @@ export async function createDebianPackage(
   const dir = await generateDirFromTemplate(templateDir, {
     ...pkg.metadata,
     size,
-    debianArch: getDebArchName(arch)
+    debianArch: getDebArchName(arch),
+    provides: pkg.metadata.provides.map(({ name, version }) => `${name} (= ${version})`).join(', ')
   });
+
+  // dpkg wants the package data to be in a directory with the same name as the package
+  await fs.mkdir(path.join(dir, pkg.metadata.debName), { recursive: true });
+  for (const templateDirEntry of await fs.readdir(dir)) {
+    if (templateDirEntry === pkg.metadata.debName) continue;
+    await fs.rename(
+      path.join(dir, templateDirEntry),
+      path.join(dir, pkg.metadata.debName, templateDirEntry));
+  }
+
   const docFiles = [
     ...pkg.otherDocFilePaths,
     ...pkg.binaries.map(({ license }) => license)

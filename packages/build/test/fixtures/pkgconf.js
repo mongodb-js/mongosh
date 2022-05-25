@@ -43,6 +43,7 @@ module.exports = {
     maintainer: 'Somebody <somebody@example.org>',
     name: 'foobar',
     debName: 'foobar',
+    provides: [],
     rpmName: 'foobar',
     manufacturer: 'Some Random Company Inc.'
   },

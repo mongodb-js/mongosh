@@ -32,6 +32,7 @@ export interface PackageInformation {
         fullName: string;
         copyright: string;
         icon: string;
+        provides: { name: string, version: string }[];
     };
     debTemplateDir: string;
     rpmTemplateDir: string;

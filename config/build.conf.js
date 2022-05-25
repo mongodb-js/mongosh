@@ -76,6 +76,16 @@ const COPYRIGHT = `${new Date().getYear() + 1900} MongoDB, Inc.`;
 const MANPAGE_NAME = 'mongosh.1.gz'
 
 /**
+ * The package identifier (not executable identifier), e.g. 'debian-x64-openssl11'.
+ */
+const DISTRIBUTION_BUILD_VARIANT = process.env.DISTRIBUTION_BUILD_VARIANT;
+
+/**
+ * The shared-openssl suffix for the current package identifer, e.g. 'openssl11'.
+ */
+const SHARED_OPENSSL_TAG = DISTRIBUTION_BUILD_VARIANT?.match?.(/-(openssl\d*)$/)?.[1] || '';
+
+/**
  * Export the configuration for the build.
  */
 module.exports = {
@@ -101,7 +111,7 @@ module.exports = {
   triggeringGitTag: process.env.TRIGGERED_BY_GIT_TAG,
   platform: os.platform(),
   execNodeVersion: process.env.NODE_JS_VERSION || `^${process.version.slice(1)}`,
-  distributionBuildVariant: process.env.DISTRIBUTION_BUILD_VARIANT,
+  distributionBuildVariant: DISTRIBUTION_BUILD_VARIANT,
   notarySigningKeyName: process.env.NOTARY_SIGNING_KEY_NAME,
   notaryAuthToken: process.env.NOTARY_AUTH_TOKEN,
   repo: {
@@ -151,10 +161,20 @@ module.exports = {
     },
     metadata: {
       name: 'mongosh',
-      rpmName: 'mongodb-mongosh',
-      debName: 'mongodb-mongosh',
-      providesName: 'mongodb-shell',
-      providesVersion: '2.0',
+      rpmName: 'mongodb-mongosh' + (SHARED_OPENSSL_TAG ? `-shared-${SHARED_OPENSSL_TAG}` : ''),
+      debName: 'mongodb-mongosh' + (SHARED_OPENSSL_TAG ? `-shared-${SHARED_OPENSSL_TAG}` : ''),
+      provides: [
+        { name: 'mongodb-shell', version: '2.0' },
+        ...(
+          SHARED_OPENSSL_TAG ?
+            [{ name: 'mongodb-mongosh', version: CLI_REPL_PACKAGE_JSON.version }] :
+            []
+        )
+      ],
+      debDepends: 'libc6 (>= 2.17), libgssapi-krb5-2' + (
+        SHARED_OPENSSL_TAG === 'openssl11' ? ', libssl1.1' :
+          SHARED_OPENSSL_TAG === 'openssl3' ? ', libssl3' : ''
+      ),
       fullName: 'MongoDB Shell',
       version: CLI_REPL_PACKAGE_JSON.version,
       description: CLI_REPL_PACKAGE_JSON.description,
