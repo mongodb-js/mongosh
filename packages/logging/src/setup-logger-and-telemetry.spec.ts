@@ -68,8 +68,8 @@ describe('setupLoggerAndTelemetry', () => {
     bus.emit('mongosh:eval-cli-script');
     bus.emit('mongosh:globalconfig-load', { filename: '/etc/mongosh.conf', found: true });
 
-    bus.emit('mongosh:csfle-load-skip', { csflePath: 'path', reason: 'reason' });
-    bus.emit('mongosh:csfle-load-found', { csflePath: 'path', expectedVersion: { versionStr: 'someversion' } });
+    bus.emit('mongosh:crypt-library-load-skip', { cryptLibraryPath: 'path', reason: 'reason' });
+    bus.emit('mongosh:crypt-library-load-found', { cryptLibraryPath: 'path', expectedVersion: { versionStr: 'someversion' } });
 
     bus.emit('mongosh-snippets:loaded', { installdir: '/' });
     bus.emit('mongosh-snippets:npm-lookup', { existingVersion: 'v1.2.3' });
@@ -155,9 +155,9 @@ describe('setupLoggerAndTelemetry', () => {
     expect(logOutput[i].msg).to.equal('Loading global configuration file');
     expect(logOutput[i++].attr.filename).to.equal('/etc/mongosh.conf');
     expect(logOutput[i].msg).to.equal('Skipping shared library candidate');
-    expect(logOutput[i++].attr).to.deep.equal({ csflePath: 'path', reason: 'reason' });
+    expect(logOutput[i++].attr).to.deep.equal({ cryptLibraryPath: 'path', reason: 'reason' });
     expect(logOutput[i].msg).to.equal('Accepted shared library candidate');
-    expect(logOutput[i++].attr).to.deep.equal({ csflePath: 'path', expectedVersion: 'someversion' });
+    expect(logOutput[i++].attr).to.deep.equal({ cryptLibraryPath: 'path', expectedVersion: 'someversion' });
     expect(logOutput[i].msg).to.equal('Loaded snippets');
     expect(logOutput[i++].attr).to.deep.equal({ installdir: '/' });
     expect(logOutput[i].msg).to.equal('Performing npm lookup');

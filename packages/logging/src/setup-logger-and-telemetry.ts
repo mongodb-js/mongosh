@@ -13,8 +13,8 @@ import type {
   StartLoadingCliScriptsEvent,
   StartMongoshReplEvent,
   GlobalConfigFileLoadEvent,
-  CSFLELibrarySkipEvent,
-  CSFLELibraryFoundEvent,
+  CryptLibrarySkipEvent,
+  CryptLibraryFoundEvent,
   SnippetsCommandEvent,
   SnippetsErrorEvent,
   SnippetsFetchIndexErrorEvent,
@@ -272,13 +272,13 @@ export function setupLoggerAndTelemetry(
     });
   });
 
-  bus.on('mongosh:csfle-load-skip', function(ev: CSFLELibrarySkipEvent) {
-    log.info('CSFLE', mongoLogId(1_000_000_050), 'csfle', 'Skipping shared library candidate', ev);
+  bus.on('mongosh:crypt-library-load-skip', function(ev: CryptLibrarySkipEvent) {
+    log.info('AUTO-ENCRYPTION', mongoLogId(1_000_000_050), 'crypt-library', 'Skipping shared library candidate', ev);
   });
 
-  bus.on('mongosh:csfle-load-found', function(ev: CSFLELibraryFoundEvent) {
-    log.warn('CSFLE', mongoLogId(1_000_000_051), 'csfle', 'Accepted shared library candidate', {
-      csflePath: ev.csflePath,
+  bus.on('mongosh:crypt-library-load-found', function(ev: CryptLibraryFoundEvent) {
+    log.warn('AUTO-ENCRYPTION', mongoLogId(1_000_000_051), 'crypt-library', 'Accepted shared library candidate', {
+      cryptLibraryPath: ev.cryptLibraryPath,
       expectedVersion: ev.expectedVersion.versionStr
     });
   });

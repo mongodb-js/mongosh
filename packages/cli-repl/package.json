@@ -94,12 +94,12 @@
     "chai-as-promised": "^7.1.1",
     "lodash": "^4.17.21",
     "moment": "^2.29.1",
-    "mongodb-csfle-library-dummy": "^1.0.1"
+    "mongodb-crypt-library-dummy": "^1.0.2"
   },
   "optionalDependencies": {
     "get-console-process-list": "^1.0.4",
     "macos-export-certificate-and-key": "^1.1.1",
     "win-export-certificate-and-key": "^1.1.1",
-    "mongodb-csfle-library-version": "^1.0.2"
+    "mongodb-crypt-library-version": "^1.0.3"
   }
 }

@@ -192,7 +192,7 @@ export default class Mongo extends ShellApiClass {
     } else if (driverOptions.autoEncryption) {
       driverOptions.autoEncryption.extraOptions = {
         ...driverOptions.autoEncryption.extraOptions,
-        ...await this._instanceState.evaluationListener?.getCSFLELibraryOptions?.()
+        ...await this._instanceState.evaluationListener?.getCryptLibraryOptions?.()
       };
     }
     const parentProvider = this._instanceState.initialServiceProvider;

@@ -18,7 +18,7 @@ import { buildInfo } from './build-info';
 import type { StyleDefinition } from './clr';
 import { ConfigManager, ShellHomeDirectory, ShellHomePaths } from './config-directory';
 import { CliReplErrors } from './error-codes';
-import type { CSFLELibraryPathResult } from './csfle-library-paths';
+import type { CryptLibraryPathResult } from './crypt-library-paths';
 import { MongoLogManager, MongoLogWriter, mongoLogId } from 'mongodb-log-writer';
 import MongoshNodeRepl, { MongoshNodeReplOptions, MongoshIOProvider } from './mongosh-repl';
 import { setupLoggerAndTelemetry, ToggleableAnalytics } from '@mongosh/logging';
@@ -50,8 +50,8 @@ type AnalyticsOptions = {
 export type CliReplOptions = {
   /** The set of parsed command line flags. */
   shellCliOptions: CliOptions;
-  /** A function for getting the shared library path for CSFLE. */
-  getCSFLELibraryPaths?: (bus: MongoshBus) => Promise<CSFLELibraryPathResult>;
+  /** A function for getting the shared library path for in-use encryption. */
+  getCryptLibraryPaths?: (bus: MongoshBus) => Promise<CryptLibraryPathResult>;
   /** The stream to read user input from. */
   input: Readable;
   /** The stream to write shell output to. */
@@ -78,8 +78,8 @@ class CliRepl implements MongoshIOProvider {
   mongoshRepl: MongoshNodeRepl;
   bus: MongoshBus;
   cliOptions: CliOptions;
-  getCSFLELibraryPaths?: (bus: MongoshBus) => Promise<CSFLELibraryPathResult>;
-  cachedCSFLELibraryPath?: Promise<CSFLELibraryPathResult>;
+  getCryptLibraryPaths?: (bus: MongoshBus) => Promise<CryptLibraryPathResult>;
+  cachedCryptLibraryPath?: Promise<CryptLibraryPathResult>;
   shellHomeDirectory: ShellHomeDirectory;
   configDirectory: ConfigManager<CliUserConfigOnDisk>;
   config: CliUserConfigOnDisk;
@@ -114,7 +114,7 @@ class CliRepl implements MongoshIOProvider {
       enableTelemetry: true
     };
 
-    this.getCSFLELibraryPaths = options.getCSFLELibraryPaths;
+    this.getCryptLibraryPaths = options.getCryptLibraryPaths;
     this.globalConfigPaths = options.globalConfigPaths ?? [];
     this.shellHomeDirectory = new ShellHomeDirectory(options.shellHomePaths);
     this.configDirectory = new ConfigManager<CliUserConfigOnDisk>(
@@ -236,20 +236,20 @@ class CliRepl implements MongoshIOProvider {
       if (origExtraOptions.csflePath) {
         // If a CSFLE path has been specified through 'driverOptions', save it
         // for later use.
-        this.cachedCSFLELibraryPath = Promise.resolve({
+        this.cachedCryptLibraryPath = Promise.resolve({
           csflePath: origExtraOptions.csflePath
         });
       }
 
       const extraOptions = {
         ...origExtraOptions,
-        ...await this.getCSFLELibraryOptions()
+        ...await this.getCryptLibraryOptions()
       };
 
       driverOptions.autoEncryption = { ...driverOptions.autoEncryption, extraOptions };
     }
     if (Object.keys(driverOptions.autoEncryption ?? {}).join(',') === 'extraOptions') {
-      // In this case, autoEncryption opts were only specified for CSFLE library specs
+      // In this case, autoEncryption opts were only specified for crypt library specs
       delete driverOptions.autoEncryption;
     }
 
@@ -649,12 +649,12 @@ class CliRepl implements MongoshIOProvider {
     return this.mongoshRepl.clr(text, style);
   }
 
-  /** Get the right CSFLE shared library loading options. */
-  async getCSFLELibraryOptions(): Promise<AutoEncryptionOptions['extraOptions']> {
-    if (!this.getCSFLELibraryPaths) {
-      throw new MongoshInternalError('This instance of mongosh is not configured for CSFLE');
+  /** Get the right crypt shared library loading options. */
+  async getCryptLibraryOptions(): Promise<AutoEncryptionOptions['extraOptions']> {
+    if (!this.getCryptLibraryPaths) {
+      throw new MongoshInternalError('This instance of mongosh is not configured for in-use encryption');
     }
-    return (this.cachedCSFLELibraryPath ??= this.getCSFLELibraryPaths(this.bus));
+    return (this.cachedCryptLibraryPath ??= this.getCryptLibraryPaths(this.bus));
   }
 
   /** Provide extra information for reporting internal errors */

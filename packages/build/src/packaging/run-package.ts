@@ -1,7 +1,7 @@
 import { constants as fsConstants, promises as fs } from 'fs';
 import path from 'path';
 import { Config, validateBuildVariant } from '../config';
-import { downloadCsfleLibrary } from './download-csfle-library';
+import { downloadCryptLibrary } from './download-crypt-library';
 import { downloadManpage } from './download-manpage';
 import { notarizeArtifact } from './notary-service';
 import { createPackage, PackageFile } from './package';
@@ -12,10 +12,10 @@ export async function runPackage(
   const distributionBuildVariant = config.distributionBuildVariant;
   validateBuildVariant(distributionBuildVariant);
 
-  await fs.mkdir(path.dirname(config.csfleLibraryPath), { recursive: true });
+  await fs.mkdir(path.dirname(config.cryptLibraryPath), { recursive: true });
   await fs.copyFile(
-    await downloadCsfleLibrary(distributionBuildVariant),
-    config.csfleLibraryPath,
+    await downloadCryptLibrary(distributionBuildVariant),
+    config.cryptLibraryPath,
     fsConstants.COPYFILE_FICLONE);
 
   const { manpage } = config;

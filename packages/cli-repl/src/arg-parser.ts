@@ -24,6 +24,7 @@ const OPTIONS = {
     'awsSessionToken',
     'awsIamSessionToken',
     'csfleLibraryPath',
+    'cryptLibraryPath',
     'db',
     'eval',
     'gssapiHostName',
