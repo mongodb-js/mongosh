@@ -5114,6 +5114,7 @@ functions:
         script: |
           set -e
           {
+          echo "//registry.npmjs.org/:_authToken=${devtoolsbot_npm_token}" > .npmrc
           export NODE_JS_VERSION=${node_js_version}
           source .evergreen/setup-env.sh
           export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
@@ -9976,13 +9977,11 @@ buildvariants:
     run_on: rhel72-zseries-small
     tasks:
       - name: e2e_tests_linux_s390x
-# TODO: Re-enable once RHEL 8.0 distros are ready for use
-# (see also pkg_smoke_tests_rhel80_s390x)
-#  - name: e2e_rhel80_s390x
-#    display_name: "RHEL 8.0 s390x (E2E Tests)"
-#    run_on: rhel80-zseries-small
-#    tasks:
-#      - name: e2e_tests_linux_s390x
+  - name: e2e_rhel83_s390x
+    display_name: "RHEL 8.3 s390x (E2E Tests)"
+    run_on: rhel83-zseries-small
+    tasks:
+      - name: e2e_tests_linux_s390x_unstable
 
   - name: win32_unit
     display_name: "Windows VS 2019 (Unit tests)"
@@ -10184,11 +10183,11 @@ buildvariants:
     run_on: rhel72-zseries-small
     tasks:
       - name: pkg_test_rpmextract_rhel7_s390x
-  #- name: pkg_smoke_tests_rhel80_s390x
-  #  display_name: "package smoke tests (RHEL 8.0 s390x)"
-  #  run_on: rhel80-zseries-small
-  #  tasks:
-  #    - name: pkg_test_rpmextract_rhel8_s390x
+  - name: pkg_smoke_tests_rhel83_s390x
+    display_name: "package smoke tests (RHEL 8.3 s390x)"
+    run_on: rhel83-zseries-small
+    tasks:
+      - name: pkg_test_rpmextract_rhel7_s390x
   - name: pkg_smoke_tests_rhel81_ppc64le
     display_name: "package smoke tests (RHEL 8.1 ppc64le)"
     run_on: rhel81-power8-small

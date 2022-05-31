@@ -167,7 +167,7 @@ describe('e2e', function() {
         shell.assertContainsOutput('Could not enable FIPS mode');
         expect(result.exitCode).to.equal(1);
       } else {
-        expect(await shell.executeLine('[crypto.getFips()]')).to.include('[1]');
+        expect(await shell.executeLine('[crypto.getFips()]')).to.include('[ 1 ]');
       }
     });
   });
