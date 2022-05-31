@@ -371,5 +371,19 @@ test      558.79 GiB
         });
       }
     });
+
+    context('when the result is ShowBannerResult', () => {
+      it('returns a formatted banner', () => {
+        const output = stripAnsiColors(format({
+          value: {
+            header: 'Header',
+            content: 'foo\nbar\n'
+          },
+          type: 'ShowBannerResult'
+        }));
+
+        expect(output).to.equal('------\n   Header\n   foo\n   bar\n------\n');
+      });
+    });
   });
 }

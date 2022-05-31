@@ -62,6 +62,10 @@ export default function formatOutput(evaluationResult: EvaluationResult, options
     return formatCollections(value, options);
   }
 
+  if (type === 'ShowBannerResult') {
+    return formatBanner(value, options);
+  }
+
   if (type === 'StatsResult') {
     return formatStats(value, options);
   }
@@ -145,6 +149,22 @@ function formatCollections(output: CollectionNamesWithTypes[], options: FormatOp
   ];
 
   return textTable(tableEntries, { align: ['l', 'l'] });
+}
+
+function formatBanner(output: null | { header?: string, content: string }, options: FormatOptions): string {
+  if (!output?.content) {
+    return '';
+  }
+
+  let text = '';
+  text += `${clr('------', 'mongosh:section-header', options)}\n`;
+  if (output.header) {
+    text += `   ${clr(output.header, 'mongosh:section-header', options)}\n`;
+  }
+  // indent output.content with 3 spaces
+  text += output.content.trim().replace(/^/gm, '   ') + '\n';
+  text += `${clr('------', 'mongosh:section-header', options)}\n`;
+  return text;
 }
 
 function formatDatabases(output: any[], options: FormatOptions): string {
