@@ -133,9 +133,14 @@ To recreate the certificates follow the steps outlined below.
    openssl ca -create_serial -config ca.cnf -in client.csr -out client.pem -days 99999
    ```
    This will also generate a `<FINGERPRINT>.pem` file which can be removed.
-4. Create a bundle with client key and certificate to use for connecting:
+4. Create an encrypted client key file from the existing unencrypted one:
+   ```
+   openssl pkcs8 -topk8 -in client.key -v2 aes-256-cbc -out client.encrypted.key -passout pass:p4ssw0rd
+   ```
+5. Create bundles with client key and certificate to use for connecting:
    ```
    cat client.pem client.key > client.bundle.pem
+   cat client.pem client.encrypted.key > client.bundle.encrypted.pem
    ```
 
 ## Create Client Certificate not from CA
