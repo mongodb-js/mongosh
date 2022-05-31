@@ -30,8 +30,8 @@ export async function runSmokeTests(smokeTestServer: string | undefined, executa
   }, {
     input: 'crypto.createHash("md5").update("hello").digest("hex")',
     output: expectFipsSupport ?
-      /5d41402abc4b2a76b9719d911017c592/ :
-      /5d41402abc4b2a76b9719d911017c592|Could not enable FIPS mode/,
+      /disabled for FIPS/i :
+      /disabled for FIPS|Could not enable FIPS mode/i,
     includeStderr: true,
     testArgs: ['--tlsFIPSMode', '--nodb']
   }].concat(smokeTestServer ? [{
