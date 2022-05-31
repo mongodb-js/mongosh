@@ -111,9 +111,6 @@ describe('Auth e2e', function() {
 
     describe('user management', () => {
       describe('createUser', () => {
-        afterEach(async() => {
-          await assertUserAuth();
-        });
         it('all arguments', async() => {
           await shell.executeLine(`use ${dbName}`);
           expect(await shell.executeLine(
@@ -125,6 +122,7 @@ describe('Auth e2e', function() {
             mechanisms: ['SCRAM-SHA-256']
           });
           shell.assertNoErrors();
+          await assertUserAuth();
         });
         it('default arguments', async() => {
           await shell.executeLine(`use ${dbName}`);
@@ -136,6 +134,7 @@ describe('Auth e2e', function() {
             mechanisms: ['SCRAM-SHA-1', 'SCRAM-SHA-256']
           });
           shell.assertNoErrors();
+          await assertUserAuth();
         });
         it('digestPassword', async function() {
           if (process.env.MONGOSH_TEST_E2E_FORCE_FIPS) {
@@ -150,6 +149,7 @@ describe('Auth e2e', function() {
             mechanisms: ['SCRAM-SHA-1']
           });
           shell.assertNoErrors();
+          await assertUserAuth();
         });
       });
       describe('updateUser', () => {
