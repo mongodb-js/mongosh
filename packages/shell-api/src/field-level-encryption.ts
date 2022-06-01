@@ -256,20 +256,20 @@ export class KeyVault extends ShellApiWithMongoClass {
       }
     }
 
-    const options: ClientEncryptionCreateDataKeyProviderOptions = {};
+    let options: ClientEncryptionCreateDataKeyProviderOptions | undefined;
 
     if (masterKey) {
-      options.masterKey = masterKey;
+      options = { ...(options ?? {}), masterKey };
     }
     if (keyAltNames) {
-      options.keyAltNames = keyAltNames;
+      options = { ...(options ?? {}), keyAltNames };
     }
     if (keyMaterial) {
       // @ts-expect-error waiting for driver release
-      options.keyMaterial = keyMaterial;
+      options = { ...(options ?? {}), keyMaterial };
     }
 
-    return await this._clientEncryption._libmongocrypt.createDataKey(kms, options);
+    return await this._clientEncryption._libmongocrypt.createDataKey(kms, options as ClientEncryptionCreateDataKeyProviderOptions);
   }
 
   @returnType('Cursor')
