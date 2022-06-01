@@ -21,7 +21,7 @@ export function redactConfig(config: Config): Partial<Config> & {
     isPatch: config.isPatch,
     packageInformation: config.packageInformation,
     packageInformationInstantiated: config.packageVariant && config.packageInformation?.(config.packageVariant),
-    csfleLibraryPath: config.csfleLibraryPath,
+    cryptSharedLibPath: config.cryptSharedLibPath,
     artifactUrlFile: config.artifactUrlFile,
     isDryRun: config.isDryRun
   };

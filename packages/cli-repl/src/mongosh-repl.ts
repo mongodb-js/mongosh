@@ -36,7 +36,7 @@ export type MongoshIOProvider = Omit<ConfigProvider<CliUserConfig>, 'validateCon
   getHistoryFilePath(): string;
   exit(code?: number): Promise<never>;
   readFileUTF8(filename: string): Promise<{ contents: string, absolutePath: string }>;
-  getCSFLELibraryOptions(): Promise<AutoEncryptionOptions['extraOptions']>;
+  getCryptLibraryOptions(): Promise<AutoEncryptionOptions['extraOptions']>;
   bugReportErrorMessageInfo?(): string | undefined;
 };
 
@@ -831,10 +831,10 @@ class MongoshNodeRepl implements EvaluationListener {
   }
 
   /**
-   * Get the right CSFLE shared library loading options.
+   * Get the right crypt shared library loading options.
    */
-  async getCSFLELibraryOptions(): Promise<AutoEncryptionOptions['extraOptions']> {
-    return this.ioProvider.getCSFLELibraryOptions();
+  async getCryptLibraryOptions(): Promise<AutoEncryptionOptions['extraOptions']> {
+    return this.ioProvider.getCryptLibraryOptions();
   }
 
   /**

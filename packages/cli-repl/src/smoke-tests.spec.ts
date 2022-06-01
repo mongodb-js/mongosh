@@ -1,13 +1,13 @@
 import { runSmokeTests } from './';
 import path from 'path';
-import { startTestServer, downloadCurrentCsfleSharedLibrary } from '../../../testing/integration-testing-hooks';
+import { startTestServer, downloadCurrentCryptSharedLibrary } from '../../../testing/integration-testing-hooks';
 
 describe('smoke tests', () => {
   const testServer = startTestServer('shared');
-  let csfleLibrary: string;
+  let cryptLibrary: string;
 
   before(async() => {
-    csfleLibrary = await downloadCurrentCsfleSharedLibrary();
+    cryptLibrary = await downloadCurrentCryptSharedLibrary();
   });
 
   it('self-test passes', async() => {
@@ -15,7 +15,7 @@ describe('smoke tests', () => {
     // coverage.
     await runSmokeTests(
       await testServer.connectionString(),
-      process.execPath, '-r', 'ts-node/register', path.resolve(__dirname, 'run.ts'), '--csfleLibraryPath', csfleLibrary
+      process.execPath, '-r', 'ts-node/register', path.resolve(__dirname, 'run.ts'), '--cryptSharedLibPath', cryptLibrary
     );
   });
 });

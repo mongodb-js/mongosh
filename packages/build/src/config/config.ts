@@ -40,8 +40,8 @@ export interface Config {
   };
   isPatch?: boolean;
   triggeringGitTag?: string;
-  csfleLibraryPath: string;
   packageInformation?: PackageInformationProvider;
+  cryptSharedLibPath: string;
   artifactUrlFile?: string;
   manpage?: ManPageConfig;
   isDryRun?: boolean;

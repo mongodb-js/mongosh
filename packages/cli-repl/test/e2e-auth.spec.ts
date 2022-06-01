@@ -111,9 +111,6 @@ describe('Auth e2e', function() {
 
     describe('user management', () => {
       describe('createUser', () => {
-        afterEach(async() => {
-          await assertUserAuth();
-        });
         it('all arguments', async() => {
           await shell.executeLine(`use ${dbName}`);
           expect(await shell.executeLine(
@@ -125,6 +122,7 @@ describe('Auth e2e', function() {
             mechanisms: ['SCRAM-SHA-256']
           });
           shell.assertNoErrors();
+          await assertUserAuth();
         });
         it('default arguments', async() => {
           await shell.executeLine(`use ${dbName}`);
@@ -136,8 +134,12 @@ describe('Auth e2e', function() {
             mechanisms: ['SCRAM-SHA-1', 'SCRAM-SHA-256']
           });
           shell.assertNoErrors();
+          await assertUserAuth();
         });
-        it('digestPassword', async() => {
+        it('digestPassword', async function() {
+          if (process.env.MONGOSH_TEST_E2E_FORCE_FIPS) {
+            return this.skip(); // No SCRAM-SHA-1 in FIPS mode
+          }
           await shell.executeLine(`use ${dbName}`);
           expect(await shell.executeLine(
             'db.createUser({ user: "anna", pwd: "pwd", roles: [], mechanisms: ["SCRAM-SHA-1"], passwordDigestor: "client"})'
@@ -147,6 +149,7 @@ describe('Auth e2e', function() {
             mechanisms: ['SCRAM-SHA-1']
           });
           shell.assertNoErrors();
+          await assertUserAuth();
         });
       });
       describe('updateUser', () => {
@@ -190,7 +193,10 @@ describe('Auth e2e', function() {
           });
           shell.assertNoErrors();
         });
-        it('digestPassword', async() => {
+        it('digestPassword', async function() {
+          if (process.env.MONGOSH_TEST_E2E_FORCE_FIPS) {
+            return this.skip(); // No SCRAM-SHA-1 in FIPS mode
+          }
           await shell.executeLine(`use ${dbName}`);
           expect(await shell.executeLine(
             'db.updateUser("anna", { pwd: "pwd3", passwordDigestor: "client", mechanisms: ["SCRAM-SHA-1"]})'
@@ -825,7 +831,10 @@ describe('Auth e2e', function() {
       shell.assertNoErrors();
     });
     context('with specific auth mechanisms', () => {
-      it('can auth with SCRAM-SHA-1', async() => {
+      it('can auth with SCRAM-SHA-1', async function() {
+        if (process.env.MONGOSH_TEST_E2E_FORCE_FIPS) {
+          return this.skip(); // No SCRAM-SHA-1 in FIPS mode
+        }
         const connectionString = await testServer.connectionString();
         shell = TestShell.start({ args: [
           connectionString,

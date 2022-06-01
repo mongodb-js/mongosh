@@ -93,9 +93,9 @@ export class SignableCompiler {
       path: await findModulePath('service-provider-server', 'os-dns-native'),
       requireRegexp: /\bos_dns_native\.node$/
     };
-    const csfleLibraryVersionAddon = {
-      path: await findModulePath('cli-repl', 'mongodb-csfle-library-version'),
-      requireRegexp: /\bmongodb_csfle_library_version\.node$/
+    const cryptLibraryVersionAddon = {
+      path: await findModulePath('cli-repl', 'mongodb-crypt-library-version'),
+      requireRegexp: /\bmongodb_crypt_library_version\.node$/
     };
     // Warning! Until https://jira.mongodb.org/browse/MONGOSH-990,
     // packages/service-provider-server *also* has a copy of these.
@@ -137,7 +137,7 @@ export class SignableCompiler {
         fleAddon,
         osDnsAddon,
         kerberosAddon,
-        csfleLibraryVersionAddon
+        cryptLibraryVersionAddon
       ].concat(winCAAddon ? [
         winCAAddon
       ] : []).concat(winConsoleProcessListAddon ? [

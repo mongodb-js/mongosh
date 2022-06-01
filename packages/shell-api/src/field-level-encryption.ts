@@ -47,6 +47,33 @@ export interface ClientSideFieldLevelEncryptionOptions {
   bypassQueryAnalysis?: boolean;
 }
 
+type MasterKey = AWSEncryptionKeyOptions | AzureEncryptionKeyOptions | GCPEncryptionKeyOptions;
+type AltNames = string[];
+
+type DataKeyEncryptionKeyOptions = {
+  masterKey?: MasterKey;
+  keyAltNames?: AltNames;
+  keyMaterial?: Buffer | BinaryType
+};
+
+type MasterKeyOrAltNamesOrDataKeyOptions = MasterKey | DataKeyEncryptionKeyOptions | AltNames | string;
+
+const isDataKeyEncryptionKeyOptions = (options?: MasterKeyOrAltNamesOrDataKeyOptions): options is DataKeyEncryptionKeyOptions => {
+  return (
+    !Array.isArray(options) &&
+    typeof options === 'object' &&
+    ('masterKey' in options || 'keyAltNames' in options || 'keyMaterial' in options)
+  );
+};
+
+const isMasterKey = (options?: MasterKeyOrAltNamesOrDataKeyOptions): options is MasterKey => {
+  return (
+    !Array.isArray(options) &&
+    typeof options === 'object' &&
+    !isDataKeyEncryptionKeyOptions(options)
+  );
+};
+
 @shellApiClassDefault
 @classPlatforms([ ReplPlatform.CLI ] )
 export class ClientEncryption extends ShellApiWithMongoClass {
@@ -80,15 +107,24 @@ export class ClientEncryption extends ShellApiWithMongoClass {
   async encrypt(
     encryptionId: BinaryType,
     value: any,
-    encryptionAlgorithm: ClientEncryptionEncryptOptions['algorithm']
+    algorithmOrEncryptionOptions: ClientEncryptionEncryptOptions['algorithm'] | ClientEncryptionEncryptOptions
   ): Promise<BinaryType> {
-    assertArgsDefinedType([encryptionId, value, encryptionAlgorithm], [true, true, true], 'ClientEncryption.encrypt');
+    let encryptionOptions: ClientEncryptionEncryptOptions;
+    if (typeof algorithmOrEncryptionOptions === 'object') {
+      encryptionOptions = {
+        keyId: encryptionId,
+        ...algorithmOrEncryptionOptions
+      };
+    } else {
+      encryptionOptions = {
+        keyId: encryptionId,
+        algorithm: algorithmOrEncryptionOptions
+      };
+    }
+    assertArgsDefinedType([encryptionId, value, encryptionOptions], [true, true, true], 'ClientEncryption.encrypt');
     return await this._libmongocrypt.encrypt(
       value,
-      {
-        keyId: encryptionId,
-        algorithm: encryptionAlgorithm
-      }
+      encryptionOptions
     );
   }
 
@@ -160,29 +196,46 @@ export class KeyVault extends ShellApiWithMongoClass {
 
   createKey(kms: 'local', keyAltNames?: string[]): Promise<BinaryType>
   createKey(kms: ClientEncryptionDataKeyProvider, legacyMasterKey: string, keyAltNames?: string[]): Promise<BinaryType>
-  createKey(kms: ClientEncryptionDataKeyProvider, options: AWSEncryptionKeyOptions | AzureEncryptionKeyOptions | GCPEncryptionKeyOptions | undefined): Promise<BinaryType>
-  createKey(kms: ClientEncryptionDataKeyProvider, options: AWSEncryptionKeyOptions | AzureEncryptionKeyOptions | GCPEncryptionKeyOptions | undefined, keyAltNames: string[]): Promise<BinaryType>
+  createKey(kms: ClientEncryptionDataKeyProvider, options: MasterKey | DataKeyEncryptionKeyOptions | undefined): Promise<BinaryType>
+  createKey(kms: ClientEncryptionDataKeyProvider, options: MasterKey | DataKeyEncryptionKeyOptions | undefined, keyAltNames: string[]): Promise<BinaryType>
   @returnsPromise
   @apiVersions([1])
+  // eslint-disable-next-line complexity
   async createKey(
     kms: ClientEncryptionDataKeyProvider,
-    masterKeyOrAltNames?: AWSEncryptionKeyOptions | AzureEncryptionKeyOptions | GCPEncryptionKeyOptions | string | undefined | string[],
-    keyAltNames?: string[]
+    masterKeyOrAltNamesOrDataKeyOptions?: MasterKeyOrAltNamesOrDataKeyOptions,
+    legacyKeyAltNames?: string[]
   ): Promise<BinaryType> {
+    let masterKey: MasterKey | undefined;
+    let keyAltNames;
+    let keyMaterial;
+
+    if (isDataKeyEncryptionKeyOptions(masterKeyOrAltNamesOrDataKeyOptions)) {
+      masterKey = masterKeyOrAltNamesOrDataKeyOptions?.masterKey;
+      keyAltNames = masterKeyOrAltNamesOrDataKeyOptions?.keyAltNames;
+      keyMaterial = masterKeyOrAltNamesOrDataKeyOptions?.keyMaterial;
+    } else if (isMasterKey(masterKeyOrAltNamesOrDataKeyOptions)) {
+      masterKey = masterKeyOrAltNamesOrDataKeyOptions;
+    }
+
+    if (legacyKeyAltNames) {
+      keyAltNames = legacyKeyAltNames;
+    }
+
     assertArgsDefinedType([kms], [true], 'KeyVault.createKey');
 
-    if (typeof masterKeyOrAltNames === 'string') {
-      if (kms === 'local' && masterKeyOrAltNames === '') {
+    if (typeof masterKeyOrAltNamesOrDataKeyOptions === 'string') {
+      if (kms === 'local' && masterKeyOrAltNamesOrDataKeyOptions === '') {
         // allowed in the old shell - even enforced prior to 4.2.3
         // https://docs.mongodb.com/manual/reference/method/KeyVault.createKey/
-        masterKeyOrAltNames = undefined;
+        masterKey = undefined;
       } else {
         throw new MongoshInvalidInputError(
           'KeyVault.createKey does not support providing masterKey as string anymore. For AWS please use createKey("aws", { region: ..., key: ... })',
           CommonErrors.Deprecated
         );
       }
-    } else if (Array.isArray(masterKeyOrAltNames)) {
+    } else if (Array.isArray(masterKeyOrAltNamesOrDataKeyOptions)) {
       // old signature - one could immediately provide an array of key alt names
       // not documented but visible in code: https://github.com/mongodb/mongo/blob/eb2b72cf9c0269f086223d499ac9be8a270d268c/src/mongo/shell/keyvault.js#L19
       if (kms !== 'local') {
@@ -198,22 +251,22 @@ export class KeyVault extends ShellApiWithMongoClass {
           );
         }
 
-        keyAltNames = masterKeyOrAltNames;
-        masterKeyOrAltNames = undefined;
+        keyAltNames = masterKeyOrAltNamesOrDataKeyOptions;
+        masterKey = undefined;
       }
     }
 
     let options: ClientEncryptionCreateDataKeyProviderOptions | undefined;
-    if (masterKeyOrAltNames) {
-      options = {
-        masterKey: masterKeyOrAltNames as ClientEncryptionCreateDataKeyProviderOptions['masterKey']
-      };
+
+    if (masterKey) {
+      options = { ...(options ?? {}), masterKey };
     }
     if (keyAltNames) {
-      options = {
-        ...(options ?? {}),
-        keyAltNames
-      };
+      options = { ...(options ?? {}), keyAltNames };
+    }
+    if (keyMaterial) {
+      // @ts-expect-error waiting for driver release
+      options = { ...(options ?? {}), keyMaterial };
     }
 
     return await this._clientEncryption._libmongocrypt.createDataKey(kms, options as ClientEncryptionCreateDataKeyProviderOptions);
@@ -276,5 +329,32 @@ export class KeyVault extends ShellApiWithMongoClass {
       });
     }
     return ret;
+  }
+
+  @returnsPromise
+  @apiVersions([1])
+  async rewrapManyDataKey(filter: Document, options?: Document): Promise<Document> {
+    return this._clientEncryption._libmongocrypt.rewrapManyDataKey(filter, options as any);
+  }
+
+  // Alias for compatibility with the driver API.
+  @returnsPromise
+  @apiVersions([1])
+  async createDataKey(...args: Parameters<KeyVault['createKey']>): ReturnType<KeyVault['createKey']> {
+    return await this.createKey(...args);
+  }
+
+  // Alias for compatibility with the driver API.
+  @returnsPromise
+  @apiVersions([1])
+  async removeKeyAltName(...args: Parameters<KeyVault['removeKeyAlternateName']>): ReturnType<KeyVault['removeKeyAlternateName']> {
+    return await this.removeKeyAlternateName(...args);
+  }
+
+  // Alias for compatibility with the driver API.
+  @returnsPromise
+  @apiVersions([1])
+  async addKeyAltName(...args: Parameters<KeyVault['addKeyAlternateName']>): ReturnType<KeyVault['addKeyAlternateName']> {
+    return await this.addKeyAlternateName(...args);
   }
 }
