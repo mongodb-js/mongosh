@@ -233,11 +233,13 @@ class CliRepl implements MongoshIOProvider {
 
     if (driverOptions.autoEncryption) {
       const origExtraOptions = driverOptions.autoEncryption.extraOptions ?? {};
-      if (origExtraOptions.csflePath) {
+      // @ts-expect-error next driver release updates library name
+      if (origExtraOptions.cryptSharedLibPath) {
         // If a CSFLE path has been specified through 'driverOptions', save it
         // for later use.
         this.cachedCryptLibraryPath = Promise.resolve({
-          csflePath: origExtraOptions.csflePath
+          // @ts-expect-error next driver release updates library name
+          cryptSharedLibPath: origExtraOptions.cryptSharedLibPath
         });
       }
 
