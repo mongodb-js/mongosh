@@ -10,7 +10,7 @@ import { URL } from 'url';
 import { promisify } from 'util';
 import which from 'which';
 import { downloadMongoDb } from '../packages/build/src/download-mongodb';
-import { downloadCryptLibrary } from '../packages/build/src/packaging/download-csfle-library';
+import { downloadCryptLibrary } from '../packages/build/src/packaging/download-crypt-library';
 
 const execFile = promisify(child_process.execFile);
 
