@@ -17,12 +17,12 @@ if [ "$(uname)" == Linux ]; then
   docker run -e PUPPETEER_SKIP_CHROMIUM_DOWNLOAD \
     -e EVERGREEN_EXPANSIONS_PATH=/tmp/build/tmp/expansions.yaml \
     -e NODE_JS_VERSION \
-    -e DISTRIBUTION_BUILD_VARIANT \
+    -e PACKAGE_VARIANT \
     -e ARTIFACT_URL_FILE="/tmp/build/artifact-url.txt" \
     --rm -v $PWD:/tmp/build --network host rocky8-package \
     -c 'cd /tmp/build && npm run evergreen-release package && npm run evergreen-release upload'
 else
-  if [[ "$OS" == "Windows_NT" && "$DISTRIBUTION_BUILD_VARIANT" == "win32msi-x64" ]]; then
+  if [[ "$OS" == "Windows_NT" && "$PACKAGE_VARIANT" == "win32msi-x64" ]]; then
     # We have to setup a python venv for the notary client to work
     # in order to sign the MSI
     export PATH="/cygdrive/c/Python27:$PATH"

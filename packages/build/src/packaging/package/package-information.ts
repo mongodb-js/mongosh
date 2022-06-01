@@ -1,3 +1,4 @@
+import type { PackageVariant } from '../../config';
 interface DocumentationFile {
     sourceFilePath: string;
     packagedFilePath: string;
@@ -38,3 +39,5 @@ export interface PackageInformation {
     rpmTemplateDir: string;
     msiTemplateDir: string;
 }
+
+export type PackageInformationProvider = (packageVariant: PackageVariant) => PackageInformation;

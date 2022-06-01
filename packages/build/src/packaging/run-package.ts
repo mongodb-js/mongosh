@@ -1,6 +1,6 @@
 import { constants as fsConstants, promises as fs } from 'fs';
 import path from 'path';
-import { Config, validateBuildVariant } from '../config';
+import { Config, validatePackageVariant } from '../config';
 import { downloadCsfleLibrary } from './download-csfle-library';
 import { downloadManpage } from './download-manpage';
 import { notarizeArtifact } from './notary-service';
@@ -9,12 +9,12 @@ import { createPackage, PackageFile } from './package';
 export async function runPackage(
   config: Config,
 ): Promise<PackageFile> {
-  const distributionBuildVariant = config.distributionBuildVariant;
-  validateBuildVariant(distributionBuildVariant);
+  const packageVariant = config.packageVariant;
+  validatePackageVariant(packageVariant);
 
   await fs.mkdir(path.dirname(config.csfleLibraryPath), { recursive: true });
   await fs.copyFile(
-    await downloadCsfleLibrary(distributionBuildVariant),
+    await downloadCsfleLibrary(packageVariant),
     config.csfleLibraryPath,
     fsConstants.COPYFILE_FICLONE);
 
@@ -30,14 +30,14 @@ export async function runPackage(
   const runCreatePackage = async(): Promise<PackageFile> => {
     return await createPackage(
       config.outputDir,
-      distributionBuildVariant,
-      config.packageInformation as (Required<Config>['packageInformation'])
+      packageVariant,
+      (config.packageInformation as (Required<Config>['packageInformation']))(packageVariant)
     );
   };
 
   const packaged = await runCreatePackage();
 
-  if (distributionBuildVariant === 'win32msi-x64') {
+  if (packageVariant === 'win32msi-x64') {
     await notarizeArtifact(
       packaged.path,
       {

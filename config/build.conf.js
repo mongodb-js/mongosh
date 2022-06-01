@@ -78,12 +78,7 @@ const MANPAGE_NAME = 'mongosh.1.gz'
 /**
  * The package identifier (not executable identifier), e.g. 'debian-x64-openssl11'.
  */
-const DISTRIBUTION_BUILD_VARIANT = process.env.DISTRIBUTION_BUILD_VARIANT;
-
-/**
- * The shared-openssl suffix for the current package identifer, e.g. 'openssl11'.
- */
-const SHARED_OPENSSL_TAG = DISTRIBUTION_BUILD_VARIANT?.match?.(/-(openssl\d*)$/)?.[1] || '';
+const PACKAGE_VARIANT = process.env.PACKAGE_VARIANT;
 
 /**
  * Export the configuration for the build.
@@ -111,7 +106,7 @@ module.exports = {
   triggeringGitTag: process.env.TRIGGERED_BY_GIT_TAG,
   platform: os.platform(),
   execNodeVersion: process.env.NODE_JS_VERSION || `^${process.version.slice(1)}`,
-  distributionBuildVariant: DISTRIBUTION_BUILD_VARIANT,
+  packageVariant: PACKAGE_VARIANT,
   notarySigningKeyName: process.env.NOTARY_SIGNING_KEY_NAME,
   notaryAuthToken: process.env.NOTARY_AUTH_TOKEN,
   repo: {
@@ -120,73 +115,78 @@ module.exports = {
   },
   artifactUrlFile: process.env.ARTIFACT_URL_FILE,
   csfleLibraryPath: CSFLE_LIBRARY_PATH,
-  packageInformation: {
-    binaries: [
-      {
-        sourceFilePath: EXECUTABLE_PATH,
-        category: 'bin',
-        license: {
-          sourceFilePath: path.resolve(__dirname, '..', 'LICENSE'),
-          packagedFilePath: 'LICENSE-mongosh',
-          debCopyright: `${new Date().getYear() + 1900} MongoDB, Inc.`,
-          debIdentifier: 'Apache-2',
-          rpmIdentifier: 'ASL 2.0'
+  packageInformation: packageVariant => {
+    // The shared-openssl suffix for the current package identifer, e.g. 'openssl11'.
+    const SHARED_OPENSSL_TAG = packageVariant?.match?.(/-(openssl\d*)$/)?.[1] || '';
+
+    return {
+      binaries: [
+        {
+          sourceFilePath: EXECUTABLE_PATH,
+          category: 'bin',
+          license: {
+            sourceFilePath: path.resolve(__dirname, '..', 'LICENSE'),
+            packagedFilePath: 'LICENSE-mongosh',
+            debCopyright: `${new Date().getYear() + 1900} MongoDB, Inc.`,
+            debIdentifier: 'Apache-2',
+            rpmIdentifier: 'ASL 2.0'
+          }
+        },
+        {
+          sourceFilePath: CSFLE_LIBRARY_PATH,
+          category: 'lib',
+          license: {
+            sourceFilePath: path.resolve(__dirname, '..', 'packaging', 'LICENSE-csfle'),
+            packagedFilePath: 'LICENSE-csfle',
+            debCopyright: COPYRIGHT,
+            debIdentifier: 'Proprietary',
+            rpmIdentifier: 'Proprietary'
+          }
         }
-      },
-      {
-        sourceFilePath: CSFLE_LIBRARY_PATH,
-        category: 'lib',
-        license: {
-          sourceFilePath: path.resolve(__dirname, '..', 'packaging', 'LICENSE-csfle'),
-          packagedFilePath: 'LICENSE-csfle',
-          debCopyright: COPYRIGHT,
-          debIdentifier: 'Proprietary',
-          rpmIdentifier: 'Proprietary'
-        }
-      }
-    ],
-    otherDocFilePaths: [
-      {
-        sourceFilePath: path.resolve(__dirname, '..', 'packaging', 'README'),
-        packagedFilePath: 'README'
-      },
-      {
-        sourceFilePath: path.resolve(__dirname, '..', 'THIRD_PARTY_NOTICES.md'),
-        packagedFilePath: 'THIRD_PARTY_NOTICES'
-      }
-    ],
-    manpage: {
-      sourceFilePath: path.resolve(TMP_DIR, 'manpage', MANPAGE_NAME),
-      packagedFilePath: MANPAGE_NAME,
-    },
-    metadata: {
-      name: 'mongosh',
-      rpmName: 'mongodb-mongosh' + (SHARED_OPENSSL_TAG ? `-shared-${SHARED_OPENSSL_TAG}` : ''),
-      debName: 'mongodb-mongosh' + (SHARED_OPENSSL_TAG ? `-shared-${SHARED_OPENSSL_TAG}` : ''),
-      provides: [
-        { name: 'mongodb-shell', version: '2.0' },
-        ...(
-          SHARED_OPENSSL_TAG ?
-            [{ name: 'mongodb-mongosh', version: CLI_REPL_PACKAGE_JSON.version }] :
-            []
-        )
       ],
-      debDepends: 'libc6 (>= 2.17), libgssapi-krb5-2' + (
-        SHARED_OPENSSL_TAG === 'openssl11' ? ', libssl1.1' :
-          SHARED_OPENSSL_TAG === 'openssl3' ? ', libssl3' : ''
-      ),
-      fullName: 'MongoDB Shell',
-      version: CLI_REPL_PACKAGE_JSON.version,
-      description: CLI_REPL_PACKAGE_JSON.description,
-      homepage: CLI_REPL_PACKAGE_JSON.homepage,
-      maintainer: CLI_REPL_PACKAGE_JSON.author,
-      manufacturer: CLI_REPL_PACKAGE_JSON.manufacturer,
-      copyright: COPYRIGHT,
-      icon: path.resolve(__dirname, '..', 'packaging', 'mongo.ico')
-    },
-    debTemplateDir: path.resolve(__dirname, '..', 'packaging', 'deb-template'),
-    rpmTemplateDir: path.resolve(__dirname, '..', 'packaging', 'rpm-template'),
-    msiTemplateDir: path.resolve(__dirname, '..', 'packaging', 'msi-template')
+      otherDocFilePaths: [
+        {
+          sourceFilePath: path.resolve(__dirname, '..', 'packaging', 'README'),
+          packagedFilePath: 'README'
+        },
+        {
+          sourceFilePath: path.resolve(__dirname, '..', 'THIRD_PARTY_NOTICES.md'),
+          packagedFilePath: 'THIRD_PARTY_NOTICES'
+        }
+      ],
+      manpage: {
+        sourceFilePath: path.resolve(TMP_DIR, 'manpage', MANPAGE_NAME),
+        packagedFilePath: MANPAGE_NAME,
+      },
+      metadata: {
+        name: 'mongosh',
+        rpmName: 'mongodb-mongosh' + (SHARED_OPENSSL_TAG ? `-shared-${SHARED_OPENSSL_TAG}` : ''),
+        debName: 'mongodb-mongosh' + (SHARED_OPENSSL_TAG ? `-shared-${SHARED_OPENSSL_TAG}` : ''),
+        provides: [
+          { name: 'mongodb-shell', version: '2.0' },
+          ...(
+            SHARED_OPENSSL_TAG ?
+              [{ name: 'mongodb-mongosh', version: CLI_REPL_PACKAGE_JSON.version }] :
+              []
+          )
+        ],
+        debDepends: 'libc6 (>= 2.17), libgssapi-krb5-2' + (
+          SHARED_OPENSSL_TAG === 'openssl11' ? ', libssl1.1' :
+            SHARED_OPENSSL_TAG === 'openssl3' ? ', libssl3' : ''
+        ),
+        fullName: 'MongoDB Shell',
+        version: CLI_REPL_PACKAGE_JSON.version,
+        description: CLI_REPL_PACKAGE_JSON.description,
+        homepage: CLI_REPL_PACKAGE_JSON.homepage,
+        maintainer: CLI_REPL_PACKAGE_JSON.author,
+        manufacturer: CLI_REPL_PACKAGE_JSON.manufacturer,
+        copyright: COPYRIGHT,
+        icon: path.resolve(__dirname, '..', 'packaging', 'mongo.ico')
+      },
+      debTemplateDir: path.resolve(__dirname, '..', 'packaging', 'deb-template'),
+      rpmTemplateDir: path.resolve(__dirname, '..', 'packaging', 'rpm-template'),
+      msiTemplateDir: path.resolve(__dirname, '..', 'packaging', 'msi-template')
+    };
   },
   manpage: {
     sourceUrl: 'https://docs.mongodb.com/mongodb-shell/manpages.tar.gz',

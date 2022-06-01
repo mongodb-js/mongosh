@@ -1,6 +1,6 @@
 import chai, { expect } from 'chai';
 import sinon from 'ts-sinon';
-import { ALL_BUILD_VARIANTS, Config } from './config';
+import { ALL_PACKAGE_VARIANTS, Config } from './config';
 import { uploadArtifactToDownloadCenter as uploadArtifactToDownloadCenterFn } from './download-center';
 import { downloadArtifactFromEvergreen as downloadArtifactFromEvergreenFn } from './evergreen';
 import { notarizeArtifact as notarizeArtifactFn } from './packaging';
@@ -64,19 +64,19 @@ describe('draft', () => {
       });
 
       it('downloads existing artifacts from evergreen', () => {
-        expect(downloadArtifactFromEvergreen).to.have.been.callCount(ALL_BUILD_VARIANTS.length);
+        expect(downloadArtifactFromEvergreen).to.have.been.callCount(ALL_PACKAGE_VARIANTS.length);
       });
 
       it('asks the notary service to sign files', () => {
-        expect(notarizeArtifact).to.have.been.callCount(ALL_BUILD_VARIANTS.length);
+        expect(notarizeArtifact).to.have.been.callCount(ALL_PACKAGE_VARIANTS.length);
       });
 
       it('uploads artifacts to download center', () => {
-        expect(uploadArtifactToDownloadCenter).to.have.been.callCount(ALL_BUILD_VARIANTS.length);
+        expect(uploadArtifactToDownloadCenter).to.have.been.callCount(ALL_PACKAGE_VARIANTS.length);
       });
 
       it('uploads the artifacts to the github release', () => {
-        expect(uploadReleaseAsset).to.have.been.callCount(ALL_BUILD_VARIANTS.length);
+        expect(uploadReleaseAsset).to.have.been.callCount(ALL_PACKAGE_VARIANTS.length);
       });
     });
 

@@ -5,7 +5,7 @@ describe('tarball getPackageFile', () => {
   context('when the build variant is windows', () => {
     it('returns the windows tarball name', () => {
       expect(
-        getPackageFile('win32-x64', { metadata: { version: '1.0.0', name: 'mongosh' } } as any)
+        getPackageFile('win32-x64', () => ({ metadata: { version: '1.0.0', name: 'mongosh' } }) as any)
       ).to.deep.equal({
         path: 'mongosh-1.0.0-win32-x64.zip',
         contentType: 'application/zip'
@@ -16,7 +16,7 @@ describe('tarball getPackageFile', () => {
   context('when the build variant is windows MSI', () => {
     it('returns the windows MSI name', () => {
       expect(
-        getPackageFile('win32msi-x64', { metadata: { version: '1.0.0', name: 'mongosh' } } as any)
+        getPackageFile('win32msi-x64', () => ({ metadata: { version: '1.0.0', name: 'mongosh' } }) as any)
       ).to.deep.equal({
         path: 'mongosh-1.0.0-x64.msi',
         contentType: 'application/x-msi'
@@ -27,7 +27,7 @@ describe('tarball getPackageFile', () => {
   context('when the build variant is macos', () => {
     it('returns the tarball details', () => {
       expect(
-        getPackageFile('darwin-x64', { metadata: { version: '1.0.0', name: 'mongosh' } } as any)
+        getPackageFile('darwin-x64', () => ({ metadata: { version: '1.0.0', name: 'mongosh' } }) as any)
       ).to.deep.equal({
         path: 'mongosh-1.0.0-darwin-x64.zip',
         contentType: 'application/zip'
@@ -38,7 +38,7 @@ describe('tarball getPackageFile', () => {
   context('when the build variant is linux', () => {
     it('returns the tarball details', () => {
       expect(
-        getPackageFile('linux-x64', { metadata: { version: '1.0.0', name: 'mongosh' } } as any)
+        getPackageFile('linux-x64', () => ({ metadata: { version: '1.0.0', name: 'mongosh' } }) as any)
       ).to.deep.equal({
         path: 'mongosh-1.0.0-linux-x64.tgz',
         contentType: 'application/gzip'
@@ -49,7 +49,7 @@ describe('tarball getPackageFile', () => {
   context('when the build variant is debian', () => {
     it('returns the tarball details', () => {
       expect(
-        getPackageFile('debian-x64', { metadata: { version: '1.0.0', debName: 'mongodb-mongosh' } } as any)
+        getPackageFile('deb-x64', () => ({ metadata: { version: '1.0.0', debName: 'mongodb-mongosh' } }) as any)
       ).to.deep.equal({
         path: 'mongodb-mongosh_1.0.0_amd64.deb',
         contentType: 'application/vnd.debian.binary-package'
@@ -57,23 +57,12 @@ describe('tarball getPackageFile', () => {
     });
   });
 
-  context('when the build variant is rhel7', () => {
+  context('when the build variant is rhel', () => {
     it('returns the tarball details', () => {
       expect(
-        getPackageFile('rhel7-x64', { metadata: { version: '1.0.0', rpmName: 'mongodb-mongosh' } } as any)
+        getPackageFile('rpm-x64', () => ({ metadata: { version: '1.0.0', rpmName: 'mongodb-mongosh' } }) as any)
       ).to.deep.equal({
-        path: 'mongodb-mongosh-1.0.0.el7.x86_64.rpm',
-        contentType: 'application/x-rpm'
-      });
-    });
-  });
-
-  context('when the build variant is rhel8', () => {
-    it('returns the tarball details', () => {
-      expect(
-        getPackageFile('rhel8-x64', { metadata: { version: '1.0.0', rpmName: 'mongodb-mongosh' } } as any)
-      ).to.deep.equal({
-        path: 'mongodb-mongosh-1.0.0.el8.x86_64.rpm',
+        path: 'mongodb-mongosh-1.0.0.x86_64.rpm',
         contentType: 'application/x-rpm'
       });
     });

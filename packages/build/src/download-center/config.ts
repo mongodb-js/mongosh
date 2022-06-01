@@ -1,11 +1,11 @@
 import { DownloadCenter as DownloadCenterCls, validateConfigSchema } from '@mongodb-js/dl-center';
 import { DownloadCenterConfig } from '@mongodb-js/dl-center/dist/download-center-config';
 import { CONFIGURATION_KEY, CONFIGURATIONS_BUCKET } from './constants';
-import { BuildVariant, ALL_BUILD_VARIANTS, getDownloadCenterDistroDescription, getArch, getDistro } from '../config';
-import { getPackageFile, PackageInformation } from '../packaging';
+import { PackageVariant, ALL_PACKAGE_VARIANTS, getDownloadCenterDistroDescription, getArch, getDistro } from '../config';
+import { getPackageFile, PackageInformationProvider } from '../packaging';
 
 export async function createAndPublishDownloadCenterConfig(
-  packageInformation: PackageInformation,
+  packageInformation: PackageInformationProvider,
   awsAccessKeyId: string,
   awsSecretAccessKey: string,
   isDryRun: boolean,
@@ -33,18 +33,18 @@ export async function createAndPublishDownloadCenterConfig(
   await dlcenter.uploadConfig(CONFIGURATION_KEY, config);
 }
 
-export function createDownloadCenterConfig(packageInformation: PackageInformation): DownloadCenterConfig {
-  const { version } = packageInformation.metadata;
+export function createDownloadCenterConfig(packageInformation: PackageInformationProvider): DownloadCenterConfig {
+  const { version } = packageInformation('linux-x64').metadata;
   return {
     'versions': [
       {
         '_id': version,
         'version': version,
-        'platform': ALL_BUILD_VARIANTS.map((buildVariant: BuildVariant) => ({
-          arch: getArch(buildVariant),
-          os: getDistro(buildVariant),
-          name: getDownloadCenterDistroDescription(buildVariant),
-          download_link: 'https://downloads.mongodb.com/compass/' + getPackageFile(buildVariant, packageInformation).path
+        'platform': ALL_PACKAGE_VARIANTS.map((packageVariant: PackageVariant) => ({
+          arch: getArch(packageVariant),
+          os: getDistro(packageVariant),
+          name: getDownloadCenterDistroDescription(packageVariant),
+          download_link: 'https://downloads.mongodb.com/compass/' + getPackageFile(packageVariant, packageInformation).path
         }))
       }
     ],
