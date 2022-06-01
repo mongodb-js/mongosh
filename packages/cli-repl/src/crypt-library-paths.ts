@@ -7,8 +7,9 @@ export const SHARED_LIBRARY_SUFFIX =
     process.platform === 'win32' ? 'dll' :
       process.platform === 'darwin' ? 'dylib' : 'so';
 
-export interface CSFLELibraryPathResult {
-  csflePath?: string;
+export interface CryptLibraryPathResult {
+  cryptSharedLibPath?: string;
+  csflePath?: string; // Alias, currently still used by the driver
   expectedVersion?: { version: bigint; versionStr: string };
 }
 
@@ -16,16 +17,16 @@ export interface CSFLELibraryPathResult {
  * Figure out the possible shared library paths for the CSFLE shared library
  * that we are supposed to use.
  */
-export async function getCSFLELibraryPaths(
+export async function getCryptLibraryPaths(
   bus: MongoshBus,
-  pretendProcessExecPathForTesting: string | undefined = undefined): Promise<CSFLELibraryPathResult> {
+  pretendProcessExecPathForTesting: string | undefined = undefined): Promise<CryptLibraryPathResult> {
   const execPath = pretendProcessExecPathForTesting ?? process.execPath;
 
-  let getCSFLESharedLibraryVersion: typeof import('mongodb-csfle-library-version');
+  let getCryptSharedLibraryVersion: typeof import('mongodb-crypt-library-version');
   try {
-    getCSFLESharedLibraryVersion = require('mongodb-csfle-library-version');
+    getCryptSharedLibraryVersion = require('mongodb-crypt-library-version');
   } catch (err) {
-    getCSFLESharedLibraryVersion = () => ({ version: BigInt(0), versionStr: '<unknown>' });
+    getCryptSharedLibraryVersion = () => ({ version: BigInt(0), versionStr: '<unknown>' });
   }
 
   if (execPath === process.argv[1] || pretendProcessExecPathForTesting) {
@@ -33,39 +34,40 @@ export async function getCSFLELibraryPaths(
     const execPathStat = await fs.stat(execPath);
     for await (const libraryCandidate of [
       // Locations of the shared library in the deb and rpm packages
-      path.resolve(bindir, '..', 'lib64', `mongosh_csfle_v1.${SHARED_LIBRARY_SUFFIX}`),
-      path.resolve(bindir, '..', 'lib', `mongosh_csfle_v1.${SHARED_LIBRARY_SUFFIX}`),
+      path.resolve(bindir, '..', 'lib64', `mongosh_crypt_v1.${SHARED_LIBRARY_SUFFIX}`),
+      path.resolve(bindir, '..', 'lib', `mongosh_crypt_v1.${SHARED_LIBRARY_SUFFIX}`),
       // Location of the shared library in the zip and tgz packages
-      path.resolve(bindir, `mongosh_csfle_v1.${SHARED_LIBRARY_SUFFIX}`)
+      path.resolve(bindir, `mongosh_crypt_v1.${SHARED_LIBRARY_SUFFIX}`)
     ]) {
       try {
         const permissionsMismatch = await ensureMatchingPermissions(libraryCandidate, execPathStat);
         if (permissionsMismatch) {
-          bus.emit('mongosh:csfle-load-skip', {
-            csflePath: libraryCandidate,
+          bus.emit('mongosh:crypt-library-load-skip', {
+            cryptSharedLibPath: libraryCandidate,
             reason: 'permissions mismatch',
             details: permissionsMismatch
           });
           continue;
         }
 
-        const version = getCSFLESharedLibraryVersion(libraryCandidate);
+        const version = getCryptSharedLibraryVersion(libraryCandidate);
         const result = {
+          cryptSharedLibPath: libraryCandidate,
           csflePath: libraryCandidate,
           expectedVersion: version
         };
-        bus.emit('mongosh:csfle-load-found', result);
+        bus.emit('mongosh:crypt-library-load-found', result);
         return result;
       } catch (err: any) {
-        bus.emit('mongosh:csfle-load-skip', {
-          csflePath: libraryCandidate,
+        bus.emit('mongosh:crypt-library-load-skip', {
+          cryptSharedLibPath: libraryCandidate,
           reason: err.message
         });
       }
     }
   } else {
-    bus.emit('mongosh:csfle-load-skip', {
-      csflePath: '',
+    bus.emit('mongosh:crypt-library-load-skip', {
+      cryptSharedLibPath: '',
       reason: 'Skipping CSFLE library searching because this is not a single-executable mongosh'
     });
   }

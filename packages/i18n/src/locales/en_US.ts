@@ -2147,7 +2147,23 @@ const translations: Catalog = {
             getKeyByAltName: {
               description: 'Retrieves keys with the specified key alternative name.',
               link: 'https://docs.mongodb.com/manual/reference/method/KeyVault.getKeyByAltName/#KeyVault.getKeyByAltName'
-            }
+            },
+            rewrapManyDataKey: {
+              description: 'Re-wrap one, more, or all data keys with another KMS provider, or re-wrap using the same one.',
+              link: 'https://docs.mongodb.com/manual/reference/method/KeyVault.rewrapManyDataKey/#KeyVault.rewrapManyDataKey'
+            },
+            createDataKey: {
+              description: 'Alias of KeyVault.createKey()',
+              link: 'https://docs.mongodb.com/manual/reference/method/KeyVault.createKey/#KeyVault.createKey'
+            },
+            removeKeyAltName: {
+              description: 'Alias of KeyVault.removeKeyAlternateName()',
+              link: 'https://docs.mongodb.com/manual/reference/method/KeyVault.removeKeyAlternateName/#KeyVault.removeKeyAlternateName'
+            },
+            addKeyAltName: {
+              description: 'Alias of KeyVault.addKeyAlternateName()',
+              link: 'https://docs.mongodb.com/manual/reference/method/KeyVault.addKeyAlternateName/#KeyVault.addKeyAlternateName'
+            },
           }
         }
       },

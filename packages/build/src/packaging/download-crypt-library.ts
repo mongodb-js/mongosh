@@ -4,36 +4,36 @@ import { promises as fs, constants as fsConstants } from 'fs';
 import { downloadMongoDb, DownloadOptions } from '../download-mongodb';
 import { BuildVariant, getDistro, getArch } from '../config';
 
-export async function downloadCsfleLibrary(variant: BuildVariant | 'host'): Promise<string> {
+export async function downloadCryptLibrary(variant: BuildVariant | 'host'): Promise<string> {
   const opts: DownloadOptions = {};
   opts.arch = variant === 'host' ? undefined : getArch(variant);
   opts.distro = variant === 'host' ? undefined : lookupReleaseDistro(variant);
   opts.enterprise = true;
-  opts.csfle = true;
-  console.info('mongosh: downloading latest csfle shared library for inclusion in package:', JSON.stringify(opts));
+  opts.crypt_shared = true;
+  console.info('mongosh: downloading latest crypt shared library for inclusion in package:', JSON.stringify(opts));
 
   let libdir = '';
-  const csfleTmpTargetDir = path.resolve(__dirname, '..', '..', '..', '..', 'tmp', 'csfle-store', variant);
+  const cryptTmpTargetDir = path.resolve(__dirname, '..', '..', '..', '..', 'tmp', 'crypt-store', variant);
   // Download mongodb for latest server version. Fall back to the 6.0.0-rcX
   // version if no stable version is available.
   let error: Error | undefined;
   for (const version of [ 'stable', '>= 6.0.0-rc5' ]) {
     try {
-      libdir = await downloadMongoDb(csfleTmpTargetDir, version, opts);
+      libdir = await downloadMongoDb(cryptTmpTargetDir, version, opts);
       break;
     } catch (e: any) {
       error = e;
     }
   }
   if (!libdir) throw error;
-  const csfleLibrary = path.join(
+  const cryptLibrary = path.join(
     libdir,
-    (await fs.readdir(libdir)).find(filename => filename.match(/^mongo_csfle_v1\.(so|dylib|dll)$/)) as string
+    (await fs.readdir(libdir)).find(filename => filename.match(/^mongo_crypt_v1\.(so|dylib|dll)$/)) as string
   );
   // Make sure that the binary exists and is readable.
-  await fs.access(csfleLibrary, fsConstants.R_OK);
-  console.info('mongosh: downloaded', csfleLibrary);
-  return csfleLibrary;
+  await fs.access(cryptLibrary, fsConstants.R_OK);
+  console.info('mongosh: downloaded', cryptLibrary);
+  return cryptLibrary;
 }
 
 function lookupReleaseDistro(variant: BuildVariant): string {

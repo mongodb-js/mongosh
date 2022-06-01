@@ -1,5 +1,5 @@
 import { MongoshInvalidInputError } from '@mongosh/errors';
-import { bson, ClientEncryption as FLEClientEncryption, ClientEncryptionTlsOptions, ServiceProvider } from '@mongosh/service-provider-core';
+import { bson, ClientEncryption as FLEClientEncryption, ClientEncryptionTlsOptions, ServiceProvider, ClientEncryptionEncryptOptions } from '@mongosh/service-provider-core';
 import { expect } from 'chai';
 import { EventEmitter } from 'events';
 import { promises as fs } from 'fs';
@@ -47,6 +47,12 @@ const AWS_KMS = {
 };
 
 const ALGO = 'AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic';
+const ENCRYPT_OPTIONS = {
+  algorithm: ALGO as ClientEncryptionEncryptOptions['algorithm'],
+  indexKeyId: new bson.Binary(Buffer.from('12345678123498761234123456789012', 'hex'), 4),
+  contentionFactor: 10,
+  queryType: 'Equality'
+};
 
 const RAW_CLIENT = { client: 1 } as any;
 
@@ -161,11 +167,17 @@ describe('Field Level Encryption', () => {
       });
     });
     describe('encrypt', () => {
-      it('calls encrypt on libmongoc', async() => {
+      it('calls encrypt with algorithm on libmongoc', async() => {
         const value = new bson.ObjectId();
         libmongoc.encrypt.resolves();
         await clientEncryption.encrypt(KEY_ID, value, ALGO);
         expect(libmongoc.encrypt).calledOnceWithExactly(value, { keyId: KEY_ID, algorithm: ALGO });
+      });
+      it('calls encrypt with algorithm, indexKeyId, contentionFactor, and queryType on libmongoc', async() => {
+        const value = new bson.ObjectId();
+        libmongoc.encrypt.resolves();
+        await clientEncryption.encrypt(KEY_ID, value, ENCRYPT_OPTIONS);
+        expect(libmongoc.encrypt).calledOnceWithExactly(value, { keyId: KEY_ID, ...ENCRYPT_OPTIONS });
       });
       it('throw if failed', async() => {
         const value = new bson.ObjectId();
@@ -383,6 +395,27 @@ describe('Field Level Encryption', () => {
           { returnDocument: 'before' }
         ]);
         expect(result).to.deep.equal(r2.value);
+      });
+      it('reads keyAltNames and keyMaterial from DataKeyEncryptionKeyOptions', async() => {
+        const rawResult = { result: 1 };
+        const keyVault = await mongo.getKeyVault();
+        const options = {
+          keyAltNames: ['b'],
+          keyMaterial: new bson.Binary(Buffer.from('12345678123498761234123456789012', 'hex'), 4)
+        };
+
+        libmongoc.createDataKey.resolves(rawResult);
+        await keyVault.createKey('local', options);
+        expect(libmongoc.createDataKey).calledOnceWithExactly('local', options);
+      });
+    });
+    describe('rewrapManyDataKey', () => {
+      it('calls rewrapManyDataKey on clientEncryption', async() => {
+        const rawResult = { result: 1 };
+        libmongoc.rewrapManyDataKey.resolves(rawResult);
+        const result = await keyVault.rewrapManyDataKey({ status: 0 }, { provider: 'local' });
+        expect(libmongoc.rewrapManyDataKey).calledOnceWithExactly({ status: 0 }, { provider: 'local' });
+        expect(result).to.deep.equal(rawResult);
       });
     });
   });

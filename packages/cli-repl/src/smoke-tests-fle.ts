@@ -1,5 +1,5 @@
 /**
- * Test script that verifies that automatic encryption using the CSFLE shared
+ * Test script that verifies that automatic encryption using the crypt shared
  * library works when using the Mongo() object to construct the encryption key and
  * to create an auto-encryption-aware connection.
  */
@@ -13,7 +13,7 @@ const assert = function(value, message) {
   }
 };
 if (process.platform === 'linux' && process.arch === 's390x') {
-  // There is no CSFLE shared library binary for the rhel72 s390x that we test on.
+  // There is no crypt shared library binary for the rhel72 s390x that we test on.
   // We will address this in MONGOSH-862.
   print('Test skipped')
   process.exit(0);

@@ -50,10 +50,10 @@ const EXECUTABLE_PATH = path.join(OUTPUT_DIR, process.platform === 'win32' ? 'mo
 
 /**
  * The path to the downloaded csfe shared library.
- * We use the name mongosh_csfle_v1 to avoid conflicts with users
- * potentially installing the 'proper' csfle shared library.
+ * We use the name mongosh_crypt_v1 to avoid conflicts with users
+ * potentially installing the 'proper' crypt shared library.
  */
-const CSFLE_LIBRARY_PATH = path.resolve(TMP_DIR, 'mongosh_csfle_v1.' + SHARED_LIBRARY_SUFFIX);
+const CRYPT_LIBRARY_PATH = path.resolve(TMP_DIR, 'mongosh_crypt_v1.' + SHARED_LIBRARY_SUFFIX);
 
 /**
  * Build info JSON data file.
@@ -119,7 +119,7 @@ module.exports = {
     repo: 'mongosh'
   },
   artifactUrlFile: process.env.ARTIFACT_URL_FILE,
-  csfleLibraryPath: CSFLE_LIBRARY_PATH,
+  cryptSharedLibPath: CRYPT_LIBRARY_PATH,
   packageInformation: {
     binaries: [
       {
@@ -134,11 +134,11 @@ module.exports = {
         }
       },
       {
-        sourceFilePath: CSFLE_LIBRARY_PATH,
+        sourceFilePath: CRYPT_LIBRARY_PATH,
         category: 'lib',
         license: {
-          sourceFilePath: path.resolve(__dirname, '..', 'packaging', 'LICENSE-csfle'),
-          packagedFilePath: 'LICENSE-csfle',
+          sourceFilePath: path.resolve(__dirname, '..', 'packaging', 'LICENSE-crypt-library'),
+          packagedFilePath: 'LICENSE-crypt-library',
           debCopyright: COPYRIGHT,
           debIdentifier: 'Proprietary',
           rpmIdentifier: 'Proprietary'

@@ -8,6 +8,7 @@ import Icon from '@leafygreen-ui/icon';
 import { LineWithIcon } from './utils/line-with-icon';
 
 import { HelpOutput } from './types/help-output';
+import { ShowBannerResultOutput } from './types/show-banner-result-output';
 import { ShowDbsOutput } from './types/show-dbs-output';
 import { ShowCollectionsOutput } from './types/show-collections-output';
 import { CursorOutput } from './types/cursor-output';
@@ -67,12 +68,16 @@ export class ShellOutputLine extends Component<ShellOutputLineProps> {
       return <StatsResultOutput value={value} />;
     }
 
-    if (type === 'ListCommandsResult)') {
+    if (type === 'ListCommandsResult') {
       return <SimpleTypeOutput value={value} />;
     }
 
     if (type === 'ShowCollectionsResult') {
       return <ShowCollectionsOutput value={value} />;
+    }
+
+    if (type === 'ShowBannerResult') {
+      return <ShowBannerResultOutput value={value} />;
     }
 
     if (type === 'Cursor' || type === 'AggregationCursor') {
