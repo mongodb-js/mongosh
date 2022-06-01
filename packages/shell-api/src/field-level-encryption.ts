@@ -265,7 +265,6 @@ export class KeyVault extends ShellApiWithMongoClass {
       options = { ...(options ?? {}), keyAltNames };
     }
     if (keyMaterial) {
-      // @ts-expect-error waiting for driver release
       options = { ...(options ?? {}), keyMaterial };
     }
 
