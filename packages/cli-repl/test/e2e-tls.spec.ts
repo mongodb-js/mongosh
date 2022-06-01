@@ -424,7 +424,10 @@ describe('e2e TLS', () => {
         shell.assertContainsOutput('MongoServerSelectionError');
       });
 
-      it('works with valid cert (with tlsCertificateSelector)', async() => {
+      it('works with valid cert (with tlsCertificateSelector)', async function() {
+        if (process.env.MONGOSH_TEST_E2E_FORCE_FIPS) {
+          return this.skip(); // No tlsCertificateSelector support in FIPS mode
+        }
         const fakeOsCaModule = path.resolve(tmpdir.path, 'fake-ca.js');
         await fs.writeFile(fakeOsCaModule, `
         const fs = require('fs');

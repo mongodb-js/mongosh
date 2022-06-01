@@ -35,8 +35,13 @@ export class TestShell {
       env = { ...env, MONGOSH_FORCE_TERMINAL: '1' };
     }
 
+    const args = [...options.args];
+    if (process.env.MONGOSH_TEST_E2E_FORCE_FIPS) {
+      args.push('--tlsFIPSMode');
+    }
+
     if (process.env.MONGOSH_TEST_EXECUTABLE_PATH) {
-      shellProcess = spawn(process.env.MONGOSH_TEST_EXECUTABLE_PATH, [...options.args], {
+      shellProcess = spawn(process.env.MONGOSH_TEST_EXECUTABLE_PATH, args, {
         stdio: [ 'pipe', 'pipe', 'pipe' ],
         env: env,
         cwd: options.cwd
@@ -52,7 +57,7 @@ export class TestShell {
         env = { ...env, CLEAR_SIGINT_LISTENERS: '1' };
       }
 
-      shellProcess = spawn('node', [path.resolve(__dirname, '..', 'bin', 'mongosh.js'), ...options.args], {
+      shellProcess = spawn('node', [path.resolve(__dirname, '..', 'bin', 'mongosh.js'), ...args], {
         stdio: [ 'pipe', 'pipe', 'pipe' ],
         env: env,
         cwd: options.cwd
