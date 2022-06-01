@@ -47,8 +47,8 @@ export interface ClientSideFieldLevelEncryptionOptions {
   bypassQueryAnalysis?: boolean;
 }
 
-type MasterKey = AWSEncryptionKeyOptions | AzureEncryptionKeyOptions | GCPEncryptionKeyOptions | undefined;
-type AltNames = string[] | undefined;
+type MasterKey = AWSEncryptionKeyOptions | AzureEncryptionKeyOptions | GCPEncryptionKeyOptions;
+type AltNames = string[];
 
 type DataKeyEncryptionKeyOptions = {
   masterKey?: MasterKey;
@@ -56,9 +56,9 @@ type DataKeyEncryptionKeyOptions = {
   keyMaterial?: Buffer | BinaryType
 };
 
-type MasterKeyOrAltNamesOrDataKeyOptions = MasterKey | DataKeyEncryptionKeyOptions | AltNames | string | undefined;
+type MasterKeyOrAltNamesOrDataKeyOptions = MasterKey | DataKeyEncryptionKeyOptions | AltNames | string;
 
-const isDataKeyEncryptionKeyOptions = (options: MasterKeyOrAltNamesOrDataKeyOptions): options is DataKeyEncryptionKeyOptions => {
+const isDataKeyEncryptionKeyOptions = (options?: MasterKeyOrAltNamesOrDataKeyOptions): options is DataKeyEncryptionKeyOptions => {
   return (
     !Array.isArray(options) &&
     typeof options === 'object' &&
@@ -66,13 +66,11 @@ const isDataKeyEncryptionKeyOptions = (options: MasterKeyOrAltNamesOrDataKeyOpti
   );
 };
 
-const isMasterKey = (options: MasterKeyOrAltNamesOrDataKeyOptions): options is MasterKey => {
+const isMasterKey = (options?: MasterKeyOrAltNamesOrDataKeyOptions): options is MasterKey => {
   return (
     !Array.isArray(options) &&
     typeof options === 'object' &&
-    !('masterKey' in options) &&
-    !('keyAltNames' in options) &&
-    !('masterKey' in options)
+    !isDataKeyEncryptionKeyOptions(options)
   );
 };
 
@@ -208,7 +206,7 @@ export class KeyVault extends ShellApiWithMongoClass {
     masterKeyOrAltNamesOrDataKeyOptions?: MasterKeyOrAltNamesOrDataKeyOptions,
     legacyKeyAltNames?: string[]
   ): Promise<BinaryType> {
-    let masterKey: MasterKey;
+    let masterKey: MasterKey | undefined;
     let keyAltNames;
     let keyMaterial;
 
@@ -258,21 +256,16 @@ export class KeyVault extends ShellApiWithMongoClass {
       }
     }
 
-    let options: ClientEncryptionCreateDataKeyProviderOptions | undefined;
+    const options: ClientEncryptionCreateDataKeyProviderOptions = {};
     if (masterKey) {
-      options = { masterKey };
+      options.masterKey = masterKey;
     }
     if (keyAltNames) {
-      options = {
-        ...(options ?? {}),
-        keyAltNames
-      };
+      options.keyAltNames = keyAltNames;
     }
     if (keyMaterial) {
-      options = {
-        ...(options ?? {}),
-        keyMaterial
-      };
+      // @ts-expect-error waiting for driver release
+      options.keyMaterial = keyMaterial;
     }
 
     return await this._clientEncryption._libmongocrypt.createDataKey(kms, options as ClientEncryptionCreateDataKeyProviderOptions);
