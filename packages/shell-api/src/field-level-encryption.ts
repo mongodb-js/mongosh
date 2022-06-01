@@ -59,24 +59,20 @@ type DataKeyEncryptionKeyOptions = {
 type MasterKeyOrAltNamesOrDataKeyOptions = MasterKey | DataKeyEncryptionKeyOptions | AltNames | string | undefined;
 
 const isDataKeyEncryptionKeyOptions = (options: MasterKeyOrAltNamesOrDataKeyOptions): options is DataKeyEncryptionKeyOptions => {
-  const dataKeyOptions = options as DataKeyEncryptionKeyOptions;
-
   return (
-    !Array.isArray(dataKeyOptions) &&
-    typeof dataKeyOptions === 'object' &&
-    ('masterKey' in dataKeyOptions || 'keyAltNames' in dataKeyOptions || 'keyMaterial' in dataKeyOptions)
+    !Array.isArray(options) &&
+    typeof options === 'object' &&
+    ('masterKey' in options || 'keyAltNames' in options || 'keyMaterial' in options)
   );
 };
 
 const isMasterKey = (options: MasterKeyOrAltNamesOrDataKeyOptions): options is MasterKey => {
-  const masterKeyOptions = options as MasterKey;
-
   return (
-    !Array.isArray(masterKeyOptions) &&
-    typeof masterKeyOptions === 'object' &&
-    !('masterKey' in masterKeyOptions) &&
-    !('keyAltNames' in masterKeyOptions) &&
-    !('masterKey' in masterKeyOptions)
+    !Array.isArray(options) &&
+    typeof options === 'object' &&
+    !('masterKey' in options) &&
+    !('keyAltNames' in options) &&
+    !('masterKey' in options)
   );
 };
 
