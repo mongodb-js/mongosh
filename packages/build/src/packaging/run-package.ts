@@ -12,10 +12,10 @@ export async function runPackage(
   const distributionBuildVariant = config.distributionBuildVariant;
   validateBuildVariant(distributionBuildVariant);
 
-  await fs.mkdir(path.dirname(config.cryptLibraryPath), { recursive: true });
+  await fs.mkdir(path.dirname(config.cryptSharedLibPath), { recursive: true });
   await fs.copyFile(
     await downloadCryptLibrary(distributionBuildVariant),
-    config.cryptLibraryPath,
+    config.cryptSharedLibPath,
     fsConstants.COPYFILE_FICLONE);
 
   const { manpage } = config;

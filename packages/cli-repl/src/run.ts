@@ -76,8 +76,8 @@ import crypto from 'crypto';
       console.log(JSON.stringify(buildInfo(), null, '  '));
     } else if (options.smokeTests) {
       const smokeTestServer = process.env.MONGOSH_SMOKE_TEST_SERVER;
-      const cryptLibraryOpts = options.cryptLibraryPath ? [
-        `--cryptLibraryPath=${options.cryptLibraryPath}`
+      const cryptLibraryOpts = options.cryptSharedLibPath ? [
+        `--cryptSharedLibPath=${options.cryptSharedLibPath}`
       ] : [];
       if (process.execPath === process.argv[1]) {
         // This is the compiled binary. Use only the path to it.

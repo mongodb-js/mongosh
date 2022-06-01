@@ -278,7 +278,7 @@ export function setupLoggerAndTelemetry(
 
   bus.on('mongosh:crypt-library-load-found', function(ev: CryptLibraryFoundEvent) {
     log.warn('AUTO-ENCRYPTION', mongoLogId(1_000_000_051), 'crypt-library', 'Accepted shared library candidate', {
-      cryptLibraryPath: ev.cryptLibraryPath,
+      cryptSharedLibPath: ev.cryptSharedLibPath,
       expectedVersion: ev.expectedVersion.versionStr
     });
   });

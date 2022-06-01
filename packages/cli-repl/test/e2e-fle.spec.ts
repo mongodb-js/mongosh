@@ -57,7 +57,7 @@ describe('FLE tests', () => {
         async function makeTestShell(): Promise<TestShell> {
           return TestShell.start({
             args: [
-              `--cryptLibraryPath=${cryptLibrary}`,
+              `--cryptSharedLibPath=${cryptLibrary}`,
               `--awsAccessKeyId=${accessKeyId}`,
               `--awsSecretAccessKey=${secretAccessKey}`,
               `--keyVaultNamespace=${dbname}.keyVault`,
@@ -148,7 +148,7 @@ describe('FLE tests', () => {
 
   it('works when a schemaMap option has been passed', async() => {
     const shell = TestShell.start({
-      args: ['--nodb', `--cryptLibraryPath=${cryptLibrary}`]
+      args: ['--nodb', `--cryptSharedLibPath=${cryptLibrary}`]
     });
     await shell.waitForPrompt();
     await shell.executeLine('local = { key: BinData(0, "kh4Gv2N8qopZQMQYMEtww/AkPsIrXNmEMxTrs3tUoTQZbZu4msdRUaR8U5fXD7A7QXYHcEvuu4WctJLoT+NvvV3eeIg3MD+K8H9SR794m/safgRHdIfy6PD+rFpvmFbY") }');
@@ -177,7 +177,7 @@ describe('FLE tests', () => {
 
   it('skips encryption when a bypassQueryAnalysis option has been passed', async() => {
     const shell = TestShell.start({
-      args: ['--nodb', `--cryptLibraryPath=${cryptLibrary}`]
+      args: ['--nodb', `--cryptSharedLibPath=${cryptLibrary}`]
     });
     const uri = JSON.stringify(await testServer.connectionString());
 
@@ -258,7 +258,7 @@ describe('FLE tests', () => {
     skipIfServerVersion(testServer, '< 6.0'); // FLE2 only available on 6.0+
 
     it('drops fle2 collection with all helper collections when encryptedFields options are in listCollections', async() => {
-      const shell = TestShell.start({ args: ['--nodb', `--cryptLibraryPath=${cryptLibrary}`] });
+      const shell = TestShell.start({ args: ['--nodb', `--cryptSharedLibPath=${cryptLibrary}`] });
       const uri = JSON.stringify(await testServer.connectionString());
 
       await shell.waitForPrompt();
@@ -320,7 +320,7 @@ describe('FLE tests', () => {
 
     it('allows compactStructuredEncryptionData command when mongo instance configured with auto encryption', async() => {
       const shell = TestShell.start({
-        args: ['--nodb', `--cryptLibraryPath=${cryptLibrary}`]
+        args: ['--nodb', `--cryptSharedLibPath=${cryptLibrary}`]
       });
       const uri = JSON.stringify(await testServer.connectionString());
 
@@ -360,7 +360,7 @@ describe('FLE tests', () => {
 
   it('performs KeyVault data key management as expected', async() => {
     const shell = TestShell.start({
-      args: [await testServer.connectionString(), `--cryptLibraryPath=${cryptLibrary}`]
+      args: [await testServer.connectionString(), `--cryptSharedLibPath=${cryptLibrary}`]
     });
     await shell.waitForPrompt();
     // Wrapper for executeLine that expects single-line output

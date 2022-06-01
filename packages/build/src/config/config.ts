@@ -40,7 +40,7 @@ export interface Config {
   };
   isPatch?: boolean;
   triggeringGitTag?: string;
-  cryptLibraryPath: string;
+  cryptSharedLibPath: string;
   packageInformation?: PackageInformation;
   artifactUrlFile?: string;
   manpage?: ManPageConfig;

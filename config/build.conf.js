@@ -119,7 +119,7 @@ module.exports = {
     repo: 'mongosh'
   },
   artifactUrlFile: process.env.ARTIFACT_URL_FILE,
-  cryptLibraryPath: CRYPT_LIBRARY_PATH,
+  cryptSharedLibPath: CRYPT_LIBRARY_PATH,
   packageInformation: {
     binaries: [
       {

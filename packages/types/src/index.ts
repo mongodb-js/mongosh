@@ -78,13 +78,13 @@ export interface GlobalConfigFileLoadEvent {
 }
 
 export interface CryptLibrarySkipEvent {
-  cryptLibraryPath: string;
+  cryptSharedLibPath: string;
   reason: string;
   details?: any;
 }
 
 export interface CryptLibraryFoundEvent {
-  cryptLibraryPath: string;
+  cryptSharedLibPath: string;
   expectedVersion: { versionStr: string };
 }
 

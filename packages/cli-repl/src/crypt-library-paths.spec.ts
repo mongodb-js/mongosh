@@ -28,40 +28,40 @@ describe('getCryptLibraryPaths', () => {
   });
 
   it('will look up a shared library located in <bindir>/../lib/', async function() {
-    const cryptLibraryPath = path.join(tmpdir.path, 'lib', csfleFilename);
-    await fs.copyFile(cryptLibraryDummy, cryptLibraryPath);
+    const cryptSharedLibPath = path.join(tmpdir.path, 'lib', csfleFilename);
+    await fs.copyFile(cryptLibraryDummy, cryptSharedLibPath);
     expect(await getCryptLibraryPaths(bus, fakeMongoshExecPath)).to.deep.equal({
-      cryptLibraryPath,
+      cryptSharedLibPath,
       expectedVersion
     });
     expect(events.slice(1)).to.deep.equal([
-      [ 'mongosh:crypt-library-load-found', { cryptLibraryPath, expectedVersion } ]
+      [ 'mongosh:crypt-library-load-found', { cryptSharedLibPath, expectedVersion } ]
     ]);
   });
 
   it('will look up a shared library located in <bindir>/../lib64/', async function() {
-    const cryptLibraryPath = path.join(tmpdir.path, 'lib64', csfleFilename);
-    await fs.copyFile(cryptLibraryDummy, cryptLibraryPath);
+    const cryptSharedLibPath = path.join(tmpdir.path, 'lib64', csfleFilename);
+    await fs.copyFile(cryptLibraryDummy, cryptSharedLibPath);
     expect(await getCryptLibraryPaths(bus, fakeMongoshExecPath)).to.deep.equal({
-      cryptLibraryPath,
+      cryptSharedLibPath,
       expectedVersion
     });
     expect(events).to.deep.equal([
-      [ 'mongosh:crypt-library-load-found', { cryptLibraryPath, expectedVersion } ]
+      [ 'mongosh:crypt-library-load-found', { cryptSharedLibPath, expectedVersion } ]
     ]);
   });
 
   it('will look up a shared library located in <bindir>/', async function() {
-    const cryptLibraryPath = path.join(tmpdir.path, 'bin', csfleFilename);
-    await fs.copyFile(cryptLibraryDummy, cryptLibraryPath);
+    const cryptSharedLibPath = path.join(tmpdir.path, 'bin', csfleFilename);
+    await fs.copyFile(cryptLibraryDummy, cryptSharedLibPath);
     expect(await getCryptLibraryPaths(bus, fakeMongoshExecPath)).to.deep.equal({
-      cryptLibraryPath,
+      cryptSharedLibPath,
       expectedVersion
     });
     expect(events[0][0]).to.equal('mongosh:crypt-library-load-skip');
     expect(events[0][1].reason).to.match(/ENOENT|LoadLibraryW failed/);
     expect(events.slice(2)).to.deep.equal([
-      [ 'mongosh:crypt-library-load-found', { cryptLibraryPath, expectedVersion } ]
+      [ 'mongosh:crypt-library-load-found', { cryptSharedLibPath, expectedVersion } ]
     ]);
   });
 
@@ -69,9 +69,9 @@ describe('getCryptLibraryPaths', () => {
     if (process.platform === 'win32') {
       return this.skip();
     }
-    const cryptLibraryPath = path.join(tmpdir.path, 'lib', csfleFilename);
-    await fs.copyFile(cryptLibraryDummy, cryptLibraryPath);
-    await fs.chmod(cryptLibraryPath, 0o000);
+    const cryptSharedLibPath = path.join(tmpdir.path, 'lib', csfleFilename);
+    await fs.copyFile(cryptLibraryDummy, cryptSharedLibPath);
+    await fs.chmod(cryptSharedLibPath, 0o000);
     expect(await getCryptLibraryPaths(bus, fakeMongoshExecPath)).to.deep.equal({});
     expect(events[1][0]).to.equal('mongosh:crypt-library-load-skip');
     expect(events[1][1].reason).to.include('EACCES');
@@ -81,9 +81,9 @@ describe('getCryptLibraryPaths', () => {
     if (process.platform === 'win32') {
       return this.skip();
     }
-    const cryptLibraryPath = path.join(tmpdir.path, 'lib', csfleFilename);
-    await fs.copyFile(cryptLibraryDummy, cryptLibraryPath);
-    await fs.chmod(cryptLibraryPath, 0o777);
+    const cryptSharedLibPath = path.join(tmpdir.path, 'lib', csfleFilename);
+    await fs.copyFile(cryptLibraryDummy, cryptSharedLibPath);
+    await fs.chmod(cryptSharedLibPath, 0o777);
     expect(await getCryptLibraryPaths(bus, fakeMongoshExecPath)).to.deep.equal({});
     expect(events[1][0]).to.equal('mongosh:crypt-library-load-skip');
     expect(events[1][1].reason).to.include('permissions mismatch');

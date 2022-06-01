@@ -15,7 +15,7 @@ describe('smoke tests', () => {
     // coverage.
     await runSmokeTests(
       await testServer.connectionString(),
-      process.execPath, '-r', 'ts-node/register', path.resolve(__dirname, 'run.ts'), '--cryptLibraryPath', cryptLibrary
+      process.execPath, '-r', 'ts-node/register', path.resolve(__dirname, 'run.ts'), '--cryptSharedLibPath', cryptLibrary
     );
   });
 });

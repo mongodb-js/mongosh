@@ -8,7 +8,7 @@ export const SHARED_LIBRARY_SUFFIX =
       process.platform === 'darwin' ? 'dylib' : 'so';
 
 export interface CryptLibraryPathResult {
-  cryptLibraryPath?: string;
+  cryptSharedLibPath?: string;
   csflePath?: string; // Alias, currently still used by the driver
   expectedVersion?: { version: bigint; versionStr: string };
 }
@@ -43,7 +43,7 @@ export async function getCryptLibraryPaths(
         const permissionsMismatch = await ensureMatchingPermissions(libraryCandidate, execPathStat);
         if (permissionsMismatch) {
           bus.emit('mongosh:crypt-library-load-skip', {
-            cryptLibraryPath: libraryCandidate,
+            cryptSharedLibPath: libraryCandidate,
             reason: 'permissions mismatch',
             details: permissionsMismatch
           });
@@ -52,7 +52,7 @@ export async function getCryptLibraryPaths(
 
         const version = getCryptSharedLibraryVersion(libraryCandidate);
         const result = {
-          cryptLibraryPath: libraryCandidate,
+          cryptSharedLibPath: libraryCandidate,
           csflePath: libraryCandidate,
           expectedVersion: version
         };
@@ -60,14 +60,14 @@ export async function getCryptLibraryPaths(
         return result;
       } catch (err: any) {
         bus.emit('mongosh:crypt-library-load-skip', {
-          cryptLibraryPath: libraryCandidate,
+          cryptSharedLibPath: libraryCandidate,
           reason: err.message
         });
       }
     }
   } else {
     bus.emit('mongosh:crypt-library-load-skip', {
-      cryptLibraryPath: '',
+      cryptSharedLibPath: '',
       reason: 'Skipping CSFLE library searching because this is not a single-executable mongosh'
     });
   }
