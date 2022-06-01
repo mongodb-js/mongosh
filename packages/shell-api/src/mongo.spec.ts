@@ -315,6 +315,131 @@ describe('Mongo', () => {
           expect(caughtError).to.equal(expectedError);
         });
       });
+
+      describe('startupWarnings', () => {
+        it('calls database.adminCommand', async() => {
+          const expectedResult = { ok: 1, log: [] };
+          database.adminCommand.resolves(expectedResult);
+          await mongo.show('startupWarnings');
+          expect(database.adminCommand).to.have.been.calledWith(
+            { getLog: 'startupWarnings' }
+          );
+        });
+
+        it('returns ShowBannerResult CommandResult', async() => {
+          const expectedResult = {
+            ok: 1,
+            log: [
+              '{"t":{"$date":"2022-05-17T11:16:16.597+02:00"},"s":"I",  "c":"STORAGE",  "id":22297,   "ctx":"initandlisten","msg":"Using the XFS filesystem is strongly recommended with the WiredTiger storage engine. See http://dochub.mongodb.org/core/prodnotes-filesystem","tags":["startupWarnings"]}\n',
+              '{"t":{"$date":"2022-05-17T11:16:16.778+02:00"},"s":"W",  "c":"CONTROL",  "id":22120,   "ctx":"initandlisten","msg":"Access control is not enabled for the database. Read and write access to data and configuration is unrestricted","tags":["startupWarnings"]}\n',
+            ]
+          };
+          database.adminCommand.resolves(expectedResult);
+          const result = await mongo.show('startupWarnings');
+          expect(result.value).to.deep.equal({
+            header: 'The server generated these startup warnings when booting',
+            content: '2022-05-17T11:16:16.597+02:00: Using the XFS filesystem is strongly recommended with the WiredTiger storage engine. See http://dochub.mongodb.org/core/prodnotes-filesystem\n' +
+              '2022-05-17T11:16:16.778+02:00: Access control is not enabled for the database. Read and write access to data and configuration is unrestricted'
+          });
+          expect(result.type).to.equal('ShowBannerResult');
+        });
+
+        it('returns null database.adminCommand rejects', async() => {
+          const expectedError = new Error();
+          database.adminCommand.rejects(expectedError);
+          const result = await mongo.show('startupWarnings');
+          expect(result.value).to.equal(null);
+          expect(result.type).to.equal('ShowBannerResult');
+        });
+      });
+
+      describe('freeMonitoring', () => {
+        it('calls database.adminCommand', async() => {
+          const expectedResult = { ok: 1, state: '' };
+          database.adminCommand.resolves(expectedResult);
+          await mongo.show('freeMonitoring');
+          expect(database.adminCommand).to.have.been.calledWith(
+            { getFreeMonitoringStatus: 1 }
+          );
+        });
+
+        it('returns ShowBannerResult CommandResult (freeMonitoring enabled with notice)', async() => {
+          const expectedResult = {
+            ok: 1,
+            state: 'enabled',
+            userReminder: 'Reminder!'
+          };
+          database.adminCommand.resolves(expectedResult);
+          const result = await mongo.show('freeMonitoring');
+          expect(result.value).to.deep.equal({
+            content: 'Reminder!'
+          });
+          expect(result.type).to.equal('ShowBannerResult');
+        });
+
+        it('returns ShowBannerResult CommandResult (freeMonitoring undecided)', async() => {
+          const expectedResult = {
+            ok: 1,
+            state: 'undecided'
+          };
+          database.adminCommand.resolves(expectedResult);
+          const result = await mongo.show('freeMonitoring');
+          expect((result.value as any).content).to.include('run the following command: db.enableFreeMonitoring');
+          expect(result.type).to.equal('ShowBannerResult');
+        });
+
+        it('returns ShowBannerResult CommandResult (freeMonitoring disabled)', async() => {
+          const expectedResult = {
+            ok: 1,
+            state: 'disabled'
+          };
+          database.adminCommand.resolves(expectedResult);
+          const result = await mongo.show('freeMonitoring');
+          expect(result.value).to.equal(null);
+          expect(result.type).to.equal('ShowBannerResult');
+        });
+
+        it('returns null database.adminCommand rejects', async() => {
+          const expectedError = new Error();
+          database.adminCommand.rejects(expectedError);
+          const result = await mongo.show('freeMonitoring');
+          expect(result.value).to.equal(null);
+          expect(result.type).to.equal('ShowBannerResult');
+        });
+      });
+
+      describe('automationNotices', () => {
+        it('calls database.hello', async() => {
+          const expectedResult = { ok: 1 };
+          database.hello.resolves(expectedResult);
+          await mongo.show('automationNotices');
+          expect(database.hello).to.have.been.calledWith();
+        });
+
+        it('returns ShowBannerResult CommandResult', async() => {
+          const expectedResult = {
+            ok: 1,
+            automationServiceDescriptor: 'some_service'
+          };
+          database.hello.resolves(expectedResult);
+          const result = await mongo.show('automationNotices');
+          expect(result.value).to.deep.equal({
+            content:
+              "This server is managed by automation service 'some_service'.\n" +
+              'Many administrative actions are inappropriate, and may be automatically reverted.'
+          });
+          expect(result.type).to.equal('ShowBannerResult');
+        });
+
+        it('returns null database.hello rejects', async() => {
+          const expectedError = new Error();
+          database.hello.rejects(expectedError);
+          const result = await mongo.show('automationNotices');
+          expect(result.value).to.equal(null);
+          expect(result.type).to.equal('ShowBannerResult');
+        });
+      });
+
       describe('invalid command', () => {
         it('throws an error', async() => {
           const caughtError = await mongo.show('aslkdjhekjghdskjhfds')

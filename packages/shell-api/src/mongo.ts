@@ -1,6 +1,7 @@
 /* eslint-disable complexity */
 import {
   CommonErrors,
+  MongoshCommandFailed,
   MongoshDeprecatedError,
   MongoshInternalError,
   MongoshInvalidInputError,
@@ -50,7 +51,12 @@ import { CommandResult } from './result';
 import { redactURICredentials } from '@mongosh/history';
 import { asPrintable, ServerVersions, Topologies } from './enums';
 import Session from './session';
-import { assertArgsDefinedType, processFLEOptions, isValidDatabaseName } from './helpers';
+import {
+  assertArgsDefinedType,
+  processFLEOptions,
+  isValidDatabaseName,
+  FREE_MONITORING_BANNER
+} from './helpers';
 import ChangeStreamCursor from './change-stream-cursor';
 import { blockedByDriverMetadata } from './error-codes';
 import {
@@ -59,6 +65,7 @@ import {
   ClientEncryption
 } from './field-level-encryption';
 import { ShellApiErrors } from './error-codes';
+import { LogEntry, parseAnyLogEntry } from './log-entry';
 
 @shellApiClassDefault
 @classPlatforms([ ReplPlatform.CLI ] )
@@ -309,6 +316,9 @@ export default class Mongo extends ShellApiClass {
   @returnsPromise
   @apiVersions([1])
   async show(cmd: string, arg?: string): Promise<CommandResult> {
+    const db = this._instanceState.currentDb;
+    // legacy shell:
+    // https://github.com/mongodb/mongo/blob/a6df396047a77b90bf1ce9463eecffbee16fb864/src/mongo/shell/utils.js#L900-L1226
     this._instanceState.messageBus.emit('mongosh:show', { method: `show ${cmd}` });
 
     switch (cmd) {
@@ -318,10 +328,10 @@ export default class Mongo extends ShellApiClass {
         return new CommandResult('ShowDatabasesResult', result);
       case 'collections':
       case 'tables':
-        const collectionNames = await this._instanceState.currentDb._getCollectionNamesWithTypes({ readPreference: 'primaryPreferred', promoteLongs: true });
+        const collectionNames = await db._getCollectionNamesWithTypes({ readPreference: 'primaryPreferred', promoteLongs: true });
         return new CommandResult('ShowCollectionsResult', collectionNames);
       case 'profile':
-        const sysprof = this._instanceState.currentDb.getCollection('system.profile');
+        const sysprof = db.getCollection('system.profile');
         const profiles = { count: await sysprof.countDocuments({}) } as Document;
         if (profiles.count !== 0) {
           profiles.result = await (await sysprof.find({ millis: { $gt: 0 } }))
@@ -331,17 +341,81 @@ export default class Mongo extends ShellApiClass {
         }
         return new CommandResult('ShowProfileResult', profiles);
       case 'users':
-        const users = await this._instanceState.currentDb.getUsers();
+        const users = await db.getUsers();
         return new CommandResult('ShowResult', users.users);
       case 'roles':
-        const roles = await this._instanceState.currentDb.getRoles({ showBuiltinRoles: true });
+        const roles = await db.getRoles({ showBuiltinRoles: true });
         return new CommandResult('ShowResult', roles.roles);
       case 'log':
-        const log = await this._instanceState.currentDb.adminCommand({ getLog: arg || 'global' });
+        const log = await db.adminCommand({ getLog: arg || 'global' });
         return new CommandResult('ShowResult', log.log);
       case 'logs':
-        const logs = await this._instanceState.currentDb.adminCommand({ getLog: '*' });
+        const logs = await db.adminCommand({ getLog: '*' });
         return new CommandResult('ShowResult', logs.names);
+      case 'startupWarnings': {
+        type GetLogResult = { ok: number, totalLinesWritten: number, log: string[] | undefined };
+        let result;
+        try {
+          result = await db.adminCommand({ getLog: 'startupWarnings' }) as GetLogResult;
+          if (!result) {
+            throw new MongoshCommandFailed('adminCommand getLog unexpectedly returned no result');
+          }
+        } catch (error: any) {
+          this._instanceState.messageBus.emit('mongosh:error', error, 'shell-api');
+          return new CommandResult('ShowBannerResult', null);
+        }
+
+        if (!result.log || !result.log.length) {
+          return new CommandResult('ShowBannerResult', null);
+        }
+
+        const lines: string[] = result.log.map(logLine => {
+          try {
+            const entry: LogEntry = parseAnyLogEntry(logLine);
+            return `${entry.timestamp}: ${entry.message}`;
+          } catch (e: any) {
+            return `Unexpected log line format: ${logLine}`;
+          }
+        });
+        return new CommandResult('ShowBannerResult', {
+          header: 'The server generated these startup warnings when booting',
+          content: lines.join('\n')
+        });
+      }
+      case 'freeMonitoring': {
+        let freemonStatus;
+        try {
+          freemonStatus = await db.adminCommand({ getFreeMonitoringStatus: 1 });
+        } catch (error: any) {
+          this._instanceState.messageBus.emit('mongosh:error', error, 'shell-api');
+          return new CommandResult('ShowBannerResult', null);
+        }
+
+        if (freemonStatus.state === 'enabled' && freemonStatus.userReminder) {
+          return new CommandResult('ShowBannerResult', { content: freemonStatus.userReminder });
+        } else if (freemonStatus.state === 'undecided') {
+          return new CommandResult('ShowBannerResult', { content: FREE_MONITORING_BANNER });
+        }
+
+        return new CommandResult('ShowBannerResult', null);
+      }
+      case 'automationNotices': {
+        let helloResult;
+        try {
+          helloResult = await db.hello();
+        } catch (error: any) {
+          this._instanceState.messageBus.emit('mongosh:error', error, 'shell-api');
+          return new CommandResult('ShowBannerResult', null);
+        }
+        if (helloResult.automationServiceDescriptor) {
+          return new CommandResult('ShowBannerResult', {
+            content:
+              `This server is managed by automation service '${helloResult.automationServiceDescriptor}'.\n` +
+              'Many administrative actions are inappropriate, and may be automatically reverted.'
+          });
+        }
+        return new CommandResult('ShowBannerResult', null);
+      }
       default:
         const err = new MongoshInvalidInputError(
           `'${cmd}' is not a valid argument for "show".`,
