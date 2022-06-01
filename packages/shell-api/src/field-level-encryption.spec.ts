@@ -51,7 +51,7 @@ const ENCRYPT_OPTIONS = {
   algorithm: ALGO as ClientEncryptionEncryptOptions['algorithm'],
   indexKeyId: new bson.Binary(Buffer.from('12345678123498761234123456789012', 'hex'), 4),
   contentionFactor: 10,
-  queryType: 'Equality'
+  queryType: 'Equality' as ClientEncryptionEncryptOptions['queryType']
 };
 
 const RAW_CLIENT = { client: 1 } as any;

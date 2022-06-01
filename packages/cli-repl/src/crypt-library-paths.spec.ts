@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { SHARED_LIBRARY_SUFFIX, getCryptLibraryPaths } from './csfle-library-paths';
+import { SHARED_LIBRARY_SUFFIX, getCryptLibraryPaths } from './crypt-library-paths';
 import cryptLibraryDummy from 'mongodb-crypt-library-dummy';
 import type { MongoshBus } from '@mongosh/types';
 import { useTmpdir } from '../test/repl-helpers';
