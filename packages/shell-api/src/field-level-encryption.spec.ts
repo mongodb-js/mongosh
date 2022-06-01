@@ -385,6 +385,15 @@ describe('Field Level Encryption', () => {
         expect(result).to.deep.equal(r2.value);
       });
     });
+    describe('rewrapManyDataKey', () => {
+      it('calls rewrapManyDataKey on clientEncryption', async() => {
+        const rawResult = { result: 1 };
+        libmongoc.rewrapManyDataKey.resolves(rawResult);
+        const result = await keyVault.rewrapManyDataKey({ status: 0 }, { provider: 'local' });
+        expect(libmongoc.rewrapManyDataKey).calledOnceWithExactly({ status: 0 }, { provider: 'local' });
+        expect(result).to.deep.equal(rawResult);
+      });
+    });
   });
   describe('Mongo constructor FLE options', () => {
     before(() => {

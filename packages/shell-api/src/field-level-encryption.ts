@@ -277,4 +277,31 @@ export class KeyVault extends ShellApiWithMongoClass {
     }
     return ret;
   }
+
+  @returnsPromise
+  @apiVersions([1])
+  async rewrapManyDataKey(filter: Document, options?: Document): Promise<Document> {
+    return this._clientEncryption._libmongocrypt.rewrapManyDataKey(filter, options as any);
+  }
+
+  // Alias for compatibility with the driver API.
+  @returnsPromise
+  @apiVersions([1])
+  async createDataKey(...args: Parameters<KeyVault['createKey']>): ReturnType<KeyVault['createKey']> {
+    return await this.createKey(...args);
+  }
+
+  // Alias for compatibility with the driver API.
+  @returnsPromise
+  @apiVersions([1])
+  async removeKeyAltName(...args: Parameters<KeyVault['removeKeyAlternateName']>): ReturnType<KeyVault['removeKeyAlternateName']> {
+    return await this.removeKeyAlternateName(...args);
+  }
+
+  // Alias for compatibility with the driver API.
+  @returnsPromise
+  @apiVersions([1])
+  async addKeyAltName(...args: Parameters<KeyVault['addKeyAlternateName']>): ReturnType<KeyVault['addKeyAlternateName']> {
+    return await this.addKeyAlternateName(...args);
+  }
 }
