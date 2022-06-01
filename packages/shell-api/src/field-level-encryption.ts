@@ -257,6 +257,7 @@ export class KeyVault extends ShellApiWithMongoClass {
     }
 
     const options: ClientEncryptionCreateDataKeyProviderOptions = {};
+
     if (masterKey) {
       options.masterKey = masterKey;
     }
@@ -268,7 +269,7 @@ export class KeyVault extends ShellApiWithMongoClass {
       options.keyMaterial = keyMaterial;
     }
 
-    return await this._clientEncryption._libmongocrypt.createDataKey(kms, options as ClientEncryptionCreateDataKeyProviderOptions);
+    return await this._clientEncryption._libmongocrypt.createDataKey(kms, options);
   }
 
   @returnType('Cursor')
