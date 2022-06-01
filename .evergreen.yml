@@ -4926,11 +4926,11 @@ functions:
   #
   # package_and_upload_artifact expects the following arguments:
   # - distro_id
-  # - distribution_build_variant
+  # - package_variant
   # - executable_os_id
   #
   # get_artifact_url expects the following arguments:
-  # - distribution_build_variant
+  # - package_variant
   ###
   package_and_upload_artifact:
     - command: expansions.write
@@ -4952,7 +4952,7 @@ functions:
         env:
           NODE_JS_VERSION: ${node_js_version}
           DISTRO_ID_OVERRIDE: ${distro_id}
-          DISTRIBUTION_BUILD_VARIANT: ${distribution_build_variant}
+          PACKAGE_VARIANT: ${package_variant}
           MACOS_NOTARY_KEY: ${macos_notary_key}
           MACOS_NOTARY_SECRET: ${macos_notary_secret}
     - command: s3.put
@@ -4960,7 +4960,7 @@ functions:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
         local_file: src/artifact-url.txt
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/artifact-url-${distribution_build_variant}.txt
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/artifact-url-${package_variant}.txt
         bucket: mciuploads
         permissions: public-read
         content_type: application/x-gzip
@@ -4970,7 +4970,7 @@ functions:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
         local_file: artifact-url.txt
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/artifact-url-${source_distribution_build_variant}.txt
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/artifact-url-${source_package_variant}.txt
         bucket: mciuploads
 
   write_preload_script:
@@ -8628,7 +8628,7 @@ tasks:
       - func: package_and_upload_artifact
         vars:
           node_js_version: "16.15.0"
-          distribution_build_variant: darwin-x64
+          package_variant: darwin-x64
           executable_os_id: darwin-x64
   - name: package_and_upload_artifact_darwin_arm64
     depends_on:
@@ -8643,7 +8643,7 @@ tasks:
       - func: package_and_upload_artifact
         vars:
           node_js_version: "16.15.0"
-          distribution_build_variant: darwin-arm64
+          package_variant: darwin-arm64
           executable_os_id: darwin-arm64
   - name: package_and_upload_artifact_linux_x64
     depends_on:
@@ -8658,9 +8658,9 @@ tasks:
       - func: package_and_upload_artifact
         vars:
           node_js_version: "16.15.0"
-          distribution_build_variant: linux-x64
+          package_variant: linux-x64
           executable_os_id: linux-x64
-  - name: package_and_upload_artifact_debian_x64
+  - name: package_and_upload_artifact_deb_x64
     depends_on:
       - name: compile_artifact
         variant: linux_x64_build
@@ -8673,9 +8673,9 @@ tasks:
       - func: package_and_upload_artifact
         vars:
           node_js_version: "16.15.0"
-          distribution_build_variant: debian-x64
+          package_variant: deb-x64
           executable_os_id: linux-x64
-  - name: package_and_upload_artifact_rhel7_x64
+  - name: package_and_upload_artifact_rpm_x64
     depends_on:
       - name: compile_artifact
         variant: linux_x64_build
@@ -8688,52 +8688,7 @@ tasks:
       - func: package_and_upload_artifact
         vars:
           node_js_version: "16.15.0"
-          distribution_build_variant: rhel7-x64
-          executable_os_id: linux-x64
-  - name: package_and_upload_artifact_rhel8_x64
-    depends_on:
-      - name: compile_artifact
-        variant: linux_x64_build
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          npm_deps_mode: cli_build
-          node_js_version: "16.15.0"
-      - func: package_and_upload_artifact
-        vars:
-          node_js_version: "16.15.0"
-          distribution_build_variant: rhel8-x64
-          executable_os_id: linux-x64
-  - name: package_and_upload_artifact_suse_x64
-    depends_on:
-      - name: compile_artifact
-        variant: linux_x64_build
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          npm_deps_mode: cli_build
-          node_js_version: "16.15.0"
-      - func: package_and_upload_artifact
-        vars:
-          node_js_version: "16.15.0"
-          distribution_build_variant: suse-x64
-          executable_os_id: linux-x64
-  - name: package_and_upload_artifact_amzn1_x64
-    depends_on:
-      - name: compile_artifact
-        variant: linux_x64_build
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          npm_deps_mode: cli_build
-          node_js_version: "16.15.0"
-      - func: package_and_upload_artifact
-        vars:
-          node_js_version: "16.15.0"
-          distribution_build_variant: amzn1-x64
+          package_variant: rpm-x64
           executable_os_id: linux-x64
   - name: package_and_upload_artifact_linux_x64_openssl11
     depends_on:
@@ -8748,9 +8703,9 @@ tasks:
       - func: package_and_upload_artifact
         vars:
           node_js_version: "16.15.0"
-          distribution_build_variant: linux-x64-openssl11
+          package_variant: linux-x64-openssl11
           executable_os_id: linux-x64-openssl11
-  - name: package_and_upload_artifact_debian_x64_openssl11
+  - name: package_and_upload_artifact_deb_x64_openssl11
     depends_on:
       - name: compile_artifact
         variant: linux_x64_build_openssl11
@@ -8763,9 +8718,9 @@ tasks:
       - func: package_and_upload_artifact
         vars:
           node_js_version: "16.15.0"
-          distribution_build_variant: debian-x64-openssl11
+          package_variant: deb-x64-openssl11
           executable_os_id: linux-x64-openssl11
-  - name: package_and_upload_artifact_rhel7_x64_openssl11
+  - name: package_and_upload_artifact_rpm_x64_openssl11
     depends_on:
       - name: compile_artifact
         variant: linux_x64_build_openssl11
@@ -8778,22 +8733,7 @@ tasks:
       - func: package_and_upload_artifact
         vars:
           node_js_version: "16.15.0"
-          distribution_build_variant: rhel7-x64-openssl11
-          executable_os_id: linux-x64-openssl11
-  - name: package_and_upload_artifact_rhel8_x64_openssl11
-    depends_on:
-      - name: compile_artifact
-        variant: linux_x64_build_openssl11
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          npm_deps_mode: cli_build
-          node_js_version: "16.15.0"
-      - func: package_and_upload_artifact
-        vars:
-          node_js_version: "16.15.0"
-          distribution_build_variant: rhel8-x64-openssl11
+          package_variant: rpm-x64-openssl11
           executable_os_id: linux-x64-openssl11
   - name: package_and_upload_artifact_linux_x64_openssl3
     depends_on:
@@ -8808,9 +8748,9 @@ tasks:
       - func: package_and_upload_artifact
         vars:
           node_js_version: "16.15.0"
-          distribution_build_variant: linux-x64-openssl3
+          package_variant: linux-x64-openssl3
           executable_os_id: linux-x64-openssl3
-  - name: package_and_upload_artifact_debian_x64_openssl3
+  - name: package_and_upload_artifact_deb_x64_openssl3
     depends_on:
       - name: compile_artifact
         variant: linux_x64_build_openssl3
@@ -8823,9 +8763,9 @@ tasks:
       - func: package_and_upload_artifact
         vars:
           node_js_version: "16.15.0"
-          distribution_build_variant: debian-x64-openssl3
+          package_variant: deb-x64-openssl3
           executable_os_id: linux-x64-openssl3
-  - name: package_and_upload_artifact_rhel8_x64_openssl3
+  - name: package_and_upload_artifact_rpm_x64_openssl3
     depends_on:
       - name: compile_artifact
         variant: linux_x64_build_openssl3
@@ -8838,7 +8778,7 @@ tasks:
       - func: package_and_upload_artifact
         vars:
           node_js_version: "16.15.0"
-          distribution_build_variant: rhel8-x64-openssl3
+          package_variant: rpm-x64-openssl3
           executable_os_id: linux-x64-openssl3
   - name: package_and_upload_artifact_linux_arm64
     depends_on:
@@ -8853,9 +8793,9 @@ tasks:
       - func: package_and_upload_artifact
         vars:
           node_js_version: "16.15.0"
-          distribution_build_variant: linux-arm64
+          package_variant: linux-arm64
           executable_os_id: linux-arm64
-  - name: package_and_upload_artifact_debian_arm64
+  - name: package_and_upload_artifact_deb_arm64
     depends_on:
       - name: compile_artifact
         variant: linux_arm64_build
@@ -8868,9 +8808,9 @@ tasks:
       - func: package_and_upload_artifact
         vars:
           node_js_version: "16.15.0"
-          distribution_build_variant: debian-arm64
+          package_variant: deb-arm64
           executable_os_id: linux-arm64
-  - name: package_and_upload_artifact_rhel8_arm64
+  - name: package_and_upload_artifact_rpm_arm64
     depends_on:
       - name: compile_artifact
         variant: linux_arm64_build
@@ -8883,22 +8823,7 @@ tasks:
       - func: package_and_upload_artifact
         vars:
           node_js_version: "16.15.0"
-          distribution_build_variant: rhel8-arm64
-          executable_os_id: linux-arm64
-  - name: package_and_upload_artifact_amzn2_arm64
-    depends_on:
-      - name: compile_artifact
-        variant: linux_arm64_build
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          npm_deps_mode: cli_build
-          node_js_version: "16.15.0"
-      - func: package_and_upload_artifact
-        vars:
-          node_js_version: "16.15.0"
-          distribution_build_variant: amzn2-arm64
+          package_variant: rpm-arm64
           executable_os_id: linux-arm64
   - name: package_and_upload_artifact_linux_arm64_openssl11
     depends_on:
@@ -8913,9 +8838,9 @@ tasks:
       - func: package_and_upload_artifact
         vars:
           node_js_version: "16.15.0"
-          distribution_build_variant: linux-arm64-openssl11
+          package_variant: linux-arm64-openssl11
           executable_os_id: linux-arm64-openssl11
-  - name: package_and_upload_artifact_debian_arm64_openssl11
+  - name: package_and_upload_artifact_deb_arm64_openssl11
     depends_on:
       - name: compile_artifact
         variant: linux_arm64_build_openssl11
@@ -8928,9 +8853,9 @@ tasks:
       - func: package_and_upload_artifact
         vars:
           node_js_version: "16.15.0"
-          distribution_build_variant: debian-arm64-openssl11
+          package_variant: deb-arm64-openssl11
           executable_os_id: linux-arm64-openssl11
-  - name: package_and_upload_artifact_rhel8_arm64_openssl11
+  - name: package_and_upload_artifact_rpm_arm64_openssl11
     depends_on:
       - name: compile_artifact
         variant: linux_arm64_build_openssl11
@@ -8943,22 +8868,7 @@ tasks:
       - func: package_and_upload_artifact
         vars:
           node_js_version: "16.15.0"
-          distribution_build_variant: rhel8-arm64-openssl11
-          executable_os_id: linux-arm64-openssl11
-  - name: package_and_upload_artifact_amzn2_arm64_openssl11
-    depends_on:
-      - name: compile_artifact
-        variant: linux_arm64_build_openssl11
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          npm_deps_mode: cli_build
-          node_js_version: "16.15.0"
-      - func: package_and_upload_artifact
-        vars:
-          node_js_version: "16.15.0"
-          distribution_build_variant: amzn2-arm64-openssl11
+          package_variant: rpm-arm64-openssl11
           executable_os_id: linux-arm64-openssl11
   - name: package_and_upload_artifact_linux_ppc64le
     depends_on:
@@ -8973,9 +8883,9 @@ tasks:
       - func: package_and_upload_artifact
         vars:
           node_js_version: "16.15.0"
-          distribution_build_variant: linux-ppc64le
+          package_variant: linux-ppc64le
           executable_os_id: linux-ppc64le
-  - name: package_and_upload_artifact_rhel8_ppc64le
+  - name: package_and_upload_artifact_rpm_ppc64le
     depends_on:
       - name: compile_artifact
         variant: linux_ppc64le_build
@@ -8988,7 +8898,7 @@ tasks:
       - func: package_and_upload_artifact
         vars:
           node_js_version: "16.15.0"
-          distribution_build_variant: rhel8-ppc64le
+          package_variant: rpm-ppc64le
           executable_os_id: linux-ppc64le
   - name: package_and_upload_artifact_linux_s390x
     depends_on:
@@ -9003,9 +8913,9 @@ tasks:
       - func: package_and_upload_artifact
         vars:
           node_js_version: "16.15.0"
-          distribution_build_variant: linux-s390x
+          package_variant: linux-s390x
           executable_os_id: linux-s390x
-  - name: package_and_upload_artifact_rhel7_s390x
+  - name: package_and_upload_artifact_rpm_s390x
     depends_on:
       - name: compile_artifact
         variant: linux_s390x_build
@@ -9018,7 +8928,7 @@ tasks:
       - func: package_and_upload_artifact
         vars:
           node_js_version: "16.15.0"
-          distribution_build_variant: rhel7-s390x
+          package_variant: rpm-s390x
           executable_os_id: linux-s390x
   - name: package_and_upload_artifact_win32_x64
     depends_on:
@@ -9033,7 +8943,7 @@ tasks:
       - func: package_and_upload_artifact
         vars:
           node_js_version: "16.15.0"
-          distribution_build_variant: win32-x64
+          package_variant: win32-x64
           executable_os_id: win32
   - name: package_and_upload_artifact_win32msi_x64
     depends_on:
@@ -9048,7 +8958,7 @@ tasks:
       - func: package_and_upload_artifact
         vars:
           node_js_version: "16.15.0"
-          distribution_build_variant: win32msi-x64
+          package_variant: win32msi-x64
           executable_os_id: win32
 
   ###
@@ -9063,7 +8973,7 @@ tasks:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_distribution_build_variant: darwin-x64
+          source_package_variant: darwin-x64
       - func: write_preload_script
       - func: test_artifact_macos
   - name: pkg_test_macos_darwin_arm64
@@ -9075,7 +8985,7 @@ tasks:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_distribution_build_variant: darwin-arm64
+          source_package_variant: darwin-arm64
       - func: write_preload_script
       - func: test_artifact_macos
   - name: pkg_test_docker_linux_x64_ubuntu20_04_tgz
@@ -9087,7 +8997,7 @@ tasks:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_distribution_build_variant: linux-x64
+          source_package_variant: linux-x64
       - func: write_preload_script
       - func: install
         vars:
@@ -9097,16 +9007,16 @@ tasks:
         vars:
           node_js_version: "16.15.0"
           dockerfile: ubuntu20.04-tgz
-  - name: pkg_test_docker_debian_x64_ubuntu18_04_deb
+  - name: pkg_test_docker_deb_x64_ubuntu18_04_deb
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_debian_x64
+      - name: package_and_upload_artifact_deb_x64
         variant: linux_package
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_distribution_build_variant: debian-x64
+          source_package_variant: deb-x64
       - func: write_preload_script
       - func: install
         vars:
@@ -9116,16 +9026,16 @@ tasks:
         vars:
           node_js_version: "16.15.0"
           dockerfile: ubuntu18.04-deb
-  - name: pkg_test_docker_debian_x64_ubuntu20_04_deb
+  - name: pkg_test_docker_deb_x64_ubuntu20_04_deb
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_debian_x64
+      - name: package_and_upload_artifact_deb_x64
         variant: linux_package
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_distribution_build_variant: debian-x64
+          source_package_variant: deb-x64
       - func: write_preload_script
       - func: install
         vars:
@@ -9135,16 +9045,16 @@ tasks:
         vars:
           node_js_version: "16.15.0"
           dockerfile: ubuntu20.04-deb
-  - name: pkg_test_docker_debian_x64_ubuntu22_04_deb
+  - name: pkg_test_docker_deb_x64_ubuntu22_04_deb
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_debian_x64
+      - name: package_and_upload_artifact_deb_x64
         variant: linux_package
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_distribution_build_variant: debian-x64
+          source_package_variant: deb-x64
       - func: write_preload_script
       - func: install
         vars:
@@ -9154,16 +9064,16 @@ tasks:
         vars:
           node_js_version: "16.15.0"
           dockerfile: ubuntu22.04-deb
-  - name: pkg_test_docker_debian_x64_debian9_deb
+  - name: pkg_test_docker_deb_x64_debian9_deb
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_debian_x64
+      - name: package_and_upload_artifact_deb_x64
         variant: linux_package
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_distribution_build_variant: debian-x64
+          source_package_variant: deb-x64
       - func: write_preload_script
       - func: install
         vars:
@@ -9173,16 +9083,16 @@ tasks:
         vars:
           node_js_version: "16.15.0"
           dockerfile: debian9-deb
-  - name: pkg_test_docker_debian_x64_debian10_deb
+  - name: pkg_test_docker_deb_x64_debian10_deb
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_debian_x64
+      - name: package_and_upload_artifact_deb_x64
         variant: linux_package
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_distribution_build_variant: debian-x64
+          source_package_variant: deb-x64
       - func: write_preload_script
       - func: install
         vars:
@@ -9192,16 +9102,16 @@ tasks:
         vars:
           node_js_version: "16.15.0"
           dockerfile: debian10-deb
-  - name: pkg_test_docker_debian_x64_debian11_deb
+  - name: pkg_test_docker_deb_x64_debian11_deb
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_debian_x64
+      - name: package_and_upload_artifact_deb_x64
         variant: linux_package
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_distribution_build_variant: debian-x64
+          source_package_variant: deb-x64
       - func: write_preload_script
       - func: install
         vars:
@@ -9211,16 +9121,16 @@ tasks:
         vars:
           node_js_version: "16.15.0"
           dockerfile: debian11-deb
-  - name: pkg_test_docker_rhel7_x64_centos7_rpm
+  - name: pkg_test_docker_rpm_x64_centos7_rpm
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_rhel7_x64
+      - name: package_and_upload_artifact_rpm_x64
         variant: linux_package
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_distribution_build_variant: rhel7-x64
+          source_package_variant: rpm-x64
       - func: write_preload_script
       - func: install
         vars:
@@ -9230,16 +9140,16 @@ tasks:
         vars:
           node_js_version: "16.15.0"
           dockerfile: centos7-rpm
-  - name: pkg_test_docker_rhel7_x64_amazonlinux2_rpm
+  - name: pkg_test_docker_rpm_x64_amazonlinux2_rpm
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_rhel7_x64
+      - name: package_and_upload_artifact_rpm_x64
         variant: linux_package
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_distribution_build_variant: rhel7-x64
+          source_package_variant: rpm-x64
       - func: write_preload_script
       - func: install
         vars:
@@ -9249,16 +9159,16 @@ tasks:
         vars:
           node_js_version: "16.15.0"
           dockerfile: amazonlinux2-rpm
-  - name: pkg_test_docker_rhel8_x64_rocky8_rpm
+  - name: pkg_test_docker_rpm_x64_rocky8_rpm
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_rhel8_x64
+      - name: package_and_upload_artifact_rpm_x64
         variant: linux_package
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_distribution_build_variant: rhel8-x64
+          source_package_variant: rpm-x64
       - func: write_preload_script
       - func: install
         vars:
@@ -9268,16 +9178,16 @@ tasks:
         vars:
           node_js_version: "16.15.0"
           dockerfile: rocky8-rpm
-  - name: pkg_test_docker_rhel8_x64_fedora34_rpm
+  - name: pkg_test_docker_rpm_x64_fedora34_rpm
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_rhel8_x64
+      - name: package_and_upload_artifact_rpm_x64
         variant: linux_package
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_distribution_build_variant: rhel8-x64
+          source_package_variant: rpm-x64
       - func: write_preload_script
       - func: install
         vars:
@@ -9287,16 +9197,16 @@ tasks:
         vars:
           node_js_version: "16.15.0"
           dockerfile: fedora34-rpm
-  - name: pkg_test_docker_suse_x64_suse12_rpm
+  - name: pkg_test_docker_rpm_x64_suse12_rpm
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_suse_x64
+      - name: package_and_upload_artifact_rpm_x64
         variant: linux_package
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_distribution_build_variant: suse-x64
+          source_package_variant: rpm-x64
       - func: write_preload_script
       - func: install
         vars:
@@ -9306,16 +9216,16 @@ tasks:
         vars:
           node_js_version: "16.15.0"
           dockerfile: suse12-rpm
-  - name: pkg_test_docker_suse_x64_suse15_rpm
+  - name: pkg_test_docker_rpm_x64_suse15_rpm
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_suse_x64
+      - name: package_and_upload_artifact_rpm_x64
         variant: linux_package
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_distribution_build_variant: suse-x64
+          source_package_variant: rpm-x64
       - func: write_preload_script
       - func: install
         vars:
@@ -9325,16 +9235,16 @@ tasks:
         vars:
           node_js_version: "16.15.0"
           dockerfile: suse15-rpm
-  - name: pkg_test_docker_amzn1_x64_amazonlinux1_rpm
+  - name: pkg_test_docker_rpm_x64_amazonlinux1_rpm
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_amzn1_x64
+      - name: package_and_upload_artifact_rpm_x64
         variant: linux_package
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_distribution_build_variant: amzn1-x64
+          source_package_variant: rpm-x64
       - func: write_preload_script
       - func: install
         vars:
@@ -9344,16 +9254,16 @@ tasks:
         vars:
           node_js_version: "16.15.0"
           dockerfile: amazonlinux1-rpm
-  - name: pkg_test_docker_debian_x64_openssl11_ubuntu20_04_deb
+  - name: pkg_test_docker_deb_x64_openssl11_ubuntu20_04_deb
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_debian_x64_openssl11
+      - name: package_and_upload_artifact_deb_x64_openssl11
         variant: linux_package
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_distribution_build_variant: debian-x64-openssl11
+          source_package_variant: deb-x64-openssl11
       - func: write_preload_script
       - func: install
         vars:
@@ -9363,16 +9273,16 @@ tasks:
         vars:
           node_js_version: "16.15.0"
           dockerfile: ubuntu20.04-deb
-  - name: pkg_test_docker_debian_x64_openssl11_debian10_deb
+  - name: pkg_test_docker_deb_x64_openssl11_debian10_deb
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_debian_x64_openssl11
+      - name: package_and_upload_artifact_deb_x64_openssl11
         variant: linux_package
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_distribution_build_variant: debian-x64-openssl11
+          source_package_variant: deb-x64-openssl11
       - func: write_preload_script
       - func: install
         vars:
@@ -9382,16 +9292,16 @@ tasks:
         vars:
           node_js_version: "16.15.0"
           dockerfile: debian10-deb
-  - name: pkg_test_docker_debian_x64_openssl11_debian11_deb
+  - name: pkg_test_docker_deb_x64_openssl11_debian11_deb
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_debian_x64_openssl11
+      - name: package_and_upload_artifact_deb_x64_openssl11
         variant: linux_package
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_distribution_build_variant: debian-x64-openssl11
+          source_package_variant: deb-x64-openssl11
       - func: write_preload_script
       - func: install
         vars:
@@ -9401,16 +9311,16 @@ tasks:
         vars:
           node_js_version: "16.15.0"
           dockerfile: debian11-deb
-  - name: pkg_test_docker_rhel7_x64_openssl11_centos7_epel_rpm
+  - name: pkg_test_docker_rpm_x64_openssl11_centos7_epel_rpm
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_rhel7_x64_openssl11
+      - name: package_and_upload_artifact_rpm_x64_openssl11
         variant: linux_package
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_distribution_build_variant: rhel7-x64-openssl11
+          source_package_variant: rpm-x64-openssl11
       - func: write_preload_script
       - func: install
         vars:
@@ -9420,16 +9330,16 @@ tasks:
         vars:
           node_js_version: "16.15.0"
           dockerfile: centos7-epel-rpm
-  - name: pkg_test_docker_rhel7_x64_openssl11_amazonlinux2_rpm
+  - name: pkg_test_docker_rpm_x64_openssl11_amazonlinux2_rpm
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_rhel7_x64_openssl11
+      - name: package_and_upload_artifact_rpm_x64_openssl11
         variant: linux_package
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_distribution_build_variant: rhel7-x64-openssl11
+          source_package_variant: rpm-x64-openssl11
       - func: write_preload_script
       - func: install
         vars:
@@ -9439,16 +9349,16 @@ tasks:
         vars:
           node_js_version: "16.15.0"
           dockerfile: amazonlinux2-rpm
-  - name: pkg_test_docker_rhel8_x64_openssl11_rocky8_rpm
+  - name: pkg_test_docker_rpm_x64_openssl11_rocky8_rpm
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_rhel8_x64_openssl11
+      - name: package_and_upload_artifact_rpm_x64_openssl11
         variant: linux_package
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_distribution_build_variant: rhel8-x64-openssl11
+          source_package_variant: rpm-x64-openssl11
       - func: write_preload_script
       - func: install
         vars:
@@ -9458,16 +9368,16 @@ tasks:
         vars:
           node_js_version: "16.15.0"
           dockerfile: rocky8-rpm
-  - name: pkg_test_docker_rhel8_x64_openssl11_fedora34_rpm
+  - name: pkg_test_docker_rpm_x64_openssl11_fedora34_rpm
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_rhel8_x64_openssl11
+      - name: package_and_upload_artifact_rpm_x64_openssl11
         variant: linux_package
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_distribution_build_variant: rhel8-x64-openssl11
+          source_package_variant: rpm-x64-openssl11
       - func: write_preload_script
       - func: install
         vars:
@@ -9477,16 +9387,16 @@ tasks:
         vars:
           node_js_version: "16.15.0"
           dockerfile: fedora34-rpm
-  - name: pkg_test_docker_debian_x64_openssl3_ubuntu22_04_deb
+  - name: pkg_test_docker_deb_x64_openssl3_ubuntu22_04_deb
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_debian_x64_openssl3
+      - name: package_and_upload_artifact_deb_x64_openssl3
         variant: linux_package
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_distribution_build_variant: debian-x64-openssl3
+          source_package_variant: deb-x64-openssl3
       - func: write_preload_script
       - func: install
         vars:
@@ -9496,16 +9406,16 @@ tasks:
         vars:
           node_js_version: "16.15.0"
           dockerfile: ubuntu22.04-deb
-  - name: pkg_test_docker_rhel8_x64_openssl3_rocky8_epel_rpm
+  - name: pkg_test_docker_rpm_x64_openssl3_rocky8_epel_rpm
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_rhel8_x64_openssl3
+      - name: package_and_upload_artifact_rpm_x64_openssl3
         variant: linux_package
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_distribution_build_variant: rhel8-x64-openssl3
+          source_package_variant: rpm-x64-openssl3
       - func: write_preload_script
       - func: install
         vars:
@@ -9524,7 +9434,7 @@ tasks:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_distribution_build_variant: linux-arm64
+          source_package_variant: linux-arm64
       - func: write_preload_script
       - func: install
         vars:
@@ -9534,16 +9444,16 @@ tasks:
         vars:
           node_js_version: "16.15.0"
           dockerfile: ubuntu20.04-tgz
-  - name: pkg_test_docker_debian_arm64_ubuntu18_04_deb
+  - name: pkg_test_docker_deb_arm64_ubuntu18_04_deb
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_debian_arm64
+      - name: package_and_upload_artifact_deb_arm64
         variant: linux_package
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_distribution_build_variant: debian-arm64
+          source_package_variant: deb-arm64
       - func: write_preload_script
       - func: install
         vars:
@@ -9553,16 +9463,16 @@ tasks:
         vars:
           node_js_version: "16.15.0"
           dockerfile: ubuntu18.04-deb
-  - name: pkg_test_docker_debian_arm64_ubuntu20_04_deb
+  - name: pkg_test_docker_deb_arm64_ubuntu20_04_deb
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_debian_arm64
+      - name: package_and_upload_artifact_deb_arm64
         variant: linux_package
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_distribution_build_variant: debian-arm64
+          source_package_variant: deb-arm64
       - func: write_preload_script
       - func: install
         vars:
@@ -9572,16 +9482,16 @@ tasks:
         vars:
           node_js_version: "16.15.0"
           dockerfile: ubuntu20.04-deb
-  - name: pkg_test_docker_debian_arm64_ubuntu22_04_deb
+  - name: pkg_test_docker_deb_arm64_ubuntu22_04_deb
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_debian_arm64
+      - name: package_and_upload_artifact_deb_arm64
         variant: linux_package
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_distribution_build_variant: debian-arm64
+          source_package_variant: deb-arm64
       - func: write_preload_script
       - func: install
         vars:
@@ -9591,16 +9501,16 @@ tasks:
         vars:
           node_js_version: "16.15.0"
           dockerfile: ubuntu22.04-deb
-  - name: pkg_test_docker_debian_arm64_debian10_deb
+  - name: pkg_test_docker_deb_arm64_debian10_deb
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_debian_arm64
+      - name: package_and_upload_artifact_deb_arm64
         variant: linux_package
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_distribution_build_variant: debian-arm64
+          source_package_variant: deb-arm64
       - func: write_preload_script
       - func: install
         vars:
@@ -9610,16 +9520,16 @@ tasks:
         vars:
           node_js_version: "16.15.0"
           dockerfile: debian10-deb
-  - name: pkg_test_docker_debian_arm64_debian11_deb
+  - name: pkg_test_docker_deb_arm64_debian11_deb
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_debian_arm64
+      - name: package_and_upload_artifact_deb_arm64
         variant: linux_package
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_distribution_build_variant: debian-arm64
+          source_package_variant: deb-arm64
       - func: write_preload_script
       - func: install
         vars:
@@ -9629,16 +9539,16 @@ tasks:
         vars:
           node_js_version: "16.15.0"
           dockerfile: debian11-deb
-  - name: pkg_test_docker_rhel8_arm64_rocky8_rpm
+  - name: pkg_test_docker_rpm_arm64_rocky8_rpm
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_rhel8_arm64
+      - name: package_and_upload_artifact_rpm_arm64
         variant: linux_package
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_distribution_build_variant: rhel8-arm64
+          source_package_variant: rpm-arm64
       - func: write_preload_script
       - func: install
         vars:
@@ -9648,16 +9558,16 @@ tasks:
         vars:
           node_js_version: "16.15.0"
           dockerfile: rocky8-rpm
-  - name: pkg_test_docker_rhel8_arm64_fedora34_rpm
+  - name: pkg_test_docker_rpm_arm64_fedora34_rpm
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_rhel8_arm64
+      - name: package_and_upload_artifact_rpm_arm64
         variant: linux_package
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_distribution_build_variant: rhel8-arm64
+          source_package_variant: rpm-arm64
       - func: write_preload_script
       - func: install
         vars:
@@ -9667,16 +9577,16 @@ tasks:
         vars:
           node_js_version: "16.15.0"
           dockerfile: fedora34-rpm
-  - name: pkg_test_docker_amzn2_arm64_amazonlinux2_rpm
+  - name: pkg_test_docker_rpm_arm64_amazonlinux2_rpm
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_amzn2_arm64
+      - name: package_and_upload_artifact_rpm_arm64
         variant: linux_package
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_distribution_build_variant: amzn2-arm64
+          source_package_variant: rpm-arm64
       - func: write_preload_script
       - func: install
         vars:
@@ -9686,16 +9596,16 @@ tasks:
         vars:
           node_js_version: "16.15.0"
           dockerfile: amazonlinux2-rpm
-  - name: pkg_test_docker_debian_arm64_openssl11_ubuntu20_04_deb
+  - name: pkg_test_docker_deb_arm64_openssl11_ubuntu20_04_deb
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_debian_arm64_openssl11
+      - name: package_and_upload_artifact_deb_arm64_openssl11
         variant: linux_package
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_distribution_build_variant: debian-arm64-openssl11
+          source_package_variant: deb-arm64-openssl11
       - func: write_preload_script
       - func: install
         vars:
@@ -9705,16 +9615,16 @@ tasks:
         vars:
           node_js_version: "16.15.0"
           dockerfile: ubuntu20.04-deb
-  - name: pkg_test_docker_debian_arm64_openssl11_debian10_deb
+  - name: pkg_test_docker_deb_arm64_openssl11_debian10_deb
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_debian_arm64_openssl11
+      - name: package_and_upload_artifact_deb_arm64_openssl11
         variant: linux_package
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_distribution_build_variant: debian-arm64-openssl11
+          source_package_variant: deb-arm64-openssl11
       - func: write_preload_script
       - func: install
         vars:
@@ -9724,16 +9634,16 @@ tasks:
         vars:
           node_js_version: "16.15.0"
           dockerfile: debian10-deb
-  - name: pkg_test_docker_debian_arm64_openssl11_debian11_deb
+  - name: pkg_test_docker_deb_arm64_openssl11_debian11_deb
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_debian_arm64_openssl11
+      - name: package_and_upload_artifact_deb_arm64_openssl11
         variant: linux_package
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_distribution_build_variant: debian-arm64-openssl11
+          source_package_variant: deb-arm64-openssl11
       - func: write_preload_script
       - func: install
         vars:
@@ -9743,16 +9653,16 @@ tasks:
         vars:
           node_js_version: "16.15.0"
           dockerfile: debian11-deb
-  - name: pkg_test_docker_rhel8_arm64_openssl11_rocky8_rpm
+  - name: pkg_test_docker_rpm_arm64_openssl11_rocky8_rpm
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_rhel8_arm64_openssl11
+      - name: package_and_upload_artifact_rpm_arm64_openssl11
         variant: linux_package
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_distribution_build_variant: rhel8-arm64-openssl11
+          source_package_variant: rpm-arm64-openssl11
       - func: write_preload_script
       - func: install
         vars:
@@ -9762,16 +9672,16 @@ tasks:
         vars:
           node_js_version: "16.15.0"
           dockerfile: rocky8-rpm
-  - name: pkg_test_docker_rhel8_arm64_openssl11_fedora34_rpm
+  - name: pkg_test_docker_rpm_arm64_openssl11_fedora34_rpm
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_rhel8_arm64_openssl11
+      - name: package_and_upload_artifact_rpm_arm64_openssl11
         variant: linux_package
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_distribution_build_variant: rhel8-arm64-openssl11
+          source_package_variant: rpm-arm64-openssl11
       - func: write_preload_script
       - func: install
         vars:
@@ -9781,16 +9691,16 @@ tasks:
         vars:
           node_js_version: "16.15.0"
           dockerfile: fedora34-rpm
-  - name: pkg_test_docker_amzn2_arm64_openssl11_amazonlinux2_rpm
+  - name: pkg_test_docker_rpm_arm64_openssl11_amazonlinux2_rpm
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_amzn2_arm64_openssl11
+      - name: package_and_upload_artifact_rpm_arm64_openssl11
         variant: linux_package
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_distribution_build_variant: amzn2-arm64-openssl11
+          source_package_variant: rpm-arm64-openssl11
       - func: write_preload_script
       - func: install
         vars:
@@ -9800,28 +9710,28 @@ tasks:
         vars:
           node_js_version: "16.15.0"
           dockerfile: amazonlinux2-rpm
-  - name: pkg_test_rpmextract_rhel8_ppc64le
+  - name: pkg_test_rpmextract_rpm_ppc64le
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_rhel8_ppc64le
+      - name: package_and_upload_artifact_rpm_ppc64le
         variant: linux_package
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_distribution_build_variant: rhel8-ppc64le
+          source_package_variant: rpm-ppc64le
       - func: write_preload_script
       - func: test_artifact_rpmextract
-  - name: pkg_test_rpmextract_rhel7_s390x
+  - name: pkg_test_rpmextract_rpm_s390x
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_rhel7_s390x
+      - name: package_and_upload_artifact_rpm_s390x
         variant: linux_package
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_distribution_build_variant: rhel7-s390x
+          source_package_variant: rpm-s390x
       - func: write_preload_script
       - func: test_artifact_rpmextract
   - name: pkg_test_ssh_win32_x64
@@ -9833,7 +9743,7 @@ tasks:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_distribution_build_variant: win32-x64
+          source_package_variant: win32-x64
       - func: write_preload_script
       - func: spawn_host
         vars:
@@ -9852,7 +9762,7 @@ tasks:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_distribution_build_variant: win32msi-x64
+          source_package_variant: win32msi-x64
       - func: write_preload_script
       - func: spawn_host
         vars:
@@ -10200,30 +10110,24 @@ buildvariants:
     run_on: ubuntu1804-small
     tasks:
       - name: package_and_upload_artifact_linux_x64
-      - name: package_and_upload_artifact_debian_x64
-      - name: package_and_upload_artifact_rhel7_x64
-      - name: package_and_upload_artifact_rhel8_x64
-      - name: package_and_upload_artifact_suse_x64
-      - name: package_and_upload_artifact_amzn1_x64
+      - name: package_and_upload_artifact_deb_x64
+      - name: package_and_upload_artifact_rpm_x64
       - name: package_and_upload_artifact_linux_x64_openssl11
-      - name: package_and_upload_artifact_debian_x64_openssl11
-      - name: package_and_upload_artifact_rhel7_x64_openssl11
-      - name: package_and_upload_artifact_rhel8_x64_openssl11
+      - name: package_and_upload_artifact_deb_x64_openssl11
+      - name: package_and_upload_artifact_rpm_x64_openssl11
       - name: package_and_upload_artifact_linux_x64_openssl3
-      - name: package_and_upload_artifact_debian_x64_openssl3
-      - name: package_and_upload_artifact_rhel8_x64_openssl3
+      - name: package_and_upload_artifact_deb_x64_openssl3
+      - name: package_and_upload_artifact_rpm_x64_openssl3
       - name: package_and_upload_artifact_linux_arm64
-      - name: package_and_upload_artifact_debian_arm64
-      - name: package_and_upload_artifact_rhel8_arm64
-      - name: package_and_upload_artifact_amzn2_arm64
+      - name: package_and_upload_artifact_deb_arm64
+      - name: package_and_upload_artifact_rpm_arm64
       - name: package_and_upload_artifact_linux_arm64_openssl11
-      - name: package_and_upload_artifact_debian_arm64_openssl11
-      - name: package_and_upload_artifact_rhel8_arm64_openssl11
-      - name: package_and_upload_artifact_amzn2_arm64_openssl11
+      - name: package_and_upload_artifact_deb_arm64_openssl11
+      - name: package_and_upload_artifact_rpm_arm64_openssl11
       - name: package_and_upload_artifact_linux_ppc64le
-      - name: package_and_upload_artifact_rhel8_ppc64le
+      - name: package_and_upload_artifact_rpm_ppc64le
       - name: package_and_upload_artifact_linux_s390x
-      - name: package_and_upload_artifact_rhel7_s390x
+      - name: package_and_upload_artifact_rpm_s390x
   - name: linux_x64_build
     display_name: "RHEL 7.0 x64 (build)"
     run_on: rhel70-build
@@ -10517,47 +10421,47 @@ buildvariants:
     run_on: ubuntu1804-small
     tasks:
       - name: pkg_test_docker_linux_x64_ubuntu20_04_tgz
-      - name: pkg_test_docker_debian_x64_ubuntu18_04_deb
-      - name: pkg_test_docker_debian_x64_ubuntu20_04_deb
-      - name: pkg_test_docker_debian_x64_ubuntu22_04_deb
-      - name: pkg_test_docker_debian_x64_debian9_deb
-      - name: pkg_test_docker_debian_x64_debian10_deb
-      - name: pkg_test_docker_debian_x64_debian11_deb
-      - name: pkg_test_docker_rhel7_x64_centos7_rpm
-      - name: pkg_test_docker_rhel7_x64_amazonlinux2_rpm
-      - name: pkg_test_docker_rhel8_x64_rocky8_rpm
-      - name: pkg_test_docker_rhel8_x64_fedora34_rpm
-      - name: pkg_test_docker_suse_x64_suse12_rpm
-      - name: pkg_test_docker_suse_x64_suse15_rpm
-      - name: pkg_test_docker_amzn1_x64_amazonlinux1_rpm
-      - name: pkg_test_docker_debian_x64_openssl11_ubuntu20_04_deb
-      - name: pkg_test_docker_debian_x64_openssl11_debian10_deb
-      - name: pkg_test_docker_debian_x64_openssl11_debian11_deb
-      - name: pkg_test_docker_rhel7_x64_openssl11_centos7_epel_rpm
-      - name: pkg_test_docker_rhel7_x64_openssl11_amazonlinux2_rpm
-      - name: pkg_test_docker_rhel8_x64_openssl11_rocky8_rpm
-      - name: pkg_test_docker_rhel8_x64_openssl11_fedora34_rpm
-      - name: pkg_test_docker_debian_x64_openssl3_ubuntu22_04_deb
-      - name: pkg_test_docker_rhel8_x64_openssl3_rocky8_epel_rpm
+      - name: pkg_test_docker_deb_x64_ubuntu18_04_deb
+      - name: pkg_test_docker_deb_x64_ubuntu20_04_deb
+      - name: pkg_test_docker_deb_x64_ubuntu22_04_deb
+      - name: pkg_test_docker_deb_x64_debian9_deb
+      - name: pkg_test_docker_deb_x64_debian10_deb
+      - name: pkg_test_docker_deb_x64_debian11_deb
+      - name: pkg_test_docker_rpm_x64_centos7_rpm
+      - name: pkg_test_docker_rpm_x64_amazonlinux2_rpm
+      - name: pkg_test_docker_rpm_x64_rocky8_rpm
+      - name: pkg_test_docker_rpm_x64_fedora34_rpm
+      - name: pkg_test_docker_rpm_x64_suse12_rpm
+      - name: pkg_test_docker_rpm_x64_suse15_rpm
+      - name: pkg_test_docker_rpm_x64_amazonlinux1_rpm
+      - name: pkg_test_docker_deb_x64_openssl11_ubuntu20_04_deb
+      - name: pkg_test_docker_deb_x64_openssl11_debian10_deb
+      - name: pkg_test_docker_deb_x64_openssl11_debian11_deb
+      - name: pkg_test_docker_rpm_x64_openssl11_centos7_epel_rpm
+      - name: pkg_test_docker_rpm_x64_openssl11_amazonlinux2_rpm
+      - name: pkg_test_docker_rpm_x64_openssl11_rocky8_rpm
+      - name: pkg_test_docker_rpm_x64_openssl11_fedora34_rpm
+      - name: pkg_test_docker_deb_x64_openssl3_ubuntu22_04_deb
+      - name: pkg_test_docker_rpm_x64_openssl3_rocky8_epel_rpm
   - name: pkg_smoke_tests_docker_arm64
     display_name: "package smoke tests (arm64 Docker)"
     run_on: ubuntu1804-arm64-small
     tasks:
       - name: pkg_test_docker_linux_arm64_ubuntu20_04_tgz
-      - name: pkg_test_docker_debian_arm64_ubuntu18_04_deb
-      - name: pkg_test_docker_debian_arm64_ubuntu20_04_deb
-      - name: pkg_test_docker_debian_arm64_ubuntu22_04_deb
-      - name: pkg_test_docker_debian_arm64_debian10_deb
-      - name: pkg_test_docker_debian_arm64_debian11_deb
-      - name: pkg_test_docker_rhel8_arm64_rocky8_rpm
-      - name: pkg_test_docker_rhel8_arm64_fedora34_rpm
-      - name: pkg_test_docker_amzn2_arm64_amazonlinux2_rpm
-      - name: pkg_test_docker_debian_arm64_openssl11_ubuntu20_04_deb
-      - name: pkg_test_docker_debian_arm64_openssl11_debian10_deb
-      - name: pkg_test_docker_debian_arm64_openssl11_debian11_deb
-      - name: pkg_test_docker_rhel8_arm64_openssl11_rocky8_rpm
-      - name: pkg_test_docker_rhel8_arm64_openssl11_fedora34_rpm
-      - name: pkg_test_docker_amzn2_arm64_openssl11_amazonlinux2_rpm
+      - name: pkg_test_docker_deb_arm64_ubuntu18_04_deb
+      - name: pkg_test_docker_deb_arm64_ubuntu20_04_deb
+      - name: pkg_test_docker_deb_arm64_ubuntu22_04_deb
+      - name: pkg_test_docker_deb_arm64_debian10_deb
+      - name: pkg_test_docker_deb_arm64_debian11_deb
+      - name: pkg_test_docker_rpm_arm64_rocky8_rpm
+      - name: pkg_test_docker_rpm_arm64_fedora34_rpm
+      - name: pkg_test_docker_rpm_arm64_amazonlinux2_rpm
+      - name: pkg_test_docker_deb_arm64_openssl11_ubuntu20_04_deb
+      - name: pkg_test_docker_deb_arm64_openssl11_debian10_deb
+      - name: pkg_test_docker_deb_arm64_openssl11_debian11_deb
+      - name: pkg_test_docker_rpm_arm64_openssl11_rocky8_rpm
+      - name: pkg_test_docker_rpm_arm64_openssl11_fedora34_rpm
+      - name: pkg_test_docker_rpm_arm64_openssl11_amazonlinux2_rpm
   - name: pkg_smoke_tests_win32
     display_name: "package smoke tests (win32)"
     run_on: ubuntu1804-small
@@ -10583,17 +10487,17 @@ buildvariants:
     display_name: "package smoke tests (RHEL 7.2 s390x)"
     run_on: rhel72-zseries-small
     tasks:
-      - name: pkg_test_rpmextract_rhel7_s390x
+      - name: pkg_test_rpmextract_rpm_s390x
   - name: pkg_smoke_tests_rhel83_s390x
     display_name: "package smoke tests (RHEL 8.3 s390x)"
     run_on: rhel83-zseries-small
     tasks:
-      - name: pkg_test_rpmextract_rhel7_s390x
+      - name: pkg_test_rpmextract_rpm_s390x
   - name: pkg_smoke_tests_rhel81_ppc64le
     display_name: "package smoke tests (RHEL 8.1 ppc64le)"
     run_on: rhel81-power8-small
     tasks:
-      - name: pkg_test_rpmextract_rhel8_ppc64le
+      - name: pkg_test_rpmextract_rpm_ppc64le
 
   - name: draft_publish_release
     display_name: "Draft/Publish Release"

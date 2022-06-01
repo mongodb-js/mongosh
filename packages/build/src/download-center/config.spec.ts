@@ -1,6 +1,7 @@
 import { DownloadCenterConfig } from '@mongodb-js/dl-center/dist/download-center-config';
 import { expect } from 'chai';
 import sinon from 'ts-sinon';
+import type { PackageVariant } from '../config';
 import { createAndPublishDownloadCenterConfig, createDownloadCenterConfig } from './config';
 
 describe('DownloadCenter config', () => {
@@ -8,13 +9,16 @@ describe('DownloadCenter config', () => {
   let packageInformation: any;
 
   before(() => {
-    packageInformation = {
-      metadata: {
-        version: '1.2.2',
-        name: 'mongosh',
-        debName: 'mongodb-mongosh',
-        rpmName: 'mongodb-mongosh'
-      }
+    packageInformation = (packageVariant: PackageVariant) => {
+      const SHARED_OPENSSL_TAG = packageVariant?.match?.(/-(openssl\d*)$/)?.[1] || '';
+      return {
+        metadata: {
+          version: '1.2.2',
+          name: 'mongosh',
+          rpmName: 'mongodb-mongosh' + (SHARED_OPENSSL_TAG ? `-shared-${SHARED_OPENSSL_TAG}` : ''),
+          debName: 'mongodb-mongosh' + (SHARED_OPENSSL_TAG ? `-shared-${SHARED_OPENSSL_TAG}` : ''),
+        }
+      };
     };
     config = createDownloadCenterConfig(packageInformation);
   });
@@ -38,37 +42,44 @@ describe('DownloadCenter config', () => {
     it('has an artifact for linux', () => {
       const [version] = config.versions;
       const platforms = version.platform.filter(p => p.os === 'linux' && p.arch === 'x64');
-      expect(platforms).to.have.length(1);
-      expect(platforms[0].download_link).to.include('mongosh-1.2.2-linux-x64.tgz');
+      expect(platforms).to.have.length(3);
+      expect(platforms.map(p => p.download_link)).to.deep.equal([
+        'https://downloads.mongodb.com/compass/mongosh-1.2.2-linux-x64.tgz',
+        'https://downloads.mongodb.com/compass/mongosh-1.2.2-linux-x64-openssl11.tgz',
+        'https://downloads.mongodb.com/compass/mongosh-1.2.2-linux-x64-openssl3.tgz',
+      ]);
     });
 
     it('has an MSI and ZIP artifacts for windows', () => {
       const [version] = config.versions;
       const platforms = version.platform.filter(p => p.os === 'win32' || p.os === 'win32msi');
       expect(platforms).to.have.length(2);
-      expect(platforms[0].download_link).to.include('mongosh-1.2.2-win32-x64.zip');
-      expect(platforms[1].download_link).to.include('mongosh-1.2.2-x64.msi');
+      expect(platforms.map(p => p.download_link)).to.deep.equal([
+        'https://downloads.mongodb.com/compass/mongosh-1.2.2-win32-x64.zip',
+        'https://downloads.mongodb.com/compass/mongosh-1.2.2-x64.msi'
+      ]);
     });
 
-    it('has an artifact for rhel7', () => {
+    it('has an artifact for rpm', () => {
       const [version] = config.versions;
-      const platforms = version.platform.filter(p => p.os === 'rhel7' && p.arch === 'x64');
-      expect(platforms).to.have.length(1);
-      expect(platforms[0].download_link).to.include('mongodb-mongosh-1.2.2.el7.x86_64.rpm');
+      const platforms = version.platform.filter(p => p.os === 'rpm' && p.arch === 'x64');
+      expect(platforms).to.have.length(3);
+      expect(platforms.map(p => p.download_link)).to.deep.equal([
+        'https://downloads.mongodb.com/compass/mongodb-mongosh-1.2.2.x86_64.rpm',
+        'https://downloads.mongodb.com/compass/mongodb-mongosh-shared-openssl11-1.2.2.x86_64.rpm',
+        'https://downloads.mongodb.com/compass/mongodb-mongosh-shared-openssl3-1.2.2.x86_64.rpm',
+      ]);
     });
 
-    it('has an artifact for rhel8', () => {
+    it('has an artifact for deb', () => {
       const [version] = config.versions;
-      const platforms = version.platform.filter(p => p.os === 'rhel8' && p.arch === 'x64');
-      expect(platforms).to.have.length(1);
-      expect(platforms[0].download_link).to.include('mongodb-mongosh-1.2.2.el8.x86_64.rpm');
-    });
-
-    it('has an artifact for debian', () => {
-      const [version] = config.versions;
-      const platforms = version.platform.filter(p => p.os === 'debian' && p.arch === 'x64');
-      expect(platforms).to.have.length(1);
-      expect(platforms[0].download_link).to.include('mongodb-mongosh_1.2.2_amd64.deb');
+      const platforms = version.platform.filter(p => p.os === 'deb' && p.arch === 'x64');
+      expect(platforms).to.have.length(3);
+      expect(platforms.map(p => p.download_link)).to.deep.equal([
+        'https://downloads.mongodb.com/compass/mongodb-mongosh_1.2.2_amd64.deb',
+        'https://downloads.mongodb.com/compass/mongodb-mongosh-shared-openssl11_1.2.2_amd64.deb',
+        'https://downloads.mongodb.com/compass/mongodb-mongosh-shared-openssl3_1.2.2_amd64.deb',
+      ]);
     });
   });
 

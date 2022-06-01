@@ -20,7 +20,7 @@ describe('tarball debian', () => {
       this.skip();
     }
 
-    const tarball = await createPackage(tmpPkg.tarballDir, 'debian-x64', tmpPkg.pkgConfig);
+    const tarball = await createPackage(tmpPkg.tarballDir, 'deb-x64', tmpPkg.pkgConfig);
     await fs.access(tarball.path);
     {
       const { stdout } = await execFile('dpkg', ['-c', tarball.path]);

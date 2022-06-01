@@ -2,9 +2,9 @@
 import path from 'path';
 import { promises as fs, constants as fsConstants } from 'fs';
 import { downloadMongoDb, DownloadOptions } from '../download-mongodb';
-import { BuildVariant, getDistro, getArch } from '../config';
+import { PackageVariant, getDistro, getArch } from '../config';
 
-export async function downloadCryptLibrary(variant: BuildVariant | 'host'): Promise<string> {
+export async function downloadCryptLibrary(variant: PackageVariant | 'host'): Promise<string> {
   const opts: DownloadOptions = {};
   opts.arch = variant === 'host' ? undefined : getArch(variant);
   opts.distro = variant === 'host' ? undefined : lookupReleaseDistro(variant);
@@ -36,8 +36,8 @@ export async function downloadCryptLibrary(variant: BuildVariant | 'host'): Prom
   return cryptLibrary;
 }
 
-function lookupReleaseDistro(variant: BuildVariant): string {
-  switch (getDistro(variant)) {
+function lookupReleaseDistro(packageVariant: PackageVariant): string {
+  switch (getDistro(packageVariant)) {
     case 'win32':
     case 'win32msi':
       return 'win32';
@@ -45,7 +45,8 @@ function lookupReleaseDistro(variant: BuildVariant): string {
       return 'darwin';
     default: break;
   }
-  switch (getArch(variant)) {
+  // Pick the variant with the lowest supported glibc version.
+  switch (getArch(packageVariant)) {
     case 'ppc64le':
       return 'rhel81';
     case 's390x':

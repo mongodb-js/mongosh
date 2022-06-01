@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { withTempPackageEach } from '../../../test/helpers';
-import { ALL_BUILD_VARIANTS } from '../../config';
+import { ALL_PACKAGE_VARIANTS } from '../../config';
 import { createPackage } from './create-package';
 
 describe('archive create-archive', () => {
@@ -22,7 +22,7 @@ describe('archive create-archive', () => {
       createZipArchiveStub = sinon.stub();
     });
 
-    ALL_BUILD_VARIANTS.forEach(variant => {
+    ALL_PACKAGE_VARIANTS.forEach(variant => {
       it(`can create a tarball for ${variant}`, async() => {
         const result = await createPackage(
           tmpPkg.tarballDir,

@@ -54,97 +54,7 @@ for (const packageInfo of MONGOSH_PACKAGES) {
 
 const ALL_UNIT_TEST_BUILD_VARIANTS = ['darwin_unit', 'linux_unit', 'win32_unit'];
 
-const EXECUTABLE_PKG_INFO = [
-  {
-    executableOsId: 'darwin-x64',
-    compileBuildVariant: 'darwin',
-    distributionBuildVariants: [
-      { name: 'darwin-x64', packageOn: 'darwin', smokeTestKind: 'macos' }
-    ]
-  },
-  {
-    executableOsId: 'darwin-arm64',
-    compileBuildVariant: 'darwin_arm64',
-    distributionBuildVariants: [
-      { name: 'darwin-arm64', packageOn: 'darwin', smokeTestKind: 'macos' }
-    ]
-  },
-  {
-    executableOsId: 'linux-x64',
-    compileBuildVariant: 'linux_x64_build',
-    distributionBuildVariants: [
-      { name: 'linux-x64', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu20.04-tgz'] },
-      { name: 'debian-x64', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu18.04-deb', 'ubuntu20.04-deb', 'ubuntu22.04-deb', 'debian9-deb', 'debian10-deb', 'debian11-deb'] },
-      { name: 'rhel7-x64', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['centos7-rpm', 'amazonlinux2-rpm'] },
-      { name: 'rhel8-x64', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['rocky8-rpm', 'fedora34-rpm'] },
-      { name: 'suse-x64', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['suse12-rpm', 'suse15-rpm'] },
-      { name: 'amzn1-x64', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['amazonlinux1-rpm'] }
-    ]
-  },
-  {
-    executableOsId: 'linux-x64-openssl11',
-    compileBuildVariant: 'linux_x64_build_openssl11',
-    distributionBuildVariants: [
-      { name: 'linux-x64-openssl11', packageOn: 'linux_package', smokeTestKind: 'none' },
-      { name: 'debian-x64-openssl11', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu20.04-deb', 'debian10-deb', 'debian11-deb'] },
-      { name: 'rhel7-x64-openssl11', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['centos7-epel-rpm', 'amazonlinux2-rpm'] },
-      { name: 'rhel8-x64-openssl11', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['rocky8-rpm', 'fedora34-rpm'] }
-    ]
-  },
-  {
-    executableOsId: 'linux-x64-openssl3',
-    compileBuildVariant: 'linux_x64_build_openssl3',
-    distributionBuildVariants: [
-      { name: 'linux-x64-openssl3', packageOn: 'linux_package', smokeTestKind: 'none' },
-      { name: 'debian-x64-openssl3', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu22.04-deb'] },
-      { name: 'rhel8-x64-openssl3', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['rocky8-epel-rpm'] }
-    ]
-  },
-  {
-    executableOsId: 'linux-arm64',
-    compileBuildVariant: 'linux_arm64_build',
-    distributionBuildVariants: [
-      { name: 'linux-arm64', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu20.04-tgz'] },
-      { name: 'debian-arm64', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu18.04-deb', 'ubuntu20.04-deb', 'ubuntu22.04-deb', 'debian10-deb', 'debian11-deb'] },
-      { name: 'rhel8-arm64', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['rocky8-rpm', 'fedora34-rpm'] },
-      { name: 'amzn2-arm64', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['amazonlinux2-rpm'] }
-    ]
-  },
-  {
-    executableOsId: 'linux-arm64-openssl11',
-    compileBuildVariant: 'linux_arm64_build_openssl11',
-    distributionBuildVariants: [
-      { name: 'linux-arm64-openssl11', packageOn: 'linux_package', smokeTestKind: 'none' },
-      { name: 'debian-arm64-openssl11', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu20.04-deb', 'debian10-deb', 'debian11-deb'] },
-      { name: 'rhel8-arm64-openssl11', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['rocky8-rpm', 'fedora34-rpm'] },
-      { name: 'amzn2-arm64-openssl11', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['amazonlinux2-rpm'] }
-    ]
-  },
-  {
-    executableOsId: 'linux-ppc64le',
-    compileBuildVariant: 'linux_ppc64le_build',
-    distributionBuildVariants: [
-      { name: 'linux-ppc64le', packageOn: 'linux_package', smokeTestKind: 'none' },
-      { name: 'rhel8-ppc64le', packageOn: 'linux_package', smokeTestKind: 'rpmextract' }
-    ]
-  },
-  {
-    executableOsId: 'linux-s390x',
-    compileBuildVariant: 'linux_s390x_build',
-    distributionBuildVariants: [
-      { name: 'linux-s390x', packageOn: 'linux_package', smokeTestKind: 'none' },
-      { name: 'rhel7-s390x', packageOn: 'linux_package', smokeTestKind: 'rpmextract' }
-    ]
-  },
-  {
-    executableOsId: 'win32',
-    compileBuildVariant: 'win32_build',
-    distributionBuildVariants: [
-      { name: 'win32-x64', packageOn: 'win32', smokeTestKind: 'ssh' },
-      { name: 'win32msi-x64', packageOn: 'win32', smokeTestKind: 'ssh' }
-    ]
-  }
-];
+const { RELEASE_PACKAGE_MATRIX } = require('../config/release-package-matrix');
 
 %>
 exec_timeout_secs: 3600
@@ -443,11 +353,11 @@ functions:
   #
   # package_and_upload_artifact expects the following arguments:
   # - distro_id
-  # - distribution_build_variant
+  # - package_variant
   # - executable_os_id
   #
   # get_artifact_url expects the following arguments:
-  # - distribution_build_variant
+  # - package_variant
   ###
   package_and_upload_artifact:
     - command: expansions.write
@@ -469,7 +379,7 @@ functions:
         env:
           NODE_JS_VERSION: ${node_js_version}
           DISTRO_ID_OVERRIDE: ${distro_id}
-          DISTRIBUTION_BUILD_VARIANT: ${distribution_build_variant}
+          PACKAGE_VARIANT: ${package_variant}
           MACOS_NOTARY_KEY: ${macos_notary_key}
           MACOS_NOTARY_SECRET: ${macos_notary_secret}
     - command: s3.put
@@ -477,7 +387,7 @@ functions:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
         local_file: src/artifact-url.txt
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/artifact-url-${distribution_build_variant}.txt
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/artifact-url-${package_variant}.txt
         bucket: mciuploads
         permissions: public-read
         content_type: application/x-gzip
@@ -487,7 +397,7 @@ functions:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
         local_file: artifact-url.txt
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/artifact-url-${source_distribution_build_variant}.txt
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/artifact-url-${source_package_variant}.txt
         bucket: mciuploads
 
   write_preload_script:
@@ -796,7 +706,7 @@ tasks:
   ###
   # E2E TESTS
   ###
-  <% for (const { executableOsId, compileBuildVariant } of EXECUTABLE_PKG_INFO) {
+  <% for (const { executableOsId, compileBuildVariant } of RELEASE_PACKAGE_MATRIX) {
     for (const mVersion of ['stable', 'unstable']) {
       for (const fipsVariant of ['fips', 'nofips']) {
     %>
@@ -824,9 +734,9 @@ tasks:
   ###
   # PACKAGING
   ###
-  <% for (const { executableOsId, compileBuildVariant, distributionBuildVariants } of EXECUTABLE_PKG_INFO) {
-       for (const { name: distributionBuildVariant } of distributionBuildVariants) { %>
-  - name: package_and_upload_artifact_<% out(distributionBuildVariant.replace(/-/g, '_')) %>
+  <% for (const { executableOsId, compileBuildVariant, packages } of RELEASE_PACKAGE_MATRIX) {
+       for (const { name: packageVariant } of packages) { %>
+  - name: package_and_upload_artifact_<% out(packageVariant.replace(/-/g, '_')) %>
     depends_on:
       - name: compile_artifact
         variant: <% out(compileBuildVariant) %>
@@ -839,15 +749,15 @@ tasks:
       - func: package_and_upload_artifact
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_16) %>"
-          distribution_build_variant: <% out(distributionBuildVariant) %>
+          package_variant: <% out(packageVariant) %>
           executable_os_id: <% out(executableOsId) %>
   <% } } %>
 
   ###
   # SMOKE TESTS
   ###
-  <% for (const { distributionBuildVariants } of EXECUTABLE_PKG_INFO) {
-       for (const { name, packageOn, smokeTestKind, smokeTestDockerfiles } of distributionBuildVariants) if (smokeTestKind !== 'none') {
+  <% for (const { packages } of RELEASE_PACKAGE_MATRIX) {
+       for (const { name, packageOn, smokeTestKind, smokeTestDockerfiles } of packages) if (smokeTestKind !== 'none') {
         for (const dockerfile of smokeTestDockerfiles || ['']) { %>
   - name: pkg_test_<% out(`${smokeTestKind}_${name}${dockerfile ? `_${dockerfile}` : ''}`.replace(/[-.]/g, '_')) %>
     tags: ["smoke-test"]
@@ -858,7 +768,7 @@ tasks:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_distribution_build_variant: <% out(name) %>
+          source_package_variant: <% out(name) %>
       - func: write_preload_script
     <% switch (smokeTestKind) {
       case 'ssh': { %>
@@ -1007,10 +917,10 @@ buildvariants:
     display_name: "Ubuntu 18.04 x64 (Packaging)"
     run_on: ubuntu1804-small
     tasks:
-      <% for (const { executableOsId, distributionBuildVariants } of EXECUTABLE_PKG_INFO) {
-          for (const { name: distributionBuildVariant } of distributionBuildVariants) {
+      <% for (const { executableOsId, packages } of RELEASE_PACKAGE_MATRIX) {
+          for (const { name: packageVariant } of packages) {
             if (executableOsId.startsWith('linux')) { %>
-      - name: package_and_upload_artifact_<% out(distributionBuildVariant.replace(/-/g, '_')) %>
+      - name: package_and_upload_artifact_<% out(packageVariant.replace(/-/g, '_')) %>
       <% } } } %>
   - name: linux_x64_build
     display_name: "RHEL 7.0 x64 (build)"
@@ -1203,9 +1113,9 @@ buildvariants:
     display_name: "package smoke tests (x64 Docker)"
     run_on: ubuntu1804-small
     tasks:
-  <% for (const { distributionBuildVariants, executableOsId } of EXECUTABLE_PKG_INFO) {
+  <% for (const { packages, executableOsId } of RELEASE_PACKAGE_MATRIX) {
       if (executableOsId.includes('linux-x64')) {
-       for (const { name, smokeTestKind, smokeTestDockerfiles } of distributionBuildVariants) if (smokeTestKind !== 'none') {
+       for (const { name, smokeTestKind, smokeTestDockerfiles } of packages) if (smokeTestKind !== 'none') {
         for (const dockerfile of smokeTestDockerfiles || []) { %>
       - name: pkg_test_<% out(`${smokeTestKind}_${name}${dockerfile ? `_${dockerfile}` : ''}`.replace(/[-.]/g, '_')) %>
   <% } } } } %>
@@ -1213,9 +1123,9 @@ buildvariants:
     display_name: "package smoke tests (arm64 Docker)"
     run_on: ubuntu1804-arm64-small
     tasks:
-  <% for (const { distributionBuildVariants, executableOsId } of EXECUTABLE_PKG_INFO) {
+  <% for (const { packages, executableOsId } of RELEASE_PACKAGE_MATRIX) {
       if (executableOsId.includes('linux-arm64')) {
-       for (const { name, smokeTestKind, smokeTestDockerfiles } of distributionBuildVariants) if (smokeTestKind !== 'none') {
+       for (const { name, smokeTestKind, smokeTestDockerfiles } of packages) if (smokeTestKind !== 'none') {
         for (const dockerfile of smokeTestDockerfiles || []) { %>
       - name: pkg_test_<% out(`${smokeTestKind}_${name}${dockerfile ? `_${dockerfile}` : ''}`.replace(/[-.]/g, '_')) %>
   <% } } } } %>
@@ -1244,17 +1154,17 @@ buildvariants:
     display_name: "package smoke tests (RHEL 7.2 s390x)"
     run_on: rhel72-zseries-small
     tasks:
-      - name: pkg_test_rpmextract_rhel7_s390x
+      - name: pkg_test_rpmextract_rpm_s390x
   - name: pkg_smoke_tests_rhel83_s390x
     display_name: "package smoke tests (RHEL 8.3 s390x)"
     run_on: rhel83-zseries-small
     tasks:
-      - name: pkg_test_rpmextract_rhel7_s390x
+      - name: pkg_test_rpmextract_rpm_s390x
   - name: pkg_smoke_tests_rhel81_ppc64le
     display_name: "package smoke tests (RHEL 8.1 ppc64le)"
     run_on: rhel81-power8-small
     tasks:
-      - name: pkg_test_rpmextract_rhel8_ppc64le
+      - name: pkg_test_rpmextract_rpm_ppc64le
 
   - name: draft_publish_release
     display_name: "Draft/Publish Release"

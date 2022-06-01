@@ -1,4 +1,4 @@
-import type { Config } from '../config';
+import type { Config, PackageVariant } from '../config';
 import type { PackageInformation } from '../packaging/package';
 import { generateBundle } from './generate-bundle';
 import { SignableCompiler } from './signable-compiler';
@@ -14,12 +14,13 @@ export async function runCompile(config: Config): Promise<string> {
   await generateBundle(config);
 
   console.info('mongosh: creating binary:', config.executablePath);
+  const packageInformation = config.packageInformation?.(config.packageVariant as PackageVariant);
 
   await new SignableCompiler(
     config.bundleSinglefileOutput,
     config.executablePath,
     config.execNodeVersion,
-    (config.packageInformation?.metadata ?? {}) as PackageInformation['metadata'])
+    (packageInformation?.metadata ?? {}) as PackageInformation['metadata'])
     .compile();
 
   return config.executablePath;

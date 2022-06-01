@@ -9,7 +9,7 @@ import { once } from 'events';
 import tar from 'tar-fs';
 import tmp from 'tmp-promise';
 import util, { promisify } from 'util';
-import { BuildVariant, getArch, getDistro, Config, getDebArchName, getRPMArchName, Platform } from './config';
+import { PackageVariant, getArch, getDistro, Config, getDebArchName, getRPMArchName, Platform } from './config';
 
 const pipeline = util.promisify(stream.pipeline);
 const execFile = util.promisify(childProcess.execFile);
@@ -29,57 +29,39 @@ type PPARepository =
 
 /**
  * Return the full list of [distro, arch] combinations that we upload for
- * a given build variant (where 'distro' refers to a distro in the package
+ * a given package variant (where 'distro' refers to a distro in the package
  * repository, e.g. Ubuntu 20.04).
  *
  * /config/repo-config.yml needs to be kept in sync with this.
  */
-// eslint-disable-next-line complexity
-export function getReposAndArch(buildVariant: BuildVariant): { ppas: PPARepository[], arch: string } {
-  switch (getDistro(buildVariant)) {
+export function getReposAndArch(packageVariant: PackageVariant): { ppas: PPARepository[], arch: string } {
+  switch (getDistro(packageVariant)) {
     case 'win32':
     case 'win32msi':
     case 'darwin':
     case 'linux':
       return { ppas: [], arch: '' };
-    case 'debian':
+    case 'deb':
       return {
         ppas: ['ubuntu1804', 'ubuntu2004', 'debian92', 'debian10', 'debian11'],
-        arch: getDebArchName(getArch(buildVariant))
+        arch: getDebArchName(getArch(packageVariant))
       };
-    case 'rhel7':
-      if (getArch(buildVariant) === 'x64') {
+    case 'rpm':
+      if (getArch(packageVariant) === 'x64') {
         return {
-          ppas: ['rhel70', 'amazon2'],
-          arch: getRPMArchName(getArch(buildVariant))
+          ppas: ['rhel70', 'rhel80', 'amazon1', 'amazon2', 'suse12', 'suse15'],
+          arch: getRPMArchName(getArch(packageVariant))
+        };
+      }
+      if (getArch(packageVariant) === 'arm64') {
+        return {
+          ppas: ['rhel80', 'amazon2'],
+          arch: getRPMArchName(getArch(packageVariant))
         };
       }
       return { ppas: [], arch: '' };
-    case 'rhel8':
-      if (getArch(buildVariant) === 'x64' || getArch(buildVariant) === 'arm64') {
-        return {
-          ppas: ['rhel80'],
-          arch: getRPMArchName(getArch(buildVariant))
-        };
-      }
-      return { ppas: [], arch: '' };
-    case 'suse':
-      return {
-        ppas: ['suse12', 'suse15'],
-        arch: getRPMArchName(getArch(buildVariant))
-      };
-    case 'amzn1':
-      return {
-        ppas: ['amazon1'],
-        arch: getRPMArchName(getArch(buildVariant))
-      };
-    case 'amzn2':
-      return {
-        ppas: ['amazon2'],
-        arch: getRPMArchName(getArch(buildVariant))
-      };
     default:
-      throw new Error(`Unknown build variant ${buildVariant}`);
+      throw new Error(`Unknown package variant ${packageVariant}`);
   }
 }
 
@@ -129,7 +111,7 @@ export class Barque {
    *
    * @returns The URLs where the packages will be available.
    */
-  async releaseToBarque(buildVariant: BuildVariant, packageUrl: string, isDryRun: boolean): Promise<string[]> {
+  async releaseToBarque(buildVariant: PackageVariant, packageUrl: string, isDryRun: boolean): Promise<string[]> {
     const repoConfig = path.join(this.config.rootDir, 'config', 'repo-config.yml');
     this.downloadedCuratorPromise ??= (async() => {
       const curatorDirPath = await this.createCuratorDir();

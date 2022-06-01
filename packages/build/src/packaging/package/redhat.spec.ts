@@ -22,7 +22,7 @@ describe('tarball redhat', () => {
 
     const tarball = await createPackage(
       tmpPkg.tarballDir,
-      'rhel7-x64',
+      'rpm-x64',
       tmpPkg.pkgConfig
     );
 
@@ -34,7 +34,7 @@ describe('tarball redhat', () => {
     expect(stdout).to.match(/URL\s+:\s+https:\/\/example.org/);
     expect(stdout).to.match(/Summary\s+:\s+Dummy package/);
     expect(stdout).to.match(/^\/usr\/bin\/foo$/m);
-    expect(stdout).to.match(/^\/usr\/lib\/bar$/m);
+    expect(stdout).to.match(/^\/usr\/lib(64)?\/bar$/m);
     expect(stdout).to.match(/^\/usr\/share\/doc\/foobar-1.0.0\/README$/m);
     expect(stdout).to.match(/^\/usr\/share\/licenses\/foobar-1.0.0\/LICENSE_bar$/m);
     expect(stdout).to.match(/^\/usr\/share\/licenses\/foobar-1.0.0\/LICENSE_foo$/m);

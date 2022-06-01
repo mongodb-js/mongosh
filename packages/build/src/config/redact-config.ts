@@ -1,11 +1,14 @@
-import { Config } from './config';
+import type { PackageInformation } from '../packaging';
+import type { Config } from './config';
 
-export function redactConfig(config: Config): Partial<Config> {
+export function redactConfig(config: Config): Partial<Config> & {
+  packageInformationInstantiated?: PackageInformation
+} {
   return {
     version: config.version,
     rootDir: config.rootDir,
     bundleEntrypointInput: config.bundleEntrypointInput,
-    distributionBuildVariant: config.distributionBuildVariant,
+    packageVariant: config.packageVariant,
     executablePath: config.executablePath,
     bundleSinglefileOutput: config.bundleSinglefileOutput,
     outputDir: config.outputDir,
@@ -17,6 +20,7 @@ export function redactConfig(config: Config): Partial<Config> {
     repo: config.repo,
     isPatch: config.isPatch,
     packageInformation: config.packageInformation,
+    packageInformationInstantiated: config.packageVariant && config.packageInformation?.(config.packageVariant),
     cryptSharedLibPath: config.cryptSharedLibPath,
     artifactUrlFile: config.artifactUrlFile,
     isDryRun: config.isDryRun
