@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Tue May 31 2022.
+This document was automatically generated on Wed Jun 01 2022.
 
 ## List of dependencies
 
@@ -38,7 +38,7 @@ Package|Version|License
 **[@jridgewell/resolve-uri](#de90c77984596a7d095ca05496ea7038104ea7a16e762e9198e30e37c34fdb0c)**|3.0.5|MIT
 **[@jridgewell/sourcemap-codec](#2362c6f5bbe609f91a300a2918f8646fd243143baf641faf1191c0aed6cb59d7)**|1.4.11|MIT
 **[@jridgewell/trace-mapping](#6cb367cbe4c02122aeaa0210f7d039f0356c64ad251f61ae4dc3383c07dff425)**|0.3.4|MIT
-**[@mongodb-js/devtools-connect](#d10055c9d7d0a48f1c63e690f57da3654b9584bdbfdac180f38968d3c2bc0ec7)**|1.4.2|Apache-2.0
+**[@mongodb-js/devtools-connect](#a46f6c8357d0207e818dc039db98ebef437cebbde8d36789f3eb20e6f1654b5f)**|1.4.3|Apache-2.0
 **[@mongosh/arg-parser](#5e9fd9c9d630182d86d92c944915511aeab21246b770d28f9a732bab98f57c53)**|0.0.0-dev.0|Apache-2.0
 **[@mongosh/async-rewriter2](#69676fe7ebd86bf4fddf69d015a9de3d5e5657481207dc3738ed4219996b4217)**|0.0.0-dev.0|Apache-2.0
 **[@mongosh/autocomplete](#7f32df49a0095be559b86efa94fcf3aa45364e108fdb44142a6df12d43825617)**|0.0.0-dev.0|Apache-2.0
@@ -189,9 +189,9 @@ Package|Version|License
 **[mongodb](#35261e76b62e25442be5d5d4908439356df96f7a243c99a9a9032d822f9b1f53)**|4.6.0|Apache-2.0
 **[mongodb-ace-autocompleter](#77d4f48b8f17bee83995284d4449d815e79f6a3ab4f1984e0793407939336d0e)**|0.11.0|Apache-2.0
 **[mongodb-build-info](#1a7482a12b855301c3b063265543999a78d8e0ec3b3ad432782858594febd16c)**|1.4.0|Apache-2.0
-**[mongodb-client-encryption](#d09845a17cabede7eb49e7e01aca775f6733fea49340672a485d6160fb7c7f70)**|2.2.0-alpha.0|Apache-2.0
+**[mongodb-client-encryption](#a091cc6779e7a303fbcad4a63b23d47f132e1ecf39f39faaabc259e1af811960)**|2.2.0-alpha.1|Apache-2.0
 **[mongodb-connection-string-url](#b4d900e6d4e4f5a7ea6424cce3fa58db71d531e6a14f92eb19825ac54e1d9db6)**|2.5.2|Apache-2.0
-**[mongodb-csfle-library-version](#5590535e38631917604a3eea0e610e497461452a699620e0fffc7e5e1bc34088)**|1.0.2|Apache-2.0
+**[mongodb-crypt-library-version](#531dc8c5761d69d24f5e39457de5812ed3781da937aa64f94ed6f659bd72c142)**|1.0.3|Apache-2.0
 **[mongodb-log-writer](#96c58bda4a870bc8879944bcf94b6242a3a1552cc179c3da480e3494672a3a2d)**|1.1.4|Apache-2.0
 **[mongodb-redact](#00a2cfed57df1e8b912b751b08bee4de24ad0189840c99820ebc00c1b219a421)**|0.2.2|Apache-2.0
 **[ms](#2083576c5af8054927640b4788059806d07e250a26066c9ccb2d928394fb9226)**|2.1.3|MIT
@@ -1670,8 +1670,8 @@ Authors:
 * Justin Ridgewell <justin@ridgewell.name>
 
 
-<a id="d10055c9d7d0a48f1c63e690f57da3654b9584bdbfdac180f38968d3c2bc0ec7"></a>
-### [@mongodb-js/devtools-connect](https://www.npmjs.com/package/@mongodb-js/devtools-connect) (version 1.4.2)
+<a id="a46f6c8357d0207e818dc039db98ebef437cebbde8d36789f3eb20e6f1654b5f"></a>
+### [@mongodb-js/devtools-connect](https://www.npmjs.com/package/@mongodb-js/devtools-connect) (version 1.4.3)
 <!-- initially found at packages/logging/node_modules/@mongodb-js/devtools-connect -->
 > A connection establishment utility for MongoDB developer tools
 
@@ -12349,8 +12349,8 @@ Authors:
 * Irina Shestak <shestak.irina@gmail.com>
 
 
-<a id="d09845a17cabede7eb49e7e01aca775f6733fea49340672a485d6160fb7c7f70"></a>
-### [mongodb-client-encryption](https://www.npmjs.com/package/mongodb-client-encryption) (version 2.2.0-alpha.0)
+<a id="a091cc6779e7a303fbcad4a63b23d47f132e1ecf39f39faaabc259e1af811960"></a>
+### [mongodb-client-encryption](https://www.npmjs.com/package/mongodb-client-encryption) (version 2.2.0-alpha.1)
 <!-- initially found at packages/service-provider-core/node_modules/mongodb-client-encryption -->
 > Official client encryption module for the MongoDB Node.js driver
 
@@ -12771,10 +12771,10 @@ License files:
       
 
 
-<a id="5590535e38631917604a3eea0e610e497461452a699620e0fffc7e5e1bc34088"></a>
-### [mongodb-csfle-library-version](https://www.npmjs.com/package/mongodb-csfle-library-version) (version 1.0.2)
-<!-- initially found at packages/cli-repl/node_modules/mongodb-csfle-library-version -->
-> Get the version of a MongoDB CSFLE shared library programmatically and as a CLI
+<a id="531dc8c5761d69d24f5e39457de5812ed3781da937aa64f94ed6f659bd72c142"></a>
+### [mongodb-crypt-library-version](https://www.npmjs.com/package/mongodb-crypt-library-version) (version 1.0.3)
+<!-- initially found at packages/cli-repl/node_modules/mongodb-crypt-library-version -->
+> Get the version of a MongoDB Crypt shared library programmatically and as a CLI
 
 License tags: Apache-2.0
 
