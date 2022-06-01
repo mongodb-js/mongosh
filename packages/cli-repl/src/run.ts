@@ -10,7 +10,7 @@ if (process.argv.includes('--tlsFIPSMode')) {
 
 import { CliRepl, parseCliArgs, runSmokeTests, USAGE, buildInfo } from './index';
 import { getStoragePaths, getGlobalConfigPaths } from './config-directory';
-import { getCSFLELibraryPaths } from './csfle-library-paths';
+import { getCryptLibraryPaths } from './crypt-library-paths';
 import { getTlsCertificateSelector } from './tls-certificate-selector';
 import { redactURICredentials } from '@mongosh/history';
 import { generateConnectionInfoFromCliArgs } from '@mongosh/arg-parser';
@@ -76,15 +76,15 @@ import crypto from 'crypto';
       console.log(JSON.stringify(buildInfo(), null, '  '));
     } else if (options.smokeTests) {
       const smokeTestServer = process.env.MONGOSH_SMOKE_TEST_SERVER;
-      const csfleLibraryOpts = options.csfleLibraryPath ? [
-        `--csfleLibraryPath=${options.csfleLibraryPath}`
+      const cryptLibraryOpts = options.cryptSharedLibPath ? [
+        `--cryptSharedLibPath=${options.cryptSharedLibPath}`
       ] : [];
       if (process.execPath === process.argv[1]) {
         // This is the compiled binary. Use only the path to it.
-        await runSmokeTests(smokeTestServer, process.execPath, ...csfleLibraryOpts);
+        await runSmokeTests(smokeTestServer, process.execPath, ...cryptLibraryOpts);
       } else {
         // This is not the compiled binary. Use node + this script.
-        await runSmokeTests(smokeTestServer, process.execPath, process.argv[1], ...csfleLibraryOpts);
+        await runSmokeTests(smokeTestServer, process.execPath, process.argv[1], ...cryptLibraryOpts);
       }
     } else {
       if (process.execPath === process.argv[1]) {
@@ -134,7 +134,7 @@ import crypto from 'crypto';
         shellCliOptions: {
           ...options,
         },
-        getCSFLELibraryPaths,
+        getCryptLibraryPaths,
         input: process.stdin,
         output: process.stdout,
         onExit: process.exit,

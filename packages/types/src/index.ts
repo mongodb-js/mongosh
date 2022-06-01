@@ -77,14 +77,14 @@ export interface GlobalConfigFileLoadEvent {
   found: boolean;
 }
 
-export interface CSFLELibrarySkipEvent {
-  csflePath: string;
+export interface CryptLibrarySkipEvent {
+  cryptSharedLibPath: string;
   reason: string;
   details?: any;
 }
 
-export interface CSFLELibraryFoundEvent {
-  csflePath: string;
+export interface CryptLibraryFoundEvent {
+  cryptSharedLibPath: string;
   expectedVersion: { versionStr: string };
 }
 
@@ -261,13 +261,13 @@ export interface MongoshBusEventsMap extends ConnectEventMap {
    */
   'mongosh:eval-interrupted': () => void;
   /**
-   * Signals that a potential CSFLE library search path was skipped.
+   * Signals that a potential crypt library search path was skipped.
    */
-  'mongosh:csfle-load-skip': (ev: CSFLELibrarySkipEvent) => void;
+  'mongosh:crypt-library-load-skip': (ev: CryptLibrarySkipEvent) => void;
   /**
-   * Signals that a potential CSFLE library search path was accepted.
+   * Signals that a potential crypt library search path was accepted.
    */
-  'mongosh:csfle-load-found': (ev: CSFLELibraryFoundEvent) => void;
+  'mongosh:crypt-library-load-found': (ev: CryptLibraryFoundEvent) => void;
   /**
    * Signals that the CLI REPL's `close` method has completed.
    * _ONLY AVAILABLE FOR TESTING._

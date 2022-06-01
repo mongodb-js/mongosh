@@ -25,7 +25,7 @@ export async function downloadMongoDb(tmpdir: string, targetVersionSemverSpecifi
 
   await fs.mkdir(tmpdir, { recursive: true });
   if (targetVersionSemverSpecifier === 'latest-alpha') {
-    return await doDownload(tmpdir, !!options.csfle, 'latest-alpha', lookupDownloadUrl);
+    return await doDownload(tmpdir, !!options.crypt_shared, 'latest-alpha', lookupDownloadUrl);
   }
 
   if (/-community$/.test(targetVersionSemverSpecifier)) {
@@ -35,7 +35,7 @@ export async function downloadMongoDb(tmpdir: string, targetVersionSemverSpecifi
 
   return await doDownload(
     tmpdir,
-    !!options.csfle,
+    !!options.crypt_shared,
     targetVersionSemverSpecifier + (wantsEnterprise ? '-enterprise' : '-community'),
     () => lookupDownloadUrl());
 }
@@ -43,7 +43,7 @@ export async function downloadMongoDb(tmpdir: string, targetVersionSemverSpecifi
 const downloadPromises: Record<string, Promise<string>> = {};
 async function doDownload(
   tmpdir: string,
-  isCsfle: boolean,
+  isCryptLibrary: boolean,
   version: string,
   lookupDownloadUrl: () => Promise<string>) {
   const downloadTarget = path.resolve(
@@ -53,7 +53,7 @@ async function doDownload(
   return downloadPromises[downloadTarget] ??= (async() => {
     const bindir = path.resolve(
       downloadTarget,
-      isCsfle && process.platform !== 'win32' ? 'lib' : 'bin');
+      isCryptLibrary && process.platform !== 'win32' ? 'lib' : 'bin');
     try {
       await fs.stat(bindir);
       console.info(`Skipping download because ${downloadTarget} exists`);
@@ -71,10 +71,10 @@ async function doDownload(
         const response = await fetch(url);
         await promisify(pipeline)(
           response.body,
-          tar.x({ cwd: downloadTarget, strip: isCsfle ? 0 : 1 })
+          tar.x({ cwd: downloadTarget, strip: isCryptLibrary ? 0 : 1 })
         );
       } else {
-        await download(url, downloadTarget, { extract: true, strip: isCsfle ? 0 : 1 });
+        await download(url, downloadTarget, { extract: true, strip: isCryptLibrary ? 0 : 1 });
       }
 
       try {

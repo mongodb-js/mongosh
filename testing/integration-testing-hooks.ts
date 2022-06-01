@@ -10,7 +10,7 @@ import { URL } from 'url';
 import { promisify } from 'util';
 import which from 'which';
 import { downloadMongoDb } from '../packages/build/src/download-mongodb';
-import { downloadCsfleLibrary } from '../packages/build/src/packaging/download-csfle-library';
+import { downloadCryptLibrary } from '../packages/build/src/packaging/download-crypt-library';
 
 const execFile = promisify(child_process.execFile);
 
@@ -390,11 +390,11 @@ export async function ensureMongodAvailable(mongodVersion = process.env.MONGOSH_
   }
 }
 
-export async function downloadCurrentCsfleSharedLibrary(): Promise<string> {
+export async function downloadCurrentCryptSharedLibrary(): Promise<string> {
   if (process.platform === 'linux') {
-    return await downloadCsfleLibrary(`linux-${process.arch.replace('ppc64', 'ppc64le')}` as any);
+    return await downloadCryptLibrary(`linux-${process.arch.replace('ppc64', 'ppc64le')}` as any);
   }
-  return downloadCsfleLibrary('host');
+  return downloadCryptLibrary('host');
 }
 
 /**

@@ -21,6 +21,6 @@
     "node": ">=12.4.0"
   },
   "dependencies": {
-    "mongodb-csfle-library-version": "^1.0.2"
+    "mongodb-crypt-library-version": "^1.0.3"
   }
 }
