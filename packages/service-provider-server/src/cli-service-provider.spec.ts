@@ -675,17 +675,11 @@ describe('CliServiceProvider', () => {
   describe('#getConnectionInfo', () => {
     let clientStub: any;
     let dbStub: any;
-    let firstCall;
 
     beforeEach(() => {
       dbStub = stubInterface<Db>();
       clientStub = stubInterface<MongoClient>();
-      firstCall = true;
       dbStub.command.callsFake(() => {
-        if (firstCall) {
-          firstCall = false;
-          throw new Error('some command not supported for auto encryption');
-        }
         return { ok: 1 };
       });
       clientStub.db.returns(dbStub);
@@ -705,7 +699,7 @@ describe('CliServiceProvider', () => {
       expect(info.extraInfo.is_atlas).to.equal(false);
       expect(info.extraInfo.is_localhost).to.equal(true);
       expect(info.extraInfo.fcv).to.equal(undefined);
-      expect(dbStub.command).to.have.callCount(5);
+      expect(dbStub.command).to.have.callCount(4);
     });
   });
 });
