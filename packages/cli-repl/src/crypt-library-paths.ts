@@ -9,7 +9,6 @@ export const SHARED_LIBRARY_SUFFIX =
 
 export interface CryptLibraryPathResult {
   cryptSharedLibPath?: string;
-  csflePath?: string; // Alias, currently still used by the driver
   expectedVersion?: { version: bigint; versionStr: string };
 }
 
@@ -53,7 +52,6 @@ export async function getCryptLibraryPaths(
         const version = getCryptSharedLibraryVersion(libraryCandidate);
         const result = {
           cryptSharedLibPath: libraryCandidate,
-          csflePath: libraryCandidate,
           expectedVersion: version
         };
         bus.emit('mongosh:crypt-library-load-found', result);

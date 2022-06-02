@@ -31,6 +31,7 @@ else
       make -j8 NO_EXPAT=1)
   fi
 
+  npm cache clear --force || true # Try to work around `Cannot read property 'pickAlgorithm' of null` errors in CI
   npm i -g npm@8.x
 fi
 

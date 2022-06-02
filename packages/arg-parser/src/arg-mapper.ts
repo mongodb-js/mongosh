@@ -106,9 +106,9 @@ const MAPPINGS: {
   awsSessionToken: (i, v) => setAWSKMS(i, 'sessionToken', v),
   awsIamSessionToken: (i, v) => setAuthMechProp(i, 'AWS_SESSION_TOKEN', v),
   // @ts-expect-error AutoEncryption options have been renamed, drop the (outer) csflePath call after the next release
-  csfleLibraryPath: (i, v) => setAutoEncryptExtra(setAutoEncryptExtra(i, 'cryptSharedLibPath', v), 'csflePath', v),
+  csfleLibraryPath: (i, v) => setAutoEncryptExtra(i, 'cryptSharedLibPath', v),
   // @ts-expect-error AutoEncryption options have been renamed, drop the (outer) csflePath call after the next release
-  cryptSharedLibPath: (i, v) => setAutoEncryptExtra(setAutoEncryptExtra(i, 'cryptSharedLibPath', v), 'csflePath', v),
+  cryptSharedLibPath: (i, v) => setAutoEncryptExtra(i, 'cryptSharedLibPath', v),
   gssapiServiceName: (i, v) => setAuthMechProp(i, 'SERVICE_NAME', v),
   sspiRealmOverride: (i, v) => setAuthMechProp(i, 'SERVICE_REALM', v),
   sspiHostnameCanonicalization:

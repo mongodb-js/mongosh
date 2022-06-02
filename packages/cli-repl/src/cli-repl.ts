@@ -656,6 +656,7 @@ class CliRepl implements MongoshIOProvider {
     if (!this.getCryptLibraryPaths) {
       throw new MongoshInternalError('This instance of mongosh is not configured for in-use encryption');
     }
+    // @ts-expect-error AutoEncryption options have been renamed, wait for the next driver release
     return (this.cachedCryptLibraryPath ??= this.getCryptLibraryPaths(this.bus));
   }
 
