@@ -155,7 +155,8 @@ describe('FLE tests', () => {
     await shell.executeLine(`keyMongo = Mongo(${JSON.stringify(await testServer.connectionString())}, { \
       keyVaultNamespace: '${dbname}.keyVault', \
       kmsProviders: { local }, \
-      schemaMap: {} \
+      schemaMap: {}, \
+      encryptedFieldsMap: {} \
     });`);
 
     await shell.executeLine('keyVault = keyMongo.getKeyVault();');
