@@ -454,6 +454,7 @@ describe('Field Level Encryption', () => {
           }
         },
         schemaMap: SCHEMA_MAP,
+        encryptedFieldsMap: SCHEMA_MAP,
         bypassAutoEncryption: true
       };
       const mongo = new Mongo(instanceState, 'localhost:27017', localKmsOptions, undefined, sp);
