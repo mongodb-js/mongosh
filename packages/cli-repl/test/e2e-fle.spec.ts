@@ -288,11 +288,11 @@ describe('FLE tests', () => {
 
         // (re-)create collection -- this needs to be done
         // with the plain mongo client until MONGOCRYPT-435 is done
-        coll = client.getDB('${dbname}').eetest;
-        Mongo(${uri}).getDB('${dbname}').createCollection('eetest', {
+        coll = client.getDB('${dbname}').encryptiontest;
+        Mongo(${uri}).getDB('${dbname}').createCollection('encryptiontest', {
           encryptedFields: {
             fields: [{
-              keyId: indexKey, // Just needs to be any key -- we do explicit encryption anyway
+              keyId: indexKey,
               path: 'v',
               bsonType: 'string',
               queries: [{ queryType: 'equality' }]
