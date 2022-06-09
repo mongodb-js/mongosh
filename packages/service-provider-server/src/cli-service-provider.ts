@@ -229,12 +229,10 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   }
 
   async getConnectionInfo(): Promise<ConnectionInfo> {
-    const buildInfo = await this.runCommandWithCheck('admin', {
-      buildInfo: 1
-    }, this.baseCmdOptions);
     const topology = this.getTopology();
     const { version } = require('../package.json');
-    const [cmdLineOpts = null, atlasVersion = null, fcv = null] = await Promise.all([
+    const [buildInfo = null, cmdLineOpts = null, atlasVersion = null, fcv = null] = await Promise.all([
+      this.runCommandWithCheck('admin', { buildInfo: 1 }, this.baseCmdOptions).catch(() => {}),
       this.runCommandWithCheck('admin', { getCmdLineOpts: 1 }, this.baseCmdOptions).catch(() => {}),
       this.runCommandWithCheck('admin', { atlasVersion: 1 }, this.baseCmdOptions).catch(() => {}),
       this.runCommandWithCheck('admin', { getParameter: 1, featureCompatibilityVersion: 1 }, this.baseCmdOptions).catch(() => {})
