@@ -233,12 +233,10 @@ class CliRepl implements MongoshIOProvider {
 
     if (driverOptions.autoEncryption) {
       const origExtraOptions = driverOptions.autoEncryption.extraOptions ?? {};
-      // @ts-expect-error next driver release updates library name
       if (origExtraOptions.cryptSharedLibPath) {
         // If a CSFLE path has been specified through 'driverOptions', save it
         // for later use.
         this.cachedCryptLibraryPath = Promise.resolve({
-          // @ts-expect-error next driver release updates library name
           cryptSharedLibPath: origExtraOptions.cryptSharedLibPath
         });
       }
@@ -656,7 +654,6 @@ class CliRepl implements MongoshIOProvider {
     if (!this.getCryptLibraryPaths) {
       throw new MongoshInternalError('This instance of mongosh is not configured for in-use encryption');
     }
-    // @ts-expect-error AutoEncryption options have been renamed, wait for the next driver release
     return (this.cachedCryptLibraryPath ??= this.getCryptLibraryPaths(this.bus));
   }
 
