@@ -213,35 +213,6 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     this.dbcache = new WeakMap();
     try {
       this.fle = require('mongodb-client-encryption');
-
-      // Monkey-patch to work around missing NODE-4242
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      const origExtension = this.fle.extension;
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      this.fle.extension = (mongodb) => {
-        const exports = origExtension(mongodb);
-        const OrigAutoEncrypter = exports.AutoEncrypter;
-        exports.AutoEncrypter = class AutoEncrypter extends OrigAutoEncrypter {
-          _bypassQueryAnalysis?: boolean;
-
-          constructor(client: any, options: any) {
-            super(client, options);
-            if (options?.bypassQueryAnalysis) {
-              this._bypassQueryAnalysis = true;
-            }
-          }
-
-          init(callback: any) {
-            if (this._bypassQueryAnalysis) {
-              return callback();
-            }
-            super.init(callback);
-          }
-        };
-        return exports;
-      };
     } catch { /* not empty */ }
   }
 
@@ -258,30 +229,10 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   }
 
   async getConnectionInfo(): Promise<ConnectionInfo> {
-    // buildInfo try/catch can be removed after MONGOCRYPT-308
-    let buildInfo;
-    try {
-      buildInfo = await this.runCommandWithCheck('admin', {
-        buildInfo: 1
-      }, this.baseCmdOptions);
-    } catch (e: unknown) {
-      if ((e as Error)?.message.includes('not supported for auto encryption')) {
-        const options = { ...this.currentClientOptions };
-        delete options.autoEncryption;
-        const unencrypted =
-          await this.getNewConnection(
-            (this.uri as ConnectionString).toString(),
-            options);
-        try {
-          return await unencrypted.getConnectionInfo();
-        } finally {
-          await unencrypted.close(true);
-        }
-      }
-    }
     const topology = this.getTopology();
     const { version } = require('../package.json');
-    const [cmdLineOpts = null, atlasVersion = null, fcv = null] = await Promise.all([
+    const [buildInfo = null, cmdLineOpts = null, atlasVersion = null, fcv = null] = await Promise.all([
+      this.runCommandWithCheck('admin', { buildInfo: 1 }, this.baseCmdOptions).catch(() => {}),
       this.runCommandWithCheck('admin', { getCmdLineOpts: 1 }, this.baseCmdOptions).catch(() => {}),
       this.runCommandWithCheck('admin', { atlasVersion: 1 }, this.baseCmdOptions).catch(() => {}),
       this.runCommandWithCheck('admin', { getParameter: 1, featureCompatibilityVersion: 1 }, this.baseCmdOptions).catch(() => {})
