@@ -182,7 +182,7 @@ describe('FLE tests', () => {
     expect(result).to.include("{ decrypted: { someValue: 'foo' } }");
   });
 
-  it('skips encryption when a bypassQueryAnalysis option has been passed', async() => {
+  it('skips automatic encryption when a bypassQueryAnalysis option has been passed', async() => {
     const shell = TestShell.start({
       args: ['--nodb', `--cryptSharedLibPath=${cryptLibrary}`]
     });
@@ -263,6 +263,70 @@ describe('FLE tests', () => {
 
   context('6.0+', () => {
     skipIfServerVersion(testServer, '< 6.0'); // FLE2 only available on 6.0+
+
+    it('allows explicit encryption with bypassQueryAnalysis', async() => {
+      // No --cryptSharedLibPath since bypassQueryAnalysis is also a community edition feature
+      const shell = TestShell.start({ args: ['--nodb'] });
+      const uri = JSON.stringify(await testServer.connectionString());
+
+      await shell.waitForPrompt();
+
+      await shell.executeLine(`{
+        client = Mongo(${uri}, {
+          keyVaultNamespace: '${dbname}.keyVault',
+          kmsProviders: { local: { key: 'A'.repeat(128) } },
+          bypassQueryAnalysis: true
+        });
+
+        keyVault = client.getKeyVault();
+        clientEncryption = client.getClientEncryption();
+
+        // Create necessary data + index keys
+        dataKey1 = keyVault.createKey('local');
+        dataKey2 = keyVault.createKey('local');
+        indexKey = keyVault.createKey('local');
+
+        // (re-)create collection -- this needs to be done
+        // with the plain mongo client until MONGOCRYPT-435 is done
+        coll = client.getDB('${dbname}').encryptiontest;
+        Mongo(${uri}).getDB('${dbname}').createCollection('encryptiontest', {
+          encryptedFields: {
+            fields: [{
+              keyId: indexKey,
+              path: 'v',
+              bsonType: 'string',
+              queries: [{ queryType: 'equality' }]
+            }]
+          }
+        });
+
+        // Encrypt and insert data encrypted with different data keys and a separate index key
+        const insertPayload1 = clientEncryption.encrypt(dataKey1, '123', {
+          indexKeyId: indexKey,
+          algorithm: 'Indexed'
+        });
+
+        const insertPayload2 = clientEncryption.encrypt(dataKey2, '456', {
+          indexKeyId: indexKey,
+          algorithm: 'Indexed'
+        });
+
+        const insertRes1 = coll.insertOne({ v: insertPayload1, _id: 'asdf' });
+        const insertRes2 = coll.insertOne({ v: insertPayload2, _id: 'ghjk' });
+      }`
+      );
+      expect(await shell.executeLine('({ count: coll.countDocuments() })')).to.include('{ count: 2 }');
+
+      await shell.executeLine(`
+      const findPayload = clientEncryption.encrypt(indexKey, '456', { // NB: the data key is irrelevant here
+        indexKeyId: indexKey,
+        algorithm: 'Indexed',
+        queryType: 'Equality'
+      });`);
+
+      // Make sure the find payload allows searching for the encrypted value
+      expect(await shell.executeLine('coll.findOne({ v: findPayload })._id')).to.include('ghjk');
+    });
 
     it('drops fle2 collection with all helper collections when encryptedFields options are in listCollections', async() => {
       const shell = TestShell.start({ args: ['--nodb', `--cryptSharedLibPath=${cryptLibrary}`] });
