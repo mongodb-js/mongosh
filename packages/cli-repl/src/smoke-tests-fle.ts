@@ -12,12 +12,6 @@ const assert = function(value, message) {
     process.exit(1);
   }
 };
-if (process.platform === 'linux' && process.arch === 's390x') {
-  // There is no crypt shared library binary for the rhel72 s390x that we test on.
-  // We will address this in MONGOSH-862.
-  print('Test skipped')
-  process.exit(0);
-}
 if (db.version().startsWith('4.0.') ||
     !db.runCommand({buildInfo:1}).modules.includes('enterprise')) {
   // No FLE on mongod < 4.2 or community

@@ -50,7 +50,7 @@ function lookupReleaseDistro(packageVariant: PackageVariant): string {
     case 'ppc64le':
       return 'rhel81';
     case 's390x':
-      return 'rhel83';
+      return 'rhel72';
     case 'arm64':
       return 'amazon2';
     case 'x64':
