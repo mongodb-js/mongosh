@@ -171,14 +171,21 @@ export type Caller<
 
 export function createCaller<Impl extends {}>(
   methodNames: Extract<keyof Impl, string>[],
-  messageBus: RPCMessageBus
+  messageBus: RPCMessageBus,
+  processors: Partial<
+    Record<typeof methodNames[number], (...input: any[]) => any[]>
+  > = {}
 ): Caller<Impl, typeof methodNames[number]> {
   const obj = {};
   const inflight = new Set<CancelablePromise<unknown>>();
   methodNames.forEach((name) => {
     const c = caller(name as string, getRPCOptions(messageBus));
     (obj as any)[name] = async(...args: unknown[]) => {
-      const promise = c(...args);
+      const processed =
+        typeof processors[name] === 'function'
+          ? processors[name]?.(...args)
+          : args;
+      const promise = c(...(processed as any[]));
       inflight.add(promise);
       const result = (await promise) as RPCError | RPCMessage;
       inflight.delete(promise);
