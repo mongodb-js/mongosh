@@ -16,7 +16,7 @@ export class ChildProcessEvaluationListener {
           );
         },
         onPrint(values) {
-          values = deserializeEvaluationResult(values);
+          values = values.map(deserializeEvaluationResult);
           return workerRuntime.evaluationListener?.onPrint?.(values);
         },
         setConfig(key, value) {
