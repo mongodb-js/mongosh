@@ -535,7 +535,6 @@ describe('worker', () => {
         await evaluate('print("Hi!")');
 
         expect(evalListener.onPrint).to.have.been.calledWith([
-          // TODO: should this be a ShellResult or a RuntimeEvaluationResult
           { printable: 'Hi!', source: undefined, type: null }
         ]);
       });
