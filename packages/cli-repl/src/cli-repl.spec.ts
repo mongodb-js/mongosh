@@ -633,7 +633,6 @@ describe('CliRepl', () => {
 
   context('with an actual server', () => {
     const testServer = startTestServer('shared');
-    let cliRepl: CliRepl;
 
     beforeEach(async() => {
       cliReplOptions.shellCliOptions.connectionSpecifier = await testServer.connectionString();
@@ -799,6 +798,10 @@ describe('CliRepl', () => {
         let srv: http.Server;
         let host: string;
         let requests: any[];
+        let telemetryDelay = 0;
+        const setTelemetryDelay = (val: number) => {
+          telemetryDelay = val;
+        };
 
         beforeEach(async() => {
           requests = [];
@@ -807,9 +810,10 @@ describe('CliRepl', () => {
             req
               .setEncoding('utf8')
               .on('data', (chunk) => { body += chunk; })
-              .on('end', () => {
+              .on('end', async() => {
                 requests.push({ req, body });
                 res.writeHead(200);
+                await delay(telemetryDelay);
                 res.end('Ok\n');
               });
           }).listen(0);
@@ -822,6 +826,24 @@ describe('CliRepl', () => {
         afterEach(async() => {
           srv.close();
           await once(srv, 'close');
+          setTelemetryDelay(0);
+        });
+
+        it('timeouts fast', async() => {
+          setTelemetryDelay(10000);
+          await cliRepl.start(await testServer.connectionString(), {});
+          input.write('use somedb;\n');
+          input.write('exit\n');
+          await waitBus(cliRepl.bus, 'mongosh:closed');
+          const analyticsLog = (await log()).find(
+            (entry) =>
+              entry.ctx === 'analytics' &&
+              entry.msg === 'Flushed outstanding data'
+          );
+          expect(analyticsLog).to.have.nested.property(
+            'attr.flushError',
+            'timeout of 1000ms exceeded'
+          );
         });
 
         it('posts analytics data', async() => {
