@@ -66,7 +66,7 @@
     "@mongosh/shell-evaluator": "0.0.0-dev.0",
     "@mongosh/snippet-manager": "0.0.0-dev.0",
     "@mongosh/types": "0.0.0-dev.0",
-    "analytics-node": "^3.4.0-beta.1",
+    "analytics-node": "^5.1.2",
     "ansi-escape-sequences": "^5.1.2",
     "askcharacter": "^1.0.0",
     "askpassword": "^1.2.4",

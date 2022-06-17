@@ -310,7 +310,14 @@ class CliRepl implements MongoshIOProvider {
     const apiKey = this.analyticsOptions?.apiKey ?? require('./build-info.json').segmentApiKey;
     this.segmentAnalytics = new Analytics(
       apiKey,
-      this.analyticsOptions);
+      {
+        ...this.analyticsOptions,
+        axiosConfig: {
+          timeout: 1000
+        },
+        axiosRetryConfig: { retries: 0 }
+      } as any /* axiosConfig and axiosRetryConfig are existing options, but don't have type definitions */
+    );
     this.toggleableAnalytics = new ToggleableAnalytics(this.segmentAnalytics);
   }
 
