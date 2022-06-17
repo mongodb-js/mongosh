@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Sun Jun 12 2022.
+This document was automatically generated on Fri Jun 17 2022.
 
 ## List of dependencies
 
@@ -29,7 +29,6 @@ Package|Version|License
 **[@babel/plugin-transform-destructuring](#a1810a53ba1a7f007dc06cbef838354bcc200823359ba86d6a5b7fb098e62c53)**|7.17.7|MIT
 **[@babel/plugin-transform-parameters](#85bab1a56d1d8079deccc8d4dc1e497a62c667d041c1e76dc6038d409c3df773)**|7.16.7|MIT
 **[@babel/plugin-transform-shorthand-properties](#b68470bd0601568d27408e80ad92fef5d770e7fca65c61b527e38de019629db5)**|7.16.7|MIT
-**[@babel/runtime](#cdc5354ea0a8e34f36adf45fb17a02baf5a18b0c49f9b49f67d116bcc1120002)**|7.17.8|MIT
 **[@babel/template](#ca30aee3b78f51e9e91b4f6d78721f7c99c31cc753f698ff5caf73c469983f2f)**|7.16.7|MIT
 **[@babel/traverse](#e470e7035b830665f8c5c218ba6ba169664ca4ebe7447d27300cb90616fe6e4f)**|7.17.3|MIT
 **[@babel/types](#d6a52ead12b395f05c1cfc1b9b2864802bdba224434b5651bf7a250eb5d4e26b)**|7.17.0|MIT
@@ -78,7 +77,7 @@ Package|Version|License
 **[acorn-private-class-elements](#769de6ffc9b4164cb45bba8d0827a642dd7b6c4df7f57acf9f84b87aaf4f3734)**|0.2.7|MIT
 **[acorn-private-methods](#30ca01483044bd8874ad69b4fbd17119e94cb570b1c74ca1d4e3597a2caf12a9)**|0.3.3|MIT
 **[acorn-static-class-features](#25825f2f734233a80632b67c3114edc2c4957c4967d557be233361e00516f9a3)**|0.2.4|MIT
-**[analytics-node](#4714844b910668f278f5cdec05fdccc0fd436e49d55653c3b9e656130f22221d)**|3.5.0|MIT
+**[analytics-node](#796268b51c04aefed6285697d91689b383131a576acbd872d74df74e6f302888)**|5.1.2|MIT
 **[ansi-escape-sequences](#facc0b756e4e6b040bafa6604056a2290d18923d9c14a2e0a64f850d3477bac0)**|5.1.2|MIT
 **[ansi-regex](#7fa0e28daa6f9c697017b06f32a9e31a57ccfb4f138a8daded68a5d002231e29)**|5.0.1|MIT
 **[ansi-regex](#945d39147a145d6a28d87154006fa731c2e69d2a19e76cc7012624a1109f9317)**|2.1.1|MIT
@@ -92,7 +91,7 @@ Package|Version|License
 **[askpassword](#5623d58c516104595a6ca3884ba06bc77269b98085d3de58917a6655bea1116c)**|1.2.4|Apache-2.0
 **[aws4](#10a86cbc2356f4c2e30ecdd2d3f40dce2dee62e2a2efa860bf539568a5d14573)**|1.11.0|MIT
 **[axios](#afdcd478b651142c22830139dda5971cccfc93722a9f1a173d83458ce6c8f4e8)**|0.21.4|MIT
-**[axios-retry](#c1795fa0256f2bacee8e46e82ee0ff37a075ac4ae0ee0f6c075726eff79ad99a)**|3.2.4|Apache-2.0
+**[axios-retry](#d41b0f37c97e76d36413f38469af5abaa624f54636102a82c9c9a395f0e8d42a)**|3.2.0|Apache-2.0
 **[balanced-match](#6e49452be6da3ff39a94487487f3deac4037af19d9c97eddf6794b8080252f20)**|1.0.2|MIT
 **[bindings](#acdb65ce90d2786593049f690752613250632fd5aeaa2960152abc4f0e8f3a44)**|1.5.0|MIT
 **[bl](#0e8c95ceb67a28a94b8caec6fa59d55974c80aab5dcf21bf1b17b0867f694c3c)**|4.1.0|MIT
@@ -161,7 +160,7 @@ Package|Version|License
 **[is-buffer](#b1cbdc50c17bcc6aea2462cd9b7a87e93bb4c6c414d486d5943dd12b521caf29)**|1.1.6|MIT
 **[is-fullwidth-code-point](#4b36fcbed647fcfb1016159ad5d4b5399c52c3fe258134e06275ab22ed10ceb9)**|1.0.0|MIT
 **[is-recoverable-error](#babc63858e9857afdcf31224a26dee62b8f3219f217e71fe3a9708f6d377bca9)**|1.0.2|Apache-2.0
-**[is-retry-allowed](#4641c36b26e0e764272ad630218dce5e61ddfecd4b95e3eb20297238e8862ee3)**|2.2.0|MIT
+**[is-retry-allowed](#d4152747a873329c3f33e71cf685aca68f6644f350f55fe8cb242fd4dd54f979)**|1.2.0|MIT
 **[isarray](#dd5060a7691a8157c413dadfba4ff4c1de7480dcfd6d34af69a9696558358cec)**|1.0.0|MIT
 **[isexe](#2f62e711a6921973ef3f9650fd3e06585fd3842e34078c8fa959481738600405)**|2.0.0|ISC
 **[joi](#b694475eecf8bc18a9749f8655c7826e59c021b1d267e3e25c3336188f83fae1)**|17.6.0|BSD-3-Clause
@@ -225,7 +224,6 @@ Package|Version|License
 **[rc](#0dd705bd5862b4c60ed88e6b4a6f5ece23c627c97f6928233d32aefdd463c3f7)**|1.2.8|(BSD-2-Clause OR MIT OR Apache-2.0)
 **[readable-stream](#8f2e1b78e9d8c62cbe33ca0c9055ab55b3025f7c3ac146f29c102adbdc187bf1)**|2.3.7|MIT
 **[readable-stream](#75bd2243ec5ecc92b8d7e9a2e9a1aa142f20f6a5aad6dc0d923cdab997766174)**|3.6.0|MIT
-**[regenerator-runtime](#49d4c77cdc9ce5bb4e8cc1d06179c07edceb5e54f6f85090d94b10e30efec7a7)**|0.13.9|MIT
 **[remove-array-items](#f13d4ea4ad6d2e91fde9a79ec185429676521efe83ab086a9280e5e55764fbe8)**|1.1.1|MIT
 **[remove-trailing-slash](#0c9e890b4653cdbc6432677030029da469823a1fc3bfee9341a0d34bd05fd348)**|0.1.1|MIT
 **[resolve-mongodb-srv](#871f9c1109a7c892b16c36b55b008fcb5c2c8ab9bef37b7dd698163098770a1e)**|1.1.1|Apache-2.0
@@ -263,7 +261,7 @@ Package|Version|License
 **[tr46](#181343fca47e669c997ddb536b6caff3c769402b0674612e32d3c274719049c8)**|2.1.0|MIT
 **[tunnel-agent](#09f746d17a1777efda5a12a6072da10c6820d7f56ea8aa0af202a2c83d6ccb67)**|0.6.0|Apache-2.0
 **[util-deprecate](#a1bd80d6a50b36e34032c402c5204d6276747d8212b68b164a9e3f895b90c2d6)**|1.0.2|MIT
-**[uuid](#e023df51e61e43f45cd8882485cac21ba6eb49b42732a93fe4f1f967d3933beb)**|3.4.0|MIT
+**[uuid](#a34e7819c122fe308fef4f0c9e534d305065097a743da82251b903f2761b2d26)**|8.3.2|MIT
 **[webidl-conversions](#cb7c681998e7ee3c598e6e37432bcf448946924eefe816636c3cb122bae46e1c)**|7.0.0|BSD-2-Clause
 **[webidl-conversions](#3604b2bfa479706fe7bd8068257240d32158704a3bffae30b414963343027aa1)**|3.0.1|BSD-2-Clause
 **[webidl-conversions](#0868d5fd0f1744b732e4832b5dd5bd9ce27ffe9dcaa6cacda5a4efca750da5fb)**|6.1.0|BSD-2-Clause
@@ -1330,44 +1328,6 @@ Authors:
 ### [@babel/plugin-transform-shorthand-properties](https://www.npmjs.com/package/@babel/plugin-transform-shorthand-properties) (version 7.16.7)
 <!-- initially found at packages/async-rewriter2/node_modules/@babel/plugin-transform-shorthand-properties -->
 > Compile ES2015 shorthand properties to ES5
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      MIT License
-      
-      Copyright (c) 2014-present Sebastian McKenzie and other contributors
-      
-      Permission is hereby granted, free of charge, to any person obtaining
-      a copy of this software and associated documentation files (the
-      "Software"), to deal in the Software without restriction, including
-      without limitation the rights to use, copy, modify, merge, publish,
-      distribute, sublicense, and/or sell copies of the Software, and to
-      permit persons to whom the Software is furnished to do so, subject to
-      the following conditions:
-      
-      The above copyright notice and this permission notice shall be
-      included in all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-      NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-      LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-      OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-      WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-      
-
-Authors:
-* The Babel Team (https://babel.dev/team)
-
-
-<a id="cdc5354ea0a8e34f36adf45fb17a02baf5a18b0c49f9b49f67d116bcc1120002"></a>
-### [@babel/runtime](https://www.npmjs.com/package/@babel/runtime) (version 7.17.8)
-<!-- initially found at packages/cli-repl/node_modules/@babel/runtime -->
-> babel's modular runtime helpers
 
 License tags: MIT
 
@@ -5819,8 +5779,8 @@ Authors:
 * Adrian Heine <mail@adrianheine.de>
 
 
-<a id="4714844b910668f278f5cdec05fdccc0fd436e49d55653c3b9e656130f22221d"></a>
-### [analytics-node](https://www.npmjs.com/package/analytics-node) (version 3.5.0)
+<a id="796268b51c04aefed6285697d91689b383131a576acbd872d74df74e6f302888"></a>
+### [analytics-node](https://www.npmjs.com/package/analytics-node) (version 5.1.2)
 <!-- initially found at packages/cli-repl/node_modules/analytics-node -->
 > The hassle-free way to integrate analytics into any Node.js application
 
@@ -6828,8 +6788,8 @@ Authors:
 * Matt Zabriskie
 
 
-<a id="c1795fa0256f2bacee8e46e82ee0ff37a075ac4ae0ee0f6c075726eff79ad99a"></a>
-### [axios-retry](https://www.npmjs.com/package/axios-retry) (version 3.2.4)
+<a id="d41b0f37c97e76d36413f38469af5abaa624f54636102a82c9c9a395f0e8d42a"></a>
+### [axios-retry](https://www.npmjs.com/package/axios-retry) (version 3.2.0)
 <!-- initially found at packages/cli-repl/node_modules/axios-retry -->
 > Axios plugin that intercepts failed requests and retries them whenever posible.
 
@@ -10879,30 +10839,41 @@ Authors:
 * Irina Shestak <shestak.irina@gmail.com>
 
 
-<a id="4641c36b26e0e764272ad630218dce5e61ddfecd4b95e3eb20297238e8862ee3"></a>
-### [is-retry-allowed](https://www.npmjs.com/package/is-retry-allowed) (version 2.2.0)
+<a id="d4152747a873329c3f33e71cf685aca68f6644f350f55fe8cb242fd4dd54f979"></a>
+### [is-retry-allowed](https://www.npmjs.com/package/is-retry-allowed) (version 1.2.0)
 <!-- initially found at packages/cli-repl/node_modules/is-retry-allowed -->
-> Check whether a request can be retried based on the `error.code`
+> Is retry allowed for Error?
 
 License tags: MIT
 
 License files:
 * license:
 
-      MIT License
+      The MIT License (MIT)
       
       Copyright (c) Vsevolod Strukchinsky <floatdrop@gmail.com> (github.com/floatdrop)
-      Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com)
       
-      Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
       
-      The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+      The above copyright notice and this permission notice shall be included in
+      all copies or substantial portions of the Software.
       
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+      THE SOFTWARE.
       
 
 Authors:
-* Sindre Sorhus <[sindresorhus@gmail.com](nomail)> (sindresorhus.com)
+* Vsevolod Strukchinsky <[floatdrop@gmail.com](nomail)> (github.com/floatdrop)
 
 
 <a id="dd5060a7691a8157c413dadfba4ff4c1de7480dcfd6d34af69a9696558358cec"></a>
@@ -14821,43 +14792,6 @@ License files:
       
 
 
-<a id="49d4c77cdc9ce5bb4e8cc1d06179c07edceb5e54f6f85090d94b10e30efec7a7"></a>
-### [regenerator-runtime](https://www.npmjs.com/package/regenerator-runtime) (version 0.13.9)
-<!-- initially found at packages/cli-repl/node_modules/regenerator-runtime -->
-> Runtime for Regenerator-compiled generator and async functions.
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      MIT License
-      
-      Copyright (c) 2014-present, Facebook, Inc.
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all
-      copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-      SOFTWARE.
-      
-
-Authors:
-* Ben Newman <bn@cs.stanford.edu>
-
-
 <a id="f13d4ea4ad6d2e91fde9a79ec185429676521efe83ab086a9280e5e55764fbe8"></a>
 ### [remove-array-items](https://www.npmjs.com/package/remove-array-items) (version 1.1.1)
 <!-- initially found at packages/cli-repl/node_modules/remove-array-items -->
@@ -16462,8 +16396,8 @@ Authors:
 * Nathan Rajlich <nathan@tootallnate.net> (http://n8.io/)
 
 
-<a id="e023df51e61e43f45cd8882485cac21ba6eb49b42732a93fe4f1f967d3933beb"></a>
-### [uuid](https://www.npmjs.com/package/uuid) (version 3.4.0)
+<a id="a34e7819c122fe308fef4f0c9e534d305065097a743da82251b903f2761b2d26"></a>
+### [uuid](https://www.npmjs.com/package/uuid) (version 8.3.2)
 <!-- initially found at packages/cli-repl/node_modules/uuid -->
 > RFC4122 (v1, v4, and v5) UUIDs
 
@@ -16474,25 +16408,13 @@ License files:
 
       The MIT License (MIT)
       
-      Copyright (c) 2010-2016 Robert Kieffer and other contributors
+      Copyright (c) 2010-2020 Robert Kieffer and other contributors
       
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
+      Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
       
-      The above copyright notice and this permission notice shall be included in all
-      copies or substantial portions of the Software.
+      The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
       
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-      SOFTWARE.
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       
 
 
