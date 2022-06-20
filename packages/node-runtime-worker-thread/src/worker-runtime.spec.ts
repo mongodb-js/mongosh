@@ -535,7 +535,21 @@ describe('worker', () => {
         await evaluate('print("Hi!")');
 
         expect(evalListener.onPrint).to.have.been.calledWith([
-          { printable: 'Hi!', rawValue: 'Hi!', type: null }
+          { printable: 'Hi!', source: undefined, type: null }
+        ]);
+      });
+
+      it('should correctly serialize bson objects', async() => {
+        const { init, evaluate } = caller;
+        const evalListener = createSpiedEvaluationListener();
+
+        exposed = exposeAll(evalListener, worker);
+
+        await init('mongodb://nodb/', {}, { nodb: true });
+        await evaluate('print(new ObjectId("62a209b0c7dc31e23ab9da45"))');
+
+        expect(evalListener.onPrint).to.have.been.calledWith([
+          { printable: 'ObjectId("62a209b0c7dc31e23ab9da45")', source: undefined, type: 'InspectResult' }
         ]);
       });
     });
