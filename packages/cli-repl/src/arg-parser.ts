@@ -26,7 +26,6 @@ const OPTIONS = {
     'csfleLibraryPath',
     'cryptSharedLibPath',
     'db',
-    'eval',
     'gssapiHostName',
     'gssapiServiceName',
     'sspiHostnameCanonicalization',
@@ -76,6 +75,7 @@ const OPTIONS = {
     'version'
   ],
   array: [
+    'eval',
     'file'
   ],
   alias: {

@@ -194,7 +194,7 @@ describe('arg-parser', () => {
           });
         });
 
-        context('when providing --eval', () => {
+        context('when providing --eval (single value)', () => {
           const argv = [ ...baseArgv, uri, '--eval', '1+1' ];
 
           it('returns the URI in the object', () => {
@@ -202,7 +202,19 @@ describe('arg-parser', () => {
           });
 
           it('sets the eval value in the object', () => {
-            expect(parseCliArgs(argv).eval).to.equal('1+1');
+            expect(parseCliArgs(argv).eval).to.deep.equal(['1+1']);
+          });
+        });
+
+        context('when providing --eval (multiple values)', () => {
+          const argv = [ ...baseArgv, uri, '--eval', '1+1', '--eval', '2+2' ];
+
+          it('returns the URI in the object', () => {
+            expect(parseCliArgs(argv).connectionSpecifier).to.equal(uri);
+          });
+
+          it('sets the eval value in the object', () => {
+            expect(parseCliArgs(argv).eval).to.deep.equal(['1+1', '2+2']);
           });
         });
 

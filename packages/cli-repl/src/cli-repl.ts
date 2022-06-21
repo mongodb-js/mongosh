@@ -257,7 +257,8 @@ class CliRepl implements MongoshIOProvider {
     const initialized = await this.mongoshRepl.initialize(initialServiceProvider);
 
     const commandLineLoadFiles = this.cliOptions.fileNames ?? [];
-    const willExecuteCommandLineScripts = commandLineLoadFiles.length > 0 || this.cliOptions.eval !== undefined;
+    const evalScripts = this.cliOptions.eval ?? [];
+    const willExecuteCommandLineScripts = commandLineLoadFiles.length > 0 || evalScripts.length > 0;
     const willEnterInteractiveMode = !willExecuteCommandLineScripts || !!this.cliOptions.shell;
 
     let snippetManager: SnippetManager | undefined;
@@ -280,7 +281,7 @@ class CliRepl implements MongoshIOProvider {
     if (willExecuteCommandLineScripts) {
       this.mongoshRepl.setIsInteractive(willEnterInteractiveMode);
       this.bus.emit('mongosh:start-loading-cli-scripts', { usesShellOption: !!this.cliOptions.shell });
-      await this.loadCommandLineFilesAndEval(commandLineLoadFiles);
+      await this.loadCommandLineFilesAndEval(commandLineLoadFiles, evalScripts);
       if (!this.cliOptions.shell) {
         // We flush the telemetry data as part of exiting. Make sure we have
         // the right config value.
@@ -335,18 +336,16 @@ class CliRepl implements MongoshIOProvider {
     }
   }
 
-  async loadCommandLineFilesAndEval(files: string[]) {
-    if (this.cliOptions.eval) {
+  async loadCommandLineFilesAndEval(files: string[], evalScripts: string[]) {
+    let lastEvalResult;
+    for (const script of evalScripts) {
       this.bus.emit('mongosh:eval-cli-script');
-      const evalResult = await this.mongoshRepl.loadExternalCode(this.cliOptions.eval, '@(shell eval)');
-      this.output.write(this.mongoshRepl.writer(evalResult) + '\n');
-    } else if (this.cliOptions.eval === '') {
-      // This happens e.g. when --eval is followed by another option, for example
-      // when running `mongosh --eval --shell "eval script"`, which can happen
-      // if you're like me and sometimes insert options in the wrong place
-      const msg = 'Warning: --eval requires an argument, but no argument was given\n';
-      this.output.write(this.clr(msg, 'mongosh:warning'));
+      lastEvalResult = await this.mongoshRepl.loadExternalCode(script, '@(shell eval)');
     }
+    if (lastEvalResult !== undefined) {
+      this.output.write(this.mongoshRepl.writer(lastEvalResult) + '\n');
+    }
+
     for (const file of files) {
       if (!this.cliOptions.quiet) {
         this.output.write(`Loading file: ${this.clr(file, 'mongosh:filename')}\n`);

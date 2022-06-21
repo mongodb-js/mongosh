@@ -19,7 +19,7 @@ export interface CliOptions {
   csfleLibraryPath?: string;
   cryptSharedLibPath?: string;
   db?: string;
-  eval?: string;
+  eval?: string[];
   gssapiServiceName?: string;
   sspiHostnameCanonicalization?: string;
   sspiRealmOverride?: string;
