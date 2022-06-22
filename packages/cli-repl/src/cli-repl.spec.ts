@@ -482,22 +482,43 @@ describe('CliRepl', () => {
           expect(output).not.to.include('uh oh');
         });
 
-        it('evaluates code passed through --eval', async() => {
-          cliReplOptions.shellCliOptions.eval = '"i am" + " being evaluated"';
+        it('evaluates code passed through --eval (single argument)', async() => {
+          cliReplOptions.shellCliOptions.eval = ['"i am" + " being evaluated"'];
           cliRepl = new CliRepl(cliReplOptions);
           await startWithExpectedImmediateExit(cliRepl, '');
           expect(output).to.include('i am being evaluated');
           expect(exitCode).to.equal(0);
         });
 
-        it('forwards the error if the script passed to --eval throws', async() => {
-          cliReplOptions.shellCliOptions.eval = 'throw new Error("oh no")';
+        it('forwards the error if the script passed to --eval throws (single argument)', async() => {
+          cliReplOptions.shellCliOptions.eval = ['throw new Error("oh no")'];
           cliRepl = new CliRepl(cliReplOptions);
           try {
             await cliRepl.start('', {});
           } catch (err: any) {
             expect(err.message).to.include('oh no');
           }
+          expect(output).not.to.include('oh no');
+        });
+
+        it('evaluates code passed through --eval (multiple arguments)', async() => {
+          cliReplOptions.shellCliOptions.eval = ['X = "i am"; "asdfghjkl"', 'X + " being evaluated"'];
+          cliRepl = new CliRepl(cliReplOptions);
+          await startWithExpectedImmediateExit(cliRepl, '');
+          expect(output).to.not.include('asdfghjkl');
+          expect(output).to.include('i am being evaluated');
+          expect(exitCode).to.equal(0);
+        });
+
+        it('forwards the error if the script passed to --eval throws (multiple arguments)', async() => {
+          cliReplOptions.shellCliOptions.eval = ['throw new Error("oh no")', 'asdfghjkl'];
+          cliRepl = new CliRepl(cliReplOptions);
+          try {
+            await cliRepl.start('', {});
+          } catch (err: any) {
+            expect(err.message).to.include('oh no');
+          }
+          expect(output).to.not.include('asdfghjkl');
           expect(output).not.to.include('oh no');
         });
       });
@@ -919,7 +940,7 @@ describe('CliRepl', () => {
         });
 
         it('sends out telemetry data for command line scripts', async() => {
-          cliReplOptions.shellCliOptions.eval = 'db.hello()';
+          cliReplOptions.shellCliOptions.eval = ['db.hello()'];
           cliRepl = new CliRepl(cliReplOptions);
           await startWithExpectedImmediateExit(cliRepl, await testServer.connectionString());
           expect(requests).to.have.lengthOf(2);
@@ -948,14 +969,14 @@ describe('CliRepl', () => {
         });
 
         it('does not send out telemetry if the user only runs a script for disabling telemetry', async() => {
-          cliReplOptions.shellCliOptions.eval = 'disableTelemetry()';
+          cliReplOptions.shellCliOptions.eval = ['disableTelemetry()'];
           cliRepl = new CliRepl(cliReplOptions);
           await startWithExpectedImmediateExit(cliRepl, await testServer.connectionString());
           expect(requests).to.have.lengthOf(0);
         });
 
         it('does not send out telemetry if the user runs a script for disabling telemetry and drops into the shell', async() => {
-          cliReplOptions.shellCliOptions.eval = 'disableTelemetry()';
+          cliReplOptions.shellCliOptions.eval = ['disableTelemetry()'];
           cliReplOptions.shellCliOptions.shell = true;
           cliRepl = new CliRepl(cliReplOptions);
           await cliRepl.start(await testServer.connectionString(), {});
@@ -1052,7 +1073,7 @@ describe('CliRepl', () => {
 
       it('allows doing db ops (--eval variant)', async() => {
         const filename1 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'insertintotest.js');
-        cliReplOptions.shellCliOptions.eval = await fs.readFile(filename1, 'utf8');
+        cliReplOptions.shellCliOptions.eval = [await fs.readFile(filename1, 'utf8')];
         cliRepl = new CliRepl(cliReplOptions);
         await startWithExpectedImmediateExit(cliRepl, await testServer.connectionString());
         expect(output).to.match(/Inserted: ObjectId\("[a-z0-9]{24}"\)/);
@@ -1107,17 +1128,9 @@ describe('CliRepl', () => {
         expect(exitCode).to.equal(0);
       });
 
-      it('warns if --eval is passed an empty string', async() => {
-        cliReplOptions.shellCliOptions.eval = '';
-        cliRepl = new CliRepl(cliReplOptions);
-        await startWithExpectedImmediateExit(cliRepl, await testServer.connectionString());
-        expect(output).to.include('--eval requires an argument, but no argument was given');
-        expect(exitCode).to.equal(0);
-      });
-
       it('isInteractive() is false for --eval without --shell', async() => {
         const filename1 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'printisinteractive.js');
-        cliReplOptions.shellCliOptions.eval = await fs.readFile(filename1, 'utf8');
+        cliReplOptions.shellCliOptions.eval = [await fs.readFile(filename1, 'utf8')];
         cliRepl = new CliRepl(cliReplOptions);
         await startWithExpectedImmediateExit(cliRepl, await testServer.connectionString());
         expect(output).to.match(/isInteractive=false/);
@@ -1126,7 +1139,7 @@ describe('CliRepl', () => {
 
       it('isInteractive() is true for --eval with --shell', async() => {
         const filename1 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'printisinteractive.js');
-        cliReplOptions.shellCliOptions.eval = await fs.readFile(filename1, 'utf8');
+        cliReplOptions.shellCliOptions.eval = [await fs.readFile(filename1, 'utf8')];
         cliReplOptions.shellCliOptions.shell = true;
         cliRepl = new CliRepl(cliReplOptions);
         await cliRepl.start(await testServer.connectionString(), {});
