@@ -6,7 +6,7 @@
     "mongosh": "packages/cli-repl/bin/mongosh.js"
   },
   "homepage": "https://github.com/mongodb-js/mongosh",
-  "author": "Compass Team <team-compass@10gen.com>",
+  "author": "Compass Team <compass@mongodb.com>",
   "scripts": {
     "prebootstrap-with-chromium": "npm install",
     "bootstrap-with-chromium": "lerna bootstrap --concurrency=1",
@@ -100,7 +100,7 @@
     "@typescript-eslint/parser": "^4.28.4",
     "aws-sdk": "^2.674.0",
     "axios": "^0.21.1",
-    "boxednode": "^1.10.6",
+    "boxednode": "^1.10.8",
     "browserify": "^16.5.0",
     "chai": "^4.2.0",
     "command-exists": "^1.2.9",

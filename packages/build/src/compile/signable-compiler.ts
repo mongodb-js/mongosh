@@ -114,15 +114,8 @@ export class SignableCompiler {
       requireRegexp: /\bget_console_process_list\.node$/
     } : null;
 
-    let configureArgs: string[] = [];
-
-    if (process.env.NODE_JS_CONFIGURE_ARGS) {
-      configureArgs = JSON.parse(process.env.NODE_JS_CONFIGURE_ARGS);
-    }
-
     // This compiles the executable along with Node from source.
     await compileJSFileAsBinary({
-      configureArgs,
       sourceFile: this.sourceFile,
       targetFile: this.targetFile,
       nodeVersionRange: this.nodeVersionRange,

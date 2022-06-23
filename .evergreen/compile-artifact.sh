@@ -23,9 +23,9 @@ export TMPDIR=/tmp/m
 # able to compile OpenSSL with assembly support,
 # so we revert back to the slower version.
 if [ "$OS" == "Windows_NT" ]; then
-  export NODE_JS_CONFIGURE_ARGS='["openssl-no-asm"]'
+  export BOXEDNODE_CONFIGURE_ARGS='openssl-no-asm'
 elif uname -a | grep -q 'Darwin.*x86_64'; then
-  export NODE_JS_CONFIGURE_ARGS='["--openssl-no-asm"]'
+  export BOXEDNODE_CONFIGURE_ARGS='--openssl-no-asm'
 elif [ -n "$MONGOSH_SHARED_OPENSSL" ]; then
   pushd /tmp/m
   if [ "$MONGOSH_SHARED_OPENSSL" == "openssl11" ]; then
@@ -48,7 +48,7 @@ elif [ -n "$MONGOSH_SHARED_OPENSSL" ]; then
   popd # openssl-*
   popd # /tmp/m
 
-  export NODE_JS_CONFIGURE_ARGS='[
+  export BOXEDNODE_CONFIGURE_ARGS='[
     "--shared-openssl",
     "--shared-openssl-includes=/tmp/m/opt/include",
     "--shared-openssl-libpath=/tmp/m/opt/lib",
