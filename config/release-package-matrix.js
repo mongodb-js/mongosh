@@ -21,7 +21,7 @@ exports.RELEASE_PACKAGE_MATRIX = [
     packages: [
       { name: 'linux-x64', description: 'Linux Tarball 64-bit', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu20.04-tgz'] },
       { name: 'deb-x64', description: 'Debian / Ubuntu 64-bit', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu18.04-deb', 'ubuntu20.04-deb', 'ubuntu22.04-deb', 'debian9-deb', 'debian10-deb', 'debian11-deb'] },
-      { name: 'rpm-x64', description: 'RHEL / CentOS / Fedora / Suse 64-bit', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['centos7-rpm', 'amazonlinux2-rpm', 'rocky8-rpm', 'fedora34-rpm', 'suse12-rpm', 'suse15-rpm', 'amazonlinux1-rpm'] }
+      { name: 'rpm-x64', description: 'RHEL / CentOS / Fedora / Suse 64-bit', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['centos7-rpm', 'amazonlinux2-rpm', 'amazonlinux2022-rpm', 'rocky8-rpm', 'fedora34-rpm', 'suse12-rpm', 'suse15-rpm', 'amazonlinux1-rpm'] }
     ]
   },
   {
@@ -30,7 +30,7 @@ exports.RELEASE_PACKAGE_MATRIX = [
     packages: [
       { name: 'linux-x64-openssl11', description: 'Linux Tarball 64-bit (shared OpenSSL 1.1)', packageOn: 'linux_package', smokeTestKind: 'none' },
       { name: 'deb-x64-openssl11', description: 'Debian / Ubuntu 64-bit (shared OpenSSL 1.1)', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu20.04-deb', 'debian10-deb', 'debian11-deb'] },
-      { name: 'rpm-x64-openssl11', description: 'RHEL / CentOS 64-bit (shared OpenSSL 1.1)', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['centos7-epel-rpm', 'amazonlinux2-rpm', 'rocky8-rpm', 'fedora34-rpm'] }
+      { name: 'rpm-x64-openssl11', description: 'RHEL / CentOS 64-bit (shared OpenSSL 1.1)', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['centos7-epel-rpm', 'amazonlinux2-rpm', 'amazonlinux2022-rpm', 'rocky8-rpm', 'fedora34-rpm'] }
     ]
   },
   {
@@ -39,7 +39,7 @@ exports.RELEASE_PACKAGE_MATRIX = [
     packages: [
       { name: 'linux-x64-openssl3', description: 'Linux Tarball 64-bit (shared OpenSSL 3)', packageOn: 'linux_package', smokeTestKind: 'none' },
       { name: 'deb-x64-openssl3', description: 'Debian / Ubuntu 64-bit (shared OpenSSL 3)', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu22.04-deb'] },
-      { name: 'rpm-x64-openssl3', description: 'RHEL / CentOS 64-bit (shared OpenSSL 3)', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['rocky8-epel-rpm'] }
+      { name: 'rpm-x64-openssl3', description: 'RHEL / CentOS 64-bit (shared OpenSSL 3)', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['rocky8-epel-rpm', 'amazonlinux2022-rpm'] }
     ]
   },
   {
@@ -48,7 +48,7 @@ exports.RELEASE_PACKAGE_MATRIX = [
     packages: [
       { name: 'linux-arm64', description: 'Linux Tarball arm64', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu20.04-tgz'] },
       { name: 'deb-arm64', description: 'Debian / Ubuntu arm64', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu18.04-deb', 'ubuntu20.04-deb', 'ubuntu22.04-deb', 'debian10-deb', 'debian11-deb'] },
-      { name: 'rpm-arm64', description: 'RHEL / CentOS arm64', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['rocky8-rpm', 'fedora34-rpm', 'amazonlinux2-rpm'] }
+      { name: 'rpm-arm64', description: 'RHEL / CentOS arm64', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['rocky8-rpm', 'fedora34-rpm', 'amazonlinux2-rpm', 'amazonlinux2022-rpm'] }
     ]
   },
   {
@@ -57,7 +57,7 @@ exports.RELEASE_PACKAGE_MATRIX = [
     packages: [
       { name: 'linux-arm64-openssl11', description: 'Linux Tarball arm64 (shared OpenSSL 1.1)', packageOn: 'linux_package', smokeTestKind: 'none' },
       { name: 'deb-arm64-openssl11', description: 'Debian / Ubuntu arm64 (shared OpenSSL 1.1)', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu20.04-deb', 'debian10-deb', 'debian11-deb'] },
-      { name: 'rpm-arm64-openssl11', description: 'Redhat / Centos arm64 (shared OpenSSL 1.1)', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['rocky8-rpm', 'fedora34-rpm', 'amazonlinux2-rpm'] }
+      { name: 'rpm-arm64-openssl11', description: 'Redhat / Centos arm64 (shared OpenSSL 1.1)', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['rocky8-rpm', 'fedora34-rpm', 'amazonlinux2-rpm', 'amazonlinux2022-rpm'] }
     ]
   },
   {

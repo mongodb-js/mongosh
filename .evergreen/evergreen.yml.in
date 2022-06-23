@@ -1041,6 +1041,11 @@ buildvariants:
     run_on: amazon2-small
     tasks:
       - name: e2e_tests_linux_x64
+  - name: e2e_amazon2022_x64
+    display_name: "Amazon Linux 2022 x64 (E2E Tests)"
+    run_on: amazon2022-small
+    tasks:
+      - name: e2e_tests_linux_x64
   - name: e2e_suse12_x64
     display_name: "SLES 12 x64 (E2E Tests)"
     run_on: suse12-sp5-small
