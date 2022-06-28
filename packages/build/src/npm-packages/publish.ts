@@ -33,7 +33,8 @@ export function publishNpmPackages(
       '--exact',
       '--no-git-tag-version',
       '--force-publish',
-      '--yes'
+      '--yes',
+      '--no-verify-access'
     ], {
       stdio: 'inherit',
       cwd: PROJECT_ROOT,
