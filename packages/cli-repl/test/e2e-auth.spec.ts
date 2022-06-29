@@ -849,6 +849,23 @@ describe('Auth e2e', function() {
         )).to.include('user: \'sha1user\'');
         shell.assertNoErrors();
       });
+      it('provides a helpful error message for SCRAM-SHA-1 in FIPS mode', async function() {
+        const connectionString = await testServer.connectionString();
+        shell = TestShell.start({ args: [
+          connectionString,
+          '--tlsFIPSMode',
+          '-u', 'sha1user',
+          '-p', 'sha1pwd',
+          '--authenticationDatabase', dbName,
+          '--authenticationMechanism', 'SCRAM-SHA-1'
+        ] });
+        await shell.waitForExit();
+        try {
+          shell.assertContainsOutput('Auth mechanism SCRAM-SHA-1 is not supported in FIPS mode');
+        } catch {
+          shell.assertContainsOutput('Could not enable FIPS mode.');
+        }
+      });
       it('can auth with SCRAM-SHA-256', async() => {
         const connectionString = await testServer.connectionString();
         shell = TestShell.start({ args: [
