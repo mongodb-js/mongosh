@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Sun Jun 26 2022.
+This document was automatically generated on Wed Jun 29 2022.
 
 ## List of dependencies
 
@@ -2483,7 +2483,7 @@ License files:
          limitations under the License.
 
 Authors:
-* Compass Team <team-compass@10gen.com>
+* Compass Team <compass@mongodb.com>
 
 
 <a id="314b4d8cafb3f77d4bf5f38b7ee73b5969506f6b4dfe16764f7971982a646aca"></a>
