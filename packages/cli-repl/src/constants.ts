@@ -54,6 +54,7 @@ export const USAGE = `
         --tlsCRLFile [arg]                     ${i18n.__('cli-repl.args.tlsCRLFile')}
         --tlsDisabledProtocols [arg]           ${i18n.__('cli-repl.args.tlsDisabledProtocols')}
         --tlsUseSystemCA                       ${i18n.__('cli-repl.args.tlsUseSystemCA')}
+        --tlsFIPSMode                          ${i18n.__('cli-repl.args.tlsFIPSMode')}
 
   ${clr(i18n.__('cli-repl.args.apiVersionOptions'), 'mongosh:section-header')}
 
