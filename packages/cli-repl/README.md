@@ -42,6 +42,7 @@ CLI interface for [MongoDB Shell][mongosh], an extension to Node.js REPL with Mo
         --tlsCertificateSelector [arg]         TLS Certificate in system store (Windows and macOS only)
         --tlsDisabledProtocols [arg]           Comma separated list of TLS protocols to disable [TLS1_0,TLS1_1,TLS1_2]
         --tlsUseSystemCA                       Load the operating system trusted certificate list
+        --tlsFIPSMode                          Enable the system TLS library's FIPS mode
 
   API version options:
 
