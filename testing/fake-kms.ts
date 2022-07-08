@@ -21,7 +21,12 @@ export function makeFakeHTTPConnection(handlerList: HandlerList): Duplex & { req
 
 type FakeHTTPServer = http.Server & { requests: http.IncomingMessage[] };
 export function makeFakeHTTPServer(handlerList: HandlerList): FakeHTTPServer {
-  const server = http.createServer((req, res) => {
+  // Using an version of the Node.js HTTP parser with relaxed security guarantees
+  // here since Node.js 16.16.0+ require CRLF header delimiting in requests,
+  // and reject LF header delimiting.
+  // MONGOCRYPT-457 has been filed to potentially address this on the libmongocrypt
+  // side.
+  const server = http.createServer({ insecureHTTPParser: true }, (req, res) => {
     (server as FakeHTTPServer).requests.push(req);
     let handler: HandlerFunction | undefined;
     const host = req.headers['host'];
