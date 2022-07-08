@@ -275,10 +275,8 @@ describe('FLE tests', () => {
         keyVault = client.getKeyVault();
         clientEncryption = client.getClientEncryption();
 
-        // Create necessary data + index keys
-        dataKey1 = keyVault.createKey('local');
-        dataKey2 = keyVault.createKey('local');
-        indexKey = keyVault.createKey('local');
+        // Create necessary data key
+        dataKey = keyVault.createKey('local');
 
         // (re-)create collection -- this needs to be done
         // with the plain mongo client until MONGOCRYPT-435 is done
@@ -286,7 +284,7 @@ describe('FLE tests', () => {
         Mongo(${uri}).getDB('${dbname}').createCollection('encryptiontest', {
           encryptedFields: {
             fields: [{
-              keyId: indexKey,
+              keyId: dataKey,
               path: 'v',
               bsonType: 'string',
               queries: [{ queryType: 'equality' }]
@@ -294,15 +292,15 @@ describe('FLE tests', () => {
           }
         });
 
-        // Encrypt and insert data encrypted with different data keys and a separate index key
-        const insertPayload1 = clientEncryption.encrypt(dataKey1, '123', {
-          indexKeyId: indexKey,
-          algorithm: 'Indexed'
+        // Encrypt and insert data encrypted with specified data key
+        const insertPayload1 = clientEncryption.encrypt(dataKey, '123', {
+          algorithm: 'Indexed',
+          contentionFactor: 4
         });
 
-        const insertPayload2 = clientEncryption.encrypt(dataKey2, '456', {
-          indexKeyId: indexKey,
-          algorithm: 'Indexed'
+        const insertPayload2 = clientEncryption.encrypt(dataKey, '456', {
+          algorithm: 'Indexed',
+          contentionFactor: 4
         });
 
         const insertRes1 = coll.insertOne({ v: insertPayload1, _id: 'asdf' });
@@ -312,10 +310,10 @@ describe('FLE tests', () => {
       expect(await shell.executeLine('({ count: coll.countDocuments() })')).to.include('{ count: 2 }');
 
       await shell.executeLine(`
-      const findPayload = clientEncryption.encrypt(indexKey, '456', { // NB: the data key is irrelevant here
-        indexKeyId: indexKey,
+      const findPayload = clientEncryption.encrypt(dataKey, '456', { // NB: the data key is irrelevant here
         algorithm: 'Indexed',
-        queryType: 'Equality'
+        queryType: 'equality',
+        contentionFactor: 4
       });`);
 
       // Make sure the find payload allows searching for the encrypted value
