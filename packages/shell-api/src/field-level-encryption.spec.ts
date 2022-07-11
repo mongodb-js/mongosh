@@ -49,7 +49,6 @@ const AWS_KMS = {
 const ALGO = 'AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic';
 const ENCRYPT_OPTIONS = {
   algorithm: ALGO as ClientEncryptionEncryptOptions['algorithm'],
-  indexKeyId: new bson.Binary(Buffer.from('12345678123498761234123456789012', 'hex'), 4),
   contentionFactor: 10,
   queryType: 'Equality' as ClientEncryptionEncryptOptions['queryType']
 };
@@ -173,7 +172,7 @@ describe('Field Level Encryption', () => {
         await clientEncryption.encrypt(KEY_ID, value, ALGO);
         expect(libmongoc.encrypt).calledOnceWithExactly(value, { keyId: KEY_ID, algorithm: ALGO });
       });
-      it('calls encrypt with algorithm, indexKeyId, contentionFactor, and queryType on libmongoc', async() => {
+      it('calls encrypt with algorithm, contentionFactor, and queryType on libmongoc', async() => {
         const value = new bson.ObjectId();
         libmongoc.encrypt.resolves();
         await clientEncryption.encrypt(KEY_ID, value, ENCRYPT_OPTIONS);
