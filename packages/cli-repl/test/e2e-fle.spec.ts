@@ -13,6 +13,7 @@ import { once } from 'events';
 import { serialize } from 'v8';
 import { inspect } from 'util';
 import path from 'path';
+import os from 'os';
 
 describe('FLE tests', () => {
   const testServer = startTestServer('not-shared', '--replicaset', '--nodes', '1');
@@ -258,7 +259,14 @@ describe('FLE tests', () => {
   context('6.0+', () => {
     skipIfServerVersion(testServer, '< 6.0'); // FLE2 only available on 6.0+
 
-    it('allows explicit encryption with bypassQueryAnalysis', async() => {
+    it('allows explicit encryption with bypassQueryAnalysis', async function() {
+      if (os.type() === 'Darwin' && +os.release().split('.')[0] < 20) {
+        // Indexed search is not supported on macOS 10.14 (which in turn is
+        // not supported by 6.0+ servers anyway).
+        // See e.g. https://jira.mongodb.org/browse/MONGOCRYPT-440
+        return this.skip();
+      }
+
       // No --cryptSharedLibPath since bypassQueryAnalysis is also a community edition feature
       const shell = TestShell.start({ args: ['--nodb'] });
       const uri = JSON.stringify(await testServer.connectionString());
