@@ -118,6 +118,18 @@ repos:
     repos:
       - apt/ubuntu/dists/focal/mongodb-org
 
+  - name: ubuntu2204
+    type: deb
+    code_name: "jammy"
+    edition: org
+    bucket: repo.mongodb.org
+    component: multiverse
+    architectures:
+      - amd64
+      - arm64
+    repos:
+      - apt/ubuntu/dists/jammy/mongodb-org
+
   - name: rhel70
     type: rpm
     edition: org
@@ -138,6 +150,17 @@ repos:
     repos:
       - yum/redhat/8/mongodb-org
       - yum/redhat/8Server/mongodb-org
+
+  - name: rhel90
+    type: rpm
+    edition: org
+    bucket: repo.mongodb.org
+    architectures:
+      - x86_64
+      - aarch64
+    repos:
+      - yum/redhat/9/mongodb-org
+      - yum/redhat/9Server/mongodb-org
 
   - name: suse12
     type: rpm
@@ -173,6 +196,16 @@ repos:
       - x86_64
     repos:
       - yum/amazon/2/mongodb-org
+
+  - name: amazon2022
+    type: rpm
+    edition: org
+    bucket: repo.mongodb.org
+    architectures:
+      - arm64
+      - x86_64
+    repos:
+      - yum/amazon/2022/mongodb-org
 
 ####################
 #
@@ -240,6 +273,18 @@ repos:
     repos:
       - apt/ubuntu/dists/focal/mongodb-enterprise
 
+  - name: ubuntu2204
+    type: deb
+    code_name: "jammy"
+    edition: enterprise
+    bucket: repo.mongodb.com
+    component: multiverse
+    architectures:
+      - amd64
+      - arm64
+    repos:
+      - apt/ubuntu/dists/jammy/mongodb-enterprise
+
   - name: rhel70
     type: rpm
     edition: enterprise
@@ -260,6 +305,17 @@ repos:
     repos:
       - yum/redhat/8/mongodb-enterprise
       - yum/redhat/8Server/mongodb-enterprise
+
+  - name: rhel90
+    type: rpm
+    edition: enterprise
+    bucket: repo.mongodb.com
+    architectures:
+      - x86_64
+      - aarch64
+    repos:
+      - yum/redhat/9/mongodb-enterprise
+      - yum/redhat/9Server/mongodb-enterprise
 
   - name: suse12
     type: rpm
@@ -295,3 +351,13 @@ repos:
       - x86_64
     repos:
       - yum/amazon/2/mongodb-enterprise
+
+  - name: amazon2022
+    type: rpm
+    edition: enterprise
+    bucket: repo.mongodb.com
+    architectures:
+      - arm64
+      - x86_64
+    repos:
+      - yum/amazon/2022/mongodb-enterprise

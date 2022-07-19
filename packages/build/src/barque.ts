@@ -24,8 +24,8 @@ tmp.setGracefulCleanup();
  * All the possible per-Linux-distro repositories that we publish to.
  */
 type PPARepository =
-  'ubuntu1804' | 'ubuntu2004' | 'debian92' | 'debian10' | 'debian11' |
-  'rhel70' | 'rhel80' | 'amazon1' | 'amazon2' | 'suse12' | 'suse15';
+  'ubuntu1804' | 'ubuntu2004' | 'ubuntu2204' | 'debian92' | 'debian10' | 'debian11' |
+  'rhel70' | 'rhel80' | 'rhel90' | 'amazon1' | 'amazon2' | 'amazon2022' | 'suse12' | 'suse15';
 
 /**
  * Return the full list of [distro, arch] combinations that we upload for
@@ -43,19 +43,19 @@ export function getReposAndArch(packageVariant: PackageVariant): { ppas: PPARepo
       return { ppas: [], arch: '' };
     case 'deb':
       return {
-        ppas: ['ubuntu1804', 'ubuntu2004', 'debian92', 'debian10', 'debian11'],
+        ppas: ['ubuntu1804', 'ubuntu2004', 'ubuntu2204', 'debian92', 'debian10', 'debian11'],
         arch: getDebArchName(getArch(packageVariant))
       };
     case 'rpm':
       if (getArch(packageVariant) === 'x64') {
         return {
-          ppas: ['rhel70', 'rhel80', 'amazon1', 'amazon2', 'suse12', 'suse15'],
+          ppas: ['rhel70', 'rhel80', 'rhel90', 'amazon1', 'amazon2', 'amazon2022', 'suse12', 'suse15'],
           arch: getRPMArchName(getArch(packageVariant))
         };
       }
       if (getArch(packageVariant) === 'arm64') {
         return {
-          ppas: ['rhel80', 'amazon2'],
+          ppas: ['rhel80', 'rhel90', 'amazon2', 'amazon2022'],
           arch: getRPMArchName(getArch(packageVariant))
         };
       }
@@ -202,13 +202,16 @@ export class Barque {
       /* eslint-disable no-multi-spaces */
       case 'ubuntu1804': return `${base}/apt/ubuntu/dists/bionic/mongodb-${edition}/${packageFolderVersion}/multiverse/binary-${targetArchitecture}/${packageFileName}`;
       case 'ubuntu2004': return `${base}/apt/ubuntu/dists/focal/mongodb-${edition}/${packageFolderVersion}/multiverse/binary-${targetArchitecture}/${packageFileName}`;
+      case 'ubuntu2204': return `${base}/apt/ubuntu/dists/jammy/mongodb-${edition}/${packageFolderVersion}/multiverse/binary-${targetArchitecture}/${packageFileName}`;
       case 'debian92':   return `${base}/apt/debian/dists/buster/mongodb-${edition}/${packageFolderVersion}/main/binary-${targetArchitecture}/${packageFileName}`;
       case 'debian10':   return `${base}/apt/debian/dists/stretch/mongodb-${edition}/${packageFolderVersion}/main/binary-${targetArchitecture}/${packageFileName}`;
       case 'debian11':   return `${base}/apt/debian/dists/bullseye/mongodb-${edition}/${packageFolderVersion}/main/binary-${targetArchitecture}/${packageFileName}`;
       case 'rhel70':     return `${base}/yum/redhat/7/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
       case 'rhel80':     return `${base}/yum/redhat/8/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
+      case 'rhel90':     return `${base}/yum/redhat/9/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
       case 'amazon1':    return `${base}/yum/amazon/2013.03/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
       case 'amazon2':    return `${base}/yum/amazon/2/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
+      case 'amazon2022': return `${base}/yum/amazon/2022/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
       case 'suse12':     return `${base}/zypper/suse/12/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
       case 'suse15':     return `${base}/zypper/suse/15/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
       /* eslint-enable no-multi-spaces */
