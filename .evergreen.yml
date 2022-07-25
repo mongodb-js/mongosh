@@ -9197,6 +9197,25 @@ tasks:
         vars:
           node_js_version: "16.16.0"
           dockerfile: rocky8-rpm
+  - name: pkg_test_docker_rpm_x64_rocky9_rpm
+    tags: ["smoke-test"]
+    depends_on:
+      - name: package_and_upload_artifact_rpm_x64
+        variant: linux_package
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          source_package_variant: rpm-x64
+      - func: write_preload_script
+      - func: install
+        vars:
+          node_js_version: "16.16.0"
+          npm_deps_mode: cli_build
+      - func: test_artifact_docker
+        vars:
+          node_js_version: "16.16.0"
+          dockerfile: rocky9-rpm
   - name: pkg_test_docker_rpm_x64_fedora34_rpm
     tags: ["smoke-test"]
     depends_on:
@@ -9406,6 +9425,25 @@ tasks:
         vars:
           node_js_version: "16.16.0"
           dockerfile: rocky8-rpm
+  - name: pkg_test_docker_rpm_x64_openssl11_rocky9_rpm
+    tags: ["smoke-test"]
+    depends_on:
+      - name: package_and_upload_artifact_rpm_x64_openssl11
+        variant: linux_package
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          source_package_variant: rpm-x64-openssl11
+      - func: write_preload_script
+      - func: install
+        vars:
+          node_js_version: "16.16.0"
+          npm_deps_mode: cli_build
+      - func: test_artifact_docker
+        vars:
+          node_js_version: "16.16.0"
+          dockerfile: rocky9-rpm
   - name: pkg_test_docker_rpm_x64_openssl11_fedora34_rpm
     tags: ["smoke-test"]
     depends_on:
@@ -9463,6 +9501,25 @@ tasks:
         vars:
           node_js_version: "16.16.0"
           dockerfile: rocky8-epel-rpm
+  - name: pkg_test_docker_rpm_x64_openssl3_rocky9_rpm
+    tags: ["smoke-test"]
+    depends_on:
+      - name: package_and_upload_artifact_rpm_x64_openssl3
+        variant: linux_package
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          source_package_variant: rpm-x64-openssl3
+      - func: write_preload_script
+      - func: install
+        vars:
+          node_js_version: "16.16.0"
+          npm_deps_mode: cli_build
+      - func: test_artifact_docker
+        vars:
+          node_js_version: "16.16.0"
+          dockerfile: rocky9-rpm
   - name: pkg_test_docker_rpm_x64_openssl3_amazonlinux2022_rpm
     tags: ["smoke-test"]
     depends_on:
@@ -9615,6 +9672,25 @@ tasks:
         vars:
           node_js_version: "16.16.0"
           dockerfile: rocky8-rpm
+  - name: pkg_test_docker_rpm_arm64_rocky9_rpm
+    tags: ["smoke-test"]
+    depends_on:
+      - name: package_and_upload_artifact_rpm_arm64
+        variant: linux_package
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          source_package_variant: rpm-arm64
+      - func: write_preload_script
+      - func: install
+        vars:
+          node_js_version: "16.16.0"
+          npm_deps_mode: cli_build
+      - func: test_artifact_docker
+        vars:
+          node_js_version: "16.16.0"
+          dockerfile: rocky9-rpm
   - name: pkg_test_docker_rpm_arm64_fedora34_rpm
     tags: ["smoke-test"]
     depends_on:
@@ -9748,6 +9824,25 @@ tasks:
         vars:
           node_js_version: "16.16.0"
           dockerfile: rocky8-rpm
+  - name: pkg_test_docker_rpm_arm64_openssl11_rocky9_rpm
+    tags: ["smoke-test"]
+    depends_on:
+      - name: package_and_upload_artifact_rpm_arm64_openssl11
+        variant: linux_package
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          source_package_variant: rpm-arm64-openssl11
+      - func: write_preload_script
+      - func: install
+        vars:
+          node_js_version: "16.16.0"
+          npm_deps_mode: cli_build
+      - func: test_artifact_docker
+        vars:
+          node_js_version: "16.16.0"
+          dockerfile: rocky9-rpm
   - name: pkg_test_docker_rpm_arm64_openssl11_fedora34_rpm
     tags: ["smoke-test"]
     depends_on:
@@ -10526,6 +10621,7 @@ buildvariants:
       - name: pkg_test_docker_rpm_x64_amazonlinux2_rpm
       - name: pkg_test_docker_rpm_x64_amazonlinux2022_rpm
       - name: pkg_test_docker_rpm_x64_rocky8_rpm
+      - name: pkg_test_docker_rpm_x64_rocky9_rpm
       - name: pkg_test_docker_rpm_x64_fedora34_rpm
       - name: pkg_test_docker_rpm_x64_suse12_rpm
       - name: pkg_test_docker_rpm_x64_suse15_rpm
@@ -10537,9 +10633,11 @@ buildvariants:
       - name: pkg_test_docker_rpm_x64_openssl11_amazonlinux2_rpm
       - name: pkg_test_docker_rpm_x64_openssl11_amazonlinux2022_rpm
       - name: pkg_test_docker_rpm_x64_openssl11_rocky8_rpm
+      - name: pkg_test_docker_rpm_x64_openssl11_rocky9_rpm
       - name: pkg_test_docker_rpm_x64_openssl11_fedora34_rpm
       - name: pkg_test_docker_deb_x64_openssl3_ubuntu22_04_deb
       - name: pkg_test_docker_rpm_x64_openssl3_rocky8_epel_rpm
+      - name: pkg_test_docker_rpm_x64_openssl3_rocky9_rpm
       - name: pkg_test_docker_rpm_x64_openssl3_amazonlinux2022_rpm
   - name: pkg_smoke_tests_docker_arm64
     display_name: "package smoke tests (arm64 Docker)"
@@ -10552,6 +10650,7 @@ buildvariants:
       - name: pkg_test_docker_deb_arm64_debian10_deb
       - name: pkg_test_docker_deb_arm64_debian11_deb
       - name: pkg_test_docker_rpm_arm64_rocky8_rpm
+      - name: pkg_test_docker_rpm_arm64_rocky9_rpm
       - name: pkg_test_docker_rpm_arm64_fedora34_rpm
       - name: pkg_test_docker_rpm_arm64_amazonlinux2_rpm
       - name: pkg_test_docker_rpm_arm64_amazonlinux2022_rpm
@@ -10559,6 +10658,7 @@ buildvariants:
       - name: pkg_test_docker_deb_arm64_openssl11_debian10_deb
       - name: pkg_test_docker_deb_arm64_openssl11_debian11_deb
       - name: pkg_test_docker_rpm_arm64_openssl11_rocky8_rpm
+      - name: pkg_test_docker_rpm_arm64_openssl11_rocky9_rpm
       - name: pkg_test_docker_rpm_arm64_openssl11_fedora34_rpm
       - name: pkg_test_docker_rpm_arm64_openssl11_amazonlinux2_rpm
       - name: pkg_test_docker_rpm_arm64_openssl11_amazonlinux2022_rpm
