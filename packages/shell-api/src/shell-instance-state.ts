@@ -437,8 +437,8 @@ export default class ShellInstanceState {
 
   private getDefaultPromptPrefix(): string {
     const extraConnectionInfo = this.connectionInfo?.extraInfo;
-    if (extraConnectionInfo?.is_data_lake) {
-      return 'AtlasDataLake';
+    if (extraConnectionInfo?.is_data_federation) {
+      return 'AtlasDataFederation';
     } else if (extraConnectionInfo?.is_atlas) {
       return 'Atlas';
     } else if (extraConnectionInfo?.is_enterprise || this.connectionInfo?.buildInfo?.modules?.indexOf('enterprise') >= 0) {

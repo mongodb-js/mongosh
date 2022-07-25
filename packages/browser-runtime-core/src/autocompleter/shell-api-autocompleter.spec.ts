@@ -7,7 +7,7 @@ const standalone440 = {
   apiVersionInfo: () => undefined,
   connectionInfo: () => ({
     is_atlas: false,
-    is_data_lake: false,
+    is_data_federation: false,
     server_version: '4.4.0'
   }),
   getCollectionCompletionsForCurrentDb: () => ['bananas'],

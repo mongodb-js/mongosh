@@ -52,7 +52,7 @@ export interface ConnectEvent {
   server_arch?: string;
   is_enterprise: boolean;
   auth_type?: string;
-  is_data_lake: boolean;
+  is_data_federation: boolean;
   dl_version?: string;
   is_genuine: boolean;
   non_genuine_server_name: string;
