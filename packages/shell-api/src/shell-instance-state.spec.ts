@@ -85,13 +85,13 @@ describe('ShellInstanceState', () => {
         serviceProvider.getConnectionInfo.resolves({
           extraInfo: {
             uri: 'mongodb://localhost/',
-            is_data_lake: true
+            is_data_federation: true
           }
         });
 
         await instanceState.fetchConnectionInfo();
         const prompt = await instanceState.getDefaultPrompt();
-        expect(prompt).to.equal('AtlasDataLake test> ');
+        expect(prompt).to.equal('AtlasDataFederation test> ');
       });
 
       it('wins against enterprise and atlas', async() => {
@@ -100,13 +100,13 @@ describe('ShellInstanceState', () => {
             uri: 'mongodb://localhost/',
             is_enterprise: true,
             is_atlas: true,
-            is_data_lake: true
+            is_data_federation: true
           }
         });
 
         await instanceState.fetchConnectionInfo();
         const prompt = await instanceState.getDefaultPrompt();
-        expect(prompt).to.equal('AtlasDataLake test> ');
+        expect(prompt).to.equal('AtlasDataFederation test> ');
       });
     });
 

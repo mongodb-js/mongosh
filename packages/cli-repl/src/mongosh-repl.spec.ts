@@ -1084,7 +1084,7 @@ describe('MongoshNodeRepl', () => {
       sp.getNewConnection.callsFake(async() => {
         Object.assign(connectionInfo.extraInfo, {
           is_localhost: true,
-          is_data_lake: true
+          is_data_federation: true
         });
         return sp;
       });
@@ -1096,7 +1096,7 @@ describe('MongoshNodeRepl', () => {
 
       input.write('db = Mongo("foo").getDB("bar")\n');
       await waitEval(bus);
-      expect(output).to.contain('AtlasDataLake bar> ');
+      expect(output).to.contain('AtlasDataFederation bar> ');
     });
 
     context('user-provided prompt', () => {
