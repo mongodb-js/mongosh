@@ -9049,7 +9049,7 @@ tasks:
           node_js_version: "16.16.0"
           mongosh_server_test_version: "stable"
           mongosh_test_e2e_force_fips: ""
-  - name: e2e_tests_darwin_x64_unstable_fips
+  - name: e2e_tests_darwin_x64_50x_fips
     tags: ["e2e-test"]
     depends_on:
       - name: compile_artifact
@@ -9066,9 +9066,9 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.16.0"
-          mongosh_server_test_version: "unstable"
+          mongosh_server_test_version: "5.0.x"
           mongosh_test_e2e_force_fips: "1"
-  - name: e2e_tests_darwin_x64_unstable
+  - name: e2e_tests_darwin_x64_50x
     tags: ["e2e-test"]
     depends_on:
       - name: compile_artifact
@@ -9085,7 +9085,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.16.0"
-          mongosh_server_test_version: "unstable"
+          mongosh_server_test_version: "5.0.x"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_darwin_arm64_fips
     tags: ["e2e-test"]
@@ -9125,7 +9125,7 @@ tasks:
           node_js_version: "16.16.0"
           mongosh_server_test_version: "stable"
           mongosh_test_e2e_force_fips: ""
-  - name: e2e_tests_darwin_arm64_unstable_fips
+  - name: e2e_tests_darwin_arm64_50x_fips
     tags: ["e2e-test"]
     depends_on:
       - name: compile_artifact
@@ -9142,9 +9142,9 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.16.0"
-          mongosh_server_test_version: "unstable"
+          mongosh_server_test_version: "5.0.x"
           mongosh_test_e2e_force_fips: "1"
-  - name: e2e_tests_darwin_arm64_unstable
+  - name: e2e_tests_darwin_arm64_50x
     tags: ["e2e-test"]
     depends_on:
       - name: compile_artifact
@@ -9161,7 +9161,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.16.0"
-          mongosh_server_test_version: "unstable"
+          mongosh_server_test_version: "5.0.x"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_x64_fips
     tags: ["e2e-test"]
@@ -9201,7 +9201,7 @@ tasks:
           node_js_version: "16.16.0"
           mongosh_server_test_version: "stable"
           mongosh_test_e2e_force_fips: ""
-  - name: e2e_tests_linux_x64_unstable_fips
+  - name: e2e_tests_linux_x64_50x_fips
     tags: ["e2e-test"]
     depends_on:
       - name: compile_artifact
@@ -9218,9 +9218,9 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.16.0"
-          mongosh_server_test_version: "unstable"
+          mongosh_server_test_version: "5.0.x"
           mongosh_test_e2e_force_fips: "1"
-  - name: e2e_tests_linux_x64_unstable
+  - name: e2e_tests_linux_x64_50x
     tags: ["e2e-test"]
     depends_on:
       - name: compile_artifact
@@ -9237,7 +9237,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.16.0"
-          mongosh_server_test_version: "unstable"
+          mongosh_server_test_version: "5.0.x"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_x64_openssl11_fips
     tags: ["e2e-test"]
@@ -9277,7 +9277,7 @@ tasks:
           node_js_version: "16.16.0"
           mongosh_server_test_version: "stable"
           mongosh_test_e2e_force_fips: ""
-  - name: e2e_tests_linux_x64_openssl11_unstable_fips
+  - name: e2e_tests_linux_x64_openssl11_50x_fips
     tags: ["e2e-test"]
     depends_on:
       - name: compile_artifact
@@ -9294,9 +9294,9 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.16.0"
-          mongosh_server_test_version: "unstable"
+          mongosh_server_test_version: "5.0.x"
           mongosh_test_e2e_force_fips: "1"
-  - name: e2e_tests_linux_x64_openssl11_unstable
+  - name: e2e_tests_linux_x64_openssl11_50x
     tags: ["e2e-test"]
     depends_on:
       - name: compile_artifact
@@ -9313,7 +9313,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.16.0"
-          mongosh_server_test_version: "unstable"
+          mongosh_server_test_version: "5.0.x"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_x64_openssl3_fips
     tags: ["e2e-test"]
@@ -9353,7 +9353,7 @@ tasks:
           node_js_version: "16.16.0"
           mongosh_server_test_version: "stable"
           mongosh_test_e2e_force_fips: ""
-  - name: e2e_tests_linux_x64_openssl3_unstable_fips
+  - name: e2e_tests_linux_x64_openssl3_50x_fips
     tags: ["e2e-test"]
     depends_on:
       - name: compile_artifact
@@ -9370,9 +9370,9 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.16.0"
-          mongosh_server_test_version: "unstable"
+          mongosh_server_test_version: "5.0.x"
           mongosh_test_e2e_force_fips: "1"
-  - name: e2e_tests_linux_x64_openssl3_unstable
+  - name: e2e_tests_linux_x64_openssl3_50x
     tags: ["e2e-test"]
     depends_on:
       - name: compile_artifact
@@ -9389,7 +9389,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.16.0"
-          mongosh_server_test_version: "unstable"
+          mongosh_server_test_version: "5.0.x"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_arm64_fips
     tags: ["e2e-test"]
@@ -9429,7 +9429,7 @@ tasks:
           node_js_version: "16.16.0"
           mongosh_server_test_version: "stable"
           mongosh_test_e2e_force_fips: ""
-  - name: e2e_tests_linux_arm64_unstable_fips
+  - name: e2e_tests_linux_arm64_50x_fips
     tags: ["e2e-test"]
     depends_on:
       - name: compile_artifact
@@ -9446,9 +9446,9 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.16.0"
-          mongosh_server_test_version: "unstable"
+          mongosh_server_test_version: "5.0.x"
           mongosh_test_e2e_force_fips: "1"
-  - name: e2e_tests_linux_arm64_unstable
+  - name: e2e_tests_linux_arm64_50x
     tags: ["e2e-test"]
     depends_on:
       - name: compile_artifact
@@ -9465,7 +9465,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.16.0"
-          mongosh_server_test_version: "unstable"
+          mongosh_server_test_version: "5.0.x"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_arm64_openssl11_fips
     tags: ["e2e-test"]
@@ -9505,7 +9505,7 @@ tasks:
           node_js_version: "16.16.0"
           mongosh_server_test_version: "stable"
           mongosh_test_e2e_force_fips: ""
-  - name: e2e_tests_linux_arm64_openssl11_unstable_fips
+  - name: e2e_tests_linux_arm64_openssl11_50x_fips
     tags: ["e2e-test"]
     depends_on:
       - name: compile_artifact
@@ -9522,9 +9522,9 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.16.0"
-          mongosh_server_test_version: "unstable"
+          mongosh_server_test_version: "5.0.x"
           mongosh_test_e2e_force_fips: "1"
-  - name: e2e_tests_linux_arm64_openssl11_unstable
+  - name: e2e_tests_linux_arm64_openssl11_50x
     tags: ["e2e-test"]
     depends_on:
       - name: compile_artifact
@@ -9541,7 +9541,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.16.0"
-          mongosh_server_test_version: "unstable"
+          mongosh_server_test_version: "5.0.x"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_ppc64le_fips
     tags: ["e2e-test"]
@@ -9581,7 +9581,7 @@ tasks:
           node_js_version: "16.16.0"
           mongosh_server_test_version: "stable"
           mongosh_test_e2e_force_fips: ""
-  - name: e2e_tests_linux_ppc64le_unstable_fips
+  - name: e2e_tests_linux_ppc64le_50x_fips
     tags: ["e2e-test"]
     depends_on:
       - name: compile_artifact
@@ -9598,9 +9598,9 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.16.0"
-          mongosh_server_test_version: "unstable"
+          mongosh_server_test_version: "5.0.x"
           mongosh_test_e2e_force_fips: "1"
-  - name: e2e_tests_linux_ppc64le_unstable
+  - name: e2e_tests_linux_ppc64le_50x
     tags: ["e2e-test"]
     depends_on:
       - name: compile_artifact
@@ -9617,7 +9617,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.16.0"
-          mongosh_server_test_version: "unstable"
+          mongosh_server_test_version: "5.0.x"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_s390x_fips
     tags: ["e2e-test"]
@@ -9657,7 +9657,7 @@ tasks:
           node_js_version: "16.16.0"
           mongosh_server_test_version: "stable"
           mongosh_test_e2e_force_fips: ""
-  - name: e2e_tests_linux_s390x_unstable_fips
+  - name: e2e_tests_linux_s390x_50x_fips
     tags: ["e2e-test"]
     depends_on:
       - name: compile_artifact
@@ -9674,9 +9674,9 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.16.0"
-          mongosh_server_test_version: "unstable"
+          mongosh_server_test_version: "5.0.x"
           mongosh_test_e2e_force_fips: "1"
-  - name: e2e_tests_linux_s390x_unstable
+  - name: e2e_tests_linux_s390x_50x
     tags: ["e2e-test"]
     depends_on:
       - name: compile_artifact
@@ -9693,7 +9693,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.16.0"
-          mongosh_server_test_version: "unstable"
+          mongosh_server_test_version: "5.0.x"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_win32_fips
     tags: ["e2e-test"]
@@ -9733,7 +9733,7 @@ tasks:
           node_js_version: "16.16.0"
           mongosh_server_test_version: "stable"
           mongosh_test_e2e_force_fips: ""
-  - name: e2e_tests_win32_unstable_fips
+  - name: e2e_tests_win32_50x_fips
     tags: ["e2e-test"]
     depends_on:
       - name: compile_artifact
@@ -9750,9 +9750,9 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.16.0"
-          mongosh_server_test_version: "unstable"
+          mongosh_server_test_version: "5.0.x"
           mongosh_test_e2e_force_fips: "1"
-  - name: e2e_tests_win32_unstable
+  - name: e2e_tests_win32_50x
     tags: ["e2e-test"]
     depends_on:
       - name: compile_artifact
@@ -9769,7 +9769,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.16.0"
-          mongosh_server_test_version: "unstable"
+          mongosh_server_test_version: "5.0.x"
           mongosh_test_e2e_force_fips: ""
 
   ###
@@ -11509,7 +11509,7 @@ buildvariants:
     display_name: "Debian 9 x64 (E2E Tests)"
     run_on: debian92-small
     tasks:
-      - name: e2e_tests_linux_x64
+      - name: e2e_tests_linux_x64_50x
   - name: e2e_debian10_x64
     display_name: "Debian 10 x64 (E2E Tests)"
     run_on: debian10-small
@@ -11520,13 +11520,13 @@ buildvariants:
     display_name: "Debian 11 x64 (E2E Tests)"
     run_on: debian11-small
     tasks:
-      - name: e2e_tests_linux_x64_unstable
-      - name: e2e_tests_linux_x64_openssl11_unstable
+      - name: e2e_tests_linux_x64
+      - name: e2e_tests_linux_x64_openssl11
   - name: e2e_amazon1_x64
     display_name: "Amazon Linux 1 x64 (E2E Tests)"
     run_on: amazon1-2018-small
     tasks:
-      - name: e2e_tests_linux_x64
+      - name: e2e_tests_linux_x64_50x
   - name: e2e_amazon2_x64
     display_name: "Amazon Linux 2 x64 (E2E Tests)"
     run_on: amazon2-small
@@ -11577,7 +11577,7 @@ buildvariants:
     display_name: "RHEL 8.3 s390x (E2E Tests)"
     run_on: rhel83-zseries-small
     tasks:
-      - name: e2e_tests_linux_s390x_unstable
+      - name: e2e_tests_linux_s390x
 
   - name: win32_unit
     display_name: "Windows VS 2019 (Unit tests)"

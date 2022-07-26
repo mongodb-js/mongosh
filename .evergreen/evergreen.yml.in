@@ -709,10 +709,10 @@ tasks:
   # E2E TESTS
   ###
   <% for (const { executableOsId, compileBuildVariant } of RELEASE_PACKAGE_MATRIX) {
-    for (const mVersion of ['stable', 'unstable']) {
+    for (const mVersion of ['stable', '5.0.x']) {
       for (const fipsVariant of ['fips', 'nofips']) {
     %>
-  - name: e2e_tests_<% out(executableOsId.replace(/-/g, '_')) %><% out(mVersion === 'stable' ? '' : '_unstable') %><% out(fipsVariant === 'fips' ? '_fips' : '') %>
+  - name: e2e_tests_<% out(executableOsId.replace(/-/g, '_')) %><% out(mVersion === 'stable' ? '' : '_50x') %><% out(fipsVariant === 'fips' ? '_fips' : '') %>
     tags: ["e2e-test"]
     depends_on:
       - name: compile_artifact
@@ -1014,7 +1014,7 @@ buildvariants:
     display_name: "Debian 9 x64 (E2E Tests)"
     run_on: debian92-small
     tasks:
-      - name: e2e_tests_linux_x64
+      - name: e2e_tests_linux_x64_50x
   - name: e2e_debian10_x64
     display_name: "Debian 10 x64 (E2E Tests)"
     run_on: debian10-small
@@ -1025,13 +1025,13 @@ buildvariants:
     display_name: "Debian 11 x64 (E2E Tests)"
     run_on: debian11-small
     tasks:
-      - name: e2e_tests_linux_x64_unstable
-      - name: e2e_tests_linux_x64_openssl11_unstable
+      - name: e2e_tests_linux_x64
+      - name: e2e_tests_linux_x64_openssl11
   - name: e2e_amazon1_x64
     display_name: "Amazon Linux 1 x64 (E2E Tests)"
     run_on: amazon1-2018-small
     tasks:
-      - name: e2e_tests_linux_x64
+      - name: e2e_tests_linux_x64_50x
   - name: e2e_amazon2_x64
     display_name: "Amazon Linux 2 x64 (E2E Tests)"
     run_on: amazon2-small
@@ -1082,7 +1082,7 @@ buildvariants:
     display_name: "RHEL 8.3 s390x (E2E Tests)"
     run_on: rhel83-zseries-small
     tasks:
-      - name: e2e_tests_linux_s390x_unstable
+      - name: e2e_tests_linux_s390x
 
   - name: win32_unit
     display_name: "Windows VS 2019 (Unit tests)"
