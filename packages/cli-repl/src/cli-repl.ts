@@ -95,6 +95,7 @@ class CliRepl implements MongoshIOProvider {
   warnedAboutInaccessibleFiles = false;
   onExit: (code?: number) => Promise<never>;
   closing = false;
+  isContainerizedEnvironment = false;
 
   /**
    * Instantiate the new CLI Repl.
@@ -155,6 +156,29 @@ class CliRepl implements MongoshIOProvider {
     });
   }
 
+  async getIsContainerizedEnvironment() {
+    // Check for dockerenv file first
+    try {
+      await fs.stat('/.dockerenv');
+      return true;
+    } catch {
+      try {
+        // Check if there is any mention of docker / lxc / k8s in control groups
+        const cgroup = await fs.readFile('/proc/self/cgroup', 'utf8');
+        return /docker|lxc|kubepods/.test(cgroup);
+      } catch {
+        return false;
+      }
+    }
+  }
+
+  get forceDisableTelemetry() {
+    return (
+      this.globalConfig?.forceDisableTelemetry ||
+      (this.isContainerizedEnvironment && !this.mongoshRepl.isInteractive)
+    );
+  }
+
   /**
    * Setup CLI environment: serviceProvider, ShellEvaluator, log connection
    * information, external editor, and finally start the repl.
@@ -166,6 +190,9 @@ class CliRepl implements MongoshIOProvider {
   async start(driverUri: string, driverOptions: DevtoolsConnectOptions): Promise<void> {
     const { version } = require('../package.json');
     await this.verifyNodeVersion();
+
+    this.isContainerizedEnvironment =
+      await this.getIsContainerizedEnvironment();
 
     if (!this.cliOptions.nodb) {
       const cs = new ConnectionString(driverUri);
@@ -215,7 +242,8 @@ class CliRepl implements MongoshIOProvider {
       this.toggleableAnalytics,
       {
         platform: process.platform,
-        arch: process.arch
+        arch: process.arch,
+        is_containerized: this.isContainerizedEnvironment,
       },
       require('../package.json').version);
 
@@ -329,7 +357,7 @@ class CliRepl implements MongoshIOProvider {
       // case.
       return;
     }
-    if (enabled && !this.globalConfig.forceDisableTelemetry) {
+    if (enabled && !this.forceDisableTelemetry) {
       this.toggleableAnalytics.enable();
     } else {
       this.toggleableAnalytics.disable();

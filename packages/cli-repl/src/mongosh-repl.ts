@@ -167,6 +167,10 @@ class MongoshNodeRepl implements EvaluationListener {
     this.runtimeState().instanceState.isInteractive = value;
   }
 
+  get isInteractive() {
+    return this.runtimeState().instanceState.isInteractive;
+  }
+
   /**
    * Create a Node.js REPL instance that can run mongosh commands,
    * print greeting messages, and set up autocompletion and
