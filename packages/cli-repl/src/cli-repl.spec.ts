@@ -946,6 +946,18 @@ describe('CliRepl', () => {
           expect(requests).to.have.lengthOf(2);
         });
 
+        it('sends out telemetry if the repl is running in an interactive mode in a containerized environment', async() => {
+          cliRepl = new CliRepl(cliReplOptions);
+          cliRepl.getIsContainerizedEnvironment = () => {
+            return Promise.resolve(true);
+          };
+          await cliRepl.start(await testServer.connectionString(), {});
+          input.write('db.hello()\n');
+          input.write('exit\n');
+          await waitBus(cliRepl.bus, 'mongosh:closed');
+          expect(requests).to.have.lengthOf(2);
+        });
+
         it('does not send out telemetry if the user starts with a no-telemetry config', async() => {
           await fs.writeFile(path.join(tmpdir.path, 'config'), EJSON.stringify({ enableTelemetry: false }));
           await cliRepl.start(await testServer.connectionString(), {});
@@ -983,6 +995,19 @@ describe('CliRepl', () => {
           input.write('db.hello()\n');
           input.write('exit\n');
           await waitBus(cliRepl.bus, 'mongosh:closed');
+          expect(requests).to.have.lengthOf(0);
+        });
+
+        it('does not send out telemetry if the repl is running in non-interactive mode in a containerized environment', async() => {
+          cliReplOptions.shellCliOptions.eval = ['db.hello()'];
+          cliRepl = new CliRepl(cliReplOptions);
+          cliRepl.getIsContainerizedEnvironment = () => {
+            return Promise.resolve(true);
+          };
+          await startWithExpectedImmediateExit(
+            cliRepl,
+            await testServer.connectionString()
+          );
           expect(requests).to.have.lengthOf(0);
         });
 
