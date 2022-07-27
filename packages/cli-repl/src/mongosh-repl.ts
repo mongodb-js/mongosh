@@ -167,7 +167,7 @@ class MongoshNodeRepl implements EvaluationListener {
     this.runtimeState().instanceState.isInteractive = value;
   }
 
-  get isInteractive() {
+  get isInteractive(): boolean {
     return this.runtimeState().instanceState.isInteractive;
   }
 

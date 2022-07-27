@@ -165,14 +165,14 @@ class CliRepl implements MongoshIOProvider {
       try {
         // Check if there is any mention of docker / lxc / k8s in control groups
         const cgroup = await fs.readFile('/proc/self/cgroup', 'utf8');
-        return /docker|lxc|kubepods/.test(cgroup);
+        return /\b(docker|lxc|kubepods)\b/.test(cgroup);
       } catch {
         return false;
       }
     }
   }
 
-  get forceDisableTelemetry() {
+  get forceDisableTelemetry(): boolean {
     return (
       this.globalConfig?.forceDisableTelemetry ||
       (this.isContainerizedEnvironment && !this.mongoshRepl.isInteractive)
