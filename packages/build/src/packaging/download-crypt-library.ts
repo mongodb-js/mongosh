@@ -12,20 +12,9 @@ export async function downloadCryptLibrary(variant: PackageVariant | 'host'): Pr
   opts.crypt_shared = true;
   console.info('mongosh: downloading latest crypt shared library for inclusion in package:', JSON.stringify(opts));
 
-  let libdir = '';
   const cryptTmpTargetDir = path.resolve(__dirname, '..', '..', '..', '..', 'tmp', 'crypt-store', variant);
-  // Download mongodb for latest server version. Fall back to the 6.0.0-rcX
-  // version if no stable version is available.
-  let error: Error | undefined;
-  for (const version of [ 'stable', '>= 6.0.0-rc5' ]) {
-    try {
-      libdir = await downloadMongoDb(cryptTmpTargetDir, version, opts);
-      break;
-    } catch (e: any) {
-      error = e;
-    }
-  }
-  if (!libdir) throw error;
+  // Download mongodb for latest server version.
+  const libdir = await downloadMongoDb(cryptTmpTargetDir, 'stable', opts);
   const cryptLibrary = path.join(
     libdir,
     (await fs.readdir(libdir)).find(filename => filename.match(/^mongo_crypt_v1\.(so|dylib|dll)$/)) as string
