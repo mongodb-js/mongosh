@@ -410,7 +410,7 @@ describe('Field Level Encryption', () => {
     });
     describe('rewrapManyDataKey', () => {
       it('calls rewrapManyDataKey on clientEncryption', async() => {
-        const rawResult = { result: 1 };
+        const rawResult = { result: 1 } as any;
         libmongoc.rewrapManyDataKey.resolves(rawResult);
         const result = await keyVault.rewrapManyDataKey({ status: 0 }, { provider: 'local' });
         expect(libmongoc.rewrapManyDataKey).calledOnceWithExactly({ status: 0 }, { provider: 'local' });
