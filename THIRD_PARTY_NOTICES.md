@@ -186,10 +186,10 @@ Package|Version|License
 **[minizlib](#cce17959eefb79a78461796cc716519d9f9ba1b56fa35ae9bb2f589c61514cd2)**|2.1.2|MIT
 **[mkdirp](#f34eebd27506e3aa07ba3b64064715e0c4f310dad1207ad88fff362353cd4cce)**|1.0.4|MIT
 **[mkdirp-classic](#e79cc875152b50c2eb57a97163d99f0155bf4e4af7ba4a7e01c12a17a4a3305c)**|0.5.3|MIT
-**[mongodb](#1db0c8d93d3cab3a95fa9e546b09d83b9af7b7eea44b55b38efb61ac44912e5b)**|4.8.0|Apache-2.0
+**[mongodb](#1ff293ff286e04d1259b21b43dc86865ec6e77a4812abf6c425cb4a24a6fd6f4)**|4.8.1|Apache-2.0
 **[mongodb-ace-autocompleter](#77d4f48b8f17bee83995284d4449d815e79f6a3ab4f1984e0793407939336d0e)**|0.11.0|Apache-2.0
 **[mongodb-build-info](#1a7482a12b855301c3b063265543999a78d8e0ec3b3ad432782858594febd16c)**|1.4.0|Apache-2.0
-**[mongodb-client-encryption](#bce562082162cd3ba2067ff4c64ccb62bd11bc4ec7a0c4d983d2f3e9b6de2b9a)**|2.2.0-alpha.4|Apache-2.0
+**[mongodb-client-encryption](#1428dd7415b84b5fc720d8944896ed7a8651e0492f4e88e45f686c582c4d2599)**|2.2.0-alpha.5|Apache-2.0
 **[mongodb-connection-string-url](#b4d900e6d4e4f5a7ea6424cce3fa58db71d531e6a14f92eb19825ac54e1d9db6)**|2.5.2|Apache-2.0
 **[mongodb-crypt-library-version](#531dc8c5761d69d24f5e39457de5812ed3781da937aa64f94ed6f659bd72c142)**|1.0.3|Apache-2.0
 **[mongodb-log-writer](#96c58bda4a870bc8879944bcf94b6242a3a1552cc179c3da480e3494672a3a2d)**|1.1.4|Apache-2.0
@@ -12098,8 +12098,8 @@ Authors:
 * Mathias Buus (@mafintosh)
 
 
-<a id="1db0c8d93d3cab3a95fa9e546b09d83b9af7b7eea44b55b38efb61ac44912e5b"></a>
-### [mongodb](https://www.npmjs.com/package/mongodb) (version 4.8.0)
+<a id="1ff293ff286e04d1259b21b43dc86865ec6e77a4812abf6c425cb4a24a6fd6f4"></a>
+### [mongodb](https://www.npmjs.com/package/mongodb) (version 4.8.1)
 <!-- initially found at packages/service-provider-core/node_modules/mongodb -->
 > The official MongoDB driver for Node.js
 
@@ -12542,8 +12542,8 @@ Authors:
 * Irina Shestak <shestak.irina@gmail.com>
 
 
-<a id="bce562082162cd3ba2067ff4c64ccb62bd11bc4ec7a0c4d983d2f3e9b6de2b9a"></a>
-### [mongodb-client-encryption](https://www.npmjs.com/package/mongodb-client-encryption) (version 2.2.0-alpha.4)
+<a id="1428dd7415b84b5fc720d8944896ed7a8651e0492f4e88e45f686c582c4d2599"></a>
+### [mongodb-client-encryption](https://www.npmjs.com/package/mongodb-client-encryption) (version 2.2.0-alpha.5)
 <!-- initially found at packages/service-provider-core/node_modules/mongodb-client-encryption -->
 > Official client encryption module for the MongoDB Node.js driver
 
