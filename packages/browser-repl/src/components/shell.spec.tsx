@@ -366,9 +366,11 @@ describe('<Shell />', () => {
     expect(HTMLElement.prototype.focus).to.have.been.calledOnce;
   });
 
-  it('does not focus on the input when an element that is not the background container is clicked', () => {
+  it('focuses on the input when an element that is not the background container is clicked', () => {
     wrapper = mount(<Shell runtime={fakeRuntime} />);
     const container = wrapper.find(`.${styles.shell}`);
+
+    expect(HTMLElement.prototype.focus).to.not.have.been.called;
 
     const fakeMouseEvent: any = {
       target: 'a',
@@ -376,7 +378,7 @@ describe('<Shell />', () => {
     };
     container.prop('onClick')(fakeMouseEvent);
 
-    expect(HTMLElement.prototype.focus).to.not.have.been.called;
+    expect(HTMLElement.prototype.focus).to.have.been.calledOnce;
   });
 
   it('updated the output when .onPrint is called', () => {

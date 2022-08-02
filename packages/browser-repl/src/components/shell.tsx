@@ -302,11 +302,10 @@ export class Shell extends Component<ShellProps, ShellState> {
     this.shellInputElement.scrollIntoView();
   }
 
-  private onShellClicked = (event: React.MouseEvent): void => {
-    // Focus on input when clicking the shell background (not clicking output).
-    if (event.currentTarget === event.target) {
-      this.focusEditor();
-    }
+  private onShellClicked = (): void => {
+    // Focus on input when clicking the shell.
+    // This is so that the shell behaves similarly to native desktop shells.
+    this.focusEditor();
   };
 
   private focusEditor = (): void => {
