@@ -59,6 +59,12 @@ export function getReposAndArch(packageVariant: PackageVariant): { ppas: PPARepo
           arch: getRPMArchName(getArch(packageVariant))
         };
       }
+      if (getArch(packageVariant) === 'ppc64le' || getArch(packageVariant) === 's390x') {
+        return {
+          ppas: ['rhel70', 'rhel80'],
+          arch: getRPMArchName(getArch(packageVariant))
+        };
+      }
       return { ppas: [], arch: '' };
     default:
       throw new Error(`Unknown package variant ${packageVariant}`);
