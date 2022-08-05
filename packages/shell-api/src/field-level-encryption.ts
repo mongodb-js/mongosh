@@ -161,9 +161,6 @@ export class KeyVault extends ShellApiWithMongoClass {
   }
 
   async _init(): Promise<void> {
-    if (this._mongo._fleOptions?.bypassQueryAnalysis) {
-      return; // TODO: Re-enable after libmongocrypt createIndex bug is fixed
-    }
     try {
       const existingIndexKeys = await this._keyColl.getIndexKeys();
       if (existingIndexKeys.some(key => key.keyAltNames)) {
