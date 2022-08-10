@@ -136,6 +136,8 @@ repos:
     bucket: repo.mongodb.org
     architectures:
       - x86_64
+      - ppc64le
+      - s390x
     repos:
       - yum/redhat/7/mongodb-org
       - yum/redhat/7Server/mongodb-org
@@ -147,6 +149,8 @@ repos:
     architectures:
       - x86_64
       - aarch64
+      - ppc64le
+      - s390x
     repos:
       - yum/redhat/8/mongodb-org
       - yum/redhat/8Server/mongodb-org
@@ -158,6 +162,8 @@ repos:
     architectures:
       - x86_64
       - aarch64
+      - ppc64le
+      - s390x
     repos:
       - yum/redhat/9/mongodb-org
       - yum/redhat/9Server/mongodb-org
@@ -291,6 +297,8 @@ repos:
     bucket: repo.mongodb.com
     architectures:
       - x86_64
+      - ppc64le
+      - s390x
     repos:
       - yum/redhat/7/mongodb-enterprise
       - yum/redhat/7Server/mongodb-enterprise
@@ -302,6 +310,8 @@ repos:
     architectures:
       - x86_64
       - aarch64
+      - ppc64le
+      - s390x
     repos:
       - yum/redhat/8/mongodb-enterprise
       - yum/redhat/8Server/mongodb-enterprise
@@ -313,6 +323,8 @@ repos:
     architectures:
       - x86_64
       - aarch64
+      - ppc64le
+      - s390x
     repos:
       - yum/redhat/9/mongodb-enterprise
       - yum/redhat/9Server/mongodb-enterprise

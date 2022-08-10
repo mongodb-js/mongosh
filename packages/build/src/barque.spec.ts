@@ -148,6 +148,42 @@ describe('Barque', () => {
               'https://repo.mongodb.org/yum/amazon/2022/mongodb-org/6.0/aarch64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm',
               'https://repo.mongodb.com/yum/amazon/2022/mongodb-enterprise/6.0/aarch64/RPMS/mongodb-mongosh-0.1.0.el7.x86_64.rpm',
             ]
+          },
+          {
+            variant: 'rpm-s390x',
+            url: 'https://s3.amazonaws.com/mciuploads/mongosh/5ed7ee5d8683818eb28d9d3b5c65837cde4a08f5/mongodb-mongosh-0.1.0.el7.s390x.rpm',
+            publishedUrls: [
+              'https://repo.mongodb.org/yum/redhat/7/mongodb-org/4.4/s390x/RPMS/mongodb-mongosh-0.1.0.el7.s390x.rpm',
+              'https://repo.mongodb.com/yum/redhat/7/mongodb-enterprise/4.4/s390x/RPMS/mongodb-mongosh-0.1.0.el7.s390x.rpm',
+              'https://repo.mongodb.org/yum/redhat/7/mongodb-org/5.0/s390x/RPMS/mongodb-mongosh-0.1.0.el7.s390x.rpm',
+              'https://repo.mongodb.com/yum/redhat/7/mongodb-enterprise/5.0/s390x/RPMS/mongodb-mongosh-0.1.0.el7.s390x.rpm',
+              'https://repo.mongodb.org/yum/redhat/7/mongodb-org/6.0/s390x/RPMS/mongodb-mongosh-0.1.0.el7.s390x.rpm',
+              'https://repo.mongodb.com/yum/redhat/7/mongodb-enterprise/6.0/s390x/RPMS/mongodb-mongosh-0.1.0.el7.s390x.rpm',
+              'https://repo.mongodb.org/yum/redhat/8/mongodb-org/4.4/s390x/RPMS/mongodb-mongosh-0.1.0.el7.s390x.rpm',
+              'https://repo.mongodb.com/yum/redhat/8/mongodb-enterprise/4.4/s390x/RPMS/mongodb-mongosh-0.1.0.el7.s390x.rpm',
+              'https://repo.mongodb.org/yum/redhat/8/mongodb-org/5.0/s390x/RPMS/mongodb-mongosh-0.1.0.el7.s390x.rpm',
+              'https://repo.mongodb.com/yum/redhat/8/mongodb-enterprise/5.0/s390x/RPMS/mongodb-mongosh-0.1.0.el7.s390x.rpm',
+              'https://repo.mongodb.org/yum/redhat/8/mongodb-org/6.0/s390x/RPMS/mongodb-mongosh-0.1.0.el7.s390x.rpm',
+              'https://repo.mongodb.com/yum/redhat/8/mongodb-enterprise/6.0/s390x/RPMS/mongodb-mongosh-0.1.0.el7.s390x.rpm',
+            ]
+          },
+          {
+            variant: 'rpm-ppc64le',
+            url: 'https://s3.amazonaws.com/mciuploads/mongosh/5ed7ee5d8683818eb28d9d3b5c65837cde4a08f5/mongodb-mongosh-0.1.0.el7.ppc64le.rpm',
+            publishedUrls: [
+              'https://repo.mongodb.org/yum/redhat/7/mongodb-org/4.4/ppc64le/RPMS/mongodb-mongosh-0.1.0.el7.ppc64le.rpm',
+              'https://repo.mongodb.com/yum/redhat/7/mongodb-enterprise/4.4/ppc64le/RPMS/mongodb-mongosh-0.1.0.el7.ppc64le.rpm',
+              'https://repo.mongodb.org/yum/redhat/7/mongodb-org/5.0/ppc64le/RPMS/mongodb-mongosh-0.1.0.el7.ppc64le.rpm',
+              'https://repo.mongodb.com/yum/redhat/7/mongodb-enterprise/5.0/ppc64le/RPMS/mongodb-mongosh-0.1.0.el7.ppc64le.rpm',
+              'https://repo.mongodb.org/yum/redhat/7/mongodb-org/6.0/ppc64le/RPMS/mongodb-mongosh-0.1.0.el7.ppc64le.rpm',
+              'https://repo.mongodb.com/yum/redhat/7/mongodb-enterprise/6.0/ppc64le/RPMS/mongodb-mongosh-0.1.0.el7.ppc64le.rpm',
+              'https://repo.mongodb.org/yum/redhat/8/mongodb-org/4.4/ppc64le/RPMS/mongodb-mongosh-0.1.0.el7.ppc64le.rpm',
+              'https://repo.mongodb.com/yum/redhat/8/mongodb-enterprise/4.4/ppc64le/RPMS/mongodb-mongosh-0.1.0.el7.ppc64le.rpm',
+              'https://repo.mongodb.org/yum/redhat/8/mongodb-org/5.0/ppc64le/RPMS/mongodb-mongosh-0.1.0.el7.ppc64le.rpm',
+              'https://repo.mongodb.com/yum/redhat/8/mongodb-enterprise/5.0/ppc64le/RPMS/mongodb-mongosh-0.1.0.el7.ppc64le.rpm',
+              'https://repo.mongodb.org/yum/redhat/8/mongodb-org/6.0/ppc64le/RPMS/mongodb-mongosh-0.1.0.el7.ppc64le.rpm',
+              'https://repo.mongodb.com/yum/redhat/8/mongodb-enterprise/6.0/ppc64le/RPMS/mongodb-mongosh-0.1.0.el7.ppc64le.rpm',
+            ]
           }
         ] as const).forEach(({ variant, url, publishedUrls }) => {
           it(`publishes ${variant} packages`, async() => {
