@@ -10547,25 +10547,6 @@ tasks:
         vars:
           node_js_version: "16.16.0"
           dockerfile: amazonlinux2-rpm
-  - name: pkg_test_docker_rpm_x64_openssl11_amazonlinux2022_rpm
-    tags: ["smoke-test"]
-    depends_on:
-      - name: package_and_upload_artifact_rpm_x64_openssl11
-        variant: linux_package
-    commands:
-      - func: checkout
-      - func: get_artifact_url
-        vars:
-          source_package_variant: rpm-x64-openssl11
-      - func: write_preload_script
-      - func: install
-        vars:
-          node_js_version: "16.16.0"
-          npm_deps_mode: cli_build
-      - func: test_artifact_docker
-        vars:
-          node_js_version: "16.16.0"
-          dockerfile: amazonlinux2022-rpm
   - name: pkg_test_docker_rpm_x64_openssl11_rocky8_rpm
     tags: ["smoke-test"]
     depends_on:
@@ -11041,25 +11022,6 @@ tasks:
         vars:
           node_js_version: "16.16.0"
           dockerfile: amazonlinux2-rpm
-  - name: pkg_test_docker_rpm_arm64_openssl11_amazonlinux2022_rpm
-    tags: ["smoke-test"]
-    depends_on:
-      - name: package_and_upload_artifact_rpm_arm64_openssl11
-        variant: linux_package
-    commands:
-      - func: checkout
-      - func: get_artifact_url
-        vars:
-          source_package_variant: rpm-arm64-openssl11
-      - func: write_preload_script
-      - func: install
-        vars:
-          node_js_version: "16.16.0"
-          npm_deps_mode: cli_build
-      - func: test_artifact_docker
-        vars:
-          node_js_version: "16.16.0"
-          dockerfile: amazonlinux2022-rpm
   - name: pkg_test_rpmextract_rpm_ppc64le
     tags: ["smoke-test"]
     depends_on:
@@ -11843,7 +11805,6 @@ buildvariants:
       - name: pkg_test_docker_deb_x64_openssl11_debian11_deb
       - name: pkg_test_docker_rpm_x64_openssl11_centos7_epel_rpm
       - name: pkg_test_docker_rpm_x64_openssl11_amazonlinux2_rpm
-      - name: pkg_test_docker_rpm_x64_openssl11_amazonlinux2022_rpm
       - name: pkg_test_docker_rpm_x64_openssl11_rocky8_rpm
       - name: pkg_test_docker_rpm_x64_openssl11_rocky9_rpm
       - name: pkg_test_docker_rpm_x64_openssl11_fedora34_rpm
@@ -11873,7 +11834,6 @@ buildvariants:
       - name: pkg_test_docker_rpm_arm64_openssl11_rocky9_rpm
       - name: pkg_test_docker_rpm_arm64_openssl11_fedora34_rpm
       - name: pkg_test_docker_rpm_arm64_openssl11_amazonlinux2_rpm
-      - name: pkg_test_docker_rpm_arm64_openssl11_amazonlinux2022_rpm
   - name: pkg_smoke_tests_win32
     display_name: "package smoke tests (win32)"
     run_on: ubuntu1804-small
