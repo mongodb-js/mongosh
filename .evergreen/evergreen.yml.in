@@ -1086,7 +1086,7 @@ buildvariants:
 
   - name: win32_unit
     display_name: "Windows VS 2019 (Unit tests)"
-    run_on: windows-64-vs2019-small
+    run_on: windows-2022-small
     expansions:
       executable_os_id: win32
     tasks:
@@ -1096,7 +1096,7 @@ buildvariants:
       <% } %>
   - name: win32
     display_name: "Windows VS 2019"
-    run_on: windows-64-vs2019-small
+    run_on: windows-2022-small
     expansions:
       executable_os_id: win32
     tasks:
