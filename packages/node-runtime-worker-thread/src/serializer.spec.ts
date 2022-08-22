@@ -150,7 +150,7 @@ describe('serializer', () => {
               properties: {
                 taxid: {
                   encrypt: {
-                    keyId: [ new UUID('a21ddc6a-8806-4384-9fdf-8ba02a767b5f').toBinary() ],
+                    keyId: [ new UUID('a21ddc6a-8806-4384-9fdf-8ba02a767b5f') ],
                     bsonType: 'string',
                     algorithm: 'AEAD_AES_256_CBC_HMAC_SHA_512-Random'
                   }
@@ -192,7 +192,7 @@ describe('serializer', () => {
             'hr.employees': {
               fields: [{
                 path: 'phoneNumber',
-                keyId: new UUID('fd6275d7-9260-4e6c-a86b-68ec5240814a').toBinary(),
+                keyId: new UUID('fd6275d7-9260-4e6c-a86b-68ec5240814a'),
                 bsonType: 'string',
                 queries: { queryType: 'equality', contention: new Long(0) }
               }]
