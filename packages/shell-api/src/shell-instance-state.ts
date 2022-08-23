@@ -481,7 +481,7 @@ export default class ShellInstanceState {
     return `${setNamePrefix}${serverTypePrompt}`;
   }
 
-  private getTopologySinglePrompt(description: TopologyDescription): {replicaSet: string | undefined, serverType: string} | undefined {
+  private getTopologySinglePrompt(description: TopologyDescription): { replicaSet: string | null, serverType: string } | undefined {
     if (description.servers?.size !== 1) {
       return undefined;
     }
