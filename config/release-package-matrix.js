@@ -38,8 +38,8 @@ exports.RELEASE_PACKAGE_MATRIX = [
     compileBuildVariant: 'linux_x64_build_openssl3',
     packages: [
       { name: 'linux-x64-openssl3', description: 'Linux Tarball 64-bit (shared OpenSSL 3)', packageOn: 'linux_package', smokeTestKind: 'none' },
-      { name: 'deb-x64-openssl3', description: 'Debian / Ubuntu 64-bit (shared OpenSSL 3)', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu22.04-deb'] },
-      { name: 'rpm-x64-openssl3', description: 'RHEL / CentOS 64-bit (shared OpenSSL 3)', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['rocky8-epel-rpm', 'rocky9-rpm', 'amazonlinux2022-rpm'] }
+      { name: 'deb-x64-openssl3', description: 'Debian / Ubuntu 64-bit (shared OpenSSL 3)', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu22.04-deb', 'ubuntu22.04-fips-deb'] },
+      { name: 'rpm-x64-openssl3', description: 'RHEL / CentOS 64-bit (shared OpenSSL 3)', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['rocky8-epel-rpm', 'rocky9-rpm', 'rocky9-fips-rpm', 'amazonlinux2022-rpm'] }
     ]
   },
   {
