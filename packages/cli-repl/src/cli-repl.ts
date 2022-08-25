@@ -19,6 +19,7 @@ import type { StyleDefinition } from './clr';
 import { ConfigManager, ShellHomeDirectory, ShellHomePaths } from './config-directory';
 import { CliReplErrors } from './error-codes';
 import type { CryptLibraryPathResult } from './crypt-library-paths';
+import { formatForJSONOutput } from './format-json';
 import { MongoLogManager, MongoLogWriter, mongoLogId } from 'mongodb-log-writer';
 import MongoshNodeRepl, { MongoshNodeReplOptions, MongoshIOProvider } from './mongosh-repl';
 import { setupLoggerAndTelemetry, ToggleableAnalytics } from '@mongosh/logging';
@@ -289,6 +290,10 @@ class CliRepl implements MongoshIOProvider {
     const willExecuteCommandLineScripts = commandLineLoadFiles.length > 0 || evalScripts.length > 0;
     const willEnterInteractiveMode = !willExecuteCommandLineScripts || !!this.cliOptions.shell;
 
+    if ((evalScripts.length === 0 || this.cliOptions.shell || commandLineLoadFiles.length > 0) && this.cliOptions.json) {
+      throw new MongoshRuntimeError('Cannot use --json without --eval or with --shell or with extra files');
+    }
+
     let snippetManager: SnippetManager | undefined;
     if (this.config.snippetIndexSourceURLs !== '') {
       snippetManager = SnippetManager.create({
@@ -309,7 +314,11 @@ class CliRepl implements MongoshIOProvider {
     if (willExecuteCommandLineScripts) {
       this.mongoshRepl.setIsInteractive(willEnterInteractiveMode);
       this.bus.emit('mongosh:start-loading-cli-scripts', { usesShellOption: !!this.cliOptions.shell });
-      await this.loadCommandLineFilesAndEval(commandLineLoadFiles, evalScripts);
+      const exitCode = await this.loadCommandLineFilesAndEval(commandLineLoadFiles, evalScripts);
+      if (exitCode !== 0) {
+        await this.exit(exitCode);
+        return;
+      }
       if (!this.cliOptions.shell) {
         // We flush the telemetry data as part of exiting. Make sure we have
         // the right config value.
@@ -364,14 +373,47 @@ class CliRepl implements MongoshIOProvider {
     }
   }
 
-  async loadCommandLineFilesAndEval(files: string[], evalScripts: string[]) {
-    let lastEvalResult;
-    for (const script of evalScripts) {
-      this.bus.emit('mongosh:eval-cli-script');
-      lastEvalResult = await this.mongoshRepl.loadExternalCode(script, '@(shell eval)');
+  async loadCommandLineFilesAndEval(files: string[], evalScripts: string[]): Promise<number> {
+    let lastEvalResult: any;
+    let exitCode = 0;
+    try {
+      for (const script of evalScripts) {
+        this.bus.emit('mongosh:eval-cli-script');
+        lastEvalResult = await this.mongoshRepl.loadExternalCode(script, '@(shell eval)');
+      }
+    } catch (err) {
+      // We have two distinct flows of control in the exception case;
+      // if we are running in --json mode, we treat the error as a
+      // special kind of output, otherwise we just pass the exception along.
+      // We should *probably* change this so that CliRepl.start() doesn't result
+      // in any user-caused exceptions, including script execution or failure to
+      // connect, and instead always take the --json flow, but that feels like
+      // it might be too big of a breaking change right now.
+      exitCode = 1;
+      if (this.cliOptions.json) {
+        lastEvalResult = err;
+      } else {
+        throw err;
+      }
     }
     if (lastEvalResult !== undefined) {
-      this.output.write(this.mongoshRepl.writer(lastEvalResult) + '\n');
+      let formattedResult;
+      if (this.cliOptions.json) {
+        try {
+          formattedResult = formatForJSONOutput(lastEvalResult, this.cliOptions.json);
+        } catch (e) {
+          // If formatting the result as JSON fails, instead treat the error
+          // itself as the output, as if the script had been e.g.
+          // `try { ... } catch(e) { throw EJSON.serialize(e); }`
+          // Do not try to format as EJSON repeatedly, if it fails then
+          // there's little we can do about it.
+          exitCode = 1;
+          formattedResult = formatForJSONOutput(e, this.cliOptions.json);
+        }
+      } else {
+        formattedResult = this.mongoshRepl.writer(lastEvalResult);
+      }
+      this.output.write(formattedResult + '\n');
     }
 
     for (const file of files) {
@@ -380,6 +422,7 @@ class CliRepl implements MongoshIOProvider {
       }
       await this.mongoshRepl.loadExternalFile(file);
     }
+    return exitCode;
   }
 
   /**
