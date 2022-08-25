@@ -6,7 +6,6 @@ import {
 } from './decorators';
 import {
   Document,
-  ReplPlatform,
   ClientSessionOptions,
   ClientSession,
   TransactionOptions,
@@ -21,7 +20,7 @@ import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
 import { assertArgsDefinedType, isValidDatabaseName } from './helpers';
 
 @shellApiClassDefault
-@classPlatforms([ ReplPlatform.CLI ])
+@classPlatforms([ 'CLI' ])
 export default class Session extends ShellApiWithMongoClass {
   public id: ServerSessionId | undefined;
   public _session: ClientSession;

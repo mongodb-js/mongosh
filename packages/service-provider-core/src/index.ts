@@ -1,7 +1,7 @@
 import './textencoder-polyfill'; // for mongodb-connection-string-url in the java-shell
 import ServiceProvider, { ServiceProviderCore } from './service-provider';
 import getConnectInfo, { ConnectInfo } from './connect-info';
-import { ReplPlatform } from './platform';
+import type { ReplPlatform } from './platform';
 const DEFAULT_DB = 'test';
 import {
   ObjectId,

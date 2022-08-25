@@ -648,11 +648,9 @@ export async function setHideIndex(coll: Collection, index: string | Document, h
 }
 
 export function assertCLI(platform: ReplPlatform, features: string): void {
-  if (
-    platform !== ReplPlatform.CLI
-  ) {
+  if (platform !== 'CLI') {
     throw new MongoshUnimplementedError(
-      `${features} are not supported for current platform: ${ReplPlatform[platform]}`,
+      `${features} are not supported for current platform: ${platform}`,
       CommonErrors.NotImplemented
     );
   }

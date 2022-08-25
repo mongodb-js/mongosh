@@ -13,7 +13,7 @@ import type {
   AutoEncryptionOptions
 } from './all-transport-types';
 import type { bson as BSON } from './index';
-import { ReplPlatform } from './platform';
+import type { ReplPlatform } from './platform';
 import { FLE } from './all-fle-types';
 
 

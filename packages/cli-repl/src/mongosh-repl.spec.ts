@@ -1088,7 +1088,7 @@ describe('MongoshNodeRepl', () => {
         });
         return sp;
       });
-      sp.platform = 2; // ReplPlatform.CLI ... let's maybe stop using an enum for this
+      sp.platform = 'CLI';
 
       const initialized = await mongoshRepl.initialize(serviceProvider);
       await mongoshRepl.startRepl(initialized);
