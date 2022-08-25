@@ -21,23 +21,29 @@ export async function runSmokeTests(smokeTestServer: string | undefined, executa
     assert(!!smokeTestServer, 'Make sure MONGOSH_SMOKE_TEST_SERVER is set in CI');
   }
 
-  const skipFipsWithOpenSSL3 = process.env.MONGOSH_SMOKE_TEST_OS_SKIP_FIPS_WITH_OPENSSL3 && buildInfo().opensslVersion.startsWith('3.');
   const expectFipsSupport = !!process.env.MONGOSH_SMOKE_TEST_OS_HAS_FIPS_SUPPORT && buildInfo().sharedOpenssl;
-  console.log('FIPS support required to pass?', { skipFipsWithOpenSSL3, expectFipsSupport });
+  console.log('FIPS support required to pass?', { expectFipsSupport });
 
   for (const { input, output, testArgs, includeStderr } of [{
     input: 'print("He" + "llo" + " Wor" + "ld!")',
     output: /Hello World!/,
     includeStderr: false,
     testArgs: ['--nodb'],
-  }].concat(skipFipsWithOpenSSL3 ? [] : [{
+  }, {
     input: 'crypto.createHash("md5").update("hello").digest("hex")',
     output: expectFipsSupport ?
-      /disabled for FIPS/i :
-      /disabled for FIPS|Could not enable FIPS mode/i,
+      /disabled for FIPS|digital envelope routines::unsupported/i :
+      /disabled for FIPS|digital envelope routines::unsupported|Could not enable FIPS mode/i,
     includeStderr: true,
     testArgs: ['--tlsFIPSMode', '--nodb']
-  }]).concat(smokeTestServer ? [{
+  }, {
+    input: 'crypto.createHash("sha256").update("hello").digest("hex")',
+    output: expectFipsSupport ?
+      /2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824/i :
+      /2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824|digital envelope routines::unsupported|Could not enable FIPS mode/i,
+    includeStderr: true,
+    testArgs: ['--tlsFIPSMode', '--nodb']
+  }].concat(smokeTestServer ? [{
     input: `
       const dbname = "testdb_simplesmoke" + new Date().getTime();
       use(dbname);
