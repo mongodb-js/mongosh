@@ -1,0 +1,2 @@
+# needed as a peer dependency of @mongodb-js/devtools-connect
+ignores: ['mongodb']
