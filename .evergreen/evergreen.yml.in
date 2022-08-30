@@ -776,7 +776,7 @@ tasks:
       case 'ssh': { %>
       - func: spawn_host
         vars:
-          distro: windows-64-vs2019-small
+          distro: windows-vsCurrent-small
       - func: run_pkg_tests_through_ssh
         vars:
           admin_user_name: Administrator
@@ -1085,8 +1085,8 @@ buildvariants:
       - name: e2e_tests_linux_s390x
 
   - name: win32_unit
-    display_name: "Windows VS 2019 (Unit tests)"
-    run_on: windows-64-vs2019-small
+    display_name: "Windows (Unit tests)"
+    run_on: windows-vsCurrent-small
     expansions:
       executable_os_id: win32
     tasks:
