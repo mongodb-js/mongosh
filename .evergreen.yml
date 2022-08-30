@@ -11637,7 +11637,7 @@ buildvariants:
       - name: e2e_tests_linux_s390x
 
   - name: win32_unit
-    display_name: "Windows VS 2019 (Unit tests)"
+    display_name: "Windows (Unit tests)"
     run_on: windows-vsCurrent-small
     expansions:
       executable_os_id: win32
@@ -11765,7 +11765,7 @@ buildvariants:
       - name: test_n14_types
   - name: win32
     display_name: "Windows VS 2019"
-    run_on: windows-vsCurrent-small
+    run_on: windows-64-vs2019-small
     expansions:
       executable_os_id: win32
     tasks:
@@ -11774,7 +11774,7 @@ buildvariants:
       - name: package_and_upload_artifact_win32msi_x64
   - name: win32_build
     display_name: "Windows VS 2019 (build)"
-    run_on: windows-vsCurrent-small
+    run_on: windows-64-vs2019-build
     expansions:
       executable_os_id: win32
     tasks:
