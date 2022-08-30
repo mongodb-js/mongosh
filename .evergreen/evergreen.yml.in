@@ -865,7 +865,7 @@ tasks:
 buildvariants:
   - name: darwin_unit
     display_name: "MacOS Mojave (Unit tests)"
-    run_on: macos-1014
+    run_on: macos-1100
     expansions:
       executable_os_id: darwin-x64
     tasks:
