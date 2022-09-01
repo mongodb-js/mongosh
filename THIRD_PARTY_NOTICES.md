@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Tue Aug 30 2022.
+This document was automatically generated on Thu Sep 01 2022.
 
 ## List of dependencies
 
@@ -185,7 +185,7 @@ Package|Version|License
 **[minizlib](#cce17959eefb79a78461796cc716519d9f9ba1b56fa35ae9bb2f589c61514cd2)**|2.1.2|MIT
 **[mkdirp](#f34eebd27506e3aa07ba3b64064715e0c4f310dad1207ad88fff362353cd4cce)**|1.0.4|MIT
 **[mkdirp-classic](#e79cc875152b50c2eb57a97163d99f0155bf4e4af7ba4a7e01c12a17a4a3305c)**|0.5.3|MIT
-**[mongodb](#6967699e1871ad759daeba0ed47d708aca23817ba3977f9e4c3e7a1c0f98aa0d)**|4.9.0|Apache-2.0
+**[mongodb](#c7041c61d165b0287fe6d5b4db51cbf52640bbb0d5a747043acd0133df0b4c5c)**|4.9.1|Apache-2.0
 **[mongodb-ace-autocompleter](#77d4f48b8f17bee83995284d4449d815e79f6a3ab4f1984e0793407939336d0e)**|0.11.0|Apache-2.0
 **[mongodb-build-info](#1a7482a12b855301c3b063265543999a78d8e0ec3b3ad432782858594febd16c)**|1.4.0|Apache-2.0
 **[mongodb-client-encryption](#67b390ebe5f911e18d539fc364193dd22f77b462bc9c5bb5a8b9b7680b93cf43)**|2.2.0|Apache-2.0
@@ -11881,8 +11881,8 @@ Authors:
 * Mathias Buus (@mafintosh)
 
 
-<a id="6967699e1871ad759daeba0ed47d708aca23817ba3977f9e4c3e7a1c0f98aa0d"></a>
-### [mongodb](https://www.npmjs.com/package/mongodb) (version 4.9.0)
+<a id="c7041c61d165b0287fe6d5b4db51cbf52640bbb0d5a747043acd0133df0b4c5c"></a>
+### [mongodb](https://www.npmjs.com/package/mongodb) (version 4.9.1)
 <!-- initially found at packages/service-provider-core/node_modules/mongodb -->
 > The official MongoDB driver for Node.js
 
