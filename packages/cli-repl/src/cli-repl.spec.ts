@@ -523,6 +523,137 @@ describe('CliRepl', () => {
         });
       });
 
+      context('in --json mode', () => {
+        beforeEach(() => {
+          cliReplOptions.shellCliOptions.quiet = true;
+        });
+
+        it('serializes results as EJSON with --json', async() => {
+          cliReplOptions.shellCliOptions.eval = ['({ a: Long("0") })'];
+          cliReplOptions.shellCliOptions.json = true;
+          cliRepl = new CliRepl(cliReplOptions);
+          await startWithExpectedImmediateExit(cliRepl, '');
+          expect(JSON.parse(output)).to.deep.equal({ a: { $numberLong: '0' } });
+          expect(exitCode).to.equal(0);
+        });
+
+        it('serializes results as EJSON with --json=canonical', async() => {
+          cliReplOptions.shellCliOptions.eval = ['({ a: Long("0") })'];
+          cliReplOptions.shellCliOptions.json = 'canonical';
+          cliRepl = new CliRepl(cliReplOptions);
+          await startWithExpectedImmediateExit(cliRepl, '');
+          expect(JSON.parse(output)).to.deep.equal({ a: { $numberLong: '0' } });
+          expect(exitCode).to.equal(0);
+        });
+
+        it('serializes results as EJSON with --json=relaxed', async() => {
+          cliReplOptions.shellCliOptions.eval = ['({ a: Long("0") })'];
+          cliReplOptions.shellCliOptions.json = 'relaxed';
+          cliRepl = new CliRepl(cliReplOptions);
+          await startWithExpectedImmediateExit(cliRepl, '');
+          expect(JSON.parse(output)).to.deep.equal({ a: 0 });
+          expect(exitCode).to.equal(0);
+        });
+
+        it('serializes user errors as EJSON with --json', async() => {
+          cliReplOptions.shellCliOptions.eval = ['throw new Error("asdf")'];
+          cliReplOptions.shellCliOptions.json = true;
+          cliRepl = new CliRepl(cliReplOptions);
+          await startWithExpectedImmediateExit(cliRepl, '');
+          const parsed = JSON.parse(output);
+          expect(parsed).to.haveOwnProperty('message', 'asdf');
+          expect(parsed).to.haveOwnProperty('name', 'Error');
+          expect(parsed.stack).to.be.a('string');
+          expect(exitCode).to.equal(1);
+        });
+
+        it('serializes mongosh errors as EJSON with --json', async() => {
+          cliReplOptions.shellCliOptions.eval = ['db'];
+          cliReplOptions.shellCliOptions.json = true;
+          cliRepl = new CliRepl(cliReplOptions);
+          await startWithExpectedImmediateExit(cliRepl, '');
+          const parsed = JSON.parse(output);
+          expect(parsed).to.haveOwnProperty('message', '[SHAPI-10004] No connected database');
+          expect(parsed).to.haveOwnProperty('name', 'MongoshInvalidInputError');
+          expect(parsed).to.haveOwnProperty('code', 'SHAPI-10004');
+          expect(parsed.stack).to.be.a('string');
+          expect(exitCode).to.equal(1);
+        });
+
+        it('serializes primitive exceptions as EJSON with --json', async() => {
+          cliReplOptions.shellCliOptions.eval = ['throw null'];
+          cliReplOptions.shellCliOptions.json = true;
+          cliRepl = new CliRepl(cliReplOptions);
+          await startWithExpectedImmediateExit(cliRepl, '');
+          const parsed = JSON.parse(output);
+          expect(parsed).to.haveOwnProperty('message', 'null');
+          expect(parsed).to.haveOwnProperty('name', 'Error');
+          expect(parsed.stack).to.be.a('string');
+          expect(exitCode).to.equal(1);
+        });
+
+        it('handles first-attempt EJSON serialization errors', async() => {
+          cliReplOptions.shellCliOptions.eval = ['({ toJSON() { throw new Error("nested error"); }})'];
+          cliReplOptions.shellCliOptions.json = true;
+          cliRepl = new CliRepl(cliReplOptions);
+          await startWithExpectedImmediateExit(cliRepl, '');
+          const parsed = JSON.parse(output);
+          expect(parsed).to.haveOwnProperty('message', 'nested error');
+          expect(parsed).to.haveOwnProperty('name', 'Error');
+          expect(parsed.stack).to.be.a('string');
+          expect(exitCode).to.equal(1);
+        });
+
+        it('does not handle second-attempt EJSON serialization errors', async() => {
+          cliReplOptions.shellCliOptions.eval = ['({ toJSON() { throw ({ toJSON() { throw new Error("nested error") }}) }})'];
+          cliReplOptions.shellCliOptions.json = true;
+          cliRepl = new CliRepl(cliReplOptions);
+          try {
+            await cliRepl.start('', {});
+            expect.fail('missed exception');
+          } catch (err) {
+            expect(err.message).to.equal('nested error');
+          }
+        });
+
+        it('rejects --json without --eval specifications', async() => {
+          cliReplOptions.shellCliOptions.json = true;
+          cliRepl = new CliRepl(cliReplOptions);
+          try {
+            await cliRepl.start('', {});
+            expect.fail('missed exception');
+          } catch (err) {
+            expect(err.message).to.equal('Cannot use --json without --eval or with --shell or with extra files');
+          }
+        });
+
+        it('rejects --json with --shell specifications', async() => {
+          cliReplOptions.shellCliOptions.eval = ['1'];
+          cliReplOptions.shellCliOptions.json = true;
+          cliReplOptions.shellCliOptions.shell = true;
+          cliRepl = new CliRepl(cliReplOptions);
+          try {
+            await cliRepl.start('', {});
+            expect.fail('missed exception');
+          } catch (err) {
+            expect(err.message).to.equal('Cannot use --json without --eval or with --shell or with extra files');
+          }
+        });
+
+        it('rejects --json with --file specifications', async() => {
+          cliReplOptions.shellCliOptions.eval = ['1'];
+          cliReplOptions.shellCliOptions.json = true;
+          cliReplOptions.shellCliOptions.fileNames = ['a.js'];
+          cliRepl = new CliRepl(cliReplOptions);
+          try {
+            await cliRepl.start('', {});
+            expect.fail('missed exception');
+          } catch (err) {
+            expect(err.message).to.equal('Cannot use --json without --eval or with --shell or with extra files');
+          }
+        });
+      });
+
       context('with a global configuration file', () => {
         it('loads a global config file as YAML if present', async() => {
           const globalConfigFile = path.join(tmpdir.path, 'globalconfig.conf');
@@ -1402,7 +1533,7 @@ describe('CliRepl', () => {
 
   context('with a mongos', () => {
     verifyAutocompletion({
-      testServer: startTestServer('not-shared', '--replicaset', '--sharded', '0'),
+      testServer: startTestServer('not-shared', '--replicaset', '--csrs', '--sharded', '0'),
       wantWatch: true,
       wantShardDistribution: true,
       hasCollectionNames: false, // We're only spinning up a mongos here
