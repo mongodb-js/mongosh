@@ -88,6 +88,7 @@ export default class Cursor extends AbstractCursor<ServiceProviderCursor> {
 
   @serverVersions([ServerVersions.earliest, '4.0.0'])
   @returnsPromise
+  @deprecated
   async count(): Promise<number> {
     return this._cursor.count();
   }

@@ -481,7 +481,6 @@ describe('completer.completer', () => {
         'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).allowPartialResults',
         'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).batchSize',
         'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).close',
-        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).count',
         'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).explain',
         'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).forEach',
         'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).hasNext',
