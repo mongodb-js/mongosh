@@ -1635,6 +1635,10 @@ const translations: Catalog = {
               link: 'https://docs.mongodb.com/manual/reference/method/sh.setBalancerState',
               description: 'Calls sh.startBalancer if state is true, otherwise calls sh.stopBalancer',
               example: 'sh.setBalancerState(state)',
+            },
+            getShardedDataDistribution: {
+              description: 'Returns data-size distribution information for all existing sharded collections',
+              example: 'sh.getShardedDataDistribution()',
             }
           }
         }
