@@ -1,5 +1,5 @@
 import path from 'path';
-import { BuildVariant, getDistro, getArch } from '../../config';
+import { PackageVariant, getDistro, getArch } from '../../config';
 import { createDebianPackage as createDebianPackageFn } from './debian';
 import { getPackageFile, PackageFile } from './get-package-file';
 import { createMsiPackage as createMsiPackageFn } from './msi';
@@ -13,7 +13,7 @@ import { createZipPackage as createZipPackageFn } from './zip';
  */
 export async function createPackage(
   outputDir: string,
-  buildVariant: BuildVariant,
+  packageVariant: PackageVariant,
   packageInformation: PackageInformation,
   createTarballPackage: typeof createTarballPackageFn = createTarballPackageFn,
   createRedhatPackage: typeof createRedhatPackageFn = createRedhatPackageFn,
@@ -21,33 +21,29 @@ export async function createPackage(
   createMsiPackage: typeof createMsiPackageFn = createMsiPackageFn,
   createZipPackage: typeof createZipPackageFn = createZipPackageFn
 ): Promise<PackageFile> {
-  const tarballFile = getPackageFile(buildVariant, packageInformation);
+  const tarballFile = getPackageFile(packageVariant, () => packageInformation);
   const fullTarballFilePath = path.join(outputDir, tarballFile.path);
   console.info('mongosh: gzipping:', fullTarballFilePath);
 
-  switch (getDistro(buildVariant)) {
+  switch (getDistro(packageVariant)) {
     case 'linux':
       await createTarballPackage(packageInformation, fullTarballFilePath);
       break;
-    case 'rhel7':
-    case 'rhel8':
-    case 'suse':
-    case 'amzn1':
-    case 'amzn2':
-      await createRedhatPackage(packageInformation, packageInformation.rpmTemplateDir, getArch(buildVariant), fullTarballFilePath);
+    case 'rpm':
+      await createRedhatPackage(packageInformation, packageInformation.rpmTemplateDir, getArch(packageVariant), fullTarballFilePath);
       break;
-    case 'debian':
-      await createDebianPackage(packageInformation, packageInformation.debTemplateDir, getArch(buildVariant), fullTarballFilePath);
+    case 'deb':
+      await createDebianPackage(packageInformation, packageInformation.debTemplateDir, getArch(packageVariant), fullTarballFilePath);
       break;
     case 'win32msi':
-      await createMsiPackage(packageInformation, packageInformation.msiTemplateDir, getArch(buildVariant), fullTarballFilePath);
+      await createMsiPackage(packageInformation, packageInformation.msiTemplateDir, getArch(packageVariant), fullTarballFilePath);
       break;
     case 'darwin':
     case 'win32':
       await createZipPackage(packageInformation, fullTarballFilePath);
       break;
     default:
-      throw new Error(`Unhandled build variant: ${buildVariant}`);
+      throw new Error(`Unhandled build variant: ${packageVariant}`);
   }
 
   return {

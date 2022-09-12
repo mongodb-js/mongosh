@@ -29,7 +29,8 @@ export const USAGE = `
         --nodb                                 ${i18n.__('cli-repl.args.nodb')}
         --norc                                 ${i18n.__('cli-repl.args.norc')}
         --eval [arg]                           ${i18n.__('cli-repl.args.eval')}
-        --retryWrites                          ${i18n.__('cli-repl.args.retryWrites')}
+        --json[=canonical|relaxed]             ${i18n.__('cli-repl.args.json')}
+        --retryWrites[=true|false]             ${i18n.__('cli-repl.args.retryWrites')}
 
   ${clr(i18n.__('cli-repl.args.authenticationOptions'), 'mongosh:section-header')}
 
@@ -54,6 +55,7 @@ export const USAGE = `
         --tlsCRLFile [arg]                     ${i18n.__('cli-repl.args.tlsCRLFile')}
         --tlsDisabledProtocols [arg]           ${i18n.__('cli-repl.args.tlsDisabledProtocols')}
         --tlsUseSystemCA                       ${i18n.__('cli-repl.args.tlsUseSystemCA')}
+        --tlsFIPSMode                          ${i18n.__('cli-repl.args.tlsFIPSMode')}
 
   ${clr(i18n.__('cli-repl.args.apiVersionOptions'), 'mongosh:section-header')}
 

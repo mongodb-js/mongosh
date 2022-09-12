@@ -155,7 +155,13 @@ for (const colors of [ false, true ]) {
           type: 'ShowDatabasesResult'
         }));
 
-        expect(output).to.contain('admin     45.1 kB\ndxl       8.19 kB\nsupplies  2.24 MB\ntest      5.66 MB\ntest       600 GB');
+        expect(output).to.equal(`
+admin      44.00 KiB
+dxl         8.00 KiB
+supplies    2.13 MiB
+test        5.40 MiB
+test      558.79 GiB
+`.trim());
       });
     });
 
@@ -172,7 +178,7 @@ for (const colors of [ false, true ]) {
           type: 'ShowCollectionsResult'
         }));
 
-        expect(output).to.contain('nested_documents\ndecimal128\ncoll\npeople_imported   [view]\ncats              [time-series]');
+        expect(output).to.equal('nested_documents\ndecimal128\ncoll\npeople_imported   [view]\ncats              [time-series]');
       });
     });
 
@@ -364,6 +370,20 @@ for (const colors of [ false, true ]) {
           expect(output).to.contain('level20');
         });
       }
+    });
+
+    context('when the result is ShowBannerResult', () => {
+      it('returns a formatted banner', () => {
+        const output = stripAnsiColors(format({
+          value: {
+            header: 'Header',
+            content: 'foo\nbar\n'
+          },
+          type: 'ShowBannerResult'
+        }));
+
+        expect(output).to.equal('------\n   Header\n   foo\n   bar\n------\n');
+      });
     });
   });
 }

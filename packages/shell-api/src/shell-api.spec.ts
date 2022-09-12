@@ -7,7 +7,7 @@ import { nonAsyncFunctionsReturningPromises } from './decorators';
 import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, ALL_API_VERSIONS } from './enums';
 import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
 import Mongo from './mongo';
-import { ReplPlatform, ServiceProvider, bson, MongoClient } from '@mongosh/service-provider-core';
+import { ServiceProvider, bson, MongoClient } from '@mongosh/service-provider-core';
 import { EventEmitter } from 'events';
 import ShellInstanceState, { EvaluationListener } from './shell-instance-state';
 
@@ -64,7 +64,7 @@ describe('ShellApi', () => {
         returnsPromise: true,
         deprecated: false,
         returnType: { type: 'unknown', attributes: {} },
-        platforms: [ ReplPlatform.CLI ],
+        platforms: [ 'CLI' ],
         topologies: ALL_TOPOLOGIES,
         apiVersions: ALL_API_VERSIONS,
         serverVersions: ALL_SERVER_VERSIONS,
@@ -142,7 +142,7 @@ describe('ShellApi', () => {
         returnsPromise: true,
         deprecated: false,
         returnType: 'Mongo',
-        platforms: [ ReplPlatform.CLI ],
+        platforms: [ 'CLI' ],
         topologies: ALL_TOPOLOGIES,
         apiVersions: ALL_API_VERSIONS,
         serverVersions: ALL_SERVER_VERSIONS,
@@ -155,7 +155,7 @@ describe('ShellApi', () => {
         returnsPromise: true,
         deprecated: false,
         returnType: 'Database',
-        platforms: [ ReplPlatform.CLI ],
+        platforms: [ 'CLI' ],
         topologies: ALL_TOPOLOGIES,
         apiVersions: ALL_API_VERSIONS,
         serverVersions: ALL_SERVER_VERSIONS,
@@ -195,7 +195,7 @@ describe('ShellApi', () => {
       mongo._serviceProvider = serviceProvider;
       instanceState = new ShellInstanceState(serviceProvider, bus);
       instanceState.currentDb._mongo = mongo;
-      serviceProvider.platform = ReplPlatform.CLI;
+      serviceProvider.platform = 'CLI';
     });
     describe('use', () => {
       beforeEach(() => {
@@ -227,7 +227,7 @@ describe('ShellApi', () => {
     });
     describe('Mongo', () => {
       beforeEach(() => {
-        serviceProvider.platform = ReplPlatform.CLI;
+        serviceProvider.platform = 'CLI';
       });
       it('returns a new Mongo object', async() => {
         const m = await instanceState.shellApi.Mongo('localhost:27017');
@@ -235,7 +235,7 @@ describe('ShellApi', () => {
         expect(m._uri).to.equal('mongodb://localhost:27017/?directConnection=true&serverSelectionTimeoutMS=2000');
       });
       it('fails for non-CLI', async() => {
-        serviceProvider.platform = ReplPlatform.Browser;
+        serviceProvider.platform = 'Browser';
         try {
           await instanceState.shellApi.Mongo('uri');
         } catch (e: any) {
@@ -415,13 +415,13 @@ describe('ShellApi', () => {
     });
     describe('connect', () => {
       it('returns a new DB', async() => {
-        serviceProvider.platform = ReplPlatform.CLI;
+        serviceProvider.platform = 'CLI';
         const db = await instanceState.shellApi.connect('localhost:27017', 'username', 'pwd');
         expect((await toShellResult(db)).type).to.equal('Database');
         expect(db.getMongo()._uri).to.equal('mongodb://username:pwd@localhost:27017/?directConnection=true&serverSelectionTimeoutMS=2000');
       });
       it('fails with no arg', async() => {
-        serviceProvider.platform = ReplPlatform.CLI;
+        serviceProvider.platform = 'CLI';
         try {
           await (instanceState.shellApi as any).connect();
         } catch (e: any) {
@@ -452,7 +452,7 @@ describe('ShellApi', () => {
       newSP.initialDb = 'test';
       serviceProvider = stubInterface<ServiceProvider>({ getNewConnection: newSP });
       serviceProvider.initialDb = 'test';
-      serviceProvider.platform = ReplPlatform.CLI;
+      serviceProvider.platform = 'CLI';
       serviceProvider.bsonLibrary = bson;
       mongo = stubInterface<Mongo>();
       mongo._serviceProvider = serviceProvider;
@@ -497,7 +497,7 @@ describe('ShellApi', () => {
     });
     describe('Mongo', () => {
       beforeEach(() => {
-        serviceProvider.platform = ReplPlatform.CLI;
+        serviceProvider.platform = 'CLI';
       });
       it('returns a new Mongo object', async() => {
         const m = await instanceState.context.Mongo('mongodb://127.0.0.1:27017');
@@ -510,7 +510,7 @@ describe('ShellApi', () => {
         expect(m._uri).to.equal('mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000');
       });
       it('fails for non-CLI', async() => {
-        serviceProvider.platform = ReplPlatform.Browser;
+        serviceProvider.platform = 'Browser';
         try {
           await instanceState.shellApi.Mongo('mongodb://127.0.0.1:27017');
         } catch (e: any) {
@@ -521,13 +521,13 @@ describe('ShellApi', () => {
     });
     describe('connect', () => {
       it('returns a new DB', async() => {
-        serviceProvider.platform = ReplPlatform.CLI;
+        serviceProvider.platform = 'CLI';
         const db = await instanceState.context.connect('mongodb://127.0.0.1:27017');
         expect((await toShellResult(db)).type).to.equal('Database');
         expect(db.getMongo()._uri).to.equal('mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000');
       });
       it('handles username/pwd', async() => {
-        serviceProvider.platform = ReplPlatform.CLI;
+        serviceProvider.platform = 'CLI';
         const db = await instanceState.context.connect('mongodb://127.0.0.1:27017', 'username', 'pwd');
         expect((await toShellResult(db)).type).to.equal('Database');
         expect(db.getMongo()._uri).to.equal('mongodb://username:pwd@127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000');

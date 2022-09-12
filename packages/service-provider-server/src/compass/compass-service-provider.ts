@@ -1,6 +1,6 @@
 import CliServiceProvider, { DevtoolsConnectOptions } from '../cli-service-provider';
 import { MongoClient } from 'mongodb';
-import { ReplPlatform } from '@mongosh/service-provider-core';
+import type { ReplPlatform } from '@mongosh/service-provider-core';
 import ConnectionString from 'mongodb-connection-string-url';
 import { EventEmitter } from 'events';
 
@@ -30,7 +30,7 @@ class CompassServiceProvider extends CliServiceProvider {
     uri?: ConnectionString
   ) {
     super(mongoClient, bus, driverOptions, uri);
-    this.platform = ReplPlatform.Compass;
+    this.platform = 'Compass';
   }
   /**
    * Creates a new CompassServiceProvider that uses compass

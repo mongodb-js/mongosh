@@ -11,7 +11,7 @@ const { COPYFILE_FICLONE } = constants;
 interface InstallFile {
   fromFilename: string;
   toFilename: string;
-  category: 'man' | 'bin' | 'libexec';
+  category: 'man' | 'bin' | 'libexec' | 'lib';
   mode: string;
 }
 
@@ -37,7 +37,7 @@ export async function createRedhatPackage(
       fromFilename: path.basename(sourceFilePath),
       toFilename: path.basename(sourceFilePath),
       category,
-      mode: '755'
+      mode: category === 'lib' ? '644' : '755'
     }));
   if (pkg.manpage) {
     installFiles.push({
@@ -69,7 +69,8 @@ export async function createRedhatPackage(
     licenseRpm,
     installscriptRpm,
     filelistRpm: filelistRpm.join('\n'),
-    version
+    version,
+    provides: pkg.metadata.provides.map(({ name, version }) => `${name} = ${version}`).join(', ')
   });
   // Copy all files that we want to ship into the BUILD directory.
   for (const { sourceFilePath } of pkg.binaries) {

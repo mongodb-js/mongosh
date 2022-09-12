@@ -15,6 +15,7 @@ try {
     };
 };
 
+require('../../../../service-provider-core'); // Ensure TextEncoder polyfill is loaded early enough
 const ShellApi = require('../../../../shell-api/');
 const ShellEvaluator = require('../../../../shell-evaluator/').default;
 

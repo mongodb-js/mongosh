@@ -4,7 +4,7 @@ import Shard from './shard';
 import { ADMIN_DB, ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';
 import { signatures, toShellResult } from './index';
 import Mongo from './mongo';
-import { bson, ServiceProvider, FindCursor as ServiceProviderCursor } from '@mongosh/service-provider-core';
+import { bson, ServiceProvider, FindCursor as ServiceProviderCursor, AggregationCursor as ServiceProviderAggCursor } from '@mongosh/service-provider-core';
 import { EventEmitter } from 'events';
 import ShellInstanceState from './shell-instance-state';
 import { UpdateResult } from './result';
@@ -1182,6 +1182,21 @@ describe('Shard', () => {
         const caughtError = await shard.setBalancerState(true)
           .catch(e => e);
         expect(caughtError).to.equal(expectedError);
+      });
+    });
+    describe('getShardedDataDistribution', () => {
+      it('throws if aggregateDb fails', async() => {
+        serviceProvider.aggregateDb.throws(new Error('err'));
+        const error: any = await shard.getShardedDataDistribution().catch(err => err);
+        expect(error.message).to.be.equal('err');
+      });
+
+      it('throws if not mongos', async() => {
+        const serviceProviderCursor = stubInterface<ServiceProviderAggCursor>();
+        serviceProvider.aggregateDb.returns(serviceProviderCursor as any);
+        serviceProviderCursor.hasNext.throws(Object.assign(new Error(), { code: 40324 }));
+        const error: any = await shard.getShardedDataDistribution().catch(err => err);
+        expect(error.message).to.match(/sh\.getShardedDataDistribution only works on mongos/);
       });
     });
   });

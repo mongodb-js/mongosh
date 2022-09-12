@@ -23,8 +23,9 @@ const OPTIONS = {
     'awsSecretAccessKey',
     'awsSessionToken',
     'awsIamSessionToken',
+    'csfleLibraryPath',
+    'cryptSharedLibPath',
     'db',
-    'eval',
     'gssapiHostName',
     'gssapiServiceName',
     'sspiHostnameCanonicalization',
@@ -74,6 +75,7 @@ const OPTIONS = {
     'version'
   ],
   array: [
+    'eval',
     'file'
   ],
   alias: {
@@ -81,7 +83,8 @@ const OPTIONS = {
     p: 'password',
     u: 'username',
     f: 'file',
-    'build-info': 'buildInfo'
+    'build-info': 'buildInfo',
+    json: 'json' // List explicitly here since it can be a boolean or a string
   },
   configuration: {
     'camel-case-expansion': false,
@@ -114,7 +117,6 @@ const DEPRECATED_ARGS_WITH_REPLACEMENT: Record<string, keyof CliOptions> = {
  */
 const UNSUPPORTED_ARGS: Readonly<string[]> = [
   'sslFIPSMode',
-  'tlsFIPSMode',
   'gssapiHostName'
 ];
 
@@ -187,10 +189,17 @@ export function verifyCliArguments(args: any /* CliOptions */): string[] {
   for (const unsupported of UNSUPPORTED_ARGS) {
     if (unsupported in args) {
       throw new MongoshUnimplementedError(
-        `Argument --${unsupported} is not yet supported in mongosh`,
+        `Argument --${unsupported} is not supported in mongosh`,
         CommonErrors.InvalidArgument
       );
     }
+  }
+
+  if (![undefined, true, false, 'relaxed', 'canonical'].includes(args.json)) {
+    throw new MongoshUnimplementedError(
+      '--json can only have the values relaxed or canonical',
+      CommonErrors.InvalidArgument
+    );
   }
 
   const messages = [];

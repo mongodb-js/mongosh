@@ -10,7 +10,7 @@ const standalone440 = {
   apiVersionInfo: () => undefined,
   connectionInfo: () => ({
     is_atlas: false,
-    is_data_lake: false,
+    is_data_federation: false,
     server_version: '4.4.0'
   }),
   getCollectionCompletionsForCurrentDb: () => collections,
@@ -28,7 +28,7 @@ const sharded440 = {
   apiVersionInfo: () => undefined,
   connectionInfo: () => ({
     is_atlas: false,
-    is_data_lake: false,
+    is_data_federation: false,
     server_version: '4.4.0'
   }),
   getCollectionCompletionsForCurrentDb: () => collections,
@@ -40,7 +40,7 @@ const standalone300 = {
   apiVersionInfo: () => undefined,
   connectionInfo: () => ({
     is_atlas: false,
-    is_data_lake: false,
+    is_data_federation: false,
     server_version: '3.0.0'
   }),
   getCollectionCompletionsForCurrentDb: () => collections,
@@ -51,7 +51,7 @@ const datalake440 = {
   apiVersionInfo: () => undefined,
   connectionInfo: () => ({
     is_atlas: true,
-    is_data_lake: true,
+    is_data_federation: true,
     server_version: '4.4.0'
   }),
   getCollectionCompletionsForCurrentDb: () => collections,
@@ -481,7 +481,6 @@ describe('completer.completer', () => {
         'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).allowPartialResults',
         'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).batchSize',
         'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).close',
-        'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).count',
         'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).explain',
         'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).forEach',
         'db.shipwrecks.find({feature_type: \"Wrecks - Visible\"}).hasNext',

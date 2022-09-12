@@ -964,6 +964,25 @@ export default class Collection extends ShellApiWithMongoClass {
   }
 
   /**
+   * Compacts structured encryption data.
+   *
+   * @return {Promise}
+   */
+  @returnsPromise
+  @apiVersions([])
+  async compactStructuredEncryptionData(): Promise<Document> {
+    if (!this._mongo._fleOptions) {
+      throw new MongoshInvalidInputError(
+        'The "compactStructuredEncryptionData" command requires Mongo instance configured with auto encryption.',
+        CommonErrors.InvalidArgument
+      );
+    }
+
+    this._emitCollectionApiCall('compactStructuredEncryptionData');
+    return await this._database._runCommand({ compactStructuredEncryptionData: this._name });
+  }
+
+  /**
    * Converts a collection to capped
    *
    * @param {String} size - The maximum size, in bytes, for the capped collection.
@@ -981,6 +1000,7 @@ export default class Collection extends ShellApiWithMongoClass {
       }
     );
   }
+
   /**
    * Internal function which calls the Service Provider createIndexes function.
    * This function is used also by createIndex and ensureIndex
@@ -1340,11 +1360,36 @@ export default class Collection extends ShellApiWithMongoClass {
   async drop(options: DropCollectionOptions = {}): Promise<boolean> {
     this._emitCollectionApiCall('drop');
 
+    let encryptedFieldsOptions = {};
+
+    const encryptedFieldsMap = this._mongo._fleOptions?.encryptedFieldsMap;
+    const encryptedFields: Document | undefined = encryptedFieldsMap?.[`${this._database._name}.${ this._name}`];
+
+    if (!encryptedFields && !options.encryptedFields) {
+      try {
+        const collectionInfos = await this._mongo._serviceProvider.listCollections(
+          this._database._name,
+          {
+            name: this._name
+          },
+          await this._database._baseOptions()
+        );
+
+        const encryptedFields: Document | undefined = collectionInfos?.[0]?.options?.encryptedFields;
+
+        if (encryptedFields) {
+          encryptedFieldsOptions = { encryptedFields };
+        }
+      } catch (error) {
+        // pass, ignore all error messages
+      }
+    }
+
     try {
       return await this._mongo._serviceProvider.dropCollection(
         this._database._name,
         this._name,
-        { ...await this._database._baseOptions(), ...options }
+        { ...await this._database._baseOptions(), ...options, ...encryptedFieldsOptions }
       );
     } catch (error: any) {
       if (error?.codeName === 'NamespaceNotFound') {

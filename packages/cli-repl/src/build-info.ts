@@ -1,14 +1,14 @@
-import os from 'os';
-
 export type BuildInfo = {
   version: string;
   nodeVersion: string;
   distributionKind: 'unpackaged' | 'packaged' | 'compiled';
-  buildArch: string;
-  buildPlatform: string;
+  buildArch: typeof process['arch'];
+  buildPlatform: typeof process['platform'];
   buildTarget: string;
   buildTime: string | null;
   gitVersion: string | null;
+  opensslVersion: string;
+  sharedOpenssl: boolean;
 };
 
 /**
@@ -16,8 +16,13 @@ export type BuildInfo = {
  * in particular, when it was built and how.
  */
 export function buildInfo(): BuildInfo {
+  const runtimeData = {
+    nodeVersion: process.version,
+    opensslVersion: process.versions.openssl,
+    sharedOpenssl: !!process.config.variables.node_shared_openssl
+  };
   try {
-    const buildInfo = { ...require('./build-info.json'), nodeVersion: process.version };
+    const buildInfo = { ...require('./build-info.json'), ...runtimeData };
     delete buildInfo.segmentApiKey;
     return buildInfo;
   } catch {
@@ -25,12 +30,12 @@ export function buildInfo(): BuildInfo {
     return {
       version,
       distributionKind: 'unpackaged',
-      buildArch: os.arch(),
-      buildPlatform: os.platform(),
+      buildArch: process.arch,
+      buildPlatform: process.platform,
       buildTarget: 'unknown',
       buildTime: null,
       gitVersion: null,
-      nodeVersion: process.version
+      ...runtimeData
     };
   }
 }

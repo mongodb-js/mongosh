@@ -52,7 +52,7 @@ export interface ConnectEvent {
   server_arch?: string;
   is_enterprise: boolean;
   auth_type?: string;
-  is_data_lake: boolean;
+  is_data_federation: boolean;
   dl_version?: string;
   is_genuine: boolean;
   non_genuine_server_name: string;
@@ -77,16 +77,15 @@ export interface GlobalConfigFileLoadEvent {
   found: boolean;
 }
 
-export interface MongocryptdTrySpawnEvent {
-  spawnPath: string[];
-  path: string;
+export interface CryptLibrarySkipEvent {
+  cryptSharedLibPath: string;
+  reason: string;
+  details?: any;
 }
 
-export interface MongocryptdErrorEvent {
-  cause: string;
-  error?: Error;
-  stderr?: string;
-  pid?: number;
+export interface CryptLibraryFoundEvent {
+  cryptSharedLibPath: string;
+  expectedVersion: { versionStr: string };
 }
 
 export interface MongocryptdLogEvent {
@@ -262,17 +261,13 @@ export interface MongoshBusEventsMap extends ConnectEventMap {
    */
   'mongosh:eval-interrupted': () => void;
   /**
-   * Signals the start of trying to spawn a `mongocryptd` process.
+   * Signals that a potential crypt library search path was skipped.
    */
-  'mongosh:mongocryptd-tryspawn': (ev: MongocryptdTrySpawnEvent) => void;
+  'mongosh:crypt-library-load-skip': (ev: CryptLibrarySkipEvent) => void;
   /**
-   * Signals an error while interfacing with a `mongocryptd` process.
+   * Signals that a potential crypt library search path was accepted.
    */
-  'mongosh:mongocryptd-error': (ev: MongocryptdErrorEvent) => void;
-  /**
-   * Signals an event to be logged for a `mongocryptd` process.
-   */
-  'mongosh:mongocryptd-log': (ev: MongocryptdLogEvent) => void;
+  'mongosh:crypt-library-load-found': (ev: CryptLibraryFoundEvent) => void;
   /**
    * Signals that the CLI REPL's `close` method has completed.
    * _ONLY AVAILABLE FOR TESTING._

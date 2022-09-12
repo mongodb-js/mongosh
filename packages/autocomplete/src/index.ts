@@ -20,7 +20,7 @@ export interface AutocompleteParameters {
   topology: () => Topologies;
   connectionInfo: () => undefined | {
     is_atlas: boolean;
-    is_data_lake: boolean;
+    is_data_federation: boolean;
     server_version: string;
   },
   apiVersionInfo: () => { version: string, strict: boolean } | undefined;
@@ -192,7 +192,7 @@ function isAcceptable(
   const isAcceptableEnvironment =
     !entry.env ||
     !connectionInfo ||
-    (connectionInfo.is_data_lake ? entry.env.includes(ADL) :
+    (connectionInfo.is_data_federation ? entry.env.includes(ADL) :
       connectionInfo.is_atlas ? entry.env.includes(ATLAS) :
         entry.env.includes(ON_PREM));
   return isAcceptableVersion && isAcceptableEnvironment;

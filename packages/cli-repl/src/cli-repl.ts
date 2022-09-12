@@ -18,8 +18,9 @@ import { buildInfo } from './build-info';
 import type { StyleDefinition } from './clr';
 import { ConfigManager, ShellHomeDirectory, ShellHomePaths } from './config-directory';
 import { CliReplErrors } from './error-codes';
+import type { CryptLibraryPathResult } from './crypt-library-paths';
+import { formatForJSONOutput } from './format-json';
 import { MongoLogManager, MongoLogWriter, mongoLogId } from 'mongodb-log-writer';
-import { MongocryptdManager } from './mongocryptd-manager';
 import MongoshNodeRepl, { MongoshNodeReplOptions, MongoshIOProvider } from './mongosh-repl';
 import { setupLoggerAndTelemetry, ToggleableAnalytics } from '@mongosh/logging';
 import { MongoshBus, CliUserConfig, CliUserConfigValidator } from '@mongosh/types';
@@ -50,8 +51,8 @@ type AnalyticsOptions = {
 export type CliReplOptions = {
   /** The set of parsed command line flags. */
   shellCliOptions: CliOptions;
-  /** The list of executable paths for mongocryptd. */
-  mongocryptdSpawnPaths?: string[][],
+  /** A function for getting the shared library path for in-use encryption. */
+  getCryptLibraryPaths?: (bus: MongoshBus) => Promise<CryptLibraryPathResult>;
   /** The stream to read user input from. */
   input: Readable;
   /** The stream to write shell output to. */
@@ -78,7 +79,8 @@ class CliRepl implements MongoshIOProvider {
   mongoshRepl: MongoshNodeRepl;
   bus: MongoshBus;
   cliOptions: CliOptions;
-  mongocryptdManager: MongocryptdManager;
+  getCryptLibraryPaths?: (bus: MongoshBus) => Promise<CryptLibraryPathResult>;
+  cachedCryptLibraryPath?: Promise<CryptLibraryPathResult>;
   shellHomeDirectory: ShellHomeDirectory;
   configDirectory: ConfigManager<CliUserConfigOnDisk>;
   config: CliUserConfigOnDisk;
@@ -94,6 +96,7 @@ class CliRepl implements MongoshIOProvider {
   warnedAboutInaccessibleFiles = false;
   onExit: (code?: number) => Promise<never>;
   closing = false;
+  isContainerizedEnvironment = false;
 
   /**
    * Instantiate the new CLI Repl.
@@ -113,6 +116,7 @@ class CliRepl implements MongoshIOProvider {
       enableTelemetry: true
     };
 
+    this.getCryptLibraryPaths = options.getCryptLibraryPaths;
     this.globalConfigPaths = options.globalConfigPaths ?? [];
     this.shellHomeDirectory = new ShellHomeDirectory(options.shellHomePaths);
     this.configDirectory = new ConfigManager<CliUserConfigOnDisk>(
@@ -128,11 +132,6 @@ class CliRepl implements MongoshIOProvider {
         this.setTelemetryEnabled(config.enableTelemetry);
         this.bus.emit('mongosh:update-user', { userId: config.userId, anonymousId: config.telemetryAnonymousId });
       });
-
-    this.mongocryptdManager = new MongocryptdManager(
-      options.mongocryptdSpawnPaths ?? [],
-      this.shellHomeDirectory,
-      this.bus);
 
     this.logManager = new MongoLogManager({
       directory: this.shellHomeDirectory.localPath('.'),
@@ -158,6 +157,29 @@ class CliRepl implements MongoshIOProvider {
     });
   }
 
+  async getIsContainerizedEnvironment() {
+    // Check for dockerenv file first
+    try {
+      await fs.stat('/.dockerenv');
+      return true;
+    } catch {
+      try {
+        // Check if there is any mention of docker / lxc / k8s in control groups
+        const cgroup = await fs.readFile('/proc/self/cgroup', 'utf8');
+        return /\b(docker|lxc|kubepods)\b/.test(cgroup);
+      } catch {
+        return false;
+      }
+    }
+  }
+
+  get forceDisableTelemetry(): boolean {
+    return (
+      this.globalConfig?.forceDisableTelemetry ||
+      (this.isContainerizedEnvironment && !this.mongoshRepl.isInteractive)
+    );
+  }
+
   /**
    * Setup CLI environment: serviceProvider, ShellEvaluator, log connection
    * information, external editor, and finally start the repl.
@@ -169,6 +191,9 @@ class CliRepl implements MongoshIOProvider {
   async start(driverUri: string, driverOptions: DevtoolsConnectOptions): Promise<void> {
     const { version } = require('../package.json');
     await this.verifyNodeVersion();
+
+    this.isContainerizedEnvironment =
+      await this.getIsContainerizedEnvironment();
 
     if (!this.cliOptions.nodb) {
       const cs = new ConnectionString(driverUri);
@@ -218,7 +243,8 @@ class CliRepl implements MongoshIOProvider {
       this.toggleableAnalytics,
       {
         platform: process.platform,
-        arch: process.arch
+        arch: process.arch,
+        is_containerized: this.isContainerizedEnvironment,
       },
       require('../package.json').version);
 
@@ -235,20 +261,38 @@ class CliRepl implements MongoshIOProvider {
     this.globalConfig = await this.loadGlobalConfigFile();
 
     if (driverOptions.autoEncryption) {
+      const origExtraOptions = driverOptions.autoEncryption.extraOptions ?? {};
+      if (origExtraOptions.cryptSharedLibPath) {
+        // If a CSFLE path has been specified through 'driverOptions', save it
+        // for later use.
+        this.cachedCryptLibraryPath = Promise.resolve({
+          cryptSharedLibPath: origExtraOptions.cryptSharedLibPath
+        });
+      }
+
       const extraOptions = {
-        ...(driverOptions.autoEncryption.extraOptions ?? {}),
-        ...(await this.startMongocryptd())
+        ...origExtraOptions,
+        ...await this.getCryptLibraryOptions()
       };
 
       driverOptions.autoEncryption = { ...driverOptions.autoEncryption, extraOptions };
+    }
+    if (Object.keys(driverOptions.autoEncryption ?? {}).join(',') === 'extraOptions') {
+      // In this case, autoEncryption opts were only specified for crypt library specs
+      delete driverOptions.autoEncryption;
     }
 
     const initialServiceProvider = await this.connect(driverUri, driverOptions);
     const initialized = await this.mongoshRepl.initialize(initialServiceProvider);
 
     const commandLineLoadFiles = this.cliOptions.fileNames ?? [];
-    const willExecuteCommandLineScripts = commandLineLoadFiles.length > 0 || this.cliOptions.eval !== undefined;
+    const evalScripts = this.cliOptions.eval ?? [];
+    const willExecuteCommandLineScripts = commandLineLoadFiles.length > 0 || evalScripts.length > 0;
     const willEnterInteractiveMode = !willExecuteCommandLineScripts || !!this.cliOptions.shell;
+
+    if ((evalScripts.length === 0 || this.cliOptions.shell || commandLineLoadFiles.length > 0) && this.cliOptions.json) {
+      throw new MongoshRuntimeError('Cannot use --json without --eval or with --shell or with extra files');
+    }
 
     let snippetManager: SnippetManager | undefined;
     if (this.config.snippetIndexSourceURLs !== '') {
@@ -270,7 +314,11 @@ class CliRepl implements MongoshIOProvider {
     if (willExecuteCommandLineScripts) {
       this.mongoshRepl.setIsInteractive(willEnterInteractiveMode);
       this.bus.emit('mongosh:start-loading-cli-scripts', { usesShellOption: !!this.cliOptions.shell });
-      await this.loadCommandLineFilesAndEval(commandLineLoadFiles);
+      const exitCode = await this.loadCommandLineFilesAndEval(commandLineLoadFiles, evalScripts);
+      if (exitCode !== 0) {
+        await this.exit(exitCode);
+        return;
+      }
       if (!this.cliOptions.shell) {
         // We flush the telemetry data as part of exiting. Make sure we have
         // the right config value.
@@ -300,7 +348,14 @@ class CliRepl implements MongoshIOProvider {
     const apiKey = this.analyticsOptions?.apiKey ?? require('./build-info.json').segmentApiKey;
     this.segmentAnalytics = new Analytics(
       apiKey,
-      this.analyticsOptions);
+      {
+        ...this.analyticsOptions,
+        axiosConfig: {
+          timeout: 1000
+        },
+        axiosRetryConfig: { retries: 0 }
+      } as any /* axiosConfig and axiosRetryConfig are existing options, but don't have type definitions */
+    );
     this.toggleableAnalytics = new ToggleableAnalytics(this.segmentAnalytics);
   }
 
@@ -311,31 +366,63 @@ class CliRepl implements MongoshIOProvider {
       // case.
       return;
     }
-    if (enabled && !this.globalConfig.forceDisableTelemetry) {
+    if (enabled && !this.forceDisableTelemetry) {
       this.toggleableAnalytics.enable();
     } else {
       this.toggleableAnalytics.disable();
     }
   }
 
-  async loadCommandLineFilesAndEval(files: string[]) {
-    if (this.cliOptions.eval) {
-      this.bus.emit('mongosh:eval-cli-script');
-      const evalResult = await this.mongoshRepl.loadExternalCode(this.cliOptions.eval, '@(shell eval)');
-      this.output.write(this.mongoshRepl.writer(evalResult) + '\n');
-    } else if (this.cliOptions.eval === '') {
-      // This happens e.g. when --eval is followed by another option, for example
-      // when running `mongosh --eval --shell "eval script"`, which can happen
-      // if you're like me and sometimes insert options in the wrong place
-      const msg = 'Warning: --eval requires an argument, but no argument was given\n';
-      this.output.write(this.clr(msg, 'mongosh:warning'));
+  async loadCommandLineFilesAndEval(files: string[], evalScripts: string[]): Promise<number> {
+    let lastEvalResult: any;
+    let exitCode = 0;
+    try {
+      for (const script of evalScripts) {
+        this.bus.emit('mongosh:eval-cli-script');
+        lastEvalResult = await this.mongoshRepl.loadExternalCode(script, '@(shell eval)');
+      }
+    } catch (err) {
+      // We have two distinct flows of control in the exception case;
+      // if we are running in --json mode, we treat the error as a
+      // special kind of output, otherwise we just pass the exception along.
+      // We should *probably* change this so that CliRepl.start() doesn't result
+      // in any user-caused exceptions, including script execution or failure to
+      // connect, and instead always take the --json flow, but that feels like
+      // it might be too big of a breaking change right now.
+      exitCode = 1;
+      if (this.cliOptions.json) {
+        lastEvalResult = err;
+      } else {
+        throw err;
+      }
     }
+    if (lastEvalResult !== undefined) {
+      let formattedResult;
+      if (this.cliOptions.json) {
+        try {
+          formattedResult = formatForJSONOutput(lastEvalResult, this.cliOptions.json);
+        } catch (e) {
+          // If formatting the result as JSON fails, instead treat the error
+          // itself as the output, as if the script had been e.g.
+          // `try { ... } catch(e) { throw EJSON.serialize(e); }`
+          // Do not try to format as EJSON repeatedly, if it fails then
+          // there's little we can do about it.
+          exitCode = 1;
+          formattedResult = formatForJSONOutput(e, this.cliOptions.json);
+        }
+      } else {
+        formattedResult = this.mongoshRepl.writer(lastEvalResult);
+      }
+      this.output.write(formattedResult + '\n');
+    }
+
     for (const file of files) {
       if (!this.cliOptions.quiet) {
         this.output.write(`Loading file: ${this.clr(file, 'mongosh:filename')}\n`);
       }
       await this.mongoshRepl.loadExternalFile(file);
     }
+    return exitCode;
   }
 
   /**
@@ -601,7 +688,6 @@ class CliRepl implements MongoshIOProvider {
         flushDuration = Date.now() - flushStart;
       }
     }
-    this.mongocryptdManager.close();
     // eslint-disable-next-line chai-friendly/no-unused-expressions
     this.logWriter?.info('MONGOSH', mongoLogId(1_000_000_045), 'analytics', 'Flushed outstanding data', {
       flushError,
@@ -640,16 +726,12 @@ class CliRepl implements MongoshIOProvider {
     return this.mongoshRepl.clr(text, style);
   }
 
-  /** Start a mongocryptd instance for automatic FLE. */
-  async startMongocryptd(): Promise<AutoEncryptionOptions['extraOptions']> {
-    try {
-      return await this.mongocryptdManager.start();
-    } catch (e: any) {
-      if (e?.code === 'ENOENT') {
-        throw new MongoshRuntimeError('Could not find a working mongocryptd - ensure your local installation works correctly. See the mongosh log file for additional information. Please also refer to the documentation: https://docs.mongodb.com/manual/reference/security-client-side-encryption-appendix/');
-      }
-      throw e;
+  /** Get the right crypt shared library loading options. */
+  async getCryptLibraryOptions(): Promise<AutoEncryptionOptions['extraOptions']> {
+    if (!this.getCryptLibraryPaths) {
+      throw new MongoshInternalError('This instance of mongosh is not configured for in-use encryption');
     }
+    return (this.cachedCryptLibraryPath ??= this.getCryptLibraryPaths(this.bus));
   }
 
   /** Provide extra information for reporting internal errors */

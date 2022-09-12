@@ -2,8 +2,8 @@
 <%
 const path = require('path');
 
-const NODE_JS_VERSION_14 = '14.19.1';
-const NODE_JS_VERSION_12 = '12.22.11';
+const NODE_JS_VERSION_14 = '14.20.0';
+const NODE_JS_VERSION_16 = '16.17.0';
 
 const MONGODB_VERSIONS = [
   { shortName: '40xc', versionSpec: '4.0.x-community' },
@@ -14,11 +14,13 @@ const MONGODB_VERSIONS = [
   { shortName: '44xe', versionSpec: '4.4.x' },
   { shortName: '50xc', versionSpec: '5.0.x-community' },
   { shortName: '50xe', versionSpec: '5.0.x' },
+  { shortName: '60xc', versionSpec: '6.0.x-community' },
+  { shortName: '60xe', versionSpec: '6.0.x' },
   { shortName: 'latest', versionSpec: 'latest-alpha' }
 ];
 const NODE_VERSIONS = [
-  { shortName: '12', versionSpec: NODE_JS_VERSION_12, skipNodeVersionCheck: '1' },
-  { shortName: '14', versionSpec: NODE_JS_VERSION_14, skipNodeVersionCheck: '' }
+  { shortName: '16', versionSpec: NODE_JS_VERSION_16, skipNodeVersionCheck: '' },
+  { shortName: '14', versionSpec: NODE_JS_VERSION_14, skipNodeVersionCheck: '1' }
 ];
 
 const pathToPackages = path.join(__dirname, '..', 'packages');
@@ -54,68 +56,7 @@ for (const packageInfo of MONGOSH_PACKAGES) {
 
 const ALL_UNIT_TEST_BUILD_VARIANTS = ['darwin_unit', 'linux_unit', 'win32_unit'];
 
-const EXECUTABLE_PKG_INFO = [
-  {
-    executableOsId: 'darwin-x64',
-    compileBuildVariant: 'darwin',
-    distributionBuildVariants: [
-      { name: 'darwin-x64', packageOn: 'darwin', smokeTestKind: 'macos' }
-    ]
-  },
-  {
-    executableOsId: 'darwin-arm64',
-    compileBuildVariant: 'darwin_arm64',
-    distributionBuildVariants: [
-      { name: 'darwin-arm64', packageOn: 'darwin', smokeTestKind: 'macos' }
-    ]
-  },
-  {
-    executableOsId: 'linux-x64',
-    compileBuildVariant: 'linux_x64_build',
-    distributionBuildVariants: [
-      { name: 'linux-x64', packageOn: 'linux_package', smokeTestKind: 'none' },
-      { name: 'debian-x64', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu18.04-deb', 'ubuntu20.04-deb', 'debian9-deb', 'debian10-deb', 'debian11-deb'] },
-      { name: 'rhel7-x64', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['centos7-rpm', 'amazonlinux2-rpm'] },
-      { name: 'rhel8-x64', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['rocky8-rpm', 'fedora34-rpm'] },
-      { name: 'suse-x64', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['suse12-rpm', 'suse15-rpm'] },
-      { name: 'amzn1-x64', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['amazonlinux1-rpm'] }
-    ]
-  },
-  {
-    executableOsId: 'linux-arm64',
-    compileBuildVariant: 'linux_arm64_build',
-    distributionBuildVariants: [
-      { name: 'linux-arm64', packageOn: 'linux_package', smokeTestKind: 'none' },
-      { name: 'debian-arm64', packageOn: 'linux_package', smokeTestKind: 'debextract' },
-      { name: 'rhel8-arm64', packageOn: 'linux_package', smokeTestKind: 'rpmextract' },
-      { name: 'amzn2-arm64', packageOn: 'linux_package', smokeTestKind: 'rpmextract' }
-    ]
-  },
-  {
-    executableOsId: 'linux-ppc64le',
-    compileBuildVariant: 'linux_ppc64le_build',
-    distributionBuildVariants: [
-      { name: 'linux-ppc64le', packageOn: 'linux_package', smokeTestKind: 'none' },
-      { name: 'rhel8-ppc64le', packageOn: 'linux_package', smokeTestKind: 'rpmextract' }
-    ]
-  },
-  {
-    executableOsId: 'linux-s390x',
-    compileBuildVariant: 'linux_s390x_build',
-    distributionBuildVariants: [
-      { name: 'linux-s390x', packageOn: 'linux_package', smokeTestKind: 'none' },
-      { name: 'rhel7-s390x', packageOn: 'linux_package', smokeTestKind: 'rpmextract' }
-    ]
-  },
-  {
-    executableOsId: 'win32',
-    compileBuildVariant: 'win32_build',
-    distributionBuildVariants: [
-      { name: 'win32-x64', packageOn: 'win32', smokeTestKind: 'ssh' },
-      { name: 'win32msi-x64', packageOn: 'win32', smokeTestKind: 'ssh' }
-    ]
-  }
-];
+const { RELEASE_PACKAGE_MATRIX } = require('../config/release-package-matrix');
 
 %>
 exec_timeout_secs: 3600
@@ -365,6 +306,7 @@ functions:
         binary: bash .evergreen/compile-artifact.sh
         env:
           NODE_JS_VERSION: ${node_js_version}
+          MONGOSH_SHARED_OPENSSL: ${mongosh_shared_openssl}
     - command: s3.put
       params:
         aws_key: ${aws_key}
@@ -413,11 +355,11 @@ functions:
   #
   # package_and_upload_artifact expects the following arguments:
   # - distro_id
-  # - distribution_build_variant
+  # - package_variant
   # - executable_os_id
   #
   # get_artifact_url expects the following arguments:
-  # - distribution_build_variant
+  # - package_variant
   ###
   package_and_upload_artifact:
     - command: expansions.write
@@ -439,7 +381,7 @@ functions:
         env:
           NODE_JS_VERSION: ${node_js_version}
           DISTRO_ID_OVERRIDE: ${distro_id}
-          DISTRIBUTION_BUILD_VARIANT: ${distribution_build_variant}
+          PACKAGE_VARIANT: ${package_variant}
           MACOS_NOTARY_KEY: ${macos_notary_key}
           MACOS_NOTARY_SECRET: ${macos_notary_secret}
     - command: s3.put
@@ -447,7 +389,7 @@ functions:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
         local_file: src/artifact-url.txt
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/artifact-url-${distribution_build_variant}.txt
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/artifact-url-${package_variant}.txt
         bucket: mciuploads
         permissions: public-read
         content_type: application/x-gzip
@@ -457,7 +399,7 @@ functions:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
         local_file: artifact-url.txt
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/artifact-url-${source_distribution_build_variant}.txt
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/artifact-url-${source_package_variant}.txt
         bucket: mciuploads
 
   write_preload_script:
@@ -521,6 +463,8 @@ functions:
           set -e
           set -x
           {
+          export NODE_JS_VERSION=${node_js_version}
+          . .evergreen/setup-env.sh
           . preload.sh
           ./scripts/docker/build.sh ${dockerfile}
           ./scripts/docker/run.sh ${dockerfile} --smokeTests
@@ -587,6 +531,25 @@ functions:
           npm run evergreen-release draft
           }
 
+  release_publish_dry_run:
+    - command: expansions.write
+      params:
+        file: tmp/expansions.yaml
+        redacted: true
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          {
+          echo "//registry.npmjs.org/:_authToken=${devtoolsbot_npm_token}" > .npmrc
+          export NODE_JS_VERSION=${node_js_version}
+          source .evergreen/setup-env.sh
+          export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
+          npm run evergreen-release publish -- --dry-run
+          }
+
   release_publish:
     - command: expansions.write
       params:
@@ -599,10 +562,10 @@ functions:
         script: |
           set -e
           {
+          echo "//registry.npmjs.org/:_authToken=${devtoolsbot_npm_token}" > .npmrc
           export NODE_JS_VERSION=${node_js_version}
           source .evergreen/setup-env.sh
           export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
-          echo "//registry.npmjs.org/:_authToken=${devtoolsbot_npm_token}" > .npmrc
           npm run evergreen-release publish
           }
 
@@ -628,7 +591,7 @@ tasks:
       - func: checkout
       - func: compile_ts
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
 
   - name: check
     depends_on:
@@ -638,11 +601,11 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
           npm_deps_mode: all
       - func: check
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
 
   - name: check_coverage
     depends_on:
@@ -652,11 +615,11 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
           npm_deps_mode: cli_build
       - func: check_coverage
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
 
   ###
   # UNIT TESTS
@@ -695,11 +658,11 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_12) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
           npm_deps_mode: all
       - func: test_vscode
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_12) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
   - name: test_connectivity
     tags: ["extra-integration-test"]
     depends_on:
@@ -709,7 +672,7 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
           npm_deps_mode: all
       - func: test_connectivity
   - name: test_apistrict
@@ -721,11 +684,11 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
           npm_deps_mode: cli_build
       - func: test_apistrict
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
           mongosh_server_test_version: "latest-alpha"
           mongosh_test_force_api_strict: "1"
   - name: compile_artifact
@@ -736,19 +699,20 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
           npm_deps_mode: cli_build
       - func: compile_artifact
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
 
   ###
   # E2E TESTS
   ###
-  <% for (const { executableOsId, compileBuildVariant } of EXECUTABLE_PKG_INFO) {
-    for (const mVersion of ['stable', 'unstable']) {
+  <% for (const { executableOsId, compileBuildVariant } of RELEASE_PACKAGE_MATRIX) {
+    for (const mVersion of ['stable', '5.0.x']) {
+      for (const fipsVariant of ['fips', 'nofips']) {
     %>
-  - name: e2e_tests_<% out(executableOsId.replace(/-/g, '_')) %><% out(mVersion === 'stable' ? '' : '_unstable') %>
+  - name: e2e_tests_<% out(executableOsId.replace(/-/g, '_')) %><% out(mVersion === 'stable' ? '' : '_50x') %><% out(fipsVariant === 'fips' ? '_fips' : '') %>
     tags: ["e2e-test"]
     depends_on:
       - name: compile_artifact
@@ -757,23 +721,24 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: <% out(executableOsId) %>
       - func: run_e2e_tests
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
           mongosh_server_test_version: "<% out(mVersion) %>"
-  <% } } %>
+          mongosh_test_e2e_force_fips: "<% out(fipsVariant === 'fips' ? '1' : '') %>"
+  <% } } } %>
 
   ###
   # PACKAGING
   ###
-  <% for (const { executableOsId, compileBuildVariant, distributionBuildVariants } of EXECUTABLE_PKG_INFO) {
-       for (const { name: distributionBuildVariant } of distributionBuildVariants) { %>
-  - name: package_and_upload_artifact_<% out(distributionBuildVariant.replace(/-/g, '_')) %>
+  <% for (const { executableOsId, compileBuildVariant, packages } of RELEASE_PACKAGE_MATRIX) {
+       for (const { name: packageVariant } of packages) { %>
+  - name: package_and_upload_artifact_<% out(packageVariant.replace(/-/g, '_')) %>
     depends_on:
       - name: compile_artifact
         variant: <% out(compileBuildVariant) %>
@@ -782,21 +747,21 @@ tasks:
       - func: install
         vars:
           npm_deps_mode: cli_build
-          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
       - func: package_and_upload_artifact
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
-          distribution_build_variant: <% out(distributionBuildVariant) %>
+          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          package_variant: <% out(packageVariant) %>
           executable_os_id: <% out(executableOsId) %>
   <% } } %>
 
   ###
   # SMOKE TESTS
   ###
-  <% for (const { distributionBuildVariants } of EXECUTABLE_PKG_INFO) {
-       for (const { name, packageOn, smokeTestKind, smokeTestDockerfiles } of distributionBuildVariants) if (smokeTestKind !== 'none') {
+  <% for (const { packages } of RELEASE_PACKAGE_MATRIX) {
+       for (const { name, packageOn, smokeTestKind, smokeTestDockerfiles } of packages) if (smokeTestKind !== 'none') {
         for (const dockerfile of smokeTestDockerfiles || ['']) { %>
-  - name: pkg_test_<% out(`${smokeTestKind}_${(dockerfile || name).replace(/[-.]/g, '_')}`) %>
+  - name: pkg_test_<% out(`${smokeTestKind}_${name}${dockerfile ? `_${dockerfile}` : ''}`.replace(/[-.]/g, '_')) %>
     tags: ["smoke-test"]
     depends_on:
       - name: package_and_upload_artifact_<% out(name.replace(/-/g, '_')) %>
@@ -805,13 +770,13 @@ tasks:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_distribution_build_variant: <% out(name) %>
+          source_package_variant: <% out(name) %>
       - func: write_preload_script
     <% switch (smokeTestKind) {
       case 'ssh': { %>
       - func: spawn_host
         vars:
-          distro: windows-64-vs2019-small
+          distro: windows-vsCurrent-small
       - func: run_pkg_tests_through_ssh
         vars:
           admin_user_name: Administrator
@@ -819,8 +784,13 @@ tasks:
           preload_script_path: preload.sh
     <% }; break;
        case 'docker': { %>
+      - func: install
+        vars:
+          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
+          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
           dockerfile: <% out(dockerfile) %>
     <% }; break;
     // We don't have docker for platforms other than x64, so for those we just
@@ -855,11 +825,25 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
           npm_deps_mode: all
       - func: release_draft
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+  - name: release_publish_dry_run
+    git_tag_only: true
+    exec_timeout_secs: 86400
+    depends_on:
+      - name: release_draft
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          npm_deps_mode: all
+      - func: release_publish_dry_run
+        vars:
+          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
   - name: release_publish
     tags: ["publish"]
     git_tag_only: true
@@ -871,17 +855,17 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
           npm_deps_mode: all
       - func: release_publish
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
 
 # Need to run builds for every possible build variant.
 buildvariants:
   - name: darwin_unit
     display_name: "MacOS Mojave (Unit tests)"
-    run_on: macos-1014
+    run_on: macos-1100
     expansions:
       executable_os_id: darwin-x64
     tasks:
@@ -913,8 +897,6 @@ buildvariants:
       executable_os_id: darwin-arm64
     tasks:
       - name: compile_artifact
-      # - name: e2e_tests_darwin_arm64
-      # No E2E test for now because there are no server releases to run them against
 
   - name: linux_unit
     display_name: "Ubuntu 18.04 x64 (Unit tests)"
@@ -937,20 +919,11 @@ buildvariants:
     display_name: "Ubuntu 18.04 x64 (Packaging)"
     run_on: ubuntu1804-small
     tasks:
-      - name: package_and_upload_artifact_linux_x64
-      - name: package_and_upload_artifact_debian_x64
-      - name: package_and_upload_artifact_rhel7_x64
-      - name: package_and_upload_artifact_rhel8_x64
-      - name: package_and_upload_artifact_suse_x64
-      - name: package_and_upload_artifact_amzn1_x64
-      - name: package_and_upload_artifact_linux_s390x
-      - name: package_and_upload_artifact_rhel7_s390x
-      - name: package_and_upload_artifact_linux_arm64
-      - name: package_and_upload_artifact_debian_arm64
-      - name: package_and_upload_artifact_rhel8_arm64
-      - name: package_and_upload_artifact_amzn2_arm64
-      - name: package_and_upload_artifact_linux_ppc64le
-      - name: package_and_upload_artifact_rhel8_ppc64le
+      <% for (const { executableOsId, packages } of RELEASE_PACKAGE_MATRIX) {
+          for (const { name: packageVariant } of packages) {
+            if (executableOsId.startsWith('linux')) { %>
+      - name: package_and_upload_artifact_<% out(packageVariant.replace(/-/g, '_')) %>
+      <% } } } %>
   - name: linux_x64_build
     display_name: "RHEL 7.0 x64 (build)"
     run_on: rhel70-build
@@ -958,11 +931,35 @@ buildvariants:
       executable_os_id: linux-x64
     tasks:
       - name: compile_artifact
+  - name: linux_x64_build_openssl11
+    display_name: "RHEL 7.0 x64 (build, shared OpenSSL 1.1)"
+    run_on: rhel70-build
+    expansions:
+      executable_os_id: linux-x64-openssl11
+      mongosh_shared_openssl: openssl11
+    tasks:
+      - name: compile_artifact
+  - name: linux_x64_build_openssl3
+    display_name: "RHEL 7.0 x64 (build, shared OpenSSL 3)"
+    run_on: rhel70-build
+    expansions:
+      executable_os_id: linux-x64-openssl3
+      mongosh_shared_openssl: openssl3
+    tasks:
+      - name: compile_artifact
   - name: linux_arm64_build
     display_name: "Amazon 2 arm64 (build)"
     run_on: amazon2-arm64-small
     expansions:
       executable_os_id: linux-arm64
+    tasks:
+      - name: compile_artifact
+  - name: linux_arm64_build_openssl11
+    display_name: "Amazon 2 arm64 (build, shared OpenSSL 1.1)"
+    run_on: amazon2-arm64-small
+    expansions:
+      executable_os_id: linux-arm64-openssl11
+      mongosh_shared_openssl: openssl11
     tasks:
       - name: compile_artifact
   - name: linux_ppc64le_build
@@ -995,6 +992,13 @@ buildvariants:
     run_on: rhel80-small
     tasks:
       - name: e2e_tests_linux_x64
+  - name: e2e_rhel83_x64
+    display_name: "RHEL 8.3 x64 (E2E Tests, FIPS-available OS)"
+    run_on: rhel83-fips
+    tasks:
+      - name: e2e_tests_linux_x64
+      - name: e2e_tests_linux_x64_openssl11
+      - name: e2e_tests_linux_x64_openssl11_fips
   - name: e2e_ubuntu1804_x64
     display_name: "Ubuntu 18.04 x64 (E2E Tests)"
     run_on: ubuntu1804-small
@@ -1005,26 +1009,29 @@ buildvariants:
     run_on: ubuntu2004-small
     tasks:
       - name: e2e_tests_linux_x64
+      - name: e2e_tests_linux_x64_openssl11
   - name: e2e_debian9_x64
     display_name: "Debian 9 x64 (E2E Tests)"
     run_on: debian92-small
     tasks:
-      - name: e2e_tests_linux_x64
+      - name: e2e_tests_linux_x64_50x
   - name: e2e_debian10_x64
     display_name: "Debian 10 x64 (E2E Tests)"
     run_on: debian10-small
     tasks:
       - name: e2e_tests_linux_x64
+      - name: e2e_tests_linux_x64_openssl11
   - name: e2e_debian11_x64
     display_name: "Debian 11 x64 (E2E Tests)"
     run_on: debian11-small
     tasks:
-      - name: e2e_tests_linux_x64_unstable
+      - name: e2e_tests_linux_x64
+      - name: e2e_tests_linux_x64_openssl11
   - name: e2e_amazon1_x64
     display_name: "Amazon Linux 1 x64 (E2E Tests)"
     run_on: amazon1-2018-small
     tasks:
-      - name: e2e_tests_linux_x64
+      - name: e2e_tests_linux_x64_50x
   - name: e2e_amazon2_x64
     display_name: "Amazon Linux 2 x64 (E2E Tests)"
     run_on: amazon2-small
@@ -1050,6 +1057,7 @@ buildvariants:
     run_on: ubuntu2004-arm64-small
     tasks:
       - name: e2e_tests_linux_arm64
+      - name: e2e_tests_linux_arm64_openssl11
   - name: e2e_amazon2_arm64
     display_name: "Amazon Linux 2 arm64 (E2E Tests)"
     run_on: amazon2-arm64-small
@@ -1070,17 +1078,15 @@ buildvariants:
     run_on: rhel72-zseries-small
     tasks:
       - name: e2e_tests_linux_s390x
-# TODO: Re-enable once RHEL 8.0 distros are ready for use
-# (see also pkg_smoke_tests_rhel80_s390x)
-#  - name: e2e_rhel80_s390x
-#    display_name: "RHEL 8.0 s390x (E2E Tests)"
-#    run_on: rhel80-zseries-small
-#    tasks:
-#      - name: e2e_tests_linux_s390x
+  - name: e2e_rhel83_s390x
+    display_name: "RHEL 8.3 s390x (E2E Tests)"
+    run_on: rhel83-zseries-small
+    tasks:
+      - name: e2e_tests_linux_s390x
 
   - name: win32_unit
-    display_name: "Windows VS 2019 (Unit tests)"
-    run_on: windows-64-vs2019-small
+    display_name: "Windows (Unit tests)"
+    run_on: windows-vsCurrent-small
     expansions:
       executable_os_id: win32
     tasks:
@@ -1105,22 +1111,26 @@ buildvariants:
     tasks:
       - name: compile_artifact
 
-  - name: pkg_smoke_tests_docker
-    display_name: "package smoke tests (Docker)"
+  - name: pkg_smoke_tests_docker_x64
+    display_name: "package smoke tests (x64 Docker)"
     run_on: ubuntu1804-small
     tasks:
-      - name: pkg_test_docker_centos7_rpm
-      - name: pkg_test_docker_rocky8_rpm
-      - name: pkg_test_docker_fedora34_rpm
-      - name: pkg_test_docker_suse12_rpm
-      - name: pkg_test_docker_suse15_rpm
-      - name: pkg_test_docker_amazonlinux1_rpm
-      - name: pkg_test_docker_amazonlinux2_rpm
-      - name: pkg_test_docker_debian9_deb
-      - name: pkg_test_docker_debian10_deb
-      - name: pkg_test_docker_debian11_deb
-      - name: pkg_test_docker_ubuntu18_04_deb
-      - name: pkg_test_docker_ubuntu20_04_deb
+  <% for (const { packages, executableOsId } of RELEASE_PACKAGE_MATRIX) {
+      if (executableOsId.includes('linux-x64')) {
+       for (const { name, smokeTestKind, smokeTestDockerfiles } of packages) if (smokeTestKind !== 'none') {
+        for (const dockerfile of smokeTestDockerfiles || []) { %>
+      - name: pkg_test_<% out(`${smokeTestKind}_${name}${dockerfile ? `_${dockerfile}` : ''}`.replace(/[-.]/g, '_')) %>
+  <% } } } } %>
+  - name: pkg_smoke_tests_docker_arm64
+    display_name: "package smoke tests (arm64 Docker)"
+    run_on: ubuntu1804-arm64-small
+    tasks:
+  <% for (const { packages, executableOsId } of RELEASE_PACKAGE_MATRIX) {
+      if (executableOsId.includes('linux-arm64')) {
+       for (const { name, smokeTestKind, smokeTestDockerfiles } of packages) if (smokeTestKind !== 'none') {
+        for (const dockerfile of smokeTestDockerfiles || []) { %>
+      - name: pkg_test_<% out(`${smokeTestKind}_${name}${dockerfile ? `_${dockerfile}` : ''}`.replace(/[-.]/g, '_')) %>
+  <% } } } } %>
   - name: pkg_smoke_tests_win32
     display_name: "package smoke tests (win32)"
     run_on: ubuntu1804-small
@@ -1142,45 +1152,26 @@ buildvariants:
     run_on: macos-1100-arm64
     tasks:
       - name: pkg_test_macos_darwin_arm64
-  - name: pkg_smoke_tests_ubuntu1804_arm64
-    display_name: "package smoke tests (Ubuntu 18.04 arm64)"
-    run_on: ubuntu1804-arm64-small
-    tasks:
-      - name: pkg_test_debextract_debian_arm64
-  - name: pkg_smoke_tests_ubuntu2004_arm64
-    display_name: "package smoke tests (Ubuntu 20.04 arm64)"
-    run_on: ubuntu2004-arm64-small
-    tasks:
-      - name: pkg_test_debextract_debian_arm64
-  - name: pkg_smoke_tests_amazon2_arm64
-    display_name: "package smoke tests (RHEL 8.2 arm64)"
-    run_on: rhel82-arm64-small
-    tasks:
-      - name: pkg_test_rpmextract_rhel8_arm64
-  - name: pkg_smoke_tests_rhel82_arm64
-    display_name: "package smoke tests (Amazon Linux 2 arm64)"
-    run_on: amazon2-arm64-small
-    tasks:
-      - name: pkg_test_rpmextract_amzn2_arm64
   - name: pkg_smoke_tests_rhel72_s390x
     display_name: "package smoke tests (RHEL 7.2 s390x)"
     run_on: rhel72-zseries-small
     tasks:
-      - name: pkg_test_rpmextract_rhel7_s390x
-  #- name: pkg_smoke_tests_rhel80_s390x
-  #  display_name: "package smoke tests (RHEL 8.0 s390x)"
-  #  run_on: rhel80-zseries-small
-  #  tasks:
-  #    - name: pkg_test_rpmextract_rhel8_s390x
+      - name: pkg_test_rpmextract_rpm_s390x
+  - name: pkg_smoke_tests_rhel83_s390x
+    display_name: "package smoke tests (RHEL 8.3 s390x)"
+    run_on: rhel83-zseries-small
+    tasks:
+      - name: pkg_test_rpmextract_rpm_s390x
   - name: pkg_smoke_tests_rhel81_ppc64le
     display_name: "package smoke tests (RHEL 8.1 ppc64le)"
     run_on: rhel81-power8-small
     tasks:
-      - name: pkg_test_rpmextract_rhel8_ppc64le
+      - name: pkg_test_rpmextract_rpm_ppc64le
 
   - name: draft_publish_release
     display_name: "Draft/Publish Release"
     run_on: ubuntu1804-small
     tasks:
       - name: release_draft
+      - name: release_publish_dry_run
       - name: release_publish

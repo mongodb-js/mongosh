@@ -13,9 +13,8 @@ import type {
   StartLoadingCliScriptsEvent,
   StartMongoshReplEvent,
   GlobalConfigFileLoadEvent,
-  MongocryptdTrySpawnEvent,
-  MongocryptdLogEvent,
-  MongocryptdErrorEvent,
+  CryptLibrarySkipEvent,
+  CryptLibraryFoundEvent,
   SnippetsCommandEvent,
   SnippetsErrorEvent,
   SnippetsFetchIndexErrorEvent,
@@ -273,19 +272,15 @@ export function setupLoggerAndTelemetry(
     });
   });
 
-  bus.on('mongosh:mongocryptd-tryspawn', function(ev: MongocryptdTrySpawnEvent) {
-    log.info('MONGOCRYPTD', mongoLogId(1_000_000_016), 'mongocryptd', 'Trying to spawn mongocryptd', ev);
+  bus.on('mongosh:crypt-library-load-skip', function(ev: CryptLibrarySkipEvent) {
+    log.info('AUTO-ENCRYPTION', mongoLogId(1_000_000_050), 'crypt-library', 'Skipping shared library candidate', ev);
   });
 
-  bus.on('mongosh:mongocryptd-error', function(ev: MongocryptdErrorEvent) {
-    log.warn('MONGOCRYPTD', mongoLogId(1_000_000_017), 'mongocryptd', 'Error running mongocryptd', {
-      ...ev,
-      error: ev.error?.message
+  bus.on('mongosh:crypt-library-load-found', function(ev: CryptLibraryFoundEvent) {
+    log.warn('AUTO-ENCRYPTION', mongoLogId(1_000_000_051), 'crypt-library', 'Accepted shared library candidate', {
+      cryptSharedLibPath: ev.cryptSharedLibPath,
+      expectedVersion: ev.expectedVersion.versionStr
     });
-  });
-
-  bus.on('mongosh:mongocryptd-log', function(ev: MongocryptdLogEvent) {
-    log.info('MONGOCRYPTD', mongoLogId(1_000_000_018), 'mongocryptd', 'mongocryptd log message', ev);
   });
 
   bus.on('mongosh-snippets:loaded', function(ev: SnippetsLoadedEvent) {

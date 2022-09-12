@@ -21,11 +21,11 @@ class Mongosh < Formula
     sha256 mojave:        "9c46c746cf8f65a8418cb39237471cd6338135e398f2ace965a6c580e1165951"
   end
 
-  depends_on "node@14"
+  depends_on "node@16"
 
   def install
-    system "#{Formula["node@14"].bin}/npm", "install", *Language::Node.std_npm_install_args(libexec)
-    (bin/"mongosh").write_env_script libexec/"bin/mongosh", PATH: "#{Formula["node@14"].opt_bin}:$PATH"
+    system "#{Formula["node@16"].bin}/npm", "install", *Language::Node.std_npm_install_args(libexec)
+    (bin/"mongosh").write_env_script libexec/"bin/mongosh", PATH: "#{Formula["node@16"].opt_bin}:$PATH"
   end
 
   test do
@@ -67,11 +67,11 @@ class Mongosh < Formula
     sha256 mojave:        "9c46c746cf8f65a8418cb39237471cd6338135e398f2ace965a6c580e1165951"
   end
 
-  depends_on "node@14"
+  depends_on "node@16"
 
   def install
-    system "#{Formula["node@14"].bin}/npm", "install", *Language::Node.std_npm_install_args(libexec)
-    (bin/"mongosh").write_env_script libexec/"bin/mongosh", PATH: "#{Formula["node@14"].opt_bin}:$PATH"
+    system "#{Formula["node@16"].bin}/npm", "install", *Language::Node.std_npm_install_args(libexec)
+    (bin/"mongosh").write_env_script libexec/"bin/mongosh", PATH: "#{Formula["node@16"].opt_bin}:$PATH"
   end
 
   test do
@@ -81,7 +81,8 @@ class Mongosh < Formula
 end`;
     expect(await generateUpdatedFormula(
       { version: '0.14.2', sha: 'hash' },
-      homebrewCore
+      homebrewCore,
+      false
     )).to.equal(updatedFormula);
     expect(getFileContent).to.have.been.calledOnce;
   });
@@ -89,7 +90,8 @@ end`;
   it('does not update the formula if neither artifact nor URL changed', async() => {
     expect(await generateUpdatedFormula(
       { version: '0.14.0', sha: '7b5a140689b4460a8b87008e6b7e7cb19acbc6e6cd1ab713e1a8923f3a995ca8' },
-      homebrewCore
+      homebrewCore,
+      false
     )).to.be.null;
     expect(getFileContent).to.have.been.calledOnce;
   });
@@ -98,7 +100,8 @@ end`;
     try {
       await generateUpdatedFormula(
         { version: '0.13.0', sha: 'differentsha' },
-        homebrewCore
+        homebrewCore,
+        false
       );
       expect.fail('expected error');
     } catch (e: any) {

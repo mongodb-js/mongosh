@@ -76,21 +76,12 @@ else
   if [ $LIBMONGOCRYPT_VERSION != "latest" ]; then
     (cd libmongocrypt && git checkout $LIBMONGOCRYPT_VERSION)
   fi
-  ./libmongocrypt/.evergreen/prep_c_driver_source.sh # clones the c driver source
-
-  # build libbson
-  cd mongo-c-driver
-  mkdir -p cmake-build
-  cd cmake-build
-  "$CMAKE" -DCMAKE_INSTALL_PREFIX="$BUILDROOT" -DCMAKE_PREFIX_PATH="$BUILDROOT" -DENABLE_MONGOC=OFF ..
-  make -j8 install
-  cd ../../
 
   # build libmongocrypt
   cd libmongocrypt
   mkdir -p cmake-build
   cd cmake-build
-  "$CMAKE" -DCMAKE_INSTALL_PREFIX="$BUILDROOT" -DCMAKE_PREFIX_PATH="$BUILDROOT" -DENABLE_MONGOC=OFF -DDISABLE_NATIVE_CRYPTO=1 ..
+  "$CMAKE" -DCMAKE_INSTALL_PREFIX="$BUILDROOT" -DCMAKE_PREFIX_PATH="$BUILDROOT" -DDISABLE_NATIVE_CRYPTO=1 ..
   make -j8 install
   cd ../../
 fi

@@ -1,5 +1,4 @@
-/* eslint-disable no-nested-ternary */
-import os from 'os';
+import { promises as fs } from 'fs';
 import Module from 'module';
 import pkgUp from 'pkg-up';
 import path from 'path';
@@ -26,6 +25,27 @@ async function preCompileHook(nodeSourceTree: string) {
   const [ code ] = await once(proc, 'exit');
   if (code !== 0) {
     throw new Error(`pre-compile hook failed with code ${code}`);
+  }
+
+  const patchDirectory = path.resolve(__dirname, '..', '..', '..', '..', 'scripts', 'nodejs-patches');
+  // Sort all entries in the directory so that they are applied
+  // in order 001-(...).patch, 002-(...).patch, etc.
+  const patchFiles = (await fs.readdir(patchDirectory)).sort();
+  for (const entry of patchFiles) {
+    const patchFile = path.resolve(patchDirectory, entry);
+    console.warn(`Applying patch from ${patchFile}...`);
+    // NB: git apply doesn't need to be run in a git repository in order to work
+    const proc = childProcess.spawn(
+      'git', ['apply', patchFile],
+      {
+        cwd: nodeSourceTree,
+        stdio: 'inherit'
+      }
+    );
+    const [ code ] = await once(proc, 'exit');
+    if (code !== 0) {
+      throw new Error(`applying patch failed with code ${code}`);
+    }
   }
 }
 
@@ -73,6 +93,10 @@ export class SignableCompiler {
       path: await findModulePath('service-provider-server', 'os-dns-native'),
       requireRegexp: /\bos_dns_native\.node$/
     };
+    const cryptLibraryVersionAddon = {
+      path: await findModulePath('cli-repl', 'mongodb-crypt-library-version'),
+      requireRegexp: /\bmongodb_crypt_library_version\.node$/
+    };
     // Warning! Until https://jira.mongodb.org/browse/MONGOSH-990,
     // packages/service-provider-server *also* has a copy of these.
     // We use the versions included in packages/cli-repl here, so these
@@ -91,12 +115,7 @@ export class SignableCompiler {
     } : null;
 
     // This compiles the executable along with Node from source.
-    // Evergreen and XCode don't have up to date libraries to compile
-    // open ssl with asm so we revert back to the slower version.
     await compileJSFileAsBinary({
-      configureArgs:
-        os.platform() === 'win32' ? ['openssl-no-asm'] :
-          os.platform() === 'darwin' ? ['--openssl-no-asm'] : [],
       sourceFile: this.sourceFile,
       targetFile: this.targetFile,
       nodeVersionRange: this.nodeVersionRange,
@@ -110,7 +129,8 @@ export class SignableCompiler {
       addons: [
         fleAddon,
         osDnsAddon,
-        kerberosAddon
+        kerberosAddon,
+        cryptLibraryVersionAddon
       ].concat(winCAAddon ? [
         winCAAddon
       ] : []).concat(winConsoleProcessListAddon ? [

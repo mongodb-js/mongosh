@@ -15,7 +15,7 @@ module.exports = {
     },
     {
       sourceFilePath: path.resolve(__dirname, 'bin', 'bar'),
-      category: 'libexec',
+      category: 'lib',
       license: {
         debIdentifier: 'Apple',
         debCopyright: '2021 Somebody Else’s Cats',
@@ -43,6 +43,7 @@ module.exports = {
     maintainer: 'Somebody <somebody@example.org>',
     name: 'foobar',
     debName: 'foobar',
+    provides: [],
     rpmName: 'foobar',
     manufacturer: 'Some Random Company Inc.'
   },

@@ -3,7 +3,7 @@ import {
   AutoEncryptionOptions,
   ConnectInfo,
   DEFAULT_DB,
-  ReplPlatform, ServerApi, ServiceProvider,
+  ServerApi, ServiceProvider,
   TopologyDescription
 } from '@mongosh/service-provider-core';
 import type { ApiEvent, ApiEventWithArguments, ConfigProvider, MongoshBus, ShellUserConfig } from '@mongosh/types';
@@ -98,10 +98,10 @@ export interface EvaluationListener extends Partial<ConfigProvider<ShellUserConf
 
   /**
    * Called when initiating a connection that uses FLE in the shell.
-   * This should start a mongocryptd process and return the relevant options
-   * used to access it.
+   * This should locate a crypt shared libraray instance and return the relevant
+   * options used to access it.
    */
-  startMongocryptd?: () => Promise<AutoEncryptionOptions['extraOptions']>;
+  getCryptLibraryOptions?: () => Promise<AutoEncryptionOptions['extraOptions']>;
 }
 
 /**
@@ -246,7 +246,7 @@ export default class ShellInstanceState {
       return this.setDbFunc(newDb);
     };
 
-    if (this.initialServiceProvider.platform === ReplPlatform.JavaShell) {
+    if (this.initialServiceProvider.platform === 'JavaShell') {
       contextObject.db = this.setDbFunc(this.currentDb); // java shell, can't use getters/setters
     } else {
       Object.defineProperty(contextObject, 'db', {
@@ -437,8 +437,8 @@ export default class ShellInstanceState {
 
   private getDefaultPromptPrefix(): string {
     const extraConnectionInfo = this.connectionInfo?.extraInfo;
-    if (extraConnectionInfo?.is_data_lake) {
-      return 'AtlasDataLake';
+    if (extraConnectionInfo?.is_data_federation) {
+      return 'AtlasDataFederation';
     } else if (extraConnectionInfo?.is_atlas) {
       return 'Atlas';
     } else if (extraConnectionInfo?.is_enterprise || this.connectionInfo?.buildInfo?.modules?.indexOf('enterprise') >= 0) {
@@ -481,7 +481,7 @@ export default class ShellInstanceState {
     return `${setNamePrefix}${serverTypePrompt}`;
   }
 
-  private getTopologySinglePrompt(description: TopologyDescription): {replicaSet: string | undefined, serverType: string} | undefined {
+  private getTopologySinglePrompt(description: TopologyDescription): { replicaSet: string | null, serverType: string } | undefined {
     if (description.servers?.size !== 1) {
       return undefined;
     }

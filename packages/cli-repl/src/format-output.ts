@@ -1,4 +1,4 @@
-import prettyBytes from 'pretty-bytes';
+import numeral from 'numeral';
 import textTable from 'text-table';
 import i18n from '@mongosh/i18n';
 import util from 'util';
@@ -21,6 +21,11 @@ type FormatOptions = {
   showStackTraces?: boolean;
   bugReportErrorMessageInfo?: string;
 };
+
+function formatBytes(value: number): string {
+  const precision = value <= 1000 ? '0' : '0.00';
+  return numeral(value).format(precision + ' ib');
+}
 
 /**
  * Return the pretty string for the output.
@@ -55,6 +60,10 @@ export default function formatOutput(evaluationResult: EvaluationResult, options
 
   if (type === 'ShowCollectionsResult') {
     return formatCollections(value, options);
+  }
+
+  if (type === 'ShowBannerResult') {
+    return formatBanner(value, options);
   }
 
   if (type === 'StatsResult') {
@@ -123,7 +132,7 @@ function formatCollections(output: CollectionNamesWithTypes[], options: FormatOp
   const otherCollections: CollectionNamesWithTypes[] = [];
 
   output.forEach(coll => {
-    if (coll.name.startsWith('system.')) {
+    if (coll.name.startsWith('system.') || coll.name.startsWith('enxcol_.')) {
       systemCollections.push(coll);
     } else {
       otherCollections.push(coll);
@@ -142,9 +151,25 @@ function formatCollections(output: CollectionNamesWithTypes[], options: FormatOp
   return textTable(tableEntries, { align: ['l', 'l'] });
 }
 
+function formatBanner(output: null | { header?: string, content: string }, options: FormatOptions): string {
+  if (!output?.content) {
+    return '';
+  }
+
+  let text = '';
+  text += `${clr('------', 'mongosh:section-header', options)}\n`;
+  if (output.header) {
+    text += `   ${clr(output.header, 'mongosh:section-header', options)}\n`;
+  }
+  // indent output.content with 3 spaces
+  text += output.content.trim().replace(/^/gm, '   ') + '\n';
+  text += `${clr('------', 'mongosh:section-header', options)}\n`;
+  return text;
+}
+
 function formatDatabases(output: any[], options: FormatOptions): string {
   const tableEntries = output.map(
-    (db) => [clr(db.name, 'bold', options), prettyBytes(db.sizeOnDisk)]
+    (db) => [clr(db.name, 'bold', options), formatBytes(db.sizeOnDisk)]
   );
 
   return textTable(tableEntries, { align: ['l', 'r'] });

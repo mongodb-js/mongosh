@@ -110,29 +110,6 @@ describe('publish', () => {
         }
         expect.fail('Expected error');
       });
-
-      it('fails if package name is missing', async() => {
-        config.packageInformation = {
-          metadata: {}
-        } as any;
-        try {
-          await runPublish(
-            config,
-            githubRepo,
-            mongoHomebrewCoreForkRepo,
-            homebrewCoreRepo,
-            barque,
-            createAndPublishDownloadCenterConfig,
-            publishNpmPackages,
-            writeBuildInfo,
-            publishToHomebrew,
-            shouldDoPublicRelease
-          );
-        } catch (e: any) {
-          return expect(e.message).to.contain('Missing package name');
-        }
-        expect.fail('Expected error');
-      });
     });
 
     it('publishes artifacts to barque', async() => {
@@ -149,26 +126,18 @@ describe('publish', () => {
         shouldDoPublicRelease
       );
 
-      expect(barque.releaseToBarque).to.have.been.callCount(18);
+      expect(barque.releaseToBarque).to.have.been.callCount(23);
       expect(barque.releaseToBarque).to.have.been.calledWith(
-        'rhel7-x64',
-        'https://s3.amazonaws.com/mciuploads/project/v0.7.0-draft.42/mongodb-mongosh-0.7.0.el7.x86_64.rpm'
+        'rpm-x64',
+        'https://s3.amazonaws.com/mciuploads/project/v0.7.0-draft.42/mongodb-mongosh-0.7.0.x86_64.rpm'
       );
       expect(barque.releaseToBarque).to.have.been.calledWith(
-        'rhel8-x64',
-        'https://s3.amazonaws.com/mciuploads/project/v0.7.0-draft.42/mongodb-mongosh-0.7.0.el8.x86_64.rpm'
-      );
-      expect(barque.releaseToBarque).to.have.been.calledWith(
-        'debian-x64',
+        'deb-x64',
         'https://s3.amazonaws.com/mciuploads/project/v0.7.0-draft.42/mongodb-mongosh_0.7.0_amd64.deb'
       );
       expect(barque.releaseToBarque).to.have.been.calledWith(
-        'amzn2-arm64',
-        'https://s3.amazonaws.com/mciuploads/project/v0.7.0-draft.42/mongodb-mongosh-0.7.0.amzn2.aarch64.rpm'
-      );
-      expect(barque.releaseToBarque).to.have.been.calledWith(
-        'amzn1-x64',
-        'https://s3.amazonaws.com/mciuploads/project/v0.7.0-draft.42/mongodb-mongosh-0.7.0.amzn1.x86_64.rpm'
+        'rpm-arm64',
+        'https://s3.amazonaws.com/mciuploads/project/v0.7.0-draft.42/mongodb-mongosh-0.7.0.aarch64.rpm'
       );
       expect(barque.waitUntilPackagesAreAvailable).to.have.been.called;
     });

@@ -4,10 +4,12 @@ import zlib from 'zlib';
 import fetch from 'node-fetch';
 import path from 'path';
 import stream from 'stream';
+import http from 'http';
+import { once } from 'events';
 import tar from 'tar-fs';
 import tmp from 'tmp-promise';
 import util, { promisify } from 'util';
-import { BuildVariant, getArch, getDistro, Config, getDebArchName, getRPMArchName, Platform } from './config';
+import { PackageVariant, getArch, getDistro, Config, getDebArchName, getRPMArchName, Platform } from './config';
 
 const pipeline = util.promisify(stream.pipeline);
 const execFile = util.promisify(childProcess.execFile);
@@ -22,62 +24,50 @@ tmp.setGracefulCleanup();
  * All the possible per-Linux-distro repositories that we publish to.
  */
 type PPARepository =
-  'ubuntu1804' | 'ubuntu2004' | 'debian92' | 'debian10' | 'debian11' |
-  'rhel70' | 'rhel80' | 'amazon1' | 'amazon2' | 'suse12' | 'suse15';
+  'ubuntu1804' | 'ubuntu2004' | 'ubuntu2204' | 'debian92' | 'debian10' | 'debian11' |
+  'rhel70' | 'rhel80' | 'rhel90' | 'amazon1' | 'amazon2' | 'amazon2022' | 'suse12' | 'suse15';
 
 /**
  * Return the full list of [distro, arch] combinations that we upload for
- * a given build variant (where 'distro' refers to a distro in the package
+ * a given package variant (where 'distro' refers to a distro in the package
  * repository, e.g. Ubuntu 20.04).
  *
  * /config/repo-config.yml needs to be kept in sync with this.
  */
-// eslint-disable-next-line complexity
-export function getReposAndArch(buildVariant: BuildVariant): { ppas: PPARepository[], arch: string } {
-  switch (getDistro(buildVariant)) {
+export function getReposAndArch(packageVariant: PackageVariant): { ppas: PPARepository[], arch: string } {
+  switch (getDistro(packageVariant)) {
     case 'win32':
     case 'win32msi':
     case 'darwin':
     case 'linux':
       return { ppas: [], arch: '' };
-    case 'debian':
+    case 'deb':
       return {
-        ppas: ['ubuntu1804', 'ubuntu2004', 'debian92', 'debian10', 'debian11'],
-        arch: getDebArchName(getArch(buildVariant))
+        ppas: ['ubuntu1804', 'ubuntu2004', 'ubuntu2204', 'debian92', 'debian10', 'debian11'],
+        arch: getDebArchName(getArch(packageVariant))
       };
-    case 'rhel7':
-      if (getArch(buildVariant) === 'x64') {
+    case 'rpm':
+      if (getArch(packageVariant) === 'x64') {
         return {
-          ppas: ['rhel70', 'amazon2'],
-          arch: getRPMArchName(getArch(buildVariant))
+          ppas: ['rhel70', 'rhel80', 'rhel90', 'amazon1', 'amazon2', 'amazon2022', 'suse12', 'suse15'],
+          arch: getRPMArchName(getArch(packageVariant))
+        };
+      }
+      if (getArch(packageVariant) === 'arm64') {
+        return {
+          ppas: ['rhel80', 'rhel90', 'amazon2', 'amazon2022'],
+          arch: getRPMArchName(getArch(packageVariant))
+        };
+      }
+      if (getArch(packageVariant) === 'ppc64le' || getArch(packageVariant) === 's390x') {
+        return {
+          ppas: ['rhel70', 'rhel80'],
+          arch: getRPMArchName(getArch(packageVariant))
         };
       }
       return { ppas: [], arch: '' };
-    case 'rhel8':
-      if (getArch(buildVariant) === 'x64' || getArch(buildVariant) === 'arm64') {
-        return {
-          ppas: ['rhel80'],
-          arch: getRPMArchName(getArch(buildVariant))
-        };
-      }
-      return { ppas: [], arch: '' };
-    case 'suse':
-      return {
-        ppas: ['suse12', 'suse15'],
-        arch: getRPMArchName(getArch(buildVariant))
-      };
-    case 'amzn1':
-      return {
-        ppas: ['amazon1'],
-        arch: getRPMArchName(getArch(buildVariant))
-      };
-    case 'amzn2':
-      return {
-        ppas: ['amazon2'],
-        arch: getRPMArchName(getArch(buildVariant))
-      };
     default:
-      throw new Error(`Unknown build variant ${buildVariant}`);
+      throw new Error(`Unknown package variant ${packageVariant}`);
   }
 }
 
@@ -89,6 +79,7 @@ export class Barque {
     notaryKeyName: string;
     notaryToken: string;
   }[];
+  private downloadedCuratorPromise: Promise<string> | undefined;
 
   constructor(config: Config) {
     if (config.platform !== Platform.Linux) {
@@ -106,6 +97,10 @@ export class Barque {
       version: '5.0.0',
       notaryKeyName: 'server-5.0',
       notaryToken: process.env.SIGNING_AUTH_TOKEN_50 ?? '',
+    }, {
+      version: '6.0.0',
+      notaryKeyName: 'server-6.0',
+      notaryToken: process.env.SIGNING_AUTH_TOKEN_60 ?? '',
     }];
   }
 
@@ -118,13 +113,31 @@ export class Barque {
    *
    * @param buildVariant - The distributable package build variant to publish.
    * @param packageUrl - The Evergreen URL of the distributable package.
+   * @param isDryRun - Whether to pass --dry-run to curator.
    *
    * @returns The URLs where the packages will be available.
    */
-  async releaseToBarque(buildVariant: BuildVariant, packageUrl: string): Promise<string[]> {
+  async releaseToBarque(buildVariant: PackageVariant, packageUrl: string, isDryRun: boolean): Promise<string[]> {
     const repoConfig = path.join(this.config.rootDir, 'config', 'repo-config.yml');
-    const curatorDirPath = await this.createCuratorDir();
-    await this.extractLatestCurator(curatorDirPath);
+    this.downloadedCuratorPromise ??= (async() => {
+      const curatorDirPath = await this.createCuratorDir();
+      await this.extractLatestCurator(curatorDirPath);
+      return curatorDirPath;
+    })();
+    const curatorDirPath = await this.downloadedCuratorPromise;
+
+    let curatorService = 'https://barque.corp.mongodb.com';
+    if (isDryRun) {
+      const fauxService = http.createServer((req, res) => {
+        req.resume().on('end', () => {
+          res.end('{"Status":{"Completed":true}}');
+        });
+      });
+      fauxService.listen(0);
+      fauxService.unref();
+      await once(fauxService, 'listening');
+      curatorService = `http://localhost:${(fauxService.address() as any).port}`;
+    }
 
     const { ppas, arch } = getReposAndArch(buildVariant);
     return await this.execCurator(
@@ -132,7 +145,8 @@ export class Barque {
       packageUrl,
       repoConfig,
       ppas,
-      arch
+      arch,
+      curatorService
     );
   }
 
@@ -141,7 +155,8 @@ export class Barque {
     packageUrl: string,
     repoConfig: string,
     ppas: PPARepository[],
-    architecture: string
+    architecture: string,
+    curatorService: string
   ): Promise<string[]> {
     const results: Promise<string>[] = [];
     for (const ppa of ppas) {
@@ -150,7 +165,7 @@ export class Barque {
           const args = [
             '--level', 'debug',
             'repo', 'submit',
-            '--service', 'https://barque.corp.mongodb.com',
+            '--service', curatorService,
             '--config', repoConfig,
             '--distro', ppa,
             '--arch', architecture,
@@ -193,13 +208,16 @@ export class Barque {
       /* eslint-disable no-multi-spaces */
       case 'ubuntu1804': return `${base}/apt/ubuntu/dists/bionic/mongodb-${edition}/${packageFolderVersion}/multiverse/binary-${targetArchitecture}/${packageFileName}`;
       case 'ubuntu2004': return `${base}/apt/ubuntu/dists/focal/mongodb-${edition}/${packageFolderVersion}/multiverse/binary-${targetArchitecture}/${packageFileName}`;
+      case 'ubuntu2204': return `${base}/apt/ubuntu/dists/jammy/mongodb-${edition}/${packageFolderVersion}/multiverse/binary-${targetArchitecture}/${packageFileName}`;
       case 'debian92':   return `${base}/apt/debian/dists/buster/mongodb-${edition}/${packageFolderVersion}/main/binary-${targetArchitecture}/${packageFileName}`;
       case 'debian10':   return `${base}/apt/debian/dists/stretch/mongodb-${edition}/${packageFolderVersion}/main/binary-${targetArchitecture}/${packageFileName}`;
       case 'debian11':   return `${base}/apt/debian/dists/bullseye/mongodb-${edition}/${packageFolderVersion}/main/binary-${targetArchitecture}/${packageFileName}`;
       case 'rhel70':     return `${base}/yum/redhat/7/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
       case 'rhel80':     return `${base}/yum/redhat/8/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
+      case 'rhel90':     return `${base}/yum/redhat/9/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
       case 'amazon1':    return `${base}/yum/amazon/2013.03/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
       case 'amazon2':    return `${base}/yum/amazon/2/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
+      case 'amazon2022': return `${base}/yum/amazon/2022/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
       case 'suse12':     return `${base}/zypper/suse/12/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
       case 'suse15':     return `${base}/zypper/suse/15/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
       /* eslint-enable no-multi-spaces */

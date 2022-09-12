@@ -8,7 +8,7 @@
 %define _libexecdir %{_exec_prefix}/libexec
 
 Name: {{rpmName}}
-Provides: {{providesName}} = {{providesVersion}}
+Provides: {{provides}}
 Version: {{version}}
 Release: 1%{?dist}
 Group: Development/Tools

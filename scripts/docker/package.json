@@ -1,0 +1,26 @@
+{
+  "name": "@mongosh/docker-build-scripts",
+  "version": "0.0.0-dev.0",
+  "private": true,
+  "description": "MongoDB Shell Build Docker Images",
+  "config": {
+    "unsafe-perm": true
+  },
+  "license": "Apache-2.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "test": "exit 0",
+    "test-ci": "node ../../scripts/run-if-package-requested.js npm test"
+  },
+  "mongosh": {
+    "variants": []
+  },
+  "engines": {
+    "node": ">=12.4.0"
+  },
+  "dependencies": {
+    "mongodb-crypt-library-version": "^1.0.3"
+  }
+}

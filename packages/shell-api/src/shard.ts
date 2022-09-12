@@ -1,7 +1,7 @@
 import Database from './database';
 import {
   shellApiClassDefault,
-  returnsPromise, serverVersions, apiVersions, ShellApiWithMongoClass
+  returnsPromise, serverVersions, apiVersions, ShellApiWithMongoClass, returnType
 } from './decorators';
 
 import type { Document } from '@mongosh/service-provider-core';
@@ -9,7 +9,9 @@ import { assertArgsDefinedType, getConfigDB, getPrintableShardStatus } from './h
 import { ServerVersions, asPrintable } from './enums';
 import { CommandResult, UpdateResult } from './result';
 import { redactURICredentials } from '@mongosh/history';
+import { CommonErrors, MongoshRuntimeError } from '@mongosh/errors';
 import Mongo from './mongo';
+import AggregationCursor from './aggregation-cursor';
 
 @shellApiClassDefault
 export default class Shard extends ShellApiWithMongoClass {
@@ -423,5 +425,30 @@ export default class Shard extends ShellApiWithMongoClass {
       return this.startBalancer();
     }
     return this.stopBalancer();
+  }
+
+  @returnsPromise
+  @apiVersions([])
+  @serverVersions(['6.1.0', ServerVersions.latest])
+  @returnType('AggregationCursor')
+  async getShardedDataDistribution(options = {}): Promise<AggregationCursor> {
+    this._emitShardApiCall('getShardedDataDistribution', {});
+
+    const cursor = await this._database.getSiblingDB('admin').aggregate([{ $shardedDataDistribution: options }]);
+
+    try {
+      await cursor.hasNext();
+    } catch (err: any) {
+      if (err.code?.valueOf() === 40324) { // unrecognized stage error
+        throw new MongoshRuntimeError(
+          'sh.getShardedDataDistribution only works on mongos',
+          CommonErrors.CommandFailed
+        );
+      }
+
+      throw err;
+    }
+
+    return cursor;
   }
 }

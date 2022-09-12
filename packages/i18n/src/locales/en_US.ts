@@ -22,6 +22,7 @@ const translations: Catalog = {
       nodb: "Don't connect to mongod on startup - no 'db address' [arg] expected",
       norc: "Will not run the '.mongoshrc.js' file on start up",
       eval: 'Evaluate javascript',
+      json: 'Print result of --eval as Extended JSON, including errors',
       retryWrites: 'Automatically retry write operations upon transient network errors (Default: true)',
       authenticationOptions: 'Authentication Options:',
       username: 'Username for authentication',
@@ -45,6 +46,7 @@ const translations: Catalog = {
       tlsCRLFile: 'Specifies the .pem file that contains the Certificate Revocation List',
       tlsDisabledProtocols: 'Comma separated list of TLS protocols to disable [TLS1_0,TLS1_1,TLS1_2]',
       tlsUseSystemCA: 'Load the operating system trusted certificate list',
+      tlsFIPSMode: 'Enable the system TLS library\'s FIPS mode',
       apiVersionOptions: 'API version options:',
       apiVersion: 'Specifies the API version to connect with',
       apiStrict: 'Use strict API version mode',
@@ -528,6 +530,11 @@ const translations: Catalog = {
               description: 'Updates all documents that match the specified filter for a collection.',
               example: 'db.collection.updateMany(filter, update, options)'
             },
+            compactStructuredEncryptionData: {
+              link: '',
+              description: 'Compacts structured encryption data',
+              example: 'db.collection.compactStructuredEncryptionData()'
+            },
             convertToCapped: {
               link: '',
               description: "calls {convertToCapped:'coll', size:maxBytes}} command",
@@ -735,8 +742,8 @@ const translations: Catalog = {
             },
             allowDiskUse: {
               link: 'https://docs.mongodb.com/manual/reference/method/cursor.allowDiskUse',
-              description: "Sets the 'allowDiskUse' option to true.",
-              example: 'db.collection.find(query, projection).allowDiskUse()'
+              description: "Sets the 'allowDiskUse' option. If no argument is passed, the default is true.",
+              example: 'db.collection.find(query, projection).sort(sort).allowDiskUse(false)'
             },
             batchSize: {
               link: 'https://docs.mongodb.com/manual/reference/method/cursor.batchSize',
@@ -1628,6 +1635,10 @@ const translations: Catalog = {
               link: 'https://docs.mongodb.com/manual/reference/method/sh.setBalancerState',
               description: 'Calls sh.startBalancer if state is true, otherwise calls sh.stopBalancer',
               example: 'sh.setBalancerState(state)',
+            },
+            getShardedDataDistribution: {
+              description: 'Returns data-size distribution information for all existing sharded collections',
+              example: 'sh.getShardedDataDistribution()',
             }
           }
         }
@@ -2142,7 +2153,23 @@ const translations: Catalog = {
             getKeyByAltName: {
               description: 'Retrieves keys with the specified key alternative name.',
               link: 'https://docs.mongodb.com/manual/reference/method/KeyVault.getKeyByAltName/#KeyVault.getKeyByAltName'
-            }
+            },
+            rewrapManyDataKey: {
+              description: 'Re-wrap one, more, or all data keys with another KMS provider, or re-wrap using the same one.',
+              link: 'https://docs.mongodb.com/manual/reference/method/KeyVault.rewrapManyDataKey/#KeyVault.rewrapManyDataKey'
+            },
+            createDataKey: {
+              description: 'Alias of KeyVault.createKey()',
+              link: 'https://docs.mongodb.com/manual/reference/method/KeyVault.createKey/#KeyVault.createKey'
+            },
+            removeKeyAltName: {
+              description: 'Alias of KeyVault.removeKeyAlternateName()',
+              link: 'https://docs.mongodb.com/manual/reference/method/KeyVault.removeKeyAlternateName/#KeyVault.removeKeyAlternateName'
+            },
+            addKeyAltName: {
+              description: 'Alias of KeyVault.addKeyAlternateName()',
+              link: 'https://docs.mongodb.com/manual/reference/method/KeyVault.addKeyAlternateName/#KeyVault.addKeyAlternateName'
+            },
           }
         }
       },

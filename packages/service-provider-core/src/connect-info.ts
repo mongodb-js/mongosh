@@ -13,7 +13,7 @@ export interface ConnectInfo {
   server_arch?: string;
   is_enterprise: boolean;
   auth_type?: string;
-  is_data_lake: boolean;
+  is_data_federation: boolean;
   dl_version?: string;
   atlas_version?: string;
   is_genuine: boolean;
@@ -26,7 +26,8 @@ export default function getConnectInfo(uri: string, mongoshVersion: string, buil
   buildInfo ??= {}; // We're currently not getting buildInfo with --apiStrict.
   const { isGenuine: is_genuine, serverName: non_genuine_server_name } =
     getBuildInfo.getGenuineMongoDB(buildInfo, cmdLineOpts);
-  const { isDataLake: is_data_lake, dlVersion: dl_version }
+  // Atlas Data Lake has been renamed to Atlas Data Federation
+  const { isDataLake: is_data_federation, dlVersion: dl_version }
     = getBuildInfo.getDataLake(buildInfo);
 
   // get this information from topology rather than cmdLineOpts, since not all
@@ -48,7 +49,7 @@ export default function getConnectInfo(uri: string, mongoshVersion: string, buil
     server_arch,
     is_enterprise: getBuildInfo.isEnterprise(buildInfo),
     auth_type,
-    is_data_lake,
+    is_data_federation,
     dl_version,
     atlas_version: atlasVersion?.atlasVersion ?? null,
     is_genuine,

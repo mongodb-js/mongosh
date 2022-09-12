@@ -13,6 +13,10 @@ type CollectionObject = {
   badge: string;
 };
 
+function isSystemCollection(coll: CollectionObject): boolean {
+  return coll.name.startsWith('system.') || coll.name.startsWith('enxcol_.');
+}
+
 export class ShowCollectionsOutput extends Component<ShowCollectionsOutputProps> {
   static propTypes = {
     value: PropTypes.array
@@ -25,7 +29,7 @@ export class ShowCollectionsOutput extends Component<ShowCollectionsOutputProps>
     let maxCollectionNameLength = 0;
     value.forEach(coll => {
       maxCollectionNameLength = Math.max(maxCollectionNameLength, coll.name.length);
-      if (coll.name.startsWith('system.')) {
+      if (isSystemCollection(coll)) {
         systemCollections.push(coll);
       } else {
         otherCollections.push(coll);
@@ -41,7 +45,7 @@ export class ShowCollectionsOutput extends Component<ShowCollectionsOutputProps>
       const className = classNames(
         styles['shell-collections-output-collection-name'],
         {
-          [styles['shell-collections-output-system-collection']]: coll.name.startsWith('system.')
+          [styles['shell-collections-output-system-collection']]: isSystemCollection(coll)
         }
       );
       tableEntries.push(<span key={`row-${i}`}>

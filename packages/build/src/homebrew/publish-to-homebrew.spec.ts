@@ -52,7 +52,8 @@ describe('Homebrew publish-to-homebrew', () => {
         packageSha: 'sha',
         homebrewFormula: 'new formula',
         homebrewCore,
-        homebrewCoreFork
+        homebrewCoreFork,
+        isDryRun: false
       })
       .resolves('new-branch');
 
@@ -66,6 +67,7 @@ describe('Homebrew publish-to-homebrew', () => {
       homebrewCoreFork,
       '1.0.0',
       'githubRelease',
+      false,
       httpsSha256,
       generateFormula,
       updateHomebrewFork
@@ -95,7 +97,8 @@ describe('Homebrew publish-to-homebrew', () => {
         packageSha: 'sha',
         homebrewFormula: 'formula',
         homebrewCore,
-        homebrewCoreFork
+        homebrewCoreFork,
+        isDryRun: false
       })
       .resolves(undefined);
 
@@ -104,6 +107,7 @@ describe('Homebrew publish-to-homebrew', () => {
       homebrewCoreFork,
       '1.0.0',
       'githubRelease',
+      false,
       httpsSha256,
       generateFormula,
       updateHomebrewFork
@@ -133,7 +137,8 @@ describe('Homebrew publish-to-homebrew', () => {
         packageSha: 'sha',
         homebrewFormula: 'new formula',
         homebrewCore,
-        homebrewCoreFork
+        homebrewCoreFork,
+        isDryRun: false
       })
       .resolves('new-branch');
 
@@ -147,6 +152,7 @@ describe('Homebrew publish-to-homebrew', () => {
       homebrewCoreFork,
       '1.0.0',
       'githubRelease',
+      false,
       httpsSha256,
       generateFormula,
       updateHomebrewFork

@@ -1,7 +1,7 @@
 import type { writeBuildInfo as writeBuildInfoType } from './build-info';
 import { Barque } from './barque';
 import {
-  ALL_BUILD_VARIANTS,
+  ALL_PACKAGE_VARIANTS,
   Config,
   getReleaseVersionFromTag,
   shouldDoPublicRelease as shouldDoPublicReleaseFn
@@ -11,7 +11,7 @@ import { getArtifactUrl as getArtifactUrlFn } from './evergreen';
 import { GithubRepo } from '@mongodb-js/devtools-github-repo';
 import type { publishToHomebrew as publishToHomebrewType } from './homebrew';
 import type { publishNpmPackages as publishNpmPackagesType } from './npm-packages';
-import { PackageInformation, getPackageFile } from './packaging';
+import { PackageInformationProvider, getPackageFile } from './packaging';
 
 export async function runPublish(
   config: Config,
@@ -31,6 +31,10 @@ export async function runPublish(
     return;
   }
 
+  if (config.isDryRun) {
+    console.warn('Performing dry-run publish only');
+  }
+
   const releaseVersion = getReleaseVersionFromTag(config.triggeringGitTag);
   const latestDraftTag = await mongoshGithubRepo.getMostRecentDraftTagForRelease(releaseVersion);
   if (!latestDraftTag || !releaseVersion) {
@@ -40,11 +44,6 @@ export async function runPublish(
     throw new Error(`Version mismatch - latest draft tag was for revision ${latestDraftTag.sha}, current revision is ${config.revision}`);
   }
 
-  const packageName = config.packageInformation?.metadata.name;
-  if (!packageName) {
-    throw new Error('Missing package name from config.packageInformation.metadata');
-  }
-
   console.info('mongosh: Re-using artifacts from most recent draft tag', latestDraftTag.name);
 
   await publishArtifactsToBarque(
@@ -52,14 +51,16 @@ export async function runPublish(
     config.project as string,
     releaseVersion,
     latestDraftTag.name,
-    config.packageInformation as PackageInformation,
+    config.packageInformation as PackageInformationProvider,
+    !!config.isDryRun,
     getEvergreenArtifactUrl
   );
 
   await createAndPublishDownloadCenterConfig(
-    config.packageInformation as PackageInformation,
+    config.packageInformation as PackageInformationProvider,
     config.downloadCenterAwsKey || '',
-    config.downloadCenterAwsSecret || ''
+    config.downloadCenterAwsSecret || '',
+    !!config.isDryRun
   );
 
   await mongoshGithubRepo.promoteRelease(config);
@@ -67,13 +68,14 @@ export async function runPublish(
   // ensures the segment api key to be present in the published packages
   await writeBuildInfo(config, 'packaged');
 
-  publishNpmPackages();
+  publishNpmPackages(!!config.isDryRun);
 
   await publishToHomebrew(
     homebrewCoreGithubRepo,
     mongodbHomebrewForkGithubRepo,
     config.version,
-    `https://github.com/${mongoshGithubRepo.repo.owner}/${mongoshGithubRepo.repo.repo}/releases/tag/v${config.version}`
+    `https://github.com/${mongoshGithubRepo.repo.owner}/${mongoshGithubRepo.repo.repo}/releases/tag/v${config.version}`,
+    !!config.isDryRun
   );
 
   console.info('mongosh: finished release process.');
@@ -84,28 +86,34 @@ async function publishArtifactsToBarque(
   project: string,
   releaseVersion: string,
   mostRecentDraftTag: string,
-  packageInformation: PackageInformation,
+  packageInformation: PackageInformationProvider,
+  isDryRun: boolean,
   getEvergreenArtifactUrl: typeof getArtifactUrlFn
 ): Promise<void> {
   const publishedPackages: string[] = [];
-  for await (const variant of ALL_BUILD_VARIANTS) {
-    const packageFile = getPackageFile(variant, {
-      ...packageInformation,
+  for await (const variant of ALL_PACKAGE_VARIANTS) {
+    const variantPackageInfo = packageInformation(variant);
+    const packageFile = getPackageFile(variant, () => ({
+      ...variantPackageInfo,
       metadata: {
-        ...packageInformation.metadata,
+        ...variantPackageInfo.metadata,
         version: releaseVersion
       }
-    });
+    }));
     const packageUrl = getEvergreenArtifactUrl(project, mostRecentDraftTag, packageFile.path);
     console.info(`mongosh: Considering publishing ${variant} artifact to barque ${packageUrl}`);
-    const packageUrls = await barque.releaseToBarque(variant, packageUrl);
+    const packageUrls = await barque.releaseToBarque(variant, packageUrl, isDryRun);
     for (const url of packageUrls) {
       console.info(` -> ${url}`);
     }
     publishedPackages.push(...packageUrls);
   }
 
-  await barque.waitUntilPackagesAreAvailable(publishedPackages, 300);
+  if (isDryRun) {
+    console.warn('Not waiting for package availability in dry run...');
+  } else {
+    await barque.waitUntilPackagesAreAvailable(publishedPackages, 300);
+  }
 
   console.info('mongosh: Submitting to barque complete');
 }

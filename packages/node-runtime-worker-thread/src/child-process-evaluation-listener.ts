@@ -1,10 +1,11 @@
 import { ChildProcess } from 'child_process';
 import { exposeAll, Exposed, close } from './rpc';
 import type { WorkerRuntime } from './index';
+import { deserializeEvaluationResult } from './serializer';
 import { RuntimeEvaluationListener } from '@mongosh/browser-runtime-core';
 
 export class ChildProcessEvaluationListener {
-  exposedListener: Exposed<Required<Omit<RuntimeEvaluationListener, 'onLoad' | 'startMongocryptd'>>>;
+  exposedListener: Exposed<Required<Omit<RuntimeEvaluationListener, 'onLoad' | 'getCryptLibraryOptions'>>>;
 
   constructor(workerRuntime: WorkerRuntime, childProcess: ChildProcess) {
     this.exposedListener = exposeAll(
@@ -15,6 +16,7 @@ export class ChildProcessEvaluationListener {
           );
         },
         onPrint(values) {
+          values = values.map(deserializeEvaluationResult);
           return workerRuntime.evaluationListener?.onPrint?.(values);
         },
         setConfig(key, value) {

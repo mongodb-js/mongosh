@@ -1,6 +1,6 @@
 import { DevtoolsConnectOptions } from '@mongosh/service-provider-server/lib/cli-service-provider';
 import { expect } from 'chai';
-import { UUID } from 'bson';
+import { UUID, Long } from 'bson';
 import {
   serializeError,
   deserializeError,
@@ -141,7 +141,7 @@ describe('serializer', () => {
   });
 
   describe('connection options', () => {
-    it('should serialize and deserialize connection options', () => {
+    it('should serialize and deserialize FLE1 connection options', () => {
       const options: DevtoolsConnectOptions = {
         autoEncryption: {
           schemaMap: {
@@ -150,7 +150,7 @@ describe('serializer', () => {
               properties: {
                 taxid: {
                   encrypt: {
-                    keyId: [ new UUID('a21ddc6a-8806-4384-9fdf-8ba02a767b5f').toBinary() ],
+                    keyId: [ new UUID('a21ddc6a-8806-4384-9fdf-8ba02a767b5f') ],
                     bsonType: 'string',
                     algorithm: 'AEAD_AES_256_CBC_HMAC_SHA_512-Random'
                   }
@@ -177,6 +177,42 @@ describe('serializer', () => {
                   }
                 }
               }
+            }
+          }
+        }
+      });
+
+      expect(deserializeConnectOptions(serialized)).to.deep.equal(options);
+    });
+
+    it('should serialize and deserialize FLE2 connection options', () => {
+      const options: DevtoolsConnectOptions = {
+        autoEncryption: {
+          encryptedFieldsMap: {
+            'hr.employees': {
+              fields: [{
+                path: 'phoneNumber',
+                keyId: new UUID('fd6275d7-9260-4e6c-a86b-68ec5240814a'),
+                bsonType: 'string',
+                queries: { queryType: 'equality', contention: new Long(0) }
+              }]
+            }
+          }
+        }
+      };
+
+      const serialized = serializeConnectOptions(options);
+
+      expect(serialized).to.deep.equal({
+        autoEncryption: {
+          encryptedFieldsMap: {
+            'hr.employees': {
+              fields: [{
+                path: 'phoneNumber',
+                keyId: { $binary: { base64: '/WJ115JgTmyoa2jsUkCBSg==', subType: '04' } },
+                bsonType: 'string',
+                queries: { queryType: 'equality', contention: { $numberLong: '0' } }
+              }]
             }
           }
         }

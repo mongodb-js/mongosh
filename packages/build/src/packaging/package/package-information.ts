@@ -1,3 +1,4 @@
+import type { PackageVariant } from '../../config';
 interface DocumentationFile {
     sourceFilePath: string;
     packagedFilePath: string;
@@ -15,7 +16,7 @@ type ManPage = DocumentationFile;
 export interface PackageInformation {
     binaries: {
         sourceFilePath: string;
-        category: 'bin' | 'libexec';
+        category: 'bin' | 'lib';
         license: LicenseInformation;
     }[];
     otherDocFilePaths: DocumentationFile[];
@@ -32,8 +33,11 @@ export interface PackageInformation {
         fullName: string;
         copyright: string;
         icon: string;
+        provides: { name: string, version: string }[];
     };
     debTemplateDir: string;
     rpmTemplateDir: string;
     msiTemplateDir: string;
 }
+
+export type PackageInformationProvider = (packageVariant: PackageVariant) => PackageInformation;

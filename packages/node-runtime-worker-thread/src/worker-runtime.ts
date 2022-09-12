@@ -56,7 +56,16 @@ const evaluationListener = createCaller<WorkerRuntimeEvaluationListener>(
     'onExit',
     'onRunInterruptible'
   ],
-  parentPort
+  parentPort,
+  {
+    onPrint: function(results: RuntimeEvaluationResult[]): RuntimeEvaluationResult[][] {
+      // We're transforming an args array, so we have to return an array of
+      // args. onPrint only takes one arg which is an array of
+      // RuntimeEvaluationResult so in this case it will just return a
+      // single-element array that itself is an array.
+      return [results.map(serializeEvaluationResult)];
+    }
+  }
 );
 
 const messageBus: MongoshBus = Object.assign(

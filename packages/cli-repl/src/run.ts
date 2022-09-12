@@ -1,5 +1,16 @@
-import { CliRepl, parseCliArgs, getMongocryptdPaths, runSmokeTests, USAGE, buildInfo } from './index';
+let fipsError: Error | undefined;
+if (process.argv.includes('--tlsFIPSMode')) {
+  // FIPS mode should be enabled before we run any other code, including any dependencies.
+  try {
+    require('crypto').setFips(1);
+  } catch (err: any) {
+    fipsError = err;
+  }
+}
+
+import { CliRepl, parseCliArgs, runSmokeTests, USAGE, buildInfo } from './index';
 import { getStoragePaths, getGlobalConfigPaths } from './config-directory';
+import { getCryptLibraryPaths } from './crypt-library-paths';
 import { getTlsCertificateSelector } from './tls-certificate-selector';
 import { redactURICredentials } from '@mongosh/history';
 import { generateConnectionInfoFromCliArgs } from '@mongosh/arg-parser';
@@ -7,6 +18,7 @@ import { runMain } from 'module';
 import readline from 'readline';
 import askcharacter from 'askcharacter';
 import stream from 'stream';
+import crypto from 'crypto';
 
 // eslint-disable-next-line complexity, @typescript-eslint/no-floating-promises
 (async() => {
@@ -28,6 +40,31 @@ import stream from 'stream';
 
     const { version } = require('../package.json');
 
+    if (options.tlsFIPSMode) {
+      if (!fipsError && !crypto.getFips()) {
+        // We can end up here if somebody used an unsual spelling of
+        // --tlsFIPSMode that our arg parser recognizes, but not the
+        // early check above, e.g. --tls-FIPS-mode.
+        // We should also just generally check that FIPS mode is
+        // actually enabled.
+        fipsError = new Error('FIPS mode not enabled despite requested');
+      }
+      if (fipsError) {
+        // Adjust the error message depending on whether this mongosh binary
+        // potentially can support FIPS or not.
+        if (process.config.variables.node_shared_openssl) {
+          console.error('Could not enable FIPS mode. Please ensure that your system OpenSSL installation');
+          console.error('supports FIPS, and see the mongosh FIPS documentation for more information.');
+        } else {
+          console.error('Could not enable FIPS mode. This mongosh installation does not appear to');
+          console.error('support FIPS. Please see the mongosh FIPS documentation for more information.');
+        }
+        console.error('Error details:');
+        console.error(fipsError);
+        process.exit(1);
+      }
+    }
+
     if (options.help) {
       // eslint-disable-next-line no-console
       console.log(USAGE);
@@ -39,22 +76,21 @@ import stream from 'stream';
       console.log(JSON.stringify(buildInfo(), null, '  '));
     } else if (options.smokeTests) {
       const smokeTestServer = process.env.MONGOSH_SMOKE_TEST_SERVER;
+      const cryptLibraryOpts = options.cryptSharedLibPath ? [
+        `--cryptSharedLibPath=${options.cryptSharedLibPath}`
+      ] : [];
       if (process.execPath === process.argv[1]) {
         // This is the compiled binary. Use only the path to it.
-        await runSmokeTests(smokeTestServer, process.execPath);
+        await runSmokeTests(smokeTestServer, process.execPath, ...cryptLibraryOpts);
       } else {
         // This is not the compiled binary. Use node + this script.
-        await runSmokeTests(smokeTestServer, process.execPath, process.argv[1]);
+        await runSmokeTests(smokeTestServer, process.execPath, process.argv[1], ...cryptLibraryOpts);
       }
     } else {
-      let mongocryptdSpawnPaths = [['mongocryptd']];
       if (process.execPath === process.argv[1]) {
         // Remove the built-in Node.js listener that prints e.g. deprecation
         // warnings in single-binary release mode.
         process.removeAllListeners('warning');
-        // Look for mongocryptd in the locations where our packaging would
-        // have put it.
-        mongocryptdSpawnPaths = await getMongocryptdPaths();
       }
 
       // This is for testing under coverage, see the the comment in the tests
@@ -98,7 +134,7 @@ import stream from 'stream';
         shellCliOptions: {
           ...options,
         },
-        mongocryptdSpawnPaths,
+        getCryptLibraryPaths,
         input: process.stdin,
         output: process.stdout,
         onExit: process.exit,

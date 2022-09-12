@@ -24,7 +24,7 @@
     "access": "public"
   },
   "engines": {
-    "node": ">=12.4.0"
+    "node": ">=14.15.1"
   },
   "mongosh": {
     "unitTestsOnly": true,
@@ -34,12 +34,12 @@
   },
   "dependencies": {
     "@mongosh/errors": "0.0.0-dev.0",
-    "bson": "^4.6.2",
-    "mongodb": "^4.5.0",
+    "bson": "^4.7.0",
+    "mongodb": "^4.9.1",
     "mongodb-build-info": "^1.2.0"
   },
   "optionalDependencies": {
-    "mongodb-client-encryption": "^2.0.0"
+    "mongodb-client-encryption": "^2.2.0"
   },
   "dependency-check": {
     "entries": [

@@ -648,11 +648,9 @@ export async function setHideIndex(coll: Collection, index: string | Document, h
 }
 
 export function assertCLI(platform: ReplPlatform, features: string): void {
-  if (
-    platform !== ReplPlatform.CLI
-  ) {
+  if (platform !== 'CLI') {
     throw new MongoshUnimplementedError(
-      `${features} are not supported for current platform: ${ReplPlatform[platform]}`,
+      `${features} are not supported for current platform: ${platform}`,
       CommonErrors.NotImplemented
     );
   }
@@ -661,7 +659,16 @@ export function assertCLI(platform: ReplPlatform, features: string): void {
 export function processFLEOptions(fleOptions: ClientSideFieldLevelEncryptionOptions): AutoEncryptionOptions {
   assertKeysDefined(fleOptions, ['keyVaultNamespace', 'kmsProviders']);
   Object.keys(fleOptions).forEach(k => {
-    if (['keyVaultClient', 'keyVaultNamespace', 'kmsProviders', 'schemaMap', 'bypassAutoEncryption', 'tlsOptions'].indexOf(k) === -1) {
+    if ([
+      'keyVaultClient',
+      'keyVaultNamespace',
+      'kmsProviders',
+      'schemaMap',
+      'bypassAutoEncryption',
+      'tlsOptions',
+      'bypassQueryAnalysis',
+      'encryptedFieldsMap'
+    ].indexOf(k) === -1) {
       throw new MongoshInvalidInputError(`Unrecognized FLE Client Option ${k}`);
     }
   });
@@ -692,6 +699,12 @@ export function processFLEOptions(fleOptions: ClientSideFieldLevelEncryptionOpti
   }
   if (fleOptions.bypassAutoEncryption !== undefined) {
     autoEncryption.bypassAutoEncryption = fleOptions.bypassAutoEncryption;
+  }
+  if (fleOptions.encryptedFieldsMap) {
+    autoEncryption.encryptedFieldsMap = fleOptions.encryptedFieldsMap;
+  }
+  if (fleOptions.bypassQueryAnalysis !== undefined) {
+    autoEncryption.bypassQueryAnalysis = fleOptions.bypassQueryAnalysis;
   }
   if (fleOptions.tlsOptions !== undefined) {
     autoEncryption.tlsOptions = fleOptions.tlsOptions;
@@ -754,3 +767,40 @@ export function adjustRunCommand(cmd: Document, shellBson: ShellBson): Document 
   }
   return cmd;
 }
+
+const isFLE2Collection = (collections: Document[], index: number): boolean => {
+  return (
+    !collections[index].name.startsWith('enxcol_.') &&
+    collections.some(coll => coll.name === `enxcol_.${collections[index].name}.esc`) &&
+    collections.some(coll => coll.name === `enxcol_.${collections[index].name}.ecc`) &&
+    collections.some(coll => coll.name === `enxcol_.${collections[index].name}.ecoc`)
+  );
+};
+
+export function getBadge(collections: Document[], index: number): string {
+  if (collections[index].type === 'timeseries') {
+    return '[time-series]';
+  }
+
+  if (collections[index].type === 'view') {
+    return '[view]';
+  }
+
+  if (isFLE2Collection(collections, index)) {
+    return '[queryable-encryption]';
+  }
+
+  return '';
+}
+
+export const FREE_MONITORING_BANNER = `\
+Enable MongoDB's free cloud-based monitoring service, which will then receive and display
+metrics about your deployment (disk utilization, CPU, operation statistics, etc).
+
+The monitoring data will be available on a MongoDB website with a unique URL accessible to you
+and anyone you share the URL with. MongoDB may use this information to make product
+improvements and to suggest MongoDB products and deployment options to you.
+
+To enable free monitoring, run the following command: db.enableFreeMonitoring()
+To permanently disable this reminder, run the following command: db.disableFreeMonitoring()
+`;

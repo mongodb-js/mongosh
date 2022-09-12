@@ -164,6 +164,12 @@ describe('Database', () => {
           { name: 'coll3', type: 'view' },
           { name: 'coll1', type: 'collection' },
           { name: 'coll2', type: 'newtype' },
+          { name: 'coll4', type: 'collection' },
+          { name: 'enxcol_.coll4.esc', type: 'collection' },
+          { name: 'enxcol_.coll4.ecc', type: 'collection' },
+          { name: 'enxcol_.coll4.ecoc', type: 'collection' },
+          { name: 'enxcol_.coll5.esc', type: 'collection' },
+          { name: 'coll6', type: 'timeseries' }
         ];
 
         serviceProvider.listCollections.resolves(result);
@@ -171,7 +177,13 @@ describe('Database', () => {
         expect(await database._getCollectionNamesWithTypes()).to.deep.equal([
           { name: 'coll1', badge: '' },
           { name: 'coll2', badge: '' },
-          { name: 'coll3', badge: '[view]' }
+          { name: 'coll3', badge: '[view]' },
+          { name: 'coll4', badge: '[queryable-encryption]' },
+          { name: 'coll6', badge: '[time-series]' },
+          { name: 'enxcol_.coll4.ecc', badge: '' },
+          { name: 'enxcol_.coll4.ecoc', badge: '' },
+          { name: 'enxcol_.coll4.esc', badge: '' },
+          { name: 'enxcol_.coll5.esc', badge: '' }
         ]);
 
         expect(serviceProvider.listCollections).to.have.been.calledOnceWith(

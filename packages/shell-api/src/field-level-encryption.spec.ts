@@ -1,5 +1,5 @@
 import { MongoshInvalidInputError } from '@mongosh/errors';
-import { bson, ClientEncryption as FLEClientEncryption, ClientEncryptionTlsOptions, ServiceProvider } from '@mongosh/service-provider-core';
+import { bson, ClientEncryption as FLEClientEncryption, ClientEncryptionTlsOptions, ServiceProvider, ClientEncryptionEncryptOptions } from '@mongosh/service-provider-core';
 import { expect } from 'chai';
 import { EventEmitter } from 'events';
 import { promises as fs } from 'fs';
@@ -16,6 +16,7 @@ import ShellInstanceState from './shell-instance-state';
 import { CliServiceProvider } from '../../service-provider-server';
 import { startTestServer } from '../../../testing/integration-testing-hooks';
 import { makeFakeHTTPConnection, fakeAWSHandlers } from '../../../testing/fake-kms';
+import { inspect } from 'util';
 
 const KEY_ID = new bson.Binary('MTIzNA==');
 const DB = 'encryption';
@@ -47,6 +48,11 @@ const AWS_KMS = {
 };
 
 const ALGO = 'AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic';
+const ENCRYPT_OPTIONS = {
+  algorithm: ALGO as ClientEncryptionEncryptOptions['algorithm'],
+  contentionFactor: 10,
+  queryType: 'Equality' as ClientEncryptionEncryptOptions['queryType']
+};
 
 const RAW_CLIENT = { client: 1 } as any;
 
@@ -161,11 +167,17 @@ describe('Field Level Encryption', () => {
       });
     });
     describe('encrypt', () => {
-      it('calls encrypt on libmongoc', async() => {
+      it('calls encrypt with algorithm on libmongoc', async() => {
         const value = new bson.ObjectId();
         libmongoc.encrypt.resolves();
         await clientEncryption.encrypt(KEY_ID, value, ALGO);
         expect(libmongoc.encrypt).calledOnceWithExactly(value, { keyId: KEY_ID, algorithm: ALGO });
+      });
+      it('calls encrypt with algorithm, contentionFactor, and queryType on libmongoc', async() => {
+        const value = new bson.ObjectId();
+        libmongoc.encrypt.resolves();
+        await clientEncryption.encrypt(KEY_ID, value, ENCRYPT_OPTIONS);
+        expect(libmongoc.encrypt).calledOnceWithExactly(value, { keyId: KEY_ID, ...ENCRYPT_OPTIONS });
       });
       it('throw if failed', async() => {
         const value = new bson.ObjectId();
@@ -296,21 +308,61 @@ describe('Field Level Encryption', () => {
     });
     describe('getKey', () => {
       it('calls find on key coll', async() => {
-        const c = { cursor: 1 } as any;
+        const c = {
+          next() { return { _id: 1 }; },
+          limit() {}
+        } as any;
+        sp.find.returns(c);
+        const result = await keyVault.getKey(KEY_ID);
+        expect(sp.find).to.have.been.calledTwice;
+        expect(sp.find).to.have.been.calledWith(DB, COLL, { _id: KEY_ID }, {});
+        expect(result._cursor).to.deep.equal(c);
+        expect(result._id).to.equal(1);
+        expect(await result.next()).to.deep.equal({ _id: 1 });
+      });
+      it('avoids running .find() twice if the cursor supports rewinding', async() => {
+        const c = {
+          next() { return { _id: 1 }; },
+          limit() {},
+          rewind: sinon.stub()
+        } as any;
         sp.find.returns(c);
         const result = await keyVault.getKey(KEY_ID);
         expect(sp.find).to.have.been.calledOnceWithExactly(DB, COLL, { _id: KEY_ID }, {});
+        expect(c.rewind).to.have.been.calledOnceWithExactly();
         expect(result._cursor).to.deep.equal(c);
+        expect(result._id).to.equal(1);
+        expect(await result.next()).to.deep.equal({ _id: 1 });
+      });
+      it('works when no result is returned', async() => {
+        const c = {
+          next() { return null; },
+          limit() {}
+        } as any;
+        sp.find.returns(c);
+        const result = await keyVault.getKey(KEY_ID);
+        expect(sp.find).to.have.been.calledTwice;
+        expect(sp.find).to.have.been.calledWith(DB, COLL, { _id: KEY_ID }, {});
+        expect(result._cursor).to.deep.equal(c);
+        expect(result._id).to.equal(undefined);
+        expect(inspect(result)).to.include('no result -- will return `null` in future mongosh versions');
+        expect(await result.next()).to.deep.equal(null);
       });
     });
     describe('getKeyByAltName', () => {
       it('calls find on key coll', async() => {
-        const c = { cursor: 1 } as any;
+        const c = {
+          next() { return { _id: 1 }; },
+          limit() {}
+        } as any;
         const keyaltname = 'abc';
         sp.find.returns(c);
         const result = await keyVault.getKeyByAltName(keyaltname);
-        expect(sp.find).to.have.been.calledOnceWithExactly(DB, COLL, { keyAltNames: keyaltname }, {});
+        expect(sp.find).to.have.been.calledTwice;
+        expect(sp.find).to.have.been.calledWith(DB, COLL, { keyAltNames: keyaltname }, {});
         expect(result._cursor).to.deep.equal(c);
+        expect(result._id).to.equal(1);
+        expect(await result.next()).to.deep.equal({ _id: 1 });
       });
     });
     describe('getKeys', () => {
@@ -384,6 +436,27 @@ describe('Field Level Encryption', () => {
         ]);
         expect(result).to.deep.equal(r2.value);
       });
+      it('reads keyAltNames and keyMaterial from DataKeyEncryptionKeyOptions', async() => {
+        const rawResult = { result: 1 };
+        const keyVault = await mongo.getKeyVault();
+        const options = {
+          keyAltNames: ['b'],
+          keyMaterial: new bson.Binary(Buffer.from('12345678123498761234123456789012', 'hex'), 4)
+        };
+
+        libmongoc.createDataKey.resolves(rawResult);
+        await keyVault.createKey('local', options);
+        expect(libmongoc.createDataKey).calledOnceWithExactly('local', options);
+      });
+    });
+    describe('rewrapManyDataKey', () => {
+      it('calls rewrapManyDataKey on clientEncryption', async() => {
+        const rawResult = { result: 1 } as any;
+        libmongoc.rewrapManyDataKey.resolves(rawResult);
+        const result = await keyVault.rewrapManyDataKey({ status: 0 }, { provider: 'local' });
+        expect(libmongoc.rewrapManyDataKey).calledOnceWithExactly({ status: 0 }, { provider: 'local' });
+        expect(result).to.deep.equal(rawResult);
+      });
     });
   });
   describe('Mongo constructor FLE options', () => {
@@ -421,6 +494,7 @@ describe('Field Level Encryption', () => {
           }
         },
         schemaMap: SCHEMA_MAP,
+        encryptedFieldsMap: SCHEMA_MAP,
         bypassAutoEncryption: true
       };
       const mongo = new Mongo(instanceState, 'localhost:27017', localKmsOptions, undefined, sp);

@@ -482,16 +482,16 @@ describe('CliRepl', () => {
           expect(output).not.to.include('uh oh');
         });
 
-        it('evaluates code passed through --eval', async() => {
-          cliReplOptions.shellCliOptions.eval = '"i am" + " being evaluated"';
+        it('evaluates code passed through --eval (single argument)', async() => {
+          cliReplOptions.shellCliOptions.eval = ['"i am" + " being evaluated"'];
           cliRepl = new CliRepl(cliReplOptions);
           await startWithExpectedImmediateExit(cliRepl, '');
           expect(output).to.include('i am being evaluated');
           expect(exitCode).to.equal(0);
         });
 
-        it('forwards the error if the script passed to --eval throws', async() => {
-          cliReplOptions.shellCliOptions.eval = 'throw new Error("oh no")';
+        it('forwards the error if the script passed to --eval throws (single argument)', async() => {
+          cliReplOptions.shellCliOptions.eval = ['throw new Error("oh no")'];
           cliRepl = new CliRepl(cliReplOptions);
           try {
             await cliRepl.start('', {});
@@ -499,6 +499,158 @@ describe('CliRepl', () => {
             expect(err.message).to.include('oh no');
           }
           expect(output).not.to.include('oh no');
+        });
+
+        it('evaluates code passed through --eval (multiple arguments)', async() => {
+          cliReplOptions.shellCliOptions.eval = ['X = "i am"; "asdfghjkl"', 'X + " being evaluated"'];
+          cliRepl = new CliRepl(cliReplOptions);
+          await startWithExpectedImmediateExit(cliRepl, '');
+          expect(output).to.not.include('asdfghjkl');
+          expect(output).to.include('i am being evaluated');
+          expect(exitCode).to.equal(0);
+        });
+
+        it('forwards the error if the script passed to --eval throws (multiple arguments)', async() => {
+          cliReplOptions.shellCliOptions.eval = ['throw new Error("oh no")', 'asdfghjkl'];
+          cliRepl = new CliRepl(cliReplOptions);
+          try {
+            await cliRepl.start('', {});
+          } catch (err: any) {
+            expect(err.message).to.include('oh no');
+          }
+          expect(output).to.not.include('asdfghjkl');
+          expect(output).not.to.include('oh no');
+        });
+      });
+
+      context('in --json mode', () => {
+        beforeEach(() => {
+          cliReplOptions.shellCliOptions.quiet = true;
+        });
+
+        it('serializes results as EJSON with --json', async() => {
+          cliReplOptions.shellCliOptions.eval = ['({ a: Long("0") })'];
+          cliReplOptions.shellCliOptions.json = true;
+          cliRepl = new CliRepl(cliReplOptions);
+          await startWithExpectedImmediateExit(cliRepl, '');
+          expect(JSON.parse(output)).to.deep.equal({ a: { $numberLong: '0' } });
+          expect(exitCode).to.equal(0);
+        });
+
+        it('serializes results as EJSON with --json=canonical', async() => {
+          cliReplOptions.shellCliOptions.eval = ['({ a: Long("0") })'];
+          cliReplOptions.shellCliOptions.json = 'canonical';
+          cliRepl = new CliRepl(cliReplOptions);
+          await startWithExpectedImmediateExit(cliRepl, '');
+          expect(JSON.parse(output)).to.deep.equal({ a: { $numberLong: '0' } });
+          expect(exitCode).to.equal(0);
+        });
+
+        it('serializes results as EJSON with --json=relaxed', async() => {
+          cliReplOptions.shellCliOptions.eval = ['({ a: Long("0") })'];
+          cliReplOptions.shellCliOptions.json = 'relaxed';
+          cliRepl = new CliRepl(cliReplOptions);
+          await startWithExpectedImmediateExit(cliRepl, '');
+          expect(JSON.parse(output)).to.deep.equal({ a: 0 });
+          expect(exitCode).to.equal(0);
+        });
+
+        it('serializes user errors as EJSON with --json', async() => {
+          cliReplOptions.shellCliOptions.eval = ['throw new Error("asdf")'];
+          cliReplOptions.shellCliOptions.json = true;
+          cliRepl = new CliRepl(cliReplOptions);
+          await startWithExpectedImmediateExit(cliRepl, '');
+          const parsed = JSON.parse(output);
+          expect(parsed).to.haveOwnProperty('message', 'asdf');
+          expect(parsed).to.haveOwnProperty('name', 'Error');
+          expect(parsed.stack).to.be.a('string');
+          expect(exitCode).to.equal(1);
+        });
+
+        it('serializes mongosh errors as EJSON with --json', async() => {
+          cliReplOptions.shellCliOptions.eval = ['db'];
+          cliReplOptions.shellCliOptions.json = true;
+          cliRepl = new CliRepl(cliReplOptions);
+          await startWithExpectedImmediateExit(cliRepl, '');
+          const parsed = JSON.parse(output);
+          expect(parsed).to.haveOwnProperty('message', '[SHAPI-10004] No connected database');
+          expect(parsed).to.haveOwnProperty('name', 'MongoshInvalidInputError');
+          expect(parsed).to.haveOwnProperty('code', 'SHAPI-10004');
+          expect(parsed.stack).to.be.a('string');
+          expect(exitCode).to.equal(1);
+        });
+
+        it('serializes primitive exceptions as EJSON with --json', async() => {
+          cliReplOptions.shellCliOptions.eval = ['throw null'];
+          cliReplOptions.shellCliOptions.json = true;
+          cliRepl = new CliRepl(cliReplOptions);
+          await startWithExpectedImmediateExit(cliRepl, '');
+          const parsed = JSON.parse(output);
+          expect(parsed).to.haveOwnProperty('message', 'null');
+          expect(parsed).to.haveOwnProperty('name', 'Error');
+          expect(parsed.stack).to.be.a('string');
+          expect(exitCode).to.equal(1);
+        });
+
+        it('handles first-attempt EJSON serialization errors', async() => {
+          cliReplOptions.shellCliOptions.eval = ['({ toJSON() { throw new Error("nested error"); }})'];
+          cliReplOptions.shellCliOptions.json = true;
+          cliRepl = new CliRepl(cliReplOptions);
+          await startWithExpectedImmediateExit(cliRepl, '');
+          const parsed = JSON.parse(output);
+          expect(parsed).to.haveOwnProperty('message', 'nested error');
+          expect(parsed).to.haveOwnProperty('name', 'Error');
+          expect(parsed.stack).to.be.a('string');
+          expect(exitCode).to.equal(1);
+        });
+
+        it('does not handle second-attempt EJSON serialization errors', async() => {
+          cliReplOptions.shellCliOptions.eval = ['({ toJSON() { throw ({ toJSON() { throw new Error("nested error") }}) }})'];
+          cliReplOptions.shellCliOptions.json = true;
+          cliRepl = new CliRepl(cliReplOptions);
+          try {
+            await cliRepl.start('', {});
+            expect.fail('missed exception');
+          } catch (err) {
+            expect(err.message).to.equal('nested error');
+          }
+        });
+
+        it('rejects --json without --eval specifications', async() => {
+          cliReplOptions.shellCliOptions.json = true;
+          cliRepl = new CliRepl(cliReplOptions);
+          try {
+            await cliRepl.start('', {});
+            expect.fail('missed exception');
+          } catch (err) {
+            expect(err.message).to.equal('Cannot use --json without --eval or with --shell or with extra files');
+          }
+        });
+
+        it('rejects --json with --shell specifications', async() => {
+          cliReplOptions.shellCliOptions.eval = ['1'];
+          cliReplOptions.shellCliOptions.json = true;
+          cliReplOptions.shellCliOptions.shell = true;
+          cliRepl = new CliRepl(cliReplOptions);
+          try {
+            await cliRepl.start('', {});
+            expect.fail('missed exception');
+          } catch (err) {
+            expect(err.message).to.equal('Cannot use --json without --eval or with --shell or with extra files');
+          }
+        });
+
+        it('rejects --json with --file specifications', async() => {
+          cliReplOptions.shellCliOptions.eval = ['1'];
+          cliReplOptions.shellCliOptions.json = true;
+          cliReplOptions.shellCliOptions.fileNames = ['a.js'];
+          cliRepl = new CliRepl(cliReplOptions);
+          try {
+            await cliRepl.start('', {});
+            expect.fail('missed exception');
+          } catch (err) {
+            expect(err.message).to.equal('Cannot use --json without --eval or with --shell or with extra files');
+          }
         });
       });
 
@@ -633,7 +785,6 @@ describe('CliRepl', () => {
 
   context('with an actual server', () => {
     const testServer = startTestServer('shared');
-    let cliRepl: CliRepl;
 
     beforeEach(async() => {
       cliReplOptions.shellCliOptions.connectionSpecifier = await testServer.connectionString();
@@ -799,6 +950,10 @@ describe('CliRepl', () => {
         let srv: http.Server;
         let host: string;
         let requests: any[];
+        let telemetryDelay = 0;
+        const setTelemetryDelay = (val: number) => {
+          telemetryDelay = val;
+        };
 
         beforeEach(async() => {
           requests = [];
@@ -807,9 +962,10 @@ describe('CliRepl', () => {
             req
               .setEncoding('utf8')
               .on('data', (chunk) => { body += chunk; })
-              .on('end', () => {
+              .on('end', async() => {
                 requests.push({ req, body });
                 res.writeHead(200);
+                await delay(telemetryDelay);
                 res.end('Ok\n');
               });
           }).listen(0);
@@ -822,6 +978,24 @@ describe('CliRepl', () => {
         afterEach(async() => {
           srv.close();
           await once(srv, 'close');
+          setTelemetryDelay(0);
+        });
+
+        it('timeouts fast', async() => {
+          setTelemetryDelay(10000);
+          await cliRepl.start(await testServer.connectionString(), {});
+          input.write('use somedb;\n');
+          input.write('exit\n');
+          await waitBus(cliRepl.bus, 'mongosh:closed');
+          const analyticsLog = (await log()).find(
+            (entry) =>
+              entry.ctx === 'analytics' &&
+              entry.msg === 'Flushed outstanding data'
+          );
+          expect(analyticsLog).to.have.nested.property(
+            'attr.flushError',
+            'timeout of 1000ms exceeded'
+          );
         });
 
         it('posts analytics data', async() => {
@@ -897,9 +1071,21 @@ describe('CliRepl', () => {
         });
 
         it('sends out telemetry data for command line scripts', async() => {
-          cliReplOptions.shellCliOptions.eval = 'db.hello()';
+          cliReplOptions.shellCliOptions.eval = ['db.hello()'];
           cliRepl = new CliRepl(cliReplOptions);
           await startWithExpectedImmediateExit(cliRepl, await testServer.connectionString());
+          expect(requests).to.have.lengthOf(2);
+        });
+
+        it('sends out telemetry if the repl is running in an interactive mode in a containerized environment', async() => {
+          cliRepl = new CliRepl(cliReplOptions);
+          cliRepl.getIsContainerizedEnvironment = () => {
+            return Promise.resolve(true);
+          };
+          await cliRepl.start(await testServer.connectionString(), {});
+          input.write('db.hello()\n');
+          input.write('exit\n');
+          await waitBus(cliRepl.bus, 'mongosh:closed');
           expect(requests).to.have.lengthOf(2);
         });
 
@@ -926,20 +1112,33 @@ describe('CliRepl', () => {
         });
 
         it('does not send out telemetry if the user only runs a script for disabling telemetry', async() => {
-          cliReplOptions.shellCliOptions.eval = 'disableTelemetry()';
+          cliReplOptions.shellCliOptions.eval = ['disableTelemetry()'];
           cliRepl = new CliRepl(cliReplOptions);
           await startWithExpectedImmediateExit(cliRepl, await testServer.connectionString());
           expect(requests).to.have.lengthOf(0);
         });
 
         it('does not send out telemetry if the user runs a script for disabling telemetry and drops into the shell', async() => {
-          cliReplOptions.shellCliOptions.eval = 'disableTelemetry()';
+          cliReplOptions.shellCliOptions.eval = ['disableTelemetry()'];
           cliReplOptions.shellCliOptions.shell = true;
           cliRepl = new CliRepl(cliReplOptions);
           await cliRepl.start(await testServer.connectionString(), {});
           input.write('db.hello()\n');
           input.write('exit\n');
           await waitBus(cliRepl.bus, 'mongosh:closed');
+          expect(requests).to.have.lengthOf(0);
+        });
+
+        it('does not send out telemetry if the repl is running in non-interactive mode in a containerized environment', async() => {
+          cliReplOptions.shellCliOptions.eval = ['db.hello()'];
+          cliRepl = new CliRepl(cliReplOptions);
+          cliRepl.getIsContainerizedEnvironment = () => {
+            return Promise.resolve(true);
+          };
+          await startWithExpectedImmediateExit(
+            cliRepl,
+            await testServer.connectionString()
+          );
           expect(requests).to.have.lengthOf(0);
         });
 
@@ -1030,7 +1229,7 @@ describe('CliRepl', () => {
 
       it('allows doing db ops (--eval variant)', async() => {
         const filename1 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'insertintotest.js');
-        cliReplOptions.shellCliOptions.eval = await fs.readFile(filename1, 'utf8');
+        cliReplOptions.shellCliOptions.eval = [await fs.readFile(filename1, 'utf8')];
         cliRepl = new CliRepl(cliReplOptions);
         await startWithExpectedImmediateExit(cliRepl, await testServer.connectionString());
         expect(output).to.match(/Inserted: ObjectId\("[a-z0-9]{24}"\)/);
@@ -1085,17 +1284,9 @@ describe('CliRepl', () => {
         expect(exitCode).to.equal(0);
       });
 
-      it('warns if --eval is passed an empty string', async() => {
-        cliReplOptions.shellCliOptions.eval = '';
-        cliRepl = new CliRepl(cliReplOptions);
-        await startWithExpectedImmediateExit(cliRepl, await testServer.connectionString());
-        expect(output).to.include('--eval requires an argument, but no argument was given');
-        expect(exitCode).to.equal(0);
-      });
-
       it('isInteractive() is false for --eval without --shell', async() => {
         const filename1 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'printisinteractive.js');
-        cliReplOptions.shellCliOptions.eval = await fs.readFile(filename1, 'utf8');
+        cliReplOptions.shellCliOptions.eval = [await fs.readFile(filename1, 'utf8')];
         cliRepl = new CliRepl(cliReplOptions);
         await startWithExpectedImmediateExit(cliRepl, await testServer.connectionString());
         expect(output).to.match(/isInteractive=false/);
@@ -1104,7 +1295,7 @@ describe('CliRepl', () => {
 
       it('isInteractive() is true for --eval with --shell', async() => {
         const filename1 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'printisinteractive.js');
-        cliReplOptions.shellCliOptions.eval = await fs.readFile(filename1, 'utf8');
+        cliReplOptions.shellCliOptions.eval = [await fs.readFile(filename1, 'utf8')];
         cliReplOptions.shellCliOptions.shell = true;
         cliRepl = new CliRepl(cliReplOptions);
         await cliRepl.start(await testServer.connectionString(), {});
@@ -1342,7 +1533,7 @@ describe('CliRepl', () => {
 
   context('with a mongos', () => {
     verifyAutocompletion({
-      testServer: startTestServer('not-shared', '--replicaset', '--sharded', '0'),
+      testServer: startTestServer('not-shared', '--replicaset', '--csrs', '--sharded', '0'),
       wantWatch: true,
       wantShardDistribution: true,
       hasCollectionNames: false, // We're only spinning up a mongos here

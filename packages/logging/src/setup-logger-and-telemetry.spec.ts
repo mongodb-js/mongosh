@@ -68,9 +68,8 @@ describe('setupLoggerAndTelemetry', () => {
     bus.emit('mongosh:eval-cli-script');
     bus.emit('mongosh:globalconfig-load', { filename: '/etc/mongosh.conf', found: true });
 
-    bus.emit('mongosh:mongocryptd-tryspawn', { spawnPath: ['mongocryptd'], path: 'path' });
-    bus.emit('mongosh:mongocryptd-error', { cause: 'something', error: new Error('mongocryptd error!'), stderr: 'stderr', pid: 12345 });
-    bus.emit('mongosh:mongocryptd-log', { pid: 12345, logEntry: {} });
+    bus.emit('mongosh:crypt-library-load-skip', { cryptSharedLibPath: 'path', reason: 'reason' });
+    bus.emit('mongosh:crypt-library-load-found', { cryptSharedLibPath: 'path', expectedVersion: { versionStr: 'someversion' } });
 
     bus.emit('mongosh-snippets:loaded', { installdir: '/' });
     bus.emit('mongosh-snippets:npm-lookup', { existingVersion: 'v1.2.3' });
@@ -155,12 +154,10 @@ describe('setupLoggerAndTelemetry', () => {
     expect(logOutput[i++].msg).to.equal('Evaluating script passed on the command line');
     expect(logOutput[i].msg).to.equal('Loading global configuration file');
     expect(logOutput[i++].attr.filename).to.equal('/etc/mongosh.conf');
-    expect(logOutput[i].msg).to.equal('Trying to spawn mongocryptd');
-    expect(logOutput[i++].attr).to.deep.equal({ spawnPath: ['mongocryptd'], path: 'path' });
-    expect(logOutput[i].msg).to.equal('Error running mongocryptd');
-    expect(logOutput[i++].attr).to.deep.equal({ cause: 'something', error: 'mongocryptd error!', stderr: 'stderr', pid: 12345 });
-    expect(logOutput[i].msg).to.equal('mongocryptd log message');
-    expect(logOutput[i++].attr).to.deep.equal({ pid: 12345, logEntry: {} });
+    expect(logOutput[i].msg).to.equal('Skipping shared library candidate');
+    expect(logOutput[i++].attr).to.deep.equal({ cryptSharedLibPath: 'path', reason: 'reason' });
+    expect(logOutput[i].msg).to.equal('Accepted shared library candidate');
+    expect(logOutput[i++].attr).to.deep.equal({ cryptSharedLibPath: 'path', expectedVersion: 'someversion' });
     expect(logOutput[i].msg).to.equal('Loaded snippets');
     expect(logOutput[i++].attr).to.deep.equal({ installdir: '/' });
     expect(logOutput[i].msg).to.equal('Performing npm lookup');

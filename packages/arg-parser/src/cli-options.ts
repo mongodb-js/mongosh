@@ -16,14 +16,17 @@ export interface CliOptions {
   awsIamSessionToken?: string;
   awsSecretAccessKey?: string;
   awsSessionToken?: string;
+  csfleLibraryPath?: string;
+  cryptSharedLibPath?: string;
   db?: string;
-  eval?: string;
+  eval?: string[];
   gssapiServiceName?: string;
   sspiHostnameCanonicalization?: string;
   sspiRealmOverride?: string;
   help?: boolean;
   host?: string;
   ipv6?: boolean;
+  json?: boolean | 'canonical' | 'relaxed';
   keyVaultNamespace?: string;
   kmsURL?: string;
   nodb?: boolean;

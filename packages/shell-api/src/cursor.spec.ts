@@ -1,6 +1,6 @@
 import { signatures, toShellResult } from './index';
 import Cursor from './cursor';
-import { ReplPlatform, FindCursor as ServiceProviderCursor } from '@mongosh/service-provider-core';
+import { FindCursor as ServiceProviderCursor } from '@mongosh/service-provider-core';
 import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, ALL_API_VERSIONS, ServerVersions } from './enums';
 import chai from 'chai';
 import sinonChai from 'sinon-chai';
@@ -12,7 +12,7 @@ const { expect } = chai;
 describe('Cursor', () => {
   describe('help', () => {
     const apiClass = new Cursor({
-      _serviceProvider: { platform: ReplPlatform.CLI }
+      _serviceProvider: { platform: 'CLI' }
     } as any, {} as any);
     it('calls help function', async() => {
       expect((await toShellResult(apiClass.help())).type).to.equal('Help');
@@ -49,7 +49,7 @@ describe('Cursor', () => {
         bufferedCount() { return 0; }
       };
       cursor = new Cursor({
-        _serviceProvider: { platform: ReplPlatform.CLI },
+        _serviceProvider: { platform: 'CLI' },
         _displayBatchSize: () => 20
       } as any, wrappee);
     });
@@ -143,6 +143,16 @@ describe('Cursor', () => {
       it('calls the driver method', () => {
         expect(shellApiCursor.allowDiskUse()).to.equal(shellApiCursor);
         expect(spCursor.allowDiskUse).to.have.been.calledWith();
+      });
+
+      it('calls the driver method for true', () => {
+        expect(shellApiCursor.allowDiskUse(true)).to.equal(shellApiCursor);
+        expect(spCursor.allowDiskUse).to.have.been.calledWith(true);
+      });
+
+      it('calls the driver method for false', () => {
+        expect(shellApiCursor.allowDiskUse(false)).to.equal(shellApiCursor);
+        expect(spCursor.allowDiskUse).to.have.been.calledWith(false);
       });
     });
 

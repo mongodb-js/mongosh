@@ -29,7 +29,7 @@ export const dummyConfig: Config = Object.freeze({
   bundleEntrypointInput: 'bundleEntrypointInput',
   bundleSinglefileOutput: 'bundleSinglefileOutput',
   executablePath: 'executablePath',
-  mongocryptdPath: 'mongocryptdPath',
+  cryptSharedLibPath: 'cryptSharedLibPath',
   outputDir: 'outputDir',
   buildInfoFilePath: 'buildInfoFilePath',
   project: 'project',
@@ -49,7 +49,7 @@ export const dummyConfig: Config = Object.freeze({
     owner: 'owner',
     repo: 'repo',
   },
-  packageInformation: {
+  packageInformation: () => ({
     metadata: {
       name: 'mongosh',
       rpmName: 'mongodb-mongosh',
@@ -59,7 +59,7 @@ export const dummyConfig: Config = Object.freeze({
       homepage: 'https://mongodb.com',
       maintainer: 'We, us, everyone.'
     }
-  } as PackageInformation,
+  } as PackageInformation),
   execNodeVersion: process.version,
   rootDir: path.resolve(__dirname, '..', '..')
 });

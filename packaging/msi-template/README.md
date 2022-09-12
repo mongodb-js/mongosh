@@ -16,4 +16,4 @@ Build by executing commands:
   - BuildFolder: Folder containing the binaries and license notices. Defaults to "..\\..\mongosh-_Version_-dev.0-win32"
 
 # Open Issues
-1. mongosh.exe and mongocryptd-mongosh.exe should have a version numbers
+1. mongosh.exe and mongosh_crypt_v1.dll should have a version numbers

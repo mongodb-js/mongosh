@@ -21,6 +21,7 @@ describe('npm-packages publishNpmPackages', () => {
     ]);
     try {
       publishNpmPackages(
+        false,
         listNpmPackages,
         markBumpedFilesAsAssumeUnchanged,
         spawnSync
@@ -40,6 +41,7 @@ describe('npm-packages publishNpmPackages', () => {
     ]);
     try {
       publishNpmPackages(
+        false,
         listNpmPackages,
         markBumpedFilesAsAssumeUnchanged,
         spawnSync
@@ -60,6 +62,7 @@ describe('npm-packages publishNpmPackages', () => {
     listNpmPackages.returns(packages);
 
     publishNpmPackages(
+      false,
       listNpmPackages,
       markBumpedFilesAsAssumeUnchanged,
       spawnSync
@@ -68,7 +71,7 @@ describe('npm-packages publishNpmPackages', () => {
     expect(markBumpedFilesAsAssumeUnchanged).to.have.been.calledWith(packages, true);
     expect(spawnSync).to.have.been.calledWith(
       lernaBin,
-      ['publish', 'from-package', '--no-changelog', '--no-push', '--exact', '--no-git-tag-version', '--force-publish', '--yes'],
+      ['publish', 'from-package', '--no-changelog', '--no-push', '--exact', '--no-git-tag-version', '--force-publish', '--yes', '--no-verify-access'],
       sinon.match.any
     );
     expect(markBumpedFilesAsAssumeUnchanged).to.have.been.calledWith(packages, false);
@@ -83,6 +86,7 @@ describe('npm-packages publishNpmPackages', () => {
 
     try {
       publishNpmPackages(
+        false,
         listNpmPackages,
         markBumpedFilesAsAssumeUnchanged,
         spawnSync

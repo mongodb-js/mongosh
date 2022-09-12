@@ -39,7 +39,8 @@ variable. For detailed instructions for each of our supported platforms, please 
         --nodb                                 Don't connect to mongod on startup - no 'db address' [arg] expected
         --norc                                 Will not run the '.mongoshrc.js' file on start up
         --eval [arg]                           Evaluate javascript
-        --retryWrites=[true|false]             Automatically retry write operations upon transient network errors (Default: true)
+        --json[=canonical|relaxed]             Print result of --eval as Extended JSON, including errors
+        --retryWrites[=true|false]             Automatically retry write operations upon transient network errors (Default: true)
 
   Authentication Options:
 
@@ -61,6 +62,7 @@ variable. For detailed instructions for each of our supported platforms, please 
         --tlsCRLFile [arg]                     Specifies the .pem file that contains the Certificate Revocation List
         --tlsDisabledProtocols [arg]           Comma separated list of TLS protocols to disable [TLS1_0,TLS1_1,TLS1_2]
         --tlsUseSystemCA                       Load the operating system trusted certificate list
+        --tlsFIPSMode                          Enable the system TLS library's FIPS mode
 
   API version options:
 
@@ -99,7 +101,7 @@ variable. For detailed instructions for each of our supported platforms, please 
 
 ### Requirements
 
-- Node.js v14.x
+- Node.js v16.x
 - Python 3.x
   - The test suite uses [mlaunch](http://blog.rueckstiess.com/mtools/mlaunch.html)
     for managing running mongod, you can install that manually as well via
@@ -171,12 +173,21 @@ Compile the standalone executable (this may take some time):
 npm run compile-exec
 ```
 
+Relevant environment variables for compiling are:
+- `NODE_JS_VERSION`: Specify a Node.js version to use for compilation, e.g. `16.15.0` or `16.x`
+- `BOXEDNODE_CONFIGURE_ARGS`: Node.js configure flags as a comma-separated list
+  or JSON array, e.g. `--shared-openssl,--shared-zlib`
+- `BOXEDNODE_MAKE_ARGS`: Node.js make args (no distinction from `BOXEDNODE_CONFIGURE_ARGS` on Windows)
+  as a comma-separated list or JSON array, e.g. `-j12`
+
 Compile a specific package, e.g. the `.deb` for Debian:
 
 ```shell
 npm run compile-exec
-npm run evergreen-release package -- --build-variant=debian-x64
+npm run evergreen-release package -- --build-variant=deb-x64
 ```
+
+Compilation and packaging output is written to `dist/`.
 
 ### Releasing
 

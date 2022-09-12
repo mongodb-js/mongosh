@@ -16,7 +16,7 @@ import Database from './database';
 import { CommandResult, CursorIterationResult } from './result';
 import type ShellInstanceState from './shell-instance-state';
 import { assertArgsDefinedType, assertCLI } from './helpers';
-import { DEFAULT_DB, ReplPlatform, ServerApi, ServerApiVersion } from '@mongosh/service-provider-core';
+import { DEFAULT_DB, ServerApi, ServerApiVersion } from '@mongosh/service-provider-core';
 import { CommonErrors, MongoshUnimplementedError, MongoshInternalError } from '@mongosh/errors';
 import { DBQuery } from './dbquery';
 import { promisify } from 'util';
@@ -112,7 +112,10 @@ async function showCompleter(params: ShellCommandAutocompleteParameters, args: s
     // Special-case: The user might want `show dbs` or `show databases`, but they won't care about which they get.
     return ['databases'];
   }
-  const candidates = ['databases', 'dbs', 'collections', 'tables', 'profile', 'users', 'roles', 'log', 'logs'];
+  const candidates = [
+    'databases', 'dbs', 'collections', 'tables', 'profile', 'users', 'roles', 'log', 'logs',
+    'startupWarnings', 'freeMonitoring', 'automationNotices'
+  ];
   return candidates.filter(str => str.startsWith(args[1] ?? ''));
 }
 
@@ -167,7 +170,7 @@ export default class ShellApi extends ShellApiClass {
 
   @directShellCommand
   @returnsPromise
-  @platforms([ ReplPlatform.CLI ] )
+  @platforms([ 'CLI' ] )
   async exit(exitCode?: number): Promise<never> {
     assertArgsDefinedType([exitCode], [[undefined, 'number']], 'exit');
     assertCLI(this._instanceState.initialServiceProvider.platform, 'the exit/quit commands');
@@ -179,14 +182,14 @@ export default class ShellApi extends ShellApiClass {
 
   @directShellCommand
   @returnsPromise
-  @platforms([ ReplPlatform.CLI ] )
+  @platforms([ 'CLI' ] )
   async quit(exitCode?: number): Promise<never> {
     return await this.exit(exitCode);
   }
 
   @returnsPromise
   @returnType('Mongo')
-  @platforms([ ReplPlatform.CLI ] )
+  @platforms([ 'CLI' ] )
   public async Mongo(
     uri?: string,
     fleOptions?: ClientSideFieldLevelEncryptionOptions,
@@ -200,7 +203,7 @@ export default class ShellApi extends ShellApiClass {
 
   @returnsPromise
   @returnType('Database')
-  @platforms([ ReplPlatform.CLI ] )
+  @platforms([ 'CLI' ] )
   async connect(uri: string, user?: string, pwd?: string): Promise<Database> {
     assertArgsDefinedType([uri, user, pwd], ['string', [undefined, 'string'], [undefined, 'string']], 'connect');
     assertCLI(this._instanceState.initialServiceProvider.platform, 'new Mongo connections');
@@ -263,7 +266,7 @@ export default class ShellApi extends ShellApiClass {
   }
 
   @returnsPromise
-  @platforms([ ReplPlatform.CLI ] )
+  @platforms([ 'CLI' ] )
   async enableTelemetry(): Promise<any> {
     const result = await this._instanceState.evaluationListener.setConfig?.('enableTelemetry', true);
     if (result === 'success') {
@@ -272,7 +275,7 @@ export default class ShellApi extends ShellApiClass {
   }
 
   @returnsPromise
-  @platforms([ ReplPlatform.CLI ] )
+  @platforms([ 'CLI' ] )
   async disableTelemetry(): Promise<any> {
     const result = await this._instanceState.evaluationListener.setConfig?.('enableTelemetry', false);
     if (result === 'success') {
@@ -281,7 +284,7 @@ export default class ShellApi extends ShellApiClass {
   }
 
   @returnsPromise
-  @platforms([ ReplPlatform.CLI ] )
+  @platforms([ 'CLI' ] )
   async passwordPrompt(): Promise<string> {
     const { evaluationListener } = this._instanceState;
     if (!evaluationListener.onPrompt) {

@@ -1,6 +1,1 @@
-export enum ReplPlatform {
-  Compass,
-  Browser,
-  CLI,
-  JavaShell
-}
+export type ReplPlatform = 'CLI' | 'Browser' | 'Compass' | 'JavaShell';

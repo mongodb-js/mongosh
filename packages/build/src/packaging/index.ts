@@ -3,7 +3,8 @@ export * from './run-package';
 export {
   getPackageFile,
   PackageFile,
-  PackageInformation
+  PackageInformation,
+  PackageInformationProvider
 } from './package';
 
 export {

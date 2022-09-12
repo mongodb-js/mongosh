@@ -1,6 +1,6 @@
 import { promises as fs, constants as fsConstants } from 'fs';
 import path from 'path';
-import { ALL_BUILD_VARIANTS, Config, getReleaseVersionFromTag } from './config';
+import { ALL_PACKAGE_VARIANTS, Config, getReleaseVersionFromTag } from './config';
 import { uploadArtifactToDownloadCenter as uploadArtifactToDownloadCenterFn } from './download-center';
 import { downloadArtifactFromEvergreen as downloadArtifactFromEvergreenFn } from './evergreen';
 import { notarizeArtifact as notarizeArtifactFn } from './packaging';
@@ -33,7 +33,7 @@ export async function runDraft(
   const tmpDir = path.join(__dirname, '..', '..', '..', 'tmp', `draft-${Date.now()}`);
   await fs.mkdir(tmpDir, { recursive: true });
 
-  for await (const variant of ALL_BUILD_VARIANTS) {
+  for await (const variant of ALL_PACKAGE_VARIANTS) {
     const tarballFile = getPackageFile(variant, config.packageInformation);
     console.info(`mongosh: processing artifact for ${variant} - ${tarballFile.path}`);
 

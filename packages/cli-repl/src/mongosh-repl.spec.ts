@@ -10,7 +10,7 @@ import { StubbedInstance, stubInterface } from 'ts-sinon';
 import { promisify } from 'util';
 import { expect, fakeTTYProps, tick, useTmpdir, waitEval } from '../test/repl-helpers';
 import MongoshNodeRepl, { MongoshIOProvider, MongoshNodeReplOptions } from './mongosh-repl';
-import { parseAnyLogEntry } from './log-entry';
+import { parseAnyLogEntry } from '../../shell-api/src/log-entry';
 import stripAnsi from 'strip-ansi';
 
 const delay = promisify(setTimeout);
@@ -64,6 +64,7 @@ describe('MongoshNodeRepl', () => {
         version: '4.4.1'
       }
     });
+    sp.runCommandWithCheck.resolves({ ok: 1 });
     serviceProvider = sp;
 
     mongoshReplOptions = {
@@ -1083,11 +1084,11 @@ describe('MongoshNodeRepl', () => {
       sp.getNewConnection.callsFake(async() => {
         Object.assign(connectionInfo.extraInfo, {
           is_localhost: true,
-          is_data_lake: true
+          is_data_federation: true
         });
         return sp;
       });
-      sp.platform = 2; // ReplPlatform.CLI ... let's maybe stop using an enum for this
+      sp.platform = 'CLI';
 
       const initialized = await mongoshRepl.initialize(serviceProvider);
       await mongoshRepl.startRepl(initialized);
@@ -1095,7 +1096,7 @@ describe('MongoshNodeRepl', () => {
 
       input.write('db = Mongo("foo").getDB("bar")\n');
       await waitEval(bus);
-      expect(output).to.contain('AtlasDataLake bar> ');
+      expect(output).to.contain('AtlasDataFederation bar> ');
     });
 
     context('user-provided prompt', () => {

@@ -1243,6 +1243,7 @@ describe('Collection', () => {
       });
 
       it('passes through options', async() => {
+        serviceProvider.listCollections.resolves([{}]);
         serviceProvider.dropCollection.resolves();
         await collection.drop({ promoteValues: false });
         expect(serviceProvider.dropCollection).to.have.been.calledWith(
@@ -1873,6 +1874,84 @@ describe('Collection', () => {
       });
     });
   });
+  describe('fle2', () => {
+    let mongo1: Mongo;
+    let mongo2: Mongo;
+    let serviceProvider: StubbedInstance<ServiceProvider>;
+    let database: Database;
+    let bus: StubbedInstance<EventEmitter>;
+    let instanceState: ShellInstanceState;
+    let collection: Collection;
+    let keyId: any[]
+;
+    beforeEach(() => {
+      bus = stubInterface<EventEmitter>();
+      serviceProvider = stubInterface<ServiceProvider>();
+      serviceProvider.runCommand.resolves({ ok: 1 });
+      serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
+      serviceProvider.initialDb = 'test';
+      serviceProvider.bsonLibrary = bson;
+      instanceState = new ShellInstanceState(serviceProvider, bus);
+      keyId = [ { $binary: { base64: 'oh3caogGQ4Sf34ugKnZ7Xw==', subType: '04' } } ];
+      mongo1 = new Mongo(
+        instanceState,
+        undefined,
+        {
+          keyVaultNamespace: 'db1.keyvault',
+          kmsProviders: { local: { key: 'A'.repeat(128) } },
+          encryptedFieldsMap: {
+            'db1.collfle2': {
+              fields: [{ path: 'phoneNumber', keyId, bsonType: 'string' }],
+            }
+          }
+        },
+        undefined,
+        serviceProvider
+      );
+      database = new Database(mongo1, 'db1');
+      collection = new Collection(mongo1, database, 'collfle2');
+      mongo2 = new Mongo(
+        instanceState,
+        undefined,
+        undefined,
+        undefined,
+        serviceProvider
+      );
+    });
+
+    describe('drop', () => {
+      it('does not pass encryptedFields through options when collection is in encryptedFieldsMap', async() => {
+        serviceProvider.dropCollection.resolves();
+        await collection.drop();
+        expect(serviceProvider.dropCollection).to.have.been.calledWith(
+          'db1', 'collfle2', {}
+        );
+      });
+
+      it('passes encryptedFields through options when collection is not in encryptedFieldsMap', async() => {
+        serviceProvider.listCollections.resolves([{
+          options: { encryptedFields: { fields: [ { path: 'phoneNumber', keyId, bsonType: 'string' } ] } }
+        }]);
+        serviceProvider.dropCollection.resolves();
+        await mongo2.getDB('db1').getCollection('collfle2').drop();
+        expect(serviceProvider.dropCollection).to.have.been.calledWith(
+          'db1', 'collfle2', { encryptedFields: { fields: [ { path: 'phoneNumber', keyId, bsonType: 'string' } ] } }
+        );
+      });
+    });
+
+    describe('compactStructuredEncryptionData', () => {
+      it('calls service provider runCommandWithCheck', async() => {
+        const result = await collection.compactStructuredEncryptionData();
+
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          'db1',
+          { compactStructuredEncryptionData: 'collfle2' }
+        );
+        expect(result).to.be.deep.equal({ ok: 1 });
+      });
+    });
+  });
   describe('with session', () => {
     let serviceProvider: StubbedInstance<ServiceProvider>;
     let collection: Collection;
@@ -1898,6 +1977,7 @@ describe('Collection', () => {
       getIndexKeys: { m: 'getIndexes', i: 2 },
       dropIndex: { m: 'runCommandWithCheck', i: 2 },
       dropIndexes: { m: 'runCommandWithCheck', i: 2 },
+      compactStructuredEncryptionData: { m: 'runCommandWithCheck' },
       convertToCapped: { m: 'runCommandWithCheck', i: 2 },
       dataSize: { m: 'aggregate', e: true },
       storageSize: { m: 'aggregate', e: true },
@@ -1928,7 +2008,7 @@ describe('Collection', () => {
       watch: { i: 1 }
     };
     const ignore: (keyof (typeof Collection)['prototype'])[] = [
-      'getShardDistribution', 'stats', 'isCapped'
+      'getShardDistribution', 'stats', 'isCapped', 'compactStructuredEncryptionData'
     ];
     const args = [ { query: {} }, {}, { out: 'coll' } ];
     beforeEach(() => {
@@ -1980,7 +2060,9 @@ describe('Collection', () => {
       }
     });
     context('all commands that use other methods', () => {
-      for (const method of Object.keys(exceptions)) {
+      for (const method of Object.keys(exceptions).filter(
+        k => !ignore.includes(k as any)
+      )) {
         const customA = exceptions[method].a || args;
         const customM = exceptions[method].m || method;
         const customI = exceptions[method].i || 3;

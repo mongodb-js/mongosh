@@ -1,5 +1,5 @@
-import type { PackageInformation } from '../packaging/package';
-import { BuildVariant } from './build-variant';
+import type { PackageInformationProvider } from '../packaging/package';
+import { PackageVariant } from './build-variant';
 
 interface ManPageConfig {
   sourceUrl: string;
@@ -33,15 +33,16 @@ export interface Config {
   isCi?: boolean;
   platform?: string;
   execNodeVersion: string;
-  distributionBuildVariant?: BuildVariant;
+  packageVariant?: PackageVariant;
   repo: {
     owner: string;
     repo: string;
   };
   isPatch?: boolean;
   triggeringGitTag?: string;
-  mongocryptdPath: string;
-  packageInformation?: PackageInformation;
+  packageInformation?: PackageInformationProvider;
+  cryptSharedLibPath: string;
   artifactUrlFile?: string;
   manpage?: ManPageConfig;
+  isDryRun?: boolean;
 }
