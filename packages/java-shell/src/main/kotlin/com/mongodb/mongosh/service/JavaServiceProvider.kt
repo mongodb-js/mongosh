@@ -20,7 +20,7 @@ internal class JavaServiceProvider(private var client: MongoClient?,
 
     @JvmField
     @HostAccess.Export
-    val platform = 3
+    val platform = "JavaShell"
 
     @HostAccess.Export
     override fun runCommand(database: String, spec: Value): Value = promise {

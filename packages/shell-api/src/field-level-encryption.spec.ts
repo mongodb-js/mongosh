@@ -16,6 +16,7 @@ import ShellInstanceState from './shell-instance-state';
 import { CliServiceProvider } from '../../service-provider-server';
 import { startTestServer } from '../../../testing/integration-testing-hooks';
 import { makeFakeHTTPConnection, fakeAWSHandlers } from '../../../testing/fake-kms';
+import { inspect } from 'util';
 
 const KEY_ID = new bson.Binary('MTIzNA==');
 const DB = 'encryption';
@@ -307,21 +308,61 @@ describe('Field Level Encryption', () => {
     });
     describe('getKey', () => {
       it('calls find on key coll', async() => {
-        const c = { cursor: 1 } as any;
+        const c = {
+          next() { return { _id: 1 }; },
+          limit() {}
+        } as any;
+        sp.find.returns(c);
+        const result = await keyVault.getKey(KEY_ID);
+        expect(sp.find).to.have.been.calledTwice;
+        expect(sp.find).to.have.been.calledWith(DB, COLL, { _id: KEY_ID }, {});
+        expect(result._cursor).to.deep.equal(c);
+        expect(result._id).to.equal(1);
+        expect(await result.next()).to.deep.equal({ _id: 1 });
+      });
+      it('avoids running .find() twice if the cursor supports rewinding', async() => {
+        const c = {
+          next() { return { _id: 1 }; },
+          limit() {},
+          rewind: sinon.stub()
+        } as any;
         sp.find.returns(c);
         const result = await keyVault.getKey(KEY_ID);
         expect(sp.find).to.have.been.calledOnceWithExactly(DB, COLL, { _id: KEY_ID }, {});
+        expect(c.rewind).to.have.been.calledOnceWithExactly();
         expect(result._cursor).to.deep.equal(c);
+        expect(result._id).to.equal(1);
+        expect(await result.next()).to.deep.equal({ _id: 1 });
+      });
+      it('works when no result is returned', async() => {
+        const c = {
+          next() { return null; },
+          limit() {}
+        } as any;
+        sp.find.returns(c);
+        const result = await keyVault.getKey(KEY_ID);
+        expect(sp.find).to.have.been.calledTwice;
+        expect(sp.find).to.have.been.calledWith(DB, COLL, { _id: KEY_ID }, {});
+        expect(result._cursor).to.deep.equal(c);
+        expect(result._id).to.equal(undefined);
+        expect(inspect(result)).to.include('no result -- will return `null` in future mongosh versions');
+        expect(await result.next()).to.deep.equal(null);
       });
     });
     describe('getKeyByAltName', () => {
       it('calls find on key coll', async() => {
-        const c = { cursor: 1 } as any;
+        const c = {
+          next() { return { _id: 1 }; },
+          limit() {}
+        } as any;
         const keyaltname = 'abc';
         sp.find.returns(c);
         const result = await keyVault.getKeyByAltName(keyaltname);
-        expect(sp.find).to.have.been.calledOnceWithExactly(DB, COLL, { keyAltNames: keyaltname }, {});
+        expect(sp.find).to.have.been.calledTwice;
+        expect(sp.find).to.have.been.calledWith(DB, COLL, { keyAltNames: keyaltname }, {});
         expect(result._cursor).to.deep.equal(c);
+        expect(result._id).to.equal(1);
+        expect(await result.next()).to.deep.equal({ _id: 1 });
       });
     });
     describe('getKeys', () => {

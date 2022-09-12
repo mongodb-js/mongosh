@@ -83,7 +83,8 @@ const OPTIONS = {
     p: 'password',
     u: 'username',
     f: 'file',
-    'build-info': 'buildInfo'
+    'build-info': 'buildInfo',
+    json: 'json' // List explicitly here since it can be a boolean or a string
   },
   configuration: {
     'camel-case-expansion': false,
@@ -192,6 +193,13 @@ export function verifyCliArguments(args: any /* CliOptions */): string[] {
         CommonErrors.InvalidArgument
       );
     }
+  }
+
+  if (![undefined, true, false, 'relaxed', 'canonical'].includes(args.json)) {
+    throw new MongoshUnimplementedError(
+      '--json can only have the values relaxed or canonical',
+      CommonErrors.InvalidArgument
+    );
   }
 
   const messages = [];

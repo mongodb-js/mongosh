@@ -183,7 +183,7 @@ describe('Session', () => {
       it('starts a session', async() => {
         session = mongo.startSession();
         await session.getDatabase(databaseName).getCollection('coll').insertOne({});
-        await ensureSessionExists(mongo, 1000, JSON.stringify(session.id.id));
+        await ensureSessionExists(mongo, 1000, JSON.stringify(session.id.id.toUUID()));
         expect(session.hasEnded()).to.be.false;
         await session.endSession();
         expect(session.hasEnded()).to.be.true;
@@ -203,7 +203,7 @@ describe('Session', () => {
         for (const s of sessions) {
           await s.getDatabase(databaseName).getCollection('coll').insertOne({});
           expect(s.hasEnded()).to.be.false;
-          await ensureSessionExists(mongo, 1000, JSON.stringify(s.id.id));
+          await ensureSessionExists(mongo, 1000, JSON.stringify(s.id.id.toUUID()));
         }
         for (const s of sessions) {
           await s.endSession();

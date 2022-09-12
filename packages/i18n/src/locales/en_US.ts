@@ -22,6 +22,7 @@ const translations: Catalog = {
       nodb: "Don't connect to mongod on startup - no 'db address' [arg] expected",
       norc: "Will not run the '.mongoshrc.js' file on start up",
       eval: 'Evaluate javascript',
+      json: 'Print result of --eval as Extended JSON, including errors',
       retryWrites: 'Automatically retry write operations upon transient network errors (Default: true)',
       authenticationOptions: 'Authentication Options:',
       username: 'Username for authentication',
@@ -1634,6 +1635,10 @@ const translations: Catalog = {
               link: 'https://docs.mongodb.com/manual/reference/method/sh.setBalancerState',
               description: 'Calls sh.startBalancer if state is true, otherwise calls sh.stopBalancer',
               example: 'sh.setBalancerState(state)',
+            },
+            getShardedDataDistribution: {
+              description: 'Returns data-size distribution information for all existing sharded collections',
+              example: 'sh.getShardedDataDistribution()',
             }
           }
         }

@@ -26,6 +26,7 @@ export interface CliOptions {
   help?: boolean;
   host?: string;
   ipv6?: boolean;
+  json?: boolean | 'canonical' | 'relaxed';
   keyVaultNamespace?: string;
   kmsURL?: string;
   nodb?: boolean;

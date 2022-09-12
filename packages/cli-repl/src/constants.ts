@@ -29,7 +29,8 @@ export const USAGE = `
         --nodb                                 ${i18n.__('cli-repl.args.nodb')}
         --norc                                 ${i18n.__('cli-repl.args.norc')}
         --eval [arg]                           ${i18n.__('cli-repl.args.eval')}
-        --retryWrites                          ${i18n.__('cli-repl.args.retryWrites')}
+        --json[=canonical|relaxed]             ${i18n.__('cli-repl.args.json')}
+        --retryWrites[=true|false]             ${i18n.__('cli-repl.args.retryWrites')}
 
   ${clr(i18n.__('cli-repl.args.authenticationOptions'), 'mongosh:section-header')}
 

@@ -745,7 +745,7 @@ export function classDeprecated(constructor: Function): void {
  * Marks the decorated method as only being supported on the given platforms.
  * @param platformsArray The platforms the method is supported on
  */
-export function platforms(platformsArray: any[]): Function {
+export function platforms(platformsArray: ReplPlatform[]): Function {
   return function(
     _target: any,
     _propertyKey: string,
@@ -759,7 +759,7 @@ export function platforms(platformsArray: any[]): Function {
  * Marks the constructor of the decorated class as only being supported on the given platforms.
  * @param platformsArray The platforms the method is supported on
  */
-export function classPlatforms(platformsArray: any[]): Function {
+export function classPlatforms(platformsArray: ReplPlatform[]): Function {
   return function(constructor: Function): void {
     constructor.prototype.platforms = platformsArray;
   };
