@@ -11,7 +11,7 @@ import {
   CollationOptions
 } from '@mongosh/service-provider-core';
 import { asPrintable } from './enums';
-import { assertArgsDefinedType } from './helpers';
+import { assertArgsDefinedType, shallowClone } from './helpers';
 import { BulkWriteResult } from './result';
 import type Collection from './collection';
 
@@ -19,8 +19,6 @@ import type Collection from './collection';
 export class BulkFindOp extends ShellApiWithMongoClass {
   _serviceProviderBulkFindOp: FindOperators;
   _parentBulk: Bulk;
-  _hint: Document | undefined;
-  _arrayFilters: Document[] | undefined;
   constructor(innerFind: FindOperators, parentBulk: Bulk) {
     super();
     this._serviceProviderBulkFindOp = innerFind;
@@ -53,7 +51,10 @@ export class BulkFindOp extends ShellApiWithMongoClass {
   @apiVersions([1])
   hint(hintDoc: Document): BulkFindOp {
     assertArgsDefinedType([hintDoc], [true], 'BulkFindOp.hint');
-    this._hint = hintDoc;
+    /* eslint-disable chai-friendly/no-unused-expressions */
+    // @ts-expect-error NODE-4634
+    this._serviceProviderBulkFindOp.hint?.(hintDoc);
+    /* eslint-ensable chai-friendly/no-unused-expressions */
     return this;
   }
 
@@ -92,41 +93,26 @@ export class BulkFindOp extends ShellApiWithMongoClass {
   replaceOne(replacement: Document): Bulk {
     this._parentBulk._batchCounts.nUpdateOps++;
     assertArgsDefinedType([replacement], [true], 'BulkFindOp.replacement');
-    const op = { ...replacement };
-    if (this._hint) {
-      op.hint = this._hint;
-    }
+    const op = shallowClone(replacement);
     this._serviceProviderBulkFindOp.replaceOne(op);
     return this._parentBulk;
   }
 
   @returnType('Bulk')
   @apiVersions([1])
-  updateOne(update: Document): Bulk {
+  updateOne(update: Document | Document[]): Bulk {
     this._parentBulk._batchCounts.nUpdateOps++;
     assertArgsDefinedType([update], [true], 'BulkFindOp.update');
-    const op = { ...update };
-    if (this._hint) {
-      op.hint = this._hint;
-    }
-    if (this._arrayFilters) {
-      op.arrayFilters = this._arrayFilters;
-    }
+    const op = shallowClone(update);
     this._serviceProviderBulkFindOp.updateOne(op);
     return this._parentBulk;
   }
 
   @returnType('Bulk')
-  update(update: Document): Bulk {
+  update(update: Document | Document[]): Bulk {
     this._parentBulk._batchCounts.nUpdateOps++;
     assertArgsDefinedType([update], [true], 'BulkFindOp.update');
-    const op = { ...update };
-    if (this._hint) {
-      op.hint = this._hint;
-    }
-    if (this._arrayFilters) {
-      op.arrayFilters = this._arrayFilters;
-    }
+    const op = shallowClone(update);
     this._serviceProviderBulkFindOp.update(op);
     return this._parentBulk;
   }

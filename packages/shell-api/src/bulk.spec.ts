@@ -371,12 +371,10 @@ describe('Bulk API', () => {
 
         it('calls serviceProviderBulkOp.update and returns parent when hint/arrayFilter set', () => {
           bulkFindOp.hint({ hint: 1 });
-          // bulkFindOp.arrayFilters(['filter']);
+          bulkFindOp.arrayFilters([{ x: 1 }]);
           bulkFindOp.update({ updateDoc: 1 });
           expect(innerStub.update).to.have.been.calledWith({
-            updateDoc: 1,
-            hint: { hint: 1 },
-            // arrayFilters: [ 'filter' ]
+            updateDoc: 1
           });
           expect(bulk._batchCounts.nUpdateOps).to.equal(1);
         });
@@ -400,12 +398,10 @@ describe('Bulk API', () => {
 
         it('calls serviceProviderBulkOp.updateOne and returns parent when hint/arrayFilter set', () => {
           bulkFindOp.hint({ hint: 1 });
-          // bulkFindOp.arrayFilters(['filter']);
+          bulkFindOp.arrayFilters([{ x: 1 }]);
           bulkFindOp.updateOne({ updateOneDoc: 1 });
           expect(innerStub.updateOne).to.have.been.calledWith({
-            updateOneDoc: 1,
-            hint: { hint: 1 },
-            // arrayFilters: [ 'filter' ]
+            updateOneDoc: 1
           });
           expect(bulk._batchCounts.nUpdateOps).to.equal(1);
         });
@@ -432,8 +428,7 @@ describe('Bulk API', () => {
           bulkFindOp.hint({ hint: 1 });
           bulkFindOp.replaceOne({ replaceOneDoc: 1 });
           expect(innerStub.replaceOne).to.have.been.calledWith({
-            replaceOneDoc: 1,
-            hint: { hint: 1 }
+            replaceOneDoc: 1
           });
           expect(bulk._batchCounts.nUpdateOps).to.equal(1);
         });
@@ -452,7 +447,7 @@ describe('Bulk API', () => {
         it('sets the attribute and returns self', () => {
           const attr = { hint: 1 };
           expect(bulkFindOp.hint(attr)).to.equal(bulkFindOp);
-          expect(bulkFindOp._hint).to.deep.equal(attr);
+          expect(innerStub.hint).to.have.been.calledWith(attr);
         });
       });
       describe('arrayFilters', () => {

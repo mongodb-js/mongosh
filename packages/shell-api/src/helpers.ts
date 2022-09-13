@@ -804,3 +804,8 @@ improvements and to suggest MongoDB products and deployment options to you.
 To enable free monitoring, run the following command: db.enableFreeMonitoring()
 To permanently disable this reminder, run the following command: db.disableFreeMonitoring()
 `;
+
+export function shallowClone<T>(input: T): T {
+  if (!input || typeof input !== 'object') return input;
+  return Array.isArray(input) ? ([...input] as unknown as T) : { ...input };
+}
