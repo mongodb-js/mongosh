@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Tue Sep 13 2022.
+This document was automatically generated on Wed Sep 14 2022.
 
 ## List of dependencies
 
@@ -188,7 +188,7 @@ Package|Version|License
 **[mongodb](#c7041c61d165b0287fe6d5b4db51cbf52640bbb0d5a747043acd0133df0b4c5c)**|4.9.1|Apache-2.0
 **[mongodb-ace-autocompleter](#77d4f48b8f17bee83995284d4449d815e79f6a3ab4f1984e0793407939336d0e)**|0.11.0|Apache-2.0
 **[mongodb-build-info](#1a7482a12b855301c3b063265543999a78d8e0ec3b3ad432782858594febd16c)**|1.4.0|Apache-2.0
-**[mongodb-client-encryption](#67b390ebe5f911e18d539fc364193dd22f77b462bc9c5bb5a8b9b7680b93cf43)**|2.2.0|Apache-2.0
+**[mongodb-client-encryption](#d9133b2d4fe5d0339732cf85e863f366ddd48de8f976d9f723a73a58c2a4ca15)**|2.2.1|Apache-2.0
 **[mongodb-connection-string-url](#b4d900e6d4e4f5a7ea6424cce3fa58db71d531e6a14f92eb19825ac54e1d9db6)**|2.5.2|Apache-2.0
 **[mongodb-connection-string-url](#e81e839fb113c58ec2849ce2d6fe5f52495763b480458bccf84e6f35432a9321)**|2.5.3|Apache-2.0
 **[mongodb-crypt-library-version](#531dc8c5761d69d24f5e39457de5812ed3781da937aa64f94ed6f659bd72c142)**|1.0.3|Apache-2.0
@@ -12325,8 +12325,8 @@ Authors:
 * Irina Shestak <shestak.irina@gmail.com>
 
 
-<a id="67b390ebe5f911e18d539fc364193dd22f77b462bc9c5bb5a8b9b7680b93cf43"></a>
-### [mongodb-client-encryption](https://www.npmjs.com/package/mongodb-client-encryption) (version 2.2.0)
+<a id="d9133b2d4fe5d0339732cf85e863f366ddd48de8f976d9f723a73a58c2a4ca15"></a>
+### [mongodb-client-encryption](https://www.npmjs.com/package/mongodb-client-encryption) (version 2.2.1)
 <!-- initially found at packages/service-provider-core/node_modules/mongodb-client-encryption -->
 > Official client encryption module for the MongoDB Node.js driver
 
