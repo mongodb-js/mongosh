@@ -50,8 +50,8 @@
     "@mongosh/types": "0.0.0-dev.0",
     "@types/sinon-chai": "^3.2.3",
     "aws4": "^1.11.0",
-    "mongodb": "^4.9.1",
-    "mongodb-connection-string-url": "^2.5.2",
+    "mongodb": "^4.10.0",
+    "mongodb-connection-string-url": "^2.5.3",
     "saslprep": "mongodb-js/saslprep#v1.0.4"
   },
   "optionalDependencies": {

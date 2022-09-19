@@ -35,6 +35,6 @@
     "@mongodb-js/devtools-connect": "^1.4.3"
   },
   "devDependencies": {
-    "mongodb": "^4.9.1"
+    "mongodb": "^4.10.0"
   }
 }
