@@ -44,27 +44,69 @@ export class Editor extends Component<EditorProps> {
     this.editor = editor;
     this.visibleCursorDisplayStyle = this.editor.renderer.$cursorLayer.element.style.display;
 
-    if (this.props.autocompleter) {
-      editor.commands.on('afterExec', function(e: any) {
-        if (e.command.name === 'insertstring' && /^[\w.]$/.test(e.args)) {
-          editor.execCommand('startAutocomplete');
-        }
-      });
+    editor.commands.on('afterExec', (e: any) => {
+      if (
+        // Only suggest autocomplete if autocompleter was set
+        this.autocompleter &&
+        e.command.name === 'insertstring' &&
+        /^[\w.]$/.test(e.args)
+      ) {
+        this.editor.execCommand('startAutocomplete');
+      }
+    });
+  };
 
-      tools.setCompleters([new AceAutocompleterAdapter(this.props.autocompleter)]);
+  private autocompleter: AceAutocompleterAdapter | null = null;
+
+  private editorId: number = Date.now();
+
+  constructor(props: EditorProps) {
+    super(props);
+    if (this.props.autocompleter) {
+      this.autocompleter = new AceAutocompleterAdapter(
+        this.props.autocompleter
+      );
+    }
+  }
+
+  private onFocus = () => {
+    if (this.autocompleter) {
+      tools.setCompleters([this.autocompleter]);
+    } else {
+      tools.setCompleters([]);
     }
   };
 
-  componentDidUpdate(): void {
-    if (this.props.operationInProgress) {
-      this.hideCursor();
-    } else {
-      this.showCursor();
+  componentDidUpdate(prevProps: EditorProps): void {
+    if (prevProps.operationInProgress !== this.props.operationInProgress) {
+      if (this.props.operationInProgress) {
+        this.hideCursor();
+      } else {
+        this.showCursor();
+      }
     }
 
-    if (this.props.moveCursorToTheEndOfInput) {
-      this.moveCursorToTheEndOfInput();
+    if (prevProps.moveCursorToTheEndOfInput !== this.props.moveCursorToTheEndOfInput) {
+      if (this.props.moveCursorToTheEndOfInput) {
+        this.moveCursorToTheEndOfInput();
+      }
     }
+
+    if (prevProps.autocompleter !== this.props.autocompleter) {
+      if (this.props.autocompleter) {
+        this.autocompleter = new AceAutocompleterAdapter(
+          this.props.autocompleter
+        );
+        tools.setCompleters([this.autocompleter]);
+      } else {
+        this.autocompleter = null;
+        tools.setCompleters([]);
+      }
+    }
+  }
+
+  componentWillUnmount(): void {
+    this.autocompleter = null;
   }
 
   private hideCursor(): void {
@@ -95,7 +137,7 @@ export class Editor extends Component<EditorProps> {
         tabSize: 2,
         useWorker: false
       }}
-      name={`mongosh-ace-${Date.now()}`}
+      name={`mongosh-ace-${this.editorId}`}
       mode="javascript"
       ref={(ref: AceEditor | null): void => {
         if (this.props.setInputRef && ref !== null) {
@@ -103,8 +145,9 @@ export class Editor extends Component<EditorProps> {
         }
       }}
       theme="mongosh"
-      onChange={this.props.onChange}
       onLoad={this.onEditorLoad}
+      onFocus={this.onFocus}
+      onChange={this.props.onChange}
       commands={[
         {
           name: 'return',
