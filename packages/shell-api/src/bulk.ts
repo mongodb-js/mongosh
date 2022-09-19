@@ -51,10 +51,7 @@ export class BulkFindOp extends ShellApiWithMongoClass {
   @apiVersions([1])
   hint(hintDoc: Document): BulkFindOp {
     assertArgsDefinedType([hintDoc], [true], 'BulkFindOp.hint');
-    /* eslint-disable chai-friendly/no-unused-expressions */
-    // @ts-expect-error NODE-4634
-    this._serviceProviderBulkFindOp.hint?.(hintDoc);
-    /* eslint-ensable chai-friendly/no-unused-expressions */
+    this._serviceProviderBulkFindOp.hint(hintDoc);
     return this;
   }
 
