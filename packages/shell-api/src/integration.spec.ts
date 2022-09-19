@@ -1855,6 +1855,66 @@ describe('Shell API (integration)', function() {
             expect(op.operations.length).to.equal(1);
           });
         });
+        context('with >= 4.2 server', () => {
+          skipIfServerVersion(testServer, '< 4.2');
+          describe('update() with pipeline update', () => {
+            beforeEach(async() => {
+              bulk = await collection[m]();
+              for (let i = 0; i < size; i++) {
+                await collection.insertOne({ x: i });
+              }
+              expect(await collection.countDocuments()).to.equal(size);
+              expect(await collection.countDocuments({ y: { $exists: true } })).to.equal(0);
+              bulk.find({ y: 0 }).upsert().update([{ $set: { y: 1 } }]);
+              await bulk.execute();
+            });
+            afterEach(async() => {
+              await collection.drop();
+            });
+            it('toJSON returns correctly', () => {
+              expect(bulk.toJSON()).to.deep.equal({ nInsertOps: 0, nUpdateOps: 1, nRemoveOps: 0, nBatches: 1 });
+            });
+            it('executes', async() => {
+              expect(await collection.countDocuments()).to.equal(size + 1);
+              expect(await collection.countDocuments({ y: { $exists: true } })).to.equal(1);
+            });
+            it('getOperations returns correctly', () => {
+              const ops = bulk.getOperations();
+              expect(ops.length).to.equal(1);
+              const op = ops[0];
+              expect(op.originalZeroIndex).to.equal(0);
+              expect(op.batchType).to.equal(2);
+              expect(op.operations.length).to.equal(1);
+            });
+          });
+          describe('updateOne() with pipeline update', () => {
+            beforeEach(async() => {
+              bulk = await collection[m]();
+              for (let i = 0; i < size; i++) {
+                await collection.insertOne({ x: i });
+              }
+              expect(await collection.countDocuments()).to.equal(size);
+              expect(await collection.countDocuments({ y: { $exists: true } })).to.equal(0);
+              bulk.find({ y: 0 }).upsert().updateOne([{ $set: { y: 1 } }]);
+              await bulk.execute();
+            });
+            it('toJSON returns correctly', () => {
+              expect(bulk.toJSON()).to.deep.equal({ nInsertOps: 0, nUpdateOps: 1, nRemoveOps: 0, nBatches: 1 });
+            });
+            it('executes', async() => {
+              expect(await collection.countDocuments()).to.equal(size + 1);
+              expect(await collection.countDocuments({ y: { $exists: true } })).to.equal(1);
+            });
+            it('getOperations returns correctly', () => {
+              const ops = bulk.getOperations();
+              expect(ops.length).to.equal(1);
+              const op = ops[0];
+              expect(op.originalZeroIndex).to.equal(0);
+              expect(op.batchType).to.equal(2);
+              expect(op.operations.length).to.equal(1);
+            });
+          });
+        });
         describe('error states', () => {
           it('cannot be executed twice', async() => {
             bulk = await collection[m]();
