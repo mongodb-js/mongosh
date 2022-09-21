@@ -1,8 +1,10 @@
 import path from 'path';
-import { ChildProcess, fork } from 'child_process';
+import { ChildProcess, fork, spawn } from 'child_process';
 import { Caller, cancel, createCaller } from './rpc';
 import { expect } from 'chai';
 import { WorkerRuntime } from './worker-runtime';
+import { once } from 'events';
+import { promisify } from 'util';
 
 const childProcessModulePath = path.resolve(
   __dirname,
@@ -22,7 +24,7 @@ describe('child process worker proxy', () => {
     }
 
     if (childProcess) {
-      childProcess.kill('SIGTERM');
+      childProcess.disconnect();
       childProcess = null;
     }
   });
@@ -33,5 +35,39 @@ describe('child process worker proxy', () => {
     await caller.init('mongodb://nodb/', {}, { nodb: true });
     const result = await caller.evaluate('1 + 1');
     expect(result.printable).to.equal(2);
+  });
+
+  it('should exit on its own when the parent process disconnects', async() => {
+    const intermediateProcess = spawn(process.execPath,
+      ['-e', `require("child_process")
+         .fork(${JSON.stringify(childProcessModulePath)})
+         .on("message", function(m) { console.log("message " + m + " from " + this.pid) })`],
+      { stdio: ['pipe', 'pipe', 'inherit'] });
+
+    // Make sure the outer child process runs and has created the inner child process
+    const [message] = await once(intermediateProcess.stdout.setEncoding('utf8'), 'data');
+    const match = message.trim().match(/^message ready from (?<pid>\d+)$/);
+    expect(match).to.not.equal(null);
+
+    // Make sure the inner child process runs
+    const childPid = +match.groups.pid;
+    process.kill(childPid, 0);
+
+    // Kill the intermediate process and wait for the inner child process to also close
+    intermediateProcess.kill('SIGTERM');
+    let innerChildHasStoppedRunning = false;
+    for (let i = 0; i < 200; i++) {
+      try {
+        process.kill(childPid, 0);
+      } catch (err) {
+        if (err.code === 'ESRCH') {
+          innerChildHasStoppedRunning = true;
+          break;
+        }
+        throw err;
+      }
+      await promisify(setTimeout)(10);
+    }
+    expect(innerChildHasStoppedRunning).to.equal(true);
   });
 });
