@@ -114,6 +114,7 @@ const messageBus = createCaller(['emit', 'on'], process);
 
 exposeAll(messageBus, workerProcess);
 
+process.once('disconnect', () => process.exit());
 process.nextTick(() => {
   // eslint-disable-next-line chai-friendly/no-unused-expressions
   process.send?.('ready');
