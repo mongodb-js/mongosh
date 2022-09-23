@@ -53,7 +53,9 @@ import {
   ReplaceOptions,
   RunCommandOptions,
   UpdateOptions,
-  DropCollectionOptions
+  DropCollectionOptions,
+  AnalyzeOptions,
+  StatisticsDocument
 } from '@mongosh/service-provider-core';
 import {
   AggregationCursor,
@@ -636,6 +638,26 @@ export default class Collection extends ShellApiWithMongoClass {
   }
 
   /**
+   * Manually update or create statistics.
+   * @param {Object} options
+   * @returns {StatisticsDocument} The promise of the result.
+   */
+   @returnsPromise
+   @returnType('StatisticsDocument')
+   @serverVersions(['6.2.0', ServerVersions.latest])
+   @apiVersions([1])
+  async analyze(options?: AnalyzeOptions): Promise<StatisticsDocument> {
+    this._emitCollectionApiCall('analyze', { analyzeOptions: options });
+    const result = await this._mongo._serviceProvider.analyze(
+      this._database._name,
+      this._name,
+      options,
+    );
+
+    return result;
+  }
+
+  /**
    * Alias for insertMany.
    *
    * @note: Shell API sets writeConcern via options in object, data provider API
@@ -650,31 +672,31 @@ export default class Collection extends ShellApiWithMongoClass {
   @deprecated
   @serverVersions([ServerVersions.earliest, '3.6.0'])
   @apiVersions([1])
-  async insert(docs: Document | Document[], options: BulkWriteOptions = {}): Promise<InsertManyResult> {
-    await this._instanceState.printDeprecationWarning(
-      'Collection.insert() is deprecated. Use insertOne, insertMany, or bulkWrite.'
-    );
-    assertArgsDefinedType([docs], [true], 'Collection.insert');
-    // When inserting documents into MongoDB that do not contain the _id field,
-    // one will be added to each of the documents missing it by the Node driver,
-    // mutating the document. To prevent this behaviour we pass not the original document,
-    // but its copy, to keep the original document immutable.
-    // https://github.com/mongodb/node-mongodb-native/blob/3.6/lib/collection.js#L487-L489
-    const docsToInsert: Document[] = Array.isArray(docs) ? docs.map((doc) => ({ ...doc })) : [{ ...docs }];
+   async insert(docs: Document | Document[], options: BulkWriteOptions = {}): Promise<InsertManyResult> {
+     await this._instanceState.printDeprecationWarning(
+       'Collection.insert() is deprecated. Use insertOne, insertMany, or bulkWrite.'
+     );
+     assertArgsDefinedType([docs], [true], 'Collection.insert');
+     // When inserting documents into MongoDB that do not contain the _id field,
+     // one will be added to each of the documents missing it by the Node driver,
+     // mutating the document. To prevent this behaviour we pass not the original document,
+     // but its copy, to keep the original document immutable.
+     // https://github.com/mongodb/node-mongodb-native/blob/3.6/lib/collection.js#L487-L489
+     const docsToInsert: Document[] = Array.isArray(docs) ? docs.map((doc) => ({ ...doc })) : [{ ...docs }];
 
-    this._emitCollectionApiCall('insert', { options });
-    const result = await this._mongo._serviceProvider.insertMany(
-      this._database._name,
-      this._name,
-      docsToInsert,
-      { ...await this._database._baseOptions(), ...options }
-    );
+     this._emitCollectionApiCall('insert', { options });
+     const result = await this._mongo._serviceProvider.insertMany(
+       this._database._name,
+       this._name,
+       docsToInsert,
+       { ...await this._database._baseOptions(), ...options }
+     );
 
-    return new InsertManyResult(
-      !!result.acknowledged,
-      result.insertedIds
-    );
-  }
+     return new InsertManyResult(
+       !!result.acknowledged,
+       result.insertedIds
+     );
+   }
 
   /**
    * Insert multiple documents.

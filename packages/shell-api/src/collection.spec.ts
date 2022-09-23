@@ -612,6 +612,41 @@ describe('Collection', () => {
       });
     });
 
+    describe('analyze', () => {
+      it('can be called without options', async() => {
+        serviceProvider.analyze = sinon.spy(() => Promise.resolve({
+          result: { ok: 1, value: {} }
+        })) as any;
+
+        await collection.analyze();
+
+        expect(serviceProvider.analyze).to.have.been.calledWith(
+          'db1',
+          'coll1'
+        );
+      });
+
+      it('can be called with options', async() => {
+        serviceProvider.analyze = sinon.spy(() => Promise.resolve({
+          result: { ok: 1, value: {} }
+        })) as any;
+
+        await collection.analyze({
+          key: 'a.b',
+          sampleRate: 0.5
+        });
+
+        expect(serviceProvider.analyze).to.have.been.calledWith(
+          'db1',
+          'coll1',
+          {
+            key: 'a.b',
+            sampleRate: 0.5
+          }
+        );
+      });
+    });
+
     describe('getDb', () => {
       it('returns the db instance', () => {
         expect(collection.getDB()).to.equal(database);

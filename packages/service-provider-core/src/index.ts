@@ -25,6 +25,7 @@ import { bsonStringifiers } from './printable-bson';
 import ShellAuthOptions from './shell-auth-options';
 export * from './all-transport-types';
 export * from './all-fle-types';
+export * from './analyze-types';
 
 const bson = {
   ObjectId,

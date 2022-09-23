@@ -25,6 +25,11 @@ import type {
   UnorderedBulkOperation
 } from './all-transport-types';
 
+import type {
+  AnalyzeOptions,
+  StatisticsDocument
+} from './analyze-types';
+
 /**
  * Interface for write operations in the CRUD specification.
  */
@@ -363,5 +368,20 @@ export default interface Writable {
     options?: BulkWriteOptions,
     dbOptions?: DbOptions
   ): Promise<OrderedBulkOperation | UnorderedBulkOperation>;
+
+  /**
+   * Manually update or create statistics.
+   * @param {String} database - The database name.
+   * @param {String} collection - The collection name.
+   * @param options
+   * @param {DbOptions} dbOptions - The database options
+   * @returns {Promise} The promise of the result.
+   */
+   analyze(
+    database: string,
+    collection: string,
+    options?: AnalyzeOptions,
+    dbOptions?: DbOptions
+  ): Promise<StatisticsDocument>;
 }
 
