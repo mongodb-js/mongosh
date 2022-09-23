@@ -2,12 +2,12 @@ import type { WriteConcern } from './all-transport-types';
 import { bson } from './index';
 
 export type StatisticsDocumentHistogram = [{
-	upperBoundary: typeof bson[keyof typeof bson];
-	boundaryCount: number;
-	rangeCount: number;
-	rangeDistincts: number;
-	cumulativeCount: number;
-	cumulativeDistincts: number;
+  upperBoundary: typeof bson[keyof typeof bson];
+  boundaryCount: number;
+  rangeCount: number;
+  rangeDistincts: number;
+  cumulativeCount: number;
+  cumulativeDistincts: number;
 }];
 
 export type StatisticsDocumentTypeCount = { [key: string]: number };
