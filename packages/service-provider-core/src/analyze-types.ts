@@ -16,7 +16,7 @@ export type StatisticsDocumentBoolCount = { true: number; false: number; };
 
 export interface StatisticsDocument {
   key: string;
-  lastUpdate: typeof bson.Timestamp,
+  lastUpdate: typeof bson.Timestamp;
   documents: number;
   documentsSampled: number;
   samplingRate: number;
