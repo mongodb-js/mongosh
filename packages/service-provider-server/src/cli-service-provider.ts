@@ -76,8 +76,7 @@ import {
   bson as BSON,
   FLE,
   AutoEncryptionOptions,
-  AnalyzeOptions,
-  StatisticsDocument
+  AnalyzeOptions
 } from '@mongosh/service-provider-core';
 
 import { connectMongoClient, DevtoolsConnectOptions } from '@mongodb-js/devtools-connect';
@@ -679,7 +678,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     collection: string,
     options?: AnalyzeOptions,
     dbOptions?: DbOptions
-  ): Promise<StatisticsDocument> {
+  ): Promise<Document> {
     const analyzeOptions = { ...this.baseCmdOptions, ...options };
 
     return this.db(database, dbOptions)

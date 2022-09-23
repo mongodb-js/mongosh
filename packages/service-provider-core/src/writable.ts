@@ -26,8 +26,7 @@ import type {
 } from './all-transport-types';
 
 import type {
-  AnalyzeOptions,
-  StatisticsDocument
+  AnalyzeOptions
 } from './analyze-types';
 
 /**
@@ -382,6 +381,6 @@ export default interface Writable {
     collection: string,
     options?: AnalyzeOptions,
     dbOptions?: DbOptions
-  ): Promise<StatisticsDocument>;
+  ): Promise<Document>;
 }
 

@@ -54,8 +54,7 @@ import {
   RunCommandOptions,
   UpdateOptions,
   DropCollectionOptions,
-  AnalyzeOptions,
-  StatisticsDocument
+  AnalyzeOptions
 } from '@mongosh/service-provider-core';
 import {
   AggregationCursor,
@@ -640,19 +639,40 @@ export default class Collection extends ShellApiWithMongoClass {
   /**
    * Manually update or create statistics.
    * @param {Object} options
-   * @returns {StatisticsDocument} The promise of the result.
+   * @returns {Document} The promise of the result.
    */
   @returnsPromise
-  @returnType('StatisticsDocument')
+  @returnType('Document')
   @serverVersions(['6.2.0', ServerVersions.latest])
   @apiVersions([1])
-  async analyze(options?: AnalyzeOptions): Promise<StatisticsDocument> {
-    this._emitCollectionApiCall('analyze', { analyzeOptions: options });
-    const result = await this._mongo._serviceProvider.analyze(
-      this._database._name,
-      this._name,
-      options,
+  async analyze(options: AnalyzeOptions = {}): Promise<Document> {
+    if (Object.keys(options).length && !options.key) {
+      throw new MongoshInvalidInputError(
+        'The "key" argument must be a string path.',
+        CommonErrors.InvalidArgument
+      );
+    }
+
+    if (options?.sampleRate && options?.sampleSize) {
+      throw new MongoshInvalidInputError(
+        'Only one of "sampleSize" or "sampleRate" can be present.',
+        CommonErrors.InvalidArgument
+      );
+    }
+
+    this._emitCollectionApiCall('analyze', { options });
+    const result = await this._database._runCommand(
+      {
+        analyze: this._name,
+        ...options
+      }
     );
+    if (!result) {
+      throw new MongoshRuntimeError(
+        `Error running analyze command on ${this.getFullName()}`,
+        CommonErrors.CommandFailed
+      );
+    }
 
     return result;
   }

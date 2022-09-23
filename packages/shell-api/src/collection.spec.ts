@@ -613,37 +613,47 @@ describe('Collection', () => {
     });
 
     describe('analyze', () => {
-      it('can be called without options', async() => {
-        serviceProvider.analyze = sinon.spy(() => Promise.resolve({
-          result: { ok: 1, value: {} }
-        })) as any;
-
+      it('calls serviceProvider.runCommandWithCheck on the database with no options', async() => {
         await collection.analyze();
 
-        expect(serviceProvider.analyze).to.have.been.calledWith(
-          'db1',
-          'coll1'
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          database._name,
+          { analyze: 'coll1' } // ensure simple collname
         );
       });
 
-      it('can be called with options', async() => {
-        serviceProvider.analyze = sinon.spy(() => Promise.resolve({
-          result: { ok: 1, value: {} }
-        })) as any;
-
+      it('calls serviceProvider.runCommandWithCheck on the database with key and sampleRate options', async() => {
         await collection.analyze({
           key: 'a.b',
           sampleRate: 0.5
         });
 
-        expect(serviceProvider.analyze).to.have.been.calledWith(
-          'db1',
-          'coll1',
-          {
-            key: 'a.b',
-            sampleRate: 0.5
-          }
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          database._name,
+          { analyze: 'coll1', key: 'a.b', sampleRate: 0.5 } // ensure simple collname
         );
+      });
+
+      it('throws when key is missing but sampleRate is given', async() => {
+        const error = await collection.analyze({
+          sampleRate: 0.5
+        }).catch(e => e);
+
+        expect(error).to.be.instanceOf(MongoshInvalidInputError);
+        expect(error.message).to.contain('The "key" argument must be a string path.');
+        expect(error.code).to.equal(CommonErrors.InvalidArgument);
+      });
+
+      it('throws when sampleSize and sampleRate are both given', async() => {
+        const error = await collection.analyze({
+          key: 'a.b',
+          sampleSize: 0.5,
+          sampleRate: 0.5
+        }).catch(e => e);
+
+        expect(error).to.be.instanceOf(MongoshInvalidInputError);
+        expect(error.message).to.contain('Only one of "sampleSize" or "sampleRate" can be present.');
+        expect(error.code).to.equal(CommonErrors.InvalidArgument);
       });
     });
 
@@ -2032,6 +2042,7 @@ describe('Collection', () => {
       findAndModify: { a: [{ query: {}, update: {} }], m: 'findOneAndReplace', i: 4 },
       findOneAndReplace: { i: 4 },
       findOneAndUpdate: { i: 4 },
+      analyze: { i: 4 },
       replaceOne: { i: 4 },
       updateMany: { i: 4 },
       updateOne: { i: 4 },
