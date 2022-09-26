@@ -255,26 +255,6 @@ describe('CliServiceProvider', () => {
     });
   });
 
-  describe('#analyze', () => {
-    const commandResult = { result: { n: 1, ok: 1 } };
-    const options = { key: 'a.b' };
-
-    beforeEach(() => {
-      collectionStub = stubInterface<Collection>();
-      // @ts-expect-error waiting for driver release
-      collectionStub.analyze.resolves(commandResult);
-      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus);
-    });
-
-    it('executes the command against the database', async() => {
-      const result = await serviceProvider.
-        analyze('music', 'bands', options);
-      expect(result).to.deep.equal(commandResult);
-      // @ts-expect-error waiting for driver release
-      expect(collectionStub.analyze).to.have.been.calledWith({ ...DEFAULT_BASE_OPTS, ...options });
-    });
-  });
-
   describe('#insertMany', () => {
     const doc = { name: 'Aphex Twin' };
     const commandResult = { result: { n: 1, ok: 1 } };

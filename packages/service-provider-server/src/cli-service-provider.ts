@@ -75,8 +75,7 @@ import {
   ChangeStream,
   bson as BSON,
   FLE,
-  AutoEncryptionOptions,
-  AnalyzeOptions
+  AutoEncryptionOptions
 } from '@mongosh/service-provider-core';
 
 import { connectMongoClient, DevtoolsConnectOptions } from '@mongodb-js/devtools-connect';
@@ -663,28 +662,6 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
         update,
         findOneAndUpdateOptions
       ) as any;
-  }
-
-  /**
-   * Manually update or create statistics.
-   * @param {String} database - The database name.
-   * @param {String} collection - The collection name.
-   * @param options
-   * @param {DbOptions} dbOptions - The database options
-   * @returns {Promise} The promise of the result.
-   */
-  analyze(
-    database: string,
-    collection: string,
-    options?: AnalyzeOptions,
-    dbOptions?: DbOptions
-  ): Promise<Document> {
-    const analyzeOptions = { ...this.baseCmdOptions, ...options };
-
-    return this.db(database, dbOptions)
-      .collection(collection)
-      // @ts-expect-error waiting for driver release
-      .analyze(analyzeOptions) as any;
   }
 
   /**

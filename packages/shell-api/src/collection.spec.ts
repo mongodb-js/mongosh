@@ -633,28 +633,6 @@ describe('Collection', () => {
           { analyze: 'coll1', key: 'a.b', sampleRate: 0.5 } // ensure simple collname
         );
       });
-
-      it('throws when key is missing but sampleRate is given', async() => {
-        const error = await collection.analyze({
-          sampleRate: 0.5
-        }).catch(e => e);
-
-        expect(error).to.be.instanceOf(MongoshInvalidInputError);
-        expect(error.message).to.contain('The "key" argument must be a string path.');
-        expect(error.code).to.equal(CommonErrors.InvalidArgument);
-      });
-
-      it('throws when sampleSize and sampleRate are both given', async() => {
-        const error = await collection.analyze({
-          key: 'a.b',
-          sampleSize: 0.5,
-          sampleRate: 0.5
-        }).catch(e => e);
-
-        expect(error).to.be.instanceOf(MongoshInvalidInputError);
-        expect(error.message).to.contain('Only one of "sampleSize" or "sampleRate" can be present.');
-        expect(error.code).to.equal(CommonErrors.InvalidArgument);
-      });
     });
 
     describe('getDb', () => {
@@ -2042,7 +2020,7 @@ describe('Collection', () => {
       findAndModify: { a: [{ query: {}, update: {} }], m: 'findOneAndReplace', i: 4 },
       findOneAndReplace: { i: 4 },
       findOneAndUpdate: { i: 4 },
-      analyze: { i: 4 },
+      analyze: { m: 'runCommandWithCheck', i: 2 },
       replaceOne: { i: 4 },
       updateMany: { i: 4 },
       updateOne: { i: 4 },
