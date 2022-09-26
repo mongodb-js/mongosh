@@ -259,7 +259,7 @@ describe('completer.completer', () => {
       const adjusted = collComplete
         .filter(c =>
           ![
-            'count', 'update', 'remove', 'insert', 'save', 'findAndModify', 'reIndex', 'mapReduce'
+            'count', 'update', 'remove', 'insert', 'save', 'findAndModify', 'reIndex', 'mapReduce', 'analyze'
           ].includes(c)
         )
         .map(c => `${i}${c}`);
