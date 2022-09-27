@@ -685,7 +685,7 @@ const translations: Catalog = {
               example: 'db.coll.getShardDistribution()'
             },
             analyze: {
-              link: '',
+              link: 'https://docs.mongodb.com/manual/reference/method/db.collection.analyze',
               description: 'Allows manual update and creation of all statistics or statistics for a certain path.',
               example: 'db.coll.analyze()'
             }

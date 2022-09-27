@@ -53,6 +53,24 @@ describe('Autocompleter', () => {
         completion: 'use databaseOne'
       });
     });
+
+    it('returns an empty array for an empty string', async() => {
+      const completions = await autocompleter.getCompletions('');
+
+      expect(completions).to.deep.equal([]);
+    });
+
+    it('returns an empty array for an empty string', async() => {
+      const completions = await autocompleter.getCompletions('');
+
+      expect(completions).to.deep.equal([]);
+    });
+
+    it('returns an empty array for non existing collection method', async() => {
+      const completions = await autocompleter.getCompletions('db.coll1.iamnotexist');
+
+      expect(completions).to.deep.equal([]);
+    });
   });
 });
 
