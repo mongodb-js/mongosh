@@ -165,7 +165,7 @@ describe('completer.completer', () => {
       // Undo https://github.com/mongodb-js/ace-autocompleter/pull/65 for testing
       // because it's the only DataLake-only feature.
       origBaseCompletions = [...BASE_COMPLETIONS];
-      BASE_COMPLETIONS.push({
+      (BASE_COMPLETIONS as any).push({
         name: '$sql',
         value: '$sql',
         label: '$sql',
