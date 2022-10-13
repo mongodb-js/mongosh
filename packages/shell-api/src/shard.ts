@@ -429,7 +429,7 @@ export default class Shard extends ShellApiWithMongoClass {
 
   @returnsPromise
   @apiVersions([])
-  @serverVersions(['6.1.0', ServerVersions.latest])
+  @serverVersions(['6.0.3', ServerVersions.latest])
   @returnType('AggregationCursor')
   async getShardedDataDistribution(options = {}): Promise<AggregationCursor> {
     this._emitShardApiCall('getShardedDataDistribution', {});
