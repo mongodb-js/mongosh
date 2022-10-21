@@ -156,7 +156,7 @@ async function completer(params: AutocompleteParameters, line: string): Promise<
         // aggregation needs extra accumulators to autocomplete properly
         expressions = ([] as AnyCompletions).concat(
           BASE_COMPLETIONS,
-          ...getStageAccumulators(params, elToComplete)
+          getStageAccumulators(params, elToComplete)
         );
       } else {
         // collection querying just needs MATCH COMPLETIONS
