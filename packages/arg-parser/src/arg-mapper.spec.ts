@@ -105,6 +105,16 @@ describe('arg-mapper.mapCliToDriver', () => {
     });
   });
 
+  context('when cli args have retryWrites set to false', () => {
+    const cliOptions: CliOptions = { retryWrites: false };
+
+    it('maps the same argument', () => {
+      expect(optionsTest(cliOptions)).to.deep.equal({
+        cs: 'mongodb://localhost/?retryWrites=false'
+      });
+    });
+  });
+
   context('when cli args have tls', () => {
     const cliOptions: CliOptions = { tls: true };
 
