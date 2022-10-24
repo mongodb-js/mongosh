@@ -12,7 +12,7 @@ import {
   ATLAS,
   ADL,
   ON_PREM
-} from 'mongodb-ace-autocompleter';
+} from '@mongodb-js/mongodb-constants';
 
 type TypeSignatureAttributes = { [key: string]: TypeSignature };
 
@@ -28,11 +28,26 @@ export interface AutocompleteParameters {
   getDatabaseCompletions: (dbName: string) => string[] | Promise<string[]>;
 }
 
-export const BASE_COMPLETIONS = EXPRESSION_OPERATORS.concat(
-  CONVERSION_OPERATORS.concat(BSON_TYPES.concat(STAGE_OPERATORS))
+type AnyCompletions = readonly (
+  | typeof CONVERSION_OPERATORS[number]
+  | typeof EXPRESSION_OPERATORS[number]
+  | typeof STAGE_OPERATORS[number]
+  | typeof QUERY_OPERATORS[number]
+  | typeof ACCUMULATORS[number]
+  | typeof BSON_TYPES[number]
+)[];
+
+export const BASE_COMPLETIONS = ([] as AnyCompletions).concat(
+  EXPRESSION_OPERATORS,
+  CONVERSION_OPERATORS,
+  BSON_TYPES,
+  STAGE_OPERATORS
 );
 
-export const MATCH_COMPLETIONS = QUERY_OPERATORS.concat(BSON_TYPES);
+export const MATCH_COMPLETIONS = ([] as AnyCompletions).concat(
+  QUERY_OPERATORS,
+  BSON_TYPES
+);
 
 /**
  * The project stage operator.
@@ -139,8 +154,10 @@ async function completer(params: AutocompleteParameters, line: string): Promise<
       let expressions;
       if (splitLine[2].match(/\baggregate\b/)) {
         // aggregation needs extra accumulators to autocomplete properly
-        expressions = BASE_COMPLETIONS.concat(getStageAccumulators(
-          params, elToComplete));
+        expressions = ([] as AnyCompletions).concat(
+          BASE_COMPLETIONS,
+          getStageAccumulators(params, elToComplete)
+        );
       } else {
         // collection querying just needs MATCH COMPLETIONS
         expressions = MATCH_COMPLETIONS;
@@ -199,16 +216,18 @@ function isAcceptable(
 }
 
 // stage completions based on current stage string.
-function getStageAccumulators(params: AutocompleteParameters, stage: string): typeof ACCUMULATORS {
-  if (stage !== '') return [];
-
+function getStageAccumulators(
+  params: AutocompleteParameters,
+  stage: string
+): readonly typeof ACCUMULATORS[number][] {
   if (stage.includes(PROJECT)) {
-    return ACCUMULATORS.filter((acc: any) => {
+    return ACCUMULATORS.filter((acc) => {
       return isAcceptable(params, acc, 'projectVersion');
     });
   } else if (stage.includes(GROUP)) {
     return ACCUMULATORS;
   }
+  return [];
 }
 
 function filterQueries(params: AutocompleteParameters, completions: any, prefix: string, split: string): string[] {
