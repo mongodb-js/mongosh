@@ -147,7 +147,7 @@ function mapOption<Key extends keyof CliOptions>(
 export function mapCliToDriver(options: Readonly<CliOptions>, i: Readonly<ConnectionInfo>): ConnectionInfo {
   for (const cliOption of Object.keys(options) as (keyof CliOptions)[]) {
     const optionValue = options[cliOption];
-    if (optionValue) {
+    if (optionValue !== null && optionValue !== undefined && optionValue !== '') {
       i = mapOption(i, cliOption, optionValue);
     }
   }
