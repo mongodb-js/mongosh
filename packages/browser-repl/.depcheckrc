@@ -3,8 +3,6 @@ ignores: [
     'webpack-cli',
     # resolved as `<depname>/` so depcheck doesn't see it being used
     'buffer',
-    'util',
-    # leafygreen peer dep
-    '@emotion/react'
+    'util'
   ]
 skip-missing: true
