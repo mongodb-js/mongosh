@@ -12,9 +12,16 @@ module.exports = {
       fs: false,
       crypto: false,
       // node specific and require a polyfill
+      // path polyfill is required for following packages:
+      //   async-rewriter2, @mongodb-js/compass-components, mongodb-log-writer, shell-api
       path: require.resolve('path-browserify'),
+      // stream polyfill is required for following packages:
+      //   mongodb-log-writer, @leafygreen-ui/emotion
       stream: require.resolve('stream-browserify'),
+      // buffer polyfill is required for following packages:
+      //   @leafygreen-ui/emotion
       buffer: require.resolve('buffer/'),
+      // util polyfill is required by browser-repl itself
       util: require.resolve('util/'),
       // compass specific
       electron: false,
