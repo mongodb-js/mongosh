@@ -242,8 +242,8 @@ const IframeRuntimeExample: React.FunctionComponent = () => {
         </FormFieldContainer>
 
         <FormFieldContainer className={formField}>
-          <Label id="maxHistoryLengthLabel" htmlFor="maxHistoryLength">
-            maxHistoryLength
+          <Label id="initialHistoryLabel" htmlFor="initialHistory">
+            initialHistory
           </Label>
           <Description>
             An array of history entries to prepopulate the history. Can be used
@@ -253,7 +253,7 @@ const IframeRuntimeExample: React.FunctionComponent = () => {
             Note: new entries will not be appended to the array
           </Description>
           <TextArea
-            aria-labelledby="maxHistoryLengthLabel"
+            aria-labelledby="initialHistory"
             value={initialHistory.join('\n')}
             onChange={(evt) => {
               setInitialHistory(evt.currentTarget.value.split('\n'));
