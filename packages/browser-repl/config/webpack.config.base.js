@@ -42,52 +42,6 @@ module.exports = {
             compact: false
           }
         }
-      },
-      {
-        test: /\.css$/,
-        use: [
-          { loader: require.resolve('style-loader') },
-          { loader: require.resolve('css-loader') }
-        ]
-      },
-      // For styles that have to be global (see https://github.com/css-modules/css-modules/pull/65)
-      {
-        test: /\.less$/,
-        include: [/\.global/, /bootstrap/],
-        use: [
-          {
-            loader: require.resolve('style-loader')
-          },
-          {
-            loader: require.resolve('css-loader'),
-            options: {
-              modules: false
-            }
-          },
-          {
-            loader: require.resolve('less-loader')
-          }
-        ]
-      },
-      // For CSS-Modules locally scoped styles
-      {
-        test: /\.less$/,
-        exclude: [/\.global/, /bootstrap/, /node_modules/],
-        use: [
-          { loader: require.resolve('style-loader') },
-          {
-            loader: require.resolve('css-loader'),
-            options: {
-              modules: {
-                localIdentName: 'mongosh-[name]-[local]__[hash:base64:5]'
-              },
-              importLoaders: 1
-            }
-          },
-          {
-            loader: require.resolve('less-loader')
-          }
-        ]
       }
     ]
   },
