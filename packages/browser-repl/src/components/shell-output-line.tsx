@@ -1,12 +1,8 @@
 /* eslint-disable complexity */
 import React, { Component } from 'react';
-import classnames from 'classnames';
-
 import PropTypes from 'prop-types';
-import Icon from '@leafygreen-ui/icon';
-
+import { Icon, css, cx, palette } from '@mongodb-js/compass-components';
 import { LineWithIcon } from './utils/line-with-icon';
-
 import { HelpOutput } from './types/help-output';
 import { ShowBannerResultOutput } from './types/show-banner-result-output';
 import { ShowDbsOutput } from './types/show-dbs-output';
@@ -19,7 +15,22 @@ import { SimpleTypeOutput } from './types/simple-type-output';
 import { ErrorOutput } from './types/error-output';
 import { ShowProfileOutput } from './types/show-profile-output';
 
-const styles = require('./shell-output-line.less');
+const shellOutputLine = css({
+  padding: '0 8px'
+});
+
+const shellOutputLineError = css({
+  backgroundColor: palette.red.light2,
+  color: palette.red.dark3,
+});
+
+const shellOutputLineIcon = css({
+  color: palette.gray.dark1
+});
+
+const shellOutputLineIconError = css({
+  color: 'inherit'
+});
 
 type ShellOutputEntryValue = any;
 type Glyph = 'ChevronRight' | 'XWithCircle' | 'ChevronLeft';
@@ -133,18 +144,27 @@ export class ShellOutputLine extends Component<ShellOutputLineProps> {
   render(): JSX.Element {
     const { format } = this.props.entry;
 
-    const className = classnames(
-      styles['shell-output-line'],
-      styles[`shell-output-line-${format}`]
+    const icon = (
+      <Icon
+        size={12}
+        glyph={this.getIconGlyph()}
+        className={cx(
+          format === 'error' ? shellOutputLineIconError : shellOutputLineIcon
+        )}
+      />
     );
 
-    const icon = (<Icon
-      size={12}
-      glyph={this.getIconGlyph()}
-      className={styles['shell-output-line-icon']}
-    />);
-
-    return <LineWithIcon className={className} icon={icon}>{this.renderValue()}</LineWithIcon>;
+    return (
+      <LineWithIcon
+        className={cx(
+          shellOutputLine,
+          format === 'error' && shellOutputLineError
+        )}
+        icon={icon}
+      >
+        {this.renderValue()}
+      </LineWithIcon>
+    );
   }
 }
 

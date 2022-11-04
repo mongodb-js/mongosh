@@ -1,8 +1,14 @@
-import classNames from 'classnames';
+import { css, cx, palette } from '@mongodb-js/compass-components';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 
-const styles = require('./show-collections-output.less');
+const shellCollectionsOutputCollectionName = css({
+  fontWeight: 'bold'
+});
+
+const shellCollectionsOutputSystemCollection = css({
+  color: palette.gray.base
+});
 
 interface ShowCollectionsOutputProps {
   value: CollectionObject[];
@@ -42,18 +48,16 @@ export class ShowCollectionsOutput extends Component<ShowCollectionsOutputProps>
       ...systemCollections
     ].forEach((coll, i) => {
       const fillLength = maxCollectionNameLength - coll.name.length + 1;
-      const className = classNames(
-        styles['shell-collections-output-collection-name'],
-        {
-          [styles['shell-collections-output-system-collection']]: isSystemCollection(coll)
-        }
+      const className = cx(
+        shellCollectionsOutputCollectionName,
+        isSystemCollection(coll) && shellCollectionsOutputSystemCollection
       );
       tableEntries.push(<span key={`row-${i}`}>
         <span className={className}>{coll.name}</span>{coll.badge ? coll.badge.padStart(coll.badge.length + fillLength) : ''}<br/>
       </span>);
     });
 
-    return <>{...tableEntries}</>;
+    return <>{tableEntries}</>;
   };
 
   render(): JSX.Element {

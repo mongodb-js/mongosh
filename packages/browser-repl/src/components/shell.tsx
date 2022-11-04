@@ -1,6 +1,6 @@
-import classnames from 'classnames';
 import React, { Component } from 'react';
-import { IAceEditor } from 'react-ace/lib/types';
+import { AceEditor as IAceEditor } from '@mongodb-js/compass-editor';
+import { css, ThemeProvider, Theme, palette, fontFamilies } from '@mongodb-js/compass-components';
 import type { Runtime } from '@mongosh/browser-runtime-core';
 import { changeHistory } from '@mongosh/history';
 import type { WorkerRuntime } from '@mongosh/node-runtime-worker-thread';
@@ -8,7 +8,34 @@ import { PasswordPrompt } from './password-prompt';
 import { ShellInput } from './shell-input';
 import { ShellOutput, ShellOutputEntry } from './shell-output';
 
-const styles = require('./shell.less');
+const shellContainer = css({
+  fontSize: '13px',
+  lineHeight: '24px',
+  fontFamily: fontFamilies.code,
+  backgroundColor: palette.gray.dark3,
+  color: palette.gray.light3,
+  padding: '4px 0',
+  width: '100%',
+  height: '100%',
+  overflowY: 'scroll',
+  overflowX: 'hidden',
+  '& a, & a:link, & a:visited, & a:hover, & a:active': {
+    fontWeight: 'bold',
+    color: 'inherit',
+    backgroundColor: 'transparent',
+    textDecoration: 'underline',
+    cursor: 'pointer'
+  },
+  '& pre, & code': {
+    background: 'transparent',
+    border: '0px transparent',
+    padding: 0,
+    margin: 0,
+    fontSize: 'inherit',
+    borderRadius: 0,
+    color: 'inherit'
+  }
+});
 
 interface ShellProps {
   /* The runtime used to evaluate code.
@@ -92,13 +119,10 @@ export class Shell extends Component<ShellProps, ShellState> {
     maxHistoryLength: 1000,
     initialOutput: [],
     initialHistory: [],
-    passwordPrompt: ''
   };
 
   private shellInputElement: HTMLElement | null = null;
-  private shellInputRef?: {
-    editor?: IAceEditor
-  };
+  private editor?: IAceEditor;
   private onFinishPasswordPrompt: ((input: string) => void) = noop;
   private onCancelPasswordPrompt: (() => void) = noop;
 
@@ -169,7 +193,8 @@ export class Shell extends Component<ShellProps, ShellState> {
     }
     if (!hasCustomPrompt) {
       try {
-        shellPrompt = (await this.props.runtime.getShellPrompt()) ?? '>';
+        // shellPrompt = (await this.props.runtime.getShellPrompt()) ?? '>';
+        shellPrompt = (await this.props.runtime.getShellPrompt());
       } catch {
         // Just ignore errors when getting the prompt...
       }
@@ -310,8 +335,8 @@ export class Shell extends Component<ShellProps, ShellState> {
   };
 
   private focusEditor = (): void => {
-    if (this.shellInputRef && this.shellInputRef.editor) {
-      this.shellInputRef.editor.focus();
+    if (this.editor) {
+      this.editor.focus();
     }
   };
 
@@ -345,8 +370,8 @@ export class Shell extends Component<ShellProps, ShellState> {
         onClearCommand={this.onClearCommand}
         onInput={this.onInput}
         operationInProgress={this.state.operationInProgress}
-        setInputRef={(ref: { editor?: IAceEditor }): void => {
-          this.shellInputRef = ref;
+        onEditorLoad={(editor) => {
+          this.editor = editor;
         }}
         onSigInt={this.onSigInt}
       />
@@ -355,18 +380,20 @@ export class Shell extends Component<ShellProps, ShellState> {
 
   render(): JSX.Element {
     return (
-      <div className={classnames(styles.shell)} onClick={this.onShellClicked}>
-        <div>
-          <ShellOutput output={this.state.output} />
+      <ThemeProvider theme={{ theme: Theme.Dark, enabled: true }}>
+        <div data-testid="shell" className={shellContainer} onClick={this.onShellClicked}>
+          <div>
+            <ShellOutput output={this.state.output} />
+          </div>
+          <div
+            ref={(el): void => {
+              this.shellInputElement = el;
+            }}
+          >
+            {this.renderInput()}
+          </div>
         </div>
-        <div
-          ref={(el): void => {
-            this.shellInputElement = el;
-          }}
-        >
-          {this.renderInput()}
-        </div>
-      </div>
+      </ThemeProvider>
     );
   }
 }

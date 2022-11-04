@@ -1,8 +1,23 @@
 import React, { Component } from 'react';
-import classnames from 'classnames';
+import { css, cx } from '@mongodb-js/compass-components';
 import PropTypes from 'prop-types';
 
-const styles = require('./line-with-icon.less');
+const lineWithIcon = css({
+  display: 'flex',
+  flexDirection: 'row'
+});
+
+const lineWithIconIcon = css({
+  display: 'flex',
+  alignItems: 'center',
+  marginRight: '3px',
+  maxHeight: '24px',
+});
+
+const lineWithIconContent = css({
+  flex: 1,
+  overflowX: 'auto'
+});
 
 interface LineWithIconProps {
   icon: JSX.Element;
@@ -16,11 +31,11 @@ export class LineWithIcon extends Component<LineWithIconProps> {
   };
 
   render(): JSX.Element {
-    return (<div className={classnames(this.props.className, styles['line-with-icon'])}>
-      <span className={classnames(styles['line-with-icon-icon'])}>
+    return (<div className={cx(this.props.className, lineWithIcon)}>
+      <span className={lineWithIconIcon}>
         {this.props.icon}
       </span>
-      <div className={classnames(styles['line-with-icon-content'])}>
+      <div className={lineWithIconContent}>
         {this.props.children}
       </div>
     </div>);

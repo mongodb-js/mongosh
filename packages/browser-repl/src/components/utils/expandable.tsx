@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
-import classnames from 'classnames';
+import { css } from '@mongodb-js/compass-components';
 
-import Icon from '@leafygreen-ui/icon';
+import { Icon } from '@mongodb-js/compass-components';
 
 import { LineWithIcon } from './line-with-icon';
 
-const styles = require('./expandable.less');
+const expandableCaret = css({
+  cursor: 'pointer'
+});
 
 type ExpandableProps = {};
 
@@ -41,7 +43,7 @@ export class Expandable extends Component<ExpandableProps, ExpandableState> {
     const icon = (<Icon
       size={12}
       glyph={this.state.expanded ? 'CaretDown' : 'CaretRight'}
-      className={classnames(styles['expandable-caret'])}
+      className={expandableCaret}
       onClick={this.toggle}
     />);
 

@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { ShellOutputLine, ShellOutputEntry } from './shell-output-line';
+import { ShellOutputLine } from './shell-output-line';
+import type { ShellOutputEntry } from './shell-output-line';
 
-export { ShellOutputEntry } from './shell-output-line';
+export type { ShellOutputEntry } from './shell-output-line';
 
 interface ShellOutputProps {
   output: readonly ShellOutputEntry[];

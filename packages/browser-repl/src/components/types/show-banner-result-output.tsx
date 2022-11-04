@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { H3 } from '@leafygreen-ui/typography';
+import { H3 } from '@mongodb-js/compass-components';
 
 interface ShowBannerResultOutputProps {
   value: null | { header?: string, content: string };

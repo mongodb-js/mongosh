@@ -1,2 +1,12 @@
-ignores: ['css-loader', 'file-loader', 'less', 'less-loader', 'style-loader', 'ts-loader', 'webpack-cli']
+ignores: [
+    # used by less-loader
+    'less',
+    # used by webpack
+    'webpack-cli',
+    # resolved as `<depname>/` so depcheck doesn't see it being used
+    'buffer',
+    'util',
+    # leafygreen peer dep
+    '@emotion/react'
+  ]
 skip-missing: true
