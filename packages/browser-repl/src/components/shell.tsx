@@ -193,8 +193,7 @@ export class Shell extends Component<ShellProps, ShellState> {
     }
     if (!hasCustomPrompt) {
       try {
-        // shellPrompt = (await this.props.runtime.getShellPrompt()) ?? '>';
-        shellPrompt = (await this.props.runtime.getShellPrompt());
+        shellPrompt = (await this.props.runtime.getShellPrompt()) ?? '>';
       } catch {
         // Just ignore errors when getting the prompt...
       }
