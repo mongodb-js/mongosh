@@ -15,6 +15,9 @@
     "./shell": {
       "types": "./lib/components/shell.d.ts",
       "require": "./lib/components/shell.js"
+    },
+    "./package.json": {
+      "require": "./package.json"
     }
   },
   "scripts": {
