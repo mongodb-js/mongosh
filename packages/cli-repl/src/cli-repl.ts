@@ -1,3 +1,4 @@
+declare const mongoshStartupTiming: Record<string, bigint>;
 import { MongoshInternalError, MongoshRuntimeError, MongoshWarning } from '@mongosh/errors';
 import { redactURICredentials } from '@mongosh/history';
 import i18n from '@mongosh/i18n';
@@ -189,6 +190,7 @@ class CliRepl implements MongoshIOProvider {
    */
   // eslint-disable-next-line complexity
   async start(driverUri: string, driverOptions: DevtoolsConnectOptions): Promise<void> {
+    mongoshStartupTiming.cliReplStarted = process.hrtime.bigint();
     const { version } = require('../package.json');
     await this.verifyNodeVersion();
 
@@ -282,7 +284,9 @@ class CliRepl implements MongoshIOProvider {
       delete driverOptions.autoEncryption;
     }
 
+    mongoshStartupTiming.cliReplStartConnect = process.hrtime.bigint();
     const initialServiceProvider = await this.connect(driverUri, driverOptions);
+    mongoshStartupTiming.cliReplFinishConnect = process.hrtime.bigint();
     const initialized = await this.mongoshRepl.initialize(initialServiceProvider);
 
     const commandLineLoadFiles = this.cliOptions.fileNames ?? [];
@@ -311,6 +315,7 @@ class CliRepl implements MongoshIOProvider {
       loadExternalCode: this.mongoshRepl.loadExternalCode.bind(this.mongoshRepl)
     });
 
+    mongoshStartupTiming.cliReplStartRunningUserScripts = process.hrtime.bigint();
     if (willExecuteCommandLineScripts) {
       this.mongoshRepl.setIsInteractive(willEnterInteractiveMode);
       this.bus.emit('mongosh:start-loading-cli-scripts', { usesShellOption: !!this.cliOptions.shell });

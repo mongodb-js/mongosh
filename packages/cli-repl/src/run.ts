@@ -1,3 +1,6 @@
+declare let mongoshStartupTiming: Record<string, bigint>;
+(globalThis as any).mongoshStartupTiming ??= {};
+mongoshStartupTiming.runStarted = process.hrtime.bigint();
 let fipsError: Error | undefined;
 if (process.argv.includes('--tlsFIPSMode')) {
   // FIPS mode should be enabled before we run any other code, including any dependencies.
@@ -19,6 +22,7 @@ import readline from 'readline';
 import askcharacter from 'askcharacter';
 import stream from 'stream';
 import crypto from 'crypto';
+mongoshStartupTiming.importsLoaded = process.hrtime.bigint();
 
 // eslint-disable-next-line complexity, @typescript-eslint/no-floating-promises
 (async() => {
