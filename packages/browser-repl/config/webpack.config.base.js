@@ -1,76 +1,61 @@
-const path = require('path');
+const webpack = require('webpack');
 
 module.exports = {
+  target: 'web',
   stats: 'errors-only',
   resolve: {
     extensions: ['.tsx', '.ts', '.jsx', '.js', '.less'],
-    alias: {
-      // imports in service-provider-core that can break the browser build
-      'whatwg-url': path.resolve(__dirname, 'plain-url.js'),
+    fallback: {
+      // node specific and don't require a polyfill
+      zlib: false,
+      v8: false,
+      fs: false,
+      crypto: false,
+      // node specific and require a polyfill
+      // path polyfill is required for following packages:
+      //   async-rewriter2, @mongodb-js/compass-components, mongodb-log-writer, shell-api
+      path: require.resolve('path-browserify'),
+      // stream polyfill is required for following packages:
+      //   mongodb-log-writer, @leafygreen-ui/emotion
+      stream: require.resolve('stream-browserify'),
+      // buffer polyfill is required for following packages:
+      //   @leafygreen-ui/emotion
+      buffer: require.resolve('buffer/'),
+      // util polyfill is required by browser-repl itself
+      util: require.resolve('util/'),
+      // compass specific
+      electron: false,
+      '@electron/remote': false,
+      'hadron-ipc': false,
+      'compass-preferences-model': false
     }
   },
   module: {
     rules: [
       {
-        test: /\.js(x?)$/,
-        exclude: /node_modules/,
+        test: /\.(js|jsx|ts|tsx)$/,
+        include: [/src/, /node_modules/],
         use: {
-          loader: 'babel-loader'
-        }
-      },
-      {
-        test: /\.ts(x?)$/,
-        exclude: /node_modules/,
-        use: {
-          loader: 'ts-loader'
-        }
-      },
-      {
-        test: /\.css$/,
-        use: [
-          { loader: 'style-loader' },
-          { loader: 'css-loader' }
-        ]
-      },
-      // For styles that have to be global (see https://github.com/css-modules/css-modules/pull/65)
-      {
-        test: /\.less$/,
-        include: [/\.global/, /bootstrap/],
-        use: [
-          {
-            loader: 'style-loader',
-          },
-          {
-            loader: 'css-loader',
-            options: {
-              modules: false
-            }
-          },
-          {
-            loader: 'less-loader',
+          loader: require.resolve('babel-loader'),
+          options: {
+            presets: [
+              require.resolve('@babel/preset-react'),
+              require.resolve('@babel/preset-typescript')
+            ],
+            plugins: [
+              require.resolve('@babel/plugin-proposal-class-properties')
+            ],
+            sourceType: 'unambiguous',
+            compact: false
           }
-        ]
-      },
-      // For CSS-Modules locally scoped styles
-      {
-        test: /\.less$/,
-        exclude: [/\.global/, /bootstrap/, /node_modules/],
-        use: [
-          { loader: 'style-loader' },
-          {
-            loader: 'css-loader',
-            options: {
-              modules: {
-                localIdentName: 'mongosh-[name]-[local]__[hash:base64:5]'
-              },
-              importLoaders: 1,
-            }
-          },
-          {
-            loader: 'less-loader'
-          }
-        ]
+        }
       }
     ]
-  }
+  },
+  plugins: [
+    new webpack.ProvidePlugin({
+      process: 'process',
+      Buffer: ['buffer', 'Buffer']
+    })
+  ]
 };

@@ -1,13 +1,16 @@
-import classnames from 'classnames';
 import React, { Component } from 'react';
-import { IAceEditor } from 'react-ace/lib/types';
-import Icon from '@leafygreen-ui/icon';
+import { Icon, css } from '@mongodb-js/compass-components';
 import { Autocompleter } from '@mongosh/browser-runtime-core';
 import { Editor } from './editor';
 import ShellLoader from './shell-loader';
 import { LineWithIcon } from './utils/line-with-icon';
+import type { AceEditor as IAceEditor } from '@mongodb-js/compass-editor';
 
-const styles = require('./shell-input.less');
+
+const shellInput = css({
+  padding: '0 8px',
+  minHeight: '24px',
+});
 
 interface ShellInputProps {
   autocompleter?: Autocompleter;
@@ -16,23 +19,22 @@ interface ShellInputProps {
   onInput?(code: string): void | Promise<void>;
   operationInProgress?: boolean;
   prompt?: string;
-  setInputRef?(ref: { editor?: IAceEditor }): void;
+  onEditorLoad?: (editor: IAceEditor) => void;
   onSigInt?(): Promise<boolean>;
 }
 
 interface ShellInputState {
   currentValue: string;
   readOnly: boolean;
-  didLoadHistoryItem: boolean;
 }
 
 export class ShellInput extends Component<ShellInputProps, ShellInputState> {
   readonly state: ShellInputState = {
     currentValue: '',
-    readOnly: false,
-    didLoadHistoryItem: false
+    readOnly: false
   };
 
+  private editor: IAceEditor | null = null;
   private historyNavigationEntries: string[] = [];
   private historyNavigationIndex = 0;
 
@@ -61,7 +63,7 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
   }
 
   private onChange = (value: string): void => {
-    this.setState({ currentValue: value, didLoadHistoryItem: false });
+    this.setState({ currentValue: value });
   };
 
   private syncCurrentValueWithHistoryNavigation(): void {
@@ -71,9 +73,9 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
       return;
     }
 
-    this.setState({
-      currentValue: value,
-      didLoadHistoryItem: true
+    this.setState({ currentValue: value }, () => {
+      // eslint-disable-next-line chai-friendly/no-unused-expressions
+      this.editor?.navigateFileEnd();
     });
   }
 
@@ -102,9 +104,7 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
       await this.props.onInput(this.state.currentValue);
     }
 
-    this.setState({
-      currentValue: ''
-    });
+    this.setState({ currentValue: '' });
   };
 
   render(): JSX.Element {
@@ -139,18 +139,19 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
         onChange={this.onChange}
         onEnter={this.onEnter}
         onClearCommand={this.props.onClearCommand}
-        setInputRef={this.props.setInputRef}
+        onEditorLoad={(editor) => {
+          this.editor = editor;
+          // eslint-disable-next-line chai-friendly/no-unused-expressions
+          this.props.onEditorLoad?.(editor);
+        }}
         value={this.state.currentValue}
         operationInProgress={this.props.operationInProgress}
-        moveCursorToTheEndOfInput={this.state.didLoadHistoryItem}
         onSigInt={this.props.onSigInt}
       />
     );
 
-    const className = classnames(styles['shell-input']);
-
     return (
-      <LineWithIcon className={className} icon={prompt}>
+      <LineWithIcon className={shellInput} icon={prompt}>
         {editor}
       </LineWithIcon>
     );

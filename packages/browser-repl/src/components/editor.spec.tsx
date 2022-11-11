@@ -3,11 +3,10 @@ import React from 'react';
 import { expect } from '../../testing/chai';
 import { mount } from '../../testing/enzyme';
 import { Editor } from './editor';
-import AceEditor from 'react-ace';
 
 describe('<Editor />', () => {
   const getAceEditorInstance = (wrapper): any => {
-    const aceEditor = wrapper.find(AceEditor);
+    const aceEditor = wrapper.find(Editor);
     return aceEditor.instance().editor as any;
   };
 
@@ -189,12 +188,12 @@ describe('<Editor />', () => {
 
   it('sets the input ref for the editor', () => {
     const spy = sinon.spy();
-    const wrapper = mount(<Editor setInputRef={spy} />);
+    const wrapper = mount(<Editor onEditorLoad={spy} />);
 
     const aceEditor = getAceEditorInstance(wrapper);
 
     expect(spy).to.have.been.calledOnce;
-    expect(spy.args[0][0].editor).to.equal(aceEditor);
+    expect(spy.args[0][0]).to.equal(aceEditor);
   });
 });
 

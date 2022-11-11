@@ -29,6 +29,7 @@ export class AceAutocompleterAdapter {
     const line = session.getLine(position.row)
       .substring(0, position.column);
 
+
     this.adaptee.getCompletions(line)
       .then((completions) => {
         done(null, completions.map(

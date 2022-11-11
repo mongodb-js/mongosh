@@ -1,14 +1,15 @@
 import React, { Component } from 'react';
-import 'ace-builds';
-import tools from 'ace-builds/src-noconflict/ext-language_tools';
-import 'ace-builds/src-noconflict/mode-javascript';
-import type { IAceEditor } from 'react-ace/lib/types';
-import AceEditor from 'react-ace';
+import { css } from '@mongodb-js/compass-components';
+import { InlineEditor, AceEditor as IAceEditor } from '@mongodb-js/compass-editor';
 import { Autocompleter } from '@mongosh/browser-runtime-core';
 import { AceAutocompleterAdapter } from './ace-autocompleter-adapter';
-import './ace-theme';
 
 const noop = (): void => {};
+
+const editor = css({
+  lineHeight: '24px !important',
+  marginLeft: '-4px',
+});
 
 interface EditorProps {
   autocompleter?: Autocompleter;
@@ -20,8 +21,8 @@ interface EditorProps {
   onClearCommand(): void | Promise<void>;
   onSigInt(): Promise<boolean>;
   operationInProgress: boolean;
-  setInputRef?(ref: { editor?: IAceEditor }): void;
   value: string;
+  onEditorLoad?: (editor: IAceEditor) => void;
 }
 
 export class Editor extends Component<EditorProps> {
@@ -40,7 +41,7 @@ export class Editor extends Component<EditorProps> {
   private editor: any;
   private visibleCursorDisplayStyle = '';
 
-  private onEditorLoad = (editor: any): void => {
+  private onEditorLoad = (editor: IAceEditor): void => {
     this.editor = editor;
     this.visibleCursorDisplayStyle = this.editor.renderer.$cursorLayer.element.style.display;
 
@@ -54,6 +55,9 @@ export class Editor extends Component<EditorProps> {
         this.editor.execCommand('startAutocomplete');
       }
     });
+
+    // eslint-disable-next-line chai-friendly/no-unused-expressions
+    this.props.onEditorLoad?.(editor);
   };
 
   private autocompleter: AceAutocompleterAdapter | null = null;
@@ -69,38 +73,12 @@ export class Editor extends Component<EditorProps> {
     }
   }
 
-  private onFocus = () => {
-    if (this.autocompleter) {
-      tools.setCompleters([this.autocompleter]);
-    } else {
-      tools.setCompleters([]);
-    }
-  };
-
   componentDidUpdate(prevProps: EditorProps): void {
     if (prevProps.operationInProgress !== this.props.operationInProgress) {
       if (this.props.operationInProgress) {
         this.hideCursor();
       } else {
         this.showCursor();
-      }
-    }
-
-    if (prevProps.moveCursorToTheEndOfInput !== this.props.moveCursorToTheEndOfInput) {
-      if (this.props.moveCursorToTheEndOfInput) {
-        this.moveCursorToTheEndOfInput();
-      }
-    }
-
-    if (prevProps.autocompleter !== this.props.autocompleter) {
-      if (this.props.autocompleter) {
-        this.autocompleter = new AceAutocompleterAdapter(
-          this.props.autocompleter
-        );
-        tools.setCompleters([this.autocompleter]);
-      } else {
-        this.autocompleter = null;
-        tools.setCompleters([]);
       }
     }
   }
@@ -117,37 +95,17 @@ export class Editor extends Component<EditorProps> {
     this.editor.renderer.$cursorLayer.element.style.display = this.visibleCursorDisplayStyle;
   }
 
-  private moveCursorToTheEndOfInput(): void {
-    const row = this.editor.session.getLength() - 1;
-    const column = this.editor.session.getLine(row).length;
-    this.editor.gotoLine(row + 1, column);
-  }
-
   render(): JSX.Element {
-    return (<AceEditor
-      showPrintMargin={false}
-      showGutter={false}
-      highlightActiveLine
-      setOptions={{
-        readOnly: !!this.props.operationInProgress,
-        enableBasicAutocompletion: !!this.props.autocompleter,
-        enableLiveAutocompletion: !!this.props.autocompleter,
-        enableSnippets: false,
-        showLineNumbers: false,
-        tabSize: 2,
-        useWorker: false
+    return (<InlineEditor
+      options={{
+        readOnly: !!this.props.operationInProgress
       }}
+      className={editor}
       name={`mongosh-ace-${this.editorId}`}
-      mode="javascript"
-      ref={(ref: AceEditor | null): void => {
-        if (this.props.setInputRef && ref !== null) {
-          this.props.setInputRef(ref as { editor?: IAceEditor });
-        }
-      }}
-      theme="mongosh"
       onLoad={this.onEditorLoad}
-      onFocus={this.onFocus}
-      onChange={this.props.onChange}
+      text={this.props.value}
+      onChangeText={this.props.onChange}
+      completer={this.autocompleter}
       commands={[
         {
           name: 'return',
@@ -200,12 +158,10 @@ export class Editor extends Component<EditorProps> {
           readOnly: true,
         }
       ]}
-      width="100%"
       maxLines={Infinity}
       editorProps={{
         $blockScrolling: Infinity
       }}
-      value={this.props.value}
     />);
   }
 }

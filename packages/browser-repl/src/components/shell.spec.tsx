@@ -8,8 +8,6 @@ import { ShellInput } from './shell-input';
 import { ShellOutput } from './shell-output';
 import { ShellOutputEntry } from './shell-output-line';
 
-const styles = require('./shell.less');
-
 const wait: (ms?: number) => Promise<void> = (ms = 10) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
 };
@@ -355,7 +353,7 @@ describe('<Shell />', () => {
 
   it('focuses on the input when the background container is clicked', () => {
     wrapper = mount(<Shell runtime={fakeRuntime} />);
-    const container = wrapper.find(`.${styles.shell}`);
+    const container = wrapper.find('div[data-testid="shell"]');
 
     const fakeMouseEvent: any = {
       target: 'a',
@@ -368,7 +366,7 @@ describe('<Shell />', () => {
 
   it('does not focus on the input when an element that is not the background container is clicked', () => {
     wrapper = mount(<Shell runtime={fakeRuntime} />);
-    const container = wrapper.find(`.${styles.shell}`);
+    const container = wrapper.find('div[data-testid="shell"]');
 
     const fakeMouseEvent: any = {
       target: 'a',

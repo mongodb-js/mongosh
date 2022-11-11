@@ -1,9 +1,33 @@
 import React, { Component } from 'react';
+import { css } from '@mongodb-js/compass-components';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
 import i18n from '@mongosh/i18n';
 
-const styles = require('./help-output.less');
+const helpOutput = css({
+  '& table, & caption, & tbody, & tfoot, & thead, & tr, & th, & td': {
+    margin: 0,
+    padding: 0,
+    border: 0,
+    outline: 0,
+    fontSize: '100%',
+    verticalAlign: 'baseline',
+    background: 'transparent'
+  },
+  '& table': {
+    width: '100%',
+    tableLayout: 'fixed',
+    overflowWrap: 'break-word',
+    textAlign: 'left',
+    margin: '1em 0',
+    '& th': {
+      width: '25%',
+      fontWeight: 'bold'
+    },
+    '& th, & td': {
+      textAlign: 'left'
+    }
+  }
+});
 
 type HelpApiObject = {
   help: string;
@@ -57,9 +81,8 @@ export class HelpOutput extends Component<HelpOutputProps> {
   render(): JSX.Element {
     const help = this.props.value;
 
-    const className = classnames(styles['help-output']);
     return (
-      <div className={className}>
+      <div className={helpOutput}>
         {this.renderHelpText(help.help)}
         {this.renderAttrTable(help.attr)}
         {this.renderHelpDocsLink(help.docs)}
