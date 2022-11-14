@@ -12,7 +12,7 @@ type EvaluationResult = {
   type?: string | null;
 };
 
-type FormatOptions = {
+export type FormatOptions = {
   colors: boolean;
   compact?: boolean | number;
   depth?: number;

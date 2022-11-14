@@ -74,7 +74,7 @@ export interface EvaluationListener extends Partial<ConfigProvider<ShellUserConf
   /**
    * Called when print() or printjson() is run from the shell.
    */
-  onPrint?: (value: ShellResult[]) => Promise<void> | void;
+  onPrint?: (value: ShellResult[], type: 'print' | 'printjson') => Promise<void> | void;
 
   /**
    * Called when e.g. passwordPrompt() is called from the shell.
