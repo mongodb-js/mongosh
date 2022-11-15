@@ -665,12 +665,10 @@ class MongoshNodeRepl implements EvaluationListener {
   onPrint(values: ShellResult[], type: 'print' | 'printjson'): void {
     const extraOptions: Partial<FormatOptions> | undefined =
       // MONGOSH-955: when `printjson()` is called in mongosh, we will try to
-      // replicate the format of the old shell: disable colors, start every
-      // object on the new line, and set all the collapse options threshold to
-      // infinity
+      // replicate the format of the old shell: start every object on the new
+      // line, and set all the collapse options threshold to infinity
       type === 'printjson'
         ? {
-          colors: false,
           compact: false,
           depth: Infinity,
           maxArrayLength: Infinity,

@@ -145,10 +145,31 @@ describe('MongoshNodeRepl', () => {
       expect(error.message).to.include('surprise!!!');
     });
 
-    it('prints values when asked to', async() => {
-      input.write('print("see this?"); 42\n');
-      await waitEval(bus);
-      expect(output).to.include('see this?');
+    context('print / printjson', () => {
+      it('prints values when asked to', async() => {
+        output = '';
+        input.write('print("see this?"); 42\n');
+        await waitEval(bus);
+        expect(output).to.include('see this?');
+      });
+
+      it('respects user format output settings when print is used', async() => {
+        input.write('config.set("inspectDepth", 0);\n');
+        await waitEval(bus);
+        output = '';
+        input.write('print({ a: { b: { c: 1 } } });\n');
+        await waitEval(bus);
+        expect(output).to.include('{ a: [Object] }');
+      });
+
+      it('prints out content in a legacy printjson format', async() => {
+        input.write('config.set("inspectDepth", 0);\n');
+        await waitEval(bus);
+        output = '';
+        input.write('printjson({ a: { b: { c: 1 } } });\n');
+        await waitEval(bus);
+        expect(output).to.include('{\n  a: {\n    b: {\n      c: 1\n    }\n  }\n}');
+      });
     });
 
     it('forwards telemetry config requests', async() => {
