@@ -20,6 +20,7 @@ import { MONGOSH_WIKI, TELEMETRY_GREETING_MESSAGE } from './constants';
 import formatOutput, { formatError } from './format-output';
 import { makeMultilineJSIntoSingleLine } from '@mongosh/js-multiline-to-singleline';
 import { LineByLineInput } from './line-by-line-input';
+import type { FormatOptions } from './format-output';
 
 /**
  * All CLI flags that are useful for {@link MongoshNodeRepl}.
@@ -646,8 +647,14 @@ class MongoshNodeRepl implements EvaluationListener {
    * @param result A ShellResult (or similar) object.
    * @returns The pretty-printed version of the input.
    */
-  formatShellResult(result: { type: null | string, printable: any }): string {
-    return this.formatOutput({ type: result.type, value: result.printable });
+  formatShellResult(
+    result: { type: null | string; printable: any },
+    extraFormatOptions: Partial<FormatOptions> = {}
+  ): string {
+    return this.formatOutput(
+      { type: result.type, value: result.printable },
+      extraFormatOptions
+    );
   }
 
   /**
@@ -655,8 +662,22 @@ class MongoshNodeRepl implements EvaluationListener {
    *
    * @param values A list of values to be printed.
    */
-  onPrint(values: ShellResult[]): void {
-    const joined = values.map((value) => this.formatShellResult(value)).join(' ');
+  onPrint(values: ShellResult[], type: 'print' | 'printjson'): void {
+    const extraOptions: Partial<FormatOptions> | undefined =
+      // MONGOSH-955: when `printjson()` is called in mongosh, we will try to
+      // replicate the format of the old shell: start every object on the new
+      // line, and set all the collapse options threshold to infinity
+      type === 'printjson'
+        ? {
+          compact: false,
+          depth: Infinity,
+          maxArrayLength: Infinity,
+          maxStringLength: Infinity
+        }
+        : undefined;
+    const joined = values
+      .map((value) => this.formatShellResult(value, extraOptions))
+      .join(' ');
     this.output.write(joined + '\n');
   }
 
@@ -704,8 +725,14 @@ class MongoshNodeRepl implements EvaluationListener {
    * @param value A value, together with optional type information.
    * @returns The pretty-printed version of the input.
    */
-  formatOutput(value: { value: any, type?: string | null }): string {
-    return formatOutput(value, this.getFormatOptions());
+  formatOutput(
+    value: { value: any; type?: string | null },
+    extraFormatOptions: Partial<FormatOptions> = {}
+  ): string {
+    return formatOutput(value, {
+      ...this.getFormatOptions(),
+      ...extraFormatOptions
+    });
   }
 
   /**
@@ -732,7 +759,7 @@ class MongoshNodeRepl implements EvaluationListener {
   /**
    * Provides the current set of output formatting options used for this shell.
    */
-  getFormatOptions(): { colors: boolean, compact: number | boolean, depth: number, showStackTraces: boolean, bugReportErrorMessageInfo?: string } {
+  getFormatOptions(): FormatOptions {
     const output = this.output as WriteStream;
     return {
       colors: this._runtimeState?.repl?.useColors ??

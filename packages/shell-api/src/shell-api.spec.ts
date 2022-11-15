@@ -671,12 +671,18 @@ describe('ShellApi', () => {
       // eslint-disable-next-line no-loop-func
       describe(cmd, () => {
         it('prints values', async() => {
-          evaluationListener.onPrint.resolves();
+          // eslint-disable-next-line chai-friendly/no-unused-expressions
+          evaluationListener.onPrint?.resolves();
           await instanceState.context[cmd](1, 2);
-          expect(evaluationListener.onPrint).to.have.been.calledWith([
-            { printable: 1, rawValue: 1, type: null },
-            { printable: 2, rawValue: 2, type: null }
-          ]);
+          expect(
+            evaluationListener.onPrint
+          ).to.have.been.calledOnceWithExactly(
+            [
+              { printable: 1, rawValue: 1, type: null },
+              { printable: 2, rawValue: 2, type: null }
+            ],
+            cmd
+          );
         });
       });
     }

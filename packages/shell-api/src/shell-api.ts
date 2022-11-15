@@ -298,17 +298,22 @@ export default class ShellApi extends ShellApiClass {
     return await promisify(setTimeout)(ms);
   }
 
+  private async _print(origArgs: any[], type: 'print' | 'printjson'): Promise<void> {
+    const { evaluationListener } = this._instanceState;
+    const args: ShellResult[] = await Promise.all(
+      origArgs.map((arg) => toShellResult(arg))
+    );
+    await evaluationListener.onPrint?.(args, type);
+  }
+
   @returnsPromise
   async print(...origArgs: any[]): Promise<void> {
-    const { evaluationListener } = this._instanceState;
-    const args: ShellResult[] =
-      await Promise.all(origArgs.map(arg => toShellResult(arg)));
-    await evaluationListener.onPrint?.(args);
+    await this._print(origArgs, 'print');
   }
 
   @returnsPromise
   async printjson(...origArgs: any[]): Promise<void> {
-    return this.print(...origArgs);
+    await this._print(origArgs, 'printjson');
   }
 
   @directShellCommand
