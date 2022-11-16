@@ -27,6 +27,7 @@ import { MongoshBus, CliUserConfig, CliUserConfigValidator } from '@mongosh/type
 import { promises as fs } from 'fs';
 import path from 'path';
 import { promisify } from 'util';
+import { getOsInfo } from './get-os-info';
 
 /**
  * Connecting text key.
@@ -245,6 +246,7 @@ class CliRepl implements MongoshIOProvider {
         platform: process.platform,
         arch: process.arch,
         is_containerized: this.isContainerizedEnvironment,
+        ...(await getOsInfo())
       },
       require('../package.json').version);
 
