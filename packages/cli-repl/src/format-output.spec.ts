@@ -140,6 +140,19 @@ for (const colors of [ false, true ]) {
         expect(output).to.equal(
           '\rError: Something went wrong.\nResult: { nInserted: 0 }');
       });
+
+      it('provides violation info if present', () => {
+        const err = Object.assign(new Error('Something went wrong.'), {
+          violations: [{ ids: [1] }]
+        });
+        const output = stripAnsiColors(format({
+          value: err,
+          type: 'Error'
+        }));
+
+        expect(output).to.equal(
+          '\rError: Something went wrong.\nViolations: [ { ids: [ 1 ] } ]');
+      });
     });
 
     context('when the result is ShowDatabasesResult', () => {
