@@ -125,7 +125,7 @@ export async function getMlaunchPath(): Promise<{ exec: string[], env: Record<st
     // with 4.0, see https://jira.mongodb.org/browse/MONGOSH-1072
     // Also pin mlaunch to 1.6.4, since we have Python 3.6 in CI and 1.7.0
     // drops Python 3.6 support.
-    await execFile('pip3', ['install', '--target', tmpdir, 'mtools[mlaunch]==1.6.4', 'pymongo==3.12.2']);
+    await execFile('pip3', ['install', '--no-cache-dir', '--target', tmpdir, 'mtools[mlaunch]==1.6.4', 'pymongo==3.12.2']);
     ciLog('Installation complete');
     [ exec ] = await tryExtensions(mlaunchPy);
     if (exec) {
@@ -145,7 +145,7 @@ export async function getMlaunchPath(): Promise<{ exec: string[], env: Record<st
     }
   }
   ciLog('Trying to install mlaunch in ', { pythonBase, pythonPath });
-  await execFile('pip3', ['install', '--user', 'mtools[mlaunch]']);
+  await execFile('pip3', ['install', '--no-cache-dir', '--user', 'mtools[mlaunch]']);
   ciLog('Installation complete');
   const [ exec, lastErr ] = await tryExtensions(mlaunchExec);
   if (exec) {
