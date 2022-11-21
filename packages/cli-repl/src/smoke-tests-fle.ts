@@ -26,7 +26,7 @@ assert(db.getName() === dbname, 'db name must match');
 
 const local = { key: Buffer.from('kh4Gv2N8qopZQMQYMEtww/AkPsIrXNmEMxTrs3tUoTQZbZu4msdRUaR8U5fXD7A7QXYHcEvuu4WctJLoT+NvvV3eeIg3MD+K8H9SR794m/safgRHdIfy6PD+rFpvmFbY', 'base64') };
 
-const keyMongo = Mongo(db.getMongo()._uri, {
+const keyMongo = Mongo(db.getMongo(), {
   keyVaultNamespace: dbname + '.__keyVault',
   kmsProviders: { local }
 });
@@ -51,7 +51,7 @@ schemaMap[dbname + '.employees'] = {
 
 console.log('Using schema map', schemaMap);
 
-const autoMongo = Mongo(db.getMongo()._uri, {
+const autoMongo = Mongo(db.getMongo(), {
   keyVaultNamespace: dbname + '.__keyVault',
   kmsProviders: { local },
   schemaMap
