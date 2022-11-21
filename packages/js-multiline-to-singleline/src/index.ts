@@ -1,4 +1,5 @@
 import * as babel from '@babel/core';
+import * as BabelTypes from '@babel/types';
 
 // Babel plugin that turns all single-line // comments into /* ... */ block comments
 function lineCommentToBlockComment(): babel.PluginObj {
@@ -40,6 +41,35 @@ function lineCommentToBlockComment(): babel.PluginObj {
   };
 }
 
+// Babel plugin that turns all multi-line `...` template strings into single-line template strings
+function multilineTemplateStringToSingleLine({ types: t }: { types: typeof BabelTypes }): babel.PluginObj {
+  return {
+    visitor: {
+      TemplateLiteral(path) {
+        if (!path.node.quasis.some(({ value }) => value.raw.match(/[\r\n]/))) {
+          return; // is already single line, nothing to do
+        }
+        if (path.parentPath.isTaggedTemplateExpression()) {
+          // Just wrap it in `eval()`. There isn't much we can do about e.g. String.raw `a<newline>b`
+          // that would remove the newline but reserve the template tag behavior.
+          path.parentPath.replaceWith(t.callExpression(
+            t.identifier('eval'),
+            [t.stringLiteral(this.file.code.slice(path.parent.start ?? undefined, path.parent.end ?? undefined))]
+          ));
+          return;
+        }
+        // Escape newlines directly (note that \r and \r\n are being turned into \n here!)
+        path.replaceWith(t.templateLiteral(
+          path.node.quasis.map(el => t.templateElement({
+            raw: el.value.raw.replace(/\n|\r\n?/g, '\\n')
+          }, el.tail)),
+          path.node.expressions
+        ));
+      }
+    }
+  };
+}
+
 export function makeMultilineJSIntoSingleLine(src: string): string {
   // We use babel without any actual transformation steps, and only for ASI
   // effects here, e.g. turning `return\n42` into `return;\n42;`
@@ -60,7 +90,7 @@ export function makeMultilineJSIntoSingleLine(src: string): string {
       configFile: false,
       babelrc: false,
       browserslistConfigFile: false,
-      plugins: [lineCommentToBlockComment],
+      plugins: [lineCommentToBlockComment, multilineTemplateStringToSingleLine],
       sourceType: 'script'
     })?.code ?? src;
   } catch {

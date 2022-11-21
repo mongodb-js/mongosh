@@ -1,3 +1,4 @@
+/* eslint-disable no-eval */
 import { expect } from 'chai';
 import { makeMultilineJSIntoSingleLine as toSingleLine } from './';
 
@@ -12,12 +13,34 @@ describe('makeMultilineJSIntoSingleLine', () => {
     expect(toSingleLine('() => { return\n42\n }')).to.equal('() => {return; 42; }');
   });
 
-  it('treats comments propertly', () => {
+  it('treats comments properly', () => {
     expect(toSingleLine('a // comment\n b')).to.equal('a; /* comment*/ b');
     expect(toSingleLine('a /* comment*/\n b')).to.equal('a; /* comment*/ b');
   });
 
   it('keeps invalid code as-is', () => {
     expect(toSingleLine('---\n---')).to.equal('--- ---');
+  });
+
+  it('treats multiline template strings properly', () => {
+    for (const original of [
+      '(`1\\t2`);',
+      '(`1\\t\n2`);',
+      '(`1\\t\r\n2`);',
+      '(`1\\t\r2`);',
+      '(`1\\t\\nn2`);',
+      '(`1${\nnull\n}\n2`);',
+      '(String.raw `1\\t2`);',
+      '(String.raw `1\\t\n2`);',
+      '(String.raw `1\\t\\n2`);',
+      '(String.raw `1\\t\\r\\n2`);',
+      '(String.raw `1\\t\\r2`);',
+      '(String.raw `1${\nnull\n}\n2`);',
+      '(String.raw `1${\nnull\n}\\n2`);',
+    ]) {
+      const singleLine = toSingleLine(original);
+      expect(singleLine).to.not.match(/[\r\n]/); // singleline
+      expect(eval(singleLine)).to.equal(eval(original)); // same behavior
+    }
   });
 });
