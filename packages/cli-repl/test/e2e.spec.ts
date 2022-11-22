@@ -310,6 +310,45 @@ describe('e2e', function() {
         expect(shell.output).to.match(
           /multi update (only works with \$ operators|is not supported for replacement-style update)/);
       });
+      context('when creating unique index', () => {
+        skipIfServerVersion(testServer, '< 5.3');
+
+        afterEach(async() => {
+          await shell.executeLine('db.apples.drop()');
+        });
+
+        it('prints out violations for unique index creation', async() => {
+          await shell.executeLine(`db.apples.insertMany([
+            { type: 'Delicious', quantity: 12 },
+            { type: 'Macintosh', quantity: 13 },
+            { type: 'Delicious', quantity: 13 },
+            { type: 'Fuji', quantity: 15 },
+            { type: 'Washington', quantity: 10 }
+          ]);`);
+
+          await shell.executeLine('db.apples.createIndex({ type: 1 });');
+
+          await shell.executeLine(`db.runCommand({
+            collMod: 'apples',
+            index: {
+              keyPattern: { type: 1 },
+              prepareUnique: true
+            }
+          });`);
+
+          const result = await shell.executeLine(`db.runCommand({
+            collMod: 'apples',
+            index: {
+              keyPattern: { type: 1 },
+              unique: true
+            }
+          });`);
+
+          expect(result).to.match(/Violations\:/);
+          // Two duplicated ids
+          expect(result).to.match(/ids: \[\s+ObjectId.+?\s+?ObjectId.+?\s+\]/m);
+        });
+      });
     });
     it('throws multiline input with a single line string', async() => {
       // this is an unterminated string constant and should throw, since it does

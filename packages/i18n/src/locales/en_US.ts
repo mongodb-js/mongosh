@@ -83,7 +83,8 @@ const translations: Catalog = {
         link: 'https://docs.mongodb.com/mongodb-shell/'
       },
       additionalErrorInfo: 'Additional information',
-      additionalErrorResult: 'Result'
+      additionalErrorResult: 'Result',
+      additionalErrorViolations: 'Violations'
     },
     'uri-generator': {
       'no-host-port': 'If a full URI is provided, you cannot also specify --host or --port',
