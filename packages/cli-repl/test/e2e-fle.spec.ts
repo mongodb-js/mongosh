@@ -437,7 +437,7 @@ describe('FLE tests', () => {
     // Wrapper for executeLine that expects single-line output
     const runSingleLine = async(line) => (await shell.executeLine(line)).split('\n')[0].trim();
     await runSingleLine('local = { key: BinData(0, "kh4Gv2N8qopZQMQYMEtww/AkPsIrXNmEMxTrs3tUoTQZbZu4msdRUaR8U5fXD7A7QXYHcEvuu4WctJLoT+NvvV3eeIg3MD+K8H9SR794m/safgRHdIfy6PD+rFpvmFbY") }');
-    await runSingleLine(`keyMongo = Mongo(db.getMongo()._uri, { \
+    await runSingleLine(`keyMongo = Mongo(db.getMongo(), { \
       keyVaultNamespace: '${dbname}.keyVault', \
       kmsProviders: { local }, \
       explicitEncryptionOnly: true \
@@ -473,7 +473,7 @@ describe('FLE tests', () => {
     // Wrapper for executeLine that expects single-line output
     const runSingleLine = async(line) => (await shell.executeLine(line)).split('\n')[0].trim();
     await runSingleLine('local = { key: BinData(0, "kh4Gv2N8qopZQMQYMEtww/AkPsIrXNmEMxTrs3tUoTQZbZu4msdRUaR8U5fXD7A7QXYHcEvuu4WctJLoT+NvvV3eeIg3MD+K8H9SR794m/safgRHdIfy6PD+rFpvmFbY") }');
-    await runSingleLine(`keyMongo = Mongo(db.getMongo()._uri, { \
+    await runSingleLine(`keyMongo = Mongo(db.getMongo(), { \
       keyVaultNamespace: '${dbname}.keyVault', \
       kmsProviders: { local }, \
       explicitEncryptionOnly: true \

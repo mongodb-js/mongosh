@@ -81,7 +81,7 @@ export default class Mongo extends ShellApiClass {
 
   constructor(
     instanceState: ShellInstanceState,
-    uri?: string,
+    uri?: string | Mongo,
     fleOptions?: ClientSideFieldLevelEncryptionOptions,
     otherOptions?: { api?: ServerApi | ServerApiVersion },
     sp?: ServiceProvider
@@ -92,7 +92,9 @@ export default class Mongo extends ShellApiClass {
     if (sp) {
       this.__serviceProvider = sp;
     }
-    if (typeof uri !== 'string') {
+    if (typeof uri === 'object' && uri !== null && typeof uri._uri === 'string') {
+      uri = uri._uri;
+    } else if (typeof uri !== 'string') {
       uri = sp?.getURI?.() ?? 'mongodb://localhost/';
     }
     this._connectionInfo = generateConnectionInfoFromCliArgs({
