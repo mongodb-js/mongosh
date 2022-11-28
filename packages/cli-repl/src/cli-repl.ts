@@ -98,6 +98,7 @@ class CliRepl implements MongoshIOProvider {
   onExit: (code?: number) => Promise<never>;
   closing = false;
   isContainerizedEnvironment = false;
+  hasOnDiskTelemetryId = false;
 
   /**
    * Instantiate the new CLI Repl.
@@ -126,10 +127,12 @@ class CliRepl implements MongoshIOProvider {
         this.bus.emit('mongosh:error', err, 'config');
       })
       .on('new-config', (config: CliUserConfigOnDisk) => {
+        this.hasOnDiskTelemetryId = true;
         this.setTelemetryEnabled(config.enableTelemetry);
         this.bus.emit('mongosh:new-user', { userId: config.userId, anonymousId: config.telemetryAnonymousId });
       })
       .on('update-config', (config: CliUserConfigOnDisk) => {
+        this.hasOnDiskTelemetryId = true;
         this.setTelemetryEnabled(config.enableTelemetry);
         this.bus.emit('mongosh:update-user', { userId: config.userId, anonymousId: config.telemetryAnonymousId });
       });
@@ -368,7 +371,8 @@ class CliRepl implements MongoshIOProvider {
       // case.
       return;
     }
-    if (enabled && !this.forceDisableTelemetry) {
+
+    if (enabled && this.hasOnDiskTelemetryId && !this.forceDisableTelemetry) {
       this.toggleableAnalytics.enable();
     } else {
       this.toggleableAnalytics.disable();

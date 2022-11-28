@@ -41,4 +41,15 @@ describe('ToggleableAnalytics', () => {
       [ 'track', { userId: 'me', event: 'something2', properties: { mongosh_version: '1.2.3' } } ]
     ]);
   });
+
+  it('emits an error for invalid messages if telemetry is enabled', () => {
+    const toggleable = new ToggleableAnalytics(target);
+
+    toggleable.identify({} as any);
+    expect(() => toggleable.enable()).to.throw('Telemetry setup is missing userId or anonymousId');
+
+    toggleable.disable();
+    expect(() => toggleable.enable()).to.not.throw();
+    expect(() => toggleable.track({} as any)).to.throw('Telemetry setup is missing userId or anonymousId');
+  });
 });
