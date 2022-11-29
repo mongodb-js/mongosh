@@ -1,4 +1,4 @@
-import { assertArgsDefinedType, dataFormat, getPrintableShardStatus } from './helpers';
+import { assertArgsDefinedType, coerceToJSNumber, dataFormat, getPrintableShardStatus } from './helpers';
 import { Database, Mongo, ShellInstanceState } from './index';
 import constructShellBson from './shell-bson';
 import { ServiceProvider, bson } from '@mongosh/service-provider-core';
@@ -217,5 +217,15 @@ describe('getPrintableShardStatus', () => {
       return;
     }
     expect.fail('missed exception');
+  });
+});
+
+describe('coerceToJSNumber', () => {
+  it('converts various BSON types to JS numbers', () => {
+    expect(coerceToJSNumber(0)).to.equal(0);
+    expect(coerceToJSNumber(new bson.Int32(0))).to.equal(0);
+    expect(coerceToJSNumber(new bson.Long(0))).to.equal(0);
+    expect(coerceToJSNumber(new bson.Long('9223372036854775807'))).to.equal(9223372036854776000);
+    expect(coerceToJSNumber(new bson.Double(1e30))).to.equal(1e30);
   });
 });
