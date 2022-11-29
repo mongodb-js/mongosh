@@ -127,12 +127,12 @@ class CliRepl implements MongoshIOProvider {
         this.bus.emit('mongosh:error', err, 'config');
       })
       .on('new-config', (config: CliUserConfigOnDisk) => {
-        this.hasOnDiskTelemetryId = true;
+        this.hasOnDiskTelemetryId = !!(config.userId || config.telemetryAnonymousId);
         this.setTelemetryEnabled(config.enableTelemetry);
         this.bus.emit('mongosh:new-user', { userId: config.userId, anonymousId: config.telemetryAnonymousId });
       })
       .on('update-config', (config: CliUserConfigOnDisk) => {
-        this.hasOnDiskTelemetryId = true;
+        this.hasOnDiskTelemetryId = !!(config.userId || config.telemetryAnonymousId);
         this.setTelemetryEnabled(config.enableTelemetry);
         this.bus.emit('mongosh:update-user', { userId: config.userId, anonymousId: config.telemetryAnonymousId });
       });
