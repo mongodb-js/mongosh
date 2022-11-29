@@ -316,6 +316,11 @@ export default class ShellApi extends ShellApiClass {
     await this._print(origArgs, 'printjson');
   }
 
+  @returnsPromise
+  async convertShardKeyToHashed(value: any): Promise<unknown> {
+    return this._instanceState.currentDb._mongo.convertShardKeyToHashed(value);
+  }
+
   @directShellCommand
   @returnsPromise
   async cls(): Promise<void> {

@@ -2047,6 +2047,13 @@ describe('Shell API (integration)', function() {
         }
       });
     });
+    describe('convertShardKeyToHashed', () => {
+      it('converts a shard key to its hashed representation', async() => {
+        const result = await mongo.convertShardKeyToHashed({ foo: 'bar' });
+        expect(result.constructor.name).to.equal('Long');
+        expect(result.toString()).to.equal('4975617422686807705');
+      });
+    });
   });
   describe('PlanCache', () => {
     skipIfApiStrict();

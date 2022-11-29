@@ -667,4 +667,33 @@ export default class Mongo extends ShellApiClass {
     }
     return this._keyVault;
   }
+
+  @returnsPromise
+  async convertShardKeyToHashed(value: any): Promise<unknown> {
+    const pipeline = [
+      { $limit: 1 },
+      { $project: { _id: { $toHashedIndexKey: { $literal: value } } } }
+    ];
+    let result;
+    try {
+      // Try $documents if available.
+      result = await (await this.getDB('admin').aggregate([ { $documents: [{}] }, ...pipeline ])).next();
+    } catch {
+      try {
+        // If that fails, try a default collection like admin.system.version.
+        result = await (await this.getDB('admin').getCollection('system.version').aggregate(pipeline)).next();
+      } catch {
+        // If that fails, try using $collStats for local.oplog.rs.
+        try {
+          result = await (await this.getDB('local').getCollection('oplog.rs').aggregate([ { $collStats: {} }, ...pipeline ])).next();
+        } catch { /* throw exception below */ }
+      }
+    }
+    if (!result) {
+      throw new MongoshRuntimeError(
+        'Could not find a suitable way to run convertShardKeyToHashed() -- tried $documents and aggregating on admin.system.version and local.oplog.rs',
+        CommonErrors.CommandFailed);
+    }
+    return result._id;
+  }
 }
