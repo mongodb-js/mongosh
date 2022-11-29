@@ -2048,6 +2048,8 @@ describe('Shell API (integration)', function() {
       });
     });
     describe('convertShardKeyToHashed', () => {
+      skipIfServerVersion(testServer, '< 4.4');
+
       it('converts a shard key to its hashed representation', async() => {
         const result = await mongo.convertShardKeyToHashed({ foo: 'bar' });
         expect(result.constructor.name).to.equal('Long');
