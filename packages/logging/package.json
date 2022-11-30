@@ -25,7 +25,7 @@
     "mongodb-redact": "^0.2.2"
   },
   "devDependencies": {
-    "mongodb": "^4.10.0"
+    "mongodb": "^4.12.1"
   },
   "scripts": {
     "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 15000 -r ts-node/register \"./src/**/*.spec.ts\"",

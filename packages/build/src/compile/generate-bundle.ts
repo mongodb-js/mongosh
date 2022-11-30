@@ -58,11 +58,13 @@ export async function generateBundle(config: Config): Promise<void> {
     return result;
   };
 
-  // Parcel also unfortunately does not know about the built-in 'v8' module
+  // Parcel also unfortunately does not know about the built-in 'v8' or 'http2' modules
   // of Node.js. We create a dummy version that points to it.
-  await fs.mkdir(path.join(__dirname, '../../../../node_modules/v8'), { recursive: true });
-  await fs.writeFile(path.join(__dirname, '../../../../node_modules/v8/index.js'),
-    'module.exports = require("module").createRequire(__filename)("v8")');
+  for (const mod of ['v8', 'http2']) {
+    await fs.mkdir(path.join(__dirname, `../../../../node_modules/${mod}`), { recursive: true });
+    await fs.writeFile(path.join(__dirname, `../../../../node_modules/${mod}/index.js`),
+      `module.exports = require("module").createRequire(__filename)("${mod}")`);
+  }
 
   await bundler.bundle();
 }
