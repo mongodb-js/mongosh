@@ -40,12 +40,14 @@ export class ToggleableAnalytics implements MongoshAnalytics {
   _queue: Array<['identify', Parameters<MongoshAnalytics['identify']>] | ['track', Parameters<MongoshAnalytics['track']>]> = [];
   _state: 'enabled' | 'disabled' | 'paused' = 'paused';
   _target: MongoshAnalytics;
+  _pendingError?: Error;
 
   constructor(target: MongoshAnalytics = new NoopAnalytics()) {
     this._target = target;
   }
 
   identify(...args: Parameters<MongoshAnalytics['identify']>): void {
+    this._validateArgs(args);
     switch (this._state) {
       case 'enabled':
         this._target.identify(...args);
@@ -59,6 +61,7 @@ export class ToggleableAnalytics implements MongoshAnalytics {
   }
 
   track(...args: Parameters<MongoshAnalytics['track']>): void {
+    this._validateArgs(args);
     switch (this._state) {
       case 'enabled':
         this._target.track(...args);
@@ -72,6 +75,9 @@ export class ToggleableAnalytics implements MongoshAnalytics {
   }
 
   enable() {
+    if (this._pendingError) {
+      throw this._pendingError;
+    }
     this._state = 'enabled';
     const queue = this._queue;
     this._queue = [];
@@ -83,10 +89,34 @@ export class ToggleableAnalytics implements MongoshAnalytics {
 
   disable() {
     this._state = 'disabled';
+    this._pendingError = undefined;
     this._queue = [];
   }
 
   pause() {
     this._state = 'paused';
+  }
+
+  _validateArgs([firstArg]: [MongoshAnalyticsIdentity]): void {
+    // Validate that the first argument of a track() or identify() call has
+    // a .userId or .anonymousId property set.
+    // This validation is also performed by the segment package, but is done
+    // here for two reasons: One, if telemetry is disabled, then we lose the
+    // stack trace information for where the buggy call came from, and two,
+    // this way the validation affects all tests in CI, not just the ones that
+    // are explicitly written to enable telemetry to a fake endpoint.
+    if (!('userId' in firstArg && firstArg.userId) &&
+        !('anonymousId' in firstArg && firstArg.anonymousId)) {
+      const err = new Error('Telemetry setup is missing userId or anonymousId');
+      switch (this._state) {
+        case 'enabled':
+          throw err;
+        case 'paused':
+          this._pendingError ??= err;
+          break;
+        default:
+          break;
+      }
+    }
   }
 }

@@ -24,11 +24,24 @@ export async function runSmokeTests(smokeTestServer: string | undefined, executa
   const expectFipsSupport = !!process.env.MONGOSH_SMOKE_TEST_OS_HAS_FIPS_SUPPORT && buildInfo().sharedOpenssl;
   console.log('FIPS support required to pass?', { expectFipsSupport });
 
-  for (const { input, output, testArgs, includeStderr } of [{
+  for (const { input, output, testArgs, includeStderr, exitCode } of [{
     input: 'print("He" + "llo" + " Wor" + "ld!")',
     output: /Hello World!/,
     includeStderr: false,
     testArgs: ['--nodb'],
+    exitCode: 0
+  }, {
+    input: '',
+    output: /ReferenceError/,
+    includeStderr: true,
+    testArgs: ['--nodb', '--eval', 'foo.bar()'],
+    exitCode: 1
+  }, {
+    input: '',
+    output: /Hello World!/,
+    includeStderr: false,
+    testArgs: ['--nodb', '--eval', 'print("He" + "llo" + " Wor" + "ld!")'],
+    exitCode: 0,
   }, {
     input: 'crypto.createHash("md5").update("hello").digest("hex")',
     output: expectFipsSupport ?
@@ -54,14 +67,23 @@ export async function runSmokeTests(smokeTestServer: string | undefined, executa
       db.dropDatabase();`,
     output: /Test succeeded/,
     includeStderr: false,
+    exitCode: 0,
     testArgs: [smokeTestServer as string]
   }, {
     input: fleSmokeTestScript,
     output: /Test succeeded|Test skipped/,
     includeStderr: false,
+    exitCode: 0,
     testArgs: [smokeTestServer as string]
   }] : [])) {
-    await runSmokeTest(executable, [...args, ...testArgs], input, output, includeStderr);
+    await runSmokeTest({
+      executable,
+      args: [...args, ...testArgs],
+      input,
+      output,
+      includeStderr,
+      exitCode
+    });
   }
   console.log('all tests passed');
 }
@@ -74,7 +96,9 @@ export async function runSmokeTests(smokeTestServer: string | undefined, executa
  * @param input stdin contents of the executable
  * @param output Expected contents of stdout
  */
-async function runSmokeTest(executable: string, args: string[], input: string, output: RegExp, includeStderr?: boolean): Promise<void> {
+async function runSmokeTest({ executable, args, input, output, exitCode, includeStderr } : {
+  executable: string, args: string[], input: string, output: RegExp, exitCode?: number, includeStderr?: boolean
+}): Promise<void> {
   const proc = spawn(executable, [...args], {
     stdio: ['pipe', 'pipe', includeStderr ? 'pipe' : 'inherit']
   });
@@ -83,12 +107,20 @@ async function runSmokeTest(executable: string, args: string[], input: string, o
   proc.stdout!.setEncoding('utf8').on('data', (chunk) => { stdout += chunk; });
   proc.stderr?.setEncoding('utf8').on('data', (chunk) => { stderr += chunk; });
   proc.stdin!.end(input);
-  await once(proc.stdout!, 'end');
+  const [ [actualExitCode] ] = await Promise.all([
+    once(proc, 'exit'),
+    once(proc.stdout!, 'end'),
+    proc.stderr && once(proc.stderr, 'end')
+  ]);
+  const metadata = { input, output, stdout, stderr, executable, actualExitCode, args: args.map(arg => redactURICredentials(arg)) };
   try {
     assert.match(includeStderr ? `${stdout}\n${stderr}` : stdout, output);
-    console.error({ status: 'success', input, output, stdout, executable, args: args.map(arg => redactURICredentials(arg)) });
+    if (exitCode !== undefined) {
+      assert.strictEqual(actualExitCode, exitCode);
+    }
+    console.error({ status: 'success', ...metadata });
   } catch (err: any) {
-    console.error({ status: 'failure', input, output, stdout, executable, args: args.map(arg => redactURICredentials(arg)) });
+    console.error({ status: 'failure', ...metadata });
     throw err;
   }
 }

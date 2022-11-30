@@ -1058,6 +1058,10 @@ describe('e2e', function() {
           expect(shell.output).to.include('Warning: Could not access file:');
         });
         expect(await shell.executeLine('print(123 + 456)')).to.include('579');
+        await shell.executeLine('sleep(100)');
+        expect(shell.output).to.not.include('anonymousId');
+        expect(shell.output).to.not.include('AssertionError');
+        expect(shell.assertNoErrors());
       });
 
       it('keeps working when the log files cannot be created', async() => {
@@ -1069,6 +1073,10 @@ describe('e2e', function() {
         });
         expect(await shell.executeLine('print(123 + 456)')).to.include('579');
         expect(await shell.executeLine('enableTelemetry()')).to.include('Telemetry is now enabled');
+        await shell.executeLine('sleep(100)');
+        expect(shell.output).to.not.include('anonymousId');
+        expect(shell.output).to.not.include('AssertionError');
+        expect(shell.assertNoErrors());
       });
 
       it('keeps working when the config file is present but not writable', async function() {
@@ -1083,6 +1091,10 @@ describe('e2e', function() {
           expect(shell.output).to.include('Warning: Could not access file:');
         });
         expect(await shell.executeLine('print(123 + 456)')).to.include('579');
+        await shell.executeLine('sleep(100)');
+        expect(shell.output).to.not.include('anonymousId');
+        expect(shell.output).to.not.include('AssertionError');
+        expect(shell.assertNoErrors());
       });
     });
   });

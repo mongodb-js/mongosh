@@ -10224,6 +10224,25 @@ tasks:
         vars:
           node_js_version: "16.17.0"
           dockerfile: ubuntu22.04-deb
+  - name: pkg_test_docker_deb_x64_ubuntu22_04_nohome_deb
+    tags: ["smoke-test"]
+    depends_on:
+      - name: package_and_upload_artifact_deb_x64
+        variant: linux_package
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          source_package_variant: deb-x64
+      - func: write_preload_script
+      - func: install
+        vars:
+          node_js_version: "16.17.0"
+          npm_deps_mode: cli_build
+      - func: test_artifact_docker
+        vars:
+          node_js_version: "16.17.0"
+          dockerfile: ubuntu22.04-nohome-deb
   - name: pkg_test_docker_deb_x64_debian9_deb
     tags: ["smoke-test"]
     depends_on:
@@ -11826,6 +11845,7 @@ buildvariants:
       - name: pkg_test_docker_deb_x64_ubuntu18_04_deb
       - name: pkg_test_docker_deb_x64_ubuntu20_04_deb
       - name: pkg_test_docker_deb_x64_ubuntu22_04_deb
+      - name: pkg_test_docker_deb_x64_ubuntu22_04_nohome_deb
       - name: pkg_test_docker_deb_x64_debian9_deb
       - name: pkg_test_docker_deb_x64_debian10_deb
       - name: pkg_test_docker_deb_x64_debian11_deb

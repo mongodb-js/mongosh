@@ -20,7 +20,7 @@ exports.RELEASE_PACKAGE_MATRIX = [
     compileBuildVariant: 'linux_x64_build',
     packages: [
       { name: 'linux-x64', description: 'Linux Tarball 64-bit', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu20.04-tgz'] },
-      { name: 'deb-x64', description: 'Debian / Ubuntu 64-bit', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu18.04-deb', 'ubuntu20.04-deb', 'ubuntu22.04-deb', 'debian9-deb', 'debian10-deb', 'debian11-deb'] },
+      { name: 'deb-x64', description: 'Debian / Ubuntu 64-bit', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu18.04-deb', 'ubuntu20.04-deb', 'ubuntu22.04-deb', 'ubuntu22.04-nohome-deb', 'debian9-deb', 'debian10-deb', 'debian11-deb'] },
       { name: 'rpm-x64', description: 'RHEL / CentOS / Fedora / Suse 64-bit', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['centos7-rpm', 'amazonlinux2-rpm', 'amazonlinux2022-rpm', 'rocky8-rpm', 'rocky9-rpm', 'fedora34-rpm', 'suse12-rpm', 'suse15-rpm', 'amazonlinux1-rpm'] }
     ]
   },
