@@ -523,6 +523,13 @@ describe('e2e', function() {
       expect(await shell.executeLine('typeof JSON.parse(JSON.stringify(db.test.insertOne({}))).insertedId')).to.include('string');
     });
 
+    context('post-4.2', () => {
+      skipIfServerVersion(testServer, '< 4.4');
+      it('allows calling convertShardKeyToHashed() as a global function', async function() {
+        expect(await shell.executeLine('convertShardKeyToHashed({foo:"bar"})')).to.include('Long("4975617422686807705")');
+      });
+    });
+
     describe('document validation errors', () => {
       context('post-4.4', () => {
         skipIfServerVersion(testServer, '<= 4.4');

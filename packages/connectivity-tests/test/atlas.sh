@@ -38,7 +38,9 @@ fi
 
 FAILED=no
 
-CONNECTION_STATUS_COMMAND='db.runCommand({ connectionStatus: 1 }).authInfo.authenticatedUsers'
+# convertShardKeyToHashed() may seem weird to include here, but it's the best
+# way to make sure that it works in our standard environments we connect to
+CONNECTION_STATUS_COMMAND='convertShardKeyToHashed("asdf");db.runCommand({ connectionStatus: 1 }).authInfo.authenticatedUsers'
 CONNECTION_STATUS_CHECK_STRING="user: '${ATLAS_USERNAME}'"
 
 function check_failed() {

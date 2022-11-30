@@ -168,6 +168,10 @@ const translations: Catalog = {
             },
             isInteractive: {
               description: 'Returns whether the shell will enter or has entered interactive mode'
+            },
+            convertShardKeyToHashed: {
+              description: 'Returns the hashed value for the input using the same hashing function as a hashed index.',
+              link: 'https://www.mongodb.com/docs/manual/reference/method/convertShardKeyToHashed/'
             }
           }
         },
@@ -1798,6 +1802,10 @@ const translations: Catalog = {
             getClientEncryption: {
               description: 'Returns the ClientEncryption object for the current database collection. The ClientEncryption object supports explicit (manual) encryption and decryption of field values for Client-Side field level encryption.',
               link: 'https://docs.mongodb.com/manual/reference/method/getClientEncryption/#getClientEncryption'
+            },
+            convertShardKeyToHashed: {
+              description: 'Returns the hashed value for the input using the same hashing function as a hashed index.',
+              link: 'https://www.mongodb.com/docs/manual/reference/method/convertShardKeyToHashed/'
             }
           }
         },
