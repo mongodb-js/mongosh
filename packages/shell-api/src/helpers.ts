@@ -17,7 +17,7 @@ import type Database from './database';
 import type Collection from './collection';
 import { CursorIterationResult } from './result';
 import { ShellApiErrors } from './error-codes';
-import { BinaryType, ReplPlatform } from '@mongosh/service-provider-core';
+import { BinaryType, ReplPlatform, bson } from '@mongosh/service-provider-core';
 import { ClientSideFieldLevelEncryptionOptions } from './field-level-encryption';
 import { AutoEncryptionOptions } from 'mongodb';
 import { shellApiType } from './enums';
@@ -497,6 +497,12 @@ export async function getConfigDB(db: Database): Promise<Database> {
       'MongoshWarning: [SHAPI-10003] You are not connected to a mongos. This command may not work as expected.');
   }
   return db.getSiblingDB('config');
+}
+
+type AnyBsonNumber = number | typeof bson.Long.prototype | typeof bson.Int32.prototype | typeof bson.Double.prototype;
+export function coerceToJSNumber(n: AnyBsonNumber): number {
+  if (typeof n === 'number') {return n;}
+  return 'toNumber' in n ? n.toNumber() : n.valueOf();
 }
 
 export function dataFormat(bytes?: number): string {

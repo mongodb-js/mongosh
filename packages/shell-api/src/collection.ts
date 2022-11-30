@@ -30,7 +30,8 @@ import {
   markAsExplainOutput,
   assertArgsDefinedType,
   isValidCollectionName,
-  shouldRunAggregationImmediately
+  shouldRunAggregationImmediately,
+  coerceToJSNumber
 } from './helpers';
 import {
   AnyBulkWriteOperation,
@@ -1721,17 +1722,16 @@ export default class Collection extends ShellApiWithMongoClass {
           (shardStats.numChunks === 0) ? 0 : Math.floor(shardStats.count / shardStats.numChunks);
 
         result[key] = {
-          data: dataFormat(shardStats.size),
+          data: dataFormat(coerceToJSNumber(shardStats.size)),
           docs: shardStats.count,
           chunks: shardStats.numChunks,
           'estimated data per chunk': dataFormat(estChunkData),
           'estimated docs per chunk': estChunkCount
         };
 
-
-        totals.size += shardStats.size;
-        totals.count += shardStats.count;
-        totals.numChunks += shardStats.numChunks;
+        totals.size += coerceToJSNumber(shardStats.size);
+        totals.count += coerceToJSNumber(shardStats.count);
+        totals.numChunks += coerceToJSNumber(shardStats.numChunks);
 
         conciseShardsStats.push(shardStats);
       })()
