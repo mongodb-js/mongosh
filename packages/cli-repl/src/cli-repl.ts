@@ -9,9 +9,9 @@ import { Editor } from '@mongosh/editor';
 import { redactSensitiveData } from '@mongosh/history';
 import Analytics from 'analytics-node';
 import askpassword from 'askpassword';
+import { EventEmitter } from 'events';
 import yaml from 'js-yaml';
 import ConnectionString from 'mongodb-connection-string-url';
-import Nanobus from 'nanobus';
 import semver from 'semver';
 import { Readable, Writable } from 'stream';
 import { buildInfo } from './build-info';
@@ -104,7 +104,7 @@ class CliRepl implements MongoshIOProvider {
    * Instantiate the new CLI Repl.
    */
   constructor(options: CliReplOptions) {
-    this.bus = new Nanobus('mongosh');
+    this.bus = new EventEmitter();
     this.cliOptions = options.shellCliOptions;
     this.input = options.input;
     this.output = options.output;
