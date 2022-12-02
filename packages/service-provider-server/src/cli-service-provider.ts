@@ -212,7 +212,13 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     this.baseCmdOptions = { ... DEFAULT_BASE_OPTIONS }; // currently do not have any user-specified connection-wide command options, but I imagine we will eventually
     this.dbcache = new WeakMap();
     try {
-      this.fle = require('mongodb-client-encryption');
+      // The .extension() call may seem unnecessary, since that is the default
+      // for the top-level exports from mongodb-client-encryption anyway.
+      // However, for the browser runtime, we externalize mongodb-client-encryption
+      // since it is a native addon package; that means that if 'mongodb' is
+      // included in the bundle, it won't be able to find it, and instead needs
+      // to receive it as an explicitly passed dependency.
+      this.fle = require('mongodb-client-encryption').extension(require('mongodb'));
     } catch { /* not empty */ }
   }
 
