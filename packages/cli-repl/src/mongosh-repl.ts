@@ -220,6 +220,8 @@ class MongoshNodeRepl implements EvaluationListener {
       colorMode: this.getFormatOptions().colors
     });
     delete repl.context.parcelRequire; // MONGOSH-965
+    delete repl.context.__webpack_require__;
+    delete repl.context.__non_webpack_require__;
     this.onClearCommand = console.clear.bind(console);
     repl.context.console = console;
 

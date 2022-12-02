@@ -26,7 +26,6 @@ export function withTempPackageEach(): { tarballDir: string; pkgConfig: PackageI
 
 export const dummyConfig: Config = Object.freeze({
   version: 'version',
-  bundleEntrypointInput: 'bundleEntrypointInput',
   bundleSinglefileOutput: 'bundleSinglefileOutput',
   executablePath: 'executablePath',
   cryptSharedLibPath: 'cryptSharedLibPath',

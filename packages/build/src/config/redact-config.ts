@@ -7,7 +7,6 @@ export function redactConfig(config: Config): Partial<Config> & {
   return {
     version: config.version,
     rootDir: config.rootDir,
-    bundleEntrypointInput: config.bundleEntrypointInput,
     packageVariant: config.packageVariant,
     executablePath: config.executablePath,
     bundleSinglefileOutput: config.bundleSinglefileOutput,

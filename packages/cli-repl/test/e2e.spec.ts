@@ -138,6 +138,10 @@ describe('e2e', function() {
       const err = await shell.executeLine('parcelRequire');
       expect(err).to.match(/ReferenceError: parcelRequire is not defined/);
     });
+    it('does not expose __webpack_require__', async() => {
+      const err = await shell.executeLine('__webpack_require__');
+      expect(err).to.match(/ReferenceError: __webpack_require__ is not defined/);
+    });
     it('parses code in sloppy mode by default (single line)', async() => {
       const result = await shell.executeLine('"<\\101>"');
       expect(result).to.match(/<A>/);
