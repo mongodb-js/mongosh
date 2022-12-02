@@ -2,8 +2,7 @@ import path from 'path';
 import pkgUp from 'pkg-up';
 import { writeBuildInfo } from '../build-info';
 import type { Config } from '../config';
-import { execFile } from 'child_process';
-import { promisify } from 'util';
+import { spawnSync } from '../helpers';
 
 /**
  * Generate the bundled up JS entryFile that will be compiled
@@ -20,9 +19,10 @@ export async function generateBundle(config: Config): Promise<void> {
   console.info('mongosh: creating bundle:', config.bundleSinglefileOutput);
   // This could be an npm script that runs before the compile step if it
   // weren't for the build info file which is being written above.
-  await promisify(execFile)('npm', [
+  spawnSync('npm', [
     'run', 'webpack-build'
   ], {
-    cwd: path.dirname(await pkgUp({ cwd: config.bundleSinglefileOutput }) as string)
+    cwd: path.dirname(await pkgUp({ cwd: config.bundleSinglefileOutput }) as string),
+    encoding: 'utf8'
   });
 }
