@@ -28,8 +28,15 @@ export function getTlsCertificateSelector(
   }
 }
 
+declare global {
+  const __non_webpack_require__: undefined | typeof require;
+}
+
 function getCertificateExporter(): TlsCertificateExporter | undefined {
   if (process.env.TEST_OS_EXPORT_CERTIFICATE_AND_KEY_PATH) {
+    if (typeof __non_webpack_require__ === 'function') {
+      return __non_webpack_require__(process.env.TEST_OS_EXPORT_CERTIFICATE_AND_KEY_PATH);
+    }
     return require(process.env.TEST_OS_EXPORT_CERTIFICATE_AND_KEY_PATH);
   }
 
