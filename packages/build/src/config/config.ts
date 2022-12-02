@@ -12,7 +12,6 @@ interface ManPageConfig {
  */
 export interface Config {
   version: string;
-  bundleEntrypointInput: string;
   bundleSinglefileOutput: string;
   executablePath: string;
   outputDir: string;

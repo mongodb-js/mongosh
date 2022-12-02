@@ -29,7 +29,9 @@
     "test-e2e-ci": "cross-env TS_NODE_PROJECT=../../config/tsconfig.test.json mocha -r \"../../scripts/import-expansions.js\" --timeout 15000 --colors -r ts-node/register \"./test/e2e*.spec.ts\"",
     "lint": "eslint --report-unused-disable-directives \"./{src,test}/**/*.{js,ts,tsx}\"",
     "check": "npm run lint && depcheck --skip-missing=true",
-    "prepublish": "npm run compile-ts"
+    "prepublish": "npm run compile-ts",
+    "webpack-build": "npm run compile-ts && webpack --mode production",
+    "webpack-build-dev": "npm run compile-ts && webpack --mode development"
   },
   "license": "Apache-2.0",
   "publishConfig": {
@@ -70,7 +72,7 @@
     "ansi-escape-sequences": "^5.1.2",
     "askcharacter": "^1.0.0",
     "askpassword": "^1.2.4",
-    "is-recoverable-error": "^1.0.2",
+    "is-recoverable-error": "^1.0.3",
     "js-yaml": "^4.1.0",
     "mongodb-connection-string-url": "^2.5.3",
     "mongodb-log-writer": "^1.1.3",

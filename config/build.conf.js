@@ -28,11 +28,6 @@ const CLI_REPL_DIR = path.join(ROOT, 'packages', 'cli-repl');
 const CLI_REPL_PACKAGE_JSON = require(path.join(CLI_REPL_DIR, 'package.json'));
 
 /**
- * The file from which we start the bundling process.
- */
-const BUNDLE_ENTRYPOINT_INPUT = path.join(CLI_REPL_DIR, 'lib', 'run.js');
-
-/**
  * The file to which the bundled output is written, which is used as the input
  * for creating the standalone executable.
  */
@@ -86,7 +81,6 @@ const PACKAGE_VARIANT = process.env.PACKAGE_VARIANT;
 module.exports = {
   version: CLI_REPL_PACKAGE_JSON.version,
   rootDir: ROOT,
-  bundleEntrypointInput: BUNDLE_ENTRYPOINT_INPUT,
   bundleSinglefileOutput: BUNDLE_SINGLEFILE_OUTPUT,
   executablePath: EXECUTABLE_PATH,
   outputDir: OUTPUT_DIR,
