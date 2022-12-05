@@ -27,6 +27,7 @@ export class TestShell {
     removeSigintListeners?: boolean;
     cwd?: string;
     forceTerminal?: boolean;
+    consumeStdio?: boolean;
   } = { args: [] }): TestShell {
     let shellProcess: ChildProcess;
 
@@ -64,7 +65,7 @@ export class TestShell {
       });
     }
 
-    const shell = new TestShell(shellProcess);
+    const shell = new TestShell(shellProcess, options.consumeStdio);
     TestShell._openShells.push(shell);
 
     return shell;
@@ -95,20 +96,22 @@ export class TestShell {
   private _rawOutput: string;
   private _onClose: Promise<number>;
 
-  constructor(shellProcess: ChildProcess) {
+  constructor(shellProcess: ChildProcess, consumeStdio = true) {
     this._process = shellProcess;
     this._output = '';
     this._rawOutput = '';
 
-    shellProcess.stdout.setEncoding('utf8').on('data', (chunk) => {
-      this._output += stripAnsi(chunk);
-      this._rawOutput += chunk;
-    });
+    if (consumeStdio) {
+      shellProcess.stdout.setEncoding('utf8').on('data', (chunk) => {
+        this._output += stripAnsi(chunk);
+        this._rawOutput += chunk;
+      });
 
-    shellProcess.stderr.setEncoding('utf8').on('data', (chunk) => {
-      this._output += stripAnsi(chunk);
-      this._rawOutput += chunk;
-    });
+      shellProcess.stderr.setEncoding('utf8').on('data', (chunk) => {
+        this._output += stripAnsi(chunk);
+        this._rawOutput += chunk;
+      });
+    }
 
     this._onClose = (async() => {
       const [ code ] = await once(shellProcess, 'close');
