@@ -10,6 +10,7 @@ import tar from 'tar-fs';
 import tmp from 'tmp-promise';
 import util, { promisify } from 'util';
 import { PackageVariant, getArch, getDistro, Config, getDebArchName, getRPMArchName, Platform } from './config';
+import { withRetries } from './helpers';
 
 const pipeline = util.promisify(stream.pipeline);
 const execFile = util.promisify(childProcess.execFile);
@@ -176,7 +177,7 @@ export class Barque {
           console.info(`Running ${curatorDirPath}/curator ${args.join(' ')}`);
           results.push((async() => {
             try {
-              const result = await execFile(
+              const result = await withRetries(() => execFile(
                 `${curatorDirPath}/curator`, args, {
                   // curator looks for these options in env
                   env: {
@@ -185,7 +186,7 @@ export class Barque {
                     BARQUE_API_KEY: process.env.BARQUE_API_KEY,
                     BARQUE_USERNAME: process.env.BARQUE_USERNAME
                   }
-                });
+                }), 4);
               console.info(`Result for curator with ${args.join(' ')}`, result);
               return this.computePublishedPackageUrl(ppa, architecture, version, edition, packageUrl);
             } catch (error: any) {
