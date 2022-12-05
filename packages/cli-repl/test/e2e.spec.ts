@@ -489,6 +489,26 @@ describe('e2e', function() {
       expect(result).to.include('{ _id: 1, value: 4 }');
     });
 
+    it('rewrites async properly for a complex $function', async function() {
+      await shell.executeLine(`use ${dbName}`);
+      await shell.executeLine('db.test.insertMany([{i:[1,{v:5}]},{i:[2,{v:6}]},{i:[3,{v:7}]},{i:[4,{v:8}]}]);');
+      const result = await shell.executeLine(`db.test.aggregate([
+        {
+          $project: {
+            _id: 0,
+            sum: {
+              $function: {
+                body: function(i) { const [u,{v}] = i; return \`\${u + v}\`; },
+                args: ['$i'],
+                lang:'js'
+              }
+            }
+          }
+        }
+      ])`);
+      expect(result).to.include("{ sum: '12' }");
+    });
+
     it('rewrites async properly for common libraries', async function() {
       this.timeout(120_000);
       await shell.executeLine(`use ${dbName}`);

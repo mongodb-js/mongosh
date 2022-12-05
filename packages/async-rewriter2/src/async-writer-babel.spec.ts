@@ -830,6 +830,11 @@ describe('AsyncWriter', () => {
         expect(runTranspiledCode('Function.prototype.toString.call(() => { const str = \'"extra quotes"\'; })'))
           .to.equal('() => { const str = \'"extra quotes"\'; }');
       });
+
+      it('does not include references to destructuring helpers', () => {
+        expect(runTranspiledCode('Function.prototype.toString.call(() => {\n  const [a,{b}] = foo();\n})'))
+          .to.equal('() => {\n  const [a,{b}] = foo();\n}');
+      });
     });
   });
 
