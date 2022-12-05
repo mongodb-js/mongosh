@@ -9,7 +9,7 @@ import { Editor } from '@mongosh/editor';
 import { redactSensitiveData } from '@mongosh/history';
 import Analytics from 'analytics-node';
 import askpassword from 'askpassword';
-import { EventEmitter } from 'events';
+import { EventEmitter, once } from 'events';
 import yaml from 'js-yaml';
 import ConnectionString from 'mongodb-connection-string-url';
 import semver from 'semver';
@@ -679,6 +679,20 @@ class CliRepl implements MongoshIOProvider {
   async close(): Promise<void> {
     if (this.closing) {
       return;
+    }
+    if (!this.output.destroyed) {
+      // Wait for output to be fully flushed before exiting.
+      if (this.output.writableEnded) {
+        // .end() has been called but not finished; 'close' will be emitted in that case.
+        // (This should not typically happen in the context of mongosh, but there's also
+        // no reason not to handle this case properly.)
+        try {
+          await once(this.output, 'close');
+        } catch { /* ignore */ }
+      } else {
+        // .end() has not been called; write an empty chunk and wait for it to be fully written.
+        await new Promise(resolve => this.output.write('', resolve));
+      }
     }
     this.closing = true;
     const analytics = this.segmentAnalytics;

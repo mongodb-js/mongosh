@@ -174,6 +174,25 @@ describe('e2e', function() {
         expect(await shell.executeLine('[crypto.getFips()]')).to.include('[ 1 ]');
       }
     });
+    it('prints full output even when that output is buffered', async() => {
+      shell = TestShell.start({
+        args: ['--nodb', '--quiet', '--eval', 'EJSON.stringify([...Array(100_000).keys()].map(i=>({i})),null,2)'],
+        consumeStdio: false
+      });
+      let buffer = '';
+      let hasWaited = false;
+      // Start reading data, wait a bit, then read the rest
+      for await (const chunk of shell.process.stdout.setEncoding('utf8')) {
+        buffer += chunk;
+        if (buffer.includes('"i": 100') && !hasWaited) {
+          // This delay is relevant for reproducing this bug; it gives
+          // the mongosh process time to exit before all output has been printed.
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          hasWaited = true;
+        }
+      }
+      expect(buffer).to.include('"i": 99999');
+    });
   });
 
   describe('set db', () => {
