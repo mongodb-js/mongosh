@@ -429,6 +429,32 @@ describe('FLE tests', () => {
     });
   });
 
+  context('pre-6.0', () => {
+    skipIfServerVersion(testServer, '>= 6.0'); // FLE2 available on 6.0+
+
+    it('provides a good error message when createCollection fails due to low server version', async function() {
+      const shell = TestShell.start({
+        args: [`--cryptSharedLibPath=${cryptLibrary}`, await testServer.connectionString()]
+      });
+      await shell.waitForPrompt();
+      await shell.executeLine('autoMongo = Mongo(db.getMongo(), {keyVaultNamespace:\'encryption.__keyVault\',kmsProviders:{local:{key:\'A\'.repeat(128)}}});');
+      const result = await shell.executeLine(`autoMongo.getDB('${dbname}').createCollection('test', { encryptedFields: { fields: [] } });`);
+      expect(result).to.match(/Your server version is .+, which does not support Queryable Encryption/);
+    });
+
+    it('provides a good error message when createCollection fails due to low FCV', async function() {
+      const shell = TestShell.start({
+        args: [`--cryptSharedLibPath=${cryptLibrary}`, await testServer.connectionString()]
+      });
+      await shell.waitForPrompt();
+      await shell.executeLine('autoMongo = Mongo(db.getMongo(), {keyVaultNamespace:\'encryption.__keyVault\',kmsProviders:{local:{key:\'A\'.repeat(128)}}});');
+      await shell.executeLine(`autoMongoDb = autoMongo.getDB('${dbname}')`);
+      await shell.executeLine('autoMongoDb.version = () => \'6.0.0\'');
+      const result = await shell.executeLine('autoMongoDb.createCollection(\'test\', { encryptedFields: { fields: [] } });');
+      expect(result).to.match(/Your server version is .+, which does not support Queryable Encryption/);
+    });
+  });
+
   it('performs KeyVault data key management as expected', async() => {
     const shell = TestShell.start({
       args: [await testServer.connectionString(), `--cryptSharedLibPath=${cryptLibrary}`]

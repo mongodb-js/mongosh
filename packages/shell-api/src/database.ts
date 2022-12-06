@@ -599,11 +599,35 @@ export default class Database extends ShellApiWithMongoClass {
   async createCollection(name: string, options: CreateCollectionOptions = {}): Promise<{ ok: number }> {
     assertArgsDefinedType([name], ['string'], 'Database.createCollection');
     this._emitDatabaseApiCall('createCollection', { name: name, options: options });
-    return await this._mongo._serviceProvider.createCollection(
-      this._name,
-      name,
-      { ...await this._baseOptions(), ...options }
-    );
+    try {
+      return await this._mongo._serviceProvider.createCollection(
+        this._name,
+        name,
+        { ...await this._baseOptions(), ...options }
+      );
+    } catch (err: any) {
+      if (options.encryptedFields && err?.codeName === 'InvalidOptions' && err?.message?.includes("'clusteredIndex'")) {
+        await this._improveErrorMessageForLowServerVersionForQE(err);
+      }
+      throw err;
+    }
+  }
+
+  async _improveErrorMessageForLowServerVersionForQE(err: Error): Promise<void> {
+    try {
+      const serverVersion = await this.version();
+      if (serverVersion && +serverVersion.split('.')[0] < 6) {
+        err.message = `Your server version is ${serverVersion}, which does not support Queryable Encryption [Original Error: ${err.message}]`;
+        return;
+      }
+    } catch { /* ignore error from fetching server version */ }
+    try {
+      const fcv = (await this._runAdminCommand({ getParameter: 1, featureCompatibilityVersion: 1 })).featureCompatibilityVersion.version;
+      if (fcv && +fcv.split('.')[0] < 6) {
+        err.message += `Your featureCompatibilityVersion is set to ${fcv}, which does not support Queryable Encryption [Original Error: ${err.message}]`;
+        return;
+      }
+    } catch { /* ignore error from fetching FCV */ }
   }
 
   @returnsPromise
