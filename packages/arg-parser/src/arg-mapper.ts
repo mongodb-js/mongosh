@@ -171,6 +171,9 @@ function mapGSSAPIHostnameCanonicalization(value: string): AuthMechanismProps['C
 }
 
 function validateConnectionInfoAfterArgMapping(info: ConnectionInfo, originalOptions: CliOptions): void {
+  if (!info.connectionString) {
+    return;
+  }
   // Provide a better error message for some cases in which applying
   // command line options to the connection string can make it invalid.
   const connectionString = new ConnectionString(info.connectionString, { looseValidation: true });
