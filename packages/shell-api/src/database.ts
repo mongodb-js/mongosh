@@ -606,7 +606,11 @@ export default class Database extends ShellApiWithMongoClass {
         { ...await this._baseOptions(), ...options }
       );
     } catch (err: any) {
-      if (options.encryptedFields && err?.codeName === 'InvalidOptions' && err?.message?.includes("'clusteredIndex'")) {
+      if (
+        options.encryptedFields &&
+        err?.codeName === 'InvalidOptions' &&
+        err?.message?.match(/\bclusteredIndex\b/)
+      ) {
         await this._improveErrorMessageForLowServerVersionForQE(err);
       }
       throw err;
