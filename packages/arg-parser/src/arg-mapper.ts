@@ -1,3 +1,4 @@
+import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
 import type { CliOptions, ConnectionInfo } from './';
 import type { DevtoolsConnectOptions } from '@mongodb-js/devtools-connect';
 import { ConnectionString, CommaAndColonSeparatedRecord } from 'mongodb-connection-string-url';
@@ -152,6 +153,8 @@ export function mapCliToDriver(options: Readonly<CliOptions>, i: Readonly<Connec
     }
   }
 
+  validateConnectionInfoAfterArgMapping(i, options);
+
   return i;
 }
 
@@ -166,5 +169,22 @@ function mapGSSAPIHostnameCanonicalization(value: string): AuthMechanismProps['C
   }
   return value as AuthMechanismProps['CANONICALIZE_HOST_NAME'];
 }
+
+function validateConnectionInfoAfterArgMapping(info: ConnectionInfo, originalOptions: CliOptions): void {
+  // Provide a better error message for some cases in which applying
+  // command line options to the connection string can make it invalid.
+  const connectionString = new ConnectionString(info.connectionString, { looseValidation: true });
+  if (connectionString.password && !connectionString.username) {
+    let text = 'Invalid connection information: Password specified but no username provided';
+    if (originalOptions.password && !originalOptions.port) {
+      text += " (did you mean '--port' instead of '-p'?)";
+    }
+    throw new MongoshInvalidInputError(text, CommonErrors.InvalidArgument);
+  }
+  // Just make sure the result ultimately parses with strict validation.
+  // eslint-disable-next-line no-new
+  new ConnectionString(info.connectionString, { looseValidation: false });
+}
+
 
 export default mapCliToDriver;
