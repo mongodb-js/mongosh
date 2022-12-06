@@ -1,6 +1,4 @@
-declare class AggregateError extends Error {
-  constructor(errors: Error[], message?: string);
-}
+import AggregateError from 'es-aggregate-error';
 
 export async function withRetries<T extends() => any>(
   fn: T,
