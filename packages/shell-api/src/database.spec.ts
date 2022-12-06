@@ -253,12 +253,23 @@ describe('Database', () => {
       });
 
       it('automatically adjusts profile parameter types', async() => {
-        await database.runCommand({ profile: 1, sampleRate: 0 });
+        await database.runCommand({ profile: 0, sampleRate: 0 });
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
           {
-            profile: 1, sampleRate: new bson.Double(0)
+            profile: 0, sampleRate: new bson.Double(0)
+          }
+        );
+      });
+
+      it('automatically adjusts mirrorReads.samplingRate types', async() => {
+        await database.runCommand({ setParameter: 1, mirrorReads: { samplingRate: 0 } });
+
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          database._name,
+          {
+            setParameter: 1, mirrorReads: { samplingRate: new bson.Double(0) }
           }
         );
       });
