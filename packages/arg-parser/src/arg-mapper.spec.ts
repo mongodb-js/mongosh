@@ -77,8 +77,8 @@ describe('arg-mapper.mapCliToDriver', () => {
 
   context('when cli args have password', () => {
     it('maps to auth object', () => {
-      expect(optionsTest({ password: 'aphextwin' })).to.deep.equal({
-        cs: 'mongodb://:aphextwin@localhost/'
+      expect(optionsTest({ password: 'aphextwin', username: 'x' })).to.deep.equal({
+        cs: 'mongodb://x:aphextwin@localhost/'
       });
     });
   });
@@ -338,6 +338,23 @@ describe('arg-mapper.mapCliToDriver', () => {
           }
         }
       });
+    });
+  });
+
+  context('when password is provided without username', () => {
+    const cliOptions: CliOptions = { password: '1234' };
+
+    it('throws a helpful error', () => {
+      expect(() => optionsTest(cliOptions)).to.throw(
+        "[COMMON-10001] Invalid connection information: Password specified but no username provided (did you mean '--port' instead of '-p'?)");
+    });
+  });
+  context('when password is provided without username and --port is already specified', () => {
+    const cliOptions: CliOptions = { password: '1234', port: '12345' };
+
+    it('throws a helpful error', () => {
+      expect(() => optionsTest(cliOptions)).to.throw(
+        '[COMMON-10001] Invalid connection information: Password specified but no username provided');
     });
   });
 });
