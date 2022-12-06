@@ -551,6 +551,26 @@ describe('e2e', function() {
       it('allows calling convertShardKeyToHashed() as a global function', async function() {
         expect(await shell.executeLine('convertShardKeyToHashed({foo:"bar"})')).to.include('Long("4975617422686807705")');
       });
+
+      it('rewrites async properly for a complex $function', async function() {
+        await shell.executeLine(`use ${dbName}`);
+        await shell.executeLine('db.test.insertMany([{i:[1,{v:5}]},{i:[2,{v:6}]},{i:[3,{v:7}]},{i:[4,{v:8}]}]);');
+        const result = await shell.executeLine(`db.test.aggregate([
+          {
+            $project: {
+              _id: 0,
+              sum: {
+                $function: {
+                  body: function(i) { const [u,{v}] = i; return \`\${u + v}\`; },
+                  args: ['$i'],
+                  lang:'js'
+                }
+              }
+            }
+          }
+        ])`);
+        expect(result).to.include("{ sum: '12' }");
+      });
     });
 
     describe('document validation errors', () => {
