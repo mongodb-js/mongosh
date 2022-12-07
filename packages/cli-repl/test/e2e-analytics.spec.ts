@@ -22,9 +22,9 @@ describe('e2e Analytics Node', () => {
     const rsConfig = {
       _id: replSetName,
       members: [
-        { _id: 0, host: `${await rs0.hostport()}`, priority: 2 },
-        { _id: 1, host: `${await rs1.hostport()}`, priority: 1 },
-        { _id: 2, host: `${await rs2.hostport()}`, priority: 1 },
+        { _id: 0, host: `${await rs0.hostport()}`, priority: 1 },
+        { _id: 1, host: `${await rs1.hostport()}`, priority: 0 },
+        { _id: 2, host: `${await rs2.hostport()}`, priority: 0 },
         { _id: 3, host: `${await rs3.hostport()}`, priority: 0, votes: 0, tags: { nodeType: 'ANALYTICS' } }
       ]
     };
@@ -36,9 +36,9 @@ describe('e2e Analytics Node', () => {
     await shell.executeLine(`rs.initiate(${JSON.stringify(rsConfig)})`);
     shell.assertContainsOutput('ok: 1');
     await eventually(async() => {
-      const isMaster = await shell.executeLine('db.isMaster().ismaster');
-      expect(isMaster).to.contain('true');
-    });
+      const helloIsWritablePrimary = await shell.executeLine('db.hello().isWritablePrimary');
+      expect(helloIsWritablePrimary).to.contain('true');
+    }, { timeout: 20_000 });
   });
 
   context('without readPreference', () => {
@@ -48,8 +48,8 @@ describe('e2e Analytics Node', () => {
       });
       await shell.waitForPrompt();
 
-      const isMaster = await shell.executeLine('db.isMaster()');
-      expect(isMaster).to.contain('ismaster: true');
+      const helloResult = await shell.executeLine('db.hello()');
+      expect(helloResult).to.contain('isWritablePrimary: true');
 
       await shell.executeLine('use admin');
       const explain = await shell.executeLine('db[\'system.users\'].find().explain()');
