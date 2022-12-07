@@ -628,7 +628,7 @@ export default class Database extends ShellApiWithMongoClass {
     try {
       const fcv = (await this._runAdminCommand({ getParameter: 1, featureCompatibilityVersion: 1 })).featureCompatibilityVersion.version;
       if (fcv && +fcv.split('.')[0] < 6) {
-        err.message += `Your featureCompatibilityVersion is set to ${fcv}, which does not support Queryable Encryption [Original Error: ${err.message}]`;
+        err.message = `Your featureCompatibilityVersion is set to ${fcv}, which does not support Queryable Encryption [Original Error: ${err.message}]`;
         return;
       }
     } catch { /* ignore error from fetching FCV */ }

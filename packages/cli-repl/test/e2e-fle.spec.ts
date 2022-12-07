@@ -437,8 +437,7 @@ describe('FLE tests', () => {
         args: [`--cryptSharedLibPath=${cryptLibrary}`, await testServer.connectionString()]
       });
       await shell.waitForPrompt();
-      await shell.executeLine('autoMongo = Mongo(db.getMongo(), {keyVaultNamespace:\'encryption.__keyVault\',kmsProviders:{local:{key:\'A\'.repeat(128)}}});');
-      const result = await shell.executeLine(`autoMongo.getDB('${dbname}').createCollection('test', { encryptedFields: { fields: [] } });`);
+      const result = await shell.executeLine(`db.getSiblingDB('${dbname}').createCollection('test', { encryptedFields: { fields: [] } });`);
       expect(result).to.match(/Your server version is .+, which does not support Queryable Encryption/);
     });
 
@@ -447,11 +446,10 @@ describe('FLE tests', () => {
         args: [`--cryptSharedLibPath=${cryptLibrary}`, await testServer.connectionString()]
       });
       await shell.waitForPrompt();
-      await shell.executeLine('autoMongo = Mongo(db.getMongo(), {keyVaultNamespace:\'encryption.__keyVault\',kmsProviders:{local:{key:\'A\'.repeat(128)}}});');
-      await shell.executeLine(`autoMongoDb = autoMongo.getDB('${dbname}')`);
-      await shell.executeLine('autoMongoDb.version = () => \'6.0.0\'');
-      const result = await shell.executeLine('autoMongoDb.createCollection(\'test\', { encryptedFields: { fields: [] } });');
-      expect(result).to.match(/Your server version is .+, which does not support Queryable Encryption/);
+      await shell.executeLine(`db = db.getSiblingDB('${dbname}')`);
+      await shell.executeLine('db.version = () => \'6.0.0\'');
+      const result = await shell.executeLine('db.createCollection(\'test\', { encryptedFields: { fields: [] } });');
+      expect(result).to.match(/Your featureCompatibilityVersion is .+, which does not support Queryable Encryption/);
     });
   });
 
