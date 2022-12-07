@@ -608,7 +608,7 @@ export default class Database extends ShellApiWithMongoClass {
     } catch (err: any) {
       if (
         options.encryptedFields &&
-        err?.codeName === 'InvalidOptions' &&
+        ['InvalidOptions', 'Location40415', 'TypeMismatch'].includes(err?.codeName) &&
         err?.message?.match(/\bclusteredIndex\b/)
       ) {
         await this._improveErrorMessageForLowServerVersionForQE(err);
