@@ -758,7 +758,7 @@ function isBSONDoubleConvertible(val: any): boolean {
 }
 
 export function adjustRunCommand(cmd: Document, shellBson: ShellBson): Document {
-  if (cmd.replSetResizeOplog) {
+  if (cmd.replSetResizeOplog !== undefined) {
     if ('size' in cmd && isBSONDoubleConvertible(cmd.size)) {
       return adjustRunCommand({ ...cmd, size: new shellBson.Double(+cmd.size) }, shellBson);
     }
@@ -766,9 +766,20 @@ export function adjustRunCommand(cmd: Document, shellBson: ShellBson): Document 
       return adjustRunCommand({ ...cmd, minRetentionHours: new shellBson.Double(+cmd.minRetentionHours) }, shellBson);
     }
   }
-  if (cmd.profile) {
+  if (cmd.profile !== undefined) {
     if ('sampleRate' in cmd && isBSONDoubleConvertible(cmd.sampleRate)) {
       return adjustRunCommand({ ...cmd, sampleRate: new shellBson.Double(+cmd.sampleRate) }, shellBson);
+    }
+  }
+  if (cmd.setParameter !== undefined && cmd.mirrorReads !== undefined) {
+    if ('samplingRate' in cmd.mirrorReads && isBSONDoubleConvertible(cmd.mirrorReads.samplingRate)) {
+      return adjustRunCommand({
+        ...cmd,
+        mirrorReads: {
+          ...cmd.mirrorReads,
+          samplingRate: new shellBson.Double(+cmd.mirrorReads.samplingRate)
+        }
+      }, shellBson);
     }
   }
   return cmd;
