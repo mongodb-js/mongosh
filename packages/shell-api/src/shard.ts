@@ -9,7 +9,6 @@ import { assertArgsDefinedType, getConfigDB, getPrintableShardStatus } from './h
 import { ServerVersions, asPrintable } from './enums';
 import { CommandResult, UpdateResult } from './result';
 import { redactURICredentials } from '@mongosh/history';
-import { CommonErrors, MongoshRuntimeError } from '@mongosh/errors';
 import Mongo from './mongo';
 import AggregationCursor from './aggregation-cursor';
 
@@ -440,10 +439,7 @@ export default class Shard extends ShellApiWithMongoClass {
       await cursor.hasNext();
     } catch (err: any) {
       if (err.code?.valueOf() === 40324) { // unrecognized stage error
-        throw new MongoshRuntimeError(
-          'sh.getShardedDataDistribution only works on mongos',
-          CommonErrors.CommandFailed
-        );
+        err.message = `sh.getShardedDataDistribution only works on mongos and MongoDB server versions greater than 6.0.3 [Original Error: ${err.message}]`;
       }
 
       throw err;

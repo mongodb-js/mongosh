@@ -1194,9 +1194,9 @@ describe('Shard', () => {
       it('throws if not mongos', async() => {
         const serviceProviderCursor = stubInterface<ServiceProviderAggCursor>();
         serviceProvider.aggregateDb.returns(serviceProviderCursor as any);
-        serviceProviderCursor.hasNext.throws(Object.assign(new Error(), { code: 40324 }));
+        serviceProviderCursor.hasNext.throws(Object.assign(new Error(), { code: 40324, message: "Unrecognized pipeline stage name: '$shardedDataDistribution'" }));
         const error: any = await shard.getShardedDataDistribution().catch(err => err);
-        expect(error.message).to.match(/sh\.getShardedDataDistribution only works on mongos/);
+        expect(error.message).to.match(/sh\.getShardedDataDistribution only works on mongos and MongoDB server versions greater than 6\.0\.3 \[Original Error: Unrecognized pipeline stage name: '\$shardedDataDistribution']/);
       });
     });
   });
