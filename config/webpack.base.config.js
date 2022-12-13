@@ -21,6 +21,11 @@ module.exports = {
     minimizer: [
       new TerserPlugin({
         terserOptions: {
+          // Using ASCII-only output means a slightly larger bundle file,
+          // but a significantly smaller executable, since V8 only allows
+          // storing strings as either ISO-8859-1 or UTF-16 and UTF-16 takes
+          // up twice the space that ISO-8859-1 strings do.
+          output: { ascii_only: true },
           // Not keeping classnames breaks shell-api during minification
           keep_classnames: true,
           compress: {
