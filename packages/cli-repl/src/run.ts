@@ -14,19 +14,33 @@ import { getCryptLibraryPaths } from './crypt-library-paths';
 import { getTlsCertificateSelector } from './tls-certificate-selector';
 import { redactURICredentials } from '@mongosh/history';
 import { generateConnectionInfoFromCliArgs } from '@mongosh/arg-parser';
-import { runMain } from 'module';
 import readline from 'readline';
 import askcharacter from 'askcharacter';
 import stream from 'stream';
 import crypto from 'crypto';
+import v8 from 'v8';
 
-// eslint-disable-next-line complexity, @typescript-eslint/no-floating-promises
-(async() => {
+if ((v8 as any).startupSnapshot.isBuildingSnapshot()) {
+  {
+    const console = require('console');
+    const ConsoleCtor = console.Console;
+    (v8 as any).startupSnapshot.addDeserializeCallback(() => {
+      console.Console = ConsoleCtor;
+    })
+  }
+
+  (v8 as any).startupSnapshot.setDeserializeMainFunction(() => void main());
+} else {
+  void main();
+}
+
+// eslint-disable-next-line complexity
+async function main() {
   if (process.env.MONGOSH_RUN_NODE_SCRIPT) {
     // For uncompiled mongosh: node /path/to/this/file script ... -> node script ...
     // FOr compiled mongosh: mongosh mongosh script ... -> mongosh script ...
     process.argv.splice(1, 1);
-    (runMain as any)(process.argv[1]);
+    (require('module').runMain as any)(process.argv[1]);
     return;
   }
 
@@ -158,7 +172,7 @@ import crypto from 'crypto';
     }
     process.exit(1);
   }
-})();
+}
 
 /**
  * Helper to set the window title for the terminal that stdout is

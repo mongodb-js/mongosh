@@ -32,7 +32,6 @@ import type {
 } from '@mongosh/types';
 import { inspect } from 'util';
 import { MongoLogWriter, mongoLogId } from 'mongodb-log-writer';
-import { hookLogger as devtoolsConnectHookLogger } from '@mongodb-js/devtools-connect';
 import { MongoshAnalytics } from './analytics-helpers';
 
 /**
@@ -397,7 +396,8 @@ export function setupLoggerAndTelemetry(
 
   // Log ids 1_000_000_034 through 1_000_000_042 are reserved for the
   // devtools-connect package which was split out from mongosh.
-  devtoolsConnectHookLogger(bus, log, 'mongosh', redactURICredentials);
+  const { hookLogger } = require('@mongodb-js/devtools-connect');
+  hookLogger(bus, log, 'mongosh', redactURICredentials);
 
   bus.on('mongosh-sp:reset-connection-options', function() {
     log.info('MONGOSH-SP', mongoLogId(1_000_000_040), 'connect', 'Reconnect because of changed connection options');

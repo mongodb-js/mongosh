@@ -114,11 +114,15 @@ export class SignableCompiler {
       requireRegexp: /\bget_console_process_list\.node$/
     } : null;
 
+    await fs.writeFile(this.sourceFile,
+      (await fs.readFile(this.sourceFile, 'utf8'))
+        .replace(/\bmodule\.exports\s*=\s*__webpack_exports__\b/g, ''));
+
     // This compiles the executable along with Node from source.
     await compileJSFileAsBinary({
       sourceFile: this.sourceFile,
       targetFile: this.targetFile,
-      nodeVersionRange: this.nodeVersionRange,
+      nodeVersionRange: 'v20.0.0-nightly202302078e6e215481' /* this.nodeVersionRange */,
       namespace: 'mongosh',
       env: {
         ...process.env,
@@ -140,7 +144,7 @@ export class SignableCompiler {
       ] : []),
       preCompileHook,
       executableMetadata: this.executableMetadata,
-      useCodeCache: true,
+      useNodeSnapshot: true,
     });
   }
 }

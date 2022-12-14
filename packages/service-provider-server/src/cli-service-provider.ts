@@ -1,4 +1,4 @@
-import {
+import type {
   Auth,
   AuthMechanism,
   MongoClient,
@@ -78,31 +78,34 @@ import {
   AutoEncryptionOptions
 } from '@mongosh/service-provider-core';
 
-import { connectMongoClient, DevtoolsConnectOptions } from '@mongodb-js/devtools-connect';
+import type { DevtoolsConnectOptions } from '@mongodb-js/devtools-connect';
 import { MongoshCommandFailed, MongoshInternalError } from '@mongosh/errors';
 import type { MongoshBus } from '@mongosh/types';
 import { forceCloseMongoClient } from './mongodb-patches';
 import ConnectionString from 'mongodb-connection-string-url';
 import { EventEmitter } from 'events';
 
-const bsonlib = {
-  Binary,
-  Code,
-  DBRef,
-  Double,
-  Int32,
-  Long,
-  MinKey,
-  MaxKey,
-  ObjectId,
-  Timestamp,
-  Decimal128,
-  BSONSymbol,
-  Map: BSON.Map,
-  calculateObjectSize: BSON.calculateObjectSize,
-  EJSON: BSON.EJSON,
-  BSONRegExp
-};
+const bsonlib = () => {
+  const { Binary, Code, DBRef, Double, Int32, Long, MinKey, MaxKey, ObjectId, Timestamp, Decimal128, BSONSymbol, BSONRegExp } = require('mongodb');
+  return {
+    Binary,
+    Code,
+    DBRef,
+    Double,
+    Int32,
+    Long,
+    MinKey,
+    MaxKey,
+    ObjectId,
+    Timestamp,
+    Decimal128,
+    BSONSymbol,
+    Map: BSON.Map,
+    calculateObjectSize: BSON.calculateObjectSize,
+    EJSON: BSON.EJSON,
+    BSONRegExp
+  };
+}
 
 type DropDatabaseResult = {
   ok: 0 | 1;
@@ -165,6 +168,8 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
       };
     }
 
+    const { MongoClient } = require('mongodb');
+    const { connectMongoClient } = require('@mongodb-js/devtools-connect');
     const mongoClient = !cliOptions.nodb ?
       await connectMongoClient(
         connectionString.toString(),
@@ -196,7 +201,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
    * @param {string} uri - optional URI for telemetry.
    */
   constructor(mongoClient: MongoClient, bus: MongoshBus, clientOptions: MongoClientOptions = {}, uri?: ConnectionString) {
-    super(bsonlib);
+    super(bsonlib());
 
     this.bus = bus;
     this.mongoClient = mongoClient;
@@ -224,6 +229,8 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   async getNewConnection(uri: string, options: DevtoolsConnectOptions = {}): Promise<CliServiceProvider> {
     const connectionString = new ConnectionString(uri);
     const clientOptions = processDriverOptions(options);
+    const { MongoClient } = require('mongodb');
+    const { connectMongoClient } = require('@mongodb-js/devtools-connect');
     const mongoClient = await connectMongoClient(
       connectionString.toString(),
       clientOptions,
@@ -1065,6 +1072,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   }
 
   readPreferenceFromOptions(options?: Omit<ReadPreferenceFromOptions, 'session'>): ReadPreferenceLike | undefined {
+    const { ReadPreference } = require('mongodb');
     return ReadPreference.fromOptions(options);
   }
 
@@ -1074,6 +1082,8 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
    * @param options
    */
   async resetConnectionOptions(options: MongoClientOptions): Promise<void> {
+    const { MongoClient } = require('mongodb');
+    const { connectMongoClient } = require('@mongodb-js/devtools-connect');
     this.bus.emit('mongosh-sp:reset-connection-options');
     this.currentClientOptions = {
       ...this.currentClientOptions,

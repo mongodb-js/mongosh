@@ -1,5 +1,4 @@
 /* eslint-disable no-console, @typescript-eslint/no-non-null-assertion, chai-friendly/no-unused-expressions */
-import { spawn } from 'child_process';
 import assert from 'assert';
 import { once } from 'events';
 import { redactURICredentials } from '@mongosh/history';
@@ -99,6 +98,7 @@ export async function runSmokeTests(smokeTestServer: string | undefined, executa
 async function runSmokeTest({ executable, args, input, output, exitCode, includeStderr } : {
   executable: string, args: string[], input: string, output: RegExp, exitCode?: number, includeStderr?: boolean
 }): Promise<void> {
+  const { spawn } = require('child_process') as typeof import('child_process');
   const proc = spawn(executable, [...args], {
     stdio: ['pipe', 'pipe', includeStderr ? 'pipe' : 'inherit']
   });

@@ -7,7 +7,7 @@ import type { CliOptions, DevtoolsConnectOptions } from '@mongosh/arg-parser';
 import { SnippetManager } from '@mongosh/snippet-manager';
 import { Editor } from '@mongosh/editor';
 import { redactSensitiveData } from '@mongosh/history';
-import Analytics from 'analytics-node';
+import type Analytics from 'analytics-node';
 import askpassword from 'askpassword';
 import { EventEmitter, once } from 'events';
 import yaml from 'js-yaml';
@@ -363,6 +363,7 @@ class CliRepl implements MongoshIOProvider {
     }
     // build-info.json is created as a part of the release process
     const apiKey = this.analyticsOptions?.apiKey ?? require('./build-info.json').segmentApiKey;
+    const Analytics = require('analytics-node');
     this.segmentAnalytics = new Analytics(
       apiKey,
       {

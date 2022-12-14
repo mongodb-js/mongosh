@@ -4,7 +4,7 @@ import type { EventEmitter } from 'events';
 import isRecoverableError from 'is-recoverable-error';
 import { Interface, ReadLineOptions } from 'readline';
 import type { ReplOptions, REPLServer } from 'repl';
-import { Recoverable, start as originalStart } from 'repl';
+import type { start as originalStart } from 'repl';
 import { promisify } from 'util';
 
 // Utility, inverse of Readonly<T>
@@ -60,6 +60,7 @@ function getPrompt(repl: any): string {
  * synchronous, and integrates nicely with Ctrl+C handling in that respect.
  */
 export function start(opts: AsyncREPLOptions): REPLServer {
+  const { Recoverable, start: originalStart } = require('repl');
   const {
     asyncEval,
     wrapCallbackError = err => err,

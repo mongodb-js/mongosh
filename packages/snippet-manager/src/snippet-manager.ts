@@ -6,10 +6,8 @@ import path from 'path';
 import { promisify, isDeepStrictEqual } from 'util';
 import { Console } from 'console';
 import { promises as fs } from 'fs';
-import spawn from 'cross-spawn';
 import stream, { PassThrough } from 'stream';
 import { once } from 'events';
-import fetch from 'node-fetch';
 import tar from 'tar';
 import zlib from 'zlib';
 import bson from 'bson';
@@ -152,6 +150,10 @@ export class SnippetManager implements ShellPlugin {
     return this._instanceState.messageBus;
   }
 
+  fetch(url: string) {
+    return require('node-fetch')(url);
+  }
+
   async prepareNpm(): Promise<string[]> {
     const npmdir = path.join(this.installdir, 'node_modules', 'npm');
     const npmclipath = path.join(npmdir, 'bin', 'npm-cli.js');
@@ -181,7 +183,7 @@ export class SnippetManager implements ShellPlugin {
 
     const npmMetadataURL = (await this.registryBaseUrl()) + '/npm/latest';
     interrupted.checkpoint();
-    const npmMetadataResponse = await fetch(npmMetadataURL);
+    const npmMetadataResponse = await this.fetch(npmMetadataURL);
     if (!npmMetadataResponse.ok) {
       this.messageBus.emit('mongosh-snippets:npm-download-failed', { npmMetadataURL, status: npmMetadataResponse.status });
       throw new MongoshRuntimeError(`Failed to download npm: ${npmMetadataURL}: ${npmMetadataResponse.statusText}`);
@@ -194,7 +196,7 @@ export class SnippetManager implements ShellPlugin {
     }
     interrupted.checkpoint();
     await this.print(`Downloading npm from ${npmTarballURL}...`);
-    const npmTarball = await fetch(npmTarballURL);
+    const npmTarball = await this.fetch(npmTarballURL);
     if (!npmTarball.ok) {
       this.messageBus.emit('mongosh-snippets:npm-download-failed', { npmMetadataURL, npmTarballURL, status: npmTarball.status });
       throw new MongoshRuntimeError(`Failed to download npm: ${npmTarballURL}: ${npmTarball.statusText}`);
@@ -241,7 +243,7 @@ export class SnippetManager implements ShellPlugin {
         fetchedFromNetwork = true;
         // Fetch all index files.
         repoData = await Promise.all(sourceURLs.map(async(url: string) => {
-          const repoRes = await fetch(url);
+          const repoRes = await this.fetch(url);
           if (!repoRes.ok) {
             this.messageBus.emit('mongosh-snippets:fetch-index-error', { action: 'fetch', url, status: repoRes.status });
             throw new MongoshRuntimeError(`The specified index file ${url} could not be read: ${repoRes.statusText}`);
@@ -337,6 +339,8 @@ export class SnippetManager implements ShellPlugin {
     const { interrupted } = this._instanceState;
     this.messageBus.emit('mongosh-snippets:spawn-child', { args: [ cmd, ...args ] });
     interrupted.checkpoint();
+
+    const spawn = require('cross-spawn');
     const proc = spawn(cmd, args, {
       cwd: this.installdir,
       env: { ...process.env, MONGOSH_RUN_NODE_SCRIPT: '1' },
