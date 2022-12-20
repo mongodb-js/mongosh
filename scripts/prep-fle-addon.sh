@@ -89,6 +89,6 @@ fi
 if [ x"$FLE_NODE_SOURCE_PATH" != x"" ]; then
   mkdir -p "$FLE_NODE_SOURCE_PATH"/deps/lib
   mkdir -p "$FLE_NODE_SOURCE_PATH"/deps/include
-  cp -rv "$BUILDROOT"/lib/*-static* "$FLE_NODE_SOURCE_PATH"/deps/lib
+  cp -rv "$BUILDROOT"/lib*/*-static* "$FLE_NODE_SOURCE_PATH"/deps/lib
   cp -rv "$BUILDROOT"/include/*{kms,mongocrypt}* "$FLE_NODE_SOURCE_PATH"/deps/include
 fi
