@@ -2056,7 +2056,11 @@ describe('Database', () => {
       });
       it('returns an object with per-collection stats', async() => {
         serviceProvider.listCollections.resolves([{ name: 'abc' }]);
-        serviceProvider.runCommandWithCheck.resolves({ ok: 1, totalSize: 1000 });
+        const expectedResult = { ok: 1, totalSize: 1000 };
+        const tryNext = sinon.stub();
+        tryNext.onCall(0).resolves(expectedResult);
+        tryNext.onCall(1).resolves(null);
+        serviceProvider.aggregate.returns({ tryNext } as any);
         const result = await database.printCollectionStats(1);
         expect(result.value.abc).to.deep.equal({ ok: 1, totalSize: 1000 });
       });

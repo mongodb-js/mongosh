@@ -1081,31 +1081,56 @@ describe('Collection', () => {
     });
 
     describe('stats', () => {
-      it('calls serviceProvider.runCommandWithCheck on the database with no options', async() => {
+      beforeEach(() => {
+        const tryNext = sinon.stub();
+        tryNext.onCall(0).resolves({ value: 1000 });
+        tryNext.onCall(1).resolves(null);
+        serviceProvider.aggregate.returns({ tryNext } as any);
+      });
+
+      it('calls serviceProvider.aggregate on the database with no options', async() => {
         await collection.stats();
 
-        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
-          database._name,
-          { collStats: 'coll1', scale: 1 } // ensure simple collname
-        );
+        expect(serviceProvider.aggregate).to.have.been.calledOnce;
+        expect(serviceProvider.aggregate.firstCall.args[0]).to.equal(database._name);
+        expect(serviceProvider.aggregate.firstCall.args[1]).to.equal(collection._name);
+        expect(serviceProvider.aggregate.firstCall.args[2][0]).to.deep.equal({
+          '$collStats': {
+            storageStats: {
+              scale: 1
+            }
+          }
+        });
       });
 
-      it('calls serviceProvider.runCommandWithCheck on the database with scale option', async() => {
+      it('calls serviceProvider.aggregate on the database with scale option', async() => {
         await collection.stats({ scale: 2 });
 
-        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
-          database._name,
-          { collStats: collection._name, scale: 2 }
-        );
+        expect(serviceProvider.aggregate).to.have.been.calledOnce;
+        expect(serviceProvider.aggregate.firstCall.args[0]).to.equal(database._name);
+        expect(serviceProvider.aggregate.firstCall.args[1]).to.equal(collection._name);
+        expect(serviceProvider.aggregate.firstCall.args[2][0]).to.deep.equal({
+          '$collStats': {
+            storageStats: {
+              scale: 2
+            }
+          }
+        });
       });
 
-      it('calls serviceProvider.runCommandWithCheck on the database with legacy scale', async() => {
+      it('calls serviceProvider.aggregate on the database with legacy scale', async() => {
         await collection.stats(2);
 
-        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
-          database._name,
-          { collStats: collection._name, scale: 2 }
-        );
+        expect(serviceProvider.aggregate).to.have.been.calledOnce;
+        expect(serviceProvider.aggregate.firstCall.args[0]).to.equal(database._name);
+        expect(serviceProvider.aggregate.firstCall.args[1]).to.equal(collection._name);
+        expect(serviceProvider.aggregate.firstCall.args[2][0]).to.deep.equal({
+          '$collStats': {
+            storageStats: {
+              scale: 2
+            }
+          }
+        });
       });
 
       context('indexDetails', () => {
@@ -1114,7 +1139,10 @@ describe('Collection', () => {
         beforeEach(() => {
           expectedResult = { ok: 1, indexDetails: { k1_1: { details: 1 }, k2_1: { details: 2 } } };
           indexesResult = [ { v: 2, key: { k1: 1 }, name: 'k1_1' }, { v: 2, key: { k2: 1 }, name: 'k2_1' }];
-          serviceProvider.runCommandWithCheck.resolves(expectedResult);
+          const tryNext = sinon.stub();
+          tryNext.onCall(0).resolves(expectedResult);
+          tryNext.onCall(1).resolves(null);
+          serviceProvider.aggregate.returns({ tryNext } as any);
           serviceProvider.getIndexes.resolves(indexesResult);
         });
         it('not returned when no args', async() => {
@@ -1174,22 +1202,28 @@ describe('Collection', () => {
         });
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+      it('throws if serviceProvider.aggregate rejects', async() => {
         const expectedError = new Error();
-        serviceProvider.runCommandWithCheck.rejects(expectedError);
+        const tryNext = sinon.stub();
+        tryNext.onCall(0).rejects(expectedError);
+        tryNext.onCall(1).resolves(null);
+        serviceProvider.aggregate.returns({ tryNext } as any);
         const caughtError = await collection.stats()
           .catch(e => e);
         expect(caughtError).to.equal(expectedError);
       });
 
-      it('throws is serviceProvider.runCommandWithCheck returns undefined', async() => {
-        serviceProvider.runCommandWithCheck.resolves(undefined);
+      it('throws if serviceProvider.aggregate returns undefined', async() => {
+        const tryNext = sinon.stub();
+        tryNext.onCall(0).resolves(undefined);
+        tryNext.onCall(1).resolves(null);
+        serviceProvider.aggregate.returns({ tryNext } as any);
         const error = await collection.stats(
           { indexDetails: true, indexDetailsName: 'k2_1' }
         ).catch(e => e);
 
         expect(error).to.be.instanceOf(MongoshRuntimeError);
-        expect(error.message).to.contain('Error running collStats command');
+        expect(error.message).to.contain('Error running $collStats aggregation stage');
       });
     });
 
@@ -1713,7 +1747,7 @@ describe('Collection', () => {
         expect(caughtError).to.equal(expectedError);
       });
 
-      it('throws if optiosn is an object and options.out is not defined', async() => {
+      it('throws if options is an object and options.out is not defined', async() => {
         const error = await collection.mapReduce(mapFn, reduceFn, {}).catch(e => e);
         expect(error).to.be.instanceOf(MongoshInvalidInputError);
         expect(error.message).to.contain('Missing \'out\' option');
