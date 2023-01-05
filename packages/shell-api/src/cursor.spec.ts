@@ -174,7 +174,6 @@ describe('Cursor', () => {
     describe('#close', () => {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
       let shellApiCursor;
-      const options = { skipKillCursors: true };
 
       beforeEach(() => {
         spCursor = stubInterface<ServiceProviderCursor>();
@@ -182,8 +181,8 @@ describe('Cursor', () => {
       });
 
       it('closes the cursor', () => {
-        shellApiCursor.close(options);
-        expect(spCursor.close).to.have.been.calledWith(options);
+        shellApiCursor.close();
+        expect(spCursor.close).to.have.been.called;
       });
     });
 

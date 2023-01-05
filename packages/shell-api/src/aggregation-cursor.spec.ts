@@ -75,7 +75,6 @@ describe('AggregationCursor', () => {
     describe('#close', () => {
       let spCursor: StubbedInstance<SPAggregationCursor>;
       let shellApiCursor;
-      const options = { skipKillCursors: true };
 
       beforeEach(() => {
         spCursor = stubInterface<SPAggregationCursor>();
@@ -83,8 +82,8 @@ describe('AggregationCursor', () => {
       });
 
       it('closes the cursor', () => {
-        shellApiCursor.close(options);
-        expect(spCursor.close).to.have.been.calledWith(options);
+        shellApiCursor.close();
+        expect(spCursor.close).to.have.been.called;
       });
     });
 

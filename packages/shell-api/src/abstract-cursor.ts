@@ -53,8 +53,8 @@ export abstract class AbstractCursor<CursorType extends ServiceProviderAggregati
   }
 
   @returnsPromise
-  async close(options: Document = {}): Promise<void> {
-    await this._cursor.close(options);
+  async close(): Promise<void> {
+    await this._cursor.close();
   }
 
   @returnsPromise
