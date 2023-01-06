@@ -253,7 +253,7 @@ Package|Version|License
 **[mkdirp](#f34eebd27506e3aa07ba3b64064715e0c4f310dad1207ad88fff362353cd4cce)**|1.0.4|MIT
 **[mkdirp-classic](#e79cc875152b50c2eb57a97163d99f0155bf4e4af7ba4a7e01c12a17a4a3305c)**|0.5.3|MIT
 **[mongodb](#1f2ea645752535227d85dfdf2efedb8f05ed7b43b909654e3562ed5ccbeff490)**|4.13.0|Apache-2.0
-**[mongodb-build-info](#1a7482a12b855301c3b063265543999a78d8e0ec3b3ad432782858594febd16c)**|1.4.0|Apache-2.0
+**[mongodb-build-info](#b490c1243a2cfcd0824757c5a177056f5546e98fb08195481f0e093613d59e0e)**|1.5.0|Apache-2.0
 **[mongodb-client-encryption](#4321ebf384404400e1d788d41b9cf9cd6d10069e850727f601eab73d6f9baa0f)**|2.3.0|Apache-2.0
 **[mongodb-connection-string-url](#ce5b616af8be619c9b55d24d0c177a8d7676deb45415078a03235e37f704ae4c)**|2.6.0|Apache-2.0
 **[mongodb-crypt-library-version](#531dc8c5761d69d24f5e39457de5812ed3781da937aa64f94ed6f659bd72c142)**|1.0.3|Apache-2.0
@@ -26076,8 +26076,8 @@ Authors:
 * The MongoDB NodeJS Team <[dbx-node@mongodb.com](nomail)>
 
 
-<a id="1a7482a12b855301c3b063265543999a78d8e0ec3b3ad432782858594febd16c"></a>
-### [mongodb-build-info](https://www.npmjs.com/package/mongodb-build-info) (version 1.4.0)
+<a id="b490c1243a2cfcd0824757c5a177056f5546e98fb08195481f0e093613d59e0e"></a>
+### [mongodb-build-info](https://www.npmjs.com/package/mongodb-build-info) (version 1.5.0)
 <!-- initially found at packages/service-provider-core/node_modules/mongodb-build-info -->
 > Extract information from mongodb's buildInfo
 
