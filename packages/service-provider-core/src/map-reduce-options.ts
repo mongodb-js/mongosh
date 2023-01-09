@@ -1,4 +1,4 @@
-import { CommandOperationOptions, Document, ObjectId, Sort } from 'mongodb';
+import type { CommandOperationOptions, Document, ObjectId, Sort } from 'mongodb';
 
 export type FinalizeFunction<TKey = ObjectId, TValue = Document> = (
   key: TKey,
