@@ -2,8 +2,8 @@
 <%
 const path = require('path');
 
-const NODE_JS_VERSION_14 = '14.20.0';
-const NODE_JS_VERSION_16 = '16.17.0';
+const NODE_JS_VERSION_14 = '14.21.2';
+const NODE_JS_VERSION_16 = '16.19.0';
 
 const MONGODB_VERSIONS = [
   { shortName: '40xc', versionSpec: '4.0.x-community' },
