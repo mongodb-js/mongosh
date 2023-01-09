@@ -26,6 +26,8 @@ import ShellAuthOptions from './shell-auth-options';
 export * from './all-transport-types';
 export * from './all-fle-types';
 
+export { MapReduceOptions, FinalizeFunction } from './map-reduce-options';
+
 const bson = {
   ObjectId,
   DBRef,
