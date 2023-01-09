@@ -1178,10 +1178,10 @@ describe('Shell API (integration)', function() {
 
       it('creates a collection without options', async() => {
         await database.createCollection('newcoll');
-        const stats = await (
+        const stats = (await (
           serviceProvider.aggregate(dbName, 'newcoll', [{ $collStats: { storageStats: {} } }])
-        ).toArray()[0];
-        expect(stats.nindexes).to.equal(1);
+        ).toArray())[0];
+        expect(stats.storageStats.nindexes).to.equal(1);
       });
 
       it('creates a collection with options', async() => {
@@ -1190,13 +1190,13 @@ describe('Shell API (integration)', function() {
           size: 1024,
           max: 5000
         });
-        const stats = await (
+        const stats = (await (
           serviceProvider.aggregate(dbName, 'newcoll', [{ $collStats: { storageStats: {} } }])
-        ).toArray()[0];
-        expect(stats.nindexes).to.equal(1);
-        expect(stats.capped).to.equal(true);
-        expect(stats.maxSize).to.equal(1024);
-        expect(stats.max).to.equal(5000);
+        ).toArray())[0];
+        expect(stats.storageStats.nindexes).to.equal(1);
+        expect(stats.storageStats.capped).to.equal(true);
+        expect(stats.storageStats.maxSize).to.equal(1024);
+        expect(stats.storageStats.max).to.equal(5000);
       });
     });
     describe('createView', () => {
