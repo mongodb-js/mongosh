@@ -1475,6 +1475,33 @@ export default class Collection extends ShellApiWithMongoClass {
     return new Explainable(this._mongo, this, verbosity);
   }
 
+  // TODO: Move to helpers.
+  _scaleIndividualShardStatistics(shardStats: Document, scale: number) {
+    const scaledStats: Document = {}; // TODO: Var renames.
+
+    for (const fieldName of Object.keys(shardStats)) {
+      if (['size', 'maxSize', 'storageSize', 'totalIndexSize', 'totalSize'].includes(fieldName)) {
+        scaledStats[fieldName] = Number(shardStats[fieldName]) / scale;
+      } else if (fieldName === 'scaleFactor') {
+        // Explicitly change the scale factor as we removed the scaling before getting the
+        // individual shards statistics.
+        scaledStats[fieldName] = scale;
+      } else if (fieldName === 'indexSizes') {
+        const scaledIndexSizes: Document = {};
+        for (const indexKey of Object.keys(shardStats[fieldName])) {
+          // TODO: Do we need to number convert?
+          scaledIndexSizes[indexKey] = Number(shardStats[fieldName][indexKey]) / scale;
+        }
+        scaledStats[fieldName] = scaledIndexSizes;
+      } else {
+        // All the other fields that do not require further scaling.
+        scaledStats[fieldName] = shardStats[fieldName];
+      }
+    }
+
+    return scaledStats;
+  }
+
   @returnsPromise
   @apiVersions([])
   async stats(originalOptions: CollStatsShellOptions | number = {}): Promise<Document> {
@@ -1504,272 +1531,31 @@ export default class Collection extends ShellApiWithMongoClass {
 
     this._emitCollectionApiCall('stats', { options });
 
-    const collStatsAggOptions: {
-      storageStats: {
-        scale?: number;
+    // TODO: Should we do the scale different for non-sharded? We can do a quick sharded check re `getShardDistribution`.
+    // TODO: Yes. the current way we're checking this doesn't work
+    // (in a sharded environment we need to say sharded false if the collection is not sharded)
+
+    const collStats = await (await this.aggregate([{
+      $collStats: {
+        storageStats: {
+          // We pass scale `1` and we scale the response ourselves.
+          // We do this because we create one document response based on the multiple
+          // documents the `$collStats` stage returns for sharded collections.
+          scale: 1,
+        }
       }
-    } = {
-      storageStats: {}
-    };
-
-    if (options.scale !== undefined) {
-      collStatsAggOptions.storageStats.scale = options.scale;
-    }
-
-    const cursor = await this.aggregate(
-      [
-        {
-          $collStats: collStatsAggOptions,
-        },
-        {
-          $addFields: {
-            // The unscaled avgObjSize for each shard is used to get the unscaledCollSize because the
-            // raw size returned by the shard is affected by the command's scale parameter.
-            'storageStats.unscaledCollSize': {
-              $multiply: [
-                {
-                  $ifNull: [
-                    '$storageStats.avgObjSize',
-                    0,
-                  ],
-                },
-                {
-                  $ifNull: ['$storageStats.count', 0],
-                },
-              ],
-            },
-            // Give the shard a name so we can later build the `shards` object field
-            // using the shard's name as it's key.
-            'storageStats.shard': '$shard',
-          },
-        },
-        {
-          $group: {
-            _id: null,
-            firstResult: {
-              // Populate the root stats from the first shard's stats.
-              $first: '$$ROOT',
-            },
-            shards: {
-              $push: '$storageStats',
-            },
-            // Sum together the values from each shard.
-            size: {
-              $sum: '$storageStats.size',
-            },
-            count: {
-              $sum: '$storageStats.count',
-            },
-            storageSize: {
-              $sum: '$storageStats.storageSize',
-            },
-            totalIndexSize: {
-              $sum: '$storageStats.totalIndexSize',
-            },
-            totalSize: {
-              $sum: '$storageStats.totalSize',
-            },
-            maxSize: {
-              $max: '$storageStats.maxSize',
-            },
-            // Add up the average object sizes so we can compute one.
-            totalUnscaledCollSize: {
-              $sum: '$storageStats.unscaledCollSize',
-            },
-            // Create an array of all of the index sizes from all of the shards
-            // so we can later use it to compute totals.
-            allIndexSizes: {
-              $push: '$storageStats.indexSizes',
-            },
-          },
-        },
-        {
-          $replaceRoot: {
-            newRoot: {
-              stats: {
-                $mergeObjects: [
-                  '$firstResult',
-                  '$firstResult.storageStats',
-                  {
-                    // Override the first shard's values for
-                    // stats with the summed stats.
-                    shards: '$shards',
-                    size: '$size',
-                    count: '$count',
-                    storageSize: '$storageSize',
-                    totalIndexSize: '$totalIndexSize',
-                    totalSize: '$totalSize',
-                    maxSize: {
-                      $ifNull: ['$maxSize', 0],
-                    },
-                    // The unscaled avgObjSize for each shard is used to get the unscaledCollSize because the
-                    // raw size returned by the shard is affected by the command's scale parameter.
-                    avgObjSize: {
-                      $cond: [
-                        {
-                          $gt: ['$count', 0],
-                        },
-                        {
-                          $divide: [
-                            '$totalUnscaledCollSize',
-                            '$count',
-                          ],
-                        },
-                        0,
-                      ],
-                    },
-                  },
-                ],
-              },
-              allIndexSizes: '$allIndexSizes',
-            },
-          },
-        },
-        {
-          $unwind: {
-            // Create an individual document for each index size.
-            path: '$allIndexSizes',
-          },
-        },
-        {
-          $addFields: {
-            indexSize: {
-              $objectToArray: '$allIndexSizes',
-            },
-          },
-        },
-        {
-          $unwind: {
-            path: '$indexSize',
-            // Some collections like `local.oplog.rs`
-            // don't have indexes.
-            preserveNullAndEmptyArrays: true,
-          },
-        },
-        {
-          $group: {
-            _id: {
-              indexName: '$indexSize.k',
-            },
-            indexSizeAmount: {
-              $sum: '$indexSize.v',
-            },
-            stats: {
-              $first: '$stats',
-            },
-          },
-        },
-        {
-          $project: {
-            _id: 0,
-            indexSize: {
-              $cond: {
-                if: {
-                  $eq: ['$_id.indexName', null],
-                },
-                // Remove indexSize when there aren't any.
-                then: '$$REMOVE',
-                else: {
-                  k: '$_id.indexName',
-                  v: '$indexSizeAmount',
-                },
-              }
-            },
-            stats: 1,
-          },
-        },
-        {
-          $group: {
-            _id: null,
-            indexSizesArray: {
-              $addToSet: '$indexSize',
-            },
-            stats: {
-              $first: '$stats',
-            },
-          },
-        },
-        {
-          $replaceRoot: {
-            newRoot: {
-              $mergeObjects: [
-                '$stats',
-                {
-                  indexSizes: {
-                    $arrayToObject: '$indexSizesArray',
-                  },
-                  sharded: {
-                    $ne: [
-                      {
-                        $ifNull: [
-                          '$stats.shard',
-                          false,
-                        ],
-                      },
-                      false,
-                    ],
-                  },
-                  shardsArray: {
-                    $map: {
-                      input: '$stats.shards',
-                      as: 'shardStats',
-                      in: {
-                        k: '$$shardStats.shard',
-                        v: '$$shardStats',
-                      },
-                    },
-                  },
-                },
-              ],
-            },
-          },
-        },
-        {
-          $project: {
-            // Remove temporary fields used in this pipeline.
-            'shardsArray.v.shard': 0,
-            'shardsArray.v.unscaledCollSize': 0,
-          },
-        },
-        {
-          $addFields: {
-            shards: {
-              $cond: {
-                if: {
-                  $eq: ['$sharded', false],
-                },
-                // Remove shards when not sharded.
-                then: '$$REMOVE',
-                else: {
-                  $arrayToObject: '$shardsArray',
-                },
-              },
-            },
-          },
-        },
-        {
-          $project: {
-            // Hide fields specific to the first shard.
-            storageStats: 0,
-            shard: 0,
-            localTime: 0,
-            host: 0,
-            // Remove temporary values used in the pipeline.
-            unscaledCollSize: 0,
-            shardsArray: 0,
-          },
-        },
-      ]
-    );
-    const results = await cursor.toArray();
+    }])).toArray();
 
     // Unknowns/TODO:
     // - Do we need to provide a fallback for the $collStats agg that calls the deprecated collStats command?
     //      When did $collStats start being supported?
     //      Do we need to provide a temporary fallback for Data Lake until https://jira.mongodb.org/browse/MHOUSE-5872
+    //      Looks like `$collStats` stage fails with `storageStats` supplied
+    //      on sharded time series collections (6.0.3). Asked on slack, might require a fallback.
     // - Is it alright that the output format of db.coll.stats() is changing?
     //      Using the aggregation $collStats stage does not return the same data
-    //      as the deprecated collStats command.
+    //      as the deprecated collStats command. We're making it similar,
+    //      but I don't think it's the same. Let's write a diff.
     // - Previously db.coll.stats() took a number of options like indexDetailsKey
     //      Can we remove those options?
     //      Should the options more transparently map to the $collStats options?
@@ -1784,65 +1570,213 @@ export default class Collection extends ShellApiWithMongoClass {
     // - Do we need to support `numOrphanDocs`?
     //      We'll need to sum it as well in the first aggregation $group stage if so.
     // - Do we need to add special support for time series collections?
+    //      Asked in slack, looks like `$collStats` stage fails with `storageStats` supplied
+    //      on sharded time series collections (6.0.3). Might need a fallback.
     // - Do we have the scale argument handled correctly?
     //      We may need to scale everything ourselves so that the sums work nicely.
 
-    if (!results || !results[0]) {
+    if (!collStats) {
       throw new MongoshRuntimeError(
         `Error running $collStats aggregation stage on ${this.getFullName()}`,
         CommonErrors.CommandFailed
       );
     }
 
-    results[0].ok = 1;
+    const result: Document = {
+      sharded: !!collStats[0]?.shard,
+      ok: 1, // TODO: Is this only for the runCommand form? Or is this valued here?
+    };
 
-    return results[0];
+    const shardStats: {
+      // TODO: Should we strict type this?
+      [shardId: string]: Document
+    } = {};
+    const counts: {
+      [fieldName: string]: number;
+    } = {};
+    const indexSizes: {
+      [indexName: string]: number;
+    } = {};
+    const clusterTimeseriesStats: {
+      [statName: string]: number
+    } = {};
 
-    // // TODO(MONGOSH-1157): Adjust along the lines of the mongos code in
-    // // https://github.com/mongodb/mongo/blob/master/src/mongo/s/commands/cluster_coll_stats_cmd.cpp
-    // const result = await this._database._runCommand(
-    //   {
-    //     collStats: this._name, scale: options.scale
-    //   }
-    // );
+    let maxSize = 0;
+    let unscaledCollSize = 0;
 
-    // let filterIndexName = options.indexDetailsName;
-    // if (!filterIndexName && options.indexDetailsKey) {
-    //   const indexes = await this._mongo._serviceProvider.getIndexes(this._database._name, this._name, await this._database._baseOptions());
-    //   indexes.forEach((spec) => {
-    //     if (JSON.stringify(spec.key) === JSON.stringify(options.indexDetailsKey)) {
-    //       filterIndexName = spec.name;
-    //     }
-    //   });
-    // }
+    let nindexes = 0;
+    let timeseriesBucketsNs: string | undefined;
+    let timeseriesTotalBucketSize = 0;
 
-    // /**
-    //  * Remove indexDetails if options.indexDetails is true. From the old shell code.
-    //  * @param stats
-    //  */
-    // const updateStats = (stats: any): void => {
-    //   if (!stats.indexDetails) {
-    //     return;
-    //   }
-    //   if (!options.indexDetails) {
-    //     delete stats.indexDetails;
-    //     return;
-    //   }
-    //   if (!filterIndexName) {
-    //     return;
-    //   }
-    //   for (const key of Object.keys(stats.indexDetails)) {
-    //     if (key === filterIndexName) {
-    //       continue;
-    //     }
-    //     delete stats.indexDetails[key];
-    //   }
-    // };
-    // updateStats(result);
+    for (const shardResult of collStats) {
+      const shardStorageStats = shardResult.storageStats;
 
-    // for (const shardName of Object.keys(result.shards ?? {})) {
-    //   updateStats(result.shards[shardName]);
-    // }
+      // We don't know the order that we will encounter the count and size, so we save them
+      // until we've iterated through all the fields before updating unscaledCollSize
+      // Timeseries bucket collection does not provide 'count' or 'avgObjSize'.
+      const countField = shardStorageStats.count;
+      const shardObjCount = (typeof countField !== 'undefined') ? countField : 0;
+
+      for (const fieldName of Object.keys(shardStorageStats)) {
+        if (['ns', 'ok', 'lastExtentSize', 'paddingFactor'].includes(fieldName)) {
+          continue;
+        }
+        if (
+          [
+            'userFlags', 'capped', 'max', 'paddingFactorNote', 'indexDetails', 'wiredTiger'
+          ].includes(fieldName)
+        ) {
+          // Fields that are copied from the first shard only, because they need to
+          // match across shards.
+          if (result[fieldName] === undefined) {
+            result[fieldName] = shardStorageStats[fieldName];
+          }
+        } else if (fieldName === 'timeseries') {
+          const shardTimeseriesStats: Document = shardStorageStats[fieldName];
+          for (const [ timeseriesStatName, timeseriesStat ] of Object.entries(shardTimeseriesStats)) {
+            if (typeof timeseriesStat === 'string') {
+              if (!timeseriesBucketsNs) {
+                timeseriesBucketsNs = timeseriesStat;
+              }
+            } else if (timeseriesStatName === 'avgBucketSize') {
+              // Special logic to handle average aggregation.
+              timeseriesTotalBucketSize +=
+                // TODO: Coerce to js number for everything?
+                shardTimeseriesStats.bucketCount * timeseriesStat;
+            } else {
+              // Simple summation for other types of stats.
+              // TODO:
+              // Use 'numberLong' to ensure integers are safely converted to long type.
+              if (clusterTimeseriesStats[timeseriesStatName] === undefined) {
+                clusterTimeseriesStats[timeseriesStatName] = 0;
+              }
+              // TODO: Coerce to js number for everything?
+              clusterTimeseriesStats[timeseriesStatName] += timeseriesStat;
+            }
+          }
+        } else if (
+          // NOTE: `numOrphanDocs` is added in 6.0.
+          ['count', 'size', 'storageSize', 'totalIndexSize', 'totalSize', 'numOrphanDocs'].includes(fieldName)
+        ) {
+          if (counts[fieldName] === undefined) {
+            counts[fieldName] = 0;
+          }
+          // TODO: Coerce to js number for everything?
+          counts[fieldName] += shardStorageStats[fieldName];
+        } else if (fieldName === 'avgObjSize') {
+          const shardAvgObjSize = shardStorageStats[fieldName];
+          // TODO: Coerce to js number for everything?
+          unscaledCollSize += shardAvgObjSize * shardObjCount;
+        } else if (fieldName === 'maxSize') {
+          const shardMaxSize = shardStorageStats[fieldName];
+          maxSize = Math.max(maxSize, shardMaxSize);
+        } else if (fieldName === 'indexSizes') {
+          for (const indexName of Object.keys(shardStorageStats[fieldName])) {
+            if (indexSizes[indexName] === undefined) {
+              indexSizes[indexName] = 0;
+            }
+            // TODO: Coerce to js number for everything?
+            indexSizes[indexName] += shardStorageStats[fieldName][indexName];
+          }
+        } else if (fieldName === 'nindexes') {
+          const myIndexes = shardStorageStats[fieldName];
+
+          if (nindexes === 0) {
+            nindexes = myIndexes;
+          } else if (nindexes === myIndexes) {
+            // no-op
+          } else if (myIndexes > nindexes) {
+            // This hopefully means we're building an index.
+            nindexes = myIndexes;
+          }
+        }
+      }
+
+      if (shardResult.shard) {
+        shardStats[shardResult.shard] = this._scaleIndividualShardStatistics(shardStorageStats, options.scale);
+      }
+    }
+
+    if (!!collStats[0]?.shard) {
+      // TODO: We need a better shard check than this as we need to say if the
+      // individual collection is sharded or not.
+      result.shards = shardStats;
+    }
+
+    for (const [ countField, count ] of Object.entries(counts)) {
+      if (['size', 'storageSize', 'totalIndexSize', 'totalSize'].includes(countField)) {
+        result[countField] = count / (options.scale === undefined ? 1 : options.scale);
+      } else {
+        result[countField] = count;
+      }
+    }
+
+    if (timeseriesBucketsNs && Object.keys(clusterTimeseriesStats).length > 0) {
+      result.timeseries = {
+        ...clusterTimeseriesStats,
+        // Average across all the shards.
+        avgBucketSize: clusterTimeseriesStats.bucketCount
+          ? timeseriesTotalBucketSize / clusterTimeseriesStats.bucketCount
+          : 0,
+        bucketNs: timeseriesBucketsNs
+      };
+    }
+    result.indexSizes = {};
+    for (const [ indexName, indexSize ] of Object.entries(indexSizes)) {
+      // Scale the index sizes with the scale option passed by the user.
+      result.indexSizes[indexName] = indexSize / (options.scale === undefined ? 1 : options.scale);
+    }
+
+    // The unscaled avgObjSize for each shard is used to get the unscaledCollSize because the
+    // raw size returned by the shard is affected by the command's scale parameter
+    if (counts.count > 0) {
+      result.avgObjSize = unscaledCollSize / counts.count;
+    } else {
+      result.avgObjSize = 0;
+    }
+
+    // TODO: Namespace?
+    result.maxSize = maxSize / (options.scale === undefined ? 1 : options.scale);
+    result.nindexes = nindexes;
+    result.scaleFactor = options.scale;
+
+    let filterIndexName = options.indexDetailsName;
+    if (!filterIndexName && options.indexDetailsKey) {
+      const indexes = await this._mongo._serviceProvider.getIndexes(this._database._name, this._name, await this._database._baseOptions());
+      indexes.forEach((spec) => {
+        if (JSON.stringify(spec.key) === JSON.stringify(options.indexDetailsKey)) {
+          filterIndexName = spec.name;
+        }
+      });
+    }
+
+    /**
+     * Remove indexDetails if options.indexDetails is true. From the old shell code.
+     */
+    const updateStats = (stats: Document): void => {
+      if (!stats.indexDetails) {
+        return;
+      }
+      if (!options.indexDetails) {
+        delete stats.indexDetails;
+        return;
+      }
+      if (!filterIndexName) {
+        return;
+      }
+      for (const key of Object.keys(stats.indexDetails)) {
+        if (key === filterIndexName) {
+          continue;
+        }
+        delete stats.indexDetails[key];
+      }
+    };
+    updateStats(result);
+
+    for (const shardName of Object.keys(result.shards ?? {})) {
+      updateStats(result.shards[shardName]);
+    }
+    return result;
   }
 
   @returnsPromise

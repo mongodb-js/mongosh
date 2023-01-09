@@ -702,6 +702,11 @@ describe('Shell API (integration)', function() {
           'wiredTiger'
         );
       });
+
+      // TODO: Show scale.
+      // TODO: Accuracy checks.
+      // TODO: Sharded check.
+      // TODO: Time series check.
     });
 
     describe('drop', () => {
@@ -1173,7 +1178,9 @@ describe('Shell API (integration)', function() {
 
       it('creates a collection without options', async() => {
         await database.createCollection('newcoll');
-        const stats = await serviceProvider.runCommand(dbName, { collStats: 'newcoll' });
+        const stats = await (
+          serviceProvider.aggregate(dbName, 'newcoll', [{ $collStats: { storageStats: {} } }])
+        ).toArray()[0];
         expect(stats.nindexes).to.equal(1);
       });
 
@@ -1183,7 +1190,9 @@ describe('Shell API (integration)', function() {
           size: 1024,
           max: 5000
         });
-        const stats = await serviceProvider.runCommand(dbName, { collStats: 'newcoll' });
+        const stats = await (
+          serviceProvider.aggregate(dbName, 'newcoll', [{ $collStats: { storageStats: {} } }])
+        ).toArray()[0];
         expect(stats.nindexes).to.equal(1);
         expect(stats.capped).to.equal(true);
         expect(stats.maxSize).to.equal(1024);

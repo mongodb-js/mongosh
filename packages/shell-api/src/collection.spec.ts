@@ -1083,7 +1083,7 @@ describe('Collection', () => {
     describe('stats', () => {
       beforeEach(() => {
         const tryNext = sinon.stub();
-        tryNext.onCall(0).resolves({ value: 1000 });
+        tryNext.onCall(0).resolves({ storageStats: {} });
         tryNext.onCall(1).resolves(null);
         serviceProvider.aggregate.returns({ tryNext } as any);
       });
@@ -1137,10 +1137,14 @@ describe('Collection', () => {
         let expectedResult;
         let indexesResult;
         beforeEach(() => {
-          expectedResult = { ok: 1, indexDetails: { k1_1: { details: 1 }, k2_1: { details: 2 } } };
+          expectedResult = {
+            indexDetails: { k1_1: { details: 1 }, k2_1: { details: 2 } },
+          };
           indexesResult = [ { v: 2, key: { k1: 1 }, name: 'k1_1' }, { v: 2, key: { k2: 1 }, name: 'k2_1' }];
           const tryNext = sinon.stub();
-          tryNext.onCall(0).resolves(expectedResult);
+          tryNext.onCall(0).resolves({
+            storageStats: expectedResult
+          });
           tryNext.onCall(1).resolves(null);
           serviceProvider.aggregate.returns({ tryNext } as any);
           serviceProvider.getIndexes.resolves(indexesResult);

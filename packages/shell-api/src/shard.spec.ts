@@ -1504,6 +1504,8 @@ describe('Shard', () => {
             expect(shard.indexDetails._id_.metadata.formatVersion).to.be.a('number');
           }
         });
+        // TODO: Scale output.
+        // TODO: Timeseries?
       });
     });
     describe('collection.isCapped', () => {
