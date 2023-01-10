@@ -30,6 +30,7 @@ import {
   markAsExplainOutput,
   assertArgsDefinedType,
   isValidCollectionName,
+  scaleIndividualShardStatistics,
   shouldRunAggregationImmediately,
   coerceToJSNumber
 } from './helpers';
@@ -1475,115 +1476,39 @@ export default class Collection extends ShellApiWithMongoClass {
     return new Explainable(this._mongo, this, verbosity);
   }
 
-  // TODO: Move to helpers.
-  _scaleIndividualShardStatistics(shardStats: Document, scale: number) {
-    const scaledStats: Document = {}; // TODO: Var renames.
-
-    for (const fieldName of Object.keys(shardStats)) {
-      if (['size', 'maxSize', 'storageSize', 'totalIndexSize', 'totalSize'].includes(fieldName)) {
-        scaledStats[fieldName] = Number(shardStats[fieldName]) / scale;
-      } else if (fieldName === 'scaleFactor') {
-        // Explicitly change the scale factor as we removed the scaling before getting the
-        // individual shards statistics.
-        scaledStats[fieldName] = scale;
-      } else if (fieldName === 'indexSizes') {
-        const scaledIndexSizes: Document = {};
-        for (const indexKey of Object.keys(shardStats[fieldName])) {
-          // TODO: Do we need to number convert?
-          scaledIndexSizes[indexKey] = Number(shardStats[fieldName][indexKey]) / scale;
-        }
-        scaledStats[fieldName] = scaledIndexSizes;
-      } else {
-        // All the other fields that do not require further scaling.
-        scaledStats[fieldName] = shardStats[fieldName];
+  /**
+   * Running the $collStats stage on sharded timeseries clusters
+   * fails on some versions of MongoDB. SERVER-72686
+   * This function provides the deprecated fallback in those instances.
+   */
+  async _getLegacyCollStats(scale?: number) {
+    const result = await this._database._runCommand(
+      {
+        collStats: this._name,
+        scale: scale || 1
       }
-    }
+    );
 
-    return scaledStats;
-  }
-
-  @returnsPromise
-  @apiVersions([])
-  async stats(originalOptions: CollStatsShellOptions | number = {}): Promise<Document> {
-    const options: CollStatsShellOptions =
-      typeof originalOptions === 'number' ? { scale: originalOptions } : originalOptions;
-
-    if (options.indexDetailsKey && options.indexDetailsName) {
-      throw new MongoshInvalidInputError(
-        'Cannot filter indexDetails on both indexDetailsKey and indexDetailsName',
-        CommonErrors.InvalidArgument
-      );
-    }
-    if (options.indexDetailsKey && typeof options.indexDetailsKey !== 'object') {
-      throw new MongoshInvalidInputError(
-        `Expected options.indexDetailsKey to be a document, got ${typeof options.indexDetailsKey}`,
-        CommonErrors.InvalidArgument
-      );
-    }
-    if (options.indexDetailsName && typeof options.indexDetailsName !== 'string') {
-      throw new MongoshInvalidInputError(
-        `Expected options.indexDetailsName to be a string, got ${typeof options.indexDetailsName}`,
-        CommonErrors.InvalidArgument
-      );
-    }
-    options.scale = options.scale || 1;
-    options.indexDetails = options.indexDetails || false;
-
-    this._emitCollectionApiCall('stats', { options });
-
-    // TODO: Should we do the scale different for non-sharded? We can do a quick sharded check re `getShardDistribution`.
-    // TODO: Yes. the current way we're checking this doesn't work
-    // (in a sharded environment we need to say sharded false if the collection is not sharded)
-
-    const collStats = await (await this.aggregate([{
-      $collStats: {
-        storageStats: {
-          // We pass scale `1` and we scale the response ourselves.
-          // We do this because we create one document response based on the multiple
-          // documents the `$collStats` stage returns for sharded collections.
-          scale: 1,
-        }
-      }
-    }])).toArray();
-
-    // Unknowns/TODO:
-    // - Do we need to provide a fallback for the $collStats agg that calls the deprecated collStats command?
-    //      When did $collStats start being supported?
-    //      Do we need to provide a temporary fallback for Data Lake until https://jira.mongodb.org/browse/MHOUSE-5872
-    //      Looks like `$collStats` stage fails with `storageStats` supplied
-    //      on sharded time series collections (6.0.3). Asked on slack, might require a fallback.
-    // - Is it alright that the output format of db.coll.stats() is changing?
-    //      Using the aggregation $collStats stage does not return the same data
-    //      as the deprecated collStats command. We're making it similar,
-    //      but I don't think it's the same. Let's write a diff.
-    // - Previously db.coll.stats() took a number of options like indexDetailsKey
-    //      Can we remove those options?
-    //      Should the options more transparently map to the $collStats options?
-    //      Can we remove the legacy scale argument handling?
-    //      My thoughts:
-    //        - Let's try to remove all of them if we can.
-    //        - Could be a major changes if folks are actively depending on them.
-    // - Previously db.coll.stats() would error on view.
-    //      We could make it so that it doesn't supply the storageStats option on views for the agg
-    //      so that it doesn't error... do we want to?
-    //      My thoughts: Not much data to give back, so I'm thinking no. (looks like it would only be returning `ns`, `host`, and `localTime`).
-    // - Do we need to support `numOrphanDocs`?
-    //      We'll need to sum it as well in the first aggregation $group stage if so.
-    // - Do we need to add special support for time series collections?
-    //      Asked in slack, looks like `$collStats` stage fails with `storageStats` supplied
-    //      on sharded time series collections (6.0.3). Might need a fallback.
-    // - Do we have the scale argument handled correctly?
-    //      We may need to scale everything ourselves so that the sums work nicely.
-
-    if (!collStats) {
+    if (!result) {
       throw new MongoshRuntimeError(
-        `Error running $collStats aggregation stage on ${this.getFullName()}`,
+        `Error running collStats command on ${this.getFullName()}`,
         CommonErrors.CommandFailed
       );
     }
 
+    return result;
+  }
+
+  /**
+   * Build a single scaled collection stats result document from the
+   * potentially multiple documents returned from the `$collStats` aggregation
+   * result. We run the aggregation stage with scale 1 and scale it here
+   * in order to accurately scale the summation of stats across various shards.
+   */
+  async _aggregateAndScaleCollStats(collStats: Document[], scale?: number) {
+    const scaleFactor = (scale === undefined ? 1 : scale);
+
     const result: Document = {
-      sharded: !!collStats[0]?.shard,
       ok: 1, // TODO: Is this only for the runCommand form? Or is this valued here?
     };
 
@@ -1655,7 +1580,7 @@ export default class Collection extends ShellApiWithMongoClass {
             }
           }
         } else if (
-          // NOTE: `numOrphanDocs` is added in 6.0.
+          // NOTE: `numOrphanDocs` is new in 6.0.
           ['count', 'size', 'storageSize', 'totalIndexSize', 'totalSize', 'numOrphanDocs'].includes(fieldName)
         ) {
           if (counts[fieldName] === undefined) {
@@ -1679,33 +1604,40 @@ export default class Collection extends ShellApiWithMongoClass {
             indexSizes[indexName] += shardStorageStats[fieldName][indexName];
           }
         } else if (fieldName === 'nindexes') {
-          const myIndexes = shardStorageStats[fieldName];
+          const shardIndexes = shardStorageStats[fieldName];
 
           if (nindexes === 0) {
-            nindexes = myIndexes;
-          } else if (nindexes === myIndexes) {
-            // no-op
-          } else if (myIndexes > nindexes) {
+            nindexes = shardIndexes;
+          } else if (shardIndexes > nindexes) {
             // This hopefully means we're building an index.
-            nindexes = myIndexes;
+            nindexes = shardIndexes;
           }
         }
       }
 
       if (shardResult.shard) {
-        shardStats[shardResult.shard] = this._scaleIndividualShardStatistics(shardStorageStats, options.scale);
+        shardStats[shardResult.shard] = scaleIndividualShardStatistics(shardStorageStats, scaleFactor);
       }
     }
 
-    if (!!collStats[0]?.shard) {
-      // TODO: We need a better shard check than this as we need to say if the
-      // individual collection is sharded or not.
+    const ns = `${this._database._name}.${this._name}`;
+    const config = this._mongo.getDB('config');
+    const isCollectionSharded = !!(await config.getCollection('collections').findOne({
+      _id: ns,
+      // Dropped is gone on newer server versions, so check for !== true
+      // rather than for === false (SERVER-51880 and related).
+      dropped: { $ne: true }
+    }));
+    if (isCollectionSharded) {
       result.shards = shardStats;
+      result.sharded = true;
+    } else {
+      result.sharded = false;
     }
 
     for (const [ countField, count ] of Object.entries(counts)) {
       if (['size', 'storageSize', 'totalIndexSize', 'totalSize'].includes(countField)) {
-        result[countField] = count / (options.scale === undefined ? 1 : options.scale);
+        result[countField] = count / scaleFactor;
       } else {
         result[countField] = count;
       }
@@ -1724,7 +1656,7 @@ export default class Collection extends ShellApiWithMongoClass {
     result.indexSizes = {};
     for (const [ indexName, indexSize ] of Object.entries(indexSizes)) {
       // Scale the index sizes with the scale option passed by the user.
-      result.indexSizes[indexName] = indexSize / (options.scale === undefined ? 1 : options.scale);
+      result.indexSizes[indexName] = indexSize / scaleFactor;
     }
 
     // The unscaled avgObjSize for each shard is used to get the unscaledCollSize because the
@@ -1735,10 +1667,106 @@ export default class Collection extends ShellApiWithMongoClass {
       result.avgObjSize = 0;
     }
 
-    // TODO: Namespace?
-    result.maxSize = maxSize / (options.scale === undefined ? 1 : options.scale);
+    result.ns = ns;
+    result.maxSize = maxSize / scaleFactor;
     result.nindexes = nindexes;
-    result.scaleFactor = options.scale;
+    result.scaleFactor = scaleFactor;
+    result.ok = 1;
+
+    return result;
+  }
+
+  async _getAggregatedCollStats(scale?: number) {
+    try {
+      const collStats = await (await this.aggregate([{
+        $collStats: {
+          storageStats: {
+            // We pass scale `1` and we scale the response ourselves.
+            // We do this because we create one document response based on the multiple
+            // documents the `$collStats` stage returns for sharded collections.
+            scale: 1,
+          }
+        }
+      }])).toArray();
+
+      if (!collStats || collStats[0] === undefined) {
+        throw new MongoshRuntimeError(
+          `Error running $collStats aggregation stage on ${this.getFullName()}`,
+          CommonErrors.CommandFailed
+        );
+      }
+
+      const aggregatedCollStats = await this._aggregateAndScaleCollStats(collStats);
+      return aggregatedCollStats;
+    } catch (e: any) {
+      if (e?.code === 13388) {
+        // Fallback to the deprecated way of fetching that folks can still
+        // fetch the stats of sharded timeseries collections. SERVER-72686
+        try {
+          const legacyCollStatsResult = await this._getLegacyCollStats(scale);
+          return legacyCollStatsResult;
+        } catch (legacyCollStatsError) {
+          // Surface the original error when the fallback.
+          throw e;
+        }
+      }
+      throw e;
+    }
+  }
+
+  @returnsPromise
+  @apiVersions([])
+  async stats(originalOptions: CollStatsShellOptions | number = {}): Promise<Document> {
+    const options: CollStatsShellOptions =
+      typeof originalOptions === 'number' ? { scale: originalOptions } : originalOptions;
+
+    if (options.indexDetailsKey && options.indexDetailsName) {
+      throw new MongoshInvalidInputError(
+        'Cannot filter indexDetails on both indexDetailsKey and indexDetailsName',
+        CommonErrors.InvalidArgument
+      );
+    }
+    if (options.indexDetailsKey && typeof options.indexDetailsKey !== 'object') {
+      throw new MongoshInvalidInputError(
+        `Expected options.indexDetailsKey to be a document, got ${typeof options.indexDetailsKey}`,
+        CommonErrors.InvalidArgument
+      );
+    }
+    if (options.indexDetailsName && typeof options.indexDetailsName !== 'string') {
+      throw new MongoshInvalidInputError(
+        `Expected options.indexDetailsName to be a string, got ${typeof options.indexDetailsName}`,
+        CommonErrors.InvalidArgument
+      );
+    }
+    options.scale = options.scale || 1;
+    options.indexDetails = options.indexDetails || false;
+
+    this._emitCollectionApiCall('stats', { options });
+
+    const result = await this._getAggregatedCollStats(options.scale);
+
+    // Unknowns/TODO:
+    // - Do we want to use the fallback for Data Lake until https://jira.mongodb.org/browse/MHOUSE-5872
+    // - Is it alright that the output format of db.coll.stats() is changing?
+    //      Using the aggregation $collStats stage does not return the same data
+    //      as the deprecated collStats command. We're making it similar,
+    //      but I don't think it's the same. Let's write a diff. `primary` for instance is not given now.
+    // - Previously db.coll.stats() took a number of options like indexDetailsKey
+    //      Can we remove those options?
+    //      Should the options more transparently map to the $collStats options?
+    //      Can we remove the legacy scale argument handling?
+    //      Original server ticket: https://jira.mongodb.org/browse/SERVER-16782
+    //      My thoughts:
+    //        - Let's try to remove all of them if we can but that should be in a separate pr with a separate ticket.
+    // - Previously db.coll.stats() would error on view.
+    //      We could make it so that it doesn't supply the storageStats option on views for the agg
+    //      so that it doesn't error... do we want to?
+    //      My thoughts: Not much data to give back, so I'm thinking no. (looks like it would only be returning `ns`, `host`, and `localTime`).
+    // - Do we have the scale argument handled correctly?
+    //      We may need to scale everything ourselves so that the sums work nicely.
+    // - Do we want to keep passing `ok: 1` in the command result?
+    //      Now that we're using the aggregation it's something we're adding ourselves.
+    // - Is the way we're checking for sharding okay? Is there a better way? Does the current way require permissions?
 
     let filterIndexName = options.indexDetailsName;
     if (!filterIndexName && options.indexDetailsKey) {

@@ -1507,6 +1507,43 @@ describe('Shard', () => {
         // TODO: Scale output.
         // TODO: Timeseries?
       });
+      // context('sharded timeseries collections', () => {
+      //   beforeEach(async() => {
+      //     expect((await sh.enableSharding(dbName)).ok).to.equal(1);
+      //     expect((await sh.shardCollection(ns, { key: 1 })).collectionsharded).to.equal(ns);
+      //   });
+
+      //   it('works without indexDetails', async() => {
+      //     const result = await db.getCollection('test').stats();
+      //     expect(result.sharded).to.equal(true);
+      //     expect(result.count).to.equal(1);
+      //     expect(result.primary).to.equal(undefined);
+      //     for (const shard of Object.values(result.shards) as any[]) {
+      //       if (hasTotalSize) {
+      //         expect(shard.totalSize).to.be.a('number');
+      //       }
+      //       expect(shard.indexDetails).to.equal(undefined);
+      //     }
+      //   });
+      //   it('works with indexDetails', async() => {
+      //     const result = await db.getCollection('test').stats({ indexDetails: true });
+      //     for (const shard of Object.values(result.shards) as any[]) {
+      //       if (hasTotalSize) {
+      //         expect(shard.totalSize).to.be.a('number');
+      //       }
+      //       expect(shard.indexDetails._id_.metadata.formatVersion).to.be.a('number');
+      //     }
+      //   });
+      //   it('scales the results properly', async() => {
+      //     const result = await db.getCollection('test').stats({ indexDetails: true });
+      //     for (const shard of Object.values(result.shards) as any[]) {
+      //       if (hasTotalSize) {
+      //         expect(shard.totalSize).to.be.a('number');
+      //       }
+      //       expect(shard.indexDetails._id_.metadata.formatVersion).to.be.a('number');
+      //     }
+      //   });
+      // });
     });
     describe('collection.isCapped', () => {
       it('returns true for config.changelog', async() => {

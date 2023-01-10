@@ -702,11 +702,6 @@ describe('Shell API (integration)', function() {
           'wiredTiger'
         );
       });
-
-      // TODO: Show scale.
-      // TODO: Accuracy checks.
-      // TODO: Sharded check.
-      // TODO: Time series check.
     });
 
     describe('drop', () => {

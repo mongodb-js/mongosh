@@ -1,4 +1,10 @@
-import { assertArgsDefinedType, coerceToJSNumber, dataFormat, getPrintableShardStatus } from './helpers';
+import {
+  assertArgsDefinedType,
+  coerceToJSNumber,
+  dataFormat,
+  getPrintableShardStatus,
+  scaleIndividualShardStatistics
+} from './helpers';
 import { Database, Mongo, ShellInstanceState } from './index';
 import constructShellBson from './shell-bson';
 import { ServiceProvider, bson } from '@mongosh/service-provider-core';
@@ -227,5 +233,73 @@ describe('coerceToJSNumber', () => {
     expect(coerceToJSNumber(new bson.Long(0))).to.equal(0);
     expect(coerceToJSNumber(new bson.Long('9223372036854775807'))).to.equal(9223372036854776000);
     expect(coerceToJSNumber(new bson.Double(1e30))).to.equal(1e30);
+  });
+});
+
+describe('scaleIndividualShardStatistics', () => {
+  it('scales the individual shard statistics according to the scale 10', () => {
+    const result = scaleIndividualShardStatistics({
+      size: 200,
+      maxSize: 2000, // Capped collection.
+      storageSize: 180, // Can be smaller than `size` when the data is compressed.
+      totalIndexSize: 50,
+      totalSize: 230, // New in 4.4. (sum of storageSize and totalIndexSize)
+      scaleFactor: 1,
+      capped: true,
+      wiredTiger: {},
+      ns: 'test.test',
+      indexSizes: {
+        _id: 20,
+        name: 30
+      }
+    }, 10);
+
+    expect(result).to.deep.equal({
+      size: 20,
+      maxSize: 200, // Capped collection.
+      storageSize: 18, // Can be smaller than `size` when the data is compressed.
+      totalIndexSize: 5,
+      totalSize: 23, // New in 4.4. (sum of storageSize and totalIndexSize)
+      scaleFactor: 10,
+      capped: true,
+      wiredTiger: {},
+      ns: 'test.test',
+      indexSizes: {
+        _id: 2,
+        name: 3
+      }
+    });
+  });
+
+  it('scales the individual shard statistics according to the scale 1', () => {
+    const result = scaleIndividualShardStatistics({
+      size: 200,
+      storageSize: 180, // Can be smaller than `size` when the data is compressed.
+      totalIndexSize: 50,
+      totalSize: 230, // New in 4.4. (sum of storageSize and totalIndexSize)
+      scaleFactor: 1,
+      capped: true,
+      wiredTiger: {},
+      ns: 'test.test',
+      indexSizes: {
+        _id: 20,
+        name: 30
+      }
+    }, 1);
+
+    expect(result).to.deep.equal({
+      size: 200,
+      storageSize: 180, // Can be smaller than `size` when the data is compressed.
+      totalIndexSize: 50,
+      totalSize: 230, // New in 4.4. (sum of storageSize and totalIndexSize)
+      scaleFactor: 1,
+      capped: true,
+      wiredTiger: {},
+      ns: 'test.test',
+      indexSizes: {
+        _id: 20,
+        name: 30
+      }
+    });
   });
 });
