@@ -702,6 +702,31 @@ describe('Shell API (integration)', function() {
           'wiredTiger'
         );
       });
+
+      context('with a capped collection', () => {
+        const cappedCollectionName = 'cappedcoll';
+        beforeEach(async() => {
+          await serviceProvider.createCollection(
+            dbName,
+            cappedCollectionName,
+            {
+              capped: true,
+              size: 8192,
+              max: 5000
+            }
+          );
+        });
+
+        it('returns the scaled maxSize', async() => {
+          const cappedCollection = database.getCollection(cappedCollectionName);
+          const stats = await cappedCollection.stats({ scale: 1024 });
+
+          expect(stats.maxSize).to.equal(8);
+          expect(stats.max).to.equal(5000);
+        });
+      });
+
+      // TODO: Time series collection.
     });
 
     describe('drop', () => {

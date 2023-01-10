@@ -1469,13 +1469,19 @@ describe('Shard', () => {
           expect(result.sharded).to.equal(false);
           expect(result.count).to.equal(1);
           if (hasTotalSize) {
-            expect(result.shards[result.primary].totalSize).to.be.a('number');
+            for (const shardId of Object.keys(result.shards)) {
+              expect(result.shards[shardId].totalSize).to.be.a('number');
+            }
           }
-          expect(result.shards[result.primary].indexDetails).to.equal(undefined);
+          for (const shardId of Object.keys(result.shards)) {
+            expect(result.shards[shardId].indexDetails).to.equal(undefined);
+          }
         });
         it('works with indexDetails', async() => {
           const result = await db.getCollection('test').stats({ indexDetails: true });
-          expect(result.shards[result.primary].indexDetails._id_.metadata.formatVersion).to.be.a('number');
+          for (const shardId of Object.keys(result.shards)) {
+            expect(result.shards[shardId].indexDetails._id_.metadata.formatVersion).to.be.a('number');
+          }
         });
       });
       context('sharded collections', () => {
@@ -1504,46 +1510,103 @@ describe('Shard', () => {
             expect(shard.indexDetails._id_.metadata.formatVersion).to.be.a('number');
           }
         });
-        // TODO: Scale output.
-        // TODO: Timeseries?
-      });
-      // context('sharded timeseries collections', () => {
-      //   beforeEach(async() => {
-      //     expect((await sh.enableSharding(dbName)).ok).to.equal(1);
-      //     expect((await sh.shardCollection(ns, { key: 1 })).collectionsharded).to.equal(ns);
-      //   });
+        it('returns scaled output', async() => {
+          const scaleFactor = 1024;
+          const unscaledResult = await db.getCollection('test').stats();
+          const scaledResult = await db.getCollection('test').stats(scaleFactor);
 
-      //   it('works without indexDetails', async() => {
-      //     const result = await db.getCollection('test').stats();
-      //     expect(result.sharded).to.equal(true);
-      //     expect(result.count).to.equal(1);
-      //     expect(result.primary).to.equal(undefined);
-      //     for (const shard of Object.values(result.shards) as any[]) {
-      //       if (hasTotalSize) {
-      //         expect(shard.totalSize).to.be.a('number');
-      //       }
-      //       expect(shard.indexDetails).to.equal(undefined);
-      //     }
-      //   });
-      //   it('works with indexDetails', async() => {
-      //     const result = await db.getCollection('test').stats({ indexDetails: true });
-      //     for (const shard of Object.values(result.shards) as any[]) {
-      //       if (hasTotalSize) {
-      //         expect(shard.totalSize).to.be.a('number');
-      //       }
-      //       expect(shard.indexDetails._id_.metadata.formatVersion).to.be.a('number');
-      //     }
-      //   });
-      //   it('scales the results properly', async() => {
-      //     const result = await db.getCollection('test').stats({ indexDetails: true });
-      //     for (const shard of Object.values(result.shards) as any[]) {
-      //       if (hasTotalSize) {
-      //         expect(shard.totalSize).to.be.a('number');
-      //       }
-      //       expect(shard.indexDetails._id_.metadata.formatVersion).to.be.a('number');
-      //     }
-      //   });
-      // });
+          const scaledProperties = ['size', 'storageSize', 'totalIndexSize', 'totalSize'];
+          for (const scaledProperty of scaledProperties) {
+            expect(
+              unscaledResult[scaledProperty] / scaledResult[scaledProperty]
+            ).to.equal(
+              scaleFactor,
+              `Expected scaled property "${scaledProperty}" to be scaled. ${unscaledResult[scaledProperty]} should equal ${scaleFactor}*${scaledResult[scaledProperty]}`
+            );
+            for (const shardId of Object.keys(scaledResult.shards)) {
+              expect(
+                unscaledResult.shards[shardId][scaledProperty] / scaledResult.shards[shardId][scaledProperty]
+              ).to.equal(scaleFactor);
+            }
+          }
+
+          for (const indexId of Object.keys(scaledResult.indexSizes)) {
+            expect(unscaledResult.indexSizes[indexId] / scaledResult.indexSizes[indexId]).to.equal(scaleFactor);
+          }
+          for (const shardId of Object.keys(scaledResult.shards)) {
+            for (const indexId of Object.keys(scaledResult.shards[shardId].indexSizes)) {
+              expect(unscaledResult.shards[shardId].indexSizes[indexId] / scaledResult.shards[shardId].indexSizes[indexId]).to.equal(scaleFactor);
+            }
+          }
+
+          expect(unscaledResult.scaleFactor).to.equal(1);
+          expect(scaledResult.scaleFactor).to.equal(1024);
+
+          for (const shardStats of Object.values(unscaledResult.shards as {
+            scaleFactor: number
+          }[])) {
+            expect(shardStats.scaleFactor).to.equal(1);
+          }
+          for (const shardStats of Object.values(scaledResult.shards as {
+            scaleFactor: number
+          }[])) {
+            expect(shardStats.scaleFactor).to.equal(1024);
+          }
+        });
+      });
+
+      // We explicitly test sharded time series collections as it uses the legacy
+      // `collStats` command as a fallback instead of the aggregation format. SERVER-72686
+      context('sharded timeseries collections', () => {
+        skipIfServerVersion(mongos, '< 5.1');
+
+        const timeseriesCollectionName = 'testTS';
+        const timeseriesNS = `${dbName}.${timeseriesCollectionName}`;
+
+        beforeEach(async() => {
+          expect((await sh.enableSharding(dbName)).ok).to.equal(1);
+
+          expect((await sh.shardCollection(
+            timeseriesNS,
+            { 'metadata.bucketId': 1 },
+            {
+              timeseries: {
+                timeField: 'timestamp',
+                metaField: 'metadata',
+                granularity: 'hours'
+              }
+            }
+          )).collectionsharded).to.equal(timeseriesNS);
+          await db.getCollection(timeseriesCollectionName).insertOne({
+            metadata: {
+              bucketId: 1,
+              type: 'temperature'
+            },
+            timestamp: new Date('2021-05-18T00:00:00.000Z'),
+            temp: 12
+          });
+        });
+
+        it('returns the collection stats', async() => {
+          const result = await db.getCollection(timeseriesCollectionName).stats();
+          expect(result.sharded).to.equal(true);
+          // Timeseries bucket collection does not provide 'count' or 'avgObjSize'.
+          expect(result.count).to.equal(undefined);
+          expect(result.primary).to.equal(undefined);
+          for (const shard of Object.values(result.shards) as any[]) {
+            if (hasTotalSize) {
+              expect(shard.totalSize).to.be.a('number');
+            }
+            expect(shard.indexDetails).to.equal(undefined);
+            expect(shard.timeseries.bucketsNs).to.equal(`${dbName}.system.buckets.${timeseriesCollectionName}`);
+            expect(shard.timeseries.numBucketUpdates).to.equal(0);
+            expect(typeof result.timeseries.bucketCount).to.equal('number');
+          }
+          expect(result.timeseries.bucketsNs).to.equal(`${dbName}.system.buckets.${timeseriesCollectionName}`);
+          expect(result.timeseries.bucketCount).to.equal(1);
+          expect(result.timeseries.numBucketInserts).to.equal(1);
+        });
+      });
     });
     describe('collection.isCapped', () => {
       it('returns true for config.changelog', async() => {

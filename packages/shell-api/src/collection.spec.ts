@@ -1143,15 +1143,10 @@ describe('Collection', () => {
       context('deprecated fallback', () => {
         context('when the aggregation fails with error code that is not `13388`', () => {
           beforeEach(() => {
-            // const getCollStats = sinon.stub();
-            // getCollStats.onCall(0).resolves({ storageStats: {} });
-            // serviceProvider.runCommandWithCheck.resolves(expectedResult);
-
             const tryNext = sinon.stub();
             const mockError: any = new Error('test error');
             mockError.code = 123;
             tryNext.onCall(0).rejects(mockError);
-            // tryNext.onCall(1).resolves(null);
             serviceProvider.aggregate.returns({ tryNext } as any);
           });
 
@@ -1165,15 +1160,10 @@ describe('Collection', () => {
 
         context('when the aggregation fails with error code `13388`', () => {
           beforeEach(() => {
-            // const getCollStats = sinon.stub();
-            // getCollStats.onCall(0).resolves({ storageStats: {} });
-            // serviceProvider.runCommandWithCheck.resolves(expectedResult);
-
             const tryNext = sinon.stub();
             const mockError: any = new Error('test error');
             mockError.code = 13388;
             tryNext.onCall(0).rejects(mockError);
-            // tryNext.onCall(1).resolves(null);
             serviceProvider.aggregate.returns({ tryNext } as any);
           });
 

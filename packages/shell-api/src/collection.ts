@@ -1481,7 +1481,7 @@ export default class Collection extends ShellApiWithMongoClass {
    * fails on some versions of MongoDB. SERVER-72686
    * This function provides the deprecated fallback in those instances.
    */
-  async _getLegacyCollStats(scale?: number) {
+  async _getLegacyCollStats(scale: number) {
     const result = await this._database._runCommand(
       {
         collStats: this._name,
@@ -1505,15 +1505,12 @@ export default class Collection extends ShellApiWithMongoClass {
    * result. We run the aggregation stage with scale 1 and scale it here
    * in order to accurately scale the summation of stats across various shards.
    */
-  async _aggregateAndScaleCollStats(collStats: Document[], scale?: number) {
-    const scaleFactor = (scale === undefined ? 1 : scale);
-
+  async _aggregateAndScaleCollStats(collStats: Document[], scale: number) {
     const result: Document = {
-      ok: 1, // TODO: Is this only for the runCommand form? Or is this valued here?
+      ok: 1,
     };
 
     const shardStats: {
-      // TODO: Should we strict type this?
       [shardId: string]: Document
     } = {};
     const counts: {
@@ -1564,18 +1561,12 @@ export default class Collection extends ShellApiWithMongoClass {
                 timeseriesBucketsNs = timeseriesStat;
               }
             } else if (timeseriesStatName === 'avgBucketSize') {
-              // Special logic to handle average aggregation.
-              timeseriesTotalBucketSize +=
-                // TODO: Coerce to js number for everything?
-                shardTimeseriesStats.bucketCount * timeseriesStat;
+              timeseriesTotalBucketSize += shardTimeseriesStats.bucketCount * timeseriesStat;
             } else {
               // Simple summation for other types of stats.
-              // TODO:
-              // Use 'numberLong' to ensure integers are safely converted to long type.
               if (clusterTimeseriesStats[timeseriesStatName] === undefined) {
                 clusterTimeseriesStats[timeseriesStatName] = 0;
               }
-              // TODO: Coerce to js number for everything?
               clusterTimeseriesStats[timeseriesStatName] += timeseriesStat;
             }
           }
@@ -1586,11 +1577,9 @@ export default class Collection extends ShellApiWithMongoClass {
           if (counts[fieldName] === undefined) {
             counts[fieldName] = 0;
           }
-          // TODO: Coerce to js number for everything?
           counts[fieldName] += shardStorageStats[fieldName];
         } else if (fieldName === 'avgObjSize') {
           const shardAvgObjSize = shardStorageStats[fieldName];
-          // TODO: Coerce to js number for everything?
           unscaledCollSize += shardAvgObjSize * shardObjCount;
         } else if (fieldName === 'maxSize') {
           const shardMaxSize = shardStorageStats[fieldName];
@@ -1600,7 +1589,6 @@ export default class Collection extends ShellApiWithMongoClass {
             if (indexSizes[indexName] === undefined) {
               indexSizes[indexName] = 0;
             }
-            // TODO: Coerce to js number for everything?
             indexSizes[indexName] += shardStorageStats[fieldName][indexName];
           }
         } else if (fieldName === 'nindexes') {
@@ -1616,28 +1604,25 @@ export default class Collection extends ShellApiWithMongoClass {
       }
 
       if (shardResult.shard) {
-        shardStats[shardResult.shard] = scaleIndividualShardStatistics(shardStorageStats, scaleFactor);
+        shardStats[shardResult.shard] = scaleIndividualShardStatistics(shardStorageStats, scale);
       }
     }
 
     const ns = `${this._database._name}.${this._name}`;
     const config = this._mongo.getDB('config');
-    const isCollectionSharded = !!(await config.getCollection('collections').findOne({
+    if (collStats[0].shard) {
+      result.shards = shardStats;
+    }
+    result.sharded = !!(await config.getCollection('collections').findOne({
       _id: ns,
       // Dropped is gone on newer server versions, so check for !== true
       // rather than for === false (SERVER-51880 and related).
       dropped: { $ne: true }
     }));
-    if (isCollectionSharded) {
-      result.shards = shardStats;
-      result.sharded = true;
-    } else {
-      result.sharded = false;
-    }
 
     for (const [ countField, count ] of Object.entries(counts)) {
       if (['size', 'storageSize', 'totalIndexSize', 'totalSize'].includes(countField)) {
-        result[countField] = count / scaleFactor;
+        result[countField] = count / scale;
       } else {
         result[countField] = count;
       }
@@ -1650,13 +1635,13 @@ export default class Collection extends ShellApiWithMongoClass {
         avgBucketSize: clusterTimeseriesStats.bucketCount
           ? timeseriesTotalBucketSize / clusterTimeseriesStats.bucketCount
           : 0,
-        bucketNs: timeseriesBucketsNs
+        bucketsNs: timeseriesBucketsNs
       };
     }
     result.indexSizes = {};
     for (const [ indexName, indexSize ] of Object.entries(indexSizes)) {
       // Scale the index sizes with the scale option passed by the user.
-      result.indexSizes[indexName] = indexSize / scaleFactor;
+      result.indexSizes[indexName] = indexSize / scale;
     }
 
     // The unscaled avgObjSize for each shard is used to get the unscaledCollSize because the
@@ -1668,15 +1653,15 @@ export default class Collection extends ShellApiWithMongoClass {
     }
 
     result.ns = ns;
-    result.maxSize = maxSize / scaleFactor;
+    result.maxSize = maxSize / scale;
     result.nindexes = nindexes;
-    result.scaleFactor = scaleFactor;
+    result.scaleFactor = scale;
     result.ok = 1;
 
     return result;
   }
 
-  async _getAggregatedCollStats(scale?: number) {
+  async _getAggregatedCollStats(scale: number) {
     try {
       const collStats = await (await this.aggregate([{
         $collStats: {
@@ -1696,7 +1681,7 @@ export default class Collection extends ShellApiWithMongoClass {
         );
       }
 
-      const aggregatedCollStats = await this._aggregateAndScaleCollStats(collStats);
+      const aggregatedCollStats = await this._aggregateAndScaleCollStats(collStats, scale);
       return aggregatedCollStats;
     } catch (e: any) {
       if (e?.code === 13388) {
@@ -1750,7 +1735,9 @@ export default class Collection extends ShellApiWithMongoClass {
     // - Is it alright that the output format of db.coll.stats() is changing?
     //      Using the aggregation $collStats stage does not return the same data
     //      as the deprecated collStats command. We're making it similar,
-    //      but I don't think it's the same. Let's write a diff. `primary` for instance is not given now.
+    //      but I don't think it's the same. Let's write a diff:
+    //        - `primary` is not given now.
+    //        - `nchunks` is not given now.
     // - Previously db.coll.stats() took a number of options like indexDetailsKey
     //      Can we remove those options?
     //      Should the options more transparently map to the $collStats options?
@@ -1767,6 +1754,7 @@ export default class Collection extends ShellApiWithMongoClass {
     // - Do we want to keep passing `ok: 1` in the command result?
     //      Now that we're using the aggregation it's something we're adding ourselves.
     // - Is the way we're checking for sharding okay? Is there a better way? Does the current way require permissions?
+    // - Coerce to js number for everything? (maybe only for max size as it's a long?)
 
     let filterIndexName = options.indexDetailsName;
     if (!filterIndexName && options.indexDetailsKey) {
