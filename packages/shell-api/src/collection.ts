@@ -1730,32 +1730,6 @@ export default class Collection extends ShellApiWithMongoClass {
 
     const result = await this._getAggregatedCollStats(options.scale);
 
-    // Unknowns/TODO:
-    // - Do we want to use the fallback for Data Lake until https://jira.mongodb.org/browse/MHOUSE-5872
-    // - Is it alright that the output format of db.coll.stats() is changing?
-    //      Using the aggregation $collStats stage does not return the same data
-    //      as the deprecated collStats command. We're making it similar,
-    //      but I don't think it's the same. Let's write a diff:
-    //        - `primary` is not given now.
-    //        - `nchunks` is not given now.
-    // - Previously db.coll.stats() took a number of options like indexDetailsKey
-    //      Can we remove those options?
-    //      Should the options more transparently map to the $collStats options?
-    //      Can we remove the legacy scale argument handling?
-    //      Original server ticket: https://jira.mongodb.org/browse/SERVER-16782
-    //      My thoughts:
-    //        - Let's try to remove all of them if we can but that should be in a separate pr with a separate ticket.
-    // - Previously db.coll.stats() would error on view.
-    //      We could make it so that it doesn't supply the storageStats option on views for the agg
-    //      so that it doesn't error... do we want to?
-    //      My thoughts: Not much data to give back, so I'm thinking no. (looks like it would only be returning `ns`, `host`, and `localTime`).
-    // - Do we have the scale argument handled correctly?
-    //      We may need to scale everything ourselves so that the sums work nicely.
-    // - Do we want to keep passing `ok: 1` in the command result?
-    //      Now that we're using the aggregation it's something we're adding ourselves.
-    // - Is the way we're checking for sharding okay? Is there a better way? Does the current way require permissions?
-    // - Coerce to js number for everything? (maybe only for max size as it's a long?)
-
     let filterIndexName = options.indexDetailsName;
     if (!filterIndexName && options.indexDetailsKey) {
       const indexes = await this._mongo._serviceProvider.getIndexes(this._database._name, this._name, await this._database._baseOptions());
