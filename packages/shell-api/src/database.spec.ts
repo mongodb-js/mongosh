@@ -9,9 +9,10 @@ import Collection from './collection';
 import Mongo from './mongo';
 import {
   AggregationCursor as ServiceProviderAggCursor,
+  FindCursor as ServiceProviderCursor,
   ServiceProvider,
   bson,
-  ClientSession as ServiceProviderSession
+  ClientSession as ServiceProviderSession,
 } from '@mongosh/service-provider-core';
 import ShellInstanceState from './shell-instance-state';
 import crypto from 'crypto';
@@ -2056,13 +2057,26 @@ describe('Database', () => {
       });
       it('returns an object with per-collection stats', async() => {
         serviceProvider.listCollections.resolves([{ name: 'abc' }]);
-        const expectedResult = { ok: 1, totalSize: 1000 };
+        const collStatsResult = { storageStats: { totalSize: 1000 } };
         const tryNext = sinon.stub();
-        tryNext.onCall(0).resolves(expectedResult);
+        tryNext.onCall(0).resolves(collStatsResult);
         tryNext.onCall(1).resolves(null);
         serviceProvider.aggregate.returns({ tryNext } as any);
+        const serviceProviderCursor = stubInterface<ServiceProviderCursor>();
+        serviceProviderCursor.limit.returns(serviceProviderCursor);
+        serviceProviderCursor.tryNext.returns();
+        serviceProvider.find.returns(serviceProviderCursor);
         const result = await database.printCollectionStats(1);
-        expect(result.value.abc).to.deep.equal({ ok: 1, totalSize: 1000 });
+        expect(result.value.abc).to.deep.equal({
+          ok: 1,
+          avgObjSize: 0,
+          indexSizes: {},
+          nindexes: 0,
+          ns: 'db1.abc',
+          scaleFactor: 1,
+          sharded: false,
+          totalSize: 1000
+        });
       });
     });
 

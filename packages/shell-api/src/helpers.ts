@@ -527,7 +527,7 @@ export function scaleIndividualShardStatistics(shardStats: Document, scale: numb
 
   for (const fieldName of Object.keys(shardStats)) {
     if (['size', 'maxSize', 'storageSize', 'totalIndexSize', 'totalSize'].includes(fieldName)) {
-      scaledStats[fieldName] = shardStats[fieldName] / scale;
+      scaledStats[fieldName] = coerceToJSNumber(shardStats[fieldName]) / scale;
     } else if (fieldName === 'scaleFactor') {
       // Explicitly change the scale factor as we removed the scaling before getting the
       // individual shards statistics.
@@ -535,7 +535,7 @@ export function scaleIndividualShardStatistics(shardStats: Document, scale: numb
     } else if (fieldName === 'indexSizes') {
       const scaledIndexSizes: Document = {};
       for (const indexKey of Object.keys(shardStats[fieldName])) {
-        scaledIndexSizes[indexKey] = shardStats[fieldName][indexKey] / scale;
+        scaledIndexSizes[indexKey] = coerceToJSNumber(shardStats[fieldName][indexKey]) / scale;
       }
       scaledStats[fieldName] = scaledIndexSizes;
     } else {

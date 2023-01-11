@@ -1219,7 +1219,6 @@ describe('Collection', () => {
           expectedResult = {
             avgObjSize: 0,
             indexSizes: {},
-            maxSize: 0,
             nindexes: 0,
             scaleFactor: 1,
             indexDetails: { k1_1: { details: 1 }, k2_1: { details: 2 } },

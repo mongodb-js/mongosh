@@ -1561,13 +1561,13 @@ export default class Collection extends ShellApiWithMongoClass {
                 timeseriesBucketsNs = timeseriesStat;
               }
             } else if (timeseriesStatName === 'avgBucketSize') {
-              timeseriesTotalBucketSize += shardTimeseriesStats.bucketCount * timeseriesStat;
+              timeseriesTotalBucketSize += coerceToJSNumber(shardTimeseriesStats.bucketCount) * coerceToJSNumber(timeseriesStat);
             } else {
               // Simple summation for other types of stats.
               if (clusterTimeseriesStats[timeseriesStatName] === undefined) {
                 clusterTimeseriesStats[timeseriesStatName] = 0;
               }
-              clusterTimeseriesStats[timeseriesStatName] += timeseriesStat;
+              clusterTimeseriesStats[timeseriesStatName] += coerceToJSNumber(timeseriesStat);
             }
           }
         } else if (
@@ -1577,19 +1577,19 @@ export default class Collection extends ShellApiWithMongoClass {
           if (counts[fieldName] === undefined) {
             counts[fieldName] = 0;
           }
-          counts[fieldName] += shardStorageStats[fieldName];
+          counts[fieldName] += coerceToJSNumber(shardStorageStats[fieldName]);
         } else if (fieldName === 'avgObjSize') {
-          const shardAvgObjSize = shardStorageStats[fieldName];
+          const shardAvgObjSize = coerceToJSNumber(shardStorageStats[fieldName]);
           unscaledCollSize += shardAvgObjSize * shardObjCount;
         } else if (fieldName === 'maxSize') {
-          const shardMaxSize = shardStorageStats[fieldName];
+          const shardMaxSize = coerceToJSNumber(shardStorageStats[fieldName]);
           maxSize = Math.max(maxSize, shardMaxSize);
         } else if (fieldName === 'indexSizes') {
           for (const indexName of Object.keys(shardStorageStats[fieldName])) {
             if (indexSizes[indexName] === undefined) {
               indexSizes[indexName] = 0;
             }
-            indexSizes[indexName] += shardStorageStats[fieldName][indexName];
+            indexSizes[indexName] += coerceToJSNumber(shardStorageStats[fieldName][indexName]);
           }
         } else if (fieldName === 'nindexes') {
           const shardIndexes = shardStorageStats[fieldName];
