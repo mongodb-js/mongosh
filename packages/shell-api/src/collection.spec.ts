@@ -1220,7 +1220,6 @@ describe('Collection', () => {
             avgObjSize: 0,
             indexSizes: {},
             nindexes: 0,
-            scaleFactor: 1,
             indexDetails: { k1_1: { details: 1 }, k2_1: { details: 2 } },
             ok: 1,
             ns: 'db1.coll1',

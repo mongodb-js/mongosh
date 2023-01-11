@@ -665,9 +665,12 @@ describe('Shell API (integration)', function() {
       skipIfApiStrict();
 
       context('with a default collection', () => {
+        let hasTotalSize: boolean;
+
         beforeEach(async() => {
           await serviceProvider.createCollection(dbName, collectionName);
           await serviceProvider.insertOne(dbName, collectionName, { x: 1 });
+          hasTotalSize = !(await database.version()).match(/^4\.[0123]\./);
         });
 
         it('returns the expected stats', async() => {
@@ -683,7 +686,6 @@ describe('Shell API (integration)', function() {
           expect(stats.ns).to.equal(`${dbName}.${collectionName}`);
           expect(stats.ok).to.equal(1);
           expect(stats.nindexes).to.equal(1);
-          expect(stats.totalSize).to.be.a('number');
           expect(stats.avgObjSize).to.be.a('number');
           expect(stats.size).to.be.a('number');
           expect(stats.storageSize).to.be.a('number');
@@ -691,6 +693,12 @@ describe('Shell API (integration)', function() {
           expect(stats.indexSizes).to.contain.keys('_id_');
           expect(stats.indexSizes._id_).to.be.a('number');
           expect(stats).to.contain.keys('wiredTiger');
+          if (hasTotalSize) {
+            // Added in 4.4.
+            expect(stats.totalSize).to.be.a('number');
+          } else {
+            expect(stats.totalSize).to.equal(undefined);
+          }
         });
 
         it('returns stats without indexDetails', async() => {

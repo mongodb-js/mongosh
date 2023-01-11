@@ -1571,7 +1571,7 @@ export default class Collection extends ShellApiWithMongoClass {
             }
           }
         } else if (
-          // NOTE: `numOrphanDocs` is new in 6.0.
+          // NOTE: `numOrphanDocs` is new in 6.0. `totalSize` is new in 4.4.
           ['count', 'size', 'storageSize', 'totalIndexSize', 'totalSize', 'numOrphanDocs'].includes(fieldName)
         ) {
           if (counts[fieldName] === undefined) {
@@ -1654,7 +1654,10 @@ export default class Collection extends ShellApiWithMongoClass {
     }
     result.ns = ns;
     result.nindexes = nindexes;
-    result.scaleFactor = scale;
+    if (collStats[0].storageStats.scaleFactor !== undefined) {
+      // The `scaleFactor` property started being returned in 4.2.
+      result.scaleFactor = scale;
+    }
     result.ok = 1;
 
     return result;

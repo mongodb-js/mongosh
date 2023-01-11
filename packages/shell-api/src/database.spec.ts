@@ -2073,7 +2073,6 @@ describe('Database', () => {
           indexSizes: {},
           nindexes: 0,
           ns: 'db1.abc',
-          scaleFactor: 1,
           sharded: false,
           totalSize: 1000
         });

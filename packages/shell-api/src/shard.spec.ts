@@ -1451,6 +1451,7 @@ describe('Shard', () => {
     describe('collection.stats()', () => {
       let db: Database;
       let hasTotalSize: boolean;
+      let hasScaleFactorIncluded: boolean;
       const dbName = 'shard-stats-test';
       const ns = `${dbName}.test`;
 
@@ -1458,7 +1459,9 @@ describe('Shard', () => {
         db = sh._database.getSiblingDB(dbName);
         await db.getCollection('test').insertOne({ key: 1 });
         await db.getCollection('test').createIndex({ key: 1 });
-        hasTotalSize = !(await db.version()).match(/^4\.[0123]\./);
+        const dbVersion = await db.version();
+        hasTotalSize = !(dbVersion).match(/^4\.[0123]\./);
+        hasScaleFactorIncluded = !(dbVersion).match(/^4\.[01]\./);
       });
       afterEach(async() => {
         await db.dropDatabase();
@@ -1510,6 +1513,7 @@ describe('Shard', () => {
             expect(shard.indexDetails._id_.metadata.formatVersion).to.be.a('number');
           }
         });
+        // eslint-disable-next-line complexity
         it('returns scaled output', async() => {
           const scaleFactor = 1024;
           const unscaledResult = await db.getCollection('test').stats();
@@ -1517,6 +1521,11 @@ describe('Shard', () => {
 
           const scaledProperties = ['size', 'storageSize', 'totalIndexSize', 'totalSize'];
           for (const scaledProperty of scaledProperties) {
+            if (scaledProperty === 'totalSize' && !hasTotalSize) {
+              expect(unscaledResult[scaledProperty]).to.equal(undefined);
+              expect(scaledResult[scaledProperty]).to.equal(undefined);
+              continue;
+            }
             expect(
               unscaledResult[scaledProperty] / scaledResult[scaledProperty]
             ).to.equal(
@@ -1539,18 +1548,19 @@ describe('Shard', () => {
             }
           }
 
-          expect(unscaledResult.scaleFactor).to.equal(1);
-          expect(scaledResult.scaleFactor).to.equal(1024);
+          // The `scaleFactor` property started being returned in 4.2.
+          expect(unscaledResult.scaleFactor).to.equal(hasScaleFactorIncluded ? 1 : undefined);
+          expect(scaledResult.scaleFactor).to.equal(hasScaleFactorIncluded ? 1024 : undefined);
 
           for (const shardStats of Object.values(unscaledResult.shards as {
             scaleFactor: number
           }[])) {
-            expect(shardStats.scaleFactor).to.equal(1);
+            expect(shardStats.scaleFactor).to.equal(hasScaleFactorIncluded ? 1 : undefined);
           }
           for (const shardStats of Object.values(scaledResult.shards as {
             scaleFactor: number
           }[])) {
-            expect(shardStats.scaleFactor).to.equal(1024);
+            expect(shardStats.scaleFactor).to.equal(hasScaleFactorIncluded ? 1024 : undefined);
           }
         });
       });
@@ -1594,9 +1604,7 @@ describe('Shard', () => {
           expect(result.count).to.equal(undefined);
           expect(result.primary).to.equal(undefined);
           for (const shard of Object.values(result.shards) as any[]) {
-            if (hasTotalSize) {
-              expect(shard.totalSize).to.be.a('number');
-            }
+            expect(shard.totalSize).to.be.a('number');
             expect(shard.indexDetails).to.equal(undefined);
             expect(shard.timeseries.bucketsNs).to.equal(`${dbName}.system.buckets.${timeseriesCollectionName}`);
             expect(shard.timeseries.numBucketUpdates).to.equal(0);

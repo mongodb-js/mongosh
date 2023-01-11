@@ -530,7 +530,7 @@ export function scaleIndividualShardStatistics(shardStats: Document, scale: numb
       scaledStats[fieldName] = coerceToJSNumber(shardStats[fieldName]) / scale;
     } else if (fieldName === 'scaleFactor') {
       // Explicitly change the scale factor as we removed the scaling before getting the
-      // individual shards statistics.
+      // individual shards statistics. This started being returned in 4.2.
       scaledStats[fieldName] = scale;
     } else if (fieldName === 'indexSizes') {
       const scaledIndexSizes: Document = {};
