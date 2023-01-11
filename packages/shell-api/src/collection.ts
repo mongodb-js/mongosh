@@ -1627,7 +1627,6 @@ export default class Collection extends ShellApiWithMongoClass {
         result[countField] = count;
       }
     }
-
     if (timeseriesBucketsNs && Object.keys(clusterTimeseriesStats).length > 0) {
       result.timeseries = {
         ...clusterTimeseriesStats,
@@ -1643,7 +1642,6 @@ export default class Collection extends ShellApiWithMongoClass {
       // Scale the index sizes with the scale option passed by the user.
       result.indexSizes[indexName] = indexSize / scale;
     }
-
     // The unscaled avgObjSize for each shard is used to get the unscaledCollSize because the
     // raw size returned by the shard is affected by the command's scale parameter
     if (counts.count > 0) {
@@ -1651,9 +1649,10 @@ export default class Collection extends ShellApiWithMongoClass {
     } else {
       result.avgObjSize = 0;
     }
-
+    if (result.capped) {
+      result.maxSize = maxSize / scale;
+    }
     result.ns = ns;
-    result.maxSize = maxSize / scale;
     result.nindexes = nindexes;
     result.scaleFactor = scale;
     result.ok = 1;

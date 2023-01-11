@@ -664,69 +664,161 @@ describe('Shell API (integration)', function() {
     describe('stats', () => {
       skipIfApiStrict();
 
-      beforeEach(async() => {
-        await serviceProvider.createCollection(dbName, collectionName);
-        await serviceProvider.insertOne(dbName, collectionName, { x: 1 });
-      });
+      context('with a default collection', () => {
+        beforeEach(async() => {
+          await serviceProvider.createCollection(dbName, collectionName);
+          await serviceProvider.insertOne(dbName, collectionName, { x: 1 });
+        });
 
-      it('returns stats without indexDetails', async() => {
-        const stats = await collection.stats();
-        expect(stats).to.contain.keys(
-          'avgObjSize',
-          'capped',
-          'count',
-          'indexSizes',
-          'nindexes',
-          'ns',
-          'ok',
-          'size',
-          'storageSize',
-          'totalIndexSize',
-          'wiredTiger'
-        );
-      });
-      it('returns stats with indexDetails', async() => {
-        const stats = await collection.stats({ indexDetails: true });
-        expect(stats).to.contain.keys(
-          'avgObjSize',
-          'capped',
-          'count',
-          'indexDetails',
-          'indexSizes',
-          'nindexes',
-          'ns',
-          'ok',
-          'size',
-          'storageSize',
-          'totalIndexSize',
-          'wiredTiger'
-        );
+        it('returns the expected stats', async() => {
+          const stats = await collection.stats();
+
+          expect(stats.shard).to.equal(undefined);
+          expect(stats.shards).to.equal(undefined);
+          expect(stats.timeseries).to.equal(undefined);
+          expect(stats.maxSize).to.equal(undefined);
+          expect(stats.max).to.equal(undefined);
+          expect(stats.capped).to.equal(false);
+          expect(stats.count).to.equal(1);
+          expect(stats.ns).to.equal(`${dbName}.${collectionName}`);
+          expect(stats.ok).to.equal(1);
+          expect(stats.nindexes).to.equal(1);
+          expect(stats.totalSize).to.be.a('number');
+          expect(stats.avgObjSize).to.be.a('number');
+          expect(stats.size).to.be.a('number');
+          expect(stats.storageSize).to.be.a('number');
+          expect(stats.totalIndexSize).to.be.a('number');
+          expect(stats.indexSizes).to.contain.keys('_id_');
+          expect(stats.indexSizes._id_).to.be.a('number');
+          expect(stats).to.contain.keys('wiredTiger');
+        });
+
+        it('returns stats without indexDetails', async() => {
+          const stats = await collection.stats();
+          expect(stats).to.contain.keys(
+            'avgObjSize',
+            'capped',
+            'count',
+            'indexSizes',
+            'nindexes',
+            'ns',
+            'ok',
+            'size',
+            'storageSize',
+            'totalIndexSize',
+            'wiredTiger'
+          );
+        });
+        it('returns stats with indexDetails', async() => {
+          const stats = await collection.stats({ indexDetails: true });
+          expect(stats).to.contain.keys(
+            'avgObjSize',
+            'capped',
+            'count',
+            'indexDetails',
+            'indexSizes',
+            'nindexes',
+            'ns',
+            'ok',
+            'size',
+            'storageSize',
+            'totalIndexSize',
+            'wiredTiger'
+          );
+        });
       });
 
       context('with a capped collection', () => {
-        const cappedCollectionName = 'cappedcoll';
         beforeEach(async() => {
           await serviceProvider.createCollection(
             dbName,
-            cappedCollectionName,
+            collectionName,
             {
               capped: true,
               size: 8192,
               max: 5000
             }
           );
+          await serviceProvider.insertOne(dbName, collectionName, { x: 1 });
+        });
+
+        it('returns the unscaled maxSize', async() => {
+          const stats = await collection.stats();
+
+          expect(stats.maxSize).to.equal(8192);
+          expect(stats.max).to.equal(5000);
         });
 
         it('returns the scaled maxSize', async() => {
-          const cappedCollection = database.getCollection(cappedCollectionName);
-          const stats = await cappedCollection.stats({ scale: 1024 });
+          const stats = await collection.stats({ scale: 1024 });
 
+          expect(stats.capped).to.equal(true);
+          expect(stats.timeseries).to.equal(undefined);
+          expect(stats.shards).to.equal(undefined);
+          expect(stats.count).to.equal(1);
           expect(stats.maxSize).to.equal(8);
           expect(stats.max).to.equal(5000);
         });
       });
 
-      // TODO: Time series collection.
+      context('with a timeseries collection', () => {
+        skipIfServerVersion(testServer, '< 5.0');
+
+        beforeEach(async() => {
+          await serviceProvider.createCollection(
+            dbName,
+            collectionName,
+            {
+              timeseries: {
+                timeField: 'timestamp',
+                metaField: 'metadata',
+                granularity: 'hours'
+              }
+            }
+          );
+          await serviceProvider.insertOne(
+            dbName,
+            collectionName,
+            {
+              timestamp: new Date(),
+              metadata: {
+                test: true
+              }
+            }
+          );
+        });
+
+        it('returns the timeseries stats', async() => {
+          const stats = await collection.stats({ scale: 1024 });
+
+          // Timeseries bucket collection does not provide 'count' or 'avgObjSize'.
+          expect(stats.count).to.equal(undefined);
+          expect(stats.maxSize).to.equal(undefined);
+          expect(stats.capped).to.equal(false);
+          expect(stats.timeseries.bucketsNs).to.equal(`${dbName}.system.buckets.${collectionName}`);
+          expect(stats.timeseries.bucketCount).to.equal(1);
+          expect(stats.timeseries.numBucketInserts).to.equal(1);
+          expect(stats.timeseries.numBucketUpdates).to.equal(0);
+
+          expect(stats.timeseries).to.contain.keys(
+            'bucketsNs',
+            'bucketCount',
+            'avgBucketSize',
+            'numBucketInserts',
+            'numBucketUpdates',
+            'numBucketsOpenedDueToMetadata',
+            'numBucketsClosedDueToCount',
+            'numBucketsClosedDueToSize',
+            'numBucketsClosedDueToTimeForward',
+            'numBucketsClosedDueToTimeBackward',
+            'numBucketsClosedDueToMemoryThreshold',
+            'numCommits',
+            'numWaits',
+            'numMeasurementsCommitted',
+            'avgNumMeasurementsPerCommit'
+          );
+        });
+      });
     });
 
     describe('drop', () => {
