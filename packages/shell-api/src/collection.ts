@@ -1550,9 +1550,7 @@ export default class Collection extends ShellApiWithMongoClass {
         ) {
           // Fields that are copied from the first shard only, because they need to
           // match across shards.
-          if (result[fieldName] === undefined) {
-            result[fieldName] = shardStorageStats[fieldName];
-          }
+          result[fieldName] ??= shardStorageStats[fieldName];
         } else if (fieldName === 'timeseries') {
           const shardTimeseriesStats: Document = shardStorageStats[fieldName];
           for (const [ timeseriesStatName, timeseriesStat ] of Object.entries(shardTimeseriesStats)) {
@@ -1613,12 +1611,20 @@ export default class Collection extends ShellApiWithMongoClass {
     if (collStats[0].shard) {
       result.shards = shardStats;
     }
-    result.sharded = !!(await config.getCollection('collections').findOne({
-      _id: ns,
-      // Dropped is gone on newer server versions, so check for !== true
-      // rather than for === false (SERVER-51880 and related).
-      dropped: { $ne: true }
-    }));
+
+    try {
+      result.sharded = !!(await config.getCollection('collections').findOne({
+        _id: ns,
+        // Dropped is gone on newer server versions, so check for !== true
+        // rather than for === false (SERVER-51880 and related).
+        dropped: { $ne: true }
+      }));
+    } catch (e) {
+      // A user might not have permissions to check the config. In which
+      // case we default to the potentially inaccurate check for multiple
+      // shard response documents to determine if the collection is sharded.
+      result.sharded = collStats.length > 1;
+    }
 
     for (const [ countField, count ] of Object.entries(counts)) {
       if (['size', 'storageSize', 'totalIndexSize', 'totalSize'].includes(countField)) {
@@ -1683,15 +1689,13 @@ export default class Collection extends ShellApiWithMongoClass {
         );
       }
 
-      const aggregatedCollStats = await this._aggregateAndScaleCollStats(collStats, scale);
-      return aggregatedCollStats;
+      return await this._aggregateAndScaleCollStats(collStats, scale);
     } catch (e: any) {
       if (e?.code === 13388) {
         // Fallback to the deprecated way of fetching that folks can still
         // fetch the stats of sharded timeseries collections. SERVER-72686
         try {
-          const legacyCollStatsResult = await this._getLegacyCollStats(scale);
-          return legacyCollStatsResult;
+          return await this._getLegacyCollStats(scale);
         } catch (legacyCollStatsError) {
           // Surface the original error when the fallback.
           throw e;

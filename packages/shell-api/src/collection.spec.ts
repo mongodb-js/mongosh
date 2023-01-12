@@ -1140,6 +1140,40 @@ describe('Collection', () => {
         });
       });
 
+      context('when the user lacks permissions to check for the sharding cluster collection in config', () => {
+        beforeEach(() => {
+          const serviceProviderCursor = stubInterface<ServiceProviderCursor>();
+          serviceProviderCursor.limit.returns(serviceProviderCursor);
+          serviceProviderCursor.tryNext.returns();
+          // Throw an error when attempting to check permissions.
+          serviceProvider.find.onCall(0).returns(false as any);
+          serviceProvider.find.onCall(1).returns(serviceProviderCursor);
+        });
+
+        context('when there is more than one collStats document returned', () => {
+          beforeEach(() => {
+            const tryNext = sinon.stub();
+            tryNext.onCall(0).resolves({ storageStats: {} });
+            tryNext.onCall(1).resolves({ storageStats: {} });
+            tryNext.onCall(2).resolves({ storageStats: {} });
+            tryNext.onCall(3).resolves(null);
+            serviceProvider.aggregate.returns({ tryNext } as any);
+          });
+
+          it('returns sharded `true`', async() => {
+            const stats = await collection.stats(2);
+            expect(stats.sharded).to.equal(true);
+          });
+        });
+
+        context('when there is one collStats document returned', () => {
+          it('returns sharded `false`', async() => {
+            const stats = await collection.stats(2);
+            expect(stats.sharded).to.equal(false);
+          });
+        });
+      });
+
       context('deprecated fallback', () => {
         context('when the aggregation fails with error code that is not `13388`', () => {
           beforeEach(() => {
