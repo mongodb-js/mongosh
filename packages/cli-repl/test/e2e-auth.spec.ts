@@ -928,6 +928,7 @@ describe('Auth e2e', function() {
           'No authority could be contacted for authentication',
           'Error from KDC',
           'No credentials cache file found',
+          'No Kerberos credentials available',
           'The logon attempt failed',
           'Received authentication for mechanism GSSAPI which is not enabled',
           'Received authentication for mechanism GSSAPI which is unknown or not enabled',
