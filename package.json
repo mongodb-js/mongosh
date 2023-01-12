@@ -107,7 +107,6 @@
     "depcheck": "^1.4.1",
     "download": "^8.0.0",
     "duplexpair": "^1.0.1",
-    "electron-notarize": "mongodb-js/electron-notarize",
     "eslint": "^7.31.0",
     "eslint-config-mongodb-js": "^5.0.3",
     "eslint-plugin-mocha": "^9.0.0",
