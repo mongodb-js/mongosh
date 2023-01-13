@@ -142,6 +142,11 @@ To recreate the certificates follow the steps outlined below.
    cat client.pem client.key > client.bundle.pem
    cat client.pem client.encrypted.key > client.bundle.encrypted.pem
    ```
+6. Add a .pfx version of the bundle:
+   ```
+   openssl pkcs12 -inkey client.bundle.pem -in client.bundle.pem -export -out client.bundle.pfx
+   ```
+   * Password: `passw0rd`
 
 ## Create Client Certificate not from CA
 1. Create a new key to use for the Non CA:
