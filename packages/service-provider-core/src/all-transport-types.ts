@@ -3,7 +3,6 @@ export type {
   AggregationCursor,
   AnyBulkWriteOperation,
   Batch,
-  BulkResult,
   BulkWriteOptions,
   BulkWriteResult,
   ChangeStream,
