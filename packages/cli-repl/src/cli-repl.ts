@@ -335,6 +335,18 @@ class CliRepl implements MongoshIOProvider {
       this.mongoshRepl.setIsInteractive(true);
     }
     if (!this.cliOptions.norc) {
+      /**
+       * We are deliberately loading snippets only after handling command line
+       * scripts and files:
+       * - Snippets are mostly supposed to make human interaction easier, less
+       *   programmatic usage
+       * - Snippets can take a while to run because they're mongosh scripts
+       * - Programmatic users should ideally make their dependencies explicit
+       *   and include them via load() or require() instead of relying on
+       *   snippets, which are part of the local mongosh installation's state
+       * - Programmatic users who really want a dependency on a snippet can use
+       *   snippet('load-all') to explicitly load snippets
+       */
       await snippetManager?.loadAllSnippets();
     }
     await this.loadRcFiles();
