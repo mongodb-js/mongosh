@@ -178,6 +178,7 @@ class MongoshNodeRepl implements EvaluationListener {
    * history handling. This does not yet start evaluating any code
    * or print any user prompt.
    */
+  // eslint-disable-next-line complexity
   async initialize(serviceProvider: ServiceProvider): Promise<InitializationToken> {
     const instanceState = new ShellInstanceState(serviceProvider, this.bus, this.shellCliOptions);
     const shellEvaluator = new ShellEvaluator(instanceState, (value: any) => value);
@@ -228,6 +229,18 @@ class MongoshNodeRepl implements EvaluationListener {
     // Copy our context's Date object into the inner one because we have a custom
     // util.inspect override for Date objects.
     repl.context.Date = Date;
+
+    {
+      // Node.js 18+ defines `crypto` in the REPL to be the global WebCrypto object,
+      // not the Node.js `crypto` module. We would need to decide if/when to break this
+      // separately from the Node.js upgrade cycle, so we always use the Node.js builtin
+      // module for now.
+      const globalCryptoDescriptor = Object.getOwnPropertyDescriptor(repl.context, 'crypto') ?? {};
+      if (globalCryptoDescriptor.value?.subtle || globalCryptoDescriptor.get?.call(null)?.subtle) {
+        delete repl.context.crypto;
+        repl.context.crypto = await import('node:crypto');
+      }
+    }
 
     this._runtimeState = {
       shellEvaluator,
