@@ -81,7 +81,7 @@ import {
 import { connectMongoClient, DevtoolsConnectOptions } from '@mongodb-js/devtools-connect';
 import { MongoshCommandFailed, MongoshInternalError } from '@mongosh/errors';
 import type { MongoshBus } from '@mongosh/types';
-import { ensureMongoNodeNativePatchesAreApplied } from './mongodb-patches';
+import { forceCloseMongoClient } from './mongodb-patches';
 import ConnectionString from 'mongodb-connection-string-url';
 import { EventEmitter } from 'events';
 
@@ -197,7 +197,6 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
    */
   constructor(mongoClient: MongoClient, bus: MongoshBus, clientOptions: MongoClientOptions = {}, uri?: ConnectionString) {
     super(bsonlib);
-    ensureMongoNodeNativePatchesAreApplied();
 
     this.bus = bus;
     this.mongoClient = mongoClient;
@@ -403,9 +402,9 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
    *
    * @param {boolean} force - Whether to force close the connection.
    */
-  close(force: boolean): Promise<void> {
+  async close(force: boolean): Promise<void> {
     this.dbcache.set(this.mongoClient, new Map());
-    return this.mongoClient.close(force);
+    if (force) {await forceCloseMongoClient(this.mongoClient);} else {await this.mongoClient.close();}
   }
 
   async suspend(): Promise<() => Promise<void>> {
