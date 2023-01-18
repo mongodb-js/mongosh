@@ -1736,6 +1736,10 @@ const translations: Catalog = {
               description: 'Returns an array of all database names. Uses the listDatabases command.',
               example: 'db.getMongo().getDBNames().map(name => db.getSiblingDB(name).getCollectionNames())'
             },
+            getURI: {
+              link: 'https://docs.mongodb.com/manual/reference/method/Mongo.getURI',
+              description: 'Returns the connection string for current session'
+            },
             connect: {
               link: 'https://docs.mongodb.com/manual/reference/method/connect',
               description: 'Creates a connection to a MongoDB instance and returns the reference to the database.'
