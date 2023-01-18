@@ -57,13 +57,22 @@ describe('Mongo', () => {
     });
   });
   describe('Metadata', () => {
+    const MONGO_URI = 'localhost:37017';
+    const MONGO_CONNECTION_STRING = 'mongodb://localhost:37017/?directConnection=true&serverSelectionTimeoutMS=2000';
+    const mongo = new Mongo({} as any, MONGO_URI);
+
     describe('toShellResult', () => {
-      const mongo = new Mongo({} as any, 'localhost:37017');
       it('value', async() => {
-        expect((await toShellResult(mongo)).printable).to.equal('mongodb://localhost:37017/?directConnection=true&serverSelectionTimeoutMS=2000');
+        expect((await toShellResult(mongo)).printable).to.equal(MONGO_CONNECTION_STRING);
       });
       it('type', async() => {
         expect((await toShellResult(mongo)).type).to.equal('Mongo');
+      });
+    });
+
+    describe('getURI', () => {
+      it('returns the connection string of active connection', () => {
+        expect(mongo.getURI()).to.equal(MONGO_CONNECTION_STRING);
       });
     });
   });

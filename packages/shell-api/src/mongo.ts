@@ -249,6 +249,10 @@ export default class Mongo extends ShellApiClass {
     return this._getDb(db).getCollection(coll);
   }
 
+  getURI(): string {
+    return this._uri;
+  }
+
   use(db: string): string {
     assertArgsDefinedType([db], ['string'], 'Mongo.use');
     this._instanceState.messageBus.emit('mongosh:use', { db });
