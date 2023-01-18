@@ -522,6 +522,31 @@ export function dataFormat(bytes?: number): string {
   return Math.floor((Math.floor(bytes / (1024 * 1024)) / 1024) * 100) / 100 + 'GiB';
 }
 
+export function scaleIndividualShardStatistics(shardStats: Document, scale: number) {
+  const scaledStats: Document = {};
+
+  for (const fieldName of Object.keys(shardStats)) {
+    if (['size', 'maxSize', 'storageSize', 'totalIndexSize', 'totalSize'].includes(fieldName)) {
+      scaledStats[fieldName] = coerceToJSNumber(shardStats[fieldName]) / scale;
+    } else if (fieldName === 'scaleFactor') {
+      // Explicitly change the scale factor as we removed the scaling before getting the
+      // individual shards statistics. This started being returned in 4.2.
+      scaledStats[fieldName] = scale;
+    } else if (fieldName === 'indexSizes') {
+      const scaledIndexSizes: Document = {};
+      for (const indexKey of Object.keys(shardStats[fieldName])) {
+        scaledIndexSizes[indexKey] = coerceToJSNumber(shardStats[fieldName][indexKey]) / scale;
+      }
+      scaledStats[fieldName] = scaledIndexSizes;
+    } else {
+      // All the other fields that do not require further scaling.
+      scaledStats[fieldName] = shardStats[fieldName];
+    }
+  }
+
+  return scaledStats;
+}
+
 export function tsToSeconds(x: any): number {
   if (x.t && x.i) {
     return x.t;

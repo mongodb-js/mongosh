@@ -1081,49 +1081,206 @@ describe('Collection', () => {
     });
 
     describe('stats', () => {
-      it('calls serviceProvider.runCommandWithCheck on the database with no options', async() => {
+      beforeEach(() => {
+        const serviceProviderCursor = stubInterface<ServiceProviderCursor>();
+        serviceProviderCursor.limit.returns(serviceProviderCursor);
+        serviceProviderCursor.tryNext.returns();
+        serviceProvider.find.returns(serviceProviderCursor);
+
+        const tryNext = sinon.stub();
+        tryNext.onCall(0).resolves({ storageStats: {} });
+        tryNext.onCall(1).resolves(null);
+        serviceProvider.aggregate.returns({ tryNext } as any);
+      });
+
+      it('calls serviceProvider.aggregate on the database with no options', async() => {
         await collection.stats();
 
-        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
-          database._name,
-          { collStats: 'coll1', scale: 1 } // ensure simple collname
-        );
+        expect(serviceProvider.aggregate).to.have.been.calledOnce;
+        expect(serviceProvider.aggregate.firstCall.args[0]).to.equal(database._name);
+        expect(serviceProvider.aggregate.firstCall.args[1]).to.equal(collection._name);
+        expect(serviceProvider.aggregate.firstCall.args[2][0]).to.deep.equal({
+          '$collStats': {
+            storageStats: {
+              scale: 1
+            }
+          }
+        });
       });
 
-      it('calls serviceProvider.runCommandWithCheck on the database with scale option', async() => {
+      it('calls serviceProvider.aggregate on the database with the default scale option', async() => {
         await collection.stats({ scale: 2 });
 
-        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
-          database._name,
-          { collStats: collection._name, scale: 2 }
-        );
+        expect(serviceProvider.aggregate).to.have.been.calledOnce;
+        expect(serviceProvider.aggregate.firstCall.args[0]).to.equal(database._name);
+        expect(serviceProvider.aggregate.firstCall.args[1]).to.equal(collection._name);
+        expect(serviceProvider.aggregate.firstCall.args[2][0]).to.deep.equal({
+          '$collStats': {
+            storageStats: {
+              // We scale the results ourselves, this checks we are passing the default scale.
+              scale: 1
+            }
+          }
+        });
       });
 
-      it('calls serviceProvider.runCommandWithCheck on the database with legacy scale', async() => {
+      it('calls serviceProvider.aggregate on the database with default scale when legacy scale is passed', async() => {
         await collection.stats(2);
 
-        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
-          database._name,
-          { collStats: collection._name, scale: 2 }
-        );
+        expect(serviceProvider.aggregate).to.have.been.calledOnce;
+        expect(serviceProvider.aggregate.firstCall.args[0]).to.equal(database._name);
+        expect(serviceProvider.aggregate.firstCall.args[1]).to.equal(collection._name);
+        expect(serviceProvider.aggregate.firstCall.args[2][0]).to.deep.equal({
+          '$collStats': {
+            storageStats: {
+              // We scale the results ourselves, this checks we are passing the default scale.
+              scale: 1
+            }
+          }
+        });
+      });
+
+      context('when the user lacks permissions to check for the sharding cluster collection in config', () => {
+        beforeEach(() => {
+          const serviceProviderCursor = stubInterface<ServiceProviderCursor>();
+          serviceProviderCursor.limit.returns(serviceProviderCursor);
+          serviceProviderCursor.tryNext.returns();
+          // Throw an error when attempting to check permissions.
+          serviceProvider.find.onCall(0).returns(false as any);
+          serviceProvider.find.onCall(1).returns(serviceProviderCursor);
+        });
+
+        context('when there is more than one collStats document returned', () => {
+          beforeEach(() => {
+            const tryNext = sinon.stub();
+            tryNext.onCall(0).resolves({ storageStats: {} });
+            tryNext.onCall(1).resolves({ storageStats: {} });
+            tryNext.onCall(2).resolves({ storageStats: {} });
+            tryNext.onCall(3).resolves(null);
+            serviceProvider.aggregate.returns({ tryNext } as any);
+          });
+
+          it('returns sharded `true`', async() => {
+            const stats = await collection.stats(2);
+            expect(stats.sharded).to.equal(true);
+          });
+        });
+
+        context('when there is one collStats document returned', () => {
+          it('returns sharded `false`', async() => {
+            const stats = await collection.stats(2);
+            expect(stats.sharded).to.equal(false);
+          });
+        });
+      });
+
+      context('deprecated fallback', () => {
+        context('when the aggregation fails with error code that is not `13388`', () => {
+          beforeEach(() => {
+            const tryNext = sinon.stub();
+            const mockError: any = new Error('test error');
+            mockError.code = 123;
+            tryNext.onCall(0).rejects(mockError);
+            serviceProvider.aggregate.returns({ tryNext } as any);
+          });
+
+          it('does not run the deprecated collStats command', async() => {
+            const error = await collection.stats().catch(e => e);
+
+            expect(serviceProvider.runCommandWithCheck).to.not.have.been.called;
+            expect(error.message).to.equal('test error');
+          });
+        });
+
+        context('when the aggregation fails with error code `13388`', () => {
+          beforeEach(() => {
+            const tryNext = sinon.stub();
+            const mockError: any = new Error('test error');
+            mockError.code = 13388;
+            tryNext.onCall(0).rejects(mockError);
+            serviceProvider.aggregate.returns({ tryNext } as any);
+          });
+
+          it('runs the deprecated collStats command with the default scale', async() => {
+            await collection.stats();
+
+            expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+              database._name,
+              { collStats: collection._name, scale: 1 }
+            );
+          });
+
+          it('runs the deprecated collStats command with a custom scale', async() => {
+            await collection.stats({
+              scale: 1024 // Scale to kilobytes.
+            });
+
+            expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+              database._name,
+              { collStats: collection._name, scale: 1024 }
+            );
+          });
+
+          it('runs the deprecated collStats command with the legacy scale parameter', async() => {
+            await collection.stats(2);
+
+            expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+              database._name,
+              { collStats: collection._name, scale: 2 }
+            );
+          });
+
+          context('when the fallback collStats command fails', () => {
+            beforeEach(() => {
+              serviceProvider.runCommandWithCheck.rejects(new Error('not our error'));
+            });
+
+            it('surfaces the original aggregation error', async() => {
+              const error = await collection.stats().catch(e => e);
+
+              expect(serviceProvider.runCommandWithCheck).to.have.been.called;
+              expect(error.message).to.equal('test error');
+            });
+          });
+        });
       });
 
       context('indexDetails', () => {
         let expectedResult;
         let indexesResult;
+
         beforeEach(() => {
-          expectedResult = { ok: 1, indexDetails: { k1_1: { details: 1 }, k2_1: { details: 2 } } };
+          expectedResult = {
+            avgObjSize: 0,
+            indexSizes: {},
+            nindexes: 0,
+            indexDetails: { k1_1: { details: 1 }, k2_1: { details: 2 } },
+            ok: 1,
+            ns: 'db1.coll1',
+            sharded: false,
+          };
           indexesResult = [ { v: 2, key: { k1: 1 }, name: 'k1_1' }, { v: 2, key: { k2: 1 }, name: 'k2_1' }];
-          serviceProvider.runCommandWithCheck.resolves(expectedResult);
+          const tryNext = sinon.stub();
+          tryNext.onCall(0).resolves({
+            storageStats: {
+              indexDetails: expectedResult.indexDetails
+            }
+          });
+          tryNext.onCall(1).resolves(null);
+          serviceProvider.aggregate.returns({ tryNext } as any);
           serviceProvider.getIndexes.resolves(indexesResult);
         });
         it('not returned when no args', async() => {
           const result = await collection.stats();
-          expect(result).to.deep.equal({ ok: 1 });
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { indexDetails, ...expectedResultWithoutIndexDetails } = expectedResult;
+          expect(result).to.deep.equal(expectedResultWithoutIndexDetails);
         });
         it('not returned when options indexDetails: false', async() => {
           const result = await collection.stats({ indexDetails: false });
-          expect(result).to.deep.equal({ ok: 1 });
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { indexDetails, ...expectedResultWithoutIndexDetails } = expectedResult;
+          expect(result).to.deep.equal(expectedResultWithoutIndexDetails);
         });
         it('returned all when true, even if no key/name set', async() => {
           const result = await collection.stats({ indexDetails: true });
@@ -1131,7 +1288,7 @@ describe('Collection', () => {
         });
         it('returned only 1 when indexDetailsName set', async() => {
           const result = await collection.stats({ indexDetails: true, indexDetailsName: 'k2_1' });
-          expect(result).to.deep.equal({ ok: 1, indexDetails: { 'k2_1': expectedResult.indexDetails.k2_1 } });
+          expect(result).to.deep.equal({ ...expectedResult, indexDetails: { 'k2_1': expectedResult.indexDetails.k2_1 } });
         });
         it('returned all when indexDetailsName set but not found', async() => {
           const result = await collection.stats({ indexDetails: true, indexDetailsName: 'k3_1' });
@@ -1139,7 +1296,7 @@ describe('Collection', () => {
         });
         it('returned only 1 when indexDetailsKey set', async() => {
           const result = await collection.stats({ indexDetails: true, indexDetailsKey: indexesResult[1].key });
-          expect(result).to.deep.equal({ ok: 1, indexDetails: { 'k2_1': expectedResult.indexDetails.k2_1 } });
+          expect(result).to.deep.equal({ ...expectedResult, indexDetails: { 'k2_1': expectedResult.indexDetails.k2_1 } });
         });
         it('returned all when indexDetailsKey set but not found', async() => {
           const result = await collection.stats({ indexDetails: true, indexDetailsKey: { other: 1 } });
@@ -1174,22 +1331,28 @@ describe('Collection', () => {
         });
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+      it('throws if serviceProvider.aggregate rejects', async() => {
         const expectedError = new Error();
-        serviceProvider.runCommandWithCheck.rejects(expectedError);
+        const tryNext = sinon.stub();
+        tryNext.onCall(0).rejects(expectedError);
+        tryNext.onCall(1).resolves(null);
+        serviceProvider.aggregate.returns({ tryNext } as any);
         const caughtError = await collection.stats()
           .catch(e => e);
         expect(caughtError).to.equal(expectedError);
       });
 
-      it('throws is serviceProvider.runCommandWithCheck returns undefined', async() => {
-        serviceProvider.runCommandWithCheck.resolves(undefined);
+      it('throws if serviceProvider.aggregate returns undefined', async() => {
+        const tryNext = sinon.stub();
+        tryNext.onCall(0).resolves(undefined);
+        tryNext.onCall(1).resolves(null);
+        serviceProvider.aggregate.returns({ tryNext } as any);
         const error = await collection.stats(
           { indexDetails: true, indexDetailsName: 'k2_1' }
         ).catch(e => e);
 
         expect(error).to.be.instanceOf(MongoshRuntimeError);
-        expect(error.message).to.contain('Error running collStats command');
+        expect(error.message).to.contain('Error running $collStats aggregation stage');
       });
     });
 
@@ -1713,7 +1876,7 @@ describe('Collection', () => {
         expect(caughtError).to.equal(expectedError);
       });
 
-      it('throws if optiosn is an object and options.out is not defined', async() => {
+      it('throws if options is an object and options.out is not defined', async() => {
         const error = await collection.mapReduce(mapFn, reduceFn, {}).catch(e => e);
         expect(error).to.be.instanceOf(MongoshInvalidInputError);
         expect(error.message).to.contain('Missing \'out\' option');

@@ -30,6 +30,7 @@ import {
   markAsExplainOutput,
   assertArgsDefinedType,
   isValidCollectionName,
+  scaleIndividualShardStatistics,
   shouldRunAggregationImmediately,
   coerceToJSNumber
 } from './helpers';
@@ -1475,6 +1476,235 @@ export default class Collection extends ShellApiWithMongoClass {
     return new Explainable(this._mongo, this, verbosity);
   }
 
+  /**
+   * Running the $collStats stage on sharded timeseries clusters
+   * fails on some versions of MongoDB. SERVER-72686
+   * This function provides the deprecated fallback in those instances.
+   */
+  async _getLegacyCollStats(scale: number) {
+    const result = await this._database._runCommand(
+      {
+        collStats: this._name,
+        scale: scale || 1
+      }
+    );
+
+    if (!result) {
+      throw new MongoshRuntimeError(
+        `Error running collStats command on ${this.getFullName()}`,
+        CommonErrors.CommandFailed
+      );
+    }
+
+    return result;
+  }
+
+  /**
+   * Build a single scaled collection stats result document from the
+   * potentially multiple documents returned from the `$collStats` aggregation
+   * result. We run the aggregation stage with scale 1 and scale it here
+   * in order to accurately scale the summation of stats across various shards.
+   */
+  async _aggregateAndScaleCollStats(collStats: Document[], scale: number) {
+    const result: Document = {
+      ok: 1,
+    };
+
+    const shardStats: {
+      [shardId: string]: Document
+    } = {};
+    const counts: {
+      [fieldName: string]: number;
+    } = {};
+    const indexSizes: {
+      [indexName: string]: number;
+    } = {};
+    const clusterTimeseriesStats: {
+      [statName: string]: number
+    } = {};
+
+    let maxSize = 0;
+    let unscaledCollSize = 0;
+
+    let nindexes = 0;
+    let timeseriesBucketsNs: string | undefined;
+    let timeseriesTotalBucketSize = 0;
+
+    for (const shardResult of collStats) {
+      const shardStorageStats = shardResult.storageStats;
+
+      // We don't know the order that we will encounter the count and size, so we save them
+      // until we've iterated through all the fields before updating unscaledCollSize
+      // Timeseries bucket collection does not provide 'count' or 'avgObjSize'.
+      const countField = shardStorageStats.count;
+      const shardObjCount = (typeof countField !== 'undefined') ? countField : 0;
+
+      for (const fieldName of Object.keys(shardStorageStats)) {
+        if (['ns', 'ok', 'lastExtentSize', 'paddingFactor'].includes(fieldName)) {
+          continue;
+        }
+        if (
+          [
+            'userFlags', 'capped', 'max', 'paddingFactorNote', 'indexDetails', 'wiredTiger'
+          ].includes(fieldName)
+        ) {
+          // Fields that are copied from the first shard only, because they need to
+          // match across shards.
+          result[fieldName] ??= shardStorageStats[fieldName];
+        } else if (fieldName === 'timeseries') {
+          const shardTimeseriesStats: Document = shardStorageStats[fieldName];
+          for (const [ timeseriesStatName, timeseriesStat ] of Object.entries(shardTimeseriesStats)) {
+            if (typeof timeseriesStat === 'string') {
+              if (!timeseriesBucketsNs) {
+                timeseriesBucketsNs = timeseriesStat;
+              }
+            } else if (timeseriesStatName === 'avgBucketSize') {
+              timeseriesTotalBucketSize += coerceToJSNumber(shardTimeseriesStats.bucketCount) * coerceToJSNumber(timeseriesStat);
+            } else {
+              // Simple summation for other types of stats.
+              if (clusterTimeseriesStats[timeseriesStatName] === undefined) {
+                clusterTimeseriesStats[timeseriesStatName] = 0;
+              }
+              clusterTimeseriesStats[timeseriesStatName] += coerceToJSNumber(timeseriesStat);
+            }
+          }
+        } else if (
+          // NOTE: `numOrphanDocs` is new in 6.0. `totalSize` is new in 4.4.
+          ['count', 'size', 'storageSize', 'totalIndexSize', 'totalSize', 'numOrphanDocs'].includes(fieldName)
+        ) {
+          if (counts[fieldName] === undefined) {
+            counts[fieldName] = 0;
+          }
+          counts[fieldName] += coerceToJSNumber(shardStorageStats[fieldName]);
+        } else if (fieldName === 'avgObjSize') {
+          const shardAvgObjSize = coerceToJSNumber(shardStorageStats[fieldName]);
+          unscaledCollSize += shardAvgObjSize * shardObjCount;
+        } else if (fieldName === 'maxSize') {
+          const shardMaxSize = coerceToJSNumber(shardStorageStats[fieldName]);
+          maxSize = Math.max(maxSize, shardMaxSize);
+        } else if (fieldName === 'indexSizes') {
+          for (const indexName of Object.keys(shardStorageStats[fieldName])) {
+            if (indexSizes[indexName] === undefined) {
+              indexSizes[indexName] = 0;
+            }
+            indexSizes[indexName] += coerceToJSNumber(shardStorageStats[fieldName][indexName]);
+          }
+        } else if (fieldName === 'nindexes') {
+          const shardIndexes = shardStorageStats[fieldName];
+
+          if (nindexes === 0) {
+            nindexes = shardIndexes;
+          } else if (shardIndexes > nindexes) {
+            // This hopefully means we're building an index.
+            nindexes = shardIndexes;
+          }
+        }
+      }
+
+      if (shardResult.shard) {
+        shardStats[shardResult.shard] = scaleIndividualShardStatistics(shardStorageStats, scale);
+      }
+    }
+
+    const ns = `${this._database._name}.${this._name}`;
+    const config = this._mongo.getDB('config');
+    if (collStats[0].shard) {
+      result.shards = shardStats;
+    }
+
+    try {
+      result.sharded = !!(await config.getCollection('collections').findOne({
+        _id: ns,
+        // Dropped is gone on newer server versions, so check for !== true
+        // rather than for === false (SERVER-51880 and related).
+        dropped: { $ne: true }
+      }));
+    } catch (e) {
+      // A user might not have permissions to check the config. In which
+      // case we default to the potentially inaccurate check for multiple
+      // shard response documents to determine if the collection is sharded.
+      result.sharded = collStats.length > 1;
+    }
+
+    for (const [ countField, count ] of Object.entries(counts)) {
+      if (['size', 'storageSize', 'totalIndexSize', 'totalSize'].includes(countField)) {
+        result[countField] = count / scale;
+      } else {
+        result[countField] = count;
+      }
+    }
+    if (timeseriesBucketsNs && Object.keys(clusterTimeseriesStats).length > 0) {
+      result.timeseries = {
+        ...clusterTimeseriesStats,
+        // Average across all the shards.
+        avgBucketSize: clusterTimeseriesStats.bucketCount
+          ? timeseriesTotalBucketSize / clusterTimeseriesStats.bucketCount
+          : 0,
+        bucketsNs: timeseriesBucketsNs
+      };
+    }
+    result.indexSizes = {};
+    for (const [ indexName, indexSize ] of Object.entries(indexSizes)) {
+      // Scale the index sizes with the scale option passed by the user.
+      result.indexSizes[indexName] = indexSize / scale;
+    }
+    // The unscaled avgObjSize for each shard is used to get the unscaledCollSize because the
+    // raw size returned by the shard is affected by the command's scale parameter
+    if (counts.count > 0) {
+      result.avgObjSize = unscaledCollSize / counts.count;
+    } else {
+      result.avgObjSize = 0;
+    }
+    if (result.capped) {
+      result.maxSize = maxSize / scale;
+    }
+    result.ns = ns;
+    result.nindexes = nindexes;
+    if (collStats[0].storageStats.scaleFactor !== undefined) {
+      // The `scaleFactor` property started being returned in 4.2.
+      result.scaleFactor = scale;
+    }
+    result.ok = 1;
+
+    return result;
+  }
+
+  async _getAggregatedCollStats(scale: number) {
+    try {
+      const collStats = await (await this.aggregate([{
+        $collStats: {
+          storageStats: {
+            // We pass scale `1` and we scale the response ourselves.
+            // We do this because we create one document response based on the multiple
+            // documents the `$collStats` stage returns for sharded collections.
+            scale: 1,
+          }
+        }
+      }])).toArray();
+
+      if (!collStats || collStats[0] === undefined) {
+        throw new MongoshRuntimeError(
+          `Error running $collStats aggregation stage on ${this.getFullName()}`,
+          CommonErrors.CommandFailed
+        );
+      }
+
+      return await this._aggregateAndScaleCollStats(collStats, scale);
+    } catch (e: any) {
+      if (e?.code === 13388) {
+        // Fallback to the deprecated way of fetching that folks can still
+        // fetch the stats of sharded timeseries collections. SERVER-72686
+        try {
+          return await this._getLegacyCollStats(scale);
+        } catch (legacyCollStatsError) {
+          // Surface the original error when the fallback.
+          throw e;
+        }
+      }
+      throw e;
+    }
+  }
+
   @returnsPromise
   @apiVersions([])
   async stats(originalOptions: CollStatsShellOptions | number = {}): Promise<Document> {
@@ -1503,19 +1733,8 @@ export default class Collection extends ShellApiWithMongoClass {
     options.indexDetails = options.indexDetails || false;
 
     this._emitCollectionApiCall('stats', { options });
-    // TODO(MONGOSH-1157): Adjust along the lines of the mongos code in
-    // https://github.com/mongodb/mongo/blob/master/src/mongo/s/commands/cluster_coll_stats_cmd.cpp
-    const result = await this._database._runCommand(
-      {
-        collStats: this._name, scale: options.scale
-      }
-    );
-    if (!result) {
-      throw new MongoshRuntimeError(
-        `Error running collStats command on ${this.getFullName()}`,
-        CommonErrors.CommandFailed
-      );
-    }
+
+    const result = await this._getAggregatedCollStats(options.scale);
 
     let filterIndexName = options.indexDetailsName;
     if (!filterIndexName && options.indexDetailsKey) {
@@ -1529,9 +1748,8 @@ export default class Collection extends ShellApiWithMongoClass {
 
     /**
      * Remove indexDetails if options.indexDetails is true. From the old shell code.
-     * @param stats
      */
-    const updateStats = (stats: any): void => {
+    const updateStats = (stats: Document): void => {
       if (!stats.indexDetails) {
         return;
       }
