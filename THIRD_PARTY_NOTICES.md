@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Wed Jan 18 2023.
+This document was automatically generated on Thu Jan 19 2023.
 
 ## List of dependencies
 
@@ -163,7 +163,7 @@ Package|Version|License
 **[bowser](#03c8dec5cdbec1db30c4a501c0caf600245f4bd74d3d6f23eb55edffac14c8c3)**|2.11.0|MIT
 **[brace-expansion](#2ba3ee23cc6a2718243e9c0c59ce154058f292965f563aa291b459a414e863cb)**|1.1.11|MIT
 **[browserslist](#fba4e9a147223fa2ab5d154a361a849ba80af1a732eeceff17b87046d3eb4275)**|4.20.2|MIT
-**[bson](#fcb8182d9502d9d870c261d54e51d8335dad3dfb6fa65997ab5d320424956a1f)**|4.7.1|Apache-2.0
+**[bson](#4bbce2a918506c3440e5ce8b9d95d2ddef52cbfd1ac4e0062b53fb259904fe7d)**|4.7.2|Apache-2.0
 **[bson](#ec93cd2c031de6f0f8cfb12b35174dff73a5a721c17499ce3eab50c1024e7248)**|4.6.2|Apache-2.0
 **[bson](#325b684e47c723de00f16b14e871953667632233cd98202e74d2d9f21ef6c99c)**|4.7.0|Apache-2.0
 **[caniuse-lite](#5aa255fe78256ff181c6fc1b283d5d6bbd9ed6dd94850ce519324a3139df5173)**|1.0.30001323|CC-BY-4.0
@@ -21120,8 +21120,8 @@ Authors:
 * Andrey Sitnik <andrey@sitnik.ru>
 
 
-<a id="fcb8182d9502d9d870c261d54e51d8335dad3dfb6fa65997ab5d320424956a1f"></a>
-### [bson](https://www.npmjs.com/package/bson) (version 4.7.1)
+<a id="4bbce2a918506c3440e5ce8b9d95d2ddef52cbfd1ac4e0062b53fb259904fe7d"></a>
+### [bson](https://www.npmjs.com/package/bson) (version 4.7.2)
 <!-- initially found at packages/service-provider-core/node_modules/bson -->
 > A bson parser for node.js and the browser
 
