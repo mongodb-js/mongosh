@@ -42,12 +42,6 @@ declare module 'inline-entry-loader!*' {
   export default entry;
 }
 
-declare type Params<T extends (...args: any) => any> = T extends (
-  ...args: infer P
-) => any
-  ? P
-  : never;
-
 declare type CancelablePromise<T> = Promise<T> & { cancel(): void };
 
 declare type CancelableMethods<T> = {
