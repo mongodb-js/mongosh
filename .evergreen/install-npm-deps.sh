@@ -15,7 +15,7 @@ npm run mark-ci-required-optional-dependencies
 
 if [ x"$NPM_DEPS_MODE" = x"cli_build" ]; then
   # We always need the build package for various tasks.
-  npm run bootstrap-ci -- --scope @mongosh/build --ignore-prepublish
+  npm run bootstrap-ci --force -- --scope @mongosh/build --ignore-prepublish
 
   # Bootstrap cli-repl + dependencies.
   # mongodb-client-encryption cannot be installed everywhere without prerequisites
@@ -24,11 +24,11 @@ if [ x"$NPM_DEPS_MODE" = x"cli_build" ]; then
   # need its types; so if we do not need all packages to be installed,
   # we first try to install mongodb-client-encryption, and if that fails, we fall back
   # to installing with --ignore-scripts (i.e. do not attempt to build addons).
-  (npm run bootstrap-ci -- --scope @mongosh/cli-repl --include-dependencies --ignore-prepublish && test -e packages/service-provider-server/node_modules/mongodb-client-encryption) || \
-    npm run bootstrap-ci -- --scope @mongosh/cli-repl --include-dependencies --ignore-prepublish --ignore-scripts
+  (npm run bootstrap-ci --force -- --scope @mongosh/cli-repl --include-dependencies --ignore-prepublish && test -e packages/service-provider-server/node_modules/mongodb-client-encryption) || \
+    npm run bootstrap-ci --force -- --scope @mongosh/cli-repl --include-dependencies --ignore-prepublish --ignore-scripts
 elif [ x"$NPM_DEPS_MODE" = x"all" ]; then
   # Bootstrap app packages, all dependencies.
-  npm run bootstrap-ci -- --ignore-prepublish
+  npm run bootstrap-ci --force -- --ignore-prepublish
 else
   echo "invalid value of NPM_DEPS_MODE: '$NPM_DEPS_MODE'"
   exit 1
