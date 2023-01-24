@@ -18,7 +18,7 @@ function constructHelp(className: string): Help {
 
 interface ShellBsonBase {
   DBRef: (namespace: string, oid: any, db?: string, fields?: Document) => typeof BSON.DBRef.prototype;
-  Map: typeof BSON.Map;
+  Map: typeof Map;
   bsonsize: (object: any) => number;
   MaxKey: () => typeof BSON.MaxKey.prototype;
   MinKey: () => typeof BSON.MinKey.prototype;
@@ -56,7 +56,7 @@ export type ShellBson = WithHelp<ShellBsonBase>;
 export default function constructShellBson(bson: typeof BSON, printWarning: (msg: string) => void): ShellBson {
   const bsonNames = [
     'Binary', 'Code', 'DBRef', 'Decimal128', 'Double', 'Int32', 'Long',
-    'MaxKey', 'MinKey', 'ObjectId', 'Timestamp', 'Map', 'BSONSymbol',
+    'MaxKey', 'MinKey', 'ObjectId', 'Timestamp', 'BSONSymbol',
     'BSONRegExp'
   ] as const; // Statically set this so we can error if any are missing
 
@@ -89,7 +89,7 @@ export default function constructShellBson(bson: typeof BSON, printWarning: (msg
       return new bson.DBRef(namespace, oid, db, fields);
     }, { ...bson.DBRef, prototype: bson.DBRef.prototype }),
     // DBPointer not available in the bson 1.x library, but depreciated since 1.6
-    Map: bson.Map,
+    Map: Map,
     bsonsize: function bsonsize(object: any): number {
       assertArgsDefinedType([object], ['object'], 'bsonsize');
       return bson.calculateObjectSize(object);

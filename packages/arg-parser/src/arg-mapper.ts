@@ -116,7 +116,7 @@ const MAPPINGS: {
   authenticationMechanism: (i, v) => setUrlParam(i, 'authMechanism', v as DevtoolsConnectOptions['authMechanism']),
   keyVaultNamespace: (i, v) => setAutoEncrypt(i, 'keyVaultNamespace', v),
   password: (i, v) => setUrl(i, 'password', encodeURIComponent(v)),
-  quiet: (i, v) => v ? setDriver(i, 'loggerLevel', 'error') : i,
+  // quiet: (i, v) => v ? setDriver(i, 'loggerLevel', 'error') : i,
   retryWrites: (i, v) => setUrlParam(i, 'retryWrites', v),
   tls: (i, v) => setUrlParam(i, 'tls', v),
   tlsAllowInvalidCertificates: (i, v) => setUrlParam(i, 'tlsAllowInvalidCertificates', v),
@@ -127,7 +127,7 @@ const MAPPINGS: {
   tlsCertificateKeyFilePassword: (i, v) => setUrlParam(i, 'tlsCertificateKeyFilePassword', v),
   tlsUseSystemCA: (i, v) => setDriver(i, 'useSystemCA', v),
   username: (i, v) => setUrl(i, 'username', encodeURIComponent(v)),
-  verbose: (i, v) => v ? setDriver(i, 'loggerLevel', 'debug') : i
+  // verbose: (i, v) => v ? setDriver(i, 'loggerLevel', 'debug') : i
 };
 
 function mapOption<Key extends keyof CliOptions>(

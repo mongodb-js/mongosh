@@ -3,23 +3,11 @@ import {
   AuthMechanism,
   MongoClient,
   ReadPreference,
-  BSONRegExp,
-  Binary,
-  Code,
-  DBRef,
-  Double,
-  Int32,
-  Long,
-  MinKey,
-  MaxKey,
-  ObjectId,
-  Timestamp,
-  Decimal128,
-  BSONSymbol,
   ClientMetadata,
   ReadPreferenceFromOptions,
   ReadPreferenceLike,
-  OperationOptions
+  OperationOptions,
+  BSON
 } from 'mongodb';
 
 import {
@@ -73,7 +61,6 @@ import {
   WriteConcern,
   ChangeStreamOptions,
   ChangeStream,
-  bson as BSON,
   FLE,
   AutoEncryptionOptions
 } from '@mongosh/service-provider-core';
@@ -86,22 +73,22 @@ import ConnectionString from 'mongodb-connection-string-url';
 import { EventEmitter } from 'events';
 
 const bsonlib = {
-  Binary,
-  Code,
-  DBRef,
-  Double,
-  Int32,
-  Long,
-  MinKey,
-  MaxKey,
-  ObjectId,
-  Timestamp,
-  Decimal128,
-  BSONSymbol,
-  Map: BSON.Map,
+  Binary: BSON.Binary,
+  Code: BSON.Code,
+  DBRef: BSON.DBRef,
+  Double: BSON.Double,
+  Int32: BSON.Int32,
+  Long: BSON.Long,
+  MinKey: BSON.MinKey,
+  MaxKey: BSON.MaxKey,
+  ObjectId: BSON.ObjectId,
+  Timestamp: BSON.Timestamp,
+  Decimal128: BSON.Decimal128,
+  BSONSymbol: BSON.BSONSymbol,
+  Map,
   calculateObjectSize: BSON.calculateObjectSize,
   EJSON: BSON.EJSON,
-  BSONRegExp
+  BSONRegExp: BSON.BSONRegExp
 };
 
 type DropDatabaseResult = {
@@ -848,8 +835,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     options = { ...this.baseCmdOptions, ...options };
     return await this.db(database, dbOptions)
       .collection(collection)
-      .updateMany(filter, update, options) as Promise<UpdateResult>;
-    // `as UpdateResult` because we know we didn't request .explain() here.
+      .updateMany(filter, update, options);
   }
 
   /**
@@ -874,8 +860,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     options = { ...this.baseCmdOptions, ...options };
     return this.db(database, dbOptions)
       .collection(collection)
-      .updateOne(filter, update, options) as Promise<UpdateResult>;
-    // `as UpdateResult` because we know we didn't request .explain() here.
+      .updateOne(filter, update, options);
   }
 
   /**
