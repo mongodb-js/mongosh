@@ -196,7 +196,7 @@ export default function constructShellBson(bson: typeof BSON, printWarning: (msg
     Long: bson.Long,
     Binary: bson.Binary,
     Double: bson.Double,
-    EJSON: bson.EJSON,
+    EJSON: Object.create(Object.getPrototypeOf(bson.EJSON), Object.getOwnPropertyDescriptors(bson.EJSON)),
     BSONRegExp: bson.BSONRegExp
   };
 

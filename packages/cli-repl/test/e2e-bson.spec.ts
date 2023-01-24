@@ -360,7 +360,7 @@ describe('BSON e2e', function() {
       shell.assertNoErrors();
     });
     it('Timestamp has help when returned from the server', async() => {
-      const value = new bson.Timestamp(0, 100);
+      const value = new bson.Timestamp({ t: 0, i: 100 });
       await shell.executeLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
       expect(await shell.executeLine('db.test.findOne().value.help()')).to.include('BSON Class');

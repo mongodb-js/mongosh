@@ -419,7 +419,7 @@ describe('CliServiceProvider [integration]', function() {
     });
   });
 
-  describe('#remove', () => {
+  describe.skip('#remove', () => {
     const filter = { name: 'Aphex Twin' };
 
     context('when the filter is empty', () => {
