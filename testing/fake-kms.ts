@@ -64,7 +64,6 @@ export const fakeAWSHandlers: HandlerList = [
 
 function awsHandler({ body }: RequestData): any {
   const request = JSON.parse(body);
-  let response;
   if (request.KeyId && request.Plaintext) {
     // Famously "unbreakable" base64 encryption ;) We use this to forward
     // both KeyId and Plaintext so that they are available for generating
@@ -79,9 +78,9 @@ function awsHandler({ body }: RequestData): any {
   } else {
     const [ KeyId, Plaintext ] = Buffer.from(request.CiphertextBlob, 'base64').toString().split('\0');
     return {
-      Plaintext,
+      Plaintext: Buffer.from(Plaintext).toString('base64'),
       EncryptionAlgorithm: 'SYMMETRIC_DEFAULT',
-      KeyId
+      KeyId: Buffer.from(KeyId).toString('base64')
     };
   }
 }

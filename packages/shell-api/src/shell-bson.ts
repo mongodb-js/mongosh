@@ -190,14 +190,14 @@ export default function constructShellBson(bson: typeof BSON, printWarning: (msg
       return new bson.Binary(buffer, bson.Binary.SUBTYPE_MD5);
     }, { prototype: bson.Binary.prototype }),
     // Add the driver types to bsonPkg so we can deprecate the shell ones later
-    Decimal128: bson.Decimal128,
-    BSONSymbol: bson.BSONSymbol,
-    Int32: bson.Int32,
-    Long: bson.Long,
-    Binary: bson.Binary,
-    Double: bson.Double,
+    Decimal128: functionCtor(bson.Decimal128),
+    BSONSymbol: functionCtor(bson.BSONSymbol),
+    Int32: functionCtor(bson.Int32),
+    Long: functionCtor(bson.Long),
+    Binary: functionCtor(bson.Binary),
+    Double: functionCtor(bson.Double),
     EJSON: Object.create(Object.getPrototypeOf(bson.EJSON), Object.getOwnPropertyDescriptors(bson.EJSON)),
-    BSONRegExp: bson.BSONRegExp
+    BSONRegExp: functionCtor(bson.BSONRegExp)
   };
 
   for (const className of Object.keys(bsonPkg) as (keyof ShellBson)[]) {
@@ -206,4 +206,16 @@ export default function constructShellBson(bson: typeof BSON, printWarning: (msg
     Object.setPrototypeOf(bsonPkg[className].help, help);
   }
   return bsonPkg;
+}
+
+function functionCtor<T extends Function & { new(...args: any): any }>(classCtor: T): T {
+  function fnCtor(...args: any[]) {
+    if (new.target) {
+      return Reflect.construct(classCtor, args, new.target);
+    }
+    return new classCtor(...args);
+  }
+  Object.setPrototypeOf(fnCtor, Object.getPrototypeOf(classCtor));
+  Object.defineProperties(fnCtor, Object.getOwnPropertyDescriptors(classCtor));
+  return fnCtor as any;
 }
