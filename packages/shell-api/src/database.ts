@@ -825,9 +825,8 @@ export default class Database extends ShellApiWithMongoClass {
     if (typeof opts === 'object') {
       const matchingFilters: Document = {};
       for (const filtername of Object.keys(opts)) {
-          if (filtername !== '$ownOps' && filtername !== '$all' && filtername !== '$truncateOps') {
-            matchingFilters[filtername] = opts[filtername];
-          }
+        if (filtername !== '$ownOps' && filtername !== '$all' && filtername !== '$truncateOps') {
+          matchingFilters[filtername] = opts[filtername];
         }
       }
 
