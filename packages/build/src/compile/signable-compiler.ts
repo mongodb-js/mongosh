@@ -139,7 +139,8 @@ export class SignableCompiler {
         macKeychainAddon
       ] : []),
       preCompileHook,
-      executableMetadata: this.executableMetadata
+      executableMetadata: this.executableMetadata,
+      useCodeCache: true,
     });
   }
 }
