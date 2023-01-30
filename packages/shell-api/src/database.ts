@@ -809,19 +809,50 @@ export default class Database extends ShellApiWithMongoClass {
     );
   }
 
+  async _getCurrentOperations(opts: Document | boolean) {
+    const legacyCurrentOpOptions = typeof opts === 'boolean'
+      ? ({ '$all': opts, '$ownOps': false })
+      : ({ '$all': !!opts.$all, '$ownOps': !!opts.$ownOps });
+
+    const pipeline: Document[] = [{
+      $currentOp: {
+        'allUsers': !legacyCurrentOpOptions.$ownOps,
+        'idleConnections': legacyCurrentOpOptions.$all,
+        'truncateOps': false,
+      }
+    }];
+
+    if (typeof opts === 'object') {
+      const matchingFilters: Document = {};
+      for (const filtername in opts) {
+        if (Object.prototype.hasOwnProperty.call(opts, filtername)) {
+          if (filtername !== '$ownOps' && filtername !== '$all' && filtername !== '$truncateOps') {
+            matchingFilters[filtername] = opts[filtername];
+          }
+        }
+      }
+
+      pipeline.push({ $match: matchingFilters });
+    }
+
+    return (await this
+      .getSiblingDB('admin')
+      .aggregate(pipeline, {
+        '$readPreference': {
+          'mode': 'primaryPreferred'
+        }
+      })).toArray();
+  }
+
   @returnsPromise
   @apiVersions([])
   async currentOp(opts: Document | boolean = {}): Promise<Document> {
     this._emitDatabaseApiCall('currentOp', { opts: opts });
-    if (typeof opts === 'boolean') {
-      opts = { $all: opts };
-    }
-    return await this._runAdminCommand(
-      {
-        currentOp: 1,
-        ...opts
-      }
-    );
+    const currentOps = await this._getCurrentOperations(opts);
+    return {
+      inprog: currentOps.length > 0 ? currentOps : [],
+      ok: 1
+    };
   }
 
   @returnsPromise
