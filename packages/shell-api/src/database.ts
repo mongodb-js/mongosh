@@ -809,7 +809,7 @@ export default class Database extends ShellApiWithMongoClass {
     );
   }
 
-  async _getCurrentOperations(opts: Document | boolean) {
+  async _getCurrentOperations(opts: Document | boolean): Promise<Document[]> {
     const legacyCurrentOpOptions = typeof opts === 'boolean'
       ? ({ '$all': opts, '$ownOps': false })
       : ({ '$all': !!opts.$all, '$ownOps': !!opts.$ownOps });
