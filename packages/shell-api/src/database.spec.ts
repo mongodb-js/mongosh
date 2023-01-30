@@ -2730,6 +2730,7 @@ describe('Database', () => {
     const exceptions = {
       getCollectionNames: { m: 'listCollections' },
       getCollectionInfos: { m: 'listCollections' },
+      currentOp: { m: 'aggregateDb', a: [[]] },
       aggregate: { m: 'aggregateDb', a: [[]] },
       dropDatabase: { m: 'dropDatabase', i: 1 },
       createCollection: { m: 'createCollection', a: ['coll'] },
@@ -2776,6 +2777,7 @@ describe('Database', () => {
       serviceProvider.runCommand.resolves({ ok: 1 });
       serviceProvider.listCollections.resolves([]);
       serviceProvider.watch.returns({ closed: false, tryNext: async() => {} } as any);
+      serviceProvider.aggregateDb.returns({ tryNext: async() => {} } as any);
       const instanceState = new ShellInstanceState(serviceProvider, bus);
       const mongo = new Mongo(instanceState, undefined, undefined, undefined, serviceProvider);
       const session = mongo.startSession();
