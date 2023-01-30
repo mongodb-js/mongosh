@@ -850,7 +850,7 @@ export default class Database extends ShellApiWithMongoClass {
     this._emitDatabaseApiCall('currentOp', { opts: opts });
     const currentOps = await this._getCurrentOperations(opts);
     return {
-      inprog: currentOps.length > 0 ? currentOps : [],
+      inprog: currentOps,
       ok: 1
     };
   }
