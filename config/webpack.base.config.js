@@ -1,5 +1,6 @@
 'use strict';
 const TerserPlugin = require('terser-webpack-plugin');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 /** @type import('webpack').Configuration */
 module.exports = {
@@ -44,4 +45,11 @@ module.exports = {
 
   node: false,
   target: 'node',
+
+  plugins: [
+    new BundleAnalyzerPlugin({
+      analyzerMode: 'static',
+      openAnalyzer: false
+    })
+  ]
 };
