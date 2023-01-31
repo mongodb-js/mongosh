@@ -1,4 +1,5 @@
 'use strict';
+const path = require('path');
 const TerserPlugin = require('terser-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
@@ -15,7 +16,13 @@ module.exports = {
   },
 
   resolve: {
-    extensions: ['.ts', '.js']
+    extensions: ['.ts', '.js'],
+    alias: {
+      // Stub out particularly large dependencies that are unnecessary and/or
+      // only provide features that Node.js also provides out of the box.
+      browserslist: path.resolve(__dirname, '..', 'scripts', 'dummy-browserslist.js'),
+      tr46: path.resolve(__dirname, '..', 'scripts', 'tr46-stub.js')
+    }
   },
 
   optimization: {
