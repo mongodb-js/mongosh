@@ -1134,7 +1134,7 @@ const translations: Catalog = {
             },
             currentOp: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.currentOp',
-              description: 'Calls the currentOp command. Returns a document that contains information on in-progress operations for the database instance. The db.currentOp() method wraps the database command currentOp.',
+              description: 'Runs an aggregation using $currentOp operator. Returns a document that contains information on in-progress operations for the database instance. For further information, see $currentOp.',
               example: 'db.currentOp()'
             },
             killOp: {

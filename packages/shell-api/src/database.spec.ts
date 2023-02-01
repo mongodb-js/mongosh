@@ -13,6 +13,7 @@ import {
   ServiceProvider,
   bson,
   ClientSession as ServiceProviderSession,
+  Document,
 } from '@mongosh/service-provider-core';
 import ShellInstanceState from './shell-instance-state';
 import crypto from 'crypto';
@@ -1571,64 +1572,153 @@ describe('Database', () => {
     });
 
     describe('currentOp', () => {
-      it('calls serviceProvider.runCommandWithCheck on the database without options', async() => {
-        await database.currentOp();
-
-        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
-          ADMIN_DB,
-          { currentOp: 1 }
-        );
+      const currentOpStage = (args: Document = {}) => ({
+        $currentOp: {
+          allUsers: false,
+          idleConnections: false,
+          truncateOps: false,
+          ...args
+        }
       });
-      it('allows boolean parameter', async() => {
-        await database.currentOp(true);
 
-        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
-          ADMIN_DB,
-          {
-            currentOp: 1,
-            $all: true
+      const READ_PREFERENCE = {
+        '$readPreference': {
+          mode: 'primaryPreferred'
+        }
+      };
+
+      beforeEach(() => {
+        const tryNext = sinon.stub();
+        tryNext.onCall(0).resolves({});
+        tryNext.onCall(1).resolves(null);
+        serviceProvider.aggregateDb.returns({ tryNext } as any);
+      });
+
+      context('when called with a falsy value', function() {
+        it('calls serviceProvider.aggregateDb with correct options', async function() {
+          await database.currentOp();
+          await database.currentOp(false);
+
+          for (const args of serviceProvider.aggregateDb.args) {
+            expect(args[0]).to.equal('admin');
+            const [stageCurrentOp] = args[1];
+            expect(stageCurrentOp).to.deep.equal(currentOpStage({
+              allUsers: true,
+              idleConnections: false
+            }));
+            expect(serviceProvider.aggregateDb.firstCall.args[2]).to.deep.equal(READ_PREFERENCE);
           }
-        );
+        });
       });
-      it('allows boolean parameter false', async() => {
-        await database.currentOp(false);
 
-        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
-          ADMIN_DB,
-          {
-            $all: false,
-            currentOp: 1
-          }
-        );
+      context('when called with a boolean - true', function() {
+        it('calls serviceProvider.aggregateDb with correct options', async function() {
+          await database.currentOp(true);
+          expect(serviceProvider.aggregateDb).to.have.been.calledOnce;
+          expect(serviceProvider.aggregateDb.firstCall.args[0]).to.equal('admin');
+          const [stageCurrentOp] = serviceProvider.aggregateDb.firstCall.args[1];
+          expect(stageCurrentOp).to.deep.equal(currentOpStage({
+            allUsers: true,
+            idleConnections: true
+          }));
+          expect(serviceProvider.aggregateDb.firstCall.args[2]).to.deep.equal(READ_PREFERENCE);
+        });
       });
-      it('calls serviceProvider.runCommandWithCheck on the database with options', async() => {
-        await database.currentOp({
-          $ownOps: true,
-          $all: true,
-          filter: 1
+
+      context('when called with options containing $all', function() {
+        it('calls serviceProvider.aggregateDb with correct options', async function() {
+          await database.currentOp({ $all: true });
+          expect(serviceProvider.aggregateDb).to.have.been.calledOnce;
+          expect(serviceProvider.aggregateDb.firstCall.args[0]).to.equal('admin');
+          const [stageCurrentOp, matchStage] = serviceProvider.aggregateDb.firstCall.args[1];
+          expect(stageCurrentOp).to.deep.equal(currentOpStage({
+            allUsers: true,
+            idleConnections: true
+          }));
+          expect(matchStage).to.deep.equals({ $match: {} });
+          expect(serviceProvider.aggregateDb.firstCall.args[2]).to.deep.equal(READ_PREFERENCE);
+        });
+      });
+
+      context('when called with options containing $ownOps', function() {
+        it('calls serviceProvider.aggregateDb with correct options', async function() {
+          await database.currentOp({ $ownOps: true });
+          expect(serviceProvider.aggregateDb).to.have.been.calledOnce;
+          expect(serviceProvider.aggregateDb.firstCall.args[0]).to.equal('admin');
+          const [stageCurrentOp, matchStage] = serviceProvider.aggregateDb.firstCall.args[1];
+          expect(stageCurrentOp).to.deep.equal(currentOpStage({
+            allUsers: false,
+            idleConnections: false
+          }));
+          expect(matchStage).to.deep.equals({ $match: {} });
+          expect(serviceProvider.aggregateDb.firstCall.args[2]).to.deep.equal(READ_PREFERENCE);
+        });
+      });
+
+      context('when called with options containing both $ownOps and $all', function() {
+        it('calls serviceProvider.aggregateDb with correct options', async function() {
+          await database.currentOp({ $all: true, $ownOps: true });
+          expect(serviceProvider.aggregateDb).to.have.been.calledOnce;
+          expect(serviceProvider.aggregateDb.firstCall.args[0]).to.equal('admin');
+          const [stageCurrentOp, matchStage] = serviceProvider.aggregateDb.firstCall.args[1];
+          expect(stageCurrentOp).to.deep.equal(currentOpStage({
+            allUsers: false,
+            idleConnections: true
+          }));
+          expect(matchStage).to.deep.equals({ $match: {} });
+          expect(serviceProvider.aggregateDb.firstCall.args[2]).to.deep.equal(READ_PREFERENCE);
+        });
+      });
+
+      context('when called with options containing filter conditions', function() {
+        it('calls serviceProvider.aggregateDb with correct options', async function() {
+          await database.currentOp({
+            $all: true,
+            waitingForLock: true
+          });
+
+          expect(serviceProvider.aggregateDb).to.have.been.calledOnce;
+          expect(serviceProvider.aggregateDb.firstCall.args[0]).to.equal('admin');
+          const [stageCurrentOp, matchStage] = serviceProvider.aggregateDb.firstCall.args[1];
+          expect(stageCurrentOp).to.deep.equal(currentOpStage({
+            allUsers: true,
+            idleConnections: true
+          }));
+          expect(matchStage).to.deep.equals({ $match: { waitingForLock: true } });
+          expect(serviceProvider.aggregateDb.firstCall.args[2]).to.deep.equal(READ_PREFERENCE);
         });
 
-        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
-          ADMIN_DB,
-          {
-            currentOp: 1,
-            $ownOps: true,
+        it('ensures that $ownOps, $all and $truncateOps are never passed down as filters', async function() {
+          await database.currentOp({
             $all: true,
-            filter: 1
-          }
-        );
+            $ownOps: false,
+            $truncateOps: false,
+            waitingForLock: true
+          });
+
+          const [, matchStage] = serviceProvider.aggregateDb.firstCall.args[1];
+          expect(matchStage).to.deep.equals({ $match: { waitingForLock: true } });
+        });
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
-        const expectedResult = { ok: 1 };
-        serviceProvider.runCommandWithCheck.resolves(expectedResult);
+      it('returns the result of serviceProvider.aggregateDb wrapped in an interface', async() => {
+        const expectedResult = { ok: 1, inprog: [] };
+
+        const tryNext = sinon.stub();
+        tryNext.onCall(0).resolves();
+        tryNext.onCall(1).resolves(null);
+        serviceProvider.aggregateDb.returns({ tryNext } as any);
+
         const result = await database.currentOp();
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+      it('throws if serviceProvider.aggregateDb rejects', async() => {
         const expectedError = new Error();
-        serviceProvider.runCommandWithCheck.rejects(expectedError);
+
+        const tryNext = sinon.stub();
+        tryNext.onCall(0).rejects(expectedError);
+        serviceProvider.aggregateDb.returns({ tryNext } as any);
         const caughtError = await database.currentOp()
           .catch(e => e);
         expect(caughtError).to.equal(expectedError);
@@ -2640,6 +2730,7 @@ describe('Database', () => {
     const exceptions = {
       getCollectionNames: { m: 'listCollections' },
       getCollectionInfos: { m: 'listCollections' },
+      currentOp: { m: 'aggregateDb', a: [[]] },
       aggregate: { m: 'aggregateDb', a: [[]] },
       dropDatabase: { m: 'dropDatabase', i: 1 },
       createCollection: { m: 'createCollection', a: ['coll'] },
@@ -2686,6 +2777,7 @@ describe('Database', () => {
       serviceProvider.runCommand.resolves({ ok: 1 });
       serviceProvider.listCollections.resolves([]);
       serviceProvider.watch.returns({ closed: false, tryNext: async() => {} } as any);
+      serviceProvider.aggregateDb.returns({ tryNext: async() => {} } as any);
       const instanceState = new ShellInstanceState(serviceProvider, bus);
       const mongo = new Mongo(instanceState, undefined, undefined, undefined, serviceProvider);
       const session = mongo.startSession();
