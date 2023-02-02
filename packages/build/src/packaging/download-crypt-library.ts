@@ -13,8 +13,8 @@ export async function downloadCryptLibrary(variant: PackageVariant | 'host'): Pr
   console.info('mongosh: downloading latest crypt shared library for inclusion in package:', JSON.stringify(opts));
 
   const cryptTmpTargetDir = path.resolve(__dirname, '..', '..', '..', '..', 'tmp', 'crypt-store', variant);
-  // Download mongodb for latest server version.
-  const libdir = await downloadMongoDb(cryptTmpTargetDir, 'stable', opts);
+  // Download mongodb for latest server version, including rapid releases.
+  const libdir = await downloadMongoDb(cryptTmpTargetDir, 'continuous', opts);
   const cryptLibrary = path.join(
     libdir,
     (await fs.readdir(libdir)).find(filename => filename.match(/^mongo_crypt_v1\.(so|dylib|dll)$/)) as string

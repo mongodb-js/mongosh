@@ -38,7 +38,8 @@ module.exports = {
     'no-console': [1, { allow: ['warn', 'error', 'info'] }],
     'no-shadow': 0,
     'no-use-before-define': 0,
-    'no-cond-assign': [2, 'except-parens']
+    'no-cond-assign': [2, 'except-parens'],
+    'no-multi-str': 0
   },
   overrides: [{
     files: ['**/*.js'],

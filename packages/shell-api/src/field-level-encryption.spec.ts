@@ -204,6 +204,41 @@ describe('Field Level Encryption', () => {
         expect(caughtError).to.equal(expectedError);
       });
     });
+    describe('encryptExpression', () => {
+      const expression = {
+        $and: [{ someField: { $gt: 1 } }]
+      };
+
+      const options = {
+        algorithm: 'RangePreview',
+        queryType: 'rangePreview',
+        contentionFactor: 0,
+        rangeOptions: {
+          sparsity: new bson.Long(1)
+        }
+      } as const;
+
+      it('calls encryptExpression with algorithm on libmongoc', async() => {
+        libmongoc.encryptExpression.resolves();
+        await clientEncryption.encryptExpression(KEY_ID, expression, options);
+        expect(libmongoc.encryptExpression).calledOnceWithExactly(expression, { keyId: KEY_ID, ...options });
+      });
+      it('calls encryptExpression with algorithm, contentionFactor, and queryType on libmongoc', async() => {
+        const expression = {
+          $and: [{ someField: { $gt: 1 } }]
+        };
+        libmongoc.encryptExpression.resolves();
+        await clientEncryption.encryptExpression(KEY_ID, expression, options);
+        expect(libmongoc.encryptExpression).calledOnceWithExactly(expression, { keyId: KEY_ID, ...options });
+      });
+      it('throw if failed', async() => {
+        const expectedError = new Error();
+        libmongoc.encryptExpression.rejects(expectedError);
+        const caughtError = await clientEncryption.encryptExpression(KEY_ID, expression, options)
+          .catch(e => e);
+        expect(caughtError).to.equal(expectedError);
+      });
+    });
     describe('createKey', () => {
       it('calls createDataKey on libmongoc with no key for local', async() => {
         const raw = { result: 1 };
