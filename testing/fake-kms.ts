@@ -77,7 +77,14 @@ function awsHandler({ body }: RequestData): any {
       KeyId: request.KeyId
     };
   } else {
-    const [ KeyId, Plaintext ] = Buffer.from(request.CiphertextBlob, 'base64').toString().split('\0');
+    let [ KeyId, Plaintext ] = Buffer.from(request.CiphertextBlob, 'base64').toString().split('\0');
+    // Do not return invalid base64 https://jira.mongodb.org/browse/MONGOCRYPT-525
+    if (Buffer.from(KeyId, 'base64').toString('base64') !== KeyId) {
+      KeyId = 'invalid0';
+    }
+    if (Buffer.from(Plaintext, 'base64').toString('base64') !== Plaintext) {
+      Plaintext = 'invalid1';
+    }
     return {
       Plaintext,
       EncryptionAlgorithm: 'SYMMETRIC_DEFAULT',
