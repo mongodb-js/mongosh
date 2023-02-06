@@ -2,7 +2,7 @@ import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, ServerVersions } fr
 import Help from './help';
 import { BinaryType, Document, bson as BSON } from '@mongosh/service-provider-core';
 import { CommonErrors, MongoshInternalError, MongoshInvalidInputError } from '@mongosh/errors';
-import { assertArgsDefinedType } from './helpers';
+import { assertArgsDefinedType, functionCtor, assignAll } from './helpers';
 import { randomBytes } from 'crypto';
 
 function constructHelp(className: string): Help {
@@ -18,7 +18,6 @@ function constructHelp(className: string): Help {
 
 interface ShellBsonBase {
   DBRef: (namespace: string, oid: any, db?: string, fields?: Document) => typeof BSON.DBRef.prototype;
-  Map: typeof BSON.Map;
   bsonsize: (object: any) => number;
   MaxKey: () => typeof BSON.MaxKey.prototype;
   MinKey: () => typeof BSON.MinKey.prototype;
@@ -50,13 +49,13 @@ type WithHelp<T> = {
 export type ShellBson = WithHelp<ShellBsonBase>;
 
 /**
- * This method modifies the BSON class passed in as argument. This is required so that
- * we can have help, serverVersions, and other metadata on the bson classes constructed by the user.
- */
+* This method modifies the BSON class passed in as argument. This is required so that
+* we can have help, serverVersions, and other metadata on the bson classes constructed by the user.
+*/
 export default function constructShellBson(bson: typeof BSON, printWarning: (msg: string) => void): ShellBson {
   const bsonNames = [
     'Binary', 'Code', 'DBRef', 'Decimal128', 'Double', 'Int32', 'Long',
-    'MaxKey', 'MinKey', 'ObjectId', 'Timestamp', 'Map', 'BSONSymbol',
+    'MaxKey', 'MinKey', 'ObjectId', 'Timestamp', 'BSONSymbol',
     'BSONRegExp'
   ] as const; // Statically set this so we can error if any are missing
 
@@ -84,55 +83,66 @@ export default function constructShellBson(bson: typeof BSON, printWarning: (msg
   (bson.BSONSymbol as any).prototype.deprecated = true;
 
   const bsonPkg: ShellBson = {
-    DBRef: Object.assign(function DBRef(namespace: string, oid: any, db?: string, fields?: Document): typeof bson.DBRef.prototype {
+    // TODO(MONGOSH-1319): Use an allowlist of static properties inherited from
+    // the bson library rather than including all. In particular, exclude static
+    // methods marked as @internal from our exposed functions.
+    DBRef: assignAll(function DBRef(namespace: string, oid: any, db?: string, fields?: Document): typeof bson.DBRef.prototype {
       assertArgsDefinedType([namespace, oid, db], ['string', true, [undefined, 'string'], [undefined, 'object']], 'DBRef');
       return new bson.DBRef(namespace, oid, db, fields);
-    }, { ...bson.DBRef, prototype: bson.DBRef.prototype }),
+    }, bson.DBRef),
     // DBPointer not available in the bson 1.x library, but depreciated since 1.6
-    Map: bson.Map,
     bsonsize: function bsonsize(object: any): number {
       assertArgsDefinedType([object], ['object'], 'bsonsize');
       return bson.calculateObjectSize(object);
     },
     // See https://jira.mongodb.org/browse/MONGOSH-1024 for context on the toBSON additions
-    MaxKey: Object.assign(function MaxKey(): typeof bson.MaxKey.prototype {
+    MaxKey: assignAll(function MaxKey(): typeof bson.MaxKey.prototype {
       return new bson.MaxKey();
-    }, { ...bson.MaxKey, toBSON: () => new bson.MaxKey(), prototype: bson.MaxKey.prototype }),
-    MinKey: Object.assign(function MinKey(): typeof bson.MinKey.prototype {
+    }, bson.MaxKey, { toBSON: () => new bson.MaxKey() }),
+    MinKey: assignAll(function MinKey(): typeof bson.MinKey.prototype {
       return new bson.MinKey();
-    }, { ...bson.MinKey, toBSON: () => new bson.MinKey(), prototype: bson.MinKey.prototype }),
-    ObjectId: Object.assign(function ObjectId(id?: string | number | typeof bson.ObjectId.prototype | Buffer): typeof bson.ObjectId.prototype {
+    }, bson.MinKey, { toBSON: () => new bson.MinKey() }),
+    ObjectId: assignAll(function ObjectId(id?: string | number | typeof bson.ObjectId.prototype | Buffer): typeof bson.ObjectId.prototype {
       assertArgsDefinedType([id], [[undefined, 'string', 'number', 'object']], 'ObjectId');
       return new bson.ObjectId(id);
-    }, { ...bson.ObjectId, prototype: bson.ObjectId.prototype }),
-    Timestamp: Object.assign(function Timestamp(t?: number | typeof bson.Long.prototype | { t: number, i: number }, i?: number): typeof bson.Timestamp.prototype {
+    }, bson.ObjectId, {
+      // TODO(MONGOSH-1319): Remove legacy shims for bson v4.x methods
+      prototype: assignAll(bson.ObjectId.prototype, {
+        get generationTime() {
+          return Math.floor((this as unknown as typeof bson.ObjectId.prototype).getTimestamp().valueOf() / 1000);
+        },
+        toString: makeLegacytoStringWrapper(bson.ObjectId.prototype.toString)
+      })
+    }),
+    Timestamp: assignAll(function Timestamp(t?: number | typeof bson.Long.prototype | { t: number, i: number }, i?: number): typeof bson.Timestamp.prototype {
       assertArgsDefinedType([t, i], [['number', 'object', undefined], [undefined, 'number']], 'Timestamp');
       // Order of Timestamp() arguments is reversed in mongo/mongosh and the driver:
       // https://jira.mongodb.org/browse/MONGOSH-930
+      // TODO(MONGOSH-1319): Drop support for the two-argument variant of Timestamp().
       if (typeof t === 'object' && t !== null && 't' in t && 'i' in t) {
-        return new bson.Timestamp(new bson.Long(t.i, t.t));
+        return new bson.Timestamp(t);
       } else if (i !== undefined || typeof t === 'number') {
-        return new bson.Timestamp(new bson.Long((i ?? 0) as number, t as number));
+        return new bson.Timestamp({ t: t as number, i: i ?? 0 as number });
       }
       return new bson.Timestamp(t as typeof bson.Long.prototype);
-    }, { ...bson.Timestamp, prototype: bson.Timestamp.prototype }),
-    Code: Object.assign(function Code(c: string | Function = '', s?: any): typeof bson.Code.prototype {
+    }, bson.Timestamp),
+    Code: assignAll(function Code(c: string | Function = '', s?: any): typeof bson.Code.prototype {
       assertArgsDefinedType([c, s], [[undefined, 'string', 'function'], [undefined, 'object']], 'Code');
       return new bson.Code(c, s);
-    }, { ...bson.Code, prototype: bson.Code.prototype }),
-    NumberDecimal: Object.assign(function NumberDecimal(s = '0'): typeof bson.Decimal128.prototype {
+    }, bson.Code),
+    NumberDecimal: assignAll(function NumberDecimal(s = '0'): typeof bson.Decimal128.prototype {
       assertArgsDefinedType([s], [['string', 'number', 'bson:Long', 'bson:Int32', 'bson:Decimal128']], 'NumberDecimal');
       if (typeof s === 'number') {
         printWarning('NumberDecimal: specifying a number as argument is deprecated and may lead to loss of precision, pass a string instead');
       }
       return bson.Decimal128.fromString(`${s}`);
     }, { prototype: bson.Decimal128.prototype }),
-    NumberInt: Object.assign(function NumberInt(v = '0'): typeof bson.Int32.prototype {
+    NumberInt: assignAll(function NumberInt(v = '0'): typeof bson.Int32.prototype {
       v ??= '0';
       assertArgsDefinedType([v], [['string', 'number', 'bson:Long', 'bson:Int32']], 'NumberInt');
       return new bson.Int32(parseInt(`${v}`, 10));
     }, { prototype: bson.Int32.prototype }),
-    NumberLong: Object.assign(function NumberLong(s: string | number = '0'): typeof bson.Long.prototype {
+    NumberLong: assignAll(function NumberLong(s: string | number = '0'): typeof bson.Long.prototype {
       s ??= '0';
       assertArgsDefinedType([s], [['string', 'number', 'bson:Long', 'bson:Int32']], 'NumberLong');
       if (typeof s === 'number') {
@@ -160,17 +170,17 @@ export default function constructShellBson(bson: typeof BSON, printWarning: (msg
       }
       throw new MongoshInvalidInputError(`${JSON.stringify(input)} is not a valid ISODate`, CommonErrors.InvalidArgument);
     },
-    BinData: Object.assign(function BinData(subtype: number, b64string: string): BinaryType { // this from 'help misc' in old shell
+    BinData: assignAll(function BinData(subtype: number, b64string: string): BinaryType { // this from 'help misc' in old shell
       assertArgsDefinedType([subtype, b64string], ['number', 'string'], 'BinData');
       const buffer = Buffer.from(b64string, 'base64');
       return new bson.Binary(buffer, subtype);
     }, { prototype: bson.Binary.prototype }),
-    HexData: Object.assign(function HexData(subtype: number, hexstr: string): BinaryType {
+    HexData: assignAll(function HexData(subtype: number, hexstr: string): BinaryType {
       assertArgsDefinedType([subtype, hexstr], ['number', 'string'], 'HexData');
       const buffer = Buffer.from(hexstr, 'hex');
       return new bson.Binary(buffer, subtype);
     }, { prototype: bson.Binary.prototype }),
-    UUID: Object.assign(function UUID(hexstr?: string): BinaryType {
+    UUID: assignAll(function UUID(hexstr?: string): BinaryType {
       if (hexstr === undefined) {
         // Generate a version 4, variant 1 UUID, like the old shell did.
         const uuid = randomBytes(16);
@@ -184,20 +194,28 @@ export default function constructShellBson(bson: typeof BSON, printWarning: (msg
       const buffer = Buffer.from((hexstr as string).replace(/-/g, ''), 'hex');
       return new bson.Binary(buffer, bson.Binary.SUBTYPE_UUID);
     }, { prototype: bson.Binary.prototype }),
-    MD5: Object.assign(function MD5(hexstr: string): BinaryType {
+    MD5: assignAll(function MD5(hexstr: string): BinaryType {
       assertArgsDefinedType([hexstr], ['string'], 'MD5');
       const buffer = Buffer.from(hexstr, 'hex');
       return new bson.Binary(buffer, bson.Binary.SUBTYPE_MD5);
     }, { prototype: bson.Binary.prototype }),
     // Add the driver types to bsonPkg so we can deprecate the shell ones later
-    Decimal128: bson.Decimal128,
-    BSONSymbol: bson.BSONSymbol,
-    Int32: bson.Int32,
-    Long: bson.Long,
-    Binary: bson.Binary,
-    Double: bson.Double,
-    EJSON: bson.EJSON,
-    BSONRegExp: bson.BSONRegExp
+    Decimal128: functionCtor(bson.Decimal128),
+    BSONSymbol: functionCtor(bson.BSONSymbol),
+    Int32: functionCtor(bson.Int32),
+    Long: functionCtor(bson.Long),
+    Binary: assignAll(function Binary(...args: ConstructorParameters<typeof bson.Binary>) {
+      return new bson.Binary(...args);
+    }, bson.Binary, {
+      // TODO(MONGOSH-1319): Remove legacy shims for bson v4.x methods
+      prototype: assignAll(bson.Binary.prototype, {
+        toString: makeLegacytoStringWrapper(bson.Binary.prototype.toString)
+      })
+    }),
+    Double: functionCtor(bson.Double),
+    BSONRegExp: functionCtor(bson.BSONRegExp),
+    // Clone EJSON here so that it's not a frozen object in the shell
+    EJSON: Object.create(Object.getPrototypeOf(bson.EJSON), Object.getOwnPropertyDescriptors(bson.EJSON)),
   };
 
   for (const className of Object.keys(bsonPkg) as (keyof ShellBson)[]) {
@@ -206,4 +224,15 @@ export default function constructShellBson(bson: typeof BSON, printWarning: (msg
     Object.setPrototypeOf(bsonPkg[className].help, help);
   }
   return bsonPkg;
+}
+
+function makeLegacytoStringWrapper<
+  T extends { toString(encoding?: BufferEncoding): string
+}>(originalToString: T['toString']): T['toString'] {
+  return function toString(this: T, encoding?: BufferEncoding) {
+    if (['hex', 'base64', 'utf8', undefined].includes(encoding)) {
+      return originalToString.call(this, encoding);
+    }
+    return Buffer.from(originalToString.call(this, 'base64'), 'base64').toString(encoding);
+  };
 }

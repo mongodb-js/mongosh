@@ -75,7 +75,7 @@ db = unencryptedDb;
 {
   const document = db.employees.find().toArray()[0];
   console.log('non-decrypted document', document);
-  verifiedUnencrypted = document.taxid.constructor === Binary && document.taxid.sub_type === 6;
+  verifiedUnencrypted = document.taxid instanceof Binary && document.taxid.sub_type === 6;
   assert(verifiedUnencrypted, 'Must not do decryption without keys');
 }
 if (verifiedEncrypted && verifiedUnencrypted) {

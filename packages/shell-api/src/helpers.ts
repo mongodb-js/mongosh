@@ -851,3 +851,42 @@ export function shallowClone<T>(input: T): T {
   if (!input || typeof input !== 'object') return input;
   return Array.isArray(input) ? ([...input] as unknown as T) : { ...input };
 }
+
+// Create a copy of a class so that it's constructible without `new`, i.e.
+// class A {}; B = functionCtor(A);
+// A() // throws
+// B() // does not throw, returns instance of A
+export function functionCtor<
+  T extends Function & { new(...args: any): any }
+>(ClassCtor: T): T {
+  function fnCtor(...args: any[]) {
+    if (new.target) {
+      return Reflect.construct(ClassCtor, args, new.target);
+    }
+    return new ClassCtor(...args);
+  }
+  Object.setPrototypeOf(fnCtor, Object.getPrototypeOf(ClassCtor));
+  Object.defineProperties(fnCtor, Object.getOwnPropertyDescriptors(ClassCtor));
+  return fnCtor as any;
+}
+
+export function assignAll<T extends {}, U extends {}>(t: T, u: U): T & U;
+export function assignAll<T extends {}, U extends {}, V extends {}>(t: T, u: U, v: V): T & U & V;
+export function assignAll<T extends {}, U extends {}, V extends {}, W extends {}>(t: T, u: U, v: V, w: W): T & U & V & W;
+export function assignAll(target: {}, ...sources: {}[]): any {
+  const newDescriptorList = [];
+  for (const source of sources) {
+    newDescriptorList.push(...Object.entries(Object.getOwnPropertyDescriptors(source)));
+  }
+  const newDescriptorMap = Object.fromEntries(newDescriptorList);
+  for (const key of Object.getOwnPropertyNames(newDescriptorMap)) {
+    if (Object.getOwnPropertyDescriptor(target, key)?.configurable === false) {
+      // e.g. .prototype can be written to but not re-defined
+      (target as any)[key] = newDescriptorMap[key].value;
+      delete newDescriptorMap[key];
+    }
+  }
+  Object.defineProperties(target, newDescriptorMap);
+
+  return target;
+}

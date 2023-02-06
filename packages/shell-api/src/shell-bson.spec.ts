@@ -126,22 +126,22 @@ describe('Shell BSON', () => {
   describe('ObjectId', () => {
     it('without new', () => {
       const s = shellBson.ObjectId('5ebbe8e2905bb493d6981b6b');
-      expect(s._bsontype).to.equal('ObjectID');
+      expect(s._bsontype).to.equal('ObjectId');
       expect(s.toHexString()).to.equal('5ebbe8e2905bb493d6981b6b');
     });
     it('with new', () => {
       const s = new (shellBson.ObjectId as any)('5ebbe8e2905bb493d6981b6b');
-      expect(s._bsontype).to.equal('ObjectID');
+      expect(s._bsontype).to.equal('ObjectId');
       expect(s.toHexString()).to.equal('5ebbe8e2905bb493d6981b6b');
     });
     it('works with an integer argument', () => {
       const s = new (shellBson.ObjectId as any)(0x12345678);
-      expect(s._bsontype).to.equal('ObjectID');
+      expect(s._bsontype).to.equal('ObjectId');
       expect(s.toHexString().slice(0, 8)).to.equal('12345678');
     });
     it('can be created through createFromTime', () => {
       const s = (shellBson.ObjectId as any).createFromTime(0x12345678);
-      expect(s._bsontype).to.equal('ObjectID');
+      expect(s._bsontype).to.equal('ObjectId');
       expect(s.toHexString().slice(0, 8)).to.equal('12345678');
     });
     it('has help and other metadata', async() => {
@@ -158,16 +158,20 @@ describe('Shell BSON', () => {
       }
       expect.fail('Expecting error, nothing thrown');
     });
+    it('allows toString() with Node.js-specific encoding arguments (legacy)', () => {
+      const s = shellBson.ObjectId();
+      expect(s.toString('utf-16le')).to.have.lengthOf(6);
+    });
   });
   describe('BSONSymbol', () => {
     it('without new', () => {
       const s = shellBson.BSONSymbol('5ebbe8e2905bb493d6981b6b');
-      expect(s._bsontype).to.equal('Symbol');
+      expect(s._bsontype).to.equal('BSONSymbol');
       expect(s.toString()).to.equal('5ebbe8e2905bb493d6981b6b');
     });
     it('with new', () => {
       const s = new (shellBson.BSONSymbol as any)('5ebbe8e2905bb493d6981b6b');
-      expect(s._bsontype).to.equal('Symbol');
+      expect(s._bsontype).to.equal('BSONSymbol');
       expect(s.toString()).to.equal('5ebbe8e2905bb493d6981b6b');
     });
     it('has help and other metadata', async() => {
@@ -212,6 +216,14 @@ describe('Shell BSON', () => {
       }
       expect.fail('Expecting error, nothing thrown');
     });
+    it('errors for out-of-range argument', () => {
+      try {
+        (shellBson.Timestamp as any)(2 ** 32);
+      } catch (e: any) {
+        return expect(e.message).to.contain('equal or less than uint32 max');
+      }
+      expect.fail('Expecting error, nothing thrown');
+    });
     it('constructs with default args', () => {
       const s = shellBson.Timestamp();
       expect(s.low).to.equal(0);
@@ -238,7 +250,7 @@ describe('Shell BSON', () => {
     it('works with a function argument', () => {
       const fn = function() { expect.fail(); };
       const code = shellBson.Code(fn, { k: 'v' });
-      expect(code.code).to.equal(fn);
+      expect(code.code).to.equal(fn.toString());
       expect(code.scope).to.deep.equal({ k: 'v' });
     });
     it('has help and other metadata', async() => {
@@ -355,6 +367,10 @@ describe('Shell BSON', () => {
         return expect(e.message).to.contain('string, got number');
       }
       expect.fail('Expecting error, nothing thrown');
+    });
+    it('allows toString() with Node.js-specific encoding arguments (legacy)', () => {
+      const s = shellBson.BinData(128, b64_1234);
+      expect(s.toString('utf-16le')).to.equal('\u3231\u3433');
     });
   });
   describe('HexData', () => {
@@ -650,12 +666,13 @@ describe('Shell BSON', () => {
         const bsonProperties = Object.getOwnPropertyDescriptors(bson[key]);
         const shellProperties = Object.getOwnPropertyDescriptors(shellBson[key]);
         delete shellProperties.help; // Not expected from the original BSON.
-        delete bsonProperties.get_inc; // Deprecated.
         delete shellProperties.length; // Function length can vary depending on the specific arguments in TS.
         delete bsonProperties.length;
         delete shellProperties.index; // ObjectId.index is a random number
         delete bsonProperties.index; // ObjectId.index is a random number
         delete shellProperties.toBSON; // toBSON is something we add for MaxKey/MinKey as a shell-specific extension
+        delete shellProperties.prototype?.writable; // We don't want to care about writable vs non-writable prototypes
+        delete bsonProperties.prototype?.writable;
         try {
           expect(shellProperties).to.deep.equal(bsonProperties);
         } catch (err: any) {
