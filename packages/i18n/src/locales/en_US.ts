@@ -82,7 +82,8 @@ const translations: Catalog = {
       },
       additionalErrorInfo: 'Additional information',
       additionalErrorResult: 'Result',
-      additionalErrorViolations: 'Violations'
+      additionalErrorViolations: 'Violations',
+      additionalErrorWriteErrors: 'Write Errors'
     },
     'uri-generator': {
       'no-host-port': 'If a full URI is provided, you cannot also specify --host or --port',
