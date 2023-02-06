@@ -114,7 +114,7 @@ async function showCompleter(params: ShellCommandAutocompleteParameters, args: s
   }
   const candidates = [
     'databases', 'dbs', 'collections', 'tables', 'profile', 'users', 'roles', 'log', 'logs',
-    'startupWarnings', 'freeMonitoring', 'automationNotices'
+    'startupWarnings', 'freeMonitoring', 'automationNotices', 'nonGenuineMongoDBCheck'
   ];
   return candidates.filter(str => str.startsWith(args[1] ?? ''));
 }

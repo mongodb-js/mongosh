@@ -421,6 +421,37 @@ export default class Mongo extends ShellApiClass {
         }
         return new CommandResult('ShowBannerResult', null);
       }
+      case 'nonGenuineMongoDBCheck': {
+        const nonGenuineWarning = new CommandResult('ShowBannerResult', {
+          header: 'Warning: Non-Genuine MongoDB Detected',
+          content: [
+            'This server or service appears to be an emulation of MongoDB rather than an official MongoDB product.',
+            'Some documented MongoDB features may work differently, be entirely missing or incomplete, or have unexpected performance characteristics.',
+            'To learn more please visit: https://dochub.mongodb.org/core/non-genuine-mongodb-server-warning.',
+          ].join('\n')
+        });
+
+        try {
+          const serverBuildInfo = await db.serverBuildInfo();
+          const matchesKnownImposterSignature = Object.hasOwnProperty.call(serverBuildInfo, '_t');
+          if (matchesKnownImposterSignature) {
+            return nonGenuineWarning;
+          }
+        } catch (error: any) {
+          // Proceed to next test
+        }
+
+        try {
+          await db.serverCmdLineOpts();
+        } catch (error: any) {
+          const matchesKnownImposterSignature = error.message.indexOf('not supported') !== -1;
+          if (matchesKnownImposterSignature) {
+            return nonGenuineWarning;
+          }
+        }
+
+        return new CommandResult('ShowBannerResult', null);
+      }
       default:
         const err = new MongoshInvalidInputError(
           `'${cmd}' is not a valid argument for "show".`,

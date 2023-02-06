@@ -406,14 +406,14 @@ class MongoshNodeRepl implements EvaluationListener {
       const banners = await Promise.all([
         (async() => await shellApi.show('startupWarnings'))(),
         (async() => await shellApi.show('freeMonitoring'))(),
-        (async() => await shellApi.show('automationNotices'))()
+        (async() => await shellApi.show('automationNotices'))(),
+        (async() => await shellApi.show('nonGenuineMongoDBCheck'))()
       ]);
       for (const banner of banners) {
         if (banner.value) {
           await shellApi.print(banner);
         }
       }
-      // Omitted, see MONGOSH-57: 'show nonGenuineMongoDBCheck'
     }
 
     return { __initialized: 'yes' };

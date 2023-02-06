@@ -449,6 +449,46 @@ describe('Mongo', () => {
         });
       });
 
+      describe('nonGenuineMongoDBCheck', () => {
+        it('returns no warnings for a genuine mongodb connection', async() => {
+          const result = await mongo.show('nonGenuineMongoDBCheck');
+          expect(result.type).to.equal('ShowBannerResult');
+          expect(result.value).to.be.null;
+        });
+
+        context('when connected deployment is not a genuine mongodb deployment', () => {
+          const warning = [
+            'This server or service appears to be an emulation of MongoDB rather than an official MongoDB product.',
+            'Some documented MongoDB features may work differently, be entirely missing or incomplete, or have unexpected performance characteristics.',
+            'To learn more please visit: https://dochub.mongodb.org/core/non-genuine-mongodb-server-warning.',
+          ].join('\n');
+
+          context('and can be determined by serverBuildInfo', () => {
+            it('returns warnings', async() => {
+              database.serverBuildInfo.resolves({ _t: true });
+              const result = await mongo.show('nonGenuineMongoDBCheck');
+              expect(result.type).to.equal('ShowBannerResult');
+              expect(result.value).to.deep.equal({
+                header: 'Warning: Non-Genuine MongoDB Detected',
+                content: warning
+              });
+            });
+          });
+
+          context('and can be determined by serverCmdLineOpts', () => {
+            it('returns warnings', async() => {
+              database.serverCmdLineOpts.rejects(new Error('Deployment not supported'));
+              const result = await mongo.show('nonGenuineMongoDBCheck');
+              expect(result.type).to.equal('ShowBannerResult');
+              expect(result.value).to.deep.equal({
+                header: 'Warning: Non-Genuine MongoDB Detected',
+                content: warning
+              });
+            });
+          });
+        });
+      });
+
       describe('invalid command', () => {
         it('throws an error', async() => {
           const caughtError = await mongo.show('aslkdjhekjghdskjhfds')
