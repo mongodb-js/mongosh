@@ -726,31 +726,6 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   }
 
   /**
-   * Deprecated remove command.
-   *
-   * @param {String} database - The db name.
-   * @param {String} collection - The collection name.
-   * @param {Object} query - The query.
-   * @param {Object} options - The options.
-   * @param dbOptions
-   * @return {Promise}
-   */
-  remove(
-    database: string,
-    collection: string,
-    query: Document = {},
-    options: DeleteOptions = {},
-    dbOptions?: DbOptions): Promise<DeleteResult> {
-    options = { ...this.baseCmdOptions, ...options };
-    /* NOTE: the 4.x branch of the driver does not define a separate def for remove that doesn't take a
-       callback, and since remove is deprecated it's not worth asking for a change to the driver. So ts-ignore it is.
-    */
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    return this.db(database, dbOptions).collection(collection).remove(query, options);
-  }
-
-  /**
    * Replace a document with another.
    *
    * @param {String} database - The database name.

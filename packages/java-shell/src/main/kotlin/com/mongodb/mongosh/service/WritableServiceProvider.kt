@@ -21,7 +21,6 @@ internal interface WritableServiceProvider {
     fun updateMany(database: String, collection: String, filter: Value, update: Value, options: Value?): Value
     fun updateOne(database: String, collection: String, filter: Value, update: Value, options: Value?): Value
     fun save(database: String, collection: String, document: Value, options: Value?, dbOptions: Value?): Value
-    fun remove(database: String, collection: String, query: Value, options: Value?): Value
     fun createIndexes(database: String, collection: String, indexSpecs: Value?, options: Value?): Value
     fun dropCollection(database: String, collection: String, options: Value?): Value
     fun renameCollection(database: String, oldName: String, newName: String, options: Value?): Value

@@ -419,23 +419,6 @@ describe('CliServiceProvider [integration]', function() {
     });
   });
 
-  describe('#remove', () => {
-    const filter = { name: 'Aphex Twin' };
-
-    context('when the filter is empty', () => {
-      let result;
-
-      beforeEach(async() => {
-        result = await serviceProvider.remove('music', 'bands', filter);
-      });
-
-      it('executes the remove op with and resolves the result', () => {
-        expect(result.acknowledged).to.equal(true);
-        expect(result.deletedCount).to.equal(0);
-      });
-    });
-  });
-
   describe('#replaceOne', () => {
     const filter = { name: 'Aphex Twin' };
     const replacement = { name: 'Richard James' };

@@ -282,24 +282,6 @@ export default interface Writable {
     dbOptions?: DbOptions): Promise<UpdateResult>;
 
   /**
-   * Deprecated remove command.
-   *
-   * @param {String} database - The db name.
-   * @param {String} collection - The collection name.
-   * @param {Object} query - The query.
-   * @param {Object} options - The options.
-   * @param {DbOptions} dbOptions - The database options
-   *
-   * @return {Promise}
-   */
-  remove(
-    database: string,
-    collection: string,
-    query: Document,
-    options?: DeleteOptions,
-    dbOptions?: DbOptions): Promise<DeleteResult>;
-
-  /**
    * Adds new indexes to a collection.
    *
    * @param {String} database - The db name.
