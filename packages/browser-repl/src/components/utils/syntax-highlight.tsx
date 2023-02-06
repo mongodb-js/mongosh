@@ -1,16 +1,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Code, css } from '@mongodb-js/compass-components';
+import { css } from '@mongodb-js/compass-components';
+import { SyntaxHighlight as CompassSyntaxHighlight } from '@mongodb-js/compass-editor';
 
-const syntaxHighlight = css({
-  '& *': {
-    background: 'transparent',
-    border: '0px transparent',
-    padding: 0,
-    margin: 0,
-    fontSize: 'inherit',
-    borderRadius: 0,
-    color: 'inherit'
+const syntaxHighlightStyles = css({
+  lineHeight: '24px',
+  '& .cm-scroller': {
+    lineHeight: '24px'
   }
 });
 
@@ -25,11 +21,13 @@ export class SyntaxHighlight extends Component<SyntaxHighlightProps> {
 
   render(): JSX.Element {
     return (
-      <Code
+      <CompassSyntaxHighlight
         language="javascript"
-        className={syntaxHighlight}
-        copyable={false}
-      >{this.props.code}</Code>
+        text={this.props.code}
+        showFoldGutter={false}
+        showLineNumbers={false}
+        className={syntaxHighlightStyles}
+      />
     );
   }
 }

@@ -1,5 +1,6 @@
 import React from 'react';
 import sinon from 'sinon';
+import { Icon } from '@mongodb-js/compass-components';
 import { expect } from '../../../testing/chai';
 import { mount } from '../../../testing/enzyme';
 import { Expandable } from './expandable';
@@ -40,12 +41,12 @@ describe('<Expandable />', () => {
 
   it('renders a caret right icon when not expanded', () => {
     const wrapper = mount(<Expandable />);
-    expect(wrapper.find('Icon').prop('glyph')).to.equal('CaretRight');
+    expect(wrapper.find(Icon).prop('glyph')).to.equal('CaretRight');
   });
 
   it('renders a caret down icon when expanded', () => {
     const wrapper = mount(<Expandable />);
     wrapper.setState({ expanded: true });
-    expect(wrapper.find('Icon').prop('glyph')).to.equal('CaretDown');
+    expect(wrapper.find(Icon).prop('glyph')).to.equal('CaretDown');
   });
 });
