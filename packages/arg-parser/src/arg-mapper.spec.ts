@@ -43,26 +43,6 @@ describe('arg-mapper.mapCliToDriver', () => {
     });
   });
 
-  context('when cli args have quiet', () => {
-    const cliOptions: CliOptions = { quiet: true };
-
-    it('maps to loggerLevel', () => {
-      expect(optionsTest(cliOptions)).to.deep.equal({
-        driver: { loggerLevel: 'error' }
-      });
-    });
-  });
-
-  context('when cli args have verbose', () => {
-    const cliOptions: CliOptions = { verbose: true };
-
-    it('maps to loggerLevel', () => {
-      expect(optionsTest(cliOptions)).to.deep.equal({
-        driver: { loggerLevel: 'debug' }
-      });
-    });
-  });
-
   context('when cli args have username', () => {
     it('maps to auth object', () => {
       expect(optionsTest({ username: 'richard' })).to.deep.equal({

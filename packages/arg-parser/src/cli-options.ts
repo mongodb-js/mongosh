@@ -33,7 +33,7 @@ export interface CliOptions {
   norc?: boolean;
   password?: string;
   port?: string;
-  quiet?: boolean;
+  quiet?: boolean; // No-op since driver v5.0.0
   retryWrites?: boolean;
   shell?: boolean;
   tls?: boolean;
@@ -48,6 +48,6 @@ export interface CliOptions {
   tlsFIPSMode?: boolean;
   tlsUseSystemCA?: boolean;
   username?: string;
-  verbose?: boolean;
+  verbose?: boolean; // No-op since driver v5.0.0
   version?: boolean;
 }
