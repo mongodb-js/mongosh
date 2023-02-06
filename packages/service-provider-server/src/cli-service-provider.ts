@@ -833,8 +833,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     options = { ...this.baseCmdOptions, ...options };
     return await this.db(database, dbOptions)
       .collection(collection)
-      .updateMany(filter, update, options) as Promise<UpdateResult>;
-    // `as UpdateResult` because we know we didn't request .explain() here.
+      .updateMany(filter, update, options);
   }
 
   /**
@@ -859,8 +858,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     options = { ...this.baseCmdOptions, ...options };
     return this.db(database, dbOptions)
       .collection(collection)
-      .updateOne(filter, update, options) as Promise<UpdateResult>;
-    // `as UpdateResult` because we know we didn't request .explain() here.
+      .updateOne(filter, update, options);
   }
 
   /**

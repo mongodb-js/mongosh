@@ -1084,7 +1084,7 @@ describe('Collection', () => {
       beforeEach(() => {
         const serviceProviderCursor = stubInterface<ServiceProviderCursor>();
         serviceProviderCursor.limit.returns(serviceProviderCursor);
-        serviceProviderCursor.tryNext.returns();
+        serviceProviderCursor.tryNext.returns(undefined as any);
         serviceProvider.find.returns(serviceProviderCursor);
 
         const tryNext = sinon.stub();
@@ -1144,7 +1144,7 @@ describe('Collection', () => {
         beforeEach(() => {
           const serviceProviderCursor = stubInterface<ServiceProviderCursor>();
           serviceProviderCursor.limit.returns(serviceProviderCursor);
-          serviceProviderCursor.tryNext.returns();
+          serviceProviderCursor.tryNext.returns(undefined as any);
           // Throw an error when attempting to check permissions.
           serviceProvider.find.onCall(0).returns(false as any);
           serviceProvider.find.onCall(1).returns(serviceProviderCursor);

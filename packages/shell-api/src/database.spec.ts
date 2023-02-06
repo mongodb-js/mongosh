@@ -2154,7 +2154,7 @@ describe('Database', () => {
         serviceProvider.aggregate.returns({ tryNext } as any);
         const serviceProviderCursor = stubInterface<ServiceProviderCursor>();
         serviceProviderCursor.limit.returns(serviceProviderCursor);
-        serviceProviderCursor.tryNext.returns();
+        serviceProviderCursor.tryNext.returns(undefined as any);
         serviceProvider.find.returns(serviceProviderCursor);
         const result = await database.printCollectionStats(1);
         expect(result.value.abc).to.deep.equal({

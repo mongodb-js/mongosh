@@ -93,7 +93,7 @@ describe('ChangeStreamCursor', () => {
     });
     it('calls spCursor.next with arguments', async() => {
       const result = { doc: 1 };
-      spCursor.next.resolves(result);
+      spCursor.next.resolves(result as any);
       const actual = await cursor.next();
       expect(actual).to.equal(result);
       expect(spCursor.next.calledWith()).to.equal(true);
