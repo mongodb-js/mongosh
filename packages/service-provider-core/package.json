@@ -35,8 +35,8 @@
   "dependencies": {
     "@aws-sdk/credential-providers": "^3.262.0",
     "@mongosh/errors": "0.0.0-dev.0",
-    "bson": "^4.7.2",
-    "mongodb": "^4.13.0",
+    "bson": "^5.0.0",
+    "mongodb": "^5.0.0",
     "mongodb-build-info": "^1.5.0"
   },
   "optionalDependencies": {

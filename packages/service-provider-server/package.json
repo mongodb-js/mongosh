@@ -44,13 +44,13 @@
     }
   },
   "dependencies": {
-    "@mongodb-js/devtools-connect": "^1.4.3",
+    "@mongodb-js/devtools-connect": "^1.4.4",
     "@mongosh/errors": "0.0.0-dev.0",
     "@mongosh/service-provider-core": "0.0.0-dev.0",
     "@mongosh/types": "0.0.0-dev.0",
     "@types/sinon-chai": "^3.2.3",
     "aws4": "^1.11.0",
-    "mongodb": "^4.13.0",
+    "mongodb": "^5.0.0",
     "mongodb-connection-string-url": "^2.6.0",
     "saslprep": "mongodb-js/saslprep#v1.0.4"
   },
