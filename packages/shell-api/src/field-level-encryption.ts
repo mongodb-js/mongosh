@@ -208,7 +208,6 @@ export class ClientEncryption extends ShellApiWithMongoClass {
     assertArgsDefinedType([keyId, value, options], [true, true, true], 'ClientEncryption.encryptExpression');
     return await this._libmongocrypt.encryptExpression(
       value,
-      // @ts-expect-error libmongocrypt typings contain a typo, see NODE-5023
       { keyId, ...options }
     );
   }
