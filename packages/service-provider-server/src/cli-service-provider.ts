@@ -241,7 +241,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
       this.runCommandWithCheck('admin', { getCmdLineOpts: 1 }, this.baseCmdOptions).catch((e) => {
         // mongodb-build-info.getGenuineMongoDB expects either
         // the successful or failure response from server
-        // Ref: https://github.com/mongodb-js/mongodb-build-info/blob/main/index.js#L89
+        // Ref: https://github.com/mongodb-js/mongodb-build-info/blob/9247eeba730a905397ad09fe5a377067edc49b34/index.js#L89
         return {
           ok: e.ok,
           code: e.code,
