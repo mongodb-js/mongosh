@@ -674,7 +674,7 @@ describe('CliServiceProvider', () => {
 
   describe('#getConnectionInfo', () => {
     let clientStub: any;
-    let dbStub: any;
+    let dbStub: StubbedInstance<Db>;
 
     beforeEach(() => {
       dbStub = stubInterface<Db>();
@@ -700,6 +700,42 @@ describe('CliServiceProvider', () => {
       expect(info.extraInfo.is_localhost).to.equal(true);
       expect(info.extraInfo.fcv).to.equal(undefined);
       expect(dbStub.command).to.have.callCount(4);
+    });
+
+    context('when connected to a DocumentDB deployment', () => {
+      it('correctly gathers info on the fake deployment', async() => {
+        dbStub.command.callsFake((params) => new Promise((resolve, reject) => {
+          if (params.getCmdLineOpts) {
+            reject({
+              'ok': 0,
+              'code': 303,
+              'message': 'Feature not supported: getCmdLineOpts',
+              'operationTime': Date.now()
+            });
+          } else {
+            resolve({ ok: 1 });
+          }
+        }));
+
+        const info = await serviceProvider.getConnectionInfo();
+        expect(info.extraInfo.is_genuine).to.be.false;
+        expect(info.extraInfo.non_genuine_server_name).to.equal('documentdb');
+      });
+    });
+
+    context('when connected to a CosmosDB deployment', () => {
+      it('correctly gathers info on the fake deployment', async() => {
+        dbStub.command.callsFake((params) => {
+          if (params.buildInfo) {
+            return { ok: 1, _t: 1 };
+          }
+          return { ok: 1 };
+        });
+
+        const info = await serviceProvider.getConnectionInfo();
+        expect(info.extraInfo.is_genuine).to.be.false;
+        expect(info.extraInfo.non_genuine_server_name).to.equal('cosmosdb');
+      });
     });
   });
 });

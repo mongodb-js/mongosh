@@ -236,9 +236,19 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   async getConnectionInfo(): Promise<ConnectionInfo> {
     const topology = this.getTopology();
     const { version } = require('../package.json');
-    const [buildInfo = null, cmdLineOpts = null, atlasVersion = null, fcv = null] = await Promise.all([
+    const [buildInfo = null, cmdLineOptsOrServerError = null, atlasVersion = null, fcv = null] = await Promise.all([
       this.runCommandWithCheck('admin', { buildInfo: 1 }, this.baseCmdOptions).catch(() => {}),
-      this.runCommandWithCheck('admin', { getCmdLineOpts: 1 }, this.baseCmdOptions).catch(() => {}),
+      this.runCommandWithCheck('admin', { getCmdLineOpts: 1 }, this.baseCmdOptions).catch((e) => {
+        // mongodb-build-info.getGenuineMongoDB expects either
+        // the successful or failure response from server
+        // Ref: https://github.com/mongodb-js/mongodb-build-info/blob/main/index.js#L89
+        return {
+          ok: e.ok,
+          code: e.code,
+          errmsg: e.message,
+          operationTime: e.operationTime
+        };
+      }),
       this.runCommandWithCheck('admin', { atlasVersion: 1 }, this.baseCmdOptions).catch(() => {}),
       this.runCommandWithCheck('admin', { getParameter: 1, featureCompatibilityVersion: 1 }, this.baseCmdOptions).catch(() => {})
     ]);
@@ -247,7 +257,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
       this.uri?.toString() ?? '',
       version,
       buildInfo,
-      cmdLineOpts,
+      cmdLineOptsOrServerError,
       atlasVersion,
       topology
     );

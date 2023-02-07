@@ -422,7 +422,14 @@ export default class Mongo extends ShellApiClass {
         return new CommandResult('ShowBannerResult', null);
       }
       case 'nonGenuineMongoDBCheck': {
-        const nonGenuineWarning = new CommandResult('ShowBannerResult', {
+        // Although very unlikely but if we cannot determine wether we are connected to a fake mongodb
+        // or not, we assume that we are connected to a real mongodb and won't show the warning
+        const isGenuine = this._instanceState.connectionInfo?.extraInfo?.is_genuine ?? true;
+        if (isGenuine) {
+          return new CommandResult('ShowBannerResult', null);
+        }
+
+        return new CommandResult('ShowBannerResult', {
           header: 'Warning: Non-Genuine MongoDB Detected',
           content: [
             'This server or service appears to be an emulation of MongoDB rather than an official MongoDB product.',
@@ -430,27 +437,6 @@ export default class Mongo extends ShellApiClass {
             'To learn more please visit: https://dochub.mongodb.org/core/non-genuine-mongodb-server-warning.',
           ].join('\n')
         });
-
-        try {
-          const serverBuildInfo = await db.serverBuildInfo();
-          const matchesKnownImposterSignature = Object.hasOwnProperty.call(serverBuildInfo, '_t');
-          if (matchesKnownImposterSignature) {
-            return nonGenuineWarning;
-          }
-        } catch (error: any) {
-          // Proceed to next test
-        }
-
-        try {
-          await db.serverCmdLineOpts();
-        } catch (error: any) {
-          const matchesKnownImposterSignature = error.message.indexOf('not supported') !== -1;
-          if (matchesKnownImposterSignature) {
-            return nonGenuineWarning;
-          }
-        }
-
-        return new CommandResult('ShowBannerResult', null);
       }
       default:
         const err = new MongoshInvalidInputError(
