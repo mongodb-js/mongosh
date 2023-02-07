@@ -531,8 +531,8 @@ describe('FLE tests', () => {
       );
       expect(await shell.executeLine('({ count: coll.countDocuments() })')).to.include('{ count: 20 }');
 
-      await shell.executeLine(`
-      const findPayload = clientEncryption.encryptExpression(dataKey, {
+      await shell.executeLine(`{
+      findPayload = clientEncryption.encryptExpression(dataKey, {
         $and: [ { v: {$gt: new Date('1992')} }, { v: {$lt: new Date('1999')} } ]
       }, {
         algorithm: 'RangePreview',
@@ -540,7 +540,7 @@ describe('FLE tests', () => {
         contentionFactor: 4,
         rangeOptions
       });
-      `);
+      }`);
 
       // Make sure the find payload allows searching for the encrypted values
       const out = await shell.executeLine('\
