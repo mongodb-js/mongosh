@@ -1,4 +1,4 @@
-/src/main/resources/js/all-standalone.js
+/src/main/resources/js/*
 /src/test/resources/URI.txt
 /build/
 /.gradle/

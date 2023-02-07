@@ -1,3 +1,12 @@
+// Polyfills for Node.js APIs that browserify provided but webpack didn't
+globalThis.global = globalThis.global || globalThis;
+globalThis.process = globalThis.process || {};
+globalThis.Buffer = globalThis.Buffer || require('buffer').Buffer;
+process.env = process.env || {};
+process.cwd = process.cwd || (() => '/');
+globalThis.btoa = globalThis.btoa || (data => Buffer.from(data, 'latin1').toString('base64'));
+globalThis.atob = globalThis.atob || (data => Buffer.from(data, 'base64').toString('latin1'));
+
 // The BSON package tries to use crypto.randomBytes(), but that throws
 // in the current browserify replacement for that package.
 // We provide a low-quality polyfill for now.
