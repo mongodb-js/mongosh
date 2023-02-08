@@ -304,6 +304,18 @@ describe('Field Level Encryption', () => {
         }
         expect.fail('Expected error');
       });
+      it('reads keyAltNames and keyMaterial from DataKeyEncryptionKeyOptions', async() => {
+        const rawResult = { result: 1 };
+        const keyVault = await mongo.getKeyVault();
+        const options = {
+          keyAltNames: ['b'],
+          keyMaterial: new bson.Binary(Buffer.from('12345678123498761234123456789012', 'hex'), 4)
+        };
+
+        libmongoc.createDataKey.resolves(rawResult);
+        await keyVault.createKey('local', options);
+        expect(libmongoc.createDataKey).calledOnceWithExactly('local', options);
+      });
     });
     describe('getKey', () => {
       it('calls find on key coll', async() => {
@@ -404,18 +416,6 @@ describe('Field Level Encryption', () => {
           'altname'
         );
         expect(result).to.deep.equal(r.value);
-      });
-      it('reads keyAltNames and keyMaterial from DataKeyEncryptionKeyOptions', async() => {
-        const rawResult = { result: 1 };
-        const keyVault = await mongo.getKeyVault();
-        const options = {
-          keyAltNames: ['b'],
-          keyMaterial: new bson.Binary(Buffer.from('12345678123498761234123456789012', 'hex'), 4)
-        };
-
-        libmongoc.createDataKey.resolves(rawResult);
-        await keyVault.createKey('local', options);
-        expect(libmongoc.createDataKey).calledOnceWithExactly('local', options);
       });
     });
     describe('rewrapManyDataKey', () => {
