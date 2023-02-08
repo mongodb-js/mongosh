@@ -15,6 +15,13 @@ import { inspect } from 'util';
 import path from 'path';
 import os from 'os';
 
+function isMacosTooOldForQE() {
+  // Indexed search is not supported on macOS 10.14 (which in turn is
+  // not supported by 6.0+ servers anyway).
+  // See e.g. https://jira.mongodb.org/browse/MONGOCRYPT-440
+  return os.type() === 'Darwin' && +os.release().split('.')[0] < 20;
+}
+
 describe('FLE tests', () => {
   const testServer = startTestServer('not-shared', '--replicaset', '--nodes', '1');
   skipIfServerVersion(testServer, '< 4.2'); // FLE only available on 4.2+
@@ -293,13 +300,10 @@ describe('FLE tests', () => {
   });
 
   context('6.0+', () => {
-    skipIfServerVersion(testServer, '< 6.0'); // FLE2 only available on 6.0+
+    skipIfServerVersion(testServer, '< 6.0'); // Queryable Encryption only available on 6.0+
 
     it('allows explicit encryption with bypassQueryAnalysis', async function() {
-      if (os.type() === 'Darwin' && +os.release().split('.')[0] < 20) {
-        // Indexed search is not supported on macOS 10.14 (which in turn is
-        // not supported by 6.0+ servers anyway).
-        // See e.g. https://jira.mongodb.org/browse/MONGOCRYPT-440
+      if (isMacosTooOldForQE()) {
         return this.skip();
       }
 
@@ -322,10 +326,8 @@ describe('FLE tests', () => {
         // Create necessary data key
         dataKey = keyVault.createKey('local');
 
-        // (re-)create collection -- this needs to be done
-        // with the plain mongo client until MONGOCRYPT-435 is done
         coll = client.getDB('${dbname}').encryptiontest;
-        Mongo(${uri}).getDB('${dbname}').createCollection('encryptiontest', {
+        client.getDB('${dbname}').createCollection('encryptiontest', {
           encryptedFields: {
             fields: [{
               keyId: dataKey,
@@ -462,6 +464,145 @@ describe('FLE tests', () => {
 
       const compactResult = await shell.executeLine(`autoMongo.getDB('${dbname}').test.compactStructuredEncryptionData()`);
       expect(compactResult).to.include('ok: 1');
+    });
+  });
+
+  context('6.2+', () => {
+    skipIfServerVersion(testServer, '< 6.2'); // Range QE only available on 6.2+
+
+    it('allows explicit range encryption with bypassQueryAnalysis', async function() {
+      if (isMacosTooOldForQE()) {
+        return this.skip();
+      }
+
+      // No --cryptSharedLibPath since bypassQueryAnalysis is also a community edition feature
+      const shell = TestShell.start({ args: ['--nodb'] });
+      const uri = JSON.stringify(await testServer.connectionString());
+
+      await shell.waitForPrompt();
+
+      await shell.executeLine(`{
+        client = Mongo(${uri}, {
+          keyVaultNamespace: '${dbname}.keyVault',
+          kmsProviders: { local: { key: 'A'.repeat(128) } },
+          bypassQueryAnalysis: true
+        });
+
+        keyVault = client.getKeyVault();
+        clientEncryption = client.getClientEncryption();
+
+        // Create necessary data key
+        dataKey = keyVault.createKey('local');
+
+        rangeOptions = {
+          sparsity: Long(1),
+          min: new Date('1970'),
+          max: new Date('2100')
+        };
+        coll = client.getDB('${dbname}').encryptiontest;
+        client.getDB('${dbname}').createCollection('encryptiontest', {
+          encryptedFields: {
+            fields: [{
+              keyId: dataKey,
+              path: 'v',
+              bsonType: 'date',
+              queries: [{
+                queryType: 'rangePreview',
+                contention: 4,
+                ...rangeOptions
+              }]
+            }]
+          }
+        });
+
+        // Encrypt and insert data encrypted with specified data key
+        for (let year = 1990; year < 2010; year++) {
+          const insertPayload = clientEncryption.encrypt(
+            dataKey,
+            new Date(year + '-02-02T12:45:16.277Z'),
+            {
+              algorithm: 'RangePreview',
+              contentionFactor: 4,
+              rangeOptions
+            });
+          coll.insertOne({ v: insertPayload, year });
+        }
+      }`
+      );
+      expect(await shell.executeLine('({ count: coll.countDocuments() })')).to.include('{ count: 20 }');
+
+      await shell.executeLine(`{
+      findPayload = clientEncryption.encryptExpression(dataKey, {
+        $and: [ { v: {$gt: new Date('1992')} }, { v: {$lt: new Date('1999')} } ]
+      }, {
+        algorithm: 'RangePreview',
+        queryType: 'rangePreview',
+        contentionFactor: 4,
+        rangeOptions
+      });
+      }`);
+
+      // Make sure the find payload allows searching for the encrypted values
+      const out = await shell.executeLine('\
+        coll.find(findPayload) \
+          .toArray() \
+          .map(d => d.year) \
+          .sort() \
+          .join(\',\')');
+      expect(out).to.include('1992,1993,1994,1995,1996,1997,1998');
+    });
+
+    it('allows automatic range encryption', async function() {
+      if (isMacosTooOldForQE()) {
+        return this.skip();
+      }
+
+      const shell = TestShell.start({ args: ['--nodb', `--cryptSharedLibPath=${cryptLibrary}`] });
+      const uri = JSON.stringify(await testServer.connectionString());
+
+      await shell.waitForPrompt();
+
+      await shell.executeLine(`{
+        client = Mongo(${uri}, {
+          keyVaultNamespace: '${dbname}.keyVault',
+          kmsProviders: { local: { key: 'A'.repeat(128) } }
+        });
+
+        dataKey = client.getKeyVault().createKey('local');
+
+        coll = client.getDB('${dbname}').encryptiontest;
+        client.getDB('${dbname}').createCollection('encryptiontest', {
+          encryptedFields: {
+            fields: [{
+              keyId: dataKey,
+              path: 'v',
+              bsonType: 'date',
+              queries: [{
+                queryType: 'rangePreview',
+                contention: 4,
+                sparsity: 1,
+                min: new Date('1970'),
+                max: new Date('2100')
+              }]
+            }]
+          }
+        });
+
+        for (let year = 1990; year < 2010; year++) {
+          coll.insertOne({ v: new Date(year + '-02-02T12:45:16.277Z'), year })
+        }
+      }`
+      );
+      expect(await shell.executeLine('({ count: coll.countDocuments() })')).to.include('{ count: 20 }');
+
+      // Make sure the find payload allows searching for the encrypted values
+      const out = await shell.executeLine('\
+        coll.find({ v: {$gt: new Date(\'1992\'), $lt: new Date(\'1999\') } }) \
+          .toArray() \
+          .map(d => d.year) \
+          .sort() \
+          .join(\',\')');
+      expect(out).to.include('1992,1993,1994,1995,1996,1997,1998');
     });
   });
 

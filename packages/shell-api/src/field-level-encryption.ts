@@ -168,23 +168,23 @@ export class ClientEncryption extends ShellApiWithMongoClass {
 
   @returnsPromise
   async encrypt(
-    encryptionId: BinaryType,
+    keyId: BinaryType,
     value: any,
     algorithmOrEncryptionOptions: ClientEncryptionEncryptOptions['algorithm'] | ClientEncryptionEncryptOptions
   ): Promise<BinaryType> {
     let encryptionOptions: ClientEncryptionEncryptOptions;
     if (typeof algorithmOrEncryptionOptions === 'object') {
       encryptionOptions = {
-        keyId: encryptionId,
+        keyId,
         ...algorithmOrEncryptionOptions
       };
     } else {
       encryptionOptions = {
-        keyId: encryptionId,
+        keyId,
         algorithm: algorithmOrEncryptionOptions
       };
     }
-    assertArgsDefinedType([encryptionId, value, encryptionOptions], [true, true, true], 'ClientEncryption.encrypt');
+    assertArgsDefinedType([keyId, value, encryptionOptions], [true, true, true], 'ClientEncryption.encrypt');
     return await this._libmongocrypt.encrypt(
       value,
       encryptionOptions
@@ -197,6 +197,20 @@ export class ClientEncryption extends ShellApiWithMongoClass {
   ): Promise<any> {
     assertArgsDefinedType([encryptedValue], [true], 'ClientEncryption.decrypt');
     return await this._libmongocrypt.decrypt(encryptedValue);
+  }
+
+  @returnsPromise
+  async encryptExpression(
+    keyId: BinaryType,
+    value: Document,
+    options: ClientEncryptionEncryptOptions
+  ) {
+    assertArgsDefinedType([keyId, value, options], [true, true, true], 'ClientEncryption.encryptExpression');
+    return await this._libmongocrypt.encryptExpression(
+      value,
+      // @ts-expect-error libmongocrypt typings contain a typo, see NODE-5023
+      { keyId, ...options }
+    );
   }
 }
 

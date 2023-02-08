@@ -2195,6 +2195,10 @@ const translations: Catalog = {
               link: 'https://docs.mongodb.com/manual/reference/method/ClientEncryption.encrypt/#ClientEncryption.encrypt',
               description: 'Encrypts the value using the specified encryptionKeyId and encryptionAlgorithm. encrypt supports explicit (manual) encryption of field values.'
             },
+            encryptExpression: {
+              link: 'https://docs.mongodb.com/manual/reference/method/ClientEncryption.encrypt/#ClientEncryption.encryptExpression',
+              description: 'Encrypts an MQL expression using the specified encryptionKeyId and encryptionAlgorithm.'
+            },
             decrypt: {
               link: 'https://docs.mongodb.com/manual/reference/method/ClientEncryption.decrypt/#ClientEncryption.decrypt',
               description: 'decrypts the encryptionValue if the current database connection was configured with access to the Key Management Service (KMS) and key vault used to encrypt encryptionValue.'
