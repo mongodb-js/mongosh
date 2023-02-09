@@ -33,7 +33,7 @@ export interface CliOptions {
   norc?: boolean;
   password?: string;
   port?: string;
-  quiet?: boolean; // No-op since driver v5.0.0
+  quiet?: boolean;
   retryWrites?: boolean;
   shell?: boolean;
   tls?: boolean;
