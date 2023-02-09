@@ -847,8 +847,18 @@ describe('Shell API (integration)', function() {
       });
 
       context('when a collection does not exist', () => {
-        it('returns false', async() => {
-          expect(await collection.drop()).to.be.false;
+        context('pre-7.0', () => {
+          skipIfServerVersion(testServer, '>= 7.0');
+          it('returns false', async() => {
+            expect(await collection.drop()).to.be.false;
+          });
+        });
+
+        context('post-7.0', () => {
+          skipIfServerVersion(testServer, '< 7.0');
+          it('returns true', async() => {
+            expect(await collection.drop()).to.be.false;
+          });
         });
       });
     });
@@ -866,7 +876,7 @@ describe('Shell API (integration)', function() {
 
       context('when a collection does not exist', () => {
         it('returns false', async() => {
-          expect(await collection.drop()).to.be.false;
+          expect(await collection.exists()).to.be.false;
         });
       });
     });
