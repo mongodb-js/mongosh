@@ -11,7 +11,6 @@ import { signatures, toShellResult } from './decorators';
 import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, ALL_API_VERSIONS } from './enums';
 import { ClientEncryption, ClientSideFieldLevelEncryptionOptions, ClientSideFieldLevelEncryptionKmsProvider as KMSProvider, KeyVault } from './field-level-encryption';
 import Mongo from './mongo';
-import { DeleteResult } from './result';
 import ShellInstanceState from './shell-instance-state';
 import { CliServiceProvider } from '../../service-provider-server';
 import { startTestServer } from '../../../testing/integration-testing-hooks';
@@ -340,6 +339,18 @@ describe('Field Level Encryption', () => {
         }
         expect.fail('Expected error');
       });
+      it('reads keyAltNames and keyMaterial from DataKeyEncryptionKeyOptions', async() => {
+        const rawResult = { result: 1 };
+        const keyVault = await mongo.getKeyVault();
+        const options = {
+          keyAltNames: ['b'],
+          keyMaterial: new bson.Binary(Buffer.from('12345678123498761234123456789012', 'hex'), 4)
+        };
+
+        libmongoc.createDataKey.resolves(rawResult);
+        await keyVault.createKey('local', options);
+        expect(libmongoc.createDataKey).calledOnceWithExactly('local', options);
+      });
     });
     describe('getKey', () => {
       it('calls find on key coll', async() => {
@@ -401,87 +412,45 @@ describe('Field Level Encryption', () => {
       });
     });
     describe('getKeys', () => {
-      it('calls find on key coll', async() => {
-        const c = { cursor: 1 } as any;
-        sp.find.returns(c);
+      it('calls getKeys on libmongocrypt', async() => {
+        const c = { count: 1 } as any;
+        libmongoc.getKeys.returns(c);
         const result = await keyVault.getKeys();
-        expect(sp.find).to.have.been.calledOnceWithExactly(DB, COLL, {}, {});
+        expect(libmongoc.getKeys).to.have.been.called;
         expect(result._cursor).to.deep.equal(c);
       });
     });
     describe('deleteKey', () => {
-      it('calls deleteOne on key coll', async() => {
-        const r = { acknowledged: 1, deletedCount: 1 } as any;
-        sp.deleteOne.resolves(r);
+      it('calls deleteKey on libmongocrypt', async() => {
+        const r = { acknowledged: true, deletedCount: 1 } as any;
+        libmongoc.deleteKey.resolves(r);
         const result = await keyVault.deleteKey(KEY_ID);
-        expect(sp.deleteOne).to.have.been.calledOnceWithExactly(DB, COLL, { _id: KEY_ID }, {});
-        expect(result).to.deep.equal(new DeleteResult(true, 1));
+        expect(libmongoc.deleteKey).to.have.been.calledOnceWithExactly(KEY_ID);
+        expect(result).to.deep.eq(r);
       });
     });
     describe('addKeyAlternateName', () => {
-      it('calls findOneAndUpdate on key coll', async() => {
+      it('calls addKeyAltName on libmongocrypt', async() => {
         const r = { value: { ok: 1 } } as any;
-        sp.findOneAndUpdate.resolves(r);
+        libmongoc.addKeyAltName.resolves(r.value);
         const result = await keyVault.addKeyAlternateName(KEY_ID, 'altname');
-        expect(sp.findOneAndUpdate).to.have.been.calledOnceWithExactly(
-          DB,
-          COLL,
-          { _id: KEY_ID },
-          { $addToSet: { 'keyAltNames': 'altname' }, $currentDate: { 'updateDate': true } },
-          { returnDocument: 'before' }
+        expect(libmongoc.addKeyAltName).to.have.been.calledOnceWithExactly(
+          KEY_ID,
+          'altname'
         );
-        expect(result).to.deep.equal({ ok: 1 });
+        expect(result).to.deep.equal(r.value);
       });
     });
     describe('removeKeyAlternateName', () => {
-      it('calls findOneAndUpdate on key coll without empty result', async() => {
-        const r = { value: { ok: 1, keyAltNames: ['other'] } } as any;
-        sp.findOneAndUpdate.resolves(r);
+      it('calls removeKeyAltName on libmongocrypt', async() => {
+        const r = { value: { ok: 1 } } as any;
+        libmongoc.removeKeyAltName.resolves(r.value);
         const result = await keyVault.removeKeyAlternateName(KEY_ID, 'altname');
-        expect(sp.findOneAndUpdate).to.have.been.calledOnceWithExactly(
-          DB,
-          COLL,
-          { _id: KEY_ID },
-          { $pull: { 'keyAltNames': 'altname' }, $currentDate: { 'updateDate': true } },
-          { returnDocument: 'before' }
+        expect(libmongoc.removeKeyAltName).to.have.been.calledOnceWithExactly(
+          KEY_ID,
+          'altname'
         );
-        expect(result).to.deep.equal({ ok: 1, keyAltNames: ['other'] });
-      });
-      it('calls findOneAndUpdate on key coll with empty result', async() => {
-        const r = { value: { ok: 1, keyAltNames: ['altname'] } } as any;
-        const r2 = { value: { ok: 2 } } as any;
-        sp.findOneAndUpdate.onFirstCall().resolves(r);
-        sp.findOneAndUpdate.onSecondCall().resolves(r2);
-        const result = await keyVault.removeKeyAlternateName(KEY_ID, 'altname');
-        const calls = sp.findOneAndUpdate.getCalls();
-        expect(calls.length).to.equal(2);
-        expect(calls[0].args).to.deep.equal([
-          DB,
-          COLL,
-          { _id: KEY_ID },
-          { $pull: { 'keyAltNames': 'altname' }, $currentDate: { 'updateDate': true } },
-          { returnDocument: 'before' }
-        ]);
-        expect(calls[1].args).to.deep.equal([
-          DB,
-          COLL,
-          { _id: KEY_ID, keyAltNames: { $size: 0 } },
-          { $unset: { 'keyAltNames': '' }, $currentDate: { 'updateDate': true } },
-          { returnDocument: 'before' }
-        ]);
-        expect(result).to.deep.equal(r2.value);
-      });
-      it('reads keyAltNames and keyMaterial from DataKeyEncryptionKeyOptions', async() => {
-        const rawResult = { result: 1 };
-        const keyVault = await mongo.getKeyVault();
-        const options = {
-          keyAltNames: ['b'],
-          keyMaterial: new bson.Binary(Buffer.from('12345678123498761234123456789012', 'hex'), 4)
-        };
-
-        libmongoc.createDataKey.resolves(rawResult);
-        await keyVault.createKey('local', options);
-        expect(libmongoc.createDataKey).calledOnceWithExactly('local', options);
+        expect(result).to.deep.equal(r.value);
       });
     });
     describe('rewrapManyDataKey', () => {
