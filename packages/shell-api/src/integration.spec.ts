@@ -857,7 +857,7 @@ describe('Shell API (integration)', function() {
         context('post-7.0', () => {
           skipIfServerVersion(testServer, '< 7.0');
           it('returns true', async() => {
-            expect(await collection.drop()).to.be.false;
+            expect(await collection.drop()).to.be.true;
           });
         });
       });
