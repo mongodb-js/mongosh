@@ -875,8 +875,8 @@ describe('Shell API (integration)', function() {
       });
 
       context('when a collection does not exist', () => {
-        it('returns false', async() => {
-          expect(await collection.exists()).to.be.false;
+        it('returns null', async() => {
+          expect(await collection.exists()).to.be.null;
         });
       });
     });
