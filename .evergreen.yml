@@ -5951,12 +5951,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "n14_arg_parser"
           mongosh_run_only_in_package: "arg-parser"
@@ -5987,12 +5987,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "n14_async_rewriter2"
           mongosh_run_only_in_package: "async-rewriter2"
@@ -6023,12 +6023,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "n14_autocomplete"
           mongosh_run_only_in_package: "autocomplete"
@@ -6059,12 +6059,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "n14_browser_repl"
           mongosh_run_only_in_package: "browser-repl"
@@ -6095,12 +6095,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "n14_browser_runtime_core"
           mongosh_run_only_in_package: "browser-runtime-core"
@@ -6131,12 +6131,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "n14_browser_runtime_electron"
           mongosh_run_only_in_package: "browser-runtime-electron"
@@ -6167,12 +6167,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "n14_build"
           mongosh_run_only_in_package: "build"
@@ -6383,12 +6383,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.0.x-community"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m40xc_n14_cli_repl"
           mongosh_run_only_in_package: "cli-repl"
@@ -6401,12 +6401,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.0.x"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m40xe_n14_cli_repl"
           mongosh_run_only_in_package: "cli-repl"
@@ -6419,12 +6419,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x-community"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m42xc_n14_cli_repl"
           mongosh_run_only_in_package: "cli-repl"
@@ -6437,12 +6437,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m42xe_n14_cli_repl"
           mongosh_run_only_in_package: "cli-repl"
@@ -6455,12 +6455,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x-community"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m44xc_n14_cli_repl"
           mongosh_run_only_in_package: "cli-repl"
@@ -6473,12 +6473,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m44xe_n14_cli_repl"
           mongosh_run_only_in_package: "cli-repl"
@@ -6491,12 +6491,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x-community"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m50xc_n14_cli_repl"
           mongosh_run_only_in_package: "cli-repl"
@@ -6509,12 +6509,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m50xe_n14_cli_repl"
           mongosh_run_only_in_package: "cli-repl"
@@ -6527,12 +6527,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "6.0.x-community"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m60xc_n14_cli_repl"
           mongosh_run_only_in_package: "cli-repl"
@@ -6545,12 +6545,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "6.0.x"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m60xe_n14_cli_repl"
           mongosh_run_only_in_package: "cli-repl"
@@ -6563,12 +6563,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "latest-alpha"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "mlatest_n14_cli_repl"
           mongosh_run_only_in_package: "cli-repl"
@@ -6599,12 +6599,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "n14_connectivity_tests"
           mongosh_run_only_in_package: "connectivity-tests"
@@ -6635,12 +6635,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "n14_editor"
           mongosh_run_only_in_package: "editor"
@@ -6671,12 +6671,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "n14_errors"
           mongosh_run_only_in_package: "errors"
@@ -6707,12 +6707,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "n14_history"
           mongosh_run_only_in_package: "history"
@@ -6743,12 +6743,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "n14_i18n"
           mongosh_run_only_in_package: "i18n"
@@ -6959,12 +6959,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.0.x-community"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m40xc_n14_java_shell"
           mongosh_run_only_in_package: "java-shell"
@@ -6977,12 +6977,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.0.x"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m40xe_n14_java_shell"
           mongosh_run_only_in_package: "java-shell"
@@ -6995,12 +6995,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x-community"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m42xc_n14_java_shell"
           mongosh_run_only_in_package: "java-shell"
@@ -7013,12 +7013,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m42xe_n14_java_shell"
           mongosh_run_only_in_package: "java-shell"
@@ -7031,12 +7031,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x-community"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m44xc_n14_java_shell"
           mongosh_run_only_in_package: "java-shell"
@@ -7049,12 +7049,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m44xe_n14_java_shell"
           mongosh_run_only_in_package: "java-shell"
@@ -7067,12 +7067,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x-community"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m50xc_n14_java_shell"
           mongosh_run_only_in_package: "java-shell"
@@ -7085,12 +7085,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m50xe_n14_java_shell"
           mongosh_run_only_in_package: "java-shell"
@@ -7103,12 +7103,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "6.0.x-community"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m60xc_n14_java_shell"
           mongosh_run_only_in_package: "java-shell"
@@ -7121,12 +7121,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "6.0.x"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m60xe_n14_java_shell"
           mongosh_run_only_in_package: "java-shell"
@@ -7139,12 +7139,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "latest-alpha"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "mlatest_n14_java_shell"
           mongosh_run_only_in_package: "java-shell"
@@ -7175,12 +7175,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "n14_js_multiline_to_singleline"
           mongosh_run_only_in_package: "js-multiline-to-singleline"
@@ -7211,12 +7211,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "n14_logging"
           mongosh_run_only_in_package: "logging"
@@ -7427,12 +7427,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.0.x-community"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m40xc_n14_mongosh"
           mongosh_run_only_in_package: "mongosh"
@@ -7445,12 +7445,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.0.x"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m40xe_n14_mongosh"
           mongosh_run_only_in_package: "mongosh"
@@ -7463,12 +7463,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x-community"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m42xc_n14_mongosh"
           mongosh_run_only_in_package: "mongosh"
@@ -7481,12 +7481,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m42xe_n14_mongosh"
           mongosh_run_only_in_package: "mongosh"
@@ -7499,12 +7499,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x-community"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m44xc_n14_mongosh"
           mongosh_run_only_in_package: "mongosh"
@@ -7517,12 +7517,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m44xe_n14_mongosh"
           mongosh_run_only_in_package: "mongosh"
@@ -7535,12 +7535,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x-community"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m50xc_n14_mongosh"
           mongosh_run_only_in_package: "mongosh"
@@ -7553,12 +7553,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m50xe_n14_mongosh"
           mongosh_run_only_in_package: "mongosh"
@@ -7571,12 +7571,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "6.0.x-community"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m60xc_n14_mongosh"
           mongosh_run_only_in_package: "mongosh"
@@ -7589,12 +7589,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "6.0.x"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m60xe_n14_mongosh"
           mongosh_run_only_in_package: "mongosh"
@@ -7607,12 +7607,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "latest-alpha"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "mlatest_n14_mongosh"
           mongosh_run_only_in_package: "mongosh"
@@ -7823,12 +7823,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.0.x-community"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m40xc_n14_node_runtime_worker_thread"
           mongosh_run_only_in_package: "node-runtime-worker-thread"
@@ -7841,12 +7841,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.0.x"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m40xe_n14_node_runtime_worker_thread"
           mongosh_run_only_in_package: "node-runtime-worker-thread"
@@ -7859,12 +7859,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x-community"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m42xc_n14_node_runtime_worker_thread"
           mongosh_run_only_in_package: "node-runtime-worker-thread"
@@ -7877,12 +7877,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m42xe_n14_node_runtime_worker_thread"
           mongosh_run_only_in_package: "node-runtime-worker-thread"
@@ -7895,12 +7895,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x-community"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m44xc_n14_node_runtime_worker_thread"
           mongosh_run_only_in_package: "node-runtime-worker-thread"
@@ -7913,12 +7913,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m44xe_n14_node_runtime_worker_thread"
           mongosh_run_only_in_package: "node-runtime-worker-thread"
@@ -7931,12 +7931,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x-community"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m50xc_n14_node_runtime_worker_thread"
           mongosh_run_only_in_package: "node-runtime-worker-thread"
@@ -7949,12 +7949,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m50xe_n14_node_runtime_worker_thread"
           mongosh_run_only_in_package: "node-runtime-worker-thread"
@@ -7967,12 +7967,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "6.0.x-community"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m60xc_n14_node_runtime_worker_thread"
           mongosh_run_only_in_package: "node-runtime-worker-thread"
@@ -7985,12 +7985,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "6.0.x"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m60xe_n14_node_runtime_worker_thread"
           mongosh_run_only_in_package: "node-runtime-worker-thread"
@@ -8003,12 +8003,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "latest-alpha"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "mlatest_n14_node_runtime_worker_thread"
           mongosh_run_only_in_package: "node-runtime-worker-thread"
@@ -8039,12 +8039,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "n14_service_provider_core"
           mongosh_run_only_in_package: "service-provider-core"
@@ -8255,12 +8255,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.0.x-community"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m40xc_n14_service_provider_server"
           mongosh_run_only_in_package: "service-provider-server"
@@ -8273,12 +8273,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.0.x"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m40xe_n14_service_provider_server"
           mongosh_run_only_in_package: "service-provider-server"
@@ -8291,12 +8291,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x-community"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m42xc_n14_service_provider_server"
           mongosh_run_only_in_package: "service-provider-server"
@@ -8309,12 +8309,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m42xe_n14_service_provider_server"
           mongosh_run_only_in_package: "service-provider-server"
@@ -8327,12 +8327,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x-community"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m44xc_n14_service_provider_server"
           mongosh_run_only_in_package: "service-provider-server"
@@ -8345,12 +8345,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m44xe_n14_service_provider_server"
           mongosh_run_only_in_package: "service-provider-server"
@@ -8363,12 +8363,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x-community"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m50xc_n14_service_provider_server"
           mongosh_run_only_in_package: "service-provider-server"
@@ -8381,12 +8381,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m50xe_n14_service_provider_server"
           mongosh_run_only_in_package: "service-provider-server"
@@ -8399,12 +8399,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "6.0.x-community"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m60xc_n14_service_provider_server"
           mongosh_run_only_in_package: "service-provider-server"
@@ -8417,12 +8417,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "6.0.x"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m60xe_n14_service_provider_server"
           mongosh_run_only_in_package: "service-provider-server"
@@ -8435,12 +8435,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "latest-alpha"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "mlatest_n14_service_provider_server"
           mongosh_run_only_in_package: "service-provider-server"
@@ -8651,12 +8651,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.0.x-community"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m40xc_n14_shell_api"
           mongosh_run_only_in_package: "shell-api"
@@ -8669,12 +8669,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.0.x"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m40xe_n14_shell_api"
           mongosh_run_only_in_package: "shell-api"
@@ -8687,12 +8687,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x-community"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m42xc_n14_shell_api"
           mongosh_run_only_in_package: "shell-api"
@@ -8705,12 +8705,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m42xe_n14_shell_api"
           mongosh_run_only_in_package: "shell-api"
@@ -8723,12 +8723,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x-community"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m44xc_n14_shell_api"
           mongosh_run_only_in_package: "shell-api"
@@ -8741,12 +8741,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m44xe_n14_shell_api"
           mongosh_run_only_in_package: "shell-api"
@@ -8759,12 +8759,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x-community"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m50xc_n14_shell_api"
           mongosh_run_only_in_package: "shell-api"
@@ -8777,12 +8777,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m50xe_n14_shell_api"
           mongosh_run_only_in_package: "shell-api"
@@ -8795,12 +8795,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "6.0.x-community"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m60xc_n14_shell_api"
           mongosh_run_only_in_package: "shell-api"
@@ -8813,12 +8813,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "6.0.x"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "m60xe_n14_shell_api"
           mongosh_run_only_in_package: "shell-api"
@@ -8831,12 +8831,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "latest-alpha"
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "mlatest_n14_shell_api"
           mongosh_run_only_in_package: "shell-api"
@@ -8867,12 +8867,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "n14_shell_evaluator"
           mongosh_run_only_in_package: "shell-evaluator"
@@ -8903,12 +8903,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "n14_snippet_manager"
           mongosh_run_only_in_package: "snippet-manager"
@@ -8939,12 +8939,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "n14_types"
           mongosh_run_only_in_package: "types"
@@ -8961,11 +8961,11 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
           npm_deps_mode: all
       - func: test_vscode
         vars:
-          node_js_version: "14.21.2"
+          node_js_version: "14.21.1"
   - name: test_connectivity
     tags: ["extra-integration-test"]
     depends_on:

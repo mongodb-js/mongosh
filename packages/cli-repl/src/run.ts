@@ -19,6 +19,7 @@ import readline from 'readline';
 import askcharacter from 'askcharacter';
 import stream from 'stream';
 import crypto from 'crypto';
+import net from 'net';
 
 // eslint-disable-next-line complexity, @typescript-eslint/no-floating-promises
 (async() => {
@@ -33,6 +34,9 @@ import crypto from 'crypto';
   let repl;
   let isSingleConsoleProcess = false;
   try {
+    // eslint-disable-next-line chai-friendly/no-unused-expressions
+    (net as any)?.setDefaultAutoSelectFamily?.(true);
+
     const options = parseCliArgs(process.argv);
     for (const warning of options._argParseWarnings) {
       console.warn(warning);
