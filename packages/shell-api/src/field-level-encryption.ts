@@ -363,47 +363,36 @@ export class KeyVault extends ShellApiWithMongoClass {
     return await makeSingleDocReturnValue(() => this._keyColl.find({ 'keyAltNames': keyAltName }), 'KeyVault.getKeyByAltName', this._instanceState);
   }
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   @returnType('Cursor')
   @apiVersions([1])
   @returnsPromise
   async getKeys(): Promise<Cursor> {
-    return this._keyColl.find({});
+    return new Cursor(
+      this._mongo,
+      this._clientEncryption._libmongocrypt.getKeys()
+    );
   }
 
   @returnsPromise
   @apiVersions([1])
   async deleteKey(keyId: BinaryType): Promise<DeleteResult | Document> {
     assertArgsDefinedType([keyId], [true], 'KeyVault.deleteKey');
-    return this._keyColl.deleteOne({ '_id': keyId });
+    return this._clientEncryption._libmongocrypt.deleteKey(keyId);
   }
 
   @returnsPromise
   @apiVersions([1])
-  async addKeyAlternateName(keyId: BinaryType, keyAltName: string): Promise<Document> {
+  async addKeyAlternateName(keyId: BinaryType, keyAltName: string): Promise<Document | null> {
     assertArgsDefinedType([keyId, keyAltName], [true, 'string'], 'KeyVault.addKeyAlternateName');
-    return this._keyColl.findAndModify({
-      query: { '_id': keyId },
-      update: { $addToSet: { 'keyAltNames': keyAltName }, $currentDate: { 'updateDate': true } },
-    });
+    return this._clientEncryption._libmongocrypt.addKeyAltName(keyId, keyAltName);
   }
 
   @returnsPromise
   @apiVersions([1])
-  async removeKeyAlternateName(keyId: BinaryType, keyAltName: string): Promise<Document> {
+  async removeKeyAlternateName(keyId: BinaryType, keyAltName: string): Promise<Document | null> {
     assertArgsDefinedType([keyId, keyAltName], [true, 'string'], 'KeyVault.removeKeyAlternateName');
-    const ret = await this._keyColl.findAndModify({
-      query: { '_id': keyId },
-      update: { $pull: { 'keyAltNames': keyAltName }, $currentDate: { 'updateDate': true } }
-    });
-
-    if (ret !== null && ret.keyAltNames !== undefined && ret.keyAltNames.length === 1 && ret.keyAltNames[0] === keyAltName) {
-      // Remove the empty array to prevent duplicate key violations
-      return this._keyColl.findAndModify({
-        query: { '_id': keyId, 'keyAltNames': { $size: 0 } },
-        update: { $unset: { 'keyAltNames': '' }, $currentDate: { 'updateDate': true } }
-      });
-    }
-    return ret;
+    return this._clientEncryption._libmongocrypt.removeKeyAltName(keyId, keyAltName);
   }
 
   @returnsPromise
