@@ -78,6 +78,7 @@ describe('Shard', () => {
       warnSpy = sinon.spy();
       instanceState = new ShellInstanceState(serviceProvider, bus);
       instanceState.printWarning = warnSpy;
+      instanceState.printDeprecationWarning = warnSpy;
       mongo = new Mongo(instanceState, undefined, undefined, undefined, serviceProvider);
       db = new Database(mongo, 'testDb');
       shard = new Shard(db);
@@ -711,6 +712,14 @@ describe('Shard', () => {
         await shard.enableAutoSplit();
         expect(warnSpy.calledOnce).to.equal(true);
       });
+
+      it('prints a deprecation warning for mongodb >= 6.0.3', async() => {
+        instanceState.connectionInfo.buildInfo.version = '6.0.3-alpha0';
+        serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
+        serviceProvider.updateOne.resolves({ acknowledged: 1 } as any);
+        await shard.enableAutoSplit();
+        expect(warnSpy.calledOnce).to.equal(true);
+      });
     });
     describe('disableAutoSplit', () => {
       it('calls serviceProvider.updateOne', async() => {
@@ -766,6 +775,14 @@ describe('Shard', () => {
         const expectedResult = { ok: 1 } as any;
         serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'not dbgrid' });
         serviceProvider.updateOne.resolves(expectedResult);
+        await shard.disableAutoSplit();
+        expect(warnSpy.calledOnce).to.equal(true);
+      });
+
+      it('prints a deprecation warning for mongodb >= 6.0.3', async() => {
+        instanceState.connectionInfo.buildInfo.version = '6.0.3-alpha0';
+        serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
+        serviceProvider.updateOne.resolves({ acknowledged: 1 } as any);
         await shard.disableAutoSplit();
         expect(warnSpy.calledOnce).to.equal(true);
       });
