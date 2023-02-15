@@ -11,6 +11,7 @@ import { CommandResult, UpdateResult } from './result';
 import { redactURICredentials } from '@mongosh/history';
 import Mongo from './mongo';
 import AggregationCursor from './aggregation-cursor';
+import semver from 'semver';
 
 @shellApiClassDefault
 export default class Shard extends ShellApiWithMongoClass {
@@ -277,8 +278,16 @@ export default class Shard extends ShellApiWithMongoClass {
 
   @returnsPromise
   @apiVersions([1])
-  @serverVersions(['3.4.0', ServerVersions.latest])
+  @serverVersions(['3.4.0', '6.0.2'])
   async enableAutoSplit(): Promise<UpdateResult> {
+    if (
+      this._instanceState.connectionInfo.buildInfo.version &&
+      semver.gte(this._instanceState.connectionInfo.buildInfo.version, '6.0.3')
+    ) {
+      await this._instanceState.printDeprecationWarning(
+        'Starting in MongoDB 6.0.3, automatic chunk splitting is not performed. This is because of balancing policy improvements. Auto-splitting commands still exist, but do not perform an operation. For details, see Balancing Policy Changes: https://www.mongodb.com/docs/manual/release-notes/6.0/#balancing-policy-changes\n'
+      );
+    }
     this._emitShardApiCall('enableAutoSplit', {});
     const config = await getConfigDB(this._database);
     return await config.getCollection('settings').updateOne(
@@ -290,8 +299,16 @@ export default class Shard extends ShellApiWithMongoClass {
 
   @returnsPromise
   @apiVersions([1])
-  @serverVersions(['3.4.0', ServerVersions.latest])
+  @serverVersions(['3.4.0', '6.0.2'])
   async disableAutoSplit(): Promise<UpdateResult> {
+    if (
+      this._instanceState.connectionInfo.buildInfo.version &&
+      semver.gte(this._instanceState.connectionInfo.buildInfo.version, '6.0.3')
+    ) {
+      await this._instanceState.printDeprecationWarning(
+        'Starting in MongoDB 6.0.3, automatic chunk splitting is not performed. This is because of balancing policy improvements. Auto-splitting commands still exist, but do not perform an operation. For details, see Balancing Policy Changes: https://www.mongodb.com/docs/manual/release-notes/6.0/#balancing-policy-changes\n'
+      );
+    }
     this._emitShardApiCall('disableAutoSplit', {});
     const config = await getConfigDB(this._database);
     return await config.getCollection('settings').updateOne(
