@@ -9,13 +9,14 @@ export type BuildInfo = {
   gitVersion: string | null;
   opensslVersion: string;
   sharedOpenssl: boolean;
+  segmentApiKey?: string;
 };
 
 /**
  * Return an object with information about this mongosh instance,
  * in particular, when it was built and how.
  */
-export function buildInfo(): BuildInfo {
+export function buildInfo({ withSegmentApiKey }: { withSegmentApiKey?: boolean } = {}): BuildInfo {
   const runtimeData = {
     nodeVersion: process.version,
     opensslVersion: process.versions.openssl,
@@ -23,7 +24,9 @@ export function buildInfo(): BuildInfo {
   };
   try {
     const buildInfo = { ...require('./build-info.json'), ...runtimeData };
-    delete buildInfo.segmentApiKey;
+    if (!withSegmentApiKey) {
+      delete buildInfo.segmentApiKey;
+    }
     return buildInfo;
   } catch {
     const { version } = require('../package.json');

@@ -10,7 +10,7 @@ import { eventually } from '../../../testing/eventually';
 import { MongodSetup, skipIfServerVersion, startTestServer } from '../../../testing/integration-testing-hooks';
 import { expect, fakeTTYProps, readReplLogfile, tick, useTmpdir, waitBus, waitCompletion, waitEval } from '../test/repl-helpers';
 import ConnectionString from 'mongodb-connection-string-url';
-import CliRepl, { CliReplOptions } from './cli-repl';
+import { CliRepl, CliReplOptions } from './cli-repl';
 import { CliReplErrors } from './error-codes';
 const { EJSON } = bson;
 
