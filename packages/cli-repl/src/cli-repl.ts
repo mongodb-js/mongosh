@@ -76,7 +76,7 @@ type CliUserConfigOnDisk = Partial<CliUserConfig> & Pick<CliUserConfig, 'enableT
  *
  * Unlike MongoshNodeRepl, this class implements I/O interactions.
  */
-class CliRepl implements MongoshIOProvider {
+export class CliRepl implements MongoshIOProvider {
   mongoshRepl: MongoshNodeRepl;
   bus: MongoshBus;
   cliOptions: CliOptions;
@@ -362,7 +362,10 @@ class CliRepl implements MongoshIOProvider {
       throw new Error('no analytics setup for the mongosh CI environment');
     }
     // build-info.json is created as a part of the release process
-    const apiKey = this.analyticsOptions?.apiKey ?? require('./build-info.json').segmentApiKey;
+    const apiKey = this.analyticsOptions?.apiKey ?? buildInfo({ withSegmentApiKey: true }).segmentApiKey;
+    if (!apiKey) {
+      throw new Error('no analytics API key defined');
+    }
     this.segmentAnalytics = new Analytics(
       apiKey,
       {
@@ -777,5 +780,3 @@ class CliRepl implements MongoshIOProvider {
     return { EDITOR, NODE_OPTIONS, TERM };
   }
 }
-
-export default CliRepl;

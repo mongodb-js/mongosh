@@ -1,4 +1,4 @@
-import { runSmokeTests } from './';
+import { runSmokeTests } from './smoke-tests';
 import path from 'path';
 import { startTestServer, downloadCurrentCryptSharedLibrary } from '../../../testing/integration-testing-hooks';
 
