@@ -128,7 +128,7 @@ async function completer(params: AutocompleteParameters, line: string): Promise<
       const suggestFirstStage = splitQuery.length <= 2;
 
       const expressions = suggestFirstStage
-        ? DB_AGGREGATE_COMPLETIONS
+        ? DB_AGGREGATE_COMPLETIONS.filter(({ firstStage }) => firstStage)
         : [
           ...BASE_COMPLETIONS,
           ...getStageAccumulators(params, elToComplete)
@@ -175,10 +175,10 @@ async function completer(params: AutocompleteParameters, line: string): Promise<
       let expressions;
       if (splitLine[2].match(/\baggregate\b/)) {
         // aggregation needs extra accumulators to autocomplete properly
-        expressions = ([] as AnyCompletions).concat(
-          BASE_COMPLETIONS,
-          getStageAccumulators(params, elToComplete)
-        );
+        expressions = [
+          ...BASE_COMPLETIONS,
+          ...getStageAccumulators(params, elToComplete)
+        ];
       } else {
         // collection querying just needs MATCH COMPLETIONS
         expressions = MATCH_COMPLETIONS;

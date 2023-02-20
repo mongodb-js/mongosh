@@ -31,7 +31,7 @@
     "mocha": "^7.1.2"
   },
   "dependencies": {
-    "@mongodb-js/mongodb-constants": "^0.2.1",
+    "@mongodb-js/mongodb-constants": "^0.2.2",
     "@mongosh/shell-api": "0.0.0-dev.0",
     "semver": "^7.3.2"
   }
