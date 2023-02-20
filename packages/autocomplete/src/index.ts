@@ -11,7 +11,8 @@ import {
   BSON_TYPES,
   ATLAS,
   ADL,
-  ON_PREM
+  ON_PREM,
+  DATABASE
 } from '@mongodb-js/mongodb-constants';
 
 type TypeSignatureAttributes = { [key: string]: TypeSignature };
@@ -48,6 +49,10 @@ export const MATCH_COMPLETIONS = ([] as AnyCompletions).concat(
   QUERY_OPERATORS,
   BSON_TYPES
 );
+
+const DB_AGGREGATE_COMPLETIONS = STAGE_OPERATORS.filter(({ namespaces }) => {
+  return namespaces.length === 1 && (namespaces as readonly string[]).includes(DATABASE);
+});
 
 /**
  * The project stage operator.
@@ -116,6 +121,22 @@ async function completer(params: AutocompleteParameters, line: string): Promise<
     const hits = filterShellAPI(params, SHELL_COMPLETIONS, elToComplete);
     return [hits.length ? hits : [], line];
   } else if (firstLineEl.match(/\bdb\b/) && splitLine.length === 2) {
+    if (elToComplete.match(/aggregate\s*\(\s*\[\s*\{\s*/)) {
+      const splitQuery = line.split('{');
+      const prefix = splitQuery.pop()?.trim() || '';
+      const command: string = prefix ? line.split(prefix).shift() as string : line;
+      const suggestFirstStage = splitQuery.length <= 2;
+
+      const expressions = suggestFirstStage
+        ? DB_AGGREGATE_COMPLETIONS
+        : ([] as AnyCompletions).concat(
+          BASE_COMPLETIONS,
+          getStageAccumulators(params, elToComplete)
+        );
+
+      const hits = filterQueries(params, expressions, prefix, command);
+      return [hits.length ? hits : [], line];
+    }
     // We're seeing something like 'db.foo' and expand that to all methods on
     // db which start with 'foo' and all collections on the current db that
     // start with 'foo'.

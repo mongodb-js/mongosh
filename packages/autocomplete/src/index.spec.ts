@@ -5,6 +5,17 @@ import { expect } from 'chai';
 
 let collections: string[];
 let databases: string[];
+const standalone600 = {
+  topology: () => Topologies.Standalone,
+  apiVersionInfo: () => undefined,
+  connectionInfo: () => ({
+    is_atlas: false,
+    is_data_federation: false,
+    server_version: '6.0.0'
+  }),
+  getCollectionCompletionsForCurrentDb: () => collections,
+  getDatabaseCompletions: () => databases
+};
 const standalone440 = {
   topology: () => Topologies.Standalone,
   apiVersionInfo: () => undefined,
@@ -321,6 +332,53 @@ describe('completer.completer', () => {
           'db.shipwrecks.aggregate([{$sort: {feature_type: 1}}]).isExhausted',
           'db.shipwrecks.aggregate([{$sort: {feature_type: 1}}]).itcount'
         ], i]);
+    });
+  });
+
+  context('when context is db aggregation query', () => {
+    it('has several matches for db level stages', async() => {
+      const query = 'db.aggregate([{';
+      expect(await completer(standalone440, query)).to.deep.equal([
+        [
+          'db.aggregate([{$changeStream',
+          'db.aggregate([{$currentOp',
+          'db.aggregate([{$listLocalSessions',
+        ],
+        query
+      ]);
+      expect(await completer(standalone600, query)).to.deep.equal([
+        [
+          'db.aggregate([{$documents',
+          'db.aggregate([{$changeStream',
+          'db.aggregate([{$currentOp',
+          'db.aggregate([{$listLocalSessions',
+        ],
+        query
+      ]);
+    });
+
+    it('does not have a match', async() => {
+      const query = 'db.aggregate([{$mat';
+      expect(await completer(standalone440, query)).to.deep.equal([[], query]);
+    });
+
+    it('matches a db aggregation stage', async() => {
+      const query = 'db.aggregate([{$lis';
+      expect(await completer(standalone440, query)).to.deep.equal([
+        ['db.aggregate([{$listLocalSessions'],
+        query
+      ]);
+    });
+
+    it('completes the followup stages', async() => {
+      const query = 'db.aggregate([{$currentOp: {}}, {$ma';
+      expect(await completer(standalone440, query)).to.deep.equal([
+        [
+          'db.aggregate([{$currentOp: {}}, {$map',
+          'db.aggregate([{$currentOp: {}}, {$match'
+        ],
+        query
+      ]);
     });
   });
 
