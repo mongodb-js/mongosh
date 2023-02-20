@@ -50,6 +50,8 @@ export const MATCH_COMPLETIONS = ([] as AnyCompletions).concat(
   BSON_TYPES
 );
 
+// Note: The following list is not a list of all the completions
+// for `db.aggregate` but only for the first stage of `db.aggregate`.
 const DB_AGGREGATE_COMPLETIONS = STAGE_OPERATORS.filter(({ namespaces }) => {
   return namespaces.length === 1 && namespaces[0] === DATABASE;
 });
@@ -128,7 +130,8 @@ async function completer(params: AutocompleteParameters, line: string): Promise<
       const suggestFirstStage = splitQuery.length <= 2;
 
       const expressions = suggestFirstStage
-        ? DB_AGGREGATE_COMPLETIONS.filter(({ firstStage }) => firstStage)
+        // First stage in `db.aggregate` form can only be 'db' namespaced stages
+        ? DB_AGGREGATE_COMPLETIONS
         : [
           ...BASE_COMPLETIONS,
           ...getStageAccumulators(params, elToComplete)
