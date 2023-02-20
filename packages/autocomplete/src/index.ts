@@ -51,7 +51,7 @@ export const MATCH_COMPLETIONS = ([] as AnyCompletions).concat(
 );
 
 const DB_AGGREGATE_COMPLETIONS = STAGE_OPERATORS.filter(({ namespaces }) => {
-  return namespaces.length === 1 && (namespaces as readonly string[]).includes(DATABASE);
+  return namespaces.length === 1 && namespaces[0] === DATABASE;
 });
 
 /**
