@@ -129,10 +129,10 @@ async function completer(params: AutocompleteParameters, line: string): Promise<
 
       const expressions = suggestFirstStage
         ? DB_AGGREGATE_COMPLETIONS
-        : ([] as AnyCompletions).concat(
-          BASE_COMPLETIONS,
-          getStageAccumulators(params, elToComplete)
-        );
+        : [
+          ...BASE_COMPLETIONS,
+          ...getStageAccumulators(params, elToComplete)
+        ];
 
       const hits = filterQueries(params, expressions, prefix, command);
       return [hits.length ? hits : [], line];
