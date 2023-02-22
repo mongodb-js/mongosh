@@ -28,7 +28,7 @@ class MongoShell(client: MongoClient? = null, engine: Engine? = null) {
             })
         } else {
             val printable = result.getMember("printable")
-            val type = result.getMember("type").toString()
+            val type = result.getMember("type").asString()
             converter.toJava(printable, type)
         }
     }
