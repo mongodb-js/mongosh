@@ -17,7 +17,6 @@ import {
   AWSEncryptionKeyOptions,
   AzureEncryptionKeyOptions,
   GCPEncryptionKeyOptions,
-  CreateCollectionOptions
 } from '@mongosh/service-provider-core';
 import type { Document, BinaryType } from '@mongosh/service-provider-core';
 import Collection from './collection';
@@ -29,18 +28,13 @@ import { redactURICredentials } from '@mongosh/history';
 import type Mongo from './mongo';
 import { CommonErrors, MongoshInvalidInputError, MongoshRuntimeError } from '@mongosh/errors';
 import ShellInstanceState from './shell-instance-state';
+import { CreateEncryptedCollectionOptions } from '@mongosh/service-provider-core/lib/admin';
 
 export type ClientSideFieldLevelEncryptionKmsProvider = Omit<KMSProviders, 'local'> & {
   local?: {
     key: Buffer | string | BinaryType;
   }
 };
-
-export interface CreateEncryptedCollectionOptions {
-  provider: ClientEncryptionDataKeyProvider,
-  createCollectionOptions: Omit<CreateCollectionOptions, 'encryptedFields'> & { encryptedFields: Document },
-  masterKey?: AWSEncryptionKeyOptions | AzureEncryptionKeyOptions | GCPEncryptionKeyOptions;
-}
 
 export interface ClientSideFieldLevelEncryptionOptions {
   keyVaultClient?: Mongo,
@@ -231,13 +225,17 @@ export class ClientEncryption extends ShellApiWithMongoClass {
     assertArgsDefinedType([options], ['object'], 'ClientEncryption.createEncryptedCollection');
     assertKeysDefined(options, ['provider', 'createCollectionOptions']);
 
-    const nativeClient = this._mongo._serviceProvider.getRawClient();
-    const db = nativeClient.db(dbName);
-    const { encryptedFields } = await this._libmongocrypt.createEncryptedCollection(
-      db,
+    if (!this._mongo._serviceProvider.createEncryptedCollection) {
+      throw new MongoshRuntimeError('Runtime does not support createEncryptedCollection yet');
+    }
+
+    const { encryptedFields } = await this._mongo._serviceProvider.createEncryptedCollection(
+      dbName,
       collName,
-      options
+      options,
+      this._libmongocrypt
     );
+
     return {
       collection: new Collection(this._mongo, this._mongo.getDB(dbName), collName),
       encryptedFields

@@ -479,10 +479,26 @@ describe('Field Level Encryption', () => {
         }
       };
 
-      it('calls createEncryptedCollection on libmongocrypt with provided arguments', async() => {
-        libmongoc.createEncryptedCollection.resolves({ collection: ({} as any), encryptedFields: [] });
+      beforeEach(() => {
+        sp.createEncryptedCollection = sinon.stub();
+        sp.createEncryptedCollection.resolves({
+          collection: ({} as any),
+          encryptedFields: [{
+            path: 'secretField',
+            bsonType: 'string',
+            keyId: 'random-uuid-string'
+          }]
+        });
+      });
+
+      it('calls createEncryptedCollection on service provider', async() => {
         await clientEncryption.createEncryptedCollection(dbName, collName, createCollectionOptions);
-        expect(libmongoc.createEncryptedCollection).calledOnceWithExactly(createFakeDB(dbName), collName, createCollectionOptions);
+        expect(sp.createEncryptedCollection).calledOnceWithExactly(
+          dbName,
+          collName,
+          createCollectionOptions,
+          libmongoc
+        );
       });
 
       it('returns the created collection and a list of encrypted fields', async() => {
@@ -494,7 +510,6 @@ describe('Field Level Encryption', () => {
             keyId: 'random-uuid-string'
           }]
         };
-        libmongoc.createEncryptedCollection.resolves(libmongocResponse);
         const { collection, encryptedFields } = await clientEncryption.createEncryptedCollection(dbName, collName, createCollectionOptions);
         expect(collection).to.be.instanceOf(Collection);
         expect(encryptedFields).to.deep.equal(libmongocResponse.encryptedFields);

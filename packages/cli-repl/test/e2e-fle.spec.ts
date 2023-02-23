@@ -498,7 +498,7 @@ describe('FLE tests', () => {
 
       const dekCount = await shell.executeLine(`plainMongo.getDB('${dbname}').getCollection('keyVault').countDocuments()`);
       // Since there is only field to be encrypted hence there would only be one DEK in our keyvault collection
-      expect(dekCount.trim()).to.equal('1');
+      expect(parseInt(dekCount.trim(), 10)).to.equal(1);
     });
   });
 

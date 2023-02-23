@@ -75,7 +75,8 @@ import {
   ChangeStream,
   bson as BSON,
   FLE,
-  AutoEncryptionOptions
+  AutoEncryptionOptions,
+  ClientEncryption as MongoCryptClientEncryption
 } from '@mongosh/service-provider-core';
 
 import { connectMongoClient, DevtoolsConnectOptions } from '@mongodb-js/devtools-connect';
@@ -84,6 +85,7 @@ import type { MongoshBus } from '@mongosh/types';
 import { forceCloseMongoClient } from './mongodb-patches';
 import ConnectionString from 'mongodb-connection-string-url';
 import { EventEmitter } from 'events';
+import { CreateEncryptedCollectionOptions } from '@mongosh/service-provider-core/lib/admin';
 
 const bsonlib = {
   Binary,
@@ -1036,6 +1038,19 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
       collName, options
     );
     return { ok: 1 };
+  }
+
+  async createEncryptedCollection(
+    dbName: string,
+    collName: string,
+    options: CreateEncryptedCollectionOptions,
+    libmongocrypt: MongoCryptClientEncryption
+  ): Promise<{ collection: Collection, encryptedFields: Document }> {
+    return await libmongocrypt.createEncryptedCollection(
+      this.db(dbName),
+      collName,
+      options
+    );
   }
 
   // eslint-disable-next-line @typescript-eslint/require-await

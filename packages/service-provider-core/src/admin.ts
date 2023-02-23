@@ -10,12 +10,25 @@ import type {
   DbOptions,
   ClientSessionOptions,
   ListDatabasesOptions,
-  AutoEncryptionOptions
+  AutoEncryptionOptions,
+  Collection
 } from './all-transport-types';
 import type { bson as BSON } from './index';
 import type { ReplPlatform } from './platform';
-import { FLE } from './all-fle-types';
+import {
+  AWSEncryptionKeyOptions,
+  AzureEncryptionKeyOptions,
+  ClientEncryption as MongoCryptClientEncryption,
+  ClientEncryptionDataKeyProvider,
+  FLE,
+  GCPEncryptionKeyOptions
+} from './all-fle-types';
 
+export interface CreateEncryptedCollectionOptions {
+  provider: ClientEncryptionDataKeyProvider,
+  createCollectionOptions: Omit<CreateCollectionOptions, 'encryptedFields'> & { encryptedFields: Document },
+  masterKey?: AWSEncryptionKeyOptions | AzureEncryptionKeyOptions | GCPEncryptionKeyOptions;
+}
 
 export default interface Admin {
   /**
@@ -116,4 +129,14 @@ export default interface Admin {
    * The FLE options passed to the client, if any.
    */
   getFleOptions?: () => AutoEncryptionOptions | undefined;
+
+  /**
+   * The helper method to correctly access FLE implementation's createEncryptedCollection
+   */
+  createEncryptedCollection?(
+    dbName: string,
+    collName: string,
+    options: CreateEncryptedCollectionOptions,
+    libmongocrypt: MongoCryptClientEncryption
+  ): Promise<{ collection: Collection, encryptedFields: Document }>
 }
