@@ -446,6 +446,19 @@ describe('Database', () => {
         expect(coll._database).to.equal(database);
       });
 
+      it('returns a collection for Object.prototype keys', () => {
+        {
+          const coll = database.getCollection('__proto__');
+          expect(coll).to.be.instanceOf(Collection);
+          expect(coll._name).to.equal('__proto__');
+        }
+        {
+          const coll = database.getCollection('hasOwnProperty');
+          expect(coll).to.be.instanceOf(Collection);
+          expect(coll._name).to.equal('__proto__');
+        }
+      });
+
       it('throws if name is not a string', () => {
         expect(() => {
           database.getCollection(undefined);
