@@ -268,7 +268,7 @@ function filterShellAPI(
   prefix: string,
   split?: string[]): string[] {
   const hits: string[] = Object.keys(completions).filter((c: string) => {
-    if (!c.startsWith(prefix)) return false;
+    if (!c.toLowerCase().startsWith(prefix.toLowerCase())) return false;
     if (completions[c].deprecated) return false;
 
     const apiVersionInfo = params.apiVersionInfo();
