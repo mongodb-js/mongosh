@@ -891,7 +891,8 @@ describe('Auth e2e', function() {
           '--authenticationMechanism', 'SCRAM-SHA-1'
         ] });
         await eventually(() => {
-          shell.assertContainsOutput('MongoServerError: Authentication failed.');
+          expect(shell.output).to.match(
+            /MongoServerError: Authentication failed|Unable to use SCRAM-SHA-1/);
         });
       });
       it('cannot auth when authenticationMechanism mismatches (sha1 -> sha256)', async() => {
@@ -904,7 +905,8 @@ describe('Auth e2e', function() {
           '--authenticationMechanism', 'SCRAM-SHA-256'
         ] });
         await eventually(() => {
-          shell.assertContainsOutput('MongoServerError: Authentication failed.');
+          expect(shell.output).to.match(
+            /MongoServerError: Authentication failed|Unable to use SCRAM-SHA-256/);
         });
       });
       it('does not fail with kerberos not found for GSSAPI', async() => {
