@@ -6,7 +6,7 @@ import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
 import CliServiceProvider from './cli-service-provider';
 import ConnectionString from 'mongodb-connection-string-url';
 import { EventEmitter } from 'events';
-import { ClientEncryption, ClientEncryptionDataKeyProvider } from '@mongosh/service-provider-core';
+import type { ClientEncryption, ClientEncryptionDataKeyProvider } from '@mongosh/service-provider-core';
 
 chai.use(sinonChai);
 

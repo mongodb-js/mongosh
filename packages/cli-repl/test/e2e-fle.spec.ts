@@ -476,18 +476,18 @@ describe('FLE tests', () => {
         kmsProviders: { local } \
       });`);
       await shell.executeLine(`secretDB = keyMongo.getDB('${dbname}')`);
-      await shell.executeLine('var { collection, encryptedFields } = secretDB.createEncryptedCollection(\'secretCollection\', { \
-        provider: \'local\', \
-        createCollectionOptions: { \
-          encryptedFields: { \
-            fields: [{ \
-              keyId: null, \
-              path: \'secretField\', \
-              bsonType: \'string\' \
-            }] \
-          } \
-        } \
-      });');
+      await shell.executeLine(`var { collection, encryptedFields } = secretDB.createEncryptedCollection('secretCollection', {
+        provider: 'local',
+        createCollectionOptions: {
+          encryptedFields: {
+            fields: [{
+              keyId: null,
+              path: 'secretField',
+              bsonType: 'string'
+            }]
+          }
+        }
+      });`);
 
       await shell.executeLine(`plainMongo = Mongo(${uri});`);
       const collections = await shell.executeLine(`plainMongo.getDB('${dbname}').getCollectionNames()`);
@@ -497,7 +497,7 @@ describe('FLE tests', () => {
       expect(collections).to.include('secretCollection');
 
       const dekCount = await shell.executeLine(`plainMongo.getDB('${dbname}').getCollection('keyVault').countDocuments()`);
-      // Since there is only field to be encrypted hence there would only be one DEK in our keyvault collection
+      // Since there is only one field to be encrypted hence there would only be one DEK in our keyvault collection
       expect(parseInt(dekCount.trim(), 10)).to.equal(1);
     });
   });
