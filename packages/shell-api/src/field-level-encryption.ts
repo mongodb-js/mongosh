@@ -28,7 +28,7 @@ import { redactURICredentials } from '@mongosh/history';
 import type Mongo from './mongo';
 import { CommonErrors, MongoshInvalidInputError, MongoshRuntimeError } from '@mongosh/errors';
 import ShellInstanceState from './shell-instance-state';
-import { CreateEncryptedCollectionOptions } from '@mongosh/service-provider-core/lib/admin';
+import { CreateEncryptedCollectionOptions } from '@mongosh/service-provider-core';
 
 export type ClientSideFieldLevelEncryptionKmsProvider = Omit<KMSProviders, 'local'> & {
   local?: {

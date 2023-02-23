@@ -85,7 +85,7 @@ import type { MongoshBus } from '@mongosh/types';
 import { forceCloseMongoClient } from './mongodb-patches';
 import ConnectionString from 'mongodb-connection-string-url';
 import { EventEmitter } from 'events';
-import { CreateEncryptedCollectionOptions } from '@mongosh/service-provider-core/lib/admin';
+import { CreateEncryptedCollectionOptions } from '@mongosh/service-provider-core';
 
 const bsonlib = {
   Binary,

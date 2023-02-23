@@ -28,6 +28,8 @@ export * from './all-fle-types';
 
 export { MapReduceOptions, FinalizeFunction } from './map-reduce-options';
 
+export { CreateEncryptedCollectionOptions } from './admin';
+
 const bson = {
   ObjectId,
   DBRef,

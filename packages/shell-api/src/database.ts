@@ -48,7 +48,7 @@ import { HIDDEN_COMMANDS } from '@mongosh/history';
 import Session from './session';
 import ChangeStreamCursor from './change-stream-cursor';
 import { ShellApiErrors } from './error-codes';
-import { CreateEncryptedCollectionOptions } from '@mongosh/service-provider-core/lib/admin';
+import { CreateEncryptedCollectionOptions } from '@mongosh/service-provider-core';
 
 export type CollectionNamesWithTypes = {
   name: string;
