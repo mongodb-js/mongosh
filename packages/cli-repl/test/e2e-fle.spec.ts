@@ -465,6 +465,41 @@ describe('FLE tests', () => {
       const compactResult = await shell.executeLine(`autoMongo.getDB('${dbname}').test.compactStructuredEncryptionData()`);
       expect(compactResult).to.include('ok: 1');
     });
+
+    it('creates an encrypted collection and generates data encryption keys automatically per encrypted fields', async() => {
+      const shell = TestShell.start({ args: ['--nodb', `--cryptSharedLibPath=${cryptLibrary}`] });
+      const uri = JSON.stringify(await testServer.connectionString());
+      await shell.waitForPrompt();
+      await shell.executeLine('local = { key: BinData(0, "kh4Gv2N8qopZQMQYMEtww/AkPsIrXNmEMxTrs3tUoTQZbZu4msdRUaR8U5fXD7A7QXYHcEvuu4WctJLoT+NvvV3eeIg3MD+K8H9SR794m/safgRHdIfy6PD+rFpvmFbY") }');
+      await shell.executeLine(`keyMongo = Mongo(${uri}, { \
+        keyVaultNamespace: '${dbname}.keyVault', \
+        kmsProviders: { local } \
+      });`);
+      await shell.executeLine(`secretDB = keyMongo.getDB('${dbname}')`);
+      await shell.executeLine('var { collection, encryptedFields } = secretDB.createEncryptedCollection(\'secretCollection\', { \
+        provider: \'local\', \
+        createCollectionOptions: { \
+          encryptedFields: { \
+            fields: [{ \
+              keyId: null, \
+              path: \'secretField\', \
+              bsonType: \'string\' \
+            }] \
+          } \
+        } \
+      });');
+
+      await shell.executeLine(`plainMongo = Mongo(${uri});`);
+      const collections = await shell.executeLine(`plainMongo.getDB('${dbname}').getCollectionNames()`);
+      expect(collections).to.include('enxcol_.secretCollection.ecc');
+      expect(collections).to.include('enxcol_.secretCollection.esc');
+      expect(collections).to.include('enxcol_.secretCollection.ecoc');
+      expect(collections).to.include('secretCollection');
+
+      const dekCount = await shell.executeLine(`plainMongo.getDB('${dbname}').getCollection('keyVault').countDocuments()`);
+      // Since there is only field to be encrypted hence there would only be one DEK in our keyvault collection
+      expect(dekCount.trim()).to.equal('1');
+    });
   });
 
   context('6.2+', () => {

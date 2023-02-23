@@ -16,13 +16,14 @@ import {
   KMSProviders,
   AWSEncryptionKeyOptions,
   AzureEncryptionKeyOptions,
-  GCPEncryptionKeyOptions
+  GCPEncryptionKeyOptions,
+  CreateCollectionOptions
 } from '@mongosh/service-provider-core';
 import type { Document, BinaryType } from '@mongosh/service-provider-core';
 import Collection from './collection';
 import Cursor from './cursor';
 import { DeleteResult } from './result';
-import { assertArgsDefinedType } from './helpers';
+import { assertArgsDefinedType, assertKeysDefined } from './helpers';
 import { asPrintable, shellApiType } from './enums';
 import { redactURICredentials } from '@mongosh/history';
 import type Mongo from './mongo';
@@ -34,6 +35,12 @@ export type ClientSideFieldLevelEncryptionKmsProvider = Omit<KMSProviders, 'loca
     key: Buffer | string | BinaryType;
   }
 };
+
+export interface CreateEncryptedCollectionOptions {
+  provider: ClientEncryptionDataKeyProvider,
+  createCollectionOptions: Omit<CreateCollectionOptions, 'encryptedFields'> & { encryptedFields: Document },
+  masterKey?: AWSEncryptionKeyOptions | AzureEncryptionKeyOptions | GCPEncryptionKeyOptions;
+}
 
 export interface ClientSideFieldLevelEncryptionOptions {
   keyVaultClient?: Mongo,
@@ -208,9 +215,33 @@ export class ClientEncryption extends ShellApiWithMongoClass {
     assertArgsDefinedType([keyId, value, options], [true, true, true], 'ClientEncryption.encryptExpression');
     return await this._libmongocrypt.encryptExpression(
       value,
-      // @ts-expect-error libmongocrypt typings contain a typo, see NODE-5023
       { keyId, ...options }
     );
+  }
+
+  @returnsPromise
+  @apiVersions([])
+  async createEncryptedCollection(
+    dbName: string,
+    collName: string,
+    options: CreateEncryptedCollectionOptions
+  ): Promise<{ collection: Collection, encryptedFields: Document }> {
+    assertArgsDefinedType([dbName], ['string'], 'ClientEncryption.createEncryptedCollection');
+    assertArgsDefinedType([collName], ['string'], 'ClientEncryption.createEncryptedCollection');
+    assertArgsDefinedType([options], ['object'], 'ClientEncryption.createEncryptedCollection');
+    assertKeysDefined(options, ['provider', 'createCollectionOptions']);
+
+    const nativeClient = this._mongo._serviceProvider.getRawClient();
+    const db = nativeClient.db(dbName);
+    const { encryptedFields } = await this._libmongocrypt.createEncryptedCollection(
+      db,
+      collName,
+      options
+    );
+    return {
+      collection: new Collection(this._mongo, this._mongo.getDB(dbName), collName),
+      encryptedFields
+    };
   }
 }
 

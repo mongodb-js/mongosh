@@ -1,5 +1,5 @@
 import { MongoshInvalidInputError } from '@mongosh/errors';
-import { bson, ClientEncryption as FLEClientEncryption, ClientEncryptionTlsOptions, ServiceProvider, ClientEncryptionEncryptOptions } from '@mongosh/service-provider-core';
+import { bson, ClientEncryption as FLEClientEncryption, ClientEncryptionTlsOptions, ServiceProvider, ClientEncryptionEncryptOptions, ClientEncryptionDataKeyProvider } from '@mongosh/service-provider-core';
 import { expect } from 'chai';
 import { EventEmitter } from 'events';
 import { promises as fs } from 'fs';
@@ -16,6 +16,7 @@ import { CliServiceProvider } from '../../service-provider-server';
 import { startTestServer } from '../../../testing/integration-testing-hooks';
 import { makeFakeHTTPConnection, fakeAWSHandlers } from '../../../testing/fake-kms';
 import { inspect } from 'util';
+import Collection from './collection';
 
 const KEY_ID = new bson.Binary('MTIzNA==');
 const DB = 'encryption';
@@ -53,7 +54,8 @@ const ENCRYPT_OPTIONS = {
   queryType: 'Equality' as ClientEncryptionEncryptOptions['queryType']
 };
 
-const RAW_CLIENT = { client: 1 } as any;
+const createFakeDB = (name: string) => ({ name });
+const RAW_CLIENT = { client: 1, db: (name: string) => createFakeDB(name) } as any;
 
 function getCertPath(filename: string): string {
   return path.join(__dirname, '..', '..', '..', 'testing', 'certificates', filename);
@@ -460,6 +462,42 @@ describe('Field Level Encryption', () => {
         const result = await keyVault.rewrapManyDataKey({ status: 0 }, { provider: 'local' });
         expect(libmongoc.rewrapManyDataKey).calledOnceWithExactly({ status: 0 }, { provider: 'local' });
         expect(result).to.deep.equal(rawResult);
+      });
+    });
+    describe('createEncryptedCollection', () => {
+      const dbName = 'secretDB';
+      const collName = 'secretColl';
+      const createCollectionOptions = {
+        provider: 'local' as ClientEncryptionDataKeyProvider,
+        createCollectionOptions: {
+          encryptedFields: {
+            fields: [{
+              path: 'secretField',
+              bsonType: 'string'
+            }]
+          }
+        }
+      };
+
+      it('calls createEncryptedCollection on libmongocrypt with provided arguments', async() => {
+        libmongoc.createEncryptedCollection.resolves({ collection: ({} as any), encryptedFields: [] });
+        await clientEncryption.createEncryptedCollection(dbName, collName, createCollectionOptions);
+        expect(libmongoc.createEncryptedCollection).calledOnceWithExactly(createFakeDB(dbName), collName, createCollectionOptions);
+      });
+
+      it('returns the created collection and a list of encrypted fields', async() => {
+        const libmongocResponse = {
+          collection: ({} as any),
+          encryptedFields: [{
+            path: 'secretField',
+            bsonType: 'string',
+            keyId: 'random-uuid-string'
+          }]
+        };
+        libmongoc.createEncryptedCollection.resolves(libmongocResponse);
+        const { collection, encryptedFields } = await clientEncryption.createEncryptedCollection(dbName, collName, createCollectionOptions);
+        expect(collection).to.be.instanceOf(Collection);
+        expect(encryptedFields).to.deep.equal(libmongocResponse.encryptedFields);
       });
     });
   });
