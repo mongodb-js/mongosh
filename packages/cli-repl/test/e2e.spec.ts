@@ -340,7 +340,11 @@ describe('e2e', function() {
           await shell.executeLine('db.apples.drop()');
         });
 
-        it('prints out violations for unique index creation', async() => {
+        it('prints out violations for unique index creation', async function() {
+          if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
+            return this.skip(); // collMod.index.unique was removed from the stable API
+          }
+
           await shell.executeLine(`db.apples.insertMany([
             { type: 'Delicious', quantity: 12 },
             { type: 'Macintosh', quantity: 13 },
