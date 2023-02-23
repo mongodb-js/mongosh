@@ -237,7 +237,7 @@ export class ClientEncryption extends ShellApiWithMongoClass {
     );
 
     return {
-      collection: new Collection(this._mongo, this._mongo.getDB(dbName), collName),
+      collection: this._mongo.getDB(dbName).getCollection(collName),
       encryptedFields
     };
   }
