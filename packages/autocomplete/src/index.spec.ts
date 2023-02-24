@@ -90,6 +90,16 @@ describe('completer.completer', () => {
     collections = [];
   });
 
+  it('returns case-insensitive results', async() => {
+    const input = 'db.getr';
+    const [completions] = await completer(noParams as any, input);
+    expect(completions).to.deep.eq([
+      'db.getRole',
+      'db.getRoles',
+      'db.getReplicationInfo'
+    ]);
+  });
+
   context('when context is top level shell api', () => {
     it('matches shell completions', async() => {
       const i = 'u';
