@@ -471,9 +471,10 @@ describe('FLE tests', () => {
       const uri = JSON.stringify(await testServer.connectionString());
       await shell.waitForPrompt();
       await shell.executeLine('local = { key: BinData(0, "kh4Gv2N8qopZQMQYMEtww/AkPsIrXNmEMxTrs3tUoTQZbZu4msdRUaR8U5fXD7A7QXYHcEvuu4WctJLoT+NvvV3eeIg3MD+K8H9SR794m/safgRHdIfy6PD+rFpvmFbY") }');
-      await shell.executeLine(`keyMongo = Mongo(${uri}, { \
-        keyVaultNamespace: '${dbname}.keyVault', \
-        kmsProviders: { local } \
+      await shell.executeLine(`keyMongo = Mongo(${uri}, {
+        keyVaultNamespace: '${dbname}.keyVault',
+        kmsProviders: { local },
+        explicitEncryptionOnly: true
       });`);
       await shell.executeLine(`secretDB = keyMongo.getDB('${dbname}')`);
       await shell.executeLine(`var { collection, encryptedFields } = secretDB.createEncryptedCollection('secretCollection', {
