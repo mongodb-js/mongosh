@@ -214,7 +214,7 @@ export class ClientEncryption extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
-  @apiVersions([])
+  @apiVersions([1])
   async createEncryptedCollection(
     dbName: string,
     collName: string,

@@ -619,7 +619,7 @@ export default class Database extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
-  @apiVersions([])
+  @apiVersions([1])
   async createEncryptedCollection(name: string, options: CreateEncryptedCollectionOptions): Promise<{ collection: Collection, encryptedFields: Document }> {
     this._emitDatabaseApiCall('createEncryptedCollection', { name: name, options: options });
     return this._mongo.getClientEncryption().createEncryptedCollection(
