@@ -6,7 +6,7 @@ plugins {
 
 dependencies {
     implementation rootProject
-    implementation group: 'org.graalvm.js', name: 'js', version: '22.0.0.2'
+    implementation group: 'org.graalvm.js', name: 'js', version: '22.3.1'
     implementation group: 'org.mongodb', name: 'mongodb-driver-sync', version: '4.5.1'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 }
