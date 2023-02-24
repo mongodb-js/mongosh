@@ -430,8 +430,7 @@ export async function getPrintableShardStatus(configDB: Database, verbose: boole
           collRes.balancing = [ !coll.noBalance, { noBalance: coll.noBalance } ];
         }
         const chunksRes = [];
-        const chunksCollMatch =
-          coll.uuid ? { $or: [ { uuid: coll.uuid }, { ns: coll._id } ] } : { ns: coll._id };
+        const chunksCollMatch = buildConfigChunksCollectionMatch(coll);
         const chunks = await
         (await chunksColl.aggregate([
           { $match: chunksCollMatch },
@@ -850,4 +849,14 @@ To permanently disable this reminder, run the following command: db.disableFreeM
 export function shallowClone<T>(input: T): T {
   if (!input || typeof input !== 'object') return input;
   return Array.isArray(input) ? ([...input] as unknown as T) : { ...input };
+}
+
+// Take a document from config.collections and return a corresponding match filter
+// for config.chunks.
+// https://jira.mongodb.org/browse/MONGOSH-1179
+// https://github.com/mongodb/mongo/commit/aeb430b26171d5afc55f1278a29cc0f998f6a4e1
+export function buildConfigChunksCollectionMatch(configCollectionsInfo: Document): Document {
+  return Object.prototype.hasOwnProperty.call(configCollectionsInfo, 'timestamp') ?
+    { uuid: configCollectionsInfo.uuid } : // new format
+    { ns: configCollectionsInfo.ns }; // old format
 }
