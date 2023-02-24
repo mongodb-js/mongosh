@@ -69,7 +69,7 @@ export default class Database extends ShellApiWithMongoClass {
     super();
     this._mongo = mongo;
     this._name = name;
-    const collections: Record<string, Collection> = {};
+    const collections: Record<string, Collection> = Object.create(null);
     this._collections = collections;
     this._session = session;
     const proxy = new Proxy(this, {
