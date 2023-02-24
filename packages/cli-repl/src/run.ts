@@ -8,16 +8,8 @@ if (process.argv.includes('--tlsFIPSMode')) {
   }
 }
 
-import { CliRepl, parseCliArgs, runSmokeTests, USAGE, buildInfo } from './index';
-import { getStoragePaths, getGlobalConfigPaths } from './config-directory';
-import { getCryptLibraryPaths } from './crypt-library-paths';
-import { getTlsCertificateSelector } from './tls-certificate-selector';
-import { redactURICredentials } from '@mongosh/history';
-import { generateConnectionInfoFromCliArgs } from '@mongosh/arg-parser';
+import { buildInfo } from './build-info';
 import { runMain } from 'module';
-import readline from 'readline';
-import askcharacter from 'askcharacter';
-import stream from 'stream';
 import crypto from 'crypto';
 import net from 'net';
 
@@ -34,6 +26,8 @@ import net from 'net';
   let repl;
   let isSingleConsoleProcess = false;
   try {
+    const { parseCliArgs } = await import('./arg-parser');
+    const { generateConnectionInfoFromCliArgs } = await import('@mongosh/arg-parser');
     // eslint-disable-next-line chai-friendly/no-unused-expressions
     (net as any)?.setDefaultAutoSelectFamily?.(true);
 
@@ -70,15 +64,24 @@ import net from 'net';
     }
 
     if (options.help) {
+      const { USAGE } = await import('./constants');
       // eslint-disable-next-line no-console
       console.log(USAGE);
-    } else if (options.version) {
+      return;
+    }
+
+    if (options.version) {
       // eslint-disable-next-line no-console
-      console.log(version);
-    } else if (options.buildInfo) {
+      console.log(buildInfo().version);
+      return;
+    }
+    if (options.buildInfo) {
       // eslint-disable-next-line no-console
       console.log(JSON.stringify(buildInfo(), null, '  '));
-    } else if (options.smokeTests) {
+      return;
+    }
+    if (options.smokeTests) {
+      const { runSmokeTests } = await import('./smoke-tests');
       const smokeTestServer = process.env.MONGOSH_SMOKE_TEST_SERVER;
       const cryptLibraryOpts = options.cryptSharedLibPath ? [
         `--cryptSharedLibPath=${options.cryptSharedLibPath}`
@@ -90,69 +93,92 @@ import net from 'net';
         // This is not the compiled binary. Use node + this script.
         await runSmokeTests(smokeTestServer, process.execPath, process.argv[1], ...cryptLibraryOpts);
       }
-    } else {
-      if (process.execPath === process.argv[1]) {
-        // Remove the built-in Node.js listener that prints e.g. deprecation
-        // warnings in single-binary release mode.
-        process.removeAllListeners('warning');
-      }
+      return;
+    }
 
-      // This is for testing under coverage, see the the comment in the tests
-      if (process.env.CLEAR_SIGINT_LISTENERS) {
-        process.removeAllListeners('SIGINT');
-      }
+    // Common case: We want to actually start as mongosh.
+    // We lazy-load the larger dependencies here to speed up startup in the
+    // less common cases (particularly because the cloud team wants --version
+    // to be fast).
+    // Note that when we add snapshot support, we will most likely have
+    // to move these back to be import statements at the top of the file.
+    // See https://jira.mongodb.org/browse/MONGOSH-1214 for some context.
+    const [
+      { CliRepl },
+      { getStoragePaths, getGlobalConfigPaths },
+      { getCryptLibraryPaths },
+      { getTlsCertificateSelector },
+      { redactURICredentials }
+    ] = await Promise.all([
+      await import('./cli-repl'),
+      await import('./config-directory'),
+      await import('./crypt-library-paths'),
+      await import('./tls-certificate-selector'),
+      await import('@mongosh/history'),
+    ]);
 
-      // If we are spawned via Windows doubleclick, ask the user for an URI to
-      // connect to. Allow an environment variable to override this for testing.
-      isSingleConsoleProcess = !!process.env.MONGOSH_FORCE_CONNECTION_STRING_PROMPT;
-      if ((!options.connectionSpecifier &&
-            process.platform === 'win32' &&
-            process.stdin.isTTY &&
-            process.stdout.isTTY) ||
-          isSingleConsoleProcess) {
-        try {
-          isSingleConsoleProcess ||= require('get-console-process-list')().length === 1;
-        } catch { /* ignore */ }
-        if (isSingleConsoleProcess) {
-          const result = await ask('Please enter a MongoDB connection string (Default: mongodb://localhost/): ');
-          if (result.trim() !== '') {
-            options.connectionSpecifier = result.trim();
-          }
+    if (process.execPath === process.argv[1]) {
+      // Remove the built-in Node.js listener that prints e.g. deprecation
+      // warnings in single-binary release mode.
+      process.removeAllListeners('warning');
+    }
+
+    // This is for testing under coverage, see the the comment in the tests
+    if (process.env.CLEAR_SIGINT_LISTENERS) {
+      process.removeAllListeners('SIGINT');
+    }
+
+    // If we are spawned via Windows doubleclick, ask the user for an URI to
+    // connect to. Allow an environment variable to override this for testing.
+    isSingleConsoleProcess = !!process.env.MONGOSH_FORCE_CONNECTION_STRING_PROMPT;
+    if ((!options.connectionSpecifier &&
+          process.platform === 'win32' &&
+          process.stdin.isTTY &&
+          process.stdout.isTTY) ||
+        isSingleConsoleProcess) {
+      try {
+        isSingleConsoleProcess ||= require('get-console-process-list')().length === 1;
+      } catch { /* ignore */ }
+      if (isSingleConsoleProcess) {
+        const result = await ask('Please enter a MongoDB connection string (Default: mongodb://localhost/): ');
+        if (result.trim() !== '') {
+          options.connectionSpecifier = result.trim();
         }
       }
-
-      const connectionInfo = generateConnectionInfoFromCliArgs(options);
-      connectionInfo.driverOptions = {
-        ...connectionInfo.driverOptions,
-        ...getTlsCertificateSelector(options.tlsCertificateSelector),
-        driverInfo: { name: 'mongosh', version }
-      };
-
-      const title = `mongosh ${redactURICredentials(connectionInfo.connectionString)}`;
-      process.title = title;
-      setTerminalWindowTitle(title);
-
-      const shellHomePaths = getStoragePaths();
-      const globalConfigPaths = getGlobalConfigPaths();
-      repl = new CliRepl({
-        shellCliOptions: {
-          ...options,
-        },
-        getCryptLibraryPaths,
-        input: process.stdin,
-        output: process.stdout,
-        onExit: process.exit,
-        shellHomePaths: shellHomePaths,
-        globalConfigPaths: globalConfigPaths
-      });
-      await repl.start(connectionInfo.connectionString, connectionInfo.driverOptions);
     }
+
+    const connectionInfo = generateConnectionInfoFromCliArgs(options);
+    connectionInfo.driverOptions = {
+      ...connectionInfo.driverOptions,
+      ...getTlsCertificateSelector(options.tlsCertificateSelector),
+      driverInfo: { name: 'mongosh', version }
+    };
+
+    const title = `mongosh ${redactURICredentials(connectionInfo.connectionString)}`;
+    process.title = title;
+    setTerminalWindowTitle(title);
+
+    const shellHomePaths = getStoragePaths();
+    const globalConfigPaths = getGlobalConfigPaths();
+    repl = new CliRepl({
+      shellCliOptions: {
+        ...options,
+      },
+      getCryptLibraryPaths,
+      input: process.stdin,
+      output: process.stdout,
+      onExit: process.exit,
+      shellHomePaths: shellHomePaths,
+      globalConfigPaths: globalConfigPaths
+    });
+    await repl.start(connectionInfo.connectionString, connectionInfo.driverOptions);
   } catch (e: any) {
     console.error(`${e?.name}: ${e?.message}`);
     if (repl !== undefined) {
       repl.bus.emit('mongosh:error', e, 'startup');
     }
     if (isSingleConsoleProcess) {
+      const askcharacter = (await import('askcharacter')).default;
       // In single-process-console mode, it's confusing for the window to be
       // closed immediately after receiving an error. In that case, ask the
       // user to explicitly close the window.
@@ -192,11 +218,14 @@ function setTerminalWindowTitle(title: string): void {
  * @returns The written user input
  */
 async function ask(prompt: string): Promise<string> {
+  const { createInterface } = await import('readline');
+  const { PassThrough } = await import('stream');
+
   // Copy stdin to a second stream so that we can still attach it
   // to the main mongosh REPL instance later without conflicts.
-  const stdinCopy = process.stdin.pipe(new stream.PassThrough());
+  const stdinCopy = process.stdin.pipe(new PassThrough());
   try {
-    const readlineInterface = readline.createInterface({
+    const readlineInterface = createInterface({
       input: stdinCopy,
       output: process.stdout,
       prompt,

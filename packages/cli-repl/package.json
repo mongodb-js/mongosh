@@ -5,8 +5,8 @@
   "homepage": "https://github.com/mongodb-js/mongosh",
   "author": "Compass Team <compass@mongodb.com>",
   "manufacturer": "MongoDB Inc.",
-  "main": "lib/index.js",
-  "types": "lib/index.d.ts",
+  "main": "lib/run.js",
+  "types": "lib/run.d.ts",
   "bin": {
     "mongosh": "bin/mongosh.js"
   },
