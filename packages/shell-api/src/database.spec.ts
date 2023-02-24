@@ -455,7 +455,7 @@ describe('Database', () => {
         {
           const coll = database.getCollection('hasOwnProperty');
           expect(coll).to.be.instanceOf(Collection);
-          expect(coll._name).to.equal('__proto__');
+          expect(coll._name).to.equal('hasOwnProperty');
         }
       });
 
