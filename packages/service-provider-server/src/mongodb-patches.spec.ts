@@ -22,12 +22,15 @@ describe('forceCloseMongoClient [integration]', function() {
       const testDb = client.db(testDbName);
 
       await testDb.collection('ctrlc').insertOne({});
-      void testDb.collection('ctrlc').find({ // never resolves
+      let err: any;
+      testDb.collection('ctrlc').find({
         $where: 'while(true) { /* loop1 */ }'
-      }).toArray();
+      }).toArray().catch(e => { err = e; });
       await delay(100);
       const result = await forceCloseMongoClient(client);
       expect(result.forceClosedConnections).to.equal(1);
+      await delay(1);
+      expect(err.message).to.include('Topology is closed');
 
       client = await MongoClient.connect(await testServer.connectionString());
       for (let i = 0; ; i++) {
