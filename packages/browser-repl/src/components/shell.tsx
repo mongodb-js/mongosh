@@ -12,7 +12,7 @@ const shellContainer = css({
   fontSize: '13px',
   lineHeight: '24px',
   fontFamily: fontFamilies.code,
-  backgroundColor: palette.gray.dark3,
+  backgroundColor: palette.gray.dark4,
   color: palette.gray.light3,
   padding: '4px 0',
   width: '100%',
