@@ -32,7 +32,8 @@ import {
   isValidCollectionName,
   scaleIndividualShardStatistics,
   shouldRunAggregationImmediately,
-  coerceToJSNumber
+  coerceToJSNumber,
+  buildConfigChunksCollectionMatch
 } from './helpers';
 import {
   AnyBulkWriteOperation,
@@ -1898,7 +1899,6 @@ export default class Collection extends ShellApiWithMongoClass {
     }
 
     const collStats = await (await this.aggregate({ '$collStats': { storageStats: {} } })).toArray();
-    const uuid = configCollectionsInfo?.uuid ?? null;
 
     const totals = { numChunks: 0, size: 0, count: 0 };
     const conciseShardsStats: {
@@ -1918,7 +1918,7 @@ export default class Collection extends ShellApiWithMongoClass {
         // If we have an UUID, use that for lookups. If we have only the ns,
         // use that. (On 5.0+ servers, config.chunk has uses the UUID, before
         // that it had the ns).
-        const countChunksQuery = uuid ? { $or: [ { uuid }, { ns } ], shard } : { ns, shard };
+        const countChunksQuery = { ...buildConfigChunksCollectionMatch(configCollectionsInfo), shard };
         const [ host, numChunks ] = await Promise.all([
           config.getCollection('shards').findOne({ _id: extShardStats.shard }),
           config.getCollection('chunks').countDocuments(countChunksQuery)
