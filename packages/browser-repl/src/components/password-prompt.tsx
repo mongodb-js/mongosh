@@ -7,7 +7,7 @@ const passwordPrompt = css({
     fontSize: '13px',
     lineHeight: '24px',
     fontFamily: fontFamilies.code,
-    backgroundColor: palette.gray.dark3,
+    backgroundColor: palette.gray.dark4,
     color: palette.gray.light3,
     padding: '0 3px',
     border: `1px solid ${palette.gray.light3}`,
