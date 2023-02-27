@@ -1022,6 +1022,11 @@ const translations: Catalog = {
               description: 'Create new collection',
               example: 'db.createCollection(\'collName\')'
             },
+            createEncryptedCollection: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.createEncryptedCollection/',
+              description: 'Creates a new collection with a list of encrypted fields each with unique and auto-created data encryption keys (DEKs). This is a utility function that internally utilises ClientEnryption.createEncryptedCollection.',
+              example: 'db.createEncryptedCollection( "collName", { "provider": "<kmsProvider>", "createCollectionOptions": { "encryptedFields": { ... }, ...<otherOptions> } })'
+            },
             createView: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.createView/',
               description: 'Create new view',
@@ -2202,7 +2207,12 @@ const translations: Catalog = {
             decrypt: {
               link: 'https://docs.mongodb.com/manual/reference/method/ClientEncryption.decrypt/#ClientEncryption.decrypt',
               description: 'decrypts the encryptionValue if the current database connection was configured with access to the Key Management Service (KMS) and key vault used to encrypt encryptionValue.'
-            }
+            },
+            createEncryptedCollection: {
+              link: 'https://docs.mongodb.com/manual/reference/method/ClientEncryption.createEncryptedCollection/#ClientEncryption.createEncryptedCollection',
+              description: 'Creates a new collection with a list of encrypted fields each with unique and auto-created data encryption keys (DEKs). This method should be invoked on a connection instantiated with queryable encryption options.',
+              example: 'db.getMongo().getClientEncryption().createEncryptedCollection( "dbName", "collName", { "provider": "<kmsProvider>", "createCollectionOptions": { "encryptedFields": { ... }, ...<otherOptions> } })'
+            },
           }
         }
       }

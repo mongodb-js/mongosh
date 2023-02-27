@@ -16,18 +16,19 @@ import {
   KMSProviders,
   AWSEncryptionKeyOptions,
   AzureEncryptionKeyOptions,
-  GCPEncryptionKeyOptions
+  GCPEncryptionKeyOptions,
 } from '@mongosh/service-provider-core';
 import type { Document, BinaryType } from '@mongosh/service-provider-core';
 import Collection from './collection';
 import Cursor from './cursor';
 import { DeleteResult } from './result';
-import { assertArgsDefinedType } from './helpers';
+import { assertArgsDefinedType, assertKeysDefined } from './helpers';
 import { asPrintable, shellApiType } from './enums';
 import { redactURICredentials } from '@mongosh/history';
 import type Mongo from './mongo';
 import { CommonErrors, MongoshInvalidInputError, MongoshRuntimeError } from '@mongosh/errors';
 import ShellInstanceState from './shell-instance-state';
+import type { CreateEncryptedCollectionOptions } from '@mongosh/service-provider-core';
 
 export type ClientSideFieldLevelEncryptionKmsProvider = Omit<KMSProviders, 'local'> & {
   local?: {
@@ -210,6 +211,35 @@ export class ClientEncryption extends ShellApiWithMongoClass {
       value,
       { keyId, ...options }
     );
+  }
+
+  @returnsPromise
+  @apiVersions([1])
+  async createEncryptedCollection(
+    dbName: string,
+    collName: string,
+    options: CreateEncryptedCollectionOptions
+  ): Promise<{ collection: Collection, encryptedFields: Document }> {
+    assertArgsDefinedType([dbName], ['string'], 'ClientEncryption.createEncryptedCollection');
+    assertArgsDefinedType([collName], ['string'], 'ClientEncryption.createEncryptedCollection');
+    assertArgsDefinedType([options], ['object'], 'ClientEncryption.createEncryptedCollection');
+    assertKeysDefined(options, ['provider', 'createCollectionOptions']);
+
+    if (!this._mongo._serviceProvider.createEncryptedCollection) {
+      throw new MongoshRuntimeError('Runtime does not support createEncryptedCollection yet');
+    }
+
+    const { encryptedFields } = await this._mongo._serviceProvider.createEncryptedCollection(
+      dbName,
+      collName,
+      options,
+      this._libmongocrypt
+    );
+
+    return {
+      collection: this._mongo.getDB(dbName).getCollection(collName),
+      encryptedFields
+    };
   }
 }
 

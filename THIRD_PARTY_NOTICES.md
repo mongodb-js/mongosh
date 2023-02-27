@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Fri Feb 24 2023.
+This document was automatically generated on Mon Feb 27 2023.
 
 ## List of dependencies
 
@@ -310,7 +310,7 @@ Package|Version|License
 **[mkdirp-classic](#e79cc875152b50c2eb57a97163d99f0155bf4e4af7ba4a7e01c12a17a4a3305c)**|0.5.3|MIT
 **[mongodb](#1f2ea645752535227d85dfdf2efedb8f05ed7b43b909654e3562ed5ccbeff490)**|4.13.0|Apache-2.0
 **[mongodb-build-info](#b490c1243a2cfcd0824757c5a177056f5546e98fb08195481f0e093613d59e0e)**|1.5.0|Apache-2.0
-**[mongodb-client-encryption](#cdf8e70b5734ec3b78ed8ca9973c660cdc125af146379fc4587b3681bc895b11)**|2.4.0|Apache-2.0
+**[mongodb-client-encryption](#3f78443b3b955d1f1bfc559185d1467ed6171021dff85924dd6e8337f03eb4bf)**|2.5.0|Apache-2.0
 **[mongodb-connection-string-url](#ce5b616af8be619c9b55d24d0c177a8d7676deb45415078a03235e37f704ae4c)**|2.6.0|Apache-2.0
 **[mongodb-crypt-library-version](#531dc8c5761d69d24f5e39457de5812ed3781da937aa64f94ed6f659bd72c142)**|1.0.3|Apache-2.0
 **[mongodb-log-writer](#96c58bda4a870bc8879944bcf94b6242a3a1552cc179c3da480e3494672a3a2d)**|1.1.4|Apache-2.0
@@ -38417,8 +38417,8 @@ Authors:
 * Irina Shestak <shestak.irina@gmail.com>
 
 
-<a id="cdf8e70b5734ec3b78ed8ca9973c660cdc125af146379fc4587b3681bc895b11"></a>
-### [mongodb-client-encryption](https://www.npmjs.com/package/mongodb-client-encryption) (version 2.4.0)
+<a id="3f78443b3b955d1f1bfc559185d1467ed6171021dff85924dd6e8337f03eb4bf"></a>
+### [mongodb-client-encryption](https://www.npmjs.com/package/mongodb-client-encryption) (version 2.5.0)
 <!-- initially found at packages/service-provider-core/node_modules/mongodb-client-encryption -->
 > Official client encryption module for the MongoDB Node.js driver
 
