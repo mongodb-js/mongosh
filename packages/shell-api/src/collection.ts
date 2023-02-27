@@ -1918,7 +1918,7 @@ export default class Collection extends ShellApiWithMongoClass {
         // If we have an UUID, use that for lookups. If we have only the ns,
         // use that. (On 5.0+ servers, config.chunk has uses the UUID, before
         // that it had the ns).
-        const countChunksQuery = buildConfigChunksCollectionMatch(configCollectionsInfo);
+        const countChunksQuery = { ...buildConfigChunksCollectionMatch(configCollectionsInfo), shard };
         const [ host, numChunks ] = await Promise.all([
           config.getCollection('shards').findOne({ _id: extShardStats.shard }),
           config.getCollection('chunks').countDocuments(countChunksQuery)

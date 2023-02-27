@@ -473,7 +473,9 @@ export async function getPrintableShardStatus(configDB: Database, verbose: boole
         }
 
         const tagsRes: any[] = [];
-        for await (const tag of (await configDB.getCollection('tags').find(chunksCollMatch)).sort({ min: 1 })) {
+        for await (const tag of (await configDB.getCollection('tags').find({
+          ns: coll._id
+        })).sort({ min: 1 })) {
           tagsRes.push({
             tag: tag.tag,
             min: tag.min,
@@ -858,5 +860,5 @@ export function shallowClone<T>(input: T): T {
 export function buildConfigChunksCollectionMatch(configCollectionsInfo: Document): Document {
   return Object.prototype.hasOwnProperty.call(configCollectionsInfo, 'timestamp') ?
     { uuid: configCollectionsInfo.uuid } : // new format
-    { ns: configCollectionsInfo.ns }; // old format
+    { ns: configCollectionsInfo._id }; // old format
 }
