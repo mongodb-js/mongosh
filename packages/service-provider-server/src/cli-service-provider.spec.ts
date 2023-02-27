@@ -6,6 +6,7 @@ import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
 import CliServiceProvider from './cli-service-provider';
 import ConnectionString from 'mongodb-connection-string-url';
 import { EventEmitter } from 'events';
+import type { ClientEncryption, ClientEncryptionDataKeyProvider } from '@mongosh/service-provider-core';
 
 chai.use(sinonChai);
 
@@ -597,6 +598,47 @@ describe('CliServiceProvider', () => {
       expect(result).to.deep.equal({ ok: 1 });
       expect(dbStub.createCollection).to.have.been.calledOnceWith('newcoll', DEFAULT_BASE_OPTS);
       expect(clientStub.db).to.have.been.calledOnceWith('db1');
+    });
+  });
+
+  describe('#createEncryptedCollection', () => {
+    let dbStub: StubbedInstance<Db>;
+    let clientStub: StubbedInstance<MongoClient>;
+    let libmongoc: StubbedInstance<ClientEncryption>;
+    const createCollOptions = {
+      provider: 'local' as ClientEncryptionDataKeyProvider,
+      createCollectionOptions: {
+        encryptedFields: {
+          fields: [{
+            path: 'ssn',
+            bsonType: 'string'
+          }]
+        }
+      }
+    };
+
+    beforeEach(() => {
+      dbStub = stubInterface<Db>();
+      clientStub = stubInterface<MongoClient>();
+      clientStub.db.returns(dbStub);
+      serviceProvider = new CliServiceProvider(clientStub, bus);
+      libmongoc = stubInterface<ClientEncryption>();
+    });
+
+    it('calls calls libmongocrypt.createEncryptedCollection', async() => {
+      await serviceProvider.createEncryptedCollection('db1', 'coll1', createCollOptions, libmongoc);
+      expect(libmongoc.createEncryptedCollection).calledOnceWithExactly(
+        dbStub,
+        'coll1',
+        createCollOptions
+      );
+    });
+
+    it('returns whatever libmongocrypt.createEncryptedCollection returns', async() => {
+      const resolvedValue = { collection: { name: 'secretCol' }, encryptedFields: [] } as any;
+      libmongoc.createEncryptedCollection.resolves(resolvedValue);
+      const returnValue = await serviceProvider.createEncryptedCollection('db1', 'coll1', createCollOptions, libmongoc);
+      expect(returnValue).to.deep.equal(resolvedValue);
     });
   });
 

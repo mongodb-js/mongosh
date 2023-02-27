@@ -14,12 +14,14 @@ import {
   bson,
   ClientSession as ServiceProviderSession,
   Document,
+  ClientEncryptionDataKeyProvider,
 } from '@mongosh/service-provider-core';
 import ShellInstanceState from './shell-instance-state';
 import crypto from 'crypto';
 import { ADMIN_DB } from './enums';
 import ChangeStreamCursor from './change-stream-cursor';
 import { CommonErrors, MongoshDeprecatedError, MongoshInvalidInputError, MongoshRuntimeError, MongoshUnimplementedError } from '@mongosh/errors';
+import { ClientEncryption } from './field-level-encryption';
 chai.use(sinonChai);
 
 describe('Database', () => {
@@ -1168,6 +1170,36 @@ describe('Database', () => {
         const caughtError = await database.createCollection('newcoll')
           .catch(e => e);
         expect(caughtError).to.equal(expectedError);
+      });
+    });
+    describe('createEncryptedCollection', () => {
+      let clientEncryption: StubbedInstance<ClientEncryption>;
+      const createCollectionOptions = {
+        provider: 'local' as ClientEncryptionDataKeyProvider,
+        createCollectionOptions: {
+          encryptedFields: {
+            fields: []
+          }
+        }
+      };
+      beforeEach(() => {
+        clientEncryption = stubInterface<ClientEncryption>();
+        sinon.stub(database._mongo, 'getClientEncryption').returns(clientEncryption);
+      });
+      it('calls ClientEncryption.createEncryptedCollection with the provided options', async() => {
+        await database.createEncryptedCollection('secretCollection', createCollectionOptions);
+        expect(clientEncryption.createEncryptedCollection).calledOnceWithExactly(
+          database._name,
+          'secretCollection',
+          createCollectionOptions
+        );
+      });
+
+      it('returns whatever ClientEncryption.createEncryptedCollection returns', async() => {
+        const resolvedValue = { collection: { name: 'secretCol' }, encryptedFields: [] } as any;
+        clientEncryption.createEncryptedCollection.resolves(resolvedValue);
+        const returnValue = await database.createEncryptedCollection('secretCollection', createCollectionOptions);
+        expect(returnValue).to.deep.equal(resolvedValue);
       });
     });
     describe('createView', () => {
@@ -2776,6 +2808,7 @@ describe('Database', () => {
       'copyDatabase',
       'getReplicationInfo',
       'setSecondaryOk',
+      'createEncryptedCollection',
       'sql'
     ];
     const args = [ {}, {}, {} ];

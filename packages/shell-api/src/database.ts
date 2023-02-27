@@ -48,6 +48,7 @@ import { HIDDEN_COMMANDS } from '@mongosh/history';
 import Session from './session';
 import ChangeStreamCursor from './change-stream-cursor';
 import { ShellApiErrors } from './error-codes';
+import { CreateEncryptedCollectionOptions } from '@mongosh/service-provider-core';
 
 export type CollectionNamesWithTypes = {
   name: string;
@@ -615,6 +616,17 @@ export default class Database extends ShellApiWithMongoClass {
       }
       throw err;
     }
+  }
+
+  @returnsPromise
+  @apiVersions([1])
+  async createEncryptedCollection(name: string, options: CreateEncryptedCollectionOptions): Promise<{ collection: Collection, encryptedFields: Document }> {
+    this._emitDatabaseApiCall('createEncryptedCollection', { name: name, options: options });
+    return this._mongo.getClientEncryption().createEncryptedCollection(
+      this._name,
+      name,
+      options
+    );
   }
 
   async _improveErrorMessageForLowServerVersionForQE(err: Error): Promise<void> {
