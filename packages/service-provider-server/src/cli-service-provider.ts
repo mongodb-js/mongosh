@@ -3,23 +3,11 @@ import {
   AuthMechanism,
   MongoClient,
   ReadPreference,
-  BSONRegExp,
-  Binary,
-  Code,
-  DBRef,
-  Double,
-  Int32,
-  Long,
-  MinKey,
-  MaxKey,
-  ObjectId,
-  Timestamp,
-  Decimal128,
-  BSONSymbol,
   ClientMetadata,
   ReadPreferenceFromOptions,
   ReadPreferenceLike,
-  OperationOptions
+  OperationOptions,
+  BSON
 } from 'mongodb';
 
 import {
@@ -73,7 +61,6 @@ import {
   WriteConcern,
   ChangeStreamOptions,
   ChangeStream,
-  bson as BSON,
   FLE,
   AutoEncryptionOptions,
   ClientEncryption as MongoCryptClientEncryption
@@ -88,22 +75,21 @@ import { EventEmitter } from 'events';
 import { CreateEncryptedCollectionOptions } from '@mongosh/service-provider-core';
 
 const bsonlib = {
-  Binary,
-  Code,
-  DBRef,
-  Double,
-  Int32,
-  Long,
-  MinKey,
-  MaxKey,
-  ObjectId,
-  Timestamp,
-  Decimal128,
-  BSONSymbol,
-  Map: BSON.Map,
+  Binary: BSON.Binary,
+  Code: BSON.Code,
+  DBRef: BSON.DBRef,
+  Double: BSON.Double,
+  Int32: BSON.Int32,
+  Long: BSON.Long,
+  MinKey: BSON.MinKey,
+  MaxKey: BSON.MaxKey,
+  ObjectId: BSON.ObjectId,
+  Timestamp: BSON.Timestamp,
+  Decimal128: BSON.Decimal128,
+  BSONSymbol: BSON.BSONSymbol,
   calculateObjectSize: BSON.calculateObjectSize,
   EJSON: BSON.EJSON,
-  BSONRegExp
+  BSONRegExp: BSON.BSONRegExp
 };
 
 type DropDatabaseResult = {
@@ -728,31 +714,6 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   }
 
   /**
-   * Deprecated remove command.
-   *
-   * @param {String} database - The db name.
-   * @param {String} collection - The collection name.
-   * @param {Object} query - The query.
-   * @param {Object} options - The options.
-   * @param dbOptions
-   * @return {Promise}
-   */
-  remove(
-    database: string,
-    collection: string,
-    query: Document = {},
-    options: DeleteOptions = {},
-    dbOptions?: DbOptions): Promise<DeleteResult> {
-    options = { ...this.baseCmdOptions, ...options };
-    /* NOTE: the 4.x branch of the driver does not define a separate def for remove that doesn't take a
-       callback, and since remove is deprecated it's not worth asking for a change to the driver. So ts-ignore it is.
-    */
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    return this.db(database, dbOptions).collection(collection).remove(query, options);
-  }
-
-  /**
    * Replace a document with another.
    *
    * @param {String} database - The database name.
@@ -860,8 +821,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     options = { ...this.baseCmdOptions, ...options };
     return await this.db(database, dbOptions)
       .collection(collection)
-      .updateMany(filter, update, options) as Promise<UpdateResult>;
-    // `as UpdateResult` because we know we didn't request .explain() here.
+      .updateMany(filter, update, options);
   }
 
   /**
@@ -886,8 +846,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     options = { ...this.baseCmdOptions, ...options };
     return this.db(database, dbOptions)
       .collection(collection)
-      .updateOne(filter, update, options) as Promise<UpdateResult>;
-    // `as UpdateResult` because we know we didn't request .explain() here.
+      .updateOne(filter, update, options);
   }
 
   /**

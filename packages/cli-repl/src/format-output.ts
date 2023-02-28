@@ -232,6 +232,10 @@ export function formatError(error: Error, options: FormatOptions): string {
     result += `\n${clr(i18n.__('cli-repl.cli-repl.additionalErrorResult'), 'mongosh:additional-error-info', options)}: `;
     result += inspect((error as any).result, options);
   }
+  if ((error as any).writeErrors) {
+    result += `\n${clr(i18n.__('cli-repl.cli-repl.additionalErrorWriteErrors'), 'mongosh:additional-error-info', options)}: `;
+    result += inspect((error as any).writeErrors, options);
+  }
   if ((error as any).violations) {
     result += `\n${clr(i18n.__('cli-repl.cli-repl.additionalErrorViolations'), 'mongosh:additional-error-info', options)}: `;
     result += inspect((error as any).violations, options);

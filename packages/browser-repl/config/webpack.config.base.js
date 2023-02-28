@@ -57,5 +57,6 @@ module.exports = {
       process: 'process',
       Buffer: ['buffer', 'Buffer']
     })
-  ]
+  ],
+  externals: { "node:crypto": "commonjs crypto" }
 };

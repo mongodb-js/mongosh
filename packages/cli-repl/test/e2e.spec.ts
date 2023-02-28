@@ -613,7 +613,9 @@ describe('e2e', function() {
             { email: "test2@mongodb.com", status: "Unknown" }
           ]);`);
           expect(result).to.include('Result:');
-          expect(result).to.include('nInserted: 1');
+          expect(result).to.include('insertedCount: 1');
+          expect(result).to.include('Write Errors:');
+          expect(result).to.include('failingDocumentId:');
         });
       });
     });

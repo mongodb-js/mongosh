@@ -490,9 +490,6 @@ internal class JavaServiceProvider(private var client: MongoClient?,
     }
 
     @HostAccess.Export
-    override fun remove(database: String, collection: String, query: Value, options: Value?): Value = deleteMany(database, collection, query, options)
-
-    @HostAccess.Export
     override fun createCollection(database: String, collection: String, options: Value?): Value = promise {
         val options = toDocument(options, "options")
         val opt = options?.filterKeys { !dbConverters.containsKey(it) } ?: Document()

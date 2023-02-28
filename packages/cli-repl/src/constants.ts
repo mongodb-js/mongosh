@@ -23,7 +23,6 @@ export const USAGE = `
         --host [arg]                           ${i18n.__('cli-repl.args.host')}
         --port [arg]                           ${i18n.__('cli-repl.args.port')}
         --version                              ${i18n.__('cli-repl.args.version')}
-        --verbose                              ${i18n.__('cli-repl.args.verbose')}
         --quiet                                ${i18n.__('cli-repl.args.quiet')}
         --shell                                ${i18n.__('cli-repl.args.shell')}
         --nodb                                 ${i18n.__('cli-repl.args.nodb')}

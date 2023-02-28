@@ -48,6 +48,6 @@ export interface CliOptions {
   tlsFIPSMode?: boolean;
   tlsUseSystemCA?: boolean;
   username?: string;
-  verbose?: boolean;
+  verbose?: boolean; // No-op since driver v5.0.0
   version?: boolean;
 }

@@ -679,7 +679,7 @@ describe('Auth e2e', function() {
             'db.auth({ user: "anna", pwd: "pwd2", mechanism: "not a mechanism"})'
           );
           await eventually(() => {
-            shell.assertContainsError('MongoParseError: authMechanism one of MONGODB-AWS,MONGODB-CR,DEFAULT,GSSAPI,PLAIN,SCRAM-SHA-1,SCRAM-SHA-256,MONGODB-X509, got not a mechanism');
+            expect(shell.output).to.match(/MongoParseError: authMechanism one of .+, got not a mechanism/);
           }, { timeout: 40000 });
           expect(await shell.executeLine(
             'db.runCommand({connectionStatus: 1})'

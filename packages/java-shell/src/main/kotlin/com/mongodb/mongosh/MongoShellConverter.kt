@@ -222,7 +222,7 @@ private class BsonTypes(context: MongoShellContext) {
     val objectId: Value      by lazy { context.eval("new ObjectId().constructor") }
     val numberDecimal: Value by lazy { context.eval("new NumberDecimal().constructor") }
     val numberInt: Value     by lazy { context.eval("new NumberInt().constructor") }
-    val timestamp: Value     by lazy { context.eval("new Timestamp().constructor") }
+    val timestamp: Value     by lazy { context.eval("((OriginalTimestamp) => { const Timestamp = function Timestamp(i, t) { return OriginalTimestamp({ i: i >>> 0, t: t >>> 0 }) }; Timestamp.prototype = OriginalTimestamp.prototype; return Timestamp; })(Timestamp)") }
     val code: Value          by lazy { context.eval("new Code().constructor") }
     val dbRef: Value         by lazy { context.eval("new DBRef('', '', '').constructor") }
     val bsonSymbol: Value    by lazy { context.eval("new BSONSymbol('').constructor") }

@@ -1228,7 +1228,7 @@ describe('Shard', () => {
 
     const [ mongos, rs0, rs1 ] = startTestCluster(
       // --sharded 0 creates a setup without any initial shards
-      ['--replicaset', '--sharded', '0'],
+      ['--replicaset', '--sharded', '0', '--csrs'],
       ['--replicaset', '--name', `${shardId}-0`, '--shardsvr'],
       ['--replicaset', '--name', `${shardId}-1`, '--shardsvr']
     );

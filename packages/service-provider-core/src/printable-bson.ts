@@ -3,72 +3,71 @@ import { inspect } from 'util';
 const inspectCustom = Symbol.for('nodejs.util.inspect.custom');
 
 export const bsonStringifiers: Record<string, (this: any, depth: any, options: any) => string> = {
-  ObjectId: function(): string {
+  ObjectId: function(this: typeof BSON.ObjectId.prototype): string {
     return `ObjectId("${this.toHexString()}")`;
   },
 
-  DBRef: function(depth: any, options: any): string {
-    return `DBRef("${this.namespace}", ` +
+  DBRef: function(this: typeof BSON.DBRef.prototype, depth: any, options: any): string {
+    return `DBRef("${this.collection}", ` +
       inspect(this.oid, options) +
       (this.db ? `, "${this.db}"` : '') +
       ')';
   },
 
-  MaxKey: function(): string {
+  MaxKey: function(this: typeof BSON.MaxKey.prototype): string {
     return 'MaxKey()';
   },
 
-  MinKey: function(): string {
+  MinKey: function(this: typeof BSON.MinKey.prototype): string {
     return 'MinKey()';
   },
 
-  Timestamp: function(): string {
+  Timestamp: function(this: typeof BSON.Timestamp.prototype): string {
     return `Timestamp({ t: ${this.getHighBits()}, i: ${this.getLowBits()} })`;
   },
 
-  BSONSymbol: function(): string {
+  BSONSymbol: function(this: typeof BSON.BSONSymbol.prototype): string {
     return `BSONSymbol("${this.valueOf()}")`;
   },
 
-  Code: function(): string {
+  Code: function(this: typeof BSON.Code.prototype): string {
     const j = this.toJSON();
     return `Code("${j.code}"${j.scope ? `, ${JSON.stringify(j.scope)}` : ''})`;
   },
 
-  Decimal128: function(): string {
+  Decimal128: function(this: typeof BSON.Decimal128.prototype): string {
     return `Decimal128("${this.toString()}")`;
   },
 
-  Int32: function(): string {
+  Int32: function(this: typeof BSON.Int32.prototype): string {
     return `Int32(${this.valueOf()})`;
   },
 
-  Long: function(): string {
+  Long: function(this: typeof BSON.Long.prototype): string {
     return `Long("${this.toString()}"${this.unsigned ? ', true' : ''})`;
   },
 
-  BSONRegExp: function(): string {
+  BSONRegExp: function(this: typeof BSON.BSONRegExp.prototype): string {
     return `BSONRegExp(${JSON.stringify(this.pattern)}, ${JSON.stringify(this.options)})`;
   },
 
-  Binary: function(): string {
-    const asBuffer = this.value(true);
+  Binary: function(this: typeof BSON.Binary.prototype): string {
+    const hexString = this.toString('hex');
     switch (this.sub_type) {
       case BSON.Binary.SUBTYPE_MD5:
-        return `MD5("${asBuffer.toString('hex')}")`;
+        return `MD5("${hexString}")`;
       case BSON.Binary.SUBTYPE_UUID:
-        if (asBuffer.length === 16) {
+        if (hexString.length === 32) {
           // Format '0123456789abcdef0123456789abcdef' into
           // '01234567-89ab-cdef-0123-456789abcdef'.
-          const hex = asBuffer.toString('hex');
-          const asUUID = hex.match(/^(.{8})(.{4})(.{4})(.{4})(.{12})$/)
+          const asUUID = hexString.match(/^(.{8})(.{4})(.{4})(.{4})(.{12})$/)!
             .slice(1, 6).join('-');
           return `UUID("${asUUID}")`;
         }
         // In case somebody did something weird and used an UUID with a
         // non-standard length, fall through.
       default:
-        return `Binary(Buffer.from("${asBuffer.toString('hex')}", "hex"), ${this.sub_type})`;
+        return `Binary(Buffer.from("${hexString}", "hex"), ${this.sub_type})`;
     }
   },
 };

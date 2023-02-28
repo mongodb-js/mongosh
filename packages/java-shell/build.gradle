@@ -16,7 +16,7 @@ node {
 }
 
 task browserifyShellApi(type: NpmTask) {
-    args = ['run', 'browserify-shell-api']
+    args = ['run', 'webpack-shell-api']
 }
 
 browserifyShellApi.dependsOn npmInstall

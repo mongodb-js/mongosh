@@ -16,7 +16,6 @@ const translations: Catalog = {
       host: 'Server to connect to',
       port: 'Port to connect to',
       version: 'Show version information',
-      verbose: 'Increase the verbosity of the output of the shell',
       quiet: 'Silence output from the shell during the connection process',
       shell: 'Run the shell after executing files',
       nodb: "Don't connect to mongod on startup - no 'db address' [arg] expected",
@@ -84,7 +83,8 @@ const translations: Catalog = {
       },
       additionalErrorInfo: 'Additional information',
       additionalErrorResult: 'Result',
-      additionalErrorViolations: 'Violations'
+      additionalErrorViolations: 'Violations',
+      additionalErrorWriteErrors: 'Write Errors'
     },
     'uri-generator': {
       'no-host-port': 'If a full URI is provided, you cannot also specify --host or --port',
