@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Sun Mar 05 2023.
+This document was automatically generated on Thu Mar 09 2023.
 
 ## List of dependencies
 
@@ -235,7 +235,7 @@ Package|Version|License
 **[js-tokens](#f4371f095c6f087cf41433031f8c612e21a4258b18cb4e847ffae73905e146d4)**|4.0.0|MIT
 **[js-yaml](#b7325d630b0ab313450fcd188788f6ee374aadd75df4969a9e3c48507ef88bdf)**|4.1.0|MIT
 **[jsesc](#253e8a44fc188759c5ce35330e4f20aacf1d0253d7e8d7dffd4a1f884a10ce1e)**|2.5.2|MIT
-**[json5](#906be0abb2bedfb858461b04406d05b8b46b210f7b0c43eb28241a5d4fe647b9)**|2.2.1|MIT
+**[json5](#16281c6ea25e0cec4bc0bb8c01d1759d66992776381bf9c5af6959bec47d2f77)**|2.2.3|MIT
 **[kerberos](#480754bb9f65a90c52364d80a4e368d121a9f2c9b83269a9d10ce84cad3addbe)**|2.0.0|Apache-2.0
 **[lodash](#adaac4144887ebc2c1b682380ff385210f681fc58b4bc1ef3986148cf8dcd28a)**|4.17.21|MIT
 **[lodash.isstring](#0103ef60e6b5d9c04fe5527db0d91b50851203d166f29cbcf5fdf6c655194132)**|4.0.1|MIT
@@ -24861,10 +24861,10 @@ Authors:
 * Mathias Bynens (https://mathiasbynens.be/)
 
 
-<a id="906be0abb2bedfb858461b04406d05b8b46b210f7b0c43eb28241a5d4fe647b9"></a>
-### [json5](https://www.npmjs.com/package/json5) (version 2.2.1)
+<a id="16281c6ea25e0cec4bc0bb8c01d1759d66992776381bf9c5af6959bec47d2f77"></a>
+### [json5](https://www.npmjs.com/package/json5) (version 2.2.3)
 <!-- initially found at packages/js-multiline-to-singleline/node_modules/json5 -->
-> JSON for humans.
+> JSON for Humans
 
 License tags: MIT
 
