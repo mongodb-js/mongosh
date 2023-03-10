@@ -21,6 +21,7 @@ import formatOutput, { formatError } from './format-output';
 import { makeMultilineJSIntoSingleLine } from '@mongosh/js-multiline-to-singleline';
 import { LineByLineInput } from './line-by-line-input';
 import type { FormatOptions } from './format-output';
+import { viewObject } from './react-inspect';
 
 /**
  * All CLI flags that are useful for {@link MongoshNodeRepl}.
@@ -225,6 +226,20 @@ class MongoshNodeRepl implements EvaluationListener {
     delete repl.context.__non_webpack_require__;
     this.onClearCommand = console.clear.bind(console);
     repl.context.console = console;
+    repl.context.view = (value: unknown) => {
+      return Object.assign((async() => {
+        this.lineByLineInput.suspend();
+        try {
+          return await viewObject(value, { output: this.output, input: this.input });
+        } finally {
+          this.lineByLineInput.start();
+          if ('setRawMode' in this.input && typeof (this.input as any).setRawMode === 'function')
+            (this.input as any).setRawMode(true);
+        }
+      })(), {
+        [Symbol.for('@@mongosh.syntheticPromise')]: true
+      });
+    };
 
     // Copy our context's Date object into the inner one because we have a custom
     // util.inspect override for Date objects.

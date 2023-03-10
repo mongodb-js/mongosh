@@ -28,6 +28,7 @@ export class LineByLineInput extends Readable {
   private _charQueue: (string | null)[];
   private _decoder: StringDecoder;
   private _insidePushCalls: number;
+  private _suspend: undefined | (() => void);
 
   constructor(readable: NodeJS.ReadStream) {
     super();
@@ -72,8 +73,19 @@ export class LineByLineInput extends Readable {
 
   /** Start processing data from the original input stream. */
   start(): void {
-    this._originalInput.on('data', (chunk) => this._onData(chunk));
-    this._originalInput.on('end', () => this._onData(null));
+    const onData = (chunk: Buffer | null) => this._onData(chunk);
+    const onEnd = () => this._onData(null);
+    this._originalInput.on('data', onData);
+    this._originalInput.on('end', onEnd);
+
+    this._suspend = () => {
+      this._originalInput.off('data', onData);
+      this._originalInput.off('end', onEnd);
+    };
+  }
+
+  suspend(): void {
+    this._suspend?.();
   }
 
   _read(): void {
