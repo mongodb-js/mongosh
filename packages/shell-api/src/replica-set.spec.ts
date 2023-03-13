@@ -986,7 +986,7 @@ describe('ReplicaSet', () => {
       const addArbWithRetry = createRetriableFunc(rs, 'addArb');
       /**
        * Small hack warning:
-       * rs.reconfigForPSASet internally use rs.reconfig twice with different configs
+       * rs.reconfigForPSASet internally uses rs.reconfig twice with different configs
        * rs.reconfig itself could lead to a pseudo test failure because of delay in propogation
        * of new config. This small hack here helps us reduce flakiness in our test runs
        */
