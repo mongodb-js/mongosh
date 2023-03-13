@@ -100,7 +100,7 @@ export default class Mongo extends ShellApiClass {
     this._connectionInfo = generateConnectionInfoFromCliArgs({
       connectionSpecifier: uri
     });
-    this._readPreferenceWasExplicitlyRequested = /\breadPreference=/.test(this._uri);
+    this._readPreferenceWasExplicitlyRequested = /\breadPreference=/i.test(this._uri);
     if (fleOptions) {
       if (fleOptions.explicitEncryptionOnly !== undefined) {
         if (fleOptions.schemaMap !== undefined) {
