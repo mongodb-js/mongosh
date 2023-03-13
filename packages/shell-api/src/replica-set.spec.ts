@@ -27,9 +27,7 @@ function deepClone<T>(value: T): T {
 }
 
 
-type RetriableFn = (...fnArgs: any) => Promise<any>;
-
-function createRetriableFunc(rs: ReplicaSet, fn: keyof ReplicaSet, totalRetries = 12): RetriableFn {
+function createRetriableFunc<F extends keyof ReplicaSet>(rs: ReplicaSet, fn: F, totalRetries = 12): ReplicaSet[F] {
   const func = rs[fn];
   if (typeof func !== 'function') {
     throw new Error(`${fn.toString()} is not a method on replica set`);
