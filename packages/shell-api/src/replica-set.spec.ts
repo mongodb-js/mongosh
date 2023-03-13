@@ -45,7 +45,7 @@ function createRetriableFunc<F extends keyof ReplicaSet>(rs: ReplicaSet, fn: F, 
             await rs._instanceState.shellApi.print(`rs.${fn.toString()} did not succeed yet, starting new attempt...`);
           }
         }
-        result = [ 'success', await func(...fnArgs) ];
+        result = [ 'success', await func.apply(rs, fnArgs) ];
         break;
       } catch (err: any) {
         result = [ 'error', err ];
