@@ -780,7 +780,7 @@ describe('ReplicaSet', () => {
     let instanceState: ShellInstanceState;
     let db: Database;
     let rs: ReplicaSet;
-    let reconfigWithRetry: RetriableFn;
+    let reconfigWithRetry: ReplicaSet['reconfig'];
 
     before(async function() {
       this.timeout(100_000);
