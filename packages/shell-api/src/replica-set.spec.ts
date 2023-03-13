@@ -27,28 +27,27 @@ function deepClone<T>(value: T): T {
 }
 
 
-type ReconfigWithRetryFn = (config: Partial<ReplSetConfig>, options?: Document) => Promise<Document>;
+type RetriableFn = (...fnArgs: any) => Promise<any>;
 
-function createRetriableReconfig(rs: ReplicaSet, totalRetries = 12): ReconfigWithRetryFn {
-  // Retriable reconfig function to make sure that test cleanups that deals
-  // with replica set reconfig don't fail because of network issues
-  // Note: We use this helper primarily to aid in test cleanups
-  return async function reconfigWithRetry(config, options = {}) {
+function createRetriableFunc(rs: ReplicaSet, fn: keyof ReplicaSet, totalRetries = 12): RetriableFn {
+  const func = rs[fn];
+  if (typeof func !== 'function') {
+    throw new Error(`${fn.toString()} is not a method on replica set`);
+  }
+
+  return async function retriableFn(...fnArgs) {
     let result: [ 'error', Error ] | [ 'success', Document ] = [ 'success', {} ];
     let sleepInterval = 1000;
     for (let i = 0; i < totalRetries; i++) {
       try {
         if (result[0] === 'error') {
-          // Do a mild exponential backoff. If it's been a while since the last
-          // update, also tell the user that we're actually still working on
-          // the reconfig.
           await rs._instanceState.shellApi.sleep(sleepInterval);
           sleepInterval *= 1.3;
           if (sleepInterval > 2500) {
-            await rs._instanceState.shellApi.print('Reconfig did not succeed yet, starting new attempt...');
+            await rs._instanceState.shellApi.print(`rs.${fn.toString()} did not succeed yet, starting new attempt...`);
           }
         }
-        result = [ 'success', await rs.reconfig(config, options) ];
+        result = [ 'success', await func(...fnArgs) ];
         break;
       } catch (err: any) {
         result = [ 'error', err ];
@@ -783,7 +782,7 @@ describe('ReplicaSet', () => {
     let instanceState: ShellInstanceState;
     let db: Database;
     let rs: ReplicaSet;
-    let reconfigWithRetry: ReconfigWithRetryFn;
+    let reconfigWithRetry: RetriableFn;
 
     before(async function() {
       this.timeout(100_000);
@@ -801,7 +800,7 @@ describe('ReplicaSet', () => {
       instanceState = new ShellInstanceState(serviceProvider);
       db = instanceState.currentDb;
       rs = new ReplicaSet(db);
-      reconfigWithRetry = createRetriableReconfig(rs);
+      reconfigWithRetry = createRetriableFunc(rs, 'reconfig');
 
       // check replset uninitialized
       try {
@@ -885,7 +884,7 @@ describe('ReplicaSet', () => {
           members: [ cfg.members[0], cfg.members[1] ]
         };
         const version = (await rs.conf()).version;
-        const result = await rs.reconfig(newcfg);
+        const result = await reconfigWithRetry(newcfg);
         expect(result.ok).to.equal(1);
         const status = await rs.conf();
         expect(status.members.length).to.equal(2);
@@ -901,14 +900,16 @@ describe('ReplicaSet', () => {
     describe('add member', () => {
       skipIfServerVersion(srv0, '< 4.4');
       it('adds a regular member to the config', async() => {
+        const addWithRetry = createRetriableFunc(rs, 'add');
         const version = (await rs.conf()).version;
-        const result = await rs.add(`${await additionalServer.hostport()}`);
+        const result = await addWithRetry(`${await additionalServer.hostport()}`);
         expect(result.ok).to.equal(1);
         const conf = await rs.conf();
         expect(conf.members.length).to.equal(4);
         expect(conf.version).to.be.greaterThan(version);
       });
       it('adds a arbiter member to the config', async() => {
+        const addArbWithRetry = createRetriableFunc(rs, 'addArb');
         if (semver.gte(await instanceState.currentDb.version(), '4.4.0')) { // setDefaultRWConcern is 4.4+ only
           await instanceState.currentDb.getSiblingDB('admin').runCommand({
             setDefaultRWConcern: 1,
@@ -916,7 +917,7 @@ describe('ReplicaSet', () => {
           });
         }
         const version = (await rs.conf()).version;
-        const result = await rs.addArb(`${await additionalServer.hostport()}`);
+        const result = await addArbWithRetry(`${await additionalServer.hostport()}`);
         expect(result.ok).to.equal(1);
         const conf = await rs.conf();
         expect(conf.members.length).to.equal(4);
@@ -932,8 +933,9 @@ describe('ReplicaSet', () => {
 
     describe('remove member', () => {
       it('removes a member of the config', async() => {
+        const removeWithRetry = createRetriableFunc(rs, 'remove');
         const version = (await rs.conf()).version;
-        const result = await rs.remove(cfg.members[2].host);
+        const result = await removeWithRetry(cfg.members[2].host);
         expect(result.ok).to.equal(1);
         const conf = await rs.conf();
         expect(conf.members.length).to.equal(2);
@@ -983,6 +985,9 @@ describe('ReplicaSet', () => {
       const instanceState = new ShellInstanceState(serviceProvider);
       const db = instanceState.currentDb;
       const rs = new ReplicaSet(db);
+      const addWithRetry = createRetriableFunc(rs, 'add');
+      const addArbWithRetry = createRetriableFunc(rs, 'addArb');
+      const reconfigForPSASetWithRetry = createRetriableFunc(rs, 'reconfigForPSASet');
 
       expect((await rs.initiate(cfg)).ok).to.equal(1);
       await ensureMaster(rs, 1000, primary);
@@ -993,11 +998,11 @@ describe('ReplicaSet', () => {
           defaultWriteConcern: { w: 'majority' }
         });
       }
-      await rs.addArb(arbiter);
+      await addArbWithRetry(arbiter);
 
       if (semver.gt(await db.version(), '4.9.0')) { // Exception currently 5.0+ only
         try {
-          await rs.add(secondary);
+          await addWithRetry(secondary);
           expect.fail('missed assertion');
         } catch (err: any) {
           expect(err.codeName).to.equal('NewReplicaSetConfigurationIncompatible');
@@ -1006,7 +1011,7 @@ describe('ReplicaSet', () => {
 
       const conf = await rs.conf();
       conf.members.push({ _id: 2, host: secondary, votes: 1, priority: 1 });
-      await rs.reconfigForPSASet(2, conf);
+      await reconfigForPSASetWithRetry(2, conf);
 
       const { members } = await rs.status();
       expect(members).to.have.lengthOf(3);
