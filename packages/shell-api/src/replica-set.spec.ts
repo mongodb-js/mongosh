@@ -983,9 +983,14 @@ describe('ReplicaSet', () => {
       const instanceState = new ShellInstanceState(serviceProvider);
       const db = instanceState.currentDb;
       const rs = new ReplicaSet(db);
-      const addWithRetry = createRetriableFunc(rs, 'add');
       const addArbWithRetry = createRetriableFunc(rs, 'addArb');
-      const reconfigForPSASetWithRetry = createRetriableFunc(rs, 'reconfigForPSASet');
+      /**
+       * Small hack warning:
+       * rs.reconfigForPSASet internally use rs.reconfig twice with different configs
+       * rs.reconfig itself could lead to a pseudo test failure because of delay in propogation
+       * of new config. This small hack here helps us reduce flakiness in our test runs
+       */
+      rs.reconfig = createRetriableFunc(rs, 'reconfig');
 
       expect((await rs.initiate(cfg)).ok).to.equal(1);
       await ensureMaster(rs, 1000, primary);
@@ -1000,7 +1005,8 @@ describe('ReplicaSet', () => {
 
       if (semver.gt(await db.version(), '4.9.0')) { // Exception currently 5.0+ only
         try {
-          await addWithRetry(secondary);
+          // We don't run this function with retries here because we expect it to fail.
+          await rs.add(secondary);
           expect.fail('missed assertion');
         } catch (err: any) {
           expect(err.codeName).to.equal('NewReplicaSetConfigurationIncompatible');
@@ -1009,7 +1015,7 @@ describe('ReplicaSet', () => {
 
       const conf = await rs.conf();
       conf.members.push({ _id: 2, host: secondary, votes: 1, priority: 1 });
-      await reconfigForPSASetWithRetry(2, conf);
+      await rs.reconfigForPSASet(2, conf);
 
       const { members } = await rs.status();
       expect(members).to.have.lengthOf(3);
