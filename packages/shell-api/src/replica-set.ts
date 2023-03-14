@@ -108,39 +108,11 @@ export default class ReplicaSet extends ShellApiWithMongoClass {
     assertArgsDefinedType([ config, options ], ['object', [undefined, 'object']], 'ReplicaSet.reconfig');
     this._emitReplicaSetApiCall('reconfig', { config, options });
 
-    const runReconfig = async(): Promise<Document> => {
-      const conf = await this._getConfig();
-      config.version = conf.version ? conf.version + 1 : 1;
-      config.protocolVersion ??= conf.protocolVersion; // Needed on mongod 4.0.x
-      const cmd = { replSetReconfig: config, ...options };
-      return await this._database._runAdminCommand(cmd);
-    };
-
-    let result: [ 'error', Error ] | [ 'success', Document ] = [ 'success', {} ];
-    let sleepInterval = 1000;
-    for (let i = 0; i < 12; i++) {
-      try {
-        if (result[0] === 'error') {
-          // Do a mild exponential backoff. If it's been a while since the last
-          // update, also tell the user that we're actually still working on
-          // the reconfig.
-          await this._instanceState.shellApi.sleep(sleepInterval);
-          sleepInterval *= 1.3;
-          if (sleepInterval > 2500) {
-            await this._instanceState.shellApi.print('Reconfig did not succeed yet, starting new attempt...');
-          }
-        }
-        result = [ 'success', await runReconfig() ];
-        break;
-      } catch (err: any) {
-        result = [ 'error', err ];
-      }
-    }
-
-    if (result[0] === 'error') {
-      throw result[1];
-    }
-    return result[1];
+    const conf = await this._getConfig();
+    config.version = conf.version ? conf.version + 1 : 1;
+    config.protocolVersion ??= conf.protocolVersion; // Needed on mongod 4.0.x
+    const cmd = { replSetReconfig: config, ...options };
+    return await this._database._runAdminCommand(cmd);
   }
 
   /**

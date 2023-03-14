@@ -4,7 +4,7 @@ import chai, { expect } from 'chai';
 import { EventEmitter } from 'events';
 import semver from 'semver';
 import sinonChai from 'sinon-chai';
-import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
+import { StubbedInstance, stubInterface } from 'ts-sinon';
 import { ensureMaster } from '../../../testing/helpers';
 import { MongodSetup, skipIfServerVersion, startTestCluster, skipIfApiStrict } from '../../../testing/integration-testing-hooks';
 import { CliServiceProvider } from '../../service-provider-server';
@@ -24,6 +24,39 @@ chai.use(sinonChai);
 
 function deepClone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value));
+}
+
+
+function createRetriableFunc<F extends keyof ReplicaSet>(rs: ReplicaSet, fn: F, totalRetries = 12): ReplicaSet[F] {
+  const func = rs[fn];
+  if (typeof func !== 'function') {
+    throw new Error(`${fn.toString()} is not a method on replica set`);
+  }
+
+  return async function retriableFn(...fnArgs) {
+    let result: [ 'error', Error ] | [ 'success', Document ] = [ 'success', {} ];
+    let sleepInterval = 1000;
+    for (let i = 0; i < totalRetries; i++) {
+      try {
+        if (result[0] === 'error') {
+          await rs._instanceState.shellApi.sleep(sleepInterval);
+          sleepInterval *= 1.3;
+          if (sleepInterval > 2500) {
+            await rs._instanceState.shellApi.print(`rs.${fn.toString()} did not succeed yet, starting new attempt...`);
+          }
+        }
+        result = [ 'success', await func.apply(rs, fnArgs) ];
+        break;
+      } catch (err: any) {
+        result = [ 'error', err ];
+      }
+    }
+
+    if (result[0] === 'error') {
+      throw result[1];
+    }
+    return result[1];
+  };
 }
 
 describe('ReplicaSet', () => {
@@ -240,70 +273,6 @@ describe('ReplicaSet', () => {
             force: true
           }
         );
-      });
-
-      describe('retry on errors', () => {
-        let oldConfig: Partial<ReplSetConfig>;
-        let reconfigCalls: ReplSetConfig[];
-        let reconfigResults: Document[];
-        let sleepStub: any;
-
-        beforeEach(() => {
-          sleepStub = sinon.stub();
-          instanceState.shellApi.sleep = sleepStub;
-          reconfigCalls = [];
-
-          // eslint-disable-next-line @typescript-eslint/require-await
-          serviceProvider.runCommandWithCheck.callsFake(async(db: string, cmd: Document) => {
-            if (cmd.replSetGetConfig) {
-              return { config: { ...oldConfig, version: oldConfig.version ?? 1 } };
-            }
-            if (cmd.replSetReconfig) {
-              const result = reconfigResults.shift();
-              reconfigCalls.push(deepClone(cmd.replSetReconfig));
-              if (result.ok) {
-                return result;
-              }
-              oldConfig = { ...oldConfig, version: (oldConfig.version ?? 1) + 1 };
-              throw new Error(`Reconfig failed: ${JSON.stringify(result)}`);
-            }
-          });
-        });
-
-        it('does three reconfigs if the first two fail due to known issue', async() => {
-          oldConfig = deepClone(configDoc);
-          reconfigResults = [ { ok: 0 }, { ok: 0 }, { ok: 1 } ];
-
-          const origConfig = deepClone(configDoc);
-          await rs.reconfig(configDoc);
-          expect(reconfigCalls).to.deep.equal([
-            { ...origConfig, version: 2 },
-            { ...origConfig, version: 3 },
-            { ...origConfig, version: 4 }
-          ]);
-          expect(sleepStub).to.have.been.calledWith(1000);
-          expect(sleepStub).to.have.been.calledWith(1300);
-        });
-
-        it('gives up after a number of attempts', async() => {
-          oldConfig = deepClone(configDoc);
-          reconfigResults = [...Array(20).keys()].map(() => ({ ok: 0 }));
-          try {
-            await rs.reconfig(configDoc);
-            expect.fail('missed exception');
-          } catch (err: any) {
-            expect(err.message).to.equal('Reconfig failed: {"ok":0}');
-          }
-          expect(evaluationListener.onPrint).to.have.been.calledWith([
-            await toShellResult('Reconfig did not succeed yet, starting new attempt...')
-          ]);
-          const totalSleepLength = sleepStub.getCalls()
-            .map(({ firstArg }) => firstArg)
-            .reduce((x, y) => x + y, 0);
-          // Expect to spend about a minute sleeping here.
-          expect(totalSleepLength).to.be.closeTo(60_000, 5_000);
-          expect(reconfigCalls).to.have.lengthOf(12);
-        });
       });
     });
     describe('status', () => {
@@ -688,11 +657,8 @@ describe('ReplicaSet', () => {
       let oldConfig: ReplSetConfig;
       let reconfigCalls: ReplSetConfig[];
       let reconfigResults: Document[];
-      let sleepStub: any;
 
       beforeEach(() => {
-        sleepStub = sinon.stub();
-        instanceState.shellApi.sleep = sleepStub;
         secondary = {
           _id: 2, host: 'secondary.mongodb.net', priority: 1, votes: 1
         };
@@ -746,7 +712,7 @@ describe('ReplicaSet', () => {
         }
       });
 
-      it('fails if old note had votes', async() => {
+      it('fails if old node had votes', async() => {
         oldConfig.members.push(secondary);
         try {
           await rs.reconfigForPSASet(2, config);
@@ -795,52 +761,6 @@ describe('ReplicaSet', () => {
           await toShellResult('Running second reconfig to give member at index 2 { priority: 1 }')
         ]);
       });
-
-      it('does three reconfigs the second one fails', async() => {
-        reconfigResults = [{ ok: 1 }, { ok: 0 }, { ok: 1 }];
-        const origConfig = deepClone(config);
-        await rs.reconfigForPSASet(2, config);
-        expect(reconfigCalls).to.deep.equal([
-          { ...origConfig, members: [ config.members[0], config.members[1], { ...secondary, priority: 0 } ], version: 2 },
-          { ...origConfig, version: 3 },
-          { ...origConfig, version: 3 }
-        ]);
-        expect(evaluationListener.onPrint).to.have.been.calledWith([
-          await toShellResult('Running first reconfig to give member at index 2 { votes: 1, priority: 0 }')
-        ]);
-        expect(evaluationListener.onPrint).to.have.been.calledWith([
-          await toShellResult('Running second reconfig to give member at index 2 { priority: 1 }')
-        ]);
-        expect(sleepStub).to.have.been.calledWith(1000);
-      });
-
-      it('gives up after a number of attempts', async() => {
-        reconfigResults = [...Array(20).keys()].map((i) => ({ ok: i === 0 ? 1 : 0 }));
-        try {
-          await rs.reconfigForPSASet(2, config);
-          expect.fail('missed exception');
-        } catch (err: any) {
-          expect(err.message).to.equal('Reconfig failed: {"ok":0}');
-        }
-        expect(evaluationListener.onPrint).to.have.been.calledWith([
-          await toShellResult('Running first reconfig to give member at index 2 { votes: 1, priority: 0 }')
-        ]);
-        expect(evaluationListener.onPrint).to.have.been.calledWith([
-          await toShellResult('Running second reconfig to give member at index 2 { priority: 1 }')
-        ]);
-        expect(evaluationListener.onPrint).to.have.been.calledWith([
-          await toShellResult('Reconfig did not succeed yet, starting new attempt...')
-        ]);
-        expect(evaluationListener.onPrint).to.have.been.calledWith([
-          await toShellResult('Second reconfig did not succeed, giving up')
-        ]);
-        const totalSleepLength = sleepStub.getCalls()
-          .map(({ firstArg }) => firstArg)
-          .reduce((x, y) => x + y, 0);
-        // Expect to spend about a minute sleeping here.
-        expect(totalSleepLength).to.be.closeTo(60_000, 5_000);
-        expect(reconfigCalls).to.have.lengthOf(1 + 12);
-      });
     });
   });
 
@@ -860,6 +780,7 @@ describe('ReplicaSet', () => {
     let instanceState: ShellInstanceState;
     let db: Database;
     let rs: ReplicaSet;
+    let reconfigWithRetry: ReplicaSet['reconfig'];
 
     before(async function() {
       this.timeout(100_000);
@@ -877,6 +798,7 @@ describe('ReplicaSet', () => {
       instanceState = new ShellInstanceState(serviceProvider);
       db = instanceState.currentDb;
       rs = new ReplicaSet(db);
+      reconfigWithRetry = createRetriableFunc(rs, 'reconfig');
 
       // check replset uninitialized
       try {
@@ -960,14 +882,14 @@ describe('ReplicaSet', () => {
           members: [ cfg.members[0], cfg.members[1] ]
         };
         const version = (await rs.conf()).version;
-        const result = await rs.reconfig(newcfg);
+        const result = await reconfigWithRetry(newcfg);
         expect(result.ok).to.equal(1);
         const status = await rs.conf();
         expect(status.members.length).to.equal(2);
         expect(status.version).to.be.greaterThan(version);
       });
       afterEach(async() => {
-        await rs.reconfig(cfg);
+        await reconfigWithRetry(cfg);
         const status = await rs.conf();
         expect(status.members.length).to.equal(3);
       });
@@ -976,14 +898,16 @@ describe('ReplicaSet', () => {
     describe('add member', () => {
       skipIfServerVersion(srv0, '< 4.4');
       it('adds a regular member to the config', async() => {
+        const addWithRetry = createRetriableFunc(rs, 'add');
         const version = (await rs.conf()).version;
-        const result = await rs.add(`${await additionalServer.hostport()}`);
+        const result = await addWithRetry(`${await additionalServer.hostport()}`);
         expect(result.ok).to.equal(1);
         const conf = await rs.conf();
         expect(conf.members.length).to.equal(4);
         expect(conf.version).to.be.greaterThan(version);
       });
       it('adds a arbiter member to the config', async() => {
+        const addArbWithRetry = createRetriableFunc(rs, 'addArb');
         if (semver.gte(await instanceState.currentDb.version(), '4.4.0')) { // setDefaultRWConcern is 4.4+ only
           await instanceState.currentDb.getSiblingDB('admin').runCommand({
             setDefaultRWConcern: 1,
@@ -991,7 +915,7 @@ describe('ReplicaSet', () => {
           });
         }
         const version = (await rs.conf()).version;
-        const result = await rs.addArb(`${await additionalServer.hostport()}`);
+        const result = await addArbWithRetry(`${await additionalServer.hostport()}`);
         expect(result.ok).to.equal(1);
         const conf = await rs.conf();
         expect(conf.members.length).to.equal(4);
@@ -999,7 +923,7 @@ describe('ReplicaSet', () => {
         expect(conf.version).to.be.greaterThan(version);
       });
       afterEach(async() => {
-        await rs.reconfig(cfg);
+        await reconfigWithRetry(cfg);
         const status = await rs.conf();
         expect(status.members.length).to.equal(3);
       });
@@ -1007,15 +931,16 @@ describe('ReplicaSet', () => {
 
     describe('remove member', () => {
       it('removes a member of the config', async() => {
+        const removeWithRetry = createRetriableFunc(rs, 'remove');
         const version = (await rs.conf()).version;
-        const result = await rs.remove(cfg.members[2].host);
+        const result = await removeWithRetry(cfg.members[2].host);
         expect(result.ok).to.equal(1);
         const conf = await rs.conf();
         expect(conf.members.length).to.equal(2);
         expect(conf.version).to.be.greaterThan(version);
       });
       afterEach(async() => {
-        await rs.reconfig(cfg);
+        await reconfigWithRetry(cfg);
         const status = await rs.conf();
         expect(status.members.length).to.equal(3);
       });
@@ -1058,6 +983,14 @@ describe('ReplicaSet', () => {
       const instanceState = new ShellInstanceState(serviceProvider);
       const db = instanceState.currentDb;
       const rs = new ReplicaSet(db);
+      const addArbWithRetry = createRetriableFunc(rs, 'addArb');
+      /**
+       * Small hack warning:
+       * rs.reconfigForPSASet internally uses rs.reconfig twice with different configs
+       * rs.reconfig itself could lead to a pseudo test failure because of delay in propogation
+       * of new config. This small hack here helps us reduce flakiness in our test runs
+       */
+      rs.reconfig = createRetriableFunc(rs, 'reconfig');
 
       expect((await rs.initiate(cfg)).ok).to.equal(1);
       await ensureMaster(rs, 1000, primary);
@@ -1068,10 +1001,11 @@ describe('ReplicaSet', () => {
           defaultWriteConcern: { w: 'majority' }
         });
       }
-      await rs.addArb(arbiter);
+      await addArbWithRetry(arbiter);
 
       if (semver.gt(await db.version(), '4.9.0')) { // Exception currently 5.0+ only
         try {
+          // We don't run this function with retries here because we expect it to fail.
           await rs.add(secondary);
           expect.fail('missed assertion');
         } catch (err: any) {
