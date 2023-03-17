@@ -28,7 +28,7 @@
     "unitTestsOnly": true
   },
   "devDependencies": {
-    "mocha": "^7.1.2"
+    "mocha": "^10.2.0"
   },
   "dependencies": {
     "@mongodb-js/mongodb-constants": "^0.2.2",
