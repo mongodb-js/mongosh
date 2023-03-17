@@ -22,6 +22,7 @@ const config = {
       path: require.resolve('path-browserify'),
       stream: require.resolve('stream-browserify'),
       fs: false,
+      module: false,
       tr46: require.resolve('tr46')
     },
   },
