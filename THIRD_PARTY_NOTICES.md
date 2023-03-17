@@ -1,107 +1,111 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Tue Mar 14 2023.
+This document was automatically generated on Fri Mar 17 2023.
 
 ## List of dependencies
 
 Package|Version|License
 -------|-------|-------
-**[@ampproject/remapping](#958abc7fb4e1dbd4b0790c08b6e3653db8585d27c92b579f5c14dec895b6578c)**|2.1.2|Apache-2.0
+**[@ampproject/remapping](#0dc8b6568eb743fd551ce2cf2f54be9d0f94b12167f7c34a997c864bcc7e128d)**|2.2.0|Apache-2.0
 **[@aws-crypto/ie11-detection](#3267fb9a669f0ee2d7f5f805780bec4fe402eada8595ad872053fb53b8b98836)**|3.0.0|Apache-2.0
 **[@aws-crypto/sha256-browser](#14a0b5ffee277cb9498e3fc523f36c27f4f8b0adf43f490ae45fa74619b9de26)**|3.0.0|Apache-2.0
 **[@aws-crypto/sha256-js](#b14ff2f8de6157c5512639e69e1dc5bc5af05f3d22c291e126654c3c44105cff)**|3.0.0|Apache-2.0
 **[@aws-crypto/supports-web-crypto](#c724302d5e25cfc23fd76d8aec219bbbe1d3f67ff806a3ad7264b69867618504)**|3.0.0|Apache-2.0
 **[@aws-crypto/util](#e463c6fe3eafa13c4d4c56aeede1135498774375d91b35d76829182ee3057f75)**|3.0.0|Apache-2.0
-**[@aws-sdk/abort-controller](#59942e665342f11dd34e3a5503ff4a2d6cdf082f9952c8bd5650087ca61410d5)**|3.257.0|Apache-2.0
-**[@aws-sdk/client-cognito-identity](#dfcecd88918864ad488874fcd7d113d98230e31dcd7319d79a08440214e39264)**|3.262.0|Apache-2.0
-**[@aws-sdk/client-sso](#1aadd6fe47c3d5baf42271095515deb6427cc626af514ba92a109d73d023e907)**|3.261.0|Apache-2.0
-**[@aws-sdk/client-sso-oidc](#626bfc4d18b2e1ef109a89a631d4ec9c7eebbbb61af25f09700f8c85a313c840)**|3.261.0|Apache-2.0
-**[@aws-sdk/client-sts](#1c0acb81f28551583a3100081a9568f15ba9eb394d102787915e81ae59bf7c23)**|3.262.0|Apache-2.0
-**[@aws-sdk/config-resolver](#9da9c082474e6c27b633b55d7bc87a6166e0591ac9973d616957271446cfa10e)**|3.259.0|Apache-2.0
-**[@aws-sdk/credential-provider-cognito-identity](#2c1bd49c2334c344dabc5e44f5805f7f1eea28a61b4d8469f4b011d57205edc3)**|3.262.0|Apache-2.0
-**[@aws-sdk/credential-provider-env](#187ffc180a4391f4f7ebf100179cfe62e2c4debb26358017868d7515e76091f8)**|3.257.0|Apache-2.0
-**[@aws-sdk/credential-provider-imds](#990d339fbb9ecc83c7fd4b263ce6c999dbdafdaa3af6319c3f1063012db8554b)**|3.259.0|Apache-2.0
-**[@aws-sdk/credential-provider-ini](#c9904f20caa5115cefaad3c85dbe8a671afe20ff9d51457251536582081ffd6e)**|3.261.0|Apache-2.0
-**[@aws-sdk/credential-provider-node](#6375e6f55a73314ebdee9864dd6661c75dcceeac7ec37867e9de0b0103e1a21a)**|3.261.0|Apache-2.0
-**[@aws-sdk/credential-provider-process](#956782c5393a9e7ed6150702446023c58eb31e30afa86e2f7b07270907e1f2f9)**|3.257.0|Apache-2.0
-**[@aws-sdk/credential-provider-sso](#96d6cdd3fcb29ccc7809a93d4ebf096f6f19a30fef4940e3918bc852cdac9aff)**|3.261.0|Apache-2.0
-**[@aws-sdk/credential-provider-web-identity](#79879d812853ab7bfce297426fbe40a77582cfd1996750a9a5c20b89c1054d8a)**|3.257.0|Apache-2.0
-**[@aws-sdk/credential-providers](#0eac49d9383efd5e4eaa1fc0d730451e2eba2d0aa94eb543e5be0579d9d634e4)**|3.262.0|Apache-2.0
-**[@aws-sdk/fetch-http-handler](#e3a61a7615a72d1d44120b1f4fe065767d07c834cd1dfd25bb2b20a75acd5b1b)**|3.257.0|Apache-2.0
-**[@aws-sdk/hash-node](#d67c48aaad7485d85de49fc7a18651c3db659cd29144f71cf883cdba729615c2)**|3.257.0|Apache-2.0
-**[@aws-sdk/invalid-dependency](#4d6042309ec493a7d51a073baf1fcaf0cf0f3e9e4d822be52b51d1daf4d4084d)**|3.257.0|Apache-2.0
+**[@aws-sdk/abort-controller](#24f831abb951961da95eb10ab7f161d609b6ee8c4635187ed7de173e3212c031)**|3.272.0|Apache-2.0
+**[@aws-sdk/client-cognito-identity](#563aa67156cc9d1042f1de0e32b8d048dc3991e25854217dd430021b2e61a581)**|3.288.0|Apache-2.0
+**[@aws-sdk/client-sso](#5b0316e71c995d5cb22b28383842649e9199102328cfe25a91e1deceb640384a)**|3.288.0|Apache-2.0
+**[@aws-sdk/client-sso-oidc](#576077193b6ac46c638d52c967267e03e4f894e8b2ec2c7ee65ff442fec46f71)**|3.288.0|Apache-2.0
+**[@aws-sdk/client-sts](#343f3a8c24379d280002eaa4ed726eb1f591c2e0ed0b501347783b413180a8c2)**|3.288.0|Apache-2.0
+**[@aws-sdk/config-resolver](#1551e61c265e482d634f4511bf63bb51e89d6e99ff7c34f9d4a676948acf0cbb)**|3.287.0|Apache-2.0
+**[@aws-sdk/credential-provider-cognito-identity](#2445a928c9b9af8cd79d1fd40458a0feed72c2b3318e538a4e55c9893509fc57)**|3.288.0|Apache-2.0
+**[@aws-sdk/credential-provider-env](#2f4caad48d2bada05a31990f8290c5f18d7b4ed81bfdafa778ab7bc08a26d2ed)**|3.272.0|Apache-2.0
+**[@aws-sdk/credential-provider-imds](#a10375a98a5dc9423b76817e6fdef1c53acdd71c4131509d1cf5141fed67d31f)**|3.287.0|Apache-2.0
+**[@aws-sdk/credential-provider-ini](#d1b350abe36caa7848c4c7375b276a4833a6a6d0dec75015b7d042a2531cc980)**|3.288.0|Apache-2.0
+**[@aws-sdk/credential-provider-node](#ef9512ea9a326a6c414526cb2eea46e377255b9f496abefeecffcd9b1c1a8489)**|3.288.0|Apache-2.0
+**[@aws-sdk/credential-provider-process](#1d24d98ff358600cdddf898852ef26474a411456874964f7b50e349e22180a39)**|3.287.0|Apache-2.0
+**[@aws-sdk/credential-provider-sso](#3946534413da592bf7744c50a18e5c212aed34394f6c39e2c4d5aef3765a225f)**|3.288.0|Apache-2.0
+**[@aws-sdk/credential-provider-web-identity](#fe8f15e52c98612241f56d612dec4e69550a862b52856ff1832dbd17d2759746)**|3.272.0|Apache-2.0
+**[@aws-sdk/credential-providers](#1f8cd8af92e4f65cb132c22ac95fa992efe6f0b38c35071e927bc6e098d584dc)**|3.288.0|Apache-2.0
+**[@aws-sdk/fetch-http-handler](#90d5c44b240dfea41a335822bf67d13c03c9b5ea0e7a10926713099ee93e6213)**|3.282.0|Apache-2.0
+**[@aws-sdk/hash-node](#2d0a0441cbae7e6518301c5cbaaba92c68ae2f76d0afc0e50f3faeed0653e460)**|3.272.0|Apache-2.0
+**[@aws-sdk/invalid-dependency](#0c2adaf729e84deeb0e3136a70aa5d72d2c26e6503793709c7bda31ea1f3279c)**|3.272.0|Apache-2.0
 **[@aws-sdk/is-array-buffer](#0047c4e8b6659d311e2347030c078d92740899c193a4eac825516dcb44dc69dd)**|3.201.0|Apache-2.0
-**[@aws-sdk/middleware-content-length](#2a4e1d2e5c2089224948662fdafdad8b99182758fc4a9c8ef4a4399839f070ed)**|3.257.0|Apache-2.0
-**[@aws-sdk/middleware-endpoint](#bde1cc6fa10b0c749f3816051989db909aebd11f402ff8ef12d4d050c83f5b14)**|3.257.0|Apache-2.0
-**[@aws-sdk/middleware-host-header](#4c3de96e419cb4426ba2ea6fa6004bd3c4ce0a5a62cfb556dbcbec37f7c23d4f)**|3.257.0|Apache-2.0
-**[@aws-sdk/middleware-logger](#551ed7e9c4d5fc73279f1cc80e69978a7a0a836c148dcd02cd151c686e0da082)**|3.257.0|Apache-2.0
-**[@aws-sdk/middleware-recursion-detection](#78c8a72e6d3bd4ab28642af495453ff35476d7ffcfd247aa3c4997323ac3d2f8)**|3.257.0|Apache-2.0
-**[@aws-sdk/middleware-retry](#2d089c7751fd4289100a847433f18cab4bb2fd929349860a59942f0927254493)**|3.259.0|Apache-2.0
-**[@aws-sdk/middleware-sdk-sts](#170d588932d3c451f2efae3d5587ed10441ddbff6a1b8ba71d9877c5212033b0)**|3.257.0|Apache-2.0
-**[@aws-sdk/middleware-serde](#c212c664f9b08d8dacbf33dd9a84aef7ab2e42ab6ef4cba07874a743207ddc43)**|3.257.0|Apache-2.0
-**[@aws-sdk/middleware-signing](#f130d22235043884b74854f761146049845c766da7e528e69ee9b52affa914fe)**|3.257.0|Apache-2.0
-**[@aws-sdk/middleware-stack](#85830347f9f7aa9cb36504f719d75dc33018c2a5535b9333a318d6b9af36ba3d)**|3.257.0|Apache-2.0
-**[@aws-sdk/middleware-user-agent](#de09b3606db64a323437a18f5964cd3fdf17a666794636237bd77c5c1381be1e)**|3.257.0|Apache-2.0
-**[@aws-sdk/node-config-provider](#7248a9723ba417583479e0cd1aff742e435bdf85883d0641e6ce2b0951543ff5)**|3.259.0|Apache-2.0
-**[@aws-sdk/node-http-handler](#cf6a2f9dc3d6af6493085cd7f9aaf9a808390ed2094dba64384f7646bd33325a)**|3.257.0|Apache-2.0
-**[@aws-sdk/property-provider](#7649257ee6fe50538941f28b7d589934a7a3ecdf6250d2a41c6dd9f2e13fed97)**|3.257.0|Apache-2.0
-**[@aws-sdk/protocol-http](#c3d944bcfb95e05171db6ac345aa0095778b527bca8b121246d20a1ce09781fd)**|3.257.0|Apache-2.0
-**[@aws-sdk/querystring-builder](#6920b5352c1627b4e0ad98fa74df973bae394a73799a2833bff0c6655faa7e14)**|3.257.0|Apache-2.0
-**[@aws-sdk/querystring-parser](#90a1729e0546517daac140360444686965871854548b1825307199ea46e2c318)**|3.257.0|Apache-2.0
-**[@aws-sdk/service-error-classification](#52d7ce677297d2cc8ee61df2a9669209f46ccb90bd0636860f4e88308933bb85)**|3.257.0|Apache-2.0
-**[@aws-sdk/shared-ini-file-loader](#9be2fd581729e3a286e0b9cb216a03ded057ab308b21b48fa439d9cab1ba6867)**|3.257.0|Apache-2.0
-**[@aws-sdk/signature-v4](#535e41d70a7060724a0b32df04f00a56e04fd9a34af35d8ba84760b28766b5e1)**|3.257.0|Apache-2.0
-**[@aws-sdk/smithy-client](#745be55c8578aaefa8f63c199ff86e3e0d36a798dbc6c54193c8e8ae36bf250f)**|3.261.0|Apache-2.0
-**[@aws-sdk/token-providers](#d05c2b64f677721a4584e8664ff079968383f3f63a6090a97fd891430968dbce)**|3.261.0|Apache-2.0
-**[@aws-sdk/types](#94c7e1eab017b4a6078068e7110ebd1496d32dd38c668796863478cf0aa41f7e)**|3.257.0|Apache-2.0
-**[@aws-sdk/url-parser](#3bdbdee30264deaa6b61f80432f42587fc5053a878f41293456c6a8ff47181ca)**|3.257.0|Apache-2.0
+**[@aws-sdk/middleware-content-length](#76cdfe0b1a9d882d2cc80b6f4bdc4c31ee647284cb989d6ba3ccafea42b98e8d)**|3.282.0|Apache-2.0
+**[@aws-sdk/middleware-endpoint](#ec8bc81ef670e9652a3dbdf12bac804012fc179365abb7668233198265e2c25a)**|3.282.0|Apache-2.0
+**[@aws-sdk/middleware-host-header](#2f9cdf6c8a067668c02809c8d3df5db4006aa3b00096c8c1c24ab506124d52da)**|3.282.0|Apache-2.0
+**[@aws-sdk/middleware-logger](#6776e4565a8cce7230537856cd37dca6b08ed819b37eb1b979947f70cf5b07bc)**|3.288.0|Apache-2.0
+**[@aws-sdk/middleware-recursion-detection](#448d91baac8eaa28f2571be6b24f6342170bf6018a52ddaa9a4071d718c5e936)**|3.282.0|Apache-2.0
+**[@aws-sdk/middleware-retry](#c01f546d5bd8e7ad1476dcfacccd3bf5e9997a69ce94cfb925c792e112e0dccc)**|3.287.0|Apache-2.0
+**[@aws-sdk/middleware-sdk-sts](#79a04bb2b88419c26d4f2fa6ed89234c26ac7adc7c846c6c28397e64e06125f0)**|3.282.0|Apache-2.0
+**[@aws-sdk/middleware-serde](#655856b08372cf1798b571b18940a382979c7dfb4a7797aeb30ce7082f9c17f7)**|3.272.0|Apache-2.0
+**[@aws-sdk/middleware-signing](#3901422d35a9dc26bf1e4cf8189b60ccdb77b5f766312a48c3ca5af53321cc70)**|3.282.0|Apache-2.0
+**[@aws-sdk/middleware-stack](#4801e579b1de0c990b35b95a392dd292568a0811f8ed8ec8486107acaba2bb1d)**|3.272.0|Apache-2.0
+**[@aws-sdk/middleware-user-agent](#f9688632b4608d43dd2189e80a1ea0f34639004e6cc3cfed5645b32397fa6878)**|3.282.0|Apache-2.0
+**[@aws-sdk/node-config-provider](#9c253e845d7705f45df47c3cd308eb94deff584ad312ae9b87a7d0fd9d2bc727)**|3.287.0|Apache-2.0
+**[@aws-sdk/node-http-handler](#f364d5b003edd6fb3eb3652f2676e3f554f9dbff00dd8296a37a96af4130321c)**|3.282.0|Apache-2.0
+**[@aws-sdk/property-provider](#afd31b14ec3fca1e9e57bd646fc214a2fcd30e7171cac2239886895d52812f09)**|3.272.0|Apache-2.0
+**[@aws-sdk/protocol-http](#ba5f9c8e75efeed524c6cffac0a5abf38b931d1bf750d810a463f1146b17b57c)**|3.282.0|Apache-2.0
+**[@aws-sdk/querystring-builder](#128bd315daa3c1128d03b4fab072c5c507e214d06070c7bba6e9c86ab9f57cd2)**|3.272.0|Apache-2.0
+**[@aws-sdk/querystring-parser](#8dba1c2d3d9a4bd27beaadd77ea140c7ea28922b621c8772246f18a6983a0726)**|3.272.0|Apache-2.0
+**[@aws-sdk/service-error-classification](#b1d6708147a7d0f447c3debee4bb170876bd675041a1f12708d9422069ec7d63)**|3.272.0|Apache-2.0
+**[@aws-sdk/shared-ini-file-loader](#2db639a90fb6347d01854c34367ffbc50019248a87f76d74840d174c9ce20710)**|3.287.0|Apache-2.0
+**[@aws-sdk/signature-v4](#3c7e4cb1d461183b775be93238f5c206675c3001a4609f00d539b74b69994809)**|3.282.0|Apache-2.0
+**[@aws-sdk/smithy-client](#a80eef17e4c8f0d448bc9a35bec16ffb853a291968fcfb4a2c15aba2ddf7bac8)**|3.279.0|Apache-2.0
+**[@aws-sdk/token-providers](#549e73b179c895f6c717758ca6dab09c4d20f70ac3645fbd69217843cca98a33)**|3.288.0|Apache-2.0
+**[@aws-sdk/types](#96605f2b797a657ed946f0057a97906b88b045cb600d54c3ce08d3fe0d4f9cf7)**|3.272.0|Apache-2.0
+**[@aws-sdk/url-parser](#a8e8da23ec45595f3efbaee3e8f2405792d5b6a7c8f9f9b89a26ecfeb15815d8)**|3.272.0|Apache-2.0
 **[@aws-sdk/util-base64](#19f5b67d97282b4c51d7316b2d91638379103b586ba4d0db9633f1a255ba1fcb)**|3.208.0|Apache-2.0
 **[@aws-sdk/util-body-length-browser](#cf7fc11201bfb6cfd679978e10ba3429d7c28b299dbaa53159f3ac5d1e8207a3)**|3.188.0|Apache-2.0
 **[@aws-sdk/util-body-length-node](#954afb6e970260786cb272276b63c4de573ce700309643e5a19bd72235915960)**|3.208.0|Apache-2.0
 **[@aws-sdk/util-buffer-from](#77c4de1ca68a087e575c46453e98250c6cd2633c44d1e81eba2ff2973c7dd2b3)**|3.208.0|Apache-2.0
 **[@aws-sdk/util-config-provider](#1e13d814927b87a4b94bd1ad026a4d1b110c1686bc551eb7f3b30fdfae8f6247)**|3.208.0|Apache-2.0
-**[@aws-sdk/util-defaults-mode-browser](#f0e8d5a8d907a95b6495226d78ca65d0ab8643280b234979cf6a19ec6b810aae)**|3.261.0|Apache-2.0
-**[@aws-sdk/util-defaults-mode-node](#335f8054c299b5d9710c809333c689b3ca8bd22b2c82574e3dfb3cbb5fb419ed)**|3.261.0|Apache-2.0
-**[@aws-sdk/util-endpoints](#5f966c4d00a86ab0a50ed198226f857e258a592f5a9b3cd6bcb0f3b4a2a626b5)**|3.257.0|Apache-2.0
+**[@aws-sdk/util-defaults-mode-browser](#71fb3ad460bca6ee093e6f8cafe461440e88ef3e640db355fd4a2483387ccdf6)**|3.279.0|Apache-2.0
+**[@aws-sdk/util-defaults-mode-node](#dbbd30a0b185f7a8703374bd1bcadc6a3ac7426e7eff1e399ce9915eec91a4a8)**|3.287.0|Apache-2.0
+**[@aws-sdk/util-endpoints](#2171e8df986b873b3ef84289229bfe92d98a186e04267b0d7f03f06d7fac64ec)**|3.272.0|Apache-2.0
 **[@aws-sdk/util-hex-encoding](#ea37cec8a301fe6a81ffda621156fd6ee3598e15db1aae22c00b29bc023a276f)**|3.201.0|Apache-2.0
 **[@aws-sdk/util-locate-window](#3535c07eeac6cfe7953cd743e3cdeb4735e7b3b34b5ad8b4b4eb326618f5696e)**|3.208.0|Apache-2.0
-**[@aws-sdk/util-middleware](#3cf4cc804ac79f7936cbf17aa0775e121c5ea6f19fd8b7c2cad77072d3c2b437)**|3.257.0|Apache-2.0
-**[@aws-sdk/util-retry](#8a56ab111e2ed329c0806fdabd99a893814eea791e9154fc3c5b1a76e6e56ff5)**|3.257.0|Apache-2.0
+**[@aws-sdk/util-middleware](#1e5fa46c50bf82a76b834a15a0c6a679d8d0916e0cd8d27983dd9c1755197b01)**|3.272.0|Apache-2.0
+**[@aws-sdk/util-retry](#acc374abfa3892241ea8fabeafb935c57687cde2e2152db9eb00ee30ffc3028d)**|3.272.0|Apache-2.0
 **[@aws-sdk/util-uri-escape](#cebc1bb8d19c568292cb8b61664de9bf4ae43b9dc3dea48381fb6ae4e61dad0c)**|3.201.0|Apache-2.0
-**[@aws-sdk/util-user-agent-browser](#9bbc003659164200fc80f14acdd054f785fd9fe44c9df3bcb34067e34fe1a634)**|3.257.0|Apache-2.0
-**[@aws-sdk/util-user-agent-node](#2977903b1fd1beeefb8bd64847fd18126cb11faf5ccb85626b2b9f7f336f7c7c)**|3.259.0|Apache-2.0
+**[@aws-sdk/util-user-agent-browser](#c176f27cd11be3eb9fa7a9bffcf0281f8a7390497b12f04dc2598f0f45778ea4)**|3.282.0|Apache-2.0
+**[@aws-sdk/util-user-agent-node](#1b6d3e3fc9bfbadbf845d5c2e57f59f57830448a2d8a935798f08346154b8a68)**|3.287.0|Apache-2.0
 **[@aws-sdk/util-utf8](#8ef833d74ec845db7d42c5fc39de0d67600a179916755768e0853beb0b9029d3)**|3.254.0|Apache-2.0
 **[@aws-sdk/util-utf8-browser](#2795b0b92f423e7c40e34b18269590f7f512482d043ec08b9037fe41768fda53)**|3.259.0|Apache-2.0
-**[@babel/code-frame](#dea6fe272a8be0be87f52431bf1387ed6bacdd218d2b8949a4d6363f41a6f142)**|7.16.7|MIT
-**[@babel/compat-data](#51798d1c51b67fe0baa2683008af24341aebf5bf0d77e8fa015c8dacac757eef)**|7.17.7|MIT
-**[@babel/core](#380ea79da6e7678667da3a41e531130d5909b278b80c54257247c6fbecbc26c0)**|7.17.8|MIT
+**[@babel/code-frame](#1fe6584296cd28a6a9da563f8f20b040fe598786595c315752a1d6a997d2d876)**|7.18.6|MIT
+**[@babel/compat-data](#fdcd60901ce9cf63147dec24f4eb28dca8057a62660b8c26b2d5ef9c21e4f854)**|7.21.0|MIT
+**[@babel/core](#22367ba0ff6d65feaeb51d0e2b0629c7faffd56732b9b46ac7d160fa09b054ab)**|7.21.0|MIT
 **[@babel/core](#be2a4984ff69e1ed2045317f1a1b4dd6fcc6a00c1d7eab72feae4b7a688dbd31)**|7.16.12|MIT
-**[@babel/generator](#07f11f877e4725290d2d7c5429f07fd24f2812771e520e7d812b61e345a64586)**|7.17.7|MIT
-**[@babel/helper-compilation-targets](#96cedab303a7307b5304b06db0247aa69789fed7d827a2b2d26e993b4444f4d6)**|7.17.7|MIT
-**[@babel/helper-environment-visitor](#fb6ac8d3998f9bf66c0d3cd2f68108d68557b4888f403449fc8d2a6140ddd33b)**|7.16.7|MIT
-**[@babel/helper-function-name](#36677d7294316aff190bad669606e38dd1cdc1ad13ac6120715d0d5d35e44252)**|7.16.7|MIT
-**[@babel/helper-get-function-arity](#e9b9e90802476f7577333f4678fb0a4e35c9fa39f1077a113f67e62f3996a7f3)**|7.16.7|MIT
-**[@babel/helper-hoist-variables](#0396170e1cf1e10aa6ad39a75e646dbc7a57495c8573f7889074fd4b3f430a48)**|7.16.7|MIT
-**[@babel/helper-module-imports](#5b3ed0e4d091f6a78f09fba121306e08316ab61a4a21eb9dc3c9acb6a2f3d5ef)**|7.16.7|MIT
-**[@babel/helper-module-transforms](#60afd5c29f4cd5444309b8497e4b5a3599031925b10992cf52e14680301dc9ea)**|7.17.7|MIT
-**[@babel/helper-plugin-utils](#a07c42b801a3c4959c1f7aab0e2ce8ef9bd648769dd1d47fc188d1f0d689dbaa)**|7.16.7|MIT
-**[@babel/helper-simple-access](#0434cf41509deb05bb630cfbc7a2751ad77003c182c0a68a54234fb998b77c75)**|7.17.7|MIT
-**[@babel/helper-split-export-declaration](#d34017d97de68ac55bf435e324ff396f87d2e7d44173344f8d2660d6fe37ed3c)**|7.16.7|MIT
-**[@babel/helper-validator-identifier](#6651a54028b843f6b152e84ca92e2c440687ccbebb78835f94dc5b9e314d72bd)**|7.16.7|MIT
-**[@babel/helper-validator-option](#2cae787b917b4d558d98e4e4d0bebcfd7c2e57d2fe0bfb651eb48715ed088249)**|7.16.7|MIT
-**[@babel/helpers](#4a9df126ab9c8269ab1b95eca22e6841cc742015d09aa51ea7889d19e89197f0)**|7.17.8|MIT
-**[@babel/highlight](#547e8256857983618a9bb7601fb8930acb158d64af94a1975fa2761d7798229c)**|7.16.10|MIT
-**[@babel/parser](#e7a7542388208adecb20c018013b91c01cf261d303c93bf938dca04b0912d3a5)**|7.17.8|MIT
-**[@babel/plugin-transform-destructuring](#a1810a53ba1a7f007dc06cbef838354bcc200823359ba86d6a5b7fb098e62c53)**|7.17.7|MIT
-**[@babel/plugin-transform-parameters](#85bab1a56d1d8079deccc8d4dc1e497a62c667d041c1e76dc6038d409c3df773)**|7.16.7|MIT
-**[@babel/plugin-transform-shorthand-properties](#b68470bd0601568d27408e80ad92fef5d770e7fca65c61b527e38de019629db5)**|7.16.7|MIT
-**[@babel/template](#ca30aee3b78f51e9e91b4f6d78721f7c99c31cc753f698ff5caf73c469983f2f)**|7.16.7|MIT
-**[@babel/traverse](#e470e7035b830665f8c5c218ba6ba169664ca4ebe7447d27300cb90616fe6e4f)**|7.17.3|MIT
-**[@babel/types](#d6a52ead12b395f05c1cfc1b9b2864802bdba224434b5651bf7a250eb5d4e26b)**|7.17.0|MIT
-**[@hapi/hoek](#b9153a1fabb0a90dacb26557daa0f34ed8d3347a09d6130f41c7a15196749188)**|9.2.1|BSD-3-Clause
+**[@babel/generator](#233d81388d2d5f21fecfc53c152db677c6ca6043bcbe5b0f81d4b69185ba6e2c)**|7.21.1|MIT
+**[@babel/helper-compilation-targets](#e24419522a597a234bc55d2fc57c3adc7d9ac62e7fbc4aa38b23e4445a46acba)**|7.20.7|MIT
+**[@babel/helper-environment-visitor](#6173d84e0ff32ab3de9d916c0fb261e27f6b70f605384102eba3d11349a70ec8)**|7.18.9|MIT
+**[@babel/helper-function-name](#fe3693bdd1a9dca6eb51142d6b187bc0c889ee3c557e914bbc97878cb5920c1c)**|7.21.0|MIT
+**[@babel/helper-hoist-variables](#e840d582d536101409985bfcf039502afc3c86a8a7bec0cfa0fb96d4a4aa31e7)**|7.18.6|MIT
+**[@babel/helper-module-imports](#482027dd262224312e9daa1133c7b94f8f7742a6bf1f4011d5de5b1ebbb7834d)**|7.18.6|MIT
+**[@babel/helper-module-transforms](#d24b148abb0e9ab7684859701f3f14d165fce76d016ea2ab0aae3089626acf92)**|7.21.2|MIT
+**[@babel/helper-plugin-utils](#186bb2cfc5043af513dfb47e04728559a290f3cdc685038d9375e1c9eeaf73c5)**|7.20.2|MIT
+**[@babel/helper-simple-access](#baa6a029ede8079fef09f8d2c4ecc504f99b3dda27e4f67b407e70d4df80ef13)**|7.20.2|MIT
+**[@babel/helper-split-export-declaration](#7950fc341d1ed3f796deffc7a088fd2c18d3193ae96d7b94fdd23a618acf4d99)**|7.18.6|MIT
+**[@babel/helper-string-parser](#45b1310c1847a2b8d600feea6ab0950a02e20a3a0a28a53036f7fa42ae52160f)**|7.19.4|MIT
+**[@babel/helper-validator-identifier](#f68175f67e8d30b20e2c7a86dc8b8665fa1db0c15dd8010f12de2a739dc5f3c2)**|7.19.1|MIT
+**[@babel/helper-validator-option](#56de14244c7cfc3206156b453bb2ca1d8462a89b0dc2be47011f845fbd9b66dc)**|7.21.0|MIT
+**[@babel/helpers](#c6a902e907034a6e0a11abef3925079e88c6b6c6df53eb45d8f8931e1eeb8d71)**|7.21.0|MIT
+**[@babel/highlight](#8ea50465b5692cd2b5ee50918d81403f39c4d5c6584a357210bc0ddb0d3927dc)**|7.18.6|MIT
+**[@babel/parser](#720119acd0c0e1cfcfe3e1e5bbbee804f9e60a74d80961956dc20926af632ef3)**|7.21.2|MIT
+**[@babel/parser](#c6d1b39f8ba907386ce051c3c7812099926586a80551cf1898e4cfad6423632a)**|7.16.4|MIT
+**[@babel/plugin-transform-destructuring](#859901b27f1da25d7bda1e66eac5d47cceb373e006bb85e03c2716e29a710971)**|7.20.7|MIT
+**[@babel/plugin-transform-parameters](#0592c6a6f440b04a6a1eb568e024b643afc560eaea229ac786f675bd629f02df)**|7.20.7|MIT
+**[@babel/plugin-transform-shorthand-properties](#75f9268c6776059c8b1937a81adbbbf40b67cc1eaef7086dc8987e0398539a1c)**|7.18.6|MIT
+**[@babel/template](#3fc660314b3e8827d94eb81440b8d2aa4ae648290650a537af3c23f6d0216ff8)**|7.20.7|MIT
+**[@babel/traverse](#d3d9d8bb027d6c5f33cb9c067b06f3316c819a32f5f9668ee28cc4047e1e8523)**|7.21.2|MIT
+**[@babel/types](#df0a5d5747a01793bde0fb2693c61a411001402fc8d8b2162065f601ec1a024d)**|7.21.2|MIT
+**[@hapi/hoek](#a306f63b06e22206da212d9805ac6d378591ee24cb90b85f5f84eeee9e418a87)**|9.3.0|BSD-3-Clause
 **[@hapi/topo](#c08672fb909d4d2d143fdec500a195120eeb0ac994445f970a7b9410041e3848)**|5.1.0|BSD-3-Clause
-**[@jridgewell/resolve-uri](#de90c77984596a7d095ca05496ea7038104ea7a16e762e9198e30e37c34fdb0c)**|3.0.5|MIT
-**[@jridgewell/sourcemap-codec](#2362c6f5bbe609f91a300a2918f8646fd243143baf641faf1191c0aed6cb59d7)**|1.4.11|MIT
-**[@jridgewell/trace-mapping](#6cb367cbe4c02122aeaa0210f7d039f0356c64ad251f61ae4dc3383c07dff425)**|0.3.4|MIT
+**[@jridgewell/gen-mapping](#1e660067f4d1364dc830c372517d8ec92eddc9af7eaa6b1e698d478b286abafa)**|0.1.1|MIT
+**[@jridgewell/gen-mapping](#1f753c22041ca3b4767dd5698736a25ac366ca64e8982d5ee9109b161d5cd9fe)**|0.3.2|MIT
+**[@jridgewell/resolve-uri](#f356bc3bb9c04f5fe4e387a4eea4e74125aae03bb50f846d956d7d986d200f50)**|3.1.0|MIT
+**[@jridgewell/set-array](#232e4103104ec42da9c01a923eaca648b9b4d8fd3ebbc13897ef8513f7c6fa73)**|1.1.2|MIT
+**[@jridgewell/sourcemap-codec](#48d1d40d908582402e2071de1ae38b57c21fc0e7615f8f82f3f5b1f0cad0dd93)**|1.4.14|MIT
+**[@jridgewell/trace-mapping](#90aa2d07ffe239d25f77a13221286592b1de783a008d6fd50287e91cda909161)**|0.3.17|MIT
 **[@mongodb-js/devtools-connect](#defe3a966c13dc0b9177d694bed6c7b934350186e1f62e23c60f64f3bdb7641e)**|1.4.4|Apache-2.0
 **[@mongodb-js/mongodb-constants](#12523c3e7207d3ac0920487a6ebc31392c24ba8db4f291a14ccf470b7315ba5a)**|0.2.2|Apache-2.0
 **[@mongosh/arg-parser](#5e9fd9c9d630182d86d92c944915511aeab21246b770d28f9a732bab98f57c53)**|0.0.0-dev.0|Apache-2.0
@@ -122,22 +126,21 @@ Package|Version|License
 **[@mongosh/types](#932433394a8cb7344aad5f815684a707037efcf157408109bb8845d018333dac)**|0.0.0-dev.0|Apache-2.0
 **[@segment/loosely-validate-event](#810756b8c6f5fccccb562b3f88fe577e4c63e3208772c72146304ac9cf53a94a)**|2.0.0|See [details](#810756b8c6f5fccccb562b3f88fe577e4c63e3208772c72146304ac9cf53a94a)
 **[@sideway/address](#a69b04dfb91e7ed9dfebde8978885fa6cb71380f90c4a6910b4468ef22006656)**|4.1.4|BSD-3-Clause
-**[@sideway/formula](#973bfa74879de24b06779f1e5b03d3df609577006cd0ee24c5d0badb37bbb15e)**|3.0.0|BSD-3-Clause
+**[@sideway/formula](#6c070cae39d9ee3e7d72f59431fa5a20be4660757c11799c0c4d0feadffc4239)**|3.0.1|BSD-3-Clause
 **[@sideway/pinpoint](#d100d8e40cb7a7e3f131fc99c670ab9346bcb117d901182b698a0c36009f2aab)**|2.0.0|BSD-3-Clause
-**[@types/babel__core](#73c7a4a89fa5c4ab7d26b2688951f5d5977e841474f2e8bfd40a8fd29c4aaf4d)**|7.1.19|MIT
+**[@types/babel__core](#f00c721b8930100b05c0a52b73bf5b21168b8e9a6f07189fa2128686c9458f5e)**|7.20.0|MIT
 **[@types/babel__generator](#0535a6a301bc47ae4feb329b601a28fce489496c616c23acd5b56771a820bb47)**|7.6.4|MIT
 **[@types/babel__template](#10a3b95570c9b42a3ac3a0bcb3695ffb5252513019e944d4f137e2f05d64f66d)**|7.4.1|MIT
-**[@types/babel__traverse](#49354c25e4c67737cbe7e9a64e5afd2eb9dd5a2d86fa15625409b0959c2e0381)**|7.14.2|MIT
+**[@types/babel__traverse](#72a3467ebe5a524488b9b83a2a9adcd83a25239280708883105a281d421be948)**|7.18.3|MIT
 **[@types/chai](#2ec5047e247ff642be5b88d35d11e15dafd706e3a372ee618080e556d05d88c8)**|4.3.0|MIT
 **[@types/node](#385b9553b37d2c33d088ca5972fdadd26ebf5248534814eb2d6e4c0b5f062cfe)**|14.18.12|MIT
-**[@types/node](#79ca0ad6a527aab373212a27d68b1d4ec16e857d076252f43594b27fd37c107e)**|17.0.23|MIT
 **[@types/sinon](#ba6c076fb52a22a1748fa0fb5d331cdc73ee80f4558f0fbad2709da180babbb6)**|10.0.11|MIT
 **[@types/sinon-chai](#89a49b02f2f59eb589d06a04db3c7a3454c8b0f08570e14da2118ce1d9bdaffc)**|3.2.8|MIT
 **[@types/sinonjs__fake-timers](#135a676bbb1af807288cf3d924ac54bc60ab00128ca29ce9a990682adaf12f45)**|8.1.2|MIT
-**[@types/webidl-conversions](#e9aa0fc153af1bc4c2a1570ac028926fd49e92fde54bb80018b3cdda575c7b25)**|6.1.1|MIT
-**[@types/whatwg-url](#642118a8c80bc0e1bdb85217ed44e18ec26884fa5350dd6e807d7ef943c9a849)**|8.2.1|MIT
+**[@types/webidl-conversions](#995493f12efcb28d5af160fc54acb7b9d2c417025dfdb241cb8bdd3b700a8643)**|7.0.0|MIT
+**[@types/whatwg-url](#57f4762957e60c8b5fbbbedae8bb96e1ec610511a2e86e978314ce7f46eae69e)**|8.2.2|MIT
 **[abbrev](#833e7f77a7281caac706be0c8f668047915855542cbbf1bd470fe0e885db13b5)**|1.1.1|ISC
-**[acorn](#b9e5382fa7b12d2de21167beb54f2a39cf15de14f1c1a509714de9fac3c62596)**|8.8.1|MIT
+**[acorn](#4aa96f656a11c11b0e17ee35cc26cad7c13dcf4afdff6431e6d074261b59f47d)**|8.8.2|MIT
 **[acorn-class-fields](#416283a109773027507e8cea39477b662b1aa6754210a18dd38077c4efd7df56)**|1.0.0|MIT
 **[acorn-numeric-separator](#6940f4404e355b21617dccb71f5ebcba980bbd438d41f701bfa6a62deb33121c)**|0.3.6|MIT
 **[acorn-private-class-elements](#109647367d4824235dd993cf066e3f3a744d8ab58c07825df24368ab40d6dd25)**|1.0.0|MIT
@@ -146,11 +149,8 @@ Package|Version|License
 **[analytics-node](#796268b51c04aefed6285697d91689b383131a576acbd872d74df74e6f302888)**|5.1.2|MIT
 **[ansi-escape-sequences](#facc0b756e4e6b040bafa6604056a2290d18923d9c14a2e0a64f850d3477bac0)**|5.1.2|MIT
 **[ansi-regex](#7fa0e28daa6f9c697017b06f32a9e31a57ccfb4f138a8daded68a5d002231e29)**|5.0.1|MIT
-**[ansi-regex](#945d39147a145d6a28d87154006fa731c2e69d2a19e76cc7012624a1109f9317)**|2.1.1|MIT
 **[ansi-styles](#22c90e10fdbeeedded470f2fb78a8094893efd4675108074eddde452da52ef87)**|4.3.0|MIT
 **[ansi-styles](#3d188f4ce9ad01e2061b3dafeb74005547429b09fb5b114980303db9cf34f4ee)**|3.2.1|MIT
-**[aproba](#b8b30f42274956b772cec4ea9f13cebaa5900724e514eaf0098a3ad6f1f7f16e)**|1.2.0|ISC
-**[are-we-there-yet](#e87803217bf3563b7a87fe74fac98a2d39ff04818ae8ade28d4a48434907030b)**|1.1.7|ISC
 **[argparse](#eb6fb2df860c4a7d86e82ee4f11a49f6ed75c3fa50ca7844991b389ef38df18c)**|2.0.1|Python-2.0
 **[array-back](#693584ec3aed5e752207f1cd59a70b8cac888e51959df63fe74f2c052ec1e2f4)**|4.0.2|MIT
 **[askcharacter](#cb7238c8d3e6299f34f8808ce2bb65f6f9632b27f907d02e488d6918d33b93a2)**|1.0.0|Apache-2.0
@@ -162,44 +162,40 @@ Package|Version|License
 **[bindings](#acdb65ce90d2786593049f690752613250632fd5aeaa2960152abc4f0e8f3a44)**|1.5.0|MIT
 **[bl](#0e8c95ceb67a28a94b8caec6fa59d55974c80aab5dcf21bf1b17b0867f694c3c)**|4.1.0|MIT
 **[bowser](#03c8dec5cdbec1db30c4a501c0caf600245f4bd74d3d6f23eb55edffac14c8c3)**|2.11.0|MIT
-**[brace-expansion](#2ba3ee23cc6a2718243e9c0c59ce154058f292965f563aa291b459a414e863cb)**|1.1.11|MIT
-**[browserslist](#fba4e9a147223fa2ab5d154a361a849ba80af1a732eeceff17b87046d3eb4275)**|4.20.2|MIT
+**[brace-expansion](#d1e13551f9898f82d40075979e4be102f5728362d73309488a438c1403d9107b)**|2.0.1|MIT
+**[browserslist](#7a666a9ec22873f842b988cafae3df38d8772b579cec24f490396179132fc221)**|4.21.5|MIT
 **[bson](#f410aa95a54f023010f2521958a4f128111e10e00fadd74c1862846924a5d663)**|5.0.1|Apache-2.0
-**[caniuse-lite](#5aa255fe78256ff181c6fc1b283d5d6bbd9ed6dd94850ce519324a3139df5173)**|1.0.30001323|CC-BY-4.0
+**[caniuse-lite](#19a2c6d0955bc8070f6c9064b566539056453ee0acd6df71bf56f35a8a7d85eb)**|1.0.30001464|CC-BY-4.0
 **[chalk](#c1619ad3bd43ce54cc7a4702c368501fd4fb4fa629077ba610f81d81bcd3f5f1)**|4.1.2|MIT
 **[chalk](#0c7c7a95e90c3fdaf99df4851bc949785311d8ea1d2d4498615f37af8fa16cf8)**|3.0.0|MIT
 **[chalk](#8b8d3d6ff6233601575f891628d83bd6b34978a103d513931ae45b00f0e07585)**|2.4.2|MIT
 **[charenc](#29e6f6a3e6b064640fcbe5e615fa79e7ac12500e916fe06affdb5e0f7ec89aed)**|0.0.2|BSD-3-Clause
 **[chownr](#3dbff1a17bbf2c33026995132ecdd14757cb3bee815f4636fe43df0f5ebdcf07)**|2.0.0|ISC
 **[chownr](#0550527b7b5e20ea58d882e34eadff9ea25b5cb64ff4beffa1ca8f2e6ff9cdf1)**|1.1.4|ISC
-**[code-point-at](#379e05be6a63bd336d679edcb4be511b99cb8d0c22ee03cf6286d0d661347467)**|1.1.0|MIT
 **[color-convert](#55c87baa2843a3df1bf7eb7ad8e5c1329afea9bef4e94386d484de20b03c119b)**|2.0.1|MIT
 **[color-convert](#a85d5170e73259d44269aafb78e1863169810a839a870124e3574457d214e28d)**|1.9.3|MIT
 **[color-name](#66a8b5479032c7b05b81caf8cef9ed81be452b9f3f299868af0167900a4db262)**|1.1.4|MIT
 **[color-name](#e7c2ecd62026cf51768973c2e972505cab32d45b9368aa35105af0a68839ad37)**|1.1.3|MIT
 **[commander](#24ab11e1b73368dedbb70b1985003bf0636191bc7885dee47c5861cfa74a24eb)**|2.20.3|MIT
 **[component-type](#f62beea86947b6a72bf2731d4befdc20007e2b52c250e73fd2e7f5b5e37e5d64)**|1.2.1|MIT
-**[concat-map](#629d11316d75747318cc391ff3112edcd20cd8caab3768f3a5fdd920e110dc22)**|0.0.1|MIT
 **[config-chain](#d43148ec4e9c8cac9e15277d86afc87973b0538d96092edbd71396d40b57d5c0)**|1.1.13|MIT
-**[console-control-strings](#b5c95e92498080b75fd8a8ef4e497edcc8be28524f86d2a0f28ad489572f381e)**|1.1.0|ISC
 **[convert-source-map](#0acf0ab7734deb5e364e5150eb235062022893835b113aa11e0c7e9065fa5073)**|1.8.0|MIT
-**[core-util-is](#31f9375081d39ad369df4ed795b2f399287432f0b6579229579e26883fa75085)**|1.0.3|MIT
+**[convert-source-map](#56846e4efa927509e9158cff1317f99654d26f2bfd3b4d5314ef37f109225588)**|1.9.0|MIT
 **[cross-spawn](#67de3a765808182ee1018c35bc07d7a023a8d645e98cc32814dcac2fc2c427ff)**|7.0.3|MIT
 **[crypt](#4450c5b7676ee4415216da1b1265942c8e44b106e4b4d7fb2fc593fde54dc7c4)**|0.0.2|BSD-3-Clause
 **[debug](#f9b654e80c05af90dc288869333e452db67fbba75969b385acd60df9895a7944)**|4.3.4|MIT
 **[decompress-response](#64c777c1b9075eb1d4fc1a0e1ea86130393649a9a01a8e42c16eb14c59b5b8da)**|6.0.0|MIT
 **[deep-extend](#654bd7d00073c2195bca924a07d93393b2aaf5cacbb6f52a383877f6f33dbfbf)**|0.6.0|MIT
-**[delegates](#8ac2167c6a2c6f3786fad50a7d9495e4a01fa0fda57deb6ba96a2b682c19085e)**|1.0.0|MIT
 **[detect-libc](#75227d1b1c09630ea361abee4d27101e350832bbeab9640a013c82662408b467)**|2.0.1|Apache-2.0
 **[editorconfig](#495b0fb61ff987539296d5b40550ad544a53b42471e10d690a92f375708a4b52)**|0.15.3|MIT
-**[electron-to-chromium](#736242d4b44a1b427103023955c88470e31ab576b64563f3f5b15abc623c50fe)**|1.4.103|ISC
+**[electron-to-chromium](#fd1bc5fd8f5d5587f999f32746b30e8c68cfe2e158f47feb9bcb8cf6c257593a)**|1.4.327|ISC
 **[emphasize](#c6838eea3c1d714167fc7c3827e0228f33e06e18ebdca269d238dcd5230b58a1)**|3.0.0|MIT
 **[end-of-stream](#fadc10994f5fa767d06fb25cfff35fb17a895daf3bc3477c782907668ed16563)**|1.4.4|MIT
 **[escalade](#914b0c6f347ee5644225bb7156929bd6e9163641cd78367af3b4e1b24f373ec0)**|3.1.1|MIT
 **[escape-string-regexp](#8c51af36cd574fcb38fb535dd3e485948143a1b5e8580efe21fcbf259b54c87c)**|4.0.0|MIT
 **[escape-string-regexp](#a9c53481a9db89e7cf01e302086c50fcfbde360978cdd2bbe1e52a430d3fee42)**|1.0.5|MIT
 **[expand-template](#46d3e73ca0d4a8c14e99252386f0a5c1a4fd8b2747331373d7b4da97105c15bb)**|2.0.3|(MIT OR WTFPL)
-**[fast-xml-parser](#0b72c401ec2e41cba39d431c3b558632b3407af552090ed6f4d3503f50d13797)**|4.0.11|MIT
+**[fast-xml-parser](#fbe93976926e3b3b442e49584ec63dda5b61e150fd7231d787e72fbd52cf80a1)**|4.1.2|MIT
 **[fault](#387740fc7544e813d0a9ad480550d0bb536270783b1ce8c1ee83cd7d18b1472e)**|1.0.4|MIT
 **[file-uri-to-path](#9eb41790b1cce0829afe7926edf4be80e0dd6927cd8376c00a54a8fc86f8943e)**|1.0.0|MIT
 **[follow-redirects](#ba1ef976742519fb6b2de132e8172ce13dc657b7a5fbee9e7b97d1d7abc76298)**|1.14.9|MIT
@@ -207,15 +203,13 @@ Package|Version|License
 **[fs-constants](#9961a9f7535cded379a7696ad6d002a62d4826a3a8c2ffb5624383b942c879e5)**|1.0.0|MIT
 **[fs-minipass](#c2c405232aa58245a067fead9e0e8bd8330cda684111af434bcab882090c44fa)**|2.1.0|ISC
 **[fs.realpath](#19b1a53bad4db3fad74d2cf95667123db1ec2c92c2bf448aa1db37a500eb6c3b)**|1.0.0|ISC
-**[gauge](#18b62982a790026d7bc040542c48df2cf62feda7ecf967119774f6c302397986)**|2.7.4|ISC
 **[gensync](#c49cbe8d63515db5596a717f0d65eab2f06a623b4f1dfbd512d61bbdccf1aa4c)**|1.0.0-beta.2|MIT
 **[github-from-package](#8cba969ea116f44491f4fbb8b391c0ab40408fc2e5380f81bc8e8e42b55fff8b)**|0.0.0|MIT
-**[glob](#a477634d819b5270ce527d9e52d5e1f0ee623988f8d5bab9ad3e5cc4a6cfd02b)**|7.2.0|ISC
+**[glob](#392526fd7057965f68f2c312c3f683faaefc8b572470d67deadf26e28e8d2963)**|8.1.0|ISC
 **[globals](#749052b146da20b19c298de835e7cacd7f6d1f0a87a8422e538ccdfeaa69b0a5)**|11.12.0|MIT
 **[handle-backspaces](#97244e653f1930f4c2bc81c7374cafdb1132e1b539cebcbebb92bc65f0198036)**|1.0.0|Apache-2.0
 **[has-flag](#7ec819116728d891777ebd4140bef063f473b9ae26d46e91f5ca78834c872abf)**|4.0.0|MIT
 **[has-flag](#e2f50bddacaae4f231bda078470fd90f19fd780e9c2bc721710a09bcdd536d1a)**|3.0.0|MIT
-**[has-unicode](#b9a84001b1c63f02a1fde085274d2ccb855f9fb683c04ebaa28a14b34f967def)**|2.0.1|ISC
 **[highlight.js](#e678fe78443e932b3ef73a3a07938e2d41b0969113b0a7f8a10d6fb09a477d0c)**|9.12.0|BSD-3-Clause
 **[hijack-stream](#12d6637498371277e69096b306788c19ad99815166a0cc17d209952058dfd51a)**|1.0.0|Apache-2.0
 **[inflight](#58f7b00ba3c4a1d25ba2ad81d2ed2c707a52f84b185f49898630344f82ef0dd1)**|1.0.6|ISC
@@ -224,28 +218,27 @@ Package|Version|License
 **[ip](#33b800e533214fc453224c9f9638baadd7f665810f85320b60145d7348a69e58)**|2.0.0|MIT
 **[ipv6-normalize](#7a4346dbf206011966449898fcd37178a9be89acf6dff120b676d4c4d0dec203)**|1.0.1|MIT
 **[is-buffer](#b1cbdc50c17bcc6aea2462cd9b7a87e93bb4c6c414d486d5943dd12b521caf29)**|1.1.6|MIT
-**[is-fullwidth-code-point](#4b36fcbed647fcfb1016159ad5d4b5399c52c3fe258134e06275ab22ed10ceb9)**|1.0.0|MIT
 **[is-recoverable-error](#b963d532d8253ad1cf2b75dd3fb0d702f34008bc8c9dda2263ec811df0f91b32)**|1.0.3|MIT
 **[is-retry-allowed](#d4152747a873329c3f33e71cf685aca68f6644f350f55fe8cb242fd4dd54f979)**|1.2.0|MIT
-**[isarray](#dd5060a7691a8157c413dadfba4ff4c1de7480dcfd6d34af69a9696558358cec)**|1.0.0|MIT
 **[isexe](#2f62e711a6921973ef3f9650fd3e06585fd3842e34078c8fa959481738600405)**|2.0.0|ISC
-**[joi](#b694475eecf8bc18a9749f8655c7826e59c021b1d267e3e25c3336188f83fae1)**|17.6.0|BSD-3-Clause
+**[joi](#3dbf18f89935aa8b3578d1d6c306f899e3e018ed55c07e1fa81d1d7d4d00623f)**|17.8.3|BSD-3-Clause
 **[join-component](#e3b7c74ebe2a0ad1c2f2cabfde196da4dc350a8c6cd6016f884d316a85a58d6b)**|1.1.0|MIT
-**[js-beautify](#b4d5944b1b8ac5c49a40d74868d77e3debc256dd5f963a94e633a5a272edfda4)**|1.14.2|MIT
+**[js-beautify](#dd973d91f66bccebf0e1bbdc59b9dd48c24160efc326d0c2e4c7fec33a2749c7)**|1.14.7|MIT
 **[js-tokens](#f4371f095c6f087cf41433031f8c612e21a4258b18cb4e847ffae73905e146d4)**|4.0.0|MIT
 **[js-yaml](#b7325d630b0ab313450fcd188788f6ee374aadd75df4969a9e3c48507ef88bdf)**|4.1.0|MIT
 **[jsesc](#253e8a44fc188759c5ce35330e4f20aacf1d0253d7e8d7dffd4a1f884a10ce1e)**|2.5.2|MIT
 **[json5](#16281c6ea25e0cec4bc0bb8c01d1759d66992776381bf9c5af6959bec47d2f77)**|2.2.3|MIT
-**[kerberos](#480754bb9f65a90c52364d80a4e368d121a9f2c9b83269a9d10ce84cad3addbe)**|2.0.0|Apache-2.0
+**[kerberos](#99979afa6e15ebb3e12acdc27f1af7d1b3172630dc00e7affac337105da2efee)**|2.0.1|Apache-2.0
 **[lodash](#adaac4144887ebc2c1b682380ff385210f681fc58b4bc1ef3986148cf8dcd28a)**|4.17.21|MIT
 **[lodash.isstring](#0103ef60e6b5d9c04fe5527db0d91b50851203d166f29cbcf5fdf6c655194132)**|4.0.1|MIT
 **[lowlight](#9878eb9f16a4960a47f5e2b9d1cb8ec4efccced7536cd3fed54e13439a1d2459)**|1.9.2|MIT
 **[lru-cache](#938513411a6603ce29334db15563fb94b7d52f839d32b9bd78c18f5d3f98aa5a)**|6.0.0|ISC
 **[lru-cache](#e9bdfc6d4c069cb30d7db0580dd3e93b11cd6f58466a905efa95e503e3dd3442)**|4.1.5|ISC
+**[lru-cache](#fe7f0a2f2cf4c92f13c3a2a63f14f80f20f6919979306dc054e4f947c1234651)**|5.1.1|ISC
 **[md5](#e41b8f5f95b1c6de6ea8a218680c29f2df0e4ec2ffa6d3addeb73db0a2be51b9)**|2.3.0|BSD-3-Clause
 **[memory-pager](#7fbdeab18f48c3527cae276a51cd879e42d15337aba1acb44fedcf748137608b)**|1.5.0|MIT
 **[mimic-response](#3a8c7e8eed886630dd878b11cbb7ef72840b3bab1f8d4251956ca4f9fa40925f)**|3.1.0|MIT
-**[minimatch](#6189413fa5042f1bde0a4e3a4acf48c34451a140ce563a6563a1a71bca73feb7)**|3.1.2|ISC
+**[minimatch](#8a1cc14a79a4961f176847feac95e857b103d435b545aa41832b50d9c5ba7e34)**|5.1.6|ISC
 **[minimist](#837db6b00930af97755b724568aecf8b139361dc2148c7db77673ba6ae44a44d)**|1.2.6|MIT
 **[minipass](#7f003f7ef45c6f6708dec9512090694a3a62132225d40679335bd3da91c0b17f)**|3.1.6|ISC
 **[minizlib](#cce17959eefb79a78461796cc716519d9f9ba1b56fa35ae9bb2f589c61514cd2)**|2.1.2|MIT
@@ -258,59 +251,44 @@ Package|Version|License
 **[mongodb-crypt-library-version](#531dc8c5761d69d24f5e39457de5812ed3781da937aa64f94ed6f659bd72c142)**|1.0.3|Apache-2.0
 **[mongodb-log-writer](#382d8ce146b9f22281c9ab15b5d004e4de6d1139f226885ec984d57d07416e9a)**|1.1.5|Apache-2.0
 **[mongodb-redact](#00a2cfed57df1e8b912b751b08bee4de24ad0189840c99820ebc00c1b219a421)**|0.2.2|Apache-2.0
-**[ms](#2083576c5af8054927640b4788059806d07e250a26066c9ccb2d928394fb9226)**|2.1.3|MIT
 **[ms](#0a987b2f79ff37005e452a5afa7dacd3042061a7077054d2ba9cabacd88506d2)**|2.1.2|MIT
 **[mustache](#9e574ae3fa6282e512b5f57e7b1b1e9463c95d0301c65e2684cb120df415c5ee)**|4.2.0|MIT
 **[napi-build-utils](#26912b5ff7632f262d64273f99cd1a869376c5c378960e24501585e35b31054a)**|1.0.2|MIT
-**[node-abi](#2af3a2340ce9d14d5a920d81e4553e9c844889f244b3b310ea23621cf9622a2b)**|3.22.0|MIT
-**[node-abi](#d6c15009ff9bc5d151ef2cba39c1bda47f6a2ce4c3094b909f1ef57ca3e39fb0)**|3.8.0|MIT
+**[node-abi](#6b6e3668c7b638fe3bdbdfe7e5929922e46f2599ca98e8639bc88e733ce652fe)**|3.33.0|MIT
 **[node-addon-api](#af9f7588524ca4e68f4efe7b24aea46d9c8004263b1d7cf3b558f86d87a163e8)**|4.3.0|MIT
 **[node-fetch](#364527ef1b51cc6ac34872b931049c9e25b5014f9b40e3898c84e1a830e21720)**|2.6.7|MIT
-**[node-releases](#be6795319bad1815dbc301d3dd7a7bf565d4db45d0f1fdc28273a1c4f78652b8)**|2.0.2|MIT
-**[nopt](#fbf206ce137e18ded38133b05fa8623c287129749e1a5575956a2c0c4388e471)**|5.0.0|ISC
-**[npmlog](#ee61305241ab0f8e87a6dc2160efc46973e046400e72fe10858cc36309d51f9b)**|4.1.2|ISC
-**[number-is-nan](#044063cb59ac16c3146a6aa01521f5bd00ae1e6c7a197f31df253f357faf9f75)**|1.0.1|MIT
+**[node-releases](#b0a55dc39ff054289339383e24c549287257c8fad195eee068d44a8a6ec5b7ff)**|2.0.10|MIT
+**[nopt](#cf8fadbe83fe76f1b7db2e226b9fdb8f48a427c74bcdd4ded5e184d413eba3ef)**|6.0.0|ISC
 **[numeral](#d274a180ad09fc1ae9325f01bf5dc1296caf553888d952fab7ebf524dfdc56a1)**|2.0.6|MIT
-**[object-assign](#598e372231bb5bef26b7d61105282eb20e14ade430143052d064d2d406769b95)**|4.1.1|MIT
 **[once](#d0d1303998dfae04e4f898f477380aac35568f4d6679f4ea913c2441cf9ebb0b)**|1.4.0|ISC
 **[os-dns-native](#ccaac4b6b7b65be11aed2a61b109713be87bd047a65d3f552022671ab10b4872)**|1.2.0|MIT
-**[path-is-absolute](#4e27c6801c87897a2e351cd898ca28074dc33c7053687a25cb2ca7d1e457eeb7)**|1.0.1|MIT
 **[path-key](#e1a2a032096ace66b422351e00b11b0229e42e4b49c2146f439f8fe442218451)**|3.1.1|MIT
 **[picocolors](#990b3f27d922745f1d3503b8f3cf9cb5d20f553c2f4c1168abe2a411b8cd5da0)**|1.0.0|ISC
 **[prebuild-install](#b3a047e51af19ed4c091ca34a3d59939490120cbc75e67f511fc02d31379c55d)**|7.1.1|MIT
-**[prebuild-install](#e755204a5da2a0c525c1c306c36568e122273f24c0cac31a68cd274b9401771f)**|7.0.1|MIT
 **[pretty-repl](#91bf45a61fe193a0e000fb21572851df0d48fdb78901162aa4d2ed627c98a6fc)**|3.1.1|MIT
-**[process-nextick-args](#449a33b1fb1386db92b40df9073f48703b67ff05c4da5043d007fdb90ed76aca)**|2.0.1|MIT
 **[proto-list](#d4d3609bf7b212ffd3a73f3a8f8e7b69fedcf74d6e9843ee217046ab37b32260)**|1.2.4|ISC
 **[pseudomap](#2717ba801aa21d9d572ae9bd6f3dfc7d4ec9235f0ea155e9c2639c9a2e8493f8)**|1.0.2|ISC
 **[pump](#147f1bd3a6380306e696f0574feda0b1490121a1d12e4500e91ffb6e888ffa3a)**|3.0.0|MIT
 **[rc](#0dd705bd5862b4c60ed88e6b4a6f5ece23c627c97f6928233d32aefdd463c3f7)**|1.2.8|(BSD-2-Clause OR MIT OR Apache-2.0)
 **[readable-stream](#75bd2243ec5ecc92b8d7e9a2e9a1aa142f20f6a5aad6dc0d923cdab997766174)**|3.6.0|MIT
-**[readable-stream](#8f2e1b78e9d8c62cbe33ca0c9055ab55b3025f7c3ac146f29c102adbdc187bf1)**|2.3.7|MIT
 **[remove-trailing-slash](#0c9e890b4653cdbc6432677030029da469823a1fc3bfee9341a0d34bd05fd348)**|0.1.1|MIT
-**[resolve-mongodb-srv](#871f9c1109a7c892b16c36b55b008fcb5c2c8ab9bef37b7dd698163098770a1e)**|1.1.1|Apache-2.0
+**[resolve-mongodb-srv](#b3573fdfef27e48302061e01d45cf96fe704c482559b5c6223c11ac98f9ed130)**|1.1.2|Apache-2.0
 **[safe-buffer](#115052870841b125f6e9deb1b800b99ed9c660f269050eafb32c84bdd9211f12)**|5.1.2|MIT
 **[safe-buffer](#952cf236ee56e7de5ea7e772caf3e256866f9dbdffc492539c48cd8c15ac9674)**|5.2.1|MIT
 **[saslprep](#650475af3b2a0c96fc8e5d09155f96dccd1a6b720da0197b0ea1121968883b25)**|1.0.4|MIT
-**[saslprep](#389f3437d8f4e9fc233f3bfe272ef028498b199b5233a8d682fda54c1d4dbefb)**|1.0.3|MIT
 **[semver](#e2f1c7bd615a3b61317d37fe215dc55bcd042a778ca15ab45bda8d9c8c39d54e)**|7.3.5|ISC
 **[semver](#24cd86d9f27cebacf43c9e9870102fe20fe9d787608ebd41dca9afe1d2e4790c)**|6.3.0|ISC
 **[semver](#e166af9700b507cf6e45c57af6bf29f9ba7059e4535e65fac0f3d5c37970544d)**|5.7.1|ISC
-**[semver](#4bed5cd5bcb541cb0c5c45e33f4b082818b19f6e916d1badfad14f9d3fb5132d)**|7.3.7|ISC
-**[set-blocking](#d10823126ec31b1e665e321d110e1fde8413f70e2df17b24b0c71c43fe2c0558)**|2.0.0|ISC
 **[shebang-command](#a9cba97b71b818fb0a4978f8b14875ae118f292a19ffa97c8b2d848f9a897d89)**|2.0.0|MIT
 **[shebang-regex](#849fb37298f1c4dcdeb6065edc4242918c7533bcfda5c67747e6ce4620c587bb)**|3.0.0|MIT
 **[sigmund](#b7bc393e5a232bcdbb43c9634479890abf328baafea4bd42382331ef113761e9)**|1.0.1|ISC
-**[signal-exit](#5ad551060d44370794e770309e198719e94f939e46a3ea537b776c9c4fdad9e4)**|3.0.7|ISC
 **[simple-concat](#7e08f893385d0a6d7059029da3885e8346ad01eb58d6e4561612d2fb653c15ec)**|1.0.1|MIT
 **[simple-get](#c2c12990b6319daff653bdf953cadfa368185f0edc671124fb1028f6979df829)**|4.0.1|MIT
 **[smart-buffer](#bc8fbee089eb9cddf673c4c9dbc15edd13839063c27e2814009b6a0448065875)**|4.2.0|MIT
 **[socks](#16837d081453b731932951f203fc17778642c71f7cdc0c4557bc2dbd68a6fd1d)**|2.7.1|MIT
 **[source-map](#40ab158a4f9c7e0cb2e7fc113cfd0df14cabf73f76ff90e255227d216f5ce28c)**|0.5.7|BSD-3-Clause
 **[sparse-bitfield](#0cbcf2cac3ff859d288ae5ffc2c793bbd2430b120f5930bd09b6dba7259086d7)**|3.0.3|MIT
-**[string-width](#b0725207ba4a78809dec9436283671608c6a6c89b5f5cc66db6ce6da7bfb0cc0)**|1.0.2|MIT
 **[strip-ansi](#695c3ef9530b873f97c839eda6971040e70b0916a1b8f5cfb7c32bf68093d806)**|6.0.1|MIT
-**[strip-ansi](#79e4e45eb767932cbcc94ba2f18534155184857640dee665f4b43ae6d5294646)**|3.0.1|MIT
 **[strip-json-comments](#30c033ea06e2fc5831069ae3348fedc44cf44d65ec1ca8e7a0afd01789f5bb05)**|2.0.1|MIT
 **[strnum](#84f6b71bdd647bcb9588183f13dc0b7a0c5b0a3103b2fc7e8e95012c0d6c631d)**|1.0.5|MIT
 **[supports-color](#b97a30572cac0a03b8cf442bc01621a041d5714550984f25cb71fac2587edbd6)**|7.2.0|MIT
@@ -323,30 +301,29 @@ Package|Version|License
 **[to-fast-properties](#79afe8c8f3cc0bb1187c6ffaf6105b49888137e917978e870d67727353aba954)**|2.0.0|MIT
 **[tr46](#68f1ee14543e0adeddce4bb4422886f20da6ce5cb83508383fa092c15689cf8a)**|3.0.0|MIT
 **[tr46](#a94418e116fb43931c49abb9cd596d6814a55956c3d0d11b7e225592b9977197)**|0.0.3|MIT
-**[tr46](#181343fca47e669c997ddb536b6caff3c769402b0674612e32d3c274719049c8)**|2.1.0|MIT
+**[tslib](#bdf4db4d853e6720bc8aad1effbb1da273fbc77ed4905012386a9b978bd02261)**|2.4.1|0BSD
 **[tslib](#c5883e17f6d685103f3ecf8a1a7e187c96e0a271993273bb7c0ab844eba8e5b9)**|2.5.0|0BSD
 **[tslib](#2cd3e3e96a257e519fb1b58f5edbb9df0df91195b95c20d6ba75f1d1e3ba9dbd)**|1.14.1|0BSD
 **[tunnel-agent](#09f746d17a1777efda5a12a6072da10c6820d7f56ea8aa0af202a2c83d6ccb67)**|0.6.0|Apache-2.0
+**[update-browserslist-db](#acc5487735cf2878c05dc1f7c3bb6c3680c1e9718155cf9b5ca884354a3b77c7)**|1.0.10|MIT
 **[util-deprecate](#a1bd80d6a50b36e34032c402c5204d6276747d8212b68b164a9e3f895b90c2d6)**|1.0.2|MIT
 **[uuid](#a34e7819c122fe308fef4f0c9e534d305065097a743da82251b903f2761b2d26)**|8.3.2|MIT
 **[webidl-conversions](#cb7c681998e7ee3c598e6e37432bcf448946924eefe816636c3cb122bae46e1c)**|7.0.0|BSD-2-Clause
 **[webidl-conversions](#3604b2bfa479706fe7bd8068257240d32158704a3bffae30b414963343027aa1)**|3.0.1|BSD-2-Clause
-**[webidl-conversions](#0868d5fd0f1744b732e4832b5dd5bd9ce27ffe9dcaa6cacda5a4efca750da5fb)**|6.1.0|BSD-2-Clause
 **[whatwg-url](#5d2cdcc7276796013d4573d401d239ff04971bb5a44fbb0e1bc62cae6f5ca911)**|11.0.0|MIT
 **[whatwg-url](#cd3f81c4a0fd856ab1d9c9fc99c1d7eaf2c12c4867b218e9901e5020a1ffcd85)**|5.0.0|MIT
-**[whatwg-url](#2db4c3c174b1cdd0ec3bf9cb2d4bdd0eeede67228f92d99cdc150febb5406085)**|8.7.0|MIT
 **[which](#5a71f2b741944bf107d6e7f067241798a6e277e42e8ca1e28c4608ccc233f8ec)**|2.0.2|ISC
-**[wide-align](#d21222b885638632a22d7d091540daafa361f33adab0e5e4048dfb1f5ebf422f)**|1.1.5|ISC
 **[wrappy](#13cebf193d7ada5ee347b9ae819b96f5e6da21f9b53e7f268c7703b686158595)**|1.0.2|ISC
 **[yallist](#d400799c4e1f58dbbbe68b4d9c1b6e80e023f744bd7d16da491005fd8439200f)**|4.0.0|ISC
 **[yallist](#79d45af4842c387f6f014e286173d70d30cf6770e36e6ef64135d5456f5180ef)**|2.1.2|ISC
-**[yargs-parser](#d114360895423d9e902d0d2591b959ed4b0c309f8cec3e7b22fb6ed5502d1c19)**|20.2.9|ISC
+**[yallist](#63b110ffd18712146937e9f182800c6f2b5783e76d1659a0bd4b457789b0df07)**|3.1.1|ISC
+**[yargs-parser](#63435b27312552eefd317cb6b5bc59549a3e8c028b3e9510ccd5d5ac644cfa77)**|20.2.4|ISC
 
 ## Package details
 
-<a id="958abc7fb4e1dbd4b0790c08b6e3653db8585d27c92b579f5c14dec895b6578c"></a>
-### [@ampproject/remapping](https://www.npmjs.com/package/@ampproject/remapping) (version 2.1.2)
-<!-- initially found at packages/js-multiline-to-singleline/node_modules/@ampproject/remapping -->
+<a id="0dc8b6568eb743fd551ce2cf2f54be9d0f94b12167f7c34a997c864bcc7e128d"></a>
+### [@ampproject/remapping](https://www.npmjs.com/package/@ampproject/remapping) (version 2.2.0)
+<!-- initially found at node_modules/@ampproject/remapping -->
 > Remap sequential sourcemaps through transformations to point at the original source code
 
 License tags: Apache-2.0
@@ -564,7 +541,7 @@ Authors:
 
 <a id="3267fb9a669f0ee2d7f5f805780bec4fe402eada8595ad872053fb53b8b98836"></a>
 ### [@aws-crypto/ie11-detection](https://www.npmjs.com/package/@aws-crypto/ie11-detection) (version 3.0.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-crypto/ie11-detection -->
+<!-- initially found at node_modules/@aws-crypto/ie11-detection -->
 > Provides functions and types for detecting if the host environment is IE11
 
 License tags: Apache-2.0
@@ -782,7 +759,7 @@ Authors:
 
 <a id="14a0b5ffee277cb9498e3fc523f36c27f4f8b0adf43f490ae45fa74619b9de26"></a>
 ### [@aws-crypto/sha256-browser](https://www.npmjs.com/package/@aws-crypto/sha256-browser) (version 3.0.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-crypto/sha256-browser -->
+<!-- initially found at node_modules/@aws-crypto/sha256-browser -->
 License tags: Apache-2.0
 
 License files:
@@ -998,7 +975,7 @@ Authors:
 
 <a id="b14ff2f8de6157c5512639e69e1dc5bc5af05f3d22c291e126654c3c44105cff"></a>
 ### [@aws-crypto/sha256-js](https://www.npmjs.com/package/@aws-crypto/sha256-js) (version 3.0.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-crypto/sha256-js -->
+<!-- initially found at node_modules/@aws-crypto/sha256-js -->
 License tags: Apache-2.0
 
 License files:
@@ -1212,7 +1189,7 @@ Authors:
 
 <a id="c724302d5e25cfc23fd76d8aec219bbbe1d3f67ff806a3ad7264b69867618504"></a>
 ### [@aws-crypto/supports-web-crypto](https://www.npmjs.com/package/@aws-crypto/supports-web-crypto) (version 3.0.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-crypto/supports-web-crypto -->
+<!-- initially found at node_modules/@aws-crypto/supports-web-crypto -->
 > Provides functions for detecting if the host environment supports the WebCrypto API
 
 License tags: Apache-2.0
@@ -1430,7 +1407,7 @@ Authors:
 
 <a id="e463c6fe3eafa13c4d4c56aeede1135498774375d91b35d76829182ee3057f75"></a>
 ### [@aws-crypto/util](https://www.npmjs.com/package/@aws-crypto/util) (version 3.0.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-crypto/util -->
+<!-- initially found at node_modules/@aws-crypto/util -->
 License tags: Apache-2.0
 
 License files:
@@ -1643,9 +1620,9 @@ Authors:
 * AWS Crypto Tools Team <[aws-cryptools@amazon.com](nomail)> (https://docs.aws.amazon.com/aws-crypto-tools/index.html?id=docs_gateway#lang/en_us)
 
 
-<a id="59942e665342f11dd34e3a5503ff4a2d6cdf082f9952c8bd5650087ca61410d5"></a>
-### [@aws-sdk/abort-controller](https://www.npmjs.com/package/@aws-sdk/abort-controller) (version 3.257.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/abort-controller -->
+<a id="24f831abb951961da95eb10ab7f161d609b6ee8c4635187ed7de173e3212c031"></a>
+### [@aws-sdk/abort-controller](https://www.npmjs.com/package/@aws-sdk/abort-controller) (version 3.272.0)
+<!-- initially found at node_modules/@aws-sdk/abort-controller -->
 > A simple abort controller library
 
 License tags: Apache-2.0
@@ -1859,9 +1836,9 @@ Authors:
 * AWS SDK for JavaScript Team (https://aws.amazon.com/javascript/)
 
 
-<a id="dfcecd88918864ad488874fcd7d113d98230e31dcd7319d79a08440214e39264"></a>
-### [@aws-sdk/client-cognito-identity](https://www.npmjs.com/package/@aws-sdk/client-cognito-identity) (version 3.262.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/client-cognito-identity -->
+<a id="563aa67156cc9d1042f1de0e32b8d048dc3991e25854217dd430021b2e61a581"></a>
+### [@aws-sdk/client-cognito-identity](https://www.npmjs.com/package/@aws-sdk/client-cognito-identity) (version 3.288.0)
+<!-- initially found at node_modules/@aws-sdk/client-cognito-identity -->
 > AWS SDK for JavaScript Cognito Identity Client for Node.js, Browser and React Native
 
 License tags: Apache-2.0
@@ -2076,9 +2053,9 @@ Authors:
 * AWS SDK for JavaScript Team (https://aws.amazon.com/javascript/)
 
 
-<a id="1aadd6fe47c3d5baf42271095515deb6427cc626af514ba92a109d73d023e907"></a>
-### [@aws-sdk/client-sso](https://www.npmjs.com/package/@aws-sdk/client-sso) (version 3.261.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/client-sso -->
+<a id="5b0316e71c995d5cb22b28383842649e9199102328cfe25a91e1deceb640384a"></a>
+### [@aws-sdk/client-sso](https://www.npmjs.com/package/@aws-sdk/client-sso) (version 3.288.0)
+<!-- initially found at node_modules/@aws-sdk/client-sso -->
 > AWS SDK for JavaScript Sso Client for Node.js, Browser and React Native
 
 License tags: Apache-2.0
@@ -2293,9 +2270,9 @@ Authors:
 * AWS SDK for JavaScript Team (https://aws.amazon.com/javascript/)
 
 
-<a id="626bfc4d18b2e1ef109a89a631d4ec9c7eebbbb61af25f09700f8c85a313c840"></a>
-### [@aws-sdk/client-sso-oidc](https://www.npmjs.com/package/@aws-sdk/client-sso-oidc) (version 3.261.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/client-sso-oidc -->
+<a id="576077193b6ac46c638d52c967267e03e4f894e8b2ec2c7ee65ff442fec46f71"></a>
+### [@aws-sdk/client-sso-oidc](https://www.npmjs.com/package/@aws-sdk/client-sso-oidc) (version 3.288.0)
+<!-- initially found at node_modules/@aws-sdk/client-sso-oidc -->
 > AWS SDK for JavaScript Sso Oidc Client for Node.js, Browser and React Native
 
 License tags: Apache-2.0
@@ -2510,9 +2487,9 @@ Authors:
 * AWS SDK for JavaScript Team (https://aws.amazon.com/javascript/)
 
 
-<a id="1c0acb81f28551583a3100081a9568f15ba9eb394d102787915e81ae59bf7c23"></a>
-### [@aws-sdk/client-sts](https://www.npmjs.com/package/@aws-sdk/client-sts) (version 3.262.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/client-sts -->
+<a id="343f3a8c24379d280002eaa4ed726eb1f591c2e0ed0b501347783b413180a8c2"></a>
+### [@aws-sdk/client-sts](https://www.npmjs.com/package/@aws-sdk/client-sts) (version 3.288.0)
+<!-- initially found at node_modules/@aws-sdk/client-sts -->
 > AWS SDK for JavaScript Sts Client for Node.js, Browser and React Native
 
 License tags: Apache-2.0
@@ -2727,9 +2704,9 @@ Authors:
 * AWS SDK for JavaScript Team (https://aws.amazon.com/javascript/)
 
 
-<a id="9da9c082474e6c27b633b55d7bc87a6166e0591ac9973d616957271446cfa10e"></a>
-### [@aws-sdk/config-resolver](https://www.npmjs.com/package/@aws-sdk/config-resolver) (version 3.259.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/config-resolver -->
+<a id="1551e61c265e482d634f4511bf63bb51e89d6e99ff7c34f9d4a676948acf0cbb"></a>
+### [@aws-sdk/config-resolver](https://www.npmjs.com/package/@aws-sdk/config-resolver) (version 3.287.0)
+<!-- initially found at node_modules/@aws-sdk/config-resolver -->
 License tags: Apache-2.0
 
 License files:
@@ -2941,9 +2918,9 @@ Authors:
 * AWS SDK for JavaScript Team (https://aws.amazon.com/javascript/)
 
 
-<a id="2c1bd49c2334c344dabc5e44f5805f7f1eea28a61b4d8469f4b011d57205edc3"></a>
-### [@aws-sdk/credential-provider-cognito-identity](https://www.npmjs.com/package/@aws-sdk/credential-provider-cognito-identity) (version 3.262.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/credential-provider-cognito-identity -->
+<a id="2445a928c9b9af8cd79d1fd40458a0feed72c2b3318e538a4e55c9893509fc57"></a>
+### [@aws-sdk/credential-provider-cognito-identity](https://www.npmjs.com/package/@aws-sdk/credential-provider-cognito-identity) (version 3.288.0)
+<!-- initially found at node_modules/@aws-sdk/credential-provider-cognito-identity -->
 License tags: Apache-2.0
 
 License files:
@@ -3156,9 +3133,9 @@ Authors:
 * AWS SDK for JavaScript Team (https://aws.amazon.com/javascript/)
 
 
-<a id="187ffc180a4391f4f7ebf100179cfe62e2c4debb26358017868d7515e76091f8"></a>
-### [@aws-sdk/credential-provider-env](https://www.npmjs.com/package/@aws-sdk/credential-provider-env) (version 3.257.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/credential-provider-env -->
+<a id="2f4caad48d2bada05a31990f8290c5f18d7b4ed81bfdafa778ab7bc08a26d2ed"></a>
+### [@aws-sdk/credential-provider-env](https://www.npmjs.com/package/@aws-sdk/credential-provider-env) (version 3.272.0)
+<!-- initially found at node_modules/@aws-sdk/credential-provider-env -->
 > AWS credential provider that sources credentials from known environment variables
 
 License tags: Apache-2.0
@@ -3372,9 +3349,9 @@ Authors:
 * AWS SDK for JavaScript Team (https://aws.amazon.com/javascript/)
 
 
-<a id="990d339fbb9ecc83c7fd4b263ce6c999dbdafdaa3af6319c3f1063012db8554b"></a>
-### [@aws-sdk/credential-provider-imds](https://www.npmjs.com/package/@aws-sdk/credential-provider-imds) (version 3.259.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/credential-provider-imds -->
+<a id="a10375a98a5dc9423b76817e6fdef1c53acdd71c4131509d1cf5141fed67d31f"></a>
+### [@aws-sdk/credential-provider-imds](https://www.npmjs.com/package/@aws-sdk/credential-provider-imds) (version 3.287.0)
+<!-- initially found at node_modules/@aws-sdk/credential-provider-imds -->
 > AWS credential provider that sources credentials from the EC2 instance metadata service and ECS container metadata service
 
 License tags: Apache-2.0
@@ -3588,9 +3565,9 @@ Authors:
 * AWS SDK for JavaScript Team (https://aws.amazon.com/javascript/)
 
 
-<a id="c9904f20caa5115cefaad3c85dbe8a671afe20ff9d51457251536582081ffd6e"></a>
-### [@aws-sdk/credential-provider-ini](https://www.npmjs.com/package/@aws-sdk/credential-provider-ini) (version 3.261.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/credential-provider-ini -->
+<a id="d1b350abe36caa7848c4c7375b276a4833a6a6d0dec75015b7d042a2531cc980"></a>
+### [@aws-sdk/credential-provider-ini](https://www.npmjs.com/package/@aws-sdk/credential-provider-ini) (version 3.288.0)
+<!-- initially found at node_modules/@aws-sdk/credential-provider-ini -->
 > AWS credential provider that sources credentials from ~/.aws/credentials and ~/.aws/config
 
 License tags: Apache-2.0
@@ -3804,9 +3781,9 @@ Authors:
 * AWS SDK for JavaScript Team (https://aws.amazon.com/javascript/)
 
 
-<a id="6375e6f55a73314ebdee9864dd6661c75dcceeac7ec37867e9de0b0103e1a21a"></a>
-### [@aws-sdk/credential-provider-node](https://www.npmjs.com/package/@aws-sdk/credential-provider-node) (version 3.261.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/credential-provider-node -->
+<a id="ef9512ea9a326a6c414526cb2eea46e377255b9f496abefeecffcd9b1c1a8489"></a>
+### [@aws-sdk/credential-provider-node](https://www.npmjs.com/package/@aws-sdk/credential-provider-node) (version 3.288.0)
+<!-- initially found at node_modules/@aws-sdk/credential-provider-node -->
 > AWS credential provider that sources credentials from a Node.JS environment. 
 
 License tags: Apache-2.0
@@ -4020,9 +3997,9 @@ Authors:
 * AWS SDK for JavaScript Team (https://aws.amazon.com/javascript/)
 
 
-<a id="956782c5393a9e7ed6150702446023c58eb31e30afa86e2f7b07270907e1f2f9"></a>
-### [@aws-sdk/credential-provider-process](https://www.npmjs.com/package/@aws-sdk/credential-provider-process) (version 3.257.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/credential-provider-process -->
+<a id="1d24d98ff358600cdddf898852ef26474a411456874964f7b50e349e22180a39"></a>
+### [@aws-sdk/credential-provider-process](https://www.npmjs.com/package/@aws-sdk/credential-provider-process) (version 3.287.0)
+<!-- initially found at node_modules/@aws-sdk/credential-provider-process -->
 > AWS credential provider that sources credential_process from ~/.aws/credentials and ~/.aws/config
 
 License tags: Apache-2.0
@@ -4236,9 +4213,9 @@ Authors:
 * AWS SDK for JavaScript Team (https://aws.amazon.com/javascript/)
 
 
-<a id="96d6cdd3fcb29ccc7809a93d4ebf096f6f19a30fef4940e3918bc852cdac9aff"></a>
-### [@aws-sdk/credential-provider-sso](https://www.npmjs.com/package/@aws-sdk/credential-provider-sso) (version 3.261.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/credential-provider-sso -->
+<a id="3946534413da592bf7744c50a18e5c212aed34394f6c39e2c4d5aef3765a225f"></a>
+### [@aws-sdk/credential-provider-sso](https://www.npmjs.com/package/@aws-sdk/credential-provider-sso) (version 3.288.0)
+<!-- initially found at node_modules/@aws-sdk/credential-provider-sso -->
 > AWS credential provider that exchanges a resolved SSO login token file for temporary AWS credentials
 
 License tags: Apache-2.0
@@ -4452,9 +4429,9 @@ Authors:
 * AWS SDK for JavaScript Team (https://aws.amazon.com/javascript/)
 
 
-<a id="79879d812853ab7bfce297426fbe40a77582cfd1996750a9a5c20b89c1054d8a"></a>
-### [@aws-sdk/credential-provider-web-identity](https://www.npmjs.com/package/@aws-sdk/credential-provider-web-identity) (version 3.257.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/credential-provider-web-identity -->
+<a id="fe8f15e52c98612241f56d612dec4e69550a862b52856ff1832dbd17d2759746"></a>
+### [@aws-sdk/credential-provider-web-identity](https://www.npmjs.com/package/@aws-sdk/credential-provider-web-identity) (version 3.272.0)
+<!-- initially found at node_modules/@aws-sdk/credential-provider-web-identity -->
 > AWS credential provider that calls STS assumeRole for temporary AWS credentials
 
 License tags: Apache-2.0
@@ -4668,9 +4645,9 @@ Authors:
 * AWS SDK for JavaScript Team (https://aws.amazon.com/javascript/)
 
 
-<a id="0eac49d9383efd5e4eaa1fc0d730451e2eba2d0aa94eb543e5be0579d9d634e4"></a>
-### [@aws-sdk/credential-providers](https://www.npmjs.com/package/@aws-sdk/credential-providers) (version 3.262.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/credential-providers -->
+<a id="1f8cd8af92e4f65cb132c22ac95fa992efe6f0b38c35071e927bc6e098d584dc"></a>
+### [@aws-sdk/credential-providers](https://www.npmjs.com/package/@aws-sdk/credential-providers) (version 3.288.0)
+<!-- initially found at node_modules/@aws-sdk/credential-providers -->
 > A collection of credential providers, without requiring service clients like STS, Cognito
 
 License tags: Apache-2.0
@@ -4884,9 +4861,9 @@ Authors:
 * AWS SDK for JavaScript Team (https://aws.amazon.com/javascript/)
 
 
-<a id="e3a61a7615a72d1d44120b1f4fe065767d07c834cd1dfd25bb2b20a75acd5b1b"></a>
-### [@aws-sdk/fetch-http-handler](https://www.npmjs.com/package/@aws-sdk/fetch-http-handler) (version 3.257.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/fetch-http-handler -->
+<a id="90d5c44b240dfea41a335822bf67d13c03c9b5ea0e7a10926713099ee93e6213"></a>
+### [@aws-sdk/fetch-http-handler](https://www.npmjs.com/package/@aws-sdk/fetch-http-handler) (version 3.282.0)
+<!-- initially found at node_modules/@aws-sdk/fetch-http-handler -->
 > Provides a way to make requests
 
 License tags: Apache-2.0
@@ -5100,9 +5077,9 @@ Authors:
 * AWS SDK for JavaScript Team (https://aws.amazon.com/javascript/)
 
 
-<a id="d67c48aaad7485d85de49fc7a18651c3db659cd29144f71cf883cdba729615c2"></a>
-### [@aws-sdk/hash-node](https://www.npmjs.com/package/@aws-sdk/hash-node) (version 3.257.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/hash-node -->
+<a id="2d0a0441cbae7e6518301c5cbaaba92c68ae2f76d0afc0e50f3faeed0653e460"></a>
+### [@aws-sdk/hash-node](https://www.npmjs.com/package/@aws-sdk/hash-node) (version 3.272.0)
+<!-- initially found at node_modules/@aws-sdk/hash-node -->
 License tags: Apache-2.0
 
 License files:
@@ -5314,9 +5291,9 @@ Authors:
 * AWS SDK for JavaScript Team (https://aws.amazon.com/javascript/)
 
 
-<a id="4d6042309ec493a7d51a073baf1fcaf0cf0f3e9e4d822be52b51d1daf4d4084d"></a>
-### [@aws-sdk/invalid-dependency](https://www.npmjs.com/package/@aws-sdk/invalid-dependency) (version 3.257.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/invalid-dependency -->
+<a id="0c2adaf729e84deeb0e3136a70aa5d72d2c26e6503793709c7bda31ea1f3279c"></a>
+### [@aws-sdk/invalid-dependency](https://www.npmjs.com/package/@aws-sdk/invalid-dependency) (version 3.272.0)
+<!-- initially found at node_modules/@aws-sdk/invalid-dependency -->
 License tags: Apache-2.0
 
 License files:
@@ -5531,7 +5508,7 @@ Authors:
 
 <a id="0047c4e8b6659d311e2347030c078d92740899c193a4eac825516dcb44dc69dd"></a>
 ### [@aws-sdk/is-array-buffer](https://www.npmjs.com/package/@aws-sdk/is-array-buffer) (version 3.201.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/is-array-buffer -->
+<!-- initially found at node_modules/@aws-sdk/is-array-buffer -->
 > Provides a function for detecting if an argument is an ArrayBuffer
 
 License tags: Apache-2.0
@@ -5745,9 +5722,9 @@ Authors:
 * AWS SDK for JavaScript Team (https://aws.amazon.com/javascript/)
 
 
-<a id="2a4e1d2e5c2089224948662fdafdad8b99182758fc4a9c8ef4a4399839f070ed"></a>
-### [@aws-sdk/middleware-content-length](https://www.npmjs.com/package/@aws-sdk/middleware-content-length) (version 3.257.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/middleware-content-length -->
+<a id="76cdfe0b1a9d882d2cc80b6f4bdc4c31ee647284cb989d6ba3ccafea42b98e8d"></a>
+### [@aws-sdk/middleware-content-length](https://www.npmjs.com/package/@aws-sdk/middleware-content-length) (version 3.282.0)
+<!-- initially found at node_modules/@aws-sdk/middleware-content-length -->
 License tags: Apache-2.0
 
 License files:
@@ -5959,9 +5936,9 @@ Authors:
 * AWS SDK for JavaScript Team (https://aws.amazon.com/javascript/)
 
 
-<a id="bde1cc6fa10b0c749f3816051989db909aebd11f402ff8ef12d4d050c83f5b14"></a>
-### [@aws-sdk/middleware-endpoint](https://www.npmjs.com/package/@aws-sdk/middleware-endpoint) (version 3.257.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/middleware-endpoint -->
+<a id="ec8bc81ef670e9652a3dbdf12bac804012fc179365abb7668233198265e2c25a"></a>
+### [@aws-sdk/middleware-endpoint](https://www.npmjs.com/package/@aws-sdk/middleware-endpoint) (version 3.282.0)
+<!-- initially found at node_modules/@aws-sdk/middleware-endpoint -->
 License tags: Apache-2.0
 
 License files:
@@ -6173,9 +6150,9 @@ Authors:
 * AWS SDK for JavaScript Team (https://aws.amazon.com/javascript/)
 
 
-<a id="4c3de96e419cb4426ba2ea6fa6004bd3c4ce0a5a62cfb556dbcbec37f7c23d4f"></a>
-### [@aws-sdk/middleware-host-header](https://www.npmjs.com/package/@aws-sdk/middleware-host-header) (version 3.257.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/middleware-host-header -->
+<a id="2f9cdf6c8a067668c02809c8d3df5db4006aa3b00096c8c1c24ab506124d52da"></a>
+### [@aws-sdk/middleware-host-header](https://www.npmjs.com/package/@aws-sdk/middleware-host-header) (version 3.282.0)
+<!-- initially found at node_modules/@aws-sdk/middleware-host-header -->
 License tags: Apache-2.0
 
 License files:
@@ -6388,9 +6365,9 @@ Authors:
 * AWS SDK for JavaScript Team (https://aws.amazon.com/javascript/)
 
 
-<a id="551ed7e9c4d5fc73279f1cc80e69978a7a0a836c148dcd02cd151c686e0da082"></a>
-### [@aws-sdk/middleware-logger](https://www.npmjs.com/package/@aws-sdk/middleware-logger) (version 3.257.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/middleware-logger -->
+<a id="6776e4565a8cce7230537856cd37dca6b08ed819b37eb1b979947f70cf5b07bc"></a>
+### [@aws-sdk/middleware-logger](https://www.npmjs.com/package/@aws-sdk/middleware-logger) (version 3.288.0)
+<!-- initially found at node_modules/@aws-sdk/middleware-logger -->
 License tags: Apache-2.0
 
 License files:
@@ -6602,9 +6579,9 @@ Authors:
 * AWS SDK for JavaScript Team (https://aws.amazon.com/javascript/)
 
 
-<a id="78c8a72e6d3bd4ab28642af495453ff35476d7ffcfd247aa3c4997323ac3d2f8"></a>
-### [@aws-sdk/middleware-recursion-detection](https://www.npmjs.com/package/@aws-sdk/middleware-recursion-detection) (version 3.257.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/middleware-recursion-detection -->
+<a id="448d91baac8eaa28f2571be6b24f6342170bf6018a52ddaa9a4071d718c5e936"></a>
+### [@aws-sdk/middleware-recursion-detection](https://www.npmjs.com/package/@aws-sdk/middleware-recursion-detection) (version 3.282.0)
+<!-- initially found at node_modules/@aws-sdk/middleware-recursion-detection -->
 License tags: Apache-2.0
 
 License files:
@@ -6817,9 +6794,9 @@ Authors:
 * AWS SDK for JavaScript Team (https://aws.amazon.com/javascript/)
 
 
-<a id="2d089c7751fd4289100a847433f18cab4bb2fd929349860a59942f0927254493"></a>
-### [@aws-sdk/middleware-retry](https://www.npmjs.com/package/@aws-sdk/middleware-retry) (version 3.259.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/middleware-retry -->
+<a id="c01f546d5bd8e7ad1476dcfacccd3bf5e9997a69ce94cfb925c792e112e0dccc"></a>
+### [@aws-sdk/middleware-retry](https://www.npmjs.com/package/@aws-sdk/middleware-retry) (version 3.287.0)
+<!-- initially found at node_modules/@aws-sdk/middleware-retry -->
 License tags: Apache-2.0
 
 License files:
@@ -7032,9 +7009,9 @@ Authors:
 * AWS SDK for JavaScript Team (https://aws.amazon.com/javascript/)
 
 
-<a id="170d588932d3c451f2efae3d5587ed10441ddbff6a1b8ba71d9877c5212033b0"></a>
-### [@aws-sdk/middleware-sdk-sts](https://www.npmjs.com/package/@aws-sdk/middleware-sdk-sts) (version 3.257.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/middleware-sdk-sts -->
+<a id="79a04bb2b88419c26d4f2fa6ed89234c26ac7adc7c846c6c28397e64e06125f0"></a>
+### [@aws-sdk/middleware-sdk-sts](https://www.npmjs.com/package/@aws-sdk/middleware-sdk-sts) (version 3.282.0)
+<!-- initially found at node_modules/@aws-sdk/middleware-sdk-sts -->
 License tags: Apache-2.0
 
 License files:
@@ -7247,9 +7224,9 @@ Authors:
 * AWS SDK for JavaScript Team (https://aws.amazon.com/javascript/)
 
 
-<a id="c212c664f9b08d8dacbf33dd9a84aef7ab2e42ab6ef4cba07874a743207ddc43"></a>
-### [@aws-sdk/middleware-serde](https://www.npmjs.com/package/@aws-sdk/middleware-serde) (version 3.257.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/middleware-serde -->
+<a id="655856b08372cf1798b571b18940a382979c7dfb4a7797aeb30ce7082f9c17f7"></a>
+### [@aws-sdk/middleware-serde](https://www.npmjs.com/package/@aws-sdk/middleware-serde) (version 3.272.0)
+<!-- initially found at node_modules/@aws-sdk/middleware-serde -->
 License tags: Apache-2.0
 
 License files:
@@ -7462,9 +7439,9 @@ Authors:
 * AWS SDK for JavaScript Team (https://aws.amazon.com/javascript/)
 
 
-<a id="f130d22235043884b74854f761146049845c766da7e528e69ee9b52affa914fe"></a>
-### [@aws-sdk/middleware-signing](https://www.npmjs.com/package/@aws-sdk/middleware-signing) (version 3.257.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/middleware-signing -->
+<a id="3901422d35a9dc26bf1e4cf8189b60ccdb77b5f766312a48c3ca5af53321cc70"></a>
+### [@aws-sdk/middleware-signing](https://www.npmjs.com/package/@aws-sdk/middleware-signing) (version 3.282.0)
+<!-- initially found at node_modules/@aws-sdk/middleware-signing -->
 License tags: Apache-2.0
 
 License files:
@@ -7676,9 +7653,9 @@ Authors:
 * AWS SDK for JavaScript Team (https://aws.amazon.com/javascript/)
 
 
-<a id="85830347f9f7aa9cb36504f719d75dc33018c2a5535b9333a318d6b9af36ba3d"></a>
-### [@aws-sdk/middleware-stack](https://www.npmjs.com/package/@aws-sdk/middleware-stack) (version 3.257.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/middleware-stack -->
+<a id="4801e579b1de0c990b35b95a392dd292568a0811f8ed8ec8486107acaba2bb1d"></a>
+### [@aws-sdk/middleware-stack](https://www.npmjs.com/package/@aws-sdk/middleware-stack) (version 3.272.0)
+<!-- initially found at node_modules/@aws-sdk/middleware-stack -->
 > Provides a means for composing multiple middleware functions into a single handler
 
 License tags: Apache-2.0
@@ -7892,9 +7869,9 @@ Authors:
 * AWS SDK for JavaScript Team (https://aws.amazon.com/javascript/)
 
 
-<a id="de09b3606db64a323437a18f5964cd3fdf17a666794636237bd77c5c1381be1e"></a>
-### [@aws-sdk/middleware-user-agent](https://www.npmjs.com/package/@aws-sdk/middleware-user-agent) (version 3.257.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/middleware-user-agent -->
+<a id="f9688632b4608d43dd2189e80a1ea0f34639004e6cc3cfed5645b32397fa6878"></a>
+### [@aws-sdk/middleware-user-agent](https://www.npmjs.com/package/@aws-sdk/middleware-user-agent) (version 3.282.0)
+<!-- initially found at node_modules/@aws-sdk/middleware-user-agent -->
 License tags: Apache-2.0
 
 License files:
@@ -8107,9 +8084,9 @@ Authors:
 * AWS SDK for JavaScript Team (https://aws.amazon.com/javascript/)
 
 
-<a id="7248a9723ba417583479e0cd1aff742e435bdf85883d0641e6ce2b0951543ff5"></a>
-### [@aws-sdk/node-config-provider](https://www.npmjs.com/package/@aws-sdk/node-config-provider) (version 3.259.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/node-config-provider -->
+<a id="9c253e845d7705f45df47c3cd308eb94deff584ad312ae9b87a7d0fd9d2bc727"></a>
+### [@aws-sdk/node-config-provider](https://www.npmjs.com/package/@aws-sdk/node-config-provider) (version 3.287.0)
+<!-- initially found at node_modules/@aws-sdk/node-config-provider -->
 > Load config default values from ini config files and environmental variable
 
 License tags: Apache-2.0
@@ -8323,9 +8300,9 @@ Authors:
 * AWS SDK for JavaScript Team (https://aws.amazon.com/javascript/)
 
 
-<a id="cf6a2f9dc3d6af6493085cd7f9aaf9a808390ed2094dba64384f7646bd33325a"></a>
-### [@aws-sdk/node-http-handler](https://www.npmjs.com/package/@aws-sdk/node-http-handler) (version 3.257.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/node-http-handler -->
+<a id="f364d5b003edd6fb3eb3652f2676e3f554f9dbff00dd8296a37a96af4130321c"></a>
+### [@aws-sdk/node-http-handler](https://www.npmjs.com/package/@aws-sdk/node-http-handler) (version 3.282.0)
+<!-- initially found at node_modules/@aws-sdk/node-http-handler -->
 > Provides a way to make requests
 
 License tags: Apache-2.0
@@ -8539,9 +8516,9 @@ Authors:
 * AWS SDK for JavaScript Team (https://aws.amazon.com/javascript/)
 
 
-<a id="7649257ee6fe50538941f28b7d589934a7a3ecdf6250d2a41c6dd9f2e13fed97"></a>
-### [@aws-sdk/property-provider](https://www.npmjs.com/package/@aws-sdk/property-provider) (version 3.257.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/property-provider -->
+<a id="afd31b14ec3fca1e9e57bd646fc214a2fcd30e7171cac2239886895d52812f09"></a>
+### [@aws-sdk/property-provider](https://www.npmjs.com/package/@aws-sdk/property-provider) (version 3.272.0)
+<!-- initially found at node_modules/@aws-sdk/property-provider -->
 License tags: Apache-2.0
 
 License files:
@@ -8753,9 +8730,9 @@ Authors:
 * AWS SDK for JavaScript Team (https://aws.amazon.com/javascript/)
 
 
-<a id="c3d944bcfb95e05171db6ac345aa0095778b527bca8b121246d20a1ce09781fd"></a>
-### [@aws-sdk/protocol-http](https://www.npmjs.com/package/@aws-sdk/protocol-http) (version 3.257.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/protocol-http -->
+<a id="ba5f9c8e75efeed524c6cffac0a5abf38b931d1bf750d810a463f1146b17b57c"></a>
+### [@aws-sdk/protocol-http](https://www.npmjs.com/package/@aws-sdk/protocol-http) (version 3.282.0)
+<!-- initially found at node_modules/@aws-sdk/protocol-http -->
 License tags: Apache-2.0
 
 License files:
@@ -8968,9 +8945,9 @@ Authors:
 * AWS SDK for JavaScript Team (https://aws.amazon.com/javascript/)
 
 
-<a id="6920b5352c1627b4e0ad98fa74df973bae394a73799a2833bff0c6655faa7e14"></a>
-### [@aws-sdk/querystring-builder](https://www.npmjs.com/package/@aws-sdk/querystring-builder) (version 3.257.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/querystring-builder -->
+<a id="128bd315daa3c1128d03b4fab072c5c507e214d06070c7bba6e9c86ab9f57cd2"></a>
+### [@aws-sdk/querystring-builder](https://www.npmjs.com/package/@aws-sdk/querystring-builder) (version 3.272.0)
+<!-- initially found at node_modules/@aws-sdk/querystring-builder -->
 License tags: Apache-2.0
 
 License files:
@@ -9183,9 +9160,9 @@ Authors:
 * AWS SDK for JavaScript Team (https://aws.amazon.com/javascript/)
 
 
-<a id="90a1729e0546517daac140360444686965871854548b1825307199ea46e2c318"></a>
-### [@aws-sdk/querystring-parser](https://www.npmjs.com/package/@aws-sdk/querystring-parser) (version 3.257.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/querystring-parser -->
+<a id="8dba1c2d3d9a4bd27beaadd77ea140c7ea28922b621c8772246f18a6983a0726"></a>
+### [@aws-sdk/querystring-parser](https://www.npmjs.com/package/@aws-sdk/querystring-parser) (version 3.272.0)
+<!-- initially found at node_modules/@aws-sdk/querystring-parser -->
 License tags: Apache-2.0
 
 License files:
@@ -9398,9 +9375,9 @@ Authors:
 * AWS SDK for JavaScript Team (https://aws.amazon.com/javascript/)
 
 
-<a id="52d7ce677297d2cc8ee61df2a9669209f46ccb90bd0636860f4e88308933bb85"></a>
-### [@aws-sdk/service-error-classification](https://www.npmjs.com/package/@aws-sdk/service-error-classification) (version 3.257.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/service-error-classification -->
+<a id="b1d6708147a7d0f447c3debee4bb170876bd675041a1f12708d9422069ec7d63"></a>
+### [@aws-sdk/service-error-classification](https://www.npmjs.com/package/@aws-sdk/service-error-classification) (version 3.272.0)
+<!-- initially found at node_modules/@aws-sdk/service-error-classification -->
 License tags: Apache-2.0
 
 License files:
@@ -9613,9 +9590,9 @@ Authors:
 * AWS SDK for JavaScript Team (https://aws.amazon.com/javascript/)
 
 
-<a id="9be2fd581729e3a286e0b9cb216a03ded057ab308b21b48fa439d9cab1ba6867"></a>
-### [@aws-sdk/shared-ini-file-loader](https://www.npmjs.com/package/@aws-sdk/shared-ini-file-loader) (version 3.257.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/shared-ini-file-loader -->
+<a id="2db639a90fb6347d01854c34367ffbc50019248a87f76d74840d174c9ce20710"></a>
+### [@aws-sdk/shared-ini-file-loader](https://www.npmjs.com/package/@aws-sdk/shared-ini-file-loader) (version 3.287.0)
+<!-- initially found at node_modules/@aws-sdk/shared-ini-file-loader -->
 License tags: Apache-2.0
 
 License files:
@@ -9827,9 +9804,9 @@ Authors:
 * AWS SDK for JavaScript Team (https://aws.amazon.com/javascript/)
 
 
-<a id="535e41d70a7060724a0b32df04f00a56e04fd9a34af35d8ba84760b28766b5e1"></a>
-### [@aws-sdk/signature-v4](https://www.npmjs.com/package/@aws-sdk/signature-v4) (version 3.257.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/signature-v4 -->
+<a id="3c7e4cb1d461183b775be93238f5c206675c3001a4609f00d539b74b69994809"></a>
+### [@aws-sdk/signature-v4](https://www.npmjs.com/package/@aws-sdk/signature-v4) (version 3.282.0)
+<!-- initially found at node_modules/@aws-sdk/signature-v4 -->
 > A standalone implementation of the AWS Signature V4 request signing algorithm
 
 License tags: Apache-2.0
@@ -10043,9 +10020,9 @@ Authors:
 * AWS SDK for JavaScript Team (https://aws.amazon.com/javascript/)
 
 
-<a id="745be55c8578aaefa8f63c199ff86e3e0d36a798dbc6c54193c8e8ae36bf250f"></a>
-### [@aws-sdk/smithy-client](https://www.npmjs.com/package/@aws-sdk/smithy-client) (version 3.261.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/smithy-client -->
+<a id="a80eef17e4c8f0d448bc9a35bec16ffb853a291968fcfb4a2c15aba2ddf7bac8"></a>
+### [@aws-sdk/smithy-client](https://www.npmjs.com/package/@aws-sdk/smithy-client) (version 3.279.0)
+<!-- initially found at node_modules/@aws-sdk/smithy-client -->
 License tags: Apache-2.0
 
 License files:
@@ -10258,9 +10235,9 @@ Authors:
 * AWS SDK for JavaScript Team (https://aws.amazon.com/javascript/)
 
 
-<a id="d05c2b64f677721a4584e8664ff079968383f3f63a6090a97fd891430968dbce"></a>
-### [@aws-sdk/token-providers](https://www.npmjs.com/package/@aws-sdk/token-providers) (version 3.261.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/token-providers -->
+<a id="549e73b179c895f6c717758ca6dab09c4d20f70ac3645fbd69217843cca98a33"></a>
+### [@aws-sdk/token-providers](https://www.npmjs.com/package/@aws-sdk/token-providers) (version 3.288.0)
+<!-- initially found at node_modules/@aws-sdk/token-providers -->
 > A collection of token providers
 
 License tags: Apache-2.0
@@ -10474,9 +10451,9 @@ Authors:
 * AWS SDK for JavaScript Team (https://aws.amazon.com/javascript/)
 
 
-<a id="94c7e1eab017b4a6078068e7110ebd1496d32dd38c668796863478cf0aa41f7e"></a>
-### [@aws-sdk/types](https://www.npmjs.com/package/@aws-sdk/types) (version 3.257.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/types -->
+<a id="96605f2b797a657ed946f0057a97906b88b045cb600d54c3ce08d3fe0d4f9cf7"></a>
+### [@aws-sdk/types](https://www.npmjs.com/package/@aws-sdk/types) (version 3.272.0)
+<!-- initially found at node_modules/@aws-sdk/types -->
 > Types for the AWS SDK
 
 License tags: Apache-2.0
@@ -10690,9 +10667,9 @@ Authors:
 * AWS SDK for JavaScript Team (https://aws.amazon.com/javascript/)
 
 
-<a id="3bdbdee30264deaa6b61f80432f42587fc5053a878f41293456c6a8ff47181ca"></a>
-### [@aws-sdk/url-parser](https://www.npmjs.com/package/@aws-sdk/url-parser) (version 3.257.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/url-parser -->
+<a id="a8e8da23ec45595f3efbaee3e8f2405792d5b6a7c8f9f9b89a26ecfeb15815d8"></a>
+### [@aws-sdk/url-parser](https://www.npmjs.com/package/@aws-sdk/url-parser) (version 3.272.0)
+<!-- initially found at node_modules/@aws-sdk/url-parser -->
 License tags: Apache-2.0
 
 License files:
@@ -10907,7 +10884,7 @@ Authors:
 
 <a id="19f5b67d97282b4c51d7316b2d91638379103b586ba4d0db9633f1a255ba1fcb"></a>
 ### [@aws-sdk/util-base64](https://www.npmjs.com/package/@aws-sdk/util-base64) (version 3.208.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/util-base64 -->
+<!-- initially found at node_modules/@aws-sdk/util-base64 -->
 > A Base64 <-> UInt8Array converter
 
 License tags: Apache-2.0
@@ -11123,7 +11100,7 @@ Authors:
 
 <a id="cf7fc11201bfb6cfd679978e10ba3429d7c28b299dbaa53159f3ac5d1e8207a3"></a>
 ### [@aws-sdk/util-body-length-browser](https://www.npmjs.com/package/@aws-sdk/util-body-length-browser) (version 3.188.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/util-body-length-browser -->
+<!-- initially found at node_modules/@aws-sdk/util-body-length-browser -->
 > Determines the length of a request body in browsers
 
 License tags: Apache-2.0
@@ -11339,7 +11316,7 @@ Authors:
 
 <a id="954afb6e970260786cb272276b63c4de573ce700309643e5a19bd72235915960"></a>
 ### [@aws-sdk/util-body-length-node](https://www.npmjs.com/package/@aws-sdk/util-body-length-node) (version 3.208.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/util-body-length-node -->
+<!-- initially found at node_modules/@aws-sdk/util-body-length-node -->
 > Determines the length of a request body in node.js
 
 License tags: Apache-2.0
@@ -11555,7 +11532,7 @@ Authors:
 
 <a id="77c4de1ca68a087e575c46453e98250c6cd2633c44d1e81eba2ff2973c7dd2b3"></a>
 ### [@aws-sdk/util-buffer-from](https://www.npmjs.com/package/@aws-sdk/util-buffer-from) (version 3.208.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/util-buffer-from -->
+<!-- initially found at node_modules/@aws-sdk/util-buffer-from -->
 License tags: Apache-2.0
 
 License files:
@@ -11769,7 +11746,7 @@ Authors:
 
 <a id="1e13d814927b87a4b94bd1ad026a4d1b110c1686bc551eb7f3b30fdfae8f6247"></a>
 ### [@aws-sdk/util-config-provider](https://www.npmjs.com/package/@aws-sdk/util-config-provider) (version 3.208.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/util-config-provider -->
+<!-- initially found at node_modules/@aws-sdk/util-config-provider -->
 > Utilities package for configuration providers
 
 License tags: Apache-2.0
@@ -11983,9 +11960,9 @@ Authors:
 * AWS SDK for JavaScript Team (https://aws.amazon.com/javascript/)
 
 
-<a id="f0e8d5a8d907a95b6495226d78ca65d0ab8643280b234979cf6a19ec6b810aae"></a>
-### [@aws-sdk/util-defaults-mode-browser](https://www.npmjs.com/package/@aws-sdk/util-defaults-mode-browser) (version 3.261.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/util-defaults-mode-browser -->
+<a id="71fb3ad460bca6ee093e6f8cafe461440e88ef3e640db355fd4a2483387ccdf6"></a>
+### [@aws-sdk/util-defaults-mode-browser](https://www.npmjs.com/package/@aws-sdk/util-defaults-mode-browser) (version 3.279.0)
+<!-- initially found at node_modules/@aws-sdk/util-defaults-mode-browser -->
 License tags: Apache-2.0
 
 License files:
@@ -12198,9 +12175,9 @@ Authors:
 * AWS SDK for JavaScript Team (https://aws.amazon.com/javascript/)
 
 
-<a id="335f8054c299b5d9710c809333c689b3ca8bd22b2c82574e3dfb3cbb5fb419ed"></a>
-### [@aws-sdk/util-defaults-mode-node](https://www.npmjs.com/package/@aws-sdk/util-defaults-mode-node) (version 3.261.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/util-defaults-mode-node -->
+<a id="dbbd30a0b185f7a8703374bd1bcadc6a3ac7426e7eff1e399ce9915eec91a4a8"></a>
+### [@aws-sdk/util-defaults-mode-node](https://www.npmjs.com/package/@aws-sdk/util-defaults-mode-node) (version 3.287.0)
+<!-- initially found at node_modules/@aws-sdk/util-defaults-mode-node -->
 License tags: Apache-2.0
 
 License files:
@@ -12413,9 +12390,9 @@ Authors:
 * AWS SDK for JavaScript Team (https://aws.amazon.com/javascript/)
 
 
-<a id="5f966c4d00a86ab0a50ed198226f857e258a592f5a9b3cd6bcb0f3b4a2a626b5"></a>
-### [@aws-sdk/util-endpoints](https://www.npmjs.com/package/@aws-sdk/util-endpoints) (version 3.257.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/util-endpoints -->
+<a id="2171e8df986b873b3ef84289229bfe92d98a186e04267b0d7f03f06d7fac64ec"></a>
+### [@aws-sdk/util-endpoints](https://www.npmjs.com/package/@aws-sdk/util-endpoints) (version 3.272.0)
+<!-- initially found at node_modules/@aws-sdk/util-endpoints -->
 > Utilities to help with endpoint resolution
 
 License tags: Apache-2.0
@@ -12631,7 +12608,7 @@ Authors:
 
 <a id="ea37cec8a301fe6a81ffda621156fd6ee3598e15db1aae22c00b29bc023a276f"></a>
 ### [@aws-sdk/util-hex-encoding](https://www.npmjs.com/package/@aws-sdk/util-hex-encoding) (version 3.201.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/util-hex-encoding -->
+<!-- initially found at node_modules/@aws-sdk/util-hex-encoding -->
 > Converts binary buffers to and from lowercase hexadecimal encoding
 
 License tags: Apache-2.0
@@ -12847,7 +12824,7 @@ Authors:
 
 <a id="3535c07eeac6cfe7953cd743e3cdeb4735e7b3b34b5ad8b4b4eb326618f5696e"></a>
 ### [@aws-sdk/util-locate-window](https://www.npmjs.com/package/@aws-sdk/util-locate-window) (version 3.208.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/util-locate-window -->
+<!-- initially found at node_modules/@aws-sdk/util-locate-window -->
 License tags: Apache-2.0
 
 License files:
@@ -13059,9 +13036,9 @@ Authors:
 * AWS SDK for JavaScript Team (https://aws.amazon.com/javascript/)
 
 
-<a id="3cf4cc804ac79f7936cbf17aa0775e121c5ea6f19fd8b7c2cad77072d3c2b437"></a>
-### [@aws-sdk/util-middleware](https://www.npmjs.com/package/@aws-sdk/util-middleware) (version 3.257.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/util-middleware -->
+<a id="1e5fa46c50bf82a76b834a15a0c6a679d8d0916e0cd8d27983dd9c1755197b01"></a>
+### [@aws-sdk/util-middleware](https://www.npmjs.com/package/@aws-sdk/util-middleware) (version 3.272.0)
+<!-- initially found at node_modules/@aws-sdk/util-middleware -->
 > Shared utilities for to be used in middleware packages.
 
 License tags: Apache-2.0
@@ -13275,9 +13252,9 @@ Authors:
 * AWS SDK for JavaScript Team (https://aws.amazon.com/javascript/)
 
 
-<a id="8a56ab111e2ed329c0806fdabd99a893814eea791e9154fc3c5b1a76e6e56ff5"></a>
-### [@aws-sdk/util-retry](https://www.npmjs.com/package/@aws-sdk/util-retry) (version 3.257.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/util-retry -->
+<a id="acc374abfa3892241ea8fabeafb935c57687cde2e2152db9eb00ee30ffc3028d"></a>
+### [@aws-sdk/util-retry](https://www.npmjs.com/package/@aws-sdk/util-retry) (version 3.272.0)
+<!-- initially found at node_modules/@aws-sdk/util-retry -->
 > Shared retry utilities to be used in middleware packages.
 
 License tags: Apache-2.0
@@ -13493,7 +13470,7 @@ Authors:
 
 <a id="cebc1bb8d19c568292cb8b61664de9bf4ae43b9dc3dea48381fb6ae4e61dad0c"></a>
 ### [@aws-sdk/util-uri-escape](https://www.npmjs.com/package/@aws-sdk/util-uri-escape) (version 3.201.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/util-uri-escape -->
+<!-- initially found at node_modules/@aws-sdk/util-uri-escape -->
 License tags: Apache-2.0
 
 License files:
@@ -13705,9 +13682,9 @@ Authors:
 * AWS SDK for JavaScript Team (https://aws.amazon.com/javascript/)
 
 
-<a id="9bbc003659164200fc80f14acdd054f785fd9fe44c9df3bcb34067e34fe1a634"></a>
-### [@aws-sdk/util-user-agent-browser](https://www.npmjs.com/package/@aws-sdk/util-user-agent-browser) (version 3.257.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/util-user-agent-browser -->
+<a id="c176f27cd11be3eb9fa7a9bffcf0281f8a7390497b12f04dc2598f0f45778ea4"></a>
+### [@aws-sdk/util-user-agent-browser](https://www.npmjs.com/package/@aws-sdk/util-user-agent-browser) (version 3.282.0)
+<!-- initially found at node_modules/@aws-sdk/util-user-agent-browser -->
 License tags: Apache-2.0
 
 License files:
@@ -13920,9 +13897,9 @@ Authors:
 * AWS SDK for JavaScript Team (https://aws.amazon.com/javascript/)
 
 
-<a id="2977903b1fd1beeefb8bd64847fd18126cb11faf5ccb85626b2b9f7f336f7c7c"></a>
-### [@aws-sdk/util-user-agent-node](https://www.npmjs.com/package/@aws-sdk/util-user-agent-node) (version 3.259.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/util-user-agent-node -->
+<a id="1b6d3e3fc9bfbadbf845d5c2e57f59f57830448a2d8a935798f08346154b8a68"></a>
+### [@aws-sdk/util-user-agent-node](https://www.npmjs.com/package/@aws-sdk/util-user-agent-node) (version 3.287.0)
+<!-- initially found at node_modules/@aws-sdk/util-user-agent-node -->
 License tags: Apache-2.0
 
 License files:
@@ -14137,7 +14114,7 @@ Authors:
 
 <a id="8ef833d74ec845db7d42c5fc39de0d67600a179916755768e0853beb0b9029d3"></a>
 ### [@aws-sdk/util-utf8](https://www.npmjs.com/package/@aws-sdk/util-utf8) (version 3.254.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/util-utf8 -->
+<!-- initially found at node_modules/@aws-sdk/util-utf8 -->
 > A UTF-8 string <-> UInt8Array converter
 
 License tags: Apache-2.0
@@ -14353,7 +14330,7 @@ Authors:
 
 <a id="2795b0b92f423e7c40e34b18269590f7f512482d043ec08b9037fe41768fda53"></a>
 ### [@aws-sdk/util-utf8-browser](https://www.npmjs.com/package/@aws-sdk/util-utf8-browser) (version 3.259.0)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-sdk/util-utf8-browser -->
+<!-- initially found at node_modules/@aws-sdk/util-utf8-browser -->
 > A browser UTF-8 string <-> UInt8Array converter
 
 License tags: Apache-2.0
@@ -14567,9 +14544,9 @@ Authors:
 * AWS SDK for JavaScript Team (https://aws.amazon.com/javascript/)
 
 
-<a id="dea6fe272a8be0be87f52431bf1387ed6bacdd218d2b8949a4d6363f41a6f142"></a>
-### [@babel/code-frame](https://www.npmjs.com/package/@babel/code-frame) (version 7.16.7)
-<!-- initially found at packages/js-multiline-to-singleline/node_modules/@babel/code-frame -->
+<a id="1fe6584296cd28a6a9da563f8f20b040fe598786595c315752a1d6a997d2d876"></a>
+### [@babel/code-frame](https://www.npmjs.com/package/@babel/code-frame) (version 7.18.6)
+<!-- initially found at node_modules/@babel/code-frame -->
 > Generate errors that contain a code frame that point to source locations.
 
 License tags: MIT
@@ -14605,9 +14582,9 @@ Authors:
 * The Babel Team (https://babel.dev/team)
 
 
-<a id="51798d1c51b67fe0baa2683008af24341aebf5bf0d77e8fa015c8dacac757eef"></a>
-### [@babel/compat-data](https://www.npmjs.com/package/@babel/compat-data) (version 7.17.7)
-<!-- initially found at packages/js-multiline-to-singleline/node_modules/@babel/compat-data -->
+<a id="fdcd60901ce9cf63147dec24f4eb28dca8057a62660b8c26b2d5ef9c21e4f854"></a>
+### [@babel/compat-data](https://www.npmjs.com/package/@babel/compat-data) (version 7.21.0)
+<!-- initially found at node_modules/@babel/compat-data -->
 License tags: MIT
 
 License files:
@@ -14641,9 +14618,9 @@ Authors:
 * The Babel Team (https://babel.dev/team)
 
 
-<a id="380ea79da6e7678667da3a41e531130d5909b278b80c54257247c6fbecbc26c0"></a>
-### [@babel/core](https://www.npmjs.com/package/@babel/core) (version 7.17.8)
-<!-- initially found at packages/js-multiline-to-singleline/node_modules/@babel/core -->
+<a id="22367ba0ff6d65feaeb51d0e2b0629c7faffd56732b9b46ac7d160fa09b054ab"></a>
+### [@babel/core](https://www.npmjs.com/package/@babel/core) (version 7.21.0)
+<!-- initially found at node_modules/@babel/core -->
 > Babel compiler core.
 
 License tags: MIT
@@ -14717,9 +14694,9 @@ Authors:
 * The Babel Team (https://babel.dev/team)
 
 
-<a id="07f11f877e4725290d2d7c5429f07fd24f2812771e520e7d812b61e345a64586"></a>
-### [@babel/generator](https://www.npmjs.com/package/@babel/generator) (version 7.17.7)
-<!-- initially found at packages/js-multiline-to-singleline/node_modules/@babel/generator -->
+<a id="233d81388d2d5f21fecfc53c152db677c6ca6043bcbe5b0f81d4b69185ba6e2c"></a>
+### [@babel/generator](https://www.npmjs.com/package/@babel/generator) (version 7.21.1)
+<!-- initially found at node_modules/@babel/generator -->
 > Turns an AST into code.
 
 License tags: MIT
@@ -14755,9 +14732,9 @@ Authors:
 * The Babel Team (https://babel.dev/team)
 
 
-<a id="96cedab303a7307b5304b06db0247aa69789fed7d827a2b2d26e993b4444f4d6"></a>
-### [@babel/helper-compilation-targets](https://www.npmjs.com/package/@babel/helper-compilation-targets) (version 7.17.7)
-<!-- initially found at packages/js-multiline-to-singleline/node_modules/@babel/helper-compilation-targets -->
+<a id="e24419522a597a234bc55d2fc57c3adc7d9ac62e7fbc4aa38b23e4445a46acba"></a>
+### [@babel/helper-compilation-targets](https://www.npmjs.com/package/@babel/helper-compilation-targets) (version 7.20.7)
+<!-- initially found at node_modules/@babel/helper-compilation-targets -->
 > Helper functions on Babel compilation targets
 
 License tags: MIT
@@ -14793,9 +14770,9 @@ Authors:
 * The Babel Team (https://babel.dev/team)
 
 
-<a id="fb6ac8d3998f9bf66c0d3cd2f68108d68557b4888f403449fc8d2a6140ddd33b"></a>
-### [@babel/helper-environment-visitor](https://www.npmjs.com/package/@babel/helper-environment-visitor) (version 7.16.7)
-<!-- initially found at packages/js-multiline-to-singleline/node_modules/@babel/helper-environment-visitor -->
+<a id="6173d84e0ff32ab3de9d916c0fb261e27f6b70f605384102eba3d11349a70ec8"></a>
+### [@babel/helper-environment-visitor](https://www.npmjs.com/package/@babel/helper-environment-visitor) (version 7.18.9)
+<!-- initially found at node_modules/@babel/helper-environment-visitor -->
 > Helper visitor to only visit nodes in the current 'this' context
 
 License tags: MIT
@@ -14831,9 +14808,9 @@ Authors:
 * The Babel Team (https://babel.dev/team)
 
 
-<a id="36677d7294316aff190bad669606e38dd1cdc1ad13ac6120715d0d5d35e44252"></a>
-### [@babel/helper-function-name](https://www.npmjs.com/package/@babel/helper-function-name) (version 7.16.7)
-<!-- initially found at packages/js-multiline-to-singleline/node_modules/@babel/helper-function-name -->
+<a id="fe3693bdd1a9dca6eb51142d6b187bc0c889ee3c557e914bbc97878cb5920c1c"></a>
+### [@babel/helper-function-name](https://www.npmjs.com/package/@babel/helper-function-name) (version 7.21.0)
+<!-- initially found at node_modules/@babel/helper-function-name -->
 > Helper function to change the property 'name' of every function
 
 License tags: MIT
@@ -14869,47 +14846,9 @@ Authors:
 * The Babel Team (https://babel.dev/team)
 
 
-<a id="e9b9e90802476f7577333f4678fb0a4e35c9fa39f1077a113f67e62f3996a7f3"></a>
-### [@babel/helper-get-function-arity](https://www.npmjs.com/package/@babel/helper-get-function-arity) (version 7.16.7)
-<!-- initially found at packages/js-multiline-to-singleline/node_modules/@babel/helper-get-function-arity -->
-> Helper function to get function arity
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      MIT License
-      
-      Copyright (c) 2014-present Sebastian McKenzie and other contributors
-      
-      Permission is hereby granted, free of charge, to any person obtaining
-      a copy of this software and associated documentation files (the
-      "Software"), to deal in the Software without restriction, including
-      without limitation the rights to use, copy, modify, merge, publish,
-      distribute, sublicense, and/or sell copies of the Software, and to
-      permit persons to whom the Software is furnished to do so, subject to
-      the following conditions:
-      
-      The above copyright notice and this permission notice shall be
-      included in all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-      NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-      LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-      OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-      WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-      
-
-Authors:
-* The Babel Team (https://babel.dev/team)
-
-
-<a id="0396170e1cf1e10aa6ad39a75e646dbc7a57495c8573f7889074fd4b3f430a48"></a>
-### [@babel/helper-hoist-variables](https://www.npmjs.com/package/@babel/helper-hoist-variables) (version 7.16.7)
-<!-- initially found at packages/js-multiline-to-singleline/node_modules/@babel/helper-hoist-variables -->
+<a id="e840d582d536101409985bfcf039502afc3c86a8a7bec0cfa0fb96d4a4aa31e7"></a>
+### [@babel/helper-hoist-variables](https://www.npmjs.com/package/@babel/helper-hoist-variables) (version 7.18.6)
+<!-- initially found at node_modules/@babel/helper-hoist-variables -->
 > Helper function to hoist variables
 
 License tags: MIT
@@ -14945,9 +14884,9 @@ Authors:
 * The Babel Team (https://babel.dev/team)
 
 
-<a id="5b3ed0e4d091f6a78f09fba121306e08316ab61a4a21eb9dc3c9acb6a2f3d5ef"></a>
-### [@babel/helper-module-imports](https://www.npmjs.com/package/@babel/helper-module-imports) (version 7.16.7)
-<!-- initially found at packages/js-multiline-to-singleline/node_modules/@babel/helper-module-imports -->
+<a id="482027dd262224312e9daa1133c7b94f8f7742a6bf1f4011d5de5b1ebbb7834d"></a>
+### [@babel/helper-module-imports](https://www.npmjs.com/package/@babel/helper-module-imports) (version 7.18.6)
+<!-- initially found at node_modules/@babel/helper-module-imports -->
 > Babel helper functions for inserting module loads
 
 License tags: MIT
@@ -14983,9 +14922,9 @@ Authors:
 * The Babel Team (https://babel.dev/team)
 
 
-<a id="60afd5c29f4cd5444309b8497e4b5a3599031925b10992cf52e14680301dc9ea"></a>
-### [@babel/helper-module-transforms](https://www.npmjs.com/package/@babel/helper-module-transforms) (version 7.17.7)
-<!-- initially found at packages/js-multiline-to-singleline/node_modules/@babel/helper-module-transforms -->
+<a id="d24b148abb0e9ab7684859701f3f14d165fce76d016ea2ab0aae3089626acf92"></a>
+### [@babel/helper-module-transforms](https://www.npmjs.com/package/@babel/helper-module-transforms) (version 7.21.2)
+<!-- initially found at node_modules/@babel/helper-module-transforms -->
 > Babel helper functions for implementing ES6 module transformations
 
 License tags: MIT
@@ -15021,9 +14960,9 @@ Authors:
 * The Babel Team (https://babel.dev/team)
 
 
-<a id="a07c42b801a3c4959c1f7aab0e2ce8ef9bd648769dd1d47fc188d1f0d689dbaa"></a>
-### [@babel/helper-plugin-utils](https://www.npmjs.com/package/@babel/helper-plugin-utils) (version 7.16.7)
-<!-- initially found at packages/async-rewriter2/node_modules/@babel/helper-plugin-utils -->
+<a id="186bb2cfc5043af513dfb47e04728559a290f3cdc685038d9375e1c9eeaf73c5"></a>
+### [@babel/helper-plugin-utils](https://www.npmjs.com/package/@babel/helper-plugin-utils) (version 7.20.2)
+<!-- initially found at node_modules/@babel/helper-plugin-utils -->
 > General utilities for plugins to use
 
 License tags: MIT
@@ -15059,9 +14998,9 @@ Authors:
 * The Babel Team (https://babel.dev/team)
 
 
-<a id="0434cf41509deb05bb630cfbc7a2751ad77003c182c0a68a54234fb998b77c75"></a>
-### [@babel/helper-simple-access](https://www.npmjs.com/package/@babel/helper-simple-access) (version 7.17.7)
-<!-- initially found at packages/js-multiline-to-singleline/node_modules/@babel/helper-simple-access -->
+<a id="baa6a029ede8079fef09f8d2c4ecc504f99b3dda27e4f67b407e70d4df80ef13"></a>
+### [@babel/helper-simple-access](https://www.npmjs.com/package/@babel/helper-simple-access) (version 7.20.2)
+<!-- initially found at node_modules/@babel/helper-simple-access -->
 > Babel helper for ensuring that access to a given value is performed through simple accesses
 
 License tags: MIT
@@ -15097,9 +15036,9 @@ Authors:
 * The Babel Team (https://babel.dev/team)
 
 
-<a id="d34017d97de68ac55bf435e324ff396f87d2e7d44173344f8d2660d6fe37ed3c"></a>
-### [@babel/helper-split-export-declaration](https://www.npmjs.com/package/@babel/helper-split-export-declaration) (version 7.16.7)
-<!-- initially found at packages/js-multiline-to-singleline/node_modules/@babel/helper-split-export-declaration -->
+<a id="7950fc341d1ed3f796deffc7a088fd2c18d3193ae96d7b94fdd23a618acf4d99"></a>
+### [@babel/helper-split-export-declaration](https://www.npmjs.com/package/@babel/helper-split-export-declaration) (version 7.18.6)
+<!-- initially found at node_modules/@babel/helper-split-export-declaration -->
 License tags: MIT
 
 License files:
@@ -15133,9 +15072,47 @@ Authors:
 * The Babel Team (https://babel.dev/team)
 
 
-<a id="6651a54028b843f6b152e84ca92e2c440687ccbebb78835f94dc5b9e314d72bd"></a>
-### [@babel/helper-validator-identifier](https://www.npmjs.com/package/@babel/helper-validator-identifier) (version 7.16.7)
-<!-- initially found at packages/js-multiline-to-singleline/node_modules/@babel/helper-validator-identifier -->
+<a id="45b1310c1847a2b8d600feea6ab0950a02e20a3a0a28a53036f7fa42ae52160f"></a>
+### [@babel/helper-string-parser](https://www.npmjs.com/package/@babel/helper-string-parser) (version 7.19.4)
+<!-- initially found at node_modules/@babel/helper-string-parser -->
+> A utility package to parse strings
+
+License tags: MIT
+
+License files:
+* LICENSE:
+
+      MIT License
+      
+      Copyright (c) 2014-present Sebastian McKenzie and other contributors
+      
+      Permission is hereby granted, free of charge, to any person obtaining
+      a copy of this software and associated documentation files (the
+      "Software"), to deal in the Software without restriction, including
+      without limitation the rights to use, copy, modify, merge, publish,
+      distribute, sublicense, and/or sell copies of the Software, and to
+      permit persons to whom the Software is furnished to do so, subject to
+      the following conditions:
+      
+      The above copyright notice and this permission notice shall be
+      included in all copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+      NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+      LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+      OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+      WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+      
+
+Authors:
+* The Babel Team (https://babel.dev/team)
+
+
+<a id="f68175f67e8d30b20e2c7a86dc8b8665fa1db0c15dd8010f12de2a739dc5f3c2"></a>
+### [@babel/helper-validator-identifier](https://www.npmjs.com/package/@babel/helper-validator-identifier) (version 7.19.1)
+<!-- initially found at node_modules/@babel/helper-validator-identifier -->
 > Validate identifier/keywords name
 
 License tags: MIT
@@ -15171,9 +15148,9 @@ Authors:
 * The Babel Team (https://babel.dev/team)
 
 
-<a id="2cae787b917b4d558d98e4e4d0bebcfd7c2e57d2fe0bfb651eb48715ed088249"></a>
-### [@babel/helper-validator-option](https://www.npmjs.com/package/@babel/helper-validator-option) (version 7.16.7)
-<!-- initially found at packages/js-multiline-to-singleline/node_modules/@babel/helper-validator-option -->
+<a id="56de14244c7cfc3206156b453bb2ca1d8462a89b0dc2be47011f845fbd9b66dc"></a>
+### [@babel/helper-validator-option](https://www.npmjs.com/package/@babel/helper-validator-option) (version 7.21.0)
+<!-- initially found at node_modules/@babel/helper-validator-option -->
 > Validate plugin/preset options
 
 License tags: MIT
@@ -15209,9 +15186,9 @@ Authors:
 * The Babel Team (https://babel.dev/team)
 
 
-<a id="4a9df126ab9c8269ab1b95eca22e6841cc742015d09aa51ea7889d19e89197f0"></a>
-### [@babel/helpers](https://www.npmjs.com/package/@babel/helpers) (version 7.17.8)
-<!-- initially found at packages/js-multiline-to-singleline/node_modules/@babel/helpers -->
+<a id="c6a902e907034a6e0a11abef3925079e88c6b6c6df53eb45d8f8931e1eeb8d71"></a>
+### [@babel/helpers](https://www.npmjs.com/package/@babel/helpers) (version 7.21.0)
+<!-- initially found at node_modules/@babel/helpers -->
 > Collection of helper functions used by Babel transforms.
 
 License tags: MIT
@@ -15247,9 +15224,9 @@ Authors:
 * The Babel Team (https://babel.dev/team)
 
 
-<a id="547e8256857983618a9bb7601fb8930acb158d64af94a1975fa2761d7798229c"></a>
-### [@babel/highlight](https://www.npmjs.com/package/@babel/highlight) (version 7.16.10)
-<!-- initially found at packages/js-multiline-to-singleline/node_modules/@babel/highlight -->
+<a id="8ea50465b5692cd2b5ee50918d81403f39c4d5c6584a357210bc0ddb0d3927dc"></a>
+### [@babel/highlight](https://www.npmjs.com/package/@babel/highlight) (version 7.18.6)
+<!-- initially found at node_modules/@babel/highlight -->
 > Syntax highlight JavaScript strings for output in terminals.
 
 License tags: MIT
@@ -15285,9 +15262,9 @@ Authors:
 * The Babel Team (https://babel.dev/team)
 
 
-<a id="e7a7542388208adecb20c018013b91c01cf261d303c93bf938dca04b0912d3a5"></a>
-### [@babel/parser](https://www.npmjs.com/package/@babel/parser) (version 7.17.8)
-<!-- initially found at packages/js-multiline-to-singleline/node_modules/@babel/parser -->
+<a id="720119acd0c0e1cfcfe3e1e5bbbee804f9e60a74d80961956dc20926af632ef3"></a>
+### [@babel/parser](https://www.npmjs.com/package/@babel/parser) (version 7.21.2)
+<!-- initially found at node_modules/@babel/core/node_modules/@babel/parser -->
 > A JavaScript parser
 
 License tags: MIT
@@ -15320,9 +15297,44 @@ Authors:
 * The Babel Team (https://babel.dev/team)
 
 
-<a id="a1810a53ba1a7f007dc06cbef838354bcc200823359ba86d6a5b7fb098e62c53"></a>
-### [@babel/plugin-transform-destructuring](https://www.npmjs.com/package/@babel/plugin-transform-destructuring) (version 7.17.7)
-<!-- initially found at packages/async-rewriter2/node_modules/@babel/plugin-transform-destructuring -->
+<a id="c6d1b39f8ba907386ce051c3c7812099926586a80551cf1898e4cfad6423632a"></a>
+### [@babel/parser](https://www.npmjs.com/package/@babel/parser) (version 7.16.4)
+<!-- initially found at node_modules/@babel/parser -->
+> A JavaScript parser
+
+License tags: MIT
+
+License files:
+* LICENSE:
+
+      Copyright (C) 2012-2014 by various contributors (see AUTHORS)
+      
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+      
+      The above copyright notice and this permission notice shall be included in
+      all copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+      THE SOFTWARE.
+      
+
+Authors:
+* The Babel Team (https://babel.dev/team)
+
+
+<a id="859901b27f1da25d7bda1e66eac5d47cceb373e006bb85e03c2716e29a710971"></a>
+### [@babel/plugin-transform-destructuring](https://www.npmjs.com/package/@babel/plugin-transform-destructuring) (version 7.20.7)
+<!-- initially found at node_modules/@babel/plugin-transform-destructuring -->
 > Compile ES2015 destructuring to ES5
 
 License tags: MIT
@@ -15358,9 +15370,9 @@ Authors:
 * The Babel Team (https://babel.dev/team)
 
 
-<a id="85bab1a56d1d8079deccc8d4dc1e497a62c667d041c1e76dc6038d409c3df773"></a>
-### [@babel/plugin-transform-parameters](https://www.npmjs.com/package/@babel/plugin-transform-parameters) (version 7.16.7)
-<!-- initially found at packages/async-rewriter2/node_modules/@babel/plugin-transform-parameters -->
+<a id="0592c6a6f440b04a6a1eb568e024b643afc560eaea229ac786f675bd629f02df"></a>
+### [@babel/plugin-transform-parameters](https://www.npmjs.com/package/@babel/plugin-transform-parameters) (version 7.20.7)
+<!-- initially found at node_modules/@babel/plugin-transform-parameters -->
 > Compile ES2015 default and rest parameters to ES5
 
 License tags: MIT
@@ -15396,9 +15408,9 @@ Authors:
 * The Babel Team (https://babel.dev/team)
 
 
-<a id="b68470bd0601568d27408e80ad92fef5d770e7fca65c61b527e38de019629db5"></a>
-### [@babel/plugin-transform-shorthand-properties](https://www.npmjs.com/package/@babel/plugin-transform-shorthand-properties) (version 7.16.7)
-<!-- initially found at packages/async-rewriter2/node_modules/@babel/plugin-transform-shorthand-properties -->
+<a id="75f9268c6776059c8b1937a81adbbbf40b67cc1eaef7086dc8987e0398539a1c"></a>
+### [@babel/plugin-transform-shorthand-properties](https://www.npmjs.com/package/@babel/plugin-transform-shorthand-properties) (version 7.18.6)
+<!-- initially found at node_modules/@babel/plugin-transform-shorthand-properties -->
 > Compile ES2015 shorthand properties to ES5
 
 License tags: MIT
@@ -15434,9 +15446,9 @@ Authors:
 * The Babel Team (https://babel.dev/team)
 
 
-<a id="ca30aee3b78f51e9e91b4f6d78721f7c99c31cc753f698ff5caf73c469983f2f"></a>
-### [@babel/template](https://www.npmjs.com/package/@babel/template) (version 7.16.7)
-<!-- initially found at packages/js-multiline-to-singleline/node_modules/@babel/template -->
+<a id="3fc660314b3e8827d94eb81440b8d2aa4ae648290650a537af3c23f6d0216ff8"></a>
+### [@babel/template](https://www.npmjs.com/package/@babel/template) (version 7.20.7)
+<!-- initially found at node_modules/@babel/template -->
 > Generate an AST from a string template.
 
 License tags: MIT
@@ -15472,9 +15484,9 @@ Authors:
 * The Babel Team (https://babel.dev/team)
 
 
-<a id="e470e7035b830665f8c5c218ba6ba169664ca4ebe7447d27300cb90616fe6e4f"></a>
-### [@babel/traverse](https://www.npmjs.com/package/@babel/traverse) (version 7.17.3)
-<!-- initially found at packages/js-multiline-to-singleline/node_modules/@babel/traverse -->
+<a id="d3d9d8bb027d6c5f33cb9c067b06f3316c819a32f5f9668ee28cc4047e1e8523"></a>
+### [@babel/traverse](https://www.npmjs.com/package/@babel/traverse) (version 7.21.2)
+<!-- initially found at node_modules/@babel/traverse -->
 > The Babel Traverse module maintains the overall tree state, and is responsible for replacing, removing, and adding nodes
 
 License tags: MIT
@@ -15510,9 +15522,9 @@ Authors:
 * The Babel Team (https://babel.dev/team)
 
 
-<a id="d6a52ead12b395f05c1cfc1b9b2864802bdba224434b5651bf7a250eb5d4e26b"></a>
-### [@babel/types](https://www.npmjs.com/package/@babel/types) (version 7.17.0)
-<!-- initially found at packages/js-multiline-to-singleline/node_modules/@babel/types -->
+<a id="df0a5d5747a01793bde0fb2693c61a411001402fc8d8b2162065f601ec1a024d"></a>
+### [@babel/types](https://www.npmjs.com/package/@babel/types) (version 7.21.2)
+<!-- initially found at node_modules/@babel/types -->
 > Babel Types is a Lodash-esque utility library for AST nodes
 
 License tags: MIT
@@ -15548,9 +15560,9 @@ Authors:
 * The Babel Team (https://babel.dev/team)
 
 
-<a id="b9153a1fabb0a90dacb26557daa0f34ed8d3347a09d6130f41c7a15196749188"></a>
-### [@hapi/hoek](https://www.npmjs.com/package/@hapi/hoek) (version 9.2.1)
-<!-- initially found at packages/snippet-manager/node_modules/@hapi/hoek -->
+<a id="a306f63b06e22206da212d9805ac6d378591ee24cb90b85f5f84eeee9e418a87"></a>
+### [@hapi/hoek](https://www.npmjs.com/package/@hapi/hoek) (version 9.3.0)
+<!-- initially found at node_modules/@hapi/hoek -->
 > General purpose node utilities
 
 License tags: BSD-3-Clause
@@ -15575,7 +15587,7 @@ License files:
 
 <a id="c08672fb909d4d2d143fdec500a195120eeb0ac994445f970a7b9410041e3848"></a>
 ### [@hapi/topo](https://www.npmjs.com/package/@hapi/topo) (version 5.1.0)
-<!-- initially found at packages/snippet-manager/node_modules/@hapi/topo -->
+<!-- initially found at node_modules/@hapi/topo -->
 > Topological sorting with grouping support
 
 License tags: BSD-3-Clause
@@ -15596,9 +15608,79 @@ License files:
       
 
 
-<a id="de90c77984596a7d095ca05496ea7038104ea7a16e762e9198e30e37c34fdb0c"></a>
-### [@jridgewell/resolve-uri](https://www.npmjs.com/package/@jridgewell/resolve-uri) (version 3.0.5)
-<!-- initially found at packages/js-multiline-to-singleline/node_modules/@jridgewell/resolve-uri -->
+<a id="1e660067f4d1364dc830c372517d8ec92eddc9af7eaa6b1e698d478b286abafa"></a>
+### [@jridgewell/gen-mapping](https://www.npmjs.com/package/@jridgewell/gen-mapping) (version 0.1.1)
+<!-- initially found at node_modules/@ampproject/remapping/node_modules/@jridgewell/gen-mapping -->
+> Generate source maps
+
+License tags: MIT
+
+License files:
+* LICENSE:
+
+      Copyright 2022 Justin Ridgewell <jridgewell@google.com>
+      
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+      
+      The above copyright notice and this permission notice shall be included in
+      all copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE.
+      
+
+Authors:
+* Justin Ridgewell <justin@ridgewell.name>
+
+
+<a id="1f753c22041ca3b4767dd5698736a25ac366ca64e8982d5ee9109b161d5cd9fe"></a>
+### [@jridgewell/gen-mapping](https://www.npmjs.com/package/@jridgewell/gen-mapping) (version 0.3.2)
+<!-- initially found at node_modules/@jridgewell/gen-mapping -->
+> Generate source maps
+
+License tags: MIT
+
+License files:
+* LICENSE:
+
+      Copyright 2022 Justin Ridgewell <jridgewell@google.com>
+      
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+      
+      The above copyright notice and this permission notice shall be included in
+      all copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE.
+      
+
+Authors:
+* Justin Ridgewell <justin@ridgewell.name>
+
+
+<a id="f356bc3bb9c04f5fe4e387a4eea4e74125aae03bb50f846d956d7d986d200f50"></a>
+### [@jridgewell/resolve-uri](https://www.npmjs.com/package/@jridgewell/resolve-uri) (version 3.1.0)
+<!-- initially found at node_modules/@jridgewell/resolve-uri -->
 > Resolve a URI relative to an optional base URI
 
 License tags: MIT
@@ -15630,9 +15712,44 @@ Authors:
 * Justin Ridgewell <justin@ridgewell.name>
 
 
-<a id="2362c6f5bbe609f91a300a2918f8646fd243143baf641faf1191c0aed6cb59d7"></a>
-### [@jridgewell/sourcemap-codec](https://www.npmjs.com/package/@jridgewell/sourcemap-codec) (version 1.4.11)
-<!-- initially found at packages/js-multiline-to-singleline/node_modules/@jridgewell/sourcemap-codec -->
+<a id="232e4103104ec42da9c01a923eaca648b9b4d8fd3ebbc13897ef8513f7c6fa73"></a>
+### [@jridgewell/set-array](https://www.npmjs.com/package/@jridgewell/set-array) (version 1.1.2)
+<!-- initially found at node_modules/@jridgewell/set-array -->
+> Like a Set, but provides the index of the `key` in the backing array
+
+License tags: MIT
+
+License files:
+* LICENSE:
+
+      Copyright 2022 Justin Ridgewell <jridgewell@google.com>
+      
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+      
+      The above copyright notice and this permission notice shall be included in
+      all copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE.
+      
+
+Authors:
+* Justin Ridgewell <justin@ridgewell.name>
+
+
+<a id="48d1d40d908582402e2071de1ae38b57c21fc0e7615f8f82f3f5b1f0cad0dd93"></a>
+### [@jridgewell/sourcemap-codec](https://www.npmjs.com/package/@jridgewell/sourcemap-codec) (version 1.4.14)
+<!-- initially found at node_modules/@jridgewell/sourcemap-codec -->
 > Encode/decode sourcemap mappings
 
 License tags: MIT
@@ -15667,9 +15784,9 @@ Authors:
 * Rich Harris
 
 
-<a id="6cb367cbe4c02122aeaa0210f7d039f0356c64ad251f61ae4dc3383c07dff425"></a>
-### [@jridgewell/trace-mapping](https://www.npmjs.com/package/@jridgewell/trace-mapping) (version 0.3.4)
-<!-- initially found at packages/js-multiline-to-singleline/node_modules/@jridgewell/trace-mapping -->
+<a id="90aa2d07ffe239d25f77a13221286592b1de783a008d6fd50287e91cda909161"></a>
+### [@jridgewell/trace-mapping](https://www.npmjs.com/package/@jridgewell/trace-mapping) (version 0.3.17)
+<!-- initially found at node_modules/@jridgewell/trace-mapping -->
 > Trace the original position through a source map
 
 License tags: MIT
@@ -15704,7 +15821,7 @@ Authors:
 
 <a id="defe3a966c13dc0b9177d694bed6c7b934350186e1f62e23c60f64f3bdb7641e"></a>
 ### [@mongodb-js/devtools-connect](https://www.npmjs.com/package/@mongodb-js/devtools-connect) (version 1.4.4)
-<!-- initially found at packages/logging/node_modules/@mongodb-js/devtools-connect -->
+<!-- initially found at node_modules/@mongodb-js/devtools-connect -->
 > A connection establishment utility for MongoDB developer tools
 
 License tags: Apache-2.0
@@ -15909,7 +16026,7 @@ License files:
 
 <a id="12523c3e7207d3ac0920487a6ebc31392c24ba8db4f291a14ccf470b7315ba5a"></a>
 ### [@mongodb-js/mongodb-constants](https://www.npmjs.com/package/@mongodb-js/mongodb-constants) (version 0.2.2)
-<!-- initially found at packages/autocomplete/node_modules/@mongodb-js/mongodb-constants -->
+<!-- initially found at node_modules/@mongodb-js/mongodb-constants -->
 > Shared MongoDB constants for queries, aggregations, bson types, etc
 
 License tags: Apache-2.0
@@ -19136,7 +19253,7 @@ Authors:
 
 <a id="810756b8c6f5fccccb562b3f88fe577e4c63e3208772c72146304ac9cf53a94a"></a>
 ### [@segment/loosely-validate-event](https://www.npmjs.com/package/@segment/loosely-validate-event) (version 2.0.0)
-<!-- initially found at packages/cli-repl/node_modules/@segment/loosely-validate-event -->
+<!-- initially found at node_modules/@segment/loosely-validate-event -->
 License tags: See [details](#810756b8c6f5fccccb562b3f88fe577e4c63e3208772c72146304ac9cf53a94a)
 
 License files:
@@ -19168,7 +19285,7 @@ License files:
 
 <a id="a69b04dfb91e7ed9dfebde8978885fa6cb71380f90c4a6910b4468ef22006656"></a>
 ### [@sideway/address](https://www.npmjs.com/package/@sideway/address) (version 4.1.4)
-<!-- initially found at packages/snippet-manager/node_modules/@sideway/address -->
+<!-- initially found at node_modules/@sideway/address -->
 > Email address and domain validation
 
 License tags: BSD-3-Clause
@@ -19188,9 +19305,9 @@ License files:
       
 
 
-<a id="973bfa74879de24b06779f1e5b03d3df609577006cd0ee24c5d0badb37bbb15e"></a>
-### [@sideway/formula](https://www.npmjs.com/package/@sideway/formula) (version 3.0.0)
-<!-- initially found at packages/snippet-manager/node_modules/@sideway/formula -->
+<a id="6c070cae39d9ee3e7d72f59431fa5a20be4660757c11799c0c4d0feadffc4239"></a>
+### [@sideway/formula](https://www.npmjs.com/package/@sideway/formula) (version 3.0.1)
+<!-- initially found at node_modules/@sideway/formula -->
 > Math and string formula parser.
 
 License tags: BSD-3-Clause
@@ -19212,7 +19329,7 @@ License files:
 
 <a id="d100d8e40cb7a7e3f131fc99c670ab9346bcb117d901182b698a0c36009f2aab"></a>
 ### [@sideway/pinpoint](https://www.npmjs.com/package/@sideway/pinpoint) (version 2.0.0)
-<!-- initially found at packages/snippet-manager/node_modules/@sideway/pinpoint -->
+<!-- initially found at node_modules/@sideway/pinpoint -->
 > Return the filename and line number of the calling function
 
 License tags: BSD-3-Clause
@@ -19233,9 +19350,9 @@ License files:
       
 
 
-<a id="73c7a4a89fa5c4ab7d26b2688951f5d5977e841474f2e8bfd40a8fd29c4aaf4d"></a>
-### [@types/babel__core](https://www.npmjs.com/package/@types/babel__core) (version 7.1.19)
-<!-- initially found at packages/async-rewriter2/node_modules/@types/babel__core -->
+<a id="f00c721b8930100b05c0a52b73bf5b21168b8e9a6f07189fa2128686c9458f5e"></a>
+### [@types/babel__core](https://www.npmjs.com/package/@types/babel__core) (version 7.20.0)
+<!-- initially found at node_modules/@types/babel__core -->
 > TypeScript definitions for @babel/core
 
 License tags: MIT
@@ -19276,7 +19393,7 @@ Authors:
 
 <a id="0535a6a301bc47ae4feb329b601a28fce489496c616c23acd5b56771a820bb47"></a>
 ### [@types/babel__generator](https://www.npmjs.com/package/@types/babel__generator) (version 7.6.4)
-<!-- initially found at packages/async-rewriter2/node_modules/@types/babel__generator -->
+<!-- initially found at node_modules/@types/babel__generator -->
 > TypeScript definitions for @babel/generator
 
 License tags: MIT
@@ -19316,7 +19433,7 @@ Authors:
 
 <a id="10a3b95570c9b42a3ac3a0bcb3695ffb5252513019e944d4f137e2f05d64f66d"></a>
 ### [@types/babel__template](https://www.npmjs.com/package/@types/babel__template) (version 7.4.1)
-<!-- initially found at packages/async-rewriter2/node_modules/@types/babel__template -->
+<!-- initially found at node_modules/@types/babel__template -->
 > TypeScript definitions for @babel/template
 
 License tags: MIT
@@ -19354,9 +19471,9 @@ Authors:
 * ExE Boss (https://github.com/ExE-Boss)
 
 
-<a id="49354c25e4c67737cbe7e9a64e5afd2eb9dd5a2d86fa15625409b0959c2e0381"></a>
-### [@types/babel__traverse](https://www.npmjs.com/package/@types/babel__traverse) (version 7.14.2)
-<!-- initially found at packages/async-rewriter2/node_modules/@types/babel__traverse -->
+<a id="72a3467ebe5a524488b9b83a2a9adcd83a25239280708883105a281d421be948"></a>
+### [@types/babel__traverse](https://www.npmjs.com/package/@types/babel__traverse) (version 7.18.3)
+<!-- initially found at node_modules/@types/babel__traverse -->
 > TypeScript definitions for @babel/traverse
 
 License tags: MIT
@@ -19400,7 +19517,7 @@ Authors:
 
 <a id="2ec5047e247ff642be5b88d35d11e15dafd706e3a372ee618080e556d05d88c8"></a>
 ### [@types/chai](https://www.npmjs.com/package/@types/chai) (version 4.3.0)
-<!-- initially found at packages/service-provider-server/node_modules/@types/chai -->
+<!-- initially found at node_modules/@types/chai -->
 > TypeScript definitions for chai
 
 License tags: MIT
@@ -19448,7 +19565,7 @@ Authors:
 
 <a id="385b9553b37d2c33d088ca5972fdadd26ebf5248534814eb2d6e4c0b5f062cfe"></a>
 ### [@types/node](https://www.npmjs.com/package/@types/node) (version 14.18.12)
-<!-- initially found at packages/cli-repl/node_modules/@types/node -->
+<!-- initially found at node_modules/@types/node -->
 > TypeScript definitions for Node.js
 
 License tags: MIT
@@ -19523,85 +19640,9 @@ Authors:
 * Linus Unnebäck (https://github.com/LinusU)
 
 
-<a id="79ca0ad6a527aab373212a27d68b1d4ec16e857d076252f43594b27fd37c107e"></a>
-### [@types/node](https://www.npmjs.com/package/@types/node) (version 17.0.23)
-<!-- initially found at packages/arg-parser/node_modules/@types/node -->
-> TypeScript definitions for Node.js
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-          MIT License
-      
-          Copyright (c) Microsoft Corporation.
-      
-          Permission is hereby granted, free of charge, to any person obtaining a copy
-          of this software and associated documentation files (the "Software"), to deal
-          in the Software without restriction, including without limitation the rights
-          to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-          copies of the Software, and to permit persons to whom the Software is
-          furnished to do so, subject to the following conditions:
-      
-          The above copyright notice and this permission notice shall be included in all
-          copies or substantial portions of the Software.
-      
-          THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-          IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-          FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-          AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-          LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-          OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-          SOFTWARE
-      
-
-Authors:
-* Microsoft TypeScript (https://github.com/Microsoft)
-* DefinitelyTyped (https://github.com/DefinitelyTyped)
-* Alberto Schiabel (https://github.com/jkomyno)
-* Alvis HT Tang (https://github.com/alvis)
-* Andrew Makarov (https://github.com/r3nya)
-* Benjamin Toueg (https://github.com/btoueg)
-* Chigozirim C. (https://github.com/smac89)
-* David Junger (https://github.com/touffy)
-* Deividas Bakanas (https://github.com/DeividasBakanas)
-* Eugene Y. Q. Shen (https://github.com/eyqs)
-* Hannes Magnusson (https://github.com/Hannes-Magnusson-CK)
-* Huw (https://github.com/hoo29)
-* Kelvin Jin (https://github.com/kjin)
-* Klaus Meinhardt (https://github.com/ajafff)
-* Lishude (https://github.com/islishude)
-* Mariusz Wiktorczyk (https://github.com/mwiktorczyk)
-* Mohsen Azimi (https://github.com/mohsen1)
-* Nicolas Even (https://github.com/n-e)
-* Nikita Galkin (https://github.com/galkin)
-* Parambir Singh (https://github.com/parambirs)
-* Sebastian Silbermann (https://github.com/eps1lon)
-* Simon Schick (https://github.com/SimonSchick)
-* Thomas den Hollander (https://github.com/ThomasdenH)
-* Wilco Bakker (https://github.com/WilcoBakker)
-* wwwy3y3 (https://github.com/wwwy3y3)
-* Samuel Ainsworth (https://github.com/samuela)
-* Kyle Uehlein (https://github.com/kuehlein)
-* Thanik Bhongbhibhat (https://github.com/bhongy)
-* Marcin Kopacz (https://github.com/chyzwar)
-* Trivikram Kamat (https://github.com/trivikr)
-* Junxiao Shi (https://github.com/yoursunny)
-* Ilia Baryshnikov (https://github.com/qwelias)
-* ExE Boss (https://github.com/ExE-Boss)
-* Piotr Błażejewicz (https://github.com/peterblazejewicz)
-* Anna Henningsen (https://github.com/addaleax)
-* Victor Perin (https://github.com/victorperin)
-* Yongsheng Zhang (https://github.com/ZYSzys)
-* NodeJS Contributors (https://github.com/NodeJS)
-* Linus Unnebäck (https://github.com/LinusU)
-* wafuwafu13 (https://github.com/wafuwafu13)
-
-
 <a id="ba6c076fb52a22a1748fa0fb5d331cdc73ee80f4558f0fbad2709da180babbb6"></a>
 ### [@types/sinon](https://www.npmjs.com/package/@types/sinon) (version 10.0.11)
-<!-- initially found at packages/service-provider-server/node_modules/@types/sinon -->
+<!-- initially found at node_modules/@types/sinon -->
 > TypeScript definitions for Sinon
 
 License tags: MIT
@@ -19645,7 +19686,7 @@ Authors:
 
 <a id="89a49b02f2f59eb589d06a04db3c7a3454c8b0f08570e14da2118ce1d9bdaffc"></a>
 ### [@types/sinon-chai](https://www.npmjs.com/package/@types/sinon-chai) (version 3.2.8)
-<!-- initially found at packages/service-provider-server/node_modules/@types/sinon-chai -->
+<!-- initially found at node_modules/@types/sinon-chai -->
 > TypeScript definitions for sinon-chai
 
 License tags: MIT
@@ -19683,7 +19724,7 @@ Authors:
 
 <a id="135a676bbb1af807288cf3d924ac54bc60ab00128ca29ce9a990682adaf12f45"></a>
 ### [@types/sinonjs__fake-timers](https://www.npmjs.com/package/@types/sinonjs__fake-timers) (version 8.1.2)
-<!-- initially found at packages/service-provider-server/node_modules/@types/sinonjs__fake-timers -->
+<!-- initially found at node_modules/@types/sinonjs__fake-timers -->
 > TypeScript definitions for @sinonjs/fake-timers
 
 License tags: MIT
@@ -19722,9 +19763,9 @@ Authors:
 * Jaden Simon (https://github.com/JadenSimon)
 
 
-<a id="e9aa0fc153af1bc4c2a1570ac028926fd49e92fde54bb80018b3cdda575c7b25"></a>
-### [@types/webidl-conversions](https://www.npmjs.com/package/@types/webidl-conversions) (version 6.1.1)
-<!-- initially found at packages/cli-repl/node_modules/@types/webidl-conversions -->
+<a id="995493f12efcb28d5af160fc54acb7b9d2c417025dfdb241cb8bdd3b700a8643"></a>
+### [@types/webidl-conversions](https://www.npmjs.com/package/@types/webidl-conversions) (version 7.0.0)
+<!-- initially found at node_modules/@types/webidl-conversions -->
 > TypeScript definitions for webidl-conversions
 
 License tags: MIT
@@ -19757,11 +19798,12 @@ License files:
 
 Authors:
 * ExE Boss (https://github.com/ExE-Boss)
+* BendingBender (https://github.com/BendingBender)
 
 
-<a id="642118a8c80bc0e1bdb85217ed44e18ec26884fa5350dd6e807d7ef943c9a849"></a>
-### [@types/whatwg-url](https://www.npmjs.com/package/@types/whatwg-url) (version 8.2.1)
-<!-- initially found at packages/cli-repl/node_modules/@types/whatwg-url -->
+<a id="57f4762957e60c8b5fbbbedae8bb96e1ec610511a2e86e978314ce7f46eae69e"></a>
+### [@types/whatwg-url](https://www.npmjs.com/package/@types/whatwg-url) (version 8.2.2)
+<!-- initially found at node_modules/@types/whatwg-url -->
 > TypeScript definitions for whatwg-url
 
 License tags: MIT
@@ -19799,7 +19841,7 @@ Authors:
 
 <a id="833e7f77a7281caac706be0c8f668047915855542cbbf1bd470fe0e885db13b5"></a>
 ### [abbrev](https://www.npmjs.com/package/abbrev) (version 1.1.1)
-<!-- initially found at packages/editor/node_modules/abbrev -->
+<!-- initially found at node_modules/abbrev -->
 > Like ruby's abbrev module, but in js
 
 License tags: ISC
@@ -19859,9 +19901,9 @@ Authors:
 * Isaac Z. Schlueter <i@izs.me>
 
 
-<a id="b9e5382fa7b12d2de21167beb54f2a39cf15de14f1c1a509714de9fac3c62596"></a>
-### [acorn](https://www.npmjs.com/package/acorn) (version 8.8.1)
-<!-- initially found at packages/cli-repl/node_modules/acorn -->
+<a id="4aa96f656a11c11b0e17ee35cc26cad7c13dcf4afdff6431e6d074261b59f47d"></a>
+### [acorn](https://www.npmjs.com/package/acorn) (version 8.8.2)
+<!-- initially found at node_modules/is-recoverable-error/node_modules/acorn -->
 > ECMAScript parser
 
 License tags: MIT
@@ -19895,7 +19937,7 @@ License files:
 
 <a id="416283a109773027507e8cea39477b662b1aa6754210a18dd38077c4efd7df56"></a>
 ### [acorn-class-fields](https://www.npmjs.com/package/acorn-class-fields) (version 1.0.0)
-<!-- initially found at packages/cli-repl/node_modules/acorn-class-fields -->
+<!-- initially found at node_modules/acorn-class-fields -->
 > Support for class fields in acorn
 
 License tags: MIT
@@ -19930,7 +19972,7 @@ Authors:
 
 <a id="6940f4404e355b21617dccb71f5ebcba980bbd438d41f701bfa6a62deb33121c"></a>
 ### [acorn-numeric-separator](https://www.npmjs.com/package/acorn-numeric-separator) (version 0.3.6)
-<!-- initially found at packages/cli-repl/node_modules/acorn-numeric-separator -->
+<!-- initially found at node_modules/acorn-numeric-separator -->
 > Support for numeric separators in acorn
 
 License tags: MIT
@@ -19965,7 +20007,7 @@ Authors:
 
 <a id="109647367d4824235dd993cf066e3f3a744d8ab58c07825df24368ab40d6dd25"></a>
 ### [acorn-private-class-elements](https://www.npmjs.com/package/acorn-private-class-elements) (version 1.0.0)
-<!-- initially found at packages/cli-repl/node_modules/acorn-private-class-elements -->
+<!-- initially found at node_modules/acorn-private-class-elements -->
 > Helpers for supporting private class methods and fields in acorn
 
 License tags: MIT
@@ -20000,7 +20042,7 @@ Authors:
 
 <a id="65e51308c5c9b8d8cc18e95e9d65106ea83282512d442d99f2bafc24a165cffc"></a>
 ### [acorn-private-methods](https://www.npmjs.com/package/acorn-private-methods) (version 1.0.0)
-<!-- initially found at packages/cli-repl/node_modules/acorn-private-methods -->
+<!-- initially found at node_modules/acorn-private-methods -->
 > Support for private methods in acorn
 
 License tags: MIT
@@ -20035,7 +20077,7 @@ Authors:
 
 <a id="f6024de47034c2be7edac4d9ed3065f2ca7114178d5c5471d557d595fd61c186"></a>
 ### [acorn-static-class-features](https://www.npmjs.com/package/acorn-static-class-features) (version 1.0.0)
-<!-- initially found at packages/cli-repl/node_modules/acorn-static-class-features -->
+<!-- initially found at node_modules/acorn-static-class-features -->
 > Support for static class features in acorn
 
 License tags: MIT
@@ -20070,7 +20112,7 @@ Authors:
 
 <a id="796268b51c04aefed6285697d91689b383131a576acbd872d74df74e6f302888"></a>
 ### [analytics-node](https://www.npmjs.com/package/analytics-node) (version 5.1.2)
-<!-- initially found at packages/cli-repl/node_modules/analytics-node -->
+<!-- initially found at node_modules/analytics-node -->
 > The hassle-free way to integrate analytics into any Node.js application
 
 License tags: MIT
@@ -20095,7 +20137,7 @@ Authors:
 
 <a id="facc0b756e4e6b040bafa6604056a2290d18923d9c14a2e0a64f850d3477bac0"></a>
 ### [ansi-escape-sequences](https://www.npmjs.com/package/ansi-escape-sequences) (version 5.1.2)
-<!-- initially found at packages/cli-repl/node_modules/ansi-escape-sequences -->
+<!-- initially found at node_modules/ansi-escape-sequences -->
 > A simple library containing all known terminal ansi escape codes and sequences.
 
 License tags: MIT
@@ -20132,7 +20174,7 @@ Authors:
 
 <a id="7fa0e28daa6f9c697017b06f32a9e31a57ccfb4f138a8daded68a5d002231e29"></a>
 ### [ansi-regex](https://www.npmjs.com/package/ansi-regex) (version 5.0.1)
-<!-- initially found at packages/cli-repl/node_modules/ansi-regex -->
+<!-- initially found at node_modules/ansi-regex -->
 > Regular expression for matching ANSI escape codes
 
 License tags: MIT
@@ -20155,46 +20197,9 @@ Authors:
 * Sindre Sorhus <[sindresorhus@gmail.com](nomail)> (sindresorhus.com)
 
 
-<a id="945d39147a145d6a28d87154006fa731c2e69d2a19e76cc7012624a1109f9317"></a>
-### [ansi-regex](https://www.npmjs.com/package/ansi-regex) (version 2.1.1)
-<!-- initially found at packages/service-provider-server/node_modules/ansi-regex -->
-> Regular expression for matching ANSI escape codes
-
-License tags: MIT
-
-License files:
-* license:
-
-      The MIT License (MIT)
-      
-      Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in
-      all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-      THE SOFTWARE.
-      
-
-Authors:
-* Sindre Sorhus <[sindresorhus@gmail.com](nomail)> (sindresorhus.com)
-
-
 <a id="22c90e10fdbeeedded470f2fb78a8094893efd4675108074eddde452da52ef87"></a>
 ### [ansi-styles](https://www.npmjs.com/package/ansi-styles) (version 4.3.0)
-<!-- initially found at packages/cli-repl/node_modules/ansi-styles -->
+<!-- initially found at node_modules/ansi-styles -->
 > ANSI escape codes for styling strings in the terminal
 
 License tags: MIT
@@ -20219,7 +20224,7 @@ Authors:
 
 <a id="3d188f4ce9ad01e2061b3dafeb74005547429b09fb5b114980303db9cf34f4ee"></a>
 ### [ansi-styles](https://www.npmjs.com/package/ansi-styles) (version 3.2.1)
-<!-- initially found at packages/js-multiline-to-singleline/node_modules/ansi-styles -->
+<!-- initially found at node_modules/@babel/highlight/node_modules/ansi-styles -->
 > ANSI escape codes for styling strings in the terminal
 
 License tags: MIT
@@ -20240,57 +20245,6 @@ License files:
 
 Authors:
 * Sindre Sorhus <[sindresorhus@gmail.com](nomail)> (sindresorhus.com)
-
-
-<a id="b8b30f42274956b772cec4ea9f13cebaa5900724e514eaf0098a3ad6f1f7f16e"></a>
-### [aproba](https://www.npmjs.com/package/aproba) (version 1.2.0)
-<!-- initially found at packages/service-provider-server/node_modules/aproba -->
-> A ridiculously light-weight argument validator (now browser friendly)
-
-License tags: ISC
-
-License files:
-* LICENSE:
-
-      Copyright (c) 2015, Rebecca Turner <me@re-becca.org>
-      
-      Permission to use, copy, modify, and/or distribute this software for any
-      purpose with or without fee is hereby granted, provided that the above
-      copyright notice and this permission notice appear in all copies.
-      
-      THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-      WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-      MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-      ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-      WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-      ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
-      OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-      
-      
-
-Authors:
-* Rebecca Turner <me@re-becca.org>
-
-
-<a id="e87803217bf3563b7a87fe74fac98a2d39ff04818ae8ade28d4a48434907030b"></a>
-### [are-we-there-yet](https://www.npmjs.com/package/are-we-there-yet) (version 1.1.7)
-<!-- initially found at packages/service-provider-server/node_modules/are-we-there-yet -->
-> Keep track of the overall completion of many disparate processes
-
-License tags: ISC
-
-License files:
-* LICENSE:
-
-      Copyright (c) 2015, Rebecca Turner
-      
-      Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted, provided that the above copyright notice and this permission notice appear in all copies.
-      
-      THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-      
-
-Authors:
-* Rebecca Turner (http://re-becca.org)
 
 
 <a id="eb6fb2df860c4a7d86e82ee4f11a49f6ed75c3fa50ca7844991b389ef38df18c"></a>
@@ -20562,7 +20516,7 @@ License files:
 
 <a id="693584ec3aed5e752207f1cd59a70b8cac888e51959df63fe74f2c052ec1e2f4"></a>
 ### [array-back](https://www.npmjs.com/package/array-back) (version 4.0.2)
-<!-- initially found at packages/cli-repl/node_modules/array-back -->
+<!-- initially found at node_modules/array-back -->
 > Guarantees an array back
 
 License tags: MIT
@@ -20599,7 +20553,7 @@ Authors:
 
 <a id="cb7238c8d3e6299f34f8808ce2bb65f6f9632b27f907d02e488d6918d33b93a2"></a>
 ### [askcharacter](https://www.npmjs.com/package/askcharacter) (version 1.0.0)
-<!-- initially found at packages/cli-repl/node_modules/askcharacter -->
+<!-- initially found at node_modules/askcharacter -->
 > Prompt for a single character
 
 License tags: Apache-2.0
@@ -20804,7 +20758,7 @@ License files:
 
 <a id="5623d58c516104595a6ca3884ba06bc77269b98085d3de58917a6655bea1116c"></a>
 ### [askpassword](https://www.npmjs.com/package/askpassword) (version 1.2.4)
-<!-- initially found at packages/cli-repl/node_modules/askpassword -->
+<!-- initially found at node_modules/askpassword -->
 > A password prompt that does print data to the TTY
 
 License tags: Apache-2.0
@@ -21009,7 +20963,7 @@ License files:
 
 <a id="10a86cbc2356f4c2e30ecdd2d3f40dce2dee62e2a2efa860bf539568a5d14573"></a>
 ### [aws4](https://www.npmjs.com/package/aws4) (version 1.11.0)
-<!-- initially found at packages/service-provider-server/node_modules/aws4 -->
+<!-- initially found at node_modules/aws4 -->
 > Signs and prepares requests using AWS Signature Version 4
 
 License tags: MIT
@@ -21044,7 +20998,7 @@ Authors:
 
 <a id="afdcd478b651142c22830139dda5971cccfc93722a9f1a173d83458ce6c8f4e8"></a>
 ### [axios](https://www.npmjs.com/package/axios) (version 0.21.4)
-<!-- initially found at packages/cli-repl/node_modules/axios -->
+<!-- initially found at node_modules/axios -->
 > Promise based HTTP client for the browser and node.js
 
 License tags: MIT
@@ -21079,7 +21033,7 @@ Authors:
 
 <a id="d41b0f37c97e76d36413f38469af5abaa624f54636102a82c9c9a395f0e8d42a"></a>
 ### [axios-retry](https://www.npmjs.com/package/axios-retry) (version 3.2.0)
-<!-- initially found at packages/cli-repl/node_modules/axios-retry -->
+<!-- initially found at node_modules/axios-retry -->
 > Axios plugin that intercepts failed requests and retries them whenever posible.
 
 License tags: Apache-2.0
@@ -21107,7 +21061,7 @@ Authors:
 
 <a id="6e49452be6da3ff39a94487487f3deac4037af19d9c97eddf6794b8080252f20"></a>
 ### [balanced-match](https://www.npmjs.com/package/balanced-match) (version 1.0.2)
-<!-- initially found at packages/editor/node_modules/balanced-match -->
+<!-- initially found at node_modules/balanced-match -->
 > Match balanced character pairs, like "{" and "}"
 
 License tags: MIT
@@ -21144,7 +21098,7 @@ Authors:
 
 <a id="acdb65ce90d2786593049f690752613250632fd5aeaa2960152abc4f0e8f3a44"></a>
 ### [bindings](https://www.npmjs.com/package/bindings) (version 1.5.0)
-<!-- initially found at packages/cli-repl/node_modules/bindings -->
+<!-- initially found at node_modules/bindings -->
 > Helper module for loading your native module's .node file
 
 License tags: MIT
@@ -21182,7 +21136,7 @@ Authors:
 
 <a id="0e8c95ceb67a28a94b8caec6fa59d55974c80aab5dcf21bf1b17b0867f694c3c"></a>
 ### [bl](https://www.npmjs.com/package/bl) (version 4.1.0)
-<!-- initially found at packages/service-provider-core/node_modules/bl -->
+<!-- initially found at node_modules/tar-fs/node_modules/bl -->
 > Buffer List: collect buffers and access with a standard readable Buffer interface, streamable too!
 
 License tags: MIT
@@ -21208,7 +21162,7 @@ License files:
 
 <a id="03c8dec5cdbec1db30c4a501c0caf600245f4bd74d3d6f23eb55edffac14c8c3"></a>
 ### [bowser](https://www.npmjs.com/package/bowser) (version 2.11.0)
-<!-- initially found at packages/service-provider-core/node_modules/bowser -->
+<!-- initially found at node_modules/bowser -->
 > Lightweight browser detector
 
 License tags: MIT
@@ -21262,9 +21216,9 @@ Authors:
 * Denis Demchenko (http://twitter.com/lancedikson)
 
 
-<a id="2ba3ee23cc6a2718243e9c0c59ce154058f292965f563aa291b459a414e863cb"></a>
-### [brace-expansion](https://www.npmjs.com/package/brace-expansion) (version 1.1.11)
-<!-- initially found at packages/editor/node_modules/brace-expansion -->
+<a id="d1e13551f9898f82d40075979e4be102f5728362d73309488a438c1403d9107b"></a>
+### [brace-expansion](https://www.npmjs.com/package/brace-expansion) (version 2.0.1)
+<!-- initially found at node_modules/js-beautify/node_modules/brace-expansion -->
 > Brace expansion as known from sh/bash
 
 License tags: MIT
@@ -21299,9 +21253,9 @@ Authors:
 * Julian Gruber <[mail@juliangruber.com](nomail)> (http://juliangruber.com)
 
 
-<a id="fba4e9a147223fa2ab5d154a361a849ba80af1a732eeceff17b87046d3eb4275"></a>
-### [browserslist](https://www.npmjs.com/package/browserslist) (version 4.20.2)
-<!-- initially found at packages/js-multiline-to-singleline/node_modules/browserslist -->
+<a id="7a666a9ec22873f842b988cafae3df38d8772b579cec24f490396179132fc221"></a>
+### [browserslist](https://www.npmjs.com/package/browserslist) (version 4.21.5)
+<!-- initially found at node_modules/browserslist -->
 > Share target browsers between different front-end tools, like Autoprefixer, Stylelint and babel-env-preset
 
 License tags: MIT
@@ -21337,7 +21291,7 @@ Authors:
 
 <a id="f410aa95a54f023010f2521958a4f128111e10e00fadd74c1862846924a5d663"></a>
 ### [bson](https://www.npmjs.com/package/bson) (version 5.0.1)
-<!-- initially found at packages/service-provider-core/node_modules/bson -->
+<!-- initially found at node_modules/bson -->
 > A bson parser for node.js and the browser
 
 License tags: Apache-2.0
@@ -21552,9 +21506,9 @@ Authors:
 * The MongoDB NodeJS Team <[dbx-node@mongodb.com](nomail)>
 
 
-<a id="5aa255fe78256ff181c6fc1b283d5d6bbd9ed6dd94850ce519324a3139df5173"></a>
-### [caniuse-lite](https://www.npmjs.com/package/caniuse-lite) (version 1.0.30001323)
-<!-- initially found at packages/js-multiline-to-singleline/node_modules/caniuse-lite -->
+<a id="19a2c6d0955bc8070f6c9064b566539056453ee0acd6df71bf56f35a8a7d85eb"></a>
+### [caniuse-lite](https://www.npmjs.com/package/caniuse-lite) (version 1.0.30001464)
+<!-- initially found at node_modules/caniuse-lite -->
 > A smaller version of caniuse-db, with only the essentials!
 
 License tags: CC-BY-4.0
@@ -21965,7 +21919,7 @@ Authors:
 
 <a id="c1619ad3bd43ce54cc7a4702c368501fd4fb4fa629077ba610f81d81bcd3f5f1"></a>
 ### [chalk](https://www.npmjs.com/package/chalk) (version 4.1.2)
-<!-- initially found at packages/cli-repl/node_modules/chalk -->
+<!-- initially found at node_modules/chalk -->
 > Terminal string styling done right
 
 License tags: MIT
@@ -21987,7 +21941,7 @@ License files:
 
 <a id="0c7c7a95e90c3fdaf99df4851bc949785311d8ea1d2d4498615f37af8fa16cf8"></a>
 ### [chalk](https://www.npmjs.com/package/chalk) (version 3.0.0)
-<!-- initially found at packages/cli-repl/node_modules/emphasize/node_modules/chalk -->
+<!-- initially found at node_modules/emphasize/node_modules/chalk -->
 > Terminal string styling done right
 
 License tags: MIT
@@ -22009,7 +21963,7 @@ License files:
 
 <a id="8b8d3d6ff6233601575f891628d83bd6b34978a103d513931ae45b00f0e07585"></a>
 ### [chalk](https://www.npmjs.com/package/chalk) (version 2.4.2)
-<!-- initially found at packages/js-multiline-to-singleline/node_modules/chalk -->
+<!-- initially found at node_modules/@babel/highlight/node_modules/chalk -->
 > Terminal string styling done right
 
 License tags: MIT
@@ -22031,7 +21985,7 @@ License files:
 
 <a id="29e6f6a3e6b064640fcbe5e615fa79e7ac12500e916fe06affdb5e0f7ec89aed"></a>
 ### [charenc](https://www.npmjs.com/package/charenc) (version 0.0.2)
-<!-- initially found at packages/cli-repl/node_modules/charenc -->
+<!-- initially found at node_modules/charenc -->
 > character encoding utilities
 
 License tags: BSD-3-Clause
@@ -22074,7 +22028,7 @@ Authors:
 
 <a id="3dbff1a17bbf2c33026995132ecdd14757cb3bee815f4636fe43df0f5ebdcf07"></a>
 ### [chownr](https://www.npmjs.com/package/chownr) (version 2.0.0)
-<!-- initially found at packages/snippet-manager/node_modules/chownr -->
+<!-- initially found at node_modules/chownr -->
 > like `chown -R`
 
 License tags: ISC
@@ -22105,7 +22059,7 @@ Authors:
 
 <a id="0550527b7b5e20ea58d882e34eadff9ea25b5cb64ff4beffa1ca8f2e6ff9cdf1"></a>
 ### [chownr](https://www.npmjs.com/package/chownr) (version 1.1.4)
-<!-- initially found at packages/service-provider-core/node_modules/chownr -->
+<!-- initially found at node_modules/tar-fs/node_modules/chownr -->
 > like `chown -R`
 
 License tags: ISC
@@ -22134,46 +22088,9 @@ Authors:
 * Isaac Z. Schlueter <i@izs.me> (http://blog.izs.me/)
 
 
-<a id="379e05be6a63bd336d679edcb4be511b99cb8d0c22ee03cf6286d0d661347467"></a>
-### [code-point-at](https://www.npmjs.com/package/code-point-at) (version 1.1.0)
-<!-- initially found at packages/service-provider-server/node_modules/code-point-at -->
-> ES2015 `String#codePointAt()` ponyfill
-
-License tags: MIT
-
-License files:
-* license:
-
-      The MIT License (MIT)
-      
-      Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in
-      all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-      THE SOFTWARE.
-      
-
-Authors:
-* Sindre Sorhus <[sindresorhus@gmail.com](nomail)> (sindresorhus.com)
-
-
 <a id="55c87baa2843a3df1bf7eb7ad8e5c1329afea9bef4e94386d484de20b03c119b"></a>
 ### [color-convert](https://www.npmjs.com/package/color-convert) (version 2.0.1)
-<!-- initially found at packages/cli-repl/node_modules/color-convert -->
+<!-- initially found at node_modules/color-convert -->
 > Plain color conversion functions
 
 License tags: MIT
@@ -22210,7 +22127,7 @@ Authors:
 
 <a id="a85d5170e73259d44269aafb78e1863169810a839a870124e3574457d214e28d"></a>
 ### [color-convert](https://www.npmjs.com/package/color-convert) (version 1.9.3)
-<!-- initially found at packages/js-multiline-to-singleline/node_modules/color-convert -->
+<!-- initially found at node_modules/@babel/highlight/node_modules/color-convert -->
 > Plain color conversion functions
 
 License tags: MIT
@@ -22247,7 +22164,7 @@ Authors:
 
 <a id="66a8b5479032c7b05b81caf8cef9ed81be452b9f3f299868af0167900a4db262"></a>
 ### [color-name](https://www.npmjs.com/package/color-name) (version 1.1.4)
-<!-- initially found at packages/cli-repl/node_modules/color-name -->
+<!-- initially found at node_modules/color-name -->
 > A list of color names and its values
 
 License tags: MIT
@@ -22270,7 +22187,7 @@ Authors:
 
 <a id="e7c2ecd62026cf51768973c2e972505cab32d45b9368aa35105af0a68839ad37"></a>
 ### [color-name](https://www.npmjs.com/package/color-name) (version 1.1.3)
-<!-- initially found at packages/js-multiline-to-singleline/node_modules/color-name -->
+<!-- initially found at node_modules/@babel/highlight/node_modules/color-name -->
 > A list of color names and its values
 
 License tags: MIT
@@ -22293,7 +22210,7 @@ Authors:
 
 <a id="24ab11e1b73368dedbb70b1985003bf0636191bc7885dee47c5861cfa74a24eb"></a>
 ### [commander](https://www.npmjs.com/package/commander) (version 2.20.3)
-<!-- initially found at packages/editor/node_modules/commander -->
+<!-- initially found at node_modules/commander -->
 > the complete solution for node.js command-line programs
 
 License tags: MIT
@@ -22331,49 +22248,15 @@ Authors:
 
 <a id="f62beea86947b6a72bf2731d4befdc20007e2b52c250e73fd2e7f5b5e37e5d64"></a>
 ### [component-type](https://www.npmjs.com/package/component-type) (version 1.2.1)
-<!-- initially found at packages/cli-repl/node_modules/component-type -->
+<!-- initially found at node_modules/component-type -->
 > Cross-browser type assertions (less broken typeof)
 
 License tags: MIT
 
 
-<a id="629d11316d75747318cc391ff3112edcd20cd8caab3768f3a5fdd920e110dc22"></a>
-### [concat-map](https://www.npmjs.com/package/concat-map) (version 0.0.1)
-<!-- initially found at packages/editor/node_modules/concat-map -->
-> concatenative mapdashery
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      This software is released under the MIT license:
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy of
-      this software and associated documentation files (the "Software"), to deal in
-      the Software without restriction, including without limitation the rights to
-      use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-      the Software, and to permit persons to whom the Software is furnished to do so,
-      subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all
-      copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-      FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-      COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-      IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-      CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-      
-
-Authors:
-* James Halliday <[mail@substack.net](nomail)> (http://substack.net)
-
-
 <a id="d43148ec4e9c8cac9e15277d86afc87973b0538d96092edbd71396d40b57d5c0"></a>
 ### [config-chain](https://www.npmjs.com/package/config-chain) (version 1.1.13)
-<!-- initially found at packages/editor/node_modules/config-chain -->
+<!-- initially found at node_modules/config-chain -->
 > HANDLE CONFIGURATION ONCE AND FOR ALL
 
 License tags: MIT
@@ -22382,38 +22265,9 @@ Authors:
 * Dominic Tarr <dominic.tarr@gmail.com> (http://dominictarr.com)
 
 
-<a id="b5c95e92498080b75fd8a8ef4e497edcc8be28524f86d2a0f28ad489572f381e"></a>
-### [console-control-strings](https://www.npmjs.com/package/console-control-strings) (version 1.1.0)
-<!-- initially found at packages/service-provider-server/node_modules/console-control-strings -->
-> A library of cross-platform tested terminal/console command strings for doing things like color and cursor positioning.  This is a subset of both ansi and vt100.  All control codes included work on both Windows & Unix-like OSes, except where noted.
-
-License tags: ISC
-
-License files:
-* LICENSE:
-
-      Copyright (c) 2014, Rebecca Turner <me@re-becca.org>
-      
-      Permission to use, copy, modify, and/or distribute this software for any
-      purpose with or without fee is hereby granted, provided that the above
-      copyright notice and this permission notice appear in all copies.
-      
-      THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-      WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-      MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-      ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-      WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-      ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
-      OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-      
-
-Authors:
-* Rebecca Turner <me@re-becca.org> (http://re-becca.org/)
-
-
 <a id="0acf0ab7734deb5e364e5150eb235062022893835b113aa11e0c7e9065fa5073"></a>
 ### [convert-source-map](https://www.npmjs.com/package/convert-source-map) (version 1.8.0)
-<!-- initially found at packages/js-multiline-to-singleline/node_modules/convert-source-map -->
+<!-- initially found at node_modules/@babel/core/node_modules/convert-source-map -->
 > Converts a source-map from/to  different formats and allows adding/changing properties.
 
 License tags: MIT
@@ -22450,44 +22304,48 @@ Authors:
 * Thorsten Lorenz <[thlorenz@gmx.de](nomail)> (http://thlorenz.com)
 
 
-<a id="31f9375081d39ad369df4ed795b2f399287432f0b6579229579e26883fa75085"></a>
-### [core-util-is](https://www.npmjs.com/package/core-util-is) (version 1.0.3)
-<!-- initially found at packages/service-provider-server/node_modules/core-util-is -->
-> The `util.is*` functions introduced in Node v0.12.
+<a id="56846e4efa927509e9158cff1317f99654d26f2bfd3b4d5314ef37f109225588"></a>
+### [convert-source-map](https://www.npmjs.com/package/convert-source-map) (version 1.9.0)
+<!-- initially found at packages/async-rewriter2/node_modules/convert-source-map -->
+> Converts a source-map from/to  different formats and allows adding/changing properties.
 
 License tags: MIT
 
 License files:
 * LICENSE:
 
-      Copyright Node.js contributors. All rights reserved.
+      Copyright 2013 Thorsten Lorenz. 
+      All rights reserved.
       
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to
-      deal in the Software without restriction, including without limitation the
-      rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-      sell copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
+      Permission is hereby granted, free of charge, to any person
+      obtaining a copy of this software and associated documentation
+      files (the "Software"), to deal in the Software without
+      restriction, including without limitation the rights to use,
+      copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the
+      Software is furnished to do so, subject to the following
+      conditions:
       
-      The above copyright notice and this permission notice shall be included in
-      all copies or substantial portions of the Software.
+      The above copyright notice and this permission notice shall be
+      included in all copies or substantial portions of the Software.
       
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-      FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-      IN THE SOFTWARE.
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+      OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+      NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+      HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+      WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+      FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+      OTHER DEALINGS IN THE SOFTWARE.
       
 
 Authors:
-* Isaac Z. Schlueter <i@izs.me> (http://blog.izs.me/)
+* Thorsten Lorenz <[thlorenz@gmx.de](nomail)> (http://thlorenz.com)
 
 
 <a id="67de3a765808182ee1018c35bc07d7a023a8d645e98cc32814dcac2fc2c427ff"></a>
 ### [cross-spawn](https://www.npmjs.com/package/cross-spawn) (version 7.0.3)
-<!-- initially found at packages/snippet-manager/node_modules/cross-spawn -->
+<!-- initially found at node_modules/cross-spawn -->
 > Cross platform child_process#spawn and child_process#spawnSync
 
 License tags: MIT
@@ -22524,7 +22382,7 @@ Authors:
 
 <a id="4450c5b7676ee4415216da1b1265942c8e44b106e4b4d7fb2fc593fde54dc7c4"></a>
 ### [crypt](https://www.npmjs.com/package/crypt) (version 0.0.2)
-<!-- initially found at packages/cli-repl/node_modules/crypt -->
+<!-- initially found at node_modules/crypt -->
 > utilities for encryption and hashing
 
 License tags: BSD-3-Clause
@@ -22567,7 +22425,7 @@ Authors:
 
 <a id="f9b654e80c05af90dc288869333e452db67fbba75969b385acd60df9895a7944"></a>
 ### [debug](https://www.npmjs.com/package/debug) (version 4.3.4)
-<!-- initially found at packages/js-multiline-to-singleline/node_modules/debug -->
+<!-- initially found at node_modules/debug -->
 > Lightweight debugging utility for Node.js and the browser
 
 License tags: MIT
@@ -22606,7 +22464,7 @@ Authors:
 
 <a id="64c777c1b9075eb1d4fc1a0e1ea86130393649a9a01a8e42c16eb14c59b5b8da"></a>
 ### [decompress-response](https://www.npmjs.com/package/decompress-response) (version 6.0.0)
-<!-- initially found at packages/service-provider-core/node_modules/decompress-response -->
+<!-- initially found at node_modules/simple-get/node_modules/decompress-response -->
 > Decompress a HTTP response if needed
 
 License tags: MIT
@@ -22631,7 +22489,7 @@ Authors:
 
 <a id="654bd7d00073c2195bca924a07d93393b2aaf5cacbb6f52a383877f6f33dbfbf"></a>
 ### [deep-extend](https://www.npmjs.com/package/deep-extend) (version 0.6.0)
-<!-- initially found at packages/service-provider-core/node_modules/deep-extend -->
+<!-- initially found at node_modules/deep-extend -->
 > Recursive object extending
 
 License tags: MIT
@@ -22669,42 +22527,9 @@ Authors:
 * Misha Wakerman (https://github.com/mwakerman)
 
 
-<a id="8ac2167c6a2c6f3786fad50a7d9495e4a01fa0fda57deb6ba96a2b682c19085e"></a>
-### [delegates](https://www.npmjs.com/package/delegates) (version 1.0.0)
-<!-- initially found at packages/service-provider-server/node_modules/delegates -->
-> delegate methods and accessors to another property
-
-License tags: MIT
-
-License files:
-* License:
-
-      Copyright (c) 2015 TJ Holowaychuk <tj@vision-media.ca>
-      
-      Permission is hereby granted, free of charge, to any person obtaining
-      a copy of this software and associated documentation files (the
-      "Software"), to deal in the Software without restriction, including
-      without limitation the rights to use, copy, modify, merge, publish,
-      distribute, sublicense, and/or sell copies of the Software, and to
-      permit persons to whom the Software is furnished to do so, subject to
-      the following conditions:
-      
-      The above copyright notice and this permission notice shall be
-      included in all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-      NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-      LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-      OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-      WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-      
-
-
 <a id="75227d1b1c09630ea361abee4d27101e350832bbeab9640a013c82662408b467"></a>
 ### [detect-libc](https://www.npmjs.com/package/detect-libc) (version 2.0.1)
-<!-- initially found at packages/service-provider-core/node_modules/detect-libc -->
+<!-- initially found at node_modules/detect-libc -->
 > Node.js module to detect the C standard library (libc) implementation family and version
 
 License tags: Apache-2.0
@@ -22922,7 +22747,7 @@ Authors:
 
 <a id="495b0fb61ff987539296d5b40550ad544a53b42471e10d690a92f375708a4b52"></a>
 ### [editorconfig](https://www.npmjs.com/package/editorconfig) (version 0.15.3)
-<!-- initially found at packages/editor/node_modules/editorconfig -->
+<!-- initially found at node_modules/editorconfig -->
 > EditorConfig File Locator and Interpreter for Node.js
 
 License tags: MIT
@@ -22958,9 +22783,9 @@ Authors:
 * Trey Hunner (http://treyhunner.com)
 
 
-<a id="736242d4b44a1b427103023955c88470e31ab576b64563f3f5b15abc623c50fe"></a>
-### [electron-to-chromium](https://www.npmjs.com/package/electron-to-chromium) (version 1.4.103)
-<!-- initially found at packages/js-multiline-to-singleline/node_modules/electron-to-chromium -->
+<a id="fd1bc5fd8f5d5587f999f32746b30e8c68cfe2e158f47feb9bcb8cf6c257593a"></a>
+### [electron-to-chromium](https://www.npmjs.com/package/electron-to-chromium) (version 1.4.327)
+<!-- initially found at node_modules/electron-to-chromium -->
 > Provides a list of electron-to-chromium version mappings
 
 License tags: ISC
@@ -22981,7 +22806,7 @@ Authors:
 
 <a id="c6838eea3c1d714167fc7c3827e0228f33e06e18ebdca269d238dcd5230b58a1"></a>
 ### [emphasize](https://www.npmjs.com/package/emphasize) (version 3.0.0)
-<!-- initially found at packages/cli-repl/node_modules/emphasize -->
+<!-- initially found at node_modules/emphasize -->
 > ANSI syntax highlighting for the terminal
 
 License tags: MIT
@@ -23019,7 +22844,7 @@ Authors:
 
 <a id="fadc10994f5fa767d06fb25cfff35fb17a895daf3bc3477c782907668ed16563"></a>
 ### [end-of-stream](https://www.npmjs.com/package/end-of-stream) (version 1.4.4)
-<!-- initially found at packages/service-provider-core/node_modules/end-of-stream -->
+<!-- initially found at node_modules/end-of-stream -->
 > Call a callback when a readable/writable/duplex stream has completed or failed.
 
 License tags: MIT
@@ -23055,7 +22880,7 @@ Authors:
 
 <a id="914b0c6f347ee5644225bb7156929bd6e9163641cd78367af3b4e1b24f373ec0"></a>
 ### [escalade](https://www.npmjs.com/package/escalade) (version 3.1.1)
-<!-- initially found at packages/js-multiline-to-singleline/node_modules/escalade -->
+<!-- initially found at node_modules/escalade -->
 > A tiny (183B to 210B) and fast utility to ascend parent directories
 
 License tags: MIT
@@ -23080,7 +22905,7 @@ Authors:
 
 <a id="8c51af36cd574fcb38fb535dd3e485948143a1b5e8580efe21fcbf259b54c87c"></a>
 ### [escape-string-regexp](https://www.npmjs.com/package/escape-string-regexp) (version 4.0.0)
-<!-- initially found at packages/snippet-manager/node_modules/escape-string-regexp -->
+<!-- initially found at node_modules/escape-string-regexp -->
 > Escape RegExp special characters
 
 License tags: MIT
@@ -23105,7 +22930,7 @@ Authors:
 
 <a id="a9c53481a9db89e7cf01e302086c50fcfbde360978cdd2bbe1e52a430d3fee42"></a>
 ### [escape-string-regexp](https://www.npmjs.com/package/escape-string-regexp) (version 1.0.5)
-<!-- initially found at packages/js-multiline-to-singleline/node_modules/escape-string-regexp -->
+<!-- initially found at node_modules/@babel/highlight/node_modules/escape-string-regexp -->
 > Escape RegExp special characters
 
 License tags: MIT
@@ -23142,7 +22967,7 @@ Authors:
 
 <a id="46d3e73ca0d4a8c14e99252386f0a5c1a4fd8b2747331373d7b4da97105c15bb"></a>
 ### [expand-template](https://www.npmjs.com/package/expand-template) (version 2.0.3)
-<!-- initially found at packages/service-provider-core/node_modules/expand-template -->
+<!-- initially found at node_modules/expand-template -->
 > Expand placeholders in a template string
 
 License tags: (MIT OR WTFPL)
@@ -23176,9 +23001,9 @@ Authors:
 * LM <ralphtheninja@riseup.net>
 
 
-<a id="0b72c401ec2e41cba39d431c3b558632b3407af552090ed6f4d3503f50d13797"></a>
-### [fast-xml-parser](https://www.npmjs.com/package/fast-xml-parser) (version 4.0.11)
-<!-- initially found at packages/service-provider-core/node_modules/fast-xml-parser -->
+<a id="fbe93976926e3b3b442e49584ec63dda5b61e150fd7231d787e72fbd52cf80a1"></a>
+### [fast-xml-parser](https://www.npmjs.com/package/fast-xml-parser) (version 4.1.2)
+<!-- initially found at node_modules/fast-xml-parser -->
 > Validate XML, Parse XML, Build XML without C/C++ based libraries
 
 License tags: MIT
@@ -23215,7 +23040,7 @@ Authors:
 
 <a id="387740fc7544e813d0a9ad480550d0bb536270783b1ce8c1ee83cd7d18b1472e"></a>
 ### [fault](https://www.npmjs.com/package/fault) (version 1.0.4)
-<!-- initially found at packages/cli-repl/node_modules/fault -->
+<!-- initially found at node_modules/fault -->
 > Functional errors with formatted output
 
 License tags: MIT
@@ -23253,7 +23078,7 @@ Authors:
 
 <a id="9eb41790b1cce0829afe7926edf4be80e0dd6927cd8376c00a54a8fc86f8943e"></a>
 ### [file-uri-to-path](https://www.npmjs.com/package/file-uri-to-path) (version 1.0.0)
-<!-- initially found at packages/cli-repl/node_modules/file-uri-to-path -->
+<!-- initially found at node_modules/file-uri-to-path -->
 > Convert a file: URI to a file path
 
 License tags: MIT
@@ -23289,7 +23114,7 @@ Authors:
 
 <a id="ba1ef976742519fb6b2de132e8172ce13dc657b7a5fbee9e7b97d1d7abc76298"></a>
 ### [follow-redirects](https://www.npmjs.com/package/follow-redirects) (version 1.14.9)
-<!-- initially found at packages/cli-repl/node_modules/follow-redirects -->
+<!-- initially found at node_modules/follow-redirects -->
 > HTTP and HTTPS modules that follow redirects.
 
 License tags: MIT
@@ -23325,7 +23150,7 @@ Authors:
 
 <a id="353f24aaf04248dcf73d044f735588066fbd0102ebc5e29ef75c8ee4e4f285dc"></a>
 ### [format](https://www.npmjs.com/package/format) (version 0.2.2)
-<!-- initially found at packages/cli-repl/node_modules/format -->
+<!-- initially found at node_modules/format -->
 > printf, sprintf, and vsprintf for JavaScript
 
 License tags: MIT
@@ -23336,7 +23161,7 @@ Authors:
 
 <a id="9961a9f7535cded379a7696ad6d002a62d4826a3a8c2ffb5624383b942c879e5"></a>
 ### [fs-constants](https://www.npmjs.com/package/fs-constants) (version 1.0.0)
-<!-- initially found at packages/service-provider-core/node_modules/fs-constants -->
+<!-- initially found at node_modules/fs-constants -->
 > Require constants across node and the browser
 
 License tags: MIT
@@ -23373,7 +23198,7 @@ Authors:
 
 <a id="c2c405232aa58245a067fead9e0e8bd8330cda684111af434bcab882090c44fa"></a>
 ### [fs-minipass](https://www.npmjs.com/package/fs-minipass) (version 2.1.0)
-<!-- initially found at packages/snippet-manager/node_modules/fs-minipass -->
+<!-- initially found at node_modules/fs-minipass -->
 > fs read and write streams based on minipass
 
 License tags: ISC
@@ -23404,7 +23229,7 @@ Authors:
 
 <a id="19b1a53bad4db3fad74d2cf95667123db1ec2c92c2bf448aa1db37a500eb6c3b"></a>
 ### [fs.realpath](https://www.npmjs.com/package/fs.realpath) (version 1.0.0)
-<!-- initially found at packages/editor/node_modules/fs.realpath -->
+<!-- initially found at node_modules/fs.realpath -->
 > Use node's fs.realpath, but fall back to the JS implementation if the native one fails
 
 License tags: ISC
@@ -23461,38 +23286,9 @@ Authors:
 * Isaac Z. Schlueter <i@izs.me> (http://blog.izs.me/)
 
 
-<a id="18b62982a790026d7bc040542c48df2cf62feda7ecf967119774f6c302397986"></a>
-### [gauge](https://www.npmjs.com/package/gauge) (version 2.7.4)
-<!-- initially found at packages/service-provider-server/node_modules/gauge -->
-> A terminal based horizontal guage
-
-License tags: ISC
-
-License files:
-* LICENSE:
-
-      Copyright (c) 2014, Rebecca Turner <me@re-becca.org>
-      
-      Permission to use, copy, modify, and/or distribute this software for any
-      purpose with or without fee is hereby granted, provided that the above
-      copyright notice and this permission notice appear in all copies.
-      
-      THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-      WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-      MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-      ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-      WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-      ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
-      OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-      
-
-Authors:
-* Rebecca Turner <me@re-becca.org>
-
-
 <a id="c49cbe8d63515db5596a717f0d65eab2f06a623b4f1dfbd512d61bbdccf1aa4c"></a>
 ### [gensync](https://www.npmjs.com/package/gensync) (version 1.0.0-beta.2)
-<!-- initially found at packages/js-multiline-to-singleline/node_modules/gensync -->
+<!-- initially found at node_modules/gensync -->
 > Allows users to use generators in order to write common functions that can be both sync or async.
 
 License tags: MIT
@@ -23515,7 +23311,7 @@ Authors:
 
 <a id="8cba969ea116f44491f4fbb8b391c0ab40408fc2e5380f81bc8e8e42b55fff8b"></a>
 ### [github-from-package](https://www.npmjs.com/package/github-from-package) (version 0.0.0)
-<!-- initially found at packages/service-provider-core/node_modules/github-from-package -->
+<!-- initially found at node_modules/github-from-package -->
 > return the github url from a package.json file
 
 License tags: MIT
@@ -23547,9 +23343,9 @@ Authors:
 * James Halliday <[mail@substack.net](nomail)> (http://substack.net)
 
 
-<a id="a477634d819b5270ce527d9e52d5e1f0ee623988f8d5bab9ad3e5cc4a6cfd02b"></a>
-### [glob](https://www.npmjs.com/package/glob) (version 7.2.0)
-<!-- initially found at packages/editor/node_modules/glob -->
+<a id="392526fd7057965f68f2c312c3f683faaefc8b572470d67deadf26e28e8d2963"></a>
+### [glob](https://www.npmjs.com/package/glob) (version 8.1.0)
+<!-- initially found at node_modules/js-beautify/node_modules/glob -->
 > a little globber
 
 License tags: ISC
@@ -23559,7 +23355,7 @@ License files:
 
       The ISC License
       
-      Copyright (c) Isaac Z. Schlueter and Contributors
+      Copyright (c) 2009-2022 Isaac Z. Schlueter and Contributors
       
       Permission to use, copy, modify, and/or distribute this software for any
       purpose with or without fee is hereby granted, provided that the above
@@ -23573,12 +23369,6 @@ License files:
       ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
       IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
       
-      ## Glob Logo
-      
-      Glob's logo created by Tanya Brassie <http://tanyabrassie.com/>, licensed
-      under a Creative Commons Attribution-ShareAlike 4.0 International License
-      https://creativecommons.org/licenses/by-sa/4.0/
-      
 
 Authors:
 * Isaac Z. Schlueter <i@izs.me> (http://blog.izs.me/)
@@ -23586,7 +23376,7 @@ Authors:
 
 <a id="749052b146da20b19c298de835e7cacd7f6d1f0a87a8422e538ccdfeaa69b0a5"></a>
 ### [globals](https://www.npmjs.com/package/globals) (version 11.12.0)
-<!-- initially found at packages/js-multiline-to-singleline/node_modules/globals -->
+<!-- initially found at node_modules/globals -->
 > Global identifiers from different JavaScript environments
 
 License tags: MIT
@@ -23611,7 +23401,7 @@ Authors:
 
 <a id="97244e653f1930f4c2bc81c7374cafdb1132e1b539cebcbebb92bc65f0198036"></a>
 ### [handle-backspaces](https://www.npmjs.com/package/handle-backspaces) (version 1.0.0)
-<!-- initially found at packages/cli-repl/node_modules/handle-backspaces -->
+<!-- initially found at node_modules/handle-backspaces -->
 > Apply backspace characters to a string or UTF-8 Buffer
 
 License tags: Apache-2.0
@@ -23816,7 +23606,7 @@ License files:
 
 <a id="7ec819116728d891777ebd4140bef063f473b9ae26d46e91f5ca78834c872abf"></a>
 ### [has-flag](https://www.npmjs.com/package/has-flag) (version 4.0.0)
-<!-- initially found at packages/cli-repl/node_modules/has-flag -->
+<!-- initially found at node_modules/has-flag -->
 > Check if argv has a specific flag
 
 License tags: MIT
@@ -23841,7 +23631,7 @@ Authors:
 
 <a id="e2f50bddacaae4f231bda078470fd90f19fd780e9c2bc721710a09bcdd536d1a"></a>
 ### [has-flag](https://www.npmjs.com/package/has-flag) (version 3.0.0)
-<!-- initially found at packages/js-multiline-to-singleline/node_modules/has-flag -->
+<!-- initially found at node_modules/@babel/highlight/node_modules/has-flag -->
 > Check if argv has a specific flag
 
 License tags: MIT
@@ -23864,39 +23654,9 @@ Authors:
 * Sindre Sorhus <[sindresorhus@gmail.com](nomail)> (sindresorhus.com)
 
 
-<a id="b9a84001b1c63f02a1fde085274d2ccb855f9fb683c04ebaa28a14b34f967def"></a>
-### [has-unicode](https://www.npmjs.com/package/has-unicode) (version 2.0.1)
-<!-- initially found at packages/service-provider-server/node_modules/has-unicode -->
-> Try to guess if your terminal supports unicode
-
-License tags: ISC
-
-License files:
-* LICENSE:
-
-      Copyright (c) 2014, Rebecca Turner <me@re-becca.org>
-      
-      Permission to use, copy, modify, and/or distribute this software for any
-      purpose with or without fee is hereby granted, provided that the above
-      copyright notice and this permission notice appear in all copies.
-      
-      THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-      WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-      MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-      ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-      WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-      ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
-      OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-      
-      
-
-Authors:
-* Rebecca Turner <me@re-becca.org>
-
-
 <a id="e678fe78443e932b3ef73a3a07938e2d41b0969113b0a7f8a10d6fb09a477d0c"></a>
 ### [highlight.js](https://www.npmjs.com/package/highlight.js) (version 9.12.0)
-<!-- initially found at packages/cli-repl/node_modules/highlight.js -->
+<!-- initially found at node_modules/emphasize/node_modules/highlight.js -->
 > Syntax highlighting with language autodetection.
 
 License tags: BSD-3-Clause
@@ -24181,7 +23941,7 @@ Authors:
 
 <a id="12d6637498371277e69096b306788c19ad99815166a0cc17d209952058dfd51a"></a>
 ### [hijack-stream](https://www.npmjs.com/package/hijack-stream) (version 1.0.0)
-<!-- initially found at packages/cli-repl/node_modules/hijack-stream -->
+<!-- initially found at node_modules/hijack-stream -->
 > Temporarily take over a readable stream
 
 License tags: Apache-2.0
@@ -24386,7 +24146,7 @@ License files:
 
 <a id="58f7b00ba3c4a1d25ba2ad81d2ed2c707a52f84b185f49898630344f82ef0dd1"></a>
 ### [inflight](https://www.npmjs.com/package/inflight) (version 1.0.6)
-<!-- initially found at packages/editor/node_modules/inflight -->
+<!-- initially found at node_modules/inflight -->
 > Add callbacks to requests in flight to avoid async duplication
 
 License tags: ISC
@@ -24417,7 +24177,7 @@ Authors:
 
 <a id="3eafa9bfb872baf192e837ab771da2e95e983ee682371a2b1c579e518e96f7b4"></a>
 ### [inherits](https://www.npmjs.com/package/inherits) (version 2.0.4)
-<!-- initially found at packages/editor/node_modules/inherits -->
+<!-- initially found at node_modules/inherits -->
 > Browser-friendly inheritance fully compatible with standard node.js inherits()
 
 License tags: ISC
@@ -24446,7 +24206,7 @@ License files:
 
 <a id="2269ab4bd2e1fa90571f520780ab5499f6d49da3b7daee9b9dfdad9e93c33a18"></a>
 ### [ini](https://www.npmjs.com/package/ini) (version 1.3.8)
-<!-- initially found at packages/editor/node_modules/ini -->
+<!-- initially found at node_modules/ini -->
 > An ini encoder/decoder for node
 
 License tags: ISC
@@ -24477,7 +24237,7 @@ Authors:
 
 <a id="33b800e533214fc453224c9f9638baadd7f665810f85320b60145d7348a69e58"></a>
 ### [ip](https://www.npmjs.com/package/ip) (version 2.0.0)
-<!-- initially found at packages/service-provider-core/node_modules/ip -->
+<!-- initially found at node_modules/ip -->
 License tags: MIT
 
 Authors:
@@ -24486,7 +24246,7 @@ Authors:
 
 <a id="7a4346dbf206011966449898fcd37178a9be89acf6dff120b676d4c4d0dec203"></a>
 ### [ipv6-normalize](https://www.npmjs.com/package/ipv6-normalize) (version 1.0.1)
-<!-- initially found at packages/logging/node_modules/ipv6-normalize -->
+<!-- initially found at node_modules/ipv6-normalize -->
 > ipv6-normalize
 
 License tags: MIT
@@ -24497,7 +24257,7 @@ Authors:
 
 <a id="b1cbdc50c17bcc6aea2462cd9b7a87e93bb4c6c414d486d5943dd12b521caf29"></a>
 ### [is-buffer](https://www.npmjs.com/package/is-buffer) (version 1.1.6)
-<!-- initially found at packages/cli-repl/node_modules/is-buffer -->
+<!-- initially found at node_modules/is-buffer -->
 > Determine if an object is a Buffer
 
 License tags: MIT
@@ -24532,46 +24292,9 @@ Authors:
 * Feross Aboukhadijeh <[feross@feross.org](nomail)> (http://feross.org/)
 
 
-<a id="4b36fcbed647fcfb1016159ad5d4b5399c52c3fe258134e06275ab22ed10ceb9"></a>
-### [is-fullwidth-code-point](https://www.npmjs.com/package/is-fullwidth-code-point) (version 1.0.0)
-<!-- initially found at packages/service-provider-server/node_modules/is-fullwidth-code-point -->
-> Check if the character represented by a given Unicode code point is fullwidth
-
-License tags: MIT
-
-License files:
-* license:
-
-      The MIT License (MIT)
-      
-      Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in
-      all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-      THE SOFTWARE.
-      
-
-Authors:
-* Sindre Sorhus <[sindresorhus@gmail.com](nomail)> (sindresorhus.com)
-
-
 <a id="b963d532d8253ad1cf2b75dd3fb0d702f34008bc8c9dda2263ec811df0f91b32"></a>
 ### [is-recoverable-error](https://www.npmjs.com/package/is-recoverable-error) (version 1.0.3)
-<!-- initially found at packages/cli-repl/node_modules/is-recoverable-error -->
+<!-- initially found at node_modules/is-recoverable-error -->
 > isRecoverableError from Node.js' REPL
 
 License tags: MIT
@@ -24606,7 +24329,7 @@ Authors:
 
 <a id="d4152747a873329c3f33e71cf685aca68f6644f350f55fe8cb242fd4dd54f979"></a>
 ### [is-retry-allowed](https://www.npmjs.com/package/is-retry-allowed) (version 1.2.0)
-<!-- initially found at packages/cli-repl/node_modules/is-retry-allowed -->
+<!-- initially found at node_modules/is-retry-allowed -->
 > Is retry allowed for Error?
 
 License tags: MIT
@@ -24641,20 +24364,9 @@ Authors:
 * Vsevolod Strukchinsky <[floatdrop@gmail.com](nomail)> (github.com/floatdrop)
 
 
-<a id="dd5060a7691a8157c413dadfba4ff4c1de7480dcfd6d34af69a9696558358cec"></a>
-### [isarray](https://www.npmjs.com/package/isarray) (version 1.0.0)
-<!-- initially found at packages/service-provider-server/node_modules/isarray -->
-> Array#isArray for older browsers
-
-License tags: MIT
-
-Authors:
-* Julian Gruber <[mail@juliangruber.com](nomail)> (http://juliangruber.com)
-
-
 <a id="2f62e711a6921973ef3f9650fd3e06585fd3842e34078c8fa959481738600405"></a>
 ### [isexe](https://www.npmjs.com/package/isexe) (version 2.0.0)
-<!-- initially found at packages/snippet-manager/node_modules/isexe -->
+<!-- initially found at node_modules/isexe -->
 > Minimal module to check if a file is executable.
 
 License tags: ISC
@@ -24683,9 +24395,9 @@ Authors:
 * Isaac Z. Schlueter <i@izs.me> (http://blog.izs.me/)
 
 
-<a id="b694475eecf8bc18a9749f8655c7826e59c021b1d267e3e25c3336188f83fae1"></a>
-### [joi](https://www.npmjs.com/package/joi) (version 17.6.0)
-<!-- initially found at packages/snippet-manager/node_modules/joi -->
+<a id="3dbf18f89935aa8b3578d1d6c306f899e3e018ed55c07e1fa81d1d7d4d00623f"></a>
+### [joi](https://www.npmjs.com/package/joi) (version 17.8.3)
+<!-- initially found at node_modules/joi -->
 > Object schema validation
 
 License tags: BSD-3-Clause
@@ -24693,8 +24405,9 @@ License tags: BSD-3-Clause
 License files:
 * LICENSE.md:
 
-      Copyright (c) 2012-2020, Sideway. Inc, and project contributors.<br>
-      Copyright (c) 2012-2014, Walmart.<br>
+      Copyright (c) 2012-2022, Project contributors.
+      Copyright (c) 2012-2022, Sideway. Inc.
+      Copyright (c) 2012-2014, Walmart.
       All rights reserved.
       
       Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -24708,15 +24421,15 @@ License files:
 
 <a id="e3b7c74ebe2a0ad1c2f2cabfde196da4dc350a8c6cd6016f884d316a85a58d6b"></a>
 ### [join-component](https://www.npmjs.com/package/join-component) (version 1.1.0)
-<!-- initially found at packages/cli-repl/node_modules/join-component -->
+<!-- initially found at node_modules/join-component -->
 > Join a list
 
 License tags: MIT
 
 
-<a id="b4d5944b1b8ac5c49a40d74868d77e3debc256dd5f963a94e633a5a272edfda4"></a>
-### [js-beautify](https://www.npmjs.com/package/js-beautify) (version 1.14.2)
-<!-- initially found at packages/editor/node_modules/js-beautify -->
+<a id="dd973d91f66bccebf0e1bbdc59b9dd48c24160efc326d0c2e4c7fec33a2749c7"></a>
+### [js-beautify](https://www.npmjs.com/package/js-beautify) (version 1.14.7)
+<!-- initially found at node_modules/js-beautify -->
 > beautifier.io for node
 
 License tags: MIT
@@ -24750,7 +24463,7 @@ Authors:
 
 <a id="f4371f095c6f087cf41433031f8c612e21a4258b18cb4e847ffae73905e146d4"></a>
 ### [js-tokens](https://www.npmjs.com/package/js-tokens) (version 4.0.0)
-<!-- initially found at packages/js-multiline-to-singleline/node_modules/js-tokens -->
+<!-- initially found at node_modules/js-tokens -->
 > A regex that tokenizes JavaScript.
 
 License tags: MIT
@@ -24827,7 +24540,7 @@ Authors:
 
 <a id="253e8a44fc188759c5ce35330e4f20aacf1d0253d7e8d7dffd4a1f884a10ce1e"></a>
 ### [jsesc](https://www.npmjs.com/package/jsesc) (version 2.5.2)
-<!-- initially found at packages/js-multiline-to-singleline/node_modules/jsesc -->
+<!-- initially found at node_modules/jsesc -->
 > Given some data, jsesc returns the shortest possible stringified & ASCII-safe representation of that data.
 
 License tags: MIT
@@ -24863,7 +24576,7 @@ Authors:
 
 <a id="16281c6ea25e0cec4bc0bb8c01d1759d66992776381bf9c5af6959bec47d2f77"></a>
 ### [json5](https://www.npmjs.com/package/json5) (version 2.2.3)
-<!-- initially found at packages/js-multiline-to-singleline/node_modules/json5 -->
+<!-- initially found at node_modules/json5 -->
 > JSON for Humans
 
 License tags: MIT
@@ -24903,9 +24616,9 @@ Authors:
 * Jordan Tucker <jordanbtucker@gmail.com>
 
 
-<a id="480754bb9f65a90c52364d80a4e368d121a9f2c9b83269a9d10ce84cad3addbe"></a>
-### [kerberos](https://www.npmjs.com/package/kerberos) (version 2.0.0)
-<!-- initially found at packages/service-provider-server/node_modules/kerberos -->
+<a id="99979afa6e15ebb3e12acdc27f1af7d1b3172630dc00e7affac337105da2efee"></a>
+### [kerberos](https://www.npmjs.com/package/kerberos) (version 2.0.1)
+<!-- initially found at node_modules/kerberos -->
 > Kerberos library for Node.js
 
 License tags: Apache-2.0
@@ -25122,7 +24835,7 @@ Authors:
 
 <a id="adaac4144887ebc2c1b682380ff385210f681fc58b4bc1ef3986148cf8dcd28a"></a>
 ### [lodash](https://www.npmjs.com/package/lodash) (version 4.17.21)
-<!-- initially found at packages/history/node_modules/lodash -->
+<!-- initially found at node_modules/lodash -->
 > Lodash modular utilities.
 
 License tags: MIT
@@ -25186,7 +24899,7 @@ Authors:
 
 <a id="0103ef60e6b5d9c04fe5527db0d91b50851203d166f29cbcf5fdf6c655194132"></a>
 ### [lodash.isstring](https://www.npmjs.com/package/lodash.isstring) (version 4.0.1)
-<!-- initially found at packages/cli-repl/node_modules/lodash.isstring -->
+<!-- initially found at node_modules/lodash.isstring -->
 > The lodash method `_.isString` exported as a module.
 
 License tags: MIT
@@ -25226,7 +24939,7 @@ Authors:
 
 <a id="9878eb9f16a4960a47f5e2b9d1cb8ec4efccced7536cd3fed54e13439a1d2459"></a>
 ### [lowlight](https://www.npmjs.com/package/lowlight) (version 1.9.2)
-<!-- initially found at packages/cli-repl/node_modules/lowlight -->
+<!-- initially found at node_modules/lowlight -->
 > Virtual syntax highlighting for virtual DOMs and non-HTML things
 
 License tags: MIT
@@ -25266,7 +24979,7 @@ Authors:
 
 <a id="938513411a6603ce29334db15563fb94b7d52f839d32b9bd78c18f5d3f98aa5a"></a>
 ### [lru-cache](https://www.npmjs.com/package/lru-cache) (version 6.0.0)
-<!-- initially found at packages/cli-repl/node_modules/lru-cache -->
+<!-- initially found at node_modules/lru-cache -->
 > A cache object that deletes the least-recently-used items.
 
 License tags: ISC
@@ -25297,7 +25010,38 @@ Authors:
 
 <a id="e9bdfc6d4c069cb30d7db0580dd3e93b11cd6f58466a905efa95e503e3dd3442"></a>
 ### [lru-cache](https://www.npmjs.com/package/lru-cache) (version 4.1.5)
-<!-- initially found at packages/editor/node_modules/lru-cache -->
+<!-- initially found at node_modules/editorconfig/node_modules/lru-cache -->
+> A cache object that deletes the least-recently-used items.
+
+License tags: ISC
+
+License files:
+* LICENSE:
+
+      The ISC License
+      
+      Copyright (c) Isaac Z. Schlueter and Contributors
+      
+      Permission to use, copy, modify, and/or distribute this software for any
+      purpose with or without fee is hereby granted, provided that the above
+      copyright notice and this permission notice appear in all copies.
+      
+      THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+      WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+      MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+      ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+      WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+      ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
+      IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+      
+
+Authors:
+* Isaac Z. Schlueter <i@izs.me>
+
+
+<a id="fe7f0a2f2cf4c92f13c3a2a63f14f80f20f6919979306dc054e4f947c1234651"></a>
+### [lru-cache](https://www.npmjs.com/package/lru-cache) (version 5.1.1)
+<!-- initially found at node_modules/@babel/helper-compilation-targets/node_modules/lru-cache -->
 > A cache object that deletes the least-recently-used items.
 
 License tags: ISC
@@ -25328,7 +25072,7 @@ Authors:
 
 <a id="e41b8f5f95b1c6de6ea8a218680c29f2df0e4ec2ffa6d3addeb73db0a2be51b9"></a>
 ### [md5](https://www.npmjs.com/package/md5) (version 2.3.0)
-<!-- initially found at packages/cli-repl/node_modules/md5 -->
+<!-- initially found at node_modules/md5 -->
 > js function for hashing messages with MD5
 
 License tags: BSD-3-Clause
@@ -25372,7 +25116,7 @@ Authors:
 
 <a id="7fbdeab18f48c3527cae276a51cd879e42d15337aba1acb44fedcf748137608b"></a>
 ### [memory-pager](https://www.npmjs.com/package/memory-pager) (version 1.5.0)
-<!-- initially found at packages/service-provider-server/node_modules/memory-pager -->
+<!-- initially found at node_modules/memory-pager -->
 > Access memory using small fixed sized buffers
 
 License tags: MIT
@@ -25409,7 +25153,7 @@ Authors:
 
 <a id="3a8c7e8eed886630dd878b11cbb7ef72840b3bab1f8d4251956ca4f9fa40925f"></a>
 ### [mimic-response](https://www.npmjs.com/package/mimic-response) (version 3.1.0)
-<!-- initially found at packages/service-provider-core/node_modules/mimic-response -->
+<!-- initially found at node_modules/simple-get/node_modules/mimic-response -->
 > Mimic a Node.js HTTP response stream
 
 License tags: MIT
@@ -25432,9 +25176,9 @@ Authors:
 * Sindre Sorhus <[sindresorhus@gmail.com](nomail)> (https://sindresorhus.com)
 
 
-<a id="6189413fa5042f1bde0a4e3a4acf48c34451a140ce563a6563a1a71bca73feb7"></a>
-### [minimatch](https://www.npmjs.com/package/minimatch) (version 3.1.2)
-<!-- initially found at packages/editor/node_modules/minimatch -->
+<a id="8a1cc14a79a4961f176847feac95e857b103d435b545aa41832b50d9c5ba7e34"></a>
+### [minimatch](https://www.npmjs.com/package/minimatch) (version 5.1.6)
+<!-- initially found at node_modules/js-beautify/node_modules/minimatch -->
 > a glob matcher in javascript
 
 License tags: ISC
@@ -25444,7 +25188,7 @@ License files:
 
       The ISC License
       
-      Copyright (c) Isaac Z. Schlueter and Contributors
+      Copyright (c) 2011-2023 Isaac Z. Schlueter and Contributors
       
       Permission to use, copy, modify, and/or distribute this software for any
       purpose with or without fee is hereby granted, provided that the above
@@ -25465,7 +25209,7 @@ Authors:
 
 <a id="837db6b00930af97755b724568aecf8b139361dc2148c7db77673ba6ae44a44d"></a>
 ### [minimist](https://www.npmjs.com/package/minimist) (version 1.2.6)
-<!-- initially found at packages/service-provider-core/node_modules/minimist -->
+<!-- initially found at node_modules/minimist -->
 > parse argument options
 
 License tags: MIT
@@ -25499,7 +25243,7 @@ Authors:
 
 <a id="7f003f7ef45c6f6708dec9512090694a3a62132225d40679335bd3da91c0b17f"></a>
 ### [minipass](https://www.npmjs.com/package/minipass) (version 3.1.6)
-<!-- initially found at packages/snippet-manager/node_modules/minipass -->
+<!-- initially found at node_modules/minipass -->
 > minimal implementation of a PassThrough stream
 
 License tags: ISC
@@ -25530,7 +25274,7 @@ Authors:
 
 <a id="cce17959eefb79a78461796cc716519d9f9ba1b56fa35ae9bb2f589c61514cd2"></a>
 ### [minizlib](https://www.npmjs.com/package/minizlib) (version 2.1.2)
-<!-- initially found at packages/snippet-manager/node_modules/minizlib -->
+<!-- initially found at node_modules/minizlib -->
 > A small fast zlib stream built on [minipass](http://npm.im/minipass) and Node.js's zlib binding.
 
 License tags: MIT
@@ -25572,7 +25316,7 @@ Authors:
 
 <a id="f34eebd27506e3aa07ba3b64064715e0c4f310dad1207ad88fff362353cd4cce"></a>
 ### [mkdirp](https://www.npmjs.com/package/mkdirp) (version 1.0.4)
-<!-- initially found at packages/snippet-manager/node_modules/mkdirp -->
+<!-- initially found at node_modules/tar/node_modules/mkdirp -->
 > Recursively mkdir, like `mkdir -p`
 
 License tags: MIT
@@ -25606,7 +25350,7 @@ License files:
 
 <a id="e79cc875152b50c2eb57a97163d99f0155bf4e4af7ba4a7e01c12a17a4a3305c"></a>
 ### [mkdirp-classic](https://www.npmjs.com/package/mkdirp-classic) (version 0.5.3)
-<!-- initially found at packages/service-provider-core/node_modules/mkdirp-classic -->
+<!-- initially found at node_modules/mkdirp-classic -->
 > Mirror of mkdirp 0.5.2
 
 License tags: MIT
@@ -25643,7 +25387,7 @@ Authors:
 
 <a id="3c781458b94b0c19b8c2ba83880857eb1bc1585d31168631e7e466c08cb2ab8d"></a>
 ### [mongodb](https://www.npmjs.com/package/mongodb) (version 5.1.0)
-<!-- initially found at packages/service-provider-core/node_modules/mongodb -->
+<!-- initially found at node_modules/mongodb -->
 > The official MongoDB driver for Node.js
 
 License tags: Apache-2.0
@@ -25859,7 +25603,7 @@ Authors:
 
 <a id="b490c1243a2cfcd0824757c5a177056f5546e98fb08195481f0e093613d59e0e"></a>
 ### [mongodb-build-info](https://www.npmjs.com/package/mongodb-build-info) (version 1.5.0)
-<!-- initially found at packages/service-provider-core/node_modules/mongodb-build-info -->
+<!-- initially found at node_modules/mongodb-build-info -->
 > Extract information from mongodb's buildInfo
 
 License tags: Apache-2.0
@@ -26076,7 +25820,7 @@ Authors:
 
 <a id="9845e9875bb8cc4f9ce988cdb5492e57a1509e15e9fbb1b7193e175de2afc427"></a>
 ### [mongodb-client-encryption](https://www.npmjs.com/package/mongodb-client-encryption) (version 2.6.0)
-<!-- initially found at packages/service-provider-core/node_modules/mongodb-client-encryption -->
+<!-- initially found at node_modules/mongodb-client-encryption -->
 > Official client encryption module for the MongoDB Node.js driver
 
 License tags: Apache-2.0
@@ -26293,7 +26037,7 @@ Authors:
 
 <a id="ce5b616af8be619c9b55d24d0c177a8d7676deb45415078a03235e37f704ae4c"></a>
 ### [mongodb-connection-string-url](https://www.npmjs.com/package/mongodb-connection-string-url) (version 2.6.0)
-<!-- initially found at packages/cli-repl/node_modules/mongodb-connection-string-url -->
+<!-- initially found at node_modules/mongodb-connection-string-url -->
 > MongoDB connection strings, based on the WhatWG URL API
 
 License tags: Apache-2.0
@@ -26498,7 +26242,7 @@ License files:
 
 <a id="531dc8c5761d69d24f5e39457de5812ed3781da937aa64f94ed6f659bd72c142"></a>
 ### [mongodb-crypt-library-version](https://www.npmjs.com/package/mongodb-crypt-library-version) (version 1.0.3)
-<!-- initially found at packages/cli-repl/node_modules/mongodb-crypt-library-version -->
+<!-- initially found at node_modules/mongodb-crypt-library-version -->
 > Get the version of a MongoDB Crypt shared library programmatically and as a CLI
 
 License tags: Apache-2.0
@@ -26706,7 +26450,7 @@ Authors:
 
 <a id="382d8ce146b9f22281c9ab15b5d004e4de6d1139f226885ec984d57d07416e9a"></a>
 ### [mongodb-log-writer](https://www.npmjs.com/package/mongodb-log-writer) (version 1.1.5)
-<!-- initially found at packages/cli-repl/node_modules/mongodb-log-writer -->
+<!-- initially found at node_modules/mongodb-log-writer -->
 > A library for writing MongoDB logv2 messages
 
 License tags: Apache-2.0
@@ -26911,7 +26655,7 @@ License files:
 
 <a id="00a2cfed57df1e8b912b751b08bee4de24ad0189840c99820ebc00c1b219a421"></a>
 ### [mongodb-redact](https://www.npmjs.com/package/mongodb-redact) (version 0.2.2)
-<!-- initially found at packages/history/node_modules/mongodb-redact -->
+<!-- initially found at node_modules/mongodb-redact -->
 > Remove potentially sensitive information from objects without changing the shape.
 
 License tags: Apache-2.0
@@ -27126,43 +26870,9 @@ Authors:
 * Lucas Hrabovsky <hrabovsky.lucas@gmail.com> (http://imlucas.com)
 
 
-<a id="2083576c5af8054927640b4788059806d07e250a26066c9ccb2d928394fb9226"></a>
-### [ms](https://www.npmjs.com/package/ms) (version 2.1.3)
-<!-- initially found at packages/cli-repl/node_modules/ms -->
-> Tiny millisecond conversion utility
-
-License tags: MIT
-
-License files:
-* license.md:
-
-      The MIT License (MIT)
-      
-      Copyright (c) 2020 Vercel, Inc.
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all
-      copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-      SOFTWARE.
-      
-
-
 <a id="0a987b2f79ff37005e452a5afa7dacd3042061a7077054d2ba9cabacd88506d2"></a>
 ### [ms](https://www.npmjs.com/package/ms) (version 2.1.2)
-<!-- initially found at packages/js-multiline-to-singleline/node_modules/ms -->
+<!-- initially found at node_modules/ms -->
 > Tiny millisecond conversion utility
 
 License tags: MIT
@@ -27196,7 +26906,7 @@ License files:
 
 <a id="9e574ae3fa6282e512b5f57e7b1b1e9463c95d0301c65e2684cb120df415c5ee"></a>
 ### [mustache](https://www.npmjs.com/package/mustache) (version 4.2.0)
-<!-- initially found at packages/i18n/node_modules/mustache -->
+<!-- initially found at node_modules/mustache -->
 > Logic-less {{mustache}} templates with JavaScript
 
 License tags: MIT
@@ -27223,7 +26933,7 @@ Authors:
 
 <a id="26912b5ff7632f262d64273f99cd1a869376c5c378960e24501585e35b31054a"></a>
 ### [napi-build-utils](https://www.npmjs.com/package/napi-build-utils) (version 1.0.2)
-<!-- initially found at packages/service-provider-core/node_modules/napi-build-utils -->
+<!-- initially found at node_modules/napi-build-utils -->
 > A set of utilities to assist developers of tools that build N-API native add-ons
 
 License tags: MIT
@@ -27258,46 +26968,9 @@ Authors:
 * Jim Schlight
 
 
-<a id="2af3a2340ce9d14d5a920d81e4553e9c844889f244b3b310ea23621cf9622a2b"></a>
-### [node-abi](https://www.npmjs.com/package/node-abi) (version 3.22.0)
-<!-- initially found at packages/service-provider-core/node_modules/node-abi -->
-> Get the Node ABI for a given target and runtime, and vice versa.
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      MIT License
-      
-      Copyright (c) 2016 Lukas Geiger
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all
-      copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-      SOFTWARE.
-      
-
-Authors:
-* Lukas Geiger
-
-
-<a id="d6c15009ff9bc5d151ef2cba39c1bda47f6a2ce4c3094b909f1ef57ca3e39fb0"></a>
-### [node-abi](https://www.npmjs.com/package/node-abi) (version 3.8.0)
-<!-- initially found at packages/service-provider-server/node_modules/node-abi -->
+<a id="6b6e3668c7b638fe3bdbdfe7e5929922e46f2599ca98e8639bc88e733ce652fe"></a>
+### [node-abi](https://www.npmjs.com/package/node-abi) (version 3.33.0)
+<!-- initially found at node_modules/node-abi -->
 > Get the Node ABI for a given target and runtime, and vice versa.
 
 License tags: MIT
@@ -27334,7 +27007,7 @@ Authors:
 
 <a id="af9f7588524ca4e68f4efe7b24aea46d9c8004263b1d7cf3b558f86d87a163e8"></a>
 ### [node-addon-api](https://www.npmjs.com/package/node-addon-api) (version 4.3.0)
-<!-- initially found at packages/cli-repl/node_modules/node-addon-api -->
+<!-- initially found at node_modules/node-addon-api -->
 > Node.js API (Node-API)
 
 License tags: MIT
@@ -27444,7 +27117,7 @@ Authors:
 
 <a id="364527ef1b51cc6ac34872b931049c9e25b5014f9b40e3898c84e1a830e21720"></a>
 ### [node-fetch](https://www.npmjs.com/package/node-fetch) (version 2.6.7)
-<!-- initially found at packages/snippet-manager/node_modules/node-fetch -->
+<!-- initially found at node_modules/node-fetch -->
 > A light-weight module that brings window.fetch to node.js
 
 License tags: MIT
@@ -27480,9 +27153,9 @@ Authors:
 * David Frank
 
 
-<a id="be6795319bad1815dbc301d3dd7a7bf565d4db45d0f1fdc28273a1c4f78652b8"></a>
-### [node-releases](https://www.npmjs.com/package/node-releases) (version 2.0.2)
-<!-- initially found at packages/js-multiline-to-singleline/node_modules/node-releases -->
+<a id="b0a55dc39ff054289339383e24c549287257c8fad195eee068d44a8a6ec5b7ff"></a>
+### [node-releases](https://www.npmjs.com/package/node-releases) (version 2.0.10)
+<!-- initially found at node_modules/node-releases -->
 > Node.js releases data
 
 License tags: MIT
@@ -27517,9 +27190,9 @@ Authors:
 * Sergey Rubanov <chi187@gmail.com>
 
 
-<a id="fbf206ce137e18ded38133b05fa8623c287129749e1a5575956a2c0c4388e471"></a>
-### [nopt](https://www.npmjs.com/package/nopt) (version 5.0.0)
-<!-- initially found at packages/editor/node_modules/nopt -->
+<a id="cf8fadbe83fe76f1b7db2e226b9fdb8f48a427c74bcdd4ded5e184d413eba3ef"></a>
+### [nopt](https://www.npmjs.com/package/nopt) (version 6.0.0)
+<!-- initially found at node_modules/js-beautify/node_modules/nopt -->
 > Option parsing for Node, supporting types, shorthands, etc. Used by npm.
 
 License tags: ISC
@@ -27545,80 +27218,12 @@ License files:
       
 
 Authors:
-* Isaac Z. Schlueter <i@izs.me> (http://blog.izs.me/)
-
-
-<a id="ee61305241ab0f8e87a6dc2160efc46973e046400e72fe10858cc36309d51f9b"></a>
-### [npmlog](https://www.npmjs.com/package/npmlog) (version 4.1.2)
-<!-- initially found at packages/service-provider-server/node_modules/npmlog -->
-> logger for npm
-
-License tags: ISC
-
-License files:
-* LICENSE:
-
-      The ISC License
-      
-      Copyright (c) Isaac Z. Schlueter and Contributors
-      
-      Permission to use, copy, modify, and/or distribute this software for any
-      purpose with or without fee is hereby granted, provided that the above
-      copyright notice and this permission notice appear in all copies.
-      
-      THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-      WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-      MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-      ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-      WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-      ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
-      IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-      
-
-Authors:
-* Isaac Z. Schlueter <i@izs.me> (http://blog.izs.me/)
-
-
-<a id="044063cb59ac16c3146a6aa01521f5bd00ae1e6c7a197f31df253f357faf9f75"></a>
-### [number-is-nan](https://www.npmjs.com/package/number-is-nan) (version 1.0.1)
-<!-- initially found at packages/service-provider-server/node_modules/number-is-nan -->
-> ES2015 Number.isNaN() ponyfill
-
-License tags: MIT
-
-License files:
-* license:
-
-      The MIT License (MIT)
-      
-      Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in
-      all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-      THE SOFTWARE.
-      
-
-Authors:
-* Sindre Sorhus <[sindresorhus@gmail.com](nomail)> (sindresorhus.com)
+* GitHub Inc.
 
 
 <a id="d274a180ad09fc1ae9325f01bf5dc1296caf553888d952fab7ebf524dfdc56a1"></a>
 ### [numeral](https://www.npmjs.com/package/numeral) (version 2.0.6)
-<!-- initially found at packages/cli-repl/node_modules/numeral -->
+<!-- initially found at node_modules/numeral -->
 > Format and manipulate numbers.
 
 License tags: MIT
@@ -27654,46 +27259,9 @@ Authors:
 * Adam Draper <[adamwdraper@gmail.com](nomail)> (http://github.com/adamwdraper)
 
 
-<a id="598e372231bb5bef26b7d61105282eb20e14ade430143052d064d2d406769b95"></a>
-### [object-assign](https://www.npmjs.com/package/object-assign) (version 4.1.1)
-<!-- initially found at packages/service-provider-server/node_modules/object-assign -->
-> ES2015 `Object.assign()` ponyfill
-
-License tags: MIT
-
-License files:
-* license:
-
-      The MIT License (MIT)
-      
-      Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in
-      all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-      THE SOFTWARE.
-      
-
-Authors:
-* Sindre Sorhus <[sindresorhus@gmail.com](nomail)> (sindresorhus.com)
-
-
 <a id="d0d1303998dfae04e4f898f477380aac35568f4d6679f4ea913c2441cf9ebb0b"></a>
 ### [once](https://www.npmjs.com/package/once) (version 1.4.0)
-<!-- initially found at packages/editor/node_modules/once -->
+<!-- initially found at node_modules/once -->
 > Run a function exactly one time
 
 License tags: ISC
@@ -27724,7 +27292,7 @@ Authors:
 
 <a id="ccaac4b6b7b65be11aed2a61b109713be87bd047a65d3f552022671ab10b4872"></a>
 ### [os-dns-native](https://www.npmjs.com/package/os-dns-native) (version 1.2.0)
-<!-- initially found at packages/logging/node_modules/os-dns-native -->
+<!-- initially found at node_modules/os-dns-native -->
 > Perform DNS queries using OS APIs
 
 License tags: MIT
@@ -27760,46 +27328,9 @@ Authors:
 * Anna Henningsen <anna@addaleax.net>
 
 
-<a id="4e27c6801c87897a2e351cd898ca28074dc33c7053687a25cb2ca7d1e457eeb7"></a>
-### [path-is-absolute](https://www.npmjs.com/package/path-is-absolute) (version 1.0.1)
-<!-- initially found at packages/editor/node_modules/path-is-absolute -->
-> Node.js 0.12 path.isAbsolute() ponyfill
-
-License tags: MIT
-
-License files:
-* license:
-
-      The MIT License (MIT)
-      
-      Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in
-      all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-      THE SOFTWARE.
-      
-
-Authors:
-* Sindre Sorhus <[sindresorhus@gmail.com](nomail)> (sindresorhus.com)
-
-
 <a id="e1a2a032096ace66b422351e00b11b0229e42e4b49c2146f439f8fe442218451"></a>
 ### [path-key](https://www.npmjs.com/package/path-key) (version 3.1.1)
-<!-- initially found at packages/snippet-manager/node_modules/path-key -->
+<!-- initially found at node_modules/path-key -->
 > Get the PATH environment variable key cross-platform
 
 License tags: MIT
@@ -27824,7 +27355,7 @@ Authors:
 
 <a id="990b3f27d922745f1d3503b8f3cf9cb5d20f553c2f4c1168abe2a411b8cd5da0"></a>
 ### [picocolors](https://www.npmjs.com/package/picocolors) (version 1.0.0)
-<!-- initially found at packages/js-multiline-to-singleline/node_modules/picocolors -->
+<!-- initially found at node_modules/picocolors -->
 > The tiniest and the fastest library for terminal output formatting with ANSI colors
 
 License tags: ISC
@@ -27855,51 +27386,7 @@ Authors:
 
 <a id="b3a047e51af19ed4c091ca34a3d59939490120cbc75e67f511fc02d31379c55d"></a>
 ### [prebuild-install](https://www.npmjs.com/package/prebuild-install) (version 7.1.1)
-<!-- initially found at packages/service-provider-core/node_modules/prebuild-install -->
-> A command line tool to easily install prebuilt binaries for multiple version of node/iojs on a specific platform
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      The MIT License (MIT)
-      
-      Copyright (c) 2015 Mathias Buus
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in
-      all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-      THE SOFTWARE.
-      
-
-Authors:
-* Mathias Buus (@mafintosh)
-* Julian Gruber <julian@juliangruber.com> (https://github.com/juliangruber)
-* Brett Lawson <brett19@gmail.com> (https://github.com/brett19)
-* Pieter Hintjens <ph@imatix.com> (https://github.com/hintjens)
-* Lars-Magnus Skog <ralphtheninja@riseup.net> (https://github.com/ralphtheninja)
-* Jesús Leganés Combarro <piranna@gmail.com> (https://github.com/piranna)
-* Mathias Küsel <mathiask@hotmail.de> (https://github.com/mathiask88)
-* Lukas Geiger <lukas.geiger94@gmail.com> (https://github.com/lgeiger)
-
-
-<a id="e755204a5da2a0c525c1c306c36568e122273f24c0cac31a68cd274b9401771f"></a>
-### [prebuild-install](https://www.npmjs.com/package/prebuild-install) (version 7.0.1)
-<!-- initially found at packages/service-provider-server/node_modules/prebuild-install -->
+<!-- initially found at node_modules/prebuild-install -->
 > A command line tool to easily install prebuilt binaries for multiple version of node/iojs on a specific platform
 
 License tags: MIT
@@ -27943,7 +27430,7 @@ Authors:
 
 <a id="91bf45a61fe193a0e000fb21572851df0d48fdb78901162aa4d2ed627c98a6fc"></a>
 ### [pretty-repl](https://www.npmjs.com/package/pretty-repl) (version 3.1.1)
-<!-- initially found at packages/cli-repl/node_modules/pretty-repl -->
+<!-- initially found at node_modules/pretty-repl -->
 > Extends repl.REPLServer to allow for a colorize function
 
 License tags: MIT
@@ -27977,41 +27464,9 @@ Authors:
 * Massimiliano Marcon <me@marcon.me>
 
 
-<a id="449a33b1fb1386db92b40df9073f48703b67ff05c4da5043d007fdb90ed76aca"></a>
-### [process-nextick-args](https://www.npmjs.com/package/process-nextick-args) (version 2.0.1)
-<!-- initially found at packages/service-provider-server/node_modules/process-nextick-args -->
-> process.nextTick but always with args
-
-License tags: MIT
-
-License files:
-* license.md:
-
-      # Copyright (c) 2015 Calvin Metcalf
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all
-      copies or substantial portions of the Software.
-      
-      **THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-      SOFTWARE.**
-      
-
-
 <a id="d4d3609bf7b212ffd3a73f3a8f8e7b69fedcf74d6e9843ee217046ab37b32260"></a>
 ### [proto-list](https://www.npmjs.com/package/proto-list) (version 1.2.4)
-<!-- initially found at packages/editor/node_modules/proto-list -->
+<!-- initially found at node_modules/proto-list -->
 > A utility for managing a prototype chain
 
 License tags: ISC
@@ -28042,7 +27497,7 @@ Authors:
 
 <a id="2717ba801aa21d9d572ae9bd6f3dfc7d4ec9235f0ea155e9c2639c9a2e8493f8"></a>
 ### [pseudomap](https://www.npmjs.com/package/pseudomap) (version 1.0.2)
-<!-- initially found at packages/editor/node_modules/pseudomap -->
+<!-- initially found at node_modules/pseudomap -->
 > A thing that is a lot like ES6 `Map`, but without iterators, for use in environments where `for..of` syntax and `Map` are not available.
 
 License tags: ISC
@@ -28073,7 +27528,7 @@ Authors:
 
 <a id="147f1bd3a6380306e696f0574feda0b1490121a1d12e4500e91ffb6e888ffa3a"></a>
 ### [pump](https://www.npmjs.com/package/pump) (version 3.0.0)
-<!-- initially found at packages/service-provider-core/node_modules/pump -->
+<!-- initially found at node_modules/pump -->
 > pipe streams together and close all of them if one of them closes
 
 License tags: MIT
@@ -28109,7 +27564,7 @@ Authors:
 
 <a id="0dd705bd5862b4c60ed88e6b4a6f5ece23c627c97f6928233d32aefdd463c3f7"></a>
 ### [rc](https://www.npmjs.com/package/rc) (version 1.2.8)
-<!-- initially found at packages/service-provider-core/node_modules/rc -->
+<!-- initially found at node_modules/rc -->
 > hardwired configuration loader
 
 License tags: (BSD-2-Clause OR MIT OR Apache-2.0)
@@ -28198,67 +27653,7 @@ Authors:
 
 <a id="75bd2243ec5ecc92b8d7e9a2e9a1aa142f20f6a5aad6dc0d923cdab997766174"></a>
 ### [readable-stream](https://www.npmjs.com/package/readable-stream) (version 3.6.0)
-<!-- initially found at packages/service-provider-core/node_modules/readable-stream -->
-> Streams3, a user-land copy of the stream library from Node.js
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      Node.js is licensed for use as follows:
-      
-      """
-      Copyright Node.js contributors. All rights reserved.
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to
-      deal in the Software without restriction, including without limitation the
-      rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-      sell copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in
-      all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-      FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-      IN THE SOFTWARE.
-      """
-      
-      This license applies to parts of Node.js originating from the
-      https://github.com/joyent/node repository:
-      
-      """
-      Copyright Joyent, Inc. and other Node contributors. All rights reserved.
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to
-      deal in the Software without restriction, including without limitation the
-      rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-      sell copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in
-      all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-      FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-      IN THE SOFTWARE.
-      """
-      
-
-
-<a id="8f2e1b78e9d8c62cbe33ca0c9055ab55b3025f7c3ac146f29c102adbdc187bf1"></a>
-### [readable-stream](https://www.npmjs.com/package/readable-stream) (version 2.3.7)
-<!-- initially found at packages/service-provider-server/node_modules/readable-stream -->
+<!-- initially found at node_modules/tar-fs/node_modules/readable-stream -->
 > Streams3, a user-land copy of the stream library from Node.js
 
 License tags: MIT
@@ -28318,7 +27713,7 @@ License files:
 
 <a id="0c9e890b4653cdbc6432677030029da469823a1fc3bfee9341a0d34bd05fd348"></a>
 ### [remove-trailing-slash](https://www.npmjs.com/package/remove-trailing-slash) (version 0.1.1)
-<!-- initially found at packages/cli-repl/node_modules/remove-trailing-slash -->
+<!-- initially found at node_modules/remove-trailing-slash -->
 > removes trailing slashes
 
 License tags: MIT
@@ -28327,9 +27722,9 @@ Authors:
 * Stephen Mathieson <me@stephenmathieson.com>
 
 
-<a id="871f9c1109a7c892b16c36b55b008fcb5c2c8ab9bef37b7dd698163098770a1e"></a>
-### [resolve-mongodb-srv](https://www.npmjs.com/package/resolve-mongodb-srv) (version 1.1.1)
-<!-- initially found at packages/logging/node_modules/resolve-mongodb-srv -->
+<a id="b3573fdfef27e48302061e01d45cf96fe704c482559b5c6223c11ac98f9ed130"></a>
+### [resolve-mongodb-srv](https://www.npmjs.com/package/resolve-mongodb-srv) (version 1.1.2)
+<!-- initially found at node_modules/resolve-mongodb-srv -->
 > Resolve mongodb+srv:// URLs to mongodb:// URLs
 
 License tags: Apache-2.0
@@ -28534,7 +27929,7 @@ License files:
 
 <a id="115052870841b125f6e9deb1b800b99ed9c660f269050eafb32c84bdd9211f12"></a>
 ### [safe-buffer](https://www.npmjs.com/package/safe-buffer) (version 5.1.2)
-<!-- initially found at packages/js-multiline-to-singleline/node_modules/safe-buffer -->
+<!-- initially found at node_modules/@babel/core/node_modules/safe-buffer -->
 > Safer Node.js Buffer API
 
 License tags: MIT
@@ -28571,7 +27966,7 @@ Authors:
 
 <a id="952cf236ee56e7de5ea7e772caf3e256866f9dbdffc492539c48cd8c15ac9674"></a>
 ### [safe-buffer](https://www.npmjs.com/package/safe-buffer) (version 5.2.1)
-<!-- initially found at packages/service-provider-core/node_modules/safe-buffer -->
+<!-- initially found at node_modules/safe-buffer -->
 > Safer Node.js Buffer API
 
 License tags: MIT
@@ -28608,44 +28003,7 @@ Authors:
 
 <a id="650475af3b2a0c96fc8e5d09155f96dccd1a6b720da0197b0ea1121968883b25"></a>
 ### [saslprep](https://www.npmjs.com/package/saslprep) (version 1.0.4)
-<!-- initially found at packages/service-provider-server/node_modules/saslprep -->
-> SASLprep: Stringprep Profile for User Names and Passwords, rfc4013.
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      Copyright (c) 2014 Dmitry Tsvettsikh
-      
-      Permission is hereby granted, free of charge, to any person
-      obtaining a copy of this software and associated documentation
-      files (the "Software"), to deal in the Software without
-      restriction, including without limitation the rights to use,
-      copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the
-      Software is furnished to do so, subject to the following
-      conditions:
-      
-      The above copyright notice and this permission notice shall be
-      included in all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-      OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-      NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-      HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-      WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-      FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-      OTHER DEALINGS IN THE SOFTWARE.
-
-Authors:
-* Dmitry Tsvettsikh <me@reklatsmasters.com>
-
-
-<a id="389f3437d8f4e9fc233f3bfe272ef028498b199b5233a8d682fda54c1d4dbefb"></a>
-### [saslprep](https://www.npmjs.com/package/saslprep) (version 1.0.3)
-<!-- initially found at packages/service-provider-core/node_modules/saslprep -->
+<!-- initially found at node_modules/saslprep -->
 > SASLprep: Stringprep Profile for User Names and Passwords, rfc4013.
 
 License tags: MIT
@@ -28682,7 +28040,7 @@ Authors:
 
 <a id="e2f1c7bd615a3b61317d37fe215dc55bcd042a778ca15ab45bda8d9c8c39d54e"></a>
 ### [semver](https://www.npmjs.com/package/semver) (version 7.3.5)
-<!-- initially found at packages/cli-repl/node_modules/semver -->
+<!-- initially found at node_modules/semver -->
 > The semantic version parser used by npm.
 
 License tags: ISC
@@ -28710,7 +28068,7 @@ License files:
 
 <a id="24cd86d9f27cebacf43c9e9870102fe20fe9d787608ebd41dca9afe1d2e4790c"></a>
 ### [semver](https://www.npmjs.com/package/semver) (version 6.3.0)
-<!-- initially found at packages/js-multiline-to-singleline/node_modules/semver -->
+<!-- initially found at node_modules/@babel/core/node_modules/semver -->
 > The semantic version parser used by npm.
 
 License tags: ISC
@@ -28738,7 +28096,7 @@ License files:
 
 <a id="e166af9700b507cf6e45c57af6bf29f9ba7059e4535e65fac0f3d5c37970544d"></a>
 ### [semver](https://www.npmjs.com/package/semver) (version 5.7.1)
-<!-- initially found at packages/editor/node_modules/semver -->
+<!-- initially found at node_modules/editorconfig/node_modules/semver -->
 > The semantic version parser used by npm.
 
 License tags: ISC
@@ -28762,72 +28120,11 @@ License files:
       ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
       IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
       
-
-
-<a id="4bed5cd5bcb541cb0c5c45e33f4b082818b19f6e916d1badfad14f9d3fb5132d"></a>
-### [semver](https://www.npmjs.com/package/semver) (version 7.3.7)
-<!-- initially found at packages/service-provider-core/node_modules/semver -->
-> The semantic version parser used by npm.
-
-License tags: ISC
-
-License files:
-* LICENSE:
-
-      The ISC License
-      
-      Copyright (c) Isaac Z. Schlueter and Contributors
-      
-      Permission to use, copy, modify, and/or distribute this software for any
-      purpose with or without fee is hereby granted, provided that the above
-      copyright notice and this permission notice appear in all copies.
-      
-      THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-      WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-      MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-      ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-      WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-      ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
-      IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-      
-
-Authors:
-* GitHub Inc.
-
-
-<a id="d10823126ec31b1e665e321d110e1fde8413f70e2df17b24b0c71c43fe2c0558"></a>
-### [set-blocking](https://www.npmjs.com/package/set-blocking) (version 2.0.0)
-<!-- initially found at packages/service-provider-server/node_modules/set-blocking -->
-> set blocking stdio and stderr ensuring that terminal output does not truncate
-
-License tags: ISC
-
-License files:
-* LICENSE.txt:
-
-      Copyright (c) 2016, Contributors
-      
-      Permission to use, copy, modify, and/or distribute this software
-      for any purpose with or without fee is hereby granted, provided
-      that the above copyright notice and this permission notice
-      appear in all copies.
-      
-      THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-      WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES
-      OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE
-      LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES
-      OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
-      WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
-      ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-      
-
-Authors:
-* Ben Coe <ben@npmjs.com>
 
 
 <a id="a9cba97b71b818fb0a4978f8b14875ae118f292a19ffa97c8b2d848f9a897d89"></a>
 ### [shebang-command](https://www.npmjs.com/package/shebang-command) (version 2.0.0)
-<!-- initially found at packages/snippet-manager/node_modules/shebang-command -->
+<!-- initially found at node_modules/shebang-command -->
 > Get the command from a shebang
 
 License tags: MIT
@@ -28852,7 +28149,7 @@ Authors:
 
 <a id="849fb37298f1c4dcdeb6065edc4242918c7533bcfda5c67747e6ce4620c587bb"></a>
 ### [shebang-regex](https://www.npmjs.com/package/shebang-regex) (version 3.0.0)
-<!-- initially found at packages/snippet-manager/node_modules/shebang-regex -->
+<!-- initially found at node_modules/shebang-regex -->
 > Regular expression for matching a shebang line
 
 License tags: MIT
@@ -28877,7 +28174,7 @@ Authors:
 
 <a id="b7bc393e5a232bcdbb43c9634479890abf328baafea4bd42382331ef113761e9"></a>
 ### [sigmund](https://www.npmjs.com/package/sigmund) (version 1.0.1)
-<!-- initially found at packages/editor/node_modules/sigmund -->
+<!-- initially found at node_modules/sigmund -->
 > Quick and dirty signatures for Objects.
 
 License tags: ISC
@@ -28906,41 +28203,9 @@ Authors:
 * Isaac Z. Schlueter <i@izs.me> (http://blog.izs.me/)
 
 
-<a id="5ad551060d44370794e770309e198719e94f939e46a3ea537b776c9c4fdad9e4"></a>
-### [signal-exit](https://www.npmjs.com/package/signal-exit) (version 3.0.7)
-<!-- initially found at packages/service-provider-server/node_modules/signal-exit -->
-> when you want to fire an event no matter how a process exits.
-
-License tags: ISC
-
-License files:
-* LICENSE.txt:
-
-      The ISC License
-      
-      Copyright (c) 2015, Contributors
-      
-      Permission to use, copy, modify, and/or distribute this software
-      for any purpose with or without fee is hereby granted, provided
-      that the above copyright notice and this permission notice
-      appear in all copies.
-      
-      THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-      WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES
-      OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE
-      LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES
-      OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
-      WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
-      ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-      
-
-Authors:
-* Ben Coe <ben@npmjs.com>
-
-
 <a id="7e08f893385d0a6d7059029da3885e8346ad01eb58d6e4561612d2fb653c15ec"></a>
 ### [simple-concat](https://www.npmjs.com/package/simple-concat) (version 1.0.1)
-<!-- initially found at packages/service-provider-core/node_modules/simple-concat -->
+<!-- initially found at node_modules/simple-concat -->
 > Super-minimalist version of `concat-stream`. Less than 15 lines!
 
 License tags: MIT
@@ -28976,7 +28241,7 @@ Authors:
 
 <a id="c2c12990b6319daff653bdf953cadfa368185f0edc671124fb1028f6979df829"></a>
 ### [simple-get](https://www.npmjs.com/package/simple-get) (version 4.0.1)
-<!-- initially found at packages/service-provider-core/node_modules/simple-get -->
+<!-- initially found at node_modules/simple-get -->
 > Simplest way to make http get requests. Supports HTTPS, redirects, gzip/deflate, streams in < 100 lines.
 
 License tags: MIT
@@ -29012,7 +28277,7 @@ Authors:
 
 <a id="bc8fbee089eb9cddf673c4c9dbc15edd13839063c27e2814009b6a0448065875"></a>
 ### [smart-buffer](https://www.npmjs.com/package/smart-buffer) (version 4.2.0)
-<!-- initially found at packages/service-provider-core/node_modules/smart-buffer -->
+<!-- initially found at node_modules/smart-buffer -->
 > smart-buffer is a Buffer wrapper that adds automatic read & write offset tracking, string operations, data insertions, and more.
 
 License tags: MIT
@@ -29049,7 +28314,7 @@ Authors:
 
 <a id="16837d081453b731932951f203fc17778642c71f7cdc0c4557bc2dbd68a6fd1d"></a>
 ### [socks](https://www.npmjs.com/package/socks) (version 2.7.1)
-<!-- initially found at packages/service-provider-core/node_modules/socks -->
+<!-- initially found at node_modules/socks -->
 > Fully featured SOCKS proxy client supporting SOCKSv4, SOCKSv4a, and SOCKSv5. Includes Bind and Associate functionality.
 
 License tags: MIT
@@ -29086,7 +28351,7 @@ Authors:
 
 <a id="40ab158a4f9c7e0cb2e7fc113cfd0df14cabf73f76ff90e255227d216f5ce28c"></a>
 ### [source-map](https://www.npmjs.com/package/source-map) (version 0.5.7)
-<!-- initially found at packages/js-multiline-to-singleline/node_modules/source-map -->
+<!-- initially found at node_modules/source-map -->
 > Generates and consumes source maps
 
 License tags: BSD-3-Clause
@@ -29165,7 +28430,7 @@ Authors:
 
 <a id="0cbcf2cac3ff859d288ae5ffc2c793bbd2430b120f5930bd09b6dba7259086d7"></a>
 ### [sparse-bitfield](https://www.npmjs.com/package/sparse-bitfield) (version 3.0.3)
-<!-- initially found at packages/service-provider-server/node_modules/sparse-bitfield -->
+<!-- initially found at node_modules/sparse-bitfield -->
 > Bitfield that allocates a series of small buffers to support sparse bits without allocating a massive buffer
 
 License tags: MIT
@@ -29200,46 +28465,9 @@ Authors:
 * Mathias Buus (@mafintosh)
 
 
-<a id="b0725207ba4a78809dec9436283671608c6a6c89b5f5cc66db6ce6da7bfb0cc0"></a>
-### [string-width](https://www.npmjs.com/package/string-width) (version 1.0.2)
-<!-- initially found at packages/service-provider-server/node_modules/string-width -->
-> Get the visual width of a string - the number of columns required to display it
-
-License tags: MIT
-
-License files:
-* license:
-
-      The MIT License (MIT)
-      
-      Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in
-      all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-      THE SOFTWARE.
-      
-
-Authors:
-* Sindre Sorhus <[sindresorhus@gmail.com](nomail)> (sindresorhus.com)
-
-
 <a id="695c3ef9530b873f97c839eda6971040e70b0916a1b8f5cfb7c32bf68093d806"></a>
 ### [strip-ansi](https://www.npmjs.com/package/strip-ansi) (version 6.0.1)
-<!-- initially found at packages/cli-repl/node_modules/strip-ansi -->
+<!-- initially found at node_modules/strip-ansi -->
 > Strip ANSI escape codes from a string
 
 License tags: MIT
@@ -29262,46 +28490,9 @@ Authors:
 * Sindre Sorhus <[sindresorhus@gmail.com](nomail)> (sindresorhus.com)
 
 
-<a id="79e4e45eb767932cbcc94ba2f18534155184857640dee665f4b43ae6d5294646"></a>
-### [strip-ansi](https://www.npmjs.com/package/strip-ansi) (version 3.0.1)
-<!-- initially found at packages/service-provider-server/node_modules/strip-ansi -->
-> Strip ANSI escape codes
-
-License tags: MIT
-
-License files:
-* license:
-
-      The MIT License (MIT)
-      
-      Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in
-      all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-      THE SOFTWARE.
-      
-
-Authors:
-* Sindre Sorhus <[sindresorhus@gmail.com](nomail)> (sindresorhus.com)
-
-
 <a id="30c033ea06e2fc5831069ae3348fedc44cf44d65ec1ca8e7a0afd01789f5bb05"></a>
 ### [strip-json-comments](https://www.npmjs.com/package/strip-json-comments) (version 2.0.1)
-<!-- initially found at packages/service-provider-core/node_modules/strip-json-comments -->
+<!-- initially found at node_modules/rc/node_modules/strip-json-comments -->
 > Strip comments from JSON. Lets you use comments in your JSON files!
 
 License tags: MIT
@@ -29338,7 +28529,7 @@ Authors:
 
 <a id="84f6b71bdd647bcb9588183f13dc0b7a0c5b0a3103b2fc7e8e95012c0d6c631d"></a>
 ### [strnum](https://www.npmjs.com/package/strnum) (version 1.0.5)
-<!-- initially found at packages/service-provider-core/node_modules/strnum -->
+<!-- initially found at node_modules/strnum -->
 > Parse String to Number based on configuration
 
 License tags: MIT
@@ -29375,7 +28566,7 @@ Authors:
 
 <a id="b97a30572cac0a03b8cf442bc01621a041d5714550984f25cb71fac2587edbd6"></a>
 ### [supports-color](https://www.npmjs.com/package/supports-color) (version 7.2.0)
-<!-- initially found at packages/cli-repl/node_modules/supports-color -->
+<!-- initially found at node_modules/supports-color -->
 > Detect whether a terminal supports color
 
 License tags: MIT
@@ -29400,7 +28591,7 @@ Authors:
 
 <a id="113926f6cb42a3d41d1c11fb1209faf789d78f51fb458da90c61e5c1a2307a8e"></a>
 ### [supports-color](https://www.npmjs.com/package/supports-color) (version 5.5.0)
-<!-- initially found at packages/js-multiline-to-singleline/node_modules/supports-color -->
+<!-- initially found at node_modules/@babel/highlight/node_modules/supports-color -->
 > Detect whether a terminal supports color
 
 License tags: MIT
@@ -29425,7 +28616,7 @@ Authors:
 
 <a id="3522fc607365a0831259d285455f827874a15cf872d94258c71f3f8d8ddee1f6"></a>
 ### [system-ca](https://www.npmjs.com/package/system-ca) (version 1.0.2)
-<!-- initially found at packages/logging/node_modules/system-ca -->
+<!-- initially found at node_modules/system-ca -->
 > Access the system certificate store on Windows, macOS and Linux
 
 License tags: Apache-2.0
@@ -29630,7 +28821,7 @@ License files:
 
 <a id="5df2fdd748d0bba0f049a72c478c653197798bc7ec68d947e6c0985035233b64"></a>
 ### [tar](https://www.npmjs.com/package/tar) (version 6.1.11)
-<!-- initially found at packages/snippet-manager/node_modules/tar -->
+<!-- initially found at node_modules/tar -->
 > tar for node
 
 License tags: ISC
@@ -29661,7 +28852,7 @@ Authors:
 
 <a id="8e5bae5073977abd61cb5549abc7581354454558aedf4a4002b91e6fd7b9830d"></a>
 ### [tar-fs](https://www.npmjs.com/package/tar-fs) (version 2.1.1)
-<!-- initially found at packages/service-provider-core/node_modules/tar-fs -->
+<!-- initially found at node_modules/tar-fs -->
 > filesystem bindings for tar-stream
 
 License tags: MIT
@@ -29697,7 +28888,7 @@ Authors:
 
 <a id="0dc8f500e45626ff1f83a8b3bb9d4dbae5ce9f2df7fc81b5eca6af1af2e85d27"></a>
 ### [tar-stream](https://www.npmjs.com/package/tar-stream) (version 2.2.0)
-<!-- initially found at packages/service-provider-core/node_modules/tar-stream -->
+<!-- initially found at node_modules/tar-fs/node_modules/tar-stream -->
 > tar-stream is a streaming tar parser and generator and nothing else. It is streams2 and operates purely using streams which means you can easily extract/parse tarballs without ever hitting the file system.
 
 License tags: MIT
@@ -29733,7 +28924,7 @@ Authors:
 
 <a id="408475075eb207dd5ae8858365d5b39a25bebe2b757601c43164cec36f315b23"></a>
 ### [text-table](https://www.npmjs.com/package/text-table) (version 0.2.0)
-<!-- initially found at packages/cli-repl/node_modules/text-table -->
+<!-- initially found at node_modules/text-table -->
 > borderless text tables with alignment
 
 License tags: MIT
@@ -29767,7 +28958,7 @@ Authors:
 
 <a id="79afe8c8f3cc0bb1187c6ffaf6105b49888137e917978e870d67727353aba954"></a>
 ### [to-fast-properties](https://www.npmjs.com/package/to-fast-properties) (version 2.0.0)
-<!-- initially found at packages/js-multiline-to-singleline/node_modules/to-fast-properties -->
+<!-- initially found at node_modules/to-fast-properties -->
 > Force V8 to use fast properties for an object
 
 License tags: MIT
@@ -29793,7 +28984,7 @@ Authors:
 
 <a id="68f1ee14543e0adeddce4bb4422886f20da6ce5cb83508383fa092c15689cf8a"></a>
 ### [tr46](https://www.npmjs.com/package/tr46) (version 3.0.0)
-<!-- initially found at packages/cli-repl/node_modules/tr46 -->
+<!-- initially found at node_modules/mongodb-connection-string-url/node_modules/tr46 -->
 > An implementation of the Unicode UTS #46: Unicode IDNA Compatibility Processing
 
 License tags: MIT
@@ -29831,7 +29022,7 @@ Authors:
 
 <a id="a94418e116fb43931c49abb9cd596d6814a55956c3d0d11b7e225592b9977197"></a>
 ### [tr46](https://www.npmjs.com/package/tr46) (version 0.0.3)
-<!-- initially found at packages/snippet-manager/node_modules/tr46 -->
+<!-- initially found at node_modules/node-fetch/node_modules/tr46 -->
 > An implementation of the Unicode TR46 spec
 
 License tags: MIT
@@ -29840,47 +29031,55 @@ Authors:
 * Sebastian Mayr <npm@smayr.name>
 
 
-<a id="181343fca47e669c997ddb536b6caff3c769402b0674612e32d3c274719049c8"></a>
-### [tr46](https://www.npmjs.com/package/tr46) (version 2.1.0)
-<!-- initially found at packages/logging/node_modules/resolve-mongodb-srv/node_modules/tr46 -->
-> An implementation of the Unicode UTS #46: Unicode IDNA Compatibility Processing
+<a id="bdf4db4d853e6720bc8aad1effbb1da273fbc77ed4905012386a9b978bd02261"></a>
+### [tslib](https://www.npmjs.com/package/tslib) (version 2.4.1)
+<!-- initially found at node_modules/@aws-sdk/credential-providers/node_modules/tslib -->
+> Runtime library for TypeScript helper functions
 
-License tags: MIT
+License tags: 0BSD
 
 License files:
-* LICENSE.md:
+* CopyrightNotice.txt:
 
-      The MIT License (MIT)
+      /******************************************************************************      
+      Copyright (c) Microsoft Corporation.      
+            
+      Permission to use, copy, modify, and/or distribute this software for any      
+      purpose with or without fee is hereby granted.      
+            
+      THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH      
+      REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY      
+      AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,      
+      INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM      
+      LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR      
+      OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR      
+      PERFORMANCE OF THIS SOFTWARE.      
+      ***************************************************************************** */      
+            
       
-      Copyright (c) 2016 Sebastian Mayr
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all
-      copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-      SOFTWARE.
-      
+
+* LICENSE.txt:
+
+      Copyright (c) Microsoft Corporation.      
+            
+      Permission to use, copy, modify, and/or distribute this software for any      
+      purpose with or without fee is hereby granted.      
+            
+      THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH      
+      REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY      
+      AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,      
+      INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM      
+      LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR      
+      OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR      
+      PERFORMANCE OF THIS SOFTWARE.
 
 Authors:
-* Sebastian Mayr <npm@smayr.name>
-* Timothy Gu <timothygu99@gmail.com>
+* Microsoft Corp.
 
 
 <a id="c5883e17f6d685103f3ecf8a1a7e187c96e0a271993273bb7c0ab844eba8e5b9"></a>
 ### [tslib](https://www.npmjs.com/package/tslib) (version 2.5.0)
-<!-- initially found at packages/service-provider-core/node_modules/tslib -->
+<!-- initially found at node_modules/@aws-sdk/client-cognito-identity/node_modules/tslib -->
 > Runtime library for TypeScript helper functions
 
 License tags: 0BSD
@@ -29926,7 +29125,7 @@ Authors:
 
 <a id="2cd3e3e96a257e519fb1b58f5edbb9df0df91195b95c20d6ba75f1d1e3ba9dbd"></a>
 ### [tslib](https://www.npmjs.com/package/tslib) (version 1.14.1)
-<!-- initially found at packages/service-provider-core/node_modules/@aws-crypto/sha256-browser/node_modules/tslib -->
+<!-- initially found at node_modules/tslib -->
 > Runtime library for TypeScript helper functions
 
 License tags: 0BSD
@@ -29972,7 +29171,7 @@ Authors:
 
 <a id="09f746d17a1777efda5a12a6072da10c6820d7f56ea8aa0af202a2c83d6ccb67"></a>
 ### [tunnel-agent](https://www.npmjs.com/package/tunnel-agent) (version 0.6.0)
-<!-- initially found at packages/service-provider-core/node_modules/tunnel-agent -->
+<!-- initially found at node_modules/tunnel-agent -->
 > HTTP proxy tunneling agent. Formerly part of mikeal/request, now a standalone module.
 
 License tags: Apache-2.0
@@ -30040,9 +29239,45 @@ Authors:
 * Mikeal Rogers <mikeal.rogers@gmail.com> (http://www.futurealoof.com)
 
 
+<a id="acc5487735cf2878c05dc1f7c3bb6c3680c1e9718155cf9b5ca884354a3b77c7"></a>
+### [update-browserslist-db](https://www.npmjs.com/package/update-browserslist-db) (version 1.0.10)
+<!-- initially found at node_modules/update-browserslist-db -->
+> CLI tool to update caniuse-lite to refresh target browsers from Browserslist config
+
+License tags: MIT
+
+License files:
+* LICENSE:
+
+      The MIT License (MIT)
+      
+      Copyright 2022 Andrey Sitnik <andrey@sitnik.ru> and other contributors
+      
+      Permission is hereby granted, free of charge, to any person obtaining a copy of
+      this software and associated documentation files (the "Software"), to deal in
+      the Software without restriction, including without limitation the rights to
+      use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+      the Software, and to permit persons to whom the Software is furnished to do so,
+      subject to the following conditions:
+      
+      The above copyright notice and this permission notice shall be included in all
+      copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+      FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+      COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+      IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+      CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+      
+
+Authors:
+* Andrey Sitnik <andrey@sitnik.ru>
+
+
 <a id="a1bd80d6a50b36e34032c402c5204d6276747d8212b68b164a9e3f895b90c2d6"></a>
 ### [util-deprecate](https://www.npmjs.com/package/util-deprecate) (version 1.0.2)
-<!-- initially found at packages/service-provider-core/node_modules/util-deprecate -->
+<!-- initially found at node_modules/util-deprecate -->
 > The Node.js `util.deprecate()` function with browser support
 
 License tags: MIT
@@ -30082,7 +29317,7 @@ Authors:
 
 <a id="a34e7819c122fe308fef4f0c9e534d305065097a743da82251b903f2761b2d26"></a>
 ### [uuid](https://www.npmjs.com/package/uuid) (version 8.3.2)
-<!-- initially found at packages/cli-repl/node_modules/uuid -->
+<!-- initially found at node_modules/analytics-node/node_modules/uuid -->
 > RFC4122 (v1, v4, and v5) UUIDs
 
 License tags: MIT
@@ -30104,7 +29339,7 @@ License files:
 
 <a id="cb7c681998e7ee3c598e6e37432bcf448946924eefe816636c3cb122bae46e1c"></a>
 ### [webidl-conversions](https://www.npmjs.com/package/webidl-conversions) (version 7.0.0)
-<!-- initially found at packages/cli-repl/node_modules/webidl-conversions -->
+<!-- initially found at node_modules/webidl-conversions -->
 > Implements the WebIDL algorithms for converting to and from JavaScript values
 
 License tags: BSD-2-Clause
@@ -30132,35 +29367,7 @@ Authors:
 
 <a id="3604b2bfa479706fe7bd8068257240d32158704a3bffae30b414963343027aa1"></a>
 ### [webidl-conversions](https://www.npmjs.com/package/webidl-conversions) (version 3.0.1)
-<!-- initially found at packages/snippet-manager/node_modules/webidl-conversions -->
-> Implements the WebIDL algorithms for converting to and from JavaScript values
-
-License tags: BSD-2-Clause
-
-License files:
-* LICENSE.md:
-
-      # The BSD 2-Clause License
-      
-      Copyright (c) 2014, Domenic Denicola
-      All rights reserved.
-      
-      Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-      
-      1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-      
-      2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
-      
-      THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-      
-
-Authors:
-* Domenic Denicola <d@domenic.me> (https://domenic.me/)
-
-
-<a id="0868d5fd0f1744b732e4832b5dd5bd9ce27ffe9dcaa6cacda5a4efca750da5fb"></a>
-### [webidl-conversions](https://www.npmjs.com/package/webidl-conversions) (version 6.1.0)
-<!-- initially found at packages/logging/node_modules/resolve-mongodb-srv/node_modules/webidl-conversions -->
+<!-- initially found at node_modules/node-fetch/node_modules/webidl-conversions -->
 > Implements the WebIDL algorithms for converting to and from JavaScript values
 
 License tags: BSD-2-Clause
@@ -30188,7 +29395,7 @@ Authors:
 
 <a id="5d2cdcc7276796013d4573d401d239ff04971bb5a44fbb0e1bc62cae6f5ca911"></a>
 ### [whatwg-url](https://www.npmjs.com/package/whatwg-url) (version 11.0.0)
-<!-- initially found at packages/cli-repl/node_modules/whatwg-url -->
+<!-- initially found at node_modules/mongodb-connection-string-url/node_modules/whatwg-url -->
 > An implementation of the WHATWG URL Standard's URL API and parsing machinery
 
 License tags: MIT
@@ -30225,44 +29432,7 @@ Authors:
 
 <a id="cd3f81c4a0fd856ab1d9c9fc99c1d7eaf2c12c4867b218e9901e5020a1ffcd85"></a>
 ### [whatwg-url](https://www.npmjs.com/package/whatwg-url) (version 5.0.0)
-<!-- initially found at packages/snippet-manager/node_modules/whatwg-url -->
-> An implementation of the WHATWG URL Standard's URL API and parsing machinery
-
-License tags: MIT
-
-License files:
-* LICENSE.txt:
-
-      The MIT License (MIT)
-      
-      Copyright (c) 2015–2016 Sebastian Mayr
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in
-      all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-      THE SOFTWARE.
-      
-
-Authors:
-* Sebastian Mayr <github@smayr.name>
-
-
-<a id="2db4c3c174b1cdd0ec3bf9cb2d4bdd0eeede67228f92d99cdc150febb5406085"></a>
-### [whatwg-url](https://www.npmjs.com/package/whatwg-url) (version 8.7.0)
-<!-- initially found at packages/logging/node_modules/resolve-mongodb-srv/node_modules/whatwg-url -->
+<!-- initially found at node_modules/node-fetch/node_modules/whatwg-url -->
 > An implementation of the WHATWG URL Standard's URL API and parsing machinery
 
 License tags: MIT
@@ -30299,7 +29469,7 @@ Authors:
 
 <a id="5a71f2b741944bf107d6e7f067241798a6e277e42e8ca1e28c4608ccc233f8ec"></a>
 ### [which](https://www.npmjs.com/package/which) (version 2.0.2)
-<!-- initially found at packages/snippet-manager/node_modules/which -->
+<!-- initially found at node_modules/which -->
 > Like which(1) unix command. Find the first instance of an executable in the PATH.
 
 License tags: ISC
@@ -30328,39 +29498,9 @@ Authors:
 * Isaac Z. Schlueter <i@izs.me> (http://blog.izs.me)
 
 
-<a id="d21222b885638632a22d7d091540daafa361f33adab0e5e4048dfb1f5ebf422f"></a>
-### [wide-align](https://www.npmjs.com/package/wide-align) (version 1.1.5)
-<!-- initially found at packages/service-provider-server/node_modules/wide-align -->
-> A wide-character aware text alignment function for use on the console or with fixed width fonts.
-
-License tags: ISC
-
-License files:
-* LICENSE:
-
-      Copyright (c) 2015, Rebecca Turner <me@re-becca.org>
-      
-      Permission to use, copy, modify, and/or distribute this software for any
-      purpose with or without fee is hereby granted, provided that the above
-      copyright notice and this permission notice appear in all copies.
-      
-      THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-      WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-      MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-      ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-      WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-      ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
-      OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-      
-      
-
-Authors:
-* Rebecca Turner <me@re-becca.org> (http://re-becca.org/)
-
-
 <a id="13cebf193d7ada5ee347b9ae819b96f5e6da21f9b53e7f268c7703b686158595"></a>
 ### [wrappy](https://www.npmjs.com/package/wrappy) (version 1.0.2)
-<!-- initially found at packages/editor/node_modules/wrappy -->
+<!-- initially found at node_modules/wrappy -->
 > Callback wrapping utility
 
 License tags: ISC
@@ -30391,7 +29531,7 @@ Authors:
 
 <a id="d400799c4e1f58dbbbe68b4d9c1b6e80e023f744bd7d16da491005fd8439200f"></a>
 ### [yallist](https://www.npmjs.com/package/yallist) (version 4.0.0)
-<!-- initially found at packages/snippet-manager/node_modules/yallist -->
+<!-- initially found at node_modules/yallist -->
 > Yet Another Linked List
 
 License tags: ISC
@@ -30422,7 +29562,7 @@ Authors:
 
 <a id="79d45af4842c387f6f014e286173d70d30cf6770e36e6ef64135d5456f5180ef"></a>
 ### [yallist](https://www.npmjs.com/package/yallist) (version 2.1.2)
-<!-- initially found at packages/editor/node_modules/yallist -->
+<!-- initially found at node_modules/editorconfig/node_modules/yallist -->
 > Yet Another Linked List
 
 License tags: ISC
@@ -30451,9 +29591,40 @@ Authors:
 * Isaac Z. Schlueter <i@izs.me> (http://blog.izs.me/)
 
 
-<a id="d114360895423d9e902d0d2591b959ed4b0c309f8cec3e7b22fb6ed5502d1c19"></a>
-### [yargs-parser](https://www.npmjs.com/package/yargs-parser) (version 20.2.9)
-<!-- initially found at packages/cli-repl/node_modules/yargs-parser -->
+<a id="63b110ffd18712146937e9f182800c6f2b5783e76d1659a0bd4b457789b0df07"></a>
+### [yallist](https://www.npmjs.com/package/yallist) (version 3.1.1)
+<!-- initially found at node_modules/@babel/helper-compilation-targets/node_modules/yallist -->
+> Yet Another Linked List
+
+License tags: ISC
+
+License files:
+* LICENSE:
+
+      The ISC License
+      
+      Copyright (c) Isaac Z. Schlueter and Contributors
+      
+      Permission to use, copy, modify, and/or distribute this software for any
+      purpose with or without fee is hereby granted, provided that the above
+      copyright notice and this permission notice appear in all copies.
+      
+      THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+      WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+      MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+      ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+      WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+      ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
+      IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+      
+
+Authors:
+* Isaac Z. Schlueter <i@izs.me> (http://blog.izs.me/)
+
+
+<a id="63435b27312552eefd317cb6b5bc59549a3e8c028b3e9510ccd5d5ac644cfa77"></a>
+### [yargs-parser](https://www.npmjs.com/package/yargs-parser) (version 20.2.4)
+<!-- initially found at node_modules/yargs-parser -->
 > the mighty option parser used by yargs
 
 License tags: ISC
