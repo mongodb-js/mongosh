@@ -548,11 +548,11 @@ export function scaleIndividualShardStatistics(shardStats: Document, scale: numb
   return scaledStats;
 }
 
-export function tsToSeconds(x: any): number {
-  if (x.t && x.i) {
-    return x.t;
+export function tsToSeconds(x: typeof bson.Timestamp.prototype | number | { valueOf(): number }): number {
+  if (typeof x === 'object' && x && 'getHighBits' in x && 'getLowBits' in x) {
+    return x.getHighBits(); // extract 't' from { t, i }
   }
-  return x / 4294967296; // low 32 bits are ordinal #s within a second
+  return Number(x) / 4294967296; // low 32 bits are ordinal #s within a second
 }
 
 export function addHiddenDataProperty<T = any>(target: T, key: string|symbol, value: any): T {
