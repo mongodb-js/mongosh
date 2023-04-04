@@ -85,8 +85,10 @@ function validateHost(host: string): void {
 function validateHostSeedList(hosts: string, fixedPort: string | undefined): string[] {
   const trimmedHosts = hosts.split(',').map(h => h.trim()).filter(h => !!h);
   const hostList: string[] = [];
-  trimmedHosts.forEach(h => {
-    const [host, port] = h.split(':');
+  for (const h of trimmedHosts) {
+    // Split at the last colon to separate the port from the host
+    // (if that colon is followed exclusively by digits)
+    const { host, port } = h.match(/^(?<host>.+?)(:(?<port>\d+))?$/)?.groups ?? {};
     if (fixedPort && port !== undefined && port !== fixedPort) {
       throw new MongoshInvalidInputError(
         i18n.__(HOST_LIST_PORT_MISMATCH),
@@ -94,7 +96,7 @@ function validateHostSeedList(hosts: string, fixedPort: string | undefined): str
       );
     }
     hostList.push(`${host}${(port || fixedPort) ? ':' + (port || fixedPort) : ''}`);
-  });
+  }
   return hostList;
 }
 
@@ -168,7 +170,7 @@ function generateUriNormalized(options: CliOptions): ConnectionString {
   // If the --host argument contains /, it has the format
   // <replSetName>/<hostname1><:port>,<hostname2><:port>,<...>
   const replSetHostMatch = (options.host ?? '').match(
-    /^(?<replSetName>[^/]+)\/(?<hosts>([A-Za-z0-9._-]+(:\d+)?,?)+)$/
+    /^(?<replSetName>[^/]+)\/(?<hosts>(([A-Za-z0-9._-]+|\[[0-9a-fA-F:]+\])(:\d+)?,?)+)$/
   );
   if (replSetHostMatch) {
     const { replSetName, hosts } = replSetHostMatch.groups as { replSetName: string, hosts: string };
