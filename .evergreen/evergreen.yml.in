@@ -659,11 +659,11 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
           npm_deps_mode: all
       - func: test_vscode
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_14) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
   - name: test_connectivity
     tags: ["extra-integration-test"]
     depends_on:
