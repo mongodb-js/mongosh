@@ -10339,7 +10339,7 @@ tasks:
         vars:
           node_js_version: "16.19.1"
           dockerfile: amazonlinux2-rpm
-  - name: pkg_test_docker_rpm_x64_amazonlinux2022_rpm
+  - name: pkg_test_docker_rpm_x64_amazonlinux2023_rpm
     tags: ["smoke-test"]
     depends_on:
       - name: package_and_upload_artifact_rpm_x64
@@ -10357,7 +10357,7 @@ tasks:
       - func: test_artifact_docker
         vars:
           node_js_version: "16.19.1"
-          dockerfile: amazonlinux2022-rpm
+          dockerfile: amazonlinux2023-rpm
   - name: pkg_test_docker_rpm_x64_rocky8_rpm
     tags: ["smoke-test"]
     depends_on:
@@ -10719,7 +10719,7 @@ tasks:
         vars:
           node_js_version: "16.19.1"
           dockerfile: rocky9-fips-rpm
-  - name: pkg_test_docker_rpm_x64_openssl3_amazonlinux2022_rpm
+  - name: pkg_test_docker_rpm_x64_openssl3_amazonlinux2023_rpm
     tags: ["smoke-test"]
     depends_on:
       - name: package_and_upload_artifact_rpm_x64_openssl3
@@ -10737,7 +10737,7 @@ tasks:
       - func: test_artifact_docker
         vars:
           node_js_version: "16.19.1"
-          dockerfile: amazonlinux2022-rpm
+          dockerfile: amazonlinux2023-rpm
   - name: pkg_test_docker_linux_arm64_ubuntu20_04_tgz
     tags: ["smoke-test"]
     depends_on:
@@ -10928,7 +10928,7 @@ tasks:
         vars:
           node_js_version: "16.19.1"
           dockerfile: amazonlinux2-rpm
-  - name: pkg_test_docker_rpm_arm64_amazonlinux2022_rpm
+  - name: pkg_test_docker_rpm_arm64_amazonlinux2023_rpm
     tags: ["smoke-test"]
     depends_on:
       - name: package_and_upload_artifact_rpm_arm64
@@ -10946,7 +10946,7 @@ tasks:
       - func: test_artifact_docker
         vars:
           node_js_version: "16.19.1"
-          dockerfile: amazonlinux2022-rpm
+          dockerfile: amazonlinux2023-rpm
   - name: pkg_test_docker_deb_arm64_openssl11_ubuntu20_04_deb
     tags: ["smoke-test"]
     depends_on:
@@ -11852,7 +11852,7 @@ buildvariants:
       - name: pkg_test_docker_deb_x64_debian11_deb
       - name: pkg_test_docker_rpm_x64_centos7_rpm
       - name: pkg_test_docker_rpm_x64_amazonlinux2_rpm
-      - name: pkg_test_docker_rpm_x64_amazonlinux2022_rpm
+      - name: pkg_test_docker_rpm_x64_amazonlinux2023_rpm
       - name: pkg_test_docker_rpm_x64_rocky8_rpm
       - name: pkg_test_docker_rpm_x64_rocky9_rpm
       - name: pkg_test_docker_rpm_x64_fedora34_rpm
@@ -11872,7 +11872,7 @@ buildvariants:
       - name: pkg_test_docker_rpm_x64_openssl3_rocky8_epel_rpm
       - name: pkg_test_docker_rpm_x64_openssl3_rocky9_rpm
       - name: pkg_test_docker_rpm_x64_openssl3_rocky9_fips_rpm
-      - name: pkg_test_docker_rpm_x64_openssl3_amazonlinux2022_rpm
+      - name: pkg_test_docker_rpm_x64_openssl3_amazonlinux2023_rpm
   - name: pkg_smoke_tests_docker_arm64
     display_name: "package smoke tests (arm64 Docker)"
     run_on: ubuntu1804-arm64-small
@@ -11887,7 +11887,7 @@ buildvariants:
       - name: pkg_test_docker_rpm_arm64_rocky9_rpm
       - name: pkg_test_docker_rpm_arm64_fedora34_rpm
       - name: pkg_test_docker_rpm_arm64_amazonlinux2_rpm
-      - name: pkg_test_docker_rpm_arm64_amazonlinux2022_rpm
+      - name: pkg_test_docker_rpm_arm64_amazonlinux2023_rpm
       - name: pkg_test_docker_deb_arm64_openssl11_ubuntu20_04_deb
       - name: pkg_test_docker_deb_arm64_openssl11_debian10_deb
       - name: pkg_test_docker_deb_arm64_openssl11_debian11_deb

@@ -1,4 +1,4 @@
-FROM amazonlinux:2022
+FROM amazonlinux:2023
 
 ARG artifact_url=""
 ADD ${artifact_url} /tmp

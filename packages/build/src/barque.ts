@@ -26,7 +26,7 @@ tmp.setGracefulCleanup();
  */
 type PPARepository =
   'ubuntu1804' | 'ubuntu2004' | 'ubuntu2204' | 'debian92' | 'debian10' | 'debian11' |
-  'rhel70' | 'rhel80' | 'rhel90' | 'amazon1' | 'amazon2' | 'amazon2022' | 'suse12' | 'suse15';
+  'rhel70' | 'rhel80' | 'rhel90' | 'amazon1' | 'amazon2' | 'amazon2023' | 'suse12' | 'suse15';
 
 /**
  * Return the full list of [distro, arch] combinations that we upload for
@@ -50,13 +50,13 @@ export function getReposAndArch(packageVariant: PackageVariant): { ppas: PPARepo
     case 'rpm':
       if (getArch(packageVariant) === 'x64') {
         return {
-          ppas: ['rhel70', 'rhel80', 'rhel90', 'amazon1', 'amazon2', 'amazon2022', 'suse12', 'suse15'],
+          ppas: ['rhel70', 'rhel80', 'rhel90', 'amazon1', 'amazon2', 'amazon2023', 'suse12', 'suse15'],
           arch: getRPMArchName(getArch(packageVariant))
         };
       }
       if (getArch(packageVariant) === 'arm64') {
         return {
-          ppas: ['rhel80', 'rhel90', 'amazon2', 'amazon2022'],
+          ppas: ['rhel80', 'rhel90', 'amazon2', 'amazon2023'],
           arch: getRPMArchName(getArch(packageVariant))
         };
       }
@@ -218,7 +218,7 @@ export class Barque {
       case 'rhel90':     return `${base}/yum/redhat/9/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
       case 'amazon1':    return `${base}/yum/amazon/2013.03/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
       case 'amazon2':    return `${base}/yum/amazon/2/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
-      case 'amazon2022': return `${base}/yum/amazon/2022/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
+      case 'amazon2023': return `${base}/yum/amazon/2023/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
       case 'suse12':     return `${base}/zypper/suse/12/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
       case 'suse15':     return `${base}/zypper/suse/15/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
       /* eslint-enable no-multi-spaces */
