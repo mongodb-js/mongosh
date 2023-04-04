@@ -3,7 +3,8 @@ import {
   coerceToJSNumber,
   dataFormat,
   getPrintableShardStatus,
-  scaleIndividualShardStatistics
+  scaleIndividualShardStatistics,
+  tsToSeconds
 } from './helpers';
 import { Database, Mongo, ShellInstanceState } from './index';
 import constructShellBson from './shell-bson';
@@ -301,5 +302,14 @@ describe('scaleIndividualShardStatistics', () => {
         name: 30
       }
     });
+  });
+});
+
+describe('tsToSeconds', function() {
+  it('accepts a range of formats', function() {
+    expect(tsToSeconds(new bson.Timestamp({ t: 12345, i: 0 }))).to.equal(12345);
+    expect(tsToSeconds(new bson.Timestamp({ t: 12345, i: 10 }))).to.equal(12345);
+    expect(tsToSeconds(new bson.Double(12345 * 2 ** 32))).to.equal(12345);
+    expect(tsToSeconds(12345 * 2 ** 32)).to.equal(12345);
   });
 });
