@@ -467,6 +467,16 @@ describe('uri-generator.generate-uri', () => {
         expect(generateUri(options)).to.equal('mongodb://host1:123,host2,host3:456/admin%3Ffoo%3Dbar?replicaSet=replsetname');
       });
 
+      it('returns a URI for the hosts and ports when containing IP addresses', () => {
+        const options = { host: 'replsetname/198.51.100.1:123,foo.example.net,[::1],[::1]:456,' };
+        expect(generateUri(options)).to.equal('mongodb://198.51.100.1:123,foo.example.net,[::1],[::1]:456/?replicaSet=replsetname');
+      });
+
+      it('returns a URI for the hosts and ports when containing IP addresses with explicit --port', () => {
+        const options = { host: 'replsetname/198.51.100.1,foo.example.net,[::1],', port: '456' };
+        expect(generateUri(options)).to.equal('mongodb://198.51.100.1:456,foo.example.net:456,[::1]:456/?replicaSet=replsetname');
+      });
+
       it('returns a URI for the hosts specified in --host and explicit --port', () => {
         const options = { host: 'replsetname/host1:123,host2,', port: '123' };
         expect(generateUri(options)).to.equal('mongodb://host1:123,host2:123/?replicaSet=replsetname');
