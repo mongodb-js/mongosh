@@ -15,7 +15,7 @@ else
     # Some Node.js driver versions leave a ~/.npmrc file lying around
     # that breaks nvm because it contains a 'prefix=' option (pointing
     # to a directory that no longer exists anyway).
-    if [ -e "$HOME/.npmrc" ];
+    if [ -e "$HOME/.npmrc" ]; then
       sed -i 's/^prefix=.*$//' "$HOME/.npmrc"
     fi
   fi
