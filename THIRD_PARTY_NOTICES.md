@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Mon Apr 17 2023.
+This document was automatically generated on Wed Apr 19 2023.
 
 ## List of dependencies
 
@@ -198,7 +198,7 @@ Package|Version|License
 **[fast-xml-parser](#fbe93976926e3b3b442e49584ec63dda5b61e150fd7231d787e72fbd52cf80a1)**|4.1.2|MIT
 **[fault](#387740fc7544e813d0a9ad480550d0bb536270783b1ce8c1ee83cd7d18b1472e)**|1.0.4|MIT
 **[file-uri-to-path](#9eb41790b1cce0829afe7926edf4be80e0dd6927cd8376c00a54a8fc86f8943e)**|1.0.0|MIT
-**[follow-redirects](#ba1ef976742519fb6b2de132e8172ce13dc657b7a5fbee9e7b97d1d7abc76298)**|1.14.9|MIT
+**[follow-redirects](#003cc620c6dc02bc88b76fea6e75d5850ec850ad02d0e827e3f857762eeec94a)**|1.15.2|MIT
 **[format](#353f24aaf04248dcf73d044f735588066fbd0102ebc5e29ef75c8ee4e4f285dc)**|0.2.2|MIT
 **[fs-constants](#9961a9f7535cded379a7696ad6d002a62d4826a3a8c2ffb5624383b942c879e5)**|1.0.0|MIT
 **[fs-minipass](#c2c405232aa58245a067fead9e0e8bd8330cda684111af434bcab882090c44fa)**|2.1.0|ISC
@@ -276,7 +276,7 @@ Package|Version|License
 **[safe-buffer](#115052870841b125f6e9deb1b800b99ed9c660f269050eafb32c84bdd9211f12)**|5.1.2|MIT
 **[safe-buffer](#952cf236ee56e7de5ea7e772caf3e256866f9dbdffc492539c48cd8c15ac9674)**|5.2.1|MIT
 **[saslprep](#650475af3b2a0c96fc8e5d09155f96dccd1a6b720da0197b0ea1121968883b25)**|1.0.4|MIT
-**[semver](#e2f1c7bd615a3b61317d37fe215dc55bcd042a778ca15ab45bda8d9c8c39d54e)**|7.3.5|ISC
+**[semver](#72d34f9be40311713841fa4d9e3aac368ec616751367eefe98f1cc7b2635c14b)**|7.4.0|ISC
 **[semver](#24cd86d9f27cebacf43c9e9870102fe20fe9d787608ebd41dca9afe1d2e4790c)**|6.3.0|ISC
 **[semver](#e166af9700b507cf6e45c57af6bf29f9ba7059e4535e65fac0f3d5c37970544d)**|5.7.1|ISC
 **[shebang-command](#a9cba97b71b818fb0a4978f8b14875ae118f292a19ffa97c8b2d848f9a897d89)**|2.0.0|MIT
@@ -23112,8 +23112,8 @@ Authors:
 * Nathan Rajlich <nathan@tootallnate.net> (http://n8.io/)
 
 
-<a id="ba1ef976742519fb6b2de132e8172ce13dc657b7a5fbee9e7b97d1d7abc76298"></a>
-### [follow-redirects](https://www.npmjs.com/package/follow-redirects) (version 1.14.9)
+<a id="003cc620c6dc02bc88b76fea6e75d5850ec850ad02d0e827e3f857762eeec94a"></a>
+### [follow-redirects](https://www.npmjs.com/package/follow-redirects) (version 1.15.2)
 <!-- initially found at node_modules/follow-redirects -->
 > HTTP and HTTPS modules that follow redirects.
 
@@ -28038,8 +28038,8 @@ Authors:
 * Dmitry Tsvettsikh <me@reklatsmasters.com>
 
 
-<a id="e2f1c7bd615a3b61317d37fe215dc55bcd042a778ca15ab45bda8d9c8c39d54e"></a>
-### [semver](https://www.npmjs.com/package/semver) (version 7.3.5)
+<a id="72d34f9be40311713841fa4d9e3aac368ec616751367eefe98f1cc7b2635c14b"></a>
+### [semver](https://www.npmjs.com/package/semver) (version 7.4.0)
 <!-- initially found at node_modules/semver -->
 > The semantic version parser used by npm.
 
@@ -28064,6 +28064,9 @@ License files:
       ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
       IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
       
+
+Authors:
+* GitHub Inc.
 
 
 <a id="24cd86d9f27cebacf43c9e9870102fe20fe9d787608ebd41dca9afe1d2e4790c"></a>
