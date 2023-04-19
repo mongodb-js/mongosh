@@ -59,7 +59,7 @@ export class ShellOutputLine extends Component<ShellOutputLineProps> {
       return <pre>{value}</pre>;
     }
 
-    if (typeof value === 'string' && type !== null) {
+    if (typeof value === 'string' && !type) {
       return <SimpleTypeOutput value={value} raw />;
     }
 

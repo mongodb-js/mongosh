@@ -11,6 +11,7 @@ module.exports = {
       v8: false,
       fs: false,
       crypto: false,
+      module: false,
       // node specific and require a polyfill
       // path polyfill is required for following packages:
       //   async-rewriter2, @mongodb-js/compass-components, mongodb-log-writer, shell-api
