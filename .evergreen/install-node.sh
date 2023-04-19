@@ -12,6 +12,17 @@ else
   if which realpath; then # No realpath on macOS, but also not needed there
     export HOME="$(realpath "$HOME")" # Needed to de-confuse nvm when /home is a symlink
   fi
+  # Some Node.js driver versions leave a ~/.npmrc file lying around
+  # that breaks nvm because it contains a 'prefix=' option (pointing
+  # to a directory that no longer exists anyway).
+  if [ -e "$HOME/.npmrc" ]; then
+    # different `sed` arguments on macOS than for GNU sed ...
+    if [ `uname` == Darwin ]; then
+      sed -i'~' -e 's/^prefix=.*$//' "$HOME/.npmrc"
+    else
+      sed -i "$HOME/.npmrc" -e 's/^prefix=.*$//'
+    fi
+  fi
   export NVM_DIR="$HOME/.nvm"
 
   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
