@@ -11,13 +11,12 @@ if [ "$OS" == "Windows_NT" ]; then
 else
   if which realpath; then # No realpath on macOS, but also not needed there
     export HOME="$(realpath "$HOME")" # Needed to de-confuse nvm when /home is a symlink
-  else
-    # Some Node.js driver versions leave a ~/.npmrc file lying around
-    # that breaks nvm because it contains a 'prefix=' option (pointing
-    # to a directory that no longer exists anyway).
-    if [ -e "$HOME/.npmrc" ]; then
-      sed -i 's/^prefix=.*$//' "$HOME/.npmrc"
-    fi
+  fi
+  # Some Node.js driver versions leave a ~/.npmrc file lying around
+  # that breaks nvm because it contains a 'prefix=' option (pointing
+  # to a directory that no longer exists anyway).
+  if [ -e "$HOME/.npmrc" ]; then
+    sed -i "$HOME/.npmrc" -e 's/^prefix=.*$//'
   fi
   export NVM_DIR="$HOME/.nvm"
 
