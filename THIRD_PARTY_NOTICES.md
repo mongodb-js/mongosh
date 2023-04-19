@@ -28987,7 +28987,7 @@ Authors:
 
 <a id="68f1ee14543e0adeddce4bb4422886f20da6ce5cb83508383fa092c15689cf8a"></a>
 ### [tr46](https://www.npmjs.com/package/tr46) (version 3.0.0)
-<!-- initially found at node_modules/mongodb-connection-string-url/node_modules/tr46 -->
+<!-- initially found at node_modules/tr46 -->
 > An implementation of the Unicode UTS #46: Unicode IDNA Compatibility Processing
 
 License tags: MIT
@@ -29398,7 +29398,7 @@ Authors:
 
 <a id="5d2cdcc7276796013d4573d401d239ff04971bb5a44fbb0e1bc62cae6f5ca911"></a>
 ### [whatwg-url](https://www.npmjs.com/package/whatwg-url) (version 11.0.0)
-<!-- initially found at node_modules/mongodb-connection-string-url/node_modules/whatwg-url -->
+<!-- initially found at node_modules/whatwg-url -->
 > An implementation of the WHATWG URL Standard's URL API and parsing machinery
 
 License tags: MIT
