@@ -81,7 +81,7 @@ export class InsertOneResult extends ShellApiValueClass {
 @shellApiClassDefault
 export class UpdateResult extends ShellApiValueClass {
   acknowledged: boolean;
-  insertedId: ObjectIdType;
+  insertedId: ObjectIdType | null;
   matchedCount: number;
   modifiedCount: number;
   upsertedCount: number;
@@ -90,7 +90,7 @@ export class UpdateResult extends ShellApiValueClass {
     matchedCount: number,
     modifiedCount: number,
     upsertedCount: number,
-    insertedId: ObjectIdType) {
+    insertedId: ObjectIdType | null) {
     super();
     this.acknowledged = acknowledged;
     this.insertedId = insertedId;
