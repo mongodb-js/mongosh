@@ -164,7 +164,7 @@ Package|Version|License
 **[bowser](#03c8dec5cdbec1db30c4a501c0caf600245f4bd74d3d6f23eb55edffac14c8c3)**|2.11.0|MIT
 **[brace-expansion](#d1e13551f9898f82d40075979e4be102f5728362d73309488a438c1403d9107b)**|2.0.1|MIT
 **[browserslist](#7a666a9ec22873f842b988cafae3df38d8772b579cec24f490396179132fc221)**|4.21.5|MIT
-**[bson](#f410aa95a54f023010f2521958a4f128111e10e00fadd74c1862846924a5d663)**|5.0.1|Apache-2.0
+**[bson](#364e845dbf8e8c26f11cd9fd421ce15cfce4388d97d2f6ce7488c6a887cdf64c)**|5.2.0|Apache-2.0
 **[caniuse-lite](#19a2c6d0955bc8070f6c9064b566539056453ee0acd6df71bf56f35a8a7d85eb)**|1.0.30001464|CC-BY-4.0
 **[chalk](#c1619ad3bd43ce54cc7a4702c368501fd4fb4fa629077ba610f81d81bcd3f5f1)**|4.1.2|MIT
 **[chalk](#0c7c7a95e90c3fdaf99df4851bc949785311d8ea1d2d4498615f37af8fa16cf8)**|3.0.0|MIT
@@ -244,9 +244,9 @@ Package|Version|License
 **[minizlib](#cce17959eefb79a78461796cc716519d9f9ba1b56fa35ae9bb2f589c61514cd2)**|2.1.2|MIT
 **[mkdirp](#f34eebd27506e3aa07ba3b64064715e0c4f310dad1207ad88fff362353cd4cce)**|1.0.4|MIT
 **[mkdirp-classic](#e79cc875152b50c2eb57a97163d99f0155bf4e4af7ba4a7e01c12a17a4a3305c)**|0.5.3|MIT
-**[mongodb](#3c781458b94b0c19b8c2ba83880857eb1bc1585d31168631e7e466c08cb2ab8d)**|5.1.0|Apache-2.0
+**[mongodb](#304aab6e7beb3f1c6c822570c7474f0a6e417522852b2fc70deac36ee5ad1a71)**|5.3.0|Apache-2.0
 **[mongodb-build-info](#b490c1243a2cfcd0824757c5a177056f5546e98fb08195481f0e093613d59e0e)**|1.5.0|Apache-2.0
-**[mongodb-client-encryption](#9845e9875bb8cc4f9ce988cdb5492e57a1509e15e9fbb1b7193e175de2afc427)**|2.6.0|Apache-2.0
+**[mongodb-client-encryption](#f69f546d0f92801b1e58e53b353940a9104d96adaef8babc5c939a13a6835f73)**|2.7.1|Apache-2.0
 **[mongodb-connection-string-url](#ce5b616af8be619c9b55d24d0c177a8d7676deb45415078a03235e37f704ae4c)**|2.6.0|Apache-2.0
 **[mongodb-crypt-library-version](#531dc8c5761d69d24f5e39457de5812ed3781da937aa64f94ed6f659bd72c142)**|1.0.3|Apache-2.0
 **[mongodb-log-writer](#382d8ce146b9f22281c9ab15b5d004e4de6d1139f226885ec984d57d07416e9a)**|1.1.5|Apache-2.0
@@ -21289,8 +21289,8 @@ Authors:
 * Andrey Sitnik <andrey@sitnik.ru>
 
 
-<a id="f410aa95a54f023010f2521958a4f128111e10e00fadd74c1862846924a5d663"></a>
-### [bson](https://www.npmjs.com/package/bson) (version 5.0.1)
+<a id="364e845dbf8e8c26f11cd9fd421ce15cfce4388d97d2f6ce7488c6a887cdf64c"></a>
+### [bson](https://www.npmjs.com/package/bson) (version 5.2.0)
 <!-- initially found at node_modules/bson -->
 > A bson parser for node.js and the browser
 
@@ -25385,8 +25385,8 @@ Authors:
 * Mathias Buus (@mafintosh)
 
 
-<a id="3c781458b94b0c19b8c2ba83880857eb1bc1585d31168631e7e466c08cb2ab8d"></a>
-### [mongodb](https://www.npmjs.com/package/mongodb) (version 5.1.0)
+<a id="304aab6e7beb3f1c6c822570c7474f0a6e417522852b2fc70deac36ee5ad1a71"></a>
+### [mongodb](https://www.npmjs.com/package/mongodb) (version 5.3.0)
 <!-- initially found at node_modules/mongodb -->
 > The official MongoDB driver for Node.js
 
@@ -25818,8 +25818,8 @@ Authors:
 * Irina Shestak <shestak.irina@gmail.com>
 
 
-<a id="9845e9875bb8cc4f9ce988cdb5492e57a1509e15e9fbb1b7193e175de2afc427"></a>
-### [mongodb-client-encryption](https://www.npmjs.com/package/mongodb-client-encryption) (version 2.6.0)
+<a id="f69f546d0f92801b1e58e53b353940a9104d96adaef8babc5c939a13a6835f73"></a>
+### [mongodb-client-encryption](https://www.npmjs.com/package/mongodb-client-encryption) (version 2.7.1)
 <!-- initially found at node_modules/mongodb-client-encryption -->
 > Official client encryption module for the MongoDB Node.js driver
 
