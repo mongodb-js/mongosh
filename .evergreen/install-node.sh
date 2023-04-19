@@ -16,7 +16,12 @@ else
   # that breaks nvm because it contains a 'prefix=' option (pointing
   # to a directory that no longer exists anyway).
   if [ -e "$HOME/.npmrc" ]; then
-    sed -i "$HOME/.npmrc" -e 's/^prefix=.*$//'
+    # different `sed` arguments on macOS than for GNU sed ...
+    if [ `uname` == Darwin ]; then
+      sed -i'~' -e 's/^prefix=.*$//' "$HOME/.npmrc"
+    else
+      sed -i "$HOME/.npmrc" -e 's/^prefix=.*$//'
+    fi
   fi
   export NVM_DIR="$HOME/.nvm"
 
