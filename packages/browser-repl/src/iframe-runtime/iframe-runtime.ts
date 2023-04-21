@@ -65,7 +65,7 @@ export class IframeRuntime implements Runtime {
     const iframe = this.container.firstElementChild as HTMLIFrameElement;
     this.iframe = iframe;
     this.readyPromise = new Promise((resolve) => {
-      iframe.onload = (): void => resolve();
+      iframe.onload = () => void resolve();
     });
 
     document.body.appendChild(this.container);

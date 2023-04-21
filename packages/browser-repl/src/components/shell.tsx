@@ -122,7 +122,7 @@ export class Shell extends Component<ShellProps, ShellState> {
   };
 
   private shellInputElement: HTMLElement | null = null;
-  private editor?: IAceEditor;
+  private editor?: any | null = null;
   private onFinishPasswordPrompt: ((input: string) => void) = noop;
   private onCancelPasswordPrompt: (() => void) = noop;
 
@@ -333,10 +333,12 @@ export class Shell extends Component<ShellProps, ShellState> {
     }
   };
 
+  private setEditor = (editor: any | null) => {
+    this.editor = editor;
+  }
+
   private focusEditor = (): void => {
-    if (this.editor) {
-      this.editor.focus();
-    }
+    this.editor?.focus();
   };
 
   private onSigInt = (): Promise<boolean> => {
@@ -369,9 +371,7 @@ export class Shell extends Component<ShellProps, ShellState> {
         onClearCommand={this.onClearCommand}
         onInput={this.onInput}
         operationInProgress={this.state.operationInProgress}
-        onEditorLoad={(editor) => {
-          this.editor = editor;
-        }}
+        editorRef={this.setEditor}
         onSigInt={this.onSigInt}
       />
     );

@@ -1,14 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { css } from '@mongodb-js/compass-components';
-import { SyntaxHighlight as CompassSyntaxHighlight } from '@mongodb-js/compass-editor';
-
-const syntaxHighlightStyles = css({
-  lineHeight: '24px',
-  '& .cm-scroller': {
-    lineHeight: '24px'
-  }
-});
+import { CodemirrorInlineEditor } from '@mongodb-js/compass-editor';
+import { editorStyles } from '../editor';
 
 interface SyntaxHighlightProps {
   code: string;
@@ -21,12 +14,17 @@ export class SyntaxHighlight extends Component<SyntaxHighlightProps> {
 
   render(): JSX.Element {
     return (
-      <CompassSyntaxHighlight
+      <CodemirrorInlineEditor
+        readOnly
         language="javascript"
         text={this.props.code}
         showFoldGutter={false}
         showLineNumbers={false}
-        className={syntaxHighlightStyles}
+        showAnnotationsGutter={false}
+        highlightActiveLine={false}
+        maxLines={Infinity}
+        lineHeight={24}
+        className={editorStyles}
       />
     );
   }
