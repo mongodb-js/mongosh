@@ -17,7 +17,6 @@ const lineWithIconIcon = css({
 const lineWithIconContent = css({
   flex: 1,
   overflowX: 'auto',
-  tabSize: 2,
 });
 
 interface LineWithIconProps {

@@ -18,10 +18,8 @@ export class SyntaxHighlight extends Component<SyntaxHighlightProps> {
         readOnly
         language="javascript"
         text={this.props.code}
-        showFoldGutter={false}
-        showLineNumbers={false}
-        showAnnotationsGutter={false}
-        highlightActiveLine={false}
+        // @ts-expect-error TODO: this works but types don't allow it, waiting
+        // for update in compass-editor
         maxLines={Infinity}
         lineHeight={24}
         className={editorStyles}

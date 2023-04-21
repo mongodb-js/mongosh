@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import { Icon, css } from '@mongodb-js/compass-components';
 import { Autocompleter } from '@mongosh/browser-runtime-core';
+import type { EditorRef } from '@mongodb-js/compass-editor';
 import { Editor } from './editor';
 import ShellLoader from './shell-loader';
 import { LineWithIcon } from './utils/line-with-icon';
-import type { AceEditor as IAceEditor } from '@mongodb-js/compass-editor';
 
 
 const shellInput = css({
@@ -20,7 +20,7 @@ interface ShellInputProps {
   operationInProgress?: boolean;
   prompt?: string;
   onSigInt?(): Promise<boolean>;
-  editorRef?: (editor: any | null) => void;
+  editorRef?: (editor: EditorRef | null) => void;
 }
 
 interface ShellInputState {
@@ -97,11 +97,11 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
       if (this.historyNavigationIndex <= 0) {
         return resolve(false);
       }
-  
+
       this.historyNavigationIndex--;
-  
+
       this.syncCurrentValueWithHistoryNavigation(resolve);
-    })
+    });
   };
 
   private onEnter = async(): Promise<void> => {

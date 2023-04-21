@@ -1,8 +1,13 @@
 import React, { Component } from 'react';
 import { css } from '@mongodb-js/compass-components';
 import { CodemirrorInlineEditor } from '@mongodb-js/compass-editor';
+import type { EditorRef, Command } from '@mongodb-js/compass-editor';
 import { Autocompleter } from '@mongosh/browser-runtime-core';
-import { AceAutocompleterAdapter } from './ace-autocompleter-adapter';
+
+// TODO: update compass editor and use exported type
+type Completer = React.ComponentProps<
+  typeof CodemirrorInlineEditor
+>['completer'];
 
 const noop = (): void => {};
 
@@ -39,7 +44,7 @@ interface EditorProps {
   onSigInt(): Promise<boolean>;
   operationInProgress: boolean;
   value: string;
-  editorRef?: (editor: any | null) => void;
+  editorRef?: (editor: EditorRef | null) => void;
 }
 
 export class Editor extends Component<EditorProps> {
@@ -55,9 +60,9 @@ export class Editor extends Component<EditorProps> {
     moveCursorToTheEndOfInput: false
   };
 
-  private commands: any;
+  private commands: Command[];
 
-  private autocompleter: (context: any) => null | Promise<any | null>;
+  private autocompleter: Completer;
 
   private editorId: number = Date.now();
 
@@ -133,7 +138,7 @@ export class Editor extends Component<EditorProps> {
       {
         key: 'Ctrl-l',
         run: () => {
-          this.props.onClearCommand();
+          void this.props.onClearCommand();
           return true;
         },
         preventDefault: true
@@ -141,7 +146,7 @@ export class Editor extends Component<EditorProps> {
       {
         key: 'Ctrl-c',
         run: () => {
-          this.props.onSigInt();
+          void this.props.onSigInt();
           return true;
         },
         preventDefault: true
@@ -152,17 +157,21 @@ export class Editor extends Component<EditorProps> {
   render(): JSX.Element {
     return (
       <CodemirrorInlineEditor
-        readOnly={!!this.props.operationInProgress}
-        name={`mongosh-ace-${this.editorId}`}
+        id={`mongosh-ace-${this.editorId}`}
+        // As opposed to default javascript-expression
+        language="javascript"
         ref={this.props.editorRef}
+        readOnly={this.props.operationInProgress}
         text={this.props.value}
         onChangeText={this.props.onChange}
         commands={this.commands}
+        // @ts-expect-error TODO: this works but types don't allow it, waiting
+        // for update in compass-editor
         maxLines={Infinity}
         className={editorStyles}
         completer={this.autocompleter}
         lineHeight={24}
-      ></CodemirrorInlineEditor>
+      />
     );
   }
 }
