@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import { Icon, css } from '@mongodb-js/compass-components';
 import { Autocompleter } from '@mongosh/browser-runtime-core';
+import type { EditorRef } from '@mongodb-js/compass-editor';
 import { Editor } from './editor';
 import ShellLoader from './shell-loader';
 import { LineWithIcon } from './utils/line-with-icon';
-import type { AceEditor as IAceEditor } from '@mongodb-js/compass-editor';
 
 
 const shellInput = css({
@@ -19,8 +19,8 @@ interface ShellInputProps {
   onInput?(code: string): void | Promise<void>;
   operationInProgress?: boolean;
   prompt?: string;
-  onEditorLoad?: (editor: IAceEditor) => void;
   onSigInt?(): Promise<boolean>;
+  editorRef?: (editor: EditorRef | null) => void;
 }
 
 interface ShellInputState {
@@ -34,7 +34,6 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
     readOnly: false
   };
 
-  private editor: IAceEditor | null = null;
   private historyNavigationEntries: string[] = [];
   private historyNavigationIndex = 0;
 
@@ -66,37 +65,43 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
     this.setState({ currentValue: value });
   };
 
-  private syncCurrentValueWithHistoryNavigation(): void {
+  private syncCurrentValueWithHistoryNavigation(cb: (updated: boolean) => void): void {
     const value = this.historyNavigationEntries[this.historyNavigationIndex];
 
     if (value === undefined) {
-      return;
+      return cb(false);
     }
 
     this.setState({ currentValue: value }, () => {
-      // eslint-disable-next-line chai-friendly/no-unused-expressions
-      this.editor?.navigateFileEnd();
+      cb(true);
     });
   }
 
-  private historyBack = (): void => {
-    if (this.historyNavigationIndex >= this.historyNavigationEntries.length - 1) {
-      return;
-    }
+  private historyBack = (): Promise<boolean> => {
+    return new Promise(resolve => {
+      if (
+        this.historyNavigationIndex >=
+        this.historyNavigationEntries.length - 1
+      ) {
+        return resolve(false);
+      }
 
-    this.historyNavigationIndex++;
+      this.historyNavigationIndex++;
 
-    this.syncCurrentValueWithHistoryNavigation();
+      this.syncCurrentValueWithHistoryNavigation(resolve);
+    });
   };
 
-  private historyNext = (): void => {
-    if (this.historyNavigationIndex <= 0) {
-      return;
-    }
+  private historyNext = (): Promise<boolean> => {
+    return new Promise(resolve => {
+      if (this.historyNavigationIndex <= 0) {
+        return resolve(false);
+      }
 
-    this.historyNavigationIndex--;
+      this.historyNavigationIndex--;
 
-    this.syncCurrentValueWithHistoryNavigation();
+      this.syncCurrentValueWithHistoryNavigation(resolve);
+    });
   };
 
   private onEnter = async(): Promise<void> => {
@@ -139,11 +144,7 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
         onChange={this.onChange}
         onEnter={this.onEnter}
         onClearCommand={this.props.onClearCommand}
-        onEditorLoad={(editor) => {
-          this.editor = editor;
-          // eslint-disable-next-line chai-friendly/no-unused-expressions
-          this.props.onEditorLoad?.(editor);
-        }}
+        editorRef={this.props.editorRef}
         value={this.state.currentValue}
         operationInProgress={this.props.operationInProgress}
         onSigInt={this.props.onSigInt}

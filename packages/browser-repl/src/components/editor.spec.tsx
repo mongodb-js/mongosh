@@ -1,199 +1,115 @@
 import sinon from 'sinon';
-import React from 'react';
 import { expect } from '../../testing/chai';
-import { mount } from '../../testing/enzyme';
-import { Editor } from './editor';
+import { createCommands } from './editor';
+import { Command } from '@mongodb-js/compass-editor';
 
 describe('<Editor />', () => {
-  const getAceEditorInstance = (wrapper): any => {
-    const aceEditor = wrapper.find(Editor);
-    return aceEditor.instance().editor as any;
-  };
+  let commandSpies: Parameters<typeof createCommands>[number];
+  let commands: Record<string, Command['run']>;
 
-  const execCommandBoundTo = (
-    aceEditor: any,
-    key: { win: string; mac: string }
-  ): void => {
-    const commands = Object.values(aceEditor.commands.commands);
-    const command: any = commands.find(({ name, bindKey }) => {
-      if (!bindKey) {
-        return false;
+  const sandbox = sinon.createSandbox();
+
+  function mockContext(
+    selection: { from: number; to?: number; empty?: boolean } = { from: 0 },
+    line?: { from?: number; to?: number },
+    docLength?: number
+  ): any {
+    selection.to = selection.to || selection.from;
+    line = line || { from: selection.from };
+    line.to = line.to || selection.to;
+    return {
+      state: {
+        selection: {
+          main: {
+            from: selection.from,
+            to: selection.to,
+            empty: selection.empty || selection.from === selection.to
+          }
+        },
+        doc: {
+          length: docLength || line.to
+        }
+      },
+      lineBlockAt() {
+        return line;
       }
-      if (name === 'gotoline') {
-        // Ignore gotoline - our command overrides.
-        return false;
-      }
+    };
+  }
 
-      const { win, mac } = bindKey as { win: string; mac: string };
-      return win === key.win && mac === key.mac;
+  beforeEach(function() {
+    commandSpies = {
+      onEnter: sinon.spy(),
+      onArrowUpOnFirstLine: sinon.stub().resolves(false),
+      onArrowDownOnLastLine: sinon.stub().resolves(false),
+      onClearCommand: sinon.spy(),
+      onSigInt: sinon.spy()
+    };
+    commands = Object.fromEntries(
+      createCommands(commandSpies).map(({ key, run }) => {
+        return [key, run];
+      })
+    );
+  });
+
+  afterEach(function() {
+    sandbox.reset();
+  });
+
+  describe('commands', function() {
+    it('calls onEnter when enter is pressed', function() {
+      // eslint-disable-next-line new-cap
+      expect(commands.Enter?.({} as any)).to.eq(true);
+      expect(commandSpies.onEnter).to.have.been.calledOnce;
     });
 
-    if (!command) {
-      throw new Error(`No command bound to ${key}.`);
-    }
-
-    aceEditor.execCommand(command.name);
-  };
-
-  it('allows to set the value', () => {
-    const wrapper = mount(<Editor value={'some value'}/>);
-
-    const aceEditor = getAceEditorInstance(wrapper);
-    expect(aceEditor.getValue()).to.equal('some value');
-  });
-
-  it('is not readonly by default', () => {
-    const wrapper = mount(<Editor />);
-    const aceEditor = getAceEditorInstance(wrapper);
-
-    expect(aceEditor.getOption('readOnly')).to.equal(false);
-  });
-
-  it('allows to set the editor as readonly when operationInProgress is true', () => {
-    const wrapper = mount(<Editor operationInProgress />);
-    const aceEditor = getAceEditorInstance(wrapper);
-
-    expect(aceEditor.getOption('readOnly')).to.equal(true);
-  });
-
-  it('calls onChange when the content changes', () => {
-    const spy = sinon.spy();
-    const wrapper = mount(<Editor onChange={spy} />);
-
-    const aceEditor = getAceEditorInstance(wrapper);
-    expect(spy).not.to.have.been.called;
-
-    aceEditor.setValue('value');
-    expect(spy).to.have.been.calledWith('value');
-  });
-
-  it('calls onEnter when enter is pressed', () => {
-    const spy = sinon.spy();
-    const wrapper = mount(<Editor onEnter={spy} />);
-
-    const aceEditor = getAceEditorInstance(wrapper);
-    expect(spy).not.to.have.been.called;
-
-    execCommandBoundTo(aceEditor, {
-      win: 'Return',
-      mac: 'Return'
+    it('calls onClearCommand when command/ctrl+L is pressed', function() {
+      // eslint-disable-next-line new-cap
+      expect(commands['Mod-l']?.({} as any)).to.eq(true);
+      expect(commandSpies.onClearCommand).to.have.been.calledOnce;
     });
-    expect(spy).to.have.been.calledOnce;
-  });
 
-  it('calls onClearCommand when command/ctrl+L is pressed', () => {
-    const spy = sinon.spy();
-    const wrapper = mount(<Editor onClearCommand={spy} />);
-
-    const aceEditor = getAceEditorInstance(wrapper);
-
-    expect(spy).not.to.have.been.called;
-    execCommandBoundTo(aceEditor, {
-      win: 'Ctrl-L',
-      mac: 'Command-L'
+    it('calls onArrowUpOnFirstLine when arrow up is pressed and cursor on fisrt row', function() {
+      // eslint-disable-next-line new-cap
+      expect(commands.ArrowUp?.(mockContext())).to.eq(true);
+      expect(commandSpies.onArrowUpOnFirstLine).to.have.been.calledOnce;
     });
-    expect(spy).to.have.been.calledOnce;
-  });
 
-  it('calls onArrowUpOnFirstLine when arrow up is pressed and cursor on fisrt row', () => {
-    const spy = sinon.spy();
-    const wrapper = mount(<Editor onArrowUpOnFirstLine={spy} />);
-
-    const aceEditor = getAceEditorInstance(wrapper);
-
-    expect(spy).not.to.have.been.called;
-    execCommandBoundTo(aceEditor, {
-      win: 'Up',
-      mac: 'Up'
+    it('does not call onArrowUpOnFirstLine when arrow up is pressed and row > 0', function() {
+      // eslint-disable-next-line new-cap
+      expect(commands.ArrowUp?.(mockContext({ from: 6 }, { from: 3 }))).to.eq(
+        false
+      );
+      expect(commandSpies.onArrowUpOnFirstLine).to.not.have.been.called;
     });
-    expect(spy).to.have.been.calledOnce;
-  });
 
-  it('does not call onArrowUpOnFirstLine when arrow up is pressed and row > 0', () => {
-    const spy = sinon.spy();
-    const wrapper = mount(<Editor onArrowUpOnFirstLine={spy} />);
-
-    const aceEditor = getAceEditorInstance(wrapper);
-    aceEditor.setValue('row 0\nrow 1');
-    aceEditor.moveCursorToPosition({ row: 1, column: 0 });
-    aceEditor.clearSelection();
-
-    execCommandBoundTo(aceEditor, {
-      win: 'Up',
-      mac: 'Up'
+    it('calls onArrowDownOnLastLine when arrow down is pressed and cursor on last row', function() {
+      // eslint-disable-next-line new-cap
+      expect(commands.ArrowDown?.(mockContext())).to.eq(true);
+      expect(commandSpies.onArrowDownOnLastLine).to.have.been.called;
     });
-    expect(spy).not.to.have.been.called;
-  });
 
-  it('calls onArrowDownOnLastLine when arrow down is pressed and cursor on last row', () => {
-    const spy = sinon.spy();
-    const wrapper = mount(<Editor onArrowDownOnLastLine={spy} />);
-
-    const aceEditor = getAceEditorInstance(wrapper);
-    aceEditor.setValue('row 0\nrow 1');
-    aceEditor.moveCursorToPosition({ row: 1, column: 0 });
-    aceEditor.clearSelection();
-
-    expect(spy).not.to.have.been.called;
-    execCommandBoundTo(aceEditor, {
-      win: 'Down',
-      mac: 'Down'
+    it('does not call onArrowDownOnLastLine when arrow down is pressed and cursor not on last row', function() {
+      expect(
+        // eslint-disable-next-line new-cap
+        commands.ArrowDown?.(mockContext({ from: 0 }, { from: 0, to: 10 }, 20))
+      ).to.eq(false);
+      expect(commandSpies.onArrowDownOnLastLine).to.not.have.been.called;
     });
-    expect(spy).to.have.been.calledOnce;
-  });
 
-  it('does not call onArrowDownOnLastLine when arrow down is pressed and cursor not on last row', () => {
-    const spy = sinon.spy();
-    const wrapper = mount(<Editor onArrowDownOnLastLine={spy} />);
-
-    const aceEditor = getAceEditorInstance(wrapper);
-    aceEditor.setValue('row 0\nrow 1');
-
-    execCommandBoundTo(aceEditor, {
-      win: 'Down',
-      mac: 'Down'
+    it('does not call onArrowUpOnFirstLine if text is selected', function() {
+      expect(
+        // eslint-disable-next-line new-cap
+        commands.ArrowUp?.(mockContext({ from: 0, to: 1, empty: false }))
+      ).to.eq(false);
+      expect(commandSpies.onArrowUpOnFirstLine).to.not.have.been.called;
     });
-    expect(spy).not.to.have.been.called;
-  });
 
-  it('does not call onArrowUpOnFirstLine if text is selected', () => {
-    const spy = sinon.spy();
-    const wrapper = mount(<Editor onArrowUpOnFirstLine={spy} />);
-
-    const aceEditor = getAceEditorInstance(wrapper);
-    aceEditor.setValue('text');
-    aceEditor.selectAll();
-
-    execCommandBoundTo(aceEditor, {
-      win: 'Up',
-      mac: 'Up'
+    it('does not call onArrowDownOnLastLine if text is selected', function() {
+      expect(
+        // eslint-disable-next-line new-cap
+        commands.ArrowDown?.(mockContext({ from: 0, to: 1, empty: false }))
+      ).to.eq(false);
+      expect(commandSpies.onArrowDownOnLastLine).to.not.have.been.called;
     });
-    expect(spy).not.to.have.been.called;
-  });
-
-  it('does not call onArrowDownOnLastLine if text is selected', () => {
-    const spy = sinon.spy();
-    const wrapper = mount(<Editor onArrowDownOnLastLine={spy} />);
-
-    const aceEditor = getAceEditorInstance(wrapper);
-    aceEditor.setValue('text');
-    aceEditor.selectAll();
-
-    execCommandBoundTo(aceEditor, {
-      win: 'Down',
-      mac: 'Down'
-    });
-    expect(spy).not.to.have.been.called;
-  });
-
-  it('sets the input ref for the editor', () => {
-    const spy = sinon.spy();
-    const wrapper = mount(<Editor onEditorLoad={spy} />);
-
-    const aceEditor = getAceEditorInstance(wrapper);
-
-    expect(spy).to.have.been.calledOnce;
-    expect(spy.args[0][0]).to.equal(aceEditor);
   });
 });
-

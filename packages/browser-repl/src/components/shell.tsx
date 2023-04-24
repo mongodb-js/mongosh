@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { AceEditor as IAceEditor } from '@mongodb-js/compass-editor';
+import type { EditorRef } from '@mongodb-js/compass-editor';
 import { css, ThemeProvider, Theme, palette, fontFamilies } from '@mongodb-js/compass-components';
 import type { Runtime } from '@mongosh/browser-runtime-core';
 import { changeHistory } from '@mongosh/history';
@@ -33,7 +33,8 @@ const shellContainer = css({
     margin: 0,
     fontSize: 'inherit',
     borderRadius: 0,
-    color: 'inherit'
+    color: 'inherit',
+    tabSize: 2,
   }
 });
 
@@ -122,7 +123,7 @@ export class Shell extends Component<ShellProps, ShellState> {
   };
 
   private shellInputElement: HTMLElement | null = null;
-  private editor?: IAceEditor;
+  private editor?: EditorRef | null = null;
   private onFinishPasswordPrompt: ((input: string) => void) = noop;
   private onCancelPasswordPrompt: (() => void) = noop;
 
@@ -333,10 +334,13 @@ export class Shell extends Component<ShellProps, ShellState> {
     }
   };
 
+  private setEditor = (editor: any | null) => {
+    this.editor = editor;
+  };
+
   private focusEditor = (): void => {
-    if (this.editor) {
-      this.editor.focus();
-    }
+    // eslint-disable-next-line chai-friendly/no-unused-expressions
+    this.editor?.focus();
   };
 
   private onSigInt = (): Promise<boolean> => {
@@ -369,9 +373,7 @@ export class Shell extends Component<ShellProps, ShellState> {
         onClearCommand={this.onClearCommand}
         onInput={this.onInput}
         operationInProgress={this.state.operationInProgress}
-        onEditorLoad={(editor) => {
-          this.editor = editor;
-        }}
+        editorRef={this.setEditor}
         onSigInt={this.onSigInt}
       />
     );

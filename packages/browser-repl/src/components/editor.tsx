@@ -1,167 +1,194 @@
 import React, { Component } from 'react';
 import { css } from '@mongodb-js/compass-components';
-import { InlineEditor, AceEditor as IAceEditor } from '@mongodb-js/compass-editor';
+import { CodemirrorInlineEditor } from '@mongodb-js/compass-editor';
+import type { EditorRef, Command } from '@mongodb-js/compass-editor';
 import { Autocompleter } from '@mongosh/browser-runtime-core';
-import { AceAutocompleterAdapter } from './ace-autocompleter-adapter';
+
+// TODO: update compass editor and use exported type
+type Completer = React.ComponentProps<
+  typeof CodemirrorInlineEditor
+>['completer'];
 
 const noop = (): void => {};
 
-const editor = css({
-  lineHeight: '24px !important',
-  marginLeft: '-4px',
+export const editorStyles = css({
+  '& .cm-content': {
+    paddingTop: 0,
+    paddingBottom: 0
+  },
+  '& .cm-line': {
+    paddingLeft: 1,
+    paddingRight: 1
+  }
 });
+
+function cursorDocEnd({ state, dispatch }: any) {
+  dispatch(
+    state.update({
+      selection: { anchor: state.doc.length },
+      scrollIntoView: true,
+      userEvent: 'select'
+    })
+  );
+  return true;
+}
 
 interface EditorProps {
   autocompleter?: Autocompleter;
-  moveCursorToTheEndOfInput: boolean;
   onEnter(): void | Promise<void>;
-  onArrowUpOnFirstLine(): void | Promise<void>;
-  onArrowDownOnLastLine(): void | Promise<void>;
+  onArrowUpOnFirstLine(): Promise<boolean>;
+  onArrowDownOnLastLine(): Promise<boolean>;
   onChange(value: string): void | Promise<void>;
   onClearCommand(): void | Promise<void>;
   onSigInt(): Promise<boolean>;
   operationInProgress: boolean;
   value: string;
-  onEditorLoad?: (editor: IAceEditor) => void;
+  editorRef?: (editor: EditorRef | null) => void;
+}
+
+export function createCommands(
+  callbacks: Pick<
+    EditorProps,
+    | 'onEnter'
+    | 'onArrowDownOnLastLine'
+    | 'onArrowUpOnFirstLine'
+    | 'onClearCommand'
+    | 'onSigInt'
+  >
+): Command[] {
+  return [
+    {
+      key: 'Enter',
+      run: () => {
+        void callbacks.onEnter();
+        return true;
+      },
+      preventDefault: true
+    },
+    {
+      key: 'ArrowUp',
+      run: (context) => {
+        const selection = context.state.selection.main;
+        if (!selection.empty) {
+          return false;
+        }
+        const lineBlock = context.lineBlockAt(selection.from);
+        const isFirstLine = lineBlock.from === 0;
+        if (!isFirstLine) {
+          return false;
+        }
+        void callbacks.onArrowUpOnFirstLine().then((updated) => {
+          if (updated) {
+            cursorDocEnd(context);
+          }
+        });
+        return true;
+      },
+      preventDefault: true
+    },
+    {
+      key: 'ArrowDown',
+      run: (context) => {
+        const selection = context.state.selection.main;
+        if (!selection.empty) {
+          return false;
+        }
+        const lineBlock = context.lineBlockAt(selection.from);
+        const isLastLine = lineBlock.to === context.state.doc.length;
+        if (!isLastLine) {
+          return false;
+        }
+        void callbacks.onArrowDownOnLastLine().then((updated) => {
+          if (updated) {
+            cursorDocEnd(context);
+          }
+        });
+        return true;
+      },
+      preventDefault: true
+    },
+    {
+      key: 'Mod-l',
+      run: () => {
+        void callbacks.onClearCommand();
+        return true;
+      },
+      preventDefault: true
+    },
+    {
+      key: 'Ctrl-c',
+      run: () => {
+        void callbacks.onSigInt();
+        return true;
+      },
+      preventDefault: true
+    }
+  ];
 }
 
 export class Editor extends Component<EditorProps> {
   static defaultProps = {
     onEnter: noop,
-    onArrowUpOnFirstLine: noop,
-    onArrowDownOnLastLine: noop,
+    onArrowUpOnFirstLine: () => Promise.resolve(false),
+    onArrowDownOnLastLine: () => Promise.resolve(false),
     onChange: noop,
     onClearCommand: noop,
     onSigInt: noop,
     operationInProgress: false,
-    value: '',
-    moveCursorToTheEndOfInput: false
+    value: ''
   };
 
-  private editor: any;
-  private visibleCursorDisplayStyle = '';
+  private commands: Command[];
 
-  private onEditorLoad = (editor: IAceEditor): void => {
-    this.editor = editor;
-    this.visibleCursorDisplayStyle = this.editor.renderer.$cursorLayer.element.style.display;
-
-    editor.commands.on('afterExec', (e: any) => {
-      if (
-        // Only suggest autocomplete if autocompleter was set
-        this.autocompleter &&
-        e.command.name === 'insertstring' &&
-        /^[\w.]$/.test(e.args)
-      ) {
-        this.editor.execCommand('startAutocomplete');
-      }
-    });
-
-    // eslint-disable-next-line chai-friendly/no-unused-expressions
-    this.props.onEditorLoad?.(editor);
-  };
-
-  private autocompleter: AceAutocompleterAdapter | null = null;
+  private autocompleter: Completer;
 
   private editorId: number = Date.now();
 
   constructor(props: EditorProps) {
     super(props);
-    if (this.props.autocompleter) {
-      this.autocompleter = new AceAutocompleterAdapter(
-        this.props.autocompleter
-      );
-    }
-  }
-
-  componentDidUpdate(prevProps: EditorProps): void {
-    if (prevProps.operationInProgress !== this.props.operationInProgress) {
-      if (this.props.operationInProgress) {
-        this.hideCursor();
-      } else {
-        this.showCursor();
+    this.autocompleter = (context) => {
+      if (!this.props.autocompleter?.getCompletions) {
+        return null;
       }
-    }
-  }
 
-  componentWillUnmount(): void {
-    this.autocompleter = null;
-  }
+      const line = context.state.doc.lineAt(context.pos);
 
-  private hideCursor(): void {
-    this.editor.renderer.$cursorLayer.element.style.display = 'none';
-  }
-
-  private showCursor(): void {
-    this.editor.renderer.$cursorLayer.element.style.display = this.visibleCursorDisplayStyle;
+      return this.props.autocompleter.getCompletions(line.text).then(
+        (completions) => {
+          if (completions && completions.length > 0) {
+            return {
+              from: line.from,
+              options: completions.map(({ completion }) => {
+                return { label: completion };
+              })
+            };
+          }
+          return null;
+        },
+        () => null
+      );
+    };
+    this.commands = createCommands(this.props);
   }
 
   render(): JSX.Element {
-    return (<InlineEditor
-      options={{
-        readOnly: !!this.props.operationInProgress
-      }}
-      className={editor}
-      name={`mongosh-ace-${this.editorId}`}
-      onLoad={this.onEditorLoad}
-      text={this.props.value}
-      onChangeText={this.props.onChange}
-      completer={this.autocompleter}
-      commands={[
-        {
-          name: 'return',
-          bindKey: { win: 'Return', mac: 'Return' },
-          exec: (): void => {
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this.props.onEnter();
-          }
-        },
-        {
-          name: 'arrowUpOnFirstLine',
-          bindKey: { win: 'Up', mac: 'Up' },
-          exec: (): void => {
-            const selectionRange = this.editor.getSelectionRange();
-            if (!selectionRange.isEmpty() || selectionRange.start.row !== 0) {
-              return this.editor.selection.moveCursorUp();
-            }
-
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this.props.onArrowUpOnFirstLine();
-          }
-        },
-        {
-          name: 'arrowDownOnLastLine',
-          bindKey: { win: 'Down', mac: 'Down' },
-          exec: (): void => {
-            const selectionRange = this.editor.getSelectionRange();
-            const lastRowIndex = this.editor.session.getLength() - 1;
-
-            if (!selectionRange.isEmpty() || selectionRange.start.row !== lastRowIndex) {
-              return this.editor.selection.moveCursorDown();
-            }
-
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this.props.onArrowDownOnLastLine();
-          }
-        },
-        {
-          name: 'clearShell',
-          bindKey: { win: 'Ctrl-L', mac: 'Command-L' },
-          exec: this.props.onClearCommand
-        },
-        {
-          name: 'SIGINT',
-          bindKey: { win: 'Ctrl-C', mac: 'Ctrl-C' },
-          exec: this.props.onSigInt,
-          // Types don't have it but it exists
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          readOnly: true,
-        }
-      ]}
-      maxLines={Infinity}
-      editorProps={{
-        $blockScrolling: Infinity
-      }}
-    />);
+    return (
+      <CodemirrorInlineEditor
+        id={`mongosh-ace-${this.editorId}`}
+        // As opposed to default javascript-expression
+        language="javascript"
+        ref={this.props.editorRef}
+        readOnly={this.props.operationInProgress}
+        text={this.props.value}
+        onChangeText={this.props.onChange}
+        commands={this.commands}
+        // @ts-expect-error TODO: this works but types don't allow it, waiting
+        // for update in compass-editor
+        maxLines={Infinity}
+        className={editorStyles}
+        completer={this.autocompleter}
+        lineHeight={24}
+      />
+    );
   }
 }
