@@ -35,7 +35,6 @@ function cursorDocEnd({ state, dispatch }: any) {
 
 interface EditorProps {
   autocompleter?: Autocompleter;
-  moveCursorToTheEndOfInput: boolean;
   onEnter(): void | Promise<void>;
   onArrowUpOnFirstLine(): Promise<boolean>;
   onArrowDownOnLastLine(): Promise<boolean>;
@@ -47,6 +46,86 @@ interface EditorProps {
   editorRef?: (editor: EditorRef | null) => void;
 }
 
+export function createCommands(
+  callbacks: Pick<
+    EditorProps,
+    | 'onEnter'
+    | 'onArrowDownOnLastLine'
+    | 'onArrowUpOnFirstLine'
+    | 'onClearCommand'
+    | 'onSigInt'
+  >
+): Command[] {
+  return [
+    {
+      key: 'Enter',
+      run: () => {
+        void callbacks.onEnter();
+        return true;
+      },
+      preventDefault: true
+    },
+    {
+      key: 'ArrowUp',
+      run: (context) => {
+        const selection = context.state.selection.main;
+        if (!selection.empty) {
+          return false;
+        }
+        const lineBlock = context.lineBlockAt(selection.from);
+        const isFirstLine = lineBlock.from === 0;
+        if (!isFirstLine) {
+          return false;
+        }
+        void callbacks.onArrowUpOnFirstLine().then((updated) => {
+          if (updated) {
+            cursorDocEnd(context);
+          }
+        });
+        return true;
+      },
+      preventDefault: true
+    },
+    {
+      key: 'ArrowDown',
+      run: (context) => {
+        const selection = context.state.selection.main;
+        if (!selection.empty) {
+          return false;
+        }
+        const lineBlock = context.lineBlockAt(selection.from);
+        const isLastLine = lineBlock.to === context.state.doc.length;
+        if (!isLastLine) {
+          return false;
+        }
+        void callbacks.onArrowDownOnLastLine().then((updated) => {
+          if (updated) {
+            cursorDocEnd(context);
+          }
+        });
+        return true;
+      },
+      preventDefault: true
+    },
+    {
+      key: 'Mod-l',
+      run: () => {
+        void callbacks.onClearCommand();
+        return true;
+      },
+      preventDefault: true
+    },
+    {
+      key: 'Ctrl-c',
+      run: () => {
+        void callbacks.onSigInt();
+        return true;
+      },
+      preventDefault: true
+    }
+  ];
+}
+
 export class Editor extends Component<EditorProps> {
   static defaultProps = {
     onEnter: noop,
@@ -56,8 +135,7 @@ export class Editor extends Component<EditorProps> {
     onClearCommand: noop,
     onSigInt: noop,
     operationInProgress: false,
-    value: '',
-    moveCursorToTheEndOfInput: false
+    value: ''
   };
 
   private commands: Command[];
@@ -90,68 +168,7 @@ export class Editor extends Component<EditorProps> {
         () => null
       );
     };
-    this.commands = [
-      {
-        key: 'Enter',
-        run: () => {
-          void this.props.onEnter();
-          return true;
-        },
-        preventDefault: true
-      },
-      {
-        key: 'ArrowUp',
-        run: (context) => {
-          const selection = context.state.selection.main;
-          const lineBlock = context.lineBlockAt(selection.from);
-          const isFirstLine = lineBlock.from === 0;
-          if (!isFirstLine) {
-            return false;
-          }
-          void this.props.onArrowUpOnFirstLine().then((updated) => {
-            if (updated) {
-              cursorDocEnd(context);
-            }
-          });
-          return true;
-        },
-        preventDefault: true
-      },
-      {
-        key: 'ArrowDown',
-        run: (context) => {
-          const selection = context.state.selection.main;
-          const lineBlock = context.lineBlockAt(selection.from);
-          const isLastLine = lineBlock.to === context.state.doc.length;
-          if (!isLastLine) {
-            return false;
-          }
-          void this.props.onArrowDownOnLastLine().then((updated) => {
-            if (updated) {
-              cursorDocEnd(context);
-            }
-          });
-          return true;
-        },
-        preventDefault: true
-      },
-      {
-        key: 'Ctrl-l',
-        run: () => {
-          void this.props.onClearCommand();
-          return true;
-        },
-        preventDefault: true
-      },
-      {
-        key: 'Ctrl-c',
-        run: () => {
-          void this.props.onSigInt();
-          return true;
-        },
-        preventDefault: true
-      }
-    ];
+    this.commands = createCommands(this.props);
   }
 
   render(): JSX.Element {
