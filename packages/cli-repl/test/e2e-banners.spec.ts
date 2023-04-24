@@ -30,7 +30,8 @@ describe('e2e startup banners', () => {
   });
 
   after(() => {
-    freeMonitoringHttpServer.close();
+    // eslint-disable-next-line chai-friendly/no-unused-expressions
+    freeMonitoringHttpServer?.close?.();
   });
 
   context('without special configuration', () => {

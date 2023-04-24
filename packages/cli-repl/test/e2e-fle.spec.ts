@@ -301,6 +301,7 @@ describe('FLE tests', () => {
 
   context('6.0+', () => {
     skipIfServerVersion(testServer, '< 6.0'); // Queryable Encryption only available on 6.0+
+    skipIfServerVersion(testServer, '> 6.x'); // TODO(MONGOSH-1410): Queryable Encryption made a breaking change for 7.0
 
     it('allows explicit encryption with bypassQueryAnalysis', async function() {
       if (isMacosTooOldForQE()) {
@@ -505,6 +506,7 @@ describe('FLE tests', () => {
 
   context('6.2+', () => {
     skipIfServerVersion(testServer, '< 6.2'); // Range QE only available on 6.2+
+    skipIfServerVersion(testServer, '> 6.x'); // TODO(MONGOSH-1410): Queryable Encryption made a breaking change for 7.0
 
     it('allows explicit range encryption with bypassQueryAnalysis', async function() {
       if (isMacosTooOldForQE()) {

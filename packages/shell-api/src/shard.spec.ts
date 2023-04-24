@@ -1321,6 +1321,7 @@ describe('Shard', () => {
       });
     });
     describe('autosplit', () => {
+      skipIfServerVersion(mongos, '> 6.x'); // Auto-splitter is removed in 7.0
       it('disables correctly', async() => {
         expect((await sh.disableAutoSplit()).acknowledged).to.equal(true);
         expect((await sh.status()).value.autosplit['Currently enabled']).to.equal('no');

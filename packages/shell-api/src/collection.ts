@@ -1615,7 +1615,7 @@ export default class Collection extends ShellApiWithMongoClass {
 
     try {
       result.sharded = !!(await config.getCollection('collections').findOne({
-        _id: ns,
+        _id: timeseriesBucketsNs ?? ns,
         // Dropped is gone on newer server versions, so check for !== true
         // rather than for === false (SERVER-51880 and related).
         dropped: { $ne: true }
