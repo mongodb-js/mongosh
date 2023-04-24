@@ -16,8 +16,7 @@ export class SyntaxHighlight extends Component<SyntaxHighlightProps> {
     return (
       <CodemirrorInlineEditor
         readOnly
-        language="javascript"
-        text={this.props.code}
+        initialText={this.props.code}
         // @ts-expect-error TODO: this works but types don't allow it, waiting
         // for update in compass-editor
         maxLines={Infinity}
