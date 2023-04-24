@@ -397,9 +397,6 @@ export async function getPrintableShardStatus(configDB: Database, verbose: boole
   ]);
   result.balancer = balancerRes;
 
-  const dbRes: any[] = [];
-  result.databases = dbRes;
-
   const databases = await (await configDB.getCollection('databases').find()).sort({ name: 1 }).toArray();
 
   // Special case the config db, since it doesn't have a record in config.databases.
