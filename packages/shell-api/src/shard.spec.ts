@@ -1658,7 +1658,7 @@ describe('Shard', () => {
         await dbSh.dropDatabase();
       });
 
-      it('the list includes not partitioned databases', async() => {
+      it('the list includes databases that were never explicitly sharded', async() => {
         await dbRegular.getCollection(collRegularName).insertOne({ foo: 'bar', key: 99 });
 
         const collSh = dbSh.getCollection(collShName);
@@ -1670,10 +1670,11 @@ describe('Shard', () => {
         const result = await sh.status();
 
         const databasesDbItem = result.value.databases.find((item) => (item.database._id === 'db'));
-        expect(databasesDbItem.database.partitioned).to.equal(false);
+        // Cannot get strict guarantees about the value of this field since SERVER-63983
+        expect(databasesDbItem.database.partitioned).to.be.oneOf([false, undefined]);
         const databasesDbShItem = result.value.databases.find((item) => (item.database._id === 'dbSh'));
-        // Cannot get strict guarantees about the value of this field since SERVER-60926
-        expect(databasesDbShItem.database.partitioned).to.be.a('boolean');
+        // Cannot get strict guarantees about the value of this field since SERVER-60926 and SERVER-63983
+        expect(databasesDbShItem.database.partitioned).to.be.oneOf([true, false, undefined]);
       });
     });
   });
