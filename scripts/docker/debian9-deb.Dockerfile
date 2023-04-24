@@ -1,5 +1,8 @@
 FROM debian:9
 
+# Debian 9 (strech) packages have been moved from deb.debian.org to archive.debian.org
+RUN /bin/echo -e 'deb http://archive.debian.org/debian stretch main\ndeb http://archive.debian.org/debian-security stretch/updates main\ndeb http://archive.debian.org/debian stretch main\n' > /etc/apt/sources.list
+
 ARG artifact_url=""
 ADD ${artifact_url} /tmp
 ADD node_modules /usr/share/mongodb-crypt-library-version/node_modules
