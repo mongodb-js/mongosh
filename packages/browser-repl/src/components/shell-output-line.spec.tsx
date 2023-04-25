@@ -12,7 +12,13 @@ import { ErrorOutput } from './types/error-output';
 
 describe('<ShellOutputLine />', () => {
   it('renders a string value', () => {
-    const wrapper = shallow(<ShellOutputLine entry={{ format: 'output', value: 'some text' }} />);
+    const wrapper = mount(<ShellOutputLine entry={{ format: 'output', value: 'some text' }} />);
+    expect(wrapper.find('pre')).to.have.lengthOf(1);
+    expect(wrapper.text()).to.contain('some text');
+  });
+
+  it('renders a pre-inspected string value from node-runtime-worker-thread', () => {
+    const wrapper = shallow(<ShellOutputLine entry={{ format: 'output', value: 'some text', type: 'InspectResult' }} />);
     expect(wrapper.find(SimpleTypeOutput)).to.have.lengthOf(1);
   });
 

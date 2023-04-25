@@ -59,7 +59,11 @@ export class ShellOutputLine extends Component<ShellOutputLineProps> {
       return <pre>{value}</pre>;
     }
 
-    if (typeof value === 'string' && !type) {
+    // 'InspectResult' is a special value used by node-runtime-worker-thread
+    // which indicates that the value has already been inspect()ed prior to
+    // serialization, in which case we also want to print its raw contents
+    // rather than calling inspect() again;
+    if (typeof value === 'string' && type === 'InspectResult') {
       return <SimpleTypeOutput value={value} raw />;
     }
 
@@ -115,9 +119,10 @@ export class ShellOutputLine extends Component<ShellOutputLineProps> {
   }
 
   private isPreformattedResult(value: any, type?: string | null): boolean {
-    return typeof value === 'string' &&
-    type === 'Database' ||
-    type === 'Collection';
+    return typeof value === 'string' && (
+      type === 'Database' ||
+      type === 'Collection' ||
+      !type);
   }
 
   private isPrimitiveOrFunction(value: any): boolean {
