@@ -152,7 +152,11 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
     );
 
     return (
-      <LineWithIcon className={shellInput} icon={prompt}>
+      <LineWithIcon
+        className={shellInput}
+        icon={prompt}
+        data-testid="shell-input"
+      >
         {editor}
       </LineWithIcon>
     );
