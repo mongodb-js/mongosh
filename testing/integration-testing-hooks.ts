@@ -56,6 +56,9 @@ async function tryExtensions(base: string): Promise<[ string, Error ]> {
 
 async function findPython3() {
   try {
+    if (process.env.DISTRO_ID?.startsWith('windows-')) {
+      throw new Error('python3 on Windows in evergreen CI is broken but `python` is working python3');
+    }
     await which('python3');
     return 'python3';
   } catch {
