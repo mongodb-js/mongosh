@@ -47,11 +47,12 @@ export class Expandable extends Component<ExpandableProps, ExpandableState> {
       onClick={this.toggle}
     />);
 
-    return (<LineWithIcon icon={icon}>
-      {typeof this.props.children === 'function'
-        ? this.props.children(this.state.expanded, this.toggle)
-        : this.props.children}
-
-    </LineWithIcon>);
+    return (
+      <LineWithIcon icon={icon} data-testid="shell-output">
+        {typeof this.props.children === 'function'
+          ? this.props.children(this.state.expanded, this.toggle)
+          : this.props.children}
+      </LineWithIcon>
+    );
   }
 }

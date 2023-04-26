@@ -22,23 +22,26 @@ const lineWithIconContent = css({
 interface LineWithIconProps {
   icon: JSX.Element;
   className?: string;
+  ['data-testid']?: string;
 }
 
 export class LineWithIcon extends Component<LineWithIconProps> {
   static propTypes = {
     icon: PropTypes.object.isRequired,
-    className: PropTypes.string
+    className: PropTypes.string,
+    ['data-testid']: PropTypes.string
   };
 
   render(): JSX.Element {
-    return (<div className={cx(this.props.className, lineWithIcon)}>
-      <span className={lineWithIconIcon}>
-        {this.props.icon}
-      </span>
-      <div className={lineWithIconContent}>
-        {this.props.children}
+    return (
+      <div
+        className={cx(this.props.className, lineWithIcon)}
+        data-testid={this.props['data-testid']}
+      >
+        <span className={lineWithIconIcon}>{this.props.icon}</span>
+        <div className={lineWithIconContent}>{this.props.children}</div>
       </div>
-    </div>);
+    );
   }
 }
 

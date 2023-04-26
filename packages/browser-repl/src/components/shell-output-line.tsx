@@ -166,6 +166,7 @@ export class ShellOutputLine extends Component<ShellOutputLineProps> {
           format === 'error' && shellOutputLineError
         )}
         icon={icon}
+        data-testid="shell-output"
       >
         {this.renderValue()}
       </LineWithIcon>
