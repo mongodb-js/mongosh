@@ -1,7 +1,7 @@
 set -e
 set -x
 export BASEDIR="$PWD/.evergreen"
-export PATH="/cygdrive/c/python/Python311/Scripts:/cygdrive/c/python/Python311:/cygdrive/c/Python311/Scripts:/cygdrive/c/Python311:/opt/python/3.6/bin:$BASEDIR/mingit/cmd:$BASEDIR/mingit/mingw64/libexec/git-core:$BASEDIR/git-2:$BASEDIR/npm-8/node_modules/.bin:$BASEDIR/node-v$NODE_JS_VERSION-win-x64:/opt/java/jdk16/bin:/opt/chefdk/gitbin:/cygdrive/c/cmake/bin:/opt/mongodbtoolchain/v3/bin:$PATH"
+export PATH="$BASEDIR/.bin:/cygdrive/c/python/Python311/Scripts:/cygdrive/c/python/Python311:/cygdrive/c/Python311/Scripts:/cygdrive/c/Python311:/opt/python/3.6/bin:$BASEDIR/mingit/cmd:$BASEDIR/mingit/mingw64/libexec/git-core:$BASEDIR/git-2:$BASEDIR/npm-8/node_modules/.bin:$BASEDIR/node-v$NODE_JS_VERSION-win-x64:/opt/java/jdk16/bin:/opt/chefdk/gitbin:/cygdrive/c/cmake/bin:/opt/mongodbtoolchain/v3/bin:$PATH"
 export IS_MONGOSH_EVERGREEN_CI=1
 
 if [ "$OS" != "Windows_NT" ]; then
@@ -26,6 +26,8 @@ if [ "$OS" != "Windows_NT" ]; then
   if [ -x "$BASEDIR/git-2/git" ]; then
     export GIT_EXEC_PATH="$BASEDIR/git-2"
   fi
+else
+  (mkdir -p "$BASEDIR/.bin" && cd "$BASEDIR/.bin" && rm -f python && ln -s $(which python3) python)
 fi
 
 export EVERGREEN_EXPANSIONS_PATH="$BASEDIR/../../tmp/expansions.yaml"
@@ -66,16 +68,19 @@ echo "Full path:"
 echo $PATH
 
 echo "Using node version:"
-node --version
+(which node && node --version)
 
 echo "Using npm version:"
-npm --version
+(which npm && npm --version)
 
 echo "Using git version:"
-git --version
+(which git && git --version)
 
 echo "Using python version:"
-python --version
+(which python && python --version) || true
+
+echo "Using python3 version:"
+(which python3 && python3 --version) || true
 
 echo "Node.js OS info:"
 node -p '[os.arch(), os.platform(), os.endianness(), os.type(), os.release()]'
