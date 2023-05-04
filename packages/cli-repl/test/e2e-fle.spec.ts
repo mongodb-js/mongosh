@@ -299,9 +299,8 @@ describe('FLE tests', () => {
     expect(compactResult).to.include('The "compactStructuredEncryptionData" command requires Mongo instance configured with auto encryption.');
   });
 
-  context('6.0+', () => {
-    skipIfServerVersion(testServer, '< 6.0'); // Queryable Encryption only available on 6.0+
-    skipIfServerVersion(testServer, '> 6.x'); // TODO(MONGOSH-1410): Queryable Encryption made a breaking change for 7.0
+  context('7.0', () => {
+    skipIfServerVersion(testServer, '< 7.0');
 
     it('allows explicit encryption with bypassQueryAnalysis', async function() {
       if (isMacosTooOldForQE()) {
@@ -502,12 +501,6 @@ describe('FLE tests', () => {
       // Since there is only one field to be encrypted hence there would only be one DEK in our keyvault collection
       expect(parseInt(dekCount.trim(), 10)).to.equal(1);
     });
-  });
-
-  context('6.2+', () => {
-    skipIfServerVersion(testServer, '< 6.2'); // Range QE only available on 6.2+
-    skipIfServerVersion(testServer, '> 6.x'); // TODO(MONGOSH-1410): Queryable Encryption made a breaking change for 7.0
-
     it('allows explicit range encryption with bypassQueryAnalysis', async function() {
       if (isMacosTooOldForQE()) {
         return this.skip();
