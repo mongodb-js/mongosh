@@ -299,8 +299,8 @@ describe('FLE tests', () => {
     expect(compactResult).to.include('The "compactStructuredEncryptionData" command requires Mongo instance configured with auto encryption.');
   });
 
-  context('7.0', () => {
-    skipIfServerVersion(testServer, '< 7.0');
+  context('7.0+', () => {
+    skipIfServerVersion(testServer, '< 7.0'); // Queryable Encryption v2 only available on 6.0+
 
     it('allows explicit encryption with bypassQueryAnalysis', async function() {
       if (isMacosTooOldForQE()) {
