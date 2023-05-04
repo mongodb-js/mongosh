@@ -300,7 +300,7 @@ describe('FLE tests', () => {
   });
 
   context('7.0+', () => {
-    skipIfServerVersion(testServer, '< 7.0'); // Queryable Encryption v2 only available on 6.0+
+    skipIfServerVersion(testServer, '< 7.0'); // Queryable Encryption v2 only available on 7.0+
 
     it('allows explicit encryption with bypassQueryAnalysis', async function() {
       if (isMacosTooOldForQE()) {
