@@ -17,6 +17,7 @@ import { startTestServer } from '../../../testing/integration-testing-hooks';
 import { makeFakeHTTPConnection, fakeAWSHandlers } from '../../../testing/fake-kms';
 import { inspect } from 'util';
 import Collection from './collection';
+import { dummyOptions } from './helpers.spec';
 
 const KEY_ID = new bson.Binary('MTIzNA==');
 const DB = 'encryption';
@@ -629,7 +630,7 @@ describe('Field Level Encryption', () => {
     beforeEach(async() => {
       dbname = `test_fle_${Date.now()}`;
       uri = `${await testServer.connectionString()}/${dbname}`;
-      serviceProvider = await CliServiceProvider.connect(uri, {}, {}, new EventEmitter());
+      serviceProvider = await CliServiceProvider.connect(uri, dummyOptions, {}, new EventEmitter());
       instanceState = new ShellInstanceState(serviceProvider);
       instanceState.setEvaluationListener({
         onPrint: (value: any[]) => printedOutput.push(...value)

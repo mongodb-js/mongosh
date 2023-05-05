@@ -296,7 +296,7 @@ export class MongodSetup {
 }
 
 // Spawn mlaunch with a specific set of arguments.
-class MlaunchSetup extends MongodSetup {
+export class MlaunchSetup extends MongodSetup {
   _args: string[];
   _mlaunchdir = '';
 

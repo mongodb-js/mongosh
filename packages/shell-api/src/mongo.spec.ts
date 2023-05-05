@@ -20,6 +20,7 @@ import NoDatabase from './no-db';
 import { MongoshDeprecatedError, MongoshInternalError, MongoshUnimplementedError } from '@mongosh/errors';
 import { CliServiceProvider } from '../../service-provider-server';
 import { startTestServer, skipIfServerVersion } from '../../../testing/integration-testing-hooks';
+import { dummyOptions } from './helpers.spec';
 
 const sampleOpts = {
   causalConsistency: false,
@@ -934,7 +935,7 @@ describe('Mongo', () => {
 
     beforeEach(async() => {
       uri = await testServer.connectionString();
-      serviceProvider = await CliServiceProvider.connect(uri, {}, {}, new EventEmitter());
+      serviceProvider = await CliServiceProvider.connect(uri, dummyOptions, {}, new EventEmitter());
       instanceState = new ShellInstanceState(serviceProvider);
     });
 

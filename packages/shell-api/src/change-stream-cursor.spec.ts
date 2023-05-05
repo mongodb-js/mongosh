@@ -13,6 +13,7 @@ import Database from './database';
 import Collection from './collection';
 import { MongoshUnimplementedError } from '@mongosh/errors';
 import { EventEmitter } from 'events';
+import { dummyOptions } from './helpers.spec';
 
 describe('ChangeStreamCursor', () => {
   describe('help', () => {
@@ -111,7 +112,7 @@ describe('ChangeStreamCursor', () => {
 
     before(async function() {
       this.timeout(100_000);
-      serviceProvider = await CliServiceProvider.connect(await srv0.connectionString(), {}, {}, new EventEmitter());
+      serviceProvider = await CliServiceProvider.connect(await srv0.connectionString(), dummyOptions, {}, new EventEmitter());
       instanceState = new ShellInstanceState(serviceProvider);
       mongo = new Mongo(instanceState, undefined, undefined, undefined, serviceProvider);
       db = mongo.getDB('testDb');

@@ -6,6 +6,13 @@ import { MongoshBus } from '@mongosh/types';
 import { startTestServer } from '../../../testing/integration-testing-hooks';
 import { WorkerRuntime } from '../dist/index';
 
+import type { DevtoolsConnectOptions } from '@mongosh/service-provider-server';
+
+export const dummyOptions: DevtoolsConnectOptions = Object.freeze({
+  productName: 'Test Product',
+  productDocsLink: 'https://example.com/'
+});
+
 chai.use(sinonChai);
 
 function createMockEventEmitter() {
@@ -41,7 +48,7 @@ describe('WorkerRuntime', () => {
     it('should return init error if child process failed to spawn', async() => {
       process.env.CHILD_PROCESS_PROXY_SRC_PATH_DO_NOT_USE_THIS_EXCEPT_FOR_TESTING = brokenScript;
 
-      runtime = new WorkerRuntime('mongodb://nodb/', {}, { nodb: true });
+      runtime = new WorkerRuntime('mongodb://nodb/', dummyOptions, { nodb: true });
 
       let err;
 
@@ -56,7 +63,7 @@ describe('WorkerRuntime', () => {
     });
 
     it('should return init error if worker in child process failed to spawn', async() => {
-      runtime = new WorkerRuntime('mongodb://nodb/', {}, { nodb: true }, {
+      runtime = new WorkerRuntime('mongodb://nodb/', dummyOptions, { nodb: true }, {
         env: {
           WORKER_RUNTIME_SRC_PATH_DO_NOT_USE_THIS_EXCEPT_FOR_TESTING: brokenScript
         }
@@ -77,7 +84,7 @@ describe('WorkerRuntime', () => {
 
   describe('evaluate', () => {
     it('should evaluate and return basic values', async() => {
-      runtime = new WorkerRuntime('mongodb://nodb/', {}, { nodb: true });
+      runtime = new WorkerRuntime('mongodb://nodb/', dummyOptions, { nodb: true });
       const result = await runtime.evaluate('1+1');
 
       expect(result.printable).to.equal(2);
@@ -85,7 +92,7 @@ describe('WorkerRuntime', () => {
 
     describe('errors', () => {
       it("should throw an error if it's thrown during evaluation", async() => {
-        runtime = new WorkerRuntime('mongodb://nodb/', {}, { nodb: true });
+        runtime = new WorkerRuntime('mongodb://nodb/', dummyOptions, { nodb: true });
 
         let err: Error;
 
@@ -104,7 +111,7 @@ describe('WorkerRuntime', () => {
       });
 
       it("should return an error if it's returned from evaluation", async() => {
-        runtime = new WorkerRuntime('mongodb://nodb/', {}, { nodb: true });
+        runtime = new WorkerRuntime('mongodb://nodb/', dummyOptions, { nodb: true });
 
         const { printable } = await runtime.evaluate(
           'new SyntaxError("Syntax!")'
@@ -124,7 +131,7 @@ describe('WorkerRuntime', () => {
     const testServer = startTestServer('shared');
 
     it('should return completions', async() => {
-      runtime = new WorkerRuntime(await testServer.connectionString());
+      runtime = new WorkerRuntime(await testServer.connectionString(), dummyOptions);
       const completions = await runtime.getCompletions('db.coll1.f');
 
       expect(completions).to.deep.contain({ completion: 'db.coll1.find' });
@@ -135,7 +142,7 @@ describe('WorkerRuntime', () => {
     const testServer = startTestServer('shared');
 
     it('should return prompt when connected to the server', async() => {
-      runtime = new WorkerRuntime(await testServer.connectionString());
+      runtime = new WorkerRuntime(await testServer.connectionString(), dummyOptions);
       const result = await runtime.getShellPrompt();
 
       expect(result).to.match(/>/);
@@ -148,7 +155,7 @@ describe('WorkerRuntime', () => {
         onPrompt: sinon.spy(() => 'password123')
       };
 
-      runtime = new WorkerRuntime('mongodb://nodb/', {}, { nodb: true });
+      runtime = new WorkerRuntime('mongodb://nodb/', dummyOptions, { nodb: true });
 
       runtime.setEvaluationListener(evalListener);
 
@@ -167,7 +174,7 @@ describe('WorkerRuntime', () => {
 
       runtime = new WorkerRuntime(
         await testServer.connectionString(),
-        {},
+        dummyOptions,
         {},
         {},
         eventEmitter
@@ -198,21 +205,21 @@ describe('WorkerRuntime', () => {
     // strings to make TS happy
     /* eslint-disable dot-notation */
     it('should terminate child process', async() => {
-      const runtime = new WorkerRuntime('mongodb://nodb/', {}, { nodb: true });
+      const runtime = new WorkerRuntime('mongodb://nodb/', dummyOptions, { nodb: true });
       await runtime.terminate();
       expect(runtime['childProcess']).to.have.property('killed', true);
       expect(isRunning(runtime['childProcess'].pid)).to.equal(false);
     });
 
     it('should remove all listeners from childProcess', async() => {
-      const runtime = new WorkerRuntime('mongodb://nodb/', {}, { nodb: true });
+      const runtime = new WorkerRuntime('mongodb://nodb/', dummyOptions, { nodb: true });
       await runtime.terminate();
       expect(runtime['childProcess'].listenerCount('message')).to.equal(0);
     });
     /* eslint-enable dot-notation */
 
     it('should cancel any in-flight runtime calls', async() => {
-      const runtime = new WorkerRuntime('mongodb://nodb/', {}, { nodb: true });
+      const runtime = new WorkerRuntime('mongodb://nodb/', dummyOptions, { nodb: true });
       let err: Error;
       try {
         await Promise.all([
@@ -233,7 +240,7 @@ describe('WorkerRuntime', () => {
 
   describe('interrupt', () => {
     it('should interrupt in-flight async tasks', async() => {
-      runtime = new WorkerRuntime('mongodb://nodb/', {}, { nodb: true });
+      runtime = new WorkerRuntime('mongodb://nodb/', dummyOptions, { nodb: true });
 
       await runtime.waitForRuntimeToBeReady();
 
@@ -261,7 +268,7 @@ describe('WorkerRuntime', () => {
     });
 
     it('should interrupt in-flight synchronous tasks', async() => {
-      runtime = new WorkerRuntime('mongodb://nodb/', {}, { nodb: true });
+      runtime = new WorkerRuntime('mongodb://nodb/', dummyOptions, { nodb: true });
 
       await runtime.waitForRuntimeToBeReady();
 
@@ -286,7 +293,7 @@ describe('WorkerRuntime', () => {
     });
 
     it('should allow to evaluate again after interruption', async() => {
-      runtime = new WorkerRuntime('mongodb://nodb/', {}, { nodb: true });
+      runtime = new WorkerRuntime('mongodb://nodb/', dummyOptions, { nodb: true });
 
       await runtime.waitForRuntimeToBeReady();
 

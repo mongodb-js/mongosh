@@ -287,7 +287,22 @@ export class CliRepl implements MongoshIOProvider {
       delete driverOptions.autoEncryption;
     }
 
-    const initialServiceProvider = await this.connect(driverUri, driverOptions);
+    await this.prepareOIDCOptions(driverOptions);
+
+    let initialServiceProvider;
+    try {
+      initialServiceProvider = await this.connect(driverUri, driverOptions);
+    } catch (err) {
+      if (
+        typeof err === 'object' &&
+        err?.constructor.name === 'MongoDBOIDCError' &&
+        !driverOptions.oidc?.allowedFlows?.includes('device-auth')
+      ) {
+        (err as Error).message +=
+          '\nConsider specifying --oidcFlows=auth-code,device-auth if you are running mongosh in an environment without browser access.';
+      }
+      throw err;
+    }
     const initialized = await this.mongoshRepl.initialize(initialServiceProvider);
 
     const commandLineLoadFiles = this.cliOptions.fileNames ?? [];
@@ -778,5 +793,30 @@ export class CliRepl implements MongoshIOProvider {
   getLoggedEnvironmentVariables(): Record<string, string | undefined> {
     const { EDITOR, NODE_OPTIONS, TERM } = process.env;
     return { EDITOR, NODE_OPTIONS, TERM };
+  }
+
+  /** Adjust `driverOptions` with OIDC-specific settings from this CLI instance. */
+  // eslint-disable-next-line complexity
+  async prepareOIDCOptions(driverOptions: DevtoolsConnectOptions) {
+    driverOptions.oidc ??= {};
+    driverOptions.authMechanismProperties ??= {};
+
+    driverOptions.oidc.allowedFlows ??= ['auth-code'];
+    driverOptions.oidc.notifyDeviceFlow ??= ({
+      verificationUrl,
+      userCode
+    }) => {
+      this.output.write('\n' +
+        `Visit the following URL to complete authentication: ${this.clr(verificationUrl, 'mongosh:uri')}\n` +
+        `Enter the following code on that page: ${this.clr(userCode, 'mongosh:uri')}\nWaiting...\n`);
+    };
+
+    const redirectURI = await this.getConfig('oidcRedirectURI');
+    const trustedEndpoints = await this.getConfig('oidcTrustedEndpoints');
+    const browser = await this.getConfig('browser');
+    if (redirectURI !== undefined) {driverOptions.oidc.redirectURI ??= redirectURI;}
+    if (browser !== undefined) {driverOptions.oidc.openBrowser ??= browser !== false ? { command: browser } : browser;}
+    if (trustedEndpoints !== undefined) {driverOptions.authMechanismProperties.ALLOWED_HOSTS ??= trustedEndpoints;}
+    if (process.env.MONGOSH_OIDC_PARENT_HANDLE) {driverOptions.parentHandle ??= process.env.MONGOSH_OIDC_PARENT_HANDLE;}
   }
 }

@@ -18,6 +18,7 @@ import { ensureMaster, ensureSessionExists } from '../../../testing/helpers';
 import Database from './database';
 import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
 import { EventEmitter } from 'events';
+import { dummyOptions } from './helpers.spec';
 
 describe('Session', () => {
   describe('help', () => {
@@ -162,7 +163,7 @@ describe('Session', () => {
 
     beforeEach(async() => {
       databaseName = `test-${Date.now()}`;
-      serviceProvider = await CliServiceProvider.connect(await srv0.connectionString(), {}, {}, new EventEmitter());
+      serviceProvider = await CliServiceProvider.connect(await srv0.connectionString(), dummyOptions, {}, new EventEmitter());
       instanceState = new ShellInstanceState(serviceProvider);
       mongo = new Mongo(instanceState, undefined, undefined, undefined, serviceProvider);
       await ensureMaster(mongo.getDB(ADMIN_DB), 1000, await srv0.hostport());
