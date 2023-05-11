@@ -287,7 +287,7 @@ export class CliRepl implements MongoshIOProvider {
       delete driverOptions.autoEncryption;
     }
 
-    await this.prepareOIDCOptions(driverOptions);
+    driverOptions = await this.prepareOIDCOptions(driverOptions);
 
     let initialServiceProvider;
     try {
@@ -795,11 +795,14 @@ export class CliRepl implements MongoshIOProvider {
     return { EDITOR, NODE_OPTIONS, TERM };
   }
 
-  /** Adjust `driverOptions` with OIDC-specific settings from this CLI instance. */
+  /** Adjust `driverOptionsIn` with OIDC-specific settings from this CLI instance. */
   // eslint-disable-next-line complexity
-  async prepareOIDCOptions(driverOptions: DevtoolsConnectOptions) {
-    driverOptions.oidc ??= {};
-    driverOptions.authMechanismProperties ??= {};
+  async prepareOIDCOptions(driverOptionsIn: Readonly<DevtoolsConnectOptions>): Promise<DevtoolsConnectOptions> {
+    const driverOptions = {
+      oidc: {},
+      authMechanismProperties: {},
+      ...driverOptionsIn
+    };
 
     driverOptions.oidc.allowedFlows ??= ['auth-code'];
     driverOptions.oidc.notifyDeviceFlow ??= ({
@@ -811,12 +814,23 @@ export class CliRepl implements MongoshIOProvider {
         `Enter the following code on that page: ${this.clr(userCode, 'mongosh:uri')}\nWaiting...\n`);
     };
 
-    const redirectURI = await this.getConfig('oidcRedirectURI');
-    const trustedEndpoints = await this.getConfig('oidcTrustedEndpoints');
-    const browser = await this.getConfig('browser');
-    if (redirectURI !== undefined) {driverOptions.oidc.redirectURI ??= redirectURI;}
-    if (browser !== undefined) {driverOptions.oidc.openBrowser ??= browser !== false ? { command: browser } : browser;}
-    if (trustedEndpoints !== undefined) {driverOptions.authMechanismProperties.ALLOWED_HOSTS ??= trustedEndpoints;}
-    if (process.env.MONGOSH_OIDC_PARENT_HANDLE) {driverOptions.parentHandle ??= process.env.MONGOSH_OIDC_PARENT_HANDLE;}
+    const [redirectURI, trustedEndpoints, browser] = await Promise.all([
+      this.getConfig('oidcRedirectURI'),
+      this.getConfig('oidcTrustedEndpoints'),
+      this.getConfig('browser')
+    ]);
+    if (redirectURI !== undefined) {
+      driverOptions.oidc.redirectURI ??= redirectURI;
+    }
+    if (browser !== undefined) {
+      driverOptions.oidc.openBrowser ??= browser !== false ? { command: browser } : browser;
+    }
+    if (trustedEndpoints !== undefined) {
+      driverOptions.authMechanismProperties.ALLOWED_HOSTS ??= trustedEndpoints;
+    }
+    if (process.env.MONGOSH_OIDC_PARENT_HANDLE) {
+      driverOptions.parentHandle ??= process.env.MONGOSH_OIDC_PARENT_HANDLE;
+    }
+    return driverOptions;
   }
 }
