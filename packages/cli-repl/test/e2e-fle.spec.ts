@@ -303,7 +303,7 @@ describe('FLE tests', () => {
     skipIfServerVersion(testServer, '< 6.0');
     skipIfServerVersion(testServer, '>= 7.0');
 
-    it.only('can read QE data stored in a mongodb 6 database', async function() {
+    it('can read QE data stored in a mongodb 6 database', async function() {
       const uri = await testServer.connectionString();
       const shell = TestShell.start({
         args: [uri, `--cryptSharedLibPath=${cryptLibrary}`]
@@ -403,8 +403,8 @@ describe('FLE tests', () => {
       );
       expect(await shell.executeLine('({ count: coll.countDocuments() })')).to.include('{ count: 2 }');
 
-      // Make sure the find payload allows searching for the encrypted value
-      expect(await shell.executeLine('coll.findOne({ v: "456" })._id')).to.include('ghjk');
+      // We can't search for the encrypted value, but it does get decrypted
+      expect(await shell.executeLine('coll.findOne({ _id: "ghjk" }).v')).to.include('456');
     });
   });
 
