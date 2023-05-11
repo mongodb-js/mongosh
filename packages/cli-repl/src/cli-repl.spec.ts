@@ -1730,8 +1730,7 @@ describe('CliRepl', () => {
       cliRepl = new CliRepl(cliReplOptions);
       await cliRepl.start('', {});
 
-      const o: DevtoolsConnectOptions = {} as any;
-      await cliRepl.prepareOIDCOptions(o);
+      const o = await cliRepl.prepareOIDCOptions({} as any);
       expect(o.oidc?.allowedFlows).to.deep.equal(['auth-code']);
       expect(o.oidc?.notifyDeviceFlow).to.be.a('function');
       expect(o.authMechanismProperties).to.deep.equal({});
@@ -1749,10 +1748,10 @@ describe('CliRepl', () => {
       input.write('config.set("browser", "my-awesome-browser")\n');
       await waitEval(cliRepl.bus);
 
-      const o: DevtoolsConnectOptions = {} as any;
+      let o: DevtoolsConnectOptions;
       process.env.MONGOSH_OIDC_PARENT_HANDLE = 'foo-bar';
       try {
-        await cliRepl.prepareOIDCOptions(o);
+        o = await cliRepl.prepareOIDCOptions({} as any);
       } finally {
         delete process.env.MONGOSH_OIDC_PARENT_HANDLE;
       }
