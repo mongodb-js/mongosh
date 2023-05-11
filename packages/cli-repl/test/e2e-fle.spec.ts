@@ -313,12 +313,7 @@ describe('FLE tests', () => {
       await shell.executeLine(`use ${dbname}`);
 
       await shell.executeLine(`{
-        client = Mongo(${JSON.stringify(uri)}, {
-          keyVaultNamespace: '${dbname}.keyVault',
-          kmsProviders: { local: { key: 'A'.repeat(128) } }
-        });
-
-        keyVault = client.getKeyVault();
+        // using the main client without QE, insert fixture data into 6.x that was generated against a 6.x database
 
         // insert the dataKey that was used to encrypt the payloads used below
         dataKey = new UUID("2871cd1d-8317-4d0c-92be-1ac934ed26b1");
@@ -330,9 +325,9 @@ describe('FLE tests', () => {
           status: 0,
           masterKey: { provider: 'local' }
         };
-        client.getDB('${dbname}').getCollection('keyVault').insertOne(dataKeyDoc);
+        db.getCollection('keyVault').insertOne(dataKeyDoc);
 
-        client.getDB('${dbname}').createCollection('encryptiontest', {
+        db.createCollection('encryptiontest', {
           encryptedFields: {
             fields: [{
               keyId: dataKey,
@@ -343,7 +338,6 @@ describe('FLE tests', () => {
           }
         });
 
-        coll = client.getDB('${dbname}').encryptiontest;
 
         // these payloads were encrypted using dataKey
         db.runCommand({
@@ -398,6 +392,13 @@ describe('FLE tests', () => {
           ],
           bypassDocumentValidation: true
         });
+
+        // now set up a new client with QE so we can test the automatic decryption
+        client = Mongo(${JSON.stringify(uri)}, {
+          keyVaultNamespace: '${dbname}.keyVault',
+          kmsProviders: { local: { key: 'A'.repeat(128) } }
+        });
+        coll = client.getDB('${dbname}').encryptiontest;
       }`
       );
       expect(await shell.executeLine('({ count: coll.countDocuments() })')).to.include('{ count: 2 }');
@@ -408,7 +409,7 @@ describe('FLE tests', () => {
   });
 
   context('7.0+', () => {
-    skipIfServerVersion(testServer, '< 7.0'); // Queryable Encryption v2 only available on 7.0+
+    skipIfServerVersion(testServer, '< 7.0-alpha0'); // Queryable Encryption v2 only available on 7.0+
 
     it('allows explicit encryption with bypassQueryAnalysis', async function() {
       if (isMacosTooOldForQE()) {
