@@ -303,7 +303,7 @@ describe('FLE tests', () => {
     skipIfServerVersion(testServer, '< 6.0');
     skipIfServerVersion(testServer, '>= 7.0');
 
-    it('can read QE data stored in a mongodb 6 database', async function() {
+    it.only('can read QE data stored in a mongodb 6 database', async function() {
       const uri = await testServer.connectionString();
       const shell = TestShell.start({
         args: [uri, `--cryptSharedLibPath=${cryptLibrary}`]
