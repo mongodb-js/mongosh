@@ -5,6 +5,7 @@ import { expect } from 'chai';
 import { WorkerRuntime } from './worker-runtime';
 import { once } from 'events';
 import { promisify } from 'util';
+import { dummyOptions } from './index.spec';
 
 const childProcessModulePath = path.resolve(
   __dirname,
@@ -32,7 +33,7 @@ describe('child process worker proxy', () => {
   it('should start worker runtime and proxy calls', async() => {
     childProcess = fork(childProcessModulePath);
     caller = createCaller(['init', 'evaluate'], childProcess);
-    await caller.init('mongodb://nodb/', {}, { nodb: true });
+    await caller.init('mongodb://nodb/', dummyOptions, { nodb: true });
     const result = await caller.evaluate('1 + 1');
     expect(result.printable).to.equal(2);
   });

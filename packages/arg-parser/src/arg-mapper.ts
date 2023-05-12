@@ -93,6 +93,48 @@ function setAuthMechProp<Key extends keyof AuthMechanismProps>(
   return setUrlParam(i, 'authMechanismProperties', authMechanismProps);
 }
 
+function setAuthMechPropNonUrl<Key extends keyof AuthMechanismProps>(
+  i: Readonly<ConnectionInfo>,
+  key: Key & string, // Currently, AuthMechanismProps extends Document, hence & string
+  value: AuthMechanismProps[Key] | undefined): ConnectionInfo {
+  return setDriver(i, 'authMechanismProperties', {
+    ...i.driverOptions.authMechanismProperties,
+    [key]: value
+  });
+}
+
+type OIDCOptions = NonNullable<DevtoolsConnectOptions['oidc']>;
+function setOIDC<Key extends keyof OIDCOptions>(
+  i: Readonly<ConnectionInfo>,
+  key: Key,
+  value: OIDCOptions[Key]): ConnectionInfo {
+  return setDriver(i, 'oidc', { ...i.driverOptions.oidc, [key]: value });
+}
+
+// Return an ALLOWED_HOSTS value that matches the hosts listed in the connection string of `i`,
+// including possible SRV "sibling" domains.
+function matchingAllowedHosts(i: Readonly<ConnectionInfo>): string[] {
+  const connectionString = new ConnectionString(i.connectionString, { looseValidation: true });
+  const suffixes = connectionString.hosts.map(hostStr => {
+    // eslint-disable-next-line
+    const { host } = hostStr.match(/^(?<host>.+?)(?<port>:[^:\]\[]+)?$/)?.groups!;
+    if (host.startsWith('[') && host.endsWith(']')) {
+      return host.slice(1, -1); // IPv6
+    }
+    if (host.match(/^[0-9.]+$/)) {
+      return host; // IPv4
+    }
+    if (!host.includes('.') || !connectionString.isSRV) {
+      return host;
+    }
+    // An SRV record for foo.bar.net can resolve to any hosts that match `*.bar.net`
+    const parts = host.split('.');
+    parts[0] = '*';
+    return parts.join('.');
+  });
+  return [...new Set(suffixes)];
+}
+
 /**
  * Mapping fields from the CLI args to Node options.
  */
@@ -126,6 +168,10 @@ const MAPPINGS: {
   tlsCertificateKeyFilePassword: (i, v) => setUrlParam(i, 'tlsCertificateKeyFilePassword', v),
   tlsUseSystemCA: (i, v) => setDriver(i, 'useSystemCA', v),
   username: (i, v) => setUrl(i, 'username', encodeURIComponent(v)),
+  oidcRedirectUri: (i, v) => setOIDC(i, 'redirectURI', v),
+  oidcTrustedEndpoint: (i, v) => setAuthMechPropNonUrl(i, 'ALLOWED_HOSTS', v ? matchingAllowedHosts(i) : undefined),
+  oidcFlows: (i, v) => setOIDC(i, 'allowedFlows', v.split(',').filter(Boolean) as OIDCOptions['allowedFlows']),
+  browser: (i, v) => setOIDC(i, 'openBrowser', typeof v === 'string' ? { command: v } : v),
 };
 
 function mapOption<Key extends keyof CliOptions>(

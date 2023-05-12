@@ -11,6 +11,7 @@ import { deserializeEvaluationResult } from './serializer';
 import type { WorkerRuntime } from './worker-runtime';
 import { RuntimeEvaluationResult } from '@mongosh/browser-runtime-core';
 import { interrupt } from 'interruptor';
+import { dummyOptions } from './index.spec';
 
 chai.use(sinonChai);
 
@@ -154,7 +155,7 @@ describe('worker', () => {
 
         it(testName, async() => {
           const { init, evaluate } = caller;
-          await init('mongodb://nodb/', {}, { nodb: true });
+          await init('mongodb://nodb/', dummyOptions, { nodb: true });
           const result = await evaluate(evalValue);
           expect(result).to.have.property('printable');
           if (printable instanceof RegExp) {
@@ -350,7 +351,7 @@ describe('worker', () => {
             }, worker);
 
             const { init, evaluate } = caller;
-            await init(await testServer.connectionString(), {}, {});
+            await init(await testServer.connectionString(), dummyOptions, {});
 
             if (prepare) {
               for (const code of prepare) {
@@ -379,7 +380,7 @@ describe('worker', () => {
       it("should throw an error if it's thrown during evaluation", async() => {
         const { init, evaluate } = caller;
 
-        await init('mongodb://nodb/', {}, { nodb: true });
+        await init('mongodb://nodb/', dummyOptions, { nodb: true });
 
         let err: Error;
         try {
@@ -399,7 +400,7 @@ describe('worker', () => {
       it('should preserve extra error properties', async() => {
         const { init, evaluate } = caller;
 
-        await init('mongodb://nodb/', {}, { nodb: true });
+        await init('mongodb://nodb/', dummyOptions, { nodb: true });
 
         let err: Error;
         try {
@@ -417,7 +418,7 @@ describe('worker', () => {
       it("should return an error if it's returned from evaluation", async() => {
         const { init, evaluate } = caller;
 
-        await init('mongodb://nodb/', {}, { nodb: true });
+        await init('mongodb://nodb/', dummyOptions, { nodb: true });
 
         const { printable } = await evaluate('new SyntaxError("Syntax!")');
 
@@ -431,7 +432,7 @@ describe('worker', () => {
 
       it('should throw when trying to run two evaluations concurrently', async() => {
         const { init, evaluate } = caller;
-        await init('mongodb://nodb/', {}, { nodb: true });
+        await init('mongodb://nodb/', dummyOptions, { nodb: true });
 
         let err: Error;
 
@@ -531,7 +532,7 @@ describe('worker', () => {
 
         exposed = exposeAll(evalListener, worker);
 
-        await init('mongodb://nodb/', {}, { nodb: true });
+        await init('mongodb://nodb/', dummyOptions, { nodb: true });
         await evaluate('print("Hi!")');
 
         expect(evalListener.onPrint).to.have.been.calledWith([
@@ -545,7 +546,7 @@ describe('worker', () => {
 
         exposed = exposeAll(evalListener, worker);
 
-        await init('mongodb://nodb/', {}, { nodb: true });
+        await init('mongodb://nodb/', dummyOptions, { nodb: true });
         await evaluate('print(new ObjectId("62a209b0c7dc31e23ab9da45"))');
 
         expect(evalListener.onPrint).to.have.been.calledWith([
@@ -561,7 +562,7 @@ describe('worker', () => {
 
         exposed = exposeAll(evalListener, worker);
 
-        await init('mongodb://nodb/', {}, { nodb: true });
+        await init('mongodb://nodb/', dummyOptions, { nodb: true });
         const password = await evaluate('passwordPrompt()');
 
         expect(evalListener.onPrompt).to.have.been.called;
@@ -576,7 +577,7 @@ describe('worker', () => {
 
         exposed = exposeAll(evalListener, worker);
 
-        await init('mongodb://nodb/', {}, { nodb: true });
+        await init('mongodb://nodb/', dummyOptions, { nodb: true });
 
         await evaluate('config.get("key")');
         expect(evalListener.getConfig).to.have.been.calledWith('key');
@@ -590,7 +591,7 @@ describe('worker', () => {
 
         exposed = exposeAll(evalListener, worker);
 
-        await init('mongodb://nodb/', {}, { nodb: true });
+        await init('mongodb://nodb/', dummyOptions, { nodb: true });
 
         await evaluate('config.set("displayBatchSize", 200)');
         expect(evalListener.validateConfig).to.have.been.calledWith('displayBatchSize', 200);
@@ -605,7 +606,7 @@ describe('worker', () => {
 
         exposed = exposeAll(evalListener, worker);
 
-        await init('mongodb://nodb/', {}, { nodb: true });
+        await init('mongodb://nodb/', dummyOptions, { nodb: true });
 
         await evaluate('config.reset("displayBatchSize")');
         expect(evalListener.resetConfig).to.have.been.calledWith('displayBatchSize');
@@ -619,7 +620,7 @@ describe('worker', () => {
 
         exposed = exposeAll(evalListener, worker);
 
-        await init('mongodb://nodb/', {}, { nodb: true });
+        await init('mongodb://nodb/', dummyOptions, { nodb: true });
 
         await evaluate(`
         var JSSymbol = Object.getOwnPropertySymbols(Array.prototype)[0].constructor;
@@ -635,7 +636,7 @@ describe('worker', () => {
 
         exposed = exposeAll(evalListener, worker);
 
-        await init('mongodb://nodb/', {}, { nodb: true });
+        await init('mongodb://nodb/', dummyOptions, { nodb: true });
         await evaluate('1+1');
 
         const [
@@ -653,7 +654,7 @@ describe('worker', () => {
 
         exposed = exposeAll(evalListener, worker);
 
-        await init('mongodb://nodb/', {}, { nodb: true });
+        await init('mongodb://nodb/', dummyOptions, { nodb: true });
 
         let err: Error;
 
@@ -683,7 +684,7 @@ describe('worker', () => {
     it('should interrupt in-flight async tasks', async() => {
       const { init, evaluate, interrupt } = caller;
 
-      await init('mongodb://nodb/', {}, { nodb: true });
+      await init('mongodb://nodb/', dummyOptions, { nodb: true });
 
       let err: Error;
 

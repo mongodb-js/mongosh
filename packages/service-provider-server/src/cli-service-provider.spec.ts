@@ -3,13 +3,17 @@ import chai, { expect } from 'chai';
 import { Collection, Db, MongoClient } from 'mongodb';
 import sinonChai from 'sinon-chai';
 import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
-import CliServiceProvider from './cli-service-provider';
+import CliServiceProvider, { DevtoolsConnectOptions } from './cli-service-provider';
 import ConnectionString from 'mongodb-connection-string-url';
 import { EventEmitter } from 'events';
 import type { ClientEncryption, ClientEncryptionDataKeyProvider } from '@mongosh/service-provider-core';
 
 chai.use(sinonChai);
 
+export const dummyOptions: DevtoolsConnectOptions = Object.freeze({
+  productName: 'Test Product',
+  productDocsLink: 'https://example.com/'
+});
 
 const DEFAULT_BASE_OPTS = { serializeFunctions: true, promoteLongs: false };
 
@@ -44,7 +48,7 @@ describe('CliServiceProvider', () => {
 
   describe('#constructor', () => {
     const mongoClient: any = sinon.spy();
-    serviceProvider = new CliServiceProvider(mongoClient, bus);
+    serviceProvider = new CliServiceProvider(mongoClient, bus, dummyOptions);
 
     it('sets the mongo client on the instance', () => {
       expect((serviceProvider as any).mongoClient).to.equal(mongoClient);
@@ -58,7 +62,7 @@ describe('CliServiceProvider', () => {
     beforeEach(() => {
       collectionStub = stubInterface<Collection>();
       collectionStub.aggregate.returns({ toArray: () => Promise.resolve(aggResult) } as any);
-      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus);
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus, dummyOptions);
     });
 
     it('executes the command against the database', async() => {
@@ -76,7 +80,7 @@ describe('CliServiceProvider', () => {
     beforeEach(() => {
       collectionStub = stubInterface<Collection>();
       collectionStub.bulkWrite.resolves(commandResult as any);
-      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus);
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus, dummyOptions);
     });
 
     it('executes the command against the database', async() => {
@@ -92,7 +96,7 @@ describe('CliServiceProvider', () => {
     beforeEach(() => {
       collectionStub = stubInterface<Collection>();
       collectionStub.countDocuments.resolves(countResult);
-      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus);
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus, dummyOptions);
     });
 
     it('executes the command against the database', async() => {
@@ -108,7 +112,7 @@ describe('CliServiceProvider', () => {
     beforeEach(() => {
       collectionStub = stubInterface<Collection>();
       collectionStub.deleteMany.resolves(commandResult as any);
-      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus);
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus, dummyOptions);
     });
 
     it('executes the command against the database', async() => {
@@ -124,7 +128,7 @@ describe('CliServiceProvider', () => {
     beforeEach(() => {
       collectionStub = stubInterface<Collection>();
       collectionStub.deleteOne.resolves(commandResult as any);
-      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus);
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus, dummyOptions);
     });
 
     it('executes the command against the database', async() => {
@@ -140,7 +144,7 @@ describe('CliServiceProvider', () => {
     beforeEach(() => {
       collectionStub = stubInterface<Collection>();
       collectionStub.distinct.resolves(distinctResult);
-      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus);
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus, dummyOptions);
     });
 
     it('executes the command against the database', async() => {
@@ -156,7 +160,7 @@ describe('CliServiceProvider', () => {
     beforeEach(() => {
       collectionStub = stubInterface<Collection>();
       collectionStub.estimatedDocumentCount.resolves(countResult);
-      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus);
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus, dummyOptions);
     });
 
     it('executes the command against the database', async() => {
@@ -173,7 +177,7 @@ describe('CliServiceProvider', () => {
     beforeEach(() => {
       collectionStub = stubInterface<Collection>();
       collectionStub.find.returns({ toArray: () => Promise.resolve(findResult) } as any);
-      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus);
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus, dummyOptions);
     });
 
     it('executes the command against the database', async() => {
@@ -191,7 +195,7 @@ describe('CliServiceProvider', () => {
     beforeEach(() => {
       collectionStub = stubInterface<Collection>();
       collectionStub.find.returns({ toArray: () => Promise.resolve(findResult) } as any);
-      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus);
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus, dummyOptions);
     });
 
     it('executes the command against the database', async() => {
@@ -208,7 +212,7 @@ describe('CliServiceProvider', () => {
     beforeEach(() => {
       collectionStub = stubInterface<Collection>();
       collectionStub.findOneAndDelete.resolves(commandResult as any);
-      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus);
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus, dummyOptions);
     });
 
     it('executes the command against the database', async() => {
@@ -226,7 +230,7 @@ describe('CliServiceProvider', () => {
     beforeEach(() => {
       collectionStub = stubInterface<Collection>();
       collectionStub.findOneAndReplace.resolves(commandResult as any);
-      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus);
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus, dummyOptions);
     });
 
     it('executes the command against the database', async() => {
@@ -245,7 +249,7 @@ describe('CliServiceProvider', () => {
     beforeEach(() => {
       collectionStub = stubInterface<Collection>();
       collectionStub.findOneAndUpdate.resolves(commandResult as any);
-      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus);
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus, dummyOptions);
     });
 
     it('executes the command against the database', async() => {
@@ -263,7 +267,7 @@ describe('CliServiceProvider', () => {
     beforeEach(() => {
       collectionStub = stubInterface<Collection>();
       collectionStub.insertMany.resolves(commandResult as any);
-      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus);
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus, dummyOptions);
     });
 
     it('executes the command against the database', async() => {
@@ -280,7 +284,7 @@ describe('CliServiceProvider', () => {
     beforeEach(() => {
       collectionStub = stubInterface<Collection>();
       collectionStub.insertOne.resolves(commandResult as any);
-      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus);
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus, dummyOptions);
     });
 
     it('executes the command against the database', async() => {
@@ -298,7 +302,7 @@ describe('CliServiceProvider', () => {
     beforeEach(() => {
       collectionStub = stubInterface<Collection>();
       collectionStub.replaceOne.resolves(commandResult);
-      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus);
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus, dummyOptions);
     });
 
     it('executes the command against the database', async() => {
@@ -318,7 +322,7 @@ describe('CliServiceProvider', () => {
       clientStub = stubInterface<MongoClient>();
       dbStub.command.resolves(commandResult);
       clientStub.db.returns(dbStub);
-      serviceProvider = new CliServiceProvider(clientStub, bus);
+      serviceProvider = new CliServiceProvider(clientStub, bus, dummyOptions);
     });
 
     afterEach(() => {
@@ -344,7 +348,7 @@ describe('CliServiceProvider', () => {
       clientStub = stubInterface<MongoClient>();
       dbStub.command.resolves(commandResult);
       clientStub.db.returns(dbStub);
-      serviceProvider = new CliServiceProvider(clientStub, bus);
+      serviceProvider = new CliServiceProvider(clientStub, bus, dummyOptions);
     });
 
     afterEach(() => {
@@ -374,7 +378,7 @@ describe('CliServiceProvider', () => {
     beforeEach(() => {
       collectionStub = stubInterface<Collection>();
       collectionStub.updateOne.resolves(commandResult as any);
-      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus);
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus, dummyOptions);
     });
 
     it('executes the command against the database', async() => {
@@ -392,7 +396,7 @@ describe('CliServiceProvider', () => {
     beforeEach(() => {
       collectionStub = stubInterface<Collection>();
       collectionStub.updateMany.resolves(commandResult as any);
-      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus);
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus, dummyOptions);
     });
 
     it('executes the command against the database', async() => {
@@ -411,7 +415,7 @@ describe('CliServiceProvider', () => {
       clientStub = stubInterface<MongoClient>();
       clientStub.db.returns(dbStub);
 
-      serviceProvider = new CliServiceProvider(clientStub, bus);
+      serviceProvider = new CliServiceProvider(clientStub, bus, dummyOptions);
     });
 
     it('returns ok: 1 if dropped', async() => {
@@ -468,7 +472,7 @@ describe('CliServiceProvider', () => {
 
       collectionStub = stubInterface<Collection>();
       collectionStub.createIndexes.resolves(nativeMethodResult);
-      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus);
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus, dummyOptions);
     });
 
     it('executes the command against the database', async() => {
@@ -497,7 +501,7 @@ describe('CliServiceProvider', () => {
       collectionStub = stubInterface<Collection>();
       collectionStub.listIndexes.returns(nativeMethodResult);
 
-      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus);
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus, dummyOptions);
     });
 
     it('executes the command against the database', async() => {
@@ -528,7 +532,7 @@ describe('CliServiceProvider', () => {
         }
       } as any);
       clientStub.db.returns(dbStub);
-      serviceProvider = new CliServiceProvider(clientStub, bus);
+      serviceProvider = new CliServiceProvider(clientStub, bus, dummyOptions);
     });
 
     it('executes the command', async() => {
@@ -553,7 +557,7 @@ describe('CliServiceProvider', () => {
       clientStub = stubInterface<MongoClient>();
       dbStub.renameCollection.resolves({ ok: 1 } as any);
       clientStub.db.returns(dbStub);
-      serviceProvider = new CliServiceProvider(clientStub, bus);
+      serviceProvider = new CliServiceProvider(clientStub, bus, dummyOptions);
     });
 
     it('executes the command against the database', async() => {
@@ -584,7 +588,7 @@ describe('CliServiceProvider', () => {
       clientStub = stubInterface<MongoClient>();
       dbStub.createCollection.resolves({} as any);
       clientStub.db.returns(dbStub);
-      serviceProvider = new CliServiceProvider(clientStub, bus);
+      serviceProvider = new CliServiceProvider(clientStub, bus, dummyOptions);
     });
 
     it('executes the command', async() => {
@@ -615,7 +619,7 @@ describe('CliServiceProvider', () => {
       dbStub = stubInterface<Db>();
       clientStub = stubInterface<MongoClient>();
       clientStub.db.returns(dbStub);
-      serviceProvider = new CliServiceProvider(clientStub, bus);
+      serviceProvider = new CliServiceProvider(clientStub, bus, dummyOptions);
       libmongoc = stubInterface<ClientEncryption>();
     });
 
@@ -643,7 +647,7 @@ describe('CliServiceProvider', () => {
     let driverSession;
     beforeEach(() => {
       clientStub = stubInterface<MongoClient>();
-      serviceProvider = new CliServiceProvider(clientStub, bus);
+      serviceProvider = new CliServiceProvider(clientStub, bus, dummyOptions);
       driverSession = { dSession: 1 };
       clientStub.startSession.returns(driverSession);
       db = stubInterface<Db>();
@@ -688,7 +692,7 @@ describe('CliServiceProvider', () => {
         watch: watchMock
       }) as any;
 
-      serviceProvider = new CliServiceProvider(clientStub, bus);
+      serviceProvider = new CliServiceProvider(clientStub, bus, dummyOptions);
     });
 
     it('executes watch on MongoClient', () => {
@@ -721,7 +725,7 @@ describe('CliServiceProvider', () => {
       });
       clientStub.db.returns(dbStub);
       clientStub.topology = { s: {} };
-      serviceProvider = new CliServiceProvider(clientStub, bus, {}, new ConnectionString('mongodb://localhost/'));
+      serviceProvider = new CliServiceProvider(clientStub, bus, dummyOptions, new ConnectionString('mongodb://localhost/'));
       serviceProvider.getNewConnection = () => Promise.resolve(serviceProvider);
     });
 
@@ -774,6 +778,87 @@ describe('CliServiceProvider', () => {
         expect(info.extraInfo.is_genuine).to.be.false;
         expect(info.extraInfo.non_genuine_server_name).to.equal('cosmosdb');
       });
+    });
+  });
+
+  describe('processDriverOptions', () => {
+    it('shares user configuration options from an existing CliServiceProvider instance', () => {
+      const cloneableOidcOptions = {
+        redirectURI: 'http://localhost',
+        openBrowser: { command: '/usr/bin/browser' },
+        notifyDeviceFlow: () => {},
+        allowedFlows: ['device-auth']
+      };
+      const productInfo = {
+        productDocsLink: 'https://example.com',
+        productName: 'test'
+      };
+      expect(CliServiceProvider.prototype.processDriverOptions.call(
+        {
+          currentClientOptions: {
+            oidc: {
+              ...cloneableOidcOptions,
+              throwOnIncompatibleSerializedState: true
+            },
+            ...productInfo,
+            readConcern: 'local'
+          } as DevtoolsConnectOptions,
+          uri: new ConnectionString('mongodb://localhost/')
+        } as any,
+        new ConnectionString('mongodb://localhost/'),
+        {}
+      )).to.deep.equal({
+        oidc: { ...cloneableOidcOptions },
+        ...productInfo
+      });
+    });
+
+    it('shares OIDC state if the auth options match', () => {
+      const parentState: any = {};
+
+      expect(CliServiceProvider.prototype.processDriverOptions.call(
+        {
+          uri: new ConnectionString('mongodb://localhost/'),
+          currentClientOptions: {
+            auth: { username: 'meow' },
+            parentState
+          }
+        },
+        new ConnectionString('mongodb://localhost'),
+        { auth: { username: 'meow' } }
+      ).parentState).to.equal(parentState);
+    });
+
+    it('does not share OIDC state if the auth options mismatch', () => {
+      const parentState: any = {};
+
+      expect(CliServiceProvider.prototype.processDriverOptions.call(
+        {
+          uri: new ConnectionString('mongodb://localhost/'),
+          currentClientOptions: {
+            auth: { username: 'meow' },
+            parentState
+          }
+        },
+        new ConnectionString('mongodb://localhost'),
+        { auth: { username: 'moo' } }
+      ).parentState).to.equal(undefined);
+    });
+
+    it('does not share OIDC state if the endpoints mismatch', () => {
+      const parentState: any = {};
+
+      expect(CliServiceProvider.prototype.processDriverOptions.call(
+        {
+          uri: new ConnectionString('mongodb://localhost/'),
+          currentClientOptions: {
+            auth: { username: 'meow' },
+            parentState
+          }
+        },
+        new ConnectionString('mongodb://localghost'),
+        { auth: { username: 'meow' } }
+      ).parentState).to.equal(undefined);
     });
   });
 });

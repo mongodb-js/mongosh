@@ -1,4 +1,5 @@
 import CliServiceProvider from './cli-service-provider';
+import CompassServiceProvider from './compass/compass-service-provider';
 import { expect } from 'chai';
 import { EventEmitter } from 'events';
 import { MongoClient } from 'mongodb';
@@ -6,6 +7,7 @@ import type { Db } from 'mongodb';
 import { startTestServer, skipIfServerVersion } from '../../../testing/integration-testing-hooks';
 import { DbOptions, MongoClientOptions } from '@mongosh/service-provider-core';
 import ConnectionString from 'mongodb-connection-string-url';
+import { dummyOptions } from './cli-service-provider.spec';
 
 describe('CliServiceProvider [integration]', function() {
   const testServer = startTestServer('shared');
@@ -27,7 +29,7 @@ describe('CliServiceProvider [integration]', function() {
     dbName = `test-db-${Date.now()}`;
     db = client.db(dbName);
     bus = new EventEmitter();
-    serviceProvider = new CliServiceProvider(client, bus, {}, new ConnectionString(connectionString));
+    serviceProvider = new CliServiceProvider(client, bus, dummyOptions, new ConnectionString(connectionString));
   });
 
   afterEach(async() => {
@@ -37,7 +39,7 @@ describe('CliServiceProvider [integration]', function() {
   describe('.connect', () => {
     let instance: CliServiceProvider;
     beforeEach(async() => {
-      instance = await CliServiceProvider.connect(connectionString, {}, {}, bus);
+      instance = await CliServiceProvider.connect(connectionString, dummyOptions, {}, bus);
     });
 
     afterEach(async() => {
@@ -118,7 +120,7 @@ describe('CliServiceProvider [integration]', function() {
   describe('.getConnectionInfo', () => {
     context('when a uri has been passed', () => {
       it('returns the connection\'s info', async() => {
-        const instance = new CliServiceProvider(client, bus, {}, new ConnectionString(connectionString));
+        const instance = new CliServiceProvider(client, bus, dummyOptions, new ConnectionString(connectionString));
         const connectionInfo = await instance.getConnectionInfo();
 
         expect(Object.keys(connectionInfo)).to.deep.equal([
@@ -132,7 +134,7 @@ describe('CliServiceProvider [integration]', function() {
 
     context('when the optional uri has not been passed', () => {
       it('returns the connection\'s info', async() => {
-        const instance = new CliServiceProvider(client, bus);
+        const instance = new CliServiceProvider(client, bus, dummyOptions);
         const connectionInfo = await instance.getConnectionInfo();
 
         expect(Object.keys(connectionInfo)).to.deep.equal([
@@ -720,6 +722,21 @@ describe('CliServiceProvider [integration]', function() {
   describe('#getURI', () => {
     it('returns the current URI', () => {
       expect(serviceProvider.getURI()).to.equal(connectionString + '/');
+    });
+  });
+
+  describe('CompassServiceProvider', () => {
+    let instance: CliServiceProvider;
+
+    afterEach(async() => {
+      await instance?.close(true);
+    });
+
+    it('.connect() returns a CompassServiceProvider instance', async() => {
+      instance = await CompassServiceProvider.connect(connectionString, dummyOptions, {}, bus);
+
+      expect(instance).to.be.instanceOf(CompassServiceProvider);
+      expect(instance.platform).to.equal('Compass');
     });
   });
 });

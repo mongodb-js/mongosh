@@ -32,7 +32,7 @@
     "unitTestsOnly": true
   },
   "dependencies": {
-    "@mongodb-js/devtools-connect": "^1.4.4"
+    "@mongodb-js/devtools-connect": "^2.0.3"
   },
   "devDependencies": {
     "mongodb": "^5.4.0"

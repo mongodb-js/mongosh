@@ -416,6 +416,9 @@ export class CliUserConfig extends SnippetShellUserConfig {
   historyLength = 1000;
   showStackTraces = false;
   redactHistory: 'keep' | 'remove' | 'remove-redact' = 'remove';
+  oidcRedirectURI: undefined | string = undefined;
+  oidcTrustedEndpoints: undefined | string[] = undefined;
+  browser: undefined | false | string = undefined;
 }
 
 export class CliUserConfigValidator extends SnippetShellUserConfigValidator {
@@ -446,6 +449,21 @@ export class CliUserConfigValidator extends SnippetShellUserConfigValidator {
       case 'redactHistory':
         if (value !== 'keep' && value !== 'remove' && value !== 'remove-redact') {
           return `${key} must be one of 'keep', 'remove', or 'remove-redact'`;
+        }
+        return null;
+      case 'oidcRedirectURI':
+        if (value !== undefined && (typeof value !== 'string' || !isValidUrl(value))) {
+          return `${key} must be undefined or a valid URL`;
+        }
+        return null;
+      case 'oidcTrustedEndpoints':
+        if (value !== undefined && (!Array.isArray(value) || value.some(v => typeof v !== 'string'))) {
+          return `${key} must be undefined or an array of hostnames`;
+        }
+        return null;
+      case 'browser':
+        if (value !== undefined && value !== false && typeof value !== 'string') {
+          return `${key} must be undefined, false, or a command string`;
         }
         return null;
       default:

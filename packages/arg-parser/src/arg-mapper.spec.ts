@@ -11,7 +11,7 @@ const INIT_STATE: Readonly<ConnectionInfo> = {
 };
 
 // Helper for reducing test boilerplate
-function optionsTest(cliOptions: CliOptions): { cs?: string, driver?: DevtoolsConnectOptions } {
+function optionsTest(cliOptions: CliOptions): { cs?: string, driver?: Partial<DevtoolsConnectOptions> } {
   const result = mapCliToDriver(cliOptions, INIT_STATE);
   if (Object.keys(result.driverOptions).length === 0) {
     return { cs: result.connectionString.toString() };
@@ -329,12 +329,82 @@ describe('arg-mapper.mapCliToDriver', () => {
         "[COMMON-10001] Invalid connection information: Password specified but no username provided (did you mean '--port' instead of '-p'?)");
     });
   });
+
   context('when password is provided without username and --port is already specified', () => {
     const cliOptions: CliOptions = { password: '1234', port: '12345' };
 
     it('throws a helpful error', () => {
       expect(() => optionsTest(cliOptions)).to.throw(
         '[COMMON-10001] Invalid connection information: Password specified but no username provided');
+    });
+  });
+
+  context('when cli args have oidcRedirectUri', () => {
+    const cliOptions: CliOptions = { oidcRedirectUri: 'http://localhost:0/callback' };
+
+    it('maps to oidc redirectURI', () => {
+      expect(optionsTest(cliOptions)).to.deep.equal({
+        driver: {
+          oidc: {
+            redirectURI: 'http://localhost:0/callback'
+          }
+        }
+      });
+    });
+  });
+
+  context('when cli args have oidcTrustedEndpoint', () => {
+    function actual(cs: string) {
+      return mapCliToDriver({ oidcTrustedEndpoint: true }, {
+        connectionString: cs,
+        driverOptions: {},
+      }).driverOptions;
+    }
+
+    function expected(ALLOWED_HOSTS: string[]) {
+      return { authMechanismProperties: { ALLOWED_HOSTS } };
+    }
+
+    it('maps to ALLOWED_HOSTS', () => {
+      expect(actual('mongodb://localhost/')).to.deep.equal(expected(['localhost']));
+      expect(actual('mongodb://localhost:27017/')).to.deep.equal(expected(['localhost']));
+      expect(actual('mongodb://localhost:12345/')).to.deep.equal(expected(['localhost']));
+      expect(actual('mongodb://localhost:12345,[::1]/')).to.deep.equal(expected(['localhost', '::1']));
+      expect(actual('mongodb://localhost,[::1]:999/')).to.deep.equal(expected(['localhost', '::1']));
+      expect(actual('mongodb://localhost,bar.foo.net/')).to.deep.equal(expected(['localhost', 'bar.foo.net']));
+      expect(actual('mongodb+srv://bar.foo.net/')).to.deep.equal(expected(['*.foo.net']));
+      expect(actual('mongodb://127.0.0.1:12345/')).to.deep.equal(expected(['127.0.0.1']));
+      expect(actual('mongodb://2130706433:12345/')).to.deep.equal(expected(['2130706433'])); // decimal IPv4
+    });
+  });
+
+  context('when cli args have oidcFlows', () => {
+    it('maps to oidc allowedFlows', () => {
+      expect(optionsTest({ oidcFlows: 'a,b,c' })).to.deep.equal({ driver: { oidc: { allowedFlows: ['a', 'b', 'c'] } } });
+      expect(optionsTest({ oidcFlows: 'a,,c' })).to.deep.equal({ driver: { oidc: { allowedFlows: ['a', 'c'] } } });
+      expect(optionsTest({ oidcFlows: ',' })).to.deep.equal({ driver: { oidc: { allowedFlows: [] } } });
+    });
+  });
+
+  context('when cli args have browser', () => {
+    it('maps to oidc command', () => {
+      expect(optionsTest({ browser: '/usr/bin/browser' })).to.deep.equal({
+        driver: {
+          oidc: {
+            openBrowser: {
+              command: '/usr/bin/browser'
+            }
+          }
+        }
+      });
+
+      expect(optionsTest({ browser: false })).to.deep.equal({
+        driver: {
+          oidc: {
+            openBrowser: false
+          }
+        }
+      });
     });
   });
 });

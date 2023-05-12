@@ -11,6 +11,7 @@ import { toShellResult, Topologies } from './index';
 import type { Document } from '@mongosh/service-provider-core';
 import { ShellUserConfig, ApiEvent } from '@mongosh/types';
 import { EventEmitter, once } from 'events';
+import { dummyOptions } from './helpers.spec';
 
 // Compile JS code as an expression. We use this to generate some JS functions
 // whose code is stringified and compiled elsewhere, to make sure that the code
@@ -88,7 +89,7 @@ describe('Shell API (integration)', function() {
   };
 
   before(async() => {
-    serviceProvider = await CliServiceProvider.connect(await testServer.connectionString(), {}, {}, new EventEmitter());
+    serviceProvider = await CliServiceProvider.connect(await testServer.connectionString(), dummyOptions, {}, new EventEmitter());
   });
 
   after(() => {

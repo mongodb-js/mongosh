@@ -5,7 +5,7 @@ import { mapCliToDriver } from './arg-mapper';
 
 export interface ConnectionInfo {
   connectionString: string;
-  driverOptions: DevtoolsConnectOptions;
+  driverOptions: Omit<DevtoolsConnectOptions, 'productName' | 'productDocsLink'>;
 }
 
 export { CliOptions, DevtoolsConnectOptions, mapCliToDriver };

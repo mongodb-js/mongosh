@@ -171,7 +171,11 @@ import net from 'net';
       shellHomePaths: shellHomePaths,
       globalConfigPaths: globalConfigPaths
     });
-    await repl.start(connectionInfo.connectionString, connectionInfo.driverOptions);
+    await repl.start(connectionInfo.connectionString, {
+      productName: 'MongoDB Shell',
+      productDocsLink: 'https://www.mongodb.com/docs/mongodb-shell/',
+      ...connectionInfo.driverOptions
+    });
   } catch (e: any) {
     console.error(`${e?.name}: ${e?.message}`);
     if (repl !== undefined) {
