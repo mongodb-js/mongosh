@@ -299,11 +299,10 @@ describe('FLE tests', () => {
     expect(compactResult).to.include('The "compactStructuredEncryptionData" command requires Mongo instance configured with auto encryption.');
   });
 
-  context('>= 6.0 && < 7.0', () => {
+  context('>= 6.0', () => {
     skipIfServerVersion(testServer, '< 6.0');
-    skipIfServerVersion(testServer, '>= 7.0');
 
-    it('can read QE data stored in a mongodb 6 database', async function() {
+    it('can read existing fle1 data', async function() {
       const uri = await testServer.connectionString();
       const shell = TestShell.start({
         args: [uri, `--cryptSharedLibPath=${cryptLibrary}`]
