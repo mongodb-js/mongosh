@@ -302,7 +302,7 @@ describe('FLE tests', () => {
   context('>= 6.0', () => {
     skipIfServerVersion(testServer, '< 6.0');
 
-    it('can read existing fle1 data', async function() {
+    it('can read existing QEv1 data', async function() {
       const uri = await testServer.connectionString();
       const shell = TestShell.start({
         args: [uri, `--cryptSharedLibPath=${cryptLibrary}`]
