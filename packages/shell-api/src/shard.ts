@@ -464,4 +464,73 @@ export default class Shard extends ShellApiWithMongoClass {
 
     return cursor;
   }
+
+  @returnsPromise
+  @apiVersions([])
+  @serverVersions(['7.0.0', ServerVersions.latest])
+  async startAutoMerger(): Promise<UpdateResult> {
+    this._emitShardApiCall('startAutoMerger', {});
+    const config = await getConfigDB(this._database);
+    return await config.getCollection('settings').updateOne(
+      { _id: 'automerge' },
+      { $set: { enabled: true } },
+      { upsert: true, writeConcern: { w: 'majority', wtimeout: 30000 } }
+    ) as UpdateResult;
+  }
+
+  @returnsPromise
+  @apiVersions([])
+  @serverVersions(['7.0.0', ServerVersions.latest])
+  async stopAutoMerger(): Promise<UpdateResult> {
+    this._emitShardApiCall('stopAutoMerger', {});
+    const config = await getConfigDB(this._database);
+    return await config.getCollection('settings').updateOne(
+      { _id: 'automerge' },
+      { $set: { enabled: false } },
+      { upsert: true, writeConcern: { w: 'majority', wtimeout: 30000 } }
+    ) as UpdateResult;
+  }
+
+  @returnsPromise
+  @apiVersions([])
+  @serverVersions(['7.0.0', ServerVersions.latest])
+  async shouldAutoMerge(): Promise<boolean> {
+    this._emitShardApiCall('shouldAutoMerge', {});
+    const config = await getConfigDB(this._database);
+    const doc = await config.getCollection('settings').findOne({ _id: 'automerge' });
+    if (doc === null || doc === undefined) {
+      return true;
+    }
+    return doc.enabled;
+  }
+
+  @returnsPromise
+  @apiVersions([])
+  @serverVersions(['7.0.0', ServerVersions.latest])
+  async disableAutoMerger(ns: string): Promise<UpdateResult> {
+    assertArgsDefinedType([ns], ['string'], 'Shard.disableAutoMerger');
+
+    this._emitShardApiCall('disableAutoMerger', { ns });
+    const config = await getConfigDB(this._database);
+    return await config.getCollection('collections').updateOne(
+      { _id: ns },
+      { $set: { enableAutoMerge: false } },
+      { writeConcern: { w: 'majority', wtimeout: 60000 } }
+    ) as UpdateResult;
+  }
+
+  @returnsPromise
+  @apiVersions([])
+  @serverVersions(['7.0.0', ServerVersions.latest])
+  async enableAutoMerger(ns: string): Promise<UpdateResult> {
+    assertArgsDefinedType([ns], ['string'], 'Shard.enableAutoMerger');
+
+    this._emitShardApiCall('enableAutoMerger', { ns });
+    const config = await getConfigDB(this._database);
+    return await config.getCollection('collections').updateOne(
+      { _id: ns },
+      { $unset: { enableAutoMerge: 1 } },
+      { writeConcern: { w: 'majority', wtimeout: 60000 } }
+    ) as UpdateResult;
+  }
 }

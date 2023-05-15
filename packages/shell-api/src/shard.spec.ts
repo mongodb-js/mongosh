@@ -1217,6 +1217,275 @@ describe('Shard', () => {
         expect(error.message).to.match(/sh\.getShardedDataDistribution only works on mongos and MongoDB server versions greater than 6\.0\.3 \[Original Error: Unrecognized pipeline stage name: '\$shardedDataDistribution']/);
       });
     });
+
+    describe('startAutoMerger', () => {
+      it('calls serviceProvider.updateOne', async() => {
+        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+        const expectedResult = {
+          matchedCount: 1,
+          modifiedCount: 1,
+          upsertedCount: 1,
+          upsertedId: { _id: 0 },
+          result: { ok: 1, n: 1, nModified: 1 },
+          connection: null
+        } as any;
+        serviceProvider.updateOne.resolves(expectedResult);
+        await shard.startAutoMerger();
+
+        expect(serviceProvider.updateOne).to.have.been.calledWith(
+          'config',
+          'settings',
+          { _id: 'automerge' },
+          { $set: { enabled: true } },
+          { upsert: true, writeConcern: { w: 'majority', wtimeout: 30000 } }
+        );
+      });
+
+      it('returns whatever serviceProvider.updateOne returns', async() => {
+        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+        const oid = new bson.ObjectId();
+        const expectedResult = {
+          matchedCount: 1,
+          modifiedCount: 1,
+          upsertedCount: 1,
+          upsertedId: oid,
+          result: { ok: 1, n: 1, nModified: 1 },
+          connection: null,
+          acknowledged: true
+        } as any;
+        serviceProvider.updateOne.resolves(expectedResult);
+        const result = await shard.startAutoMerger();
+        expect(result).to.deep.equal(new UpdateResult(true, 1, 1, 1, oid));
+      });
+
+      it('throws if serviceProvider.updateOne rejects', async() => {
+        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+        const expectedError = new Error();
+        serviceProvider.updateOne.rejects(expectedError);
+        const caughtError = await shard.startAutoMerger()
+          .catch(e => e);
+        expect(caughtError).to.equal(expectedError);
+      });
+
+      it('throws if not mongos', async() => {
+        const expectedResult = { acknowledged: 1 } as any;
+        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'not dbgrid' });
+        serviceProvider.updateOne.resolves(expectedResult);
+        await shard.startAutoMerger();
+        expect(warnSpy.calledOnce).to.equal(true);
+      });
+    });
+
+    describe('stopAutoMerger', () => {
+      it('calls serviceProvider.updateOne', async() => {
+        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+        const expectedResult = {
+          matchedCount: 1,
+          modifiedCount: 1,
+          upsertedCount: 1,
+          upsertedId: { _id: 0 },
+          result: { ok: 1, n: 1, nModified: 1 },
+          connection: null
+        } as any;
+        serviceProvider.updateOne.resolves(expectedResult);
+        await shard.stopAutoMerger();
+
+        expect(serviceProvider.updateOne).to.have.been.calledWith(
+          'config',
+          'settings',
+          { _id: 'automerge' },
+          { $set: { enabled: false } },
+          { upsert: true, writeConcern: { w: 'majority', wtimeout: 30000 } }
+        );
+      });
+
+      it('returns whatever serviceProvider.updateOne returns', async() => {
+        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+        const oid = new bson.ObjectId();
+        const expectedResult = {
+          matchedCount: 1,
+          modifiedCount: 1,
+          upsertedCount: 1,
+          upsertedId: oid,
+          result: { ok: 1, n: 1, nModified: 1 },
+          connection: null,
+          acknowledged: true
+        } as any;
+        serviceProvider.updateOne.resolves(expectedResult);
+        const result = await shard.stopAutoMerger();
+        expect(result).to.deep.equal(new UpdateResult(true, 1, 1, 1, oid));
+      });
+
+      it('throws if serviceProvider.updateOne rejects', async() => {
+        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+        const expectedError = new Error();
+        serviceProvider.updateOne.rejects(expectedError);
+        const caughtError = await shard.stopAutoMerger()
+          .catch(e => e);
+        expect(caughtError).to.equal(expectedError);
+      });
+
+      it('throws if not mongos', async() => {
+        const expectedResult = { acknowledged: 1 } as any;
+        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'not dbgrid' });
+        serviceProvider.updateOne.resolves(expectedResult);
+        await shard.stopAutoMerger();
+        expect(warnSpy.calledOnce).to.equal(true);
+      });
+    });
+
+    describe('shouldAutoMerge', () => {
+      it('returns whatever serviceProvider.find returns', async() => {
+        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+        const expectedResult = { enabled: true };
+        const findCursor = stubInterface<ServiceProviderCursor>();
+        findCursor.tryNext.resolves(expectedResult);
+        serviceProvider.find.returns(findCursor);
+        const result = await shard.shouldAutoMerge();
+        expect(serviceProvider.find).to.have.been.calledWith(
+          'config',
+          'settings',
+          { _id: 'automerge' },
+          {}
+        );
+        expect(result).to.deep.equal(expectedResult.enabled);
+      });
+
+      it('throws if serviceProvider.find rejects', async() => {
+        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+        const expectedError = new Error();
+        serviceProvider.find.throws(expectedError);
+        const caughtError = await shard.shouldAutoMerge()
+          .catch(e => e);
+        expect(caughtError).to.equal(expectedError);
+      });
+
+      it('throws if not mongos', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'not dbgrid' });
+        const findCursor = stubInterface<ServiceProviderCursor>();
+        findCursor.tryNext.resolves(expectedResult);
+        serviceProvider.find.returns(findCursor);
+        await shard.shouldAutoMerge();
+        expect(warnSpy.calledOnce).to.equal(true);
+      });
+    });
+
+    describe('disableAutoMerger', () => {
+      it('calls serviceProvider.updateOne', async() => {
+        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+        const expectedResult = {
+          matchedCount: 1,
+          modifiedCount: 1,
+          upsertedCount: 1,
+          upsertedId: { _id: 0 },
+          result: { ok: 1, n: 1, nModified: 1 },
+          connection: null
+        } as any;
+        serviceProvider.updateOne.resolves(expectedResult);
+        await shard.disableAutoMerger('ns');
+
+        expect(serviceProvider.updateOne).to.have.been.calledWith(
+          'config',
+          'collections',
+          { _id: 'ns' },
+          { $set: { enableAutoMerge: false } },
+          { writeConcern: { w: 'majority', wtimeout: 60000 } }
+        );
+      });
+
+      it('returns whatever serviceProvider.updateOne returns', async() => {
+        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+        const oid = new bson.ObjectId();
+        const expectedResult = {
+          matchedCount: 1,
+          modifiedCount: 1,
+          upsertedCount: 1,
+          upsertedId: oid,
+          result: { ok: 1, n: 1, nModified: 1 },
+          connection: null,
+          acknowledged: true
+        } as any;
+        serviceProvider.updateOne.resolves(expectedResult);
+        const result = await shard.disableAutoMerger('ns');
+        expect(result).to.deep.equal(new UpdateResult(true, 1, 1, 1, oid));
+      });
+
+      it('throws if serviceProvider.updateOne rejects', async() => {
+        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+        const expectedError = new Error();
+        serviceProvider.updateOne.rejects(expectedError);
+        const caughtError = await shard.disableAutoMerger('ns')
+          .catch(e => e);
+        expect(caughtError).to.equal(expectedError);
+      });
+
+      it('throws if not mongos', async() => {
+        const expectedResult = { ok: 1 } as any;
+        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'not dbgrid' });
+        serviceProvider.updateOne.resolves(expectedResult);
+        await shard.disableAutoMerger('ns');
+        expect(warnSpy.calledOnce).to.equal(true);
+      });
+    });
+
+    describe('enableAutoMerger', () => {
+      it('calls serviceProvider.updateOne', async() => {
+        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+        const expectedResult = {
+          matchedCount: 1,
+          modifiedCount: 1,
+          upsertedCount: 1,
+          upsertedId: { _id: 0 },
+          result: { ok: 1, n: 1, nModified: 1 },
+          connection: null
+        } as any;
+        serviceProvider.updateOne.resolves(expectedResult);
+        await shard.enableAutoMerger('ns');
+
+        expect(serviceProvider.updateOne).to.have.been.calledWith(
+          'config',
+          'collections',
+          { _id: 'ns' },
+          { $unset: { enableAutoMerge: 1 } },
+          { writeConcern: { w: 'majority', wtimeout: 60000 } }
+        );
+      });
+
+      it('returns whatever serviceProvider.updateOne returns', async() => {
+        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+        const oid = new bson.ObjectId();
+        const expectedResult = {
+          matchedCount: 1,
+          modifiedCount: 1,
+          upsertedCount: 1,
+          upsertedId: oid,
+          result: { ok: 1, n: 1, nModified: 1 },
+          connection: null,
+          acknowledged: true
+        } as any;
+        serviceProvider.updateOne.resolves(expectedResult);
+        const result = await shard.enableAutoMerger('ns');
+        expect(result).to.deep.equal(new UpdateResult(true, 1, 1, 1, oid));
+      });
+
+      it('throws if serviceProvider.updateOne rejects', async() => {
+        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+        const expectedError = new Error();
+        serviceProvider.updateOne.rejects(expectedError);
+        const caughtError = await shard.disableBalancing('ns')
+          .catch(e => e);
+        expect(caughtError).to.equal(expectedError);
+      });
+
+      it('throws if not mongos', async() => {
+        const expectedResult = { ok: 1 } as any;
+        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'not dbgrid' });
+        serviceProvider.updateOne.resolves(expectedResult);
+        await shard.enableAutoMerger('ns');
+        expect(warnSpy.calledOnce).to.equal(true);
+      });
+    });
   });
 
   describe('integration', () => {
