@@ -23,6 +23,7 @@ const OPTIONS = {
     'awsSecretAccessKey',
     'awsSessionToken',
     'awsIamSessionToken',
+    'browser',
     'csfleLibraryPath',
     'cryptSharedLibPath',
     'db',
@@ -34,6 +35,8 @@ const OPTIONS = {
     'keyVaultNamespace',
     'kmsURL',
     'locale',
+    'oidcFlows',
+    'oidcRedirectUri',
     'password',
     'port',
     'sslPEMKeyFile',
@@ -58,6 +61,7 @@ const OPTIONS = {
     'ipv6',
     'nodb',
     'norc',
+    'oidcTrustedEndpoint',
     'quiet',
     'retryWrites',
     'shell',
@@ -84,7 +88,9 @@ const OPTIONS = {
     u: 'username',
     f: 'file',
     'build-info': 'buildInfo',
-    json: 'json' // List explicitly here since it can be a boolean or a string
+    json: 'json', // List explicitly here since it can be a boolean or a string
+    browser: 'browser', // ditto
+    oidcRedirectUrl: 'oidcRedirectUri' // I'd get this wrong about 50% of the time
   },
   configuration: {
     'camel-case-expansion': false,

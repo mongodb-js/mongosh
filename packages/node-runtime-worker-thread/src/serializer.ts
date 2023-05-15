@@ -1,7 +1,7 @@
 import { inspect } from 'util';
 import { EJSON } from 'bson';
 import { RuntimeEvaluationResult } from '@mongosh/browser-runtime-core';
-import type { DevtoolsConnectOptions } from '@mongosh/service-provider-server/lib/cli-service-provider';
+import type { DevtoolsConnectOptions } from '@mongosh/service-provider-server';
 
 function isPrimitive(
   val: any
@@ -117,8 +117,8 @@ const autoEncryptionBSONOptions = [
   'encryptedFieldsMap'
 ] as const;
 
-export function serializeConnectOptions(options: Readonly<DevtoolsConnectOptions> = {}): DevtoolsConnectOptions {
-  const serializedOptions: any = { ...options };
+export function serializeConnectOptions(options: Readonly<DevtoolsConnectOptions>): DevtoolsConnectOptions {
+  const serializedOptions = { ...options };
   for (const autoEncryptionOption of autoEncryptionBSONOptions) {
     if (serializedOptions.autoEncryption?.[autoEncryptionOption]) {
       serializedOptions.autoEncryption = {

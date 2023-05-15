@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Sun May 07 2023.
+This document was automatically generated on Sun May 14 2023.
 
 ## List of dependencies
 
@@ -106,7 +106,7 @@ Package|Version|License
 **[@jridgewell/set-array](#232e4103104ec42da9c01a923eaca648b9b4d8fd3ebbc13897ef8513f7c6fa73)**|1.1.2|MIT
 **[@jridgewell/sourcemap-codec](#48d1d40d908582402e2071de1ae38b57c21fc0e7615f8f82f3f5b1f0cad0dd93)**|1.4.14|MIT
 **[@jridgewell/trace-mapping](#90aa2d07ffe239d25f77a13221286592b1de783a008d6fd50287e91cda909161)**|0.3.17|MIT
-**[@mongodb-js/devtools-connect](#defe3a966c13dc0b9177d694bed6c7b934350186e1f62e23c60f64f3bdb7641e)**|1.4.4|Apache-2.0
+**[@mongodb-js/devtools-connect](#3212d12928b62ade3568e2d2f5cd1b7ee329d218720783589f5373f2aef34dcc)**|2.0.3|Apache-2.0
 **[@mongodb-js/mongodb-constants](#12523c3e7207d3ac0920487a6ebc31392c24ba8db4f291a14ccf470b7315ba5a)**|0.2.2|Apache-2.0
 **[@mongosh/arg-parser](#5e9fd9c9d630182d86d92c944915511aeab21246b770d28f9a732bab98f57c53)**|0.0.0-dev.0|Apache-2.0
 **[@mongosh/async-rewriter2](#69676fe7ebd86bf4fddf69d015a9de3d5e5657481207dc3738ed4219996b4217)**|0.0.0-dev.0|Apache-2.0
@@ -231,6 +231,7 @@ Package|Version|License
 **[kerberos](#99979afa6e15ebb3e12acdc27f1af7d1b3172630dc00e7affac337105da2efee)**|2.0.1|Apache-2.0
 **[lodash](#adaac4144887ebc2c1b682380ff385210f681fc58b4bc1ef3986148cf8dcd28a)**|4.17.21|MIT
 **[lodash.isstring](#0103ef60e6b5d9c04fe5527db0d91b50851203d166f29cbcf5fdf6c655194132)**|4.0.1|MIT
+**[lodash.merge](#996e40d63a94f1b8693d7c81e0cdfb874c6432d6bbd675976fc1b6b13652c8db)**|4.6.2|MIT
 **[lowlight](#9878eb9f16a4960a47f5e2b9d1cb8ec4efccced7536cd3fed54e13439a1d2459)**|1.9.2|MIT
 **[lru-cache](#938513411a6603ce29334db15563fb94b7d52f839d32b9bd78c18f5d3f98aa5a)**|6.0.0|ISC
 **[lru-cache](#e9bdfc6d4c069cb30d7db0580dd3e93b11cd6f58466a905efa95e503e3dd3442)**|4.1.5|ISC
@@ -249,7 +250,7 @@ Package|Version|License
 **[mongodb-client-encryption](#f69f546d0f92801b1e58e53b353940a9104d96adaef8babc5c939a13a6835f73)**|2.7.1|Apache-2.0
 **[mongodb-connection-string-url](#ce5b616af8be619c9b55d24d0c177a8d7676deb45415078a03235e37f704ae4c)**|2.6.0|Apache-2.0
 **[mongodb-crypt-library-version](#531dc8c5761d69d24f5e39457de5812ed3781da937aa64f94ed6f659bd72c142)**|1.0.3|Apache-2.0
-**[mongodb-log-writer](#382d8ce146b9f22281c9ab15b5d004e4de6d1139f226885ec984d57d07416e9a)**|1.1.5|Apache-2.0
+**[mongodb-log-writer](#cd6989ee1718f318edf0d2cbd6321aad2685493f540cef315dd9e0fc705eee74)**|1.2.0|Apache-2.0
 **[mongodb-redact](#00a2cfed57df1e8b912b751b08bee4de24ad0189840c99820ebc00c1b219a421)**|0.2.2|Apache-2.0
 **[ms](#0a987b2f79ff37005e452a5afa7dacd3042061a7077054d2ba9cabacd88506d2)**|2.1.2|MIT
 **[mustache](#9e574ae3fa6282e512b5f57e7b1b1e9463c95d0301c65e2684cb120df415c5ee)**|4.2.0|MIT
@@ -15819,8 +15820,8 @@ Authors:
 * Justin Ridgewell <justin@ridgewell.name>
 
 
-<a id="defe3a966c13dc0b9177d694bed6c7b934350186e1f62e23c60f64f3bdb7641e"></a>
-### [@mongodb-js/devtools-connect](https://www.npmjs.com/package/@mongodb-js/devtools-connect) (version 1.4.4)
+<a id="3212d12928b62ade3568e2d2f5cd1b7ee329d218720783589f5373f2aef34dcc"></a>
+### [@mongodb-js/devtools-connect](https://www.npmjs.com/package/@mongodb-js/devtools-connect) (version 2.0.3)
 <!-- initially found at node_modules/@mongodb-js/devtools-connect -->
 > A connection establishment utility for MongoDB developer tools
 
@@ -24937,6 +24938,70 @@ Authors:
 * Mathias Bynens <mathias@qiwi.be> (https://mathiasbynens.be/)
 
 
+<a id="996e40d63a94f1b8693d7c81e0cdfb874c6432d6bbd675976fc1b6b13652c8db"></a>
+### [lodash.merge](https://www.npmjs.com/package/lodash.merge) (version 4.6.2)
+<!-- initially found at node_modules/lodash.merge -->
+> The Lodash method `_.merge` exported as a module.
+
+License tags: MIT
+
+License files:
+* LICENSE:
+
+      Copyright OpenJS Foundation and other contributors <https://openjsf.org/>
+      
+      Based on Underscore.js, copyright Jeremy Ashkenas,
+      DocumentCloud and Investigative Reporters & Editors <http://underscorejs.org/>
+      
+      This software consists of voluntary contributions made by many
+      individuals. For exact contribution history, see the revision history
+      available at https://github.com/lodash/lodash
+      
+      The following license applies to all parts of this software except as
+      documented below:
+      
+      ====
+      
+      Permission is hereby granted, free of charge, to any person obtaining
+      a copy of this software and associated documentation files (the
+      "Software"), to deal in the Software without restriction, including
+      without limitation the rights to use, copy, modify, merge, publish,
+      distribute, sublicense, and/or sell copies of the Software, and to
+      permit persons to whom the Software is furnished to do so, subject to
+      the following conditions:
+      
+      The above copyright notice and this permission notice shall be
+      included in all copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+      NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+      LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+      OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+      WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+      
+      ====
+      
+      Copyright and related rights for sample code are waived via CC0. Sample
+      code is defined as all source code displayed within the prose of the
+      documentation.
+      
+      CC0: http://creativecommons.org/publicdomain/zero/1.0/
+      
+      ====
+      
+      Files located in the node_modules and vendor directories are externally
+      maintained libraries used by this software which have their own
+      licenses; we recommend you read them, as their terms may differ from the
+      terms above.
+      
+
+Authors:
+* John-David Dalton <john.david.dalton@gmail.com>
+* Mathias Bynens <mathias@qiwi.be>
+
+
 <a id="9878eb9f16a4960a47f5e2b9d1cb8ec4efccced7536cd3fed54e13439a1d2459"></a>
 ### [lowlight](https://www.npmjs.com/package/lowlight) (version 1.9.2)
 <!-- initially found at node_modules/lowlight -->
@@ -26448,8 +26513,8 @@ Authors:
 * Anna Henningsen <anna@addaleax.net>
 
 
-<a id="382d8ce146b9f22281c9ab15b5d004e4de6d1139f226885ec984d57d07416e9a"></a>
-### [mongodb-log-writer](https://www.npmjs.com/package/mongodb-log-writer) (version 1.1.5)
+<a id="cd6989ee1718f318edf0d2cbd6321aad2685493f540cef315dd9e0fc705eee74"></a>
+### [mongodb-log-writer](https://www.npmjs.com/package/mongodb-log-writer) (version 1.2.0)
 <!-- initially found at node_modules/mongodb-log-writer -->
 > A library for writing MongoDB logv2 messages
 

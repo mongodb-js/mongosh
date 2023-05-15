@@ -58,6 +58,18 @@ describe('config validation', () => {
     expect(await validate('snippetAutoload', -1)).to.equal('snippetAutoload must be a boolean');
     expect(await validate('snippetAutoload', false)).to.equal(null);
     expect(await validate('snippetAutoload', true)).to.equal(null);
+    expect(await validate('oidcRedirectURI', 'http://localhost:123456/foo')).to.equal('oidcRedirectURI must be undefined or a valid URL');
+    expect(await validate('oidcRedirectURI', undefined)).to.equal(null);
+    expect(await validate('oidcRedirectURI', 'http://localhost:0/')).to.equal(null);
+    expect(await validate('oidcRedirectURI', 'http://localhost:12345/foo')).to.equal(null);
+    expect(await validate('oidcTrustedEndpoints', 'localhost')).to.equal('oidcTrustedEndpoints must be undefined or an array of hostnames');
+    expect(await validate('oidcTrustedEndpoints', [1, 2, 3])).to.equal('oidcTrustedEndpoints must be undefined or an array of hostnames');
+    expect(await validate('oidcTrustedEndpoints', ['::1', '127.0.0.1', 'foo.bar.com', '*.net'])).to.equal(null);
+    expect(await validate('oidcTrustedEndpoints', undefined)).to.equal(null);
+    expect(await validate('browser', 1234)).to.equal('browser must be undefined, false, or a command string');
+    expect(await validate('browser', undefined)).to.equal(null);
+    expect(await validate('browser', false)).to.equal(null);
+    expect(await validate('browser', 'foo bar')).to.equal(null);
   });
 
   it('allows default CliUserConfig values', async() => {

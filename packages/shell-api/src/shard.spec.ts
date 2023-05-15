@@ -12,6 +12,7 @@ import { CliServiceProvider } from '../../service-provider-server';
 import { startTestCluster, skipIfServerVersion, skipIfApiStrict } from '../../../testing/integration-testing-hooks';
 import Database from './database';
 import { inspect } from 'util';
+import { dummyOptions } from './helpers.spec';
 
 describe('Shard', () => {
   skipIfApiStrict();
@@ -1234,7 +1235,7 @@ describe('Shard', () => {
     );
 
     before(async() => {
-      serviceProvider = await CliServiceProvider.connect(await mongos.connectionString(), {}, {}, new EventEmitter());
+      serviceProvider = await CliServiceProvider.connect(await mongos.connectionString(), dummyOptions, {}, new EventEmitter());
       instanceState = new ShellInstanceState(serviceProvider);
       sh = new Shard(instanceState.currentDb);
 
@@ -1272,6 +1273,7 @@ describe('Shard', () => {
         before(async() => {
           try {
             apiStrictServiceProvider = await CliServiceProvider.connect(await mongos.connectionString(), {
+              ...dummyOptions,
               serverApi: { version: '1', strict: true }
             }, {}, new EventEmitter());
           } catch { /* Fails to connect to servers which do not understand api versions */ }

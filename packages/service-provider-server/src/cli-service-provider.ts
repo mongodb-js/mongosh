@@ -70,9 +70,11 @@ import { connectMongoClient, DevtoolsConnectOptions } from '@mongodb-js/devtools
 import { MongoshCommandFailed, MongoshInternalError } from '@mongosh/errors';
 import type { MongoshBus } from '@mongosh/types';
 import { forceCloseMongoClient } from './mongodb-patches';
-import ConnectionString from 'mongodb-connection-string-url';
+import { ConnectionString, CommaAndColonSeparatedRecord } from 'mongodb-connection-string-url';
 import { EventEmitter } from 'events';
 import { CreateEncryptedCollectionOptions } from '@mongosh/service-provider-core';
+import { DevtoolsConnectionState } from '@mongodb-js/devtools-connect';
+import { isDeepStrictEqual } from 'util';
 
 const bsonlib = {
   Binary: BSON.Binary,
@@ -110,10 +112,6 @@ type ExtraConnectionInfo = ReturnType<typeof getConnectInfo> & { fcv?: string };
 const DEFAULT_DRIVER_OPTIONS: MongoClientOptions = Object.freeze({
 });
 
-function processDriverOptions(opts: DevtoolsConnectOptions): DevtoolsConnectOptions {
-  return { ...DEFAULT_DRIVER_OPTIONS, ...opts };
-}
-
 /**
  * Default driver method options we always use.
  */
@@ -123,6 +121,35 @@ const DEFAULT_BASE_OPTIONS: OperationOptions = Object.freeze({
 });
 
 /**
+ * Pick properties of `uri` and `opts` that as a tuple that can be matched
+ * against the correspondiung tuple for another `uri` and `opts` configuration,
+ * and when they do, it is meaningful to share connection state between them.
+ *
+ * Currently, this is only used for OIDC. We don't need to make sure that the
+ * configuration matches; what we *need* to avoid, however, is a case in which
+ * the same OIDC plugin instance gets passed to different connections whose
+ * endpoints don't have a trust relationship (i.e. different hosts) or where
+ * the usernames don't match, so that access tokens for one user on a given host
+ * do not end up being sent to a different host or for a different user.
+ */
+function normalizeEndpointAndAuthConfiguration(
+  uri: ConnectionString, opts: DevtoolsConnectOptions,
+) {
+  const search = uri.typedSearchParams<DevtoolsConnectOptions>();
+  const authMechProps = new CommaAndColonSeparatedRecord(search.get('authMechanismProperties'));
+
+  return [
+    uri.protocol,
+    uri.hosts,
+    opts.auth?.username ?? uri.username,
+    opts.auth?.password ?? uri.password,
+    opts.authMechanism ?? search.get('authMechanism'),
+    opts.authSource ?? search.get('authSource'),
+    { ...Object.fromEntries(authMechProps), ...opts.authMechanismProperties }
+  ];
+}
+
+/**
    * Encapsulates logic for the service provider for the mongosh CLI.
  */
 class CliServiceProvider extends ServiceProviderCore implements ServiceProvider {
@@ -130,7 +157,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
    * Create a new CLI service provider from the provided URI.
    *
    * @param {String} uri - The URI.
-   * @param {MongoClientOptions} driverOptions - The options.
+   * @param {DevtoolsConnectOptions} driverOptions - The options.
    * @param {Object} cliOptions - Options passed through CLI. Right now only being used for nodb.
    *
    * @returns {Promise} The promise with cli service provider.
@@ -138,12 +165,12 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   static async connect(
     this: typeof CliServiceProvider,
     uri: string,
-    driverOptions: DevtoolsConnectOptions = {},
+    driverOptions: DevtoolsConnectOptions,
     cliOptions: { nodb?: boolean } = {},
     bus: MongoshBus = new EventEmitter() // TODO: Change VSCode to pass all arguments, then remove defaults
   ): Promise<CliServiceProvider> {
     const connectionString = new ConnectionString(uri || 'mongodb://nodb/');
-    const clientOptions = processDriverOptions(driverOptions);
+    const clientOptions = this.processDriverOptions(null, connectionString, driverOptions);
     if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
       clientOptions.serverApi = {
         version: typeof clientOptions.serverApi === 'string' ? clientOptions.serverApi :
@@ -153,16 +180,31 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
       };
     }
 
-    const mongoClient = !cliOptions.nodb ?
-      await connectMongoClient(
-        connectionString.toString(),
-        clientOptions,
-        bus,
-        MongoClient
-      ) :
-      new MongoClient(connectionString.toString(), clientOptions);
+    let client: MongoClient;
+    let state: DevtoolsConnectionState | undefined;
+    if (cliOptions.nodb) {
+      const clientOptionsCopy: MongoClientOptions & Partial<DevtoolsConnectOptions> = {
+        ...clientOptions
+      };
+      delete clientOptionsCopy.productName;
+      delete clientOptionsCopy.productDocsLink;
+      delete clientOptionsCopy.oidc;
+      delete clientOptionsCopy.parentHandle;
+      delete clientOptionsCopy.parentState;
+      delete clientOptionsCopy.useSystemCA;
+      client = new MongoClient(connectionString.toString(), clientOptionsCopy);
+    } else {
+      ({ client, state } =
+        await connectMongoClient(
+          connectionString.toString(),
+          clientOptions,
+          bus,
+          MongoClient
+        ));
+    }
+    clientOptions.parentState = state;
 
-    return new this(mongoClient, bus, clientOptions, connectionString);
+    return new this(client, bus, clientOptions, connectionString);
   }
 
   public readonly platform: ReplPlatform;
@@ -180,10 +222,10 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
    * MongoClient instance.
    *
    * @param {MongoClient} mongoClient - The Node drivers' MongoClient instance.
-   * @param {MongoClientOptions} clientOptions
+   * @param {DevtoolsConnectOptions} clientOptions
    * @param {string} uri - optional URI for telemetry.
    */
-  constructor(mongoClient: MongoClient, bus: MongoshBus, clientOptions: MongoClientOptions = {}, uri?: ConnectionString) {
+  constructor(mongoClient: MongoClient, bus: MongoshBus, clientOptions: DevtoolsConnectOptions, uri?: ConnectionString) {
     super(bsonlib);
 
     this.bus = bus;
@@ -209,16 +251,17 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     } catch { /* not empty */ }
   }
 
-  async getNewConnection(uri: string, options: DevtoolsConnectOptions = {}): Promise<CliServiceProvider> {
+  async getNewConnection(uri: string, options: Partial<DevtoolsConnectOptions> = {}): Promise<CliServiceProvider> {
     const connectionString = new ConnectionString(uri);
-    const clientOptions = processDriverOptions(options);
-    const mongoClient = await connectMongoClient(
+    const clientOptions = this.processDriverOptions(connectionString, options);
+    const { client, state } = await connectMongoClient(
       connectionString.toString(),
       clientOptions,
       this.bus,
       MongoClient
     );
-    return new CliServiceProvider(mongoClient, this.bus, clientOptions, connectionString);
+    clientOptions.parentState = state;
+    return new CliServiceProvider(client, this.bus, clientOptions, connectionString);
   }
 
   async getConnectionInfo(): Promise<ConnectionInfo> {
@@ -1053,8 +1096,8 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
       ...this.currentClientOptions,
       ...options
     };
-    const clientOptions = processDriverOptions(this.currentClientOptions);
-    const mc = await connectMongoClient(
+    const clientOptions = this.processDriverOptions(this.uri as ConnectionString, this.currentClientOptions);
+    const { client, state } = await connectMongoClient(
       (this.uri as ConnectionString).toString(),
       clientOptions,
       this.bus,
@@ -1064,7 +1107,8 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
       await this.mongoClient.close();
       // eslint-disable-next-line no-empty
     } catch {}
-    this.mongoClient = mc;
+    this.mongoClient = client;
+    this.currentClientOptions.parentState = state;
   }
 
   startSession(options: ClientSessionOptions): ClientSession {
@@ -1096,6 +1140,71 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
 
   getFleOptions(): AutoEncryptionOptions | undefined {
     return this.currentClientOptions.autoEncryption;
+  }
+
+  // Internal, only exposed for testing
+  // eslint-disable-next-line complexity
+  static processDriverOptions(
+    currentProviderInstance: CliServiceProvider | null,
+    uri: ConnectionString,
+    opts: DevtoolsConnectOptions): DevtoolsConnectOptions {
+    const processedOptions = { ...DEFAULT_DRIVER_OPTIONS, ...opts };
+
+    if (currentProviderInstance?.currentClientOptions) {
+      for (const key of [
+        'productName', 'productDocsLink'
+      ] as const) {
+        processedOptions[key] = currentProviderInstance.currentClientOptions[key];
+      }
+
+      processedOptions.oidc ??= {};
+      for (const key of [
+        'redirectURI', 'openBrowser', 'openBrowserTimeout', 'notifyDeviceFlow', 'allowedFlows'
+      ] as const) {
+        // Template IIFE so that TS understands that `key` on the left-hand and right-hand side match
+        (<T extends keyof typeof processedOptions.oidc>(key: T) => {
+          const value = currentProviderInstance.currentClientOptions.oidc?.[key];
+          if (value) {processedOptions.oidc[key] = value;}
+        })(key);
+      }
+    }
+
+    if (
+      processedOptions.parentState ||
+      processedOptions.parentHandle ||
+      !currentProviderInstance
+    ) {
+      // Already set a parent state instance in the options explicitly,
+      // or no state to inherit from a parent.
+      return processedOptions;
+    }
+
+    const currentOpts = currentProviderInstance.currentClientOptions;
+    const currentUri = currentProviderInstance.uri;
+    if (
+      currentUri &&
+      isDeepStrictEqual(
+        normalizeEndpointAndAuthConfiguration(currentUri, currentOpts),
+        normalizeEndpointAndAuthConfiguration(uri, processedOptions)
+      )
+    ) {
+      if (currentOpts.parentState) {
+        processedOptions.parentState = currentOpts.parentState;
+      } else if (currentOpts.parentHandle) {
+        processedOptions.parentHandle = currentOpts.parentHandle;
+      }
+    }
+
+    return processedOptions;
+  }
+
+  // Internal, only exposed for testing
+  processDriverOptions(uri: ConnectionString, opts: Partial<DevtoolsConnectOptions>): DevtoolsConnectOptions {
+    return CliServiceProvider.processDriverOptions(this, uri, {
+      productName: this.currentClientOptions.productName,
+      productDocsLink: this.currentClientOptions.productDocsLink,
+      ...opts
+    });
   }
 }
 

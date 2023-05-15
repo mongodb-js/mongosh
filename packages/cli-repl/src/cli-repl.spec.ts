@@ -12,13 +12,14 @@ import { expect, fakeTTYProps, readReplLogfile, tick, useTmpdir, waitBus, waitCo
 import ConnectionString from 'mongodb-connection-string-url';
 import { CliRepl, CliReplOptions } from './cli-repl';
 import { CliReplErrors } from './error-codes';
+import { DevtoolsConnectOptions } from '@mongosh/service-provider-server';
 const { EJSON } = bson;
 
 const delay = promisify(setTimeout);
 
 describe('CliRepl', () => {
   let cliReplOptions: CliReplOptions;
-  let cliRepl: CliRepl;
+  let cliRepl: CliRepl & { start(cstr: string, options: Partial<DevtoolsConnectOptions>): Promise<void>; };
   let input: Duplex;
   let outputStream: Duplex;
   let output = '';
@@ -33,7 +34,7 @@ describe('CliRepl', () => {
 
   async function startWithExpectedImmediateExit(cliRepl: CliRepl, host: string): Promise<void> {
     try {
-      await cliRepl.start(host, {});
+      await cliRepl.start(host, {} as any);
       expect.fail('Expected start() to also exit immediately');
     } catch (err: any) {
       expect(err.message).to.include('onExit() unexpectedly returned');
@@ -219,7 +220,10 @@ describe('CliRepl', () => {
           'inspectDepth',
           'historyLength',
           'showStackTraces',
-          'redactHistory'
+          'redactHistory',
+          'oidcRedirectURI',
+          'oidcTrustedEndpoints',
+          'browser',
         ]);
       });
 
@@ -1575,7 +1579,7 @@ describe('CliRepl', () => {
         }
         cliReplOptions.nodeReplOptions = { terminal: true };
         cliRepl = new CliRepl(cliReplOptions);
-        await cliRepl.start(testServer ? await testServer.connectionString() : '', {});
+        await cliRepl.start(testServer ? await testServer.connectionString() : '', {} as any);
       });
 
       afterEach(async() => {
@@ -1719,5 +1723,45 @@ describe('CliRepl', () => {
       });
     });
   }
+
+  context('with OIDC options', function() {
+    it('sets OIDC options according with defaults', async function() {
+      cliReplOptions.shellCliOptions = { nodb: true };
+      cliRepl = new CliRepl(cliReplOptions);
+      await cliRepl.start('', {});
+
+      const o = await cliRepl.prepareOIDCOptions({} as any);
+      expect(o.oidc?.allowedFlows).to.deep.equal(['auth-code']);
+      expect(o.oidc?.notifyDeviceFlow).to.be.a('function');
+      expect(o.authMechanismProperties).to.deep.equal({});
+      expect(o.parentHandle).to.equal(undefined);
+    });
+
+    it('sets OIDC options according to config', async function() {
+      cliReplOptions.shellCliOptions = { nodb: true };
+      cliRepl = new CliRepl(cliReplOptions);
+      await cliRepl.start('', {});
+      input.write('config.set("oidcRedirectURI", "http://localhost:1234/")\n');
+      await waitEval(cliRepl.bus);
+      input.write('config.set("oidcTrustedEndpoints", ["*.my-trusted-cluster.net"])\n');
+      await waitEval(cliRepl.bus);
+      input.write('config.set("browser", "my-awesome-browser")\n');
+      await waitEval(cliRepl.bus);
+
+      let o: DevtoolsConnectOptions;
+      process.env.MONGOSH_OIDC_PARENT_HANDLE = 'foo-bar';
+      try {
+        o = await cliRepl.prepareOIDCOptions({} as any);
+      } finally {
+        delete process.env.MONGOSH_OIDC_PARENT_HANDLE;
+      }
+      expect(o.oidc?.allowedFlows).to.deep.equal(['auth-code']);
+      expect(o.oidc?.notifyDeviceFlow).to.be.a('function');
+      expect(o.oidc?.redirectURI).to.equal('http://localhost:1234/');
+      expect(o.oidc?.openBrowser).to.deep.equal({ command: 'my-awesome-browser' });
+      expect(o.authMechanismProperties).to.deep.equal({ ALLOWED_HOSTS: [ '*.my-trusted-cluster.net' ] });
+      expect(o.parentHandle).to.equal('foo-bar');
+    });
+  });
 });
 

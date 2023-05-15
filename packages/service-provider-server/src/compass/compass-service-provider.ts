@@ -4,12 +4,6 @@ import type { ReplPlatform } from '@mongosh/service-provider-core';
 import ConnectionString from 'mongodb-connection-string-url';
 import { EventEmitter } from 'events';
 
-interface DataService {
-  client: {
-    client: MongoClient;
-  };
-}
-
 /**
  * A service provider that is meant to be used in compass.
  */
@@ -26,24 +20,11 @@ class CompassServiceProvider extends CliServiceProvider {
   constructor(
     mongoClient: MongoClient,
     bus: EventEmitter,
-    driverOptions?: DevtoolsConnectOptions,
+    driverOptions: DevtoolsConnectOptions,
     uri?: ConnectionString
   ) {
     super(mongoClient, bus, driverOptions, uri);
     this.platform = 'Compass';
-  }
-  /**
-   * Creates a new CompassServiceProvider that uses compass
-   * data service (https://www.npmjs.com/package/mongodb-data-service) for
-   * transport.
-   *
-   * @param {DataService} dataService - a DataService instance
-   * @returns {CompassServiceProvider} - a new CompassServiceProvider
-   */
-  static fromDataService(dataService: DataService): CompassServiceProvider {
-    const mongoClient = dataService.client.client;
-
-    return new CompassServiceProvider(mongoClient, new EventEmitter());
   }
 }
 
