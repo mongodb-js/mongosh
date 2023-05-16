@@ -93,7 +93,7 @@ export type WorkerRuntime = Runtime & {
 const workerRuntime: WorkerRuntime = {
   async init(
     uri: string,
-    driverOptions: DevtoolsConnectOptions = {},
+    driverOptions: DevtoolsConnectOptions,
     cliOptions: { nodb?: boolean } = {}
   ) {
     // XXX The types here work out fine, and tsc accepts this code

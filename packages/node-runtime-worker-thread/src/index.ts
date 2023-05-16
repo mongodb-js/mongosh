@@ -75,7 +75,7 @@ class WorkerRuntime implements Runtime {
 
   constructor(
     uri: string,
-    driverOptions: DevtoolsConnectOptions = {},
+    driverOptions: DevtoolsConnectOptions,
     cliOptions: { nodb?: boolean } = {},
     spawnOptions: SpawnOptionsWithoutStdio = {},
     eventEmitter: MongoshBus = new EventEmitter()

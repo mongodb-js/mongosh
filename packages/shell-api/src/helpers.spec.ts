@@ -9,7 +9,7 @@ import {
 import { Database, Mongo, ShellInstanceState } from './index';
 import constructShellBson from './shell-bson';
 import { ServiceProvider, bson } from '@mongosh/service-provider-core';
-import { CliServiceProvider } from '../../service-provider-server'; // avoid cyclic dep just for test
+import { CliServiceProvider, DevtoolsConnectOptions } from '../../service-provider-server'; // avoid cyclic dep just for test
 import { startTestServer } from '../../../testing/integration-testing-hooks';
 import { makeFakeConfigDatabase } from '../../../testing/shard-test-fake-data';
 import sinon from 'ts-sinon';
@@ -19,6 +19,11 @@ import sinonChai from 'sinon-chai';
 chai.use(sinonChai);
 
 const fakeConfigDb = makeFakeConfigDatabase(constructShellBson(bson, sinon.stub()));
+
+export const dummyOptions: DevtoolsConnectOptions = Object.freeze({
+  productName: 'Test Product',
+  productDocsLink: 'https://example.com/'
+});
 
 describe('dataFormat', () => {
   it('formats byte amounts', () => {
@@ -88,7 +93,7 @@ describe('getPrintableShardStatus', () => {
   let inBalancerRound = false;
 
   beforeEach(async() => {
-    serviceProvider = await CliServiceProvider.connect(await testServer.connectionString(), {}, {}, new EventEmitter());
+    serviceProvider = await CliServiceProvider.connect(await testServer.connectionString(), dummyOptions, {}, new EventEmitter());
     mongo = new Mongo(new ShellInstanceState(serviceProvider), undefined, undefined, undefined, serviceProvider);
     configDatabase = new Database(mongo, 'config_test');
     expect(configDatabase.getName()).to.equal('config_test');

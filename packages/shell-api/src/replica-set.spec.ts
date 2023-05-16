@@ -16,6 +16,7 @@ import {
   ALL_API_VERSIONS,
   ALL_TOPOLOGIES
 } from './enums';
+import { dummyOptions } from './helpers.spec';
 import { signatures, toShellResult } from './index';
 import Mongo from './mongo';
 import ReplicaSet, { ReplSetConfig, ReplSetMemberConfig } from './replica-set';
@@ -794,7 +795,7 @@ describe('ReplicaSet', () => {
       };
       additionalServer = srv3;
 
-      serviceProvider = await CliServiceProvider.connect(`${await srv0.connectionString()}?directConnection=true`, {}, {}, new EventEmitter());
+      serviceProvider = await CliServiceProvider.connect(`${await srv0.connectionString()}?directConnection=true`, dummyOptions, {}, new EventEmitter());
       instanceState = new ShellInstanceState(serviceProvider);
       db = instanceState.currentDb;
       rs = new ReplicaSet(db);
@@ -959,7 +960,7 @@ describe('ReplicaSet', () => {
     let serviceProvider: CliServiceProvider;
 
     beforeEach(async() => {
-      serviceProvider = await CliServiceProvider.connect(`${await srv0.connectionString()}?directConnection=true`, {}, {}, new EventEmitter());
+      serviceProvider = await CliServiceProvider.connect(`${await srv0.connectionString()}?directConnection=true`, dummyOptions, {}, new EventEmitter());
     });
 
     afterEach(async() => {

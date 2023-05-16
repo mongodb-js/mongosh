@@ -34,7 +34,7 @@
     "@mongosh/i18n": "0.0.0-dev.0"
   },
   "devDependencies": {
-    "@mongodb-js/devtools-connect": "^1.4.4",
-    "mongodb": "^5.4.0"
+    "@mongodb-js/devtools-connect": "^2.0.3",
+    "mongodb": "^5.5.0"
   }
 }

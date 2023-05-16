@@ -1649,7 +1649,32 @@ const translations: Catalog = {
             getShardedDataDistribution: {
               description: 'Returns data-size distribution information for all existing sharded collections',
               example: 'sh.getShardedDataDistribution()',
-            }
+            },
+            startAutoMerger: {
+              link: 'https://docs.mongodb.com/manual/reference/method/sh.startAutoMerger',
+              description: 'Globally enable auto-merger (active only if balancer is up)',
+              example: 'sh.startAutoMerger()',
+            },
+            stopAutoMerger: {
+              link: 'https://docs.mongodb.com/manual/reference/method/sh.stopAutoMerger',
+              description: 'Globally disable auto-merger',
+              example: 'sh.stopAutoMerger()',
+            },
+            isAutoMergerEnabled: {
+              link: 'https://docs.mongodb.com/manual/reference/method/sh.isAutoMergerEnabled',
+              description: 'Returns whether the auto-merger is enabled',
+              example: 'sh.isAutoMergerEnabled()',
+            },
+            disableAutoMerger: {
+              link: 'https://docs.mongodb.com/manual/reference/method/sh.disableAutoMerger',
+              description: 'Disable auto-merging on one collection',
+              example: 'sh.disableAutoMerger(ns)',
+            },
+            enableAutoMerger: {
+              link: 'https://docs.mongodb.com/manual/reference/method/sh.enableAutoMerger',
+              description: 'Re-enable auto-merge on one collection',
+              example: 'sh.enableAutoMerger(ns)',
+            },
           }
         }
       },

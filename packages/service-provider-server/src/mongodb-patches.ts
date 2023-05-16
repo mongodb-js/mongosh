@@ -4,7 +4,7 @@ import type { MongoClient } from 'mongodb';
 export function forceCloseMongoClient(client: MongoClient): Promise<{ forceClosedConnections: number }> {
   let forceClosedConnections = 0;
   for (const server of (client as any).topology?.s?.servers?.values()) {
-    const checkedOutConnections = server?.s?.pool?.checkedOutConnections;
+    const checkedOutConnections = server?.pool?.checkedOutConnections;
     for (const connection of checkedOutConnections ?? []) {
       forceClosedConnections++;
       connection.destroy({ force: true });

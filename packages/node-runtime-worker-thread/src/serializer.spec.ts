@@ -10,6 +10,7 @@ import {
   serializeConnectOptions,
   deserializeConnectOptions
 } from './serializer';
+import { dummyOptions } from './index.spec';
 
 describe('serializer', () => {
   describe('serializeError', () => {
@@ -143,6 +144,7 @@ describe('serializer', () => {
   describe('connection options', () => {
     it('should serialize and deserialize FLE1 connection options', () => {
       const options: DevtoolsConnectOptions = {
+        ...dummyOptions,
         autoEncryption: {
           schemaMap: {
             'hr.employees': {
@@ -164,6 +166,7 @@ describe('serializer', () => {
       const serialized = serializeConnectOptions(options);
 
       expect(serialized).to.deep.equal({
+        ...dummyOptions,
         autoEncryption: {
           schemaMap: {
             'hr.employees': {
@@ -187,6 +190,7 @@ describe('serializer', () => {
 
     it('should serialize and deserialize FLE2 connection options', () => {
       const options: DevtoolsConnectOptions = {
+        ...dummyOptions,
         autoEncryption: {
           encryptedFieldsMap: {
             'hr.employees': {
@@ -204,6 +208,7 @@ describe('serializer', () => {
       const serialized = serializeConnectOptions(options);
 
       expect(serialized).to.deep.equal({
+        ...dummyOptions,
         autoEncryption: {
           encryptedFieldsMap: {
             'hr.employees': {

@@ -36,11 +36,11 @@
     "@aws-sdk/credential-providers": "^3.262.0",
     "@mongosh/errors": "0.0.0-dev.0",
     "bson": "^5.2.0",
-    "mongodb": "^5.4.0",
+    "mongodb": "^5.5.0",
     "mongodb-build-info": "^1.5.0"
   },
   "optionalDependencies": {
-    "mongodb-client-encryption": "^2.7.1"
+    "mongodb-client-encryption": "^2.8.0"
   },
   "dependency-check": {
     "entries": [

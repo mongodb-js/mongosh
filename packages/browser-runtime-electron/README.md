@@ -17,7 +17,7 @@ const runtime = new ElectronRuntime(serviceProvider);
 import { Shell, ElectronRuntime } from 'mongosh-browser-repl';
 
 const runtime = new ElectronRuntime(
-  CompassServiceProvider.fromDataService(dataService)
+  await CompassServiceProvider.connect(...)
 );
 
 function MyShell(props) {

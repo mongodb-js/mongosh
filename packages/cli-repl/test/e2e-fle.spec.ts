@@ -4,6 +4,7 @@ import { TestShell } from './test-shell';
 import { eventually } from '../../../testing/eventually';
 import {
   startTestServer,
+  skipIfApiStrict,
   skipIfServerVersion,
   skipIfCommunityServer,
   downloadCurrentCryptSharedLibrary
@@ -299,9 +300,117 @@ describe('FLE tests', () => {
     expect(compactResult).to.include('The "compactStructuredEncryptionData" command requires Mongo instance configured with auto encryption.');
   });
 
-  context('6.0+', () => {
-    skipIfServerVersion(testServer, '< 6.0'); // Queryable Encryption only available on 6.0+
-    skipIfServerVersion(testServer, '> 6.x'); // TODO(MONGOSH-1410): Queryable Encryption made a breaking change for 7.0
+  context('>= 6.0', () => {
+    skipIfApiStrict();
+    skipIfServerVersion(testServer, '< 6.0');
+
+    it('can read existing QEv1 data', async function() {
+      const uri = await testServer.connectionString();
+      const shell = TestShell.start({
+        args: [uri, `--cryptSharedLibPath=${cryptLibrary}`]
+      });
+      await shell.waitForPrompt();
+
+      await shell.executeLine(`use ${dbname}`);
+
+      await shell.executeLine(`{
+        // using the main client without QE, insert fixture data into 6.x that was generated against a 6.x database
+
+        // insert the dataKey that was used to encrypt the payloads used below
+        dataKey = new UUID("2871cd1d-8317-4d0c-92be-1ac934ed26b1");
+        const dataKeyDoc =  {
+          _id: new UUID("2871cd1d-8317-4d0c-92be-1ac934ed26b1"),
+          keyMaterial: Binary(Buffer.from("519e2b15d20f00955a3960aab31e70a8e3fdb661129ef0d8a752291599488f8fda23ca64ddcbced93dbc715d03f45ab53a8e8273f2230c41c0e64d9ef746d6959cbdc1abcf0e9d020856e2da09a91ef129ac60ef13a98abcd5ee0cbfba21f1de153974996ab002bddccf7dc0268fed90a172dc373e90b63bc2369a5a1bfc78e0c2d7d81e65e970a38ca585248fef53b70452687024b8ecd308930a25414518e3", "hex"), 0),
+          creationDate: ISODate("2023-05-05T10:58:12.473Z"),
+          updateDate: ISODate("2023-05-05T10:58:12.473Z"),
+          status: 0,
+          masterKey: { provider: 'local' }
+        };
+        db.getCollection('keyVault').insertOne(dataKeyDoc);
+
+        db.runCommand({
+          create: 'encryptiontest',
+          encryptedFields: {
+            fields: [{
+              keyId: dataKey,
+              path: 'v',
+              bsonType: 'string',
+              queries: [{ queryType: 'equality' }]
+            }]
+          }
+        })
+
+        // these payloads were encrypted using dataKey
+        db.runCommand({
+          insert: 'encryptiontest',
+          documents: [
+            {
+              _id: 'asdf',
+              v: Binary(Buffer.from("072871cd1d83174d0c92be1ac934ed26b1025438da7f9034a7d6bf03452c9b910381a16b4a0d52592ed6eafc64cc45dde441ac136269b4606f197e939fd54dd9fb257ce2c5afe94853b3b150a9101d65a3063f948ce05350fc4a5811eb5f29793dfd5a9cab77c680bba17f91845895cfd080c123e02a3f1c7e5d5c8c6448a0ac7d624669d0306be6fdcea35106062e742bec39a9873de969196ad95960d4bc247e98dc88a33d9c974646c8283178f3198749c7f24dbd66dc5e7ecf42efc08f64b6a646aa50e872a6f30907b54249039f3226af503d2e2e947323", "hex"), 6),
+              __safeContent__: [
+                Binary(Buffer.from("91865d04a1a1719e2ef89d66eeb8a35515f22470558831fe9494f011e9a209c3", "hex"), 0)
+              ]
+            },
+            {
+              _id: 'ghjk',
+              v: Binary(Buffer.from("072871cd1d83174d0c92be1ac934ed26b10299f34210f149673b61f0d369f89290577c410b800ff38ed10eec235aef3677d3594c6371dd5b8f8d4c34769228bf7aea00b1754036a5850a4fef25c40969451151695614ae6142e954bab6c72080b5f43ccac774f6a1791bcc2ca4ca8998b9d5148441180631c7d8136034ff5019ca31a082464ec2fdcf212460a121d14dec3b8ee313541dc46689c79636929f0828dfdef7dfd4d53e1a924bbf70be34b1668d9352f6102a32265ec45d9c5cc0d7cf5f9266cf161497ee5b4a9495e16926b09282c6e4029d22d88e", "hex"), 6),
+              __safeContent__: [
+                Binary(Buffer.from("b04e26633d569cb47b9cbec650d812a597ffdadacb9a61ee7b1661f52228d661", "hex"), 0)
+              ]
+            }
+          ],
+          bypassDocumentValidation: true
+        });
+
+        db.runCommand({
+          insert: 'enxcol_.encryptiontest.ecoc',
+          documents: [
+            {
+              _id: ObjectId("6454e14689ef42f381f7336b"),
+              fieldName: 'v',
+              value: Binary(Buffer.from("3eb89d3a95cf955ca0c8c56e54018657a45daaf465dd967d9b24895a188d7e3055734f3c0af88302ceab460874f3806fe52fa4541c9f4b32b5cee6c5a6df9399da664f576dd9bde23bce92f5deea0cb3", "hex"), 0)
+            },
+            {
+              _id: ObjectId("6454e14689ef42f381f73385"),
+              fieldName: 'v',
+              value: Binary(Buffer.from("2299cd805a28efb6503120e0250798f1b19137d8234690d12eb7e3b7fa74edd28e80c26022c00d53f5983f16e7b5abb7c3b95e30f265a7ba36adb290eda39370b30cedba960a4002089eb5de2fd118fc", "hex"), 0)
+            }
+          ],
+          bypassDocumentValidation: true
+        });
+
+        db.runCommand({
+          insert: 'enxcol_.encryptiontest.esc',
+          documents: [
+            {
+              _id: Binary(Buffer.from("51db700df02cbbfa25498921f858d3a9d5568cabb97f7283e7b3c9d0e3520ac4", "hex"), 0),
+              value: Binary(Buffer.from("dc7169f28df2c990551b098b8dec8f5b1bfeb65d3f40d0fdb241a518310674a6", "hex"), 0)
+            },
+            {
+              _id: Binary(Buffer.from("948b3d29e335485b0503ffc6ade6bfa6fce664c2a1d14790a523c09223da3f09", "hex"), 0),
+              value: Binary(Buffer.from("7622097476c59c0ca5bf9d05a52fe725517e03ad811f6c073b0d0184a9d26131", "hex"), 0)
+            }
+          ],
+          bypassDocumentValidation: true
+        });
+
+        // now set up a new client with QE so we can test the automatic decryption
+        client = Mongo(${JSON.stringify(uri)}, {
+          keyVaultNamespace: '${dbname}.keyVault',
+          kmsProviders: { local: { key: 'A'.repeat(128) } }
+        });
+        coll = client.getDB('${dbname}').encryptiontest;
+      }`
+      );
+      expect(await shell.executeLine('({ count: coll.countDocuments() })')).to.include('{ count: 2 }');
+
+      // We can't search for the encrypted value, but it does get decrypted
+      expect(await shell.executeLine('coll.findOne({ _id: "ghjk" }).v')).to.include('456');
+    });
+  });
+
+  context('7.0+', () => {
+    skipIfServerVersion(testServer, '< 7.0'); // Queryable Encryption v2 only available on 7.0+
 
     it('allows explicit encryption with bypassQueryAnalysis', async function() {
       if (isMacosTooOldForQE()) {
@@ -413,7 +522,6 @@ describe('FLE tests', () => {
 
       let collections = await shell.executeLine(`plainMongo.getDB('${dbname}').getCollectionNames()`);
 
-      expect(collections).to.include('enxcol_.collfle2.ecc');
       expect(collections).to.include('enxcol_.collfle2.esc');
       expect(collections).to.include('enxcol_.collfle2.ecoc');
       expect(collections).to.include('collfle2');
@@ -422,7 +530,6 @@ describe('FLE tests', () => {
 
       collections = await shell.executeLine(`plainMongo.getDB('${dbname}').getCollectionNames()`);
 
-      expect(collections).to.not.include('enxcol_.collfle2.ecc');
       expect(collections).to.not.include('enxcol_.collfle2.esc');
       expect(collections).to.not.include('enxcol_.collfle2.ecoc');
       expect(collections).to.not.include('collfle2');
@@ -493,7 +600,6 @@ describe('FLE tests', () => {
 
       await shell.executeLine(`plainMongo = Mongo(${uri});`);
       const collections = await shell.executeLine(`plainMongo.getDB('${dbname}').getCollectionNames()`);
-      expect(collections).to.include('enxcol_.secretCollection.ecc');
       expect(collections).to.include('enxcol_.secretCollection.esc');
       expect(collections).to.include('enxcol_.secretCollection.ecoc');
       expect(collections).to.include('secretCollection');
@@ -502,12 +608,6 @@ describe('FLE tests', () => {
       // Since there is only one field to be encrypted hence there would only be one DEK in our keyvault collection
       expect(parseInt(dekCount.trim(), 10)).to.equal(1);
     });
-  });
-
-  context('6.2+', () => {
-    skipIfServerVersion(testServer, '< 6.2'); // Range QE only available on 6.2+
-    skipIfServerVersion(testServer, '> 6.x'); // TODO(MONGOSH-1410): Queryable Encryption made a breaking change for 7.0
-
     it('allows explicit range encryption with bypassQueryAnalysis', async function() {
       if (isMacosTooOldForQE()) {
         return this.skip();
@@ -653,7 +753,7 @@ describe('FLE tests', () => {
       });
       await shell.waitForPrompt();
       const result = await shell.executeLine(`db.getSiblingDB('${dbname}').createCollection('test', { encryptedFields: { fields: [] } });`);
-      expect(result).to.match(/Your server version is .+, which does not support Queryable Encryption/);
+      expect(result).to.match(/Upgrade server to use Queryable Encryption./);
     });
 
     it('provides a good error message when createCollection fails due to low FCV', async function() {
@@ -664,7 +764,7 @@ describe('FLE tests', () => {
       await shell.executeLine(`db = db.getSiblingDB('${dbname}')`);
       await shell.executeLine('db.version = () => \'6.0.0\'');
       const result = await shell.executeLine('db.createCollection(\'test\', { encryptedFields: { fields: [] } });');
-      expect(result).to.match(/Your featureCompatibilityVersion is .+, which does not support Queryable Encryption/);
+      expect(result).to.match(/Upgrade server to use Queryable Encryption./);
     });
   });
 
