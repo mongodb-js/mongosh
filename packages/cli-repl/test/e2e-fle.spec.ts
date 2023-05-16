@@ -4,6 +4,7 @@ import { TestShell } from './test-shell';
 import { eventually } from '../../../testing/eventually';
 import {
   startTestServer,
+  skipIfApiStrict,
   skipIfServerVersion,
   skipIfCommunityServer,
   downloadCurrentCryptSharedLibrary
@@ -300,6 +301,7 @@ describe('FLE tests', () => {
   });
 
   context('>= 6.0', () => {
+    skipIfApiStrict();
     skipIfServerVersion(testServer, '< 6.0');
 
     it('can read existing QEv1 data', async function() {
