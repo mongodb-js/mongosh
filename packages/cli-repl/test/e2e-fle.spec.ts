@@ -751,7 +751,7 @@ describe('FLE tests', () => {
       });
       await shell.waitForPrompt();
       const result = await shell.executeLine(`db.getSiblingDB('${dbname}').createCollection('test', { encryptedFields: { fields: [] } });`);
-      expect(result).to.match(/Your server version is .+, which does not support Queryable Encryption/);
+      expect(result).to.match(/Upgrade server to use Queryable Encryption./);
     });
 
     it('provides a good error message when createCollection fails due to low FCV', async function() {
@@ -762,7 +762,7 @@ describe('FLE tests', () => {
       await shell.executeLine(`db = db.getSiblingDB('${dbname}')`);
       await shell.executeLine('db.version = () => \'6.0.0\'');
       const result = await shell.executeLine('db.createCollection(\'test\', { encryptedFields: { fields: [] } });');
-      expect(result).to.match(/Your featureCompatibilityVersion is .+, which does not support Queryable Encryption/);
+      expect(result).to.match(/Upgrade server to use Queryable Encryption./);
     });
   });
 
