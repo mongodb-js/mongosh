@@ -363,61 +363,6 @@ describe('Mongo', () => {
         });
       });
 
-      describe('freeMonitoring', () => {
-        it('calls database.adminCommand', async() => {
-          const expectedResult = { ok: 1, state: '' };
-          database.adminCommand.resolves(expectedResult);
-          await mongo.show('freeMonitoring');
-          expect(database.adminCommand).to.have.been.calledWith(
-            { getFreeMonitoringStatus: 1 }
-          );
-        });
-
-        it('returns ShowBannerResult CommandResult (freeMonitoring enabled with notice)', async() => {
-          const expectedResult = {
-            ok: 1,
-            state: 'enabled',
-            userReminder: 'Reminder!'
-          };
-          database.adminCommand.resolves(expectedResult);
-          const result = await mongo.show('freeMonitoring');
-          expect(result.value).to.deep.equal({
-            content: 'Reminder!'
-          });
-          expect(result.type).to.equal('ShowBannerResult');
-        });
-
-        it('returns ShowBannerResult CommandResult (freeMonitoring undecided)', async() => {
-          const expectedResult = {
-            ok: 1,
-            state: 'undecided'
-          };
-          database.adminCommand.resolves(expectedResult);
-          const result = await mongo.show('freeMonitoring');
-          expect((result.value as any).content).to.include('run the following command: db.enableFreeMonitoring');
-          expect(result.type).to.equal('ShowBannerResult');
-        });
-
-        it('returns ShowBannerResult CommandResult (freeMonitoring disabled)', async() => {
-          const expectedResult = {
-            ok: 1,
-            state: 'disabled'
-          };
-          database.adminCommand.resolves(expectedResult);
-          const result = await mongo.show('freeMonitoring');
-          expect(result.value).to.equal(null);
-          expect(result.type).to.equal('ShowBannerResult');
-        });
-
-        it('returns null database.adminCommand rejects', async() => {
-          const expectedError = new Error();
-          database.adminCommand.rejects(expectedError);
-          const result = await mongo.show('freeMonitoring');
-          expect(result.value).to.equal(null);
-          expect(result.type).to.equal('ShowBannerResult');
-        });
-      });
-
       describe('automationNotices', () => {
         it('calls database.hello', async() => {
           const expectedResult = { ok: 1 };
