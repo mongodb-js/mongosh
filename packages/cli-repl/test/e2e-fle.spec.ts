@@ -408,7 +408,7 @@ describe('FLE tests', () => {
   });
 
   context('7.0+', () => {
-    skipIfServerVersion(testServer, '< 7.0-alpha0'); // Queryable Encryption v2 only available on 7.0+
+    skipIfServerVersion(testServer, '< 7.0'); // Queryable Encryption v2 only available on 7.0+
 
     it('allows explicit encryption with bypassQueryAnalysis', async function() {
       if (isMacosTooOldForQE()) {
@@ -520,7 +520,6 @@ describe('FLE tests', () => {
 
       let collections = await shell.executeLine(`plainMongo.getDB('${dbname}').getCollectionNames()`);
 
-      expect(collections).to.include('enxcol_.collfle2.ecc');
       expect(collections).to.include('enxcol_.collfle2.esc');
       expect(collections).to.include('enxcol_.collfle2.ecoc');
       expect(collections).to.include('collfle2');
@@ -529,7 +528,6 @@ describe('FLE tests', () => {
 
       collections = await shell.executeLine(`plainMongo.getDB('${dbname}').getCollectionNames()`);
 
-      expect(collections).to.not.include('enxcol_.collfle2.ecc');
       expect(collections).to.not.include('enxcol_.collfle2.esc');
       expect(collections).to.not.include('enxcol_.collfle2.ecoc');
       expect(collections).to.not.include('collfle2');
@@ -600,7 +598,6 @@ describe('FLE tests', () => {
 
       await shell.executeLine(`plainMongo = Mongo(${uri});`);
       const collections = await shell.executeLine(`plainMongo.getDB('${dbname}').getCollectionNames()`);
-      expect(collections).to.include('enxcol_.secretCollection.ecc');
       expect(collections).to.include('enxcol_.secretCollection.esc');
       expect(collections).to.include('enxcol_.secretCollection.ecoc');
       expect(collections).to.include('secretCollection');
