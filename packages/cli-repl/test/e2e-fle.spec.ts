@@ -326,7 +326,8 @@ describe('FLE tests', () => {
         };
         db.getCollection('keyVault').insertOne(dataKeyDoc);
 
-        db.createCollection('encryptiontest', {
+        db.runCommand({
+          create: 'encryptiontest',
           encryptedFields: {
             fields: [{
               keyId: dataKey,
@@ -335,8 +336,7 @@ describe('FLE tests', () => {
               queries: [{ queryType: 'equality' }]
             }]
           }
-        });
-
+        })
 
         // these payloads were encrypted using dataKey
         db.runCommand({
