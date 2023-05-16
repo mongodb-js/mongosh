@@ -53,8 +53,7 @@ import Session from './session';
 import {
   assertArgsDefinedType,
   processFLEOptions,
-  isValidDatabaseName,
-  FREE_MONITORING_BANNER
+  isValidDatabaseName
 } from './helpers';
 import ChangeStreamCursor from './change-stream-cursor';
 import { blockedByDriverMetadata } from './error-codes';
@@ -386,23 +385,6 @@ export default class Mongo extends ShellApiClass {
           header: 'The server generated these startup warnings when booting',
           content: lines.join('\n')
         });
-      }
-      case 'freeMonitoring': {
-        let freemonStatus;
-        try {
-          freemonStatus = await db.adminCommand({ getFreeMonitoringStatus: 1 });
-        } catch (error: any) {
-          this._instanceState.messageBus.emit('mongosh:error', error, 'shell-api');
-          return new CommandResult('ShowBannerResult', null);
-        }
-
-        if (freemonStatus.state === 'enabled' && freemonStatus.userReminder) {
-          return new CommandResult('ShowBannerResult', { content: freemonStatus.userReminder });
-        } else if (freemonStatus.state === 'undecided') {
-          return new CommandResult('ShowBannerResult', { content: FREE_MONITORING_BANNER });
-        }
-
-        return new CommandResult('ShowBannerResult', null);
       }
       case 'automationNotices': {
         let helloResult;

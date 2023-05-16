@@ -405,7 +405,6 @@ class MongoshNodeRepl implements EvaluationListener {
       const { shellApi } = instanceState;
       const banners = await Promise.all([
         (async() => await shellApi.show('startupWarnings'))(),
-        (async() => await shellApi.show('freeMonitoring'))(),
         (async() => await shellApi.show('automationNotices'))(),
         (async() => await shellApi.show('nonGenuineMongoDBCheck'))()
       ]);
