@@ -38,7 +38,6 @@ describe('OIDC auth e2e', function() {
       return this.skip();
     }
 
-    process.env.ENABLE_DEVTOOLS_OIDC = 'true'; // MONGOSH-1402
     this.timeout(120_000);
     oidcMockProviderConfig = {
       getTokenPayload(metadata) {
@@ -95,7 +94,6 @@ describe('OIDC auth e2e', function() {
   });
 
   after(async function() {
-    delete process.env.ENABLE_DEVTOOLS_OIDC; // MONGOSH-1402
     this.timeout(120_000);
     await Promise.all([
       testServer?.stop(),
