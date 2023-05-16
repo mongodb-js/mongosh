@@ -106,7 +106,7 @@ Package|Version|License
 **[@jridgewell/set-array](#232e4103104ec42da9c01a923eaca648b9b4d8fd3ebbc13897ef8513f7c6fa73)**|1.1.2|MIT
 **[@jridgewell/sourcemap-codec](#48d1d40d908582402e2071de1ae38b57c21fc0e7615f8f82f3f5b1f0cad0dd93)**|1.4.14|MIT
 **[@jridgewell/trace-mapping](#90aa2d07ffe239d25f77a13221286592b1de783a008d6fd50287e91cda909161)**|0.3.17|MIT
-**[@mongodb-js/devtools-connect](#3212d12928b62ade3568e2d2f5cd1b7ee329d218720783589f5373f2aef34dcc)**|2.0.3|Apache-2.0
+**[@mongodb-js/devtools-connect](#f7d8d8d890573d3ca4295bf9c22541cc0729471928e424fb87ec762a2f49b7d9)**|2.1.0|Apache-2.0
 **[@mongodb-js/mongodb-constants](#12523c3e7207d3ac0920487a6ebc31392c24ba8db4f291a14ccf470b7315ba5a)**|0.2.2|Apache-2.0
 **[@mongosh/arg-parser](#5e9fd9c9d630182d86d92c944915511aeab21246b770d28f9a732bab98f57c53)**|0.0.0-dev.0|Apache-2.0
 **[@mongosh/async-rewriter2](#69676fe7ebd86bf4fddf69d015a9de3d5e5657481207dc3738ed4219996b4217)**|0.0.0-dev.0|Apache-2.0
@@ -15820,8 +15820,8 @@ Authors:
 * Justin Ridgewell <justin@ridgewell.name>
 
 
-<a id="3212d12928b62ade3568e2d2f5cd1b7ee329d218720783589f5373f2aef34dcc"></a>
-### [@mongodb-js/devtools-connect](https://www.npmjs.com/package/@mongodb-js/devtools-connect) (version 2.0.3)
+<a id="f7d8d8d890573d3ca4295bf9c22541cc0729471928e424fb87ec762a2f49b7d9"></a>
+### [@mongodb-js/devtools-connect](https://www.npmjs.com/package/@mongodb-js/devtools-connect) (version 2.1.0)
 <!-- initially found at node_modules/@mongodb-js/devtools-connect -->
 > A connection establishment utility for MongoDB developer tools
 
