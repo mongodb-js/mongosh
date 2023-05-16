@@ -1334,14 +1334,14 @@ describe('Shard', () => {
       });
     });
 
-    describe('shouldAutoMerge', () => {
+    describe('isAutoMergerEnabled', () => {
       it('returns whatever serviceProvider.find returns', async() => {
         serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
         const expectedResult = { enabled: true };
         const findCursor = stubInterface<ServiceProviderCursor>();
         findCursor.tryNext.resolves(expectedResult);
         serviceProvider.find.returns(findCursor);
-        const result = await shard.shouldAutoMerge();
+        const result = await shard.isAutoMergerEnabled();
         expect(serviceProvider.find).to.have.been.calledWith(
           'config',
           'settings',
@@ -1355,7 +1355,7 @@ describe('Shard', () => {
         serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
         const expectedError = new Error();
         serviceProvider.find.throws(expectedError);
-        const caughtError = await shard.shouldAutoMerge()
+        const caughtError = await shard.isAutoMergerEnabled()
           .catch(e => e);
         expect(caughtError).to.equal(expectedError);
       });
@@ -1366,7 +1366,7 @@ describe('Shard', () => {
         const findCursor = stubInterface<ServiceProviderCursor>();
         findCursor.tryNext.resolves(expectedResult);
         serviceProvider.find.returns(findCursor);
-        await shard.shouldAutoMerge();
+        await shard.isAutoMergerEnabled();
         expect(warnSpy.calledOnce).to.equal(true);
       });
     });

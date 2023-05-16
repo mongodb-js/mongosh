@@ -494,8 +494,8 @@ export default class Shard extends ShellApiWithMongoClass {
   @returnsPromise
   @apiVersions([])
   @serverVersions(['7.0.0', ServerVersions.latest])
-  async shouldAutoMerge(): Promise<boolean> {
-    this._emitShardApiCall('shouldAutoMerge', {});
+  async isAutoMergerEnabled(): Promise<boolean> {
+    this._emitShardApiCall('isAutoMergerEnabled', {});
     const config = await getConfigDB(this._database);
     const doc = await config.getCollection('settings').findOne({ _id: 'automerge' });
     if (doc === null || doc === undefined) {

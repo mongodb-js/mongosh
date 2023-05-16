@@ -1660,10 +1660,10 @@ const translations: Catalog = {
               description: 'Globally disable auto-merger',
               example: 'sh.stopAutoMerger()',
             },
-            shouldAutoMerge: {
-              link: 'https://docs.mongodb.com/manual/reference/method/sh.shouldAutoMerge',
+            isAutoMergerEnabled: {
+              link: 'https://docs.mongodb.com/manual/reference/method/sh.isAutoMergerEnabled',
               description: 'Returns whether the auto-merger is enabled',
-              example: 'sh.shouldAutoMerge()',
+              example: 'sh.isAutoMergerEnabled()',
             },
             disableAutoMerger: {
               link: 'https://docs.mongodb.com/manual/reference/method/sh.disableAutoMerger',
