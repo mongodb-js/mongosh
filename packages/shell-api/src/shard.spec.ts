@@ -1662,6 +1662,32 @@ describe('Shard', () => {
         expect((await sh._database.getSiblingDB('config').getCollection('collections').findOne({ _id: ns })).noBalance).to.equal(false);
       });
     });
+    describe('autoMerger', () => {
+      it('reports autoMerger state', async() => {
+        expect(await sh.isAutoMergerEnabled()).to.equal(true);
+      });
+      it('stops autoMerger', async() => {
+        await sh.stopAutoMerger();
+        expect((await sh.isAutoMergerEnabled())).to.equal(false);
+      });
+      it('starts autoMerger', async() => {
+        await sh.startAutoMerger();
+        expect((await sh.isAutoMergerEnabled())).to.equal(true);
+      });
+      it('disables autoMerger', async() => {
+        expect((await sh.enableSharding(dbName)).ok).to.equal(1);
+        expect((await sh.shardCollection(ns, { key: 1 })).collectionsharded).to.equal(ns);
+        expect((await sh.disableAutoMerger(ns)).acknowledged).to.equal(true);
+        expect((await sh._database.getSiblingDB('config').getCollection('collections').findOne({ _id: ns })).enableAutoMerge).to.equal(false);
+      });
+      it('enables autoMerger', async() => {
+        expect((await sh.enableSharding(dbName)).ok).to.equal(1);
+        expect((await sh.shardCollection(ns, { key: 1 })).collectionsharded).to.equal(ns);
+        expect((await sh.disableAutoMerger(ns)).acknowledged).to.equal(true);
+        expect((await sh.enableAutoMerger(ns)).acknowledged).to.equal(true);
+        expect((await sh._database.getSiblingDB('config').getCollection('collections').findOne({ _id: ns })).enableAutoMerge).to.not.exist;
+      });
+    });
     describe('getShardDistribution', () => {
       let db: Database;
       const dbName = 'shard-distrib-test';
