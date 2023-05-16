@@ -1082,6 +1082,7 @@ export default class Database extends ShellApiWithMongoClass {
 
   @returnsPromise
   @apiVersions([])
+  @deprecated
   async getFreeMonitoringStatus(): Promise<Document> {
     this._emitDatabaseApiCall('getFreeMonitoringStatus', {});
     return await this._runAdminCommand(
@@ -1093,6 +1094,7 @@ export default class Database extends ShellApiWithMongoClass {
 
   @returnsPromise
   @apiVersions([])
+  @deprecated
   async disableFreeMonitoring(): Promise<Document> {
     this._emitDatabaseApiCall('disableFreeMonitoring', {});
     return await this._runAdminCommand(
@@ -1105,6 +1107,7 @@ export default class Database extends ShellApiWithMongoClass {
 
   @returnsPromise
   @apiVersions([])
+  @deprecated
   async enableFreeMonitoring(): Promise<Document | string> {
     this._emitDatabaseApiCall('enableFreeMonitoring', {});
     const helloResult = await this.hello();
