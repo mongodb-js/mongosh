@@ -109,9 +109,8 @@ variable. For detailed instructions for each of our supported platforms, please 
 ### Install
 
 ```shell
-npm install -g lerna
-npm install -g typescript
 npm run bootstrap
+npm run compile-cli
 ```
 
 ### Running Tests
@@ -125,31 +124,28 @@ npm test
 Run tests from a specific package:
 
 ```shell
-lerna run test --scope @mongosh/cli-repl
-```
-
-Run tests with all output from packages:
-
-```shell
-lerna run test --stream
+npm -w @mongosh/cli-repl run test
 ```
 
 To test against a specific version, the `MONGOSH_SERVER_TEST_VERSION`
-environment variable can be set to a semver string specifying a server version.
+environment variable can be set to a semver string specifying a server version,
+e.g. `MONGOSH_SERVER_TEST_VERSION='>= 7.0.0-rc0' npm -w @mongosh/cli-repl run test`.
 
 ### Starting the CLI
 
 Via npm:
 
 ```shell
-npm run start
+npm run start <... connection string, CLI args, etc.>
 ```
+
+This will compile all Typescript dependencies of the CLI package first.
 
 Alternatively you can also run start inside the `cli-repl` package, if you're
 sure everything else is compiled:
 
 ```shell
-cd packages/cli-repl && npm run start
+npm run -w @mongosh/cli-repl start <... connection string, CLI args, etc.>
 ```
 
 ### Compiling
@@ -160,7 +156,7 @@ Compile all Typescript:
 npm run compile-ts
 ```
 
-Compile just the CLI:
+Compile just the CLI ands its dependencies:
 
 ```shell
 npm run compile-cli
