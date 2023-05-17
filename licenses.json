@@ -1,0 +1,7 @@
+{
+  "ignoredOrgs": ["@mongodb-js", "@leafygreen-ui"],
+  "ignoredPackages": [],
+  "licenseOverrides": {
+    "@segment/loosely-validate-event@2.0.0": "MIT"
+  }
+}
