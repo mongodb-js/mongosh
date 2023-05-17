@@ -1,6 +1,7 @@
 /* eslint-disable chai-friendly/no-unused-expressions */
 import { Domain } from 'domain';
 import type { EventEmitter } from 'events';
+import type { ReadStream } from 'tty';
 import isRecoverableError from 'is-recoverable-error';
 import { Interface, ReadLineOptions } from 'readline';
 import type { ReplOptions, REPLServer } from 'repl';
@@ -75,11 +76,31 @@ export function start(opts: AsyncREPLOptions): REPLServer {
       repl.input,
       wrapNoSyncDomainError(repl.eval.bind(repl))));
 
+  const setRawMode = (mode: boolean): boolean => {
+    const input = repl.input as ReadStream;
+    const wasInRawMode = input.isRaw;
+    if (typeof input.setRawMode === 'function') {
+      input.setRawMode(mode);
+    }
+    return wasInRawMode;
+  };
+
   (repl as Mutable<typeof repl>).eval = async(
     input: string,
     context: any,
     filename: string,
     callback: (err: Error|null, result?: any) => void): Promise<void> => {
+    let previouslyInRawMode;
+
+    if (onAsyncSigint) {
+      // Unset raw mode during evaluation so that Ctrl+C raises a signal. This
+      // is something REPL already does while originalEval is running, but as
+      // the actual eval result might be a promise that we will be awaiting, we
+      // want the raw mode to be disabled for the whole duration of our custom
+      // async eval
+      previouslyInRawMode = setRawMode(false);
+    }
+
     let result;
     repl.emit(evalStart, { input } as EvalStartEvent);
 
@@ -150,6 +171,11 @@ export function start(opts: AsyncREPLOptions): REPLServer {
           evalResult.then(resolve, reject);
         });
       } finally {
+        // Restore raw mode
+        if (typeof previouslyInRawMode !== 'undefined') {
+          setRawMode(previouslyInRawMode);
+        }
+
         // Remove our 'SIGINT' listener and re-install the REPL one(s).
         if (sigintListener !== undefined) {
           repl.removeListener('SIGINT', sigintListener);

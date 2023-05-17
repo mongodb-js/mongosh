@@ -705,47 +705,81 @@ describe('e2e', function() {
       }
     });
 
-    let shell: TestShell;
-    beforeEach(async() => {
-      shell = TestShell.start({ args: [ '--nodb' ], removeSigintListeners: true });
-      await shell.waitForPrompt();
-      shell.assertNoErrors();
+    describe('non-interactive', function() {
+      it('interrupts file execution', async function() {
+        const filename = path.resolve(
+          __dirname,
+          'fixtures',
+          'load',
+          'long-sleep.js'
+        );
+        const shell = TestShell.start({
+          args: ['--nodb', filename],
+          removeSigintListeners: true,
+          forceTerminal: true
+        });
+
+        await eventually(() => {
+          if (shell.output.includes('Long sleep')) {
+            return;
+          }
+          throw new Error('Waiting for the file to load...');
+        });
+
+        shell.kill('SIGINT');
+
+        await eventually(() => {
+          if (shell.output.includes('MongoshInterruptedError')) {
+            return;
+          }
+          throw new Error('Waiting for the interruption...');
+        });
+      });
     });
 
-    it('interrupts sync execution', async() => {
-      await shell.executeLine('void process.removeAllListeners("SIGINT")');
-      const result = shell.executeLine('while(true);');
-      setTimeout(() => shell.kill('SIGINT'), 1000);
-      await result;
-      shell.assertContainsError('interrupted');
-    });
-    it('interrupts async awaiting', async() => {
-      const result = shell.executeLine('new Promise(() => {});');
-      setTimeout(() => shell.kill('SIGINT'), 3000);
-      await result;
-      shell.assertContainsOutput('Stopping execution...');
-    });
-    it('interrupts load()', async() => {
-      const filename = path.resolve(__dirname, 'fixtures', 'load', 'infinite-loop.js');
-      const result = shell.executeLine(`load(${JSON.stringify(filename)})`);
-      setTimeout(() => shell.kill('SIGINT'), 3000);
-      await result;
-      // The while loop in the script is run as "sync" code
-      shell.assertContainsError('interrupted');
-    });
-    it('behaves normally after an exception', async() => {
-      await shell.executeLine('throw new Error()');
-      await new Promise((resolve) => setTimeout(resolve, 100));
-      shell.kill('SIGINT');
-      await shell.waitForPrompt();
-      await new Promise((resolve) => setTimeout(resolve, 100));
-      shell.assertNotContainsOutput('interrupted');
-      shell.assertNotContainsOutput('Stopping execution');
-    });
-    it('does not trigger MaxListenersExceededWarning', async() => {
-      await shell.executeLine('for (let i = 0; i < 11; i++) { console.log("hi"); }\n');
-      await shell.executeLine('for (let i = 0; i < 20; i++) (async() => { await sleep(0) })()');
-      shell.assertNotContainsOutput('MaxListenersExceededWarning');
+    describe('interactive', function() {
+      let shell: TestShell;
+      beforeEach(async() => {
+        shell = TestShell.start({ args: [ '--nodb' ], removeSigintListeners: true });
+        await shell.waitForPrompt();
+        shell.assertNoErrors();
+      });
+
+      it('interrupts sync execution', async() => {
+        await shell.executeLine('void process.removeAllListeners("SIGINT")');
+        const result = shell.executeLine('while(true);');
+        setTimeout(() => shell.kill('SIGINT'), 1000);
+        await result;
+        shell.assertContainsError('interrupted');
+      });
+      it('interrupts async awaiting', async() => {
+        const result = shell.executeLine('new Promise(() => {});');
+        setTimeout(() => shell.kill('SIGINT'), 3000);
+        await result;
+        shell.assertContainsOutput('Stopping execution...');
+      });
+      it('interrupts load()', async() => {
+        const filename = path.resolve(__dirname, 'fixtures', 'load', 'infinite-loop.js');
+        const result = shell.executeLine(`load(${JSON.stringify(filename)})`);
+        setTimeout(() => shell.kill('SIGINT'), 3000);
+        await result;
+        // The while loop in the script is run as "sync" code
+        shell.assertContainsError('interrupted');
+      });
+      it('behaves normally after an exception', async() => {
+        await shell.executeLine('throw new Error()');
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        shell.kill('SIGINT');
+        await shell.waitForPrompt();
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        shell.assertNotContainsOutput('interrupted');
+        shell.assertNotContainsOutput('Stopping execution');
+      });
+      it('does not trigger MaxListenersExceededWarning', async() => {
+        await shell.executeLine('for (let i = 0; i < 11; i++) { console.log("hi"); }\n');
+        await shell.executeLine('for (let i = 0; i < 20; i++) (async() => { await sleep(0) })()');
+        shell.assertNotContainsOutput('MaxListenersExceededWarning');
+      });
     });
   });
 

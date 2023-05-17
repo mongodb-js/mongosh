@@ -102,6 +102,21 @@ describe('AsyncRepl', () => {
     await expectInStream(output, 'meow');
   });
 
+  it('disables raw mode for input during both sync and async evaluation when async sigint is enabled', async() => {
+    const { input, output, repl } = createDefaultAsyncRepl({ onAsyncSigint: () => false });
+    let isRaw = true;
+    Object.defineProperty(input, 'isRaw', {
+      get() { return isRaw; },
+      enumerable: true
+    });
+    (input as any).setRawMode = (value: boolean) => { isRaw = value; };
+    repl.context.isRawMode = () => isRaw;
+
+    input.write('const before = isRawMode(); new Promise(setImmediate).then(() => ({before, after: isRawMode()}))\n');
+    await expectInStream(output, 'before: false, after: false');
+    expect(isRaw).to.equal(true);
+  });
+
   it('handles asynchronous exceptions well', async() => {
     const { input, output } = createDefaultAsyncRepl();
 
