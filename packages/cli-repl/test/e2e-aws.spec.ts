@@ -62,7 +62,8 @@ function getConnectionString(username?: string, password?: string): string {
   return `mongodb+srv://${auth}${ATLAS_CLUSTER_HOST}/?authSource=%24external&authMechanism=MONGODB-AWS`;
 }
 
-describe('e2e AWS AUTH', () => {
+describe('e2e AWS AUTH', function() {
+  this.timeout(60_000); // AWS auth tests can take longer than the default timeout in CI
   let expectedAssumedRole: string;
 
   before(function() {
