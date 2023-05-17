@@ -726,8 +726,7 @@ describe('e2e', function() {
           throw new Error('Waiting for the file to load...');
         });
 
-        // Writing ^C to shell
-        shell.writeInput('\x03');
+        shell.kill('SIGINT');
 
         await eventually(() => {
           if (shell.output.includes('MongoshInterruptedError')) {
