@@ -8,9 +8,6 @@ const baseWebpackConfig = require('../../config/webpack.base.config');
 const webpackDependenciesPlugin = new WebpackDependenciesPlugin({
   outputFilename: path.resolve(__dirname, '..', '..', '.sbom', 'dependencies.json'),
   includeExternalProductionDependencies: true,
-  excludeModules: [
-    path.resolve(__dirname, '..', '..', 'scripts', '*'),
-  ],
 });
 
 /** @type import('webpack').Configuration */
