@@ -35,7 +35,7 @@ post:
 #   test_linux_artifact - Test that the built artifact works where we expect it to.
 #                         We use this to verify that e.g. the Ubuntu-built release
 #                         binary also works on RHEL and Debian.
-#   generate_vulnerability_report - Generates a report of vulnerabilities affecting the bundled application.
+#   generate_license_and_vulnerability_report - Generates a report of vulnerabilities affecting the bundled application.
 #   release_publish - Publishes the npm packages and uploads the tarballs.
 functions:
   checkout:
@@ -5814,8 +5814,7 @@ functions:
           ./usr/bin/mongosh --smokeTests
           }
 
-  generate_vulnerability_report:
-
+  generate_license_and_vulnerability_report:
     - command: expansions.write
       params:
         file: tmp/expansions.yaml
@@ -5833,7 +5832,9 @@ functions:
           export NODE_JS_VERSION=${node_js_version}
           source .evergreen/setup-env.sh
 
-          # validate licenses
+          # validate licenses, we first remove THIRD_PARTY_NOTICES.md, so we are sure
+          # that we would only upload the newly generated file in case of success.
+          rm THIRD_PARTY_NOTICES.md
           npm run generate-3rd-party-notices
 
           # generate vulnerability report: can only fail if is not a patch.
@@ -5881,6 +5882,17 @@ functions:
         visibility: signed
         local_file: src/.sbom/vulnerability-report.md
         remote_file: ${project}/${revision}_${revision_order_id}/vulnerability-report.md
+        content_type: text/markdown
+        optional: true
+    - command: s3.put
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        bucket: mciuploads
+        permissions: private
+        visibility: signed
+        local_file: src/THIRD_PARTY_NOTICES.md
+        remote_file: ${project}/${revision}_${revision_order_id}/THIRD_PARTY_NOTICES.md
         content_type: text/markdown
         optional: true
 
@@ -5955,7 +5967,7 @@ functions:
 #   package_and_upload_artifact - Upload the release binary to S3.
 #   test_linux_artifact - Test that the built artifact works where we expect it to.
 #   release_publish - Publishes the npm packages and uploads the tarballs.
-#   generate_vulnerability_report - Generates a report of vulnerabilities affecting the bundled application.
+#   generate_license_and_vulnerability_report - Generates a report of vulnerabilities affecting the bundled application.
 #   pkg_test_* - Run tests on the release packages
 tasks:
   - name: compile_ts
@@ -9081,7 +9093,7 @@ tasks:
         vars:
           node_js_version: "16.19.1"
 
-  - name: generate_vulnerability_report
+  - name: generate_license_and_vulnerability_report
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -9091,7 +9103,7 @@ tasks:
         vars:
           node_js_version: "16.19.1"
           npm_deps_mode: cli_build
-      - func: generate_vulnerability_report
+      - func: generate_license_and_vulnerability_report
         vars:
           node_js_version: "16.19.1"
 
@@ -12026,8 +12038,8 @@ buildvariants:
       - name: release_publish_dry_run
       - name: release_publish
 
-  - name: generate_vulnerability_report
-    display_name: "Vulnerability Report"
+  - name: generate_license_and_vulnerability_report
+    display_name: "License and Vulnerability Report"
     run_on: ubuntu2004-small
     tasks:
-      - name: generate_vulnerability_report
+      - name: generate_license_and_vulnerability_report
