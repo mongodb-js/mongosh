@@ -13,10 +13,11 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - uses: actions/setup-node@v2
-      - name: Install Dependencies
+      - name: Install Dependencies and Compile
         run: |
           npm ci
           npm run bootstrap-ci
+          npm run compile-ts
       - name: Set up Git
         run: |
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
