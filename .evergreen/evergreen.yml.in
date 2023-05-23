@@ -536,7 +536,7 @@ functions:
           # validate licenses, we first remove THIRD_PARTY_NOTICES.md, so we are sure
           # that we would only upload the newly generated file in case of success.
           rm THIRD_PARTY_NOTICES.md
-          npm run generate-3rd-party-notices
+          npm run update-third-party-notices
 
           # generate vulnerability report: can only fail if is not a patch.
           npm run generate-vulnerability-report || { [ "$EVERGREEN_IS_PATCH" == "true" ] && exit 0; } || exit 1
