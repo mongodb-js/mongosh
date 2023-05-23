@@ -95,6 +95,7 @@ post:
 #   test_linux_artifact - Test that the built artifact works where we expect it to.
 #                         We use this to verify that e.g. the Ubuntu-built release
 #                         binary also works on RHEL and Debian.
+#   generate_license_and_vulnerability_report - Generates a report of vulnerabilities affecting the bundled application.
 #   release_publish - Publishes the npm packages and uploads the tarballs.
 functions:
   checkout:
@@ -514,6 +515,88 @@ functions:
           ./usr/bin/mongosh --smokeTests
           }
 
+  generate_license_and_vulnerability_report:
+    - command: expansions.write
+      params:
+        file: tmp/expansions.yaml
+        redacted: true
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        env:
+          NODE_JS_VERSION: ${node_js_version}
+          EVERGREEN_IS_PATCH: ${is_patch}
+          SNYK_TOKEN: ${snyk_token}
+        script: |
+          set -e
+          export NODE_JS_VERSION=${node_js_version}
+          source .evergreen/setup-env.sh
+
+          # validate licenses, we first remove THIRD_PARTY_NOTICES.md, so we are sure
+          # that we would only upload the newly generated file in case of success.
+          rm THIRD_PARTY_NOTICES.md
+          npm run update-third-party-notices
+
+          # generate vulnerability report: can only fail if is not a patch.
+          npm run generate-vulnerability-report || { [ "$EVERGREEN_IS_PATCH" == "true" ] && exit 0; } || exit 1
+
+    - command: s3.put
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        bucket: mciuploads
+        permissions: private
+        visibility: signed
+        local_file: src/.sbom/dependencies.json
+        remote_file: ${project}/${revision}_${revision_order_id}/dependencies.json
+        content_type: application/json
+        optional: true
+    - command: s3.put
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        bucket: mciuploads
+        permissions: private
+        visibility: signed
+        local_file: src/.sbom/snyk-test-result.json
+        remote_file: ${project}/${revision}_${revision_order_id}/snyk-test-result.json
+        content_type: application/json
+        optional: true
+    - command: s3.put
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        bucket: mciuploads
+        permissions: private
+        visibility: signed
+        local_file: src/.sbom/snyk-test-result.html
+        remote_file: ${project}/${revision}_${revision_order_id}/snyk-test-result.html
+        content_type: text/html
+        optional: true
+    - command: s3.put
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        bucket: mciuploads
+        permissions: private
+        visibility: signed
+        local_file: src/.sbom/vulnerability-report.md
+        remote_file: ${project}/${revision}_${revision_order_id}/vulnerability-report.md
+        content_type: text/markdown
+        optional: true
+    - command: s3.put
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        bucket: mciuploads
+        permissions: private
+        visibility: signed
+        local_file: src/THIRD_PARTY_NOTICES.md
+        remote_file: ${project}/${revision}_${revision_order_id}/THIRD_PARTY_NOTICES.md
+        content_type: text/markdown
+        optional: true
+
   release_draft:
     - command: expansions.write
       params:
@@ -585,6 +668,7 @@ functions:
 #   package_and_upload_artifact - Upload the release binary to S3.
 #   test_linux_artifact - Test that the built artifact works where we expect it to.
 #   release_publish - Publishes the npm packages and uploads the tarballs.
+#   generate_license_and_vulnerability_report - Generates a report of vulnerabilities affecting the bundled application.
 #   pkg_test_* - Run tests on the release packages
 tasks:
   - name: compile_ts
@@ -703,6 +787,20 @@ tasks:
           node_js_version: "<% out(NODE_JS_VERSION_16) %>"
           npm_deps_mode: cli_build
       - func: compile_artifact
+        vars:
+          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+
+  - name: generate_license_and_vulnerability_report
+    depends_on:
+      - name: compile_ts
+        variant: linux_unit
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          npm_deps_mode: cli_build
+      - func: generate_license_and_vulnerability_report
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_16) %>"
 
@@ -1176,3 +1274,9 @@ buildvariants:
       - name: release_draft
       - name: release_publish_dry_run
       - name: release_publish
+
+  - name: generate_license_and_vulnerability_report
+    display_name: "License and Vulnerability Report"
+    run_on: ubuntu2004-small
+    tasks:
+      - name: generate_license_and_vulnerability_report
