@@ -946,6 +946,53 @@ describe('ReplicaSet', () => {
         expect(status.members.length).to.equal(3);
       });
     });
+
+    describe('analyzeShardKey()', () => {
+      skipIfServerVersion(srv0, '< 7.0'); // analyzeShardKey will only be added in 7.0 which is not included in stable yet
+
+      const docs: any[] = [];
+      for (let i = 0; i < 1000; i++) {
+        docs.push({ myKey: i });
+      }
+
+      afterEach(async() => {
+        await db.dropDatabase();
+      });
+
+      it('succeeds when running against an unsharded collection on a replicaset', async() => {
+        await db.getCollection('test').insertMany(docs);
+        expect(await db.getCollection('test').analyzeShardKey({ myKey: 1 })).to.deep.include({ ok: 1 });
+      });
+    });
+    describe('configureQueryAnalyzer()', () => {
+      skipIfServerVersion(srv0, '< 7.0'); // analyzeShardKey will only be added in 7.0 which is not included in stable yet
+
+      const docs: any[] = [];
+      for (let i = 0; i < 1000; i++) {
+        docs.push({ myKey: i });
+      }
+
+      afterEach(async() => {
+        await db.dropDatabase();
+      });
+
+      it('succeeds when running against an unsharded collection on a replicaset', async() => {
+        await db.getCollection('test').insertMany(docs);
+
+        const fullResult = await db.getCollection('test').configureQueryAnalyzer({ mode: 'full', sampleRate: 1 });
+        expect(fullResult).to.deep.include({
+          ok: 1,
+          newConfiguration: { mode: 'full', sampleRate: 1 }
+        });
+
+        const offResult = await db.getCollection('test').configureQueryAnalyzer({ mode: 'off' });
+        expect(offResult).to.deep.include({
+          ok: 1,
+          oldConfiguration: { mode: 'full', sampleRate: 1 },
+          newConfiguration: { mode: 'off' }
+        });
+      });
+    });
   });
 
   describe('integration (PA to PSA transition)', () => {

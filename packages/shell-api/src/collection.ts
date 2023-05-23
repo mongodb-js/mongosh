@@ -56,7 +56,8 @@ import {
   ReplaceOptions,
   RunCommandOptions,
   UpdateOptions,
-  DropCollectionOptions
+  DropCollectionOptions,
+  bson
 } from '@mongosh/service-provider-core';
 import {
   AggregationCursor,
@@ -2032,5 +2033,30 @@ export default class Collection extends ShellApiWithMongoClass {
   async unhideIndex(index: string | Document): Promise<Document> {
     this._emitCollectionApiCall('unhideIndex');
     return setHideIndex(this, index, false);
+  }
+
+  @returnsPromise
+  @topologies([Topologies.ReplSet, Topologies.Sharded])
+  @apiVersions([])
+  async analyzeShardKey(key: Document): Promise<Document> {
+    assertArgsDefinedType([key], [true], 'Collection.analyzeShardKey');
+    this._emitCollectionApiCall('analyzeShardKey', { key });
+    return await this._database._runAdminCommand({
+      analyzeShardKey: this.getFullName(),
+      key
+    });
+  }
+
+  @returnsPromise
+  @topologies([Topologies.ReplSet, Topologies.Sharded])
+  @apiVersions([])
+  async configureQueryAnalyzer({ mode, sampleRate }: { mode: 'full' | 'off', sampleRate?: number }): Promise<Document> {
+    assertArgsDefinedType([mode, sampleRate], ['string', [undefined, 'number']], 'Collection.configureQueryAnalyzer');
+    this._emitCollectionApiCall('configureQueryAnalyzer', { mode, sampleRate });
+    return await this._database._runAdminCommand({
+      configureQueryAnalyzer: this.getFullName(),
+      mode,
+      sampleRate: mode === 'full' && sampleRate ? new bson.Double(sampleRate) : undefined
+    });
   }
 }

@@ -1693,7 +1693,7 @@ describe('Shard', () => {
       const dbName = 'shard-distrib-test';
       const ns = `${dbName}.test`;
 
-      before(() => {
+      beforeEach(() => {
         db = sh._database.getSiblingDB(dbName);
       });
       afterEach(async() => {
@@ -1761,6 +1761,88 @@ describe('Shard', () => {
             'estimated docs per chunk': 1
           });
         }
+      });
+    });
+    describe('analyzeShardKey()', () => {
+      skipIfServerVersion(mongos, '< 7.0'); // analyzeShardKey will only be added in 7.0 which is not included in stable yet
+
+      let db: Database;
+      const dbName = 'shard-analyze-test';
+      const ns = `${dbName}.test`;
+
+      const docs: any[] = [];
+      for (let i = 0; i < 1000; i++) {
+        docs.push({ myKey: i });
+      }
+
+      beforeEach(() => {
+        db = sh._database.getSiblingDB(dbName);
+      });
+      afterEach(async() => {
+        await db.dropDatabase();
+      });
+      it('succeeds when running against an unsharded collection', async() => {
+        await db.getCollection('test').insertMany(docs);
+        expect(await db.getCollection('test').analyzeShardKey({ myKey: 1 })).to.deep.include({ ok: 1 });
+      });
+      it('succeeds when running against a sharded collection', async() => {
+        expect((await sh.enableSharding(dbName)).ok).to.equal(1);
+        expect((await sh.shardCollection(ns, { key: 1 })).collectionsharded).to.equal(ns);
+        await db.getCollection('test').insertMany(docs);
+        expect(await db.getCollection('test').analyzeShardKey({ myKey: 1 })).to.deep.include({ ok: 1 });
+      });
+    });
+    describe('configureQueryAnalyzer()', () => {
+      skipIfServerVersion(mongos, '< 7.0'); // analyzeShardKey will only be added in 7.0 which is not included in stable yet
+
+      let db: Database;
+      const dbName = 'shard-analyze-test';
+      const ns = `${dbName}.test`;
+
+      const docs: any[] = [];
+      for (let i = 0; i < 1000; i++) {
+        docs.push({ myKey: i });
+      }
+
+      beforeEach(() => {
+        db = sh._database.getSiblingDB(dbName);
+      });
+      afterEach(async() => {
+        await db.dropDatabase();
+      });
+      it('succeeds when running against an unsharded collection', async() => {
+        await db.getCollection('test').insertMany(docs);
+
+        const fullResult = await db.getCollection('test').configureQueryAnalyzer({ mode: 'full', sampleRate: 1 });
+        expect(fullResult).to.deep.include({
+          ok: 1,
+          newConfiguration: { mode: 'full', sampleRate: 1 }
+        });
+
+        const offResult = await db.getCollection('test').configureQueryAnalyzer({ mode: 'off' });
+        expect(offResult).to.deep.include({
+          ok: 1,
+          oldConfiguration: { mode: 'full', sampleRate: 1 },
+          newConfiguration: { mode: 'off' }
+        });
+      });
+      it('succeeds when running against a sharded collection', async() => {
+        expect((await sh.enableSharding(dbName)).ok).to.equal(1);
+        expect((await sh.shardCollection(ns, { key: 1 })).collectionsharded).to.equal(ns);
+        await db.getCollection('test').insertMany(docs);
+
+        const fullResult = await db.getCollection('test').configureQueryAnalyzer({ mode: 'full', sampleRate: 1 });
+        expect(fullResult).to.deep.include({
+          ok: 1,
+          newConfiguration: { mode: 'full', sampleRate: 1 }
+        });
+
+        const offResult = await db.getCollection('test').configureQueryAnalyzer({ mode: 'off' });
+        expect(offResult).to.deep.include({
+          ok: 1,
+          oldConfiguration: { mode: 'full', sampleRate: 1 },
+          newConfiguration: { mode: 'off' }
+        });
       });
     });
     describe('collection.stats()', () => {
@@ -1945,7 +2027,7 @@ describe('Shard', () => {
       const collRegularName = 'testRegular';
       const collShName = 'testSh';
 
-      before(() => {
+      beforeEach(() => {
         dbRegular = sh._database.getSiblingDB(dbRegularName);
         dbSh = sh._database.getSiblingDB(dbShName);
       });

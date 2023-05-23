@@ -688,6 +688,16 @@ const translations: Catalog = {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.getShardDistribution',
               description: 'Prints the data distribution statistics for a sharded collection.',
               example: 'db.coll.getShardDistribution()'
+            },
+            analyzeShardKey: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.collection.analyzeShardKey',
+              description: 'Returns metrics for evaluating a shard key. That is, ‘key’ can be a candidate shard key for an unsharded or sharded collection, or the current shard key for a sharded collection.',
+              example: 'db.coll.analyzeShardKey(key)'
+            },
+            configureQueryAnalyzer: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.collection.configureQueryAnalyzer',
+              returns: 'Starts or stops collecting metrics about reads and writes against an unsharded or sharded collection.',
+              example: 'db.coll.configureQueryAnalyzer(options)'
             }
           }
         }
