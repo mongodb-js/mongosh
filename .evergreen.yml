@@ -16,7 +16,8 @@ post:
       local_file: npm-logs.tgz
       remote_file: mongosh/binaries/${revision}/${revision_order_id}/npm-logs-${build_variant}-${task_name}-${task_id}.tgz
       bucket: mciuploads
-      permissions: public-read
+      permissions: private
+      visibility: signed
       content_type: application/x-gzip
 
 # Functions are any command that can be run.
@@ -136,7 +137,8 @@ functions:
         local_file: src/nyc-output.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-${build_variant}-${mongosh_test_id}.tgz
         bucket: mciuploads
-        permissions: public-read
+        permissions: private
+        visibility: signed
         content_type: application/x-gzip
 
   check_coverage:
@@ -5536,7 +5538,8 @@ functions:
         local_file: src/coverage.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/coverage.tgz
         bucket: mciuploads
-        permissions: public-read
+        permissions: private
+        visibility: signed
         content_type: application/x-gzip
 
   test_vscode:
