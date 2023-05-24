@@ -9046,11 +9046,11 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.19.1"
+          node_js_version: "16.20.0"
           npm_deps_mode: all
       - func: test_vscode
         vars:
-          node_js_version: "16.19.1"
+          node_js_version: "16.20.0"
   - name: test_connectivity
     tags: ["extra-integration-test"]
     depends_on:
@@ -9101,11 +9101,11 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.19.1"
+          node_js_version: "16.20.0"
           npm_deps_mode: cli_build
       - func: generate_license_and_vulnerability_report
         vars:
-          node_js_version: "16.19.1"
+          node_js_version: "16.20.0"
 
   ###
   # E2E TESTS
