@@ -2049,13 +2049,11 @@ export default class Collection extends ShellApiWithMongoClass {
   @returnsPromise
   @topologies([Topologies.ReplSet, Topologies.Sharded])
   @apiVersions([])
-  async configureQueryAnalyzer({ mode, sampleRate }: { mode: 'full' | 'off', sampleRate?: number }): Promise<Document> {
-    assertArgsDefinedType([mode, sampleRate], ['string', [undefined, 'number']], 'Collection.configureQueryAnalyzer');
-    this._emitCollectionApiCall('configureQueryAnalyzer', { mode, sampleRate });
+  async configureQueryAnalyzer(options: Document): Promise<Document> {
+    this._emitCollectionApiCall('configureQueryAnalyzer', options);
     return await this._database._runAdminCommand({
       configureQueryAnalyzer: this.getFullName(),
-      mode,
-      sampleRate: mode === 'full' && sampleRate ? new this._instanceState.shellBson.Double(sampleRate) : undefined
+      ...options
     });
   }
 }
