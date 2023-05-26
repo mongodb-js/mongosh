@@ -696,7 +696,7 @@ const translations: Catalog = {
             },
             configureQueryAnalyzer: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.configureQueryAnalyzer',
-              returns: 'Starts or stops collecting metrics about reads and writes against an unsharded or sharded collection.',
+              description: 'Starts or stops collecting metrics about reads and writes against an unsharded or sharded collection.',
               example: 'db.coll.configureQueryAnalyzer(options)'
             }
           }
