@@ -56,8 +56,7 @@ import {
   ReplaceOptions,
   RunCommandOptions,
   UpdateOptions,
-  DropCollectionOptions,
-  bson
+  DropCollectionOptions
 } from '@mongosh/service-provider-core';
 import {
   AggregationCursor,
@@ -2056,7 +2055,7 @@ export default class Collection extends ShellApiWithMongoClass {
     return await this._database._runAdminCommand({
       configureQueryAnalyzer: this.getFullName(),
       mode,
-      sampleRate: mode === 'full' && sampleRate ? new bson.Double(sampleRate) : undefined
+      sampleRate: mode === 'full' && sampleRate ? new this._instanceState.shellBson.Double(sampleRate) : undefined
     });
   }
 }
