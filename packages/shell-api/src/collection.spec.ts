@@ -1924,6 +1924,65 @@ describe('Collection', () => {
       });
     });
 
+    describe('analyzeShardKey', () => {
+      it('calls serviceProvider.runCommand on the admin database', async() => {
+        await collection.analyzeShardKey({ myKey: 1 });
+
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            analyzeShardKey: `${database._name}.${collection._name}`,
+            key: { myKey: 1 }
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommand returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
+        const result = await collection.analyzeShardKey({ myKey: 1 });
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommand rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
+        const caughtError = await collection.analyzeShardKey({ myKey: 1 })
+          .catch(e => e);
+        expect(caughtError).to.equal(expectedError);
+      });
+    });
+
+    describe('configureQueryAnalyzer', () => {
+      it('calls serviceProvider.runCommand on the admin database', async() => {
+        await collection.configureQueryAnalyzer({ mode: 'full', sampleRate: 1 });
+
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            configureQueryAnalyzer: `${database._name}.${collection._name}`,
+            mode: 'full',
+            sampleRate: new bson.Double(1)
+          }
+        );
+      });
+
+      it('returns whatever serviceProvider.runCommand returns', async() => {
+        const expectedResult = { ok: 1 };
+        serviceProvider.runCommandWithCheck.resolves(expectedResult);
+        const result = await collection.configureQueryAnalyzer({ mode: 'full', sampleRate: 1 });
+        expect(result).to.deep.equal(expectedResult);
+      });
+
+      it('throws if serviceProvider.runCommand rejects', async() => {
+        const expectedError = new Error();
+        serviceProvider.runCommandWithCheck.rejects(expectedError);
+        const caughtError = await collection.configureQueryAnalyzer({ mode: 'full', sampleRate: 1 })
+          .catch(e => e);
+        expect(caughtError).to.equal(expectedError);
+      });
+    });
+
     describe('return information about the collection as metadata', () => {
       let serviceProviderCursor: StubbedInstance<ServiceProviderCursor>;
       let proxyCursor;
@@ -2152,6 +2211,8 @@ describe('Collection', () => {
       mapReduce: { m: 'runCommandWithCheck', i: 2 },
       validate: { m: 'runCommandWithCheck', i: 2 },
       getShardVersion: { m: 'runCommandWithCheck', i: 2 },
+      analyzeShardKey: { a: [{ myKey: 1 }], m: 'runCommandWithCheck', i: 2 },
+      configureQueryAnalyzer: { a: [{ mode: 'full', sampleRate: 1 }], m: 'runCommandWithCheck', i: 2 },
       latencyStats: { m: 'aggregate' },
       initializeOrderedBulkOp: { m: 'initializeBulkOp' },
       initializeUnorderedBulkOp: { m: 'initializeBulkOp' },

@@ -805,6 +805,9 @@ export function adjustRunCommand(cmd: Document, shellBson: ShellBson): Document 
       }, shellBson);
     }
   }
+  if ('configureQueryAnalyzer' in cmd && isBSONDoubleConvertible(cmd.sampleRate)) {
+    return adjustRunCommand({ ...cmd, sampleRate: new shellBson.Double(+cmd.sampleRate) }, shellBson);
+  }
   return cmd;
 }
 

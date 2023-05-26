@@ -2033,4 +2033,27 @@ export default class Collection extends ShellApiWithMongoClass {
     this._emitCollectionApiCall('unhideIndex');
     return setHideIndex(this, index, false);
   }
+
+  @returnsPromise
+  @topologies([Topologies.ReplSet, Topologies.Sharded])
+  @apiVersions([])
+  async analyzeShardKey(key: Document): Promise<Document> {
+    assertArgsDefinedType([key], [true], 'Collection.analyzeShardKey');
+    this._emitCollectionApiCall('analyzeShardKey', { key });
+    return await this._database._runAdminCommand({
+      analyzeShardKey: this.getFullName(),
+      key
+    });
+  }
+
+  @returnsPromise
+  @topologies([Topologies.ReplSet, Topologies.Sharded])
+  @apiVersions([])
+  async configureQueryAnalyzer(options: Document): Promise<Document> {
+    this._emitCollectionApiCall('configureQueryAnalyzer', options);
+    return await this._database._runAdminCommand({
+      configureQueryAnalyzer: this.getFullName(),
+      ...options
+    });
+  }
 }
