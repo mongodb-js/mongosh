@@ -65,7 +65,8 @@
     "snyk-test": "npx snyk test --all-projects --severity-threshold=low --dev --json-file-output=.sbom/snyk-test-result.json || true",
     "postsnyk-test": "npx snyk-to-html -i .sbom/snyk-test-result.json -o .sbom/snyk-test-result.html",
     "pregenerate-vulnerability-report": "npm run webpack-build -w packages/cli-repl && npm run snyk-test && npm run scan-node-js && npm run write-node-js-dep",
-    "generate-vulnerability-report": "mongodb-sbom-tools generate-vulnerability-report --snyk-reports=.sbom/snyk-test-result.json,.sbom/node-js-vuln.json --dependencies=.sbom/dependencies.json,.sbom/node-js-dep.json --fail-on=high > .sbom/vulnerability-report.md"
+    "generate-vulnerability-report": "mongodb-sbom-tools generate-vulnerability-report --snyk-reports=.sbom/snyk-test-result.json,.sbom/node-js-vuln.json --dependencies=.sbom/dependencies.json,.sbom/node-js-dep.json --fail-on=high > .sbom/vulnerability-report.md",
+    "create-vulnerability-tickets": "mongodb-sbom-tools generate-vulnerability-report --snyk-reports=.sbom/snyk-test-result.json,.sbom/node-js-vuln.json --dependencies=.sbom/dependencies.json,.sbom/node-js-dep.json --create-jira-issues"
   },
   "config": {
     "unsafe-perm": true
