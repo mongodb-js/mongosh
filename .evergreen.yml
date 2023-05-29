@@ -5830,6 +5830,8 @@ functions:
           NODE_JS_VERSION: ${node_js_version}
           EVERGREEN_IS_PATCH: ${is_patch}
           SNYK_TOKEN: ${snyk_token}
+          EVERGREEN_TASK_URL: https://evergreen.mongodb.com/task/${task_id}
+          JIRA_API_TOKEN: ${jira_api_token}
         script: |
           set -e
           export NODE_JS_VERSION=${node_js_version}
@@ -5842,6 +5844,14 @@ functions:
 
           # generate vulnerability report: can only fail if is not a patch.
           npm run generate-vulnerability-report || { [ "$EVERGREEN_IS_PATCH" == "true" ] && exit 0; } || exit 1
+
+          # if on main and not triggered by a tag, also create a ticket for each vulnerability found
+          if [[ "${requester}" == "commit" ]]; then
+            export JIRA_BASE_URL="https://jira.mongodb.org"
+            export JIRA_PROJECT="MONGOSH"
+            export JIRA_VULNERABILITY_BUILD_INFO="- [Evergreen task|$EVERGREEN_TASK_URL]"
+            npm run create-vulnerability-tickets
+          fi
 
     - command: s3.put
       params:
