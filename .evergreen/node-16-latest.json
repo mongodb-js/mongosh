@@ -1,0 +1,13 @@
+{
+  "version": "16.20.0",
+  "major": 16,
+  "minor": 20,
+  "patch": 0,
+  "tag": "",
+  "codename": "gallium",
+  "versionName": "v16",
+  "start": "2021-04-20T00:00:00.000Z",
+  "lts": "2021-10-26T00:00:00.000Z",
+  "maintenance": "2022-10-18T00:00:00.000Z",
+  "end": "2023-09-11T00:00:00.000Z"
+}
