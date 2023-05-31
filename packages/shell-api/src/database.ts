@@ -800,9 +800,9 @@ export default class Database extends ShellApiWithMongoClass {
 
     const pipeline: Document[] = [{
       $currentOp: {
-        'allUsers': !legacyCurrentOpOptions.$ownOps,
-        'idleConnections': legacyCurrentOpOptions.$all,
-        'truncateOps': false,
+        allUsers: !legacyCurrentOpOptions.$ownOps,
+        idleConnections: legacyCurrentOpOptions.$all,
+        truncateOps: false,
       }
     }];
 
@@ -817,13 +817,36 @@ export default class Database extends ShellApiWithMongoClass {
       pipeline.push({ $match: matchingFilters });
     }
 
-    return (await this
-      .getSiblingDB('admin')
-      .aggregate(pipeline, {
-        '$readPreference': {
-          'mode': 'primaryPreferred'
-        }
-      })).toArray();
+    let result;
+
+    try {
+      const cursor = await this
+        .getSiblingDB('admin')
+        .aggregate(pipeline, {
+          $readPreference: {
+            mode: 'primaryPreferred'
+          }
+        });
+      result = await cursor.toArray();
+    } catch (error) {
+      if ((error as any).codeName === 'FailedToParse') {
+        const deepCopyPipeline = JSON.parse(JSON.stringify(pipeline));
+        delete deepCopyPipeline[0].$currentOp.truncateOps;
+
+        const cursor = await this
+          .getSiblingDB('admin')
+          .aggregate(deepCopyPipeline, {
+            $readPreference: {
+              mode: 'primaryPreferred'
+            }
+          });
+        result = await cursor.toArray();
+      } else {
+        throw error;
+      }
+    }
+
+    return result;
   }
 
   @returnsPromise

@@ -50,7 +50,7 @@ describe('Database', () => {
     });
 
     it('does not return a collection starting with _', () => {
-    // this is the behaviour in the old shell
+      // this is the behaviour in the old shell
 
       const database: any = new Database({} as any, 'db1');
       expect(database._someProperty).to.equal(undefined);
@@ -88,7 +88,7 @@ describe('Database', () => {
         returnType: 'AggregationCursor',
         platforms: ALL_PLATFORMS,
         topologies: ALL_TOPOLOGIES,
-        apiVersions: [ 1, Infinity ],
+        apiVersions: [1, Infinity],
         serverVersions: ALL_SERVER_VERSIONS,
         isDirectShellCommand: false,
         acceptsRawInput: false,
@@ -989,7 +989,7 @@ describe('Database', () => {
     });
     describe('grantRolesToUser', () => {
       it('calls serviceProvider.runCommandWithCheck on the database', async() => {
-        await database.grantRolesToUser('anna', [ 'role1' ]);
+        await database.grantRolesToUser('anna', ['role1']);
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
@@ -1000,21 +1000,21 @@ describe('Database', () => {
       it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
-        const result = await database.grantRolesToUser('anna', [ 'role1' ]);
+        const result = await database.grantRolesToUser('anna', ['role1']);
         expect(result).to.deep.equal(expectedResult);
       });
 
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const caughtError = await database.grantRolesToUser('anna', [ 'role1' ])
+        const caughtError = await database.grantRolesToUser('anna', ['role1'])
           .catch(e => e);
         expect(caughtError).to.equal(expectedError);
       });
     });
     describe('revokeRolesFromUser', () => {
       it('calls serviceProvider.runCommandWithCheck on the database', async() => {
-        await database.revokeRolesFromUser('anna', [ 'role1' ]);
+        await database.revokeRolesFromUser('anna', ['role1']);
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
@@ -1025,14 +1025,14 @@ describe('Database', () => {
       it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
-        const result = await database.revokeRolesFromUser('anna', [ 'role1' ]);
+        const result = await database.revokeRolesFromUser('anna', ['role1']);
         expect(result).to.deep.equal(expectedResult);
       });
 
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const caughtError = await database.revokeRolesFromUser('anna', [ 'role1' ])
+        const caughtError = await database.revokeRolesFromUser('anna', ['role1'])
           .catch(e => e);
         expect(caughtError).to.equal(expectedError);
       });
@@ -1069,7 +1069,7 @@ describe('Database', () => {
       });
 
       it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
-        const expectedResult = { ok: 1, users: [ { user: 'anna' }] };
+        const expectedResult = { ok: 1, users: [{ user: 'anna' }] };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.getUser('anna');
         expect(result).to.deep.equal({ user: 'anna' });
@@ -1248,18 +1248,18 @@ describe('Database', () => {
       it('calls serviceProvider.runCommandWithCheck on the database with extra fields', async() => {
         await database.createRole({
           role: 'anna',
-          roles: [ { role: 'clusterAdmin', db: 'db1' }, { role: 'hostManager' }],
-          privileges: [ 'remove', 'update', 'find' ],
-          authenticationRestrictions: [ 1, 2 ]
+          roles: [{ role: 'clusterAdmin', db: 'db1' }, { role: 'hostManager' }],
+          privileges: ['remove', 'update', 'find'],
+          authenticationRestrictions: [1, 2]
         }, { w: 2 });
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
           {
             createRole: 'anna',
-            roles: [ { role: 'clusterAdmin', db: 'db1' }, { role: 'hostManager' }],
-            privileges: [ 'remove', 'update', 'find' ],
-            authenticationRestrictions: [ 1, 2 ],
+            roles: [{ role: 'clusterAdmin', db: 'db1' }, { role: 'hostManager' }],
+            privileges: ['remove', 'update', 'find'],
+            authenticationRestrictions: [1, 2],
             writeConcern: { w: 2 }
           }
         );
@@ -1334,18 +1334,18 @@ describe('Database', () => {
       });
       it('calls serviceProvider.runCommandWithCheck on the database with extra fields and passwordDigestor=server', async() => {
         await database.updateRole('anna', {
-          roles: [ { role: 'dbAdmin', db: 'db1' }],
-          privileges: [ 'find' ],
-          authenticationRestrictions: [ 1 ]
+          roles: [{ role: 'dbAdmin', db: 'db1' }],
+          privileges: ['find'],
+          authenticationRestrictions: [1]
         }, { w: 1 });
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
           {
             updateRole: 'anna',
-            roles: [ { role: 'dbAdmin', db: 'db1' }],
-            privileges: [ 'find' ],
-            authenticationRestrictions: [ 1 ],
+            roles: [{ role: 'dbAdmin', db: 'db1' }],
+            privileges: ['find'],
+            authenticationRestrictions: [1],
             writeConcern: { w: 1 }
           }
         );
@@ -1426,7 +1426,7 @@ describe('Database', () => {
     });
     describe('grantRolesToRole', () => {
       it('calls serviceProvider.runCommandWithCheck on the database', async() => {
-        await database.grantRolesToRole('anna', [ 'role1' ]);
+        await database.grantRolesToRole('anna', ['role1']);
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
@@ -1437,21 +1437,21 @@ describe('Database', () => {
       it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
-        const result = await database.grantRolesToRole('anna', [ 'role1' ]);
+        const result = await database.grantRolesToRole('anna', ['role1']);
         expect(result).to.deep.equal(expectedResult);
       });
 
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const caughtError = await database.grantRolesToRole('anna', [ 'role1' ])
+        const caughtError = await database.grantRolesToRole('anna', ['role1'])
           .catch(e => e);
         expect(caughtError).to.equal(expectedError);
       });
     });
     describe('revokeRolesFromRole', () => {
       it('calls serviceProvider.runCommandWithCheck on the database', async() => {
-        await database.revokeRolesFromRole('anna', [ 'role1' ]);
+        await database.revokeRolesFromRole('anna', ['role1']);
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
@@ -1462,14 +1462,14 @@ describe('Database', () => {
       it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
-        const result = await database.revokeRolesFromRole('anna', [ 'role1' ]);
+        const result = await database.revokeRolesFromRole('anna', ['role1']);
         expect(result).to.deep.equal(expectedResult);
       });
 
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const caughtError = await database.revokeRolesFromRole('anna', [ 'role1' ])
+        const caughtError = await database.revokeRolesFromRole('anna', ['role1'])
           .catch(e => e);
         expect(caughtError).to.equal(expectedError);
       });
@@ -1477,7 +1477,7 @@ describe('Database', () => {
 
     describe('grantPrivilegesToRole', () => {
       it('calls serviceProvider.runCommandWithCheck on the database', async() => {
-        await database.grantPrivilegesToRole('anna', [ 'privilege1' ]);
+        await database.grantPrivilegesToRole('anna', ['privilege1']);
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
@@ -1488,21 +1488,21 @@ describe('Database', () => {
       it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
-        const result = await database.grantPrivilegesToRole('anna', [ 'privilege1' ]);
+        const result = await database.grantPrivilegesToRole('anna', ['privilege1']);
         expect(result).to.deep.equal(expectedResult);
       });
 
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const caughtError = await database.grantPrivilegesToRole('anna', [ 'privilege1' ])
+        const caughtError = await database.grantPrivilegesToRole('anna', ['privilege1'])
           .catch(e => e);
         expect(caughtError).to.equal(expectedError);
       });
     });
     describe('revokePrivilegesFromRole', () => {
       it('calls serviceProvider.runCommandWithCheck on the database', async() => {
-        await database.revokePrivilegesFromRole('anna', [ 'privilege1' ]);
+        await database.revokePrivilegesFromRole('anna', ['privilege1']);
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           database._name,
@@ -1513,14 +1513,14 @@ describe('Database', () => {
       it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
-        const result = await database.revokePrivilegesFromRole('anna', [ 'privilege1' ]);
+        const result = await database.revokePrivilegesFromRole('anna', ['privilege1']);
         expect(result).to.deep.equal(expectedResult);
       });
 
       it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const caughtError = await database.revokePrivilegesFromRole('anna', [ 'privilege1' ])
+        const caughtError = await database.revokePrivilegesFromRole('anna', ['privilege1'])
           .catch(e => e);
         expect(caughtError).to.equal(expectedError);
       });
@@ -1555,7 +1555,7 @@ describe('Database', () => {
       });
 
       it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
-        const expectedResult = { ok: 1, roles: [ { role: 'anna' }] };
+        const expectedResult = { ok: 1, roles: [{ role: 'anna' }] };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.getRole('anna');
         expect(result).to.deep.equal({ role: 'anna' });
@@ -1627,7 +1627,7 @@ describe('Database', () => {
       });
 
       const READ_PREFERENCE = {
-        '$readPreference': {
+        $readPreference: {
           mode: 'primaryPreferred'
         }
       };
@@ -1767,6 +1767,36 @@ describe('Database', () => {
         const caughtError = await database.currentOp()
           .catch(e => e);
         expect(caughtError).to.equal(expectedError);
+      });
+
+      it('tries serviceProvider.aggregateDb without truncateOps in case of FailedToParse', async() => {
+        const failedToParseError: Error & { codeName?: string } = new Error("failed parsing stage: unrecognized option 'truncateOps' in $currentOp stage, correlationID = d22322776557396");
+        failedToParseError.codeName = 'FailedToParse';
+
+        const tryNext = sinon.stub();
+        tryNext.onCall(0).rejects(failedToParseError);
+        tryNext.onCall(1).resolves({});
+        serviceProvider.aggregateDb.returns({ tryNext } as any);
+
+        const result = await database.currentOp();
+        expect(result).to.be.deep.equal({ inprog: [{}], ok: 1 });
+
+        const [stageCurrentOp1] = serviceProvider.aggregateDb.firstCall.args[1];
+        expect(stageCurrentOp1).to.deep.equal({
+          $currentOp: {
+            allUsers: true,
+            idleConnections: false,
+            truncateOps: false,
+          }
+        });
+
+        const [stageCurrentOp2] = serviceProvider.aggregateDb.secondCall.args[1];
+        expect(stageCurrentOp2).to.deep.equal({
+          $currentOp: {
+            allUsers: true,
+            idleConnections: false,
+          }
+        });
       });
     });
 
@@ -2680,7 +2710,7 @@ describe('Database', () => {
       beforeEach(() => {
         fakeSpCursor = {
           closed: false,
-          tryNext: async() => {}
+          tryNext: async() => { }
         };
         serviceProvider.watch.returns(fakeSpCursor);
       });
@@ -2811,7 +2841,7 @@ describe('Database', () => {
       'createEncryptedCollection',
       'sql'
     ];
-    const args = [ {}, {}, {} ];
+    const args = [{}, {}, {}];
     beforeEach(() => {
       const bus = stubInterface<EventEmitter>();
       serviceProvider = stubInterface<ServiceProvider>();
@@ -2822,8 +2852,8 @@ describe('Database', () => {
       serviceProvider.runCommandWithCheck.resolves({ ok: 1, version: 1, bits: 1, commands: 1, users: [], roles: [], logComponentVerbosity: 1, help: 'blah' });
       serviceProvider.runCommand.resolves({ ok: 1 });
       serviceProvider.listCollections.resolves([]);
-      serviceProvider.watch.returns({ closed: false, tryNext: async() => {} } as any);
-      serviceProvider.aggregateDb.returns({ tryNext: async() => {} } as any);
+      serviceProvider.watch.returns({ closed: false, tryNext: async() => { } } as any);
+      serviceProvider.aggregateDb.returns({ tryNext: async() => { } } as any);
       const instanceState = new ShellInstanceState(serviceProvider, bus);
       const mongo = new Mongo(instanceState, undefined, undefined, undefined, serviceProvider);
       const session = mongo.startSession();
@@ -2834,8 +2864,8 @@ describe('Database', () => {
         k => !ignore.includes(k) && !Object.keys(exceptions).includes(k)
       )) {
         if (!method.startsWith('_') &&
-            !method.startsWith('print') &&
-            database[method].returnsPromise) {
+          !method.startsWith('print') &&
+          database[method].returnsPromise) {
           try {
             await database[method](...args);
           } catch (e: any) {
