@@ -296,7 +296,7 @@ export class CliRepl implements MongoshIOProvider {
       if (
         typeof err === 'object' &&
         err?.constructor.name === 'MongoDBOIDCError' &&
-        !driverOptions.oidc?.allowedFlows?.includes('device-auth')
+        !String(driverOptions.oidc?.allowedFlows)?.includes('device-auth')
       ) {
         (err as Error).message +=
           '\nConsider specifying --oidcFlows=auth-code,device-auth if you are running mongosh in an environment without browser access.';
