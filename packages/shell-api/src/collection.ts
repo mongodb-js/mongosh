@@ -56,7 +56,8 @@ import {
   ReplaceOptions,
   RunCommandOptions,
   UpdateOptions,
-  DropCollectionOptions
+  DropCollectionOptions,
+  SearchIndexDescription
 } from '@mongosh/service-provider-core';
 import {
   AggregationCursor,
@@ -2055,5 +2056,57 @@ export default class Collection extends ShellApiWithMongoClass {
       configureQueryAnalyzer: this.getFullName(),
       ...options
     });
+  }
+
+  // TODO(MONGOSH-1456): getSearchIndexes
+
+  @serverVersions(['6.0.0', ServerVersions.latest])
+  @returnsPromise
+  @apiVersions([])
+  async createSearchIndex(description: SearchIndexDescription): Promise<string> {
+    this._emitCollectionApiCall('createSearchIndex', { description });
+    const results = await this._mongo._serviceProvider.createSearchIndexes(
+      this._database._name,
+      this._name,
+      [description]
+    );
+    return results[0];
+  }
+
+  @serverVersions(['6.0.0', ServerVersions.latest])
+  @returnsPromise
+  @apiVersions([])
+  async createSearchIndexes(descriptions: SearchIndexDescription[]): Promise<string[]> {
+    this._emitCollectionApiCall('createSearchIndexes', { descriptions });
+    return await this._mongo._serviceProvider.createSearchIndexes(
+      this._database._name,
+      this._name,
+      descriptions
+    );
+  }
+
+  @serverVersions(['6.0.0', ServerVersions.latest])
+  @returnsPromise
+  @apiVersions([])
+  async dropSearchIndex(indexName: string): Promise<void> {
+    this._emitCollectionApiCall('dropSearchIndex', { indexName });
+    return await this._mongo._serviceProvider.dropSearchIndex(
+      this._database._name,
+      this._name,
+      indexName
+    );
+  }
+
+  @serverVersions(['6.0.0', ServerVersions.latest])
+  @returnsPromise
+  @apiVersions([])
+  async updateSearchIndex(indexName: string, description: SearchIndexDescription): Promise<void> {
+    this._emitCollectionApiCall('updateSearchIndex', { indexName, description });
+    return await this._mongo._serviceProvider.updateSearchIndex(
+      this._database._name,
+      this._name,
+      indexName,
+      description
+    );
   }
 }

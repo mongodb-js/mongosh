@@ -35,6 +35,6 @@
     "@mongodb-js/devtools-connect": "^2.1.0"
   },
   "devDependencies": {
-    "mongodb": "^5.5.0"
+    "mongodb": "lerouxb/node-mongodb-native#search-indexes-hack"
   }
 }

@@ -2095,7 +2095,73 @@ describe('Collection', () => {
         expect.fail('Failed to throw');
       });
     });
+
+    describe('createSearchIndex', () => {
+      beforeEach(() => {
+        serviceProvider.createSearchIndexes.resolves(['index_1']);
+      });
+
+      it('calls serviceProvider.createIndexes', async() => {
+        await collection.createSearchIndex({ name: 'foo', description: {} });
+
+        expect(serviceProvider.createSearchIndexes).to.have.been.calledWith(
+          'db1',
+          'coll1',
+          [ { name: 'foo', description: {} }]
+        );
+      });
+    });
+
+    describe('createSearchIndexes', () => {
+      beforeEach(() => {
+        serviceProvider.createSearchIndexes.resolves(['index_1', 'index_2']);
+      });
+
+      it('calls serviceProvider.createIndexes', async() => {
+        await collection.createSearchIndexes([{ name: 'foo', description: {} }, { name: 'bar', description: {} }]);
+
+        expect(serviceProvider.createSearchIndexes).to.have.been.calledWith(
+          'db1',
+          'coll1',
+          [{ name: 'foo', description: {} }, { name: 'bar', description: {} }]
+        );
+      });
+    });
+
+    describe('dropSearchIndex', () => {
+      beforeEach(() => {
+        serviceProvider.dropSearchIndex.resolves();
+      });
+
+      it('calls serviceProvider.dropSearchIndex', async() => {
+        await collection.dropSearchIndex('foo');
+
+        expect(serviceProvider.dropSearchIndex).to.have.been.calledWith(
+          'db1',
+          'coll1',
+          'foo'
+        );
+      });
+    });
+
+    describe('updateSearchIndex', () => {
+      beforeEach(() => {
+        serviceProvider.updateSearchIndex.resolves();
+      });
+
+      it('calls serviceProvider.updateSearchIndex', async() => {
+        await collection.updateSearchIndex('foo', { description: { x: 1, y: 2 } });
+
+        expect(serviceProvider.updateSearchIndex).to.have.been.calledWith(
+          'db1',
+          'coll1',
+          'foo',
+          { description: { x: 1, y: 2 } }
+        );
+      });
+    });
   });
+
   describe('fle2', () => {
     let mongo1: Mongo;
     let mongo2: Mongo;
@@ -2229,10 +2295,18 @@ describe('Collection', () => {
       hideIndex: { m: 'runCommandWithCheck', i: 2 },
       unhideIndex: { m: 'runCommandWithCheck', i: 2 },
       remove: { m: 'deleteMany' },
-      watch: { i: 1 }
+      watch: { i: 1 },
     };
     const ignore: (keyof (typeof Collection)['prototype'])[] = [
-      'getShardDistribution', 'stats', 'isCapped', 'compactStructuredEncryptionData'
+      'getShardDistribution',
+      'stats',
+      'isCapped',
+      'compactStructuredEncryptionData',
+      // none of the search index helpers take an options param, so they don't take session
+      'createSearchIndex',
+      'createSearchIndexes',
+      'dropSearchIndex',
+      'updateSearchIndex',
     ];
     const args = [ { query: {} }, {}, { out: 'coll' } ];
     beforeEach(() => {
@@ -2249,6 +2323,9 @@ describe('Collection', () => {
       serviceProvider.listCollections.resolves([]);
       serviceProvider.watch.returns({ closed: false, tryNext: async() => {} } as any);
       serviceProvider.countDocuments.resolves(1);
+      serviceProvider.createSearchIndexes.resolves(['index_1']);
+      serviceProvider.dropSearchIndex.resolves();
+      serviceProvider.updateSearchIndex.resolves();
 
       serviceProvider.runCommandWithCheck.resolves({ ok: 1, version: 1, bits: 1, commands: 1, users: [], roles: [], logComponentVerbosity: 1 });
       [ 'bulkWrite', 'deleteMany', 'deleteOne', 'insert', 'insertMany',

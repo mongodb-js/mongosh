@@ -698,6 +698,27 @@ const translations: Catalog = {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.configureQueryAnalyzer',
               description: 'Starts or stops collecting metrics about reads and writes against an unsharded or sharded collection.',
               example: 'db.coll.configureQueryAnalyzer(options)'
+            },
+            // TODO(MONGOSH-1456): getSearchIndexes
+            createSearchIndexes: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.collection.createSearchIndexes',
+              description: '',
+              example: 'db.coll.createSearchIndexes(descriptions)'
+            },
+            createSearchIndex: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.collection.createSearchIndex',
+              description: '',
+              example: 'db.coll.createSearchIndex(description)'
+            },
+            dropSearchIndex: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.collection.dropSearchIndex',
+              description: '',
+              example: 'db.coll.dropSearchIndex(name)'
+            },
+            updateSearchIndex: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.collection.updateSearchIndex',
+              description: '',
+              example: 'db.coll.updateSearchIndex(name, definition)'
             }
           }
         }

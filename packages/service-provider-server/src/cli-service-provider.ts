@@ -63,7 +63,8 @@ import {
   ChangeStream,
   FLE,
   AutoEncryptionOptions,
-  ClientEncryption as MongoCryptClientEncryption
+  ClientEncryption as MongoCryptClientEncryption,
+  SearchIndexDescription
 } from '@mongosh/service-provider-core';
 
 import { connectMongoClient, DevtoolsConnectOptions } from '@mongodb-js/devtools-connect';
@@ -1205,6 +1206,39 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
       productDocsLink: this.currentClientOptions.productDocsLink,
       ...opts
     });
+  }
+
+  // TODO(MONGOSH-1456): getSearchIndexes
+
+  createSearchIndexes(
+    database: string,
+    collection: string,
+    descriptions: SearchIndexDescription[],
+    dbOptions?: DbOptions): Promise<string[]> {
+    return this.db(database, dbOptions)
+      .collection(collection)
+      .createSearchIndexes(descriptions);
+  }
+
+  dropSearchIndex(
+    database: string,
+    collection: string,
+    indexName: string,
+    dbOptions?: DbOptions): Promise<void> {
+    return this.db(database, dbOptions)
+      .collection(collection)
+      .dropSearchIndex(indexName);
+  }
+
+  updateSearchIndex(
+    database: string,
+    collection: string,
+    indexName: string,
+    description: SearchIndexDescription,
+    dbOptions?: DbOptions): Promise<void> {
+    return this.db(database, dbOptions)
+      .collection(collection)
+      .updateSearchIndex(indexName, description);
   }
 }
 

@@ -206,5 +206,7 @@ export default interface Readable {
     db?: string,
     coll?: string
   ): ChangeStream<Document>;
+
+  // TODO(MONGOSH-1456): getSearchIndexes
 }
 
