@@ -817,29 +817,18 @@ export default class Database extends ShellApiWithMongoClass {
       pipeline.push({ $match: matchingFilters });
     }
 
+    const adminDb = this.getSiblingDB('admin');
+    const aggregateOptions = { $readPreference: { mode: 'primaryPreferred' } };
     let result;
 
     try {
-      const cursor = await this
-        .getSiblingDB('admin')
-        .aggregate(pipeline, {
-          $readPreference: {
-            mode: 'primaryPreferred'
-          }
-        });
+      const cursor = await adminDb.aggregate(pipeline, aggregateOptions);
       result = await cursor.toArray();
     } catch (error) {
       if ((error as any).codeName === 'FailedToParse') {
-        const deepCopyPipeline = JSON.parse(JSON.stringify(pipeline));
-        delete deepCopyPipeline[0].$currentOp.truncateOps;
+        delete pipeline[0].$currentOp.truncateOps;
 
-        const cursor = await this
-          .getSiblingDB('admin')
-          .aggregate(deepCopyPipeline, {
-            $readPreference: {
-              mode: 'primaryPreferred'
-            }
-          });
+        const cursor = await adminDb.aggregate(pipeline, aggregateOptions);
         result = await cursor.toArray();
       } else {
         throw error;

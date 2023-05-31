@@ -1776,26 +1776,33 @@ describe('Database', () => {
         const tryNext = sinon.stub();
         tryNext.onCall(0).rejects(failedToParseError);
         tryNext.onCall(1).resolves({});
-        serviceProvider.aggregateDb.returns({ tryNext } as any);
 
-        const result = await database.currentOp();
-        expect(result).to.be.deep.equal({ inprog: [{}], ok: 1 });
+        const currentOpCalls: {
+          allUsers: boolean,
+          idleConnections: boolean,
+          truncateOps?: boolean,
+        }[] = [];
 
-        const [stageCurrentOp1] = serviceProvider.aggregateDb.firstCall.args[1];
-        expect(stageCurrentOp1).to.deep.equal({
-          $currentOp: {
-            allUsers: true,
-            idleConnections: false,
-            truncateOps: false,
-          }
+        serviceProvider.aggregateDb.callsFake((...args) => {
+          const [stageCurrentOp] = args[1];
+          const currentOp = { ...stageCurrentOp.$currentOp };
+          currentOpCalls.push(currentOp);
+          return { tryNext } as any;
         });
 
-        const [stageCurrentOp2] = serviceProvider.aggregateDb.secondCall.args[1];
-        expect(stageCurrentOp2).to.deep.equal({
-          $currentOp: {
-            allUsers: true,
-            idleConnections: false,
-          }
+        const result = await database.currentOp();
+        expect(result).to.deep.equal({ inprog: [{}], ok: 1 });
+
+        expect(serviceProvider.aggregateDb).to.have.callCount(2);
+        expect(currentOpCalls.length).to.be.equal(2);
+        expect(currentOpCalls[0]).to.be.deep.equal({
+          allUsers: true,
+          idleConnections: false,
+          truncateOps: false,
+        });
+        expect(currentOpCalls[1]).to.be.deep.equal({
+          allUsers: true,
+          idleConnections: false,
         });
       });
     });
