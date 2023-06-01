@@ -687,7 +687,9 @@ export default class Mongo extends ShellApiClass {
       // If that fails, try using $collStats for local.oplog.rs.
       () => this.getDB('local').getCollection('oplog.rs').aggregate([ { $collStats: {} }, ...pipeline ])
     ]) {
-      result = await (await approach()).next();
+      try {
+        result = await (await approach()).next();
+      } catch { continue; }
       if (result) break;
     }
     if (!result) {
