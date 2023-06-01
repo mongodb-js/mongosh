@@ -169,7 +169,7 @@ type ThrottledAnalyticsOptions = {
   throttle: {
     /** Allowed events per timeframe number */
     rate: number;
-    /** Timeframe for throttling (default: 60_000ms) */
+    /** Timeframe for throttling in milliseconds (default: 60_000ms) */
     timeframe?: number;
     /** Path to persist rpm value to be able to track them between sessions */
     metadataPath: string;
@@ -257,8 +257,7 @@ export class ThrottledAnalytics implements MongoshAnalytics {
     if (!this.throttleOptions) {
       return true;
     }
-    // If throttle minute window passed, reset throttle state and allow to emit
-    // event
+    // If throttle window passed, reset throttle state and allow to emit event
     if (
       Date.now() - this.throttleState.timestamp >
       (this.throttleOptions.timeframe ?? 60_000)
