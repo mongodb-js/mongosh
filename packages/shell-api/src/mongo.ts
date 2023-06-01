@@ -678,19 +678,19 @@ export default class Mongo extends ShellApiClass {
       { $project: { _id: { $toHashedIndexKey: { $literal: value } } } }
     ];
     let result;
-    try {
-      // Try $documents if available.
-      result = await (await this.getDB('admin').aggregate([ { $documents: [{}] }, ...pipeline ])).next();
-    } catch {
+    for (const approach of [
+      // Try $documents if available (NB: running $documents on an empty db requires SERVER-63811 i.e. 6.0.3+).
+      () => this.getDB('_fakeDbForMongoshCSKTH').aggregate([ { $documents: [{}] }, ...pipeline ]),
+      () => this.getDB('admin').aggregate([ { $documents: [{}] }, ...pipeline ]),
+      // If that fails, try a default collection like admin.system.version.
+      () => this.getDB('admin').getCollection('system.version').aggregate(pipeline),
+      // If that fails, try using $collStats for local.oplog.rs.
+      () => this.getDB('local').getCollection('oplog.rs').aggregate([ { $collStats: {} }, ...pipeline ])
+    ]) {
       try {
-        // If that fails, try a default collection like admin.system.version.
-        result = await (await this.getDB('admin').getCollection('system.version').aggregate(pipeline)).next();
-      } catch {
-        // If that fails, try using $collStats for local.oplog.rs.
-        try {
-          result = await (await this.getDB('local').getCollection('oplog.rs').aggregate([ { $collStats: {} }, ...pipeline ])).next();
-        } catch { /* throw exception below */ }
-      }
+        result = await (await approach()).next();
+      } catch { continue; }
+      if (result) break;
     }
     if (!result) {
       throw new MongoshRuntimeError(
