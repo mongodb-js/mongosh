@@ -819,23 +819,19 @@ export default class Database extends ShellApiWithMongoClass {
 
     const adminDb = this.getSiblingDB('admin');
     const aggregateOptions = { $readPreference: { mode: 'primaryPreferred' } };
-    let result;
 
     try {
       const cursor = await adminDb.aggregate(pipeline, aggregateOptions);
-      result = await cursor.toArray();
+      return await cursor.toArray();
     } catch (error) {
-      if ((error as any).codeName === 'FailedToParse') {
+      if ((error as any)?.codeName === 'FailedToParse') {
         delete pipeline[0].$currentOp.truncateOps;
 
         const cursor = await adminDb.aggregate(pipeline, aggregateOptions);
-        result = await cursor.toArray();
-      } else {
-        throw error;
+        return await cursor.toArray();
       }
+      throw error;
     }
-
-    return result;
   }
 
   @returnsPromise
