@@ -733,15 +733,13 @@ export class CliRepl implements MongoshIOProvider {
       }
     }
     this.closing = true;
-    const analytics = this.segmentAnalytics;
+    const analytics = this.toggleableAnalytics;
     let flushError: string | null = null;
     let flushDuration: number | null = null;
     if (analytics) {
       const flushStart = Date.now();
       try {
-        await promisify(
-          this.toggleableAnalytics.flush.bind(this.toggleableAnalytics)
-        )();
+        await promisify(analytics.flush.bind(analytics))();
       } catch (err: any) {
         flushError = err.message;
       } finally {
