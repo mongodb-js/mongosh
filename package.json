@@ -61,11 +61,10 @@
     "mark-ci-required-optional-dependencies": "lerna exec ts-node ../../scripts/mark-ci-required-optional-dependencies.ts",
     "write-node-js-dep": "echo '[{\"name\": \".node.js\", \"version\":\"'\"$NODE_JS_VERSION\"'\"}]' > .sbom/node-js-dep.json",
     "scan-node-js": "mongodb-sbom-tools scan-node-js --version=$NODE_JS_VERSION > .sbom/node-js-vuln.json",
-    "presnyk-test": "mkdir -p .sbom",
-    "snyk-test": "npx snyk test --all-projects --severity-threshold=low --dev --json-file-output=.sbom/snyk-test-result.json || true",
-    "postsnyk-test": "npx snyk-to-html -i .sbom/snyk-test-result.json -o .sbom/snyk-test-result.html",
+    "snyk-test": "node scripts/snyk-test.js",
     "pregenerate-vulnerability-report": "npm run webpack-build -w packages/cli-repl && npm run snyk-test && npm run scan-node-js && npm run write-node-js-dep",
-    "generate-vulnerability-report": "mongodb-sbom-tools generate-vulnerability-report --snyk-reports=.sbom/snyk-test-result.json,.sbom/node-js-vuln.json --dependencies=.sbom/dependencies.json,.sbom/node-js-dep.json --fail-on=high > .sbom/vulnerability-report.md"
+    "generate-vulnerability-report": "mongodb-sbom-tools generate-vulnerability-report --snyk-reports=.sbom/snyk-test-result.json,.sbom/node-js-vuln.json --dependencies=.sbom/dependencies.json,.sbom/node-js-dep.json --fail-on=high > .sbom/vulnerability-report.md",
+    "create-vulnerability-tickets": "mongodb-sbom-tools generate-vulnerability-report --snyk-reports=.sbom/snyk-test-result.json,.sbom/node-js-vuln.json --dependencies=.sbom/dependencies.json,.sbom/node-js-dep.json --create-jira-issues"
   },
   "config": {
     "unsafe-perm": true
@@ -91,7 +90,7 @@
   },
   "devDependencies": {
     "@babel/compat-data": "^7.9.0",
-    "@mongodb-js/sbom-tools": "^0.3.0",
+    "@mongodb-js/sbom-tools": "^0.5.0",
     "@octokit/rest": "^17.9.0",
     "@types/bl": "^2.1.0",
     "@types/chai": "^4.2.5",
@@ -132,7 +131,7 @@
     "karma-typescript": "^5.5.1",
     "lerna": "^4.0.0",
     "mocha": "^10.2.0",
-    "mongodb": "lerouxb/node-mongodb-native#search-indexes-hack",
+    "mongodb": "^5.6.0",
     "mongodb-download-url": "^1.3.0",
     "mongodb-js-precommit": "^2.0.0",
     "nock": "^13.0.11",
@@ -164,8 +163,5 @@
   "workspaces": [
     "packages/*",
     "scripts/docker"
-  ],
-  "overrides": {
-    "mongodb": "lerouxb/node-mongodb-native#search-indexes-hack"
-  }
+  ]
 }
