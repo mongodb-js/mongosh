@@ -22,8 +22,7 @@ import type {
   RunCommandOptions,
   DbOptions,
   OrderedBulkOperation,
-  UnorderedBulkOperation,
-  SearchIndexDescription
+  UnorderedBulkOperation
 } from './all-transport-types';
 
 /**
@@ -358,7 +357,7 @@ export default interface Writable {
   createSearchIndexes(
     database: string,
     collection: string,
-    descriptions: SearchIndexDescription[],
+    descriptions: any[],
     dbOptions?: DbOptions
   ): Promise<string[]>
 
@@ -390,7 +389,7 @@ export default interface Writable {
     database: string,
     collection: string,
     index: string,
-    description: SearchIndexDescription,
+    description: any,
     dbOptions?: DbOptions
   ): Promise<void>
 }

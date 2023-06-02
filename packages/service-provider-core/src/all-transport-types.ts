@@ -74,8 +74,5 @@ export type {
   AutoEncryptionOptions,
   ServerApi,
   ServerApiVersion,
-  MongoClient, // mostly for testing
-  SearchIndexDescription,
-  ListSearchIndexesCursor,
-  ListSearchIndexesOptions
+  MongoClient // mostly for testing
 } from 'mongodb';

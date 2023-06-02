@@ -882,6 +882,7 @@ describe('CliServiceProvider', () => {
       getSearchIndexesOptions = { allowDiskUse: true };
 
       collectionStub = stubInterface<Collection>();
+      // @ts-expect-error still @internal
       collectionStub.listSearchIndexes.returns(nativeMethodResult);
       serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus, dummyOptions);
     });
@@ -892,6 +893,7 @@ describe('CliServiceProvider', () => {
         'coll1',
         getSearchIndexesOptions);
       expect(result).to.deep.equal(descriptions);
+      // @ts-expect-error still @internal
       expect(collectionStub.listSearchIndexes).to.have.been.calledWith(getSearchIndexesOptions);
     });
   });
@@ -911,6 +913,7 @@ describe('CliServiceProvider', () => {
       ];
 
       collectionStub = stubInterface<Collection>();
+      // @ts-expect-error still @internal
       collectionStub.createSearchIndexes.resolves(nativeMethodResult);
       serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus, dummyOptions);
     });
@@ -921,6 +924,7 @@ describe('CliServiceProvider', () => {
         'coll1',
         descriptions);
       expect(result).to.deep.equal(nativeMethodResult);
+      // @ts-expect-error still @internal
       expect(collectionStub.createSearchIndexes).to.have.been.calledWith(descriptions);
     });
   });
@@ -932,6 +936,7 @@ describe('CliServiceProvider', () => {
       indexName = 'foo';
 
       collectionStub = stubInterface<Collection>();
+      // @ts-expect-error still @internal
       collectionStub.dropSearchIndex.resolves();
       serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus, dummyOptions);
     });
@@ -942,6 +947,7 @@ describe('CliServiceProvider', () => {
         'coll1',
         indexName);
       expect(result).to.deep.equal(undefined);
+      // @ts-expect-error still @internal
       expect(collectionStub.dropSearchIndex).to.have.been.calledWith(indexName);
     });
   });
@@ -956,6 +962,8 @@ describe('CliServiceProvider', () => {
       description = { x: 1, y: 2 };
 
       collectionStub = stubInterface<Collection>();
+
+      // @ts-expect-error still @internal
       collectionStub.updateSearchIndex.resolves();
       serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus, dummyOptions);
     });
@@ -967,6 +975,7 @@ describe('CliServiceProvider', () => {
         indexName,
         description);
       expect(result).to.deep.equal(undefined);
+      // @ts-expect-error still @internal
       expect(collectionStub.updateSearchIndex).to.have.been.calledWith(indexName, description);
     });
   });

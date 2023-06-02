@@ -56,9 +56,7 @@ import {
   ReplaceOptions,
   RunCommandOptions,
   UpdateOptions,
-  DropCollectionOptions,
-  SearchIndexDescription,
-  ListSearchIndexesOptions
+  DropCollectionOptions
 } from '@mongosh/service-provider-core';
 import {
   AggregationCursor,
@@ -2062,7 +2060,7 @@ export default class Collection extends ShellApiWithMongoClass {
   @serverVersions(['6.0.0', ServerVersions.latest])
   @returnsPromise
   @apiVersions([])
-  async getSearchIndexes(options?: ListSearchIndexesOptions): Promise<Document[]> {
+  async getSearchIndexes(options?: any): Promise<Document[]> {
     this._emitCollectionApiCall('getSearchIndexes', { options });
     return await this._mongo._serviceProvider.getSearchIndexes(
       this._database._name,
@@ -2074,7 +2072,7 @@ export default class Collection extends ShellApiWithMongoClass {
   @serverVersions(['6.0.0', ServerVersions.latest])
   @returnsPromise
   @apiVersions([])
-  async createSearchIndex(description: SearchIndexDescription): Promise<string> {
+  async createSearchIndex(description: any): Promise<string> {
     this._emitCollectionApiCall('createSearchIndex', { description });
     const results = await this._mongo._serviceProvider.createSearchIndexes(
       this._database._name,
@@ -2087,7 +2085,7 @@ export default class Collection extends ShellApiWithMongoClass {
   @serverVersions(['6.0.0', ServerVersions.latest])
   @returnsPromise
   @apiVersions([])
-  async createSearchIndexes(descriptions: SearchIndexDescription[]): Promise<string[]> {
+  async createSearchIndexes(descriptions: any[]): Promise<string[]> {
     this._emitCollectionApiCall('createSearchIndexes', { descriptions });
     return await this._mongo._serviceProvider.createSearchIndexes(
       this._database._name,
@@ -2111,7 +2109,7 @@ export default class Collection extends ShellApiWithMongoClass {
   @serverVersions(['6.0.0', ServerVersions.latest])
   @returnsPromise
   @apiVersions([])
-  async updateSearchIndex(indexName: string, description: SearchIndexDescription): Promise<void> {
+  async updateSearchIndex(indexName: string, description: any): Promise<void> {
     this._emitCollectionApiCall('updateSearchIndex', { indexName, description });
     return await this._mongo._serviceProvider.updateSearchIndex(
       this._database._name,

@@ -63,9 +63,7 @@ import {
   ChangeStream,
   FLE,
   AutoEncryptionOptions,
-  ClientEncryption as MongoCryptClientEncryption,
-  SearchIndexDescription,
-  ListSearchIndexesOptions
+  ClientEncryption as MongoCryptClientEncryption
 } from '@mongosh/service-provider-core';
 
 import { connectMongoClient, DevtoolsConnectOptions } from '@mongodb-js/devtools-connect';
@@ -1212,20 +1210,22 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   getSearchIndexes(
     database: string,
     collection: string,
-    options: ListSearchIndexesOptions,
+    options: any,
     dbOptions?: DbOptions): Promise<Document[]> {
     return this.db(database, dbOptions)
       .collection(collection)
+      // @ts-expect-error still @internal
       .listSearchIndexes(options).toArray();
   }
 
   createSearchIndexes(
     database: string,
     collection: string,
-    descriptions: SearchIndexDescription[],
+    descriptions: any[],
     dbOptions?: DbOptions): Promise<string[]> {
     return this.db(database, dbOptions)
       .collection(collection)
+      // @ts-expect-error still @internal
       .createSearchIndexes(descriptions);
   }
 
@@ -1236,6 +1236,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     dbOptions?: DbOptions): Promise<void> {
     return this.db(database, dbOptions)
       .collection(collection)
+      // @ts-expect-error still @internal
       .dropSearchIndex(indexName);
   }
 
@@ -1243,10 +1244,11 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     database: string,
     collection: string,
     indexName: string,
-    description: SearchIndexDescription,
+    description: any,
     dbOptions?: DbOptions): Promise<void> {
     return this.db(database, dbOptions)
       .collection(collection)
+      // @ts-expect-error still @internal
       .updateSearchIndex(indexName, description);
   }
 }

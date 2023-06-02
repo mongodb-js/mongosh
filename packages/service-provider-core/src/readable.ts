@@ -13,7 +13,6 @@ import type {
   DbOptions,
   ReadPreferenceFromOptions,
   ReadPreferenceLike,
-  ListSearchIndexesOptions
 } from './all-transport-types';
 import { ChangeStream, ChangeStreamOptions } from './all-transport-types';
 
@@ -222,7 +221,7 @@ export default interface Readable {
   getSearchIndexes(
     database: string,
     collection: string,
-    options: ListSearchIndexesOptions,
+    options: any,
     dbOptions?: DbOptions): Promise<Document[]>;
 }
 
