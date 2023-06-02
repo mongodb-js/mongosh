@@ -2060,6 +2060,7 @@ export default class Collection extends ShellApiWithMongoClass {
   @serverVersions(['6.0.0', ServerVersions.latest])
   @returnsPromise
   @apiVersions([])
+  // TODO(MONGOSH-1471): use ListSearchIndexesOptions once available
   async getSearchIndexes(options?: any): Promise<Document[]> {
     this._emitCollectionApiCall('getSearchIndexes', { options });
     return await this._mongo._serviceProvider.getSearchIndexes(
@@ -2072,6 +2073,7 @@ export default class Collection extends ShellApiWithMongoClass {
   @serverVersions(['6.0.0', ServerVersions.latest])
   @returnsPromise
   @apiVersions([])
+  // TODO(MONGOSH-1471): use SearchIndexDescription once available
   async createSearchIndex(description: any): Promise<string> {
     this._emitCollectionApiCall('createSearchIndex', { description });
     const results = await this._mongo._serviceProvider.createSearchIndexes(
@@ -2085,6 +2087,7 @@ export default class Collection extends ShellApiWithMongoClass {
   @serverVersions(['6.0.0', ServerVersions.latest])
   @returnsPromise
   @apiVersions([])
+  // TODO(MONGOSH-1471): use SearchIndexDescription once available
   async createSearchIndexes(descriptions: any[]): Promise<string[]> {
     this._emitCollectionApiCall('createSearchIndexes', { descriptions });
     return await this._mongo._serviceProvider.createSearchIndexes(
@@ -2109,6 +2112,7 @@ export default class Collection extends ShellApiWithMongoClass {
   @serverVersions(['6.0.0', ServerVersions.latest])
   @returnsPromise
   @apiVersions([])
+  // TODO(MONGOSH-1471): use SearchIndexDescription once available
   async updateSearchIndex(indexName: string, description: any): Promise<void> {
     this._emitCollectionApiCall('updateSearchIndex', { indexName, description });
     return await this._mongo._serviceProvider.updateSearchIndex(

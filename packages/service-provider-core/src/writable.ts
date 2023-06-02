@@ -357,6 +357,7 @@ export default interface Writable {
   createSearchIndexes(
     database: string,
     collection: string,
+    // TODO(MONGOSH-1471): use SearchIndexDescription[] once available
     descriptions: any[],
     dbOptions?: DbOptions
   ): Promise<string[]>
@@ -389,6 +390,7 @@ export default interface Writable {
     database: string,
     collection: string,
     index: string,
+    // TODO(MONGOSH-1471): use SearchIndexDescription once available
     description: any,
     dbOptions?: DbOptions
   ): Promise<void>
