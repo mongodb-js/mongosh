@@ -2064,11 +2064,11 @@ export default class Collection extends ShellApiWithMongoClass {
   @apiVersions([])
   async getSearchIndexes(options?: ListSearchIndexesOptions): Promise<Document[]> {
     this._emitCollectionApiCall('getSearchIndexes', { options });
-    return await this._mongo._serviceProvider.listSearchIndexes(
+    return await this._mongo._serviceProvider.getSearchIndexes(
       this._database._name,
       this._name,
       { ...await this._database._baseOptions(), ...options }
-    ).toArray();
+    );
   }
 
   @serverVersions(['6.0.0', ServerVersions.latest])

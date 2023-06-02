@@ -13,7 +13,6 @@ import type {
   DbOptions,
   ReadPreferenceFromOptions,
   ReadPreferenceLike,
-  ListSearchIndexesCursor,
   ListSearchIndexesOptions
 } from './all-transport-types';
 import { ChangeStream, ChangeStreamOptions } from './all-transport-types';
@@ -210,8 +209,8 @@ export default interface Readable {
   ): ChangeStream<Document>;
 
   /**
-   * Returns a promise of a cursor for the documents that identify
-   * and describe the existing search indexes on the collection.
+   * Returns an array of documents that identify and describe the existing
+   * search indexes on the collection.
    *
    * @param {String} database - The db name.
    * @param {String} collection - The collection name.
@@ -220,10 +219,10 @@ export default interface Readable {
    *
    * @return {Promise}
    */
-  listSearchIndexes(
+  getSearchIndexes(
     database: string,
     collection: string,
     options: ListSearchIndexesOptions,
-    dbOptions?: DbOptions): ListSearchIndexesCursor;
+    dbOptions?: DbOptions): Promise<Document[]>;
 }
 

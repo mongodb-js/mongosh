@@ -865,7 +865,7 @@ describe('CliServiceProvider', () => {
   describe('#getSearchIndexes', () => {
     let descriptions;
     let nativeMethodResult;
-    let listSearchIndexesOptions;
+    let getSearchIndexesOptions;
 
     beforeEach(() => {
       descriptions = [
@@ -879,20 +879,20 @@ describe('CliServiceProvider', () => {
         }
       };
 
-      listSearchIndexesOptions = { allowDiskUse: true };
+      getSearchIndexesOptions = { allowDiskUse: true };
 
       collectionStub = stubInterface<Collection>();
       collectionStub.listSearchIndexes.returns(nativeMethodResult);
       serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus, dummyOptions);
     });
 
-    it('calls listSearchIndexes', async() => {
-      const cursor = serviceProvider.listSearchIndexes(
+    it('calls listSearchIndexes and toArray on the resulting cursor', async() => {
+      const result = await serviceProvider.getSearchIndexes(
         'db1',
         'coll1',
-        listSearchIndexesOptions);
-      expect(await cursor.toArray()).to.deep.equal(descriptions);
-      expect(collectionStub.listSearchIndexes).to.have.been.calledWith(listSearchIndexesOptions);
+        getSearchIndexesOptions);
+      expect(result).to.deep.equal(descriptions);
+      expect(collectionStub.listSearchIndexes).to.have.been.calledWith(getSearchIndexesOptions);
     });
   });
 

@@ -2101,11 +2101,7 @@ describe('Collection', () => {
 
       beforeEach(() => {
         descriptions = [{ name: 'foo', description: {} }, { name: 'bar', description: {} }];
-        serviceProvider.listSearchIndexes.returns({
-          toArray: () => {
-            return Promise.resolve(descriptions);
-          }
-        } as any);
+        serviceProvider.getSearchIndexes.resolves(descriptions);
       });
 
       context('without options', () => {
@@ -2114,7 +2110,7 @@ describe('Collection', () => {
 
           expect(result).to.equal(descriptions);
 
-          expect(serviceProvider.listSearchIndexes).to.have.been.calledWith(
+          expect(serviceProvider.getSearchIndexes).to.have.been.calledWith(
             'db1',
             'coll1'
           );
@@ -2128,7 +2124,7 @@ describe('Collection', () => {
 
           expect(result).to.equal(descriptions);
 
-          expect(serviceProvider.listSearchIndexes).to.have.been.calledWith(
+          expect(serviceProvider.getSearchIndexes).to.have.been.calledWith(
             'db1',
             'coll1',
             options
@@ -2337,13 +2333,14 @@ describe('Collection', () => {
       unhideIndex: { m: 'runCommandWithCheck', i: 2 },
       remove: { m: 'deleteMany' },
       watch: { i: 1 },
+      getSearchIndexes: { i: 2 },
     };
     const ignore: (keyof (typeof Collection)['prototype'])[] = [
       'getShardDistribution',
       'stats',
       'isCapped',
       'compactStructuredEncryptionData',
-      // none of the search index helpers take an options param, so they don't take session
+      // none of these search index helpers take an options param, so they don't take session
       'createSearchIndex',
       'createSearchIndexes',
       'dropSearchIndex',
@@ -2364,6 +2361,7 @@ describe('Collection', () => {
       serviceProvider.listCollections.resolves([]);
       serviceProvider.watch.returns({ closed: false, tryNext: async() => {} } as any);
       serviceProvider.countDocuments.resolves(1);
+      serviceProvider.getSearchIndexes.resolves([]);
       serviceProvider.createSearchIndexes.resolves(['index_1']);
       serviceProvider.dropSearchIndex.resolves();
       serviceProvider.updateSearchIndex.resolves();

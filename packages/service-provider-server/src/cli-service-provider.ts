@@ -65,7 +65,6 @@ import {
   AutoEncryptionOptions,
   ClientEncryption as MongoCryptClientEncryption,
   SearchIndexDescription,
-  ListSearchIndexesCursor,
   ListSearchIndexesOptions
 } from '@mongosh/service-provider-core';
 
@@ -1210,14 +1209,14 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     });
   }
 
-  listSearchIndexes(
+  getSearchIndexes(
     database: string,
     collection: string,
     options: ListSearchIndexesOptions,
-    dbOptions?: DbOptions): ListSearchIndexesCursor {
+    dbOptions?: DbOptions): Promise<Document[]> {
     return this.db(database, dbOptions)
       .collection(collection)
-      .listSearchIndexes(options);
+      .listSearchIndexes(options).toArray();
   }
 
   createSearchIndexes(
