@@ -75,5 +75,7 @@ export type {
   ServerApi,
   ServerApiVersion,
   MongoClient, // mostly for testing
-  SearchIndexDescription
+  SearchIndexDescription,
+  ListSearchIndexesCursor,
+  ListSearchIndexesOptions
 } from 'mongodb';

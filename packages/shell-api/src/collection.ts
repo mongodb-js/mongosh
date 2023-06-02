@@ -57,7 +57,8 @@ import {
   RunCommandOptions,
   UpdateOptions,
   DropCollectionOptions,
-  SearchIndexDescription
+  SearchIndexDescription,
+  ListSearchIndexesOptions
 } from '@mongosh/service-provider-core';
 import {
   AggregationCursor,
@@ -2058,7 +2059,17 @@ export default class Collection extends ShellApiWithMongoClass {
     });
   }
 
-  // TODO(MONGOSH-1456): getSearchIndexes
+  @serverVersions(['6.0.0', ServerVersions.latest])
+  @returnsPromise
+  @apiVersions([])
+  async getSearchIndexes(options?: ListSearchIndexesOptions): Promise<Document[]> {
+    this._emitCollectionApiCall('getSearchIndexes', { options });
+    return await this._mongo._serviceProvider.listSearchIndexes(
+      this._database._name,
+      this._name,
+      { ...await this._database._baseOptions(), ...options }
+    ).toArray();
+  }
 
   @serverVersions(['6.0.0', ServerVersions.latest])
   @returnsPromise

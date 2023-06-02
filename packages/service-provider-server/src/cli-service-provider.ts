@@ -64,7 +64,9 @@ import {
   FLE,
   AutoEncryptionOptions,
   ClientEncryption as MongoCryptClientEncryption,
-  SearchIndexDescription
+  SearchIndexDescription,
+  ListSearchIndexesCursor,
+  ListSearchIndexesOptions
 } from '@mongosh/service-provider-core';
 
 import { connectMongoClient, DevtoolsConnectOptions } from '@mongodb-js/devtools-connect';
@@ -1208,7 +1210,15 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     });
   }
 
-  // TODO(MONGOSH-1456): getSearchIndexes
+  listSearchIndexes(
+    database: string,
+    collection: string,
+    options: ListSearchIndexesOptions,
+    dbOptions?: DbOptions): ListSearchIndexesCursor {
+    return this.db(database, dbOptions)
+      .collection(collection)
+      .listSearchIndexes(options);
+  }
 
   createSearchIndexes(
     database: string,

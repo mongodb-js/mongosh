@@ -862,6 +862,40 @@ describe('CliServiceProvider', () => {
     });
   });
 
+  describe('#getSearchIndexes', () => {
+    let descriptions;
+    let nativeMethodResult;
+    let listSearchIndexesOptions;
+
+    beforeEach(() => {
+      descriptions = [
+        { name: 'foo', description: {} },
+        { name: 'bar', description: {} }
+      ];
+
+      nativeMethodResult = {
+        toArray: () => {
+          return Promise.resolve(descriptions);
+        }
+      };
+
+      listSearchIndexesOptions = { allowDiskUse: true };
+
+      collectionStub = stubInterface<Collection>();
+      collectionStub.listSearchIndexes.returns(nativeMethodResult);
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus, dummyOptions);
+    });
+
+    it('calls listSearchIndexes', async() => {
+      const cursor = serviceProvider.listSearchIndexes(
+        'db1',
+        'coll1',
+        listSearchIndexesOptions);
+      expect(await cursor.toArray()).to.deep.equal(descriptions);
+      expect(collectionStub.listSearchIndexes).to.have.been.calledWith(listSearchIndexesOptions);
+    });
+  });
+
   describe('#createSearchIndexes', () => {
     let descriptions;
     let nativeMethodResult;

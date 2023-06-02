@@ -2096,6 +2096,47 @@ describe('Collection', () => {
       });
     });
 
+    describe('getSearchIndexes', () => {
+      let descriptions;
+
+      beforeEach(() => {
+        descriptions = [{ name: 'foo', description: {} }, { name: 'bar', description: {} }];
+        serviceProvider.listSearchIndexes.returns({
+          toArray: () => {
+            return Promise.resolve(descriptions);
+          }
+        } as any);
+      });
+
+      context('without options', () => {
+        it('calls serviceProvider.listSearchIndexes(), then toArray() on the returned cursor', async() => {
+          const result = await collection.getSearchIndexes();
+
+          expect(result).to.equal(descriptions);
+
+          expect(serviceProvider.listSearchIndexes).to.have.been.calledWith(
+            'db1',
+            'coll1'
+          );
+        });
+      });
+
+      context('with options', () => {
+        it('calls serviceProvider.listSearchIndexes(options), then toArray() on the returned cursor', async() => {
+          const options = { allowDiskUse: true };
+          const result = await collection.getSearchIndexes(options);
+
+          expect(result).to.equal(descriptions);
+
+          expect(serviceProvider.listSearchIndexes).to.have.been.calledWith(
+            'db1',
+            'coll1',
+            options
+          );
+        });
+      });
+    });
+
     describe('createSearchIndex', () => {
       beforeEach(() => {
         serviceProvider.createSearchIndexes.resolves(['index_1']);
