@@ -345,5 +345,54 @@ export default interface Writable {
     options?: BulkWriteOptions,
     dbOptions?: DbOptions
   ): Promise<OrderedBulkOperation | UnorderedBulkOperation>;
+
+  /**
+   * Adds new search indexes to a collection.
+   *
+   * @param {String} database - The db name.
+   * @param {String} collection - The collection name.
+   * @param {Object[]} descriptions - The specs of the indexes to be created.
+   * @param {DbOptions} dbOptions - The database options
+  */
+  createSearchIndexes(
+    database: string,
+    collection: string,
+    // TODO(MONGOSH-1471): use SearchIndexDescription[] once available
+    descriptions: any[],
+    dbOptions?: DbOptions
+  ): Promise<string[]>
+
+  /**
+   * Drops a search index.
+   *
+   * @param {String} database - The db name.
+   * @param {String} collection - The collection name.
+   * @param {String} indexName - The index name
+   * @param {DbOptions} dbOptions - The database options
+  */
+  dropSearchIndex(
+    database: string,
+    collection: string,
+    index: string,
+    dbOptions?: DbOptions
+  ): Promise<void>
+
+  /**
+   * Update a search index.
+   *
+   * @param {String} database - The db name.
+   * @param {String} collection - The collection name.
+   * @param {String} indexName - The index name.
+   * @param {Object} description - The update.
+   * @param {DbOptions} dbOptions - The database options
+  */
+  updateSearchIndex(
+    database: string,
+    collection: string,
+    index: string,
+    // TODO(MONGOSH-1471): use SearchIndexDescription once available
+    description: any,
+    dbOptions?: DbOptions
+  ): Promise<void>
 }
 

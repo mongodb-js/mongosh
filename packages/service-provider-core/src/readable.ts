@@ -12,7 +12,7 @@ import type {
   FindCursor,
   DbOptions,
   ReadPreferenceFromOptions,
-  ReadPreferenceLike
+  ReadPreferenceLike,
 } from './all-transport-types';
 import { ChangeStream, ChangeStreamOptions } from './all-transport-types';
 
@@ -206,5 +206,23 @@ export default interface Readable {
     db?: string,
     coll?: string
   ): ChangeStream<Document>;
+
+  /**
+   * Returns an array of documents that identify and describe the existing
+   * search indexes on the collection.
+   *
+   * @param {String} database - The db name.
+   * @param {String} collection - The collection name.
+   * @param {Document} options - The command options.
+   * @param {DbOptions} dbOptions - The database options
+   *
+   * @return {Promise}
+   */
+  getSearchIndexes(
+    database: string,
+    collection: string,
+    // TODO(MONGOSH-1471): use ListSearchIndexesOptions once available
+    options: any,
+    dbOptions?: DbOptions): Promise<Document[]>;
 }
 

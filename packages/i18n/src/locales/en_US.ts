@@ -698,6 +698,31 @@ const translations: Catalog = {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.configureQueryAnalyzer',
               description: 'Starts or stops collecting metrics about reads and writes against an unsharded or sharded collection.',
               example: 'db.coll.configureQueryAnalyzer(options)'
+            },
+            getSearchIndexes: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.collection.getSearchIndexes',
+              description: 'Returns an array that holds a list of documents that identify and describe the existing search indexes on the collection.',
+              example: 'db.coll.getSearchIndexes()'
+            },
+            createSearchIndexes: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.collection.createSearchIndexes',
+              description: 'Creates one or more search indexes on a collection',
+              example: 'db.coll.createSearchIndexes(descriptions)'
+            },
+            createSearchIndex: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.collection.createSearchIndex',
+              description: 'Creates one search indexes on a collection',
+              example: 'db.coll.createSearchIndex(description)'
+            },
+            dropSearchIndex: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.collection.dropSearchIndex',
+              description: 'Drops or removes the specified search index from a collection.',
+              example: 'db.coll.dropSearchIndex(name)'
+            },
+            updateSearchIndex: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.collection.updateSearchIndex',
+              description: 'Updates the sepecified search index.',
+              example: 'db.coll.updateSearchIndex(name, definition)'
             }
           }
         }

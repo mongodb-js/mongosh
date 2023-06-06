@@ -577,6 +577,8 @@ describe('CliServiceProvider [integration]', function() {
     });
   });
 
+  // TODO(MONGOSH-1465): integration tests for search indexes
+
   describe('#listCollections', () => {
     it('returns the list of collections', async() => {
       await db.createCollection('coll1');

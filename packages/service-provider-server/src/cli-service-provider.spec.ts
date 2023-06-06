@@ -861,4 +861,122 @@ describe('CliServiceProvider', () => {
       ).parentState).to.equal(undefined);
     });
   });
+
+  describe('#getSearchIndexes', () => {
+    let descriptions;
+    let nativeMethodResult;
+    let getSearchIndexesOptions;
+
+    beforeEach(() => {
+      descriptions = [
+        { name: 'foo', description: {} },
+        { name: 'bar', description: {} }
+      ];
+
+      nativeMethodResult = {
+        toArray: () => {
+          return Promise.resolve(descriptions);
+        }
+      };
+
+      getSearchIndexesOptions = { allowDiskUse: true };
+
+      collectionStub = stubInterface<Collection>();
+      // @ts-expect-error still @internal
+      collectionStub.listSearchIndexes.returns(nativeMethodResult);
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus, dummyOptions);
+    });
+
+    it('calls listSearchIndexes and toArray on the resulting cursor', async() => {
+      const result = await serviceProvider.getSearchIndexes(
+        'db1',
+        'coll1',
+        getSearchIndexesOptions);
+      expect(result).to.deep.equal(descriptions);
+      // @ts-expect-error still @internal
+      expect(collectionStub.listSearchIndexes).to.have.been.calledWith(getSearchIndexesOptions);
+    });
+  });
+
+  describe('#createSearchIndexes', () => {
+    let descriptions;
+    let nativeMethodResult;
+
+    beforeEach(() => {
+      descriptions = [
+        { name: 'foo', description: {} },
+        { name: 'bar', description: {} }
+      ];
+
+      nativeMethodResult = [
+        'index_1',
+      ];
+
+      collectionStub = stubInterface<Collection>();
+      // @ts-expect-error still @internal
+      collectionStub.createSearchIndexes.resolves(nativeMethodResult);
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus, dummyOptions);
+    });
+
+    it('executes the command against the database', async() => {
+      const result = await serviceProvider.createSearchIndexes(
+        'db1',
+        'coll1',
+        descriptions);
+      expect(result).to.deep.equal(nativeMethodResult);
+      // @ts-expect-error still @internal
+      expect(collectionStub.createSearchIndexes).to.have.been.calledWith(descriptions);
+    });
+  });
+
+  describe('#dropSearchIndex', () => {
+    let indexName;
+
+    beforeEach(() => {
+      indexName = 'foo';
+
+      collectionStub = stubInterface<Collection>();
+      // @ts-expect-error still @internal
+      collectionStub.dropSearchIndex.resolves();
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus, dummyOptions);
+    });
+
+    it('executes the command against the database', async() => {
+      const result = await serviceProvider.dropSearchIndex(
+        'db1',
+        'coll1',
+        indexName);
+      expect(result).to.deep.equal(undefined);
+      // @ts-expect-error still @internal
+      expect(collectionStub.dropSearchIndex).to.have.been.calledWith(indexName);
+    });
+  });
+
+
+  describe('#updateSearchIndex', () => {
+    let indexName;
+    let description;
+
+    beforeEach(() => {
+      indexName = 'foo';
+      description = { x: 1, y: 2 };
+
+      collectionStub = stubInterface<Collection>();
+
+      // @ts-expect-error still @internal
+      collectionStub.updateSearchIndex.resolves();
+      serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus, dummyOptions);
+    });
+
+    it('executes the command against the database', async() => {
+      const result = await serviceProvider.updateSearchIndex(
+        'db1',
+        'coll1',
+        indexName,
+        description);
+      expect(result).to.deep.equal(undefined);
+      // @ts-expect-error still @internal
+      expect(collectionStub.updateSearchIndex).to.have.been.calledWith(indexName, description);
+    });
+  });
 });
