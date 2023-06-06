@@ -10,6 +10,7 @@ import Mongo from './mongo';
 import {
   AggregationCursor as ServiceProviderAggCursor,
   FindCursor as ServiceProviderCursor,
+  RunCommandCursor as ServiceProviderRunCommandCursor,
   ServiceProvider,
   bson,
   ClientSession as ServiceProviderSession,
@@ -2802,6 +2803,18 @@ describe('Database', () => {
         serviceProviderCursor.hasNext.throws(Object.assign(new Error('any error')));
         const error: any = await database.sql('SELECT * FROM somecollection;').catch(err => err);
         expect(error.message).to.be.equal('any error');
+      });
+    });
+
+    describe('checkMetadataConsistency', () => {
+      it('calls serviceProvider.runCursorCommand and returns a RunCommandCursor', async() => {
+        const providerCursor = stubInterface<ServiceProviderRunCommandCursor>();
+        serviceProvider.runCursorCommand.returns(providerCursor);
+        const runCommandCursor = await database.checkMetadataConsistency();
+        expect(runCommandCursor._cursor).to.equal(providerCursor);
+        expect(serviceProvider.runCursorCommand).to.have.been.calledWith(
+          'db1', { checkMetadataConsistency: 1 }, {}
+        );
       });
     });
   });

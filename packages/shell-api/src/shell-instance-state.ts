@@ -16,6 +16,7 @@ import { ShellApiErrors } from './error-codes';
 import {
   AggregationCursor,
   Cursor,
+  RunCommandCursor,
   Database,
   getShellApiType,
   Mongo,
@@ -120,7 +121,7 @@ export interface ShellPlugin {
  * instances).
  */
 export default class ShellInstanceState {
-  public currentCursor: Cursor | AggregationCursor | ChangeStreamCursor | null;
+  public currentCursor: Cursor | AggregationCursor | ChangeStreamCursor | RunCommandCursor | null;
   public currentDb: Database;
   public messageBus: MongoshBus;
   public initialServiceProvider: ServiceProvider; // the initial service provider

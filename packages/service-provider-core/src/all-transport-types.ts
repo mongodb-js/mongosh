@@ -21,6 +21,7 @@ export type {
   ClusterTime,
   FindCursor,
   CursorFlag,
+  RunCommandCursor,
   Db,
   DbOptions,
   DeleteOptions,

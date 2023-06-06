@@ -698,6 +698,11 @@ const translations: Catalog = {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.configureQueryAnalyzer',
               description: 'Starts or stops collecting metrics about reads and writes against an unsharded or sharded collection.',
               example: 'db.coll.configureQueryAnalyzer(options)'
+            },
+            checkMetadataConsistency: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.collection.checkMetadataConsistency',
+              description: 'Returns a cursor with information about metadata inconsistencies',
+              example: 'db.coll.checkMetadataConsistency(<options>)'
             }
           }
         }
@@ -1321,6 +1326,11 @@ const translations: Catalog = {
             },
             setSecondaryOk: {
               description: 'This method is deprecated. Use db.getMongo().setReadPref() instead'
+            },
+            checkMetadataConsistency: {
+              link: 'https://docs.mongodb.com/manual/reference/method/db.checkMetadataConsistency',
+              description: 'Returns a cursor with information about metadata inconsistencies',
+              example: 'db.checkMetadataConsistency(<options>)'
             }
           }
         }
@@ -1685,6 +1695,11 @@ const translations: Catalog = {
               description: 'Re-enable auto-merge on one collection',
               example: 'sh.enableAutoMerger(ns)',
             },
+            checkMetadataConsistency: {
+              link: 'https://docs.mongodb.com/manual/reference/method/sh.checkMetadataConsistency',
+              description: 'Returns a cursor with information about metadata inconsistencies',
+              example: 'sh.checkMetadataConsistency(<options>)'
+            }
           }
         }
       },

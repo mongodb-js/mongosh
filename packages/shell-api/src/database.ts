@@ -35,7 +35,7 @@ import type {
   WriteConcern,
   ListCollectionsOptions
 } from '@mongosh/service-provider-core';
-import { AggregationCursor, CommandResult } from './index';
+import { AggregationCursor, RunCommandCursor, CommandResult } from './index';
 import {
   CommonErrors,
   MongoshDeprecatedError,
@@ -48,7 +48,7 @@ import { HIDDEN_COMMANDS } from '@mongosh/history';
 import Session from './session';
 import ChangeStreamCursor from './change-stream-cursor';
 import { ShellApiErrors } from './error-codes';
-import { CreateEncryptedCollectionOptions } from '@mongosh/service-provider-core';
+import { CreateEncryptedCollectionOptions, CheckMetadataConsistencyOptions } from '@mongosh/service-provider-core';
 
 export type CollectionNamesWithTypes = {
   name: string;
@@ -151,6 +151,22 @@ export default class Database extends ShellApiWithMongoClass {
       cmd,
       { ...await this._baseOptions(), ...options }
     );
+  }
+
+  public async _runCursorCommand(cmd: Document, options: CommandOperationOptions = {}): Promise<RunCommandCursor> {
+    const providerCursor = this._mongo._serviceProvider.runCursorCommand(
+      this._name,
+      adjustRunCommand(cmd, this._instanceState.shellBson),
+      { ...this._mongo._getExplicitlyRequestedReadPref(), ...await this._baseOptions(), ...options }
+    );
+
+    const cursor = new RunCommandCursor(this._mongo, providerCursor);
+    this._mongo._instanceState.currentCursor = cursor;
+    return cursor;
+  }
+
+  public async _runAdminCursorCommand(cmd: Document, options: CommandOperationOptions = {}): Promise<RunCommandCursor> {
+    return this.getSiblingDB('admin')._runCursorCommand(cmd, options);
   }
 
   async _listCollections(filter: Document, options: ListCollectionsOptions): Promise<Document[]> {
@@ -1541,5 +1557,16 @@ export default class Database extends ShellApiWithMongoClass {
     }
 
     return cursor;
+  }
+
+  @serverVersions(['7.0.0', ServerVersions.latest])
+  @topologies([Topologies.Sharded])
+  @returnsPromise
+  checkMetadataConsistency(options: CheckMetadataConsistencyOptions = {}): Promise<RunCommandCursor> {
+    this._emitDatabaseApiCall('checkMetadataConsistency', { options });
+
+    return this._runCursorCommand({
+      checkMetadataConsistency: 1
+    });
   }
 }

@@ -1,4 +1,5 @@
 import AggregationCursor from './aggregation-cursor';
+import RunCommandCursor from './run-command-cursor';
 import Collection from './collection';
 import Cursor from './cursor';
 import Database, { CollectionNamesWithTypes } from './database';
@@ -38,6 +39,7 @@ import {
 
 export {
   AggregationCursor,
+  RunCommandCursor,
   CollectionNamesWithTypes,
   Cursor,
   CursorIterationResult,

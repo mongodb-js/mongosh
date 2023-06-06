@@ -12,6 +12,7 @@ import Explainable from './explainable';
 import {
   FindCursor as ServiceProviderCursor,
   AggregationCursor as ServiceProviderAggregationCursor,
+  RunCommandCursor as ServiceProviderRunCommandCursor,
   ServiceProvider,
   bson,
   ClientSession as ServiceProviderSession
@@ -1980,6 +1981,18 @@ describe('Collection', () => {
         const caughtError = await collection.configureQueryAnalyzer({ mode: 'full', sampleRate: 1 })
           .catch(e => e);
         expect(caughtError).to.equal(expectedError);
+      });
+    });
+
+    describe('checkMetadataConsistency', () => {
+      it('calls serviceProvider.runCursorCommand and returns a RunCommandCursor', async() => {
+        const providerCursor = stubInterface<ServiceProviderRunCommandCursor>();
+        serviceProvider.runCursorCommand.returns(providerCursor);
+        const runCommandCursor = await collection.checkMetadataConsistency();
+        expect(runCommandCursor._cursor).to.equal(providerCursor);
+        expect(serviceProvider.runCursorCommand).to.have.been.calledWith(
+          'db1', { checkMetadataConsistency: 'coll1' }, {}
+        );
       });
     });
 

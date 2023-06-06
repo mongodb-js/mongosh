@@ -56,13 +56,15 @@ import {
   ReplaceOptions,
   RunCommandOptions,
   UpdateOptions,
-  DropCollectionOptions
+  DropCollectionOptions,
+  CheckMetadataConsistencyOptions
 } from '@mongosh/service-provider-core';
 import {
   AggregationCursor,
   BulkWriteResult,
   CommandResult,
   Cursor,
+  RunCommandCursor,
   Database,
   DeleteResult,
   Explainable,
@@ -2054,6 +2056,17 @@ export default class Collection extends ShellApiWithMongoClass {
     return await this._database._runAdminCommand({
       configureQueryAnalyzer: this.getFullName(),
       ...options
+    });
+  }
+
+  @serverVersions(['7.0.0', ServerVersions.latest])
+  @topologies([Topologies.Sharded])
+  @returnsPromise
+  checkMetadataConsistency(options: CheckMetadataConsistencyOptions = {}): Promise<RunCommandCursor> {
+    this._emitCollectionApiCall('checkMetadataConsistency', { options });
+
+    return this._database._runCursorCommand({
+      checkMetadataConsistency: this._name
     });
   }
 }

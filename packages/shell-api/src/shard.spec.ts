@@ -4,7 +4,13 @@ import Shard from './shard';
 import { ADMIN_DB, ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';
 import { signatures, toShellResult } from './index';
 import Mongo from './mongo';
-import { bson, ServiceProvider, FindCursor as ServiceProviderCursor, AggregationCursor as ServiceProviderAggCursor } from '@mongosh/service-provider-core';
+import {
+  bson,
+  ServiceProvider,
+  FindCursor as ServiceProviderCursor,
+  AggregationCursor as ServiceProviderAggCursor,
+  RunCommandCursor as ServiceProviderRunCommandCursor,
+} from '@mongosh/service-provider-core';
 import { EventEmitter } from 'events';
 import ShellInstanceState from './shell-instance-state';
 import { UpdateResult } from './result';
@@ -13,6 +19,7 @@ import { startTestCluster, skipIfServerVersion, skipIfApiStrict } from '../../..
 import Database from './database';
 import { inspect } from 'util';
 import { dummyOptions } from './helpers.spec';
+
 
 describe('Shard', () => {
   skipIfApiStrict();
@@ -1486,6 +1493,18 @@ describe('Shard', () => {
         expect(warnSpy.calledOnce).to.equal(true);
       });
     });
+
+    describe('checkMetadataConsistency', () => {
+      it('calls serviceProvider.runCursorCommand and returns a RunCommandCursor', async() => {
+        const providerCursor = stubInterface<ServiceProviderRunCommandCursor>();
+        serviceProvider.runCursorCommand.returns(providerCursor);
+        const runCommandCursor = await shard.checkMetadataConsistency();
+        expect(runCommandCursor._cursor).to.equal(providerCursor);
+        expect(serviceProvider.runCursorCommand).to.have.been.calledWith(
+          'admin', { checkMetadataConsistency: 1 }, {}
+        );
+      });
+    });
   });
 
   describe('integration', () => {
@@ -2054,6 +2073,46 @@ describe('Shard', () => {
         const databasesDbShItem = result.value.databases.find((item) => (item.database._id === 'dbSh'));
         // Cannot get strict guarantees about the value of this field since SERVER-60926 and SERVER-63983
         expect(databasesDbShItem.database.partitioned).to.be.oneOf([true, false, undefined]);
+      });
+    });
+
+    describe('checkMetadataConsistency', () => {
+      skipIfServerVersion(mongos, '< 7.0');
+      let db;
+      let coll;
+
+      before(async() => {
+        db = instanceState.currentDb.getSiblingDB('db');
+        coll = db.getCollection('coll');
+        await sh.enableSharding('db');
+        await sh.shardCollection('db.coll', { key: 1 });
+      });
+
+      it('returns results for the cluster', async() => {
+        const cursor = await sh.checkMetadataConsistency();
+        expect(await cursor.toArray()).to.deep.equal([]);
+      });
+      it('returns results for the cluster with options', async() => {
+        const cursor = await sh.checkMetadataConsistency({ checkIndexes: 1 });
+        expect(await cursor.toArray()).to.deep.equal([]);
+      });
+
+      it('returns results for a database', async() => {
+        const cursor = await db.checkMetadataConsistency();
+        expect(await cursor.toArray()).to.deep.equal([]);
+      });
+      it('returns results for a database with options', async() => {
+        const cursor = await db.checkMetadataConsistency({ checkIndexes: 1 });
+        expect(await cursor.toArray()).to.deep.equal([]);
+      });
+
+      it('returns results for a collection', async() => {
+        const cursor = await coll.checkMetadataConsistency();
+        expect(await cursor.toArray()).to.deep.equal([]);
+      });
+      it('returns results for a collection with options', async() => {
+        const cursor = await coll.checkMetadataConsistency({ checkIndexes: 1 });
+        expect(await cursor.toArray()).to.deep.equal([]);
       });
     });
   });

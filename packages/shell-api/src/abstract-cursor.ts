@@ -12,13 +12,14 @@ import type {
   ExplainVerbosityLike,
   FindCursor as ServiceProviderCursor,
   AggregationCursor as ServiceProviderAggregationCursor,
+  RunCommandCursor as ServiceProviderRunCommandCursor
 } from '@mongosh/service-provider-core';
 import { asPrintable } from './enums';
 import { CursorIterationResult } from './result';
 import { iterate, validateExplainableVerbosity, markAsExplainOutput } from './helpers';
 
 @shellApiClassNoHelp
-export abstract class AbstractCursor<CursorType extends ServiceProviderAggregationCursor | ServiceProviderCursor> extends ShellApiWithMongoClass {
+export abstract class AbstractCursor<CursorType extends ServiceProviderAggregationCursor | ServiceProviderCursor | ServiceProviderRunCommandCursor> extends ShellApiWithMongoClass {
   _mongo: Mongo;
   _cursor: CursorType;
   _transform: ((doc: any) => any) | null;
@@ -149,19 +150,19 @@ export abstract class AbstractCursor<CursorType extends ServiceProviderAggregati
 
   @returnType('this')
   projection(spec: Document): this {
-    this._cursor.project(spec);
+    (this._cursor as any).project(spec);
     return this;
   }
 
   @returnType('this')
   skip(value: number): this {
-    this._cursor.skip(value);
+    (this._cursor as any).skip(value);
     return this;
   }
 
   @returnType('this')
   sort(spec: Document): this {
-    this._cursor.sort(spec);
+    (this._cursor as any).sort(spec);
     return this;
   }
 
@@ -178,7 +179,7 @@ export abstract class AbstractCursor<CursorType extends ServiceProviderAggregati
     if (verbosity !== undefined) {
       verbosity = validateExplainableVerbosity(verbosity);
     }
-    const fullExplain: any = await this._cursor.explain(verbosity);
+    const fullExplain: any = await (this._cursor as any).explain(verbosity);
 
     const explain: any = {
       ...fullExplain
