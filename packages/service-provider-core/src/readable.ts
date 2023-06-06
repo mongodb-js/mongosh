@@ -221,6 +221,7 @@ export default interface Readable {
   getSearchIndexes(
     database: string,
     collection: string,
+    indexName: string | null,
     // TODO(MONGOSH-1471): use ListSearchIndexesOptions once available
     options: any,
     dbOptions?: DbOptions): Promise<Document[]>;

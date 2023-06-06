@@ -85,6 +85,14 @@ type CollStatsShellOptions = CollStatsOptions & {
   indexDetailsName?: string;
 };
 
+function optionalFirstString(arg1?: string|Document, arg2?: Document): [arg1: null|string, arg2: null|Document] {
+  if (typeof arg1 === 'string') {
+    return [arg1, arg2 ?? null];
+  }
+
+  return [null, arg1 ?? null];
+}
+
 @shellApiClassDefault
 @addSourceToResults
 export default class Collection extends ShellApiWithMongoClass {
@@ -2061,11 +2069,14 @@ export default class Collection extends ShellApiWithMongoClass {
   @returnsPromise
   @apiVersions([])
   // TODO(MONGOSH-1471): use ListSearchIndexesOptions once available
-  async getSearchIndexes(options?: any): Promise<Document[]> {
+  async getSearchIndexes(indexNameOrOptions?: string|Document, optionalOptions?: Document): Promise<Document[]> {
+    const [indexName, options] = optionalFirstString(indexNameOrOptions, optionalOptions);
+
     this._emitCollectionApiCall('getSearchIndexes', { options });
     return await this._mongo._serviceProvider.getSearchIndexes(
       this._database._name,
       this._name,
+      indexName,
       { ...await this._database._baseOptions(), ...options }
     );
   }
@@ -2074,12 +2085,14 @@ export default class Collection extends ShellApiWithMongoClass {
   @returnsPromise
   @apiVersions([])
   // TODO(MONGOSH-1471): use SearchIndexDescription once available
-  async createSearchIndex(description: any): Promise<string> {
-    this._emitCollectionApiCall('createSearchIndex', { description });
+  async createSearchIndex(indexNameOrDescription?: string|Document, optionalDescription?: Document): Promise<string> {
+    const [indexName, description] = optionalFirstString(indexNameOrDescription, optionalDescription);
+
+    this._emitCollectionApiCall('createSearchIndex', { indexName, description });
     const results = await this._mongo._serviceProvider.createSearchIndexes(
       this._database._name,
       this._name,
-      [description]
+      [{ name: indexName, description: { ...description } }]
     );
     return results[0];
   }
@@ -2088,12 +2101,12 @@ export default class Collection extends ShellApiWithMongoClass {
   @returnsPromise
   @apiVersions([])
   // TODO(MONGOSH-1471): use SearchIndexDescription once available
-  async createSearchIndexes(descriptions: any[]): Promise<string[]> {
-    this._emitCollectionApiCall('createSearchIndexes', { descriptions });
+  async createSearchIndexes(specs: any[]): Promise<string[]> {
+    this._emitCollectionApiCall('createSearchIndexes', { specs });
     return await this._mongo._serviceProvider.createSearchIndexes(
       this._database._name,
       this._name,
-      descriptions
+      specs
     );
   }
 

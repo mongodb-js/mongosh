@@ -358,7 +358,7 @@ export default interface Writable {
     database: string,
     collection: string,
     // TODO(MONGOSH-1471): use SearchIndexDescription[] once available
-    descriptions: any[],
+    specs: any[],
     dbOptions?: DbOptions
   ): Promise<string[]>
 
