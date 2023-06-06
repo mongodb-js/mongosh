@@ -2101,7 +2101,7 @@ export default class Collection extends ShellApiWithMongoClass {
   @returnsPromise
   @apiVersions([])
   // TODO(MONGOSH-1471): use SearchIndexDescription once available
-  async createSearchIndexes(specs: any[]): Promise<string[]> {
+  async createSearchIndexes(specs: {name?: string, description?: Document}[]): Promise<string[]> {
     this._emitCollectionApiCall('createSearchIndexes', { specs });
     return await this._mongo._serviceProvider.createSearchIndexes(
       this._database._name,
@@ -2126,7 +2126,7 @@ export default class Collection extends ShellApiWithMongoClass {
   @returnsPromise
   @apiVersions([])
   // TODO(MONGOSH-1471): use SearchIndexDescription once available
-  async updateSearchIndex(indexName: string, description: any): Promise<void> {
+  async updateSearchIndex(indexName: string, description: Document): Promise<void> {
     this._emitCollectionApiCall('updateSearchIndex', { indexName, description });
     return await this._mongo._serviceProvider.updateSearchIndex(
       this._database._name,
