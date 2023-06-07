@@ -1210,9 +1210,9 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   getSearchIndexes(
     database: string,
     collection: string,
-    indexName: string | null,
+    indexName?: string,
     // TODO(MONGOSH-1471): use ListSearchIndexesOptions once available
-    options: Document,
+    options?: Document,
     dbOptions?: DbOptions): Promise<Document[]> {
     return this.db(database, dbOptions)
       .collection(collection)
@@ -1224,7 +1224,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     database: string,
     collection: string,
     // TODO(MONGOSH-1471): use SearchIndexDescription[] once available
-    specs: {name?: string, description?: Document}[],
+    specs: {name: string, description: Document}[],
     dbOptions?: DbOptions): Promise<string[]> {
     return this.db(database, dbOptions)
       .collection(collection)

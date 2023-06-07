@@ -2113,7 +2113,7 @@ describe('Collection', () => {
           expect(serviceProvider.getSearchIndexes).to.have.been.calledWith(
             'db1',
             'coll1',
-            null
+            undefined
           );
         });
       });
@@ -2142,7 +2142,7 @@ describe('Collection', () => {
           expect(serviceProvider.getSearchIndexes).to.have.been.calledWith(
             'db1',
             'coll1',
-            null,
+            undefined,
             options
           );
         });
@@ -2177,7 +2177,7 @@ describe('Collection', () => {
           expect(serviceProvider.createSearchIndexes).to.have.been.calledWith(
             'db1',
             'coll1',
-            [ { name: null, description: {} }]
+            [ { name: 'default', description: {} }]
           );
         });
       });
@@ -2201,7 +2201,7 @@ describe('Collection', () => {
           expect(serviceProvider.createSearchIndexes).to.have.been.calledWith(
             'db1',
             'coll1',
-            [ { name: null, description: { mappings: { dynamic: true } } }]
+            [ { name: 'default', description: { mappings: { dynamic: true } } }]
           );
         });
       });
