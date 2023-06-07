@@ -77,7 +77,7 @@
     "mongodb-connection-string-url": "^2.6.0",
     "mongodb-log-writer": "^1.1.5",
     "numeral": "^2.0.6",
-    "pretty-repl": "^3.1.1",
+    "pretty-repl": "^3.1.2",
     "semver": "^7.1.2",
     "strip-ansi": "^6.0.0",
     "text-table": "^0.2.0",
