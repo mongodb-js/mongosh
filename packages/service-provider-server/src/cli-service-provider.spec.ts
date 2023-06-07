@@ -920,8 +920,8 @@ describe('CliServiceProvider', () => {
 
     beforeEach(() => {
       descriptions = [
-        { name: 'foo', description: {} },
-        { name: 'bar', description: {} }
+        { name: 'foo', definition: {} },
+        { name: 'bar', definition: {} }
       ];
 
       nativeMethodResult = [

@@ -1226,14 +1226,10 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     // TODO(MONGOSH-1471): use SearchIndexDescription[] once available
     specs: {name: string, definition: Document}[],
     dbOptions?: DbOptions): Promise<string[]> {
-    const driverSpecs = specs.map(({ name, definition }) => {
-      // NOTE: Unlike in our docs or in the command, the driver calls it description, not definition
-      return { name, description: { ...definition } };
-    });
     return this.db(database, dbOptions)
       .collection(collection)
       // @ts-expect-error still @internal
-      .createSearchIndexes(driverSpecs);
+      .createSearchIndexes(specs);
   }
 
   dropSearchIndex(
