@@ -33,7 +33,7 @@
     }
   },
   "dependencies": {
-    "@aws-sdk/credential-providers": "^3.262.0",
+    "@aws-sdk/credential-providers": "^3.347.1",
     "@mongosh/errors": "0.0.0-dev.0",
     "bson": "^5.2.0",
     "mongodb": "^5.6.0",
