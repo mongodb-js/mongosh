@@ -173,8 +173,51 @@ type ThrottledAnalyticsOptions = {
     timeframe?: number;
     /** Path to persist rpm value to be able to track them between sessions */
     metadataPath: string;
+    /** Duration in milliseconds in which the lock is considered stale (default: 43_200_000) */
+    lockfileStaleDuration?: number;
   } | null;
 };
+
+async function lockfile(
+  filepath: string,
+  staleDuration = 43_200_000
+): Promise<() => Promise<void>> {
+  let intervalId: ReturnType<typeof setInterval>;
+  const lockfilePath = `${filepath}.lock`;
+  const unlock = async() => {
+    clearInterval(intervalId);
+    try {
+      return await fs.promises.rmdir(lockfilePath);
+    } catch {
+      // ignore update errors
+    }
+  };
+  try {
+    await fs.promises.mkdir(lockfilePath);
+    // Set up an interval update for lockfile mtime so that if the lockfile is
+    // created by long running process (longer than staleDuration) we make sure
+    // that another process doesn't consider lockfile stale
+    intervalId = setInterval(() => {
+      const now = Date.now();
+      fs.promises.utimes(lockfilePath, now, now).catch(() => {});
+    }, staleDuration / 2);
+    // eslint-disable-next-line chai-friendly/no-unused-expressions
+    intervalId.unref?.();
+    return unlock;
+  } catch (e) {
+    if ((e as any).code !== 'EEXIST') {
+      throw e;
+    }
+    const stats = await fs.promises.stat(lockfilePath);
+    // To make sure that the lockfile is not just a leftover from an unclean
+    // process exit, we check whether or not it is stale
+    if (Date.now() - stats.mtimeMs > staleDuration) {
+      await fs.promises.rmdir(lockfilePath);
+      return lockfile(filepath, staleDuration);
+    }
+    throw new Error(`File ${filepath} already locked`);
+  }
+}
 
 export class ThrottledAnalytics implements MongoshAnalytics {
   private trackQueue = new Queue<AnalyticsTrackMessage>((message) => {
@@ -188,6 +231,7 @@ export class ThrottledAnalytics implements MongoshAnalytics {
   private throttleOptions: ThrottledAnalyticsOptions['throttle'] = null;
   private throttleState = { count: 0, timestamp: Date.now() };
   private restorePromise: Promise<void> = Promise.resolve();
+  private unlock: () => Promise<void> = () => Promise.resolve();
 
   constructor({ target, throttle }: Partial<ThrottledAnalyticsOptions> = {}) {
     this.target = target ?? this.target;
@@ -218,7 +262,11 @@ export class ThrottledAnalytics implements MongoshAnalytics {
       throw new Error('Identify can only be called once per user session');
     }
     this.currentUserId = message.userId ?? message.anonymousId;
-    this.restorePromise = this.restoreThrottleState().then(() => {
+    this.restorePromise = this.restoreThrottleState().then((enabled) => {
+      if (!enabled) {
+        this.trackQueue.disable();
+        return;
+      }
       if (this.shouldEmitAnalyticsEvent()) {
         this.target.identify(message);
         this.throttleState.count++;
@@ -231,9 +279,9 @@ export class ThrottledAnalytics implements MongoshAnalytics {
     this.trackQueue.push(message);
   }
 
-  private async restoreThrottleState() {
+  private async restoreThrottleState(): Promise<boolean> {
     if (!this.throttleOptions) {
-      return;
+      return true;
     }
 
     if (!this.currentUserId) {
@@ -241,15 +289,27 @@ export class ThrottledAnalytics implements MongoshAnalytics {
     }
 
     try {
+      this.unlock = await lockfile(
+        this.metadataPath,
+        this.throttleOptions.lockfileStaleDuration
+      );
+    } catch (e) {
+      // Error while locking means that lock already exists or something
+      // unexpected happens, in either case we disable telemetry
+      return false;
+    }
+
+    try {
       this.throttleState = JSON.parse(
         await fs.promises.readFile(this.metadataPath, 'utf8')
       );
     } catch (e) {
-      if ((e as any).code === 'ENOENT') {
-        return;
+      if ((e as any).code !== 'ENOENT') {
+        throw e;
       }
-      throw e;
     }
+
+    return true;
   }
 
   private shouldEmitAnalyticsEvent() {
@@ -283,17 +343,17 @@ export class ThrottledAnalytics implements MongoshAnalytics {
       return;
     }
 
-    this.restorePromise.finally(() => {
-      fs.writeFile(
-        this.metadataPath,
-        JSON.stringify(this.throttleState),
-        (err) => {
-          if (err) {
-            return callback(err);
-          }
-          this.target.flush(callback);
-        }
-      );
+    this.restorePromise.finally(async() => {
+      try {
+        await fs.promises.writeFile(
+          this.metadataPath,
+          JSON.stringify(this.throttleState)
+        );
+        await this.unlock();
+        this.target.flush(callback);
+      } catch (e) {
+        callback(e as Error);
+      }
     });
   }
 }

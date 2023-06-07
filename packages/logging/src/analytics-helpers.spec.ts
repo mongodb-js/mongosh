@@ -71,6 +71,11 @@ describe('analytics helpers', () => {
       event: 'hi',
       properties: { mongosh_version: '1.2.3' }
     };
+    const t2Evt = {
+      userId,
+      event: 'bye',
+      properties: { mongosh_version: '1.2.3' }
+    };
 
     afterEach(async() => {
       try {
@@ -149,6 +154,36 @@ describe('analytics helpers', () => {
       }
       await promisify(a2.flush.bind(a2))();
       expect(events).to.have.lengthOf(5);
+    });
+
+    it('should only allow one analytics instance to send events', async() => {
+      // first "session"
+      const a1 = new ThrottledAnalytics({
+        target,
+        throttle: { rate: 5, metadataPath }
+      });
+      // second "session"
+      const a2 = new ThrottledAnalytics({
+        target,
+        throttle: { rate: 5, metadataPath }
+      });
+
+      a1.identify(iEvt);
+      a2.identify(iEvt);
+      a1.track(tEvt);
+      a2.track(t2Evt);
+      a1.track(tEvt);
+      a2.track(t2Evt);
+      a1.track(tEvt);
+      a2.track(t2Evt);
+
+      await promisify(a1.flush.bind(a1))();
+      await promisify(a2.flush.bind(a2))();
+
+      expect(events).to.have.lengthOf(4);
+      expect(
+        events.filter((e) => e[0] === 'track').map((e) => e[1].event)
+      ).to.deep.eq(['hi', 'hi', 'hi']);
     });
   });
 });
