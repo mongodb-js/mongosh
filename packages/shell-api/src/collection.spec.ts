@@ -2097,18 +2097,18 @@ describe('Collection', () => {
     });
 
     describe('getSearchIndexes', () => {
-      let descriptions;
+      let searchIndexes;
 
       beforeEach(() => {
-        descriptions = [{ name: 'foo', description: {} }, { name: 'bar', description: {} }];
-        serviceProvider.getSearchIndexes.resolves(descriptions);
+        searchIndexes = [{ name: 'foo' }, { name: 'bar' }];
+        serviceProvider.getSearchIndexes.resolves(searchIndexes);
       });
 
       context('without name or options', () => {
         it('calls serviceProvider.listSearchIndexes(), then toArray() on the returned cursor', async() => {
           const result = await collection.getSearchIndexes();
 
-          expect(result).to.equal(descriptions);
+          expect(result).to.equal(searchIndexes);
 
           expect(serviceProvider.getSearchIndexes).to.have.been.calledWith(
             'db1',
@@ -2122,7 +2122,7 @@ describe('Collection', () => {
         it('calls serviceProvider.listSearchIndexes(name), then toArray() on the returned cursor', async() => {
           const result = await collection.getSearchIndexes('my-index');
 
-          expect(result).to.equal(descriptions);
+          expect(result).to.equal(searchIndexes);
 
           expect(serviceProvider.getSearchIndexes).to.have.been.calledWith(
             'db1',
@@ -2137,7 +2137,7 @@ describe('Collection', () => {
           const options = { allowDiskUse: true };
           const result = await collection.getSearchIndexes(options);
 
-          expect(result).to.equal(descriptions);
+          expect(result).to.equal(searchIndexes);
 
           expect(serviceProvider.getSearchIndexes).to.have.been.calledWith(
             'db1',
@@ -2153,7 +2153,7 @@ describe('Collection', () => {
           const options = { allowDiskUse: true };
           const result = await collection.getSearchIndexes('my-index', options);
 
-          expect(result).to.equal(descriptions);
+          expect(result).to.equal(searchIndexes);
 
           expect(serviceProvider.getSearchIndexes).to.have.been.calledWith(
             'db1',
@@ -2177,7 +2177,7 @@ describe('Collection', () => {
           expect(serviceProvider.createSearchIndexes).to.have.been.calledWith(
             'db1',
             'coll1',
-            [ { name: 'default', description: {} }]
+            [ { name: 'default', definition: {} }]
           );
         });
       });
@@ -2189,7 +2189,7 @@ describe('Collection', () => {
           expect(serviceProvider.createSearchIndexes).to.have.been.calledWith(
             'db1',
             'coll1',
-            [ { name: 'my-index', description: {} }]
+            [ { name: 'my-index', definition: {} }]
           );
         });
       });
@@ -2201,7 +2201,7 @@ describe('Collection', () => {
           expect(serviceProvider.createSearchIndexes).to.have.been.calledWith(
             'db1',
             'coll1',
-            [ { name: 'default', description: { mappings: { dynamic: true } } }]
+            [ { name: 'default', definition: { mappings: { dynamic: true } } }]
           );
         });
       });
@@ -2213,7 +2213,7 @@ describe('Collection', () => {
           expect(serviceProvider.createSearchIndexes).to.have.been.calledWith(
             'db1',
             'coll1',
-            [ { name: 'my-index', description: { mappings: { dynamic: true } } }]
+            [ { name: 'my-index', definition: { mappings: { dynamic: true } } }]
           );
         });
       });
@@ -2225,12 +2225,12 @@ describe('Collection', () => {
       });
 
       it('calls serviceProvider.createIndexes', async() => {
-        await collection.createSearchIndexes([{ name: 'foo', description: { mappings: { dynamic: true } } }, { name: 'bar', description: {} }]);
+        await collection.createSearchIndexes([{ name: 'foo', definition: { mappings: { dynamic: true } } }, { name: 'bar', definition: {} }]);
 
         expect(serviceProvider.createSearchIndexes).to.have.been.calledWith(
           'db1',
           'coll1',
-          [{ name: 'foo', description: { mappings: { dynamic: true } } }, { name: 'bar', description: {} }]
+          [{ name: 'foo', definition: { mappings: { dynamic: true } } }, { name: 'bar', definition: {} }]
         );
       });
     });

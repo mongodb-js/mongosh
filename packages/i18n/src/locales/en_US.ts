@@ -712,7 +712,7 @@ const translations: Catalog = {
             createSearchIndex: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.createSearchIndex',
               description: 'Creates one search indexes on a collection',
-              example: 'db.coll.createSearchIndex(<name>, description)'
+              example: 'db.coll.createSearchIndex(<name>, definition)'
             },
             dropSearchIndex: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.collection.dropSearchIndex',

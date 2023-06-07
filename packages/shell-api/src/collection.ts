@@ -2080,17 +2080,17 @@ export default class Collection extends ShellApiWithMongoClass {
   @returnsPromise
   @apiVersions([])
   // TODO(MONGOSH-1471): use SearchIndexDescription once available
-  async createSearchIndex(indexName?: string|Document, description?: Document): Promise<string> {
+  async createSearchIndex(indexName?: string|Document, definition?: Document): Promise<string> {
     if (typeof indexName === 'object' && indexName !== null) {
-      description = indexName;
+      definition = indexName;
       indexName = undefined;
     }
 
-    this._emitCollectionApiCall('createSearchIndex', { indexName, description });
+    this._emitCollectionApiCall('createSearchIndex', { indexName, definition });
     const results = await this._mongo._serviceProvider.createSearchIndexes(
       this._database._name,
       this._name,
-      [{ name: (indexName as string|undefined) ?? 'default', description: { ...description } }]
+      [{ name: (indexName as string|undefined) ?? 'default', definition: { ...definition } }]
     );
     return results[0];
   }
@@ -2099,7 +2099,7 @@ export default class Collection extends ShellApiWithMongoClass {
   @returnsPromise
   @apiVersions([])
   // TODO(MONGOSH-1471): use SearchIndexDescription once available
-  async createSearchIndexes(specs: {name: string, description: Document}[]): Promise<string[]> {
+  async createSearchIndexes(specs: {name: string, definition: Document}[]): Promise<string[]> {
     this._emitCollectionApiCall('createSearchIndexes', { specs });
     return await this._mongo._serviceProvider.createSearchIndexes(
       this._database._name,
@@ -2124,13 +2124,13 @@ export default class Collection extends ShellApiWithMongoClass {
   @returnsPromise
   @apiVersions([])
   // TODO(MONGOSH-1471): use SearchIndexDescription once available
-  async updateSearchIndex(indexName: string, description: Document): Promise<void> {
-    this._emitCollectionApiCall('updateSearchIndex', { indexName, description });
+  async updateSearchIndex(indexName: string, definition: Document): Promise<void> {
+    this._emitCollectionApiCall('updateSearchIndex', { indexName, definition });
     return await this._mongo._serviceProvider.updateSearchIndex(
       this._database._name,
       this._name,
       indexName,
-      description
+      definition
     );
   }
 }

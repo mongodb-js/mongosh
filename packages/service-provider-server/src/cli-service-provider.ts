@@ -1224,12 +1224,16 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     database: string,
     collection: string,
     // TODO(MONGOSH-1471): use SearchIndexDescription[] once available
-    specs: {name: string, description: Document}[],
+    specs: {name: string, definition: Document}[],
     dbOptions?: DbOptions): Promise<string[]> {
+    const driverSpecs = specs.map(({ name, definition }) => {
+      // NOTE: Unlike in our docs or in the command, the driver calls it description, not definition
+      return { name, description: { ...definition } };
+    });
     return this.db(database, dbOptions)
       .collection(collection)
       // @ts-expect-error still @internal
-      .createSearchIndexes(specs);
+      .createSearchIndexes(driverSpecs);
   }
 
   dropSearchIndex(
@@ -1248,12 +1252,12 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     collection: string,
     indexName: string,
     // TODO(MONGOSH-1471): use SearchIndexDescription once available
-    description: any,
+    definition: Document,
     dbOptions?: DbOptions): Promise<void> {
     return this.db(database, dbOptions)
       .collection(collection)
       // @ts-expect-error still @internal
-      .updateSearchIndex(indexName, description);
+      .updateSearchIndex(indexName, definition);
   }
 }
 

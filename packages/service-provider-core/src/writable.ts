@@ -358,7 +358,7 @@ export default interface Writable {
     database: string,
     collection: string,
     // TODO(MONGOSH-1471): use SearchIndexDescription[] once available
-    specs: {name: string, description: Document}[],
+    specs: {name: string, definition: Document}[],
     dbOptions?: DbOptions
   ): Promise<string[]>
 
@@ -391,7 +391,7 @@ export default interface Writable {
     collection: string,
     index: string,
     // TODO(MONGOSH-1471): use SearchIndexDescription once available
-    description: any,
+    definition: Document,
     dbOptions?: DbOptions
   ): Promise<void>
 }
