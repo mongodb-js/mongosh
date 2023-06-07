@@ -2097,22 +2097,37 @@ describe('Collection', () => {
     });
 
     describe('getSearchIndexes', () => {
-      let descriptions;
+      let searchIndexes;
 
       beforeEach(() => {
-        descriptions = [{ name: 'foo', description: {} }, { name: 'bar', description: {} }];
-        serviceProvider.getSearchIndexes.resolves(descriptions);
+        searchIndexes = [{ name: 'foo' }, { name: 'bar' }];
+        serviceProvider.getSearchIndexes.resolves(searchIndexes);
       });
 
-      context('without options', () => {
+      context('without name or options', () => {
         it('calls serviceProvider.listSearchIndexes(), then toArray() on the returned cursor', async() => {
           const result = await collection.getSearchIndexes();
 
-          expect(result).to.equal(descriptions);
+          expect(result).to.equal(searchIndexes);
 
           expect(serviceProvider.getSearchIndexes).to.have.been.calledWith(
             'db1',
-            'coll1'
+            'coll1',
+            undefined
+          );
+        });
+      });
+
+      context('with name', () => {
+        it('calls serviceProvider.listSearchIndexes(name), then toArray() on the returned cursor', async() => {
+          const result = await collection.getSearchIndexes('my-index');
+
+          expect(result).to.equal(searchIndexes);
+
+          expect(serviceProvider.getSearchIndexes).to.have.been.calledWith(
+            'db1',
+            'coll1',
+            'my-index',
           );
         });
       });
@@ -2122,11 +2137,28 @@ describe('Collection', () => {
           const options = { allowDiskUse: true };
           const result = await collection.getSearchIndexes(options);
 
-          expect(result).to.equal(descriptions);
+          expect(result).to.equal(searchIndexes);
 
           expect(serviceProvider.getSearchIndexes).to.have.been.calledWith(
             'db1',
             'coll1',
+            undefined,
+            options
+          );
+        });
+      });
+
+      context('with name and options', () => {
+        it('calls serviceProvider.listSearchIndexes(name, options), then toArray() on the returned cursor', async() => {
+          const options = { allowDiskUse: true };
+          const result = await collection.getSearchIndexes('my-index', options);
+
+          expect(result).to.equal(searchIndexes);
+
+          expect(serviceProvider.getSearchIndexes).to.have.been.calledWith(
+            'db1',
+            'coll1',
+            'my-index',
             options
           );
         });
@@ -2138,14 +2170,52 @@ describe('Collection', () => {
         serviceProvider.createSearchIndexes.resolves(['index_1']);
       });
 
-      it('calls serviceProvider.createIndexes', async() => {
-        await collection.createSearchIndex({ name: 'foo', description: {} });
+      context('without anything', () => {
+        it('calls serviceProvider.createIndexes', async() => {
+          await collection.createSearchIndex();
 
-        expect(serviceProvider.createSearchIndexes).to.have.been.calledWith(
-          'db1',
-          'coll1',
-          [ { name: 'foo', description: {} }]
-        );
+          expect(serviceProvider.createSearchIndexes).to.have.been.calledWith(
+            'db1',
+            'coll1',
+            [ { name: 'default', definition: {} }]
+          );
+        });
+      });
+
+      context('with name', () => {
+        it('calls serviceProvider.createIndexes', async() => {
+          await collection.createSearchIndex('my-index');
+
+          expect(serviceProvider.createSearchIndexes).to.have.been.calledWith(
+            'db1',
+            'coll1',
+            [ { name: 'my-index', definition: {} }]
+          );
+        });
+      });
+
+      context('with options', () => {
+        it('calls serviceProvider.createIndexes', async() => {
+          await collection.createSearchIndex({ mappings: { dynamic: true } });
+
+          expect(serviceProvider.createSearchIndexes).to.have.been.calledWith(
+            'db1',
+            'coll1',
+            [ { name: 'default', definition: { mappings: { dynamic: true } } }]
+          );
+        });
+      });
+
+      context('with name, options', () => {
+        it('calls serviceProvider.createIndexes', async() => {
+          await collection.createSearchIndex('my-index', { mappings: { dynamic: true } });
+
+          expect(serviceProvider.createSearchIndexes).to.have.been.calledWith(
+            'db1',
+            'coll1',
+            [ { name: 'my-index', definition: { mappings: { dynamic: true } } }]
+          );
+        });
       });
     });
 
@@ -2155,12 +2225,12 @@ describe('Collection', () => {
       });
 
       it('calls serviceProvider.createIndexes', async() => {
-        await collection.createSearchIndexes([{ name: 'foo', description: {} }, { name: 'bar', description: {} }]);
+        await collection.createSearchIndexes([{ name: 'foo', definition: { mappings: { dynamic: true } } }, { name: 'bar', definition: {} }]);
 
         expect(serviceProvider.createSearchIndexes).to.have.been.calledWith(
           'db1',
           'coll1',
-          [{ name: 'foo', description: {} }, { name: 'bar', description: {} }]
+          [{ name: 'foo', definition: { mappings: { dynamic: true } } }, { name: 'bar', definition: {} }]
         );
       });
     });
@@ -2187,13 +2257,13 @@ describe('Collection', () => {
       });
 
       it('calls serviceProvider.updateSearchIndex', async() => {
-        await collection.updateSearchIndex('foo', { description: { x: 1, y: 2 } });
+        await collection.updateSearchIndex('foo', { mappings: { dynamic: true } });
 
         expect(serviceProvider.updateSearchIndex).to.have.been.calledWith(
           'db1',
           'coll1',
           'foo',
-          { description: { x: 1, y: 2 } }
+          { mappings: { dynamic: true } }
         );
       });
     });
@@ -2333,7 +2403,7 @@ describe('Collection', () => {
       unhideIndex: { m: 'runCommandWithCheck', i: 2 },
       remove: { m: 'deleteMany' },
       watch: { i: 1 },
-      getSearchIndexes: { i: 2 },
+      getSearchIndexes: { i: 3 },
     };
     const ignore: (keyof (typeof Collection)['prototype'])[] = [
       'getShardDistribution',

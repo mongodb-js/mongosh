@@ -869,8 +869,8 @@ describe('CliServiceProvider', () => {
 
     beforeEach(() => {
       descriptions = [
-        { name: 'foo', description: {} },
-        { name: 'bar', description: {} }
+        { name: 'foo' },
+        { name: 'bar' }
       ];
 
       nativeMethodResult = {
@@ -887,14 +887,30 @@ describe('CliServiceProvider', () => {
       serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus, dummyOptions);
     });
 
-    it('calls listSearchIndexes and toArray on the resulting cursor', async() => {
-      const result = await serviceProvider.getSearchIndexes(
-        'db1',
-        'coll1',
-        getSearchIndexesOptions);
-      expect(result).to.deep.equal(descriptions);
-      // @ts-expect-error still @internal
-      expect(collectionStub.listSearchIndexes).to.have.been.calledWith(getSearchIndexesOptions);
+    context('without indexName', () => {
+      it('calls listSearchIndexes and toArray on the resulting cursor', async() => {
+        const result = await serviceProvider.getSearchIndexes(
+          'db1',
+          'coll1',
+          null,
+          getSearchIndexesOptions);
+        expect(result).to.deep.equal(descriptions);
+        // @ts-expect-error still @internal
+        expect(collectionStub.listSearchIndexes).to.have.been.calledWith(null, getSearchIndexesOptions);
+      });
+    });
+
+    context('with indexName', () => {
+      it('calls listSearchIndexes and toArray on the resulting cursor', async() => {
+        const result = await serviceProvider.getSearchIndexes(
+          'db1',
+          'coll1',
+          'my-index',
+          getSearchIndexesOptions);
+        expect(result).to.deep.equal(descriptions);
+        // @ts-expect-error still @internal
+        expect(collectionStub.listSearchIndexes).to.have.been.calledWith('my-index', getSearchIndexesOptions);
+      });
     });
   });
 
@@ -904,8 +920,8 @@ describe('CliServiceProvider', () => {
 
     beforeEach(() => {
       descriptions = [
-        { name: 'foo', description: {} },
-        { name: 'bar', description: {} }
+        { name: 'foo', definition: {} },
+        { name: 'bar', definition: {} }
       ];
 
       nativeMethodResult = [
