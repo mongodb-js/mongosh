@@ -5,10 +5,10 @@ import {
 import type {
   AggregationCursor as ServiceProviderAggregationCursor
 } from '@mongosh/service-provider-core';
-import { AbstractCursor } from './abstract-cursor';
+import { AggregateOrFindCursor } from './aggregate-or-find-cursor';
 
 @shellApiClassDefault
-export default class AggregationCursor extends AbstractCursor<ServiceProviderAggregationCursor> {
+export default class AggregationCursor extends AggregateOrFindCursor<ServiceProviderAggregationCursor> {
   constructor(mongo: Mongo, cursor: ServiceProviderAggregationCursor) {
     super(mongo, cursor);
   }

@@ -4,19 +4,17 @@ import {
   returnType,
   ShellApiWithMongoClass,
   returnsPromise,
-  apiVersions
 } from './decorators';
 import type Mongo from './mongo';
 import type {
   Document,
-  ExplainVerbosityLike,
   FindCursor as ServiceProviderCursor,
   AggregationCursor as ServiceProviderAggregationCursor,
   RunCommandCursor as ServiceProviderRunCommandCursor
 } from '@mongosh/service-provider-core';
 import { asPrintable } from './enums';
 import { CursorIterationResult } from './result';
-import { iterate, validateExplainableVerbosity, markAsExplainOutput } from './helpers';
+import { iterate } from './helpers';
 
 @shellApiClassNoHelp
 export abstract class AbstractCursor<CursorType extends ServiceProviderAggregationCursor | ServiceProviderCursor | ServiceProviderRunCommandCursor> extends ShellApiWithMongoClass {
@@ -148,57 +146,7 @@ export abstract class AbstractCursor<CursorType extends ServiceProviderAggregati
     return result;
   }
 
-  @returnType('this')
-  projection(spec: Document): this {
-    (this._cursor as any).project(spec);
-    return this;
-  }
-
-  @returnType('this')
-  skip(value: number): this {
-    (this._cursor as any).skip(value);
-    return this;
-  }
-
-  @returnType('this')
-  sort(spec: Document): this {
-    (this._cursor as any).sort(spec);
-    return this;
-  }
-
   objsLeftInBatch(): number {
     return this._cursor.bufferedCount();
-  }
-
-  @returnsPromise
-  @apiVersions([1])
-  async explain(verbosity?: ExplainVerbosityLike): Promise<any> {
-    // TODO: @maurizio we should probably move this in the Explain class?
-    // NOTE: the node driver always returns the full explain plan
-    // for Cursor and the queryPlanner explain for AggregationCursor.
-    if (verbosity !== undefined) {
-      verbosity = validateExplainableVerbosity(verbosity);
-    }
-    const fullExplain: any = await (this._cursor as any).explain(verbosity);
-
-    const explain: any = {
-      ...fullExplain
-    };
-
-    if (
-      verbosity !== 'executionStats' &&
-      verbosity !== 'allPlansExecution' &&
-      explain.executionStats
-    ) {
-      delete explain.executionStats;
-    }
-
-    if (verbosity === 'executionStats' &&
-      explain.executionStats &&
-      explain.executionStats.allPlansExecution) {
-      delete explain.executionStats.allPlansExecution;
-    }
-
-    return markAsExplainOutput(explain);
   }
 }

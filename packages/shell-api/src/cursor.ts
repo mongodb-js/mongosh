@@ -22,10 +22,10 @@ import type {
   HedgeOptions
 } from '@mongosh/service-provider-core';
 import type Mongo from './mongo';
-import { AbstractCursor } from './abstract-cursor';
+import { AggregateOrFindCursor } from './aggregate-or-find-cursor';
 
 @shellApiClassDefault
-export default class Cursor extends AbstractCursor<ServiceProviderCursor> {
+export default class Cursor extends AggregateOrFindCursor<ServiceProviderCursor> {
   _tailable = false;
 
   constructor(mongo: Mongo, cursor: ServiceProviderCursor) {
