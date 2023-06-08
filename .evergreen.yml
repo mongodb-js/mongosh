@@ -5842,8 +5842,8 @@ functions:
           rm THIRD_PARTY_NOTICES.md
           npm run update-third-party-notices
 
-          # generate vulnerability report: can only fail if is not a patch.
-          npm run generate-vulnerability-report || { [ "$EVERGREEN_IS_PATCH" == "true" ] && exit 0; } || exit 1
+          # generate vulnerability report
+          npm run generate-vulnerability-report
 
           # if on main and not triggered by a tag, also create a ticket for each vulnerability found
           if [[ "${requester}" == "commit" ]]; then
