@@ -1230,6 +1230,55 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
       ...opts
     });
   }
+
+  getSearchIndexes(
+    database: string,
+    collection: string,
+    indexName?: string,
+    // TODO(MONGOSH-1471): use ListSearchIndexesOptions once available
+    options?: Document,
+    dbOptions?: DbOptions): Promise<Document[]> {
+    return this.db(database, dbOptions)
+      .collection(collection)
+      // @ts-expect-error still @internal
+      .listSearchIndexes(indexName, options).toArray();
+  }
+
+  createSearchIndexes(
+    database: string,
+    collection: string,
+    // TODO(MONGOSH-1471): use SearchIndexDescription[] once available
+    specs: {name: string, definition: Document}[],
+    dbOptions?: DbOptions): Promise<string[]> {
+    return this.db(database, dbOptions)
+      .collection(collection)
+      // @ts-expect-error still @internal
+      .createSearchIndexes(specs);
+  }
+
+  dropSearchIndex(
+    database: string,
+    collection: string,
+    indexName: string,
+    dbOptions?: DbOptions): Promise<void> {
+    return this.db(database, dbOptions)
+      .collection(collection)
+      // @ts-expect-error still @internal
+      .dropSearchIndex(indexName);
+  }
+
+  updateSearchIndex(
+    database: string,
+    collection: string,
+    indexName: string,
+    // TODO(MONGOSH-1471): use SearchIndexDescription once available
+    definition: Document,
+    dbOptions?: DbOptions): Promise<void> {
+    return this.db(database, dbOptions)
+      .collection(collection)
+      // @ts-expect-error still @internal
+      .updateSearchIndex(indexName, definition);
+  }
 }
 
 export default CliServiceProvider;

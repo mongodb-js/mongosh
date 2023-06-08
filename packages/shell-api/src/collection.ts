@@ -2069,4 +2069,81 @@ export default class Collection extends ShellApiWithMongoClass {
       checkMetadataConsistency: this._name
     });
   }
+
+  @serverVersions(['6.0.0', ServerVersions.latest])
+  @returnsPromise
+  @apiVersions([])
+  // TODO(MONGOSH-1471): use ListSearchIndexesOptions once available
+  async getSearchIndexes(indexName?: string|Document, options?: Document): Promise<Document[]> {
+    if (typeof indexName === 'object' && indexName !== null) {
+      options = indexName;
+      indexName = undefined;
+    }
+
+    this._emitCollectionApiCall('getSearchIndexes', { options });
+    return await this._mongo._serviceProvider.getSearchIndexes(
+      this._database._name,
+      this._name,
+      indexName as string|undefined,
+      { ...await this._database._baseOptions(), ...options }
+    );
+  }
+
+  @serverVersions(['6.0.0', ServerVersions.latest])
+  @returnsPromise
+  @apiVersions([])
+  // TODO(MONGOSH-1471): use SearchIndexDescription once available
+  async createSearchIndex(indexName?: string|Document, definition?: Document): Promise<string> {
+    if (typeof indexName === 'object' && indexName !== null) {
+      definition = indexName;
+      indexName = undefined;
+    }
+
+    this._emitCollectionApiCall('createSearchIndex', { indexName, definition });
+    const results = await this._mongo._serviceProvider.createSearchIndexes(
+      this._database._name,
+      this._name,
+      [{ name: (indexName as string|undefined) ?? 'default', definition: { ...definition } }]
+    );
+    return results[0];
+  }
+
+  @serverVersions(['6.0.0', ServerVersions.latest])
+  @returnsPromise
+  @apiVersions([])
+  // TODO(MONGOSH-1471): use SearchIndexDescription once available
+  async createSearchIndexes(specs: {name: string, definition: Document}[]): Promise<string[]> {
+    this._emitCollectionApiCall('createSearchIndexes', { specs });
+    return await this._mongo._serviceProvider.createSearchIndexes(
+      this._database._name,
+      this._name,
+      specs
+    );
+  }
+
+  @serverVersions(['6.0.0', ServerVersions.latest])
+  @returnsPromise
+  @apiVersions([])
+  async dropSearchIndex(indexName: string): Promise<void> {
+    this._emitCollectionApiCall('dropSearchIndex', { indexName });
+    return await this._mongo._serviceProvider.dropSearchIndex(
+      this._database._name,
+      this._name,
+      indexName
+    );
+  }
+
+  @serverVersions(['6.0.0', ServerVersions.latest])
+  @returnsPromise
+  @apiVersions([])
+  // TODO(MONGOSH-1471): use SearchIndexDescription once available
+  async updateSearchIndex(indexName: string, definition: Document): Promise<void> {
+    this._emitCollectionApiCall('updateSearchIndex', { indexName, definition });
+    return await this._mongo._serviceProvider.updateSearchIndex(
+      this._database._name,
+      this._name,
+      indexName,
+      definition
+    );
+  }
 }

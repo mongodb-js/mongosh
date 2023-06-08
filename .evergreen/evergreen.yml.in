@@ -543,8 +543,11 @@ functions:
           rm THIRD_PARTY_NOTICES.md
           npm run update-third-party-notices
 
-          # generate vulnerability report: can only fail if is not a patch.
-          npm run generate-vulnerability-report || { [ "$EVERGREEN_IS_PATCH" == "true" ] && exit 0; } || exit 1
+          # generate vulnerability report
+          set +e
+          npm run generate-vulnerability-report
+          return_code=$?
+          set -e
 
           # if on main and not triggered by a tag, also create a ticket for each vulnerability found
           if [[ "${requester}" == "commit" ]]; then
@@ -552,6 +555,13 @@ functions:
             export JIRA_PROJECT="MONGOSH"
             export JIRA_VULNERABILITY_BUILD_INFO="- [Evergreen task|$EVERGREEN_TASK_URL]"
             npm run create-vulnerability-tickets
+          else
+            cat .sbom/vulnerability-report.md
+          fi
+
+          # Fails if the report failed and is not a patch, including during releases:
+          if [[ "${is_patch}" != "true" ]]; then
+            exit $return_code
           fi
 
     - command: s3.put

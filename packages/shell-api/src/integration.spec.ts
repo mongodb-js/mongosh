@@ -626,6 +626,8 @@ describe('Shell API (integration)', function() {
       });
     });
 
+    // TODO(MONGOSH-1465): integration tests for search indexes
+
     describe('dataSize', () => {
       skipIfApiStrict();
 

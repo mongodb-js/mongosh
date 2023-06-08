@@ -2108,7 +2108,180 @@ describe('Collection', () => {
         expect.fail('Failed to throw');
       });
     });
+
+    describe('getSearchIndexes', () => {
+      let searchIndexes;
+
+      beforeEach(() => {
+        searchIndexes = [{ name: 'foo' }, { name: 'bar' }];
+        serviceProvider.getSearchIndexes.resolves(searchIndexes);
+      });
+
+      context('without name or options', () => {
+        it('calls serviceProvider.listSearchIndexes(), then toArray() on the returned cursor', async() => {
+          const result = await collection.getSearchIndexes();
+
+          expect(result).to.equal(searchIndexes);
+
+          expect(serviceProvider.getSearchIndexes).to.have.been.calledWith(
+            'db1',
+            'coll1',
+            undefined
+          );
+        });
+      });
+
+      context('with name', () => {
+        it('calls serviceProvider.listSearchIndexes(name), then toArray() on the returned cursor', async() => {
+          const result = await collection.getSearchIndexes('my-index');
+
+          expect(result).to.equal(searchIndexes);
+
+          expect(serviceProvider.getSearchIndexes).to.have.been.calledWith(
+            'db1',
+            'coll1',
+            'my-index',
+          );
+        });
+      });
+
+      context('with options', () => {
+        it('calls serviceProvider.listSearchIndexes(options), then toArray() on the returned cursor', async() => {
+          const options = { allowDiskUse: true };
+          const result = await collection.getSearchIndexes(options);
+
+          expect(result).to.equal(searchIndexes);
+
+          expect(serviceProvider.getSearchIndexes).to.have.been.calledWith(
+            'db1',
+            'coll1',
+            undefined,
+            options
+          );
+        });
+      });
+
+      context('with name and options', () => {
+        it('calls serviceProvider.listSearchIndexes(name, options), then toArray() on the returned cursor', async() => {
+          const options = { allowDiskUse: true };
+          const result = await collection.getSearchIndexes('my-index', options);
+
+          expect(result).to.equal(searchIndexes);
+
+          expect(serviceProvider.getSearchIndexes).to.have.been.calledWith(
+            'db1',
+            'coll1',
+            'my-index',
+            options
+          );
+        });
+      });
+    });
+
+    describe('createSearchIndex', () => {
+      beforeEach(() => {
+        serviceProvider.createSearchIndexes.resolves(['index_1']);
+      });
+
+      context('without anything', () => {
+        it('calls serviceProvider.createIndexes', async() => {
+          await collection.createSearchIndex();
+
+          expect(serviceProvider.createSearchIndexes).to.have.been.calledWith(
+            'db1',
+            'coll1',
+            [ { name: 'default', definition: {} }]
+          );
+        });
+      });
+
+      context('with name', () => {
+        it('calls serviceProvider.createIndexes', async() => {
+          await collection.createSearchIndex('my-index');
+
+          expect(serviceProvider.createSearchIndexes).to.have.been.calledWith(
+            'db1',
+            'coll1',
+            [ { name: 'my-index', definition: {} }]
+          );
+        });
+      });
+
+      context('with options', () => {
+        it('calls serviceProvider.createIndexes', async() => {
+          await collection.createSearchIndex({ mappings: { dynamic: true } });
+
+          expect(serviceProvider.createSearchIndexes).to.have.been.calledWith(
+            'db1',
+            'coll1',
+            [ { name: 'default', definition: { mappings: { dynamic: true } } }]
+          );
+        });
+      });
+
+      context('with name, options', () => {
+        it('calls serviceProvider.createIndexes', async() => {
+          await collection.createSearchIndex('my-index', { mappings: { dynamic: true } });
+
+          expect(serviceProvider.createSearchIndexes).to.have.been.calledWith(
+            'db1',
+            'coll1',
+            [ { name: 'my-index', definition: { mappings: { dynamic: true } } }]
+          );
+        });
+      });
+    });
+
+    describe('createSearchIndexes', () => {
+      beforeEach(() => {
+        serviceProvider.createSearchIndexes.resolves(['index_1', 'index_2']);
+      });
+
+      it('calls serviceProvider.createIndexes', async() => {
+        await collection.createSearchIndexes([{ name: 'foo', definition: { mappings: { dynamic: true } } }, { name: 'bar', definition: {} }]);
+
+        expect(serviceProvider.createSearchIndexes).to.have.been.calledWith(
+          'db1',
+          'coll1',
+          [{ name: 'foo', definition: { mappings: { dynamic: true } } }, { name: 'bar', definition: {} }]
+        );
+      });
+    });
+
+    describe('dropSearchIndex', () => {
+      beforeEach(() => {
+        serviceProvider.dropSearchIndex.resolves();
+      });
+
+      it('calls serviceProvider.dropSearchIndex', async() => {
+        await collection.dropSearchIndex('foo');
+
+        expect(serviceProvider.dropSearchIndex).to.have.been.calledWith(
+          'db1',
+          'coll1',
+          'foo'
+        );
+      });
+    });
+
+    describe('updateSearchIndex', () => {
+      beforeEach(() => {
+        serviceProvider.updateSearchIndex.resolves();
+      });
+
+      it('calls serviceProvider.updateSearchIndex', async() => {
+        await collection.updateSearchIndex('foo', { mappings: { dynamic: true } });
+
+        expect(serviceProvider.updateSearchIndex).to.have.been.calledWith(
+          'db1',
+          'coll1',
+          'foo',
+          { mappings: { dynamic: true } }
+        );
+      });
+    });
   });
+
   describe('fle2', () => {
     let mongo1: Mongo;
     let mongo2: Mongo;
@@ -2242,10 +2415,19 @@ describe('Collection', () => {
       hideIndex: { m: 'runCommandWithCheck', i: 2 },
       unhideIndex: { m: 'runCommandWithCheck', i: 2 },
       remove: { m: 'deleteMany' },
-      watch: { i: 1 }
+      watch: { i: 1 },
+      getSearchIndexes: { i: 3 },
     };
     const ignore: (keyof (typeof Collection)['prototype'])[] = [
-      'getShardDistribution', 'stats', 'isCapped', 'compactStructuredEncryptionData'
+      'getShardDistribution',
+      'stats',
+      'isCapped',
+      'compactStructuredEncryptionData',
+      // none of these search index helpers take an options param, so they don't take session
+      'createSearchIndex',
+      'createSearchIndexes',
+      'dropSearchIndex',
+      'updateSearchIndex',
     ];
     const args = [ { query: {} }, {}, { out: 'coll' } ];
     beforeEach(() => {
@@ -2262,6 +2444,10 @@ describe('Collection', () => {
       serviceProvider.listCollections.resolves([]);
       serviceProvider.watch.returns({ closed: false, tryNext: async() => {} } as any);
       serviceProvider.countDocuments.resolves(1);
+      serviceProvider.getSearchIndexes.resolves([]);
+      serviceProvider.createSearchIndexes.resolves(['index_1']);
+      serviceProvider.dropSearchIndex.resolves();
+      serviceProvider.updateSearchIndex.resolves();
 
       serviceProvider.runCommandWithCheck.resolves({ ok: 1, version: 1, bits: 1, commands: 1, users: [], roles: [], logComponentVerbosity: 1 });
       [ 'bulkWrite', 'deleteMany', 'deleteOne', 'insert', 'insertMany',
