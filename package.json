@@ -63,8 +63,8 @@
     "scan-node-js": "mongodb-sbom-tools scan-node-js --version=$NODE_JS_VERSION > .sbom/node-js-vuln.json",
     "snyk-test": "node scripts/snyk-test.js",
     "pregenerate-vulnerability-report": "npm run webpack-build -w packages/cli-repl && npm run snyk-test && npm run scan-node-js && npm run write-node-js-dep",
-    "generate-vulnerability-report": "mongodb-sbom-tools generate-vulnerability-report --snyk-reports=.sbom/snyk-test-result.json,.sbom/node-js-vuln.json --dependencies=.sbom/dependencies.json,.sbom/node-js-dep.json > .sbom/vulnerability-report.md",
-    "create-vulnerability-tickets": "mongodb-sbom-tools generate-vulnerability-report --snyk-reports=.sbom/snyk-test-result.json,.sbom/node-js-vuln.json --dependencies=.sbom/dependencies.json,.sbom/node-js-dep.json --fail-on=high --create-jira-issues"
+    "generate-vulnerability-report": "mongodb-sbom-tools generate-vulnerability-report --snyk-reports=.sbom/snyk-test-result.json,.sbom/node-js-vuln.json --dependencies=.sbom/dependencies.json,.sbom/node-js-dep.json --fail-on=high > .sbom/vulnerability-report.md",
+    "create-vulnerability-tickets": "mongodb-sbom-tools generate-vulnerability-report --snyk-reports=.sbom/snyk-test-result.json,.sbom/node-js-vuln.json --dependencies=.sbom/dependencies.json,.sbom/node-js-dep.json --create-jira-issues"
   },
   "config": {
     "unsafe-perm": true
