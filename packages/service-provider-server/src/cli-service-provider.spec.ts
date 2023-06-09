@@ -370,6 +370,32 @@ describe('CliServiceProvider', () => {
     });
   });
 
+  describe('#runCursorCommand', () => {
+    let clientStub: any;
+    let dbStub: any;
+    const commandResult = 'a-cursor';
+
+    beforeEach(() => {
+      dbStub = stubInterface<Db>();
+      clientStub = stubInterface<MongoClient>();
+      dbStub.runCursorCommand.returns(commandResult);
+      clientStub.db.returns(dbStub);
+      serviceProvider = new CliServiceProvider(clientStub, bus, dummyOptions);
+    });
+
+    afterEach(() => {
+      dbStub = null;
+      clientStub = null;
+      serviceProvider = null;
+    });
+
+    it('executes the command against the database', () => {
+      const result = serviceProvider.runCursorCommand('admin', { checkMetadataConsistency: 1 });
+      expect(result).to.deep.equal(commandResult);
+      expect(dbStub.runCursorCommand).to.have.been.calledWith({ checkMetadataConsistency: 1 });
+    });
+  });
+
   describe('#updateOne', () => {
     const filter = { name: 'Aphex Twin' };
     const update = { $set: { name: 'Richard James' } };

@@ -4,13 +4,14 @@ import {
   returnsPromise, serverVersions, apiVersions, ShellApiWithMongoClass, returnType
 } from './decorators';
 
-import type { Document } from '@mongosh/service-provider-core';
+import type { Document, CheckMetadataConsistencyOptions } from '@mongosh/service-provider-core';
 import { assertArgsDefinedType, getConfigDB, getPrintableShardStatus } from './helpers';
 import { ServerVersions, asPrintable } from './enums';
 import { CommandResult, UpdateResult } from './result';
 import { redactURICredentials } from '@mongosh/history';
 import Mongo from './mongo';
 import AggregationCursor from './aggregation-cursor';
+import RunCommandCursor from './run-command-cursor';
 import semver from 'semver';
 
 @shellApiClassDefault
@@ -532,5 +533,15 @@ export default class Shard extends ShellApiWithMongoClass {
       { $unset: { enableAutoMerge: 1 } },
       { writeConcern: { w: 'majority', wtimeout: 60000 } }
     ) as UpdateResult;
+  }
+
+  @returnsPromise
+  @serverVersions(['7.0.0', ServerVersions.latest])
+  async checkMetadataConsistency(options: CheckMetadataConsistencyOptions = {}): Promise<RunCommandCursor> {
+    this._emitShardApiCall('checkMetadataConsistency', { options });
+
+    return this._database._runAdminCursorCommand({
+      checkMetadataConsistency: 1
+    });
   }
 }

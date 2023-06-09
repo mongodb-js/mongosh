@@ -12,6 +12,7 @@ import Explainable from './explainable';
 import {
   FindCursor as ServiceProviderCursor,
   AggregationCursor as ServiceProviderAggregationCursor,
+  RunCommandCursor as ServiceProviderRunCommandCursor,
   ServiceProvider,
   bson,
   ClientSession as ServiceProviderSession
@@ -1983,6 +1984,18 @@ describe('Collection', () => {
       });
     });
 
+    describe('checkMetadataConsistency', () => {
+      it('calls serviceProvider.runCursorCommand and returns a RunCommandCursor', async() => {
+        const providerCursor = stubInterface<ServiceProviderRunCommandCursor>();
+        serviceProvider.runCursorCommand.returns(providerCursor);
+        const runCommandCursor = await collection.checkMetadataConsistency();
+        expect(runCommandCursor._cursor).to.equal(providerCursor);
+        expect(serviceProvider.runCursorCommand).to.have.been.calledWith(
+          'db1', { checkMetadataConsistency: 'coll1' }, {}
+        );
+      });
+    });
+
     describe('return information about the collection as metadata', () => {
       let serviceProviderCursor: StubbedInstance<ServiceProviderCursor>;
       let proxyCursor;
@@ -2404,6 +2417,7 @@ describe('Collection', () => {
       remove: { m: 'deleteMany' },
       watch: { i: 1 },
       getSearchIndexes: { i: 3 },
+      checkMetadataConsistency: { m: 'runCursorCommand', i: 2 }
     };
     const ignore: (keyof (typeof Collection)['prototype'])[] = [
       'getShardDistribution',

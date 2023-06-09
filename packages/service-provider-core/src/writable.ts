@@ -1,3 +1,4 @@
+import { RunCommandCursor, RunCursorCommandOptions } from 'mongodb';
 import type {
   Document,
   InsertOneOptions,
@@ -57,6 +58,20 @@ export default interface Writable {
     options: RunCommandOptions,
     dbOptions?: DbOptions
   ): Promise<Document>;
+
+  /**
+   * @param {String} db - the db name
+   * @param spec
+   * @param options
+   * @param {DbOptions} dbOptions - The database options
+   * @return {Promise<Document>}
+   */
+  runCursorCommand(
+    db: string,
+    spec: Document,
+    options: RunCursorCommandOptions,
+    dbOptions?: DbOptions
+  ): RunCommandCursor;
 
   /**
    * Drop a database

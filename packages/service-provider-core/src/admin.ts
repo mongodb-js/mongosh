@@ -30,6 +30,13 @@ export interface CreateEncryptedCollectionOptions {
   masterKey?: AWSEncryptionKeyOptions | AzureEncryptionKeyOptions | GCPEncryptionKeyOptions;
 }
 
+export interface CheckMetadataConsistencyOptions {
+  cursor?: {
+      batchSize: number
+  },
+  checkIndexes?: 1
+}
+
 export default interface Admin {
   /**
    * What platform (Compass/CLI/Browser)

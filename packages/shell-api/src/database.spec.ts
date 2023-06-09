@@ -10,6 +10,7 @@ import Mongo from './mongo';
 import {
   AggregationCursor as ServiceProviderAggCursor,
   FindCursor as ServiceProviderCursor,
+  RunCommandCursor as ServiceProviderRunCommandCursor,
   ServiceProvider,
   bson,
   ClientSession as ServiceProviderSession,
@@ -2804,6 +2805,18 @@ describe('Database', () => {
         expect(error.message).to.be.equal('any error');
       });
     });
+
+    describe('checkMetadataConsistency', () => {
+      it('calls serviceProvider.runCursorCommand and returns a RunCommandCursor', async() => {
+        const providerCursor = stubInterface<ServiceProviderRunCommandCursor>();
+        serviceProvider.runCursorCommand.returns(providerCursor);
+        const runCommandCursor = await database.checkMetadataConsistency();
+        expect(runCommandCursor._cursor).to.equal(providerCursor);
+        expect(serviceProvider.runCursorCommand).to.have.been.calledWith(
+          'db1', { checkMetadataConsistency: 1 }, {}
+        );
+      });
+    });
   });
   describe('with session', () => {
     let serviceProvider: StubbedInstance<ServiceProvider>;
@@ -2835,7 +2848,7 @@ describe('Database', () => {
       revokePrivilegesFromRole: { a: ['rolename', []] },
       setLogLevel: { a: [1] },
       setProfilingLevel: { a: [1] },
-      killOp: { a: [1] }
+      killOp: { a: [1] },
     };
     const ignore = [
       'auth',
@@ -2846,7 +2859,7 @@ describe('Database', () => {
       'getReplicationInfo',
       'setSecondaryOk',
       'createEncryptedCollection',
-      'sql'
+      'sql',
     ];
     const args = [{}, {}, {}];
     beforeEach(() => {

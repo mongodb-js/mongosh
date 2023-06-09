@@ -7,7 +7,9 @@ import {
   ReadPreferenceFromOptions,
   ReadPreferenceLike,
   OperationOptions,
-  BSON
+  BSON,
+  RunCommandCursor,
+  RunCursorCommandOptions
 } from 'mongodb';
 
 import {
@@ -828,6 +830,28 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
       throw new MongoshCommandFailed(JSON.stringify(spec));
     }
     return result as { ok: 1 };
+  }
+
+  /**
+   * Run a command against the database that returns a cursor.
+   *
+   * @param {String} database - The database name.
+   * @param {Object} spec - The command specification.
+   * @param {Object} options - The command  options.
+   * @param {Object} dbOptions - The connection-wide database options.
+   */
+  runCursorCommand(
+    database: string,
+    spec: Document = {},
+    options: RunCursorCommandOptions = {},
+    dbOptions?: DbOptions
+  ): RunCommandCursor {
+    options = { ...this.baseCmdOptions, ...options };
+    const db = this.db(database, dbOptions);
+    return db.runCursorCommand(
+      spec,
+      options
+    );
   }
 
   /**
