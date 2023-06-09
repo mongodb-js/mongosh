@@ -537,7 +537,7 @@ export default class Shard extends ShellApiWithMongoClass {
 
   @returnsPromise
   @serverVersions(['7.0.0', ServerVersions.latest])
-  checkMetadataConsistency(options: CheckMetadataConsistencyOptions = {}): Promise<RunCommandCursor> {
+  async checkMetadataConsistency(options: CheckMetadataConsistencyOptions = {}): Promise<RunCommandCursor> {
     this._emitShardApiCall('checkMetadataConsistency', { options });
 
     return this._database._runAdminCursorCommand({

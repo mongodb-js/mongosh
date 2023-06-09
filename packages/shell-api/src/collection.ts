@@ -2062,7 +2062,7 @@ export default class Collection extends ShellApiWithMongoClass {
   @serverVersions(['7.0.0', ServerVersions.latest])
   @topologies([Topologies.Sharded])
   @returnsPromise
-  checkMetadataConsistency(options: CheckMetadataConsistencyOptions = {}): Promise<RunCommandCursor> {
+  async checkMetadataConsistency(options: CheckMetadataConsistencyOptions = {}): Promise<RunCommandCursor> {
     this._emitCollectionApiCall('checkMetadataConsistency', { options });
 
     return this._database._runCursorCommand({

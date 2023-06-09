@@ -2417,6 +2417,7 @@ describe('Collection', () => {
       remove: { m: 'deleteMany' },
       watch: { i: 1 },
       getSearchIndexes: { i: 3 },
+      checkMetadataConsistency: { m: 'runCursorCommand', i: 2 }
     };
     const ignore: (keyof (typeof Collection)['prototype'])[] = [
       'getShardDistribution',

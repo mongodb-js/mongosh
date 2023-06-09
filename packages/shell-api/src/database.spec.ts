@@ -2848,7 +2848,7 @@ describe('Database', () => {
       revokePrivilegesFromRole: { a: ['rolename', []] },
       setLogLevel: { a: [1] },
       setProfilingLevel: { a: [1] },
-      killOp: { a: [1] }
+      killOp: { a: [1] },
     };
     const ignore = [
       'auth',
@@ -2859,7 +2859,7 @@ describe('Database', () => {
       'getReplicationInfo',
       'setSecondaryOk',
       'createEncryptedCollection',
-      'sql'
+      'sql',
     ];
     const args = [{}, {}, {}];
     beforeEach(() => {
