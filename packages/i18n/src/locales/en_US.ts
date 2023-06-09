@@ -1451,6 +1451,66 @@ const translations: Catalog = {
           description: 'Explainable Cursor. See the Cursor class help methods for more information'
         }
       },
+      RunCommandCursor: {
+        help: {
+          description: 'RunCommandCursor Class',
+          attributes: {
+            batchSize: {
+              description: 'Specifies the number of documents to return in each batch of the response from the MongoDB instance.',
+            },
+            close: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.close',
+              description: 'Instructs the server to close a cursor and free associated server resources. The server will automatically close cursors that have no remaining results, as well as cursors that have been idle for a period of time and lack the cursor.noCursorTimeout() option.',
+            },
+            forEach: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.forEach',
+              description: 'Iterates the cursor to apply a JavaScript function to each document from the cursor.',
+            },
+            hasNext: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.hasNext',
+              description: 'cursor.hasNext() returns true if the cursor returned by the db.collection.aggregate() can iterate further to return more documents. NOTE: if the cursor is tailable with awaitData then hasNext will block until a document is returned. To check if a document is in the cursor\'s batch without waiting, use tryNext instead',
+            },
+            isClosed: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.isClosed',
+              description: 'Returns true if the cursor is closed.',
+            },
+            isExhausted: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.isExhausted',
+              description: 'cursor.isExhausted() returns true if the cursor is closed and there are no remaining objects in the batch.',
+            },
+            itcount: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.itcount',
+              description: 'Counts the number of documents remaining in a cursor. itcount() is similar to cursor.count(), but actually executes the query on an existing iterator, exhausting its contents in the process.',
+            },
+            map: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.map',
+              description: 'Applies the first argument, a function, to each document visited by the cursor and collects the return values from successive application into an array.',
+            },
+            maxTimeMS: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.maxTimeMS',
+              description: 'Specifies a cumulative time limit in milliseconds for processing operations on a cursor.',
+            },
+            next: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.next',
+              description: 'The next document in the cursor returned by the db.collection.aggregate() method. NOTE: if the cursor is tailable with awaitData then next will block until a document is returned. To check if a document is in the cursor\'s batch without waiting, use tryNext instead',
+            },
+            objsLeftInBatch: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.objsLeftInBatch',
+              description: 'cursor.objsLeftInBatch() returns the number of documents remaining in the current batch.',
+            },
+            pretty: {
+              description: 'Deprecated. The shell provides auto-formatting so this method is no longer useful'
+            },
+            toArray: {
+              link: 'https://docs.mongodb.com/manual/reference/method/cursor.toArray',
+              description: 'The toArray() method returns an array that contains all the documents from a cursor. The method iterates completely the cursor, loading all the documents into RAM and exhausting the cursor.',
+            },
+            tryNext: {
+              description: 'If a document is in the cursor\'s batch it will be returned, otherwise null will be returned'
+            }
+          }
+        }
+      },
       ReplicaSet: {
         help: {
           description: 'Replica Set Class',

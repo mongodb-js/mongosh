@@ -281,8 +281,10 @@ describe('completer.completer', () => {
         .filter(c =>
           ![
             'count', 'update', 'remove', 'insert', 'save', 'findAndModify', 'reIndex', 'mapReduce',
-            // search index helpers are 6.0+
-            'getSearchIndexes', 'createSearchIndex', 'createSearchIndexes', 'dropSearchIndex', 'updateSearchIndex'
+            // 6.0+
+            'getSearchIndexes', 'createSearchIndex', 'createSearchIndexes', 'dropSearchIndex', 'updateSearchIndex',
+            // 7.0+
+            'checkMetadataConsistency'
           ].includes(c)
         )
         .map(c => `${i}${c}`);
