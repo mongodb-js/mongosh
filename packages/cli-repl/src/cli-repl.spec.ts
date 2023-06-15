@@ -941,6 +941,20 @@ describe('CliRepl', () => {
       expect(output).to.match(/For mongosh info see:/);
     });
 
+    it('does not emit warnings when connecting multiple times', async() => {
+      await cliRepl.start(await testServer.connectionString(), {});
+      let warnings = 0;
+      const warningListener = () => warnings++;
+      process.on('warning', warningListener);
+      try {
+        input.write('for (let i = 0; i < 10; i++) db.getMongo().setReadPref("primaryPreferred")\n');
+        await waitEval(cliRepl.bus);
+      } finally {
+        process.off('warning', warningListener);
+      }
+      expect(warnings).to.equal(0);
+    });
+
     verifyAutocompletion({
       testServer: testServer,
       wantWatch: false,
