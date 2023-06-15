@@ -40,7 +40,8 @@ describe('e2e', function() {
       expect(Object.keys(data)).to.deep.equal([
         'version', 'distributionKind', 'buildArch', 'buildPlatform',
         'buildTarget', 'buildTime', 'gitVersion', 'nodeVersion',
-        'opensslVersion', 'sharedOpenssl'
+        'opensslVersion', 'sharedOpenssl', 'runtimeArch', 'runtimePlatform',
+        'deps'
       ]);
       expect(data.version).to.be.a('string');
       expect(data.nodeVersion).to.be.a('string');
@@ -48,6 +49,8 @@ describe('e2e', function() {
       expect(['unpackaged', 'packaged', 'compiled'].includes(data.distributionKind)).to.be.true;
       expect(data.buildArch).to.be.a('string');
       expect(data.buildPlatform).to.be.a('string');
+      expect(data.runtimeArch).to.be.a('string');
+      expect(data.runtimePlatform).to.be.a('string');
       expect(data.opensslVersion).to.be.a('string');
       expect(data.sharedOpenssl).to.be.a('boolean');
       if (data.distributionKind !== 'unpackaged') {
@@ -57,6 +60,23 @@ describe('e2e', function() {
         expect(data.buildTime).to.equal(null);
         expect(data.gitVersion).to.equal(null);
       }
+      expect(Object.keys(data.deps)).to.deep.include([
+        'nodeDriverVersion', 'libmongocryptVersion',
+        'libmongocryptNodeBindingsVersion'
+      ]);
+      expect(data.deps.nodeDriverVersion).to.be.a('string');
+      expect(data.deps.libmongocryptVersion).to.be.a('string');
+      expect(data.deps.libmongocryptNodeBindingsVersion).to.be.a('string');
+    });
+
+    it('provides build info via the buildInfo() builtin', async() => {
+      const shell = TestShell.start({ args: [ '--quiet', '--eval', 'JSON.stringify(buildInfo().deps)', '--nodb' ] });
+      await shell.waitForExit();
+      shell.assertNoErrors();
+      const deps = JSON.parse(shell.output);
+      expect(deps.nodeDriverVersion).to.be.a('string');
+      expect(deps.libmongocryptVersion).to.be.a('string');
+      expect(deps.libmongocryptNodeBindingsVersion).to.be.a('string');
     });
   });
 

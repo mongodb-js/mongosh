@@ -151,6 +151,12 @@ function normalizeEndpointAndAuthConfiguration(
   ];
 }
 
+interface DependencyVersionInfo {
+  nodeDriverVersion?: string;
+  libmongocryptVersion?: string;
+  libmongocryptNodeBindingsVersion?: string;
+}
+
 /**
    * Encapsulates logic for the service provider for the mongosh CLI.
  */
@@ -242,6 +248,10 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     this.currentClientOptions = clientOptions;
     this.baseCmdOptions = { ... DEFAULT_BASE_OPTIONS }; // currently do not have any user-specified connection-wide command options, but I imagine we will eventually
     this.dbcache = new WeakMap();
+    this.fle = CliServiceProvider.getLibmongocryptBindings();
+  }
+
+  private static getLibmongocryptBindings(): FLE | undefined {
     try {
       // The .extension() call may seem unnecessary, since that is the default
       // for the top-level exports from mongodb-client-encryption anyway.
@@ -249,8 +259,21 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
       // since it is a native addon package; that means that if 'mongodb' is
       // included in the bundle, it won't be able to find it, and instead needs
       // to receive it as an explicitly passed dependency.
-      this.fle = require('mongodb-client-encryption').extension(require('mongodb'));
-    } catch { /* not empty */ }
+      return require('mongodb-client-encryption').extension(require('mongodb'));
+    } catch {
+      return undefined;
+    }
+  }
+
+  static getVersionInformation(): DependencyVersionInfo {
+    function tryCall<Fn extends() => any>(fn: Fn): ReturnType<Fn> | undefined {
+      try { return fn(); } catch { return; }
+    }
+    return {
+      nodeDriverVersion: tryCall(() => require('mongodb/package.json').version),
+      libmongocryptVersion: tryCall(() => this.getLibmongocryptBindings()?.ClientEncryption.libmongocryptVersion),
+      libmongocryptNodeBindingsVersion: tryCall(() => require('mongodb-client-encryption/package.json').version),
+    };
   }
 
   async getNewConnection(uri: string, options: Partial<DevtoolsConnectOptions> = {}): Promise<CliServiceProvider> {

@@ -21,7 +21,7 @@ export async function runSmokeTests(smokeTestServer: string | undefined, executa
     assert(!!smokeTestServer, 'Make sure MONGOSH_SMOKE_TEST_SERVER is set in CI');
   }
 
-  const expectFipsSupport = !!process.env.MONGOSH_SMOKE_TEST_OS_HAS_FIPS_SUPPORT && buildInfo().sharedOpenssl;
+  const expectFipsSupport = !!process.env.MONGOSH_SMOKE_TEST_OS_HAS_FIPS_SUPPORT && (await buildInfo()).sharedOpenssl;
   console.log('FIPS support required to pass?', { expectFipsSupport });
 
   for (const { input, output, testArgs, includeStderr, exitCode } of [{

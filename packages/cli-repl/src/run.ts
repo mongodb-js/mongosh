@@ -72,12 +72,12 @@ import net from 'net';
 
     if (options.version) {
       // eslint-disable-next-line no-console
-      console.log(buildInfo().version);
+      console.log((await buildInfo()).version);
       return;
     }
     if (options.buildInfo) {
       // eslint-disable-next-line no-console
-      console.log(JSON.stringify(buildInfo(), null, '  '));
+      console.log(JSON.stringify(await buildInfo({ withCryptSharedVersionInfo: true }), null, '  '));
       return;
     }
     if (options.smokeTests) {

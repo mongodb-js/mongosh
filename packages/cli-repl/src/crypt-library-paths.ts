@@ -1,3 +1,4 @@
+/* eslint-disable chai-friendly/no-unused-expressions */
 import path from 'path';
 import { promises as fs, constants as fsConstants } from 'fs';
 import type { MongoshBus } from '@mongosh/types';
@@ -17,7 +18,7 @@ export interface CryptLibraryPathResult {
  * that we are supposed to use.
  */
 export async function getCryptLibraryPaths(
-  bus: MongoshBus,
+  bus: MongoshBus | undefined = undefined,
   pretendProcessExecPathForTesting: string | undefined = undefined): Promise<CryptLibraryPathResult> {
   const execPath = pretendProcessExecPathForTesting ?? process.execPath;
 
@@ -41,7 +42,7 @@ export async function getCryptLibraryPaths(
       try {
         const permissionsMismatch = await ensureMatchingPermissions(libraryCandidate, execPathStat);
         if (permissionsMismatch) {
-          bus.emit('mongosh:crypt-library-load-skip', {
+          bus?.emit?.('mongosh:crypt-library-load-skip', {
             cryptSharedLibPath: libraryCandidate,
             reason: 'permissions mismatch',
             details: permissionsMismatch
@@ -54,17 +55,17 @@ export async function getCryptLibraryPaths(
           cryptSharedLibPath: libraryCandidate,
           expectedVersion: version
         };
-        bus.emit('mongosh:crypt-library-load-found', result);
+        bus?.emit?.('mongosh:crypt-library-load-found', result);
         return result;
       } catch (err: any) {
-        bus.emit('mongosh:crypt-library-load-skip', {
+        bus?.emit?.('mongosh:crypt-library-load-skip', {
           cryptSharedLibPath: libraryCandidate,
           reason: err.message
         });
       }
     }
   } else {
-    bus.emit('mongosh:crypt-library-load-skip', {
+    bus?.emit?.('mongosh:crypt-library-load-skip', {
       cryptSharedLibPath: '',
       reason: 'Skipping CSFLE library searching because this is not a single-executable mongosh'
     });
