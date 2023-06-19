@@ -69,8 +69,8 @@ class Queue<T> {
   pause() {
     this.state = 'paused';
   }
-  isPaused() {
-    return this.state === 'paused';
+  getState() {
+    return this.state;
   }
 }
 
@@ -148,10 +148,14 @@ export class ToggleableAnalytics implements MongoshAnalytics {
     if (!('userId' in firstArg && firstArg.userId) &&
         !('anonymousId' in firstArg && firstArg.anonymousId)) {
       const err = new Error('Telemetry setup is missing userId or anonymousId');
-      if (this._queue.isPaused()) {
-        this._pendingError ??= err;
-      } else {
-        throw err;
+      switch (this._queue.getState()) {
+        case 'enabled':
+          throw err;
+        case 'paused':
+          this._pendingError ??= err;
+          break;
+        default:
+          break;
       }
     }
   }
@@ -262,6 +266,7 @@ export class ThrottledAnalytics implements MongoshAnalytics {
       throw new Error('Identify can only be called once per user session');
     }
     this.currentUserId = message.userId ?? message.anonymousId;
+    console.log(this.currentUserId);
     this.restorePromise = this.restoreThrottleState().then((enabled) => {
       if (!enabled) {
         this.trackQueue.disable();
