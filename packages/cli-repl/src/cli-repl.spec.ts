@@ -1146,6 +1146,19 @@ describe('CliRepl', () => {
           expect(requests).to.have.lengthOf(0);
         });
 
+        it('throttles telemetry beyond a certain rage', async() => {
+          await cliRepl.start(await testServer.connectionString(), {});
+          for (let i = 0; i < 60; i++) {
+            input.write('db.hello()\n');
+          }
+          input.write('exit\n');
+          await waitBus(cliRepl.bus, 'mongosh:closed');
+          const events = requests.flatMap((req) => {
+            return JSON.parse(req.body).batch;
+          });
+          expect(events).to.have.lengthOf(30);
+        });
+
         context('with a 5.0+ server', () => {
           skipIfServerVersion(testServer, '<= 4.4');
 
