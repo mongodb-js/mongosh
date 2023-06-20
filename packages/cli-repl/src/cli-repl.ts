@@ -229,12 +229,12 @@ export class CliRepl implements MongoshIOProvider {
     logger.info('MONGOSH', mongoLogId(1_000_000_000), 'log', 'Starting log', {
       execPath: process.execPath,
       envInfo: redactSensitiveData(this.getLoggedEnvironmentVariables()),
-      ...buildInfo()
+      ...await buildInfo({ withCryptSharedVersionInfo: true })
     });
 
     let analyticsSetupError: Error | null = null;
     try {
-      this.setupAnalytics();
+      await this.setupAnalytics();
     } catch (err: any) {
       // Need to delay emitting the error on the bus so that logging is in place
       // as well
@@ -304,6 +304,7 @@ export class CliRepl implements MongoshIOProvider {
       throw err;
     }
     const initialized = await this.mongoshRepl.initialize(initialServiceProvider);
+    this.injectReplFunctions();
 
     const commandLineLoadFiles = this.cliOptions.fileNames ?? [];
     const evalScripts = this.cliOptions.eval ?? [];
@@ -372,12 +373,28 @@ export class CliRepl implements MongoshIOProvider {
     await this.mongoshRepl.startRepl(initialized);
   }
 
-  setupAnalytics(): void {
+  injectReplFunctions(): void {
+    const functions = {
+      async buildInfo() {
+        return await buildInfo({ withCryptSharedVersionInfo: true });
+      }
+    } as const;
+    const { context } = this.mongoshRepl.runtimeState().repl;
+    for (const [name, impl] of Object.entries(functions)) {
+      context[name] = (...args: Parameters<typeof impl>) => {
+        return Object.assign(impl(...args), {
+          [Symbol.for('@@mongosh.syntheticPromise')]: true
+        });
+      };
+    }
+  }
+
+  async setupAnalytics(): Promise<void> {
     if (process.env.IS_MONGOSH_EVERGREEN_CI && !this.analyticsOptions?.alwaysEnable) {
       throw new Error('no analytics setup for the mongosh CI environment');
     }
     // build-info.json is created as a part of the release process
-    const apiKey = this.analyticsOptions?.apiKey ?? buildInfo({ withSegmentApiKey: true }).segmentApiKey;
+    const apiKey = this.analyticsOptions?.apiKey ?? (await buildInfo({ withSegmentApiKey: true })).segmentApiKey;
     if (!apiKey) {
       throw new Error('no analytics API key defined');
     }
