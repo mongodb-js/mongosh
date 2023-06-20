@@ -283,6 +283,10 @@ export class ThrottledAnalytics implements MongoshAnalytics {
     this.trackQueue.push(message);
   }
 
+  // Tries to restore persisted throttle state and returns `true` if telemetry can
+  // be enabled on restore. This method must not throw exceptions, since there
+  // is nothing to handle them. If the error is unexpected, this method should
+  // return `false` to disable telemetry
   private async restoreThrottleState(): Promise<boolean> {
     if (!this.throttleOptions) {
       return true;
