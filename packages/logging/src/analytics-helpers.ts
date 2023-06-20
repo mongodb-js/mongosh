@@ -309,7 +309,10 @@ export class ThrottledAnalytics implements MongoshAnalytics {
       );
     } catch (e) {
       if ((e as any).code !== 'ENOENT') {
-        throw e;
+        // Any error except ENOENT means that we failed to restore state for
+        // some unknown / unexpected reason, ignore the error and assume that it
+        // is not safe to enable telemetry in that case
+        return false;
       }
     }
 
