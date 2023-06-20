@@ -266,7 +266,6 @@ export class ThrottledAnalytics implements MongoshAnalytics {
       throw new Error('Identify can only be called once per user session');
     }
     this.currentUserId = message.userId ?? message.anonymousId;
-    console.log(this.currentUserId);
     this.restorePromise = this.restoreThrottleState().then((enabled) => {
       if (!enabled) {
         this.trackQueue.disable();
