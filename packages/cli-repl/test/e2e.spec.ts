@@ -60,10 +60,6 @@ describe('e2e', function() {
         expect(data.buildTime).to.equal(null);
         expect(data.gitVersion).to.equal(null);
       }
-      expect(Object.keys(data.deps)).to.deep.include([
-        'nodeDriverVersion', 'libmongocryptVersion',
-        'libmongocryptNodeBindingsVersion'
-      ]);
       expect(data.deps.nodeDriverVersion).to.be.a('string');
       expect(data.deps.libmongocryptVersion).to.be.a('string');
       expect(data.deps.libmongocryptNodeBindingsVersion).to.be.a('string');
