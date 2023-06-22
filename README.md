@@ -153,7 +153,7 @@ npm run -w @mongosh/cli-repl start <... connection string, CLI args, etc.>
 Compile all Typescript:
 
 ```shell
-npm run compile-ts
+npm run compile
 ```
 
 Compile just the CLI ands its dependencies:

@@ -20,8 +20,8 @@
     "lint": "eslint --report-unused-disable-directives \"./{src,test}/**/*.{js,ts,tsx}\"",
     "check": "npm run lint && depcheck --skip-missing=true",
     "preprepublish": "rimraf ./lib",
-    "prepublish": "npm run compile-ts",
-    "compile-ts": "tsc -p tsconfig.json"
+    "prepublish": "npm run compile",
+    "compile": "tsc -p tsconfig.json"
   },
   "author": "",
   "license": "Apache-2.0",

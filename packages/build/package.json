@@ -13,8 +13,8 @@
     "unsafe-perm": true
   },
   "scripts": {
-    "compile-ts": "tsc -p tsconfig.json",
-    "prepublish": "npm run compile-ts",
+    "compile": "tsc -p tsconfig.json",
+    "prepublish": "npm run compile",
     "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 30000 -r ts-node/register \"./src/**/*.spec.ts\"",
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
     "lint": "eslint --report-unused-disable-directives \"./{src,test}/**/*.{js,ts,tsx}\"",
