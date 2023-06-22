@@ -229,7 +229,7 @@ export class CliRepl implements MongoshIOProvider {
     logger.info('MONGOSH', mongoLogId(1_000_000_000), 'log', 'Starting log', {
       execPath: process.execPath,
       envInfo: redactSensitiveData(this.getLoggedEnvironmentVariables()),
-      ...await buildInfo({ withCryptSharedVersionInfo: true })
+      ...await buildInfo()
     });
 
     let analyticsSetupError: Error | null = null;
@@ -376,7 +376,7 @@ export class CliRepl implements MongoshIOProvider {
   injectReplFunctions(): void {
     const functions = {
       async buildInfo() {
-        return await buildInfo({ withCryptSharedVersionInfo: true });
+        return await buildInfo();
       }
     } as const;
     const { context } = this.mongoshRepl.runtimeState().repl;
