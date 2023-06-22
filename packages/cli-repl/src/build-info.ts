@@ -1,6 +1,5 @@
 import os from 'os';
 import { CliServiceProvider } from '@mongosh/service-provider-server';
-import { getCryptLibraryPaths } from './crypt-library-paths';
 
 export interface BuildInfo {
   version: string;
@@ -16,9 +15,7 @@ export interface BuildInfo {
   opensslVersion: string;
   sharedOpenssl: boolean;
   segmentApiKey?: string;
-  deps: ReturnType<typeof CliServiceProvider.getVersionInformation> & {
-    cryptSharedLibraryVersion?: string;
-  }
+  deps: ReturnType<typeof CliServiceProvider.getVersionInformation>;
 }
 
 function getSystemArch(): typeof process['arch'] {
@@ -40,26 +37,15 @@ function getSystemArch(): typeof process['arch'] {
  * Return an object with information about this mongosh instance,
  * in particular, when it was built and how.
  */
+// eslint-disable-next-line @typescript-eslint/require-await
 export async function buildInfo({
   withSegmentApiKey,
-  withCryptSharedVersionInfo,
 }: {
   withSegmentApiKey?: boolean,
-  withCryptSharedVersionInfo?: boolean,
 } = {}): Promise<BuildInfo> {
   const dependencyVersionInfo: BuildInfo['deps'] = {
     ...CliServiceProvider.getVersionInformation()
   };
-  try {
-    if (withCryptSharedVersionInfo) {
-      const version = (await getCryptLibraryPaths()).expectedVersion?.versionStr;
-      if (version) {
-        dependencyVersionInfo.cryptSharedLibraryVersion = version;
-      }
-    }
-  } catch {
-    /* ignore */
-  }
 
   const runtimeData = {
     nodeVersion: process.version,

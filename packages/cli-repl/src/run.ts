@@ -77,7 +77,7 @@ import net from 'net';
     }
     if (options.buildInfo) {
       // eslint-disable-next-line no-console
-      console.log(JSON.stringify(await buildInfo({ withCryptSharedVersionInfo: true }), null, '  '));
+      console.log(JSON.stringify(await buildInfo(), null, '  '));
       return;
     }
     if (options.smokeTests) {
