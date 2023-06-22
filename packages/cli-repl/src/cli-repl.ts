@@ -22,7 +22,7 @@ import type { CryptLibraryPathResult } from './crypt-library-paths';
 import { formatForJSONOutput } from './format-json';
 import { MongoLogManager, MongoLogWriter, mongoLogId } from 'mongodb-log-writer';
 import MongoshNodeRepl, { MongoshNodeReplOptions, MongoshIOProvider } from './mongosh-repl';
-import { setupLoggerAndTelemetry, ToggleableAnalytics } from '@mongosh/logging';
+import { setupLoggerAndTelemetry, ToggleableAnalytics, ThrottledAnalytics } from '@mongosh/logging';
 import { MongoshBus, CliUserConfig, CliUserConfigValidator } from '@mongosh/types';
 import { promises as fs } from 'fs';
 import path from 'path';
@@ -408,7 +408,15 @@ export class CliRepl implements MongoshIOProvider {
         axiosRetryConfig: { retries: 0 }
       } as any /* axiosConfig and axiosRetryConfig are existing options, but don't have type definitions */
     );
-    this.toggleableAnalytics = new ToggleableAnalytics(this.segmentAnalytics);
+    this.toggleableAnalytics = new ToggleableAnalytics(
+      new ThrottledAnalytics({
+        target: this.segmentAnalytics,
+        throttle: {
+          rate: 30,
+          metadataPath: this.shellHomeDirectory.paths.shellLocalDataPath
+        }
+      })
+    );
   }
 
   setTelemetryEnabled(enabled: boolean): void {
@@ -742,7 +750,7 @@ export class CliRepl implements MongoshIOProvider {
       }
     }
     this.closing = true;
-    const analytics = this.segmentAnalytics;
+    const analytics = this.toggleableAnalytics;
     let flushError: string | null = null;
     let flushDuration: number | null = null;
     if (analytics) {

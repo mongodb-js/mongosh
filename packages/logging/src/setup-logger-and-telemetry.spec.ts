@@ -19,7 +19,8 @@ describe('setupLoggerAndTelemetry', () => {
   } as any);
   const analytics = {
     identify(info: any) { analyticsOutput.push(['identify', info]); },
-    track(info: any) { analyticsOutput.push(['track', info]); }
+    track(info: any) { analyticsOutput.push(['track', info]); },
+    flush() {}
   };
 
   beforeEach(() => {

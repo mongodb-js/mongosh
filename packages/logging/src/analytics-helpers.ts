@@ -1,25 +1,77 @@
-export type MongoshAnalyticsIdentity = {
-  userId: string;
-} | {
-  anonymousId: string;
+import fs from 'fs';
+import path from 'path';
+
+export type MongoshAnalyticsIdentity =
+  | {
+      userId: string;
+      anonymousId?: never;
+    }
+  | {
+      userId?: never;
+      anonymousId: string;
+    };
+
+type AnalyticsIdentifyMessage = MongoshAnalyticsIdentity & {
+  traits: { platform: string };
+};
+
+type AnalyticsTrackMessage = MongoshAnalyticsIdentity & {
+  event: string;
+  properties: {
+    // eslint-disable-next-line camelcase
+    mongosh_version: string;
+    [key: string]: any;
+  };
 };
 
 /**
  * General interface for an Analytics provider that mongosh can use.
  */
 export interface MongoshAnalytics {
-  identify(message: MongoshAnalyticsIdentity & {
-    traits: { platform: string }
-  }): void;
+  identify(message: AnalyticsIdentifyMessage): void;
 
-  track(message: MongoshAnalyticsIdentity & {
-    event: string,
-    properties: {
-      // eslint-disable-next-line camelcase
-      mongosh_version: string,
-      [key: string]: any;
+  track(message: AnalyticsTrackMessage): void;
+
+  // NB: Callback and not a promise to match segment analytics interface so it's
+  // easier to pass it to the helpers constructor
+  flush(callback: (err?: Error) => void): void;
+}
+
+class Queue<T> {
+  private queue: T[] = [];
+  private state: 'paused' | 'enabled' | 'disabled' = 'paused';
+  constructor(private applyFn: (val: T) => void) {}
+  push(val: T) {
+    switch (this.state) {
+      case 'paused':
+        this.queue.push(val);
+        return;
+      case 'enabled':
+        this.applyFn(val);
+        return;
+      case 'disabled':
+      default:
+        return;
     }
-  }): void;
+  }
+  enable() {
+    this.state = 'enabled';
+    const queue = this.queue;
+    this.queue = [];
+    queue.forEach((val) => {
+      this.applyFn(val);
+    });
+  }
+  disable() {
+    this.state = 'disabled';
+    this.queue = [];
+  }
+  pause() {
+    this.state = 'paused';
+  }
+  getState() {
+    return this.state;
+  }
 }
 
 /**
@@ -30,15 +82,28 @@ export interface MongoshAnalytics {
 export class NoopAnalytics implements MongoshAnalytics {
   identify(_info: any): void {} // eslint-disable-line @typescript-eslint/no-unused-vars
   track(_info: any): void {} // eslint-disable-line @typescript-eslint/no-unused-vars
+  flush(cb: () => void) {
+    cb();
+  }
 }
+
+type AnalyticsEventsQueueItem =
+  | ['identify', Parameters<MongoshAnalytics['identify']>]
+  | ['track', Parameters<MongoshAnalytics['track']>];
 
 /**
  * An implementation of MongoshAnalytics that forwards to another implementation
  * and can be enabled/paused/disabled.
  */
 export class ToggleableAnalytics implements MongoshAnalytics {
-  _queue: Array<['identify', Parameters<MongoshAnalytics['identify']>] | ['track', Parameters<MongoshAnalytics['track']>]> = [];
-  _state: 'enabled' | 'disabled' | 'paused' = 'paused';
+  _queue = new Queue<AnalyticsEventsQueueItem>((item) => {
+    if (item[0] === 'identify') {
+      this._target.identify(...item[1]);
+    }
+    if (item[0] === 'track') {
+      this._target.track(...item[1]);
+    }
+  });
   _target: MongoshAnalytics;
   _pendingError?: Error;
 
@@ -48,53 +113,28 @@ export class ToggleableAnalytics implements MongoshAnalytics {
 
   identify(...args: Parameters<MongoshAnalytics['identify']>): void {
     this._validateArgs(args);
-    switch (this._state) {
-      case 'enabled':
-        this._target.identify(...args);
-        break;
-      case 'paused':
-        this._queue.push(['identify', args]);
-        break;
-      default:
-        break;
-    }
+    this._queue.push(['identify', args]);
   }
 
   track(...args: Parameters<MongoshAnalytics['track']>): void {
     this._validateArgs(args);
-    switch (this._state) {
-      case 'enabled':
-        this._target.track(...args);
-        break;
-      case 'paused':
-        this._queue.push(['track', args]);
-        break;
-      default:
-        break;
-    }
+    this._queue.push(['track', args]);
   }
 
   enable() {
     if (this._pendingError) {
       throw this._pendingError;
     }
-    this._state = 'enabled';
-    const queue = this._queue;
-    this._queue = [];
-    for (const entry of queue) {
-      if (entry[0] === 'identify') this.identify(...entry[1]);
-      if (entry[0] === 'track') this.track(...entry[1]);
-    }
+    this._queue.enable();
   }
 
   disable() {
-    this._state = 'disabled';
     this._pendingError = undefined;
-    this._queue = [];
+    this._queue.disable();
   }
 
   pause() {
-    this._state = 'paused';
+    this._queue.pause();
   }
 
   _validateArgs([firstArg]: [MongoshAnalyticsIdentity]): void {
@@ -108,7 +148,7 @@ export class ToggleableAnalytics implements MongoshAnalytics {
     if (!('userId' in firstArg && firstArg.userId) &&
         !('anonymousId' in firstArg && firstArg.anonymousId)) {
       const err = new Error('Telemetry setup is missing userId or anonymousId');
-      switch (this._state) {
+      switch (this._queue.getState()) {
         case 'enabled':
           throw err;
         case 'paused':
@@ -118,5 +158,213 @@ export class ToggleableAnalytics implements MongoshAnalytics {
           break;
       }
     }
+  }
+
+  flush(callback: (err?: Error | undefined) => void): void {
+    return this._target.flush(callback);
+  }
+}
+
+type ThrottledAnalyticsOptions = {
+  target: MongoshAnalytics;
+  /**
+   * Throttling options. If not provided, throttling is disabled (default: null)
+   */
+  throttle: {
+    /** Allowed events per timeframe number */
+    rate: number;
+    /** Timeframe for throttling in milliseconds (default: 60_000ms) */
+    timeframe?: number;
+    /** Path to persist rpm value to be able to track them between sessions */
+    metadataPath: string;
+    /** Duration in milliseconds in which the lock is considered stale (default: 43_200_000) */
+    lockfileStaleDuration?: number;
+  } | null;
+};
+
+async function lockfile(
+  filepath: string,
+  staleDuration = 43_200_000
+): Promise<() => Promise<void>> {
+  let intervalId: ReturnType<typeof setInterval>;
+  const lockfilePath = `${filepath}.lock`;
+  const unlock = async() => {
+    clearInterval(intervalId);
+    try {
+      return await fs.promises.rmdir(lockfilePath);
+    } catch {
+      // ignore update errors
+    }
+  };
+  try {
+    await fs.promises.mkdir(lockfilePath);
+    // Set up an interval update for lockfile mtime so that if the lockfile is
+    // created by long running process (longer than staleDuration) we make sure
+    // that another process doesn't consider lockfile stale
+    intervalId = setInterval(() => {
+      const now = Date.now();
+      fs.promises.utimes(lockfilePath, now, now).catch(() => {});
+    }, staleDuration / 2);
+    // eslint-disable-next-line chai-friendly/no-unused-expressions
+    intervalId.unref?.();
+    return unlock;
+  } catch (e) {
+    if ((e as any).code !== 'EEXIST') {
+      throw e;
+    }
+    const stats = await fs.promises.stat(lockfilePath);
+    // To make sure that the lockfile is not just a leftover from an unclean
+    // process exit, we check whether or not it is stale
+    if (Date.now() - stats.mtimeMs > staleDuration) {
+      await fs.promises.rmdir(lockfilePath);
+      return lockfile(filepath, staleDuration);
+    }
+    throw new Error(`File ${filepath} already locked`);
+  }
+}
+
+export class ThrottledAnalytics implements MongoshAnalytics {
+  private trackQueue = new Queue<AnalyticsTrackMessage>((message) => {
+    if (this.shouldEmitAnalyticsEvent()) {
+      this.target.track(message);
+      this.throttleState.count++;
+    }
+  });
+  private target: ThrottledAnalyticsOptions['target'] = new NoopAnalytics();
+  private currentUserId: string | null = null;
+  private throttleOptions: ThrottledAnalyticsOptions['throttle'] = null;
+  private throttleState = { count: 0, timestamp: Date.now() };
+  private restorePromise: Promise<void> = Promise.resolve();
+  private unlock: () => Promise<void> = () => Promise.resolve();
+
+  constructor({ target, throttle }: Partial<ThrottledAnalyticsOptions> = {}) {
+    this.target = target ?? this.target;
+    this.throttleOptions = throttle ?? this.throttleOptions;
+  }
+
+  get metadataPath() {
+    if (!this.throttleOptions) {
+      throw new Error(
+        'Metadata path is not avaialble if throttling is disabled'
+      );
+    }
+
+    if (!this.currentUserId) {
+      throw new Error('Metadata path is not avaialble if userId is not set');
+    }
+
+    const {
+      throttleOptions: { metadataPath },
+      currentUserId: userId
+    } = this;
+
+    return path.resolve(metadataPath, `am-${userId}.json`);
+  }
+
+  identify(message: AnalyticsIdentifyMessage): void {
+    if (this.currentUserId) {
+      throw new Error('Identify can only be called once per user session');
+    }
+    this.currentUserId = message.userId ?? message.anonymousId;
+    this.restorePromise = this.restoreThrottleState().then((enabled) => {
+      if (!enabled) {
+        this.trackQueue.disable();
+        return;
+      }
+      if (this.shouldEmitAnalyticsEvent()) {
+        this.target.identify(message);
+        this.throttleState.count++;
+      }
+      this.trackQueue.enable();
+    });
+  }
+
+  track(message: AnalyticsTrackMessage): void {
+    this.trackQueue.push(message);
+  }
+
+  // Tries to restore persisted throttle state and returns `true` if telemetry can
+  // be enabled on restore. This method must not throw exceptions, since there
+  // is nothing to handle them. If the error is unexpected, this method should
+  // return `false` to disable telemetry
+  private async restoreThrottleState(): Promise<boolean> {
+    if (!this.throttleOptions) {
+      return true;
+    }
+
+    if (!this.currentUserId) {
+      throw new Error('Trying to restore throttle state before userId is set');
+    }
+
+    try {
+      this.unlock = await lockfile(
+        this.metadataPath,
+        this.throttleOptions.lockfileStaleDuration
+      );
+    } catch (e) {
+      // Error while locking means that lock already exists or something
+      // unexpected happens, in either case we disable telemetry
+      return false;
+    }
+
+    try {
+      this.throttleState = JSON.parse(
+        await fs.promises.readFile(this.metadataPath, 'utf8')
+      );
+    } catch (e) {
+      if ((e as any).code !== 'ENOENT') {
+        // Any error except ENOENT means that we failed to restore state for
+        // some unknown / unexpected reason, ignore the error and assume that it
+        // is not safe to enable telemetry in that case
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  private shouldEmitAnalyticsEvent() {
+    // No throttle options indicate that throttling is disabled
+    if (!this.throttleOptions) {
+      return true;
+    }
+    // If throttle window passed, reset throttle state and allow to emit event
+    if (
+      Date.now() - this.throttleState.timestamp >
+      (this.throttleOptions.timeframe ?? 60_000)
+    ) {
+      this.throttleState.timestamp = Date.now();
+      this.throttleState.count = 0;
+      return true;
+    }
+    // Otherwise only allow if the count below the allowed rate
+    return this.throttleState.count < this.throttleOptions.rate;
+  }
+
+  flush(callback: (err?: Error | undefined) => void): void {
+    if (!this.throttleOptions) {
+      this.target.flush(callback);
+      return;
+    }
+
+    if (!this.currentUserId) {
+      callback(
+        new Error('Trying to persist throttle state before userId is set')
+      );
+      return;
+    }
+
+    this.restorePromise.finally(async() => {
+      try {
+        await fs.promises.writeFile(
+          this.metadataPath,
+          JSON.stringify(this.throttleState)
+        );
+        await this.unlock();
+        this.target.flush(callback);
+      } catch (e) {
+        callback(e as Error);
+      }
+    });
   }
 }
