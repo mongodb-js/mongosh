@@ -28,7 +28,7 @@
     "unitTestsOnly": true
   },
   "devDependencies": {
-    "eslint": "^8.43.0",
+    "eslint": "^7.25.0",
     "mocha": "^10.2.0"
   },
   "dependencies": {

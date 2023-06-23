@@ -29,6 +29,6 @@
     "unitTestsOnly": true
   },
   "devDependencies": {
-    "eslint": "^8.43.0"
+    "eslint": "^7.25.0"
   }
 }

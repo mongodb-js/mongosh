@@ -95,7 +95,7 @@
     "@types/text-table": "^0.2.1",
     "@types/yargs-parser": "^15.0.0",
     "chai-as-promised": "^7.1.1",
-    "eslint": "^8.43.0",
+    "eslint": "^7.25.0",
     "lodash": "^4.17.21",
     "moment": "^2.29.1",
     "mongodb-crypt-library-dummy": "^1.0.2"

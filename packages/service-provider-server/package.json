@@ -67,6 +67,6 @@
     "mongodb-client-encryption": "^2.8.0"
   },
   "devDependencies": {
-    "eslint": "^8.43.0"
+    "eslint": "^7.25.0"
   }
 }

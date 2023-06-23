@@ -1,5 +1,5 @@
 import * as babel from '@babel/core';
-import * as BabelTypes from '@babel/types';
+import type * as BabelTypes from '@babel/types';
 
 // Babel plugin that turns all single-line // comments into /* ... */ block comments
 function lineCommentToBlockComment(): babel.PluginObj {
@@ -46,7 +46,7 @@ function multilineTemplateStringToSingleLine({ types: t }: { types: typeof Babel
   return {
     visitor: {
       TemplateLiteral(path) {
-        if (!path.node.quasis.some(({ value }) => value.raw.match(/[\r\n]/))) {
+        if (!path.node.quasis.some(({ value }) => /[\r\n]/.exec(value.raw))) {
           return; // is already single line, nothing to do
         }
         if (path.parentPath.isTaggedTemplateExpression()) {
@@ -81,7 +81,7 @@ export function makeMultilineJSIntoSingleLine(src: string): string {
   // ASI and *only* ASI and leaves the source intact otherwise.
   let postASI: string;
   try {
-    // eslint-disable-next-line no-sync
+     
     postASI = babel.transformSync(src, {
       retainLines: true,
       compact: false,

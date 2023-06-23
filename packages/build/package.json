@@ -42,7 +42,7 @@
     "@types/cross-spawn": "^6.0.2",
     "@types/es-aggregate-error": "^1.0.2",
     "cross-spawn": "^7.0.3",
-    "eslint": "^8.43.0",
+    "eslint": "^7.25.0",
     "sinon-chai": "^3.5.0"
   },
   "dependencies": {

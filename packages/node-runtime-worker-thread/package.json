@@ -34,7 +34,7 @@
     "@mongosh/service-provider-server": "0.0.0-dev.0",
     "@mongosh/types": "0.0.0-dev.0",
     "bson": "^5.2.0",
-    "eslint": "^8.43.0",
+    "eslint": "^7.25.0",
     "mocha": "^10.2.0",
     "postmsg-rpc": "^2.4.0"
   },

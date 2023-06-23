@@ -43,7 +43,7 @@
     "@types/cross-spawn": "^6.0.2",
     "@types/node-fetch": "^2.5.7",
     "@types/tar": "^4.0.4",
-    "eslint": "^8.43.0",
+    "eslint": "^7.25.0",
     "nanobus": "^4.4.0"
   }
 }

@@ -33,6 +33,6 @@
     "mongodb-redact": "^0.2.2"
   },
   "devDependencies": {
-    "eslint": "^8.43.0"
+    "eslint": "^7.25.0"
   }
 }
