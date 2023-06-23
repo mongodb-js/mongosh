@@ -18,20 +18,20 @@
     "url": "git://github.com/mongodb-js/mongosh.git"
   },
   "scripts": {
-    "compile-ts": "tsc -p tsconfig.json",
+    "compile": "tsc -p tsconfig.json",
     "start": "node bin/mongosh.js",
-    "pretest": "npm run compile-ts",
+    "pretest": "npm run compile",
     "test": "cross-env TS_NODE_PROJECT=../../config/tsconfig.test.json mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 -r ts-node/register \"./{src,test}/**/*.spec.ts\"",
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
     "test-apistrict-ci": "cross-env MONGOSH_TEST_FORCE_API_STRICT=1 npm run test-ci",
-    "pretest-e2e": "npm run compile-ts",
+    "pretest-e2e": "npm run compile",
     "test-e2e": "cross-env TS_NODE_PROJECT=../../config/tsconfig.test.json mocha -r \"../../scripts/import-expansions.js\" --timeout 15000 --colors -r ts-node/register \"./test/e2e*.spec.ts\"",
     "test-e2e-ci": "cross-env TS_NODE_PROJECT=../../config/tsconfig.test.json mocha -r \"../../scripts/import-expansions.js\" --timeout 15000 --colors -r ts-node/register \"./test/e2e*.spec.ts\"",
     "lint": "eslint --report-unused-disable-directives \"./{src,test}/**/*.{js,ts,tsx}\"",
     "check": "npm run lint && depcheck --skip-missing=true",
-    "prepublish": "npm run compile-ts",
-    "webpack-build": "npm run compile-ts && webpack --mode production",
-    "webpack-build-dev": "npm run compile-ts && webpack --mode development"
+    "prepublish": "npm run compile",
+    "webpack-build": "npm run compile && webpack --mode production",
+    "webpack-build-dev": "npm run compile && webpack --mode development"
   },
   "license": "Apache-2.0",
   "publishConfig": {

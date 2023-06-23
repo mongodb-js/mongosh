@@ -4,14 +4,14 @@
   "description": "MongoDB Shell Async Rewriter Package",
   "main": "./lib/index.js",
   "scripts": {
-    "pretest": "npm run compile-ts",
+    "pretest": "npm run compile",
     "benchmark": "node -r ts-node/register benchmark/index.ts",
     "test": "mocha --experimental-vm-modules -r \"../../scripts/import-expansions.js\" --timeout 60000 -r ts-node/register \"./{src,lib}/**/*.spec.ts\"",
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
     "lint": "eslint --report-unused-disable-directives \"./{src,test}/**/*.{js,ts,tsx}\"",
     "check": "npm run lint && depcheck --skip-missing=true",
-    "compile-ts": "node bin/make-runtime-support.js --firstpass && tsc -p tsconfig.json && node bin/make-runtime-support.js --secondpass && tsc -p tsconfig.json",
-    "prepublish": "npm run compile-ts"
+    "compile": "node bin/make-runtime-support.js --firstpass && tsc -p tsconfig.json && node bin/make-runtime-support.js --secondpass && tsc -p tsconfig.json",
+    "prepublish": "npm run compile"
   },
   "bin": {
     "async-rewrite": "bin/async-rewrite.js"
