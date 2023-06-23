@@ -29,7 +29,11 @@
   "mongosh": {
     "unitTestsOnly": true,
     "ciRequiredOptionalDependencies": {
-      "mongodb-client-encryption": ["darwin", "linux", "win32"]
+      "mongodb-client-encryption": [
+        "darwin",
+        "linux",
+        "win32"
+      ]
     }
   },
   "dependencies": {
@@ -52,5 +56,8 @@
       "uuid",
       "encoding"
     ]
+  },
+  "devDependencies": {
+    "eslint": "^8.43.0"
   }
 }

@@ -42,13 +42,14 @@
     "@types/cross-spawn": "^6.0.2",
     "@types/es-aggregate-error": "^1.0.2",
     "cross-spawn": "^7.0.3",
+    "eslint": "^8.43.0",
     "sinon-chai": "^3.5.0"
   },
   "dependencies": {
-    "@mongodb-js/dl-center": "^1.0.1",
     "@mongodb-js/devtools-github-repo": "^1.0.1",
+    "@mongodb-js/dl-center": "^1.0.1",
+    "es-aggregate-error": "^1.0.9",
     "node-fetch": "^2.6.0",
-    "pkg-up": "^3.1.0",
-    "es-aggregate-error": "^1.0.9"
+    "pkg-up": "^3.1.0"
   }
 }

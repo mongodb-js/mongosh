@@ -39,6 +39,7 @@
     "mustache": "^4.0.0"
   },
   "devDependencies": {
-    "@types/mustache": "^4.0.1"
+    "@types/mustache": "^4.0.1",
+    "eslint": "^8.43.0"
   }
 }

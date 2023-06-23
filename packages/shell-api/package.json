@@ -42,6 +42,7 @@
     "mongodb-redact": "^0.2.2"
   },
   "devDependencies": {
-    "@mongosh/types": "0.0.0-dev.0"
+    "@mongosh/types": "0.0.0-dev.0",
+    "eslint": "^8.43.0"
   }
 }

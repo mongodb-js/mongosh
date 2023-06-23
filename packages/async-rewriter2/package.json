@@ -40,5 +40,8 @@
     "@babel/plugin-transform-shorthand-properties": "^7.16.7",
     "@babel/types": "^7.16.8",
     "@types/babel__core": "^7.1.18"
+  },
+  "devDependencies": {
+    "eslint": "^8.43.0"
   }
 }

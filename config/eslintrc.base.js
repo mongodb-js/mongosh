@@ -1,3 +1,10 @@
+'use strict';
+
+module.exports = {
+  extends: ['@mongodb-js/eslint-config-devtools']
+};
+
+/*
 const typescriptEslintEslintPlugin = require('@typescript-eslint/eslint-plugin');
 
 // ovrerrides do not work with extends
@@ -42,10 +49,11 @@ module.exports = {
     'no-multi-str': 0
   },
   overrides: [{
-    files: ['**/*.js'],
+    files: ['**\/*.js'],
     rules: {
       ...ruleOverridesForJs,
       semi: [2, 'always']
     }
   }]
 };
+*/

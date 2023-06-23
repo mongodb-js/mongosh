@@ -29,7 +29,10 @@
     "unitTestsOnly": true
   },
   "dependencies": {
-    "mongodb-redact": "^0.2.2",
-    "mongodb-connection-string-url": "^2.6.0"
+    "mongodb-connection-string-url": "^2.6.0",
+    "mongodb-redact": "^0.2.2"
+  },
+  "devDependencies": {
+    "eslint": "^8.43.0"
   }
 }

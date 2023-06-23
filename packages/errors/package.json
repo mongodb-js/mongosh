@@ -27,5 +27,8 @@
   },
   "mongosh": {
     "unitTestsOnly": true
+  },
+  "devDependencies": {
+    "eslint": "^8.43.0"
   }
 }

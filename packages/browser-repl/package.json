@@ -77,6 +77,7 @@
     "babel-loader": "^8.3.0",
     "buffer": "^6.0.3",
     "enzyme": "^3.11.0",
+    "eslint": "^8.43.0",
     "html-webpack-plugin": "^5.5.0",
     "karma": "^6.3.9",
     "karma-webpack": "^5.0.0",
