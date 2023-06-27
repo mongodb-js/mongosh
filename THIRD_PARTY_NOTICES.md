@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Sun Jun 25 2023.
+This document was automatically generated on Tue Jun 27 2023.
 
 ## List of dependencies
 
@@ -249,6 +249,7 @@ Package|Version|License
 **[has-flag](#7ec819116728d891777ebd4140bef063f473b9ae26d46e91f5ca78834c872abf)**|4.0.0|MIT
 **[has-symbols](#26dae1ac20c49dbfafbfca8c84abb75e056b0213a6ff12412dd23dd752e1a424)**|1.0.3|MIT
 **[has](#6487c8414d9d7c6246fcbeaa7600e0494fcafcdfaae25b2d07669c0a2f49d8f4)**|1.0.3|MIT
+**[heap-js](#02ff1972404d29f951641af2b6cf6b371521d70f6daaf4196dcc45e6b5dbe96d)**|2.3.0|BSD-3-Clause
 **[highlight.js](#20ba4c4db418be6a789dce158f147021f801ec47138fa1973d45f638984f5e49)**|10.4.1|BSD-3-Clause
 **[highlight.js](#2c60adc5db39462d0c2ff2176f71b4694ffe5060c53b1aa4f6f670e269ec1905)**|11.5.1|BSD-3-Clause
 **[hijack-stream](#12d6637498371277e69096b306788c19ad99815166a0cc17d209952058dfd51a)**|1.0.0|Apache-2.0
@@ -311,7 +312,7 @@ Package|Version|License
 **[mongodb-client-encryption](#eadad9f56a3a6058eb827b4f4628588f400af24d54eedbc1f53d99a454f22936)**|2.8.0|Apache-2.0
 **[mongodb-connection-string-url](#ce5b616af8be619c9b55d24d0c177a8d7676deb45415078a03235e37f704ae4c)**|2.6.0|Apache-2.0
 **[mongodb-crypt-library-version](#531dc8c5761d69d24f5e39457de5812ed3781da937aa64f94ed6f659bd72c142)**|1.0.3|Apache-2.0
-**[mongodb-log-writer](#cd6989ee1718f318edf0d2cbd6321aad2685493f540cef315dd9e0fc705eee74)**|1.2.0|Apache-2.0
+**[mongodb-log-writer](#4ae070b46b6b4330535f663805f95577c3d7db48e878002656aed26f3c5ce9f7)**|1.3.0|Apache-2.0
 **[mongodb-redact](#00a2cfed57df1e8b912b751b08bee4de24ad0189840c99820ebc00c1b219a421)**|0.2.2|Apache-2.0
 **[mongodb](#9d661fd2aedc03947456d8e0bf3f828e213a3c828ff2f172c6edad79ff221785)**|5.6.0|Apache-2.0
 **[ms](#484b814b85d5028e34246147c8fc901d33570202bd7cdc3703c0ed1078eba0aa)**|2.0.0|MIT
@@ -23848,6 +23849,45 @@ License files:
       
 
 
+<a id="02ff1972404d29f951641af2b6cf6b371521d70f6daaf4196dcc45e6b5dbe96d"></a>
+### [heap-js](https://www.npmjs.com/package/heap-js) (version 2.3.0)
+License tags: BSD-3-Clause
+
+License files:
+* LICENSE:
+
+      BSD 3-Clause License
+      
+      Copyright (c) 2017, Ignacio Lago
+      All rights reserved.
+      
+      Redistribution and use in source and binary forms, with or without
+      modification, are permitted provided that the following conditions are met:
+      
+      * Redistributions of source code must retain the above copyright notice, this
+        list of conditions and the following disclaimer.
+      
+      * Redistributions in binary form must reproduce the above copyright notice,
+        this list of conditions and the following disclaimer in the documentation
+        and/or other materials provided with the distribution.
+      
+      * Neither the name of the copyright holder nor the names of its
+        contributors may be used to endorse or promote products derived from
+        this software without specific prior written permission.
+      
+      THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+      AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+      IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+      DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+      FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+      DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+      SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+      CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+      OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+      OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+      
+
+
 <a id="20ba4c4db418be6a789dce158f147021f801ec47138fa1973d45f638984f5e49"></a>
 ### [highlight.js](https://www.npmjs.com/package/highlight.js) (version 10.4.1)
 License tags: BSD-3-Clause
@@ -26989,8 +27029,8 @@ License files:
       
 
 
-<a id="cd6989ee1718f318edf0d2cbd6321aad2685493f540cef315dd9e0fc705eee74"></a>
-### [mongodb-log-writer](https://www.npmjs.com/package/mongodb-log-writer) (version 1.2.0)
+<a id="4ae070b46b6b4330535f663805f95577c3d7db48e878002656aed26f3c5ce9f7"></a>
+### [mongodb-log-writer](https://www.npmjs.com/package/mongodb-log-writer) (version 1.3.0)
 License tags: Apache-2.0
 
 License files:
