@@ -2036,6 +2036,7 @@ export default class Collection extends ShellApiWithMongoClass {
     return setHideIndex(this, index, false);
   }
 
+  @serverVersions(['7.0.0', ServerVersions.latest])
   @returnsPromise
   @topologies([Topologies.ReplSet, Topologies.Sharded])
   @apiVersions([])
@@ -2048,6 +2049,7 @@ export default class Collection extends ShellApiWithMongoClass {
     });
   }
 
+  @serverVersions(['7.0.0', ServerVersions.latest])
   @returnsPromise
   @topologies([Topologies.ReplSet, Topologies.Sharded])
   @apiVersions([])
