@@ -2040,12 +2040,13 @@ export default class Collection extends ShellApiWithMongoClass {
   @returnsPromise
   @topologies([Topologies.ReplSet, Topologies.Sharded])
   @apiVersions([])
-  async analyzeShardKey(key: Document): Promise<Document> {
+  async analyzeShardKey(key: Document, options: Document = {}): Promise<Document> {
     assertArgsDefinedType([key], [true], 'Collection.analyzeShardKey');
     this._emitCollectionApiCall('analyzeShardKey', { key });
     return await this._database._runAdminCommand({
       analyzeShardKey: this.getFullName(),
-      key
+      key,
+      ...options
     });
   }
 
