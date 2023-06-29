@@ -863,8 +863,7 @@ export default class Database extends ShellApiWithMongoClass {
 
   @returnsPromise
   @apiVersions([])
-  async killOp(opId: number): Promise<Document> {
-    assertArgsDefinedType([opId], ['number'], 'Database.killOp');
+  async killOp(opId: number | string): Promise<Document> {
     this._emitDatabaseApiCall('killOp', { opId });
     return await this._runAdminCommand(
       {
