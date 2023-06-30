@@ -1,2 +1,10 @@
+ignores:
+ - '@typescript-eslint/parser'
+ - '@typescript-eslint/eslint-plugin'
+ - chai
+ - sinon-chai
+ - ts-sinon
+ - eslint-plugin-mocha
+ - eslint-config-mongodb-js
 # needed as a peer dependency of @mongodb-js/devtools-connect
-ignores: ['mongodb']
+ - mongodb

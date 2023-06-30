@@ -20,7 +20,8 @@
     "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 -r ts-node/register \"./{src,lib}/**/*.spec.ts\"",
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
     "lint": "eslint --report-unused-disable-directives \"./{src,test}/**/*.{js,ts,tsx}\"",
-    "check": "npm run lint && depcheck --skip-missing=true",
+    "check": "npm run lint && npm run depcheck",
+    "depcheck": "depcheck",
     "compile": "tsc -p tsconfig.json",
     "prepublish": "npm run compile"
   },
@@ -28,6 +29,7 @@
     "unitTestsOnly": true
   },
   "devDependencies": {
+    "depcheck": "^1.4.3",
     "mocha": "^10.2.0"
   },
   "dependencies": {

@@ -10,7 +10,6 @@ import Collection from './collection';
 import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';
 import { signatures, toShellResult } from './index';
 import { BulkWriteResult } from './result';
-import { ObjectId } from 'mongodb';
 import ShellInstanceState from './shell-instance-state';
 chai.use(sinonChai);
 
@@ -73,7 +72,7 @@ describe('Bulk API', () => {
           const bulkWriteResult = {
             ok: 1,
             nInserted: 1,
-            insertedIds: { 0: new ObjectId() },
+            insertedIds: { 0: new bson.ObjectId() },
             nMatched: 0,
             nModified: 0,
             nRemoved: 0,

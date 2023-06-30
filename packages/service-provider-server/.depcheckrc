@@ -3,8 +3,10 @@ ignores:
  - '@typescript-eslint/eslint-plugin'
  - chai
  - sinon-chai
- - sinon
  - ts-sinon
- - mocha
  - eslint-plugin-mocha
  - eslint-config-mongodb-js
+# Used for MONGODB-AWS auth
+# See: https://github.com/mongodb-js/mongosh/pull/1149
+# See: https://jira.mongodb.org/browse/NODE-5005
+ - aws4

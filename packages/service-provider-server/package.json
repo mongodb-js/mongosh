@@ -17,7 +17,8 @@
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
     "prepublish": "npm run compile",
     "lint": "eslint --report-unused-disable-directives \"./{src,test}/**/*.{js,ts,tsx}\"",
-    "check": "npm run lint && depcheck --skip-missing=true --ignores aws4"
+    "check": "npm run lint && npm run depcheck",
+    "depcheck": "depcheck"
   },
   "license": "Apache-2.0",
   "publishConfig": {
@@ -57,5 +58,8 @@
   "optionalDependencies": {
     "mongodb-client-encryption": "^2.8.0",
     "kerberos": "^2.0.0"
+  },
+  "devDependencies": {
+    "depcheck": "^1.4.3"
   }
 }

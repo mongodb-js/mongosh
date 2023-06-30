@@ -9,7 +9,8 @@
     "test": "mocha --experimental-vm-modules -r \"../../scripts/import-expansions.js\" --timeout 60000 -r ts-node/register \"./{src,lib}/**/*.spec.ts\"",
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
     "lint": "eslint --report-unused-disable-directives \"./{src,test}/**/*.{js,ts,tsx}\"",
-    "check": "npm run lint && depcheck --skip-missing=true",
+    "check": "npm run lint && npm run depcheck",
+    "depcheck": "depcheck",
     "compile": "node bin/make-runtime-support.js --firstpass && tsc -p tsconfig.json && node bin/make-runtime-support.js --secondpass && tsc -p tsconfig.json",
     "prepublish": "npm run compile"
   },
@@ -40,5 +41,8 @@
     "@babel/plugin-transform-shorthand-properties": "^7.16.7",
     "@babel/types": "^7.16.8",
     "@types/babel__core": "^7.1.18"
+  },
+  "devDependencies": {
+    "depcheck": "^1.4.3"
   }
 }
