@@ -4,7 +4,6 @@ set -x
 
 export NODE_JS_VERSION=${NODE_JS_VERSION}
 export ARTIFACT_URL_FILE="$PWD/artifact-url.txt"
-export DEBUG="node-codesign,\$DEBUG"
 
 source .evergreen/setup-env.sh
 tar xvzf dist.tgz

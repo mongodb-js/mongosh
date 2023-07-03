@@ -2,8 +2,9 @@ ignores:
  - '@typescript-eslint/parser'
  - '@typescript-eslint/eslint-plugin'
  - chai
- - sinon-chai
+ - ts-sinon
+ - sinon
  - eslint-plugin-mocha
  - eslint-config-mongodb-js
-# needed as a peer dependency of @mongodb-js/devtools-connect
- - mongodb
+ # transitive type dependency of @types/tmp-promise
+ - '@types/tmp'

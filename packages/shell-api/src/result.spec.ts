@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import * as results from './result';
 import { signatures, toShellResult } from './decorators';
-import { ObjectId } from 'mongodb';
+import { bson } from '@mongosh/service-provider-core';
 
 describe('Results', () => {
   describe('signatures', () => {
@@ -20,7 +20,7 @@ describe('Results', () => {
   });
   describe('BulkWriteResult', () => {
     const r = new results.BulkWriteResult(
-      true, 1, { 0: new ObjectId() }, 2, 3, 4, 5, { 0: new ObjectId() }
+      true, 1, { 0: new bson.ObjectId() }, 2, 3, 4, 5, { 0: new bson.ObjectId() }
     );
     it('class attributes set', () => {
       expect(r.acknowledged).to.equal(true);
@@ -69,7 +69,7 @@ describe('Results', () => {
   });
   describe('InsertManyResult', () => {
     const r = new results.InsertManyResult(
-      true, { 0: new ObjectId() }
+      true, { 0: new bson.ObjectId() }
     );
     it('class attributes set', () => {
       expect(r.acknowledged).to.equal(true);
@@ -85,7 +85,7 @@ describe('Results', () => {
   });
   describe('InsertOneResult', () => {
     const r = new results.InsertOneResult(
-      true, new ObjectId()
+      true, new bson.ObjectId()
     );
     it('class attributes set', () => {
       expect(r.acknowledged).to.equal(true);
@@ -101,7 +101,7 @@ describe('Results', () => {
   });
   describe('UpdateResult', () => {
     const r = new results.UpdateResult(
-      true, 1, 2, 3, new ObjectId()
+      true, 1, 2, 3, new bson.ObjectId()
     );
     it('class attributes set', () => {
       expect(r.acknowledged).to.equal(true);
