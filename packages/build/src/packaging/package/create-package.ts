@@ -1,9 +1,11 @@
 import path from 'path';
-import { PackageVariant, getDistro, getArch } from '../../config';
+import type { PackageVariant} from '../../config';
+import { getDistro, getArch } from '../../config';
 import { createDebianPackage as createDebianPackageFn } from './debian';
-import { getPackageFile, PackageFile } from './get-package-file';
+import type { PackageFile } from './get-package-file';
+import { getPackageFile } from './get-package-file';
 import { createMsiPackage as createMsiPackageFn } from './msi';
-import { PackageInformation } from './package-information';
+import type { PackageInformation } from './package-information';
 import { createRedhatPackage as createRedhatPackageFn } from './redhat';
 import { createTarballPackage as createTarballPackageFn } from './tarball';
 import { createZipPackage as createZipPackageFn } from './zip';

@@ -1,4 +1,4 @@
-import { RunCommandCursor, RunCursorCommandOptions } from 'mongodb';
+import type { RunCommandCursor, RunCursorCommandOptions } from 'mongodb';
 import type {
   Document,
   InsertOneOptions,

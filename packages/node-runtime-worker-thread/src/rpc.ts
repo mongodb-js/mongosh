@@ -151,7 +151,7 @@ export function exposeAll<O>(obj: O, messageBus: RPCMessageBus): Exposed<O> {
       },
       getRPCOptions(messageBus)
     );
-    (val as any).close = close;
+    (val ).close = close;
   });
   Object.defineProperty(obj, close, {
     enumerable: false,

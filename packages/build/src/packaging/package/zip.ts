@@ -2,7 +2,7 @@ import path from 'path';
 import rimraf from 'rimraf';
 import { promisify } from 'util';
 import { createCompressedArchiveContents, execFile as execFileFn } from './helpers';
-import { PackageInformation } from './package-information';
+import type { PackageInformation } from './package-information';
 
 /**
  * Create a ZIP archive.

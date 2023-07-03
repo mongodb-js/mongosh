@@ -1,4 +1,4 @@
-import { SpawnSyncOptionsWithStringEncoding, SpawnSyncReturns } from 'child_process';
+import type { SpawnSyncOptionsWithStringEncoding, SpawnSyncReturns } from 'child_process';
 import * as spawn from 'cross-spawn';
 
 export function spawnSync(command: string, args: string[], options: SpawnSyncOptionsWithStringEncoding): SpawnSyncReturns<string>;

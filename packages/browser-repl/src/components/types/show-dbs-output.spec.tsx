@@ -4,14 +4,14 @@ import { shallow } from '../../../testing/enzyme';
 
 import { ShowDbsOutput } from './show-dbs-output';
 
-describe('ShowDbsOutput', () => {
-  it('renders no show dbs output if value is empty', () => {
+describe('ShowDbsOutput', function() {
+  it('renders no show dbs output if value is empty', function() {
     const wrapper = shallow(<ShowDbsOutput value={[]} />);
 
     expect(wrapper.text()).to.equal('');
   });
 
-  it('renders a ShowDbsOutput for each element in value', () => {
+  it('renders a ShowDbsOutput for each element in value', function() {
     const wrapper = shallow(<ShowDbsOutput value={[
       { name: 'admin', sizeOnDisk: 45056, empty: false },
       { name: 'dxl', sizeOnDisk: 8192, empty: false },

@@ -1,6 +1,5 @@
-/* eslint-disable complexity */
-import * as babel from '@babel/core';
-import * as BabelTypes from '@babel/types';
+import type * as babel from '@babel/core';
+import type * as BabelTypes from '@babel/types';
 
 /**
  * First-step transform plugin: Wrap the entire program inside a function,

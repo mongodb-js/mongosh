@@ -27,7 +27,8 @@
     "prepublish": "npm run compile-ts",
     "test": "karma start ./config/karma.conf.js --colors",
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
-    "lint": "eslint --report-unused-disable-directives \"./{src,test}/**/*.{js,ts,tsx}\"",
+    "eslint": "eslint --report-unused-disable-directives \"./{src,test}/**/*.{js,ts,tsx}\"",
+    "lint": "npm run eslint",
     "check": "npm run lint && npm run depcheck",
     "depcheck": "depcheck",
     "compile-ts": "tsc -p tsconfig.json"

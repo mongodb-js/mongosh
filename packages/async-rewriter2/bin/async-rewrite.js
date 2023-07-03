@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-/* eslint-disable strict, no-sync */
 'use strict';
 const AsyncWriter = require('../').default;
 const fs = require('fs');

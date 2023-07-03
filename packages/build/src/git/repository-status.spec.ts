@@ -1,25 +1,26 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { getReleaseVersionFromBranch, getRepositoryStatus, RepositoryStatus, verifyGitStatus } from './repository-status';
+import type { RepositoryStatus} from './repository-status';
+import { getReleaseVersionFromBranch, getRepositoryStatus, verifyGitStatus } from './repository-status';
 
-describe('git repository-status', () => {
+describe('git repository-status', function() {
   let spawnSync: sinon.SinonStub;
 
-  beforeEach(() => {
+  beforeEach(function() {
     spawnSync = sinon.stub();
   });
 
-  describe('verifyGitStatus', () => {
+  describe('verifyGitStatus', function() {
     let getRepositoryStatus: sinon.SinonStub;
     let spawnSync: sinon.SinonStub;
 
-    beforeEach(()=> {
+    beforeEach(function() {
       getRepositoryStatus = sinon.stub();
       spawnSync = sinon.stub();
     });
 
     [ 'master', 'main', 'release/v0.8.0', 'release/v0.8.x' ].forEach(branchName => {
-      it(`accepts a clean repository on ${branchName}`, () => {
+      it(`accepts a clean repository on ${branchName}`, function() {
         const status: RepositoryStatus = {
           branch: {
             local: branchName,
@@ -36,7 +37,7 @@ describe('git repository-status', () => {
       });
     });
 
-    it('fails if it cannot determine branch', () => {
+    it('fails if it cannot determine branch', function() {
       const status: RepositoryStatus = {
         clean: true,
         hasUnpushedTags: false
@@ -51,7 +52,7 @@ describe('git repository-status', () => {
       expect.fail('Expected error');
     });
 
-    it('fails for a forbidden branch', () => {
+    it('fails for a forbidden branch', function() {
       const status: RepositoryStatus = {
         branch: {
           local: 'somebranch',
@@ -71,7 +72,7 @@ describe('git repository-status', () => {
       expect.fail('Expected error');
     });
 
-    it('fails if tracking branch is missing', () => {
+    it('fails if tracking branch is missing', function() {
       const status: RepositoryStatus = {
         branch: {
           local: 'main',
@@ -91,7 +92,7 @@ describe('git repository-status', () => {
       expect.fail('Expected error');
     });
 
-    it('fails if repository is not clean', () => {
+    it('fails if repository is not clean', function() {
       const status: RepositoryStatus = {
         branch: {
           local: 'main',
@@ -111,7 +112,7 @@ describe('git repository-status', () => {
       expect.fail('Expected error');
     });
 
-    it('fails if repository diverged from remote', () => {
+    it('fails if repository diverged from remote', function() {
       const status: RepositoryStatus = {
         branch: {
           local: 'main',
@@ -131,7 +132,7 @@ describe('git repository-status', () => {
       expect.fail('Expected error');
     });
 
-    it('fails if repository has unpushed tags', () => {
+    it('fails if repository has unpushed tags', function() {
       const status: RepositoryStatus = {
         branch: {
           local: 'main',
@@ -152,7 +153,7 @@ describe('git repository-status', () => {
     });
   });
 
-  describe('getRepositoryStatus', () => {
+  describe('getRepositoryStatus', function() {
     [
       'master',
       'main',
@@ -160,7 +161,7 @@ describe('git repository-status', () => {
       'release/another-branch',
       'release/v0.7.9'
     ].forEach(branch => {
-      it('parses a clean repository correctly', () => {
+      it('parses a clean repository correctly', function() {
         spawnSync.returns({
           stdout: `## ${branch}...origin/${branch}\n`
         });
@@ -181,7 +182,7 @@ describe('git repository-status', () => {
       });
     });
 
-    it('detectes pending file changes', () => {
+    it('detectes pending file changes', function() {
       spawnSync.onFirstCall().returns({
         stdout: [
           '## main...origin/main',
@@ -206,7 +207,7 @@ describe('git repository-status', () => {
       });
     });
 
-    it('detectes diverging branches', () => {
+    it('detectes diverging branches', function() {
       spawnSync.returns({
         stdout: [
           '## main...origin/something [ahead 5, behind 3]',
@@ -231,7 +232,7 @@ describe('git repository-status', () => {
       });
     });
 
-    it('detectes missing origin', () => {
+    it('detectes missing origin', function() {
       spawnSync.returns({
         stdout: [
           '## main'
@@ -253,7 +254,7 @@ describe('git repository-status', () => {
       });
     });
 
-    it('detects unpushed tags', () => {
+    it('detects unpushed tags', function() {
       spawnSync.onFirstCall().returns({
         stdout: [
           '## main...origin/main'
@@ -279,8 +280,8 @@ describe('git repository-status', () => {
     });
   });
 
-  describe('getReleaseVersionFromDraft', () => {
-    it('parses the release branch properly', () => {
+  describe('getReleaseVersionFromDraft', function() {
+    it('parses the release branch properly', function() {
       const version = getReleaseVersionFromBranch('release/v0.8.3');
       expect(version).to.deep.equal({
         major: 0,
@@ -289,7 +290,7 @@ describe('git repository-status', () => {
       });
     });
 
-    it('handles a release branch that is not fully numbered', () => {
+    it('handles a release branch that is not fully numbered', function() {
       const version = getReleaseVersionFromBranch('release/v0.8.x');
       expect(version).to.deep.equal({
         major: 0,
@@ -298,7 +299,7 @@ describe('git repository-status', () => {
       });
     });
 
-    it('returns undefined for non-release branches', () => {
+    it('returns undefined for non-release branches', function() {
       const version = getReleaseVersionFromBranch('main');
       expect(version).to.be.undefined;
     });

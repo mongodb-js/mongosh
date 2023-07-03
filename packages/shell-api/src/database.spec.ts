@@ -1,87 +1,89 @@
 import chai, { expect } from 'chai';
 import sinonChai from 'sinon-chai';
-import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
-import { EventEmitter } from 'events';
+import type { StubbedInstance} from 'ts-sinon';
+import sinon, { stubInterface } from 'ts-sinon';
+import type { EventEmitter } from 'events';
 import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';
 import { signatures, toShellResult } from './index';
 import Database from './database';
 import Collection from './collection';
 import Mongo from './mongo';
-import {
+import type {
   AggregationCursor as ServiceProviderAggCursor,
   FindCursor as ServiceProviderCursor,
   RunCommandCursor as ServiceProviderRunCommandCursor,
   ServiceProvider,
-  bson,
   ClientSession as ServiceProviderSession,
   Document,
-  ClientEncryptionDataKeyProvider,
+  ClientEncryptionDataKeyProvider} from '@mongosh/service-provider-core';
+import {
+  bson
 } from '@mongosh/service-provider-core';
 import ShellInstanceState from './shell-instance-state';
 import crypto from 'crypto';
 import { ADMIN_DB } from './enums';
 import ChangeStreamCursor from './change-stream-cursor';
 import { CommonErrors, MongoshDeprecatedError, MongoshInvalidInputError, MongoshRuntimeError, MongoshUnimplementedError } from '@mongosh/errors';
-import { ClientEncryption } from './field-level-encryption';
+import type { ClientEncryption } from './field-level-encryption';
 chai.use(sinonChai);
 
-describe('Database', () => {
+describe('Database', function() {
   const MD5_HASH = crypto.createHash('md5').update('anna:mongo:pwd').digest('hex');
-  describe('help', () => {
+  describe('help', function() {
     const apiClass: any = new Database({} as any, 'name');
-    it('calls help function', async() => {
+    it('calls help function', async function() {
       expect((await toShellResult(apiClass.help())).type).to.equal('Help');
       expect((await toShellResult(apiClass.help)).type).to.equal('Help');
     });
-    it('calls help function for methods', async() => {
+    it('calls help function for methods', async function() {
       expect((await toShellResult(apiClass.runCommand.help())).type).to.equal('Help');
       expect((await toShellResult(apiClass.runCommand.help)).type).to.equal('Help');
     });
   });
-  describe('collections', () => {
-    it('allows to get a collection as property if is not one of the existing methods', () => {
+  describe('collections', function() {
+    it('allows to get a collection as property if is not one of the existing methods', function() {
       const database: any = new Database({} as any, 'db1');
       expect(database.someCollection).to.have.instanceOf(Collection);
       expect(database.someCollection._name).to.equal('someCollection');
     });
 
-    it('reuses collections', () => {
+    it('reuses collections', function() {
       const database: any = new Database({} as any, 'db1');
       expect(database.someCollection).to.equal(database.someCollection);
     });
 
-    it('does not return a collection starting with _', () => {
+    it('does not return a collection starting with _', function() {
       // this is the behaviour in the old shell
 
       const database: any = new Database({} as any, 'db1');
       expect(database._someProperty).to.equal(undefined);
     });
 
-    it('does not return a collection for symbols', () => {
+    it('does not return a collection for symbols', function() {
       const database: any = new Database({} as any, 'db1');
       expect(database[Symbol('someProperty')]).to.equal(undefined);
     });
 
-    it('does not return a collection with invalid name', () => {
+    it('does not return a collection with invalid name', function() {
       const database: any = new Database({} as any, 'db1');
       expect(database.foo$bar).to.equal(undefined);
     });
 
-    it('allows to access _name', () => {
+    it('allows to access _name', function() {
       const database: any = new Database({} as any, 'db1');
       expect(database._name).to.equal('db1');
     });
 
-    it('allows to access collections', () => {
+    it('allows to access collections', function() {
       const database: any = new Database({} as any, 'db1');
       expect(database._collections).to.deep.equal({});
     });
   });
-  describe('signatures', () => {
-    it('type', () => {
+  describe('signatures', function() {
+    it('type', function() {
       expect(signatures.Database.type).to.equal('Database');
     });
-    it('attributes', () => {
+    it('attributes', function() {
       expect(signatures.Database.attributes.aggregate).to.deep.equal({
         type: 'function',
         returnsPromise: true,
@@ -97,33 +99,33 @@ describe('Database', () => {
       });
     });
   });
-  describe('Metadata', () => {
-    describe('toShellResult', () => {
+  describe('Metadata', function() {
+    describe('toShellResult', function() {
       const mongo = sinon.spy();
       const db = new Database(mongo as any, 'myDB');
-      it('value', async() => {
+      it('value', async function() {
         expect((await toShellResult(db)).printable).to.equal('myDB');
       });
-      it('type', async() => {
+      it('type', async function() {
         expect((await toShellResult(db)).type).to.equal('Database');
       });
     });
   });
-  describe('attributes', () => {
+  describe('attributes', function() {
     const mongo = sinon.spy();
     const db = new Database(mongo as any, 'myDB') as any;
-    it('creates new collection for attribute', async() => {
+    it('creates new collection for attribute', async function() {
       expect((await toShellResult(db.coll)).type).to.equal('Collection');
     });
   });
-  describe('commands', () => {
+  describe('commands', function() {
     let mongo: Mongo;
     let serviceProvider: StubbedInstance<ServiceProvider>;
     let database: Database;
     let bus: StubbedInstance<EventEmitter>;
     let instanceState: ShellInstanceState;
 
-    beforeEach(() => {
+    beforeEach(function() {
       bus = stubInterface<EventEmitter>();
       serviceProvider = stubInterface<ServiceProvider>();
       serviceProvider.initialDb = 'test';
@@ -134,8 +136,8 @@ describe('Database', () => {
       mongo = new Mongo(instanceState, undefined, undefined, undefined, serviceProvider);
       database = new Database(mongo, 'db1');
     });
-    describe('getCollectionInfos', () => {
-      it('returns the result of serviceProvider.listCollections', async() => {
+    describe('getCollectionInfos', function() {
+      it('returns the result of serviceProvider.listCollections', async function() {
         const filter = { name: 'abc' };
         const options = { nameOnly: true };
         const result = [{ name: 'coll1' }];
@@ -150,8 +152,8 @@ describe('Database', () => {
       });
     });
 
-    describe('getCollectionNames', () => {
-      it('returns the result of serviceProvider.listCollections', async() => {
+    describe('getCollectionNames', function() {
+      it('returns the result of serviceProvider.listCollections', async function() {
         const result = [{ name: 'coll1', type: 'collection' }];
 
         serviceProvider.listCollections.resolves(result);
@@ -163,8 +165,8 @@ describe('Database', () => {
       });
     });
 
-    describe('_getCollectionNamesWithTypes', () => {
-      it('returns sorted list of collections with their types', async() => {
+    describe('_getCollectionNamesWithTypes', function() {
+      it('returns sorted list of collections with their types', async function() {
         const result = [
           { name: 'coll3', type: 'view' },
           { name: 'coll1', type: 'collection' },
@@ -196,20 +198,20 @@ describe('Database', () => {
       });
     });
 
-    describe('getName', () => {
-      it('returns the name of the DB', () => {
+    describe('getName', function() {
+      it('returns the name of the DB', function() {
         expect(database.getName()).to.equal('db1');
       });
     });
 
-    describe('getMongo', () => {
-      it('returns the name of the DB', () => {
+    describe('getMongo', function() {
+      it('returns the name of the DB', function() {
         expect(database.getMongo()).to.equal(mongo);
       });
     });
 
-    describe('runCommand', () => {
-      it('calls serviceProvider.runCommand on the database', async() => {
+    describe('runCommand', function() {
+      it('calls serviceProvider.runCommand on the database', async function() {
         await database.runCommand({ someCommand: 'someCollection' });
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
@@ -220,7 +222,7 @@ describe('Database', () => {
         );
       });
 
-      it('transforms a string argument into the command document', async() => {
+      it('transforms a string argument into the command document', async function() {
         await database.runCommand('isMaster');
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
@@ -231,14 +233,14 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommand returns', async() => {
+      it('returns whatever serviceProvider.runCommand returns', async function() {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.runCommand({ someCommand: 'someCollection' });
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommand rejects', async() => {
+      it('throws if serviceProvider.runCommand rejects', async function() {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
         const caughtError = await database.runCommand({ someCommand: 'someCollection' })
@@ -246,7 +248,7 @@ describe('Database', () => {
         expect(caughtError).to.equal(expectedError);
       });
 
-      it('automatically adjusts replSetResizeOplog parameter types', async() => {
+      it('automatically adjusts replSetResizeOplog parameter types', async function() {
         await database.runCommand({ replSetResizeOplog: 1, size: 990, minRetentionHours: 3 });
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
@@ -257,7 +259,7 @@ describe('Database', () => {
         );
       });
 
-      it('automatically adjusts profile parameter types', async() => {
+      it('automatically adjusts profile parameter types', async function() {
         await database.runCommand({ profile: 0, sampleRate: 0 });
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
@@ -268,7 +270,7 @@ describe('Database', () => {
         );
       });
 
-      it('automatically adjusts mirrorReads.samplingRate types', async() => {
+      it('automatically adjusts mirrorReads.samplingRate types', async function() {
         await database.runCommand({ setParameter: 1, mirrorReads: { samplingRate: 0 } });
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
@@ -280,8 +282,8 @@ describe('Database', () => {
       });
     });
 
-    describe('adminCommand', () => {
-      it('calls serviceProvider.runCommand with the admin database', async() => {
+    describe('adminCommand', function() {
+      it('calls serviceProvider.runCommand with the admin database', async function() {
         await database.adminCommand({ someCommand: 'someCollection' });
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
@@ -292,7 +294,7 @@ describe('Database', () => {
         );
       });
 
-      it('transforms a string argument into the command document', async() => {
+      it('transforms a string argument into the command document', async function() {
         await database.adminCommand('command');
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
@@ -303,13 +305,13 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommand returns', async() => {
+      it('returns whatever serviceProvider.runCommand returns', async function() {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.adminCommand({ someCommand: 'someCollection' });
         expect(result).to.deep.equal(expectedResult);
       });
-      it('throws if serviceProvider.runCommand rejects', async() => {
+      it('throws if serviceProvider.runCommand rejects', async function() {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
         const caughtError = await database.adminCommand({ someCommand: 'someCollection' })
@@ -318,14 +320,14 @@ describe('Database', () => {
       });
     });
 
-    describe('aggregate', () => {
+    describe('aggregate', function() {
       let serviceProviderCursor: StubbedInstance<ServiceProviderAggCursor>;
 
-      beforeEach(() => {
+      beforeEach(function() {
         serviceProviderCursor = stubInterface<ServiceProviderAggCursor>();
       });
 
-      it('calls serviceProvider.aggregateDb with pipleline and options', async() => {
+      it('calls serviceProvider.aggregateDb with pipleline and options', async function() {
         await database.aggregate(
           [{ $piplelineStage: {} }], { options: true });
 
@@ -336,7 +338,7 @@ describe('Database', () => {
         );
       });
 
-      it('calls serviceProvider.aggregateDb with explicit batchSize', async() => {
+      it('calls serviceProvider.aggregateDb with explicit batchSize', async function() {
         await database.aggregate(
           [{ $piplelineStage: {} }], { options: true, batchSize: 10 });
 
@@ -347,7 +349,7 @@ describe('Database', () => {
         );
       });
 
-      it('returns an AggregationCursor that wraps the service provider one', async() => {
+      it('returns an AggregationCursor that wraps the service provider one', async function() {
         const toArrayResult = [{ foo: 'bar' }];
         serviceProviderCursor.tryNext.onFirstCall().resolves({ foo: 'bar' });
         serviceProviderCursor.tryNext.onSecondCall().resolves(null);
@@ -357,7 +359,7 @@ describe('Database', () => {
         expect(await cursor.toArray()).to.deep.equal(toArrayResult);
       });
 
-      it('throws if serviceProvider.aggregateDb rejects', async() => {
+      it('throws if serviceProvider.aggregateDb rejects', async function() {
         const expectedError = new Error();
         serviceProvider.aggregateDb.throws(expectedError);
 
@@ -368,7 +370,7 @@ describe('Database', () => {
         ).to.equal(expectedError);
       });
 
-      it('pass readConcern and writeConcern as dbOption', async() => {
+      it('pass readConcern and writeConcern as dbOption', async function() {
         await database.aggregate(
           [],
           { otherOption: true, readConcern: { level: 'majority' }, writeConcern: { w: 1 } }
@@ -382,10 +384,10 @@ describe('Database', () => {
         );
       });
 
-      it('runs explain if explain true is passed', async() => {
+      it('runs explain if explain true is passed', async function() {
         const expectedExplainResult = {};
         serviceProviderCursor.explain.resolves(expectedExplainResult);
-        serviceProvider.aggregateDb.returns(serviceProviderCursor as any);
+        serviceProvider.aggregateDb.returns(serviceProviderCursor );
 
         const explainResult = await database.aggregate(
           [],
@@ -396,8 +398,8 @@ describe('Database', () => {
         expect(serviceProviderCursor.explain).to.have.been.calledOnce;
       });
 
-      it('wont run explain if explain is not passed', async() => {
-        serviceProvider.aggregateDb.returns(serviceProviderCursor as any);
+      it('wont run explain if explain is not passed', async function() {
+        serviceProvider.aggregateDb.returns(serviceProviderCursor );
 
         const cursor = await database.aggregate(
           [],
@@ -408,32 +410,32 @@ describe('Database', () => {
         expect(serviceProviderCursor.explain).not.to.have.been.called;
       });
     });
-    describe('getSiblingDB', () => {
-      it('returns a database', () => {
+    describe('getSiblingDB', function() {
+      it('returns a database', function() {
         const otherDb = database.getSiblingDB('otherdb');
         expect(otherDb).to.be.instanceOf(Database);
         expect(otherDb._name).to.equal('otherdb');
       });
 
-      it('throws if name is not a string', () => {
+      it('throws if name is not a string', function() {
         expect(() => {
           database.getSiblingDB(undefined);
         }).to.throw('Missing required argument');
       });
 
-      it('throws if name is empty', () => {
+      it('throws if name is empty', function() {
         expect(() => {
           database.getSiblingDB('');
         }).to.throw('Invalid database name:');
       });
 
-      it('throws if name contains invalid characters', () => {
+      it('throws if name contains invalid characters', function() {
         expect(() => {
           database.getSiblingDB('foo"bar');
         }).to.throw('Invalid database name: foo"bar');
       });
 
-      it('reuses db instances', () => {
+      it('reuses db instances', function() {
         const otherDb = database.getSiblingDB('otherdb');
         expect(
           database.getSiblingDB('otherdb')
@@ -441,15 +443,15 @@ describe('Database', () => {
       });
     });
 
-    describe('getCollection', () => {
-      it('returns a collection for the database', () => {
+    describe('getCollection', function() {
+      it('returns a collection for the database', function() {
         const coll = database.getCollection('coll');
         expect(coll).to.be.instanceOf(Collection);
         expect(coll._name).to.equal('coll');
         expect(coll._database).to.equal(database);
       });
 
-      it('returns a collection for Object.prototype keys', () => {
+      it('returns a collection for Object.prototype keys', function() {
         {
           const coll = database.getCollection('__proto__');
           expect(coll).to.be.instanceOf(Collection);
@@ -462,13 +464,13 @@ describe('Database', () => {
         }
       });
 
-      it('throws if name is not a string', () => {
+      it('throws if name is not a string', function() {
         expect(() => {
           database.getCollection(undefined);
         }).to.throw('Missing required argument');
       });
 
-      it('throws if name is empty', () => {
+      it('throws if name is empty', function() {
         try {
           database.getCollection('');
           expect.fail('expected error');
@@ -479,7 +481,7 @@ describe('Database', () => {
         }
       });
 
-      it('throws if name contains $', () => {
+      it('throws if name contains $', function() {
         try {
           database.getCollection('foo$bar');
           expect.fail('expected error');
@@ -490,7 +492,7 @@ describe('Database', () => {
         }
       });
 
-      it('throws if name contains \\0', () => {
+      it('throws if name contains \\0', function() {
         try {
           database.getCollection('foo\0bar');
           expect.fail('expected error');
@@ -501,27 +503,27 @@ describe('Database', () => {
         }
       });
 
-      it('allows to use collection names that would collide with methods', () => {
+      it('allows to use collection names that would collide with methods', function() {
         const coll = database.getCollection('getCollection');
         expect(coll).to.be.instanceOf(Collection);
         expect(coll._name).to.equal('getCollection');
       });
 
-      it('allows to use collection names that starts with _', () => {
+      it('allows to use collection names that starts with _', function() {
         const coll = database.getCollection('_coll1');
         expect(coll).to.be.instanceOf(Collection);
         expect(coll._name).to.equal('_coll1');
       });
 
-      it('reuses collections', () => {
+      it('reuses collections', function() {
         expect(
           database.getCollection('coll')
         ).to.equal(database.getCollection('coll'));
       });
     });
 
-    describe('dropDatabase', () => {
-      it('calls serviceProvider.dropDatabase on the database', async() => {
+    describe('dropDatabase', function() {
+      it('calls serviceProvider.dropDatabase on the database', async function() {
         await database.dropDatabase({ w: 1 });
 
         expect(serviceProvider.dropDatabase).to.have.been.calledWith(
@@ -530,14 +532,14 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.dropDatabase returns', async() => {
+      it('returns whatever serviceProvider.dropDatabase returns', async function() {
         const expectedResult = { ok: 1 };
         serviceProvider.dropDatabase.resolves(expectedResult);
         const result = await database.dropDatabase();
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.dropDatabase rejects', async() => {
+      it('throws if serviceProvider.dropDatabase rejects', async function() {
         const expectedError = new Error();
         serviceProvider.dropDatabase.rejects(expectedError);
         const caughtError = await database.dropDatabase()
@@ -545,8 +547,8 @@ describe('Database', () => {
         expect(caughtError).to.equal(expectedError);
       });
     });
-    describe('createUser', () => {
-      it('calls serviceProvider.runCommandWithCheck on the database with extra fields but not digestPassword', async() => {
+    describe('createUser', function() {
+      it('calls serviceProvider.runCommandWithCheck on the database with extra fields but not digestPassword', async function() {
         await database.createUser({
           user: 'anna',
           pwd: 'pwd',
@@ -566,7 +568,7 @@ describe('Database', () => {
         );
       });
 
-      it('calls serviceProvider.runCommandWithCheck on the database with extra fields and passwordDigestor=server', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database with extra fields and passwordDigestor=server', async function() {
         await database.createUser({
           user: 'anna',
           pwd: 'pwd',
@@ -588,7 +590,7 @@ describe('Database', () => {
         );
       });
 
-      it('calls serviceProvider.runCommandWithCheck on the database with extra fields and passwordDigestor=client', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database with extra fields and passwordDigestor=client', async function() {
         await database.createUser({
           user: 'anna',
           pwd: 'pwd',
@@ -610,7 +612,7 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.createUser({
@@ -622,7 +624,7 @@ describe('Database', () => {
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
         const caughtError = await database.createUser({
@@ -635,7 +637,7 @@ describe('Database', () => {
         expect(caughtError).to.equal(expectedError);
       });
 
-      it('throws if roles is not provided', async() => {
+      it('throws if roles is not provided', async function() {
         const caughtError = await database.createUser({
           user: 'anna',
           pwd: 'pwd'
@@ -645,7 +647,7 @@ describe('Database', () => {
         expect(caughtError.code).to.equal(CommonErrors.InvalidArgument);
       });
 
-      it('throws if password is missing on database other than $external', async() => {
+      it('throws if password is missing on database other than $external', async function() {
         const caughtError = await database.createUser({
           user: 'anna'
         }).catch(e => e);
@@ -654,7 +656,7 @@ describe('Database', () => {
         expect(caughtError.code).to.equal(CommonErrors.InvalidArgument);
       });
 
-      it('throws if createUser option is provided', async() => {
+      it('throws if createUser option is provided', async function() {
         const caughtError = await database.createUser({
           user: 'anna',
           pwd: 'pwd',
@@ -666,12 +668,12 @@ describe('Database', () => {
         expect(caughtError.code).to.equal(CommonErrors.InvalidArgument);
       });
 
-      context('on $external database', () => {
-        beforeEach(() => {
+      context('on $external database', function() {
+        beforeEach(function() {
           database = new Database(mongo, '$external');
         });
 
-        it('can create a user without password', async() => {
+        it('can create a user without password', async function() {
           await database.createUser({
             user: 'CN=Client,OU=Public-Client,O=MongoDB',
             roles: [
@@ -689,7 +691,7 @@ describe('Database', () => {
           );
         });
 
-        it('throws an error when a password is specified', async() => {
+        it('throws an error when a password is specified', async function() {
           try {
             await database.createUser({
               user: 'CN=Client,OU=Public-Client,O=MongoDB',
@@ -707,8 +709,8 @@ describe('Database', () => {
         });
       });
     });
-    describe('updateUser', () => {
-      it('calls serviceProvider.runCommandWithCheck on the database with extra fields and no passwordDigestor', async() => {
+    describe('updateUser', function() {
+      it('calls serviceProvider.runCommandWithCheck on the database with extra fields and no passwordDigestor', async function() {
         await database.updateUser('anna', {
           pwd: 'pwd',
           customData: { anything: true },
@@ -726,7 +728,7 @@ describe('Database', () => {
           }
         );
       });
-      it('calls serviceProvider.runCommandWithCheck on the database with extra fields and passwordDigestor=client', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database with extra fields and passwordDigestor=client', async function() {
         await database.updateUser('anna', {
           pwd: 'pwd',
           customData: { anything: true },
@@ -747,7 +749,7 @@ describe('Database', () => {
         );
       });
 
-      it('calls serviceProvider.runCommandWithCheck on the database with extra fields and passwordDigestor=server', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database with extra fields and passwordDigestor=server', async function() {
         await database.updateUser('anna', {
           pwd: 'pwd',
           customData: { anything: true },
@@ -768,7 +770,7 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.updateUser('anna', {
@@ -780,7 +782,7 @@ describe('Database', () => {
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
         const caughtError = await database.updateUser('anna', {
@@ -793,7 +795,7 @@ describe('Database', () => {
         expect(caughtError).to.equal(expectedError);
       });
 
-      it('throws if an invalid passwordDigestor is provided', async() => {
+      it('throws if an invalid passwordDigestor is provided', async function() {
         const caughtError = await database.updateUser('anna', {
           user: 'anna',
           pwd: 'pwd',
@@ -806,8 +808,8 @@ describe('Database', () => {
         expect(caughtError.code).to.equal(CommonErrors.InvalidArgument);
       });
     });
-    describe('changeUserPassword', () => {
-      it('calls serviceProvider.runCommandWithCheck on the database with extra fields', async() => {
+    describe('changeUserPassword', function() {
+      it('calls serviceProvider.runCommandWithCheck on the database with extra fields', async function() {
         await database.changeUserPassword('anna', 'pwd');
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
@@ -819,14 +821,14 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.changeUserPassword('anna', 'pwd');
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
         const caughtError = await database.changeUserPassword('anna', 'pwd')
@@ -834,8 +836,8 @@ describe('Database', () => {
         expect(caughtError).to.equal(expectedError);
       });
     });
-    describe('logout', () => {
-      it('calls serviceProvider.runCommandWithCheck on the database with extra fields', async() => {
+    describe('logout', function() {
+      it('calls serviceProvider.runCommandWithCheck on the database with extra fields', async function() {
         await database.logout();
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
@@ -844,14 +846,14 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.logout();
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
         const caughtError = await database.logout()
@@ -859,8 +861,8 @@ describe('Database', () => {
         expect(caughtError).to.equal(expectedError);
       });
     });
-    describe('dropUser', () => {
-      it('calls serviceProvider.runCommandWithCheck on the database', async() => {
+    describe('dropUser', function() {
+      it('calls serviceProvider.runCommandWithCheck on the database', async function() {
         await database.dropUser('anna');
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
@@ -869,14 +871,14 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.dropUser('anna');
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
         const caughtError = await database.dropUser('anna')
@@ -884,8 +886,8 @@ describe('Database', () => {
         expect(caughtError).to.equal(expectedError);
       });
     });
-    describe('dropAllUsers', () => {
-      it('calls serviceProvider.runCommandWithCheck on the database', async() => {
+    describe('dropAllUsers', function() {
+      it('calls serviceProvider.runCommandWithCheck on the database', async function() {
         await database.dropAllUsers();
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
@@ -894,14 +896,14 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.dropAllUsers();
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
         const caughtError = await database.dropAllUsers()
@@ -909,8 +911,8 @@ describe('Database', () => {
         expect(caughtError).to.equal(expectedError);
       });
     });
-    describe('auth', () => {
-      it('calls serviceProvider.authenticate on the database when one arg provided', async() => {
+    describe('auth', function() {
+      it('calls serviceProvider.authenticate on the database when one arg provided', async function() {
         await database.auth({
           user: 'anna',
           pwd: 'pwd',
@@ -926,7 +928,7 @@ describe('Database', () => {
           }
         );
       });
-      it('calls serviceProvider.authenticate on the database when two args provided', async() => {
+      it('calls serviceProvider.authenticate on the database when two args provided', async function() {
         await database.auth('anna', 'pwd');
 
         expect(serviceProvider.authenticate).to.have.been.calledWith(
@@ -938,14 +940,14 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.authenticate returns', async() => {
+      it('returns whatever serviceProvider.authenticate returns', async function() {
         const expectedResult = { ok: 1 } as any;
         serviceProvider.authenticate.resolves(expectedResult);
         const result = await database.auth('anna', 'pwd');
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
         const expectedError = new Error();
         serviceProvider.authenticate.rejects(expectedError);
         const caughtError = await database.auth('anna', 'pwd')
@@ -954,14 +956,14 @@ describe('Database', () => {
       });
 
       [[{}], [{ user: 'anna', pass: 'pwd' }], ['name', 'pwd', 'hmm']].forEach(args => {
-        it('throws for invalid arguments', async() => {
+        it('throws for invalid arguments', async function() {
           const caughtError = await database.auth(...args as any).catch(e => e);
           expect(caughtError).to.be.instanceOf(MongoshInvalidInputError);
           expect(caughtError.code).to.equal(CommonErrors.InvalidArgument);
         });
       });
 
-      it('throws if digestPassword is specified', async() => {
+      it('throws if digestPassword is specified', async function() {
         const caughtError = await database.auth({
           user: 'anna',
           pwd: 'pwd',
@@ -971,7 +973,7 @@ describe('Database', () => {
         expect(caughtError.code).to.equal(CommonErrors.NotImplemented);
       });
 
-      it('asks for password if only username is passed', async() => {
+      it('asks for password if only username is passed', async function() {
         instanceState.setEvaluationListener({
           onPrompt: () => 'superSecretPassword'
         });
@@ -988,8 +990,8 @@ describe('Database', () => {
         );
       });
     });
-    describe('grantRolesToUser', () => {
-      it('calls serviceProvider.runCommandWithCheck on the database', async() => {
+    describe('grantRolesToUser', function() {
+      it('calls serviceProvider.runCommandWithCheck on the database', async function() {
         await database.grantRolesToUser('anna', ['role1']);
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
@@ -998,14 +1000,14 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.grantRolesToUser('anna', ['role1']);
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
         const caughtError = await database.grantRolesToUser('anna', ['role1'])
@@ -1013,8 +1015,8 @@ describe('Database', () => {
         expect(caughtError).to.equal(expectedError);
       });
     });
-    describe('revokeRolesFromUser', () => {
-      it('calls serviceProvider.runCommandWithCheck on the database', async() => {
+    describe('revokeRolesFromUser', function() {
+      it('calls serviceProvider.runCommandWithCheck on the database', async function() {
         await database.revokeRolesFromUser('anna', ['role1']);
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
@@ -1023,14 +1025,14 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.revokeRolesFromUser('anna', ['role1']);
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
         const caughtError = await database.revokeRolesFromUser('anna', ['role1'])
@@ -1038,8 +1040,8 @@ describe('Database', () => {
         expect(caughtError).to.equal(expectedError);
       });
     });
-    describe('getUser', () => {
-      it('calls serviceProvider.runCommandWithCheck on the database without options', async() => {
+    describe('getUser', function() {
+      it('calls serviceProvider.runCommandWithCheck on the database without options', async function() {
         const expectedResult = { ok: 1, users: [] };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         await database.getUser('anna');
@@ -1049,7 +1051,7 @@ describe('Database', () => {
           { usersInfo: { user: 'anna', db: 'db1' } }
         );
       });
-      it('calls serviceProvider.runCommandWithCheck on the database with options', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database with options', async function() {
         const expectedResult = { ok: 1, users: [] };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         await database.getUser('anna', {
@@ -1069,20 +1071,20 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
         const expectedResult = { ok: 1, users: [{ user: 'anna' }] };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.getUser('anna');
         expect(result).to.deep.equal({ user: 'anna' });
       });
-      it('returns whatever serviceProvider.runCommandWithCheck returns if user does not exist', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns if user does not exist', async function() {
         const expectedResult = { ok: 1, users: [] };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.getUser('anna');
         expect(result).to.deep.equal(null);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
         const caughtError = await database.getUser('anna')
@@ -1090,8 +1092,8 @@ describe('Database', () => {
         expect(caughtError).to.equal(expectedError);
       });
     });
-    describe('getUsers', () => {
-      it('calls serviceProvider.runCommandWithCheck on the database without options', async() => {
+    describe('getUsers', function() {
+      it('calls serviceProvider.runCommandWithCheck on the database without options', async function() {
         await database.getUsers();
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
@@ -1099,7 +1101,7 @@ describe('Database', () => {
           { usersInfo: 1 }
         );
       });
-      it('calls serviceProvider.runCommandWithCheck on the database with options', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database with options', async function() {
         await database.getUsers({
           showCredentials: false,
           filter: {}
@@ -1115,14 +1117,14 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.getUsers();
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
         const caughtError = await database.getUsers()
@@ -1130,8 +1132,8 @@ describe('Database', () => {
         expect(caughtError).to.equal(expectedError);
       });
     });
-    describe('createCollection', () => {
-      it('calls serviceProvider.createCollection on the database without options', async() => {
+    describe('createCollection', function() {
+      it('calls serviceProvider.createCollection on the database without options', async function() {
         await database.createCollection('newcoll');
 
         expect(serviceProvider.createCollection).to.have.been.calledWith(
@@ -1140,7 +1142,7 @@ describe('Database', () => {
           {}
         );
       });
-      it('calls serviceProvider.createCollection on the database with options', async() => {
+      it('calls serviceProvider.createCollection on the database with options', async function() {
         await database.createCollection('newcoll', {
           capped: false,
           max: 100,
@@ -1158,14 +1160,14 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.createCollection returns', async() => {
+      it('returns whatever serviceProvider.createCollection returns', async function() {
         const expectedResult = { ok: 1 } as any;
         serviceProvider.createCollection.resolves(expectedResult);
         const result = await database.createCollection('newcoll');
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.createCollection rejects', async() => {
+      it('throws if serviceProvider.createCollection rejects', async function() {
         const expectedError = new Error();
         serviceProvider.createCollection.rejects(expectedError);
         const caughtError = await database.createCollection('newcoll')
@@ -1173,7 +1175,7 @@ describe('Database', () => {
         expect(caughtError).to.equal(expectedError);
       });
     });
-    describe('createEncryptedCollection', () => {
+    describe('createEncryptedCollection', function() {
       let clientEncryption: StubbedInstance<ClientEncryption>;
       const createCollectionOptions = {
         provider: 'local' as ClientEncryptionDataKeyProvider,
@@ -1183,11 +1185,11 @@ describe('Database', () => {
           }
         }
       };
-      beforeEach(() => {
+      beforeEach(function() {
         clientEncryption = stubInterface<ClientEncryption>();
         sinon.stub(database._mongo, 'getClientEncryption').returns(clientEncryption);
       });
-      it('calls ClientEncryption.createEncryptedCollection with the provided options', async() => {
+      it('calls ClientEncryption.createEncryptedCollection with the provided options', async function() {
         await database.createEncryptedCollection('secretCollection', createCollectionOptions);
         expect(clientEncryption.createEncryptedCollection).calledOnceWithExactly(
           database._name,
@@ -1196,15 +1198,15 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever ClientEncryption.createEncryptedCollection returns', async() => {
+      it('returns whatever ClientEncryption.createEncryptedCollection returns', async function() {
         const resolvedValue = { collection: { name: 'secretCol' }, encryptedFields: [] } as any;
         clientEncryption.createEncryptedCollection.resolves(resolvedValue);
         const returnValue = await database.createEncryptedCollection('secretCollection', createCollectionOptions);
         expect(returnValue).to.deep.equal(resolvedValue);
       });
     });
-    describe('createView', () => {
-      it('calls serviceProvider.createCollection on the database without options', async() => {
+    describe('createView', function() {
+      it('calls serviceProvider.createCollection on the database without options', async function() {
         await database.createView('newcoll', 'sourcecoll', [{ $match: { x: 1 } }]);
 
         expect(serviceProvider.createCollection).to.have.been.calledWith(
@@ -1216,7 +1218,7 @@ describe('Database', () => {
           }
         );
       });
-      it('calls serviceProvider.createCollection on the database with options', async() => {
+      it('calls serviceProvider.createCollection on the database with options', async function() {
         await database.createView('newcoll', 'sourcecoll', [], { collation: { x: 1 } } as any);
 
         expect(serviceProvider.createCollection).to.have.been.calledWith(
@@ -1230,14 +1232,14 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.createCollection returns', async() => {
+      it('returns whatever serviceProvider.createCollection returns', async function() {
         const expectedResult = { ok: 1 };
         serviceProvider.createCollection.resolves(expectedResult);
         const result = await database.createView('newcoll', 'sourcecoll', []);
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.createCollection rejects', async() => {
+      it('throws if serviceProvider.createCollection rejects', async function() {
         const expectedError = new Error();
         serviceProvider.createCollection.rejects(expectedError);
         const caughtError = await database.createView('newcoll', 'sourcecoll', [])
@@ -1245,8 +1247,8 @@ describe('Database', () => {
         expect(caughtError).to.equal(expectedError);
       });
     });
-    describe('createRole', () => {
-      it('calls serviceProvider.runCommandWithCheck on the database with extra fields', async() => {
+    describe('createRole', function() {
+      it('calls serviceProvider.runCommandWithCheck on the database with extra fields', async function() {
         await database.createRole({
           role: 'anna',
           roles: [{ role: 'clusterAdmin', db: 'db1' }, { role: 'hostManager' }],
@@ -1266,7 +1268,7 @@ describe('Database', () => {
         );
       });
 
-      it('calls serviceProvider.runCommandWithCheck on the database without extra fields', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database without extra fields', async function() {
         await database.createRole({
           role: 'anna',
           roles: [],
@@ -1284,7 +1286,7 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.createRole({
@@ -1295,7 +1297,7 @@ describe('Database', () => {
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
         const caughtError = await database.createRole({
@@ -1307,7 +1309,7 @@ describe('Database', () => {
         expect(caughtError).to.equal(expectedError);
       });
 
-      it('throws if createRole is specified', async() => {
+      it('throws if createRole is specified', async function() {
         const caughtError = await database.createRole({
           createRole: 1,
           role: 'anna',
@@ -1318,8 +1320,8 @@ describe('Database', () => {
         expect(caughtError.code).to.equal(CommonErrors.InvalidArgument);
       });
     });
-    describe('updateRole', () => {
-      it('calls serviceProvider.runCommandWithCheck on the database with no extra fields', async() => {
+    describe('updateRole', function() {
+      it('calls serviceProvider.runCommandWithCheck on the database with no extra fields', async function() {
         await database.updateRole('anna', {
           roles: []
         }, { w: 1 });
@@ -1333,7 +1335,7 @@ describe('Database', () => {
           }
         );
       });
-      it('calls serviceProvider.runCommandWithCheck on the database with extra fields and passwordDigestor=server', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database with extra fields and passwordDigestor=server', async function() {
         await database.updateRole('anna', {
           roles: [{ role: 'dbAdmin', db: 'db1' }],
           privileges: ['find'],
@@ -1352,7 +1354,7 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.updateRole('anna', {
@@ -1363,7 +1365,7 @@ describe('Database', () => {
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
         const caughtError = await database.updateRole('anna', {
@@ -1375,8 +1377,8 @@ describe('Database', () => {
         expect(caughtError).to.equal(expectedError);
       });
     });
-    describe('dropRole', () => {
-      it('calls serviceProvider.runCommandWithCheck on the database', async() => {
+    describe('dropRole', function() {
+      it('calls serviceProvider.runCommandWithCheck on the database', async function() {
         await database.dropRole('anna');
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
@@ -1385,14 +1387,14 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.dropRole('anna');
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
         const caughtError = await database.dropRole('anna')
@@ -1400,8 +1402,8 @@ describe('Database', () => {
         expect(caughtError).to.equal(expectedError);
       });
     });
-    describe('dropAllRoles', () => {
-      it('calls serviceProvider.runCommandWithCheck on the database', async() => {
+    describe('dropAllRoles', function() {
+      it('calls serviceProvider.runCommandWithCheck on the database', async function() {
         await database.dropAllRoles();
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
@@ -1410,14 +1412,14 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.dropAllRoles();
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
         const caughtError = await database.dropAllRoles()
@@ -1425,8 +1427,8 @@ describe('Database', () => {
         expect(caughtError).to.equal(expectedError);
       });
     });
-    describe('grantRolesToRole', () => {
-      it('calls serviceProvider.runCommandWithCheck on the database', async() => {
+    describe('grantRolesToRole', function() {
+      it('calls serviceProvider.runCommandWithCheck on the database', async function() {
         await database.grantRolesToRole('anna', ['role1']);
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
@@ -1435,14 +1437,14 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.grantRolesToRole('anna', ['role1']);
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
         const caughtError = await database.grantRolesToRole('anna', ['role1'])
@@ -1450,8 +1452,8 @@ describe('Database', () => {
         expect(caughtError).to.equal(expectedError);
       });
     });
-    describe('revokeRolesFromRole', () => {
-      it('calls serviceProvider.runCommandWithCheck on the database', async() => {
+    describe('revokeRolesFromRole', function() {
+      it('calls serviceProvider.runCommandWithCheck on the database', async function() {
         await database.revokeRolesFromRole('anna', ['role1']);
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
@@ -1460,14 +1462,14 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.revokeRolesFromRole('anna', ['role1']);
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
         const caughtError = await database.revokeRolesFromRole('anna', ['role1'])
@@ -1476,8 +1478,8 @@ describe('Database', () => {
       });
     });
 
-    describe('grantPrivilegesToRole', () => {
-      it('calls serviceProvider.runCommandWithCheck on the database', async() => {
+    describe('grantPrivilegesToRole', function() {
+      it('calls serviceProvider.runCommandWithCheck on the database', async function() {
         await database.grantPrivilegesToRole('anna', ['privilege1']);
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
@@ -1486,14 +1488,14 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.grantPrivilegesToRole('anna', ['privilege1']);
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
         const caughtError = await database.grantPrivilegesToRole('anna', ['privilege1'])
@@ -1501,8 +1503,8 @@ describe('Database', () => {
         expect(caughtError).to.equal(expectedError);
       });
     });
-    describe('revokePrivilegesFromRole', () => {
-      it('calls serviceProvider.runCommandWithCheck on the database', async() => {
+    describe('revokePrivilegesFromRole', function() {
+      it('calls serviceProvider.runCommandWithCheck on the database', async function() {
         await database.revokePrivilegesFromRole('anna', ['privilege1']);
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
@@ -1511,14 +1513,14 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.revokePrivilegesFromRole('anna', ['privilege1']);
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
         const caughtError = await database.revokePrivilegesFromRole('anna', ['privilege1'])
@@ -1526,8 +1528,8 @@ describe('Database', () => {
         expect(caughtError).to.equal(expectedError);
       });
     });
-    describe('getRole', () => {
-      it('calls serviceProvider.runCommandWithCheck on the database without options', async() => {
+    describe('getRole', function() {
+      it('calls serviceProvider.runCommandWithCheck on the database without options', async function() {
         const expectedResult = { ok: 1, roles: [] };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         await database.getRole('anna');
@@ -1537,7 +1539,7 @@ describe('Database', () => {
           { rolesInfo: { role: 'anna', db: 'db1' } }
         );
       });
-      it('calls serviceProvider.runCommandWithCheck on the database with options', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database with options', async function() {
         const expectedResult = { ok: 1, roles: [] };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         await database.getRole('anna', {
@@ -1555,20 +1557,20 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
         const expectedResult = { ok: 1, roles: [{ role: 'anna' }] };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.getRole('anna');
         expect(result).to.deep.equal({ role: 'anna' });
       });
-      it('returns whatever serviceProvider.runCommandWithCheck returns if role does not exist', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns if role does not exist', async function() {
         const expectedResult = { ok: 1, roles: [] };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.getRole('anna');
         expect(result).to.deep.equal(null);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
         const caughtError = await database.getRole('anna')
@@ -1576,8 +1578,8 @@ describe('Database', () => {
         expect(caughtError).to.equal(expectedError);
       });
     });
-    describe('getRoles', () => {
-      it('calls serviceProvider.runCommandWithCheck on the database without options', async() => {
+    describe('getRoles', function() {
+      it('calls serviceProvider.runCommandWithCheck on the database without options', async function() {
         await database.getRoles();
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
@@ -1585,7 +1587,7 @@ describe('Database', () => {
           { rolesInfo: 1 }
         );
       });
-      it('calls serviceProvider.runCommandWithCheck on the database with options', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database with options', async function() {
         await database.getRoles({
           showCredentials: false,
           filter: {}
@@ -1601,14 +1603,14 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.getRoles();
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
         const caughtError = await database.getRoles()
@@ -1617,7 +1619,7 @@ describe('Database', () => {
       });
     });
 
-    describe('currentOp', () => {
+    describe('currentOp', function() {
       const currentOpStage = (args: Document = {}) => ({
         $currentOp: {
           allUsers: false,
@@ -1633,7 +1635,7 @@ describe('Database', () => {
         }
       };
 
-      beforeEach(() => {
+      beforeEach(function() {
         const tryNext = sinon.stub();
         tryNext.onCall(0).resolves({});
         tryNext.onCall(1).resolves(null);
@@ -1747,7 +1749,7 @@ describe('Database', () => {
         });
       });
 
-      it('returns the result of serviceProvider.aggregateDb wrapped in an interface', async() => {
+      it('returns the result of serviceProvider.aggregateDb wrapped in an interface', async function() {
         const expectedResult = { ok: 1, inprog: [] };
 
         const tryNext = sinon.stub();
@@ -1759,7 +1761,7 @@ describe('Database', () => {
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.aggregateDb rejects', async() => {
+      it('throws if serviceProvider.aggregateDb rejects', async function() {
         const expectedError = new Error();
 
         const tryNext = sinon.stub();
@@ -1770,7 +1772,7 @@ describe('Database', () => {
         expect(caughtError).to.equal(expectedError);
       });
 
-      it('tries serviceProvider.aggregateDb without truncateOps in case of FailedToParse', async() => {
+      it('tries serviceProvider.aggregateDb without truncateOps in case of FailedToParse', async function() {
         const failedToParseError: Error & { codeName?: string } = new Error("failed parsing stage: unrecognized option 'truncateOps' in $currentOp stage, correlationID = d22322776557396");
         failedToParseError.codeName = 'FailedToParse';
 
@@ -1808,8 +1810,8 @@ describe('Database', () => {
       });
     });
 
-    describe('killOp', () => {
-      it('calls serviceProvider.runCommandWithCheck on the database with options', async() => {
+    describe('killOp', function() {
+      it('calls serviceProvider.runCommandWithCheck on the database with options', async function() {
         await database.killOp(123);
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
@@ -1820,14 +1822,14 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.killOp(123);
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
         const caughtError = await database.killOp(123)
@@ -1836,8 +1838,8 @@ describe('Database', () => {
       });
     });
 
-    describe('shutdownServer', () => {
-      it('calls serviceProvider.runCommandWithCheck on the database without options', async() => {
+    describe('shutdownServer', function() {
+      it('calls serviceProvider.runCommandWithCheck on the database without options', async function() {
         await database.shutdownServer();
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
@@ -1845,7 +1847,7 @@ describe('Database', () => {
           { shutdown: 1 }
         );
       });
-      it('calls serviceProvider.runCommandWithCheck on the database with options', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database with options', async function() {
         await database.shutdownServer({
           force: true,
           timeoutSecs: 1
@@ -1861,14 +1863,14 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.shutdownServer();
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
         const caughtError = await database.shutdownServer()
@@ -1877,8 +1879,8 @@ describe('Database', () => {
       });
     });
 
-    describe('fsyncLock', () => {
-      it('calls serviceProvider.runCommandWithCheck on the database with options', async() => {
+    describe('fsyncLock', function() {
+      it('calls serviceProvider.runCommandWithCheck on the database with options', async function() {
         await database.fsyncLock();
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
@@ -1889,14 +1891,14 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.fsyncLock();
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
         const caughtError = await database.fsyncLock()
@@ -1905,8 +1907,8 @@ describe('Database', () => {
       });
     });
 
-    describe('fsyncUnlock', () => {
-      it('calls serviceProvider.runCommandWithCheck on the database with options', async() => {
+    describe('fsyncUnlock', function() {
+      it('calls serviceProvider.runCommandWithCheck on the database with options', async function() {
         await database.fsyncUnlock();
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
@@ -1917,14 +1919,14 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.fsyncUnlock();
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
         const caughtError = await database.fsyncUnlock()
@@ -1933,8 +1935,8 @@ describe('Database', () => {
       });
     });
 
-    describe('version', () => {
-      it('calls serviceProvider.runCommandWithCheck on the database with options', async() => {
+    describe('version', function() {
+      it('calls serviceProvider.runCommandWithCheck on the database with options', async function() {
         const expectedResult = { ok: 1, version: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         await database.version();
@@ -1946,14 +1948,14 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
         const expectedResult = { ok: 1, version: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.version();
         expect(result).to.deep.equal(1);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
         const caughtError = await database.version()
@@ -1961,7 +1963,7 @@ describe('Database', () => {
         expect(caughtError).to.equal(expectedError);
       });
 
-      it('throws if runCommand returns undefined', async() => {
+      it('throws if runCommand returns undefined', async function() {
         serviceProvider.runCommandWithCheck.resolves(undefined);
         const caughtError = await database.version().catch(e => e);
         expect(caughtError).to.be.instanceOf(MongoshRuntimeError);
@@ -1969,8 +1971,8 @@ describe('Database', () => {
       });
     });
 
-    describe('serverBits', () => {
-      it('calls serviceProvider.runCommandWithCheck on the database with options', async() => {
+    describe('serverBits', function() {
+      it('calls serviceProvider.runCommandWithCheck on the database with options', async function() {
         const expectedResult = { ok: 1, bits: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         await database.serverBits();
@@ -1983,13 +1985,13 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
         serviceProvider.runCommandWithCheck.resolves({ ok: 1, bits: 3 });
         const result = await database.serverBits();
         expect(result).to.deep.equal(3);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
         const caughtError = await database.serverBits()
@@ -1997,7 +1999,7 @@ describe('Database', () => {
         expect(caughtError).to.equal(expectedError);
       });
 
-      it('throws if runCommand returns undefined', async() => {
+      it('throws if runCommand returns undefined', async function() {
         serviceProvider.runCommandWithCheck.resolves(undefined);
         const caughtError = await database.serverBits().catch(e => e);
         expect(caughtError).to.be.instanceOf(MongoshRuntimeError);
@@ -2005,8 +2007,8 @@ describe('Database', () => {
       });
     });
 
-    describe('isMaster', () => {
-      it('calls serviceProvider.runCommandWithCheck on the database with options', async() => {
+    describe('isMaster', function() {
+      it('calls serviceProvider.runCommandWithCheck on the database with options', async function() {
         await database.isMaster();
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
@@ -2017,14 +2019,14 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.isMaster();
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
         const caughtError = await database.isMaster()
@@ -2033,8 +2035,8 @@ describe('Database', () => {
       });
     });
 
-    describe('serverBuildInfo', () => {
-      it('calls serviceProvider.runCommandWithCheck on the database with options', async() => {
+    describe('serverBuildInfo', function() {
+      it('calls serviceProvider.runCommandWithCheck on the database with options', async function() {
         await database.serverBuildInfo();
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
@@ -2045,14 +2047,14 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.serverBuildInfo();
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
         const caughtError = await database.serverBuildInfo()
@@ -2061,8 +2063,8 @@ describe('Database', () => {
       });
     });
 
-    describe('stats', () => {
-      it('calls serviceProvider.runCommandWithCheck on the database with scale argument', async() => {
+    describe('stats', function() {
+      it('calls serviceProvider.runCommandWithCheck on the database with scale argument', async function() {
         await database.stats(1);
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
@@ -2074,7 +2076,7 @@ describe('Database', () => {
         );
       });
 
-      it('calls serviceProvider.runCommandWithCheck on the database with options object', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database with options object', async function() {
         await database.stats({ scale: 1, freeStorage: 1 });
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
@@ -2087,7 +2089,7 @@ describe('Database', () => {
         );
       });
 
-      it('calls serviceProvider.runCommandWithCheck on the database with options object without explicit scale', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database with options object without explicit scale', async function() {
         await database.stats({ freeStorage: 1 });
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
@@ -2100,7 +2102,7 @@ describe('Database', () => {
         );
       });
 
-      it('calls serviceProvider.runCommandWithCheck on the database without options', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database without options', async function() {
         await database.stats();
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
@@ -2112,14 +2114,14 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.stats(1);
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
         const caughtError = await database.stats(1)
@@ -2128,8 +2130,8 @@ describe('Database', () => {
       });
     });
 
-    describe('serverStatus', () => {
-      it('calls serviceProvider.runCommandWithCheck on the database with options', async() => {
+    describe('serverStatus', function() {
+      it('calls serviceProvider.runCommandWithCheck on the database with options', async function() {
         await database.serverStatus({ repl: 0, metrics: 0, locks: 0 });
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
@@ -2139,7 +2141,7 @@ describe('Database', () => {
           }
         );
       });
-      it('calls serviceProvider.runCommandWithCheck on the database without options', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database without options', async function() {
         await database.serverStatus();
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
@@ -2150,14 +2152,14 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.serverStatus();
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
         const caughtError = await database.serverStatus()
@@ -2166,8 +2168,8 @@ describe('Database', () => {
       });
     });
 
-    describe('hostInfo', () => {
-      it('calls serviceProvider.runCommandWithCheck on the database with options', async() => {
+    describe('hostInfo', function() {
+      it('calls serviceProvider.runCommandWithCheck on the database with options', async function() {
         await database.hostInfo();
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
@@ -2178,14 +2180,14 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.hostInfo();
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
         const caughtError = await database.hostInfo()
@@ -2194,8 +2196,8 @@ describe('Database', () => {
       });
     });
 
-    describe('serverCmdLineOpts', () => {
-      it('calls serviceProvider.runCommandWithCheck on the database with options', async() => {
+    describe('serverCmdLineOpts', function() {
+      it('calls serviceProvider.runCommandWithCheck on the database with options', async function() {
         await database.serverCmdLineOpts();
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
@@ -2206,14 +2208,14 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.serverCmdLineOpts();
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
         const caughtError = await database.serverCmdLineOpts()
@@ -2222,13 +2224,13 @@ describe('Database', () => {
       });
     });
 
-    describe('printCollectionStats', () => {
-      it('throws if scale is invalid', async() => {
+    describe('printCollectionStats', function() {
+      it('throws if scale is invalid', async function() {
         const error = await database.printCollectionStats(-1).catch(e => e);
         expect(error).to.be.instanceOf(MongoshInvalidInputError);
         expect(error.code).to.equal(CommonErrors.InvalidArgument);
       });
-      it('returns an object with per-collection stats', async() => {
+      it('returns an object with per-collection stats', async function() {
         serviceProvider.listCollections.resolves([{ name: 'abc' }]);
         const collStatsResult = { storageStats: { totalSize: 1000 } };
         const tryNext = sinon.stub();
@@ -2252,8 +2254,8 @@ describe('Database', () => {
       });
     });
 
-    describe('getFreeMonitoringStatus', () => {
-      it('calls serviceProvider.runCommandWithCheck on the database', async() => {
+    describe('getFreeMonitoringStatus', function() {
+      it('calls serviceProvider.runCommandWithCheck on the database', async function() {
         serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
         await database.getFreeMonitoringStatus();
 
@@ -2265,14 +2267,14 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.getFreeMonitoringStatus();
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
         const caughtError = await database.getFreeMonitoringStatus()
@@ -2281,8 +2283,8 @@ describe('Database', () => {
       });
     });
 
-    describe('disableFreeMonitoring', () => {
-      it('calls serviceProvider.runCommandWithCheck on the database with options', async() => {
+    describe('disableFreeMonitoring', function() {
+      it('calls serviceProvider.runCommandWithCheck on the database with options', async function() {
         serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
         await database.disableFreeMonitoring();
 
@@ -2295,14 +2297,14 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.disableFreeMonitoring();
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
         const caughtError = await database.disableFreeMonitoring()
@@ -2311,8 +2313,8 @@ describe('Database', () => {
       });
     });
 
-    describe('enableFreeMonitoring', () => {
-      it('throws if serviceProvider isWritablePrimary is false', async() => {
+    describe('enableFreeMonitoring', function() {
+      it('throws if serviceProvider isWritablePrimary is false', async function() {
         serviceProvider.runCommandWithCheck.resolves({ isWritablePrimary: false });
         const caughtError = await database.enableFreeMonitoring()
           .catch(e => e);
@@ -2320,7 +2322,7 @@ describe('Database', () => {
         expect(caughtError.code).to.equal(CommonErrors.InvalidOperation);
       });
 
-      it('calls serviceProvider.runCommand on the database', async() => {
+      it('calls serviceProvider.runCommand on the database', async function() {
         serviceProvider.runCommandWithCheck.onCall(0).resolves({ isWritablePrimary: true });
         serviceProvider.runCommandWithCheck.onCall(1).resolves({ ok: 1 });
         await database.enableFreeMonitoring();
@@ -2334,7 +2336,7 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommand returns if enabled', async() => {
+      it('returns whatever serviceProvider.runCommand returns if enabled', async function() {
         const expectedFMState = { ok: 1, state: 'enabled' };
 
         serviceProvider.runCommandWithCheck.onCall(0).resolves({ isWritablePrimary: true });
@@ -2343,7 +2345,7 @@ describe('Database', () => {
         const result = await database.enableFreeMonitoring();
         expect(result).to.deep.equal(expectedFMState);
       });
-      it('returns warning if not enabled', async() => {
+      it('returns warning if not enabled', async function() {
         serviceProvider.runCommandWithCheck.onCall(0).resolves({ isWritablePrimary: true });
         serviceProvider.runCommandWithCheck.onCall(1).resolves({ ok: 1 });
         serviceProvider.runCommandWithCheck.onCall(2).resolves({ ok: 1, enabled: false });
@@ -2352,7 +2354,7 @@ describe('Database', () => {
         expect(result).to.include('URL');
       });
 
-      it('returns warning if returns ok: 0 with auth error', async() => {
+      it('returns warning if returns ok: 0 with auth error', async function() {
         serviceProvider.runCommandWithCheck.onCall(0).resolves({ isWritablePrimary: true });
         serviceProvider.runCommandWithCheck.onCall(1).resolves({ ok: 1 });
         serviceProvider.runCommandWithCheck.onCall(2).resolves({ ok: 0, codeName: 'Unauthorized' });
@@ -2360,7 +2362,7 @@ describe('Database', () => {
         expect(result).to.be.a('string');
         expect(result).to.include('privilege');
       });
-      it('returns warning if throws with auth error', async() => {
+      it('returns warning if throws with auth error', async function() {
         const expectedError = new Error();
         (expectedError as any).codeName = 'Unauthorized';
         serviceProvider.runCommandWithCheck.onCall(0).resolves({ isWritablePrimary: true });
@@ -2371,7 +2373,7 @@ describe('Database', () => {
         expect(result).to.include('privilege');
       });
 
-      it('throws if throws with non-auth error', async() => {
+      it('throws if throws with non-auth error', async function() {
         serviceProvider.runCommandWithCheck.onCall(0).resolves({ isWritablePrimary: true });
         serviceProvider.runCommandWithCheck.onCall(1).resolves({ ok: 1 });
         serviceProvider.runCommandWithCheck.onCall(2).rejects(new Error());
@@ -2381,7 +2383,7 @@ describe('Database', () => {
         expect(error.code).to.equal(CommonErrors.CommandFailed);
       });
 
-      it('throws if serviceProvider.runCommand rejects without auth error', async() => {
+      it('throws if serviceProvider.runCommand rejects without auth error', async function() {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.onCall(0).resolves({ isWritablePrimary: true });
         serviceProvider.runCommandWithCheck.onCall(1).rejects(expectedError);
@@ -2391,8 +2393,8 @@ describe('Database', () => {
       });
     });
 
-    describe('getProfilingStatus', () => {
-      it('calls serviceProvider.runCommandWithCheck on the database', async() => {
+    describe('getProfilingStatus', function() {
+      it('calls serviceProvider.runCommandWithCheck on the database', async function() {
         serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
         await database.getProfilingStatus();
 
@@ -2404,14 +2406,14 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.getProfilingStatus();
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
         const caughtError = await database.getProfilingStatus()
@@ -2420,8 +2422,8 @@ describe('Database', () => {
       });
     });
 
-    describe('setProfilingLevel', () => {
-      it('calls serviceProvider.runCommandWithCheck on the database no options', async() => {
+    describe('setProfilingLevel', function() {
+      it('calls serviceProvider.runCommandWithCheck on the database no options', async function() {
         serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
         await database.setProfilingLevel(1);
 
@@ -2433,7 +2435,7 @@ describe('Database', () => {
         );
       });
 
-      it('calls serviceProvider.runCommandWithCheck on the database w number options', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database w number options', async function() {
         serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
         await database.setProfilingLevel(1, 100);
 
@@ -2446,7 +2448,7 @@ describe('Database', () => {
         );
       });
 
-      it('calls serviceProvider.runCommandWithCheck on the database w doc options', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database w doc options', async function() {
         serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
         await database.setProfilingLevel(1, { slowms: 100, sampleRate: 0.5 });
 
@@ -2460,14 +2462,14 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.setProfilingLevel(1);
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
         const caughtError = await database.setProfilingLevel(1)
@@ -2475,15 +2477,15 @@ describe('Database', () => {
         expect(caughtError).to.equal(expectedError);
       });
 
-      it('throws if profiling level is invalid', async() => {
+      it('throws if profiling level is invalid', async function() {
         const caughtError = await database.setProfilingLevel(4).catch(e => e);
         expect(caughtError).to.be.instanceOf(MongoshInvalidInputError);
         expect(caughtError.code).to.equal(CommonErrors.InvalidArgument);
       });
     });
 
-    describe('setLogLevel', () => {
-      it('calls serviceProvider.runCommandWithCheck on the database with no component', async() => {
+    describe('setLogLevel', function() {
+      it('calls serviceProvider.runCommandWithCheck on the database with no component', async function() {
         serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
         await database.setLogLevel(2);
 
@@ -2495,7 +2497,7 @@ describe('Database', () => {
           }
         );
       });
-      it('calls serviceProvider.runCommandWithCheck on the database with string component', async() => {
+      it('calls serviceProvider.runCommandWithCheck on the database with string component', async function() {
         serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
         await database.setLogLevel(2, 'a.b.c');
 
@@ -2508,14 +2510,14 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.setLogLevel(2);
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
         const caughtError = await database.setLogLevel(2)
@@ -2523,15 +2525,15 @@ describe('Database', () => {
         expect(caughtError).to.equal(expectedError);
       });
 
-      it('throws if component is given but not a string', async() => {
+      it('throws if component is given but not a string', async function() {
         const caughtError = await database.setLogLevel(1, {}).catch(e => e);
         expect(caughtError).to.be.instanceOf(MongoshInvalidInputError);
         expect(caughtError.code).to.equal(CommonErrors.InvalidArgument);
       });
     });
 
-    describe('getLogComponents', () => {
-      it('calls serviceProvider.runCommandWithCheck on the database with options', async() => {
+    describe('getLogComponents', function() {
+      it('calls serviceProvider.runCommandWithCheck on the database with options', async function() {
         serviceProvider.runCommandWithCheck.resolves({ ok: 1, logComponentVerbosity: 1 });
         await database.getLogComponents();
 
@@ -2544,21 +2546,21 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
         const expectedResult = { ok: 1, logComponentVerbosity: 100 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.getLogComponents();
         expect(result).to.deep.equal(100);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck returns undefined', async() => {
+      it('throws if serviceProvider.runCommandWithCheck returns undefined', async function() {
         serviceProvider.runCommandWithCheck.resolves(undefined);
         const caughtError = await database.getLogComponents().catch(e => e);
         expect(caughtError).to.be.instanceOf(MongoshRuntimeError);
         expect(caughtError.code).to.equal(CommonErrors.CommandFailed);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
         const caughtError = await database.getLogComponents()
@@ -2567,8 +2569,8 @@ describe('Database', () => {
       });
     });
 
-    describe('cloneDatabase, cloneCollection, copyDatabase', () => {
-      it('throws a helpful exception regarding their removal', () => {
+    describe('cloneDatabase, cloneCollection, copyDatabase', function() {
+      it('throws a helpful exception regarding their removal', function() {
         ['cloneDatabase', 'cloneCollection', 'copyDatabase'].forEach((method) => {
           try {
             database[method]();
@@ -2581,8 +2583,8 @@ describe('Database', () => {
       });
     });
 
-    describe('commandHelp', () => {
-      it('calls serviceProvider.runCommandWithCheck on the database with options', async() => {
+    describe('commandHelp', function() {
+      it('calls serviceProvider.runCommandWithCheck on the database with options', async function() {
         const expectedResult = { ok: 1, help: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         await database.commandHelp('listDatabases');
@@ -2596,21 +2598,21 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck().help returns', async() => {
+      it('returns whatever serviceProvider.runCommandWithCheck().help returns', async function() {
         const expectedResult = { ok: 1, help: 'help string' };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.commandHelp('listDatabases');
         expect(result).to.deep.equal('help string');
       });
 
-      it('throws if serviceProvider.runCommandWithCheck returns undefined', async() => {
+      it('throws if serviceProvider.runCommandWithCheck returns undefined', async function() {
         serviceProvider.runCommandWithCheck.resolves(undefined);
         const caughtError = await database.commandHelp('listDatabases').catch(e => e);
         expect(caughtError).to.be.instanceOf(MongoshRuntimeError);
         expect(caughtError.code).to.equal(CommonErrors.CommandFailed);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
         const caughtError = await database.commandHelp('listDatabases')
@@ -2619,8 +2621,8 @@ describe('Database', () => {
       });
     });
 
-    describe('listCommands', () => {
-      it('calls serviceProvider.runCommandWithCheck on the database', async() => {
+    describe('listCommands', function() {
+      it('calls serviceProvider.runCommandWithCheck on the database', async function() {
         const expectedResult = { ok: 1, commands: [] };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         await database.listCommands();
@@ -2633,7 +2635,7 @@ describe('Database', () => {
         );
       });
 
-      it('returns ListCommandsResult', async() => {
+      it('returns ListCommandsResult', async function() {
         const expectedResult = { ok: 1, commands: { c1: { requiresAuth: false, secondaryOk: true, adminOnly: false, help: 'help string' } } };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await database.listCommands();
@@ -2642,14 +2644,14 @@ describe('Database', () => {
         expect(result.type).to.equal('ListCommandsResult');
       });
 
-      it('throws if serviceProvider.runCommandWithCheck returns undefined', async() => {
+      it('throws if serviceProvider.runCommandWithCheck returns undefined', async function() {
         serviceProvider.runCommandWithCheck.resolves(undefined);
         const caughtError = await database.listCommands().catch(e => e);
         expect(caughtError).to.be.instanceOf(MongoshRuntimeError);
         expect(caughtError.code).to.equal(CommonErrors.CommandFailed);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async() => {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
         const caughtError = await database.listCommands()
@@ -2657,8 +2659,8 @@ describe('Database', () => {
         expect(caughtError).to.equal(expectedError);
       });
     });
-    describe('getLastError', () => {
-      it('calls serviceProvider.runCommand on the database with options', async() => {
+    describe('getLastError', function() {
+      it('calls serviceProvider.runCommand on the database with options', async function() {
         await database.getLastError(1, 100);
         expect(serviceProvider.runCommand).to.have.been.calledWith(
           database._name,
@@ -2670,22 +2672,22 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommand returns', async() => {
+      it('returns whatever serviceProvider.runCommand returns', async function() {
         const expectedResult = { ok: 1, err: 'message' };
         serviceProvider.runCommand.resolves(expectedResult);
         const result = await database.getLastError();
         expect(result).to.deep.equal('message');
       });
 
-      it('returns what serviceProvider.runCommand rejects', async() => {
+      it('returns what serviceProvider.runCommand rejects', async function() {
         const expectedError = { err: 'message' };
         serviceProvider.runCommand.rejects(expectedError);
         const result = await database.getLastError();
         expect(result).to.deep.equal('message');
       });
     });
-    describe('getLastErrorObj', () => {
-      it('calls serviceProvider.runCommand on the database with options', async() => {
+    describe('getLastErrorObj', function() {
+      it('calls serviceProvider.runCommand on the database with options', async function() {
         await database.getLastErrorObj(1, 100, false);
 
         expect(serviceProvider.runCommand).to.have.been.calledWith(
@@ -2699,52 +2701,52 @@ describe('Database', () => {
         );
       });
 
-      it('returns whatever serviceProvider.runCommand returns', async() => {
+      it('returns whatever serviceProvider.runCommand returns', async function() {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommand.resolves(expectedResult);
         const result = await database.getLastErrorObj();
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommand rejects', async() => {
+      it('throws if serviceProvider.runCommand rejects', async function() {
         const expectedError = { err: 'message' };
         serviceProvider.runCommand.rejects(expectedError);
         const result = await database.getLastErrorObj();
         expect(result).to.deep.equal(expectedError);
       });
     });
-    describe('watch', () => {
+    describe('watch', function() {
       let fakeSpCursor: any;
-      beforeEach(() => {
+      beforeEach(function() {
         fakeSpCursor = {
           closed: false,
           tryNext: async() => { }
         };
         serviceProvider.watch.returns(fakeSpCursor);
       });
-      it('calls serviceProvider.watch when given no args', async() => {
+      it('calls serviceProvider.watch when given no args', async function() {
         await database.watch();
         expect(serviceProvider.watch).to.have.been.calledWith([], {}, {}, database._name);
       });
-      it('calls serviceProvider.watch when given pipeline arg', async() => {
+      it('calls serviceProvider.watch when given pipeline arg', async function() {
         const pipeline = [{ $match: { operationType: 'insertOne' } }];
         await database.watch(pipeline);
         expect(serviceProvider.watch).to.have.been.calledWith(pipeline, {}, {}, database._name);
       });
-      it('calls serviceProvider.watch when given no args', async() => {
+      it('calls serviceProvider.watch when given no args', async function() {
         const pipeline = [{ $match: { operationType: 'insertOne' } }];
         const ops = { batchSize: 1 };
         await database.watch(pipeline, ops);
         expect(serviceProvider.watch).to.have.been.calledWith(pipeline, ops, {}, database._name);
       });
 
-      it('returns whatever serviceProvider.watch returns', async() => {
+      it('returns whatever serviceProvider.watch returns', async function() {
         const result = await database.watch();
         expect(result).to.deep.equal(new ChangeStreamCursor(fakeSpCursor, database._name, mongo));
         expect(database._mongo._instanceState.currentCursor).to.equal(result);
       });
 
-      it('throws if serviceProvider.watch throws', async() => {
+      it('throws if serviceProvider.watch throws', async function() {
         const expectedError = new Error();
         serviceProvider.watch.throws(expectedError);
         try {
@@ -2756,10 +2758,10 @@ describe('Database', () => {
         expect.fail('Failed to throw');
       });
     });
-    describe('sql', () => {
-      it('runs a $sql aggregation', async() => {
+    describe('sql', function() {
+      it('runs a $sql aggregation', async function() {
         const serviceProviderCursor = stubInterface<ServiceProviderAggCursor>();
-        serviceProvider.aggregateDb.returns(serviceProviderCursor as any);
+        serviceProvider.aggregateDb.returns(serviceProviderCursor );
         await database.sql('SELECT * FROM somecollection;', { options: true });
         expect(serviceProvider.aggregateDb).to.have.been.calledWith(
           database._name,
@@ -2775,39 +2777,39 @@ describe('Database', () => {
         );
       });
 
-      it('throws if aggregateDb fails', async() => {
+      it('throws if aggregateDb fails', async function() {
         serviceProvider.aggregateDb.throws(new Error('err'));
         const error: any = await database.sql('SELECT * FROM somecollection;').catch(err => err);
         expect(error.message).to.be.equal('err');
       });
 
-      it('throws if connecting to an unsupported server', async() => {
+      it('throws if connecting to an unsupported server', async function() {
         const serviceProviderCursor = stubInterface<ServiceProviderAggCursor>();
-        serviceProvider.aggregateDb.returns(serviceProviderCursor as any);
+        serviceProvider.aggregateDb.returns(serviceProviderCursor );
         serviceProviderCursor.hasNext.throws(Object.assign(new Error(), { code: 40324 }));
         const error: any = await database.sql('SELECT * FROM somecollection;').catch(err => err);
         expect(error.message).to.match(/db\.sql currently only works when connected to a Data Lake/);
       });
 
-      it('forwards other driver errors', async() => {
+      it('forwards other driver errors', async function() {
         const serviceProviderCursor = stubInterface<ServiceProviderAggCursor>();
-        serviceProvider.aggregateDb.returns(serviceProviderCursor as any);
+        serviceProvider.aggregateDb.returns(serviceProviderCursor );
         serviceProviderCursor.hasNext.throws(Object.assign(new Error('any error'), { code: 12345 }));
         const error: any = await database.sql('SELECT * FROM somecollection;').catch(err => err);
         expect(error.message).to.be.equal('any error');
       });
 
-      it('forwards generic cursor errors', async() => {
+      it('forwards generic cursor errors', async function() {
         const serviceProviderCursor = stubInterface<ServiceProviderAggCursor>();
-        serviceProvider.aggregateDb.returns(serviceProviderCursor as any);
+        serviceProvider.aggregateDb.returns(serviceProviderCursor );
         serviceProviderCursor.hasNext.throws(Object.assign(new Error('any error')));
         const error: any = await database.sql('SELECT * FROM somecollection;').catch(err => err);
         expect(error.message).to.be.equal('any error');
       });
     });
 
-    describe('checkMetadataConsistency', () => {
-      it('calls serviceProvider.runCursorCommand and returns a RunCommandCursor', async() => {
+    describe('checkMetadataConsistency', function() {
+      it('calls serviceProvider.runCursorCommand and returns a RunCommandCursor', async function() {
         const providerCursor = stubInterface<ServiceProviderRunCommandCursor>();
         serviceProvider.runCursorCommand.returns(providerCursor);
         const runCommandCursor = await database.checkMetadataConsistency();
@@ -2818,7 +2820,7 @@ describe('Database', () => {
       });
     });
   });
-  describe('with session', () => {
+  describe('with session', function() {
     let serviceProvider: StubbedInstance<ServiceProvider>;
     let database: Database;
     let internalSession: StubbedInstance<ServiceProviderSession>;
@@ -2862,7 +2864,7 @@ describe('Database', () => {
       'sql',
     ];
     const args = [{}, {}, {}];
-    beforeEach(() => {
+    beforeEach(function() {
       const bus = stubInterface<EventEmitter>();
       serviceProvider = stubInterface<ServiceProvider>();
       serviceProvider.initialDb = 'test';
@@ -2879,7 +2881,7 @@ describe('Database', () => {
       const session = mongo.startSession();
       database = session.getDatabase('db1');
     });
-    it('all commands that use runCommandWithCheck', async() => {
+    it('all commands that use runCommandWithCheck', async function() {
       for (const method of Object.getOwnPropertyNames(Database.prototype).filter(
         k => !ignore.includes(k) && !Object.keys(exceptions).includes(k)
       )) {
@@ -2892,11 +2894,11 @@ describe('Database', () => {
             expect.fail(`${method} failed, error thrown ${e.message}`);
           }
           expect(serviceProvider.runCommandWithCheck.called).to.be.true;
-          expect((serviceProvider.runCommandWithCheck.getCall(-1).args[2] as any).session).to.equal(internalSession);
+          expect((serviceProvider.runCommandWithCheck.getCall(-1).args[2] ).session).to.equal(internalSession);
         }
       }
     });
-    it('all commands that use other methods', async() => {
+    it('all commands that use other methods', async function() {
       for (const method of Object.keys(exceptions)) {
         const customA = exceptions[method].a || args;
         const customM = exceptions[method].m || 'runCommandWithCheck';
@@ -2907,7 +2909,7 @@ describe('Database', () => {
           expect.fail(`${method} failed, error thrown ${e.message}`);
         }
         expect(serviceProvider[customM].called).to.equal(true, `expecting ${customM} to be called but it was not`);
-        expect((serviceProvider[customM].getCall(-1).args[customI] as any).session).to.equal(internalSession);
+        expect((serviceProvider[customM].getCall(-1).args[customI] ).session).to.equal(internalSession);
       }
     });
   });

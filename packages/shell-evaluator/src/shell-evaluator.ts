@@ -1,5 +1,6 @@
+import type {
+  ShellInstanceState} from '@mongosh/shell-api';
 import {
-  ShellInstanceState,
   toShellResult,
   ShellResult,
   EvaluationListener
@@ -32,7 +33,6 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
    * @param {Context} context - the execution context.
    * @param {String} filename
    */
-  // eslint-disable-next-line complexity
   private async innerEval(originalEval: EvaluationFunction, input: string, context: object, filename: string): Promise<any> {
     const { shellApi } = this.instanceState;
     const trimmedInput = input.trim();
@@ -70,7 +70,6 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
       // db.test.find().toArray() is a Promise for an Array from the context
       // in which the shell-api package lives and not from the context inside
       // the REPL (i.e. `db.test.find().toArray() instanceof Array` is `false`).
-      // eslint-disable-next-line no-eval
       eval(supportCode);
       rewrittenInput = supportCode + ';\n' + rewrittenInput;
     }

@@ -1,6 +1,9 @@
-import { start as originalStart, REPLServer } from 'repl';
-import { start, OriginalEvalFunction, AsyncREPLOptions, evalStart, evalFinish } from './async-repl';
-import { Readable, Writable, PassThrough } from 'stream';
+import type { REPLServer } from 'repl';
+import { start as originalStart } from 'repl';
+import type { OriginalEvalFunction, AsyncREPLOptions} from './async-repl';
+import { start, evalStart, evalFinish } from './async-repl';
+import type { Readable, Writable} from 'stream';
+import { PassThrough } from 'stream';
 import { promisify, inspect } from 'util';
 import { once } from 'events';
 import chai, { expect } from 'chai';
@@ -45,20 +48,20 @@ async function expectInStream(stream: Readable, substring: string): Promise<void
   expect(found).to.be.true;
 }
 
-describe('AsyncRepl', () => {
-  before(() => {
+describe('AsyncRepl', function() {
+  before(function() {
     // nyc adds its own SIGINT listener that annoys use here.
     process.removeAllListeners('SIGINT');
   });
 
-  it('performs basic synchronous evaluation', async() => {
+  it('performs basic synchronous evaluation', async function() {
     const { input, output } = createDefaultAsyncRepl();
 
     input.write('34 + 55\n');
     await expectInStream(output, '89');
   });
 
-  it('performs basic asynchronous evaluation', async() => {
+  it('performs basic asynchronous evaluation', async function() {
     const { input, output } = createDefaultAsyncRepl();
 
     input.write('Promise.resolve(34 + 55)\n');
@@ -95,14 +98,14 @@ describe('AsyncRepl', () => {
     await finished;
   });
 
-  it('handles synchronous exceptions well', async() => {
+  it('handles synchronous exceptions well', async function() {
     const { input, output } = createDefaultAsyncRepl();
 
     input.write('throw new Error("meow")\n');
     await expectInStream(output, 'meow');
   });
 
-  it('disables raw mode for input during both sync and async evaluation when async sigint is enabled', async() => {
+  it('disables raw mode for input during both sync and async evaluation when async sigint is enabled', async function() {
     const { input, output, repl } = createDefaultAsyncRepl({ onAsyncSigint: () => false });
     let isRaw = true;
     Object.defineProperty(input, 'isRaw', {
@@ -117,14 +120,14 @@ describe('AsyncRepl', () => {
     expect(isRaw).to.equal(true);
   });
 
-  it('handles asynchronous exceptions well', async() => {
+  it('handles asynchronous exceptions well', async function() {
     const { input, output } = createDefaultAsyncRepl();
 
     input.write('Promise.reject(new Error("meow"))\n');
     await expectInStream(output, 'meow');
   });
 
-  it('handles recoverable syntax errors well', async() => {
+  it('handles recoverable syntax errors well', async function() {
     const { input, output } = createDefaultAsyncRepl();
 
     input.write('{ uptime: process.uptime(\n');
@@ -143,7 +146,7 @@ describe('AsyncRepl', () => {
     expect(foundUid).to.be.true;
   });
 
-  it('delays the "exit" event until after asynchronous evaluation is finished', async() => {
+  it('delays the "exit" event until after asynchronous evaluation is finished', async function() {
     const { input, repl } = createDefaultAsyncRepl();
     let exited = false;
     repl.on('exit', () => { exited = true; });
@@ -162,8 +165,8 @@ describe('AsyncRepl', () => {
     expect(exited).to.be.true;
   });
 
-  describe('allows handling exceptions from e.g. the writer function', () => {
-    it('for succesful completions', async() => {
+  describe('allows handling exceptions from e.g. the writer function', function() {
+    it('for succesful completions', async function() {
       const error = new Error('throwme');
       const { input, output } = createDefaultAsyncRepl({
         writer: (value: any): string => {
@@ -181,7 +184,7 @@ describe('AsyncRepl', () => {
       await expectInStream(output, 'saw this error: throwme');
     });
 
-    it('for unsuccesful completions', async() => {
+    it('for unsuccesful completions', async function() {
       const error = new Error('throwme');
       const { input, output } = createDefaultAsyncRepl({
         writer: (value: any): string => {
@@ -199,7 +202,7 @@ describe('AsyncRepl', () => {
       await expectInStream(output, 'saw this error: throwme');
     });
 
-    it('defaults to passing the error through as-is', async() => {
+    it('defaults to passing the error through as-is', async function() {
       const error = new Error('raw error');
       const { input, output } = createDefaultAsyncRepl({
         writer: (value: any): string => {
@@ -215,7 +218,7 @@ describe('AsyncRepl', () => {
     });
   });
 
-  it('allows customizing the repl.start function', () => {
+  it('allows customizing the repl.start function', function() {
     const { repl } = createDefaultAsyncRepl({
       start: (options) => {
         const repl = originalStart(options);
@@ -228,7 +231,7 @@ describe('AsyncRepl', () => {
   });
 
   // This one is really just for test coverage. :)
-  it('allows emitting any kind of event on the active Domain', async() => {
+  it('allows emitting any kind of event on the active Domain', async function() {
     const { input, output, repl } = createDefaultAsyncRepl();
     repl.context.onEvent = sinon.spy();
 
@@ -237,8 +240,8 @@ describe('AsyncRepl', () => {
     expect(repl.context.onEvent).to.have.been.calledWith();
   });
 
-  context('emits information about the current evaluation', () => {
-    it('for successful completion', async() => {
+  context('emits information about the current evaluation', function() {
+    it('for successful completion', async function() {
       const { input, repl } = createDefaultAsyncRepl();
       const startEvent = once(repl, evalStart);
       const finishEvent = once(repl, evalFinish);
@@ -252,7 +255,7 @@ describe('AsyncRepl', () => {
       }]);
     });
 
-    it('for error completion', async() => {
+    it('for error completion', async function() {
       const { input, repl } = createDefaultAsyncRepl();
       const finishEvent = once(repl, evalFinish);
       input.write('throw { msg: "foo" }\n');
@@ -264,7 +267,7 @@ describe('AsyncRepl', () => {
       }]);
     });
 
-    it('for unfinished (incomplete multiline) input', async() => {
+    it('for unfinished (incomplete multiline) input', async function() {
       const { input, repl } = createDefaultAsyncRepl();
       const finishEvent = once(repl, evalFinish);
       input.write('({\n');

@@ -1,7 +1,7 @@
 import { returnsPromise, shellApiClassDefault, returnType, deprecated, apiVersions, ShellApiWithMongoClass } from './decorators';
-import Mongo from './mongo';
+import type Mongo from './mongo';
 import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
-import {
+import type {
   Batch,
   Document,
   WriteConcern,
@@ -172,7 +172,8 @@ export default class Bulk extends ShellApiWithMongoClass {
   @returnsPromise
   @apiVersions([1])
   async execute(writeConcern?: WriteConcern): Promise<BulkWriteResult> {
-    const { result } = await this._serviceProviderBulkOp.execute() as any;
+    // @ts-expect-error Property 'result' is private and only accessible within class 'BulkWriteResult'.
+    const { result } = await this._serviceProviderBulkOp.execute() ;
     this._executed = true;
     this._emitBulkApiCall('execute', { writeConcern: writeConcern });
     return new BulkWriteResult(

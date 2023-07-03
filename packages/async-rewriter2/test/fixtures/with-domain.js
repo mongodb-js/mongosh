@@ -1,4 +1,3 @@
-// eslint-disable-next-line strict
 'use strict';
 const { default: AsyncWriter } = require('../../');
 const domain = require('domain');

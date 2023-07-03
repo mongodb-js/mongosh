@@ -1,4 +1,4 @@
-import ShellAuthOptions from './shell-auth-options';
+import type ShellAuthOptions from './shell-auth-options';
 import type {
   MongoClientOptions,
   ReadConcern,
@@ -15,7 +15,7 @@ import type {
 } from './all-transport-types';
 import type { bson as BSON } from './index';
 import type { ReplPlatform } from './platform';
-import {
+import type {
   AWSEncryptionKeyOptions,
   AzureEncryptionKeyOptions,
   ClientEncryption as MongoCryptClientEncryption,

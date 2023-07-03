@@ -21,10 +21,9 @@ const IGNORED_ATTRIBUTES = [
 
 const localesDir = path.resolve(__dirname, 'locales');
 
-// eslint-disable-next-line no-sync
 const localeFiles = fs.readdirSync(localesDir)
   .filter((filename) => {
-    return filename.match(/^[a-z]{2,3}_[A-Z]{2,3}\.ts$/);
+    return /^[a-z]{2,3}_[A-Z]{2,3}\.ts$/.exec(filename);
   })
   .filter((filename) => { // skip german for now
     return filename.includes('en');
@@ -37,11 +36,11 @@ localeFiles.forEach((localeFile) => {
   const locale = require(path.join(localesDir, localeFile)).default;
   const localeName = localeFile.replace('.ts', '');
 
-  describe(`${localeName}`, () => {
+  describe(`${localeName}`, function() {
     typeNames.forEach((typeName) => {
       const typeHelp = locale['shell-api'].classes[typeName];
 
-      it(`has translations for ${typeName} type`, () => {
+      it(`has translations for ${typeName} type`, function() {
         if (!typeHelp) {
           throw new Error(`Missing ${localeName} help for type: ${typeName}`);
         }
@@ -55,7 +54,7 @@ localeFiles.forEach((localeFile) => {
         .filter((attributeName) => !IGNORED_ATTRIBUTES.includes(`${typeName}.${attributeName}`));
 
       attributeNames.forEach((attributeName) => {
-        it(`has translations for ${typeName}.${attributeName} attribute`, () => {
+        it(`has translations for ${typeName}.${attributeName} attribute`, function() {
           const attributeHelp = typeHelp.help.attributes && typeHelp.help.attributes[attributeName];
           if (
             !attributeHelp ||

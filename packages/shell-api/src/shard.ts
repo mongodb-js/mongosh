@@ -1,4 +1,4 @@
-import Database from './database';
+import type Database from './database';
 import {
   shellApiClassDefault,
   returnsPromise, serverVersions, apiVersions, ShellApiWithMongoClass, returnType
@@ -7,11 +7,12 @@ import {
 import type { Document, CheckMetadataConsistencyOptions } from '@mongosh/service-provider-core';
 import { assertArgsDefinedType, getConfigDB, getPrintableShardStatus } from './helpers';
 import { ServerVersions, asPrintable } from './enums';
-import { CommandResult, UpdateResult } from './result';
+import type { UpdateResult } from './result';
+import { CommandResult } from './result';
 import { redactURICredentials } from '@mongosh/history';
-import Mongo from './mongo';
-import AggregationCursor from './aggregation-cursor';
-import RunCommandCursor from './run-command-cursor';
+import type Mongo from './mongo';
+import type AggregationCursor from './aggregation-cursor';
+import type RunCommandCursor from './run-command-cursor';
 import semver from 'semver';
 
 @shellApiClassDefault

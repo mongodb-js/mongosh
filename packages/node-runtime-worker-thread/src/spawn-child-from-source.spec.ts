@@ -1,19 +1,20 @@
 import { expect } from 'chai';
-import childProcess, { ChildProcess } from 'child_process';
+import type { ChildProcess } from 'child_process';
+import childProcess from 'child_process';
 import { once } from 'events';
 import spawnChildFromSource, { kill } from './spawn-child-from-source';
 
-describe('spawnChildFromSource', () => {
+describe('spawnChildFromSource', function() {
   let spawned: ChildProcess;
 
-  afterEach(async() => {
+  afterEach(async function() {
     if (spawned) {
       await kill(spawned, 'SIGKILL');
       spawned = null;
     }
   });
 
-  it('should throw if stdin is missing', async() => {
+  it('should throw if stdin is missing', async function() {
     let err: Error;
 
     try {
@@ -33,12 +34,12 @@ describe('spawnChildFromSource', () => {
       .match(/missing stdin/);
   });
 
-  it('should resolve with a child process', async() => {
+  it('should resolve with a child process', async function() {
     spawned = await spawnChildFromSource('');
     expect(spawned).to.be.instanceof((childProcess as any).ChildProcess);
   });
 
-  it('should spawn a process with an ipc channel open', async() => {
+  it('should spawn a process with an ipc channel open', async function() {
     spawned = await spawnChildFromSource(
       'process.on("message", (data) => process.send(data))'
     );
@@ -47,7 +48,7 @@ describe('spawnChildFromSource', () => {
     expect(message).to.equal('Hi!');
   });
 
-  it('should fail if process exited before successfully starting', async() => {
+  it('should fail if process exited before successfully starting', async function() {
     let err: Error;
 
     try {
@@ -68,7 +69,7 @@ describe('spawnChildFromSource', () => {
     );
   });
 
-  it('should fail if a timeout exceeded before the process is "ready"', async() => {
+  it('should fail if a timeout exceeded before the process is "ready"', async function() {
     let err: Error;
 
     try {

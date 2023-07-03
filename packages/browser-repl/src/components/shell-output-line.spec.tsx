@@ -10,50 +10,50 @@ import { SimpleTypeOutput } from './types/simple-type-output';
 import { ObjectOutput } from './types/object-output';
 import { ErrorOutput } from './types/error-output';
 
-describe('<ShellOutputLine />', () => {
-  it('renders a string value', () => {
+describe('<ShellOutputLine />', function() {
+  it('renders a string value', function() {
     const wrapper = mount(<ShellOutputLine entry={{ format: 'output', value: 'some text' }} />);
     expect(wrapper.find('pre')).to.have.lengthOf(1);
     expect(wrapper.text()).to.contain('some text');
   });
 
-  it('renders a pre-inspected string value from node-runtime-worker-thread', () => {
+  it('renders a pre-inspected string value from node-runtime-worker-thread', function() {
     const wrapper = shallow(<ShellOutputLine entry={{ format: 'output', value: 'some text', type: 'InspectResult' }} />);
     expect(wrapper.find(SimpleTypeOutput)).to.have.lengthOf(1);
   });
 
-  it('renders an integer value', () => {
+  it('renders an integer value', function() {
     const wrapper = shallow(<ShellOutputLine entry={{ format: 'output', value: 1 }} />);
     expect(wrapper.find(SimpleTypeOutput)).to.have.lengthOf(1);
   });
 
-  it('renders an object', () => {
+  it('renders an object', function() {
     const object = { x: 1 };
     const wrapper = shallow(<ShellOutputLine entry={{ format: 'output', value: object }} />);
     expect(wrapper.find(ObjectOutput)).to.have.lengthOf(1);
   });
 
-  it('renders undefined', () => {
+  it('renders undefined', function() {
     const wrapper = shallow(<ShellOutputLine entry={{ format: 'output', value: undefined }} />);
     expect(wrapper.find(SimpleTypeOutput)).to.have.lengthOf(1);
   });
 
-  it('renders null', () => {
+  it('renders null', function() {
     const wrapper = shallow(<ShellOutputLine entry={{ format: 'output', value: null }} />);
     expect(wrapper.find(SimpleTypeOutput)).to.have.lengthOf(1);
   });
 
-  it('renders function', () => {
+  it('renders function', function() {
     const wrapper = shallow(<ShellOutputLine entry={{ format: 'output', value: (x): any => x }} />);
     expect(wrapper.find(SimpleTypeOutput)).to.have.lengthOf(1);
   });
 
-  it('renders class', () => {
+  it('renders class', function() {
     const wrapper = shallow(<ShellOutputLine entry={{ format: 'output', value: class C {} }} />);
     expect(wrapper.find(SimpleTypeOutput)).to.have.lengthOf(1);
   });
 
-  it('renders Help', () => {
+  it('renders Help', function() {
     const wrapper = shallow(<ShellOutputLine entry={{
       format: 'output',
       type: 'Help',
@@ -67,7 +67,7 @@ describe('<ShellOutputLine />', () => {
     expect(wrapper.find(HelpOutput)).to.have.lengthOf(1);
   });
 
-  it('renders Cursor', () => {
+  it('renders Cursor', function() {
     const wrapper = shallow(<ShellOutputLine entry={{
       format: 'output',
       type: 'Cursor',
@@ -77,7 +77,7 @@ describe('<ShellOutputLine />', () => {
     expect(wrapper.find(CursorOutput)).to.have.lengthOf(1);
   });
 
-  it('renders CursorIterationResult', () => {
+  it('renders CursorIterationResult', function() {
     const wrapper = shallow(<ShellOutputLine entry={{
       format: 'output',
       type: 'CursorIterationResult',
@@ -87,7 +87,7 @@ describe('<ShellOutputLine />', () => {
     expect(wrapper.find(CursorIterationResultOutput)).to.have.lengthOf(1);
   });
 
-  it('renders Database', () => {
+  it('renders Database', function() {
     const wrapper = mount(<ShellOutputLine entry={{
       format: 'output',
       type: 'Database',
@@ -97,7 +97,7 @@ describe('<ShellOutputLine />', () => {
     expect(wrapper.text()).to.contain('value string');
   });
 
-  it('renders Collection', () => {
+  it('renders Collection', function() {
     const wrapper = mount(<ShellOutputLine entry={{
       format: 'output',
       type: 'Collection',
@@ -107,7 +107,7 @@ describe('<ShellOutputLine />', () => {
     expect(wrapper.text()).to.contain('value string');
   });
 
-  it('renders ShowCollectionsResult', () => {
+  it('renders ShowCollectionsResult', function() {
     const wrapper = mount(<ShellOutputLine entry={{
       format: 'output',
       type: 'ShowCollectionsResult',
@@ -125,7 +125,7 @@ describe('<ShellOutputLine />', () => {
     expect(wrapper.text()).to.match(/cats\s+\[time-series]()coll()decimal128()nested_documents()people_imported\s+\[view]()test\s+\[time-series]()system.views/);
   });
 
-  it('renders ShowDatabasesResult', () => {
+  it('renders ShowDatabasesResult', function() {
     const wrapper = mount(<ShellOutputLine entry={{
       format: 'output',
       type: 'ShowDatabasesResult',
@@ -147,7 +147,7 @@ test      558.79 GiB
 `.trim());
   });
 
-  it('renders StatsResult', () => {
+  it('renders StatsResult', function() {
     const wrapper = mount(<ShellOutputLine entry={{
       format: 'output',
       type: 'StatsResult',
@@ -161,7 +161,7 @@ test      558.79 GiB
     expect(wrapper.text()).to.include('metadata');
   });
 
-  it('renders ListCommandsResult', () => {
+  it('renders ListCommandsResult', function() {
     const wrapper = mount(<ShellOutputLine entry={{
       format: 'output',
       type: 'ListCommandsResult',
@@ -175,7 +175,7 @@ test      558.79 GiB
     expect(wrapper.text()).to.include('metadata');
   });
 
-  it('renders ShowProfileResult with count = 0', () => {
+  it('renders ShowProfileResult with count = 0', function() {
     const wrapper = mount(<ShellOutputLine entry={{
       format: 'output',
       type: 'ShowProfileResult',
@@ -186,7 +186,7 @@ test      558.79 GiB
     expect(wrapper.text()).to.include('db.system.profile is empty');
   });
 
-  it('renders ShowProfileResult with count > 0', () => {
+  it('renders ShowProfileResult with count > 0', function() {
     const wrapper = mount(<ShellOutputLine entry={{
       format: 'output',
       type: 'ShowProfileResult',
@@ -236,13 +236,13 @@ test      558.79 GiB
     expect(wrapper.text()).to.contain('aggregate');
   });
 
-  it('renders an error', () => {
+  it('renders an error', function() {
     const err = new Error('x');
     const wrapper = shallow(<ShellOutputLine entry={{ format: 'output', value: err }} />);
     expect(wrapper.find(ErrorOutput)).to.have.lengthOf(1);
   });
 
-  it('renders an input line', () => {
+  it('renders an input line', function() {
     const wrapper = mount(<ShellOutputLine entry={{ format: 'input', value: 'some text' }} />);
     expect(wrapper.text()).to.contain('some text');
   });

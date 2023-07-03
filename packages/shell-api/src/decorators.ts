@@ -1,14 +1,15 @@
-/* eslint-disable complexity, chai-friendly/no-unused-expressions */
 import { MongoshInternalError } from '@mongosh/errors';
 import type { ReplPlatform } from '@mongosh/service-provider-core';
-import { Mongo, ShellInstanceState } from '.';
+import type { Mongo, ShellInstanceState } from '.';
+import type { Topologies
+} from './enums';
 import {
   ALL_PLATFORMS,
   ALL_SERVER_VERSIONS,
   ALL_API_VERSIONS,
   ALL_TOPOLOGIES,
   asPrintable,
-  namespaceInfo, shellApiType, Topologies
+  namespaceInfo, shellApiType
 } from './enums';
 import Help from './help';
 import { addHiddenDataProperty } from './helpers';

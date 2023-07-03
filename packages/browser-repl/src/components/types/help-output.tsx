@@ -68,7 +68,7 @@ export class HelpOutput extends Component<HelpOutputProps> {
     if (!docs) { return; }
 
     return (<div>
-      {i18n.__('cli-repl.args.moreInformation')} <a href={docs} target="_blank">{docs}</a>
+      {i18n.__('cli-repl.args.moreInformation')} <a href={docs} target="_blank" rel="noreferrer">{docs}</a>
     </div>);
   }
 

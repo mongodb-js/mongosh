@@ -1,4 +1,3 @@
-// eslint-disable-next-line strict
 'use strict';
 const tls = require('tls');
 const net = require('net');

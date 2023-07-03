@@ -1,8 +1,9 @@
-import CliServiceProvider, { DevtoolsConnectOptions } from '../cli-service-provider';
-import { MongoClient } from 'mongodb';
+import type { DevtoolsConnectOptions } from '../cli-service-provider';
+import CliServiceProvider from '../cli-service-provider';
+import type { MongoClient } from 'mongodb';
 import type { ReplPlatform } from '@mongosh/service-provider-core';
-import ConnectionString from 'mongodb-connection-string-url';
-import { EventEmitter } from 'events';
+import type ConnectionString from 'mongodb-connection-string-url';
+import type { EventEmitter } from 'events';
 
 /**
  * A service provider that is meant to be used in compass.

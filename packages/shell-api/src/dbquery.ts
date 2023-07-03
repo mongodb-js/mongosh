@@ -3,7 +3,7 @@ import {
   shellApiClassDefault,
   classDeprecated
 } from './decorators';
-import ShellInstanceState from './shell-instance-state';
+import type ShellInstanceState from './shell-instance-state';
 
 @shellApiClassDefault
 @classDeprecated

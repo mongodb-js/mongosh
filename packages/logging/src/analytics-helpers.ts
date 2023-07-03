@@ -18,7 +18,6 @@ type AnalyticsIdentifyMessage = MongoshAnalyticsIdentity & {
 type AnalyticsTrackMessage = MongoshAnalyticsIdentity & {
   event: string;
   properties: {
-    // eslint-disable-next-line camelcase
     mongosh_version: string;
     [key: string]: any;
   };
@@ -80,8 +79,8 @@ class Queue<T> {
  * (e.g. because we are running without an API key).
  */
 export class NoopAnalytics implements MongoshAnalytics {
-  identify(_info: any): void {} // eslint-disable-line @typescript-eslint/no-unused-vars
-  track(_info: any): void {} // eslint-disable-line @typescript-eslint/no-unused-vars
+  identify(_info: any): void {}
+  track(_info: any): void {}
   flush(cb: () => void) {
     cb();
   }
@@ -205,7 +204,6 @@ async function lockfile(
       const now = Date.now();
       fs.promises.utimes(lockfilePath, now, now).catch(() => {});
     }, staleDuration / 2);
-    // eslint-disable-next-line chai-friendly/no-unused-expressions
     intervalId.unref?.();
     return unlock;
   } catch (e) {

@@ -17,7 +17,8 @@ import { once } from 'events';
 import { SHARE_ENV, Worker } from 'worker_threads';
 import path from 'path';
 import { exposeAll, createCaller } from './rpc';
-import { InterruptHandle, interrupt as nativeInterrupt } from 'interruptor';
+import type { InterruptHandle} from 'interruptor';
+import { interrupt as nativeInterrupt } from 'interruptor';
 
 const workerRuntimeSrcPath =
   process.env.WORKER_RUNTIME_SRC_PATH_DO_NOT_USE_THIS_EXCEPT_FOR_TESTING ||
@@ -116,6 +117,5 @@ exposeAll(messageBus, workerProcess);
 
 process.once('disconnect', () => process.exit());
 process.nextTick(() => {
-  // eslint-disable-next-line chai-friendly/no-unused-expressions
   process.send?.('ready');
 });

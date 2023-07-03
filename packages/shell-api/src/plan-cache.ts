@@ -6,11 +6,11 @@ import {
   deprecated,
   ShellApiWithMongoClass
 } from './decorators';
-import { Document } from '@mongosh/service-provider-core';
-import Collection from './collection';
+import type { Document } from '@mongosh/service-provider-core';
+import type Collection from './collection';
 import { asPrintable, ServerVersions } from './enums';
 import { MongoshDeprecatedError } from '@mongosh/errors';
-import Mongo from './mongo';
+import type Mongo from './mongo';
 
 @shellApiClassDefault
 export default class PlanCache extends ShellApiWithMongoClass {

@@ -1,13 +1,14 @@
 import * as path from 'path';
 import { once } from 'events';
 import { promises as fs } from 'fs';
-import { Readable } from 'stream';
+import type { Readable } from 'stream';
 import childProcess from 'child_process';
 
 import { bson } from '@mongosh/service-provider-core';
 import { makeMultilineJSIntoSingleLine } from '@mongosh/js-multiline-to-singleline';
-import { signatures, ShellInstanceState, TypeSignature } from '@mongosh/shell-api';
-import { ShellResult } from '@mongosh/shell-evaluator';
+import type { ShellInstanceState, TypeSignature } from '@mongosh/shell-api';
+import { signatures } from '@mongosh/shell-api';
+import type { ShellResult } from '@mongosh/shell-evaluator';
 
 import type { MongoshBus } from '@mongosh/types';
 

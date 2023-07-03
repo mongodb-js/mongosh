@@ -1,6 +1,7 @@
-import vm, { Context } from 'vm';
+import type { Context } from 'vm';
+import vm from 'vm';
 
-import {
+import type {
   ContextValue,
   InterpreterEnvironment
 } from '@mongosh/browser-runtime-core';

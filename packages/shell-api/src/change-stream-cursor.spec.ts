@@ -1,33 +1,34 @@
 import { expect } from 'chai';
-import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
+import type { StubbedInstance} from 'ts-sinon';
+import sinon, { stubInterface } from 'ts-sinon';
 import { signatures, toShellResult } from './index';
 import ChangeStreamCursor from './change-stream-cursor';
 import { ADMIN_DB, ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, ALL_API_VERSIONS } from './enums';
-import { ChangeStream, Document } from '@mongosh/service-provider-core';
+import type { ChangeStream, Document } from '@mongosh/service-provider-core';
 import { startTestCluster } from '../../../testing/integration-testing-hooks';
 import { CliServiceProvider } from '../../service-provider-server/lib';
 import ShellInstanceState from './shell-instance-state';
 import Mongo from './mongo';
 import { ensureMaster, ensureResult } from '../../../testing/helpers';
-import Database from './database';
-import Collection from './collection';
+import type Database from './database';
+import type Collection from './collection';
 import { MongoshUnimplementedError } from '@mongosh/errors';
 import { EventEmitter } from 'events';
 import { dummyOptions } from './helpers.spec';
 
-describe('ChangeStreamCursor', () => {
-  describe('help', () => {
+describe('ChangeStreamCursor', function() {
+  describe('help', function() {
     const apiClass = new ChangeStreamCursor({} as ChangeStream<Document>, 'source', {} as Mongo);
-    it('calls help function', async() => {
+    it('calls help function', async function() {
       expect((await toShellResult(apiClass.help())).type).to.equal('Help');
       expect((await toShellResult(apiClass.help)).type).to.equal('Help');
     });
   });
-  describe('signature', () => {
-    it('signature for class correct', () => {
+  describe('signature', function() {
+    it('signature for class correct', function() {
       expect(signatures.ChangeStreamCursor.type).to.equal('ChangeStreamCursor');
     });
-    it('next signature', () => {
+    it('next signature', function() {
       expect(signatures.ChangeStreamCursor.attributes.next).to.deep.equal({
         type: 'function',
         returnsPromise: true,
@@ -43,11 +44,11 @@ describe('ChangeStreamCursor', () => {
       });
     });
   });
-  describe('instance', () => {
+  describe('instance', function() {
     let spCursor: StubbedInstance<ChangeStream<Document>>;
     let cursor;
     let warnSpy;
-    beforeEach(() => {
+    beforeEach(function() {
       spCursor = stubInterface<ChangeStream<Document>>();
       warnSpy = sinon.spy();
 
@@ -56,18 +57,18 @@ describe('ChangeStreamCursor', () => {
       } as Mongo);
     });
 
-    it('sets dynamic properties', async() => {
+    it('sets dynamic properties', async function() {
       expect((await toShellResult(cursor)).type).to.equal('ChangeStreamCursor');
       const result3 = (await toShellResult(cursor)).printable;
       expect(result3).to.equal('ChangeStreamCursor on source');
       expect((await toShellResult(cursor.help)).type).to.equal('Help');
     });
 
-    it('pretty returns the same cursor', () => {
+    it('pretty returns the same cursor', function() {
       expect(cursor.pretty()).to.equal(cursor);
     });
 
-    it('calls spCursor.hasNext with arguments', async() => {
+    it('calls spCursor.hasNext with arguments', async function() {
       const result = false;
       spCursor.hasNext.resolves(result);
       const actual = await cursor.hasNext();
@@ -75,11 +76,11 @@ describe('ChangeStreamCursor', () => {
       expect(spCursor.hasNext.calledWith()).to.equal(true);
       expect(warnSpy.calledOnce).to.equal(true);
     });
-    it('calls spCursor.close with arguments', async() => {
+    it('calls spCursor.close with arguments', async function() {
       await cursor.close();
       expect(spCursor.close.calledWith()).to.equal(true);
     });
-    it('calls spCursor.tryNext with arguments', async() => {
+    it('calls spCursor.tryNext with arguments', async function() {
       const result = { doc: 1 };
       const tryNextSpy = sinon.stub();
       tryNextSpy.resolves(result);
@@ -92,7 +93,7 @@ describe('ChangeStreamCursor', () => {
       expect(actual).to.equal(result);
       expect(tryNextSpy.calledWith()).to.equal(true);
     });
-    it('calls spCursor.next with arguments', async() => {
+    it('calls spCursor.next with arguments', async function() {
       const result = { doc: 1 };
       spCursor.next.resolves(result as any);
       const actual = await cursor.next();
@@ -101,7 +102,7 @@ describe('ChangeStreamCursor', () => {
       expect(warnSpy.calledOnce).to.equal(true);
     });
   });
-  describe('integration', () => {
+  describe('integration', function() {
     const [ srv0 ] = startTestCluster(['--replicaset'] );
     let serviceProvider: CliServiceProvider;
     let instanceState: ShellInstanceState;
@@ -119,29 +120,29 @@ describe('ChangeStreamCursor', () => {
       coll = db.getCollection('testColl');
     });
 
-    beforeEach(async() => {
+    beforeEach(async function() {
       await ensureMaster(mongo.getDB(ADMIN_DB), 1000, await srv0.hostport());
     });
 
-    after(() => {
+    after(function() {
       return serviceProvider.close(true);
     });
 
-    describe('collection watch', () => {
-      beforeEach(async() => {
+    describe('collection watch', function() {
+      beforeEach(async function() {
         cursor = await coll.watch([{ '$match': { 'operationType': 'insert' } }]);
       });
-      it('tryNext returns null when there is nothing', async() => {
+      it('tryNext returns null when there is nothing', async function() {
         const result = await cursor.tryNext();
         expect(result).to.equal(null);
         await cursor.close();
       });
-      it('tryNext returns null when there is nothing matching the pipeline', async() => {
+      it('tryNext returns null when there is nothing matching the pipeline', async function() {
         await coll.deleteMany({});
         const result = await cursor.tryNext();
         expect(result).to.equal(null);
       });
-      it('tryNext returns document when there is a doc', async() => {
+      it('tryNext returns document when there is a doc', async function() {
         await coll.insertOne({ myDoc: 1 });
         const result = await ensureResult(
           100,
@@ -152,7 +153,7 @@ describe('ChangeStreamCursor', () => {
         expect(result.fullDocument.myDoc).to.equal(1);
         await cursor.close();
       });
-      it('_it iterates over the cursor', async() => {
+      it('_it iterates over the cursor', async function() {
         await coll.insertOne({ myDoc: 1 });
         const result = await ensureResult(
           100,
@@ -164,7 +165,7 @@ describe('ChangeStreamCursor', () => {
         expect(result.documents[0].fullDocument.myDoc).to.equal(1);
         await cursor.close();
       });
-      it('async iteration iterates over the cursor', async() => {
+      it('async iteration iterates over the cursor', async function() {
         await coll.insertOne({ myDoc: 1 });
         const result = await ensureResult(
           100,
@@ -180,15 +181,15 @@ describe('ChangeStreamCursor', () => {
         expect(result.fullDocument.myDoc).to.equal(1);
         await cursor.close();
       });
-      it('isClosed returns whether the cursor is closed', async() => {
+      it('isClosed returns whether the cursor is closed', async function() {
         expect(cursor.isClosed()).to.equal(false);
         await cursor.close();
         expect(cursor.isClosed()).to.equal(true);
       });
-      it('getResumeToken returns a resumeToken', () => {
+      it('getResumeToken returns a resumeToken', function() {
         expect(cursor.getResumeToken()).to.be.an('object');
       });
-      it('itcount returns batch size', async() => {
+      it('itcount returns batch size', async function() {
         await coll.insertOne({ myDoc: 1 });
         const result = await ensureResult(
           100,
@@ -198,21 +199,21 @@ describe('ChangeStreamCursor', () => {
         expect(result).to.equal(1);
       });
     });
-    describe('database watch', () => {
-      beforeEach(async() => {
+    describe('database watch', function() {
+      beforeEach(async function() {
         cursor = await db.watch([{ '$match': { 'operationType': 'insert' } }]);
       });
-      it('tryNext returns null when there is nothing', async() => {
+      it('tryNext returns null when there is nothing', async function() {
         const result = await cursor.tryNext();
         expect(result).to.equal(null);
         await cursor.close();
       });
-      it('tryNext returns null when there is nothing matching the pipeline', async() => {
+      it('tryNext returns null when there is nothing matching the pipeline', async function() {
         await coll.deleteMany({});
         const result = await cursor.tryNext();
         expect(result).to.equal(null);
       });
-      it('tryNext returns document when there is a doc', async() => {
+      it('tryNext returns document when there is a doc', async function() {
         await coll.insertOne({ myDoc: 1 });
         const result = await ensureResult(
           100,
@@ -223,7 +224,7 @@ describe('ChangeStreamCursor', () => {
         expect(result.fullDocument.myDoc).to.equal(1);
         await cursor.close();
       });
-      it('itcount returns batch size', async() => {
+      it('itcount returns batch size', async function() {
         await coll.insertOne({ myDoc: 1 });
         const result = await ensureResult(
           100,
@@ -232,7 +233,7 @@ describe('ChangeStreamCursor', () => {
           'itcount to return 1');
         expect(result).to.equal(1);
       });
-      it('can be interrupted when .next() blocks', async() => {
+      it('can be interrupted when .next() blocks', async function() {
         const nextPromise = cursor.next();
         nextPromise.catch(() => {}); // Suppress UnhandledPromiseRejectionWarning
         await new Promise(resolve => setTimeout(resolve, 100));
@@ -246,21 +247,21 @@ describe('ChangeStreamCursor', () => {
         }
       });
     });
-    describe('mongo watch', () => {
-      beforeEach(async() => {
+    describe('mongo watch', function() {
+      beforeEach(async function() {
         cursor = await mongo.watch([{ '$match': { 'operationType': 'insert' } }]);
       });
-      it('tryNext returns null when there is nothing', async() => {
+      it('tryNext returns null when there is nothing', async function() {
         const result = await cursor.tryNext();
         expect(result).to.equal(null);
         await cursor.close();
       });
-      it('tryNext returns null when there is nothing matching the pipeline', async() => {
+      it('tryNext returns null when there is nothing matching the pipeline', async function() {
         await coll.deleteMany({});
         const result = await cursor.tryNext();
         expect(result).to.equal(null);
       });
-      it('tryNext returns document when there is a doc', async() => {
+      it('tryNext returns document when there is a doc', async function() {
         await coll.insertOne({ myDoc: 1 });
         const result = await ensureResult(
           100,
@@ -271,7 +272,7 @@ describe('ChangeStreamCursor', () => {
         expect(result.fullDocument.myDoc).to.equal(1);
         await cursor.close();
       });
-      it('itcount returns batch size', async() => {
+      it('itcount returns batch size', async function() {
         await coll.insertOne({ myDoc: 1 });
         const result = await ensureResult(
           1000,
@@ -282,19 +283,18 @@ describe('ChangeStreamCursor', () => {
       });
     });
   });
-  describe('unsupported methods', () => {
+  describe('unsupported methods', function() {
     let cursor;
-    beforeEach(() => {
+    beforeEach(function() {
       cursor = new ChangeStreamCursor({} as ChangeStream<Document>, 'source', {} as Mongo);
     });
 
     for (const name of ['map', 'forEach', 'toArray', 'objsLeftInBatch']) {
-      // eslint-disable-next-line no-loop-func
-      it(`${name} fails`, () => {
+      it(`${name} fails`, function() {
         expect(() => cursor[name]()).to.throw(MongoshUnimplementedError);
       });
     }
-    it('isExhausted fails', async() => {
+    it('isExhausted fails', async function() {
       try {
         await cursor.isExhausted();
         expect.fail('missed exception');

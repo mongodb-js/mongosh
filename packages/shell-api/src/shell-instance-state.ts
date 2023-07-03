@@ -1,34 +1,39 @@
 import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
-import {
+import type {
   AutoEncryptionOptions,
   ConnectInfo,
-  DEFAULT_DB,
   ServerApi, ServiceProvider,
   TopologyDescription
+} from '@mongosh/service-provider-core';
+import {
+  DEFAULT_DB
 } from '@mongosh/service-provider-core';
 import type { ApiEvent, ApiEventWithArguments, ConfigProvider, MongoshBus, ShellUserConfig } from '@mongosh/types';
 import { EventEmitter } from 'events';
 import redactInfo from 'mongodb-redact';
-import ChangeStreamCursor from './change-stream-cursor';
+import type ChangeStreamCursor from './change-stream-cursor';
 import { toIgnore } from './decorators';
 import { Topologies } from './enums';
 import { ShellApiErrors } from './error-codes';
-import {
+import type {
   AggregationCursor,
   Cursor,
   RunCommandCursor,
   Database,
+  ShellResult
+} from './index';
+import {
   getShellApiType,
   Mongo,
   ReplicaSet,
   Shard,
-  ShellApi,
-  ShellResult
+  ShellApi
 } from './index';
 import { InterruptFlag } from './interruptor';
 import { TransformMongoErrorPlugin } from './mongo-errors';
 import NoDatabase from './no-db';
-import constructShellBson, { ShellBson } from './shell-bson';
+import type { ShellBson } from './shell-bson';
+import constructShellBson from './shell-bson';
 
 /**
  * The subset of CLI options that is relevant for the shell API's behavior itself.
@@ -291,7 +296,6 @@ export default class ShellInstanceState {
 
   public getAutocompleteParameters(): AutocompleteParameters {
     return {
-      // eslint-disable-next-line complexity
       topology: () => {
         let topology: Topologies;
         const topologyDescription = this.currentServiceProvider.getTopology()?.description as TopologyDescription;

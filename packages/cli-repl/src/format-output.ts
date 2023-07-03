@@ -4,7 +4,7 @@ import i18n from '@mongosh/i18n';
 import util from 'util';
 import stripAnsi from 'strip-ansi';
 import clr from './clr';
-import { HelpProperties, CollectionNamesWithTypes } from '@mongosh/shell-api';
+import type { HelpProperties, CollectionNamesWithTypes } from '@mongosh/shell-api';
 import { isShouldReportAsBugError } from '@mongosh/errors';
 
 type EvaluationResult = {
@@ -38,7 +38,6 @@ function formatBytes(value: number): string {
  *
  * @returns {string} The formatted output.
  */
-// eslint-disable-next-line complexity
 export default function formatOutput(evaluationResult: EvaluationResult, options: FormatOptions): string {
   const { value, type } = evaluationResult;
 
@@ -199,7 +198,6 @@ function formatListCommands(output: Record<string, any>, options: FormatOptions)
   return tableEntries.join('\n\n');
 }
 
-// eslint-disable-next-line complexity
 export function formatError(error: Error, options: FormatOptions): string {
   let result = '';
   if (error.name) result += `\r${clr(error.name, 'mongosh:error', options)}: `;

@@ -1,8 +1,8 @@
 import { CliUserConfig, CliUserConfigValidator } from './';
 import { expect } from 'chai';
 
-describe('config validation', () => {
-  it('validates config option values', async() => {
+describe('config validation', function() {
+  it('validates config option values', async function() {
     const { validate } = CliUserConfigValidator as any;
     expect(await validate('userId', 'foo')).to.equal(null);
     expect(await validate('telemetryAnonymousId', 'foo')).to.equal(null);
@@ -72,7 +72,7 @@ describe('config validation', () => {
     expect(await validate('browser', 'foo bar')).to.equal(null);
   });
 
-  it('allows default CliUserConfig values', async() => {
+  it('allows default CliUserConfig values', async function() {
     const userConfig = new CliUserConfig();
     for (const key of Object.keys(userConfig) as (keyof CliUserConfig)[]) {
       expect(await CliUserConfigValidator.validate(key, userConfig[key])).to.equal(null);

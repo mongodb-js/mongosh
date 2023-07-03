@@ -1,5 +1,5 @@
 import * as babel from '@babel/core';
-import * as BabelTypes from '@babel/types';
+import type * as BabelTypes from '@babel/types';
 
 /**
  * In this step, we transform try/catch statements so that there are specific

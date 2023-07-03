@@ -9,7 +9,8 @@ import { once } from 'events';
 import tar from 'tar-fs';
 import tmp from 'tmp-promise';
 import util, { promisify } from 'util';
-import { PackageVariant, getArch, getDistro, Config, getDebArchName, getRPMArchName, Platform } from './config';
+import type { PackageVariant, Config} from './config';
+import { getArch, getDistro, getDebArchName, getRPMArchName, Platform } from './config';
 import { withRetries } from './helpers';
 
 const pipeline = util.promisify(stream.pipeline);
@@ -204,13 +205,11 @@ export class Barque {
     return await Promise.all(results);
   }
 
-  // eslint-disable-next-line complexity
   computePublishedPackageUrl(ppa: PPARepository, targetArchitecture: string, mongodbVersion: string, edition: string, packageUrl: string): string {
     const packageFileName = packageUrl.split('/').slice(-1);
     const packageFolderVersion = mongodbVersion.split('.').slice(0, 2).join('.');
     const base = edition === 'org' ? 'https://repo.mongodb.org' : 'https://repo.mongodb.com';
     switch (ppa) {
-      /* eslint-disable no-multi-spaces */
       case 'ubuntu1804': return `${base}/apt/ubuntu/dists/bionic/mongodb-${edition}/${packageFolderVersion}/multiverse/binary-${targetArchitecture}/${packageFileName}`;
       case 'ubuntu2004': return `${base}/apt/ubuntu/dists/focal/mongodb-${edition}/${packageFolderVersion}/multiverse/binary-${targetArchitecture}/${packageFileName}`;
       case 'ubuntu2204': return `${base}/apt/ubuntu/dists/jammy/mongodb-${edition}/${packageFolderVersion}/multiverse/binary-${targetArchitecture}/${packageFileName}`;
@@ -225,7 +224,6 @@ export class Barque {
       case 'amazon2023': return `${base}/yum/amazon/2023/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
       case 'suse12':     return `${base}/zypper/suse/12/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
       case 'suse15':     return `${base}/zypper/suse/15/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
-      /* eslint-enable no-multi-spaces */
       default:
         throw new Error(`Unsupported PPA, could not compute published mongosh package URL: ${ppa}`);
     }

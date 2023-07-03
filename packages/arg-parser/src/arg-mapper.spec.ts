@@ -1,8 +1,8 @@
-import { CliOptions, ConnectionInfo } from './';
+import type { CliOptions, ConnectionInfo } from './';
 import chai, { expect } from 'chai';
 import sinonChai from 'sinon-chai';
 import { mapCliToDriver } from './arg-mapper';
-import { DevtoolsConnectOptions } from '@mongodb-js/devtools-connect';
+import type { DevtoolsConnectOptions } from '@mongodb-js/devtools-connect';
 chai.use(sinonChai);
 
 const INIT_STATE: Readonly<ConnectionInfo> = {
@@ -22,29 +22,29 @@ function optionsTest(cliOptions: CliOptions): { cs?: string, driver?: Partial<De
   return { cs: result.connectionString, driver: result.driverOptions };
 }
 
-describe('arg-mapper.mapCliToDriver', () => {
-  context('when cli args have authenticationDatabase', () => {
+describe('arg-mapper.mapCliToDriver', function() {
+  context('when cli args have authenticationDatabase', function() {
     const cliOptions: CliOptions = { authenticationDatabase: 'authDb' };
 
-    it('maps to authSource', () => {
+    it('maps to authSource', function() {
       expect(optionsTest(cliOptions)).to.deep.equal({
         cs: 'mongodb://localhost/?authSource=authDb'
       });
     });
   });
 
-  context('when cli args have authenticationMechanism', () => {
+  context('when cli args have authenticationMechanism', function() {
     const cliOptions: CliOptions = { authenticationMechanism: 'SCRAM-SHA-1' };
 
-    it('maps to authMechanism', () => {
+    it('maps to authMechanism', function() {
       expect(optionsTest(cliOptions)).to.deep.equal({
         cs: 'mongodb://localhost/?authMechanism=SCRAM-SHA-1'
       });
     });
   });
 
-  context('when cli args have username', () => {
-    it('maps to auth object', () => {
+  context('when cli args have username', function() {
+    it('maps to auth object', function() {
       expect(optionsTest({ username: 'richard' })).to.deep.equal({
         cs: 'mongodb://richard@localhost/'
       });
@@ -55,16 +55,16 @@ describe('arg-mapper.mapCliToDriver', () => {
     });
   });
 
-  context('when cli args have password', () => {
-    it('maps to auth object', () => {
+  context('when cli args have password', function() {
+    it('maps to auth object', function() {
       expect(optionsTest({ password: 'aphextwin', username: 'x' })).to.deep.equal({
         cs: 'mongodb://x:aphextwin@localhost/'
       });
     });
   });
 
-  context('when cli args have username and password', () => {
-    it('maps to auth object', () => {
+  context('when cli args have username and password', function() {
+    it('maps to auth object', function() {
       expect(optionsTest({ username: 'richard', password: 'aphextwin' })).to.deep.equal({
         cs: 'mongodb://richard:aphextwin@localhost/'
       });
@@ -75,100 +75,100 @@ describe('arg-mapper.mapCliToDriver', () => {
     });
   });
 
-  context('when cli args have retryWrites', () => {
+  context('when cli args have retryWrites', function() {
     const cliOptions: CliOptions = { retryWrites: true };
 
-    it('maps the same argument', () => {
+    it('maps the same argument', function() {
       expect(optionsTest(cliOptions)).to.deep.equal({
         cs: 'mongodb://localhost/?retryWrites=true'
       });
     });
   });
 
-  context('when cli args have retryWrites set to false', () => {
+  context('when cli args have retryWrites set to false', function() {
     const cliOptions: CliOptions = { retryWrites: false };
 
-    it('maps the same argument', () => {
+    it('maps the same argument', function() {
       expect(optionsTest(cliOptions)).to.deep.equal({
         cs: 'mongodb://localhost/?retryWrites=false'
       });
     });
   });
 
-  context('when cli args have tls', () => {
+  context('when cli args have tls', function() {
     const cliOptions: CliOptions = { tls: true };
 
-    it('maps the same argument', () => {
+    it('maps the same argument', function() {
       expect(optionsTest(cliOptions)).to.deep.equal({
         cs: 'mongodb://localhost/?tls=true'
       });
     });
   });
 
-  context('when cli args have tlsAllowInvalidCertificates', () => {
+  context('when cli args have tlsAllowInvalidCertificates', function() {
     const cliOptions: CliOptions = { tlsAllowInvalidCertificates: true };
 
-    it('maps the same argument', () => {
+    it('maps the same argument', function() {
       expect(optionsTest(cliOptions)).to.deep.equal({
         cs: 'mongodb://localhost/?tlsAllowInvalidCertificates=true'
       });
     });
   });
 
-  context('when cli args have tlsAllowInvalidHostnames', () => {
+  context('when cli args have tlsAllowInvalidHostnames', function() {
     const cliOptions: CliOptions = { tlsAllowInvalidHostnames: true };
 
-    it('maps the same argument', () => {
+    it('maps the same argument', function() {
       expect(optionsTest(cliOptions)).to.deep.equal({
         cs: 'mongodb://localhost/?tlsAllowInvalidHostnames=true'
       });
     });
   });
 
-  context('when cli args have tlsCAFile', () => {
+  context('when cli args have tlsCAFile', function() {
     const cliOptions: CliOptions = { tlsCAFile: 'ca' };
 
-    it('maps the same argument', () => {
+    it('maps the same argument', function() {
       expect(optionsTest(cliOptions)).to.deep.equal({
         cs: 'mongodb://localhost/?tlsCAFile=ca'
       });
     });
   });
 
-  context('when cli args have tlsCRLFile', () => {
+  context('when cli args have tlsCRLFile', function() {
     const cliOptions: CliOptions = { tlsCRLFile: 'key' };
 
-    it('maps to sslCRL', () => {
+    it('maps to sslCRL', function() {
       expect(optionsTest(cliOptions)).to.deep.equal({
         cs: 'mongodb://localhost/?sslCRL=key'
       });
     });
   });
 
-  context('when cli args have tlsCertificateKeyFile', () => {
+  context('when cli args have tlsCertificateKeyFile', function() {
     const cliOptions: CliOptions = { tlsCertificateKeyFile: 'key' };
 
-    it('maps the same argument', () => {
+    it('maps the same argument', function() {
       expect(optionsTest(cliOptions)).to.deep.equal({
         cs: 'mongodb://localhost/?tlsCertificateKeyFile=key'
       });
     });
   });
 
-  context('when cli args have tlsCertificateKeyFilePassword', () => {
+  context('when cli args have tlsCertificateKeyFilePassword', function() {
     const cliOptions: CliOptions = { tlsCertificateKeyFilePassword: 'pw' };
 
-    it('maps the same argument', () => {
+    it('maps the same argument', function() {
       expect(optionsTest(cliOptions)).to.deep.equal({
         cs: 'mongodb://localhost/?tlsCertificateKeyFilePassword=pw'
       });
     });
   });
 
-  context('when the cli args have awsAccessKeyId', () => {
+  context('when the cli args have awsAccessKeyId', function() {
     const cliOptions: CliOptions = { awsAccessKeyId: 'awskey' };
 
-    it('maps to autoEncryption', () => {
+    it('maps to autoEncryption', function() {
       expect(optionsTest(cliOptions)).to.deep.equal({
         driver: {
           autoEncryption: {
@@ -183,10 +183,10 @@ describe('arg-mapper.mapCliToDriver', () => {
     });
   });
 
-  context('when the cli args have awsSecretAccessKey', () => {
+  context('when the cli args have awsSecretAccessKey', function() {
     const cliOptions: CliOptions = { awsSecretAccessKey: 'secretkey' };
 
-    it('maps to autoEncryption', () => {
+    it('maps to autoEncryption', function() {
       expect(optionsTest(cliOptions)).to.deep.equal({
         driver: {
           autoEncryption: {
@@ -201,61 +201,61 @@ describe('arg-mapper.mapCliToDriver', () => {
     });
   });
 
-  context('when the cli args have awsIamSessionToken', () => {
+  context('when the cli args have awsIamSessionToken', function() {
     const cliOptions: CliOptions = { awsIamSessionToken: 'token' };
 
-    it('maps to authMechanismProperties.AWS_SESSION_TOKEN', () => {
+    it('maps to authMechanismProperties.AWS_SESSION_TOKEN', function() {
       expect(optionsTest(cliOptions)).to.deep.equal({
         cs: 'mongodb://localhost/?authMechanismProperties=AWS_SESSION_TOKEN%3Atoken'
       });
     });
   });
 
-  context('when the cli args have gssapiServiceName', () => {
+  context('when the cli args have gssapiServiceName', function() {
     const cliOptions: CliOptions = { gssapiServiceName: 'alternate' };
 
-    it('maps to authMechanismProperties.SERVICE_NAME', () => {
+    it('maps to authMechanismProperties.SERVICE_NAME', function() {
       expect(optionsTest(cliOptions)).to.deep.equal({
         cs: 'mongodb://localhost/?authMechanismProperties=SERVICE_NAME%3Aalternate'
       });
     });
   });
 
-  context('when the cli args have sspiRealmOverride', () => {
+  context('when the cli args have sspiRealmOverride', function() {
     const cliOptions: CliOptions = { sspiRealmOverride: 'REALM.COM' };
 
-    it('maps to authMechanismProperties.SERVICE_REALM', () => {
+    it('maps to authMechanismProperties.SERVICE_REALM', function() {
       expect(optionsTest(cliOptions)).to.deep.equal({
         cs: 'mongodb://localhost/?authMechanismProperties=SERVICE_REALM%3AREALM.COM'
       });
     });
   });
 
-  context('when the cli args have sspiHostnameCanonicalization', () => {
-    context('with a value of none', () => {
+  context('when the cli args have sspiHostnameCanonicalization', function() {
+    context('with a value of none', function() {
       const cliOptions: CliOptions = { sspiHostnameCanonicalization: 'none' };
 
-      it('maps to to authMechanismProperties.CANONICALIZE_HOST_NAME', () => {
+      it('maps to to authMechanismProperties.CANONICALIZE_HOST_NAME', function() {
         expect(optionsTest(cliOptions)).to.deep.equal({
           cs: 'mongodb://localhost/?authMechanismProperties=CANONICALIZE_HOST_NAME%3Anone'
         });
       });
     });
 
-    context('with a value of forward', () => {
+    context('with a value of forward', function() {
       const cliOptions: CliOptions = { sspiHostnameCanonicalization: 'forward' };
 
-      it('maps to to authMechanismProperties.CANONICALIZE_HOST_NAME', () => {
+      it('maps to to authMechanismProperties.CANONICALIZE_HOST_NAME', function() {
         expect(optionsTest(cliOptions)).to.deep.equal({
           cs: 'mongodb://localhost/?authMechanismProperties=CANONICALIZE_HOST_NAME%3Aforward'
         });
       });
     });
 
-    context('with a value of true', () => {
+    context('with a value of true', function() {
       const cliOptions: CliOptions = { sspiHostnameCanonicalization: 'true' };
 
-      it('maps to to authMechanismProperties.CANONICALIZE_HOST_NAME', () => {
+      it('maps to to authMechanismProperties.CANONICALIZE_HOST_NAME', function() {
         expect(optionsTest(cliOptions)).to.deep.equal({
           cs: 'mongodb://localhost/?authMechanismProperties=CANONICALIZE_HOST_NAME%3Atrue'
         });
@@ -263,10 +263,10 @@ describe('arg-mapper.mapCliToDriver', () => {
     });
   });
 
-  context('when the cli args have keyVaultNamespace', () => {
+  context('when the cli args have keyVaultNamespace', function() {
     const cliOptions: CliOptions = { keyVaultNamespace: 'db.datakeys' };
 
-    it('maps to autoEncryption', () => {
+    it('maps to autoEncryption', function() {
       expect(optionsTest(cliOptions)).to.deep.equal({
         driver: {
           autoEncryption: {
@@ -277,14 +277,14 @@ describe('arg-mapper.mapCliToDriver', () => {
     });
   });
 
-  context('when the cli args have all FLE options', () => {
+  context('when the cli args have all FLE options', function() {
     const cliOptions: CliOptions = {
       keyVaultNamespace: 'db.datakeys',
       awsSecretAccessKey: 'secretkey',
       awsAccessKeyId: 'awskey'
     };
 
-    it('maps to autoEncryption', () => {
+    it('maps to autoEncryption', function() {
       expect(optionsTest(cliOptions)).to.deep.equal({
         driver: {
           autoEncryption: {
@@ -301,14 +301,14 @@ describe('arg-mapper.mapCliToDriver', () => {
     });
   });
 
-  context('when the cli args have all server API options options', () => {
+  context('when the cli args have all server API options options', function() {
     const cliOptions: CliOptions = {
       apiStrict: true,
       apiDeprecationErrors: true,
       apiVersion: '1'
     };
 
-    it('maps to serverApi', () => {
+    it('maps to serverApi', function() {
       expect(optionsTest(cliOptions)).to.deep.equal({
         driver: {
           serverApi: {
@@ -321,28 +321,28 @@ describe('arg-mapper.mapCliToDriver', () => {
     });
   });
 
-  context('when password is provided without username', () => {
+  context('when password is provided without username', function() {
     const cliOptions: CliOptions = { password: '1234' };
 
-    it('throws a helpful error', () => {
+    it('throws a helpful error', function() {
       expect(() => optionsTest(cliOptions)).to.throw(
         "[COMMON-10001] Invalid connection information: Password specified but no username provided (did you mean '--port' instead of '-p'?)");
     });
   });
 
-  context('when password is provided without username and --port is already specified', () => {
+  context('when password is provided without username and --port is already specified', function() {
     const cliOptions: CliOptions = { password: '1234', port: '12345' };
 
-    it('throws a helpful error', () => {
+    it('throws a helpful error', function() {
       expect(() => optionsTest(cliOptions)).to.throw(
         '[COMMON-10001] Invalid connection information: Password specified but no username provided');
     });
   });
 
-  context('when cli args have oidcRedirectUri', () => {
+  context('when cli args have oidcRedirectUri', function() {
     const cliOptions: CliOptions = { oidcRedirectUri: 'http://localhost:0/callback' };
 
-    it('maps to oidc redirectURI', () => {
+    it('maps to oidc redirectURI', function() {
       expect(optionsTest(cliOptions)).to.deep.equal({
         driver: {
           oidc: {
@@ -353,7 +353,7 @@ describe('arg-mapper.mapCliToDriver', () => {
     });
   });
 
-  context('when cli args have oidcTrustedEndpoint', () => {
+  context('when cli args have oidcTrustedEndpoint', function() {
     function actual(cs: string) {
       return mapCliToDriver({ oidcTrustedEndpoint: true }, {
         connectionString: cs,
@@ -365,7 +365,7 @@ describe('arg-mapper.mapCliToDriver', () => {
       return { authMechanismProperties: { ALLOWED_HOSTS } };
     }
 
-    it('maps to ALLOWED_HOSTS', () => {
+    it('maps to ALLOWED_HOSTS', function() {
       expect(actual('mongodb://localhost/')).to.deep.equal(expected(['localhost']));
       expect(actual('mongodb://localhost:27017/')).to.deep.equal(expected(['localhost']));
       expect(actual('mongodb://localhost:12345/')).to.deep.equal(expected(['localhost']));
@@ -378,16 +378,16 @@ describe('arg-mapper.mapCliToDriver', () => {
     });
   });
 
-  context('when cli args have oidcFlows', () => {
-    it('maps to oidc allowedFlows', () => {
+  context('when cli args have oidcFlows', function() {
+    it('maps to oidc allowedFlows', function() {
       expect(optionsTest({ oidcFlows: 'a,b,c' })).to.deep.equal({ driver: { oidc: { allowedFlows: ['a', 'b', 'c'] } } });
       expect(optionsTest({ oidcFlows: 'a,,c' })).to.deep.equal({ driver: { oidc: { allowedFlows: ['a', 'c'] } } });
       expect(optionsTest({ oidcFlows: ',' })).to.deep.equal({ driver: { oidc: { allowedFlows: [] } } });
     });
   });
 
-  context('when cli args have browser', () => {
-    it('maps to oidc command', () => {
+  context('when cli args have browser', function() {
+    it('maps to oidc command', function() {
       expect(optionsTest({ browser: '/usr/bin/browser' })).to.deep.equal({
         driver: {
           oidc: {

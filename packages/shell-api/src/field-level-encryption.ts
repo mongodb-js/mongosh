@@ -6,7 +6,7 @@ import {
   shellApiClassDefault,
   ShellApiWithMongoClass
 } from './decorators';
-import {
+import type {
   ClientEncryption as MongoCryptClientEncryption,
   ClientEncryptionCreateDataKeyProviderOptions,
   ClientEncryptionDataKeyProvider,
@@ -19,15 +19,15 @@ import {
   GCPEncryptionKeyOptions,
 } from '@mongosh/service-provider-core';
 import type { Document, BinaryType } from '@mongosh/service-provider-core';
-import Collection from './collection';
+import type Collection from './collection';
 import Cursor from './cursor';
-import { DeleteResult } from './result';
+import type { DeleteResult } from './result';
 import { assertArgsDefinedType, assertKeysDefined } from './helpers';
 import { asPrintable, shellApiType } from './enums';
 import { redactURICredentials } from '@mongosh/history';
 import type Mongo from './mongo';
 import { CommonErrors, MongoshInvalidInputError, MongoshRuntimeError } from '@mongosh/errors';
-import ShellInstanceState from './shell-instance-state';
+import type ShellInstanceState from './shell-instance-state';
 import type { CreateEncryptedCollectionOptions } from '@mongosh/service-provider-core';
 
 export type ClientSideFieldLevelEncryptionKmsProvider = Omit<KMSProviders, 'local'> & {
@@ -306,7 +306,6 @@ export class KeyVault extends ShellApiWithMongoClass {
   createKey(kms: ClientEncryptionDataKeyProvider, options: MasterKey | DataKeyEncryptionKeyOptions | undefined, keyAltNames: string[]): Promise<BinaryType>
   @returnsPromise
   @apiVersions([1])
-  // eslint-disable-next-line complexity
   async createKey(
     kms: ClientEncryptionDataKeyProvider,
     masterKeyOrAltNamesOrDataKeyOptions?: MasterKeyOrAltNamesOrDataKeyOptions,
@@ -408,27 +407,27 @@ export class KeyVault extends ShellApiWithMongoClass {
   @apiVersions([1])
   async deleteKey(keyId: BinaryType): Promise<DeleteResult | Document> {
     assertArgsDefinedType([keyId], [true], 'KeyVault.deleteKey');
-    return this._clientEncryption._libmongocrypt.deleteKey(keyId);
+    return await this._clientEncryption._libmongocrypt.deleteKey(keyId);
   }
 
   @returnsPromise
   @apiVersions([1])
   async addKeyAlternateName(keyId: BinaryType, keyAltName: string): Promise<Document | null> {
     assertArgsDefinedType([keyId, keyAltName], [true, 'string'], 'KeyVault.addKeyAlternateName');
-    return this._clientEncryption._libmongocrypt.addKeyAltName(keyId, keyAltName);
+    return await this._clientEncryption._libmongocrypt.addKeyAltName(keyId, keyAltName);
   }
 
   @returnsPromise
   @apiVersions([1])
   async removeKeyAlternateName(keyId: BinaryType, keyAltName: string): Promise<Document | null> {
     assertArgsDefinedType([keyId, keyAltName], [true, 'string'], 'KeyVault.removeKeyAlternateName');
-    return this._clientEncryption._libmongocrypt.removeKeyAltName(keyId, keyAltName);
+    return await this._clientEncryption._libmongocrypt.removeKeyAltName(keyId, keyAltName);
   }
 
   @returnsPromise
   @apiVersions([1])
   async rewrapManyDataKey(filter: Document, options?: Document): Promise<Document> {
-    return this._clientEncryption._libmongocrypt.rewrapManyDataKey(filter, options as any);
+    return await this._clientEncryption._libmongocrypt.rewrapManyDataKey(filter, options as any);
   }
 
   // Alias for compatibility with the driver API.

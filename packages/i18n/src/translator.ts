@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 import { MongoshInternalError } from '@mongosh/errors';
 import Mustache from 'mustache';
 import type Catalog from './catalog';

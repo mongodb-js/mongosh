@@ -2,19 +2,19 @@ import { expect } from 'chai';
 import sinon from 'ts-sinon';
 import { uploadArtifactToDownloadCenter } from './artifacts';
 
-describe('DownloadCenter artifacts', () => {
-  describe('uploadArtifactToDownloadCenter', () => {
+describe('DownloadCenter artifacts', function() {
+  describe('uploadArtifactToDownloadCenter', function() {
     let dlCenter: sinon.SinonStub;
     let uploadAsset: sinon.SinonStub;
 
-    beforeEach(() => {
+    beforeEach(function() {
       uploadAsset = sinon.stub();
       dlCenter = sinon.stub();
 
       dlCenter.returns({ uploadAsset });
     });
 
-    it('uploads with correct configuration', async() => {
+    it('uploads with correct configuration', async function() {
       await uploadArtifactToDownloadCenter(
         __filename,
         'accessKey',

@@ -5,7 +5,7 @@ import { withTempPackageEach } from '../../../test/helpers';
 import { createPackage } from './create-package';
 import { createMsiPackage } from './msi';
 
-describe('package windows', () => {
+describe('package windows', function() {
   const tmpPkg = withTempPackageEach();
 
   it('packages the executable(s) with WIX', async function() {
@@ -17,7 +17,7 @@ describe('package windows', () => {
     await fs.access(tarball.path);
   });
 
-  it('prepares and copies MSI executable', async() => {
+  it('prepares and copies MSI executable', async function() {
     const fileContent = await fs.readFile(__filename, { encoding: 'utf8' });
     let msiDir: string | undefined;
     const execFileStub = async(cmd: string, args: string[], opts: {cwd: string}) => {

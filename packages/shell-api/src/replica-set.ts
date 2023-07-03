@@ -1,8 +1,8 @@
 import { CommonErrors, MongoshDeprecatedError, MongoshInvalidInputError, MongoshRuntimeError } from '@mongosh/errors';
 import { redactURICredentials } from '@mongosh/history';
-import { Document } from '@mongosh/service-provider-core';
-import Mongo from './mongo';
-import Database from './database';
+import type { Document } from '@mongosh/service-provider-core';
+import type Mongo from './mongo';
+import type Database from './database';
 import {
   deprecated,
   returnsPromise,
@@ -12,7 +12,7 @@ import {
 } from './decorators';
 import { asPrintable } from './enums';
 import { assertArgsDefinedType } from './helpers';
-import { CommandResult } from './result';
+import type { CommandResult } from './result';
 
 export type ReplSetMemberConfig = {
   _id: number;

@@ -7,7 +7,6 @@ if (
   // @ts-ignore
   typeof TextDecoder !== 'function' || typeof TextEncoder !== 'function'
 ) {
-  // eslint-disable-next-line no-new-func
   Object.assign(Function('return this')(), textEncodingPolyfill());
 }
 

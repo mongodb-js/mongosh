@@ -1,10 +1,11 @@
 import React from 'react';
 import { expect } from '../../../testing/chai';
-import { shallow, ShallowWrapper } from '../../../testing/enzyme';
+import type { ShallowWrapper } from '../../../testing/enzyme';
+import { shallow } from '../../../testing/enzyme';
 
 import { HelpOutput } from './help-output';
 
-describe('HelpOutput', () => {
+describe('HelpOutput', function() {
   const makeWrapper = (value): ShallowWrapper => {
     return shallow(<HelpOutput value={{
       help: value.help,
@@ -13,14 +14,14 @@ describe('HelpOutput', () => {
     }} />);
   };
 
-  it('renders the help text', () => {
+  it('renders the help text', function() {
     const wrapper = makeWrapper({
       help: 'some text'
     });
     expect(wrapper.text()).to.contain('some text');
   });
 
-  it('renders the docs link', () => {
+  it('renders the docs link', function() {
     const wrapper = makeWrapper({
       help: 'some text',
       docs: 'https://docs.example.com'
@@ -31,7 +32,7 @@ describe('HelpOutput', () => {
     expect(anchor.prop('href')).to.equal('https://docs.example.com');
   });
 
-  it('does not render the docs link if none passed', () => {
+  it('does not render the docs link if none passed', function() {
     const wrapper = makeWrapper({
       help: 'some text'
     });
@@ -40,7 +41,7 @@ describe('HelpOutput', () => {
     expect(anchor).to.have.lengthOf(0);
   });
 
-  it('renders the attrs table', () => {
+  it('renders the attrs table', function() {
     const wrapper = makeWrapper({
       help: 'some text',
       attr: [
@@ -55,7 +56,7 @@ describe('HelpOutput', () => {
     expect(wrapper.text()).to.contain('command description');
   });
 
-  it('does not render the attrs table if none passed', () => {
+  it('does not render the attrs table if none passed', function() {
     const wrapper = makeWrapper({
       help: 'some text'
     });

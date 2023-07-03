@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { CursorIterationResultOutput, Document } from './cursor-iteration-result-output';
+import type { Document } from './cursor-iteration-result-output';
+import { CursorIterationResultOutput } from './cursor-iteration-result-output';
 
 interface CursorOutputProps {
   value: { documents: Document[], cursorHasMore: boolean };

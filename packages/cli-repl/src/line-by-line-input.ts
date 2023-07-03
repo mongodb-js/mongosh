@@ -104,7 +104,6 @@ export class LineByLineInput extends Readable {
     return this._forwardWithoutBlocking(chunk);
   };
 
-  // eslint-disable-next-line complexity
   private _forwardAndBlockOnNewline(chunk: Buffer | null): void {
     const chars = chunk === null ? [null] : this._decoder.write(chunk);
     for (const char of chars) {

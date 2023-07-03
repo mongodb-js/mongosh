@@ -4,10 +4,11 @@ import os from 'os';
 import path from 'path';
 import sinon from 'sinon';
 import YAML from 'yaml';
-import { EvergreenApi, EvergreenTask } from './rest-api';
+import type { EvergreenTask } from './rest-api';
+import { EvergreenApi } from './rest-api';
 
-describe('evergreen rest-api', () => {
-  describe('from user configuration', () => {
+describe('evergreen rest-api', function() {
+  describe('from user configuration', function() {
     const configData = {
       api_server_host: 'host',
       user: 'user',
@@ -19,7 +20,7 @@ describe('evergreen rest-api', () => {
       return configFile;
     };
 
-    it('parses a configuration file correctly', async() => {
+    it('parses a configuration file correctly', async function() {
       const configFile = await writeEvergreenConfiguration(YAML.stringify(configData));
       const api = await EvergreenApi.fromUserConfiguration(configFile);
       expect(api.apiBasepath).to.equal('host');
@@ -27,7 +28,7 @@ describe('evergreen rest-api', () => {
       expect(api.apiKey).to.equal('key');
     });
 
-    it('throws an error when the configuration file does not exist', async() => {
+    it('throws an error when the configuration file does not exist', async function() {
       try {
         await EvergreenApi.fromUserConfiguration('kasldjflasjk dfalsd jfsdfk');
       } catch (e: any) {
@@ -38,7 +39,7 @@ describe('evergreen rest-api', () => {
     });
 
     ['api_server_host', 'user', 'api_key'].forEach(key => {
-      it(`throws an error if ${key} is missing`, async() => {
+      it(`throws an error if ${key} is missing`, async function() {
         const data: Record<string, string> = {
           ...configData
         };
@@ -53,18 +54,18 @@ describe('evergreen rest-api', () => {
     });
   });
 
-  describe('getTasks', () => {
+  describe('getTasks', function() {
     let fetch: sinon.SinonStub;
     let api: EvergreenApi;
 
-    beforeEach(() => {
+    beforeEach(function() {
       fetch = sinon.stub();
       api = new EvergreenApi(
         '//basePath/api', 'user', 'key', fetch as any
       );
     });
 
-    it('returns all tasks from the API when there is no tag filter', async() => {
+    it('returns all tasks from the API when there is no tag filter', async function() {
       const task: EvergreenTask = {
         task_id: 'task_id',
         version_id: 'version',
@@ -90,7 +91,7 @@ describe('evergreen rest-api', () => {
       );
     });
 
-    it('returns only matching tasks from the API for a tag filter', async() => {
+    it('returns only matching tasks from the API for a tag filter', async function() {
       const task1: EvergreenTask = {
         task_id: 'task_id',
         version_id: 'version',
@@ -123,7 +124,7 @@ describe('evergreen rest-api', () => {
       );
     });
 
-    it('fails if there is a non-200 response code', async() => {
+    it('fails if there is a non-200 response code', async function() {
       fetch.resolves({
         status: 404,
         text: sinon.stub().resolves('ERR: Not found')

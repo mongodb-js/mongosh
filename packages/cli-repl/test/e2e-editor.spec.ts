@@ -8,13 +8,13 @@ import { eventually } from '../../../testing/eventually';
 import { TestShell } from './test-shell';
 import { useTmpdir, fakeExternalEditor, setTemporaryHomeDirectory } from './repl-helpers';
 
-describe('external editor e2e', () => {
+describe('external editor e2e', function() {
   const tmpdir = useTmpdir();
   let homedir: string;
   let env: Record<string, string>;
   let shell: TestShell;
 
-  beforeEach(async() => {
+  beforeEach(async function() {
     const homeInfo = setTemporaryHomeDirectory();
 
     homedir = homeInfo.homedir;
@@ -34,7 +34,7 @@ describe('external editor e2e', () => {
     await fs.mkdir(path.join(tmpdir.path, 'mongodb', '.nyc_output', 'processinfo'), { recursive: true });
   });
 
-  afterEach(async() => {
+  afterEach(async function() {
     await TestShell.killall.call(this);
     try {
       await promisify(rimraf)(homedir);
@@ -45,8 +45,8 @@ describe('external editor e2e', () => {
     }
   });
 
-  context('when editor is node command', () => {
-    it('creates a file with .js extension', async() => {
+  context('when editor is node command', function() {
+    it('creates a file with .js extension', async function() {
       const shellOriginalInput = 'edit 111';
       const editorOutput = '222';
       const shellModifiedInput = '222';
@@ -66,7 +66,7 @@ describe('external editor e2e', () => {
       });
     });
 
-    it('returns a modified identifier for fn', async() => {
+    it('returns a modified identifier for fn', async function() {
       const shellOriginalInput = "const fn = function () { console.log(111); }; edit('fn')";
       const editorOutput = `function () {
         console.log(222);
@@ -87,7 +87,7 @@ describe('external editor e2e', () => {
       });
     });
 
-    it('returns a modified identifier for var', async() => {
+    it('returns a modified identifier for var', async function() {
       const shellOriginalInput = "const myVar = '111'; edit('myVar')";
       const editorOutput = '"222"';
       const shellModifiedInput = 'myVar = "222"';
@@ -106,7 +106,7 @@ describe('external editor e2e', () => {
       });
     });
 
-    it('returns a modified identifier for a.b.c', async() => {
+    it('returns a modified identifier for a.b.c', async function() {
       const shellOriginalInput = "const myObj = { field: { child: 'string value' } }; edit('myObj')";
       const editorOutput = `{
         "field": {
@@ -129,7 +129,7 @@ describe('external editor e2e', () => {
       });
     });
 
-    it('returns an error when editor exits with exitCode 1', async() => {
+    it('returns an error when editor exits with exitCode 1', async function() {
       const shellOriginalInput = 'edit function() {}';
       const editor = await fakeExternalEditor({
         tmpdir: tmpdir.path,
@@ -145,7 +145,7 @@ describe('external editor e2e', () => {
       });
     });
 
-    it('opens an empty editor', async() => {
+    it('opens an empty editor', async function() {
       const output = '';
       const editor = await fakeExternalEditor({
         output,
@@ -163,15 +163,15 @@ describe('external editor e2e', () => {
     });
   });
 
-  context('when editor is executable file', () => {
+  context('when editor is executable file', function() {
     before(function() {
       if (process.platform === 'win32') {
         return this.skip(); // Shebangs don't work on windows.
       }
     });
 
-    context('not vscode', () => {
-      it('creates a file with .js extension', async() => {
+    context('not vscode', function() {
+      it('creates a file with .js extension', async function() {
         const editorOutput = "const name = 'Succeeded!'";
         const shellModifiedInput = "const name = 'Succeeded!'";
         const editor = await fakeExternalEditor({
@@ -193,9 +193,9 @@ describe('external editor e2e', () => {
       });
     });
 
-    context('vscode', () => {
-      context('when mongodb extension is installed', () => {
-        beforeEach(async() => {
+    context('vscode', function() {
+      context('when mongodb extension is installed', function() {
+        beforeEach(async function() {
           // make a fake dir for vscode mongodb extension
           await fs.mkdir(
             path.join(homedir, '.vscode', 'extensions', 'mongodb.mongodb-vscode-0.0.0'),
@@ -203,7 +203,7 @@ describe('external editor e2e', () => {
           );
         });
 
-        it('creates a file with .mongodb extension', async() => {
+        it('creates a file with .mongodb extension', async function() {
           const shellOriginalInput = 'edit 111';
           const editorOutput = 'edit 222';
           const shellModifiedInput = '222';
@@ -223,7 +223,7 @@ describe('external editor e2e', () => {
           });
         });
 
-        it('allows using flags along with file names', async() => {
+        it('allows using flags along with file names', async function() {
           const shellOriginalInput = "edit 'string    with   whitespaces'";
           const editorOutput = "'string    with   whitespaces and const x = 0;'";
           const shellModifiedInput = "'string    with   whitespaces and const x = 0;'";
@@ -245,8 +245,8 @@ describe('external editor e2e', () => {
         });
       });
 
-      context('when mongodb extension is not installed', () => {
-        it('creates a file with .js extension', async() => {
+      context('when mongodb extension is not installed', function() {
+        it('creates a file with .js extension', async function() {
           const shellOriginalInput = "edit const x = 'y';";
           const editorOutput = "const x = 'zyz';";
           const shellModifiedInput = "const x = 'zyz';";

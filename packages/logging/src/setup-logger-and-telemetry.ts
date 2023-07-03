@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 import redactInfo from 'mongodb-redact';
 import { redactURICredentials } from '@mongosh/history';
 import type {
@@ -31,9 +30,10 @@ import type {
   EditorReadVscodeExtensionsFailedEvent
 } from '@mongosh/types';
 import { inspect } from 'util';
-import { MongoLogWriter, mongoLogId } from 'mongodb-log-writer';
+import type { MongoLogWriter} from 'mongodb-log-writer';
+import { mongoLogId } from 'mongodb-log-writer';
 import { hookLogger as devtoolsConnectHookLogger } from '@mongodb-js/devtools-connect';
-import { MongoshAnalytics } from './analytics-helpers';
+import type { MongoshAnalytics } from './analytics-helpers';
 
 /**
  * A helper class for keeping track of how often specific events occurred.
@@ -42,7 +42,7 @@ class MultiSet<T> {
   _entries: Map<string, number> = new Map();
 
   add(entry: T): void {
-    const key = JSON.stringify(Object.entries(entry).sort());
+    const key = JSON.stringify(Object.entries(entry as Record<string, any>).sort());
     this._entries.set(key, (this._entries.get(key) ?? 0) + 1);
   }
 
@@ -102,7 +102,7 @@ export function setupLoggerAndTelemetry(
 
   bus.on('mongosh:connect', function(args: ConnectEvent) {
     const connectionUri = redactURICredentials(args.uri);
-    const { uri: _uri, ...argsWithoutUri } = args; // eslint-disable-line @typescript-eslint/no-unused-vars
+    const { uri: _uri, ...argsWithoutUri } = args;
     const params = {
       session_id: logId,
       userId,
@@ -151,11 +151,13 @@ export function setupLoggerAndTelemetry(
     log.info('MONGOSH', mongoLogId(1_000_000_005), 'config', 'User updated');
   });
 
-  bus.on('mongosh:error', function(error: any, context: string) {
+  bus.on('mongosh:error', function(error: Error, context: string) {
+    const mongoshError = error as { name: string, message: string, code: any, scope: any, metadata: any };
+
     if (context === 'fatal') {
-      log.fatal('MONGOSH', mongoLogId(1_000_000_006), context, `${error.name}: ${error.message}`, error);
+      log.fatal('MONGOSH', mongoLogId(1_000_000_006), context, `${mongoshError.name}: ${mongoshError.message}`, error);
     } else {
-      log.error('MONGOSH', mongoLogId(1_000_000_006), context, `${error.name}: ${error.message}`, error);
+      log.error('MONGOSH', mongoLogId(1_000_000_006), context, `${mongoshError.name}: ${mongoshError.message}`, error);
     }
 
     if (error.name.includes('Mongosh')) {
@@ -164,10 +166,10 @@ export function setupLoggerAndTelemetry(
         event: 'Error',
         properties: {
           mongosh_version,
-          name: error.name,
-          code: error.code,
-          scope: error.scope,
-          metadata: error.metadata
+          name: mongoshError.name,
+          code: mongoshError.code,
+          scope: mongoshError.scope,
+          metadata: mongoshError.metadata
         }
       });
     }

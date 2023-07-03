@@ -3,8 +3,8 @@ import { join } from 'path';
 import { promises as fs } from 'fs';
 import { downloadManpage } from './download-manpage';
 
-describe('packaging download manpage', () => {
-  it('downloads manpage', async() => {
+describe('packaging download manpage', function() {
+  it('downloads manpage', async function() {
     nock('http://example.com')
       .get('/')
       .replyWithFile(

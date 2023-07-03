@@ -10,7 +10,7 @@ import { createRedhatPackage } from './redhat';
 
 const execFile = promisify(childProcess.execFile);
 
-describe('tarball redhat', () => {
+describe('tarball redhat', function() {
   const tmpPkg = withTempPackageEach();
 
   it('packages the executable(s)', async function() {
@@ -41,7 +41,7 @@ describe('tarball redhat', () => {
     expect(stdout).to.match(/^\/usr\/share\/man\/man1\/foobar.1.gz$/m);
   });
 
-  it('determines and copies created RPM', async() => {
+  it('determines and copies created RPM', async function() {
     const content = await fs.readFile(__filename);
     const execFileStub = async(cmd: string, args: string[]) => {
       const rpmDir = path.join(path.dirname(path.dirname(args[1])), 'RPMS', 'x86_64');
@@ -60,7 +60,7 @@ describe('tarball redhat', () => {
     expect((await fs.readFile(outFile)).toString('utf8')).to.equal(content.toString('utf8'));
   });
 
-  it('fails if there are multiple RPMs generated', async() => {
+  it('fails if there are multiple RPMs generated', async function() {
     const content = await fs.readFile(__filename);
     const execFileStub = async(cmd: string, args: string[]) => {
       const rpmDir = path.join(path.dirname(path.dirname(args[1])), 'RPMS', 'x86_64');

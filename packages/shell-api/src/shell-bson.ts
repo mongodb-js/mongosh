@@ -1,6 +1,7 @@
 import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, ServerVersions } from './enums';
 import Help from './help';
-import { BinaryType, Document, bson as BSON } from '@mongosh/service-provider-core';
+import type { BinaryType, Document} from '@mongosh/service-provider-core';
+import { bson as BSON } from '@mongosh/service-provider-core';
 import { CommonErrors, MongoshInternalError, MongoshInvalidInputError } from '@mongosh/errors';
 import { assertArgsDefinedType, functionCtor, assignAll } from './helpers';
 import { randomBytes } from 'crypto';
@@ -155,7 +156,7 @@ export default function constructShellBson(bson: typeof BSON, printWarning: (msg
       if (!input) input = new Date().toISOString();
       const isoDateRegex =
         /^(?<Y>\d{4})-?(?<M>\d{2})-?(?<D>\d{2})([T ](?<h>\d{2})(:?(?<m>\d{2})(:?((?<s>\d{2})(\.(?<ms>\d+))?))?)?(?<tz>Z|([+-])(\d{2}):?(\d{2})?)?)?$/;
-      const match = input.match(isoDateRegex);
+      const match = isoDateRegex.exec(input);
       if (match !== null && match.groups !== undefined) {
         // Normalize the representation because ISO-8601 accepts e.g.
         // '20201002T102950Z' without : and -, but `new Date()` does not.
@@ -191,7 +192,7 @@ export default function constructShellBson(bson: typeof BSON, printWarning: (msg
       assertArgsDefinedType([hexstr], ['string'], 'UUID');
       // Strip any dashes, as they occur in the standard UUID formatting
       // (e.g. 01234567-89ab-cdef-0123-456789abcdef).
-      const buffer = Buffer.from((hexstr as string).replace(/-/g, ''), 'hex');
+      const buffer = Buffer.from((hexstr ).replace(/-/g, ''), 'hex');
       return new bson.Binary(buffer, bson.Binary.SUBTYPE_UUID);
     }, { prototype: bson.Binary.prototype }),
     MD5: assignAll(function MD5(hexstr: string): BinaryType {

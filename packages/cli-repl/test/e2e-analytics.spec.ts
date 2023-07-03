@@ -3,7 +3,7 @@ import { startTestCluster } from '../../../testing/integration-testing-hooks';
 import { eventually } from '../../../testing/eventually';
 import { TestShell } from './test-shell';
 
-describe('e2e Analytics Node', () => {
+describe('e2e Analytics Node', function() {
   const replSetName = 'replicaSet';
   const [rs0, rs1, rs2, rs3] = startTestCluster(
     [ '--single', '--replSet', replSetName ],
@@ -41,8 +41,8 @@ describe('e2e Analytics Node', () => {
     }, { timeout: 20_000 });
   });
 
-  context('without readPreference', () => {
-    it('a direct connection ends up at primary', async() => {
+  context('without readPreference', function() {
+    it('a direct connection ends up at primary', async function() {
       const shell = TestShell.start({
         args: [ await rs0.connectionString() ]
       });
@@ -57,8 +57,8 @@ describe('e2e Analytics Node', () => {
     });
   });
 
-  context('specifying readPreference and tags', () => {
-    it('ends up at the ANALYTICS node', async() => {
+  context('specifying readPreference and tags', function() {
+    it('ends up at the ANALYTICS node', async function() {
       const shell = TestShell.start({
         args: [ `${await rs0.connectionString()}?replicaSet=${replSetName}&readPreference=secondary&readPreferenceTags=nodeType:ANALYTICS` ]
       });

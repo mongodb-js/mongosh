@@ -1,4 +1,5 @@
-import sinon, { SinonStubbedInstance } from 'sinon';
+import type { SinonStubbedInstance } from 'sinon';
+import sinon from 'sinon';
 import chai from 'chai';
 import sinonChai from 'sinon-chai';
 chai.use(sinonChai);
@@ -8,7 +9,7 @@ import { CliServiceProvider } from '@mongosh/service-provider-server';
 import { bson } from '@mongosh/service-provider-core';
 import { ElectronRuntime } from './electron-runtime';
 import { EventEmitter } from 'events';
-import { RuntimeEvaluationListener } from '@mongosh/browser-runtime-core';
+import type { RuntimeEvaluationListener } from '@mongosh/browser-runtime-core';
 
 describe('Electron runtime', function() {
   let serviceProvider: SinonStubbedInstance<CliServiceProvider>;
@@ -16,7 +17,7 @@ describe('Electron runtime', function() {
   let evaluationListener: SinonStubbedInstance<RuntimeEvaluationListener>;
   let electronRuntime: ElectronRuntime;
 
-  beforeEach(() => {
+  beforeEach(function() {
     serviceProvider = sinon.createStubInstance(CliServiceProvider);
     serviceProvider.bsonLibrary = bson;
     serviceProvider.getConnectionInfo.resolves({ extraInfo: { uri: '' } } as any);
@@ -27,16 +28,16 @@ describe('Electron runtime', function() {
     electronRuntime.setEvaluationListener(evaluationListener as any);
   });
 
-  it('can evaluate simple js', async() => {
+  it('can evaluate simple js', async function() {
     const result = await electronRuntime.evaluate('2 + 2');
     expect(result.printable).to.equal(4);
   });
-  it('prints BSON help correctly', async() => {
+  it('prints BSON help correctly', async function() {
     const result = await electronRuntime.evaluate('ObjectId().help');
     expect(result.type).to.equal('Help');
   });
 
-  it('allows do declare variables', async() => {
+  it('allows do declare variables', async function() {
     await electronRuntime.evaluate('var x = 2');
     expect((await electronRuntime.evaluate('x')).printable).to.equal(2);
     await electronRuntime.evaluate('let y = 2');
@@ -45,17 +46,17 @@ describe('Electron runtime', function() {
     expect((await electronRuntime.evaluate('z')).printable).to.equal(2);
   });
 
-  it('allows do declare functions', async() => {
+  it('allows do declare functions', async function() {
     await electronRuntime.evaluate('function f() { return 2; }');
     expect((await electronRuntime.evaluate('f()')).printable).to.equal(2);
   });
 
-  it('can run help', async() => {
+  it('can run help', async function() {
     const result = await electronRuntime.evaluate('help');
     expect(result.type).to.equal('Help');
   });
 
-  it('can run show dbs', async() => {
+  it('can run show dbs', async function() {
     serviceProvider.listDatabases.resolves({
       databases: []
     });
@@ -64,19 +65,19 @@ describe('Electron runtime', function() {
     expect(result.type).to.equal('ShowDatabasesResult');
   });
 
-  it('can run show collections', async() => {
+  it('can run show collections', async function() {
     serviceProvider.listCollections.resolves([]);
 
     const result = await electronRuntime.evaluate('show collections');
     expect(result.type).to.equal('ShowCollectionsResult');
   });
 
-  it('allows to use require', async() => {
+  it('allows to use require', async function() {
     const result = await electronRuntime.evaluate('require("util").types.isDate(new Date())');
     expect(result.printable).to.equal(true);
   });
 
-  it('can switch database', async() => {
+  it('can switch database', async function() {
     expect(
       (await electronRuntime.evaluate('db')).printable
     ).not.to.equal('db1');
@@ -88,13 +89,13 @@ describe('Electron runtime', function() {
     ).to.equal('db1');
   });
 
-  it('allows to receive telemetry event passing a message bus', async() => {
+  it('allows to receive telemetry event passing a message bus', async function() {
     await electronRuntime.evaluate('use db1');
     expect(messageBus.emit).to.have.been.calledWith('mongosh:use');
   });
 
-  describe('onPrint', () => {
-    it('allows getting the output of print() statements', async() => {
+  describe('onPrint', function() {
+    it('allows getting the output of print() statements', async function() {
       await electronRuntime.evaluate('print("foo");');
       expect(evaluationListener.onPrint).to.have.been.calledWithMatch(
         sinon.match((array) => (
@@ -103,7 +104,7 @@ describe('Electron runtime', function() {
           array[0].printable === 'foo')));
     });
 
-    it('allows getting the output of console.log() statements', async() => {
+    it('allows getting the output of console.log() statements', async function() {
       await electronRuntime.evaluate('console.log("foo");');
       expect(evaluationListener.onPrint).to.have.been.calledWithMatch(
         sinon.match((array) => (
@@ -112,7 +113,7 @@ describe('Electron runtime', function() {
           array[0].printable === 'foo')));
     });
 
-    it('allows getting the output of multi-arg console.log() statements', async() => {
+    it('allows getting the output of multi-arg console.log() statements', async function() {
       await electronRuntime.evaluate('console.log("foo", "bar");');
       expect(evaluationListener.onPrint).to.have.been.calledWithMatch(
         sinon.match((array) => (

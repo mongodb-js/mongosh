@@ -31,7 +31,7 @@ export class ErrorOutput extends Component<ErrorOutputProps> {
     if (isShouldReportAsBugError(this.props.value)) {
       return (<div>
         This is an error inside mongosh.
-        Please <a href="https://jira.mongodb.org/projects/MONGOSH/issues" target="_blank">file a bug report for the MONGOSH project</a>.
+        Please <a href="https://jira.mongodb.org/projects/MONGOSH/issues" target="_blank" rel="noreferrer">file a bug report for the MONGOSH project</a>.
       </div>);
     }
     return undefined;

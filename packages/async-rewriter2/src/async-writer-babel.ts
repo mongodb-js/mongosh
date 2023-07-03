@@ -1,4 +1,3 @@
-/* eslint-disable no-sync */
 import * as babel from '@babel/core';
 import compiledRuntimeSupport from './runtime-support.out.nocov';
 import wrapAsFunctionPlugin from './stages/wrap-as-iife';

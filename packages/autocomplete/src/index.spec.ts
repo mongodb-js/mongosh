@@ -85,12 +85,12 @@ const emptyConnectionInfoParams = {
   getDatabaseCompletions: () => databases
 };
 
-describe('completer.completer', () => {
-  beforeEach(() => {
+describe('completer.completer', function() {
+  beforeEach(function() {
     collections = [];
   });
 
-  it('returns case-insensitive results', async() => {
+  it('returns case-insensitive results', async function() {
     const input = 'db.getr';
     const [completions] = await completer(noParams as any, input);
     expect(completions).to.deep.eq([
@@ -100,18 +100,18 @@ describe('completer.completer', () => {
     ]);
   });
 
-  context('when context is top level shell api', () => {
-    it('matches shell completions', async() => {
+  context('when context is top level shell api', function() {
+    it('matches shell completions', async function() {
       const i = 'u';
       expect(await completer(standalone440, i)).to.deep.equal([['use'], i]);
     });
 
-    it('does not have a match', async() => {
+    it('does not have a match', async function() {
       const i = 'ad';
       expect(await completer(standalone440, i)).to.deep.equal([[], i]);
     });
 
-    it('is an exact match to one of shell completions', async() => {
+    it('is an exact match to one of shell completions', async function() {
       const i = 'use';
       expect(await completer(standalone440, i)).to.deep.equal([[], i, 'exclusive']);
     });
@@ -121,8 +121,8 @@ describe('completer.completer', () => {
     { params: noParams, label: 'no version' },
     { params: emptyConnectionInfoParams, label: 'empty connection info' }
   ].forEach(({ params, label }) => {
-    context(`when ${label} is passed to completer`, () => {
-      it('matches all db completions', async() => {
+    context(`when ${label} is passed to completer`, function() {
+      it('matches all db completions', async function() {
         const i = 'db.';
         const c = await completer(params as any, i);
         expect(c.length).to.equal(2);
@@ -164,7 +164,7 @@ describe('completer.completer', () => {
         ]);
       });
 
-      it('does not have a match', async() => {
+      it('does not have a match', async function() {
         const i = 'db.shipwrecks.aggregate([ { $so';
         expect(await completer(noParams, i)).to.deep.equal([
           [ 'db.shipwrecks.aggregate([ { $sortArray',
@@ -172,7 +172,7 @@ describe('completer.completer', () => {
             'db.shipwrecks.aggregate([ { $sortByCount'], i]);
       });
 
-      it('is an exact match to one of shell completions', async() => {
+      it('is an exact match to one of shell completions', async function() {
         const i = 'db.bios.find({ field: { $exis';
         expect(await completer(noParams, i))
           .to.deep.equal([['db.bios.find({ field: { $exists'], i]);
@@ -180,9 +180,9 @@ describe('completer.completer', () => {
     });
   });
 
-  context('datalake features', () => {
+  context('datalake features', function() {
     let origBaseCompletions: any[];
-    beforeEach(() => {
+    beforeEach(function() {
       // Undo https://github.com/mongodb-js/ace-autocompleter/pull/65 for testing
       // because it's the only DataLake-only feature.
       origBaseCompletions = [...BASE_COMPLETIONS];
@@ -196,41 +196,41 @@ describe('completer.completer', () => {
         version: '4.0.0'
       });
     });
-    afterEach(() => {
+    afterEach(function() {
       BASE_COMPLETIONS.splice(0, BASE_COMPLETIONS.length, ...origBaseCompletions);
     });
 
-    it('includes them when not connected', async() => {
+    it('includes them when not connected', async function() {
       const i = 'db.shipwrecks.aggregate([ { $sq';
       expect(await completer(noParams, i)).to.deep.equal([
         ['db.shipwrecks.aggregate([ { $sqrt',
           'db.shipwrecks.aggregate([ { $sql'], i]);
     });
 
-    it('includes them when connected to DataLake', async() => {
+    it('includes them when connected to DataLake', async function() {
       const i = 'db.shipwrecks.aggregate([ { $sq';
       expect(await completer(datalake440, i)).to.deep.equal([
         ['db.shipwrecks.aggregate([ { $sqrt',
           'db.shipwrecks.aggregate([ { $sql'], i]);
     });
 
-    it('does not include them when connected to a standalone node', async() => {
+    it('does not include them when connected to a standalone node', async function() {
       const i = 'db.shipwrecks.aggregate([ { $sq';
       expect(await completer(standalone440, i)).to.deep.equal([
         ['db.shipwrecks.aggregate([ { $sqrt'], i]);
     });
   });
 
-  context('when context is top level db', () => {
+  context('when context is top level db', function() {
     // this should eventually encompass tests for DATABASE commands and
     // COLLECTION names.
     // for now, this will only return the current input.
-    it('matches a database command', async() => {
+    it('matches a database command', async function() {
       const i = 'db.agg';
       expect(await completer(standalone440, i)).to.deep.equal([['db.aggregate'], i]);
     });
 
-    it('returns all suggestions', async() => {
+    it('returns all suggestions', async function() {
       const i = 'db.';
       const attr = shellSignatures.Database.attributes as any;
       const dbComplete = Object.keys(attr);
@@ -240,7 +240,7 @@ describe('completer.completer', () => {
       expect(await completer(noParams, i)).to.deep.equal([adjusted, i]);
     });
 
-    it('matches several suggestions', async() => {
+    it('matches several suggestions', async function() {
       const i = 'db.get';
       expect((await completer(standalone440, i))[0]).to.include.members(
         [
@@ -251,30 +251,30 @@ describe('completer.completer', () => {
         ]);
     });
 
-    it('returns current input and no suggestions', async() => {
+    it('returns current input and no suggestions', async function() {
       const i = 'db.shipw';
       expect(await completer(standalone440, i)).to.deep.equal([[], i]);
     });
 
-    it('includes collection names', async() => {
+    it('includes collection names', async function() {
       collections = ['shipwrecks'];
       const i = 'db.shipw';
       expect(await completer(standalone440, i)).to.deep.equal([['db.shipwrecks'], i]);
     });
   });
 
-  context('when context is collections', () => {
-    it('matches a collection command', async() => {
+  context('when context is collections', function() {
+    it('matches a collection command', async function() {
       const i = 'db.shipwrecks.findOneAndUp';
       expect(await completer(standalone440, i)).to.deep.equal([['db.shipwrecks.findOneAndUpdate'], i]);
     });
 
-    it('matches a collection command if part of an expression', async() => {
+    it('matches a collection command if part of an expression', async function() {
       const i = 'var result = db.shipwrecks.findOneAndUp';
       expect(await completer(standalone440, i)).to.deep.equal([['var result = db.shipwrecks.findOneAndUpdate'], i]);
     });
 
-    it('returns all suggestions', async() => {
+    it('returns all suggestions', async function() {
       const i = 'db.shipwrecks.';
       const collComplete = Object.keys(shellSignatures.Collection.attributes as any);
       const adjusted = collComplete
@@ -292,7 +292,7 @@ describe('completer.completer', () => {
       expect(await completer(sharded440, i)).to.deep.equal([adjusted, i]);
     });
 
-    it('matches several collection commands', async() => {
+    it('matches several collection commands', async function() {
       const i = 'db.shipwrecks.find';
       expect(await completer(standalone440, i)).to.deep.equal([
         [
@@ -302,30 +302,30 @@ describe('completer.completer', () => {
         ], i]);
     });
 
-    it('does not have a match', async() => {
+    it('does not have a match', async function() {
       const i = 'db.shipwrecks.pr';
       expect(await completer(standalone440, i)).to.deep.equal([[], i]);
     });
 
-    it('does not provide anything if there is a function call instead of a collection name', async() => {
+    it('does not provide anything if there is a function call instead of a collection name', async function() {
       const i = 'db.getMongo().find';
       expect(await completer(standalone440, i)).to.deep.equal([[], i]);
     });
 
-    it('provides results if the function call is getCollection', async() => {
+    it('provides results if the function call is getCollection', async function() {
       const i = 'db.getCollection("foo").find';
       expect((await completer(standalone440, i))[0].length).to.be.greaterThan(1);
     });
   });
 
-  context('when context is collections and aggregation cursor', () => {
-    it('matches an aggregation cursor command', async() => {
+  context('when context is collections and aggregation cursor', function() {
+    it('matches an aggregation cursor command', async function() {
       const i = 'db.shipwrecks.aggregate([{$sort: {feature_type: 1}}]).has';
       expect(await completer(standalone440, i)).to.deep.equal([
         ['db.shipwrecks.aggregate([{$sort: {feature_type: 1}}]).hasNext'], i]);
     });
 
-    it('returns all suggestions', async() => {
+    it('returns all suggestions', async function() {
       const i = 'db.shipwrecks.aggregate([{$sort: {feature_type: 1}}]).';
       const aggCursorComplete = Object.keys(shellSignatures.AggregationCursor.attributes as any);
       const adjusted = aggCursorComplete.map(c => `${i}${c}`);
@@ -333,12 +333,12 @@ describe('completer.completer', () => {
       expect(await completer(standalone440, i)).to.deep.equal([adjusted, i]);
     });
 
-    it('does not have a match', async() => {
+    it('does not have a match', async function() {
       const i = 'db.shipwrecks.aggregate([{$sort: {feature_type: 1}}]).w';
       expect(await completer(standalone440, i)).to.deep.equal([[], i]);
     });
 
-    it('has several matches', async() => {
+    it('has several matches', async function() {
       const i = 'db.shipwrecks.aggregate([{$sort: {feature_type: 1}}]).i';
       expect(await completer(standalone440, i)).to.deep.equal([
         [
@@ -349,8 +349,8 @@ describe('completer.completer', () => {
     });
   });
 
-  context('when context is db aggregation query', () => {
-    it('has several matches for db level stages', async() => {
+  context('when context is db aggregation query', function() {
+    it('has several matches for db level stages', async function() {
       const query = 'db.aggregate([{';
       expect(await completer(standalone440, query)).to.deep.equal([
         [
@@ -371,12 +371,12 @@ describe('completer.completer', () => {
       ]);
     });
 
-    it('does not have a match', async() => {
+    it('does not have a match', async function() {
       const query = 'db.aggregate([{$mat';
       expect(await completer(standalone440, query)).to.deep.equal([[], query]);
     });
 
-    it('matches a db aggregation stage', async() => {
+    it('matches a db aggregation stage', async function() {
       const query = 'db.aggregate([{$lis';
       expect(await completer(standalone440, query)).to.deep.equal([
         ['db.aggregate([{$listLocalSessions'],
@@ -384,7 +384,7 @@ describe('completer.completer', () => {
       ]);
     });
 
-    it('completes the followup stages', async() => {
+    it('completes the followup stages', async function() {
       const query = 'db.aggregate([{$currentOp: {}}, {$ma';
       expect(await completer(standalone440, query)).to.deep.equal([
         [
@@ -396,34 +396,34 @@ describe('completer.completer', () => {
     });
   });
 
-  context('when context is aggregation query', () => {
-    it('has several matches', async() => {
+  context('when context is aggregation query', function() {
+    it('has several matches', async function() {
       const i = 'db.shipwrecks.aggregate([ { $so';
       expect(await completer(standalone440, i)).to.deep.equal([
         ['db.shipwrecks.aggregate([ { $sort',
           'db.shipwrecks.aggregate([ { $sortByCount'], i]);
     });
 
-    it('does not have a match', async() => {
+    it('does not have a match', async function() {
       const i = 'db.shipwrecks.aggregate([ { $cat';
       expect(await completer(standalone440, i)).to.deep.equal([[], i]);
     });
 
-    it('matches an aggregation stage', async() => {
+    it('matches an aggregation stage', async function() {
       const i = 'db.shipwrecks.aggregate([ { $proj';
       expect(await completer(standalone440, i)).to.deep.equal([
         [ 'db.shipwrecks.aggregate([ { $project' ], i]);
     });
 
-    it('does not fail when the server_version is not specified', async() => {
+    it('does not fail when the server_version is not specified', async function() {
       const i = 'db.shipwrecks.aggregate([ { $proj';
       expect(await completer(emptyConnectionInfoParams as any, i)).to.deep.equal([
         [ 'db.shipwrecks.aggregate([ { $project' ], i]);
     });
   });
 
-  context('when context is a collection query', () => {
-    it('returns all suggestions', async() => {
+  context('when context is a collection query', function() {
+    it('returns all suggestions', async function() {
       const i = 'db.shipwrecks.find({ ';
       expect((await completer(standalone440, i))[0]).to.include.members(
         [ 'db.shipwrecks.find({ $all',
@@ -473,7 +473,7 @@ describe('completer.completer', () => {
           'db.shipwrecks.find({ RegExp' ]);
     });
 
-    it('has several matches', async() => {
+    it('has several matches', async function() {
       const i = 'db.bios.find({ birth: { $g';
       expect(await completer(standalone440, i)).to.deep.equal([
         [
@@ -484,26 +484,26 @@ describe('completer.completer', () => {
         ], i]);
     });
 
-    it('does not have a match', async() => {
+    it('does not have a match', async function() {
       const i = 'db.bios.find({ field: { $cat';
       expect(await completer(standalone440, i)).to.deep.equal([[], i]);
     });
 
-    it('matches an aggregation stage', async() => {
+    it('matches an aggregation stage', async function() {
       const i = 'db.bios.find({ field: { $exis';
       expect(await completer(standalone440, i)).to.deep.equal([
         [ 'db.bios.find({ field: { $exists' ], i]);
     });
   });
 
-  context('when context is collections and collection cursor', () => {
-    it('matches a collection cursor command', async() => {
+  context('when context is collections and collection cursor', function() {
+    it('matches a collection cursor command', async function() {
       const i = 'db.shipwrecks.find({feature_type: "Wrecks - Visible"}).for';
       expect(await completer(standalone440, i)).to.deep.equal([
         ['db.shipwrecks.find({feature_type: "Wrecks - Visible"}).forEach'], i]);
     });
 
-    it('returns all suggestions running on 4.4.0 version', async() => {
+    it('returns all suggestions running on 4.4.0 version', async function() {
       const i = 'db.shipwrecks.find({feature_type: "Wrecks - Visible"}).';
 
       const result = [
@@ -545,7 +545,7 @@ describe('completer.completer', () => {
       expect((await completer(standalone440, i))[0]).to.include.members(result);
     });
 
-    it('returns all suggestions matching 3.0.0 version', async() => {
+    it('returns all suggestions matching 3.0.0 version', async function() {
       const i = 'db.shipwrecks.find({feature_type: "Wrecks - Visible"}).';
 
       const result = [
@@ -579,12 +579,12 @@ describe('completer.completer', () => {
       expect((await completer(standalone300, i))[0]).to.include.members(result);
     });
 
-    it('does not have a match', async() => {
+    it('does not have a match', async function() {
       const i = 'db.shipwrecks.find({feature_type: "Wrecks - Visible"}).gre';
       expect(await completer(standalone440, i)).to.deep.equal([[], i]);
     });
 
-    it('has several matches', async() => {
+    it('has several matches', async function() {
       const i = 'db.shipwrecks.find({feature_type: "Wrecks - Visible"}).cl';
       expect(await completer(standalone440, i)).to.deep.equal([
         [
@@ -592,111 +592,111 @@ describe('completer.completer', () => {
         ], i]);
     });
 
-    it('does not match if it is not .find or .aggregate', async() => {
+    it('does not match if it is not .find or .aggregate', async function() {
       const i = 'db.shipwrecks.moo({feature_type: "Wrecks - Visible"}).';
       expect(await completer(standalone440, i)).to.deep.equal([[], i]);
     });
   });
 
-  context('for shell commands', () => {
-    it('completes partial commands', async() => {
+  context('for shell commands', function() {
+    it('completes partial commands', async function() {
       const i = 'sho';
       expect(await completer(noParams, i))
         .to.deep.equal([['show'], i]);
     });
 
-    it('completes partial commands', async() => {
+    it('completes partial commands', async function() {
       const i = 'show';
       const result = await completer(noParams, i);
       expect(result[0]).to.contain('show databases');
     });
 
-    it('completes show databases', async() => {
+    it('completes show databases', async function() {
       const i = 'show d';
       expect(await completer(noParams, i))
         .to.deep.equal([['show databases'], i, 'exclusive']);
     });
 
-    it('completes show profile', async() => {
+    it('completes show profile', async function() {
       const i = 'show pr';
       expect(await completer(noParams, i))
         .to.deep.equal([['show profile'], i, 'exclusive']);
     });
 
-    it('completes use db with no space', async() => {
+    it('completes use db with no space', async function() {
       databases = ['db1', 'db2'];
       const i = 'use';
       expect(await completer(noParams, i))
         .to.deep.equal([['use db1', 'use db2'], i, 'exclusive']);
     });
 
-    it('completes use db with a space', async() => {
+    it('completes use db with a space', async function() {
       databases = ['db1', 'db2'];
       const i = 'use ';
       expect(await completer(noParams, i))
         .to.deep.equal([['use db1', 'use db2'], i, 'exclusive']);
     });
 
-    it('completes use db with single database and no space', async() => {
+    it('completes use db with single database and no space', async function() {
       databases = ['db1'];
       const i = 'use';
       expect(await completer(noParams, i))
         .to.deep.equal([['use db1'], i, 'exclusive']);
     });
 
-    it('completes use db with single database and space', async() => {
+    it('completes use db with single database and space', async function() {
       databases = ['db1'];
       const i = 'use ';
       expect(await completer(noParams, i))
         .to.deep.equal([['use db1'], i, 'exclusive']);
     });
 
-    it('does not try to complete over-long commands', async() => {
+    it('does not try to complete over-long commands', async function() {
       databases = ['db1', 'db2'];
       const i = 'use db1 d';
       expect(await completer(noParams, i))
         .to.deep.equal([[], i, 'exclusive']);
     });
 
-    it('completes commands like exit', async() => {
+    it('completes commands like exit', async function() {
       const i = 'exi';
       expect(await completer(noParams, i))
         .to.deep.equal([['exit'], i]);
     });
 
-    it('completes with multiple spaces', async() => {
+    it('completes with multiple spaces', async function() {
       const i = 'show  datab';
       expect(await completer(noParams, i))
         .to.deep.equal([['show  databases'], i, 'exclusive']);
     });
   });
 
-  context('with apiStrict', () => {
-    it('completes supported methods like db.test.findOneAndReplace', async() => {
+  context('with apiStrict', function() {
+    it('completes supported methods like db.test.findOneAndReplace', async function() {
       const i = 'db.test.findOneAndR';
       expect(await completer(apiStrictParams, i))
         .to.deep.equal([['db.test.findOneAndReplace'], i]);
     });
 
-    it('completes common methods like db.test.getName', async() => {
+    it('completes common methods like db.test.getName', async function() {
       const i = 'db.test.getNam';
       expect(await completer(apiStrictParams, i))
         .to.deep.equal([['db.test.getName'], i]);
     });
 
-    it('does not complete unsupported methods like db.test.renameCollection', async() => {
+    it('does not complete unsupported methods like db.test.renameCollection', async function() {
       const i = 'db.test.renameC';
       expect(await completer(apiStrictParams, i))
         .to.deep.equal([[], i]);
     });
 
-    it('completes supported aggregation stages', async() => {
+    it('completes supported aggregation stages', async function() {
       const i = 'db.test.aggregate([{$mat';
       expect(await completer(apiStrictParams, i))
         .to.deep.equal([['db.test.aggregate([{$match'], i]);
     });
 
-    it('does not complete unsupported aggregation stages', async() => {
+    it('does not complete unsupported aggregation stages', async function() {
       const i = 'db.test.aggregate([{$indexSta';
       expect(await completer(apiStrictParams, i))
         .to.deep.equal([[], i]);

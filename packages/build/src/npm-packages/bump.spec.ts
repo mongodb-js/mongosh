@@ -1,22 +1,23 @@
 import { expect } from 'chai';
 import path from 'path';
-import sinon, { SinonStub } from 'sinon';
+import type { SinonStub } from 'sinon';
+import sinon from 'sinon';
 import { bumpNpmPackages } from './bump';
 
-describe('npm-packages bumpNpmPackages', () => {
+describe('npm-packages bumpNpmPackages', function() {
   let spawnSync: SinonStub;
 
-  beforeEach(() => {
+  beforeEach(function() {
     spawnSync = sinon.stub();
   });
 
-  it('does not do anything if no version or placeholder version is specified', () => {
+  it('does not do anything if no version or placeholder version is specified', function() {
     bumpNpmPackages('', spawnSync);
     bumpNpmPackages('0.0.0-dev.0', spawnSync);
     expect(spawnSync).to.not.have.been.called;
   });
 
-  it('calls lerna to bump package version', () => {
+  it('calls lerna to bump package version', function() {
     const lernaBin = path.resolve(__dirname, '..', '..', '..', '..', 'node_modules', '.bin', 'lerna');
     bumpNpmPackages('0.7.0', spawnSync);
     expect(spawnSync).to.have.been.calledWith(

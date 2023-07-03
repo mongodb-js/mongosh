@@ -1,4 +1,4 @@
-import {
+import type {
   ContextValue,
   InterpreterEnvironment
 } from '@mongosh/browser-runtime-core';

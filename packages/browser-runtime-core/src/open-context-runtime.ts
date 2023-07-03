@@ -1,7 +1,7 @@
-import { Completion } from './autocompleter/autocompleter';
-import { ServiceProvider } from '@mongosh/service-provider-core';
+import type { Completion } from './autocompleter/autocompleter';
+import type { ServiceProvider } from '@mongosh/service-provider-core';
 import { ShellApiAutocompleter } from './autocompleter/shell-api-autocompleter';
-import {
+import type {
   Runtime,
   RuntimeEvaluationResult,
   RuntimeEvaluationListener

@@ -3,15 +3,16 @@ import path from 'path';
 import fs from 'fs';
 import { promisify } from 'util';
 import { expect } from 'chai';
-import { ToggleableAnalytics, ThrottledAnalytics, MongoshAnalytics } from './analytics-helpers';
+import type { MongoshAnalytics } from './analytics-helpers';
+import { ToggleableAnalytics, ThrottledAnalytics } from './analytics-helpers';
 
 const wait = promisify(setTimeout);
 
-describe('analytics helpers', () => {
+describe('analytics helpers', function() {
   let events: any[];
   let target: MongoshAnalytics;
 
-  beforeEach(() => {
+  beforeEach(function() {
     events = [];
     target = {
       identify(info: any) { events.push(['identify', info]); },
@@ -20,8 +21,8 @@ describe('analytics helpers', () => {
     };
   });
 
-  describe('ToggleableAnalytics', () => {
-    it('starts out in paused state and can be toggled on and off', () => {
+  describe('ToggleableAnalytics', function() {
+    it('starts out in paused state and can be toggled on and off', function() {
       const toggleable = new ToggleableAnalytics(target);
       expect(events).to.have.lengthOf(0);
 
@@ -50,7 +51,7 @@ describe('analytics helpers', () => {
       ]);
     });
 
-    it('emits an error for invalid messages if telemetry is enabled', () => {
+    it('emits an error for invalid messages if telemetry is enabled', function() {
       const toggleable = new ToggleableAnalytics(target);
 
       toggleable.identify({} as any);
@@ -62,7 +63,7 @@ describe('analytics helpers', () => {
     });
   });
 
-  describe('ThrottledAnalytics', () => {
+  describe('ThrottledAnalytics', function() {
     const metadataPath = os.tmpdir();
     const userId = 'u-' + Date.now();
     const iEvt = { userId, traits: { platform: 'what' } };
@@ -77,7 +78,7 @@ describe('analytics helpers', () => {
       properties: { mongosh_version: '1.2.3' }
     };
 
-    afterEach(async() => {
+    afterEach(async function() {
       try {
         await fs.promises.unlink(
           path.resolve(metadataPath, `am-${userId}.json`)
@@ -87,7 +88,7 @@ describe('analytics helpers', () => {
       }
     });
 
-    it('should not throttle events by default', async() => {
+    it('should not throttle events by default', async function() {
       const analytics = new ThrottledAnalytics({ target });
       analytics.identify(iEvt);
       analytics.track(tEvt);
@@ -98,7 +99,7 @@ describe('analytics helpers', () => {
       expect(events).to.have.lengthOf(5);
     });
 
-    it('should throttle when throttling options are provided', async() => {
+    it('should throttle when throttling options are provided', async function() {
       const analytics = new ThrottledAnalytics({
         target,
         throttle: { rate: 5, metadataPath }
@@ -111,7 +112,7 @@ describe('analytics helpers', () => {
       expect(events).to.have.lengthOf(5);
     });
 
-    it('should reset counter after a timeout', async() => {
+    it('should reset counter after a timeout', async function() {
       const analytics = new ThrottledAnalytics({
         target,
         throttle: { rate: 5, metadataPath, timeframe: 200 }
@@ -129,7 +130,7 @@ describe('analytics helpers', () => {
       expect(events).to.have.lengthOf(10);
     });
 
-    it('should persist throttled state and throttle across sessions', async() => {
+    it('should persist throttled state and throttle across sessions', async function() {
       const metadataPath = os.tmpdir();
 
       // first "session"
@@ -156,7 +157,7 @@ describe('analytics helpers', () => {
       expect(events).to.have.lengthOf(5);
     });
 
-    it('should only allow one analytics instance to send events', async() => {
+    it('should only allow one analytics instance to send events', async function() {
       // first "session"
       const a1 = new ThrottledAnalytics({
         target,

@@ -1,8 +1,10 @@
-import { signatures, EvaluationListener } from '@mongosh/shell-api';
+import type { EvaluationListener } from '@mongosh/shell-api';
+import { signatures } from '@mongosh/shell-api';
 import { SnippetManager } from './snippet-manager';
 import chai, { expect } from 'chai';
 import sinonChai from 'sinon-chai';
-import sinon, { stubInterface, StubbedInstance } from 'ts-sinon';
+import type { StubbedInstance } from 'ts-sinon';
+import sinon, { stubInterface } from 'ts-sinon';
 import { once } from 'events';
 import http from 'http';
 import zlib from 'zlib';
@@ -13,7 +15,7 @@ import Nanobus from 'nanobus';
 import { eventually } from '../../../testing/eventually';
 chai.use(sinonChai);
 
-describe('SnippetManager', () => {
+describe('SnippetManager', function() {
   let httpServer: http.Server;
   let httpRequests: any[];
   let baseURL = '';
@@ -31,10 +33,9 @@ describe('SnippetManager', () => {
   let busMessages: ({ ev: any, data?: any })[];
   let interrupted: any;
 
-  beforeEach(async() => {
+  beforeEach(async function() {
     busMessages = [];
     httpRequests = [];
-    // eslint-disable-next-line complexity
     httpServer = http.createServer((req, res) => {
       httpRequests.push(req.url);
       switch (req.url) {
@@ -297,7 +298,7 @@ describe('SnippetManager', () => {
     await fs.mkdir(path.resolve(__dirname, '..', '..', '..', 'tmp', '.nyc_output', 'processinfo'), { recursive: true });
   });
 
-  afterEach(async() => {
+  afterEach(async function() {
     await eventually(async() => {
       // This can fail when an index fetch is being written while we are removing
       // the directory; hence, try again.
@@ -306,7 +307,7 @@ describe('SnippetManager', () => {
     httpServer.close();
   });
 
-  it('tries to fetch index data when the plugin starts', async() => {
+  it('tries to fetch index data when the plugin starts', async function() {
     await snippetManager.inflightFetchIndexPromise;
     expect(snippetManager.repos).to.deep.equal([
       {
@@ -318,23 +319,23 @@ describe('SnippetManager', () => {
     ]);
   });
 
-  it('provides a help text when using `snippet help`', async() => {
+  it('provides a help text when using `snippet help`', async function() {
     const result = await snippetManager.runSnippetCommand(['help']);
     expect(result).to.include('snippet install');
   });
 
-  it('suggests using `snippet help` when using `snippet notacommand`', async() => {
+  it('suggests using `snippet help` when using `snippet notacommand`', async function() {
     const result = await snippetManager.runSnippetCommand(['notacommand']);
     expect(result).to.include("Run 'snippet help'");
   });
 
-  it('provides information about where snippet get its data from when using `snippet info`', async() => {
+  it('provides information about where snippet get its data from when using `snippet info`', async function() {
     const result = await snippetManager.runSnippetCommand(['info']);
     expect(result).to.match(/^Snippet repository URL:\s*http:\/\/localhost:\d+\/index.bson.br$/m);
     expect(result).to.match(/^\s+-->\s+Homepage:\s+https:\/\/example.org$/m);
   });
 
-  it('provides information about specific packages `snippet help <pkg>`', async() => {
+  it('provides information about specific packages `snippet help <pkg>`', async function() {
     const result = await snippetManager.runSnippetCommand(['help', 'bson-example']);
     expect(result).to.equal('Help text!');
     try {
@@ -351,13 +352,13 @@ describe('SnippetManager', () => {
     }
   });
 
-  it('lists all available packages when using `snippet search`', async() => {
+  it('lists all available packages when using `snippet search`', async function() {
     const result = await snippetManager.runSnippetCommand(['search']);
     expect(result).to.match(/bson-example.+│.+4\.3\.0.+│.+Placeholder text one/);
     expect(result).to.match(/mongodb-example.+│.+4\.0\.0.+│.+Placeholder text two/);
   });
 
-  it('rewrites errors based on provided error matchers', async() => {
+  it('rewrites errors based on provided error matchers', async function() {
     expect(snippetManager.transformError(new Error('undefined is not a function')).message)
       .to.equal('undefined is not a function');
     await snippetManager.inflightFetchIndexPromise;
@@ -367,7 +368,7 @@ describe('SnippetManager', () => {
       .to.equal('foo is not a function');
   });
 
-  it('will fail when trying to use `snippet install unknownsnippet`', async() => {
+  it('will fail when trying to use `snippet install unknownsnippet`', async function() {
     try {
       await snippetManager.runSnippetCommand(['install', 'unknownsnippet']);
       expect.fail('missed exception');
@@ -376,7 +377,7 @@ describe('SnippetManager', () => {
     }
   });
 
-  it('will fail when indexFileVersion mismatches', async() => {
+  it('will fail when indexFileVersion mismatches', async function() {
     try {
       indexData.indexFileVersion = 20000;
       await snippetManager.runSnippetCommand(['refresh']);
@@ -386,7 +387,7 @@ describe('SnippetManager', () => {
     }
   });
 
-  it('will fail when the index URI is inaccessible', async() => {
+  it('will fail when the index URI is inaccessible', async function() {
     await snippetManager.inflightFetchIndexPromise;
     try {
       indexURL = `${baseURL}/404`;
@@ -397,7 +398,7 @@ describe('SnippetManager', () => {
     }
   });
 
-  it('will fail when the index URI returns data in the wrong format (not .br)', async() => {
+  it('will fail when the index URI returns data in the wrong format (not .br)', async function() {
     await snippetManager.inflightFetchIndexPromise;
     try {
       indexURL = `${baseURL}/notindexfile`;
@@ -408,7 +409,7 @@ describe('SnippetManager', () => {
     }
   });
 
-  it('will fail when the index URI returns data in the wrong format (not .bson.br)', async() => {
+  it('will fail when the index URI returns data in the wrong format (not .bson.br)', async function() {
     await snippetManager.inflightFetchIndexPromise;
     try {
       indexURL = `${baseURL}/notindexfile2`;
@@ -419,8 +420,8 @@ describe('SnippetManager', () => {
     }
   });
 
-  it('manages packages on disk', async() => {
-    (evaluationListener.onPrompt as any).resolves('yes');
+  it('manages packages on disk', async function() {
+    (evaluationListener.onPrompt ).resolves('yes');
     await snippetManager.runSnippetCommand(['install', 'bson-example']);
     expect(contextObject.print).to.have.been.calledWith('Running install...');
 
@@ -532,8 +533,8 @@ describe('SnippetManager', () => {
     ]);
   });
 
-  it('can install from a tarball (consistency check: fails without second index)', async() => {
-    (evaluationListener.onPrompt as any).resolves('yes');
+  it('can install from a tarball (consistency check: fails without second index)', async function() {
+    (evaluationListener.onPrompt ).resolves('yes');
     try {
       await snippetManager.runSnippetCommand(['install', 'tarballed-example']);
       expect.fail('missed exception');
@@ -542,18 +543,18 @@ describe('SnippetManager', () => {
     }
   });
 
-  it('can install from a tarball', async() => {
+  it('can install from a tarball', async function() {
     await snippetManager.inflightFetchIndexPromise;
     indexURL = `${baseURL}/index.bson.br;${baseURL}/index2.bson.br;`;
-    (evaluationListener.onPrompt as any).resolves('yes');
+    (evaluationListener.onPrompt ).resolves('yes');
     await snippetManager.runSnippetCommand(['install', 'tarballed-example']);
     expect(contextObject.load).to.have.been.calledWith(path.resolve(installdir, 'node_modules', 'tarballed-example-snippet-name', 'index.js'));
   });
 
-  it('reports back errors if npm fails', async() => {
+  it('reports back errors if npm fails', async function() {
     await snippetManager.inflightFetchIndexPromise;
     indexURL = `${baseURL}/index.bson.br;${baseURL}/index2.bson.br;`;
-    (evaluationListener.onPrompt as any).resolves('yes');
+    (evaluationListener.onPrompt ).resolves('yes');
     try {
       await snippetManager.runSnippetCommand(['install', 'snippet-without-installation-candidate']);
       expect.fail('missed exception');
@@ -563,7 +564,7 @@ describe('SnippetManager', () => {
     }
   });
 
-  it('fails when the package.json in question is not readable valid JSON', async() => {
+  it('fails when the package.json in question is not readable valid JSON', async function() {
     await fs.mkdir(installdir, { recursive: true });
     await fs.writeFile(path.join(installdir, 'package.json'), 'notjson');
     try {
@@ -575,19 +576,19 @@ describe('SnippetManager', () => {
     }
   });
 
-  context('without a recent npm in $PATH', () => {
+  context('without a recent npm in $PATH', function() {
     let origPath = '';
-    before(() => {
+    before(function() {
       origPath = process.env.PATH ?? '';
       process.env.PATH =
         path.resolve(__dirname, '..', 'test', 'fixtures', 'fakenpm5') + path.delimiter + process.env.PATH;
     });
-    after(() => {
+    after(function() {
       process.env.PATH = origPath;
     });
 
-    it('does not download npm if asked not to', async() => {
-      (evaluationListener.onPrompt as any).resolves('no');
+    it('does not download npm if asked not to', async function() {
+      (evaluationListener.onPrompt ).resolves('no');
       try {
         await snippetManager.runSnippetCommand(['install', 'bson-example']);
         expect.fail('missed exception');
@@ -596,8 +597,8 @@ describe('SnippetManager', () => {
       }
     });
 
-    it('downloads npm if asked to', async() => {
-      (evaluationListener.onPrompt as any).resolves('yes');
+    it('downloads npm if asked to', async function() {
+      (evaluationListener.onPrompt ).resolves('yes');
       await snippetManager.runSnippetCommand(['install', 'bson-example']);
       expect(contextObject.print).to.have.been.calledWith(`Downloading npm from ${baseURL}/npm-7.15.0.tgz...`);
 
@@ -627,9 +628,9 @@ describe('SnippetManager', () => {
       expect(evaluationListener.onPrompt).to.have.callCount(2);
     });
 
-    it('fails if it tries to download npm but the registry is missing', async() => {
+    it('fails if it tries to download npm but the registry is missing', async function() {
       registryURL = `${baseURL}/missingregistry`;
-      (evaluationListener.onPrompt as any).resolves('yes');
+      (evaluationListener.onPrompt ).resolves('yes');
       snippetManager = makeSnippetManager();
       try {
         await snippetManager.runSnippetCommand(['install', 'bson-example']);
@@ -639,9 +640,9 @@ describe('SnippetManager', () => {
       }
     });
 
-    it('fails if it tries to download npm but the registry response is invalid', async() => {
+    it('fails if it tries to download npm but the registry response is invalid', async function() {
       registryURL = `${baseURL}/brokenregistry`;
-      (evaluationListener.onPrompt as any).resolves('yes');
+      (evaluationListener.onPrompt ).resolves('yes');
       snippetManager = makeSnippetManager();
       try {
         await snippetManager.runSnippetCommand(['install', 'bson-example']);
@@ -651,9 +652,9 @@ describe('SnippetManager', () => {
       }
     });
 
-    it('fails if it tries to download npm but the registry response points to a missing file', async() => {
+    it('fails if it tries to download npm but the registry response points to a missing file', async function() {
       registryURL = `${baseURL}/brokenregistry2`;
-      (evaluationListener.onPrompt as any).resolves('yes');
+      (evaluationListener.onPrompt ).resolves('yes');
       snippetManager = makeSnippetManager();
       try {
         await snippetManager.runSnippetCommand(['install', 'bson-example']);
@@ -664,7 +665,7 @@ describe('SnippetManager', () => {
     });
   });
 
-  it('re-fetches cached data if it is outdated', async() => {
+  it('re-fetches cached data if it is outdated', async function() {
     {
       const result = await snippetManager.runSnippetCommand(['info']);
       expect(result).to.include('https://example.org');
@@ -690,7 +691,7 @@ describe('SnippetManager', () => {
     expect([...new Set(httpRequests)]).to.deep.equal(['/index.bson.br']);
   });
 
-  it('re-fetches cached data if explicitly asked to', async() => {
+  it('re-fetches cached data if explicitly asked to', async function() {
     await snippetManager.inflightFetchIndexPromise;
 
     expect(await snippetManager.runSnippetCommand(['info'])).to.include('https://example.org');
@@ -700,7 +701,7 @@ describe('SnippetManager', () => {
     expect(await snippetManager.runSnippetCommand(['info'])).to.include('https://somethingelse.example.org');
   });
 
-  it('re-fetches cached data if it needs to because the index source URLs have changed', async() => {
+  it('re-fetches cached data if it needs to because the index source URLs have changed', async function() {
     await snippetManager.inflightFetchIndexPromise;
 
     expect(await snippetManager.runSnippetCommand(['info'])).to.include('https://example.org');
@@ -715,7 +716,7 @@ describe('SnippetManager', () => {
     expect(busMessages).to.deep.include({ ev: 'mongosh-snippets:fetch-cache-invalid' });
   });
 
-  it('does not fail loadAllSnippets if the target directory is inaccessible by default', async() => {
+  it('does not fail loadAllSnippets if the target directory is inaccessible by default', async function() {
     if (process.platform === 'win32') {
       return;
     }
@@ -730,13 +731,13 @@ describe('SnippetManager', () => {
     }
   });
 
-  describe('interruption support', () => {
-    it('commands methods like load-all perform interruption checkpoints', async() => {
+  describe('interruption support', function() {
+    it('commands methods like load-all perform interruption checkpoints', async function() {
       await snippetManager.inflightFetchIndexPromise;
       indexURL = `${baseURL}/index.bson.br;${baseURL}/index2.bson.br;`;
       await snippetManager.runSnippetCommand(['refresh']);
 
-      (evaluationListener.onPrompt as any).resolves('yes');
+      (evaluationListener.onPrompt ).resolves('yes');
       // eslint-disable-next-line @typescript-eslint/require-await
       contextObject.load.callsFake(async() => {
         interrupted.checkpoint.throws(new Error('interrupted'));
@@ -751,7 +752,7 @@ describe('SnippetManager', () => {
       expect(interrupted.checkpoint).to.have.been.called;
     });
 
-    it('kills npm commands when interrupted', async() => {
+    it('kills npm commands when interrupted', async function() {
       // Waiting for the initial fetch also ensures that the installdir actually
       // exists.
       await snippetManager.inflightFetchIndexPromise;
@@ -803,39 +804,39 @@ describe('SnippetManager', () => {
     });
   });
 
-  describe('wrapper fn', () => {
-    it('returns a "synthetic" promise', async() => {
+  describe('wrapper fn', function() {
+    it('returns a "synthetic" promise', async function() {
       const result = contextObject.snippet('info');
       expect(result[Symbol.for('@@mongosh.syntheticPromise')]).to.equal(true);
       expect(await result).to.be.a('string');
     });
   });
 
-  describe('autocompletion support', () => {
+  describe('autocompletion support', function() {
     let completer: any;
 
-    beforeEach(() => {
+    beforeEach(function() {
       // TODO: https://bit.ly/3yOlrJX
       completer = (signatures as any).ShellApi.attributes.snippet.shellCommandCompleter;
     });
 
-    it('completes commands', async() => {
+    it('completes commands', async function() {
       expect(await completer(null, ['snippet', 'l'])).to.deep.equal(['ls', 'load-all']);
     });
 
-    it('completes partial snippet names', async() => {
+    it('completes partial snippet names', async function() {
       await snippetManager.inflightFetchIndexPromise;
       expect(await completer(null, ['snippet', 'install', 'm'])).to.deep.equal(['mongodb-example']);
     });
 
-    it('completes all snippet names when no prefix is provided', async() => {
+    it('completes all snippet names when no prefix is provided', async function() {
       await snippetManager.inflightFetchIndexPromise;
       expect(await completer(null, ['snippet', 'install'])).to.deep.equal([
         'install bson-example', 'install mongodb-example'
       ]);
     });
 
-    it('does not provide top-level completion', async() => {
+    it('does not provide top-level completion', async function() {
       // This one is really just for the coverage.
       expect(await completer(null, ['snippet'])).to.deep.equal(undefined);
     });

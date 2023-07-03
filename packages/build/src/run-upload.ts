@@ -1,7 +1,8 @@
 import fs from 'fs';
-import { Config, getReleaseVersionFromTag } from './config';
-import { uploadArtifactToEvergreen as uploadArtifactToEvergreenFn } from './evergreen';
-import { PackageFile } from './packaging';
+import type { Config} from './config';
+import { getReleaseVersionFromTag } from './config';
+import type { uploadArtifactToEvergreen as uploadArtifactToEvergreenFn } from './evergreen';
+import type { PackageFile } from './packaging';
 
 export async function runUpload(
   config: Config,

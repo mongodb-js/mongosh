@@ -1,4 +1,3 @@
-/* eslint-disable complexity */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Icon, css, cx, palette } from '@mongodb-js/compass-components';

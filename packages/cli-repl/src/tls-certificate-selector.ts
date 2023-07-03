@@ -13,7 +13,7 @@ export function getTlsCertificateSelector(
     throw new MongoshUnimplementedError('--tlsCertificateSelector is not supported on this platform');
   }
 
-  const match = selector.match(/^(?<key>\w+)=(?<value>.+)/);
+  const match = /^(?<key>\w+)=(?<value>.+)/.exec(selector);
   if (!match || !['subject', 'thumbprint'].includes(match.groups?.key ?? '')) {
     throw new MongoshInvalidInputError('--tlsCertificateSelector needs to include subject or thumbprint');
   }
@@ -29,13 +29,11 @@ export function getTlsCertificateSelector(
 }
 
 declare global {
-  // eslint-disable-next-line camelcase
   const __non_webpack_require__: undefined | typeof require;
 }
 
 function getCertificateExporter(): TlsCertificateExporter | undefined {
   if (process.env.TEST_OS_EXPORT_CERTIFICATE_AND_KEY_PATH) {
-    // eslint-disable-next-line camelcase
     if (typeof __non_webpack_require__ === 'function') {
       return __non_webpack_require__(process.env.TEST_OS_EXPORT_CERTIFICATE_AND_KEY_PATH);
     }

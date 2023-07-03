@@ -18,7 +18,7 @@ export type LogEntry = {
  */
 function parseOldLogEntry(line: string): LogEntry {
   const re = /^(?<timestamp>\S*) *(?<severity>\S*) *(?<component>\S*) *\[(?<context>[^\]]+)\]\s*(?<message>.*)$/;
-  const match = line.trim().match(re);
+  const match = re.exec(line.trim());
   if (!match) {
     throw new Error(`Could not parse line ${JSON.stringify(line)}`);
   }

@@ -1,3 +1,7 @@
+import type {
+  ShellResult,
+  ShellCommandAutocompleteParameters
+} from './decorators';
 import {
   shellApiClassDefault,
   ShellApiClass,
@@ -5,22 +9,22 @@ import {
   returnType,
   platforms,
   toShellResult,
-  ShellResult,
   directShellCommand,
-  shellCommandCompleter,
-  ShellCommandAutocompleteParameters
+  shellCommandCompleter
 } from './decorators';
 import { asPrintable } from './enums';
 import Mongo from './mongo';
-import Database from './database';
-import { CommandResult, CursorIterationResult } from './result';
+import type Database from './database';
+import type { CommandResult} from './result';
+import { CursorIterationResult } from './result';
 import type ShellInstanceState from './shell-instance-state';
 import { assertArgsDefinedType, assertCLI } from './helpers';
-import { DEFAULT_DB, ServerApi, ServerApiVersion } from '@mongosh/service-provider-core';
+import type { ServerApi, ServerApiVersion } from '@mongosh/service-provider-core';
+import { DEFAULT_DB } from '@mongosh/service-provider-core';
 import { CommonErrors, MongoshUnimplementedError, MongoshInternalError } from '@mongosh/errors';
 import { DBQuery } from './dbquery';
 import { promisify } from 'util';
-import { ClientSideFieldLevelEncryptionOptions } from './field-level-encryption';
+import type { ClientSideFieldLevelEncryptionOptions } from './field-level-encryption';
 import { dirname } from 'path';
 import { ShellUserConfig } from '@mongosh/types';
 import i18n from '@mongosh/i18n';

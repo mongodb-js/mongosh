@@ -1,4 +1,3 @@
-/* eslint-disable complexity */
 import {
   CommonErrors,
   MongoshCommandFailed,
@@ -20,7 +19,7 @@ import {
   topologies,
   deprecated
 } from './decorators';
-import {
+import type {
   ChangeStreamOptions,
   ClientSessionOptions,
   CommandOperationOptions,
@@ -38,14 +37,15 @@ import {
   ServerApiVersion,
   WriteConcern
 } from '@mongosh/service-provider-core';
+import type {
+  ConnectionInfo} from '@mongosh/arg-parser';
 import {
-  ConnectionInfo,
   mapCliToDriver,
   generateConnectionInfoFromCliArgs
 } from '@mongosh/arg-parser';
 import type Collection from './collection';
 import Database from './database';
-import ShellInstanceState from './shell-instance-state';
+import type ShellInstanceState from './shell-instance-state';
 import { CommandResult } from './result';
 import { redactURICredentials } from '@mongosh/history';
 import { asPrintable, ServerVersions, Topologies } from './enums';
@@ -57,13 +57,15 @@ import {
 } from './helpers';
 import ChangeStreamCursor from './change-stream-cursor';
 import { blockedByDriverMetadata } from './error-codes';
+import type {
+  ClientSideFieldLevelEncryptionOptions} from './field-level-encryption';
 import {
-  ClientSideFieldLevelEncryptionOptions,
   KeyVault,
   ClientEncryption
 } from './field-level-encryption';
 import { ShellApiErrors } from './error-codes';
-import { LogEntry, parseAnyLogEntry } from './log-entry';
+import type { LogEntry} from './log-entry';
+import { parseAnyLogEntry } from './log-entry';
 
 @shellApiClassDefault
 @classPlatforms([ 'CLI' ] )
@@ -211,7 +213,7 @@ export default class Mongo extends ShellApiClass {
       // about the fact that the behavior differs from the legacy shell here.
       if (e?.name === 'MongoServerSelectionError' &&
           parentProvider.getRawClient()?.options?.tls &&
-          !this._uri.match(/\b(ssl|tls)=/)
+          !(/\b(ssl|tls)=/.exec(this._uri))
       ) {
         e.message += ' (is ?tls=true missing from the connection string?)';
       }
@@ -241,7 +243,7 @@ export default class Mongo extends ShellApiClass {
   @returnType('Collection')
   getCollection(name: string): Collection {
     assertArgsDefinedType([name], ['string']);
-    const { db, coll } = name.match(/^(?<db>[^.]+)\.(?<coll>.+)$/)?.groups ?? {};
+    const { db, coll } = (/^(?<db>[^.]+)\.(?<coll>.+)$/.exec(name))?.groups ?? {};
     if (!db || !coll) {
       throw new MongoshInvalidInputError('Collection must be of the format <db>.<collection>', CommonErrors.InvalidArgument);
     }
@@ -555,7 +557,6 @@ export default class Mongo extends ShellApiClass {
     const allTransactionOptions = [
       'readConcern', 'writeConcern', 'readPreference', 'maxCommitTimeMS'
     ] as const;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     function assertAllTransactionOptionsUsed(_options: (typeof allTransactionOptions)[number]) {
       // These typechecks might look weird, but will tell us if we are missing
       // support for a newly introduced driver option when it is being added
@@ -570,7 +571,6 @@ export default class Mongo extends ShellApiClass {
     }
 
     const allSessionOptions = [ 'causalConsistency', 'snapshot' ] as const;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     function assertAllSessionOptionsUsed(_options: (typeof allSessionOptions)[number] | 'defaultTransactionOptions') {}
     assertAllSessionOptionsUsed('' as keyof ClientSessionOptions);
     const driverOptions: ClientSessionOptions = {};

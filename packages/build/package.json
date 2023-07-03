@@ -17,7 +17,8 @@
     "prepublish": "npm run compile-ts",
     "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 30000 -r ts-node/register \"./src/**/*.spec.ts\"",
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
-    "lint": "eslint --report-unused-disable-directives \"./{src,test}/**/*.{js,ts,tsx}\"",
+    "eslint": "eslint --report-unused-disable-directives \"./{src,test}/**/*.{js,ts,tsx}\"",
+    "lint": "npm run eslint",
     "check": "npm run lint && depcheck --skip-missing=true",
     "evergreen-release": "ts-node -r ../../scripts/import-expansions.js src/index.ts",
     "release": "ts-node src/index.ts trigger-release"

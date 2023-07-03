@@ -5,7 +5,7 @@ import {
   deprecated,
   ShellApiWithMongoClass
 } from './decorators';
-import {
+import type {
   ChangeStream,
   Document,
   ResumeToken
@@ -18,7 +18,7 @@ import {
   MongoshUnimplementedError
 } from '@mongosh/errors';
 import { iterate } from './helpers';
-import Mongo from './mongo';
+import type Mongo from './mongo';
 
 @shellApiClassDefault
 export default class ChangeStreamCursor extends ShellApiWithMongoClass {

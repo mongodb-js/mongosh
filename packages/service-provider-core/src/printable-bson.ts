@@ -60,7 +60,7 @@ export const bsonStringifiers: Record<string, (this: any, depth: any, options: a
         if (hexString.length === 32) {
           // Format '0123456789abcdef0123456789abcdef' into
           // '01234567-89ab-cdef-0123-456789abcdef'.
-          const asUUID = hexString.match(/^(.{8})(.{4})(.{4})(.{4})(.{12})$/)!
+          const asUUID = /^(.{8})(.{4})(.{4})(.{4})(.{12})$/.exec(hexString)!
             .slice(1, 6).join('-');
           return `UUID("${asUUID}")`;
         }

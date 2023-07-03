@@ -1,18 +1,19 @@
 import React from 'react';
 import sinon from 'sinon';
 import { expect } from '../../testing/chai';
-import { mount, ReactWrapper, shallow, ShallowWrapper } from '../../testing/enzyme';
+import type { ReactWrapper, ShallowWrapper } from '../../testing/enzyme';
+import { mount, shallow } from '../../testing/enzyme';
 import { PasswordPrompt } from './password-prompt';
 import { Shell } from './shell';
 import { ShellInput } from './shell-input';
 import { ShellOutput } from './shell-output';
-import { ShellOutputEntry } from './shell-output-line';
+import type { ShellOutputEntry } from './shell-output-line';
 
 const wait: (ms?: number) => Promise<void> = (ms = 10) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
 };
 
-describe('<Shell />', () => {
+describe('<Shell />', function() {
   let onOutputChangedSpy;
   let onHistoryChangedSpy;
   let onOperationStartedSpy;
@@ -23,7 +24,7 @@ describe('<Shell />', () => {
   let elementFocus;
   let onInput;
 
-  beforeEach(() => {
+  beforeEach(function() {
     onInput = async(code: string): Promise<void> => {
       wrapper.find(ShellInput).prop('onInput')(code);
       await wait();
@@ -52,33 +53,33 @@ describe('<Shell />', () => {
     />);
   });
 
-  afterEach(() => {
+  afterEach(function() {
     scrollIntoView.restore();
     elementFocus.restore();
   });
 
-  it('renders a ShellOutput component', () => {
+  it('renders a ShellOutput component', function() {
     expect(wrapper.find(ShellOutput)).to.have.lengthOf(1);
   });
 
-  it('passes the initial output to ShellOutput', () => {
+  it('passes the initial output to ShellOutput', function() {
     expect(wrapper.find(ShellOutput).prop('output')).to.deep.equal([]);
   });
 
-  it('renders a ShellInput component', () => {
+  it('renders a ShellInput component', function() {
     expect(wrapper.find(ShellInput)).to.have.lengthOf(1);
   });
 
-  it('passes runtime as autocompleter to ShellInput', () => {
+  it('passes runtime as autocompleter to ShellInput', function() {
     expect(wrapper.find(ShellInput).prop('autocompleter')).to.equal(fakeRuntime);
   });
 
-  it('does not set the editor as readOnly by default', () => {
+  it('does not set the editor as readOnly by default', function() {
     expect(wrapper.find(ShellInput).prop('operationInProgress')).to.equal(false);
   });
 
-  context('when initialOutput is set', () => {
-    it('allows to set intial output', async() => {
+  context('when initialOutput is set', function() {
+    it('allows to set intial output', async function() {
       const initialOutput: ShellOutputEntry[] = [
         { format: 'input', value: 'line 1' },
         { format: 'output', value: 'some result' }
@@ -96,7 +97,7 @@ describe('<Shell />', () => {
       expect(wrapper.state('output')).to.deep.equal(initialOutput);
     });
 
-    it('applies max maxOutputLength', () => {
+    it('applies max maxOutputLength', function() {
       const initialOutput: ShellOutputEntry[] = [
         { format: 'input', value: 'line 1' },
         { format: 'output', value: 'some result' },
@@ -118,8 +119,8 @@ describe('<Shell />', () => {
     });
   });
 
-  context('when initialHistory is set', () => {
-    it('allows to set intial history', () => {
+  context('when initialHistory is set', function() {
+    it('allows to set intial history', function() {
       const history: string[] = [
         'line 1'
       ];
@@ -132,7 +133,7 @@ describe('<Shell />', () => {
       expect(wrapper.state('history')).to.deep.equal(history);
     });
 
-    it('applies max maxHistoryLength', () => {
+    it('applies max maxHistoryLength', function() {
       const initialHistory: string[] = ['line3', 'line2', 'line1'];
 
       wrapper = shallow(<Shell
@@ -145,30 +146,30 @@ describe('<Shell />', () => {
     });
   });
 
-  context('when an input is entered', () => {
-    beforeEach(async() => {
+  context('when an input is entered', function() {
+    beforeEach(async function() {
       await onInput('some code');
     });
 
-    it('evaluates the input with runtime', () => {
+    it('evaluates the input with runtime', function() {
       expect(fakeRuntime.evaluate).to.have.been.calledWith('some code');
     });
 
-    it('adds the evaluated input and output as lines to the output', () => {
+    it('adds the evaluated input and output as lines to the output', function() {
       expect(wrapper.find(ShellOutput).prop('output')).to.deep.equal([
         { format: 'input', value: 'some code' },
         { format: 'output', value: 'some result', type: undefined }
       ]);
     });
 
-    it('calls onOutputChanged with output', () => {
+    it('calls onOutputChanged with output', function() {
       expect(onOutputChangedSpy).to.have.been.calledWith([
         { format: 'input', value: 'some code' },
         { format: 'output', value: 'some result', type: undefined }
       ]);
     });
 
-    it('applies maxOutputLength', async() => {
+    it('applies maxOutputLength', async function() {
       wrapper = shallow(<Shell runtime={fakeRuntime} maxOutputLength={3} />);
       await onInput('line 1');
       await onInput('line 2');
@@ -179,7 +180,7 @@ describe('<Shell />', () => {
       ]);
     });
 
-    it('updates the history', async() => {
+    it('updates the history', async function() {
       expect(wrapper.find(ShellInput).prop('history')).to.deep.equal([
         'some code'
       ]);
@@ -194,11 +195,11 @@ describe('<Shell />', () => {
       expect(wrapper.find(ShellInput).prop('history')).to.deep.equal(expected);
     });
 
-    it('calls onHistoryChanged', () => {
+    it('calls onHistoryChanged', function() {
       expect(onHistoryChangedSpy).to.have.been.calledOnceWith(['some code']);
     });
 
-    it('applies maxHistoryLength', async() => {
+    it('applies maxHistoryLength', async function() {
       wrapper = shallow(<Shell runtime={fakeRuntime} maxHistoryLength={2} />);
       await onInput('line 1');
 
@@ -209,49 +210,49 @@ describe('<Shell />', () => {
       expect(wrapper.state('history')).to.deep.equal(['line 3', 'line 2']);
     });
 
-    it('redacts history if redactInfo is set', async() => {
+    it('redacts history if redactInfo is set', async function() {
       wrapper = shallow(<Shell runtime={fakeRuntime} redactInfo />);
       await onInput('some@email.com');
       expect(wrapper.state('history')).to.deep.equal(['<email>']);
     });
 
-    it('does not add sensitive commands to the history', async() => {
+    it('does not add sensitive commands to the history', async function() {
       wrapper = shallow(<Shell runtime={fakeRuntime} />);
       await onInput('db.createUser()');
       expect(wrapper.state('history')).to.deep.equal([]);
     });
 
-    it('calls onOperationStarted', () => {
+    it('calls onOperationStarted', function() {
       expect(onOperationStartedSpy).to.have.been.calledOnce;
     });
 
-    it('calls onOperationEnd', () => {
+    it('calls onOperationEnd', function() {
       expect(onOperationEndSpy).to.have.been.calledOnce;
     });
   });
 
-  context('when empty input is entered', () => {
-    beforeEach(async() => {
+  context('when empty input is entered', function() {
+    beforeEach(async function() {
       await onInput('');
     });
 
-    it('does not evaluate the input with runtime', () => {
+    it('does not evaluate the input with runtime', function() {
       expect(fakeRuntime.evaluate).not.to.have.been.calledWith('');
     });
 
-    it('adds a blank line to the output', () => {
+    it('adds a blank line to the output', function() {
       expect(wrapper.find(ShellOutput).prop('output')).to.deep.equal([
         { format: 'input', value: ' ' },
       ]);
     });
 
-    it('does not update the history', () => {
+    it('does not update the history', function() {
       expect(wrapper.find(ShellInput).prop('history')).to.deep.equal([]);
     });
   });
 
 
-  it('sets the editor as readOnly/operationInProgress true while onInput is executed', async() => {
+  it('sets the editor as readOnly/operationInProgress true while onInput is executed', async function() {
     let onInputDone;
     wrapper = shallow(<Shell
       runtime={{
@@ -283,17 +284,17 @@ describe('<Shell />', () => {
     expect(wrapper.find(ShellInput).prop('operationInProgress')).to.equal(false);
   });
 
-  context('when an input is entered and it causes an error', () => {
+  context('when an input is entered and it causes an error', function() {
     let error;
 
-    beforeEach(async() => {
+    beforeEach(async function() {
       error = new Error('some error');
       fakeRuntime.evaluate = sinon.fake.returns(Promise.reject(error));
 
       await onInput('some code');
     });
 
-    it('adds the evaluated input and an error to the output if the evaluation fails', () => {
+    it('adds the evaluated input and an error to the output if the evaluation fails', function() {
       const output = wrapper.find(ShellOutput).prop('output');
 
       expect(output).to.deep.equal([
@@ -302,18 +303,18 @@ describe('<Shell />', () => {
       ]);
     });
 
-    it('sets the editor as operationInProgress false after the execution', () => {
+    it('sets the editor as operationInProgress false after the execution', function() {
       expect(wrapper.find(ShellInput).prop('operationInProgress')).to.equal(false);
     });
 
-    it('calls onOutputChanged with output', () => {
+    it('calls onOutputChanged with output', function() {
       expect(onOutputChangedSpy).to.have.been.calledWith([
         { format: 'input', value: 'some code' },
         { format: 'error', value: error }
       ]);
     });
 
-    it('updates the history', async() => {
+    it('updates the history', async function() {
       expect(wrapper.find(ShellInput).prop('history')).to.deep.equal([
         'some code'
       ]);
@@ -328,16 +329,16 @@ describe('<Shell />', () => {
       expect(wrapper.find(ShellInput).prop('history')).to.deep.equal(expected);
     });
 
-    it('calls onHistoryChanged', () => {
+    it('calls onHistoryChanged', function() {
       expect(onHistoryChangedSpy).to.have.been.calledOnceWith(['some code']);
     });
 
-    it('calls onOperationEnd', () => {
+    it('calls onOperationEnd', function() {
       expect(onOperationEndSpy).to.have.been.calledOnce;
     });
   });
 
-  it('scrolls the container to the bottom each time the output is updated', () => {
+  it('scrolls the container to the bottom each time the output is updated', function() {
     wrapper = mount(<Shell runtime={fakeRuntime} />);
 
     wrapper.setState({ output: [
@@ -350,7 +351,7 @@ describe('<Shell />', () => {
     expect(Element.prototype.scrollIntoView).to.have.been.calledTwice;
   });
 
-  it('focuses on the input when the background container is clicked', () => {
+  it('focuses on the input when the background container is clicked', function() {
     wrapper = mount(<Shell runtime={fakeRuntime} />);
     const container = wrapper.find('div[data-testid="shell"]');
 
@@ -363,7 +364,7 @@ describe('<Shell />', () => {
     expect(HTMLElement.prototype.focus).to.have.been.calledOnce;
   });
 
-  it('does not focus on the input when an element that is not the background container is clicked', () => {
+  it('does not focus on the input when an element that is not the background container is clicked', function() {
     wrapper = mount(<Shell runtime={fakeRuntime} />);
     const container = wrapper.find('div[data-testid="shell"]');
 
@@ -376,7 +377,7 @@ describe('<Shell />', () => {
     expect(HTMLElement.prototype.focus).to.not.have.been.called;
   });
 
-  it('updated the output when .onPrint is called', () => {
+  it('updated the output when .onPrint is called', function() {
     wrapper.instance().onPrint([{ type: null, printable: 42 }]);
 
     expect(onOutputChangedSpy).to.have.been.calledWith([
@@ -384,7 +385,7 @@ describe('<Shell />', () => {
     ]);
   });
 
-  it('clears the current output when cls is used', () => {
+  it('clears the current output when cls is used', function() {
     wrapper.setState({ output: [
       { format: 'input', value: 'some code' },
       { format: 'output', value: 'some result' }
@@ -394,9 +395,9 @@ describe('<Shell />', () => {
 
     expect(onOutputChangedSpy).to.have.been.calledWith([]);
   });
-  describe('password prompt', () => {
+  describe('password prompt', function() {
     let pressKey: (key: string) => Promise<void>;
-    beforeEach(() => {
+    beforeEach(function() {
       wrapper = mount(<Shell runtime={fakeRuntime} />);
       pressKey = async(key: string) => {
         wrapper.find(PasswordPrompt).instance().onKeyDown({
@@ -408,7 +409,7 @@ describe('<Shell />', () => {
       };
     });
 
-    it('displays a password prompt when asked to', async() => {
+    it('displays a password prompt when asked to', async function() {
       expect(wrapper.find(PasswordPrompt)).to.have.lengthOf(0);
 
       const passwordPromise = wrapper.instance().onPrompt('Enter password', 'password');
@@ -423,7 +424,7 @@ describe('<Shell />', () => {
       expect(HTMLElement.prototype.focus).to.have.been.called;
     });
 
-    it('can abort reading the password', async() => {
+    it('can abort reading the password', async function() {
       const passwordPromise = wrapper.instance().onPrompt('Enter password', 'password');
       await wait();
       wrapper.update();
@@ -439,14 +440,14 @@ describe('<Shell />', () => {
     });
   });
 
-  context('shows a shell prompt', () => {
-    it('defaults to >', async() => {
+  context('shows a shell prompt', function() {
+    it('defaults to >', async function() {
       wrapper = mount(<Shell runtime={fakeRuntime} />);
       await wait();
       expect(wrapper.find('ShellInput').prop('prompt')).to.equal('>');
     });
 
-    it('initializes with the value of getShellPrompt', async() => {
+    it('initializes with the value of getShellPrompt', async function() {
       // eslint-disable-next-line @typescript-eslint/require-await
       fakeRuntime.getShellPrompt = async() => {
         return 'mongos>';
@@ -457,7 +458,7 @@ describe('<Shell />', () => {
       expect(wrapper.find('ShellInput').prop('prompt')).to.equal('mongos>');
     });
 
-    it('updates after evaluation', async() => {
+    it('updates after evaluation', async function() {
       let called = 0;
       // eslint-disable-next-line @typescript-eslint/require-await
       fakeRuntime.getShellPrompt = async() => {
@@ -480,7 +481,7 @@ describe('<Shell />', () => {
       expect(wrapper.find('ShellInput').prop('prompt')).to.equal('rs0:primary>');
     });
 
-    it('works with a custom user-provided prompt', async() => {
+    it('works with a custom user-provided prompt', async function() {
       // eslint-disable-next-line @typescript-eslint/require-await
       fakeRuntime.evaluate = async() => {
         return {

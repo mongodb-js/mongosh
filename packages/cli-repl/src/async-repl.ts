@@ -1,9 +1,9 @@
-/* eslint-disable chai-friendly/no-unused-expressions */
 import { Domain } from 'domain';
 import type { EventEmitter } from 'events';
 import type { ReadStream } from 'tty';
 import isRecoverableError from 'is-recoverable-error';
-import { Interface, ReadLineOptions } from 'readline';
+import type { ReadLineOptions } from 'readline';
+import { Interface } from 'readline';
 import type { ReplOptions, REPLServer } from 'repl';
 import { Recoverable, start as originalStart } from 'repl';
 import { promisify } from 'util';

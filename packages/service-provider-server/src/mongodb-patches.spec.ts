@@ -9,7 +9,7 @@ const delay = promisify(setTimeout);
 describe('forceCloseMongoClient [integration]', function() {
   const testServer = startTestServer('shared');
 
-  context('for server >= 4.1', () => {
+  context('for server >= 4.1', function() {
     skipIfServerVersion(testServer, '< 4.1');
 
     it('force-closes connections that are currently checked out', async function() {

@@ -5,7 +5,7 @@ import { updateHomebrewFork } from './update-homebrew-fork';
 
 chai.use(require('sinon-chai'));
 
-describe('Homebrew update-homebrew-fork', () => {
+describe('Homebrew update-homebrew-fork', function() {
   let getFileContent: sinon.SinonStub;
   let getBranchDetails: sinon.SinonStub;
   let createBranch: sinon.SinonStub;
@@ -13,7 +13,7 @@ describe('Homebrew update-homebrew-fork', () => {
   let homebrewCore: GithubRepo;
   let homebrewCoreFork: GithubRepo;
 
-  beforeEach(() => {
+  beforeEach(function() {
     getFileContent = sinon.stub();
     getBranchDetails = sinon.stub();
     homebrewCore = sinon.createStubInstance(GithubRepo, {
@@ -29,7 +29,7 @@ describe('Homebrew update-homebrew-fork', () => {
     }) as unknown as GithubRepo;
   });
 
-  it('writes updated formula and pushes changes', async() => {
+  it('writes updated formula and pushes changes', async function() {
     getFileContent
       .rejects()
       .withArgs('Formula/mongosh.rb')
@@ -78,7 +78,7 @@ describe('Homebrew update-homebrew-fork', () => {
     expect(commitFileUpdateFork).to.have.been.calledOnce;
   });
 
-  it('does not push changes if formula is same', async() => {
+  it('does not push changes if formula is same', async function() {
     getFileContent
       .rejects()
       .withArgs('Formula/mongosh.rb')

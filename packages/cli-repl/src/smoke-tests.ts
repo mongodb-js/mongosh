@@ -1,4 +1,3 @@
-/* eslint-disable no-console, @typescript-eslint/no-non-null-assertion, chai-friendly/no-unused-expressions */
 import { spawn } from 'child_process';
 import assert from 'assert';
 import { once } from 'events';
@@ -68,13 +67,13 @@ export async function runSmokeTests(smokeTestServer: string | undefined, executa
     output: /Test succeeded/,
     includeStderr: false,
     exitCode: 0,
-    testArgs: [smokeTestServer as string]
+    testArgs: [smokeTestServer ]
   }, {
     input: fleSmokeTestScript,
     output: /Test succeeded|Test skipped/,
     includeStderr: false,
     exitCode: 0,
-    testArgs: [smokeTestServer as string]
+    testArgs: [smokeTestServer ]
   }] : [])) {
     await runSmokeTest({
       executable,

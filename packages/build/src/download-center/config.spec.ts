@@ -1,16 +1,16 @@
-import { DownloadCenterConfig } from '@mongodb-js/dl-center/dist/download-center-config';
+import type { DownloadCenterConfig } from '@mongodb-js/dl-center/dist/download-center-config';
 import { expect } from 'chai';
 import sinon from 'ts-sinon';
 import type { PackageVariant } from '../config';
 import { createAndPublishDownloadCenterConfig, createDownloadCenterConfig } from './config';
 
-describe('DownloadCenter config', () => {
+describe('DownloadCenter config', function() {
   let config: DownloadCenterConfig;
   let packageInformation: any;
 
-  before(() => {
+  before(function() {
     packageInformation = (packageVariant: PackageVariant) => {
-      const SHARED_OPENSSL_TAG = packageVariant?.match?.(/-(openssl\d*)$/)?.[1] || '';
+      const SHARED_OPENSSL_TAG = (/-(openssl\d*)$/.exec(packageVariant))?.[1] || '';
       return {
         metadata: {
           version: '1.2.2',
@@ -23,15 +23,15 @@ describe('DownloadCenter config', () => {
     config = createDownloadCenterConfig(packageInformation);
   });
 
-  describe('createDownloadCenterConfig', () => {
-    it('sets the version correctly', () => {
+  describe('createDownloadCenterConfig', function() {
+    it('sets the version correctly', function() {
       expect(config.versions).to.have.length(1);
       const [version] = config.versions;
       expect(version._id).to.equal('1.2.2');
       expect(version.version).to.equal('1.2.2');
     });
 
-    it('has an artifact for darwin', () => {
+    it('has an artifact for darwin', function() {
       const [version] = config.versions;
       const platforms = version.platform.filter(p => p.os === 'darwin');
       expect(platforms).to.have.length(2);
@@ -39,7 +39,7 @@ describe('DownloadCenter config', () => {
       expect(platforms[1].download_link).to.include('mongosh-1.2.2-darwin-arm64.zip');
     });
 
-    it('has an artifact for linux', () => {
+    it('has an artifact for linux', function() {
       const [version] = config.versions;
       const platforms = version.platform.filter(p => p.os === 'linux' && p.arch === 'x64');
       expect(platforms).to.have.length(3);
@@ -50,7 +50,7 @@ describe('DownloadCenter config', () => {
       ]);
     });
 
-    it('has an MSI and ZIP artifacts for windows', () => {
+    it('has an MSI and ZIP artifacts for windows', function() {
       const [version] = config.versions;
       const platforms = version.platform.filter(p => p.os === 'win32' || p.os === 'win32msi');
       expect(platforms).to.have.length(2);
@@ -60,7 +60,7 @@ describe('DownloadCenter config', () => {
       ]);
     });
 
-    it('has an artifact for rpm', () => {
+    it('has an artifact for rpm', function() {
       const [version] = config.versions;
       const platforms = version.platform.filter(p => p.os === 'rpm' && p.arch === 'x64');
       expect(platforms).to.have.length(3);
@@ -71,7 +71,7 @@ describe('DownloadCenter config', () => {
       ]);
     });
 
-    it('has an artifact for deb', () => {
+    it('has an artifact for deb', function() {
       const [version] = config.versions;
       const platforms = version.platform.filter(p => p.os === 'deb' && p.arch === 'x64');
       expect(platforms).to.have.length(3);
@@ -83,18 +83,18 @@ describe('DownloadCenter config', () => {
     });
   });
 
-  describe('createAndPublishDownloadCenterConfig', () => {
+  describe('createAndPublishDownloadCenterConfig', function() {
     let dlCenter: sinon.SinonStub;
     let uploadConfig: sinon.SinonStub;
 
-    beforeEach(() => {
+    beforeEach(function() {
       uploadConfig = sinon.stub();
       dlCenter = sinon.stub();
 
       dlCenter.returns({ uploadConfig });
     });
 
-    it('publishes the configuration', async() => {
+    it('publishes the configuration', async function() {
       await createAndPublishDownloadCenterConfig(
         packageInformation,
         'accessKey',

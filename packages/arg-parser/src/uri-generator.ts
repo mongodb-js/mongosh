@@ -1,4 +1,3 @@
-/* eslint-disable complexity */
 import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
 import i18n from '@mongosh/i18n';
 import type { CliOptions } from './cli-options';
@@ -70,10 +69,10 @@ function validateConflicts(options: CliOptions, connectionString?: ConnectionStr
  * @param {string} host - The value of the --host option.
  */
 function validateHost(host: string): void {
-  const invalidCharacter = host.match(/[^a-zA-Z0-9.:\[\]_-]/);
+  const invalidCharacter = /[^a-zA-Z0-9.:[\]_-]/.exec(host);
   if (invalidCharacter) {
     throw new MongoshInvalidInputError(
-      i18n.__(INVALID_HOST) + ': ' + invalidCharacter[0],
+      `${i18n.__(INVALID_HOST) as string}:${invalidCharacter[0]}`,
       CommonErrors.InvalidArgument);
   }
 }
@@ -88,14 +87,14 @@ function validateHostSeedList(hosts: string, fixedPort: string | undefined): str
   for (const h of trimmedHosts) {
     // Split at the last colon to separate the port from the host
     // (if that colon is followed exclusively by digits)
-    const { host, port } = h.match(/^(?<host>.+?)(:(?<port>\d+))?$/)?.groups ?? {};
+    const { host, port } = (/^(?<host>.+?)(:(?<port>\d+))?$/.exec(h))?.groups ?? {};
     if (fixedPort && port !== undefined && port !== fixedPort) {
       throw new MongoshInvalidInputError(
         i18n.__(HOST_LIST_PORT_MISMATCH),
         CommonErrors.InvalidArgument
       );
     }
-    hostList.push(`${host}${(port || fixedPort) ? ':' + (port || fixedPort) : ''}`);
+    hostList.push(`${host}${(port || fixedPort) ? `:${(port || fixedPort) as number|string}` : ''}`);
   }
   return hostList;
 }
@@ -169,9 +168,7 @@ function generateUriNormalized(options: CliOptions): ConnectionString {
 
   // If the --host argument contains /, it has the format
   // <replSetName>/<hostname1><:port>,<hostname2><:port>,<...>
-  const replSetHostMatch = (options.host ?? '').match(
-    /^(?<replSetName>[^/]+)\/(?<hosts>(([A-Za-z0-9._-]+|\[[0-9a-fA-F:]+\])(:\d+)?,?)+)$/
-  );
+  const replSetHostMatch = /^(?<replSetName>[^/]+)\/(?<hosts>(([A-Za-z0-9._-]+|\[[0-9a-fA-F:]+\])(:\d+)?,?)+)$/.exec((options.host ?? ''));
   if (replSetHostMatch) {
     const { replSetName, hosts } = replSetHostMatch.groups as { replSetName: string, hosts: string };
     const connectionString = new ConnectionString(`mongodb://replacemeHost/${encodeURIComponent(uri || '')}`);
@@ -182,9 +179,7 @@ function generateUriNormalized(options: CliOptions): ConnectionString {
 
   // If the --host argument contains multiple hosts as a seed list
   // we directly do not do additional host/port parsing
-  const seedList = (options.host ?? '').match(
-    /^(?<hosts>([A-Za-z0-9._-]+(:\d+)?,?)+)$/
-  );
+  const seedList = /^(?<hosts>([A-Za-z0-9._-]+(:\d+)?,?)+)$/.exec((options.host ?? ''));
   if (seedList && options.host?.includes(',')) {
     const { hosts } = seedList.groups as { hosts: string };
     const connectionString = new ConnectionString(`mongodb://replacemeHost/${encodeURIComponent(uri || '')}`);

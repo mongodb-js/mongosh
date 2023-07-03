@@ -1,8 +1,10 @@
 /* istanbul ignore file */
 import path from 'path';
 import { promises as fs, constants as fsConstants } from 'fs';
-import { downloadMongoDb, DownloadOptions } from '../download-mongodb';
-import { PackageVariant, getDistro, getArch } from '../config';
+import type { DownloadOptions } from '../download-mongodb';
+import { downloadMongoDb } from '../download-mongodb';
+import type { PackageVariant} from '../config';
+import { getDistro, getArch } from '../config';
 
 export async function downloadCryptLibrary(variant: PackageVariant | 'host'): Promise<string> {
   const opts: DownloadOptions = {};
@@ -15,12 +17,12 @@ export async function downloadCryptLibrary(variant: PackageVariant | 'host'): Pr
   const cryptTmpTargetDir = path.resolve(__dirname, '..', '..', '..', '..', 'tmp', 'crypt-store', variant);
   // Download mongodb for latest server version, including rapid releases
   // (for the platforms that they exist for, i.e. for ppc64le/s390x only pick stable releases).
-  const versionSpec = (opts.arch || process.arch).match(/ppc64|s390x/)
+  const versionSpec = (/ppc64|s390x/.exec((opts.arch || process.arch)))
     ? 'stable' : 'continuous';
   const libdir = await downloadMongoDb(cryptTmpTargetDir, versionSpec, opts);
   const cryptLibrary = path.join(
     libdir,
-    (await fs.readdir(libdir)).find(filename => filename.match(/^mongo_crypt_v1\.(so|dylib|dll)$/)) as string
+    (await fs.readdir(libdir)).find(filename => /^mongo_crypt_v1\.(so|dylib|dll)$/.exec(filename)) as string
   );
   // Make sure that the binary exists and is readable.
   await fs.access(cryptLibrary, fsConstants.R_OK);

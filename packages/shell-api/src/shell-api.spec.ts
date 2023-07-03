@@ -1,15 +1,17 @@
-/* eslint-disable new-cap */
 import { expect } from 'chai';
 import ShellApi from './shell-api';
 import { signatures, toShellResult } from './index';
-import Cursor from './cursor';
+import type Cursor from './cursor';
 import { nonAsyncFunctionsReturningPromises } from './decorators';
 import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, ALL_API_VERSIONS } from './enums';
-import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
+import type { StubbedInstance} from 'ts-sinon';
+import sinon, { stubInterface } from 'ts-sinon';
 import Mongo from './mongo';
-import { ServiceProvider, bson, MongoClient } from '@mongosh/service-provider-core';
+import type { ServiceProvider, MongoClient } from '@mongosh/service-provider-core';
+import { bson } from '@mongosh/service-provider-core';
 import { EventEmitter } from 'events';
-import ShellInstanceState, { EvaluationListener } from './shell-instance-state';
+import type { EvaluationListener } from './shell-instance-state';
+import ShellInstanceState from './shell-instance-state';
 
 const b641234 = 'MTIzNA==';
 const schemaMap = {
@@ -27,12 +29,12 @@ const schemaMap = {
   }
 };
 
-describe('ShellApi', () => {
-  describe('signatures', () => {
-    it('type', () => {
+describe('ShellApi', function() {
+  describe('signatures', function() {
+    it('type', function() {
       expect(signatures.ShellApi.type).to.equal('ShellApi');
     });
-    it('attributes', () => {
+    it('attributes', function() {
       expect(signatures.ShellApi.attributes.use).to.deep.equal({
         type: 'function',
         returnsPromise: false,
@@ -165,14 +167,14 @@ describe('ShellApi', () => {
       });
     });
   });
-  describe('help', () => {
+  describe('help', function() {
     const apiClass = new ShellApi({} as any);
-    it('calls help function', async() => {
+    it('calls help function', async function() {
       expect((await toShellResult(apiClass.help())).type).to.equal('Help');
       expect((await toShellResult(apiClass.help)).type).to.equal('Help');
     });
   });
-  describe('commands', () => {
+  describe('commands', function() {
     let serviceProvider: StubbedInstance<ServiceProvider>;
     let newSP: StubbedInstance<ServiceProvider>;
     let rawClientStub: StubbedInstance<MongoClient>;
@@ -180,7 +182,7 @@ describe('ShellApi', () => {
     let instanceState: ShellInstanceState;
     let mongo: Mongo;
 
-    beforeEach(() => {
+    beforeEach(function() {
       bus = new EventEmitter();
       rawClientStub = stubInterface<MongoClient>();
       newSP = stubInterface<ServiceProvider>();
@@ -197,44 +199,44 @@ describe('ShellApi', () => {
       instanceState.currentDb._mongo = mongo;
       serviceProvider.platform = 'CLI';
     });
-    describe('use', () => {
-      beforeEach(() => {
+    describe('use', function() {
+      beforeEach(function() {
         instanceState.shellApi.use('testdb');
       });
-      it('calls use with arg', () => {
+      it('calls use with arg', function() {
         expect(mongo.use).to.have.been.calledWith('testdb');
       });
     });
-    describe('show', () => {
-      beforeEach(async() => {
+    describe('show', function() {
+      beforeEach(async function() {
         await instanceState.shellApi.show('databases');
       });
-      it('calls show with arg', () => {
+      it('calls show with arg', function() {
         expect(mongo.show).to.have.been.calledWith('databases');
       });
     });
-    describe('it', () => {
-      it('returns empty result if no current cursor', async() => {
+    describe('it', function() {
+      it('returns empty result if no current cursor', async function() {
         instanceState.currentCursor = null;
         const res: any = await instanceState.shellApi.it();
         expect((await toShellResult(res)).type).to.deep.equal('CursorIterationResult');
       });
-      it('calls _it on current Cursor', async() => {
+      it('calls _it on current Cursor', async function() {
         instanceState.currentCursor = stubInterface<Cursor>();
         await instanceState.shellApi.it();
         expect(instanceState.currentCursor._it).to.have.been.called;
       });
     });
-    describe('Mongo', () => {
-      beforeEach(() => {
+    describe('Mongo', function() {
+      beforeEach(function() {
         serviceProvider.platform = 'CLI';
       });
-      it('returns a new Mongo object', async() => {
+      it('returns a new Mongo object', async function() {
         const m = await instanceState.shellApi.Mongo('localhost:27017');
         expect((await toShellResult(m)).type).to.equal('Mongo');
         expect(m._uri).to.equal('mongodb://localhost:27017/?directConnection=true&serverSelectionTimeoutMS=2000');
       });
-      it('fails for non-CLI', async() => {
+      it('fails for non-CLI', async function() {
         serviceProvider.platform = 'Browser';
         try {
           await instanceState.shellApi.Mongo('uri');
@@ -243,21 +245,21 @@ describe('ShellApi', () => {
         }
         expect.fail('MongoshInvalidInputError not thrown for Mongo');
       });
-      it('parses URI with mongodb://', async() => {
+      it('parses URI with mongodb://', async function() {
         const m = await instanceState.shellApi.Mongo('mongodb://127.0.0.1:27017');
         expect(m._uri).to.equal('mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000');
       });
-      it('parses URI with just db', async() => {
+      it('parses URI with just db', async function() {
         const m = await instanceState.shellApi.Mongo('dbname');
         expect(m._uri).to.equal('mongodb://127.0.0.1:27017/dbname?directConnection=true&serverSelectionTimeoutMS=2000');
       });
-      context('FLE', () => {
+      context('FLE', function() {
         [
           { type: 'base64 string', key: b641234, expectedKey: b641234 },
           { type: 'Buffer', key: Buffer.from(b641234, 'base64'), expectedKey: Buffer.from(b641234, 'base64') },
           { type: 'BinData', key: new bson.Binary(Buffer.from(b641234, 'base64'), 128), expectedKey: Buffer.from(b641234, 'base64') }
         ].forEach(({ type, key, expectedKey }) => {
-          it(`local kms provider - key is ${type}`, async() => {
+          it(`local kms provider - key is ${type}`, async function() {
             await instanceState.shellApi.Mongo('dbname', {
               keyVaultNamespace: 'encryption.dataKeys',
               kmsProviders: {
@@ -278,7 +280,7 @@ describe('ShellApi', () => {
               });
           });
         });
-        it('aws kms provider', async() => {
+        it('aws kms provider', async function() {
           await instanceState.shellApi.Mongo('dbname', {
             keyVaultNamespace: 'encryption.dataKeys',
             kmsProviders: {
@@ -299,7 +301,7 @@ describe('ShellApi', () => {
               }
             });
         });
-        it('local kms provider with current as Mongo', async() => {
+        it('local kms provider with current as Mongo', async function() {
           await instanceState.shellApi.Mongo('dbname', {
             keyVaultNamespace: 'encryption.dataKeys',
             kmsProviders: {
@@ -320,7 +322,7 @@ describe('ShellApi', () => {
               }
             });
         });
-        it('local kms provider with different Mongo', async() => {
+        it('local kms provider with different Mongo', async function() {
           const sp = stubInterface<ServiceProvider>();
           const rc = stubInterface<MongoClient>();
           sp.getRawClient.returns(rc);
@@ -345,7 +347,7 @@ describe('ShellApi', () => {
               }
             });
         });
-        it('throws if missing namespace', async() => {
+        it('throws if missing namespace', async function() {
           try {
             await instanceState.shellApi.Mongo('dbname', {
               kmsProviders: {
@@ -360,7 +362,7 @@ describe('ShellApi', () => {
           }
           expect.fail('failed to throw expected error');
         });
-        it('throws if missing kmsProviders', async() => {
+        it('throws if missing kmsProviders', async function() {
           try {
             await instanceState.shellApi.Mongo('dbname', {
               keyVaultNamespace: 'encryption.dataKeys'
@@ -370,7 +372,7 @@ describe('ShellApi', () => {
           }
           expect.fail('failed to throw expected error');
         });
-        it('throws for unknown args', async() => {
+        it('throws for unknown args', async function() {
           try {
             await instanceState.shellApi.Mongo('dbname', {
               keyVaultNamespace: 'encryption.dataKeys',
@@ -387,7 +389,7 @@ describe('ShellApi', () => {
           }
           expect.fail('failed to throw expected error');
         });
-        it('passes along optional arguments', async() => {
+        it('passes along optional arguments', async function() {
           await instanceState.shellApi.Mongo('dbname', {
             keyVaultNamespace: 'encryption.dataKeys',
             kmsProviders: {
@@ -413,14 +415,14 @@ describe('ShellApi', () => {
         });
       });
     });
-    describe('connect', () => {
-      it('returns a new DB', async() => {
+    describe('connect', function() {
+      it('returns a new DB', async function() {
         serviceProvider.platform = 'CLI';
         const db = await instanceState.shellApi.connect('localhost:27017', 'username', 'pwd');
         expect((await toShellResult(db)).type).to.equal('Database');
         expect(db.getMongo()._uri).to.equal('mongodb://username:pwd@localhost:27017/?directConnection=true&serverSelectionTimeoutMS=2000');
       });
-      it('fails with no arg', async() => {
+      it('fails with no arg', async function() {
         serviceProvider.platform = 'CLI';
         try {
           await (instanceState.shellApi as any).connect();
@@ -430,8 +432,8 @@ describe('ShellApi', () => {
         expect.fail('MongoshInvalidInputError not thrown for connect');
       });
     });
-    describe('version', () => {
-      it('returns a string for the version', () => {
+    describe('version', function() {
+      it('returns a string for the version', function() {
         const version = instanceState.shellApi.version();
         const expected = require('../package.json').version;
         expect(version).to.be.a('string');
@@ -439,14 +441,14 @@ describe('ShellApi', () => {
       });
     });
   });
-  describe('from context', () => {
+  describe('from context', function() {
     let serviceProvider: StubbedInstance<ServiceProvider>;
     let bus: EventEmitter;
     let instanceState: ShellInstanceState;
     let mongo: Mongo;
     let evaluationListener: StubbedInstance<EvaluationListener>;
 
-    beforeEach(() => {
+    beforeEach(function() {
       bus = new EventEmitter();
       const newSP = stubInterface<ServiceProvider>();
       newSP.initialDb = 'test';
@@ -463,53 +465,53 @@ describe('ShellApi', () => {
       instanceState.currentDb._mongo = mongo;
       instanceState.setEvaluationListener(evaluationListener);
     });
-    it('calls help function', async() => {
+    it('calls help function', async function() {
       expect((await toShellResult(instanceState.context.use.help())).type).to.equal('Help');
       expect((await toShellResult(instanceState.context.use.help)).type).to.equal('Help');
     });
-    describe('use', () => {
-      beforeEach(() => {
+    describe('use', function() {
+      beforeEach(function() {
         instanceState.context.use('testdb');
       });
-      it('calls use with arg', () => {
+      it('calls use with arg', function() {
         expect(mongo.use).to.have.been.calledWith('testdb');
       });
     });
-    describe('show', () => {
-      beforeEach(() => {
+    describe('show', function() {
+      beforeEach(function() {
         instanceState.context.show('databases');
       });
-      it('calls show with arg', () => {
+      it('calls show with arg', function() {
         expect(mongo.show).to.have.been.calledWith('databases');
       });
     });
-    describe('it', () => {
-      it('returns empty result if no current cursor', async() => {
+    describe('it', function() {
+      it('returns empty result if no current cursor', async function() {
         instanceState.currentCursor = null;
         const res: any = await instanceState.context.it();
         expect((await toShellResult(res)).type).to.deep.equal('CursorIterationResult');
       });
-      it('calls _it on current Cursor', async() => {
+      it('calls _it on current Cursor', async function() {
         instanceState.currentCursor = stubInterface<Cursor>();
         await instanceState.context.it();
         expect(instanceState.currentCursor._it).to.have.been.called;
       });
     });
-    describe('Mongo', () => {
-      beforeEach(() => {
+    describe('Mongo', function() {
+      beforeEach(function() {
         serviceProvider.platform = 'CLI';
       });
-      it('returns a new Mongo object', async() => {
+      it('returns a new Mongo object', async function() {
         const m = await instanceState.context.Mongo('mongodb://127.0.0.1:27017');
         expect((await toShellResult(m)).type).to.equal('Mongo');
         expect(m._uri).to.equal('mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000');
       });
-      it('returns a new Mongo object with new', async() => {
+      it('returns a new Mongo object with new', async function() {
         const m = await new instanceState.context.Mongo('mongodb://127.0.0.1:27017');
         expect((await toShellResult(m)).type).to.equal('Mongo');
         expect(m._uri).to.equal('mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000');
       });
-      it('fails for non-CLI', async() => {
+      it('fails for non-CLI', async function() {
         serviceProvider.platform = 'Browser';
         try {
           await instanceState.shellApi.Mongo('mongodb://127.0.0.1:27017');
@@ -519,14 +521,14 @@ describe('ShellApi', () => {
         expect.fail('MongoshInvalidInputError not thrown for Mongo');
       });
     });
-    describe('connect', () => {
-      it('returns a new DB', async() => {
+    describe('connect', function() {
+      it('returns a new DB', async function() {
         serviceProvider.platform = 'CLI';
         const db = await instanceState.context.connect('mongodb://127.0.0.1:27017');
         expect((await toShellResult(db)).type).to.equal('Database');
         expect(db.getMongo()._uri).to.equal('mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000');
       });
-      it('handles username/pwd', async() => {
+      it('handles username/pwd', async function() {
         serviceProvider.platform = 'CLI';
         const db = await instanceState.context.connect('mongodb://127.0.0.1:27017', 'username', 'pwd');
         expect((await toShellResult(db)).type).to.equal('Database');
@@ -536,25 +538,24 @@ describe('ShellApi', () => {
           { });
       });
     });
-    describe('version', () => {
-      it('returns a string for the version', () => {
+    describe('version', function() {
+      it('returns a string for the version', function() {
         const version = instanceState.context.version();
         const expected = require('../package.json').version;
         expect(version).to.be.a('string');
         expect(version).to.equal(expected);
       });
     });
-    describe('isInteractive', () => {
-      it('returns a boolean', () => {
+    describe('isInteractive', function() {
+      it('returns a boolean', function() {
         expect(instanceState.context.isInteractive()).to.equal(false);
         instanceState.isInteractive = true;
         expect(instanceState.context.isInteractive()).to.equal(true);
       });
     });
     for (const cmd of ['exit', 'quit']) {
-      // eslint-disable-next-line no-loop-func
-      describe(cmd, () => {
-        it('instructs the shell to exit', async() => {
+      describe(cmd, function() {
+        it('instructs the shell to exit', async function() {
           evaluationListener.onExit.resolves();
           try {
             await instanceState.context[cmd]();
@@ -565,7 +566,7 @@ describe('ShellApi', () => {
           }
           expect(evaluationListener.onExit).to.have.been.calledWith();
         });
-        it('passes on the exit code, if provided', async() => {
+        it('passes on the exit code, if provided', async function() {
           evaluationListener.onExit.resolves();
           try {
             await instanceState.context[cmd](1);
@@ -578,26 +579,26 @@ describe('ShellApi', () => {
         });
       });
     }
-    describe('enableTelemetry', () => {
-      it('calls .setConfig("enableTelemetry") with true', () => {
+    describe('enableTelemetry', function() {
+      it('calls .setConfig("enableTelemetry") with true', function() {
         instanceState.context.enableTelemetry();
         expect(evaluationListener.setConfig).to.have.been.calledWith('enableTelemetry', true);
       });
     });
-    describe('disableTelemetry', () => {
-      it('calls .setConfig("enableTelemetry") with false', () => {
+    describe('disableTelemetry', function() {
+      it('calls .setConfig("enableTelemetry") with false', function() {
         instanceState.context.disableTelemetry();
         expect(evaluationListener.setConfig).to.have.been.calledWith('enableTelemetry', false);
       });
     });
-    describe('passwordPrompt', () => {
-      it('asks the evaluation listener for a password', async() => {
+    describe('passwordPrompt', function() {
+      it('asks the evaluation listener for a password', async function() {
         evaluationListener.onPrompt.resolves('passw0rd');
         const pwd = await instanceState.context.passwordPrompt();
         expect(pwd).to.equal('passw0rd');
         expect(evaluationListener.onPrompt).to.have.been.calledWith('Enter password', 'password');
       });
-      it('fails for currently unsupported platforms', async() => {
+      it('fails for currently unsupported platforms', async function() {
         instanceState.setEvaluationListener({});
         try {
           await instanceState.context.passwordPrompt();
@@ -607,23 +608,23 @@ describe('ShellApi', () => {
         }
       });
     });
-    describe('sleep', () => {
-      it('suspends execution', async() => {
+    describe('sleep', function() {
+      it('suspends execution', async function() {
         const now = Date.now();
         await instanceState.context.sleep(50);
         const then = Date.now();
         expect(then - now).to.be.greaterThan(40);
       });
     });
-    describe('cls', () => {
-      it('clears the screen', async() => {
+    describe('cls', function() {
+      it('clears the screen', async function() {
         evaluationListener.onClearCommand.resolves();
         await instanceState.context.cls();
         expect(evaluationListener.onClearCommand).to.have.been.calledWith();
       });
     });
-    describe('load', () => {
-      it('asks the evaluation listener to load a file', async() => {
+    describe('load', function() {
+      it('asks the evaluation listener to load a file', async function() {
         const apiLoadFileListener = sinon.stub();
         bus.on('mongosh:api-load-file', apiLoadFileListener);
         // eslint-disable-next-line @typescript-eslint/require-await
@@ -646,7 +647,7 @@ describe('ShellApi', () => {
         expect(instanceState.context.__dirname).to.equal(undefined);
         expect(apiLoadFileListener).to.have.been.calledWith({ nested: false, filename: 'abc.js' });
       });
-      it('emits different events depending on nesting level', async() => {
+      it('emits different events depending on nesting level', async function() {
         const apiLoadFileListener = sinon.stub();
         bus.on('mongosh:api-load-file', apiLoadFileListener);
         // eslint-disable-next-line @typescript-eslint/require-await
@@ -668,10 +669,8 @@ describe('ShellApi', () => {
       });
     });
     for (const cmd of ['print', 'printjson']) {
-      // eslint-disable-next-line no-loop-func
-      describe(cmd, () => {
-        it('prints values', async() => {
-          // eslint-disable-next-line chai-friendly/no-unused-expressions
+      describe(cmd, function() {
+        it('prints values', async function() {
           evaluationListener.onPrint?.resolves();
           await instanceState.context[cmd](1, 2);
           expect(
@@ -687,13 +686,13 @@ describe('ShellApi', () => {
       });
     }
 
-    describe('config', () => {
-      context('with a full-config evaluation listener', () => {
+    describe('config', function() {
+      context('with a full-config evaluation listener', function() {
         let store;
         let config;
         let validators;
 
-        beforeEach(() => {
+        beforeEach(function() {
           config = instanceState.context.config;
           store = { somekey: '' };
           validators = {};
@@ -715,7 +714,7 @@ describe('ShellApi', () => {
           evaluationListener.listConfigOptions.callsFake(() => Object.keys(store));
         });
 
-        it('can get/set/list config keys', async() => {
+        it('can get/set/list config keys', async function() {
           const value = { structuredData: 'value' };
           expect(await config.set('somekey', value)).to.equal('Setting "somekey" has been changed');
           expect(await config.get('somekey')).to.deep.equal(value);
@@ -725,33 +724,33 @@ describe('ShellApi', () => {
           expect(await config.get('somekey')).to.deep.equal('');
         });
 
-        it('will fall back to defaults', async() => {
+        it('will fall back to defaults', async function() {
           expect(await config.get('displayBatchSize')).to.equal(20);
         });
 
-        it('rejects setting unavailable config keys', async() => {
+        it('rejects setting unavailable config keys', async function() {
           expect(await config.set('unavailable', 'value')).to.equal('Option "unavailable" is not available in this environment');
         });
 
-        it('rejects setting explicitly ignored config keys', async() => {
+        it('rejects setting explicitly ignored config keys', async function() {
           expect(await config.set('ignoreme', 'value')).to.equal('Option "ignoreme" is not available in this environment');
         });
 
-        it('rejects setting explicitly invalid config values', async() => {
+        it('rejects setting explicitly invalid config values', async function() {
           store.badvalue = 1; // Make sure the config option exists
           validators.badvalue = (value) => `Bad value ${value} passed`;
           expect(await config.set('badvalue', 'somevalue')).to.equal('Cannot set option "badvalue": Bad value somevalue passed');
         });
       });
 
-      context('with a no-config evaluation listener', () => {
+      context('with a no-config evaluation listener', function() {
         let config;
 
-        beforeEach(() => {
+        beforeEach(function() {
           config = instanceState.context.config;
         });
 
-        it('will work with defaults', async() => {
+        it('will work with defaults', async function() {
           expect(await config.get('displayBatchSize')).to.equal(20);
 
           const shellResult = await toShellResult(config);
@@ -765,25 +764,25 @@ describe('ShellApi', () => {
           expect(shellResult.printable).to.deep.equal(expectedResult);
         });
 
-        it('rejects setting all config keys', async() => {
+        it('rejects setting all config keys', async function() {
           expect(await config.set('somekey', 'value')).to.equal('Option "somekey" is not available in this environment');
         });
       });
     });
   });
-  describe('command completers', () => {
+  describe('command completers', function() {
     const params = {
       getCollectionCompletionsForCurrentDb: () => [''],
       getDatabaseCompletions: (dbName) => ['dbOne', 'dbTwo'].filter(s => s.startsWith(dbName))
     };
 
-    it('provides completions for show', async() => {
+    it('provides completions for show', async function() {
       const completer = signatures.ShellApi.attributes.show.shellCommandCompleter;
       expect(await completer(params, ['show', ''])).to.contain('databases');
       expect(await completer(params, ['show', 'pro'])).to.deep.equal(['profile']);
     });
 
-    it('provides completions for use', async() => {
+    it('provides completions for use', async function() {
       const completer = signatures.ShellApi.attributes.use.shellCommandCompleter;
       expect(await completer(params, ['use', ''])).to.deep.equal(['dbOne', 'dbTwo']);
       expect(await completer(params, ['use', 'dbO'])).to.deep.equal(['dbOne']);
@@ -791,8 +790,8 @@ describe('ShellApi', () => {
   });
 });
 
-describe('returnsPromise marks async functions', () => {
-  it('no non-async functions are marked returnsPromise', () => {
+describe('returnsPromise marks async functions', function() {
+  it('no non-async functions are marked returnsPromise', function() {
     expect(nonAsyncFunctionsReturningPromises).to.deep.equal([]);
   });
 });

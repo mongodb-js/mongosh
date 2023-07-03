@@ -1,6 +1,6 @@
 import { MongoshInvalidInputError } from '@mongosh/errors';
 import { ShellApiErrors } from './error-codes';
-import Mongo from './mongo';
+import type Mongo from './mongo';
 
 export default class NoDatabase {
   _mongo: Mongo;

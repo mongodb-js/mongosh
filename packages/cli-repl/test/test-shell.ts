@@ -1,6 +1,7 @@
 import type Mocha from 'mocha';
 import assert from 'assert';
-import { ChildProcess, spawn } from 'child_process';
+import type { ChildProcess} from 'child_process';
+import { spawn } from 'child_process';
 import { once } from 'events';
 import path from 'path';
 import stripAnsi from 'strip-ansi';
@@ -135,7 +136,7 @@ export class TestShell {
     await eventually(() => {
       const output = this._output.slice(start);
       const lines = output.split('\n');
-      const found = !!lines.filter(l => l.match(PROMPT_PATTERN)) // a line that is the prompt must at least match the pattern
+      const found = !!lines.filter(l => PROMPT_PATTERN.exec(l)) // a line that is the prompt must at least match the pattern
         .find(l => {
           // in some situations the prompt occurs multiple times in the line (but only in tests!)
           const prompts = l.trim().replace(/>$/g, '').split('>').map(m => m.trim());
@@ -250,7 +251,7 @@ export class TestShell {
   }
 
   get logId(): string | null {
-    const match = this._output.match(/^Current Mongosh Log ID:\s*(?<logId>[a-z0-9]{24})$/m);
+    const match = /^Current Mongosh Log ID:\s*(?<logId>[a-z0-9]{24})$/m.exec(this._output);
     if (!match) {
       return null;
     }

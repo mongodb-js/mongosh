@@ -5,7 +5,7 @@ import { EventEmitter } from 'events';
 import { MongoClient } from 'mongodb';
 import type { Db } from 'mongodb';
 import { startTestServer, skipIfServerVersion } from '../../../testing/integration-testing-hooks';
-import { DbOptions, MongoClientOptions } from '@mongosh/service-provider-core';
+import type { DbOptions, MongoClientOptions } from '@mongosh/service-provider-core';
 import ConnectionString from 'mongodb-connection-string-url';
 import { dummyOptions } from './cli-service-provider.spec';
 
@@ -19,7 +19,7 @@ describe('CliServiceProvider [integration]', function() {
   let connectionString: string;
   let bus: EventEmitter;
 
-  beforeEach(async() => {
+  beforeEach(async function() {
     connectionString = await testServer.connectionString();
     client = await MongoClient.connect(
       connectionString,
@@ -32,47 +32,47 @@ describe('CliServiceProvider [integration]', function() {
     serviceProvider = new CliServiceProvider(client, bus, dummyOptions, new ConnectionString(connectionString));
   });
 
-  afterEach(async() => {
+  afterEach(async function() {
     await serviceProvider.close(true);
   });
 
-  describe('.connect', () => {
+  describe('.connect', function() {
     let instance: CliServiceProvider;
-    beforeEach(async() => {
+    beforeEach(async function() {
       instance = await CliServiceProvider.connect(connectionString, dummyOptions, {}, bus);
     });
 
-    afterEach(async() => {
+    afterEach(async function() {
       await instance.close(true);
     });
 
-    it('returns a CliServiceProvider', () => {
+    it('returns a CliServiceProvider', function() {
       expect(instance).to.be.instanceOf(CliServiceProvider);
     });
   });
 
-  describe('.getNewConnection', () => {
+  describe('.getNewConnection', function() {
     let instance: CliServiceProvider;
 
-    beforeEach(async() => {
+    beforeEach(async function() {
       instance = await serviceProvider.getNewConnection(connectionString);
     });
 
-    afterEach(async() => {
+    afterEach(async function() {
       await instance.close(true);
     });
 
-    it('returns a CliServiceProvider', () => {
+    it('returns a CliServiceProvider', function() {
       expect(instance).to.be.instanceOf(CliServiceProvider);
     });
 
-    it('differs from the original CliServiceProvider', () => {
+    it('differs from the original CliServiceProvider', function() {
       expect(instance).to.not.equal(serviceProvider);
     });
   });
 
-  describe('.suspend', () => {
-    it('allows disconnecting and reconnecting the CliServiceProvider', async() => {
+  describe('.suspend', function() {
+    it('allows disconnecting and reconnecting the CliServiceProvider', async function() {
       await serviceProvider.runCommandWithCheck('admin', { ping: 1 });
       const reconnect = await serviceProvider.suspend();
       try {
@@ -86,28 +86,28 @@ describe('CliServiceProvider [integration]', function() {
     });
   });
 
-  describe('.authenticate', () => {
-    beforeEach(async() => {
+  describe('.authenticate', function() {
+    beforeEach(async function() {
       await serviceProvider.runCommandWithCheck('admin', {
         createUser: 'xyz', pwd: 'asdf', roles: []
       });
     });
 
-    afterEach(async() => {
+    afterEach(async function() {
       await serviceProvider.runCommandWithCheck('admin', {
         dropUser: 'xyz'
       });
     });
 
-    it('resets the MongoClient', async() => {
+    it('resets the MongoClient', async function() {
       const mongoClientBefore = serviceProvider.mongoClient;
       await serviceProvider.authenticate({ user: 'xyz', pwd: 'asdf', authDb: 'admin' });
       expect(serviceProvider.mongoClient).to.not.equal(mongoClientBefore);
     });
   });
 
-  describe('.resetConnectionOptions', () => {
-    it('resets the MongoClient', async() => {
+  describe('.resetConnectionOptions', function() {
+    it('resets the MongoClient', async function() {
       const mongoClientBefore = serviceProvider.mongoClient;
       await serviceProvider.resetConnectionOptions({
         readPreference: 'secondaryPreferred'
@@ -117,9 +117,9 @@ describe('CliServiceProvider [integration]', function() {
     });
   });
 
-  describe('.getConnectionInfo', () => {
-    context('when a uri has been passed', () => {
-      it('returns the connection\'s info', async() => {
+  describe('.getConnectionInfo', function() {
+    context('when a uri has been passed', function() {
+      it('returns the connection\'s info', async function() {
         const instance = new CliServiceProvider(client, bus, dummyOptions, new ConnectionString(connectionString));
         const connectionInfo = await instance.getConnectionInfo();
 
@@ -132,8 +132,8 @@ describe('CliServiceProvider [integration]', function() {
       });
     });
 
-    context('when the optional uri has not been passed', () => {
-      it('returns the connection\'s info', async() => {
+    context('when the optional uri has not been passed', function() {
+      it('returns the connection\'s info', async function() {
         const instance = new CliServiceProvider(client, bus, dummyOptions);
         const connectionInfo = await instance.getConnectionInfo();
 
@@ -147,13 +147,13 @@ describe('CliServiceProvider [integration]', function() {
     });
   });
 
-  describe('#aggregate', () => {
+  describe('#aggregate', function() {
     context('when passing a $function to be serialized by the driver', function() {
       skipIfServerVersion(testServer, '< 4.4');
 
       let result;
 
-      beforeEach(() => {
+      beforeEach(function() {
         const pipeline = [
           {
             '$addFields': {
@@ -170,326 +170,326 @@ describe('CliServiceProvider [integration]', function() {
         result = serviceProvider.aggregate('music', 'bands', pipeline);
       });
 
-      it('executes the command and resolves the result', async() => {
+      it('executes the command and resolves the result', async function() {
         const docs = await result.toArray();
         expect(docs).to.deep.equal([]);
       });
     });
 
-    context('when running against a collection', () => {
+    context('when running against a collection', function() {
       let result;
 
-      beforeEach(() => {
+      beforeEach(function() {
         result = serviceProvider.aggregate('music', 'bands', [{ $match: { name: 'Aphex Twin' } }]);
       });
 
-      it('executes the command and resolves the result', async() => {
+      it('executes the command and resolves the result', async function() {
         const docs = await result.toArray();
         expect(docs).to.deep.equal([]);
       });
     });
 
-    context('when running against a database', () => {
+    context('when running against a database', function() {
       let result;
 
-      beforeEach(() => {
+      beforeEach(function() {
         result = serviceProvider.aggregateDb('admin', [{ $currentOp: {} }]);
       });
 
-      it('executes the command and resolves the result', async() => {
+      it('executes the command and resolves the result', async function() {
         const docs = await result.toArray();
         expect(docs[0].active).to.equal(true);
       });
     });
   });
 
-  describe('#bulkWrite', () => {
-    context('when the filter is empty', () => {
+  describe('#bulkWrite', function() {
+    context('when the filter is empty', function() {
       let result;
       const requests = [{
         insertOne: { name: 'Aphex Twin' }
       } as any];
 
-      beforeEach(async() => {
+      beforeEach(async function() {
         result = await serviceProvider.bulkWrite('music', 'bands', requests);
       });
 
-      afterEach(() => {
+      afterEach(function() {
         return serviceProvider.deleteMany('music', 'bands', {});
       });
 
-      it('executes the count with an empty filter and resolves the result', () => {
+      it('executes the count with an empty filter and resolves the result', function() {
         expect(result.result.nInserted).to.equal(1);
       });
     });
   });
 
-  describe('#count', () => {
-    context('when the filter is empty', () => {
+  describe('#count', function() {
+    context('when the filter is empty', function() {
       let result;
 
-      beforeEach(async() => {
+      beforeEach(async function() {
         result = await serviceProvider.count('music', 'bands');
       });
 
-      it('executes the count with an empty filter and resolves the result', () => {
+      it('executes the count with an empty filter and resolves the result', function() {
         expect(result).to.equal(0);
       });
     });
   });
 
-  describe('#countDocuments', () => {
-    context('when the filter is empty', () => {
+  describe('#countDocuments', function() {
+    context('when the filter is empty', function() {
       let result;
 
-      beforeEach(async() => {
+      beforeEach(async function() {
         result = await serviceProvider.countDocuments('music', 'bands');
       });
 
-      it('executes the count with an empty filter and resolves the result', () => {
+      it('executes the count with an empty filter and resolves the result', function() {
         expect(result).to.equal(0);
       });
     });
   });
 
-  describe('#deleteMany', () => {
-    context('when the filter is empty', () => {
+  describe('#deleteMany', function() {
+    context('when the filter is empty', function() {
       let result;
 
-      beforeEach(async() => {
+      beforeEach(async function() {
         result = await serviceProvider.deleteMany('music', 'bands', {});
       });
 
-      it('executes the count with an empty filter and resolves the result', () => {
+      it('executes the count with an empty filter and resolves the result', function() {
         expect(result.deletedCount).to.equal(0);
       });
     });
   });
 
-  describe('#deleteOne', () => {
-    context('when the filter is empty', () => {
+  describe('#deleteOne', function() {
+    context('when the filter is empty', function() {
       let result;
 
-      beforeEach(async() => {
+      beforeEach(async function() {
         result = await serviceProvider.deleteOne('music', 'bands', {});
       });
 
-      it('executes the count with an empty filter and resolves the result', () => {
+      it('executes the count with an empty filter and resolves the result', function() {
         expect(result.deletedCount).to.equal(0);
       });
     });
   });
 
-  describe('#distinct', () => {
-    context('when the distinct is valid', () => {
+  describe('#distinct', function() {
+    context('when the distinct is valid', function() {
       let result;
 
-      beforeEach(async() => {
+      beforeEach(async function() {
         result = await serviceProvider.distinct('music', 'bands', 'name');
       });
 
-      it('executes the command and resolves the result', () => {
+      it('executes the command and resolves the result', function() {
         expect(result).to.deep.equal([]);
       });
     });
   });
 
-  describe('#estimatedDocumentCount', () => {
-    context('when no options are provided', () => {
+  describe('#estimatedDocumentCount', function() {
+    context('when no options are provided', function() {
       let result;
 
-      beforeEach(async() => {
+      beforeEach(async function() {
         result = await serviceProvider.estimatedDocumentCount('music', 'bands');
       });
 
-      it('executes the count and resolves the result', () => {
+      it('executes the count and resolves the result', function() {
         expect(result).to.equal(0);
       });
     });
   });
 
-  describe('#find', () => {
-    context('when the find is valid', () => {
+  describe('#find', function() {
+    context('when the find is valid', function() {
       let result;
 
-      beforeEach(() => {
+      beforeEach(function() {
         result = serviceProvider.find('music', 'bands', { name: 'Aphex Twin' });
       });
 
-      it('executes the command and resolves the result', async() => {
+      it('executes the command and resolves the result', async function() {
         const docs = await result.toArray();
         expect(docs).to.deep.equal([]);
       });
     });
   });
 
-  describe('#findOneAndDelete', () => {
-    context('when the find is valid', () => {
+  describe('#findOneAndDelete', function() {
+    context('when the find is valid', function() {
       let result;
       const filter = { name: 'Aphex Twin' };
 
-      beforeEach(async() => {
+      beforeEach(async function() {
         result = await serviceProvider.findOneAndDelete('music', 'bands', filter);
       });
 
-      it('executes the command and resolves the result', () => {
+      it('executes the command and resolves the result', function() {
         expect(result.ok).to.equal(1);
       });
     });
   });
 
-  describe('#findOneAndReplace', () => {
-    context('when the find is valid', () => {
+  describe('#findOneAndReplace', function() {
+    context('when the find is valid', function() {
       let result;
       const filter = { name: 'Aphex Twin' };
       const replacement = { name: 'Richard James' };
 
-      beforeEach(async() => {
+      beforeEach(async function() {
         result = await serviceProvider.
           findOneAndReplace('music', 'bands', filter, replacement);
       });
 
-      it('executes the command and resolves the result', () => {
+      it('executes the command and resolves the result', function() {
         expect(result.ok).to.equal(1);
       });
     });
   });
 
-  describe('#findOneAndUpdate', () => {
-    context('when the find is valid', () => {
+  describe('#findOneAndUpdate', function() {
+    context('when the find is valid', function() {
       let result;
       const filter = { name: 'Aphex Twin' };
       const update = { $set: { name: 'Richard James' } };
 
-      beforeEach(async() => {
+      beforeEach(async function() {
         result = await serviceProvider.
           findOneAndUpdate('music', 'bands', filter, update);
       });
 
-      it('executes the command and resolves the result', () => {
+      it('executes the command and resolves the result', function() {
         expect(result.ok).to.equal(1);
       });
     });
   });
 
-  describe('#insertMany', () => {
-    context('when the insert is valid', () => {
+  describe('#insertMany', function() {
+    context('when the insert is valid', function() {
       let result;
 
-      beforeEach(async() => {
+      beforeEach(async function() {
         result = await serviceProvider.insertMany('music', 'bands', [{ name: 'Aphex Twin' }]);
       });
 
-      afterEach(() => {
+      afterEach(function() {
         return serviceProvider.deleteMany('music', 'bands', {});
       });
 
-      it('executes the count with an empty filter and resolves the result', () => {
+      it('executes the count with an empty filter and resolves the result', function() {
         expect(result.acknowledged).to.equal(true);
       });
     });
   });
 
-  describe('#insertOne', () => {
-    context('when the insert is valid', () => {
+  describe('#insertOne', function() {
+    context('when the insert is valid', function() {
       let result;
 
-      beforeEach(async() => {
+      beforeEach(async function() {
         result = await serviceProvider.insertOne('music', 'bands', { name: 'Aphex Twin' });
       });
 
-      afterEach(() => {
+      afterEach(function() {
         return serviceProvider.deleteMany('music', 'bands', {});
       });
 
-      it('executes the count with an empty filter and resolves the result', () => {
+      it('executes the count with an empty filter and resolves the result', function() {
         expect(result.acknowledged).to.equal(true);
       });
     });
   });
 
-  describe('#listDatabases', () => {
+  describe('#listDatabases', function() {
     let result;
 
-    beforeEach(async() => {
+    beforeEach(async function() {
       result = await serviceProvider.listDatabases('admin');
     });
 
-    it('returns a list of databases', () => {
+    it('returns a list of databases', function() {
       expect(result.ok).to.equal(1);
       expect(result.databases.map(db => db.name)).to.include('admin');
     });
   });
 
-  describe('#replaceOne', () => {
+  describe('#replaceOne', function() {
     const filter = { name: 'Aphex Twin' };
     const replacement = { name: 'Richard James' };
 
-    context('when the filter is empty', () => {
+    context('when the filter is empty', function() {
       let result;
 
-      beforeEach(async() => {
+      beforeEach(async function() {
         result = await serviceProvider.
           replaceOne('music', 'bands', filter, replacement);
       });
 
-      it('executes the count with an empty filter and resolves the result', () => {
+      it('executes the count with an empty filter and resolves the result', function() {
         expect(result.acknowledged).to.equal(true);
       });
     });
   });
 
-  describe('#runCommand', () => {
-    context('when the command is valid', () => {
+  describe('#runCommand', function() {
+    context('when the command is valid', function() {
       let result;
 
-      beforeEach(async() => {
+      beforeEach(async function() {
         result = await serviceProvider.runCommand('admin', { ismaster: true });
       });
 
-      it('executes the command and resolves the result', () => {
+      it('executes the command and resolves the result', function() {
         expect(result.ismaster).to.equal(true);
       });
     });
   });
 
-  describe('#updateMany', () => {
+  describe('#updateMany', function() {
     const filter = { name: 'Aphex Twin' };
     const update = { $set: { name: 'Richard James' } };
-    context('when the filter is empty', () => {
+    context('when the filter is empty', function() {
       let result;
 
-      beforeEach(async() => {
+      beforeEach(async function() {
         result = await serviceProvider.
           updateMany('music', 'bands', filter, update);
       });
 
-      it('executes the count with an empty filter and resolves the result', () => {
+      it('executes the count with an empty filter and resolves the result', function() {
         expect(result.acknowledged).to.equal(true);
       });
     });
   });
 
-  describe('#updateOne', () => {
+  describe('#updateOne', function() {
     const filter = { name: 'Aphex Twin' };
     const update = { $set: { name: 'Richard James' } };
-    context('when the filter is empty', () => {
+    context('when the filter is empty', function() {
       let result;
 
-      beforeEach(async() => {
+      beforeEach(async function() {
         result = await serviceProvider.
           updateOne('music', 'bands', filter, update);
       });
 
-      it('executes the count with an empty filter and resolves the result', () => {
+      it('executes the count with an empty filter and resolves the result', function() {
         expect(result.acknowledged).to.equal(true);
       });
     });
   });
 
-  describe('#dropCollection', () => {
-    context('when a collection existed', () => {
-      it('returns  {ok: 1}', async() => {
+  describe('#dropCollection', function() {
+    context('when a collection existed', function() {
+      it('returns  {ok: 1}', async function() {
         await serviceProvider.createCollection('test', 'collectionexists');
         const result = await serviceProvider.dropCollection('test', 'collectionexists');
         expect(result).to.equal(true);
@@ -497,17 +497,17 @@ describe('CliServiceProvider [integration]', function() {
     });
   });
 
-  describe('#dropDatabase', () => {
-    context('when a database does not exist', () => {
+  describe('#dropDatabase', function() {
+    context('when a database does not exist', function() {
       let result;
 
-      it('returns  {ok: 1}', async() => {
+      it('returns  {ok: 1}', async function() {
         result = await serviceProvider.dropDatabase(`test-db-${Date.now()}`);
         expect(result.ok).to.equal(1);
       });
     });
 
-    context('when a database exists', () => {
+    context('when a database exists', function() {
       let result;
 
       const dbExists = async(): Promise<boolean> => {
@@ -517,24 +517,24 @@ describe('CliServiceProvider [integration]', function() {
           .includes(dbName);
       };
 
-      beforeEach(async() => {
+      beforeEach(async function() {
         await db.collection('coll1').insertOne({ doc: 1 });
         expect(await dbExists()).to.be.true;
         result = await serviceProvider.dropDatabase(dbName);
       });
 
-      it('returns {ok: 1}', () => {
+      it('returns {ok: 1}', function() {
         expect(result.ok).to.equal(1);
       });
 
-      it('deletes the database', async() => {
+      it('deletes the database', async function() {
         expect(await dbExists()).to.be.false;
       });
     });
   });
 
-  describe('#createIndexes', () => {
-    it('creates a new index', async() => {
+  describe('#createIndexes', function() {
+    it('creates a new index', async function() {
       const collName = 'coll1';
       const nativeCollection = db.collection(collName);
 
@@ -559,8 +559,8 @@ describe('CliServiceProvider [integration]', function() {
     });
   });
 
-  describe('#getIndexes', () => {
-    it('returns indexes', async() => {
+  describe('#getIndexes', function() {
+    it('returns indexes', async function() {
       const collName = 'coll1';
       const nativeCollection = db.collection(collName);
 
@@ -579,8 +579,8 @@ describe('CliServiceProvider [integration]', function() {
 
   // TODO(MONGOSH-1465): integration tests for search indexes
 
-  describe('#listCollections', () => {
-    it('returns the list of collections', async() => {
+  describe('#listCollections', function() {
+    it('returns the list of collections', async function() {
       await db.createCollection('coll1');
 
       expect(
@@ -588,7 +588,7 @@ describe('CliServiceProvider [integration]', function() {
       ).to.deep.equal(['coll1']);
     });
 
-    it('filter the list of collections', async() => {
+    it('filter the list of collections', async function() {
       await db.createCollection('coll1');
       await db.createCollection('coll2');
 
@@ -597,7 +597,7 @@ describe('CliServiceProvider [integration]', function() {
       ).to.deep.equal(['coll2']);
     });
 
-    it('allows options', async() => {
+    it('allows options', async function() {
       await db.createCollection('coll1');
       await db.createCollection('coll2');
 
@@ -618,10 +618,10 @@ describe('CliServiceProvider [integration]', function() {
       });
     });
 
-    context('post-5.0', () => {
+    context('post-5.0', function() {
       skipIfServerVersion(testServer, '< 5.0');
 
-      it('allows time-series', async() => {
+      it('allows time-series', async function() {
         await db.createCollection('coll1', { timeseries: { timeField: 'time' } } );
 
         const collections = await serviceProvider.listCollections(dbName, {}, { nameOnly: true });
@@ -649,10 +649,10 @@ describe('CliServiceProvider [integration]', function() {
       });
     });
 
-    context('post-5.3', () => {
+    context('post-5.3', function() {
       skipIfServerVersion(testServer, '< 5.3');
 
-      it('allows clustered indexes on collections', async() => {
+      it('allows clustered indexes on collections', async function() {
         await db.createCollection(
           'coll1',
           {
@@ -695,46 +695,46 @@ describe('CliServiceProvider [integration]', function() {
     });
   });
 
-  describe('db fetching', () => {
-    it('returns the same db instance when used with the same name and options', () => {
+  describe('db fetching', function() {
+    it('returns the same db instance when used with the same name and options', function() {
       const db1 = serviceProvider._dbTestWrapper('foo', { readPreference: { mode: 'secondary' } } as DbOptions);
       const db2 = serviceProvider._dbTestWrapper('foo', { readPreference: { mode: 'secondary' } } as DbOptions);
       expect(db1).to.equal(db2);
     });
 
-    it('returns the different db instances when used with different names', () => {
+    it('returns the different db instances when used with different names', function() {
       const db1 = serviceProvider._dbTestWrapper('bar', { readPreference: { mode: 'secondary' } } as DbOptions);
       const db2 = serviceProvider._dbTestWrapper('foo', { readPreference: { mode: 'secondary' } } as DbOptions);
       expect(db1).not.to.equal(db2);
     });
 
-    it('returns the different db instances when used with different options', () => {
+    it('returns the different db instances when used with different options', function() {
       const db1 = serviceProvider._dbTestWrapper('foo', { readPreference: { mode: 'primary' } } as DbOptions);
       const db2 = serviceProvider._dbTestWrapper('foo', { readPreference: { mode: 'secondary' } } as DbOptions);
       expect(db1).not.to.equal(db2);
     });
   });
 
-  describe('#driverMetadata', () => {
-    it('returns information about the driver instance', () => {
+  describe('#driverMetadata', function() {
+    it('returns information about the driver instance', function() {
       expect(serviceProvider.driverMetadata.driver.name).to.equal('nodejs');
     });
   });
 
-  describe('#getURI', () => {
-    it('returns the current URI', () => {
+  describe('#getURI', function() {
+    it('returns the current URI', function() {
       expect(serviceProvider.getURI()).to.equal(connectionString + '/');
     });
   });
 
-  describe('CompassServiceProvider', () => {
+  describe('CompassServiceProvider', function() {
     let instance: CliServiceProvider;
 
-    afterEach(async() => {
+    afterEach(async function() {
       await instance?.close(true);
     });
 
-    it('.connect() returns a CompassServiceProvider instance', async() => {
+    it('.connect() returns a CompassServiceProvider instance', async function() {
       instance = await CompassServiceProvider.connect(connectionString, dummyOptions, {}, bus);
 
       expect(instance).to.be.instanceOf(CompassServiceProvider);

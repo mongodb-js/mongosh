@@ -1,6 +1,8 @@
 import { expect } from 'chai';
+import type { MongoClientOptions
+} from 'mongodb';
 import {
-  MongoClient, MongoClientOptions
+  MongoClient
 } from 'mongodb';
 import { eventually } from '../../../testing/eventually';
 import { TestShell } from './test-shell';
@@ -79,8 +81,8 @@ describe('Auth e2e', function() {
   let examplePrivilege1;
   let examplePrivilege2;
 
-  describe('with regular URI', () => {
-    beforeEach(async() => {
+  describe('with regular URI', function() {
+    beforeEach(async function() {
       const connectionString = await testServer.connectionString();
       dbName = `test-${Date.now()}`;
       shell = TestShell.start({ args: [connectionString] });
@@ -101,7 +103,7 @@ describe('Auth e2e', function() {
       shell.assertNoErrors();
     });
 
-    afterEach(async() => {
+    afterEach(async function() {
       await db.dropDatabase();
       await db.command({ dropAllUsersFromDatabase: 1 });
 
@@ -109,9 +111,9 @@ describe('Auth e2e', function() {
     });
     afterEach(TestShell.cleanup);
 
-    describe('user management', () => {
-      describe('createUser', () => {
-        it('all arguments', async() => {
+    describe('user management', function() {
+      describe('createUser', function() {
+        it('all arguments', async function() {
           await shell.executeLine(`use ${dbName}`);
           expect(await shell.executeLine(
             'db.createUser({ user: "anna", pwd: "pwd", customData: { extra: 1 }, roles: ["dbAdmin"], mechanisms: ["SCRAM-SHA-256"], passwordDigestor: "server"})'
@@ -124,7 +126,7 @@ describe('Auth e2e', function() {
           shell.assertNoErrors();
           await assertUserAuth();
         });
-        it('default arguments', async() => {
+        it('default arguments', async function() {
           await shell.executeLine(`use ${dbName}`);
           expect(await shell.executeLine(
             'db.createUser({ user: "anna", pwd: "pwd", roles: []})'
@@ -152,8 +154,8 @@ describe('Auth e2e', function() {
           await assertUserAuth();
         });
       });
-      describe('updateUser', () => {
-        beforeEach(async() => {
+      describe('updateUser', function() {
+        beforeEach(async function() {
           const r = await db.command({
             createUser: 'anna',
             pwd: 'pwd',
@@ -165,10 +167,10 @@ describe('Auth e2e', function() {
           });
           await assertUserAuth();
         });
-        afterEach(async() => {
+        afterEach(async function() {
           await db.command({ dropAllUsersFromDatabase: 1 });
         });
-        it('all arguments', async() => {
+        it('all arguments', async function() {
           await shell.executeLine(`use ${dbName}`);
           expect(await shell.executeLine(
             'db.updateUser("anna", { pwd: "pwd2", customData: { extra: 1 }, roles: ["dbAdmin"], mechanisms: ["SCRAM-SHA-256"], passwordDigestor: "server"})'
@@ -181,7 +183,7 @@ describe('Auth e2e', function() {
           await assertUserAuth('pwd2');
           shell.assertNoErrors();
         });
-        it('just customData', async() => {
+        it('just customData', async function() {
           await shell.executeLine(`use ${dbName}`);
           expect(await shell.executeLine(
             'db.updateUser("anna", { customData: { extra: 1 } })'
@@ -208,7 +210,7 @@ describe('Auth e2e', function() {
           await assertUserAuth('pwd3');
           shell.assertNoErrors();
         });
-        it('changeUserPassword', async() => {
+        it('changeUserPassword', async function() {
           await shell.executeLine(`use ${dbName}`);
           expect(await shell.executeLine(
             'db.changeUserPassword("anna", "pwd4")'
@@ -220,8 +222,8 @@ describe('Auth e2e', function() {
           await assertUserAuth('pwd4');
         });
       });
-      describe('delete users', () => {
-        beforeEach(async() => {
+      describe('delete users', function() {
+        beforeEach(async function() {
           const r = await db.command({
             createUser: 'anna',
             pwd: 'pwd',
@@ -237,10 +239,10 @@ describe('Auth e2e', function() {
           const result = await db.command({ usersInfo: 1 });
           expect(result.users.length).to.equal(2);
         });
-        afterEach(async() => {
+        afterEach(async function() {
           await db.command({ dropAllUsersFromDatabase: 1 });
         });
-        it('dropUser', async() => {
+        it('dropUser', async function() {
           await shell.executeLine(`use ${dbName}`);
           expect(await shell.executeLine(
             'db.dropUser("anna2")'
@@ -248,7 +250,7 @@ describe('Auth e2e', function() {
           await assertUserExists();
           shell.assertNoErrors();
         });
-        it('dropAllUsers', async() => {
+        it('dropAllUsers', async function() {
           await shell.executeLine(`use ${dbName}`);
           shell.writeInputLine(
             'db.dropAllUsers()'
@@ -266,8 +268,8 @@ describe('Auth e2e', function() {
           shell.assertNoErrors();
         });
       });
-      describe('add/remove roles', () => {
-        beforeEach(async() => {
+      describe('add/remove roles', function() {
+        beforeEach(async function() {
           const r = await db.command({
             createUser: 'anna',
             pwd: 'pwd',
@@ -279,10 +281,10 @@ describe('Auth e2e', function() {
           });
           await assertUserAuth();
         });
-        afterEach(async() => {
+        afterEach(async function() {
           await db.command({ dropAllUsersFromDatabase: 1 });
         });
-        it('grantRolesToUser', async() => {
+        it('grantRolesToUser', async function() {
           await shell.executeLine(`use ${dbName}`);
           expect(await shell.executeLine(
             'db.grantRolesToUser("anna", [ "userAdmin", "dbOwner" ])'
@@ -295,7 +297,7 @@ describe('Auth e2e', function() {
           ]);
           shell.assertNoErrors();
         });
-        it('revokeRolesFrom', async() => {
+        it('revokeRolesFrom', async function() {
           await shell.executeLine(`use ${dbName}`);
           expect(await shell.executeLine(
             'db.revokeRolesFromUser("anna", [ "dbAdmin" ])'
@@ -306,8 +308,8 @@ describe('Auth e2e', function() {
           shell.assertNoErrors();
         });
       });
-      describe('get user info', () => {
-        beforeEach(async() => {
+      describe('get user info', function() {
+        beforeEach(async function() {
           const r = await db.command({
             createUser: 'anna',
             pwd: 'pwd',
@@ -323,24 +325,24 @@ describe('Auth e2e', function() {
           const result = await db.command({ usersInfo: 1 });
           expect(result.users.length).to.equal(2);
         });
-        afterEach(async() => {
+        afterEach(async function() {
           await db.command({ dropAllUsersFromDatabase: 1 });
         });
-        it('getUser when user exists', async() => {
+        it('getUser when user exists', async function() {
           await shell.executeLine(`use ${dbName}`);
           expect(await shell.executeLine(
             'db.getUser("anna2")'
           )).to.include('user: \'anna2\'');
           shell.assertNoErrors();
         });
-        it('getUser when user does not exist', async() => {
+        it('getUser when user does not exist', async function() {
           await shell.executeLine(`use ${dbName}`);
           expect(await shell.executeLine(
             'db.getUser("anna3")'
           )).to.include('null');
           shell.assertNoErrors();
         });
-        it('getUsers without filter', async() => {
+        it('getUsers without filter', async function() {
           await shell.executeLine(`use ${dbName}`);
           const output = await shell.executeLine(
             'db.getUsers()'
@@ -350,7 +352,7 @@ describe('Auth e2e', function() {
           expect(output).to.include('user: \'anna2\'');
           shell.assertNoErrors();
         });
-        it('getUsers with filter', async() => {
+        it('getUsers with filter', async function() {
           await shell.executeLine(`use ${dbName}`);
           expect(await shell.executeLine(
             'db.getUsers({ filter: { user: "anna" } })'
@@ -359,9 +361,9 @@ describe('Auth e2e', function() {
         });
       });
     });
-    describe('role management', () => {
-      describe('createRole', () => {
-        it('all arguments', async() => {
+    describe('role management', function() {
+      describe('createRole', function() {
+        it('all arguments', async function() {
           await shell.executeLine(`use ${dbName}`);
           expect(await shell.executeLine(
             `db.createRole({ role: "anna", privileges: ${JSON.stringify([examplePrivilege1])}, roles: ["dbAdmin"], authenticationRestrictions: [ { serverAddress: [] } ] })`
@@ -372,7 +374,7 @@ describe('Auth e2e', function() {
           );
           shell.assertNoErrors();
         });
-        it('default arguments', async() => {
+        it('default arguments', async function() {
           await shell.executeLine(`use ${dbName}`);
           expect(await shell.executeLine(
             'db.createRole({ role: "anna", roles: [], privileges: []})'
@@ -381,8 +383,8 @@ describe('Auth e2e', function() {
           shell.assertNoErrors();
         });
       });
-      describe('updateRole', () => {
-        beforeEach(async() => {
+      describe('updateRole', function() {
+        beforeEach(async function() {
           const r = await db.command({
             createRole: 'anna',
             privileges: [],
@@ -391,10 +393,10 @@ describe('Auth e2e', function() {
           expect(r.ok).to.equal(1, 'Unable to create role to initialize test');
           await assertRoleExists([], []);
         });
-        afterEach(async() => {
+        afterEach(async function() {
           await db.command({ dropAllRolesFromDatabase: 1 });
         });
-        it('all arguments', async() => {
+        it('all arguments', async function() {
           await shell.executeLine(`use ${dbName}`);
           expect(await shell.executeLine(
             `db.updateRole("anna", { privileges: ${JSON.stringify([examplePrivilege1])}, roles: ["dbAdmin"] })`
@@ -405,7 +407,7 @@ describe('Auth e2e', function() {
           );
           shell.assertNoErrors();
         });
-        it('just privileges', async() => {
+        it('just privileges', async function() {
           await shell.executeLine(`use ${dbName}`);
           expect(await shell.executeLine(
             `db.updateRole("anna", { privileges: ${JSON.stringify([examplePrivilege1])} })`
@@ -417,8 +419,8 @@ describe('Auth e2e', function() {
           shell.assertNoErrors();
         });
       });
-      describe('delete roles', () => {
-        beforeEach(async() => {
+      describe('delete roles', function() {
+        beforeEach(async function() {
           const r = await db.command({
             createRole: 'anna',
             roles: [],
@@ -434,10 +436,10 @@ describe('Auth e2e', function() {
           const result = await db.command({ rolesInfo: 1 });
           expect(result.roles.length).to.equal(2);
         });
-        afterEach(async() => {
+        afterEach(async function() {
           await db.command({ dropAllRolesFromDatabase: 1 });
         });
-        it('dropRole', async() => {
+        it('dropRole', async function() {
           await shell.executeLine(`use ${dbName}`);
           expect(await shell.executeLine(
             'db.dropRole("anna2")'
@@ -445,7 +447,7 @@ describe('Auth e2e', function() {
           await assertRoleExists([], []);
           shell.assertNoErrors();
         });
-        it('dropAllRoles', async() => {
+        it('dropAllRoles', async function() {
           await shell.executeLine(`use ${dbName}`);
           shell.writeInputLine(
             'db.dropAllRoles()'
@@ -463,8 +465,8 @@ describe('Auth e2e', function() {
           shell.assertNoErrors();
         });
       });
-      describe('grant/remove roles/privileges', () => {
-        beforeEach(async() => {
+      describe('grant/remove roles/privileges', function() {
+        beforeEach(async function() {
           const r = await db.command({
             createRole: 'anna',
             roles: [ { role: 'dbAdmin', db: dbName }],
@@ -476,10 +478,10 @@ describe('Auth e2e', function() {
             [examplePrivilege1]
           );
         });
-        afterEach(async() => {
+        afterEach(async function() {
           await db.command({ dropAllRolesFromDatabase: 1 });
         });
-        it('grantRolesToRole', async() => {
+        it('grantRolesToRole', async function() {
           await shell.executeLine(`use ${dbName}`);
           expect(await shell.executeLine(
             'db.grantRolesToRole("anna", [ "dbOwner" ])'
@@ -490,7 +492,7 @@ describe('Auth e2e', function() {
           ], [examplePrivilege1]);
           shell.assertNoErrors();
         });
-        it('revokeRolesFrom', async() => {
+        it('revokeRolesFrom', async function() {
           await shell.executeLine(`use ${dbName}`);
           expect(await shell.executeLine(
             'db.revokeRolesFromRole("anna", [ "dbAdmin" ])'
@@ -501,7 +503,7 @@ describe('Auth e2e', function() {
           );
           shell.assertNoErrors();
         });
-        it('grantPrivilegesToRole', async() => {
+        it('grantPrivilegesToRole', async function() {
           await shell.executeLine(`use ${dbName}`);
           expect(await shell.executeLine(
             `db.grantPrivilegesToRole("anna", ${JSON.stringify([examplePrivilege2])})`
@@ -512,7 +514,7 @@ describe('Auth e2e', function() {
           );
           shell.assertNoErrors();
         });
-        it('revokePrivilegesFrom', async() => {
+        it('revokePrivilegesFrom', async function() {
           await shell.executeLine(`use ${dbName}`);
           expect(await shell.executeLine(
             `db.revokePrivilegesFromRole("anna", ${JSON.stringify([examplePrivilege1])})`
@@ -524,8 +526,8 @@ describe('Auth e2e', function() {
           shell.assertNoErrors();
         });
       });
-      describe('get role info', () => {
-        beforeEach(async() => {
+      describe('get role info', function() {
+        beforeEach(async function() {
           const r = await db.command({
             createRole: 'anna',
             roles: [ 'dbAdmin' ],
@@ -541,17 +543,17 @@ describe('Auth e2e', function() {
           const result = await db.command({ rolesInfo: 1 });
           expect(result.roles.length).to.equal(2);
         });
-        afterEach(async() => {
+        afterEach(async function() {
           await db.command({ dropAllRolesFromDatabase: 1 });
         });
-        it('getRole when custom role exists', async() => {
+        it('getRole when custom role exists', async function() {
           await shell.executeLine(`use ${dbName}`);
           expect(await shell.executeLine(
             'db.getRole("anna2")'
           )).to.include('role: \'anna2\'');
           shell.assertNoErrors();
         });
-        it('getRole when custom role exists with showPrivileges', async() => {
+        it('getRole when custom role exists with showPrivileges', async function() {
           await shell.executeLine(`use ${dbName}`);
           const output = await shell.executeLine(
             'db.getRole("anna2", { showPrivileges: true })'
@@ -560,21 +562,21 @@ describe('Auth e2e', function() {
           expect(output).to.include('privileges: []');
           shell.assertNoErrors();
         });
-        it('getRole when role does not exist', async() => {
+        it('getRole when role does not exist', async function() {
           await shell.executeLine(`use ${dbName}`);
           expect(await shell.executeLine(
             'db.getRole("anna3")'
           )).to.include('null');
           shell.assertNoErrors();
         });
-        it('getRole for built-in role with showBuiltinRoles=true', async() => {
+        it('getRole for built-in role with showBuiltinRoles=true', async function() {
           await shell.executeLine(`use ${dbName}`);
           expect(await shell.executeLine(
             'db.getRole("dbAdmin", { showBuiltinRoles: true })'
           )).to.include('role: \'dbAdmin\'');
           shell.assertNoErrors();
         });
-        it('getRoles', async() => {
+        it('getRoles', async function() {
           await shell.executeLine(`use ${dbName}`);
           const output = await shell.executeLine(
             'db.getRoles()'
@@ -584,14 +586,14 @@ describe('Auth e2e', function() {
           expect(output).to.include('role: \'anna2\'');
           shell.assertNoErrors();
         });
-        it('getRoles with rolesInfo field', async() => {
+        it('getRoles with rolesInfo field', async function() {
           await shell.executeLine(`use ${dbName}`);
           expect(await shell.executeLine(
             'db.getRoles( {rolesInfo: { db: "other", role: "anna" } })'
           )).to.include('roles: []');
           shell.assertNoErrors();
         });
-        it('getRoles with rolesInfo field', async() => {
+        it('getRoles with rolesInfo field', async function() {
           await shell.executeLine(`use ${dbName}`);
           const output = await shell.executeLine(
             `db.getRoles( {rolesInfo: { db: "${dbName}", role: "anna" } })`
@@ -600,14 +602,14 @@ describe('Auth e2e', function() {
           expect(output).to.include('role: \'anna\'');
           shell.assertNoErrors();
         });
-        it('getRoles with showPrivileges', async() => {
+        it('getRoles with showPrivileges', async function() {
           await shell.executeLine(`use ${dbName}`);
           expect(await shell.executeLine(
             'db.getRoles({ showPrivileges: true })'
           )).to.include('privileges: []');
           shell.assertNoErrors();
         });
-        it('getRoles with showBuiltinRoles', async() => {
+        it('getRoles with showBuiltinRoles', async function() {
           await shell.executeLine(`use ${dbName}`);
           expect(await shell.executeLine(
             'db.getRoles({ showBuiltinRoles: true })'
@@ -616,8 +618,8 @@ describe('Auth e2e', function() {
         });
       });
     });
-    describe('authentication', () => {
-      beforeEach(async() => {
+    describe('authentication', function() {
+      beforeEach(async function() {
         const r = await db.command({
           createUser: 'anna',
           pwd: 'pwd',
@@ -628,11 +630,11 @@ describe('Auth e2e', function() {
           roles: []
         });
       });
-      afterEach(async() => {
+      afterEach(async function() {
         await db.command({ dropAllUsersFromDatabase: 1 });
       });
-      describe('auth', () => {
-        it('logs in with simple user/pwd', async() => {
+      describe('auth', function() {
+        it('logs in with simple user/pwd', async function() {
           await shell.executeLine(`use ${dbName}`);
           expect(await shell.executeLine(
             'db.auth("anna", "pwd")'
@@ -642,7 +644,7 @@ describe('Auth e2e', function() {
           )).to.include('user: \'anna\'');
           shell.assertNoErrors();
         });
-        it('logs in with user doc', async() => {
+        it('logs in with user doc', async function() {
           await shell.executeLine(`use ${dbName}`);
           expect(await shell.executeLine(
             'db.auth({user: "anna", pwd: "pwd"})'
@@ -652,7 +654,7 @@ describe('Auth e2e', function() {
           )).to.include('user: \'anna\'');
           shell.assertNoErrors();
         });
-        it('digestPassword errors with message', async() => {
+        it('digestPassword errors with message', async function() {
           await shell.executeLine(`use ${dbName}`);
           expect(await shell.executeLine(
             'db.auth({user: "anna", pwd: "pwd", digestPassword: true})'
@@ -661,7 +663,7 @@ describe('Auth e2e', function() {
             'db.runCommand({connectionStatus: 1})'
           )).to.include('authenticatedUsers: []');
         });
-        it('throws if pwd is wrong', async() => {
+        it('throws if pwd is wrong', async function() {
           await shell.executeLine(`use ${dbName}`);
           shell.writeInputLine(
             'db.auth("anna", "pwd2")'
@@ -673,7 +675,7 @@ describe('Auth e2e', function() {
             'db.runCommand({connectionStatus: 1})'
           )).to.include('authenticatedUsers: []');
         });
-        it('throws if mech is not recognized', async() => {
+        it('throws if mech is not recognized', async function() {
           await shell.executeLine(`use ${dbName}`);
           shell.writeInputLine(
             'db.auth({ user: "anna", pwd: "pwd2", mechanism: "not a mechanism"})'
@@ -686,8 +688,8 @@ describe('Auth e2e', function() {
           )).to.include('authenticatedUsers: []');
         });
       });
-      describe('logout', () => {
-        it('logs out after authenticating', async() => {
+      describe('logout', function() {
+        it('logs out after authenticating', async function() {
           await shell.executeLine(`use ${dbName}`);
           expect(await shell.executeLine(
             'db.auth("anna", "pwd")'
@@ -704,13 +706,13 @@ describe('Auth e2e', function() {
           shell.assertNoErrors();
         });
       });
-      describe('resetting current cursor', () => {
-        beforeEach(async() => {
+      describe('resetting current cursor', function() {
+        beforeEach(async function() {
           await db.collection('test').insertMany(
             [...Array(200).keys()].map(i => ({ i }))
           );
         });
-        it('is reset after auth, db reassign and logout', async() => {
+        it('is reset after auth, db reassign and logout', async function() {
           await shell.executeLine(`use ${dbName}`);
           expect(await shell.executeLine('db.test.find()')).to.include('i: 10');
           expect(await shell.executeLine('it')).to.include('i: 30');
@@ -735,8 +737,8 @@ describe('Auth e2e', function() {
       });
     });
   });
-  describe('with options in URI on on the command line', () => {
-    beforeEach(async() => {
+  describe('with options in URI on on the command line', function() {
+    beforeEach(async function() {
       const connectionString = await testServer.connectionString();
       dbName = `test-${Date.now()}`;
 
@@ -763,7 +765,7 @@ describe('Auth e2e', function() {
       assertUserAuth = createAssertUserAuth(db, connectionString, dbName);
       await assertUserAuth('pwd2', 'anna2');
     });
-    it('can auth when there is login in URI', async() => {
+    it('can auth when there is login in URI', async function() {
       const connectionString = await testServer.connectionString();
       const split = connectionString.split('//');
       const authConnectionString = `${split[0]}//anna2:pwd2@${split[1]}/${dbName}`;
@@ -782,7 +784,7 @@ describe('Auth e2e', function() {
       )).to.include('user: \'anna\'');
       shell.assertNoErrors();
     });
-    it('connection-resetting operations don’t undo auth', async() => {
+    it('connection-resetting operations don’t undo auth', async function() {
       const connectionString = await testServer.connectionString();
       const split = connectionString.split('//');
       const authConnectionString = `${split[0]}//anna2:pwd2@${split[1]}/${dbName}`;
@@ -807,7 +809,7 @@ describe('Auth e2e', function() {
       )).to.match(/user: 'anna'/);
       shell.assertNoErrors();
     });
-    it('can auth when there is -u and -p', async() => {
+    it('can auth when there is -u and -p', async function() {
       const connectionString = await testServer.connectionString();
       shell = TestShell.start({ args: [
         connectionString,
@@ -830,7 +832,7 @@ describe('Auth e2e', function() {
       )).to.include('user: \'anna\'');
       shell.assertNoErrors();
     });
-    context('with specific auth mechanisms', () => {
+    context('with specific auth mechanisms', function() {
       it('can auth with SCRAM-SHA-1', async function() {
         if (process.env.MONGOSH_TEST_E2E_FORCE_FIPS) {
           return this.skip(); // No SCRAM-SHA-1 in FIPS mode
@@ -866,7 +868,7 @@ describe('Auth e2e', function() {
           shell.assertContainsOutput('Could not enable FIPS mode.');
         }
       });
-      it('can auth with SCRAM-SHA-256', async() => {
+      it('can auth with SCRAM-SHA-256', async function() {
         const connectionString = await testServer.connectionString();
         shell = TestShell.start({ args: [
           connectionString,
@@ -881,7 +883,7 @@ describe('Auth e2e', function() {
         )).to.include('user: \'sha256user\'');
         shell.assertNoErrors();
       });
-      it('cannot auth when authenticationMechanism mismatches (sha256 -> sha1)', async() => {
+      it('cannot auth when authenticationMechanism mismatches (sha256 -> sha1)', async function() {
         const connectionString = await testServer.connectionString();
         shell = TestShell.start({ args: [
           connectionString,
@@ -895,7 +897,7 @@ describe('Auth e2e', function() {
             /MongoServerError: Authentication failed|Unable to use SCRAM-SHA-1/);
         });
       });
-      it('cannot auth when authenticationMechanism mismatches (sha1 -> sha256)', async() => {
+      it('cannot auth when authenticationMechanism mismatches (sha1 -> sha256)', async function() {
         const connectionString = await testServer.connectionString();
         shell = TestShell.start({ args: [
           connectionString,
@@ -909,7 +911,7 @@ describe('Auth e2e', function() {
             /MongoServerError: Authentication failed|Unable to use SCRAM-SHA-256/);
         });
       });
-      it('does not fail with kerberos not found for GSSAPI', async() => {
+      it('does not fail with kerberos not found for GSSAPI', async function() {
         const connectionString = await testServer.connectionString();
         shell = TestShell.start({ args: [
           connectionString,
@@ -943,7 +945,7 @@ describe('Auth e2e', function() {
         shell.assertNotContainsOutput('Optional module `kerberos` not found');
       });
     });
-    afterEach(async() => {
+    afterEach(async function() {
       await db.dropDatabase();
       await db.command({ dropAllUsersFromDatabase: 1 });
 

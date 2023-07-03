@@ -1,10 +1,12 @@
 import { CommonErrors } from '@mongosh/errors';
-import { bson, ServiceProvider } from '@mongosh/service-provider-core';
+import type { ServiceProvider } from '@mongosh/service-provider-core';
+import { bson } from '@mongosh/service-provider-core';
 import { fail } from 'assert';
 import chai, { expect } from 'chai';
 import sinonChai from 'sinon-chai';
-import { EventEmitter } from 'events';
-import { StubbedInstance, stubInterface } from 'ts-sinon';
+import type { EventEmitter } from 'events';
+import type { StubbedInstance} from 'ts-sinon';
+import { stubInterface } from 'ts-sinon';
 import Bulk, { BulkFindOp } from './bulk';
 import Collection from './collection';
 import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';
@@ -14,24 +16,24 @@ import { ObjectId } from 'mongodb';
 import ShellInstanceState from './shell-instance-state';
 chai.use(sinonChai);
 
-describe('Bulk API', () => {
-  describe('Bulk', () => {
-    describe('help', () => {
+describe('Bulk API', function() {
+  describe('Bulk', function() {
+    describe('help', function() {
       const apiClass: any = new Bulk({} as any, {} as any);
-      it('calls help function', async() => {
+      it('calls help function', async function() {
         expect((await toShellResult(apiClass.help())).type).to.equal('Help');
         expect((await toShellResult(apiClass.help)).type).to.equal('Help');
       });
-      it('calls help function for methods', async() => {
+      it('calls help function for methods', async function() {
         expect((await toShellResult(apiClass.execute.help())).type).to.equal('Help');
         expect((await toShellResult(apiClass.execute.help)).type).to.equal('Help');
       });
     });
-    describe('signatures', () => {
-      it('type', () => {
+    describe('signatures', function() {
+      it('type', function() {
         expect(signatures.Bulk.type).to.equal('Bulk');
       });
-      it('attributes', () => {
+      it('attributes', function() {
         expect(signatures.Bulk.attributes.find).to.deep.equal({
           type: 'function',
           returnsPromise: false,
@@ -47,23 +49,23 @@ describe('Bulk API', () => {
         });
       });
     });
-    describe('Metadata', () => {
-      describe('toShellResult', () => {
+    describe('Metadata', function() {
+      describe('toShellResult', function() {
         const collection = stubInterface<Collection>();
         const b = new Bulk(collection, {
           batches: [1, 2, 3, 4]
         } as any);
-        it('value', async() => {
+        it('value', async function() {
           expect((await toShellResult(b)).printable).to.deep.equal({ nInsertOps: 0, nUpdateOps: 0, nRemoveOps: 0, nBatches: 4 });
         });
-        it('type', async() => {
+        it('type', async function() {
           expect((await toShellResult(b)).type).to.equal('Bulk');
         });
       });
     });
     ['ordered', 'unordered'].forEach((t) => {
-      describe(t, () => {
-        describe('commands', () => {
+      describe(t, function() {
+        describe('commands', function() {
           let collection: Collection;
           let serviceProvider: StubbedInstance<ServiceProvider>;
           let bulk: Bulk;
@@ -80,7 +82,7 @@ describe('Bulk API', () => {
             nUpserted: 0,
             upserted: []
           };
-          beforeEach(() => {
+          beforeEach(function() {
             bus = stubInterface<EventEmitter>();
             serviceProvider = stubInterface<ServiceProvider>();
             serviceProvider.initialDb = 'db1';
@@ -98,56 +100,56 @@ describe('Bulk API', () => {
             ];
             bulk = new Bulk(collection, innerStub, t === 'ordered');
           });
-          describe('insert', () => {
-            it('calls innerBulk.insert and returns self', () => {
+          describe('insert', function() {
+            it('calls innerBulk.insert and returns self', function() {
               innerStub.insert.returns({ ok: 1 });
               bulk.insert({ insertedDoc: 1 });
               expect(innerStub.insert).to.have.been.calledWith({ insertedDoc: 1 });
               expect(bulk._batchCounts.nInsertOps).to.equal(1);
             });
 
-            it('returns self', () => {
+            it('returns self', function() {
               expect(bulk.insert({})).to.equal(bulk);
             });
 
-            it('throws if innerBulk.insert throws', () => {
+            it('throws if innerBulk.insert throws', function() {
               const expectedError = new Error();
               innerStub.insert.throws(expectedError);
               expect(() => bulk.insert({})).to.throw(expectedError);
             });
           });
-          describe('toJSON', () => {
-            it('returns the batches length + currentInsert/Update/RemoveBatch?', () => {
+          describe('toJSON', function() {
+            it('returns the batches length + currentInsert/Update/RemoveBatch?', function() {
               expect(bulk.toJSON()).to.deep.equal({
                 nInsertOps: 0, nUpdateOps: 0, nRemoveOps: 0, nBatches: 4
               });
             });
           });
-          describe('find', () => {
-            it('calls innerBulk.find', () => {
+          describe('find', function() {
+            it('calls innerBulk.find', function() {
               innerStub.find.returns({ driverFindOp: 1 });
               bulk.find({ search: 1 });
               expect(innerStub.find).to.have.been.calledWith({ search: 1 });
             });
-            it('returns new BulkFindOp with arg', async() => {
+            it('returns new BulkFindOp with arg', async function() {
               innerStub.find.returns({ driverFindOp: 1 });
               const res = bulk.find({ search: 1 });
               expect((await toShellResult(res)).type).to.equal('BulkFindOp');
               expect(res._serviceProviderBulkFindOp).to.deep.equal({ driverFindOp: 1 });
             });
-            it('throws if innerBulk.find throws', () => {
+            it('throws if innerBulk.find throws', function() {
               const expectedError = new Error();
               innerStub.find.throws(expectedError);
               expect(() => bulk.find({})).to.throw(expectedError);
             });
           });
-          describe('execute', () => {
-            it('calls innerBulk.execute', async() => {
+          describe('execute', function() {
+            it('calls innerBulk.execute', async function() {
               innerStub.execute.returns({ result: bulkWriteResult });
               await bulk.execute();
               expect(innerStub.execute).to.have.been.calledWith();
             });
-            it('returns new BulkWriteResult', async() => {
+            it('returns new BulkWriteResult', async function() {
               innerStub.execute.returns({ result: bulkWriteResult });
               const res = await bulk.execute();
               expect((await toShellResult(res)).type).to.equal('BulkWriteResult');
@@ -165,7 +167,7 @@ describe('Bulk API', () => {
               );
               expect(bulk._executed).to.equal(true);
             });
-            it('throws if innerBulk.execute rejects', async() => {
+            it('throws if innerBulk.execute rejects', async function() {
               const expectedError = new Error();
               innerStub.execute.rejects(expectedError);
               const caughtError = await bulk.execute()
@@ -173,10 +175,10 @@ describe('Bulk API', () => {
               expect(caughtError).to.equal(expectedError);
             });
           });
-          describe('getOperations', () => {
-            it('returns batches', () => {
+          describe('getOperations', function() {
+            it('returns batches', function() {
               bulk._executed = true;
-              (bulk._serviceProviderBulkOp as any).batches = [
+              (bulk._serviceProviderBulkOp ).batches = [
                 {
                   originalZeroIndex: 1,
                   batchType: 1,
@@ -203,7 +205,7 @@ describe('Bulk API', () => {
                 }
               ]);
             });
-            it('throws before executed', () => {
+            it('throws before executed', function() {
               bulk._executed = false;
               try {
                 bulk.getOperations();
@@ -218,23 +220,23 @@ describe('Bulk API', () => {
       });
     });
   });
-  describe('BulkFindOp', () => {
-    describe('help', () => {
+  describe('BulkFindOp', function() {
+    describe('help', function() {
       const apiClass: any = new BulkFindOp({} as any, {} as any);
-      it('calls help function', async() => {
+      it('calls help function', async function() {
         expect((await toShellResult(apiClass.help())).type).to.equal('Help');
         expect((await toShellResult(apiClass.help)).type).to.equal('Help');
       });
-      it('calls help function for methods', async() => {
+      it('calls help function for methods', async function() {
         expect((await toShellResult(apiClass.remove.help())).type).to.equal('Help');
         expect((await toShellResult(apiClass.remove.help)).type).to.equal('Help');
       });
     });
-    describe('signatures', () => {
-      it('type', () => {
+    describe('signatures', function() {
+      it('type', function() {
         expect(signatures.BulkFindOp.type).to.equal('BulkFindOp');
       });
-      it('attributes', () => {
+      it('attributes', function() {
         expect(signatures.BulkFindOp.attributes.hint).to.deep.equal({
           type: 'function',
           returnsPromise: false,
@@ -250,22 +252,22 @@ describe('Bulk API', () => {
         });
       });
     });
-    describe('Metadata', () => {
-      describe('toShellResult', () => {
+    describe('Metadata', function() {
+      describe('toShellResult', function() {
         const b = new BulkFindOp({} as any, {} as any);
-        it('value', async() => {
+        it('value', async function() {
           expect((await toShellResult(b)).printable).to.deep.equal('BulkFindOp');
         });
-        it('type', async() => {
+        it('type', async function() {
           expect((await toShellResult(b)).type).to.equal('BulkFindOp');
         });
       });
     });
-    describe('commands', () => {
+    describe('commands', function() {
       let bulk: Bulk;
       let innerStub: StubbedInstance<any>;
       let bulkFindOp: BulkFindOp;
-      beforeEach(() => {
+      beforeEach(function() {
         innerStub = stubInterface<any>();
         innerStub.batches = [{ originalZeroIndex: 0 }];
         bulk = stubInterface<Bulk>();
@@ -274,102 +276,102 @@ describe('Bulk API', () => {
         };
         bulkFindOp = new BulkFindOp(innerStub, bulk);
       });
-      describe('multiple batches', () => {
+      describe('multiple batches', function() {
 
       });
-      describe('remove', () => {
-        it('calls serviceProviderBulkOp.delete and returns parent', () => {
+      describe('remove', function() {
+        it('calls serviceProviderBulkOp.delete and returns parent', function() {
           bulkFindOp.remove();
           expect(innerStub.delete).to.have.been.calledWith();
           expect(bulk._batchCounts.nRemoveOps).to.equal(1);
         });
 
-        it('returns self', () => {
+        it('returns self', function() {
           expect(bulkFindOp.remove()).to.equal(bulk);
         });
 
-        it('throws if serviceProviderBulkOp.delete throws', () => {
+        it('throws if serviceProviderBulkOp.delete throws', function() {
           const expectedError = new Error();
           innerStub.delete.throws(expectedError);
           expect(() => bulkFindOp.remove()).to.throw(expectedError);
         });
       });
-      describe('removeOne', () => {
-        it('calls serviceProviderBulkOp.deleteOne and returns parent', () => {
+      describe('removeOne', function() {
+        it('calls serviceProviderBulkOp.deleteOne and returns parent', function() {
           bulkFindOp.removeOne();
           expect(innerStub.deleteOne).to.have.been.calledWith();
           expect(bulk._batchCounts.nRemoveOps).to.equal(1);
         });
 
-        it('returns self', () => {
+        it('returns self', function() {
           expect(bulkFindOp.deleteOne()).to.equal(bulk);
         });
 
-        it('throws if serviceProviderBulkOp.deleteOne throws', () => {
+        it('throws if serviceProviderBulkOp.deleteOne throws', function() {
           const expectedError = new Error();
           innerStub.deleteOne.throws(expectedError);
           expect(() => bulkFindOp.removeOne()).to.throw(expectedError);
         });
       });
-      describe('delete', () => {
-        it('calls serviceProviderBulkOp.delete and returns parent', () => {
+      describe('delete', function() {
+        it('calls serviceProviderBulkOp.delete and returns parent', function() {
           bulkFindOp.delete();
           expect(innerStub.delete).to.have.been.calledWith();
           expect(bulk._batchCounts.nRemoveOps).to.equal(1);
         });
 
-        it('returns self', () => {
+        it('returns self', function() {
           expect(bulkFindOp.delete()).to.equal(bulk);
         });
 
-        it('throws if serviceProviderBulkOp.delete throws', () => {
+        it('throws if serviceProviderBulkOp.delete throws', function() {
           const expectedError = new Error();
           innerStub.delete.throws(expectedError);
           expect(() => bulkFindOp.delete()).to.throw(expectedError);
         });
       });
-      describe('deleteOne', () => {
-        it('calls serviceProviderBulkOp.deleteOne and returns parent', () => {
+      describe('deleteOne', function() {
+        it('calls serviceProviderBulkOp.deleteOne and returns parent', function() {
           bulkFindOp.deleteOne();
           expect(innerStub.deleteOne).to.have.been.calledWith();
           expect(bulk._batchCounts.nRemoveOps).to.equal(1);
         });
 
-        it('returns self', () => {
+        it('returns self', function() {
           expect(bulkFindOp.deleteOne()).to.equal(bulk);
         });
 
-        it('throws if serviceProviderBulkOp.deleteOne throws', () => {
+        it('throws if serviceProviderBulkOp.deleteOne throws', function() {
           const expectedError = new Error();
           innerStub.deleteOne.throws(expectedError);
           expect(() => bulkFindOp.deleteOne()).to.throw(expectedError);
         });
       });
-      describe('upsert', () => {
-        it('calls serviceProviderBulkOp.upsert and returns parent', () => {
+      describe('upsert', function() {
+        it('calls serviceProviderBulkOp.upsert and returns parent', function() {
           bulkFindOp.upsert();
           expect(innerStub.upsert).to.have.been.calledWith();
           expect(bulk._batchCounts.nUpdateOps).to.equal(0);
         });
 
-        it('returns self', () => {
+        it('returns self', function() {
           expect(bulkFindOp.upsert()).to.equal(bulkFindOp);
         });
 
-        it('throws if serviceProviderBulkOp.upsert throws', () => {
+        it('throws if serviceProviderBulkOp.upsert throws', function() {
           const expectedError = new Error();
           innerStub.upsert.throws(expectedError);
           expect(() => bulkFindOp.upsert()).to.throw(expectedError);
         });
       });
-      describe('update', () => {
-        it('calls serviceProviderBulkOp.update and returns parent', () => {
+      describe('update', function() {
+        it('calls serviceProviderBulkOp.update and returns parent', function() {
           bulkFindOp.update({ updateDoc: 1 });
           expect(innerStub.update).to.have.been.calledWith({ updateDoc: 1 });
           expect(bulk._batchCounts.nUpdateOps).to.equal(1);
         });
 
-        it('calls serviceProviderBulkOp.update and returns parent when hint/arrayFilter set', () => {
+        it('calls serviceProviderBulkOp.update and returns parent when hint/arrayFilter set', function() {
           bulkFindOp.hint({ hint: 1 });
           bulkFindOp.arrayFilters([{ x: 1 }]);
           bulkFindOp.update({ updateDoc: 1 });
@@ -379,24 +381,24 @@ describe('Bulk API', () => {
           expect(bulk._batchCounts.nUpdateOps).to.equal(1);
         });
 
-        it('returns self', () => {
+        it('returns self', function() {
           expect(bulkFindOp.update({})).to.equal(bulk);
         });
 
-        it('throws if serviceProviderBulkOp.update throws', () => {
+        it('throws if serviceProviderBulkOp.update throws', function() {
           const expectedError = new Error();
           innerStub.update.throws(expectedError);
           expect(() => bulkFindOp.update({})).to.throw(expectedError);
         });
       });
-      describe('updateOne', () => {
-        it('calls serviceProviderBulkOp.updateOne and returns parent', () => {
+      describe('updateOne', function() {
+        it('calls serviceProviderBulkOp.updateOne and returns parent', function() {
           bulkFindOp.updateOne({ $inc: { x: 1 } } );
           expect(innerStub.updateOne).to.have.been.calledWith({ $inc: { x: 1 } });
           expect(bulk._batchCounts.nUpdateOps).to.equal(1);
         });
 
-        it('calls serviceProviderBulkOp.updateOne and returns parent when hint/arrayFilter set', () => {
+        it('calls serviceProviderBulkOp.updateOne and returns parent when hint/arrayFilter set', function() {
           bulkFindOp.hint({ hint: 1 });
           bulkFindOp.arrayFilters([{ x: 1 }]);
           bulkFindOp.updateOne({ updateOneDoc: 1 });
@@ -407,24 +409,24 @@ describe('Bulk API', () => {
         });
 
 
-        it('returns self', () => {
+        it('returns self', function() {
           expect(bulkFindOp.updateOne({})).to.equal(bulk);
         });
 
-        it('throws if serviceProviderBulkOp.updateOne throws', () => {
+        it('throws if serviceProviderBulkOp.updateOne throws', function() {
           const expectedError = new Error();
           innerStub.updateOne.throws(expectedError);
           expect(() => bulkFindOp.updateOne({})).to.throw(expectedError);
         });
       });
-      describe('replaceOne', () => {
-        it('calls serviceProviderBulkOp.replaceOne and returns parent', () => {
+      describe('replaceOne', function() {
+        it('calls serviceProviderBulkOp.replaceOne and returns parent', function() {
           bulkFindOp.replaceOne({ replaceOneDoc: 1 });
           expect(innerStub.replaceOne).to.have.been.calledWith({ replaceOneDoc: 1 });
           expect(bulk._batchCounts.nUpdateOps).to.equal(1);
         });
 
-        it('calls serviceProviderBulkOp.replaceOne and returns parent when hint set', () => {
+        it('calls serviceProviderBulkOp.replaceOne and returns parent when hint set', function() {
           bulkFindOp.hint({ hint: 1 });
           bulkFindOp.replaceOne({ replaceOneDoc: 1 });
           expect(innerStub.replaceOne).to.have.been.calledWith({
@@ -433,32 +435,32 @@ describe('Bulk API', () => {
           expect(bulk._batchCounts.nUpdateOps).to.equal(1);
         });
 
-        it('returns self', () => {
+        it('returns self', function() {
           expect(bulkFindOp.replaceOne({})).to.equal(bulk);
         });
 
-        it('throws if serviceProviderBulkOp.replaceOne throws', () => {
+        it('throws if serviceProviderBulkOp.replaceOne throws', function() {
           const expectedError = new Error();
           innerStub.replaceOne.throws(expectedError);
           expect(() => bulkFindOp.replaceOne({})).to.throw(expectedError);
         });
       });
-      describe('hint', () => {
-        it('sets the attribute and returns self', () => {
+      describe('hint', function() {
+        it('sets the attribute and returns self', function() {
           const attr = { hint: 1 };
           expect(bulkFindOp.hint(attr)).to.equal(bulkFindOp);
           expect(innerStub.hint).to.have.been.calledWith(attr);
         });
       });
-      describe('arrayFilters', () => {
-        it('sets the attribute and returns self', () => {
+      describe('arrayFilters', function() {
+        it('sets the attribute and returns self', function() {
           const attr = [{}];
           expect(bulkFindOp.arrayFilters(attr)).to.equal(bulkFindOp);
           expect(innerStub.arrayFilters).to.have.been.calledWith(attr);
         });
       });
-      describe('collation', () => {
-        it('sets the collation and returns self', () => {
+      describe('collation', function() {
+        it('sets the collation and returns self', function() {
           const coll = { locale: 'fa', strength: 2 } as any;
           expect(bulkFindOp.collation(coll)).to.equal(bulkFindOp);
           expect(innerStub.collation).to.have.been.calledWith(coll);

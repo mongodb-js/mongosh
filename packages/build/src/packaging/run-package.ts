@@ -1,10 +1,12 @@
 import { constants as fsConstants, promises as fs } from 'fs';
 import path from 'path';
-import { Config, validatePackageVariant } from '../config';
+import type { Config} from '../config';
+import { validatePackageVariant } from '../config';
 import { downloadCryptLibrary } from './download-crypt-library';
 import { downloadManpage } from './download-manpage';
 import { notarizeArtifact } from './notary-service';
-import { createPackage, PackageFile } from './package';
+import type { PackageFile } from './package';
+import { createPackage } from './package';
 
 export async function runPackage(
   config: Config,

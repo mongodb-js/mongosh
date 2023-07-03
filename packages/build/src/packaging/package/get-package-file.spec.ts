@@ -1,9 +1,9 @@
 import { expect } from 'chai';
 import { getPackageFile } from './get-package-file';
 
-describe('tarball getPackageFile', () => {
-  context('when the build variant is windows', () => {
-    it('returns the windows tarball name', () => {
+describe('tarball getPackageFile', function() {
+  context('when the build variant is windows', function() {
+    it('returns the windows tarball name', function() {
       expect(
         getPackageFile('win32-x64', () => ({ metadata: { version: '1.0.0', name: 'mongosh' } }) as any)
       ).to.deep.equal({
@@ -13,8 +13,8 @@ describe('tarball getPackageFile', () => {
     });
   });
 
-  context('when the build variant is windows MSI', () => {
-    it('returns the windows MSI name', () => {
+  context('when the build variant is windows MSI', function() {
+    it('returns the windows MSI name', function() {
       expect(
         getPackageFile('win32msi-x64', () => ({ metadata: { version: '1.0.0', name: 'mongosh' } }) as any)
       ).to.deep.equal({
@@ -24,8 +24,8 @@ describe('tarball getPackageFile', () => {
     });
   });
 
-  context('when the build variant is macos', () => {
-    it('returns the tarball details', () => {
+  context('when the build variant is macos', function() {
+    it('returns the tarball details', function() {
       expect(
         getPackageFile('darwin-x64', () => ({ metadata: { version: '1.0.0', name: 'mongosh' } }) as any)
       ).to.deep.equal({
@@ -35,8 +35,8 @@ describe('tarball getPackageFile', () => {
     });
   });
 
-  context('when the build variant is linux', () => {
-    it('returns the tarball details', () => {
+  context('when the build variant is linux', function() {
+    it('returns the tarball details', function() {
       expect(
         getPackageFile('linux-x64', () => ({ metadata: { version: '1.0.0', name: 'mongosh' } }) as any)
       ).to.deep.equal({
@@ -46,8 +46,8 @@ describe('tarball getPackageFile', () => {
     });
   });
 
-  context('when the build variant is debian', () => {
-    it('returns the tarball details', () => {
+  context('when the build variant is debian', function() {
+    it('returns the tarball details', function() {
       expect(
         getPackageFile('deb-x64', () => ({ metadata: { version: '1.0.0', debName: 'mongodb-mongosh' } }) as any)
       ).to.deep.equal({
@@ -57,8 +57,8 @@ describe('tarball getPackageFile', () => {
     });
   });
 
-  context('when the build variant is rhel', () => {
-    it('returns the tarball details', () => {
+  context('when the build variant is rhel', function() {
+    it('returns the tarball details', function() {
       expect(
         getPackageFile('rpm-x64', () => ({ metadata: { version: '1.0.0', rpmName: 'mongodb-mongosh' } }) as any)
       ).to.deep.equal({

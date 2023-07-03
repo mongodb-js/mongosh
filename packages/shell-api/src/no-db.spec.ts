@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import NoDatabase from './no-db';
-describe('NoDatabase', () => {
+describe('NoDatabase', function() {
   let nomongo;
   let nodb;
-  beforeEach(() => {
+  beforeEach(function() {
     nodb = new NoDatabase();
     nomongo = nodb._mongo;
   });
-  it('throws for show', () => {
+  it('throws for show', function() {
     try {
       nodb._mongo.show('dbs');
     } catch (e: any) {
@@ -15,7 +15,7 @@ describe('NoDatabase', () => {
     }
     expect.fail('no error thrown for NoDb._mongo.use');
   });
-  it('throws for nomongo.use', () => {
+  it('throws for nomongo.use', function() {
     try {
       nomongo.use('test');
     } catch (e: any) {

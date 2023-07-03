@@ -2,15 +2,16 @@ import {
   IframeInterpreterEnvironment
 } from './iframe-interpreter-environment';
 
-import {
+import type {
   Runtime,
   RuntimeEvaluationListener,
   RuntimeEvaluationResult,
-  Completion,
+  Completion} from '@mongosh/browser-runtime-core';
+import {
   OpenContextRuntime
 } from '@mongosh/browser-runtime-core';
 
-import { ServiceProvider } from '@mongosh/service-provider-core';
+import type { ServiceProvider } from '@mongosh/service-provider-core';
 
 export class IframeRuntime implements Runtime {
   private openContextRuntime: OpenContextRuntime | null = null;

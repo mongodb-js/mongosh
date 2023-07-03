@@ -1,5 +1,5 @@
-import { Completion } from './autocompleter/autocompleter';
-import { ShellResult, EvaluationListener } from '@mongosh/shell-evaluator';
+import type { Completion } from './autocompleter/autocompleter';
+import type { ShellResult, EvaluationListener } from '@mongosh/shell-evaluator';
 
 export type ContextValue = any;
 

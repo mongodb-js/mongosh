@@ -1,4 +1,4 @@
-/* eslint complexity: 0, no-use-before-define: 0 */
+/* eslint no-use-before-define: 0 */
 import type {
   DbOptions,
   Document,
@@ -15,11 +15,11 @@ import { CommonErrors, MongoshInvalidInputError, MongoshUnimplementedError } fro
 import crypto from 'crypto';
 import type Database from './database';
 import type Collection from './collection';
-import { CursorIterationResult } from './result';
+import type { CursorIterationResult } from './result';
 import { ShellApiErrors } from './error-codes';
-import { BinaryType, ReplPlatform, bson } from '@mongosh/service-provider-core';
-import { ClientSideFieldLevelEncryptionOptions } from './field-level-encryption';
-import { AutoEncryptionOptions } from 'mongodb';
+import type { BinaryType, ReplPlatform, bson } from '@mongosh/service-provider-core';
+import type { ClientSideFieldLevelEncryptionOptions } from './field-level-encryption';
+import type { AutoEncryptionOptions } from 'mongodb';
 import { shellApiType } from './enums';
 import type { AbstractCursor } from './abstract-cursor';
 import type ChangeStreamCursor from './change-stream-cursor';
@@ -254,12 +254,12 @@ export async function getPrintableShardStatus(configDB: Database, verbose: boole
   await Promise.all([
     (async(): Promise<void> => {
       // Is autosplit currently enabled
-      const autosplit = await settingsColl.findOne({ _id: 'autosplit' }) as any;
+      const autosplit = await settingsColl.findOne({ _id: 'autosplit' }) ;
       result.autosplit = { 'Currently enabled': autosplit === null || autosplit.enabled ? 'yes' : 'no' };
     })(),
     (async(): Promise<void> => {
       // Is the balancer currently enabled
-      const balancerEnabled = await settingsColl.findOne({ _id: 'balancer' }) as any;
+      const balancerEnabled = await settingsColl.findOne({ _id: 'balancer' }) ;
       balancerRes['Currently enabled'] = balancerEnabled === null || !balancerEnabled.stopped ? 'yes' : 'no';
     })(),
     (async(): Promise<void> => {

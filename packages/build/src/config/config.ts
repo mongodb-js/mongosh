@@ -1,5 +1,5 @@
 import type { PackageInformationProvider } from '../packaging/package';
-import { PackageVariant } from './build-variant';
+import type { PackageVariant } from './build-variant';
 
 interface ManPageConfig {
   sourceUrl: string;

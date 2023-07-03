@@ -1,4 +1,5 @@
-import { PackageVariant, getDistro, getArch, getDebArchName, getRPMArchName } from '../../config';
+import type { PackageVariant} from '../../config';
+import { getDistro, getArch, getDebArchName, getRPMArchName } from '../../config';
 import type { PackageInformationProvider } from './package-information';
 
 export interface PackageFile {

@@ -6,22 +6,23 @@ import path from 'path';
 import sinon from 'sinon';
 import { URL } from 'url';
 import { Barque, LATEST_CURATOR, getReposAndArch } from './barque';
-import { ALL_PACKAGE_VARIANTS, Config } from './config';
+import type { Config } from './config';
+import { ALL_PACKAGE_VARIANTS } from './config';
 import { dummyConfig } from '../test/helpers';
 
-describe('Barque', () => {
+describe('Barque', function() {
   let barque: Barque;
   let config: Config;
 
-  beforeEach(() => {
+  beforeEach(function() {
     config = { ...dummyConfig };
 
     barque = new Barque(config);
   });
 
-  describe('releaseToBarque', () => {
-    context('platform is linux', () => {
-      context('execCurator function succeeds', () => {
+  describe('releaseToBarque', function() {
+    context('platform is linux', function() {
+      context('execCurator function succeeds', function() {
         ([
           {
             variant: 'deb-x64',
@@ -230,7 +231,7 @@ describe('Barque', () => {
             ]
           }
         ] as const).forEach(({ variant, url, publishedUrls }) => {
-          it(`publishes ${variant} packages`, async() => {
+          it(`publishes ${variant} packages`, async function() {
             barque.createCuratorDir = sinon.stub().resolves(path.join(__dirname, '..', 'test', 'fixtures', 'bin'));
             barque.extractLatestCurator = sinon.stub().resolves(true);
 
@@ -251,7 +252,7 @@ describe('Barque', () => {
         });
       });
 
-      it('execCurator function fails', async() => {
+      it('execCurator function fails', async function() {
         barque.createCuratorDir = sinon.stub().returns(Promise.resolve('/nonexistent/'));
         barque.extractLatestCurator = sinon.stub().returns(Promise.resolve(true));
 
@@ -270,7 +271,7 @@ describe('Barque', () => {
     });
 
 
-    it('platform is not linux', () => {
+    it('platform is not linux', function() {
       config.platform = 'macos';
       try {
         barque = new Barque(config);
@@ -282,9 +283,9 @@ describe('Barque', () => {
     });
   });
 
-  describe('getReposAndArch', () => {
+  describe('getReposAndArch', function() {
     for (const variant of ALL_PACKAGE_VARIANTS) {
-      it(`returns results for ${variant}`, () => {
+      it(`returns results for ${variant}`, function() {
         const result = getReposAndArch(variant);
         expect(result.ppas).to.be.an('array');
         expect(result.arch).to.be.a('string');
@@ -292,8 +293,8 @@ describe('Barque', () => {
     }
   });
 
-  describe('createCuratorDir', () => {
-    it('creates tmp directory that exists', async() => {
+  describe('createCuratorDir', function() {
+    it('creates tmp directory that exists', async function() {
       const curatorDirPath = await barque.createCuratorDir();
 
       let accessErr: Error | undefined = undefined;
@@ -306,15 +307,15 @@ describe('Barque', () => {
     });
   });
 
-  describe('waitUntilPackagesAreAvailable', () => {
-    beforeEach(() => {
+  describe('waitUntilPackagesAreAvailable', function() {
+    beforeEach(function() {
       nock.cleanAll();
     });
 
-    context('with packages published one after the other', () => {
+    context('with packages published one after the other', function() {
       let nockRepo: nock.Scope;
 
-      beforeEach(() => {
+      beforeEach(function() {
         nockRepo = nock('https://repo.mongodb.org');
 
         nockRepo.head('/apt/dist/package1.deb').reply(200);
@@ -326,7 +327,7 @@ describe('Barque', () => {
         nockRepo.head('/apt/dist/package3.deb').reply(200);
       });
 
-      it('waits until all packages are available', async() => {
+      it('waits until all packages are available', async function() {
         await barque.waitUntilPackagesAreAvailable([
           'https://repo.mongodb.org/apt/dist/package1.deb',
           'https://repo.mongodb.org/apt/dist/package2.deb',
@@ -337,16 +338,16 @@ describe('Barque', () => {
       });
     });
 
-    context('with really slow packages', () => {
+    context('with really slow packages', function() {
       let nockRepo: nock.Scope;
 
-      beforeEach(() => {
+      beforeEach(function() {
         nockRepo = nock('https://repo.mongodb.org');
         nockRepo.head('/apt/dist/package1.deb').reply(200);
         nockRepo.head('/apt/dist/package2.deb').reply(404).persist();
       });
 
-      it('fails when the timeout is hit', async() => {
+      it('fails when the timeout is hit', async function() {
         try {
           await barque.waitUntilPackagesAreAvailable([
             'https://repo.mongodb.org/apt/dist/package1.deb',
@@ -360,8 +361,8 @@ describe('Barque', () => {
     });
   });
 
-  describe('LATEST_CURATOR', () => {
-    it('can be downloaded', async() => {
+  describe('LATEST_CURATOR', function() {
+    it('can be downloaded', async function() {
       const response = await fetch(LATEST_CURATOR, {
         method: 'HEAD'
       });
@@ -370,8 +371,8 @@ describe('Barque', () => {
     });
   });
 
-  describe('extractLatestCurator', () => {
-    beforeEach(() => {
+  describe('extractLatestCurator', function() {
+    beforeEach(function() {
       nock.cleanAll();
       const latestCuratorUrl = new URL(LATEST_CURATOR);
       nock(latestCuratorUrl.origin)
@@ -381,11 +382,11 @@ describe('Barque', () => {
         });
     });
 
-    afterEach(() => {
+    afterEach(function() {
       expect(nock.isDone(), 'HTTP calls to link urls were not done').to.be.true;
     });
 
-    it('extracts latest curator to tmp directory', async() => {
+    it('extracts latest curator to tmp directory', async function() {
       const curatorDirPath = await barque.createCuratorDir();
       const curatorPath = path.join(curatorDirPath, 'curator');
 

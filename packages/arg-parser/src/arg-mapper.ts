@@ -121,7 +121,7 @@ function matchingAllowedHosts(i: Readonly<ConnectionInfo>): string[] {
     if (host.startsWith('[') && host.endsWith(']')) {
       return host.slice(1, -1); // IPv6
     }
-    if (host.match(/^[0-9.]+$/)) {
+    if (/^[0-9.]+$/.exec(host)) {
       return host; // IPv4
     }
     if (!host.includes('.') || !connectionString.isSRV) {
@@ -229,7 +229,6 @@ function validateConnectionInfoAfterArgMapping(info: ConnectionInfo, originalOpt
     throw new MongoshInvalidInputError(text, CommonErrors.InvalidArgument);
   }
   // Just make sure the result ultimately parses with strict validation.
-  // eslint-disable-next-line no-new
   new ConnectionString(info.connectionString, { looseValidation: false });
 }
 

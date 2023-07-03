@@ -1,4 +1,5 @@
-import { signatures, ShellPlugin, ShellInstanceState, TypeSignature } from '@mongosh/shell-api';
+import type { ShellPlugin, ShellInstanceState, TypeSignature } from '@mongosh/shell-api';
+import { signatures } from '@mongosh/shell-api';
 import { MongoshRuntimeError, MongoshInvalidInputError } from '@mongosh/errors';
 import type { SnippetShellUserConfig, MongoshBus } from '@mongosh/types';
 import escapeRegexp from 'escape-string-regexp';
@@ -210,7 +211,6 @@ export class SnippetManager implements ShellPlugin {
   async prepareIndex(refreshMode: 'force-refresh' | 'allow-cached' = 'allow-cached'): Promise<SnippetIndexFile[]> {
     // Fetch the index data and store it in this.repos. Use a saved Promise to
     // ensure that only one such operation is happening at any given time.
-    // eslint-disable-next-line no-return-assign
     return this.repos = await (this.inflightFetchIndexPromise ??= (async() => {
       this.messageBus.emit('mongosh-snippets:fetch-index', { refreshMode });
       const cachePath = path.join(this.installdir, 'index.bson.br');
@@ -404,7 +404,6 @@ export class SnippetManager implements ShellPlugin {
     }
   }
 
-  // eslint-disable-next-line complexity
   async runSnippetCommand(args: string[]): Promise<string> {
     this.messageBus.emit('mongosh-snippets:snippet-command', { args });
     switch (args[0]) {

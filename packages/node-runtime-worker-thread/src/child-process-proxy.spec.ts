@@ -1,8 +1,10 @@
 import path from 'path';
-import { ChildProcess, fork, spawn } from 'child_process';
-import { Caller, cancel, createCaller } from './rpc';
+import type { ChildProcess} from 'child_process';
+import { fork, spawn } from 'child_process';
+import type { Caller} from './rpc';
+import { cancel, createCaller } from './rpc';
 import { expect } from 'chai';
-import { WorkerRuntime } from './worker-runtime';
+import type { WorkerRuntime } from './worker-runtime';
 import { once } from 'events';
 import { promisify } from 'util';
 import { dummyOptions } from './index.spec';
@@ -14,11 +16,11 @@ const childProcessModulePath = path.resolve(
   'child-process-proxy.js'
 );
 
-describe('child process worker proxy', () => {
+describe('child process worker proxy', function() {
   let caller: Caller<WorkerRuntime>;
   let childProcess: ChildProcess;
 
-  afterEach(() => {
+  afterEach(function() {
     if (caller) {
       caller[cancel]();
       caller = null;
@@ -30,7 +32,7 @@ describe('child process worker proxy', () => {
     }
   });
 
-  it('should start worker runtime and proxy calls', async() => {
+  it('should start worker runtime and proxy calls', async function() {
     childProcess = fork(childProcessModulePath);
     caller = createCaller(['init', 'evaluate'], childProcess);
     await caller.init('mongodb://nodb/', dummyOptions, { nodb: true });
@@ -38,7 +40,7 @@ describe('child process worker proxy', () => {
     expect(result.printable).to.equal(2);
   });
 
-  it('should exit on its own when the parent process disconnects', async() => {
+  it('should exit on its own when the parent process disconnects', async function() {
     const intermediateProcess = spawn(process.execPath,
       ['-e', `require("child_process")
          .fork(${JSON.stringify(childProcessModulePath)})

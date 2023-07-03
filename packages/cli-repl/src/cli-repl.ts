@@ -1,7 +1,8 @@
 import { MongoshInternalError, MongoshRuntimeError, MongoshWarning } from '@mongosh/errors';
 import { redactURICredentials } from '@mongosh/history';
 import i18n from '@mongosh/i18n';
-import { bson, AutoEncryptionOptions } from '@mongosh/service-provider-core';
+import type { AutoEncryptionOptions } from '@mongosh/service-provider-core';
+import { bson } from '@mongosh/service-provider-core';
 import { CliServiceProvider } from '@mongosh/service-provider-server';
 import type { CliOptions, DevtoolsConnectOptions } from '@mongosh/arg-parser';
 import { SnippetManager } from '@mongosh/snippet-manager';
@@ -13,17 +14,21 @@ import { EventEmitter, once } from 'events';
 import yaml from 'js-yaml';
 import ConnectionString from 'mongodb-connection-string-url';
 import semver from 'semver';
-import { Readable, Writable } from 'stream';
+import type { Readable, Writable } from 'stream';
 import { buildInfo } from './build-info';
 import type { StyleDefinition } from './clr';
-import { ConfigManager, ShellHomeDirectory, ShellHomePaths } from './config-directory';
+import type { ShellHomePaths } from './config-directory';
+import { ConfigManager, ShellHomeDirectory } from './config-directory';
 import { CliReplErrors } from './error-codes';
 import type { CryptLibraryPathResult } from './crypt-library-paths';
 import { formatForJSONOutput } from './format-json';
-import { MongoLogManager, MongoLogWriter, mongoLogId } from 'mongodb-log-writer';
-import MongoshNodeRepl, { MongoshNodeReplOptions, MongoshIOProvider } from './mongosh-repl';
+import type { MongoLogWriter} from 'mongodb-log-writer';
+import { MongoLogManager, mongoLogId } from 'mongodb-log-writer';
+import type { MongoshNodeReplOptions, MongoshIOProvider } from './mongosh-repl';
+import MongoshNodeRepl from './mongosh-repl';
 import { setupLoggerAndTelemetry, ToggleableAnalytics, ThrottledAnalytics } from '@mongosh/logging';
-import { MongoshBus, CliUserConfig, CliUserConfigValidator } from '@mongosh/types';
+import type { MongoshBus} from '@mongosh/types';
+import { CliUserConfig, CliUserConfigValidator } from '@mongosh/types';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { promisify } from 'util';
@@ -191,7 +196,6 @@ export class CliRepl implements MongoshIOProvider {
    * @param {string} driverUri - The driver URI.
    * @param {DevtoolsConnectOptions} driverOptions - The driver options.
    */
-  // eslint-disable-next-line complexity
   async start(driverUri: string, driverOptions: DevtoolsConnectOptions): Promise<void> {
     const { version } = require('../package.json');
     await this.verifyNodeVersion();
@@ -763,7 +767,6 @@ export class CliRepl implements MongoshIOProvider {
         flushDuration = Date.now() - flushStart;
       }
     }
-    // eslint-disable-next-line chai-friendly/no-unused-expressions
     this.logWriter?.info('MONGOSH', mongoLogId(1_000_000_045), 'analytics', 'Flushed outstanding data', {
       flushError,
       flushDuration
@@ -821,7 +824,6 @@ export class CliRepl implements MongoshIOProvider {
   }
 
   /** Adjust `driverOptionsIn` with OIDC-specific settings from this CLI instance. */
-  // eslint-disable-next-line complexity
   async prepareOIDCOptions(driverOptionsIn: Readonly<DevtoolsConnectOptions>): Promise<DevtoolsConnectOptions> {
     const driverOptions = {
       oidc: {},
