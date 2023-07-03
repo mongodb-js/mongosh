@@ -41,47 +41,6 @@ const tempTypescriptRules = {
   '@typescript-eslint/ban-types': 1,
 };
 
-const jsOverrides = {
-  ...common.jsOverrides,
-  rules: {
-    ...tempRules
-  }
-};
-
-const jsxOverrides = {
-  ...common.jsxOverrides,
-  rules: {
-    ...tempRules
-  }
-};
-
-const tsOverrides = {
-  ...common.tsOverrides,
-  rules: {
-    ...common.tsRules,
-    ...tempRules,
-    ...tempTypescriptRules
-  },
-};
-
-const tsxOverrides = {
-  ...common.tsxOverrides,
-  rules: {
-    ...common.tsxRules,
-    ...tempRules,
-    ...tempTypescriptRules
-  },
-};
-
-const testOverrides = {
-  ...common.testOverrides,
-  rules: {
-    ...common.testRules,
-    ...tempRules,
-    ...tempTypescriptRules
-  },
-};
-
 module.exports = {
   plugins: [...shared.plugins],
   rules: {
@@ -91,11 +50,42 @@ module.exports = {
     ...shared.env,
   },
   overrides: [
-    jsOverrides,
-    jsxOverrides,
-    tsOverrides,
-    tsxOverrides,
-    testOverrides,
+    {
+      ...common.jsOverrides,
+      rules: {
+        ...tempRules
+      }
+    },
+    {
+      ...common.jsxOverrides,
+      rules: {
+        ...tempRules
+      }
+    },
+    {
+      ...common.tsOverrides,
+      rules: {
+        ...common.tsRules,
+        ...tempRules,
+        ...tempTypescriptRules
+      },
+    },
+    {
+      ...common.tsxOverrides,
+      rules: {
+        ...common.tsxRules,
+        ...tempRules,
+        ...tempTypescriptRules
+      },
+    },
+    {
+      ...common.testOverrides,
+      rules: {
+        ...common.testRules,
+        ...tempRules,
+        ...tempTypescriptRules
+      },
+    },
   ],
   settings: {
     ...shared.settings,
