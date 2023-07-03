@@ -73,7 +73,7 @@ import net from 'net';
       return;
     }
     if (options.buildInfo) {
-      console.log(JSON.stringify(await buildInfo({ withCryptSharedVersionInfo: true }), null, '  '));
+      console.log(JSON.stringify(await buildInfo(), null, '  '));
       return;
     }
     if (options.smokeTests) {

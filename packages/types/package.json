@@ -19,10 +19,10 @@
   },
   "scripts": {
     "check": "npm run lint",
-    "compile-ts": "tsc -p tsconfig.json",
+    "compile": "tsc -p tsconfig.json",
     "eslint": "eslint --report-unused-disable-directives \"./{src,test}/**/*.{js,ts,tsx}\"",
     "lint": "npm run eslint",
-    "prepublish": "npm run compile-ts",
+    "prepublish": "npm run compile",
     "test": "mocha --timeout 15000 -r ts-node/register \"./src/*.spec.ts\"",
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test"
   },

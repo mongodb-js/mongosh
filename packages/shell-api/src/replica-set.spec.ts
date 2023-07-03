@@ -984,16 +984,16 @@ describe('ReplicaSet', function() {
       it('succeeds when running against an unsharded collection on a replicaset', async function() {
         await db.getCollection('test').insertMany(docs);
 
-        const fullResult = await db.getCollection('test').configureQueryAnalyzer({ mode: 'full', sampleRate: 1 });
+        const fullResult = await db.getCollection('test').configureQueryAnalyzer({ mode: 'full', samplesPerSecond: 1 });
         expect(fullResult).to.deep.include({
           ok: 1,
-          newConfiguration: { mode: 'full', sampleRate: 1 }
+          newConfiguration: { mode: 'full', samplesPerSecond: 1 }
         });
 
         const offResult = await db.getCollection('test').configureQueryAnalyzer({ mode: 'off' });
         expect(offResult).to.deep.include({
           ok: 1,
-          oldConfiguration: { mode: 'full', sampleRate: 1 },
+          oldConfiguration: { mode: 'full', samplesPerSecond: 1 },
           newConfiguration: { mode: 'off' }
         });
       });

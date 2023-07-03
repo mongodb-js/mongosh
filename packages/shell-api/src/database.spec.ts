@@ -1822,6 +1822,17 @@ describe('Database', function() {
         );
       });
 
+      it('can accept a string as an argument', async function () {
+        await database.killOp('foo:1234');
+
+        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
+          ADMIN_DB,
+          {
+            killOp: 1, op: 'foo:1234'
+          }
+        );
+      });
+
       it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);

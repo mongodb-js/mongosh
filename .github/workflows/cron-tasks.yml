@@ -17,7 +17,7 @@ jobs:
         run: |
           npm ci
           npm run bootstrap-ci
-          npm run compile-ts
+          npm run compile
       - name: Set up Git
         run: |
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"

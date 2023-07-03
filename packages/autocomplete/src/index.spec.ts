@@ -284,7 +284,7 @@ describe('completer.completer', function() {
             // 6.0+
             'getSearchIndexes', 'createSearchIndex', 'createSearchIndexes', 'dropSearchIndex', 'updateSearchIndex',
             // 7.0+
-            'checkMetadataConsistency'
+            'checkMetadataConsistency', 'analyzeShardKey', 'configureQueryAnalyzer'
           ].includes(c)
         )
         .map(c => `${i}${c}`);
