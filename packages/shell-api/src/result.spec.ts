@@ -69,7 +69,7 @@ describe('Results', () => {
   });
   describe('InsertManyResult', () => {
     const r = new results.InsertManyResult(
-      true, { 0: new ObjectId() }
+      true, { 0: new bson.ObjectId() }
     );
     it('class attributes set', () => {
       expect(r.acknowledged).to.equal(true);
@@ -85,7 +85,7 @@ describe('Results', () => {
   });
   describe('InsertOneResult', () => {
     const r = new results.InsertOneResult(
-      true, new ObjectId()
+      true, new bson.ObjectId()
     );
     it('class attributes set', () => {
       expect(r.acknowledged).to.equal(true);
@@ -101,7 +101,7 @@ describe('Results', () => {
   });
   describe('UpdateResult', () => {
     const r = new results.UpdateResult(
-      true, 1, 2, 3, new ObjectId()
+      true, 1, 2, 3, new bson.ObjectId()
     );
     it('class attributes set', () => {
       expect(r.acknowledged).to.equal(true);

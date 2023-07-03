@@ -94,6 +94,7 @@
     "@types/node": "^14.14.5",
     "@types/numeral": "^2.0.2",
     "@types/text-table": "^0.2.1",
+    "@types/rimraf": "^3.0.0",
     "@types/yargs-parser": "^15.0.0",
     "chai-as-promised": "^7.1.1",
     "depcheck": "^1.4.3",
@@ -102,7 +103,7 @@
     "mongodb": "^5.6.0",
     "mongodb-crypt-library-dummy": "^1.0.2",
     "node-fetch": "^2.6.1",
-    "rimraf": "^5.0.1",
+    "rimraf": "^3.0.1",
     "webpack-merge": "^5.8.0"
   },
   "optionalDependencies": {
