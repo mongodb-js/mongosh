@@ -178,7 +178,7 @@ describe('Bulk API', function() {
           describe('getOperations', function() {
             it('returns batches', function() {
               bulk._executed = true;
-              (bulk._serviceProviderBulkOp ).batches = [
+              (bulk._serviceProviderBulkOp as any).batches = [
                 {
                   originalZeroIndex: 1,
                   batchType: 1,

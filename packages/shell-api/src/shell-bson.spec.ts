@@ -26,7 +26,7 @@ describe('Shell BSON', function() {
       expect(s._bsontype).to.equal('DBRef');
     });
     it('with new', function() {
-      const s = new (shellBson.DBRef )('namespace', 'oid');
+      const s = new (shellBson.DBRef as any)('namespace', 'oid');
       expect(s._bsontype).to.equal('DBRef');
     });
     it('has help and other metadata', async function() {
@@ -37,7 +37,7 @@ describe('Shell BSON', function() {
     });
     it('errors for missing arg 1', function() {
       try {
-        (shellBson.DBRef )();
+        (shellBson.DBRef as any)();
       } catch (e: any) {
         return expect(e.message).to.contain('Missing required argument');
       }
@@ -45,7 +45,7 @@ describe('Shell BSON', function() {
     });
     it('errors for missing arg 2', function() {
       try {
-        (shellBson.DBRef )('ns');
+        (shellBson.DBRef as any)('ns');
       } catch (e: any) {
         return expect(e.message).to.contain('Missing required argument');
       }
@@ -53,7 +53,7 @@ describe('Shell BSON', function() {
     });
     it('errors for wrong type of arg 1', function() {
       try {
-        (shellBson.DBRef )(1, 'oid');
+        (shellBson.DBRef as any)(1, 'oid');
       } catch (e: any) {
         return expect(e.message).to.contain('string, got number');
       }
@@ -61,7 +61,7 @@ describe('Shell BSON', function() {
     });
     it('errors for wrong type of arg 3', function() {
       try {
-        (shellBson.DBRef )('ns', 'oid', 1);
+        (shellBson.DBRef as any)('ns', 'oid', 1);
       } catch (e: any) {
         return expect(e.message).to.contain('string, got number');
       }
@@ -74,11 +74,11 @@ describe('Shell BSON', function() {
       expect(s._bsontype).to.equal('MaxKey');
     });
     it('with new', function() {
-      const s = new (shellBson.MaxKey )();
+      const s = new (shellBson.MaxKey as any)();
       expect(s._bsontype).to.equal('MaxKey');
     });
     it('using toBSON', function() {
-      const s = (shellBson.MaxKey ).toBSON();
+      const s = (shellBson.MaxKey as any).toBSON();
       expect(s._bsontype).to.equal('MaxKey');
     });
     it('has help and other metadata', async function() {
@@ -94,11 +94,11 @@ describe('Shell BSON', function() {
       expect(s._bsontype).to.equal('MinKey');
     });
     it('with new', function() {
-      const s = new (shellBson.MinKey )();
+      const s = new (shellBson.MinKey as any)();
       expect(s._bsontype).to.equal('MinKey');
     });
     it('using toBSON', function() {
-      const s = (shellBson.MinKey ).toBSON();
+      const s = (shellBson.MinKey as any).toBSON();
       expect(s._bsontype).to.equal('MinKey');
     });
     it('has help and other metadata', async function() {
@@ -129,17 +129,17 @@ describe('Shell BSON', function() {
       expect(s.toHexString()).to.equal('5ebbe8e2905bb493d6981b6b');
     });
     it('with new', function() {
-      const s = new (shellBson.ObjectId )('5ebbe8e2905bb493d6981b6b');
+      const s = new (shellBson.ObjectId as any)('5ebbe8e2905bb493d6981b6b');
       expect(s._bsontype).to.equal('ObjectId');
       expect(s.toHexString()).to.equal('5ebbe8e2905bb493d6981b6b');
     });
     it('works with an integer argument', function() {
-      const s = new (shellBson.ObjectId )(0x12345678);
+      const s = new (shellBson.ObjectId as any)(0x12345678);
       expect(s._bsontype).to.equal('ObjectId');
       expect(s.toHexString().slice(0, 8)).to.equal('12345678');
     });
     it('can be created through createFromTime', function() {
-      const s = (shellBson.ObjectId ).createFromTime(0x12345678);
+      const s = (shellBson.ObjectId as any).createFromTime(0x12345678);
       expect(s._bsontype).to.equal('ObjectId');
       expect(s.toHexString().slice(0, 8)).to.equal('12345678');
     });
@@ -151,7 +151,7 @@ describe('Shell BSON', function() {
     });
     it('errors for wrong type of arg 1', function() {
       try {
-        (shellBson.ObjectId )(Symbol('foo'));
+        (shellBson.ObjectId as any)(Symbol('foo'));
       } catch (e: any) {
         return expect(e.message).to.contain('object, got symbol');
       }
@@ -169,7 +169,7 @@ describe('Shell BSON', function() {
       expect(s.toString()).to.equal('5ebbe8e2905bb493d6981b6b');
     });
     it('with new', function() {
-      const s = new (shellBson.BSONSymbol )('5ebbe8e2905bb493d6981b6b');
+      const s = new (shellBson.BSONSymbol as any)('5ebbe8e2905bb493d6981b6b');
       expect(s._bsontype).to.equal('BSONSymbol');
       expect(s.toString()).to.equal('5ebbe8e2905bb493d6981b6b');
     });
@@ -185,7 +185,7 @@ describe('Shell BSON', function() {
       expect(s._bsontype).to.equal('Timestamp');
     });
     it('with new', function() {
-      const s = new (shellBson.Timestamp )(0, 100);
+      const s = new (shellBson.Timestamp as any)(0, 100);
       expect(s._bsontype).to.equal('Timestamp');
     });
     it('with a long argument', function() {
@@ -201,7 +201,7 @@ describe('Shell BSON', function() {
     });
     it('errors for wrong type of arg 1', function() {
       try {
-        (shellBson.Timestamp )('1');
+        (shellBson.Timestamp as any)('1');
       } catch (e: any) {
         return expect(e.message).to.contain('object, got string');
       }
@@ -209,7 +209,7 @@ describe('Shell BSON', function() {
     });
     it('errors for wrong type of arg 2', function() {
       try {
-        (shellBson.Timestamp )(1, '2');
+        (shellBson.Timestamp as any)(1, '2');
       } catch (e: any) {
         return expect(e.message).to.contain('number, got string');
       }
@@ -217,7 +217,7 @@ describe('Shell BSON', function() {
     });
     it('errors for out-of-range argument', function() {
       try {
-        (shellBson.Timestamp )(2 ** 32);
+        (shellBson.Timestamp as any)(2 ** 32);
       } catch (e: any) {
         return expect(e.message).to.contain('equal or less than uint32 max');
       }
@@ -260,7 +260,7 @@ describe('Shell BSON', function() {
     });
     it('errors for wrong type of arg 1', function() {
       try {
-        (shellBson.Code )(1);
+        (shellBson.Code as any)(1);
       } catch (e: any) {
         return expect(e.message).to.contain('function, got number');
       }
@@ -268,7 +268,7 @@ describe('Shell BSON', function() {
     });
     it('errors for wrong type of arg 1', function() {
       try {
-        (shellBson.Code )('code', 1);
+        (shellBson.Code as any)('code', 1);
       } catch (e: any) {
         return expect(e.message).to.contain('object, got number');
       }
@@ -281,7 +281,7 @@ describe('Shell BSON', function() {
   });
   describe('ISODate', function() {
     it('ISODate is always object', function() {
-      const date = new (shellBson.ISODate )();
+      const date = new (shellBson.ISODate as any)();
       expect(typeof date).to.equal('object');
       const date2 = shellBson.ISODate();
       expect(typeof date2).to.equal('object');
@@ -337,7 +337,7 @@ describe('Shell BSON', function() {
     });
     it('errors for missing arg 1', function() {
       try {
-        (shellBson.BinData )();
+        (shellBson.BinData as any)();
       } catch (e: any) {
         return expect(e.message).to.contain('Missing required argument');
       }
@@ -345,7 +345,7 @@ describe('Shell BSON', function() {
     });
     it('errors for missing arg 2', function() {
       try {
-        (shellBson.BinData )(0);
+        (shellBson.BinData as any)(0);
       } catch (e: any) {
         return expect(e.message).to.contain('Missing required argument');
       }
@@ -353,7 +353,7 @@ describe('Shell BSON', function() {
     });
     it('errors for wrong type of arg 1', function() {
       try {
-        (shellBson.BinData )('1', 'abc');
+        (shellBson.BinData as any)('1', 'abc');
       } catch (e: any) {
         return expect(e.message).to.contain('number, got string');
       }
@@ -361,7 +361,7 @@ describe('Shell BSON', function() {
     });
     it('errors for wrong type of arg 2', function() {
       try {
-        (shellBson.BinData )(0, 1);
+        (shellBson.BinData as any)(0, 1);
       } catch (e: any) {
         return expect(e.message).to.contain('string, got number');
       }
@@ -397,7 +397,7 @@ describe('Shell BSON', function() {
     });
     it('errors for missing arg 1', function() {
       try {
-        (shellBson.HexData )();
+        (shellBson.HexData as any)();
       } catch (e: any) {
         return expect(e.message).to.contain('Missing required argument');
       }
@@ -405,7 +405,7 @@ describe('Shell BSON', function() {
     });
     it('errors for missing arg 2', function() {
       try {
-        (shellBson.HexData )(0);
+        (shellBson.HexData as any)(0);
       } catch (e: any) {
         return expect(e.message).to.contain('Missing required argument');
       }
@@ -413,7 +413,7 @@ describe('Shell BSON', function() {
     });
     it('errors for wrong type of arg 1', function() {
       try {
-        (shellBson.HexData )('1', 'abc');
+        (shellBson.HexData as any)('1', 'abc');
       } catch (e: any) {
         return expect(e.message).to.contain('number, got string');
       }
@@ -421,7 +421,7 @@ describe('Shell BSON', function() {
     });
     it('errors for wrong type of arg 2', function() {
       try {
-        (shellBson.HexData )(0, 1);
+        (shellBson.HexData as any)(0, 1);
       } catch (e: any) {
         return expect(e.message).to.contain('string, got number');
       }
@@ -461,7 +461,7 @@ describe('Shell BSON', function() {
     });
     it('errors for wrong type of arg 1', function() {
       try {
-        (shellBson.UUID )(1);
+        (shellBson.UUID as any)(1);
       } catch (e: any) {
         return expect(e.message).to.contain('string, got number');
       }
@@ -492,7 +492,7 @@ describe('Shell BSON', function() {
     });
     it('errors for missing arg 1', function() {
       try {
-        (shellBson.MD5 )();
+        (shellBson.MD5 as any)();
       } catch (e: any) {
         return expect(e.message).to.contain('Missing required argument');
       }
@@ -500,7 +500,7 @@ describe('Shell BSON', function() {
     });
     it('errors for wrong type of arg 1', function() {
       try {
-        (shellBson.MD5 )(1);
+        (shellBson.MD5 as any)(1);
       } catch (e: any) {
         return expect(e.message).to.contain('string, got number');
       }
@@ -513,7 +513,7 @@ describe('Shell BSON', function() {
     });
     it('errors for missing arg', function() {
       try {
-        (shellBson.bsonsize )();
+        (shellBson.bsonsize as any)();
       } catch (e: any) {
         return expect(e.message).to.contain('Missing required argument');
       }
@@ -521,7 +521,7 @@ describe('Shell BSON', function() {
     });
     it('errors for wrong type of arg 1', function() {
       try {
-        (shellBson.bsonsize )(1);
+        (shellBson.bsonsize as any)(1);
       } catch (e: any) {
         return expect(e.message).to.contain('object, got number');
       }
@@ -557,7 +557,7 @@ describe('Shell BSON', function() {
 
     it('errors for wrong type of arg 1', function() {
       try {
-        (shellBson.NumberLong )({});
+        (shellBson.NumberLong as any)({});
       } catch (e: any) {
         return expect(e.message).to.match(/string or number or Long or Int32, got object.+\(NumberLong\)/);
       }
@@ -589,7 +589,7 @@ describe('Shell BSON', function() {
 
     it('errors for wrong type of arg 1', function() {
       try {
-        (shellBson.NumberDecimal )({});
+        (shellBson.NumberDecimal as any)({});
       } catch (e: any) {
         return expect(e.message).to.match(/string or number or Long or Int32 or Decimal128, got object.+\(NumberDecimal\)/);
       }
@@ -622,7 +622,7 @@ describe('Shell BSON', function() {
 
     it('errors for wrong type of arg 1', function() {
       try {
-        (shellBson.NumberInt )({});
+        (shellBson.NumberInt as any)({});
       } catch (e: any) {
         return expect(e.message).to.match(/string or number or Long or Int32, got object.+\(NumberInt\)/);
       }

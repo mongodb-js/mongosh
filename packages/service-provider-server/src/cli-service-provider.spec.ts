@@ -726,17 +726,17 @@ describe('CliServiceProvider', function() {
     it('executes watch on MongoClient', function() {
       const result = serviceProvider.watch(pipeline, options);
       expect(result).to.deep.equal(expectedResult);
-      (watchMock ).verify();
+      (watchMock as any).verify();
     });
     it('executes watch on Db', function() {
       const result = serviceProvider.watch(pipeline, options, {}, 'dbname');
       expect(result).to.deep.equal(expectedResult);
-      (watchMock2 ).verify();
+      (watchMock2 as any).verify();
     });
     it('executes watch on collection', function() {
       const result = serviceProvider.watch(pipeline, options, {}, 'dbname', 'collname');
       expect(result).to.deep.equal(expectedResult);
-      (watchMock3 ).verify();
+      (watchMock3 as any).verify();
     });
   });
 

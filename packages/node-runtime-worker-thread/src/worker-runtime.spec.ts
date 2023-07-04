@@ -50,7 +50,7 @@ describe('worker', function() {
     const origEvaluate = caller.evaluate;
     caller.evaluate = (code: string): Promise<any> & { cancel(): void } => {
       const promise = origEvaluate(code).then(deserializeEvaluationResult);
-      (promise ).cancel = () => {};
+      (promise as any).cancel = () => {};
       return promise as Promise<any> & { cancel(): void };
     };
   });

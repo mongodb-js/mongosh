@@ -1261,7 +1261,7 @@ describe('Shell API (integration)', function() {
           $listLocalSessions: {}
         }]);
 
-        expect((await (cursor ).toArray())[0]).to.have.keys('_id', 'lastUse');
+        expect((await (cursor as any).toArray())[0]).to.have.keys('_id', 'lastUse');
       });
     });
 

@@ -194,7 +194,7 @@ describe('Collection', function() {
           $piplelineStage: {}
         }]);
 
-        expect(await (cursor ).toArray()).to.deep.equal(toArrayResult);
+        expect(await (cursor as any).toArray()).to.deep.equal(toArrayResult);
       });
 
       it('throws if serviceProvider.aggregate rejects', async function() {
@@ -226,7 +226,7 @@ describe('Collection', function() {
       it('runs explain if explain true is passed', async function() {
         const expectedExplainResult = {};
         serviceProviderCursor.explain.resolves(expectedExplainResult);
-        serviceProvider.aggregate.returns(serviceProviderCursor );
+        serviceProvider.aggregate.returns(serviceProviderCursor as any);
 
         const explainResult = await collection.aggregate(
           [],
@@ -239,7 +239,7 @@ describe('Collection', function() {
       });
 
       it('wont run explain if explain is not passed', async function() {
-        serviceProvider.aggregate.returns(serviceProviderCursor );
+        serviceProvider.aggregate.returns(serviceProviderCursor as any);
 
         const cursor = await collection.aggregate(
           [],
@@ -1917,7 +1917,7 @@ describe('Collection', function() {
         const serviceProviderCursor = stubInterface<ServiceProviderCursor>();
         serviceProviderCursor.limit.returns(serviceProviderCursor);
         serviceProviderCursor.tryNext.returns(null);
-        serviceProvider.find.returns(serviceProviderCursor );
+        serviceProvider.find.returns(serviceProviderCursor as any);
         const error = await collection.getShardDistribution().catch(e => e);
 
         expect(error).to.be.instanceOf(MongoshInvalidInputError);
@@ -2010,7 +2010,7 @@ describe('Collection', function() {
             if (prop === 'closed') {
               return false;
             }
-            return (target )[prop];
+            return (target as any)[prop];
           }
         });
       });

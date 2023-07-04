@@ -65,7 +65,7 @@ describe('Session', function() {
         readPreference: { mode: 'primary', tagSet: [] }
       };
       serviceProviderSession = stubInterface<ServiceProviderSession>();
-      (serviceProviderSession ).id = { id: 1 };
+      (serviceProviderSession as any).id = { id: 1 };
       serviceProvider = stubInterface<ServiceProvider>();
       serviceProvider.initialDb = 'test';
       serviceProvider.bsonLibrary = bson;
@@ -115,11 +115,11 @@ describe('Session', function() {
       expect(serviceProviderSession.endSession).to.have.been.calledOnceWith();
     });
     it('getClusterTime', function() {
-      (serviceProviderSession ).clusterTime = 100 as any;
+      (serviceProviderSession as any).clusterTime = 100 as any;
       expect(session.getClusterTime()).to.equal(100);
     });
     it('getOperationTime', function() {
-      (serviceProviderSession ).operationTime = 200 as any;
+      (serviceProviderSession as any).operationTime = 200 as any;
       expect(session.getOperationTime()).to.equal(200);
     });
     it('hasEnded', function() {

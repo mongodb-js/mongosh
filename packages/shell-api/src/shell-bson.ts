@@ -192,7 +192,7 @@ export default function constructShellBson(bson: typeof BSON, printWarning: (msg
       assertArgsDefinedType([hexstr], ['string'], 'UUID');
       // Strip any dashes, as they occur in the standard UUID formatting
       // (e.g. 01234567-89ab-cdef-0123-456789abcdef).
-      const buffer = Buffer.from((hexstr ).replace(/-/g, ''), 'hex');
+      const buffer = Buffer.from((hexstr as any).replace(/-/g, ''), 'hex');
       return new bson.Binary(buffer, bson.Binary.SUBTYPE_UUID);
     }, { prototype: bson.Binary.prototype }),
     MD5: assignAll(function MD5(hexstr: string): BinaryType {

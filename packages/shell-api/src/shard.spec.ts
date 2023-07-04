@@ -1220,7 +1220,7 @@ describe('Shard', function() {
 
       it('throws if not mongos', async function() {
         const serviceProviderCursor = stubInterface<ServiceProviderAggCursor>();
-        serviceProvider.aggregateDb.returns(serviceProviderCursor );
+        serviceProvider.aggregateDb.returns(serviceProviderCursor as any);
         serviceProviderCursor.hasNext.throws(Object.assign(new Error(), { code: 40324, message: "Unrecognized pipeline stage name: '$shardedDataDistribution'" }));
         const error: any = await shard.getShardedDataDistribution().catch(err => err);
         expect(error.message).to.match(/sh\.getShardedDataDistribution only works on mongos and MongoDB server versions greater than 6\.0\.3 \[Original Error: Unrecognized pipeline stage name: '\$shardedDataDistribution']/);
@@ -1915,7 +1915,7 @@ describe('Shard', function() {
           expect(result.sharded).to.equal(true);
           expect(result.count).to.equal(1);
           expect(result.primary).to.equal(undefined);
-          for (const shard of Object.values(result.shards) ) {
+          for (const shard of Object.values(result.shards) as any) {
             if (hasTotalSize) {
               expect(shard.totalSize).to.be.a('number');
             }
@@ -1924,7 +1924,7 @@ describe('Shard', function() {
         });
         it('works with indexDetails', async function() {
           const result = await db.getCollection('test').stats({ indexDetails: true });
-          for (const shard of Object.values(result.shards) ) {
+          for (const shard of Object.values(result.shards) as any) {
             if (hasTotalSize) {
               expect(shard.totalSize).to.be.a('number');
             }
@@ -2020,7 +2020,7 @@ describe('Shard', function() {
           // Timeseries bucket collection does not provide 'count' or 'avgObjSize'.
           expect(result.count).to.equal(undefined);
           expect(result.primary).to.equal(undefined);
-          for (const shard of Object.values(result.shards) ) {
+          for (const shard of Object.values(result.shards) as any) {
             expect(shard.totalSize).to.be.a('number');
             expect(shard.indexDetails).to.equal(undefined);
             expect(shard.timeseries.bucketsNs).to.equal(`${dbName}.system.buckets.${timeseriesCollectionName}`);

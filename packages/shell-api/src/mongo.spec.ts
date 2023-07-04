@@ -538,7 +538,7 @@ describe('Mongo', function() {
     describe('setReadPref', function() {
       it('calls serviceProvider.restConnectionOptions', async function() {
         serviceProvider.resetConnectionOptions.resolves();
-        serviceProvider.readPreferenceFromOptions.callsFake(input => input );
+        serviceProvider.readPreferenceFromOptions.callsFake(input => input as any);
         await mongo.setReadPref('primaryPreferred', []);
         expect(serviceProvider.resetConnectionOptions).to.have.been.calledWith({
           readPreference: {

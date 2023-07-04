@@ -421,7 +421,7 @@ describe('SnippetManager', function() {
   });
 
   it('manages packages on disk', async function() {
-    (evaluationListener.onPrompt ).resolves('yes');
+    (evaluationListener.onPrompt as any).resolves('yes');
     await snippetManager.runSnippetCommand(['install', 'bson-example']);
     expect(contextObject.print).to.have.been.calledWith('Running install...');
 
@@ -534,7 +534,7 @@ describe('SnippetManager', function() {
   });
 
   it('can install from a tarball (consistency check: fails without second index)', async function() {
-    (evaluationListener.onPrompt ).resolves('yes');
+    (evaluationListener.onPrompt as any).resolves('yes');
     try {
       await snippetManager.runSnippetCommand(['install', 'tarballed-example']);
       expect.fail('missed exception');
@@ -546,7 +546,7 @@ describe('SnippetManager', function() {
   it('can install from a tarball', async function() {
     await snippetManager.inflightFetchIndexPromise;
     indexURL = `${baseURL}/index.bson.br;${baseURL}/index2.bson.br;`;
-    (evaluationListener.onPrompt ).resolves('yes');
+    (evaluationListener.onPrompt as any).resolves('yes');
     await snippetManager.runSnippetCommand(['install', 'tarballed-example']);
     expect(contextObject.load).to.have.been.calledWith(path.resolve(installdir, 'node_modules', 'tarballed-example-snippet-name', 'index.js'));
   });
@@ -554,7 +554,7 @@ describe('SnippetManager', function() {
   it('reports back errors if npm fails', async function() {
     await snippetManager.inflightFetchIndexPromise;
     indexURL = `${baseURL}/index.bson.br;${baseURL}/index2.bson.br;`;
-    (evaluationListener.onPrompt ).resolves('yes');
+    (evaluationListener.onPrompt as any).resolves('yes');
     try {
       await snippetManager.runSnippetCommand(['install', 'snippet-without-installation-candidate']);
       expect.fail('missed exception');
@@ -588,7 +588,7 @@ describe('SnippetManager', function() {
     });
 
     it('does not download npm if asked not to', async function() {
-      (evaluationListener.onPrompt ).resolves('no');
+      (evaluationListener.onPrompt as any).resolves('no');
       try {
         await snippetManager.runSnippetCommand(['install', 'bson-example']);
         expect.fail('missed exception');
@@ -598,7 +598,7 @@ describe('SnippetManager', function() {
     });
 
     it('downloads npm if asked to', async function() {
-      (evaluationListener.onPrompt ).resolves('yes');
+      (evaluationListener.onPrompt as any).resolves('yes');
       await snippetManager.runSnippetCommand(['install', 'bson-example']);
       expect(contextObject.print).to.have.been.calledWith(`Downloading npm from ${baseURL}/npm-7.15.0.tgz...`);
 
@@ -630,7 +630,7 @@ describe('SnippetManager', function() {
 
     it('fails if it tries to download npm but the registry is missing', async function() {
       registryURL = `${baseURL}/missingregistry`;
-      (evaluationListener.onPrompt ).resolves('yes');
+      (evaluationListener.onPrompt as any).resolves('yes');
       snippetManager = makeSnippetManager();
       try {
         await snippetManager.runSnippetCommand(['install', 'bson-example']);
@@ -642,7 +642,7 @@ describe('SnippetManager', function() {
 
     it('fails if it tries to download npm but the registry response is invalid', async function() {
       registryURL = `${baseURL}/brokenregistry`;
-      (evaluationListener.onPrompt ).resolves('yes');
+      (evaluationListener.onPrompt as any).resolves('yes');
       snippetManager = makeSnippetManager();
       try {
         await snippetManager.runSnippetCommand(['install', 'bson-example']);
@@ -654,7 +654,7 @@ describe('SnippetManager', function() {
 
     it('fails if it tries to download npm but the registry response points to a missing file', async function() {
       registryURL = `${baseURL}/brokenregistry2`;
-      (evaluationListener.onPrompt ).resolves('yes');
+      (evaluationListener.onPrompt as any).resolves('yes');
       snippetManager = makeSnippetManager();
       try {
         await snippetManager.runSnippetCommand(['install', 'bson-example']);
@@ -737,7 +737,7 @@ describe('SnippetManager', function() {
       indexURL = `${baseURL}/index.bson.br;${baseURL}/index2.bson.br;`;
       await snippetManager.runSnippetCommand(['refresh']);
 
-      (evaluationListener.onPrompt ).resolves('yes');
+      (evaluationListener.onPrompt as any).resolves('yes');
       // eslint-disable-next-line @typescript-eslint/require-await
       contextObject.load.callsFake(async() => {
         interrupted.checkpoint.throws(new Error('interrupted'));

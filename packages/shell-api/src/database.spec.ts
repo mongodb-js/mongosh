@@ -387,7 +387,7 @@ describe('Database', function() {
       it('runs explain if explain true is passed', async function() {
         const expectedExplainResult = {};
         serviceProviderCursor.explain.resolves(expectedExplainResult);
-        serviceProvider.aggregateDb.returns(serviceProviderCursor );
+        serviceProvider.aggregateDb.returns(serviceProviderCursor as any);
 
         const explainResult = await database.aggregate(
           [],
@@ -399,7 +399,7 @@ describe('Database', function() {
       });
 
       it('wont run explain if explain is not passed', async function() {
-        serviceProvider.aggregateDb.returns(serviceProviderCursor );
+        serviceProvider.aggregateDb.returns(serviceProviderCursor as any);
 
         const cursor = await database.aggregate(
           [],
@@ -2772,7 +2772,7 @@ describe('Database', function() {
     describe('sql', function() {
       it('runs a $sql aggregation', async function() {
         const serviceProviderCursor = stubInterface<ServiceProviderAggCursor>();
-        serviceProvider.aggregateDb.returns(serviceProviderCursor );
+        serviceProvider.aggregateDb.returns(serviceProviderCursor as any);
         await database.sql('SELECT * FROM somecollection;', { options: true });
         expect(serviceProvider.aggregateDb).to.have.been.calledWith(
           database._name,
@@ -2796,7 +2796,7 @@ describe('Database', function() {
 
       it('throws if connecting to an unsupported server', async function() {
         const serviceProviderCursor = stubInterface<ServiceProviderAggCursor>();
-        serviceProvider.aggregateDb.returns(serviceProviderCursor );
+        serviceProvider.aggregateDb.returns(serviceProviderCursor as any);
         serviceProviderCursor.hasNext.throws(Object.assign(new Error(), { code: 40324 }));
         const error: any = await database.sql('SELECT * FROM somecollection;').catch(err => err);
         expect(error.message).to.match(/db\.sql currently only works when connected to a Data Lake/);
@@ -2804,7 +2804,7 @@ describe('Database', function() {
 
       it('forwards other driver errors', async function() {
         const serviceProviderCursor = stubInterface<ServiceProviderAggCursor>();
-        serviceProvider.aggregateDb.returns(serviceProviderCursor );
+        serviceProvider.aggregateDb.returns(serviceProviderCursor as any);
         serviceProviderCursor.hasNext.throws(Object.assign(new Error('any error'), { code: 12345 }));
         const error: any = await database.sql('SELECT * FROM somecollection;').catch(err => err);
         expect(error.message).to.be.equal('any error');
@@ -2812,7 +2812,7 @@ describe('Database', function() {
 
       it('forwards generic cursor errors', async function() {
         const serviceProviderCursor = stubInterface<ServiceProviderAggCursor>();
-        serviceProvider.aggregateDb.returns(serviceProviderCursor );
+        serviceProvider.aggregateDb.returns(serviceProviderCursor as any);
         serviceProviderCursor.hasNext.throws(Object.assign(new Error('any error')));
         const error: any = await database.sql('SELECT * FROM somecollection;').catch(err => err);
         expect(error.message).to.be.equal('any error');
