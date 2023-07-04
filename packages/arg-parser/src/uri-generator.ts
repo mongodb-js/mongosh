@@ -72,7 +72,7 @@ function validateHost(host: string): void {
   const invalidCharacter = /[^a-zA-Z0-9.:[\]_-]/.exec(host);
   if (invalidCharacter) {
     throw new MongoshInvalidInputError(
-      `${i18n.__(INVALID_HOST) as string}:${invalidCharacter[0]}`,
+      `${i18n.__(INVALID_HOST) as string}: ${invalidCharacter[0]}`,
       CommonErrors.InvalidArgument);
   }
 }
