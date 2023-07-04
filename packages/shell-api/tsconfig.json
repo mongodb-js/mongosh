@@ -5,7 +5,7 @@
     "experimentalDecorators": true
   },
   "include": [
-    "src/**/*"
+    "./src/**/*"
   ],
   "exclude": [
     "./src/**/*.spec.*"

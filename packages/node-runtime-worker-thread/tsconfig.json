@@ -8,7 +8,7 @@
     "./src/index.d.ts"
   ],
   "include": [
-    "src/**/*"
+    "./src/**/*"
   ],
   "exclude": [
     "./src/**/*.spec.*"
