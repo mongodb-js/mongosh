@@ -18,7 +18,8 @@
     "prepublish": "npm run compile",
     "eslint": "eslint --report-unused-disable-directives \"./{src,test}/**/*.{js,ts,tsx}\"",
     "lint": "npm run eslint",
-    "check": "npm run lint && depcheck --skip-missing=true --ignores aws4"
+    "check": "npm run lint && npm run depcheck",
+    "depcheck": "depcheck"
   },
   "license": "Apache-2.0",
   "publishConfig": {
@@ -68,6 +69,9 @@
     "mongodb-client-encryption": "^2.8.0"
   },
   "devDependencies": {
-    "eslint": "^7.25.0"
+    "eslint": "^7.25.0",
+    "mongodb-client-encryption": "^2.8.0",
+    "kerberos": "^2.0.0",
+    "depcheck": "^1.4.3"
   }
 }

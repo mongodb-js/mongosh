@@ -18,7 +18,8 @@
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
     "eslint": "eslint --report-unused-disable-directives \"./{src,test}/**/*.{js,ts,tsx}\"",
     "lint": "npm run eslint",
-    "check": "npm run lint && depcheck --skip-missing=true"
+    "check": "npm run lint && npm run depcheck",
+    "depcheck": "depcheck"
   },
   "license": "Apache-2.0",
   "publishConfig": {
@@ -59,6 +60,7 @@
     ]
   },
   "devDependencies": {
-    "eslint": "^7.25.0"
+    "eslint": "^7.25.0",
+    "depcheck": "^1.4.3"
   }
 }

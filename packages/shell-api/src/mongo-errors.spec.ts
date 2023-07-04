@@ -1,4 +1,3 @@
-import { MongoError } from 'mongodb';
 import { expect } from 'chai';
 import { rephraseMongoError } from './mongo-errors';
 import Mongo from './mongo';
@@ -10,6 +9,10 @@ import Database from './database';
 import type { EventEmitter } from 'events';
 import ShellInstanceState from './shell-instance-state';
 import Collection from './collection';
+
+class MongoError extends Error {
+  code?: number;
+}
 
 class MongoshInternalError extends Error {
   constructor(message: string) {

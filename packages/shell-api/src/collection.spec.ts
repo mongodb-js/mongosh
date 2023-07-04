@@ -7,7 +7,6 @@ import { ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, ALL_PLATFORMS, shellApiType, ADMIN
 import Database from './database';
 import Mongo from './mongo';
 import Collection from './collection';
-import type AggregationCursor from './aggregation-cursor';
 import ChangeStreamCursor from './change-stream-cursor';
 import Explainable from './explainable';
 import type {
@@ -20,7 +19,6 @@ import type {
 import {
   bson
 } from '@mongosh/service-provider-core';
-import { ObjectId } from 'mongodb';
 import ShellInstanceState from './shell-instance-state';
 import { ShellApiErrors } from './error-codes';
 import { CommonErrors, MongoshInvalidInputError, MongoshRuntimeError } from '@mongosh/errors';
@@ -291,8 +289,8 @@ describe('Collection', function() {
       });
 
       it('adapts the result', async function() {
-        const id1 = new ObjectId();
-        const id2 = new ObjectId();
+        const id1 = new bson.ObjectId();
+        const id2 = new bson.ObjectId();
         serviceProvider.bulkWrite.resolves({
           result: { ok: 1 },
           insertedCount: 1,

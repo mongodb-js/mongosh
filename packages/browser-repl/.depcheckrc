@@ -1,8 +1,17 @@
-ignores: [
-    # used by webpack
-    'webpack-cli',
-    # resolved as `<depname>/` so depcheck doesn't see it being used
-    'buffer',
-    'util'
-  ]
-skip-missing: true
+ignores:
+ - '@typescript-eslint/parser'
+ - '@typescript-eslint/eslint-plugin'
+ - chai
+ - eslint-plugin-mocha
+ - eslint-config-mongodb-js
+ - sinon
+ - sinon-chai
+ - karma-chrome-launcher
+ - karma-mocha
+ - karma-mocha-reporter
+ - karma-typescript
+# used by webpack
+ - webpack-cli
+# resolved as `<depname>/` so depcheck doesn't see it being used
+ - buffer
+ - util

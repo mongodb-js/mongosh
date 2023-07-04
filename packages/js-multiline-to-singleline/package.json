@@ -15,7 +15,8 @@
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
     "eslint": "eslint --report-unused-disable-directives \"./{src,test}/**/*.{js,ts,tsx}\"",
     "lint": "npm run eslint",
-    "check": "npm run lint && depcheck --skip-missing=true",
+    "check": "npm run lint && npm run depcheck",
+    "depcheck": "depcheck",
     "compile": "tsc -p tsconfig.json",
     "prepublish": "npm run compile"
   },
@@ -30,10 +31,12 @@
     "unitTestsOnly": true
   },
   "dependencies": {
-    "@babel/core": "^7.16.12"
+    "@babel/core": "^7.16.12",
+    "@babel/types": "^7.21.2"
   },
   "devDependencies": {
     "@types/babel__core": "^7.1.18",
-    "eslint": "^7.25.0"
+    "eslint": "^7.25.0",
+    "depcheck": "^1.4.3"
   }
 }

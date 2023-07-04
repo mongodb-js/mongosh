@@ -22,7 +22,8 @@
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
     "eslint": "eslint --report-unused-disable-directives \"./{src,test}/**/*.{js,ts,tsx}\"",
     "lint": "npm run eslint",
-    "check": "npm run lint && depcheck",
+    "check": "npm run lint && npm run depcheck",
+    "depcheck": "depcheck",
     "webpack-build": "npm run compile && webpack --mode production",
     "webpack-build-dev": "npm run compile && webpack --mode development",
     "compile": "tsc -p tsconfig.json",
@@ -34,10 +35,12 @@
     "@mongosh/service-provider-core": "0.0.0-dev.0",
     "@mongosh/service-provider-server": "0.0.0-dev.0",
     "@mongosh/types": "0.0.0-dev.0",
+    "depcheck": "^1.4.3",
     "bson": "^5.2.0",
     "eslint": "^7.25.0",
     "mocha": "^10.2.0",
-    "postmsg-rpc": "^2.4.0"
+    "postmsg-rpc": "^2.4.0",
+    "webpack-merge": "^5.8.0"
   },
   "dependencies": {
     "interruptor": "^1.0.1",

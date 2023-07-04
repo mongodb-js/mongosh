@@ -29,7 +29,8 @@
     "test-e2e-ci": "cross-env TS_NODE_PROJECT=../../config/tsconfig.test.json mocha -r \"../../scripts/import-expansions.js\" --timeout 15000 --colors -r ts-node/register \"./test/e2e*.spec.ts\"",
     "eslint": "eslint --report-unused-disable-directives \"./{src,test}/**/*.{js,ts,tsx}\"",
     "lint": "npm run eslint",
-    "check": "npm run lint && depcheck --skip-missing=true",
+    "check": "npm run lint && npm run depcheck",
+    "depcheck": "depcheck",
     "prepublish": "npm run compile",
     "webpack-build": "npm run compile && webpack --mode production",
     "webpack-build-dev": "npm run compile && webpack --mode development"
@@ -94,12 +95,18 @@
     "@types/node": "^14.14.5",
     "@types/numeral": "^2.0.2",
     "@types/text-table": "^0.2.1",
+    "@types/rimraf": "^3.0.0",
     "@types/yargs-parser": "^15.0.0",
     "chai-as-promised": "^7.1.1",
     "eslint": "^7.25.0",
+    "depcheck": "^1.4.3",
     "lodash": "^4.17.21",
     "moment": "^2.29.1",
-    "mongodb-crypt-library-dummy": "^1.0.2"
+    "mongodb": "^5.6.0",
+    "mongodb-crypt-library-dummy": "^1.0.2",
+    "node-fetch": "^2.6.1",
+    "rimraf": "^3.0.1",
+    "webpack-merge": "^5.8.0"
   },
   "optionalDependencies": {
     "get-console-process-list": "^1.0.4",
