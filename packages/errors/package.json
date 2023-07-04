@@ -19,7 +19,7 @@
   "scripts": {
     "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 15000 -r ts-node/register \"./src/**/*.spec.ts\"",
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
-    "eslint": "eslint --report-unused-disable-directives \"./{src,test}/**/*.{js,ts,tsx}\"",
+    "eslint": "eslint",
     "lint": "npm run eslint",
     "check": "npm run lint && npm run depcheck",
     "depcheck": "depcheck",

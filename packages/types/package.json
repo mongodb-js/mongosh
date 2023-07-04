@@ -21,7 +21,7 @@
     "check": "npm run lint && npm run depcheck",
     "depcheck": "depcheck",
     "compile": "tsc -p tsconfig.json",
-    "eslint": "eslint --report-unused-disable-directives \"./{src,test}/**/*.{js,ts,tsx}\"",
+    "eslint": "eslint",
     "lint": "npm run eslint",
     "prepublish": "npm run compile",
     "test": "mocha --timeout 15000 -r ts-node/register \"./src/*.spec.ts\"",

@@ -14,7 +14,7 @@
   "scripts": {
     "compile": "tsc -p tsconfig.json",
     "pretest": "npm run compile",
-    "eslint": "eslint --report-unused-disable-directives \"./{src,test}/**/*.{js,ts,tsx}\"",
+    "eslint": "eslint",
     "lint": "npm run eslint",
     "check": "npm run lint && npm run depcheck",
     "depcheck": "depcheck",
