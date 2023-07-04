@@ -7,3 +7,5 @@ ignores:
  - eslint-config-mongodb-js
 # needed as a peer dependency of @mongodb-js/devtools-connect
  - mongodb
+ignore-patterns:
+ - .eslintrc.js

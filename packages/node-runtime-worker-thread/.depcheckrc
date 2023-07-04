@@ -7,3 +7,5 @@ ignores:
  - eslint-plugin-mocha
  - eslint-config-mongodb-js
  - system-ca
+ignore-patterns:
+ - .eslintrc.js
