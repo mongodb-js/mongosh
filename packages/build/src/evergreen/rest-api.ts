@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 import { promises as fs, constants } from 'fs';
 import { default as fetchFn } from 'node-fetch';
 import os from 'os';

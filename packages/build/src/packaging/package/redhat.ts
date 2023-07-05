@@ -3,8 +3,9 @@ import path from 'path';
 import rimraf from 'rimraf';
 import { promisify } from 'util';
 import { execFile as execFileFn, generateDirFromTemplate, sanitizeVersion, getManSection } from './helpers';
-import { PackageInformation } from './package-information';
-import { Arch, getRPMArchName } from '../../config';
+import type { PackageInformation } from './package-information';
+import type { Arch} from '../../config';
+import { getRPMArchName } from '../../config';
 
 const { COPYFILE_FICLONE } = constants;
 

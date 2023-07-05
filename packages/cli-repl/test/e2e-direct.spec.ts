@@ -3,7 +3,7 @@ import { eventually } from '../../../testing/eventually';
 import { expect } from 'chai';
 import { TestShell } from './test-shell';
 
-describe('e2e direct connection', () => {
+describe('e2e direct connection', function() {
   skipIfApiStrict();
   afterEach(TestShell.cleanup);
 
@@ -14,7 +14,7 @@ describe('e2e direct connection', () => {
     shell.writeInput('\u0009');
   };
 
-  context('to a replica set', () => {
+  context('to a replica set', function() {
     const replSetId = 'replset';
     const [rs0, rs1, rs2] = startTestCluster(
       ['--single', '--replSet', replSetId],
@@ -27,7 +27,7 @@ describe('e2e direct connection', () => {
       { server: rs1, name: 'rs1' },
       { server: rs2, name: 'rs2' }
     ].forEach(({ server, name }) => {
-      it(`works when connecting to node ${name} of uninitialized set`, async() => {
+      it(`works when connecting to node ${name} of uninitialized set`, async function() {
         const shell = TestShell.start({ args: [await server.connectionString()] });
         await shell.waitForPrompt();
         await shell.executeLine('db.isMaster()');
@@ -36,7 +36,7 @@ describe('e2e direct connection', () => {
       });
     });
 
-    context('after rs.initiate()', () => {
+    context('after rs.initiate()', function() {
       let dbname: string;
 
       before(async function() {
@@ -71,14 +71,14 @@ describe('e2e direct connection', () => {
         await shell.executeLine('db.testcollection.insertOne({})');
         shell.writeInputLine('exit');
       });
-      after(async() => {
+      after(async function() {
         const shell = TestShell.start({ args: [await rs0.connectionString()] });
         await shell.executeLine(`db.getSiblingDB("${dbname}").dropDatabase()`);
         shell.writeInputLine('exit');
       });
 
-      context('connecting to secondary members directly', () => {
-        it('works when specifying a connection string', async() => {
+      context('connecting to secondary members directly', function() {
+        it('works when specifying a connection string', async function() {
           const shell = TestShell.start({ args: [await rs1.connectionString()] });
           await shell.waitForPrompt();
           await shell.executeLine('db.isMaster()');
@@ -87,7 +87,7 @@ describe('e2e direct connection', () => {
           shell.assertContainsOutput(`setName: '${replSetId}'`);
         });
 
-        it('works when specifying just host and port', async() => {
+        it('works when specifying just host and port', async function() {
           const shell = TestShell.start({ args: [await rs1.hostport()] });
           await shell.waitForPrompt();
           await shell.executeLine('db.isMaster()');
@@ -96,7 +96,7 @@ describe('e2e direct connection', () => {
           shell.assertContainsOutput(`setName: '${replSetId}'`);
         });
 
-        it('fails to list collections without explicit readPreference', async() => {
+        it('fails to list collections without explicit readPreference', async function() {
           const shell = TestShell.start({ args: [`${await rs1.connectionString()}`] });
           await shell.waitForPrompt();
           await shell.executeLine('use admin');
@@ -104,7 +104,7 @@ describe('e2e direct connection', () => {
           shell.assertContainsError('MongoServerError: not primary');
         });
 
-        it('lists collections when readPreference is in the connection string', async() => {
+        it('lists collections when readPreference is in the connection string', async function() {
           const shell = TestShell.start({ args: [`${await rs1.connectionString()}?readPreference=secondaryPreferred`] });
           await shell.waitForPrompt();
           await shell.executeLine('use admin');
@@ -112,7 +112,7 @@ describe('e2e direct connection', () => {
           shell.assertContainsOutput("name: 'system.version'");
         });
 
-        it('lists collections when readPreference is set via Mongo', async() => {
+        it('lists collections when readPreference is set via Mongo', async function() {
           const shell = TestShell.start({ args: [`${await rs1.connectionString()}`] });
           await shell.waitForPrompt();
           await shell.executeLine('use admin');
@@ -121,7 +121,7 @@ describe('e2e direct connection', () => {
           shell.assertContainsOutput("name: 'system.version'");
         });
 
-        it('fails to list databases without explicit readPreference', async() => {
+        it('fails to list databases without explicit readPreference', async function() {
           const shell = TestShell.start({ args: [`${await rs1.connectionString()}`] });
           await shell.waitForPrompt();
           await shell.executeLine('use admin');
@@ -129,7 +129,7 @@ describe('e2e direct connection', () => {
           shell.assertContainsError('MongoServerError: not primary');
         });
 
-        it('lists databases when readPreference is in the connection string', async() => {
+        it('lists databases when readPreference is in the connection string', async function() {
           const shell = TestShell.start({ args: [`${await rs1.connectionString()}?readPreference=secondaryPreferred`] });
           await shell.waitForPrompt();
           await shell.executeLine('use admin');
@@ -137,7 +137,7 @@ describe('e2e direct connection', () => {
           shell.assertContainsOutput("name: 'admin'");
         });
 
-        it('lists databases when readPreference is set via Mongo', async() => {
+        it('lists databases when readPreference is set via Mongo', async function() {
           const shell = TestShell.start({ args: [`${await rs1.connectionString()}`] });
           await shell.waitForPrompt();
           await shell.executeLine('use admin');
@@ -146,7 +146,7 @@ describe('e2e direct connection', () => {
           shell.assertContainsOutput("name: 'admin'");
         });
 
-        it('lists collections and dbs using show by default', async() => {
+        it('lists collections and dbs using show by default', async function() {
           const shell = TestShell.start({ args: [`${await rs1.connectionString()}`] });
           await shell.waitForPrompt();
           await shell.executeLine('use admin');
@@ -167,10 +167,10 @@ describe('e2e direct connection', () => {
           });
         });
 
-        context('post-4.0', () => {
+        context('post-4.0', function() {
           skipIfServerVersion(rs0, '< 4.2');
 
-          it('allows aggregate with $merge with secondary readpref', async() => {
+          it('allows aggregate with $merge with secondary readpref', async function() {
             const shell = TestShell.start({ args: [
               `${await rs1.connectionString()}/${dbname}?readPreference=secondary&directConnection=false&serverSelectionTimeoutMS=10000`
             ] });
@@ -188,8 +188,8 @@ describe('e2e direct connection', () => {
         });
       });
 
-      context('connecting to primary', () => {
-        it('when specifying replicaSet', async() => {
+      context('connecting to primary', function() {
+        it('when specifying replicaSet', async function() {
           const shell = TestShell.start({ args: [`${await rs1.connectionString()}?replicaSet=${replSetId}`] });
           await shell.waitForPrompt();
           await shell.executeLine('db.isMaster()');
@@ -197,7 +197,7 @@ describe('e2e direct connection', () => {
           shell.assertContainsOutput(`me: '${await rs0.hostport()}'`);
           shell.assertContainsOutput(`setName: '${replSetId}'`);
         });
-        it('when setting directConnection to false', async() => {
+        it('when setting directConnection to false', async function() {
           const shell = TestShell.start({ args: [`${await rs1.connectionString()}?directConnection=false`] });
           await shell.waitForPrompt();
           await shell.executeLine('db.isMaster()');
@@ -205,7 +205,7 @@ describe('e2e direct connection', () => {
           shell.assertContainsOutput(`me: '${await rs0.hostport()}'`);
           shell.assertContainsOutput(`setName: '${replSetId}'`);
         });
-        it('when specifying multiple seeds in a connection string', async() => {
+        it('when specifying multiple seeds in a connection string', async function() {
           const connectionString = 'mongodb://' + await rs2.hostport() + ',' + await rs1.hostport() + ',' + await rs0.hostport();
           const shell = TestShell.start({ args: [connectionString] });
           await shell.waitForPrompt();
@@ -214,7 +214,7 @@ describe('e2e direct connection', () => {
           shell.assertContainsOutput(`me: '${await rs0.hostport()}'`);
           shell.assertContainsOutput(`setName: '${replSetId}'`);
         });
-        it('when specifying multiple seeds without replset through --host', async() => {
+        it('when specifying multiple seeds without replset through --host', async function() {
           const hostlist = await rs2.hostport() + ',' + await rs1.hostport() + ',' + await rs0.hostport();
           const shell = TestShell.start({ args: ['--host', hostlist] });
           await shell.waitForPrompt();
@@ -225,7 +225,7 @@ describe('e2e direct connection', () => {
           shell.assertContainsOutput(`setName: '${replSetId}'`);
           shell.assertContainsOutput("dbname: 'test'");
         });
-        it('when specifying multiple seeds with replset through --host', async() => {
+        it('when specifying multiple seeds with replset through --host', async function() {
           const hostlist = replSetId + '/' + await rs2.hostport() + ',' + await rs1.hostport() + ',' + await rs0.hostport();
           const shell = TestShell.start({ args: ['--host', hostlist] });
           await shell.waitForPrompt();
@@ -236,7 +236,7 @@ describe('e2e direct connection', () => {
           shell.assertContainsOutput(`setName: '${replSetId}'`);
           shell.assertContainsOutput("dbname: 'test'");
         });
-        it('when specifying multiple seeds through --host with a db name', async() => {
+        it('when specifying multiple seeds through --host with a db name', async function() {
           const hostlist = replSetId + '/' + await rs2.hostport() + ',' + await rs1.hostport() + ',' + await rs0.hostport();
           const shell = TestShell.start({ args: ['--host', hostlist, 'admin'] });
           await shell.waitForPrompt();
@@ -247,14 +247,14 @@ describe('e2e direct connection', () => {
           shell.assertContainsOutput(`setName: '${replSetId}'`);
           shell.assertContainsOutput("dbname: 'admin'");
         });
-        it('when specifying multiple seeds through --host with a wrong replsetid', async() => {
+        it('when specifying multiple seeds through --host with a wrong replsetid', async function() {
           const hostlist = 'wrongreplset/' + await rs2.hostport() + ',' + await rs1.hostport() + ',' + await rs0.hostport();
           const shell = TestShell.start({ args: ['--host', hostlist, 'admin'] });
           await shell.waitForExit();
           shell.assertContainsOutput('MongoServerSelectionError');
         });
 
-        it('lists collections and dbs using show by default', async() => {
+        it('lists collections and dbs using show by default', async function() {
           const shell = TestShell.start({ args: [`${await rs1.connectionString()}`] });
           await shell.waitForPrompt();
           await shell.executeLine('use admin');
@@ -273,7 +273,7 @@ describe('e2e direct connection', () => {
             shell.assertContainsOutput('db.testcollection');
           });
         });
-        it('can authenticate when specifying multiple seeds with replset through --host', async() => {
+        it('can authenticate when specifying multiple seeds with replset through --host', async function() {
           const hostlist = replSetId + '/' + await rs2.hostport() + ',' + await rs1.hostport() + ',' + await rs0.hostport();
           const shell = TestShell.start({ args: ['--host', hostlist, '--username', 'anna', '--password', 'pwd'] });
           await shell.waitForPrompt();
@@ -282,8 +282,8 @@ describe('e2e direct connection', () => {
         });
       });
 
-      describe('fail-fast connections', () => {
-        it('does not fail fast for ECONNREFUSED errors when one host is reachable', async() => {
+      describe('fail-fast connections', function() {
+        it('does not fail fast for ECONNREFUSED errors when one host is reachable', async function() {
           const shell = TestShell.start({ args: [
             `mongodb://${await rs1.hostport()},127.0.0.1:1/?replicaSet=${replSetId}&readPreference=secondary`
           ] });

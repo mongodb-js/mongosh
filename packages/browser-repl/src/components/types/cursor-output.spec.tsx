@@ -5,8 +5,8 @@ import { shallow, mount } from '../../../testing/enzyme';
 import { CursorOutput } from './cursor-output';
 import { CursorIterationResultOutput } from './cursor-iteration-result-output';
 
-describe('CursorOutput', () => {
-  it('renders "no cursor" if value is empty', () => {
+describe('CursorOutput', function() {
+  it('renders "no cursor" if value is empty', function() {
     const docs = { documents: [], cursorHasMore: false };
     const wrapper = shallow(<CursorOutput value={docs} />);
 
@@ -14,15 +14,15 @@ describe('CursorOutput', () => {
   });
 
 
-  it('renders a CursorIterationResultOutput if value contains elements', () => {
+  it('renders a CursorIterationResultOutput if value contains elements', function() {
     const docs = { documents: [{ doc: 1 }, { doc: 2 }], cursorHasMore: false };
     const wrapper = shallow(<CursorOutput value={docs} />);
 
     expect(wrapper.find(CursorIterationResultOutput).prop('value')).to.deep.equal(docs);
   });
 
-  context('when value has more elements available', () => {
-    it('prompts to type "it"', () => {
+  context('when value has more elements available', function() {
+    it('prompts to type "it"', function() {
       const docs = { documents: [{}], cursorHasMore: true };
       const wrapper = mount(<CursorOutput value={docs} />);
 
@@ -30,8 +30,8 @@ describe('CursorOutput', () => {
     });
   });
 
-  context('when value does not have more elements available', () => {
-    it('does not prompt to type "it"', () => {
+  context('when value does not have more elements available', function() {
+    it('does not prompt to type "it"', function() {
       const docs = { documents: [{}], cursorHasMore: false };
       const wrapper = mount(<CursorOutput value={docs} />);
 

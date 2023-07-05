@@ -1,4 +1,3 @@
-/* eslint camelcase: 0 */
 import type { ConnectEventMap } from '@mongodb-js/devtools-connect';
 
 export interface ApiEventArguments {
@@ -347,7 +346,7 @@ export class ShellUserConfig {
 }
 
 export class ShellUserConfigValidator {
-  // eslint-disable-next-line complexity, @typescript-eslint/require-await
+  // eslint-disable-next-line @typescript-eslint/require-await
   static async validate<K extends keyof ShellUserConfig>(key: K, value: ShellUserConfig[K]): Promise<string | null> {
     switch (key) {
       case 'displayBatchSize':
@@ -422,7 +421,6 @@ export class CliUserConfig extends SnippetShellUserConfig {
 }
 
 export class CliUserConfigValidator extends SnippetShellUserConfigValidator {
-  // eslint-disable-next-line complexity
   static async validate<K extends keyof CliUserConfig>(key: K, value: CliUserConfig[K]): Promise<string | null> {
     switch (key) {
       case 'userId':
@@ -481,7 +479,6 @@ export interface ConfigProvider<T> {
 }
 
 function isValidUrl(url: string): boolean {
-  /* eslint-disable no-new */
   /* eslint-disable @typescript-eslint/ban-ts-comment */
   // Need ts-ignore because we're not building this exclusively for environments
   // in which URL is available.
@@ -495,7 +492,6 @@ function isValidUrl(url: string): boolean {
       return false;
     }
   }
-  /* eslint-enable no-new */
   /* eslint-enable @typescript-eslint/ban-ts-comment */
   return true; // Currently no overlap between URL-less environments and environments with config options.
 }

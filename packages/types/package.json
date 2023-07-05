@@ -21,7 +21,8 @@
     "check": "npm run lint && npm run depcheck",
     "depcheck": "depcheck",
     "compile": "tsc -p tsconfig.json",
-    "lint": "eslint --report-unused-disable-directives \"./{src,test}/**/*.{js,ts,tsx}\"",
+    "eslint": "eslint",
+    "lint": "npm run eslint",
     "prepublish": "npm run compile",
     "test": "mocha --timeout 15000 -r ts-node/register \"./src/*.spec.ts\"",
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test"
@@ -36,6 +37,7 @@
     "@mongodb-js/devtools-connect": "^2.2.1"
   },
   "devDependencies": {
+    "eslint": "^7.25.0",
     "mongodb": "^5.6.0",
     "depcheck": "^1.4.3"
   }

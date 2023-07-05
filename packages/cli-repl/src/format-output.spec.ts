@@ -3,40 +3,40 @@ import formatRaw from './format-output';
 import { expect } from 'chai';
 
 for (const colors of [ false, true ]) {
-  describe(`formatOutput with 'colors' set to ${colors}`, () => {
+  describe(`formatOutput with 'colors' set to ${colors}`, function() {
     const format = (value: any): string => formatRaw(value, { colors });
     const stripAnsiColors = colors ?
       (str: string): string => str.replace(/\x1B[[(?);]{0,2}(;?\d)*./g, '') :
       (str: string): string => str;
 
-    context('when the result is a string', () => {
-      it('returns the output', () => {
+    context('when the result is a string', function() {
+      it('returns the output', function() {
         expect(format({ value: 'test' })).to.equal('test');
       });
     });
 
-    context('when the result is undefined', () => {
-      it('returns the output', () => {
+    context('when the result is undefined', function() {
+      it('returns the output', function() {
         expect(format({ value: undefined })).to.equal('');
       });
     });
 
-    context('when the result is an object', () => {
-      it('returns the inspection', () => {
+    context('when the result is an object', function() {
+      it('returns the inspection', function() {
         expect(format({ value: 2 })).to.include('2');
       });
     });
 
-    context('when the result is a date', () => {
-      it('returns the inspection', () => {
+    context('when the result is a date', function() {
+      it('returns the inspection', function() {
         expect(format({ value: new Date(1234567890000) })).to.include('ISODate("2009-02-13T23:31:30.000Z")');
         expect(format({ value: new Date(NaN) })).to.include('Invalid Date');
       });
     });
 
-    context('when the result is a Cursor', () => {
-      context('when the Cursor is not empty', () => {
-        it('returns the inspection', () => {
+    context('when the result is a Cursor', function() {
+      context('when the Cursor is not empty', function() {
+        it('returns the inspection', function() {
           const output = stripAnsiColors(
             format({
               value: { documents: [{ doc: 1 }, { doc: 2 }], cursorHasMore: true },
@@ -49,8 +49,8 @@ for (const colors of [ false, true ]) {
         });
       });
 
-      context('when the Cursor is empty', () => {
-        it('returns an empty string', () => {
+      context('when the Cursor is empty', function() {
+        it('returns an empty string', function() {
           const output = stripAnsiColors(
             format({
               value: { documents: [], cursorHasMore: false },
@@ -63,9 +63,9 @@ for (const colors of [ false, true ]) {
       });
     });
 
-    context('when the result is a CursorIterationResult', () => {
-      context('when the CursorIterationResult is not empty', () => {
-        it('returns the inspection', () => {
+    context('when the result is a CursorIterationResult', function() {
+      context('when the CursorIterationResult is not empty', function() {
+        it('returns the inspection', function() {
           const output = stripAnsiColors(
             format({
               value: { documents: [{ doc: 1 }, { doc: 2 }], cursorHasMore: true },
@@ -79,8 +79,8 @@ for (const colors of [ false, true ]) {
         });
       });
 
-      context('when the CursorIterationResult is not empty but exhausted', () => {
-        it('returns the inspection', () => {
+      context('when the CursorIterationResult is not empty but exhausted', function() {
+        it('returns the inspection', function() {
           const output = stripAnsiColors(
             format({
               value: { documents: [{ doc: 1 }, { doc: 2 }], cursorHasMore: false },
@@ -94,8 +94,8 @@ for (const colors of [ false, true ]) {
         });
       });
 
-      context('when the CursorIterationResult is empty', () => {
-        it('returns "no cursor"', () => {
+      context('when the CursorIterationResult is empty', function() {
+        it('returns "no cursor"', function() {
           const output = stripAnsiColors(format({
             value: { documents: [], cursorHasMore: false },
             type: 'CursorIterationResult'
@@ -105,8 +105,8 @@ for (const colors of [ false, true ]) {
         });
       });
     });
-    context('when the result is an Error', () => {
-      it('returns only name and message', () => {
+    context('when the result is an Error', function() {
+      it('returns only name and message', function() {
         const output = stripAnsiColors(format({
           value: new Error('Something went wrong.'),
           type: 'Error'
@@ -115,7 +115,7 @@ for (const colors of [ false, true ]) {
         expect(output).to.equal('\rError: Something went wrong.');
       });
 
-      it('provides errInfo information if present', () => {
+      it('provides errInfo information if present', function() {
         const err = Object.assign(new Error('Something went wrong.'), {
           errInfo: { commandThatFailed: 'doSomething' }
         });
@@ -128,7 +128,7 @@ for (const colors of [ false, true ]) {
           "\rError: Something went wrong.\nAdditional information: { commandThatFailed: 'doSomething' }");
       });
 
-      it('provides result information if present', () => {
+      it('provides result information if present', function() {
         const err = Object.assign(new Error('Something went wrong.'), {
           result: { nInserted: 0 }
         });
@@ -141,7 +141,7 @@ for (const colors of [ false, true ]) {
           '\rError: Something went wrong.\nResult: { nInserted: 0 }');
       });
 
-      it('provides violation info if present', () => {
+      it('provides violation info if present', function() {
         const err = Object.assign(new Error('Something went wrong.'), {
           violations: [{ ids: [1] }]
         });
@@ -155,8 +155,8 @@ for (const colors of [ false, true ]) {
       });
     });
 
-    context('when the result is ShowDatabasesResult', () => {
-      it('returns the help text', () => {
+    context('when the result is ShowDatabasesResult', function() {
+      it('returns the help text', function() {
         const output = stripAnsiColors(format({
           value: [
             { name: 'admin', sizeOnDisk: 45056, empty: false },
@@ -178,8 +178,8 @@ test      558.79 GiB
       });
     });
 
-    context('when the result is ShowCollectionsResult', () => {
-      it('returns the help text', () => {
+    context('when the result is ShowCollectionsResult', function() {
+      it('returns the help text', function() {
         const output = stripAnsiColors(format({
           value: [
             { name: 'nested_documents', badge: '' },
@@ -195,8 +195,8 @@ test      558.79 GiB
       });
     });
 
-    context('when the result is StatsResult', () => {
-      it('returns the --- separated list', () => {
+    context('when the result is StatsResult', function() {
+      it('returns the --- separated list', function() {
         const output = stripAnsiColors(format({
           value: {
             c1: { metadata: 1 },
@@ -209,8 +209,8 @@ test      558.79 GiB
       });
     });
 
-    context('when the result is ListCommandsResult', () => {
-      it('returns the formatted list', () => {
+    context('when the result is ListCommandsResult', function() {
+      it('returns the formatted list', function() {
         const output = stripAnsiColors(format({
           value: {
             c1: { metadata1: 1, help: 'help1' },
@@ -223,8 +223,8 @@ test      558.79 GiB
       });
     });
 
-    context('when the result is a ShowProfileResult', () => {
-      it('returns the warning if empty', () => {
+    context('when the result is a ShowProfileResult', function() {
+      it('returns the warning if empty', function() {
         const output = stripAnsiColors(format({
           value: {
             count: 0
@@ -234,7 +234,7 @@ test      558.79 GiB
 
         expect(output).to.contain('db.system.profile is empty');
       });
-      it('returns the formatted list if not empty', () => {
+      it('returns the formatted list if not empty', function() {
         const output = stripAnsiColors(format({
           value: {
             count: 2,
@@ -284,8 +284,8 @@ test      558.79 GiB
       });
     });
 
-    context('when the result is Help', () => {
-      it('returns help text', () => {
+    context('when the result is Help', function() {
+      it('returns help text', function() {
         const output = stripAnsiColors(format({
           value: {
             help: 'Shell API'
@@ -296,7 +296,7 @@ test      558.79 GiB
         expect(output).to.contain('Shell API');
       });
 
-      it('returns help text, docs, name and description', () => {
+      it('returns help text, docs, name and description', function() {
         const output = stripAnsiColors(format({
           value: {
             help: 'Shell API',
@@ -312,7 +312,7 @@ test      558.79 GiB
         expect(output).to.contain('list available databases');
       });
 
-      it('does not show name, if none is defined', () => {
+      it('does not show name, if none is defined', function() {
         const output = stripAnsiColors(format({
           value: {
             help: 'Shell API',
@@ -328,7 +328,7 @@ test      558.79 GiB
         expect(output).to.contain('list available databases');
       });
 
-      it('does not show docs, if none are defined', () => {
+      it('does not show docs, if none are defined', function() {
         const output = stripAnsiColors(format({
           value: {
             help: 'Shell API',
@@ -344,7 +344,7 @@ test      558.79 GiB
         expect(output).to.contain('list available databases');
       });
 
-      it('handles multi-line descriptions', () => {
+      it('handles multi-line descriptions', function() {
         const output = stripAnsiColors(format({
           value: {
             help: 'Shell API',
@@ -367,9 +367,9 @@ test      558.79 GiB
       });
     });
 
-    context('when the result is ExplainOutput or ExplainableCursor', () => {
+    context('when the result is ExplainOutput or ExplainableCursor', function() {
       for (const type of ['ExplainOutput', 'ExplainableCursor']) {
-        it(`returns output with large depth (${type})`, () => {
+        it(`returns output with large depth (${type})`, function() {
           const value = {};
           let it = value;
           for (let i = 0; i <= 20; i++) {
@@ -385,8 +385,8 @@ test      558.79 GiB
       }
     });
 
-    context('when the result is ShowBannerResult', () => {
-      it('returns a formatted banner', () => {
+    context('when the result is ShowBannerResult', function() {
+      it('returns a formatted banner', function() {
         const output = stripAnsiColors(format({
           value: {
             header: 'Header',

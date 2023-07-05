@@ -1,9 +1,9 @@
 import sinon from 'sinon';
 import { expect } from '../../testing/chai';
 import { createCommands } from './editor';
-import { Command } from '@mongodb-js/compass-editor';
+import type { Command } from '@mongodb-js/compass-editor';
 
-describe('<Editor />', () => {
+describe('<Editor />', function() {
   let commandSpies: Parameters<typeof createCommands>[number];
   let commands: Record<string, Command['run']>;
 
@@ -57,25 +57,21 @@ describe('<Editor />', () => {
 
   describe('commands', function() {
     it('calls onEnter when enter is pressed', function() {
-      // eslint-disable-next-line new-cap
       expect(commands.Enter?.({} as any)).to.eq(true);
       expect(commandSpies.onEnter).to.have.been.calledOnce;
     });
 
     it('calls onClearCommand when command/ctrl+L is pressed', function() {
-      // eslint-disable-next-line new-cap
       expect(commands['Mod-l']?.({} as any)).to.eq(true);
       expect(commandSpies.onClearCommand).to.have.been.calledOnce;
     });
 
     it('calls onArrowUpOnFirstLine when arrow up is pressed and cursor on fisrt row', function() {
-      // eslint-disable-next-line new-cap
       expect(commands.ArrowUp?.(mockContext())).to.eq(true);
       expect(commandSpies.onArrowUpOnFirstLine).to.have.been.calledOnce;
     });
 
     it('does not call onArrowUpOnFirstLine when arrow up is pressed and row > 0', function() {
-      // eslint-disable-next-line new-cap
       expect(commands.ArrowUp?.(mockContext({ from: 6 }, { from: 3 }))).to.eq(
         false
       );
@@ -83,14 +79,12 @@ describe('<Editor />', () => {
     });
 
     it('calls onArrowDownOnLastLine when arrow down is pressed and cursor on last row', function() {
-      // eslint-disable-next-line new-cap
       expect(commands.ArrowDown?.(mockContext())).to.eq(true);
       expect(commandSpies.onArrowDownOnLastLine).to.have.been.called;
     });
 
     it('does not call onArrowDownOnLastLine when arrow down is pressed and cursor not on last row', function() {
       expect(
-        // eslint-disable-next-line new-cap
         commands.ArrowDown?.(mockContext({ from: 0 }, { from: 0, to: 10 }, 20))
       ).to.eq(false);
       expect(commandSpies.onArrowDownOnLastLine).to.not.have.been.called;
@@ -98,7 +92,6 @@ describe('<Editor />', () => {
 
     it('does not call onArrowUpOnFirstLine if text is selected', function() {
       expect(
-        // eslint-disable-next-line new-cap
         commands.ArrowUp?.(mockContext({ from: 0, to: 1, empty: false }))
       ).to.eq(false);
       expect(commandSpies.onArrowUpOnFirstLine).to.not.have.been.called;
@@ -106,7 +99,6 @@ describe('<Editor />', () => {
 
     it('does not call onArrowDownOnLastLine if text is selected', function() {
       expect(
-        // eslint-disable-next-line new-cap
         commands.ArrowDown?.(mockContext({ from: 0, to: 1, empty: false }))
       ).to.eq(false);
       expect(commandSpies.onArrowDownOnLastLine).to.not.have.been.called;

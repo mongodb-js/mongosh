@@ -1,11 +1,12 @@
 import { promises as fs, constants as fsConstants } from 'fs';
 import path from 'path';
-import { ALL_PACKAGE_VARIANTS, Config, getReleaseVersionFromTag } from './config';
+import type { Config} from './config';
+import { ALL_PACKAGE_VARIANTS, getReleaseVersionFromTag } from './config';
 import { uploadArtifactToDownloadCenter as uploadArtifactToDownloadCenterFn } from './download-center';
 import { downloadArtifactFromEvergreen as downloadArtifactFromEvergreenFn } from './evergreen';
 import { notarizeArtifact as notarizeArtifactFn } from './packaging';
 import { generateChangelog as generateChangelogFn } from './git';
-import { GithubRepo } from '@mongodb-js/devtools-github-repo';
+import type { GithubRepo } from '@mongodb-js/devtools-github-repo';
 import { getPackageFile } from './packaging';
 
 export async function runDraft(

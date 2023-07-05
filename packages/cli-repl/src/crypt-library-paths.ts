@@ -1,10 +1,8 @@
-/* eslint-disable chai-friendly/no-unused-expressions */
 import path from 'path';
 import { promises as fs, constants as fsConstants } from 'fs';
 import type { MongoshBus } from '@mongosh/types';
 
 export const SHARED_LIBRARY_SUFFIX =
-    // eslint-disable-next-line no-nested-ternary
     process.platform === 'win32' ? 'dll' :
       process.platform === 'darwin' ? 'dylib' : 'so';
 

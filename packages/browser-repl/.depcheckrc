@@ -15,3 +15,5 @@ ignores:
 # resolved as `<depname>/` so depcheck doesn't see it being used
  - buffer
  - util
+ignore-patterns:
+ - .eslintrc.js

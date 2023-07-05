@@ -66,7 +66,7 @@ export function getRepositoryStatus(
     .map(l => l.trim())
     .filter(l => !!l);
 
-  const branchOutput = output.find(l => l.match(/^## /));
+  const branchOutput = output.find(l => /^## /.exec(l));
   const branchInfo = branchOutput?.match(/^## ([^\s]+?((?=\.\.\.)|$))(\.\.\.([^\s]+)( \[[^\]]+])?)?/);
 
   if (branchInfo) {
@@ -77,7 +77,7 @@ export function getRepositoryStatus(
     };
   }
 
-  const fileInfo = output.filter(l => !l.match(/^## /));
+  const fileInfo = output.filter(l => !(/^## /.exec(l)));
   result.clean = fileInfo.length === 0;
 
   return result;

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { css } from '@mongodb-js/compass-components';
 import { CodemirrorInlineEditor } from '@mongodb-js/compass-editor';
 import type { EditorRef, Command } from '@mongodb-js/compass-editor';
-import { Autocompleter } from '@mongosh/browser-runtime-core';
+import type { Autocompleter } from '@mongosh/browser-runtime-core';
 
 // TODO: update compass editor and use exported type
 type Completer = React.ComponentProps<

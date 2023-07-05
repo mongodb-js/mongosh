@@ -1,5 +1,5 @@
 import semver from 'semver';
-import { Config } from './config';
+import type { Config } from './config';
 
 /**
  * Checks if current build needs to be released to github and the download

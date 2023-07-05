@@ -1,6 +1,6 @@
 import chai, { expect } from 'chai';
 import sinon from 'ts-sinon';
-import { GithubRepo } from '@mongodb-js/devtools-github-repo';
+import type { GithubRepo } from '@mongodb-js/devtools-github-repo';
 import { generateUpdatedFormula } from './generate-formula';
 
 chai.use(require('sinon-chai'));
@@ -34,11 +34,11 @@ class Mongosh < Formula
   end
 end`;
 
-describe('Homebrew generate-formula', () => {
+describe('Homebrew generate-formula', function() {
   let homebrewCore: GithubRepo;
   let getFileContent: sinon.SinonStub;
 
-  beforeEach(() => {
+  beforeEach(function() {
     getFileContent = sinon.stub();
     getFileContent.withArgs('Formula/mongosh.rb', 'master').resolves({
       blobSha: 'blobSha',
@@ -50,7 +50,7 @@ describe('Homebrew generate-formula', () => {
     } as any;
   });
 
-  it('updates the formula from GitHub', async() => {
+  it('updates the formula from GitHub', async function() {
     const updatedFormula = `require "language/node"
 
 class Mongosh < Formula
@@ -87,7 +87,7 @@ end`;
     expect(getFileContent).to.have.been.calledOnce;
   });
 
-  it('does not update the formula if neither artifact nor URL changed', async() => {
+  it('does not update the formula if neither artifact nor URL changed', async function() {
     expect(await generateUpdatedFormula(
       { version: '0.14.0', sha: '7b5a140689b4460a8b87008e6b7e7cb19acbc6e6cd1ab713e1a8923f3a995ca8' },
       homebrewCore,
@@ -96,7 +96,7 @@ end`;
     expect(getFileContent).to.have.been.calledOnce;
   });
 
-  it('rejects an update where the version is degraded', async() => {
+  it('rejects an update where the version is degraded', async function() {
     try {
       await generateUpdatedFormula(
         { version: '0.13.0', sha: 'differentsha' },

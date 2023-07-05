@@ -23,7 +23,7 @@ function isMacosTooOldForQE() {
   return os.type() === 'Darwin' && +os.release().split('.')[0] < 20;
 }
 
-describe('FLE tests', () => {
+describe('FLE tests', function() {
   const testServer = startTestServer('not-shared', '--replicaset', '--nodes', '1');
   skipIfServerVersion(testServer, '< 4.2'); // FLE only available on 4.2+
   skipIfCommunityServer(testServer); // FLE is enterprise-only
@@ -37,15 +37,14 @@ describe('FLE tests', () => {
     await once(kmsServer, 'listening');
     cryptLibrary = await downloadCurrentCryptSharedLibrary();
   });
-  after(() => {
-    // eslint-disable-next-line chai-friendly/no-unused-expressions
+  after(function() {
     kmsServer?.close();
   });
-  beforeEach(() => {
+  beforeEach(function() {
     kmsServer.requests = [];
     dbname = `test-${Date.now()}`;
   });
-  afterEach(async() => {
+  afterEach(async function() {
     const client = await MongoClient.connect(await testServer.connectionString(), {});
     await client.db(dbname).dropDatabase();
     await client.close();
@@ -72,8 +71,7 @@ describe('FLE tests', () => {
   for (const {
     useApiStrict, withSessionToken, withEnvVarCredentials, testDescription
   } of awsTestCases()) {
-    // eslint-disable-next-line no-loop-func
-    context(testDescription, () => {
+    context(testDescription, function() {
       if (useApiStrict) {
         skipIfServerVersion(testServer, '< 5.0');
       }
@@ -123,7 +121,7 @@ describe('FLE tests', () => {
         return shell;
       }
 
-      it('passes through command line options', async() => {
+      it('passes through command line options', async function() {
         const shell = await makeTestShell();
         await shell.executeLine(`db.keyVault.insertOne({
           _id: UUID("e7b4abe7-ff70-48c3-9d3a-3526e18c2646"),
@@ -156,7 +154,7 @@ describe('FLE tests', () => {
         }
       });
 
-      it('forwards command line options to the main Mongo instance', async() => {
+      it('forwards command line options to the main Mongo instance', async function() {
         const shell = await makeTestShell();
         await shell.executeLine('keyId = db.getMongo().getKeyVault().createKey("aws", {' +
           'region: "us-east-2", key: "arn:aws:kms:us-east-2:398471984214:key/174b7c1d-3651-4517-7521-21988befd8cb" });');
@@ -170,7 +168,7 @@ describe('FLE tests', () => {
     });
   }
 
-  it('works when the original shell was started with --nodb', async() => {
+  it('works when the original shell was started with --nodb', async function() {
     const shell = TestShell.start({
       args: ['--nodb']
     });
@@ -188,10 +186,10 @@ describe('FLE tests', () => {
     await shell.executeLine(`plainMongo = Mongo(${JSON.stringify(await testServer.connectionString())})`);
     await shell.executeLine(`db = plainMongo.getDB('${dbname}')`);
     const keyVaultContents = await shell.executeLine('db.keyVault.find()');
-    expect(keyVaultContents).to.include(keyId.match(uuidRegexp)[1]);
+    expect(keyVaultContents).to.include((uuidRegexp.exec(keyId))[1]);
   });
 
-  it('works when a schemaMap option has been passed', async() => {
+  it('works when a schemaMap option has been passed', async function() {
     const shell = TestShell.start({
       args: ['--nodb', `--cryptSharedLibPath=${cryptLibrary}`]
     });
@@ -212,7 +210,7 @@ describe('FLE tests', () => {
     await shell.executeLine(`plainMongo = Mongo(${JSON.stringify(await testServer.connectionString())})`);
     await shell.executeLine(`db = plainMongo.getDB('${dbname}')`);
     const keyVaultContents = await shell.executeLine('db.keyVault.find()');
-    expect(keyVaultContents).to.include(keyId.match(uuidRegexp)[1]);
+    expect(keyVaultContents).to.include((uuidRegexp.exec(keyId))[1]);
 
     await shell.executeLine('clientEncryption = keyMongo.getClientEncryption();');
     await shell.executeLine('encrypted = clientEncryption.encrypt(' +
@@ -221,7 +219,7 @@ describe('FLE tests', () => {
     expect(result).to.include("{ decrypted: { someValue: 'foo' } }");
   });
 
-  it('skips automatic encryption when a bypassQueryAnalysis option has been passed', async() => {
+  it('skips automatic encryption when a bypassQueryAnalysis option has been passed', async function() {
     const shell = TestShell.start({
       args: ['--nodb', `--cryptSharedLibPath=${cryptLibrary}`]
     });
@@ -290,7 +288,7 @@ describe('FLE tests', () => {
     expect(plainMongoResult).to.not.include("phoneNumber: '+12874627836445'");
   });
 
-  it('does not allow compactStructuredEncryptionData command when mongo instance configured without auto encryption', async() => {
+  it('does not allow compactStructuredEncryptionData command when mongo instance configured without auto encryption', async function() {
     const shell = TestShell.start({
       args: [await testServer.connectionString()]
     });
@@ -300,7 +298,7 @@ describe('FLE tests', () => {
     expect(compactResult).to.include('The "compactStructuredEncryptionData" command requires Mongo instance configured with auto encryption.');
   });
 
-  context('>= 6.0', () => {
+  context('>= 6.0', function() {
     skipIfApiStrict();
     skipIfServerVersion(testServer, '< 6.0');
 
@@ -409,7 +407,7 @@ describe('FLE tests', () => {
     });
   });
 
-  context('7.0+', () => {
+  context('7.0+', function() {
     skipIfServerVersion(testServer, '< 7.0'); // Queryable Encryption v2 only available on 7.0+
 
     it('allows explicit encryption with bypassQueryAnalysis', async function() {
@@ -476,7 +474,7 @@ describe('FLE tests', () => {
       expect(await shell.executeLine('coll.findOne({ v: findPayload })._id')).to.include('ghjk');
     });
 
-    it('drops fle2 collection with all helper collections when encryptedFields options are in listCollections', async() => {
+    it('drops fle2 collection with all helper collections when encryptedFields options are in listCollections', async function() {
       const shell = TestShell.start({ args: ['--nodb', `--cryptSharedLibPath=${cryptLibrary}`] });
       const uri = JSON.stringify(await testServer.connectionString());
 
@@ -535,7 +533,7 @@ describe('FLE tests', () => {
       expect(collections).to.not.include('collfle2');
     });
 
-    it('allows compactStructuredEncryptionData command when mongo instance configured with auto encryption', async() => {
+    it('allows compactStructuredEncryptionData command when mongo instance configured with auto encryption', async function() {
       const shell = TestShell.start({
         args: ['--nodb', `--cryptSharedLibPath=${cryptLibrary}`]
       });
@@ -574,7 +572,7 @@ describe('FLE tests', () => {
       expect(compactResult).to.include('ok: 1');
     });
 
-    it('creates an encrypted collection and generates data encryption keys automatically per encrypted fields', async() => {
+    it('creates an encrypted collection and generates data encryption keys automatically per encrypted fields', async function() {
       const shell = TestShell.start({ args: ['--nodb'] });
       const uri = JSON.stringify(await testServer.connectionString());
       await shell.waitForPrompt();
@@ -744,7 +742,7 @@ describe('FLE tests', () => {
     });
   });
 
-  context('pre-6.0', () => {
+  context('pre-6.0', function() {
     skipIfServerVersion(testServer, '>= 6.0'); // FLE2 available on 6.0+
 
     it('provides a good error message when createCollection fails due to low server version', async function() {
@@ -768,7 +766,7 @@ describe('FLE tests', () => {
     });
   });
 
-  it('performs KeyVault data key management as expected', async() => {
+  it('performs KeyVault data key management as expected', async function() {
     const shell = TestShell.start({
       args: [await testServer.connectionString(), `--cryptSharedLibPath=${cryptLibrary}`]
     });
@@ -804,7 +802,7 @@ describe('FLE tests', () => {
       .to.equal('0');
   });
 
-  it('allows a migration path for users from cursor getKey[ByAltName] to single document getKey[ByAltName]', async() => {
+  it('allows a migration path for users from cursor getKey[ByAltName] to single document getKey[ByAltName]', async function() {
     const shell = TestShell.start({
       args: [await testServer.connectionString(), `--cryptSharedLibPath=${cryptLibrary}`]
     });

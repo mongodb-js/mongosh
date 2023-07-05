@@ -2,7 +2,8 @@
 /* ^^^ we test the dist directly, so isntanbul can't calculate the coverage correctly */
 
 import { parentPort, isMainThread } from 'worker_threads';
-import {
+import type {
+  Completion,
   Runtime,
   RuntimeEvaluationListener,
   RuntimeEvaluationResult
@@ -15,8 +16,10 @@ import {
 import { exposeAll, createCaller } from './rpc';
 import { serializeEvaluationResult, deserializeConnectOptions } from './serializer';
 import type { MongoshBus } from '@mongosh/types';
-import { Lock, UNLOCKED } from './lock';
-import { runInterruptible, InterruptHandle } from 'interruptor';
+import type { UNLOCKED } from './lock';
+import { Lock } from './lock';
+import type { InterruptHandle } from 'interruptor';
+import { runInterruptible } from 'interruptor';
 
 type DevtoolsConnectOptions = Parameters<(typeof CompassServiceProvider)['connect']>[1];
 
@@ -114,7 +117,7 @@ const workerRuntime: WorkerRuntime = {
     runtime.setEvaluationListener(evaluationListener);
   },
 
-  async evaluate(code) {
+  async evaluate(code: string) {
     if (evaluationLock.isLocked()) {
       throw new Error(
         "Can't run another evaluation while the previous is not finished"
@@ -173,11 +176,11 @@ const workerRuntime: WorkerRuntime = {
     return serializeEvaluationResult(result);
   },
 
-  async getCompletions(code) {
+  getCompletions(code: string): Promise<Completion[]> {
     return ensureRuntime('getCompletions').getCompletions(code);
   },
 
-  async getShellPrompt() {
+  getShellPrompt(): Promise<string> {
     return ensureRuntime('getShellPrompt').getShellPrompt();
   },
 

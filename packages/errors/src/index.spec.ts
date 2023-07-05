@@ -8,8 +8,8 @@ import {
   CommonErrors
 } from './index';
 
-describe('errors', () => {
-  it('properly extracts the scope from error codes', () => {
+describe('errors', function() {
+  it('properly extracts the scope from error codes', function() {
     expect(getScopeFromErrorCode('')).to.be.undefined;
     expect(getScopeFromErrorCode(null)).to.be.undefined;
     expect(getScopeFromErrorCode(undefined)).to.be.undefined;
@@ -22,7 +22,7 @@ describe('errors', () => {
     expect(getScopeFromErrorCode('e1337-291')).to.be.equal('e1337');
   });
 
-  it('creates MongoshInternalError', () => {
+  it('creates MongoshInternalError', function() {
     const error = new MongoshInternalError('Something went wrong.');
     expect(error).to.be.instanceOf(MongoshBaseError);
     expect(error.name).to.be.equal('MongoshInternalError');
@@ -30,7 +30,7 @@ describe('errors', () => {
     expect(error.code).to.be.equal(CommonErrors.UnexpectedInternalError);
     expect(error.scope).to.be.equal('COMMON');
   });
-  it('creates MongoshUnimplementedError', () => {
+  it('creates MongoshUnimplementedError', function() {
     const errorNoCode = new MongoshUnimplementedError('Something went wrong.');
     expect(errorNoCode).to.be.instanceOf(MongoshBaseError);
     expect(errorNoCode.name).to.be.equal('MongoshUnimplementedError');
@@ -44,7 +44,7 @@ describe('errors', () => {
     expect(errorWithCode.code).to.be.equal('SHUPS-42');
     expect(errorWithCode.scope).to.be.equal('SHUPS');
   });
-  it('creates MongoshRuntimeError', () => {
+  it('creates MongoshRuntimeError', function() {
     const errorNoCode = new MongoshRuntimeError('Something went wrong.');
     expect(errorNoCode).to.be.instanceOf(MongoshBaseError);
     expect(errorNoCode.name).to.be.equal('MongoshRuntimeError');
@@ -58,7 +58,7 @@ describe('errors', () => {
     expect(errorWithCode.code).to.be.equal('SHUPS-42');
     expect(errorWithCode.scope).to.be.equal('SHUPS');
   });
-  it('creates MongoshInvalidInputError', () => {
+  it('creates MongoshInvalidInputError', function() {
     const errorNoCode = new MongoshInvalidInputError('Something went wrong.');
     expect(errorNoCode).to.be.instanceOf(MongoshBaseError);
     expect(errorNoCode.name).to.be.equal('MongoshInvalidInputError');
@@ -72,7 +72,7 @@ describe('errors', () => {
     expect(errorWithCode.code).to.be.equal('SHUPS-42');
     expect(errorWithCode.scope).to.be.equal('SHUPS');
   });
-  it('creates MongoshWarning', () => {
+  it('creates MongoshWarning', function() {
     const errorNoCode = new MongoshWarning('Something went wrong.');
     expect(errorNoCode).to.be.instanceOf(MongoshBaseError);
     expect(errorNoCode.name).to.be.equal('MongoshWarning');
@@ -86,14 +86,14 @@ describe('errors', () => {
     expect(errorWithCode.code).to.be.equal('SHUPS-42');
     expect(errorWithCode.scope).to.be.equal('SHUPS');
   });
-  it('creates MongoshDeprecatedError', () => {
+  it('creates MongoshDeprecatedError', function() {
     const errorNoCode = new MongoshDeprecatedError('Something went wrong.');
     expect(errorNoCode).to.be.instanceOf(MongoshBaseError);
     expect(errorNoCode.name).to.be.equal('MongoshDeprecatedError');
     expect(errorNoCode.message).to.be.equal('[COMMON-10003] Something went wrong.');
     expect(errorNoCode.code).to.equal('COMMON-10003');
   });
-  it('creates MongoshCommandFailed', () => {
+  it('creates MongoshCommandFailed', function() {
     const errorNoCode = new MongoshCommandFailed('Something went wrong.');
     expect(errorNoCode).to.be.instanceOf(MongoshBaseError);
     expect(errorNoCode.name).to.be.equal('MongoshCommandFailed');

@@ -1,7 +1,9 @@
 import { expect } from 'chai';
 import Session from './session';
-import { ServiceProvider, ClientSession as ServiceProviderSession, bson } from '@mongosh/service-provider-core';
-import { StubbedInstance, stubInterface } from 'ts-sinon';
+import type { ServiceProvider, ClientSession as ServiceProviderSession} from '@mongosh/service-provider-core';
+import { bson } from '@mongosh/service-provider-core';
+import type { StubbedInstance} from 'ts-sinon';
+import { stubInterface } from 'ts-sinon';
 import ShellInstanceState from './shell-instance-state';
 import { signatures, toShellResult } from './index';
 import Mongo from './mongo';
@@ -20,19 +22,19 @@ import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
 import { EventEmitter } from 'events';
 import { dummyOptions } from './helpers.spec';
 
-describe('Session', () => {
-  describe('help', () => {
+describe('Session', function() {
+  describe('help', function() {
     const apiClass = new Session({} as Mongo, {}, {} as ServiceProviderSession);
-    it('calls help function', async() => {
+    it('calls help function', async function() {
       expect((await toShellResult(apiClass.help())).type).to.equal('Help');
       expect((await toShellResult(apiClass.help)).type).to.equal('Help');
     });
   });
-  describe('signature', () => {
-    it('signature for class correct', () => {
+  describe('signature', function() {
+    it('signature for class correct', function() {
       expect(signatures.Session.type).to.equal('Session');
     });
-    it('map signature', () => {
+    it('map signature', function() {
       expect(signatures.Session.attributes.endSession).to.deep.equal({
         type: 'function',
         returnsPromise: true,
@@ -48,14 +50,14 @@ describe('Session', () => {
       });
     });
   });
-  describe('instance', () => {
+  describe('instance', function() {
     let serviceProviderSession: StubbedInstance<ServiceProviderSession>;
     let mongo: Mongo;
     let options;
     let session: Session;
     let instanceState: ShellInstanceState;
     let serviceProvider: StubbedInstance<ServiceProvider>;
-    beforeEach(() => {
+    beforeEach(function() {
       options = {
         causalConsistency: false,
         readConcern: { level: 'majority' },
@@ -72,23 +74,23 @@ describe('Session', () => {
       session = new Session(mongo, options, serviceProviderSession);
     });
 
-    it('sets dynamic properties', async() => {
+    it('sets dynamic properties', async function() {
       expect((await toShellResult(session)).type).to.equal('Session');
       expect((await toShellResult(session)).printable).to.deep.equal(serviceProviderSession.id);
       expect((await toShellResult(session.help)).type).to.equal('Help');
     });
-    describe('getDatabase', () => {
-      it('works for a regular database', () => {
+    describe('getDatabase', function() {
+      it('works for a regular database', function() {
         const db = session.getDatabase('test');
         expect(db).to.deep.equal(new Database(mongo, 'test', session));
         expect(session.getDatabase('test')).to.equal(db); // reuses db
       });
-      it('also affects Database.getSiblingDB', () => {
+      it('also affects Database.getSiblingDB', function() {
         const db = session.getDatabase('othername').getSiblingDB('test');
         expect(db).to.deep.equal(new Database(mongo, 'test', session));
         expect(session.getDatabase('test')).to.equal(db); // reuses db
       });
-      it('throws for an invalid name', () => {
+      it('throws for an invalid name', function() {
         try {
           session.getDatabase('');
           expect.fail('expected error');
@@ -98,54 +100,54 @@ describe('Session', () => {
         }
       });
     });
-    it('advanceOperationTime', () => {
+    it('advanceOperationTime', function() {
       const ts = { ts: 1 } as any;
       session.advanceOperationTime(ts);
       expect(serviceProviderSession.advanceOperationTime).to.have.been.calledOnceWith(ts);
     });
-    it('advanceClusterTime', () => {
+    it('advanceClusterTime', function() {
       const ct = { clusterTime: { ts: 1 } } as any;
       session.advanceClusterTime(ct);
       expect(serviceProviderSession.advanceClusterTime).to.have.been.calledOnceWith(ct);
     });
-    it('endSession', async() => {
+    it('endSession', async function() {
       await session.endSession();
       expect(serviceProviderSession.endSession).to.have.been.calledOnceWith();
     });
-    it('getClusterTime', () => {
+    it('getClusterTime', function() {
       (serviceProviderSession as any).clusterTime = 100 as any;
       expect(session.getClusterTime()).to.equal(100);
     });
-    it('getOperationTime', () => {
+    it('getOperationTime', function() {
       (serviceProviderSession as any).operationTime = 200 as any;
       expect(session.getOperationTime()).to.equal(200);
     });
-    it('hasEnded', () => {
+    it('hasEnded', function() {
       serviceProviderSession.hasEnded = 100 as any; // mystery: testing with false makes this error bc of the spy
       expect(session.hasEnded()).to.equal(100);
     });
-    it('startTransaction', () => {
+    it('startTransaction', function() {
       serviceProviderSession.startTransaction.returns();
       session.startTransaction({ readPreference: options.readPreference });
       expect(serviceProviderSession.startTransaction).to.have.been.calledOnceWith({ readPreference: options.readPreference });
     });
-    it('commitTransaction', async() => {
+    it('commitTransaction', async function() {
       serviceProviderSession.commitTransaction.resolves();
       await session.commitTransaction();
       expect(serviceProviderSession.commitTransaction).to.have.been.calledOnceWith();
     });
-    it('abortTransaction', async() => {
+    it('abortTransaction', async function() {
       serviceProviderSession.abortTransaction.resolves();
       await session.abortTransaction();
       expect(serviceProviderSession.abortTransaction).to.have.been.calledOnceWith();
     });
-    it('withTransaction', async() => {
+    it('withTransaction', async function() {
       serviceProviderSession.withTransaction.resolves();
       await session.withTransaction(() => {});
       expect(serviceProviderSession.withTransaction).to.have.been.calledOnce;
     });
   });
-  describe('integration', () => {
+  describe('integration', function() {
     const [ srv0 ] = startTestCluster(['--replicaset']);
     let serviceProvider: CliServiceProvider;
     let instanceState: ShellInstanceState;
@@ -161,7 +163,7 @@ describe('Session', () => {
       this.timeout(100_000);
     });
 
-    beforeEach(async() => {
+    beforeEach(async function() {
       databaseName = `test-${Date.now()}`;
       serviceProvider = await CliServiceProvider.connect(await srv0.connectionString(), dummyOptions, {}, new EventEmitter());
       instanceState = new ShellInstanceState(serviceProvider);
@@ -169,7 +171,7 @@ describe('Session', () => {
       await ensureMaster(mongo.getDB(ADMIN_DB), 1000, await srv0.hostport());
     });
 
-    afterEach(async() => {
+    afterEach(async function() {
       if (session) {
         await session.endSession();
       }
@@ -179,9 +181,9 @@ describe('Session', () => {
       }
     });
 
-    describe('server starts and stops sessions', () => {
+    describe('server starts and stops sessions', function() {
       skipIfApiStrict(); // ensureSessionExists needs $listLocalSessions
-      it('starts a session', async() => {
+      it('starts a session', async function() {
         session = mongo.startSession();
         await session.getDatabase(databaseName).getCollection('coll').insertOne({});
         await ensureSessionExists(mongo, 1000, JSON.stringify(session.id.id.toUUID()));
@@ -195,7 +197,7 @@ describe('Session', () => {
         }
         expect.fail('Error not thrown');
       });
-      it('handles multiple sessions', async() => {
+      it('handles multiple sessions', async function() {
         const sessions = [
           mongo.startSession(),
           mongo.startSession(),
@@ -218,7 +220,7 @@ describe('Session', () => {
           expect.fail('Error not thrown');
         }
       });
-      it('errors if session expired', async() => {
+      it('errors if session expired', async function() {
         session = mongo.startSession();
         await session.endSession();
         try {
@@ -228,10 +230,10 @@ describe('Session', () => {
         }
         expect.fail('Error not thrown');
       });
-      context('with 5.0+ server', () => {
+      context('with 5.0+ server', function() {
         skipIfApiStrict();
         skipIfServerVersion(srv0, '< 5.0');
-        it('starts a session with snapshot reads if requested', async() => {
+        it('starts a session with snapshot reads if requested', async function() {
           session = mongo.startSession({ snapshot: true });
           await session.getDatabase(databaseName).getCollection('coll').findOne({});
           try {
@@ -245,8 +247,8 @@ describe('Session', () => {
         });
       });
     });
-    describe('transaction methods are called', () => {
-      it('cannot call start transaction twice', () => {
+    describe('transaction methods are called', function() {
+      it('cannot call start transaction twice', function() {
         session = mongo.startSession();
         session.startTransaction();
         try {
@@ -256,7 +258,7 @@ describe('Session', () => {
         }
         expect.fail('Error not thrown');
       });
-      it('cannot abort when not started', async() => {
+      it('cannot abort when not started', async function() {
         session = mongo.startSession();
         try {
           await session.abortTransaction();
@@ -265,7 +267,7 @@ describe('Session', () => {
         }
         expect.fail('Error not thrown');
       });
-      it('cannot commit when not started', async() => {
+      it('cannot commit when not started', async function() {
         session = mongo.startSession();
         try {
           await session.commitTransaction();
@@ -274,7 +276,7 @@ describe('Session', () => {
         }
         expect.fail('Error not thrown');
       });
-      it('commits a transaction', async() => {
+      it('commits a transaction', async function() {
         const doc = { value: 'test', count: 0 };
         const testColl = mongo.getDB(databaseName).getCollection('coll');
         await testColl.drop();
@@ -291,7 +293,7 @@ describe('Session', () => {
         await session.commitTransaction();
         expect((await testColl.findOne({ value: 'test' })).count).to.equal(1);
       });
-      it('aborts a transaction', async() => {
+      it('aborts a transaction', async function() {
         const doc = { value: 'test', count: 0 };
         const testColl = mongo.getDB(databaseName).getCollection('coll');
         await testColl.drop();
@@ -308,7 +310,7 @@ describe('Session', () => {
         await session.abortTransaction();
         expect((await testColl.findOne({ value: 'test' })).count).to.equal(0);
       });
-      it('can run withTransaction in the success case', async() => {
+      it('can run withTransaction in the success case', async function() {
         const doc = { value: 'test', count: 0 };
         const testColl = mongo.getDB(databaseName).getCollection('coll');
         await testColl.drop();
@@ -325,7 +327,7 @@ describe('Session', () => {
         });
         expect((await testColl.findOne({ value: 'test' })).count).to.equal(1);
       });
-      it('can run withTransaction in the failure case', async() => {
+      it('can run withTransaction in the failure case', async function() {
         const doc = { value: 'test', count: 0 };
         const testColl = mongo.getDB(databaseName).getCollection('coll');
         await testColl.drop();
@@ -345,9 +347,9 @@ describe('Session', () => {
         expect((await testColl.findOne({ value: 'test' })).count).to.equal(0);
       });
     });
-    describe('after resetting connection will error with expired session', () => {
+    describe('after resetting connection will error with expired session', function() {
       skipIfApiStrict();
-      it('reset connection options', async() => {
+      it('reset connection options', async function() {
         session = mongo.startSession();
         await mongo.setReadConcern('majority');
         try {
@@ -356,7 +358,7 @@ describe('Session', () => {
           return expect(e.message).to.include('expired');
         }
       });
-      it('authentication', async() => {
+      it('authentication', async function() {
         await mongo.getDB(databaseName).createUser({ user: 'anna', pwd: 'pwd', roles: [] });
         session = mongo.startSession();
         await mongo.getDB(databaseName).auth('anna', 'pwd');

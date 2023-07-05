@@ -1,8 +1,10 @@
 import { DownloadCenter as DownloadCenterCls, validateConfigSchema } from '@mongodb-js/dl-center';
-import { DownloadCenterConfig } from '@mongodb-js/dl-center/dist/download-center-config';
+import type { DownloadCenterConfig } from '@mongodb-js/dl-center/dist/download-center-config';
 import { CONFIGURATION_KEY, CONFIGURATIONS_BUCKET } from './constants';
-import { PackageVariant, ALL_PACKAGE_VARIANTS, getDownloadCenterDistroDescription, getArch, getDistro } from '../config';
-import { getPackageFile, PackageInformationProvider } from '../packaging';
+import type { PackageVariant} from '../config';
+import { ALL_PACKAGE_VARIANTS, getDownloadCenterDistroDescription, getArch, getDistro } from '../config';
+import type { PackageInformationProvider } from '../packaging';
+import { getPackageFile } from '../packaging';
 
 export async function createAndPublishDownloadCenterConfig(
   packageInformation: PackageInformationProvider,
@@ -14,7 +16,6 @@ export async function createAndPublishDownloadCenterConfig(
   const config = createDownloadCenterConfig(packageInformation);
 
   console.warn('Created download center config:');
-  // eslint-disable-next-line no-console
   console.dir(config, { depth: Infinity });
 
   validateConfigSchema(config);

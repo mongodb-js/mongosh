@@ -1,5 +1,5 @@
 import * as semver from 'semver';
-import { GithubRepo } from '@mongodb-js/devtools-github-repo';
+import type { GithubRepo } from '@mongodb-js/devtools-github-repo';
 
 export async function generateUpdatedFormula(
   context: { version: string, sha: string },

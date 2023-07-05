@@ -1,10 +1,12 @@
-import {
+import type {
   ChildProcess,
   Serializable,
-  spawn,
   SpawnOptions,
   StdioNull,
   StdioPipe
+} from 'child_process';
+import {
+  spawn
 } from 'child_process';
 import { once } from 'events';
 

@@ -3,9 +3,9 @@ import { MongoLogWriter } from 'mongodb-log-writer';
 import { setupLoggerAndTelemetry } from './';
 import { EventEmitter } from 'events';
 import { MongoshInvalidInputError } from '@mongosh/errors';
-import { MongoshBus } from '@mongosh/types';
+import type { MongoshBus } from '@mongosh/types';
 
-describe('setupLoggerAndTelemetry', () => {
+describe('setupLoggerAndTelemetry', function() {
   let logOutput: any[];
   let analyticsOutput: ['identify'|'track'|'log', any][];
   let bus: MongoshBus;
@@ -23,13 +23,13 @@ describe('setupLoggerAndTelemetry', () => {
     flush() {}
   };
 
-  beforeEach(() => {
+  beforeEach(function() {
     logOutput = [];
     analyticsOutput = [];
     bus = new EventEmitter();
   });
 
-  it('works', () => {
+  it('works', function() {
     setupLoggerAndTelemetry(bus, logger, analytics, {
       platform: process.platform,
       arch: process.arch
@@ -357,7 +357,7 @@ describe('setupLoggerAndTelemetry', () => {
     ]);
   });
 
-  it('buffers deprecated API calls', () => {
+  it('buffers deprecated API calls', function() {
     setupLoggerAndTelemetry(bus, logger, analytics, {}, '1.0.0');
     expect(logOutput).to.have.lengthOf(0);
     expect(analyticsOutput).to.be.empty;

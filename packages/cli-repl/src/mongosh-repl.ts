@@ -2,20 +2,26 @@ import completer from '@mongosh/autocomplete';
 import { MongoshInternalError, MongoshWarning } from '@mongosh/errors';
 import { changeHistory } from '@mongosh/history';
 import type { AutoEncryptionOptions, ServiceProvider } from '@mongosh/service-provider-core';
-import { EvaluationListener, OnLoadResult, ShellCliOptions, ShellInstanceState, getShellApiType, toShellResult } from '@mongosh/shell-api';
-import { ShellEvaluator, ShellResult } from '@mongosh/shell-evaluator';
-import { CliUserConfig, ConfigProvider, CliUserConfigValidator, MongoshBus } from '@mongosh/types';
+import type { EvaluationListener, OnLoadResult, ShellCliOptions} from '@mongosh/shell-api';
+import { ShellInstanceState, getShellApiType, toShellResult } from '@mongosh/shell-api';
+import type { ShellResult } from '@mongosh/shell-evaluator';
+import { ShellEvaluator } from '@mongosh/shell-evaluator';
+import type { ConfigProvider, MongoshBus } from '@mongosh/types';
+import { CliUserConfig, CliUserConfigValidator } from '@mongosh/types';
 import askcharacter from 'askcharacter';
 import askpassword from 'askpassword';
 import { Console } from 'console';
 import { once } from 'events';
 import prettyRepl from 'pretty-repl';
-import { ReplOptions, REPLServer, start as replStart } from 'repl';
-import { PassThrough, Readable, Writable } from 'stream';
+import type { ReplOptions, REPLServer} from 'repl';
+import { start as replStart } from 'repl';
+import type { Readable, Writable } from 'stream';
+import { PassThrough } from 'stream';
 import type { ReadStream, WriteStream } from 'tty';
 import { callbackify, promisify } from 'util';
 import * as asyncRepl from './async-repl';
-import clr, { StyleDefinition } from './clr';
+import type { StyleDefinition } from './clr';
+import clr from './clr';
 import { MONGOSH_WIKI, TELEMETRY_GREETING_MESSAGE } from './constants';
 import formatOutput, { formatError } from './format-output';
 import { makeMultilineJSIntoSingleLine } from '@mongosh/js-multiline-to-singleline';
@@ -178,7 +184,6 @@ class MongoshNodeRepl implements EvaluationListener {
    * history handling. This does not yet start evaluating any code
    * or print any user prompt.
    */
-  // eslint-disable-next-line complexity
   async initialize(serviceProvider: ServiceProvider): Promise<InitializationToken> {
     const instanceState = new ShellInstanceState(serviceProvider, this.bus, this.shellCliOptions);
     const shellEvaluator = new ShellEvaluator(instanceState, (value: any) => value);
@@ -391,10 +396,10 @@ class MongoshNodeRepl implements EvaluationListener {
       this.bus.emit('mongosh:evaluate-finished');
     });
 
-    repl.on('exit', async() => {
-      try {
-        await this.onExit();
-      } catch { /* ... */ }
+    repl.on('exit', () => {
+      this.onExit().catch(() => {
+        /* ... */
+      });
     });
 
     instanceState.setCtx(repl.context);
@@ -423,7 +428,6 @@ class MongoshNodeRepl implements EvaluationListener {
    *
    * @param _initializationToken A value obtained by calling {@link MongoshNodeRepl.initialize}.
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async startRepl(_initializationToken: InitializationToken): Promise<void> {
     this.started = true;
     const { repl } = this.runtimeState();
@@ -491,7 +495,6 @@ class MongoshNodeRepl implements EvaluationListener {
    * @param filename The filename used for this evaluation, for stack traces
    * @returns The result of evaluating `input`
    */
-  // eslint-disable-next-line complexity
   async eval(originalEval: asyncRepl.OriginalEvalFunction, input: string, context: any, filename: string): Promise<any> {
     if (!this.insideAutoCompleteOrGetPrompt) {
       this.lineByLineInput.enableBlockOnNewLine();
@@ -721,7 +724,7 @@ class MongoshNodeRepl implements EvaluationListener {
         });
         this.output.write(question + ': ');
         result = await charPromise;
-        if (result.length > 0 && !result.match(/^[yYnN\r\n]$/)) {
+        if (result.length > 0 && !(/^[yYnN\r\n]$/.exec(result))) {
           this.output.write('\nPlease enter Y or N: ');
         } else {
           break;
@@ -839,13 +842,13 @@ class MongoshNodeRepl implements EvaluationListener {
         (this.runtimeState().repl as any).historySize = value;
       }
       if (key === 'inspectCompact') {
-        this.inspectCompact = value as CliUserConfig['inspectCompact'];
+        this.inspectCompact = value as number|boolean;
       }
       if (key === 'inspectDepth') {
-        this.inspectDepth = value as CliUserConfig['inspectDepth'];
+        this.inspectDepth = value as number;
       }
       if (key === 'showStackTraces') {
-        this.showStackTraces = value as CliUserConfig['showStackTraces'];
+        this.showStackTraces = value as boolean;
       }
       if (key === 'redactHistory') {
         this.redactHistory = value as CliUserConfig['redactHistory'];

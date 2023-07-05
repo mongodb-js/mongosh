@@ -1,6 +1,5 @@
-/* eslint-disable complexity */
 import * as babel from '@babel/core';
-import * as BabelTypes from '@babel/types';
+import type * as BabelTypes from '@babel/types';
 
 /**
  * The second step that performs the heavy lifting of turning regular functions

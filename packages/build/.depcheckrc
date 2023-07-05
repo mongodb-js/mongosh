@@ -8,3 +8,5 @@ ignores:
  - eslint-config-mongodb-js
  # transitive type dependency of @types/tmp-promise
  - '@types/tmp'
+ignore-patterns:
+ - .eslintrc.js

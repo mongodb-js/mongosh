@@ -23,13 +23,13 @@ function arrowDown(wrapper): void {
   wrapper.find(Editor).prop('onArrowDownOnLastLine')();
 }
 
-describe('<ShellInput />', () => {
-  it('renders an editor', () => {
+describe('<ShellInput />', function() {
+  it('renders an editor', function() {
     const wrapper = shallow(<ShellInput />);
     expect(wrapper.find('Editor')).to.have.lengthOf(1);
   });
 
-  it('calls onInput with the current value when enter is pressed', () => {
+  it('calls onInput with the current value when enter is pressed', function() {
     const onInput = sinon.spy();
     const wrapper = shallow(<ShellInput onInput={onInput}/>);
 
@@ -39,13 +39,13 @@ describe('<ShellInput />', () => {
     expect(onInput).to.have.been.calledWith('value');
   });
 
-  it('does not set the editor as readOnly by default', () => {
+  it('does not set the editor as readOnly by default', function() {
     const wrapper = shallow(<ShellInput />);
     expect(wrapper.find('Editor').prop('operationInProgress')).to.equal(false);
   });
 
-  describe('history', () => {
-    it('navigates history backward on ArrowUp', () => {
+  describe('history', function() {
+    it('navigates history backward on ArrowUp', function() {
       const wrapper = shallow(<ShellInput history={['value2', 'value1']} />);
 
       arrowUp(wrapper);
@@ -55,7 +55,7 @@ describe('<ShellInput />', () => {
       expect(wrapper.state('currentValue')).to.equal('value1');
     });
 
-    it('navigates history backward and stops on first element', () => {
+    it('navigates history backward and stops on first element', function() {
       const wrapper = shallow(<ShellInput history={['value1']} />);
 
       arrowUp(wrapper);
@@ -63,7 +63,7 @@ describe('<ShellInput />', () => {
       expect(wrapper.state('currentValue')).to.equal('value1');
     });
 
-    it('navigates history forward', () => {
+    it('navigates history forward', function() {
       const wrapper = shallow(<ShellInput history={['value2', 'value1']} />);
 
       arrowUp(wrapper);
@@ -72,7 +72,7 @@ describe('<ShellInput />', () => {
       expect(wrapper.state('currentValue')).to.equal('value2');
     });
 
-    it('does not move the history index past the last element', () => {
+    it('does not move the history index past the last element', function() {
       const wrapper = shallow(<ShellInput history={['value2', 'value1']} />);
 
       arrowDown(wrapper);
@@ -85,7 +85,7 @@ describe('<ShellInput />', () => {
       expect(wrapper.state('currentValue')).to.equal('value1');
     });
 
-    it('navigates forward back to currentValue', () => {
+    it('navigates forward back to currentValue', function() {
       const wrapper = shallow(<ShellInput history={['value2', 'value1']} />);
 
       arrowUp(wrapper);
@@ -95,7 +95,7 @@ describe('<ShellInput />', () => {
       expect(wrapper.state('currentValue')).to.equal('');
     });
 
-    it('navigates forward back to current value after change', () => {
+    it('navigates forward back to current value after change', function() {
       const wrapper = shallow(<ShellInput history={['value2', 'value1']} />);
 
       arrowUp(wrapper);
@@ -111,7 +111,7 @@ describe('<ShellInput />', () => {
       expect(wrapper.state('currentValue')).to.equal('value3');
     });
 
-    it('shows a loader when operationInProgress is true ', () => {
+    it('shows a loader when operationInProgress is true ', function() {
       const wrapper = mount(<ShellInput
         history={['value2', 'value1']}
         operationInProgress
@@ -120,7 +120,7 @@ describe('<ShellInput />', () => {
       expect(wrapper.find(ShellLoader).exists()).to.equal(true);
     });
 
-    it('does not show a loader when operationInProgress is false', () => {
+    it('does not show a loader when operationInProgress is false', function() {
       const wrapper = shallow(<ShellInput
         history={['value2', 'value1']}
         operationInProgress={false}
@@ -130,27 +130,27 @@ describe('<ShellInput />', () => {
     });
   });
 
-  describe('autocompletion', () => {
-    it('forwards an autocompleter to the editor', () => {
+  describe('autocompletion', function() {
+    it('forwards an autocompleter to the editor', function() {
       const autocompleter = { getCompletions: (): Promise<any[]> => Promise.resolve([]) };
       const wrapper = shallow(<ShellInput autocompleter={autocompleter} />);
       expect(wrapper.find('Editor').prop('autocompleter')).to.equal(autocompleter);
     });
   });
 
-  describe('prompt', () => {
-    it('just shows the chevron if no prompt is specified', () => {
+  describe('prompt', function() {
+    it('just shows the chevron if no prompt is specified', function() {
       const wrapper = mount(<ShellInput />);
       expect(wrapper.find('LineWithIcon').find('Icon').exists()).to.equal(true);
     });
 
-    it('shows the prompt as specified', () => {
+    it('shows the prompt as specified', function() {
       const wrapper = mount(<ShellInput prompt={'le prompt'} />);
       expect(wrapper.find('LineWithIcon').text()).to.contain('le prompt');
       expect(wrapper.find('LineWithIcon').find('Icon').exists()).to.equal(false);
     });
 
-    it('replaces > with a nice icon', () => {
+    it('replaces > with a nice icon', function() {
       const wrapper = mount(<ShellInput prompt={'mongos> '} />);
       expect(wrapper.find('LineWithIcon').text()).to.contain('mongos');
       expect(wrapper.find('LineWithIcon').text()).to.not.contain('mongos>');

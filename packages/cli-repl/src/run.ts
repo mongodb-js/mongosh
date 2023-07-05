@@ -13,7 +13,7 @@ import { runMain } from 'module';
 import crypto from 'crypto';
 import net from 'net';
 
-// eslint-disable-next-line complexity, @typescript-eslint/no-floating-promises
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
 (async() => {
   if (process.env.MONGOSH_RUN_NODE_SCRIPT) {
     // For uncompiled mongosh: node /path/to/this/file script ... -> node script ...
@@ -28,7 +28,6 @@ import net from 'net';
   try {
     const { parseCliArgs } = await import('./arg-parser');
     const { generateConnectionInfoFromCliArgs } = await import('@mongosh/arg-parser');
-    // eslint-disable-next-line chai-friendly/no-unused-expressions
     (net as any)?.setDefaultAutoSelectFamily?.(true);
 
     const options = parseCliArgs(process.argv);
@@ -65,18 +64,15 @@ import net from 'net';
 
     if (options.help) {
       const { USAGE } = await import('./constants');
-      // eslint-disable-next-line no-console
       console.log(USAGE);
       return;
     }
 
     if (options.version) {
-      // eslint-disable-next-line no-console
       console.log((await buildInfo()).version);
       return;
     }
     if (options.buildInfo) {
-      // eslint-disable-next-line no-console
       console.log(JSON.stringify(await buildInfo(), null, '  '));
       return;
     }

@@ -2,26 +2,26 @@ import { expect } from 'chai';
 import sinon from 'ts-sinon';
 import { withRetries } from './';
 
-describe('withRetries', () => {
+describe('withRetries', function() {
   let fn: sinon.SinonStub;
 
-  beforeEach(() => {
+  beforeEach(function() {
     fn = sinon.stub();
   });
 
-  it('passes an immediate success through', async() => {
+  it('passes an immediate success through', async function() {
     fn.onFirstCall().resolves(42);
     expect(await withRetries(fn, 1)).to.equal(42);
   });
 
-  it('passes a later success through', async() => {
+  it('passes a later success through', async function() {
     fn.onFirstCall().rejects(new Error('failed'));
     fn.onSecondCall().rejects(new Error('failed'));
     fn.onThirdCall().resolves(42);
     expect(await withRetries(fn, 3)).to.equal(42);
   });
 
-  it('aggregates failures if retries are insufficient', async() => {
+  it('aggregates failures if retries are insufficient', async function() {
     fn.onFirstCall().rejects(new Error('fail 1'));
     fn.onSecondCall().rejects(new Error('fail 2'));
     fn.onThirdCall().resolves(42);

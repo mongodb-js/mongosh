@@ -15,10 +15,10 @@ class FakeNOENTError extends Error {
     }
 }
 
-describe('package zip', () => {
+describe('package zip', function() {
   const tmpPkg = withTempPackageEach();
 
-  it('packages the executable(s)', async() => {
+  it('packages the executable(s)', async function() {
     const tarball = await createPackage(tmpPkg.tarballDir, 'win32-x64', tmpPkg.pkgConfig);
     await fs.access(tarball.path);
     const zipname = path.basename(tarball.path).replace(/\.zip$/, '');
@@ -38,7 +38,7 @@ describe('package zip', () => {
     }
   });
 
-  it('falls back to 7zip if zip is not available', async() => {
+  it('falls back to 7zip if zip is not available', async function() {
     const execFileStub = sinon.stub();
     execFileStub.withArgs('zip', sinon.match.any, sinon.match.any)
       .rejects(new FakeNOENTError());
@@ -48,7 +48,7 @@ describe('package zip', () => {
     expect(execFileStub.getCalls()[1].args[0]).to.equal('7z');
   });
 
-  it('rethrows errors', async() => {
+  it('rethrows errors', async function() {
     const execFileStub = sinon.stub();
     const expectedError = new Error();
     execFileStub.withArgs('zip', sinon.match.any, sinon.match.any)

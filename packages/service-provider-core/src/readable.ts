@@ -14,7 +14,7 @@ import type {
   ReadPreferenceFromOptions,
   ReadPreferenceLike,
 } from './all-transport-types';
-import { ChangeStream, ChangeStreamOptions } from './all-transport-types';
+import type { ChangeStream, ChangeStreamOptions } from './all-transport-types';
 
 /**
  * Interface for read operations in the CRUD specification.

@@ -3,31 +3,31 @@ import sinon from 'sinon';
 import { expect } from 'chai';
 import { getTlsCertificateSelector } from './tls-certificate-selector';
 
-describe('arg-mapper.applyTlsCertificateSelector', () => {
-  context('with fake ca provider', () => {
+describe('arg-mapper.applyTlsCertificateSelector', function() {
+  context('with fake ca provider', function() {
     let exportCertificateAndPrivateKey: sinon.SinonStub;
-    beforeEach(() => {
+    beforeEach(function() {
       process.env.TEST_OS_EXPORT_CERTIFICATE_AND_KEY_PATH =
         path.resolve(__dirname, '..', 'test', 'fixtures', 'fake-os-ca-provider.js');
       exportCertificateAndPrivateKey = sinon.stub();
       require(process.env.TEST_OS_EXPORT_CERTIFICATE_AND_KEY_PATH)
         .setFn((search) => exportCertificateAndPrivateKey(search));
     });
-    afterEach(() => {
+    afterEach(function() {
       delete process.env.TEST_OS_EXPORT_CERTIFICATE_AND_KEY_PATH;
     });
 
-    it('leaves node options unchanged when no selector is given', () => {
+    it('leaves node options unchanged when no selector is given', function() {
       const applyTlsCertificateSelector = getTlsCertificateSelector(undefined);
       expect(applyTlsCertificateSelector).to.not.exist;
     });
 
-    it('throws when the selector has an odd format', () => {
+    it('throws when the selector has an odd format', function() {
       expect(() => getTlsCertificateSelector('foo=bar'))
         .to.throw(/tlsCertificateSelector needs to include subject or thumbprint/);
     });
 
-    it('returns passphrase and pfx as given by the (fake) OS', () => {
+    it('returns passphrase and pfx as given by the (fake) OS', function() {
       const passphrase = 'abc';
       const pfx = Buffer.from('abcdef');
       exportCertificateAndPrivateKey.returns({
@@ -40,7 +40,7 @@ describe('arg-mapper.applyTlsCertificateSelector', () => {
     });
   });
 
-  context('with what the OS gives us', () => {
+  context('with what the OS gives us', function() {
     it('throws an error on non-win32 and non-darwin', function() {
       if (process.platform === 'win32' || process.platform === 'darwin') {
         return this.skip();

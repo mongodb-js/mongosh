@@ -2,14 +2,14 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import { getLatestDraftOrReleaseTagFromLog } from './tags';
 
-describe('git tags', () => {
+describe('git tags', function() {
   let spawnSync: sinon.SinonStub;
 
-  beforeEach(() => {
+  beforeEach(function() {
     spawnSync = sinon.stub();
   });
 
-  describe('getLatestDraftOrReleaseTagFromLog', () => {
+  describe('getLatestDraftOrReleaseTagFromLog', function() {
     [
       {
         restriction: undefined,
@@ -36,7 +36,7 @@ describe('git tags', () => {
         }
       }
     ].forEach(({ restriction, expected }) => {
-      it(`extracts the latest tag when restricted to ${JSON.stringify(restriction)}`, () => {
+      it(`extracts the latest tag when restricted to ${JSON.stringify(restriction)}`, function() {
         spawnSync.onFirstCall().returns({
           stdout: [
             'v0.8.0',

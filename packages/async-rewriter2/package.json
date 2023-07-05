@@ -8,7 +8,8 @@
     "benchmark": "node -r ts-node/register benchmark/index.ts",
     "test": "mocha --experimental-vm-modules -r \"../../scripts/import-expansions.js\" --timeout 60000 -r ts-node/register \"./{src,lib}/**/*.spec.ts\"",
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
-    "lint": "eslint --report-unused-disable-directives \"./{src,test}/**/*.{js,ts,tsx}\"",
+    "eslint": "eslint",
+    "lint": "npm run eslint",
     "check": "npm run lint && npm run depcheck",
     "depcheck": "depcheck",
     "compile": "node bin/make-runtime-support.js --firstpass && tsc -p tsconfig.json && node bin/make-runtime-support.js --secondpass && tsc -p tsconfig.json",
@@ -43,6 +44,7 @@
     "@types/babel__core": "^7.1.18"
   },
   "devDependencies": {
+    "eslint": "^7.25.0",
     "depcheck": "^1.4.3"
   }
 }

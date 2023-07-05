@@ -1,18 +1,22 @@
-import { bson, ServiceProvider } from '@mongosh/service-provider-core';
+import type { ServiceProvider } from '@mongosh/service-provider-core';
+import { bson } from '@mongosh/service-provider-core';
 import { expect } from 'chai';
 import { EventEmitter } from 'events';
-import { StubbedInstance, stubInterface } from 'ts-sinon';
-import { Context, createContext, runInContext } from 'vm';
-import ShellInstanceState, { EvaluationListener } from './shell-instance-state';
+import type { StubbedInstance} from 'ts-sinon';
+import { stubInterface } from 'ts-sinon';
+import type { Context} from 'vm';
+import { createContext, runInContext } from 'vm';
+import type { EvaluationListener } from './shell-instance-state';
+import ShellInstanceState from './shell-instance-state';
 
-describe('ShellInstanceState', () => {
+describe('ShellInstanceState', function() {
   let instanceState: ShellInstanceState;
   let serviceProvider: StubbedInstance<ServiceProvider>;
   let evaluationListener: StubbedInstance<EvaluationListener>;
   let context: Context;
   let run: (source: string) => any;
 
-  beforeEach(() => {
+  beforeEach(function() {
     serviceProvider = stubInterface<ServiceProvider>();
     serviceProvider.initialDb = 'test';
     serviceProvider.bsonLibrary = bson;
@@ -25,29 +29,29 @@ describe('ShellInstanceState', () => {
     run = (source: string) => runInContext(source, context);
   });
 
-  describe('context object', () => {
-    it('provides printing ability for primitives', async() => {
+  describe('context object', function() {
+    it('provides printing ability for primitives', async function() {
       await run('print(42)');
       expect(evaluationListener.onPrint).to.have.been.calledWith(
         [{ printable: 42, rawValue: 42, type: null }]);
     });
 
-    it('provides printing ability for shell API objects', async() => {
+    it('provides printing ability for shell API objects', async function() {
       await run('print(db)');
       expect(evaluationListener.onPrint.lastCall.args[0][0].type).to.equal('Database');
     });
 
-    it('provides printing ability via console methods', async() => {
+    it('provides printing ability via console methods', async function() {
       await run('console.log(42)');
       expect(evaluationListener.onPrint).to.have.been.calledWith(
         [{ printable: 42, rawValue: 42, type: null }]);
     });
 
-    it('throws when setting db to a non-db thing', () => {
+    it('throws when setting db to a non-db thing', function() {
       expect(() => run('db = 42')).to.throw("[COMMON-10002] Cannot reassign 'db' to non-Database type");
     });
 
-    it('allows setting db to a db and causes prefetching', async() => {
+    it('allows setting db to a db and causes prefetching', async function() {
       serviceProvider.listCollections
         .resolves([ { name: 'coll1' }, { name: 'coll2' } ]);
       expect(run('db = db.getSiblingDB("moo"); db.getName()')).to.equal('moo');
@@ -60,13 +64,13 @@ describe('ShellInstanceState', () => {
     });
   });
 
-  describe('default prompt', () => {
+  describe('default prompt', function() {
     const setupServiceProviderWithTopology = (topology: any) => {
       serviceProvider.getConnectionInfo.resolves({ extraInfo: { uri: 'mongodb://localhost/' } });
       serviceProvider.getTopology.returns(topology);
     };
 
-    it('returns the default if nodb', async() => {
+    it('returns the default if nodb', async function() {
       serviceProvider = stubInterface<ServiceProvider>();
       serviceProvider.initialDb = 'test';
       serviceProvider.bsonLibrary = bson;
@@ -80,8 +84,8 @@ describe('ShellInstanceState', () => {
       expect(prompt).to.equal('> ');
     });
 
-    describe('Atlas Data Lake prefix', () => {
-      it('inferred from extraInfo', async() => {
+    describe('Atlas Data Lake prefix', function() {
+      it('inferred from extraInfo', async function() {
         serviceProvider.getConnectionInfo.resolves({
           extraInfo: {
             uri: 'mongodb://localhost/',
@@ -94,7 +98,7 @@ describe('ShellInstanceState', () => {
         expect(prompt).to.equal('AtlasDataFederation test> ');
       });
 
-      it('wins against enterprise and atlas', async() => {
+      it('wins against enterprise and atlas', async function() {
         serviceProvider.getConnectionInfo.resolves({
           extraInfo: {
             uri: 'mongodb://localhost/',
@@ -110,8 +114,8 @@ describe('ShellInstanceState', () => {
       });
     });
 
-    describe('Atlas prefix', () => {
-      it('inferred from extraInfo', async() => {
+    describe('Atlas prefix', function() {
+      it('inferred from extraInfo', async function() {
         serviceProvider.getConnectionInfo.resolves({
           extraInfo: {
             uri: 'mongodb://localhost/',
@@ -124,7 +128,7 @@ describe('ShellInstanceState', () => {
         expect(prompt).to.equal('Atlas test> ');
       });
 
-      it('wins against enterprise', async() => {
+      it('wins against enterprise', async function() {
         serviceProvider.getConnectionInfo.resolves({
           extraInfo: {
             uri: 'mongodb://localhost/',
@@ -140,8 +144,8 @@ describe('ShellInstanceState', () => {
     });
 
 
-    describe('MongoDB Enterprise prefix', () => {
-      it('inferred from extraInfo', async() => {
+    describe('MongoDB Enterprise prefix', function() {
+      it('inferred from extraInfo', async function() {
         serviceProvider.getConnectionInfo.resolves({ extraInfo: { uri: 'mongodb://localhost/', is_enterprise: true } });
 
         await instanceState.fetchConnectionInfo();
@@ -149,7 +153,7 @@ describe('ShellInstanceState', () => {
         expect(prompt).to.equal('Enterprise test> ');
       });
 
-      it('inferred from buildInfo modules', async() => {
+      it('inferred from buildInfo modules', async function() {
         serviceProvider.getConnectionInfo.resolves({
           extraInfo: { uri: 'mongodb://localhost/' },
           buildInfo: { modules: ['other', 'enterprise'] }
@@ -161,7 +165,7 @@ describe('ShellInstanceState', () => {
       });
     });
 
-    describe('direct connection = Single Topology', () => {
+    describe('direct connection = Single Topology', function() {
       // TODO: replace with proper ServerType.xxx - NODE-2973
       [
         { t: 'Mongos', p: 'mongos' },
@@ -169,7 +173,7 @@ describe('ShellInstanceState', () => {
         { t: 'RSOther', p: 'other' },
         { t: 'RSPrimary', p: 'primary' },
       ].forEach(({ t, p }) => {
-        it(`takes the info from the single server [Server Type: ${t}]`, async() => {
+        it(`takes the info from the single server [Server Type: ${t}]`, async function() {
           const servers = new Map();
           servers.set('localhost:30001', {
             address: 'localhost:30001',
@@ -200,7 +204,7 @@ describe('ShellInstanceState', () => {
         'Unknown',
         'PossiblePrimary'
       ].forEach(t => {
-        it(`defaults for server type [Server Type: ${t}]`, async() => {
+        it(`defaults for server type [Server Type: ${t}]`, async function() {
           const servers = new Map();
           servers.set('localhost:30001', {
             address: 'localhost:30001',
@@ -224,8 +228,8 @@ describe('ShellInstanceState', () => {
       });
     });
 
-    describe('topology ReplicaSet...', () => {
-      it('shows the setName and lacking primary hint for ReplicaSetNoPrimary', async() => {
+    describe('topology ReplicaSet...', function() {
+      it('shows the setName and lacking primary hint for ReplicaSetNoPrimary', async function() {
         const topology = {
           description: {
             // TODO: replace with TopologyType.ReplicaSetNoPrimary - NODE-2973
@@ -239,7 +243,7 @@ describe('ShellInstanceState', () => {
         expect(prompt).to.equal('leSet [secondary] test> ');
       });
 
-      it('shows the setName and primary hint for ReplicaSetWithPrimary', async() => {
+      it('shows the setName and primary hint for ReplicaSetWithPrimary', async function() {
         const topology = {
           description: {
             // TODO: replace with TopologyType.ReplicaSetWithPrimary - NODE-2973
@@ -254,8 +258,8 @@ describe('ShellInstanceState', () => {
       });
     });
 
-    describe('topology Sharded', () => {
-      it('shows mongos without setName', async() => {
+    describe('topology Sharded', function() {
+      it('shows mongos without setName', async function() {
         const topology = {
           description: {
             // TODO: replace with TopologyType.Sharded - NODE-2973
@@ -267,7 +271,7 @@ describe('ShellInstanceState', () => {
         const prompt = await instanceState.getDefaultPrompt();
         expect(prompt).to.equal('[mongos] test> ');
       });
-      it('shows mongos and a setName', async() => {
+      it('shows mongos and a setName', async function() {
         const topology = {
           description: {
             // TODO: replace with TopologyType.Sharded - NODE-2973
@@ -282,8 +286,8 @@ describe('ShellInstanceState', () => {
       });
     });
 
-    describe('topology Sharded but it’s Atlas', () => {
-      it('shows atlas proxy identifier', async() => {
+    describe('topology Sharded but it’s Atlas', function() {
+      it('shows atlas proxy identifier', async function() {
         serviceProvider.getTopology.returns({
           description: {
             type: 'Sharded'
@@ -303,8 +307,8 @@ describe('ShellInstanceState', () => {
       });
     });
 
-    describe('topology LoadBalanced', () => {
-      it('shows just the database', async() => {
+    describe('topology LoadBalanced', function() {
+      it('shows just the database', async function() {
         const topology = {
           description: {
             // TODO: replace with TopologyType.LoadBalanced - NODE-2973
@@ -318,7 +322,7 @@ describe('ShellInstanceState', () => {
         expect(prompt).to.equal('test> ');
       });
 
-      it('includes Atlas when we are there', async() => {
+      it('includes Atlas when we are there', async function() {
         serviceProvider.getTopology.returns({
           description: {
             // TODO: replace with TopologyType.LoadBalanced - NODE-2973
@@ -340,8 +344,8 @@ describe('ShellInstanceState', () => {
     });
 
 
-    describe('topology Unknown', () => {
-      it('just shows the default prompt', async() => {
+    describe('topology Unknown', function() {
+      it('just shows the default prompt', async function() {
         const servers = new Map();
         servers.set('localhost:30001', {
           address: 'localhost:30001',

@@ -1,5 +1,4 @@
-/* eslint-disable complexity */
-import Mongo from './mongo';
+import type Mongo from './mongo';
 import Collection from './collection';
 import {
   returnsPromise,
@@ -45,10 +44,10 @@ import {
   MongoshInternalError
 } from '@mongosh/errors';
 import { HIDDEN_COMMANDS } from '@mongosh/history';
-import Session from './session';
+import type Session from './session';
 import ChangeStreamCursor from './change-stream-cursor';
 import { ShellApiErrors } from './error-codes';
-import { CreateEncryptedCollectionOptions, CheckMetadataConsistencyOptions } from '@mongosh/service-provider-core';
+import type { CreateEncryptedCollectionOptions, CheckMetadataConsistencyOptions } from '@mongosh/service-provider-core';
 
 export type CollectionNamesWithTypes = {
   name: string;
@@ -1280,7 +1279,7 @@ export default class Database extends ShellApiWithMongoClass {
         CommonErrors.CommandFailed
       );
     }
-    for (const cmdDescription of Object.values(result.commands) as any[]) {
+    for (const cmdDescription of Object.values(result.commands) as Document[]) {
       if ('slaveOk' in cmdDescription) {
         cmdDescription.secondaryOk = cmdDescription.slaveOk;
         delete cmdDescription.slaveOk;

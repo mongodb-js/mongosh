@@ -1,17 +1,18 @@
-/* eslint-disable camelcase */
 import {
   ElectronInterpreterEnvironment
 } from './electron-interpreter-environment';
 
-import {
+import type {
   Runtime,
-  OpenContextRuntime,
   Completion,
   RuntimeEvaluationListener,
   RuntimeEvaluationResult
 } from '@mongosh/browser-runtime-core';
+import {
+  OpenContextRuntime
+} from '@mongosh/browser-runtime-core';
 
-import { ServiceProvider } from '@mongosh/service-provider-core';
+import type { ServiceProvider } from '@mongosh/service-provider-core';
 import type { MongoshBus } from '@mongosh/types';
 
 declare const __webpack_require__: any;

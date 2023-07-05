@@ -4,7 +4,7 @@ import {
   shellApiClassDefault,
   ShellApiWithMongoClass
 } from './decorators';
-import {
+import type {
   Document,
   ClientSessionOptions,
   ClientSession,
@@ -14,7 +14,7 @@ import {
   ServerSessionId
 } from '@mongosh/service-provider-core';
 import { asPrintable } from './enums';
-import Mongo from './mongo';
+import type Mongo from './mongo';
 import Database from './database';
 import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
 import { assertArgsDefinedType, isValidDatabaseName } from './helpers';

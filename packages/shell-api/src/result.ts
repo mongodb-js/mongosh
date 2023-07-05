@@ -1,6 +1,6 @@
 import { shellApiClassDefault, ShellApiValueClass } from './decorators';
 import { shellApiType, asPrintable } from './enums';
-import { Document, ObjectIdType } from '@mongosh/service-provider-core';
+import type { Document, ObjectIdType } from '@mongosh/service-provider-core';
 
 @shellApiClassDefault
 export class CommandResult<T = unknown> extends ShellApiValueClass {

@@ -2,7 +2,7 @@ import childProcess from 'child_process';
 import { promises as fs, constants } from 'fs';
 import path from 'path';
 import { promisify } from 'util';
-import { PackageInformation } from './package-information';
+import type { PackageInformation } from './package-information';
 
 const { COPYFILE_FICLONE } = constants;
 const execFileWithoutLogging = promisify(childProcess.execFile);
@@ -96,7 +96,7 @@ export function sanitizeVersion(version: string, variant: 'rpm' | 'msi'): string
 
 /// Transforms e.g. 'mongosh.1.gz' -> '1'
 export function getManSection(filename: string): string {
-  const { section } = filename.match(/^.+\.(?<section>\d+)(?:\.gz)?$/)?.groups ?? {};
+  const { section } = (/^.+\.(?<section>\d+)(?:\.gz)?$/.exec(filename))?.groups ?? {};
   if (!section) {
     throw new Error(`Invalid man page name: ${filename}`);
   }

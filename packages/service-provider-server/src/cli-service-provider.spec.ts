@@ -2,8 +2,10 @@ import { CommonErrors } from '@mongosh/errors';
 import chai, { expect } from 'chai';
 import { Collection, Db, MongoClient } from 'mongodb';
 import sinonChai from 'sinon-chai';
-import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
-import CliServiceProvider, { DevtoolsConnectOptions } from './cli-service-provider';
+import type { StubbedInstance} from 'ts-sinon';
+import sinon, { stubInterface } from 'ts-sinon';
+import type { DevtoolsConnectOptions } from './cli-service-provider';
+import CliServiceProvider from './cli-service-provider';
 import ConnectionString from 'mongodb-connection-string-url';
 import { EventEmitter } from 'events';
 import type { ClientEncryption, ClientEncryptionDataKeyProvider } from '@mongosh/service-provider-core';
@@ -37,35 +39,35 @@ const createClientStub = (collectionStub): StubbedInstance<MongoClient> => {
   return clientStub;
 };
 
-describe('CliServiceProvider', () => {
+describe('CliServiceProvider', function() {
   let serviceProvider: CliServiceProvider;
   let collectionStub: StubbedInstance<Collection>;
   let bus: EventEmitter;
 
-  beforeEach(() => {
+  beforeEach(function() {
     bus = new EventEmitter();
   });
 
-  describe('#constructor', () => {
+  describe('#constructor', function() {
     const mongoClient: any = sinon.spy();
     serviceProvider = new CliServiceProvider(mongoClient, bus, dummyOptions);
 
-    it('sets the mongo client on the instance', () => {
+    it('sets the mongo client on the instance', function() {
       expect((serviceProvider as any).mongoClient).to.equal(mongoClient);
     });
   });
 
-  describe('#aggregate', () => {
+  describe('#aggregate', function() {
     const pipeline = [{ $match: { name: 'Aphex Twin' } }];
     const aggResult = [{ name: 'Aphex Twin' }];
 
-    beforeEach(() => {
+    beforeEach(function() {
       collectionStub = stubInterface<Collection>();
       collectionStub.aggregate.returns({ toArray: () => Promise.resolve(aggResult) } as any);
       serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus, dummyOptions);
     });
 
-    it('executes the command against the database', async() => {
+    it('executes the command against the database', async function() {
       const cursor = serviceProvider.aggregate('music', 'bands', pipeline);
       const result = await cursor.toArray();
       expect(result).to.deep.equal(aggResult);
@@ -73,132 +75,132 @@ describe('CliServiceProvider', () => {
     });
   });
 
-  describe('#bulkWrite', () => {
+  describe('#bulkWrite', function() {
     const requests = [{ insertOne: { name: 'Aphex Twin' } } as any];
     const commandResult = { result: { nInserted: 1, ok: 1 } };
 
-    beforeEach(() => {
+    beforeEach(function() {
       collectionStub = stubInterface<Collection>();
       collectionStub.bulkWrite.resolves(commandResult as any);
       serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus, dummyOptions);
     });
 
-    it('executes the command against the database', async() => {
+    it('executes the command against the database', async function() {
       const result = await serviceProvider.bulkWrite('music', 'bands', requests);
       expect(result).to.deep.equal(commandResult);
       expect(collectionStub.bulkWrite).to.have.been.calledWith(requests);
     });
   });
 
-  describe('#countDocuments', () => {
+  describe('#countDocuments', function() {
     const countResult = 10;
 
-    beforeEach(() => {
+    beforeEach(function() {
       collectionStub = stubInterface<Collection>();
       collectionStub.countDocuments.resolves(countResult);
       serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus, dummyOptions);
     });
 
-    it('executes the command against the database', async() => {
+    it('executes the command against the database', async function() {
       const result = await serviceProvider.countDocuments('music', 'bands');
       expect(result).to.deep.equal(countResult);
       expect(collectionStub.countDocuments).to.have.been.calledWith({});
     });
   });
 
-  describe('#deleteMany', () => {
+  describe('#deleteMany', function() {
     const commandResult = { result: { n: 1, ok: 1 } };
 
-    beforeEach(() => {
+    beforeEach(function() {
       collectionStub = stubInterface<Collection>();
       collectionStub.deleteMany.resolves(commandResult as any);
       serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus, dummyOptions);
     });
 
-    it('executes the command against the database', async() => {
+    it('executes the command against the database', async function() {
       const result = await serviceProvider.deleteMany('music', 'bands', {});
       expect(result).to.deep.equal(commandResult);
       expect(collectionStub.deleteMany).to.have.been.calledWith({});
     });
   });
 
-  describe('#deleteOne', () => {
+  describe('#deleteOne', function() {
     const commandResult = { result: { n: 1, ok: 1 } };
 
-    beforeEach(() => {
+    beforeEach(function() {
       collectionStub = stubInterface<Collection>();
       collectionStub.deleteOne.resolves(commandResult as any);
       serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus, dummyOptions);
     });
 
-    it('executes the command against the database', async() => {
+    it('executes the command against the database', async function() {
       const result = await serviceProvider.deleteOne('music', 'bands', {});
       expect(result).to.deep.equal(commandResult);
       expect(collectionStub.deleteOne).to.have.been.calledWith({});
     });
   });
 
-  describe('#distinct', () => {
+  describe('#distinct', function() {
     const distinctResult = [ 'Aphex Twin' ];
 
-    beforeEach(() => {
+    beforeEach(function() {
       collectionStub = stubInterface<Collection>();
       collectionStub.distinct.resolves(distinctResult);
       serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus, dummyOptions);
     });
 
-    it('executes the command against the database', async() => {
+    it('executes the command against the database', async function() {
       const result = await serviceProvider.distinct('music', 'bands', 'name');
       expect(result).to.deep.equal(distinctResult);
       expect(collectionStub.distinct).to.have.been.calledWith('name', {}, DEFAULT_BASE_OPTS);
     });
   });
 
-  describe('#estimatedDocumentCount', () => {
+  describe('#estimatedDocumentCount', function() {
     const countResult = 10;
 
-    beforeEach(() => {
+    beforeEach(function() {
       collectionStub = stubInterface<Collection>();
       collectionStub.estimatedDocumentCount.resolves(countResult);
       serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus, dummyOptions);
     });
 
-    it('executes the command against the database', async() => {
+    it('executes the command against the database', async function() {
       const result = await serviceProvider.estimatedDocumentCount('music', 'bands');
       expect(result).to.deep.equal(countResult);
       expect(collectionStub.estimatedDocumentCount).to.have.been.calledWith(DEFAULT_BASE_OPTS);
     });
   });
 
-  describe('#find', () => {
+  describe('#find', function() {
     const filter = { name: 'Aphex Twin' };
     const findResult = [{ name: 'Aphex Twin' }];
 
-    beforeEach(() => {
+    beforeEach(function() {
       collectionStub = stubInterface<Collection>();
       collectionStub.find.returns({ toArray: () => Promise.resolve(findResult) } as any);
       serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus, dummyOptions);
     });
 
-    it('executes the command against the database', async() => {
+    it('executes the command against the database', async function() {
       const cursor = serviceProvider.find('music', 'bands', filter);
       const result = await cursor.toArray();
       expect(result).to.deep.equal(findResult);
       expect(collectionStub.find).to.have.been.calledWith(filter);
     });
   });
-  describe('#find with options', () => {
+  describe('#find with options', function() {
     const filter = { name: 'Aphex Twin' };
     const findResult = [{ name: 'Aphex Twin' }];
     const options = { allowPartialResults: true, noCursorTimeout: true, tailable: true };
 
-    beforeEach(() => {
+    beforeEach(function() {
       collectionStub = stubInterface<Collection>();
       collectionStub.find.returns({ toArray: () => Promise.resolve(findResult) } as any);
       serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus, dummyOptions);
     });
 
-    it('executes the command against the database', async() => {
+    it('executes the command against the database', async function() {
       const cursor = serviceProvider.find('music', 'bands', filter, options);
       const result = await cursor.toArray();
       expect(result).to.deep.equal(findResult);
@@ -206,34 +208,34 @@ describe('CliServiceProvider', () => {
     });
   });
 
-  describe('#findOneAndDelete', () => {
+  describe('#findOneAndDelete', function() {
     const commandResult = { result: { n: 1, ok: 1 } };
 
-    beforeEach(() => {
+    beforeEach(function() {
       collectionStub = stubInterface<Collection>();
       collectionStub.findOneAndDelete.resolves(commandResult as any);
       serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus, dummyOptions);
     });
 
-    it('executes the command against the database', async() => {
+    it('executes the command against the database', async function() {
       const result = await serviceProvider.findOneAndDelete('music', 'bands', {});
       expect(result).to.deep.equal(commandResult);
       expect(collectionStub.findOneAndDelete).to.have.been.calledWith({});
     });
   });
 
-  describe('#findOneAndReplace', () => {
+  describe('#findOneAndReplace', function() {
     const commandResult = { result: { n: 1, ok: 1 } };
     const filter = { name: 'Aphex Twin' };
     const replacement = { name: 'Richard James' };
 
-    beforeEach(() => {
+    beforeEach(function() {
       collectionStub = stubInterface<Collection>();
       collectionStub.findOneAndReplace.resolves(commandResult as any);
       serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus, dummyOptions);
     });
 
-    it('executes the command against the database', async() => {
+    it('executes the command against the database', async function() {
       const result = await serviceProvider.
         findOneAndReplace('music', 'bands', filter, replacement);
       expect(result).to.deep.equal(commandResult);
@@ -241,18 +243,18 @@ describe('CliServiceProvider', () => {
     });
   });
 
-  describe('#findOneAndUpdate', () => {
+  describe('#findOneAndUpdate', function() {
     const commandResult = { result: { n: 1, ok: 1 } };
     const filter = { name: 'Aphex Twin' };
     const update = { $set: { name: 'Richard James' } };
 
-    beforeEach(() => {
+    beforeEach(function() {
       collectionStub = stubInterface<Collection>();
       collectionStub.findOneAndUpdate.resolves(commandResult as any);
       serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus, dummyOptions);
     });
 
-    it('executes the command against the database', async() => {
+    it('executes the command against the database', async function() {
       const result = await serviceProvider.
         findOneAndUpdate('music', 'bands', filter, update);
       expect(result).to.deep.equal(commandResult);
@@ -260,64 +262,64 @@ describe('CliServiceProvider', () => {
     });
   });
 
-  describe('#insertMany', () => {
+  describe('#insertMany', function() {
     const doc = { name: 'Aphex Twin' };
     const commandResult = { result: { n: 1, ok: 1 } };
 
-    beforeEach(() => {
+    beforeEach(function() {
       collectionStub = stubInterface<Collection>();
       collectionStub.insertMany.resolves(commandResult as any);
       serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus, dummyOptions);
     });
 
-    it('executes the command against the database', async() => {
+    it('executes the command against the database', async function() {
       const result = await serviceProvider.insertMany('music', 'bands', [ doc ]);
       expect(result).to.deep.equal(commandResult);
       expect(collectionStub.insertMany).to.have.been.calledWith([doc]);
     });
   });
 
-  describe('#insertOne', () => {
+  describe('#insertOne', function() {
     const doc = { name: 'Aphex Twin' };
     const commandResult = { result: { n: 1, ok: 1 } };
 
-    beforeEach(() => {
+    beforeEach(function() {
       collectionStub = stubInterface<Collection>();
       collectionStub.insertOne.resolves(commandResult as any);
       serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus, dummyOptions);
     });
 
-    it('executes the command against the database', async() => {
+    it('executes the command against the database', async function() {
       const result = await serviceProvider.insertOne('music', 'bands', doc);
       expect(result).to.deep.equal(commandResult);
       expect(collectionStub.insertOne).to.have.been.calledWith(doc);
     });
   });
 
-  describe('#replaceOne', () => {
+  describe('#replaceOne', function() {
     const filter = { name: 'Aphex Twin' };
     const replacement = { name: 'Richard James' };
     const commandResult = { result: { n: 1, ok: 1 } };
 
-    beforeEach(() => {
+    beforeEach(function() {
       collectionStub = stubInterface<Collection>();
       collectionStub.replaceOne.resolves(commandResult);
       serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus, dummyOptions);
     });
 
-    it('executes the command against the database', async() => {
+    it('executes the command against the database', async function() {
       const result = await serviceProvider.replaceOne('music', 'bands', filter, replacement);
       expect(result).to.deep.equal(commandResult);
       expect(collectionStub.replaceOne).to.have.been.calledWith(filter, replacement);
     });
   });
 
-  describe('#runCommand', () => {
+  describe('#runCommand', function() {
     let clientStub: any;
     let dbStub: any;
     const commandResult = { ismaster: true };
 
-    beforeEach(() => {
+    beforeEach(function() {
       dbStub = stubInterface<Db>();
       clientStub = stubInterface<MongoClient>();
       dbStub.command.resolves(commandResult);
@@ -325,25 +327,25 @@ describe('CliServiceProvider', () => {
       serviceProvider = new CliServiceProvider(clientStub, bus, dummyOptions);
     });
 
-    afterEach(() => {
+    afterEach(function() {
       dbStub = null;
       clientStub = null;
       serviceProvider = null;
     });
 
-    it('executes the command against the database', async() => {
+    it('executes the command against the database', async function() {
       const result = await serviceProvider.runCommand('admin', { ismaster: 1 });
       expect(result).to.deep.equal(commandResult);
       expect(dbStub.command).to.have.been.calledWith({ ismaster: 1 });
     });
   });
 
-  describe('#runCommandWithCheck', () => {
+  describe('#runCommandWithCheck', function() {
     let clientStub: any;
     let dbStub: any;
     const commandResult = { ok: 0 };
 
-    beforeEach(() => {
+    beforeEach(function() {
       dbStub = stubInterface<Db>();
       clientStub = stubInterface<MongoClient>();
       dbStub.command.resolves(commandResult);
@@ -351,13 +353,13 @@ describe('CliServiceProvider', () => {
       serviceProvider = new CliServiceProvider(clientStub, bus, dummyOptions);
     });
 
-    afterEach(() => {
+    afterEach(function() {
       dbStub = null;
       clientStub = null;
       serviceProvider = null;
     });
 
-    it('executes the command against the database and throws if ok: 0', async() => {
+    it('executes the command against the database and throws if ok: 0', async function() {
       try {
         await serviceProvider.runCommandWithCheck('admin', { ismaster: 1 });
       } catch (e: any) {
@@ -370,12 +372,12 @@ describe('CliServiceProvider', () => {
     });
   });
 
-  describe('#runCursorCommand', () => {
+  describe('#runCursorCommand', function() {
     let clientStub: any;
     let dbStub: any;
     const commandResult = 'a-cursor';
 
-    beforeEach(() => {
+    beforeEach(function() {
       dbStub = stubInterface<Db>();
       clientStub = stubInterface<MongoClient>();
       dbStub.runCursorCommand.returns(commandResult);
@@ -383,60 +385,60 @@ describe('CliServiceProvider', () => {
       serviceProvider = new CliServiceProvider(clientStub, bus, dummyOptions);
     });
 
-    afterEach(() => {
+    afterEach(function() {
       dbStub = null;
       clientStub = null;
       serviceProvider = null;
     });
 
-    it('executes the command against the database', () => {
+    it('executes the command against the database', function() {
       const result = serviceProvider.runCursorCommand('admin', { checkMetadataConsistency: 1 });
       expect(result).to.deep.equal(commandResult);
       expect(dbStub.runCursorCommand).to.have.been.calledWith({ checkMetadataConsistency: 1 });
     });
   });
 
-  describe('#updateOne', () => {
+  describe('#updateOne', function() {
     const filter = { name: 'Aphex Twin' };
     const update = { $set: { name: 'Richard James' } };
     const commandResult = { result: { n: 1, ok: 1 } };
 
-    beforeEach(() => {
+    beforeEach(function() {
       collectionStub = stubInterface<Collection>();
       collectionStub.updateOne.resolves(commandResult as any);
       serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus, dummyOptions);
     });
 
-    it('executes the command against the database', async() => {
+    it('executes the command against the database', async function() {
       const result = await serviceProvider.updateOne('music', 'bands', filter, update);
       expect(result).to.deep.equal(commandResult);
       expect(collectionStub.updateOne).to.have.been.calledWith(filter, update);
     });
   });
 
-  describe('#updateMany', () => {
+  describe('#updateMany', function() {
     const filter = { name: 'Aphex Twin' };
     const update = { $set: { name: 'Richard James' } };
     const commandResult = { result: { n: 1, ok: 1 } };
 
-    beforeEach(() => {
+    beforeEach(function() {
       collectionStub = stubInterface<Collection>();
       collectionStub.updateMany.resolves(commandResult as any);
       serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus, dummyOptions);
     });
 
-    it('executes the command against the database', async() => {
+    it('executes the command against the database', async function() {
       const result = await serviceProvider.updateMany('music', 'bands', filter, update);
       expect(result).to.deep.equal(commandResult);
       expect(collectionStub.updateMany).to.have.been.calledWith(filter, update);
     });
   });
 
-  describe('#dropDatabase', () => {
+  describe('#dropDatabase', function() {
     let clientStub: StubbedInstance<MongoClient>;
     let dbStub: StubbedInstance<Db>;
 
-    beforeEach(() => {
+    beforeEach(function() {
       dbStub = stubInterface<Db>();
       clientStub = stubInterface<MongoClient>();
       clientStub.db.returns(dbStub);
@@ -444,34 +446,34 @@ describe('CliServiceProvider', () => {
       serviceProvider = new CliServiceProvider(clientStub, bus, dummyOptions);
     });
 
-    it('returns ok: 1 if dropped', async() => {
+    it('returns ok: 1 if dropped', async function() {
       dbStub.dropDatabase.resolves(true);
       const result = await serviceProvider.dropDatabase('db1');
       expect(result).to.contain({ ok: 1 });
     });
 
-    it('returns ok: 0 if not dropped', async() => {
+    it('returns ok: 0 if not dropped', async function() {
       dbStub.dropDatabase.resolves(false);
       const result = await serviceProvider.dropDatabase('db1');
       expect(result).to.contain({ ok: 0 });
     });
 
-    it('returns dropped: "db name" if dropped', async() => {
+    it('returns dropped: "db name" if dropped', async function() {
       dbStub.dropDatabase.resolves(true);
       const result = await serviceProvider.dropDatabase('db1');
       expect(result).to.contain({ dropped: 'db1' });
     });
 
-    context('when write concern is omitted', () => {
-      it('runs against the database with default write concern', async() => {
+    context('when write concern is omitted', function() {
+      it('runs against the database with default write concern', async function() {
         dbStub.dropDatabase.resolves(true);
         await serviceProvider.dropDatabase('db1');
         expect(clientStub.db).to.have.been.calledOnceWith('db1');
       });
     });
 
-    context('with write concern', () => {
-      it('runs against the database passing write concern', async() => {
+    context('with write concern', function() {
+      it('runs against the database passing write concern', async function() {
         const opts = { serializeFunctions: true, w: 1 };
         dbStub.dropDatabase.resolves(true);
         await serviceProvider.dropDatabase('db1', opts);
@@ -480,11 +482,11 @@ describe('CliServiceProvider', () => {
     });
   });
 
-  describe('#createIndexes', () => {
+  describe('#createIndexes', function() {
     let indexSpecs;
     let nativeMethodResult;
 
-    beforeEach(() => {
+    beforeEach(function() {
       indexSpecs = [
         { key: 'x' }
       ];
@@ -501,7 +503,7 @@ describe('CliServiceProvider', () => {
       serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus, dummyOptions);
     });
 
-    it('executes the command against the database', async() => {
+    it('executes the command against the database', async function() {
       const result = await serviceProvider.createIndexes(
         'db1',
         'coll1',
@@ -511,11 +513,11 @@ describe('CliServiceProvider', () => {
     });
   });
 
-  describe('#getIndexes', () => {
+  describe('#getIndexes', function() {
     let indexSpecs;
     let nativeMethodResult;
 
-    beforeEach(() => {
+    beforeEach(function() {
       indexSpecs = [
         { key: 'x' }
       ];
@@ -530,7 +532,7 @@ describe('CliServiceProvider', () => {
       serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus, dummyOptions);
     });
 
-    it('executes the command against the database', async() => {
+    it('executes the command against the database', async function() {
       const result = await serviceProvider.getIndexes(
         'db1',
         'coll1'
@@ -541,11 +543,11 @@ describe('CliServiceProvider', () => {
     });
   });
 
-  describe('#listCollections', () => {
+  describe('#listCollections', function() {
     let dbStub: StubbedInstance<Db>;
     let clientStub: StubbedInstance<MongoClient>;
 
-    beforeEach(() => {
+    beforeEach(function() {
       dbStub = stubInterface<Db>();
       clientStub = stubInterface<MongoClient>();
       dbStub.listCollections.returns({
@@ -561,7 +563,7 @@ describe('CliServiceProvider', () => {
       serviceProvider = new CliServiceProvider(clientStub, bus, dummyOptions);
     });
 
-    it('executes the command', async() => {
+    it('executes the command', async function() {
       const result = await serviceProvider.listCollections('db1');
       expect(result).to.deep.equal([
         {
@@ -574,11 +576,11 @@ describe('CliServiceProvider', () => {
     });
   });
 
-  describe('#renameCollection', () => {
+  describe('#renameCollection', function() {
     let dbStub: StubbedInstance<Db>;
     let clientStub: StubbedInstance<MongoClient>;
 
-    beforeEach(() => {
+    beforeEach(function() {
       dbStub = stubInterface<Db>();
       clientStub = stubInterface<MongoClient>();
       dbStub.renameCollection.resolves({ ok: 1 } as any);
@@ -586,7 +588,7 @@ describe('CliServiceProvider', () => {
       serviceProvider = new CliServiceProvider(clientStub, bus, dummyOptions);
     });
 
-    it('executes the command against the database', async() => {
+    it('executes the command against the database', async function() {
       const result = await serviceProvider.renameCollection(
         'db1',
         'coll1',
@@ -605,11 +607,11 @@ describe('CliServiceProvider', () => {
     });
   });
 
-  describe('#createCollection', () => {
+  describe('#createCollection', function() {
     let dbStub: StubbedInstance<Db>;
     let clientStub: StubbedInstance<MongoClient>;
 
-    beforeEach(() => {
+    beforeEach(function() {
       dbStub = stubInterface<Db>();
       clientStub = stubInterface<MongoClient>();
       dbStub.createCollection.resolves({} as any);
@@ -617,7 +619,7 @@ describe('CliServiceProvider', () => {
       serviceProvider = new CliServiceProvider(clientStub, bus, dummyOptions);
     });
 
-    it('executes the command', async() => {
+    it('executes the command', async function() {
       const result = await serviceProvider.createCollection('db1', 'newcoll', {});
       expect(result).to.deep.equal({ ok: 1 });
       expect(dbStub.createCollection).to.have.been.calledOnceWith('newcoll', DEFAULT_BASE_OPTS);
@@ -625,7 +627,7 @@ describe('CliServiceProvider', () => {
     });
   });
 
-  describe('#createEncryptedCollection', () => {
+  describe('#createEncryptedCollection', function() {
     let dbStub: StubbedInstance<Db>;
     let clientStub: StubbedInstance<MongoClient>;
     let libmongoc: StubbedInstance<ClientEncryption>;
@@ -641,7 +643,7 @@ describe('CliServiceProvider', () => {
       }
     };
 
-    beforeEach(() => {
+    beforeEach(function() {
       dbStub = stubInterface<Db>();
       clientStub = stubInterface<MongoClient>();
       clientStub.db.returns(dbStub);
@@ -649,7 +651,7 @@ describe('CliServiceProvider', () => {
       libmongoc = stubInterface<ClientEncryption>();
     });
 
-    it('calls calls libmongocrypt.createEncryptedCollection', async() => {
+    it('calls calls libmongocrypt.createEncryptedCollection', async function() {
       await serviceProvider.createEncryptedCollection('db1', 'coll1', createCollOptions, libmongoc);
       expect(libmongoc.createEncryptedCollection).calledOnceWithExactly(
         dbStub,
@@ -658,7 +660,7 @@ describe('CliServiceProvider', () => {
       );
     });
 
-    it('returns whatever libmongocrypt.createEncryptedCollection returns', async() => {
+    it('returns whatever libmongocrypt.createEncryptedCollection returns', async function() {
       const resolvedValue = { collection: { name: 'secretCol' }, encryptedFields: [] } as any;
       libmongoc.createEncryptedCollection.resolves(resolvedValue);
       const returnValue = await serviceProvider.createEncryptedCollection('db1', 'coll1', createCollOptions, libmongoc);
@@ -666,12 +668,12 @@ describe('CliServiceProvider', () => {
     });
   });
 
-  describe('sessions', () => {
+  describe('sessions', function() {
     let clientStub: StubbedInstance<MongoClient>;
     let serviceProvider: CliServiceProvider;
     let db: StubbedInstance<Db>;
     let driverSession;
-    beforeEach(() => {
+    beforeEach(function() {
       clientStub = stubInterface<MongoClient>();
       serviceProvider = new CliServiceProvider(clientStub, bus, dummyOptions);
       driverSession = { dSession: 1 };
@@ -679,8 +681,8 @@ describe('CliServiceProvider', () => {
       db = stubInterface<Db>();
       clientStub.db.returns(db);
     });
-    describe('startSession', () => {
-      it('calls startSession without args', () => {
+    describe('startSession', function() {
+      it('calls startSession without args', function() {
         const opts = {};
         const result = serviceProvider.startSession(opts);
         expect(clientStub.startSession).to.have.been.calledOnceWith( opts);
@@ -689,7 +691,7 @@ describe('CliServiceProvider', () => {
     });
   });
 
-  describe('#watch', () => {
+  describe('#watch', function() {
     let options;
     let expectedResult;
     let watchMock;
@@ -697,7 +699,7 @@ describe('CliServiceProvider', () => {
     let watchMock3;
     let pipeline;
 
-    beforeEach(() => {
+    beforeEach(function() {
       pipeline = [{ $match: { operationType: 'insertOne' } }];
       options = { batchSize: 1 };
       expectedResult = { ChangeStream: 1 };
@@ -721,28 +723,28 @@ describe('CliServiceProvider', () => {
       serviceProvider = new CliServiceProvider(clientStub, bus, dummyOptions);
     });
 
-    it('executes watch on MongoClient', () => {
+    it('executes watch on MongoClient', function() {
       const result = serviceProvider.watch(pipeline, options);
       expect(result).to.deep.equal(expectedResult);
       (watchMock as any).verify();
     });
-    it('executes watch on Db', () => {
+    it('executes watch on Db', function() {
       const result = serviceProvider.watch(pipeline, options, {}, 'dbname');
       expect(result).to.deep.equal(expectedResult);
       (watchMock2 as any).verify();
     });
-    it('executes watch on collection', () => {
+    it('executes watch on collection', function() {
       const result = serviceProvider.watch(pipeline, options, {}, 'dbname', 'collname');
       expect(result).to.deep.equal(expectedResult);
       (watchMock3 as any).verify();
     });
   });
 
-  describe('#getConnectionInfo', () => {
+  describe('#getConnectionInfo', function() {
     let clientStub: any;
     let dbStub: StubbedInstance<Db>;
 
-    beforeEach(() => {
+    beforeEach(function() {
       dbStub = stubInterface<Db>();
       clientStub = stubInterface<MongoClient>();
       // eslint-disable-next-line @typescript-eslint/require-await
@@ -755,13 +757,13 @@ describe('CliServiceProvider', () => {
       serviceProvider.getNewConnection = () => Promise.resolve(serviceProvider);
     });
 
-    afterEach(() => {
+    afterEach(function() {
       dbStub = null;
       clientStub = null;
       serviceProvider = null;
     });
 
-    it('returns some connection info data', async() => {
+    it('returns some connection info data', async function() {
       const info = await serviceProvider.getConnectionInfo();
       expect(info.extraInfo.is_atlas).to.equal(false);
       expect(info.extraInfo.is_localhost).to.equal(true);
@@ -769,8 +771,8 @@ describe('CliServiceProvider', () => {
       expect(dbStub.command).to.have.callCount(4);
     });
 
-    context('when connected to a DocumentDB deployment', () => {
-      it('correctly gathers info on the fake deployment', async() => {
+    context('when connected to a DocumentDB deployment', function() {
+      it('correctly gathers info on the fake deployment', async function() {
         dbStub.command.callsFake((params) => new Promise((resolve, reject) => {
           if (params.getCmdLineOpts) {
             reject({
@@ -790,8 +792,8 @@ describe('CliServiceProvider', () => {
       });
     });
 
-    context('when connected to a CosmosDB deployment', () => {
-      it('correctly gathers info on the fake deployment', async() => {
+    context('when connected to a CosmosDB deployment', function() {
+      it('correctly gathers info on the fake deployment', async function() {
         // eslint-disable-next-line @typescript-eslint/require-await
         dbStub.command.callsFake(async(params) => {
           if (params.buildInfo) {
@@ -807,8 +809,8 @@ describe('CliServiceProvider', () => {
     });
   });
 
-  describe('processDriverOptions', () => {
-    it('shares user configuration options from an existing CliServiceProvider instance', () => {
+  describe('processDriverOptions', function() {
+    it('shares user configuration options from an existing CliServiceProvider instance', function() {
       const cloneableOidcOptions = {
         redirectURI: 'http://localhost',
         openBrowser: { command: '/usr/bin/browser' },
@@ -839,7 +841,7 @@ describe('CliServiceProvider', () => {
       });
     });
 
-    it('shares OIDC state if the auth options match', () => {
+    it('shares OIDC state if the auth options match', function() {
       const parentState: any = {};
 
       expect(CliServiceProvider.prototype.processDriverOptions.call(
@@ -855,7 +857,7 @@ describe('CliServiceProvider', () => {
       ).parentState).to.equal(parentState);
     });
 
-    it('does not share OIDC state if the auth options mismatch', () => {
+    it('does not share OIDC state if the auth options mismatch', function() {
       const parentState: any = {};
 
       expect(CliServiceProvider.prototype.processDriverOptions.call(
@@ -871,7 +873,7 @@ describe('CliServiceProvider', () => {
       ).parentState).to.equal(undefined);
     });
 
-    it('does not share OIDC state if the endpoints mismatch', () => {
+    it('does not share OIDC state if the endpoints mismatch', function() {
       const parentState: any = {};
 
       expect(CliServiceProvider.prototype.processDriverOptions.call(
@@ -888,12 +890,12 @@ describe('CliServiceProvider', () => {
     });
   });
 
-  describe('#getSearchIndexes', () => {
+  describe('#getSearchIndexes', function() {
     let descriptions;
     let nativeMethodResult;
     let getSearchIndexesOptions;
 
-    beforeEach(() => {
+    beforeEach(function() {
       descriptions = [
         { name: 'foo' },
         { name: 'bar' }
@@ -913,8 +915,8 @@ describe('CliServiceProvider', () => {
       serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus, dummyOptions);
     });
 
-    context('without indexName', () => {
-      it('calls listSearchIndexes and toArray on the resulting cursor', async() => {
+    context('without indexName', function() {
+      it('calls listSearchIndexes and toArray on the resulting cursor', async function() {
         const result = await serviceProvider.getSearchIndexes(
           'db1',
           'coll1',
@@ -926,8 +928,8 @@ describe('CliServiceProvider', () => {
       });
     });
 
-    context('with indexName', () => {
-      it('calls listSearchIndexes and toArray on the resulting cursor', async() => {
+    context('with indexName', function() {
+      it('calls listSearchIndexes and toArray on the resulting cursor', async function() {
         const result = await serviceProvider.getSearchIndexes(
           'db1',
           'coll1',
@@ -940,11 +942,11 @@ describe('CliServiceProvider', () => {
     });
   });
 
-  describe('#createSearchIndexes', () => {
+  describe('#createSearchIndexes', function() {
     let descriptions;
     let nativeMethodResult;
 
-    beforeEach(() => {
+    beforeEach(function() {
       descriptions = [
         { name: 'foo', definition: {} },
         { name: 'bar', definition: {} }
@@ -960,7 +962,7 @@ describe('CliServiceProvider', () => {
       serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus, dummyOptions);
     });
 
-    it('executes the command against the database', async() => {
+    it('executes the command against the database', async function() {
       const result = await serviceProvider.createSearchIndexes(
         'db1',
         'coll1',
@@ -971,10 +973,10 @@ describe('CliServiceProvider', () => {
     });
   });
 
-  describe('#dropSearchIndex', () => {
+  describe('#dropSearchIndex', function() {
     let indexName;
 
-    beforeEach(() => {
+    beforeEach(function() {
       indexName = 'foo';
 
       collectionStub = stubInterface<Collection>();
@@ -983,7 +985,7 @@ describe('CliServiceProvider', () => {
       serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus, dummyOptions);
     });
 
-    it('executes the command against the database', async() => {
+    it('executes the command against the database', async function() {
       const result = await serviceProvider.dropSearchIndex(
         'db1',
         'coll1',
@@ -995,11 +997,11 @@ describe('CliServiceProvider', () => {
   });
 
 
-  describe('#updateSearchIndex', () => {
+  describe('#updateSearchIndex', function() {
     let indexName;
     let description;
 
-    beforeEach(() => {
+    beforeEach(function() {
       indexName = 'foo';
       description = { x: 1, y: 2 };
 
@@ -1010,7 +1012,7 @@ describe('CliServiceProvider', () => {
       serviceProvider = new CliServiceProvider(createClientStub(collectionStub), bus, dummyOptions);
     });
 
-    it('executes the command against the database', async() => {
+    it('executes the command against the database', async function() {
       const result = await serviceProvider.updateSearchIndex(
         'db1',
         'coll1',

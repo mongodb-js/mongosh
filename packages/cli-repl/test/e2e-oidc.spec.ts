@@ -1,5 +1,6 @@
 import { MlaunchSetup, skipIfApiStrict, skipIfEnvServerVersion } from '../../../testing/integration-testing-hooks';
-import { OIDCMockProvider, OIDCMockProviderConfig } from '@mongodb-js/oidc-mock-provider';
+import type { OIDCMockProviderConfig } from '@mongodb-js/oidc-mock-provider';
+import { OIDCMockProvider } from '@mongodb-js/oidc-mock-provider';
 import { TestShell } from './test-shell';
 import path from 'path';
 import { expect } from 'chai';
@@ -77,7 +78,7 @@ describe('OIDC auth e2e', function() {
     await Promise.all([testServer.start(), testServer2.start()]);
   });
 
-  beforeEach(() => {
+  beforeEach(function() {
     tokenFetches = 0;
     getTokenPayload = (metadata) => {
       tokenFetches++;
@@ -112,7 +113,7 @@ describe('OIDC auth e2e', function() {
     expect(status).to.include(`authenticatedUserRoles: [ { role: 'dev/${group}', db: 'admin' } ]`);
   }
 
-  it('can successfully authenticate using OIDC Auth Code Flow', async() => {
+  it('can successfully authenticate using OIDC Auth Code Flow', async function() {
     shell = TestShell.start({
       args: [
         await testServer.connectionString(),
@@ -127,7 +128,7 @@ describe('OIDC auth e2e', function() {
     shell.assertNoErrors();
   });
 
-  it('can successfully authenticate using OIDC Device Auth Flow', async() => {
+  it('can successfully authenticate using OIDC Device Auth Flow', async function() {
     shell = TestShell.start({
       args: [
         await testServer.connectionString(),
@@ -143,7 +144,7 @@ describe('OIDC auth e2e', function() {
     shell.assertNoErrors();
   });
 
-  it('hints the user to use Device Auth Flow if starting a browser fails', async() => {
+  it('hints the user to use Device Auth Flow if starting a browser fails', async function() {
     shell = TestShell.start({
       args: [
         await testServer.connectionString(),
@@ -156,7 +157,7 @@ describe('OIDC auth e2e', function() {
     shell.assertContainsOutput('Consider specifying --oidcFlows=auth-code,device-auth if you are running mongosh in an environment without browser access');
   });
 
-  it('can successfully re-authenticate when tokens expire', async() => {
+  it('can successfully re-authenticate when tokens expire', async function() {
     const originalGetPayload = getTokenPayload;
     getTokenPayload = async(metadata) => {
       return {
@@ -181,7 +182,7 @@ describe('OIDC auth e2e', function() {
     expect(tokenFetches).to.be.greaterThan(1);
   });
 
-  it('keeps authentication state when resetting connection options', async() => {
+  it('keeps authentication state when resetting connection options', async function() {
     const cs = await testServer.connectionString();
     shell = TestShell.start({
       args: [
@@ -202,7 +203,7 @@ describe('OIDC auth e2e', function() {
     expect(tokenFetches).to.equal(1);
   });
 
-  it('re-authenticates when connecting to a different endpoint from the same shell', async() => {
+  it('re-authenticates when connecting to a different endpoint from the same shell', async function() {
     shell = TestShell.start({
       args: [
         await testServer.connectionString(),
@@ -221,7 +222,7 @@ describe('OIDC auth e2e', function() {
     expect(tokenFetches).to.equal(2);
   });
 
-  it('can share state with another shell', async() => {
+  it('can share state with another shell', async function() {
     shell = TestShell.start({
       args: [
         await testServer.connectionString(),

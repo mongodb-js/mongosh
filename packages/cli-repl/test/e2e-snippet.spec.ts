@@ -11,7 +11,7 @@ describe('snippet integration tests', function() {
 
   let shell: TestShell;
   let makeTestShell: () => TestShell;
-  beforeEach(async() => {
+  beforeEach(async function() {
     makeTestShell = () => TestShell.start({
       args: ['--nodb'],
       cwd: tmpdir.path,
@@ -33,7 +33,7 @@ describe('snippet integration tests', function() {
   });
   afterEach(TestShell.cleanup);
 
-  it('allows managing snippets', async() => {
+  it('allows managing snippets', async function() {
     shell.writeInputLine('snippet install analyze-schema');
     await eventually(() => {
       shell.assertContainsOutput('Installed new snippets analyze-schema. Do you want to load them now?');
@@ -65,7 +65,7 @@ describe('snippet integration tests', function() {
     });
   });
 
-  it('works when an index file is inaccessible', async() => {
+  it('works when an index file is inaccessible', async function() {
     await shell.executeLine(
       'config.set("snippetIndexSourceURLs", "http://localhost:1/")');
     shell.writeInputLine('exit');
@@ -82,12 +82,12 @@ describe('snippet integration tests', function() {
     expect(commandResult).to.include('FetchError: request to http://localhost:1/ failed');
   });
 
-  it('has proper async rewriting support', async() => {
+  it('has proper async rewriting support', async function() {
     const commandResult = await shell.executeLine('({ works: snippet("ls").includes("snippets") })');
     expect(commandResult).to.include('{ works: true }');
   });
 
-  it('informs about the mongocompat snippet', async() => {
+  it('informs about the mongocompat snippet', async function() {
     await eventually(async() => {
       expect(await shell.executeLine('Date.timeFunc()')).to.match(/Date.timeFunc is not a function.+Try running `snippet install mongocompat`/);
     }, { timeout: 30_000 });

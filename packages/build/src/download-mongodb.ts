@@ -1,4 +1,4 @@
-/* eslint-disable no-return-assign, no-empty */
+/* eslint-disable no-empty */
 /* istanbul ignore file */
 import fetch from 'node-fetch';
 import tar from 'tar';
@@ -65,7 +65,7 @@ async function doDownload(
     console.info('Downloading...', url);
 
     async function downloadAndExtract(withExtraStripDepth = 0): Promise<void> {
-      if (url.match(/\.tgz$|\.tar(\.[^.]+)?$/)) {
+      if (/\.tgz$|\.tar(\.[^.]+)?$/.exec(url)) {
         // the server's tarballs can contain hard links, which the (unmaintained?)
         // `download` package is unable to handle (https://github.com/kevva/decompress/issues/93)
         const response = await fetch(url);

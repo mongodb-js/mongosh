@@ -15,7 +15,7 @@ class ExampleConfig {
   someOtherProperty?: number = Infinity;
 }
 
-describe('home directory management', () => {
+describe('home directory management', function() {
   let onError: Function;
   let onUpdateConfig: Function;
   let onNewConfig: Function;
@@ -23,7 +23,7 @@ describe('home directory management', () => {
   let shellHomeDirectory: ShellHomeDirectory;
   let manager: ConfigManager<ExampleConfig>;
 
-  beforeEach(() => {
+  beforeEach(function() {
     base = path.resolve(__dirname, '..', '..', '..', 'tmp', 'test', `${Date.now()}`, `${Math.random()}`);
     shellHomeDirectory = new ShellHomeDirectory({
       shellRoamingDataPath: base,
@@ -36,12 +36,12 @@ describe('home directory management', () => {
     manager.on('update-config', onUpdateConfig = sinon.spy());
   });
 
-  afterEach(async() => {
+  afterEach(async function() {
     await promisify(rimraf)(path.resolve(base, '..'));
   });
 
-  describe('ShellHomeDirectory', () => {
-    it('creates the directory when asked to do so', async() => {
+  describe('ShellHomeDirectory', function() {
+    it('creates the directory when asked to do so', async function() {
       let threw = true;
       try {
         await fs.access(base);
@@ -54,14 +54,14 @@ describe('home directory management', () => {
       await fs.access(base);
     });
 
-    it('provides a way to access subpaths', () => {
+    it('provides a way to access subpaths', function() {
       const subpath = shellHomeDirectory.localPath('banana');
       expect(subpath).to.equal(path.join(base, 'banana'));
     });
   });
 
-  describe('ConfigManager', () => {
-    it('allows storing configs', async() => {
+  describe('ConfigManager', function() {
+    it('allows storing configs', async function() {
       const configPath = manager.path();
       await manager.writeConfigFile(new ExampleConfig());
       const contents = await fs.readFile(configPath, { encoding: 'utf8' });
@@ -72,7 +72,7 @@ describe('home directory management', () => {
       expect(onUpdateConfig).to.not.have.been.called;
     });
 
-    it('passes on errors storing configs', async() => {
+    it('passes on errors storing configs', async function() {
       const configPath = manager.path();
       await shellHomeDirectory.ensureExists();
       // Oops, we already create a 'config' directory rather than a file...
@@ -92,7 +92,7 @@ describe('home directory management', () => {
       expect(onUpdateConfig).to.not.have.been.called;
     });
 
-    it('allows specifying a default config if none exists yet', async() => {
+    it('allows specifying a default config if none exists yet', async function() {
       const configPath = manager.path();
       await shellHomeDirectory.ensureExists();
 

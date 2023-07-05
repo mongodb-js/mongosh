@@ -1,17 +1,18 @@
 import type { writeBuildInfo as writeBuildInfoType } from './build-info';
-import { Barque } from './barque';
+import type { Barque } from './barque';
+import type { Config } from './config';
 import {
   ALL_PACKAGE_VARIANTS,
-  Config,
   getReleaseVersionFromTag,
   shouldDoPublicRelease as shouldDoPublicReleaseFn
 } from './config';
-import { createAndPublishDownloadCenterConfig as createAndPublishDownloadCenterConfigFn } from './download-center';
+import type { createAndPublishDownloadCenterConfig as createAndPublishDownloadCenterConfigFn } from './download-center';
 import { getArtifactUrl as getArtifactUrlFn } from './evergreen';
-import { GithubRepo } from '@mongodb-js/devtools-github-repo';
+import type { GithubRepo } from '@mongodb-js/devtools-github-repo';
 import type { publishToHomebrew as publishToHomebrewType } from './homebrew';
 import type { publishNpmPackages as publishNpmPackagesType } from './npm-packages';
-import { PackageInformationProvider, getPackageFile } from './packaging';
+import type { PackageInformationProvider} from './packaging';
+import { getPackageFile } from './packaging';
 
 export async function runPublish(
   config: Config,

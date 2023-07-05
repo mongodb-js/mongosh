@@ -3,7 +3,8 @@ import { validatePackageVariant } from './config';
 import { downloadMongoDb } from './download-mongodb';
 import { getArtifactUrl } from './evergreen';
 import { triggerRelease } from './local';
-import { release, ReleaseCommand } from './release';
+import type { ReleaseCommand } from './release';
+import { release } from './release';
 import type { Config, PackageVariant } from './config';
 
 export { getArtifactUrl, downloadMongoDb };
@@ -21,7 +22,7 @@ if (require.main === module) {
       const config: Config = require(path.join(__dirname, '..', '..', '..', 'config', 'build.conf.js'));
 
       const cliBuildVariant = process.argv
-        .map((arg) => arg.match(/^--build-variant=(.+)$/))
+        .map((arg) => /^--build-variant=(.+)$/.exec(arg))
         .filter(Boolean)[0];
       if (cliBuildVariant) {
         config.packageVariant = cliBuildVariant[1] as PackageVariant;

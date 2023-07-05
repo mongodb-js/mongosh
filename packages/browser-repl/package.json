@@ -27,7 +27,8 @@
     "prepublish": "npm run compile",
     "test": "karma start ./config/karma.conf.js --colors",
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
-    "lint": "eslint --report-unused-disable-directives \"./{src,test}/**/*.{js,ts,tsx}\"",
+    "eslint": "eslint",
+    "lint": "npm run eslint",
     "check": "npm run lint && npm run depcheck",
     "depcheck": "depcheck",
     "compile": "tsc -p tsconfig.json"
@@ -78,6 +79,7 @@
     "buffer": "^6.0.3",
     "depcheck": "^1.4.3",
     "enzyme": "^3.11.0",
+    "eslint": "^7.25.0",
     "html-webpack-plugin": "^5.5.0",
     "karma": "^6.3.9",
     "karma-chrome-launcher": "^3.1.0",

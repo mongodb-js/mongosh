@@ -6,10 +6,11 @@ import sinonChai from 'sinon-chai';
 import sinon from 'sinon';
 import { EJSON, ObjectId } from 'bson';
 import { startTestServer } from '../../../testing/integration-testing-hooks';
-import { Caller, cancel, close, createCaller, exposeAll, Exposed } from './rpc';
+import type { Caller, Exposed } from './rpc';
+import { cancel, close, createCaller, exposeAll } from './rpc';
 import { deserializeEvaluationResult } from './serializer';
 import type { WorkerRuntime } from './worker-runtime';
-import { RuntimeEvaluationResult } from '@mongosh/browser-runtime-core';
+import type { RuntimeEvaluationResult } from '@mongosh/browser-runtime-core';
 import { interrupt } from 'interruptor';
 import { dummyOptions } from './index.spec';
 
@@ -27,11 +28,11 @@ function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-describe('worker', () => {
+describe('worker', function() {
   let worker: Worker;
   let caller: Caller<WorkerRuntime>;
 
-  beforeEach(async() => {
+  beforeEach(async function() {
     worker = new Worker(workerThreadModule);
     await once(worker, 'message');
 
@@ -54,7 +55,7 @@ describe('worker', () => {
     };
   });
 
-  afterEach(async() => {
+  afterEach(async function() {
     if (worker) {
       // There is a Node.js bug that causes worker process to still be ref-ed
       // after termination. To work around that, we are unrefing worker manually
@@ -76,7 +77,7 @@ describe('worker', () => {
     }
   });
 
-  it('should throw if worker is not initialized yet', async() => {
+  it('should throw if worker is not initialized yet', async function() {
     const { evaluate } = caller;
 
     let err: Error;
@@ -93,8 +94,8 @@ describe('worker', () => {
       .match(/Can\'t call evaluate before shell runtime is initiated/);
   });
 
-  describe('evaluate', () => {
-    describe('basic shell result values', () => {
+  describe('evaluate', function() {
+    describe('basic shell result values', function() {
       const primitiveValues: [string, string, unknown][] = [
         ['null', 'null', null],
         ['undefined', 'undefined', undefined],
@@ -153,7 +154,7 @@ describe('worker', () => {
       primitiveValues.concat(everythingElse).forEach((testCase) => {
         const [testName, evalValue, printable] = testCase;
 
-        it(testName, async() => {
+        it(testName, async function() {
           const { init, evaluate } = caller;
           await init('mongodb://nodb/', dummyOptions, { nodb: true });
           const result = await evaluate(evalValue);
@@ -167,12 +168,12 @@ describe('worker', () => {
       });
     });
 
-    describe('shell-api results', () => {
+    describe('shell-api results', function() {
       const testServer = startTestServer('shared');
       const db = `test-db-${Date.now().toString(16)}`;
       let exposed: Exposed<unknown>;
 
-      afterEach(() => {
+      afterEach(function() {
         if (exposed) {
           exposed[close]();
           exposed = null;
@@ -342,7 +343,7 @@ describe('worker', () => {
             command = commands;
           }
 
-          it(`"${command}" should return ${resultType} result`, async() => {
+          it(`"${command}" should return ${resultType} result`, async function() {
             // Without this dummy evaluation listener, a request to getConfig()
             // from the shell leads to a never-resolved Promise.
             exposed = exposeAll({
@@ -376,8 +377,8 @@ describe('worker', () => {
         });
     });
 
-    describe('errors', () => {
-      it("should throw an error if it's thrown during evaluation", async() => {
+    describe('errors', function() {
+      it("should throw an error if it's thrown during evaluation", async function() {
         const { init, evaluate } = caller;
 
         await init('mongodb://nodb/', dummyOptions, { nodb: true });
@@ -397,7 +398,7 @@ describe('worker', () => {
           .matches(/TypeError: Oh no, types!/);
       });
 
-      it('should preserve extra error properties', async() => {
+      it('should preserve extra error properties', async function() {
         const { init, evaluate } = caller;
 
         await init('mongodb://nodb/', dummyOptions, { nodb: true });
@@ -415,7 +416,7 @@ describe('worker', () => {
         expect((err as any).errInfo.message).to.equal('wrong type :S');
       });
 
-      it("should return an error if it's returned from evaluation", async() => {
+      it("should return an error if it's returned from evaluation", async function() {
         const { init, evaluate } = caller;
 
         await init('mongodb://nodb/', dummyOptions, { nodb: true });
@@ -430,7 +431,7 @@ describe('worker', () => {
           .matches(/SyntaxError: Syntax!/);
       });
 
-      it('should throw when trying to run two evaluations concurrently', async() => {
+      it('should throw when trying to run two evaluations concurrently', async function() {
         const { init, evaluate } = caller;
         await init('mongodb://nodb/', dummyOptions, { nodb: true });
 
@@ -455,10 +456,10 @@ describe('worker', () => {
     });
   });
 
-  describe('getShellPrompt', () => {
+  describe('getShellPrompt', function() {
     const testServer = startTestServer('shared');
 
-    it('should return prompt when connected to the server', async() => {
+    it('should return prompt when connected to the server', async function() {
       const { init, getShellPrompt } = caller;
 
       await init(await testServer.connectionString());
@@ -469,10 +470,10 @@ describe('worker', () => {
     });
   });
 
-  describe('getCompletions', () => {
+  describe('getCompletions', function() {
     const testServer = startTestServer('shared');
 
-    it('should return completions', async() => {
+    it('should return completions', async function() {
       const { init, getCompletions } = caller;
 
       await init(await testServer.connectionString());
@@ -485,7 +486,7 @@ describe('worker', () => {
     });
   });
 
-  describe('evaluationListener', () => {
+  describe('evaluationListener', function() {
     const spySandbox = sinon.createSandbox();
 
     const createSpiedEvaluationListener = () => {
@@ -516,7 +517,7 @@ describe('worker', () => {
 
     let exposed: Exposed<unknown>;
 
-    afterEach(() => {
+    afterEach(function() {
       if (exposed) {
         exposed[close]();
         exposed = null;
@@ -525,8 +526,8 @@ describe('worker', () => {
       spySandbox.restore();
     });
 
-    describe('onPrint', () => {
-      it('should be called when shell evaluates `print`', async() => {
+    describe('onPrint', function() {
+      it('should be called when shell evaluates `print`', async function() {
         const { init, evaluate } = caller;
         const evalListener = createSpiedEvaluationListener();
 
@@ -540,7 +541,7 @@ describe('worker', () => {
         ]);
       });
 
-      it('should correctly serialize bson objects', async() => {
+      it('should correctly serialize bson objects', async function() {
         const { init, evaluate } = caller;
         const evalListener = createSpiedEvaluationListener();
 
@@ -555,8 +556,8 @@ describe('worker', () => {
       });
     });
 
-    describe('onPrompt', () => {
-      it('should be called when shell evaluates `passwordPrompt`', async() => {
+    describe('onPrompt', function() {
+      it('should be called when shell evaluates `passwordPrompt`', async function() {
         const { init, evaluate } = caller;
         const evalListener = createSpiedEvaluationListener();
 
@@ -570,8 +571,8 @@ describe('worker', () => {
       });
     });
 
-    describe('getConfig', () => {
-      it('should be called when shell evaluates `config.get()`', async() => {
+    describe('getConfig', function() {
+      it('should be called when shell evaluates `config.get()`', async function() {
         const { init, evaluate } = caller;
         const evalListener = createSpiedEvaluationListener();
 
@@ -584,8 +585,8 @@ describe('worker', () => {
       });
     });
 
-    describe('setConfig', () => {
-      it('should be called when shell evaluates `config.set()`', async() => {
+    describe('setConfig', function() {
+      it('should be called when shell evaluates `config.set()`', async function() {
         const { init, evaluate } = caller;
         const evalListener = createSpiedEvaluationListener();
 
@@ -599,8 +600,8 @@ describe('worker', () => {
       });
     });
 
-    describe('resetConfig', () => {
-      it('should be called when shell evaluates `config.reset()`', async() => {
+    describe('resetConfig', function() {
+      it('should be called when shell evaluates `config.reset()`', async function() {
         const { init, evaluate } = caller;
         const evalListener = createSpiedEvaluationListener();
 
@@ -613,8 +614,8 @@ describe('worker', () => {
       });
     });
 
-    describe('listConfigOptions', () => {
-      it('should be called when shell evaluates `config[asPrintable]`', async() => {
+    describe('listConfigOptions', function() {
+      it('should be called when shell evaluates `config[asPrintable]`', async function() {
         const { init, evaluate } = caller;
         const evalListener = createSpiedEvaluationListener();
 
@@ -629,8 +630,8 @@ describe('worker', () => {
       });
     });
 
-    describe('onRunInterruptible', () => {
-      it('should call callback when interruptible evaluation starts and ends', async() => {
+    describe('onRunInterruptible', function() {
+      it('should call callback when interruptible evaluation starts and ends', async function() {
         const { init, evaluate } = caller;
         const evalListener = createSpiedEvaluationListener();
 
@@ -648,7 +649,7 @@ describe('worker', () => {
         expect(secondCall[0]).to.equal(null);
       });
 
-      it('should return a handle that allows to interrupt the evaluation', async() => {
+      it('should return a handle that allows to interrupt the evaluation', async function() {
         const { init, evaluate } = caller;
         const evalListener = createSpiedEvaluationListener();
 
@@ -680,8 +681,8 @@ describe('worker', () => {
     });
   });
 
-  describe('interrupt', () => {
-    it('should interrupt in-flight async tasks', async() => {
+  describe('interrupt', function() {
+    it('should interrupt in-flight async tasks', async function() {
       const { init, evaluate, interrupt } = caller;
 
       await init('mongodb://nodb/', dummyOptions, { nodb: true });

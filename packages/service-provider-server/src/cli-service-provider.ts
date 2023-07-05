@@ -1,23 +1,22 @@
-import {
+import type {
   Auth,
   AuthMechanism,
-  MongoClient,
-  ReadPreference,
   ClientMetadata,
   ReadPreferenceFromOptions,
   ReadPreferenceLike,
   OperationOptions,
-  BSON,
   RunCommandCursor,
   RunCursorCommandOptions
 } from 'mongodb';
-
 import {
+  MongoClient,
+  ReadPreference,
+  BSON
+} from 'mongodb';
+
+import type {
   ServiceProvider,
-  getConnectInfo,
   ReplPlatform,
-  DEFAULT_DB,
-  ServiceProviderCore,
   ShellAuthOptions,
   // Driver types:
   AggregateOptions,
@@ -67,6 +66,11 @@ import {
   AutoEncryptionOptions,
   ClientEncryption as MongoCryptClientEncryption
 } from '@mongosh/service-provider-core';
+import {
+  getConnectInfo,
+  DEFAULT_DB,
+  ServiceProviderCore
+} from '@mongosh/service-provider-core';
 
 import { connectMongoClient, DevtoolsConnectOptions } from '@mongodb-js/devtools-connect';
 import { MongoshCommandFailed, MongoshInternalError } from '@mongosh/errors';
@@ -74,8 +78,8 @@ import type { MongoshBus } from '@mongosh/types';
 import { forceCloseMongoClient } from './mongodb-patches';
 import { ConnectionString, CommaAndColonSeparatedRecord } from 'mongodb-connection-string-url';
 import { EventEmitter } from 'events';
-import { CreateEncryptedCollectionOptions } from '@mongosh/service-provider-core';
-import { DevtoolsConnectionState } from '@mongodb-js/devtools-connect';
+import type { CreateEncryptedCollectionOptions } from '@mongosh/service-provider-core';
+import type { DevtoolsConnectionState } from '@mongodb-js/devtools-connect';
 import { isDeepStrictEqual } from 'util';
 
 const bsonlib = {
@@ -1009,7 +1013,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     collection: string,
     options: ListIndexesOptions = {},
     dbOptions?: DbOptions): Promise<Document[]> {
-    return this.db(database, dbOptions)
+    return await this.db(database, dbOptions)
       .collection(collection)
       .listIndexes({ ...this.baseCmdOptions, ...options })
       .toArray();
@@ -1190,7 +1194,6 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   }
 
   // Internal, only exposed for testing
-  // eslint-disable-next-line complexity
   static processDriverOptions(
     currentProviderInstance: CliServiceProvider | null,
     uri: ConnectionString,

@@ -10,7 +10,7 @@ import { createDebianPackage } from './debian';
 
 const execFile = promisify(childProcess.execFile);
 
-describe('tarball debian', () => {
+describe('tarball debian', function() {
   const tmpPkg = withTempPackageEach();
 
   it('packages the executable(s)', async function() {
@@ -42,7 +42,7 @@ describe('tarball debian', () => {
     }
   });
 
-  it('determines and copies created DEB', async() => {
+  it('determines and copies created DEB', async function() {
     const content = await fs.readFile(__filename, { encoding: 'utf8' });
     const execFileStub = async(cmd: string, args: string[]) => {
       const debName = path.join(path.dirname(args[1]), `${tmpPkg.pkgConfig.metadata.name}.deb`);

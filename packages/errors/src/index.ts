@@ -4,7 +4,7 @@ function getScopeFromErrorCode(code: string | null | undefined): string | undefi
   if (!code) {
     return undefined;
   }
-  const match = code.match(/^([a-zA-Z0-9]+)-/);
+  const match = /^([a-zA-Z0-9]+)-/.exec(code);
   return !match ? undefined : match[1];
 }
 

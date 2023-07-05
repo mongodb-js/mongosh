@@ -5,8 +5,8 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-describe('Lock', () => {
-  it('should allow to create a lock promise that can be resolved programmatically', async() => {
+describe('Lock', function() {
+  it('should allow to create a lock promise that can be resolved programmatically', async function() {
     const lock = new Lock();
     const [token, wasUnlocked] = await Promise.all([
       lock.lock(),
@@ -19,7 +19,7 @@ describe('Lock', () => {
     expect(wasUnlocked).to.equal(true);
   });
 
-  it('throws when trying to create locks when locked', () => {
+  it('throws when trying to create locks when locked', function() {
     const lock = new Lock();
 
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -42,15 +42,15 @@ describe('Lock', () => {
       .match(/Can't create another lock while locked/);
   });
 
-  describe('unlock', () => {
-    it('should return false if lock is not locked', () => {
+  describe('unlock', function() {
+    it('should return false if lock is not locked', function() {
       const lock = new Lock();
       expect(lock.unlock()).to.equal(false);
     });
   });
 
-  describe('isLocked', () => {
-    it('shoult return current lock status', () => {
+  describe('isLocked', function() {
+    it('shoult return current lock status', function() {
       const lock = new Lock();
       expect(lock.isLocked()).to.equal(false);
       // eslint-disable-next-line @typescript-eslint/no-floating-promises

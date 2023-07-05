@@ -6,7 +6,8 @@ import { changeHistory } from '@mongosh/history';
 import type { WorkerRuntime } from '@mongosh/node-runtime-worker-thread';
 import { PasswordPrompt } from './password-prompt';
 import { ShellInput } from './shell-input';
-import { ShellOutput, ShellOutputEntry } from './shell-output';
+import type { ShellOutputEntry } from './shell-output';
+import { ShellOutput } from './shell-output';
 
 const shellContainer = css({
   fontSize: '13px',
@@ -339,7 +340,6 @@ export class Shell extends Component<ShellProps, ShellState> {
   };
 
   private focusEditor = (): void => {
-    // eslint-disable-next-line chai-friendly/no-unused-expressions
     this.editor?.focus();
   };
 

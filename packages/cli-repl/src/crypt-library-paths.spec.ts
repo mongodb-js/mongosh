@@ -7,7 +7,7 @@ import { EventEmitter } from 'events';
 import { promises as fs } from 'fs';
 import path from 'path';
 
-describe('getCryptLibraryPaths', () => {
+describe('getCryptLibraryPaths', function() {
   let bus: MongoshBus;
   let events: any[];
   let fakeMongoshExecPath: string;

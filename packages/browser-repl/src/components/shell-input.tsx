@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Icon, css } from '@mongodb-js/compass-components';
-import { Autocompleter } from '@mongosh/browser-runtime-core';
+import type { Autocompleter } from '@mongosh/browser-runtime-core';
 import type { EditorRef } from '@mongodb-js/compass-editor';
 import { Editor } from './editor';
 import ShellLoader from './shell-loader';

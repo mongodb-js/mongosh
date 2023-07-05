@@ -2,14 +2,14 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import { generateChangelog } from './changelog';
 
-describe('git changelog', () => {
+describe('git changelog', function() {
   let spawnSync: sinon.SinonStub;
 
-  beforeEach(() => {
+  beforeEach(function() {
     spawnSync = sinon.stub();
   });
 
-  it('generates a proper changelog', () => {
+  it('generates a proper changelog', function() {
     spawnSync.returns({
       stdout: `
 chore(build): generate release notes on draft MONGOSH-325

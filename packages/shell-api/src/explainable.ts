@@ -10,14 +10,15 @@ import {
   ShellApiWithMongoClass,
 } from './decorators';
 import { asPrintable, ServerVersions } from './enums';
-import {
-  validateExplainableVerbosity,
-  processRemoveOptions,
+import type {
   RemoveShellOptions,
   FindAndModifyShellOptions,
   FindAndModifyMethodShellOptions,
+  MapReduceShellOptions} from './helpers';
+import {
+  validateExplainableVerbosity,
+  processRemoveOptions,
   processMapReduceOptions,
-  MapReduceShellOptions,
   markAsExplainOutput
 } from './helpers';
 import type {

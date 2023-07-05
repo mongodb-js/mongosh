@@ -1,4 +1,4 @@
-import { GithubRepo } from '@mongodb-js/devtools-github-repo';
+import type { GithubRepo } from '@mongodb-js/devtools-github-repo';
 
 export interface UpdateHomebrewParameters {
   packageVersion: string;

@@ -1,15 +1,18 @@
 import { MongoshInvalidInputError } from '@mongosh/errors';
-import { bson, ClientEncryption as FLEClientEncryption, ClientEncryptionTlsOptions, ServiceProvider, ClientEncryptionEncryptOptions, ClientEncryptionDataKeyProvider } from '@mongosh/service-provider-core';
+import type { ClientEncryption as FLEClientEncryption, ClientEncryptionTlsOptions, ServiceProvider, ClientEncryptionEncryptOptions, ClientEncryptionDataKeyProvider } from '@mongosh/service-provider-core';
+import { bson } from '@mongosh/service-provider-core';
 import { expect } from 'chai';
 import { EventEmitter } from 'events';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { Duplex } from 'stream';
-import sinon, { StubbedInstance, stubInterface } from 'ts-sinon';
-import Database from './database';
+import type { StubbedInstance} from 'ts-sinon';
+import sinon, { stubInterface } from 'ts-sinon';
+import type Database from './database';
 import { signatures, toShellResult } from './decorators';
 import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, ALL_API_VERSIONS } from './enums';
-import { ClientEncryption, ClientSideFieldLevelEncryptionOptions, ClientSideFieldLevelEncryptionKmsProvider as KMSProvider, KeyVault } from './field-level-encryption';
+import type { ClientSideFieldLevelEncryptionOptions, ClientSideFieldLevelEncryptionKmsProvider as KMSProvider} from './field-level-encryption';
+import { ClientEncryption, KeyVault } from './field-level-encryption';
 import Mongo from './mongo';
 import ShellInstanceState from './shell-instance-state';
 import { CliServiceProvider } from '../../service-provider-server';
@@ -62,7 +65,7 @@ function getCertPath(filename: string): string {
   return path.join(__dirname, '..', '..', '..', 'testing', 'certificates', filename);
 }
 
-describe('Field Level Encryption', () => {
+describe('Field Level Encryption', function() {
   let sp: StubbedInstance<ServiceProvider>;
   let mongo: Mongo;
   let instanceState: ShellInstanceState;
@@ -70,8 +73,8 @@ describe('Field Level Encryption', () => {
   let clientEncryption: ClientEncryption;
   let keyVault: KeyVault;
   let clientEncryptionSpy;
-  describe('Metadata', () => {
-    before(() => {
+  describe('Metadata', function() {
+    before(function() {
       libmongoc = stubInterface<FLEClientEncryption>();
       sp = stubInterface<ServiceProvider>();
       sp.bsonLibrary = bson;
@@ -85,27 +88,27 @@ describe('Field Level Encryption', () => {
       clientEncryption = new ClientEncryption(mongo);
       keyVault = new KeyVault(clientEncryption);
     });
-    it('calls help function', async() => {
+    it('calls help function', async function() {
       expect((await toShellResult(clientEncryption.help())).type).to.equal('Help');
       expect((await toShellResult(clientEncryption.help)).type).to.equal('Help');
       expect((await toShellResult(keyVault.help())).type).to.equal('Help');
       expect((await toShellResult(keyVault.help)).type).to.equal('Help');
     });
-    it('calls print function', async() => {
+    it('calls print function', async function() {
       expect((await toShellResult(clientEncryption)).printable).to.equal('ClientEncryption class for mongodb://localhost:27017/?directConnection=true&serverSelectionTimeoutMS=2000');
       expect((await toShellResult(keyVault)).printable).to.equal('KeyVault class for mongodb://localhost:27017/?directConnection=true&serverSelectionTimeoutMS=2000');
     });
-    it('has metadata type', async() => {
+    it('has metadata type', async function() {
       expect((await toShellResult(clientEncryption)).type).to.equal('ClientEncryption');
       expect((await toShellResult(keyVault)).type).to.equal('KeyVault');
     });
   });
-  describe('signatures', () => {
-    it('type', () => {
+  describe('signatures', function() {
+    it('type', function() {
       expect(signatures.KeyVault.type).to.equal('KeyVault');
       expect(signatures.ClientEncryption.type).to.equal('ClientEncryption');
     });
-    it('attributes', () => {
+    it('attributes', function() {
       expect(signatures.KeyVault.attributes.createKey).to.deep.equal({
         type: 'function',
         returnsPromise: true,
@@ -134,8 +137,8 @@ describe('Field Level Encryption', () => {
       });
     });
   });
-  describe('commands', () => {
-    beforeEach(() => {
+  describe('commands', function() {
+    beforeEach(function() {
       clientEncryptionSpy = sinon.spy();
       libmongoc = stubInterface<FLEClientEncryption>();
       sp = stubInterface<ServiceProvider>();
@@ -154,8 +157,8 @@ describe('Field Level Encryption', () => {
       clientEncryption = new ClientEncryption(mongo);
       keyVault = new KeyVault(clientEncryption);
     });
-    describe('constructor', () => {
-      it('constructs ClientEncryption with correct options', () => {
+    describe('constructor', function() {
+      it('constructs ClientEncryption with correct options', function() {
         expect(sp.getRawClient.getCalls().length).to.equal(1); // called for ClientEncryption construction
         expect(clientEncryptionSpy).to.have.been.calledOnceWithExactly(
           RAW_CLIENT,
@@ -168,20 +171,20 @@ describe('Field Level Encryption', () => {
         );
       });
     });
-    describe('encrypt', () => {
-      it('calls encrypt with algorithm on libmongoc', async() => {
+    describe('encrypt', function() {
+      it('calls encrypt with algorithm on libmongoc', async function() {
         const value = new bson.ObjectId();
         libmongoc.encrypt.resolves();
         await clientEncryption.encrypt(KEY_ID, value, ALGO);
         expect(libmongoc.encrypt).calledOnceWithExactly(value, { keyId: KEY_ID, algorithm: ALGO });
       });
-      it('calls encrypt with algorithm, contentionFactor, and queryType on libmongoc', async() => {
+      it('calls encrypt with algorithm, contentionFactor, and queryType on libmongoc', async function() {
         const value = new bson.ObjectId();
         libmongoc.encrypt.resolves();
         await clientEncryption.encrypt(KEY_ID, value, ENCRYPT_OPTIONS);
         expect(libmongoc.encrypt).calledOnceWithExactly(value, { keyId: KEY_ID, ...ENCRYPT_OPTIONS });
       });
-      it('throw if failed', async() => {
+      it('throw if failed', async function() {
         const value = new bson.ObjectId();
         const expectedError = new Error();
         libmongoc.encrypt.rejects(expectedError);
@@ -190,15 +193,15 @@ describe('Field Level Encryption', () => {
         expect(caughtError).to.equal(expectedError);
       });
     });
-    describe('decrypt', () => {
-      it('calls decrypt on libmongoc', async() => {
+    describe('decrypt', function() {
+      it('calls decrypt on libmongoc', async function() {
         const raw = 'decrypted';
         libmongoc.decrypt.resolves(raw);
         const result = await clientEncryption.decrypt(KEY_ID);
         expect(libmongoc.decrypt).calledOnceWithExactly(KEY_ID);
         expect(result).to.equal(raw);
       });
-      it('throw if failed', async() => {
+      it('throw if failed', async function() {
         const expectedError = new Error();
         libmongoc.decrypt.rejects(expectedError);
         const caughtError = await clientEncryption.decrypt(KEY_ID)
@@ -206,7 +209,7 @@ describe('Field Level Encryption', () => {
         expect(caughtError).to.equal(expectedError);
       });
     });
-    describe('encryptExpression', () => {
+    describe('encryptExpression', function() {
       const expression = {
         $and: [{ someField: { $gt: 1 } }]
       };
@@ -220,12 +223,12 @@ describe('Field Level Encryption', () => {
         }
       } as const;
 
-      it('calls encryptExpression with algorithm on libmongoc', async() => {
+      it('calls encryptExpression with algorithm on libmongoc', async function() {
         libmongoc.encryptExpression.resolves();
         await clientEncryption.encryptExpression(KEY_ID, expression, options);
         expect(libmongoc.encryptExpression).calledOnceWithExactly(expression, { keyId: KEY_ID, ...options });
       });
-      it('calls encryptExpression with algorithm, contentionFactor, and queryType on libmongoc', async() => {
+      it('calls encryptExpression with algorithm, contentionFactor, and queryType on libmongoc', async function() {
         const expression = {
           $and: [{ someField: { $gt: 1 } }]
         };
@@ -233,7 +236,7 @@ describe('Field Level Encryption', () => {
         await clientEncryption.encryptExpression(KEY_ID, expression, options);
         expect(libmongoc.encryptExpression).calledOnceWithExactly(expression, { keyId: KEY_ID, ...options });
       });
-      it('throw if failed', async() => {
+      it('throw if failed', async function() {
         const expectedError = new Error();
         libmongoc.encryptExpression.rejects(expectedError);
         const caughtError = await clientEncryption.encryptExpression(KEY_ID, expression, options)
@@ -241,8 +244,8 @@ describe('Field Level Encryption', () => {
         expect(caughtError).to.equal(expectedError);
       });
     });
-    describe('createKey', () => {
-      it('calls createDataKey on libmongoc with no key for local', async() => {
+    describe('createKey', function() {
+      it('calls createDataKey on libmongoc with no key for local', async function() {
         const raw = { result: 1 };
         const kms = 'local';
         libmongoc.createDataKey.resolves(raw);
@@ -250,7 +253,7 @@ describe('Field Level Encryption', () => {
         expect(libmongoc.createDataKey).calledOnceWithExactly(kms, undefined);
         expect(result).to.deep.equal(raw);
       });
-      it('calls createDataKey on libmongoc with doc key', async() => {
+      it('calls createDataKey on libmongoc with doc key', async function() {
         const raw = { result: 1 };
         const masterKey = { region: 'us-east-1', key: 'masterkey' };
         const keyAltNames = ['keyaltname'];
@@ -259,7 +262,7 @@ describe('Field Level Encryption', () => {
         expect(libmongoc.createDataKey).calledOnceWithExactly('aws', { masterKey, keyAltNames });
         expect(result).to.deep.equal(raw);
       });
-      it('throw if failed', async() => {
+      it('throw if failed', async function() {
         const masterKey = { region: 'us-east-1', key: 'masterkey' };
         const keyAltNames = ['keyaltname'];
         const expectedError = new Error();
@@ -268,7 +271,7 @@ describe('Field Level Encryption', () => {
           .catch(e => e);
         expect(caughtError).to.equal(expectedError);
       });
-      it('supports the old local-masterKey combination', async() => {
+      it('supports the old local-masterKey combination', async function() {
         const raw = { result: 1 };
         const kms = 'local';
         libmongoc.createDataKey.resolves(raw);
@@ -276,7 +279,7 @@ describe('Field Level Encryption', () => {
         expect(libmongoc.createDataKey).calledOnceWithExactly(kms, undefined);
         expect(result).to.deep.equal(raw);
       });
-      it('supports the old local-keyAltNames combination', async() => {
+      it('supports the old local-keyAltNames combination', async function() {
         const raw = { result: 1 };
         const kms = 'local';
         const keyAltNames = ['keyaltname'];
@@ -285,7 +288,7 @@ describe('Field Level Encryption', () => {
         expect(libmongoc.createDataKey).calledOnceWithExactly(kms, { keyAltNames });
         expect(result).to.deep.equal(raw);
       });
-      it('supports the old local-masterKey-keyAltNames combination', async() => {
+      it('supports the old local-masterKey-keyAltNames combination', async function() {
         const raw = { result: 1 };
         const kms = 'local';
         const keyAltNames = ['keyaltname'];
@@ -294,7 +297,7 @@ describe('Field Level Encryption', () => {
         expect(libmongoc.createDataKey).calledOnceWithExactly(kms, { keyAltNames });
         expect(result).to.deep.equal(raw);
       });
-      it('throws if alt names are given as second arg for non-local', async() => {
+      it('throws if alt names are given as second arg for non-local', async function() {
         const raw = { result: 1 };
         libmongoc.createDataKey.resolves(raw);
         try {
@@ -306,7 +309,7 @@ describe('Field Level Encryption', () => {
         }
         expect.fail('Expected error');
       });
-      it('throws if array is given twice', async() => {
+      it('throws if array is given twice', async function() {
         const raw = { result: 1 };
         libmongoc.createDataKey.resolves(raw);
         try {
@@ -318,7 +321,7 @@ describe('Field Level Encryption', () => {
         }
         expect.fail('Expected error');
       });
-      it('throws if old AWS style key is created', async() => {
+      it('throws if old AWS style key is created', async function() {
         const raw = { result: 1 };
         libmongoc.createDataKey.resolves(raw);
         try {
@@ -330,7 +333,7 @@ describe('Field Level Encryption', () => {
         }
         expect.fail('Expected error');
       });
-      it('throws if old AWS style key is created with altNames', async() => {
+      it('throws if old AWS style key is created with altNames', async function() {
         const raw = { result: 1 };
         libmongoc.createDataKey.resolves(raw);
         try {
@@ -342,7 +345,7 @@ describe('Field Level Encryption', () => {
         }
         expect.fail('Expected error');
       });
-      it('reads keyAltNames and keyMaterial from DataKeyEncryptionKeyOptions', async() => {
+      it('reads keyAltNames and keyMaterial from DataKeyEncryptionKeyOptions', async function() {
         const rawResult = { result: 1 };
         const keyVault = await mongo.getKeyVault();
         const options = {
@@ -355,8 +358,8 @@ describe('Field Level Encryption', () => {
         expect(libmongoc.createDataKey).calledOnceWithExactly('local', options);
       });
     });
-    describe('getKey', () => {
-      it('calls find on key coll', async() => {
+    describe('getKey', function() {
+      it('calls find on key coll', async function() {
         const c = {
           next() { return { _id: 1 }; },
           limit() {}
@@ -369,7 +372,7 @@ describe('Field Level Encryption', () => {
         expect(result._id).to.equal(1);
         expect(await result.next()).to.deep.equal({ _id: 1 });
       });
-      it('avoids running .find() twice if the cursor supports rewinding', async() => {
+      it('avoids running .find() twice if the cursor supports rewinding', async function() {
         const c = {
           next() { return { _id: 1 }; },
           limit() {},
@@ -383,7 +386,7 @@ describe('Field Level Encryption', () => {
         expect(result._id).to.equal(1);
         expect(await result.next()).to.deep.equal({ _id: 1 });
       });
-      it('works when no result is returned', async() => {
+      it('works when no result is returned', async function() {
         const c = {
           next() { return null; },
           limit() {}
@@ -398,8 +401,8 @@ describe('Field Level Encryption', () => {
         expect(await result.next()).to.deep.equal(null);
       });
     });
-    describe('getKeyByAltName', () => {
-      it('calls find on key coll', async() => {
+    describe('getKeyByAltName', function() {
+      it('calls find on key coll', async function() {
         const c = {
           next() { return { _id: 1 }; },
           limit() {}
@@ -414,8 +417,8 @@ describe('Field Level Encryption', () => {
         expect(await result.next()).to.deep.equal({ _id: 1 });
       });
     });
-    describe('getKeys', () => {
-      it('calls getKeys on libmongocrypt', async() => {
+    describe('getKeys', function() {
+      it('calls getKeys on libmongocrypt', async function() {
         const c = { count: 1 } as any;
         libmongoc.getKeys.returns(c);
         const result = await keyVault.getKeys();
@@ -423,8 +426,8 @@ describe('Field Level Encryption', () => {
         expect(result._cursor).to.deep.equal(c);
       });
     });
-    describe('deleteKey', () => {
-      it('calls deleteKey on libmongocrypt', async() => {
+    describe('deleteKey', function() {
+      it('calls deleteKey on libmongocrypt', async function() {
         const r = { acknowledged: true, deletedCount: 1 } as any;
         libmongoc.deleteKey.resolves(r);
         const result = await keyVault.deleteKey(KEY_ID);
@@ -432,8 +435,8 @@ describe('Field Level Encryption', () => {
         expect(result).to.deep.eq(r);
       });
     });
-    describe('addKeyAlternateName', () => {
-      it('calls addKeyAltName on libmongocrypt', async() => {
+    describe('addKeyAlternateName', function() {
+      it('calls addKeyAltName on libmongocrypt', async function() {
         const r = { value: { ok: 1 } } as any;
         libmongoc.addKeyAltName.resolves(r.value);
         const result = await keyVault.addKeyAlternateName(KEY_ID, 'altname');
@@ -444,8 +447,8 @@ describe('Field Level Encryption', () => {
         expect(result).to.deep.equal(r.value);
       });
     });
-    describe('removeKeyAlternateName', () => {
-      it('calls removeKeyAltName on libmongocrypt', async() => {
+    describe('removeKeyAlternateName', function() {
+      it('calls removeKeyAltName on libmongocrypt', async function() {
         const r = { value: { ok: 1 } } as any;
         libmongoc.removeKeyAltName.resolves(r.value);
         const result = await keyVault.removeKeyAlternateName(KEY_ID, 'altname');
@@ -456,8 +459,8 @@ describe('Field Level Encryption', () => {
         expect(result).to.deep.equal(r.value);
       });
     });
-    describe('rewrapManyDataKey', () => {
-      it('calls rewrapManyDataKey on clientEncryption', async() => {
+    describe('rewrapManyDataKey', function() {
+      it('calls rewrapManyDataKey on clientEncryption', async function() {
         const rawResult = { result: 1 } as any;
         libmongoc.rewrapManyDataKey.resolves(rawResult);
         const result = await keyVault.rewrapManyDataKey({ status: 0 }, { provider: 'local' });
@@ -465,7 +468,7 @@ describe('Field Level Encryption', () => {
         expect(result).to.deep.equal(rawResult);
       });
     });
-    describe('createEncryptedCollection', () => {
+    describe('createEncryptedCollection', function() {
       const dbName = 'secretDB';
       const collName = 'secretColl';
       const createCollectionOptions = {
@@ -480,7 +483,7 @@ describe('Field Level Encryption', () => {
         }
       };
 
-      beforeEach(() => {
+      beforeEach(function() {
         sp.createEncryptedCollection = sinon.stub();
         sp.createEncryptedCollection.resolves({
           collection: ({} as any),
@@ -492,7 +495,7 @@ describe('Field Level Encryption', () => {
         });
       });
 
-      it('calls createEncryptedCollection on service provider', async() => {
+      it('calls createEncryptedCollection on service provider', async function() {
         await clientEncryption.createEncryptedCollection(dbName, collName, createCollectionOptions);
         expect(sp.createEncryptedCollection).calledOnceWithExactly(
           dbName,
@@ -502,7 +505,7 @@ describe('Field Level Encryption', () => {
         );
       });
 
-      it('returns the created collection and a list of encrypted fields', async() => {
+      it('returns the created collection and a list of encrypted fields', async function() {
         const libmongocResponse = {
           collection: ({} as any),
           encryptedFields: [{
@@ -517,8 +520,8 @@ describe('Field Level Encryption', () => {
       });
     });
   });
-  describe('Mongo constructor FLE options', () => {
-    before(() => {
+  describe('Mongo constructor FLE options', function() {
+    before(function() {
       libmongoc = stubInterface<FLEClientEncryption>();
       sp = stubInterface<ServiceProvider>();
       sp.bsonLibrary = bson;
@@ -527,7 +530,7 @@ describe('Field Level Encryption', () => {
       instanceState = new ShellInstanceState(sp, stubInterface<EventEmitter>());
       instanceState.currentDb = stubInterface<Database>();
     });
-    it('accepts the same local key twice', () => {
+    it('accepts the same local key twice', function() {
       const localKmsOptions: ClientSideFieldLevelEncryptionOptions = {
         keyVaultNamespace: `${DB}.${COLL}`,
         kmsProviders: {
@@ -538,12 +541,10 @@ describe('Field Level Encryption', () => {
         schemaMap: SCHEMA_MAP,
         bypassAutoEncryption: true
       };
-      // eslint-disable-next-line no-new
       new Mongo(instanceState, 'localhost:27017', localKmsOptions, undefined, sp);
-      // eslint-disable-next-line no-new
       new Mongo(instanceState, 'localhost:27017', localKmsOptions, undefined, sp);
     });
-    it('allows getting ClientEncryption if a schema map is provided', async() => {
+    it('allows getting ClientEncryption if a schema map is provided', async function() {
       const localKmsOptions: ClientSideFieldLevelEncryptionOptions = {
         keyVaultNamespace: `${DB}.${COLL}`,
         kmsProviders: {
@@ -559,7 +560,7 @@ describe('Field Level Encryption', () => {
       expect(mongo.getClientEncryption()).to.be.instanceOf(ClientEncryption);
       expect(await mongo.getKeyVault()).to.be.instanceOf(KeyVault);
     });
-    it('fails if both explicitEncryptionOnly and schemaMap are passed', () => {
+    it('fails if both explicitEncryptionOnly and schemaMap are passed', function() {
       const localKmsOptions: ClientSideFieldLevelEncryptionOptions = {
         keyVaultNamespace: `${DB}.${COLL}`,
         kmsProviders: {
@@ -578,8 +579,8 @@ describe('Field Level Encryption', () => {
       expect.fail('Expected error');
     });
   });
-  describe('KeyVault constructor', () => {
-    beforeEach(() => {
+  describe('KeyVault constructor', function() {
+    beforeEach(function() {
       libmongoc = stubInterface<FLEClientEncryption>();
       sp = stubInterface<ServiceProvider>();
       sp.getRawClient.returns(RAW_CLIENT);
@@ -593,7 +594,7 @@ describe('Field Level Encryption', () => {
       instanceState = new ShellInstanceState(sp, stubInterface<EventEmitter>());
       instanceState.currentDb = stubInterface<Database>();
     });
-    it('fails to construct when FLE options are missing on Mongo', () => {
+    it('fails to construct when FLE options are missing on Mongo', function() {
       mongo = new Mongo(instanceState, 'localhost:27017', undefined, undefined, sp);
       clientEncryption = new ClientEncryption(mongo);
       try {
@@ -603,7 +604,7 @@ describe('Field Level Encryption', () => {
       }
       expect.fail('Expected error');
     });
-    it('fails to construct when the keyVaultNamespace option is invalid', () => {
+    it('fails to construct when the keyVaultNamespace option is invalid', function() {
       mongo = new Mongo(instanceState, 'localhost:27017', {
         keyVaultNamespace: 'asdf',
         kmsProviders: {}
@@ -618,7 +619,7 @@ describe('Field Level Encryption', () => {
     });
   });
 
-  describe('integration', () => {
+  describe('integration', function() {
     const testServer = startTestServer('shared');
     let dbname: string;
     let uri: string;
@@ -627,7 +628,7 @@ describe('Field Level Encryption', () => {
     let connections: any[];
     let printedOutput: any[];
 
-    beforeEach(async() => {
+    beforeEach(async function() {
       dbname = `test_fle_${Date.now()}`;
       uri = `${await testServer.connectionString()}/${dbname}`;
       serviceProvider = await CliServiceProvider.connect(uri, dummyOptions, {}, new EventEmitter());
@@ -660,7 +661,7 @@ describe('Field Level Encryption', () => {
       }));
     });
 
-    afterEach(async() => {
+    afterEach(async function() {
       await serviceProvider.dropDatabase(dbname);
       await instanceState.close(true);
       sinon.restore();
@@ -707,8 +708,7 @@ srDVjIT3LsvTqw==`
       }]
     ];
     for (const [ kmsName, kmsAndTlsOptions ] of kms) {
-      // eslint-disable-next-line no-loop-func
-      it(`provides ClientEncryption for kms=${kmsName}`, async() => {
+      it(`provides ClientEncryption for kms=${kmsName}`, async function() {
         const kmsOptions = { ...kmsAndTlsOptions, tlsOptions: undefined };
         const mongo = new Mongo(instanceState, uri, {
           keyVaultNamespace: `${dbname}.__keyVault`,
@@ -801,7 +801,7 @@ srDVjIT3LsvTqw==`
       });
     }
 
-    it('does not add duplicate keyAltNames when addKeyAlternateName is called twice', async() => {
+    it('does not add duplicate keyAltNames when addKeyAlternateName is called twice', async function() {
       const mongo = new Mongo(instanceState, uri, {
         keyVaultNamespace: `${dbname}.__keyVault`,
         kmsProviders: { local: { key: 'A'.repeat(128) } },
@@ -823,7 +823,7 @@ srDVjIT3LsvTqw==`
       expect(printedOutput).to.deep.equal([]);
     });
 
-    it('removes empty keyAltNames arrays from keyVault before initializing index', async() => {
+    it('removes empty keyAltNames arrays from keyVault before initializing index', async function() {
       const mongo = new Mongo(instanceState, uri, {
         keyVaultNamespace: `${dbname}.__keyVault`,
         kmsProviders: { local: { key: 'A'.repeat(128) } },
@@ -847,7 +847,7 @@ srDVjIT3LsvTqw==`
       expect(printedOutput).to.deep.equal([]);
     });
 
-    it('prints a warning when creating the keyAltNames index fails', async() => {
+    it('prints a warning when creating the keyAltNames index fails', async function() {
       const mongo = new Mongo(instanceState, uri, {
         keyVaultNamespace: `${dbname}.__keyVault`,
         kmsProviders: { local: { key: 'A'.repeat(128) } },

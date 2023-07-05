@@ -1,10 +1,12 @@
 import { expect } from 'chai';
 import { rephraseMongoError } from './mongo-errors';
 import Mongo from './mongo';
-import { StubbedInstance, stubInterface } from 'ts-sinon';
-import { bson, ServiceProvider } from '@mongosh/service-provider-core';
+import type { StubbedInstance} from 'ts-sinon';
+import { stubInterface } from 'ts-sinon';
+import type { ServiceProvider } from '@mongosh/service-provider-core';
+import { bson } from '@mongosh/service-provider-core';
 import Database from './database';
-import { EventEmitter } from 'events';
+import type { EventEmitter } from 'events';
 import ShellInstanceState from './shell-instance-state';
 import Collection from './collection';
 
@@ -19,27 +21,27 @@ class MongoshInternalError extends Error {
   }
 }
 
-describe('mongo-errors', () => {
-  describe('rephraseMongoError', () => {
-    context('for primitive "errors"', () => {
+describe('mongo-errors', function() {
+  describe('rephraseMongoError', function() {
+    context('for primitive "errors"', function() {
       [
         true,
         42,
         'a message',
         { some: 'object' }
       ].forEach(e => {
-        it(`skips ${JSON.stringify(e)}`, () => {
+        it(`skips ${JSON.stringify(e)}`, function() {
           expect(rephraseMongoError(e)).to.equal(e);
         });
       });
     });
 
-    context('for non-MongoError errors', () => {
+    context('for non-MongoError errors', function() {
       [
         new Error('an error'),
         Object.assign(new MongoshInternalError('Dummy error'), { code: 13435 })
       ].forEach(e => {
-        it(`ignores ${e.constructor.name} ${JSON.stringify(e)}`, () => {
+        it(`ignores ${e.constructor.name} ${JSON.stringify(e)}`, function() {
           const origMessage = e.message;
           const r = rephraseMongoError(e);
           expect(r).to.equal(r);
@@ -48,15 +50,15 @@ describe('mongo-errors', () => {
       });
     });
 
-    context('for MongoError errors', () => {
-      it('ignores an irrelevant error', () => {
+    context('for MongoError errors', function() {
+      it('ignores an irrelevant error', function() {
         const e = new MongoError('ignored');
         const r = rephraseMongoError(e);
         expect(r).to.equal(e);
         expect(r.message).to.equal('ignored');
       });
 
-      it('rephrases a NotPrimaryNoSecondaryOk error', () => {
+      it('rephrases a NotPrimaryNoSecondaryOk error', function() {
         const e = new MongoError('not master and slaveOk=false');
         e.code = 13435;
         const r = rephraseMongoError(e);
@@ -67,7 +69,7 @@ describe('mongo-errors', () => {
     });
   });
 
-  describe('intercepts shell API calls', () => {
+  describe('intercepts shell API calls', function() {
     let mongo: Mongo;
     let serviceProvider: StubbedInstance<ServiceProvider>;
     let database: Database;
@@ -75,7 +77,7 @@ describe('mongo-errors', () => {
     let instanceState: ShellInstanceState;
     let collection: Collection;
 
-    beforeEach(() => {
+    beforeEach(function() {
       bus = stubInterface<EventEmitter>();
       serviceProvider = stubInterface<ServiceProvider>();
       serviceProvider.runCommand.resolves({ ok: 1 });
@@ -88,7 +90,7 @@ describe('mongo-errors', () => {
       collection = new Collection(mongo, database, 'coll1');
     });
 
-    it('on collection.find error', async() => {
+    it('on collection.find error', async function() {
       const error = new MongoError('not master and slaveOk=false');
       error.code = 13435;
       serviceProvider.insertOne.rejects(error);

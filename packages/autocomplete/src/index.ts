@@ -1,6 +1,5 @@
-/* eslint complexity: 0, camelcase: 0, no-nested-ternary: 0 */
-
-import { signatures as shellSignatures, Topologies, TypeSignature } from '@mongosh/shell-api';
+import type { Topologies, TypeSignature } from '@mongosh/shell-api';
+import { signatures as shellSignatures } from '@mongosh/shell-api';
 import semver from 'semver';
 import {
   CONVERSION_OPERATORS,
@@ -122,8 +121,8 @@ async function completer(params: AutocompleteParameters, line: string): Promise<
   if (splitLine.length <= 1) {
     const hits = filterShellAPI(params, SHELL_COMPLETIONS, elToComplete);
     return [hits.length ? hits : [], line];
-  } else if (firstLineEl.match(/\bdb\b/) && splitLine.length === 2) {
-    if (elToComplete.match(/aggregate\s*\(\s*\[\s*\{\s*/)) {
+  } else if ((/\bdb\b/.exec(firstLineEl)) && splitLine.length === 2) {
+    if (/aggregate\s*\(\s*\[\s*\{\s*/.exec(elToComplete)) {
       const splitQuery = line.split('{');
       const prefix = splitQuery.pop()?.trim() || '';
       const command: string = prefix ? line.split(prefix).shift() as string : line;
@@ -147,8 +146,8 @@ async function completer(params: AutocompleteParameters, line: string): Promise<
     const colls = await params.getCollectionCompletionsForCurrentDb(elToComplete.trim());
     hits.push(...colls.map(coll => `${splitLine[0]}.${coll}`));
     return [hits.length ? hits : [], line];
-  } else if (firstLineEl.match(/\bdb\b/) && splitLine.length > 2) {
-    if (!splitLine[1].match(/^\s*\w+\s*$/) && !splitLine[1].match(/\bgetCollection\b/)) {
+  } else if ((/\bdb\b/.exec(firstLineEl)) && splitLine.length > 2) {
+    if (!(/^\s*\w+\s*$/.exec(splitLine[1])) && !(/\bgetCollection\b/.exec(splitLine[1]))) {
       // The collection name contains something that is not whitespace or an
       // alphanumeric character. This could be a function call, for example.
       // In any case, we can't currently provide reasonable autocompletion
@@ -158,12 +157,12 @@ async function completer(params: AutocompleteParameters, line: string): Promise<
 
     if (splitLine.length > 3) {
       // We're seeing something like db.coll.find().xyz or db.coll.aggregate().xyz
-      if (splitLine[2].match(/\baggregate\b/)) {
+      if (/\baggregate\b/.exec(splitLine[2])) {
         // aggregation cursor completions
         const hits = filterShellAPI(
           params, AGG_CURSOR_COMPLETIONS, elToComplete, splitLine);
         return [hits.length ? hits : [], line];
-      } else if (splitLine[2].match(/\bfind\b/)) {
+      } else if (/\bfind\b/.exec(splitLine[2])) {
         // collection cursor completions
         const hits = filterShellAPI(
           params, COLL_CURSOR_COMPLETIONS, elToComplete, splitLine);
@@ -176,7 +175,7 @@ async function completer(params: AutocompleteParameters, line: string): Promise<
     // complete aggregation and collection  queries/stages
     if (splitLine[2].includes('([') || splitLine[2].includes('({')) {
       let expressions;
-      if (splitLine[2].match(/\baggregate\b/)) {
+      if (/\baggregate\b/.exec(splitLine[2])) {
         // aggregation needs extra accumulators to autocomplete properly
         expressions = [
           ...BASE_COMPLETIONS,
@@ -197,15 +196,15 @@ async function completer(params: AutocompleteParameters, line: string): Promise<
     const hits = filterShellAPI(
       params, COLL_COMPLETIONS, elToComplete, splitLine);
     return [hits.length ? hits : [], line];
-  } else if (firstLineEl.match(/\bsh\b/) && splitLine.length === 2) {
+  } else if ((/\bsh\b/.exec(firstLineEl)) && splitLine.length === 2) {
     const hits = filterShellAPI(
       params, SHARD_COMPLETE, elToComplete, splitLine);
     return [hits.length ? hits : [], line];
-  } else if (firstLineEl.match(/\brs\b/) && splitLine.length === 2) {
+  } else if ((/\brs\b/.exec(firstLineEl)) && splitLine.length === 2) {
     const hits = filterShellAPI(
       params, RS_COMPLETIONS, elToComplete, splitLine);
     return [hits.length ? hits : [], line];
-  } else if (firstLineEl.match(/\bconfig\b/) && splitLine.length === 2) {
+  } else if ((/\bconfig\b/.exec(firstLineEl)) && splitLine.length === 2) {
     const hits = filterShellAPI(
       params, CONFIG_COMPLETIONS, elToComplete, splitLine);
     return [hits.length ? hits : [], line];

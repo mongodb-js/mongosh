@@ -5,10 +5,10 @@ import path from 'path';
 import { withTempPackageEach } from '../../../test/helpers';
 import { createPackage } from './create-package';
 
-describe('package tarball', () => {
+describe('package tarball', function() {
   const tmpPkg = withTempPackageEach();
 
-  it('packages the executable(s)', async() => {
+  it('packages the executable(s)', async function() {
     const tarball = await createPackage(tmpPkg.tarballDir, 'linux-x64', tmpPkg.pkgConfig);
     await fs.access(tarball.path);
     const tarname = path.basename(tarball.path).replace(/\.tgz$/, '');

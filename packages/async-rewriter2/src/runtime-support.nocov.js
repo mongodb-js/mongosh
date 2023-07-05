@@ -1,4 +1,3 @@
-/* eslint-disable no-extend-native, eqeqeq, strict, new-cap, callback-return */
 'use strict';
 // Polyfills for various callback-taking JS builtins.
 // A lot of these are from their respective MDN pages.

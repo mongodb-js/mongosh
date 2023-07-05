@@ -2,21 +2,21 @@ import { bson } from '@mongosh/service-provider-core';
 import { expect } from 'chai';
 import { inspect } from './inspect';
 
-describe('inspect', () => {
-  context('with simple types', () => {
-    it('inspects numbers', () => {
+describe('inspect', function() {
+  context('with simple types', function() {
+    it('inspects numbers', function() {
       expect(
         inspect(1)
       ).to.equal('1');
     });
 
-    it('inspects strings', () => {
+    it('inspects strings', function() {
       expect(
         inspect('123')
       ).to.equal('\'123\'');
     });
 
-    it('inspects booleans', () => {
+    it('inspects booleans', function() {
       expect(
         inspect(true)
       ).to.equal('true');
@@ -26,51 +26,51 @@ describe('inspect', () => {
       ).to.equal('false');
     });
 
-    it('inspects null', () => {
+    it('inspects null', function() {
       expect(
         inspect(null)
       ).to.equal('null');
     });
 
-    it('inspects undefined', () => {
+    it('inspects undefined', function() {
       expect(
         inspect(undefined)
       ).to.equal('undefined');
     });
 
-    it('inspects Dates', () => {
+    it('inspects Dates', function() {
       expect(
         inspect(new Date('2020-11-06T14:26:29.131Z'))
       ).to.equal('2020-11-06T14:26:29.131Z');
     });
   });
 
-  context('with BSON types', () => {
-    it('inspects ObjectId', () => {
+  context('with BSON types', function() {
+    it('inspects ObjectId', function() {
       expect(
         inspect(new bson.ObjectId('0000007b3db627730e26fd0b'))
       ).to.equal('ObjectId("0000007b3db627730e26fd0b")');
     });
 
-    it('inspects UUID', () => {
+    it('inspects UUID', function() {
       expect(
         inspect(new bson.Binary('abcdefghiklmnopq', 4))
       ).to.equal('UUID("61626364-6566-6768-696b-6c6d6e6f7071")');
     });
 
-    it('inspects nested ObjectId', () => {
+    it('inspects nested ObjectId', function() {
       expect(
         inspect({ p: new bson.ObjectId('0000007b3db627730e26fd0b') })
       ).to.equal('{ p: ObjectId("0000007b3db627730e26fd0b") }');
     });
 
-    it('inspects nested UUID', () => {
+    it('inspects nested UUID', function() {
       expect(
         inspect({ p: new bson.Binary('abcdefghiklmnopq', 4) })
       ).to.equal('{ p: UUID("61626364-6566-6768-696b-6c6d6e6f7071") }');
     });
 
-    it('does not require BSON types to be instances of the current bson library', () => {
+    it('does not require BSON types to be instances of the current bson library', function() {
       expect(
         inspect({
           _bsontype: 'ObjectID',
@@ -80,9 +80,9 @@ describe('inspect', () => {
     });
   });
 
-  context('with objects', () => {
-    context('when collapsed', () => {
-      it('formats objects on one line', () => {
+  context('with objects', function() {
+    context('when collapsed', function() {
+      it('formats objects on one line', function() {
         expect(
           inspect({ x: 1, y: 2 })
         ).to.equal('{ x: 1, y: 2 }');
@@ -90,7 +90,7 @@ describe('inspect', () => {
     });
   });
 
-  context('with frozen objects with _bsontype properties', () => {
+  context('with frozen objects with _bsontype properties', function() {
     expect(
       () => inspect(Object.freeze({
         _bsontype: 'ObjectID',

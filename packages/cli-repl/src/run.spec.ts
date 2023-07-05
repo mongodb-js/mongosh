@@ -5,7 +5,7 @@ import { expect } from 'chai';
 import { once } from 'events';
 const execFile = promisify(childProcess.execFile);
 
-describe('CLI entry point', () => {
+describe('CLI entry point', function() {
   const pathToRun = ['-r', 'ts-node/register', path.resolve(__dirname, 'run.ts')];
   async function run(args: string[], env?: Record<string, string>): Promise<{ stdout: string, stderr: string }> {
     // Use ts-node to run the .ts files directly so nyc can pick them up for
@@ -16,22 +16,22 @@ describe('CLI entry point', () => {
       { env: { ...process.env, ...(env ?? {}) } });
   }
 
-  it('prints the version if --version is being used', async() => {
+  it('prints the version if --version is being used', async function() {
     const { stdout } = await run(['--version']);
     expect(stdout).to.match(/^\d+\.\d+\.\d+/);
   });
 
-  it('prints the help text if --help is being used', async() => {
+  it('prints the help text if --help is being used', async function() {
     const { stdout } = await run(['--help']);
     expect(stdout).to.include('$ mongosh [options]');
   });
 
-  it('runs regular mongosh code otherwise', async() => {
+  it('runs regular mongosh code otherwise', async function() {
     const { stdout } = await run(['--nodb', '--norc', '--eval', '55 + 89']);
     expect(stdout).to.include('144');
   });
 
-  it('runs Node.js scripts if MONGOSH_RUN_NODE_SCRIPT is passed', async() => {
+  it('runs Node.js scripts if MONGOSH_RUN_NODE_SCRIPT is passed', async function() {
     const { stdout } = await run([path.resolve(__dirname, '..', 'test', 'fixtures', 'nodescript.js')], { MONGOSH_RUN_NODE_SCRIPT: '1' });
     expect(stdout).to.include('works!');
   });
@@ -58,7 +58,7 @@ describe('CLI entry point', () => {
   });
 
 
-  it('asks for connection string when configured to do so', async() => {
+  it('asks for connection string when configured to do so', async function() {
     const proc = childProcess.spawn(process.execPath, pathToRun, {
       stdio: 'pipe',
       env: { ...process.env, MONGOSH_FORCE_CONNECTION_STRING_PROMPT: '1' }

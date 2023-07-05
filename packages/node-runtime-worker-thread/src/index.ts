@@ -1,8 +1,9 @@
 /* istanbul ignore file */
 /* ^^^ we test the dist directly, so isntanbul can't calculate the coverage correctly */
 
-import { ChildProcess, spawn, SpawnOptionsWithoutStdio } from 'child_process';
-import {
+import type { ChildProcess, SpawnOptionsWithoutStdio } from 'child_process';
+import { spawn } from 'child_process';
+import type {
   Runtime,
   RuntimeEvaluationListener,
   RuntimeEvaluationResult
@@ -11,7 +12,8 @@ import type { MongoshBus } from '@mongosh/types';
 import path from 'path';
 import { EventEmitter, once } from 'events';
 import { kill } from './spawn-child-from-source';
-import { Caller, createCaller, cancel } from './rpc';
+import type { Caller} from './rpc';
+import { createCaller, cancel } from './rpc';
 import { ChildProcessEvaluationListener } from './child-process-evaluation-listener';
 import type { WorkerRuntime as WorkerThreadWorkerRuntime } from './worker-runtime';
 import { deserializeEvaluationResult, serializeConnectOptions } from './serializer';
@@ -106,7 +108,6 @@ class WorkerRuntime implements Runtime {
 
     let spawnError = '';
 
-    // eslint-disable-next-line chai-friendly/no-unused-expressions
     this.childProcess?.stderr?.setEncoding('utf8')?.on('data', (chunk) => {
       spawnError += chunk;
     });
@@ -121,7 +122,7 @@ class WorkerRuntime implements Runtime {
           error.message = `Child process failed to start with the following error: ${error.message}`;
         } else {
           error = new Error(
-            `Worker runtime failed to start: child process exited with code ${exitCode}`
+            `Worker runtime failed to start: child process exited with code ${exitCode as number|string}`
           );
         }
 

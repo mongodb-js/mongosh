@@ -1,4 +1,4 @@
-import { DevtoolsConnectOptions } from '@mongosh/service-provider-server/lib/cli-service-provider';
+import type { DevtoolsConnectOptions } from '@mongosh/service-provider-server/lib/cli-service-provider';
 import { expect } from 'chai';
 import { UUID, Long } from 'bson';
 import {
@@ -12,9 +12,9 @@ import {
 } from './serializer';
 import { dummyOptions } from './index.spec';
 
-describe('serializer', () => {
-  describe('serializeError', () => {
-    it('serializer Error to plain object', () => {
+describe('serializer', function() {
+  describe('serializeError', function() {
+    it('serializer Error to plain object', function() {
       const serialized = serializeError(new TypeError('Uh-oh'));
 
       expect(serialized).to.have.own.property('name', 'TypeError');
@@ -23,8 +23,8 @@ describe('serializer', () => {
     });
   });
 
-  describe('deserializeError', () => {
-    it('creates an instance of an error from plain object', () => {
+  describe('deserializeError', function() {
+    it('creates an instance of an error from plain object', function() {
       const err = deserializeError({ name: 'CustomError', message: 'Error!' });
 
       expect(err).to.be.instanceof(Error);
@@ -33,8 +33,8 @@ describe('serializer', () => {
     });
   });
 
-  describe('serializeEvaluationResult', () => {
-    it('should return primitive values as-is', () => {
+  describe('serializeEvaluationResult', function() {
+    it('should return primitive values as-is', function() {
       const serialized = serializeEvaluationResult({
         type: 'primitive',
         printable: 123
@@ -44,7 +44,7 @@ describe('serializer', () => {
       expect(serialized).to.have.property('printable', 123);
     });
 
-    it('should serialize error values', () => {
+    it('should serialize error values', function() {
       const serialized = serializeEvaluationResult({
         type: 'error',
         printable: new SyntaxError('Ooops!')
@@ -62,7 +62,7 @@ describe('serializer', () => {
       expect(serialized).to.have.nested.property('printable.message', 'Ooops!');
     });
 
-    it('should return inspect result for non shell-api result types (type === null)', () => {
+    it('should return inspect result for non shell-api result types (type === null)', function() {
       const serialized = serializeEvaluationResult({
         type: null,
         printable: function abc() {}
@@ -75,7 +75,7 @@ describe('serializer', () => {
       expect(serialized).to.have.property('printable', '[Function: abc]');
     });
 
-    it('should serialize shell-api result type', () => {
+    it('should serialize shell-api result type', function() {
       const serialized = serializeEvaluationResult({
         type: 'TotallyRealShellApiType',
         printable: { foo: 'bar' }
@@ -97,8 +97,8 @@ describe('serializer', () => {
     });
   });
 
-  describe('deserializeEvaluationResult', () => {
-    it('should deserialize SerializedErrorResult', () => {
+  describe('deserializeEvaluationResult', function() {
+    it('should deserialize SerializedErrorResult', function() {
       const deserialized = deserializeEvaluationResult({
         type: SerializedResultTypes.SerializedErrorResult,
         printable: { name: 'TypeError', message: 'Uh-oh' }
@@ -115,7 +115,7 @@ describe('serializer', () => {
       );
     });
 
-    it('should deserialize SerializedShellApiResult', () => {
+    it('should deserialize SerializedShellApiResult', function() {
       const deserialized = deserializeEvaluationResult({
         type: SerializedResultTypes.SerializedShellApiResult,
         printable: {
@@ -130,7 +130,7 @@ describe('serializer', () => {
         .deep.equal({ foo: 'bar' });
     });
 
-    it('should return unknown types as-is', () => {
+    it('should return unknown types as-is', function() {
       const deserialized = deserializeEvaluationResult({
         type: 'SomethingSomethingResultType',
         printable: 'Hello'
@@ -141,8 +141,8 @@ describe('serializer', () => {
     });
   });
 
-  describe('connection options', () => {
-    it('should serialize and deserialize FLE1 connection options', () => {
+  describe('connection options', function() {
+    it('should serialize and deserialize FLE1 connection options', function() {
       const options: DevtoolsConnectOptions = {
         ...dummyOptions,
         autoEncryption: {
@@ -188,7 +188,7 @@ describe('serializer', () => {
       expect(deserializeConnectOptions(serialized)).to.deep.equal(options);
     });
 
-    it('should serialize and deserialize FLE2 connection options', () => {
+    it('should serialize and deserialize FLE2 connection options', function() {
       const options: DevtoolsConnectOptions = {
         ...dummyOptions,
         autoEncryption: {

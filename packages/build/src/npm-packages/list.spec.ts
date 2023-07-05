@@ -1,12 +1,14 @@
 import { expect } from 'chai';
 import path from 'path';
-import sinon, { SinonStub } from 'sinon';
-import { LernaPackageDescription, listNpmPackages } from './list';
+import type { SinonStub } from 'sinon';
+import sinon from 'sinon';
+import type { LernaPackageDescription} from './list';
+import { listNpmPackages } from './list';
 import { markBumpedFilesAsAssumeUnchanged } from './publish';
 
-describe('npm-packages list', () => {
-  describe('listNpmPackages', () => {
-    it('lists packages', () => {
+describe('npm-packages list', function() {
+  describe('listNpmPackages', function() {
+    it('lists packages', function() {
       const packages = listNpmPackages();
       expect(packages.length).to.be.greaterThan(1);
       for (const { name, version } of packages) {
@@ -17,12 +19,12 @@ describe('npm-packages list', () => {
   });
 
 
-  describe('markBumpedFilesAsAssumeUnchanged', () => {
+  describe('markBumpedFilesAsAssumeUnchanged', function() {
     let packages: LernaPackageDescription[];
     let expectedFiles: string[];
     let spawnSync: SinonStub;
 
-    beforeEach(() => {
+    beforeEach(function() {
       expectedFiles = [
         path.resolve(__dirname, '..', '..', '..', '..', 'lerna.json')
       ];
@@ -35,7 +37,7 @@ describe('npm-packages list', () => {
       spawnSync = sinon.stub();
     });
 
-    it('marks files with --assume-unchanged', () => {
+    it('marks files with --assume-unchanged', function() {
       markBumpedFilesAsAssumeUnchanged(packages, true, spawnSync);
       expectedFiles.forEach(f => {
         expect(spawnSync).to.have.been.calledWith(
@@ -44,7 +46,7 @@ describe('npm-packages list', () => {
       });
     });
 
-    it('marks files with --no-assume-unchanged', () => {
+    it('marks files with --no-assume-unchanged', function() {
       markBumpedFilesAsAssumeUnchanged(packages, false, spawnSync);
       expectedFiles.forEach(f => {
         expect(spawnSync).to.have.been.calledWith(

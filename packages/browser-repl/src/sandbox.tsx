@@ -13,7 +13,7 @@ import {
 } from '@mongodb-js/compass-components';
 import { IframeRuntime } from './iframe-runtime';
 import { Shell } from './index';
-import { ShellOutputEntry } from './components/shell-output-line';
+import type { ShellOutputEntry } from './components/shell-output-line';
 
 injectGlobal({
   body: {

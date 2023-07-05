@@ -58,20 +58,20 @@ function parseCommit(commit: string): ConventionalCommit | undefined {
   }
 
   const PR_RE = /\s+\((#\d+)\)$/;
-  const pr = commit.match(PR_RE)?.[1];
+  const pr = (PR_RE.exec(commit))?.[1];
   commit = commit.replace(PR_RE, '');
 
   const TICKET_RE = /\s+\(?((MONGOSH|COMPASS)-\d+)\)?$/;
-  let ticket = commit.match(TICKET_RE)?.[1];
+  let ticket = (TICKET_RE.exec(commit))?.[1];
   commit = commit.replace(TICKET_RE, '');
 
   const COMMIT_RE = /^(?<type>feat|fix|perf)(\((?<scope>[^)]*)\))?:\s*(?<message>\S.*)/;
-  const groups = commit.match(COMMIT_RE)?.groups;
+  const groups = (COMMIT_RE.exec(commit))?.groups;
   if (!groups) {
     return undefined;
   }
 
-  if (groups.scope && groups.scope.match(/(MONGOSH|COMPASS)-\d+/)) {
+  if (groups.scope && (/(MONGOSH|COMPASS)-\d+/.exec(groups.scope))) {
     ticket = groups.scope;
     groups.scope = '';
   }

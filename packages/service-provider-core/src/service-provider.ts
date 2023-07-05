@@ -1,9 +1,9 @@
 import { MongoshInternalError } from '@mongosh/errors';
-import Admin from './admin';
-import Closable from './closable';
+import type Admin from './admin';
+import type Closable from './closable';
 import makePrintableBson from './printable-bson';
-import Readable from './readable';
-import Writable from './writable';
+import type Readable from './readable';
+import type Writable from './writable';
 import type { bson as BSON } from './index';
 
 /**

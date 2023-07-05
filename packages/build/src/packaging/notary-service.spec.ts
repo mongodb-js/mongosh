@@ -1,28 +1,29 @@
 import { expect } from 'chai';
 import path from 'path';
 import sinon from 'sinon';
-import { notarizeArtifact, NotarizeOptions } from './notary-service';
+import type { NotarizeOptions } from './notary-service';
+import { notarizeArtifact } from './notary-service';
 
-describe('packaging artifact signing', () => {
-  context('with invalid options', () => {
-    it('fails when file is missing', async() => {
+describe('packaging artifact signing', function() {
+  context('with invalid options', function() {
+    it('fails when file is missing', async function() {
       const e = await notarizeArtifact('', {} as any).catch(e => e);
       expect(e).to.not.be.undefined;
       expect(e.message).to.match(/missing file/);
     });
-    it('fails when signingKeyName is missing', async() => {
+    it('fails when signingKeyName is missing', async function() {
       const e = await notarizeArtifact('a file', {} as any).catch(e => e);
       expect(e).to.not.be.undefined;
       expect(e.message).to.match(/missing signing key name/);
     });
-    it('fails when authToken is missing', async() => {
+    it('fails when authToken is missing', async function() {
       const e = await notarizeArtifact('a file', {
         signingKeyName: 'keyName'
       } as any).catch(e => e);
       expect(e).to.not.be.undefined;
       expect(e.message).to.match(/missing auth token/);
     });
-    it('fails when signingComment is missing', async() => {
+    it('fails when signingComment is missing', async function() {
       const e = await notarizeArtifact('a file', {
         signingKeyName: 'keyName',
         authToken: 'token'
@@ -32,7 +33,7 @@ describe('packaging artifact signing', () => {
     });
   });
 
-  context('with correct options', () => {
+  context('with correct options', function() {
     let spawnSync: sinon.SinonStub;
     const signingOptions: NotarizeOptions = {
       signingKeyName: 'keyName',
@@ -40,11 +41,11 @@ describe('packaging artifact signing', () => {
       signingComment: 'A Comment'
     };
 
-    beforeEach(() => {
+    beforeEach(function() {
       spawnSync = sinon.stub();
     });
 
-    it('runs notary client', async() => {
+    it('runs notary client', async function() {
       await notarizeArtifact(
         __filename,
         signingOptions,

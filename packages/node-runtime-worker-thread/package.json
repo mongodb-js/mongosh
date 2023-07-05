@@ -20,7 +20,8 @@
     "test": "cross-env TS_NODE_PROJECT=./tsconfig.test.json mocha -r \"../../scripts/import-expansions.js\" --timeout 15000 -r ts-node/register \"./src/**/*.spec.ts\"",
     "pretest-ci": "node ../../scripts/run-if-package-requested.js npm run webpack-build -- --no-stats --no-devtool",
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
-    "lint": "eslint --report-unused-disable-directives \"./{src,test}/**/*.{js,ts,tsx}\"",
+    "eslint": "eslint",
+    "lint": "npm run eslint",
     "check": "npm run lint && npm run depcheck",
     "depcheck": "depcheck",
     "webpack-build": "npm run compile && webpack --mode production",
@@ -36,6 +37,7 @@
     "@mongosh/types": "0.0.0-dev.0",
     "depcheck": "^1.4.3",
     "bson": "^5.2.0",
+    "eslint": "^7.25.0",
     "mocha": "^10.2.0",
     "postmsg-rpc": "^2.4.0",
     "webpack-merge": "^5.8.0"

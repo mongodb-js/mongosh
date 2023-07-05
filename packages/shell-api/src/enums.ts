@@ -10,7 +10,7 @@ export enum Topologies {
   LoadBalanced = 'LoadBalanced'
 }
 
-import { ReplPlatform } from '@mongosh/service-provider-core';
+import type { ReplPlatform } from '@mongosh/service-provider-core';
 
 export const ALL_SERVER_VERSIONS = [ ServerVersions.earliest, ServerVersions.latest ];
 export const ALL_TOPOLOGIES = [ Topologies.ReplSet, Topologies.Sharded, Topologies.LoadBalanced, Topologies.Standalone ];

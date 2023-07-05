@@ -1,6 +1,7 @@
-import { ChildProcess } from 'child_process';
-import { MongoshBus } from '@mongosh/types';
-import { exposeAll, Exposed, close } from './rpc';
+import type { ChildProcess } from 'child_process';
+import type { MongoshBus } from '@mongosh/types';
+import type { Exposed} from './rpc';
+import { exposeAll, close } from './rpc';
 
 export class ChildProcessMongoshBus {
   exposedEmitter: Exposed<MongoshBus>;

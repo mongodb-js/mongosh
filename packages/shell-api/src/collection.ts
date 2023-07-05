@@ -1,8 +1,8 @@
-/* eslint-disable complexity */
-import Mongo from './mongo';
+import type Mongo from './mongo';
+import type {
+  Namespace} from './decorators';
 import {
   addSourceToResults,
-  Namespace,
   returnsPromise,
   returnType,
   serverVersions,
@@ -13,17 +13,18 @@ import {
   ShellApiWithMongoClass
 } from './decorators';
 import { asPrintable, namespaceInfo, ServerVersions, Topologies } from './enums';
+import type {
+  FindAndModifyShellOptions,
+  FindAndModifyMethodShellOptions,
+  RemoveShellOptions,
+  MapReduceShellOptions} from './helpers';
 import {
   adaptAggregateOptions,
   assertKeysDefined,
   dataFormat,
   validateExplainableVerbosity,
-  FindAndModifyShellOptions,
-  FindAndModifyMethodShellOptions,
   processFindAndModifyOptions,
   processRemoveOptions,
-  RemoveShellOptions,
-  MapReduceShellOptions,
   processMapReduceOptions,
   setHideIndex,
   maybeMarkAsExplainOutput,
@@ -35,7 +36,7 @@ import {
   coerceToJSNumber,
   buildConfigChunksCollectionMatch
 } from './helpers';
-import {
+import type {
   AnyBulkWriteOperation,
   BulkWriteOptions,
   CollStatsOptions,
@@ -59,13 +60,14 @@ import {
   DropCollectionOptions,
   CheckMetadataConsistencyOptions
 } from '@mongosh/service-provider-core';
+import type {
+  RunCommandCursor,
+  Database} from './index';
 import {
   AggregationCursor,
   BulkWriteResult,
   CommandResult,
   Cursor,
-  RunCommandCursor,
-  Database,
   DeleteResult,
   Explainable,
   InsertManyResult,
@@ -1093,7 +1095,7 @@ export default class Collection extends ShellApiWithMongoClass {
     const names = await this._createIndexes([ keys ], options, commitQuorum);
     if (!Array.isArray(names) || names.length !== 1) {
       throw new MongoshInternalError(
-        `Expected createIndexes() to return array of length 1, saw ${names}`);
+        `Expected createIndexes() to return array of length 1, saw ${names.toString()}`);
     }
     return names[0];
   }
@@ -1172,7 +1174,7 @@ export default class Collection extends ShellApiWithMongoClass {
   async getIndexKeys(): Promise<Document[]> {
     this._emitCollectionApiCall('getIndexKeys');
     const indexes = await this._mongo._serviceProvider.getIndexes(this._database._name, this._name, await this._database._baseOptions());
-    return indexes.map(i => i.key);
+    return indexes.map((i) => i.key);
   }
 
   /**
@@ -1201,7 +1203,7 @@ export default class Collection extends ShellApiWithMongoClass {
           (error?.errmsg === 'invalid index name spec' || error?.errmsg === undefined) &&
           Array.isArray(indexes) &&
           indexes.length > 0 &&
-          (await this._database.version()).match(/^4\.0\./)) {
+          (/^4\.0\./.exec((await this._database.version())))) {
         const all = await Promise.all((indexes as string[]).map(
           async index => await this.dropIndexes(index)));
         const errored = all.find(result => !result.ok);
@@ -1824,6 +1826,7 @@ export default class Collection extends ShellApiWithMongoClass {
   @deprecated
   @serverVersions([ServerVersions.earliest, '4.9.0'])
   @apiVersions([])
+  // eslint-disable-next-line @typescript-eslint/ban-types
   async mapReduce(map: Function | string, reduce: Function | string, optionsOrOutString: MapReduceShellOptions): Promise<Document> {
     await this._instanceState.printDeprecationWarning(
       'Collection.mapReduce() is deprecated. Use an aggregation instead.\nSee https://docs.mongodb.com/manual/core/map-reduce for details.'
