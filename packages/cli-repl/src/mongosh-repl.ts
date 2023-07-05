@@ -842,16 +842,16 @@ class MongoshNodeRepl implements EvaluationListener {
         (this.runtimeState().repl as any).historySize = value;
       }
       if (key === 'inspectCompact') {
-        this.inspectCompact = value as number|boolean; // TODO
+        this.inspectCompact = value as number|boolean;
       }
       if (key === 'inspectDepth') {
-        this.inspectDepth = value as number; // TODO
+        this.inspectDepth = value as number;
       }
       if (key === 'showStackTraces') {
-        this.showStackTraces = value as boolean; // TODO
+        this.showStackTraces = value as boolean;
       }
       if (key === 'redactHistory') {
-        this.redactHistory = value as 'keep' | 'remove' | 'remove-redact'; // TODO
+        this.redactHistory = value as 'keep' | 'remove' | 'remove-redact';
       }
     }
     return result;
