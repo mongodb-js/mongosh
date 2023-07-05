@@ -851,7 +851,7 @@ class MongoshNodeRepl implements EvaluationListener {
         this.showStackTraces = value as boolean;
       }
       if (key === 'redactHistory') {
-        this.redactHistory = value as 'keep' | 'remove' | 'remove-redact';
+        this.redactHistory = value as CliUserConfig['redactHistory'];
       }
     }
     return result;
