@@ -14,11 +14,13 @@
     "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 -r ts-node/register \"./{src,lib}/**/*.spec.ts\"",
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
     "eslint": "eslint",
-    "lint": "npm run eslint",
+    "lint": "npm run eslint && npm run prettier -- --check .",
     "check": "npm run lint && npm run depcheck",
     "depcheck": "depcheck",
     "compile": "tsc -p tsconfig.json",
-    "prepublish": "npm run compile"
+    "prepublish": "npm run compile",
+    "prettier": "prettier",
+    "reformat": "npm run prettier -- --write . && npm run eslint --fix"
   },
   "license": "Apache-2.0",
   "publishConfig": {
@@ -35,8 +37,10 @@
     "@babel/types": "^7.21.2"
   },
   "devDependencies": {
+    "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@types/babel__core": "^7.1.18",
+    "depcheck": "^1.4.3",
     "eslint": "^7.25.0",
-    "depcheck": "^1.4.3"
+    "prettier": "^2.3.2"
   }
 }

@@ -2,7 +2,7 @@ import {
   shellApiClassNoHelp,
   returnType,
   returnsPromise,
-  apiVersions
+  apiVersions,
 } from './decorators';
 import type {
   Document,
@@ -14,7 +14,9 @@ import { validateExplainableVerbosity, markAsExplainOutput } from './helpers';
 import { AbstractCursor } from './abstract-cursor';
 
 @shellApiClassNoHelp
-export abstract class AggregateOrFindCursor<CursorType extends ServiceProviderAggregationCursor | ServiceProviderCursor> extends AbstractCursor<CursorType> {
+export abstract class AggregateOrFindCursor<
+  CursorType extends ServiceProviderAggregationCursor | ServiceProviderCursor
+> extends AbstractCursor<CursorType> {
   @returnType('this')
   projection(spec: Document): this {
     this._cursor.project(spec);
@@ -45,7 +47,7 @@ export abstract class AggregateOrFindCursor<CursorType extends ServiceProviderAg
     const fullExplain: any = await this._cursor.explain(verbosity);
 
     const explain: any = {
-      ...fullExplain
+      ...fullExplain,
     };
 
     if (
@@ -56,9 +58,11 @@ export abstract class AggregateOrFindCursor<CursorType extends ServiceProviderAg
       delete explain.executionStats;
     }
 
-    if (verbosity === 'executionStats' &&
+    if (
+      verbosity === 'executionStats' &&
       explain.executionStats &&
-      explain.executionStats.allPlansExecution) {
+      explain.executionStats.allPlansExecution
+    ) {
       delete explain.executionStats.allPlansExecution;
     }
 

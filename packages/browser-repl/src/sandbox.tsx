@@ -9,7 +9,7 @@ import {
   TextInput,
   Toggle,
   injectGlobal,
-  cx
+  cx,
 } from '@mongodb-js/compass-components';
 import { IframeRuntime } from './iframe-runtime';
 import { Shell } from './index';
@@ -17,15 +17,15 @@ import type { ShellOutputEntry } from './components/shell-output-line';
 
 injectGlobal({
   body: {
-    margin: 0
+    margin: 0,
   },
   '*': {
-    boxSizing: 'border-box'
+    boxSizing: 'border-box',
   },
   'input[type=number]': {
     WebkitAppearance: 'none',
-    MozAppearance: 'textfield'
-  }
+    MozAppearance: 'textfield',
+  },
 });
 
 const sandboxContainer = css({
@@ -33,29 +33,29 @@ const sandboxContainer = css({
   height: '100vh',
   overflowX: 'hidden',
   overflowY: 'auto',
-  maxHeight: '100vh'
+  maxHeight: '100vh',
 });
 
 const shellContainer = css({
   height: '50vh',
-  maxHeight: 320
+  maxHeight: 320,
 });
 
 const controlsContainer = css({
   padding: '24px',
   paddingTop: 0,
-  paddingBottom: 0
+  paddingBottom: 0,
 });
 
 const textarea = css({
   textarea: {
     resize: 'vertical',
-    minHeight: '100px'
-  }
+    minHeight: '100px',
+  },
 });
 
 const textInput = css({
-  minWidth: 250
+  minWidth: 250,
 });
 
 const formField = css({
@@ -69,15 +69,15 @@ const formField = css({
   justifyItems: 'start',
   alignItems: 'start',
   '& :nth-child(1)': {
-    gridArea: 'label'
+    gridArea: 'label',
   },
   '& :nth-child(2)': {
-    gridArea: 'description'
+    gridArea: 'description',
   },
   '& :nth-child(3)': {
     gridArea: 'input',
-    justifySelf: 'end'
-  }
+    justifySelf: 'end',
+  },
 });
 
 const delay = (msecs = 0): Promise<void> =>
@@ -90,7 +90,7 @@ class DemoServiceProvider {
     await delay();
     return {
       version: '4.0.0',
-      modules: ['other', 'enterprise']
+      modules: ['other', 'enterprise'],
     };
   }
 
@@ -98,8 +98,8 @@ class DemoServiceProvider {
     return {
       buildInfo: await this.buildInfo(),
       extraInfo: {
-        uri: 'mongodb://localhost/'
-      }
+        uri: 'mongodb://localhost/',
+      },
     };
   }
 
@@ -107,8 +107,8 @@ class DemoServiceProvider {
     return {
       description: {
         type: 'ReplicaSetWithPrimary',
-        setName: 'replset'
-      }
+        setName: 'replset',
+      },
     };
   }
 
@@ -120,10 +120,10 @@ class DemoServiceProvider {
         { name: 'db1', sizeOnDisk: 10000, empty: false },
         { name: 'db2', sizeOnDisk: 20000, empty: false },
         { name: 'db-with-long-name', sizeOnDisk: 30000, empty: false },
-        { name: '500mb', sizeOnDisk: 500000000, empty: false }
+        { name: '500mb', sizeOnDisk: 500000000, empty: false },
       ],
       totalSize: 50000,
-      ok: 1
+      ok: 1,
     };
   }
 
@@ -136,7 +136,7 @@ class DemoServiceProvider {
       { name: 'coll', type: 'collection' },
       { name: 'people_imported', type: 'timeseries' },
       { name: 'cats', type: 'view' },
-      { name: 'system.views', type: '' }
+      { name: 'system.views', type: '' },
     ];
   }
 
@@ -153,12 +153,12 @@ const IframeRuntimeExample: React.FunctionComponent = () => {
   const [maxOutputLength, setMaxOutputLength] = useState(1000);
   const [maxHistoryLength, setMaxHistoryLength] = useState(1000);
   const [initialOutput] = useState<ShellOutputEntry[]>([
-    { format: 'output', value: { foo: 1, bar: true, buz: function() {} } }
+    { format: 'output', value: { foo: 1, bar: true, buz: function () {} } },
   ]);
   const [initialHistory, setInitialHistory] = useState([
     'show dbs',
     'db.coll.stats()',
-    '{x: 1, y: {z: 2}, k: [1, 2, 3]}'
+    '{x: 1, y: {z: 2}, k: [1, 2, 3]}',
   ]);
 
   useEffect(() => {

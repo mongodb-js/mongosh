@@ -4,10 +4,16 @@ import path from 'path';
 import { writeBuildInfo } from './build-info';
 import { Barque } from './barque';
 import { runCompile } from './compile';
-import type { Config} from './config';
+import type { Config } from './config';
 import { getReleaseVersionFromTag, redactConfig } from './config';
-import { createAndPublishDownloadCenterConfig, uploadArtifactToDownloadCenter } from './download-center';
-import { downloadArtifactFromEvergreen, uploadArtifactToEvergreen } from './evergreen';
+import {
+  createAndPublishDownloadCenterConfig,
+  uploadArtifactToDownloadCenter,
+} from './download-center';
+import {
+  downloadArtifactFromEvergreen,
+  uploadArtifactToEvergreen,
+} from './evergreen';
 import { GithubRepo } from '@mongodb-js/devtools-github-repo';
 import { publishToHomebrew } from './homebrew';
 import { bumpNpmPackages, publishNpmPackages } from './npm-packages';
@@ -16,7 +22,13 @@ import { runDraft } from './run-draft';
 import { runPublish } from './run-publish';
 import { runUpload } from './run-upload';
 
-export type ReleaseCommand = 'bump' | 'compile' | 'package' | 'upload' | 'draft' | 'publish';
+export type ReleaseCommand =
+  | 'bump'
+  | 'compile'
+  | 'package'
+  | 'upload'
+  | 'draft'
+  | 'publish';
 
 /**
  * Run release specific commands.
@@ -29,7 +41,8 @@ export async function release(
 ): Promise<void> {
   config = {
     ...config,
-    version: getReleaseVersionFromTag(config.triggeringGitTag) || config.version
+    version:
+      getReleaseVersionFromTag(config.triggeringGitTag) || config.version,
   };
 
   console.info(
@@ -44,7 +57,7 @@ export async function release(
   }
 
   const octokit = new Octokit({
-    auth: config.githubToken
+    auth: config.githubToken,
   });
 
   if (config.isDryRun) {
@@ -53,26 +66,42 @@ export async function release(
         return request(options);
       }
 
-      return { headers: {}, data: { content: { sha: '0'.repeat(40) }, commit: { sha: '0'.repeat(40) } } };
+      return {
+        headers: {},
+        data: {
+          content: { sha: '0'.repeat(40) },
+          commit: { sha: '0'.repeat(40) },
+        },
+      };
     });
   }
 
   const githubRepo = new GithubRepo(config.repo, octokit);
-  const homebrewCoreRepo = new GithubRepo({ owner: 'Homebrew', repo: 'homebrew-core' }, octokit);
-  const mongoHomebrewForkRepo = new GithubRepo({ owner: 'mongodb-js', repo: 'homebrew-core' }, octokit);
+  const homebrewCoreRepo = new GithubRepo(
+    { owner: 'Homebrew', repo: 'homebrew-core' },
+    octokit
+  );
+  const mongoHomebrewForkRepo = new GithubRepo(
+    { owner: 'mongodb-js', repo: 'homebrew-core' },
+    octokit
+  );
 
   if (command === 'compile') {
     await runCompile(config);
   } else if (command === 'package') {
     const tarballFile = await runPackage(config);
-    await fs.writeFile(path.join(config.outputDir, '.artifact_metadata'), JSON.stringify(tarballFile));
-  } else if (command === 'upload') {
-    const tarballFile = JSON.parse(await fs.readFile(path.join(config.outputDir, '.artifact_metadata'), 'utf8'));
-    await runUpload(
-      config,
-      tarballFile,
-      uploadArtifactToEvergreen
+    await fs.writeFile(
+      path.join(config.outputDir, '.artifact_metadata'),
+      JSON.stringify(tarballFile)
     );
+  } else if (command === 'upload') {
+    const tarballFile = JSON.parse(
+      await fs.readFile(
+        path.join(config.outputDir, '.artifact_metadata'),
+        'utf8'
+      )
+    );
+    await runUpload(config, tarballFile, uploadArtifactToEvergreen);
   } else if (command === 'draft') {
     await runDraft(
       config,

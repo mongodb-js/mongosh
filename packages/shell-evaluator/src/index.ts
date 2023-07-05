@@ -1,12 +1,8 @@
 import {
   ShellResult,
   ShellEvaluator,
-  EvaluationListener
+  EvaluationListener,
 } from './shell-evaluator';
 
-export {
-  ShellResult,
-  ShellEvaluator,
-  EvaluationListener
-};
+export { ShellResult, ShellEvaluator, EvaluationListener };
 export default ShellEvaluator;

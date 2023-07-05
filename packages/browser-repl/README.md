@@ -4,7 +4,7 @@ React Browser component for Mongo Shell
 
 ## Usage
 
-``` js
+```js
 import { Shell } from 'mongosh-browser-repl';
 
 export () => {
@@ -18,7 +18,7 @@ export () => {
 
 Uses an iframe window as sandbox for code execution. **NOTE:** the execution is not really sandboxed, the top window is accessible.
 
-``` js
+```js
 import { IframeRuntime } from 'mongosh-browser-repl';
 
 const runtime = new IframeRuntime(serviceProvider);

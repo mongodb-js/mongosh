@@ -1,28 +1,29 @@
- 
 import { expect } from 'chai';
 import { makeMultilineJSIntoSingleLine as toSingleLine } from './';
 
-describe('makeMultilineJSIntoSingleLine', function() {
-  it('handles simple input well', function() {
+describe('makeMultilineJSIntoSingleLine', function () {
+  it('handles simple input well', function () {
     expect(toSingleLine('1\n2\n3\n')).to.equal('1; 2; 3');
     expect(toSingleLine('1\n2\n3;')).to.equal('1; 2; 3;');
   });
 
-  it('performs ASI as necessary', function() {
+  it('performs ASI as necessary', function () {
     // Note that without ASI the semantics here would change
-    expect(toSingleLine('() => { return\n42\n }')).to.equal('() => {return; 42; }');
+    expect(toSingleLine('() => { return\n42\n }')).to.equal(
+      '() => {return; 42; }'
+    );
   });
 
-  it('treats comments properly', function() {
+  it('treats comments properly', function () {
     expect(toSingleLine('a // comment\n b')).to.equal('a; /* comment*/ b');
     expect(toSingleLine('a /* comment*/\n b')).to.equal('a; /* comment*/ b');
   });
 
-  it('keeps invalid code as-is', function() {
+  it('keeps invalid code as-is', function () {
     expect(toSingleLine('---\n---')).to.equal('--- ---');
   });
 
-  it('treats multiline template strings properly', function() {
+  it('treats multiline template strings properly', function () {
     for (const original of [
       '(`1\\t2`);',
       '(`1\\t\n2`);',

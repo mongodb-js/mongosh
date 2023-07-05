@@ -1,4 +1,9 @@
-import type { CommandOperationOptions, Document, ObjectId, Sort } from 'mongodb';
+import type {
+  CommandOperationOptions,
+  Document,
+  ObjectId,
+  Sort,
+} from 'mongodb';
 
 export type FinalizeFunction<TKey = ObjectId, TValue = Document> = (
   key: TKey,
@@ -8,7 +13,12 @@ export type FinalizeFunction<TKey = ObjectId, TValue = Document> = (
 export interface MapReduceOptions<TKey = ObjectId, TValue = Document>
   extends CommandOperationOptions {
   /** Sets the output target for the map reduce job. */
-  out?: 'inline' | { inline: 1 } | { replace: string } | { merge: string } | { reduce: string };
+  out?:
+    | 'inline'
+    | { inline: 1 }
+    | { replace: string }
+    | { merge: string }
+    | { reduce: string };
   /** Query filter object. */
   query?: Document;
   /** Sorts the input objects using this key. Useful for optimization, like sorting by the emit key for fewer reduces. */

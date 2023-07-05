@@ -3,7 +3,10 @@ import { expect } from 'chai';
 import { MongoClient } from 'mongodb';
 import { eventually } from '../../../testing/eventually';
 import { TestShell } from './test-shell';
-import { startTestServer, skipIfServerVersion } from '../../../testing/integration-testing-hooks';
+import {
+  startTestServer,
+  skipIfServerVersion,
+} from '../../../testing/integration-testing-hooks';
 import { promises as fs, createReadStream } from 'fs';
 import { promisify } from 'util';
 import rimraf from 'rimraf';
@@ -13,40 +16,49 @@ import { readReplLogfile, setTemporaryHomeDirectory } from './repl-helpers';
 import { bson } from '@mongosh/service-provider-core';
 const { EJSON } = bson;
 
-describe('e2e', function() {
+describe('e2e', function () {
   const testServer = startTestServer('shared');
 
   afterEach(TestShell.cleanup);
 
-  describe('--version', function() {
-    it('shows version', async function() {
-      const shell = TestShell.start({ args: [ '--version' ] });
+  describe('--version', function () {
+    it('shows version', async function () {
+      const shell = TestShell.start({ args: ['--version'] });
       await shell.waitForExit();
 
       shell.assertNoErrors();
-      shell.assertContainsOutput(
-        require('../package.json').version
-      );
+      shell.assertContainsOutput(require('../package.json').version);
     });
   });
 
-  describe('--build-info', function() {
-    it('shows build info in JSON format', async function() {
-      const shell = TestShell.start({ args: [ '--build-info' ] });
+  describe('--build-info', function () {
+    it('shows build info in JSON format', async function () {
+      const shell = TestShell.start({ args: ['--build-info'] });
       await shell.waitForExit();
 
       shell.assertNoErrors();
       const data = JSON.parse(shell.output);
       expect(Object.keys(data)).to.deep.equal([
-        'version', 'distributionKind', 'buildArch', 'buildPlatform',
-        'buildTarget', 'buildTime', 'gitVersion', 'nodeVersion',
-        'opensslVersion', 'sharedOpenssl', 'runtimeArch', 'runtimePlatform',
-        'deps'
+        'version',
+        'distributionKind',
+        'buildArch',
+        'buildPlatform',
+        'buildTarget',
+        'buildTime',
+        'gitVersion',
+        'nodeVersion',
+        'opensslVersion',
+        'sharedOpenssl',
+        'runtimeArch',
+        'runtimePlatform',
+        'deps',
       ]);
       expect(data.version).to.be.a('string');
       expect(data.nodeVersion).to.be.a('string');
       expect(data.distributionKind).to.be.a('string');
-      expect(['unpackaged', 'packaged', 'compiled'].includes(data.distributionKind)).to.be.true;
+      expect(
+        ['unpackaged', 'packaged', 'compiled'].includes(data.distributionKind)
+      ).to.be.true;
       expect(data.buildArch).to.be.a('string');
       expect(data.buildPlatform).to.be.a('string');
       expect(data.runtimeArch).to.be.a('string');
@@ -65,8 +77,15 @@ describe('e2e', function() {
       expect(data.deps.libmongocryptNodeBindingsVersion).to.be.a('string');
     });
 
-    it('provides build info via the buildInfo() builtin', async function() {
-      const shell = TestShell.start({ args: [ '--quiet', '--eval', 'JSON.stringify(buildInfo().deps)', '--nodb' ] });
+    it('provides build info via the buildInfo() builtin', async function () {
+      const shell = TestShell.start({
+        args: [
+          '--quiet',
+          '--eval',
+          'JSON.stringify(buildInfo().deps)',
+          '--nodb',
+        ],
+      });
       await shell.waitForExit();
       shell.assertNoErrors();
       const deps = JSON.parse(shell.output);
@@ -76,97 +95,115 @@ describe('e2e', function() {
     });
   });
 
-  describe('--nodb', function() {
+  describe('--nodb', function () {
     let shell: TestShell;
-    beforeEach(async function() {
+    beforeEach(async function () {
       shell = TestShell.start({
-        args: [ '--nodb' ]
+        args: ['--nodb'],
       });
       await shell.waitForPrompt();
       shell.assertNoErrors();
     });
-    it('db throws', async function() {
+    it('db throws', async function () {
       await shell.executeLine('db');
-      shell.assertContainsError('MongoshInvalidInputError: [SHAPI-10004] No connected database');
+      shell.assertContainsError(
+        'MongoshInvalidInputError: [SHAPI-10004] No connected database'
+      );
     });
-    it('show dbs throws InvalidInput', async function() {
+    it('show dbs throws InvalidInput', async function () {
       await shell.executeLine('show dbs');
-      shell.assertContainsError('MongoshInvalidInputError: [SHAPI-10004] No connected database');
+      shell.assertContainsError(
+        'MongoshInvalidInputError: [SHAPI-10004] No connected database'
+      );
     });
-    it('db.coll.find() throws InvalidInput', async function() {
+    it('db.coll.find() throws InvalidInput', async function () {
       await shell.executeLine('db.coll.find()');
-      shell.assertContainsError('MongoshInvalidInputError: [SHAPI-10004] No connected database');
+      shell.assertContainsError(
+        'MongoshInvalidInputError: [SHAPI-10004] No connected database'
+      );
       // We're seeing the prompt and not a stack trace.
       expect(shell.output).to.include('No connected database\n> ');
     });
-    it('colorizes syntax errors', async function() {
+    it('colorizes syntax errors', async function () {
       shell = TestShell.start({
-        args: [ '--nodb' ],
+        args: ['--nodb'],
         env: { ...process.env, FORCE_COLOR: 'true', TERM: 'xterm-256color' },
-        forceTerminal: true
+        forceTerminal: true,
       });
       await shell.waitForPrompt();
       shell.assertNoErrors();
 
       await shell.executeLine(',cat,\n');
       await eventually(() => {
-        expect(shell.rawOutput).to.match(/SyntaxError(\x1b\[.*m)+: Unexpected token/);
-        expect(shell.rawOutput).to.match(/>(\x1b\[.*m)+ 1 \|(\x1b\[.*m)+ (\x1b\[.*m)+,(\x1b\[.*m)+cat(\x1b\[.*m)+,(\x1b\[.*m)+/);
+        expect(shell.rawOutput).to.match(
+          /SyntaxError(\x1b\[.*m)+: Unexpected token/
+        );
+        expect(shell.rawOutput).to.match(
+          />(\x1b\[.*m)+ 1 \|(\x1b\[.*m)+ (\x1b\[.*m)+,(\x1b\[.*m)+cat(\x1b\[.*m)+,(\x1b\[.*m)+/
+        );
       });
     });
-    it('closes the shell when "exit" is entered', async function() {
+    it('closes the shell when "exit" is entered', async function () {
       const onExit = shell.waitForExit();
       shell.writeInputLine('exit');
       expect(await onExit).to.equal(0);
     });
-    it('closes the shell when "quit" is entered', async function() {
+    it('closes the shell when "quit" is entered', async function () {
       const onExit = shell.waitForExit();
       shell.writeInputLine('quit');
       expect(await onExit).to.equal(0);
     });
-    it('closes the shell with the specified exit code when "exit(n)" is entered', async function() {
+    it('closes the shell with the specified exit code when "exit(n)" is entered', async function () {
       const onExit = shell.waitForExit();
       shell.writeInputLine('exit(42)');
       expect(await onExit).to.equal(42);
     });
-    it('closes the shell with the specified exit code when "quit(n)" is entered', async function() {
+    it('closes the shell with the specified exit code when "quit(n)" is entered', async function () {
       const onExit = shell.waitForExit();
       shell.writeInputLine('quit(42)');
       expect(await onExit).to.equal(42);
     });
-    it('closes the shell with the pre-specified exit code when "exit" is entered', async function() {
+    it('closes the shell with the pre-specified exit code when "exit" is entered', async function () {
       const onExit = shell.waitForExit();
       shell.writeInputLine('process.exitCode = 42; exit()');
       expect(await onExit).to.equal(42);
     });
-    it('closes the shell with the pre-specified exit code when "quit" is entered', async function() {
+    it('closes the shell with the pre-specified exit code when "quit" is entered', async function () {
       const onExit = shell.waitForExit();
       shell.writeInputLine('process.exitCode = 42; quit()');
       expect(await onExit).to.equal(42);
     });
-    it('decorates internal errors with bug reporting information', async function() {
-      const err = await shell.executeLine('throw Object.assign(new Error("foo"), { code: "COMMON-90001" })');
+    it('decorates internal errors with bug reporting information', async function () {
+      const err = await shell.executeLine(
+        'throw Object.assign(new Error("foo"), { code: "COMMON-90001" })'
+      );
       expect(err).to.match(/^Error: foo$/m);
-      expect(err).to.match(/^This is an error inside mongosh\. Please file a bug report for the MONGOSH project here: https:\/\/jira.mongodb.org\/projects\/MONGOSH\/issues\.$/m);
-      expect(err).to.match(/^Please include the log file for this session \(.+[/\\][a-f0-9]{24}_log\)\.$/m);
+      expect(err).to.match(
+        /^This is an error inside mongosh\. Please file a bug report for the MONGOSH project here: https:\/\/jira.mongodb.org\/projects\/MONGOSH\/issues\.$/m
+      );
+      expect(err).to.match(
+        /^Please include the log file for this session \(.+[/\\][a-f0-9]{24}_log\)\.$/m
+      );
     });
-    it('does not expose parcelRequire', async function() {
+    it('does not expose parcelRequire', async function () {
       const err = await shell.executeLine('parcelRequire');
       expect(err).to.match(/ReferenceError: parcelRequire is not defined/);
     });
-    it('does not expose __webpack_require__', async function() {
+    it('does not expose __webpack_require__', async function () {
       const err = await shell.executeLine('__webpack_require__');
-      expect(err).to.match(/ReferenceError: __webpack_require__ is not defined/);
+      expect(err).to.match(
+        /ReferenceError: __webpack_require__ is not defined/
+      );
     });
-    it('parses code in sloppy mode by default (single line)', async function() {
+    it('parses code in sloppy mode by default (single line)', async function () {
       const result = await shell.executeLine('"<\\101>"');
       expect(result).to.match(/<A>/);
     });
-    it('parses code in sloppy mode by default (multiline)', async function() {
+    it('parses code in sloppy mode by default (multiline)', async function () {
       const result = await shell.executeLine('"a"+\n"<\\101>"');
       expect(result).to.match(/a<A>/);
     });
-    it('handles \\r\\n newline input properly', async function() {
+    it('handles \\r\\n newline input properly', async function () {
       shell.writeInput('34+55\r\n');
       await promisify(setTimeout)(100);
       shell.writeInput('_+55\r\n');
@@ -176,9 +213,9 @@ describe('e2e', function() {
         shell.assertContainsOutput('233');
       });
     });
-    it('accepts a --tlsFIPSMode argument', async function() {
+    it('accepts a --tlsFIPSMode argument', async function () {
       shell = TestShell.start({
-        args: [ '--nodb', '--tlsFIPSMode' ]
+        args: ['--nodb', '--tlsFIPSMode'],
       });
       const result = await shell.waitForPromptOrExit();
       // Whether this worked depends on the environment the test is running in.
@@ -187,13 +224,20 @@ describe('e2e', function() {
         shell.assertContainsOutput('Could not enable FIPS mode');
         expect(result.exitCode).to.equal(1);
       } else {
-        expect(await shell.executeLine('[crypto.getFips()]')).to.include('[ 1 ]');
+        expect(await shell.executeLine('[crypto.getFips()]')).to.include(
+          '[ 1 ]'
+        );
       }
     });
-    it('prints full output even when that output is buffered', async function() {
+    it('prints full output even when that output is buffered', async function () {
       shell = TestShell.start({
-        args: ['--nodb', '--quiet', '--eval', 'EJSON.stringify([...Array(100_000).keys()].map(i=>({i})),null,2)'],
-        consumeStdio: false
+        args: [
+          '--nodb',
+          '--quiet',
+          '--eval',
+          'EJSON.stringify([...Array(100_000).keys()].map(i=>({i})),null,2)',
+        ],
+        consumeStdio: false,
       });
       let buffer = '';
       let hasWaited = false;
@@ -203,7 +247,7 @@ describe('e2e', function() {
         if (buffer.includes('"i": 100') && !hasWaited) {
           // This delay is relevant for reproducing this bug; it gives
           // the mongosh process time to exit before all output has been printed.
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          await new Promise((resolve) => setTimeout(resolve, 1000));
           hasWaited = true;
         }
       }
@@ -211,45 +255,57 @@ describe('e2e', function() {
     });
   });
 
-  describe('set db', function() {
+  describe('set db', function () {
     for (const { mode, dbname, dbnameUri } of [
-      { mode: 'no special characetrs', dbname: 'testdb1', dbnameUri: 'testdb1' },
-      { mode: 'special characters', dbname: 'ä:-,🐈_\'[!?%', dbnameUri: 'ä:-,🐈_\'[!%3F%25' }
+      {
+        mode: 'no special characetrs',
+        dbname: 'testdb1',
+        dbnameUri: 'testdb1',
+      },
+      {
+        mode: 'special characters',
+        dbname: "ä:-,🐈_'[!?%",
+        dbnameUri: "ä:-,🐈_'[!%3F%25",
+      },
     ]) {
-      context(mode, function() {
-        describe('via host:port/test', function() {
+      context(mode, function () {
+        describe('via host:port/test', function () {
           let shell;
-          beforeEach(async function() {
-            shell = TestShell.start({ args: [`${await testServer.hostport()}/${dbname}`] });
+          beforeEach(async function () {
+            shell = TestShell.start({
+              args: [`${await testServer.hostport()}/${dbname}`],
+            });
             await shell.waitForPrompt();
             shell.assertNoErrors();
           });
-          it('db set correctly', async function() {
+          it('db set correctly', async function () {
             expect(await shell.executeLine('db')).to.include(dbname);
             shell.assertNoErrors();
           });
         });
-        describe('via mongodb://uri', function() {
+        describe('via mongodb://uri', function () {
           let shell;
-          beforeEach(async function() {
-            shell = TestShell.start({ args: [`mongodb://${await testServer.hostport()}/${dbnameUri}`] });
+          beforeEach(async function () {
+            shell = TestShell.start({
+              args: [`mongodb://${await testServer.hostport()}/${dbnameUri}`],
+            });
             await shell.waitForPrompt();
             shell.assertNoErrors();
           });
-          it('db set correctly', async function() {
+          it('db set correctly', async function () {
             expect(await shell.executeLine('db')).to.include(dbname);
             shell.assertNoErrors();
           });
         });
-        describe('legacy db only', function() {
+        describe('legacy db only', function () {
           let shell;
-          beforeEach(async function() {
+          beforeEach(async function () {
             const port = await testServer.port();
             shell = TestShell.start({ args: [dbname, `--port=${port}`] });
             await shell.waitForPrompt();
             shell.assertNoErrors();
           });
-          it('db set correctly', async function() {
+          it('db set correctly', async function () {
             expect(await shell.executeLine('db')).to.include(dbname);
             shell.assertNoErrors();
           });
@@ -258,15 +314,17 @@ describe('e2e', function() {
     }
   });
 
-  describe('set appName', function() {
-    context('with default appName', function() {
+  describe('set appName', function () {
+    context('with default appName', function () {
       let shell;
-      beforeEach(async function() {
-        shell = TestShell.start({ args: [`mongodb://${await testServer.hostport()}/`] });
+      beforeEach(async function () {
+        shell = TestShell.start({
+          args: [`mongodb://${await testServer.hostport()}/`],
+        });
         await shell.waitForPrompt();
         shell.assertNoErrors();
       });
-      it('appName set correctly', async function() {
+      it('appName set correctly', async function () {
         if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
           return this.skip(); // $currentOp is unversioned
         }
@@ -278,14 +336,16 @@ describe('e2e', function() {
       });
     });
 
-    context('with custom appName', function() {
+    context('with custom appName', function () {
       let shell;
-      beforeEach(async function() {
-        shell = TestShell.start({ args: [`mongodb://${await testServer.hostport()}/?appName=Felicia`] });
+      beforeEach(async function () {
+        shell = TestShell.start({
+          args: [`mongodb://${await testServer.hostport()}/?appName=Felicia`],
+        });
         await shell.waitForPrompt();
         shell.assertNoErrors();
       });
-      it('appName set correctly', async function() {
+      it('appName set correctly', async function () {
         if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
           return this.skip(); // $currentOp is unversioned
         }
@@ -297,16 +357,16 @@ describe('e2e', function() {
     });
   });
 
-  describe('with connection string', function() {
+  describe('with connection string', function () {
     let db;
     let client;
     let shell: TestShell;
     let dbName;
 
-    beforeEach(async function() {
+    beforeEach(async function () {
       const connectionString = await testServer.connectionString();
       dbName = `test-${Date.now()}`;
-      shell = TestShell.start({ args: [ connectionString ] });
+      shell = TestShell.start({ args: [connectionString] });
 
       client = await MongoClient.connect(connectionString, {});
 
@@ -316,47 +376,51 @@ describe('e2e', function() {
       shell.assertNoErrors();
     });
 
-    afterEach(async function() {
+    afterEach(async function () {
       await db.dropDatabase();
 
       client.close();
     });
 
-    it('version', async function() {
+    it('version', async function () {
       const expected = require('../package.json').version;
       await shell.executeLine('version()');
       shell.assertContainsOutput(expected);
     });
 
-    it('fle addon is available', async function() {
+    it('fle addon is available', async function () {
       const result = await shell.executeLine(
-        '`<${typeof db._mongo._serviceProvider.fle.ClientEncryption}>`');
+        '`<${typeof db._mongo._serviceProvider.fle.ClientEncryption}>`'
+      );
       expect(result).to.include('<function>');
     });
 
-    describe('error formatting', function() {
-      it('throws when a syntax error is encountered', async function() {
+    describe('error formatting', function () {
+      it('throws when a syntax error is encountered', async function () {
         await shell.executeLine(',x');
         shell.assertContainsError('SyntaxError: Unexpected token');
       });
-      it('throws a runtime error', async function() {
-        await shell.executeLine('throw new Error(\'a errmsg\')');
+      it('throws a runtime error', async function () {
+        await shell.executeLine("throw new Error('a errmsg')");
         shell.assertContainsError('Error: a errmsg');
       });
-      it('recognizes a driver error as error', async function() {
-        await shell.executeLine('db.coll.initializeOrderedBulkOp().find({}).update({}, {}).execute()');
+      it('recognizes a driver error as error', async function () {
+        await shell.executeLine(
+          'db.coll.initializeOrderedBulkOp().find({}).update({}, {}).execute()'
+        );
         // output varies by server version
         expect(shell.output).to.match(
-          /multi update (only works with \$ operators|is not supported for replacement-style update)/);
+          /multi update (only works with \$ operators|is not supported for replacement-style update)/
+        );
       });
-      context('when creating unique index', function() {
+      context('when creating unique index', function () {
         skipIfServerVersion(testServer, '< 5.3');
 
-        afterEach(async function() {
+        afterEach(async function () {
           await shell.executeLine('db.apples.drop()');
         });
 
-        it('prints out violations for unique index creation', async function() {
+        it('prints out violations for unique index creation', async function () {
           if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
             return this.skip(); // collMod.index.unique was removed from the stable API
           }
@@ -393,41 +457,41 @@ describe('e2e', function() {
         });
       });
     });
-    it('throws multiline input with a single line string', async function() {
+    it('throws multiline input with a single line string', async function () {
       // this is an unterminated string constant and should throw, since it does
       // not pass: https://www.ecma-international.org/ecma-262/#sec-line-terminators
       await shell.executeLine('"this is a multi\nline string');
       shell.assertContainsError('SyntaxError: Unterminated string constant');
     });
 
-    describe('literals', function() {
-      it('number', async function() {
+    describe('literals', function () {
+      it('number', async function () {
         expect(await shell.executeLine('1')).to.include('1');
         shell.assertNoErrors();
-        it('string', async function() {
+        it('string', async function () {
           expect(await shell.executeLine('"string"')).to.include('string');
           shell.assertNoErrors();
         });
-        it('undefined', async function() {
+        it('undefined', async function () {
           await shell.executeLine('undefined');
           shell.assertNoErrors();
         });
-        it('null', async function() {
+        it('null', async function () {
           expect(await shell.executeLine('null')).to.include('null');
           shell.assertNoErrors();
         });
-        it('bool', async function() {
+        it('bool', async function () {
           expect(await shell.executeLine('true')).to.include('true');
           shell.assertNoErrors();
         });
       });
     });
-    it('runs a complete function', async function() {
-      await shell.executeLine('function x () {\nconsole.log(\'y\')\n }');
+    it('runs a complete function', async function () {
+      await shell.executeLine("function x () {\nconsole.log('y')\n }");
       shell.assertNoErrors();
     });
 
-    it('runs an unterminated function', async function() {
+    it('runs an unterminated function', async function () {
       shell.writeInputLine('function x () {');
       await eventually(() => {
         shell.assertContainsOutput('...');
@@ -435,24 +499,22 @@ describe('e2e', function() {
       shell.assertNoErrors();
     });
 
-    it('runs help command', async function() {
+    it('runs help command', async function () {
       expect(await shell.executeLine('help')).to.include('Shell Help');
       shell.assertNoErrors();
     });
 
-    it('db set correctly', async function() {
+    it('db set correctly', async function () {
       expect(await shell.executeLine('db')).to.include('test');
       shell.assertNoErrors();
     });
 
-    it('allows to find documents', async function() {
+    it('allows to find documents', async function () {
       await shell.executeLine(`use ${dbName}`);
 
-      await db.collection('test').insertMany([
-        { doc: 1 },
-        { doc: 2 },
-        { doc: 3 }
-      ]);
+      await db
+        .collection('test')
+        .insertMany([{ doc: 1 }, { doc: 2 }, { doc: 3 }]);
 
       const output = await shell.executeLine('db.test.find()');
       expect(output).to.include('doc: 1');
@@ -463,16 +525,16 @@ describe('e2e', function() {
       shell.assertNoErrors();
     });
 
-    it('allows to find documents using aggregate', async function() {
+    it('allows to find documents using aggregate', async function () {
       await shell.executeLine(`use ${dbName}`);
 
-      await db.collection('test').insertMany([
-        { doc: 1 },
-        { doc: 2 },
-        { doc: 3 }
-      ]);
+      await db
+        .collection('test')
+        .insertMany([{ doc: 1 }, { doc: 2 }, { doc: 3 }]);
 
-      const output = await shell.executeLine('db.test.aggregate({ $match: {} })');
+      const output = await shell.executeLine(
+        'db.test.aggregate({ $match: {} })'
+      );
       expect(output).to.include('doc: 1');
       expect(output).to.include('doc: 2');
       expect(output).to.include('doc: 3');
@@ -481,14 +543,12 @@ describe('e2e', function() {
       shell.assertNoErrors();
     });
 
-    it('allows collections with .', async function() {
+    it('allows collections with .', async function () {
       await shell.executeLine(`use ${dbName}`);
 
-      await db.collection('test.dot').insertMany([
-        { doc: 1 },
-        { doc: 2 },
-        { doc: 3 }
-      ]);
+      await db
+        .collection('test.dot')
+        .insertMany([{ doc: 1 }, { doc: 2 }, { doc: 3 }]);
 
       const output = await shell.executeLine('db.test.dot.find()');
       expect(output).to.include('doc: 1');
@@ -498,7 +558,7 @@ describe('e2e', function() {
       shell.assertNoErrors();
     });
 
-    it('rewrites async for collections with .', async function() {
+    it('rewrites async for collections with .', async function () {
       await shell.executeLine(`use ${dbName}`);
       await shell.executeLine('const x = db.test.dot.insertOne({ d: 1 })');
       expect(await shell.executeLine('x.insertedId')).to.include('ObjectId');
@@ -506,14 +566,16 @@ describe('e2e', function() {
       shell.assertNoErrors();
     });
 
-    it('rewrites async for collections in the same statement', async function() {
+    it('rewrites async for collections in the same statement', async function () {
       await shell.executeLine(`use ${dbName}`);
-      expect(await shell.executeLine('db.test.insertOne({ d: 1 }).acknowledged')).to.include('true');
+      expect(
+        await shell.executeLine('db.test.insertOne({ d: 1 }).acknowledged')
+      ).to.include('true');
 
       shell.assertNoErrors();
     });
 
-    it('rewrites async properly for mapReduce', async function() {
+    it('rewrites async properly for mapReduce', async function () {
       if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
         return this.skip(); // mapReduce is unversioned
       }
@@ -528,53 +590,85 @@ describe('e2e', function() {
       expect(result).to.include('{ _id: 1, value: 4 }');
     });
 
-    it('rewrites async properly for common libraries', async function() {
+    it('rewrites async properly for common libraries', async function () {
       this.timeout(120_000);
       await shell.executeLine(`use ${dbName}`);
-      await shell.executeLine('db.test.insertOne({ d: new Date("2021-04-07T11:24:54+02:00") })');
-      shell.writeInputLine(`load(${JSON.stringify(require.resolve('lodash'))})`);
-      shell.writeInputLine(`load(${JSON.stringify(require.resolve('moment'))})`);
+      await shell.executeLine(
+        'db.test.insertOne({ d: new Date("2021-04-07T11:24:54+02:00") })'
+      );
+      shell.writeInputLine(
+        `load(${JSON.stringify(require.resolve('lodash'))})`
+      );
+      shell.writeInputLine(
+        `load(${JSON.stringify(require.resolve('moment'))})`
+      );
       shell.writeInputLine('print("loaded" + "scripts")');
-      await eventually(() => {
-        // Use eventually explicitly to get a bigger timeout, lodash is
-        // quite “big” in terms of async rewriting
-        shell.assertContainsOutput('loadedscripts');
-      }, { timeout: 60_000 });
+      await eventually(
+        () => {
+          // Use eventually explicitly to get a bigger timeout, lodash is
+          // quite “big” in terms of async rewriting
+          shell.assertContainsOutput('loadedscripts');
+        },
+        { timeout: 60_000 }
+      );
       const result = await shell.executeLine(
-        'moment(_.first(_.map(db.test.find().toArray(), "d"))).format("X")');
+        'moment(_.first(_.map(db.test.find().toArray(), "d"))).format("X")'
+      );
       expect(result).to.include('1617787494');
       shell.assertNotContainsOutput('[BABEL]');
     });
 
-    it('expands explain output indefinitely', async function() {
+    it('expands explain output indefinitely', async function () {
       await shell.executeLine('explainOutput = db.test.find().explain()');
-      await shell.executeLine('explainOutput.a = {b:{c:{d:{e:{f:{g:{h:{i:{j:{}}}}}}}}}}');
-      expect(await shell.executeLine('explainOutput')).to.match(/g:\s*\{\s*h:\s*\{\s*i:\s*\{\s*j:/);
+      await shell.executeLine(
+        'explainOutput.a = {b:{c:{d:{e:{f:{g:{h:{i:{j:{}}}}}}}}}}'
+      );
+      expect(await shell.executeLine('explainOutput')).to.match(
+        /g:\s*\{\s*h:\s*\{\s*i:\s*\{\s*j:/
+      );
     });
 
-    it('expands explain output from aggregation indefinitely', async function() {
-      await shell.executeLine('explainOutput = db.test.aggregate([{ $limit: 1 }], {explain: "queryPlanner"})');
-      await shell.executeLine('explainOutput.a = {b:{c:{d:{e:{f:{g:{h:{i:{j:{}}}}}}}}}}');
-      expect(await shell.executeLine('explainOutput')).to.match(/g:\s*\{\s*h:\s*\{\s*i:\s*\{\s*j:/);
+    it('expands explain output from aggregation indefinitely', async function () {
+      await shell.executeLine(
+        'explainOutput = db.test.aggregate([{ $limit: 1 }], {explain: "queryPlanner"})'
+      );
+      await shell.executeLine(
+        'explainOutput.a = {b:{c:{d:{e:{f:{g:{h:{i:{j:{}}}}}}}}}}'
+      );
+      expect(await shell.executeLine('explainOutput')).to.match(
+        /g:\s*\{\s*h:\s*\{\s*i:\s*\{\s*j:/
+      );
     });
 
-    it('allows toJSON on results of db operations', async function() {
+    it('allows toJSON on results of db operations', async function () {
       if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
         return this.skip(); // listCommands is unversioned
       }
-      expect(await shell.executeLine('typeof JSON.parse(JSON.stringify(db.listCommands())).ping.help')).to.include('string');
-      expect(await shell.executeLine('typeof JSON.parse(JSON.stringify(db.test.insertOne({}))).insertedId')).to.include('string');
+      expect(
+        await shell.executeLine(
+          'typeof JSON.parse(JSON.stringify(db.listCommands())).ping.help'
+        )
+      ).to.include('string');
+      expect(
+        await shell.executeLine(
+          'typeof JSON.parse(JSON.stringify(db.test.insertOne({}))).insertedId'
+        )
+      ).to.include('string');
     });
 
-    context('post-4.2', function() {
+    context('post-4.2', function () {
       skipIfServerVersion(testServer, '< 4.4');
-      it('allows calling convertShardKeyToHashed() as a global function', async function() {
-        expect(await shell.executeLine('convertShardKeyToHashed({foo:"bar"})')).to.include('Long("4975617422686807705")');
+      it('allows calling convertShardKeyToHashed() as a global function', async function () {
+        expect(
+          await shell.executeLine('convertShardKeyToHashed({foo:"bar"})')
+        ).to.include('Long("4975617422686807705")');
       });
 
-      it('rewrites async properly for a complex $function', async function() {
+      it('rewrites async properly for a complex $function', async function () {
         await shell.executeLine(`use ${dbName}`);
-        await shell.executeLine('db.test.insertMany([{i:[1,{v:5}]},{i:[2,{v:6}]},{i:[3,{v:7}]},{i:[4,{v:8}]}]);');
+        await shell.executeLine(
+          'db.test.insertMany([{i:[1,{v:5}]},{i:[2,{v:6}]},{i:[3,{v:7}]},{i:[4,{v:8}]}]);'
+        );
         const result = await shell.executeLine(`db.test.aggregate([
           {
             $project: {
@@ -593,11 +687,11 @@ describe('e2e', function() {
       });
     });
 
-    describe('document validation errors', function() {
-      context('post-4.4', function() {
+    describe('document validation errors', function () {
+      context('post-4.4', function () {
         skipIfServerVersion(testServer, '<= 4.4');
 
-        it('displays errInfo to the user', async function() {
+        it('displays errInfo to the user', async function () {
           await shell.executeLine(`db.createCollection('contacts', {
             validator: {
               $and: [
@@ -614,7 +708,7 @@ describe('e2e', function() {
           expect(result).to.include("reason: 'field was missing'");
         });
 
-        it('displays bulk result for failures to the user', async function() {
+        it('displays bulk result for failures to the user', async function () {
           await shell.executeLine(`db.createCollection('contacts', {
             validator: {
               $and: [
@@ -636,14 +730,17 @@ describe('e2e', function() {
       });
     });
 
-    describe('cursor transform operations', function() {
-      beforeEach(async function() {
+    describe('cursor transform operations', function () {
+      beforeEach(async function () {
         await shell.executeLine(`use ${dbName}`);
-        await shell.executeLine('for (let i = 0; i < 3; i++) db.coll.insertOne({i})');
+        await shell.executeLine(
+          'for (let i = 0; i < 3; i++) db.coll.insertOne({i})'
+        );
       });
 
-      it('works with .map() with immediate .toArray() iteration', async function() {
-        const result = await shell.executeLine(`const cs = db.coll.find().map((doc) => {
+      it('works with .map() with immediate .toArray() iteration', async function () {
+        const result =
+          await shell.executeLine(`const cs = db.coll.find().map((doc) => {
           print('mapped');
           return db.coll.find({_id:doc._id}).toArray()
         }); print('after'); cs.toArray()`);
@@ -652,8 +749,9 @@ describe('e2e', function() {
         expect(result).to.include('i: 1');
       });
 
-      it('works with .map() with later .toArray() iteration', async function() {
-        const before = await shell.executeLine(`const cs = db.coll.find().map((doc) => {
+      it('works with .map() with later .toArray() iteration', async function () {
+        const before =
+          await shell.executeLine(`const cs = db.coll.find().map((doc) => {
           print('mapped');
           return db.coll.find({_id:doc._id}).toArray()
         }); print('after');`);
@@ -664,8 +762,9 @@ describe('e2e', function() {
         expect(result).to.include('i: 1');
       });
 
-      it('works with .map() with implicit iteration', async function() {
-        const before = await shell.executeLine(`const cs = db.coll.find().map((doc) => {
+      it('works with .map() with implicit iteration', async function () {
+        const before =
+          await shell.executeLine(`const cs = db.coll.find().map((doc) => {
           print('mapped');
           return db.coll.findOne({_id:doc._id});
         }); print('after');`);
@@ -676,32 +775,35 @@ describe('e2e', function() {
         expect(result).to.include('i: 1');
       });
 
-      it('works with .forEach() iteration', async function() {
+      it('works with .forEach() iteration', async function () {
         await shell.executeLine('out = [];');
-        const before = await shell.executeLine(`db.coll.find().forEach((doc) => {
+        const before =
+          await shell.executeLine(`db.coll.find().forEach((doc) => {
           print('enter forEach');
           out.push(db.coll.findOne({_id:doc._id}));
           print('leave forEach');
         }); print('after');`);
-        expect(before).to.match(/(enter forEach\r?\nleave forEach\r?\n){3}after/);
+        expect(before).to.match(
+          /(enter forEach\r?\nleave forEach\r?\n){3}after/
+        );
         const result = await shell.executeLine('out[1]');
         expect(result).to.include('i: 1');
       });
     });
   });
 
-  describe('with --host', function() {
+  describe('with --host', function () {
     let shell: TestShell;
-    it('allows invalid hostnames with _', async function() {
+    it('allows invalid hostnames with _', async function () {
       shell = TestShell.start({
-        args: [ '--host', 'xx_invalid_domain_xx' ],
+        args: ['--host', 'xx_invalid_domain_xx'],
         env: { ...process.env, FORCE_COLOR: 'true', TERM: 'xterm-256color' },
-        forceTerminal: true
+        forceTerminal: true,
       });
 
       const result = await Promise.race([
         shell.waitForPromptOrExit(),
-        promisify(setTimeout)(5000)
+        promisify(setTimeout)(5000),
       ]);
 
       shell.assertNotContainsOutput('host');
@@ -714,15 +816,15 @@ describe('e2e', function() {
     });
   });
 
-  describe('Ctrl+C aka SIGINT', function() {
-    before(function() {
+  describe('Ctrl+C aka SIGINT', function () {
+    before(function () {
       if (process.platform === 'win32') {
         return this.skip(); // Cannot trigger SIGINT programmatically on Windows
       }
     });
 
-    describe('non-interactive', function() {
-      it('interrupts file execution', async function() {
+    describe('non-interactive', function () {
+      it('interrupts file execution', async function () {
         const filename = path.resolve(
           __dirname,
           'fixtures',
@@ -732,7 +834,7 @@ describe('e2e', function() {
         const shell = TestShell.start({
           args: ['--nodb', filename],
           removeSigintListeners: true,
-          forceTerminal: true
+          forceTerminal: true,
         });
 
         await eventually(() => {
@@ -753,36 +855,44 @@ describe('e2e', function() {
       });
     });
 
-    describe('interactive', function() {
+    describe('interactive', function () {
       let shell: TestShell;
-      beforeEach(async function() {
-        shell = TestShell.start({ args: [ '--nodb' ], removeSigintListeners: true });
+      beforeEach(async function () {
+        shell = TestShell.start({
+          args: ['--nodb'],
+          removeSigintListeners: true,
+        });
         await shell.waitForPrompt();
         shell.assertNoErrors();
       });
 
-      it('interrupts sync execution', async function() {
+      it('interrupts sync execution', async function () {
         await shell.executeLine('void process.removeAllListeners("SIGINT")');
         const result = shell.executeLine('while(true);');
         setTimeout(() => shell.kill('SIGINT'), 1000);
         await result;
         shell.assertContainsError('interrupted');
       });
-      it('interrupts async awaiting', async function() {
+      it('interrupts async awaiting', async function () {
         const result = shell.executeLine('new Promise(() => {});');
         setTimeout(() => shell.kill('SIGINT'), 3000);
         await result;
         shell.assertContainsOutput('Stopping execution...');
       });
-      it('interrupts load()', async function() {
-        const filename = path.resolve(__dirname, 'fixtures', 'load', 'infinite-loop.js');
+      it('interrupts load()', async function () {
+        const filename = path.resolve(
+          __dirname,
+          'fixtures',
+          'load',
+          'infinite-loop.js'
+        );
         const result = shell.executeLine(`load(${JSON.stringify(filename)})`);
         setTimeout(() => shell.kill('SIGINT'), 3000);
         await result;
         // The while loop in the script is run as "sync" code
         shell.assertContainsError('interrupted');
       });
-      it('behaves normally after an exception', async function() {
+      it('behaves normally after an exception', async function () {
         await shell.executeLine('throw new Error()');
         await new Promise((resolve) => setTimeout(resolve, 100));
         shell.kill('SIGINT');
@@ -791,40 +901,44 @@ describe('e2e', function() {
         shell.assertNotContainsOutput('interrupted');
         shell.assertNotContainsOutput('Stopping execution');
       });
-      it('does not trigger MaxListenersExceededWarning', async function() {
-        await shell.executeLine('for (let i = 0; i < 11; i++) { console.log("hi"); }\n');
-        await shell.executeLine('for (let i = 0; i < 20; i++) (async() => { await sleep(0) })()');
+      it('does not trigger MaxListenersExceededWarning', async function () {
+        await shell.executeLine(
+          'for (let i = 0; i < 11; i++) { console.log("hi"); }\n'
+        );
+        await shell.executeLine(
+          'for (let i = 0; i < 20; i++) (async() => { await sleep(0) })()'
+        );
         shell.assertNotContainsOutput('MaxListenersExceededWarning');
       });
     });
   });
 
-  describe('printing', function() {
+  describe('printing', function () {
     let shell;
-    beforeEach(async function() {
-      shell = TestShell.start({ args: [ '--nodb' ] });
+    beforeEach(async function () {
+      shell = TestShell.start({ args: ['--nodb'] });
       await shell.waitForPrompt();
       shell.assertNoErrors();
     });
-    it('console.log() prints output exactly once', async function() {
+    it('console.log() prints output exactly once', async function () {
       const result = await shell.executeLine('console.log(42);');
       expect(result).to.match(/\b42\b/);
       expect(result).not.to.match(/\b42[\s\r\n]*42\b/);
     });
-    it('print() prints output exactly once', async function() {
+    it('print() prints output exactly once', async function () {
       const result = await shell.executeLine('print(42);');
       expect(result).to.match(/\b42\b/);
       expect(result).not.to.match(/\b42[\s\r\n]*42\b/);
     });
   });
 
-  describe('pipe from stdin', function() {
+  describe('pipe from stdin', function () {
     let shell: TestShell;
-    beforeEach(async function() {
-      shell = TestShell.start({ args: [ await testServer.connectionString() ] });
+    beforeEach(async function () {
+      shell = TestShell.start({ args: [await testServer.connectionString()] });
     });
 
-    it('reads and runs code from stdin, with .write()', async function() {
+    it('reads and runs code from stdin, with .write()', async function () {
       const dbName = `test-${Date.now()}`;
       shell.process.stdin.write(`
       use ${dbName};
@@ -837,7 +951,7 @@ describe('e2e', function() {
       });
     });
 
-    it('reads and runs code from stdin, with .end()', async function() {
+    it('reads and runs code from stdin, with .end()', async function () {
       const dbName = `test-${Date.now()}`;
       shell.process.stdin.end(`
       use ${dbName};
@@ -850,44 +964,46 @@ describe('e2e', function() {
       });
     });
 
-    it('reads and runs the vscode extension example playground', async function() {
-      createReadStream(path.resolve(__dirname, 'fixtures', 'exampleplayground.js'))
-        .pipe(shell.process.stdin);
+    it('reads and runs the vscode extension example playground', async function () {
+      createReadStream(
+        path.resolve(__dirname, 'fixtures', 'exampleplayground.js')
+      ).pipe(shell.process.stdin);
       await eventually(() => {
         shell.assertContainsOutput("{ _id: 'xyz', totalSaleAmount: 150 }");
       });
     });
 
-    it('treats piping a script into stdin line by line', async function() {
+    it('treats piping a script into stdin line by line', async function () {
       if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
         return this.skip(); // collStats is unversioned
       }
       // This script doesn't work if evaluated as a whole, only when evaluated
       // line-by-line, due to Automatic Semicolon Insertion (ASI).
-      createReadStream(path.resolve(__dirname, 'fixtures', 'asi-script.js'))
-        .pipe(shell.process.stdin);
+      createReadStream(
+        path.resolve(__dirname, 'fixtures', 'asi-script.js')
+      ).pipe(shell.process.stdin);
       await eventually(() => {
         shell.assertContainsOutput('admin;system.version;');
       });
     });
   });
 
-  describe('Node.js builtin APIs in the shell', function() {
+  describe('Node.js builtin APIs in the shell', function () {
     let shell;
-    beforeEach(async function() {
+    beforeEach(async function () {
       shell = TestShell.start({
-        args: [ '--nodb' ],
+        args: ['--nodb'],
         cwd: path.resolve(__dirname, 'fixtures', 'require-base'),
         env: {
           ...process.env,
-          NODE_PATH: path.resolve(__dirname, 'fixtures', 'node-path')
-        }
+          NODE_PATH: path.resolve(__dirname, 'fixtures', 'node-path'),
+        },
       });
       await shell.waitForPrompt();
       shell.assertNoErrors();
     });
 
-    it('require() searches the current working directory according to Node.js rules', async function() {
+    it('require() searches the current working directory according to Node.js rules', async function () {
       let result;
       result = await shell.executeLine('require("a")');
       expect(result).to.match(/Error: Cannot find module 'a'/);
@@ -899,20 +1015,21 @@ describe('e2e', function() {
       expect(result).to.match(/^C$/m);
     });
 
-    it('Can use Node.js APIs without any extra effort', async function() {
+    it('Can use Node.js APIs without any extra effort', async function () {
       // Too lazy to write a fixture
       const result = await shell.executeLine(
-        `fs.readFileSync(${JSON.stringify(__filename)}, 'utf8')`);
+        `fs.readFileSync(${JSON.stringify(__filename)}, 'utf8')`
+      );
       expect(result).to.include('Too lazy to write a fixture');
     });
   });
 
-  describe('files loaded from command line', function() {
-    context('file from disk', function() {
-      it('loads a file from the command line as requested', async function() {
+  describe('files loaded from command line', function () {
+    context('file from disk', function () {
+      it('loads a file from the command line as requested', async function () {
         const shell = TestShell.start({
-          args: [ '--nodb', './hello1.js' ],
-          cwd: path.resolve(__dirname, 'fixtures', 'load')
+          args: ['--nodb', './hello1.js'],
+          cwd: path.resolve(__dirname, 'fixtures', 'load'),
         });
         await eventually(() => {
           shell.assertContainsOutput('hello one');
@@ -925,10 +1042,10 @@ describe('e2e', function() {
         shell.assertNoErrors();
       });
 
-      it('drops into shell if --shell is used', async function() {
+      it('drops into shell if --shell is used', async function () {
         const shell = TestShell.start({
-          args: [ '--nodb', '--shell', './hello1.js' ],
-          cwd: path.resolve(__dirname, 'fixtures', 'load')
+          args: ['--nodb', '--shell', './hello1.js'],
+          cwd: path.resolve(__dirname, 'fixtures', 'load'),
         });
         await shell.waitForPrompt();
         shell.assertContainsOutput('hello one');
@@ -936,10 +1053,10 @@ describe('e2e', function() {
         shell.assertNoErrors();
       });
 
-      it('fails with the error if the loaded script throws', async function() {
+      it('fails with the error if the loaded script throws', async function () {
         const shell = TestShell.start({
-          args: [ '--nodb', '--shell', './throw.js' ],
-          cwd: path.resolve(__dirname, 'fixtures', 'load')
+          args: ['--nodb', '--shell', './throw.js'],
+          cwd: path.resolve(__dirname, 'fixtures', 'load'),
         });
         await eventually(() => {
           shell.assertContainsOutput('Error: uh oh');
@@ -948,11 +1065,11 @@ describe('e2e', function() {
       });
     });
 
-    context('--eval', function() {
+    context('--eval', function () {
       const script = 'const a = "hello", b = " one"; a + b';
-      it('loads a script from the command line as requested', async function() {
+      it('loads a script from the command line as requested', async function () {
         const shell = TestShell.start({
-          args: [ '--nodb', '--eval', script ]
+          args: ['--nodb', '--eval', script],
         });
         await eventually(() => {
           shell.assertContainsOutput('hello one');
@@ -961,9 +1078,9 @@ describe('e2e', function() {
         shell.assertNoErrors();
       });
 
-      it('drops into shell if --shell is used', async function() {
+      it('drops into shell if --shell is used', async function () {
         const shell = TestShell.start({
-          args: [ '--nodb', '--eval', script, '--shell' ]
+          args: ['--nodb', '--eval', script, '--shell'],
         });
         await shell.waitForPrompt();
         shell.assertContainsOutput('hello one');
@@ -971,9 +1088,9 @@ describe('e2e', function() {
         shell.assertNoErrors();
       });
 
-      it('fails with the error if the loaded script throws', async function() {
+      it('fails with the error if the loaded script throws', async function () {
         const shell = TestShell.start({
-          args: [ '--nodb', '--eval', 'throw new Error("uh oh")' ]
+          args: ['--nodb', '--eval', 'throw new Error("uh oh")'],
         });
         await eventually(() => {
           shell.assertContainsOutput('Error: uh oh');
@@ -983,7 +1100,7 @@ describe('e2e', function() {
     });
   });
 
-  describe('config, logging and rc file', function() {
+  describe('config, logging and rc file', function () {
     let homedir: string;
     let env: Record<string, string>;
     let shell: TestShell;
@@ -995,7 +1112,7 @@ describe('e2e', function() {
     let readLogfile: () => Promise<any[]>;
     let startTestShell: (...extraArgs: string[]) => Promise<TestShell>;
 
-    beforeEach(function() {
+    beforeEach(function () {
       const homeInfo = setTemporaryHomeDirectory();
 
       homedir = homeInfo.homedir;
@@ -1003,20 +1120,38 @@ describe('e2e', function() {
 
       if (process.platform === 'win32') {
         logBasePath = path.resolve(homedir, 'local', 'mongodb', 'mongosh');
-        configPath = path.resolve(homedir, 'roaming', 'mongodb', 'mongosh', 'config');
-        historyPath = path.resolve(homedir, 'roaming', 'mongodb', 'mongosh', 'mongosh_repl_history');
+        configPath = path.resolve(
+          homedir,
+          'roaming',
+          'mongodb',
+          'mongosh',
+          'config'
+        );
+        historyPath = path.resolve(
+          homedir,
+          'roaming',
+          'mongodb',
+          'mongosh',
+          'mongosh_repl_history'
+        );
       } else {
         logBasePath = path.resolve(homedir, '.mongodb', 'mongosh');
         configPath = path.resolve(homedir, '.mongodb', 'mongosh', 'config');
-        historyPath = path.resolve(homedir, '.mongodb', 'mongosh', 'mongosh_repl_history');
+        historyPath = path.resolve(
+          homedir,
+          '.mongodb',
+          'mongosh',
+          'mongosh_repl_history'
+        );
       }
-      readConfig = async() => EJSON.parse(await fs.readFile(configPath, 'utf8'));
-      readLogfile = async() => readReplLogfile(logPath);
-      startTestShell = async(...extraArgs: string[]) => {
+      readConfig = async () =>
+        EJSON.parse(await fs.readFile(configPath, 'utf8'));
+      readLogfile = async () => readReplLogfile(logPath);
+      startTestShell = async (...extraArgs: string[]) => {
         const shell = TestShell.start({
-          args: [ '--nodb', ...extraArgs ],
+          args: ['--nodb', ...extraArgs],
           env: env,
-          forceTerminal: true
+          forceTerminal: true,
         });
         await shell.waitForPrompt();
         shell.assertNoErrors();
@@ -1024,7 +1159,7 @@ describe('e2e', function() {
       };
     });
 
-    afterEach(async function() {
+    afterEach(async function () {
       await TestShell.killall.call(this);
       try {
         await promisify(rimraf)(homedir);
@@ -1035,15 +1170,15 @@ describe('e2e', function() {
       }
     });
 
-    context('in fully accessible environment', function() {
-      beforeEach(async function() {
+    context('in fully accessible environment', function () {
+      beforeEach(async function () {
         await fs.mkdir(homedir, { recursive: true });
         shell = await startTestShell();
         logPath = path.join(logBasePath, `${shell.logId}_log`);
       });
 
-      describe('config file', function() {
-        it('sets up a config file', async function() {
+      describe('config file', function () {
+        it('sets up a config file', async function () {
           const config = await readConfig();
           expect(config.userId).to.match(/^[a-f0-9]{24}$/);
           expect(config.telemetryAnonymousId).to.match(/^[a-f0-9]{24}$/);
@@ -1051,62 +1186,79 @@ describe('e2e', function() {
           expect(config.disableGreetingMessage).to.be.true;
         });
 
-        it('persists between sessions', async function() {
+        it('persists between sessions', async function () {
           const config1 = await readConfig();
           await startTestShell();
           const config2 = await readConfig();
           expect(config1.userId).to.equal(config2.userId);
         });
 
-        it('loads a global config file if present', async function() {
+        it('loads a global config file if present', async function () {
           const globalConfig = path.join(homedir, 'globalconfig.conf');
-          await fs.writeFile(globalConfig, 'mongosh:\n  redactHistory: remove-redact');
+          await fs.writeFile(
+            globalConfig,
+            'mongosh:\n  redactHistory: remove-redact'
+          );
           shell = TestShell.start({
-            args: [ '--nodb' ],
+            args: ['--nodb'],
             env: {
               ...env,
-              MONGOSH_GLOBAL_CONFIG_FILE_FOR_TESTING: globalConfig
+              MONGOSH_GLOBAL_CONFIG_FILE_FOR_TESTING: globalConfig,
             },
-            forceTerminal: true
+            forceTerminal: true,
           });
           await shell.waitForPrompt();
-          expect(await shell.executeLine('config.get("redactHistory")')).to.include('remove-redact');
+          expect(
+            await shell.executeLine('config.get("redactHistory")')
+          ).to.include('remove-redact');
           shell.assertNoErrors();
         });
       });
 
-      describe('telemetry toggling', function() {
-        it('enableTelemetry() yields a success response', async function() {
-          expect(await shell.executeLine('enableTelemetry()')).to.include('Telemetry is now enabled');
+      describe('telemetry toggling', function () {
+        it('enableTelemetry() yields a success response', async function () {
+          expect(await shell.executeLine('enableTelemetry()')).to.include(
+            'Telemetry is now enabled'
+          );
           expect((await readConfig()).enableTelemetry).to.equal(true);
         });
-        it('disableTelemetry() yields a success response', async function() {
-          expect(await shell.executeLine('disableTelemetry();')).to.include('Telemetry is now disabled');
+        it('disableTelemetry() yields a success response', async function () {
+          expect(await shell.executeLine('disableTelemetry();')).to.include(
+            'Telemetry is now disabled'
+          );
           expect((await readConfig()).enableTelemetry).to.equal(false);
         });
       });
 
-      describe('log file', function() {
-        it('creates a log file that keeps track of session events', async function() {
+      describe('log file', function () {
+        it('creates a log file that keeps track of session events', async function () {
           expect(await shell.executeLine('print(123 + 456)')).to.include('579');
-          await eventually(async() => {
+          await eventually(async () => {
             const log = await readLogfile();
-            expect(log.filter(logEntry => /Evaluating input/.test(logEntry.msg)))
-              .to.have.lengthOf(1);
+            expect(
+              log.filter((logEntry) => /Evaluating input/.test(logEntry.msg))
+            ).to.have.lengthOf(1);
           });
         });
 
-        it('includes information about the driver version', async function() {
+        it('includes information about the driver version', async function () {
           const connectionString = await testServer.connectionString();
-          expect(await shell.executeLine(`connect(${JSON.stringify(connectionString)})`)).to.include('test');
+          expect(
+            await shell.executeLine(
+              `connect(${JSON.stringify(connectionString)})`
+            )
+          ).to.include('test');
           const log = await readLogfile();
-          expect(log.filter(logEntry => typeof logEntry.attr?.driver?.version === 'string'))
-            .to.have.lengthOf(1);
+          expect(
+            log.filter(
+              (logEntry) => typeof logEntry.attr?.driver?.version === 'string'
+            )
+          ).to.have.lengthOf(1);
         });
       });
 
-      describe('history file', function() {
-        it('persists between sessions', async function() {
+      describe('history file', function () {
+        it('persists between sessions', async function () {
           if (process.arch === 's390x') {
             return this.skip(); // https://jira.mongodb.org/browse/MONGOSH-746
           }
@@ -1126,7 +1278,7 @@ describe('e2e', function() {
           expect(await fs.readFile(historyPath, 'utf8')).to.match(/^a = 42$/m);
         });
 
-        it('is only user-writable (on POSIX)', async function() {
+        it('is only user-writable (on POSIX)', async function () {
           if (process.platform === 'win32') {
             return this.skip(); // No sensible fs permissions on Windows
           }
@@ -1139,25 +1291,28 @@ describe('e2e', function() {
         });
       });
 
-      describe('mongoshrc', function() {
-        beforeEach(async function() {
-          await fs.writeFile(path.join(homedir, '.mongoshrc.js'), 'print("hi from mongoshrc")');
+      describe('mongoshrc', function () {
+        beforeEach(async function () {
+          await fs.writeFile(
+            path.join(homedir, '.mongoshrc.js'),
+            'print("hi from mongoshrc")'
+          );
         });
 
-        it('loads .mongoshrc.js if it is there', async function() {
+        it('loads .mongoshrc.js if it is there', async function () {
           shell = await startTestShell();
           shell.assertContainsOutput('hi from mongoshrc');
         });
 
-        it('does not load .mongoshrc.js if --norc is passed', async function() {
+        it('does not load .mongoshrc.js if --norc is passed', async function () {
           shell = await startTestShell('--norc');
           shell.assertNotContainsOutput('hi from mongoshrc');
         });
       });
     });
 
-    context('in a restricted environment', function() {
-      it('keeps working when the home directory cannot be created at all', async function() {
+    context('in a restricted environment', function () {
+      it('keeps working when the home directory cannot be created at all', async function () {
         await fs.writeFile(homedir, 'this is a file and not a directory');
         const shell = await startTestShell();
         await eventually(() => {
@@ -1170,7 +1325,7 @@ describe('e2e', function() {
         expect(shell.assertNoErrors());
       });
 
-      it('keeps working when the log files cannot be created', async function() {
+      it('keeps working when the log files cannot be created', async function () {
         await fs.mkdir(path.dirname(logBasePath), { recursive: true });
         await fs.writeFile(logBasePath, 'also not a directory');
         const shell = await startTestShell();
@@ -1178,15 +1333,21 @@ describe('e2e', function() {
           expect(shell.output).to.include('Warning: Could not access file:');
         });
         expect(await shell.executeLine('print(123 + 456)')).to.include('579');
-        expect(await shell.executeLine('enableTelemetry()')).to.include('Telemetry is now enabled');
+        expect(await shell.executeLine('enableTelemetry()')).to.include(
+          'Telemetry is now enabled'
+        );
         await shell.executeLine('sleep(100)');
         expect(shell.output).to.not.include('anonymousId');
         expect(shell.output).to.not.include('AssertionError');
         expect(shell.assertNoErrors());
       });
 
-      it('keeps working when the config file is present but not writable', async function() {
-        if (process.platform === 'win32' || process.getuid() === 0 || process.geteuid() === 0) {
+      it('keeps working when the config file is present but not writable', async function () {
+        if (
+          process.platform === 'win32' ||
+          process.getuid() === 0 ||
+          process.geteuid() === 0
+        ) {
           return this.skip(); // There is no meaningful chmod on Windows, and root can ignore permissions.
         }
         await fs.mkdir(path.dirname(configPath), { recursive: true });
@@ -1205,30 +1366,37 @@ describe('e2e', function() {
     });
   });
 
-  describe('versioned API', function() {
+  describe('versioned API', function () {
     let db;
     let dbName;
     let client;
 
-    beforeEach(async function() {
+    beforeEach(async function () {
       dbName = `test-${Date.now()}`;
 
-      client = await MongoClient.connect(await testServer.connectionString(), {});
+      client = await MongoClient.connect(
+        await testServer.connectionString(),
+        {}
+      );
       db = client.db(dbName);
     });
 
-    afterEach(async function() {
+    afterEach(async function () {
       await db.dropDatabase();
       client.close();
     });
 
-    context('pre-4.4', function() {
+    context('pre-4.4', function () {
       skipIfServerVersion(testServer, '> 4.4');
 
-      it('errors if an API version is specified', async function() {
-        const shell = TestShell.start({ args: [
-          `${await testServer.connectionString()}/${dbName}`, '--apiVersion', '1'
-        ] });
+      it('errors if an API version is specified', async function () {
+        const shell = TestShell.start({
+          args: [
+            `${await testServer.connectionString()}/${dbName}`,
+            '--apiVersion',
+            '1',
+          ],
+        });
         if ((await shell.waitForPromptOrExit()).state === 'prompt') {
           await shell.executeLine('db.coll.find().toArray()');
         }
@@ -1236,87 +1404,111 @@ describe('e2e', function() {
       });
     });
 
-    context('post-4.4', function() {
+    context('post-4.4', function () {
       skipIfServerVersion(testServer, '<= 4.4');
 
-      it('can specify an API version', async function() {
-        const shell = TestShell.start({ args: [
-          `${await testServer.connectionString()}/${dbName}`, '--apiVersion', '1'
-        ] });
+      it('can specify an API version', async function () {
+        const shell = TestShell.start({
+          args: [
+            `${await testServer.connectionString()}/${dbName}`,
+            '--apiVersion',
+            '1',
+          ],
+        });
         await shell.waitForPrompt();
         shell.assertContainsOutput('(API Version 1)');
-        expect(await shell.executeLine('db.coll.find().toArray()'))
-          .to.include('[]');
+        expect(await shell.executeLine('db.coll.find().toArray()')).to.include(
+          '[]'
+        );
         shell.assertNoErrors();
       });
 
-      it('can specify an API version and strict mode', async function() {
-        const shell = TestShell.start({ args: [
-          `${await testServer.connectionString()}/${dbName}`, '--apiVersion', '1', '--apiStrict', '--apiDeprecationErrors'
-        ] });
+      it('can specify an API version and strict mode', async function () {
+        const shell = TestShell.start({
+          args: [
+            `${await testServer.connectionString()}/${dbName}`,
+            '--apiVersion',
+            '1',
+            '--apiStrict',
+            '--apiDeprecationErrors',
+          ],
+        });
         await shell.waitForPrompt();
         shell.assertContainsOutput('(API Version 1)');
-        expect(await shell.executeLine('db.coll.find().toArray()'))
-          .to.include('[]');
+        expect(await shell.executeLine('db.coll.find().toArray()')).to.include(
+          '[]'
+        );
         shell.assertNoErrors();
       });
 
-      it('can iterate cursors', async function() {
+      it('can iterate cursors', async function () {
         // Make sure SERVER-55593 doesn't happen to us.
-        const shell = TestShell.start({ args: [
-          `${await testServer.connectionString()}/${dbName}`, '--apiVersion', '1'
-        ] });
+        const shell = TestShell.start({
+          args: [
+            `${await testServer.connectionString()}/${dbName}`,
+            '--apiVersion',
+            '1',
+          ],
+        });
         await shell.waitForPrompt();
-        await shell.executeLine('for (let i = 0; i < 200; i++) db.coll.insert({i})');
-        await shell.executeLine('const cursor = db.coll.find().limit(100).batchSize(10);');
+        await shell.executeLine(
+          'for (let i = 0; i < 200; i++) db.coll.insert({i})'
+        );
+        await shell.executeLine(
+          'const cursor = db.coll.find().limit(100).batchSize(10);'
+        );
         expect(await shell.executeLine('cursor.toArray()')).to.include('i: 5');
         shell.assertNoErrors();
       });
     });
   });
 
-  describe('fail-fast connections', function() {
-    it('fails fast for ENOTFOUND errors', async function() {
-      const shell = TestShell.start({ args: [
-        'mongodb://' + 'verymuchnonexistentdomainname'.repeat(10) + '.mongodb.net/'
-      ] });
+  describe('fail-fast connections', function () {
+    it('fails fast for ENOTFOUND errors', async function () {
+      const shell = TestShell.start({
+        args: [
+          'mongodb://' +
+            'verymuchnonexistentdomainname'.repeat(10) +
+            '.mongodb.net/',
+        ],
+      });
       const exitCode = await shell.waitForExit();
       expect(exitCode).to.equal(1);
     });
 
-    it('fails fast for ECONNREFUSED errors to a single host', async function() {
-      const shell = TestShell.start({ args: [
-        '--port', '1'
-      ] });
+    it('fails fast for ECONNREFUSED errors to a single host', async function () {
+      const shell = TestShell.start({ args: ['--port', '1'] });
       const result = await shell.waitForPromptOrExit();
       expect(result).to.deep.equal({ state: 'exit', exitCode: 1 });
     });
 
-    it('fails fast for ECONNREFUSED errors to multiple hosts', async function() {
+    it('fails fast for ECONNREFUSED errors to multiple hosts', async function () {
       if (process.platform === 'darwin') {
         // On macOS, for some reason only connection that fails is the 127.0.0.1:1
         // one, over and over. It should be fine to only skip the test there, as this
         // isn't a shell-specific issue.
         return this.skip();
       }
-      const shell = TestShell.start({ args: [
-        'mongodb://127.0.0.1:1,127.0.0.2:1,127.0.0.3:1/?replicaSet=foo&readPreference=secondary'
-      ] });
+      const shell = TestShell.start({
+        args: [
+          'mongodb://127.0.0.1:1,127.0.0.2:1,127.0.0.3:1/?replicaSet=foo&readPreference=secondary',
+        ],
+      });
       const result = await shell.waitForPromptOrExit();
       expect(result).to.deep.equal({ state: 'exit', exitCode: 1 });
     });
   });
 
-  describe('collection names with types', function() {
+  describe('collection names with types', function () {
     let shell: TestShell;
 
-    beforeEach(async function() {
-      shell = TestShell.start({ args: [ await testServer.connectionString() ] });
+    beforeEach(async function () {
+      shell = TestShell.start({ args: [await testServer.connectionString()] });
       await shell.waitForPrompt();
       shell.assertNoErrors();
     });
 
-    it('prints collections with their types', async function() {
+    it('prints collections with their types', async function () {
       const dbName = `test-${Date.now()}`;
 
       await shell.executeLine(`use ${dbName};`);
@@ -1324,15 +1516,17 @@ describe('e2e', function() {
       expect(await shell.executeLine('show collections')).to.include('coll1');
     });
 
-    context('post-5.0', function() {
+    context('post-5.0', function () {
       skipIfServerVersion(testServer, '< 5.0');
 
-      it('prints collections with their types', async function() {
+      it('prints collections with their types', async function () {
         const dbName = `test-${Date.now()}`;
 
         await shell.executeLine(`use ${dbName};`);
         await shell.executeLine("db.coll2.insertOne({ some: 'field' });");
-        await shell.executeLine("db.createCollection('coll3', { timeseries: { timeField: 'time' } } );");
+        await shell.executeLine(
+          "db.createCollection('coll3', { timeseries: { timeField: 'time' } } );"
+        );
 
         const result = await shell.executeLine('show collections');
 
@@ -1343,18 +1537,18 @@ describe('e2e', function() {
     });
   });
 
-  describe('ask-for-connection-string mode', function() {
+  describe('ask-for-connection-string mode', function () {
     let shell: TestShell;
 
-    beforeEach(function() {
+    beforeEach(function () {
       shell = TestShell.start({
         args: [],
         env: { ...process.env, MONGOSH_FORCE_CONNECTION_STRING_PROMPT: '1' },
-        forceTerminal: true
+        forceTerminal: true,
       });
     });
 
-    it('allows connecting to a host and running commands against it', async function() {
+    it('allows connecting to a host and running commands against it', async function () {
       const connectionString = await testServer.connectionString();
       await eventually(() => {
         shell.assertContainsOutput('Please enter a MongoDB connection string');
@@ -1362,7 +1556,9 @@ describe('e2e', function() {
       shell.writeInputLine(connectionString);
       await shell.waitForPrompt();
 
-      expect(await shell.executeLine('db.runCommand({ping: 1})')).to.include('ok: 1');
+      expect(await shell.executeLine('db.runCommand({ping: 1})')).to.include(
+        'ok: 1'
+      );
 
       shell.writeInputLine('exit');
       await shell.waitForExit();
@@ -1370,25 +1566,32 @@ describe('e2e', function() {
     });
   });
 
-  describe('with incomplete loadBalanced connectivity', function() {
-    it('prints a warning at startup', async function() {
-      const shell = TestShell.start({ args: [ 'mongodb://localhost:1/?loadBalanced=true' ] });
+  describe('with incomplete loadBalanced connectivity', function () {
+    it('prints a warning at startup', async function () {
+      const shell = TestShell.start({
+        args: ['mongodb://localhost:1/?loadBalanced=true'],
+      });
       await shell.waitForPrompt();
-      shell.assertContainsOutput('The server failed to respond to a ping and may be unavailable');
+      shell.assertContainsOutput(
+        'The server failed to respond to a ping and may be unavailable'
+      );
       shell.assertContainsOutput('MongoNetworkError');
     });
   });
 
-  describe('run Node.js scripts as-is', function() {
-    it('runs Node.js scripts as they are when using MONGOSH_RUN_NODE_SCRIPT', async function() {
-      const filename = path.resolve(__dirname, 'fixtures', 'simple-console-log.js');
+  describe('run Node.js scripts as-is', function () {
+    it('runs Node.js scripts as they are when using MONGOSH_RUN_NODE_SCRIPT', async function () {
+      const filename = path.resolve(
+        __dirname,
+        'fixtures',
+        'simple-console-log.js'
+      );
       const shell = TestShell.start({
         args: [filename],
-        env: { ...process.env, MONGOSH_RUN_NODE_SCRIPT: '1' }
+        env: { ...process.env, MONGOSH_RUN_NODE_SCRIPT: '1' },
       });
       expect(await shell.waitForExit()).to.equal(0);
       shell.assertContainsOutput('610');
     });
   });
 });
-

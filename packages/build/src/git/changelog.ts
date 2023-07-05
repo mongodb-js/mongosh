@@ -4,34 +4,40 @@ export function generateChangelog(
   previousReleaseTag: string,
   spawnSync: typeof spawnSyncFn = spawnSyncFn
 ): string {
-  const gitLog = spawnSync('git', ['log', `${previousReleaseTag}...HEAD`, '--pretty=%s'], {
-    encoding: 'utf-8'
-  });
+  const gitLog = spawnSync(
+    'git',
+    ['log', `${previousReleaseTag}...HEAD`, '--pretty=%s'],
+    {
+      encoding: 'utf-8',
+    }
+  );
 
   const renderLine = (c: ConventionalCommit) => `- ${renderCommit(c)}`;
-  const renderSection = (s: {title: string, commits: ConventionalCommit[] }) => `## ${s.title}\n\n${s.commits.map(renderLine).join('\n')}\n\n`;
+  const renderSection = (s: { title: string; commits: ConventionalCommit[] }) =>
+    `## ${s.title}\n\n${s.commits.map(renderLine).join('\n')}\n\n`;
 
-  const commits = gitLog.stdout.split('\n')
+  const commits = gitLog.stdout
+    .split('\n')
     .map(parseCommit)
     .filter(Boolean) as ConventionalCommit[];
 
   const sections = [
     {
       title: 'Features',
-      commits: commits.filter(({ type }) => type === 'feat')
+      commits: commits.filter(({ type }) => type === 'feat'),
     },
     {
       title: 'Bug Fixes',
-      commits: commits.filter(({ type }) => type === 'fix')
+      commits: commits.filter(({ type }) => type === 'fix'),
     },
     {
       title: 'Performance Improvements',
-      commits: commits.filter(({ type }) => type === 'perf')
-    }
+      commits: commits.filter(({ type }) => type === 'perf'),
+    },
   ];
 
   return sections
-    .filter(section => section.commits.length)
+    .filter((section) => section.commits.length)
     .map(renderSection)
     .join('\n');
 }
@@ -58,20 +64,21 @@ function parseCommit(commit: string): ConventionalCommit | undefined {
   }
 
   const PR_RE = /\s+\((#\d+)\)$/;
-  const pr = (PR_RE.exec(commit))?.[1];
+  const pr = PR_RE.exec(commit)?.[1];
   commit = commit.replace(PR_RE, '');
 
   const TICKET_RE = /\s+\(?((MONGOSH|COMPASS)-\d+)\)?$/;
-  let ticket = (TICKET_RE.exec(commit))?.[1];
+  let ticket = TICKET_RE.exec(commit)?.[1];
   commit = commit.replace(TICKET_RE, '');
 
-  const COMMIT_RE = /^(?<type>feat|fix|perf)(\((?<scope>[^)]*)\))?:\s*(?<message>\S.*)/;
-  const groups = (COMMIT_RE.exec(commit))?.groups;
+  const COMMIT_RE =
+    /^(?<type>feat|fix|perf)(\((?<scope>[^)]*)\))?:\s*(?<message>\S.*)/;
+  const groups = COMMIT_RE.exec(commit)?.groups;
   if (!groups) {
     return undefined;
   }
 
-  if (groups.scope && (/(MONGOSH|COMPASS)-\d+/.exec(groups.scope))) {
+  if (groups.scope && /(MONGOSH|COMPASS)-\d+/.exec(groups.scope)) {
     ticket = groups.scope;
     groups.scope = '';
   }
@@ -82,7 +89,7 @@ function parseCommit(commit: string): ConventionalCommit | undefined {
     scope: groups.scope,
     message: groups.message,
     pr,
-    ticket
+    ticket,
   };
 }
 
@@ -92,5 +99,7 @@ function renderCommit(commit: ConventionalCommit): string {
     links = ` (${links})`;
   }
 
-  return `${commit.scope ? `**${commit.scope}**` + ': ' : ''}${capitalize(commit.message)}${links}`;
+  return `${commit.scope ? `**${commit.scope}**` + ': ' : ''}${capitalize(
+    commit.message
+  )}${links}`;
 }

@@ -9,7 +9,7 @@ interface ObjectOutputProps {
 
 export class ObjectOutput extends Component<ObjectOutputProps> {
   static propTypes = {
-    value: PropTypes.any
+    value: PropTypes.any,
   };
 
   render(): JSX.Element {

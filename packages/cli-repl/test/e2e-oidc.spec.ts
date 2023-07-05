@@ -1,11 +1,15 @@
-import { MlaunchSetup, skipIfApiStrict, skipIfEnvServerVersion } from '../../../testing/integration-testing-hooks';
+import {
+  MlaunchSetup,
+  skipIfApiStrict,
+  skipIfEnvServerVersion,
+} from '../../../testing/integration-testing-hooks';
 import type { OIDCMockProviderConfig } from '@mongodb-js/oidc-mock-provider';
 import { OIDCMockProvider } from '@mongodb-js/oidc-mock-provider';
 import { TestShell } from './test-shell';
 import path from 'path';
 import { expect } from 'chai';
 
-describe('OIDC auth e2e', function() {
+describe('OIDC auth e2e', function () {
   skipIfApiStrict(); // connectionStatus is unversioned.
 
   let getTokenPayload: typeof oidcMockProviderConfig.getTokenPayload;
@@ -16,11 +20,15 @@ describe('OIDC auth e2e', function() {
   let oidcMockProvider: OIDCMockProvider;
   let shell: TestShell;
 
-  const fetchBrowserFixture = `"${path.resolve(__dirname, 'fixtures', 'curl.js')}"`;
+  const fetchBrowserFixture = `"${path.resolve(
+    __dirname,
+    'fixtures',
+    'curl.js'
+  )}"`;
 
   skipIfEnvServerVersion('< 7.0');
 
-  before(async function() {
+  before(async function () {
     if (
       process.platform !== 'linux' ||
       !process.env.MONGOSH_SERVER_TEST_VERSION ||
@@ -43,7 +51,7 @@ describe('OIDC auth e2e', function() {
     oidcMockProviderConfig = {
       getTokenPayload(metadata) {
         return getTokenPayload(metadata);
-      }
+      },
     };
     oidcMockProvider = await OIDCMockProvider.create(oidcMockProviderConfig);
     const serverOidcConfig = {
@@ -59,26 +67,26 @@ describe('OIDC auth e2e', function() {
       'authenticationMechanisms=SCRAM-SHA-256,MONGODB-OIDC',
       // enableTestCommands allows using http:// issuers such as http://localhost
       '--setParameter',
-      'enableTestCommands=true'
+      'enableTestCommands=true',
     ];
-    testServer = new MlaunchSetup(
-      [
-        '--setParameter',
-        // weird quoting to work around mlaunch
-        `"'oidcIdentityProviders=${JSON.stringify([serverOidcConfig])}'"`,
-        ...commonOidcServerArgs
-      ]);
-    testServer2 = new MlaunchSetup(
-      [
-        '--setParameter',
-        // weird quoting to work around mlaunch
-        `"'oidcIdentityProviders=${JSON.stringify([{ ...serverOidcConfig, clientId: 'testServer2' }])}'"`,
-        ...commonOidcServerArgs
-      ]);
+    testServer = new MlaunchSetup([
+      '--setParameter',
+      // weird quoting to work around mlaunch
+      `"'oidcIdentityProviders=${JSON.stringify([serverOidcConfig])}'"`,
+      ...commonOidcServerArgs,
+    ]);
+    testServer2 = new MlaunchSetup([
+      '--setParameter',
+      // weird quoting to work around mlaunch
+      `"'oidcIdentityProviders=${JSON.stringify([
+        { ...serverOidcConfig, clientId: 'testServer2' },
+      ])}'"`,
+      ...commonOidcServerArgs,
+    ]);
     await Promise.all([testServer.start(), testServer2.start()]);
   });
 
-  beforeEach(function() {
+  beforeEach(function () {
     tokenFetches = 0;
     getTokenPayload = (metadata) => {
       tokenFetches++;
@@ -94,33 +102,41 @@ describe('OIDC auth e2e', function() {
     };
   });
 
-  after(async function() {
+  after(async function () {
     this.timeout(120_000);
     await Promise.all([
       testServer?.stop(),
       testServer2?.stop(),
-      oidcMockProvider?.close()
+      oidcMockProvider?.close(),
     ]);
   });
 
   afterEach(TestShell.cleanup);
 
-  async function verifyUser(shell: TestShell, username: string, group: string): Promise<void> {
+  async function verifyUser(
+    shell: TestShell,
+    username: string,
+    group: string
+  ): Promise<void> {
     const status = await shell.executeLine(
       'db.runCommand({connectionStatus: 1})'
     );
-    expect(status).to.include(`authenticatedUsers: [ { user: 'dev/${username}', db: '$external' } ]`);
-    expect(status).to.include(`authenticatedUserRoles: [ { role: 'dev/${group}', db: 'admin' } ]`);
+    expect(status).to.include(
+      `authenticatedUsers: [ { user: 'dev/${username}', db: '$external' } ]`
+    );
+    expect(status).to.include(
+      `authenticatedUserRoles: [ { role: 'dev/${group}', db: 'admin' } ]`
+    );
   }
 
-  it('can successfully authenticate using OIDC Auth Code Flow', async function() {
+  it('can successfully authenticate using OIDC Auth Code Flow', async function () {
     shell = TestShell.start({
       args: [
         await testServer.connectionString(),
         '--authenticationMechanism=MONGODB-OIDC',
         '--oidcRedirectUri=http://localhost:0/',
-        `--browser=${fetchBrowserFixture}`
-      ]
+        `--browser=${fetchBrowserFixture}`,
+      ],
     });
     await shell.waitForPrompt();
 
@@ -128,38 +144,42 @@ describe('OIDC auth e2e', function() {
     shell.assertNoErrors();
   });
 
-  it('can successfully authenticate using OIDC Device Auth Flow', async function() {
+  it('can successfully authenticate using OIDC Device Auth Flow', async function () {
     shell = TestShell.start({
       args: [
         await testServer.connectionString(),
         '--authenticationMechanism=MONGODB-OIDC',
-        '--oidcFlows=device-auth'
-      ]
+        '--oidcFlows=device-auth',
+      ],
     });
     await shell.waitForPrompt();
-    shell.assertContainsOutput('Visit the following URL to complete authentication');
+    shell.assertContainsOutput(
+      'Visit the following URL to complete authentication'
+    );
     shell.assertContainsOutput('Enter the following code on that page');
 
     await verifyUser(shell, 'testuser', 'testServer-group');
     shell.assertNoErrors();
   });
 
-  it('hints the user to use Device Auth Flow if starting a browser fails', async function() {
+  it('hints the user to use Device Auth Flow if starting a browser fails', async function () {
     shell = TestShell.start({
       args: [
         await testServer.connectionString(),
         '--authenticationMechanism=MONGODB-OIDC',
         '--oidcRedirectUri=http://localhost:0/',
-        '--browser=false'
-      ]
+        '--browser=false',
+      ],
     });
     await shell.waitForExit();
-    shell.assertContainsOutput('Consider specifying --oidcFlows=auth-code,device-auth if you are running mongosh in an environment without browser access');
+    shell.assertContainsOutput(
+      'Consider specifying --oidcFlows=auth-code,device-auth if you are running mongosh in an environment without browser access'
+    );
   });
 
-  it('can successfully re-authenticate when tokens expire', async function() {
+  it('can successfully re-authenticate when tokens expire', async function () {
     const originalGetPayload = getTokenPayload;
-    getTokenPayload = async(metadata) => {
+    getTokenPayload = async (metadata) => {
       return {
         expires_in: 10,
         payload: (await originalGetPayload(metadata)).payload,
@@ -170,8 +190,8 @@ describe('OIDC auth e2e', function() {
         await testServer.connectionString(),
         '--authenticationMechanism=MONGODB-OIDC',
         '--oidcRedirectUri=http://localhost:0/',
-        `--browser=${fetchBrowserFixture}`
-      ]
+        `--browser=${fetchBrowserFixture}`,
+      ],
     });
     await shell.waitForPrompt();
 
@@ -182,65 +202,75 @@ describe('OIDC auth e2e', function() {
     expect(tokenFetches).to.be.greaterThan(1);
   });
 
-  it('keeps authentication state when resetting connection options', async function() {
+  it('keeps authentication state when resetting connection options', async function () {
     const cs = await testServer.connectionString();
     shell = TestShell.start({
       args: [
         cs,
         '--authenticationMechanism=MONGODB-OIDC',
         '--oidcRedirectUri=http://localhost:0/',
-        `--browser=${fetchBrowserFixture}`
-      ]
+        `--browser=${fetchBrowserFixture}`,
+      ],
     });
     await shell.waitForPrompt();
 
     await verifyUser(shell, 'testuser', 'testServer-group');
     await shell.executeLine('db.getMongo().setReadPref("primaryPreferred");');
     await verifyUser(shell, 'testuser', 'testServer-group');
-    await shell.executeLine(`db = connect(${JSON.stringify(cs + '/?authMechanism=MONGODB-OIDC')})`);
+    await shell.executeLine(
+      `db = connect(${JSON.stringify(cs + '/?authMechanism=MONGODB-OIDC')})`
+    );
     await verifyUser(shell, 'testuser', 'testServer-group');
     shell.assertNoErrors();
     expect(tokenFetches).to.equal(1);
   });
 
-  it('re-authenticates when connecting to a different endpoint from the same shell', async function() {
+  it('re-authenticates when connecting to a different endpoint from the same shell', async function () {
     shell = TestShell.start({
       args: [
         await testServer.connectionString(),
         '--authenticationMechanism=MONGODB-OIDC',
         '--oidcRedirectUri=http://localhost:0/',
-        `--browser=${fetchBrowserFixture}`
-      ]
+        `--browser=${fetchBrowserFixture}`,
+      ],
     });
     await shell.waitForPrompt();
 
     await verifyUser(shell, 'testuser', 'testServer-group');
-    const cs2 = (await testServer2.connectionString()) + '/?authMechanism=MONGODB-OIDC';
+    const cs2 =
+      (await testServer2.connectionString()) + '/?authMechanism=MONGODB-OIDC';
     await shell.executeLine(`db = connect(${JSON.stringify(cs2)})`);
     await verifyUser(shell, 'testuser', 'testServer2-group');
     shell.assertNoErrors();
     expect(tokenFetches).to.equal(2);
   });
 
-  it('can share state with another shell', async function() {
+  it('can share state with another shell', async function () {
     shell = TestShell.start({
       args: [
         await testServer.connectionString(),
         '--authenticationMechanism=MONGODB-OIDC',
         '--oidcRedirectUri=http://localhost:0/',
-        `--browser=${fetchBrowserFixture}`
-      ]
+        `--browser=${fetchBrowserFixture}`,
+      ],
     });
 
     await shell.waitForPrompt();
     await verifyUser(shell, 'testuser', 'testServer-group');
 
     // Internal hack to get a state-share server as e.g. Compass or the VSCode extension would
-    let handle = await shell.executeLine('db.getMongo()._serviceProvider.currentClientOptions.parentState.getStateShareServer()');
+    let handle = await shell.executeLine(
+      'db.getMongo()._serviceProvider.currentClientOptions.parentState.getStateShareServer()'
+    );
     // `handle` can include the next prompt when returned by `shell.executeLine()`,
     // so look for the longest prefix of it that is valid JSON.
     while (handle) {
-      try { JSON.parse(handle); break; } catch { /* next */ }
+      try {
+        JSON.parse(handle);
+        break;
+      } catch {
+        /* next */
+      }
       handle = handle.slice(0, -1);
     }
 
@@ -249,12 +279,12 @@ describe('OIDC auth e2e', function() {
         await testServer.connectionString(),
         '--authenticationMechanism=MONGODB-OIDC',
         '--oidcRedirectUri=http://localhost:0/',
-        `--browser=${fetchBrowserFixture}`
+        `--browser=${fetchBrowserFixture}`,
       ],
       env: {
         ...process.env,
-        MONGOSH_OIDC_PARENT_HANDLE: handle
-      }
+        MONGOSH_OIDC_PARENT_HANDLE: handle,
+      },
     });
 
     await shell2.waitForPrompt();

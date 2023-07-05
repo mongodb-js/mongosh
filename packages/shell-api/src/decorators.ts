@@ -1,15 +1,15 @@
 import { MongoshInternalError } from '@mongosh/errors';
 import type { ReplPlatform } from '@mongosh/service-provider-core';
 import type { Mongo, ShellInstanceState } from '.';
-import type { Topologies
-} from './enums';
+import type { Topologies } from './enums';
 import {
   ALL_PLATFORMS,
   ALL_SERVER_VERSIONS,
   ALL_API_VERSIONS,
   ALL_TOPOLOGIES,
   asPrintable,
-  namespaceInfo, shellApiType
+  namespaceInfo,
+  shellApiType,
 } from './enums';
 import Help from './help';
 import { addHiddenDataProperty } from './helpers';
@@ -143,11 +143,14 @@ export function getShellApiType(rawValue: any): string | null {
  * @returns A {@link ShellResult} object with information about the value.
  */
 export async function toShellResult(rawValue: any): Promise<ShellResult> {
-  if ((typeof rawValue !== 'object' && typeof rawValue !== 'function') || rawValue === null) {
+  if (
+    (typeof rawValue !== 'object' && typeof rawValue !== 'function') ||
+    rawValue === null
+  ) {
     return {
       type: null,
       rawValue: rawValue,
-      printable: rawValue
+      printable: rawValue,
     };
   }
 
@@ -158,14 +161,16 @@ export async function toShellResult(rawValue: any): Promise<ShellResult> {
   }
 
   const printable =
-    typeof rawValue[asPrintable] === 'function' ? await rawValue[asPrintable]() : rawValue;
+    typeof rawValue[asPrintable] === 'function'
+      ? await rawValue[asPrintable]()
+      : rawValue;
   const source = rawValue[resultSource] ?? undefined;
 
   return {
     type: getShellApiType(rawValue),
     rawValue: rawValue,
     printable: printable,
-    source: source
+    source: source,
   };
 }
 
@@ -197,18 +202,25 @@ function wrapWithAddSourceToResult(fn: Function): Function {
         namespace: obj[namespaceInfo](),
       };
       addHiddenDataProperty(result, resultSource, resultSourceInformation);
-      if ((result as any)[shellApiType] === undefined && (fn as any).returnType) {
+      if (
+        (result as any)[shellApiType] === undefined &&
+        (fn as any).returnType
+      ) {
         addHiddenDataProperty(result, shellApiType, (fn as any).returnType);
       }
     }
     return result;
   }
-  const wrapper = (fn as any).returnsPromise ?
-    markImplicitlyAwaited(async function(this: any, ...args: any[]): Promise<any> {
-      return addSource(await fn.call(this, ...args), this);
-    }) : function(this: any, ...args: any[]): any {
-      return addSource(fn.call(this, ...args), this);
-    };
+  const wrapper = (fn as any).returnsPromise
+    ? markImplicitlyAwaited(async function (
+        this: any,
+        ...args: any[]
+      ): Promise<any> {
+        return addSource(await fn.call(this, ...args), this);
+      })
+    : function (this: any, ...args: any[]): any {
+        return addSource(fn.call(this, ...args), this);
+      };
   Object.setPrototypeOf(wrapper, Object.getPrototypeOf(fn));
   Object.defineProperties(wrapper, Object.getOwnPropertyDescriptors(fn));
   return wrapper;
@@ -227,57 +239,64 @@ function wrapWithAddSourceToResult(fn: Function): Function {
  * @param className The name of the class on which the method is present.
  * @returns The wrapped class method.
  */
-function wrapWithApiChecks<T extends(...args: any[]) => any>(fn: T, className: string): (args: Parameters<T>) => ReturnType<T> {
-  const wrapper = (fn as any).returnsPromise ?
-    markImplicitlyAwaited(async function(this: any, ...args: any[]): Promise<any> {
-      const instanceState = getShellInstanceState(this);
-      emitApiCallTelemetry(instanceState, className, fn, true);
-      const interruptFlag = instanceState?.interrupted;
-      interruptFlag?.checkpoint();
-      const interrupt = interruptFlag?.asPromise();
+function wrapWithApiChecks<T extends (...args: any[]) => any>(
+  fn: T,
+  className: string
+): (args: Parameters<T>) => ReturnType<T> {
+  const wrapper = (fn as any).returnsPromise
+    ? markImplicitlyAwaited(async function (
+        this: any,
+        ...args: any[]
+      ): Promise<any> {
+        const instanceState = getShellInstanceState(this);
+        emitApiCallTelemetry(instanceState, className, fn, true);
+        const interruptFlag = instanceState?.interrupted;
+        interruptFlag?.checkpoint();
+        const interrupt = interruptFlag?.asPromise();
 
-      let result: any;
-      try {
-        if (instanceState) {
-          instanceState.apiCallDepth++;
+        let result: any;
+        try {
+          if (instanceState) {
+            instanceState.apiCallDepth++;
+          }
+          result = await Promise.race([
+            interrupt?.promise ?? new Promise<never>(() => {}),
+            fn.call(this, ...args),
+          ]);
+        } catch (e: any) {
+          throw instanceState?.transformError(e) ?? e;
+        } finally {
+          if (instanceState) {
+            instanceState.apiCallDepth--;
+          }
+          if (interrupt) {
+            interrupt.destroy();
+          }
         }
-        result = await Promise.race([
-          interrupt?.promise ?? new Promise<never>(() => {}),
-          fn.call(this, ...args)
-        ]);
-      } catch (e: any) {
-        throw instanceState?.transformError(e) ?? e;
-      } finally {
-        if (instanceState) {
-          instanceState.apiCallDepth--;
+        interruptFlag?.checkpoint();
+        return result;
+      })
+    : function (this: any, ...args: any[]): any {
+        const instanceState = getShellInstanceState(this);
+        emitApiCallTelemetry(instanceState, className, fn, false);
+        const interruptFlag = instanceState?.interrupted;
+        interruptFlag?.checkpoint();
+        let result: any;
+        try {
+          if (instanceState) {
+            instanceState.apiCallDepth++;
+          }
+          result = fn.call(this, ...args);
+        } catch (e: any) {
+          throw instanceState?.transformError(e) ?? e;
+        } finally {
+          if (instanceState) {
+            instanceState.apiCallDepth--;
+          }
         }
-        if (interrupt) {
-          interrupt.destroy();
-        }
-      }
-      interruptFlag?.checkpoint();
-      return result;
-    }) : function(this: any, ...args: any[]): any {
-      const instanceState = getShellInstanceState(this);
-      emitApiCallTelemetry(instanceState, className, fn, false);
-      const interruptFlag = instanceState?.interrupted;
-      interruptFlag?.checkpoint();
-      let result: any;
-      try {
-        if (instanceState) {
-          instanceState.apiCallDepth++;
-        }
-        result = fn.call(this, ...args);
-      } catch (e: any) {
-        throw instanceState?.transformError(e) ?? e;
-      } finally {
-        if (instanceState) {
-          instanceState.apiCallDepth--;
-        }
-      }
-      interruptFlag?.checkpoint();
-      return result;
-    };
+        interruptFlag?.checkpoint();
+        return result;
+      };
   Object.setPrototypeOf(wrapper, Object.getPrototypeOf(fn));
   Object.defineProperties(wrapper, Object.getOwnPropertyDescriptors(fn));
   return wrapper;
@@ -292,12 +311,17 @@ function wrapWithApiChecks<T extends(...args: any[]) => any>(fn: T, className: s
  * @param className The name of the class in question.
  * @param fn The class method in question.
  */
-function emitApiCallTelemetry(instanceState: ShellInstanceState | undefined, className: string, fn: Function, isAsync: boolean) {
+function emitApiCallTelemetry(
+  instanceState: ShellInstanceState | undefined,
+  className: string,
+  fn: Function,
+  isAsync: boolean
+) {
   instanceState?.emitApiCall?.({
     method: fn.name,
     class: className,
     deprecated: !!(fn as any).deprecated,
-    isAsync
+    isAsync,
   });
 }
 
@@ -308,7 +332,9 @@ function emitApiCallTelemetry(instanceState: ShellInstanceState | undefined, cla
  */
 function getShellInstanceState(apiObject: any): ShellInstanceState | undefined {
   if (!apiObject[shellApiType]) {
-    throw new MongoshInternalError('getShellInstanceState can only be called for functions from shell API classes');
+    throw new MongoshInternalError(
+      'getShellInstanceState can only be called for functions from shell API classes'
+    );
   }
   // instanceState can be undefined in tests
   return (apiObject as ShellApiClass)._instanceState;
@@ -324,7 +350,9 @@ function getShellInstanceState(apiObject: any): ShellInstanceState | undefined {
  * as needed.
  */
 export interface ShellCommandAutocompleteParameters {
-  getCollectionCompletionsForCurrentDb: (collName: string) => string[] | Promise<string[]>;
+  getCollectionCompletionsForCurrentDb: (
+    collName: string
+  ) => string[] | Promise<string[]>;
   getDatabaseCompletions: (dbName: string) => string[] | Promise<string[]>;
 }
 
@@ -332,8 +360,10 @@ export interface ShellCommandAutocompleteParameters {
  * Provide a suggested list of completions for the last item in a shell command,
  * e.g. `show pro` to `show profile` by returning ['profile'].
  */
-export type ShellCommandCompleter =
-  (params: ShellCommandAutocompleteParameters, args: string[]) => Promise<string[] | undefined>;
+export type ShellCommandCompleter = (
+  params: ShellCommandAutocompleteParameters,
+  args: string[]
+) => Promise<string[] | undefined>;
 
 /**
  * Information about a class or a method that is used for
@@ -341,8 +371,8 @@ export type ShellCommandCompleter =
  */
 export interface TypeSignature {
   type: string;
-  serverVersions?: [ string, string ];
-  apiVersions?: [ number, number ];
+  serverVersions?: [string, string];
+  apiVersions?: [number, number];
   topologies?: Topologies[];
   returnsPromise?: boolean;
   deprecated?: boolean;
@@ -386,8 +416,8 @@ type ClassSignature = {
   attributes: {
     [methodName: string]: {
       type: 'function';
-      serverVersions: [ string, string ];
-      apiVersions: [ number, number ];
+      serverVersions: [string, string];
+      apiVersions: [number, number];
       topologies: Topologies[];
       returnType: ClassSignature;
       returnsPromise: boolean;
@@ -396,7 +426,7 @@ type ClassSignature = {
       isDirectShellCommand: boolean;
       acceptsRawInput?: boolean;
       shellCommandCompleter?: ShellCommandCompleter;
-    }
+    };
   };
 };
 
@@ -424,24 +454,29 @@ function shellApiClassGeneric(constructor: Function, hasHelp: boolean): void {
   const classHelp: ClassHelp = {
     help: `${classHelpKeyPrefix}.description`,
     docs: `${classHelpKeyPrefix}.link`,
-    attr: []
+    attr: [],
   };
   const classSignature: ClassSignature = {
     type: className,
     returnsPromise: constructor.prototype.returnsPromise || false,
     deprecated: constructor.prototype.deprecated || false,
-    attributes: {}
+    attributes: {},
   };
 
   const classAttributes = Object.getOwnPropertyNames(constructor.prototype);
   for (const propertyName of classAttributes) {
-    const descriptor = Object.getOwnPropertyDescriptor(constructor.prototype, propertyName);
-    const isMethod = descriptor?.value && typeof descriptor.value === 'function';
+    const descriptor = Object.getOwnPropertyDescriptor(
+      constructor.prototype,
+      propertyName
+    );
+    const isMethod =
+      descriptor?.value && typeof descriptor.value === 'function';
     if (
       !isMethod ||
       toIgnore.includes(propertyName) ||
       propertyName.startsWith('_')
-    ) continue;
+    )
+      continue;
     let method: any = (descriptor as any).value;
 
     if ((constructor as any)[addSourceToResultsSymbol]) {
@@ -452,7 +487,10 @@ function shellApiClassGeneric(constructor: Function, hasHelp: boolean): void {
     method.serverVersions = method.serverVersions || ALL_SERVER_VERSIONS;
     method.apiVersions = method.apiVersions || ALL_API_VERSIONS;
     method.topologies = method.topologies || ALL_TOPOLOGIES;
-    method.returnType = method.returnType || { type: 'unknown', attributes: {} };
+    method.returnType = method.returnType || {
+      type: 'unknown',
+      attributes: {},
+    };
     method.returnsPromise = method.returnsPromise || false;
     method.deprecated = method.deprecated || false;
     method.platforms = method.platforms || ALL_PLATFORMS;
@@ -471,46 +509,52 @@ function shellApiClassGeneric(constructor: Function, hasHelp: boolean): void {
       platforms: method.platforms,
       isDirectShellCommand: method.isDirectShellCommand,
       acceptsRawInput: method.acceptsRawInput,
-      shellCommandCompleter: method.shellCommandCompleter
+      shellCommandCompleter: method.shellCommandCompleter,
     };
 
     const attributeHelpKeyPrefix = `${classHelpKeyPrefix}.attributes.${propertyName}`;
     const attrHelp = {
       help: `${attributeHelpKeyPrefix}.example`,
       docs: `${attributeHelpKeyPrefix}.link`,
-      attr: [
-        { description: `${attributeHelpKeyPrefix}.description` }
-      ]
+      attr: [{ description: `${attributeHelpKeyPrefix}.description` }],
     };
     const aHelp = new Help(attrHelp);
-    method.help = (): Help => (aHelp);
+    method.help = (): Help => aHelp;
     Object.setPrototypeOf(method.help, aHelp);
 
     classHelp.attr.push({
       name: propertyName,
-      description: `${attributeHelpKeyPrefix}.description`
+      description: `${attributeHelpKeyPrefix}.description`,
     });
     Object.defineProperty(constructor.prototype, propertyName, {
       ...descriptor,
-      value: method
+      value: method,
     });
   }
 
   let superClass = constructor.prototype;
   while ((superClass = Object.getPrototypeOf(superClass)) !== null) {
-    if (superClass.constructor.name === 'ShellApiClass' || superClass.constructor === Array) {
+    if (
+      superClass.constructor.name === 'ShellApiClass' ||
+      superClass.constructor === Array
+    ) {
       break;
     }
     const superClassHelpKeyPrefix = `shell-api.classes.${superClass.constructor.name}.help`;
     for (const propertyName of Object.getOwnPropertyNames(superClass)) {
-      const descriptor = Object.getOwnPropertyDescriptor(superClass, propertyName);
-      const isMethod = descriptor?.value && typeof descriptor.value === 'function';
+      const descriptor = Object.getOwnPropertyDescriptor(
+        superClass,
+        propertyName
+      );
+      const isMethod =
+        descriptor?.value && typeof descriptor.value === 'function';
       if (
         classAttributes.includes(propertyName) ||
         !isMethod ||
         toIgnore.includes(propertyName) ||
         propertyName.startsWith('_')
-      ) continue;
+      )
+        continue;
       const method: any = (descriptor as any).value;
 
       classSignature.attributes[propertyName] = {
@@ -518,29 +562,29 @@ function shellApiClassGeneric(constructor: Function, hasHelp: boolean): void {
         serverVersions: method.serverVersions,
         apiVersions: method.apiVersions,
         topologies: method.topologies,
-        returnType: method.returnType === 'this' ? className : method.returnType,
+        returnType:
+          method.returnType === 'this' ? className : method.returnType,
         returnsPromise: method.returnsPromise,
         deprecated: method.deprecated,
         platforms: method.platforms,
         isDirectShellCommand: method.isDirectShellCommand,
         acceptsRawInput: method.acceptsRawInput,
-        shellCommandCompleter: method.shellCommandCompleter
+        shellCommandCompleter: method.shellCommandCompleter,
       };
 
       const attributeHelpKeyPrefix = `${superClassHelpKeyPrefix}.attributes.${propertyName}`;
 
       classHelp.attr.push({
         name: propertyName,
-        description: `${attributeHelpKeyPrefix}.description`
+        description: `${attributeHelpKeyPrefix}.description`,
       });
     }
   }
   const help = new Help(classHelp);
-  constructor.prototype.help = (): Help => (help);
+  constructor.prototype.help = (): Help => help;
   Object.setPrototypeOf(constructor.prototype.help, help);
   constructor.prototype[asPrintable] =
-    constructor.prototype[asPrintable] ||
-    ShellApiClass.prototype[asPrintable];
+    constructor.prototype[asPrintable] || ShellApiClass.prototype[asPrintable];
   addHiddenDataProperty(constructor.prototype, shellApiType, className);
   if (hasHelp) {
     signatures[className] = classSignature;
@@ -571,10 +615,16 @@ export function shellApiClassNoHelp(constructor: Function): void {
  * @param orig The function to be wrapped.
  * @returns The wrapped function.
  */
-function markImplicitlyAwaited<T extends(...args: any) => Promise<any>>(orig: T): ((...args: Parameters<T>) => Promise<any>) {
+function markImplicitlyAwaited<T extends (...args: any) => Promise<any>>(
+  orig: T
+): (...args: Parameters<T>) => Promise<any> {
   function wrapper(this: any, ...args: any[]) {
     const origResult = orig.call(this, ...args);
-    return addHiddenDataProperty(origResult, Symbol.for('@@mongosh.syntheticPromise'), true);
+    return addHiddenDataProperty(
+      origResult,
+      Symbol.for('@@mongosh.syntheticPromise'),
+      true
+    );
   }
   Object.setPrototypeOf(wrapper, Object.getPrototypeOf(orig));
   Object.defineProperties(wrapper, Object.getOwnPropertyDescriptors(orig));
@@ -594,8 +644,8 @@ function markImplicitlyAwaited<T extends(...args: any) => Promise<any>>(orig: T)
  *
  * @param versionArray An array of supported server versions
  */
-export function serverVersions(versionArray: [ string, string ]): Function {
-  return function(
+export function serverVersions(versionArray: [string, string]): Function {
+  return function (
     _target: any,
     _propertyKey: string,
     descriptor: PropertyDescriptor
@@ -612,16 +662,18 @@ export function serverVersions(versionArray: [ string, string ]): Function {
  *
  * @param versionArray An array of supported API versions
  */
-export function apiVersions(versionArray: [] | [ number ] | [ number, number ]): Function {
-  return function(
+export function apiVersions(
+  versionArray: [] | [number] | [number, number]
+): Function {
+  return function (
     _target: any,
     _propertyKey: string,
     descriptor: PropertyDescriptor
   ): void {
     if (versionArray.length === 0) {
-      versionArray = [ 0, 0 ];
+      versionArray = [0, 0];
     } else if (versionArray.length === 1) {
-      versionArray = [ versionArray[0], Infinity ];
+      versionArray = [versionArray[0], Infinity];
     }
     descriptor.value.apiVersions = versionArray;
   };
@@ -636,7 +688,11 @@ export function apiVersions(versionArray: [] | [ number ] | [ number, number ]):
  *
  * **Important:** To exclude the method from autocompletion use `@serverVersions`.
  */
-export function deprecated(_target: any, _propertyKey: string, descriptor: PropertyDescriptor): void {
+export function deprecated(
+  _target: any,
+  _propertyKey: string,
+  descriptor: PropertyDescriptor
+): void {
   descriptor.value.deprecated = true;
 }
 
@@ -648,7 +704,7 @@ export function deprecated(_target: any, _propertyKey: string, descriptor: Prope
  * @param topologiesArray The topologies for which the method is available
  */
 export function topologies(topologiesArray: Topologies[]): Function {
-  return function(
+  return function (
     _target: any,
     _propertyKey: string,
     descriptor: PropertyDescriptor
@@ -665,7 +721,11 @@ export const nonAsyncFunctionsReturningPromises: string[] = []; // For testing.
  * Note: a test will verify that the `nonAsyncFunctionsReturningPromises` is empty, i.e. **every**
  * method that is decorated with `@returnsPromise` must be an `async` method.
  */
-export function returnsPromise(_target: any, _propertyKey: string, descriptor: PropertyDescriptor): void {
+export function returnsPromise(
+  _target: any,
+  _propertyKey: string,
+  descriptor: PropertyDescriptor
+): void {
   const originalFunction = descriptor.value;
   originalFunction.returnsPromise = true;
 
@@ -673,14 +733,20 @@ export function returnsPromise(_target: any, _propertyKey: string, descriptor: P
     try {
       return await originalFunction.call(this, ...args);
     } finally {
-      if (typeof setTimeout === 'function' && typeof setImmediate === 'function') {
+      if (
+        typeof setTimeout === 'function' &&
+        typeof setImmediate === 'function'
+      ) {
         // Not all JS environments have setImmediate
         await new Promise(setImmediate);
       }
     }
   }
   Object.setPrototypeOf(wrapper, Object.getPrototypeOf(originalFunction));
-  Object.defineProperties(wrapper, Object.getOwnPropertyDescriptors(originalFunction));
+  Object.defineProperties(
+    wrapper,
+    Object.getOwnPropertyDescriptors(originalFunction)
+  );
   descriptor.value = markImplicitlyAwaited(wrapper);
 
   if (originalFunction.constructor.name !== 'AsyncFunction') {
@@ -692,7 +758,11 @@ export function returnsPromise(_target: any, _propertyKey: string, descriptor: P
  * Marks the deocrated method as executable in the shell in a POSIX-shell-like
  * fashion, e.g. `show foo` which is translated into a call to `show('foo')`.
  */
-export function directShellCommand(_target: any, _propertyKey: string, descriptor: PropertyDescriptor): void {
+export function directShellCommand(
+  _target: any,
+  _propertyKey: string,
+  descriptor: PropertyDescriptor
+): void {
   descriptor.value.isDirectShellCommand = true;
 }
 
@@ -705,8 +775,10 @@ export function directShellCommand(_target: any, _propertyKey: string, descripto
  *
  * @param completer The completer to use for autocomplete
  */
-export function shellCommandCompleter(completer: ShellCommandCompleter): Function {
-  return function(
+export function shellCommandCompleter(
+  completer: ShellCommandCompleter
+): Function {
+  return function (
     _target: any,
     _propertyKey: string,
     descriptor: PropertyDescriptor
@@ -723,7 +795,7 @@ export function shellCommandCompleter(completer: ShellCommandCompleter): Functio
  * @param type The Shell API return type of the method
  */
 export function returnType(type: string): Function {
-  return function(
+  return function (
     _target: any,
     _propertyKey: string,
     descriptor: PropertyDescriptor
@@ -747,7 +819,7 @@ export function classDeprecated(constructor: Function): void {
  * @param platformsArray The platforms the method is supported on
  */
 export function platforms(platformsArray: ReplPlatform[]): Function {
-  return function(
+  return function (
     _target: any,
     _propertyKey: string,
     descriptor: PropertyDescriptor
@@ -761,7 +833,7 @@ export function platforms(platformsArray: ReplPlatform[]): Function {
  * @param platformsArray The platforms the method is supported on
  */
 export function classPlatforms(platformsArray: ReplPlatform[]): Function {
-  return function(constructor: Function): void {
+  return function (constructor: Function): void {
     constructor.prototype.platforms = platformsArray;
   };
 }

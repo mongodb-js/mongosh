@@ -28,11 +28,11 @@ function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-describe('worker', function() {
+describe('worker', function () {
   let worker: Worker;
   let caller: Caller<WorkerRuntime>;
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     worker = new Worker(workerThreadModule);
     await once(worker, 'message');
 
@@ -43,7 +43,7 @@ describe('worker', function() {
         'getCompletions',
         'getShellPrompt',
         'setEvaluationListener',
-        'interrupt'
+        'interrupt',
       ],
       worker
     );
@@ -55,7 +55,7 @@ describe('worker', function() {
     };
   });
 
-  afterEach(async function() {
+  afterEach(async function () {
     if (worker) {
       // There is a Node.js bug that causes worker process to still be ref-ed
       // after termination. To work around that, we are unrefing worker manually
@@ -77,7 +77,7 @@ describe('worker', function() {
     }
   });
 
-  it('should throw if worker is not initialized yet', async function() {
+  it('should throw if worker is not initialized yet', async function () {
     const { evaluate } = caller;
 
     let err: Error;
@@ -94,14 +94,14 @@ describe('worker', function() {
       .match(/Can\'t call evaluate before shell runtime is initiated/);
   });
 
-  describe('evaluate', function() {
-    describe('basic shell result values', function() {
+  describe('evaluate', function () {
+    describe('basic shell result values', function () {
       const primitiveValues: [string, string, unknown][] = [
         ['null', 'null', null],
         ['undefined', 'undefined', undefined],
         ['boolean', '!false', true],
         ['number', '1+1', 2],
-        ['string', '"hello"', 'hello']
+        ['string', '"hello"', 'hello'],
       ];
 
       const everythingElse: [string, string, string | RegExp][] = [
@@ -109,52 +109,52 @@ describe('worker', function() {
         [
           'function with properties',
           'function def() {}; def.def = 1; def',
-          '[Function: def] { def: 1 }'
+          '[Function: def] { def: 1 }',
         ],
         ['anonymous function', '(() => {})', /\[Function.+\]/],
         ['class constructor', 'class BCD {}; BCD', '[class BCD]'],
         [
           'class instalce',
           'class ABC { constructor() { this.abc = 1; } }; var abc = new ABC(); abc',
-          'ABC { abc: 1 }'
+          'ABC { abc: 1 }',
         ],
         ['simple array', '[1, 2, 3]', '[ 1, 2, 3 ]'],
         [
           'simple array with empty items',
           '[1, 2,, 4]',
-          '[ 1, 2, <1 empty item>, 4 ]'
+          '[ 1, 2, <1 empty item>, 4 ]',
         ],
         [
           'non-serializable array',
           '[1, 2, 3, () => {}]',
-          /\[ 1, 2, 3, \[Function( \(anonymous\))?\] \]/
+          /\[ 1, 2, 3, \[Function( \(anonymous\))?\] \]/,
         ],
         [
           'simple object',
           '({str: "foo", num: 123})',
-          "{ str: 'foo', num: 123 }"
+          "{ str: 'foo', num: 123 }",
         ],
         [
           'non-serializable object',
           '({str: "foo", num: 123, bool: false, fn() {}})',
-          "{ str: 'foo', num: 123, bool: false, fn: [Function: fn] }"
+          "{ str: 'foo', num: 123, bool: false, fn: [Function: fn] }",
         ],
         [
           'object with bson',
           '({min: MinKey(), max: MaxKey(), int: NumberInt("1")})',
-          '{ min: MinKey(), max: MaxKey(), int: Int32(1) }'
+          '{ min: MinKey(), max: MaxKey(), int: Int32(1) }',
         ],
         [
           'object with everything',
           '({ cls: class A{}, fn() {}, bsonType: NumberInt("1"), str: "123"})',
-          "{ cls: [class A], fn: [Function: fn], bsonType: Int32(1), str: '123' }"
-        ]
+          "{ cls: [class A], fn: [Function: fn], bsonType: Int32(1), str: '123' }",
+        ],
       ];
 
       primitiveValues.concat(everythingElse).forEach((testCase) => {
         const [testName, evalValue, printable] = testCase;
 
-        it(testName, async function() {
+        it(testName, async function () {
           const { init, evaluate } = caller;
           await init('mongodb://nodb/', dummyOptions, { nodb: true });
           const result = await evaluate(evalValue);
@@ -168,12 +168,12 @@ describe('worker', function() {
       });
     });
 
-    describe('shell-api results', function() {
+    describe('shell-api results', function () {
       const testServer = startTestServer('shared');
       const db = `test-db-${Date.now().toString(16)}`;
       let exposed: Exposed<unknown>;
 
-      afterEach(function() {
+      afterEach(function () {
         if (exposed) {
           exposed[close]();
           exposed = null;
@@ -191,7 +191,7 @@ describe('worker', function() {
           ({ printable }: RuntimeEvaluationResult) => {
             expect(printable.find(({ name }: any) => name === 'admin')).to.not
               .be.undefined;
-          }
+          },
         ],
         ['show collections', 'ShowCollectionsResult', []],
         ['show profile', 'ShowProfileResult', { count: 0 }],
@@ -201,12 +201,12 @@ describe('worker', function() {
           ({ printable }: RuntimeEvaluationResult) => {
             expect(printable.find(({ role }: any) => role === 'dbAdmin')).to.not
               .be.undefined;
-          }
-        ]
+          },
+        ],
       ];
 
       const useCommand: CommandTestRecord[] = [
-        [`use ${db}`, null, `switched to db ${db}`]
+        [`use ${db}`, null, `switched to db ${db}`],
       ];
 
       const helpCommand: CommandTestRecord[] = [
@@ -218,8 +218,8 @@ describe('worker', function() {
             expect(printable)
               .to.have.property('docs')
               .match(/https:\/\/docs.mongodb.com/);
-          }
-        ]
+          },
+        ],
       ];
 
       const cursors: CommandTestRecord[] = [
@@ -227,7 +227,7 @@ describe('worker', function() {
           [
             `use ${db}`,
             'db.coll.insertOne({ _id: ObjectId("000000000000000000000000"), foo: 321 });',
-            'db.coll.aggregate({ $match: { foo: 321 } })'
+            'db.coll.aggregate({ $match: { foo: 321 } })',
           ],
           'AggregationCursor',
           ({ printable }: RuntimeEvaluationResult) => {
@@ -236,35 +236,35 @@ describe('worker', function() {
             expect(EJSON.serialize(doc)).to.deep.equal(
               EJSON.serialize({
                 _id: new ObjectId('000000000000000000000000'),
-                foo: 321
+                foo: 321,
               })
             );
-          }
+          },
         ],
         [
           [
             `use ${db}`,
             'db.coll.insertMany([1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(i => ({ i })))',
-            'db.coll.find({ i: { $mod: [2, 0] } }, { _id: 0 })'
+            'db.coll.find({ i: { $mod: [2, 0] } }, { _id: 0 })',
           ],
           'Cursor',
           {
             documents: [{ i: 2 }, { i: 4 }, { i: 6 }, { i: 8 }, { i: 10 }],
-            cursorHasMore: false
-          }
+            cursorHasMore: false,
+          },
         ],
         [
           [
             `use ${db}`,
             "db.coll.insertMany('a'.repeat(100).split('').map(a => ({ a })))",
             'db.coll.find({}, { _id: 0 })',
-            'it'
+            'it',
           ],
           'CursorIterationResult',
           ({ printable }: RuntimeEvaluationResult) => {
             expect(printable.documents).to.include.deep.members([{ a: 'a' }]);
-          }
-        ]
+          },
+        ],
       ];
 
       const crudCommands: CommandTestRecord[] = [
@@ -276,7 +276,7 @@ describe('worker', function() {
             expect(printable)
               .to.have.property('insertedId')
               .instanceof(ObjectId);
-          }
+          },
         ],
         [
           [`use ${db}`, 'db.coll.insertMany([{ b: "b" }, { c: "c" }])'],
@@ -286,13 +286,13 @@ describe('worker', function() {
             expect(printable)
               .to.have.nested.property('insertedIds[0]')
               .instanceof(ObjectId);
-          }
+          },
         ],
         [
           [
             `use ${db}`,
             'db.coll.insertOne({ a: "a" })',
-            'db.coll.updateOne({ a: "a" }, { $set: { a: "b" } })'
+            'db.coll.updateOne({ a: "a" }, { $set: { a: "b" } })',
           ],
           'UpdateResult',
           {
@@ -300,17 +300,17 @@ describe('worker', function() {
             insertedId: null,
             matchedCount: 1,
             modifiedCount: 1,
-            upsertedCount: 0
-          }
+            upsertedCount: 0,
+          },
         ],
         [
           [
             `use ${db}`,
             'db.coll.insertOne({ a: "a" })',
-            'db.coll.deleteOne({ a: "a" })'
+            'db.coll.deleteOne({ a: "a" })',
           ],
           'DeleteResult',
-          { acknowledged: true, deletedCount: 1 }
+          { acknowledged: true, deletedCount: 1 },
         ],
         [
           [`use ${db}`, 'db.coll.bulkWrite([{ insertOne: { d: "d" } }])'],
@@ -321,8 +321,8 @@ describe('worker', function() {
             expect(printable)
               .to.have.nested.property('insertedIds[0]')
               .instanceof(ObjectId);
-          }
-        ]
+          },
+        ],
       ];
 
       showCommand
@@ -343,13 +343,16 @@ describe('worker', function() {
             command = commands;
           }
 
-          it(`"${command}" should return ${resultType} result`, async function() {
+          it(`"${command}" should return ${resultType} result`, async function () {
             // Without this dummy evaluation listener, a request to getConfig()
             // from the shell leads to a never-resolved Promise.
-            exposed = exposeAll({
-              getConfig() {},
-              validateConfig() {}
-            }, worker);
+            exposed = exposeAll(
+              {
+                getConfig() {},
+                validateConfig() {},
+              },
+              worker
+            );
 
             const { init, evaluate } = caller;
             await init(await testServer.connectionString(), dummyOptions, {});
@@ -377,8 +380,8 @@ describe('worker', function() {
         });
     });
 
-    describe('errors', function() {
-      it("should throw an error if it's thrown during evaluation", async function() {
+    describe('errors', function () {
+      it("should throw an error if it's thrown during evaluation", async function () {
         const { init, evaluate } = caller;
 
         await init('mongodb://nodb/', dummyOptions, { nodb: true });
@@ -398,14 +401,16 @@ describe('worker', function() {
           .matches(/TypeError: Oh no, types!/);
       });
 
-      it('should preserve extra error properties', async function() {
+      it('should preserve extra error properties', async function () {
         const { init, evaluate } = caller;
 
         await init('mongodb://nodb/', dummyOptions, { nodb: true });
 
         let err: Error;
         try {
-          await evaluate('throw Object.assign(new TypeError("Oh no, types!"), { errInfo: { message: "wrong type :S" } })');
+          await evaluate(
+            'throw Object.assign(new TypeError("Oh no, types!"), { errInfo: { message: "wrong type :S" } })'
+          );
         } catch (e: any) {
           err = e;
         }
@@ -416,7 +421,7 @@ describe('worker', function() {
         expect((err as any).errInfo.message).to.equal('wrong type :S');
       });
 
-      it("should return an error if it's returned from evaluation", async function() {
+      it("should return an error if it's returned from evaluation", async function () {
         const { init, evaluate } = caller;
 
         await init('mongodb://nodb/', dummyOptions, { nodb: true });
@@ -431,7 +436,7 @@ describe('worker', function() {
           .matches(/SyntaxError: Syntax!/);
       });
 
-      it('should throw when trying to run two evaluations concurrently', async function() {
+      it('should throw when trying to run two evaluations concurrently', async function () {
         const { init, evaluate } = caller;
         await init('mongodb://nodb/', dummyOptions, { nodb: true });
 
@@ -440,7 +445,7 @@ describe('worker', function() {
         try {
           await Promise.all([
             evaluate('sleep(50); 1+1'),
-            evaluate('sleep(50); 1+1')
+            evaluate('sleep(50); 1+1'),
           ]);
         } catch (e: any) {
           err = e;
@@ -456,10 +461,10 @@ describe('worker', function() {
     });
   });
 
-  describe('getShellPrompt', function() {
+  describe('getShellPrompt', function () {
     const testServer = startTestServer('shared');
 
-    it('should return prompt when connected to the server', async function() {
+    it('should return prompt when connected to the server', async function () {
       const { init, getShellPrompt } = caller;
 
       await init(await testServer.connectionString());
@@ -470,10 +475,10 @@ describe('worker', function() {
     });
   });
 
-  describe('getCompletions', function() {
+  describe('getCompletions', function () {
     const testServer = startTestServer('shared');
 
-    it('should return completions', async function() {
+    it('should return completions', async function () {
       const { init, getCompletions } = caller;
 
       await init(await testServer.connectionString());
@@ -481,12 +486,12 @@ describe('worker', function() {
       const completions = await getCompletions('db.coll1.f');
 
       expect(completions).to.deep.contain({
-        completion: 'db.coll1.find'
+        completion: 'db.coll1.find',
       });
     });
   });
 
-  describe('evaluationListener', function() {
+  describe('evaluationListener', function () {
     const spySandbox = sinon.createSandbox();
 
     const createSpiedEvaluationListener = () => {
@@ -499,8 +504,10 @@ describe('worker', function() {
         setConfig() {},
         resetConfig() {},
         validateConfig() {},
-        listConfigOptions() { return ['displayBatchSize']; },
-        onRunInterruptible() {}
+        listConfigOptions() {
+          return ['displayBatchSize'];
+        },
+        onRunInterruptible() {},
       };
 
       spySandbox.spy(evalListener, 'onPrint');
@@ -517,7 +524,7 @@ describe('worker', function() {
 
     let exposed: Exposed<unknown>;
 
-    afterEach(function() {
+    afterEach(function () {
       if (exposed) {
         exposed[close]();
         exposed = null;
@@ -526,8 +533,8 @@ describe('worker', function() {
       spySandbox.restore();
     });
 
-    describe('onPrint', function() {
-      it('should be called when shell evaluates `print`', async function() {
+    describe('onPrint', function () {
+      it('should be called when shell evaluates `print`', async function () {
         const { init, evaluate } = caller;
         const evalListener = createSpiedEvaluationListener();
 
@@ -537,11 +544,11 @@ describe('worker', function() {
         await evaluate('print("Hi!")');
 
         expect(evalListener.onPrint).to.have.been.calledWith([
-          { printable: 'Hi!', source: undefined, type: null }
+          { printable: 'Hi!', source: undefined, type: null },
         ]);
       });
 
-      it('should correctly serialize bson objects', async function() {
+      it('should correctly serialize bson objects', async function () {
         const { init, evaluate } = caller;
         const evalListener = createSpiedEvaluationListener();
 
@@ -551,13 +558,17 @@ describe('worker', function() {
         await evaluate('print(new ObjectId("62a209b0c7dc31e23ab9da45"))');
 
         expect(evalListener.onPrint).to.have.been.calledWith([
-          { printable: 'ObjectId("62a209b0c7dc31e23ab9da45")', source: undefined, type: 'InspectResult' }
+          {
+            printable: 'ObjectId("62a209b0c7dc31e23ab9da45")',
+            source: undefined,
+            type: 'InspectResult',
+          },
         ]);
       });
     });
 
-    describe('onPrompt', function() {
-      it('should be called when shell evaluates `passwordPrompt`', async function() {
+    describe('onPrompt', function () {
+      it('should be called when shell evaluates `passwordPrompt`', async function () {
         const { init, evaluate } = caller;
         const evalListener = createSpiedEvaluationListener();
 
@@ -571,8 +582,8 @@ describe('worker', function() {
       });
     });
 
-    describe('getConfig', function() {
-      it('should be called when shell evaluates `config.get()`', async function() {
+    describe('getConfig', function () {
+      it('should be called when shell evaluates `config.get()`', async function () {
         const { init, evaluate } = caller;
         const evalListener = createSpiedEvaluationListener();
 
@@ -585,8 +596,8 @@ describe('worker', function() {
       });
     });
 
-    describe('setConfig', function() {
-      it('should be called when shell evaluates `config.set()`', async function() {
+    describe('setConfig', function () {
+      it('should be called when shell evaluates `config.set()`', async function () {
         const { init, evaluate } = caller;
         const evalListener = createSpiedEvaluationListener();
 
@@ -595,13 +606,19 @@ describe('worker', function() {
         await init('mongodb://nodb/', dummyOptions, { nodb: true });
 
         await evaluate('config.set("displayBatchSize", 200)');
-        expect(evalListener.validateConfig).to.have.been.calledWith('displayBatchSize', 200);
-        expect(evalListener.setConfig).to.have.been.calledWith('displayBatchSize', 200);
+        expect(evalListener.validateConfig).to.have.been.calledWith(
+          'displayBatchSize',
+          200
+        );
+        expect(evalListener.setConfig).to.have.been.calledWith(
+          'displayBatchSize',
+          200
+        );
       });
     });
 
-    describe('resetConfig', function() {
-      it('should be called when shell evaluates `config.reset()`', async function() {
+    describe('resetConfig', function () {
+      it('should be called when shell evaluates `config.reset()`', async function () {
         const { init, evaluate } = caller;
         const evalListener = createSpiedEvaluationListener();
 
@@ -610,12 +627,14 @@ describe('worker', function() {
         await init('mongodb://nodb/', dummyOptions, { nodb: true });
 
         await evaluate('config.reset("displayBatchSize")');
-        expect(evalListener.resetConfig).to.have.been.calledWith('displayBatchSize');
+        expect(evalListener.resetConfig).to.have.been.calledWith(
+          'displayBatchSize'
+        );
       });
     });
 
-    describe('listConfigOptions', function() {
-      it('should be called when shell evaluates `config[asPrintable]`', async function() {
+    describe('listConfigOptions', function () {
+      it('should be called when shell evaluates `config[asPrintable]`', async function () {
         const { init, evaluate } = caller;
         const evalListener = createSpiedEvaluationListener();
 
@@ -630,8 +649,8 @@ describe('worker', function() {
       });
     });
 
-    describe('onRunInterruptible', function() {
-      it('should call callback when interruptible evaluation starts and ends', async function() {
+    describe('onRunInterruptible', function () {
+      it('should call callback when interruptible evaluation starts and ends', async function () {
         const { init, evaluate } = caller;
         const evalListener = createSpiedEvaluationListener();
 
@@ -640,16 +659,15 @@ describe('worker', function() {
         await init('mongodb://nodb/', dummyOptions, { nodb: true });
         await evaluate('1+1');
 
-        const [
-          firstCall,
-          secondCall
-        ] = (evalListener.onRunInterruptible as sinon.SinonSpy).args;
+        const [firstCall, secondCall] = (
+          evalListener.onRunInterruptible as sinon.SinonSpy
+        ).args;
 
         expect(firstCall[0]).to.have.property('__id');
         expect(secondCall[0]).to.equal(null);
       });
 
-      it('should return a handle that allows to interrupt the evaluation', async function() {
+      it('should return a handle that allows to interrupt the evaluation', async function () {
         const { init, evaluate } = caller;
         const evalListener = createSpiedEvaluationListener();
 
@@ -662,12 +680,12 @@ describe('worker', function() {
         try {
           await Promise.all([
             evaluate('while(true){}'),
-            (async() => {
+            (async () => {
               await sleep(50);
               const handle = (evalListener.onRunInterruptible as sinon.SinonSpy)
                 .args[0][0];
               interrupt(handle);
-            })()
+            })(),
           ]);
         } catch (e: any) {
           err = e;
@@ -681,8 +699,8 @@ describe('worker', function() {
     });
   });
 
-  describe('interrupt', function() {
-    it('should interrupt in-flight async tasks', async function() {
+  describe('interrupt', function () {
+    it('should interrupt in-flight async tasks', async function () {
       const { init, evaluate, interrupt } = caller;
 
       await init('mongodb://nodb/', dummyOptions, { nodb: true });
@@ -692,10 +710,10 @@ describe('worker', function() {
       try {
         await Promise.all([
           evaluate('sleep(100000)'),
-          (async() => {
+          (async () => {
             await sleep(10);
             await interrupt();
-          })()
+          })(),
         ]);
       } catch (e: any) {
         err = e;

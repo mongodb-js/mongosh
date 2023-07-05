@@ -14,12 +14,13 @@ import type {
   RemoveShellOptions,
   FindAndModifyShellOptions,
   FindAndModifyMethodShellOptions,
-  MapReduceShellOptions} from './helpers';
+  MapReduceShellOptions,
+} from './helpers';
 import {
   validateExplainableVerbosity,
   processRemoveOptions,
   processMapReduceOptions,
-  markAsExplainOutput
+  markAsExplainOutput,
 } from './helpers';
 import type {
   Document,
@@ -29,7 +30,7 @@ import type {
   UpdateOptions,
   FindOneAndDeleteOptions,
   FindOneAndReplaceOptions,
-  FindOneAndUpdateOptions
+  FindOneAndUpdateOptions,
 } from '@mongosh/service-provider-core';
 
 @shellApiClassDefault
@@ -37,7 +38,11 @@ export default class Explainable extends ShellApiWithMongoClass {
   _mongo: Mongo;
   _collection: Collection;
   _verbosity: ExplainVerbosityLike;
-  constructor(mongo: Mongo, collection: Collection, verbosity: ExplainVerbosityLike) {
+  constructor(
+    mongo: Mongo,
+    collection: Collection,
+    verbosity: ExplainVerbosityLike
+  ) {
     super();
     this._mongo = mongo;
     this._collection = collection;
@@ -58,13 +63,16 @@ export default class Explainable extends ShellApiWithMongoClass {
    * @param methodArguments
    * @private
    */
-  private _emitExplainableApiCall(methodName: string, methodArguments: Document = {}): void {
+  private _emitExplainableApiCall(
+    methodName: string,
+    methodArguments: Document = {}
+  ): void {
     this._mongo._instanceState.emitApiCallWithArgs({
       method: methodName,
       class: 'Explainable',
       db: this._collection._database._name,
       coll: this._collection._name,
-      arguments: methodArguments
+      arguments: methodArguments,
     });
   }
 
@@ -87,15 +95,18 @@ export default class Explainable extends ShellApiWithMongoClass {
   @returnType('ExplainableCursor')
   @apiVersions([1])
   @returnsPromise
-  async find(query?: Document, projection?: Document): Promise<ExplainableCursor> {
+  async find(
+    query?: Document,
+    projection?: Document
+  ): Promise<ExplainableCursor> {
     this._emitExplainableApiCall('find', { query, projection });
 
     const cursor = await this._collection.find(query, projection);
     return new ExplainableCursor(this._mongo, cursor, this._verbosity);
   }
 
-  async aggregate(pipeline: Document[], options: Document): Promise<Document>
-  async aggregate(...stages: Document[]): Promise<Document>
+  async aggregate(pipeline: Document[], options: Document): Promise<Document>;
+  async aggregate(...stages: Document[]): Promise<Document>;
   @returnsPromise
   @apiVersions([1])
   async aggregate(...args: any[]): Promise<Document> {
@@ -112,7 +123,7 @@ export default class Explainable extends ShellApiWithMongoClass {
 
     return await this._collection.aggregate(pipeline, {
       ...options,
-      explain: this._verbosity
+      explain: this._verbosity,
     });
   }
 
@@ -121,57 +132,98 @@ export default class Explainable extends ShellApiWithMongoClass {
   async count(query = {}, options: CountOptions = {}): Promise<Document> {
     this._emitExplainableApiCall('count', { query, options });
     // This is the only one that currently lacks explicit driver support.
-    return markAsExplainOutput(await this._collection._database._runCommand({
-      explain: {
-        count: `${this._collection._name}`,
-        query,
-        ...options
-      },
-      verbosity: this._verbosity
-    }));
+    return markAsExplainOutput(
+      await this._collection._database._runCommand({
+        explain: {
+          count: `${this._collection._name}`,
+          query,
+          ...options,
+        },
+        verbosity: this._verbosity,
+      })
+    );
   }
 
-  async distinct(field: string): Promise<Document>
-  async distinct(field: string, query: Document): Promise<Document>
-  async distinct(field: string, query: Document, options: DistinctOptions): Promise<Document>
+  async distinct(field: string): Promise<Document>;
+  async distinct(field: string, query: Document): Promise<Document>;
+  async distinct(
+    field: string,
+    query: Document,
+    options: DistinctOptions
+  ): Promise<Document>;
   @returnsPromise
   @apiVersions([1])
-  async distinct(field: string, query?: Document, options: DistinctOptions = {}): Promise<Document> {
+  async distinct(
+    field: string,
+    query?: Document,
+    options: DistinctOptions = {}
+  ): Promise<Document> {
     this._emitExplainableApiCall('distinct', { field, query, options });
-    return this._collection.distinct(field, query ?? {}, { ...options, explain: this._verbosity });
+    return this._collection.distinct(field, query ?? {}, {
+      ...options,
+      explain: this._verbosity,
+    });
   }
 
   @returnsPromise
   @apiVersions([1])
-  async findAndModify(options: FindAndModifyMethodShellOptions): Promise<Document> {
+  async findAndModify(
+    options: FindAndModifyMethodShellOptions
+  ): Promise<Document> {
     this._emitExplainableApiCall('findAndModify', { options });
-    return this._collection.findAndModify({ ...options, explain: this._verbosity });
+    return this._collection.findAndModify({
+      ...options,
+      explain: this._verbosity,
+    });
   }
 
   @returnsPromise
   @apiVersions([1])
-  async findOneAndDelete(filter: Document, options: FindOneAndDeleteOptions = {}): Promise<Document> {
+  async findOneAndDelete(
+    filter: Document,
+    options: FindOneAndDeleteOptions = {}
+  ): Promise<Document> {
     this._emitExplainableApiCall('findOneAndDelete', { filter, options });
-    return this._collection.findOneAndDelete(filter, { ...options, explain: this._verbosity });
+    return this._collection.findOneAndDelete(filter, {
+      ...options,
+      explain: this._verbosity,
+    });
   }
 
   @returnsPromise
   @apiVersions([1])
-  async findOneAndReplace(filter: Document, replacement: Document, options: FindAndModifyShellOptions<FindOneAndReplaceOptions> = {}): Promise<Document> {
+  async findOneAndReplace(
+    filter: Document,
+    replacement: Document,
+    options: FindAndModifyShellOptions<FindOneAndReplaceOptions> = {}
+  ): Promise<Document> {
     this._emitExplainableApiCall('findOneAndReplace', { filter, options });
-    return this._collection.findOneAndReplace(filter, replacement, { ...options, explain: this._verbosity });
+    return this._collection.findOneAndReplace(filter, replacement, {
+      ...options,
+      explain: this._verbosity,
+    });
   }
 
   @returnsPromise
   @apiVersions([1])
-  async findOneAndUpdate(filter: Document, update: Document, options: FindAndModifyShellOptions<FindOneAndUpdateOptions> = {}): Promise<Document> {
+  async findOneAndUpdate(
+    filter: Document,
+    update: Document,
+    options: FindAndModifyShellOptions<FindOneAndUpdateOptions> = {}
+  ): Promise<Document> {
     this._emitExplainableApiCall('findOneAndUpdate', { filter, options });
-    return this._collection.findOneAndUpdate(filter, update, { ...options, explain: this._verbosity });
+    return this._collection.findOneAndUpdate(filter, update, {
+      ...options,
+      explain: this._verbosity,
+    });
   }
 
   @returnsPromise
   @apiVersions([1])
-  async remove(query: Document, options: boolean | RemoveShellOptions = {}): Promise<Document> {
+  async remove(
+    query: Document,
+    options: boolean | RemoveShellOptions = {}
+  ): Promise<Document> {
     this._emitExplainableApiCall('remove', { query, options });
     options = { ...processRemoveOptions(options), explain: this._verbosity };
     return this._collection.remove(query, options);
@@ -179,9 +231,16 @@ export default class Explainable extends ShellApiWithMongoClass {
 
   @returnsPromise
   @apiVersions([1])
-  async update(filter: Document, update: Document, options: UpdateOptions = {}): Promise<Document> {
+  async update(
+    filter: Document,
+    update: Document,
+    options: UpdateOptions = {}
+  ): Promise<Document> {
     this._emitExplainableApiCall('update', { filter, update, options });
-    return this._collection.update(filter, update, { ...options, explain: this._verbosity });
+    return this._collection.update(filter, update, {
+      ...options,
+      explain: this._verbosity,
+    });
   }
 
   @returnsPromise
@@ -190,9 +249,17 @@ export default class Explainable extends ShellApiWithMongoClass {
   async mapReduce(
     map: Function | string,
     reduce: Function | string,
-    optionsOrOutString: MapReduceShellOptions): Promise<Document> {
-    this._emitExplainableApiCall('mapReduce', { map, reduce, optionsOrOutString });
-    const options = { ...processMapReduceOptions(optionsOrOutString), explain: this._verbosity };
+    optionsOrOutString: MapReduceShellOptions
+  ): Promise<Document> {
+    this._emitExplainableApiCall('mapReduce', {
+      map,
+      reduce,
+      optionsOrOutString,
+    });
+    const options = {
+      ...processMapReduceOptions(optionsOrOutString),
+      explain: this._verbosity,
+    };
     return this._collection.mapReduce(map, reduce, options);
   }
 }

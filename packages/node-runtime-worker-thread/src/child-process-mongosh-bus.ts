@@ -1,6 +1,6 @@
 import type { ChildProcess } from 'child_process';
 import type { MongoshBus } from '@mongosh/types';
-import type { Exposed} from './rpc';
+import type { Exposed } from './rpc';
 import { exposeAll, close } from './rpc';
 
 export class ChildProcessMongoshBus {
@@ -17,7 +17,7 @@ export class ChildProcessMongoshBus {
         },
         once() {
           throw new Error("Can't use `once` method on ChildProcessMongoshBus");
-        }
+        },
       },
       childProcess
     );

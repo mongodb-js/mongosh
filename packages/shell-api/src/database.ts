@@ -8,7 +8,7 @@ import {
   shellApiClassDefault,
   topologies,
   deprecated,
-  ShellApiWithMongoClass
+  ShellApiWithMongoClass,
 } from './decorators';
 import { asPrintable, ServerVersions, Topologies } from './enums';
 import {
@@ -23,7 +23,7 @@ import {
   getConfigDB,
   shouldRunAggregationImmediately,
   adjustRunCommand,
-  getBadge
+  getBadge,
 } from './helpers';
 
 import type {
@@ -32,7 +32,7 @@ import type {
   CreateCollectionOptions,
   Document,
   WriteConcern,
-  ListCollectionsOptions
+  ListCollectionsOptions,
 } from '@mongosh/service-provider-core';
 import { AggregationCursor, RunCommandCursor, CommandResult } from './index';
 import {
@@ -41,20 +41,28 @@ import {
   MongoshInvalidInputError,
   MongoshRuntimeError,
   MongoshUnimplementedError,
-  MongoshInternalError
+  MongoshInternalError,
 } from '@mongosh/errors';
 import { HIDDEN_COMMANDS } from '@mongosh/history';
 import type Session from './session';
 import ChangeStreamCursor from './change-stream-cursor';
 import { ShellApiErrors } from './error-codes';
-import type { CreateEncryptedCollectionOptions, CheckMetadataConsistencyOptions } from '@mongosh/service-provider-core';
+import type {
+  CreateEncryptedCollectionOptions,
+  CheckMetadataConsistencyOptions,
+} from '@mongosh/service-provider-core';
 
 export type CollectionNamesWithTypes = {
   name: string;
   badge: string;
 };
 
-type AuthDoc = {user: string, pwd: string, authDb?: string, mechanism?: string};
+type AuthDoc = {
+  user: string;
+  pwd: string;
+  authDb?: string;
+  mechanism?: string;
+};
 
 @shellApiClassDefault
 export default class Database extends ShellApiWithMongoClass {
@@ -91,7 +99,7 @@ export default class Database extends ShellApiWithMongoClass {
         }
 
         return collections[prop];
-      }
+      },
     });
     return proxy;
   }
@@ -101,7 +109,9 @@ export default class Database extends ShellApiWithMongoClass {
     if (this._session) {
       options.session = this._session._session;
     }
-    const maxTimeMS = await this._instanceState.shellApi.config.get('maxTimeMS');
+    const maxTimeMS = await this._instanceState.shellApi.config.get(
+      'maxTimeMS'
+    );
     if (typeof maxTimeMS === 'number') {
       options.maxTimeMS = maxTimeMS;
     }
@@ -109,7 +119,7 @@ export default class Database extends ShellApiWithMongoClass {
   }
 
   async _maybeCachedHello(): Promise<Document> {
-    return this._cachedHello ?? await this.hello();
+    return this._cachedHello ?? (await this.hello());
   }
 
   /**
@@ -126,37 +136,57 @@ export default class Database extends ShellApiWithMongoClass {
    * @param methodArguments
    * @private
    */
-  private _emitDatabaseApiCall(methodName: string, methodArguments: Document = {}): void {
+  private _emitDatabaseApiCall(
+    methodName: string,
+    methodArguments: Document = {}
+  ): void {
     this._mongo._instanceState.emitApiCallWithArgs({
       method: methodName,
       class: 'Database',
       db: this._name,
-      arguments: methodArguments
+      arguments: methodArguments,
     });
   }
 
   // Private helpers to avoid sending telemetry events for internal calls. Public so rs/sh can use them
 
-  public async _runCommand(cmd: Document, options: CommandOperationOptions = {}): Promise<Document> {
+  public async _runCommand(
+    cmd: Document,
+    options: CommandOperationOptions = {}
+  ): Promise<Document> {
     return this._mongo._serviceProvider.runCommandWithCheck(
       this._name,
       adjustRunCommand(cmd, this._instanceState.shellBson),
-      { ...this._mongo._getExplicitlyRequestedReadPref(), ...await this._baseOptions(), ...options }
+      {
+        ...this._mongo._getExplicitlyRequestedReadPref(),
+        ...(await this._baseOptions()),
+        ...options,
+      }
     );
   }
 
-  public async _runAdminCommand(cmd: Document, options: CommandOperationOptions = {}): Promise<Document> {
-    return this.getSiblingDB('admin')._runCommand(
-      cmd,
-      { ...await this._baseOptions(), ...options }
-    );
+  public async _runAdminCommand(
+    cmd: Document,
+    options: CommandOperationOptions = {}
+  ): Promise<Document> {
+    return this.getSiblingDB('admin')._runCommand(cmd, {
+      ...(await this._baseOptions()),
+      ...options,
+    });
   }
 
-  public async _runCursorCommand(cmd: Document, options: CommandOperationOptions = {}): Promise<RunCommandCursor> {
+  public async _runCursorCommand(
+    cmd: Document,
+    options: CommandOperationOptions = {}
+  ): Promise<RunCommandCursor> {
     const providerCursor = this._mongo._serviceProvider.runCursorCommand(
       this._name,
       adjustRunCommand(cmd, this._instanceState.shellBson),
-      { ...this._mongo._getExplicitlyRequestedReadPref(), ...await this._baseOptions(), ...options }
+      {
+        ...this._mongo._getExplicitlyRequestedReadPref(),
+        ...(await this._baseOptions()),
+        ...options,
+      }
     );
 
     const cursor = new RunCommandCursor(this._mongo, providerCursor);
@@ -164,55 +194,83 @@ export default class Database extends ShellApiWithMongoClass {
     return cursor;
   }
 
-  public async _runAdminCursorCommand(cmd: Document, options: CommandOperationOptions = {}): Promise<RunCommandCursor> {
+  public async _runAdminCursorCommand(
+    cmd: Document,
+    options: CommandOperationOptions = {}
+  ): Promise<RunCommandCursor> {
     return this.getSiblingDB('admin')._runCursorCommand(cmd, options);
   }
 
-  async _listCollections(filter: Document, options: ListCollectionsOptions): Promise<Document[]> {
-    return await this._mongo._serviceProvider.listCollections(
-      this._name,
-      filter,
-      { ...this._mongo._getExplicitlyRequestedReadPref(), ...await this._baseOptions(), ...options }
-    ) || [];
+  async _listCollections(
+    filter: Document,
+    options: ListCollectionsOptions
+  ): Promise<Document[]> {
+    return (
+      (await this._mongo._serviceProvider.listCollections(this._name, filter, {
+        ...this._mongo._getExplicitlyRequestedReadPref(),
+        ...(await this._baseOptions()),
+        ...options,
+      })) || []
+    );
   }
 
-  async _getCollectionNames(options?: ListCollectionsOptions): Promise<string[]> {
-    const infos = await this._listCollections({}, { ...options, nameOnly: true });
-    this._cachedCollectionNames = infos.map((collection: any) => collection.name);
+  async _getCollectionNames(
+    options?: ListCollectionsOptions
+  ): Promise<string[]> {
+    const infos = await this._listCollections(
+      {},
+      { ...options, nameOnly: true }
+    );
+    this._cachedCollectionNames = infos.map(
+      (collection: any) => collection.name
+    );
     return this._cachedCollectionNames;
   }
 
-  async _getCollectionNamesWithTypes(options?: ListCollectionsOptions): Promise<CollectionNamesWithTypes[]> {
-    let collections = await this._listCollections({}, { ...options, nameOnly: true });
-    collections = collections.sort((c1, c2) => (c1.name).localeCompare(c2.name));
+  async _getCollectionNamesWithTypes(
+    options?: ListCollectionsOptions
+  ): Promise<CollectionNamesWithTypes[]> {
+    let collections = await this._listCollections(
+      {},
+      { ...options, nameOnly: true }
+    );
+    collections = collections.sort((c1, c2) => c1.name.localeCompare(c2.name));
 
-    this._cachedCollectionNames = collections.map((collection: Document) => collection.name);
+    this._cachedCollectionNames = collections.map(
+      (collection: Document) => collection.name
+    );
 
     return collections.map((collection: Document, index: number) => ({
       name: collection.name,
-      badge: getBadge(collections, index)
+      badge: getBadge(collections, index),
     }));
   }
 
   async _getCollectionNamesForCompletion(): Promise<string[]> {
     return await Promise.race([
-      (async() => {
-        return await this._getCollectionNames({ readPreference: 'primaryPreferred' });
+      (async () => {
+        return await this._getCollectionNames({
+          readPreference: 'primaryPreferred',
+        });
       })(),
-      (async() => {
+      (async () => {
         // 200ms should be a good compromise between giving the server a chance
         // to reply and responsiveness for human perception. It's not the end
         // of the world if we end up using the cached results; usually, they
         // are not going to differ from fresh ones, and even if they do, a
         // subsequent autocompletion request will almost certainly have at least
         // the new cached results.
-        await new Promise(resolve => setTimeout(resolve, 200).unref());
+        await new Promise((resolve) => setTimeout(resolve, 200).unref());
         return this._cachedCollectionNames;
-      })()
+      })(),
     ]);
   }
 
-  async _getLastErrorObj(w?: number|string, wTimeout?: number, j?: boolean): Promise<Document> {
+  async _getLastErrorObj(
+    w?: number | string,
+    wTimeout?: number,
+    j?: boolean
+  ): Promise<Document> {
     const cmd = { getlasterror: 1 } as any;
     if (w) {
       cmd.w = w;
@@ -266,12 +324,12 @@ export default class Database extends ShellApiWithMongoClass {
   @returnsPromise
   @serverVersions(['3.0.0', ServerVersions.latest])
   @apiVersions([1])
-  async getCollectionInfos(filter: Document = {}, options: ListCollectionsOptions = {}): Promise<Document[]> {
+  async getCollectionInfos(
+    filter: Document = {},
+    options: ListCollectionsOptions = {}
+  ): Promise<Document[]> {
     this._emitDatabaseApiCall('getCollectionInfos', { filter, options });
-    return await this._listCollections(
-      filter,
-      options
-    );
+    return await this._listCollections(filter, options);
   }
 
   /**
@@ -290,7 +348,7 @@ export default class Database extends ShellApiWithMongoClass {
     }
 
     const hiddenCommands = new RegExp(HIDDEN_COMMANDS);
-    if (!Object.keys(cmd).some(k => hiddenCommands.test(k))) {
+    if (!Object.keys(cmd).some((k) => hiddenCommands.test(k))) {
       this._emitDatabaseApiCall('runCommand', { cmd });
     }
     return this._runCommand(cmd);
@@ -307,13 +365,17 @@ export default class Database extends ShellApiWithMongoClass {
   @serverVersions(['3.4.0', ServerVersions.latest])
   @apiVersions([1])
   async adminCommand(cmd: string | Document): Promise<Document> {
-    assertArgsDefinedType([cmd], [['string', 'object']], 'Database.adminCommand');
+    assertArgsDefinedType(
+      [cmd],
+      [['string', 'object']],
+      'Database.adminCommand'
+    );
     if (typeof cmd === 'string') {
       cmd = { [cmd]: 1 };
     }
 
     const hiddenCommands = new RegExp(HIDDEN_COMMANDS);
-    if (!Object.keys(cmd).some(k => hiddenCommands.test(k))) {
+    if (!Object.keys(cmd).some((k) => hiddenCommands.test(k))) {
       this._emitDatabaseApiCall('adminCommand', { cmd });
     }
     return await this._runAdminCommand(cmd, {});
@@ -329,20 +391,19 @@ export default class Database extends ShellApiWithMongoClass {
   @returnsPromise
   @returnType('AggregationCursor')
   @apiVersions([1])
-  async aggregate(pipeline: Document[], options?: Document): Promise<AggregationCursor> {
+  async aggregate(
+    pipeline: Document[],
+    options?: Document
+  ): Promise<AggregationCursor> {
     assertArgsDefinedType([pipeline], [true], 'Database.aggregate');
     this._emitDatabaseApiCall('aggregate', { options, pipeline });
 
-    const {
-      aggOptions,
-      dbOptions,
-      explain
-    } = adaptAggregateOptions(options);
+    const { aggOptions, dbOptions, explain } = adaptAggregateOptions(options);
 
     const providerCursor = this._mongo._serviceProvider.aggregateDb(
       this._name,
       pipeline,
-      { ...await this._baseOptions(), ...aggOptions },
+      { ...(await this._baseOptions()), ...aggOptions },
       dbOptions
     );
     const cursor = new AggregationCursor(this._mongo, providerCursor);
@@ -372,7 +433,10 @@ export default class Database extends ShellApiWithMongoClass {
     assertArgsDefinedType([coll], ['string'], 'Database.getColl');
     this._emitDatabaseApiCall('getCollection', { coll });
     if (!isValidCollectionName(coll)) {
-      throw new MongoshInvalidInputError(`Invalid collection name: ${coll}`, CommonErrors.InvalidArgument);
+      throw new MongoshInvalidInputError(
+        `Invalid collection name: ${coll}`,
+        CommonErrors.InvalidArgument
+      );
     }
 
     const collections: Record<string, Collection> = this._collections;
@@ -387,21 +451,27 @@ export default class Database extends ShellApiWithMongoClass {
   @returnsPromise
   @apiVersions([1])
   async dropDatabase(writeConcern?: WriteConcern): Promise<Document> {
-    return await this._mongo._serviceProvider.dropDatabase(
-      this._name,
-      { ...await this._baseOptions(), writeConcern }
-    );
+    return await this._mongo._serviceProvider.dropDatabase(this._name, {
+      ...(await this._baseOptions()),
+      writeConcern,
+    });
   }
 
   @returnsPromise
   @apiVersions([])
-  async createUser(user: Document, writeConcern?: WriteConcern): Promise<Document> {
+  async createUser(
+    user: Document,
+    writeConcern?: WriteConcern
+  ): Promise<Document> {
     assertArgsDefinedType([user], ['object'], 'Database.createUser');
     assertKeysDefined(user, ['user', 'roles']);
 
     if (this._name === '$external') {
       if ('pwd' in user) {
-        throw new MongoshInvalidInputError('Cannot set password for users on the $external database', CommonErrors.InvalidArgument);
+        throw new MongoshInvalidInputError(
+          'Cannot set password for users on the $external database',
+          CommonErrors.InvalidArgument
+        );
       }
     } else {
       assertKeysDefined(user, ['pwd']);
@@ -409,7 +479,10 @@ export default class Database extends ShellApiWithMongoClass {
 
     this._emitDatabaseApiCall('createUser', {});
     if (user.createUser) {
-      throw new MongoshInvalidInputError('Cannot set createUser field in helper method', CommonErrors.InvalidArgument);
+      throw new MongoshInvalidInputError(
+        'Cannot set createUser field in helper method',
+        CommonErrors.InvalidArgument
+      );
     }
     const command = adaptOptions(
       { user: 'createUser', passwordDigestor: null },
@@ -419,18 +492,36 @@ export default class Database extends ShellApiWithMongoClass {
     if (writeConcern) {
       command.writeConcern = writeConcern;
     }
-    const digestPwd = processDigestPassword(user.user, user.passwordDigestor, command);
-    const orderedCmd = { createUser: command.createUser, ...command, ...digestPwd };
-    return await this._runCommand(
-      orderedCmd
+    const digestPwd = processDigestPassword(
+      user.user,
+      user.passwordDigestor,
+      command
     );
+    const orderedCmd = {
+      createUser: command.createUser,
+      ...command,
+      ...digestPwd,
+    };
+    return await this._runCommand(orderedCmd);
   }
 
   @returnsPromise
-  async updateUser(username: string, userDoc: Document, writeConcern?: WriteConcern): Promise<Document> {
-    assertArgsDefinedType([username, userDoc], ['string', 'object'], 'Database.updateUser');
+  async updateUser(
+    username: string,
+    userDoc: Document,
+    writeConcern?: WriteConcern
+  ): Promise<Document> {
+    assertArgsDefinedType(
+      [username, userDoc],
+      ['string', 'object'],
+      'Database.updateUser'
+    );
     this._emitDatabaseApiCall('updateUser', {});
-    if (userDoc.passwordDigestor && userDoc.passwordDigestor !== 'server' && userDoc.passwordDigestor !== 'client') {
+    if (
+      userDoc.passwordDigestor &&
+      userDoc.passwordDigestor !== 'server' &&
+      userDoc.passwordDigestor !== 'client'
+    ) {
       throw new MongoshInvalidInputError(
         `Invalid field: passwordDigestor must be 'client' or 'server', got ${userDoc.passwordDigestor}`,
         CommonErrors.InvalidArgument
@@ -440,30 +531,44 @@ export default class Database extends ShellApiWithMongoClass {
     const command = adaptOptions(
       { passwordDigestor: null },
       {
-        updateUser: username
+        updateUser: username,
       },
       userDoc
     );
     if (writeConcern) {
       command.writeConcern = writeConcern;
     }
-    const digestPwd = processDigestPassword(username, userDoc.passwordDigestor, command);
-    const orderedCmd = { updateUser: command.updateUser, ...command, ...digestPwd };
-    return await this._runCommand(
-      orderedCmd
+    const digestPwd = processDigestPassword(
+      username,
+      userDoc.passwordDigestor,
+      command
     );
+    const orderedCmd = {
+      updateUser: command.updateUser,
+      ...command,
+      ...digestPwd,
+    };
+    return await this._runCommand(orderedCmd);
   }
 
   @returnsPromise
   @apiVersions([])
-  async changeUserPassword(username: string, password: string, writeConcern?: WriteConcern): Promise<Document> {
-    assertArgsDefinedType([username, password], ['string', 'string'], 'Database.changeUserPassword');
+  async changeUserPassword(
+    username: string,
+    password: string,
+    writeConcern?: WriteConcern
+  ): Promise<Document> {
+    assertArgsDefinedType(
+      [username, password],
+      ['string', 'string'],
+      'Database.changeUserPassword'
+    );
     this._emitDatabaseApiCall('changeUserPassword', {});
     const command = adaptOptions(
       {},
       {
         updateUser: username,
-        pwd: password
+        pwd: password,
       },
       {}
     );
@@ -472,9 +577,7 @@ export default class Database extends ShellApiWithMongoClass {
     }
 
     const orderedCmd = { updateUser: command.updateUser, ...command };
-    return await this._runCommand(
-      orderedCmd
-    );
+    return await this._runCommand(orderedCmd);
   }
 
   @returnsPromise
@@ -487,7 +590,10 @@ export default class Database extends ShellApiWithMongoClass {
 
   @returnsPromise
   @apiVersions([])
-  async dropUser(username: string, writeConcern?: WriteConcern): Promise<Document> {
+  async dropUser(
+    username: string,
+    writeConcern?: WriteConcern
+  ): Promise<Document> {
     assertArgsDefinedType([username], ['string'], 'Database.dropUser');
     this._emitDatabaseApiCall('dropUser', {});
     const cmd = { dropUser: username } as Document;
@@ -509,7 +615,9 @@ export default class Database extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
-  async auth(...args: [AuthDoc] | [string, string] | [string]): Promise<{ ok: number }> {
+  async auth(
+    ...args: [AuthDoc] | [string, string] | [string]
+  ): Promise<{ ok: number }> {
     this._emitDatabaseApiCall('auth', {});
     let authDoc: AuthDoc;
     if (args.length === 1) {
@@ -517,7 +625,7 @@ export default class Database extends ShellApiWithMongoClass {
       if (typeof args[0] === 'string' && evaluationListener.onPrompt) {
         authDoc = {
           user: args[0],
-          pwd: await evaluationListener.onPrompt('Enter password', 'password')
+          pwd: await evaluationListener.onPrompt('Enter password', 'password'),
         };
       } else {
         authDoc = args[0] as AuthDoc;
@@ -525,7 +633,7 @@ export default class Database extends ShellApiWithMongoClass {
     } else if (args.length === 2) {
       authDoc = {
         user: args[0],
-        pwd: args[1]
+        pwd: args[1],
       };
     } else {
       throw new MongoshInvalidInputError(
@@ -535,7 +643,7 @@ export default class Database extends ShellApiWithMongoClass {
     }
     if ((!authDoc.user || !authDoc.pwd) && !authDoc.mechanism) {
       throw new MongoshInvalidInputError(
-        'auth expects user document with at least \'user\' and \'pwd\' or \'mechanism\' fields',
+        "auth expects user document with at least 'user' and 'pwd' or 'mechanism' fields",
         CommonErrors.InvalidArgument
       );
     }
@@ -552,8 +660,16 @@ export default class Database extends ShellApiWithMongoClass {
 
   @returnsPromise
   @apiVersions([])
-  async grantRolesToUser(username: string, roles: any[], writeConcern?: WriteConcern): Promise<Document> {
-    assertArgsDefinedType([username, roles], ['string', true], 'Database.grantRolesToUser');
+  async grantRolesToUser(
+    username: string,
+    roles: any[],
+    writeConcern?: WriteConcern
+  ): Promise<Document> {
+    assertArgsDefinedType(
+      [username, roles],
+      ['string', true],
+      'Database.grantRolesToUser'
+    );
     this._emitDatabaseApiCall('grantRolesToUser', {});
     const cmd = { grantRolesToUser: username, roles: roles } as Document;
     if (writeConcern) {
@@ -564,8 +680,16 @@ export default class Database extends ShellApiWithMongoClass {
 
   @returnsPromise
   @apiVersions([])
-  async revokeRolesFromUser(username: string, roles: any[], writeConcern?: WriteConcern): Promise<Document> {
-    assertArgsDefinedType([username, roles], ['string', true], 'Database.revokeRolesFromUser');
+  async revokeRolesFromUser(
+    username: string,
+    roles: any[],
+    writeConcern?: WriteConcern
+  ): Promise<Document> {
+    assertArgsDefinedType(
+      [username, roles],
+      ['string', true],
+      'Database.revokeRolesFromUser'
+    );
     this._emitDatabaseApiCall('revokeRolesFromUser', {});
     const cmd = { revokeRolesFromUser: username, roles: roles } as Document;
     if (writeConcern) {
@@ -576,17 +700,22 @@ export default class Database extends ShellApiWithMongoClass {
 
   @returnsPromise
   @apiVersions([])
-  async getUser(username: string, options: Document = {}): Promise<Document | null> {
+  async getUser(
+    username: string,
+    options: Document = {}
+  ): Promise<Document | null> {
     assertArgsDefinedType([username], ['string'], 'Database.getUser');
     this._emitDatabaseApiCall('getUser', { username: username });
     const command = adaptOptions(
-      { },
+      {},
       { usersInfo: { user: username, db: this._name } },
       options
     );
     const result = await this._runCommand(command);
     if (result.users === undefined) {
-      throw new MongoshInternalError('No users were returned from the userInfo command');
+      throw new MongoshInternalError(
+        'No users were returned from the userInfo command'
+      );
     }
     for (let i = 0; i < result.users.length; i++) {
       if (result.users[i].user === username) {
@@ -600,48 +729,66 @@ export default class Database extends ShellApiWithMongoClass {
   @apiVersions([])
   async getUsers(options: Document = {}): Promise<Document> {
     this._emitDatabaseApiCall('getUsers', { options: options });
-    const command = adaptOptions(
-      { },
-      { usersInfo: 1 },
-      options
-    );
-    return await this._runCommand(
-      command
-    );
+    const command = adaptOptions({}, { usersInfo: 1 }, options);
+    return await this._runCommand(command);
   }
 
   @returnsPromise
   @apiVersions([1])
-  async createCollection(name: string, options: CreateCollectionOptions = {}): Promise<{ ok: number }> {
+  async createCollection(
+    name: string,
+    options: CreateCollectionOptions = {}
+  ): Promise<{ ok: number }> {
     assertArgsDefinedType([name], ['string'], 'Database.createCollection');
-    this._emitDatabaseApiCall('createCollection', { name: name, options: options });
+    this._emitDatabaseApiCall('createCollection', {
+      name: name,
+      options: options,
+    });
     return await this._mongo._serviceProvider.createCollection(
       this._name,
       name,
-      { ...await this._baseOptions(), ...options }
+      { ...(await this._baseOptions()), ...options }
     );
   }
 
   @returnsPromise
   @apiVersions([1])
-  async createEncryptedCollection(name: string, options: CreateEncryptedCollectionOptions): Promise<{ collection: Collection, encryptedFields: Document }> {
-    this._emitDatabaseApiCall('createEncryptedCollection', { name: name, options: options });
-    return this._mongo.getClientEncryption().createEncryptedCollection(
-      this._name,
+  async createEncryptedCollection(
+    name: string,
+    options: CreateEncryptedCollectionOptions
+  ): Promise<{ collection: Collection; encryptedFields: Document }> {
+    this._emitDatabaseApiCall('createEncryptedCollection', {
+      name: name,
+      options: options,
+    });
+    return this._mongo
+      .getClientEncryption()
+      .createEncryptedCollection(this._name, name, options);
+  }
+
+  @returnsPromise
+  @apiVersions([1])
+  async createView(
+    name: string,
+    source: string,
+    pipeline: Document[],
+    options: CreateCollectionOptions = {}
+  ): Promise<{ ok: number }> {
+    assertArgsDefinedType(
+      [name, source, pipeline],
+      ['string', 'string', true],
+      'Database.createView'
+    );
+    this._emitDatabaseApiCall('createView', {
       name,
-      options
-    );
-  }
-
-  @returnsPromise
-  @apiVersions([1])
-  async createView(name: string, source: string, pipeline: Document[], options: CreateCollectionOptions = {}): Promise<{ ok: number }> {
-    assertArgsDefinedType([name, source, pipeline], ['string', 'string', true], 'Database.createView');
-    this._emitDatabaseApiCall('createView', { name, source, pipeline, options });
+      source,
+      pipeline,
+      options,
+    });
     const ccOpts = {
-      ...await this._baseOptions(),
+      ...(await this._baseOptions()),
       viewOn: source,
-      pipeline: pipeline
+      pipeline: pipeline,
     } as Document;
     if (options.collation) {
       ccOpts.collation = options.collation;
@@ -655,7 +802,10 @@ export default class Database extends ShellApiWithMongoClass {
 
   @returnsPromise
   @apiVersions([])
-  async createRole(role: Document, writeConcern?: WriteConcern): Promise<Document> {
+  async createRole(
+    role: Document,
+    writeConcern?: WriteConcern
+  ): Promise<Document> {
     assertArgsDefinedType([role], ['object'], 'Database.createRole');
     assertKeysDefined(role, ['role', 'privileges', 'roles']);
     this._emitDatabaseApiCall('createRole', {});
@@ -665,29 +815,31 @@ export default class Database extends ShellApiWithMongoClass {
         CommonErrors.InvalidArgument
       );
     }
-    const command = adaptOptions(
-      { role: 'createRole' },
-      {},
-      role
-    );
+    const command = adaptOptions({ role: 'createRole' }, {}, role);
     if (writeConcern) {
       command.writeConcern = writeConcern;
     }
     const orderedCmd = { createRole: command.createRole, ...command };
-    return await this._runCommand(
-      orderedCmd
-    );
+    return await this._runCommand(orderedCmd);
   }
 
   @returnsPromise
   @apiVersions([])
-  async updateRole(rolename: string, roleDoc: Document, writeConcern?: WriteConcern): Promise<Document> {
-    assertArgsDefinedType([rolename, roleDoc], ['string', 'object'], 'Database.updateRole');
+  async updateRole(
+    rolename: string,
+    roleDoc: Document,
+    writeConcern?: WriteConcern
+  ): Promise<Document> {
+    assertArgsDefinedType(
+      [rolename, roleDoc],
+      ['string', 'object'],
+      'Database.updateRole'
+    );
     this._emitDatabaseApiCall('updateRole', {});
     const command = adaptOptions(
       {},
       {
-        updateRole: rolename
+        updateRole: rolename,
       },
       roleDoc
     );
@@ -695,14 +847,15 @@ export default class Database extends ShellApiWithMongoClass {
       command.writeConcern = writeConcern;
     }
     const orderedCmd = { updateRole: command.updateRole, ...command };
-    return await this._runCommand(
-      orderedCmd
-    );
+    return await this._runCommand(orderedCmd);
   }
 
   @returnsPromise
   @apiVersions([])
-  async dropRole(rolename: string, writeConcern?: WriteConcern): Promise<Document> {
+  async dropRole(
+    rolename: string,
+    writeConcern?: WriteConcern
+  ): Promise<Document> {
     assertArgsDefinedType([rolename], ['string'], 'Database.dropRole');
     this._emitDatabaseApiCall('dropRole', {});
     const cmd = { dropRole: rolename } as Document;
@@ -724,8 +877,16 @@ export default class Database extends ShellApiWithMongoClass {
 
   @returnsPromise
   @apiVersions([])
-  async grantRolesToRole(rolename: string, roles: any[], writeConcern?: WriteConcern): Promise<Document> {
-    assertArgsDefinedType([rolename, roles], ['string', true], 'Database.grantRolesToRole');
+  async grantRolesToRole(
+    rolename: string,
+    roles: any[],
+    writeConcern?: WriteConcern
+  ): Promise<Document> {
+    assertArgsDefinedType(
+      [rolename, roles],
+      ['string', true],
+      'Database.grantRolesToRole'
+    );
     this._emitDatabaseApiCall('grantRolesToRole', {});
     const cmd = { grantRolesToRole: rolename, roles: roles } as Document;
     if (writeConcern) {
@@ -736,8 +897,16 @@ export default class Database extends ShellApiWithMongoClass {
 
   @returnsPromise
   @apiVersions([])
-  async revokeRolesFromRole(rolename: string, roles: any[], writeConcern?: WriteConcern): Promise<Document> {
-    assertArgsDefinedType([rolename, roles], ['string', true], 'Database.revokeRolesFromRole');
+  async revokeRolesFromRole(
+    rolename: string,
+    roles: any[],
+    writeConcern?: WriteConcern
+  ): Promise<Document> {
+    assertArgsDefinedType(
+      [rolename, roles],
+      ['string', true],
+      'Database.revokeRolesFromRole'
+    );
     this._emitDatabaseApiCall('revokeRolesFromRole', {});
     const cmd = { revokeRolesFromRole: rolename, roles: roles } as Document;
     if (writeConcern) {
@@ -747,10 +916,21 @@ export default class Database extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
-  async grantPrivilegesToRole(rolename: string, privileges: any[], writeConcern?: WriteConcern): Promise<Document> {
-    assertArgsDefinedType([rolename, privileges], ['string', true], 'Database.grantPrivilegesToRole');
+  async grantPrivilegesToRole(
+    rolename: string,
+    privileges: any[],
+    writeConcern?: WriteConcern
+  ): Promise<Document> {
+    assertArgsDefinedType(
+      [rolename, privileges],
+      ['string', true],
+      'Database.grantPrivilegesToRole'
+    );
     this._emitDatabaseApiCall('grantPrivilegesToRole', {});
-    const cmd = { grantPrivilegesToRole: rolename, privileges: privileges } as Document;
+    const cmd = {
+      grantPrivilegesToRole: rolename,
+      privileges: privileges,
+    } as Document;
     if (writeConcern) {
       cmd.writeConcern = writeConcern;
     }
@@ -759,32 +939,45 @@ export default class Database extends ShellApiWithMongoClass {
 
   @returnsPromise
   @apiVersions([])
-  async revokePrivilegesFromRole(rolename: string, privileges: any[], writeConcern?: WriteConcern): Promise<Document> {
-    assertArgsDefinedType([rolename, privileges], ['string', true], 'Database.revokePrivilegesFromRole');
+  async revokePrivilegesFromRole(
+    rolename: string,
+    privileges: any[],
+    writeConcern?: WriteConcern
+  ): Promise<Document> {
+    assertArgsDefinedType(
+      [rolename, privileges],
+      ['string', true],
+      'Database.revokePrivilegesFromRole'
+    );
     this._emitDatabaseApiCall('revokePrivilegesFromRole', {});
-    const cmd = { revokePrivilegesFromRole: rolename, privileges: privileges } as Document;
+    const cmd = {
+      revokePrivilegesFromRole: rolename,
+      privileges: privileges,
+    } as Document;
     if (writeConcern) {
       cmd.writeConcern = writeConcern;
     }
     return await this._runCommand(cmd);
   }
 
-
   @returnsPromise
   @apiVersions([])
-  async getRole(rolename: string, options: Document = {}): Promise<Document | null> {
+  async getRole(
+    rolename: string,
+    options: Document = {}
+  ): Promise<Document | null> {
     assertArgsDefinedType([rolename], ['string'], 'Database.getRole');
     this._emitDatabaseApiCall('getRole', { rolename: rolename });
     const command = adaptOptions(
-      { },
+      {},
       { rolesInfo: { role: rolename, db: this._name } },
       options
     );
-    const result = await this._runCommand(
-      command
-    );
+    const result = await this._runCommand(command);
     if (result.roles === undefined) {
-      throw new MongoshInternalError('No roles returned from rolesInfo command');
+      throw new MongoshInternalError(
+        'No roles returned from rolesInfo command'
+      );
     }
     for (let i = 0; i < result.roles.length; i++) {
       if (result.roles[i].role === rolename) {
@@ -798,33 +991,34 @@ export default class Database extends ShellApiWithMongoClass {
   @apiVersions([])
   async getRoles(options: Document = {}): Promise<Document> {
     this._emitDatabaseApiCall('getRoles', { options: options });
-    const command = adaptOptions(
-      { },
-      { rolesInfo: 1 },
-      options
-    );
-    return await this._runCommand(
-      command
-    );
+    const command = adaptOptions({}, { rolesInfo: 1 }, options);
+    return await this._runCommand(command);
   }
 
   async _getCurrentOperations(opts: Document | boolean): Promise<Document[]> {
-    const legacyCurrentOpOptions = typeof opts === 'boolean'
-      ? ({ '$all': opts, '$ownOps': false })
-      : ({ '$all': !!opts.$all, '$ownOps': !!opts.$ownOps });
+    const legacyCurrentOpOptions =
+      typeof opts === 'boolean'
+        ? { $all: opts, $ownOps: false }
+        : { $all: !!opts.$all, $ownOps: !!opts.$ownOps };
 
-    const pipeline: Document[] = [{
-      $currentOp: {
-        allUsers: !legacyCurrentOpOptions.$ownOps,
-        idleConnections: legacyCurrentOpOptions.$all,
-        truncateOps: false,
-      }
-    }];
+    const pipeline: Document[] = [
+      {
+        $currentOp: {
+          allUsers: !legacyCurrentOpOptions.$ownOps,
+          idleConnections: legacyCurrentOpOptions.$all,
+          truncateOps: false,
+        },
+      },
+    ];
 
     if (typeof opts === 'object') {
       const matchingFilters: Document = {};
       for (const filtername of Object.keys(opts)) {
-        if (filtername !== '$ownOps' && filtername !== '$all' && filtername !== '$truncateOps') {
+        if (
+          filtername !== '$ownOps' &&
+          filtername !== '$all' &&
+          filtername !== '$truncateOps'
+        ) {
           matchingFilters[filtername] = opts[filtername];
         }
       }
@@ -856,7 +1050,7 @@ export default class Database extends ShellApiWithMongoClass {
     const currentOps = await this._getCurrentOperations(opts);
     return {
       inprog: currentOps,
-      ok: 1
+      ok: 1,
     };
   }
 
@@ -864,61 +1058,53 @@ export default class Database extends ShellApiWithMongoClass {
   @apiVersions([])
   async killOp(opId: number | string): Promise<Document> {
     this._emitDatabaseApiCall('killOp', { opId });
-    return await this._runAdminCommand(
-      {
-        killOp: 1,
-        op: opId
-      }
-    );
+    return await this._runAdminCommand({
+      killOp: 1,
+      op: opId,
+    });
   }
 
   @returnsPromise
   @apiVersions([])
   async shutdownServer(opts: Document = {}): Promise<Document> {
     this._emitDatabaseApiCall('shutdownServer', { opts: opts });
-    return await this._runAdminCommand(
-      {
-        shutdown: 1,
-        ...opts
-      }
-    );
+    return await this._runAdminCommand({
+      shutdown: 1,
+      ...opts,
+    });
   }
 
   @returnsPromise
   @apiVersions([])
   async fsyncLock(): Promise<Document> {
     this._emitDatabaseApiCall('fsyncLock', {});
-    return await this._runAdminCommand(
-      {
-        fsync: 1,
-        lock: true
-      }
-    );
+    return await this._runAdminCommand({
+      fsync: 1,
+      lock: true,
+    });
   }
 
   @returnsPromise
   @apiVersions([])
   async fsyncUnlock(): Promise<Document> {
     this._emitDatabaseApiCall('fsyncUnlock', {});
-    return await this._runAdminCommand(
-      {
-        fsyncUnlock: 1
-      }
-    );
+    return await this._runAdminCommand({
+      fsyncUnlock: 1,
+    });
   }
 
   @returnsPromise
   @apiVersions([]) // TODO: Update this after https://jira.mongodb.org/browse/PM-2327
   async version(): Promise<string> {
     this._emitDatabaseApiCall('version', {});
-    const info: Document = await this._runAdminCommand(
-      {
-        buildInfo: 1,
-      }
-    );
+    const info: Document = await this._runAdminCommand({
+      buildInfo: 1,
+    });
     if (!info || info.version === undefined) {
       throw new MongoshRuntimeError(
-        `Error running command serverBuildInfo ${info ? info.errmsg || '' : ''}`,
+        `Error running command serverBuildInfo ${
+          info ? info.errmsg || '' : ''
+        }`,
         CommonErrors.CommandFailed
       );
     }
@@ -929,14 +1115,14 @@ export default class Database extends ShellApiWithMongoClass {
   @apiVersions([]) // TODO: Maybe update this after https://jira.mongodb.org/browse/PM-2327
   async serverBits(): Promise<Document> {
     this._emitDatabaseApiCall('serverBits', {});
-    const info: Document = await this._runAdminCommand(
-      {
-        buildInfo: 1,
-      }
-    );
+    const info: Document = await this._runAdminCommand({
+      buildInfo: 1,
+    });
     if (!info || info.bits === undefined) {
       throw new MongoshRuntimeError(
-        `Error running command serverBuildInfo ${info ? info.errmsg || '' : ''}`,
+        `Error running command serverBuildInfo ${
+          info ? info.errmsg || '' : ''
+        }`,
         CommonErrors.CommandFailed
       );
     }
@@ -947,11 +1133,9 @@ export default class Database extends ShellApiWithMongoClass {
   @apiVersions([])
   async isMaster(): Promise<Document> {
     this._emitDatabaseApiCall('isMaster', {});
-    const result = await this._runCommand(
-      {
-        isMaster: 1,
-      }
-    );
+    const result = await this._runCommand({
+      isMaster: 1,
+    });
     result.isWritablePrimary = result.ismaster;
     return result;
   }
@@ -962,11 +1146,9 @@ export default class Database extends ShellApiWithMongoClass {
   async hello(): Promise<Document> {
     this._emitDatabaseApiCall('hello', {});
     try {
-      this._cachedHello = await this._runCommand(
-        {
-          hello: 1,
-        }
-      );
+      this._cachedHello = await this._runCommand({
+        hello: 1,
+      });
       return this._cachedHello;
     } catch (err: any) {
       if (err?.codeName === 'CommandNotFound') {
@@ -983,61 +1165,56 @@ export default class Database extends ShellApiWithMongoClass {
   @apiVersions([])
   async serverBuildInfo(): Promise<Document> {
     this._emitDatabaseApiCall('serverBuildInfo', {});
-    return await this._runAdminCommand(
-      {
-        buildInfo: 1,
-      }
-    );
+    return await this._runAdminCommand({
+      buildInfo: 1,
+    });
   }
 
   @returnsPromise
   @apiVersions([])
   async serverStatus(opts = {}): Promise<Document> {
     this._emitDatabaseApiCall('serverStatus', { options: opts });
-    return await this._runAdminCommand(
-      {
-        serverStatus: 1, ...opts
-      }
-    );
+    return await this._runAdminCommand({
+      serverStatus: 1,
+      ...opts,
+    });
   }
 
   @returnsPromise
   @apiVersions([])
   async stats(scaleOrOptions: number | Document = 1): Promise<Document> {
-    assertArgsDefinedType([scaleOrOptions], [['number', 'object']], 'Database.stats');
+    assertArgsDefinedType(
+      [scaleOrOptions],
+      [['number', 'object']],
+      'Database.stats'
+    );
     if (typeof scaleOrOptions === 'number') {
       scaleOrOptions = { scale: scaleOrOptions };
     }
     this._emitDatabaseApiCall('stats', { scale: scaleOrOptions.scale });
-    return await this._runCommand(
-      {
-        dbStats: 1,
-        scale: 1,
-        ...scaleOrOptions
-      }
-    );
+    return await this._runCommand({
+      dbStats: 1,
+      scale: 1,
+      ...scaleOrOptions,
+    });
   }
 
   @returnsPromise
   @apiVersions([])
   async hostInfo(): Promise<Document> {
     this._emitDatabaseApiCall('hostInfo', {});
-    return await this._runAdminCommand(
-      {
-        hostInfo: 1,
-      }
-    );
+    return await this._runAdminCommand({
+      hostInfo: 1,
+    });
   }
 
   @returnsPromise
   @apiVersions([])
   async serverCmdLineOpts(): Promise<Document> {
     this._emitDatabaseApiCall('serverCmdLineOpts', {});
-    return await this._runAdminCommand(
-      {
-        getCmdLineOpts: 1,
-      }
-    );
+    return await this._runAdminCommand({
+      getCmdLineOpts: 1,
+    });
   }
 
   @returnsPromise
@@ -1045,11 +1222,10 @@ export default class Database extends ShellApiWithMongoClass {
   @apiVersions([])
   async rotateCertificates(message?: string): Promise<Document> {
     this._emitDatabaseApiCall('rotateCertificates', { message });
-    return await this._runAdminCommand(
-      {
-        rotateCertificates: 1, message
-      }
-    );
+    return await this._runAdminCommand({
+      rotateCertificates: 1,
+      message,
+    });
   }
 
   @returnsPromise
@@ -1079,11 +1255,9 @@ export default class Database extends ShellApiWithMongoClass {
   @deprecated
   async getFreeMonitoringStatus(): Promise<Document> {
     this._emitDatabaseApiCall('getFreeMonitoringStatus', {});
-    return await this._runAdminCommand(
-      {
-        getFreeMonitoringStatus: 1,
-      }
-    );
+    return await this._runAdminCommand({
+      getFreeMonitoringStatus: 1,
+    });
   }
 
   @returnsPromise
@@ -1091,12 +1265,10 @@ export default class Database extends ShellApiWithMongoClass {
   @deprecated
   async disableFreeMonitoring(): Promise<Document> {
     this._emitDatabaseApiCall('disableFreeMonitoring', {});
-    return await this._runAdminCommand(
-      {
-        setFreeMonitoring: 1,
-        action: 'disable'
-      }
-    );
+    return await this._runAdminCommand({
+      setFreeMonitoring: 1,
+      action: 'disable',
+    });
   }
 
   @returnsPromise
@@ -1113,37 +1285,38 @@ export default class Database extends ShellApiWithMongoClass {
     }
 
     // driver should check that ok: 1
-    await this._runAdminCommand(
-      {
-        setFreeMonitoring: 1,
-        action: 'enable'
-      }
-    );
+    await this._runAdminCommand({
+      setFreeMonitoring: 1,
+      action: 'enable',
+    });
     let result: any;
     let error: any;
     try {
-      result = await this._runAdminCommand(
-        { getFreeMonitoringStatus: 1 }
-      );
+      result = await this._runAdminCommand({ getFreeMonitoringStatus: 1 });
     } catch (err: any) {
       error = err;
     }
-    if (error && error.codeName === 'Unauthorized' || (result && !result.ok && result.codeName === 'Unauthorized')) {
-      return 'Unable to determine status as you lack the \'checkFreeMonitoringStatus\' privilege.';
+    if (
+      (error && error.codeName === 'Unauthorized') ||
+      (result && !result.ok && result.codeName === 'Unauthorized')
+    ) {
+      return "Unable to determine status as you lack the 'checkFreeMonitoringStatus' privilege.";
     } else if (error || !result || !result.ok) {
       throw new MongoshRuntimeError(
-        `Error running command setFreeMonitoring ${result ? result.errmsg : error.errmsg}`,
+        `Error running command setFreeMonitoring ${
+          result ? result.errmsg : error.errmsg
+        }`,
         CommonErrors.CommandFailed
       );
     }
     if (result.state !== 'enabled') {
-      const urlResult = await this._runAdminCommand(
-        {
-          getParameter: 1,
-          cloudFreeMonitoringEndpointURL: 1
-        }
-      );
-      return `Unable to get immediate response from the Cloud Monitoring service. Please check your firewall settings to ensure that mongod can communicate with '${urlResult.cloudFreeMonitoringEndpointURL || '<unknown>'}'`;
+      const urlResult = await this._runAdminCommand({
+        getParameter: 1,
+        cloudFreeMonitoringEndpointURL: 1,
+      });
+      return `Unable to get immediate response from the Cloud Monitoring service. Please check your firewall settings to ensure that mongod can communicate with '${
+        urlResult.cloudFreeMonitoringEndpointURL || '<unknown>'
+      }'`;
     }
     return result;
   }
@@ -1152,16 +1325,17 @@ export default class Database extends ShellApiWithMongoClass {
   @apiVersions([])
   async getProfilingStatus(): Promise<Document> {
     this._emitDatabaseApiCall('getProfilingStatus', {});
-    return await this._runCommand(
-      {
-        profile: -1,
-      }
-    );
+    return await this._runCommand({
+      profile: -1,
+    });
   }
 
   @returnsPromise
   @apiVersions([])
-  async setProfilingLevel(level: number, opts: number | Document = {}): Promise<Document> {
+  async setProfilingLevel(
+    level: number,
+    opts: number | Document = {}
+  ): Promise<Document> {
     assertArgsDefinedType([level], ['number'], 'Database.setProfilingLevel');
     if (level < 0 || level > 2) {
       throw new MongoshInvalidInputError(
@@ -1173,19 +1347,23 @@ export default class Database extends ShellApiWithMongoClass {
       opts = { slowms: opts };
     }
     this._emitDatabaseApiCall('setProfilingLevel', { opts: opts });
-    return await this._runCommand(
-      {
-        profile: level,
-        ...opts
-      }
-    );
+    return await this._runCommand({
+      profile: level,
+      ...opts,
+    });
   }
 
   @returnsPromise
   @apiVersions([])
-  async setLogLevel(logLevel: number, component?: Document | string): Promise<Document> {
+  async setLogLevel(
+    logLevel: number,
+    component?: Document | string
+  ): Promise<Document> {
     assertArgsDefinedType([logLevel], ['number'], 'Database.setLogLevel');
-    this._emitDatabaseApiCall('setLogLevel', { logLevel: logLevel, component: component });
+    this._emitDatabaseApiCall('setLogLevel', {
+      logLevel: logLevel,
+      component: component,
+    });
     let componentNames: string[] = [];
     if (typeof component === 'string') {
       componentNames = component.split('.');
@@ -1205,9 +1383,7 @@ export default class Database extends ShellApiWithMongoClass {
 
     const cmdObj = { setParameter: 1, logComponentVerbosity: vDoc };
 
-    return await this._runAdminCommand(
-      cmdObj
-    );
+    return await this._runAdminCommand(cmdObj);
   }
 
   @returnsPromise
@@ -1216,9 +1392,7 @@ export default class Database extends ShellApiWithMongoClass {
     this._emitDatabaseApiCall('getLogComponents', {});
     const cmdObj = { getParameter: 1, logComponentVerbosity: 1 };
 
-    const result = await this._runAdminCommand(
-      cmdObj
-    );
+    const result = await this._runAdminCommand(cmdObj);
     if (!result || result.logComponentVerbosity === undefined) {
       throw new MongoshRuntimeError(
         `Error running command  ${result ? result.errmsg || '' : ''}`,
@@ -1230,17 +1404,23 @@ export default class Database extends ShellApiWithMongoClass {
 
   @deprecated
   cloneDatabase(): void {
-    throw new MongoshDeprecatedError('`cloneDatabase()` was removed because it was deprecated in MongoDB 4.0');
+    throw new MongoshDeprecatedError(
+      '`cloneDatabase()` was removed because it was deprecated in MongoDB 4.0'
+    );
   }
 
   @deprecated
   cloneCollection(): void {
-    throw new MongoshDeprecatedError('`cloneCollection()` was removed because it was deprecated in MongoDB 4.0');
+    throw new MongoshDeprecatedError(
+      '`cloneCollection()` was removed because it was deprecated in MongoDB 4.0'
+    );
   }
 
   @deprecated
   copyDatabase(): void {
-    throw new MongoshDeprecatedError('`copyDatabase()` was removed because it was deprecated in MongoDB 4.0');
+    throw new MongoshDeprecatedError(
+      '`copyDatabase()` was removed because it was deprecated in MongoDB 4.0'
+    );
   }
 
   @returnsPromise
@@ -1252,12 +1432,12 @@ export default class Database extends ShellApiWithMongoClass {
     command[name] = 1;
     command.help = true;
 
-    const result = await this._runCommand(
-      command
-    );
+    const result = await this._runCommand(command);
     if (!result || result.help === undefined) {
       throw new MongoshRuntimeError(
-        `Error running command commandHelp ${result ? result.errmsg || '' : ''}`,
+        `Error running command commandHelp ${
+          result ? result.errmsg || '' : ''
+        }`,
         CommonErrors.CommandFailed
       );
     }
@@ -1268,14 +1448,14 @@ export default class Database extends ShellApiWithMongoClass {
   @apiVersions([])
   async listCommands(): Promise<CommandResult> {
     this._emitDatabaseApiCall('listCommands', {});
-    const result = await this._runCommand(
-      {
-        listCommands: 1,
-      }
-    );
+    const result = await this._runCommand({
+      listCommands: 1,
+    });
     if (!result || result.commands === undefined) {
       throw new MongoshRuntimeError(
-        `Error running command listCommands ${result ? result.errmsg || '' : ''}`,
+        `Error running command listCommands ${
+          result ? result.errmsg || '' : ''
+        }`,
         CommonErrors.CommandFailed
       );
     }
@@ -1296,19 +1476,30 @@ export default class Database extends ShellApiWithMongoClass {
   @deprecated
   @returnsPromise
   @apiVersions([])
-  async getLastErrorObj(w?: number|string, wTimeout?: number, j?: boolean): Promise<Document> {
+  async getLastErrorObj(
+    w?: number | string,
+    wTimeout?: number,
+    j?: boolean
+  ): Promise<Document> {
     await this._instanceState.printDeprecationWarning(
       'Database.getLastErrorObj() is deprecated and will be removed in the future.'
     );
 
-    this._emitDatabaseApiCall('getLastErrorObj', { w: w, wTimeout: wTimeout, j: j });
+    this._emitDatabaseApiCall('getLastErrorObj', {
+      w: w,
+      wTimeout: wTimeout,
+      j: j,
+    });
     return await this._getLastErrorObj(w, wTimeout, j);
   }
 
   @deprecated
   @returnsPromise
   @apiVersions([])
-  async getLastError(w?: number|string, wTimeout?: number): Promise<Document | null> {
+  async getLastError(
+    w?: number | string,
+    wTimeout?: number
+  ): Promise<Document | null> {
     await this._instanceState.printDeprecationWarning(
       'Database.getLastError() is deprecated and will be removed in the future.'
     );
@@ -1323,7 +1514,10 @@ export default class Database extends ShellApiWithMongoClass {
   @apiVersions([1])
   async printShardingStatus(verbose = false): Promise<CommandResult> {
     this._emitDatabaseApiCall('printShardingStatus', { verbose });
-    const result = await getPrintableShardStatus(await getConfigDB(this), verbose);
+    const result = await getPrintableShardStatus(
+      await getConfigDB(this),
+      verbose
+    );
     return new CommandResult('StatsResult', result);
   }
 
@@ -1334,8 +1528,10 @@ export default class Database extends ShellApiWithMongoClass {
     let startOptimeDate = null;
     const local = this.getSiblingDB('local');
 
-    if (await local.getCollection('system.replset').countDocuments({}) !== 0) {
-      const status = await this._runAdminCommand({ 'replSetGetStatus': 1 });
+    if (
+      (await local.getCollection('system.replset').countDocuments({})) !== 0
+    ) {
+      const status = await this._runAdminCommand({ replSetGetStatus: 1 });
       // get primary
       let primary = null;
       for (const member of status.members) {
@@ -1346,7 +1542,8 @@ export default class Database extends ShellApiWithMongoClass {
       }
       if (primary) {
         startOptimeDate = primary.optimeDate;
-      } else { // no primary, find the most recent op among all members
+      } else {
+        // no primary, find the most recent op among all members
         startOptimeDate = new Date(0, 0);
         for (const member of status.members) {
           if (member.optimeDate > startOptimeDate) {
@@ -1359,16 +1556,23 @@ export default class Database extends ShellApiWithMongoClass {
       for (const node of status.members) {
         const nodeResult = {} as any;
         if (node === null || node === undefined) {
-          throw new MongoshRuntimeError('Member returned from command replSetGetStatus is null', CommonErrors.CommandFailed);
+          throw new MongoshRuntimeError(
+            'Member returned from command replSetGetStatus is null',
+            CommonErrors.CommandFailed
+          );
         }
-        if (node.state === 1 || node.state === 7) { // ignore primaries (1) and arbiters (7)
+        if (node.state === 1 || node.state === 7) {
+          // ignore primaries (1) and arbiters (7)
           continue;
         }
 
         if (node.optime && node.health !== 0) {
           // get repl lag
           if (startOptimeDate === null || startOptimeDate === undefined) {
-            throw new MongoshRuntimeError('getReplLag startOptimeDate is null', CommonErrors.CommandFailed);
+            throw new MongoshRuntimeError(
+              'getReplLag startOptimeDate is null',
+              CommonErrors.CommandFailed
+            );
           }
           if (startOptimeDate) {
             nodeResult.syncedTo = node.optimeDate.toString();
@@ -1381,7 +1585,9 @@ export default class Database extends ShellApiWithMongoClass {
           } else {
             suffix = 'freshest member (no primary available at the moment)';
           }
-          nodeResult.replLag = `${Math.round(ago)} secs (${hrs} hrs) behind the ${suffix}`;
+          nodeResult.replLag = `${Math.round(
+            ago
+          )} secs (${hrs} hrs) behind the ${suffix}`;
         } else {
           nodeResult['no replication info, yet.  State'] = node.stateStr;
         }
@@ -1413,15 +1619,19 @@ export default class Database extends ShellApiWithMongoClass {
     }
 
     const ol = localdb.getCollection(oplog);
-    const [ olStats, first, last ] = await Promise.all([
+    const [olStats, first, last] = await Promise.all([
       ol.stats(),
-      (async() => (await ol.find()).sort({ $natural: 1 }).limit(1).tryNext())(),
-      (async() => (await ol.find()).sort({ $natural: -1 }).limit(1).tryNext())()
+      (async () =>
+        (await ol.find()).sort({ $natural: 1 }).limit(1).tryNext())(),
+      (async () =>
+        (await ol.find()).sort({ $natural: -1 }).limit(1).tryNext())(),
     ]);
 
     if (!olStats?.maxSize) {
       throw new MongoshRuntimeError(
-        `Could not get stats for local.${oplog} collection. collstats returned ${JSON.stringify(olStats)}`,
+        `Could not get stats for local.${oplog} collection. collstats returned ${JSON.stringify(
+          olStats
+        )}`,
         CommonErrors.CommandFailed
       );
     }
@@ -1448,8 +1658,8 @@ export default class Database extends ShellApiWithMongoClass {
       tlast = tsToSeconds(tlast);
       result.timeDiff = tlast - tfirst;
       result.timeDiffHours = Math.round(result.timeDiff / 36) / 100;
-      result.tFirst = (new Date(tfirst * 1000)).toString();
-      result.tLast = (new Date(tlast * 1000)).toString();
+      result.tFirst = new Date(tfirst * 1000).toString();
+      result.tLast = new Date(tlast * 1000).toString();
       result.now = Date();
     } else {
       result.errmsg = 'ts element not found in oplog objects';
@@ -1468,19 +1678,23 @@ export default class Database extends ShellApiWithMongoClass {
     } catch (error: any) {
       const helloResult = await this.hello();
       if (helloResult.arbiterOnly) {
-        return new CommandResult('StatsResult', { message: 'cannot provide replication status from an arbiter' });
+        return new CommandResult('StatsResult', {
+          message: 'cannot provide replication status from an arbiter',
+        });
       } else if (!helloResult.isWritablePrimary) {
         const secondaryInfo = await this.printSecondaryReplicationInfo();
         return new CommandResult('StatsResult', {
           message: 'this is a secondary, printing secondary replication info.',
-          ...secondaryInfo.value as any
+          ...(secondaryInfo.value as any),
         });
       }
       throw error;
     }
     result['actual oplog size'] = `${replInfo.logSizeMB} MB`;
     result['configured oplog size'] = `${replInfo.configuredLogSizeMB} MB`;
-    result['log length start to end'] = `${replInfo.timeDiff} secs (${replInfo.timeDiffHours} hrs)`;
+    result[
+      'log length start to end'
+    ] = `${replInfo.timeDiff} secs (${replInfo.timeDiffHours} hrs)`;
     result['oplog first event time'] = replInfo.tFirst;
     result['oplog last event time'] = replInfo.tLast;
     result.now = replInfo.now;
@@ -1489,7 +1703,9 @@ export default class Database extends ShellApiWithMongoClass {
 
   @deprecated
   printSlaveReplicationInfo(): never {
-    throw new MongoshDeprecatedError('Method deprecated, use db.printSecondaryReplicationInfo instead');
+    throw new MongoshDeprecatedError(
+      'Method deprecated, use db.printSecondaryReplicationInfo instead'
+    );
   }
 
   @deprecated
@@ -1502,21 +1718,33 @@ export default class Database extends ShellApiWithMongoClass {
   @topologies([Topologies.ReplSet, Topologies.Sharded])
   @apiVersions([1])
   @returnsPromise
-  async watch(pipeline: Document[] | ChangeStreamOptions = [], options: ChangeStreamOptions = {}): Promise<ChangeStreamCursor> {
+  async watch(
+    pipeline: Document[] | ChangeStreamOptions = [],
+    options: ChangeStreamOptions = {}
+  ): Promise<ChangeStreamCursor> {
     if (!Array.isArray(pipeline)) {
       options = pipeline;
       pipeline = [];
     }
     this._emitDatabaseApiCall('watch', { pipeline, options });
     const cursor = new ChangeStreamCursor(
-      this._mongo._serviceProvider.watch(pipeline, {
-        ...await this._baseOptions(),
-        ...options
-      }, {}, this._name),
+      this._mongo._serviceProvider.watch(
+        pipeline,
+        {
+          ...(await this._baseOptions()),
+          ...options,
+        },
+        {},
+        this._name
+      ),
       this._name,
       this._mongo
     );
-    if (!options.resumeAfter && !options.startAfter && !options.startAtOperationTime) {
+    if (
+      !options.resumeAfter &&
+      !options.startAfter &&
+      !options.startAtOperationTime
+    ) {
       await cursor.tryNext(); // See comment in coll.watch().
     }
     this._mongo._instanceState.currentCursor = cursor;
@@ -1532,19 +1760,25 @@ export default class Database extends ShellApiWithMongoClass {
       'Note: this is an experimental feature that may be subject to change in future releases.'
     );
 
-    const cursor = await this.aggregate([{
-      $sql: {
-        statement: sqlString,
-        format: 'jdbc',
-        dialect: 'mongosql',
-        formatVersion: 1
-      }
-    }], options);
+    const cursor = await this.aggregate(
+      [
+        {
+          $sql: {
+            statement: sqlString,
+            format: 'jdbc',
+            dialect: 'mongosql',
+            formatVersion: 1,
+          },
+        },
+      ],
+      options
+    );
 
     try {
       await cursor.hasNext();
     } catch (err: any) {
-      if (err.code?.valueOf() === 40324) { // unrecognized stage error
+      if (err.code?.valueOf() === 40324) {
+        // unrecognized stage error
         throw new MongoshRuntimeError(
           'db.sql currently only works when connected to a Data Lake',
           CommonErrors.CommandFailed
@@ -1560,11 +1794,13 @@ export default class Database extends ShellApiWithMongoClass {
   @serverVersions(['7.0.0', ServerVersions.latest])
   @topologies([Topologies.Sharded])
   @returnsPromise
-  async checkMetadataConsistency(options: CheckMetadataConsistencyOptions = {}): Promise<RunCommandCursor> {
+  async checkMetadataConsistency(
+    options: CheckMetadataConsistencyOptions = {}
+  ): Promise<RunCommandCursor> {
     this._emitDatabaseApiCall('checkMetadataConsistency', { options });
 
     return this._runCursorCommand({
-      checkMetadataConsistency: 1
+      checkMetadataConsistency: 1,
     });
   }
 }

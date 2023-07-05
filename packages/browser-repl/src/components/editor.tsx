@@ -14,12 +14,12 @@ const noop = (): void => {};
 export const editorStyles = css({
   '& .cm-content': {
     paddingTop: 0,
-    paddingBottom: 0
+    paddingBottom: 0,
   },
   '& .cm-line': {
     paddingLeft: 1,
-    paddingRight: 1
-  }
+    paddingRight: 1,
+  },
 });
 
 function cursorDocEnd({ state, dispatch }: any) {
@@ -27,7 +27,7 @@ function cursorDocEnd({ state, dispatch }: any) {
     state.update({
       selection: { anchor: state.doc.length },
       scrollIntoView: true,
-      userEvent: 'select'
+      userEvent: 'select',
     })
   );
   return true;
@@ -63,7 +63,7 @@ export function createCommands(
         void callbacks.onEnter();
         return true;
       },
-      preventDefault: true
+      preventDefault: true,
     },
     {
       key: 'ArrowUp',
@@ -84,7 +84,7 @@ export function createCommands(
         });
         return true;
       },
-      preventDefault: true
+      preventDefault: true,
     },
     {
       key: 'ArrowDown',
@@ -105,7 +105,7 @@ export function createCommands(
         });
         return true;
       },
-      preventDefault: true
+      preventDefault: true,
     },
     {
       key: 'Mod-l',
@@ -113,7 +113,7 @@ export function createCommands(
         void callbacks.onClearCommand();
         return true;
       },
-      preventDefault: true
+      preventDefault: true,
     },
     {
       key: 'Ctrl-c',
@@ -121,8 +121,8 @@ export function createCommands(
         void callbacks.onSigInt();
         return true;
       },
-      preventDefault: true
-    }
+      preventDefault: true,
+    },
   ];
 }
 
@@ -135,7 +135,7 @@ export class Editor extends Component<EditorProps> {
     onClearCommand: noop,
     onSigInt: noop,
     operationInProgress: false,
-    value: ''
+    value: '',
   };
 
   private commands: Command[];
@@ -160,7 +160,7 @@ export class Editor extends Component<EditorProps> {
               from: line.from,
               options: completions.map(({ completion }) => {
                 return { label: completion };
-              })
+              }),
             };
           }
           return null;

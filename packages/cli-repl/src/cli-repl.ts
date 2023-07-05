@@ -1,4 +1,8 @@
-import { MongoshInternalError, MongoshRuntimeError, MongoshWarning } from '@mongosh/errors';
+import {
+  MongoshInternalError,
+  MongoshRuntimeError,
+  MongoshWarning,
+} from '@mongosh/errors';
 import { redactURICredentials } from '@mongosh/history';
 import i18n from '@mongosh/i18n';
 import type { AutoEncryptionOptions } from '@mongosh/service-provider-core';
@@ -22,12 +26,16 @@ import { ConfigManager, ShellHomeDirectory } from './config-directory';
 import { CliReplErrors } from './error-codes';
 import type { CryptLibraryPathResult } from './crypt-library-paths';
 import { formatForJSONOutput } from './format-json';
-import type { MongoLogWriter} from 'mongodb-log-writer';
+import type { MongoLogWriter } from 'mongodb-log-writer';
 import { MongoLogManager, mongoLogId } from 'mongodb-log-writer';
 import type { MongoshNodeReplOptions, MongoshIOProvider } from './mongosh-repl';
 import MongoshNodeRepl from './mongosh-repl';
-import { setupLoggerAndTelemetry, ToggleableAnalytics, ThrottledAnalytics } from '@mongosh/logging';
-import type { MongoshBus} from '@mongosh/types';
+import {
+  setupLoggerAndTelemetry,
+  ToggleableAnalytics,
+  ThrottledAnalytics,
+} from '@mongosh/logging';
+import type { MongoshBus } from '@mongosh/types';
 import { CliUserConfig, CliUserConfigValidator } from '@mongosh/types';
 import { promises as fs } from 'fs';
 import path from 'path';
@@ -74,7 +82,8 @@ export type CliReplOptions = {
 } & Pick<MongoshNodeReplOptions, 'nodeReplOptions'>;
 
 /** The set of config options that is *always* available in config files stored on the file system. */
-type CliUserConfigOnDisk = Partial<CliUserConfig> & Pick<CliUserConfig, 'enableTelemetry' | 'userId' | 'telemetryAnonymousId'>;
+type CliUserConfigOnDisk = Partial<CliUserConfig> &
+  Pick<CliUserConfig, 'enableTelemetry' | 'userId' | 'telemetryAnonymousId'>;
 
 /**
  * The REPL used from the terminal.
@@ -120,26 +129,37 @@ export class CliRepl implements MongoshIOProvider {
     this.config = {
       userId: id,
       telemetryAnonymousId: id,
-      enableTelemetry: true
+      enableTelemetry: true,
     };
 
     this.getCryptLibraryPaths = options.getCryptLibraryPaths;
     this.globalConfigPaths = options.globalConfigPaths ?? [];
     this.shellHomeDirectory = new ShellHomeDirectory(options.shellHomePaths);
     this.configDirectory = new ConfigManager<CliUserConfigOnDisk>(
-      this.shellHomeDirectory)
+      this.shellHomeDirectory
+    )
       .on('error', (err: Error) => {
         this.bus.emit('mongosh:error', err, 'config');
       })
       .on('new-config', (config: CliUserConfigOnDisk) => {
-        this.hasOnDiskTelemetryId = !!(config.userId || config.telemetryAnonymousId);
+        this.hasOnDiskTelemetryId = !!(
+          config.userId || config.telemetryAnonymousId
+        );
         this.setTelemetryEnabled(config.enableTelemetry);
-        this.bus.emit('mongosh:new-user', { userId: config.userId, anonymousId: config.telemetryAnonymousId });
+        this.bus.emit('mongosh:new-user', {
+          userId: config.userId,
+          anonymousId: config.telemetryAnonymousId,
+        });
       })
       .on('update-config', (config: CliUserConfigOnDisk) => {
-        this.hasOnDiskTelemetryId = !!(config.userId || config.telemetryAnonymousId);
+        this.hasOnDiskTelemetryId = !!(
+          config.userId || config.telemetryAnonymousId
+        );
         this.setTelemetryEnabled(config.enableTelemetry);
-        this.bus.emit('mongosh:update-user', { userId: config.userId, anonymousId: config.telemetryAnonymousId });
+        this.bus.emit('mongosh:update-user', {
+          userId: config.userId,
+          anonymousId: config.telemetryAnonymousId,
+        });
       });
 
     this.logManager = new MongoLogManager({
@@ -147,7 +167,8 @@ export class CliRepl implements MongoshIOProvider {
       retentionDays: 30,
       maxLogFileCount: 100,
       onerror: (err: Error) => this.bus.emit('mongosh:error', err, 'log'),
-      onwarn: (err: Error, path: string) => this.warnAboutInaccessibleFile(err, path)
+      onwarn: (err: Error, path: string) =>
+        this.warnAboutInaccessibleFile(err, path),
     });
 
     // We can't really do anything meaningful if the output stream is broken or
@@ -163,7 +184,7 @@ export class CliRepl implements MongoshIOProvider {
         terminal: process.env.MONGOSH_FORCE_TERMINAL ? true : undefined,
       },
       bus: this.bus,
-      ioProvider: this
+      ioProvider: this,
     });
   }
 
@@ -197,7 +218,10 @@ export class CliRepl implements MongoshIOProvider {
    * @param {string} driverUri - The driver URI.
    * @param {DevtoolsConnectOptions} driverOptions - The driver options.
    */
-  async start(driverUri: string, driverOptions: DevtoolsConnectOptions): Promise<void> {
+  async start(
+    driverUri: string,
+    driverOptions: DevtoolsConnectOptions
+  ): Promise<void> {
     const { version } = require('../package.json');
     await this.verifyNodeVersion();
 
@@ -234,7 +258,7 @@ export class CliRepl implements MongoshIOProvider {
     logger.info('MONGOSH', mongoLogId(1_000_000_000), 'log', 'Starting log', {
       execPath: process.execPath,
       envInfo: redactSensitiveData(this.getLoggedEnvironmentVariables()),
-      ...await buildInfo()
+      ...(await buildInfo()),
     });
 
     let analyticsSetupError: Error | null = null;
@@ -254,16 +278,19 @@ export class CliRepl implements MongoshIOProvider {
         platform: process.platform,
         arch: process.arch,
         is_containerized: this.isContainerizedEnvironment,
-        ...(await getOsInfo())
+        ...(await getOsInfo()),
       },
-      require('../package.json').version);
+      require('../package.json').version
+    );
 
     if (analyticsSetupError) {
       this.bus.emit('mongosh:error', analyticsSetupError, 'analytics');
     }
 
     try {
-      this.config = await this.configDirectory.generateOrReadConfig(this.config);
+      this.config = await this.configDirectory.generateOrReadConfig(
+        this.config
+      );
     } catch (err: any) {
       this.warnAboutInaccessibleFile(err);
     }
@@ -276,18 +303,24 @@ export class CliRepl implements MongoshIOProvider {
         // If a CSFLE path has been specified through 'driverOptions', save it
         // for later use.
         this.cachedCryptLibraryPath = Promise.resolve({
-          cryptSharedLibPath: origExtraOptions.cryptSharedLibPath
+          cryptSharedLibPath: origExtraOptions.cryptSharedLibPath,
         });
       }
 
       const extraOptions = {
         ...origExtraOptions,
-        ...await this.getCryptLibraryOptions()
+        ...(await this.getCryptLibraryOptions()),
       };
 
-      driverOptions.autoEncryption = { ...driverOptions.autoEncryption, extraOptions };
+      driverOptions.autoEncryption = {
+        ...driverOptions.autoEncryption,
+        extraOptions,
+      };
     }
-    if (Object.keys(driverOptions.autoEncryption ?? {}).join(',') === 'extraOptions') {
+    if (
+      Object.keys(driverOptions.autoEncryption ?? {}).join(',') ===
+      'extraOptions'
+    ) {
       // In this case, autoEncryption opts were only specified for crypt library specs
       delete driverOptions.autoEncryption;
     }
@@ -308,16 +341,27 @@ export class CliRepl implements MongoshIOProvider {
       }
       throw err;
     }
-    const initialized = await this.mongoshRepl.initialize(initialServiceProvider);
+    const initialized = await this.mongoshRepl.initialize(
+      initialServiceProvider
+    );
     this.injectReplFunctions();
 
     const commandLineLoadFiles = this.cliOptions.fileNames ?? [];
     const evalScripts = this.cliOptions.eval ?? [];
-    const willExecuteCommandLineScripts = commandLineLoadFiles.length > 0 || evalScripts.length > 0;
-    const willEnterInteractiveMode = !willExecuteCommandLineScripts || !!this.cliOptions.shell;
+    const willExecuteCommandLineScripts =
+      commandLineLoadFiles.length > 0 || evalScripts.length > 0;
+    const willEnterInteractiveMode =
+      !willExecuteCommandLineScripts || !!this.cliOptions.shell;
 
-    if ((evalScripts.length === 0 || this.cliOptions.shell || commandLineLoadFiles.length > 0) && this.cliOptions.json) {
-      throw new MongoshRuntimeError('Cannot use --json without --eval or with --shell or with extra files');
+    if (
+      (evalScripts.length === 0 ||
+        this.cliOptions.shell ||
+        commandLineLoadFiles.length > 0) &&
+      this.cliOptions.json
+    ) {
+      throw new MongoshRuntimeError(
+        'Cannot use --json without --eval or with --shell or with extra files'
+      );
     }
 
     let snippetManager: SnippetManager | undefined;
@@ -325,7 +369,7 @@ export class CliRepl implements MongoshIOProvider {
       snippetManager = SnippetManager.create({
         installdir: this.shellHomeDirectory.roamingPath('snippets'),
         instanceState: this.mongoshRepl.runtimeState().instanceState,
-        skipInitialIndexLoad: !willEnterInteractiveMode
+        skipInitialIndexLoad: !willEnterInteractiveMode,
       });
     }
 
@@ -334,13 +378,20 @@ export class CliRepl implements MongoshIOProvider {
       vscodeDir: this.shellHomeDirectory.rcPath('.vscode'),
       tmpDir: this.shellHomeDirectory.localPath('editor'),
       instanceState: this.mongoshRepl.runtimeState().instanceState,
-      loadExternalCode: this.mongoshRepl.loadExternalCode.bind(this.mongoshRepl)
+      loadExternalCode: this.mongoshRepl.loadExternalCode.bind(
+        this.mongoshRepl
+      ),
     });
 
     if (willExecuteCommandLineScripts) {
       this.mongoshRepl.setIsInteractive(willEnterInteractiveMode);
-      this.bus.emit('mongosh:start-loading-cli-scripts', { usesShellOption: !!this.cliOptions.shell });
-      const exitCode = await this.loadCommandLineFilesAndEval(commandLineLoadFiles, evalScripts);
+      this.bus.emit('mongosh:start-loading-cli-scripts', {
+        usesShellOption: !!this.cliOptions.shell,
+      });
+      const exitCode = await this.loadCommandLineFilesAndEval(
+        commandLineLoadFiles,
+        evalScripts
+      );
       if (exitCode !== 0) {
         await this.exit(exitCode);
         return;
@@ -382,24 +433,29 @@ export class CliRepl implements MongoshIOProvider {
     const functions = {
       async buildInfo() {
         return await buildInfo();
-      }
+      },
     } as const;
     const { context } = this.mongoshRepl.runtimeState().repl;
     for (const [name, impl] of Object.entries(functions)) {
       context[name] = (...args: Parameters<typeof impl>) => {
         return Object.assign(impl(...args), {
-          [Symbol.for('@@mongosh.syntheticPromise')]: true
+          [Symbol.for('@@mongosh.syntheticPromise')]: true,
         });
       };
     }
   }
 
   async setupAnalytics(): Promise<void> {
-    if (process.env.IS_MONGOSH_EVERGREEN_CI && !this.analyticsOptions?.alwaysEnable) {
+    if (
+      process.env.IS_MONGOSH_EVERGREEN_CI &&
+      !this.analyticsOptions?.alwaysEnable
+    ) {
       throw new Error('no analytics setup for the mongosh CI environment');
     }
     // build-info.json is created as a part of the release process
-    const apiKey = this.analyticsOptions?.apiKey ?? (await buildInfo({ withSegmentApiKey: true })).segmentApiKey;
+    const apiKey =
+      this.analyticsOptions?.apiKey ??
+      (await buildInfo({ withSegmentApiKey: true })).segmentApiKey;
     if (!apiKey) {
       throw new Error('no analytics API key defined');
     }
@@ -408,9 +464,9 @@ export class CliRepl implements MongoshIOProvider {
       {
         ...this.analyticsOptions,
         axiosConfig: {
-          timeout: 1000
+          timeout: 1000,
         },
-        axiosRetryConfig: { retries: 0 }
+        axiosRetryConfig: { retries: 0 },
       } as any /* axiosConfig and axiosRetryConfig are existing options, but don't have type definitions */
     );
     this.toggleableAnalytics = new ToggleableAnalytics(
@@ -418,8 +474,8 @@ export class CliRepl implements MongoshIOProvider {
         target: this.segmentAnalytics,
         throttle: {
           rate: 30,
-          metadataPath: this.shellHomeDirectory.paths.shellLocalDataPath
-        }
+          metadataPath: this.shellHomeDirectory.paths.shellLocalDataPath,
+        },
       })
     );
   }
@@ -439,13 +495,19 @@ export class CliRepl implements MongoshIOProvider {
     }
   }
 
-  async loadCommandLineFilesAndEval(files: string[], evalScripts: string[]): Promise<number> {
+  async loadCommandLineFilesAndEval(
+    files: string[],
+    evalScripts: string[]
+  ): Promise<number> {
     let lastEvalResult: any;
     let exitCode = 0;
     try {
       for (const script of evalScripts) {
         this.bus.emit('mongosh:eval-cli-script');
-        lastEvalResult = await this.mongoshRepl.loadExternalCode(script, '@(shell eval)');
+        lastEvalResult = await this.mongoshRepl.loadExternalCode(
+          script,
+          '@(shell eval)'
+        );
       }
     } catch (err) {
       // We have two distinct flows of control in the exception case;
@@ -466,7 +528,10 @@ export class CliRepl implements MongoshIOProvider {
       let formattedResult;
       if (this.cliOptions.json) {
         try {
-          formattedResult = formatForJSONOutput(lastEvalResult, this.cliOptions.json);
+          formattedResult = formatForJSONOutput(
+            lastEvalResult,
+            this.cliOptions.json
+          );
         } catch (e) {
           // If formatting the result as JSON fails, instead treat the error
           // itself as the output, as if the script had been e.g.
@@ -484,7 +549,9 @@ export class CliRepl implements MongoshIOProvider {
 
     for (const file of files) {
       if (!this.cliOptions.quiet) {
-        this.output.write(`Loading file: ${this.clr(file, 'mongosh:filename')}\n`);
+        this.output.write(
+          `Loading file: ${this.clr(file, 'mongosh:filename')}\n`
+        );
       }
       await this.mongoshRepl.loadExternalFile(file);
     }
@@ -500,19 +567,24 @@ export class CliRepl implements MongoshIOProvider {
     }
     const legacyPath = this.shellHomeDirectory.rcPath('.mongorc.js');
     const mongoshrcPath = this.shellHomeDirectory.rcPath('.mongoshrc.js');
-    const mongoshrcMisspelledPath = this.shellHomeDirectory.rcPath('.mongoshrc');
+    const mongoshrcMisspelledPath =
+      this.shellHomeDirectory.rcPath('.mongoshrc');
 
     let hasMongoshRc = false;
     try {
       await fs.stat(mongoshrcPath);
       hasMongoshRc = true;
-    } catch { /* file not present */ }
+    } catch {
+      /* file not present */
+    }
     if (hasMongoshRc) {
       try {
         this.bus.emit('mongosh:mongoshrc-load');
         await this.mongoshRepl.loadExternalFile(mongoshrcPath);
       } catch (err: any) {
-        this.output.write(this.clr('Error while running ~/.mongoshrc.js:\n', 'mongosh:warning'));
+        this.output.write(
+          this.clr('Error while running ~/.mongoshrc.js:\n', 'mongosh:warning')
+        );
         this.output.write(this.mongoshRepl.writer(err) + '\n');
       }
       return;
@@ -526,7 +598,9 @@ export class CliRepl implements MongoshIOProvider {
     try {
       await fs.stat(legacyPath);
       hasLegacyRc = true;
-    } catch { /* file not present */ }
+    } catch {
+      /* file not present */
+    }
     if (hasLegacyRc) {
       this.bus.emit('mongosh:mongoshrc-mongorc-warn');
       const msg =
@@ -540,7 +614,9 @@ export class CliRepl implements MongoshIOProvider {
     try {
       await fs.stat(mongoshrcMisspelledPath);
       hasMisspelledFilename = true;
-    } catch { /* file not present */ }
+    } catch {
+      /* file not present */
+    }
     if (hasMisspelledFilename) {
       const msg =
         'Warning: Found ~/.mongoshrc, but not ~/.mongoshrc.js. Did you forget to add .js?\n';
@@ -561,7 +637,10 @@ export class CliRepl implements MongoshIOProvider {
         }
       }
     }
-    this.bus.emit('mongosh:globalconfig-load', { filename, found: fileContents.length > 0 });
+    this.bus.emit('mongosh:globalconfig-load', {
+      filename,
+      found: fileContents.length > 0,
+    });
     try {
       let config: CliUserConfig;
       if (fileContents.trim().startsWith('{')) {
@@ -569,8 +648,14 @@ export class CliRepl implements MongoshIOProvider {
       } else {
         config = (yaml.load(fileContents) as any)?.mongosh ?? {};
       }
-      for (const [key, value] of Object.entries(config) as [keyof CliUserConfig, any][]) {
-        const validationResult = await CliUserConfigValidator.validate(key, value);
+      for (const [key, value] of Object.entries(config) as [
+        keyof CliUserConfig,
+        any
+      ][]) {
+        const validationResult = await CliUserConfigValidator.validate(
+          key,
+          value
+        );
         if (validationResult) {
           const msg = `Warning: Ignoring config option "${key}" from ${filename}: ${validationResult}\n`;
           this.output.write(this.clr(msg, 'mongosh:warning'));
@@ -598,7 +683,9 @@ export class CliRepl implements MongoshIOProvider {
       return;
     }
     this.warnedAboutInaccessibleFiles = true;
-    const msg = `Warning: Could not access file${path ? 'at ' + path : ''}: ${err.message}\n`;
+    const msg = `Warning: Could not access file${path ? 'at ' + path : ''}: ${
+      err.message
+    }\n`;
     this.output.write(this.clr(msg, 'mongosh:warning'));
   }
 
@@ -608,11 +695,24 @@ export class CliRepl implements MongoshIOProvider {
    * @param {string} driverUri - The driver URI.
    * @param {DevtoolsConnectOptions} driverOptions - The driver options.
    */
-  async connect(driverUri: string, driverOptions: DevtoolsConnectOptions): Promise<CliServiceProvider> {
+  async connect(
+    driverUri: string,
+    driverOptions: DevtoolsConnectOptions
+  ): Promise<CliServiceProvider> {
     if (!this.cliOptions.nodb && !this.cliOptions.quiet) {
-      this.output.write(i18n.__(CONNECTING) + '\t\t' + this.clr(redactURICredentials(driverUri), 'mongosh:uri') + '\n');
+      this.output.write(
+        i18n.__(CONNECTING) +
+          '\t\t' +
+          this.clr(redactURICredentials(driverUri), 'mongosh:uri') +
+          '\n'
+      );
     }
-    return await CliServiceProvider.connect(driverUri, driverOptions, this.cliOptions, this.bus);
+    return await CliServiceProvider.connect(
+      driverUri,
+      driverOptions,
+      this.cliOptions,
+      this.bus
+    );
   }
 
   /** Return the file path used for the REPL history. */
@@ -624,23 +724,35 @@ export class CliRepl implements MongoshIOProvider {
    * Implements getConfig from the {@link ConfigProvider} interface.
    */
   // eslint-disable-next-line @typescript-eslint/require-await
-  async getConfig<K extends keyof CliUserConfig>(key: K): Promise<CliUserConfig[K]> {
-    return (this.config as CliUserConfig)[key]
-      ?? (this.globalConfig as CliUserConfig)?.[key]
-      ?? (new CliUserConfig())[key];
+  async getConfig<K extends keyof CliUserConfig>(
+    key: K
+  ): Promise<CliUserConfig[K]> {
+    return (
+      (this.config as CliUserConfig)[key] ??
+      (this.globalConfig as CliUserConfig)?.[key] ??
+      new CliUserConfig()[key]
+    );
   }
 
   /**
    * Implements setConfig from the {@link ConfigProvider} interface.
    */
-  async setConfig<K extends keyof CliUserConfig>(key: K, value: CliUserConfig[K]): Promise<'success'> {
+  async setConfig<K extends keyof CliUserConfig>(
+    key: K,
+    value: CliUserConfig[K]
+  ): Promise<'success'> {
     if (key === 'forceDisableTelemetry') {
-      throw new MongoshRuntimeError("The 'forceDisableTelemetry' setting cannot be modified");
+      throw new MongoshRuntimeError(
+        "The 'forceDisableTelemetry' setting cannot be modified"
+      );
     }
     this.config[key] = value;
     if (key === 'enableTelemetry') {
       this.setTelemetryEnabled(this.config.enableTelemetry);
-      this.bus.emit('mongosh:update-user', { userId: this.config.userId, anonymousId: this.config.telemetryAnonymousId });
+      this.bus.emit('mongosh:update-user', {
+        userId: this.config.userId,
+        anonymousId: this.config.telemetryAnonymousId,
+      });
     }
     try {
       await this.configDirectory.writeConfigFile(this.config);
@@ -654,9 +766,14 @@ export class CliRepl implements MongoshIOProvider {
    * Implements listConfigOptions from the {@link ConfigProvider} interface.
    */
   listConfigOptions(): string[] {
-    const hiddenKeys = ['userId', 'telemetryAnonymousId', 'disableGreetingMessage', 'forceDisableTelemetry'];
+    const hiddenKeys = [
+      'userId',
+      'telemetryAnonymousId',
+      'disableGreetingMessage',
+      'forceDisableTelemetry',
+    ];
     const keys = Object.keys(new CliUserConfig());
-    return keys.filter(key => !hiddenKeys.includes(key));
+    return keys.filter((key) => !hiddenKeys.includes(key));
   }
 
   /**
@@ -670,7 +787,10 @@ export class CliRepl implements MongoshIOProvider {
     // Strip -rc.0, -pre, etc. from the Node.js version because semver rejects those otherwise.
     const baseNodeVersion = process.version.replace(/-.*$/, '');
     if (!semver.satisfies(baseNodeVersion, engines.node)) {
-      const warning = new MongoshWarning(`Mismatched node version. Required version: ${engines.node}. Currently using: ${process.version}. Exiting...\n\n`, CliReplErrors.NodeVersionMismatch);
+      const warning = new MongoshWarning(
+        `Mismatched node version. Required version: ${engines.node}. Currently using: ${process.version}. Exiting...\n\n`,
+        CliReplErrors.NodeVersionMismatch
+      );
       await this._fatalError(warning);
     }
   }
@@ -684,9 +804,11 @@ export class CliRepl implements MongoshIOProvider {
    */
   isPasswordMissingURI(cs: ConnectionString): boolean {
     return !!(
-      cs.username &&
-      !cs.password &&
-      cs.searchParams.get('authMechanism') !== 'GSSAPI' // no need for a password for Kerberos
+      (
+        cs.username &&
+        !cs.password &&
+        cs.searchParams.get('authMechanism') !== 'GSSAPI'
+      ) // no need for a password for Kerberos
     );
   }
 
@@ -695,8 +817,14 @@ export class CliRepl implements MongoshIOProvider {
    * object is present with a truthy username. This is required by the driver, e.g.
    * in the case of password-less Kerberos authentication.
    */
-  ensurePasswordFieldIsPresentInAuth(driverOptions: DevtoolsConnectOptions): void {
-    if (driverOptions.auth && driverOptions.auth.username && !('password' in driverOptions.auth)) {
+  ensurePasswordFieldIsPresentInAuth(
+    driverOptions: DevtoolsConnectOptions
+  ): void {
+    if (
+      driverOptions.auth &&
+      driverOptions.auth.username &&
+      !('password' in driverOptions.auth)
+    ) {
       driverOptions.auth.password = undefined;
     }
   }
@@ -711,7 +839,7 @@ export class CliRepl implements MongoshIOProvider {
     const passwordPromise = askpassword({
       input: this.input,
       output: this.output,
-      replacementCharacter: '*'
+      replacementCharacter: '*',
     });
     this.output.write('Enter password: ');
     try {
@@ -748,10 +876,12 @@ export class CliRepl implements MongoshIOProvider {
         // no reason not to handle this case properly.)
         try {
           await once(this.output, 'close');
-        } catch { /* ignore */ }
+        } catch {
+          /* ignore */
+        }
       } else {
         // .end() has not been called; write an empty chunk and wait for it to be fully written.
-        await new Promise(resolve => this.output.write('', resolve));
+        await new Promise((resolve) => this.output.write('', resolve));
       }
     }
     this.closing = true;
@@ -768,10 +898,16 @@ export class CliRepl implements MongoshIOProvider {
         flushDuration = Date.now() - flushStart;
       }
     }
-    this.logWriter?.info('MONGOSH', mongoLogId(1_000_000_045), 'analytics', 'Flushed outstanding data', {
-      flushError,
-      flushDuration
-    });
+    this.logWriter?.info(
+      'MONGOSH',
+      mongoLogId(1_000_000_045),
+      'analytics',
+      'Flushed outstanding data',
+      {
+        flushError,
+        flushDuration,
+      }
+    );
     await this.logWriter?.flush();
     this.bus.emit('mongosh:closed');
   }
@@ -792,11 +928,13 @@ export class CliRepl implements MongoshIOProvider {
   }
 
   /** Read a file from disk. */
-  async readFileUTF8(filename: string): Promise<{ contents: string, absolutePath: string }> {
+  async readFileUTF8(
+    filename: string
+  ): Promise<{ contents: string; absolutePath: string }> {
     const resolved = path.resolve(filename);
     return {
       contents: await fs.readFile(resolved, 'utf8'),
-      absolutePath: resolved
+      absolutePath: resolved,
     };
   }
 
@@ -806,11 +944,17 @@ export class CliRepl implements MongoshIOProvider {
   }
 
   /** Get the right crypt shared library loading options. */
-  async getCryptLibraryOptions(): Promise<AutoEncryptionOptions['extraOptions']> {
+  async getCryptLibraryOptions(): Promise<
+    AutoEncryptionOptions['extraOptions']
+  > {
     if (!this.getCryptLibraryPaths) {
-      throw new MongoshInternalError('This instance of mongosh is not configured for in-use encryption');
+      throw new MongoshInternalError(
+        'This instance of mongosh is not configured for in-use encryption'
+      );
     }
-    return (this.cachedCryptLibraryPath ??= this.getCryptLibraryPaths(this.bus));
+    return (this.cachedCryptLibraryPath ??= this.getCryptLibraryPaths(
+      this.bus
+    ));
   }
 
   /** Provide extra information for reporting internal errors */
@@ -825,33 +969,41 @@ export class CliRepl implements MongoshIOProvider {
   }
 
   /** Adjust `driverOptionsIn` with OIDC-specific settings from this CLI instance. */
-  async prepareOIDCOptions(driverOptionsIn: Readonly<DevtoolsConnectOptions>): Promise<DevtoolsConnectOptions> {
+  async prepareOIDCOptions(
+    driverOptionsIn: Readonly<DevtoolsConnectOptions>
+  ): Promise<DevtoolsConnectOptions> {
     const driverOptions = {
       oidc: {},
       authMechanismProperties: {},
-      ...driverOptionsIn
+      ...driverOptionsIn,
     };
 
     driverOptions.oidc.allowedFlows ??= ['auth-code'];
-    driverOptions.oidc.notifyDeviceFlow ??= ({
-      verificationUrl,
-      userCode
-    }) => {
-      this.output.write('\n' +
-        `Visit the following URL to complete authentication: ${this.clr(verificationUrl, 'mongosh:uri')}\n` +
-        `Enter the following code on that page: ${this.clr(userCode, 'mongosh:uri')}\nWaiting...\n`);
+    driverOptions.oidc.notifyDeviceFlow ??= ({ verificationUrl, userCode }) => {
+      this.output.write(
+        '\n' +
+          `Visit the following URL to complete authentication: ${this.clr(
+            verificationUrl,
+            'mongosh:uri'
+          )}\n` +
+          `Enter the following code on that page: ${this.clr(
+            userCode,
+            'mongosh:uri'
+          )}\nWaiting...\n`
+      );
     };
 
     const [redirectURI, trustedEndpoints, browser] = await Promise.all([
       this.getConfig('oidcRedirectURI'),
       this.getConfig('oidcTrustedEndpoints'),
-      this.getConfig('browser')
+      this.getConfig('browser'),
     ]);
     if (redirectURI !== undefined) {
       driverOptions.oidc.redirectURI ??= redirectURI;
     }
     if (browser !== undefined) {
-      driverOptions.oidc.openBrowser ??= browser !== false ? { command: browser } : browser;
+      driverOptions.oidc.openBrowser ??=
+        browser !== false ? { command: browser } : browser;
     }
     if (trustedEndpoints !== undefined) {
       driverOptions.authMechanismProperties.ALLOWED_HOSTS ??= trustedEndpoints;

@@ -6,13 +6,9 @@ import type {
   ReadPreferenceLike,
   OperationOptions,
   RunCommandCursor,
-  RunCursorCommandOptions
+  RunCursorCommandOptions,
 } from 'mongodb';
-import {
-  MongoClient,
-  ReadPreference,
-  BSON
-} from 'mongodb';
+import { MongoClient, ReadPreference, BSON } from 'mongodb';
 
 import type {
   ServiceProvider,
@@ -64,19 +60,25 @@ import type {
   ChangeStream,
   FLE,
   AutoEncryptionOptions,
-  ClientEncryption as MongoCryptClientEncryption
+  ClientEncryption as MongoCryptClientEncryption,
 } from '@mongosh/service-provider-core';
 import {
   getConnectInfo,
   DEFAULT_DB,
-  ServiceProviderCore
+  ServiceProviderCore,
 } from '@mongosh/service-provider-core';
 
-import { connectMongoClient, DevtoolsConnectOptions } from '@mongodb-js/devtools-connect';
+import {
+  connectMongoClient,
+  DevtoolsConnectOptions,
+} from '@mongodb-js/devtools-connect';
 import { MongoshCommandFailed, MongoshInternalError } from '@mongosh/errors';
 import type { MongoshBus } from '@mongosh/types';
 import { forceCloseMongoClient } from './mongodb-patches';
-import { ConnectionString, CommaAndColonSeparatedRecord } from 'mongodb-connection-string-url';
+import {
+  ConnectionString,
+  CommaAndColonSeparatedRecord,
+} from 'mongodb-connection-string-url';
 import { EventEmitter } from 'events';
 import type { CreateEncryptedCollectionOptions } from '@mongosh/service-provider-core';
 import type { DevtoolsConnectionState } from '@mongodb-js/devtools-connect';
@@ -97,7 +99,7 @@ const bsonlib = {
   BSONSymbol: BSON.BSONSymbol,
   calculateObjectSize: BSON.calculateObjectSize,
   EJSON: BSON.EJSON,
-  BSONRegExp: BSON.BSONRegExp
+  BSONRegExp: BSON.BSONRegExp,
 };
 
 type DropDatabaseResult = {
@@ -115,15 +117,14 @@ type ExtraConnectionInfo = ReturnType<typeof getConnectInfo> & { fcv?: string };
 /**
  * Default driver options we always use.
  */
-const DEFAULT_DRIVER_OPTIONS: MongoClientOptions = Object.freeze({
-});
+const DEFAULT_DRIVER_OPTIONS: MongoClientOptions = Object.freeze({});
 
 /**
  * Default driver method options we always use.
  */
 const DEFAULT_BASE_OPTIONS: OperationOptions = Object.freeze({
   serializeFunctions: true,
-  promoteLongs: false
+  promoteLongs: false,
 });
 
 /**
@@ -139,10 +140,13 @@ const DEFAULT_BASE_OPTIONS: OperationOptions = Object.freeze({
  * do not end up being sent to a different host or for a different user.
  */
 function normalizeEndpointAndAuthConfiguration(
-  uri: ConnectionString, opts: DevtoolsConnectOptions,
+  uri: ConnectionString,
+  opts: DevtoolsConnectOptions
 ) {
   const search = uri.typedSearchParams<DevtoolsConnectOptions>();
-  const authMechProps = new CommaAndColonSeparatedRecord(search.get('authMechanismProperties'));
+  const authMechProps = new CommaAndColonSeparatedRecord(
+    search.get('authMechanismProperties')
+  );
 
   return [
     uri.protocol,
@@ -151,7 +155,7 @@ function normalizeEndpointAndAuthConfiguration(
     opts.auth?.password ?? uri.password,
     opts.authMechanism ?? search.get('authMechanism'),
     opts.authSource ?? search.get('authSource'),
-    { ...Object.fromEntries(authMechProps), ...opts.authMechanismProperties }
+    { ...Object.fromEntries(authMechProps), ...opts.authMechanismProperties },
   ];
 }
 
@@ -162,9 +166,12 @@ interface DependencyVersionInfo {
 }
 
 /**
-   * Encapsulates logic for the service provider for the mongosh CLI.
+ * Encapsulates logic for the service provider for the mongosh CLI.
  */
-class CliServiceProvider extends ServiceProviderCore implements ServiceProvider {
+class CliServiceProvider
+  extends ServiceProviderCore
+  implements ServiceProvider
+{
   /**
    * Create a new CLI service provider from the provided URI.
    *
@@ -182,21 +189,28 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     bus: MongoshBus = new EventEmitter() // TODO: Change VSCode to pass all arguments, then remove defaults
   ): Promise<CliServiceProvider> {
     const connectionString = new ConnectionString(uri || 'mongodb://nodb/');
-    const clientOptions = this.processDriverOptions(null, connectionString, driverOptions);
+    const clientOptions = this.processDriverOptions(
+      null,
+      connectionString,
+      driverOptions
+    );
     if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
       clientOptions.serverApi = {
-        version: typeof clientOptions.serverApi === 'string' ? clientOptions.serverApi :
-          (clientOptions.serverApi?.version ?? '1'),
+        version:
+          typeof clientOptions.serverApi === 'string'
+            ? clientOptions.serverApi
+            : clientOptions.serverApi?.version ?? '1',
         strict: true,
-        deprecationErrors: true
+        deprecationErrors: true,
       };
     }
 
     let client: MongoClient;
     let state: DevtoolsConnectionState | undefined;
     if (cliOptions.nodb) {
-      const clientOptionsCopy: MongoClientOptions & Partial<DevtoolsConnectOptions> = {
-        ...clientOptions
+      const clientOptionsCopy: MongoClientOptions &
+        Partial<DevtoolsConnectOptions> = {
+        ...clientOptions,
       };
       delete clientOptionsCopy.productName;
       delete clientOptionsCopy.productDocsLink;
@@ -206,13 +220,12 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
       delete clientOptionsCopy.useSystemCA;
       client = new MongoClient(connectionString.toString(), clientOptionsCopy);
     } else {
-      ({ client, state } =
-        await connectMongoClient(
-          connectionString.toString(),
-          clientOptions,
-          bus,
-          MongoClient
-        ));
+      ({ client, state } = await connectMongoClient(
+        connectionString.toString(),
+        clientOptions,
+        bus,
+        MongoClient
+      ));
     }
     clientOptions.parentState = state;
 
@@ -237,7 +250,12 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
    * @param {DevtoolsConnectOptions} clientOptions
    * @param {string} uri - optional URI for telemetry.
    */
-  constructor(mongoClient: MongoClient, bus: MongoshBus, clientOptions: DevtoolsConnectOptions, uri?: ConnectionString) {
+  constructor(
+    mongoClient: MongoClient,
+    bus: MongoshBus,
+    clientOptions: DevtoolsConnectOptions,
+    uri?: ConnectionString
+  ) {
     super(bsonlib);
 
     this.bus = bus;
@@ -250,7 +268,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
       this.initialDb = DEFAULT_DB;
     }
     this.currentClientOptions = clientOptions;
-    this.baseCmdOptions = { ... DEFAULT_BASE_OPTIONS }; // currently do not have any user-specified connection-wide command options, but I imagine we will eventually
+    this.baseCmdOptions = { ...DEFAULT_BASE_OPTIONS }; // currently do not have any user-specified connection-wide command options, but I imagine we will eventually
     this.dbcache = new WeakMap();
     this.fle = CliServiceProvider.getLibmongocryptBindings();
   }
@@ -270,17 +288,29 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   }
 
   static getVersionInformation(): DependencyVersionInfo {
-    function tryCall<Fn extends() => any>(fn: Fn): ReturnType<Fn> | undefined {
-      try { return fn(); } catch { return; }
+    function tryCall<Fn extends () => any>(fn: Fn): ReturnType<Fn> | undefined {
+      try {
+        return fn();
+      } catch {
+        return;
+      }
     }
     return {
       nodeDriverVersion: tryCall(() => require('mongodb/package.json').version),
-      libmongocryptVersion: tryCall(() => this.getLibmongocryptBindings()?.ClientEncryption.libmongocryptVersion),
-      libmongocryptNodeBindingsVersion: tryCall(() => require('mongodb-client-encryption/package.json').version),
+      libmongocryptVersion: tryCall(
+        () =>
+          this.getLibmongocryptBindings()?.ClientEncryption.libmongocryptVersion
+      ),
+      libmongocryptNodeBindingsVersion: tryCall(
+        () => require('mongodb-client-encryption/package.json').version
+      ),
     };
   }
 
-  async getNewConnection(uri: string, options: Partial<DevtoolsConnectOptions> = {}): Promise<CliServiceProvider> {
+  async getNewConnection(
+    uri: string,
+    options: Partial<DevtoolsConnectOptions> = {}
+  ): Promise<CliServiceProvider> {
     const connectionString = new ConnectionString(uri);
     const clientOptions = this.processDriverOptions(connectionString, options);
     const { client, state } = await connectMongoClient(
@@ -290,15 +320,33 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
       MongoClient
     );
     clientOptions.parentState = state;
-    return new CliServiceProvider(client, this.bus, clientOptions, connectionString);
+    return new CliServiceProvider(
+      client,
+      this.bus,
+      clientOptions,
+      connectionString
+    );
   }
 
   async getConnectionInfo(): Promise<ConnectionInfo> {
     const topology = this.getTopology();
     const { version } = require('../package.json');
-    const [buildInfo = null, cmdLineOptsOrServerError = null, atlasVersion = null, fcv = null] = await Promise.all([
-      this.runCommandWithCheck('admin', { buildInfo: 1 }, this.baseCmdOptions).catch(() => {}),
-      this.runCommandWithCheck('admin', { getCmdLineOpts: 1 }, this.baseCmdOptions).catch((e) => {
+    const [
+      buildInfo = null,
+      cmdLineOptsOrServerError = null,
+      atlasVersion = null,
+      fcv = null,
+    ] = await Promise.all([
+      this.runCommandWithCheck(
+        'admin',
+        { buildInfo: 1 },
+        this.baseCmdOptions
+      ).catch(() => {}),
+      this.runCommandWithCheck(
+        'admin',
+        { getCmdLineOpts: 1 },
+        this.baseCmdOptions
+      ).catch((e) => {
         // mongodb-build-info.getGenuineMongoDB expects either
         // the successful or failure response from server
         // Ref: https://github.com/mongodb-js/mongodb-build-info/blob/9247eeba730a905397ad09fe5a377067edc49b34/index.js#L89
@@ -306,11 +354,19 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
           ok: e.ok,
           code: e.code,
           errmsg: e.message,
-          operationTime: e.operationTime
+          operationTime: e.operationTime,
         };
       }),
-      this.runCommandWithCheck('admin', { atlasVersion: 1 }, this.baseCmdOptions).catch(() => {}),
-      this.runCommandWithCheck('admin', { getParameter: 1, featureCompatibilityVersion: 1 }, this.baseCmdOptions).catch(() => {})
+      this.runCommandWithCheck(
+        'admin',
+        { atlasVersion: 1 },
+        this.baseCmdOptions
+      ).catch(() => {}),
+      this.runCommandWithCheck(
+        'admin',
+        { getParameter: 1, featureCompatibilityVersion: 1 },
+        this.baseCmdOptions
+      ).catch(() => {}),
     ]);
 
     const extraConnectionInfo = getConnectInfo(
@@ -327,8 +383,8 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
       topology: topology,
       extraInfo: {
         ...extraConnectionInfo,
-        fcv: fcv?.featureCompatibilityVersion?.version
-      }
+        fcv: fcv?.featureCompatibilityVersion?.version,
+      },
     };
   }
 
@@ -337,9 +393,14 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     oldName: string,
     newName: string,
     options: RenameOptions = {},
-    dbOptions?: DbOptions): Promise<Collection> {
+    dbOptions?: DbOptions
+  ): Promise<Collection> {
     options = { ...this.baseCmdOptions, ...options };
-    return await this.db(database, dbOptions).renameCollection(oldName, newName, options);
+    return await this.db(database, dbOptions).renameCollection(
+      oldName,
+      newName,
+      options
+    );
   }
 
   /**
@@ -405,7 +466,8 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     collection: string,
     pipeline: Document[] = [],
     options: AggregateOptions = {},
-    dbOptions?: DbOptions): AggregationCursor {
+    dbOptions?: DbOptions
+  ): AggregationCursor {
     options = { ...this.baseCmdOptions, ...options };
     return this.db(database, dbOptions)
       .collection(collection)
@@ -434,9 +496,10 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     database: string,
     pipeline: Document[] = [],
     options: AggregateOptions = {},
-    dbOptions?: DbOptions): AggregationCursor {
+    dbOptions?: DbOptions
+  ): AggregationCursor {
     options = { ...this.baseCmdOptions, ...options };
-    const db: any = (this.db(database, dbOptions) as any);
+    const db: any = this.db(database, dbOptions) as any;
     return db.aggregate(pipeline, options);
   }
 
@@ -460,7 +523,8 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     collection: string,
     requests: AnyBulkWriteOperation[],
     options: BulkWriteOptions = {},
-    dbOptions?: DbOptions): Promise<BulkWriteResult> {
+    dbOptions?: DbOptions
+  ): Promise<BulkWriteResult> {
     options = { ...this.baseCmdOptions, ...options };
     return this.db(database, dbOptions)
       .collection(collection)
@@ -474,12 +538,16 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
    */
   async close(force: boolean): Promise<void> {
     this.dbcache.set(this.mongoClient, new Map());
-    if (force) {await forceCloseMongoClient(this.mongoClient);} else {await this.mongoClient.close();}
+    if (force) {
+      await forceCloseMongoClient(this.mongoClient);
+    } else {
+      await this.mongoClient.close();
+    }
   }
 
   async suspend(): Promise<() => Promise<void>> {
     await this.close(true);
-    return async() => {
+    return async () => {
       await this.resetConnectionOptions({});
     };
   }
@@ -506,7 +574,8 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     collection: string,
     query: Document = {},
     options: CountOptions = {},
-    dbOptions?: DbOptions): Promise<number> {
+    dbOptions?: DbOptions
+  ): Promise<number> {
     options = { ...this.baseCmdOptions, ...options };
     return this.db(database, dbOptions)
       .collection(collection)
@@ -532,7 +601,8 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     collection: string,
     filter: Document = {},
     options: CountDocumentsOptions = {},
-    dbOptions?: DbOptions): Promise<number> {
+    dbOptions?: DbOptions
+  ): Promise<number> {
     options = { ...this.baseCmdOptions, ...options };
     return this.db(database, dbOptions)
       .collection(collection)
@@ -555,7 +625,8 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     collection: string,
     filter: Document = {},
     options: DeleteOptions = {},
-    dbOptions?: DbOptions): Promise<DeleteResult> {
+    dbOptions?: DbOptions
+  ): Promise<DeleteResult> {
     options = { ...this.baseCmdOptions, ...options };
     return this.db(database, dbOptions)
       .collection(collection)
@@ -578,7 +649,8 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     collection: string,
     filter: Document = {},
     options: DeleteOptions = {},
-    dbOptions?: DbOptions): Promise<DeleteResult> {
+    dbOptions?: DbOptions
+  ): Promise<DeleteResult> {
     options = { ...this.baseCmdOptions, ...options };
     return this.db(database, dbOptions)
       .collection(collection)
@@ -603,7 +675,8 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     fieldName: string,
     filter: Document = {},
     options: DistinctOptions = {},
-    dbOptions?: DbOptions): Promise<Document[]> {
+    dbOptions?: DbOptions
+  ): Promise<Document[]> {
     options = { ...this.baseCmdOptions, ...options };
     return this.db(database, dbOptions)
       .collection(collection)
@@ -624,7 +697,8 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     database: string,
     collection: string,
     options: EstimatedDocumentCountOptions = {},
-    dbOptions?: DbOptions): Promise<number> {
+    dbOptions?: DbOptions
+  ): Promise<number> {
     options = { ...this.baseCmdOptions, ...options };
     return this.db(database, dbOptions)
       .collection(collection)
@@ -647,7 +721,8 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     collection: string,
     filter: Document = {},
     options: FindOptions = {},
-    dbOptions?: DbOptions): FindCursor {
+    dbOptions?: DbOptions
+  ): FindCursor {
     const findOptions: any = { ...this.baseCmdOptions, ...options };
     if ('allowPartialResults' in findOptions) {
       findOptions.partial = findOptions.allowPartialResults;
@@ -676,11 +751,12 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     collection: string,
     filter: Document = {},
     options: FindOneAndDeleteOptions = {},
-    dbOptions?: DbOptions): Promise<Document> {
+    dbOptions?: DbOptions
+  ): Promise<Document> {
     options = { ...this.baseCmdOptions, ...options };
     return this.db(database, dbOptions)
-      .collection(collection).
-      findOneAndDelete(filter, options);
+      .collection(collection)
+      .findOneAndDelete(filter, options);
   }
 
   /**
@@ -701,8 +777,12 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     filter: Document = {},
     replacement: Document = {},
     options: FindOneAndReplaceOptions = {},
-    dbOptions?: DbOptions): Promise<Document> {
-    const findOneAndReplaceOptions: any = { ...this.baseCmdOptions, ...options };
+    dbOptions?: DbOptions
+  ): Promise<Document> {
+    const findOneAndReplaceOptions: any = {
+      ...this.baseCmdOptions,
+      ...options,
+    };
 
     return (
       this.db(database, dbOptions).collection(collection) as any
@@ -727,16 +807,13 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     filter: Document = {},
     update: Document | Document[] = {},
     options: FindOneAndUpdateOptions = {},
-    dbOptions?: DbOptions): Promise<Document> {
+    dbOptions?: DbOptions
+  ): Promise<Document> {
     const findOneAndUpdateOptions = { ...this.baseCmdOptions, ...options };
 
     return this.db(database, dbOptions)
       .collection(collection)
-      .findOneAndUpdate(
-        filter,
-        update,
-        findOneAndUpdateOptions
-      ) as any;
+      .findOneAndUpdate(filter, update, findOneAndUpdateOptions) as any;
   }
 
   /**
@@ -755,7 +832,8 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     collection: string,
     docs: Document[] = [],
     options: BulkWriteOptions = {},
-    dbOptions?: DbOptions): Promise<InsertManyResult> {
+    dbOptions?: DbOptions
+  ): Promise<InsertManyResult> {
     options = { ...this.baseCmdOptions, ...options };
     return this.db(database, dbOptions)
       .collection(collection)
@@ -778,7 +856,8 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     collection: string,
     doc: Document = {},
     options: InsertOneOptions = {},
-    dbOptions?: DbOptions): Promise<InsertOneResult> {
+    dbOptions?: DbOptions
+  ): Promise<InsertOneResult> {
     options = { ...this.baseCmdOptions, ...options };
     return this.db(database, dbOptions)
       .collection(collection)
@@ -830,10 +909,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   ): Promise<Document> {
     options = { ...this.baseCmdOptions, ...options };
     const db = this.db(database, dbOptions);
-    return db.command(
-      spec,
-      options
-    );
+    return db.command(spec, options);
   }
 
   /**
@@ -875,10 +951,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   ): RunCommandCursor {
     options = { ...this.baseCmdOptions, ...options };
     const db = this.db(database, dbOptions);
-    return db.runCursorCommand(
-      spec,
-      options
-    );
+    return db.runCursorCommand(spec, options);
   }
 
   /**
@@ -888,7 +961,10 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
    *
    * @returns {Promise} The promise of command results.
    */
-  listDatabases(database: string, options: ListDatabasesOptions = {}): Promise<Document> {
+  listDatabases(
+    database: string,
+    options: ListDatabasesOptions = {}
+  ): Promise<Document> {
     options = { ...this.baseCmdOptions, ...options };
     return this.db(database).admin().listDatabases(options);
   }
@@ -911,7 +987,8 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     filter: Document = {},
     update: Document = {},
     options: UpdateOptions = {},
-    dbOptions?: DbOptions): Promise<UpdateResult> {
+    dbOptions?: DbOptions
+  ): Promise<UpdateResult> {
     options = { ...this.baseCmdOptions, ...options };
     return await this.db(database, dbOptions)
       .collection(collection)
@@ -936,7 +1013,8 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     filter: Document = {},
     update: Document = {},
     options: UpdateOptions = {},
-    dbOptions?: DbOptions): Promise<UpdateResult> {
+    dbOptions?: DbOptions
+  ): Promise<UpdateResult> {
     options = { ...this.baseCmdOptions, ...options };
     return this.db(database, dbOptions)
       .collection(collection)
@@ -970,7 +1048,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     const ok = nativeResult ? 1 : 0;
     return {
       ok,
-      ...(ok ? { dropped: db } : {})
+      ...(ok ? { dropped: db } : {}),
     };
   }
 
@@ -989,7 +1067,8 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     collection: string,
     indexSpecs: IndexDescription[],
     options: CreateIndexesOptions = {},
-    dbOptions?: DbOptions): Promise<string[]> {
+    dbOptions?: DbOptions
+  ): Promise<string[]> {
     options = { ...this.baseCmdOptions, ...options };
     return this.db(database, dbOptions)
       .collection(collection)
@@ -1012,7 +1091,8 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     database: string,
     collection: string,
     options: ListIndexesOptions = {},
-    dbOptions?: DbOptions): Promise<Document[]> {
+    dbOptions?: DbOptions
+  ): Promise<Document[]> {
     return await this.db(database, dbOptions)
       .collection(collection)
       .listIndexes({ ...this.baseCmdOptions, ...options })
@@ -1034,11 +1114,12 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     database: string,
     filter: Document = {},
     options: ListCollectionsOptions = {},
-    dbOptions?: DbOptions): Promise<Document[]> {
+    dbOptions?: DbOptions
+  ): Promise<Document[]> {
     options = { ...this.baseCmdOptions, ...options };
-    return await this.db(database, dbOptions).listCollections(
-      filter, options
-    ).toArray();
+    return await this.db(database, dbOptions)
+      .listCollections(filter, options)
+      .toArray();
   }
 
   /**
@@ -1067,15 +1148,15 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
    *
    * @param authDoc
    */
-  async authenticate(
-    authDoc: ShellAuthOptions
-  ): Promise<{ ok: 1 }> {
+  async authenticate(authDoc: ShellAuthOptions): Promise<{ ok: 1 }> {
     // NOTE: we keep all the original options and just overwrite the auth ones.
     const auth: Auth = { username: authDoc.user, password: authDoc.pwd };
     await this.resetConnectionOptions({
       auth,
-      ...(authDoc.mechanism ? { authMechanism: authDoc.mechanism as AuthMechanism } : {}),
-      ...(authDoc.authDb ? { authSource: authDoc.authDb } : {})
+      ...(authDoc.mechanism
+        ? { authMechanism: authDoc.mechanism as AuthMechanism }
+        : {}),
+      ...(authDoc.authDb ? { authSource: authDoc.authDb } : {}),
     });
     return { ok: 1 };
   }
@@ -1087,9 +1168,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     dbOptions?: DbOptions
   ): Promise<{ ok: number }> {
     options = { ...this.baseCmdOptions, ...options };
-    await this.db(dbName, dbOptions).createCollection(
-      collName, options
-    );
+    await this.db(dbName, dbOptions).createCollection(collName, options);
     return { ok: 1 };
   }
 
@@ -1098,7 +1177,7 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     collName: string,
     options: CreateEncryptedCollectionOptions,
     libmongocrypt: MongoCryptClientEncryption
-  ): Promise<{ collection: Collection, encryptedFields: Document }> {
+  ): Promise<{ collection: Collection; encryptedFields: Document }> {
     return await libmongocrypt.createEncryptedCollection(
       this.db(dbName),
       collName,
@@ -1113,11 +1192,16 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     ordered: boolean,
     options: BulkWriteOptions = {},
     dbOptions?: DbOptions
-  ): Promise<any> { // Update to actual type after https://jira.mongodb.org/browse/MONGOSH-915
+  ): Promise<any> {
+    // Update to actual type after https://jira.mongodb.org/browse/MONGOSH-915
     if (ordered) {
-      return this.db(dbName, dbOptions).collection(collName).initializeOrderedBulkOp(options);
+      return this.db(dbName, dbOptions)
+        .collection(collName)
+        .initializeOrderedBulkOp(options);
     }
-    return this.db(dbName, dbOptions).collection(collName).initializeUnorderedBulkOp(options);
+    return this.db(dbName, dbOptions)
+      .collection(collName)
+      .initializeUnorderedBulkOp(options);
   }
 
   getReadPreference(): ReadPreference {
@@ -1132,7 +1216,9 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     return this.mongoClient.writeConcern;
   }
 
-  readPreferenceFromOptions(options?: Omit<ReadPreferenceFromOptions, 'session'>): ReadPreferenceLike | undefined {
+  readPreferenceFromOptions(
+    options?: Omit<ReadPreferenceFromOptions, 'session'>
+  ): ReadPreferenceLike | undefined {
     return ReadPreference.fromOptions(options);
   }
 
@@ -1145,9 +1231,12 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     this.bus.emit('mongosh-sp:reset-connection-options');
     this.currentClientOptions = {
       ...this.currentClientOptions,
-      ...options
+      ...options,
     };
-    const clientOptions = this.processDriverOptions(this.uri as ConnectionString, this.currentClientOptions);
+    const clientOptions = this.processDriverOptions(
+      this.uri as ConnectionString,
+      this.currentClientOptions
+    );
     const { client, state } = await connectMongoClient(
       (this.uri as ConnectionString).toString(),
       clientOptions,
@@ -1166,15 +1255,27 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     return this.mongoClient.startSession(options);
   }
 
-  watch(pipeline: Document[], options: ChangeStreamOptions, dbOptions: DbOptions = {}, db?: string, coll?: string): ChangeStream<Document> {
-    if (db === undefined && coll === undefined) { // TODO: watch not exported, see NODE-2934
+  watch(
+    pipeline: Document[],
+    options: ChangeStreamOptions,
+    dbOptions: DbOptions = {},
+    db?: string,
+    coll?: string
+  ): ChangeStream<Document> {
+    if (db === undefined && coll === undefined) {
+      // TODO: watch not exported, see NODE-2934
       return (this.mongoClient as any).watch(pipeline, options);
     } else if (db !== undefined && coll === undefined) {
       return (this.db(db, dbOptions) as any).watch(pipeline, options);
     } else if (db !== undefined && coll !== undefined) {
-      return (this.db(db, dbOptions).collection(coll) as any).watch(pipeline, options);
+      return (this.db(db, dbOptions).collection(coll) as any).watch(
+        pipeline,
+        options
+      );
     }
-    throw new MongoshInternalError('Cannot call watch with defined collection but undefined db');
+    throw new MongoshInternalError(
+      'Cannot call watch with defined collection but undefined db'
+    );
   }
 
   get driverMetadata(): ClientMetadata | undefined {
@@ -1197,24 +1298,31 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   static processDriverOptions(
     currentProviderInstance: CliServiceProvider | null,
     uri: ConnectionString,
-    opts: DevtoolsConnectOptions): DevtoolsConnectOptions {
+    opts: DevtoolsConnectOptions
+  ): DevtoolsConnectOptions {
     const processedOptions = { ...DEFAULT_DRIVER_OPTIONS, ...opts };
 
     if (currentProviderInstance?.currentClientOptions) {
-      for (const key of [
-        'productName', 'productDocsLink'
-      ] as const) {
-        processedOptions[key] = currentProviderInstance.currentClientOptions[key];
+      for (const key of ['productName', 'productDocsLink'] as const) {
+        processedOptions[key] =
+          currentProviderInstance.currentClientOptions[key];
       }
 
       processedOptions.oidc ??= {};
       for (const key of [
-        'redirectURI', 'openBrowser', 'openBrowserTimeout', 'notifyDeviceFlow', 'allowedFlows'
+        'redirectURI',
+        'openBrowser',
+        'openBrowserTimeout',
+        'notifyDeviceFlow',
+        'allowedFlows',
       ] as const) {
         // Template IIFE so that TS understands that `key` on the left-hand and right-hand side match
         (<T extends keyof typeof processedOptions.oidc>(key: T) => {
-          const value = currentProviderInstance.currentClientOptions.oidc?.[key];
-          if (value) {processedOptions.oidc[key] = value;}
+          const value =
+            currentProviderInstance.currentClientOptions.oidc?.[key];
+          if (value) {
+            processedOptions.oidc[key] = value;
+          }
         })(key);
       }
     }
@@ -1249,11 +1357,14 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
   }
 
   // Internal, only exposed for testing
-  processDriverOptions(uri: ConnectionString, opts: Partial<DevtoolsConnectOptions>): DevtoolsConnectOptions {
+  processDriverOptions(
+    uri: ConnectionString,
+    opts: Partial<DevtoolsConnectOptions>
+  ): DevtoolsConnectOptions {
     return CliServiceProvider.processDriverOptions(this, uri, {
       productName: this.currentClientOptions.productName,
       productDocsLink: this.currentClientOptions.productDocsLink,
-      ...opts
+      ...opts,
     });
   }
 
@@ -1263,34 +1374,44 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     indexName?: string,
     // TODO(MONGOSH-1471): use ListSearchIndexesOptions once available
     options?: Document,
-    dbOptions?: DbOptions): Promise<Document[]> {
-    return this.db(database, dbOptions)
-      .collection(collection)
-      // @ts-expect-error still @internal
-      .listSearchIndexes(indexName, options).toArray();
+    dbOptions?: DbOptions
+  ): Promise<Document[]> {
+    return (
+      this.db(database, dbOptions)
+        .collection(collection)
+        // @ts-expect-error still @internal
+        .listSearchIndexes(indexName, options)
+        .toArray()
+    );
   }
 
   createSearchIndexes(
     database: string,
     collection: string,
     // TODO(MONGOSH-1471): use SearchIndexDescription[] once available
-    specs: {name: string, definition: Document}[],
-    dbOptions?: DbOptions): Promise<string[]> {
-    return this.db(database, dbOptions)
-      .collection(collection)
-      // @ts-expect-error still @internal
-      .createSearchIndexes(specs);
+    specs: { name: string; definition: Document }[],
+    dbOptions?: DbOptions
+  ): Promise<string[]> {
+    return (
+      this.db(database, dbOptions)
+        .collection(collection)
+        // @ts-expect-error still @internal
+        .createSearchIndexes(specs)
+    );
   }
 
   dropSearchIndex(
     database: string,
     collection: string,
     indexName: string,
-    dbOptions?: DbOptions): Promise<void> {
-    return this.db(database, dbOptions)
-      .collection(collection)
-      // @ts-expect-error still @internal
-      .dropSearchIndex(indexName);
+    dbOptions?: DbOptions
+  ): Promise<void> {
+    return (
+      this.db(database, dbOptions)
+        .collection(collection)
+        // @ts-expect-error still @internal
+        .dropSearchIndex(indexName)
+    );
   }
 
   updateSearchIndex(
@@ -1299,11 +1420,14 @@ class CliServiceProvider extends ServiceProviderCore implements ServiceProvider 
     indexName: string,
     // TODO(MONGOSH-1471): use SearchIndexDescription once available
     definition: Document,
-    dbOptions?: DbOptions): Promise<void> {
-    return this.db(database, dbOptions)
-      .collection(collection)
-      // @ts-expect-error still @internal
-      .updateSearchIndex(indexName, definition);
+    dbOptions?: DbOptions
+  ): Promise<void> {
+    return (
+      this.db(database, dbOptions)
+        .collection(collection)
+        // @ts-expect-error still @internal
+        .updateSearchIndex(indexName, definition)
+    );
   }
 }
 

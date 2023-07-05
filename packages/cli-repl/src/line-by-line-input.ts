@@ -39,24 +39,34 @@ export class LineByLineInput extends Readable {
     this._insidePushCalls = 0;
 
     const isReadableEvent = (name: string) =>
-      name === 'readable' || name === 'data' || name === 'end' || name === 'keypress';
+      name === 'readable' ||
+      name === 'data' ||
+      name === 'end' ||
+      name === 'keypress';
 
     // Listeners for events that are not related to this object being a readable
     // stream are also added to the wrapped object.
-    this.on('removeListener', (name: string, handler: (...args: any[]) => void) => {
-      if (!isReadableEvent(name)) {
-        this._originalInput.removeListener(name, handler);
+    this.on(
+      'removeListener',
+      (name: string, handler: (...args: any[]) => void) => {
+        if (!isReadableEvent(name)) {
+          this._originalInput.removeListener(name, handler);
+        }
       }
-    });
-    this.on('newListener', (name: string, handler: (...args: any[]) => void) => {
-      if (!isReadableEvent(name)) {
-        this._originalInput.addListener(name, handler);
+    );
+    this.on(
+      'newListener',
+      (name: string, handler: (...args: any[]) => void) => {
+        if (!isReadableEvent(name)) {
+          this._originalInput.addListener(name, handler);
+        }
       }
-    });
+    );
 
     const proxy = new Proxy(readable, {
       get: (target: NodeJS.ReadStream, property: string): any => {
-        if (typeof property === 'string' &&
+        if (
+          typeof property === 'string' &&
           !property.startsWith('_') &&
           typeof (this as any)[property] === 'function'
         ) {
@@ -64,10 +74,10 @@ export class LineByLineInput extends Readable {
         }
 
         return (target as any)[property];
-      }
+      },
     });
 
-    return (proxy as unknown) as LineByLineInput;
+    return proxy as unknown as LineByLineInput;
   }
 
   /** Start processing data from the original input stream. */
@@ -76,8 +86,7 @@ export class LineByLineInput extends Readable {
     this._originalInput.on('end', () => this._onData(null));
   }
 
-  _read(): void {
-  }
+  _read(): void {}
 
   /** Proceed to read more data from the input stream. */
   nextLine(): void {
@@ -108,23 +117,23 @@ export class LineByLineInput extends Readable {
     const chars = chunk === null ? [null] : this._decoder.write(chunk);
     for (const char of chars) {
       // Look up the last character we have queued up, if any:
-      const lastCharQueueEntry = this._charQueue.length ?
-        this._charQueue[this._charQueue.length - 1] : '';
-      const lastCharQueueChar = lastCharQueueEntry?.length ?
-        lastCharQueueEntry[lastCharQueueEntry.length - 1] : '';
+      const lastCharQueueEntry = this._charQueue.length
+        ? this._charQueue[this._charQueue.length - 1]
+        : '';
+      const lastCharQueueChar = lastCharQueueEntry?.length
+        ? lastCharQueueEntry[lastCharQueueEntry.length - 1]
+        : '';
 
       if (this._isCtrlC(char) || this._isCtrlD(char)) {
         this.push(char);
       } else if (
-        (
-          char === '\n' && lastCharQueueChar === '\r'
-        ) || (
-          this._isRegularCharacter(char) &&
+        (char === '\n' && lastCharQueueChar === '\r') ||
+        (this._isRegularCharacter(char) &&
           lastCharQueueChar !== '' &&
-          this._isRegularCharacter(lastCharQueueChar)
-        )
+          this._isRegularCharacter(lastCharQueueChar))
       ) {
-        (this._charQueue[this._charQueue.length - 1] as string) += char as string;
+        (this._charQueue[this._charQueue.length - 1] as string) +=
+          char as string;
       } else {
         this._charQueue.push(char);
       }
@@ -161,13 +170,11 @@ export class LineByLineInput extends Readable {
     while (
       this._charQueue.length &&
       this._shouldForward() &&
-
       // We don't forward residual characters we could
       // have in the buffer if in the meanwhile something
       // downstream explicitly called pause(), as that may cause
       // unexpected behaviors.
       !this._originalInput.isPaused() &&
-
       // If we are already inside a push() call, then we do not need to flush
       // the queue again.
       this._insidePushCalls === 0
@@ -183,7 +190,12 @@ export class LineByLineInput extends Readable {
   }
 
   private _isRegularCharacter(char: string | null): boolean {
-    return char !== null && !this._isLineEnding(char) && !this._isCtrlC(char) && !this._isCtrlD(char);
+    return (
+      char !== null &&
+      !this._isLineEnding(char) &&
+      !this._isCtrlC(char) &&
+      !this._isCtrlD(char)
+    );
   }
 
   private _isLineEnding(char: string | null): boolean {

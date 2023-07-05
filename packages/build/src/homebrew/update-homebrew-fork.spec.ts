@@ -5,7 +5,7 @@ import { updateHomebrewFork } from './update-homebrew-fork';
 
 chai.use(require('sinon-chai'));
 
-describe('Homebrew update-homebrew-fork', function() {
+describe('Homebrew update-homebrew-fork', function () {
   let getFileContent: sinon.SinonStub;
   let getBranchDetails: sinon.SinonStub;
   let createBranch: sinon.SinonStub;
@@ -13,7 +13,7 @@ describe('Homebrew update-homebrew-fork', function() {
   let homebrewCore: GithubRepo;
   let homebrewCoreFork: GithubRepo;
 
-  beforeEach(function() {
+  beforeEach(function () {
     getFileContent = sinon.stub();
     getBranchDetails = sinon.stub();
     homebrewCore = sinon.createStubInstance(GithubRepo, {
@@ -25,26 +25,23 @@ describe('Homebrew update-homebrew-fork', function() {
     commitFileUpdateFork = sinon.stub();
     homebrewCoreFork = sinon.createStubInstance(GithubRepo, {
       createBranch: createBranch as any,
-      commitFileUpdate: commitFileUpdateFork as any
+      commitFileUpdate: commitFileUpdateFork as any,
     }) as unknown as GithubRepo;
   });
 
-  it('writes updated formula and pushes changes', async function() {
-    getFileContent
-      .rejects()
-      .withArgs('Formula/mongosh.rb')
-      .resolves({
-        blobSha: 'sha1',
-        content: 'old formula'
-      });
+  it('writes updated formula and pushes changes', async function () {
+    getFileContent.rejects().withArgs('Formula/mongosh.rb').resolves({
+      blobSha: 'sha1',
+      content: 'old formula',
+    });
     getBranchDetails
       .rejects()
       .withArgs('master')
       .resolves({
         ref: 'refs/head/master',
         object: {
-          sha: 'upstreamSha'
-        }
+          sha: 'upstreamSha',
+        },
       });
 
     createBranch
@@ -61,7 +58,7 @@ describe('Homebrew update-homebrew-fork', function() {
         'mongosh-1.0.0-sha'
       )
       .resolves({
-        commitSha: 'commitsha'
+        commitSha: 'commitsha',
       });
 
     const updated = await updateHomebrewFork({
@@ -70,7 +67,7 @@ describe('Homebrew update-homebrew-fork', function() {
       homebrewFormula: 'updated formula',
       homebrewCore,
       homebrewCoreFork,
-      isDryRun: false
+      isDryRun: false,
     });
 
     expect(updated).to.equal('mongosh-1.0.0-sha');
@@ -78,14 +75,11 @@ describe('Homebrew update-homebrew-fork', function() {
     expect(commitFileUpdateFork).to.have.been.calledOnce;
   });
 
-  it('does not push changes if formula is same', async function() {
-    getFileContent
-      .rejects()
-      .withArgs('Formula/mongosh.rb')
-      .resolves({
-        blobSha: 'sha1',
-        content: 'formula'
-      });
+  it('does not push changes if formula is same', async function () {
+    getFileContent.rejects().withArgs('Formula/mongosh.rb').resolves({
+      blobSha: 'sha1',
+      content: 'formula',
+    });
 
     const updated = await updateHomebrewFork({
       packageVersion: '1.0.0',
@@ -93,7 +87,7 @@ describe('Homebrew update-homebrew-fork', function() {
       homebrewFormula: 'formula',
       homebrewCore,
       homebrewCoreFork,
-      isDryRun: false
+      isDryRun: false,
     });
 
     expect(updated).to.equal(undefined);

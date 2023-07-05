@@ -6,7 +6,6 @@ import { Editor } from './editor';
 import ShellLoader from './shell-loader';
 import { LineWithIcon } from './utils/line-with-icon';
 
-
 const shellInput = css({
   padding: '0 8px',
   minHeight: '24px',
@@ -31,7 +30,7 @@ interface ShellInputState {
 export class ShellInput extends Component<ShellInputProps, ShellInputState> {
   readonly state: ShellInputState = {
     currentValue: '',
-    readOnly: false
+    readOnly: false,
   };
 
   private historyNavigationEntries: string[] = [];
@@ -55,7 +54,7 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
   private initializeHistoryNavigation(): void {
     this.historyNavigationEntries = [
       this.state.currentValue,
-      ...(this.props.history || [])
+      ...(this.props.history || []),
     ];
 
     this.historyNavigationIndex = 0;
@@ -65,7 +64,9 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
     this.setState({ currentValue: value });
   };
 
-  private syncCurrentValueWithHistoryNavigation(cb: (updated: boolean) => void): void {
+  private syncCurrentValueWithHistoryNavigation(
+    cb: (updated: boolean) => void
+  ): void {
     const value = this.historyNavigationEntries[this.historyNavigationIndex];
 
     if (value === undefined) {
@@ -78,7 +79,7 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
   }
 
   private historyBack = (): Promise<boolean> => {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       if (
         this.historyNavigationIndex >=
         this.historyNavigationEntries.length - 1
@@ -93,7 +94,7 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
   };
 
   private historyNext = (): Promise<boolean> => {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       if (this.historyNavigationIndex <= 0) {
         return resolve(false);
       }
@@ -104,7 +105,7 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
     });
   };
 
-  private onEnter = async(): Promise<void> => {
+  private onEnter = async (): Promise<void> => {
     if (this.props.onInput) {
       await this.props.onInput(this.state.currentValue);
     }
@@ -115,25 +116,21 @@ export class ShellInput extends Component<ShellInputProps, ShellInputState> {
   render(): JSX.Element {
     let prompt: JSX.Element;
     if (this.props.operationInProgress) {
-      prompt = (<ShellLoader />);
+      prompt = <ShellLoader />;
     } else if (this.props.prompt) {
       const trimmed = this.props.prompt.trim();
       if (trimmed.endsWith('>')) {
-        prompt = (<>
-          <span>{trimmed.replace(/>$/g, '')}</span>
-          <Icon
-            size={12}
-            glyph={'ChevronRight'}
-          />
-        </>);
+        prompt = (
+          <>
+            <span>{trimmed.replace(/>$/g, '')}</span>
+            <Icon size={12} glyph={'ChevronRight'} />
+          </>
+        );
       } else {
-        prompt = (<span>{trimmed}</span>);
+        prompt = <span>{trimmed}</span>;
       }
     } else {
-      prompt = (<Icon
-        size={12}
-        glyph={'ChevronRight'}
-      />);
+      prompt = <Icon size={12} glyph={'ChevronRight'} />;
     }
 
     const editor = (

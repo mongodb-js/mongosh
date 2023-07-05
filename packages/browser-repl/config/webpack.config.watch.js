@@ -5,7 +5,7 @@ const webpackConfigBase = require('./webpack.config.base');
 
 webpackConfigBase.module.rules[0].use.options.plugins = [
   ...webpackConfigBase.module.rules[0].use.options.plugins,
-  require.resolve('react-refresh/babel')
+  require.resolve('react-refresh/babel'),
 ];
 
 module.exports = {
@@ -14,14 +14,14 @@ module.exports = {
   devServer: {
     static: false,
     host: 'localhost',
-    hot: true
+    hot: true,
   },
   entry: {
-    sandbox: path.resolve(__dirname, '..', 'src', 'sandbox.tsx')
+    sandbox: path.resolve(__dirname, '..', 'src', 'sandbox.tsx'),
   },
   plugins: [
     ...(webpackConfigBase.plugins ?? []),
     new HtmlWebpackPlugin(),
-    new ReactRefreshWebpackPlugin()
-  ]
+    new ReactRefreshWebpackPlugin(),
+  ],
 };

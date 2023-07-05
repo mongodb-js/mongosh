@@ -10,29 +10,43 @@ import { promisify } from 'util';
 
 // Utility, inverse of Readonly<T>
 type Mutable<T> = {
-  -readonly[P in keyof T]: T[P]
+  -readonly [P in keyof T]: T[P];
 };
 
-export type OriginalEvalFunction = (input: string, context: any, filename: string) => Promise<any>;
-export type AsyncEvalFunction = (originalEval: OriginalEvalFunction, input: string, context: any, filename: string) => Promise<any>;
+export type OriginalEvalFunction = (
+  input: string,
+  context: any,
+  filename: string
+) => Promise<any>;
+export type AsyncEvalFunction = (
+  originalEval: OriginalEvalFunction,
+  input: string,
+  context: any,
+  filename: string
+) => Promise<any>;
 
-export type AsyncREPLOptions = ReadLineOptions & Omit<ReplOptions, 'eval' | 'breakEvalOnSigint'> & {
-  start?: typeof originalStart,
-  wrapCallbackError?: (err: Error) => Error;
-  asyncEval: AsyncEvalFunction;
-  onAsyncSigint?: () => Promise<boolean> | boolean;
-};
+export type AsyncREPLOptions = ReadLineOptions &
+  Omit<ReplOptions, 'eval' | 'breakEvalOnSigint'> & {
+    start?: typeof originalStart;
+    wrapCallbackError?: (err: Error) => Error;
+    asyncEval: AsyncEvalFunction;
+    onAsyncSigint?: () => Promise<boolean> | boolean;
+  };
 
 export type EvalStartEvent = {
   input: string;
 };
-export type EvalFinishEvent = EvalStartEvent & ({
-  success: true;
-} | {
-  success: false;
-  err: unknown;
-  recoverable: boolean;
-});
+export type EvalFinishEvent = EvalStartEvent &
+  (
+    | {
+        success: true;
+      }
+    | {
+        success: false;
+        err: unknown;
+        recoverable: boolean;
+      }
+  );
 
 export const evalStart = Symbol('async-repl:evalStart');
 export const evalFinish = Symbol('async-repl:evalFinish');
@@ -47,7 +61,7 @@ function disableEvent(emitter: EventEmitter, event: string): RestoreEvents {
       for (const listener of rawListeners) {
         emitter.on(event, listener as any);
       }
-    }
+    },
   };
 }
 
@@ -61,20 +75,15 @@ function getPrompt(repl: any): string {
  * synchronous, and integrates nicely with Ctrl+C handling in that respect.
  */
 export function start(opts: AsyncREPLOptions): REPLServer {
-  const {
-    asyncEval,
-    wrapCallbackError = err => err,
-    onAsyncSigint
-  } = opts;
+  const { asyncEval, wrapCallbackError = (err) => err, onAsyncSigint } = opts;
   if (onAsyncSigint) {
     (opts as ReplOptions).breakEvalOnSigint = true;
   }
 
   const repl = (opts.start ?? originalStart)(opts);
   const originalEval = promisify(
-    wrapPauseInput(
-      repl.input,
-      wrapNoSyncDomainError(repl.eval.bind(repl))));
+    wrapPauseInput(repl.input, wrapNoSyncDomainError(repl.eval.bind(repl)))
+  );
 
   const setRawMode = (mode: boolean): boolean => {
     const input = repl.input as ReadStream;
@@ -85,11 +94,12 @@ export function start(opts: AsyncREPLOptions): REPLServer {
     return wasInRawMode;
   };
 
-  (repl as Mutable<typeof repl>).eval = async(
+  (repl as Mutable<typeof repl>).eval = async (
     input: string,
     context: any,
     filename: string,
-    callback: (err: Error|null, result?: any) => void): Promise<void> => {
+    callback: (err: Error | null, result?: any) => void
+  ): Promise<void> => {
     let previouslyInRawMode;
 
     if (onAsyncSigint) {
@@ -123,7 +133,9 @@ export function start(opts: AsyncREPLOptions): REPLServer {
 
     try {
       let exitEventPending = false;
-      const exitListener = () => { exitEventPending = true; };
+      const exitListener = () => {
+        exitEventPending = true;
+      };
       let previousExitListeners: any[] = [];
 
       let sigintListener: (() => void) | undefined = undefined;
@@ -136,7 +148,7 @@ export function start(opts: AsyncREPLOptions): REPLServer {
             // Handle SIGINT (Ctrl+C) that occurs while we are stuck in `await`
             // by racing a listener for 'SIGINT' against the evalResult Promise.
             // We remove all 'SIGINT' listeners and install our own.
-            sigintListener = async(): Promise<void> => {
+            sigintListener = async (): Promise<void> => {
               let interruptHandled = false;
               try {
                 interruptHandled = await onAsyncSigint();
@@ -146,7 +158,13 @@ export function start(opts: AsyncREPLOptions): REPLServer {
                 // Reject with an exception similar to one thrown by Node.js
                 // itself if the `customEval` itself is interrupted
                 // and the asyncSigint handler did not deal with it
-                reject(interruptHandled ? undefined : new Error('Asynchronous execution was interrupted by `SIGINT`'));
+                reject(
+                  interruptHandled
+                    ? undefined
+                    : new Error(
+                        'Asynchronous execution was interrupted by `SIGINT`'
+                      )
+                );
               }
             };
 
@@ -201,10 +219,20 @@ export function start(opts: AsyncREPLOptions): REPLServer {
     } catch (err: any) {
       try {
         if (isRecoverableError(input)) {
-          repl.emit(evalFinish, { input, success: false, err, recoverable: true } as EvalFinishEvent);
+          repl.emit(evalFinish, {
+            input,
+            success: false,
+            err,
+            recoverable: true,
+          } as EvalFinishEvent);
           return callback(new Recoverable(err));
         }
-        repl.emit(evalFinish, { input, success: false, err, recoverable: false } as EvalFinishEvent);
+        repl.emit(evalFinish, {
+          input,
+          success: false,
+          err,
+          recoverable: false,
+        } as EvalFinishEvent);
         return callback(err);
       } catch (callbackErr: any) {
         return callback(wrapCallbackError(callbackErr));
@@ -221,7 +249,9 @@ export function start(opts: AsyncREPLOptions): REPLServer {
   return repl;
 }
 
-function wrapNoSyncDomainError<Args extends any[], Ret>(fn: (...args: Args) => Ret) {
+function wrapNoSyncDomainError<Args extends any[], Ret>(
+  fn: (...args: Args) => Ret
+) {
   return (...args: Args): Ret => {
     const origEmit = Domain.prototype.emit;
 
@@ -243,7 +273,10 @@ function wrapNoSyncDomainError<Args extends any[], Ret>(fn: (...args: Args) => R
     // supported, but it works.
     // We *may* want to consider not relying on the built-in eval function
     // at all at some point.
-    Domain.prototype.emit = function(ev: string, ...eventArgs: any[]): boolean {
+    Domain.prototype.emit = function (
+      ev: string,
+      ...eventArgs: any[]
+    ): boolean {
       if (ev === 'error') {
         this.exit();
         throw eventArgs[0];
@@ -261,7 +294,10 @@ function wrapNoSyncDomainError<Args extends any[], Ret>(fn: (...args: Args) => R
   };
 }
 
-function wrapPauseInput<Args extends any[], Ret>(input: any, fn: (...args: Args) => Ret) {
+function wrapPauseInput<Args extends any[], Ret>(
+  input: any,
+  fn: (...args: Args) => Ret
+) {
   return (...args: Args): Ret => {
     // This is a hack to temporarily stop processing of input data if the
     // input stream is a libuv-backed Node.js TTY stream.

@@ -1,6 +1,6 @@
 import redactSensitiveData from 'mongodb-redact';
 
-export const HIDDEN_COMMANDS = String.raw `\b(createUser|auth|updateUser|changeUserPassword|connect|Mongo)\b`;
+export const HIDDEN_COMMANDS = String.raw`\b(createUser|auth|updateUser|changeUserPassword|connect|Mongo)\b`;
 
 /**
  * Modifies the most recent command in history based on sensitive information.
@@ -9,7 +9,10 @@ export const HIDDEN_COMMANDS = String.raw `\b(createUser|auth|updateUser|changeU
  * @param {String} history - Command string.
  * @param {boolean} redact - Option to redact sensitive info.
  */
-export function changeHistory(history: string[], redact: 'redact-sensitive-data' | 'keep-sensitive-data'): void {
+export function changeHistory(
+  history: string[],
+  redact: 'redact-sensitive-data' | 'keep-sensitive-data'
+): void {
   if (history.length === 0) return;
   const hiddenCommands = new RegExp(HIDDEN_COMMANDS, 'g');
 

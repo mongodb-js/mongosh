@@ -174,11 +174,17 @@ export interface MongoshBusEventsMap extends ConnectEventMap {
   /**
    * Signals that the shell is started by a new user.
    */
-  'mongosh:new-user': (identity: { userId: string; anonymousId: string }) => void;
+  'mongosh:new-user': (identity: {
+    userId: string;
+    anonymousId: string;
+  }) => void;
   /**
    * Signals a change of the user telemetry settings.
    */
-  'mongosh:update-user': (identity: { userId: string; anonymousId?: string }) => void;
+  'mongosh:update-user': (identity: {
+    userId: string;
+    anonymousId?: string;
+  }) => void;
   /**
    * Signals an error that should be logged or potentially tracked by analytics.
    */
@@ -231,7 +237,9 @@ export interface MongoshBusEventsMap extends ConnectEventMap {
   /**
    * Signals the start of loading external files upon startup.
    */
-  'mongosh:start-loading-cli-scripts': (event: StartLoadingCliScriptsEvent) => void;
+  'mongosh:start-loading-cli-scripts': (
+    event: StartLoadingCliScriptsEvent
+  ) => void;
   /**
    * Signals the successful startup of the mongosh REPL after initial files and configuration
    * have been loaded.
@@ -298,15 +306,21 @@ export interface MongoshBusEventsMap extends ConnectEventMap {
   /** Signals that attempting to download npm has been declined by the user. */
   'mongosh-snippets:npm-lookup-stopped': () => void;
   /** Signals that attempting to download npm has failed. */
-  'mongosh-snippets:npm-download-failed': (ev: SnippetsNpmDownloadFailedEvent) => void;
+  'mongosh-snippets:npm-download-failed': (
+    ev: SnippetsNpmDownloadFailedEvent
+  ) => void;
   /** Signals that downloading the npm tarball has started. */
-  'mongosh-snippets:npm-download-active': (ev: SnippetsNpmDownloadActiveEvent) => void;
+  'mongosh-snippets:npm-download-active': (
+    ev: SnippetsNpmDownloadActiveEvent
+  ) => void;
   /** Signals that fetching the index file from the network has started. */
   'mongosh-snippets:fetch-index': (ev: SnippetsFetchIndexEvent) => void;
   /** Signals that, when fetching the index file, it turned out that the cache is currently invalid (not outdated). */
   'mongosh-snippets:fetch-cache-invalid': () => void;
   /** Signals that fetching the index file from the network has failed. */
-  'mongosh-snippets:fetch-index-error': (ev: SnippetsFetchIndexErrorEvent) => void;
+  'mongosh-snippets:fetch-index-error': (
+    ev: SnippetsFetchIndexErrorEvent
+  ) => void;
   /** Signals that fetching the index file from the network has completed. */
   'mongosh-snippets:fetch-index-done': () => void;
   /** Signals that an action on the internal package.json file has failed. */
@@ -326,16 +340,31 @@ export interface MongoshBusEventsMap extends ConnectEventMap {
   /** Signals that open external editor command was called. */
   'mongosh-editor:run-edit-command': (ev: EditorRunEditCommandEvent) => void;
   /** Signals that reading vscode extensions from disc succeeded. */
-  'mongosh-editor:read-vscode-extensions-done': (ev: EditorReadVscodeExtensionsDoneEvent) => void;
+  'mongosh-editor:read-vscode-extensions-done': (
+    ev: EditorReadVscodeExtensionsDoneEvent
+  ) => void;
   /** Signals that reading vscode extensions from disc failed. */
-  'mongosh-editor:read-vscode-extensions-failed': (ev: EditorReadVscodeExtensionsFailedEvent) => void;
+  'mongosh-editor:read-vscode-extensions-failed': (
+    ev: EditorReadVscodeExtensionsFailedEvent
+  ) => void;
 }
 
 export interface MongoshBus {
   // TypeScript uses something like this itself for its EventTarget definitions.
-  on<K extends keyof MongoshBusEventsMap>(event: K, listener: MongoshBusEventsMap[K]): this;
-  once<K extends keyof MongoshBusEventsMap>(event: K, listener: MongoshBusEventsMap[K]): this;
-  emit<K extends keyof MongoshBusEventsMap>(event: K, ...args: MongoshBusEventsMap[K] extends (...args: infer P) => any ? P : never): unknown;
+  on<K extends keyof MongoshBusEventsMap>(
+    event: K,
+    listener: MongoshBusEventsMap[K]
+  ): this;
+  once<K extends keyof MongoshBusEventsMap>(
+    event: K,
+    listener: MongoshBusEventsMap[K]
+  ): this;
+  emit<K extends keyof MongoshBusEventsMap>(
+    event: K,
+    ...args: MongoshBusEventsMap[K] extends (...args: infer P) => any
+      ? P
+      : never
+  ): unknown;
 }
 
 export class ShellUserConfig {
@@ -347,7 +376,10 @@ export class ShellUserConfig {
 
 export class ShellUserConfigValidator {
   // eslint-disable-next-line @typescript-eslint/require-await
-  static async validate<K extends keyof ShellUserConfig>(key: K, value: ShellUserConfig[K]): Promise<string | null> {
+  static async validate<K extends keyof ShellUserConfig>(
+    key: K,
+    value: ShellUserConfig[K]
+  ): Promise<string | null> {
     switch (key) {
       case 'displayBatchSize':
         if (typeof value !== 'number' || value <= 0) {
@@ -376,16 +408,23 @@ export class ShellUserConfigValidator {
 }
 
 export class SnippetShellUserConfig extends ShellUserConfig {
-  snippetIndexSourceURLs = 'https://compass.mongodb.com/mongosh/snippets-index.bson.br';
+  snippetIndexSourceURLs =
+    'https://compass.mongodb.com/mongosh/snippets-index.bson.br';
   snippetRegistryURL = 'https://registry.npmjs.org';
   snippetAutoload = true;
 }
 
 export class SnippetShellUserConfigValidator extends ShellUserConfigValidator {
-  static async validate<K extends keyof SnippetShellUserConfig>(key: K, value: SnippetShellUserConfig[K]): Promise<string | null> {
+  static async validate<K extends keyof SnippetShellUserConfig>(
+    key: K,
+    value: SnippetShellUserConfig[K]
+  ): Promise<string | null> {
     switch (key) {
       case 'snippetIndexSourceURLs':
-        if (typeof value !== 'string' || value.split(';').some(url => url && !isValidUrl(url))) {
+        if (
+          typeof value !== 'string' ||
+          value.split(';').some((url) => url && !isValidUrl(url))
+        ) {
           return `${key} must be a ;-separated list of valid URLs`;
         }
         return null;
@@ -421,14 +460,20 @@ export class CliUserConfig extends SnippetShellUserConfig {
 }
 
 export class CliUserConfigValidator extends SnippetShellUserConfigValidator {
-  static async validate<K extends keyof CliUserConfig>(key: K, value: CliUserConfig[K]): Promise<string | null> {
+  static async validate<K extends keyof CliUserConfig>(
+    key: K,
+    value: CliUserConfig[K]
+  ): Promise<string | null> {
     switch (key) {
       case 'userId':
       case 'telemetryAnonymousId':
       case 'disableGreetingMessage':
         return null; // Not modifiable by the user anyway.
       case 'inspectCompact':
-        if (typeof value !== 'boolean' && (typeof value !== 'number' || value < 0)) {
+        if (
+          typeof value !== 'boolean' &&
+          (typeof value !== 'number' || value < 0)
+        ) {
           return `${key} must be a boolean or a positive integer`;
         }
         return null;
@@ -445,36 +490,59 @@ export class CliUserConfigValidator extends SnippetShellUserConfigValidator {
         }
         return null;
       case 'redactHistory':
-        if (value !== 'keep' && value !== 'remove' && value !== 'remove-redact') {
+        if (
+          value !== 'keep' &&
+          value !== 'remove' &&
+          value !== 'remove-redact'
+        ) {
           return `${key} must be one of 'keep', 'remove', or 'remove-redact'`;
         }
         return null;
       case 'oidcRedirectURI':
-        if (value !== undefined && (typeof value !== 'string' || !isValidUrl(value))) {
+        if (
+          value !== undefined &&
+          (typeof value !== 'string' || !isValidUrl(value))
+        ) {
           return `${key} must be undefined or a valid URL`;
         }
         return null;
       case 'oidcTrustedEndpoints':
-        if (value !== undefined && (!Array.isArray(value) || value.some(v => typeof v !== 'string'))) {
+        if (
+          value !== undefined &&
+          (!Array.isArray(value) || value.some((v) => typeof v !== 'string'))
+        ) {
           return `${key} must be undefined or an array of hostnames`;
         }
         return null;
       case 'browser':
-        if (value !== undefined && value !== false && typeof value !== 'string') {
+        if (
+          value !== undefined &&
+          value !== false &&
+          typeof value !== 'string'
+        ) {
           return `${key} must be undefined, false, or a command string`;
         }
         return null;
       default:
-        return super.validate(key as keyof SnippetShellUserConfig, value as any);
+        return super.validate(
+          key as keyof SnippetShellUserConfig,
+          value as any
+        );
     }
   }
 }
 
 export interface ConfigProvider<T> {
   getConfig<K extends keyof T>(key: K): Promise<T[K]>;
-  setConfig<K extends keyof T>(key: K, value: T[K]): Promise<'success' | 'ignored'>;
+  setConfig<K extends keyof T>(
+    key: K,
+    value: T[K]
+  ): Promise<'success' | 'ignored'>;
   resetConfig<K extends keyof T>(key: K): Promise<'success' | 'ignored'>;
-  validateConfig<K extends keyof T>(key: K, value: T[K]): Promise<string | null>;
+  validateConfig<K extends keyof T>(
+    key: K,
+    value: T[K]
+  ): Promise<string | null>;
   listConfigOptions(): string[] | Promise<string[]>;
 }
 

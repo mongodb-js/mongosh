@@ -1,4 +1,3 @@
-
 /**
  * Creates a new object to use as `metadata` for `Mongosh..Error`s.
  *
@@ -7,7 +6,7 @@
 function blockedByDriverMetadata(apiDetails: string) {
   return {
     driverCaused: true,
-    api: apiDetails
+    api: apiDetails,
   };
 }
 
@@ -53,7 +52,4 @@ enum ShellApiErrors {
   NotUsingFLE = 'SHAPI-10005',
 }
 
-export {
-  blockedByDriverMetadata,
-  ShellApiErrors
-};
+export { blockedByDriverMetadata, ShellApiErrors };

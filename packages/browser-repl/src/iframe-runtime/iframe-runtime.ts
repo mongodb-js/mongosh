@@ -1,15 +1,12 @@
-import {
-  IframeInterpreterEnvironment
-} from './iframe-interpreter-environment';
+import { IframeInterpreterEnvironment } from './iframe-interpreter-environment';
 
 import type {
   Runtime,
   RuntimeEvaluationListener,
   RuntimeEvaluationResult,
-  Completion} from '@mongosh/browser-runtime-core';
-import {
-  OpenContextRuntime
+  Completion,
 } from '@mongosh/browser-runtime-core';
+import { OpenContextRuntime } from '@mongosh/browser-runtime-core';
 
 import type { ServiceProvider } from '@mongosh/service-provider-core';
 
@@ -25,7 +22,9 @@ export class IframeRuntime implements Runtime {
     this.serviceProvider = serviceProvider;
   }
 
-  setEvaluationListener(listener: RuntimeEvaluationListener): RuntimeEvaluationListener | null {
+  setEvaluationListener(
+    listener: RuntimeEvaluationListener
+  ): RuntimeEvaluationListener | null {
     const prev = this.evaluationListener;
     this.evaluationListener = listener;
     if (this.openContextRuntime) {
@@ -61,7 +60,8 @@ export class IframeRuntime implements Runtime {
     // NOTE: inserting the iframe directly as dom element does not work with sandboxing.
     this.container.insertAdjacentHTML(
       'beforeend',
-      '<iframe src="about:blank" style="display: none" sandbox="allow-same-origin" />');
+      '<iframe src="about:blank" style="display: none" sandbox="allow-same-origin" />'
+    );
 
     const iframe = this.container.firstElementChild as HTMLIFrameElement;
     this.iframe = iframe;
@@ -71,8 +71,13 @@ export class IframeRuntime implements Runtime {
 
     document.body.appendChild(this.container);
 
-    const environment = new IframeInterpreterEnvironment(iframe.contentWindow as Window);
-    this.openContextRuntime = new OpenContextRuntime(this.serviceProvider, environment);
+    const environment = new IframeInterpreterEnvironment(
+      iframe.contentWindow as Window
+    );
+    this.openContextRuntime = new OpenContextRuntime(
+      this.serviceProvider,
+      environment
+    );
     if (this.evaluationListener) {
       this.openContextRuntime.setEvaluationListener(this.evaluationListener);
     }

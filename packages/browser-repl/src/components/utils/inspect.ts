@@ -14,20 +14,23 @@ import { bsonStringifiers } from '@mongosh/service-provider-core';
 const customInspect = utilInspect.custom || 'inspect';
 const visitedObjects = new WeakSet();
 
-function tryAddInspect(obj: any, stringifier: (this: any, depth: any, options: any) => string): void {
+function tryAddInspect(
+  obj: any,
+  stringifier: (this: any, depth: any, options: any) => string
+): void {
   try {
     Object.defineProperty(obj, customInspect, {
       writable: true,
       configurable: true,
       enumerable: false,
-      value: function(...args: [any, any]) {
+      value: function (...args: [any, any]) {
         try {
           return stringifier.call(this, ...args);
         } catch (err: any) {
           console.warn('Could not inspect bson object', { obj: this, err });
           return utilInspect(this, { customInspect: false });
         }
-      }
+      },
     });
   } catch (err: any) {
     console.warn('Could not add inspect key to object', { obj, err });
@@ -64,13 +67,15 @@ function attachInspectMethods(obj: any): void {
   // Add obj[util.inspect.custom] if it does not exist and we can provide it.
   const bsontype = obj._bsontype;
   const stringifier = bsonStringifiers[bsontype];
-  if (bsontype &&
-      stringifier &&
-      !(properties as any)[customInspect] &&
-      !Object.isSealed(obj)) {
+  if (
+    bsontype &&
+    stringifier &&
+    !(properties as any)[customInspect] &&
+    !Object.isSealed(obj)
+  ) {
     tryAddInspect(obj, stringifier);
   } else if (isDate(obj)) {
-    tryAddInspect(obj, function(this: Date): string {
+    tryAddInspect(obj, function (this: Date): string {
       return this.toISOString();
     });
   }
@@ -82,9 +87,8 @@ export function inspect(value: any): string {
   const stringifiedValue = utilInspect(value, {
     customInspect: true,
     depth: 1000,
-    breakLength: 0
+    breakLength: 0,
   });
 
   return stringifiedValue;
 }
-

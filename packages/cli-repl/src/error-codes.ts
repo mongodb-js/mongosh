@@ -1,4 +1,3 @@
-
 /**
  * @mongoshErrors
  */
@@ -8,9 +7,7 @@ enum CliReplErrors {
    *
    * See the output for further details on the required Node version.
    */
-  NodeVersionMismatch = 'CLIREPL-10001'
+  NodeVersionMismatch = 'CLIREPL-10001',
 }
 
-export {
-  CliReplErrors
-};
+export { CliReplErrors };

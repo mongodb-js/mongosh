@@ -34,23 +34,23 @@ class Mongosh < Formula
   end
 end`;
 
-describe('Homebrew generate-formula', function() {
+describe('Homebrew generate-formula', function () {
   let homebrewCore: GithubRepo;
   let getFileContent: sinon.SinonStub;
 
-  beforeEach(function() {
+  beforeEach(function () {
     getFileContent = sinon.stub();
     getFileContent.withArgs('Formula/mongosh.rb', 'master').resolves({
       blobSha: 'blobSha',
-      content: VALID_FORMULA
+      content: VALID_FORMULA,
     });
 
     homebrewCore = {
-      getFileContent
+      getFileContent,
     } as any;
   });
 
-  it('updates the formula from GitHub', async function() {
+  it('updates the formula from GitHub', async function () {
     const updatedFormula = `require "language/node"
 
 class Mongosh < Formula
@@ -79,24 +79,31 @@ class Mongosh < Formula
     assert_match "#ok#", shell_output("#{bin}/mongosh --nodb --eval \"print('#ok#')\"")
   end
 end`;
-    expect(await generateUpdatedFormula(
-      { version: '0.14.2', sha: 'hash' },
-      homebrewCore,
-      false
-    )).to.equal(updatedFormula);
+    expect(
+      await generateUpdatedFormula(
+        { version: '0.14.2', sha: 'hash' },
+        homebrewCore,
+        false
+      )
+    ).to.equal(updatedFormula);
     expect(getFileContent).to.have.been.calledOnce;
   });
 
-  it('does not update the formula if neither artifact nor URL changed', async function() {
-    expect(await generateUpdatedFormula(
-      { version: '0.14.0', sha: '7b5a140689b4460a8b87008e6b7e7cb19acbc6e6cd1ab713e1a8923f3a995ca8' },
-      homebrewCore,
-      false
-    )).to.be.null;
+  it('does not update the formula if neither artifact nor URL changed', async function () {
+    expect(
+      await generateUpdatedFormula(
+        {
+          version: '0.14.0',
+          sha: '7b5a140689b4460a8b87008e6b7e7cb19acbc6e6cd1ab713e1a8923f3a995ca8',
+        },
+        homebrewCore,
+        false
+      )
+    ).to.be.null;
     expect(getFileContent).to.have.been.calledOnce;
   });
 
-  it('rejects an update where the version is degraded', async function() {
+  it('rejects an update where the version is degraded', async function () {
     try {
       await generateUpdatedFormula(
         { version: '0.13.0', sha: 'differentsha' },

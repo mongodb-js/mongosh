@@ -9,9 +9,13 @@ function assertEnvVariable(variableName: string): string {
   const value = process.env[variableName];
   if (!value) {
     if (process.env.IS_CI) {
-      throw new Error(`Expected environment variable but was not set: ${variableName}`);
+      throw new Error(
+        `Expected environment variable but was not set: ${variableName}`
+      );
     } else {
-      console.error(`Expected environment variable but was not set: ${variableName}`);
+      console.error(
+        `Expected environment variable but was not set: ${variableName}`
+      );
       return undefined;
     }
   }
@@ -21,20 +25,35 @@ function assertEnvVariable(variableName: string): string {
 const ATLAS_CLUSTER_HOST = assertEnvVariable('AWS_AUTH_ATLAS_CLUSTER_HOST');
 const AWS_IAM_USER_ARN = assertEnvVariable('AWS_AUTH_IAM_USER_ARN');
 const AWS_ACCESS_KEY_ID = assertEnvVariable('AWS_AUTH_IAM_ACCESS_KEY_ID');
-const AWS_SECRET_ACCESS_KEY = assertEnvVariable('AWS_AUTH_IAM_SECRET_ACCESS_KEY');
+const AWS_SECRET_ACCESS_KEY = assertEnvVariable(
+  'AWS_AUTH_IAM_SECRET_ACCESS_KEY'
+);
 const AWS_IAM_TEMP_ROLE_ARN = assertEnvVariable('AWS_AUTH_IAM_TEMP_ROLE_ARN');
 
-function generateIamSessionToken(): { key: string; secret: string; token: string } {
-  const result = spawnSync('aws', [
-    'sts', 'assume-role', '--role-arn', AWS_IAM_TEMP_ROLE_ARN, '--role-session-name', 'MONGODB-AWS-AUTH-TEST'
-  ], {
-    encoding: 'utf8',
-    env: {
-      ...process.env,
-      AWS_ACCESS_KEY_ID,
-      AWS_SECRET_ACCESS_KEY
+function generateIamSessionToken(): {
+  key: string;
+  secret: string;
+  token: string;
+} {
+  const result = spawnSync(
+    'aws',
+    [
+      'sts',
+      'assume-role',
+      '--role-arn',
+      AWS_IAM_TEMP_ROLE_ARN,
+      '--role-session-name',
+      'MONGODB-AWS-AUTH-TEST',
+    ],
+    {
+      encoding: 'utf8',
+      env: {
+        ...process.env,
+        AWS_ACCESS_KEY_ID,
+        AWS_SECRET_ACCESS_KEY,
+      },
     }
-  });
+  );
   if (result.status !== 0) {
     console.error('Failed to run aws sts assume-role', result);
     throw new Error('Failed to run aws sts assume-role');
@@ -45,12 +64,14 @@ function generateIamSessionToken(): { key: string; secret: string; token: string
   const secret = parsedToken?.Credentials?.SecretAccessKey;
   const token = parsedToken?.Credentials?.SessionToken;
   if (!key || !secret || !token) {
-    throw new Error('Could not determine key, token, or secret from sts assume-role output');
+    throw new Error(
+      'Could not determine key, token, or secret from sts assume-role output'
+    );
   }
   return {
     key,
     secret,
-    token
+    token,
   };
 }
 
@@ -62,15 +83,15 @@ function getConnectionString(username?: string, password?: string): string {
   return `mongodb+srv://${auth}${ATLAS_CLUSTER_HOST}/?authSource=%24external&authMechanism=MONGODB-AWS`;
 }
 
-describe('e2e AWS AUTH', function() {
+describe('e2e AWS AUTH', function () {
   this.timeout(60_000); // AWS auth tests can take longer than the default timeout in CI
   let expectedAssumedRole: string;
 
-  before(function() {
+  before(function () {
     let awsCliFound = false;
     try {
       const result = spawnSync('aws', ['--version'], {
-        encoding: 'utf8'
+        encoding: 'utf8',
       });
       if (result.status === 0) {
         awsCliFound = true;
@@ -84,160 +105,192 @@ describe('e2e AWS AUTH', function() {
     }
 
     if (!ATLAS_CLUSTER_HOST) {
-      console.error('Could not get ATLAS_CLUSTER_HOST - skipping AWS AUTH tests...');
+      console.error(
+        'Could not get ATLAS_CLUSTER_HOST - skipping AWS AUTH tests...'
+      );
       return this.skip();
     }
 
-    expectedAssumedRole = `${AWS_IAM_TEMP_ROLE_ARN
-      .replace(':role/', ':assumed-role/')
-      .replace('arn:aws:iam::', 'arn:aws:sts::')}/*`;
+    expectedAssumedRole = `${AWS_IAM_TEMP_ROLE_ARN.replace(
+      ':role/',
+      ':assumed-role/'
+    ).replace('arn:aws:iam::', 'arn:aws:sts::')}/*`;
   });
 
   afterEach(TestShell.cleanup);
 
-  context('without environment variables being present', function() {
-    context('specifying explicit parameters', function() {
-      it('connects with access key and secret', async function() {
+  context('without environment variables being present', function () {
+    context('specifying explicit parameters', function () {
+      it('connects with access key and secret', async function () {
         const shell = TestShell.start({
           args: [
             getConnectionString(),
-            '--username', AWS_ACCESS_KEY_ID,
-            '--password', AWS_SECRET_ACCESS_KEY
-          ]
+            '--username',
+            AWS_ACCESS_KEY_ID,
+            '--password',
+            AWS_SECRET_ACCESS_KEY,
+          ],
         });
         const result = await shell.waitForPromptOrExit();
         expect(result.state).to.equal('prompt');
 
-        const connectionStatus = await shell.executeLine('db.runCommand({ connectionStatus: 1 })');
+        const connectionStatus = await shell.executeLine(
+          'db.runCommand({ connectionStatus: 1 })'
+        );
         expect(connectionStatus).to.contain(`user: '${AWS_IAM_USER_ARN}'`);
       });
 
-      it('connects with access key, secret, and session token for IAM role', async function() {
+      it('connects with access key, secret, and session token for IAM role', async function () {
         const tokenDetails = generateIamSessionToken();
         const shell = TestShell.start({
           args: [
             getConnectionString(),
-            '--username', tokenDetails.key,
-            '--password', tokenDetails.secret,
-            '--awsIamSessionToken', tokenDetails.token
-          ]
+            '--username',
+            tokenDetails.key,
+            '--password',
+            tokenDetails.secret,
+            '--awsIamSessionToken',
+            tokenDetails.token,
+          ],
         });
         const result = await shell.waitForPromptOrExit();
         expect(result.state).to.equal('prompt');
 
-        const connectionStatus = await shell.executeLine('db.runCommand({ connectionStatus: 1 })');
+        const connectionStatus = await shell.executeLine(
+          'db.runCommand({ connectionStatus: 1 })'
+        );
         expect(connectionStatus).to.contain(`user: '${expectedAssumedRole}'`);
       });
     });
 
-    context('specifying connection string parameters', function() {
-      it('connects with access key and secret', async function() {
+    context('specifying connection string parameters', function () {
+      it('connects with access key and secret', async function () {
         const shell = TestShell.start({
-          args: [
-            getConnectionString(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
-          ]
+          args: [getConnectionString(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)],
         });
         const result = await shell.waitForPromptOrExit();
         expect(result.state).to.equal('prompt');
 
-        const connectionStatus = await shell.executeLine('db.runCommand({ connectionStatus: 1 })');
+        const connectionStatus = await shell.executeLine(
+          'db.runCommand({ connectionStatus: 1 })'
+        );
         expect(connectionStatus).to.contain(`user: '${AWS_IAM_USER_ARN}'`);
       });
 
-      it('connects with access key, secret, and session token for IAM role', async function() {
+      it('connects with access key, secret, and session token for IAM role', async function () {
         const tokenDetails = generateIamSessionToken();
         const shell = TestShell.start({
           args: [
-            `${getConnectionString(tokenDetails.key, tokenDetails.secret)}&authMechanismProperties=AWS_SESSION_TOKEN:${encodeURIComponent(tokenDetails.token)}`
-          ]
+            `${getConnectionString(
+              tokenDetails.key,
+              tokenDetails.secret
+            )}&authMechanismProperties=AWS_SESSION_TOKEN:${encodeURIComponent(
+              tokenDetails.token
+            )}`,
+          ],
         });
         const result = await shell.waitForPromptOrExit();
         expect(result.state).to.equal('prompt');
 
-        const connectionStatus = await shell.executeLine('db.runCommand({ connectionStatus: 1 })');
+        const connectionStatus = await shell.executeLine(
+          'db.runCommand({ connectionStatus: 1 })'
+        );
         expect(connectionStatus).to.contain(`user: '${expectedAssumedRole}'`);
       });
     });
   });
 
-  context('with AWS environment variables', function() {
-    context('without any other parameters', function() {
-      it('connects for the IAM user', async function() {
+  context('with AWS environment variables', function () {
+    context('without any other parameters', function () {
+      it('connects for the IAM user', async function () {
         const shell = TestShell.start({
-          args: [ getConnectionString() ],
+          args: [getConnectionString()],
           env: {
             ...process.env,
             AWS_ACCESS_KEY_ID,
-            AWS_SECRET_ACCESS_KEY
-          }
+            AWS_SECRET_ACCESS_KEY,
+          },
         });
         const result = await shell.waitForPromptOrExit();
         expect(result.state).to.equal('prompt');
 
-        const connectionStatus = await shell.executeLine('db.runCommand({ connectionStatus: 1 })');
+        const connectionStatus = await shell.executeLine(
+          'db.runCommand({ connectionStatus: 1 })'
+        );
         expect(connectionStatus).to.contain(`user: '${AWS_IAM_USER_ARN}'`);
       });
 
-      it('connects for the IAM role session', async function() {
+      it('connects for the IAM role session', async function () {
         const tokenDetails = generateIamSessionToken();
         const shell = TestShell.start({
-          args: [ getConnectionString() ],
+          args: [getConnectionString()],
           env: {
             ...process.env,
             AWS_ACCESS_KEY_ID: tokenDetails.key,
             AWS_SECRET_ACCESS_KEY: tokenDetails.secret,
-            AWS_SESSION_TOKEN: tokenDetails.token
-          }
+            AWS_SESSION_TOKEN: tokenDetails.token,
+          },
         });
         const result = await shell.waitForPromptOrExit();
         expect(result.state).to.equal('prompt');
 
-        const connectionStatus = await shell.executeLine('db.runCommand({ connectionStatus: 1 })');
+        const connectionStatus = await shell.executeLine(
+          'db.runCommand({ connectionStatus: 1 })'
+        );
         expect(connectionStatus).to.contain(`user: '${expectedAssumedRole}'`);
       });
     });
 
-    context('with invalid environment but valid parameters', function() {
-      it('connects for the IAM user', async function() {
+    context('with invalid environment but valid parameters', function () {
+      it('connects for the IAM user', async function () {
         const shell = TestShell.start({
           args: [
             getConnectionString(),
-            '--username', AWS_ACCESS_KEY_ID,
-            '--password', AWS_SECRET_ACCESS_KEY
-          ],
-          env: {
-            ...process.env,
-            AWS_ACCESS_KEY_ID: 'invalid',
-            AWS_SECRET_ACCESS_KEY: 'invalid'
-          }
-        });
-        const result = await shell.waitForPromptOrExit();
-        expect(result.state).to.equal('prompt');
-
-        const connectionStatus = await shell.executeLine('db.runCommand({ connectionStatus: 1 })');
-        expect(connectionStatus).to.contain(`user: '${AWS_IAM_USER_ARN}'`);
-      });
-
-      it('connects for the IAM role session', async function() {
-        const tokenDetails = generateIamSessionToken();
-        const shell = TestShell.start({
-          args: [
-            getConnectionString(),
-            '--username', tokenDetails.key,
-            '--password', tokenDetails.secret,
-            '--awsIamSessionToken', tokenDetails.token
+            '--username',
+            AWS_ACCESS_KEY_ID,
+            '--password',
+            AWS_SECRET_ACCESS_KEY,
           ],
           env: {
             ...process.env,
             AWS_ACCESS_KEY_ID: 'invalid',
             AWS_SECRET_ACCESS_KEY: 'invalid',
-            AWS_SESSION_TOKEN: 'invalid'
-          }
+          },
         });
         const result = await shell.waitForPromptOrExit();
         expect(result.state).to.equal('prompt');
 
-        const connectionStatus = await shell.executeLine('db.runCommand({ connectionStatus: 1 })');
+        const connectionStatus = await shell.executeLine(
+          'db.runCommand({ connectionStatus: 1 })'
+        );
+        expect(connectionStatus).to.contain(`user: '${AWS_IAM_USER_ARN}'`);
+      });
+
+      it('connects for the IAM role session', async function () {
+        const tokenDetails = generateIamSessionToken();
+        const shell = TestShell.start({
+          args: [
+            getConnectionString(),
+            '--username',
+            tokenDetails.key,
+            '--password',
+            tokenDetails.secret,
+            '--awsIamSessionToken',
+            tokenDetails.token,
+          ],
+          env: {
+            ...process.env,
+            AWS_ACCESS_KEY_ID: 'invalid',
+            AWS_SECRET_ACCESS_KEY: 'invalid',
+            AWS_SESSION_TOKEN: 'invalid',
+          },
+        });
+        const result = await shell.waitForPromptOrExit();
+        expect(result.state).to.equal('prompt');
+
+        const connectionStatus = await shell.executeLine(
+          'db.runCommand({ connectionStatus: 1 })'
+        );
         expect(connectionStatus).to.contain(`user: '${expectedAssumedRole}'`);
       });
     });

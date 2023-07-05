@@ -5,7 +5,7 @@ import {
   MongoshInternalError,
   MongoshInvalidInputError,
   MongoshRuntimeError,
-  MongoshUnimplementedError
+  MongoshUnimplementedError,
 } from '@mongosh/errors';
 import {
   classPlatforms,
@@ -17,7 +17,7 @@ import {
   ShellApiClass,
   shellApiClassDefault,
   topologies,
-  deprecated
+  deprecated,
 } from './decorators';
 import type {
   ChangeStreamOptions,
@@ -35,13 +35,12 @@ import type {
   AutoEncryptionOptions as SPAutoEncryption,
   ServerApi,
   ServerApiVersion,
-  WriteConcern
+  WriteConcern,
 } from '@mongosh/service-provider-core';
-import type {
-  ConnectionInfo} from '@mongosh/arg-parser';
+import type { ConnectionInfo } from '@mongosh/arg-parser';
 import {
   mapCliToDriver,
-  generateConnectionInfoFromCliArgs
+  generateConnectionInfoFromCliArgs,
 } from '@mongosh/arg-parser';
 import type Collection from './collection';
 import Database from './database';
@@ -53,22 +52,18 @@ import Session from './session';
 import {
   assertArgsDefinedType,
   processFLEOptions,
-  isValidDatabaseName
+  isValidDatabaseName,
 } from './helpers';
 import ChangeStreamCursor from './change-stream-cursor';
 import { blockedByDriverMetadata } from './error-codes';
-import type {
-  ClientSideFieldLevelEncryptionOptions} from './field-level-encryption';
-import {
-  KeyVault,
-  ClientEncryption
-} from './field-level-encryption';
+import type { ClientSideFieldLevelEncryptionOptions } from './field-level-encryption';
+import { KeyVault, ClientEncryption } from './field-level-encryption';
 import { ShellApiErrors } from './error-codes';
-import type { LogEntry} from './log-entry';
+import type { LogEntry } from './log-entry';
 import { parseAnyLogEntry } from './log-entry';
 
 @shellApiClassDefault
-@classPlatforms([ 'CLI' ] )
+@classPlatforms(['CLI'])
 export default class Mongo extends ShellApiClass {
   private __serviceProvider: ServiceProvider | null = null;
   public _databases: Record<string, Database>;
@@ -93,25 +88,35 @@ export default class Mongo extends ShellApiClass {
     if (sp) {
       this.__serviceProvider = sp;
     }
-    if (typeof uri === 'object' && uri !== null && typeof uri._uri === 'string') {
+    if (
+      typeof uri === 'object' &&
+      uri !== null &&
+      typeof uri._uri === 'string'
+    ) {
       uri = uri._uri;
     } else if (typeof uri !== 'string') {
       uri = sp?.getURI?.() ?? 'mongodb://localhost/';
     }
     this._connectionInfo = generateConnectionInfoFromCliArgs({
-      connectionSpecifier: uri
+      connectionSpecifier: uri,
     });
-    this._readPreferenceWasExplicitlyRequested = /\breadPreference=/i.test(this._uri);
+    this._readPreferenceWasExplicitlyRequested = /\breadPreference=/i.test(
+      this._uri
+    );
     if (fleOptions) {
       if (fleOptions.explicitEncryptionOnly !== undefined) {
         if (fleOptions.schemaMap !== undefined) {
-          throw new MongoshInvalidInputError('explicitEncryptionOnly and schemaMap are mutually exclusive', CommonErrors.InvalidArgument);
+          throw new MongoshInvalidInputError(
+            'explicitEncryptionOnly and schemaMap are mutually exclusive',
+            CommonErrors.InvalidArgument
+          );
         }
         fleOptions = { ...fleOptions };
         this._explicitEncryptionOnly = !!fleOptions.explicitEncryptionOnly;
         delete fleOptions.explicitEncryptionOnly;
       }
-      this._connectionInfo.driverOptions.autoEncryption = processFLEOptions(fleOptions);
+      this._connectionInfo.driverOptions.autoEncryption =
+        processFLEOptions(fleOptions);
     } else {
       // TODO: We may want to look into whether it makes sense
       // to inherit more options than just the FLE ones from
@@ -126,7 +131,9 @@ export default class Mongo extends ShellApiClass {
     }
     if (otherOptions?.api) {
       if (typeof otherOptions.api === 'string') {
-        this._connectionInfo.driverOptions.serverApi = { version: otherOptions.api };
+        this._connectionInfo.driverOptions.serverApi = {
+          version: otherOptions.api,
+        };
       } else {
         this._connectionInfo.driverOptions.serverApi = otherOptions.api;
       }
@@ -147,7 +154,10 @@ export default class Mongo extends ShellApiClass {
   // if used too early.
   get _serviceProvider(): ServiceProvider {
     if (this.__serviceProvider === null) {
-      throw new MongoshInternalError('No ServiceProvider available for this mongo', ShellApiErrors.NotConnected);
+      throw new MongoshInternalError(
+        'No ServiceProvider available for this mongo',
+        ShellApiErrors.NotConnected
+      );
     }
     return this.__serviceProvider;
   }
@@ -158,8 +168,10 @@ export default class Mongo extends ShellApiClass {
   }
 
   async _displayBatchSize(): Promise<number> {
-    return this._instanceState.displayBatchSizeFromDBQuery ??
-      await this._instanceState.shellApi.config.get('displayBatchSize');
+    return (
+      this._instanceState.displayBatchSizeFromDBQuery ??
+      (await this._instanceState.shellApi.config.get('displayBatchSize'))
+    );
   }
 
   /**
@@ -176,20 +188,27 @@ export default class Mongo extends ShellApiClass {
    * @param methodArguments
    * @private
    */
-  private _emitMongoApiCall(methodName: string, methodArguments: Document = {}): void {
+  private _emitMongoApiCall(
+    methodName: string,
+    methodArguments: Document = {}
+  ): void {
     this._instanceState.emitApiCallWithArgs({
       method: methodName,
       class: 'Mongo',
       uri: this._uri,
-      arguments: methodArguments
+      arguments: methodArguments,
     });
   }
 
   async connect(username?: string, password?: string): Promise<void> {
     if (username || password) {
-      this._connectionInfo = mapCliToDriver({
-        username, password
-      }, this._connectionInfo);
+      this._connectionInfo = mapCliToDriver(
+        {
+          username,
+          password,
+        },
+        this._connectionInfo
+      );
     }
 
     const driverOptions = { ...this._connectionInfo.driverOptions };
@@ -201,19 +220,23 @@ export default class Mongo extends ShellApiClass {
     } else if (driverOptions.autoEncryption) {
       driverOptions.autoEncryption.extraOptions = {
         ...driverOptions.autoEncryption.extraOptions,
-        ...await this._instanceState.evaluationListener?.getCryptLibraryOptions?.()
+        ...(await this._instanceState.evaluationListener?.getCryptLibraryOptions?.()),
       };
     }
     const parentProvider = this._instanceState.initialServiceProvider;
     try {
-      this.__serviceProvider = await parentProvider.getNewConnection(this._uri, driverOptions);
+      this.__serviceProvider = await parentProvider.getNewConnection(
+        this._uri,
+        driverOptions
+      );
     } catch (e: any) {
       // If the initial provider had TLS enabled, and we're not able to connect,
       // and the new URL does not contain a SSL/TLS indicator, we add a notice
       // about the fact that the behavior differs from the legacy shell here.
-      if (e?.name === 'MongoServerSelectionError' &&
-          parentProvider.getRawClient()?.options?.tls &&
-          !(/\b(ssl|tls)=/.exec(this._uri))
+      if (
+        e?.name === 'MongoServerSelectionError' &&
+        parentProvider.getRawClient()?.options?.tls &&
+        !/\b(ssl|tls)=/.exec(this._uri)
       ) {
         e.message += ' (is ?tls=true missing from the connection string?)';
       }
@@ -224,7 +247,10 @@ export default class Mongo extends ShellApiClass {
   _getDb(name: string): Database {
     assertArgsDefinedType([name], ['string']);
     if (!isValidDatabaseName(name)) {
-      throw new MongoshInvalidInputError(`Invalid database name: ${name}`, CommonErrors.InvalidArgument);
+      throw new MongoshInvalidInputError(
+        `Invalid database name: ${name}`,
+        CommonErrors.InvalidArgument
+      );
     }
 
     if (!(name in this._databases)) {
@@ -243,9 +269,12 @@ export default class Mongo extends ShellApiClass {
   @returnType('Collection')
   getCollection(name: string): Collection {
     assertArgsDefinedType([name], ['string']);
-    const { db, coll } = (/^(?<db>[^.]+)\.(?<coll>.+)$/.exec(name))?.groups ?? {};
+    const { db, coll } = /^(?<db>[^.]+)\.(?<coll>.+)$/.exec(name)?.groups ?? {};
     if (!db || !coll) {
-      throw new MongoshInvalidInputError('Collection must be of the format <db>.<collection>', CommonErrors.InvalidArgument);
+      throw new MongoshInvalidInputError(
+        'Collection must be of the format <db>.<collection>',
+        CommonErrors.InvalidArgument
+      );
     }
     return this._getDb(db).getCollection(coll);
   }
@@ -277,13 +306,18 @@ export default class Mongo extends ShellApiClass {
     return `switched to db ${db}`;
   }
 
-  async _listDatabases(opts: ListDatabasesOptions = {}): Promise<{ databases: {name: string, sizeOnDisk: number, empty: boolean}[] }> {
+  async _listDatabases(opts: ListDatabasesOptions = {}): Promise<{
+    databases: { name: string; sizeOnDisk: number; empty: boolean }[];
+  }> {
     const result = await this._serviceProvider.listDatabases('admin', {
       ...this._getExplicitlyRequestedReadPref(),
-      ...opts
+      ...opts,
     });
     if (!('databases' in result)) {
-      const err = new MongoshRuntimeError('Got invalid result from "listDatabases"', CommonErrors.CommandFailed);
+      const err = new MongoshRuntimeError(
+        'Got invalid result from "listDatabases"',
+        CommonErrors.CommandFailed
+      );
       this._instanceState.messageBus.emit('mongosh:error', err, 'shell-api');
       throw err;
     }
@@ -293,21 +327,25 @@ export default class Mongo extends ShellApiClass {
 
   async _getDatabaseNamesForCompletion(): Promise<string[]> {
     return await Promise.race([
-      (async() => {
-        return (await this._listDatabases({ readPreference: 'primaryPreferred' })).databases.map(db => db.name);
+      (async () => {
+        return (
+          await this._listDatabases({ readPreference: 'primaryPreferred' })
+        ).databases.map((db) => db.name);
       })(),
-      (async() => {
+      (async () => {
         // See the comment in _getCollectionNamesForCompletion/database.ts
         // for the choice of 200 ms.
-        await new Promise(resolve => setTimeout(resolve, 200).unref());
+        await new Promise((resolve) => setTimeout(resolve, 200).unref());
         return this._cachedDatabaseNames;
-      })()
+      })(),
     ]);
   }
 
   @returnsPromise
   @apiVersions([1])
-  async getDBs(options: ListDatabasesOptions = {}): Promise<{ databases: {name: string, sizeOnDisk: number, empty: boolean}[] }> {
+  async getDBs(options: ListDatabasesOptions = {}): Promise<{
+    databases: { name: string; sizeOnDisk: number; empty: boolean }[];
+  }> {
     this._emitMongoApiCall('getDBs', { options });
     return await this._listDatabases(options);
   }
@@ -316,7 +354,7 @@ export default class Mongo extends ShellApiClass {
   @apiVersions([1])
   async getDBNames(options: ListDatabasesOptions = {}): Promise<string[]> {
     this._emitMongoApiCall('getDBNames', { options });
-    return (await this._listDatabases(options)).databases.map(db => db.name);
+    return (await this._listDatabases(options)).databases.map((db) => db.name);
   }
 
   @returnsPromise
@@ -325,20 +363,32 @@ export default class Mongo extends ShellApiClass {
     const db = this._instanceState.currentDb;
     // legacy shell:
     // https://github.com/mongodb/mongo/blob/a6df396047a77b90bf1ce9463eecffbee16fb864/src/mongo/shell/utils.js#L900-L1226
-    this._instanceState.messageBus.emit('mongosh:show', { method: `show ${cmd}` });
+    this._instanceState.messageBus.emit('mongosh:show', {
+      method: `show ${cmd}`,
+    });
 
     switch (cmd) {
       case 'databases':
       case 'dbs':
-        const result = (await this._listDatabases({ readPreference: 'primaryPreferred', promoteLongs: true })).databases;
+        const result = (
+          await this._listDatabases({
+            readPreference: 'primaryPreferred',
+            promoteLongs: true,
+          })
+        ).databases;
         return new CommandResult('ShowDatabasesResult', result);
       case 'collections':
       case 'tables':
-        const collectionNames = await db._getCollectionNamesWithTypes({ readPreference: 'primaryPreferred', promoteLongs: true });
+        const collectionNames = await db._getCollectionNamesWithTypes({
+          readPreference: 'primaryPreferred',
+          promoteLongs: true,
+        });
         return new CommandResult('ShowCollectionsResult', collectionNames);
       case 'profile':
         const sysprof = db.getCollection('system.profile');
-        const profiles = { count: await sysprof.countDocuments({}) } as Document;
+        const profiles = {
+          count: await sysprof.countDocuments({}),
+        } as Document;
         if (profiles.count !== 0) {
           profiles.result = await (await sysprof.find({ millis: { $gt: 0 } }))
             .sort({ $natural: -1 })
@@ -359,15 +409,27 @@ export default class Mongo extends ShellApiClass {
         const logs = await db.adminCommand({ getLog: '*' });
         return new CommandResult('ShowResult', logs.names);
       case 'startupWarnings': {
-        type GetLogResult = { ok: number, totalLinesWritten: number, log: string[] | undefined };
+        type GetLogResult = {
+          ok: number;
+          totalLinesWritten: number;
+          log: string[] | undefined;
+        };
         let result;
         try {
-          result = await db.adminCommand({ getLog: 'startupWarnings' }) as GetLogResult;
+          result = (await db.adminCommand({
+            getLog: 'startupWarnings',
+          })) as GetLogResult;
           if (!result) {
-            throw new MongoshCommandFailed('adminCommand getLog unexpectedly returned no result');
+            throw new MongoshCommandFailed(
+              'adminCommand getLog unexpectedly returned no result'
+            );
           }
         } catch (error: any) {
-          this._instanceState.messageBus.emit('mongosh:error', error, 'shell-api');
+          this._instanceState.messageBus.emit(
+            'mongosh:error',
+            error,
+            'shell-api'
+          );
           return new CommandResult('ShowBannerResult', null);
         }
 
@@ -375,7 +437,7 @@ export default class Mongo extends ShellApiClass {
           return new CommandResult('ShowBannerResult', null);
         }
 
-        const lines: string[] = result.log.map(logLine => {
+        const lines: string[] = result.log.map((logLine) => {
           try {
             const entry: LogEntry = parseAnyLogEntry(logLine);
             return `${entry.timestamp}: ${entry.message}`;
@@ -385,7 +447,7 @@ export default class Mongo extends ShellApiClass {
         });
         return new CommandResult('ShowBannerResult', {
           header: 'The server generated these startup warnings when booting',
-          content: lines.join('\n')
+          content: lines.join('\n'),
         });
       }
       case 'automationNotices': {
@@ -393,14 +455,18 @@ export default class Mongo extends ShellApiClass {
         try {
           helloResult = await db.hello();
         } catch (error: any) {
-          this._instanceState.messageBus.emit('mongosh:error', error, 'shell-api');
+          this._instanceState.messageBus.emit(
+            'mongosh:error',
+            error,
+            'shell-api'
+          );
           return new CommandResult('ShowBannerResult', null);
         }
         if (helloResult.automationServiceDescriptor) {
           return new CommandResult('ShowBannerResult', {
             content:
               `This server is managed by automation service '${helloResult.automationServiceDescriptor}'.\n` +
-              'Many administrative actions are inappropriate, and may be automatically reverted.'
+              'Many administrative actions are inappropriate, and may be automatically reverted.',
           });
         }
         return new CommandResult('ShowBannerResult', null);
@@ -408,7 +474,8 @@ export default class Mongo extends ShellApiClass {
       case 'nonGenuineMongoDBCheck': {
         // Although very unlikely but if we cannot determine wether we are connected to a fake mongodb
         // or not, we assume that we are connected to a real mongodb and won't show the warning
-        const isGenuine = this._instanceState.connectionInfo?.extraInfo?.is_genuine ?? true;
+        const isGenuine =
+          this._instanceState.connectionInfo?.extraInfo?.is_genuine ?? true;
         if (isGenuine) {
           return new CommandResult('ShowBannerResult', null);
         }
@@ -419,7 +486,7 @@ export default class Mongo extends ShellApiClass {
             'This server or service appears to be an emulation of MongoDB rather than an official MongoDB product.',
             'Some documented MongoDB features may work differently, be entirely missing or incomplete, or have unexpected performance characteristics.',
             'To learn more please visit: https://dochub.mongodb.org/core/non-genuine-mongodb-server-warning.',
-          ].join('\n')
+          ].join('\n'),
         });
       }
       default:
@@ -435,7 +502,11 @@ export default class Mongo extends ShellApiClass {
   async close(force: boolean): Promise<void> {
     const index = this._instanceState.mongos.indexOf(this);
     if (index === -1) {
-      process.emitWarning(new MongoshInternalError(`Closing untracked Mongo instance ${this[asPrintable]()}`));
+      process.emitWarning(
+        new MongoshInternalError(
+          `Closing untracked Mongo instance ${this[asPrintable]()}`
+        )
+      );
     } else {
       this._instanceState.mongos.splice(index, 1);
     }
@@ -459,10 +530,12 @@ export default class Mongo extends ShellApiClass {
     return this._serviceProvider.getReadPreference();
   }
 
-  _getExplicitlyRequestedReadPref(): { readPreference: ReadPreference } | undefined {
-    return this._readPreferenceWasExplicitlyRequested ?
-      { readPreference: this.getReadPref() } :
-      undefined;
+  _getExplicitlyRequestedReadPref():
+    | { readPreference: ReadPreference }
+    | undefined {
+    return this._readPreferenceWasExplicitlyRequested
+      ? { readPreference: this.getReadPref() }
+      : undefined;
   }
 
   getReadConcern(): string | undefined {
@@ -483,55 +556,90 @@ export default class Mongo extends ShellApiClass {
   }
 
   @returnsPromise
-  async setReadPref(mode: ReadPreferenceLike, tagSet?: Record<string, string>[], hedgeOptions?: Document): Promise<void> {
+  async setReadPref(
+    mode: ReadPreferenceLike,
+    tagSet?: Record<string, string>[],
+    hedgeOptions?: Document
+  ): Promise<void> {
     await this._serviceProvider.resetConnectionOptions({
       readPreference: this._serviceProvider.readPreferenceFromOptions({
         readPreference: mode,
         readPreferenceTags: tagSet,
-        hedge: hedgeOptions
-      })
+        hedge: hedgeOptions,
+      }),
     });
     this._readPreferenceWasExplicitlyRequested = true;
   }
 
   @returnsPromise
   async setReadConcern(level: ReadConcernLevel): Promise<void> {
-    await this._serviceProvider.resetConnectionOptions({ readConcern: { level: level } });
+    await this._serviceProvider.resetConnectionOptions({
+      readConcern: { level: level },
+    });
   }
 
-  async setWriteConcern(concern: WriteConcern): Promise<void>
-  async setWriteConcern(wValue: string | number, wtimeoutMSValue?: number | undefined, jValue?: boolean | undefined): Promise<void>
+  async setWriteConcern(concern: WriteConcern): Promise<void>;
+  async setWriteConcern(
+    wValue: string | number,
+    wtimeoutMSValue?: number | undefined,
+    jValue?: boolean | undefined
+  ): Promise<void>;
   @returnsPromise
-  async setWriteConcern(concernOrWValue: WriteConcern | string | number, wtimeoutMSValue?: number | undefined, jValue?: boolean | undefined): Promise<void> {
+  async setWriteConcern(
+    concernOrWValue: WriteConcern | string | number,
+    wtimeoutMSValue?: number | undefined,
+    jValue?: boolean | undefined
+  ): Promise<void> {
     const options: MongoClientOptions = {};
     let concern: WriteConcern;
 
     if (typeof concernOrWValue === 'object') {
       if (wtimeoutMSValue !== undefined || jValue !== undefined) {
-        throw new MongoshInvalidInputError('If concern is given as an object no other arguments must be specified', CommonErrors.InvalidArgument);
+        throw new MongoshInvalidInputError(
+          'If concern is given as an object no other arguments must be specified',
+          CommonErrors.InvalidArgument
+        );
       }
       concern = concernOrWValue;
     } else {
       concern = {};
-      if (typeof concernOrWValue !== 'string' && typeof concernOrWValue !== 'number') {
-        throw new MongoshInvalidInputError(`w value must be a number or string, got: ${typeof concernOrWValue}`, CommonErrors.InvalidArgument);
+      if (
+        typeof concernOrWValue !== 'string' &&
+        typeof concernOrWValue !== 'number'
+      ) {
+        throw new MongoshInvalidInputError(
+          `w value must be a number or string, got: ${typeof concernOrWValue}`,
+          CommonErrors.InvalidArgument
+        );
       } else if (typeof concernOrWValue === 'number' && concernOrWValue < 0) {
-        throw new MongoshInvalidInputError(`w value must be equal to or greather than 0, got: ${concernOrWValue}`, CommonErrors.InvalidArgument);
+        throw new MongoshInvalidInputError(
+          `w value must be equal to or greather than 0, got: ${concernOrWValue}`,
+          CommonErrors.InvalidArgument
+        );
       }
       concern.w = concernOrWValue as any;
 
       if (wtimeoutMSValue !== undefined) {
         if (typeof wtimeoutMSValue !== 'number') {
-          throw new MongoshInvalidInputError(`wtimeoutMS value must be a number, got: ${typeof wtimeoutMSValue}`, CommonErrors.InvalidArgument);
+          throw new MongoshInvalidInputError(
+            `wtimeoutMS value must be a number, got: ${typeof wtimeoutMSValue}`,
+            CommonErrors.InvalidArgument
+          );
         } else if (wtimeoutMSValue < 0) {
-          throw new MongoshInvalidInputError(`wtimeoutMS must be equal to or greather than 0, got: ${wtimeoutMSValue}`, CommonErrors.InvalidArgument);
+          throw new MongoshInvalidInputError(
+            `wtimeoutMS must be equal to or greather than 0, got: ${wtimeoutMSValue}`,
+            CommonErrors.InvalidArgument
+          );
         }
         concern.wtimeout = wtimeoutMSValue;
       }
 
       if (jValue !== undefined) {
         if (typeof jValue !== 'boolean') {
-          throw new MongoshInvalidInputError(`j value must be a boolean, got: ${typeof jValue}`, CommonErrors.InvalidArgument);
+          throw new MongoshInvalidInputError(
+            `j value must be a boolean, got: ${typeof jValue}`,
+            CommonErrors.InvalidArgument
+          );
         }
         concern.j = jValue;
       }
@@ -555,14 +663,21 @@ export default class Mongo extends ShellApiClass {
   @topologies([Topologies.ReplSet])
   startSession(options: Document = {}): Session {
     const allTransactionOptions = [
-      'readConcern', 'writeConcern', 'readPreference', 'maxCommitTimeMS'
+      'readConcern',
+      'writeConcern',
+      'readPreference',
+      'maxCommitTimeMS',
     ] as const;
-    function assertAllTransactionOptionsUsed(_options: (typeof allTransactionOptions)[number]) {
+    function assertAllTransactionOptionsUsed(
+      _options: (typeof allTransactionOptions)[number]
+    ) {
       // These typechecks might look weird, but will tell us if we are missing
       // support for a newly introduced driver option when it is being added
       // to the driver API.
     }
-    assertAllTransactionOptionsUsed('' as Exclude<keyof TransactionOptions, keyof CommandOperationOptions>);
+    assertAllTransactionOptionsUsed(
+      '' as Exclude<keyof TransactionOptions, keyof CommandOperationOptions>
+    );
     const defaultTransactionOptions: TransactionOptions = {};
     for (const key of allTransactionOptions) {
       if (typeof options[key] !== 'undefined') {
@@ -570,8 +685,10 @@ export default class Mongo extends ShellApiClass {
       }
     }
 
-    const allSessionOptions = [ 'causalConsistency', 'snapshot' ] as const;
-    function assertAllSessionOptionsUsed(_options: (typeof allSessionOptions)[number] | 'defaultTransactionOptions') {}
+    const allSessionOptions = ['causalConsistency', 'snapshot'] as const;
+    function assertAllSessionOptionsUsed(
+      _options: (typeof allSessionOptions)[number] | 'defaultTransactionOptions'
+    ) {}
     assertAllSessionOptionsUsed('' as keyof ClientSessionOptions);
     const driverOptions: ClientSessionOptions = {};
     if (Object.keys(defaultTransactionOptions).length > 0) {
@@ -583,7 +700,11 @@ export default class Mongo extends ShellApiClass {
       }
     }
 
-    return new Session(this, driverOptions, this._serviceProvider.startSession(driverOptions));
+    return new Session(
+      this,
+      driverOptions,
+      this._serviceProvider.startSession(driverOptions)
+    );
   }
 
   setCausalConsistency(): void {
@@ -604,7 +725,9 @@ export default class Mongo extends ShellApiClass {
 
   @deprecated
   setSlaveOk(): void {
-    throw new MongoshDeprecatedError('Setting slaveOk is deprecated, use setReadPref instead.');
+    throw new MongoshDeprecatedError(
+      'Setting slaveOk is deprecated, use setReadPref instead.'
+    );
   }
 
   @deprecated
@@ -616,10 +739,14 @@ export default class Mongo extends ShellApiClass {
 
     const currentReadPref = this.getReadPrefMode();
     if (currentReadPref === 'primary') {
-      await this._instanceState.shellApi.print('Setting read preference from "primary" to "primaryPreferred"');
+      await this._instanceState.shellApi.print(
+        'Setting read preference from "primary" to "primaryPreferred"'
+      );
       await this.setReadPref('primaryPreferred');
     } else {
-      await this._instanceState.shellApi.print(`Leaving read preference unchanged (is already "${currentReadPref}")`);
+      await this._instanceState.shellApi.print(
+        `Leaving read preference unchanged (is already "${currentReadPref}")`
+      );
     }
   }
 
@@ -627,7 +754,10 @@ export default class Mongo extends ShellApiClass {
   @topologies([Topologies.ReplSet, Topologies.Sharded])
   @apiVersions([1])
   @returnsPromise
-  async watch(pipeline: Document[] | ChangeStreamOptions = [], options: ChangeStreamOptions = {}): Promise<ChangeStreamCursor> {
+  async watch(
+    pipeline: Document[] | ChangeStreamOptions = [],
+    options: ChangeStreamOptions = {}
+  ): Promise<ChangeStreamCursor> {
     if (!Array.isArray(pipeline)) {
       options = pipeline;
       pipeline = [];
@@ -638,7 +768,11 @@ export default class Mongo extends ShellApiClass {
       redactURICredentials(this._uri),
       this
     );
-    if (!options.resumeAfter && !options.startAfter && !options.startAtOperationTime) {
+    if (
+      !options.resumeAfter &&
+      !options.startAfter &&
+      !options.startAtOperationTime
+    ) {
       await cursor.tryNext(); // See comment in coll.watch().
     }
     this._instanceState.currentCursor = cursor;
@@ -651,7 +785,9 @@ export default class Mongo extends ShellApiClass {
   getClientEncryption(): ClientEncryption {
     if (!this._fleOptions) {
       throw new MongoshInvalidInputError(
-        'Cannot call getClientEncryption() without field-level encryption options', ShellApiErrors.NotUsingFLE);
+        'Cannot call getClientEncryption() without field-level encryption options',
+        ShellApiErrors.NotUsingFLE
+      );
     }
     if (!this._clientEncryption) {
       this._clientEncryption = new ClientEncryption(this);
@@ -675,27 +811,38 @@ export default class Mongo extends ShellApiClass {
   async convertShardKeyToHashed(value: any): Promise<unknown> {
     const pipeline = [
       { $limit: 1 },
-      { $project: { _id: { $toHashedIndexKey: { $literal: value } } } }
+      { $project: { _id: { $toHashedIndexKey: { $literal: value } } } },
     ];
     let result;
     for (const approach of [
       // Try $documents if available (NB: running $documents on an empty db requires SERVER-63811 i.e. 6.0.3+).
-      () => this.getDB('_fakeDbForMongoshCSKTH').aggregate([ { $documents: [{}] }, ...pipeline ]),
-      () => this.getDB('admin').aggregate([ { $documents: [{}] }, ...pipeline ]),
+      () =>
+        this.getDB('_fakeDbForMongoshCSKTH').aggregate([
+          { $documents: [{}] },
+          ...pipeline,
+        ]),
+      () => this.getDB('admin').aggregate([{ $documents: [{}] }, ...pipeline]),
       // If that fails, try a default collection like admin.system.version.
-      () => this.getDB('admin').getCollection('system.version').aggregate(pipeline),
+      () =>
+        this.getDB('admin').getCollection('system.version').aggregate(pipeline),
       // If that fails, try using $collStats for local.oplog.rs.
-      () => this.getDB('local').getCollection('oplog.rs').aggregate([ { $collStats: {} }, ...pipeline ])
+      () =>
+        this.getDB('local')
+          .getCollection('oplog.rs')
+          .aggregate([{ $collStats: {} }, ...pipeline]),
     ]) {
       try {
         result = await (await approach()).next();
-      } catch { continue; }
+      } catch {
+        continue;
+      }
       if (result) break;
     }
     if (!result) {
       throw new MongoshRuntimeError(
         'Could not find a suitable way to run convertShardKeyToHashed() -- tried $documents and aggregating on admin.system.version and local.oplog.rs',
-        CommonErrors.CommandFailed);
+        CommonErrors.CommandFailed
+      );
     }
     return result._id;
   }

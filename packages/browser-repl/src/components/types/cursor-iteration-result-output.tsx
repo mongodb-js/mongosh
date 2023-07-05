@@ -4,7 +4,13 @@ import { ObjectOutput } from './object-output';
 import i18n from '@mongosh/i18n';
 
 export interface Document {
-  [property: string]: number | string | null | undefined | Document | Document[];
+  [property: string]:
+    | number
+    | string
+    | null
+    | undefined
+    | Document
+    | Document[];
 }
 
 interface CursorIterationResultOutputProps {
@@ -13,7 +19,7 @@ interface CursorIterationResultOutputProps {
 
 export class CursorIterationResultOutput extends Component<CursorIterationResultOutputProps> {
   static propTypes = {
-    value: PropTypes.arrayOf(PropTypes.object).isRequired
+    value: PropTypes.arrayOf(PropTypes.object).isRequired,
   };
 
   render(): JSX.Element {
@@ -23,9 +29,13 @@ export class CursorIterationResultOutput extends Component<CursorIterationResult
       );
     }
 
-    const more = this.props.value.cursorHasMore ?
-      (<pre>{i18n.__('shell-api.classes.Cursor.iteration.type-it-for-more')}</pre>) :
-      '';
+    const more = this.props.value.cursorHasMore ? (
+      <pre>
+        {i18n.__('shell-api.classes.Cursor.iteration.type-it-for-more')}
+      </pre>
+    ) : (
+      ''
+    );
 
     return (
       <div>
@@ -39,5 +49,3 @@ export class CursorIterationResultOutput extends Component<CursorIterationResult
     return <ObjectOutput key={`document-${i}`} value={document} />;
   };
 }
-
-

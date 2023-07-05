@@ -1,11 +1,22 @@
 import type Database from './database';
 import {
   shellApiClassDefault,
-  returnsPromise, serverVersions, apiVersions, ShellApiWithMongoClass, returnType
+  returnsPromise,
+  serverVersions,
+  apiVersions,
+  ShellApiWithMongoClass,
+  returnType,
 } from './decorators';
 
-import type { Document, CheckMetadataConsistencyOptions } from '@mongosh/service-provider-core';
-import { assertArgsDefinedType, getConfigDB, getPrintableShardStatus } from './helpers';
+import type {
+  Document,
+  CheckMetadataConsistencyOptions,
+} from '@mongosh/service-provider-core';
+import {
+  assertArgsDefinedType,
+  getConfigDB,
+  getPrintableShardStatus,
+} from './helpers';
 import { ServerVersions, asPrintable } from './enums';
 import type { UpdateResult } from './result';
 import { CommandResult } from './result';
@@ -32,7 +43,9 @@ export default class Shard extends ShellApiWithMongoClass {
    * Internal method to determine what is printed for this class.
    */
   [asPrintable](): string {
-    return `Shard class connected to ${redactURICredentials(this._database._mongo._uri)} via db ${this._database._name}`;
+    return `Shard class connected to ${redactURICredentials(
+      this._database._mongo._uri
+    )} via db ${this._database._name}`;
   }
 
   /**
@@ -42,22 +55,32 @@ export default class Shard extends ShellApiWithMongoClass {
    * @param methodArguments
    * @private
    */
-  private _emitShardApiCall(methodName: string, methodArguments: Document = {}): void {
+  private _emitShardApiCall(
+    methodName: string,
+    methodArguments: Document = {}
+  ): void {
     this._database._mongo._instanceState.emitApiCallWithArgs({
       method: methodName,
       class: 'Shard',
-      arguments: methodArguments
+      arguments: methodArguments,
     });
   }
 
   @returnsPromise
   @apiVersions([])
-  async enableSharding(database: string, primaryShard?: string): Promise<Document> {
-    assertArgsDefinedType([database, primaryShard], ['string', [undefined, 'string']], 'Shard.enableSharding');
+  async enableSharding(
+    database: string,
+    primaryShard?: string
+  ): Promise<Document> {
+    assertArgsDefinedType(
+      [database, primaryShard],
+      ['string', [undefined, 'string']],
+      'Shard.enableSharding'
+    );
     this._emitShardApiCall('enableSharding', { database, primaryShard });
 
     const cmd = {
-      enableSharding: database
+      enableSharding: database,
     } as any;
     if (primaryShard !== undefined) {
       cmd.primaryShard = primaryShard;
@@ -76,10 +99,14 @@ export default class Shard extends ShellApiWithMongoClass {
   @apiVersions([])
   @serverVersions(['5.0.0', ServerVersions.latest])
   async commitReshardCollection(namespace: string): Promise<Document> {
-    assertArgsDefinedType([namespace], ['string'], 'Shard.commitReshardCollection');
+    assertArgsDefinedType(
+      [namespace],
+      ['string'],
+      'Shard.commitReshardCollection'
+    );
     this._emitShardApiCall('commitReshardCollection', { namespace });
     return await this._database._runAdminCommand({
-      commitReshardCollection: namespace
+      commitReshardCollection: namespace,
     });
   }
 
@@ -87,24 +114,50 @@ export default class Shard extends ShellApiWithMongoClass {
   @apiVersions([])
   @serverVersions(['5.0.0', ServerVersions.latest])
   async abortReshardCollection(namespace: string): Promise<Document> {
-    assertArgsDefinedType([namespace], ['string'], 'Shard.abortReshardCollection');
+    assertArgsDefinedType(
+      [namespace],
+      ['string'],
+      'Shard.abortReshardCollection'
+    );
     this._emitShardApiCall('abortReshardCollection', { namespace });
     return await this._database._runAdminCommand({
-      abortReshardCollection: namespace
+      abortReshardCollection: namespace,
     });
   }
 
   @returnsPromise
   @apiVersions([])
-  async shardCollection(namespace: string, key: Document, unique?: boolean | Document, options?: Document): Promise<Document> {
-    return await this._runShardCollection('shardCollection', namespace, key, unique, options);
+  async shardCollection(
+    namespace: string,
+    key: Document,
+    unique?: boolean | Document,
+    options?: Document
+  ): Promise<Document> {
+    return await this._runShardCollection(
+      'shardCollection',
+      namespace,
+      key,
+      unique,
+      options
+    );
   }
 
   @returnsPromise
   @apiVersions([])
   @serverVersions(['5.0.0', ServerVersions.latest])
-  async reshardCollection(namespace: string, key: Document, unique?: boolean | Document, options?: Document): Promise<Document> {
-    return await this._runShardCollection('reshardCollection', namespace, key, unique, options);
+  async reshardCollection(
+    namespace: string,
+    key: Document,
+    unique?: boolean | Document,
+    options?: Document
+  ): Promise<Document> {
+    return await this._runShardCollection(
+      'reshardCollection',
+      namespace,
+      key,
+      unique,
+      options
+    );
   }
 
   async _runShardCollection(
@@ -112,8 +165,18 @@ export default class Shard extends ShellApiWithMongoClass {
     namespace: string,
     key: Document,
     unique?: boolean | Document,
-    options?: Document): Promise<Document> {
-    assertArgsDefinedType([namespace, key, unique, options], ['string', 'object', [undefined, 'boolean', 'object'], [undefined, 'object']], `Shard.${command}`);
+    options?: Document
+  ): Promise<Document> {
+    assertArgsDefinedType(
+      [namespace, key, unique, options],
+      [
+        'string',
+        'object',
+        [undefined, 'boolean', 'object'],
+        [undefined, 'object'],
+      ],
+      `Shard.${command}`
+    );
     this._emitShardApiCall(command, { namespace, key, unique, options });
     if (typeof unique === 'object' && unique !== null) {
       options = unique;
@@ -122,7 +185,7 @@ export default class Shard extends ShellApiWithMongoClass {
 
     const cmd = {
       [command]: namespace,
-      key: key
+      key: key,
     } as any;
     if (unique !== undefined) {
       cmd.unique = unique;
@@ -139,10 +202,14 @@ export default class Shard extends ShellApiWithMongoClass {
 
   @returnsPromise
   @apiVersions([1])
-  async status(verbose = false, configDB?: Database): Promise<CommandResult<Document>> {
+  async status(
+    verbose = false,
+    configDB?: Database
+  ): Promise<CommandResult<Document>> {
     const result = await getPrintableShardStatus(
-      configDB ?? await getConfigDB(this._database),
-      verbose);
+      configDB ?? (await getConfigDB(this._database)),
+      verbose
+    );
     return new CommandResult('StatsResult', result);
   }
 
@@ -153,7 +220,7 @@ export default class Shard extends ShellApiWithMongoClass {
     await getConfigDB(this._database);
     this._emitShardApiCall('addShard', { url });
     return this._database._runAdminCommand({
-      addShard: url
+      addShard: url,
     });
   }
 
@@ -161,12 +228,16 @@ export default class Shard extends ShellApiWithMongoClass {
   @apiVersions([])
   @serverVersions(['3.4.0', ServerVersions.latest])
   async addShardToZone(shard: string, zone: string): Promise<Document> {
-    assertArgsDefinedType([shard, zone], ['string', 'string'], 'Shard.addShardToZone');
+    assertArgsDefinedType(
+      [shard, zone],
+      ['string', 'string'],
+      'Shard.addShardToZone'
+    );
     this._emitShardApiCall('addShardToZone', { shard, zone });
     await getConfigDB(this._database); // will error if not connected to mongos
     return this._database._runAdminCommand({
       addShardToZone: shard,
-      zone: zone
+      zone: zone,
     });
   }
 
@@ -174,7 +245,11 @@ export default class Shard extends ShellApiWithMongoClass {
   @apiVersions([])
   @serverVersions(['3.4.0', ServerVersions.latest])
   async addShardTag(shard: string, tag: string): Promise<Document> {
-    assertArgsDefinedType([shard, tag], ['string', 'string'], 'Shard.addShardTag');
+    assertArgsDefinedType(
+      [shard, tag],
+      ['string', 'string'],
+      'Shard.addShardTag'
+    );
     this._emitShardApiCall('addShardTag', { shard, tag });
     try {
       return await this.addShardToZone(shard, tag);
@@ -188,8 +263,17 @@ export default class Shard extends ShellApiWithMongoClass {
 
   @returnsPromise
   @apiVersions([])
-  async updateZoneKeyRange(namespace: string, min: Document, max: Document, zone: string | null): Promise<Document> {
-    assertArgsDefinedType([namespace, min, max, zone], ['string', 'object', 'object', true], 'Shard.updateZoneKeyRange');
+  async updateZoneKeyRange(
+    namespace: string,
+    min: Document,
+    max: Document,
+    zone: string | null
+  ): Promise<Document> {
+    assertArgsDefinedType(
+      [namespace, min, max, zone],
+      ['string', 'object', 'object', true],
+      'Shard.updateZoneKeyRange'
+    );
     this._emitShardApiCall('updateZoneKeyRange', { namespace, min, max, zone });
 
     await getConfigDB(this._database); // will error if not connected to mongos
@@ -197,24 +281,28 @@ export default class Shard extends ShellApiWithMongoClass {
       updateZoneKeyRange: namespace,
       min,
       max,
-      zone
+      zone,
     });
   }
 
   @returnsPromise
   @apiVersions([])
   @serverVersions(['3.4.0', ServerVersions.latest])
-  async addTagRange(namespace: string, min: Document, max: Document, zone: string): Promise<Document> {
-    assertArgsDefinedType([namespace, min, max, zone], ['string', 'object', 'object', true], 'Shard.addTagRange');
+  async addTagRange(
+    namespace: string,
+    min: Document,
+    max: Document,
+    zone: string
+  ): Promise<Document> {
+    assertArgsDefinedType(
+      [namespace, min, max, zone],
+      ['string', 'object', 'object', true],
+      'Shard.addTagRange'
+    );
     this._emitShardApiCall('addTagRange', { namespace, min, max, zone });
 
     try {
-      return await this.updateZoneKeyRange(
-        namespace,
-        min,
-        max,
-        zone
-      );
+      return await this.updateZoneKeyRange(namespace, min, max, zone);
     } catch (error: any) {
       if (error?.codeName === 'CommandNotFound') {
         error.message = `${error.message}. This method aliases to updateZoneKeyRange which exists only for server versions > 3.4.`;
@@ -226,8 +314,16 @@ export default class Shard extends ShellApiWithMongoClass {
   @returnsPromise
   @apiVersions([])
   @serverVersions(['3.4.0', ServerVersions.latest])
-  async removeRangeFromZone(ns: string, min: Document, max: Document): Promise<Document> {
-    assertArgsDefinedType([ns, min, max], ['string', 'object', 'object'], 'Shard.removeRangeFromZone');
+  async removeRangeFromZone(
+    ns: string,
+    min: Document,
+    max: Document
+  ): Promise<Document> {
+    assertArgsDefinedType(
+      [ns, min, max],
+      ['string', 'object', 'object'],
+      'Shard.removeRangeFromZone'
+    );
     this._emitShardApiCall('removeRangeFromZone', { ns, min, max });
     return this.updateZoneKeyRange(ns, min, max, null);
   }
@@ -235,8 +331,16 @@ export default class Shard extends ShellApiWithMongoClass {
   @returnsPromise
   @apiVersions([])
   @serverVersions(['3.4.0', ServerVersions.latest])
-  async removeTagRange(ns: string, min: Document, max: Document): Promise<Document> {
-    assertArgsDefinedType([ns, min, max], ['string', 'object', 'object'], 'Shard.removeTagRange');
+  async removeTagRange(
+    ns: string,
+    min: Document,
+    max: Document
+  ): Promise<Document> {
+    assertArgsDefinedType(
+      [ns, min, max],
+      ['string', 'object', 'object'],
+      'Shard.removeTagRange'
+    );
     this._emitShardApiCall('removeTagRange', { ns, min, max });
     try {
       return await this.updateZoneKeyRange(ns, min, max, null);
@@ -252,13 +356,17 @@ export default class Shard extends ShellApiWithMongoClass {
   @apiVersions([])
   @serverVersions(['3.4.0', ServerVersions.latest])
   async removeShardFromZone(shard: string, zone: string): Promise<Document> {
-    assertArgsDefinedType([shard, zone], ['string', 'string'], 'Shard.removeShardFromZone');
+    assertArgsDefinedType(
+      [shard, zone],
+      ['string', 'string'],
+      'Shard.removeShardFromZone'
+    );
     this._emitShardApiCall('removeShardFromZone', { shard, zone });
 
     await getConfigDB(this._database); // will error if not connected to mongos
     return await this._database._runAdminCommand({
       removeShardFromZone: shard,
-      zone: zone
+      zone: zone,
     });
   }
 
@@ -266,7 +374,11 @@ export default class Shard extends ShellApiWithMongoClass {
   @apiVersions([])
   @serverVersions(['3.4.0', ServerVersions.latest])
   async removeShardTag(shard: string, tag: string): Promise<Document> {
-    assertArgsDefinedType([shard, tag], ['string', 'string'], 'Shard.removeShardTag');
+    assertArgsDefinedType(
+      [shard, tag],
+      ['string', 'string'],
+      'Shard.removeShardTag'
+    );
     this._emitShardApiCall('removeTagRange', { shard, tag });
     try {
       return await this.removeShardFromZone(shard, tag);
@@ -292,11 +404,13 @@ export default class Shard extends ShellApiWithMongoClass {
     }
     this._emitShardApiCall('enableAutoSplit', {});
     const config = await getConfigDB(this._database);
-    return await config.getCollection('settings').updateOne(
-      { _id: 'autosplit' },
-      { $set: { enabled: true } },
-      { upsert: true, writeConcern: { w: 'majority', wtimeout: 30000 } }
-    ) as UpdateResult;
+    return (await config
+      .getCollection('settings')
+      .updateOne(
+        { _id: 'autosplit' },
+        { $set: { enabled: true } },
+        { upsert: true, writeConcern: { w: 'majority', wtimeout: 30000 } }
+      )) as UpdateResult;
   }
 
   @returnsPromise
@@ -313,11 +427,13 @@ export default class Shard extends ShellApiWithMongoClass {
     }
     this._emitShardApiCall('disableAutoSplit', {});
     const config = await getConfigDB(this._database);
-    return await config.getCollection('settings').updateOne(
-      { _id: 'autosplit' },
-      { $set: { enabled: false } },
-      { upsert: true, writeConcern: { w: 'majority', wtimeout: 30000 } }
-    ) as UpdateResult;
+    return (await config
+      .getCollection('settings')
+      .updateOne(
+        { _id: 'autosplit' },
+        { $set: { enabled: false } },
+        { upsert: true, writeConcern: { w: 'majority', wtimeout: 30000 } }
+      )) as UpdateResult;
   }
 
   @returnsPromise
@@ -327,7 +443,7 @@ export default class Shard extends ShellApiWithMongoClass {
     this._emitShardApiCall('splitAt', { ns, query });
     return this._database._runAdminCommand({
       split: ns,
-      middle: query
+      middle: query,
     });
   }
 
@@ -338,19 +454,27 @@ export default class Shard extends ShellApiWithMongoClass {
     this._emitShardApiCall('splitFind', { ns, query });
     return this._database._runAdminCommand({
       split: ns,
-      find: query
+      find: query,
     });
   }
 
   @returnsPromise
   @apiVersions([])
-  async moveChunk(ns: string, query: Document, destination: string | undefined): Promise<Document> {
-    assertArgsDefinedType([ns, query, destination], ['string', 'object', 'string'], 'Shard.moveChunk');
+  async moveChunk(
+    ns: string,
+    query: Document,
+    destination: string | undefined
+  ): Promise<Document> {
+    assertArgsDefinedType(
+      [ns, query, destination],
+      ['string', 'object', 'string'],
+      'Shard.moveChunk'
+    );
     this._emitShardApiCall('moveChunk', { ns, query, destination });
     return this._database._runAdminCommand({
       moveChunk: ns,
       find: query,
-      to: destination
+      to: destination,
     });
   }
 
@@ -361,10 +485,9 @@ export default class Shard extends ShellApiWithMongoClass {
     assertArgsDefinedType([ns], ['string'], 'Shard.balancerCollectionStatus');
     this._emitShardApiCall('balancerCollectionStatus', { ns });
     return this._database._runAdminCommand({
-      balancerCollectionStatus: ns
+      balancerCollectionStatus: ns,
     });
   }
-
 
   @returnsPromise
   @apiVersions([])
@@ -372,11 +495,13 @@ export default class Shard extends ShellApiWithMongoClass {
     assertArgsDefinedType([ns], ['string'], 'Shard.enableBalancing');
     this._emitShardApiCall('enableBalancing', { ns });
     const config = await getConfigDB(this._database);
-    return await config.getCollection('collections').updateOne(
-      { _id: ns },
-      { $set: { 'noBalance': false } },
-      { writeConcern: { w: 'majority', wtimeout: 60000 } }
-    ) as UpdateResult;
+    return (await config
+      .getCollection('collections')
+      .updateOne(
+        { _id: ns },
+        { $set: { noBalance: false } },
+        { writeConcern: { w: 'majority', wtimeout: 60000 } }
+      )) as UpdateResult;
   }
 
   @returnsPromise
@@ -385,11 +510,13 @@ export default class Shard extends ShellApiWithMongoClass {
     assertArgsDefinedType([ns], ['string'], 'Shard.disableBalancing');
     this._emitShardApiCall('disableBalancing', { ns });
     const config = await getConfigDB(this._database);
-    return await config.getCollection('collections').updateOne(
-      { _id: ns },
-      { $set: { 'noBalance': true } },
-      { writeConcern: { w: 'majority', wtimeout: 60000 } }
-    ) as UpdateResult;
+    return (await config
+      .getCollection('collections')
+      .updateOne(
+        { _id: ns },
+        { $set: { noBalance: true } },
+        { writeConcern: { w: 'majority', wtimeout: 60000 } }
+      )) as UpdateResult;
   }
 
   @returnsPromise
@@ -397,7 +524,9 @@ export default class Shard extends ShellApiWithMongoClass {
   async getBalancerState(): Promise<boolean> {
     this._emitShardApiCall('getBalancerState', {});
     const config = await getConfigDB(this._database);
-    const doc = await config.getCollection('settings').findOne({ _id: 'balancer' });
+    const doc = await config
+      .getCollection('settings')
+      .findOne({ _id: 'balancer' });
     if (doc === null || doc === undefined) {
       return true;
     }
@@ -410,7 +539,7 @@ export default class Shard extends ShellApiWithMongoClass {
     this._emitShardApiCall('isBalancerRunning', {});
     await getConfigDB(this._database);
     return this._database._runAdminCommand({
-      balancerStatus: 1
+      balancerStatus: 1,
     });
   }
 
@@ -420,7 +549,8 @@ export default class Shard extends ShellApiWithMongoClass {
     assertArgsDefinedType([timeout], ['number'], 'Shard.startBalancer');
     this._emitShardApiCall('startBalancer', { timeout });
     return this._database._runAdminCommand({
-      balancerStart: 1, maxTimeMS: timeout
+      balancerStart: 1,
+      maxTimeMS: timeout,
     });
   }
 
@@ -430,7 +560,8 @@ export default class Shard extends ShellApiWithMongoClass {
     assertArgsDefinedType([timeout], ['number'], 'Shard.stopBalancer');
     this._emitShardApiCall('stopBalancer', { timeout });
     return this._database._runAdminCommand({
-      balancerStop: 1, maxTimeMS: timeout
+      balancerStop: 1,
+      maxTimeMS: timeout,
     });
   }
 
@@ -452,12 +583,15 @@ export default class Shard extends ShellApiWithMongoClass {
   async getShardedDataDistribution(options = {}): Promise<AggregationCursor> {
     this._emitShardApiCall('getShardedDataDistribution', {});
 
-    const cursor = await this._database.getSiblingDB('admin').aggregate([{ $shardedDataDistribution: options }]);
+    const cursor = await this._database
+      .getSiblingDB('admin')
+      .aggregate([{ $shardedDataDistribution: options }]);
 
     try {
       await cursor.hasNext();
     } catch (err: any) {
-      if (err.code?.valueOf() === 40324) { // unrecognized stage error
+      if (err.code?.valueOf() === 40324) {
+        // unrecognized stage error
         err.message = `sh.getShardedDataDistribution only works on mongos and MongoDB server versions greater than 6.0.3 [Original Error: ${err.message}]`;
       }
 
@@ -473,11 +607,13 @@ export default class Shard extends ShellApiWithMongoClass {
   async startAutoMerger(): Promise<UpdateResult> {
     this._emitShardApiCall('startAutoMerger', {});
     const config = await getConfigDB(this._database);
-    return await config.getCollection('settings').updateOne(
-      { _id: 'automerge' },
-      { $set: { enabled: true } },
-      { upsert: true, writeConcern: { w: 'majority', wtimeout: 30000 } }
-    ) as UpdateResult;
+    return (await config
+      .getCollection('settings')
+      .updateOne(
+        { _id: 'automerge' },
+        { $set: { enabled: true } },
+        { upsert: true, writeConcern: { w: 'majority', wtimeout: 30000 } }
+      )) as UpdateResult;
   }
 
   @returnsPromise
@@ -486,11 +622,13 @@ export default class Shard extends ShellApiWithMongoClass {
   async stopAutoMerger(): Promise<UpdateResult> {
     this._emitShardApiCall('stopAutoMerger', {});
     const config = await getConfigDB(this._database);
-    return await config.getCollection('settings').updateOne(
-      { _id: 'automerge' },
-      { $set: { enabled: false } },
-      { upsert: true, writeConcern: { w: 'majority', wtimeout: 30000 } }
-    ) as UpdateResult;
+    return (await config
+      .getCollection('settings')
+      .updateOne(
+        { _id: 'automerge' },
+        { $set: { enabled: false } },
+        { upsert: true, writeConcern: { w: 'majority', wtimeout: 30000 } }
+      )) as UpdateResult;
   }
 
   @returnsPromise
@@ -499,7 +637,9 @@ export default class Shard extends ShellApiWithMongoClass {
   async isAutoMergerEnabled(): Promise<boolean> {
     this._emitShardApiCall('isAutoMergerEnabled', {});
     const config = await getConfigDB(this._database);
-    const doc = await config.getCollection('settings').findOne({ _id: 'automerge' });
+    const doc = await config
+      .getCollection('settings')
+      .findOne({ _id: 'automerge' });
     if (doc === null || doc === undefined) {
       return true;
     }
@@ -514,11 +654,13 @@ export default class Shard extends ShellApiWithMongoClass {
 
     this._emitShardApiCall('disableAutoMerger', { ns });
     const config = await getConfigDB(this._database);
-    return await config.getCollection('collections').updateOne(
-      { _id: ns },
-      { $set: { enableAutoMerge: false } },
-      { writeConcern: { w: 'majority', wtimeout: 60000 } }
-    ) as UpdateResult;
+    return (await config
+      .getCollection('collections')
+      .updateOne(
+        { _id: ns },
+        { $set: { enableAutoMerge: false } },
+        { writeConcern: { w: 'majority', wtimeout: 60000 } }
+      )) as UpdateResult;
   }
 
   @returnsPromise
@@ -529,20 +671,24 @@ export default class Shard extends ShellApiWithMongoClass {
 
     this._emitShardApiCall('enableAutoMerger', { ns });
     const config = await getConfigDB(this._database);
-    return await config.getCollection('collections').updateOne(
-      { _id: ns },
-      { $unset: { enableAutoMerge: 1 } },
-      { writeConcern: { w: 'majority', wtimeout: 60000 } }
-    ) as UpdateResult;
+    return (await config
+      .getCollection('collections')
+      .updateOne(
+        { _id: ns },
+        { $unset: { enableAutoMerge: 1 } },
+        { writeConcern: { w: 'majority', wtimeout: 60000 } }
+      )) as UpdateResult;
   }
 
   @returnsPromise
   @serverVersions(['7.0.0', ServerVersions.latest])
-  async checkMetadataConsistency(options: CheckMetadataConsistencyOptions = {}): Promise<RunCommandCursor> {
+  async checkMetadataConsistency(
+    options: CheckMetadataConsistencyOptions = {}
+  ): Promise<RunCommandCursor> {
     this._emitShardApiCall('checkMetadataConsistency', { options });
 
     return this._database._runAdminCursorCommand({
-      checkMetadataConsistency: 1
+      checkMetadataConsistency: 1,
     });
   }
 }

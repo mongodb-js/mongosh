@@ -3,11 +3,11 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 
 const shellCollectionsOutputCollectionName = css({
-  fontWeight: 'bold'
+  fontWeight: 'bold',
 });
 
 const shellCollectionsOutputSystemCollection = css({
-  color: palette.gray.base
+  color: palette.gray.base,
 });
 
 interface ShowCollectionsOutputProps {
@@ -25,7 +25,7 @@ function isSystemCollection(coll: CollectionObject): boolean {
 
 export class ShowCollectionsOutput extends Component<ShowCollectionsOutputProps> {
   static propTypes = {
-    value: PropTypes.array
+    value: PropTypes.array,
   };
 
   renderTable = (value: CollectionObject[]): JSX.Element => {
@@ -33,8 +33,11 @@ export class ShowCollectionsOutput extends Component<ShowCollectionsOutputProps>
     const otherCollections: CollectionObject[] = [];
 
     let maxCollectionNameLength = 0;
-    value.forEach(coll => {
-      maxCollectionNameLength = Math.max(maxCollectionNameLength, coll.name.length);
+    value.forEach((coll) => {
+      maxCollectionNameLength = Math.max(
+        maxCollectionNameLength,
+        coll.name.length
+      );
       if (isSystemCollection(coll)) {
         systemCollections.push(coll);
       } else {
@@ -43,18 +46,21 @@ export class ShowCollectionsOutput extends Component<ShowCollectionsOutputProps>
     });
 
     const tableEntries: JSX.Element[] = [];
-    [
-      ...otherCollections,
-      ...systemCollections
-    ].forEach((coll, i) => {
+    [...otherCollections, ...systemCollections].forEach((coll, i) => {
       const fillLength = maxCollectionNameLength - coll.name.length + 1;
       const className = cx(
         shellCollectionsOutputCollectionName,
         isSystemCollection(coll) && shellCollectionsOutputSystemCollection
       );
-      tableEntries.push(<span key={`row-${i}`}>
-        <span className={className}>{coll.name}</span>{coll.badge ? coll.badge.padStart(coll.badge.length + fillLength) : ''}<br/>
-      </span>);
+      tableEntries.push(
+        <span key={`row-${i}`}>
+          <span className={className}>{coll.name}</span>
+          {coll.badge
+            ? coll.badge.padStart(coll.badge.length + fillLength)
+            : ''}
+          <br />
+        </span>
+      );
     });
 
     return <>{tableEntries}</>;

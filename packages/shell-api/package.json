@@ -15,7 +15,7 @@
     "compile": "tsc -p tsconfig.json",
     "pretest": "npm run compile",
     "eslint": "eslint",
-    "lint": "npm run eslint",
+    "lint": "npm run eslint && npm run prettier -- --check .",
     "check": "npm run lint && npm run depcheck",
     "depcheck": "depcheck",
     "report-missing-help": "ts-node bin/report-missing-help.ts",
@@ -23,7 +23,9 @@
     "test": "cross-env TS_NODE_PROJECT=../../config/tsconfig.test.json mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 -r ts-node/register \"./src/**/*.spec.ts\"",
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
     "test-apistrict-ci": "cross-env MONGOSH_TEST_FORCE_API_STRICT=1 npm run test-ci",
-    "prepublish": "npm run compile"
+    "prepublish": "npm run compile",
+    "prettier": "prettier",
+    "reformat": "npm run prettier -- --write . && npm run eslint --fix"
   },
   "license": "Apache-2.0",
   "publishConfig": {
@@ -44,11 +46,13 @@
     "mongodb-redact": "^0.2.2"
   },
   "devDependencies": {
+    "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongosh/types": "0.0.0-dev.0",
-    "eslint": "^7.25.0",
     "bson": "^5.3.0",
     "depcheck": "^1.4.3",
-    "semver": "^7.5.3",
-    "mongodb": "^5.6.0"
+    "eslint": "^7.25.0",
+    "mongodb": "^5.6.0",
+    "prettier": "^2.3.2",
+    "semver": "^7.5.3"
   }
 }

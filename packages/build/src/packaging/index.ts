@@ -4,9 +4,7 @@ export {
   getPackageFile,
   PackageFile,
   PackageInformation,
-  PackageInformationProvider
+  PackageInformationProvider,
 } from './package';
 
-export {
-  notarizeArtifact
-} from './notary-service';
+export { notarizeArtifact } from './notary-service';

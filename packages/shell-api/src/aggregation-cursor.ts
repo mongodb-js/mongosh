@@ -1,10 +1,6 @@
 import type Mongo from './mongo';
-import {
-  shellApiClassDefault
-} from './decorators';
-import type {
-  AggregationCursor as ServiceProviderAggregationCursor
-} from '@mongosh/service-provider-core';
+import { shellApiClassDefault } from './decorators';
+import type { AggregationCursor as ServiceProviderAggregationCursor } from '@mongosh/service-provider-core';
 import { AggregateOrFindCursor } from './aggregate-or-find-cursor';
 
 @shellApiClassDefault

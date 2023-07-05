@@ -4,17 +4,17 @@ import { withTempPackageEach } from '../../../test/helpers';
 import { ALL_PACKAGE_VARIANTS } from '../../config';
 import { createPackage } from './create-package';
 
-describe('archive create-archive', function() {
-  describe('can create an archive for all build variants', function() {
+describe('archive create-archive', function () {
+  describe('can create an archive for all build variants', function () {
     const tmpPkg = withTempPackageEach();
 
     let createPosixArchiveStub: sinon.SinonStub;
     let createRedhatArchiveStub: sinon.SinonStub;
     let createDebianArchiveStub: sinon.SinonStub;
-    let createMSIArchiveStub:sinon.SinonStub;
-    let createZipArchiveStub:sinon.SinonStub;
+    let createMSIArchiveStub: sinon.SinonStub;
+    let createZipArchiveStub: sinon.SinonStub;
 
-    beforeEach(function() {
+    beforeEach(function () {
       createPosixArchiveStub = sinon.stub();
       createRedhatArchiveStub = sinon.stub();
       createDebianArchiveStub = sinon.stub();
@@ -22,8 +22,8 @@ describe('archive create-archive', function() {
       createZipArchiveStub = sinon.stub();
     });
 
-    ALL_PACKAGE_VARIANTS.forEach(variant => {
-      it(`can create a tarball for ${variant}`, async function() {
+    ALL_PACKAGE_VARIANTS.forEach((variant) => {
+      it(`can create a tarball for ${variant}`, async function () {
         const result = await createPackage(
           tmpPkg.tarballDir,
           variant,
@@ -38,7 +38,7 @@ describe('archive create-archive', function() {
       });
     });
 
-    it('throws an error for an unknown variant', async function() {
+    it('throws an error for an unknown variant', async function () {
       try {
         await createPackage(tmpPkg.tarballDir, 'nope' as any, tmpPkg.pkgConfig);
       } catch (e: any) {

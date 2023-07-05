@@ -5,7 +5,9 @@ import type * as BabelTypes from '@babel/types';
 function lineCommentToBlockComment(): babel.PluginObj {
   const visitedComments = new Map<babel.types.Comment, babel.types.Comment>();
 
-  function turnCommentIntoBlock(original: babel.types.Comment): babel.types.Comment {
+  function turnCommentIntoBlock(
+    original: babel.types.Comment
+  ): babel.types.Comment {
     // Babel determines when to print a comment based on the comment's object
     // identity, since the same comment can appear both as a trailing comment of
     // one node and a leading commment of another, so we keep track of which
@@ -14,14 +16,21 @@ function lineCommentToBlockComment(): babel.PluginObj {
     if (existing) {
       return existing;
     }
-    const replacement: babel.types.Comment = { ...original, type: 'CommentBlock' };
+    const replacement: babel.types.Comment = {
+      ...original,
+      type: 'CommentBlock',
+    };
     visitedComments.set(original, replacement);
     return replacement;
   }
 
   function transformComments(path: babel.NodePath): void {
     const node = path.node;
-    const keys = ['leadingComments', 'trailingComments', 'innerComments'] as const;
+    const keys = [
+      'leadingComments',
+      'trailingComments',
+      'innerComments',
+    ] as const;
     for (const key of keys) {
       node[key] = node[key]?.map(turnCommentIntoBlock) ?? null;
     }
@@ -34,15 +43,19 @@ function lineCommentToBlockComment(): babel.PluginObj {
         path.traverse({
           enter(path) {
             transformComments(path);
-          }
+          },
         });
-      }
-    }
+      },
+    },
   };
 }
 
 // Babel plugin that turns all multi-line `...` template strings into single-line template strings
-function multilineTemplateStringToSingleLine({ types: t }: { types: typeof BabelTypes }): babel.PluginObj {
+function multilineTemplateStringToSingleLine({
+  types: t,
+}: {
+  types: typeof BabelTypes;
+}): babel.PluginObj {
   return {
     visitor: {
       TemplateLiteral(path) {
@@ -52,21 +65,34 @@ function multilineTemplateStringToSingleLine({ types: t }: { types: typeof Babel
         if (path.parentPath.isTaggedTemplateExpression()) {
           // Just wrap it in `eval()`. There isn't much we can do about e.g. String.raw `a<newline>b`
           // that would remove the newline but reserve the template tag behavior.
-          path.parentPath.replaceWith(t.callExpression(
-            t.identifier('eval'),
-            [t.stringLiteral(this.file.code.slice(path.parent.start ?? undefined, path.parent.end ?? undefined))]
-          ));
+          path.parentPath.replaceWith(
+            t.callExpression(t.identifier('eval'), [
+              t.stringLiteral(
+                this.file.code.slice(
+                  path.parent.start ?? undefined,
+                  path.parent.end ?? undefined
+                )
+              ),
+            ])
+          );
           return;
         }
         // Escape newlines directly (note that \r and \r\n are being turned into \n here!)
-        path.replaceWith(t.templateLiteral(
-          path.node.quasis.map(el => t.templateElement({
-            raw: el.value.raw.replace(/\n|\r\n?/g, '\\n')
-          }, el.tail)),
-          path.node.expressions
-        ));
-      }
-    }
+        path.replaceWith(
+          t.templateLiteral(
+            path.node.quasis.map((el) =>
+              t.templateElement(
+                {
+                  raw: el.value.raw.replace(/\n|\r\n?/g, '\\n'),
+                },
+                el.tail
+              )
+            ),
+            path.node.expressions
+          )
+        );
+      },
+    },
   };
 }
 
@@ -81,28 +107,34 @@ export function makeMultilineJSIntoSingleLine(src: string): string {
   // ASI and *only* ASI and leaves the source intact otherwise.
   let postASI: string;
   try {
-     
-    postASI = babel.transformSync(src, {
-      retainLines: true,
-      compact: false,
-      code: true,
-      comments: true,
-      configFile: false,
-      babelrc: false,
-      browserslistConfigFile: false,
-      plugins: [lineCommentToBlockComment, multilineTemplateStringToSingleLine],
-      sourceType: 'script'
-    })?.code ?? src;
+    postASI =
+      babel.transformSync(src, {
+        retainLines: true,
+        compact: false,
+        code: true,
+        comments: true,
+        configFile: false,
+        babelrc: false,
+        browserslistConfigFile: false,
+        plugins: [
+          lineCommentToBlockComment,
+          multilineTemplateStringToSingleLine,
+        ],
+        sourceType: 'script',
+      })?.code ?? src;
   } catch {
     // The src might still be invalid, e.g. because a recoverable error was not fixed
     // and is now an unrecoverable error. Best we can do is just keep the lines now.
     postASI = src;
   }
 
-  const asSingleLine = postASI.split(/[\r\n]+/g)
-    .map(line => line.trim())
+  const asSingleLine = postASI
+    .split(/[\r\n]+/g)
+    .map((line) => line.trim())
     .join(' ')
     .trim();
   // Remove a trailing semicolon if the input also did not have one.
-  return src.trim().endsWith(';') ? asSingleLine : asSingleLine.replace(/;$/, '');
+  return src.trim().endsWith(';')
+    ? asSingleLine
+    : asSingleLine.replace(/;$/, '');
 }

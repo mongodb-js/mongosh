@@ -4,14 +4,14 @@ import type { Config } from './config';
 import {
   ALL_PACKAGE_VARIANTS,
   getReleaseVersionFromTag,
-  shouldDoPublicRelease as shouldDoPublicReleaseFn
+  shouldDoPublicRelease as shouldDoPublicReleaseFn,
 } from './config';
 import type { createAndPublishDownloadCenterConfig as createAndPublishDownloadCenterConfigFn } from './download-center';
 import { getArtifactUrl as getArtifactUrlFn } from './evergreen';
 import type { GithubRepo } from '@mongodb-js/devtools-github-repo';
 import type { publishToHomebrew as publishToHomebrewType } from './homebrew';
 import type { publishNpmPackages as publishNpmPackagesType } from './npm-packages';
-import type { PackageInformationProvider} from './packaging';
+import type { PackageInformationProvider } from './packaging';
 import { getPackageFile } from './packaging';
 
 export async function runPublish(
@@ -28,7 +28,9 @@ export async function runPublish(
   getEvergreenArtifactUrl: typeof getArtifactUrlFn = getArtifactUrlFn
 ): Promise<void> {
   if (!shouldDoPublicRelease(config)) {
-    console.warn('mongosh: Not triggering publish - configuration does not match a public release!');
+    console.warn(
+      'mongosh: Not triggering publish - configuration does not match a public release!'
+    );
     return;
   }
 
@@ -37,15 +39,23 @@ export async function runPublish(
   }
 
   const releaseVersion = getReleaseVersionFromTag(config.triggeringGitTag);
-  const latestDraftTag = await mongoshGithubRepo.getMostRecentDraftTagForRelease(releaseVersion);
+  const latestDraftTag =
+    await mongoshGithubRepo.getMostRecentDraftTagForRelease(releaseVersion);
   if (!latestDraftTag || !releaseVersion) {
-    throw new Error(`Could not find prior draft tag for release version: ${releaseVersion}`);
+    throw new Error(
+      `Could not find prior draft tag for release version: ${releaseVersion}`
+    );
   }
   if (latestDraftTag.sha !== config.revision) {
-    throw new Error(`Version mismatch - latest draft tag was for revision ${latestDraftTag.sha}, current revision is ${config.revision}`);
+    throw new Error(
+      `Version mismatch - latest draft tag was for revision ${latestDraftTag.sha}, current revision is ${config.revision}`
+    );
   }
 
-  console.info('mongosh: Re-using artifacts from most recent draft tag', latestDraftTag.name);
+  console.info(
+    'mongosh: Re-using artifacts from most recent draft tag',
+    latestDraftTag.name
+  );
 
   await publishArtifactsToBarque(
     barque,
@@ -98,12 +108,22 @@ async function publishArtifactsToBarque(
       ...variantPackageInfo,
       metadata: {
         ...variantPackageInfo.metadata,
-        version: releaseVersion
-      }
+        version: releaseVersion,
+      },
     }));
-    const packageUrl = getEvergreenArtifactUrl(project, mostRecentDraftTag, packageFile.path);
-    console.info(`mongosh: Considering publishing ${variant} artifact to barque ${packageUrl}`);
-    const packageUrls = await barque.releaseToBarque(variant, packageUrl, isDryRun);
+    const packageUrl = getEvergreenArtifactUrl(
+      project,
+      mostRecentDraftTag,
+      packageFile.path
+    );
+    console.info(
+      `mongosh: Considering publishing ${variant} artifact to barque ${packageUrl}`
+    );
+    const packageUrls = await barque.releaseToBarque(
+      variant,
+      packageUrl,
+      isDryRun
+    );
     for (const url of packageUrls) {
       console.info(` -> ${url}`);
     }

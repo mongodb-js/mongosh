@@ -1,10 +1,6 @@
 import type Mongo from './mongo';
-import {
-  shellApiClassDefault
-} from './decorators';
-import type {
-  RunCommandCursor as ServiceProviderRunCommandCursor
-} from '@mongosh/service-provider-core';
+import { shellApiClassDefault } from './decorators';
+import type { RunCommandCursor as ServiceProviderRunCommandCursor } from '@mongosh/service-provider-core';
 import { AbstractCursor } from './abstract-cursor';
 
 @shellApiClassDefault

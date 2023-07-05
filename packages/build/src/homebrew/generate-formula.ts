@@ -2,17 +2,22 @@ import * as semver from 'semver';
 import type { GithubRepo } from '@mongodb-js/devtools-github-repo';
 
 export async function generateUpdatedFormula(
-  context: { version: string, sha: string },
+  context: { version: string; sha: string },
   homebrewCore: GithubRepo,
   isDryRun: boolean
 ): Promise<string | null> {
-  const currentFormula = await homebrewCore.getFileContent('Formula/mongosh.rb', 'master');
+  const currentFormula = await homebrewCore.getFileContent(
+    'Formula/mongosh.rb',
+    'master'
+  );
 
   const urlMatch = /url \"([^"]+)\"/g.exec(currentFormula.content);
   const shaMatch = /sha256 \"([^"]+)\"/g.exec(currentFormula.content);
 
   if (!urlMatch || !shaMatch) {
-    throw new Error('mongosh: could not find url or sha field in homebrew/core formula');
+    throw new Error(
+      'mongosh: could not find url or sha field in homebrew/core formula'
+    );
   }
 
   const currentUrl = urlMatch[1];
@@ -25,12 +30,23 @@ export async function generateUpdatedFormula(
   }
 
   const currentVersion = /cli-repl-(\d+\.\d+\.\d+)\.tgz/.exec(currentUrl)?.[1];
-  if (currentVersion && semver.compare(currentVersion, context.version, { includePrerelease: true }) !== -1 && !isDryRun) {
-    throw new Error(`mongosh: new version ${context.version} is lower than or equal to current published version ${currentVersion}`);
+  if (
+    currentVersion &&
+    semver.compare(currentVersion, context.version, {
+      includePrerelease: true,
+    }) !== -1 &&
+    !isDryRun
+  ) {
+    throw new Error(
+      `mongosh: new version ${context.version} is lower than or equal to current published version ${currentVersion}`
+    );
   }
 
   let newFormula = currentFormula.content;
   newFormula = newFormula.replace(/url \"([^"]+)\"/g, `url "${newUrl}"`);
-  newFormula = newFormula.replace(/sha256 \"([^"]+)\"/g, `sha256 "${context.sha}"`);
+  newFormula = newFormula.replace(
+    /sha256 \"([^"]+)\"/g,
+    `sha256 "${context.sha}"`
+  );
   return newFormula;
 }

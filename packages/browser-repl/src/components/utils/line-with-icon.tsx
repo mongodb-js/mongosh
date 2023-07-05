@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 
 const lineWithIcon = css({
   display: 'flex',
-  flexDirection: 'row'
+  flexDirection: 'row',
 });
 
 const lineWithIconIcon = css({
@@ -29,7 +29,7 @@ export class LineWithIcon extends Component<LineWithIconProps> {
   static propTypes = {
     icon: PropTypes.object.isRequired,
     className: PropTypes.string,
-    ['data-testid']: PropTypes.string
+    ['data-testid']: PropTypes.string,
   };
 
   render(): JSX.Element {
@@ -44,5 +44,3 @@ export class LineWithIcon extends Component<LineWithIconProps> {
     );
   }
 }
-
-

@@ -11,8 +11,8 @@ const passwordPrompt = css({
     color: palette.gray.light3,
     padding: '0 3px',
     border: `1px solid ${palette.gray.light3}`,
-    borderRadius: 3
-  }
+    borderRadius: 3,
+  },
 });
 
 interface PasswordPromptProps {
