@@ -38,11 +38,11 @@ import type { MongoshAnalytics } from './analytics-helpers';
 /**
  * A helper class for keeping track of how often specific events occurred.
  */
-class MultiSet<T> {
+class MultiSet<T extends Record<string, any>> {
   _entries: Map<string, number> = new Map();
 
   add(entry: T): void {
-    const key = JSON.stringify(Object.entries(entry as Record<string, any>).sort());
+    const key = JSON.stringify(Object.entries(entry).sort());
     this._entries.set(key, (this._entries.get(key) ?? 0) + 1);
   }
 
