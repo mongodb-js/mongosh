@@ -3,6 +3,7 @@
 
 import { parentPort, isMainThread } from 'worker_threads';
 import type {
+  Completion,
   Runtime,
   RuntimeEvaluationListener,
   RuntimeEvaluationResult
@@ -175,11 +176,11 @@ const workerRuntime: WorkerRuntime = {
     return serializeEvaluationResult(result);
   },
 
-  getCompletions(code: string) {
+  getCompletions(code: string): Promise<Completion[]> {
     return ensureRuntime('getCompletions').getCompletions(code);
   },
 
-  getShellPrompt() {
+  getShellPrompt(): Promise<string> {
     return ensureRuntime('getShellPrompt').getShellPrompt();
   },
 
