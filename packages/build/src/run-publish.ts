@@ -1,7 +1,6 @@
 import type { writeBuildInfo as writeBuildInfoType } from './build-info';
 import type { Barque } from './barque';
-import type {
-  Config} from './config';
+import type { Config } from './config';
 import {
   ALL_PACKAGE_VARIANTS,
   getReleaseVersionFromTag,
