@@ -172,7 +172,7 @@ export default class Bulk extends ShellApiWithMongoClass {
   @returnsPromise
   @apiVersions([1])
   async execute(writeConcern?: WriteConcern): Promise<BulkWriteResult> {
-    // @ts-expect-error Property 'result' is private and only accessible within class 'BulkWriteResult'.
+    // @ts-expect-error TODO(MONGOSH-1507) fix the typing
     const { result } = await this._serviceProviderBulkOp.execute() ;
     this._executed = true;
     this._emitBulkApiCall('execute', { writeConcern: writeConcern });

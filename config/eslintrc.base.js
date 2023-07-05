@@ -3,7 +3,7 @@
 const shared = require('@mongodb-js/eslint-config-devtools');
 const common = require('@mongodb-js/eslint-config-devtools/common');
 
-// TODO: this is temporary just so we can commit something for now
+// TODO(MONGOSH-1508) we need to turn these back into errors (and fix them) or ticket them
 const tempRules = {
   'jsx-a11y/no-autofocus': 1,
   'jsx-a11y/click-events-have-key-events': 1,
@@ -25,7 +25,7 @@ const tempRules = {
   'no-case-declarations': 1,
 };
 
-// TODO: this is temporary just so we can commit something for now
+// TODO(MONGOSH-1508) we need to turn these back into errors (and fix them) or ticket them
 const tempTypescriptRules = {
   '@typescript-eslint/no-unnecessary-type-assertion': 1,
   '@typescript-eslint/restrict-plus-operands': 1,

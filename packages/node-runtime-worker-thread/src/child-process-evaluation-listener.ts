@@ -9,7 +9,7 @@ export class ChildProcessEvaluationListener {
   exposedListener: Exposed<Required<Omit<RuntimeEvaluationListener, 'onLoad' | 'getCryptLibraryOptions'>>>;
 
   constructor(workerRuntime: WorkerRuntime, childProcess: ChildProcess) {
-    // @ts-expect-error TODO MONGOSH-1506
+    // @ts-expect-error TODO(MONGOSH-1506) fix the typing
     this.exposedListener = exposeAll(
       {
         onPrompt(question, type) {
