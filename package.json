@@ -67,7 +67,8 @@
     "pregenerate-vulnerability-report": "npm run webpack-build -w packages/cli-repl && npm run snyk-test && npm run scan-node-js && npm run write-node-js-dep",
     "generate-vulnerability-report": "mongodb-sbom-tools generate-vulnerability-report --snyk-reports=.sbom/snyk-test-result.json,.sbom/node-js-vuln.json --dependencies=.sbom/dependencies.json,.sbom/node-js-dep.json --fail-on=high > .sbom/vulnerability-report.md",
     "create-vulnerability-tickets": "mongodb-sbom-tools generate-vulnerability-report --snyk-reports=.sbom/snyk-test-result.json,.sbom/node-js-vuln.json --dependencies=.sbom/dependencies.json,.sbom/node-js-dep.json --create-jira-issues",
-    "where": "monorepo-where"
+    "where": "monorepo-where",
+    "reformat": "lerna run reformat --stream --no-bail"
   },
   "config": {
     "unsafe-perm": true
