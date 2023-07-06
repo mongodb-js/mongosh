@@ -1,9 +1,7 @@
 import { expect } from 'chai';
 import { EventEmitter } from 'events';
 
-import type {
-  Caller,
-  Exposed} from './rpc';
+import type { Caller, Exposed } from './rpc';
 import {
   createCaller,
   exposeAll,
@@ -11,7 +9,7 @@ import {
   cancel,
   serialize,
   deserialize,
-  removeTrailingUndefined
+  removeTrailingUndefined,
 } from './rpc';
 
 function createMockRpcMesageBus() {
@@ -27,25 +25,25 @@ function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-describe('rpc helpers', function() {
-  describe('serialize', function() {
-    it('returns base64 representation of an input', function() {
+describe('rpc helpers', function () {
+  describe('serialize', function () {
+    it('returns base64 representation of an input', function () {
       expect(serialize('Hello')).to.equal('data:;base64,/w0iBUhlbGxv');
     });
   });
 
-  describe('deserialize', function() {
-    it("converts base64 representation of input back to it's original form", function() {
+  describe('deserialize', function () {
+    it("converts base64 representation of input back to it's original form", function () {
       expect(deserialize(serialize('Hello'))).to.equal('Hello');
     });
 
-    it("returns original string if it's not a base64 data uri", function() {
+    it("returns original string if it's not a base64 data uri", function () {
       expect(deserialize('Hi')).to.equal('Hi');
     });
   });
 
-  describe('removeTrailingUndefined', function() {
-    it('removes trailing undefineds from an array', function() {
+  describe('removeTrailingUndefined', function () {
+    it('removes trailing undefineds from an array', function () {
       expect(
         removeTrailingUndefined([1, 2, 3, undefined, undefined, undefined])
       ).to.deep.equal([1, 2, 3]);
@@ -53,7 +51,7 @@ describe('rpc helpers', function() {
   });
 });
 
-describe('rpc', function() {
+describe('rpc', function () {
   let messageBus: EventEmitter;
   let caller: Caller<{
     meow(...args: any[]): string;
@@ -65,7 +63,7 @@ describe('rpc', function() {
   }>;
   let exposed: Exposed<unknown>;
 
-  afterEach(function() {
+  afterEach(function () {
     if (messageBus) {
       messageBus.removeAllListeners();
       messageBus = null;
@@ -82,7 +80,7 @@ describe('rpc', function() {
     }
   });
 
-  it('exposes functions and allows to call them', async function() {
+  it('exposes functions and allows to call them', async function () {
     messageBus = createMockRpcMesageBus();
     caller = createCaller(['meow'], messageBus);
 
@@ -90,7 +88,7 @@ describe('rpc', function() {
       {
         meow() {
           return 'Meow meow meow!';
-        }
+        },
       },
       messageBus
     );
@@ -98,7 +96,7 @@ describe('rpc', function() {
     expect(await caller.meow()).to.equal('Meow meow meow!');
   });
 
-  it('serializes and de-serializes errors when thrown', async function() {
+  it('serializes and de-serializes errors when thrown', async function () {
     messageBus = createMockRpcMesageBus();
     caller = createCaller(['throws'], messageBus);
 
@@ -106,7 +104,7 @@ describe('rpc', function() {
       {
         throws() {
           throw new TypeError('Uh-oh, error!');
-        }
+        },
       },
       messageBus
     );
@@ -128,7 +126,7 @@ describe('rpc', function() {
       .match(/TypeError: Uh-oh, error!\r?\n\s+at throws/);
   });
 
-  it('throws on client if arguments are not serializable', async function() {
+  it('throws on client if arguments are not serializable', async function () {
     messageBus = createMockRpcMesageBus();
     caller = createCaller(['callMe'], messageBus);
 
@@ -136,7 +134,7 @@ describe('rpc', function() {
       {
         callMe(fn: any) {
           fn(1, 2);
-        }
+        },
       },
       messageBus
     );
@@ -155,7 +153,7 @@ describe('rpc', function() {
       .match(/could not be cloned/);
   });
 
-  it('throws on client if retured value from the server is not serializable', async function() {
+  it('throws on client if retured value from the server is not serializable', async function () {
     messageBus = createMockRpcMesageBus();
     caller = createCaller(['returnsFunction'], messageBus);
 
@@ -163,7 +161,7 @@ describe('rpc', function() {
       {
         returnsFunction() {
           return () => {};
-        }
+        },
       },
       messageBus
     );
@@ -182,15 +180,15 @@ describe('rpc', function() {
       .match(/could not be cloned/);
   });
 
-  describe('createCaller', function() {
-    it('creates a caller with provided method names', function() {
+  describe('createCaller', function () {
+    it('creates a caller with provided method names', function () {
       messageBus = createMockRpcMesageBus();
       caller = createCaller(['meow', 'woof'], messageBus);
       expect(caller).to.have.property('meow');
       expect(caller).to.have.property('woof');
     });
 
-    it('attaches caller listener to provided process', function(done) {
+    it('attaches caller listener to provided process', function (done) {
       messageBus = createMockRpcMesageBus();
       caller = createCaller(['meow'], messageBus);
 
@@ -204,19 +202,19 @@ describe('rpc', function() {
       });
     });
 
-    describe('cancel', function() {
-      it('stops all in-flight evaluations', async function() {
+    describe('cancel', function () {
+      it('stops all in-flight evaluations', async function () {
         messageBus = createMockRpcMesageBus();
         caller = createCaller(['neverResolves'], messageBus);
         let err: Error;
         try {
           await Promise.all([
             caller.neverResolves(),
-            (async() => {
+            (async () => {
               // smol sleep to make sure we actually issued a call
               await sleep(100);
               caller[cancel]();
-            })()
+            })(),
           ]);
         } catch (e: any) {
           err = e;
@@ -227,15 +225,15 @@ describe('rpc', function() {
     });
   });
 
-  describe('exposeAll', function() {
-    it('exposes passed methods on provided process', function(done) {
+  describe('exposeAll', function () {
+    it('exposes passed methods on provided process', function (done) {
       messageBus = createMockRpcMesageBus();
 
       exposed = exposeAll(
         {
           meow() {
             return 'Meow meow meow meow!';
-          }
+          },
         },
         messageBus
       );
@@ -256,12 +254,12 @@ describe('rpc', function() {
       messageBus.emit('message', {
         sender: 'postmsg-rpc/client',
         func: 'meow',
-        id: '123abc'
+        id: '123abc',
       });
     });
 
-    describe('close', function() {
-      it('disables all exposed listeners', function() {
+    describe('close', function () {
+      it('disables all exposed listeners', function () {
         messageBus = createMockRpcMesageBus();
         exposed = exposeAll({ doSomething() {} }, messageBus);
         expect(messageBus.listenerCount('message')).to.equal(1);

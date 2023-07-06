@@ -1,5 +1,5 @@
 import fs from 'fs';
-import type { Config} from './config';
+import type { Config } from './config';
 import { getReleaseVersionFromTag } from './config';
 import type { uploadArtifactToEvergreen as uploadArtifactToEvergreenFn } from './evergreen';
 import type { PackageFile } from './packaging';
@@ -7,11 +7,9 @@ import type { PackageFile } from './packaging';
 export async function runUpload(
   config: Config,
   tarballFile: PackageFile,
-  uploadToEvergreen: typeof uploadArtifactToEvergreenFn,
+  uploadToEvergreen: typeof uploadArtifactToEvergreenFn
 ): Promise<void> {
-  for (const key of [
-    'evgAwsKey', 'evgAwsSecret', 'project', 'revision'
-  ]) {
+  for (const key of ['evgAwsKey', 'evgAwsSecret', 'project', 'revision']) {
     if (typeof (config as any)[key] !== 'string') {
       throw new Error(`Missing build config key: ${key}`);
     }
@@ -20,8 +18,8 @@ export async function runUpload(
   // When we are tagged with a release tag (draft or public) we use the tag directly as version
   // to allow sharing artifacts between preparation steps and final publishing
   const revisionOrVersion = getReleaseVersionFromTag(config.triggeringGitTag)
-    ? config.triggeringGitTag as string
-    : config.revision as string;
+    ? (config.triggeringGitTag as string)
+    : (config.revision as string);
 
   // we uploaded to evergreen to have a common place to grab the packaged artifact from
   const uploadedArtifactUrl = await uploadToEvergreen(

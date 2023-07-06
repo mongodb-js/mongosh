@@ -23,9 +23,7 @@ enum AsyncRewriterErrors {
    *
    * **Solution: Do not use calls directly in such functions. If necessary, place these calls in an inner 'async' function.**
    */
-  SyntheticPromiseInAlwaysSyncContext = 'ASYNC-10012'
+  SyntheticPromiseInAlwaysSyncContext = 'ASYNC-10012',
 }
 
-export {
-  AsyncRewriterErrors
-};
+export { AsyncRewriterErrors };

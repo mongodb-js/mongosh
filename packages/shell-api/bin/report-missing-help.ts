@@ -17,8 +17,15 @@ Object.keys(signatures)
       .forEach((attributeName) => {
         const attributeHelp = typeHelp.help.attributes[attributeName];
 
-        if (!attributeHelp || typeof attributeHelp !== 'object' || !attributeHelp.description) {
-          console.info('Missing en_US help for attribute:', `${typeName}.${attributeName}`);
+        if (
+          !attributeHelp ||
+          typeof attributeHelp !== 'object' ||
+          !attributeHelp.description
+        ) {
+          console.info(
+            'Missing en_US help for attribute:',
+            `${typeName}.${attributeName}`
+          );
         }
       });
   });

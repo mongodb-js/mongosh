@@ -7,5 +7,5 @@
 export enum Platform {
   Windows = 'win32',
   MacOs = 'darwin',
-  Linux = 'linux'
+  Linux = 'linux',
 }

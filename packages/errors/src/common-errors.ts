@@ -1,4 +1,3 @@
-
 /**
  * @mongoshErrors
  */
@@ -44,9 +43,7 @@ enum CommonErrors {
    *
    * **See the error output for details.**
    */
-  NotImplemented = 'COMMON-90002'
+  NotImplemented = 'COMMON-90002',
 }
 
-export {
-  CommonErrors
-};
+export { CommonErrors };

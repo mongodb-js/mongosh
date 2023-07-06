@@ -4,7 +4,10 @@ import i18n from '@mongosh/i18n';
 import util from 'util';
 import stripAnsi from 'strip-ansi';
 import clr from './clr';
-import type { HelpProperties, CollectionNamesWithTypes } from '@mongosh/shell-api';
+import type {
+  HelpProperties,
+  CollectionNamesWithTypes,
+} from '@mongosh/shell-api';
 import { isShouldReportAsBugError } from '@mongosh/errors';
 
 type EvaluationResult = {
@@ -38,7 +41,10 @@ function formatBytes(value: number): string {
  *
  * @returns {string} The formatted output.
  */
-export default function formatOutput(evaluationResult: EvaluationResult, options: FormatOptions): string {
+export default function formatOutput(
+  evaluationResult: EvaluationResult,
+  options: FormatOptions
+): string {
   const { value, type } = evaluationResult;
 
   if (type === 'Cursor' || type === 'AggregationCursor') {
@@ -46,7 +52,10 @@ export default function formatOutput(evaluationResult: EvaluationResult, options
   }
 
   if (type === 'CursorIterationResult') {
-    return formatCursorIterationResult(value, { ...options, maxArrayLength: Infinity });
+    return formatCursorIterationResult(value, {
+      ...options,
+      maxArrayLength: Infinity,
+    });
   }
 
   if (type === 'Help') {
@@ -75,32 +84,41 @@ export default function formatOutput(evaluationResult: EvaluationResult, options
 
   if (type === 'ShowProfileResult') {
     if (value.count === 0) {
-      return clr(`db.system.profile is empty.
+      return clr(
+        `db.system.profile is empty.
 Use db.setProfilingLevel(2) will enable profiling.
-Use db.getCollection('system.profile').find() to show raw profile entries.`, 'yellow', options);
+Use db.getCollection('system.profile').find() to show raw profile entries.`,
+        'yellow',
+        options
+      );
     }
     // direct from old shell
-    return value.result.map(function(x: any) {
-      const res = `${x.op}\t${x.ns} ${x.millis}ms ${String(x.ts).substring(0, 24)}\n`;
-      let l = '';
-      for (const z in x) {
-        if (z === 'op' || z === 'ns' || z === 'millis' || z === 'ts') {
-          continue;
-        }
+    return value.result
+      .map(function (x: any) {
+        const res = `${x.op}\t${x.ns} ${x.millis}ms ${String(x.ts).substring(
+          0,
+          24
+        )}\n`;
+        let l = '';
+        for (const z in x) {
+          if (z === 'op' || z === 'ns' || z === 'millis' || z === 'ts') {
+            continue;
+          }
 
-        const val = x[z];
-        const mytype = typeof (val);
+          const val = x[z];
+          const mytype = typeof val;
 
-        if (mytype === 'object') {
-          l += z + ':' + formatSimpleType(val, options) + ' ';
-        } else if (mytype === 'boolean') {
-          l += z + ' ';
-        } else {
-          l += z + ':' + val + ' ';
+          if (mytype === 'object') {
+            l += z + ':' + formatSimpleType(val, options) + ' ';
+          } else if (mytype === 'boolean') {
+            l += z + ' ';
+          } else {
+            l += z + ':' + val + ' ';
+          }
         }
-      }
-      return `${res}${l}`;
-    }).join('\n');
+        return `${res}${l}`;
+      })
+      .join('\n');
   }
 
   if (type === 'Error') {
@@ -112,7 +130,7 @@ Use db.getCollection('system.profile').find() to show raw profile entries.`, 'ye
       ...options,
       depth: Infinity,
       maxArrayLength: Infinity,
-      maxStringLength: Infinity
+      maxStringLength: Infinity,
     });
   }
 
@@ -126,11 +144,14 @@ function formatSimpleType(output: any, options: FormatOptions): any {
   return inspect(output, options);
 }
 
-function formatCollections(output: CollectionNamesWithTypes[], options: FormatOptions): string {
+function formatCollections(
+  output: CollectionNamesWithTypes[],
+  options: FormatOptions
+): string {
   const systemCollections: CollectionNamesWithTypes[] = [];
   const otherCollections: CollectionNamesWithTypes[] = [];
 
-  output.forEach(coll => {
+  output.forEach((coll) => {
     if (coll.name.startsWith('system.') || coll.name.startsWith('enxcol_.')) {
       systemCollections.push(coll);
     } else {
@@ -139,18 +160,23 @@ function formatCollections(output: CollectionNamesWithTypes[], options: FormatOp
   });
 
   const tableEntries = [
-    ...otherCollections.map(
-      coll => [clr(coll.name, 'bold', options), coll.badge]
-    ),
-    ...systemCollections.map(
-      coll => [`${options.colors ? '\u001b[2m' : ''}${clr(coll.name, 'bold', options)}`, coll.badge]
-    )
+    ...otherCollections.map((coll) => [
+      clr(coll.name, 'bold', options),
+      coll.badge,
+    ]),
+    ...systemCollections.map((coll) => [
+      `${options.colors ? '\u001b[2m' : ''}${clr(coll.name, 'bold', options)}`,
+      coll.badge,
+    ]),
   ];
 
   return textTable(tableEntries, { align: ['l', 'l'] });
 }
 
-function formatBanner(output: null | { header?: string, content: string }, options: FormatOptions): string {
+function formatBanner(
+  output: null | { header?: string; content: string },
+  options: FormatOptions
+): string {
   if (!output?.content) {
     return '';
   }
@@ -167,34 +193,45 @@ function formatBanner(output: null | { header?: string, content: string }, optio
 }
 
 function formatDatabases(output: any[], options: FormatOptions): string {
-  const tableEntries = output.map(
-    (db) => [clr(db.name, 'bold', options), formatBytes(db.sizeOnDisk)]
-  );
+  const tableEntries = output.map((db) => [
+    clr(db.name, 'bold', options),
+    formatBytes(db.sizeOnDisk),
+  ]);
 
   return textTable(tableEntries, { align: ['l', 'r'] });
 }
 
-function formatStats(output: Record<string, any>, options: FormatOptions): string {
-  return Object.keys(output).map((c) => {
-    return `${clr(c, 'mongosh:section-header', options)}\n` +
-      `${inspect(output[c], options)}`;
-  }).join('\n---\n');
+function formatStats(
+  output: Record<string, any>,
+  options: FormatOptions
+): string {
+  return Object.keys(output)
+    .map((c) => {
+      return (
+        `${clr(c, 'mongosh:section-header', options)}\n` +
+        `${inspect(output[c], options)}`
+      );
+    })
+    .join('\n---\n');
 }
 
-function formatListCommands(output: Record<string, any>, options: FormatOptions): string {
-  const tableEntries = Object.keys(output).map(
-    (cmd) => {
-      const val = output[cmd];
-      let result = Object.keys(val).filter(k => k !== 'help').reduce((str, k) => {
+function formatListCommands(
+  output: Record<string, any>,
+  options: FormatOptions
+): string {
+  const tableEntries = Object.keys(output).map((cmd) => {
+    const val = output[cmd];
+    let result = Object.keys(val)
+      .filter((k) => k !== 'help')
+      .reduce((str, k) => {
         if (val[k]) {
           return `${str} ${clr(k, ['bold', 'white'], options)}`;
         }
         return str;
       }, `${clr(cmd, 'mongosh:section-header', options)}: `);
-      result += val.help ? `\n${clr(val.help, 'green', options)}` : '';
-      return result;
-    }
-  );
+    result += val.help ? `\n${clr(val.help, 'green', options)}` : '';
+    return result;
+  });
   return tableEntries.join('\n\n');
 }
 
@@ -203,7 +240,8 @@ export function formatError(error: Error, options: FormatOptions): string {
   if (error.name) result += `\r${clr(error.name, 'mongosh:error', options)}: `;
   if (error.message) result += error.message;
   if (isShouldReportAsBugError(error)) {
-    result += '\nThis is an error inside mongosh. Please file a bug report for the MONGOSH project here: https://jira.mongodb.org/projects/MONGOSH/issues.';
+    result +=
+      '\nThis is an error inside mongosh. Please file a bug report for the MONGOSH project here: https://jira.mongodb.org/projects/MONGOSH/issues.';
     if (options.bugReportErrorMessageInfo) {
       result += `\n${options.bugReportErrorMessageInfo}`;
     }
@@ -223,19 +261,35 @@ export function formatError(error: Error, options: FormatOptions): string {
     result += error.stack.slice(error.stack.indexOf('\n'));
   }
   if ((error as any).errInfo) {
-    result += `\n${clr(i18n.__('cli-repl.cli-repl.additionalErrorInfo'), 'mongosh:additional-error-info', options)}: `;
+    result += `\n${clr(
+      i18n.__('cli-repl.cli-repl.additionalErrorInfo'),
+      'mongosh:additional-error-info',
+      options
+    )}: `;
     result += inspect((error as any).errInfo, options);
   }
   if ((error as any).result) {
-    result += `\n${clr(i18n.__('cli-repl.cli-repl.additionalErrorResult'), 'mongosh:additional-error-info', options)}: `;
+    result += `\n${clr(
+      i18n.__('cli-repl.cli-repl.additionalErrorResult'),
+      'mongosh:additional-error-info',
+      options
+    )}: `;
     result += inspect((error as any).result, options);
   }
   if ((error as any).writeErrors) {
-    result += `\n${clr(i18n.__('cli-repl.cli-repl.additionalErrorWriteErrors'), 'mongosh:additional-error-info', options)}: `;
+    result += `\n${clr(
+      i18n.__('cli-repl.cli-repl.additionalErrorWriteErrors'),
+      'mongosh:additional-error-info',
+      options
+    )}: `;
     result += inspect((error as any).writeErrors, options);
   }
   if ((error as any).violations) {
-    result += `\n${clr(i18n.__('cli-repl.cli-repl.additionalErrorViolations'), 'mongosh:additional-error-info', options)}: `;
+    result += `\n${clr(
+      i18n.__('cli-repl.cli-repl.additionalErrorViolations'),
+      'mongosh:additional-error-info',
+      options
+    )}: `;
     result += inspect((error as any).violations, options);
   }
 
@@ -243,7 +297,9 @@ export function formatError(error: Error, options: FormatOptions): string {
 }
 
 function removeUndefinedValues<T>(obj: T) {
-  return Object.fromEntries(Object.entries(obj).filter(keyValue => keyValue[1] !== undefined));
+  return Object.fromEntries(
+    Object.entries(obj).filter((keyValue) => keyValue[1] !== undefined)
+  );
 }
 
 function dateInspect(this: Date, depth: number, options: any): string {
@@ -258,14 +314,17 @@ function inspect(output: any, options: FormatOptions): any {
   // to affect mongosh scripts, we unset it later.
   (Date.prototype as any)[util.inspect.custom] = dateInspect;
   try {
-    return util.inspect(output, removeUndefinedValues({
-      showProxy: false,
-      colors: options.colors ?? true,
-      depth: options.depth ?? 6,
-      maxArrayLength: options.maxArrayLength,
-      maxStringLength: options.maxStringLength,
-      compact: options.compact
-    }));
+    return util.inspect(
+      output,
+      removeUndefinedValues({
+        showProxy: false,
+        colors: options.colors ?? true,
+        depth: options.depth ?? 6,
+        maxArrayLength: options.maxArrayLength,
+        maxStringLength: options.maxStringLength,
+        compact: options.compact,
+      })
+    );
   } finally {
     delete (Date.prototype as any)[util.inspect.custom];
   }
@@ -286,7 +345,8 @@ function formatCursorIterationResult(value: any, options: FormatOptions): any {
 
   let ret = inspect(value.documents, options);
   if (value.cursorHasMore) {
-    ret += '\n' + i18n.__('shell-api.classes.Cursor.iteration.type-it-for-more');
+    ret +=
+      '\n' + i18n.__('shell-api.classes.Cursor.iteration.type-it-for-more');
   }
   return ret;
 }
@@ -298,7 +358,11 @@ function formatHelp(value: HelpProperties, options: FormatOptions): string {
   let helpMenu = '';
 
   if (value.help) {
-    helpMenu += `\n  ${clr(`${value.help}:`, 'mongosh:section-header', options)}\n\n`;
+    helpMenu += `\n  ${clr(
+      `${value.help}:`,
+      'mongosh:section-header',
+      options
+    )}\n\n`;
   }
 
   (value.attr || []).forEach((method) => {
@@ -325,7 +389,8 @@ function formatHelp(value: HelpProperties, options: FormatOptions): string {
   });
 
   if (value.docs) {
-    helpMenu += `\n  ${clr(i18n.__('cli-repl.args.moreInformation'), 'bold', options)} ` +
+    helpMenu +=
+      `\n  ${clr(i18n.__('cli-repl.args.moreInformation'), 'bold', options)} ` +
       `${clr(value.docs, 'mongosh:uri', options)}`;
   }
 

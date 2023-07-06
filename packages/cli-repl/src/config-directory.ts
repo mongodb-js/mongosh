@@ -34,9 +34,15 @@ export class ShellHomeDirectory {
    * actually exist.
    */
   async ensureExists(): Promise<void> {
-    this.ensureExistsPromise ??= (async() => {
-      await fs.mkdir(this.paths.shellRoamingDataPath, { recursive: true, mode: 0o700 });
-      await fs.mkdir(this.paths.shellLocalDataPath, { recursive: true, mode: 0o700 });
+    this.ensureExistsPromise ??= (async () => {
+      await fs.mkdir(this.paths.shellRoamingDataPath, {
+        recursive: true,
+        mode: 0o700,
+      });
+      await fs.mkdir(this.paths.shellLocalDataPath, {
+        recursive: true,
+        mode: 0o700,
+      });
     })();
     return this.ensureExistsPromise;
   }
@@ -107,7 +113,9 @@ export class ConfigManager<Config> extends EventEmitter {
       if (fd !== undefined) {
         // Not the first access. Read the file and return it.
         try {
-          const config: Config = EJSON.parse(await fd.readFile({ encoding: 'utf8' })) as any;
+          const config: Config = EJSON.parse(
+            await fd.readFile({ encoding: 'utf8' })
+          ) as any;
           this.emit('update-config', config);
           return { ...defaultConfig, ...config };
         } catch (err: any) {
@@ -159,7 +167,7 @@ export function getStoragePaths(): ShellHomePaths {
   return {
     shellLocalDataPath,
     shellRoamingDataPath,
-    shellRcPath: os.homedir()
+    shellRcPath: os.homedir(),
   };
 }
 
@@ -183,7 +191,7 @@ export function getGlobalConfigPaths(): string[] {
     case 'darwin':
       paths.push('/usr/local/etc/mongosh.conf');
       paths.push('/opt/homebrew/etc/mongosh.conf');
-      // fallthrough
+    // fallthrough
     default:
       paths.push('/etc/mongosh.conf');
       return paths;

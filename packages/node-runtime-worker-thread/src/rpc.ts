@@ -5,7 +5,7 @@ import type {
   MessageData,
   PostmsgRpcOptions,
   ServerMessageData,
-  ClientMessageData
+  ClientMessageData,
 } from 'postmsg-rpc';
 
 export function serialize(data: unknown): string {
@@ -28,7 +28,7 @@ type RPCMessageBus = { on: Function; off: Function } & (
 
 enum RPCMessageTypes {
   Message,
-  Error
+  Error,
 }
 
 type RPCMessage = {
@@ -101,7 +101,7 @@ function getRPCOptions(messageBus: RPCMessageBus): PostmsgRpcOptions {
         } catch (e: any) {
           data.res = serialize({
             type: RPCMessageTypes.Error,
-            payload: serializeError(e)
+            payload: serializeError(e),
           });
         }
       }
@@ -122,7 +122,7 @@ function getRPCOptions(messageBus: RPCMessageBus): PostmsgRpcOptions {
       }
 
       return data;
-    }
+    },
   };
 }
 
@@ -138,7 +138,7 @@ export function exposeAll<O>(obj: O, messageBus: RPCMessageBus): Exposed<O> {
   Object.entries(obj).forEach(([key, val]) => {
     const { close } = expose(
       key,
-      async(...args: unknown[]) => {
+      async (...args: unknown[]) => {
         try {
           return { type: RPCMessageTypes.Message, payload: await val(...args) };
         } catch (e: any) {
@@ -159,7 +159,7 @@ export function exposeAll<O>(obj: O, messageBus: RPCMessageBus): Exposed<O> {
       Object.values(obj).forEach((fn) => {
         fn.close();
       });
-    }
+    },
   });
   return obj as Exposed<O>;
 }
@@ -173,14 +173,14 @@ export function createCaller<Impl extends {}>(
   methodNames: Extract<keyof Impl, string>[],
   messageBus: RPCMessageBus,
   processors: Partial<
-    Record<typeof methodNames[number], (...input: any[]) => any[]>
+    Record<(typeof methodNames)[number], (...input: any[]) => any[]>
   > = {}
-): Caller<Impl, typeof methodNames[number]> {
+): Caller<Impl, (typeof methodNames)[number]> {
   const obj = {};
   const inflight = new Set<CancelablePromise<unknown>>();
   methodNames.forEach((name) => {
     const c = caller(name as string, getRPCOptions(messageBus));
-    (obj as any)[name] = async(...args: unknown[]) => {
+    (obj as any)[name] = async (...args: unknown[]) => {
       const processed =
         typeof processors[name] === 'function'
           ? processors[name]?.(...args)
@@ -200,8 +200,7 @@ export function createCaller<Impl extends {}>(
         cancelable.cancel();
         inflight.delete(cancelable);
       }
-    }
+    },
   });
-  return obj as Caller<Impl, typeof methodNames[number]>;
+  return obj as Caller<Impl, (typeof methodNames)[number]>;
 }
-

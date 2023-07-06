@@ -2,7 +2,7 @@ import {
   classPlatforms,
   returnsPromise,
   shellApiClassDefault,
-  ShellApiWithMongoClass
+  ShellApiWithMongoClass,
 } from './decorators';
 import type {
   Document,
@@ -11,7 +11,7 @@ import type {
   TransactionOptions,
   ClusterTime,
   TimestampType,
-  ServerSessionId
+  ServerSessionId,
 } from '@mongosh/service-provider-core';
 import { asPrintable } from './enums';
 import type Mongo from './mongo';
@@ -20,7 +20,7 @@ import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
 import { assertArgsDefinedType, isValidDatabaseName } from './helpers';
 
 @shellApiClassDefault
-@classPlatforms([ 'CLI' ])
+@classPlatforms(['CLI'])
 export default class Session extends ShellApiWithMongoClass {
   public id: ServerSessionId | undefined;
   public _session: ClientSession;
@@ -28,7 +28,11 @@ export default class Session extends ShellApiWithMongoClass {
   public _mongo: Mongo;
   private _databases: Record<string, Database>;
 
-  constructor(mongo: Mongo, options: ClientSessionOptions, session: ClientSession) {
+  constructor(
+    mongo: Mongo,
+    options: ClientSessionOptions,
+    session: ClientSession
+  ) {
     super();
     this._session = session;
     this._options = options;
@@ -48,7 +52,10 @@ export default class Session extends ShellApiWithMongoClass {
     assertArgsDefinedType([name], ['string'], 'Session.getDatabase');
 
     if (!isValidDatabaseName(name)) {
-      throw new MongoshInvalidInputError(`Invalid database name: ${name}`, CommonErrors.InvalidArgument);
+      throw new MongoshInvalidInputError(
+        `Invalid database name: ${name}`,
+        CommonErrors.InvalidArgument
+      );
     }
 
     if (!(name in this._databases)) {
@@ -101,10 +108,13 @@ export default class Session extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
-  async withTransaction<T extends(...args: any) => any>(fn: T, options: TransactionOptions = {}): Promise<Document | undefined> {
+  async withTransaction<T extends (...args: any) => any>(
+    fn: T,
+    options: TransactionOptions = {}
+  ): Promise<Document | undefined> {
     assertArgsDefinedType([fn, options], ['function', [undefined, 'object']]);
     // The driver doesn't automatically ensure that fn is an async
     // function/convert its return type to a Promise, so we do that here.
-    return await this._session.withTransaction(async() => await fn(), options);
+    return await this._session.withTransaction(async () => await fn(), options);
   }
 }

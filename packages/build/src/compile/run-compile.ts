@@ -14,14 +14,16 @@ export async function runCompile(config: Config): Promise<string> {
   await generateBundle(config);
 
   console.info('mongosh: creating binary:', config.executablePath);
-  const packageInformation = config.packageInformation?.(config.packageVariant as PackageVariant);
+  const packageInformation = config.packageInformation?.(
+    config.packageVariant as PackageVariant
+  );
 
   await new SignableCompiler(
     config.bundleSinglefileOutput,
     config.executablePath,
     config.execNodeVersion,
-    (packageInformation?.metadata ?? {}) as PackageInformation['metadata'])
-    .compile();
+    (packageInformation?.metadata ?? {}) as PackageInformation['metadata']
+  ).compile();
 
   return config.executablePath;
 }

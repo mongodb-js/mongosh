@@ -28,8 +28,8 @@ module.exports = {
       electron: false,
       '@electron/remote': false,
       'hadron-ipc': false,
-      'compass-preferences-model': false
-    }
+      'compass-preferences-model': false,
+    },
   },
   module: {
     rules: [
@@ -41,23 +41,23 @@ module.exports = {
           options: {
             presets: [
               require.resolve('@babel/preset-react'),
-              require.resolve('@babel/preset-typescript')
+              require.resolve('@babel/preset-typescript'),
             ],
             plugins: [
-              require.resolve('@babel/plugin-proposal-class-properties')
+              require.resolve('@babel/plugin-proposal-class-properties'),
             ],
             sourceType: 'unambiguous',
-            compact: false
-          }
-        }
-      }
-    ]
+            compact: false,
+          },
+        },
+      },
+    ],
   },
   plugins: [
     new webpack.ProvidePlugin({
       process: 'process',
-      Buffer: ['buffer', 'Buffer']
-    })
+      Buffer: ['buffer', 'Buffer'],
+    }),
   ],
-  externals: { "node:crypto": "commonjs crypto" }
+  externals: { 'node:crypto': 'commonjs crypto' },
 };

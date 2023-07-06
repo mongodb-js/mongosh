@@ -75,5 +75,5 @@ export type {
   AutoEncryptionOptions,
   ServerApi,
   ServerApiVersion,
-  MongoClient // mostly for testing
+  MongoClient, // mostly for testing
 } from 'mongodb';

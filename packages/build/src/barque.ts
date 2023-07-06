@@ -9,8 +9,14 @@ import { once } from 'events';
 import tar from 'tar-fs';
 import tmp from 'tmp-promise';
 import util, { promisify } from 'util';
-import type { PackageVariant, Config} from './config';
-import { getArch, getDistro, getDebArchName, getRPMArchName, Platform } from './config';
+import type { PackageVariant, Config } from './config';
+import {
+  getArch,
+  getDistro,
+  getDebArchName,
+  getRPMArchName,
+  Platform,
+} from './config';
 import { withRetries } from './helpers';
 
 const pipeline = util.promisify(stream.pipeline);
@@ -26,8 +32,20 @@ tmp.setGracefulCleanup();
  * All the possible per-Linux-distro repositories that we publish to.
  */
 type PPARepository =
-  'ubuntu1804' | 'ubuntu2004' | 'ubuntu2204' | 'debian92' | 'debian10' | 'debian11' |
-  'rhel70' | 'rhel80' | 'rhel90' | 'amazon1' | 'amazon2' | 'amazon2023' | 'suse12' | 'suse15';
+  | 'ubuntu1804'
+  | 'ubuntu2004'
+  | 'ubuntu2204'
+  | 'debian92'
+  | 'debian10'
+  | 'debian11'
+  | 'rhel70'
+  | 'rhel80'
+  | 'rhel90'
+  | 'amazon1'
+  | 'amazon2'
+  | 'amazon2023'
+  | 'suse12'
+  | 'suse15';
 
 /**
  * Return the full list of [distro, arch] combinations that we upload for
@@ -36,7 +54,10 @@ type PPARepository =
  *
  * /config/repo-config.yml needs to be kept in sync with this.
  */
-export function getReposAndArch(packageVariant: PackageVariant): { ppas: PPARepository[], arch: string } {
+export function getReposAndArch(packageVariant: PackageVariant): {
+  ppas: PPARepository[];
+  arch: string;
+} {
   switch (getDistro(packageVariant)) {
     case 'win32':
     case 'win32msi':
@@ -45,26 +66,45 @@ export function getReposAndArch(packageVariant: PackageVariant): { ppas: PPARepo
       return { ppas: [], arch: '' };
     case 'deb':
       return {
-        ppas: ['ubuntu1804', 'ubuntu2004', 'ubuntu2204', 'debian92', 'debian10', 'debian11'],
-        arch: getDebArchName(getArch(packageVariant))
+        ppas: [
+          'ubuntu1804',
+          'ubuntu2004',
+          'ubuntu2204',
+          'debian92',
+          'debian10',
+          'debian11',
+        ],
+        arch: getDebArchName(getArch(packageVariant)),
       };
     case 'rpm':
       if (getArch(packageVariant) === 'x64') {
         return {
-          ppas: ['rhel70', 'rhel80', 'rhel90', 'amazon1', 'amazon2', 'amazon2023', 'suse12', 'suse15'],
-          arch: getRPMArchName(getArch(packageVariant))
+          ppas: [
+            'rhel70',
+            'rhel80',
+            'rhel90',
+            'amazon1',
+            'amazon2',
+            'amazon2023',
+            'suse12',
+            'suse15',
+          ],
+          arch: getRPMArchName(getArch(packageVariant)),
         };
       }
       if (getArch(packageVariant) === 'arm64') {
         return {
           ppas: ['rhel80', 'rhel90', 'amazon2', 'amazon2023'],
-          arch: getRPMArchName(getArch(packageVariant))
+          arch: getRPMArchName(getArch(packageVariant)),
         };
       }
-      if (getArch(packageVariant) === 'ppc64le' || getArch(packageVariant) === 's390x') {
+      if (
+        getArch(packageVariant) === 'ppc64le' ||
+        getArch(packageVariant) === 's390x'
+      ) {
         return {
           ppas: ['rhel70', 'rhel80'],
-          arch: getRPMArchName(getArch(packageVariant))
+          arch: getRPMArchName(getArch(packageVariant)),
         };
       }
       return { ppas: [], arch: '' };
@@ -89,25 +129,30 @@ export class Barque {
     }
 
     this.config = config;
-    this.mongodbEditions = [ 'org', 'enterprise' ];
+    this.mongodbEditions = ['org', 'enterprise'];
     // linux mongodb versions to release to.
-    this.mongodbVersions = [{
-      version: '4.4.0',
-      notaryKeyName: 'server-4.4',
-      notaryToken: process.env.SIGNING_AUTH_TOKEN_44 ?? '',
-    }, {
-      version: '5.0.0',
-      notaryKeyName: 'server-5.0',
-      notaryToken: process.env.SIGNING_AUTH_TOKEN_50 ?? '',
-    }, {
-      version: '6.0.0',
-      notaryKeyName: 'server-6.0',
-      notaryToken: process.env.SIGNING_AUTH_TOKEN_60 ?? '',
-    }, {
-      version: '7.0.0',
-      notaryKeyName: 'server-7.0',
-      notaryToken: process.env.SIGNING_AUTH_TOKEN_70 ?? '',
-    }];
+    this.mongodbVersions = [
+      {
+        version: '4.4.0',
+        notaryKeyName: 'server-4.4',
+        notaryToken: process.env.SIGNING_AUTH_TOKEN_44 ?? '',
+      },
+      {
+        version: '5.0.0',
+        notaryKeyName: 'server-5.0',
+        notaryToken: process.env.SIGNING_AUTH_TOKEN_50 ?? '',
+      },
+      {
+        version: '6.0.0',
+        notaryKeyName: 'server-6.0',
+        notaryToken: process.env.SIGNING_AUTH_TOKEN_60 ?? '',
+      },
+      {
+        version: '7.0.0',
+        notaryKeyName: 'server-7.0',
+        notaryToken: process.env.SIGNING_AUTH_TOKEN_70 ?? '',
+      },
+    ];
   }
 
   /**
@@ -123,9 +168,17 @@ export class Barque {
    *
    * @returns The URLs where the packages will be available.
    */
-  async releaseToBarque(buildVariant: PackageVariant, packageUrl: string, isDryRun: boolean): Promise<string[]> {
-    const repoConfig = path.join(this.config.rootDir, 'config', 'repo-config.yml');
-    this.downloadedCuratorPromise ??= (async() => {
+  async releaseToBarque(
+    buildVariant: PackageVariant,
+    packageUrl: string,
+    isDryRun: boolean
+  ): Promise<string[]> {
+    const repoConfig = path.join(
+      this.config.rootDir,
+      'config',
+      'repo-config.yml'
+    );
+    this.downloadedCuratorPromise ??= (async () => {
       const curatorDirPath = await this.createCuratorDir();
       await this.extractLatestCurator(curatorDirPath);
       return curatorDirPath;
@@ -142,7 +195,9 @@ export class Barque {
       fauxService.listen(0);
       fauxService.unref();
       await once(fauxService, 'listening');
-      curatorService = `http://localhost:${(fauxService.address() as any).port}`;
+      curatorService = `http://localhost:${
+        (fauxService.address() as any).port
+      }`;
     }
 
     const { ppas, arch } = getReposAndArch(buildVariant);
@@ -166,66 +221,120 @@ export class Barque {
   ): Promise<string[]> {
     const results: Promise<string>[] = [];
     for (const ppa of ppas) {
-      for (const { version, notaryKeyName, notaryToken } of this.mongodbVersions) {
+      for (const { version, notaryKeyName, notaryToken } of this
+        .mongodbVersions) {
         for (const edition of this.mongodbEditions) {
           const args = [
-            '--level', 'debug',
-            'repo', 'submit',
-            '--service', curatorService,
-            '--config', repoConfig,
-            '--distro', ppa,
-            '--arch', architecture,
-            '--edition', edition,
-            '--version', version,
-            '--packages', packageUrl
+            '--level',
+            'debug',
+            'repo',
+            'submit',
+            '--service',
+            curatorService,
+            '--config',
+            repoConfig,
+            '--distro',
+            ppa,
+            '--arch',
+            architecture,
+            '--edition',
+            edition,
+            '--version',
+            version,
+            '--packages',
+            packageUrl,
           ];
           console.info(`Running ${curatorDirPath}/curator ${args.join(' ')}`);
-          results.push((async() => {
-            try {
-              const result = await withRetries(() => execFile(
-                `${curatorDirPath}/curator`, args, {
-                  // curator looks for these options in env
-                  env: {
-                    NOTARY_KEY_NAME: notaryKeyName,
-                    NOTARY_TOKEN: notaryToken,
-                    BARQUE_API_KEY: process.env.BARQUE_API_KEY,
-                    BARQUE_USERNAME: process.env.BARQUE_USERNAME
-                  }
-                }), 4);
-              console.info(`Result for curator with ${args.join(' ')}`, result);
-              return this.computePublishedPackageUrl(ppa, architecture, version, edition, packageUrl);
-            } catch (error: any) {
-              console.error(`Curator with ${args.join(' ')} failed`, error);
-              throw new Error(`Curator is unable to upload ${packageUrl},${ppa},${architecture} to barque ${error}`);
-            }
-          })());
+          results.push(
+            (async () => {
+              try {
+                const result = await withRetries(
+                  () =>
+                    execFile(`${curatorDirPath}/curator`, args, {
+                      // curator looks for these options in env
+                      env: {
+                        NOTARY_KEY_NAME: notaryKeyName,
+                        NOTARY_TOKEN: notaryToken,
+                        BARQUE_API_KEY: process.env.BARQUE_API_KEY,
+                        BARQUE_USERNAME: process.env.BARQUE_USERNAME,
+                      },
+                    }),
+                  4
+                );
+                console.info(
+                  `Result for curator with ${args.join(' ')}`,
+                  result
+                );
+                return this.computePublishedPackageUrl(
+                  ppa,
+                  architecture,
+                  version,
+                  edition,
+                  packageUrl
+                );
+              } catch (error: any) {
+                console.error(`Curator with ${args.join(' ')} failed`, error);
+                throw new Error(
+                  `Curator is unable to upload ${packageUrl},${ppa},${architecture} to barque ${error}`
+                );
+              }
+            })()
+          );
         }
       }
     }
     return await Promise.all(results);
   }
 
-  computePublishedPackageUrl(ppa: PPARepository, targetArchitecture: string, mongodbVersion: string, edition: string, packageUrl: string): string {
+  computePublishedPackageUrl(
+    ppa: PPARepository,
+    targetArchitecture: string,
+    mongodbVersion: string,
+    edition: string,
+    packageUrl: string
+  ): string {
     const packageFileName = packageUrl.split('/').slice(-1);
-    const packageFolderVersion = mongodbVersion.split('.').slice(0, 2).join('.');
-    const base = edition === 'org' ? 'https://repo.mongodb.org' : 'https://repo.mongodb.com';
+    const packageFolderVersion = mongodbVersion
+      .split('.')
+      .slice(0, 2)
+      .join('.');
+    const base =
+      edition === 'org'
+        ? 'https://repo.mongodb.org'
+        : 'https://repo.mongodb.com';
     switch (ppa) {
-      case 'ubuntu1804': return `${base}/apt/ubuntu/dists/bionic/mongodb-${edition}/${packageFolderVersion}/multiverse/binary-${targetArchitecture}/${packageFileName}`;
-      case 'ubuntu2004': return `${base}/apt/ubuntu/dists/focal/mongodb-${edition}/${packageFolderVersion}/multiverse/binary-${targetArchitecture}/${packageFileName}`;
-      case 'ubuntu2204': return `${base}/apt/ubuntu/dists/jammy/mongodb-${edition}/${packageFolderVersion}/multiverse/binary-${targetArchitecture}/${packageFileName}`;
-      case 'debian92':   return `${base}/apt/debian/dists/buster/mongodb-${edition}/${packageFolderVersion}/main/binary-${targetArchitecture}/${packageFileName}`;
-      case 'debian10':   return `${base}/apt/debian/dists/stretch/mongodb-${edition}/${packageFolderVersion}/main/binary-${targetArchitecture}/${packageFileName}`;
-      case 'debian11':   return `${base}/apt/debian/dists/bullseye/mongodb-${edition}/${packageFolderVersion}/main/binary-${targetArchitecture}/${packageFileName}`;
-      case 'rhel70':     return `${base}/yum/redhat/7/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
-      case 'rhel80':     return `${base}/yum/redhat/8/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
-      case 'rhel90':     return `${base}/yum/redhat/9/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
-      case 'amazon1':    return `${base}/yum/amazon/2013.03/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
-      case 'amazon2':    return `${base}/yum/amazon/2/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
-      case 'amazon2023': return `${base}/yum/amazon/2023/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
-      case 'suse12':     return `${base}/zypper/suse/12/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
-      case 'suse15':     return `${base}/zypper/suse/15/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
+      case 'ubuntu1804':
+        return `${base}/apt/ubuntu/dists/bionic/mongodb-${edition}/${packageFolderVersion}/multiverse/binary-${targetArchitecture}/${packageFileName}`;
+      case 'ubuntu2004':
+        return `${base}/apt/ubuntu/dists/focal/mongodb-${edition}/${packageFolderVersion}/multiverse/binary-${targetArchitecture}/${packageFileName}`;
+      case 'ubuntu2204':
+        return `${base}/apt/ubuntu/dists/jammy/mongodb-${edition}/${packageFolderVersion}/multiverse/binary-${targetArchitecture}/${packageFileName}`;
+      case 'debian92':
+        return `${base}/apt/debian/dists/buster/mongodb-${edition}/${packageFolderVersion}/main/binary-${targetArchitecture}/${packageFileName}`;
+      case 'debian10':
+        return `${base}/apt/debian/dists/stretch/mongodb-${edition}/${packageFolderVersion}/main/binary-${targetArchitecture}/${packageFileName}`;
+      case 'debian11':
+        return `${base}/apt/debian/dists/bullseye/mongodb-${edition}/${packageFolderVersion}/main/binary-${targetArchitecture}/${packageFileName}`;
+      case 'rhel70':
+        return `${base}/yum/redhat/7/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
+      case 'rhel80':
+        return `${base}/yum/redhat/8/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
+      case 'rhel90':
+        return `${base}/yum/redhat/9/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
+      case 'amazon1':
+        return `${base}/yum/amazon/2013.03/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
+      case 'amazon2':
+        return `${base}/yum/amazon/2/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
+      case 'amazon2023':
+        return `${base}/yum/amazon/2023/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
+      case 'suse12':
+        return `${base}/zypper/suse/12/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
+      case 'suse15':
+        return `${base}/zypper/suse/15/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
       default:
-        throw new Error(`Unsupported PPA, could not compute published mongosh package URL: ${ppa}`);
+        throw new Error(
+          `Unsupported PPA, could not compute published mongosh package URL: ${ppa}`
+        );
     }
   }
 
@@ -235,24 +344,37 @@ export class Barque {
    *
    * Note that the method will try all URLs at least once after an initial delay of `sleepTimeSeconds`.
    */
-  async waitUntilPackagesAreAvailable(publishedPackageUrls: string[], timeoutSeconds: number, sleepTimeSeconds = 10): Promise<void> {
+  async waitUntilPackagesAreAvailable(
+    publishedPackageUrls: string[],
+    timeoutSeconds: number,
+    sleepTimeSeconds = 10
+  ): Promise<void> {
     let remainingPackages = [...publishedPackageUrls];
     const sleep = promisify(setTimeout);
 
     const startMs = new Date().getTime();
     const failOnTimeout = () => {
       if (new Date().getTime() - startMs > timeoutSeconds * 1000) {
-        throw new Error(`Barque timed out - the following packages are still not available: ${remainingPackages.join(', ')}`);
+        throw new Error(
+          `Barque timed out - the following packages are still not available: ${remainingPackages.join(
+            ', '
+          )}`
+        );
       }
     };
 
     while (remainingPackages.length) {
-      console.info(`Waiting for availability of:\n - ${remainingPackages.join('\n - ')}`);
+      console.info(
+        `Waiting for availability of:\n - ${remainingPackages.join('\n - ')}`
+      );
       await sleep(sleepTimeSeconds * 1000);
 
-      const promises = remainingPackages.map(async url => await fetch(url, {
-        method: 'HEAD'
-      }));
+      const promises = remainingPackages.map(
+        async (url) =>
+          await fetch(url, {
+            method: 'HEAD',
+          })
+      );
       const responses = await Promise.all(promises);
 
       const newRemainingPackages: string[] = [];
@@ -295,11 +417,7 @@ export class Barque {
   async extractLatestCurator(dest: string): Promise<any> {
     const response = await fetch(LATEST_CURATOR);
     if (response.ok) {
-      return pipeline(
-        response.body,
-        zlib.createGunzip(),
-        tar.extract(dest)
-      );
+      return pipeline(response.body, zlib.createGunzip(), tar.extract(dest));
     }
   }
 }

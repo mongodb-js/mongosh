@@ -6,7 +6,7 @@ import { Icon } from '@mongodb-js/compass-components';
 import { LineWithIcon } from './line-with-icon';
 
 const expandableCaret = css({
-  cursor: 'pointer'
+  cursor: 'pointer',
 });
 
 type ExpandableProps = {};
@@ -32,7 +32,7 @@ export class Expandable extends Component<ExpandableProps, ExpandableState> {
   static propTypes = {};
 
   state: Readonly<ExpandableState> = {
-    expanded: false
+    expanded: false,
   };
 
   toggle = (): void => {
@@ -40,12 +40,14 @@ export class Expandable extends Component<ExpandableProps, ExpandableState> {
   };
 
   render(): JSX.Element {
-    const icon = (<Icon
-      size={12}
-      glyph={this.state.expanded ? 'CaretDown' : 'CaretRight'}
-      className={expandableCaret}
-      onClick={this.toggle}
-    />);
+    const icon = (
+      <Icon
+        size={12}
+        glyph={this.state.expanded ? 'CaretDown' : 'CaretRight'}
+        className={expandableCaret}
+        onClick={this.toggle}
+      />
+    );
 
     return (
       <LineWithIcon icon={icon} data-testid="shell-output">

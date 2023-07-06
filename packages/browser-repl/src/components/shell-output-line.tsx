@@ -15,7 +15,7 @@ import { ErrorOutput } from './types/error-output';
 import { ShowProfileOutput } from './types/show-profile-output';
 
 const shellOutputLine = css({
-  padding: '0 8px'
+  padding: '0 8px',
 });
 
 const shellOutputLineError = css({
@@ -24,16 +24,15 @@ const shellOutputLineError = css({
 });
 
 const shellOutputLineIcon = css({
-  color: palette.gray.dark1
+  color: palette.gray.dark1,
 });
 
 const shellOutputLineIconError = css({
-  color: 'inherit'
+  color: 'inherit',
 });
 
 type ShellOutputEntryValue = any;
 type Glyph = 'ChevronRight' | 'XWithCircle' | 'ChevronLeft';
-
 
 export interface ShellOutputEntry {
   format: 'input' | 'output' | 'error';
@@ -47,14 +46,13 @@ interface ShellOutputLineProps {
 
 export class ShellOutputLine extends Component<ShellOutputLineProps> {
   static propTypes = {
-    entry: PropTypes.object.isRequired
+    entry: PropTypes.object.isRequired,
   };
 
   private renderValue(): JSX.Element {
     const { type, value, format } = this.props.entry;
 
-    if (format === 'input' ||
-      this.isPreformattedResult(value, type)) {
+    if (format === 'input' || this.isPreformattedResult(value, type)) {
       return <pre>{value}</pre>;
     }
 
@@ -118,17 +116,16 @@ export class ShellOutputLine extends Component<ShellOutputLineProps> {
   }
 
   private isPreformattedResult(value: any, type?: string | null): boolean {
-    return typeof value === 'string' && (
-      type === 'Database' ||
-      type === 'Collection' ||
-      !type);
+    return (
+      typeof value === 'string' &&
+      (type === 'Database' || type === 'Collection' || !type)
+    );
   }
 
   private isPrimitiveOrFunction(value: any): boolean {
     // any primitive type including 'null' and 'undefined',
     // function and classes
-    return value !== Object(value) ||
-      typeof value === 'function';
+    return value !== Object(value) || typeof value === 'function';
   }
 
   private getIconGlyph(): Glyph {
@@ -172,4 +169,3 @@ export class ShellOutputLine extends Component<ShellOutputLineProps> {
     );
   }
 }
-

@@ -1,6 +1,6 @@
 import type {
   ShellResult,
-  ShellCommandAutocompleteParameters
+  ShellCommandAutocompleteParameters,
 } from './decorators';
 import {
   shellApiClassDefault,
@@ -10,18 +10,25 @@ import {
   platforms,
   toShellResult,
   directShellCommand,
-  shellCommandCompleter
+  shellCommandCompleter,
 } from './decorators';
 import { asPrintable } from './enums';
 import Mongo from './mongo';
 import type Database from './database';
-import type { CommandResult} from './result';
+import type { CommandResult } from './result';
 import { CursorIterationResult } from './result';
 import type ShellInstanceState from './shell-instance-state';
 import { assertArgsDefinedType, assertCLI } from './helpers';
-import type { ServerApi, ServerApiVersion } from '@mongosh/service-provider-core';
+import type {
+  ServerApi,
+  ServerApiVersion,
+} from '@mongosh/service-provider-core';
 import { DEFAULT_DB } from '@mongosh/service-provider-core';
-import { CommonErrors, MongoshUnimplementedError, MongoshInternalError } from '@mongosh/errors';
+import {
+  CommonErrors,
+  MongoshUnimplementedError,
+  MongoshInternalError,
+} from '@mongosh/errors';
 import { DBQuery } from './dbquery';
 import { promisify } from 'util';
 import type { ClientSideFieldLevelEncryptionOptions } from './field-level-encryption';
@@ -47,18 +54,25 @@ class ShellConfig extends ShellApiClass {
   }
 
   @returnsPromise
-  async set<K extends keyof ShellUserConfig>(key: K, value: ShellUserConfig[K]): Promise<string> {
+  async set<K extends keyof ShellUserConfig>(
+    key: K,
+    value: ShellUserConfig[K]
+  ): Promise<string> {
     assertArgsDefinedType([key], ['string'], 'config.set');
     const { evaluationListener } = this._instanceState;
     // Only allow known config keys here:
     const isValidKey = (await this._allKeys()).includes(key);
     if (isValidKey) {
-      const validationResult = await evaluationListener.validateConfig?.(key, value);
+      const validationResult = await evaluationListener.validateConfig?.(
+        key,
+        value
+      );
       if (validationResult) {
         return `Cannot set option "${key}": ${validationResult}`;
       }
     }
-    const result = isValidKey && await evaluationListener.setConfig?.(key, value);
+    const result =
+      isValidKey && (await evaluationListener.setConfig?.(key, value));
     if (result !== 'success') {
       return `Option "${key}" is not available in this environment`;
     }
@@ -67,10 +81,12 @@ class ShellConfig extends ShellApiClass {
   }
 
   @returnsPromise
-  async get<K extends keyof ShellUserConfig>(key: K): Promise<ShellUserConfig[K]> {
+  async get<K extends keyof ShellUserConfig>(
+    key: K
+  ): Promise<ShellUserConfig[K]> {
     assertArgsDefinedType([key], ['string'], 'config.get');
     const { evaluationListener } = this._instanceState;
-    return await evaluationListener.getConfig?.(key) ?? this.defaults[key];
+    return (await evaluationListener.getConfig?.(key)) ?? this.defaults[key];
   }
 
   @returnsPromise
@@ -87,21 +103,30 @@ class ShellConfig extends ShellApiClass {
 
   async _allKeys(): Promise<(keyof ShellUserConfig)[]> {
     const { evaluationListener } = this._instanceState;
-    return (await evaluationListener.listConfigOptions?.() ?? Object.keys(this.defaults)) as (keyof ShellUserConfig)[];
+    return ((await evaluationListener.listConfigOptions?.()) ??
+      Object.keys(this.defaults)) as (keyof ShellUserConfig)[];
   }
 
-  async [asPrintable](): Promise<Map<keyof ShellUserConfig, ShellUserConfig[keyof ShellUserConfig]>> {
+  async [asPrintable](): Promise<
+    Map<keyof ShellUserConfig, ShellUserConfig[keyof ShellUserConfig]>
+  > {
     return new Map(
       await Promise.all(
-        (await this._allKeys()).map(
-          async key => [key, await this.get(key)] as const)));
+        (
+          await this._allKeys()
+        ).map(async (key) => [key, await this.get(key)] as const)
+      )
+    );
   }
 }
 
 /**
  * Complete e.g. `use adm` by returning `['admin']`.
  */
-async function useCompleter(params: ShellCommandAutocompleteParameters, args: string[]): Promise<string[] | undefined> {
+async function useCompleter(
+  params: ShellCommandAutocompleteParameters,
+  args: string[]
+): Promise<string[] | undefined> {
   if (args.length > 2) return undefined;
   return await params.getDatabaseCompletions(args[1] ?? '');
 }
@@ -110,17 +135,30 @@ async function useCompleter(params: ShellCommandAutocompleteParameters, args: st
  * Complete a `show` subcommand.
  */
 // eslint-disable-next-line @typescript-eslint/require-await
-async function showCompleter(params: ShellCommandAutocompleteParameters, args: string[]): Promise<string[] | undefined> {
+async function showCompleter(
+  params: ShellCommandAutocompleteParameters,
+  args: string[]
+): Promise<string[] | undefined> {
   if (args.length > 2) return undefined;
   if (args[1] === 'd') {
     // Special-case: The user might want `show dbs` or `show databases`, but they won't care about which they get.
     return ['databases'];
   }
   const candidates = [
-    'databases', 'dbs', 'collections', 'tables', 'profile', 'users', 'roles', 'log', 'logs',
-    'startupWarnings', 'automationNotices', 'nonGenuineMongoDBCheck'
+    'databases',
+    'dbs',
+    'collections',
+    'tables',
+    'profile',
+    'users',
+    'roles',
+    'log',
+    'logs',
+    'startupWarnings',
+    'automationNotices',
+    'nonGenuineMongoDBCheck',
   ];
-  return candidates.filter(str => str.startsWith(args[1] ?? ''));
+  return candidates.filter((str) => str.startsWith(args[1] ?? ''));
 }
 
 /**
@@ -174,10 +212,13 @@ export default class ShellApi extends ShellApiClass {
 
   @directShellCommand
   @returnsPromise
-  @platforms([ 'CLI' ] )
+  @platforms(['CLI'])
   async exit(exitCode?: number): Promise<never> {
     assertArgsDefinedType([exitCode], [[undefined, 'number']], 'exit');
-    assertCLI(this._instanceState.initialServiceProvider.platform, 'the exit/quit commands');
+    assertCLI(
+      this._instanceState.initialServiceProvider.platform,
+      'the exit/quit commands'
+    );
     await this._instanceState.close(true);
     // This should never actually return.
     await this._instanceState.evaluationListener.onExit?.(exitCode);
@@ -186,19 +227,23 @@ export default class ShellApi extends ShellApiClass {
 
   @directShellCommand
   @returnsPromise
-  @platforms([ 'CLI' ] )
+  @platforms(['CLI'])
   async quit(exitCode?: number): Promise<never> {
     return await this.exit(exitCode);
   }
 
   @returnsPromise
   @returnType('Mongo')
-  @platforms([ 'CLI' ] )
+  @platforms(['CLI'])
   public async Mongo(
     uri?: string,
     fleOptions?: ClientSideFieldLevelEncryptionOptions,
-    otherOptions?: { api?: ServerApi | ServerApiVersion }): Promise<Mongo> {
-    assertCLI(this._instanceState.initialServiceProvider.platform, 'new Mongo connections');
+    otherOptions?: { api?: ServerApi | ServerApiVersion }
+  ): Promise<Mongo> {
+    assertCLI(
+      this._instanceState.initialServiceProvider.platform,
+      'new Mongo connections'
+    );
     const mongo = new Mongo(this._instanceState, uri, fleOptions, otherOptions);
     await mongo.connect();
     this._instanceState.mongos.push(mongo);
@@ -207,10 +252,17 @@ export default class ShellApi extends ShellApiClass {
 
   @returnsPromise
   @returnType('Database')
-  @platforms([ 'CLI' ] )
+  @platforms(['CLI'])
   async connect(uri: string, user?: string, pwd?: string): Promise<Database> {
-    assertArgsDefinedType([uri, user, pwd], ['string', [undefined, 'string'], [undefined, 'string']], 'connect');
-    assertCLI(this._instanceState.initialServiceProvider.platform, 'new Mongo connections');
+    assertArgsDefinedType(
+      [uri, user, pwd],
+      ['string', [undefined, 'string'], [undefined, 'string']],
+      'connect'
+    );
+    assertCLI(
+      this._instanceState.initialServiceProvider.platform,
+      'new Mongo connections'
+    );
     const mongo = new Mongo(this._instanceState, uri);
     await mongo.connect(user, pwd);
     this._instanceState.mongos.push(mongo);
@@ -243,11 +295,10 @@ export default class ShellApi extends ShellApiClass {
     }
     this._instanceState.messageBus.emit('mongosh:api-load-file', {
       nested: this.loadCallNestingLevel > 0,
-      filename
+      filename,
     });
-    const {
-      resolvedFilename, evaluate
-    } = await this._instanceState.evaluationListener.onLoad(filename);
+    const { resolvedFilename, evaluate } =
+      await this._instanceState.evaluationListener.onLoad(filename);
 
     const context = this._instanceState.context;
     const previousFilename = context.__filename;
@@ -270,29 +321,38 @@ export default class ShellApi extends ShellApiClass {
   }
 
   @returnsPromise
-  @platforms([ 'CLI' ] )
+  @platforms(['CLI'])
   async enableTelemetry(): Promise<any> {
-    const result = await this._instanceState.evaluationListener.setConfig?.('enableTelemetry', true);
+    const result = await this._instanceState.evaluationListener.setConfig?.(
+      'enableTelemetry',
+      true
+    );
     if (result === 'success') {
       return i18n.__('cli-repl.cli-repl.enabledTelemetry');
     }
   }
 
   @returnsPromise
-  @platforms([ 'CLI' ] )
+  @platforms(['CLI'])
   async disableTelemetry(): Promise<any> {
-    const result = await this._instanceState.evaluationListener.setConfig?.('enableTelemetry', false);
+    const result = await this._instanceState.evaluationListener.setConfig?.(
+      'enableTelemetry',
+      false
+    );
     if (result === 'success') {
       return i18n.__('cli-repl.cli-repl.disabledTelemetry');
     }
   }
 
   @returnsPromise
-  @platforms([ 'CLI' ] )
+  @platforms(['CLI'])
   async passwordPrompt(): Promise<string> {
     const { evaluationListener } = this._instanceState;
     if (!evaluationListener.onPrompt) {
-      throw new MongoshUnimplementedError('passwordPrompt() is not available in this shell', CommonErrors.NotImplemented);
+      throw new MongoshUnimplementedError(
+        'passwordPrompt() is not available in this shell',
+        CommonErrors.NotImplemented
+      );
     }
     return await evaluationListener.onPrompt('Enter password', 'password');
   }
@@ -302,7 +362,10 @@ export default class ShellApi extends ShellApiClass {
     return await promisify(setTimeout)(ms);
   }
 
-  private async _print(origArgs: any[], type: 'print' | 'printjson'): Promise<void> {
+  private async _print(
+    origArgs: any[],
+    type: 'print' | 'printjson'
+  ): Promise<void> {
     const { evaluationListener } = this._instanceState;
     const args: ShellResult[] = await Promise.all(
       origArgs.map((arg) => toShellResult(arg))

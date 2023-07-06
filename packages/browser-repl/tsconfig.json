@@ -7,10 +7,6 @@
     // react-ace types are incorrect: https://github.com/securingsincity/react-ace/issues/1547
     "skipLibCheck": true
   },
-  "include": [
-    "./src/**/*"
-  ],
-  "exclude": [
-    "./src/**/*.spec.*"
-  ]
+  "include": ["./src/**/*"],
+  "exclude": ["./src/**/*.spec.*"]
 }

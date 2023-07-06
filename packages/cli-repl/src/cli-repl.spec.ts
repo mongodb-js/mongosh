@@ -4,13 +4,25 @@ import { once } from 'events';
 import { promises as fs } from 'fs';
 import http from 'http';
 import path from 'path';
-import type { Duplex} from 'stream';
+import type { Duplex } from 'stream';
 import { PassThrough } from 'stream';
 import { promisify } from 'util';
 import { eventually } from '../../../testing/eventually';
-import type { MongodSetup} from '../../../testing/integration-testing-hooks';
-import { skipIfServerVersion, startTestServer } from '../../../testing/integration-testing-hooks';
-import { expect, fakeTTYProps, readReplLogfile, tick, useTmpdir, waitBus, waitCompletion, waitEval } from '../test/repl-helpers';
+import type { MongodSetup } from '../../../testing/integration-testing-hooks';
+import {
+  skipIfServerVersion,
+  startTestServer,
+} from '../../../testing/integration-testing-hooks';
+import {
+  expect,
+  fakeTTYProps,
+  readReplLogfile,
+  tick,
+  useTmpdir,
+  waitBus,
+  waitCompletion,
+  waitEval,
+} from '../test/repl-helpers';
 import ConnectionString from 'mongodb-connection-string-url';
 import type { CliReplOptions } from './cli-repl';
 import { CliRepl } from './cli-repl';
@@ -20,13 +32,18 @@ const { EJSON } = bson;
 
 const delay = promisify(setTimeout);
 
-describe('CliRepl', function() {
+describe('CliRepl', function () {
   let cliReplOptions: CliReplOptions;
-  let cliRepl: CliRepl & { start(cstr: string, options: Partial<DevtoolsConnectOptions>): Promise<void>; };
+  let cliRepl: CliRepl & {
+    start(
+      cstr: string,
+      options: Partial<DevtoolsConnectOptions>
+    ): Promise<void>;
+  };
   let input: Duplex;
   let outputStream: Duplex;
   let output = '';
-  let exitCode: null|number;
+  let exitCode: null | number;
   let exitPromise: Promise<void>;
   const tmpdir = useTmpdir();
 
@@ -35,7 +52,10 @@ describe('CliRepl', function() {
     return readReplLogfile(cliRepl.logWriter.logFilePath);
   }
 
-  async function startWithExpectedImmediateExit(cliRepl: CliRepl, host: string): Promise<void> {
+  async function startWithExpectedImmediateExit(
+    cliRepl: CliRepl,
+    host: string
+  ): Promise<void> {
     try {
       await cliRepl.start(host, {} as any);
       expect.fail('Expected start() to also exit immediately');
@@ -44,15 +64,19 @@ describe('CliRepl', function() {
     }
   }
 
-  beforeEach(function() {
+  beforeEach(function () {
     input = new PassThrough();
     outputStream = new PassThrough();
     output = '';
-    outputStream.setEncoding('utf8').on('data', (chunk) => { output += chunk; });
+    outputStream.setEncoding('utf8').on('data', (chunk) => {
+      output += chunk;
+    });
     exitCode = null;
 
     let resolveExitPromise;
-    exitPromise = new Promise((resolve) => { resolveExitPromise = resolve; });
+    exitPromise = new Promise((resolve) => {
+      resolveExitPromise = resolve;
+    });
 
     cliReplOptions = {
       shellCliOptions: {},
@@ -67,134 +91,171 @@ describe('CliRepl', function() {
         exitCode = code ?? 0;
         resolveExitPromise();
         return Promise.resolve() as never;
-      }
+      },
     };
   });
 
-  context('with a broken output stream', function() {
-    beforeEach(async function() {
+  context('with a broken output stream', function () {
+    beforeEach(async function () {
       cliReplOptions.shellCliOptions = { nodb: true };
       cliRepl = new CliRepl(cliReplOptions);
       await cliRepl.start('', {});
       cliReplOptions.output.end();
     });
 
-    it("doesn't throw errors", async function() {
+    it("doesn't throw errors", async function () {
       input.write('21 + 13\n');
       await waitEval(cliRepl.bus);
     });
   });
 
-  context('with nodb', function() {
-    beforeEach(function() {
+  context('with nodb', function () {
+    beforeEach(function () {
       cliReplOptions.shellCliOptions = { nodb: true };
     });
 
-    context('when ready', function() {
-      beforeEach(async function() {
+    context('when ready', function () {
+      beforeEach(async function () {
         cliRepl = new CliRepl(cliReplOptions);
         await cliRepl.start('', {});
       });
 
-      it('evaluates javascript', async function() {
+      it('evaluates javascript', async function () {
         input.write('21 + 13\n');
         await waitEval(cliRepl.bus);
         expect(output).to.include('34');
       });
 
-      it('toggling telemetry changes config', async function() {
+      it('toggling telemetry changes config', async function () {
         const updateUser = waitBus(cliRepl.bus, 'mongosh:update-user');
         const evalComplete = waitBus(cliRepl.bus, 'mongosh:eval-complete');
         input.write('disableTelemetry()\n');
-        const [ telemetryUserIdentity ] = await updateUser;
+        const [telemetryUserIdentity] = await updateUser;
         expect(typeof telemetryUserIdentity).to.equal('object');
 
         await evalComplete; // eval-complete includes the fs.writeFile() call.
-        const content = await fs.readFile(path.join(tmpdir.path, 'config'), { encoding: 'utf8' });
+        const content = await fs.readFile(path.join(tmpdir.path, 'config'), {
+          encoding: 'utf8',
+        });
         expect((EJSON.parse(content) as any).enableTelemetry).to.be.false;
       });
 
-      it('does not store config options on disk that have not been changed', async function() {
-        let content = await fs.readFile(path.join(tmpdir.path, 'config'), { encoding: 'utf8' });
+      it('does not store config options on disk that have not been changed', async function () {
+        let content = await fs.readFile(path.join(tmpdir.path, 'config'), {
+          encoding: 'utf8',
+        });
         expect(Object.keys(EJSON.parse(content))).to.deep.equal([
-          'userId', 'telemetryAnonymousId', 'enableTelemetry', 'disableGreetingMessage'
+          'userId',
+          'telemetryAnonymousId',
+          'enableTelemetry',
+          'disableGreetingMessage',
         ]);
 
         input.write('config.set("inspectDepth", config.get("inspectDepth"))\n');
 
         await waitEval(cliRepl.bus);
-        content = await fs.readFile(path.join(tmpdir.path, 'config'), { encoding: 'utf8' });
+        content = await fs.readFile(path.join(tmpdir.path, 'config'), {
+          encoding: 'utf8',
+        });
         expect(Object.keys(EJSON.parse(content))).to.deep.equal([
-          'userId', 'telemetryAnonymousId', 'enableTelemetry', 'disableGreetingMessage', 'inspectDepth'
+          'userId',
+          'telemetryAnonymousId',
+          'enableTelemetry',
+          'disableGreetingMessage',
+          'inspectDepth',
         ]);
 
         // When a new REPL is created:
         cliRepl = new CliRepl(cliReplOptions);
         await cliRepl.start('', {});
-        content = await fs.readFile(path.join(tmpdir.path, 'config'), { encoding: 'utf8' });
+        content = await fs.readFile(path.join(tmpdir.path, 'config'), {
+          encoding: 'utf8',
+        });
         expect(Object.keys(EJSON.parse(content))).to.deep.equal([
-          'userId', 'telemetryAnonymousId', 'enableTelemetry', 'disableGreetingMessage', 'inspectDepth'
+          'userId',
+          'telemetryAnonymousId',
+          'enableTelemetry',
+          'disableGreetingMessage',
+          'inspectDepth',
         ]);
       });
 
-      it('stores config options on disk cannot be represented in traditional JSON', async function() {
+      it('stores config options on disk cannot be represented in traditional JSON', async function () {
         input.write('config.set("inspectDepth", Infinity)\n');
 
         await waitEval(cliRepl.bus);
-        const content = await fs.readFile(path.join(tmpdir.path, 'config'), { encoding: 'utf8' });
+        const content = await fs.readFile(path.join(tmpdir.path, 'config'), {
+          encoding: 'utf8',
+        });
         expect((EJSON.parse(content) as any).inspectDepth).equal(Infinity);
       });
 
-      it('emits exit when asked to, Node.js-style', async function() {
+      it('emits exit when asked to, Node.js-style', async function () {
         input.write('.exit\n');
         await exitPromise;
         expect(exitCode).to.equal(0);
       });
 
-      it('emits exit when asked to, mongosh-style', async function() {
+      it('emits exit when asked to, mongosh-style', async function () {
         input.write('exit\n');
         await exitPromise;
         expect(exitCode).to.equal(0);
       });
 
-      it('emits exit when asked to, mongosh-style with an exit code + exit', async function() {
+      it('emits exit when asked to, mongosh-style with an exit code + exit', async function () {
         input.write('exit(3)\n');
         await exitPromise;
         expect(exitCode).to.equal(3);
       });
 
-      it('emits exit when asked to, mongosh-style with an exit code + quit', async function() {
+      it('emits exit when asked to, mongosh-style with an exit code + quit', async function () {
         input.write('exit(3)\n');
         await exitPromise;
         expect(exitCode).to.equal(3);
       });
 
-      it('writes syntax errors to the log file', async function() {
-        expect((await log()).filter(entry => entry.attr?.stack?.startsWith('SyntaxError:'))).to.have.lengthOf(0);
+      it('writes syntax errors to the log file', async function () {
+        expect(
+          (await log()).filter((entry) =>
+            entry.attr?.stack?.startsWith('SyntaxError:')
+          )
+        ).to.have.lengthOf(0);
         input.write('<cat>\n');
         await waitBus(cliRepl.bus, 'mongosh:error');
-        await eventually(async() => {
-          expect((await log()).filter(entry => entry.attr?.stack?.startsWith('SyntaxError:'))).to.have.lengthOf(1);
+        await eventually(async () => {
+          expect(
+            (await log()).filter((entry) =>
+              entry.attr?.stack?.startsWith('SyntaxError:')
+            )
+          ).to.have.lengthOf(1);
         });
       });
 
-      it('writes JS errors to the log file', async function() {
+      it('writes JS errors to the log file', async function () {
         input.write('throw new Error("plain js error")\n');
         await waitBus(cliRepl.bus, 'mongosh:error');
-        await eventually(async() => {
-          expect((await log()).filter(entry => entry.attr?.stack?.startsWith('Error: plain js error'))).to.have.lengthOf(1);
+        await eventually(async () => {
+          expect(
+            (await log()).filter((entry) =>
+              entry.attr?.stack?.startsWith('Error: plain js error')
+            )
+          ).to.have.lengthOf(1);
         });
       });
 
-      it('writes Mongosh errors to the log file', async function() {
+      it('writes Mongosh errors to the log file', async function () {
         input.write('db.auth()\n');
         await waitBus(cliRepl.bus, 'mongosh:error');
-        await eventually(async() => {
-          expect((await log()).filter(entry => entry.attr?.stack?.startsWith('MongoshInvalidInputError:'))).to.have.lengthOf(1);
+        await eventually(async () => {
+          expect(
+            (await log()).filter((entry) =>
+              entry.attr?.stack?.startsWith('MongoshInvalidInputError:')
+            )
+          ).to.have.lengthOf(1);
         });
       });
 
-      it('emits the error event when exit() fails', async function() {
+      it('emits the error event when exit() fails', async function () {
         const onerror = waitBus(cliRepl.bus, 'mongosh:error');
         try {
           // calling exit will not "exit" since we are not stopping the process
@@ -202,15 +263,19 @@ describe('CliRepl', function() {
         } catch (e: any) {
           const [emitted] = await onerror;
           expect(emitted).to.be.instanceOf(MongoshInternalError);
-          await eventually(async() => {
-            expect((await log()).filter(entry => entry.attr?.stack?.startsWith('MongoshInternalError:'))).to.have.lengthOf(1);
+          await eventually(async () => {
+            expect(
+              (await log()).filter((entry) =>
+                entry.attr?.stack?.startsWith('MongoshInternalError:')
+              )
+            ).to.have.lengthOf(1);
           });
           return;
         }
         expect.fail('expected error');
       });
 
-      it('returns the list of available config options when asked to', function() {
+      it('returns the list of available config options when asked to', function () {
         expect(cliRepl.listConfigOptions()).to.deep.equal([
           'displayBatchSize',
           'maxTimeMS',
@@ -230,11 +295,13 @@ describe('CliRepl', function() {
         ]);
       });
 
-      it('fails when trying to overwrite mongosh-owned config settings', async function() {
+      it('fails when trying to overwrite mongosh-owned config settings', async function () {
         output = '';
         input.write('config.set("telemetryAnonymousId", "foo")\n');
         await waitEval(cliRepl.bus);
-        expect(output).to.include('Option "telemetryAnonymousId" is not available in this environment');
+        expect(output).to.include(
+          'Option "telemetryAnonymousId" is not available in this environment'
+        );
 
         output = '';
         input.write('config.get("telemetryAnonymousId")\n');
@@ -242,7 +309,7 @@ describe('CliRepl', function() {
         expect(output).to.match(/^[a-z0-9]{24}\n> $/);
       });
 
-      it('can restore previous config settings', async function() {
+      it('can restore previous config settings', async function () {
         output = '';
         input.write('config.set("editor", "vim")\n');
         await waitEval(cliRepl.bus);
@@ -251,7 +318,9 @@ describe('CliRepl', function() {
         output = '';
         input.write('config.reset("editor")\n');
         await waitEval(cliRepl.bus);
-        expect(output).to.include('Setting "editor" has been reset to its default value');
+        expect(output).to.include(
+          'Setting "editor" has been reset to its default value'
+        );
 
         output = '';
         input.write('config.get("editor")\n');
@@ -259,9 +328,16 @@ describe('CliRepl', function() {
         expect(output).to.include('null');
       });
 
-      context('loading JS files from disk', function() {
-        it('allows loading a file from the disk', async function() {
-          const filenameA = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'a.js');
+      context('loading JS files from disk', function () {
+        it('allows loading a file from the disk', async function () {
+          const filenameA = path.resolve(
+            __dirname,
+            '..',
+            'test',
+            'fixtures',
+            'load',
+            'a.js'
+          );
           input.write(`load(${JSON.stringify(filenameA)})\n`);
           await waitEval(cliRepl.bus);
           expect(output).to.contain('Hi!');
@@ -270,8 +346,15 @@ describe('CliRepl', function() {
           expect(output).to.include('yes from A');
         });
 
-        it('allows nested loading', async function() {
-          const filenameB = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'b.js');
+        it('allows nested loading', async function () {
+          const filenameB = path.resolve(
+            __dirname,
+            '..',
+            'test',
+            'fixtures',
+            'load',
+            'b.js'
+          );
           input.write(`load(${JSON.stringify(filenameB)})\n`);
           await waitEval(cliRepl.bus);
           expect(output).to.contain('Hi!');
@@ -280,8 +363,15 @@ describe('CliRepl', function() {
           expect(output).to.include('yes from A yes from A from B');
         });
 
-        it('allows async operations', async function() {
-          const filenameC = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'c.js');
+        it('allows async operations', async function () {
+          const filenameC = path.resolve(
+            __dirname,
+            '..',
+            'test',
+            'fixtures',
+            'load',
+            'c.js'
+          );
           input.write(`load(${JSON.stringify(filenameC)})\n`);
           await waitEval(cliRepl.bus);
           output = '';
@@ -292,46 +382,67 @@ describe('CliRepl', function() {
       });
     });
 
-    context('during startup', function() {
-      it('persists userId and telemetryAnonymousId', async function() {
-        const telemetryUserIdentitys: { userId?: string; anonymousId?: string }[] = [];
+    context('during startup', function () {
+      it('persists userId and telemetryAnonymousId', async function () {
+        const telemetryUserIdentitys: {
+          userId?: string;
+          anonymousId?: string;
+        }[] = [];
         for (let i = 0; i < 2; i++) {
           cliRepl = new CliRepl(cliReplOptions);
-          cliRepl.bus.on('mongosh:new-user', telemetryUserIdentity => telemetryUserIdentitys.push(telemetryUserIdentity));
-          cliRepl.bus.on('mongosh:update-user', telemetryUserIdentity => telemetryUserIdentitys.push(telemetryUserIdentity));
+          cliRepl.bus.on('mongosh:new-user', (telemetryUserIdentity) =>
+            telemetryUserIdentitys.push(telemetryUserIdentity)
+          );
+          cliRepl.bus.on('mongosh:update-user', (telemetryUserIdentity) =>
+            telemetryUserIdentitys.push(telemetryUserIdentity)
+          );
           await cliRepl.start('', {});
         }
         expect(telemetryUserIdentitys).to.have.lengthOf(2);
-        expect(telemetryUserIdentitys[0]).to.deep.equal(telemetryUserIdentitys[1]);
+        expect(telemetryUserIdentitys[0]).to.deep.equal(
+          telemetryUserIdentitys[1]
+        );
       });
 
-      it('emits error for invalid config', async function() {
+      it('emits error for invalid config', async function () {
         await fs.writeFile(path.join(tmpdir.path, 'config'), 'notjson');
         cliRepl = new CliRepl(cliReplOptions);
         const onerror = waitBus(cliRepl.bus, 'mongosh:error');
         try {
           await cliRepl.start('', {});
-        } catch { /* not empty */ }
+        } catch {
+          /* not empty */
+        }
         await onerror;
       });
 
-      it('emits error for inaccessible home directory', async function() {
+      it('emits error for inaccessible home directory', async function () {
         if (process.platform === 'win32') {
           this.skip(); // TODO: Figure out why this doesn't work on Windows.
         }
-        cliReplOptions.shellHomePaths.shellRoamingDataPath = '/nonexistent/inaccesible';
-        cliReplOptions.shellHomePaths.shellLocalDataPath = '/nonexistent/inaccesible';
+        cliReplOptions.shellHomePaths.shellRoamingDataPath =
+          '/nonexistent/inaccesible';
+        cliReplOptions.shellHomePaths.shellLocalDataPath =
+          '/nonexistent/inaccesible';
         cliRepl = new CliRepl(cliReplOptions);
         const onerror = waitBus(cliRepl.bus, 'mongosh:error');
         try {
           await cliRepl.start('', {});
-        } catch { /* not empty */ }
+        } catch {
+          /* not empty */
+        }
         await onerror;
       });
 
-      it('removes old log files', async function() {
-        const oldlogfile = path.join(tmpdir.path, '60a0064774d771e863d9a1e1_log');
-        const newerlogfile = path.join(tmpdir.path, `${new bson.ObjectId()}_log`);
+      it('removes old log files', async function () {
+        const oldlogfile = path.join(
+          tmpdir.path,
+          '60a0064774d771e863d9a1e1_log'
+        );
+        const newerlogfile = path.join(
+          tmpdir.path,
+          `${new bson.ObjectId()}_log`
+        );
         await fs.writeFile(oldlogfile, 'ignoreme');
         await fs.writeFile(newerlogfile, 'ignoreme');
         cliRepl = new CliRepl(cliReplOptions);
@@ -345,8 +456,9 @@ describe('CliRepl', function() {
         }
       });
 
-      it('verifies the Node.js version', async function() {
-        const origVersionCheckEnvVar = process.env.MONGOSH_SKIP_NODE_VERSION_CHECK;
+      it('verifies the Node.js version', async function () {
+        const origVersionCheckEnvVar =
+          process.env.MONGOSH_SKIP_NODE_VERSION_CHECK;
         delete process.env.MONGOSH_SKIP_NODE_VERSION_CHECK;
         delete (process as any).version;
         process.version = 'v8.0.0';
@@ -356,68 +468,99 @@ describe('CliRepl', function() {
           const onerror = waitBus(cliRepl.bus, 'mongosh:error');
           try {
             await cliRepl.start('', {});
-          } catch { /* not empty */ }
+          } catch {
+            /* not empty */
+          }
           const [e] = await onerror;
           expect(e.name).to.equal('MongoshWarning');
           expect((e as any).code).to.equal(CliReplErrors.NodeVersionMismatch);
         } finally {
           process.version = process.versions.node;
-          process.env.MONGOSH_SKIP_NODE_VERSION_CHECK = origVersionCheckEnvVar || '';
+          process.env.MONGOSH_SKIP_NODE_VERSION_CHECK =
+            origVersionCheckEnvVar || '';
         }
       });
 
-      context('mongoshrc', function() {
-        it('loads .mongoshrc if it is present', async function() {
-          await fs.writeFile(path.join(tmpdir.path, '.mongoshrc.js'), 'print("hi from mongoshrc")');
+      context('mongoshrc', function () {
+        it('loads .mongoshrc if it is present', async function () {
+          await fs.writeFile(
+            path.join(tmpdir.path, '.mongoshrc.js'),
+            'print("hi from mongoshrc")'
+          );
           cliRepl = new CliRepl(cliReplOptions);
           await cliRepl.start('', {});
           expect(output).to.include('hi from mongoshrc');
         });
 
-        it('does not load .mongoshrc if --norc is passed', async function() {
-          await fs.writeFile(path.join(tmpdir.path, '.mongoshrc.js'), 'print("hi from mongoshrc")');
+        it('does not load .mongoshrc if --norc is passed', async function () {
+          await fs.writeFile(
+            path.join(tmpdir.path, '.mongoshrc.js'),
+            'print("hi from mongoshrc")'
+          );
           cliReplOptions.shellCliOptions.norc = true;
           cliRepl = new CliRepl(cliReplOptions);
           await cliRepl.start('', {});
           expect(output).not.to.include('hi from mongoshrc');
         });
 
-        it('warns if .mongorc.js is present but not .mongoshrc.js', async function() {
-          await fs.writeFile(path.join(tmpdir.path, '.mongorc.js'), 'print("hi from mongorc")');
+        it('warns if .mongorc.js is present but not .mongoshrc.js', async function () {
+          await fs.writeFile(
+            path.join(tmpdir.path, '.mongorc.js'),
+            'print("hi from mongorc")'
+          );
           cliRepl = new CliRepl(cliReplOptions);
           await cliRepl.start('', {});
-          expect(output).to.include('Found ~/.mongorc.js, but not ~/.mongoshrc.js. ~/.mongorc.js will not be loaded.');
-          expect(output).to.include('You may want to copy or rename ~/.mongorc.js to ~/.mongoshrc.js.');
+          expect(output).to.include(
+            'Found ~/.mongorc.js, but not ~/.mongoshrc.js. ~/.mongorc.js will not be loaded.'
+          );
+          expect(output).to.include(
+            'You may want to copy or rename ~/.mongorc.js to ~/.mongoshrc.js.'
+          );
           expect(output).not.to.include('hi from mongorc');
         });
 
-        it('warns if .mongoshrc is present but not .mongoshrc.js', async function() {
-          await fs.writeFile(path.join(tmpdir.path, '.mongoshrc'), 'print("hi from misspelled")');
+        it('warns if .mongoshrc is present but not .mongoshrc.js', async function () {
+          await fs.writeFile(
+            path.join(tmpdir.path, '.mongoshrc'),
+            'print("hi from misspelled")'
+          );
           cliRepl = new CliRepl(cliReplOptions);
           await cliRepl.start('', {});
-          expect(output).to.include('Found ~/.mongoshrc, but not ~/.mongoshrc.js.');
+          expect(output).to.include(
+            'Found ~/.mongoshrc, but not ~/.mongoshrc.js.'
+          );
           expect(output).not.to.include('hi from misspelled');
         });
 
-        it('does not warn with --quiet if .mongorc.js is present but not .mongoshrc.js', async function() {
-          await fs.writeFile(path.join(tmpdir.path, '.mongorc.js'), 'print("hi from mongorc")');
+        it('does not warn with --quiet if .mongorc.js is present but not .mongoshrc.js', async function () {
+          await fs.writeFile(
+            path.join(tmpdir.path, '.mongorc.js'),
+            'print("hi from mongorc")'
+          );
           cliReplOptions.shellCliOptions.quiet = true;
           cliRepl = new CliRepl(cliReplOptions);
           await cliRepl.start('', {});
-          expect(output).not.to.include('Found ~/.mongorc.js, but not ~/.mongoshrc.js');
+          expect(output).not.to.include(
+            'Found ~/.mongorc.js, but not ~/.mongoshrc.js'
+          );
           expect(output).not.to.include('hi from mongorc');
         });
 
-        it('does not warn with --quiet if .mongoshrc is present but not .mongoshrc.js', async function() {
-          await fs.writeFile(path.join(tmpdir.path, '.mongoshrc'), 'print("hi from misspelled")');
+        it('does not warn with --quiet if .mongoshrc is present but not .mongoshrc.js', async function () {
+          await fs.writeFile(
+            path.join(tmpdir.path, '.mongoshrc'),
+            'print("hi from misspelled")'
+          );
           cliReplOptions.shellCliOptions.quiet = true;
           cliRepl = new CliRepl(cliReplOptions);
           await cliRepl.start('', {});
-          expect(output).not.to.include('Found ~/.mongoshrc, but not ~/.mongoshrc.js');
+          expect(output).not.to.include(
+            'Found ~/.mongoshrc, but not ~/.mongoshrc.js'
+          );
           expect(output).not.to.include('hi from misspelled');
         });
 
-        it('loads .mongoshrc recursively if wanted', async function() {
+        it('loads .mongoshrc recursively if wanted', async function () {
           const rcPath = path.join(tmpdir.path, '.mongoshrc.js');
           await fs.writeFile(
             rcPath,
@@ -426,14 +569,18 @@ describe('CliRepl', function() {
               print('reached five');
             } else {
               load(JSON.stringify(${rcPath})
-            }`);
+            }`
+          );
           cliRepl = new CliRepl(cliReplOptions);
           await cliRepl.start('', {});
           expect(output).to.include('reached five');
         });
 
-        it('if an exception is thrown, indicates that it comes from mongoshrc', async function() {
-          await fs.writeFile(path.join(tmpdir.path, '.mongoshrc.js'), 'throw new Error("bananas")');
+        it('if an exception is thrown, indicates that it comes from mongoshrc', async function () {
+          await fs.writeFile(
+            path.join(tmpdir.path, '.mongoshrc.js'),
+            'throw new Error("bananas")'
+          );
           cliRepl = new CliRepl(cliReplOptions);
           await cliRepl.start('', {});
           expect(output).to.include('Error while running ~/.mongoshrc.js:');
@@ -441,9 +588,16 @@ describe('CliRepl', function() {
         });
       });
 
-      context('files loaded from command line', function() {
-        it('load a file if it has been specified on the command line', async function() {
-          const filename1 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'hello1.js');
+      context('files loaded from command line', function () {
+        it('load a file if it has been specified on the command line', async function () {
+          const filename1 = path.resolve(
+            __dirname,
+            '..',
+            'test',
+            'fixtures',
+            'load',
+            'hello1.js'
+          );
           cliReplOptions.shellCliOptions.fileNames = [filename1];
           cliRepl = new CliRepl(cliReplOptions);
           await startWithExpectedImmediateExit(cliRepl, '');
@@ -452,9 +606,23 @@ describe('CliRepl', function() {
           expect(exitCode).to.equal(0);
         });
 
-        it('load two files if it has been specified on the command line', async function() {
-          const filename1 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'hello1.js');
-          const filename2 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'hello2.js');
+        it('load two files if it has been specified on the command line', async function () {
+          const filename1 = path.resolve(
+            __dirname,
+            '..',
+            'test',
+            'fixtures',
+            'load',
+            'hello1.js'
+          );
+          const filename2 = path.resolve(
+            __dirname,
+            '..',
+            'test',
+            'fixtures',
+            'load',
+            'hello2.js'
+          );
           cliReplOptions.shellCliOptions.fileNames = [filename1, filename2];
           cliRepl = new CliRepl(cliReplOptions);
           await startWithExpectedImmediateExit(cliRepl, '');
@@ -465,8 +633,15 @@ describe('CliRepl', function() {
           expect(exitCode).to.equal(0);
         });
 
-        it('does not print filenames if --quiet is passed', async function() {
-          const filename1 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'hello1.js');
+        it('does not print filenames if --quiet is passed', async function () {
+          const filename1 = path.resolve(
+            __dirname,
+            '..',
+            'test',
+            'fixtures',
+            'load',
+            'hello1.js'
+          );
           cliReplOptions.shellCliOptions.fileNames = [filename1];
           cliReplOptions.shellCliOptions.quiet = true;
           cliRepl = new CliRepl(cliReplOptions);
@@ -476,8 +651,15 @@ describe('CliRepl', function() {
           expect(exitCode).to.equal(0);
         });
 
-        it('forwards the error it if loading the file throws', async function() {
-          const filename1 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'throw.js');
+        it('forwards the error it if loading the file throws', async function () {
+          const filename1 = path.resolve(
+            __dirname,
+            '..',
+            'test',
+            'fixtures',
+            'load',
+            'throw.js'
+          );
           cliReplOptions.shellCliOptions.fileNames = [filename1];
           cliRepl = new CliRepl(cliReplOptions);
           try {
@@ -489,7 +671,7 @@ describe('CliRepl', function() {
           expect(output).not.to.include('uh oh');
         });
 
-        it('evaluates code passed through --eval (single argument)', async function() {
+        it('evaluates code passed through --eval (single argument)', async function () {
           cliReplOptions.shellCliOptions.eval = ['"i am" + " being evaluated"'];
           cliRepl = new CliRepl(cliReplOptions);
           await startWithExpectedImmediateExit(cliRepl, '');
@@ -497,7 +679,7 @@ describe('CliRepl', function() {
           expect(exitCode).to.equal(0);
         });
 
-        it('forwards the error if the script passed to --eval throws (single argument)', async function() {
+        it('forwards the error if the script passed to --eval throws (single argument)', async function () {
           cliReplOptions.shellCliOptions.eval = ['throw new Error("oh no")'];
           cliRepl = new CliRepl(cliReplOptions);
           try {
@@ -508,8 +690,11 @@ describe('CliRepl', function() {
           expect(output).not.to.include('oh no');
         });
 
-        it('evaluates code passed through --eval (multiple arguments)', async function() {
-          cliReplOptions.shellCliOptions.eval = ['X = "i am"; "asdfghjkl"', 'X + " being evaluated"'];
+        it('evaluates code passed through --eval (multiple arguments)', async function () {
+          cliReplOptions.shellCliOptions.eval = [
+            'X = "i am"; "asdfghjkl"',
+            'X + " being evaluated"',
+          ];
           cliRepl = new CliRepl(cliReplOptions);
           await startWithExpectedImmediateExit(cliRepl, '');
           expect(output).to.not.include('asdfghjkl');
@@ -517,8 +702,11 @@ describe('CliRepl', function() {
           expect(exitCode).to.equal(0);
         });
 
-        it('forwards the error if the script passed to --eval throws (multiple arguments)', async function() {
-          cliReplOptions.shellCliOptions.eval = ['throw new Error("oh no")', 'asdfghjkl'];
+        it('forwards the error if the script passed to --eval throws (multiple arguments)', async function () {
+          cliReplOptions.shellCliOptions.eval = [
+            'throw new Error("oh no")',
+            'asdfghjkl',
+          ];
           cliRepl = new CliRepl(cliReplOptions);
           try {
             await cliRepl.start('', {});
@@ -530,12 +718,12 @@ describe('CliRepl', function() {
         });
       });
 
-      context('in --json mode', function() {
-        beforeEach(function() {
+      context('in --json mode', function () {
+        beforeEach(function () {
           cliReplOptions.shellCliOptions.quiet = true;
         });
 
-        it('serializes results as EJSON with --json', async function() {
+        it('serializes results as EJSON with --json', async function () {
           cliReplOptions.shellCliOptions.eval = ['({ a: Long("0") })'];
           cliReplOptions.shellCliOptions.json = true;
           cliRepl = new CliRepl(cliReplOptions);
@@ -544,7 +732,7 @@ describe('CliRepl', function() {
           expect(exitCode).to.equal(0);
         });
 
-        it('serializes results as EJSON with --json=canonical', async function() {
+        it('serializes results as EJSON with --json=canonical', async function () {
           cliReplOptions.shellCliOptions.eval = ['({ a: Long("0") })'];
           cliReplOptions.shellCliOptions.json = 'canonical';
           cliRepl = new CliRepl(cliReplOptions);
@@ -553,7 +741,7 @@ describe('CliRepl', function() {
           expect(exitCode).to.equal(0);
         });
 
-        it('serializes results as EJSON with --json=relaxed', async function() {
+        it('serializes results as EJSON with --json=relaxed', async function () {
           cliReplOptions.shellCliOptions.eval = ['({ a: Long("0") })'];
           cliReplOptions.shellCliOptions.json = 'relaxed';
           cliRepl = new CliRepl(cliReplOptions);
@@ -562,7 +750,7 @@ describe('CliRepl', function() {
           expect(exitCode).to.equal(0);
         });
 
-        it('serializes user errors as EJSON with --json', async function() {
+        it('serializes user errors as EJSON with --json', async function () {
           cliReplOptions.shellCliOptions.eval = ['throw new Error("asdf")'];
           cliReplOptions.shellCliOptions.json = true;
           cliRepl = new CliRepl(cliReplOptions);
@@ -574,20 +762,23 @@ describe('CliRepl', function() {
           expect(exitCode).to.equal(1);
         });
 
-        it('serializes mongosh errors as EJSON with --json', async function() {
+        it('serializes mongosh errors as EJSON with --json', async function () {
           cliReplOptions.shellCliOptions.eval = ['db'];
           cliReplOptions.shellCliOptions.json = true;
           cliRepl = new CliRepl(cliReplOptions);
           await startWithExpectedImmediateExit(cliRepl, '');
           const parsed = JSON.parse(output);
-          expect(parsed).to.haveOwnProperty('message', '[SHAPI-10004] No connected database');
+          expect(parsed).to.haveOwnProperty(
+            'message',
+            '[SHAPI-10004] No connected database'
+          );
           expect(parsed).to.haveOwnProperty('name', 'MongoshInvalidInputError');
           expect(parsed).to.haveOwnProperty('code', 'SHAPI-10004');
           expect(parsed.stack).to.be.a('string');
           expect(exitCode).to.equal(1);
         });
 
-        it('serializes primitive exceptions as EJSON with --json', async function() {
+        it('serializes primitive exceptions as EJSON with --json', async function () {
           cliReplOptions.shellCliOptions.eval = ['throw null'];
           cliReplOptions.shellCliOptions.json = true;
           cliRepl = new CliRepl(cliReplOptions);
@@ -599,8 +790,10 @@ describe('CliRepl', function() {
           expect(exitCode).to.equal(1);
         });
 
-        it('handles first-attempt EJSON serialization errors', async function() {
-          cliReplOptions.shellCliOptions.eval = ['({ toJSON() { throw new Error("nested error"); }})'];
+        it('handles first-attempt EJSON serialization errors', async function () {
+          cliReplOptions.shellCliOptions.eval = [
+            '({ toJSON() { throw new Error("nested error"); }})',
+          ];
           cliReplOptions.shellCliOptions.json = true;
           cliRepl = new CliRepl(cliReplOptions);
           await startWithExpectedImmediateExit(cliRepl, '');
@@ -611,8 +804,10 @@ describe('CliRepl', function() {
           expect(exitCode).to.equal(1);
         });
 
-        it('does not handle second-attempt EJSON serialization errors', async function() {
-          cliReplOptions.shellCliOptions.eval = ['({ toJSON() { throw ({ toJSON() { throw new Error("nested error") }}) }})'];
+        it('does not handle second-attempt EJSON serialization errors', async function () {
+          cliReplOptions.shellCliOptions.eval = [
+            '({ toJSON() { throw ({ toJSON() { throw new Error("nested error") }}) }})',
+          ];
           cliReplOptions.shellCliOptions.json = true;
           cliRepl = new CliRepl(cliReplOptions);
           try {
@@ -623,18 +818,20 @@ describe('CliRepl', function() {
           }
         });
 
-        it('rejects --json without --eval specifications', async function() {
+        it('rejects --json without --eval specifications', async function () {
           cliReplOptions.shellCliOptions.json = true;
           cliRepl = new CliRepl(cliReplOptions);
           try {
             await cliRepl.start('', {});
             expect.fail('missed exception');
           } catch (err) {
-            expect(err.message).to.equal('Cannot use --json without --eval or with --shell or with extra files');
+            expect(err.message).to.equal(
+              'Cannot use --json without --eval or with --shell or with extra files'
+            );
           }
         });
 
-        it('rejects --json with --shell specifications', async function() {
+        it('rejects --json with --shell specifications', async function () {
           cliReplOptions.shellCliOptions.eval = ['1'];
           cliReplOptions.shellCliOptions.json = true;
           cliReplOptions.shellCliOptions.shell = true;
@@ -643,11 +840,13 @@ describe('CliRepl', function() {
             await cliRepl.start('', {});
             expect.fail('missed exception');
           } catch (err) {
-            expect(err.message).to.equal('Cannot use --json without --eval or with --shell or with extra files');
+            expect(err.message).to.equal(
+              'Cannot use --json without --eval or with --shell or with extra files'
+            );
           }
         });
 
-        it('rejects --json with --file specifications', async function() {
+        it('rejects --json with --file specifications', async function () {
           cliReplOptions.shellCliOptions.eval = ['1'];
           cliReplOptions.shellCliOptions.json = true;
           cliReplOptions.shellCliOptions.fileNames = ['a.js'];
@@ -656,17 +855,22 @@ describe('CliRepl', function() {
             await cliRepl.start('', {});
             expect.fail('missed exception');
           } catch (err) {
-            expect(err.message).to.equal('Cannot use --json without --eval or with --shell or with extra files');
+            expect(err.message).to.equal(
+              'Cannot use --json without --eval or with --shell or with extra files'
+            );
           }
         });
       });
 
-      context('with a global configuration file', function() {
-        it('loads a global config file as YAML if present', async function() {
+      context('with a global configuration file', function () {
+        it('loads a global config file as YAML if present', async function () {
           const globalConfigFile = path.join(tmpdir.path, 'globalconfig.conf');
-          await fs.writeFile(globalConfigFile, 'mongosh:\n  redactHistory: remove-redact');
+          await fs.writeFile(
+            globalConfigFile,
+            'mongosh:\n  redactHistory: remove-redact'
+          );
 
-          cliReplOptions.globalConfigPaths = [ globalConfigFile ];
+          cliReplOptions.globalConfigPaths = [globalConfigFile];
           cliRepl = new CliRepl(cliReplOptions);
           await cliRepl.start('', {});
 
@@ -676,13 +880,16 @@ describe('CliRepl', function() {
           expect(output).to.include('remove-redact');
         });
 
-        it('lets the local config file have preference over the global one', async function() {
+        it('lets the local config file have preference over the global one', async function () {
           const localConfigFile = path.join(tmpdir.path, 'config');
           await fs.writeFile(localConfigFile, '{"redactHistory":"remove"}');
           const globalConfigFile = path.join(tmpdir.path, 'globalconfig.conf');
-          await fs.writeFile(globalConfigFile, 'mongosh:\n  redactHistory: remove-redact');
+          await fs.writeFile(
+            globalConfigFile,
+            'mongosh:\n  redactHistory: remove-redact'
+          );
 
-          cliReplOptions.globalConfigPaths = [ globalConfigFile ];
+          cliReplOptions.globalConfigPaths = [globalConfigFile];
           cliRepl = new CliRepl(cliReplOptions);
           await cliRepl.start('', {});
 
@@ -692,11 +899,14 @@ describe('CliRepl', function() {
           expect(output).to.include('remove');
         });
 
-        it('loads a global config file as EJSON if present', async function() {
+        it('loads a global config file as EJSON if present', async function () {
           const globalConfigFile = path.join(tmpdir.path, 'globalconfig.conf');
-          await fs.writeFile(globalConfigFile, '{ "redactHistory": "remove-redact" }');
+          await fs.writeFile(
+            globalConfigFile,
+            '{ "redactHistory": "remove-redact" }'
+          );
 
-          cliReplOptions.globalConfigPaths = [ globalConfigFile ];
+          cliReplOptions.globalConfigPaths = [globalConfigFile];
           cliRepl = new CliRepl(cliReplOptions);
           await cliRepl.start('', {});
 
@@ -706,28 +916,37 @@ describe('CliRepl', function() {
           expect(output).to.include('remove-redact');
         });
 
-        it('warns if a global config file is present but could not be parsed', async function() {
+        it('warns if a global config file is present but could not be parsed', async function () {
           const globalConfigFile = path.join(tmpdir.path, 'globalconfig.conf');
           await fs.writeFile(globalConfigFile, 'a: b: c\n');
 
-          cliReplOptions.globalConfigPaths = [ globalConfigFile ];
+          cliReplOptions.globalConfigPaths = [globalConfigFile];
           cliRepl = new CliRepl(cliReplOptions);
           await cliRepl.start('', {});
 
-          expect(output).to.include('Could not parse global configuration file at');
+          expect(output).to.include(
+            'Could not parse global configuration file at'
+          );
           expect(output).to.include('a: b: c'); // echoes back the offending line
         });
 
-        it('warns if a global config file is present but its values are invalid', async function() {
+        it('warns if a global config file is present but its values are invalid', async function () {
           const globalConfigFile = path.join(tmpdir.path, 'globalconfig.conf');
-          await fs.writeFile(globalConfigFile, 'mongosh:\n  redactHistory: meow');
+          await fs.writeFile(
+            globalConfigFile,
+            'mongosh:\n  redactHistory: meow'
+          );
 
-          cliReplOptions.globalConfigPaths = [ globalConfigFile ];
+          cliReplOptions.globalConfigPaths = [globalConfigFile];
           cliRepl = new CliRepl(cliReplOptions);
           await cliRepl.start('', {});
 
-          expect(output).to.include('Warning: Ignoring config option "redactHistory" from');
-          expect(output).to.include("redactHistory must be one of 'keep', 'remove', or 'remove-redact'");
+          expect(output).to.include(
+            'Warning: Ignoring config option "redactHistory" from'
+          );
+          expect(output).to.include(
+            "redactHistory must be one of 'keep', 'remove', or 'remove-redact'"
+          );
         });
       });
     });
@@ -737,23 +956,24 @@ describe('CliRepl', function() {
       wantWatch: true,
       wantShardDistribution: true,
       hasCollectionNames: false,
-      hasDatabaseNames: false
+      hasDatabaseNames: false,
     });
 
-    context('pressing CTRL-C', function() {
-      before(function() {
-        if (process.platform === 'win32') { // cannot trigger SIGINT on Windows
+    context('pressing CTRL-C', function () {
+      before(function () {
+        if (process.platform === 'win32') {
+          // cannot trigger SIGINT on Windows
           this.skip();
         }
         this.timeout(10_000);
       });
 
-      beforeEach(async function() {
+      beforeEach(async function () {
         cliRepl = new CliRepl(cliReplOptions);
         await cliRepl.start('', {});
       });
 
-      it('cancels shell API commands that do not use the server', async function() {
+      it('cancels shell API commands that do not use the server', async function () {
         output = '';
         input.write('while(true) { print("I am alive"); };\n');
         await tick();
@@ -770,9 +990,11 @@ describe('CliRepl', function() {
         expect(output).to.not.include('alive');
       });
 
-      it('ensures user code cannot catch the interrupt exception', async function() {
+      it('ensures user code cannot catch the interrupt exception', async function () {
         output = '';
-        input.write('nope = false; while(true) { try { print("I am alive"); } catch { nope = true; } };\n');
+        input.write(
+          'nope = false; while(true) { try { print("I am alive"); } catch { nope = true; } };\n'
+        );
         await tick();
         process.kill(process.pid, 'SIGINT');
 
@@ -790,19 +1012,20 @@ describe('CliRepl', function() {
     });
   });
 
-  context('with an actual server', function() {
+  context('with an actual server', function () {
     const testServer = startTestServer('shared');
 
-    beforeEach(async function() {
-      cliReplOptions.shellCliOptions.connectionSpecifier = await testServer.connectionString();
+    beforeEach(async function () {
+      cliReplOptions.shellCliOptions.connectionSpecifier =
+        await testServer.connectionString();
       cliRepl = new CliRepl(cliReplOptions);
     });
 
-    afterEach(async function() {
+    afterEach(async function () {
       await cliRepl.mongoshRepl.close();
     });
 
-    it('connects to a server and interacts with it', async function() {
+    it('connects to a server and interacts with it', async function () {
       await cliRepl.start(await testServer.connectionString(), {});
 
       output = '';
@@ -823,7 +1046,7 @@ describe('CliRepl', function() {
       input.write('.exit\n');
     });
 
-    it('prints cursor output in batches as requested', async function() {
+    it('prints cursor output in batches as requested', async function () {
       await cliRepl.start(await testServer.connectionString(), {});
 
       input.write('use clirepltest\n');
@@ -867,7 +1090,7 @@ describe('CliRepl', function() {
 
       input.write('.exit\n');
     });
-    it('asks for a password if one is required, connection string edition', async function() {
+    it('asks for a password if one is required, connection string edition', async function () {
       outputStream.on('data', (chunk) => {
         if (chunk.includes('Enter password')) {
           setImmediate(() => input.write('i want food\n'));
@@ -887,7 +1110,7 @@ describe('CliRepl', function() {
       input.write('.exit\n');
     });
 
-    it('respects a canceled password input', async function() {
+    it('respects a canceled password input', async function () {
       outputStream.on('data', (chunk) => {
         if (chunk.includes('Enter password')) {
           setImmediate(() => input.write('\u0003')); // Ctrl+C
@@ -900,12 +1123,14 @@ describe('CliRepl', function() {
       const errored = waitBus(cliRepl.bus, 'mongosh:error');
       try {
         await cliRepl.start(cs.toString(), {});
-      } catch { /* not empty */ }
-      const [ err ] = await errored;
+      } catch {
+        /* not empty */
+      }
+      const [err] = await errored;
       expect(err.message).to.equal('The request was aborted by the user');
     });
 
-    it('allows .forEach with async code for cursors', async function() {
+    it('allows .forEach with async code for cursors', async function () {
       await cliRepl.start(await testServer.connectionString(), {});
 
       input.write('use clirepltest\n');
@@ -915,7 +1140,9 @@ describe('CliRepl', function() {
       input.write('let cursor = db.test.find();\n');
       await waitEval(cliRepl.bus);
 
-      input.write('cursor.forEach(doc => db.test.insertOne({ a: doc.a + 1 }))\n');
+      input.write(
+        'cursor.forEach(doc => db.test.insertOne({ a: doc.a + 1 }))\n'
+      );
       await waitEval(cliRepl.bus);
 
       output = '';
@@ -926,14 +1153,14 @@ describe('CliRepl', function() {
       input.write('.exit\n');
     });
 
-    it('is quiet if --quiet is passed', async function() {
+    it('is quiet if --quiet is passed', async function () {
       cliReplOptions.shellCliOptions.quiet = true;
       cliRepl = new CliRepl(cliReplOptions);
       await cliRepl.start(await testServer.connectionString(), {});
       expect(output).to.match(/^[a-zA-Z0-9 ]*> $/); // Single line, only prompt
     });
 
-    it('has the full greeting if --quiet is not passed', async function() {
+    it('has the full greeting if --quiet is not passed', async function () {
       cliReplOptions.shellCliOptions.quiet = false;
       cliRepl = new CliRepl(cliReplOptions);
       await cliRepl.start(await testServer.connectionString(), {});
@@ -944,13 +1171,15 @@ describe('CliRepl', function() {
       expect(output).to.match(/For mongosh info see:/);
     });
 
-    it('does not emit warnings when connecting multiple times', async function() {
+    it('does not emit warnings when connecting multiple times', async function () {
       await cliRepl.start(await testServer.connectionString(), {});
       let warnings = 0;
       const warningListener = () => warnings++;
       process.on('warning', warningListener);
       try {
-        input.write('for (let i = 0; i < 10; i++) db.getMongo().setReadPref("primaryPreferred")\n');
+        input.write(
+          'for (let i = 0; i < 10; i++) db.getMongo().setReadPref("primaryPreferred")\n'
+        );
         await waitEval(cliRepl.bus);
       } finally {
         process.off('warning', warningListener);
@@ -963,11 +1192,11 @@ describe('CliRepl', function() {
       wantWatch: false,
       wantShardDistribution: false,
       hasCollectionNames: true,
-      hasDatabaseNames: true
+      hasDatabaseNames: true,
     });
 
-    context('analytics integration', function() {
-      context('with network connectivity', function() {
+    context('analytics integration', function () {
+      context('with network connectivity', function () {
         let srv: http.Server;
         let host: string;
         let requests: any[];
@@ -976,33 +1205,41 @@ describe('CliRepl', function() {
           telemetryDelay = val;
         };
 
-        beforeEach(async function() {
+        beforeEach(async function () {
           requests = [];
-          srv = http.createServer((req, res) => {
-            let body = '';
-            req
-              .setEncoding('utf8')
-              .on('data', (chunk) => { body += chunk; })
-              .on('end', async() => {
-                requests.push({ req, body });
-                res.writeHead(200);
-                await delay(telemetryDelay);
-                res.end('Ok\n');
-              });
-          }).listen(0);
+          srv = http
+            .createServer((req, res) => {
+              let body = '';
+              req
+                .setEncoding('utf8')
+                .on('data', (chunk) => {
+                  body += chunk;
+                })
+                .on('end', async () => {
+                  requests.push({ req, body });
+                  res.writeHead(200);
+                  await delay(telemetryDelay);
+                  res.end('Ok\n');
+                });
+            })
+            .listen(0);
           await once(srv, 'listening');
           host = `http://localhost:${(srv.address() as any).port}`;
-          cliReplOptions.analyticsOptions = { host, apiKey: '🔑', alwaysEnable: true };
+          cliReplOptions.analyticsOptions = {
+            host,
+            apiKey: '🔑',
+            alwaysEnable: true,
+          };
           cliRepl = new CliRepl(cliReplOptions);
         });
 
-        afterEach(async function() {
+        afterEach(async function () {
           srv.close();
           await once(srv, 'close');
           setTelemetryDelay(0);
         });
 
-        it('timeouts fast', async function() {
+        it('timeouts fast', async function () {
           setTelemetryDelay(10000);
           await cliRepl.start(await testServer.connectionString(), {});
           input.write('use somedb;\n');
@@ -1019,19 +1256,20 @@ describe('CliRepl', function() {
           );
         });
 
-        it('posts analytics data', async function() {
+        it('posts analytics data', async function () {
           await cliRepl.start(await testServer.connectionString(), {});
           if (requests.length < 1) {
             const [, res] = await once(srv, 'request');
             await once(res, 'close'); // Wait until HTTP response is written
           }
-          expect(requests[0].req.headers.authorization)
-            .to.include(Buffer.from('🔑:').toString('base64'));
+          expect(requests[0].req.headers.authorization).to.include(
+            Buffer.from('🔑:').toString('base64')
+          );
           expect(requests[0].body).to.include('identify');
           expect(requests[0].body).to.include(process.platform);
         });
 
-        it('stops posting analytics data after disableTelemetry()', async function() {
+        it('stops posting analytics data after disableTelemetry()', async function () {
           await cliRepl.start(await testServer.connectionString(), {});
           input.write('use somedb;\n');
           await waitEval(cliRepl.bus);
@@ -1048,57 +1286,82 @@ describe('CliRepl', function() {
           await delay(100);
           input.write('exit\n');
           await waitBus(cliRepl.bus, 'mongosh:closed');
-          const useEvents = requests.flatMap(
-            req => JSON.parse(req.body).batch.filter(entry => entry.event === 'Use'));
+          const useEvents = requests.flatMap((req) =>
+            JSON.parse(req.body).batch.filter((entry) => entry.event === 'Use')
+          );
           expect(useEvents).to.have.lengthOf(2);
         });
 
-        it('posts analytics event for load() calls', async function() {
+        it('posts analytics event for load() calls', async function () {
           await cliRepl.start(await testServer.connectionString(), {});
-          const filenameB = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'b.js');
+          const filenameB = path.resolve(
+            __dirname,
+            '..',
+            'test',
+            'fixtures',
+            'load',
+            'b.js'
+          );
           input.write(`load(${JSON.stringify(filenameB)});\n`);
           input.write('exit\n');
           await waitBus(cliRepl.bus, 'mongosh:closed');
-          const loadEvents = requests.map(
-            req => JSON.parse(req.body).batch.filter(entry => entry.event === 'Script Loaded')).flat();
+          const loadEvents = requests
+            .map((req) =>
+              JSON.parse(req.body).batch.filter(
+                (entry) => entry.event === 'Script Loaded'
+              )
+            )
+            .flat();
           expect(loadEvents).to.have.lengthOf(2);
           expect(loadEvents[0].properties.nested).to.equal(false);
           expect(loadEvents[1].properties.nested).to.equal(true);
         });
 
-        it('posts analytics event for shell API calls', async function() {
+        it('posts analytics event for shell API calls', async function () {
           await cliRepl.start(await testServer.connectionString(), {});
           input.write('db.printShardingStatus()\n');
           input.write('exit\n');
           await waitBus(cliRepl.bus, 'mongosh:closed');
-          const apiEvents = requests.map(
-            req => JSON.parse(req.body).batch.filter(entry => entry.event === 'API Call')).flat();
+          const apiEvents = requests
+            .map((req) =>
+              JSON.parse(req.body).batch.filter(
+                (entry) => entry.event === 'API Call'
+              )
+            )
+            .flat();
           expect(apiEvents).to.have.lengthOf(1);
           expect(apiEvents[0].properties.class).to.equal('Database');
-          expect(apiEvents[0].properties.method).to.equal('printShardingStatus');
+          expect(apiEvents[0].properties.method).to.equal(
+            'printShardingStatus'
+          );
           expect(apiEvents[0].properties.count).to.equal(1);
         });
 
-        it('includes a statement about flushed telemetry in the log', async function() {
+        it('includes a statement about flushed telemetry in the log', async function () {
           await cliRepl.start(await testServer.connectionString(), {});
           const { logFilePath } = cliRepl.logWriter;
           input.write('db.hello()\n');
           input.write('exit\n');
           await waitBus(cliRepl.bus, 'mongosh:closed');
-          const flushEntry = (await readReplLogfile(logFilePath)).find(entry => entry.id === 1_000_000_045);
+          const flushEntry = (await readReplLogfile(logFilePath)).find(
+            (entry) => entry.id === 1_000_000_045
+          );
           expect(flushEntry.attr.flushError).to.equal(null);
           expect(flushEntry.attr.flushDuration).to.be.a('number');
           expect(requests).to.have.lengthOf(2);
         });
 
-        it('sends out telemetry data for command line scripts', async function() {
+        it('sends out telemetry data for command line scripts', async function () {
           cliReplOptions.shellCliOptions.eval = ['db.hello()'];
           cliRepl = new CliRepl(cliReplOptions);
-          await startWithExpectedImmediateExit(cliRepl, await testServer.connectionString());
+          await startWithExpectedImmediateExit(
+            cliRepl,
+            await testServer.connectionString()
+          );
           expect(requests).to.have.lengthOf(2);
         });
 
-        it('sends out telemetry if the repl is running in an interactive mode in a containerized environment', async function() {
+        it('sends out telemetry if the repl is running in an interactive mode in a containerized environment', async function () {
           cliRepl = new CliRepl(cliReplOptions);
           cliRepl.getIsContainerizedEnvironment = () => {
             return Promise.resolve(true);
@@ -1110,8 +1373,11 @@ describe('CliRepl', function() {
           expect(requests).to.have.lengthOf(2);
         });
 
-        it('does not send out telemetry if the user starts with a no-telemetry config', async function() {
-          await fs.writeFile(path.join(tmpdir.path, 'config'), EJSON.stringify({ enableTelemetry: false }));
+        it('does not send out telemetry if the user starts with a no-telemetry config', async function () {
+          await fs.writeFile(
+            path.join(tmpdir.path, 'config'),
+            EJSON.stringify({ enableTelemetry: false })
+          );
           await cliRepl.start(await testServer.connectionString(), {});
           input.write('db.hello()\n');
           input.write('exit\n');
@@ -1119,11 +1385,14 @@ describe('CliRepl', function() {
           expect(requests).to.have.lengthOf(0);
         });
 
-        it('does not send out telemetry if the user starts with global force-disable-telemetry config', async function() {
+        it('does not send out telemetry if the user starts with global force-disable-telemetry config', async function () {
           const globalConfigFile = path.join(tmpdir.path, 'globalconfig.conf');
-          await fs.writeFile(globalConfigFile, 'mongosh:\n  forceDisableTelemetry: true');
+          await fs.writeFile(
+            globalConfigFile,
+            'mongosh:\n  forceDisableTelemetry: true'
+          );
 
-          cliReplOptions.globalConfigPaths = [ globalConfigFile ];
+          cliReplOptions.globalConfigPaths = [globalConfigFile];
           cliRepl = new CliRepl(cliReplOptions);
           await cliRepl.start(await testServer.connectionString(), {});
           input.write('db.hello()\n');
@@ -1132,14 +1401,17 @@ describe('CliRepl', function() {
           expect(requests).to.have.lengthOf(0);
         });
 
-        it('does not send out telemetry if the user only runs a script for disabling telemetry', async function() {
+        it('does not send out telemetry if the user only runs a script for disabling telemetry', async function () {
           cliReplOptions.shellCliOptions.eval = ['disableTelemetry()'];
           cliRepl = new CliRepl(cliReplOptions);
-          await startWithExpectedImmediateExit(cliRepl, await testServer.connectionString());
+          await startWithExpectedImmediateExit(
+            cliRepl,
+            await testServer.connectionString()
+          );
           expect(requests).to.have.lengthOf(0);
         });
 
-        it('does not send out telemetry if the user runs a script for disabling telemetry and drops into the shell', async function() {
+        it('does not send out telemetry if the user runs a script for disabling telemetry and drops into the shell', async function () {
           cliReplOptions.shellCliOptions.eval = ['disableTelemetry()'];
           cliReplOptions.shellCliOptions.shell = true;
           cliRepl = new CliRepl(cliReplOptions);
@@ -1150,7 +1422,7 @@ describe('CliRepl', function() {
           expect(requests).to.have.lengthOf(0);
         });
 
-        it('does not send out telemetry if the repl is running in non-interactive mode in a containerized environment', async function() {
+        it('does not send out telemetry if the repl is running in non-interactive mode in a containerized environment', async function () {
           cliReplOptions.shellCliOptions.eval = ['db.hello()'];
           cliRepl = new CliRepl(cliReplOptions);
           cliRepl.getIsContainerizedEnvironment = () => {
@@ -1163,7 +1435,7 @@ describe('CliRepl', function() {
           expect(requests).to.have.lengthOf(0);
         });
 
-        it('throttles telemetry beyond a certain rage', async function() {
+        it('throttles telemetry beyond a certain rage', async function () {
           await cliRepl.start(await testServer.connectionString(), {});
           for (let i = 0; i < 60; i++) {
             input.write('db.hello()\n');
@@ -1176,16 +1448,16 @@ describe('CliRepl', function() {
           expect(events).to.have.lengthOf(30);
         });
 
-        context('with a 5.0+ server', function() {
+        context('with a 5.0+ server', function () {
           skipIfServerVersion(testServer, '<= 4.4');
 
-          it('posts analytics data including connection information', async function() {
+          it('posts analytics data including connection information', async function () {
             await cliRepl.start(await testServer.connectionString(), {
               serverApi: {
                 version: '1',
                 strict: true,
-                deprecationErrors: true
-              }
+                deprecationErrors: true,
+              },
             });
             input.write('db.test.find();\n');
             await waitEval(cliRepl.bus);
@@ -1195,8 +1467,11 @@ describe('CliRepl', function() {
             input.write('exit\n');
             await waitBus(cliRepl.bus, 'mongosh:closed');
 
-            const connectEvents = requests.flatMap(
-              req => JSON.parse(req.body).batch.filter(entry => entry.event === 'New Connection'));
+            const connectEvents = requests.flatMap((req) =>
+              JSON.parse(req.body).batch.filter(
+                (entry) => entry.event === 'New Connection'
+              )
+            );
             expect(connectEvents).to.have.lengthOf(1);
             expect(connectEvents[0].anonymousId).to.be.a('string');
             const { properties } = connectEvents[0];
@@ -1211,15 +1486,19 @@ describe('CliRepl', function() {
         });
       });
 
-      context('without network connectivity', function() {
-        beforeEach(async function() {
+      context('without network connectivity', function () {
+        beforeEach(async function () {
           const host = 'http://localhost:1';
-          cliReplOptions.analyticsOptions = { host, apiKey: '🔑', alwaysEnable: true };
+          cliReplOptions.analyticsOptions = {
+            host,
+            apiKey: '🔑',
+            alwaysEnable: true,
+          };
           cliRepl = new CliRepl(cliReplOptions);
           await cliRepl.start(await testServer.connectionString(), {});
         });
 
-        it('ignores errors', async function() {
+        it('ignores errors', async function () {
           input.write('print(123 + 456);\n');
           input.write('exit\n');
           await waitBus(cliRepl.bus, 'mongosh:closed');
@@ -1228,23 +1507,50 @@ describe('CliRepl', function() {
       });
     });
 
-    context('files loaded from command line', function() {
-      it('load a file if it has been specified on the command line', async function() {
-        const filename1 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'hello1.js');
+    context('files loaded from command line', function () {
+      it('load a file if it has been specified on the command line', async function () {
+        const filename1 = path.resolve(
+          __dirname,
+          '..',
+          'test',
+          'fixtures',
+          'load',
+          'hello1.js'
+        );
         cliReplOptions.shellCliOptions.fileNames = [filename1];
         cliRepl = new CliRepl(cliReplOptions);
-        await startWithExpectedImmediateExit(cliRepl, await testServer.connectionString());
+        await startWithExpectedImmediateExit(
+          cliRepl,
+          await testServer.connectionString()
+        );
         expect(output).to.include(`Loading file: ${filename1}`);
         expect(output).to.include('hello one');
         expect(exitCode).to.equal(0);
       });
 
-      it('load two files if it has been specified on the command line', async function() {
-        const filename1 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'hello1.js');
-        const filename2 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'hello2.js');
+      it('load two files if it has been specified on the command line', async function () {
+        const filename1 = path.resolve(
+          __dirname,
+          '..',
+          'test',
+          'fixtures',
+          'load',
+          'hello1.js'
+        );
+        const filename2 = path.resolve(
+          __dirname,
+          '..',
+          'test',
+          'fixtures',
+          'load',
+          'hello2.js'
+        );
         cliReplOptions.shellCliOptions.fileNames = [filename1, filename2];
         cliRepl = new CliRepl(cliReplOptions);
-        await startWithExpectedImmediateExit(cliRepl, await testServer.connectionString());
+        await startWithExpectedImmediateExit(
+          cliRepl,
+          await testServer.connectionString()
+        );
         expect(output).to.include(`Loading file: ${filename1}`);
         expect(output).to.include('hello one');
         expect(output).to.include(`Loading file: ${filename2}`);
@@ -1252,26 +1558,55 @@ describe('CliRepl', function() {
         expect(exitCode).to.equal(0);
       });
 
-      it('allows doing db ops', async function() {
-        const filename1 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'insertintotest.js');
+      it('allows doing db ops', async function () {
+        const filename1 = path.resolve(
+          __dirname,
+          '..',
+          'test',
+          'fixtures',
+          'load',
+          'insertintotest.js'
+        );
         cliReplOptions.shellCliOptions.fileNames = [filename1, filename1];
         cliRepl = new CliRepl(cliReplOptions);
-        await startWithExpectedImmediateExit(cliRepl, await testServer.connectionString());
+        await startWithExpectedImmediateExit(
+          cliRepl,
+          await testServer.connectionString()
+        );
         expect(output).to.match(/Inserted: ObjectId\("[a-z0-9]{24}"\)/);
         expect(exitCode).to.equal(0);
       });
 
-      it('allows doing db ops (--eval variant)', async function() {
-        const filename1 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'insertintotest.js');
-        cliReplOptions.shellCliOptions.eval = [await fs.readFile(filename1, 'utf8')];
+      it('allows doing db ops (--eval variant)', async function () {
+        const filename1 = path.resolve(
+          __dirname,
+          '..',
+          'test',
+          'fixtures',
+          'load',
+          'insertintotest.js'
+        );
+        cliReplOptions.shellCliOptions.eval = [
+          await fs.readFile(filename1, 'utf8'),
+        ];
         cliRepl = new CliRepl(cliReplOptions);
-        await startWithExpectedImmediateExit(cliRepl, await testServer.connectionString());
+        await startWithExpectedImmediateExit(
+          cliRepl,
+          await testServer.connectionString()
+        );
         expect(output).to.match(/Inserted: ObjectId\("[a-z0-9]{24}"\)/);
         expect(exitCode).to.equal(0);
       });
 
-      it('drops into a shell if --shell is passed', async function() {
-        const filename1 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'insertintotest.js');
+      it('drops into a shell if --shell is passed', async function () {
+        const filename1 = path.resolve(
+          __dirname,
+          '..',
+          'test',
+          'fixtures',
+          'load',
+          'insertintotest.js'
+        );
         cliReplOptions.shellCliOptions.fileNames = [filename1];
         cliReplOptions.shellCliOptions.shell = true;
 
@@ -1280,7 +1615,9 @@ describe('CliRepl', function() {
         expect(output).to.match(/Inserted: ObjectId\("[a-z0-9]{24}"\)/);
         expect(exitCode).to.equal(null);
 
-        input.write('print("doc count", insertTestCollection.countDocuments())\n');
+        input.write(
+          'print("doc count", insertTestCollection.countDocuments())\n'
+        );
         await waitEval(cliRepl.bus);
         expect(output).to.include('doc count 1');
 
@@ -1289,21 +1626,44 @@ describe('CliRepl', function() {
         expect(exitCode).to.equal(0);
       });
 
-      it('does not read .mongoshrc.js if --shell is not passed', async function() {
-        await fs.writeFile(path.join(tmpdir.path, '.mongoshrc.js'), 'print("hi from mongoshrc")');
-        const filename1 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'hello1.js');
+      it('does not read .mongoshrc.js if --shell is not passed', async function () {
+        await fs.writeFile(
+          path.join(tmpdir.path, '.mongoshrc.js'),
+          'print("hi from mongoshrc")'
+        );
+        const filename1 = path.resolve(
+          __dirname,
+          '..',
+          'test',
+          'fixtures',
+          'load',
+          'hello1.js'
+        );
         cliReplOptions.shellCliOptions.fileNames = [filename1];
 
         cliRepl = new CliRepl(cliReplOptions);
-        await startWithExpectedImmediateExit(cliRepl, await testServer.connectionString());
+        await startWithExpectedImmediateExit(
+          cliRepl,
+          await testServer.connectionString()
+        );
         expect(output).to.include('hello one');
         expect(output).not.to.include('hi from mongoshrc');
         expect(exitCode).to.equal(0);
       });
 
-      it('does read .mongoshrc.js if --shell is passed', async function() {
-        await fs.writeFile(path.join(tmpdir.path, '.mongoshrc.js'), 'print("hi from mongoshrc")');
-        const filename1 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'hello1.js');
+      it('does read .mongoshrc.js if --shell is passed', async function () {
+        await fs.writeFile(
+          path.join(tmpdir.path, '.mongoshrc.js'),
+          'print("hi from mongoshrc")'
+        );
+        const filename1 = path.resolve(
+          __dirname,
+          '..',
+          'test',
+          'fixtures',
+          'load',
+          'hello1.js'
+        );
         cliReplOptions.shellCliOptions.fileNames = [filename1];
         cliReplOptions.shellCliOptions.shell = true;
 
@@ -1318,18 +1678,39 @@ describe('CliRepl', function() {
         expect(exitCode).to.equal(0);
       });
 
-      it('isInteractive() is false for --eval without --shell', async function() {
-        const filename1 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'printisinteractive.js');
-        cliReplOptions.shellCliOptions.eval = [await fs.readFile(filename1, 'utf8')];
+      it('isInteractive() is false for --eval without --shell', async function () {
+        const filename1 = path.resolve(
+          __dirname,
+          '..',
+          'test',
+          'fixtures',
+          'load',
+          'printisinteractive.js'
+        );
+        cliReplOptions.shellCliOptions.eval = [
+          await fs.readFile(filename1, 'utf8'),
+        ];
         cliRepl = new CliRepl(cliReplOptions);
-        await startWithExpectedImmediateExit(cliRepl, await testServer.connectionString());
+        await startWithExpectedImmediateExit(
+          cliRepl,
+          await testServer.connectionString()
+        );
         expect(output).to.match(/isInteractive=false/);
         expect(exitCode).to.equal(0);
       });
 
-      it('isInteractive() is true for --eval with --shell', async function() {
-        const filename1 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'printisinteractive.js');
-        cliReplOptions.shellCliOptions.eval = [await fs.readFile(filename1, 'utf8')];
+      it('isInteractive() is true for --eval with --shell', async function () {
+        const filename1 = path.resolve(
+          __dirname,
+          '..',
+          'test',
+          'fixtures',
+          'load',
+          'printisinteractive.js'
+        );
+        cliReplOptions.shellCliOptions.eval = [
+          await fs.readFile(filename1, 'utf8'),
+        ];
         cliReplOptions.shellCliOptions.shell = true;
         cliRepl = new CliRepl(cliReplOptions);
         await cliRepl.start(await testServer.connectionString(), {});
@@ -1341,17 +1722,34 @@ describe('CliRepl', function() {
         expect(exitCode).to.equal(0);
       });
 
-      it('isInteractive() is false for loaded file without --shell', async function() {
-        const filename1 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'printisinteractive.js');
+      it('isInteractive() is false for loaded file without --shell', async function () {
+        const filename1 = path.resolve(
+          __dirname,
+          '..',
+          'test',
+          'fixtures',
+          'load',
+          'printisinteractive.js'
+        );
         cliReplOptions.shellCliOptions.fileNames = [filename1];
         cliRepl = new CliRepl(cliReplOptions);
-        await startWithExpectedImmediateExit(cliRepl, await testServer.connectionString());
+        await startWithExpectedImmediateExit(
+          cliRepl,
+          await testServer.connectionString()
+        );
         expect(output).to.match(/isInteractive=false/);
         expect(exitCode).to.equal(0);
       });
 
-      it('isInteractive() is true for --eval with --shell', async function() {
-        const filename1 = path.resolve(__dirname, '..', 'test', 'fixtures', 'load', 'printisinteractive.js');
+      it('isInteractive() is true for --eval with --shell', async function () {
+        const filename1 = path.resolve(
+          __dirname,
+          '..',
+          'test',
+          'fixtures',
+          'load',
+          'printisinteractive.js'
+        );
         cliReplOptions.shellCliOptions.fileNames = [filename1];
         cliReplOptions.shellCliOptions.shell = true;
         cliRepl = new CliRepl(cliReplOptions);
@@ -1364,7 +1762,7 @@ describe('CliRepl', function() {
         expect(exitCode).to.equal(0);
       });
 
-      it('isInteractive() is true for plain shell', async function() {
+      it('isInteractive() is true for plain shell', async function () {
         cliRepl = new CliRepl(cliReplOptions);
         await cliRepl.start(await testServer.connectionString(), {});
 
@@ -1374,8 +1772,8 @@ describe('CliRepl', function() {
       });
     });
 
-    context('with a user-provided prompt', function() {
-      beforeEach(async function() {
+    context('with a user-provided prompt', function () {
+      beforeEach(async function () {
         await cliRepl.start(await testServer.connectionString(), {});
 
         input.write('use clirepltest\n');
@@ -1387,14 +1785,15 @@ describe('CliRepl', function() {
         output = '';
       });
 
-      it('allows prompts that interact with shell API methods', async function() {
+      it('allows prompts that interact with shell API methods', async function () {
         input.write('1 + 2\n');
         await waitEval(cliRepl.bus);
         expect(output).to.include('on clirepltest> ');
       });
 
-      it('renders the prompt correctly on interrupt', async function() {
-        if (process.platform === 'win32') { // cannot trigger SIGINT on Windows
+      it('renders the prompt correctly on interrupt', async function () {
+        if (process.platform === 'win32') {
+          // cannot trigger SIGINT on Windows
           return this.skip();
         }
         input.write('while(true) { sleep(500); }\n');
@@ -1407,29 +1806,30 @@ describe('CliRepl', function() {
       });
     });
 
-    context('pressing CTRL-C', function() {
-      before(function() {
-        if (process.platform === 'win32') { // cannot trigger SIGINT on Windows
+    context('pressing CTRL-C', function () {
+      before(function () {
+        if (process.platform === 'win32') {
+          // cannot trigger SIGINT on Windows
           this.skip();
         }
       });
 
-      beforeEach(async function() {
+      beforeEach(async function () {
         await cliRepl.start(await testServer.connectionString(), {});
         await tick();
         input.write('db.ctrlc.insertOne({ hello: "there" })\n');
         await waitEval(cliRepl.bus);
       });
 
-      afterEach(async function() {
+      afterEach(async function () {
         input.write('db.ctrlc.drop()\n');
         await waitEval(cliRepl.bus);
       });
 
-      context('for server < 4.1', function() {
+      context('for server < 4.1', function () {
         skipIfServerVersion(testServer, '>= 4.1');
 
-        it('prints a warning to manually terminate operations', async function() {
+        it('prints a warning to manually terminate operations', async function () {
           input.write('sleep(500); print(db.ctrlc.find({}));\n');
           await delay(100);
 
@@ -1438,18 +1838,22 @@ describe('CliRepl', function() {
 
           await waitBus(cliRepl.bus, 'mongosh:interrupt-complete');
           expect(output).to.match(/^Stopping execution.../m);
-          expect(output).to.match(/^WARNING: Operations running on the server cannot be killed automatically/m);
+          expect(output).to.match(
+            /^WARNING: Operations running on the server cannot be killed automatically/m
+          );
         });
       });
 
-      context('for server >= 4.1', function() {
+      context('for server >= 4.1', function () {
         skipIfServerVersion(testServer, '< 4.1');
 
-        it('terminates operations on the server side', async function() {
+        it('terminates operations on the server side', async function () {
           if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
             return this.skip(); // $currentOp is unversioned
           }
-          input.write('db.ctrlc.find({ $where: \'while(true) { /* loop1 */ }\' })\n');
+          input.write(
+            "db.ctrlc.find({ $where: 'while(true) { /* loop1 */ }' })\n"
+          );
           await delay(100);
           process.kill(process.pid, 'SIGINT');
           await waitBus(cliRepl.bus, 'mongosh:interrupt-complete');
@@ -1458,9 +1862,11 @@ describe('CliRepl', function() {
           input.write('use admin\n');
           await waitEval(cliRepl.bus);
 
-          await eventually(async() => {
+          await eventually(async () => {
             output = '';
-            input.write('db.aggregate([ {$currentOp: {} }, { $match: { \'command.find\': \'ctrlc\' } }, { $project: { command: 1 } } ])\n');
+            input.write(
+              "db.aggregate([ {$currentOp: {} }, { $match: { 'command.find': 'ctrlc' } }, { $project: { command: 1 } } ])\n"
+            );
             await waitEval(cliRepl.bus);
 
             expect(output).to.not.include('MongoError');
@@ -1468,25 +1874,31 @@ describe('CliRepl', function() {
           });
         });
 
-        it('terminates operations also for explicitly created Mongo instances', async function() {
+        it('terminates operations also for explicitly created Mongo instances', async function () {
           input.write('dbname = db.getName()\n');
           await waitEval(cliRepl.bus);
-          input.write(`client = Mongo("${await testServer.connectionString()}")\n`);
+          input.write(
+            `client = Mongo("${await testServer.connectionString()}")\n`
+          );
           await waitEval(cliRepl.bus);
           input.write('clientCtrlcDb = client.getDB(dbname);\n');
           await waitEval(cliRepl.bus);
-          input.write('clientAdminDb = client.getDB(\'admin\');\n');
+          input.write("clientAdminDb = client.getDB('admin');\n");
           await waitEval(cliRepl.bus);
 
-          input.write('clientCtrlcDb.ctrlc.find({ $where: \'while(true) { /* loop2 */ }\' })\n');
+          input.write(
+            "clientCtrlcDb.ctrlc.find({ $where: 'while(true) { /* loop2 */ }' })\n"
+          );
           await delay(100);
           process.kill(process.pid, 'SIGINT');
           await waitBus(cliRepl.bus, 'mongosh:interrupt-complete');
           expect(output).to.match(/Stopping execution.../m);
 
-          await eventually(async() => {
+          await eventually(async () => {
             output = '';
-            input.write('clientAdminDb.aggregate([ {$currentOp: {} }, { $match: { \'command.find\': \'ctrlc\' } }, { $project: { command: 1 } } ])\n');
+            input.write(
+              "clientAdminDb.aggregate([ {$currentOp: {} }, { $match: { 'command.find': 'ctrlc' } }, { $project: { command: 1 } } ])\n"
+            );
             await waitEval(cliRepl.bus);
 
             expect(output).to.not.include('MongoError');
@@ -1495,7 +1907,7 @@ describe('CliRepl', function() {
         });
       });
 
-      it('does not reconnect until the evaluation finishes', async function() {
+      it('does not reconnect until the evaluation finishes', async function () {
         input.write('sleep(500); print(db.ctrlc.find({}));\n');
         await delay(100);
 
@@ -1518,7 +1930,7 @@ describe('CliRepl', function() {
         expect(output).to.contain('hello');
       });
 
-      it('cancels shell API commands that do not use the server', async function() {
+      it('cancels shell API commands that do not use the server', async function () {
         output = '';
         input.write('while(true) { print("I am alive"); };\n');
         await tick();
@@ -1535,9 +1947,11 @@ describe('CliRepl', function() {
         expect(output).to.not.include('alive');
       });
 
-      it('ensures user code cannot catch the interrupt exception', async function() {
+      it('ensures user code cannot catch the interrupt exception', async function () {
         output = '';
-        input.write('nope = false; while(true) { try { print("I am alive"); } catch { nope = true; } };\n');
+        input.write(
+          'nope = false; while(true) { try { print("I am alive"); } catch { nope = true; } };\n'
+        );
         await tick();
         process.kill(process.pid, 'SIGINT');
 
@@ -1555,70 +1969,89 @@ describe('CliRepl', function() {
     });
   });
 
-  context('with a replset node', function() {
+  context('with a replset node', function () {
     verifyAutocompletion({
       testServer: startTestServer('not-shared', '--replicaset', '--nodes', '1'),
       wantWatch: true,
       wantShardDistribution: false,
       hasCollectionNames: true,
-      hasDatabaseNames: true
+      hasDatabaseNames: true,
     });
   });
 
-  context('with a mongos', function() {
+  context('with a mongos', function () {
     verifyAutocompletion({
-      testServer: startTestServer('not-shared', '--replicaset', '--csrs', '--sharded', '0'),
+      testServer: startTestServer(
+        'not-shared',
+        '--replicaset',
+        '--csrs',
+        '--sharded',
+        '0'
+      ),
       wantWatch: true,
       wantShardDistribution: true,
       hasCollectionNames: false, // We're only spinning up a mongos here
-      hasDatabaseNames: true
+      hasDatabaseNames: true,
     });
   });
 
-  context('with an auth-required mongod', function() {
+  context('with an auth-required mongod', function () {
     verifyAutocompletion({
       testServer: startTestServer('not-shared', '--auth'),
       wantWatch: false,
       wantShardDistribution: false,
       hasCollectionNames: false,
-      hasDatabaseNames: false
+      hasDatabaseNames: false,
     });
   });
 
-  function verifyAutocompletion({ testServer, wantWatch, wantShardDistribution, hasCollectionNames, hasDatabaseNames }: {
-    testServer: MongodSetup | null,
-    wantWatch: boolean,
-    wantShardDistribution: boolean,
-    hasCollectionNames: boolean,
-    hasDatabaseNames: boolean
+  function verifyAutocompletion({
+    testServer,
+    wantWatch,
+    wantShardDistribution,
+    hasCollectionNames,
+    hasDatabaseNames,
+  }: {
+    testServer: MongodSetup | null;
+    wantWatch: boolean;
+    wantShardDistribution: boolean;
+    hasCollectionNames: boolean;
+    hasDatabaseNames: boolean;
   }): void {
-    describe('autocompletion', function() {
+    describe('autocompletion', function () {
       let cliRepl: CliRepl;
-      const tab = async() => {
+      const tab = async () => {
         await tick();
         input.write('\u0009');
       };
-      const tabtab = async() => {
+      const tabtab = async () => {
         await tab();
         await tab();
       };
 
-      beforeEach(async function() {
+      beforeEach(async function () {
         if (testServer === null) {
           cliReplOptions.shellCliOptions = { nodb: true };
         }
         cliReplOptions.nodeReplOptions = { terminal: true };
         cliRepl = new CliRepl(cliReplOptions);
-        await cliRepl.start(testServer ? await testServer.connectionString() : '', {} as any);
+        await cliRepl.start(
+          testServer ? await testServer.connectionString() : '',
+          {} as any
+        );
       });
 
-      afterEach(async function() {
+      afterEach(async function () {
         expect(output).not.to.include('Tab completion error');
-        expect(output).not.to.include('listCollections requires authentication');
+        expect(output).not.to.include(
+          'listCollections requires authentication'
+        );
         await cliRepl.mongoshRepl.close();
       });
 
-      it(`${wantWatch ? 'completes' : 'does not complete'} the watch method`, async function() {
+      it(`${
+        wantWatch ? 'completes' : 'does not complete'
+      } the watch method`, async function () {
         if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
           return this.skip();
         }
@@ -1633,7 +2066,7 @@ describe('CliRepl', function() {
         }
       });
 
-      it('completes the version method', async function() {
+      it('completes the version method', async function () {
         if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
           return this.skip();
         }
@@ -1644,7 +2077,7 @@ describe('CliRepl', function() {
         expect(output).to.include('db.version');
       });
 
-      it('does not complete legacy JS get/set definitions', async function() {
+      it('does not complete legacy JS get/set definitions', async function () {
         if (+process.version.split('.')[0].slice(1) < 14) {
           return this.skip();
         }
@@ -1659,7 +2092,9 @@ describe('CliRepl', function() {
         expect(output).not.to.include('JSON.__lookupSetter__');
       });
 
-      it(`${wantShardDistribution ? 'completes' : 'does not complete'} the getShardDistribution method`, async function() {
+      it(`${
+        wantShardDistribution ? 'completes' : 'does not complete'
+      } the getShardDistribution method`, async function () {
         if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
           return this.skip();
         }
@@ -1674,9 +2109,11 @@ describe('CliRepl', function() {
         }
       });
 
-      it('includes collection names', async function() {
+      it('includes collection names', async function () {
         if (!hasCollectionNames) return;
-        const collname = `testcollection${Date.now()}${(Math.random() * 1000) | 0}`;
+        const collname = `testcollection${Date.now()}${
+          (Math.random() * 1000) | 0
+        }`;
         input.write(`db.${collname}.insertOne({});\n`);
         await waitEval(cliRepl.bus);
 
@@ -1690,7 +2127,7 @@ describe('CliRepl', function() {
         await waitEval(cliRepl.bus);
       });
 
-      it('completes JS value properties properly (incomplete, double tab)', async function() {
+      it('completes JS value properties properly (incomplete, double tab)', async function () {
         input.write('JSON.');
         await tabtab();
         await waitCompletion(cliRepl.bus);
@@ -1699,7 +2136,7 @@ describe('CliRepl', function() {
         expect(output).not.to.include('rawValue');
       });
 
-      it('completes JS value properties properly (complete, single tab)', async function() {
+      it('completes JS value properties properly (complete, single tab)', async function () {
         input.write('JSON.pa');
         await tab();
         await waitCompletion(cliRepl.bus);
@@ -1708,7 +2145,7 @@ describe('CliRepl', function() {
         expect(output).not.to.include('rawValue');
       });
 
-      it('completes shell commands', async function() {
+      it('completes shell commands', async function () {
         input.write('const dSomeVariableStartingWithD = 10;\n');
         await waitEval(cliRepl.bus);
 
@@ -1720,7 +2157,7 @@ describe('CliRepl', function() {
         expect(output).not.to.include('dSomeVariableStartingWithD');
       });
 
-      it('completes use <db>', async function() {
+      it('completes use <db>', async function () {
         if (!hasDatabaseNames) return;
         input.write('use adm');
         await tab();
@@ -1728,16 +2165,18 @@ describe('CliRepl', function() {
         expect(output).to.include('use admin');
       });
 
-      it('completes query operators', async function() {
+      it('completes query operators', async function () {
         input.write('db.movies.find({year: {$g');
         await tabtab();
         await waitCompletion(cliRepl.bus);
         expect(output).to.include('db.movies.find({year: {$gte');
       });
 
-      it('completes properties of shell API result types', async function() {
+      it('completes properties of shell API result types', async function () {
         if (!hasCollectionNames) return;
-        input.write('res = db.autocompleteTestColl.deleteMany({ deletetestdummykey: 1 })\n');
+        input.write(
+          'res = db.autocompleteTestColl.deleteMany({ deletetestdummykey: 1 })\n'
+        );
         await waitEval(cliRepl.bus);
 
         // Consitency check: The result actually has a shell API type tag:
@@ -1754,8 +2193,8 @@ describe('CliRepl', function() {
     });
   }
 
-  context('with OIDC options', function() {
-    it('sets OIDC options according with defaults', async function() {
+  context('with OIDC options', function () {
+    it('sets OIDC options according with defaults', async function () {
       cliReplOptions.shellCliOptions = { nodb: true };
       cliRepl = new CliRepl(cliReplOptions);
       await cliRepl.start('', {});
@@ -1767,13 +2206,15 @@ describe('CliRepl', function() {
       expect(o.parentHandle).to.equal(undefined);
     });
 
-    it('sets OIDC options according to config', async function() {
+    it('sets OIDC options according to config', async function () {
       cliReplOptions.shellCliOptions = { nodb: true };
       cliRepl = new CliRepl(cliReplOptions);
       await cliRepl.start('', {});
       input.write('config.set("oidcRedirectURI", "http://localhost:1234/")\n');
       await waitEval(cliRepl.bus);
-      input.write('config.set("oidcTrustedEndpoints", ["*.my-trusted-cluster.net"])\n');
+      input.write(
+        'config.set("oidcTrustedEndpoints", ["*.my-trusted-cluster.net"])\n'
+      );
       await waitEval(cliRepl.bus);
       input.write('config.set("browser", "my-awesome-browser")\n');
       await waitEval(cliRepl.bus);
@@ -1788,10 +2229,13 @@ describe('CliRepl', function() {
       expect(o.oidc?.allowedFlows).to.deep.equal(['auth-code']);
       expect(o.oidc?.notifyDeviceFlow).to.be.a('function');
       expect(o.oidc?.redirectURI).to.equal('http://localhost:1234/');
-      expect(o.oidc?.openBrowser).to.deep.equal({ command: 'my-awesome-browser' });
-      expect(o.authMechanismProperties).to.deep.equal({ ALLOWED_HOSTS: [ '*.my-trusted-cluster.net' ] });
+      expect(o.oidc?.openBrowser).to.deep.equal({
+        command: 'my-awesome-browser',
+      });
+      expect(o.authMechanismProperties).to.deep.equal({
+        ALLOWED_HOSTS: ['*.my-trusted-cluster.net'],
+      });
       expect(o.parentHandle).to.equal('foo-bar');
     });
   });
 });
-

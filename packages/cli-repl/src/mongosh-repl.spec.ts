@@ -6,12 +6,18 @@ import { ADMIN_DB } from '@mongosh/shell-api/lib/enums';
 import { CliUserConfig } from '@mongosh/types';
 import { EventEmitter, once } from 'events';
 import path from 'path';
-import type { Duplex} from 'stream';
+import type { Duplex } from 'stream';
 import { PassThrough } from 'stream';
-import type { StubbedInstance} from 'ts-sinon';
+import type { StubbedInstance } from 'ts-sinon';
 import { stubInterface } from 'ts-sinon';
 import { promisify } from 'util';
-import { expect, fakeTTYProps, tick, useTmpdir, waitEval } from '../test/repl-helpers';
+import {
+  expect,
+  fakeTTYProps,
+  tick,
+  useTmpdir,
+  waitEval,
+} from '../test/repl-helpers';
 import type { MongoshIOProvider, MongoshNodeReplOptions } from './mongosh-repl';
 import MongoshNodeRepl from './mongosh-repl';
 import { parseAnyLogEntry } from '../../shell-api/src/log-entry';
@@ -24,7 +30,7 @@ const multilineCode = `(function() {
   return 610 + 377;
 })();`;
 
-describe('MongoshNodeRepl', function() {
+describe('MongoshNodeRepl', function () {
   let mongoshRepl: MongoshNodeRepl;
   let mongoshReplOptions: MongoshNodeReplOptions;
   let input: Duplex;
@@ -37,20 +43,25 @@ describe('MongoshNodeRepl', function() {
   let config: Record<string, any>;
   const tmpdir = useTmpdir();
 
-  beforeEach(function() {
+  beforeEach(function () {
     input = new PassThrough();
     outputStream = new PassThrough();
     output = '';
-    outputStream.setEncoding('utf8').on('data', (chunk) => { output += chunk; });
+    outputStream.setEncoding('utf8').on('data', (chunk) => {
+      output += chunk;
+    });
     bus = new EventEmitter();
 
     config = new CliUserConfig();
     const cp = stubInterface<MongoshIOProvider>();
     cp.getHistoryFilePath.returns(path.join(tmpdir.path, 'history'));
     // eslint-disable-next-line @typescript-eslint/require-await
-    cp.getConfig.callsFake(async(key: string) => config[key]);
+    cp.getConfig.callsFake(async (key: string) => config[key]);
     // eslint-disable-next-line @typescript-eslint/require-await
-    cp.setConfig.callsFake(async(key: string, value: any) => { config[key] = value; return 'success'; });
+    cp.setConfig.callsFake(async (key: string, value: any) => {
+      config[key] = value;
+      return 'success';
+    });
     cp.listConfigOptions.callsFake(() => Object.keys(config));
     cp.exit.callsFake(((code) => bus.emit('test-exit-event', code)) as any);
 
@@ -62,11 +73,11 @@ describe('MongoshNodeRepl', function() {
     sp.getConnectionInfo.resolves({
       extraInfo: {
         uri: 'mongodb://localhost:27017/test',
-        is_localhost: true
+        is_localhost: true,
       },
       buildInfo: {
-        version: '4.4.1'
-      }
+        version: '4.4.1',
+      },
     });
     sp.runCommandWithCheck.resolves({ ok: 1 });
     serviceProvider = sp;
@@ -75,16 +86,16 @@ describe('MongoshNodeRepl', function() {
       input: input,
       output: outputStream,
       bus: bus,
-      ioProvider: ioProvider
+      ioProvider: ioProvider,
     };
     mongoshRepl = new MongoshNodeRepl(mongoshReplOptions);
   });
 
   let originalEnvVars;
-  before(function() {
+  before(function () {
     originalEnvVars = { ...process.env };
   });
-  afterEach(function() {
+  afterEach(function () {
     Object.assign(process.env, originalEnvVars);
     for (const key of Object.keys(process.env)) {
       if (!(key in originalEnvVars)) {
@@ -93,71 +104,77 @@ describe('MongoshNodeRepl', function() {
     }
   });
 
-  it('throws an error if internal methods are used too early', function() {
-    expect(() => mongoshRepl.runtimeState()).to.throw('Mongosh not initialized yet');
+  it('throws an error if internal methods are used too early', function () {
+    expect(() => mongoshRepl.runtimeState()).to.throw(
+      'Mongosh not initialized yet'
+    );
   });
 
-  context('with default options', function() {
-    beforeEach(async function() {
+  context('with default options', function () {
+    beforeEach(async function () {
       const initialized = await mongoshRepl.initialize(serviceProvider);
       await mongoshRepl.startRepl(initialized);
     });
 
-    it('shows a nice message to say hello', function() {
+    it('shows a nice message to say hello', function () {
       expect(output).to.match(/Using MongoDB:\s+4.4.1/);
       expect(output).to.match(/Using Mongosh:/);
-      expect(output).to.match(/You can opt-out by running the .*disableTelemetry\(\).* command/);
+      expect(output).to.match(
+        /You can opt-out by running the .*disableTelemetry\(\).* command/
+      );
       expect(config.disableGreetingMessage).to.equal(true);
     });
 
-    it('evaluates javascript', async function() {
+    it('evaluates javascript', async function () {
       input.write('21 + 13\n');
       await waitEval(bus);
       expect(output).to.include('34');
     });
 
-    it('does not print "undefined"', async function() {
+    it('does not print "undefined"', async function () {
       input.write('const foo = "bar";\n');
       await waitEval(bus);
       expect(output).not.to.include('undefined');
       expect(output).not.to.include('bar');
     });
 
-    it('emits exit events on exit', async function() {
+    it('emits exit events on exit', async function () {
       input.write('.exit\n');
-      const [ code ] = await once(bus, 'test-exit-event');
+      const [code] = await once(bus, 'test-exit-event');
       expect(code).to.equal(undefined);
     });
 
-    it('emits error events when somebody throws something', async function() {
+    it('emits error events when somebody throws something', async function () {
       input.write('throw new Error("meow")\n');
-      const [ error ] = await once(bus, 'mongosh:error');
+      const [error] = await once(bus, 'mongosh:error');
       expect(error.name).to.equal('Error');
       expect(error.message).to.equal('meow');
     });
 
-    it('defaults to MongoshInternalError for exceptions', async function() {
+    it('defaults to MongoshInternalError for exceptions', async function () {
       input.write('throw { code: "ABC", errmsg: "DEF" }\n');
-      const [ error ] = await once(bus, 'mongosh:error');
+      const [error] = await once(bus, 'mongosh:error');
       expect(error.name).to.equal('MongoshInternalError');
     });
 
-    it('handles writer errors by wrapping them in MongoshInternalError', async function() {
-      input.write('throw { get message() { throw new Error("surprise!!!"); } }\n');
-      const [ error ] = await once(bus, 'mongosh:error');
+    it('handles writer errors by wrapping them in MongoshInternalError', async function () {
+      input.write(
+        'throw { get message() { throw new Error("surprise!!!"); } }\n'
+      );
+      const [error] = await once(bus, 'mongosh:error');
       expect(error.name).to.equal('MongoshInternalError');
       expect(error.message).to.include('surprise!!!');
     });
 
-    context('print / printjson', function() {
-      it('prints values when asked to', async function() {
+    context('print / printjson', function () {
+      it('prints values when asked to', async function () {
         output = '';
         input.write('print("see this?"); 42\n');
         await waitEval(bus);
         expect(output).to.include('see this?');
       });
 
-      it('respects user format output settings when print is used', async function() {
+      it('respects user format output settings when print is used', async function () {
         input.write('config.set("inspectDepth", 0);\n');
         await waitEval(bus);
         output = '';
@@ -166,26 +183,34 @@ describe('MongoshNodeRepl', function() {
         expect(output).to.include('{ a: [Object] }');
       });
 
-      it('prints out content in a legacy printjson format', async function() {
+      it('prints out content in a legacy printjson format', async function () {
         input.write('config.set("inspectDepth", 0);\n');
         await waitEval(bus);
         output = '';
         input.write('printjson({ a: { b: { c: 1 } } });\n');
         await waitEval(bus);
-        expect(output).to.include('{\n  a: {\n    b: {\n      c: 1\n    }\n  }\n}');
+        expect(output).to.include(
+          '{\n  a: {\n    b: {\n      c: 1\n    }\n  }\n}'
+        );
       });
     });
 
-    it('forwards telemetry config requests', async function() {
+    it('forwards telemetry config requests', async function () {
       input.write('disableTelemetry()\n');
       await waitEval(bus);
-      expect(ioProvider.setConfig).to.have.been.calledWith('enableTelemetry', false);
+      expect(ioProvider.setConfig).to.have.been.calledWith(
+        'enableTelemetry',
+        false
+      );
       input.write('enableTelemetry()\n');
       await waitEval(bus);
-      expect(ioProvider.setConfig).to.have.been.calledWith('enableTelemetry', true);
+      expect(ioProvider.setConfig).to.have.been.calledWith(
+        'enableTelemetry',
+        true
+      );
     });
 
-    it('makes .clear just display the prompt again', async function() {
+    it('makes .clear just display the prompt again', async function () {
       await tick();
       const prevOutput = output;
       input.write('.clear\n');
@@ -193,7 +218,7 @@ describe('MongoshNodeRepl', function() {
       expect(output.slice(prevOutput.length)).to.match(/> $/);
     });
 
-    it('keeps variables defined before .clear', async function() {
+    it('keeps variables defined before .clear', async function () {
       input.write('a = 14987135; 0\n');
       await waitEval(bus);
       input.write('.clear\n');
@@ -204,7 +229,7 @@ describe('MongoshNodeRepl', function() {
       expect(output).to.include('14987135');
     });
 
-    it('prints a fancy syntax error when encountering one', async function() {
+    it('prints a fancy syntax error when encountering one', async function () {
       input.write(',cat,\n');
       await waitEval(bus);
       expect(output).to.include('SyntaxError: Unexpected token');
@@ -215,7 +240,7 @@ describe('MongoshNodeRepl', function() {
       expect(output).to.not.match(/ at [^ ]+ \n/g); // <- no stack trace lines
     });
 
-    it('can enter multiline code', async function() {
+    it('can enter multiline code', async function () {
       for (const line of multilineCode.split('\n')) {
         input.write(line + '\n');
         await waitEval(bus);
@@ -225,38 +250,42 @@ describe('MongoshNodeRepl', function() {
       expect(output).not.to.include('Error');
     });
 
-    it('Mongosh errors do not have a stack trace', async function() {
+    it('Mongosh errors do not have a stack trace', async function () {
       input.write('db.auth()\n');
       await waitEval(bus);
       expect(output).to.include('MongoshInvalidInputError:');
       expect(output).not.to.include(' at ');
     });
 
-    it('prints help', async function() {
+    it('prints help', async function () {
       input.write('help()\n');
       await waitEval(bus);
-      expect(output).to.match(/connect\s*Create a new connection and return the Database object/);
+      expect(output).to.match(
+        /connect\s*Create a new connection and return the Database object/
+      );
     });
 
-    it('prints help for cursor commands', async function() {
+    it('prints help for cursor commands', async function () {
       input.write('db.coll.find().hasNext.help()\n');
       await waitEval(bus);
       expect(output).to.include('returns true if the cursor returned by the');
     });
 
-    it('prints Date objects using the ISODate constructor variant', async function() {
+    it('prints Date objects using the ISODate constructor variant', async function () {
       input.write('new Date(1620143373000)\n');
       await waitEval(bus);
       expect(output).to.include('ISODate("2021-05-04T15:49:33.000Z")');
     });
 
-    it('handles a long series of errors', async function() {
+    it('handles a long series of errors', async function () {
       input.write('-asdf();\n'.repeat(20));
       await waitEval(bus);
-      expect(mongoshRepl.runtimeState().repl.listenerCount('SIGINT')).to.equal(1);
+      expect(mongoshRepl.runtimeState().repl.listenerCount('SIGINT')).to.equal(
+        1
+      );
     });
 
-    it('does not run statements that should not run', async function() {
+    it('does not run statements that should not run', async function () {
       input.write(`
       sleep(0);
       throw new Error();
@@ -269,7 +298,7 @@ describe('MongoshNodeRepl', function() {
       expect(output).not.to.include('!this should not run!');
     });
 
-    it('_ returns the last result', async function() {
+    it('_ returns the last result', async function () {
       input.write('42\n');
       await waitEval(bus);
       output = '';
@@ -279,7 +308,7 @@ describe('MongoshNodeRepl', function() {
       expect(output).to.include('42');
     });
 
-    it('_ can be used like the last result in expressions', async function() {
+    it('_ can be used like the last result in expressions', async function () {
       input.write('({ foo: "bar", baz: "quux" });\n');
       await waitEval(bus);
       output = '';
@@ -289,7 +318,7 @@ describe('MongoshNodeRepl', function() {
       expect(output).to.include('{"foo":"bar","baz":"quux"}');
     });
 
-    it('_error yields the last exception', async function() {
+    it('_error yields the last exception', async function () {
       input.write('throw new Error("blah")\n');
       await waitEval(bus);
       output = '';
@@ -300,17 +329,17 @@ describe('MongoshNodeRepl', function() {
     });
   });
 
-  context('with terminal: true', function() {
-    const tab = async() => {
+  context('with terminal: true', function () {
+    const tab = async () => {
       await tick();
       input.write('\u0009');
     };
-    const tabtab = async() => {
+    const tabtab = async () => {
       await tab();
       await tab();
     };
 
-    beforeEach(async function() {
+    beforeEach(async function () {
       // Node.js uses $TERM to determine what level of functionality to provide
       // in a way that goes beyond color support, in particular TERM=dumb
       // disables features like autoformatting. We don't want that to happen
@@ -318,13 +347,13 @@ describe('MongoshNodeRepl', function() {
       process.env.TERM = 'xterm-256color';
       mongoshRepl = new MongoshNodeRepl({
         ...mongoshReplOptions,
-        nodeReplOptions: { terminal: true }
+        nodeReplOptions: { terminal: true },
       });
       const initialized = await mongoshRepl.initialize(serviceProvider);
       await mongoshRepl.startRepl(initialized);
     });
 
-    it('provides an editor action', async function() {
+    it('provides an editor action', async function () {
       input.write('.editor\n');
       await tick();
       expect(output).to.include('Entering editor mode');
@@ -334,7 +363,7 @@ describe('MongoshNodeRepl', function() {
       expect(output).to.include('65537');
     });
 
-    it('does not stop input when autocompleting during .editor', async function() {
+    it('does not stop input when autocompleting during .editor', async function () {
       input.write('.editor\n');
       await tick();
       expect(output).to.include('Entering editor mode');
@@ -348,7 +377,7 @@ describe('MongoshNodeRepl', function() {
       expect(output).to.include('Error running command serverBuildInfo');
     });
 
-    it('can enter multiline code', async function() {
+    it('can enter multiline code', async function () {
       for (const line of multilineCode.split('\n')) {
         input.write(line + '\n');
         await waitEval(bus);
@@ -357,7 +386,7 @@ describe('MongoshNodeRepl', function() {
       expect(output).not.to.include('Error');
     });
 
-    it('can enter multiline code with delays after newlines', async function() {
+    it('can enter multiline code with delays after newlines', async function () {
       for (const line of multilineCode.split('\n')) {
         input.write(line + '\n');
         await waitEval(bus);
@@ -367,7 +396,7 @@ describe('MongoshNodeRepl', function() {
       expect(output).not.to.include('Error');
     });
 
-    it('allows to enter and fix recoverable errors', async function() {
+    it('allows to enter and fix recoverable errors', async function () {
       input.write('24 %\n');
       await waitEval(bus);
       expect(output).to.not.include('Error');
@@ -378,7 +407,7 @@ describe('MongoshNodeRepl', function() {
       expect(output).to.not.include('Error');
     });
 
-    it('behaves correctly on non-recoverable multi-line errors', async function() {
+    it('behaves correctly on non-recoverable multi-line errors', async function () {
       input.write('24 %\n');
       await waitEval(bus);
       expect(output).to.not.include('Error');
@@ -389,42 +418,42 @@ describe('MongoshNodeRepl', function() {
       expect(output).to.include('SyntaxError');
     });
 
-    it('pressing Ctrl+C twice exits the shell', async function() {
+    it('pressing Ctrl+C twice exits the shell', async function () {
       input.write('\u0003');
       await tick();
       expect(output).to.match(/To exit, press (Ctrl\+C|\^C) again/);
       input.write('\u0003');
-      const [ code ] = await once(bus, 'test-exit-event');
+      const [code] = await once(bus, 'test-exit-event');
       expect(code).to.equal(undefined);
     });
 
-    it('pressing Ctrl+D exits the shell', async function() {
+    it('pressing Ctrl+D exits the shell', async function () {
       input.write('\u0004');
-      const [ code ] = await once(bus, 'test-exit-event');
+      const [code] = await once(bus, 'test-exit-event');
       expect(code).to.equal(undefined);
     });
 
-    context('autocompletion', function() {
-      it('autocompletes collection methods', async function() {
+    context('autocompletion', function () {
+      it('autocompletes collection methods', async function () {
         input.write('db.coll.');
         await tabtab();
         await tick();
         expect(output).to.include('db.coll.updateOne');
       });
-      it('autocompletes shell-api methods (once)', async function() {
+      it('autocompletes shell-api methods (once)', async function () {
         input.write('vers');
         await tabtab();
         await tick();
         expect(output).to.include('version');
         expect(output).to.not.match(/version[ \t]+version/);
       });
-      it('autocompletes async shell api methods', async function() {
+      it('autocompletes async shell api methods', async function () {
         input.write('db.coll.find().');
         await tabtab();
         await tick();
         expect(output).to.include('db.coll.find().close');
       });
-      it('autocompletes local variables', async function() {
+      it('autocompletes local variables', async function () {
         input.write('let somelongvariable = 0\n');
         await waitEval(bus);
         output = '';
@@ -433,21 +462,21 @@ describe('MongoshNodeRepl', function() {
         await tick();
         expect(output).to.include('somelongvariable');
       });
-      it('autocompletes partial repl commands', async function() {
+      it('autocompletes partial repl commands', async function () {
         input.write('.e');
         await tabtab();
         await tick();
         expect(output).to.include('editor');
         expect(output).to.include('exit');
       });
-      it('autocompletes full repl commands', async function() {
+      it('autocompletes full repl commands', async function () {
         input.write('.ed');
         await tabtab();
         await tick();
         expect(output).to.include('.editor');
         expect(output).not.to.include('exit');
       });
-      it('autocompletion during .editor does not reset the prompt', async function() {
+      it('autocompletion during .editor does not reset the prompt', async function () {
         input.write('.editor\n');
         await tick();
         output = '';
@@ -459,10 +488,12 @@ describe('MongoshNodeRepl', function() {
         expect((mongoshRepl.runtimeState().repl as any)._prompt).to.equal('');
         input.write('\u0003'); // Ctrl+C for abort
         await tick();
-        expect((mongoshRepl.runtimeState().repl as any)._prompt).to.equal('test> ');
+        expect((mongoshRepl.runtimeState().repl as any)._prompt).to.equal(
+          'test> '
+        );
         expect(stripAnsi(output)).to.equal('db.foo\r\nbar\r\n\r\ntest> ');
       });
-      it('does not autocomplete tab-indented code', async function() {
+      it('does not autocomplete tab-indented code', async function () {
         output = '';
         input.write('\t\tfoo');
         await tick();
@@ -470,25 +501,26 @@ describe('MongoshNodeRepl', function() {
       });
     });
 
-    context('history support', function() {
+    context('history support', function () {
       const arrowUp = '\x1b[A';
 
       for (const { mode, prefill } of [
         { mode: 'with no existing history', prefill: 0 },
-        { mode: 'with existing history', prefill: 100 }
+        { mode: 'with existing history', prefill: 100 },
       ]) {
-        context(mode, function() {
+        context(mode, function () {
           let getHistory: () => string[];
 
-          beforeEach(function() {
+          beforeEach(function () {
             const { history } = mongoshRepl.runtimeState().repl as any;
-            getHistory = () => history.filter(line => !line.startsWith('prefill-'));
+            getHistory = () =>
+              history.filter((line) => !line.startsWith('prefill-'));
             for (let i = 0; i < prefill; i++) {
               history.unshift(`prefill-${i}`);
             }
           });
 
-          it('looks up existing entries, if there are any', async function() {
+          it('looks up existing entries, if there are any', async function () {
             output = '';
             input.write(arrowUp);
             await tick();
@@ -499,7 +531,7 @@ describe('MongoshNodeRepl', function() {
             }
           });
 
-          it('works for single-line input', async function() {
+          it('works for single-line input', async function () {
             output = '';
             input.write(`let a = 16\na = a**2\n${arrowUp}\n`);
             await tick();
@@ -507,19 +539,18 @@ describe('MongoshNodeRepl', function() {
             input.write(`${arrowUp}\n`);
             await tick();
             expect(output).to.include('65536');
-            expect(getHistory()).to.deep.equal([
-              'a = a**2',
-              'let a = 16'
-            ]);
+            expect(getHistory()).to.deep.equal(['a = a**2', 'let a = 16']);
           });
 
-          it('works for multi-line input', async function() {
+          it('works for multi-line input', async function () {
             output = '';
             input.write('obj = ({ foo: \n');
             await tick();
             input.write('"bar" })\n');
             await tick();
-            expect(mongoshRepl.runtimeState().repl.context.obj).to.deep.equal({ foo: 'bar' });
+            expect(mongoshRepl.runtimeState().repl.context.obj).to.deep.equal({
+              foo: 'bar',
+            });
             expect(output).not.to.include('obj = ({ foo: "bar" })');
             expect(output).not.to.include('obj = { foo: "bar" }');
 
@@ -527,12 +558,10 @@ describe('MongoshNodeRepl', function() {
             input.write(`${arrowUp}\n`);
             await tick();
             expect(output).to.include('obj = { foo: "bar" }');
-            expect(getHistory()).to.deep.equal([
-              'obj = { foo: "bar" }'
-            ]);
+            expect(getHistory()).to.deep.equal(['obj = { foo: "bar" }']);
           });
 
-          it('works for multi-line input from .editor', async function() {
+          it('works for multi-line input from .editor', async function () {
             output = '';
             input.write('.editor\n');
             await tick();
@@ -542,7 +571,9 @@ describe('MongoshNodeRepl', function() {
             await tick();
             input.write('\u0004'); // Ctrl+D
             await tick();
-            expect(mongoshRepl.runtimeState().repl.context.obj).to.deep.equal({ foo: 'baz' });
+            expect(mongoshRepl.runtimeState().repl.context.obj).to.deep.equal({
+              foo: 'baz',
+            });
             expect(output).not.to.include('obj = ({ foo: "baz" })');
             expect(output).not.to.include('obj = { foo: "baz" }');
 
@@ -552,11 +583,11 @@ describe('MongoshNodeRepl', function() {
             expect(output).to.include('obj = { foo: "baz" }');
             expect(getHistory()).to.deep.equal([
               'obj = { foo: "baz" }',
-              '.editor'
+              '.editor',
             ]);
           });
 
-          it('works for multi-line input when a prompt has been set before', async function() {
+          it('works for multi-line input when a prompt has been set before', async function () {
             input.write('prompt = () => "abc> "\n');
             await tick();
 
@@ -565,7 +596,9 @@ describe('MongoshNodeRepl', function() {
             await tick();
             input.write('"bar" })\n');
             await tick();
-            expect(mongoshRepl.runtimeState().repl.context.obj).to.deep.equal({ foo: 'bar' });
+            expect(mongoshRepl.runtimeState().repl.context.obj).to.deep.equal({
+              foo: 'bar',
+            });
             expect(output).not.to.include('obj = ({ foo: "bar" })');
             expect(output).not.to.include('obj = { foo: "bar" }');
 
@@ -575,11 +608,11 @@ describe('MongoshNodeRepl', function() {
             expect(output).to.include('obj = { foo: "bar" }');
             expect(getHistory()).to.deep.equal([
               'obj = { foo: "bar" }',
-              'prompt = () => "abc> "'
+              'prompt = () => "abc> "',
             ]);
           });
 
-          it('works for interrupted multi-line input', async function() {
+          it('works for interrupted multi-line input', async function () {
             input.write('const a = 20\n');
             await tick();
             input.write('obj = ({ foo: \n');
@@ -599,19 +632,19 @@ describe('MongoshNodeRepl', function() {
 
             expect(getHistory()).to.deep.equal([
               'obj = ({ foo: ',
-              'const a = 20'
+              'const a = 20',
             ]);
           });
 
-          it('does not crash if hitting enter and then up', async function() {
+          it('does not crash if hitting enter and then up', async function () {
             input.write('\n');
             await once(mongoshRepl.runtimeState().repl, 'flushHistory');
             input.write(`${arrowUp}`);
             await tick();
           });
 
-          context('redaction', function() {
-            it('removes sensitive commands by default', async function() {
+          context('redaction', function () {
+            it('removes sensitive commands by default', async function () {
               input.write('connect\n');
               await once(mongoshRepl.runtimeState().repl, 'flushHistory');
               input.write('connection\n');
@@ -621,11 +654,11 @@ describe('MongoshNodeRepl', function() {
 
               expect(getHistory()).to.deep.equal([
                 'db.test.insert({ email: "foo@example.org" })',
-                'connection' // connection is okay, connect is considered sensitive
+                'connection', // connection is okay, connect is considered sensitive
               ]);
             });
 
-            it('keeps sensitive commands when asked to', async function() {
+            it('keeps sensitive commands when asked to', async function () {
               input.write('config.set("redactHistory", "keep");\n');
               await tick();
               input.write('connect\n');
@@ -639,11 +672,11 @@ describe('MongoshNodeRepl', function() {
                 'db.test.insert({ email: "foo@example.org" })',
                 'connection',
                 'connect',
-                'config.set("redactHistory", "keep");'
+                'config.set("redactHistory", "keep");',
               ]);
             });
 
-            it('removes other sensitive data when asked to', async function() {
+            it('removes other sensitive data when asked to', async function () {
               input.write('config.set("redactHistory", "remove-redact");\n');
               await tick();
               input.write('connect\n');
@@ -656,7 +689,7 @@ describe('MongoshNodeRepl', function() {
               expect(getHistory()).to.deep.equal([
                 'db.test.insert({ email: "<email>" })',
                 'connection',
-                'config.set("redactHistory", "remove-redact");'
+                'config.set("redactHistory", "remove-redact");',
               ]);
             });
           });
@@ -664,8 +697,8 @@ describe('MongoshNodeRepl', function() {
       }
     });
 
-    context('with modified config values', function() {
-      it('controls inspect compact option', async function() {
+    context('with modified config values', function () {
+      it('controls inspect compact option', async function () {
         input.write('config.set("inspectCompact", false)\n');
         await waitEval(bus);
         expect(output).to.include('Setting "inspectCompact" has been changed');
@@ -676,7 +709,7 @@ describe('MongoshNodeRepl', function() {
         expect(stripAnsi(output)).to.include('{\n  a: {\n    b: {}\n  }\n}\n');
       });
 
-      it('controls inspect depth', async function() {
+      it('controls inspect depth', async function () {
         input.write('config.set("inspectDepth", 2)\n');
         await waitEval(bus);
         expect(output).to.include('Setting "inspectDepth" has been changed');
@@ -684,17 +717,21 @@ describe('MongoshNodeRepl', function() {
         output = '';
         input.write('({a:{b:{c:{d:{e:{f:{g:{h:{}}}}}}}}})\n');
         await waitEval(bus);
-        expect(stripAnsi(output).replace(/\s+/g, ' ')).to.include('{ a: { b: { c: [Object] } } }');
+        expect(stripAnsi(output).replace(/\s+/g, ' ')).to.include(
+          '{ a: { b: { c: [Object] } } }'
+        );
 
         input.write('config.set("inspectDepth", 4)\n');
         await waitEval(bus);
         output = '';
         input.write('({a:{b:{c:{d:{e:{f:{g:{h:{}}}}}}}}})\n');
         await waitEval(bus);
-        expect(stripAnsi(output).replace(/\s+/g, ' ')).to.include('{ a: { b: { c: { d: { e: [Object] } } } } }');
+        expect(stripAnsi(output).replace(/\s+/g, ' ')).to.include(
+          '{ a: { b: { c: { d: { e: [Object] } } } } }'
+        );
       });
 
-      it('controls history length', async function() {
+      it('controls history length', async function () {
         input.write('config.set("historyLength", 2)\n');
         await waitEval(bus);
 
@@ -709,7 +746,7 @@ describe('MongoshNodeRepl', function() {
         expect(history).to.have.lengthOf(2);
       });
 
-      it('controls stack trace display', async function() {
+      it('controls stack trace display', async function () {
         output = '';
         input.write('throw new Error("yellow")\n');
         await waitEval(bus);
@@ -725,25 +762,32 @@ describe('MongoshNodeRepl', function() {
         expect(stripAnsi(output)).to.match(/Error: orange\n +at\b/);
       });
 
-      it('bails out when setting invalid config options', async function() {
+      it('bails out when setting invalid config options', async function () {
         input.write('config.set("historyLength", true)\n');
         await waitEval(bus);
-        expect(output).to.include('Cannot set option "historyLength": historyLength must be a positive integer');
-        expect((mongoshRepl.runtimeState().repl as any).historySize).to.equal(1000);
+        expect(output).to.include(
+          'Cannot set option "historyLength": historyLength must be a positive integer'
+        );
+        expect((mongoshRepl.runtimeState().repl as any).historySize).to.equal(
+          1000
+        );
       });
     });
 
-    it('refreshes the prompt if a window resize occurs', async function() {
+    it('refreshes the prompt if a window resize occurs', async function () {
       output = '';
       outputStream.emit('resize');
       await tick();
       expect(stripAnsi(output)).to.equal('test> ');
     });
 
-    it('does not refresh the prompt if a window resize occurs while evaluating', async function() {
+    it('does not refresh the prompt if a window resize occurs while evaluating', async function () {
       let resolveInProgress;
-      mongoshRepl.runtimeState().repl.context.inProgress =
-        new Promise(resolve => { resolveInProgress = resolve; });
+      mongoshRepl.runtimeState().repl.context.inProgress = new Promise(
+        (resolve) => {
+          resolveInProgress = resolve;
+        }
+      );
       input.write('inProgress\n');
       await tick();
 
@@ -762,27 +806,31 @@ describe('MongoshNodeRepl', function() {
       expect(stripAnsi(output)).to.equal('\ntest> ');
     });
 
-    context('thrown non-Errors', function() {
-      it('allows `throw null`', async function() {
+    context('thrown non-Errors', function () {
+      it('allows `throw null`', async function () {
         output = '';
         input.write('throw null;\n');
         await waitEval(bus);
         // We do verify that both `Error` and `null` are syntax-highlighted here.
-        expect(output).to.match(/\x1b\[\d+mError\x1b\[\d+m: \x1b\[\d+mnull\x1b\[\d+m/);
+        expect(output).to.match(
+          /\x1b\[\d+mError\x1b\[\d+m: \x1b\[\d+mnull\x1b\[\d+m/
+        );
       });
 
-      it('allows `throw number`', async function() {
+      it('allows `throw number`', async function () {
         output = '';
         input.write('throw 123;\n');
         await waitEval(bus);
         // We do verify that both `Error` and `123` are syntax-highlighted here.
-        expect(output).to.match(/\x1b\[\d+mError\x1b\[\d+m: \x1b\[\d+m123\x1b\[\d+m/);
+        expect(output).to.match(
+          /\x1b\[\d+mError\x1b\[\d+m: \x1b\[\d+m123\x1b\[\d+m/
+        );
       });
     });
   });
 
-  context('with fake TTY', function() {
-    beforeEach(async function() {
+  context('with fake TTY', function () {
+    beforeEach(async function () {
       process.env.TERM = 'xterm-256color';
       Object.assign(outputStream, fakeTTYProps);
       Object.assign(input, fakeTTYProps);
@@ -792,55 +840,61 @@ describe('MongoshNodeRepl', function() {
       expect(mongoshRepl.getFormatOptions().colors).to.equal(true);
     });
 
-    it('colorizes input statement', async function() {
+    it('colorizes input statement', async function () {
       input.write('const cat = "Nori"');
       await tick();
-      expect(output).to.match(/const(\x1b\[.*m)+ cat = (\x1b\[.*m)+"(\x1b\[.*m)+N(\x1b\[.*m)+o(\x1b\[.*m)+r(\x1b\[.*m)+i(\x1b\[.*m)+"(\x1b\[.*m)+/);
+      expect(output).to.match(
+        /const(\x1b\[.*m)+ cat = (\x1b\[.*m)+"(\x1b\[.*m)+N(\x1b\[.*m)+o(\x1b\[.*m)+r(\x1b\[.*m)+i(\x1b\[.*m)+"(\x1b\[.*m)+/
+      );
     });
 
-    it('colorizes input function', async function() {
+    it('colorizes input function', async function () {
       input.write('function add (a, b) { return a + b }');
       await tick();
-      expect(output).to.match(/function(\x1b\[.*m)+ (\x1b\[.*m)+a(\x1b\[.*m)+d(\x1b\[.*m)+d(\x1b\[.*m)+ \(a, b\) \{ retur\x08+(\x1b\[.*m)+return(\x1b\[.*m)+ a \+ b/);
+      expect(output).to.match(
+        /function(\x1b\[.*m)+ (\x1b\[.*m)+a(\x1b\[.*m)+d(\x1b\[.*m)+d(\x1b\[.*m)+ \(a, b\) \{ retur\x08+(\x1b\[.*m)+return(\x1b\[.*m)+ a \+ b/
+      );
     });
 
-    it('colorizes input integers', async function() {
+    it('colorizes input integers', async function () {
       input.write('const sum = 42 + 7');
       await tick();
-      expect(output).to.match(/const(\x1b\[.*m)+ sum = (\x1b\[.*m)+4(\x1b\[.*m)+2(\x1b\[.*m)+ \+ (\x1b\[.*m)+7(\x1b\[.*m)+/);
+      expect(output).to.match(
+        /const(\x1b\[.*m)+ sum = (\x1b\[.*m)+4(\x1b\[.*m)+2(\x1b\[.*m)+ \+ (\x1b\[.*m)+7(\x1b\[.*m)+/
+      );
     });
 
-    it('colorizes output', async function() {
+    it('colorizes output', async function () {
       input.write('55 + 89\n');
       await waitEval(bus);
       expect(output).to.match(/\x1b\[.*m144\x1b\[.*m/);
     });
 
-    it('clears the console when console.clear() is used', async function() {
+    it('clears the console when console.clear() is used', async function () {
       output = '';
       input.write('console.clear()\n');
       await tick();
       expect(output).to.match(/\x1b\[[0-9]+J/); // 'CSI n J' is clear display
     });
 
-    it('clears the console when cls is used', async function() {
+    it('clears the console when cls is used', async function () {
       output = '';
       input.write('cls\n');
       await tick();
       expect(output).to.match(/\x1b\[[0-9]+J/); // 'CSI n J' is clear display
     });
 
-    context('user prompts', function() {
-      beforeEach(function() {
+    context('user prompts', function () {
+      beforeEach(function () {
         // No boolean equivalent for 'passwordPrompt' in the API, so provide one:
         mongoshRepl.runtimeState().repl.context.booleanPrompt = (question) => {
           return Object.assign(mongoshRepl.onPrompt(question, 'yesno'), {
-            [Symbol.for('@@mongosh.syntheticPromise')]: true
+            [Symbol.for('@@mongosh.syntheticPromise')]: true,
           });
         };
       });
 
-      it('can ask for passwords', async function() {
+      it('can ask for passwords', async function () {
         input.write('const pw = passwordPrompt()\n');
         await tick();
         expect(output).to.include('Enter password');
@@ -856,7 +910,7 @@ describe('MongoshNodeRepl', function() {
         expect(output).to.include('hello!');
       });
 
-      it('can abort asking for passwords', async function() {
+      it('can abort asking for passwords', async function () {
         input.write('pw = passwordPrompt(); 0\n');
         await tick();
         expect(output).to.include('Enter password');
@@ -874,7 +928,7 @@ describe('MongoshNodeRepl', function() {
         expect(output).to.include('ReferenceError');
       });
 
-      it('can ask for yes/no answers', async function() {
+      it('can ask for yes/no answers', async function () {
         input.write('const answer = booleanPrompt("shall we play a game?")\n');
         await tick();
         expect(output).to.include('shall we play a game?:');
@@ -890,14 +944,16 @@ describe('MongoshNodeRepl', function() {
         expect(output).to.include('yes');
       });
 
-      it('repeats yes/no questions if not answered with Y/N', async function() {
+      it('repeats yes/no questions if not answered with Y/N', async function () {
         input.write('const answer = booleanPrompt("shall we play a game?")\n');
         await tick();
         expect(output).to.include('shall we play a game?:');
 
         input.write('q');
         await tick();
-        expect(output).to.include('shall we play a game?: q\nPlease enter Y or N: shall we play a game?:');
+        expect(output).to.include(
+          'shall we play a game?: q\nPlease enter Y or N: shall we play a game?:'
+        );
         expect(output).not.to.include('yes');
 
         output = '';
@@ -912,7 +968,7 @@ describe('MongoshNodeRepl', function() {
         expect(output).to.include('no');
       });
 
-      it('allows defaults for yes/no questions', async function() {
+      it('allows defaults for yes/no questions', async function () {
         input.write('const answer = booleanPrompt("shall we play a game?")\n');
         await tick();
         expect(output).to.include('shall we play a game?:');
@@ -926,7 +982,7 @@ describe('MongoshNodeRepl', function() {
         expect(stripAnsi(output)).to.include("[ '' ]");
       });
 
-      it('allows interrupting yes/no questions', async function() {
+      it('allows interrupting yes/no questions', async function () {
         input.write('answer = booleanPrompt("shall we play a game?")\n');
         await tick();
         expect(output).to.include('shall we play a game?:');
@@ -943,116 +999,173 @@ describe('MongoshNodeRepl', function() {
     });
   });
 
-  context('with somewhat unreachable history file', function() {
+  context('with somewhat unreachable history file', function () {
     const fs = require('fs');
     let origReadFile: any;
 
-    before(function() {
+    before(function () {
       origReadFile = fs.readFile;
-      fs.readFile = (...args: any[]) => process.nextTick(args[args.length - 1], new Error());
+      fs.readFile = (...args: any[]) =>
+        process.nextTick(args[args.length - 1], new Error());
     });
 
-    after(function() {
+    after(function () {
       fs.readFile = origReadFile;
     });
 
-    it('warns about the unavailable history file support', async function() {
+    it('warns about the unavailable history file support', async function () {
       await mongoshRepl.initialize(serviceProvider);
       expect(output).to.include('Error processing history file');
     });
   });
 
-  context('when the config says to skip the telemetry greeting message', function() {
-    beforeEach(async function() {
-      config.disableGreetingMessage = true;
-      await mongoshRepl.initialize(serviceProvider);
-    });
+  context(
+    'when the config says to skip the telemetry greeting message',
+    function () {
+      beforeEach(async function () {
+        config.disableGreetingMessage = true;
+        await mongoshRepl.initialize(serviceProvider);
+      });
 
-    it('skips telemetry intro', function() {
-      expect(output).not.to.match(/You can opt-out by running the .*disableTelemetry\(\).* command/);
-    });
-  });
+      it('skips telemetry intro', function () {
+        expect(output).not.to.match(
+          /You can opt-out by running the .*disableTelemetry\(\).* command/
+        );
+      });
+    }
+  );
 
-  context('startup warnings', function() {
-    context('when connecting with nodb', function() {
-      beforeEach(async function() {
+  context('startup warnings', function () {
+    context('when connecting with nodb', function () {
+      beforeEach(async function () {
         mongoshReplOptions.shellCliOptions = {
-          nodb: true
+          nodb: true,
         };
         mongoshRepl = new MongoshNodeRepl(mongoshReplOptions);
         const initialized = await mongoshRepl.initialize(serviceProvider);
         await mongoshRepl.startRepl(initialized);
       });
 
-      it('does not show warnings', function() {
-        expect(output).to.not.contain('The server generated these startup warnings when booting');
+      it('does not show warnings', function () {
+        expect(output).to.not.contain(
+          'The server generated these startup warnings when booting'
+        );
       });
     });
 
     for (const variant of ['structured', 'unstructured']) {
-      context(`when connecting to a db with ${variant} logs`, function() {
-        const logLines = variant === 'structured' ? [
-          '{"t":{"$date":"2020-12-07T07:51:30.691+01:00"},"s":"W",  "c":"CONTROL",  "id":20698,   "ctx":"main","msg":"***** SERVER RESTARTED *****","tags":["startupWarnings"]}',
-          '{"t":{"$date":"2020-12-07T07:51:32.763+01:00"},"s":"W",  "c":"CONTROL",  "id":22120,   "ctx":"initandlisten","msg":"Access control is not enabled for the database. Read and write access to data and configuration is unrestricted","tags":["startupWarnings"]}'
-        ] : [
-          '2021-05-03T14:50:59.815+0200 I  CONTROL  [main] ***** SERVER RESTARTED *****',
-          '2021-05-03T14:50:59.815+0200 I  CONTROL  [initandlisten] ** WARNING: Access control is not enabled for the database.',
-          '2021-05-03T14:50:59.815+0200 I  CONTROL  [initandlisten] **          Read and write access to data and configuration is unrestricted.'
-        ];
-        it('they are shown as returned by database', async function() {
-          sp.runCommandWithCheck.withArgs(ADMIN_DB, {
-            getLog: 'startupWarnings'
-          }, {}).resolves({ ok: 1, log: logLines });
+      context(`when connecting to a db with ${variant} logs`, function () {
+        const logLines =
+          variant === 'structured'
+            ? [
+                '{"t":{"$date":"2020-12-07T07:51:30.691+01:00"},"s":"W",  "c":"CONTROL",  "id":20698,   "ctx":"main","msg":"***** SERVER RESTARTED *****","tags":["startupWarnings"]}',
+                '{"t":{"$date":"2020-12-07T07:51:32.763+01:00"},"s":"W",  "c":"CONTROL",  "id":22120,   "ctx":"initandlisten","msg":"Access control is not enabled for the database. Read and write access to data and configuration is unrestricted","tags":["startupWarnings"]}',
+              ]
+            : [
+                '2021-05-03T14:50:59.815+0200 I  CONTROL  [main] ***** SERVER RESTARTED *****',
+                '2021-05-03T14:50:59.815+0200 I  CONTROL  [initandlisten] ** WARNING: Access control is not enabled for the database.',
+                '2021-05-03T14:50:59.815+0200 I  CONTROL  [initandlisten] **          Read and write access to data and configuration is unrestricted.',
+              ];
+        it('they are shown as returned by database', async function () {
+          sp.runCommandWithCheck
+            .withArgs(
+              ADMIN_DB,
+              {
+                getLog: 'startupWarnings',
+              },
+              {}
+            )
+            .resolves({ ok: 1, log: logLines });
           await mongoshRepl.initialize(serviceProvider);
 
-          expect(output).to.contain('The server generated these startup warnings when booting');
-          logLines.forEach(l => {
+          expect(output).to.contain(
+            'The server generated these startup warnings when booting'
+          );
+          logLines.forEach((l) => {
             const { timestamp, message } = parseAnyLogEntry(l);
             expect(output).to.contain(`${timestamp}: ${message}`);
           });
         });
-        it('they are shown even if the log format cannot be parsed', async function() {
-          sp.runCommandWithCheck.withArgs(ADMIN_DB, {
-            getLog: 'startupWarnings'
-          }, {}).resolves({ ok: 1, log: ['Not JSON'] });
+        it('they are shown even if the log format cannot be parsed', async function () {
+          sp.runCommandWithCheck
+            .withArgs(
+              ADMIN_DB,
+              {
+                getLog: 'startupWarnings',
+              },
+              {}
+            )
+            .resolves({ ok: 1, log: ['Not JSON'] });
           await mongoshRepl.initialize(serviceProvider);
 
-          expect(output).to.contain('The server generated these startup warnings when booting');
+          expect(output).to.contain(
+            'The server generated these startup warnings when booting'
+          );
           expect(output).to.contain('Unexpected log line format: Not JSON');
         });
-        it('does not show anything when there are no warnings', async function() {
+        it('does not show anything when there are no warnings', async function () {
           let error = null;
-          bus.on('mongosh:error', err => { error = err; });
-          sp.runCommandWithCheck.withArgs(ADMIN_DB, {
-            getLog: 'startupWarnings'
-          }, {}).resolves({ ok: 1, log: [] });
+          bus.on('mongosh:error', (err) => {
+            error = err;
+          });
+          sp.runCommandWithCheck
+            .withArgs(
+              ADMIN_DB,
+              {
+                getLog: 'startupWarnings',
+              },
+              {}
+            )
+            .resolves({ ok: 1, log: [] });
           await mongoshRepl.initialize(serviceProvider);
 
-          expect(output).to.not.contain('The server generated these startup warnings when booting');
+          expect(output).to.not.contain(
+            'The server generated these startup warnings when booting'
+          );
           expect(error).to.be.null;
         });
-        it('does not show anything if retrieving the warnings fails with exception', async function() {
+        it('does not show anything if retrieving the warnings fails with exception', async function () {
           const expectedError = new Error('failed');
           let error = null;
-          bus.on('mongosh:error', err => { error = err; });
-          sp.runCommandWithCheck.withArgs(ADMIN_DB, {
-            getLog: 'startupWarnings'
-          }, {}).rejects(expectedError);
+          bus.on('mongosh:error', (err) => {
+            error = err;
+          });
+          sp.runCommandWithCheck
+            .withArgs(
+              ADMIN_DB,
+              {
+                getLog: 'startupWarnings',
+              },
+              {}
+            )
+            .rejects(expectedError);
           await mongoshRepl.initialize(serviceProvider);
 
-          expect(output).to.not.contain('The server generated these startup warnings when booting');
+          expect(output).to.not.contain(
+            'The server generated these startup warnings when booting'
+          );
           expect(output).to.not.contain('Error');
           expect(error).to.equal(expectedError);
         });
-        it('does not show anything if retrieving the warnings returns undefined', async function() {
+        it('does not show anything if retrieving the warnings returns undefined', async function () {
           let error = null;
-          bus.on('mongosh:error', err => { error = err; });
-          sp.runCommandWithCheck.withArgs(ADMIN_DB, {
-            getLog: 'startupWarnings'
-          }, {}).resolves(undefined);
+          bus.on('mongosh:error', (err) => {
+            error = err;
+          });
+          sp.runCommandWithCheck
+            .withArgs(
+              ADMIN_DB,
+              {
+                getLog: 'startupWarnings',
+              },
+              {}
+            )
+            .resolves(undefined);
           await mongoshRepl.initialize(serviceProvider);
 
-          expect(output).to.not.contain('The server generated these startup warnings when booting');
+          expect(output).to.not.contain(
+            'The server generated these startup warnings when booting'
+          );
           expect(output).to.not.contain('Error');
           expect(error).to.be.instanceof(MongoshCommandFailed);
         });
@@ -1060,17 +1173,17 @@ describe('MongoshNodeRepl', function() {
     }
   });
 
-  context('prompt', function() {
-    it('shows the enterprise info from the default prompt', async function() {
+  context('prompt', function () {
+    it('shows the enterprise info from the default prompt', async function () {
       sp.getConnectionInfo.resolves({
         extraInfo: {
           uri: 'mongodb://localhost:27017/test',
-          is_localhost: true
+          is_localhost: true,
         },
         buildInfo: {
           version: '4.4.1',
-          modules: ['enterprise']
-        }
+          modules: ['enterprise'],
+        },
       });
 
       const initialized = await mongoshRepl.initialize(serviceProvider);
@@ -1078,11 +1191,13 @@ describe('MongoshNodeRepl', function() {
       expect(output).to.contain('Enterprise test> ');
     });
 
-    it('defaults if an error occurs', async function() {
+    it('defaults if an error occurs', async function () {
       const initialized = await mongoshRepl.initialize(serviceProvider);
       await mongoshRepl.startRepl(initialized);
       expect(output).to.contain('> ');
-      mongoshRepl.runtimeState().instanceState.getDefaultPrompt = () => { throw new Error('no prompt'); };
+      mongoshRepl.runtimeState().instanceState.getDefaultPrompt = () => {
+        throw new Error('no prompt');
+      };
 
       input.write('21 + 21\n');
       await waitEval(bus);
@@ -1090,24 +1205,24 @@ describe('MongoshNodeRepl', function() {
       expect(output).to.not.contain('error');
     });
 
-    it('changes the prompt when db is reassigned', async function() {
+    it('changes the prompt when db is reassigned', async function () {
       const connectionInfo = {
         extraInfo: {
           uri: 'mongodb://localhost:27017/test',
-          is_localhost: true
+          is_localhost: true,
         },
         buildInfo: {
           version: '4.4.1',
-          modules: ['enterprise']
-        }
+          modules: ['enterprise'],
+        },
       };
 
       sp.getConnectionInfo.resolves(connectionInfo);
       // eslint-disable-next-line @typescript-eslint/require-await
-      sp.getNewConnection.callsFake(async() => {
+      sp.getNewConnection.callsFake(async () => {
         Object.assign(connectionInfo.extraInfo, {
           is_localhost: true,
-          is_data_federation: true
+          is_data_federation: true,
         });
         return sp;
       });
@@ -1122,40 +1237,40 @@ describe('MongoshNodeRepl', function() {
       expect(output).to.contain('AtlasDataFederation bar> ');
     });
 
-    context('user-provided prompt', function() {
-      beforeEach(async function() {
+    context('user-provided prompt', function () {
+      beforeEach(async function () {
         const initialized = await mongoshRepl.initialize(serviceProvider);
         await mongoshRepl.startRepl(initialized);
         output = '';
       });
 
-      it('accepts a custom user-provided prompt string', async function() {
+      it('accepts a custom user-provided prompt string', async function () {
         input.write('prompt = "abc> "; 0\n');
         await waitEval(bus);
         expect(output).to.contain('abc> ');
       });
 
-      it('accepts a custom user-provided prompt function', async function() {
+      it('accepts a custom user-provided prompt function', async function () {
         input.write('prompt = () => { return "foo" + "> " }; 0\n');
         await waitEval(bus);
         expect(output).to.contain('foo> ');
       });
 
-      it('ignores user-provided non-strings', async function() {
+      it('ignores user-provided non-strings', async function () {
         input.write('prompt = 123; 0\n');
         await waitEval(bus);
         expect(output).not.to.contain('123');
         expect(output).to.contain('> ');
       });
 
-      it('ignores user-provided non-string-returning functions', async function() {
+      it('ignores user-provided non-string-returning functions', async function () {
         input.write('prompt = () => 123; 0\n');
         await waitEval(bus);
         expect(output).not.to.contain('123');
         expect(output).to.contain('> ');
       });
 
-      it('ignores user-provided throwing functions', async function() {
+      it('ignores user-provided throwing functions', async function () {
         input.write('prompt = () => { throw new Error("foobar") }; 0\n');
         await waitEval(bus);
         expect(output).not.to.contain('foobar');
@@ -1164,30 +1279,33 @@ describe('MongoshNodeRepl', function() {
     });
   });
 
-  context('before the REPL starts', function() {
-    beforeEach(async function() {
+  context('before the REPL starts', function () {
+    beforeEach(async function () {
       await mongoshRepl.initialize(serviceProvider);
       // No .start() call here.
     });
 
-    it('does not show a prompt', async function() {
-      await mongoshRepl.loadExternalCode('setImmediate(() => { throw new Error(); })', '<eval>');
+    it('does not show a prompt', async function () {
+      await mongoshRepl.loadExternalCode(
+        'setImmediate(() => { throw new Error(); })',
+        '<eval>'
+      );
       await tick();
       expect(output).to.include('Error: \n');
       expect(output).not.to.include('>');
     });
   });
 
-  context('with nodb', function() {
-    beforeEach(async function() {
+  context('with nodb', function () {
+    beforeEach(async function () {
       mongoshReplOptions.shellCliOptions = {
-        nodb: true
+        nodb: true,
       };
       mongoshRepl = new MongoshNodeRepl(mongoshReplOptions);
       await mongoshRepl.initialize(serviceProvider);
     });
 
-    it('does not include MongoDB version', function() {
+    it('does not include MongoDB version', function () {
       expect(output).to.not.match(/Using MongoDB/);
     });
   });

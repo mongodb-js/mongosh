@@ -5,7 +5,7 @@
 `Runtime` implementation that uses Node.js `vm` module as sandbox for
 code execution.
 
-``` js
+```js
 import { ElectronRuntime } from 'mongosh-browser-repl';
 
 const runtime = new ElectronRuntime(serviceProvider);
@@ -13,7 +13,7 @@ const runtime = new ElectronRuntime(serviceProvider);
 
 ##### Example: usage in Compass
 
-``` js
+```js
 import { Shell, ElectronRuntime } from 'mongosh-browser-repl';
 
 const runtime = new ElectronRuntime(

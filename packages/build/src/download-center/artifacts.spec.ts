@@ -2,19 +2,19 @@ import { expect } from 'chai';
 import sinon from 'ts-sinon';
 import { uploadArtifactToDownloadCenter } from './artifacts';
 
-describe('DownloadCenter artifacts', function() {
-  describe('uploadArtifactToDownloadCenter', function() {
+describe('DownloadCenter artifacts', function () {
+  describe('uploadArtifactToDownloadCenter', function () {
     let dlCenter: sinon.SinonStub;
     let uploadAsset: sinon.SinonStub;
 
-    beforeEach(function() {
+    beforeEach(function () {
       uploadAsset = sinon.stub();
       dlCenter = sinon.stub();
 
       dlCenter.returns({ uploadAsset });
     });
 
-    it('uploads with correct configuration', async function() {
+    it('uploads with correct configuration', async function () {
       await uploadArtifactToDownloadCenter(
         __filename,
         'accessKey',
@@ -25,7 +25,7 @@ describe('DownloadCenter artifacts', function() {
       expect(dlCenter).to.have.been.calledWith({
         bucket: 'downloads.10gen.com',
         accessKeyId: 'accessKey',
-        secretAccessKey: 'secretKey'
+        secretAccessKey: 'secretKey',
       });
       expect(uploadAsset).to.have.been.calledWith(
         'compass/artifacts.spec.ts',

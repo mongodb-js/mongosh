@@ -1,7 +1,7 @@
 import path from 'path';
-import type { ChildProcess} from 'child_process';
+import type { ChildProcess } from 'child_process';
 import { fork, spawn } from 'child_process';
-import type { Caller} from './rpc';
+import type { Caller } from './rpc';
 import { cancel, createCaller } from './rpc';
 import { expect } from 'chai';
 import type { WorkerRuntime } from './worker-runtime';
@@ -16,11 +16,11 @@ const childProcessModulePath = path.resolve(
   'child-process-proxy.js'
 );
 
-describe('child process worker proxy', function() {
+describe('child process worker proxy', function () {
   let caller: Caller<WorkerRuntime>;
   let childProcess: ChildProcess;
 
-  afterEach(function() {
+  afterEach(function () {
     if (caller) {
       caller[cancel]();
       caller = null;
@@ -32,7 +32,7 @@ describe('child process worker proxy', function() {
     }
   });
 
-  it('should start worker runtime and proxy calls', async function() {
+  it('should start worker runtime and proxy calls', async function () {
     childProcess = fork(childProcessModulePath);
     caller = createCaller(['init', 'evaluate'], childProcess);
     await caller.init('mongodb://nodb/', dummyOptions, { nodb: true });
@@ -40,15 +40,23 @@ describe('child process worker proxy', function() {
     expect(result.printable).to.equal(2);
   });
 
-  it('should exit on its own when the parent process disconnects', async function() {
-    const intermediateProcess = spawn(process.execPath,
-      ['-e', `require("child_process")
+  it('should exit on its own when the parent process disconnects', async function () {
+    const intermediateProcess = spawn(
+      process.execPath,
+      [
+        '-e',
+        `require("child_process")
          .fork(${JSON.stringify(childProcessModulePath)})
-         .on("message", function(m) { console.log("message " + m + " from " + this.pid) })`],
-      { stdio: ['pipe', 'pipe', 'inherit'] });
+         .on("message", function(m) { console.log("message " + m + " from " + this.pid) })`,
+      ],
+      { stdio: ['pipe', 'pipe', 'inherit'] }
+    );
 
     // Make sure the outer child process runs and has created the inner child process
-    const [message] = await once(intermediateProcess.stdout.setEncoding('utf8'), 'data');
+    const [message] = await once(
+      intermediateProcess.stdout.setEncoding('utf8'),
+      'data'
+    );
     const match = message.trim().match(/^message ready from (?<pid>\d+)$/);
     expect(match).to.not.equal(null);
 

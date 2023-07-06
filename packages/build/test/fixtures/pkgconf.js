@@ -10,8 +10,8 @@ module.exports = {
         debCopyright: '2021 My Cats',
         rpmIdentifier: 'Banana',
         sourceFilePath: path.resolve(__dirname, 'LICENSE-foo'),
-        packagedFilePath: 'LICENSE_foo'
-      }
+        packagedFilePath: 'LICENSE_foo',
+      },
     },
     {
       sourceFilePath: path.resolve(__dirname, 'bin', 'bar'),
@@ -21,19 +21,19 @@ module.exports = {
         debCopyright: '2021 Somebody Else’s Cats',
         rpmIdentifier: 'Apple',
         sourceFilePath: path.resolve(__dirname, 'LICENSE-bar'),
-        packagedFilePath: 'LICENSE_bar'
-      }
-    }
+        packagedFilePath: 'LICENSE_bar',
+      },
+    },
   ],
   otherDocFilePaths: [
     {
       sourceFilePath: path.resolve(__dirname, 'README'),
-      packagedFilePath: 'README'
+      packagedFilePath: 'README',
     },
   ],
   manpage: {
     sourceFilePath: path.resolve(__dirname, 'manpages.tar.gz'),
-    packagedFilePath: 'foobar.1.gz'
+    packagedFilePath: 'foobar.1.gz',
   },
   metadata: {
     version: '1.0.0',
@@ -45,9 +45,9 @@ module.exports = {
     debName: 'foobar',
     provides: [],
     rpmName: 'foobar',
-    manufacturer: 'Some Random Company Inc.'
+    manufacturer: 'Some Random Company Inc.',
   },
   debTemplateDir: path.resolve(__dirname, 'deb-template'),
   rpmTemplateDir: path.resolve(__dirname, 'rpm-template'),
-  msiTemplateDir: path.resolve(__dirname, 'msi-template')
+  msiTemplateDir: path.resolve(__dirname, 'msi-template'),
 };

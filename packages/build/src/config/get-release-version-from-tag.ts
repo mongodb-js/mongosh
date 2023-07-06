@@ -1,8 +1,6 @@
 import semver from 'semver';
 
-export function getReleaseVersionFromTag(
-  tagName?: string
-): string | undefined {
+export function getReleaseVersionFromTag(tagName?: string): string | undefined {
   if (!tagName) {
     return;
   }
@@ -21,5 +19,7 @@ export function getReleaseVersionFromTag(
     return;
   }
 
-  return `${semver.major(tagSemver)}.${semver.minor(tagSemver)}.${semver.patch(tagSemver)}`;
+  return `${semver.major(tagSemver)}.${semver.minor(tagSemver)}.${semver.patch(
+    tagSemver
+  )}`;
 }

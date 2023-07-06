@@ -19,13 +19,14 @@ function formatBytes(value: number): string {
 
 export class ShowDbsOutput extends Component<ShowDbsOutputProps> {
   static propTypes = {
-    value: PropTypes.any
+    value: PropTypes.any,
   };
 
   renderTable = (value: DatabaseObject): string => {
-    const tableEntries = value.map(
-      (db: any) => [db.name, formatBytes(db.sizeOnDisk)]
-    );
+    const tableEntries = value.map((db: any) => [
+      db.name,
+      formatBytes(db.sizeOnDisk),
+    ]);
 
     return textTable(tableEntries, { align: ['l', 'r'] });
   };

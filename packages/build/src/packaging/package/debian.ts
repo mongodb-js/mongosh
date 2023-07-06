@@ -2,9 +2,13 @@ import { constants, promises as fs } from 'fs';
 import path from 'path';
 import rimraf from 'rimraf';
 import { promisify } from 'util';
-import { execFile as execFileFn, generateDirFromTemplate, getManSection } from './helpers';
+import {
+  execFile as execFileFn,
+  generateDirFromTemplate,
+  getManSection,
+} from './helpers';
 import type { PackageInformation } from './package-information';
-import type { Arch} from '../../config';
+import type { Arch } from '../../config';
 import { getDebArchName } from '../../config';
 
 const { COPYFILE_FICLONE } = constants;
@@ -25,7 +29,9 @@ export async function createDebianPackage(
     ...pkg.metadata,
     size,
     debianArch: getDebArchName(arch),
-    provides: pkg.metadata.provides.map(({ name, version }) => `${name} (= ${version})`).join(', ')
+    provides: pkg.metadata.provides
+      .map(({ name, version }) => `${name} (= ${version})`)
+      .join(', '),
   });
 
   // dpkg wants the package data to be in a directory with the same name as the package
@@ -34,41 +40,69 @@ export async function createDebianPackage(
     if (templateDirEntry === pkg.metadata.debName) continue;
     await fs.rename(
       path.join(dir, templateDirEntry),
-      path.join(dir, pkg.metadata.debName, templateDirEntry));
+      path.join(dir, pkg.metadata.debName, templateDirEntry)
+    );
   }
 
   const docFiles = [
     ...pkg.otherDocFilePaths,
-    ...pkg.binaries.map(({ license }) => license)
+    ...pkg.binaries.map(({ license }) => license),
   ];
   // Put documentation files in /usr/share/doc/.
-  const docdir = path.join(dir, pkg.metadata.debName, 'usr', 'share', 'doc', pkg.metadata.debName);
+  const docdir = path.join(
+    dir,
+    pkg.metadata.debName,
+    'usr',
+    'share',
+    'doc',
+    pkg.metadata.debName
+  );
   await fs.mkdir(docdir, { recursive: true });
   for (const { sourceFilePath, packagedFilePath } of docFiles) {
-    await fs.copyFile(sourceFilePath, path.join(docdir, packagedFilePath), COPYFILE_FICLONE);
+    await fs.copyFile(
+      sourceFilePath,
+      path.join(docdir, packagedFilePath),
+      COPYFILE_FICLONE
+    );
   }
 
   if (pkg.manpage) {
     // Put manpage file in /usr/share/man/man1/.
-    const manualDir = path.join(dir, pkg.metadata.debName, 'usr', 'share', 'man', 'man' + getManSection(pkg.manpage.packagedFilePath));
+    const manualDir = path.join(
+      dir,
+      pkg.metadata.debName,
+      'usr',
+      'share',
+      'man',
+      'man' + getManSection(pkg.manpage.packagedFilePath)
+    );
     await fs.mkdir(manualDir, { recursive: true });
-    await fs.copyFile(pkg.manpage.sourceFilePath, path.join(manualDir, pkg.manpage.packagedFilePath), COPYFILE_FICLONE);
+    await fs.copyFile(
+      pkg.manpage.sourceFilePath,
+      path.join(manualDir, pkg.manpage.packagedFilePath),
+      COPYFILE_FICLONE
+    );
   }
 
   // Debian packages should contain a 'copyright' file.
   // https://www.debian.org/doc/debian-policy/ch-archive.html#s-pkgcopyright
-  await fs.writeFile(path.join(docdir, 'copyright'), await generateDebianCopyright(pkg));
+  await fs.writeFile(
+    path.join(docdir, 'copyright'),
+    await generateDebianCopyright(pkg)
+  );
   for (const { sourceFilePath, category } of pkg.binaries) {
     const targetDir = path.join(dir, pkg.metadata.debName, 'usr', category);
     await fs.mkdir(targetDir, { recursive: true });
-    await fs.copyFile(sourceFilePath, path.join(targetDir, path.basename(sourceFilePath)), COPYFILE_FICLONE);
+    await fs.copyFile(
+      sourceFilePath,
+      path.join(targetDir, path.basename(sourceFilePath)),
+      COPYFILE_FICLONE
+    );
   }
 
   // Create the package.
-  await execFile('dpkg', [
-    '--build', path.join(dir, pkg.metadata.debName)
-  ], {
-    cwd: path.dirname(dir)
+  await execFile('dpkg', ['--build', path.join(dir, pkg.metadata.debName)], {
+    cwd: path.dirname(dir),
   });
 
   await fs.rename(path.join(dir, `${pkg.metadata.debName}.deb`), outFile);
@@ -84,7 +118,9 @@ async function estimatePackageSizeKb(pkg: PackageInformation) {
   return Math.ceil(size / 1024);
 }
 
-async function generateDebianCopyright(pkg: PackageInformation): Promise<string> {
+async function generateDebianCopyright(
+  pkg: PackageInformation
+): Promise<string> {
   // This is a machine-readable licensing format used for Debian packages:
   // https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
   let text = `\
@@ -101,11 +137,14 @@ Copyright: ${license.debCopyright}
 License: ${license.debIdentifier}
 
 `;
-    licenses[license.debIdentifier] = await fs.readFile(license.sourceFilePath, 'utf8');
+    licenses[license.debIdentifier] = await fs.readFile(
+      license.sourceFilePath,
+      'utf8'
+    );
   }
 
   for (const [identifier, sourceText] of Object.entries(licenses)) {
-    text += `License: ${identifier}\n` + sourceText.replace(/^/mg, ' ') + '\n';
+    text += `License: ${identifier}\n` + sourceText.replace(/^/gm, ' ') + '\n';
   }
   return text;
 }

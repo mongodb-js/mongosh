@@ -9,7 +9,7 @@ interface SyntaxHighlightProps {
 
 export class SyntaxHighlight extends Component<SyntaxHighlightProps> {
   static propTypes = {
-    code: PropTypes.string.isRequired
+    code: PropTypes.string.isRequired,
   };
 
   render(): JSX.Element {

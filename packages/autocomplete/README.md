@@ -14,15 +14,17 @@ if (!completions || !completions.length) {
 }
 const entries = completions[0].map((completion) => {
   return {
-    completion
+    completion,
   };
 });
 ```
+
 ### API
 
 #### completions = autocomplete(serverVersion, line)
-__serverVersion:__ current version of MongoDB
-__line:__ current line to autcomplete
+
+**serverVersion:** current version of MongoDB
+**line:** current line to autcomplete
 
 Returns an array of completions, and the line we were autocompleting. For
 example:
@@ -35,14 +37,14 @@ const completions = autocomplete(serverVersion, line);
 // returns:
 // [
 //   [ 'db.coll.renameCollection', 'db.coll.replaceOne', 'db.coll.reIndex' ],
-//   'db.coll.re' 
+//   'db.coll.re'
 // ]
 ```
 
 Autocomplete is based on currently implemeted APIs in [@mongosh/shell-api](https://www.npmjs.com/package/@mongosh/shell-api)
 
-
 ## Installation
+
 ```shell
 npm install -S @mongosh/errors
 ```

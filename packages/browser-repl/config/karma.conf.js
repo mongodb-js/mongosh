@@ -9,46 +9,38 @@ module.exports = (config) => {
       'karma-mocha',
       'karma-mocha-reporter',
       'karma-chrome-launcher',
-      require('karma-webpack')
+      require('karma-webpack'),
     ],
     webpack: webpackConfigTest,
     webpackMiddleware: {
-      logLevel: 'silent'
+      logLevel: 'silent',
     },
-    frameworks: [
-      'mocha'
-    ],
+    frameworks: ['mocha'],
     files: [
       {
-        pattern: '../src/**/*.spec.ts'
+        pattern: '../src/**/*.spec.ts',
       },
       {
-        pattern: '../src/**/*.spec.tsx'
-      }
+        pattern: '../src/**/*.spec.tsx',
+      },
     ],
     preprocessors: {
-      '../src/**/*.spec.ts': [
-        'webpack'
-      ],
-      '../src/**/*.spec.tsx': [
-        'webpack'
-      ]
+      '../src/**/*.spec.ts': ['webpack'],
+      '../src/**/*.spec.tsx': ['webpack'],
     },
-    reporters: [
-      'mocha'
-    ],
+    reporters: ['mocha'],
     customLaunchers: {
       HeadlessChrome: {
         base: 'ChromeHeadless',
-        flags: ['--no-sandbox']
-      }
+        flags: ['--no-sandbox'],
+      },
     },
-    browsers: [ browser ],
+    browsers: [browser],
     singleRun: true,
     client: {
       mocha: {
-        timeout: 15000
-      }
-    }
+        timeout: 15000,
+      },
+    },
   });
 };

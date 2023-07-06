@@ -2,13 +2,18 @@ import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
 import type {
   AutoEncryptionOptions,
   ConnectInfo,
-  ServerApi, ServiceProvider,
-  TopologyDescription
+  ServerApi,
+  ServiceProvider,
+  TopologyDescription,
 } from '@mongosh/service-provider-core';
-import {
-  DEFAULT_DB
-} from '@mongosh/service-provider-core';
-import type { ApiEvent, ApiEventWithArguments, ConfigProvider, MongoshBus, ShellUserConfig } from '@mongosh/types';
+import { DEFAULT_DB } from '@mongosh/service-provider-core';
+import type {
+  ApiEvent,
+  ApiEventWithArguments,
+  ConfigProvider,
+  MongoshBus,
+  ShellUserConfig,
+} from '@mongosh/types';
 import { EventEmitter } from 'events';
 import redactInfo from 'mongodb-redact';
 import type ChangeStreamCursor from './change-stream-cursor';
@@ -20,15 +25,9 @@ import type {
   Cursor,
   RunCommandCursor,
   Database,
-  ShellResult
+  ShellResult,
 } from './index';
-import {
-  getShellApiType,
-  Mongo,
-  ReplicaSet,
-  Shard,
-  ShellApi
-} from './index';
+import { getShellApiType, Mongo, ReplicaSet, Shard, ShellApi } from './index';
 import { InterruptFlag } from './interruptor';
 import { TransformMongoErrorPlugin } from './mongo-errors';
 import NoDatabase from './no-db';
@@ -76,16 +75,23 @@ export interface OnLoadResult {
  * A set of hooks that modify shell behavior, usually in response to some
  * form of user input.
  */
-export interface EvaluationListener extends Partial<ConfigProvider<ShellUserConfig>> {
+export interface EvaluationListener
+  extends Partial<ConfigProvider<ShellUserConfig>> {
   /**
    * Called when print() or printjson() is run from the shell.
    */
-  onPrint?: (value: ShellResult[], type: 'print' | 'printjson') => Promise<void> | void;
+  onPrint?: (
+    value: ShellResult[],
+    type: 'print' | 'printjson'
+  ) => Promise<void> | void;
 
   /**
    * Called when e.g. passwordPrompt() is called from the shell.
    */
-  onPrompt?: (question: string, type: 'password' | 'yesno') => Promise<string> | string;
+  onPrompt?: (
+    question: string,
+    type: 'password' | 'yesno'
+  ) => Promise<string> | string;
 
   /**
    * Called when cls is entered in the shell.
@@ -126,7 +132,12 @@ export interface ShellPlugin {
  * instances).
  */
 export default class ShellInstanceState {
-  public currentCursor: Cursor | AggregationCursor | ChangeStreamCursor | RunCommandCursor | null;
+  public currentCursor:
+    | Cursor
+    | AggregationCursor
+    | ChangeStreamCursor
+    | RunCommandCursor
+    | null;
   public currentDb: Database;
   public messageBus: MongoshBus;
   public initialServiceProvider: ServiceProvider; // the initial service provider
@@ -143,27 +154,44 @@ export default class ShellInstanceState {
   private warningsShown: Set<string> = new Set();
 
   public readonly interrupted = new InterruptFlag();
-  public resumeMongosAfterInterrupt: Array<{
-    mongo: Mongo,
-    resume: (() => Promise<void>) | null
-  }> | undefined;
+  public resumeMongosAfterInterrupt:
+    | Array<{
+        mongo: Mongo;
+        resume: (() => Promise<void>) | null;
+      }>
+    | undefined;
 
-  private plugins: ShellPlugin[] = [ new TransformMongoErrorPlugin() ];
+  private plugins: ShellPlugin[] = [new TransformMongoErrorPlugin()];
   private alreadyTransformedErrors = new WeakMap<Error, Error>();
 
-  constructor(initialServiceProvider: ServiceProvider, messageBus: any = new EventEmitter(), cliOptions: ShellCliOptions = {}) {
+  constructor(
+    initialServiceProvider: ServiceProvider,
+    messageBus: any = new EventEmitter(),
+    cliOptions: ShellCliOptions = {}
+  ) {
     this.initialServiceProvider = initialServiceProvider;
     this.messageBus = messageBus;
     this.shellApi = new ShellApi(this);
-    this.shellBson = constructShellBson(initialServiceProvider.bsonLibrary, (msg: string) => {
-      void this.shellApi.print(`Warning: ${msg}`);
-    });
+    this.shellBson = constructShellBson(
+      initialServiceProvider.bsonLibrary,
+      (msg: string) => {
+        void this.shellApi.print(`Warning: ${msg}`);
+      }
+    );
     this.mongos = [];
     this.connectionInfo = { buildInfo: {} };
     if (!cliOptions.nodb) {
-      const mongo = new Mongo(this, undefined, undefined, undefined, initialServiceProvider);
+      const mongo = new Mongo(
+        this,
+        undefined,
+        undefined,
+        undefined,
+        initialServiceProvider
+      );
       this.mongos.push(mongo);
-      this.currentDb = mongo.getDB(initialServiceProvider.initialDb || DEFAULT_DB);
+      this.currentDb = mongo.getDB(
+        initialServiceProvider.initialDb || DEFAULT_DB
+      );
     } else {
       this.currentDb = new NoDatabase() as Database;
     }
@@ -175,14 +203,15 @@ export default class ShellInstanceState {
 
   async fetchConnectionInfo(): Promise<void> {
     if (!this.cliOptions.nodb) {
-      this.connectionInfo = await this.currentServiceProvider.getConnectionInfo();
+      this.connectionInfo =
+        await this.currentServiceProvider.getConnectionInfo();
       const apiVersionInfo = this.apiVersionInfo();
       this.messageBus.emit('mongosh:connect', {
         ...this.connectionInfo.extraInfo,
         api_version: apiVersionInfo?.version,
         api_strict: apiVersionInfo?.strict,
         api_deprecation_errors: apiVersionInfo?.deprecationErrors,
-        uri: redactInfo(this.connectionInfo.extraInfo.uri)
+        uri: redactInfo(this.connectionInfo.extraInfo.uri),
       });
     }
   }
@@ -197,10 +226,16 @@ export default class ShellInstanceState {
     this.currentDb = newDb;
     this.context.rs = new ReplicaSet(this.currentDb);
     this.context.sh = new Shard(this.currentDb);
-    this.fetchConnectionInfo().catch(err => this.messageBus.emit('mongosh:error', err, 'shell-api'));
+    this.fetchConnectionInfo().catch((err) =>
+      this.messageBus.emit('mongosh:error', err, 'shell-api')
+    );
     // Pre-fetch for autocompletion.
-    this.currentDb._getCollectionNamesForCompletion().catch(err => this.messageBus.emit('mongosh:error', err, 'shell-api'));
-    this.currentDb._mongo._getDatabaseNamesForCompletion().catch(err => this.messageBus.emit('mongosh:error', err, 'shell-api'));
+    this.currentDb
+      ._getCollectionNamesForCompletion()
+      .catch((err) => this.messageBus.emit('mongosh:error', err, 'shell-api'));
+    this.currentDb._mongo
+      ._getDatabaseNamesForCompletion()
+      .catch((err) => this.messageBus.emit('mongosh:error', err, 'shell-api'));
     this.currentCursor = null;
     return newDb;
   }
@@ -221,11 +256,13 @@ export default class ShellInstanceState {
     Object.assign(contextObject, this.shellApi);
     for (const name of Object.getOwnPropertyNames(ShellApi.prototype)) {
       const { shellApi } = this;
-      if (toIgnore.concat(['help']).includes(name) ||
-        typeof (shellApi as any)[name] !== 'function') {
+      if (
+        toIgnore.concat(['help']).includes(name) ||
+        typeof (shellApi as any)[name] !== 'function'
+      ) {
         continue;
       }
-      contextObject[name] = function(...args: any[]): any {
+      contextObject[name] = function (...args: any[]): any {
         return (shellApi as any)[name](...args);
       };
       contextObject[name].help = (shellApi as any)[name].help;
@@ -247,7 +284,10 @@ export default class ShellInstanceState {
 
     const setFunc = (newDb: any): Database => {
       if (getShellApiType(newDb) !== 'Database') {
-        throw new MongoshInvalidInputError('Cannot reassign \'db\' to non-Database type', CommonErrors.InvalidOperation);
+        throw new MongoshInvalidInputError(
+          "Cannot reassign 'db' to non-Database type",
+          CommonErrors.InvalidOperation
+        );
       }
       return this.setDbFunc(newDb);
     };
@@ -258,14 +298,11 @@ export default class ShellInstanceState {
       Object.defineProperty(contextObject, 'db', {
         configurable: true,
         set: setFunc,
-        get: () => (this.currentDb)
+        get: () => this.currentDb,
       });
     }
 
-    this.messageBus.emit(
-      'mongosh:setCtx',
-      { method: 'setCtx', arguments: {} }
-    );
+    this.messageBus.emit('mongosh:setCtx', { method: 'setCtx', arguments: {} });
   }
 
   get currentServiceProvider(): ServiceProvider {
@@ -286,7 +323,7 @@ export default class ShellInstanceState {
   public emitApiCall(event: Omit<ApiEvent, 'callDepth'>): void {
     this.messageBus.emit('mongosh:api-call', {
       ...event,
-      callDepth: this.apiCallDepth
+      callDepth: this.apiCallDepth,
     });
   }
 
@@ -298,7 +335,8 @@ export default class ShellInstanceState {
     return {
       topology: () => {
         let topology: Topologies;
-        const topologyDescription = this.currentServiceProvider.getTopology()?.description as TopologyDescription;
+        const topologyDescription = this.currentServiceProvider.getTopology()
+          ?.description as TopologyDescription;
         // TODO: once a driver with NODE-3011 is available set type to TopologyType | undefined
         const topologyType: string | undefined = topologyDescription?.type;
         switch (topologyType) {
@@ -318,7 +356,7 @@ export default class ShellInstanceState {
             // mean that that server isn't part of a replset or sharding setup
             // if we're using directConnection=true (which we do by default).
             if (topologyDescription.servers.size === 1) {
-              const [ server ] = topologyDescription.servers.values();
+              const [server] = topologyDescription.servers.values();
               switch (server.type) {
                 case 'Mongos':
                   topology = Topologies.Sharded;
@@ -348,11 +386,15 @@ export default class ShellInstanceState {
       connectionInfo: () => {
         return this.connectionInfo.extraInfo;
       },
-      getCollectionCompletionsForCurrentDb: async(collName: string): Promise<string[]> => {
+      getCollectionCompletionsForCurrentDb: async (
+        collName: string
+      ): Promise<string[]> => {
         try {
-          const collectionNames = await this.currentDb._getCollectionNamesForCompletion();
+          const collectionNames =
+            await this.currentDb._getCollectionNamesForCompletion();
           return collectionNames.filter((name) =>
-            name.toLowerCase().startsWith(collName.toLowerCase()));
+            name.toLowerCase().startsWith(collName.toLowerCase())
+          );
         } catch (err: any) {
           if (
             err?.code === ShellApiErrors.NotConnected ||
@@ -363,11 +405,13 @@ export default class ShellInstanceState {
           throw err;
         }
       },
-      getDatabaseCompletions: async(dbName: string): Promise<string[]> => {
+      getDatabaseCompletions: async (dbName: string): Promise<string[]> => {
         try {
-          const dbNames = await this.currentDb._mongo._getDatabaseNamesForCompletion();
+          const dbNames =
+            await this.currentDb._mongo._getDatabaseNamesForCompletion();
           return dbNames.filter((name) =>
-            name.toLowerCase().startsWith(dbName.toLowerCase()));
+            name.toLowerCase().startsWith(dbName.toLowerCase())
+          );
         } catch (err: any) {
           if (
             err?.code === ShellApiErrors.NotConnected ||
@@ -377,56 +421,62 @@ export default class ShellInstanceState {
           }
           throw err;
         }
-      }
+      },
     };
   }
 
   apiVersionInfo(): Required<ServerApi> | undefined {
-    const { serverApi } = this.currentServiceProvider.getRawClient()?.options ?? {};
-    return serverApi?.version ? { strict: false, deprecationErrors: false, ...serverApi } : undefined;
+    const { serverApi } =
+      this.currentServiceProvider.getRawClient()?.options ?? {};
+    return serverApi?.version
+      ? { strict: false, deprecationErrors: false, ...serverApi }
+      : undefined;
   }
 
   async onInterruptExecution(): Promise<boolean> {
     this.interrupted.set();
     this.currentCursor = null;
 
-    this.resumeMongosAfterInterrupt = await Promise.all(this.mongos.map(async m => {
-      try {
-        return {
-          mongo: m,
-          resume: await m._suspend()
-        };
-      } catch (e: any) {
-        return {
-          mongo: m,
-          resume: null
-        };
-      }
-    }));
-    return !this.resumeMongosAfterInterrupt.find(r => r.resume === null);
+    this.resumeMongosAfterInterrupt = await Promise.all(
+      this.mongos.map(async (m) => {
+        try {
+          return {
+            mongo: m,
+            resume: await m._suspend(),
+          };
+        } catch (e: any) {
+          return {
+            mongo: m,
+            resume: null,
+          };
+        }
+      })
+    );
+    return !this.resumeMongosAfterInterrupt.find((r) => r.resume === null);
   }
 
   async onResumeExecution(): Promise<boolean> {
-    const promises = this.resumeMongosAfterInterrupt?.map(async r => {
-      if (!this.mongos.find(m => m === r.mongo)) {
-        // we do not resume mongo instances that we don't track anymore
-        return true;
-      }
-      if (r.resume === null) {
-        return false;
-      }
-      try {
-        await r.resume();
-        return true;
-      } catch (e: any) {
-        return false;
-      }
-    }) ?? [];
+    const promises =
+      this.resumeMongosAfterInterrupt?.map(async (r) => {
+        if (!this.mongos.find((m) => m === r.mongo)) {
+          // we do not resume mongo instances that we don't track anymore
+          return true;
+        }
+        if (r.resume === null) {
+          return false;
+        }
+        try {
+          await r.resume();
+          return true;
+        } catch (e: any) {
+          return false;
+        }
+      }) ?? [];
     this.resumeMongosAfterInterrupt = undefined;
 
     const result = await Promise.all(promises);
     this.interrupted.reset();
-    return !result.find(r => r === false);
+    return !result.find((r) => r === false);
   }
 
   // eslint-disable-next-line @typescript-eslint/require-await
@@ -436,7 +486,9 @@ export default class ShellInstanceState {
     let dbname = '';
     try {
       dbname = this.currentDb.getName();
-    } catch { /* nodb */ }
+    } catch {
+      /* nodb */
+    }
     return `${[prefix, topologyInfo, dbname].filter(Boolean).join(' ')}> `;
   }
 
@@ -446,7 +498,10 @@ export default class ShellInstanceState {
       return 'AtlasDataFederation';
     } else if (extraConnectionInfo?.is_atlas) {
       return 'Atlas';
-    } else if (extraConnectionInfo?.is_enterprise || this.connectionInfo?.buildInfo?.modules?.indexOf('enterprise') >= 0) {
+    } else if (
+      extraConnectionInfo?.is_enterprise ||
+      this.connectionInfo?.buildInfo?.modules?.indexOf('enterprise') >= 0
+    ) {
       return 'Enterprise';
     }
     return '';
@@ -466,7 +521,9 @@ export default class ShellInstanceState {
       case 'Single':
         const singleDetails = this.getTopologySinglePrompt(description);
         replicaSet = singleDetails?.replicaSet ?? replicaSet;
-        serverTypePrompt = singleDetails?.serverType ? `[direct: ${singleDetails.serverType}]` : '';
+        serverTypePrompt = singleDetails?.serverType
+          ? `[direct: ${singleDetails.serverType}]`
+          : '';
         break;
       case 'ReplicaSetNoPrimary':
         serverTypePrompt = '[secondary]';
@@ -475,7 +532,9 @@ export default class ShellInstanceState {
         serverTypePrompt = '[primary]';
         break;
       case 'Sharded':
-        serverTypePrompt = this.connectionInfo?.extraInfo?.atlas_version ? '' : '[mongos]';
+        serverTypePrompt = this.connectionInfo?.extraInfo?.atlas_version
+          ? ''
+          : '[mongos]';
         break;
       case 'LoadBalanced':
       default:
@@ -486,7 +545,9 @@ export default class ShellInstanceState {
     return `${setNamePrefix}${serverTypePrompt}`;
   }
 
-  private getTopologySinglePrompt(description: TopologyDescription): { replicaSet: string | null, serverType: string } | undefined {
+  private getTopologySinglePrompt(
+    description: TopologyDescription
+  ): { replicaSet: string | null; serverType: string } | undefined {
     if (description.servers?.size !== 1) {
       return undefined;
     }
@@ -517,7 +578,7 @@ export default class ShellInstanceState {
 
     return {
       replicaSet: server.setName,
-      serverType
+      serverType,
     };
   }
 
@@ -554,7 +615,10 @@ export default class ShellInstanceState {
       // TODO: This should be just this.shellApi.print once the java-shell package
       // does not do its own console.log()/print() implementation anymore
       if (this.context.print) {
-        await this.context.print.call(this.shellApi, `DeprecationWarning: ${message}`);
+        await this.context.print.call(
+          this.shellApi,
+          `DeprecationWarning: ${message}`
+        );
       } else {
         await this.shellApi.print(`DeprecationWarning: ${message}`);
       }

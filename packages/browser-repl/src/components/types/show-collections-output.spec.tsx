@@ -4,22 +4,26 @@ import { shallow } from '../../../testing/enzyme';
 
 import { ShowCollectionsOutput } from './show-collections-output';
 
-describe('ShowCollectionsOutput', function() {
-  it('renders no show dbs output if value is empty', function() {
+describe('ShowCollectionsOutput', function () {
+  it('renders no show dbs output if value is empty', function () {
     const wrapper = shallow(<ShowCollectionsOutput value={[]} />);
 
     expect(wrapper.text()).to.equal('');
   });
 
-  it('renders a ShowCollectionsOutput for each element in value', function() {
-    const wrapper = shallow(<ShowCollectionsOutput value={[
-      { name: 'nested_documents', badge: '' },
-      { name: 'decimal128', badge: '' },
-      { name: 'coll', badge: '' },
-      { name: 'people_imported', badge: '[time-series]' },
-      { name: 'cats', badge: '[view]' },
-      { name: 'system.views', badge: '' }
-    ]} />);
+  it('renders a ShowCollectionsOutput for each element in value', function () {
+    const wrapper = shallow(
+      <ShowCollectionsOutput
+        value={[
+          { name: 'nested_documents', badge: '' },
+          { name: 'decimal128', badge: '' },
+          { name: 'coll', badge: '' },
+          { name: 'people_imported', badge: '[time-series]' },
+          { name: 'cats', badge: '[view]' },
+          { name: 'system.views', badge: '' },
+        ]}
+      />
+    );
 
     const items = wrapper.find('pre > span');
     expect(items).to.have.length(6);

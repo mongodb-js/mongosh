@@ -17,7 +17,7 @@ import { once } from 'events';
 import { SHARE_ENV, Worker } from 'worker_threads';
 import path from 'path';
 import { exposeAll, createCaller } from './rpc';
-import type { InterruptHandle} from 'interruptor';
+import type { InterruptHandle } from 'interruptor';
 import { interrupt as nativeInterrupt } from 'interruptor';
 
 const workerRuntimeSrcPath =
@@ -26,15 +26,15 @@ const workerRuntimeSrcPath =
 
 const workerProcess = new Worker(workerRuntimeSrcPath, { env: SHARE_ENV });
 
-const workerReadyPromise: Promise<void> = (async() => {
-  const waitForReadyMessage = async() => {
+const workerReadyPromise: Promise<void> = (async () => {
+  const waitForReadyMessage = async () => {
     let msg: string;
     while (([msg] = await once(workerProcess, 'message'))) {
       if (msg === 'ready') return;
     }
   };
 
-  const waitForError = async() => {
+  const waitForError = async () => {
     const [err] = await once(workerProcess, 'error');
     if (err) {
       err.message = `Worker thread failed to start with the following error: ${err.message}`;
@@ -42,10 +42,7 @@ const workerReadyPromise: Promise<void> = (async() => {
     }
   };
 
-  await Promise.race([
-    waitForReadyMessage(),
-    waitForError()
-  ]);
+  await Promise.race([waitForReadyMessage(), waitForError()]);
 })();
 
 // We expect the amount of listeners to be more than the default value of 10 but
@@ -54,7 +51,6 @@ const workerReadyPromise: Promise<void> = (async() => {
 // in-flight calls on ChildProcessRuntime) at once
 process.setMaxListeners(25);
 workerProcess.setMaxListeners(25);
-
 
 let interruptHandle: InterruptHandle | null = null;
 
@@ -73,7 +69,7 @@ const worker = Object.assign(
       }
 
       return interrupt();
-    }
+    },
   }
 );
 
@@ -82,7 +78,7 @@ function waitForWorkerReadyProxy<T extends Function>(fn: T): T {
     async apply(target, thisArg, argumentsList) {
       await workerReadyPromise;
       return target.call(thisArg, ...Array.from(argumentsList));
-    }
+    },
   });
 }
 
@@ -97,15 +93,22 @@ exposeAll(worker, process);
 const evaluationListener = Object.assign(
   createCaller(
     [
-      'onPrint', 'onPrompt', 'getConfig', 'setConfig', 'resetConfig',
-      'validateConfig', 'listConfigOptions', 'onClearCommand', 'onExit'
+      'onPrint',
+      'onPrompt',
+      'getConfig',
+      'setConfig',
+      'resetConfig',
+      'validateConfig',
+      'listConfigOptions',
+      'onClearCommand',
+      'onExit',
     ],
     process
   ),
   {
     onRunInterruptible(handle: InterruptHandle | null) {
       interruptHandle = handle;
-    }
+    },
   }
 );
 

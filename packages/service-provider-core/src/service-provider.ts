@@ -9,7 +9,11 @@ import type { bson as BSON } from './index';
 /**
  * Interface for all service providers.
  */
-export default interface ServiceProvider extends Readable, Writable, Closable, Admin {}
+export default interface ServiceProvider
+  extends Readable,
+    Writable,
+    Closable,
+    Admin {}
 
 export class ServiceProviderCore {
   public bsonLibrary: typeof BSON;

@@ -10,14 +10,19 @@ import type {
   Document,
   FindCursor as ServiceProviderCursor,
   AggregationCursor as ServiceProviderAggregationCursor,
-  RunCommandCursor as ServiceProviderRunCommandCursor
+  RunCommandCursor as ServiceProviderRunCommandCursor,
 } from '@mongosh/service-provider-core';
 import { asPrintable } from './enums';
 import { CursorIterationResult } from './result';
 import { iterate } from './helpers';
 
 @shellApiClassNoHelp
-export abstract class AbstractCursor<CursorType extends ServiceProviderAggregationCursor | ServiceProviderCursor | ServiceProviderRunCommandCursor> extends ShellApiWithMongoClass {
+export abstract class AbstractCursor<
+  CursorType extends
+    | ServiceProviderAggregationCursor
+    | ServiceProviderCursor
+    | ServiceProviderRunCommandCursor
+> extends ShellApiWithMongoClass {
   _mongo: Mongo;
   _cursor: CursorType;
   _transform: ((doc: any) => any) | null;
@@ -35,11 +40,14 @@ export abstract class AbstractCursor<CursorType extends ServiceProviderAggregati
    * Internal method to determine what is printed for this class.
    */
   async [asPrintable](): Promise<CursorIterationResult> {
-    return (await toShellResult(this._currentIterationResult ?? await this._it())).printable;
+    return (
+      await toShellResult(this._currentIterationResult ?? (await this._it()))
+    ).printable;
   }
 
   async _it(): Promise<CursorIterationResult> {
-    const results = this._currentIterationResult = new CursorIterationResult();
+    const results = (this._currentIterationResult =
+      new CursorIterationResult());
     await iterate(results, this, await this._mongo._displayBatchSize());
     results.cursorHasMore = !this.isExhausted();
     return results;
@@ -57,7 +65,9 @@ export abstract class AbstractCursor<CursorType extends ServiceProviderAggregati
   }
 
   @returnsPromise
-  async forEach(f: (doc: Document) => void | boolean | Promise<void> | Promise<boolean>): Promise<void> {
+  async forEach(
+    f: (doc: Document) => void | boolean | Promise<void> | Promise<boolean>
+  ): Promise<void> {
     // Do not use the driver method because it does not have Promise support.
     for await (const doc of this) {
       if ((await f(doc)) === false) {
@@ -80,7 +90,7 @@ export abstract class AbstractCursor<CursorType extends ServiceProviderAggregati
     return result;
   }
 
-  async* [Symbol.asyncIterator]() {
+  async *[Symbol.asyncIterator]() {
     let doc;
     // !== null should suffice, but some stubs in our tests return 'undefined'
     while ((doc = await this.tryNext()) != null) {

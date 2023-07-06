@@ -2,7 +2,7 @@ import type { PackageInformation } from '../packaging';
 import type { Config } from './config';
 
 export function redactConfig(config: Config): Partial<Config> & {
-  packageInformationInstantiated?: PackageInformation
+  packageInformationInstantiated?: PackageInformation;
 } {
   return {
     version: config.version,
@@ -19,9 +19,11 @@ export function redactConfig(config: Config): Partial<Config> & {
     repo: config.repo,
     isPatch: config.isPatch,
     packageInformation: config.packageInformation,
-    packageInformationInstantiated: config.packageVariant && config.packageInformation?.(config.packageVariant),
+    packageInformationInstantiated:
+      config.packageVariant &&
+      config.packageInformation?.(config.packageVariant),
     cryptSharedLibPath: config.cryptSharedLibPath,
     artifactUrlFile: config.artifactUrlFile,
-    isDryRun: config.isDryRun
+    isDryRun: config.isDryRun,
   };
 }

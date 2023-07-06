@@ -20,12 +20,12 @@ export async function getLinuxOsRelease() {
     );
     return {
       os_linux_dist: osRelease.ID ?? 'Unknown',
-      os_linux_release: osRelease.VERSION_ID ?? 'Unknown'
+      os_linux_release: osRelease.VERSION_ID ?? 'Unknown',
     };
   } catch {
     return {
       os_linux_dist: 'Unknown',
-      os_linux_release: 'Unknown'
+      os_linux_release: 'Unknown',
     };
   }
 }
@@ -35,6 +35,6 @@ export async function getOsInfo() {
     os_type: os.type(),
     os_version: os.version(),
     os_arch: os.arch(),
-    ...(await getLinuxOsRelease())
+    ...(await getLinuxOsRelease()),
   };
 }

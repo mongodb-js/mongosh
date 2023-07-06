@@ -1,7 +1,10 @@
 import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
 import i18n from '@mongosh/i18n';
 import type { CliOptions } from './cli-options';
-import { ConnectionString, CommaAndColonSeparatedRecord } from 'mongodb-connection-string-url';
+import {
+  ConnectionString,
+  CommaAndColonSeparatedRecord,
+} from 'mongodb-connection-string-url';
 
 /**
  * The default host.
@@ -26,7 +29,8 @@ const INVALID_HOST = 'cli-repl.uri-generator.invalid-host';
 /**
  * Host seed list contains a port that mismatches an explicit --port.
  */
-const HOST_LIST_PORT_MISMATCH = 'cli-repl.uri-generator.host-list-port-mismatch';
+const HOST_LIST_PORT_MISMATCH =
+  'cli-repl.uri-generator.host-list-port-mismatch';
 
 /**
  * Diverging gssapiServiceName and SERVICE_NAME mechanism property
@@ -36,30 +40,50 @@ const DIVERGING_SERVICE_NAME = 'cli-repl.uri-generator.diverging-service-name';
 /**
  * Usage of unsupported gssapiServiceName query parameter
  */
-const GSSAPI_SERVICE_NAME_UNSUPPORTED = 'cli-repl.uri-generator.gssapi-service-name-unsupported';
+const GSSAPI_SERVICE_NAME_UNSUPPORTED =
+  'cli-repl.uri-generator.gssapi-service-name-unsupported';
 
 /**
  * Validate conflicts in the options.
  */
-function validateConflicts(options: CliOptions, connectionString?: ConnectionString): void {
+function validateConflicts(
+  options: CliOptions,
+  connectionString?: ConnectionString
+): void {
   if (options.host || options.port) {
-    throw new MongoshInvalidInputError(i18n.__(CONFLICT), CommonErrors.InvalidArgument);
+    throw new MongoshInvalidInputError(
+      i18n.__(CONFLICT),
+      CommonErrors.InvalidArgument
+    );
   }
 
   // TODO: Eventually remove this in favor of more generic conflict detection
   // in the arg mapper code. It's not clear why we only have this for
   // SERVICE_NAME specifically.
-  if (options.gssapiServiceName && connectionString?.searchParams.has('authMechanismProperties')) {
+  if (
+    options.gssapiServiceName &&
+    connectionString?.searchParams.has('authMechanismProperties')
+  ) {
     const authProperties = new CommaAndColonSeparatedRecord(
-      connectionString.searchParams.get('authMechanismProperties'));
+      connectionString.searchParams.get('authMechanismProperties')
+    );
     const serviceName = authProperties.get('SERVICE_NAME');
-    if (serviceName !== undefined && options.gssapiServiceName !== serviceName) {
-      throw new MongoshInvalidInputError(i18n.__(DIVERGING_SERVICE_NAME), CommonErrors.InvalidArgument);
+    if (
+      serviceName !== undefined &&
+      options.gssapiServiceName !== serviceName
+    ) {
+      throw new MongoshInvalidInputError(
+        i18n.__(DIVERGING_SERVICE_NAME),
+        CommonErrors.InvalidArgument
+      );
     }
   }
 
   if (connectionString?.searchParams.has('gssapiServiceName')) {
-    throw new MongoshInvalidInputError(i18n.__(GSSAPI_SERVICE_NAME_UNSUPPORTED), CommonErrors.InvalidArgument);
+    throw new MongoshInvalidInputError(
+      i18n.__(GSSAPI_SERVICE_NAME_UNSUPPORTED),
+      CommonErrors.InvalidArgument
+    );
   }
 }
 
@@ -73,7 +97,8 @@ function validateHost(host: string): void {
   if (invalidCharacter) {
     throw new MongoshInvalidInputError(
       `${i18n.__(INVALID_HOST) as string}: ${invalidCharacter[0]}`,
-      CommonErrors.InvalidArgument);
+      CommonErrors.InvalidArgument
+    );
   }
 }
 
@@ -81,20 +106,31 @@ function validateHost(host: string): void {
  * Validates a host seed list against a specified fixed port and
  * returns an individual `<host>:<port>` array.
  */
-function validateHostSeedList(hosts: string, fixedPort: string | undefined): string[] {
-  const trimmedHosts = hosts.split(',').map(h => h.trim()).filter(h => !!h);
+function validateHostSeedList(
+  hosts: string,
+  fixedPort: string | undefined
+): string[] {
+  const trimmedHosts = hosts
+    .split(',')
+    .map((h) => h.trim())
+    .filter((h) => !!h);
   const hostList: string[] = [];
   for (const h of trimmedHosts) {
     // Split at the last colon to separate the port from the host
     // (if that colon is followed exclusively by digits)
-    const { host, port } = (/^(?<host>.+?)(:(?<port>\d+))?$/.exec(h))?.groups ?? {};
+    const { host, port } =
+      /^(?<host>.+?)(:(?<port>\d+))?$/.exec(h)?.groups ?? {};
     if (fixedPort && port !== undefined && port !== fixedPort) {
       throw new MongoshInvalidInputError(
         i18n.__(HOST_LIST_PORT_MISMATCH),
         CommonErrors.InvalidArgument
       );
     }
-    hostList.push(`${host}${(port || fixedPort) ? `:${(port || fixedPort) as number|string}` : ''}`);
+    hostList.push(
+      `${host}${
+        port || fixedPort ? `:${(port || fixedPort) as number | string}` : ''
+      }`
+    );
   }
   return hostList;
 }
@@ -131,7 +167,10 @@ function generatePort(options: CliOptions): string {
     if (!options.port || options.port === port) {
       return port;
     }
-    throw new MongoshInvalidInputError(i18n.__(CONFLICT), CommonErrors.InvalidArgument);
+    throw new MongoshInvalidInputError(
+      i18n.__(CONFLICT),
+      CommonErrors.InvalidArgument
+    );
   }
   return options.port ? options.port : DEFAULT_PORT;
 }
@@ -154,8 +193,11 @@ export function generateUri(options: Readonly<CliOptions>): string {
     return '';
   }
   const connectionString = generateUriNormalized(options);
-  if (connectionString.hosts.every(host =>
-    ['localhost', '127.0.0.1'].includes(host.split(':')[0]))) {
+  if (
+    connectionString.hosts.every((host) =>
+      ['localhost', '127.0.0.1'].includes(host.split(':')[0])
+    )
+  ) {
     const params = connectionString.searchParams;
     if (!params.has('serverSelectionTimeoutMS')) {
       params.set('serverSelectionTimeoutMS', '2000');
@@ -168,10 +210,18 @@ function generateUriNormalized(options: CliOptions): ConnectionString {
 
   // If the --host argument contains /, it has the format
   // <replSetName>/<hostname1><:port>,<hostname2><:port>,<...>
-  const replSetHostMatch = /^(?<replSetName>[^/]+)\/(?<hosts>(([A-Za-z0-9._-]+|\[[0-9a-fA-F:]+\])(:\d+)?,?)+)$/.exec((options.host ?? ''));
+  const replSetHostMatch =
+    /^(?<replSetName>[^/]+)\/(?<hosts>(([A-Za-z0-9._-]+|\[[0-9a-fA-F:]+\])(:\d+)?,?)+)$/.exec(
+      options.host ?? ''
+    );
   if (replSetHostMatch) {
-    const { replSetName, hosts } = replSetHostMatch.groups as { replSetName: string, hosts: string };
-    const connectionString = new ConnectionString(`mongodb://replacemeHost/${encodeURIComponent(uri || '')}`);
+    const { replSetName, hosts } = replSetHostMatch.groups as {
+      replSetName: string;
+      hosts: string;
+    };
+    const connectionString = new ConnectionString(
+      `mongodb://replacemeHost/${encodeURIComponent(uri || '')}`
+    );
     connectionString.hosts = validateHostSeedList(hosts, options.port);
     connectionString.searchParams.set('replicaSet', replSetName);
     return addShellConnectionStringParameters(connectionString);
@@ -179,17 +229,25 @@ function generateUriNormalized(options: CliOptions): ConnectionString {
 
   // If the --host argument contains multiple hosts as a seed list
   // we directly do not do additional host/port parsing
-  const seedList = /^(?<hosts>([A-Za-z0-9._-]+(:\d+)?,?)+)$/.exec((options.host ?? ''));
+  const seedList = /^(?<hosts>([A-Za-z0-9._-]+(:\d+)?,?)+)$/.exec(
+    options.host ?? ''
+  );
   if (seedList && options.host?.includes(',')) {
     const { hosts } = seedList.groups as { hosts: string };
-    const connectionString = new ConnectionString(`mongodb://replacemeHost/${encodeURIComponent(uri || '')}`);
+    const connectionString = new ConnectionString(
+      `mongodb://replacemeHost/${encodeURIComponent(uri || '')}`
+    );
     connectionString.hosts = validateHostSeedList(hosts, options.port);
     return addShellConnectionStringParameters(connectionString);
   }
 
   // There is no URI provided, use default 127.0.0.1:27017
   if (!uri) {
-    return new ConnectionString(`mongodb://${generateHost(options)}:${generatePort(options)}/?directConnection=true`);
+    return new ConnectionString(
+      `mongodb://${generateHost(options)}:${generatePort(
+        options
+      )}/?directConnection=true`
+    );
   }
 
   // mongodb+srv:// URI is provided, treat as correct and immediately return
@@ -212,9 +270,12 @@ function generateUriNormalized(options: CliOptions): ConnectionString {
   if (parts === null) {
     if (/[/\\. "$]/.test(uri)) {
       // This cannot be a database name because 'uri' contains characters invalid in a database.
-      throw new MongoshInvalidInputError(`Invalid URI: ${uri}`, CommonErrors.InvalidArgument);
+      throw new MongoshInvalidInputError(
+        `Invalid URI: ${uri}`,
+        CommonErrors.InvalidArgument
+      );
     } else {
-      parts = [ uri, uri ];
+      parts = [uri, uri];
     }
   }
 
@@ -234,18 +295,30 @@ function generateUriNormalized(options: CliOptions): ConnectionString {
   if (host || port) {
     validateConflicts(options);
   }
-  return addShellConnectionStringParameters(new ConnectionString(
-    `mongodb://${host || generateHost(options)}:${port || generatePort(options)}/${encodeURIComponent(dbAndQueryString || '')}`));
+  return addShellConnectionStringParameters(
+    new ConnectionString(
+      `mongodb://${host || generateHost(options)}:${
+        port || generatePort(options)
+      }/${encodeURIComponent(dbAndQueryString || '')}`
+    )
+  );
 }
 
 /**
  * Adds the `directConnection=true` query parameter if required.
  * @param uri mongodb:// connection string
  */
-function addShellConnectionStringParameters(uri: ConnectionString): ConnectionString {
+function addShellConnectionStringParameters(
+  uri: ConnectionString
+): ConnectionString {
   uri = uri.clone();
   const params = uri.searchParams;
-  if (!params.has('replicaSet') && !params.has('directConnection') && !params.has('loadBalanced') && uri.hosts.length === 1) {
+  if (
+    !params.has('replicaSet') &&
+    !params.has('directConnection') &&
+    !params.has('loadBalanced') &&
+    uri.hosts.length === 1
+  ) {
     params.set('directConnection', 'true');
   }
   return uri;

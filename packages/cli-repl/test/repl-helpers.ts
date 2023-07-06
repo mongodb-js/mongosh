@@ -24,12 +24,20 @@ let tmpDirsIndex = 1;
 function useTmpdir(): { readonly path: string } {
   let tmpdir: string;
 
-  beforeEach(async() => {
-    tmpdir = path.resolve(__dirname, '..', '..', '..', 'tmp', 'test', `repltest-${Date.now()}-${tmpDirsIndex++}`);
+  beforeEach(async () => {
+    tmpdir = path.resolve(
+      __dirname,
+      '..',
+      '..',
+      '..',
+      'tmp',
+      'test',
+      `repltest-${Date.now()}-${tmpDirsIndex++}`
+    );
     await fs.mkdir(tmpdir, { recursive: true });
   });
 
-  afterEach(async() => {
+  afterEach(async () => {
     try {
       await promisify(rimraf)(tmpdir);
     } catch (err: any) {
@@ -40,14 +48,19 @@ function useTmpdir(): { readonly path: string } {
   });
 
   return {
-    get path(): string { return tmpdir; }
+    get path(): string {
+      return tmpdir;
+    },
   };
 }
 
 async function waitBus<K extends keyof MongoshBusEventsMap>(
   bus: MongoshBus,
-  event: K): Promise<MongoshBusEventsMap[K] extends (...args: infer P) => any ? P : never> {
-  return await once(bus as any, event) as any;
+  event: K
+): Promise<
+  MongoshBusEventsMap[K] extends (...args: infer P) => any ? P : never
+> {
+  return (await once(bus as any, event)) as any;
 }
 
 async function waitEval(bus: MongoshBus) {
@@ -65,28 +78,36 @@ async function waitCompletion(bus: MongoshBus) {
 const fakeTTYProps = {
   isTTY: true,
   isRaw: true,
-  setRawMode() { return false; },
-  getColorDepth() { return 256; }
+  setRawMode() {
+    return false;
+  },
+  getColorDepth() {
+    return 256;
+  },
 };
 
 async function readReplLogfile(logPath: string) {
   return (await fs.readFile(logPath, 'utf8'))
     .split('\n')
-    .filter(line => line.trim())
+    .filter((line) => line.trim())
     .map((line) => JSON.parse(line));
 }
 
-
-const fakeExternalEditor = async(
-  { output, expectedExtension, tmpdir, name, flags, isNodeCommand }: {
-    output?: string,
-    expectedExtension?: string,
-    tmpdir: string,
-    name: string,
-    flags?: string,
-    isNodeCommand: boolean
-  }
-) => {
+const fakeExternalEditor = async ({
+  output,
+  expectedExtension,
+  tmpdir,
+  name,
+  flags,
+  isNodeCommand,
+}: {
+  output?: string;
+  expectedExtension?: string;
+  tmpdir: string;
+  name: string;
+  flags?: string;
+  isNodeCommand: boolean;
+}) => {
   const tmpDoc = path.join(tmpdir, name);
   const editor = isNodeCommand ? `node ${tmpDoc}` : tmpDoc;
   let script: string;
@@ -100,11 +121,15 @@ const fakeExternalEditor = async(
       const path = require("path");
 
       if (${JSON.stringify(expectedExtension ?? '')}) {
-        assert.strictEqual(path.extname(tmpDoc), ${JSON.stringify(expectedExtension)});
+        assert.strictEqual(path.extname(tmpDoc), ${JSON.stringify(
+          expectedExtension
+        )});
       }
 
       if (${JSON.stringify(flags ?? '')}) {
-        assert.deepStrictEqual((${JSON.stringify(flags)}).split(/\s+/), process.argv.slice(2, -1));
+        assert.deepStrictEqual((${JSON.stringify(
+          flags
+        )}).split(/\s+/), process.argv.slice(2, -1));
       }
 
       await writeFile(tmpDoc, ${JSON.stringify(output)}, { mode: 0o600 });
@@ -121,8 +146,20 @@ const fakeExternalEditor = async(
 };
 
 const setTemporaryHomeDirectory = () => {
-  const homedir: string = path.resolve(__dirname, '..', '..', '..', 'tmp', 'test', `cli-repl-home-${Date.now()}-${Math.random()}`);
-  const env: Record<string, string> = { ...process.env, HOME: homedir, USERPROFILE: homedir };
+  const homedir: string = path.resolve(
+    __dirname,
+    '..',
+    '..',
+    '..',
+    'tmp',
+    'test',
+    `cli-repl-home-${Date.now()}-${Math.random()}`
+  );
+  const env: Record<string, string> = {
+    ...process.env,
+    HOME: homedir,
+    USERPROFILE: homedir,
+  };
 
   if (process.platform === 'win32') {
     env.LOCALAPPDATA = path.join(homedir, 'local');
@@ -143,5 +180,5 @@ export {
   fakeTTYProps,
   readReplLogfile,
   fakeExternalEditor,
-  setTemporaryHomeDirectory
+  setTemporaryHomeDirectory,
 };

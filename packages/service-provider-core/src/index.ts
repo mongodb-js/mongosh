@@ -18,7 +18,7 @@ import {
   calculateObjectSize,
   Double,
   EJSON,
-  BSONRegExp
+  BSONRegExp,
 } from 'bson';
 import { bsonStringifiers } from './printable-bson';
 import ShellAuthOptions from './shell-auth-options';
@@ -27,7 +27,10 @@ export * from './all-fle-types';
 
 export { MapReduceOptions, FinalizeFunction } from './map-reduce-options';
 
-export { CreateEncryptedCollectionOptions, CheckMetadataConsistencyOptions } from './admin';
+export {
+  CreateEncryptedCollectionOptions,
+  CheckMetadataConsistencyOptions,
+} from './admin';
 
 const bson = {
   ObjectId,
@@ -44,7 +47,7 @@ const bson = {
   calculateObjectSize,
   Double,
   EJSON,
-  BSONRegExp
+  BSONRegExp,
 };
 
 export {
@@ -56,5 +59,5 @@ export {
   ServiceProviderCore,
   bson,
   bsonStringifiers,
-  ConnectInfo
+  ConnectInfo,
 };

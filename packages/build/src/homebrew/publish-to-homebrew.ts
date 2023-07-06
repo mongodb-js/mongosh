@@ -3,7 +3,6 @@ import { generateUpdatedFormula } from './generate-formula';
 import { updateHomebrewFork } from './update-homebrew-fork';
 import { httpsSha256 } from './utils';
 
-
 export async function publishToHomebrew(
   homebrewCore: GithubRepo,
   homebrewCoreFork: GithubRepo,
@@ -15,9 +14,9 @@ export async function publishToHomebrew(
   updateHomebrewForkFn = updateHomebrewFork
 ): Promise<void> {
   const cliReplPackageUrl = `https://registry.npmjs.org/@mongosh/cli-repl/-/cli-repl-${packageVersion}.tgz`;
-  const packageSha = isDryRun ?
-    `dryRun-fakesha256-${Date.now()}` :
-    await httpsSha256Fn(cliReplPackageUrl);
+  const packageSha = isDryRun
+    ? `dryRun-fakesha256-${Date.now()}`
+    : await httpsSha256Fn(cliReplPackageUrl);
 
   const homebrewFormula = await generateFormulaFn(
     { version: packageVersion, sha: packageSha },
@@ -30,7 +29,12 @@ export async function publishToHomebrew(
   }
 
   const forkBranch = await updateHomebrewForkFn({
-    packageVersion, packageSha, homebrewFormula, homebrewCore, homebrewCoreFork, isDryRun
+    packageVersion,
+    packageSha,
+    homebrewFormula,
+    homebrewCore,
+    homebrewCoreFork,
+    isDryRun,
   });
   if (!forkBranch) {
     console.warn('There are no changes to the homebrew formula');
@@ -50,5 +54,7 @@ export async function publishToHomebrew(
     `${homebrewCoreFork.repo.owner}:${forkBranch}`,
     'master'
   );
-  console.info(`Created PR #${pr.prNumber} in ${homebrewCore.repo.owner}/${homebrewCore.repo.repo}: ${pr.url}`);
+  console.info(
+    `Created PR #${pr.prNumber} in ${homebrewCore.repo.owner}/${homebrewCore.repo.repo}: ${pr.url}`
+  );
 }

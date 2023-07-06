@@ -5,10 +5,6 @@
     "allowJs": true,
     "experimentalDecorators": true
   },
-  "include": [
-    "./src/**/*"
-  ],
-  "exclude": [
-    "./src/**/*.spec.*"
-  ]
+  "include": ["./src/**/*"],
+  "exclude": ["./src/**/*.spec.*"]
 }

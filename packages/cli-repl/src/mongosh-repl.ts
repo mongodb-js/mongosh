@@ -1,9 +1,20 @@
 import completer from '@mongosh/autocomplete';
 import { MongoshInternalError, MongoshWarning } from '@mongosh/errors';
 import { changeHistory } from '@mongosh/history';
-import type { AutoEncryptionOptions, ServiceProvider } from '@mongosh/service-provider-core';
-import type { EvaluationListener, OnLoadResult, ShellCliOptions} from '@mongosh/shell-api';
-import { ShellInstanceState, getShellApiType, toShellResult } from '@mongosh/shell-api';
+import type {
+  AutoEncryptionOptions,
+  ServiceProvider,
+} from '@mongosh/service-provider-core';
+import type {
+  EvaluationListener,
+  OnLoadResult,
+  ShellCliOptions,
+} from '@mongosh/shell-api';
+import {
+  ShellInstanceState,
+  getShellApiType,
+  toShellResult,
+} from '@mongosh/shell-api';
 import type { ShellResult } from '@mongosh/shell-evaluator';
 import { ShellEvaluator } from '@mongosh/shell-evaluator';
 import type { ConfigProvider, MongoshBus } from '@mongosh/types';
@@ -13,7 +24,7 @@ import askpassword from 'askpassword';
 import { Console } from 'console';
 import { once } from 'events';
 import prettyRepl from 'pretty-repl';
-import type { ReplOptions, REPLServer} from 'repl';
+import type { ReplOptions, REPLServer } from 'repl';
 import { start as replStart } from 'repl';
 import type { Readable, Writable } from 'stream';
 import { PassThrough } from 'stream';
@@ -39,10 +50,15 @@ export type MongoshCliOptions = ShellCliOptions & {
  * An interface that contains everything necessary for {@link MongoshNodeRepl}
  * instances to actually perform I/O operations.
  */
-export type MongoshIOProvider = Omit<ConfigProvider<CliUserConfig>, 'validateConfig' | 'resetConfig'> & {
+export type MongoshIOProvider = Omit<
+  ConfigProvider<CliUserConfig>,
+  'validateConfig' | 'resetConfig'
+> & {
   getHistoryFilePath(): string;
   exit(code?: number): Promise<never>;
-  readFileUTF8(filename: string): Promise<{ contents: string, absolutePath: string }>;
+  readFileUTF8(
+    filename: string
+  ): Promise<{ contents: string; absolutePath: string }>;
   getCryptLibraryOptions(): Promise<AutoEncryptionOptions['extraOptions']>;
   bugReportErrorMessageInfo?(): string | undefined;
 };
@@ -85,7 +101,7 @@ type MongoshRuntimeState = {
 
 /* Utility, inverse of Readonly<T> */
 type Mutable<T> = {
-  -readonly[P in keyof T]: T[P]
+  -readonly [P in keyof T]: T[P];
 };
 
 /**
@@ -100,7 +116,8 @@ function fixupReplForNodeBug38314(repl: REPLServer): void {
     // Check whether bug is present:
     const input = new PassThrough();
     const output = new PassThrough();
-    const evalFn = (code: any, ctx: any, filename: any, cb: any) => cb(new Error('err'));
+    const evalFn = (code: any, ctx: any, filename: any, cb: any) =>
+      cb(new Error('err'));
     const prompt = 'prompt#';
     replStart({ input, output, eval: evalFn as any, prompt });
     input.end('s\n');
@@ -112,12 +129,14 @@ function fixupReplForNodeBug38314(repl: REPLServer): void {
   // If it is, fix up the REPL's domain 'error' listener to not call displayPrompt()
   const domain = (repl as any)._domain;
   const domainErrorListeners = domain.listeners('error');
-  const origListener = domainErrorListeners.find((fn: any) => fn.name === 'debugDomainError');
+  const origListener = domainErrorListeners.find(
+    (fn: any) => fn.name === 'debugDomainError'
+  );
   if (!origListener) {
     throw new Error('Could not find REPL domain error listener');
   }
   domain.removeListener('error', origListener);
-  domain.on('error', function(this: any, err: Error) {
+  domain.on('error', function (this: any, err: Error) {
     const origDisplayPrompt = repl.displayPrompt;
     repl.displayPrompt = () => {};
     try {
@@ -184,16 +203,27 @@ class MongoshNodeRepl implements EvaluationListener {
    * history handling. This does not yet start evaluating any code
    * or print any user prompt.
    */
-  async initialize(serviceProvider: ServiceProvider): Promise<InitializationToken> {
-    const instanceState = new ShellInstanceState(serviceProvider, this.bus, this.shellCliOptions);
-    const shellEvaluator = new ShellEvaluator(instanceState, (value: any) => value);
+  async initialize(
+    serviceProvider: ServiceProvider
+  ): Promise<InitializationToken> {
+    const instanceState = new ShellInstanceState(
+      serviceProvider,
+      this.bus,
+      this.shellCliOptions
+    );
+    const shellEvaluator = new ShellEvaluator(
+      instanceState,
+      (value: any) => value
+    );
     instanceState.setEvaluationListener(this);
     await instanceState.fetchConnectionInfo();
 
     let mongodVersion = instanceState.connectionInfo.buildInfo?.version;
     const apiVersion = serviceProvider.getRawClient()?.serverApi?.version;
     if (apiVersion) {
-      mongodVersion = (mongodVersion ? mongodVersion + ' ' : '') + `(API Version ${apiVersion})`;
+      mongodVersion =
+        (mongodVersion ? mongodVersion + ' ' : '') +
+        `(API Version ${apiVersion})`;
     }
     await this.greet(mongodVersion);
     await this.printBasicConnectivityWarning(instanceState);
@@ -213,17 +243,19 @@ class MongoshNodeRepl implements EvaluationListener {
       preview: false,
       asyncEval: this.eval.bind(this),
       historySize: await this.getConfig('historyLength'),
-      wrapCallbackError:
-        (err: Error) => Object.assign(new MongoshInternalError(err.message), { stack: err.stack }),
+      wrapCallbackError: (err: Error) =>
+        Object.assign(new MongoshInternalError(err.message), {
+          stack: err.stack,
+        }),
       onAsyncSigint: this.onAsyncSigint.bind(this),
-      ...this.nodeReplOptions
+      ...this.nodeReplOptions,
     });
     fixupReplForNodeBug38314(repl);
 
     const console = new Console({
       stdout: this.output,
       stderr: this.output,
-      colorMode: this.getFormatOptions().colors
+      colorMode: this.getFormatOptions().colors,
     });
     delete repl.context.parcelRequire; // MONGOSH-965
     delete repl.context.__webpack_require__;
@@ -240,8 +272,12 @@ class MongoshNodeRepl implements EvaluationListener {
       // not the Node.js `crypto` module. We would need to decide if/when to break this
       // separately from the Node.js upgrade cycle, so we always use the Node.js builtin
       // module for now.
-      const globalCryptoDescriptor = Object.getOwnPropertyDescriptor(repl.context, 'crypto') ?? {};
-      if (globalCryptoDescriptor.value?.subtle || globalCryptoDescriptor.get?.call(null)?.subtle) {
+      const globalCryptoDescriptor =
+        Object.getOwnPropertyDescriptor(repl.context, 'crypto') ?? {};
+      if (
+        globalCryptoDescriptor.value?.subtle ||
+        globalCryptoDescriptor.get?.call(null)?.subtle
+      ) {
         delete repl.context.crypto;
         repl.context.crypto = await import('node:crypto');
       }
@@ -251,21 +287,25 @@ class MongoshNodeRepl implements EvaluationListener {
       shellEvaluator,
       instanceState,
       repl,
-      console
+      console,
     };
 
-    const origReplCompleter =
-      promisify(repl.completer.bind(repl)); // repl.completer is callback-style
-    const mongoshCompleter =
-      completer.bind(null, instanceState.getAutocompleteParameters());
-    (repl as Mutable<typeof repl>).completer =
-      callbackify(async(text: string): Promise<[string[], string]> => {
+    const origReplCompleter = promisify(repl.completer.bind(repl)); // repl.completer is callback-style
+    const mongoshCompleter = completer.bind(
+      null,
+      instanceState.getAutocompleteParameters()
+    );
+    (repl as Mutable<typeof repl>).completer = callbackify(
+      async (text: string): Promise<[string[], string]> => {
         this.insideAutoCompleteOrGetPrompt = true;
         try {
           // Merge the results from the repl completer and the mongosh completer.
-          const [ [replResults, replOrig], [mongoshResults,, mongoshResultsExclusive] ] = await Promise.all([
-            (async() => await origReplCompleter(text) || [[]])(),
-            (async() => await mongoshCompleter(text))()
+          const [
+            [replResults, replOrig],
+            [mongoshResults, , mongoshResultsExclusive],
+          ] = await Promise.all([
+            (async () => (await origReplCompleter(text)) || [[]])(),
+            (async () => await mongoshCompleter(text))(),
           ]);
           this.bus.emit('mongosh:autocompletion-complete'); // For testing.
 
@@ -284,8 +324,12 @@ class MongoshNodeRepl implements EvaluationListener {
           // The mongosh completer always completes on the entire string.
           // In order to align them, we always extend the REPL results to include
           // the full string prefix.
-          const replResultPrefix = replOrig ? text.substr(0, text.lastIndexOf(replOrig)) : '';
-          const longReplResults = replResults.map((result: string) => replResultPrefix + result);
+          const replResultPrefix = replOrig
+            ? text.substr(0, text.lastIndexOf(replOrig))
+            : '';
+          const longReplResults = replResults.map(
+            (result: string) => replResultPrefix + result
+          );
 
           // Remove duplicates, because shell API methods might otherwise show
           // up in both completions.
@@ -295,7 +339,8 @@ class MongoshNodeRepl implements EvaluationListener {
         } finally {
           this.insideAutoCompleteOrGetPrompt = false;
         }
-      });
+      }
+    );
 
     // This is used below for multiline history manipulation.
     let originalHistory: string[] | null = null;
@@ -313,7 +358,9 @@ class MongoshNodeRepl implements EvaluationListener {
     if (repl.commands.editor) {
       const originalEditorAction = repl.commands.editor.action.bind(repl);
 
-      repl.commands.editor.action = (...args: Parameters<typeof originalEditorAction>): any => {
+      repl.commands.editor.action = (
+        ...args: Parameters<typeof originalEditorAction>
+      ): any => {
         originalHistory = [...(repl as any).history];
         this.lineByLineInput.disableBlockOnNewline();
         return originalEditorAction(...args);
@@ -324,7 +371,7 @@ class MongoshNodeRepl implements EvaluationListener {
       help: '',
       action: () => {
         repl.displayPrompt();
-      }
+      },
     });
 
     // Work around a weird Node.js REPL bug where .line is expected to be
@@ -343,49 +390,54 @@ class MongoshNodeRepl implements EvaluationListener {
           const history: string[] = (repl as any).history;
           changeHistory(
             history,
-            this.redactHistory === 'remove-redact' ? 'redact-sensitive-data' : 'keep-sensitive-data');
+            this.redactHistory === 'remove-redact'
+              ? 'redact-sensitive-data'
+              : 'keep-sensitive-data'
+          );
         }
       });
       // We also want to group multiline history entries and .editor input into
       // a single entry per evaluation, so that arrow-up functionality
       // is more useful.
-      (repl as any).on(asyncRepl.evalFinish, (ev: asyncRepl.EvalFinishEvent) => {
-        if (this.insideAutoCompleteOrGetPrompt) {
-          return; // These are not the evaluations we are looking for.
-        }
-        const history: string[] = (repl as any).history;
-        if (ev.success === false && ev.recoverable) {
-          if (originalHistory === null) {
-            // If this is the first recoverable error we encounter, store the
-            // current history in order to be later able to restore it.
-            // We skip the first entry because it is part of the multiline
-            // input.
-            originalHistory = history.slice(1);
+      (repl as any).on(
+        asyncRepl.evalFinish,
+        (ev: asyncRepl.EvalFinishEvent) => {
+          if (this.insideAutoCompleteOrGetPrompt) {
+            return; // These are not the evaluations we are looking for.
           }
-        } else if (originalHistory !== null) {
-          // We are seeing the first completion after a recoverable error that
-          // did not result in a recoverable error, i.e. the multiline input
-          // is complete.
-          // Add the current input, with newlines replaced by spaces, to the
-          // front of the history array. We restore the original history, i.e.
-          // any intermediate lines added to the history while we were gathering
-          // the multiline input are replaced at this point.
-          const newHistoryEntry = makeMultilineJSIntoSingleLine(ev.input);
-          if (newHistoryEntry.length > 0) {
-            originalHistory.unshift(newHistoryEntry);
+          const history: string[] = (repl as any).history;
+          if (ev.success === false && ev.recoverable) {
+            if (originalHistory === null) {
+              // If this is the first recoverable error we encounter, store the
+              // current history in order to be later able to restore it.
+              // We skip the first entry because it is part of the multiline
+              // input.
+              originalHistory = history.slice(1);
+            }
+          } else if (originalHistory !== null) {
+            // We are seeing the first completion after a recoverable error that
+            // did not result in a recoverable error, i.e. the multiline input
+            // is complete.
+            // Add the current input, with newlines replaced by spaces, to the
+            // front of the history array. We restore the original history, i.e.
+            // any intermediate lines added to the history while we were gathering
+            // the multiline input are replaced at this point.
+            const newHistoryEntry = makeMultilineJSIntoSingleLine(ev.input);
+            if (newHistoryEntry.length > 0) {
+              originalHistory.unshift(newHistoryEntry);
+            }
+            history.splice(0, history.length, ...originalHistory);
+            originalHistory = null;
           }
-          history.splice(
-            0,
-            history.length,
-            ...originalHistory);
-          originalHistory = null;
         }
-      });
+      );
     } catch (err: any) {
       // repl.setupHistory() only reports failure when something went wrong
       // *after* the file was already opened for the first time. If the initial
       // open fails, it will print a warning to the REPL and report success to us.
-      const warn = new MongoshWarning('Error processing history file: ' + err?.message);
+      const warn = new MongoshWarning(
+        'Error processing history file: ' + err?.message
+      );
       this.output.write(this.writer(warn) + '\n');
     }
 
@@ -409,9 +461,9 @@ class MongoshNodeRepl implements EvaluationListener {
       // https://github.com/mongodb/mongo/blob/a6df396047a77b90bf1ce9463eecffbee16fb864/src/mongo/shell/mongo_main.cpp#L1003-L1026
       const { shellApi } = instanceState;
       const banners = await Promise.all([
-        (async() => await shellApi.show('startupWarnings'))(),
-        (async() => await shellApi.show('automationNotices'))(),
-        (async() => await shellApi.show('nonGenuineMongoDBCheck'))()
+        (async () => await shellApi.show('startupWarnings'))(),
+        (async () => await shellApi.show('automationNotices'))(),
+        (async () => await shellApi.show('nonGenuineMongoDBCheck'))(),
       ]);
       for (const banner of banners) {
         if (banner.value) {
@@ -451,9 +503,12 @@ class MongoshNodeRepl implements EvaluationListener {
     if (!this.shellCliOptions.nodb) {
       text += `Using MongoDB:\t\t${mongodVersion}\n`;
     }
-    text += `${this.clr('Using Mongosh', 'mongosh:section-header')}:\t\t${version}\n`;
+    text += `${this.clr(
+      'Using Mongosh',
+      'mongosh:section-header'
+    )}:\t\t${version}\n`;
     text += `${MONGOSH_WIKI}\n`;
-    if (!await this.getConfig('disableGreetingMessage')) {
+    if (!(await this.getConfig('disableGreetingMessage'))) {
       text += `${TELEMETRY_GREETING_MESSAGE}\n`;
       await this.setConfig('disableGreetingMessage', true);
     }
@@ -464,7 +519,9 @@ class MongoshNodeRepl implements EvaluationListener {
    * Print a warning if the server is not able to respond to commands.
    * This can happen in load balanced mode, for example.
    */
-  async printBasicConnectivityWarning(instanceState: ShellInstanceState): Promise<void> {
+  async printBasicConnectivityWarning(
+    instanceState: ShellInstanceState
+  ): Promise<void> {
     if (this.shellCliOptions.nodb || this.shellCliOptions.quiet) {
       return;
     }
@@ -477,7 +534,10 @@ class MongoshNodeRepl implements EvaluationListener {
       err = error;
     }
 
-    const text = this.clr('The server failed to respond to a ping and may be unavailable:', 'mongosh:warning');
+    const text = this.clr(
+      'The server failed to respond to a ping and may be unavailable:',
+      'mongosh:warning'
+    );
     this.output.write(text + '\n' + this.formatError(err) + '\n');
   }
 
@@ -495,7 +555,12 @@ class MongoshNodeRepl implements EvaluationListener {
    * @param filename The filename used for this evaluation, for stack traces
    * @returns The result of evaluating `input`
    */
-  async eval(originalEval: asyncRepl.OriginalEvalFunction, input: string, context: any, filename: string): Promise<any> {
+  async eval(
+    originalEval: asyncRepl.OriginalEvalFunction,
+    input: string,
+    context: any,
+    filename: string
+  ): Promise<any> {
     if (!this.insideAutoCompleteOrGetPrompt) {
       this.lineByLineInput.enableBlockOnNewLine();
     }
@@ -504,8 +569,16 @@ class MongoshNodeRepl implements EvaluationListener {
     let interrupted = false;
 
     try {
-      const rawValue = await shellEvaluator.customEval(originalEval, input, context, filename);
-      if ((typeof rawValue === 'object' && rawValue !== null) || typeof rawValue === 'function') {
+      const rawValue = await shellEvaluator.customEval(
+        originalEval,
+        input,
+        context,
+        filename
+      );
+      if (
+        (typeof rawValue === 'object' && rawValue !== null) ||
+        typeof rawValue === 'function'
+      ) {
         this.rawValueToShellResult.set(rawValue, await toShellResult(rawValue));
       }
       // The Node.js auto completion needs to access the raw values in order
@@ -514,12 +587,15 @@ class MongoshNodeRepl implements EvaluationListener {
       // topology, server version, etc., so for those, we only autocomplete
       // own, enumerable, non-underscore-prefixed properties and instead leave
       // the rest to the @mongosh/autocomplete package.
-      if (!this.insideAutoCompleteOrGetPrompt || getShellApiType(rawValue) === null) {
+      if (
+        !this.insideAutoCompleteOrGetPrompt ||
+        getShellApiType(rawValue) === null
+      ) {
         return rawValue;
       }
       return Object.fromEntries(
-        Object.entries(rawValue)
-          .filter(([key]) => !key.startsWith('_')));
+        Object.entries(rawValue).filter(([key]) => !key.startsWith('_'))
+      );
     } catch (err: any) {
       if (this.runtimeState().instanceState.interrupted.isSet()) {
         interrupted = true;
@@ -530,9 +606,11 @@ class MongoshNodeRepl implements EvaluationListener {
       }
 
       if (!isErrorLike(err)) {
-        throw new Error(this.formatOutput({
-          value: err
-        }));
+        throw new Error(
+          this.formatOutput({
+            value: err,
+          })
+        );
       }
       throw err;
     } finally {
@@ -552,21 +630,20 @@ class MongoshNodeRepl implements EvaluationListener {
    * This is part of the EvaluationListener interface.
    */
   async onLoad(filename: string): Promise<OnLoadResult> {
-    const {
-      contents,
-      absolutePath
-    } = await this.ioProvider.readFileUTF8(filename);
+    const { contents, absolutePath } = await this.ioProvider.readFileUTF8(
+      filename
+    );
 
     return {
       resolvedFilename: absolutePath,
-      evaluate: async() => {
+      evaluate: async () => {
         this.loadNestingLevel += 1;
         try {
           await this.loadExternalCode(contents, absolutePath);
         } finally {
           this.loadNestingLevel -= 1;
         }
-      }
+      },
     };
   }
 
@@ -586,7 +663,10 @@ class MongoshNodeRepl implements EvaluationListener {
    * @param filename The filename, for stack trace purposes.
    * @returns The result of evaluating `input`.
    */
-  async loadExternalCode(input: string, filename: string): Promise<ShellResult> {
+  async loadExternalCode(
+    input: string,
+    filename: string
+  ): Promise<ShellResult> {
     const { repl } = this.runtimeState();
     return await promisify(repl.eval.bind(repl))(input, repl.context, filename);
   }
@@ -605,13 +685,16 @@ class MongoshNodeRepl implements EvaluationListener {
     }
     this.output.write('Stopping execution...');
 
-    const mongodVersion: string | undefined = instanceState.connectionInfo.buildInfo?.version;
+    const mongodVersion: string | undefined =
+      instanceState.connectionInfo.buildInfo?.version;
     if (mongodVersion?.match(/^(4\.0\.|3\.)\d+/)) {
-      this.output.write(this.clr(
-        `\nWARNING: Operations running on the server cannot be killed automatically for MongoDB ${mongodVersion}.` +
-        '\n         Please make sure to kill them manually. Killing operations is supported starting with MongoDB 4.1.',
-        'mongosh:warning'
-      ));
+      this.output.write(
+        this.clr(
+          `\nWARNING: Operations running on the server cannot be killed automatically for MongoDB ${mongodVersion}.` +
+            '\n         Please make sure to kill them manually. Killing operations is supported starting with MongoDB 4.1.',
+          'mongosh:warning'
+        )
+      );
     }
 
     const fullyInterrupted = await instanceState.onInterruptExecution();
@@ -619,15 +702,18 @@ class MongoshNodeRepl implements EvaluationListener {
     // we wait until it finally completes (which should happen immediately)
     await Promise.race([
       once(this.bus, 'mongosh:eval-interrupted'),
-      new Promise(setImmediate)
+      new Promise(setImmediate),
     ]);
 
     const fullyResumed = await instanceState.onResumeExecution();
     if (!fullyInterrupted || !fullyResumed) {
-      this.output.write(this.formatError({
-        name: 'MongoshInternalError',
-        message: 'Could not re-establish all connections, we suggest to restart the shell.'
-      }));
+      this.output.write(
+        this.formatError({
+          name: 'MongoshInternalError',
+          message:
+            'Could not re-establish all connections, we suggest to restart the shell.',
+        })
+      );
     }
     this.bus.emit('mongosh:interrupt-complete'); // For testing purposes.
 
@@ -649,13 +735,18 @@ class MongoshNodeRepl implements EvaluationListener {
         ...result,
         message: result.message || result.errmsg,
         name: result.name || 'MongoshInternalError',
-        stack: result.stack
+        stack: result.stack,
       };
       this.bus.emit('mongosh:error', output, 'repl');
       return this.formatError(output);
     }
 
-    return this.formatShellResult(this.rawValueToShellResult.get(result) ?? { type: null, printable: result });
+    return this.formatShellResult(
+      this.rawValueToShellResult.get(result) ?? {
+        type: null,
+        printable: result,
+      }
+    );
   }
 
   /**
@@ -686,11 +777,11 @@ class MongoshNodeRepl implements EvaluationListener {
       // line, and set all the collapse options threshold to infinity
       type === 'printjson'
         ? {
-          compact: false,
-          depth: Infinity,
-          maxArrayLength: Infinity,
-          maxStringLength: Infinity
-        }
+            compact: false,
+            depth: Infinity,
+            maxArrayLength: Infinity,
+            maxStringLength: Infinity,
+          }
         : undefined;
     const joined = values
       .map((value) => this.formatShellResult(value, extraOptions))
@@ -705,12 +796,15 @@ class MongoshNodeRepl implements EvaluationListener {
    * @param type Which kind of answer to ask for.
    * @returns 'yes'/'no' for 'yesno' prompts, otherwise the user input.
    */
-  async onPrompt(question: string, type: 'password' | 'yesno'): Promise<string> {
+  async onPrompt(
+    question: string,
+    type: 'password' | 'yesno'
+  ): Promise<string> {
     if (type === 'password') {
       const passwordPromise = askpassword({
         input: this.input,
         output: this.output,
-        replacementCharacter: '*'
+        replacementCharacter: '*',
       });
       this.output.write(question + '\n');
       return (await passwordPromise).toString();
@@ -720,18 +814,18 @@ class MongoshNodeRepl implements EvaluationListener {
       while (true) {
         const charPromise = askcharacter({
           input: this.input,
-          output: this.output
+          output: this.output,
         });
         this.output.write(question + ': ');
         result = await charPromise;
-        if (result.length > 0 && !(/^[yYnN\r\n]$/.exec(result))) {
+        if (result.length > 0 && !/^[yYnN\r\n]$/.exec(result)) {
           this.output.write('\nPlease enter Y or N: ');
         } else {
           break;
         }
       }
       this.output.write('\n');
-      return { 'Y': 'yes', 'N': 'no' }[result.toUpperCase() as ('Y'|'N')] ?? '';
+      return { Y: 'yes', N: 'no' }[result.toUpperCase() as 'Y' | 'N'] ?? '';
     }
     throw new Error(`Unrecognized prompt type ${type}`);
   }
@@ -748,7 +842,7 @@ class MongoshNodeRepl implements EvaluationListener {
   ): string {
     return formatOutput(value, {
       ...this.getFormatOptions(),
-      ...extraFormatOptions
+      ...extraFormatOptions,
     });
   }
 
@@ -779,12 +873,13 @@ class MongoshNodeRepl implements EvaluationListener {
   getFormatOptions(): FormatOptions {
     const output = this.output as WriteStream;
     return {
-      colors: this._runtimeState?.repl?.useColors ??
+      colors:
+        this._runtimeState?.repl?.useColors ??
         (output.isTTY && output.getColorDepth() > 1),
       compact: this.inspectCompact,
       depth: this.inspectDepth,
       showStackTraces: this.showStackTraces,
-      bugReportErrorMessageInfo: this.ioProvider.bugReportErrorMessageInfo?.()
+      bugReportErrorMessageInfo: this.ioProvider.bugReportErrorMessageInfo?.(),
     };
   }
 
@@ -811,7 +906,7 @@ class MongoshNodeRepl implements EvaluationListener {
       this._runtimeState = null;
       rs.repl.close();
       await rs.instanceState.close(true);
-      await new Promise(resolve => this.output.write('', resolve));
+      await new Promise((resolve) => this.output.write('', resolve));
     }
   }
 
@@ -828,21 +923,26 @@ class MongoshNodeRepl implements EvaluationListener {
   /**
    * Implements getConfig from the {@link ConfigProvider} interface.
    */
-  async getConfig<K extends keyof CliUserConfig>(key: K): Promise<CliUserConfig[K]> {
+  async getConfig<K extends keyof CliUserConfig>(
+    key: K
+  ): Promise<CliUserConfig[K]> {
     return this.ioProvider.getConfig(key);
   }
 
   /**
    * Implements setConfig from the {@link ConfigProvider} interface.
    */
-  async setConfig<K extends keyof CliUserConfig>(key: K, value: CliUserConfig[K]): Promise<'success' | 'ignored'> {
+  async setConfig<K extends keyof CliUserConfig>(
+    key: K,
+    value: CliUserConfig[K]
+  ): Promise<'success' | 'ignored'> {
     const result = await this.ioProvider.setConfig(key, value);
     if (result === 'success') {
       if (key === 'historyLength' && this._runtimeState) {
         (this.runtimeState().repl as any).historySize = value;
       }
       if (key === 'inspectCompact') {
-        this.inspectCompact = value as number|boolean;
+        this.inspectCompact = value as number | boolean;
       }
       if (key === 'inspectDepth') {
         this.inspectDepth = value as number;
@@ -860,14 +960,19 @@ class MongoshNodeRepl implements EvaluationListener {
   /**
    * Implements resetConfig from the {@link ConfigProvider} interface.
    */
-  async resetConfig<K extends keyof CliUserConfig>(key: K): Promise<'success' | 'ignored'> {
-    return await this.setConfig(key, (new CliUserConfig())[key]);
+  async resetConfig<K extends keyof CliUserConfig>(
+    key: K
+  ): Promise<'success' | 'ignored'> {
+    return await this.setConfig(key, new CliUserConfig()[key]);
   }
 
   /**
    * Implements validateConfig from the {@link ConfigProvider} interface.
    */
-  async validateConfig<K extends keyof CliUserConfig>(key: K, value: CliUserConfig[K]): Promise<string | null> {
+  async validateConfig<K extends keyof CliUserConfig>(
+    key: K,
+    value: CliUserConfig[K]
+  ): Promise<string | null> {
     return CliUserConfigValidator.validate(key, value);
   }
 
@@ -881,7 +986,9 @@ class MongoshNodeRepl implements EvaluationListener {
   /**
    * Get the right crypt shared library loading options.
    */
-  async getCryptLibraryOptions(): Promise<AutoEncryptionOptions['extraOptions']> {
+  async getCryptLibraryOptions(): Promise<
+    AutoEncryptionOptions['extraOptions']
+  > {
     return this.ioProvider.getCryptLibraryOptions();
   }
 
@@ -894,7 +1001,8 @@ class MongoshNodeRepl implements EvaluationListener {
     try {
       this.insideAutoCompleteOrGetPrompt = true;
       if (typeof repl.context.prompt !== 'undefined') {
-        const promptResult = await this.loadExternalCode(`
+        const promptResult = await this.loadExternalCode(
+          `
         (() => {
           switch (typeof prompt) {
             case 'function':
@@ -902,7 +1010,9 @@ class MongoshNodeRepl implements EvaluationListener {
             case 'string':
               return prompt;
           }
-        })()`, '<prompt loader>');
+        })()`,
+          '<prompt loader>'
+        );
         if (typeof promptResult === 'string') {
           return promptResult;
         }
@@ -926,9 +1036,11 @@ class MongoshNodeRepl implements EvaluationListener {
  */
 function isErrorLike(value: any): boolean {
   try {
-    return value && getShellApiType(value) === null && (
-      (value.message !== undefined && typeof value.stack === 'string') ||
-      (value.code !== undefined && value.errmsg !== undefined)
+    return (
+      value &&
+      getShellApiType(value) === null &&
+      ((value.message !== undefined && typeof value.stack === 'string') ||
+        (value.code !== undefined && value.errmsg !== undefined))
     );
   } catch (err: any) {
     throw new MongoshInternalError(err?.message || String(err));

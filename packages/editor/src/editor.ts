@@ -32,7 +32,13 @@ export class Editor {
   _lastInputCode: string;
   print: (...args: any[]) => Promise<void>;
 
-  constructor({ input, vscodeDir, tmpDir, instanceState, loadExternalCode }: EditorOptions) {
+  constructor({
+    input,
+    vscodeDir,
+    tmpDir,
+    instanceState,
+    loadExternalCode,
+  }: EditorOptions) {
     this._input = input;
     this._vscodeDir = vscodeDir;
     this._tmpDir = tmpDir;
@@ -45,19 +51,20 @@ export class Editor {
     // Add edit command support to shell api.
     const wrapperFn = (code: string) => {
       return Object.assign(this.runEditCommand(code), {
-        [Symbol.for('@@mongosh.syntheticPromise')]: true
+        [Symbol.for('@@mongosh.syntheticPromise')]: true,
       });
     };
 
     wrapperFn.isDirectShellCommand = true;
     wrapperFn.returnsPromise = true;
     wrapperFn.acceptsRawInput = true;
-    (instanceState.shellApi as any).edit = instanceState.context.edit = wrapperFn;
+    (instanceState.shellApi as any).edit = instanceState.context.edit =
+      wrapperFn;
     (signatures.ShellApi.attributes as any).edit = {
       type: 'function',
       returnsPromise: true,
       isDirectShellCommand: true,
-      acceptsRawInput: true
+      acceptsRawInput: true,
     } as TypeSignature;
   }
 
@@ -74,29 +81,34 @@ export class Editor {
     }
 
     try {
-      const extensions = await fs.readdir(path.join(this._vscodeDir, 'extensions'));
-      const hasMongodbExtension = !!extensions
-        .find((name) => name.includes('mongodb.mongodb-vscode'));
+      const extensions = await fs.readdir(
+        path.join(this._vscodeDir, 'extensions')
+      );
+      const hasMongodbExtension = !!extensions.find((name) =>
+        name.includes('mongodb.mongodb-vscode')
+      );
 
       this.messageBus.emit('mongosh-editor:read-vscode-extensions-done', {
         vscodeDir: this._vscodeDir,
-        hasMongodbExtension
+        hasMongodbExtension,
       });
 
       return hasMongodbExtension ? 'mongodb' : 'js';
     } catch (error: any) {
       this.messageBus.emit('mongosh-editor:read-vscode-extensions-failed', {
         vscodeDir: this._vscodeDir,
-        error: error as Error
+        error: error as Error,
       });
 
       return 'js';
     }
   }
 
-  async _getEditor(): Promise<string|null> {
+  async _getEditor(): Promise<string | null> {
     // Check for an external editor in the mongosh configuration.
-    let editor: string | null = await this._instanceState.shellApi.config.get('editor');
+    let editor: string | null = await this._instanceState.shellApi.config.get(
+      'editor'
+    );
 
     // Check for an external editor in the environment variable.
     if (!editor && process.env.EDITOR) {
@@ -106,8 +118,17 @@ export class Editor {
     return editor;
   }
 
-  async _createTempFile({ content, ext }: { content: string; ext: string }): Promise<string> {
-    const tmpDoc = path.join(this._tmpDir, `edit-${new bson.ObjectId().toHexString()}.${ext}`);
+  async _createTempFile({
+    content,
+    ext,
+  }: {
+    content: string;
+    ext: string;
+  }): Promise<string> {
+    const tmpDoc = path.join(
+      this._tmpDir,
+      `edit-${new bson.ObjectId().toHexString()}.${ext}`
+    );
 
     // Create a temp file to store a content that is being edited.
     await fs.mkdir(path.dirname(tmpDoc), { recursive: true, mode: 0o700 });
@@ -164,9 +185,12 @@ export class Editor {
     return JSON.stringify(evalResult);
   }
 
-  _prepareResult({ originalCode, modifiedCode }: {
-    originalCode: string,
-    modifiedCode: string
+  _prepareResult({
+    originalCode,
+    modifiedCode,
+  }: {
+    originalCode: string;
+    modifiedCode: string;
   }): string {
     // If code is a statement return the original input string.
     if (!this._isIdentifier(originalCode)) {
@@ -192,11 +216,13 @@ export class Editor {
   async runEditCommand(code: string): Promise<void> {
     await this.print('Opening an editor...');
 
-    const editor: string|null = await this._getEditor();
+    const editor: string | null = await this._getEditor();
 
     // If none of the above configurations are found return an error.
     if (!editor) {
-      throw new Error('Command failed with an error: please define an external editor');
+      throw new Error(
+        'Command failed with an error: please define an external editor'
+      );
     }
 
     this._setLastInputCode(code);
@@ -208,13 +234,13 @@ export class Editor {
     this.messageBus.emit('mongosh-editor:run-edit-command', {
       tmpDoc,
       editor,
-      code
+      code,
     });
 
     const proc = childProcess.spawn(editor, [path.basename(tmpDoc)], {
       stdio: 'inherit',
       cwd: path.dirname(tmpDoc),
-      shell: true
+      shell: true,
     });
 
     // Pause the parent readable stream to stop emitting data events
@@ -222,18 +248,25 @@ export class Editor {
     this._input.pause();
 
     try {
-      const [ exitCode ] = await once(proc, 'exit');
+      const [exitCode] = await once(proc, 'exit');
 
       if (exitCode === 0) {
         const modifiedCode = await this._readAndDeleteTempFile(tmpDoc);
-        const result = this._prepareResult({ originalCode: this._getLastInputCode(code), modifiedCode });
+        const result = this._prepareResult({
+          originalCode: this._getLastInputCode(code),
+          modifiedCode,
+        });
 
         // Write a content from the editor to the parent readable stream.
         this._input.unshift(result);
         return;
       }
 
-      throw new Error(`Command '${editor} ${path.basename(tmpDoc)}' failed with an exit code ${exitCode}`);
+      throw new Error(
+        `Command '${editor} ${path.basename(
+          tmpDoc
+        )}' failed with an exit code ${exitCode}`
+      );
     } finally {
       // Resume the parent readable stream to recive data events.
       this._input.resume();

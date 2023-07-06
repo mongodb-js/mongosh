@@ -40,9 +40,11 @@ The transformation takes place in three main steps.
 The input code is wrapped in an IIFE. For example:
 
 ```js
-function foo() { return db.test.find(); }
+function foo() {
+  return db.test.find();
+}
 class A {}
-foo()
+foo();
 ```
 
 is converted into roughly:
@@ -118,7 +120,8 @@ try {
     try {
       bar1(err);
     } catch (innerErr) {
-      _isCatchable = !innerErr || !innerErr[Symbol.for('@@mongosh.uncatchable')];
+      _isCatchable =
+        !innerErr || !innerErr[Symbol.for('@@mongosh.uncatchable')];
       throw innerErr;
     }
   } else throw err;
@@ -158,15 +161,16 @@ made for readability).
 (() => {
   // Keep a copy of the original source code for Function.prototype.toString.
   '<async_rewriter>(() => {\n  return db.test.find().toArray();\n})</>';
-  const _syntheticPromise = Symbol.for("@@mongosh.syntheticPromise");
+  const _syntheticPromise = Symbol.for('@@mongosh.syntheticPromise');
 
   function _markSyntheticPromise(p) {
     return Object.defineProperty(p, _syntheticPromise, {
-      value: true
+      value: true,
     });
   }
 
-  function _isp(p) { // '_isSyntheticPromise' would be way too long here
+  function _isp(p) {
+    // '_isSyntheticPromise' would be way too long here
     return p && p[_syntheticPromise];
   }
 
@@ -174,9 +178,9 @@ made for readability).
     // ... fix up the error message in 'err' using the original source code ...
   }
 
-  let _functionState = "sync",
-      _synchronousReturnValue,
-      _ex;
+  let _functionState = 'sync',
+    _synchronousReturnValue,
+    _ex;
 
   const _asynchronousReturnValue = (async () => {
     try {
@@ -187,43 +191,41 @@ made for readability).
       // which is not what we want if the return value happens to be a rejected
       // Promise (because Node.js print a warning in that case).
       return (
-        _synchronousReturnValue = (
+        (_synchronousReturnValue =
           // Most expressions are wrapped in ('original source', _ex = ..., _isp(_ex) ? await _ex : _ex)
-          _ex = ('db.test.find()',
-            _ex = ('db.test',
-              _ex = ('db',
-                _ex = db, _isp(_ex) ? await _ex : _ex
-              ).test, _isp(_ex) ? await _ex : _ex
-            ).find(), _isp(_ex) ? await _ex : _ex
-          ).toArray()
-          , _isp(_ex) ? await _ex : _ex
-        ),
-        _functionState === 'async' ? _synchronousReturnValue : null);
+          ((_ex = ('db.test.find()',
+          (_ex = ('db.test',
+          (_ex = ('db', (_ex = db), _isp(_ex) ? await _ex : _ex).test),
+          _isp(_ex) ? await _ex : _ex).find()),
+          _isp(_ex) ? await _ex : _ex).toArray()),
+          _isp(_ex) ? await _ex : _ex)),
+        _functionState === 'async' ? _synchronousReturnValue : null
+      );
     } catch (err) {
       err = _demangleError(err);
-      if (_functionState === "sync") {
+      if (_functionState === 'sync') {
         // Forward synchronous exceptions.
         _synchronousReturnValue = err;
-        _functionState = "threw";
+        _functionState = 'threw';
       } else {
         // If we are already asynchronous, just return a rejected Promise as usual.
         throw err;
       }
     } finally {
       // If we did not throw here, we returned. Tell the caller that.
-      if (_functionState !== "threw") {
-        _functionState = "returned";
+      if (_functionState !== 'threw') {
+        _functionState = 'returned';
       }
     }
   })();
 
-  if (_functionState === "returned") {
+  if (_functionState === 'returned') {
     return _synchronousReturnValue;
-  } else if (_functionState === "threw") {
+  } else if (_functionState === 'threw') {
     throw _synchronousReturnValue;
   }
 
-  _functionState = "async";
+  _functionState = 'async';
   // Since this was originally a non-async function, mark this as something
   // that should implicitly be awaited.
   return _markSyntheticPromise(_asynchronousReturnValue);
