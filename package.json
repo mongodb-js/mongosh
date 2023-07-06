@@ -68,7 +68,9 @@
     "generate-vulnerability-report": "mongodb-sbom-tools generate-vulnerability-report --snyk-reports=.sbom/snyk-test-result.json,.sbom/node-js-vuln.json --dependencies=.sbom/dependencies.json,.sbom/node-js-dep.json --fail-on=high > .sbom/vulnerability-report.md",
     "create-vulnerability-tickets": "mongodb-sbom-tools generate-vulnerability-report --snyk-reports=.sbom/snyk-test-result.json,.sbom/node-js-vuln.json --dependencies=.sbom/dependencies.json,.sbom/node-js-dep.json --create-jira-issues",
     "where": "monorepo-where",
-    "reformat": "lerna run reformat --stream --no-bail"
+    "reformat": "lerna run reformat --stream --no-bail",
+    "prepare": "husky install",
+    "precommit": "precommit"
   },
   "config": {
     "unsafe-perm": true
@@ -112,6 +114,7 @@
     "eslint-config-mongodb-js": "^5.0.3",
     "eslint-plugin-mocha": "^9.0.0",
     "find-up": "^5.0.0",
+    "husky": "^8.0.3",
     "lerna": "^4.0.0",
     "mocha": "^10.2.0",
     "mongodb": "^5.6.0",
