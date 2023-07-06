@@ -152,9 +152,7 @@ function isConnectionSpecifier(arg?: string): boolean {
  *
  * @returns The arguments as cli options.
  */
-export function parseCliArgs(
-  args: string[]
-): CliOptions & {
+export function parseCliArgs(args: string[]): CliOptions & {
   smokeTests: boolean;
   buildInfo: boolean;
   _argParseWarnings: string[];

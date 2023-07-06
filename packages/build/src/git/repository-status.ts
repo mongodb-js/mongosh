@@ -97,9 +97,7 @@ export function getRepositoryStatus(
   return result;
 }
 
-export function getReleaseVersionFromBranch(
-  branchName: string | undefined
-):
+export function getReleaseVersionFromBranch(branchName: string | undefined):
   | {
       major: number | undefined;
       minor: number | undefined;

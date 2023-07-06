@@ -306,9 +306,7 @@ export default class Mongo extends ShellApiClass {
     return `switched to db ${db}`;
   }
 
-  async _listDatabases(
-    opts: ListDatabasesOptions = {}
-  ): Promise<{
+  async _listDatabases(opts: ListDatabasesOptions = {}): Promise<{
     databases: { name: string; sizeOnDisk: number; empty: boolean }[];
   }> {
     const result = await this._serviceProvider.listDatabases('admin', {
@@ -345,9 +343,7 @@ export default class Mongo extends ShellApiClass {
 
   @returnsPromise
   @apiVersions([1])
-  async getDBs(
-    options: ListDatabasesOptions = {}
-  ): Promise<{
+  async getDBs(options: ListDatabasesOptions = {}): Promise<{
     databases: { name: string; sizeOnDisk: number; empty: boolean }[];
   }> {
     this._emitMongoApiCall('getDBs', { options });
