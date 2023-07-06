@@ -1,4 +1,4 @@
 console.log('Long sleep');
-(async () => {
+(async() => {
   await sleep(1_000_000);
 })();

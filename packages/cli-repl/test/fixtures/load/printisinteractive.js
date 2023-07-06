@@ -1,1 +1,1 @@
-print(`isInteractive=${isInteractive()}`);
+print(`isInteractive=${isInteractive()}`)

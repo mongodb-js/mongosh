@@ -3,12 +3,10 @@ const tls = require('tls');
 const net = require('net');
 const v8 = require('v8');
 
-const sources = v8.deserialize(
-  Buffer.from(process.env.REDIRECT_NETWORK_SOURCES, 'base64')
-);
+const sources = v8.deserialize(Buffer.from(process.env.REDIRECT_NETWORK_SOURCES, 'base64'));
 const target = process.env.REDIRECT_NETWORK_TARGET.split(':');
 
-for (const mod of [tls, net]) {
+for (const mod of [ tls, net ]) {
   const originalConnect = mod.connect;
   mod.connect = (...args) => {
     // Signatures:
@@ -28,7 +26,7 @@ for (const mod of [tls, net]) {
     }
 
     const host = args[0].host;
-    if (host !== undefined && sources.some((source) => source.test(host))) {
+    if (host !== undefined && sources.some(source => source.test(host))) {
       args[0].host = target[0];
       args[0].port = +target[1];
       return net.connect(...args);
