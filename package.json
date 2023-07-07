@@ -16,6 +16,8 @@
     "clean": "lerna clean -y && rm -Rf node_modules",
     "check": "lerna run check --since HEAD --exclude-dependents",
     "check-ci": "lerna run check",
+    "depalign": "depalign",
+    "predepcheck": "npm run depalign",
     "depcheck": "lerna run --stream depcheck",
     "lint": "lerna run lint",
     "clear-mlaunch": "ts-node -P config/tsconfig.base.json -r ./scripts/import-expansions scripts/clear-mlaunch",
