@@ -7,7 +7,5 @@
     "outDir": "./lib",
     "allowJs": false
   },
-  "files": [
-    "./src/index.d.ts"
-  ]
+  "files": ["./src/index.d.ts"]
 }

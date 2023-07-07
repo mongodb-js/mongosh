@@ -10,7 +10,7 @@ import ShellInstanceState, {
   EvaluationListener,
   ShellCliOptions,
   OnLoadResult,
-  ShellPlugin
+  ShellPlugin,
 } from './shell-instance-state';
 import Shard from './shard';
 import ReplicaSet from './replica-set';
@@ -22,7 +22,7 @@ import {
   DeleteResult,
   InsertManyResult,
   InsertOneResult,
-  UpdateResult
+  UpdateResult,
 } from './result';
 import Mongo from './mongo';
 import {
@@ -30,12 +30,9 @@ import {
   ShellResult,
   toShellResult,
   getShellApiType,
-  TypeSignature
+  TypeSignature,
 } from './decorators';
-import {
-  Topologies,
-  ServerVersions
-} from './enums';
+import { Topologies, ServerVersions } from './enums';
 
 export {
   AggregationCursor,
@@ -70,5 +67,5 @@ export {
   ShellCliOptions,
   TypeSignature,
   OnLoadResult,
-  ShellPlugin
+  ShellPlugin,
 };

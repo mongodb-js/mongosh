@@ -5,12 +5,17 @@ import { mapCliToDriver } from './arg-mapper';
 
 export interface ConnectionInfo {
   connectionString: string;
-  driverOptions: Omit<DevtoolsConnectOptions, 'productName' | 'productDocsLink'>;
+  driverOptions: Omit<
+    DevtoolsConnectOptions,
+    'productName' | 'productDocsLink'
+  >;
 }
 
 export { CliOptions, DevtoolsConnectOptions, mapCliToDriver };
 
-export function generateConnectionInfoFromCliArgs(options: CliOptions): ConnectionInfo {
+export function generateConnectionInfoFromCliArgs(
+  options: CliOptions
+): ConnectionInfo {
   const connectionString = generateUri(options);
   return mapCliToDriver(options, { connectionString, driverOptions: {} });
 }

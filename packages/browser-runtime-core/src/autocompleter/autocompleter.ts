@@ -2,7 +2,6 @@
  * A completion item
  */
 export interface Completion {
-
   /**
    * The completed text (ie. db.coll1.f -> db.coll1.find).
    */
@@ -13,7 +12,6 @@ export interface Completion {
  * Interface for an Autocompleter
  */
 export interface Autocompleter {
-
   /**
    * Returns completions for the code passed as argument.
    *

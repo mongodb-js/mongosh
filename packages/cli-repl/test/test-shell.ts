@@ -1,20 +1,24 @@
 import type Mocha from 'mocha';
 import assert from 'assert';
-import type { ChildProcess} from 'child_process';
+import type { ChildProcess } from 'child_process';
 import { spawn } from 'child_process';
 import { once } from 'events';
 import path from 'path';
 import stripAnsi from 'strip-ansi';
 import { eventually } from '../../../testing/eventually';
 
-export type TestShellStartupResult = { state: 'prompt' } | { state: 'exit'; exitCode: number };
-type SignalType = ChildProcess extends { kill: (signal: infer T) => any } ? T : never;
+export type TestShellStartupResult =
+  | { state: 'prompt' }
+  | { state: 'exit'; exitCode: number };
+type SignalType = ChildProcess extends { kill: (signal: infer T) => any }
+  ? T
+  : never;
 
 // Assume that prompt strings are those that end in '> ' but do not contain
 // < or > (so that e.g. '- <repl>' in a stack trace is not considered a prompt).
 const PROMPT_PATTERN = /^([^<>]*> ?)+$/m;
-const ERROR_PATTERN_1 = /Thrown:\n([^>]*)/mg; // node <= 12.14
-const ERROR_PATTERN_2 = /Uncaught[:\n ]+([^>]*)/mg;
+const ERROR_PATTERN_1 = /Thrown:\n([^>]*)/gm; // node <= 12.14
+const ERROR_PATTERN_2 = /Uncaught[:\n ]+([^>]*)/gm;
 
 /**
  * Test shell helper class.
@@ -22,14 +26,16 @@ const ERROR_PATTERN_2 = /Uncaught[:\n ]+([^>]*)/mg;
 export class TestShell {
   private static _openShells: TestShell[] = [];
 
-  static start(options: {
-    args: string[];
-    env?: Record<string, string>;
-    removeSigintListeners?: boolean;
-    cwd?: string;
-    forceTerminal?: boolean;
-    consumeStdio?: boolean;
-  } = { args: [] }): TestShell {
+  static start(
+    options: {
+      args: string[];
+      env?: Record<string, string>;
+      removeSigintListeners?: boolean;
+      cwd?: string;
+      forceTerminal?: boolean;
+      consumeStdio?: boolean;
+    } = { args: [] }
+  ): TestShell {
     let shellProcess: ChildProcess;
 
     let env = options.env || process.env;
@@ -44,9 +50,9 @@ export class TestShell {
 
     if (process.env.MONGOSH_TEST_EXECUTABLE_PATH) {
       shellProcess = spawn(process.env.MONGOSH_TEST_EXECUTABLE_PATH, args, {
-        stdio: [ 'pipe', 'pipe', 'pipe' ],
+        stdio: ['pipe', 'pipe', 'pipe'],
         env: env,
-        cwd: options.cwd
+        cwd: options.cwd,
       });
     } else {
       if (options.removeSigintListeners) {
@@ -59,11 +65,15 @@ export class TestShell {
         env = { ...env, CLEAR_SIGINT_LISTENERS: '1' };
       }
 
-      shellProcess = spawn('node', [path.resolve(__dirname, '..', 'bin', 'mongosh.js'), ...args], {
-        stdio: [ 'pipe', 'pipe', 'pipe' ],
-        env: env,
-        cwd: options.cwd
-      });
+      shellProcess = spawn(
+        'node',
+        [path.resolve(__dirname, '..', 'bin', 'mongosh.js'), ...args],
+        {
+          stdio: ['pipe', 'pipe', 'pipe'],
+          env: env,
+          cwd: options.cwd,
+        }
+      );
     }
 
     const shell = new TestShell(shellProcess, options.consumeStdio);
@@ -85,7 +95,11 @@ export class TestShell {
   static async cleanup(this: Mocha.Context): Promise<void> {
     if (this.currentTest?.state === 'failed') {
       for (const shell of TestShell._openShells) {
-        console.error({ pid: shell.process.pid, output: shell.output, rawOutput: shell.rawOutput });
+        console.error({
+          pid: shell.process.pid,
+          output: shell.output,
+          rawOutput: shell.rawOutput,
+        });
       }
     }
     await TestShell.killall();
@@ -114,8 +128,8 @@ export class TestShell {
       });
     }
 
-    this._onClose = (async() => {
-      const [ code ] = await once(shellProcess, 'close');
+    this._onClose = (async () => {
+      const [code] = await once(shellProcess, 'close');
       return code;
     })();
   }
@@ -136,10 +150,15 @@ export class TestShell {
     await eventually(() => {
       const output = this._output.slice(start);
       const lines = output.split('\n');
-      const found = !!lines.filter(l => PROMPT_PATTERN.exec(l)) // a line that is the prompt must at least match the pattern
-        .find(l => {
+      const found = !!lines
+        .filter((l) => PROMPT_PATTERN.exec(l)) // a line that is the prompt must at least match the pattern
+        .find((l) => {
           // in some situations the prompt occurs multiple times in the line (but only in tests!)
-          const prompts = l.trim().replace(/>$/g, '').split('>').map(m => m.trim());
+          const prompts = l
+            .trim()
+            .replace(/>$/g, '')
+            .split('>')
+            .map((m) => m.trim());
           // if there are multiple prompt parts they must all equal
           if (prompts.length > 1) {
             for (const p of prompts) {
@@ -154,7 +173,10 @@ export class TestShell {
         throw new assert.AssertionError({
           message: 'expected prompt',
           expected: PROMPT_PATTERN.toString(),
-          actual: this._output.slice(0, start) + '[prompt search starts here]' + output
+          actual:
+            this._output.slice(0, start) +
+            '[prompt search starts here]' +
+            output,
         });
       }
     });
@@ -164,11 +186,10 @@ export class TestShell {
     return this._onClose;
   }
 
-
   async waitForPromptOrExit(): Promise<TestShellStartupResult> {
     return Promise.race([
-      this.waitForPrompt().then(() => ({ state: 'prompt' }) as const),
-      this.waitForExit().then(c => ({ state: 'exit', exitCode: c }) as const),
+      this.waitForPrompt().then(() => ({ state: 'prompt' } as const)),
+      this.waitForExit().then((c) => ({ state: 'exit', exitCode: c } as const)),
     ]);
   }
 
@@ -198,7 +219,7 @@ export class TestShell {
       throw new assert.AssertionError({
         message: `Expected no errors in stdout but got: ${allErrors[0]}`,
         expected: '',
-        actual: this._output
+        actual: this._output,
       });
     }
   }
@@ -207,9 +228,11 @@ export class TestShell {
     const onlyOutputLines = this._getOutputLines();
     if (!onlyOutputLines.join('\n').includes(expectedOutput)) {
       throw new assert.AssertionError({
-        message: `Expected shell output to include ${JSON.stringify(expectedOutput)}`,
+        message: `Expected shell output to include ${JSON.stringify(
+          expectedOutput
+        )}`,
         actual: this._output,
-        expected: expectedOutput
+        expected: expectedOutput,
       });
     }
   }
@@ -219,9 +242,11 @@ export class TestShell {
 
     if (!allErrors.find((error) => error.includes(expectedError))) {
       throw new assert.AssertionError({
-        message: `Expected shell errors to include ${JSON.stringify(expectedError)}`,
+        message: `Expected shell errors to include ${JSON.stringify(
+          expectedError
+        )}`,
         actual: this._output,
-        expected: expectedError
+        expected: expectedError,
       });
     }
   }
@@ -230,9 +255,11 @@ export class TestShell {
     const onlyOutputLines = this._getOutputLines();
     if (onlyOutputLines.join('\n').includes(unexpectedOutput)) {
       throw new assert.AssertionError({
-        message: `Expected shell output not  to include ${JSON.stringify(unexpectedOutput)}`,
+        message: `Expected shell output not  to include ${JSON.stringify(
+          unexpectedOutput
+        )}`,
         actual: this._output,
-        expected: `NOT ${unexpectedOutput}`
+        expected: `NOT ${unexpectedOutput}`,
       });
     }
   }
@@ -242,16 +269,17 @@ export class TestShell {
   }
 
   private _getAllErrors(): string[] {
-    const output = (this._output as any);
+    const output = this._output as any;
     return [
       ...output.matchAll(ERROR_PATTERN_1),
-      ...output.matchAll(ERROR_PATTERN_2)
-    ]
-      .map(m => m[1].trim());
+      ...output.matchAll(ERROR_PATTERN_2),
+    ].map((m) => m[1].trim());
   }
 
   get logId(): string | null {
-    const match = /^Current Mongosh Log ID:\s*(?<logId>[a-z0-9]{24})$/m.exec(this._output);
+    const match = /^Current Mongosh Log ID:\s*(?<logId>[a-z0-9]{24})$/m.exec(
+      this._output
+    );
     if (!match) {
       return null;
     }

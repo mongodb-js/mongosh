@@ -52,7 +52,7 @@ export class InterruptFlag {
     if (this.interrupted) {
       return {
         destroy: () => {},
-        promise: Promise.reject(new MongoshInterruptedError())
+        promise: Promise.reject(new MongoshInterruptedError()),
       };
     }
 
@@ -69,7 +69,7 @@ export class InterruptFlag {
     });
     return {
       destroy: destroy as unknown as () => void,
-      promise
+      promise,
     };
   }
 

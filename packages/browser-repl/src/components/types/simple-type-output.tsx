@@ -11,12 +11,13 @@ interface SimpleTypeOutputProps {
 export class SimpleTypeOutput extends Component<SimpleTypeOutputProps> {
   static propTypes = {
     value: PropTypes.any,
-    raw: PropTypes.bool
+    raw: PropTypes.bool,
   };
 
   render(): JSX.Element {
-    const asString = this.props.raw ? this.props.value : inspect(this.props.value);
-    return (<SyntaxHighlight code={asString} />);
+    const asString = this.props.raw
+      ? this.props.value
+      : inspect(this.props.value);
+    return <SyntaxHighlight code={asString} />;
   }
 }
-

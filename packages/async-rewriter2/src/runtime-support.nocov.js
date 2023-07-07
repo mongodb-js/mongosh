@@ -6,10 +6,13 @@
 const TypedArray = Object.getPrototypeOf(Uint8Array);
 
 // From https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach
-Array.prototype.forEach = function(callback, thisArg) {
-  if (this == null) { throw new TypeError('Array.prototype.forEach called on null or undefined'); }
+Array.prototype.forEach = function (callback, thisArg) {
+  if (this == null) {
+    throw new TypeError('Array.prototype.forEach called on null or undefined');
+  }
 
-  let T; let k;
+  let T;
+  let k;
   // 1. Let O be the result of calling toObject() passing the
   // |this| value as the argument.
   const O = Object(this);
@@ -21,11 +24,15 @@ Array.prototype.forEach = function(callback, thisArg) {
 
   // 4. If isCallable(callback) is false, throw a TypeError exception.
   // See: https://es5.github.com/#x9.11
-  if (typeof callback !== 'function') { throw new TypeError(callback + ' is not a function'); }
+  if (typeof callback !== 'function') {
+    throw new TypeError(callback + ' is not a function');
+  }
 
   // 5. If thisArg was supplied, let T be thisArg; else let
   // T be undefined.
-  if (arguments.length > 1) { T = thisArg; }
+  if (arguments.length > 1) {
+    T = thisArg;
+  }
 
   // 6. Let k be 0
   k = 0;
@@ -56,8 +63,9 @@ Array.prototype.forEach = function(callback, thisArg) {
 };
 
 // From https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map
-Array.prototype.map = function(callback/* , thisArg*/) {
-  let T; let k;
+Array.prototype.map = function (callback /* , thisArg*/) {
+  let T;
+  let k;
 
   if (this == null) {
     throw new TypeError('this is null or not defined');
@@ -140,7 +148,7 @@ Array.prototype.map = function(callback/* , thisArg*/) {
 };
 
 // From https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some
-Array.prototype.some = function(fun, thisArg) {
+Array.prototype.some = function (fun, thisArg) {
   if (this == null) {
     throw new TypeError('Array.prototype.some called on null or undefined');
   }
@@ -162,8 +170,9 @@ Array.prototype.some = function(fun, thisArg) {
 };
 
 // From https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/every
-Array.prototype.every = function(callbackfn, thisArg) {
-  let T; let k;
+Array.prototype.every = function (callbackfn, thisArg) {
+  let T;
+  let k;
 
   if (this == null) {
     throw new TypeError('this is null or not defined');
@@ -179,7 +188,10 @@ Array.prototype.every = function(callbackfn, thisArg) {
   const len = O.length >>> 0;
 
   // 4. If IsCallable(callbackfn) is false, throw a TypeError exception.
-  if (typeof callbackfn !== 'function' && Object.prototype.toString.call(callbackfn) !== '[object Function]') {
+  if (
+    typeof callbackfn !== 'function' &&
+    Object.prototype.toString.call(callbackfn) !== '[object Function]'
+  ) {
     throw new TypeError();
   }
 
@@ -225,14 +237,16 @@ Array.prototype.every = function(callbackfn, thisArg) {
 };
 
 // From https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter
-Array.prototype.filter = function(func, thisArg) {
-  if ( ! (typeof func === 'function' && this) ) {
+Array.prototype.filter = function (func, thisArg) {
+  if (!(typeof func === 'function' && this)) {
     throw new TypeError();
   }
 
   const len = this.length >>> 0;
   const res = new Array(len); // preallocate array
-  const t = this; let c = 0; let i = -1;
+  const t = this;
+  let c = 0;
+  let i = -1;
 
   let kValue;
   if (thisArg === undefined) {
@@ -263,7 +277,7 @@ Array.prototype.filter = function(func, thisArg) {
 
 // From https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find
 Object.defineProperty(Array.prototype, 'find', {
-  value: function(predicate) {
+  value: function (predicate) {
     // 1. Let O be ? ToObject(this value).
     if (this == null) {
       throw TypeError('"this" is null or not defined');
@@ -303,12 +317,12 @@ Object.defineProperty(Array.prototype, 'find', {
     return undefined;
   },
   configurable: true,
-  writable: true
+  writable: true,
 });
 
 // From https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex
 Object.defineProperty(Array.prototype, 'findIndex', {
-  value: function(predicate) {
+  value: function (predicate) {
     // 1. Let O be ? ToObject(this value).
     if (this == null) {
       throw new TypeError('"this" is null or not defined');
@@ -348,18 +362,18 @@ Object.defineProperty(Array.prototype, 'findIndex', {
     return -1;
   },
   configurable: true,
-  writable: true
+  writable: true,
 });
 
 // From https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce
-Array.prototype.reduce = function(callback /* , initialValue*/) {
+Array.prototype.reduce = function (callback /* , initialValue*/) {
   if (this === null) {
-    throw new TypeError( 'Array.prototype.reduce ' +
-      'called on null or undefined' );
+    throw new TypeError(
+      'Array.prototype.reduce ' + 'called on null or undefined'
+    );
   }
   if (typeof callback !== 'function') {
-    throw new TypeError( callback +
-      ' is not a function');
+    throw new TypeError(callback + ' is not a function');
   }
 
   // 1. Let O be ? ToObject(this value).
@@ -382,8 +396,7 @@ Array.prototype.reduce = function(callback /* , initialValue*/) {
     // 3. If len is 0 and initialValue is not present,
     //    throw a TypeError exception.
     if (k >= len) {
-      throw new TypeError( 'Reduce of empty array ' +
-        'with no initial value' );
+      throw new TypeError('Reduce of empty array ' + 'with no initial value');
     }
     value = o[k++];
   }
@@ -410,14 +423,17 @@ Array.prototype.reduce = function(callback /* , initialValue*/) {
 };
 
 // From https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduceRight
-Array.prototype.reduceRight = function(callback /* , initialValue*/) {
+Array.prototype.reduceRight = function (callback /* , initialValue*/) {
   if (this === null || typeof this === 'undefined') {
     throw new TypeError('Array.prototype.reduce called on null or undefined');
   }
   if (typeof callback !== 'function') {
     throw new TypeError(callback + ' is not a function');
   }
-  const t = Object(this); const len = t.length >>> 0; let k = len - 1; let value;
+  const t = Object(this);
+  const len = t.length >>> 0;
+  let k = len - 1;
+  let value;
   if (arguments.length >= 2) {
     value = arguments[1];
   } else {
@@ -438,39 +454,53 @@ Array.prototype.reduceRight = function(callback /* , initialValue*/) {
 };
 
 // Custom: Map.prototype.forEach and Set.prototype.forEach
-Map.prototype.forEach = function(callback, thisArg) {
+Map.prototype.forEach = function (callback, thisArg) {
   [...this].forEach(([key, value]) => {
     callback.call(thisArg, value, key, this);
   });
 };
-Set.prototype.forEach = function(callback, thisArg) {
-  [...this].forEach(value => {
+Set.prototype.forEach = function (callback, thisArg) {
+  [...this].forEach((value) => {
     callback.call(thisArg, value, value, this);
   });
 };
 
 const origArraySort = Array.prototype.sort;
-Array.prototype.sort = function(compareFn) {
-  return origArraySort.call(this, compareFn ? function(...args) {
-    // (Ab-)use a generator function as one of the places where using
-    // implicit async expression results in an error.
-    return [...(function*() {
-      yield compareFn(...args);
-    })()][0];
-  } : undefined);
+Array.prototype.sort = function (compareFn) {
+  return origArraySort.call(
+    this,
+    compareFn
+      ? function (...args) {
+          // (Ab-)use a generator function as one of the places where using
+          // implicit async expression results in an error.
+          return [
+            ...(function* () {
+              yield compareFn(...args);
+            })(),
+          ][0];
+        }
+      : undefined
+  );
 };
 const origTypedArraySort = TypedArray.prototype.sort;
-TypedArray.prototype.sort = function(compareFn) {
-  return origTypedArraySort.call(this, compareFn ? function(...args) {
-    // (Ab-)use a generator function as one of the places where using
-    // implicit async expression results in an error.
-    return [...(function*() {
-      yield compareFn(...args);
-    })()][0];
-  } : undefined);
+TypedArray.prototype.sort = function (compareFn) {
+  return origTypedArraySort.call(
+    this,
+    compareFn
+      ? function (...args) {
+          // (Ab-)use a generator function as one of the places where using
+          // implicit async expression results in an error.
+          return [
+            ...(function* () {
+              yield compareFn(...args);
+            })(),
+          ][0];
+        }
+      : undefined
+  );
 };
 
-Array.prototype.flatMap = function(...args) {
+Array.prototype.flatMap = function (...args) {
   return Array.prototype.map.call(this, ...args).flat();
 };
 
@@ -484,14 +514,14 @@ TypedArray.prototype.some = Array.prototype.some;
 TypedArray.prototype.every = Array.prototype.every;
 // Also custom. Can't use Array.prototype.filter here because that defines
 // the length ahead of the filtering.
-TypedArray.prototype.filter = function(func, thisArg) {
+TypedArray.prototype.filter = function (func, thisArg) {
   const array = Array.prototype.filter.call(this, func, thisArg);
-  return new (this.constructor)(array);
+  return new this.constructor(array);
 };
 
 // Special addition: Function.prototype.toString!
 const origFptS = Function.prototype.toString;
-Function.prototype.toString = function() {
+Function.prototype.toString = function () {
   const source = origFptS.call(this, arguments);
   const match = source.match(/^[^"]*"<async_rewriter>(?<encoded>[^<]*)<\/>";/);
   if (match) {

@@ -5,10 +5,11 @@ import { spawnSync as spawnSyncFn } from '../helpers';
 
 const DEFAULT_OPTIONS: Partial<NotarizeOptions> = {
   serverUrl: 'http://notary-service.build.10gen.cc:5000/',
-  clientPath: process.platform === 'win32' ?
-    'C:\\cygwin\\usr\\local\\bin\\notary-client.py' :
-    '/usr/local/bin/notary-client.py',
-  pythonExecutable: process.platform === 'win32' ? 'python' : '/usr/bin/python'
+  clientPath:
+    process.platform === 'win32'
+      ? 'C:\\cygwin\\usr\\local\\bin\\notary-client.py'
+      : '/usr/local/bin/notary-client.py',
+  pythonExecutable: process.platform === 'win32' ? 'python' : '/usr/bin/python',
 };
 
 export interface NotarizeOptions {
@@ -30,27 +31,45 @@ export async function notarizeArtifact(
   }
   const options = validateOptions(opts);
 
-  const authTokenFile = path.join(os.homedir(), `.notary-mongosh-token.${Date.now()}.tmp`);
+  const authTokenFile = path.join(
+    os.homedir(),
+    `.notary-mongosh-token.${Date.now()}.tmp`
+  );
   await fs.writeFile(authTokenFile, options.authToken, {
     encoding: 'utf8',
-    mode: 0o600
+    mode: 0o600,
   });
-  console.info('Notarizing file', options.signingKeyName, options.signingComment, file);
+  console.info(
+    'Notarizing file',
+    options.signingKeyName,
+    options.signingComment,
+    file
+  );
 
   try {
-    spawnSync(options.pythonExecutable, [
-      options.clientPath,
-      '--key-name', options.signingKeyName,
-      '--auth-token-file', authTokenFile,
-      '--comment', options.signingComment,
-      '--notary-url', options.serverUrl,
-      '--outputs', 'sig',
-      '--package-file-suffix', '',
-      path.basename(file)
-    ], {
-      cwd: path.dirname(file),
-      encoding: 'utf8'
-    });
+    spawnSync(
+      options.pythonExecutable,
+      [
+        options.clientPath,
+        '--key-name',
+        options.signingKeyName,
+        '--auth-token-file',
+        authTokenFile,
+        '--comment',
+        options.signingComment,
+        '--notary-url',
+        options.serverUrl,
+        '--outputs',
+        'sig',
+        '--package-file-suffix',
+        '',
+        path.basename(file),
+      ],
+      {
+        cwd: path.dirname(file),
+        encoding: 'utf8',
+      }
+    );
   } finally {
     try {
       await fs.unlink(authTokenFile);
@@ -63,7 +82,7 @@ export async function notarizeArtifact(
 function validateOptions(options: NotarizeOptions): Required<NotarizeOptions> {
   const opts = {
     ...DEFAULT_OPTIONS,
-    ...options
+    ...options,
   };
   if (!opts.signingKeyName) {
     throw new Error('notarize artifact: missing signing key name');

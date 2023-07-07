@@ -51,7 +51,7 @@ const OPTIONS = {
     'tlsCertificateSelector',
     'tlsCRLFile',
     'tlsDisabledProtocols',
-    'username'
+    'username',
   ],
   boolean: [
     'apiDeprecationErrors',
@@ -76,12 +76,9 @@ const OPTIONS = {
     'tlsFIPSMode',
     'tlsUseSystemCA',
     'verbose',
-    'version'
+    'version',
   ],
-  array: [
-    'eval',
-    'file'
-  ],
+  array: ['eval', 'file'],
   alias: {
     h: 'help',
     p: 'password',
@@ -90,7 +87,7 @@ const OPTIONS = {
     'build-info': 'buildInfo',
     json: 'json', // List explicitly here since it can be a boolean or a string
     browser: 'browser', // ditto
-    oidcRedirectUrl: 'oidcRedirectUri' // I'd get this wrong about 50% of the time
+    oidcRedirectUrl: 'oidcRedirectUri', // I'd get this wrong about 50% of the time
   },
   configuration: {
     'camel-case-expansion': false,
@@ -98,8 +95,8 @@ const OPTIONS = {
     'parse-positional-numbers': false,
     'parse-numbers': false,
     'greedy-arrays': false,
-    'short-option-groups': false
-  }
+    'short-option-groups': false,
+  },
 };
 
 /**
@@ -115,16 +112,13 @@ const DEPRECATED_ARGS_WITH_REPLACEMENT: Record<string, keyof CliOptions> = {
   sslCAFile: 'tlsCAFile',
   sslCertificateSelector: 'tlsCertificateSelector',
   sslCRLFile: 'tlsCRLFile',
-  sslDisabledProtocols: 'tlsDisabledProtocols'
+  sslDisabledProtocols: 'tlsDisabledProtocols',
 };
 
 /**
  * If an unsupported argument is given an error will be thrown.
  */
-const UNSUPPORTED_ARGS: Readonly<string[]> = [
-  'sslFIPSMode',
-  'gssapiHostName'
-];
+const UNSUPPORTED_ARGS: Readonly<string[]> = ['sslFIPSMode', 'gssapiHostName'];
 
 /**
  * Determine the locale of the shell.
@@ -143,10 +137,12 @@ export function getLocale(args: string[], env: any): string {
 }
 
 function isConnectionSpecifier(arg?: string): boolean {
-  return typeof arg === 'string' &&
+  return (
+    typeof arg === 'string' &&
     (arg.startsWith('mongodb://') ||
-     arg.startsWith('mongodb+srv://') ||
-     !(arg.endsWith('.js') || arg.endsWith('.mongodb')));
+      arg.startsWith('mongodb+srv://') ||
+      !(arg.endsWith('.js') || arg.endsWith('.mongodb')))
+  );
 }
 
 /**
@@ -156,7 +152,11 @@ function isConnectionSpecifier(arg?: string): boolean {
  *
  * @returns The arguments as cli options.
  */
-export function parseCliArgs(args: string[]): (CliOptions & { smokeTests: boolean, buildInfo: boolean, _argParseWarnings: string[] }) {
+export function parseCliArgs(args: string[]): CliOptions & {
+  smokeTests: boolean;
+  buildInfo: boolean;
+  _argParseWarnings: string[];
+} {
   const programArgs = args.slice(2);
   i18n.setLocale(getLocale(programArgs, process.env));
 
@@ -212,7 +212,9 @@ export function verifyCliArguments(args: any /* CliOptions */): string[] {
   for (const deprecated in DEPRECATED_ARGS_WITH_REPLACEMENT) {
     if (deprecated in args) {
       const replacement = DEPRECATED_ARGS_WITH_REPLACEMENT[deprecated];
-      messages.push(`WARNING: argument --${deprecated} is deprecated and will be removed. Use --${replacement} instead.`);
+      messages.push(
+        `WARNING: argument --${deprecated} is deprecated and will be removed. Use --${replacement} instead.`
+      );
 
       args[replacement] = args[deprecated];
       delete args[deprecated];

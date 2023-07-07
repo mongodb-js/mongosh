@@ -9,7 +9,7 @@ export class Lock {
 
   lock(): Promise<UNLOCKED> {
     if (this.isLocked()) {
-      throw new Error('Can\'t create another lock while locked');
+      throw new Error("Can't create another lock while locked");
     }
 
     this.promise = new Promise((resolve) => {

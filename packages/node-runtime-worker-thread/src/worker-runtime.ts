@@ -6,22 +6,25 @@ import type {
   Completion,
   Runtime,
   RuntimeEvaluationListener,
-  RuntimeEvaluationResult
+  RuntimeEvaluationResult,
 } from '@mongosh/browser-runtime-core';
 import { ElectronRuntime } from '@mongosh/browser-runtime-electron';
 import type { ServiceProvider } from '@mongosh/service-provider-core';
-import {
-  CompassServiceProvider
-} from '@mongosh/service-provider-server';
+import { CompassServiceProvider } from '@mongosh/service-provider-server';
 import { exposeAll, createCaller } from './rpc';
-import { serializeEvaluationResult, deserializeConnectOptions } from './serializer';
+import {
+  serializeEvaluationResult,
+  deserializeConnectOptions,
+} from './serializer';
 import type { MongoshBus } from '@mongosh/types';
 import type { UNLOCKED } from './lock';
 import { Lock } from './lock';
 import type { InterruptHandle } from 'interruptor';
 import { runInterruptible } from 'interruptor';
 
-type DevtoolsConnectOptions = Parameters<(typeof CompassServiceProvider)['connect']>[1];
+type DevtoolsConnectOptions = Parameters<
+  (typeof CompassServiceProvider)['connect']
+>[1];
 
 if (!parentPort || isMainThread) {
   throw new Error('Worker runtime can be used only in a worker thread');
@@ -57,17 +60,19 @@ const evaluationListener = createCaller<WorkerRuntimeEvaluationListener>(
     'listConfigOptions',
     'onClearCommand',
     'onExit',
-    'onRunInterruptible'
+    'onRunInterruptible',
   ],
   parentPort,
   {
-    onPrint: function(results: RuntimeEvaluationResult[]): RuntimeEvaluationResult[][] {
+    onPrint: function (
+      results: RuntimeEvaluationResult[]
+    ): RuntimeEvaluationResult[][] {
       // We're transforming an args array, so we have to return an array of
       // args. onPrint only takes one arg which is an array of
       // RuntimeEvaluationResult so in this case it will just return a
       // single-element array that itself is an array.
       return [results.map(serializeEvaluationResult)];
-    }
+    },
   }
 );
 
@@ -79,7 +84,7 @@ const messageBus: MongoshBus = Object.assign(
     },
     once() {
       throw new Error("Can't call `once` method on worker runtime MongoshBus");
-    }
+    },
   }
 );
 
@@ -157,10 +162,7 @@ const workerRuntime: WorkerRuntime = {
     let result: void | RuntimeEvaluationResult | UNLOCKED;
 
     try {
-      result = await Promise.race([
-        evaluationPromise,
-        evaluationLock.lock()
-      ]);
+      result = await Promise.race([evaluationPromise, evaluationLock.lock()]);
     } finally {
       evaluationLock.unlock();
     }
@@ -192,7 +194,7 @@ const workerRuntime: WorkerRuntime = {
 
   interrupt() {
     return evaluationLock.unlock();
-  }
+  },
 };
 
 // We expect the amount of listeners to be more than the default value of 10 but

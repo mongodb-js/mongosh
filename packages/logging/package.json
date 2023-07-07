@@ -25,18 +25,22 @@
     "mongodb-redact": "^0.2.2"
   },
   "devDependencies": {
+    "@mongodb-js/prettier-config-devtools": "^1.0.1",
+    "depcheck": "^1.4.3",
     "eslint": "^7.25.0",
-    "depcheck": "^1.4.3"
+    "prettier": "^2.8.8"
   },
   "scripts": {
     "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 15000 -r ts-node/register \"./src/**/*.spec.ts\"",
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
     "eslint": "eslint",
-    "lint": "npm run eslint",
+    "lint": "npm run eslint && npm run prettier -- --check .",
     "check": "npm run lint && npm run depcheck",
     "depcheck": "depcheck",
     "compile": "tsc -p tsconfig.json",
-    "prepublish": "npm run compile"
+    "prepublish": "npm run compile",
+    "prettier": "prettier",
+    "reformat": "npm run prettier -- --write . && npm run eslint --fix"
   },
   "mongosh": {
     "unitTestsOnly": true

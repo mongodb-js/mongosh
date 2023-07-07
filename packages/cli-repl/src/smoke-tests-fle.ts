@@ -4,7 +4,7 @@
  * to create an auto-encryption-aware connection.
  */
 
-export default String.raw `
+export default String.raw`
 const assert = function(value, message) {
   if (!value) {
     console.error('assertion failed:', message);

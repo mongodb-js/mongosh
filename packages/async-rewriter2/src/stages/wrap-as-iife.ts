@@ -8,7 +8,7 @@ import type * as BabelTypes from '@babel/types';
  * ```js
  * function foo() { return db.test.find(); }
  * class A {}
-* foo()```
+ * foo()```
  *
  * is converted into roughly:
  * ```js
@@ -48,7 +48,11 @@ type WrapState = {
   completionRecordId: babel.types.Identifier;
 };
 
-export default ({ types: t }: { types: typeof BabelTypes }): babel.PluginObj<WrapState> => {
+export default ({
+  types: t,
+}: {
+  types: typeof BabelTypes;
+}): babel.PluginObj<WrapState> => {
   return {
     pre() {
       this.movedStatements = [];
@@ -78,10 +82,14 @@ export default ({ types: t }: { types: typeof BabelTypes }): babel.PluginObj<Wra
                   // expression to a dummy variable so that the completion record
                   // computation is unaffected.
                   const expr = t.assignmentExpression('=', decl.id, decl.init);
-                  asAssignments.push(t.variableDeclaration(
-                    'const',
-                    [t.variableDeclarator(path.scope.generateUidIdentifier('v'), expr)]
-                  ));
+                  asAssignments.push(
+                    t.variableDeclaration('const', [
+                      t.variableDeclarator(
+                        path.scope.generateUidIdentifier('v'),
+                        expr
+                      ),
+                    ])
+                  );
                 }
               }
               if (path.parentPath.isProgram()) {
@@ -110,9 +118,17 @@ export default ({ types: t }: { types: typeof BabelTypes }): babel.PluginObj<Wra
             this.variables.push(path.node.id.name);
             this.movedStatements.push(
               t.expressionStatement(
-                t.assignmentExpression('=', path.node.id,
+                t.assignmentExpression(
+                  '=',
+                  path.node.id,
                   t.classExpression(
-                    path.node.id, path.node.superClass, path.node.body))));
+                    path.node.id,
+                    path.node.superClass,
+                    path.node.body
+                  )
+                )
+              )
+            );
             path.replaceWith(t.expressionStatement(path.node.id));
             return;
           }
@@ -129,13 +145,19 @@ export default ({ types: t }: { types: typeof BabelTypes }): babel.PluginObj<Wra
           // If the body of the program consists of a single string literal,
           // we want to intepret it as such and not as a directive (that is,
           // a "use strict"-like thing).
-          if (path.node.directives.length === 1 &&
-              path.node.directives[0].value.type === 'DirectiveLiteral' &&
-              path.node.body.length === 0) {
-            path.replaceWith(t.program([
-              t.expressionStatement(
-                { ...path.node.directives[0].value, type: 'StringLiteral' })
-            ]));
+          if (
+            path.node.directives.length === 1 &&
+            path.node.directives[0].value.type === 'DirectiveLiteral' &&
+            path.node.body.length === 0
+          ) {
+            path.replaceWith(
+              t.program([
+                t.expressionStatement({
+                  ...path.node.directives[0].value,
+                  type: 'StringLiteral',
+                }),
+              ])
+            );
           }
         },
         exit(path): void {
@@ -146,20 +168,33 @@ export default ({ types: t }: { types: typeof BabelTypes }): babel.PluginObj<Wra
           this.hasFinishedMoving = true;
           this.completionRecordId = path.scope.generateUidIdentifier('cr');
           this.movedStatements.unshift(
-            t.variableDeclaration('var', [t.variableDeclarator(this.completionRecordId)]));
-          path.replaceWith(t.program(
-            [
-              ...this.variables.map(
-                v => t.variableDeclaration('var', [t.variableDeclarator(t.identifier(v))])),
-              ...this.functionDeclarations,
-              t.expressionStatement(t.callExpression(
-                t.arrowFunctionExpression(
-                  [],
-                  t.blockStatement(this.movedStatements)
-                ), []))
-            ],
-            path.node.directives));
-        }
+            t.variableDeclaration('var', [
+              t.variableDeclarator(this.completionRecordId),
+            ])
+          );
+          path.replaceWith(
+            t.program(
+              [
+                ...this.variables.map((v) =>
+                  t.variableDeclaration('var', [
+                    t.variableDeclarator(t.identifier(v)),
+                  ])
+                ),
+                ...this.functionDeclarations,
+                t.expressionStatement(
+                  t.callExpression(
+                    t.arrowFunctionExpression(
+                      [],
+                      t.blockStatement(this.movedStatements)
+                    ),
+                    []
+                  )
+                ),
+              ],
+              path.node.directives
+            )
+          );
+        },
       },
       BlockStatement: {
         exit(path): void {
@@ -175,16 +210,25 @@ export default ({ types: t }: { types: typeof BabelTypes }): babel.PluginObj<Wra
           for (const record of records) {
             // ExpressionWrapper = ExpressionStatement | ParenthesizedExpression
             if (record.isExpressionWrapper()) {
-              record.replaceWith(t.expressionStatement(
-                t.assignmentExpression('=', this.completionRecordId, record.node.expression)));
+              record.replaceWith(
+                t.expressionStatement(
+                  t.assignmentExpression(
+                    '=',
+                    this.completionRecordId,
+                    record.node.expression
+                  )
+                )
+              );
             }
           }
-          path.replaceWith(t.blockStatement([
-            ...path.node.body,
-            t.returnStatement(this.completionRecordId)
-          ]));
-        }
-      }
-    }
+          path.replaceWith(
+            t.blockStatement([
+              ...path.node.body,
+              t.returnStatement(this.completionRecordId),
+            ])
+          );
+        },
+      },
+    },
   };
 };

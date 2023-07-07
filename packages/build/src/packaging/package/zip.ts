@@ -1,12 +1,15 @@
 import path from 'path';
 import rimraf from 'rimraf';
 import { promisify } from 'util';
-import { createCompressedArchiveContents, execFile as execFileFn } from './helpers';
+import {
+  createCompressedArchiveContents,
+  execFile as execFileFn,
+} from './helpers';
 import type { PackageInformation } from './package-information';
 
 /**
  * Create a ZIP archive.
-  */
+ */
 export async function createZipPackage(
   pkg: PackageInformation,
   outFile: string,

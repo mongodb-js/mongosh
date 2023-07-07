@@ -1,6 +1,6 @@
 import { promises as fs, constants as fsConstants } from 'fs';
 import path from 'path';
-import type { Config} from './config';
+import type { Config } from './config';
 import { ALL_PACKAGE_VARIANTS, getReleaseVersionFromTag } from './config';
 import { uploadArtifactToDownloadCenter as uploadArtifactToDownloadCenterFn } from './download-center';
 import { downloadArtifactFromEvergreen as downloadArtifactFromEvergreenFn } from './evergreen';
@@ -17,8 +17,13 @@ export async function runDraft(
   ensureGithubReleaseExistsAndUpdateChangelog: typeof ensureGithubReleaseExistsAndUpdateChangelogFn = ensureGithubReleaseExistsAndUpdateChangelogFn,
   notarizeArtifact: typeof notarizeArtifactFn = notarizeArtifactFn
 ): Promise<void> {
-  if (!config.triggeringGitTag || !getReleaseVersionFromTag(config.triggeringGitTag)) {
-    console.error('mongosh: skipping draft as not triggered by a git tag that matches a draft/release tag');
+  if (
+    !config.triggeringGitTag ||
+    !getReleaseVersionFromTag(config.triggeringGitTag)
+  ) {
+    console.error(
+      'mongosh: skipping draft as not triggered by a git tag that matches a draft/release tag'
+    );
     return;
   }
 
@@ -28,15 +33,26 @@ export async function runDraft(
 
   const githubReleaseTag = `v${config.version}`;
   await ensureGithubReleaseExistsAndUpdateChangelog(
-    config.version, githubReleaseTag, githubRepo
+    config.version,
+    githubReleaseTag,
+    githubRepo
   );
 
-  const tmpDir = path.join(__dirname, '..', '..', '..', 'tmp', `draft-${Date.now()}`);
+  const tmpDir = path.join(
+    __dirname,
+    '..',
+    '..',
+    '..',
+    'tmp',
+    `draft-${Date.now()}`
+  );
   await fs.mkdir(tmpDir, { recursive: true });
 
   for await (const variant of ALL_PACKAGE_VARIANTS) {
     const tarballFile = getPackageFile(variant, config.packageInformation);
-    console.info(`mongosh: processing artifact for ${variant} - ${tarballFile.path}`);
+    console.info(
+      `mongosh: processing artifact for ${variant} - ${tarballFile.path}`
+    );
 
     const downloadedArtifact = await downloadArtifactFromEvergreen(
       tarballFile.path,
@@ -47,36 +63,41 @@ export async function runDraft(
 
     let signatureFile: string | undefined;
     try {
-      await notarizeArtifact(
-        downloadedArtifact,
-        {
-          signingKeyName: config.notarySigningKeyName || '',
-          authToken: config.notaryAuthToken || '',
-          signingComment: 'Evergreen Automatic Signing (mongosh)'
-        }
-      );
+      await notarizeArtifact(downloadedArtifact, {
+        signingKeyName: config.notarySigningKeyName || '',
+        authToken: config.notaryAuthToken || '',
+        signingComment: 'Evergreen Automatic Signing (mongosh)',
+      });
       signatureFile = downloadedArtifact + '.sig';
       await fs.access(signatureFile, fsConstants.R_OK);
     } catch (err: any) {
-      console.warn(`Skipping expected signature file for ${downloadedArtifact}: ${err.message}`);
+      console.warn(
+        `Skipping expected signature file for ${downloadedArtifact}: ${err.message}`
+      );
       signatureFile = undefined;
     }
 
-    await Promise.all([
-      [ downloadedArtifact, tarballFile.contentType ],
-      [ signatureFile, 'application/pgp-signature' ]
-    ].flatMap(([ path, contentType ]) => path ? [
-      uploadToDownloadCenter(
-        path,
-        config.downloadCenterAwsKey as string,
-        config.downloadCenterAwsSecret as string
-      ),
+    await Promise.all(
+      [
+        [downloadedArtifact, tarballFile.contentType],
+        [signatureFile, 'application/pgp-signature'],
+      ].flatMap(([path, contentType]) =>
+        path
+          ? [
+              uploadToDownloadCenter(
+                path,
+                config.downloadCenterAwsKey as string,
+                config.downloadCenterAwsSecret as string
+              ),
 
-      githubRepo.uploadReleaseAsset(
-        githubReleaseTag,
-        { path, contentType }
+              githubRepo.uploadReleaseAsset(githubReleaseTag, {
+                path,
+                contentType,
+              }),
+            ]
+          : []
       )
-    ] : []));
+    );
   }
 }
 
@@ -86,8 +107,12 @@ export async function ensureGithubReleaseExistsAndUpdateChangelogFn(
   githubRepo: GithubRepo,
   generateChangelog: typeof generateChangelogFn = generateChangelogFn
 ): Promise<void> {
-  const previousReleaseTag = await githubRepo.getPreviousReleaseTag(releaseVersion);
-  console.info(`mongosh: Detected previous release tag ${previousReleaseTag?.name}`);
+  const previousReleaseTag = await githubRepo.getPreviousReleaseTag(
+    releaseVersion
+  );
+  console.info(
+    `mongosh: Detected previous release tag ${previousReleaseTag?.name}`
+  );
 
   let changelog = `See an overview of all solved issues [in Jira](https://jira.mongodb.org/issues/?jql=project%20%3D%20MONGOSH%20AND%20fixVersion%20%3D%20${releaseVersion})`;
   if (previousReleaseTag) {
@@ -97,10 +122,12 @@ export async function ensureGithubReleaseExistsAndUpdateChangelogFn(
     }
   }
 
-  console.info(`mongosh: Updating release ${releaseTag}, changelog:\n${changelog}`);
+  console.info(
+    `mongosh: Updating release ${releaseTag}, changelog:\n${changelog}`
+  );
   await githubRepo.updateDraftRelease({
     name: releaseVersion,
     tag: releaseTag,
-    notes: changelog
+    notes: changelog,
   });
 }

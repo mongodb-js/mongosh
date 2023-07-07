@@ -1,16 +1,18 @@
-import { CommonErrors, MongoshDeprecatedError, MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
+import {
+  CommonErrors,
+  MongoshDeprecatedError,
+  MongoshInvalidInputError,
+  MongoshUnimplementedError,
+} from '@mongosh/errors';
 import {
   returnsPromise,
   returnType,
   apiVersions,
   serverVersions,
   shellApiClassDefault,
-  deprecated
+  deprecated,
 } from './decorators';
-import {
-  ServerVersions,
-  CURSOR_FLAGS
-} from './enums';
+import { ServerVersions, CURSOR_FLAGS } from './enums';
 import type {
   FindCursor as ServiceProviderCursor,
   CursorFlag,
@@ -19,7 +21,7 @@ import type {
   ReadPreferenceLike,
   ReadConcernLevel,
   TagSet,
-  HedgeOptions
+  HedgeOptions,
 } from '@mongosh/service-provider-core';
 import type Mongo from './mongo';
 import { AggregateOrFindCursor } from './aggregate-or-find-cursor';
@@ -47,12 +49,20 @@ export default class Cursor extends AggregateOrFindCursor<ServiceProviderCursor>
   @serverVersions([ServerVersions.earliest, '3.2.0'])
   addOption(optionFlagNumber: number): Cursor {
     if (optionFlagNumber === 4) {
-      throw new MongoshUnimplementedError('the slaveOk option is not supported.', CommonErrors.NotImplemented);
+      throw new MongoshUnimplementedError(
+        'the slaveOk option is not supported.',
+        CommonErrors.NotImplemented
+      );
     }
-    const optionFlag: CursorFlag | undefined = (CURSOR_FLAGS as any)[optionFlagNumber];
+    const optionFlag: CursorFlag | undefined = (CURSOR_FLAGS as any)[
+      optionFlagNumber
+    ];
 
     if (!optionFlag) {
-      throw new MongoshInvalidInputError(`Unknown option flag number: ${optionFlagNumber}.`, CommonErrors.InvalidArgument);
+      throw new MongoshInvalidInputError(
+        `Unknown option flag number: ${optionFlagNumber}.`,
+        CommonErrors.InvalidArgument
+      );
     }
 
     this._cursor.addCursorFlag(optionFlag, true);
@@ -98,7 +108,7 @@ export default class Cursor extends AggregateOrFindCursor<ServiceProviderCursor>
     if (this._tailable) {
       await this._instanceState.printWarning(
         'If this is a tailable cursor with awaitData, and there are no documents in the batch, this method ' +
-        'will will block. Use tryNext if you want to check if there are any documents without waiting.'
+          'will will block. Use tryNext if you want to check if there are any documents without waiting.'
       );
     }
     return super.hasNext();
@@ -140,7 +150,7 @@ export default class Cursor extends AggregateOrFindCursor<ServiceProviderCursor>
     if (this._tailable) {
       await this._instanceState.printWarning(
         'If this is a tailable cursor with awaitData, and there are no documents in the batch, this' +
-        ' method will will block. Use tryNext if you want to check if there are any documents without waiting.'
+          ' method will will block. Use tryNext if you want to check if there are any documents without waiting.'
       );
     }
     return super.next();
@@ -159,7 +169,11 @@ export default class Cursor extends AggregateOrFindCursor<ServiceProviderCursor>
   }
 
   @returnType('Cursor')
-  readPref(mode: ReadPreferenceLike, tagSet?: TagSet[], hedgeOptions?: HedgeOptions): Cursor {
+  readPref(
+    mode: ReadPreferenceLike,
+    tagSet?: TagSet[],
+    hedgeOptions?: HedgeOptions
+  ): Cursor {
     let pref: ReadPreferenceLike;
 
     // Only conditionally use readPreferenceFromOptions, for java-shell compatibility.
@@ -167,7 +181,7 @@ export default class Cursor extends AggregateOrFindCursor<ServiceProviderCursor>
       pref = this._mongo._serviceProvider.readPreferenceFromOptions({
         readPreference: mode,
         readPreferenceTags: tagSet,
-        hedge: hedgeOptions
+        hedge: hedgeOptions,
       }) as ReadPreferenceLike;
     } else {
       pref = mode;

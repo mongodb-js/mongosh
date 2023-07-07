@@ -29,21 +29,22 @@ export class CommandResult<T = unknown> extends ShellApiValueClass {
 export class BulkWriteResult extends ShellApiValueClass {
   acknowledged: boolean;
   insertedCount: number;
-  insertedIds: {[index: number]: ObjectIdType};
+  insertedIds: { [index: number]: ObjectIdType };
   matchedCount: number;
   modifiedCount: number;
   deletedCount: number;
   upsertedCount: number;
-  upsertedIds: {[index: number]: ObjectIdType};
+  upsertedIds: { [index: number]: ObjectIdType };
   constructor(
     acknowledged: boolean,
     insertedCount: number,
-    insertedIds: {[index: number]: ObjectIdType},
+    insertedIds: { [index: number]: ObjectIdType },
     matchedCount: number,
     modifiedCount: number,
     deletedCount: number,
     upsertedCount: number,
-    upsertedIds: {[index: number]: ObjectIdType}) {
+    upsertedIds: { [index: number]: ObjectIdType }
+  ) {
     super();
     this.acknowledged = acknowledged;
     this.insertedCount = insertedCount;
@@ -60,7 +61,10 @@ export class BulkWriteResult extends ShellApiValueClass {
 export class InsertManyResult extends ShellApiValueClass {
   acknowledged: boolean;
   insertedIds: { [key: number]: ObjectIdType };
-  constructor(acknowledged: boolean, insertedIds: { [key: number]: ObjectIdType }) {
+  constructor(
+    acknowledged: boolean,
+    insertedIds: { [key: number]: ObjectIdType }
+  ) {
     super();
     this.acknowledged = acknowledged;
     this.insertedIds = insertedIds;
@@ -90,7 +94,8 @@ export class UpdateResult extends ShellApiValueClass {
     matchedCount: number,
     modifiedCount: number,
     upsertedCount: number,
-    insertedId: ObjectIdType | null) {
+    insertedId: ObjectIdType | null
+  ) {
     super();
     this.acknowledged = acknowledged;
     this.insertedId = insertedId;

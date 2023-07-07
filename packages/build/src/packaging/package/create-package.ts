@@ -1,5 +1,5 @@
 import path from 'path';
-import type { PackageVariant} from '../../config';
+import type { PackageVariant } from '../../config';
 import { getDistro, getArch } from '../../config';
 import { createDebianPackage as createDebianPackageFn } from './debian';
 import type { PackageFile } from './get-package-file';
@@ -32,13 +32,28 @@ export async function createPackage(
       await createTarballPackage(packageInformation, fullTarballFilePath);
       break;
     case 'rpm':
-      await createRedhatPackage(packageInformation, packageInformation.rpmTemplateDir, getArch(packageVariant), fullTarballFilePath);
+      await createRedhatPackage(
+        packageInformation,
+        packageInformation.rpmTemplateDir,
+        getArch(packageVariant),
+        fullTarballFilePath
+      );
       break;
     case 'deb':
-      await createDebianPackage(packageInformation, packageInformation.debTemplateDir, getArch(packageVariant), fullTarballFilePath);
+      await createDebianPackage(
+        packageInformation,
+        packageInformation.debTemplateDir,
+        getArch(packageVariant),
+        fullTarballFilePath
+      );
       break;
     case 'win32msi':
-      await createMsiPackage(packageInformation, packageInformation.msiTemplateDir, getArch(packageVariant), fullTarballFilePath);
+      await createMsiPackage(
+        packageInformation,
+        packageInformation.msiTemplateDir,
+        getArch(packageVariant),
+        fullTarballFilePath
+      );
       break;
     case 'darwin':
     case 'win32':
@@ -50,6 +65,6 @@ export async function createPackage(
 
   return {
     ...tarballFile,
-    path: fullTarballFilePath
+    path: fullTarballFilePath,
   };
 }

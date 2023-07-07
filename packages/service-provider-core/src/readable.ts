@@ -36,7 +36,8 @@ export default interface Readable {
     collection: string,
     pipeline: Document[],
     options?: AggregateOptions,
-    dbOptions?: DbOptions): AggregationCursor;
+    dbOptions?: DbOptions
+  ): AggregationCursor;
 
   /**
    * Run an aggregation pipeline on the DB.
@@ -74,7 +75,8 @@ export default interface Readable {
     coll: string,
     query?: Document,
     options?: CountOptions,
-    dbOptions?: DbOptions): Promise<number>;
+    dbOptions?: DbOptions
+  ): Promise<number>;
 
   /**
    * Get an exact document count from the collection.
@@ -92,7 +94,8 @@ export default interface Readable {
     collection: string,
     filter?: Document,
     options?: CountDocumentsOptions,
-    dbOptions?: DbOptions): Promise<number>;
+    dbOptions?: DbOptions
+  ): Promise<number>;
 
   /**
    * Get distinct values for the field.
@@ -112,7 +115,8 @@ export default interface Readable {
     fieldName: string,
     filter?: Document,
     options?: DistinctOptions,
-    dbOptions?: DbOptions): Promise<Document>;
+    dbOptions?: DbOptions
+  ): Promise<Document>;
 
   /**
    * Get an estimated document count from the collection.
@@ -128,7 +132,8 @@ export default interface Readable {
     database: string,
     collection: string,
     options?: EstimatedDocumentCountOptions,
-    dbOptions?: DbOptions): Promise<number>;
+    dbOptions?: DbOptions
+  ): Promise<number>;
 
   /**
    * Find documents in the collection.
@@ -146,7 +151,8 @@ export default interface Readable {
     collection: string,
     filter?: Document,
     options?: FindOptions,
-    dbOptions?: DbOptions): FindCursor;
+    dbOptions?: DbOptions
+  ): FindCursor;
 
   /**
    * Get currently known topology information.
@@ -168,7 +174,8 @@ export default interface Readable {
     database: string,
     collection: string,
     options: ListIndexesOptions,
-    dbOptions?: DbOptions): Promise<Document[]>;
+    dbOptions?: DbOptions
+  ): Promise<Document[]>;
 
   /**
    * Returns an array of collection infos
@@ -184,12 +191,15 @@ export default interface Readable {
     database: string,
     filter?: Document,
     options?: ListCollectionsOptions,
-    dbOptions?: DbOptions): Promise<Document[]>;
+    dbOptions?: DbOptions
+  ): Promise<Document[]>;
 
   /**
    * Create a ReadPreference object from a set of options
    */
-  readPreferenceFromOptions(options?: Omit<ReadPreferenceFromOptions, 'session'>): ReadPreferenceLike | undefined;
+  readPreferenceFromOptions(
+    options?: Omit<ReadPreferenceFromOptions, 'session'>
+  ): ReadPreferenceLike | undefined;
 
   /**
    * Start a change stream cursor on either the client, db, or collection.
@@ -224,6 +234,6 @@ export default interface Readable {
     indexName?: string,
     // TODO(MONGOSH-1471): use ListSearchIndexesOptions once available
     options?: Document,
-    dbOptions?: DbOptions): Promise<Document[]>;
+    dbOptions?: DbOptions
+  ): Promise<Document[]>;
 }
-

@@ -1,4 +1,9 @@
-import { CommonErrors, MongoshDeprecatedError, MongoshInvalidInputError, MongoshRuntimeError } from '@mongosh/errors';
+import {
+  CommonErrors,
+  MongoshDeprecatedError,
+  MongoshInvalidInputError,
+  MongoshRuntimeError,
+} from '@mongosh/errors';
 import { redactURICredentials } from '@mongosh/history';
 import type { Document } from '@mongosh/service-provider-core';
 import type Mongo from './mongo';
@@ -8,7 +13,7 @@ import {
   returnsPromise,
   apiVersions,
   shellApiClassDefault,
-  ShellApiWithMongoClass
+  ShellApiWithMongoClass,
 } from './decorators';
 import { asPrintable } from './enums';
 import { assertArgsDefinedType } from './helpers';
@@ -55,18 +60,30 @@ export default class ReplicaSet extends ShellApiWithMongoClass {
 
   async _getConfig(): Promise<ReplSetConfig> {
     try {
-      const result = await this._database._runAdminCommand(
-        { replSetGetConfig: 1 }
-      );
+      const result = await this._database._runAdminCommand({
+        replSetGetConfig: 1,
+      });
       if (result.config === undefined) {
-        throw new MongoshRuntimeError('Documented returned from command replSetGetConfig does not contain \'config\'', CommonErrors.CommandFailed);
+        throw new MongoshRuntimeError(
+          "Documented returned from command replSetGetConfig does not contain 'config'",
+          CommonErrors.CommandFailed
+        );
       }
       return result.config;
     } catch (error: any) {
-      if (error?.codeName === 'CommandNotFound' || error?.codeName === 'APIStrictError') {
-        const doc = await this._database.getSiblingDB('local').getCollection('system.replset').findOne() as ReplSetConfig | null;
+      if (
+        error?.codeName === 'CommandNotFound' ||
+        error?.codeName === 'APIStrictError'
+      ) {
+        const doc = (await this._database
+          .getSiblingDB('local')
+          .getCollection('system.replset')
+          .findOne()) as ReplSetConfig | null;
         if (doc === null) {
-          throw new MongoshRuntimeError('No documents in local.system.replset', CommonErrors.CommandFailed);
+          throw new MongoshRuntimeError(
+            'No documents in local.system.replset',
+            CommonErrors.CommandFailed
+          );
         }
         return doc;
       }
@@ -104,8 +121,15 @@ export default class ReplicaSet extends ShellApiWithMongoClass {
    */
   @returnsPromise
   @apiVersions([])
-  async reconfig(config: Partial<ReplSetConfig>, options = {}): Promise<Document> {
-    assertArgsDefinedType([ config, options ], ['object', [undefined, 'object']], 'ReplicaSet.reconfig');
+  async reconfig(
+    config: Partial<ReplSetConfig>,
+    options = {}
+  ): Promise<Document> {
+    assertArgsDefinedType(
+      [config, options],
+      ['object', [undefined, 'object']],
+      'ReplicaSet.reconfig'
+    );
     this._emitReplicaSetApiCall('reconfig', { config, options });
 
     const conf = await this._getConfig();
@@ -121,12 +145,21 @@ export default class ReplicaSet extends ShellApiWithMongoClass {
    */
   @returnsPromise
   @apiVersions([])
-  async reconfigForPSASet(newMemberIndex: number, config: Partial<ReplSetConfig>, options = {}): Promise<Document> {
+  async reconfigForPSASet(
+    newMemberIndex: number,
+    config: Partial<ReplSetConfig>,
+    options = {}
+  ): Promise<Document> {
     assertArgsDefinedType(
-      [ newMemberIndex, config, options ],
-      [ 'number', 'object', [undefined, 'object'] ],
-      'ReplicaSet.reconfigForPSASet');
-    this._emitReplicaSetApiCall('reconfigForPSASet', { newMemberIndex, config, options });
+      [newMemberIndex, config, options],
+      ['number', 'object', [undefined, 'object']],
+      'ReplicaSet.reconfigForPSASet'
+    );
+    this._emitReplicaSetApiCall('reconfigForPSASet', {
+      newMemberIndex,
+      config,
+      options,
+    });
     const print = (msg: string) => this._instanceState.shellApi.print(msg);
 
     // First, perform some validation on the combination of newMemberIndex + config.
@@ -147,15 +180,20 @@ export default class ReplicaSet extends ShellApiWithMongoClass {
     const oldConfig = await this._getConfig();
 
     // Use _id to compare nodes across configs.
-    const oldMemberConfig = oldConfig.members.find(member => member._id === newMemberConfig._id);
+    const oldMemberConfig = oldConfig.members.find(
+      (member) => member._id === newMemberConfig._id
+    );
 
     // If the node doesn't exist in the old config, we are adding it as a new node. Skip validating
     // the node in the old config.
     if (!oldMemberConfig) {
-      if (oldConfig.members.find(member => member.host === newMemberConfig.host)) {
+      if (
+        oldConfig.members.find((member) => member.host === newMemberConfig.host)
+      ) {
         await print(
           `Warning: Node at index ${newMemberIndex} has { host: "${newMemberConfig.host}" }, ` +
-          'which is also present in the old config, but with a different _id field.');
+            'which is also present in the old config, but with a different _id field.'
+        );
       }
     } else if (oldMemberConfig.votes) {
       throw new MongoshInvalidInputError(
@@ -166,7 +204,9 @@ export default class ReplicaSet extends ShellApiWithMongoClass {
 
     // The new config is valid, so start the first reconfig.
     const newMemberPriority = newMemberConfig.priority;
-    await print(`Running first reconfig to give member at index ${newMemberIndex} { votes: 1, priority: 0 }`);
+    await print(
+      `Running first reconfig to give member at index ${newMemberIndex} { votes: 1, priority: 0 }`
+    );
     newMemberConfig.votes = 1;
     newMemberConfig.priority = 0;
     const firstResult = await this.reconfig(config, options);
@@ -176,7 +216,9 @@ export default class ReplicaSet extends ShellApiWithMongoClass {
       return firstResult;
     }
 
-    await print(`Running second reconfig to give member at index ${newMemberIndex} { priority: ${newMemberPriority} }`);
+    await print(
+      `Running second reconfig to give member at index ${newMemberIndex} { priority: ${newMemberPriority} }`
+    );
     newMemberConfig.priority = newMemberPriority;
 
     try {
@@ -185,7 +227,13 @@ export default class ReplicaSet extends ShellApiWithMongoClass {
       // If this did not work out, print the attempted command to give the user
       // a chance to complete the second reconfig manually.
       await print('Second reconfig did not succeed, giving up');
-      await print(`Attempted command: rs.reconfig(${JSON.stringify(config, null, '  ')}, ${JSON.stringify(options)})`);
+      await print(
+        `Attempted command: rs.reconfig(${JSON.stringify(
+          config,
+          null,
+          '  '
+        )}, ${JSON.stringify(options)})`
+      );
       throw e;
     }
   }
@@ -194,11 +242,9 @@ export default class ReplicaSet extends ShellApiWithMongoClass {
   @apiVersions([])
   async status(): Promise<Document> {
     this._emitReplicaSetApiCall('status', {});
-    return this._database._runAdminCommand(
-      {
-        replSetGetStatus: 1,
-      }
-    );
+    return this._database._runAdminCommand({
+      replSetGetStatus: 1,
+    });
   }
 
   @returnsPromise
@@ -225,7 +271,9 @@ export default class ReplicaSet extends ShellApiWithMongoClass {
   @deprecated
   @apiVersions([])
   printSlaveReplicationInfo(): never {
-    throw new MongoshDeprecatedError('printSlaveReplicationInfo has been deprecated. Use printSecondaryReplicationInfo instead');
+    throw new MongoshDeprecatedError(
+      'printSlaveReplicationInfo has been deprecated. Use printSecondaryReplicationInfo instead'
+    );
   }
 
   @returnsPromise
@@ -237,15 +285,25 @@ export default class ReplicaSet extends ShellApiWithMongoClass {
 
   @returnsPromise
   @apiVersions([])
-  async add(hostport: string | Partial<ReplSetMemberConfig>, arb?: boolean): Promise<Document> {
-    assertArgsDefinedType([hostport, arb], [['string', 'object'], [undefined, 'boolean']], 'ReplicaSet.add');
+  async add(
+    hostport: string | Partial<ReplSetMemberConfig>,
+    arb?: boolean
+  ): Promise<Document> {
+    assertArgsDefinedType(
+      [hostport, arb],
+      [
+        ['string', 'object'],
+        [undefined, 'boolean'],
+      ],
+      'ReplicaSet.add'
+    );
     this._emitReplicaSetApiCall('add', { hostport, arb });
 
     const configDoc = await this._getConfig();
 
     configDoc.version++;
 
-    const max = Math.max(...configDoc.members.map(m => m._id));
+    const max = Math.max(...configDoc.members.map((m) => m._id));
     let cfg: Partial<ReplSetMemberConfig>;
     if (typeof hostport === 'string') {
       cfg = { _id: max + 1, host: hostport };
@@ -254,7 +312,9 @@ export default class ReplicaSet extends ShellApiWithMongoClass {
       }
     } else if (arb === true) {
       throw new MongoshInvalidInputError(
-        `Expected first parameter to be a host-and-port string of arbiter, but got ${JSON.stringify(hostport)}`,
+        `Expected first parameter to be a host-and-port string of arbiter, but got ${JSON.stringify(
+          hostport
+        )}`,
         CommonErrors.InvalidArgument
       );
     } else {
@@ -265,11 +325,9 @@ export default class ReplicaSet extends ShellApiWithMongoClass {
     }
 
     configDoc.members.push(cfg as ReplSetMemberConfig);
-    return this._database._runAdminCommand(
-      {
-        replSetReconfig: configDoc,
-      }
-    );
+    return this._database._runAdminCommand({
+      replSetReconfig: configDoc,
+    });
   }
 
   @returnsPromise
@@ -290,15 +348,15 @@ export default class ReplicaSet extends ShellApiWithMongoClass {
     for (let i = 0; i < configDoc.members.length; i++) {
       if (configDoc.members[i].host === hostname) {
         configDoc.members.splice(i, 1);
-        return this._database._runAdminCommand(
-          {
-            replSetReconfig: configDoc,
-          }
-        );
+        return this._database._runAdminCommand({
+          replSetReconfig: configDoc,
+        });
       }
     }
     throw new MongoshInvalidInputError(
-      `Couldn't find ${hostname} in ${JSON.stringify(configDoc.members)}. Is ${hostname} a member of this replset?`,
+      `Couldn't find ${hostname} in ${JSON.stringify(
+        configDoc.members
+      )}. Is ${hostname} a member of this replset?`,
       CommonErrors.InvalidArgument
     );
   }
@@ -308,17 +366,25 @@ export default class ReplicaSet extends ShellApiWithMongoClass {
   async freeze(secs: number): Promise<Document> {
     assertArgsDefinedType([secs], ['number'], 'ReplicaSet.freeze');
     this._emitReplicaSetApiCall('freeze', { secs });
-    return this._database._runAdminCommand(
-      {
-        replSetFreeze: secs,
-      }
-    );
+    return this._database._runAdminCommand({
+      replSetFreeze: secs,
+    });
   }
 
   @returnsPromise
   @apiVersions([])
-  async stepDown(stepdownSecs?: number, catchUpSecs?: number): Promise<Document> {
-    assertArgsDefinedType([stepdownSecs, catchUpSecs], [[undefined, 'number'], [undefined, 'number']], 'ReplicaSet.stepDown');
+  async stepDown(
+    stepdownSecs?: number,
+    catchUpSecs?: number
+  ): Promise<Document> {
+    assertArgsDefinedType(
+      [stepdownSecs, catchUpSecs],
+      [
+        [undefined, 'number'],
+        [undefined, 'number'],
+      ],
+      'ReplicaSet.stepDown'
+    );
     this._emitReplicaSetApiCall('stepDown', { stepdownSecs, catchUpSecs });
     const cmd: Document = {
       replSetStepDown: stepdownSecs === undefined ? 60 : stepdownSecs,
@@ -326,9 +392,7 @@ export default class ReplicaSet extends ShellApiWithMongoClass {
     if (catchUpSecs !== undefined) {
       cmd.secondaryCatchUpPeriodSecs = catchUpSecs;
     }
-    return this._database._runAdminCommand(
-      cmd
-    );
+    return this._database._runAdminCommand(cmd);
   }
 
   @returnsPromise
@@ -336,11 +400,9 @@ export default class ReplicaSet extends ShellApiWithMongoClass {
   async syncFrom(host: string): Promise<Document> {
     assertArgsDefinedType([host], ['string'], 'ReplicaSet.syncFrom');
     this._emitReplicaSetApiCall('syncFrom', { host });
-    return this._database._runAdminCommand(
-      {
-        replSetSyncFrom: host,
-      }
-    );
+    return this._database._runAdminCommand({
+      replSetSyncFrom: host,
+    });
   }
 
   @deprecated
@@ -353,7 +415,9 @@ export default class ReplicaSet extends ShellApiWithMongoClass {
    * Internal method to determine what is printed for this class.
    */
   [asPrintable](): string {
-    return `ReplicaSet class connected to ${redactURICredentials(this._database._mongo._uri)} via db ${this._database._name}`;
+    return `ReplicaSet class connected to ${redactURICredentials(
+      this._database._mongo._uri
+    )} via db ${this._database._name}`;
   }
 
   /**
@@ -363,11 +427,14 @@ export default class ReplicaSet extends ShellApiWithMongoClass {
    * @param methodArguments
    * @private
    */
-  private _emitReplicaSetApiCall(methodName: string, methodArguments: Document = {}): void {
+  private _emitReplicaSetApiCall(
+    methodName: string,
+    methodArguments: Document = {}
+  ): void {
     this._database._mongo._instanceState.emitApiCallWithArgs({
       method: methodName,
       class: 'ReplicaSet',
-      arguments: methodArguments
+      arguments: methodArguments,
     });
   }
 }

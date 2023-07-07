@@ -12,7 +12,7 @@ export async function uploadArtifactToDownloadCenter(
   const dlcenter = new DownloadCenter({
     bucket: ARTIFACTS_BUCKET,
     accessKeyId: awsAccessKeyId,
-    secretAccessKey: awsSecretAccessKey
+    secretAccessKey: awsSecretAccessKey,
   });
 
   await dlcenter.uploadAsset(

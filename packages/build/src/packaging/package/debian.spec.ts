@@ -10,27 +10,41 @@ import { createDebianPackage } from './debian';
 
 const execFile = promisify(childProcess.execFile);
 
-describe('tarball debian', function() {
+describe('tarball debian', function () {
   const tmpPkg = withTempPackageEach();
 
-  it('packages the executable(s)', async function() {
+  it('packages the executable(s)', async function () {
     try {
       await commandExists('dpkg');
     } catch {
       this.skip();
     }
 
-    const tarball = await createPackage(tmpPkg.tarballDir, 'deb-x64', tmpPkg.pkgConfig);
+    const tarball = await createPackage(
+      tmpPkg.tarballDir,
+      'deb-x64',
+      tmpPkg.pkgConfig
+    );
     await fs.access(tarball.path);
     {
       const { stdout } = await execFile('dpkg', ['-c', tarball.path]);
       expect(stdout).to.match(/^-rwxr.xr-x.+\/usr\/bin\/foo$/m);
       expect(stdout).to.match(/^-rwxr.xr-x.+\/usr\/lib\/bar$/m);
-      expect(stdout).to.match(/^-rw-r.-r--.+\/usr\/share\/doc\/foobar\/LICENSE_bar$/m);
-      expect(stdout).to.match(/^-rw-r.-r--.+\/usr\/share\/doc\/foobar\/LICENSE_foo$/m);
-      expect(stdout).to.match(/^-rw-r.-r--.+\/usr\/share\/doc\/foobar\/README$/m);
-      expect(stdout).to.match(/^-rw-r.-r--.+\/usr\/share\/doc\/foobar\/copyright$/m);
-      expect(stdout).to.match(/^-rw-r.-r--.+\/usr\/share\/man\/man1\/foobar.1.gz$/m);
+      expect(stdout).to.match(
+        /^-rw-r.-r--.+\/usr\/share\/doc\/foobar\/LICENSE_bar$/m
+      );
+      expect(stdout).to.match(
+        /^-rw-r.-r--.+\/usr\/share\/doc\/foobar\/LICENSE_foo$/m
+      );
+      expect(stdout).to.match(
+        /^-rw-r.-r--.+\/usr\/share\/doc\/foobar\/README$/m
+      );
+      expect(stdout).to.match(
+        /^-rw-r.-r--.+\/usr\/share\/doc\/foobar\/copyright$/m
+      );
+      expect(stdout).to.match(
+        /^-rw-r.-r--.+\/usr\/share\/man\/man1\/foobar.1.gz$/m
+      );
     }
     {
       const { stdout } = await execFile('dpkg', ['-I', tarball.path]);
@@ -42,10 +56,13 @@ describe('tarball debian', function() {
     }
   });
 
-  it('determines and copies created DEB', async function() {
+  it('determines and copies created DEB', async function () {
     const content = await fs.readFile(__filename, { encoding: 'utf8' });
-    const execFileStub = async(cmd: string, args: string[]) => {
-      const debName = path.join(path.dirname(args[1]), `${tmpPkg.pkgConfig.metadata.name}.deb`);
+    const execFileStub = async (cmd: string, args: string[]) => {
+      const debName = path.join(
+        path.dirname(args[1]),
+        `${tmpPkg.pkgConfig.metadata.name}.deb`
+      );
       await fs.writeFile(debName, content, { encoding: 'utf8' });
     };
 
@@ -57,6 +74,6 @@ describe('tarball debian', function() {
       outFile,
       execFileStub as any
     );
-    expect((await fs.readFile(outFile, { encoding: 'utf8' }))).to.equal(content);
+    expect(await fs.readFile(outFile, { encoding: 'utf8' })).to.equal(content);
   });
 });

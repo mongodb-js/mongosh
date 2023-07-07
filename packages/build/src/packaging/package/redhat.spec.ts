@@ -10,10 +10,10 @@ import { createRedhatPackage } from './redhat';
 
 const execFile = promisify(childProcess.execFile);
 
-describe('tarball redhat', function() {
+describe('tarball redhat', function () {
   const tmpPkg = withTempPackageEach();
 
-  it('packages the executable(s)', async function() {
+  it('packages the executable(s)', async function () {
     try {
       await commandExists('rpmbuild');
     } catch {
@@ -36,15 +36,23 @@ describe('tarball redhat', function() {
     expect(stdout).to.match(/^\/usr\/bin\/foo$/m);
     expect(stdout).to.match(/^\/usr\/lib(64)?\/bar$/m);
     expect(stdout).to.match(/^\/usr\/share\/doc\/foobar-1.0.0\/README$/m);
-    expect(stdout).to.match(/^\/usr\/share\/licenses\/foobar-1.0.0\/LICENSE_bar$/m);
-    expect(stdout).to.match(/^\/usr\/share\/licenses\/foobar-1.0.0\/LICENSE_foo$/m);
+    expect(stdout).to.match(
+      /^\/usr\/share\/licenses\/foobar-1.0.0\/LICENSE_bar$/m
+    );
+    expect(stdout).to.match(
+      /^\/usr\/share\/licenses\/foobar-1.0.0\/LICENSE_foo$/m
+    );
     expect(stdout).to.match(/^\/usr\/share\/man\/man1\/foobar.1.gz$/m);
   });
 
-  it('determines and copies created RPM', async function() {
+  it('determines and copies created RPM', async function () {
     const content = await fs.readFile(__filename);
-    const execFileStub = async(cmd: string, args: string[]) => {
-      const rpmDir = path.join(path.dirname(path.dirname(args[1])), 'RPMS', 'x86_64');
+    const execFileStub = async (cmd: string, args: string[]) => {
+      const rpmDir = path.join(
+        path.dirname(path.dirname(args[1])),
+        'RPMS',
+        'x86_64'
+      );
       await fs.mkdir(rpmDir, { recursive: true });
       await fs.writeFile(path.join(rpmDir, 'somefile.rpm'), content);
     };
@@ -57,13 +65,19 @@ describe('tarball redhat', function() {
       outFile,
       execFileStub as any
     );
-    expect((await fs.readFile(outFile)).toString('utf8')).to.equal(content.toString('utf8'));
+    expect((await fs.readFile(outFile)).toString('utf8')).to.equal(
+      content.toString('utf8')
+    );
   });
 
-  it('fails if there are multiple RPMs generated', async function() {
+  it('fails if there are multiple RPMs generated', async function () {
     const content = await fs.readFile(__filename);
-    const execFileStub = async(cmd: string, args: string[]) => {
-      const rpmDir = path.join(path.dirname(path.dirname(args[1])), 'RPMS', 'x86_64');
+    const execFileStub = async (cmd: string, args: string[]) => {
+      const rpmDir = path.join(
+        path.dirname(path.dirname(args[1])),
+        'RPMS',
+        'x86_64'
+      );
       await fs.mkdir(rpmDir, { recursive: true });
       await fs.writeFile(path.join(rpmDir, 'somefile.rpm'), content);
       await fs.writeFile(path.join(rpmDir, 'somefile2.rpm'), content);

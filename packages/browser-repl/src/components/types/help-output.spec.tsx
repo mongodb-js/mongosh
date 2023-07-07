@@ -5,26 +5,30 @@ import { shallow } from '../../../testing/enzyme';
 
 import { HelpOutput } from './help-output';
 
-describe('HelpOutput', function() {
+describe('HelpOutput', function () {
   const makeWrapper = (value): ShallowWrapper => {
-    return shallow(<HelpOutput value={{
-      help: value.help,
-      docs: value.docs,
-      attr: value.attr
-    }} />);
+    return shallow(
+      <HelpOutput
+        value={{
+          help: value.help,
+          docs: value.docs,
+          attr: value.attr,
+        }}
+      />
+    );
   };
 
-  it('renders the help text', function() {
+  it('renders the help text', function () {
     const wrapper = makeWrapper({
-      help: 'some text'
+      help: 'some text',
     });
     expect(wrapper.text()).to.contain('some text');
   });
 
-  it('renders the docs link', function() {
+  it('renders the docs link', function () {
     const wrapper = makeWrapper({
       help: 'some text',
-      docs: 'https://docs.example.com'
+      docs: 'https://docs.example.com',
     });
 
     const anchor = wrapper.find('a');
@@ -32,33 +36,33 @@ describe('HelpOutput', function() {
     expect(anchor.prop('href')).to.equal('https://docs.example.com');
   });
 
-  it('does not render the docs link if none passed', function() {
+  it('does not render the docs link if none passed', function () {
     const wrapper = makeWrapper({
-      help: 'some text'
+      help: 'some text',
     });
 
     const anchor = wrapper.find('a');
     expect(anchor).to.have.lengthOf(0);
   });
 
-  it('renders the attrs table', function() {
+  it('renders the attrs table', function () {
     const wrapper = makeWrapper({
       help: 'some text',
       attr: [
         {
           name: 'command name',
-          description: 'command description'
-        }
-      ]
+          description: 'command description',
+        },
+      ],
     });
 
     expect(wrapper.text()).to.contain('command name');
     expect(wrapper.text()).to.contain('command description');
   });
 
-  it('does not render the attrs table if none passed', function() {
+  it('does not render the attrs table if none passed', function () {
     const wrapper = makeWrapper({
-      help: 'some text'
+      help: 'some text',
     });
 
     const anchor = wrapper.find('table');

@@ -9,7 +9,7 @@ const config = {
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: '[name].js',
-    libraryTarget: 'umd'
+    libraryTarget: 'umd',
   },
 
   externals: {
@@ -18,13 +18,13 @@ const config = {
     snappy: 'commonjs2 snappy',
     interruptor: 'commonjs2 interruptor',
     'os-dns-native': 'commonjs2 os-dns-native',
-    'system-ca': 'commonjs2 system-ca'
-  }
+    'system-ca': 'commonjs2 system-ca',
+  },
 };
 
 module.exports = ['index', 'child-process-proxy', 'worker-runtime'].map(
   (entry) => ({
     entry: { [entry]: path.resolve(__dirname, 'src', `${entry}.ts`) },
-    ...merge(baseWebpackConfig, config)
+    ...merge(baseWebpackConfig, config),
   })
 );

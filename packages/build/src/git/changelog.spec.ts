@@ -2,14 +2,14 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import { generateChangelog } from './changelog';
 
-describe('git changelog', function() {
+describe('git changelog', function () {
   let spawnSync: sinon.SinonStub;
 
-  beforeEach(function() {
+  beforeEach(function () {
     spawnSync = sinon.stub();
   });
 
-  it('generates a proper changelog', function() {
+  it('generates a proper changelog', function () {
     spawnSync.returns({
       stdout: `
 chore(build): generate release notes on draft MONGOSH-325
@@ -21,7 +21,7 @@ fix(cli-repl): defer exit event until evalutation done (#669)
 chore(build): simplify analytics config generation (#671)
 chore(build): add local release command MONGOSH-530 (#667)
 fix(build): update github release assets properly MONGOSH-606 (#672)
-      `
+      `,
     });
 
     const changelog = generateChangelog('v0.8.0', spawnSync);

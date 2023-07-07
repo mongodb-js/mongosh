@@ -13,31 +13,47 @@ import type { Options as DownloadOptions } from 'mongodb-download-url';
 export type { DownloadOptions };
 
 // Download mongod + mongos and return the path to a directory containing them.
-export async function downloadMongoDb(tmpdir: string, targetVersionSemverSpecifier = '*', options: DownloadOptions = {}): Promise<string> {
+export async function downloadMongoDb(
+  tmpdir: string,
+  targetVersionSemverSpecifier = '*',
+  options: DownloadOptions = {}
+): Promise<string> {
   let wantsEnterprise = options.enterprise ?? true;
   async function lookupDownloadUrl(): Promise<string> {
-    return (await getDownloadURL({
-      version: targetVersionSemverSpecifier,
-      enterprise: wantsEnterprise,
-      ...options
-    })).url;
+    return (
+      await getDownloadURL({
+        version: targetVersionSemverSpecifier,
+        enterprise: wantsEnterprise,
+        ...options,
+      })
+    ).url;
   }
 
   await fs.mkdir(tmpdir, { recursive: true });
   if (targetVersionSemverSpecifier === 'latest-alpha') {
-    return await doDownload(tmpdir, !!options.crypt_shared, 'latest-alpha', lookupDownloadUrl);
+    return await doDownload(
+      tmpdir,
+      !!options.crypt_shared,
+      'latest-alpha',
+      lookupDownloadUrl
+    );
   }
 
   if (/-community$/.test(targetVersionSemverSpecifier)) {
     wantsEnterprise = false;
-    targetVersionSemverSpecifier = targetVersionSemverSpecifier.replace(/-community$/, '');
+    targetVersionSemverSpecifier = targetVersionSemverSpecifier.replace(
+      /-community$/,
+      ''
+    );
   }
 
   return await doDownload(
     tmpdir,
     !!options.crypt_shared,
-    targetVersionSemverSpecifier + (wantsEnterprise ? '-enterprise' : '-community'),
-    () => lookupDownloadUrl());
+    targetVersionSemverSpecifier +
+      (wantsEnterprise ? '-enterprise' : '-community'),
+    () => lookupDownloadUrl()
+  );
 }
 
 const downloadPromises: Record<string, Promise<string>> = {};
@@ -45,15 +61,19 @@ async function doDownload(
   tmpdir: string,
   isCryptLibrary: boolean,
   version: string,
-  lookupDownloadUrl: () => Promise<string>) {
+  lookupDownloadUrl: () => Promise<string>
+) {
   const downloadTarget = path.resolve(
     tmpdir,
-    `mongodb-${process.platform}-${process.env.DISTRO_ID || 'none'}-${process.arch}-${version}`
-      .replace(/[^a-zA-Z0-9_-]/g, ''));
-  return downloadPromises[downloadTarget] ??= (async() => {
+    `mongodb-${process.platform}-${process.env.DISTRO_ID || 'none'}-${
+      process.arch
+    }-${version}`.replace(/[^a-zA-Z0-9_-]/g, '')
+  );
+  return (downloadPromises[downloadTarget] ??= (async () => {
     const bindir = path.resolve(
       downloadTarget,
-      isCryptLibrary && process.platform !== 'win32' ? 'lib' : 'bin');
+      isCryptLibrary && process.platform !== 'win32' ? 'lib' : 'bin'
+    );
     try {
       await fs.stat(bindir);
       console.info(`Skipping download because ${downloadTarget} exists`);
@@ -74,7 +94,10 @@ async function doDownload(
           tar.x({ cwd: downloadTarget, strip: isCryptLibrary ? 0 : 1 })
         );
       } else {
-        await download(url, downloadTarget, { extract: true, strip: isCryptLibrary ? 0 : 1 });
+        await download(url, downloadTarget, {
+          extract: true,
+          strip: isCryptLibrary ? 0 : 1,
+        });
       }
 
       try {
@@ -94,5 +117,5 @@ async function doDownload(
 
     await downloadAndExtract();
     return bindir;
-  })();
+  })());
 }

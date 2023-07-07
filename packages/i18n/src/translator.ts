@@ -13,17 +13,15 @@ const DEFAULT_LOCALE = 'en_US';
  * Locale mappings.
  */
 const MAPPINGS: Record<string, Catalog> = {
-  'en_US': en_US,
-  'de_DE': de_DE
+  en_US: en_US,
+  de_DE: de_DE,
 };
 
 /**
  * The help template.
  */
-const TEMPLATE = '{{description}}\n\n' +
-  '{{link}}\n\n' +
-  '{{example}}\n\n' +
-  '{{returns}}';
+const TEMPLATE =
+  '{{description}}\n\n' + '{{link}}\n\n' + '{{example}}\n\n' + '{{returns}}';
 
 /**
  * The translator class.
@@ -42,7 +40,9 @@ class Translator {
   __(key: string): string {
     const translation = this.translate(key);
     if (translation === undefined) {
-      throw new MongoshInternalError(`Could not translate key ${JSON.stringify(key)}`);
+      throw new MongoshInternalError(
+        `Could not translate key ${JSON.stringify(key)}`
+      );
     }
     return translation;
   }

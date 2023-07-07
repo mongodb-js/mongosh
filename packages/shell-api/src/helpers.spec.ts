@@ -4,11 +4,11 @@ import {
   dataFormat,
   getPrintableShardStatus,
   scaleIndividualShardStatistics,
-  tsToSeconds
+  tsToSeconds,
 } from './helpers';
 import { Database, Mongo, ShellInstanceState } from './index';
 import constructShellBson from './shell-bson';
-import type { ServiceProvider} from '@mongosh/service-provider-core';
+import type { ServiceProvider } from '@mongosh/service-provider-core';
 import { bson } from '@mongosh/service-provider-core';
 import type { DevtoolsConnectOptions } from '../../service-provider-server';
 import { CliServiceProvider } from '../../service-provider-server'; // avoid cyclic dep just for test
@@ -20,15 +20,17 @@ import { EventEmitter } from 'events';
 import sinonChai from 'sinon-chai';
 chai.use(sinonChai);
 
-const fakeConfigDb = makeFakeConfigDatabase(constructShellBson(bson, sinon.stub()));
+const fakeConfigDb = makeFakeConfigDatabase(
+  constructShellBson(bson, sinon.stub())
+);
 
 export const dummyOptions: DevtoolsConnectOptions = Object.freeze({
   productName: 'Test Product',
-  productDocsLink: 'https://example.com/'
+  productDocsLink: 'https://example.com/',
 });
 
-describe('dataFormat', function() {
-  it('formats byte amounts', function() {
+describe('dataFormat', function () {
+  it('formats byte amounts', function () {
     expect(dataFormat()).to.equal('0B');
     expect(dataFormat(10)).to.equal('10B');
     expect(dataFormat(4096)).to.equal('4KiB');
@@ -38,8 +40,8 @@ describe('dataFormat', function() {
   });
 });
 
-describe('assertArgsDefinedType', function() {
-  it('allows to specify an argument must be defined', function() {
+describe('assertArgsDefinedType', function () {
+  it('allows to specify an argument must be defined', function () {
     try {
       assertArgsDefinedType([1, undefined], [true, true], 'helper.test');
     } catch (e: any) {
@@ -49,44 +51,58 @@ describe('assertArgsDefinedType', function() {
     }
     expect.fail('Expected error');
   });
-  it('allows to specify a single argument type', function() {
-    [null, 2, {}].forEach(value => {
+  it('allows to specify a single argument type', function () {
+    [null, 2, {}].forEach((value) => {
       try {
         assertArgsDefinedType([1, value], [true, 'string'], 'helper.test');
       } catch (e: any) {
-        expect(e.message).to.contain('Argument at position 1 must be of type string');
+        expect(e.message).to.contain(
+          'Argument at position 1 must be of type string'
+        );
         expect(e.message).to.contain('helper.test');
         return;
       }
       expect.fail('Expected error');
     });
-    expect(() => assertArgsDefinedType([1, 'test'], [true, 'string'])).to.not.throw;
+    expect(() => assertArgsDefinedType([1, 'test'], [true, 'string'])).to.not
+      .throw;
   });
-  it('allows to specify multiple argument types', function() {
-    [null, {}].forEach(value => {
+  it('allows to specify multiple argument types', function () {
+    [null, {}].forEach((value) => {
       try {
         assertArgsDefinedType([1, value], [true, ['number', 'string']]);
       } catch (e: any) {
-        return expect(e.message).to.contain('Argument at position 1 must be of type number or string');
+        return expect(e.message).to.contain(
+          'Argument at position 1 must be of type number or string'
+        );
       }
       expect.fail('Expected error');
     });
-    expect(() => assertArgsDefinedType([1, 'test'], [true, ['number', 'string']])).to.not.throw;
-    expect(() => assertArgsDefinedType([1, 2], [true, ['number', 'string']])).to.not.throw;
+    expect(() =>
+      assertArgsDefinedType([1, 'test'], [true, ['number', 'string']])
+    ).to.not.throw;
+    expect(() => assertArgsDefinedType([1, 2], [true, ['number', 'string']])).to
+      .not.throw;
   });
-  it('allows to specify an optional argument with type', function() {
-    expect(() => assertArgsDefinedType([1, undefined], [true, [undefined, 'string']])).to.not.throw;
-    expect(() => assertArgsDefinedType([1, 'test'], [true, [undefined, 'string']])).to.not.throw;
+  it('allows to specify an optional argument with type', function () {
+    expect(() =>
+      assertArgsDefinedType([1, undefined], [true, [undefined, 'string']])
+    ).to.not.throw;
+    expect(() =>
+      assertArgsDefinedType([1, 'test'], [true, [undefined, 'string']])
+    ).to.not.throw;
     try {
       assertArgsDefinedType([1, 2], [true, [undefined, 'string']]);
     } catch (e: any) {
-      return expect(e.message).to.contain('Argument at position 1 must be of type string');
+      return expect(e.message).to.contain(
+        'Argument at position 1 must be of type string'
+      );
     }
     expect.fail('Expected error');
   });
 });
 
-describe('getPrintableShardStatus', function() {
+describe('getPrintableShardStatus', function () {
   const testServer = startTestServer('shared');
 
   let mongo: Mongo;
@@ -94,14 +110,25 @@ describe('getPrintableShardStatus', function() {
   let serviceProvider: ServiceProvider;
   let inBalancerRound = false;
 
-  beforeEach(async function() {
-    serviceProvider = await CliServiceProvider.connect(await testServer.connectionString(), dummyOptions, {}, new EventEmitter());
-    mongo = new Mongo(new ShellInstanceState(serviceProvider), undefined, undefined, undefined, serviceProvider);
+  beforeEach(async function () {
+    serviceProvider = await CliServiceProvider.connect(
+      await testServer.connectionString(),
+      dummyOptions,
+      {},
+      new EventEmitter()
+    );
+    mongo = new Mongo(
+      new ShellInstanceState(serviceProvider),
+      undefined,
+      undefined,
+      undefined,
+      serviceProvider
+    );
     configDatabase = new Database(mongo, 'config_test');
     expect(configDatabase.getName()).to.equal('config_test');
 
     const origRunCommandWithCheck = serviceProvider.runCommandWithCheck;
-    serviceProvider.runCommandWithCheck = async(db, cmd) => {
+    serviceProvider.runCommandWithCheck = async (db, cmd) => {
       if (cmd.hello) {
         return { ok: 1, msg: 'isdbgrid' };
       }
@@ -111,38 +138,50 @@ describe('getPrintableShardStatus', function() {
       return origRunCommandWithCheck.call(serviceProvider, db, cmd);
     };
 
-    await Promise.all(Object.entries(fakeConfigDb).map(async([coll, contents]) => {
-      await configDatabase.getCollection(coll).insertMany(contents as any);
-    }));
+    await Promise.all(
+      Object.entries(fakeConfigDb).map(async ([coll, contents]) => {
+        await configDatabase.getCollection(coll).insertMany(contents as any);
+      })
+    );
     // The printing method depends on data + the current date, so we provide
     // a fake Date implementation here.
     class FakeDate extends Date {
-      constructor(t?: any) { super(t || '2020-12-09T12:59:11.912Z'); }
-      static now() { return new FakeDate().getTime(); }
+      constructor(t?: any) {
+        super(t || '2020-12-09T12:59:11.912Z');
+      }
+      static now() {
+        return new FakeDate().getTime();
+      }
     }
     sinon.replace(global, 'Date', FakeDate as typeof Date);
   });
 
-  afterEach(async function() {
+  afterEach(async function () {
     sinon.restore();
     await configDatabase.dropDatabase();
     await serviceProvider.close(true);
   });
 
-  it('returns an object with sharding information', async function() {
+  it('returns an object with sharding information', async function () {
     const status = await getPrintableShardStatus(configDatabase, false);
     expect(status.shardingVersion.currentVersion).to.be.a('number');
-    expect(status.shards.map(({ host }) => host)).to.include('shard01/localhost:27018,localhost:27019,localhost:27020');
+    expect(status.shards.map(({ host }) => host)).to.include(
+      'shard01/localhost:27018,localhost:27019,localhost:27020'
+    );
     expect(status['most recently active mongoses']).to.have.lengthOf(1);
     expect(status.autosplit['Currently enabled']).to.equal('yes');
     expect(status.balancer['Currently enabled']).to.equal('yes');
-    expect(status.balancer['Failed balancer rounds in last 5 attempts']).to.equal(0);
-    expect(status.balancer['Migration Results for the last 24 hours']).to.equal('No recent migrations');
+    expect(
+      status.balancer['Failed balancer rounds in last 5 attempts']
+    ).to.equal(0);
+    expect(status.balancer['Migration Results for the last 24 hours']).to.equal(
+      'No recent migrations'
+    );
     expect(status.databases).to.have.lengthOf(1);
     expect(status.databases[0].database._id).to.equal('config');
   });
 
-  it('returns whether the balancer is currently running', async function() {
+  it('returns whether the balancer is currently running', async function () {
     {
       inBalancerRound = true;
       const status = await getPrintableShardStatus(configDatabase, true);
@@ -156,23 +195,26 @@ describe('getPrintableShardStatus', function() {
     }
   });
 
-  it('returns an object with verbose sharding information if requested', async function() {
+  it('returns an object with verbose sharding information if requested', async function () {
     const status = await getPrintableShardStatus(configDatabase, true);
     expect(status['most recently active mongoses'][0].up).to.be.a('number');
-    expect(status['most recently active mongoses'][0].waiting).to.be.a('boolean');
+    expect(status['most recently active mongoses'][0].waiting).to.be.a(
+      'boolean'
+    );
   });
 
-  it('returns active balancer window information', async function() {
+  it('returns active balancer window information', async function () {
     await configDatabase.getCollection('settings').insertOne({
       _id: 'balancer',
-      activeWindow: { start: '00:00', stop: '23:59' }
+      activeWindow: { start: '00:00', stop: '23:59' },
     });
     const status = await getPrintableShardStatus(configDatabase, false);
-    expect(status.balancer['Balancer active window is set between'])
-      .to.equal('00:00 and 23:59 server local time');
+    expect(status.balancer['Balancer active window is set between']).to.equal(
+      '00:00 and 23:59 server local time'
+    );
   });
 
-  it('reports actionlog error information', async function() {
+  it('reports actionlog error information', async function () {
     await configDatabase.getCollection('actionlog').insertOne({
       details: {
         errorOccured: true,
@@ -180,14 +222,16 @@ describe('getPrintableShardStatus', function() {
       },
       time: new Date('2020-12-07T12:58:53.579Z'),
       what: 'balancer.round',
-      ns: ''
+      ns: '',
     });
     const status = await getPrintableShardStatus(configDatabase, false);
-    expect(status.balancer['Failed balancer rounds in last 5 attempts']).to.equal(1);
+    expect(
+      status.balancer['Failed balancer rounds in last 5 attempts']
+    ).to.equal(1);
     expect(status.balancer['Last reported error']).to.equal('Some error');
   });
 
-  it('reports currently active migrations', async function() {
+  it('reports currently active migrations', async function () {
     await configDatabase.getCollection('locks').insertOne({
       _id: 'asdf',
       state: 2,
@@ -195,34 +239,40 @@ describe('getPrintableShardStatus', function() {
       when: new Date('2020-12-07T11:26:36.803Z'),
     });
     const status = await getPrintableShardStatus(configDatabase, false);
-    expect(status.balancer['Collections with active migrations']).to.have.lengthOf(1);
-    expect(status.balancer['Collections with active migrations'].join('')).to.include('asdf');
+    expect(
+      status.balancer['Collections with active migrations']
+    ).to.have.lengthOf(1);
+    expect(
+      status.balancer['Collections with active migrations'].join('')
+    ).to.include('asdf');
   });
 
-  it('reports successful migrations', async function() {
+  it('reports successful migrations', async function () {
     await configDatabase.getCollection('changelog').insertOne({
       time: new Date('2020-12-08T13:26:06.357Z'),
       what: 'moveChunk.from',
-      details: { from: 'shard0', to: 'shard1', note: 'success' }
+      details: { from: 'shard0', to: 'shard1', note: 'success' },
     });
     const status = await getPrintableShardStatus(configDatabase, false);
-    expect(status.balancer['Migration Results for the last 24 hours'])
-      .to.deep.equal({ 1: 'Success' });
+    expect(
+      status.balancer['Migration Results for the last 24 hours']
+    ).to.deep.equal({ 1: 'Success' });
   });
 
-  it('reports failed migrations', async function() {
+  it('reports failed migrations', async function () {
     await configDatabase.getCollection('changelog').insertOne({
       time: new Date('2020-12-08T13:26:07.357Z'),
       what: 'moveChunk.from',
-      details: { from: 'shard0', to: 'shard1', errmsg: 'oopsie' }
+      details: { from: 'shard0', to: 'shard1', errmsg: 'oopsie' },
     });
     const status = await getPrintableShardStatus(configDatabase, false);
 
-    expect(status.balancer['Migration Results for the last 24 hours'])
-      .to.deep.equal({ 1: "Failed with error 'oopsie', from shard0 to shard1" });
+    expect(
+      status.balancer['Migration Results for the last 24 hours']
+    ).to.deep.equal({ 1: "Failed with error 'oopsie', from shard0 to shard1" });
   });
 
-  it('fails when config.version is empty', async function() {
+  it('fails when config.version is empty', async function () {
     await configDatabase.getCollection('version').drop();
     try {
       await getPrintableShardStatus(configDatabase, false);
@@ -234,33 +284,38 @@ describe('getPrintableShardStatus', function() {
   });
 });
 
-describe('coerceToJSNumber', function() {
-  it('converts various BSON types to JS numbers', function() {
+describe('coerceToJSNumber', function () {
+  it('converts various BSON types to JS numbers', function () {
     expect(coerceToJSNumber(0)).to.equal(0);
     expect(coerceToJSNumber(new bson.Int32(0))).to.equal(0);
     expect(coerceToJSNumber(new bson.Long(0))).to.equal(0);
-    expect(coerceToJSNumber(new bson.Long('9223372036854775807'))).to.equal(9223372036854776000);
+    expect(coerceToJSNumber(new bson.Long('9223372036854775807'))).to.equal(
+      9223372036854776000
+    );
     expect(coerceToJSNumber(new bson.Double(1e30))).to.equal(1e30);
   });
 });
 
-describe('scaleIndividualShardStatistics', function() {
-  it('scales the individual shard statistics according to the scale 10', function() {
-    const result = scaleIndividualShardStatistics({
-      size: 200,
-      maxSize: 2000, // Capped collection.
-      storageSize: 180, // Can be smaller than `size` when the data is compressed.
-      totalIndexSize: 50,
-      totalSize: 230, // New in 4.4. (sum of storageSize and totalIndexSize)
-      scaleFactor: 1,
-      capped: true,
-      wiredTiger: {},
-      ns: 'test.test',
-      indexSizes: {
-        _id: 20,
-        name: 30
-      }
-    }, 10);
+describe('scaleIndividualShardStatistics', function () {
+  it('scales the individual shard statistics according to the scale 10', function () {
+    const result = scaleIndividualShardStatistics(
+      {
+        size: 200,
+        maxSize: 2000, // Capped collection.
+        storageSize: 180, // Can be smaller than `size` when the data is compressed.
+        totalIndexSize: 50,
+        totalSize: 230, // New in 4.4. (sum of storageSize and totalIndexSize)
+        scaleFactor: 1,
+        capped: true,
+        wiredTiger: {},
+        ns: 'test.test',
+        indexSizes: {
+          _id: 20,
+          name: 30,
+        },
+      },
+      10
+    );
 
     expect(result).to.deep.equal({
       size: 20,
@@ -274,26 +329,29 @@ describe('scaleIndividualShardStatistics', function() {
       ns: 'test.test',
       indexSizes: {
         _id: 2,
-        name: 3
-      }
+        name: 3,
+      },
     });
   });
 
-  it('scales the individual shard statistics according to the scale 1', function() {
-    const result = scaleIndividualShardStatistics({
-      size: 200,
-      storageSize: 180, // Can be smaller than `size` when the data is compressed.
-      totalIndexSize: 50,
-      totalSize: 230, // New in 4.4. (sum of storageSize and totalIndexSize)
-      scaleFactor: 1,
-      capped: true,
-      wiredTiger: {},
-      ns: 'test.test',
-      indexSizes: {
-        _id: 20,
-        name: 30
-      }
-    }, 1);
+  it('scales the individual shard statistics according to the scale 1', function () {
+    const result = scaleIndividualShardStatistics(
+      {
+        size: 200,
+        storageSize: 180, // Can be smaller than `size` when the data is compressed.
+        totalIndexSize: 50,
+        totalSize: 230, // New in 4.4. (sum of storageSize and totalIndexSize)
+        scaleFactor: 1,
+        capped: true,
+        wiredTiger: {},
+        ns: 'test.test',
+        indexSizes: {
+          _id: 20,
+          name: 30,
+        },
+      },
+      1
+    );
 
     expect(result).to.deep.equal({
       size: 200,
@@ -306,16 +364,18 @@ describe('scaleIndividualShardStatistics', function() {
       ns: 'test.test',
       indexSizes: {
         _id: 20,
-        name: 30
-      }
+        name: 30,
+      },
     });
   });
 });
 
-describe('tsToSeconds', function() {
-  it('accepts a range of formats', function() {
+describe('tsToSeconds', function () {
+  it('accepts a range of formats', function () {
     expect(tsToSeconds(new bson.Timestamp({ t: 12345, i: 0 }))).to.equal(12345);
-    expect(tsToSeconds(new bson.Timestamp({ t: 12345, i: 10 }))).to.equal(12345);
+    expect(tsToSeconds(new bson.Timestamp({ t: 12345, i: 10 }))).to.equal(
+      12345
+    );
     expect(tsToSeconds(new bson.Double(12345 * 2 ** 32))).to.equal(12345);
     expect(tsToSeconds(12345 * 2 ** 32)).to.equal(12345);
   });

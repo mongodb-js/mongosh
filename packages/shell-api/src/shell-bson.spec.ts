@@ -1,6 +1,9 @@
 import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
 import { bson } from '@mongosh/service-provider-core';
-import { serialize as bsonSerialize, deserialize as bsonDeserialize } from 'bson';
+import {
+  serialize as bsonSerialize,
+  deserialize as bsonDeserialize,
+} from 'bson';
 import { expect } from 'chai';
 import sinon from 'ts-sinon';
 import { ALL_SERVER_VERSIONS } from './enums';
@@ -11,31 +14,31 @@ const hex_1234 = '31323334';
 const b64_1234 = 'MTIzNA==';
 const utf_1234 = '1234';
 
-describe('Shell BSON', function() {
+describe('Shell BSON', function () {
   let shellBson: any;
   let printWarning: (msg: string) => void;
 
-  before(function() {
+  before(function () {
     printWarning = sinon.stub();
     shellBson = constructShellBson(bson, printWarning);
   });
 
-  describe('DBRef', function() {
-    it('without new', function() {
+  describe('DBRef', function () {
+    it('without new', function () {
       const s = shellBson.DBRef('namespace', 'oid');
       expect(s._bsontype).to.equal('DBRef');
     });
-    it('with new', function() {
+    it('with new', function () {
       const s = new (shellBson.DBRef as any)('namespace', 'oid');
       expect(s._bsontype).to.equal('DBRef');
     });
-    it('has help and other metadata', async function() {
+    it('has help and other metadata', async function () {
       const s = shellBson.DBRef('namespace', 'oid');
       expect((await toShellResult(s.help)).type).to.equal('Help');
       expect((await toShellResult(s.help())).type).to.equal('Help');
       expect(s.serverVersions).to.deep.equal(ALL_SERVER_VERSIONS);
     });
-    it('errors for missing arg 1', function() {
+    it('errors for missing arg 1', function () {
       try {
         (shellBson.DBRef as any)();
       } catch (e: any) {
@@ -43,7 +46,7 @@ describe('Shell BSON', function() {
       }
       expect.fail('Expecting error, nothing thrown');
     });
-    it('errors for missing arg 2', function() {
+    it('errors for missing arg 2', function () {
       try {
         (shellBson.DBRef as any)('ns');
       } catch (e: any) {
@@ -51,7 +54,7 @@ describe('Shell BSON', function() {
       }
       expect.fail('Expecting error, nothing thrown');
     });
-    it('errors for wrong type of arg 1', function() {
+    it('errors for wrong type of arg 1', function () {
       try {
         (shellBson.DBRef as any)(1, 'oid');
       } catch (e: any) {
@@ -59,7 +62,7 @@ describe('Shell BSON', function() {
       }
       expect.fail('Expecting error, nothing thrown');
     });
-    it('errors for wrong type of arg 3', function() {
+    it('errors for wrong type of arg 3', function () {
       try {
         (shellBson.DBRef as any)('ns', 'oid', 1);
       } catch (e: any) {
@@ -68,88 +71,92 @@ describe('Shell BSON', function() {
       expect.fail('Expecting error, nothing thrown');
     });
   });
-  describe('MaxKey', function() {
-    it('without new', function() {
+  describe('MaxKey', function () {
+    it('without new', function () {
       const s = shellBson.MaxKey();
       expect(s._bsontype).to.equal('MaxKey');
     });
-    it('with new', function() {
+    it('with new', function () {
       const s = new (shellBson.MaxKey as any)();
       expect(s._bsontype).to.equal('MaxKey');
     });
-    it('using toBSON', function() {
+    it('using toBSON', function () {
       const s = (shellBson.MaxKey as any).toBSON();
       expect(s._bsontype).to.equal('MaxKey');
     });
-    it('has help and other metadata', async function() {
+    it('has help and other metadata', async function () {
       const s = shellBson.MaxKey();
       expect((await toShellResult(s.help)).type).to.equal('Help');
       expect((await toShellResult(s.help())).type).to.equal('Help');
       expect(s.serverVersions).to.deep.equal(ALL_SERVER_VERSIONS);
     });
   });
-  describe('MinKey', function() {
-    it('without new', function() {
+  describe('MinKey', function () {
+    it('without new', function () {
       const s = shellBson.MinKey();
       expect(s._bsontype).to.equal('MinKey');
     });
-    it('with new', function() {
+    it('with new', function () {
       const s = new (shellBson.MinKey as any)();
       expect(s._bsontype).to.equal('MinKey');
     });
-    it('using toBSON', function() {
+    it('using toBSON', function () {
       const s = (shellBson.MinKey as any).toBSON();
       expect(s._bsontype).to.equal('MinKey');
     });
-    it('has help and other metadata', async function() {
+    it('has help and other metadata', async function () {
       const s = shellBson.MinKey();
       expect((await toShellResult(s.help)).type).to.equal('Help');
       expect((await toShellResult(s.help())).type).to.equal('Help');
       expect(s.serverVersions).to.deep.equal(ALL_SERVER_VERSIONS);
     });
   });
-  describe('MinKey & MaxKey constructor special handling', function() {
-    it('round-trips through bson as expected', function() {
-      const { MinKey, MaxKey } = shellBson ;
+  describe('MinKey & MaxKey constructor special handling', function () {
+    it('round-trips through bson as expected', function () {
+      const { MinKey, MaxKey } = shellBson;
       const expected = { a: { $minKey: 1 }, b: { $maxKey: 1 } };
       function roundtrip(value: any): any {
         return bson.EJSON.serialize(bsonDeserialize(bsonSerialize(value)));
       }
 
-      expect(roundtrip({ a: new MinKey(), b: new MaxKey() })).to.deep.equal(expected);
+      expect(roundtrip({ a: new MinKey(), b: new MaxKey() })).to.deep.equal(
+        expected
+      );
       expect(roundtrip({ a: MinKey(), b: MaxKey() })).to.deep.equal(expected);
-      expect(roundtrip({ a: MinKey.toBSON(), b: MaxKey.toBSON() })).to.deep.equal(expected);
+      expect(
+        roundtrip({ a: MinKey.toBSON(), b: MaxKey.toBSON() })
+      ).to.deep.equal(expected);
       expect(roundtrip({ a: MinKey, b: MaxKey })).to.deep.equal(expected);
     });
   });
-  describe('ObjectId', function() {
-    it('without new', function() {
+  describe('ObjectId', function () {
+    it('without new', function () {
       const s = shellBson.ObjectId('5ebbe8e2905bb493d6981b6b');
       expect(s._bsontype).to.equal('ObjectId');
       expect(s.toHexString()).to.equal('5ebbe8e2905bb493d6981b6b');
     });
-    it('with new', function() {
+    it('with new', function () {
       const s = new (shellBson.ObjectId as any)('5ebbe8e2905bb493d6981b6b');
       expect(s._bsontype).to.equal('ObjectId');
       expect(s.toHexString()).to.equal('5ebbe8e2905bb493d6981b6b');
     });
-    it('works with an integer argument', function() {
+    it('works with an integer argument', function () {
       const s = new (shellBson.ObjectId as any)(0x12345678);
       expect(s._bsontype).to.equal('ObjectId');
       expect(s.toHexString().slice(0, 8)).to.equal('12345678');
     });
-    it('can be created through createFromTime', function() {
+    it('can be created through createFromTime', function () {
       const s = (shellBson.ObjectId as any).createFromTime(0x12345678);
       expect(s._bsontype).to.equal('ObjectId');
       expect(s.toHexString().slice(0, 8)).to.equal('12345678');
     });
-    it('has help and other metadata', async function() {
+    it('has help and other metadata', async function () {
       const s = shellBson.ObjectId();
       expect((await toShellResult(s.help)).type).to.equal('Help');
       expect((await toShellResult(s.help())).type).to.equal('Help');
       expect(s.serverVersions).to.deep.equal(ALL_SERVER_VERSIONS);
     });
-    it('errors for wrong type of arg 1', function() {
+    it('errors for wrong type of arg 1', function () {
       try {
         (shellBson.ObjectId as any)(Symbol('foo'));
       } catch (e: any) {
@@ -157,49 +164,49 @@ describe('Shell BSON', function() {
       }
       expect.fail('Expecting error, nothing thrown');
     });
-    it('allows toString() with Node.js-specific encoding arguments (legacy)', function() {
+    it('allows toString() with Node.js-specific encoding arguments (legacy)', function () {
       const s = shellBson.ObjectId();
       expect(s.toString('utf-16le')).to.have.lengthOf(6);
     });
   });
-  describe('BSONSymbol', function() {
-    it('without new', function() {
+  describe('BSONSymbol', function () {
+    it('without new', function () {
       const s = shellBson.BSONSymbol('5ebbe8e2905bb493d6981b6b');
       expect(s._bsontype).to.equal('BSONSymbol');
       expect(s.toString()).to.equal('5ebbe8e2905bb493d6981b6b');
     });
-    it('with new', function() {
+    it('with new', function () {
       const s = new (shellBson.BSONSymbol as any)('5ebbe8e2905bb493d6981b6b');
       expect(s._bsontype).to.equal('BSONSymbol');
       expect(s.toString()).to.equal('5ebbe8e2905bb493d6981b6b');
     });
-    it('has help and other metadata', async function() {
+    it('has help and other metadata', async function () {
       const s = shellBson.BSONSymbol('5ebbe8e2905bb493d6981b6b');
       expect((await toShellResult(s.help)).type).to.equal('Help');
       expect((await toShellResult(s.help())).type).to.equal('Help');
     });
   });
-  describe('Timestamp', function() {
-    it('without new', function() {
+  describe('Timestamp', function () {
+    it('without new', function () {
       const s = shellBson.Timestamp(0, 100);
       expect(s._bsontype).to.equal('Timestamp');
     });
-    it('with new', function() {
+    it('with new', function () {
       const s = new (shellBson.Timestamp as any)(0, 100);
       expect(s._bsontype).to.equal('Timestamp');
     });
-    it('with a long argument', function() {
+    it('with a long argument', function () {
       const s = shellBson.Timestamp(shellBson.Long(1, 2));
       expect(s._bsontype).to.equal('Timestamp');
       expect(s.toExtendedJSON()).to.deep.equal({ $timestamp: { t: 2, i: 1 } });
     });
-    it('has help and other metadata', async function() {
+    it('has help and other metadata', async function () {
       const s = shellBson.Timestamp(0, 100);
       expect((await toShellResult(s.help)).type).to.equal('Help');
       expect((await toShellResult(s.help())).type).to.equal('Help');
       expect(s.serverVersions).to.deep.equal(ALL_SERVER_VERSIONS);
     });
-    it('errors for wrong type of arg 1', function() {
+    it('errors for wrong type of arg 1', function () {
       try {
         (shellBson.Timestamp as any)('1');
       } catch (e: any) {
@@ -207,7 +214,7 @@ describe('Shell BSON', function() {
       }
       expect.fail('Expecting error, nothing thrown');
     });
-    it('errors for wrong type of arg 2', function() {
+    it('errors for wrong type of arg 2', function () {
       try {
         (shellBson.Timestamp as any)(1, '2');
       } catch (e: any) {
@@ -215,7 +222,7 @@ describe('Shell BSON', function() {
       }
       expect.fail('Expecting error, nothing thrown');
     });
-    it('errors for out-of-range argument', function() {
+    it('errors for out-of-range argument', function () {
       try {
         (shellBson.Timestamp as any)(2 ** 32);
       } catch (e: any) {
@@ -223,42 +230,46 @@ describe('Shell BSON', function() {
       }
       expect.fail('Expecting error, nothing thrown');
     });
-    it('constructs with default args', function() {
+    it('constructs with default args', function () {
       const s = shellBson.Timestamp();
       expect(s.low).to.equal(0);
       expect(s.high).to.equal(0);
     });
-    it('constructs with default args 1', function() {
+    it('constructs with default args 1', function () {
       const s = shellBson.Timestamp(1);
       expect(s.low).to.equal(0);
       expect(s.high).to.equal(1);
     });
-    it('constructs with { t, i } signature', function() {
+    it('constructs with { t, i } signature', function () {
       const s = shellBson.Timestamp({ t: 10, i: 20 });
       expect(s.low).to.equal(20);
       expect(s.high).to.equal(10);
-      expect(s.toExtendedJSON()).to.deep.equal({ $timestamp: { t: 10, i: 20 } });
+      expect(s.toExtendedJSON()).to.deep.equal({
+        $timestamp: { t: 10, i: 20 },
+      });
     });
   });
-  describe('Code', function() {
-    it('expects arguments in order', function() {
+  describe('Code', function () {
+    it('expects arguments in order', function () {
       const code = shellBson.Code('code', { k: 'v' });
       expect(code.code).to.equal('code');
       expect(code.scope).to.deep.equal({ k: 'v' });
     });
-    it('works with a function argument', function() {
-      const fn = function() { expect.fail(); };
+    it('works with a function argument', function () {
+      const fn = function () {
+        expect.fail();
+      };
       const code = shellBson.Code(fn, { k: 'v' });
       expect(code.code).to.equal(fn.toString());
       expect(code.scope).to.deep.equal({ k: 'v' });
     });
-    it('has help and other metadata', async function() {
+    it('has help and other metadata', async function () {
       const s = shellBson.Code('code', { k: 'v' });
       expect((await toShellResult(s.help)).type).to.equal('Help');
       expect((await toShellResult(s.help())).type).to.equal('Help');
       expect(s.serverVersions).to.deep.equal(ALL_SERVER_VERSIONS);
     });
-    it('errors for wrong type of arg 1', function() {
+    it('errors for wrong type of arg 1', function () {
       try {
         (shellBson.Code as any)(1);
       } catch (e: any) {
@@ -266,7 +277,7 @@ describe('Shell BSON', function() {
       }
       expect.fail('Expecting error, nothing thrown');
     });
-    it('errors for wrong type of arg 1', function() {
+    it('errors for wrong type of arg 1', function () {
       try {
         (shellBson.Code as any)('code', 1);
       } catch (e: any) {
@@ -274,44 +285,88 @@ describe('Shell BSON', function() {
       }
       expect.fail('Expecting error, nothing thrown');
     });
-    it('constructs with default args 1', function() {
+    it('constructs with default args 1', function () {
       const s = shellBson.Code();
       expect(s.code).to.equal('');
     });
   });
-  describe('ISODate', function() {
-    it('ISODate is always object', function() {
+  describe('ISODate', function () {
+    it('ISODate is always object', function () {
       const date = new (shellBson.ISODate as any)();
       expect(typeof date).to.equal('object');
       const date2 = shellBson.ISODate();
       expect(typeof date2).to.equal('object');
     });
-    it('accepts ISO args', function() {
-      expect((shellBson.ISODate('2020-10-02')).getTime()).to.equal(1601596800000);
-      expect((shellBson.ISODate('2020-10-02T10:29:50+00:00')).getTime()).to.equal(1601634590000);
-      expect((shellBson.ISODate('2020-10-02T10:29:50+02:00')).getTime()).to.equal(1601627390000);
-      expect((shellBson.ISODate('2020-10-02T10:29:50-02:00')).getTime()).to.equal(1601641790000);
-      expect((shellBson.ISODate('2020-10-02T10:29:50Z')).getTime()).to.equal(1601634590000);
-      expect((shellBson.ISODate('2020-10-02T10:29:50')).getTime()).to.equal(1601634590000);
-      expect((shellBson.ISODate('2020-10-02T10:29:50.124Z')).getTime()).to.equal(1601634590124);
-      expect((shellBson.ISODate('20201002T102950Z')).getTime()).to.equal(1601634590000);
-      expect((shellBson.ISODate('20201002T102950')).getTime()).to.equal(1601634590000);
-      expect((shellBson.ISODate('20201002T102950+0000')).getTime()).to.equal(1601634590000);
-      expect((shellBson.ISODate('20201002T102950-0000')).getTime()).to.equal(1601634590000);
-      expect((shellBson.ISODate('20201002T102950+0200')).getTime()).to.equal(1601627390000);
-      expect((shellBson.ISODate('20201002T102950-0200')).getTime()).to.equal(1601641790000);
-      expect((shellBson.ISODate('20201002 102950Z')).getTime()).to.equal(1601634590000);
-      expect((shellBson.ISODate('20201002 102950+0000')).getTime()).to.equal(1601634590000);
-      expect((shellBson.ISODate('20201002 102950+0200')).getTime()).to.equal(1601627390000);
-      expect((shellBson.ISODate('20201002 102950-0200')).getTime()).to.equal(1601641790000);
-      expect((shellBson.ISODate('20201002 102950')).getTime()).to.equal(1601634590000);
-      expect((shellBson.ISODate('20201002 102950.842')).getTime()).to.equal(1601634590842);
+    it('accepts ISO args', function () {
+      expect(shellBson.ISODate('2020-10-02').getTime()).to.equal(1601596800000);
+      expect(shellBson.ISODate('2020-10-02T10:29:50+00:00').getTime()).to.equal(
+        1601634590000
+      );
+      expect(shellBson.ISODate('2020-10-02T10:29:50+02:00').getTime()).to.equal(
+        1601627390000
+      );
+      expect(shellBson.ISODate('2020-10-02T10:29:50-02:00').getTime()).to.equal(
+        1601641790000
+      );
+      expect(shellBson.ISODate('2020-10-02T10:29:50Z').getTime()).to.equal(
+        1601634590000
+      );
+      expect(shellBson.ISODate('2020-10-02T10:29:50').getTime()).to.equal(
+        1601634590000
+      );
+      expect(shellBson.ISODate('2020-10-02T10:29:50.124Z').getTime()).to.equal(
+        1601634590124
+      );
+      expect(shellBson.ISODate('20201002T102950Z').getTime()).to.equal(
+        1601634590000
+      );
+      expect(shellBson.ISODate('20201002T102950').getTime()).to.equal(
+        1601634590000
+      );
+      expect(shellBson.ISODate('20201002T102950+0000').getTime()).to.equal(
+        1601634590000
+      );
+      expect(shellBson.ISODate('20201002T102950-0000').getTime()).to.equal(
+        1601634590000
+      );
+      expect(shellBson.ISODate('20201002T102950+0200').getTime()).to.equal(
+        1601627390000
+      );
+      expect(shellBson.ISODate('20201002T102950-0200').getTime()).to.equal(
+        1601641790000
+      );
+      expect(shellBson.ISODate('20201002 102950Z').getTime()).to.equal(
+        1601634590000
+      );
+      expect(shellBson.ISODate('20201002 102950+0000').getTime()).to.equal(
+        1601634590000
+      );
+      expect(shellBson.ISODate('20201002 102950+0200').getTime()).to.equal(
+        1601627390000
+      );
+      expect(shellBson.ISODate('20201002 102950-0200').getTime()).to.equal(
+        1601641790000
+      );
+      expect(shellBson.ISODate('20201002 102950').getTime()).to.equal(
+        1601634590000
+      );
+      expect(shellBson.ISODate('20201002 102950.842').getTime()).to.equal(
+        1601634590842
+      );
     });
-    it('rejects non-ISO args', function() {
-      expect(() => shellBson.ISODate('1/4/1977')).to.throw('"1/4/1977" is not a valid ISODate');
-      expect(() => shellBson.ISODate('1-4-1977')).to.throw('"1-4-1977" is not a valid ISODate');
-      expect(() => shellBson.ISODate('9999-12-31T23:99:59.999Z')).to.throw('"9999-12-31T23:99:59.999Z" is not a valid ISODate');
-      expect(() => shellBson.ISODate('bah')).to.throw('"bah" is not a valid ISODate');
+    it('rejects non-ISO args', function () {
+      expect(() => shellBson.ISODate('1/4/1977')).to.throw(
+        '"1/4/1977" is not a valid ISODate'
+      );
+      expect(() => shellBson.ISODate('1-4-1977')).to.throw(
+        '"1-4-1977" is not a valid ISODate'
+      );
+      expect(() => shellBson.ISODate('9999-12-31T23:99:59.999Z')).to.throw(
+        '"9999-12-31T23:99:59.999Z" is not a valid ISODate'
+      );
+      expect(() => shellBson.ISODate('bah')).to.throw(
+        '"bah" is not a valid ISODate'
+      );
 
       try {
         shellBson.ISODate('"');
@@ -324,18 +379,18 @@ describe('Shell BSON', function() {
       expect.fail('expected error');
     });
   });
-  describe('BinData', function() {
-    it('expects strings as base 64', function() {
+  describe('BinData', function () {
+    it('expects strings as base 64', function () {
       const b = shellBson.BinData(128, b64_1234);
       expect(b.value()).to.equal(utf_1234);
     });
-    it('has help and other metadata', async function() {
+    it('has help and other metadata', async function () {
       const s = shellBson.BinData(128, b64_1234);
       expect((await toShellResult(s.help)).type).to.equal('Help');
       expect((await toShellResult(s.help())).type).to.equal('Help');
       expect(s.serverVersions).to.deep.equal(ALL_SERVER_VERSIONS);
     });
-    it('errors for missing arg 1', function() {
+    it('errors for missing arg 1', function () {
       try {
         (shellBson.BinData as any)();
       } catch (e: any) {
@@ -343,7 +398,7 @@ describe('Shell BSON', function() {
       }
       expect.fail('Expecting error, nothing thrown');
     });
-    it('errors for missing arg 2', function() {
+    it('errors for missing arg 2', function () {
       try {
         (shellBson.BinData as any)(0);
       } catch (e: any) {
@@ -351,7 +406,7 @@ describe('Shell BSON', function() {
       }
       expect.fail('Expecting error, nothing thrown');
     });
-    it('errors for wrong type of arg 1', function() {
+    it('errors for wrong type of arg 1', function () {
       try {
         (shellBson.BinData as any)('1', 'abc');
       } catch (e: any) {
@@ -359,7 +414,7 @@ describe('Shell BSON', function() {
       }
       expect.fail('Expecting error, nothing thrown');
     });
-    it('errors for wrong type of arg 2', function() {
+    it('errors for wrong type of arg 2', function () {
       try {
         (shellBson.BinData as any)(0, 1);
       } catch (e: any) {
@@ -367,35 +422,35 @@ describe('Shell BSON', function() {
       }
       expect.fail('Expecting error, nothing thrown');
     });
-    it('allows toString() with Node.js-specific encoding arguments (legacy)', function() {
+    it('allows toString() with Node.js-specific encoding arguments (legacy)', function () {
       const s = shellBson.BinData(128, b64_1234);
       expect(s.toString('utf-16le')).to.equal('\u3231\u3433');
     });
   });
-  describe('HexData', function() {
+  describe('HexData', function () {
     let b: any;
     let h: any;
-    before(function() {
+    before(function () {
       b = shellBson.BinData(128, b64_1234);
       h = shellBson.HexData(128, hex_1234);
     });
 
-    it('equals BinData', function() {
+    it('equals BinData', function () {
       expect(b.value()).to.equal(h.value());
       expect(b.sub_type).to.equal(h.sub_type);
     });
-    it('equals 1234', function() {
+    it('equals 1234', function () {
       expect(h.value()).to.equal(utf_1234);
     });
-    it('has subtype', function() {
+    it('has subtype', function () {
       expect(h.sub_type).to.equal(128);
     });
-    it('has help and other metadata', async function() {
+    it('has help and other metadata', async function () {
       expect((await toShellResult(h.help)).type).to.equal('Help');
       expect((await toShellResult(h.help())).type).to.equal('Help');
       expect(h.serverVersions).to.deep.equal(ALL_SERVER_VERSIONS);
     });
-    it('errors for missing arg 1', function() {
+    it('errors for missing arg 1', function () {
       try {
         (shellBson.HexData as any)();
       } catch (e: any) {
@@ -403,7 +458,7 @@ describe('Shell BSON', function() {
       }
       expect.fail('Expecting error, nothing thrown');
     });
-    it('errors for missing arg 2', function() {
+    it('errors for missing arg 2', function () {
       try {
         (shellBson.HexData as any)(0);
       } catch (e: any) {
@@ -411,7 +466,7 @@ describe('Shell BSON', function() {
       }
       expect.fail('Expecting error, nothing thrown');
     });
-    it('errors for wrong type of arg 1', function() {
+    it('errors for wrong type of arg 1', function () {
       try {
         (shellBson.HexData as any)('1', 'abc');
       } catch (e: any) {
@@ -419,7 +474,7 @@ describe('Shell BSON', function() {
       }
       expect.fail('Expecting error, nothing thrown');
     });
-    it('errors for wrong type of arg 2', function() {
+    it('errors for wrong type of arg 2', function () {
       try {
         (shellBson.HexData as any)(0, 1);
       } catch (e: any) {
@@ -428,38 +483,40 @@ describe('Shell BSON', function() {
       expect.fail('Expecting error, nothing thrown');
     });
   });
-  describe('UUID', function() {
+  describe('UUID', function () {
     let b: any;
     let h: any;
-    before(function() {
+    before(function () {
       b = shellBson.BinData(4, b64_1234);
       h = shellBson.UUID(hex_1234);
     });
-    it('equals BinData', function() {
+    it('equals BinData', function () {
       expect(b.value()).to.equal(h.value());
       expect(b.sub_type).to.equal(h.sub_type);
     });
-    it('equals 1234', function() {
+    it('equals 1234', function () {
       expect(h.value()).to.equal(utf_1234);
     });
-    it('has subtype', function() {
+    it('has subtype', function () {
       expect(h.sub_type).to.equal(4);
     });
-    it('has help and other metadata', async function() {
+    it('has help and other metadata', async function () {
       expect((await toShellResult(h.help)).type).to.equal('Help');
       expect((await toShellResult(h.help())).type).to.equal('Help');
       expect(h.serverVersions).to.deep.equal(ALL_SERVER_VERSIONS);
     });
-    it('strips dashes from input', function() {
-      expect(shellBson.UUID('01234567-89ab-cdef-0123-456789abcdef').value())
-        .to.equal(shellBson.UUID('0123456789abcdef0123456789abcdef').value());
+    it('strips dashes from input', function () {
+      expect(
+        shellBson.UUID('01234567-89ab-cdef-0123-456789abcdef').value()
+      ).to.equal(shellBson.UUID('0123456789abcdef0123456789abcdef').value());
     });
-    it('generates a random UUID when no arguments are passed', function() {
+    it('generates a random UUID when no arguments are passed', function () {
       // https://en.wikipedia.org/wiki/Universally_unique_identifier#Format
       expect(shellBson.UUID().value(true).toString('hex')).to.match(
-        /^[a-z0-9]{12}4[a-z0-9]{3}[89ab][a-z0-9]{15}$/);
+        /^[a-z0-9]{12}4[a-z0-9]{3}[89ab][a-z0-9]{15}$/
+      );
     });
-    it('errors for wrong type of arg 1', function() {
+    it('errors for wrong type of arg 1', function () {
       try {
         (shellBson.UUID as any)(1);
       } catch (e: any) {
@@ -468,29 +525,29 @@ describe('Shell BSON', function() {
       expect.fail('Expecting error, nothing thrown');
     });
   });
-  describe('MD5', function() {
+  describe('MD5', function () {
     let b: any;
     let h: any;
-    before(function() {
+    before(function () {
       b = shellBson.BinData(5, b64_1234);
       h = shellBson.MD5(hex_1234);
     });
-    it('equals BinData', function() {
+    it('equals BinData', function () {
       expect(b.value()).to.equal(h.value());
       expect(b.sub_type).to.equal(h.sub_type);
     });
-    it('equals 1234', function() {
+    it('equals 1234', function () {
       expect(h.value()).to.equal(utf_1234);
     });
-    it('has subtype', function() {
+    it('has subtype', function () {
       expect(h.sub_type).to.equal(5);
     });
-    it('has help and other metadata', async function() {
+    it('has help and other metadata', async function () {
       expect((await toShellResult(h.help)).type).to.equal('Help');
       expect((await toShellResult(h.help())).type).to.equal('Help');
       expect(h.serverVersions).to.deep.equal(ALL_SERVER_VERSIONS);
     });
-    it('errors for missing arg 1', function() {
+    it('errors for missing arg 1', function () {
       try {
         (shellBson.MD5 as any)();
       } catch (e: any) {
@@ -498,7 +555,7 @@ describe('Shell BSON', function() {
       }
       expect.fail('Expecting error, nothing thrown');
     });
-    it('errors for wrong type of arg 1', function() {
+    it('errors for wrong type of arg 1', function () {
       try {
         (shellBson.MD5 as any)(1);
       } catch (e: any) {
@@ -507,11 +564,11 @@ describe('Shell BSON', function() {
       expect.fail('Expecting error, nothing thrown');
     });
   });
-  describe('bsonsize', function() {
-    it('calculates empty doc size', function() {
+  describe('bsonsize', function () {
+    it('calculates empty doc size', function () {
       expect(shellBson.bsonsize({})).to.equal(5);
     });
-    it('errors for missing arg', function() {
+    it('errors for missing arg', function () {
       try {
         (shellBson.bsonsize as any)();
       } catch (e: any) {
@@ -519,7 +576,7 @@ describe('Shell BSON', function() {
       }
       expect.fail('Expecting error, nothing thrown');
     });
-    it('errors for wrong type of arg 1', function() {
+    it('errors for wrong type of arg 1', function () {
       try {
         (shellBson.bsonsize as any)(1);
       } catch (e: any) {
@@ -529,110 +586,128 @@ describe('Shell BSON', function() {
     });
   });
 
-  describe('NumberLong', function() {
-    it('creates a bson.Long', function() {
+  describe('NumberLong', function () {
+    it('creates a bson.Long', function () {
       const n = shellBson.NumberLong('123');
       expect(n).to.be.instanceOf(bson.Long);
       expect(bson.Long.fromString('123').eq(n)).to.be.true;
     });
 
-    it('constructs 0 if the argument is not provided', function() {
+    it('constructs 0 if the argument is not provided', function () {
       expect(bson.Long.fromString('0').eq(shellBson.NumberLong())).to.be.true;
     });
 
-    it('correctly constructs numbers > MAX_SAFE_INTEGER', function() {
-      expect(shellBson.NumberLong('345678654321234552').toString()).to.equal('345678654321234552');
+    it('correctly constructs numbers > MAX_SAFE_INTEGER', function () {
+      expect(shellBson.NumberLong('345678654321234552').toString()).to.equal(
+        '345678654321234552'
+      );
     });
 
-    it('correctly constructs large numbers < MAX_SAFE_INTEGER from their JS number value', function() {
-      expect(shellBson.NumberLong(68719476736).toString()).to.equal('68719476736');
+    it('correctly constructs large numbers < MAX_SAFE_INTEGER from their JS number value', function () {
+      expect(shellBson.NumberLong(68719476736).toString()).to.equal(
+        '68719476736'
+      );
     });
 
-    it('creates a bson.Long for unrecommended integer and prints warning', function() {
+    it('creates a bson.Long for unrecommended integer and prints warning', function () {
       const n = shellBson.NumberLong(123.5);
       expect(n).to.be.instanceOf(bson.Long);
       expect(bson.Long.fromString('123').eq(n)).to.be.true;
-      expect(printWarning).to.have.been.calledWith('NumberLong: specifying a number as argument is deprecated and may lead to loss of precision, pass a string instead');
+      expect(printWarning).to.have.been.calledWith(
+        'NumberLong: specifying a number as argument is deprecated and may lead to loss of precision, pass a string instead'
+      );
     });
 
-    it('errors for wrong type of arg 1', function() {
+    it('errors for wrong type of arg 1', function () {
       try {
         (shellBson.NumberLong as any)({});
       } catch (e: any) {
-        return expect(e.message).to.match(/string or number or Long or Int32, got object.+\(NumberLong\)/);
+        return expect(e.message).to.match(
+          /string or number or Long or Int32, got object.+\(NumberLong\)/
+        );
       }
       expect.fail('Expecting error, nothing thrown');
     });
   });
 
-  describe('NumberDecimal', function() {
-    it('creates a bson.Decimal128', function() {
+  describe('NumberDecimal', function () {
+    it('creates a bson.Decimal128', function () {
       const n = shellBson.NumberDecimal('123.1');
       expect(n).to.be.instanceOf(bson.Decimal128);
       expect(n.toString()).to.equal('123.1');
     });
 
-    it('constructs 0 if the argument is not provided', function() {
+    it('constructs 0 if the argument is not provided', function () {
       expect(shellBson.NumberDecimal().toString()).to.equal('0');
     });
 
-    it('correctly constructs numbers > MAX_SAFE_INTEGER', function() {
-      expect(shellBson.NumberDecimal('345678654321234552.0').toString()).to.equal('345678654321234552.0');
+    it('correctly constructs numbers > MAX_SAFE_INTEGER', function () {
+      expect(
+        shellBson.NumberDecimal('345678654321234552.0').toString()
+      ).to.equal('345678654321234552.0');
     });
 
-    it('creates a bson.Decimal128 for unrecommended integer and prints warning', function() {
+    it('creates a bson.Decimal128 for unrecommended integer and prints warning', function () {
       const n = shellBson.NumberDecimal(123);
       expect(n).to.be.instanceOf(bson.Decimal128);
-      expect(bson.Decimal128.fromString('123').toString()).to.equal(n.toString());
-      expect(printWarning).to.have.been.calledWith('NumberDecimal: specifying a number as argument is deprecated and may lead to loss of precision, pass a string instead');
+      expect(bson.Decimal128.fromString('123').toString()).to.equal(
+        n.toString()
+      );
+      expect(printWarning).to.have.been.calledWith(
+        'NumberDecimal: specifying a number as argument is deprecated and may lead to loss of precision, pass a string instead'
+      );
     });
 
-    it('errors for wrong type of arg 1', function() {
+    it('errors for wrong type of arg 1', function () {
       try {
         (shellBson.NumberDecimal as any)({});
       } catch (e: any) {
-        return expect(e.message).to.match(/string or number or Long or Int32 or Decimal128, got object.+\(NumberDecimal\)/);
+        return expect(e.message).to.match(
+          /string or number or Long or Int32 or Decimal128, got object.+\(NumberDecimal\)/
+        );
       }
       expect.fail('Expecting error, nothing thrown');
     });
   });
 
-  describe('NumberInt', function() {
-    it('creates a bson.Int32 from string', function() {
+  describe('NumberInt', function () {
+    it('creates a bson.Int32 from string', function () {
       const n = shellBson.NumberInt('1');
       expect(n).to.be.instanceOf(bson.Int32);
       expect(n.value).to.equal(1);
     });
 
-    it('creates a bson.Int32 from number', function() {
+    it('creates a bson.Int32 from number', function () {
       const n = shellBson.NumberInt(123);
       expect(n).to.be.instanceOf(bson.Int32);
       expect(new bson.Int32(123).value).to.equal(n.value);
     });
 
-    it('creates a bson.Int32 from non-integer number', function() {
+    it('creates a bson.Int32 from non-integer number', function () {
       const n = shellBson.NumberInt(123.5);
       expect(n).to.be.instanceOf(bson.Int32);
       expect(new bson.Int32(123).value).to.equal(n.value);
     });
 
-    it('constructs 0 if the argument is not provided', function() {
+    it('constructs 0 if the argument is not provided', function () {
       expect(shellBson.NumberInt().value).to.equal(0);
     });
 
-    it('errors for wrong type of arg 1', function() {
+    it('errors for wrong type of arg 1', function () {
       try {
         (shellBson.NumberInt as any)({});
       } catch (e: any) {
-        return expect(e.message).to.match(/string or number or Long or Int32, got object.+\(NumberInt\)/);
+        return expect(e.message).to.match(
+          /string or number or Long or Int32, got object.+\(NumberInt\)/
+        );
       }
       expect.fail('Expecting error, nothing thrown');
     });
   });
 
-  describe('Number type cross-construction', function() {
-    it('matches the legacy shell', function() {
-      const { NumberInt, NumberLong, NumberDecimal } = shellBson ;
+  describe('Number type cross-construction', function () {
+    it('matches the legacy shell', function () {
+      const { NumberInt, NumberLong, NumberDecimal } = shellBson;
       expect(NumberInt(null).toString()).to.equal('0');
       expect(NumberLong(null).toString()).to.equal('0');
 
@@ -647,23 +722,25 @@ describe('Shell BSON', function() {
     });
   });
 
-  describe('EJSON', function() {
-    it('serializes and de-serializes data', function() {
+  describe('EJSON', function () {
+    it('serializes and de-serializes data', function () {
       const input = { a: new Date() };
       const output = shellBson.EJSON.parse(shellBson.EJSON.stringify(input));
       expect(input).to.deep.equal(output);
     });
   });
 
-  describe('BSON constructor properties', function() {
-    it('matches original BSON constructor properties', function() {
+  describe('BSON constructor properties', function () {
+    it('matches original BSON constructor properties', function () {
       for (const key of Object.keys(bson)) {
         if (!(key in shellBson) || bson[key] === shellBson[key]) {
           continue;
         }
 
         const bsonProperties = Object.getOwnPropertyDescriptors(bson[key]);
-        const shellProperties = Object.getOwnPropertyDescriptors(shellBson[key]);
+        const shellProperties = Object.getOwnPropertyDescriptors(
+          shellBson[key]
+        );
         delete shellProperties.help; // Not expected from the original BSON.
         delete shellProperties.length; // Function length can vary depending on the specific arguments in TS.
         delete bsonProperties.length;

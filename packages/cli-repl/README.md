@@ -5,6 +5,7 @@
 CLI interface for [MongoDB Shell][mongosh], an extension to Node.js REPL with MongoDB API.
 
 ## Usage
+
 ```shell
   $ mongosh [options] [db address] [file names (ending in .js or .mongodb)]
 
@@ -79,59 +80,80 @@ CLI interface for [MongoDB Shell][mongosh], an extension to Node.js REPL with Mo
 ```
 
 ### Log Format
-CLI REPL listens to a few events via a message bus  that are then logged to
+
+CLI REPL listens to a few events via a message bus that are then logged to
 user's local log file in `~/.mongodb/mongosh/` in ndjson format using
 [pino][pino-js].
 
 ### bus.on('mongosh:connect', connectEvent)
+
 Where `connectionInfo` is an object with the following interface:
+
 ```ts
 interface ConnectEvent {
   driverUri: string;
 }
 ```
+
 Used to log and send telemetry about connection information. Sensitive
 information is stripped beforehand.
 
 Example:
+
 ```js
 bus.emit('mongosh:connect', {
-  driverUri: 'mongodb://192.168.0.5:9999/ships'
-})
+  driverUri: 'mongodb://192.168.0.5:9999/ships',
+});
 ```
 
 ### bus.on('mongosh:new-user', telemetryUserIdentity, enableTelemetry)
+
 Where `telemetryUserIdentity` is `userId` and `anonymousId` which are both a [BSON ObjectID][object-id].
 And `enableTelemetry` is a boolean flag.
 This is used internally to update telemetry preferences.
 
 Example:
+
 ```js
-bus.emit('mongosh:new-user', { userId: '12394dfjvnaw3uw3erdf', anonymousId: '12394dfjvnaw3uw3erdf' }, true)
+bus.emit(
+  'mongosh:new-user',
+  { userId: '12394dfjvnaw3uw3erdf', anonymousId: '12394dfjvnaw3uw3erdf' },
+  true
+);
 ```
 
 ### bus.on('mongosh:update-user', telemetryUserIdentity, enableTelemetry)
+
 Where `telemetryUserIdentity` is `userId` and `anonymousId` which are both a [BSON ObjectID][object-id].
 And `enableTelemetry` is a boolean flag.
 This is used internally to update telemetry preferences.
 
 Example:
+
 ```js
-bus.emit('mongosh:update-user', { userId: '12394dfjvnaw3uw3erdf', anonymousId: null } , false)
+bus.emit(
+  'mongosh:update-user',
+  { userId: '12394dfjvnaw3uw3erdf', anonymousId: null },
+  false
+);
 ```
 
 ### bus.on('mongosh:error', error)
+
 Where `error` is an [Error Object][error-object]. Used to log and send telemetry
 about errors that are _thrown_.
 
 Example:
+
 ```js
-bus.emit('mongosh:error', new Error('Unable to show collections'))
+bus.emit('mongosh:error', new Error('Unable to show collections'));
 ```
 
 ### bus.on('mongosh:rewritten-async-input', inputInfo)
+
 Used for internal debugging of async-rewriter. `inputInfo` is an object with the
 following interface:
+
 ```ts
 interface AsyncRewriterEvent {
   original: string;
@@ -140,15 +162,16 @@ interface AsyncRewriterEvent {
 ```
 
 Example:
+
 ```js
 bus.emit('mongosh:rewritten-async-input', {
   original: 'db.coll.find().forEach()',
-  rewritten: 'await db.coll.find().forEach();'
-})
-
+  rewritten: 'await db.coll.find().forEach();',
+});
 ```
 
 ### bus.on('mongosh:use', args)
+
 Used for recording information about `use`. `args` has the following interface:
 
 ```ts
@@ -158,12 +181,13 @@ interface UseEvent {
 ```
 
 Example:
-```js
-bus.emit('mongosh:use', { db: 'cats' })
 
+```js
+bus.emit('mongosh:use', { db: 'cats' });
 ```
 
 ### bus.on('mongosh:show', args)
+
 Used for recording information about `show` command. `args` has the following
 interface:
 
@@ -174,22 +198,26 @@ interface ShowEvent {
 ```
 
 Example:
-```js
-bus.emit('mongosh:show', { method: 'dbs' })
 
+```js
+bus.emit('mongosh:show', { method: 'dbs' });
 ```
 
 ### bus.on('mongosh:it')
+
 Used for recording when `it` command was called.
 
 Example:
-```js
-bus.emit('mongosh:it')
 
+```js
+bus.emit('mongosh:it');
 ```
+
 ### bus.on('mongosh:api-call', args)
+
 Used for recording information when API calls are made. `args` has the following
 interface:
+
 ```ts
 interface ApiEvent {
   method?: string;
@@ -214,37 +242,44 @@ information containing documents coming from API calls such as
 `db.coll.insert()` or `db.coll.bulkWrite()` to keep cleaner logs.
 
 `aggregate` Event Example:
+
 ```js
 this.messageBus.emit('mongosh:api-call', {
   method: 'aggregate',
   class: 'Collection',
-  db, coll, arguments: { options, pipeline }
+  db,
+  coll,
+  arguments: { options, pipeline },
 });
-
 ```
 
 `runCommand` Event Example:
+
 ```js
 this.messageBus.emit('mongosh:api-call', {
-  method: 'runCommand', class: 'Database', db, arguments: { cmd }
+  method: 'runCommand',
+  class: 'Database',
+  db,
+  arguments: { cmd },
 });
-
 ```
 
 `createIndex` Event Example:
+
 ```js
 this.messageBus.emit('mongosh:api-call', {
   method: 'createIndex',
   class: 'Collection',
-  db, coll, arguments: { keys, options }
+  db,
+  coll,
+  arguments: { keys, options },
 });
 ```
 
-
 ## Local Development
 
-
 ## Installation
+
 ```shell
 npm install --save @mongosh/cli-repl
 ```

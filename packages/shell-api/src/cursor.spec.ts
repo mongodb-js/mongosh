@@ -1,30 +1,44 @@
 import { signatures, toShellResult } from './index';
 import Cursor from './cursor';
 import type { FindCursor as ServiceProviderCursor } from '@mongosh/service-provider-core';
-import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES, ALL_API_VERSIONS, ServerVersions } from './enums';
+import {
+  ALL_PLATFORMS,
+  ALL_SERVER_VERSIONS,
+  ALL_TOPOLOGIES,
+  ALL_API_VERSIONS,
+  ServerVersions,
+} from './enums';
 import chai from 'chai';
 import sinonChai from 'sinon-chai';
 import type { StubbedInstance } from 'ts-sinon';
 import sinon, { stubInterface } from 'ts-sinon';
-import { CommonErrors, MongoshDeprecatedError, MongoshInvalidInputError, MongoshUnimplementedError } from '@mongosh/errors';
+import {
+  CommonErrors,
+  MongoshDeprecatedError,
+  MongoshInvalidInputError,
+  MongoshUnimplementedError,
+} from '@mongosh/errors';
 chai.use(sinonChai);
 const { expect } = chai;
 
-describe('Cursor', function() {
-  describe('help', function() {
-    const apiClass = new Cursor({
-      _serviceProvider: { platform: 'CLI' }
-    } as any, {} as any);
-    it('calls help function', async function() {
+describe('Cursor', function () {
+  describe('help', function () {
+    const apiClass = new Cursor(
+      {
+        _serviceProvider: { platform: 'CLI' },
+      } as any,
+      {} as any
+    );
+    it('calls help function', async function () {
       expect((await toShellResult(apiClass.help())).type).to.equal('Help');
       expect((await toShellResult(apiClass.help)).type).to.equal('Help');
     });
   });
-  describe('signature', function() {
-    it('signature for class correct', function() {
+  describe('signature', function () {
+    it('signature for class correct', function () {
       expect(signatures.Cursor.type).to.equal('Cursor');
     });
-    it('map signature', function() {
+    it('map signature', function () {
       expect(signatures.Cursor.attributes.map).to.deep.equal({
         type: 'function',
         returnsPromise: false,
@@ -36,65 +50,78 @@ describe('Cursor', function() {
         serverVersions: ALL_SERVER_VERSIONS,
         isDirectShellCommand: false,
         acceptsRawInput: false,
-        shellCommandCompleter: undefined
+        shellCommandCompleter: undefined,
       });
     });
   });
-  describe('instance', function() {
+  describe('instance', function () {
     let wrappee;
     let cursor;
-    beforeEach(function() {
+    beforeEach(function () {
       wrappee = {
         map: sinon.spy(),
         closed: true,
-        bufferedCount() { return 0; }
+        bufferedCount() {
+          return 0;
+        },
       };
-      cursor = new Cursor({
-        _serviceProvider: { platform: 'CLI' },
-        _displayBatchSize: () => 20
-      } as any, wrappee);
+      cursor = new Cursor(
+        {
+          _serviceProvider: { platform: 'CLI' },
+          _displayBatchSize: () => 20,
+        } as any,
+        wrappee
+      );
     });
 
-    it('sets dynamic properties', async function() {
+    it('sets dynamic properties', async function () {
       expect((await toShellResult(cursor)).type).to.equal('Cursor');
-      expect((await toShellResult(cursor._it())).type).to.equal('CursorIterationResult');
+      expect((await toShellResult(cursor._it())).type).to.equal(
+        'CursorIterationResult'
+      );
       expect((await toShellResult(cursor)).printable).to.deep.equal({
         documents: [],
-        cursorHasMore: false
+        cursorHasMore: false,
       });
       expect((await toShellResult(cursor.help)).type).to.equal('Help');
     });
 
-    it('map() returns a new cursor', function() {
+    it('map() returns a new cursor', function () {
       expect(cursor.map()).to.equal(cursor);
     });
-    it('pretty returns the same cursor', function() {
+    it('pretty returns the same cursor', function () {
       expect(cursor.pretty()).to.equal(cursor);
     });
 
-    it('has the correct metadata', function() {
-      expect(cursor.collation.serverVersions).to.deep.equal(['3.4.0', ServerVersions.latest]);
+    it('has the correct metadata', function () {
+      expect(cursor.collation.serverVersions).to.deep.equal([
+        '3.4.0',
+        ServerVersions.latest,
+      ]);
     });
   });
-  describe('Cursor Internals', function() {
+  describe('Cursor Internals', function () {
     const mongo = {
-      _displayBatchSize: () => 20
+      _displayBatchSize: () => 20,
     } as any;
-    describe('#addOption', function() {
+    describe('#addOption', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
       let shellApiCursor;
 
-      beforeEach(function() {
+      beforeEach(function () {
         spCursor = stubInterface<ServiceProviderCursor>();
         shellApiCursor = new Cursor(mongo, spCursor);
       });
 
-      it('fluidly adds the cursor flag', function() {
+      it('fluidly adds the cursor flag', function () {
         expect(shellApiCursor.addOption(2)).to.equal(shellApiCursor);
-        expect(spCursor.addCursorFlag).to.have.been.calledWith('tailable', true);
+        expect(spCursor.addCursorFlag).to.have.been.calledWith(
+          'tailable',
+          true
+        );
       });
 
-      it('throws if a SlaveOk flag passed', function() {
+      it('throws if a SlaveOk flag passed', function () {
         try {
           shellApiCursor.addOption(4);
           expect.fail('expected error');
@@ -105,7 +132,7 @@ describe('Cursor', function() {
         }
       });
 
-      it('throws if an unknown flag passed', function() {
+      it('throws if an unknown flag passed', function () {
         try {
           shellApiCursor.addOption(123123);
           expect.fail('expected error');
@@ -117,497 +144,522 @@ describe('Cursor', function() {
       });
     });
 
-    describe('#allowPartialResults', function() {
+    describe('#allowPartialResults', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
       let shellApiCursor;
 
-      beforeEach(function() {
+      beforeEach(function () {
         spCursor = stubInterface<ServiceProviderCursor>();
         shellApiCursor = new Cursor(mongo, spCursor);
       });
 
-      it('fluidly adds the cursor flag', function() {
+      it('fluidly adds the cursor flag', function () {
         expect(shellApiCursor.allowPartialResults()).to.equal(shellApiCursor);
         expect(spCursor.addCursorFlag).to.have.been.calledWith('partial', true);
       });
     });
 
-    describe('#allowDiskUse', function() {
+    describe('#allowDiskUse', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
       let shellApiCursor;
 
-      beforeEach(function() {
+      beforeEach(function () {
         spCursor = stubInterface<ServiceProviderCursor>();
         shellApiCursor = new Cursor(mongo, spCursor);
       });
 
-      it('calls the driver method', function() {
+      it('calls the driver method', function () {
         expect(shellApiCursor.allowDiskUse()).to.equal(shellApiCursor);
         expect(spCursor.allowDiskUse).to.have.been.calledWith();
       });
 
-      it('calls the driver method for true', function() {
+      it('calls the driver method for true', function () {
         expect(shellApiCursor.allowDiskUse(true)).to.equal(shellApiCursor);
         expect(spCursor.allowDiskUse).to.have.been.calledWith(true);
       });
 
-      it('calls the driver method for false', function() {
+      it('calls the driver method for false', function () {
         expect(shellApiCursor.allowDiskUse(false)).to.equal(shellApiCursor);
         expect(spCursor.allowDiskUse).to.have.been.calledWith(false);
       });
     });
 
-    describe('#batchSize', function() {
+    describe('#batchSize', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
       let shellApiCursor;
 
-      beforeEach(function() {
+      beforeEach(function () {
         spCursor = stubInterface<ServiceProviderCursor>();
         shellApiCursor = new Cursor(mongo, spCursor);
       });
 
-      it('fluidly set the batch size', function() {
+      it('fluidly set the batch size', function () {
         expect(shellApiCursor.batchSize(5)).to.equal(shellApiCursor);
         expect(spCursor.batchSize).to.have.been.calledWith(5);
       });
     });
 
-    describe('#close', function() {
+    describe('#close', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
       let shellApiCursor;
 
-      beforeEach(function() {
+      beforeEach(function () {
         spCursor = stubInterface<ServiceProviderCursor>();
         shellApiCursor = new Cursor(mongo, spCursor);
       });
 
-      it('closes the cursor', function() {
+      it('closes the cursor', function () {
         shellApiCursor.close();
         expect(spCursor.close).to.have.been.called;
       });
     });
 
-    describe('#collation', function() {
+    describe('#collation', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
       let shellApiCursor;
       const coll = { locale: 'en' };
 
-      beforeEach(function() {
+      beforeEach(function () {
         spCursor = stubInterface<ServiceProviderCursor>();
         spCursor.collation.withArgs(coll as any);
         shellApiCursor = new Cursor(mongo, spCursor);
       });
 
-      it('fluidly sets the collation', function() {
+      it('fluidly sets the collation', function () {
         expect(shellApiCursor.collation(coll)).to.equal(shellApiCursor);
         expect(spCursor.collation).to.have.been.calledWith(coll);
       });
     });
 
-    describe('#comment', function() {
+    describe('#comment', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
       let shellApiCursor;
       const cmt = 'hi';
 
-      beforeEach(function() {
+      beforeEach(function () {
         spCursor = stubInterface<ServiceProviderCursor>();
         shellApiCursor = new Cursor(mongo, spCursor);
       });
 
-      it('fluidly sets the comment', function() {
+      it('fluidly sets the comment', function () {
         expect(shellApiCursor.comment(cmt)).to.equal(shellApiCursor);
         expect(spCursor.comment).to.have.been.calledWith(cmt);
       });
     });
 
-    describe('#count', function() {
+    describe('#count', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
       let shellApiCursor;
 
-      beforeEach(function() {
+      beforeEach(function () {
         spCursor = stubInterface<ServiceProviderCursor>();
         spCursor.count.resolves(5);
         shellApiCursor = new Cursor(mongo, spCursor);
       });
 
-      it('fluidly sets the count', async function() {
+      it('fluidly sets the count', async function () {
         expect(await shellApiCursor.count()).to.equal(5);
         expect(spCursor.count).to.have.been.calledWith();
       });
 
-      it('is aliased by size()', async function() {
+      it('is aliased by size()', async function () {
         expect(await shellApiCursor.size()).to.equal(5);
         expect(spCursor.count).to.have.been.calledWith();
       });
     });
 
-    describe('#hasNext', function() {
+    describe('#hasNext', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
       let shellApiCursor;
 
-      beforeEach(function() {
+      beforeEach(function () {
         spCursor = stubInterface<ServiceProviderCursor>();
         shellApiCursor = new Cursor(mongo, spCursor);
         spCursor.hasNext.resolves(true);
       });
 
-      it('returns the cursor hasNext value', async function() {
+      it('returns the cursor hasNext value', async function () {
         expect(await shellApiCursor.hasNext()).to.equal(true);
         expect(spCursor.hasNext).to.have.been.calledWith();
       });
     });
 
-    describe('#tryNext', function() {
+    describe('#tryNext', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
       let shellApiCursor;
 
-      beforeEach(function() {
+      beforeEach(function () {
         spCursor = stubInterface<ServiceProviderCursor>();
         shellApiCursor = new Cursor(mongo, spCursor);
         spCursor.tryNext.resolves({ doc: 1 });
       });
 
-      it('returns the cursor hasNext value', async function() {
+      it('returns the cursor hasNext value', async function () {
         expect(await shellApiCursor.tryNext()).to.deep.equal({ doc: 1 });
         expect(spCursor.tryNext).to.have.been.calledWith();
       });
     });
 
-    describe('#isExhausted', function() {
+    describe('#isExhausted', function () {
       let spCursor: any;
       let shellApiCursor: Cursor;
 
-      [ // hasNext, isClosed, expected
+      [
+        // hasNext, isClosed, expected
         [1, true, false],
         [1, false, false],
         [0, true, true],
-        [0, false, false]
+        [0, false, false],
       ].forEach(([buffCount, isClosed, expected]) => {
-        context(`when cursor.objsLeftInBatch is ${buffCount} and cursor.isClosed is ${isClosed}`, function() {
-          beforeEach(function() {
-            // NOTE: have to use proxy bc can't stub readonly attributes like closed
-            spCursor = new Proxy({} as ServiceProviderCursor, {
-              get: (target, prop): any => {
-                if (prop === 'closed') {
-                  return isClosed;
-                }
-                if (prop === 'bufferedCount') {
-                  return () => buffCount;
-                }
-                return (target as any).prop;
-              }
+        context(
+          `when cursor.objsLeftInBatch is ${buffCount} and cursor.isClosed is ${isClosed}`,
+          function () {
+            beforeEach(function () {
+              // NOTE: have to use proxy bc can't stub readonly attributes like closed
+              spCursor = new Proxy({} as ServiceProviderCursor, {
+                get: (target, prop): any => {
+                  if (prop === 'closed') {
+                    return isClosed;
+                  }
+                  if (prop === 'bufferedCount') {
+                    return () => buffCount;
+                  }
+                  return (target as any).prop;
+                },
+              });
+              shellApiCursor = new Cursor(mongo, spCursor);
             });
-            shellApiCursor = new Cursor(mongo, spCursor);
-          });
 
-          it(`returns ${expected}`, function() {
-            expect(shellApiCursor.isExhausted()).to.equal(expected);
-          });
-        });
+            it(`returns ${expected}`, function () {
+              expect(shellApiCursor.isExhausted()).to.equal(expected);
+            });
+          }
+        );
       });
     });
 
-    describe('#hint', function() {
+    describe('#hint', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
       let shellApiCursor;
       const index = 'a_1';
 
-      beforeEach(function() {
+      beforeEach(function () {
         spCursor = stubInterface<ServiceProviderCursor>();
         shellApiCursor = new Cursor(mongo, spCursor);
       });
 
-      it('fluidly sets hint', function() {
+      it('fluidly sets hint', function () {
         expect(shellApiCursor.hint(index)).to.equal(shellApiCursor);
         expect(spCursor.hint).to.have.been.calledWith(index);
       });
     });
 
-    describe('#limit', function() {
+    describe('#limit', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
       let shellApiCursor;
       const value = 6;
 
-      beforeEach(function() {
+      beforeEach(function () {
         spCursor = stubInterface<ServiceProviderCursor>();
         shellApiCursor = new Cursor(mongo, spCursor);
       });
 
-      it('fluidly sets limit', function() {
+      it('fluidly sets limit', function () {
         expect(shellApiCursor.limit(value)).to.equal(shellApiCursor);
         expect(spCursor.limit).to.have.been.calledWith(value);
       });
     });
 
-    describe('#max', function() {
+    describe('#max', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
       let shellApiCursor;
       const value = { a: 1 };
 
-      beforeEach(function() {
+      beforeEach(function () {
         spCursor = stubInterface<ServiceProviderCursor>();
         shellApiCursor = new Cursor(mongo, spCursor);
       });
 
-      it('fluidly sets max', function() {
+      it('fluidly sets max', function () {
         expect(shellApiCursor.max(value)).to.equal(shellApiCursor);
         expect(spCursor.max).to.have.been.calledWith(value);
       });
     });
 
-    describe('#maxTimeMS', function() {
+    describe('#maxTimeMS', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
       let shellApiCursor;
       const value = 5000;
 
-      beforeEach(function() {
+      beforeEach(function () {
         spCursor = stubInterface<ServiceProviderCursor>();
         shellApiCursor = new Cursor(mongo, spCursor);
       });
 
-      it('fluidly sets maxTimeMS', function() {
+      it('fluidly sets maxTimeMS', function () {
         expect(shellApiCursor.maxTimeMS(value)).to.equal(shellApiCursor);
         expect(spCursor.maxTimeMS).to.have.been.calledWith(value);
       });
     });
 
-    describe('#maxAwaitTimeMS', function() {
+    describe('#maxAwaitTimeMS', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
       let shellApiCursor;
       const value = 5000;
 
-      beforeEach(function() {
+      beforeEach(function () {
         spCursor = stubInterface<ServiceProviderCursor>();
         shellApiCursor = new Cursor(mongo, spCursor);
       });
 
-      it('fluidly sets maxAwaitTimeMS', function() {
+      it('fluidly sets maxAwaitTimeMS', function () {
         expect(shellApiCursor.maxAwaitTimeMS(value)).to.equal(shellApiCursor);
         expect(spCursor.maxAwaitTimeMS).to.have.been.calledWith(value);
       });
     });
 
-    describe('#min', function() {
+    describe('#min', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
       let shellApiCursor;
       const value = { a: 1 };
 
-      beforeEach(function() {
+      beforeEach(function () {
         spCursor = stubInterface<ServiceProviderCursor>();
         shellApiCursor = new Cursor(mongo, spCursor);
       });
 
-      it('fluidly sets min', function() {
+      it('fluidly sets min', function () {
         expect(shellApiCursor.min(value)).to.equal(shellApiCursor);
         expect(spCursor.min).to.have.been.calledWith(value);
       });
     });
 
-    describe('#noCursorTimeout', function() {
+    describe('#noCursorTimeout', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
       let shellApiCursor;
 
-      beforeEach(function() {
+      beforeEach(function () {
         spCursor = stubInterface<ServiceProviderCursor>();
         shellApiCursor = new Cursor(mongo, spCursor);
       });
 
-      it('fluidly adds the cursor flag', function() {
+      it('fluidly adds the cursor flag', function () {
         expect(shellApiCursor.noCursorTimeout()).to.equal(shellApiCursor);
-        expect(spCursor.addCursorFlag).to.have.been.calledWith('noCursorTimeout', true);
+        expect(spCursor.addCursorFlag).to.have.been.calledWith(
+          'noCursorTimeout',
+          true
+        );
       });
     });
 
-    describe('#oplogReplay', function() {
+    describe('#oplogReplay', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
       let shellApiCursor;
 
-      beforeEach(function() {
+      beforeEach(function () {
         spCursor = stubInterface<ServiceProviderCursor>();
         shellApiCursor = new Cursor(mongo, spCursor);
       });
 
-      it('fluidly adds the cursor flag', function() {
+      it('fluidly adds the cursor flag', function () {
         expect(shellApiCursor.oplogReplay()).to.equal(shellApiCursor);
-        expect(spCursor.addCursorFlag).to.have.been.calledWith('oplogReplay', true);
+        expect(spCursor.addCursorFlag).to.have.been.calledWith(
+          'oplogReplay',
+          true
+        );
       });
     });
 
-    describe('#projection', function() {
+    describe('#projection', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
       let shellApiCursor;
       const value = { a: 1 };
 
-      beforeEach(function() {
+      beforeEach(function () {
         spCursor = stubInterface<ServiceProviderCursor>();
         shellApiCursor = new Cursor(mongo, spCursor);
       });
 
-      it('fluidly sets projection', function() {
+      it('fluidly sets projection', function () {
         expect(shellApiCursor.projection(value)).to.equal(shellApiCursor);
         expect(spCursor.project).to.have.been.calledWith(value);
       });
     });
 
-    describe('#readPref', function() {
+    describe('#readPref', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
       let shellApiCursor;
       let fromOptionsStub;
       const value = 'primary';
       const tagSet = [{ nodeType: 'ANALYTICS' }];
 
-      beforeEach(function() {
+      beforeEach(function () {
         spCursor = stubInterface<ServiceProviderCursor>();
         shellApiCursor = new Cursor(mongo, spCursor);
         fromOptionsStub = sinon.stub();
-        fromOptionsStub.callsFake(input => input);
+        fromOptionsStub.callsFake((input) => input);
         mongo._serviceProvider = {
-          readPreferenceFromOptions: fromOptionsStub
+          readPreferenceFromOptions: fromOptionsStub,
         };
       });
 
-      it('fluidly sets the read preference', function() {
+      it('fluidly sets the read preference', function () {
         expect(shellApiCursor.readPref(value)).to.equal(shellApiCursor);
         expect(spCursor.withReadPreference).to.have.been.calledWith(value);
       });
 
-      it('fluidly sets the read preference with tagSet and hedge options', function() {
-        expect(shellApiCursor.readPref(value, tagSet, { enabled: true })).to.equal(shellApiCursor);
+      it('fluidly sets the read preference with tagSet and hedge options', function () {
+        expect(
+          shellApiCursor.readPref(value, tagSet, { enabled: true })
+        ).to.equal(shellApiCursor);
         expect(spCursor.withReadPreference).to.have.been.calledWith({
           readPreference: value,
           readPreferenceTags: tagSet,
-          hedge: { enabled: true }
+          hedge: { enabled: true },
         });
       });
     });
 
-    describe('#readConcern', function() {
+    describe('#readConcern', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
       let shellApiCursor;
       const value = 'local';
 
-      beforeEach(function() {
+      beforeEach(function () {
         spCursor = stubInterface<ServiceProviderCursor>();
         shellApiCursor = new Cursor(mongo, spCursor);
       });
 
-      it('fluidly sets the read concern', function() {
+      it('fluidly sets the read concern', function () {
         expect(shellApiCursor.readConcern(value)).to.equal(shellApiCursor);
-        expect(spCursor.withReadConcern).to.have.been.calledWith({ level: value });
+        expect(spCursor.withReadConcern).to.have.been.calledWith({
+          level: value,
+        });
       });
     });
 
-    describe('#returnKey', function() {
+    describe('#returnKey', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
       let shellApiCursor;
       const value = true;
 
-      beforeEach(function() {
+      beforeEach(function () {
         spCursor = stubInterface<ServiceProviderCursor>();
         shellApiCursor = new Cursor(mongo, spCursor);
       });
 
-      it('fluidly sets the return key value', function() {
+      it('fluidly sets the return key value', function () {
         expect(shellApiCursor.returnKey(value)).to.equal(shellApiCursor);
         expect(spCursor.returnKey).to.have.been.calledWith(value);
       });
     });
 
-    describe('#showRecordId', function() {
+    describe('#showRecordId', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
       let shellApiCursor;
       const value = true;
 
-      beforeEach(function() {
+      beforeEach(function () {
         spCursor = stubInterface<ServiceProviderCursor>();
         shellApiCursor = new Cursor(mongo, spCursor);
       });
 
-      it('fluidly sets the return key value', function() {
+      it('fluidly sets the return key value', function () {
         expect(shellApiCursor.showRecordId()).to.equal(shellApiCursor);
         expect(spCursor.showRecordId).to.have.been.calledWith(value);
       });
     });
 
-    describe('#objsLeftInBatch', function() {
+    describe('#objsLeftInBatch', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
       let shellApiCursor;
 
-      beforeEach(function() {
+      beforeEach(function () {
         spCursor = stubInterface<ServiceProviderCursor>();
         spCursor.bufferedCount.returns(100);
         shellApiCursor = new Cursor(mongo, spCursor);
       });
 
-      it('returns the count', function() {
+      it('returns the count', function () {
         expect(shellApiCursor.objsLeftInBatch()).to.equal(100);
         expect(spCursor.bufferedCount).to.have.been.calledWith();
       });
     });
 
-    describe('#skip', function() {
+    describe('#skip', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
       let shellApiCursor;
       const value = 6;
 
-      beforeEach(function() {
+      beforeEach(function () {
         spCursor = stubInterface<ServiceProviderCursor>();
         shellApiCursor = new Cursor(mongo, spCursor);
       });
 
-      it('fluidly sets skip', function() {
+      it('fluidly sets skip', function () {
         expect(shellApiCursor.skip(value)).to.equal(shellApiCursor);
         expect(spCursor.skip).to.have.been.calledWith(value);
       });
     });
 
-    describe('#sort', function() {
+    describe('#sort', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
       let shellApiCursor;
       const value = { a: 1 };
 
-      beforeEach(function() {
+      beforeEach(function () {
         spCursor = stubInterface<ServiceProviderCursor>();
         shellApiCursor = new Cursor(mongo, spCursor);
       });
 
-      it('fluidly sets sort', function() {
+      it('fluidly sets sort', function () {
         expect(shellApiCursor.sort(value)).to.equal(shellApiCursor);
         expect(spCursor.sort).to.have.been.calledWith(value);
       });
     });
 
-    describe('#tailable', function() {
+    describe('#tailable', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
       let shellApiCursor;
 
-      beforeEach(function() {
+      beforeEach(function () {
         spCursor = stubInterface<ServiceProviderCursor>();
         shellApiCursor = new Cursor(mongo, spCursor);
       });
 
-      it('fluidly adds the cursor flag', function() {
+      it('fluidly adds the cursor flag', function () {
         expect(shellApiCursor.tailable()).to.equal(shellApiCursor);
-        expect(spCursor.addCursorFlag).to.have.been.calledWith('tailable', true);
+        expect(spCursor.addCursorFlag).to.have.been.calledWith(
+          'tailable',
+          true
+        );
       });
 
-      it('fluidly adds the awaitData flag', function() {
-        expect(shellApiCursor.tailable({ awaitData: true })).to.equal(shellApiCursor);
-        expect(spCursor.addCursorFlag).to.have.been.calledWith('tailable', true);
-        expect(spCursor.addCursorFlag).to.have.been.calledWith('awaitData', true);
+      it('fluidly adds the awaitData flag', function () {
+        expect(shellApiCursor.tailable({ awaitData: true })).to.equal(
+          shellApiCursor
+        );
+        expect(spCursor.addCursorFlag).to.have.been.calledWith(
+          'tailable',
+          true
+        );
+        expect(spCursor.addCursorFlag).to.have.been.calledWith(
+          'awaitData',
+          true
+        );
       });
     });
 
-    describe('#itcount', function() {
+    describe('#itcount', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
       let shellApiCursor;
 
-      beforeEach(function() {
+      beforeEach(function () {
         spCursor = stubInterface<ServiceProviderCursor>();
         shellApiCursor = new Cursor(mongo, spCursor);
       });
 
-      it('returns the iteration count', async function() {
+      it('returns the iteration count', async function () {
         spCursor.tryNext.onCall(0).resolves(true);
         spCursor.tryNext.onCall(1).resolves(true);
         spCursor.tryNext.onCall(2).resolves(null);
@@ -616,23 +668,23 @@ describe('Cursor', function() {
       });
     });
 
-    describe('#explain', function() {
+    describe('#explain', function () {
       let nativeCursorStub;
       let shellApiCursor;
 
-      beforeEach(function() {
+      beforeEach(function () {
         nativeCursorStub = stubInterface<ServiceProviderCursor>();
         shellApiCursor = new Cursor(mongo, nativeCursorStub);
       });
 
-      it('calls explain on the cursor', async function() {
+      it('calls explain on the cursor', async function () {
         nativeCursorStub.explain.resolves({
-          queryPlanner: { },
+          queryPlanner: {},
           executionStats: {
-            allPlansExecution: [ ]
+            allPlansExecution: [],
           },
-          serverInfo: { },
-          ok: 1
+          serverInfo: {},
+          ok: 1,
         });
 
         const explained = await shellApiCursor.explain();
@@ -640,118 +692,122 @@ describe('Cursor', function() {
         expect(nativeCursorStub.explain).to.have.been.calledWith();
       });
 
-      it('does not throw if executionStats is missing', async function() {
+      it('does not throw if executionStats is missing', async function () {
         nativeCursorStub.explain.resolves({
-          queryPlanner: { },
-          serverInfo: { },
-          ok: 1
+          queryPlanner: {},
+          serverInfo: {},
+          ok: 1,
         });
 
         await shellApiCursor.explain();
       });
 
-      context('with empty verbosity', function() {
-        it('filters out executionStats', async function() {
+      context('with empty verbosity', function () {
+        it('filters out executionStats', async function () {
           nativeCursorStub.explain.resolves({
-            queryPlanner: { },
+            queryPlanner: {},
             executionStats: {
-              allPlansExecution: [ ]
+              allPlansExecution: [],
             },
-            serverInfo: { },
-            ok: 1
+            serverInfo: {},
+            ok: 1,
           });
           expect(await shellApiCursor.explain()).to.deep.equal({
-            queryPlanner: { },
-            serverInfo: { },
-            ok: 1
+            queryPlanner: {},
+            serverInfo: {},
+            ok: 1,
           });
         });
       });
 
-      context('with verbosity = queryPlanner', function() {
-        it('filters out executionStats', async function() {
+      context('with verbosity = queryPlanner', function () {
+        it('filters out executionStats', async function () {
           nativeCursorStub.explain.resolves({
-            queryPlanner: { },
+            queryPlanner: {},
             executionStats: {
-              allPlansExecution: [ ]
+              allPlansExecution: [],
             },
-            serverInfo: { },
-            ok: 1
+            serverInfo: {},
+            ok: 1,
           });
           expect(await shellApiCursor.explain('queryPlanner')).to.deep.equal({
-            queryPlanner: { },
-            serverInfo: { },
-            ok: 1
+            queryPlanner: {},
+            serverInfo: {},
+            ok: 1,
           });
         });
       });
 
-      context('with verbosity = executionStats', function() {
-        it('filters out allPlansExecution', async function() {
+      context('with verbosity = executionStats', function () {
+        it('filters out allPlansExecution', async function () {
           nativeCursorStub.explain.resolves({
-            queryPlanner: { },
+            queryPlanner: {},
             executionStats: {
-              allPlansExecution: [ ]
+              allPlansExecution: [],
             },
-            serverInfo: { },
-            ok: 1
+            serverInfo: {},
+            ok: 1,
           });
           expect(await shellApiCursor.explain('executionStats')).to.deep.equal({
-            queryPlanner: { },
-            executionStats: { },
-            serverInfo: { },
-            ok: 1
+            queryPlanner: {},
+            executionStats: {},
+            serverInfo: {},
+            ok: 1,
           });
         });
       });
 
-      context('with verbosity = allPlansExecution', function() {
-        it('returns everything', async function() {
+      context('with verbosity = allPlansExecution', function () {
+        it('returns everything', async function () {
           nativeCursorStub.explain.resolves({
-            queryPlanner: { },
+            queryPlanner: {},
             executionStats: {
-              allPlansExecution: [ ]
+              allPlansExecution: [],
             },
-            serverInfo: { },
-            ok: 1
+            serverInfo: {},
+            ok: 1,
           });
-          expect(await shellApiCursor.explain('allPlansExecution')).to.deep.equal({
-            queryPlanner: { },
+          expect(
+            await shellApiCursor.explain('allPlansExecution')
+          ).to.deep.equal({
+            queryPlanner: {},
             executionStats: {
-              allPlansExecution: [ ]
+              allPlansExecution: [],
             },
-            serverInfo: { },
-            ok: 1
+            serverInfo: {},
+            ok: 1,
           });
         });
       });
     });
 
-    describe('#maxScan', function() {
+    describe('#maxScan', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
       let shellApiCursor;
 
-      beforeEach(function() {
+      beforeEach(function () {
         spCursor = stubInterface<ServiceProviderCursor>();
         shellApiCursor = new Cursor(mongo, spCursor);
       });
 
-      it('throws a helpful exception regarding its removal', function() {
+      it('throws a helpful exception regarding its removal', function () {
         try {
           shellApiCursor.maxScan();
           expect.fail('expected error');
         } catch (e: any) {
           expect(e).to.be.instanceOf(MongoshDeprecatedError);
-          expect(e.message).to.contain('`maxScan()` was removed because it was deprecated in MongoDB 4.0');
+          expect(e.message).to.contain(
+            '`maxScan()` was removed because it was deprecated in MongoDB 4.0'
+          );
         }
       });
     });
 
-    describe('toShellResult', function() {
+    describe('toShellResult', function () {
       let shellApiCursor;
       let i;
 
-      beforeEach(function() {
+      beforeEach(function () {
         i = 0;
         // NOTE: Have to use proxy bc can't stub readonly inherited property
         const proxyCursor = new Proxy({} as ServiceProviderCursor, {
@@ -766,12 +822,12 @@ describe('Cursor', function() {
               return () => {};
             }
             return (target as any)[prop];
-          }
+          },
         });
         shellApiCursor = new Cursor(mongo, proxyCursor);
       });
 
-      it('is idempotent unless iterated', async function() {
+      it('is idempotent unless iterated', async function () {
         const result1 = (await toShellResult(shellApiCursor)).printable;
         const result2 = (await toShellResult(shellApiCursor)).printable;
         expect(result1).to.deep.equal(result2);
@@ -782,7 +838,7 @@ describe('Cursor', function() {
         expect(i).to.equal(40);
       });
 
-      it('.batchSize() does not control the output length', async function() {
+      it('.batchSize() does not control the output length', async function () {
         shellApiCursor.batchSize(10);
         const result = (await toShellResult(shellApiCursor)).printable;
         expect(i).to.equal(20);

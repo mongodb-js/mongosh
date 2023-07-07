@@ -1,6 +1,12 @@
 import React, { Component } from 'react';
 import type { EditorRef } from '@mongodb-js/compass-editor';
-import { css, ThemeProvider, Theme, palette, fontFamilies } from '@mongodb-js/compass-components';
+import {
+  css,
+  ThemeProvider,
+  Theme,
+  palette,
+  fontFamilies,
+} from '@mongodb-js/compass-components';
 import type { Runtime } from '@mongosh/browser-runtime-core';
 import { changeHistory } from '@mongosh/history';
 import type { WorkerRuntime } from '@mongosh/node-runtime-worker-thread';
@@ -25,7 +31,7 @@ const shellContainer = css({
     color: 'inherit',
     backgroundColor: 'transparent',
     textDecoration: 'underline',
-    cursor: 'pointer'
+    cursor: 'pointer',
   },
   '& pre, & code': {
     background: 'transparent',
@@ -36,7 +42,7 @@ const shellContainer = css({
     borderRadius: 0,
     color: 'inherit',
     tabSize: 2,
-  }
+  },
 });
 
 interface ShellProps {
@@ -106,7 +112,9 @@ interface ShellState {
   shellPrompt: string;
 }
 
-const noop = (): void => { /* */ };
+const noop = (): void => {
+  /* */
+};
 
 /**
  * The browser-repl Shell component
@@ -125,15 +133,15 @@ export class Shell extends Component<ShellProps, ShellState> {
 
   private shellInputElement: HTMLElement | null = null;
   private editor?: EditorRef | null = null;
-  private onFinishPasswordPrompt: ((input: string) => void) = noop;
-  private onCancelPasswordPrompt: (() => void) = noop;
+  private onFinishPasswordPrompt: (input: string) => void = noop;
+  private onCancelPasswordPrompt: () => void = noop;
 
   readonly state: ShellState = {
     operationInProgress: false,
     output: this.props.initialOutput.slice(-this.props.maxOutputLength),
     history: this.props.initialHistory.slice(0, this.props.maxHistoryLength),
     passwordPrompt: '',
-    shellPrompt: '>'
+    shellPrompt: '>',
   };
 
   componentDidMount(): void {
@@ -146,7 +154,7 @@ export class Shell extends Component<ShellProps, ShellState> {
     this.scrollToBottom();
   }
 
-  private evaluate = async(code: string): Promise<ShellOutputEntry> => {
+  private evaluate = async (code: string): Promise<ShellOutputEntry> => {
     let outputLine: ShellOutputEntry;
 
     try {
@@ -157,12 +165,12 @@ export class Shell extends Component<ShellProps, ShellState> {
       outputLine = {
         format: 'output',
         type: result.type,
-        value: result.printable
+        value: result.printable,
       };
     } catch (error) {
       outputLine = {
         format: 'error',
-        value: error
+        value: error,
       };
     } finally {
       await this.updateShellPrompt();
@@ -186,7 +194,10 @@ export class Shell extends Component<ShellProps, ShellState> {
             return prompt;
         }
       })()`);
-      if (promptResult.type === null && typeof promptResult.printable === 'string') {
+      if (
+        promptResult.type === null &&
+        typeof promptResult.printable === 'string'
+      ) {
         shellPrompt = promptResult.printable;
         hasCustomPrompt = true;
       }
@@ -204,14 +215,12 @@ export class Shell extends Component<ShellProps, ShellState> {
   }
 
   private addEntryToHistory(code: string): readonly string[] {
-    const history = [
-      code,
-      ...this.state.history
-    ];
+    const history = [code, ...this.state.history];
 
     changeHistory(
       history,
-      this.props.redactInfo ? 'redact-sensitive-data' : 'keep-sensitive-data');
+      this.props.redactInfo ? 'redact-sensitive-data' : 'keep-sensitive-data'
+    );
     history.splice(this.props.maxHistoryLength);
 
     Object.freeze(history);
@@ -219,11 +228,10 @@ export class Shell extends Component<ShellProps, ShellState> {
     return history;
   }
 
-  private addEntriesToOutput(entries: readonly ShellOutputEntry[]): readonly ShellOutputEntry[] {
-    const output = [
-      ...this.state.output,
-      ...entries
-    ];
+  private addEntriesToOutput(
+    entries: readonly ShellOutputEntry[]
+  ): readonly ShellOutputEntry[] {
+    const output = [...this.state.output, ...entries];
 
     output.splice(0, output.length - this.props.maxOutputLength);
 
@@ -242,16 +250,21 @@ export class Shell extends Component<ShellProps, ShellState> {
   };
 
   onPrint = (result: { type: string | null; printable: any }[]): void => {
-    const output = this.addEntriesToOutput(result.map((entry) => ({
-      format: 'output',
-      type: entry.type,
-      value: entry.printable
-    })));
+    const output = this.addEntriesToOutput(
+      result.map((entry) => ({
+        format: 'output',
+        type: entry.type,
+        value: entry.printable,
+      }))
+    );
     this.setState({ output });
     this.props.onOutputChanged(output);
   };
 
-  onPrompt = (question: string, type: 'password' | 'yesno'): Promise<string> => {
+  onPrompt = (
+    question: string,
+    type: 'password' | 'yesno'
+  ): Promise<string> => {
     if (type !== 'password') {
       return Promise.reject(new Error('yes/no prompts not implemented yet'));
     }
@@ -276,7 +289,7 @@ export class Shell extends Component<ShellProps, ShellState> {
     return ret;
   };
 
-  private onInput = async(code: string): Promise<void> => {
+  private onInput = async (code: string): Promise<void> => {
     if (!code || code.trim() === '') {
       this.appendEmptyInput();
       return;
@@ -284,13 +297,13 @@ export class Shell extends Component<ShellProps, ShellState> {
 
     const inputLine: ShellOutputEntry = {
       format: 'input',
-      value: code
+      value: code,
     };
 
     let output = this.addEntriesToOutput([inputLine]);
     this.setState({
       operationInProgress: true,
-      output
+      output,
     });
     this.props.onOutputChanged(output);
 
@@ -301,7 +314,7 @@ export class Shell extends Component<ShellProps, ShellState> {
     this.setState({
       operationInProgress: false,
       output,
-      history
+      history,
     });
     this.props.onOutputChanged(output);
     this.props.onHistoryChanged(history);
@@ -310,12 +323,10 @@ export class Shell extends Component<ShellProps, ShellState> {
   private appendEmptyInput(): void {
     const inputLine: ShellOutputEntry = {
       format: 'input',
-      value: ' '
+      value: ' ',
     };
 
-    const output = this.addEntriesToOutput([
-      inputLine
-    ]);
+    const output = this.addEntriesToOutput([inputLine]);
 
     this.setState({ output });
   }
@@ -382,7 +393,11 @@ export class Shell extends Component<ShellProps, ShellState> {
   render(): JSX.Element {
     return (
       <ThemeProvider theme={{ theme: Theme.Dark, enabled: true }}>
-        <div data-testid="shell" className={shellContainer} onClick={this.onShellClicked}>
+        <div
+          data-testid="shell"
+          className={shellContainer}
+          onClick={this.onShellClicked}
+        >
           <div>
             <ShellOutput output={this.state.output} />
           </div>

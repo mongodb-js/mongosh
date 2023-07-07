@@ -17,9 +17,11 @@
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
     "prepublish": "npm run compile",
     "eslint": "eslint",
-    "lint": "npm run eslint",
+    "lint": "npm run eslint && npm run prettier -- --check .",
     "check": "npm run lint && npm run depcheck",
-    "depcheck": "depcheck"
+    "depcheck": "depcheck",
+    "prettier": "prettier",
+    "reformat": "npm run prettier -- --write . && npm run eslint --fix"
   },
   "license": "Apache-2.0",
   "publishConfig": {
@@ -69,9 +71,11 @@
     "mongodb-client-encryption": "^2.8.0"
   },
   "devDependencies": {
+    "@mongodb-js/prettier-config-devtools": "^1.0.1",
+    "depcheck": "^1.4.3",
     "eslint": "^7.25.0",
-    "mongodb-client-encryption": "^2.8.0",
     "kerberos": "^2.0.0",
-    "depcheck": "^1.4.3"
+    "mongodb-client-encryption": "^2.8.0",
+    "prettier": "^2.8.8"
   }
 }

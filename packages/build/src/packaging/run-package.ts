@@ -1,6 +1,6 @@
 import { constants as fsConstants, promises as fs } from 'fs';
 import path from 'path';
-import type { Config} from '../config';
+import type { Config } from '../config';
 import { validatePackageVariant } from '../config';
 import { downloadCryptLibrary } from './download-crypt-library';
 import { downloadManpage } from './download-manpage';
@@ -8,9 +8,7 @@ import { notarizeArtifact } from './notary-service';
 import type { PackageFile } from './package';
 import { createPackage } from './package';
 
-export async function runPackage(
-  config: Config,
-): Promise<PackageFile> {
+export async function runPackage(config: Config): Promise<PackageFile> {
   const packageVariant = config.packageVariant;
   validatePackageVariant(packageVariant);
 
@@ -18,7 +16,8 @@ export async function runPackage(
   await fs.copyFile(
     await downloadCryptLibrary(packageVariant),
     config.cryptSharedLibPath,
-    fsConstants.COPYFILE_FICLONE);
+    fsConstants.COPYFILE_FICLONE
+  );
 
   const { manpage } = config;
   if (manpage) {
@@ -29,25 +28,24 @@ export async function runPackage(
     );
   }
 
-  const runCreatePackage = async(): Promise<PackageFile> => {
+  const runCreatePackage = async (): Promise<PackageFile> => {
     return await createPackage(
       config.outputDir,
       packageVariant,
-      (config.packageInformation as (Required<Config>['packageInformation']))(packageVariant)
+      (config.packageInformation as Required<Config>['packageInformation'])(
+        packageVariant
+      )
     );
   };
 
   const packaged = await runCreatePackage();
 
   if (packageVariant === 'win32msi-x64') {
-    await notarizeArtifact(
-      packaged.path,
-      {
-        signingKeyName: config.notarySigningKeyName || '',
-        authToken: config.notaryAuthToken || '',
-        signingComment: 'Evergreen Automatic Signing (mongosh)'
-      }
-    );
+    await notarizeArtifact(packaged.path, {
+      signingKeyName: config.notarySigningKeyName || '',
+      authToken: config.notaryAuthToken || '',
+      signingComment: 'Evergreen Automatic Signing (mongosh)',
+    });
   }
 
   return packaged;

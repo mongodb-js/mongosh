@@ -6,13 +6,14 @@ import { join, basename } from 'path';
 import { pipeline } from 'stream';
 import { createGzip } from 'zlib';
 
-export async function downloadManpage(url: string, destination: string, name: string) {
+export async function downloadManpage(
+  url: string,
+  destination: string,
+  name: string
+) {
   await fs.mkdir(destination, { recursive: true });
   const response = await fetch(url);
-  await promisify(pipeline)(
-    response.body,
-    tar.x({ cwd: destination })
-  );
+  await promisify(pipeline)(response.body, tar.x({ cwd: destination }));
   await promisify(pipeline)(
     createReadStream(join(destination, basename(name, '.gz'))),
     createGzip(),

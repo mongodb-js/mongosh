@@ -11,16 +11,18 @@ import { ElectronRuntime } from './electron-runtime';
 import { EventEmitter } from 'events';
 import type { RuntimeEvaluationListener } from '@mongosh/browser-runtime-core';
 
-describe('Electron runtime', function() {
+describe('Electron runtime', function () {
   let serviceProvider: SinonStubbedInstance<CliServiceProvider>;
   let messageBus: SinonStubbedInstance<EventEmitter>;
   let evaluationListener: SinonStubbedInstance<RuntimeEvaluationListener>;
   let electronRuntime: ElectronRuntime;
 
-  beforeEach(function() {
+  beforeEach(function () {
     serviceProvider = sinon.createStubInstance(CliServiceProvider);
     serviceProvider.bsonLibrary = bson;
-    serviceProvider.getConnectionInfo.resolves({ extraInfo: { uri: '' } } as any);
+    serviceProvider.getConnectionInfo.resolves({
+      extraInfo: { uri: '' },
+    } as any);
     messageBus = sinon.createStubInstance(EventEmitter);
     evaluationListener = sinon.createStubInstance(class FakeListener {});
     evaluationListener.onPrint = sinon.stub();
@@ -28,16 +30,16 @@ describe('Electron runtime', function() {
     electronRuntime.setEvaluationListener(evaluationListener as any);
   });
 
-  it('can evaluate simple js', async function() {
+  it('can evaluate simple js', async function () {
     const result = await electronRuntime.evaluate('2 + 2');
     expect(result.printable).to.equal(4);
   });
-  it('prints BSON help correctly', async function() {
+  it('prints BSON help correctly', async function () {
     const result = await electronRuntime.evaluate('ObjectId().help');
     expect(result.type).to.equal('Help');
   });
 
-  it('allows do declare variables', async function() {
+  it('allows do declare variables', async function () {
     await electronRuntime.evaluate('var x = 2');
     expect((await electronRuntime.evaluate('x')).printable).to.equal(2);
     await electronRuntime.evaluate('let y = 2');
@@ -46,82 +48,91 @@ describe('Electron runtime', function() {
     expect((await electronRuntime.evaluate('z')).printable).to.equal(2);
   });
 
-  it('allows do declare functions', async function() {
+  it('allows do declare functions', async function () {
     await electronRuntime.evaluate('function f() { return 2; }');
     expect((await electronRuntime.evaluate('f()')).printable).to.equal(2);
   });
 
-  it('can run help', async function() {
+  it('can run help', async function () {
     const result = await electronRuntime.evaluate('help');
     expect(result.type).to.equal('Help');
   });
 
-  it('can run show dbs', async function() {
+  it('can run show dbs', async function () {
     serviceProvider.listDatabases.resolves({
-      databases: []
+      databases: [],
     });
 
     const result = await electronRuntime.evaluate('show dbs');
     expect(result.type).to.equal('ShowDatabasesResult');
   });
 
-  it('can run show collections', async function() {
+  it('can run show collections', async function () {
     serviceProvider.listCollections.resolves([]);
 
     const result = await electronRuntime.evaluate('show collections');
     expect(result.type).to.equal('ShowCollectionsResult');
   });
 
-  it('allows to use require', async function() {
-    const result = await electronRuntime.evaluate('require("util").types.isDate(new Date())');
+  it('allows to use require', async function () {
+    const result = await electronRuntime.evaluate(
+      'require("util").types.isDate(new Date())'
+    );
     expect(result.printable).to.equal(true);
   });
 
-  it('can switch database', async function() {
-    expect(
-      (await electronRuntime.evaluate('db')).printable
-    ).not.to.equal('db1');
+  it('can switch database', async function () {
+    expect((await electronRuntime.evaluate('db')).printable).not.to.equal(
+      'db1'
+    );
 
     await electronRuntime.evaluate('use db1');
 
-    expect(
-      (await electronRuntime.evaluate('db')).printable
-    ).to.equal('db1');
+    expect((await electronRuntime.evaluate('db')).printable).to.equal('db1');
   });
 
-  it('allows to receive telemetry event passing a message bus', async function() {
+  it('allows to receive telemetry event passing a message bus', async function () {
     await electronRuntime.evaluate('use db1');
     expect(messageBus.emit).to.have.been.calledWith('mongosh:use');
   });
 
-  describe('onPrint', function() {
-    it('allows getting the output of print() statements', async function() {
+  describe('onPrint', function () {
+    it('allows getting the output of print() statements', async function () {
       await electronRuntime.evaluate('print("foo");');
       expect(evaluationListener.onPrint).to.have.been.calledWithMatch(
-        sinon.match((array) => (
-          array.length === 1 &&
-          array[0].type === null &&
-          array[0].printable === 'foo')));
+        sinon.match(
+          (array) =>
+            array.length === 1 &&
+            array[0].type === null &&
+            array[0].printable === 'foo'
+        )
+      );
     });
 
-    it('allows getting the output of console.log() statements', async function() {
+    it('allows getting the output of console.log() statements', async function () {
       await electronRuntime.evaluate('console.log("foo");');
       expect(evaluationListener.onPrint).to.have.been.calledWithMatch(
-        sinon.match((array) => (
-          array.length === 1 &&
-          array[0].type === null &&
-          array[0].printable === 'foo')));
+        sinon.match(
+          (array) =>
+            array.length === 1 &&
+            array[0].type === null &&
+            array[0].printable === 'foo'
+        )
+      );
     });
 
-    it('allows getting the output of multi-arg console.log() statements', async function() {
+    it('allows getting the output of multi-arg console.log() statements', async function () {
       await electronRuntime.evaluate('console.log("foo", "bar");');
       expect(evaluationListener.onPrint).to.have.been.calledWithMatch(
-        sinon.match((array) => (
-          array.length === 2 &&
-          array[0].type === null &&
-          array[0].printable === 'foo' &&
-          array[1].type === null &&
-          array[1].printable === 'bar')));
+        sinon.match(
+          (array) =>
+            array.length === 2 &&
+            array[0].type === null &&
+            array[0].printable === 'foo' &&
+            array[1].type === null &&
+            array[1].printable === 'bar'
+        )
+      );
       expect(evaluationListener.onPrint).to.have.been.calledOnce;
     });
   });

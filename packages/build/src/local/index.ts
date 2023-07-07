@@ -1,2 +1,1 @@
-
 export * from './trigger-release';

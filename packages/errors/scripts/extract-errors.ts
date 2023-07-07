@@ -4,15 +4,19 @@ import * as path from 'path';
 import ts from 'typescript';
 import * as ux from './ux';
 
-type PackageError = { code: string, documentation: string };
-type PackageErrors = { package: string, errors: PackageError[] };
+type PackageError = { code: string; documentation: string };
+type PackageErrors = { package: string; errors: PackageError[] };
 
 const MONGOSH_ERRORS_DOC_TAG = 'mongoshErrors';
 
-(async function() {
+(async function () {
   const pathToPackages = path.resolve(process.argv[process.argv.length - 3]);
-  const pathToMarkdownOutput = path.resolve(process.argv[process.argv.length - 2]);
-  const pathToRestructuredOutput = path.resolve(process.argv[process.argv.length - 1]);
+  const pathToMarkdownOutput = path.resolve(
+    process.argv[process.argv.length - 2]
+  );
+  const pathToRestructuredOutput = path.resolve(
+    process.argv[process.argv.length - 1]
+  );
 
   if (!pathToPackages || !(await isDirectory(pathToPackages))) {
     ux.fatal('Could not find given packages directory:', pathToPackages);
@@ -36,8 +40,10 @@ const MONGOSH_ERRORS_DOC_TAG = 'mongoshErrors';
         if (seenCodes.has(e.code)) {
           ux.error(
             `Duplicate code: ${e.code}\n`,
-            `\tExisting documentation: ${seenCodes.get(e.code)?.documentation}\n`,
-            `\tNew documentation:      ${e.documentation}\n`,
+            `\tExisting documentation: ${
+              seenCodes.get(e.code)?.documentation
+            }\n`,
+            `\tNew documentation:      ${e.documentation}\n`
           );
           hasDuplicates = true;
         } else {
@@ -55,14 +61,21 @@ const MONGOSH_ERRORS_DOC_TAG = 'mongoshErrors';
   }
 
   await renderErrorOverviewMarkdown(pathToMarkdownOutput, packageErrors);
-  await renderErrorOverviewRestructured(pathToRestructuredOutput, packageErrors);
+  await renderErrorOverviewRestructured(
+    pathToRestructuredOutput,
+    packageErrors
+  );
 
   ux.success('👏👏👏👏');
   ux.success('Wrote generated overview page:');
   ux.success(`  -> markdown:     ${pathToMarkdownOutput}`);
   ux.success(`  -> restructured: ${pathToRestructuredOutput}`);
   ux.success('👏👏👏👏');
-})().catch(err => process.nextTick(() => { throw err; }));
+})().catch((err) =>
+  process.nextTick(() => {
+    throw err;
+  })
+);
 
 async function isDirectory(path: string): Promise<boolean> {
   try {
@@ -84,18 +97,22 @@ async function isFile(path: string): Promise<boolean> {
 
 async function collectPackages(pathToPackages: string): Promise<string[]> {
   const dirs = await fs.readdir(pathToPackages);
-  const packages = await Promise.all(dirs.map(async dir => {
-    const packageJsonPath = path.resolve(pathToPackages, dir, 'package.json');
-    const tsconfigPath = path.resolve(pathToPackages, dir, 'tsconfig.json');
-    if ((await isFile(tsconfigPath)) && (await isFile(packageJsonPath))) {
-      return path.resolve(pathToPackages, dir);
-    }
-    return undefined;
-  }));
-  return packages.filter(d => !!d) as string[];
+  const packages = await Promise.all(
+    dirs.map(async (dir) => {
+      const packageJsonPath = path.resolve(pathToPackages, dir, 'package.json');
+      const tsconfigPath = path.resolve(pathToPackages, dir, 'tsconfig.json');
+      if ((await isFile(tsconfigPath)) && (await isFile(packageJsonPath))) {
+        return path.resolve(pathToPackages, dir);
+      }
+      return undefined;
+    })
+  );
+  return packages.filter((d) => !!d) as string[];
 }
 
-async function processPackage(pathToPackage: string): Promise<PackageErrors | undefined> {
+async function processPackage(
+  pathToPackage: string
+): Promise<PackageErrors | undefined> {
   const packageJsonContent = await fs.readFile(
     path.resolve(pathToPackage, 'package.json'),
     { encoding: 'utf-8' }
@@ -114,11 +131,13 @@ async function processPackage(pathToPackage: string): Promise<PackageErrors | un
 
   return {
     package: packageName,
-    errors
+    errors,
   };
 }
 
-async function createTsProgram(pathToPackage: string): Promise<ts.Program | undefined> {
+async function createTsProgram(
+  pathToPackage: string
+): Promise<ts.Program | undefined> {
   const tsconfigPath = ts.findConfigFile(pathToPackage, ts.sys.fileExists);
   if (!tsconfigPath) {
     ux.error(`Could not locate tsconfig.json in ${pathToPackage}`);
@@ -134,17 +153,21 @@ async function createTsProgram(pathToPackage: string): Promise<ts.Program | unde
 
   return ts.createProgram({
     options: tsconfig.options,
-    rootNames: tsconfig.fileNames
+    rootNames: tsconfig.fileNames,
   });
 }
 
-async function extractErrors(pathToPackage: string, program: ts.Program): Promise<PackageError[]> {
+async function extractErrors(
+  pathToPackage: string,
+  program: ts.Program
+): Promise<PackageError[]> {
   const errors: PackageError[] = [];
 
   const checker = program.getTypeChecker();
-  program.getSourceFiles()
-    .filter(sf => isRelevantSourceFileInPackage(pathToPackage, sf))
-    .forEach(sf => ts.forEachChild(sf, visit));
+  program
+    .getSourceFiles()
+    .filter((sf) => isRelevantSourceFileInPackage(pathToPackage, sf))
+    .forEach((sf) => ts.forEachChild(sf, visit));
 
   function visit(node: ts.Node): void {
     const enumData = tryExtractMongoshErrorsEnumDeclaration(checker, node);
@@ -153,20 +176,24 @@ async function extractErrors(pathToPackage: string, program: ts.Program): Promis
     }
     const { enumName, enumDeclaration } = enumData;
 
-    enumDeclaration.members.forEach(m => {
+    enumDeclaration.members.forEach((m) => {
       const memberName = m.name.getText();
       if (!m.initializer || !ts.isStringLiteral(m.initializer)) {
-        ux.error(`Enum value ${enumName}.${memberName} must have a string literal as initializer`);
+        ux.error(
+          `Enum value ${enumName}.${memberName} must have a string literal as initializer`
+        );
         return;
       }
 
       const memberSymbol = checker.getSymbolAtLocation(m.name);
-      const memberDoc = ts.displayPartsToString(memberSymbol?.getDocumentationComment(checker) || []);
+      const memberDoc = ts.displayPartsToString(
+        memberSymbol?.getDocumentationComment(checker) || []
+      );
 
       const memberValue = m.initializer.text;
       errors.push({
         code: memberValue,
-        documentation: memberDoc
+        documentation: memberDoc,
       });
     });
   }
@@ -174,7 +201,10 @@ async function extractErrors(pathToPackage: string, program: ts.Program): Promis
   return errors;
 }
 
-function isRelevantSourceFileInPackage(pathToPackage: string, sf: ts.SourceFile): boolean {
+function isRelevantSourceFileInPackage(
+  pathToPackage: string,
+  sf: ts.SourceFile
+): boolean {
   if (sf.isDeclarationFile) {
     return false;
   }
@@ -182,19 +212,25 @@ function isRelevantSourceFileInPackage(pathToPackage: string, sf: ts.SourceFile)
   return path.resolve(sf.fileName).startsWith(path.resolve(pathToPackage));
 }
 
-function tryExtractMongoshErrorsEnumDeclaration(checker: ts.TypeChecker, node: ts.Node): { enumName: string, enumDeclaration: ts.EnumDeclaration } | undefined {
+function tryExtractMongoshErrorsEnumDeclaration(
+  checker: ts.TypeChecker,
+  node: ts.Node
+): { enumName: string; enumDeclaration: ts.EnumDeclaration } | undefined {
   if (!ts.isEnumDeclaration(node)) {
     return undefined;
   }
 
   const enumSymbol = checker.getSymbolAtLocation(node.name);
   if (!enumSymbol) {
-    ux.warning('Found enum but could not correlate with symbol:', node.name.getText());
+    ux.warning(
+      'Found enum but could not correlate with symbol:',
+      node.name.getText()
+    );
     return undefined;
   }
 
   const docTags = enumSymbol.getJsDocTags();
-  if (!docTags.find(t => t.name === MONGOSH_ERRORS_DOC_TAG)) {
+  if (!docTags.find((t) => t.name === MONGOSH_ERRORS_DOC_TAG)) {
     return undefined;
   }
 
@@ -203,7 +239,10 @@ function tryExtractMongoshErrorsEnumDeclaration(checker: ts.TypeChecker, node: t
   return { enumName, enumDeclaration };
 }
 
-async function renderErrorOverviewMarkdown(outputPath: string, packageErrors: PackageErrors[]): Promise<void> {
+async function renderErrorOverviewMarkdown(
+  outputPath: string,
+  packageErrors: PackageErrors[]
+): Promise<void> {
   const templateContent = await fs.readFile(
     path.resolve(__dirname, 'error-overview.tmpl.md'),
     { encoding: 'utf-8' }
@@ -211,22 +250,21 @@ async function renderErrorOverviewMarkdown(outputPath: string, packageErrors: Pa
 
   const template = compile(templateContent);
   const output = template({
-    packages: packageErrors
+    packages: packageErrors,
   });
 
-  await fs.writeFile(
-    outputPath,
-    output,
-    { encoding: 'utf-8' }
-  );
+  await fs.writeFile(outputPath, output, { encoding: 'utf-8' });
 }
 
-async function renderErrorOverviewRestructured(outputPath: string, packageErrors: PackageErrors[]): Promise<void> {
-  const restructuredErrors = packageErrors.map(pe => {
+async function renderErrorOverviewRestructured(
+  outputPath: string,
+  packageErrors: PackageErrors[]
+): Promise<void> {
+  const restructuredErrors = packageErrors.map((pe) => {
     return {
       package: pe.package,
       packageHeadlineSeparator: '-'.repeat(pe.package.length),
-      errors: pe.errors.map(convertMarkdownToRestructured)
+      errors: pe.errors.map(convertMarkdownToRestructured),
     };
   });
 
@@ -237,17 +275,15 @@ async function renderErrorOverviewRestructured(outputPath: string, packageErrors
 
   const template = compile(templateContent);
   const output = template({
-    packages: restructuredErrors
+    packages: restructuredErrors,
   });
 
-  await fs.writeFile(
-    outputPath,
-    output,
-    { encoding: 'utf-8' }
-  );
+  await fs.writeFile(outputPath, output, { encoding: 'utf-8' });
 }
 
-function convertMarkdownToRestructured(error: PackageError): PackageError & { codeHeadlineSeparator: string } {
+function convertMarkdownToRestructured(
+  error: PackageError
+): PackageError & { codeHeadlineSeparator: string } {
   // every odd element is _inside_ a code block (```)
   const docWithCodeBlocks = error.documentation.split('```');
   for (let i = 0; i < docWithCodeBlocks.length; i++) {
@@ -257,7 +293,7 @@ function convertMarkdownToRestructured(error: PackageError): PackageError & { co
       // we have a code block - prefix and indent
       const codeLines = text.split('\n');
       restructured += '.. code-block:: ' + codeLines.shift() + '\n\n';
-      restructured += codeLines.map(l => '   ' + l).join('\n');
+      restructured += codeLines.map((l) => '   ' + l).join('\n');
     } else {
       const inlineCode = /`([^`]*)`/g;
       restructured = text.replace(inlineCode, (_, code) => '``' + code + '``');
@@ -268,6 +304,6 @@ function convertMarkdownToRestructured(error: PackageError): PackageError & { co
   return {
     code: error.code,
     codeHeadlineSeparator: '~'.repeat(error.code.length + 4),
-    documentation: docWithCodeBlocks.join('\n')
+    documentation: docWithCodeBlocks.join('\n'),
   };
 }

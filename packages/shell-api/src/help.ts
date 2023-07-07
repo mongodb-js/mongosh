@@ -23,15 +23,19 @@ export default class Help {
   private docs: string;
   private attr: HelpPropertiesAttr[] = [];
 
-  constructor(properties: HelpProperties, options: HelpOptions = { translate: DEFAULT_TRANSLATE }) {
+  constructor(
+    properties: HelpProperties,
+    options: HelpOptions = { translate: DEFAULT_TRANSLATE }
+  ) {
     this.help = options.translate(properties.help) as string;
     this.docs = options.translate(properties.docs as string) as string;
     this.attr = (properties.attr || [])
       .map((attr) => ({
         name: attr.name,
         description: options.translate(attr.description),
-      })).filter(
-        attr => attr.description // at least the description should be there
+      }))
+      .filter(
+        (attr) => attr.description // at least the description should be there
       ) as HelpPropertiesAttr[];
   }
 
@@ -43,5 +47,7 @@ export default class Help {
     return { help, docs, attr };
   }
 
-  get [shellApiType](): string { return 'Help'; }
+  get [shellApiType](): string {
+    return 'Help';
+  }
 }

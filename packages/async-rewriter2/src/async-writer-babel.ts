@@ -29,10 +29,12 @@ export default class AsyncWriter {
     ast: babel.types.Node | null | undefined,
     originalSource: string,
     plugins: babel.PluginItem[] = [],
-    opts: babel.TransformOptions = {}): babel.BabelFileResult | null {
-    const transform = (opts: babel.TransformOptions) => ast ?
-      babel.transformFromAstSync(ast, originalSource, opts) :
-      babel.transformSync(originalSource, opts);
+    opts: babel.TransformOptions = {}
+  ): babel.BabelFileResult | null {
+    const transform = (opts: babel.TransformOptions) =>
+      ast
+        ? babel.transformFromAstSync(ast, originalSource, opts)
+        : babel.transformSync(originalSource, opts);
     return transform({
       plugins,
       code: false,
@@ -43,7 +45,7 @@ export default class AsyncWriter {
       browserslistConfigFile: false,
       compact: originalSource.length > 10_000,
       sourceType: 'script',
-      ...opts
+      ...opts,
     });
   }
 
@@ -60,16 +62,25 @@ export default class AsyncWriter {
       let ast = this.step(undefined, code, [
         require('@babel/plugin-transform-shorthand-properties').default,
         require('@babel/plugin-transform-parameters').default,
-        require('@babel/plugin-transform-destructuring').default
+        require('@babel/plugin-transform-destructuring').default,
       ])?.ast;
       ast = this.step(ast, code, [wrapAsFunctionPlugin])?.ast;
       ast = this.step(ast, code, [uncatchableExceptionPlugin])?.ast;
-      return this.step(ast, code, [
+      return this.step(
+        ast,
+        code,
         [
-          makeMaybeAsyncFunctionPlugin,
-          { customErrorBuilder: babel.types.identifier('MongoshAsyncWriterError') }
-        ]
-      ], { code: true, ast: false })?.code as string;
+          [
+            makeMaybeAsyncFunctionPlugin,
+            {
+              customErrorBuilder: babel.types.identifier(
+                'MongoshAsyncWriterError'
+              ),
+            },
+          ],
+        ],
+        { code: true, ast: false }
+      )?.code as string;
     } catch (e: any) {
       const { message } = e;
       delete e.message; // e.message may have been non-writable

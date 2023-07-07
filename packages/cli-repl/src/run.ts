@@ -14,7 +14,7 @@ import crypto from 'crypto';
 import net from 'net';
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
-(async() => {
+(async () => {
   if (process.env.MONGOSH_RUN_NODE_SCRIPT) {
     // For uncompiled mongosh: node /path/to/this/file script ... -> node script ...
     // FOr compiled mongosh: mongosh mongosh script ... -> mongosh script ...
@@ -27,7 +27,9 @@ import net from 'net';
   let isSingleConsoleProcess = false;
   try {
     const { parseCliArgs } = await import('./arg-parser');
-    const { generateConnectionInfoFromCliArgs } = await import('@mongosh/arg-parser');
+    const { generateConnectionInfoFromCliArgs } = await import(
+      '@mongosh/arg-parser'
+    );
     (net as any)?.setDefaultAutoSelectFamily?.(true);
 
     const options = parseCliArgs(process.argv);
@@ -50,11 +52,19 @@ import net from 'net';
         // Adjust the error message depending on whether this mongosh binary
         // potentially can support FIPS or not.
         if (process.config.variables.node_shared_openssl) {
-          console.error('Could not enable FIPS mode. Please ensure that your system OpenSSL installation');
-          console.error('supports FIPS, and see the mongosh FIPS documentation for more information.');
+          console.error(
+            'Could not enable FIPS mode. Please ensure that your system OpenSSL installation'
+          );
+          console.error(
+            'supports FIPS, and see the mongosh FIPS documentation for more information.'
+          );
         } else {
-          console.error('Could not enable FIPS mode. This mongosh installation does not appear to');
-          console.error('support FIPS. Please see the mongosh FIPS documentation for more information.');
+          console.error(
+            'Could not enable FIPS mode. This mongosh installation does not appear to'
+          );
+          console.error(
+            'support FIPS. Please see the mongosh FIPS documentation for more information.'
+          );
         }
         console.error('Error details:');
         console.error(fipsError);
@@ -79,15 +89,24 @@ import net from 'net';
     if (options.smokeTests) {
       const { runSmokeTests } = await import('./smoke-tests');
       const smokeTestServer = process.env.MONGOSH_SMOKE_TEST_SERVER;
-      const cryptLibraryOpts = options.cryptSharedLibPath ? [
-        `--cryptSharedLibPath=${options.cryptSharedLibPath}`
-      ] : [];
+      const cryptLibraryOpts = options.cryptSharedLibPath
+        ? [`--cryptSharedLibPath=${options.cryptSharedLibPath}`]
+        : [];
       if (process.execPath === process.argv[1]) {
         // This is the compiled binary. Use only the path to it.
-        await runSmokeTests(smokeTestServer, process.execPath, ...cryptLibraryOpts);
+        await runSmokeTests(
+          smokeTestServer,
+          process.execPath,
+          ...cryptLibraryOpts
+        );
       } else {
         // This is not the compiled binary. Use node + this script.
-        await runSmokeTests(smokeTestServer, process.execPath, process.argv[1], ...cryptLibraryOpts);
+        await runSmokeTests(
+          smokeTestServer,
+          process.execPath,
+          process.argv[1],
+          ...cryptLibraryOpts
+        );
       }
       return;
     }
@@ -104,7 +123,7 @@ import net from 'net';
       { getStoragePaths, getGlobalConfigPaths },
       { getCryptLibraryPaths },
       { getTlsCertificateSelector },
-      { redactURICredentials }
+      { redactURICredentials },
     ] = await Promise.all([
       await import('./cli-repl'),
       await import('./config-directory'),
@@ -126,17 +145,25 @@ import net from 'net';
 
     // If we are spawned via Windows doubleclick, ask the user for an URI to
     // connect to. Allow an environment variable to override this for testing.
-    isSingleConsoleProcess = !!process.env.MONGOSH_FORCE_CONNECTION_STRING_PROMPT;
-    if ((!options.connectionSpecifier &&
-          process.platform === 'win32' &&
-          process.stdin.isTTY &&
-          process.stdout.isTTY) ||
-        isSingleConsoleProcess) {
+    isSingleConsoleProcess =
+      !!process.env.MONGOSH_FORCE_CONNECTION_STRING_PROMPT;
+    if (
+      (!options.connectionSpecifier &&
+        process.platform === 'win32' &&
+        process.stdin.isTTY &&
+        process.stdout.isTTY) ||
+      isSingleConsoleProcess
+    ) {
       try {
-        isSingleConsoleProcess ||= require('get-console-process-list')().length === 1;
-      } catch { /* ignore */ }
+        isSingleConsoleProcess ||=
+          require('get-console-process-list')().length === 1;
+      } catch {
+        /* ignore */
+      }
       if (isSingleConsoleProcess) {
-        const result = await ask('Please enter a MongoDB connection string (Default: mongodb://localhost/): ');
+        const result = await ask(
+          'Please enter a MongoDB connection string (Default: mongodb://localhost/): '
+        );
         if (result.trim() !== '') {
           options.connectionSpecifier = result.trim();
         }
@@ -147,10 +174,12 @@ import net from 'net';
     connectionInfo.driverOptions = {
       ...connectionInfo.driverOptions,
       ...getTlsCertificateSelector(options.tlsCertificateSelector),
-      driverInfo: { name: 'mongosh', version }
+      driverInfo: { name: 'mongosh', version },
     };
 
-    const title = `mongosh ${redactURICredentials(connectionInfo.connectionString)}`;
+    const title = `mongosh ${redactURICredentials(
+      connectionInfo.connectionString
+    )}`;
     process.title = title;
     setTerminalWindowTitle(title);
 
@@ -165,12 +194,12 @@ import net from 'net';
       output: process.stdout,
       onExit: process.exit,
       shellHomePaths: shellHomePaths,
-      globalConfigPaths: globalConfigPaths
+      globalConfigPaths: globalConfigPaths,
     });
     await repl.start(connectionInfo.connectionString, {
       productName: 'MongoDB Shell',
       productDocsLink: 'https://www.mongodb.com/docs/mongodb-shell/',
-      ...connectionInfo.driverOptions
+      ...connectionInfo.driverOptions,
     });
   } catch (e: any) {
     console.error(`${e?.name}: ${e?.message}`);

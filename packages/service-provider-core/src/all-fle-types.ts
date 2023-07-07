@@ -11,7 +11,7 @@ export type {
   ClientEncryptionEncryptOptions,
   ClientEncryptionOptions,
   ClientEncryptionTlsOptions,
-  KMSProviders
+  KMSProviders,
 } from 'mongodb-client-encryption';
 
 export type FLE = typeof import('mongodb-client-encryption');

@@ -1,4 +1,8 @@
-import type { ShellPlugin, ShellInstanceState, TypeSignature } from '@mongosh/shell-api';
+import type {
+  ShellPlugin,
+  ShellInstanceState,
+  TypeSignature,
+} from '@mongosh/shell-api';
 import { signatures } from '@mongosh/shell-api';
 import { MongoshRuntimeError, MongoshInvalidInputError } from '@mongosh/errors';
 import type { SnippetShellUserConfig, MongoshBus } from '@mongosh/types';
@@ -49,28 +53,32 @@ export interface SnippetIndexFile {
 }
 
 const indexFileSchema = joi.object({
-  indexFileVersion: joi.number()
-    .integer()
-    .max(1)
-    .required(),
+  indexFileVersion: joi.number().integer().max(1).required(),
 
   metadata: joi.object({
-    homepage: joi.string()
+    homepage: joi.string(),
   }),
 
-  index: joi.array().required().items(joi.object({
-    name: joi.string().required(),
-    snippetName: joi.string().required(),
-    installSpec: joi.string(),
-    version: joi.string().required(),
-    description: joi.string().required().allow(''),
-    license: joi.string().required(),
-    readme: joi.string().required().allow(''),
-    errorMatchers: joi.array().items(joi.object({
-      message: joi.string().required(),
-      matches: joi.array().required().items(joi.object().regex())
-    }))
-  }))
+  index: joi
+    .array()
+    .required()
+    .items(
+      joi.object({
+        name: joi.string().required(),
+        snippetName: joi.string().required(),
+        installSpec: joi.string(),
+        version: joi.string().required(),
+        description: joi.string().required().allow(''),
+        license: joi.string().required(),
+        readme: joi.string().required().allow(''),
+        errorMatchers: joi.array().items(
+          joi.object({
+            message: joi.string().required(),
+            matches: joi.array().required().items(joi.object().regex()),
+          })
+        ),
+      })
+    ),
 });
 
 async function unpackBSON<T = any>(data: Buffer): Promise<T> {
@@ -87,12 +95,20 @@ export class SnippetManager implements ShellPlugin {
   repos: SnippetIndexFile[] | null;
   load: (filename: string) => Promise<void>;
   require: any;
-  config: { get<T extends keyof SnippetShellUserConfig>(key: T): Promise<SnippetShellUserConfig[T]> };
+  config: {
+    get<T extends keyof SnippetShellUserConfig>(
+      key: T
+    ): Promise<SnippetShellUserConfig[T]>;
+  };
   print: (...args: any[]) => Promise<void>;
   npmArgv: string[];
   inflightFetchIndexPromise: Promise<SnippetIndexFile[]> | null = null;
 
-  constructor({ installdir, instanceState, skipInitialIndexLoad }: SnippetOptions) {
+  constructor({
+    installdir,
+    instanceState,
+    skipInitialIndexLoad,
+  }: SnippetOptions) {
     const { load, config, print, require } = instanceState.context;
     this._instanceState = instanceState;
     this.load = load;
@@ -114,31 +130,49 @@ export class SnippetManager implements ShellPlugin {
     // currently forces SnippetManager to be a singleton.
     const wrapperFn = (...args: string[]) => {
       return Object.assign(this.runSnippetCommand(args), {
-        [Symbol.for('@@mongosh.syntheticPromise')]: true
+        [Symbol.for('@@mongosh.syntheticPromise')]: true,
       });
     };
     wrapperFn.isDirectShellCommand = true;
     wrapperFn.returnsPromise = true;
-    (instanceState.shellApi as any).snippet = instanceState.context.snippet = wrapperFn;
+    (instanceState.shellApi as any).snippet = instanceState.context.snippet =
+      wrapperFn;
     (signatures.ShellApi.attributes as any).snippet = {
       type: 'function',
       returnsPromise: true,
       isDirectShellCommand: true,
       // eslint-disable-next-line @typescript-eslint/require-await
-      shellCommandCompleter: async(params: unknown, args: string[]): Promise<string[] | undefined> => {
-        const plainCommands = ['update', 'search', 'ls', 'outdated', 'info', 'refresh', 'load-all'];
+      shellCommandCompleter: async (
+        params: unknown,
+        args: string[]
+      ): Promise<string[] | undefined> => {
+        const plainCommands = [
+          'update',
+          'search',
+          'ls',
+          'outdated',
+          'info',
+          'refresh',
+          'load-all',
+        ];
         const pkgCommands = ['install', 'uninstall', 'help'];
         if (args.length >= 2 && pkgCommands.includes(args[1])) {
-          const allSnippetNames = this.snippets.map(({ snippetName }) => snippetName);
+          const allSnippetNames = this.snippets.map(
+            ({ snippetName }) => snippetName
+          );
           if (args.length === 2) {
-            return allSnippetNames.map(str => `${args[1]} ${str}`);
+            return allSnippetNames.map((str) => `${args[1]} ${str}`);
           }
-          return allSnippetNames.filter(str => str.startsWith(args[args.length - 1] ?? ''));
+          return allSnippetNames.filter((str) =>
+            str.startsWith(args[args.length - 1] ?? '')
+          );
         } else if (args.length === 2) {
-          return [...plainCommands, ...pkgCommands].filter(str => str.startsWith(args[1] ?? ''));
+          return [...plainCommands, ...pkgCommands].filter((str) =>
+            str.startsWith(args[1] ?? '')
+          );
         }
         return undefined;
-      }
+      },
     } as TypeSignature;
     instanceState.registerPlugin(this);
 
@@ -160,21 +194,30 @@ export class SnippetManager implements ShellPlugin {
     await fs.mkdir(this.installdir, { recursive: true });
     try {
       await fs.stat(npmclipath);
-      this.messageBus.emit('mongosh-snippets:npm-lookup', { existingVersion: '<local>' });
+      this.messageBus.emit('mongosh-snippets:npm-lookup', {
+        existingVersion: '<local>',
+      });
       return [process.execPath, npmclipath];
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
     try {
-      const existingVersion = (await this.execFile(['npm', '--version'])).trim();
+      const existingVersion = (
+        await this.execFile(['npm', '--version'])
+      ).trim();
       this.messageBus.emit('mongosh-snippets:npm-lookup', { existingVersion });
       const major = +existingVersion.split('.')[0];
       if (major >= 6) return ['npm'];
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
 
     const { evaluationListener, interrupted } = this._instanceState;
     interrupted.checkpoint();
     const result = await evaluationListener.onPrompt?.(
       'This operation requires downloading a recent release of npm. Do you want to proceed? [Y/n]',
-      'yesno');
+      'yesno'
+    );
     if (result === 'no') {
       this.messageBus.emit('mongosh-snippets:npm-lookup-stopped');
       throw new MongoshRuntimeError('Stopped by user request');
@@ -184,105 +227,170 @@ export class SnippetManager implements ShellPlugin {
     interrupted.checkpoint();
     const npmMetadataResponse = await fetch(npmMetadataURL);
     if (!npmMetadataResponse.ok) {
-      this.messageBus.emit('mongosh-snippets:npm-download-failed', { npmMetadataURL, status: npmMetadataResponse.status });
-      throw new MongoshRuntimeError(`Failed to download npm: ${npmMetadataURL}: ${npmMetadataResponse.statusText}`);
+      this.messageBus.emit('mongosh-snippets:npm-download-failed', {
+        npmMetadataURL,
+        status: npmMetadataResponse.status,
+      });
+      throw new MongoshRuntimeError(
+        `Failed to download npm: ${npmMetadataURL}: ${npmMetadataResponse.statusText}`
+      );
     }
     interrupted.checkpoint();
     const npmTarballURL = (await npmMetadataResponse.json())?.dist?.tarball;
     if (!npmTarballURL) {
-      this.messageBus.emit('mongosh-snippets:npm-download-failed', { npmMetadataURL, npmTarballURL });
-      throw new MongoshRuntimeError(`Failed to download npm: ${npmMetadataURL}: Registry returned no download source`);
+      this.messageBus.emit('mongosh-snippets:npm-download-failed', {
+        npmMetadataURL,
+        npmTarballURL,
+      });
+      throw new MongoshRuntimeError(
+        `Failed to download npm: ${npmMetadataURL}: Registry returned no download source`
+      );
     }
     interrupted.checkpoint();
     await this.print(`Downloading npm from ${npmTarballURL}...`);
     const npmTarball = await fetch(npmTarballURL);
     if (!npmTarball.ok) {
-      this.messageBus.emit('mongosh-snippets:npm-download-failed', { npmMetadataURL, npmTarballURL, status: npmTarball.status });
-      throw new MongoshRuntimeError(`Failed to download npm: ${npmTarballURL}: ${npmTarball.statusText}`);
+      this.messageBus.emit('mongosh-snippets:npm-download-failed', {
+        npmMetadataURL,
+        npmTarballURL,
+        status: npmTarball.status,
+      });
+      throw new MongoshRuntimeError(
+        `Failed to download npm: ${npmTarballURL}: ${npmTarball.statusText}`
+      );
     }
-    this.messageBus.emit('mongosh-snippets:npm-download-active', { npmMetadataURL, npmTarballURL });
+    this.messageBus.emit('mongosh-snippets:npm-download-active', {
+      npmMetadataURL,
+      npmTarballURL,
+    });
     interrupted.checkpoint();
     await fs.mkdir(npmdir, { recursive: true });
     await pipeline(npmTarball.body, tar.x({ strip: 1, C: npmdir }));
-    await this.editPackageJSON((pjson) => { (pjson.dependencies ??= {}).npm = '*'; });
+    await this.editPackageJSON((pjson) => {
+      (pjson.dependencies ??= {}).npm = '*';
+    });
     return [process.execPath, npmclipath];
   }
 
-  async prepareIndex(refreshMode: 'force-refresh' | 'allow-cached' = 'allow-cached'): Promise<SnippetIndexFile[]> {
+  async prepareIndex(
+    refreshMode: 'force-refresh' | 'allow-cached' = 'allow-cached'
+  ): Promise<SnippetIndexFile[]> {
     // Fetch the index data and store it in this.repos. Use a saved Promise to
     // ensure that only one such operation is happening at any given time.
-    return this.repos = await (this.inflightFetchIndexPromise ??= (async() => {
-      this.messageBus.emit('mongosh-snippets:fetch-index', { refreshMode });
-      const cachePath = path.join(this.installdir, 'index.bson.br');
-      await fs.mkdir(this.installdir, { recursive: true });
+    return (this.repos = await (this.inflightFetchIndexPromise ??=
+      (async () => {
+        this.messageBus.emit('mongosh-snippets:fetch-index', { refreshMode });
+        const cachePath = path.join(this.installdir, 'index.bson.br');
+        await fs.mkdir(this.installdir, { recursive: true });
 
-      const sourceURLs = (await this.config.get('snippetIndexSourceURLs')).split(';').filter(Boolean);
-      let repoData: SnippetIndexFile[] | null = null;
-      let fetchedFromNetwork = false;
-      try {
-        // First, look at what is available in the cached infex file.
-        repoData = (await unpackBSON(await fs.readFile(cachePath))).repoData;
-      } catch { /* ignore */ }
-
-      if (repoData !== null) {
-        // Do some cache validation: The cache is only valid if the set of
-        // source URLs is equal to the set of configured index source URLs.
-        const cachedSourceURLs = repoData.map((repo: SnippetIndexFile) => repo.sourceURL);
-        if (cachedSourceURLs.length !== sourceURLs.length ||
-            cachedSourceURLs.some(url => !sourceURLs.includes(url))) {
-          this.messageBus.emit('mongosh-snippets:fetch-cache-invalid');
-          repoData = null; // URL mismatch, cache invalid.
-        }
-      }
-
-      // If we do not have a cache, or decided to fetch from network anyway,
-      // do that.
-      if (!repoData || refreshMode === 'force-refresh') {
-        fetchedFromNetwork = true;
-        // Fetch all index files.
-        repoData = await Promise.all(sourceURLs.map(async(url: string) => {
-          const repoRes = await fetch(url);
-          if (!repoRes.ok) {
-            this.messageBus.emit('mongosh-snippets:fetch-index-error', { action: 'fetch', url, status: repoRes.status });
-            throw new MongoshRuntimeError(`The specified index file ${url} could not be read: ${repoRes.statusText}`);
-          }
-          const rawData = await repoRes.buffer();
-          let data;
-          try {
-            data = await unpackBSON<Omit<SnippetIndexFile, 'sourceURL'>>(rawData);
-          } catch (err: any) {
-            this.messageBus.emit('mongosh-snippets:fetch-index-error', { action: 'parse-fetched', url, error: err?.message });
-            throw new MongoshRuntimeError(`The specified index file ${url} could not be parsed: ${err.message}`);
-          }
-          const { error } = indexFileSchema.validate(data, { allowUnknown: true });
-          if (error) {
-            this.messageBus.emit('mongosh-snippets:fetch-index-error', { action: 'validate-fetched', url, error: error.message });
-            throw new MongoshRuntimeError(`The specified index file ${url} is not a valid index file: ${error.message}`);
-          }
-          return { ...data, sourceURL: url };
-        }));
-        // If possible, write the result to disk for caching.
+        const sourceURLs = (await this.config.get('snippetIndexSourceURLs'))
+          .split(';')
+          .filter(Boolean);
+        let repoData: SnippetIndexFile[] | null = null;
+        let fetchedFromNetwork = false;
         try {
-          await fs.writeFile(cachePath, await packBSON({ repoData }));
-        } catch (err: any) {
-          this.messageBus.emit('mongosh-snippets:fetch-index-error', { action: 'save', error: err?.message });
+          // First, look at what is available in the cached infex file.
+          repoData = (await unpackBSON(await fs.readFile(cachePath))).repoData;
+        } catch {
+          /* ignore */
         }
-      }
-      this.messageBus.emit('mongosh-snippets:fetch-index-done');
-      this.inflightFetchIndexPromise = null;
 
-      if (!fetchedFromNetwork && (Date.now() - (await fs.stat(cachePath)).mtime.getTime() > 3600_000)) {
-        // If the cache is old, we still use it, but we also kick off a new
-        // network fetch.
-        this.prepareIndex('force-refresh').catch(() => {});
-      }
+        if (repoData !== null) {
+          // Do some cache validation: The cache is only valid if the set of
+          // source URLs is equal to the set of configured index source URLs.
+          const cachedSourceURLs = repoData.map(
+            (repo: SnippetIndexFile) => repo.sourceURL
+          );
+          if (
+            cachedSourceURLs.length !== sourceURLs.length ||
+            cachedSourceURLs.some((url) => !sourceURLs.includes(url))
+          ) {
+            this.messageBus.emit('mongosh-snippets:fetch-cache-invalid');
+            repoData = null; // URL mismatch, cache invalid.
+          }
+        }
 
-      return repoData;
-    })());
+        // If we do not have a cache, or decided to fetch from network anyway,
+        // do that.
+        if (!repoData || refreshMode === 'force-refresh') {
+          fetchedFromNetwork = true;
+          // Fetch all index files.
+          repoData = await Promise.all(
+            sourceURLs.map(async (url: string) => {
+              const repoRes = await fetch(url);
+              if (!repoRes.ok) {
+                this.messageBus.emit('mongosh-snippets:fetch-index-error', {
+                  action: 'fetch',
+                  url,
+                  status: repoRes.status,
+                });
+                throw new MongoshRuntimeError(
+                  `The specified index file ${url} could not be read: ${repoRes.statusText}`
+                );
+              }
+              const rawData = await repoRes.buffer();
+              let data;
+              try {
+                data = await unpackBSON<Omit<SnippetIndexFile, 'sourceURL'>>(
+                  rawData
+                );
+              } catch (err: any) {
+                this.messageBus.emit('mongosh-snippets:fetch-index-error', {
+                  action: 'parse-fetched',
+                  url,
+                  error: err?.message,
+                });
+                throw new MongoshRuntimeError(
+                  `The specified index file ${url} could not be parsed: ${err.message}`
+                );
+              }
+              const { error } = indexFileSchema.validate(data, {
+                allowUnknown: true,
+              });
+              if (error) {
+                this.messageBus.emit('mongosh-snippets:fetch-index-error', {
+                  action: 'validate-fetched',
+                  url,
+                  error: error.message,
+                });
+                throw new MongoshRuntimeError(
+                  `The specified index file ${url} is not a valid index file: ${error.message}`
+                );
+              }
+              return { ...data, sourceURL: url };
+            })
+          );
+          // If possible, write the result to disk for caching.
+          try {
+            await fs.writeFile(cachePath, await packBSON({ repoData }));
+          } catch (err: any) {
+            this.messageBus.emit('mongosh-snippets:fetch-index-error', {
+              action: 'save',
+              error: err?.message,
+            });
+          }
+        }
+        this.messageBus.emit('mongosh-snippets:fetch-index-done');
+        this.inflightFetchIndexPromise = null;
+
+        if (
+          !fetchedFromNetwork &&
+          Date.now() - (await fs.stat(cachePath)).mtime.getTime() > 3600_000
+        ) {
+          // If the cache is old, we still use it, but we also kick off a new
+          // network fetch.
+          this.prepareIndex('force-refresh').catch(() => {});
+        }
+
+        return repoData;
+      })()));
   }
 
   get snippets(): SnippetDescription[] {
-    return this.repos?.flatMap((repository: SnippetIndexFile) => repository.index) ?? [];
+    return (
+      this.repos?.flatMap((repository: SnippetIndexFile) => repository.index) ??
+      []
+    );
   }
 
   async registryBaseUrl(): Promise<string> {
@@ -295,9 +403,9 @@ export class SnippetManager implements ShellPlugin {
     }
 
     this._instanceState.interrupted.checkpoint();
-    [ this.npmArgv, this.repos ] = await Promise.all([
+    [this.npmArgv, this.repos] = await Promise.all([
       this.prepareNpm(),
-      this.prepareIndex()
+      this.prepareIndex(),
     ]);
     return this.npmArgv;
   }
@@ -305,9 +413,13 @@ export class SnippetManager implements ShellPlugin {
   async editPackageJSON<T>(fn: (pjson: any) => T): Promise<T> {
     let pjson = {};
     try {
-      pjson = JSON.parse(await fs.readFile(path.join(this.installdir, 'package.json'), 'utf8'));
+      pjson = JSON.parse(
+        await fs.readFile(path.join(this.installdir, 'package.json'), 'utf8')
+      );
     } catch (err: any) {
-      this.messageBus.emit('mongosh-snippets:package-json-edit-error', { error: err?.message });
+      this.messageBus.emit('mongosh-snippets:package-json-edit-error', {
+        error: err?.message,
+      });
       if (err.code !== 'ENOENT') {
         throw err;
       }
@@ -316,7 +428,10 @@ export class SnippetManager implements ShellPlugin {
     // eslint-disable-next-line @typescript-eslint/await-thenable
     const result = await fn(pjson);
     if (!isDeepStrictEqual(origContent, result)) {
-      await fs.writeFile(path.join(this.installdir, 'package.json'), JSON.stringify(pjson, null, '  '));
+      await fs.writeFile(
+        path.join(this.installdir, 'package.json'),
+        JSON.stringify(pjson, null, '  ')
+      );
     }
     return result;
   }
@@ -324,42 +439,56 @@ export class SnippetManager implements ShellPlugin {
   async runNpm(...npmArgs: string[]): Promise<string> {
     await this.editPackageJSON(() => {}); // Ensure package.json exists.
     return await this.execFile([
-      ...await this.ensureSetup(),
+      ...(await this.ensureSetup()),
       '--no-package-lock',
       '--ignore-scripts',
       '--loglevel=notice',
       `--registry=${await this.registryBaseUrl()}`,
-      ...npmArgs
+      ...npmArgs,
     ]);
   }
 
-  async execFile([ cmd, ...args ]: string[]) {
+  async execFile([cmd, ...args]: string[]) {
     const { interrupted } = this._instanceState;
-    this.messageBus.emit('mongosh-snippets:spawn-child', { args: [ cmd, ...args ] });
+    this.messageBus.emit('mongosh-snippets:spawn-child', {
+      args: [cmd, ...args],
+    });
     interrupted.checkpoint();
     const proc = spawn(cmd, args, {
       cwd: this.installdir,
       env: { ...process.env, MONGOSH_RUN_NODE_SCRIPT: '1' },
-      stdio: 'pipe'
+      stdio: 'pipe',
     });
     let stdout = '';
     let stderr = '';
-    (proc.stdout as NodeJS.ReadableStream).setEncoding('utf8').on('data', (chunk) => { stdout += chunk; });
-    (proc.stderr as NodeJS.ReadableStream).setEncoding('utf8').on('data', (chunk) => { stderr += chunk; });
+    (proc.stdout as NodeJS.ReadableStream)
+      .setEncoding('utf8')
+      .on('data', (chunk) => {
+        stdout += chunk;
+      });
+    (proc.stderr as NodeJS.ReadableStream)
+      .setEncoding('utf8')
+      .on('data', (chunk) => {
+        stderr += chunk;
+      });
 
     const interruptPromise = interrupted.asPromise();
     interruptPromise.promise.catch(() => {}); // Suppress UnhandledPromiseRejectionWarning
     try {
-      const [ exitCode ] = await Promise.race([
+      const [exitCode] = await Promise.race([
         interruptPromise.promise,
-        once(proc, 'close')
+        once(proc, 'close'),
       ]);
       // Allow exit code 1 if stderr is empty, i.e. no error occurred, because
       // that is how commands like `npm outdated` report their result.
       if (exitCode === 0 || (exitCode === 1 && stderr === '' && stdout)) {
         return stdout;
       }
-      throw new Error(`Command failed: ${[cmd, ...args].join(' ')} with exit code ${exitCode}: ${stderr} ${stdout}`);
+      throw new Error(
+        `Command failed: ${[cmd, ...args].join(
+          ' '
+        )} with exit code ${exitCode}: ${stderr} ${stdout}`
+      );
     } finally {
       interruptPromise.destroy();
       if (proc.exitCode === null && proc.signalCode === null) {
@@ -371,22 +500,33 @@ export class SnippetManager implements ShellPlugin {
   async search(): Promise<string> {
     await this.ensureSetup();
     const list = this.snippets.map(
-      ({ snippetName, version, description }: any) =>
-        ({ name: snippetName, version, description }));
+      ({ snippetName, version, description }: any) => ({
+        name: snippetName,
+        version,
+        description,
+      })
+    );
 
     const tableOutput = new PassThrough({ encoding: 'utf8' });
     new Console(tableOutput).table(list);
     return tableOutput.read();
   }
 
-  async loadAllSnippets(autoloadMode: 'always' | 'only-autoload' = 'only-autoload'): Promise<void> {
-    if (autoloadMode === 'only-autoload' && !await this.config.get('snippetAutoload')) {
+  async loadAllSnippets(
+    autoloadMode: 'always' | 'only-autoload' = 'only-autoload'
+  ): Promise<void> {
+    if (
+      autoloadMode === 'only-autoload' &&
+      !(await this.config.get('snippetAutoload'))
+    ) {
       return;
     }
 
     let installedPackages;
     try {
-      installedPackages = await this.editPackageJSON((pjson) => Object.keys(pjson.dependencies ?? {}));
+      installedPackages = await this.editPackageJSON((pjson) =>
+        Object.keys(pjson.dependencies ?? {})
+      );
     } catch (err: any) {
       if (autoloadMode === 'only-autoload') {
         return; // Could not load snippets. The user will be aware of this soon enough, most likely.
@@ -398,7 +538,10 @@ export class SnippetManager implements ShellPlugin {
         continue;
       }
       const packagePath = path.resolve(this.installdir, 'node_modules', name);
-      this.messageBus.emit('mongosh-snippets:load-snippet', { source: 'load-all', name });
+      this.messageBus.emit('mongosh-snippets:load-snippet', {
+        source: 'load-all',
+        name,
+      });
       this._instanceState.interrupted.checkpoint();
       await this.load(this.require.resolve(packagePath));
     }
@@ -428,9 +571,15 @@ export class SnippetManager implements ShellPlugin {
         const firstLineEnd = output.indexOf('\n');
         let packages = output.substr(firstLineEnd + 1);
         for (const { name, snippetName } of this.snippets) {
-          packages = packages.replace(new RegExp(escapeRegexp(name), 'g'), `mongosh:${snippetName}`);
+          packages = packages.replace(
+            new RegExp(escapeRegexp(name), 'g'),
+            `mongosh:${snippetName}`
+          );
         }
-        return (firstLineEnd < 0 ? output : output.substr(0, firstLineEnd + 1)) + packages;
+        return (
+          (firstLineEnd < 0 ? output : output.substr(0, firstLineEnd + 1)) +
+          packages
+        );
       }
       case 'search':
         return await this.search();
@@ -450,7 +599,9 @@ export class SnippetManager implements ShellPlugin {
 
     const snippetDescs: SnippetDescription[] = [];
     for (let i = 1; i < args.length; i++) {
-      const snippetDesc = this.snippets.find(({ snippetName }) => snippetName === args[i]);
+      const snippetDesc = this.snippets.find(
+        ({ snippetName }) => snippetName === args[i]
+      );
       if (!snippetDesc) {
         throw new MongoshInvalidInputError(`Unknown snippet "${args[i]}"`);
       }
@@ -459,7 +610,8 @@ export class SnippetManager implements ShellPlugin {
 
     await this.editPackageJSON((pjson) => {
       for (const { name } of snippetDescs) {
-        (pjson.dependencies ??= {})[name] = args[0] === 'uninstall' ? undefined : '*';
+        (pjson.dependencies ??= {})[name] =
+          args[0] === 'uninstall' ? undefined : '*';
       }
     });
 
@@ -471,13 +623,23 @@ export class SnippetManager implements ShellPlugin {
     if (args[0] === 'install' && snippetDescs.length > 0) {
       this._instanceState.interrupted.checkpoint();
       const loadNow = await evaluationListener.onPrompt?.(
-        `Installed new snippets ${args.slice(1)}. Do you want to load them now? [Y/n]`,
-        'yesno');
+        `Installed new snippets ${args.slice(
+          1
+        )}. Do you want to load them now? [Y/n]`,
+        'yesno'
+      );
       if (loadNow !== 'no') {
         for (const { name } of snippetDescs) {
-          this.messageBus.emit('mongosh-snippets:load-snippet', { source: 'install', name });
+          this.messageBus.emit('mongosh-snippets:load-snippet', {
+            source: 'install',
+            name,
+          });
           this._instanceState.interrupted.checkpoint();
-          await this.load(this.require.resolve(path.join(this.installdir, 'node_modules', name)));
+          await this.load(
+            this.require.resolve(
+              path.join(this.installdir, 'node_modules', name)
+            )
+          );
         }
       }
       return `Finished installing snippets: ${args.slice(1)}`;
@@ -488,12 +650,16 @@ export class SnippetManager implements ShellPlugin {
   async helpText(snippet = ''): Promise<string> {
     if (snippet) {
       await this.prepareIndex();
-      const info = this.snippets.find(({ snippetName }: any) => snippetName === snippet);
+      const info = this.snippets.find(
+        ({ snippetName }: any) => snippetName === snippet
+      );
       if (!info) {
         throw new MongoshInvalidInputError(`Unknown snippet "${snippet}"`);
       }
       if (!info.readme) {
-        throw new MongoshRuntimeError(`No help information available for "${snippet}"`);
+        throw new MongoshRuntimeError(
+          `No help information available for "${snippet}"`
+        );
       }
       return info.readme;
     }
@@ -517,10 +683,16 @@ snippet <command> [args...]
 
   async showInfo(): Promise<string> {
     await this.prepareIndex();
-    return this.repos?.map(repository => `\
+    return (
+      this.repos
+        ?.map(
+          (repository) => `\
 Snippet repository URL:      ${repository.sourceURL}
   -->  Homepage:             ${repository.metadata.homepage}
-`).join('\n') ?? 'Not enabled';
+`
+        )
+        .join('\n') ?? 'Not enabled'
+    );
   }
 
   transformError(err: Error): Error {
@@ -530,7 +702,11 @@ Snippet repository URL:      ${repository.sourceURL}
       for (const { matches, message } of errorMatchers ?? []) {
         for (const regexp of matches) {
           if (err.message.match(regexp)) {
-            this.messageBus.emit('mongosh-snippets:transform-error', { error: err.message, addition: message, name });
+            this.messageBus.emit('mongosh-snippets:transform-error', {
+              error: err.message,
+              addition: message,
+              name,
+            });
             err.message += ` (${message})`;
             return err;
           }

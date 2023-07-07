@@ -11,7 +11,7 @@ const helpOutput = css({
     outline: 0,
     fontSize: '100%',
     verticalAlign: 'baseline',
-    background: 'transparent'
+    background: 'transparent',
   },
   '& table': {
     width: '100%',
@@ -21,12 +21,12 @@ const helpOutput = css({
     margin: '1em 0',
     '& th': {
       width: '25%',
-      fontWeight: 'bold'
+      fontWeight: 'bold',
     },
     '& th, & td': {
-      textAlign: 'left'
-    }
-  }
+      textAlign: 'left',
+    },
+  },
 });
 
 type HelpApiObject = {
@@ -46,36 +46,51 @@ interface HelpOutputProps {
 
 export class HelpOutput extends Component<HelpOutputProps> {
   static propTypes = {
-    value: PropTypes.object.isRequired
+    value: PropTypes.object.isRequired,
   };
 
   renderAttrTable = (attr: HelpApiObjectAttr[]): JSX.Element | undefined => {
-    if (!attr || !attr.length) { return; }
+    if (!attr || !attr.length) {
+      return;
+    }
 
-    return (<table>
-      <tbody>{attr.map(this.renderAttrTableRow)}</tbody>
-    </table>);
+    return (
+      <table>
+        <tbody>{attr.map(this.renderAttrTableRow)}</tbody>
+      </table>
+    );
   };
 
   renderAttrTableRow = (attr: HelpApiObjectAttr, i: number): JSX.Element => {
-    return (<tr key={`row-${i}`}>
-      <th>{attr.name}</th>
-      <td>{attr.description}</td>
-    </tr>);
+    return (
+      <tr key={`row-${i}`}>
+        <th>{attr.name}</th>
+        <td>{attr.description}</td>
+      </tr>
+    );
   };
 
   renderHelpDocsLink(docs: string): JSX.Element | undefined {
-    if (!docs) { return; }
+    if (!docs) {
+      return;
+    }
 
-    return (<div>
-      {i18n.__('cli-repl.args.moreInformation')} <a href={docs} target="_blank" rel="noreferrer">{docs}</a>
-    </div>);
+    return (
+      <div>
+        {i18n.__('cli-repl.args.moreInformation')}{' '}
+        <a href={docs} target="_blank" rel="noreferrer">
+          {docs}
+        </a>
+      </div>
+    );
   }
 
   renderHelpText(helpText: string): JSX.Element | undefined {
-    if (!helpText) { return; }
+    if (!helpText) {
+      return;
+    }
 
-    return (<div>{helpText}</div>);
+    return <div>{helpText}</div>;
   }
 
   render(): JSX.Element {

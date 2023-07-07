@@ -19,10 +19,10 @@ export async function generateBundle(config: Config): Promise<void> {
   console.info('mongosh: creating bundle:', config.bundleSinglefileOutput);
   // This could be an npm script that runs before the compile step if it
   // weren't for the build info file which is being written above.
-  spawnSync('npm', [
-    'run', 'webpack-build'
-  ], {
-    cwd: path.dirname(await pkgUp({ cwd: config.bundleSinglefileOutput }) as string),
-    encoding: 'utf8'
+  spawnSync('npm', ['run', 'webpack-build'], {
+    cwd: path.dirname(
+      (await pkgUp({ cwd: config.bundleSinglefileOutput })) as string
+    ),
+    encoding: 'utf8',
   });
 }

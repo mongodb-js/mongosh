@@ -1,46 +1,57 @@
 import { expect } from 'chai';
-import type { StubbedInstance} from 'ts-sinon';
+import type { StubbedInstance } from 'ts-sinon';
 import sinon, { stubInterface } from 'ts-sinon';
 import Shard from './shard';
-import { ADMIN_DB, ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';
+import {
+  ADMIN_DB,
+  ALL_PLATFORMS,
+  ALL_SERVER_VERSIONS,
+  ALL_TOPOLOGIES,
+} from './enums';
 import { signatures, toShellResult } from './index';
 import Mongo from './mongo';
 import type {
   ServiceProvider,
   FindCursor as ServiceProviderCursor,
   AggregationCursor as ServiceProviderAggCursor,
-  RunCommandCursor as ServiceProviderRunCommandCursor} from '@mongosh/service-provider-core';
-import {
-  bson
+  RunCommandCursor as ServiceProviderRunCommandCursor,
 } from '@mongosh/service-provider-core';
+import { bson } from '@mongosh/service-provider-core';
 import { EventEmitter } from 'events';
 import ShellInstanceState from './shell-instance-state';
 import { UpdateResult } from './result';
 import { CliServiceProvider } from '../../service-provider-server';
-import { startTestCluster, skipIfServerVersion, skipIfApiStrict } from '../../../testing/integration-testing-hooks';
+import {
+  startTestCluster,
+  skipIfServerVersion,
+  skipIfApiStrict,
+} from '../../../testing/integration-testing-hooks';
 import Database from './database';
 import { inspect } from 'util';
 import { dummyOptions } from './helpers.spec';
 
-
-describe('Shard', function() {
+describe('Shard', function () {
   skipIfApiStrict();
-  describe('help', function() {
+  describe('help', function () {
     const apiClass: any = new Shard({} as any);
-    it('calls help function', async function() {
+    it('calls help function', async function () {
       expect((await toShellResult(apiClass.help())).type).to.equal('Help');
       expect((await toShellResult(apiClass.help)).type).to.equal('Help');
     });
-    it('calls help function for methods', async function() {
-      expect((await toShellResult(apiClass.enableSharding.help())).type).to.equal('Help');
-      expect((await toShellResult(apiClass.enableSharding.help)).type).to.equal('Help');
+    it('calls help function for methods', async function () {
+      expect(
+        (await toShellResult(apiClass.enableSharding.help())).type
+      ).to.equal('Help');
+      expect((await toShellResult(apiClass.enableSharding.help)).type).to.equal(
+        'Help'
+      );
     });
   });
-  describe('signatures', function() {
-    it('type', function() {
+  describe('signatures', function () {
+    it('type', function () {
       expect(signatures.Shard.type).to.equal('Shard');
     });
-    it('attributes', function() {
+    it('attributes', function () {
       expect(signatures.Shard.attributes.enableSharding).to.deep.equal({
         type: 'function',
         returnsPromise: true,
@@ -48,28 +59,30 @@ describe('Shard', function() {
         returnType: { type: 'unknown', attributes: {} },
         platforms: ALL_PLATFORMS,
         topologies: ALL_TOPOLOGIES,
-        apiVersions: [ 0, 0 ],
+        apiVersions: [0, 0],
         serverVersions: ALL_SERVER_VERSIONS,
         isDirectShellCommand: false,
         acceptsRawInput: false,
-        shellCommandCompleter: undefined
+        shellCommandCompleter: undefined,
       });
     });
   });
-  describe('Metadata', function() {
-    describe('toShellResult', function() {
+  describe('Metadata', function () {
+    describe('toShellResult', function () {
       const mongo = { _uri: 'test_uri' } as Mongo;
       const db = { _mongo: mongo, _name: 'test' } as Database;
       const sh = new Shard(db);
-      it('value', async function() {
-        expect((await toShellResult(sh)).printable).to.equal('Shard class connected to test_uri via db test');
+      it('value', async function () {
+        expect((await toShellResult(sh)).printable).to.equal(
+          'Shard class connected to test_uri via db test'
+        );
       });
-      it('type', async function() {
+      it('type', async function () {
         expect((await toShellResult(sh)).type).to.equal('Shard');
       });
     });
   });
-  describe('unit', function() {
+  describe('unit', function () {
     let mongo: Mongo;
     let serviceProvider: StubbedInstance<ServiceProvider>;
     let shard: Shard;
@@ -78,7 +91,7 @@ describe('Shard', function() {
     let db: Database;
     let warnSpy: any;
 
-    beforeEach(function() {
+    beforeEach(function () {
       bus = stubInterface<EventEmitter>();
       serviceProvider = stubInterface<ServiceProvider>();
       serviceProvider.initialDb = 'test';
@@ -89,310 +102,360 @@ describe('Shard', function() {
       instanceState = new ShellInstanceState(serviceProvider, bus);
       instanceState.printWarning = warnSpy;
       instanceState.printDeprecationWarning = warnSpy;
-      mongo = new Mongo(instanceState, undefined, undefined, undefined, serviceProvider);
+      mongo = new Mongo(
+        instanceState,
+        undefined,
+        undefined,
+        undefined,
+        serviceProvider
+      );
       db = new Database(mongo, 'testDb');
       shard = new Shard(db);
     });
-    describe('enableSharding', function() {
-      it('calls serviceProvider.runCommandWithCheck without optional arg', async function() {
+    describe('enableSharding', function () {
+      it('calls serviceProvider.runCommandWithCheck without optional arg', async function () {
         await shard.enableSharding('db.coll');
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           ADMIN_DB,
           {
-            enableSharding: 'db.coll'
+            enableSharding: 'db.coll',
           }
         );
       });
 
-      it('calls serviceProvider.runCommandWithCheck with arg', async function() {
+      it('calls serviceProvider.runCommandWithCheck with arg', async function () {
         await shard.enableSharding('dbname', 'primaryShard');
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           ADMIN_DB,
           {
             enableSharding: 'dbname',
-            primaryShard: 'primaryShard'
+            primaryShard: 'primaryShard',
           }
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function () {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await shard.enableSharding('dbname');
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function () {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const caughtError = await shard.enableSharding('dbname')
-          .catch(e => e);
+        const caughtError = await shard
+          .enableSharding('dbname')
+          .catch((e) => e);
         expect(caughtError).to.equal(expectedError);
       });
     });
-    describe('shardCollection', function() {
-      it('calls serviceProvider.runCommandWithCheck without optional args', async function() {
-        await shard.shardCollection('db.coll', { key: 1 } );
+    describe('shardCollection', function () {
+      it('calls serviceProvider.runCommandWithCheck without optional args', async function () {
+        await shard.shardCollection('db.coll', { key: 1 });
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           ADMIN_DB,
           {
             shardCollection: 'db.coll',
-            key: { key: 1 }
+            key: { key: 1 },
           }
         );
       });
 
-      it('calls serviceProvider.runCommandWithCheck with optional args', async function() {
-        await shard.shardCollection('db.coll', { key: 1 }, true, { option1: 1 });
+      it('calls serviceProvider.runCommandWithCheck with optional args', async function () {
+        await shard.shardCollection('db.coll', { key: 1 }, true, {
+          option1: 1,
+        });
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           ADMIN_DB,
           {
             shardCollection: 'db.coll',
             key: { key: 1 },
             unique: true,
-            option1: 1
+            option1: 1,
           }
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function () {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await shard.shardCollection('db.coll', { key: 1 });
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function () {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const caughtError = await shard.shardCollection('db.coll', { key: 1 })
-          .catch(e => e);
+        const caughtError = await shard
+          .shardCollection('db.coll', { key: 1 })
+          .catch((e) => e);
         expect(caughtError).to.equal(expectedError);
       });
     });
-    describe('reshardCollection', function() {
-      it('calls serviceProvider.runCommandWithCheck without optional args', async function() {
-        await shard.reshardCollection('db.coll', { key: 1 } );
+    describe('reshardCollection', function () {
+      it('calls serviceProvider.runCommandWithCheck without optional args', async function () {
+        await shard.reshardCollection('db.coll', { key: 1 });
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           ADMIN_DB,
           {
             reshardCollection: 'db.coll',
-            key: { key: 1 }
+            key: { key: 1 },
           }
         );
       });
 
-      it('calls serviceProvider.runCommandWithCheck with optional args', async function() {
-        await shard.reshardCollection('db.coll', { key: 1 }, true, { option1: 1 });
+      it('calls serviceProvider.runCommandWithCheck with optional args', async function () {
+        await shard.reshardCollection('db.coll', { key: 1 }, true, {
+          option1: 1,
+        });
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           ADMIN_DB,
           {
             reshardCollection: 'db.coll',
             key: { key: 1 },
             unique: true,
-            option1: 1
+            option1: 1,
           }
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function () {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await shard.reshardCollection('db.coll', { key: 1 });
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function () {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const caughtError = await shard.reshardCollection('db.coll', { key: 1 })
-          .catch(e => e);
+        const caughtError = await shard
+          .reshardCollection('db.coll', { key: 1 })
+          .catch((e) => e);
         expect(caughtError).to.equal(expectedError);
       });
     });
-    describe('commitReshardCollection', function() {
-      it('calls serviceProvider.runCommandWithCheck', async function() {
+    describe('commitReshardCollection', function () {
+      it('calls serviceProvider.runCommandWithCheck', async function () {
         await shard.commitReshardCollection('db.coll');
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           ADMIN_DB,
           {
-            commitReshardCollection: 'db.coll'
+            commitReshardCollection: 'db.coll',
           }
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function () {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await shard.commitReshardCollection('db.coll');
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function () {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const caughtError = await shard.commitReshardCollection('db.coll')
-          .catch(e => e);
+        const caughtError = await shard
+          .commitReshardCollection('db.coll')
+          .catch((e) => e);
         expect(caughtError).to.equal(expectedError);
       });
     });
-    describe('abortReshardCollection', function() {
-      it('calls serviceProvider.runCommandWithCheck', async function() {
+    describe('abortReshardCollection', function () {
+      it('calls serviceProvider.runCommandWithCheck', async function () {
         await shard.abortReshardCollection('db.coll');
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           ADMIN_DB,
           {
-            abortReshardCollection: 'db.coll'
+            abortReshardCollection: 'db.coll',
           }
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function () {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await shard.abortReshardCollection('db.coll');
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function () {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const caughtError = await shard.abortReshardCollection('db.coll')
-          .catch(e => e);
+        const caughtError = await shard
+          .abortReshardCollection('db.coll')
+          .catch((e) => e);
         expect(caughtError).to.equal(expectedError);
       });
     });
-    describe('addShard', function() {
-      it('calls serviceProvider.runCommandWithCheck with arg', async function() {
-        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+    describe('addShard', function () {
+      it('calls serviceProvider.runCommandWithCheck with arg', async function () {
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'isdbgrid',
+        });
         await shard.addShard('uri');
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           ADMIN_DB,
           {
-            addShard: 'uri'
+            addShard: 'uri',
           }
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function () {
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'isdbgrid' });
+        serviceProvider.runCommandWithCheck
+          .onCall(0)
+          .resolves({ ok: 1, msg: 'isdbgrid' });
         serviceProvider.runCommandWithCheck.onCall(1).resolves(expectedResult);
         const result = await shard.addShard('uri');
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
-        serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'isdbgrid' });
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function () {
+        serviceProvider.runCommandWithCheck
+          .onCall(0)
+          .resolves({ ok: 1, msg: 'isdbgrid' });
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.onCall(1).rejects(expectedError);
-        const caughtError = await shard.addShard('uri')
-          .catch(e => e);
+        const caughtError = await shard.addShard('uri').catch((e) => e);
         expect(caughtError).to.equal(expectedError);
       });
 
-      it('throws if not mongos', async function() {
+      it('throws if not mongos', async function () {
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'not dbgrid' });
+        serviceProvider.runCommandWithCheck
+          .onCall(0)
+          .resolves({ ok: 1, msg: 'not dbgrid' });
         serviceProvider.runCommandWithCheck.onCall(1).resolves(expectedResult);
         await shard.addShard('uri');
         expect(warnSpy.calledOnce).to.equal(true);
       });
     });
-    describe('addShardToZone', function() {
-      it('calls serviceProvider.runCommandWithCheck with arg', async function() {
-        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+    describe('addShardToZone', function () {
+      it('calls serviceProvider.runCommandWithCheck with arg', async function () {
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'isdbgrid',
+        });
         await shard.addShardToZone('shard', 'zone');
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           ADMIN_DB,
           {
             addShardToZone: 'shard',
-            zone: 'zone'
+            zone: 'zone',
           }
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function () {
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'isdbgrid' });
+        serviceProvider.runCommandWithCheck
+          .onCall(0)
+          .resolves({ ok: 1, msg: 'isdbgrid' });
         serviceProvider.runCommandWithCheck.onCall(1).resolves(expectedResult);
         const result = await shard.addShardToZone('shard', 'zone');
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
-        serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'isdbgrid' });
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function () {
+        serviceProvider.runCommandWithCheck
+          .onCall(0)
+          .resolves({ ok: 1, msg: 'isdbgrid' });
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.onCall(1).rejects(expectedError);
-        const caughtError = await shard.addShardToZone('shard', 'zone')
-          .catch(e => e);
+        const caughtError = await shard
+          .addShardToZone('shard', 'zone')
+          .catch((e) => e);
         expect(caughtError).to.equal(expectedError);
       });
 
-      it('throws if not mongos', async function() {
+      it('throws if not mongos', async function () {
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'not dbgrid' });
+        serviceProvider.runCommandWithCheck
+          .onCall(0)
+          .resolves({ ok: 1, msg: 'not dbgrid' });
         serviceProvider.runCommandWithCheck.onCall(1).resolves(expectedResult);
         await shard.addShardToZone('shard', 'zone');
         expect(warnSpy.calledOnce).to.equal(true);
       });
     });
-    describe('addShardTag', function() {
-      it('calls serviceProvider.runCommandWithCheck with arg', async function() {
-        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+    describe('addShardTag', function () {
+      it('calls serviceProvider.runCommandWithCheck with arg', async function () {
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'isdbgrid',
+        });
         await shard.addShardTag('shard', 'zone');
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           ADMIN_DB,
           {
             addShardToZone: 'shard',
-            zone: 'zone'
+            zone: 'zone',
           }
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function () {
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'isdbgrid' });
+        serviceProvider.runCommandWithCheck
+          .onCall(0)
+          .resolves({ ok: 1, msg: 'isdbgrid' });
         serviceProvider.runCommandWithCheck.onCall(1).resolves(expectedResult);
         const result = await shard.addShardTag('shard', 'zone');
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
-        serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'isdbgrid' });
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function () {
+        serviceProvider.runCommandWithCheck
+          .onCall(0)
+          .resolves({ ok: 1, msg: 'isdbgrid' });
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.onCall(1).rejects(expectedError);
-        const caughtError = await shard.addShardTag('shard', 'zone')
-          .catch(e => e);
+        const caughtError = await shard
+          .addShardTag('shard', 'zone')
+          .catch((e) => e);
         expect(caughtError).to.equal(expectedError);
       });
 
-      it('throws if not mongos', async function() {
+      it('throws if not mongos', async function () {
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'not dbgrid' });
+        serviceProvider.runCommandWithCheck
+          .onCall(0)
+          .resolves({ ok: 1, msg: 'not dbgrid' });
         serviceProvider.runCommandWithCheck.onCall(1).resolves(expectedResult);
         await shard.addShardTag('shard', 'zone');
         expect(warnSpy.calledOnce).to.equal(true);
       });
 
-      it('adds version suggestion if command not found', async function() {
-        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+      it('adds version suggestion if command not found', async function () {
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'isdbgrid',
+        });
         const expectedError = new Error();
         (expectedError as any).codeName = 'CommandNotFound';
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const caughtError = await shard.addShardTag('shard', 'zone')
-          .catch(e => e);
+        const caughtError = await shard
+          .addShardTag('shard', 'zone')
+          .catch((e) => e);
         expect(caughtError.message).to.include('> 3.4');
       });
     });
-    describe('updateZoneKeyRange', function() {
-      it('calls serviceProvider.runCommandWithCheck with arg', async function() {
-        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+    describe('updateZoneKeyRange', function () {
+      it('calls serviceProvider.runCommandWithCheck with arg', async function () {
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'isdbgrid',
+        });
         await shard.updateZoneKeyRange('ns', { min: 0 }, { max: 1 }, 'zone');
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
@@ -401,39 +464,48 @@ describe('Shard', function() {
             updateZoneKeyRange: 'ns',
             min: { min: 0 },
             max: { max: 1 },
-            zone: 'zone'
+            zone: 'zone',
           }
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function () {
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'isdbgrid' });
+        serviceProvider.runCommandWithCheck
+          .onCall(0)
+          .resolves({ ok: 1, msg: 'isdbgrid' });
         serviceProvider.runCommandWithCheck.onCall(1).resolves(expectedResult);
         const result = await shard.updateZoneKeyRange('ns', {}, {}, 'zone');
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
-        serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'isdbgrid' });
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function () {
+        serviceProvider.runCommandWithCheck
+          .onCall(0)
+          .resolves({ ok: 1, msg: 'isdbgrid' });
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.onCall(1).rejects(expectedError);
-        const caughtError = await shard.updateZoneKeyRange('ns', {}, {}, 'zone')
-          .catch(e => e);
+        const caughtError = await shard
+          .updateZoneKeyRange('ns', {}, {}, 'zone')
+          .catch((e) => e);
         expect(caughtError).to.equal(expectedError);
       });
 
-      it('throws if not mongos', async function() {
+      it('throws if not mongos', async function () {
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'not dbgrid' });
+        serviceProvider.runCommandWithCheck
+          .onCall(0)
+          .resolves({ ok: 1, msg: 'not dbgrid' });
         serviceProvider.runCommandWithCheck.onCall(1).resolves(expectedResult);
         await shard.updateZoneKeyRange('ns', {}, {}, 'zone');
         expect(warnSpy.calledOnce).to.equal(true);
       });
     });
-    describe('addTagRange', function() {
-      it('calls serviceProvider.runCommandWithCheck with arg', async function() {
-        serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'isdbgrid' });
+    describe('addTagRange', function () {
+      it('calls serviceProvider.runCommandWithCheck with arg', async function () {
+        serviceProvider.runCommandWithCheck
+          .onCall(0)
+          .resolves({ ok: 1, msg: 'isdbgrid' });
         await shard.addTagRange('ns', { min: 0 }, { max: 1 }, 'zone');
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
@@ -442,49 +514,62 @@ describe('Shard', function() {
             updateZoneKeyRange: 'ns',
             min: { min: 0 },
             max: { max: 1 },
-            zone: 'zone'
+            zone: 'zone',
           }
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function () {
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'isdbgrid' });
+        serviceProvider.runCommandWithCheck
+          .onCall(0)
+          .resolves({ ok: 1, msg: 'isdbgrid' });
         serviceProvider.runCommandWithCheck.onCall(1).resolves(expectedResult);
         const result = await shard.addTagRange('ns', {}, {}, 'zone');
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
-        serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'isdbgrid' });
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function () {
+        serviceProvider.runCommandWithCheck
+          .onCall(0)
+          .resolves({ ok: 1, msg: 'isdbgrid' });
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.onCall(1).rejects(expectedError);
-        const caughtError = await shard.addTagRange('ns', {}, {}, 'zone')
-          .catch(e => e);
+        const caughtError = await shard
+          .addTagRange('ns', {}, {}, 'zone')
+          .catch((e) => e);
         expect(caughtError).to.equal(expectedError);
       });
 
-      it('throws if not mongos', async function() {
+      it('throws if not mongos', async function () {
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'not dbgrid' });
+        serviceProvider.runCommandWithCheck
+          .onCall(0)
+          .resolves({ ok: 1, msg: 'not dbgrid' });
         serviceProvider.runCommandWithCheck.onCall(1).resolves(expectedResult);
         await shard.addTagRange('ns', {}, {}, 'zone');
         expect(warnSpy.calledOnce).to.equal(true);
       });
 
-      it('adds version suggestion if command not found', async function() {
-        serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'isdbgrid' });
+      it('adds version suggestion if command not found', async function () {
+        serviceProvider.runCommandWithCheck
+          .onCall(0)
+          .resolves({ ok: 1, msg: 'isdbgrid' });
         const expectedError = new Error();
         (expectedError as any).codeName = 'CommandNotFound';
         serviceProvider.runCommandWithCheck.onCall(1).rejects(expectedError);
-        const caughtError = await shard.addTagRange('ns', {}, {}, 'zone')
-          .catch(e => e);
+        const caughtError = await shard
+          .addTagRange('ns', {}, {}, 'zone')
+          .catch((e) => e);
         expect(caughtError.message).to.include('> 3.4');
       });
     });
-    describe('removeRangeFromZone', function() {
-      it('calls serviceProvider.runCommandWithChek with arg', async function() {
-        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+    describe('removeRangeFromZone', function () {
+      it('calls serviceProvider.runCommandWithChek with arg', async function () {
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'isdbgrid',
+        });
         await shard.removeRangeFromZone('ns', { min: 1 }, { max: 1 });
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
@@ -492,44 +577,57 @@ describe('Shard', function() {
           {
             updateZoneKeyRange: 'ns',
             min: {
-              min: 1
+              min: 1,
             },
             max: {
-              max: 1
+              max: 1,
             },
-            zone: null
+            zone: null,
           }
-        )
-        ;
+        );
       });
 
-      it('returns whatever serviceProvider.updateZoneKeyRange returns', async function() {
-        serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'isdbgrid' });
+      it('returns whatever serviceProvider.updateZoneKeyRange returns', async function () {
+        serviceProvider.runCommandWithCheck
+          .onCall(0)
+          .resolves({ ok: 1, msg: 'isdbgrid' });
         const expectedResult = { ok: 1, msg: 'isdbgrid' };
         serviceProvider.runCommandWithCheck.onCall(1).resolves(expectedResult);
-        const result = await shard.removeRangeFromZone('ns', { min: 1 }, { max: 1 });
+        const result = await shard.removeRangeFromZone(
+          'ns',
+          { min: 1 },
+          { max: 1 }
+        );
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.updateZoneKeyRange rejects', async function() {
-        serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'isdbgrid' });
+      it('throws if serviceProvider.updateZoneKeyRange rejects', async function () {
+        serviceProvider.runCommandWithCheck
+          .onCall(0)
+          .resolves({ ok: 1, msg: 'isdbgrid' });
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.onCall(1).rejects(expectedError);
-        const caughtError = await shard.removeRangeFromZone('ns', { min: 1 }, { max: 1 })
-          .catch(e => e);
+        const caughtError = await shard
+          .removeRangeFromZone('ns', { min: 1 }, { max: 1 })
+          .catch((e) => e);
         expect(caughtError).to.equal(expectedError);
       });
-      it('throws if not mongos', async function() {
+      it('throws if not mongos', async function () {
         const expectedResult = { ok: 1, msg: 'isdbgrid' };
-        serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'not dbgrid' });
+        serviceProvider.runCommandWithCheck
+          .onCall(0)
+          .resolves({ ok: 1, msg: 'not dbgrid' });
         serviceProvider.runCommandWithCheck.onCall(1).resolves(expectedResult);
         await shard.removeRangeFromZone('ns', {}, {});
         expect(warnSpy.calledOnce).to.equal(true);
       });
     });
-    describe('removeTagRange', function() {
-      it('calls serviceProvider.runCommandWithCheck with arg', async function() {
-        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+    describe('removeTagRange', function () {
+      it('calls serviceProvider.runCommandWithCheck with arg', async function () {
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'isdbgrid',
+        });
         await shard.removeTagRange('ns', { min: 1 }, { max: 1 });
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
@@ -537,145 +635,180 @@ describe('Shard', function() {
           {
             updateZoneKeyRange: 'ns',
             min: {
-              min: 1
+              min: 1,
             },
             max: {
-              max: 1
+              max: 1,
             },
-            zone: null
+            zone: null,
           }
-        )
-        ;
+        );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
-        serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'isdbgrid' });
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function () {
+        serviceProvider.runCommandWithCheck
+          .onCall(0)
+          .resolves({ ok: 1, msg: 'isdbgrid' });
         const expectedResult = { ok: 1, msg: 'isdbgrid' };
         serviceProvider.runCommandWithCheck.onCall(1).resolves(expectedResult);
         const result = await shard.removeTagRange('ns', { min: 1 }, { max: 1 });
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
-        serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'isdbgrid' });
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function () {
+        serviceProvider.runCommandWithCheck
+          .onCall(0)
+          .resolves({ ok: 1, msg: 'isdbgrid' });
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.onCall(1).rejects(expectedError);
-        const caughtError = await shard.removeTagRange('ns', { min: 1 }, { max: 1 })
-          .catch(e => e);
+        const caughtError = await shard
+          .removeTagRange('ns', { min: 1 }, { max: 1 })
+          .catch((e) => e);
         expect(caughtError).to.equal(expectedError);
       });
-      it('throws if not mongos', async function() {
+      it('throws if not mongos', async function () {
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'not dbgrid' });
+        serviceProvider.runCommandWithCheck
+          .onCall(0)
+          .resolves({ ok: 1, msg: 'not dbgrid' });
         serviceProvider.runCommandWithCheck.onCall(1).resolves(expectedResult);
         await shard.removeTagRange('ns', {}, {});
         expect(warnSpy.calledOnce).to.equal(true);
       });
-      it('adds version suggestion if command not found', async function() {
-        serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'isdbgrid' });
+      it('adds version suggestion if command not found', async function () {
+        serviceProvider.runCommandWithCheck
+          .onCall(0)
+          .resolves({ ok: 1, msg: 'isdbgrid' });
         const expectedError = new Error();
         (expectedError as any).codeName = 'CommandNotFound';
         serviceProvider.runCommandWithCheck.onCall(1).rejects(expectedError);
-        const caughtError = await shard.removeTagRange('ns', {}, {})
-          .catch(e => e);
+        const caughtError = await shard
+          .removeTagRange('ns', {}, {})
+          .catch((e) => e);
         expect(caughtError.message).to.include('> 3.4');
       });
     });
-    describe('removeShardFromZone', function() {
-      it('calls serviceProvider.runCommandWithCheck with arg', async function() {
-        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+    describe('removeShardFromZone', function () {
+      it('calls serviceProvider.runCommandWithCheck with arg', async function () {
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'isdbgrid',
+        });
         await shard.removeShardFromZone('shard', 'zone');
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           ADMIN_DB,
           {
             removeShardFromZone: 'shard',
-            zone: 'zone'
+            zone: 'zone',
           }
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
-        serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'isdbgrid' });
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function () {
+        serviceProvider.runCommandWithCheck
+          .onCall(0)
+          .resolves({ ok: 1, msg: 'isdbgrid' });
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.onCall(1).resolves(expectedResult);
         const result = await shard.removeShardFromZone('shard', 'zone');
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
-        serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'isdbgrid' });
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function () {
+        serviceProvider.runCommandWithCheck
+          .onCall(0)
+          .resolves({ ok: 1, msg: 'isdbgrid' });
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.onCall(1).rejects(expectedError);
-        const caughtError = await shard.removeShardFromZone('shard', 'zone')
-          .catch(e => e);
+        const caughtError = await shard
+          .removeShardFromZone('shard', 'zone')
+          .catch((e) => e);
         expect(caughtError).to.equal(expectedError);
       });
-      it('throws if not mongos', async function() {
+      it('throws if not mongos', async function () {
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'not dbgrid' });
+        serviceProvider.runCommandWithCheck
+          .onCall(0)
+          .resolves({ ok: 1, msg: 'not dbgrid' });
         serviceProvider.runCommandWithCheck.onCall(1).resolves(expectedResult);
         await shard.removeShardFromZone('shard', 'zone');
         expect(warnSpy.calledOnce).to.equal(true);
       });
     });
-    describe('removeShardTag', function() {
-      it('calls serviceProvider.runCommandWithCheck with arg', async function() {
-        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+    describe('removeShardTag', function () {
+      it('calls serviceProvider.runCommandWithCheck with arg', async function () {
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'isdbgrid',
+        });
         await shard.removeShardTag('shard', 'zone');
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           ADMIN_DB,
           {
             removeShardFromZone: 'shard',
-            zone: 'zone'
+            zone: 'zone',
           }
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
-        serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'isdbgrid' });
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function () {
+        serviceProvider.runCommandWithCheck
+          .onCall(0)
+          .resolves({ ok: 1, msg: 'isdbgrid' });
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.onCall(1).resolves(expectedResult);
         const result = await shard.removeShardTag('shard', 'zone');
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
-        serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'isdbgrid' });
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function () {
+        serviceProvider.runCommandWithCheck
+          .onCall(0)
+          .resolves({ ok: 1, msg: 'isdbgrid' });
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.onCall(1).rejects(expectedError);
-        const caughtError = await shard.removeShardTag('shard', 'zone')
-          .catch(e => e);
+        const caughtError = await shard
+          .removeShardTag('shard', 'zone')
+          .catch((e) => e);
         expect(caughtError).to.equal(expectedError);
       });
-      it('throws if not mongos', async function() {
+      it('throws if not mongos', async function () {
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'not dbgrid' });
+        serviceProvider.runCommandWithCheck
+          .onCall(0)
+          .resolves({ ok: 1, msg: 'not dbgrid' });
         serviceProvider.runCommandWithCheck.onCall(1).resolves(expectedResult);
         await shard.removeShardTag('shard', 'zone');
         expect(warnSpy.calledOnce).to.equal(true);
       });
-      it('adds version suggestion if command not found', async function() {
-        serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'isdbgrid' });
+      it('adds version suggestion if command not found', async function () {
+        serviceProvider.runCommandWithCheck
+          .onCall(0)
+          .resolves({ ok: 1, msg: 'isdbgrid' });
         const expectedError = new Error();
         (expectedError as any).codeName = 'CommandNotFound';
         serviceProvider.runCommandWithCheck.onCall(1).rejects(expectedError);
-        const caughtError = await shard.removeShardTag('shard', 'tag')
-          .catch(e => e);
+        const caughtError = await shard
+          .removeShardTag('shard', 'tag')
+          .catch((e) => e);
         expect(caughtError.message).to.include('> 3.4');
       });
     });
-    describe('enableAutoSplit', function() {
-      it('calls serviceProvider.updateOne', async function() {
-        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+    describe('enableAutoSplit', function () {
+      it('calls serviceProvider.updateOne', async function () {
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'isdbgrid',
+        });
         const expectedResult = {
           matchedCount: 1,
           modifiedCount: 1,
           upsertedCount: 1,
           upsertedId: { _id: 0 },
           result: { ok: 1, n: 1, nModified: 1 },
-          connection: null
+          connection: null,
         } as any;
         serviceProvider.updateOne.resolves(expectedResult);
         await shard.enableAutoSplit();
@@ -689,8 +822,11 @@ describe('Shard', function() {
         );
       });
 
-      it('returns whatever serviceProvider.updateOne returns', async function() {
-        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+      it('returns whatever serviceProvider.updateOne returns', async function () {
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'isdbgrid',
+        });
         const oid = new bson.ObjectId();
         const expectedResult = {
           matchedCount: 1,
@@ -699,31 +835,36 @@ describe('Shard', function() {
           upsertedId: oid,
           result: { ok: 1, n: 1, nModified: 1 },
           connection: null,
-          acknowledged: true
+          acknowledged: true,
         } as any;
         serviceProvider.updateOne.resolves(expectedResult);
         const result = await shard.enableAutoSplit();
         expect(result).to.deep.equal(new UpdateResult(true, 1, 1, 1, oid));
       });
 
-      it('throws if serviceProvider.updateOne rejects', async function() {
-        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+      it('throws if serviceProvider.updateOne rejects', async function () {
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'isdbgrid',
+        });
         const expectedError = new Error();
         serviceProvider.updateOne.rejects(expectedError);
-        const caughtError = await shard.enableAutoSplit()
-          .catch(e => e);
+        const caughtError = await shard.enableAutoSplit().catch((e) => e);
         expect(caughtError).to.equal(expectedError);
       });
 
-      it('throws if not mongos', async function() {
+      it('throws if not mongos', async function () {
         const expectedResult = { acknowledged: 1 } as any;
-        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'not dbgrid' });
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'not dbgrid',
+        });
         serviceProvider.updateOne.resolves(expectedResult);
         await shard.enableAutoSplit();
         expect(warnSpy.calledOnce).to.equal(true);
       });
 
-      it('prints a deprecation warning for mongodb >= 6.0.3', async function() {
+      it('prints a deprecation warning for mongodb >= 6.0.3', async function () {
         instanceState.connectionInfo.buildInfo.version = '6.0.3-alpha0';
         serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
         serviceProvider.updateOne.resolves({ acknowledged: 1 } as any);
@@ -731,9 +872,12 @@ describe('Shard', function() {
         expect(warnSpy.calledOnce).to.equal(true);
       });
     });
-    describe('disableAutoSplit', function() {
-      it('calls serviceProvider.updateOne', async function() {
-        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+    describe('disableAutoSplit', function () {
+      it('calls serviceProvider.updateOne', async function () {
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'isdbgrid',
+        });
         const expectedResult = {
           matchedCount: 1,
           modifiedCount: 1,
@@ -741,7 +885,7 @@ describe('Shard', function() {
           upsertedId: { _id: 0 },
           result: { ok: 1, n: 1, nModified: 1 },
           connection: null,
-          acknowledged: true
+          acknowledged: true,
         } as any;
         serviceProvider.updateOne.resolves(expectedResult);
         await shard.disableAutoSplit();
@@ -755,8 +899,11 @@ describe('Shard', function() {
         );
       });
 
-      it('returns whatever serviceProvider.updateOne returns', async function() {
-        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+      it('returns whatever serviceProvider.updateOne returns', async function () {
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'isdbgrid',
+        });
         const oid = new bson.ObjectId();
         const expectedResult = {
           matchedCount: 1,
@@ -765,31 +912,36 @@ describe('Shard', function() {
           upsertedId: oid,
           result: { ok: 1, n: 1, nModified: 1 },
           connection: null,
-          acknowledged: true
+          acknowledged: true,
         } as any;
         serviceProvider.updateOne.resolves(expectedResult);
         const result = await shard.disableAutoSplit();
         expect(result).to.deep.equal(new UpdateResult(true, 1, 1, 1, oid));
       });
 
-      it('throws if serviceProvider.updateOne rejects', async function() {
-        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+      it('throws if serviceProvider.updateOne rejects', async function () {
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'isdbgrid',
+        });
         const expectedError = new Error();
         serviceProvider.updateOne.rejects(expectedError);
-        const caughtError = await shard.disableAutoSplit()
-          .catch(e => e);
+        const caughtError = await shard.disableAutoSplit().catch((e) => e);
         expect(caughtError).to.equal(expectedError);
       });
 
-      it('throws if not mongos', async function() {
+      it('throws if not mongos', async function () {
         const expectedResult = { ok: 1 } as any;
-        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'not dbgrid' });
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'not dbgrid',
+        });
         serviceProvider.updateOne.resolves(expectedResult);
         await shard.disableAutoSplit();
         expect(warnSpy.calledOnce).to.equal(true);
       });
 
-      it('prints a deprecation warning for mongodb >= 6.0.3', async function() {
+      it('prints a deprecation warning for mongodb >= 6.0.3', async function () {
         instanceState.connectionInfo.buildInfo.version = '6.0.3-alpha0';
         serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
         serviceProvider.updateOne.resolves({ acknowledged: 1 } as any);
@@ -797,9 +949,12 @@ describe('Shard', function() {
         expect(warnSpy.calledOnce).to.equal(true);
       });
     });
-    describe('splitAt', function() {
-      it('calls serviceProvider.runCommandWithCheck with arg', async function() {
-        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+    describe('splitAt', function () {
+      it('calls serviceProvider.runCommandWithCheck with arg', async function () {
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'isdbgrid',
+        });
         await shard.splitAt('ns', { query: 1 });
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
@@ -807,30 +962,34 @@ describe('Shard', function() {
           {
             split: 'ns',
             middle: {
-              query: 1
-            }
+              query: 1,
+            },
           }
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function () {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await shard.splitAt('ns', { query: 1 });
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function () {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const caughtError = await shard.splitAt('ns', { query: 1 })
-          .catch(e => e);
+        const caughtError = await shard
+          .splitAt('ns', { query: 1 })
+          .catch((e) => e);
         expect(caughtError).to.equal(expectedError);
       });
     });
-    describe('splitFind', function() {
-      it('calls serviceProvider.runCommandWithCheck with arg', async function() {
-        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+    describe('splitFind', function () {
+      it('calls serviceProvider.runCommandWithCheck with arg', async function () {
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'isdbgrid',
+        });
         await shard.splitFind('ns', { query: 1 });
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
@@ -838,92 +997,103 @@ describe('Shard', function() {
           {
             split: 'ns',
             find: {
-              query: 1
-            }
+              query: 1,
+            },
           }
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function () {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await shard.splitFind('ns', { query: 1 });
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function () {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const caughtError = await shard.splitFind('ns', { query: 1 })
-          .catch(e => e);
+        const caughtError = await shard
+          .splitFind('ns', { query: 1 })
+          .catch((e) => e);
         expect(caughtError).to.equal(expectedError);
       });
     });
-    describe('moveChunk', function() {
-      it('calls serviceProvider.runCommandWithCheck with arg', async function() {
-        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+    describe('moveChunk', function () {
+      it('calls serviceProvider.runCommandWithCheck with arg', async function () {
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'isdbgrid',
+        });
         await shard.moveChunk('ns', { query: 1 }, 'destination');
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           ADMIN_DB,
           {
-            moveChunk: 'ns', find: { query: 1 }, to: 'destination'
+            moveChunk: 'ns',
+            find: { query: 1 },
+            to: 'destination',
           }
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function () {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await shard.moveChunk('ns', { query: 1 }, 'destination');
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function () {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const caughtError = await shard.moveChunk('ns', { query: 1 }, 'destination')
-          .catch(e => e);
+        const caughtError = await shard
+          .moveChunk('ns', { query: 1 }, 'destination')
+          .catch((e) => e);
         expect(caughtError).to.equal(expectedError);
       });
     });
-    describe('balancerCollectionStatus', function() {
-      it('calls serviceProvider.runCommandWithCheck with arg', async function() {
+    describe('balancerCollectionStatus', function () {
+      it('calls serviceProvider.runCommandWithCheck with arg', async function () {
         await shard.balancerCollectionStatus('ns');
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           ADMIN_DB,
           {
-            balancerCollectionStatus: 'ns'
+            balancerCollectionStatus: 'ns',
           }
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function () {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await shard.balancerCollectionStatus('ns');
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function () {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const caughtError = await shard.balancerCollectionStatus('ns')
-          .catch(e => e);
+        const caughtError = await shard
+          .balancerCollectionStatus('ns')
+          .catch((e) => e);
         expect(caughtError).to.equal(expectedError);
       });
     });
-    describe('disableBalancing', function() {
-      it('calls serviceProvider.updateOne', async function() {
-        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+    describe('disableBalancing', function () {
+      it('calls serviceProvider.updateOne', async function () {
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'isdbgrid',
+        });
         const expectedResult = {
           matchedCount: 1,
           modifiedCount: 1,
           upsertedCount: 1,
           upsertedId: { _id: 0 },
           result: { ok: 1, n: 1, nModified: 1 },
-          connection: null
+          connection: null,
         } as any;
         serviceProvider.updateOne.resolves(expectedResult);
         await shard.disableBalancing('ns');
@@ -937,8 +1107,11 @@ describe('Shard', function() {
         );
       });
 
-      it('returns whatever serviceProvider.updateOne returns', async function() {
-        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+      it('returns whatever serviceProvider.updateOne returns', async function () {
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'isdbgrid',
+        });
         const oid = new bson.ObjectId();
         const expectedResult = {
           matchedCount: 1,
@@ -947,40 +1120,48 @@ describe('Shard', function() {
           upsertedId: oid,
           result: { ok: 1, n: 1, nModified: 1 },
           connection: null,
-          acknowledged: true
+          acknowledged: true,
         } as any;
         serviceProvider.updateOne.resolves(expectedResult);
         const result = await shard.disableBalancing('ns');
         expect(result).to.deep.equal(new UpdateResult(true, 1, 1, 1, oid));
       });
 
-      it('throws if serviceProvider.updateOne rejects', async function() {
-        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+      it('throws if serviceProvider.updateOne rejects', async function () {
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'isdbgrid',
+        });
         const expectedError = new Error();
         serviceProvider.updateOne.rejects(expectedError);
-        const caughtError = await shard.disableBalancing('ns')
-          .catch(e => e);
+        const caughtError = await shard.disableBalancing('ns').catch((e) => e);
         expect(caughtError).to.equal(expectedError);
       });
 
-      it('throws if not mongos', async function() {
+      it('throws if not mongos', async function () {
         const expectedResult = { ok: 1 } as any;
-        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'not dbgrid' });
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'not dbgrid',
+        });
         serviceProvider.updateOne.resolves(expectedResult);
         await shard.disableBalancing('ns');
         expect(warnSpy.calledOnce).to.equal(true);
       });
     });
-    describe('enableBalancing', function() {
-      it('calls serviceProvider.updateOne', async function() {
-        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+    describe('enableBalancing', function () {
+      it('calls serviceProvider.updateOne', async function () {
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'isdbgrid',
+        });
         const expectedResult = {
           matchedCount: 1,
           modifiedCount: 1,
           upsertedCount: 1,
           upsertedId: { _id: 0 },
           result: { ok: 1, n: 1, nModified: 1 },
-          connection: null
+          connection: null,
         } as any;
         serviceProvider.updateOne.resolves(expectedResult);
         await shard.enableBalancing('ns');
@@ -994,8 +1175,11 @@ describe('Shard', function() {
         );
       });
 
-      it('returns whatever serviceProvider.updateOne returns', async function() {
-        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+      it('returns whatever serviceProvider.updateOne returns', async function () {
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'isdbgrid',
+        });
         const oid = new bson.ObjectId();
         const expectedResult = {
           matchedCount: 1,
@@ -1004,33 +1188,41 @@ describe('Shard', function() {
           upsertedId: oid,
           result: { ok: 1, n: 1, nModified: 1 },
           connection: null,
-          acknowledged: true
+          acknowledged: true,
         } as any;
         serviceProvider.updateOne.resolves(expectedResult);
         const result = await shard.enableBalancing('ns');
         expect(result).to.deep.equal(new UpdateResult(true, 1, 1, 1, oid));
       });
 
-      it('throws if serviceProvider.updateOne rejects', async function() {
-        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+      it('throws if serviceProvider.updateOne rejects', async function () {
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'isdbgrid',
+        });
         const expectedError = new Error();
         serviceProvider.updateOne.rejects(expectedError);
-        const caughtError = await shard.enableBalancing('ns')
-          .catch(e => e);
+        const caughtError = await shard.enableBalancing('ns').catch((e) => e);
         expect(caughtError).to.equal(expectedError);
       });
 
-      it('throws if not mongos', async function() {
+      it('throws if not mongos', async function () {
         const expectedResult = { ok: 1 } as any;
-        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'not dbgrid' });
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'not dbgrid',
+        });
         serviceProvider.updateOne.resolves(expectedResult);
         await shard.enableBalancing('ns');
         expect(warnSpy.calledOnce).to.equal(true);
       });
     });
-    describe('getBalancerState', function() {
-      it('returns whatever serviceProvider.find returns', async function() {
-        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+    describe('getBalancerState', function () {
+      it('returns whatever serviceProvider.find returns', async function () {
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'isdbgrid',
+        });
         const expectedResult = { stopped: true };
         const findCursor = stubInterface<ServiceProviderCursor>();
         findCursor.tryNext.resolves(expectedResult);
@@ -1045,18 +1237,23 @@ describe('Shard', function() {
         expect(result).to.deep.equal(!expectedResult.stopped);
       });
 
-      it('throws if serviceProvider.find rejects', async function() {
-        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+      it('throws if serviceProvider.find rejects', async function () {
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'isdbgrid',
+        });
         const expectedError = new Error();
         serviceProvider.find.throws(expectedError);
-        const caughtError = await shard.getBalancerState()
-          .catch(e => e);
+        const caughtError = await shard.getBalancerState().catch((e) => e);
         expect(caughtError).to.equal(expectedError);
       });
 
-      it('throws if not mongos', async function() {
+      it('throws if not mongos', async function () {
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'not dbgrid' });
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'not dbgrid',
+        });
         const findCursor = stubInterface<ServiceProviderCursor>();
         findCursor.tryNext.resolves(expectedResult);
         serviceProvider.find.returns(findCursor);
@@ -1064,119 +1261,129 @@ describe('Shard', function() {
         expect(warnSpy.calledOnce).to.equal(true);
       });
     });
-    describe('isBalancerRunning', function() {
-      it('calls serviceProvider.runCommandWithCheck', async function() {
-        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+    describe('isBalancerRunning', function () {
+      it('calls serviceProvider.runCommandWithCheck', async function () {
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'isdbgrid',
+        });
         await shard.isBalancerRunning();
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           ADMIN_DB,
           {
-            balancerStatus: 1
+            balancerStatus: 1,
           }
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
-        serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'isdbgrid' });
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function () {
+        serviceProvider.runCommandWithCheck
+          .onCall(0)
+          .resolves({ ok: 1, msg: 'isdbgrid' });
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.onCall(1).resolves(expectedResult);
         const result = await shard.isBalancerRunning();
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
-        serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'isdbgrid' });
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function () {
+        serviceProvider.runCommandWithCheck
+          .onCall(0)
+          .resolves({ ok: 1, msg: 'isdbgrid' });
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.onCall(1).rejects(expectedError);
-        const caughtError = await shard.isBalancerRunning()
-          .catch(e => e);
+        const caughtError = await shard.isBalancerRunning().catch((e) => e);
         expect(caughtError).to.equal(expectedError);
       });
-      it('throws if not mongos', async function() {
+      it('throws if not mongos', async function () {
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommandWithCheck.onCall(0).resolves({ ok: 1, msg: 'not dbgrid' });
+        serviceProvider.runCommandWithCheck
+          .onCall(0)
+          .resolves({ ok: 1, msg: 'not dbgrid' });
         serviceProvider.runCommandWithCheck.onCall(1).resolves(expectedResult);
         await shard.isBalancerRunning();
         expect(warnSpy.calledOnce).to.equal(true);
       });
     });
-    describe('startBalancer', function() {
-      it('calls serviceProvider.runCommandWithCheck with arg', async function() {
+    describe('startBalancer', function () {
+      it('calls serviceProvider.runCommandWithCheck with arg', async function () {
         await shard.startBalancer(10000);
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           ADMIN_DB,
           {
-            balancerStart: 1, maxTimeMS: 10000
+            balancerStart: 1,
+            maxTimeMS: 10000,
           }
         );
       });
-      it('calls serviceProvider.runCommandWithCheck with no arg', async function() {
+      it('calls serviceProvider.runCommandWithCheck with no arg', async function () {
         await shard.startBalancer();
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           ADMIN_DB,
           {
-            balancerStart: 1, maxTimeMS: 60000
+            balancerStart: 1,
+            maxTimeMS: 60000,
           }
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function () {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await shard.startBalancer(10000);
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function () {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const caughtError = await shard.startBalancer(10000)
-          .catch(e => e);
+        const caughtError = await shard.startBalancer(10000).catch((e) => e);
         expect(caughtError).to.equal(expectedError);
       });
     });
-    describe('stopBalancer', function() {
-      it('calls serviceProvider.runCommandWithCheck with arg', async function() {
+    describe('stopBalancer', function () {
+      it('calls serviceProvider.runCommandWithCheck with arg', async function () {
         await shard.stopBalancer(10000);
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           ADMIN_DB,
           {
-            balancerStop: 1, maxTimeMS: 10000
+            balancerStop: 1,
+            maxTimeMS: 10000,
           }
         );
       });
-      it('calls serviceProvider.runCommandWithCheck with no arg', async function() {
+      it('calls serviceProvider.runCommandWithCheck with no arg', async function () {
         await shard.stopBalancer();
 
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           ADMIN_DB,
           {
-            balancerStop: 1, maxTimeMS: 60000
+            balancerStop: 1,
+            maxTimeMS: 60000,
           }
         );
       });
 
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async function() {
+      it('returns whatever serviceProvider.runCommandWithCheck returns', async function () {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await shard.stopBalancer(10000);
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function () {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const caughtError = await shard.stopBalancer(10000)
-          .catch(e => e);
+        const caughtError = await shard.stopBalancer(10000).catch((e) => e);
         expect(caughtError).to.equal(expectedError);
       });
     });
-    describe('setBalancerState', function() {
-      it('calls serviceProvider.runCommandWithCheck with arg=true', async function() {
+    describe('setBalancerState', function () {
+      it('calls serviceProvider.runCommandWithCheck with arg=true', async function () {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await shard.setBalancerState(true);
@@ -1184,12 +1391,13 @@ describe('Shard', function() {
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           ADMIN_DB,
           {
-            balancerStart: 1, maxTimeMS: 60000
+            balancerStart: 1,
+            maxTimeMS: 60000,
           }
         );
         expect(result).to.deep.equal(expectedResult);
       });
-      it('calls serviceProvider.runCommandWithCheck with arg=false', async function() {
+      it('calls serviceProvider.runCommandWithCheck with arg=false', async function () {
         const expectedResult = { ok: 1 };
         serviceProvider.runCommandWithCheck.resolves(expectedResult);
         const result = await shard.setBalancerState(false);
@@ -1197,46 +1405,61 @@ describe('Shard', function() {
         expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
           ADMIN_DB,
           {
-            balancerStop: 1, maxTimeMS: 60000
+            balancerStop: 1,
+            maxTimeMS: 60000,
           }
         );
         expect(result).to.deep.equal(expectedResult);
       });
 
-      it('throws if serviceProvider.runCommandWithCheck rejects', async function() {
+      it('throws if serviceProvider.runCommandWithCheck rejects', async function () {
         const expectedError = new Error();
         serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const caughtError = await shard.setBalancerState(true)
-          .catch(e => e);
+        const caughtError = await shard.setBalancerState(true).catch((e) => e);
         expect(caughtError).to.equal(expectedError);
       });
     });
-    describe('getShardedDataDistribution', function() {
-      it('throws if aggregateDb fails', async function() {
+    describe('getShardedDataDistribution', function () {
+      it('throws if aggregateDb fails', async function () {
         serviceProvider.aggregateDb.throws(new Error('err'));
-        const error: any = await shard.getShardedDataDistribution().catch(err => err);
+        const error: any = await shard
+          .getShardedDataDistribution()
+          .catch((err) => err);
         expect(error.message).to.be.equal('err');
       });
 
-      it('throws if not mongos', async function() {
+      it('throws if not mongos', async function () {
         const serviceProviderCursor = stubInterface<ServiceProviderAggCursor>();
         serviceProvider.aggregateDb.returns(serviceProviderCursor as any);
-        serviceProviderCursor.hasNext.throws(Object.assign(new Error(), { code: 40324, message: "Unrecognized pipeline stage name: '$shardedDataDistribution'" }));
-        const error: any = await shard.getShardedDataDistribution().catch(err => err);
-        expect(error.message).to.match(/sh\.getShardedDataDistribution only works on mongos and MongoDB server versions greater than 6\.0\.3 \[Original Error: Unrecognized pipeline stage name: '\$shardedDataDistribution']/);
+        serviceProviderCursor.hasNext.throws(
+          Object.assign(new Error(), {
+            code: 40324,
+            message:
+              "Unrecognized pipeline stage name: '$shardedDataDistribution'",
+          })
+        );
+        const error: any = await shard
+          .getShardedDataDistribution()
+          .catch((err) => err);
+        expect(error.message).to.match(
+          /sh\.getShardedDataDistribution only works on mongos and MongoDB server versions greater than 6\.0\.3 \[Original Error: Unrecognized pipeline stage name: '\$shardedDataDistribution']/
+        );
       });
     });
 
-    describe('startAutoMerger', function() {
-      it('calls serviceProvider.updateOne', async function() {
-        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+    describe('startAutoMerger', function () {
+      it('calls serviceProvider.updateOne', async function () {
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'isdbgrid',
+        });
         const expectedResult = {
           matchedCount: 1,
           modifiedCount: 1,
           upsertedCount: 1,
           upsertedId: { _id: 0 },
           result: { ok: 1, n: 1, nModified: 1 },
-          connection: null
+          connection: null,
         } as any;
         serviceProvider.updateOne.resolves(expectedResult);
         await shard.startAutoMerger();
@@ -1250,8 +1473,11 @@ describe('Shard', function() {
         );
       });
 
-      it('returns whatever serviceProvider.updateOne returns', async function() {
-        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+      it('returns whatever serviceProvider.updateOne returns', async function () {
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'isdbgrid',
+        });
         const oid = new bson.ObjectId();
         const expectedResult = {
           matchedCount: 1,
@@ -1260,41 +1486,49 @@ describe('Shard', function() {
           upsertedId: oid,
           result: { ok: 1, n: 1, nModified: 1 },
           connection: null,
-          acknowledged: true
+          acknowledged: true,
         } as any;
         serviceProvider.updateOne.resolves(expectedResult);
         const result = await shard.startAutoMerger();
         expect(result).to.deep.equal(new UpdateResult(true, 1, 1, 1, oid));
       });
 
-      it('throws if serviceProvider.updateOne rejects', async function() {
-        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+      it('throws if serviceProvider.updateOne rejects', async function () {
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'isdbgrid',
+        });
         const expectedError = new Error();
         serviceProvider.updateOne.rejects(expectedError);
-        const caughtError = await shard.startAutoMerger()
-          .catch(e => e);
+        const caughtError = await shard.startAutoMerger().catch((e) => e);
         expect(caughtError).to.equal(expectedError);
       });
 
-      it('throws if not mongos', async function() {
+      it('throws if not mongos', async function () {
         const expectedResult = { acknowledged: 1 } as any;
-        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'not dbgrid' });
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'not dbgrid',
+        });
         serviceProvider.updateOne.resolves(expectedResult);
         await shard.startAutoMerger();
         expect(warnSpy.calledOnce).to.equal(true);
       });
     });
 
-    describe('stopAutoMerger', function() {
-      it('calls serviceProvider.updateOne', async function() {
-        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+    describe('stopAutoMerger', function () {
+      it('calls serviceProvider.updateOne', async function () {
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'isdbgrid',
+        });
         const expectedResult = {
           matchedCount: 1,
           modifiedCount: 1,
           upsertedCount: 1,
           upsertedId: { _id: 0 },
           result: { ok: 1, n: 1, nModified: 1 },
-          connection: null
+          connection: null,
         } as any;
         serviceProvider.updateOne.resolves(expectedResult);
         await shard.stopAutoMerger();
@@ -1308,8 +1542,11 @@ describe('Shard', function() {
         );
       });
 
-      it('returns whatever serviceProvider.updateOne returns', async function() {
-        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+      it('returns whatever serviceProvider.updateOne returns', async function () {
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'isdbgrid',
+        });
         const oid = new bson.ObjectId();
         const expectedResult = {
           matchedCount: 1,
@@ -1318,34 +1555,42 @@ describe('Shard', function() {
           upsertedId: oid,
           result: { ok: 1, n: 1, nModified: 1 },
           connection: null,
-          acknowledged: true
+          acknowledged: true,
         } as any;
         serviceProvider.updateOne.resolves(expectedResult);
         const result = await shard.stopAutoMerger();
         expect(result).to.deep.equal(new UpdateResult(true, 1, 1, 1, oid));
       });
 
-      it('throws if serviceProvider.updateOne rejects', async function() {
-        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+      it('throws if serviceProvider.updateOne rejects', async function () {
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'isdbgrid',
+        });
         const expectedError = new Error();
         serviceProvider.updateOne.rejects(expectedError);
-        const caughtError = await shard.stopAutoMerger()
-          .catch(e => e);
+        const caughtError = await shard.stopAutoMerger().catch((e) => e);
         expect(caughtError).to.equal(expectedError);
       });
 
-      it('throws if not mongos', async function() {
+      it('throws if not mongos', async function () {
         const expectedResult = { acknowledged: 1 } as any;
-        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'not dbgrid' });
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'not dbgrid',
+        });
         serviceProvider.updateOne.resolves(expectedResult);
         await shard.stopAutoMerger();
         expect(warnSpy.calledOnce).to.equal(true);
       });
     });
 
-    describe('isAutoMergerEnabled', function() {
-      it('returns whatever serviceProvider.find returns', async function() {
-        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+    describe('isAutoMergerEnabled', function () {
+      it('returns whatever serviceProvider.find returns', async function () {
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'isdbgrid',
+        });
         const expectedResult = { enabled: true };
         const findCursor = stubInterface<ServiceProviderCursor>();
         findCursor.tryNext.resolves(expectedResult);
@@ -1360,18 +1605,23 @@ describe('Shard', function() {
         expect(result).to.deep.equal(expectedResult.enabled);
       });
 
-      it('throws if serviceProvider.find rejects', async function() {
-        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+      it('throws if serviceProvider.find rejects', async function () {
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'isdbgrid',
+        });
         const expectedError = new Error();
         serviceProvider.find.throws(expectedError);
-        const caughtError = await shard.isAutoMergerEnabled()
-          .catch(e => e);
+        const caughtError = await shard.isAutoMergerEnabled().catch((e) => e);
         expect(caughtError).to.equal(expectedError);
       });
 
-      it('throws if not mongos', async function() {
+      it('throws if not mongos', async function () {
         const expectedResult = { ok: 1 };
-        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'not dbgrid' });
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'not dbgrid',
+        });
         const findCursor = stubInterface<ServiceProviderCursor>();
         findCursor.tryNext.resolves(expectedResult);
         serviceProvider.find.returns(findCursor);
@@ -1380,16 +1630,19 @@ describe('Shard', function() {
       });
     });
 
-    describe('disableAutoMerger', function() {
-      it('calls serviceProvider.updateOne', async function() {
-        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+    describe('disableAutoMerger', function () {
+      it('calls serviceProvider.updateOne', async function () {
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'isdbgrid',
+        });
         const expectedResult = {
           matchedCount: 1,
           modifiedCount: 1,
           upsertedCount: 1,
           upsertedId: { _id: 0 },
           result: { ok: 1, n: 1, nModified: 1 },
-          connection: null
+          connection: null,
         } as any;
         serviceProvider.updateOne.resolves(expectedResult);
         await shard.disableAutoMerger('ns');
@@ -1403,8 +1656,11 @@ describe('Shard', function() {
         );
       });
 
-      it('returns whatever serviceProvider.updateOne returns', async function() {
-        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+      it('returns whatever serviceProvider.updateOne returns', async function () {
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'isdbgrid',
+        });
         const oid = new bson.ObjectId();
         const expectedResult = {
           matchedCount: 1,
@@ -1413,41 +1669,49 @@ describe('Shard', function() {
           upsertedId: oid,
           result: { ok: 1, n: 1, nModified: 1 },
           connection: null,
-          acknowledged: true
+          acknowledged: true,
         } as any;
         serviceProvider.updateOne.resolves(expectedResult);
         const result = await shard.disableAutoMerger('ns');
         expect(result).to.deep.equal(new UpdateResult(true, 1, 1, 1, oid));
       });
 
-      it('throws if serviceProvider.updateOne rejects', async function() {
-        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+      it('throws if serviceProvider.updateOne rejects', async function () {
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'isdbgrid',
+        });
         const expectedError = new Error();
         serviceProvider.updateOne.rejects(expectedError);
-        const caughtError = await shard.disableAutoMerger('ns')
-          .catch(e => e);
+        const caughtError = await shard.disableAutoMerger('ns').catch((e) => e);
         expect(caughtError).to.equal(expectedError);
       });
 
-      it('throws if not mongos', async function() {
+      it('throws if not mongos', async function () {
         const expectedResult = { ok: 1 } as any;
-        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'not dbgrid' });
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'not dbgrid',
+        });
         serviceProvider.updateOne.resolves(expectedResult);
         await shard.disableAutoMerger('ns');
         expect(warnSpy.calledOnce).to.equal(true);
       });
     });
 
-    describe('enableAutoMerger', function() {
-      it('calls serviceProvider.updateOne', async function() {
-        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+    describe('enableAutoMerger', function () {
+      it('calls serviceProvider.updateOne', async function () {
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'isdbgrid',
+        });
         const expectedResult = {
           matchedCount: 1,
           modifiedCount: 1,
           upsertedCount: 1,
           upsertedId: { _id: 0 },
           result: { ok: 1, n: 1, nModified: 1 },
-          connection: null
+          connection: null,
         } as any;
         serviceProvider.updateOne.resolves(expectedResult);
         await shard.enableAutoMerger('ns');
@@ -1461,8 +1725,11 @@ describe('Shard', function() {
         );
       });
 
-      it('returns whatever serviceProvider.updateOne returns', async function() {
-        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+      it('returns whatever serviceProvider.updateOne returns', async function () {
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'isdbgrid',
+        });
         const oid = new bson.ObjectId();
         const expectedResult = {
           matchedCount: 1,
@@ -1471,45 +1738,52 @@ describe('Shard', function() {
           upsertedId: oid,
           result: { ok: 1, n: 1, nModified: 1 },
           connection: null,
-          acknowledged: true
+          acknowledged: true,
         } as any;
         serviceProvider.updateOne.resolves(expectedResult);
         const result = await shard.enableAutoMerger('ns');
         expect(result).to.deep.equal(new UpdateResult(true, 1, 1, 1, oid));
       });
 
-      it('throws if serviceProvider.updateOne rejects', async function() {
-        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'isdbgrid' });
+      it('throws if serviceProvider.updateOne rejects', async function () {
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'isdbgrid',
+        });
         const expectedError = new Error();
         serviceProvider.updateOne.rejects(expectedError);
-        const caughtError = await shard.disableBalancing('ns')
-          .catch(e => e);
+        const caughtError = await shard.disableBalancing('ns').catch((e) => e);
         expect(caughtError).to.equal(expectedError);
       });
 
-      it('throws if not mongos', async function() {
+      it('throws if not mongos', async function () {
         const expectedResult = { ok: 1 } as any;
-        serviceProvider.runCommandWithCheck.resolves({ ok: 1, msg: 'not dbgrid' });
+        serviceProvider.runCommandWithCheck.resolves({
+          ok: 1,
+          msg: 'not dbgrid',
+        });
         serviceProvider.updateOne.resolves(expectedResult);
         await shard.enableAutoMerger('ns');
         expect(warnSpy.calledOnce).to.equal(true);
       });
     });
 
-    describe('checkMetadataConsistency', function() {
-      it('calls serviceProvider.runCursorCommand and returns a RunCommandCursor', async function() {
+    describe('checkMetadataConsistency', function () {
+      it('calls serviceProvider.runCursorCommand and returns a RunCommandCursor', async function () {
         const providerCursor = stubInterface<ServiceProviderRunCommandCursor>();
         serviceProvider.runCursorCommand.returns(providerCursor);
         const runCommandCursor = await shard.checkMetadataConsistency();
         expect(runCommandCursor._cursor).to.equal(providerCursor);
         expect(serviceProvider.runCursorCommand).to.have.been.calledWith(
-          'admin', { checkMetadataConsistency: 1 }, {}
+          'admin',
+          { checkMetadataConsistency: 1 },
+          {}
         );
       });
     });
   });
 
-  describe('integration', function() {
+  describe('integration', function () {
     let serviceProvider: CliServiceProvider;
     let instanceState: ShellInstanceState;
     let sh: Shard;
@@ -1517,210 +1791,331 @@ describe('Shard', function() {
     const ns = `${dbName}.coll`;
     const shardId = 'rs-shard0';
 
-    const [ mongos, rs0, rs1 ] = startTestCluster(
+    const [mongos, rs0, rs1] = startTestCluster(
       // --sharded 0 creates a setup without any initial shards
       ['--replicaset', '--sharded', '0', '--csrs'],
       ['--replicaset', '--name', `${shardId}-0`, '--shardsvr'],
       ['--replicaset', '--name', `${shardId}-1`, '--shardsvr']
     );
 
-    before(async function() {
-      serviceProvider = await CliServiceProvider.connect(await mongos.connectionString(), dummyOptions, {}, new EventEmitter());
+    before(async function () {
+      serviceProvider = await CliServiceProvider.connect(
+        await mongos.connectionString(),
+        dummyOptions,
+        {},
+        new EventEmitter()
+      );
       instanceState = new ShellInstanceState(serviceProvider);
       sh = new Shard(instanceState.currentDb);
 
       // check replset uninitialized
-      let members = await (await sh._database.getSiblingDB('config').getCollection('shards').find()).sort({ _id: 1 }).toArray();
+      let members = await (
+        await sh._database.getSiblingDB('config').getCollection('shards').find()
+      )
+        .sort({ _id: 1 })
+        .toArray();
       expect(members.length).to.equal(0);
 
       // add new shards
-      expect((await sh.addShard(`${shardId}-0/${await rs0.hostport()}`)).shardAdded).to.equal(`${shardId}-0`);
-      expect((await sh.addShard(`${shardId}-1/${await rs1.hostport()}`)).shardAdded).to.equal(`${shardId}-1`);
-      members = await (await sh._database.getSiblingDB('config').getCollection('shards').find()).sort({ _id: 1 }).toArray();
+      expect(
+        (await sh.addShard(`${shardId}-0/${await rs0.hostport()}`)).shardAdded
+      ).to.equal(`${shardId}-0`);
+      expect(
+        (await sh.addShard(`${shardId}-1/${await rs1.hostport()}`)).shardAdded
+      ).to.equal(`${shardId}-1`);
+      members = await (
+        await sh._database.getSiblingDB('config').getCollection('shards').find()
+      )
+        .sort({ _id: 1 })
+        .toArray();
       expect(members.length).to.equal(2);
       await sh._database.getSiblingDB(dbName).dropDatabase();
     });
 
-    after(function() {
+    after(function () {
       return serviceProvider.close(true);
     });
 
-    describe('sharding info', function() {
-      it('returns the status', async function() {
+    describe('sharding info', function () {
+      it('returns the status', async function () {
         const result = await sh.status();
         expect(result.type).to.equal('StatsResult');
         expect(Object.keys(result.value)).to.include.members([
-          'shardingVersion', 'shards', 'autosplit', 'balancer', 'databases'
+          'shardingVersion',
+          'shards',
+          'autosplit',
+          'balancer',
+          'databases',
         ]);
         expect(
           Object.keys(result.value).includes('active mongoses') ||
-          Object.keys(result.value).includes('most recently active mongoses')).to.be.true;
+            Object.keys(result.value).includes('most recently active mongoses')
+        ).to.be.true;
       });
-      context('with 5.0+ server', function() {
+      context('with 5.0+ server', function () {
         skipIfServerVersion(mongos, '<= 4.4');
         let apiStrictServiceProvider;
 
-        before(async function() {
+        before(async function () {
           try {
-            apiStrictServiceProvider = await CliServiceProvider.connect(await mongos.connectionString(), {
-              ...dummyOptions,
-              serverApi: { version: '1', strict: true }
-            }, {}, new EventEmitter());
-          } catch { /* Fails to connect to servers which do not understand api versions */ }
+            apiStrictServiceProvider = await CliServiceProvider.connect(
+              await mongos.connectionString(),
+              {
+                ...dummyOptions,
+                serverApi: { version: '1', strict: true },
+              },
+              {},
+              new EventEmitter()
+            );
+          } catch {
+            /* Fails to connect to servers which do not understand api versions */
+          }
         });
 
-        after(async function() {
+        after(async function () {
           await apiStrictServiceProvider?.close?.(true);
         });
 
-        it('returns the status when used with apiStrict', async function() {
-          const instanceState = new ShellInstanceState(apiStrictServiceProvider);
+        it('returns the status when used with apiStrict', async function () {
+          const instanceState = new ShellInstanceState(
+            apiStrictServiceProvider
+          );
           const sh = new Shard(instanceState.currentDb);
 
           const result = await sh.status();
           expect(result.type).to.equal('StatsResult');
           expect(Object.keys(result.value)).to.include.members([
-            'shardingVersion', 'shards', 'autosplit', 'balancer', 'databases'
+            'shardingVersion',
+            'shards',
+            'autosplit',
+            'balancer',
+            'databases',
           ]);
         });
       });
     });
-    describe('turn on sharding', function() {
-      it('enableSharding for a db', async function() {
+    describe('turn on sharding', function () {
+      it('enableSharding for a db', async function () {
         expect((await sh.status()).value.databases.length).to.equal(1);
         expect((await sh.enableSharding(dbName)).ok).to.equal(1);
         expect((await sh.status()).value.databases.length).to.equal(2);
       });
-      it('enableSharding for a collection and modify documents in it', async function() {
-        expect(Object.keys((await sh.status()).value.databases[1].collections).length).to.equal(0);
-        expect((await sh.shardCollection(ns, { key: 1 })).collectionsharded).to.equal(ns);
-        expect((await sh.status()).value.databases[1].collections[ns].shardKey).to.deep.equal({ key: 1 });
+      it('enableSharding for a collection and modify documents in it', async function () {
+        expect(
+          Object.keys((await sh.status()).value.databases[1].collections).length
+        ).to.equal(0);
+        expect(
+          (await sh.shardCollection(ns, { key: 1 })).collectionsharded
+        ).to.equal(ns);
+        expect(
+          (await sh.status()).value.databases[1].collections[ns].shardKey
+        ).to.deep.equal({ key: 1 });
 
         const db = instanceState.currentDb.getSiblingDB(dbName);
-        await db.getCollection('coll').insertMany([{ key: 'A', value: 10 }, { key: 'B', value: 20 }]);
-        const original = await db.getCollection('coll').findOneAndUpdate({ key: 'A' }, { $set: { value: 30 } });
+        await db.getCollection('coll').insertMany([
+          { key: 'A', value: 10 },
+          { key: 'B', value: 20 },
+        ]);
+        const original = await db
+          .getCollection('coll')
+          .findOneAndUpdate({ key: 'A' }, { $set: { value: 30 } });
         expect(original.key).to.equal('A');
         expect(original.value).to.equal(10);
 
-        const collectionInfo = (await sh.status()).value.databases[1].collections[ns];
+        const collectionInfo = (await sh.status()).value.databases[1]
+          .collections[ns];
         expect(collectionInfo.chunkMetadata).to.have.lengthOf(1);
         const inspectedCollectionInfo = inspect(collectionInfo);
         // Make sure that each individual chunk in the output is on a single line
-        expect(inspectedCollectionInfo).to.include('chunks: [\n' +
-          '    { min: { key: MinKey() }, max: { key: MaxKey() }, ' +
-          `'on shard': '${collectionInfo.chunks[0]['on shard']}', 'last modified': Timestamp({ t: 1, i: 0 }) }\n` +
-          '  ],\n');
+        expect(inspectedCollectionInfo).to.include(
+          'chunks: [\n' +
+            '    { min: { key: MinKey() }, max: { key: MaxKey() }, ' +
+            `'on shard': '${collectionInfo.chunks[0]['on shard']}', 'last modified': Timestamp({ t: 1, i: 0 }) }\n` +
+            '  ],\n'
+        );
       });
     });
-    describe('autosplit', function() {
+    describe('autosplit', function () {
       skipIfServerVersion(mongos, '> 6.x'); // Auto-splitter is removed in 7.0
-      it('disables correctly', async function() {
+      it('disables correctly', async function () {
         expect((await sh.disableAutoSplit()).acknowledged).to.equal(true);
-        expect((await sh.status()).value.autosplit['Currently enabled']).to.equal('no');
+        expect(
+          (await sh.status()).value.autosplit['Currently enabled']
+        ).to.equal('no');
       });
-      it('enables correctly', async function() {
+      it('enables correctly', async function () {
         expect((await sh.enableAutoSplit()).acknowledged).to.equal(true);
-        expect((await sh.status()).value.autosplit['Currently enabled']).to.equal('yes');
+        expect(
+          (await sh.status()).value.autosplit['Currently enabled']
+        ).to.equal('yes');
       });
     });
-    describe('tags', function() {
-      it('creates a zone', async function() {
+    describe('tags', function () {
+      it('creates a zone', async function () {
         expect((await sh.addShardTag(`${shardId}-1`, 'zone1')).ok).to.equal(1);
-        expect((await sh.status()).value.shards[1].tags).to.deep.equal(['zone1']);
-        expect((await sh.addShardToZone(`${shardId}-0`, 'zone0')).ok).to.equal(1);
-        expect((await sh.status()).value.shards[0].tags).to.deep.equal(['zone0']);
+        expect((await sh.status()).value.shards[1].tags).to.deep.equal([
+          'zone1',
+        ]);
+        expect((await sh.addShardToZone(`${shardId}-0`, 'zone0')).ok).to.equal(
+          1
+        );
+        expect((await sh.status()).value.shards[0].tags).to.deep.equal([
+          'zone0',
+        ]);
       });
-      it('sets a zone key range', async function() {
-        expect((await sh.updateZoneKeyRange(ns, { key: 0 }, { key: 20 }, 'zone1')).ok).to.equal(1);
-        expect((await sh.status()).value.databases[1].collections[ns].tags[0]).to.deep.equal({
-          tag: 'zone1', min: { key: 0 }, max: { key: 20 }
+      it('sets a zone key range', async function () {
+        expect(
+          (await sh.updateZoneKeyRange(ns, { key: 0 }, { key: 20 }, 'zone1')).ok
+        ).to.equal(1);
+        expect(
+          (await sh.status()).value.databases[1].collections[ns].tags[0]
+        ).to.deep.equal({
+          tag: 'zone1',
+          min: { key: 0 },
+          max: { key: 20 },
         });
-        expect((await sh.addTagRange(ns, { key: 21 }, { key: 40 }, 'zone0')).ok).to.equal(1);
-        expect((await sh.status()).value.databases[1].collections[ns].tags[1]).to.deep.equal({
-          tag: 'zone0', min: { key: 21 }, max: { key: 40 }
+        expect(
+          (await sh.addTagRange(ns, { key: 21 }, { key: 40 }, 'zone0')).ok
+        ).to.equal(1);
+        expect(
+          (await sh.status()).value.databases[1].collections[ns].tags[1]
+        ).to.deep.equal({
+          tag: 'zone0',
+          min: { key: 21 },
+          max: { key: 40 },
         });
       });
-      it('removes a key range', async function() {
-        expect((await sh.status()).value.databases[1].collections[ns].tags.length).to.equal(2);
-        expect((await sh.removeRangeFromZone(ns, { key: 0 }, { key: 20 })).ok).to.equal(1);
-        expect((await sh.status()).value.databases[1].collections[ns].tags.length).to.equal(1);
-        expect((await sh.removeTagRange(ns, { key: 21 }, { key: 40 })).ok).to.equal(1);
-        expect((await sh.status()).value.databases[1].collections[ns].tags.length).to.equal(0);
+      it('removes a key range', async function () {
+        expect(
+          (await sh.status()).value.databases[1].collections[ns].tags.length
+        ).to.equal(2);
+        expect(
+          (await sh.removeRangeFromZone(ns, { key: 0 }, { key: 20 })).ok
+        ).to.equal(1);
+        expect(
+          (await sh.status()).value.databases[1].collections[ns].tags.length
+        ).to.equal(1);
+        expect(
+          (await sh.removeTagRange(ns, { key: 21 }, { key: 40 })).ok
+        ).to.equal(1);
+        expect(
+          (await sh.status()).value.databases[1].collections[ns].tags.length
+        ).to.equal(0);
       });
-      it('removes zones', async function() {
-        expect((await sh.removeShardFromZone(`${shardId}-1`, 'zone1')).ok).to.equal(1);
+      it('removes zones', async function () {
+        expect(
+          (await sh.removeShardFromZone(`${shardId}-1`, 'zone1')).ok
+        ).to.equal(1);
         expect((await sh.status()).value.shards[1].tags).to.deep.equal([]);
-        expect((await sh.removeShardTag(`${shardId}-0`, 'zone0')).ok).to.equal(1);
+        expect((await sh.removeShardTag(`${shardId}-0`, 'zone0')).ok).to.equal(
+          1
+        );
         expect((await sh.status()).value.shards[0].tags).to.deep.equal([]);
       });
     });
-    describe('balancer', function() {
-      it('reports balancer state', async function() {
+    describe('balancer', function () {
+      it('reports balancer state', async function () {
         expect(Object.keys(await sh.isBalancerRunning())).to.include.members([
-          'mode', 'inBalancerRound', 'numBalancerRounds'
+          'mode',
+          'inBalancerRound',
+          'numBalancerRounds',
         ]);
       });
-      it('stops balancer', async function() {
+      it('stops balancer', async function () {
         expect((await sh.stopBalancer()).ok).to.equal(1);
         expect((await sh.isBalancerRunning()).mode).to.equal('off');
       });
-      it('starts balancer', async function() {
+      it('starts balancer', async function () {
         expect((await sh.startBalancer()).ok).to.equal(1);
         expect((await sh.isBalancerRunning()).mode).to.equal('full');
       });
-      describe('balancerCollectionStatus', function() {
+      describe('balancerCollectionStatus', function () {
         skipIfServerVersion(mongos, '< 4.4');
-        it('reports state for collection', async function() {
-          expect(Object.keys(await sh.balancerCollectionStatus(ns))).to.include('balancerCompliant');
+        it('reports state for collection', async function () {
+          expect(Object.keys(await sh.balancerCollectionStatus(ns))).to.include(
+            'balancerCompliant'
+          );
         });
       });
-      it('disables balancing', async function() {
+      it('disables balancing', async function () {
         expect((await sh.disableBalancing(ns)).acknowledged).to.equal(true);
-        expect((await sh._database.getSiblingDB('config').getCollection('collections').findOne({ _id: ns })).noBalance).to.equal(true);
+        expect(
+          (
+            await sh._database
+              .getSiblingDB('config')
+              .getCollection('collections')
+              .findOne({ _id: ns })
+          ).noBalance
+        ).to.equal(true);
       });
-      it('enables balancing', async function() {
+      it('enables balancing', async function () {
         expect((await sh.enableBalancing(ns)).acknowledged).to.equal(true);
-        expect((await sh._database.getSiblingDB('config').getCollection('collections').findOne({ _id: ns })).noBalance).to.equal(false);
+        expect(
+          (
+            await sh._database
+              .getSiblingDB('config')
+              .getCollection('collections')
+              .findOne({ _id: ns })
+          ).noBalance
+        ).to.equal(false);
       });
     });
-    describe('autoMerger', function() {
-      it('reports autoMerger state', async function() {
+    describe('autoMerger', function () {
+      it('reports autoMerger state', async function () {
         expect(await sh.isAutoMergerEnabled()).to.equal(true);
       });
-      it('stops autoMerger', async function() {
+      it('stops autoMerger', async function () {
         await sh.stopAutoMerger();
-        expect((await sh.isAutoMergerEnabled())).to.equal(false);
+        expect(await sh.isAutoMergerEnabled()).to.equal(false);
       });
-      it('starts autoMerger', async function() {
+      it('starts autoMerger', async function () {
         await sh.startAutoMerger();
-        expect((await sh.isAutoMergerEnabled())).to.equal(true);
+        expect(await sh.isAutoMergerEnabled()).to.equal(true);
       });
-      it('disables autoMerger', async function() {
+      it('disables autoMerger', async function () {
         expect((await sh.enableSharding(dbName)).ok).to.equal(1);
-        expect((await sh.shardCollection(ns, { key: 1 })).collectionsharded).to.equal(ns);
+        expect(
+          (await sh.shardCollection(ns, { key: 1 })).collectionsharded
+        ).to.equal(ns);
         expect((await sh.disableAutoMerger(ns)).acknowledged).to.equal(true);
-        expect((await sh._database.getSiblingDB('config').getCollection('collections').findOne({ _id: ns })).enableAutoMerge).to.equal(false);
+        expect(
+          (
+            await sh._database
+              .getSiblingDB('config')
+              .getCollection('collections')
+              .findOne({ _id: ns })
+          ).enableAutoMerge
+        ).to.equal(false);
       });
-      it('enables autoMerger', async function() {
+      it('enables autoMerger', async function () {
         expect((await sh.enableSharding(dbName)).ok).to.equal(1);
-        expect((await sh.shardCollection(ns, { key: 1 })).collectionsharded).to.equal(ns);
+        expect(
+          (await sh.shardCollection(ns, { key: 1 })).collectionsharded
+        ).to.equal(ns);
         expect((await sh.disableAutoMerger(ns)).acknowledged).to.equal(true);
         expect((await sh.enableAutoMerger(ns)).acknowledged).to.equal(true);
-        expect((await sh._database.getSiblingDB('config').getCollection('collections').findOne({ _id: ns })).enableAutoMerge).to.not.exist;
+        expect(
+          (
+            await sh._database
+              .getSiblingDB('config')
+              .getCollection('collections')
+              .findOne({ _id: ns })
+          ).enableAutoMerge
+        ).to.not.exist;
       });
     });
-    describe('getShardDistribution', function() {
+    describe('getShardDistribution', function () {
       let db: Database;
       const dbName = 'shard-distrib-test';
       const ns = `${dbName}.test`;
 
-      beforeEach(function() {
+      beforeEach(function () {
         db = sh._database.getSiblingDB(dbName);
       });
-      afterEach(async function() {
+      afterEach(async function () {
         await db.dropDatabase();
       });
-      it('fails when running against an unsharded collection', async function() {
+      it('fails when running against an unsharded collection', async function () {
         try {
           await db.getCollection('test').getShardDistribution();
         } catch (err: any) {
@@ -1729,9 +2124,11 @@ describe('Shard', function() {
         }
         expect.fail('Missed exception');
       });
-      it('gives information about the shard distribution', async function() {
+      it('gives information about the shard distribution', async function () {
         expect((await sh.enableSharding(dbName)).ok).to.equal(1);
-        expect((await sh.shardCollection(ns, { key: 1 })).collectionsharded).to.equal(ns);
+        expect(
+          (await sh.shardCollection(ns, { key: 1 })).collectionsharded
+        ).to.equal(ns);
 
         {
           const ret = await db.getCollection('test').getShardDistribution();
@@ -1741,19 +2138,26 @@ describe('Shard', function() {
           expect(Totals.docs).to.equal(0);
           expect(Totals.chunks).to.equal(1);
 
-          const TotalsShardInfoKeys = Object.keys(Totals).filter(key => key.startsWith('Shard'));
+          const TotalsShardInfoKeys = Object.keys(Totals).filter((key) =>
+            key.startsWith('Shard')
+          );
           expect(TotalsShardInfoKeys).to.have.lengthOf(1);
-          expect(Totals[TotalsShardInfoKeys[0]]).to.deep.equal(
-            [ '0 % data', '0 % docs in cluster', '0B avg obj size on shard' ]);
+          expect(Totals[TotalsShardInfoKeys[0]]).to.deep.equal([
+            '0 % data',
+            '0 % docs in cluster',
+            '0B avg obj size on shard',
+          ]);
 
-          const ValueShardInfoKeys = Object.keys(ret.value).filter(key => key.startsWith('Shard'));
+          const ValueShardInfoKeys = Object.keys(ret.value).filter((key) =>
+            key.startsWith('Shard')
+          );
           expect(ValueShardInfoKeys).to.have.lengthOf(1);
           expect(ret.value[ValueShardInfoKeys[0]]).to.deep.equal({
             data: '0B',
             docs: 0,
             chunks: 1,
             'estimated data per chunk': '0B',
-            'estimated docs per chunk': 0
+            'estimated docs per chunk': 0,
           });
         }
 
@@ -1767,24 +2171,31 @@ describe('Shard', function() {
           expect(Totals.docs).to.equal(1);
           expect(Totals.chunks).to.equal(1);
 
-          const TotalsShardInfoKeys = Object.keys(Totals).filter(key => key.startsWith('Shard'));
+          const TotalsShardInfoKeys = Object.keys(Totals).filter((key) =>
+            key.startsWith('Shard')
+          );
           expect(TotalsShardInfoKeys).to.have.lengthOf(1);
-          expect(Totals[TotalsShardInfoKeys[0]]).to.deep.equal(
-            [ '100 % data', '100 % docs in cluster', `${Totals.data} avg obj size on shard` ]);
+          expect(Totals[TotalsShardInfoKeys[0]]).to.deep.equal([
+            '100 % data',
+            '100 % docs in cluster',
+            `${Totals.data} avg obj size on shard`,
+          ]);
 
-          const ValueShardInfoKeys = Object.keys(ret.value).filter(key => key.startsWith('Shard'));
+          const ValueShardInfoKeys = Object.keys(ret.value).filter((key) =>
+            key.startsWith('Shard')
+          );
           expect(ValueShardInfoKeys).to.have.lengthOf(1);
           expect(ret.value[ValueShardInfoKeys[0]]).to.deep.equal({
             data: Totals.data,
             docs: 1,
             chunks: 1,
             'estimated data per chunk': Totals.data,
-            'estimated docs per chunk': 1
+            'estimated docs per chunk': 1,
           });
         }
       });
     });
-    describe('analyzeShardKey()', function() {
+    describe('analyzeShardKey()', function () {
       skipIfServerVersion(mongos, '< 7.0'); // analyzeShardKey will only be added in 7.0 which is not included in stable yet
 
       let db: Database;
@@ -1796,24 +2207,30 @@ describe('Shard', function() {
         docs.push({ myKey: i });
       }
 
-      beforeEach(function() {
+      beforeEach(function () {
         db = sh._database.getSiblingDB(dbName);
       });
-      afterEach(async function() {
+      afterEach(async function () {
         await db.dropDatabase();
       });
-      it('succeeds when running against an unsharded collection', async function() {
+      it('succeeds when running against an unsharded collection', async function () {
         await db.getCollection('test').insertMany(docs);
-        expect(await db.getCollection('test').analyzeShardKey({ myKey: 1 })).to.deep.include({ ok: 1 });
+        expect(
+          await db.getCollection('test').analyzeShardKey({ myKey: 1 })
+        ).to.deep.include({ ok: 1 });
       });
-      it('succeeds when running against a sharded collection', async function() {
+      it('succeeds when running against a sharded collection', async function () {
         expect((await sh.enableSharding(dbName)).ok).to.equal(1);
-        expect((await sh.shardCollection(ns, { key: 1 })).collectionsharded).to.equal(ns);
+        expect(
+          (await sh.shardCollection(ns, { key: 1 })).collectionsharded
+        ).to.equal(ns);
         await db.getCollection('test').insertMany(docs);
-        expect(await db.getCollection('test').analyzeShardKey({ myKey: 1 })).to.deep.include({ ok: 1 });
+        expect(
+          await db.getCollection('test').analyzeShardKey({ myKey: 1 })
+        ).to.deep.include({ ok: 1 });
       });
     });
-    describe('configureQueryAnalyzer()', function() {
+    describe('configureQueryAnalyzer()', function () {
       skipIfServerVersion(mongos, '< 7.0'); // analyzeShardKey will only be added in 7.0 which is not included in stable yet
 
       let db: Database;
@@ -1825,67 +2242,77 @@ describe('Shard', function() {
         docs.push({ myKey: i });
       }
 
-      beforeEach(function() {
+      beforeEach(function () {
         db = sh._database.getSiblingDB(dbName);
       });
-      afterEach(async function() {
+      afterEach(async function () {
         await db.dropDatabase();
       });
-      it('succeeds when running against an unsharded collection', async function() {
+      it('succeeds when running against an unsharded collection', async function () {
         await db.getCollection('test').insertMany(docs);
 
-        const fullResult = await db.getCollection('test').configureQueryAnalyzer({ mode: 'full', samplesPerSecond: 1 });
+        const fullResult = await db
+          .getCollection('test')
+          .configureQueryAnalyzer({ mode: 'full', samplesPerSecond: 1 });
         expect(fullResult).to.deep.include({
           ok: 1,
-          newConfiguration: { mode: 'full', samplesPerSecond: 1 }
+          newConfiguration: { mode: 'full', samplesPerSecond: 1 },
         });
 
-        const offResult = await db.getCollection('test').configureQueryAnalyzer({ mode: 'off' });
+        const offResult = await db
+          .getCollection('test')
+          .configureQueryAnalyzer({ mode: 'off' });
         expect(offResult).to.deep.include({
           ok: 1,
           oldConfiguration: { mode: 'full', samplesPerSecond: 1 },
-          newConfiguration: { mode: 'off' }
+          newConfiguration: { mode: 'off' },
         });
       });
-      it('succeeds when running against a sharded collection', async function() {
+      it('succeeds when running against a sharded collection', async function () {
         expect((await sh.enableSharding(dbName)).ok).to.equal(1);
-        expect((await sh.shardCollection(ns, { key: 1 })).collectionsharded).to.equal(ns);
+        expect(
+          (await sh.shardCollection(ns, { key: 1 })).collectionsharded
+        ).to.equal(ns);
         await db.getCollection('test').insertMany(docs);
 
-        const fullResult = await db.getCollection('test').configureQueryAnalyzer({ mode: 'full', samplesPerSecond: 1 });
+        const fullResult = await db
+          .getCollection('test')
+          .configureQueryAnalyzer({ mode: 'full', samplesPerSecond: 1 });
         expect(fullResult).to.deep.include({
           ok: 1,
-          newConfiguration: { mode: 'full', samplesPerSecond: 1 }
+          newConfiguration: { mode: 'full', samplesPerSecond: 1 },
         });
 
-        const offResult = await db.getCollection('test').configureQueryAnalyzer({ mode: 'off' });
+        const offResult = await db
+          .getCollection('test')
+          .configureQueryAnalyzer({ mode: 'off' });
         expect(offResult).to.deep.include({
           ok: 1,
           oldConfiguration: { mode: 'full', samplesPerSecond: 1 },
-          newConfiguration: { mode: 'off' }
+          newConfiguration: { mode: 'off' },
         });
       });
     });
-    describe('collection.stats()', function() {
+    describe('collection.stats()', function () {
       let db: Database;
       let hasTotalSize: boolean;
       let hasScaleFactorIncluded: boolean;
       const dbName = 'shard-stats-test';
       const ns = `${dbName}.test`;
 
-      beforeEach(async function() {
+      beforeEach(async function () {
         db = sh._database.getSiblingDB(dbName);
         await db.getCollection('test').insertOne({ key: 1 });
         await db.getCollection('test').createIndex({ key: 1 });
         const dbVersion = await db.version();
-        hasTotalSize = !(/^4\.[0123]\./.exec(dbVersion));
-        hasScaleFactorIncluded = !(/^4\.[01]\./.exec(dbVersion));
+        hasTotalSize = !/^4\.[0123]\./.exec(dbVersion);
+        hasScaleFactorIncluded = !/^4\.[01]\./.exec(dbVersion);
       });
-      afterEach(async function() {
+      afterEach(async function () {
         await db.dropDatabase();
       });
-      context('unsharded collections', function() {
-        it('works without indexDetails', async function() {
+      context('unsharded collections', function () {
+        it('works without indexDetails', async function () {
           const result = await db.getCollection('test').stats();
           expect(result.sharded).to.equal(false);
           expect(result.count).to.equal(1);
@@ -1898,19 +2325,25 @@ describe('Shard', function() {
             expect(result.shards[shardId].indexDetails).to.equal(undefined);
           }
         });
-        it('works with indexDetails', async function() {
-          const result = await db.getCollection('test').stats({ indexDetails: true });
+        it('works with indexDetails', async function () {
+          const result = await db
+            .getCollection('test')
+            .stats({ indexDetails: true });
           for (const shardId of Object.keys(result.shards)) {
-            expect(result.shards[shardId].indexDetails._id_.metadata.formatVersion).to.be.a('number');
+            expect(
+              result.shards[shardId].indexDetails._id_.metadata.formatVersion
+            ).to.be.a('number');
           }
         });
       });
-      context('sharded collections', function() {
-        beforeEach(async function() {
+      context('sharded collections', function () {
+        beforeEach(async function () {
           expect((await sh.enableSharding(dbName)).ok).to.equal(1);
-          expect((await sh.shardCollection(ns, { key: 1 })).collectionsharded).to.equal(ns);
+          expect(
+            (await sh.shardCollection(ns, { key: 1 })).collectionsharded
+          ).to.equal(ns);
         });
-        it('works without indexDetails', async function() {
+        it('works without indexDetails', async function () {
           const result = await db.getCollection('test').stats();
           expect(result.sharded).to.equal(true);
           expect(result.count).to.equal(1);
@@ -1922,21 +2355,32 @@ describe('Shard', function() {
             expect(shard.indexDetails).to.equal(undefined);
           }
         });
-        it('works with indexDetails', async function() {
-          const result = await db.getCollection('test').stats({ indexDetails: true });
+        it('works with indexDetails', async function () {
+          const result = await db
+            .getCollection('test')
+            .stats({ indexDetails: true });
           for (const shard of Object.values(result.shards) as any) {
             if (hasTotalSize) {
               expect(shard.totalSize).to.be.a('number');
             }
-            expect(shard.indexDetails._id_.metadata.formatVersion).to.be.a('number');
+            expect(shard.indexDetails._id_.metadata.formatVersion).to.be.a(
+              'number'
+            );
           }
         });
-        it('returns scaled output', async function() {
+        it('returns scaled output', async function () {
           const scaleFactor = 1024;
           const unscaledResult = await db.getCollection('test').stats();
-          const scaledResult = await db.getCollection('test').stats(scaleFactor);
+          const scaledResult = await db
+            .getCollection('test')
+            .stats(scaleFactor);
 
-          const scaledProperties = ['size', 'storageSize', 'totalIndexSize', 'totalSize'];
+          const scaledProperties = [
+            'size',
+            'storageSize',
+            'totalIndexSize',
+            'totalSize',
+          ];
           for (const scaledProperty of scaledProperties) {
             if (scaledProperty === 'totalSize' && !hasTotalSize) {
               expect(unscaledResult[scaledProperty]).to.equal(undefined);
@@ -1951,71 +2395,98 @@ describe('Shard', function() {
             );
             for (const shardId of Object.keys(scaledResult.shards)) {
               expect(
-                unscaledResult.shards[shardId][scaledProperty] / scaledResult.shards[shardId][scaledProperty]
+                unscaledResult.shards[shardId][scaledProperty] /
+                  scaledResult.shards[shardId][scaledProperty]
               ).to.equal(scaleFactor);
             }
           }
 
           for (const indexId of Object.keys(scaledResult.indexSizes)) {
-            expect(unscaledResult.indexSizes[indexId] / scaledResult.indexSizes[indexId]).to.equal(scaleFactor);
+            expect(
+              unscaledResult.indexSizes[indexId] /
+                scaledResult.indexSizes[indexId]
+            ).to.equal(scaleFactor);
           }
           for (const shardId of Object.keys(scaledResult.shards)) {
-            for (const indexId of Object.keys(scaledResult.shards[shardId].indexSizes)) {
-              expect(unscaledResult.shards[shardId].indexSizes[indexId] / scaledResult.shards[shardId].indexSizes[indexId]).to.equal(scaleFactor);
+            for (const indexId of Object.keys(
+              scaledResult.shards[shardId].indexSizes
+            )) {
+              expect(
+                unscaledResult.shards[shardId].indexSizes[indexId] /
+                  scaledResult.shards[shardId].indexSizes[indexId]
+              ).to.equal(scaleFactor);
             }
           }
 
           // The `scaleFactor` property started being returned in 4.2.
-          expect(unscaledResult.scaleFactor).to.equal(hasScaleFactorIncluded ? 1 : undefined);
-          expect(scaledResult.scaleFactor).to.equal(hasScaleFactorIncluded ? 1024 : undefined);
+          expect(unscaledResult.scaleFactor).to.equal(
+            hasScaleFactorIncluded ? 1 : undefined
+          );
+          expect(scaledResult.scaleFactor).to.equal(
+            hasScaleFactorIncluded ? 1024 : undefined
+          );
 
-          for (const shardStats of Object.values(unscaledResult.shards as {
-            scaleFactor: number
-          }[])) {
-            expect(shardStats.scaleFactor).to.equal(hasScaleFactorIncluded ? 1 : undefined);
+          for (const shardStats of Object.values(
+            unscaledResult.shards as {
+              scaleFactor: number;
+            }[]
+          )) {
+            expect(shardStats.scaleFactor).to.equal(
+              hasScaleFactorIncluded ? 1 : undefined
+            );
           }
-          for (const shardStats of Object.values(scaledResult.shards as {
-            scaleFactor: number
-          }[])) {
-            expect(shardStats.scaleFactor).to.equal(hasScaleFactorIncluded ? 1024 : undefined);
+          for (const shardStats of Object.values(
+            scaledResult.shards as {
+              scaleFactor: number;
+            }[]
+          )) {
+            expect(shardStats.scaleFactor).to.equal(
+              hasScaleFactorIncluded ? 1024 : undefined
+            );
           }
         });
       });
 
       // We explicitly test sharded time series collections as it uses the legacy
       // `collStats` command as a fallback instead of the aggregation format. SERVER-72686
-      context('sharded timeseries collections', function() {
+      context('sharded timeseries collections', function () {
         skipIfServerVersion(mongos, '< 5.1');
 
         const timeseriesCollectionName = 'testTS';
         const timeseriesNS = `${dbName}.${timeseriesCollectionName}`;
 
-        beforeEach(async function() {
+        beforeEach(async function () {
           expect((await sh.enableSharding(dbName)).ok).to.equal(1);
 
-          expect((await sh.shardCollection(
-            timeseriesNS,
-            { 'metadata.bucketId': 1 },
-            {
-              timeseries: {
-                timeField: 'timestamp',
-                metaField: 'metadata',
-                granularity: 'hours'
-              }
-            }
-          )).collectionsharded).to.equal(timeseriesNS);
+          expect(
+            (
+              await sh.shardCollection(
+                timeseriesNS,
+                { 'metadata.bucketId': 1 },
+                {
+                  timeseries: {
+                    timeField: 'timestamp',
+                    metaField: 'metadata',
+                    granularity: 'hours',
+                  },
+                }
+              )
+            ).collectionsharded
+          ).to.equal(timeseriesNS);
           await db.getCollection(timeseriesCollectionName).insertOne({
             metadata: {
               bucketId: 1,
-              type: 'temperature'
+              type: 'temperature',
             },
             timestamp: new Date('2021-05-18T00:00:00.000Z'),
-            temp: 12
+            temp: 12,
           });
         });
 
-        it('returns the collection stats', async function() {
-          const result = await db.getCollection(timeseriesCollectionName).stats();
+        it('returns the collection stats', async function () {
+          const result = await db
+            .getCollection(timeseriesCollectionName)
+            .stats();
           expect(result.sharded).to.equal(true);
           // Timeseries bucket collection does not provide 'count' or 'avgObjSize'.
           expect(result.count).to.equal(undefined);
@@ -2023,23 +2494,30 @@ describe('Shard', function() {
           for (const shard of Object.values(result.shards) as any) {
             expect(shard.totalSize).to.be.a('number');
             expect(shard.indexDetails).to.equal(undefined);
-            expect(shard.timeseries.bucketsNs).to.equal(`${dbName}.system.buckets.${timeseriesCollectionName}`);
+            expect(shard.timeseries.bucketsNs).to.equal(
+              `${dbName}.system.buckets.${timeseriesCollectionName}`
+            );
             expect(shard.timeseries.numBucketUpdates).to.equal(0);
             expect(typeof result.timeseries.bucketCount).to.equal('number');
           }
-          expect(result.timeseries.bucketsNs).to.equal(`${dbName}.system.buckets.${timeseriesCollectionName}`);
+          expect(result.timeseries.bucketsNs).to.equal(
+            `${dbName}.system.buckets.${timeseriesCollectionName}`
+          );
           expect(result.timeseries.bucketCount).to.equal(1);
           expect(result.timeseries.numBucketInserts).to.equal(1);
         });
       });
     });
-    describe('collection.isCapped', function() {
-      it('returns true for config.changelog', async function() {
-        const ret = await sh._database.getSiblingDB('config').getCollection('changelog').isCapped();
+    describe('collection.isCapped', function () {
+      it('returns true for config.changelog', async function () {
+        const ret = await sh._database
+          .getSiblingDB('config')
+          .getCollection('changelog')
+          .isCapped();
         expect(ret).to.equal(true);
       });
     });
-    describe('databases', function() {
+    describe('databases', function () {
       let dbRegular: Database;
       let dbSh: Database;
       const dbRegularName = 'db';
@@ -2047,18 +2525,20 @@ describe('Shard', function() {
       const collRegularName = 'testRegular';
       const collShName = 'testSh';
 
-      beforeEach(function() {
+      beforeEach(function () {
         dbRegular = sh._database.getSiblingDB(dbRegularName);
         dbSh = sh._database.getSiblingDB(dbShName);
       });
 
-      afterEach(async function() {
+      afterEach(async function () {
         await dbRegular.dropDatabase();
         await dbSh.dropDatabase();
       });
 
-      it('the list includes databases that were never explicitly sharded', async function() {
-        await dbRegular.getCollection(collRegularName).insertOne({ foo: 'bar', key: 99 });
+      it('the list includes databases that were never explicitly sharded', async function () {
+        await dbRegular
+          .getCollection(collRegularName)
+          .insertOne({ foo: 'bar', key: 99 });
 
         const collSh = dbSh.getCollection(collShName);
         await collSh.insertOne({ name: 'some', zipcode: '11111' });
@@ -2068,50 +2548,61 @@ describe('Shard', function() {
 
         const result = await sh.status();
 
-        const databasesDbItem = result.value.databases.find((item) => (item.database._id === 'db'));
+        const databasesDbItem = result.value.databases.find(
+          (item) => item.database._id === 'db'
+        );
         // Cannot get strict guarantees about the value of this field since SERVER-63983
-        expect(databasesDbItem.database.partitioned).to.be.oneOf([false, undefined]);
-        const databasesDbShItem = result.value.databases.find((item) => (item.database._id === 'dbSh'));
+        expect(databasesDbItem.database.partitioned).to.be.oneOf([
+          false,
+          undefined,
+        ]);
+        const databasesDbShItem = result.value.databases.find(
+          (item) => item.database._id === 'dbSh'
+        );
         // Cannot get strict guarantees about the value of this field since SERVER-60926 and SERVER-63983
-        expect(databasesDbShItem.database.partitioned).to.be.oneOf([true, false, undefined]);
+        expect(databasesDbShItem.database.partitioned).to.be.oneOf([
+          true,
+          false,
+          undefined,
+        ]);
       });
     });
 
-    describe('checkMetadataConsistency', function() {
+    describe('checkMetadataConsistency', function () {
       skipIfServerVersion(mongos, '< 7.0');
       let db;
       let coll;
 
-      before(async function() {
+      before(async function () {
         db = instanceState.currentDb.getSiblingDB('db');
         coll = db.getCollection('coll');
         await sh.enableSharding('db');
         await sh.shardCollection('db.coll', { key: 1 });
       });
 
-      it('returns results for the cluster', async function() {
+      it('returns results for the cluster', async function () {
         const cursor = await sh.checkMetadataConsistency();
         expect(await cursor.toArray()).to.deep.equal([]);
       });
-      it('returns results for the cluster with options', async function() {
+      it('returns results for the cluster with options', async function () {
         const cursor = await sh.checkMetadataConsistency({ checkIndexes: 1 });
         expect(await cursor.toArray()).to.deep.equal([]);
       });
 
-      it('returns results for a database', async function() {
+      it('returns results for a database', async function () {
         const cursor = await db.checkMetadataConsistency();
         expect(await cursor.toArray()).to.deep.equal([]);
       });
-      it('returns results for a database with options', async function() {
+      it('returns results for a database with options', async function () {
         const cursor = await db.checkMetadataConsistency({ checkIndexes: 1 });
         expect(await cursor.toArray()).to.deep.equal([]);
       });
 
-      it('returns results for a collection', async function() {
+      it('returns results for a collection', async function () {
         const cursor = await coll.checkMetadataConsistency();
         expect(await cursor.toArray()).to.deep.equal([]);
       });
-      it('returns results for a collection with options', async function() {
+      it('returns results for a collection with options', async function () {
         const cursor = await coll.checkMetadataConsistency({ checkIndexes: 1 });
         expect(await cursor.toArray()).to.deep.equal([]);
       });

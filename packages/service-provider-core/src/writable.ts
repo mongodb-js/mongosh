@@ -23,14 +23,13 @@ import type {
   RunCommandOptions,
   DbOptions,
   OrderedBulkOperation,
-  UnorderedBulkOperation
+  UnorderedBulkOperation,
 } from './all-transport-types';
 
 /**
  * Interface for write operations in the CRUD specification.
  */
 export default interface Writable {
-
   /**
    * @param {String} db - the db name
    * @param spec
@@ -104,7 +103,8 @@ export default interface Writable {
     collection: string,
     requests: AnyBulkWriteOperation[],
     options: BulkWriteOptions,
-    dbOptions?: DbOptions): Promise<BulkWriteResult>;
+    dbOptions?: DbOptions
+  ): Promise<BulkWriteResult>;
 
   /**
    * Delete multiple documents from the collection.
@@ -122,7 +122,8 @@ export default interface Writable {
     collection: string,
     filter: Document,
     options: DeleteOptions,
-    dbOptions?: DbOptions): Promise<DeleteResult>;
+    dbOptions?: DbOptions
+  ): Promise<DeleteResult>;
 
   /**
    * Delete one document from the collection.
@@ -140,7 +141,8 @@ export default interface Writable {
     collection: string,
     filter: Document,
     options: DeleteOptions,
-    dbOptions?: DbOptions): Promise<DeleteResult>;
+    dbOptions?: DbOptions
+  ): Promise<DeleteResult>;
 
   /**
    * Find one document and delete it.
@@ -158,7 +160,8 @@ export default interface Writable {
     collection: string,
     filter: Document,
     options: FindOneAndDeleteOptions,
-    dbOptions?: DbOptions): Promise<Document>;
+    dbOptions?: DbOptions
+  ): Promise<Document>;
 
   /**
    * Find one document and replace it.
@@ -178,7 +181,8 @@ export default interface Writable {
     filter: Document,
     replacement: Document,
     options: FindOneAndReplaceOptions,
-    dbOptions?: DbOptions): Promise<Document>;
+    dbOptions?: DbOptions
+  ): Promise<Document>;
 
   /**
    * Find one document and update it.
@@ -198,7 +202,8 @@ export default interface Writable {
     filter: Document,
     update: Document | Document[],
     options: FindOneAndUpdateOptions,
-    dbOptions?: DbOptions): Promise<Document>;
+    dbOptions?: DbOptions
+  ): Promise<Document>;
 
   /**
    * Insert many documents into the colleciton.
@@ -216,7 +221,8 @@ export default interface Writable {
     collection: string,
     docs: Document[],
     options: BulkWriteOptions,
-    dbOptions?: DbOptions): Promise<InsertManyResult>;
+    dbOptions?: DbOptions
+  ): Promise<InsertManyResult>;
 
   /**
    * Insert one document into the collection.
@@ -234,7 +240,8 @@ export default interface Writable {
     collection: string,
     doc: Document,
     options: InsertOneOptions,
-    dbOptions?: DbOptions): Promise<InsertOneResult>;
+    dbOptions?: DbOptions
+  ): Promise<InsertOneResult>;
 
   /**
    * Replace a document with another.
@@ -254,7 +261,8 @@ export default interface Writable {
     filter: Document,
     replacement: Document,
     options?: ReplaceOptions,
-    dbOptions?: DbOptions): Promise<UpdateResult>;
+    dbOptions?: DbOptions
+  ): Promise<UpdateResult>;
 
   /**
    * Update many document.
@@ -274,7 +282,8 @@ export default interface Writable {
     filter: Document,
     update: Document,
     options?: UpdateOptions,
-    dbOptions?: DbOptions): Promise<UpdateResult>;
+    dbOptions?: DbOptions
+  ): Promise<UpdateResult>;
 
   /**
    * Update a document.
@@ -294,7 +303,8 @@ export default interface Writable {
     filter: Document,
     update: Document,
     options?: UpdateOptions,
-    dbOptions?: DbOptions): Promise<UpdateResult>;
+    dbOptions?: DbOptions
+  ): Promise<UpdateResult>;
 
   /**
    * Adds new indexes to a collection.
@@ -311,7 +321,8 @@ export default interface Writable {
     collection: string,
     indexSpecs: Document[],
     options?: CreateIndexesOptions,
-    dbOptions?: DbOptions): Promise<string[]>;
+    dbOptions?: DbOptions
+  ): Promise<string[]>;
 
   /**
    * Drops a collection.
@@ -342,7 +353,8 @@ export default interface Writable {
     oldName: string,
     newName: string,
     options?: RenameOptions,
-    dbOptions?: DbOptions): Promise<Collection>;
+    dbOptions?: DbOptions
+  ): Promise<Collection>;
 
   /**
    * Initialize a bulk operation.
@@ -368,14 +380,14 @@ export default interface Writable {
    * @param {String} collection - The collection name.
    * @param {Object[]} descriptions - The specs of the indexes to be created.
    * @param {DbOptions} dbOptions - The database options
-  */
+   */
   createSearchIndexes(
     database: string,
     collection: string,
     // TODO(MONGOSH-1471): use SearchIndexDescription[] once available
-    specs: {name: string, definition: Document}[],
+    specs: { name: string; definition: Document }[],
     dbOptions?: DbOptions
-  ): Promise<string[]>
+  ): Promise<string[]>;
 
   /**
    * Drops a search index.
@@ -384,13 +396,13 @@ export default interface Writable {
    * @param {String} collection - The collection name.
    * @param {String} indexName - The index name
    * @param {DbOptions} dbOptions - The database options
-  */
+   */
   dropSearchIndex(
     database: string,
     collection: string,
     index: string,
     dbOptions?: DbOptions
-  ): Promise<void>
+  ): Promise<void>;
 
   /**
    * Update a search index.
@@ -400,7 +412,7 @@ export default interface Writable {
    * @param {String} indexName - The index name.
    * @param {Object} description - The update.
    * @param {DbOptions} dbOptions - The database options
-  */
+   */
   updateSearchIndex(
     database: string,
     collection: string,
@@ -408,6 +420,5 @@ export default interface Writable {
     // TODO(MONGOSH-1471): use SearchIndexDescription once available
     definition: Document,
     dbOptions?: DbOptions
-  ): Promise<void>
+  ): Promise<void>;
 }
-

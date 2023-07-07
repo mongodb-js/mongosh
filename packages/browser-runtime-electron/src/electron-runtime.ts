@@ -1,16 +1,12 @@
-import {
-  ElectronInterpreterEnvironment
-} from './electron-interpreter-environment';
+import { ElectronInterpreterEnvironment } from './electron-interpreter-environment';
 
 import type {
   Runtime,
   Completion,
   RuntimeEvaluationListener,
-  RuntimeEvaluationResult
+  RuntimeEvaluationResult,
 } from '@mongosh/browser-runtime-core';
-import {
-  OpenContextRuntime
-} from '@mongosh/browser-runtime-core';
+import { OpenContextRuntime } from '@mongosh/browser-runtime-core';
 
 import type { ServiceProvider } from '@mongosh/service-provider-core';
 import type { MongoshBus } from '@mongosh/types';
@@ -35,7 +31,10 @@ export class ElectronRuntime implements Runtime {
     // changing this line: https://github.com/webpack/webpack/issues/5939 (it
     // seems that checking for `typeof __non_webpack_require__` does not work).
     //
-    const requireFunc = typeof __webpack_require__ === 'function' ? __non_webpack_require__ : require;
+    const requireFunc =
+      typeof __webpack_require__ === 'function'
+        ? __non_webpack_require__
+        : require;
 
     this.openContextRuntime = new OpenContextRuntime(
       serviceProvider,
@@ -44,7 +43,9 @@ export class ElectronRuntime implements Runtime {
     );
   }
 
-  setEvaluationListener(listener: RuntimeEvaluationListener): RuntimeEvaluationListener | null {
+  setEvaluationListener(
+    listener: RuntimeEvaluationListener
+  ): RuntimeEvaluationListener | null {
     return this.openContextRuntime.setEvaluationListener(listener);
   }
 

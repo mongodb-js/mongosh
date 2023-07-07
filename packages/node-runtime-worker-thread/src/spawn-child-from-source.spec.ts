@@ -4,17 +4,17 @@ import childProcess from 'child_process';
 import { once } from 'events';
 import spawnChildFromSource, { kill } from './spawn-child-from-source';
 
-describe('spawnChildFromSource', function() {
+describe('spawnChildFromSource', function () {
   let spawned: ChildProcess;
 
-  afterEach(async function() {
+  afterEach(async function () {
     if (spawned) {
       await kill(spawned, 'SIGKILL');
       spawned = null;
     }
   });
 
-  it('should throw if stdin is missing', async function() {
+  it('should throw if stdin is missing', async function () {
     let err: Error;
 
     try {
@@ -22,7 +22,7 @@ describe('spawnChildFromSource', function() {
         // Making istanbul happy by passing stuff that's not allowed
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-expect-error
-        stdio: 'ignore'
+        stdio: 'ignore',
       });
     } catch (e: any) {
       err = e;
@@ -34,12 +34,12 @@ describe('spawnChildFromSource', function() {
       .match(/missing stdin/);
   });
 
-  it('should resolve with a child process', async function() {
+  it('should resolve with a child process', async function () {
     spawned = await spawnChildFromSource('');
     expect(spawned).to.be.instanceof((childProcess as any).ChildProcess);
   });
 
-  it('should spawn a process with an ipc channel open', async function() {
+  it('should spawn a process with an ipc channel open', async function () {
     spawned = await spawnChildFromSource(
       'process.on("message", (data) => process.send(data))'
     );
@@ -48,7 +48,7 @@ describe('spawnChildFromSource', function() {
     expect(message).to.equal('Hi!');
   });
 
-  it('should fail if process exited before successfully starting', async function() {
+  it('should fail if process exited before successfully starting', async function () {
     let err: Error;
 
     try {
@@ -69,7 +69,7 @@ describe('spawnChildFromSource', function() {
     );
   });
 
-  it('should fail if a timeout exceeded before the process is "ready"', async function() {
+  it('should fail if a timeout exceeded before the process is "ready"', async function () {
     let err: Error;
 
     try {

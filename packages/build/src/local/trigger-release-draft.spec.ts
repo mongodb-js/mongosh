@@ -1,12 +1,15 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 import type { RepositoryStatus, TagDetails, TaggedCommit } from '../git';
-import { computeNextTagNameFn, triggerReleaseDraft } from './trigger-release-draft';
+import {
+  computeNextTagNameFn,
+  triggerReleaseDraft,
+} from './trigger-release-draft';
 
-describe('local trigger-release-draft', function() {
-  describe('triggerReleaseDraft', function() {
+describe('local trigger-release-draft', function () {
+  describe('triggerReleaseDraft', function () {
     let verifyGitStatus: sinon.SinonStub;
-    let getLatestDraftOrReleaseTagFromLog:sinon.SinonStub;
+    let getLatestDraftOrReleaseTagFromLog: sinon.SinonStub;
     let choose: sinon.SinonStub;
     let confirm: sinon.SinonStub;
     let spawnSync: sinon.SinonStub;
@@ -15,13 +18,13 @@ describe('local trigger-release-draft', function() {
       branch: {
         local: 'main',
         tracking: 'origin/main',
-        diverged: false
+        diverged: false,
       },
       clean: true,
-      hasUnpushedTags: false
+      hasUnpushedTags: false,
     };
 
-    beforeEach(function() {
+    beforeEach(function () {
       verifyGitStatus = sinon.stub().returns(cleanRepoStatus);
       getLatestDraftOrReleaseTagFromLog = sinon.stub();
       choose = sinon.stub();
@@ -29,14 +32,14 @@ describe('local trigger-release-draft', function() {
       spawnSync = sinon.stub();
     });
 
-    it('creates a new draft and pushes when everything is good', async function() {
+    it('creates a new draft and pushes when everything is good', async function () {
       const latestTag: TaggedCommit = {
         commit: 'hash',
         tag: {
           draftVersion: 7,
           releaseVersion: '0.8.0',
-          semverName: '0.8.0-draft.7'
-        }
+          semverName: '0.8.0-draft.7',
+        },
       };
 
       getLatestDraftOrReleaseTagFromLog.returns(latestTag);
@@ -55,18 +58,26 @@ describe('local trigger-release-draft', function() {
       expect(choose).to.not.have.been.called;
       expect(confirm).to.have.been.called;
       expect(spawnSync).to.have.been.calledTwice;
-      expect(spawnSync.getCall(0)).calledWith('git', ['tag', 'v0.8.0-draft.8'], sinon.match.any);
-      expect(spawnSync.getCall(1)).calledWith('git', ['push', 'origin', 'v0.8.0-draft.8'], sinon.match.any);
+      expect(spawnSync.getCall(0)).calledWith(
+        'git',
+        ['tag', 'v0.8.0-draft.8'],
+        sinon.match.any
+      );
+      expect(spawnSync.getCall(1)).calledWith(
+        'git',
+        ['push', 'origin', 'v0.8.0-draft.8'],
+        sinon.match.any
+      );
     });
 
-    it('asks for the bump type and pushes a new draft if previous tag was a release on main', async function() {
+    it('asks for the bump type and pushes a new draft if previous tag was a release on main', async function () {
       const latestTag: TaggedCommit = {
         commit: 'hash',
         tag: {
           draftVersion: undefined,
           releaseVersion: '0.8.0',
-          semverName: '0.8.0'
-        }
+          semverName: '0.8.0',
+        },
       };
 
       getLatestDraftOrReleaseTagFromLog.returns(latestTag);
@@ -86,19 +97,27 @@ describe('local trigger-release-draft', function() {
       expect(choose).to.have.been.called;
       expect(confirm).to.have.been.called;
       expect(spawnSync).to.have.been.calledTwice;
-      expect(spawnSync.getCall(0)).calledWith('git', ['tag', 'v0.9.0-draft.0'], sinon.match.any);
-      expect(spawnSync.getCall(1)).calledWith('git', ['push', 'origin', 'v0.9.0-draft.0'], sinon.match.any);
+      expect(spawnSync.getCall(0)).calledWith(
+        'git',
+        ['tag', 'v0.9.0-draft.0'],
+        sinon.match.any
+      );
+      expect(spawnSync.getCall(1)).calledWith(
+        'git',
+        ['push', 'origin', 'v0.9.0-draft.0'],
+        sinon.match.any
+      );
     });
 
-    it('automatically does a patch when on a release branch (for a support release)', async function() {
+    it('automatically does a patch when on a release branch (for a support release)', async function () {
       const repoStatus: RepositoryStatus = {
         branch: {
           local: 'release/v0.8.2',
           tracking: 'origin/release/v0.8.2',
-          diverged: false
+          diverged: false,
         },
         clean: true,
-        hasUnpushedTags: false
+        hasUnpushedTags: false,
       };
 
       const latestTag: TaggedCommit = {
@@ -106,8 +125,8 @@ describe('local trigger-release-draft', function() {
         tag: {
           draftVersion: undefined,
           releaseVersion: '0.8.2',
-          semverName: '0.8.2'
-        }
+          semverName: '0.8.2',
+        },
       };
 
       verifyGitStatus.returns(repoStatus);
@@ -126,11 +145,19 @@ describe('local trigger-release-draft', function() {
       expect(verifyGitStatus).to.have.been.called;
       expect(confirm).to.have.been.calledTwice;
       expect(spawnSync).to.have.been.calledTwice;
-      expect(spawnSync.getCall(0)).calledWith('git', ['tag', 'v0.8.3-draft.0'], sinon.match.any);
-      expect(spawnSync.getCall(1)).calledWith('git', ['push', 'origin', 'v0.8.3-draft.0'], sinon.match.any);
+      expect(spawnSync.getCall(0)).calledWith(
+        'git',
+        ['tag', 'v0.8.3-draft.0'],
+        sinon.match.any
+      );
+      expect(spawnSync.getCall(1)).calledWith(
+        'git',
+        ['push', 'origin', 'v0.8.3-draft.0'],
+        sinon.match.any
+      );
     });
 
-    it('fails if no previous tag is found', async function() {
+    it('fails if no previous tag is found', async function () {
       getLatestDraftOrReleaseTagFromLog.returns(undefined);
       try {
         await triggerReleaseDraft(
@@ -142,7 +169,9 @@ describe('local trigger-release-draft', function() {
           spawnSync
         );
       } catch (e: any) {
-        expect(e.message).to.contain('Could not find a previous draft or release tag.');
+        expect(e.message).to.contain(
+          'Could not find a previous draft or release tag.'
+        );
         expect(verifyGitStatus).to.have.been.called;
         expect(choose).to.not.have.been.called;
         expect(confirm).to.not.have.been.called;
@@ -152,14 +181,14 @@ describe('local trigger-release-draft', function() {
       expect.fail('Expected error');
     });
 
-    it('aborts if user does not confirm', async function() {
+    it('aborts if user does not confirm', async function () {
       const latestTag: TaggedCommit = {
         commit: 'hash',
         tag: {
           draftVersion: 7,
           releaseVersion: '0.8.0',
-          semverName: '0.8.0-draft.7'
-        }
+          semverName: '0.8.0-draft.7',
+        },
       };
       getLatestDraftOrReleaseTagFromLog.returns(latestTag);
       confirm.onFirstCall().resolves(true);
@@ -186,35 +215,35 @@ describe('local trigger-release-draft', function() {
     });
   });
 
-  describe('computeNextTagName', function() {
+  describe('computeNextTagName', function () {
     const draftTag: TagDetails = {
       semverName: '0.8.0-draft.8',
       draftVersion: 8,
-      releaseVersion: '0.8.0'
+      releaseVersion: '0.8.0',
     };
     const releaseTag: TagDetails = {
       semverName: '0.8.0',
       draftVersion: undefined,
-      releaseVersion: '0.8.0'
+      releaseVersion: '0.8.0',
     };
 
-    it('computes the next draft bump', function() {
+    it('computes the next draft bump', function () {
       const result = computeNextTagNameFn(draftTag, 'draft');
       expect(result).to.equal('v0.8.0-draft.9');
     });
-    it('computes the next patch bump', function() {
+    it('computes the next patch bump', function () {
       const result = computeNextTagNameFn(releaseTag, 'patch');
       expect(result).to.equal('v0.8.1-draft.0');
     });
-    it('computes the next minor bump', function() {
+    it('computes the next minor bump', function () {
       const result = computeNextTagNameFn(releaseTag, 'minor');
       expect(result).to.equal('v0.9.0-draft.0');
     });
-    it('computes the next major bump', function() {
+    it('computes the next major bump', function () {
       const result = computeNextTagNameFn(releaseTag, 'major');
       expect(result).to.equal('v1.0.0-draft.0');
     });
-    it('fails on unknown bump type', function() {
+    it('fails on unknown bump type', function () {
       try {
         computeNextTagNameFn(releaseTag, 'what' as any);
       } catch (e: any) {

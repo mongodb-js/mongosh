@@ -44,13 +44,13 @@ export function deserializeError(err: any): Error {
 export enum SerializedResultTypes {
   SerializedErrorResult = 'SerializedErrorResult',
   InspectResult = 'InspectResult',
-  SerializedShellApiResult = 'SerializedShellApiResult'
+  SerializedShellApiResult = 'SerializedShellApiResult',
 }
 
 export function serializeEvaluationResult({
   type,
   printable,
-  source
+  source,
 }: RuntimeEvaluationResult): RuntimeEvaluationResult {
   // Primitive values don't require any special treatment for serialization
   if (isPrimitive(printable)) {
@@ -62,7 +62,7 @@ export function serializeEvaluationResult({
     return {
       type: SerializedResultTypes.SerializedErrorResult,
       printable: serializeError(printable),
-      source
+      source,
     };
   }
 
@@ -76,7 +76,7 @@ export function serializeEvaluationResult({
     return {
       type: SerializedResultTypes.InspectResult,
       printable: inspect(printable),
-      source
+      source,
     };
   }
 
@@ -87,15 +87,15 @@ export function serializeEvaluationResult({
     type: SerializedResultTypes.SerializedShellApiResult,
     printable: {
       origType: type,
-      serializedValue: EJSON.serialize(printable)
-    }
+      serializedValue: EJSON.serialize(printable),
+    },
   };
 }
 
 export function deserializeEvaluationResult({
   type,
   printable,
-  source
+  source,
 }: RuntimeEvaluationResult): RuntimeEvaluationResult {
   if (type === SerializedResultTypes.SerializedErrorResult) {
     return { type, printable: deserializeError(printable), source };
@@ -105,38 +105,45 @@ export function deserializeEvaluationResult({
     return {
       type: printable.origType,
       printable: EJSON.deserialize(printable.serializedValue),
-      source
+      source,
     };
   }
 
   return { type, printable, source };
 }
 
-const autoEncryptionBSONOptions = [
-  'schemaMap',
-  'encryptedFieldsMap'
-] as const;
+const autoEncryptionBSONOptions = ['schemaMap', 'encryptedFieldsMap'] as const;
 
-export function serializeConnectOptions(options: Readonly<DevtoolsConnectOptions>): DevtoolsConnectOptions {
+export function serializeConnectOptions(
+  options: Readonly<DevtoolsConnectOptions>
+): DevtoolsConnectOptions {
   const serializedOptions = { ...options };
   for (const autoEncryptionOption of autoEncryptionBSONOptions) {
     if (serializedOptions.autoEncryption?.[autoEncryptionOption]) {
       serializedOptions.autoEncryption = {
         ...serializedOptions.autoEncryption,
-        [autoEncryptionOption]: EJSON.serialize(serializedOptions.autoEncryption[autoEncryptionOption], { relaxed: false })
+        [autoEncryptionOption]: EJSON.serialize(
+          serializedOptions.autoEncryption[autoEncryptionOption],
+          { relaxed: false }
+        ),
       };
     }
   }
   return serializedOptions;
 }
 
-export function deserializeConnectOptions(options: Readonly<DevtoolsConnectOptions>): DevtoolsConnectOptions {
+export function deserializeConnectOptions(
+  options: Readonly<DevtoolsConnectOptions>
+): DevtoolsConnectOptions {
   const deserializedOptions: any = { ...options };
   for (const autoEncryptionOption of autoEncryptionBSONOptions) {
     if (deserializedOptions.autoEncryption?.[autoEncryptionOption]) {
       deserializedOptions.autoEncryption = {
         ...deserializedOptions.autoEncryption,
-        [autoEncryptionOption]: EJSON.deserialize(deserializedOptions.autoEncryption[autoEncryptionOption], { relaxed: false })
+        [autoEncryptionOption]: EJSON.deserialize(
+          deserializedOptions.autoEncryption[autoEncryptionOption],
+          { relaxed: false }
+        ),
       };
     }
   }
