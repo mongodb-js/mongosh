@@ -34,7 +34,7 @@
   },
   "devDependencies": {
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
-    "@types/sinon-chai": "^3.2.3",
+    "@types/sinon-chai": "^3.2.4",
     "depcheck": "^1.4.3",
     "eslint": "^7.25.0",
     "prettier": "^2.8.8"

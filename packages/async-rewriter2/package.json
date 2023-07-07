@@ -42,7 +42,7 @@
     "@babel/plugin-transform-destructuring": "^7.16.7",
     "@babel/plugin-transform-parameters": "^7.16.7",
     "@babel/plugin-transform-shorthand-properties": "^7.16.7",
-    "@babel/types": "^7.16.8",
+    "@babel/types": "^7.21.2",
     "@types/babel__core": "^7.1.18"
   },
   "devDependencies": {
