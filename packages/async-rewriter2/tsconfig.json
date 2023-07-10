@@ -4,6 +4,6 @@
     "outDir": "./lib",
     "allowJs": true
   },
-  "include": ["./src/**/*"],
+  "include": ["./src/**/*", "./benchmark/**/*"],
   "exclude": ["./src/**/*.spec.*"]
 }

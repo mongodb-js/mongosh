@@ -135,6 +135,7 @@ async function processPackage(
   };
 }
 
+// eslint-disable-next-line @typescript-eslint/require-await
 async function createTsProgram(
   pathToPackage: string
 ): Promise<ts.Program | undefined> {
@@ -157,6 +158,7 @@ async function createTsProgram(
   });
 }
 
+// eslint-disable-next-line @typescript-eslint/require-await
 async function extractErrors(
   pathToPackage: string,
   program: ts.Program

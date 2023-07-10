@@ -93,6 +93,7 @@ export abstract class AbstractCursor<
   async *[Symbol.asyncIterator]() {
     let doc;
     // !== null should suffice, but some stubs in our tests return 'undefined'
+    // eslint-disable-next-line eqeqeq
     while ((doc = await this.tryNext()) != null) {
       yield doc;
     }

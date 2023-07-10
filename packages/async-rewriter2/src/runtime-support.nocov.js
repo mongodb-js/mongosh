@@ -7,6 +7,7 @@ const TypedArray = Object.getPrototypeOf(Uint8Array);
 
 // From https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach
 Array.prototype.forEach = function (callback, thisArg) {
+  // eslint-disable-next-line eqeqeq
   if (this == null) {
     throw new TypeError('Array.prototype.forEach called on null or undefined');
   }
@@ -67,6 +68,7 @@ Array.prototype.map = function (callback /* , thisArg*/) {
   let T;
   let k;
 
+  // eslint-disable-next-line eqeqeq
   if (this == null) {
     throw new TypeError('this is null or not defined');
   }
@@ -149,6 +151,7 @@ Array.prototype.map = function (callback /* , thisArg*/) {
 
 // From https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some
 Array.prototype.some = function (fun, thisArg) {
+  // eslint-disable-next-line eqeqeq
   if (this == null) {
     throw new TypeError('Array.prototype.some called on null or undefined');
   }
@@ -174,6 +177,7 @@ Array.prototype.every = function (callbackfn, thisArg) {
   let T;
   let k;
 
+  // eslint-disable-next-line eqeqeq
   if (this == null) {
     throw new TypeError('this is null or not defined');
   }
@@ -279,6 +283,7 @@ Array.prototype.filter = function (func, thisArg) {
 Object.defineProperty(Array.prototype, 'find', {
   value: function (predicate) {
     // 1. Let O be ? ToObject(this value).
+    // eslint-disable-next-line eqeqeq
     if (this == null) {
       throw TypeError('"this" is null or not defined');
     }
@@ -324,6 +329,7 @@ Object.defineProperty(Array.prototype, 'find', {
 Object.defineProperty(Array.prototype, 'findIndex', {
   value: function (predicate) {
     // 1. Let O be ? ToObject(this value).
+    // eslint-disable-next-line eqeqeq
     if (this == null) {
       throw new TypeError('"this" is null or not defined');
     }
