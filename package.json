@@ -140,6 +140,7 @@
     "yaml": "^1.10.0"
   },
   "workspaces": [
+    "configs/*",
     "packages/*",
     "scripts/docker"
   ]

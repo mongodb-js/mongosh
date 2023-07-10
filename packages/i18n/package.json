@@ -43,6 +43,7 @@
     "mustache": "^4.0.0"
   },
   "devDependencies": {
+    "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@types/mustache": "^4.0.1",
     "depcheck": "^1.4.3",

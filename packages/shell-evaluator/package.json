@@ -33,6 +33,7 @@
     "unitTestsOnly": true
   },
   "devDependencies": {
+    "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@types/sinon-chai": "^3.2.4",
     "depcheck": "^1.4.3",

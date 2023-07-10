@@ -37,6 +37,7 @@
     "mongodb-redact": "^0.2.2"
   },
   "devDependencies": {
+    "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "depcheck": "^1.4.3",
     "eslint": "^7.25.0",

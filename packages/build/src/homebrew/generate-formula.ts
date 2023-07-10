@@ -33,6 +33,8 @@ export async function generateUpdatedFormula(
   if (
     currentVersion &&
     semver.compare(currentVersion, context.version, {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore 'includePrerelease' does not exist in type 'Options'.
       includePrerelease: true,
     }) !== -1 &&
     !isDryRun

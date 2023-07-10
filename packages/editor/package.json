@@ -41,6 +41,7 @@
     "js-beautify": "^1.14.0"
   },
   "devDependencies": {
+    "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@types/rimraf": "^3.0.0",
     "depcheck": "^1.4.3",

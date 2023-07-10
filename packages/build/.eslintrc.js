@@ -1,6 +1,6 @@
 module.exports = {
   root: true,
-  extends: ['../../config/eslintrc.base'],
+  extends: ['@mongodb-js/eslint-config-mongosh'],
   parserOptions: {
     tsconfigRootDir: __dirname,
     project: ['./tsconfig-lint.json'],

@@ -42,6 +42,7 @@
     "unitTestsOnly": true
   },
   "devDependencies": {
+    "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@types/command-exists": "^1.2.0",
     "@types/cross-spawn": "^6.0.2",

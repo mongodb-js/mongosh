@@ -32,6 +32,7 @@
     "reformat": "npm run prettier -- --write . && npm run eslint --fix"
   },
   "devDependencies": {
+    "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongosh/browser-runtime-core": "0.0.0-dev.0",
     "@mongosh/browser-runtime-electron": "0.0.0-dev.0",

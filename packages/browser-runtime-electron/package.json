@@ -36,6 +36,7 @@
     "unitTestsOnly": true
   },
   "devDependencies": {
+    "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongosh/service-provider-server": "0.0.0-dev.0",
     "@types/sinon": "^7.5.1",
