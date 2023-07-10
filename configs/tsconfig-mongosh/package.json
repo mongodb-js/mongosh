@@ -18,7 +18,9 @@
   "scripts": {
     "check": "npm run lint",
     "lint": "prettier --check .",
-    "reformat": "prettier --write ."
+    "reformat": "prettier --write .",
+    "test": "echo \"no tests\"",
+    "test-ci": "npm run test"
   },
   "repository": {
     "type": "git",
