@@ -17,8 +17,8 @@
   "scripts": {
     "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 -r ts-node/register \"./{src,lib}/**/*.spec.ts\"",
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
-    "eslint": "eslint --debug -c .eslintrc.js",
-    "lint": "pwd && npm run eslint `pwd` && npm run prettier -- --check .",
+    "eslint": "eslint",
+    "lint": "npm run eslint . && npm run prettier -- --check .",
     "check": "npm run lint && npm run depcheck",
     "depcheck": "depcheck",
     "preprepublish": "rimraf ./lib",

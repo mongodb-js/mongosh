@@ -14,8 +14,8 @@
   "scripts": {
     "compile": "tsc -p tsconfig.json",
     "pretest": "npm run compile",
-    "eslint": "eslint --debug -c .eslintrc.js",
-    "lint": "pwd && npm run eslint `pwd` && npm run prettier -- --check .",
+    "eslint": "eslint",
+    "lint": "npm run eslint . && npm run prettier -- --check .",
     "check": "npm run lint && npm run depcheck",
     "depcheck": "depcheck",
     "report-missing-help": "ts-node bin/report-missing-help.ts",
