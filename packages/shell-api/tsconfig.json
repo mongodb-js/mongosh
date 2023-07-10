@@ -4,6 +4,6 @@
     "outDir": "./lib",
     "experimentalDecorators": true
   },
-  "include": ["./src/**/*", "./bin/**/*"],
+  "include": ["./src/**/*"],
   "exclude": ["./src/**/*.spec.*"]
 }
