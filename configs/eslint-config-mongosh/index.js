@@ -54,22 +54,22 @@ module.exports = {
       ...common.jsOverrides,
       rules: {
         ...common.jsRules,
-        ...tempRules
-      }
+        ...tempRules,
+      },
     },
     {
       ...common.jsxOverrides,
       rules: {
         ...common.jsxRules,
-        ...tempRules
-      }
+        ...tempRules,
+      },
     },
     {
       ...common.tsOverrides,
       rules: {
         ...common.tsRules,
         ...tempRules,
-        ...tempTypescriptRules
+        ...tempTypescriptRules,
       },
     },
     {
@@ -77,7 +77,7 @@ module.exports = {
       rules: {
         ...common.tsxRules,
         ...tempRules,
-        ...tempTypescriptRules
+        ...tempTypescriptRules,
       },
     },
     {
@@ -89,18 +89,13 @@ module.exports = {
     },
     {
       ...common.testOverrides,
-      files: [
-        '**/*.spec.ts',
-        '**/*.spec.tsx',
-        '**/*.test.tsx',
-        '**/*.test.ts',
-      ],
+      files: ['**/*.spec.ts', '**/*.spec.tsx', '**/*.test.tsx', '**/*.test.ts'],
       rules: {
         ...common.testRules,
         ...tempRules,
-        ...tempTypescriptRules
-      }
-    }
+        ...tempTypescriptRules,
+      },
+    },
   ],
   settings: {
     ...shared.settings,
