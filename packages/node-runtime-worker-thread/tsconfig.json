@@ -5,6 +5,6 @@
     "allowJs": true
   },
   "files": ["./src/index.d.ts"],
-  "include": ["./src/**/*"],
+  "include": ["src/**/*"],
   "exclude": ["./src/**/*.spec.*"]
 }

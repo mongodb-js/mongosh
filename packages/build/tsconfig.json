@@ -5,6 +5,6 @@
     "allowJs": true,
     "removeComments": false
   },
-  "include": ["./src/**/*"],
+  "include": ["src/**/*"],
   "exclude": ["./src/**/*.spec.*"]
 }
