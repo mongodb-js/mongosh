@@ -46,6 +46,7 @@
   "devDependencies": {
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
+    "@mongodb-js/tsconfig-mongosh": "^1.0.0",
     "@types/cross-spawn": "^6.0.2",
     "@types/node-fetch": "^2.6.4",
     "@types/tar": "^4.0.4",

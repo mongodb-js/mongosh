@@ -71,6 +71,7 @@
     "@mongodb-js/compass-editor": "*",
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
+    "@mongodb-js/tsconfig-mongosh": "^1.0.0",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.8",
     "@types/numeral": "^2.0.2",
     "@types/react": "^16.9.17",

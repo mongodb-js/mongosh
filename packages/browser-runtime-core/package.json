@@ -38,6 +38,7 @@
   "devDependencies": {
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
+    "@mongodb-js/tsconfig-mongosh": "^1.0.0",
     "@mongosh/types": "0.0.0-dev.0",
     "bson": "^5.3.0",
     "depcheck": "^1.4.3",
