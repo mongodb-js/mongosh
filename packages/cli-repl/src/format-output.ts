@@ -298,7 +298,9 @@ export function formatError(error: Error, options: FormatOptions): string {
 
 function removeUndefinedValues<T>(obj: T) {
   return Object.fromEntries(
-    Object.entries(obj).filter((keyValue) => keyValue[1] !== undefined)
+    Object.entries(obj as Record<string, any>).filter(
+      (keyValue) => keyValue[1] !== undefined
+    )
   );
 }
 
