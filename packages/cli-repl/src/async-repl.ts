@@ -83,7 +83,8 @@ export function start(opts: AsyncREPLOptions): REPLServer {
   const repl = (opts.start ?? originalStart)(opts);
   const originalEval = promisify(
     wrapPauseInput(repl.input, wrapNoSyncDomainError(repl.eval.bind(repl)))
-  );
+    // string, Context, string is not string, any, string
+  ) as (arg1: string, arg2: any, arg3: string) => Promise<any>;
 
   const setRawMode = (mode: boolean): boolean => {
     const input = repl.input as ReadStream;
@@ -94,6 +95,7 @@ export function start(opts: AsyncREPLOptions): REPLServer {
     return wasInRawMode;
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
   (repl as Mutable<typeof repl>).eval = async (
     input: string,
     context: any,
