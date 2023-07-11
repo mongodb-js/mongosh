@@ -18,7 +18,7 @@
     "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 -r ts-node/register \"./{src,lib}/**/*.spec.ts\"",
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
     "eslint": "eslint",
-    "lint": "npm run eslint && npm run prettier -- --check .",
+    "lint": "npm run eslint . && npm run prettier -- --check .",
     "check": "npm run lint && npm run depcheck",
     "depcheck": "depcheck",
     "preprepublish": "rimraf ./lib",
@@ -36,7 +36,9 @@
     "unitTestsOnly": true
   },
   "devDependencies": {
+    "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
+    "@mongodb-js/tsconfig-mongosh": "^1.0.0",
     "@mongosh/types": "0.0.0-dev.0",
     "bson": "^5.3.0",
     "depcheck": "^1.4.3",

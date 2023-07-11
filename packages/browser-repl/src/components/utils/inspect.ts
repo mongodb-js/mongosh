@@ -27,12 +27,14 @@ function tryAddInspect(
         try {
           return stringifier.call(this, ...args);
         } catch (err: any) {
+          // eslint-disable-next-line no-console
           console.warn('Could not inspect bson object', { obj: this, err });
           return utilInspect(this, { customInspect: false });
         }
       },
     });
   } catch (err: any) {
+    // eslint-disable-next-line no-console
     console.warn('Could not add inspect key to object', { obj, err });
   }
 }

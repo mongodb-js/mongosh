@@ -43,6 +43,7 @@ function useTmpdir(): { readonly path: string } {
     } catch (err: any) {
       // On Windows in CI, this can fail with EPERM for some reason.
       // If it does, just log the error instead of failing all tests.
+      // eslint-disable-next-line no-console
       console.error('Could not remove fake home directory:', err);
     }
   });

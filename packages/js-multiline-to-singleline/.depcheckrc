@@ -1,5 +1,6 @@
 ignores:
- - '@mongodb-js/prettier-config-devtools'
+ - '@mongodb-js/eslint-config-mongosh'
+ - '@mongodb-js/tsconfig-mongosh'
  - '@mongodb-js/prettier-config-devtools'
  - '@typescript-eslint/parser'
  - '@typescript-eslint/eslint-plugin'

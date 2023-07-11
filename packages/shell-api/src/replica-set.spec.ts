@@ -743,6 +743,7 @@ describe('ReplicaSet', function () {
 
         // eslint-disable-next-line @typescript-eslint/require-await
         serviceProvider.runCommandWithCheck.callsFake(
+          // eslint-disable-next-line @typescript-eslint/require-await
           async (db: string, cmd: Document) => {
             if (cmd.replSetGetConfig) {
               return { config: oldConfig };

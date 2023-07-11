@@ -1,10 +1,10 @@
 {
-  "extends": "../../config/tsconfig.base.json",
+  "extends": "@mongodb-js/tsconfig-mongosh/tsconfig.common.json",
   "compilerOptions": {
     "outDir": "./lib",
     "allowJs": true,
     "experimentalDecorators": true
   },
-  "include": ["./src/**/*"],
+  "include": ["src/**/*"],
   "exclude": ["./src/**/*.spec.*"]
 }

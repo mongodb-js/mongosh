@@ -4,5 +4,5 @@
     "./src/**/*",
     "./test/**/*"
   ],
-  "exclude": []
+  "exclude": ["node_modules", "dist", "lib"]
 }

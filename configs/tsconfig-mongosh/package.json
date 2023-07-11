@@ -1,0 +1,30 @@
+{
+  "name": "@mongodb-js/tsconfig-mongosh",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Shared Mongosh Typescript configuration",
+  "license": "SSPL",
+  "files": [
+    "tsconfig.common.json",
+    "tsconfig.test.json"
+  ],
+  "peerDependencies": {
+    "typescript": "^4.6.2"
+  },
+  "devDependencies": {
+    "@mongodb-js/prettier-config-devtools": "^1.0.0",
+    "prettier": "^2.7.1"
+  },
+  "scripts": {
+    "check": "npm run lint",
+    "lint": "prettier --check .",
+    "reformat": "prettier --write .",
+    "test": "echo \"no tests\"",
+    "test-ci": "npm run test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mongodb-js/mongosh.git"
+  },
+  "homepage": "https://github.com/mongodb-js/mongosh"
+}

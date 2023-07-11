@@ -141,10 +141,10 @@ export class SnippetManager implements ShellPlugin {
       type: 'function',
       returnsPromise: true,
       isDirectShellCommand: true,
-      // eslint-disable-next-line @typescript-eslint/require-await
       shellCommandCompleter: async (
         params: unknown,
         args: string[]
+        // eslint-disable-next-line @typescript-eslint/require-await
       ): Promise<string[] | undefined> => {
         const plainCommands = [
           'update',

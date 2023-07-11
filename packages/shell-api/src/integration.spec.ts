@@ -2869,6 +2869,7 @@ describe('Shell API (integration)', function () {
         await (
           await collection.find({
             $where: function () {
+              // eslint-disable-next-line no-constant-condition
               while (true);
             },
           })
@@ -2887,6 +2888,7 @@ describe('Shell API (integration)', function () {
           await collection.find(
             {
               $where: function () {
+                // eslint-disable-next-line no-constant-condition
                 while (true);
               },
             },

@@ -1,0 +1,45 @@
+{
+  "name": "@mongodb-js/eslint-config-mongosh",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Shared Mongosh eslint configuration",
+  "license": "SSPL",
+  "main": "index.js",
+  "files": [
+    "index.js",
+    "utils.js",
+    "package.json",
+    "README.md"
+  ],
+  "peerDependencies": {
+    "eslint": "^7.25.0"
+  },
+  "dependencies": {
+    "@babel/core": "^7.21.4",
+    "@babel/eslint-parser": "^7.14.3",
+    "@mongodb-js/eslint-config-devtools": "^0.9.7",
+    "@typescript-eslint/eslint-plugin": "^4.33.0",
+    "@typescript-eslint/parser": "^4.33.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-filename-rules": "^1.2.0",
+    "eslint-plugin-jsx-a11y": "^6.4.1",
+    "eslint-plugin-mocha": "^8.0.0",
+    "eslint-plugin-react": "^7.24.0",
+    "eslint-plugin-react-hooks": "^4.2.0"
+  },
+  "devDependencies": {
+    "prettier": "^2.7.1"
+  },
+  "scripts": {
+    "check": "npm run lint",
+    "lint": "prettier --check .",
+    "reformat": "prettier --write .",
+    "test": "echo \"no tests\"",
+    "test-ci": "npm run test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mongodb-js/mongosh.git"
+  },
+  "homepage": "https://github.com/mongodb-js/mongosh"
+}

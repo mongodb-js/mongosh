@@ -16,6 +16,7 @@
     "test-ci": "node ../../scripts/run-if-package-requested.js npm run test"
   },
   "devDependencies": {
+    "@mongodb-js/tsconfig-mongosh": "^1.0.0",
     "assert": "^1.5.0",
     "buffer": "^6.0.3",
     "crypto-browserify": "^3.12.0",

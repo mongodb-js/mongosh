@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { signatures } from '../';
 import enUs from '../../i18n/src/locales/en_US';
 
@@ -6,13 +7,13 @@ Object.keys(signatures)
   .filter((typeName) => typeName !== 'unknown')
   .filter((typeName) => !typeName.endsWith('Result'))
   .forEach((typeName) => {
-    const typeHelp = enUs['shell-api'].classes[typeName];
+    const typeHelp = (enUs['shell-api'] as any).classes[typeName];
     if (!typeHelp) {
       console.info('Missing en_US help for type:', typeName);
       return;
     }
 
-    Object.keys(signatures[typeName].attributes)
+    Object.keys(signatures[typeName].attributes as Record<string, any>)
       .sort()
       .forEach((attributeName) => {
         const attributeHelp = typeHelp.help.attributes[attributeName];

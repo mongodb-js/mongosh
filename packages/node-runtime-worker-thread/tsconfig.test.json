@@ -1,5 +1,5 @@
 {
-  "extends": "../../config/tsconfig.test.json",
+  "extends": "@mongodb-js/tsconfig-mongosh/tsconfig.test.json",
   "ts-node": {
     "files": true
   },
