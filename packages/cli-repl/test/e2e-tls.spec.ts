@@ -124,15 +124,16 @@ describe('e2e TLS', function () {
         });
         afterEach(TestShell.cleanup);
 
-        const server = startTestServer(
-          'not-shared',
-          '--hostname',
-          'localhost',
-          serverTlsModeOption,
-          serverTlsModeValue,
-          serverTlsCertificateKeyFileOption,
-          SERVER_KEY
-        );
+        const server = startTestServer('not-shared', {
+          args: [
+            '--hostname',
+            'localhost',
+            serverTlsModeOption,
+            serverTlsModeValue,
+            serverTlsCertificateKeyFileOption,
+            SERVER_KEY,
+          ],
+        });
 
         it('works with matching CA (args)', async function () {
           const shell = TestShell.start({
@@ -340,17 +341,18 @@ describe('e2e TLS', function () {
           await TestShell.cleanup.call(this);
         });
 
-        const server = startTestServer(
-          'not-shared',
-          '--hostname',
-          'localhost',
-          serverTlsModeOption,
-          serverTlsModeValue,
-          serverTlsCertificateKeyFileOption,
-          SERVER_KEY,
-          serverTlsCAFileOption,
-          CA_CERT
-        );
+        const server = startTestServer('not-shared', {
+          args: [
+            '--hostname',
+            'localhost',
+            serverTlsModeOption,
+            serverTlsModeValue,
+            serverTlsCertificateKeyFileOption,
+            SERVER_KEY,
+            serverTlsCAFileOption,
+            CA_CERT,
+          ],
+        });
         const certUser =
           'emailAddress=tester@example.com,CN=Wonderwoman,OU=DevTools Testers,O=MongoDB';
 
@@ -628,15 +630,16 @@ describe('e2e TLS', function () {
         await TestShell.killall();
       });
 
-      const server = startTestServer(
-        'not-shared',
-        '--hostname',
-        'localhost',
-        serverTlsModeOption,
-        serverTlsModeValue,
-        serverTlsCertificateKeyFileOption,
-        SERVER_INVALIDHOST_KEY
-      );
+      const server = startTestServer('not-shared', {
+        args: [
+          '--hostname',
+          'localhost',
+          serverTlsModeOption,
+          serverTlsModeValue,
+          serverTlsCertificateKeyFileOption,
+          SERVER_INVALIDHOST_KEY,
+        ],
+      });
 
       it('works with allowInvalidCertificates', async function () {
         const shell = TestShell.start({

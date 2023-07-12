@@ -21,9 +21,9 @@ describe('e2e direct connection', function () {
   context('to a replica set', function () {
     const replSetId = 'replset';
     const [rs0, rs1, rs2] = startTestCluster(
-      ['--single', '--replSet', replSetId],
-      ['--single', '--replSet', replSetId],
-      ['--single', '--replSet', replSetId]
+      { args: ['--replSet', replSetId] },
+      { args: ['--replSet', replSetId] },
+      { args: ['--replSet', replSetId] }
     );
 
     [

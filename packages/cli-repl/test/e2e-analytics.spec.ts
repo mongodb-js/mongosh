@@ -6,10 +6,10 @@ import { TestShell } from './test-shell';
 describe('e2e Analytics Node', function () {
   const replSetName = 'replicaSet';
   const [rs0, rs1, rs2, rs3] = startTestCluster(
-    ['--single', '--replSet', replSetName],
-    ['--single', '--replSet', replSetName],
-    ['--single', '--replSet', replSetName],
-    ['--single', '--replSet', replSetName]
+    { args: ['--replSet', replSetName] },
+    { args: ['--replSet', replSetName] },
+    { args: ['--replSet', replSetName] },
+    { args: ['--replSet', replSetName] }
   );
 
   after(TestShell.cleanup);

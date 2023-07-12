@@ -857,10 +857,9 @@ describe('ReplicaSet', function () {
     const replId = 'rs0';
 
     const [srv0, srv1, srv2, srv3] = startTestCluster(
-      ['--single', '--replSet', replId],
-      ['--single', '--replSet', replId],
-      ['--single', '--replSet', replId],
-      ['--single', '--replSet', replId]
+      { args: ['--replSet', replId] },
+      { args: ['--replSet', replId] },
+      { args: ['--replSet', replId] }
     );
 
     let cfg: Partial<ReplSetConfig>;
