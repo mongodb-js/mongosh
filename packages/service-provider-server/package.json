@@ -30,17 +30,6 @@
   "engines": {
     "node": ">=14.15.1"
   },
-  "dependency-check": {
-    "entries": [
-      "src/**/*.js"
-    ],
-    "ignore": [
-      "sinon",
-      "chai",
-      "uuid",
-      "encoding"
-    ]
-  },
   "mongosh": {
     "ciRequiredOptionalDependencies": {
       "mongodb-client-encryption": [
