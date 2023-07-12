@@ -135,7 +135,7 @@ export type Exposed<T> = { [k in keyof T]: T[k] & { close(): void } } & {
 };
 
 export function exposeAll<O>(obj: O, messageBus: RPCMessageBus): Exposed<O> {
-  Object.entries(obj).forEach(([key, val]) => {
+  Object.entries(obj as Record<string, any>).forEach(([key, val]) => {
     const { close } = expose(
       key,
       async (...args: unknown[]) => {
@@ -156,9 +156,11 @@ export function exposeAll<O>(obj: O, messageBus: RPCMessageBus): Exposed<O> {
   Object.defineProperty(obj, close, {
     enumerable: false,
     value() {
-      Object.values(obj).forEach((fn) => {
-        fn.close();
-      });
+      Object.values(obj as Record<string, { close: () => void }>).forEach(
+        (fn) => {
+          fn.close();
+        }
+      );
     },
   });
   return obj as Exposed<O>;
