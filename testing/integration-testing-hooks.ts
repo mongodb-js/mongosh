@@ -63,7 +63,7 @@ export class MongodSetup {
     for (const [key, value] of Object.entries(searchParams))
       url.searchParams.set(key, value);
     for (const [key, value] of Object.entries(uriOptions))
-      url[key] = value;
+      url[key as any] = value;
     return url.toString();
   }
 
