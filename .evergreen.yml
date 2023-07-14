@@ -6477,7 +6477,7 @@ tasks:
           npm_deps_mode: all
       - func: test
         vars:
-          mongosh_server_test_version: "latest-alpha"
+          mongosh_server_test_version: "latest-alpha-enterprise"
           node_js_version: "16.20.1"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "mlatest_n16_cli_repl"
@@ -6675,7 +6675,7 @@ tasks:
           npm_deps_mode: all
       - func: test
         vars:
-          mongosh_server_test_version: "latest-alpha"
+          mongosh_server_test_version: "latest-alpha-enterprise"
           node_js_version: "14.21.3"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "mlatest_n14_cli_repl"
@@ -7053,7 +7053,7 @@ tasks:
           npm_deps_mode: all
       - func: test
         vars:
-          mongosh_server_test_version: "latest-alpha"
+          mongosh_server_test_version: "latest-alpha-enterprise"
           node_js_version: "16.20.1"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "mlatest_n16_java_shell"
@@ -7251,7 +7251,7 @@ tasks:
           npm_deps_mode: all
       - func: test
         vars:
-          mongosh_server_test_version: "latest-alpha"
+          mongosh_server_test_version: "latest-alpha-enterprise"
           node_js_version: "14.21.3"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "mlatest_n14_java_shell"
@@ -7521,7 +7521,7 @@ tasks:
           npm_deps_mode: all
       - func: test
         vars:
-          mongosh_server_test_version: "latest-alpha"
+          mongosh_server_test_version: "latest-alpha-enterprise"
           node_js_version: "16.20.1"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "mlatest_n16_mongosh"
@@ -7719,7 +7719,7 @@ tasks:
           npm_deps_mode: all
       - func: test
         vars:
-          mongosh_server_test_version: "latest-alpha"
+          mongosh_server_test_version: "latest-alpha-enterprise"
           node_js_version: "14.21.3"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "mlatest_n14_mongosh"
@@ -7917,7 +7917,7 @@ tasks:
           npm_deps_mode: all
       - func: test
         vars:
-          mongosh_server_test_version: "latest-alpha"
+          mongosh_server_test_version: "latest-alpha-enterprise"
           node_js_version: "16.20.1"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "mlatest_n16_node_runtime_worker_thread"
@@ -8115,7 +8115,7 @@ tasks:
           npm_deps_mode: all
       - func: test
         vars:
-          mongosh_server_test_version: "latest-alpha"
+          mongosh_server_test_version: "latest-alpha-enterprise"
           node_js_version: "14.21.3"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "mlatest_n14_node_runtime_worker_thread"
@@ -8349,7 +8349,7 @@ tasks:
           npm_deps_mode: all
       - func: test
         vars:
-          mongosh_server_test_version: "latest-alpha"
+          mongosh_server_test_version: "latest-alpha-enterprise"
           node_js_version: "16.20.1"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "mlatest_n16_service_provider_server"
@@ -8547,7 +8547,7 @@ tasks:
           npm_deps_mode: all
       - func: test
         vars:
-          mongosh_server_test_version: "latest-alpha"
+          mongosh_server_test_version: "latest-alpha-enterprise"
           node_js_version: "14.21.3"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "mlatest_n14_service_provider_server"
@@ -8745,7 +8745,7 @@ tasks:
           npm_deps_mode: all
       - func: test
         vars:
-          mongosh_server_test_version: "latest-alpha"
+          mongosh_server_test_version: "latest-alpha-enterprise"
           node_js_version: "16.20.1"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "mlatest_n16_shell_api"
@@ -8943,7 +8943,7 @@ tasks:
           npm_deps_mode: all
       - func: test
         vars:
-          mongosh_server_test_version: "latest-alpha"
+          mongosh_server_test_version: "latest-alpha-enterprise"
           node_js_version: "14.21.3"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "mlatest_n14_shell_api"
@@ -9100,7 +9100,7 @@ tasks:
       - func: test_apistrict
         vars:
           node_js_version: "16.20.1"
-          mongosh_server_test_version: "latest-alpha"
+          mongosh_server_test_version: "latest-alpha-enterprise"
           mongosh_test_force_api_strict: "1"
   - name: compile_artifact
     depends_on:
