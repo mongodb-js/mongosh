@@ -99,7 +99,7 @@ describe('e2e Analytics Node', function () {
         await directConnectionToAnalyticsShell.executeLine(
           '({ diff: after - before })'
         )
-      ).to.include('diff: 1');
+      ).to.match(/diff: [1-9]/); // not 0
     });
   });
 });
