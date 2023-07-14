@@ -1,4 +1,9 @@
 {
+  "include": [
+    "packages/*/src/**",
+    "scripts/*/src/**",
+    "configs/*/src/**"
+  ],
   "exclude": [
     "test",
     "testing",
