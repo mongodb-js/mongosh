@@ -80,7 +80,7 @@ describe('Auth e2e', function () {
   let db;
   let client;
   let shell: TestShell;
-  let dbName;
+  let dbName: string;
   let examplePrivilege1;
   let examplePrivilege2;
 
@@ -843,9 +843,14 @@ describe('Auth e2e', function () {
       await assertUserAuth('pwd2', 'anna2');
     });
     it('can auth when there is login in URI', async function () {
-      const connectionString = await testServer.connectionString();
-      const split = connectionString.split('//');
-      const authConnectionString = `${split[0]}//anna2:pwd2@${split[1]}/${dbName}`;
+      const authConnectionString = await testServer.connectionString(
+        {},
+        {
+          username: 'anna2',
+          password: 'pwd2',
+          pathname: `/${dbName}`,
+        }
+      );
       shell = TestShell.start({ args: [authConnectionString] });
       await shell.waitForPrompt();
       shell.assertNoErrors();
@@ -862,9 +867,14 @@ describe('Auth e2e', function () {
       shell.assertNoErrors();
     });
     it('connection-resetting operations don’t undo auth', async function () {
-      const connectionString = await testServer.connectionString();
-      const split = connectionString.split('//');
-      const authConnectionString = `${split[0]}//anna2:pwd2@${split[1]}/${dbName}`;
+      const authConnectionString = await testServer.connectionString(
+        {},
+        {
+          username: 'anna2',
+          password: 'pwd2',
+          pathname: `/${dbName}`,
+        }
+      );
       shell = TestShell.start({ args: [authConnectionString] });
       await shell.waitForPrompt();
       shell.assertNoErrors();

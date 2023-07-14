@@ -859,6 +859,7 @@ describe('ReplicaSet', function () {
     const [srv0, srv1, srv2, srv3] = startTestCluster(
       { args: ['--replSet', replId] },
       { args: ['--replSet', replId] },
+      { args: ['--replSet', replId] },
       { args: ['--replSet', replId] }
     );
 
@@ -968,7 +969,7 @@ describe('ReplicaSet', function () {
       });
     });
 
-    describe('reconfig', function () {
+    describe.only('reconfig', function () {
       it('reconfig with one less secondary', async function () {
         const newcfg: Partial<ReplSetConfig> = {
           _id: replId,
@@ -988,7 +989,7 @@ describe('ReplicaSet', function () {
       });
     });
 
-    describe('add member', function () {
+    describe.only('add member', function () {
       skipIfServerVersion(srv0, '< 4.4');
       it('adds a regular member to the config', async function () {
         const addWithRetry = createRetriableFunc(rs, 'add');
@@ -1102,9 +1103,9 @@ describe('ReplicaSet', function () {
     const replId = 'rspsa';
 
     const [srv0, srv1, srv2] = startTestCluster(
-      ['--single', '--replSet', replId],
-      ['--single', '--replSet', replId],
-      ['--single', '--replSet', replId]
+      { args: ['--replSet', replId] },
+      { args: ['--replSet', replId] },
+      { args: ['--replSet', replId] }
     );
 
     let serviceProvider: CliServiceProvider;

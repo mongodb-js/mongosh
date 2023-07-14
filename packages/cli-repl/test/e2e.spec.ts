@@ -1410,7 +1410,7 @@ describe('e2e', function () {
       it('can specify an API version', async function () {
         const shell = TestShell.start({
           args: [
-            `${await testServer.connectionString()}/${dbName}`,
+            await testServer.connectionString({}, { pathname: `/${dbName}` }),
             '--apiVersion',
             '1',
           ],
@@ -1426,7 +1426,7 @@ describe('e2e', function () {
       it('can specify an API version and strict mode', async function () {
         const shell = TestShell.start({
           args: [
-            `${await testServer.connectionString()}/${dbName}`,
+            await testServer.connectionString({}, { pathname: `/${dbName}` }),
             '--apiVersion',
             '1',
             '--apiStrict',
@@ -1445,7 +1445,7 @@ describe('e2e', function () {
         // Make sure SERVER-55593 doesn't happen to us.
         const shell = TestShell.start({
           args: [
-            `${await testServer.connectionString()}/${dbName}`,
+            await testServer.connectionString({}, { pathname: `/${dbName}` }),
             '--apiVersion',
             '1',
           ],

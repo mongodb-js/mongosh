@@ -61,12 +61,7 @@ describe('e2e Analytics Node', function () {
 
       const helloResult = await shell.executeLine('db.hello()');
       expect(helloResult).to.contain('isWritablePrimary: true');
-
-      await shell.executeLine('use admin');
-      const explain = await shell.executeLine(
-        "db['system.users'].find().explain()"
-      );
-      expect(explain).to.contain(`port: ${await rs0.port()}`);
+      expect(helloResult).not.to.contain('nodeType:');
     });
   });
 
@@ -77,12 +72,34 @@ describe('e2e Analytics Node', function () {
           `${await rs0.connectionString()}?replicaSet=${replSetName}&readPreference=secondary&readPreferenceTags=nodeType:ANALYTICS`,
         ],
       });
-      await shell.waitForPrompt();
-      await shell.executeLine('use admin');
-      const explain = await shell.executeLine(
-        "db['system.users'].find().explain()"
+
+      const directConnectionToAnalyticsShell = TestShell.start({
+        args: [`${await rs3.connectionString()}?directConnection=true`],
+      });
+      await Promise.all([
+        shell.waitForPrompt(),
+        directConnectionToAnalyticsShell.waitForPrompt(),
+      ]);
+
+      const helloResult = await shell.executeLine('db.hello()');
+      expect(helloResult).to.contain('isWritablePrimary: false');
+      expect(helloResult).to.contain("nodeType: 'ANALYTICS'");
+
+      await directConnectionToAnalyticsShell.executeLine(
+        'const before = db.serverStatus().opcounters.query'
       );
-      expect(explain).to.contain(`port: ${await rs3.port()}`);
+
+      await shell.executeLine('use admin');
+      await shell.executeLine("db['system.users'].findOne()");
+
+      await directConnectionToAnalyticsShell.executeLine(
+        'const after = db.serverStatus().opcounters.query'
+      );
+      expect(
+        await directConnectionToAnalyticsShell.executeLine(
+          '({ diff: after - before })'
+        )
+      ).to.include('diff: 1');
     });
   });
 });

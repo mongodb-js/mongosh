@@ -798,7 +798,7 @@ describe('CliServiceProvider [integration]', function () {
 
   describe('#getURI', function () {
     it('returns the current URI', function () {
-      expect(serviceProvider.getURI()).to.equal(connectionString + '/');
+      expect(serviceProvider.getURI()).to.equal(connectionString);
     });
   });
 

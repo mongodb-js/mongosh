@@ -6,6 +6,7 @@ import semver from 'semver';
 import { URL } from 'url';
 import { promisify } from 'util';
 import which from 'which';
+import { ConnectionString } from 'mongodb-connection-string-url';
 import { MongoCluster, MongoClusterOptions } from 'mongodb-runner';
 import { downloadMongoDb } from '@mongodb-js/mongodb-downloader';
 import { downloadCryptLibrary } from '../packages/build/src/packaging/download-crypt-library';
@@ -53,21 +54,29 @@ export class MongodSetup {
     throw new Error('Server not managed');
   }
 
-  async connectionString(): Promise<string> {
-    return this._connectionString;
+  async connectionString(searchParams: Partial<Record<keyof MongoClientOptions, string>> = {}, uriOptions: Partial<ConnectionString> = {}): Promise<string> {
+    if (Object.keys(searchParams).length + Object.keys(uriOptions).length === 0) {
+      return this._connectionString;
+    }
+
+    const url = await this.connectionStringUrl();
+    for (const [key, value] of Object.entries(searchParams))
+      url.searchParams.set(key, value);
+    for (const [key, value] of Object.entries(uriOptions))
+      url[key] = value;
+    return url.toString();
   }
 
-  async host(): Promise<string> {
-    return new URL(await this.connectionString()).hostname;
+  async connectionStringUrl(): Promise<ConnectionString> {
+    return new ConnectionString(await this.connectionString());
   }
 
   async port(): Promise<string> {
-    // 27017 is the default port for mongodb:// URLs.
-    return new URL(await this.connectionString()).port ?? '27017';
+    return (await this.hostport()).split(':').reverse()[0];
   }
 
   async hostport(): Promise<string> {
-    return `${await this.host()}:${await this.port()}`;
+    return (await this.connectionStringUrl()).hosts[0];
   }
 
   async serverVersion(): Promise<string> {
@@ -127,6 +136,7 @@ export class MongoRunnerSetup extends MongodSetup {
     this._cluster = await MongoCluster.start({
       topology: 'standalone',
       tmpDir: await getTmpdir(),
+      version: process.env.MONGOSH_SERVER_TEST_VERSION,
       ...this._opts
     })
 
@@ -144,23 +154,6 @@ async function getInstalledMongodVersion(): Promise<string> {
   const { stdout } = await execFile('mongod', ['--version']);
   const { version } = stdout.match(/^db version (?<version>.+)$/m)!.groups as any;
   return version;
-}
-
-export async function ensureMongodAvailable(mongodVersion = process.env.MONGOSH_SERVER_TEST_VERSION): Promise<string | null> {
-  try {
-    if (/-community/.test(String(mongodVersion))) {
-      console.info(`Explicitly requesting community server with ${mongodVersion}, downloading...`);
-      throw new Error();
-    }
-    const version = await getInstalledMongodVersion();
-    if (mongodVersion && !semver.satisfies(version, mongodVersion)) {
-      console.info(`global mongod is ${version}, wanted ${mongodVersion}, downloading...`);
-      throw new Error();
-    }
-    return null;
-  } catch {
-    return await downloadMongoDb(path.resolve(__dirname, '..', 'tmp'), mongodVersion);
-  }
 }
 
 export async function downloadCurrentCryptSharedLibrary(): Promise<string> {
