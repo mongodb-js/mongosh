@@ -969,7 +969,7 @@ describe('ReplicaSet', function () {
       });
     });
 
-    describe.only('reconfig', function () {
+    describe('reconfig', function () {
       it('reconfig with one less secondary', async function () {
         const newcfg: Partial<ReplSetConfig> = {
           _id: replId,
@@ -989,7 +989,7 @@ describe('ReplicaSet', function () {
       });
     });
 
-    describe.only('add member', function () {
+    describe('add member', function () {
       skipIfServerVersion(srv0, '< 4.4');
       it('adds a regular member to the config', async function () {
         const addWithRetry = createRetriableFunc(rs, 'add');

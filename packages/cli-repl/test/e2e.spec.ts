@@ -1392,7 +1392,7 @@ describe('e2e', function () {
       it('errors if an API version is specified', async function () {
         const shell = TestShell.start({
           args: [
-            `${await testServer.connectionString()}/${dbName}`,
+            await testServer.connectionString({}, { pathname: `/${dbName}` }),
             '--apiVersion',
             '1',
           ],
