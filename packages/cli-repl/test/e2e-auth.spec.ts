@@ -1075,6 +1075,7 @@ describe('Auth e2e', function () {
           'Miscellaneous failure (see text): Unable to find realm of host localhost',
           'Miscellaneous failure (see text): no credential for',
           "Unsupported mechanism 'GSSAPI' on authentication database '$external'",
+          'The specified target is unknown or unreachable',
         ];
         expect(messages.some((msg) => shell.output.includes(msg))).to.equal(
           true,
