@@ -481,6 +481,10 @@ export default class ShellInstanceState {
 
   // eslint-disable-next-line @typescript-eslint/require-await
   async getDefaultPrompt(): Promise<string> {
+    if (this.connectionInfo?.extraInfo?.is_stream) {
+      return 'AtlasStreamProcessing> ';
+    }
+
     const prefix = this.getDefaultPromptPrefix();
     const topologyInfo = this.getTopologySpecificPrompt();
     let dbname = '';
