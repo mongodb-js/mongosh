@@ -24,32 +24,36 @@ jobs:
           git config --local user.name "github-actions[bot]"
       - name: Update THIRD_PARTY_NOTICES.md
         run: npm run update-third-party-notices
-      - name: Commit THIRD_PARTY_NOTICES changes
-        run: |
-          git commit --no-allow-empty -m "chore: update THIRD_PARTY_NOTICES" THIRD_PARTY_NOTICES.md || true
       - name: Update AUTHORS
         run: npm run update-authors
-      - name: Commit AUTHORS changes
-        run: |
-          git add AUTHORS \*/AUTHORS
-          git commit --no-allow-empty -m "chore: update AUTHORS" || true
       - name: Generate Error Documentation
         run: |
           npm run generate-error-overview
           mv error-overview.md error-overview.rst packages/errors/generated/
-      - name: Commit Error Documentation changes
-        run: |
-          git add packages/errors/generated
-          git commit --no-allow-empty -m "chore: update error documentation" || true
       - name: Regenerate Evergreen Config
         run: |
           npm run update-evergreen-config
-      - name: Commit Error Documentation changes
-        run: |
-          git add .evergreen.yml
-          git commit --no-allow-empty -m "chore: update evergreen config" || true
-      - name: Push updates
-        uses: ad-m/github-push-action@v0.6.0
+      - name: create pull request
+        uses: peter-evans/create-pull-request@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: main
+          commit-message: Update auto-generated files
+          branch: ci/cron-tasks-update-files
+          title: 'chore: update AUTHORS and THIRD-PARTY-NOTICES'
+          add-paths: |
+            THIRD-PARTY-NOTICES.md
+            AUTHORS
+            */AUTHORS
+            packages/errors/generated/error-overview.rst
+            packages/errors/generated/error-overview.md
+            .evergreen.yml
+          body: |
+            - Update auto generated files 
+
+      - name: Merge PR
+        env:
+          PULL_REQUEST_NUMBER: ${{steps.cpr.outputs.pull-request-number}}
+          # NOTE: we don't use a PAT so to not trigger further automation
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr merge $PULL_REQUEST_NUMBER --squash --delete-branch
+
