@@ -14,7 +14,7 @@ $wc.DownloadFile($url, $node_zip)
 Write-Output "$filename downloaded"
 Write-Output "Time taken: $((Get-Date).Subtract($start_time).Seconds) second(s)"
 
-Expand-Archive $node_zip -OutputPath $PSScriptRoot
+Expand-Archive $node_zip -DestinationPath $PSScriptRoot
 Get-ChildItem -Path $PSScriptRoot
 
 Set-Location -Path $node_dir
