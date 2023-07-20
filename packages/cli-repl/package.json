@@ -107,7 +107,7 @@
     "eslint": "^7.25.0",
     "lodash": "^4.17.21",
     "moment": "^2.29.1",
-    "mongodb": "^5.6.0",
+    "mongodb": "^5.7.0",
     "mongodb-crypt-library-dummy": "^1.0.2",
     "node-fetch": "^2.6.1",
     "prettier": "^2.8.8",
