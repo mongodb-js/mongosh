@@ -1376,10 +1376,12 @@ class CliServiceProvider
     options?: Document,
     dbOptions?: DbOptions
   ): Promise<Document[]> {
-    return this.db(database, dbOptions)
-      .collection(collection)
-      .listSearchIndexes(indexName, options)
-      .toArray();
+    const col = this.db(database, dbOptions).collection(collection);
+    if (indexName === undefined) {
+      return col.listSearchIndexes(options).toArray();
+    } else {
+      return col.listSearchIndexes(indexName, options).toArray();
+    }
   }
 
   createSearchIndexes(
