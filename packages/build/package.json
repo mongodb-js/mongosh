@@ -33,11 +33,6 @@
   "engines": {
     "node": ">=14.15.1"
   },
-  "dependency-check": {
-    "entries": [
-      "src/**/*.js"
-    ]
-  },
   "mongosh": {
     "unitTestsOnly": true
   },

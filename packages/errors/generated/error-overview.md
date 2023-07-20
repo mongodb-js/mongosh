@@ -5,8 +5,11 @@ To quickly find an error by its code, search for the code in this overview.
 ## Table of Contents
 
 - [@mongosh/async-rewriter2](#@mongosh/async-rewriter2)
+
 - [@mongosh/cli-repl](#@mongosh/cli-repl)
+
 - [@mongosh/errors](#@mongosh/errors)
+
 - [@mongosh/shell-api](#@mongosh/shell-api)
 
 ## @mongosh/async-rewriter2
