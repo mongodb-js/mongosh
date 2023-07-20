@@ -33,6 +33,7 @@ import { TransformMongoErrorPlugin } from './mongo-errors';
 import NoDatabase from './no-db';
 import type { ShellBson } from './shell-bson';
 import constructShellBson from './shell-bson';
+import { Streams } from './streams';
 
 /**
  * The subset of CLI options that is relevant for the shell API's behavior itself.
@@ -299,6 +300,11 @@ export default class ShellInstanceState {
         configurable: true,
         set: setFunc,
         get: () => this.currentDb,
+      });
+      // add the global "sp" for stream processing
+      const streams = Streams.newInstance(this);
+      Object.defineProperty(contextObject, 'sp', {
+        get: () => streams,
       });
     }
 
