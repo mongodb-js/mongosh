@@ -33,5 +33,3 @@ else
   echo "invalid value of NPM_DEPS_MODE: '$NPM_DEPS_MODE'"
   exit 1
 fi
-
-npm run evergreen-release bump
