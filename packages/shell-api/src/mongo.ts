@@ -617,6 +617,8 @@ export default class Mongo extends ShellApiClass {
           CommonErrors.InvalidArgument
         );
       }
+
+      // @ts-expect-error w is readonly
       concern.w = concernOrWValue as any;
 
       if (wtimeoutMSValue !== undefined) {
