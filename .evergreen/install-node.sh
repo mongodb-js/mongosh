@@ -43,7 +43,9 @@ else
   fi
 
   npm cache clear --force || true # Try to work around `Cannot read property 'pickAlgorithm' of null` errors in CI
-  npm i -g npm@8.x
+  # Started observing CI failures on RHEL 7.2 (s390x) for installing npm, all
+  # related to network issues hence adding a retry with backoff here.
+  bash "$BASEDIR/retry-with-backoff.sh" npm i -g npm@8.x
 fi
 
 . "$BASEDIR/setup-env.sh"
