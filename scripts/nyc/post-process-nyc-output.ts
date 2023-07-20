@@ -4,5 +4,13 @@ import { transformCoverageFiles } from './transform-coverage';
 const projectRoot = path.resolve(__dirname, '..', '..');
 transformCoverageFiles(
   projectRoot,
-  p => p.replace(projectRoot, '')
+  (p) => {
+    if (p.startsWith(projectRoot)) {
+      return p.replace(projectRoot, '');
+    }
+    else {
+      console.log(`${p} does not start with ${projectRoot}`);
+      return p;
+    }
+  }
 );
