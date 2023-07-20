@@ -57,9 +57,13 @@ functions:
           export NPM_DEPS_MODE=cli_build
 
           bash .evergreen/retry-with-backoff.sh" .evergreen/install-node.sh
+
+          source .evergreen/setup-env.sh
           bash .evergreen/retry-with-backoff.sh" .evergreen/install-npm-deps.sh
 
           npm run evergreen-release bump
+
+          bash .evergreen/retry-with-backoff.sh" npm run bootstrap-ci
 
           npm run compile
           tar cvzf compiled-ts.tgz packages/*/{lib,dist}
@@ -86,6 +90,8 @@ functions:
           export NPM_DEPS_MODE=${npm_deps_mode}
 
           bash .evergreen/retry-with-backoff.sh" .evergreen/install-node.sh
+          source .evergreen/setup-env.sh
+
           bash .evergreen/retry-with-backoff.sh" .evergreen/install-npm-deps.sh
 
           npm run evergreen-release bump
