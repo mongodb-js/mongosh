@@ -2478,6 +2478,7 @@ describe('Shell API (integration)', function () {
         expect(mongo.getWriteConcern()).to.deep.equal({
           w: 'majority',
           wtimeout: 200,
+          wtimeoutMS: 200,
         });
         expect(serviceProvider.mongoClient).to.not.equal(oldMC);
       });
