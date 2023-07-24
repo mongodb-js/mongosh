@@ -1,4 +1,3 @@
-'use strict';
 import child_process from 'child_process';
 import fs from 'fs';
 import path from 'path';
@@ -11,7 +10,7 @@ describe('java-shell tests', function() {
   const packageRoot = path.resolve(__dirname, '..', '..', '..') + '/';
 
   before(async function () {
-    process.env.JAVA_SHELL_MONGOSH_TEST_URI = await testServer.connectionString();
+    process.env.JAVA_SHELL_MONGOSH_TEST_URI = (await testServer.connectionString()).replace(/\/$/, '');
 
     const connectionString = await testServer.connectionString();
     const mongosh = child_process.spawn(
