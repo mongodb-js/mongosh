@@ -5541,6 +5541,17 @@ functions:
         permissions: private
         visibility: signed
         content_type: application/x-gzip
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          {
+          export NODE_JS_VERSION=${node_js_version}
+          source .evergreen/setup-env.sh
+          npm run check-coverage
+          }
 
   test_vscode:
     - command: shell.exec
