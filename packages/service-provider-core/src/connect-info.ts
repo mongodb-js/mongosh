@@ -55,22 +55,10 @@ export default function getConnectInfo(
     is_enterprise: getBuildInfo.isEnterprise(buildInfo),
     auth_type,
     is_data_federation,
-    is_stream: isStream(uri),
+    is_stream: getBuildInfo.isAtlasStream(uri),
     dl_version,
     atlas_version: atlasVersion?.atlasVersion ?? null,
     is_genuine,
     non_genuine_server_name,
   };
-}
-
-function isStream(uri: string): boolean {
-  try {
-    return (
-      getBuildInfo.isAtlas(uri) &&
-      !!/^atlas-stream-.+/.exec(new URL(uri).hostname)
-    );
-  } catch {
-    // invalid uri
-  }
-  return false;
 }
