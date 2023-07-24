@@ -11,43 +11,67 @@ jobs:
     name: Update automatically generated files
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
+        with:
+          # don't checkout a detatched HEAD
+          ref: ${{ github.head_ref }}
+
+          # this is important so git log can pick up on
+          # the whole history to generate the list of AUTHORS
+          fetch-depth: '0'
+
+      - name: Set up Git
+        run: |
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+
       - uses: actions/setup-node@v2
+        with:
+          node-version: ^16.x
+          cache: 'npm'
+
+      - name: Install npm@8
+        run: |
+          npm install -g npm@8
+
       - name: Install Dependencies and Compile
         run: |
           npm ci
           npm run bootstrap-ci
           npm run compile
-      - name: Set up Git
-        run: |
-          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
+
       - name: Update THIRD_PARTY_NOTICES.md
-        run: npm run update-third-party-notices
+        run: |
+          npm run update-third-party-notices
+          git commit --no-allow-empty -m "chore: update THIRD_PARTY_NOTICES" THIRD_PARTY_NOTICES.md || true
+
       - name: Update AUTHORS
-        run: npm run update-authors
+        run: |
+          npm run update-authors
+          git add AUTHORS \*/AUTHORS
+          git commit --no-allow-empty -m "chore: update AUTHORS" || true
+
       - name: Generate Error Documentation
         run: |
           npm run generate-error-overview
           mv error-overview.md error-overview.rst packages/errors/generated/
+          git add packages/errors/generated
+          git commit --no-allow-empty -m "chore: update error documentation" || true
+
       - name: Regenerate Evergreen Config
         run: |
           npm run update-evergreen-config
-      - name: create pull request
+          git add .evergreen.yml
+          git commit --no-allow-empty -m "chore: update evergreen config" || true
+
+      - name: Create pull request
         uses: peter-evans/create-pull-request@v4
         with:
           commit-message: Update auto-generated files
           branch: ci/cron-tasks-update-files
-          title: 'chore: update AUTHORS and THIRD-PARTY-NOTICES'
-          add-paths: |
-            THIRD-PARTY-NOTICES.md
-            AUTHORS
-            */AUTHORS
-            packages/errors/generated/error-overview.rst
-            packages/errors/generated/error-overview.md
-            .evergreen.yml
+          title: 'chore: update auto-generated files'
           body: |
-            - Update auto generated files 
+            - Update auto-generated files
 
       - name: Merge PR
         env:
@@ -56,4 +80,3 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh pr merge $PULL_REQUEST_NUMBER --squash --delete-branch
-
