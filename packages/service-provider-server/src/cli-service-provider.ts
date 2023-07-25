@@ -331,49 +331,29 @@ class CliServiceProvider
   async getConnectionInfo(): Promise<ConnectionInfo> {
     const topology = this.getTopology();
     const { version } = require('../package.json');
-    const [
-      buildInfo = null,
-      cmdLineOptsOrServerError = null,
-      atlasVersion = null,
-      fcv = null,
-    ] = await Promise.all([
-      this.runCommandWithCheck(
-        'admin',
-        { buildInfo: 1 },
-        this.baseCmdOptions
-      ).catch(() => {}),
-      this.runCommandWithCheck(
-        'admin',
-        { getCmdLineOpts: 1 },
-        this.baseCmdOptions
-      ).catch((e) => {
-        // mongodb-build-info.getGenuineMongoDB expects either
-        // the successful or failure response from server
-        // Ref: https://github.com/mongodb-js/mongodb-build-info/blob/9247eeba730a905397ad09fe5a377067edc49b34/index.js#L89
-        return {
-          ok: e.ok,
-          code: e.code,
-          errmsg: e.message,
-          operationTime: e.operationTime,
-        };
-      }),
-      this.runCommandWithCheck(
-        'admin',
-        { atlasVersion: 1 },
-        this.baseCmdOptions
-      ).catch(() => {}),
-      this.runCommandWithCheck(
-        'admin',
-        { getParameter: 1, featureCompatibilityVersion: 1 },
-        this.baseCmdOptions
-      ).catch(() => {}),
-    ]);
+    const [buildInfo = null, atlasVersion = null, fcv = null] =
+      await Promise.all([
+        this.runCommandWithCheck(
+          'admin',
+          { buildInfo: 1 },
+          this.baseCmdOptions
+        ).catch(() => {}),
+        this.runCommandWithCheck(
+          'admin',
+          { atlasVersion: 1 },
+          this.baseCmdOptions
+        ).catch(() => {}),
+        this.runCommandWithCheck(
+          'admin',
+          { getParameter: 1, featureCompatibilityVersion: 1 },
+          this.baseCmdOptions
+        ).catch(() => {}),
+      ]);
 
     const extraConnectionInfo = getConnectInfo(
       this.uri?.toString() ?? '',
       version,
       buildInfo,
-      cmdLineOptsOrServerError,
       atlasVersion,
       topology
     );
