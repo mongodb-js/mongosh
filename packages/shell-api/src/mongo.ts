@@ -62,6 +62,11 @@ import { ShellApiErrors } from './error-codes';
 import type { LogEntry } from './log-entry';
 import { parseAnyLogEntry } from './log-entry';
 
+/* Utility, inverse of Readonly<T> */
+type Mutable<T> = {
+  -readonly [P in keyof T]: T[P];
+};
+
 @shellApiClassDefault
 @classPlatforms(['CLI'])
 export default class Mongo extends ShellApiClass {
@@ -591,7 +596,7 @@ export default class Mongo extends ShellApiClass {
     jValue?: boolean | undefined
   ): Promise<void> {
     const options: MongoClientOptions = {};
-    let concern: WriteConcern;
+    let concern: Mutable<WriteConcern>;
 
     if (typeof concernOrWValue === 'object') {
       if (wtimeoutMSValue !== undefined || jValue !== undefined) {
@@ -617,6 +622,7 @@ export default class Mongo extends ShellApiClass {
           CommonErrors.InvalidArgument
         );
       }
+
       concern.w = concernOrWValue as any;
 
       if (wtimeoutMSValue !== undefined) {
