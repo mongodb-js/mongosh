@@ -804,11 +804,12 @@ export class CliRepl implements MongoshIOProvider {
    */
   isPasswordMissingURI(cs: ConnectionString): boolean {
     return !!(
-      (
-        cs.username &&
-        !cs.password &&
-        cs.searchParams.get('authMechanism') !== 'GSSAPI'
-      ) // no need for a password for Kerberos
+      cs.username &&
+      !cs.password &&
+      // Only password-based mechanisms require a password, including the default SCRAM-SHA-* ones
+      ['', 'MONGODB-CR', 'PLAIN', 'SCRAM-SHA-1', 'SCRAM-SHA-256'].includes(
+        cs.searchParams.get('authMechanism') ?? ''
+      )
     );
   }
 
