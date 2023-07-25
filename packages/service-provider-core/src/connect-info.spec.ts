@@ -41,19 +41,6 @@ describe('getConnectInfo', function () {
     ok: 1,
   };
 
-  const CMD_LINE_OPTS = {
-    argv: [
-      '/opt/mongodb-osx-x86_64-enterprise-3.6.3/bin/mongod',
-      '--dbpath=/Users/user/testdata',
-    ],
-    parsed: {
-      storage: {
-        dbPath: '/Users/user/testdata',
-      },
-    },
-    ok: 1,
-  };
-
   const ATLAS_VERSION = {
     atlasVersion: '20210330.0.0.1617063608',
     gitVersion: '8f7e5bdde713391e8123a463895bb7fb660a5ffd',
@@ -98,7 +85,6 @@ describe('getConnectInfo', function () {
         ATLAS_URI,
         '0.0.6',
         BUILD_INFO,
-        CMD_LINE_OPTS,
         ATLAS_VERSION,
         TOPOLOGY_WITH_CREDENTIALS
       )
@@ -129,7 +115,6 @@ describe('getConnectInfo', function () {
         ATLAS_URI,
         '0.0.6',
         BUILD_INFO,
-        CMD_LINE_OPTS,
         ATLAS_VERSION,
         TOPOLOGY_NO_CREDENTIALS
       )
@@ -156,14 +141,7 @@ describe('getConnectInfo', function () {
       uri: '',
     };
     expect(
-      getConnectInfo(
-        '',
-        '0.0.6',
-        BUILD_INFO,
-        CMD_LINE_OPTS,
-        null,
-        TOPOLOGY_WITH_CREDENTIALS
-      )
+      getConnectInfo('', '0.0.6', BUILD_INFO, null, TOPOLOGY_WITH_CREDENTIALS)
     ).to.deep.equal(output);
   });
 
@@ -187,14 +165,7 @@ describe('getConnectInfo', function () {
       uri: '',
     };
     expect(
-      getConnectInfo(
-        '',
-        '0.0.6',
-        null,
-        CMD_LINE_OPTS,
-        null,
-        TOPOLOGY_WITH_CREDENTIALS
-      )
+      getConnectInfo('', '0.0.6', null, null, TOPOLOGY_WITH_CREDENTIALS)
     ).to.deep.equal(output);
   });
 });

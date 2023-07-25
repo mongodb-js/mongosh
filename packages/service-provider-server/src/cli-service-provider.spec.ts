@@ -961,25 +961,18 @@ describe('CliServiceProvider', function () {
       expect(info.extraInfo.is_atlas).to.equal(false);
       expect(info.extraInfo.is_localhost).to.equal(true);
       expect(info.extraInfo.fcv).to.equal(undefined);
-      expect(dbStub.command).to.have.callCount(4);
+      expect(dbStub.command).to.have.callCount(3);
     });
 
     context('when connected to a DocumentDB deployment', function () {
       it('correctly gathers info on the fake deployment', async function () {
-        dbStub.command.callsFake(
-          (params) =>
-            new Promise((resolve, reject) => {
-              if (params.getCmdLineOpts) {
-                reject({
-                  ok: 0,
-                  code: 303,
-                  message: 'Feature not supported: getCmdLineOpts',
-                  operationTime: Date.now(),
-                });
-              } else {
-                resolve({ ok: 1 });
-              }
-            })
+        const serviceProvider = new CliServiceProvider(
+          clientStub,
+          bus,
+          dummyOptions,
+          new ConnectionString(
+            'mongodb://elastic-docdb-123456789.eu-central-1.docdb-elastic.amazonaws.com:27017'
+          )
         );
 
         const info = await serviceProvider.getConnectionInfo();
@@ -990,13 +983,14 @@ describe('CliServiceProvider', function () {
 
     context('when connected to a CosmosDB deployment', function () {
       it('correctly gathers info on the fake deployment', async function () {
-        // eslint-disable-next-line @typescript-eslint/require-await
-        dbStub.command.callsFake(async (params) => {
-          if (params.buildInfo) {
-            return { ok: 1, _t: 1 };
-          }
-          return { ok: 1 };
-        });
+        const serviceProvider = new CliServiceProvider(
+          clientStub,
+          bus,
+          dummyOptions,
+          new ConnectionString(
+            'mongodb+srv://compass-vcore.mongocluster.cosmos.azure.com'
+          )
+        );
 
         const info = await serviceProvider.getConnectionInfo();
         expect(info.extraInfo.is_genuine).to.be.false;
