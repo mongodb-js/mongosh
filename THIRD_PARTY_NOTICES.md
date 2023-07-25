@@ -172,7 +172,7 @@ Package|Version|License
 **[bplist-parser](#a012056f1b32796d923573a3b1ef72cf36943d95e5e2f6af0f7eeab57a21be24)**|0.2.0|MIT
 **[brace-expansion](#2ba3ee23cc6a2718243e9c0c59ce154058f292965f563aa291b459a414e863cb)**|1.1.11|MIT
 **[browserslist](#d54eefb35ac1d3a46ae384802f12ef6987091bf2933c24bbd50728e5eacb3486)**|4.21.9|MIT
-**[bson](#e93ced4120b51600a8ec6dfd5011e09677df2d1b3932a3423e33c84b8e0d8ec1)**|5.3.0|Apache-2.0
+**[bson](#8f4e378725ea2b2d6aea528bde67eeab7974475daeff7c40ad85e254bd623b49)**|5.4.0|Apache-2.0
 **[buffer-alloc-unsafe](#1022220a813dd092d3ced592ac36121a00bd08a9c2020e08ad370dc29ed217f0)**|1.1.0|MIT
 **[buffer-alloc](#d5cbc95b9dde4a46cd45334630efe3bc9025c904074bee845376bd60651441c0)**|1.2.0|MIT
 **[buffer-fill](#c3747dfd267829ceeb564a1717d0c65d88d2b366e215f640067abefac59e3fd4)**|1.0.0|MIT
@@ -317,7 +317,7 @@ Package|Version|License
 **[mongodb-crypt-library-version](#531dc8c5761d69d24f5e39457de5812ed3781da937aa64f94ed6f659bd72c142)**|1.0.3|Apache-2.0
 **[mongodb-log-writer](#4ae070b46b6b4330535f663805f95577c3d7db48e878002656aed26f3c5ce9f7)**|1.3.0|Apache-2.0
 **[mongodb-redact](#00a2cfed57df1e8b912b751b08bee4de24ad0189840c99820ebc00c1b219a421)**|0.2.2|Apache-2.0
-**[mongodb](#9d661fd2aedc03947456d8e0bf3f828e213a3c828ff2f172c6edad79ff221785)**|5.6.0|Apache-2.0
+**[mongodb](#57a36c29c4257cc17c77d07542a08f31d2de23b7b5af86bb888e3ba97972bc72)**|5.7.0|Apache-2.0
 **[ms](#484b814b85d5028e34246147c8fc901d33570202bd7cdc3703c0ed1078eba0aa)**|2.0.0|MIT
 **[ms](#0a987b2f79ff37005e452a5afa7dacd3042061a7077054d2ba9cabacd88506d2)**|2.1.2|MIT
 **[ms](#2083576c5af8054927640b4788059806d07e250a26066c9ccb2d928394fb9226)**|2.1.3|MIT
@@ -21106,8 +21106,8 @@ License files:
       
 
 
-<a id="e93ced4120b51600a8ec6dfd5011e09677df2d1b3932a3423e33c84b8e0d8ec1"></a>
-### [bson](https://www.npmjs.com/package/bson) (version 5.3.0)
+<a id="8f4e378725ea2b2d6aea528bde67eeab7974475daeff7c40ad85e254bd623b49"></a>
+### [bson](https://www.npmjs.com/package/bson) (version 5.4.0)
 License tags: Apache-2.0
 
 License files:
@@ -27701,8 +27701,8 @@ License files:
       
 
 
-<a id="9d661fd2aedc03947456d8e0bf3f828e213a3c828ff2f172c6edad79ff221785"></a>
-### [mongodb](https://www.npmjs.com/package/mongodb) (version 5.6.0)
+<a id="57a36c29c4257cc17c77d07542a08f31d2de23b7b5af86bb888e3ba97972bc72"></a>
+### [mongodb](https://www.npmjs.com/package/mongodb) (version 5.7.0)
 License tags: Apache-2.0
 
 License files:
