@@ -5524,6 +5524,23 @@ functions:
         shell: bash
         script: |
           set -e
+          tar cvzf full-nyc-output.tgz .nyc_output
+    - command: s3.put
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/full-nyc-output.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/full-nyc-output.tgz
+        bucket: mciuploads
+        permissions: private
+        visibility: signed
+        content_type: application/x-gzip
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
           {
           export NODE_JS_VERSION=${node_js_version}
           source .evergreen/setup-env.sh
