@@ -862,7 +862,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_16) %>"
-          mongosh_server_test_version: "<% out(mVersion) %>"
+          mongosh_server_test_version: "<% out(mVersion) %>-enterprise"
           mongosh_test_e2e_force_fips: "<% out(fipsVariant === 'fips' ? '1' : '') %>"
   <% } } } %>
 
