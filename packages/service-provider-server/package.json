@@ -51,7 +51,7 @@
     "@mongosh/types": "0.0.0-dev.0",
     "@types/sinon-chai": "^3.2.4",
     "aws4": "^1.11.0",
-    "mongodb": "^5.6.0",
+    "mongodb": "^5.7.0",
     "mongodb-connection-string-url": "^2.6.0",
     "saslprep": "mongodb-js/saslprep#v1.0.4"
   },

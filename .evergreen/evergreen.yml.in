@@ -794,6 +794,8 @@ tasks:
           node_js_version: "<% out(NODE_JS_VERSION_16) %>"
           npm_deps_mode: all
       - func: test_connectivity
+        vars:
+          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
   - name: test_apistrict
     tags: ["extra-integration-test"]
     depends_on:

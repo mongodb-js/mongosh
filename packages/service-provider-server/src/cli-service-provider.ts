@@ -1356,13 +1356,12 @@ class CliServiceProvider
     options?: Document,
     dbOptions?: DbOptions
   ): Promise<Document[]> {
-    return (
-      this.db(database, dbOptions)
-        .collection(collection)
-        // @ts-expect-error still @internal
-        .listSearchIndexes(indexName, options)
-        .toArray()
-    );
+    const col = this.db(database, dbOptions).collection(collection);
+    if (indexName === undefined) {
+      return col.listSearchIndexes(options).toArray();
+    } else {
+      return col.listSearchIndexes(indexName, options).toArray();
+    }
   }
 
   createSearchIndexes(
@@ -1372,12 +1371,9 @@ class CliServiceProvider
     specs: { name: string; definition: Document }[],
     dbOptions?: DbOptions
   ): Promise<string[]> {
-    return (
-      this.db(database, dbOptions)
-        .collection(collection)
-        // @ts-expect-error still @internal
-        .createSearchIndexes(specs)
-    );
+    return this.db(database, dbOptions)
+      .collection(collection)
+      .createSearchIndexes(specs);
   }
 
   dropSearchIndex(
@@ -1386,12 +1382,9 @@ class CliServiceProvider
     indexName: string,
     dbOptions?: DbOptions
   ): Promise<void> {
-    return (
-      this.db(database, dbOptions)
-        .collection(collection)
-        // @ts-expect-error still @internal
-        .dropSearchIndex(indexName)
-    );
+    return this.db(database, dbOptions)
+      .collection(collection)
+      .dropSearchIndex(indexName);
   }
 
   updateSearchIndex(
@@ -1402,12 +1395,9 @@ class CliServiceProvider
     definition: Document,
     dbOptions?: DbOptions
   ): Promise<void> {
-    return (
-      this.db(database, dbOptions)
-        .collection(collection)
-        // @ts-expect-error still @internal
-        .updateSearchIndex(indexName, definition)
-    );
+    return this.db(database, dbOptions)
+      .collection(collection)
+      .updateSearchIndex(indexName, definition);
   }
 }
 

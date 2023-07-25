@@ -9097,6 +9097,8 @@ tasks:
           node_js_version: "16.20.1"
           npm_deps_mode: all
       - func: test_connectivity
+        vars:
+          node_js_version: "16.20.1"
   - name: test_apistrict
     tags: ["extra-integration-test"]
     depends_on:

@@ -12,7 +12,10 @@ if [ "$OS" != "Windows_NT" ]; then
   export NVM_DIR="$HOME/.nvm"
   echo "Setting NVM environment home: $NVM_DIR"
   [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+  set +x # nvm is very verbose
+  echo nvm use $NODE_JS_VERSION
   nvm use $NODE_JS_VERSION
+  set -x
   export PATH="$NVM_BIN:$PATH"
 
   export CC=gcc
