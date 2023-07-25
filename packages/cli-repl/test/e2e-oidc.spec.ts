@@ -144,6 +144,22 @@ describe('OIDC auth e2e', function () {
     shell.assertNoErrors();
   });
 
+  it('can successfully authenticate using OIDC Auth Code Flow when a username is specified', async function () {
+    shell = TestShell.start({
+      args: [
+        await testServer.connectionString(),
+        '--username=testuser',
+        '--authenticationMechanism=MONGODB-OIDC',
+        '--oidcRedirectUri=http://localhost:0/',
+        `--browser=${fetchBrowserFixture}`,
+      ],
+    });
+    await shell.waitForPrompt();
+
+    await verifyUser(shell, 'testuser', 'testServer-group');
+    shell.assertNoErrors();
+  });
+
   it('can successfully authenticate using OIDC Device Auth Flow', async function () {
     shell = TestShell.start({
       args: [
