@@ -150,8 +150,8 @@ describe('Shell BSON', function () {
       expect(s._bsontype).to.equal('ObjectId');
       expect(s.toHexString().slice(0, 8)).to.equal('12345678');
     });
-    it('can be created using createFromHexString', function () {
-      const s = (shellBson.ObjectId as any).createFromHexString(
+    it.only('can be created using createFromHexString', function () {
+      const s = shellBson.ObjectId.createFromHexString(
         '64c122afaf44ca299136bbc3'
       );
       expect(s._bsontype).to.equal('ObjectId');
