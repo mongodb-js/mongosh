@@ -91,7 +91,7 @@ describe('BSON e2e', function () {
       expect(output).to.include(outputDoc.RegExp);
       shell.assertNoErrors();
     });
-    it.only('Entire doc prints when created by user', async function () {
+    it('Entire doc prints when created by user', async function () {
       const value = `doc = {
         ObjectId: new ObjectId('5f16b8bebe434dc98cdfc9ca'),
         DBRef1: new DBRef('a', new ObjectId('5f16b8bebe434dc98cdfc9cb'), 'db'),
@@ -339,7 +339,7 @@ describe('BSON e2e', function () {
     it('BinData prints as BinData when created as invalid UUID', async function () {
       const value = 'UUID("abcdef")';
       expect(await shell.executeLine(value)).to.include(
-        'Binary(Buffer.from("abcdef", "hex"), 4)'
+        'Binary.createFromBase64("q83v")'
       );
       shell.assertNoErrors();
     });
