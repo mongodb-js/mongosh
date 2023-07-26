@@ -80,7 +80,7 @@ export const bsonStringifiers: Record<
       // In case somebody did something weird and used an UUID with a
       // non-standard length, fall through.
       default:
-        return `Binary(Buffer.from("${hexString}", "hex"), ${this.sub_type})`;
+        return `Binary.createFromBase64("${this.toString('base64')}")`;
     }
   },
 };
