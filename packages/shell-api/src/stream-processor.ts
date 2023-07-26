@@ -1,5 +1,3 @@
-import { promisify } from 'util';
-
 import type { Document } from '@mongosh/service-provider-core';
 
 import type Mongo from './mongo';
@@ -11,8 +9,6 @@ import {
 } from './decorators';
 
 import type { Streams } from './streams';
-
-const sleep = promisify(setTimeout);
 
 @shellApiClassDefault
 export default class StreamProcessor extends ShellApiWithMongoClass {
@@ -30,31 +26,28 @@ export default class StreamProcessor extends ShellApiWithMongoClass {
 
   @returnsPromise
   async start() {
-    const result = await this._streams._runCommand({
+    return await this._streams._runStreamCommand({
       startStreamProcessor: this.name,
     });
-    return result;
   }
 
   @returnsPromise
   async stop() {
-    const result = await this._streams._runCommand({
+    return await this._streams._runStreamCommand({
       stopStreamProcessor: this.name,
     });
-    return result;
   }
 
   @returnsPromise
   async drop() {
-    const result = await this._streams._runCommand({
+    return await this._streams._runStreamCommand({
       dropStreamProcessor: this.name,
     });
-    return result;
   }
 
   @returnsPromise
   async stats(options: Document = {}) {
-    return this._streams._runCommand({
+    return this._streams._runStreamCommand({
       getStreamProcessorStats: this.name,
       ...options,
     });
@@ -62,7 +55,7 @@ export default class StreamProcessor extends ShellApiWithMongoClass {
 
   @returnsPromise
   async sample(options: Document = {}) {
-    const r = await this._streams._runCommand({
+    const r = await this._streams._runStreamCommand({
       startSampleStreamProcessor: this.name,
       ...options,
     });
@@ -79,7 +72,7 @@ export default class StreamProcessor extends ShellApiWithMongoClass {
     let currentCursorId = cursorId;
     // keep pulling until end of stream
     while (currentCursorId !== 0) {
-      const res = await this._streams._runCommand({
+      const res = await this._streams._runStreamCommand({
         getMoreSampleStreamProcessor: this.name,
         cursorID: currentCursorId,
       });
@@ -100,7 +93,7 @@ export default class StreamProcessor extends ShellApiWithMongoClass {
         const interruptable = this._instanceState.interrupted.asPromise();
         try {
           await Promise.race([
-            sleep(1000), // wait 1 second
+            this._instanceState.shellApi.sleep(1000), // wait 1 second
             interruptable.promise, // unless interruppted
           ]);
         } finally {

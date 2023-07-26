@@ -3,37 +3,40 @@ import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
 
 import { MongoshInterruptedError } from './interruptor';
 import {
-  ShellApiWithMongoClass,
   returnsPromise,
   shellApiClassDefault,
+  ShellApiWithMongoClass,
 } from './decorators';
-import type ShellInstanceState from './shell-instance-state';
 import StreamProcessor from './stream-processor';
-import { ADMIN_DB, asPrintable } from './enums';
+import { ADMIN_DB, asPrintable, shellApiType } from './enums';
+import type Database from './database';
 import type Mongo from './mongo';
 
 @shellApiClassDefault
 export class Streams extends ShellApiWithMongoClass {
-  public static newInstance(instanceState: ShellInstanceState) {
-    return new Proxy(new Streams(instanceState), {
+  public static newInstance(database: Database) {
+    return new Proxy(new Streams(database), {
       get(target, prop) {
         const v = (target as any)[prop];
         if (v !== undefined) {
           return v;
         }
-        if (typeof prop === 'string') {
+        if (typeof prop === 'string' && !prop.startsWith('_')) {
           return target.getProcessor(prop);
         }
       },
     });
   }
 
-  constructor(private instanceState: ShellInstanceState) {
+  private _database: Database;
+
+  constructor(database: Database) {
     super();
+    this._database = database;
   }
 
   get _mongo(): Mongo {
-    return this.instanceState.currentDb._mongo;
+    return this._database._mongo;
   }
 
   [asPrintable](): string {
@@ -53,7 +56,7 @@ export class Streams extends ShellApiWithMongoClass {
         pipeline
       );
     }
-    const result = await this._runCommand({
+    const result = await this._runStreamCommand({
       processStreamProcessor: 1,
       pipeline,
       options,
@@ -81,13 +84,14 @@ export class Streams extends ShellApiWithMongoClass {
     try {
       await sp._sampleFrom(cursorId);
     } catch (err) {
-      // try to stop and drop the temp processor when interrupted
-      if (err instanceof MongoshInterruptedError) {
-        this._instanceState.messageBus.once(
-          'mongosh:interrupt-complete',
-          stopAndDrop
-        );
-      }
+      // try to stop and drop the temp processor on error
+      // wait until execution resumed if its interrupted
+      const isInterrupted = err instanceof MongoshInterruptedError;
+      Promise.resolve(
+        isInterrupted ? this._instanceState.onResumeExecution() : 0
+      )
+        .then(stopAndDrop)
+        .catch(() => void 0);
 
       throw err;
     }
@@ -100,7 +104,7 @@ export class Streams extends ShellApiWithMongoClass {
   async createStreamProcessor(
     name: string,
     pipeline: Document[],
-    options: Document
+    options?: Document
   ) {
     if (typeof name !== 'string' || name.trim() === '') {
       throw new MongoshInvalidInputError(
@@ -115,10 +119,10 @@ export class Streams extends ShellApiWithMongoClass {
         pipeline
       );
     }
-    const result = await this._runCommand({
+    const result = await this._runStreamCommand({
       createStreamProcessor: name,
       pipeline,
-      options,
+      ...(options ? { options } : {}),
     });
 
     if (result.ok !== 1) {
@@ -130,41 +134,40 @@ export class Streams extends ShellApiWithMongoClass {
 
   @returnsPromise
   async listStreamProcessors(filter: Document) {
-    const result = await this._runCommand({
+    const result = await this._runStreamCommand({
       listStreamProcessors: 1,
       filter,
     });
     if (result.ok !== 1) {
       return result;
     }
-    const processors = result.streamProcessors;
-    const sps = processors.map((sp: StreamProcessor) =>
+    const rawProcessors = result.streamProcessors;
+    const sps = rawProcessors.map((sp: StreamProcessor) =>
       this.getProcessor(sp.name)
     );
-    return Object.defineProperty(sps, asPrintable, {
-      value() {
-        return JSON.stringify(processors, null, 2);
-      },
+
+    return Object.defineProperties(sps, {
+      [asPrintable]: { value: () => rawProcessors },
+      [shellApiType]: { value: 'ListStreamProcessorsResult' },
     });
   }
 
   @returnsPromise
-  listConnections(filter: Document) {
-    return this._runCommand({
+  async listConnections(filter: Document) {
+    return this._runStreamCommand({
       listStreamConnections: 1,
       filter,
     });
   }
 
-  async _runCommand(cmd: Document, options: Document = {}) {
+  async _runStreamCommand(cmd: Document, options: Document = {}) {
     const { _mongo, _instanceState } = this;
     const interruptable = _instanceState.interrupted.asPromise();
     try {
-      const result = await Promise.race([
+      return await Promise.race([
         _mongo._serviceProvider.runCommand(ADMIN_DB, cmd, options), // run cmd
         interruptable.promise, // unless interruppted
       ]);
-      return result;
     } finally {
       interruptable.destroy();
     }
