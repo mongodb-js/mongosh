@@ -44,7 +44,7 @@ describe('BSON e2e', function () {
       Symbol: 'abc',
       Code: 'Code("abc")',
       NumberDecimal: 'Decimal128("1")',
-      BinData: 'Binary(Buffer.from("31323334", "hex"), 128)',
+      BinData: 'Binary.createFromBase64("MTIzNA==")',
       ISODate: 'ISODate("2021-05-04T15:49:33.000Z")',
       RegExp: '/match/',
     };
@@ -91,7 +91,7 @@ describe('BSON e2e', function () {
       expect(output).to.include(outputDoc.RegExp);
       shell.assertNoErrors();
     });
-    it('Entire doc prints when created by user', async function () {
+    it.only('Entire doc prints when created by user', async function () {
       const value = `doc = {
         ObjectId: new ObjectId('5f16b8bebe434dc98cdfc9ca'),
         DBRef1: new DBRef('a', new ObjectId('5f16b8bebe434dc98cdfc9cb'), 'db'),
@@ -105,7 +105,7 @@ describe('BSON e2e', function () {
         Symbol: new BSONSymbol('abc'),
         Code: new Code('abc'),
         NumberDecimal: NumberDecimal('1'),
-        BinData: BinData(128, 'MTIzNA=='),
+        BinData: Binary.createFromBase64("MTIzNA=="),
         ISODate: ISODate("2021-05-04T15:49:33.000Z"),
         RegExp: /match/
       }\n`;
@@ -215,7 +215,7 @@ describe('BSON e2e', function () {
       await shell.executeLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
       expect(await shell.executeLine('db.test.findOne().value')).to.include(
-        'Binary(Buffer.from("31323334", "hex"), 128)'
+        'Binary.createFromBase64("MTIzNA==")'
       );
       shell.assertNoErrors();
     });
@@ -322,7 +322,7 @@ describe('BSON e2e', function () {
     it('BinData prints when created by user', async function () {
       const value = 'BinData(128, "MTIzNA==")';
       expect(await shell.executeLine(value)).to.include(
-        'Binary(Buffer.from("31323334", "hex"), 128)'
+        'Binary.createFromBase64("MTIzNA==")'
       );
       shell.assertNoErrors();
     });

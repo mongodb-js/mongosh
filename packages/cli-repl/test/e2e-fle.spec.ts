@@ -365,7 +365,9 @@ describe('FLE tests', function () {
       `plainMongo.getDB('${dbname}').coll.find()`
     );
     expect(plainMongoResult).to.include("phoneNumber: '+98173247931847'");
-    expect(plainMongoResult).to.include('phoneNumber: Binary(Buffer.from');
+    expect(plainMongoResult).to.include(
+      'phoneNumber: Binary.createFromBase64('
+    );
     expect(plainMongoResult).to.not.include("phoneNumber: '+12874627836445'");
   });
 
