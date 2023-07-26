@@ -227,6 +227,7 @@ export default class ShellInstanceState {
     this.currentDb = newDb;
     this.context.rs = new ReplicaSet(this.currentDb);
     this.context.sh = new Shard(this.currentDb);
+    this.context.sp = Streams.newInstance(this.currentDb);
     this.fetchConnectionInfo().catch((err) =>
       this.messageBus.emit('mongosh:error', err, 'shell-api')
     );
@@ -282,6 +283,7 @@ export default class ShellInstanceState {
 
     contextObject.rs = new ReplicaSet(this.currentDb);
     contextObject.sh = new Shard(this.currentDb);
+    contextObject.sp = Streams.newInstance(this.currentDb);
 
     const setFunc = (newDb: any): Database => {
       if (getShellApiType(newDb) !== 'Database') {
@@ -300,11 +302,6 @@ export default class ShellInstanceState {
         configurable: true,
         set: setFunc,
         get: () => this.currentDb,
-      });
-      // add the global "sp" for stream processing
-      const streams = Streams.newInstance(this);
-      Object.defineProperty(contextObject, 'sp', {
-        get: () => streams,
       });
     }
 
