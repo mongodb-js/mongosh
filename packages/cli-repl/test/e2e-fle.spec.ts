@@ -149,7 +149,7 @@ describe('FLE tests', function () {
         const shell = await makeTestShell();
         await shell.executeLine(`db.keyVault.insertOne({
           _id: UUID("e7b4abe7-ff70-48c3-9d3a-3526e18c2646"),
-          keyMaterial: Binary.createFromBase64("AQICAHiIt7kIn5z4FgWcTALt8TnVAidSiyp0pcmRDIkJXUWp0QEzvUwEfyumENetTvzJRfhjAAAAwjCBvwYJKoZIhvcNAQcGoIGxMIGuAgEAMIGoBgkqhkiG9w0BBwEwHgYJYIZIAWUDBAEuMBEEDPQGucywD4PdYy526QIBEIB7nCs6Z2dG4QSG7GRGjUXsicrDD1mBK3EfwkUwGIFmxIH09Ks3bCWPj1Sv/chSNGj90HuE53shoUAIoj+20RHAXrQoe3uXPzpg1cfYcHQRm0JEdzZsvnLDHaj8drj3LjH2CcO0I8WZ0+SlnCHkoP4ifr4apTA4y5T3nEV7"),
+          keyMaterial: new Binary(Buffer.from("010202007888b7b9089f9cf816059c4c02edf139d50227528b2a74a5c9910c89095d45a9d10133bd4c047f2ba610d7ad4efcc945f863000000c23081bf06092a864886f70d010706a081b13081ae0201003081a806092a864886f70d010701301e060960864801650304012e3011040cf406b9ccb00f83dd632e76e9020110807b9c2b3a676746e10486ec64468d45ec89cac30f59812b711fc24530188166c481f4f4ab376c258f8f54affdc8523468fdd07b84e77b21a14008a23fb6d111c05eb4287b7b973f3a60d5c7d87074119b424477366cbe72c31da8fc76b8f72e31f609c3b423c599d3e4a59c21e4a0fe227ebe1aa53038cb94f79c457b", "hex"), 0),
           creationDate: ISODate('2021-02-10T15:51:00.567Z'),
           updateDate: ISODate('2021-02-10T15:51:00.567Z'),
           status: 0,
@@ -161,7 +161,7 @@ describe('FLE tests', function () {
         })`);
         await shell.executeLine(`db.data.insertOne({
           _id: ObjectId("602400ec9933cbed7fa92a1c"),
-          taxid: Binary.createFromBase64("Aue0q+f/cEjDnTo1JuGMJkYChG8SL6jBrhuK/z3HwgqKPbyVVB6NDXXLja8LfjE31VOniMy2LjH+0tqY6jpZaXLG3HwXu+b5qe3Dp/PirZaoGQ==")
+          taxid: new Binary(Buffer.from("02e7b4abe7ff7048c39d3a3526e18c264602846f122fa8c1ae1b8aff3dc7c20a8a3dbc95541e8d0d75cb8daf0b7e3137d553a788ccb62e31fed2da98ea3a596972c6dc7c17bbe6f9a9edc3a7f3e2ad96a819", "hex"), 6)
         });`);
         // This will try to automatically decrypt the data, but it will not succeed.
         // That does not matter here -- we're just checking that the HTTP requests
@@ -365,9 +365,7 @@ describe('FLE tests', function () {
       `plainMongo.getDB('${dbname}').coll.find()`
     );
     expect(plainMongoResult).to.include("phoneNumber: '+98173247931847'");
-    expect(plainMongoResult).to.include(
-      'phoneNumber: Binary.createFromBase64('
-    );
+    expect(plainMongoResult).to.include('phoneNumber: Binary(Buffer.from');
     expect(plainMongoResult).to.not.include("phoneNumber: '+12874627836445'");
   });
 
@@ -405,7 +403,7 @@ describe('FLE tests', function () {
         dataKey = new UUID("2871cd1d-8317-4d0c-92be-1ac934ed26b1");
         const dataKeyDoc =  {
           _id: new UUID("2871cd1d-8317-4d0c-92be-1ac934ed26b1"),
-          keyMaterial: Binary.createFromBase64("UZ4rFdIPAJVaOWCqsx5wqOP9tmESnvDYp1IpFZlIj4/aI8pk3cvO2T28cV0D9Fq1Oo6Cc/IjDEHA5k2e90bWlZy9wavPDp0CCFbi2gmpHvEprGDvE6mKvNXuDL+6IfHeFTl0mWqwAr3cz33AJo/tkKFy3Dc+kLY7wjaaWhv8eODC19geZelwo4ylhSSP71O3BFJocCS47NMIkwolQUUY4w=="),
+          keyMaterial: Binary(Buffer.from("519e2b15d20f00955a3960aab31e70a8e3fdb661129ef0d8a752291599488f8fda23ca64ddcbced93dbc715d03f45ab53a8e8273f2230c41c0e64d9ef746d6959cbdc1abcf0e9d020856e2da09a91ef129ac60ef13a98abcd5ee0cbfba21f1de153974996ab002bddccf7dc0268fed90a172dc373e90b63bc2369a5a1bfc78e0c2d7d81e65e970a38ca585248fef53b70452687024b8ecd308930a25414518e3", "hex"), 0),
           creationDate: ISODate("2023-05-05T10:58:12.473Z"),
           updateDate: ISODate("2023-05-05T10:58:12.473Z"),
           status: 0,
@@ -431,16 +429,16 @@ describe('FLE tests', function () {
           documents: [
             {
               _id: 'asdf',
-              v: Binary.createFromBase64("ByhxzR2DF00Mkr4ayTTtJrECVDjaf5A0p9a/A0Usm5EDgaFrSg1SWS7W6vxkzEXd5EGsE2JptGBvGX6Tn9VN2fslfOLFr+lIU7OxUKkQHWWjBj+UjOBTUPxKWBHrXyl5Pf1anKt3xoC7oX+RhFiVz9CAwSPgKj8cfl1cjGRIoKx9YkZp0DBr5v3Oo1EGBi50K+w5qYc96WkZatlZYNS8JH6Y3IijPZyXRkbIKDF48xmHScfyTb1m3F5+z0LvwI9ktqZGqlDocqbzCQe1QkkDnzImr1A9Li6UcyM="),
+              v: Binary(Buffer.from("072871cd1d83174d0c92be1ac934ed26b1025438da7f9034a7d6bf03452c9b910381a16b4a0d52592ed6eafc64cc45dde441ac136269b4606f197e939fd54dd9fb257ce2c5afe94853b3b150a9101d65a3063f948ce05350fc4a5811eb5f29793dfd5a9cab77c680bba17f91845895cfd080c123e02a3f1c7e5d5c8c6448a0ac7d624669d0306be6fdcea35106062e742bec39a9873de969196ad95960d4bc247e98dc88a33d9c974646c8283178f3198749c7f24dbd66dc5e7ecf42efc08f64b6a646aa50e872a6f30907b54249039f3226af503d2e2e947323", "hex"), 6),
               __safeContent__: [
-                Binary.createFromBase64("kYZdBKGhcZ4u+J1m7rijVRXyJHBViDH+lJTwEemiCcM=")
+                Binary(Buffer.from("91865d04a1a1719e2ef89d66eeb8a35515f22470558831fe9494f011e9a209c3", "hex"), 0)
               ]
             },
             {
               _id: 'ghjk',
-              v: Binary.createFromBase64("ByhxzR2DF00Mkr4ayTTtJrECmfNCEPFJZzth8NNp+JKQV3xBC4AP847RDuwjWu82d9NZTGNx3VuPjUw0dpIov3rqALF1QDalhQpP7yXECWlFEVFpVhSuYULpVLq2xyCAtfQ8ysd09qF5G8wspMqJmLnVFIRBGAYxx9gTYDT/UBnKMaCCRk7C/c8hJGChIdFN7DuO4xNUHcRmiceWNpKfCCjf3vff1NU+GpJLv3C+NLFmjZNS9hAqMiZexF2cXMDXz1+SZs8WFJfuW0qUleFpJrCSgsbkAp0i2I4="),
+              v: Binary(Buffer.from("072871cd1d83174d0c92be1ac934ed26b10299f34210f149673b61f0d369f89290577c410b800ff38ed10eec235aef3677d3594c6371dd5b8f8d4c34769228bf7aea00b1754036a5850a4fef25c40969451151695614ae6142e954bab6c72080b5f43ccac774f6a1791bcc2ca4ca8998b9d5148441180631c7d8136034ff5019ca31a082464ec2fdcf212460a121d14dec3b8ee313541dc46689c79636929f0828dfdef7dfd4d53e1a924bbf70be34b1668d9352f6102a32265ec45d9c5cc0d7cf5f9266cf161497ee5b4a9495e16926b09282c6e4029d22d88e", "hex"), 6),
               __safeContent__: [
-                Binary.createFromBase64("sE4mYz1WnLR7nL7GUNgSpZf/2trLmmHuexZh9SIo1mE=")
+                Binary(Buffer.from("b04e26633d569cb47b9cbec650d812a597ffdadacb9a61ee7b1661f52228d661", "hex"), 0)
               ]
             }
           ],
@@ -453,12 +451,12 @@ describe('FLE tests', function () {
             {
               _id: ObjectId("6454e14689ef42f381f7336b"),
               fieldName: 'v',
-              value: Binary.createFromBase64("PridOpXPlVygyMVuVAGGV6RdqvRl3ZZ9mySJWhiNfjBVc088CviDAs6rRgh084Bv5S+kVByfSzK1zubFpt+TmdpmT1dt2b3iO86S9d7qDLM=")
+              value: Binary(Buffer.from("3eb89d3a95cf955ca0c8c56e54018657a45daaf465dd967d9b24895a188d7e3055734f3c0af88302ceab460874f3806fe52fa4541c9f4b32b5cee6c5a6df9399da664f576dd9bde23bce92f5deea0cb3", "hex"), 0)
             },
             {
               _id: ObjectId("6454e14689ef42f381f73385"),
               fieldName: 'v',
-              value: Binary.createFromBase64("IpnNgFoo77ZQMSDgJQeY8bGRN9gjRpDRLrfjt/p07dKOgMJgIsANU/WYPxbntau3w7leMPJlp7o2rbKQ7aOTcLMM7bqWCkACCJ613i/RGPw=")
+              value: Binary(Buffer.from("2299cd805a28efb6503120e0250798f1b19137d8234690d12eb7e3b7fa74edd28e80c26022c00d53f5983f16e7b5abb7c3b95e30f265a7ba36adb290eda39370b30cedba960a4002089eb5de2fd118fc", "hex"), 0)
             }
           ],
           bypassDocumentValidation: true
@@ -468,12 +466,12 @@ describe('FLE tests', function () {
           insert: 'enxcol_.encryptiontest.esc',
           documents: [
             {
-              _id: Binary.createFromBase64("UdtwDfAsu/olSYkh+FjTqdVWjKu5f3KD57PJ0ONSCsQ="),
-              value: Binary.createFromBase64("3HFp8o3yyZBVGwmLjeyPWxv+tl0/QND9skGlGDEGdKY=")
+              _id: Binary(Buffer.from("51db700df02cbbfa25498921f858d3a9d5568cabb97f7283e7b3c9d0e3520ac4", "hex"), 0),
+              value: Binary(Buffer.from("dc7169f28df2c990551b098b8dec8f5b1bfeb65d3f40d0fdb241a518310674a6", "hex"), 0)
             },
             {
-              _id: Binary.createFromBase64("lIs9KeM1SFsFA//Grea/pvzmZMKh0UeQpSPAkiPaPwk="),
-              value: Binary.createFromBase64("diIJdHbFnAylv50FpS/nJVF+A62BH2wHOw0BhKnSYTE=")
+              _id: Binary(Buffer.from("948b3d29e335485b0503ffc6ade6bfa6fce664c2a1d14790a523c09223da3f09", "hex"), 0),
+              value: Binary(Buffer.from("7622097476c59c0ca5bf9d05a52fe725517e03ad811f6c073b0d0184a9d26131", "hex"), 0)
             }
           ],
           bypassDocumentValidation: true
