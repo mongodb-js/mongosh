@@ -1,5 +1,5 @@
 import {
-  MlaunchSetup,
+  MongoRunnerSetup,
   skipIfApiStrict,
   skipIfEnvServerVersion,
 } from '../../../testing/integration-testing-hooks';
@@ -14,8 +14,8 @@ describe('OIDC auth e2e', function () {
 
   let getTokenPayload: typeof oidcMockProviderConfig.getTokenPayload;
   let tokenFetches: number;
-  let testServer: MlaunchSetup;
-  let testServer2: MlaunchSetup;
+  let testServer: MongoRunnerSetup;
+  let testServer2: MongoRunnerSetup;
   let oidcMockProviderConfig: OIDCMockProviderConfig;
   let oidcMockProvider: OIDCMockProvider;
   let shell: TestShell;
@@ -69,20 +69,22 @@ describe('OIDC auth e2e', function () {
       '--setParameter',
       'enableTestCommands=true',
     ];
-    testServer = new MlaunchSetup([
-      '--setParameter',
-      // weird quoting to work around mlaunch
-      `"'oidcIdentityProviders=${JSON.stringify([serverOidcConfig])}'"`,
-      ...commonOidcServerArgs,
-    ]);
-    testServer2 = new MlaunchSetup([
-      '--setParameter',
-      // weird quoting to work around mlaunch
-      `"'oidcIdentityProviders=${JSON.stringify([
-        { ...serverOidcConfig, clientId: 'testServer2' },
-      ])}'"`,
-      ...commonOidcServerArgs,
-    ]);
+    testServer = new MongoRunnerSetup({
+      args: [
+        '--setParameter',
+        `oidcIdentityProviders=${JSON.stringify([serverOidcConfig])}`,
+        ...commonOidcServerArgs,
+      ],
+    });
+    testServer2 = new MongoRunnerSetup({
+      args: [
+        '--setParameter',
+        `oidcIdentityProviders=${JSON.stringify([
+          { ...serverOidcConfig, clientId: 'testServer2' },
+        ])}`,
+        ...commonOidcServerArgs,
+      ],
+    });
     await Promise.all([testServer.start(), testServer2.start()]);
   });
 

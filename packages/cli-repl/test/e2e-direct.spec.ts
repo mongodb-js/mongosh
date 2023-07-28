@@ -21,9 +21,9 @@ describe('e2e direct connection', function () {
   context('to a replica set', function () {
     const replSetId = 'replset';
     const [rs0, rs1, rs2] = startTestCluster(
-      ['--single', '--replSet', replSetId],
-      ['--single', '--replSet', replSetId],
-      ['--single', '--replSet', replSetId]
+      { args: ['--replSet', replSetId] },
+      { args: ['--replSet', replSetId] },
+      { args: ['--replSet', replSetId] }
     );
 
     [
@@ -121,7 +121,9 @@ describe('e2e direct connection', function () {
         it('lists collections when readPreference is in the connection string', async function () {
           const shell = TestShell.start({
             args: [
-              `${await rs1.connectionString()}?readPreference=secondaryPreferred`,
+              await rs1.connectionString({
+                readPreference: 'secondaryPreferred',
+              }),
             ],
           });
           await shell.waitForPrompt();
@@ -132,7 +134,7 @@ describe('e2e direct connection', function () {
 
         it('lists collections when readPreference is set via Mongo', async function () {
           const shell = TestShell.start({
-            args: [`${await rs1.connectionString()}`],
+            args: [await rs1.connectionString()],
           });
           await shell.waitForPrompt();
           await shell.executeLine('use admin');
@@ -145,7 +147,7 @@ describe('e2e direct connection', function () {
 
         it('fails to list databases without explicit readPreference', async function () {
           const shell = TestShell.start({
-            args: [`${await rs1.connectionString()}`],
+            args: [await rs1.connectionString()],
           });
           await shell.waitForPrompt();
           await shell.executeLine('use admin');
@@ -156,7 +158,9 @@ describe('e2e direct connection', function () {
         it('lists databases when readPreference is in the connection string', async function () {
           const shell = TestShell.start({
             args: [
-              `${await rs1.connectionString()}?readPreference=secondaryPreferred`,
+              await rs1.connectionString({
+                readPreference: 'secondaryPreferred',
+              }),
             ],
           });
           await shell.waitForPrompt();
@@ -167,7 +171,7 @@ describe('e2e direct connection', function () {
 
         it('lists databases when readPreference is set via Mongo', async function () {
           const shell = TestShell.start({
-            args: [`${await rs1.connectionString()}`],
+            args: [await rs1.connectionString()],
           });
           await shell.waitForPrompt();
           await shell.executeLine('use admin');
@@ -180,7 +184,7 @@ describe('e2e direct connection', function () {
 
         it('lists collections and dbs using show by default', async function () {
           const shell = TestShell.start({
-            args: [`${await rs1.connectionString()}`],
+            args: [await rs1.connectionString()],
           });
           await shell.waitForPrompt();
           await shell.executeLine('use admin');
@@ -195,7 +199,7 @@ describe('e2e direct connection', function () {
             return this.skip(); // https://jira.mongodb.org/browse/MONGOSH-746
           }
           const shell = TestShell.start({
-            args: [`${await rs1.connectionString()}/${dbname}`],
+            args: [await rs1.connectionString({}, { pathname: `/${dbname}` })],
             forceTerminal: true,
           });
           await shell.waitForPrompt();
@@ -212,7 +216,16 @@ describe('e2e direct connection', function () {
           it('allows aggregate with $merge with secondary readpref', async function () {
             const shell = TestShell.start({
               args: [
-                `${await rs1.connectionString()}/${dbname}?readPreference=secondary&directConnection=false&serverSelectionTimeoutMS=10000`,
+                await rs1.connectionString(
+                  {
+                    readPreference: 'secondary',
+                    directConnection: 'false',
+                    serverSelectionTimeoutMS: '1000',
+                  },
+                  {
+                    pathname: `/${dbname}`,
+                  }
+                ),
               ],
             });
             await shell.waitForPrompt();
@@ -234,7 +247,7 @@ describe('e2e direct connection', function () {
       context('connecting to primary', function () {
         it('when specifying replicaSet', async function () {
           const shell = TestShell.start({
-            args: [`${await rs1.connectionString()}?replicaSet=${replSetId}`],
+            args: [await rs1.connectionString({ replicaSet: replSetId })],
           });
           await shell.waitForPrompt();
           await shell.executeLine('db.isMaster()');
@@ -244,7 +257,7 @@ describe('e2e direct connection', function () {
         });
         it('when setting directConnection to false', async function () {
           const shell = TestShell.start({
-            args: [`${await rs1.connectionString()}?directConnection=false`],
+            args: [await rs1.connectionString({ directConnection: 'false' })],
           });
           await shell.waitForPrompt();
           await shell.executeLine('db.isMaster()');
@@ -352,7 +365,7 @@ describe('e2e direct connection', function () {
             return this.skip(); // https://jira.mongodb.org/browse/MONGOSH-746
           }
           const shell = TestShell.start({
-            args: [`${await rs1.connectionString()}/${dbname}`],
+            args: [await rs1.connectionString({}, { pathname: `/${dbname}` })],
             forceTerminal: true,
           });
           await shell.waitForPrompt();

@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Tue Jul 25 2023.
+This document was automatically generated on Fri Jul 28 2023.
 
 ## List of dependencies
 
@@ -327,7 +327,7 @@ Package|Version|License
 **[neo-async](#47d65f78cd1f43f95f702f515559067af0a5b62ad1b167a4a7d2b3dc5038eea7)**|2.6.2|MIT
 **[node-abi](#6b6e3668c7b638fe3bdbdfe7e5929922e46f2599ca98e8639bc88e733ce652fe)**|3.33.0|MIT
 **[node-addon-api](#af9f7588524ca4e68f4efe7b24aea46d9c8004263b1d7cf3b558f86d87a163e8)**|4.3.0|MIT
-**[node-fetch](#364527ef1b51cc6ac34872b931049c9e25b5014f9b40e3898c84e1a830e21720)**|2.6.7|MIT
+**[node-fetch](#267743babd2645bb1f323618ac57ea7b4b3ce2c6fb644b462cc480236e2ba99e)**|2.6.12|MIT
 **[nopt](#fbf206ce137e18ded38133b05fa8623c287129749e1a5575956a2c0c4388e471)**|5.0.0|ISC
 **[npm-run-path](#b21248abecb88119fcf2885e5471cd9235f40d356cba189a348def4b8a6046bd)**|4.0.1|MIT
 **[npm-run-path](#372e960fd5d56ee0c4a7a39def16250bd3e0f663ebda006c18afe5c9d2ef4bec)**|5.1.0|MIT
@@ -28175,8 +28175,8 @@ License files:
       THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-<a id="364527ef1b51cc6ac34872b931049c9e25b5014f9b40e3898c84e1a830e21720"></a>
-### [node-fetch](https://www.npmjs.com/package/node-fetch) (version 2.6.7)
+<a id="267743babd2645bb1f323618ac57ea7b4b3ce2c6fb644b462cc480236e2ba99e"></a>
+### [node-fetch](https://www.npmjs.com/package/node-fetch) (version 2.6.12)
 License tags: MIT
 
 License files:

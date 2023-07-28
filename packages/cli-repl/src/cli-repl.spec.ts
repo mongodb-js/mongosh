@@ -1971,7 +1971,10 @@ describe('CliRepl', function () {
 
   context('with a replset node', function () {
     verifyAutocompletion({
-      testServer: startTestServer('not-shared', '--replicaset', '--nodes', '1'),
+      testServer: startTestServer('not-shared', {
+        topology: 'replset',
+        secondaries: 0,
+      }),
       wantWatch: true,
       wantShardDistribution: false,
       hasCollectionNames: true,
@@ -1981,13 +1984,11 @@ describe('CliRepl', function () {
 
   context('with a mongos', function () {
     verifyAutocompletion({
-      testServer: startTestServer(
-        'not-shared',
-        '--replicaset',
-        '--csrs',
-        '--sharded',
-        '0'
-      ),
+      testServer: startTestServer('not-shared', {
+        topology: 'sharded',
+        shards: 1,
+        secondaries: 0,
+      }),
       wantWatch: true,
       wantShardDistribution: true,
       hasCollectionNames: false, // We're only spinning up a mongos here
@@ -1997,7 +1998,9 @@ describe('CliRepl', function () {
 
   context('with an auth-required mongod', function () {
     verifyAutocompletion({
-      testServer: startTestServer('not-shared', '--auth'),
+      testServer: startTestServer('not-shared', {
+        args: ['--auth'],
+      }),
       wantWatch: false,
       wantShardDistribution: false,
       hasCollectionNames: false,
