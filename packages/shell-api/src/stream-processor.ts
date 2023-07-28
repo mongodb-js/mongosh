@@ -74,7 +74,7 @@ export default class StreamProcessor extends ShellApiWithMongoClass {
     while (currentCursorId !== 0) {
       const res = await this._streams._runStreamCommand({
         getMoreSampleStreamProcessor: this.name,
-        cursorID: currentCursorId,
+        cursorId: currentCursorId,
       });
 
       if (res.ok !== 1) {

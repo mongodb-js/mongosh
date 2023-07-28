@@ -48,7 +48,7 @@ export class Streams extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
-  async process(pipeline: Document[], options: Document = {}) {
+  async process(pipeline: Document[], options?: Document) {
     if (!Array.isArray(pipeline) || !pipeline.length) {
       throw new MongoshInvalidInputError(
         'Invalid pipeline',
@@ -57,9 +57,8 @@ export class Streams extends ShellApiWithMongoClass {
       );
     }
     const result = await this._runStreamCommand({
-      processStreamProcessor: 1,
-      pipeline,
-      options,
+      processStreamProcessor: pipeline,
+      ...(options ? { options } : {}),
     });
 
     if (result.ok !== 1) {
