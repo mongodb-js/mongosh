@@ -1,8 +1,8 @@
 /* istanbul ignore file */
 import path from 'path';
 import { promises as fs, constants as fsConstants } from 'fs';
-import type { DownloadOptions } from '../download-mongodb';
-import { downloadMongoDb } from '../download-mongodb';
+import type { DownloadOptions } from '@mongodb-js/mongodb-downloader';
+import { downloadMongoDb } from '@mongodb-js/mongodb-downloader';
 import type { PackageVariant } from '../config';
 import { getDistro, getArch } from '../config';
 

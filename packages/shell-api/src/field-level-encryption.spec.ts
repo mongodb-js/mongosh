@@ -799,7 +799,7 @@ describe('Field Level Encryption', function () {
 
     beforeEach(async function () {
       dbname = `test_fle_${Date.now()}`;
-      uri = `${await testServer.connectionString()}/${dbname}`;
+      uri = await testServer.connectionString();
       serviceProvider = await CliServiceProvider.connect(
         uri,
         dummyOptions,

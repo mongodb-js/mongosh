@@ -6488,7 +6488,7 @@ tasks:
           npm_deps_mode: all
       - func: test
         vars:
-          mongosh_server_test_version: "latest-alpha"
+          mongosh_server_test_version: "latest-alpha-enterprise"
           node_js_version: "16.20.1"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "mlatest_n16_cli_repl"
@@ -6686,7 +6686,7 @@ tasks:
           npm_deps_mode: all
       - func: test
         vars:
-          mongosh_server_test_version: "latest-alpha"
+          mongosh_server_test_version: "latest-alpha-enterprise"
           node_js_version: "14.21.3"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "mlatest_n14_cli_repl"
@@ -7064,7 +7064,7 @@ tasks:
           npm_deps_mode: all
       - func: test
         vars:
-          mongosh_server_test_version: "latest-alpha"
+          mongosh_server_test_version: "latest-alpha-enterprise"
           node_js_version: "16.20.1"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "mlatest_n16_java_shell"
@@ -7262,7 +7262,7 @@ tasks:
           npm_deps_mode: all
       - func: test
         vars:
-          mongosh_server_test_version: "latest-alpha"
+          mongosh_server_test_version: "latest-alpha-enterprise"
           node_js_version: "14.21.3"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "mlatest_n14_java_shell"
@@ -7532,7 +7532,7 @@ tasks:
           npm_deps_mode: all
       - func: test
         vars:
-          mongosh_server_test_version: "latest-alpha"
+          mongosh_server_test_version: "latest-alpha-enterprise"
           node_js_version: "16.20.1"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "mlatest_n16_mongosh"
@@ -7730,7 +7730,7 @@ tasks:
           npm_deps_mode: all
       - func: test
         vars:
-          mongosh_server_test_version: "latest-alpha"
+          mongosh_server_test_version: "latest-alpha-enterprise"
           node_js_version: "14.21.3"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "mlatest_n14_mongosh"
@@ -7928,7 +7928,7 @@ tasks:
           npm_deps_mode: all
       - func: test
         vars:
-          mongosh_server_test_version: "latest-alpha"
+          mongosh_server_test_version: "latest-alpha-enterprise"
           node_js_version: "16.20.1"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "mlatest_n16_node_runtime_worker_thread"
@@ -8126,7 +8126,7 @@ tasks:
           npm_deps_mode: all
       - func: test
         vars:
-          mongosh_server_test_version: "latest-alpha"
+          mongosh_server_test_version: "latest-alpha-enterprise"
           node_js_version: "14.21.3"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "mlatest_n14_node_runtime_worker_thread"
@@ -8360,7 +8360,7 @@ tasks:
           npm_deps_mode: all
       - func: test
         vars:
-          mongosh_server_test_version: "latest-alpha"
+          mongosh_server_test_version: "latest-alpha-enterprise"
           node_js_version: "16.20.1"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "mlatest_n16_service_provider_server"
@@ -8558,7 +8558,7 @@ tasks:
           npm_deps_mode: all
       - func: test
         vars:
-          mongosh_server_test_version: "latest-alpha"
+          mongosh_server_test_version: "latest-alpha-enterprise"
           node_js_version: "14.21.3"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "mlatest_n14_service_provider_server"
@@ -8756,7 +8756,7 @@ tasks:
           npm_deps_mode: all
       - func: test
         vars:
-          mongosh_server_test_version: "latest-alpha"
+          mongosh_server_test_version: "latest-alpha-enterprise"
           node_js_version: "16.20.1"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "mlatest_n16_shell_api"
@@ -8954,7 +8954,7 @@ tasks:
           npm_deps_mode: all
       - func: test
         vars:
-          mongosh_server_test_version: "latest-alpha"
+          mongosh_server_test_version: "latest-alpha-enterprise"
           node_js_version: "14.21.3"
           mongosh_skip_node_version_check: "1"
           mongosh_test_id: "mlatest_n14_shell_api"
@@ -9113,7 +9113,7 @@ tasks:
       - func: test_apistrict
         vars:
           node_js_version: "16.20.1"
-          mongosh_server_test_version: "latest-alpha"
+          mongosh_server_test_version: "latest-alpha-enterprise"
           mongosh_test_force_api_strict: "1"
   - name: compile_artifact
     depends_on:
@@ -9163,7 +9163,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.1"
-          mongosh_server_test_version: "stable"
+          mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: "1"
   - name: e2e_tests_darwin_x64
     tags: ["e2e-test"]
@@ -9182,7 +9182,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.1"
-          mongosh_server_test_version: "stable"
+          mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_darwin_x64_50x_fips
     tags: ["e2e-test"]
@@ -9201,7 +9201,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.1"
-          mongosh_server_test_version: "5.0.x"
+          mongosh_server_test_version: "5.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
   - name: e2e_tests_darwin_x64_50x
     tags: ["e2e-test"]
@@ -9220,7 +9220,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.1"
-          mongosh_server_test_version: "5.0.x"
+          mongosh_server_test_version: "5.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_darwin_arm64_fips
     tags: ["e2e-test"]
@@ -9239,7 +9239,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.1"
-          mongosh_server_test_version: "stable"
+          mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: "1"
   - name: e2e_tests_darwin_arm64
     tags: ["e2e-test"]
@@ -9258,7 +9258,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.1"
-          mongosh_server_test_version: "stable"
+          mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_darwin_arm64_50x_fips
     tags: ["e2e-test"]
@@ -9277,7 +9277,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.1"
-          mongosh_server_test_version: "5.0.x"
+          mongosh_server_test_version: "5.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
   - name: e2e_tests_darwin_arm64_50x
     tags: ["e2e-test"]
@@ -9296,7 +9296,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.1"
-          mongosh_server_test_version: "5.0.x"
+          mongosh_server_test_version: "5.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_x64_fips
     tags: ["e2e-test"]
@@ -9315,7 +9315,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.1"
-          mongosh_server_test_version: "stable"
+          mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: "1"
   - name: e2e_tests_linux_x64
     tags: ["e2e-test"]
@@ -9334,7 +9334,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.1"
-          mongosh_server_test_version: "stable"
+          mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_x64_50x_fips
     tags: ["e2e-test"]
@@ -9353,7 +9353,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.1"
-          mongosh_server_test_version: "5.0.x"
+          mongosh_server_test_version: "5.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
   - name: e2e_tests_linux_x64_50x
     tags: ["e2e-test"]
@@ -9372,7 +9372,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.1"
-          mongosh_server_test_version: "5.0.x"
+          mongosh_server_test_version: "5.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_x64_openssl11_fips
     tags: ["e2e-test"]
@@ -9391,7 +9391,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.1"
-          mongosh_server_test_version: "stable"
+          mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: "1"
   - name: e2e_tests_linux_x64_openssl11
     tags: ["e2e-test"]
@@ -9410,7 +9410,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.1"
-          mongosh_server_test_version: "stable"
+          mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_x64_openssl11_50x_fips
     tags: ["e2e-test"]
@@ -9429,7 +9429,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.1"
-          mongosh_server_test_version: "5.0.x"
+          mongosh_server_test_version: "5.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
   - name: e2e_tests_linux_x64_openssl11_50x
     tags: ["e2e-test"]
@@ -9448,7 +9448,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.1"
-          mongosh_server_test_version: "5.0.x"
+          mongosh_server_test_version: "5.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_x64_openssl3_fips
     tags: ["e2e-test"]
@@ -9467,7 +9467,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.1"
-          mongosh_server_test_version: "stable"
+          mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: "1"
   - name: e2e_tests_linux_x64_openssl3
     tags: ["e2e-test"]
@@ -9486,7 +9486,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.1"
-          mongosh_server_test_version: "stable"
+          mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_x64_openssl3_50x_fips
     tags: ["e2e-test"]
@@ -9505,7 +9505,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.1"
-          mongosh_server_test_version: "5.0.x"
+          mongosh_server_test_version: "5.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
   - name: e2e_tests_linux_x64_openssl3_50x
     tags: ["e2e-test"]
@@ -9524,7 +9524,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.1"
-          mongosh_server_test_version: "5.0.x"
+          mongosh_server_test_version: "5.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_arm64_fips
     tags: ["e2e-test"]
@@ -9543,7 +9543,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.1"
-          mongosh_server_test_version: "stable"
+          mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: "1"
   - name: e2e_tests_linux_arm64
     tags: ["e2e-test"]
@@ -9562,7 +9562,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.1"
-          mongosh_server_test_version: "stable"
+          mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_arm64_50x_fips
     tags: ["e2e-test"]
@@ -9581,7 +9581,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.1"
-          mongosh_server_test_version: "5.0.x"
+          mongosh_server_test_version: "5.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
   - name: e2e_tests_linux_arm64_50x
     tags: ["e2e-test"]
@@ -9600,7 +9600,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.1"
-          mongosh_server_test_version: "5.0.x"
+          mongosh_server_test_version: "5.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_arm64_openssl11_fips
     tags: ["e2e-test"]
@@ -9619,7 +9619,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.1"
-          mongosh_server_test_version: "stable"
+          mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: "1"
   - name: e2e_tests_linux_arm64_openssl11
     tags: ["e2e-test"]
@@ -9638,7 +9638,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.1"
-          mongosh_server_test_version: "stable"
+          mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_arm64_openssl11_50x_fips
     tags: ["e2e-test"]
@@ -9657,7 +9657,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.1"
-          mongosh_server_test_version: "5.0.x"
+          mongosh_server_test_version: "5.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
   - name: e2e_tests_linux_arm64_openssl11_50x
     tags: ["e2e-test"]
@@ -9676,7 +9676,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.1"
-          mongosh_server_test_version: "5.0.x"
+          mongosh_server_test_version: "5.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_ppc64le_fips
     tags: ["e2e-test"]
@@ -9695,7 +9695,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.1"
-          mongosh_server_test_version: "stable"
+          mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: "1"
   - name: e2e_tests_linux_ppc64le
     tags: ["e2e-test"]
@@ -9714,7 +9714,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.1"
-          mongosh_server_test_version: "stable"
+          mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_ppc64le_50x_fips
     tags: ["e2e-test"]
@@ -9733,7 +9733,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.1"
-          mongosh_server_test_version: "5.0.x"
+          mongosh_server_test_version: "5.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
   - name: e2e_tests_linux_ppc64le_50x
     tags: ["e2e-test"]
@@ -9752,7 +9752,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.1"
-          mongosh_server_test_version: "5.0.x"
+          mongosh_server_test_version: "5.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_s390x_fips
     tags: ["e2e-test"]
@@ -9771,7 +9771,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.1"
-          mongosh_server_test_version: "stable"
+          mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: "1"
   - name: e2e_tests_linux_s390x
     tags: ["e2e-test"]
@@ -9790,7 +9790,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.1"
-          mongosh_server_test_version: "stable"
+          mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_s390x_50x_fips
     tags: ["e2e-test"]
@@ -9809,7 +9809,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.1"
-          mongosh_server_test_version: "5.0.x"
+          mongosh_server_test_version: "5.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
   - name: e2e_tests_linux_s390x_50x
     tags: ["e2e-test"]
@@ -9828,7 +9828,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.1"
-          mongosh_server_test_version: "5.0.x"
+          mongosh_server_test_version: "5.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_win32_fips
     tags: ["e2e-test"]
@@ -9847,7 +9847,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.1"
-          mongosh_server_test_version: "stable"
+          mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: "1"
   - name: e2e_tests_win32
     tags: ["e2e-test"]
@@ -9866,7 +9866,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.1"
-          mongosh_server_test_version: "stable"
+          mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_win32_50x_fips
     tags: ["e2e-test"]
@@ -9885,7 +9885,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.1"
-          mongosh_server_test_version: "5.0.x"
+          mongosh_server_test_version: "5.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
   - name: e2e_tests_win32_50x
     tags: ["e2e-test"]
@@ -9904,7 +9904,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.1"
-          mongosh_server_test_version: "5.0.x"
+          mongosh_server_test_version: "5.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
 
   ###

@@ -24,12 +24,10 @@ function isMacosTooOldForQE() {
 }
 
 describe('FLE tests', function () {
-  const testServer = startTestServer(
-    'not-shared',
-    '--replicaset',
-    '--nodes',
-    '1'
-  );
+  const testServer = startTestServer('not-shared', {
+    topology: 'replset',
+    secondaries: 0,
+  });
   skipIfServerVersion(testServer, '< 4.2'); // FLE only available on 4.2+
   skipIfCommunityServer(testServer); // FLE is enterprise-only
   let kmsServer: ReturnType<typeof makeFakeHTTPServer>;

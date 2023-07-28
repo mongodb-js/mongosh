@@ -16,7 +16,7 @@ const MONGODB_VERSIONS = [
   { shortName: '50xe', versionSpec: '5.0.x' },
   { shortName: '60xc', versionSpec: '6.0.x-community' },
   { shortName: '60xe', versionSpec: '6.0.x' },
-  { shortName: 'latest', versionSpec: 'latest-alpha' }
+  { shortName: 'latest', versionSpec: 'latest-alpha-enterprise' }
 ];
 const NODE_VERSIONS = [
   { shortName: '16', versionSpec: NODE_JS_VERSION_16, skipNodeVersionCheck: '' },
@@ -810,7 +810,7 @@ tasks:
       - func: test_apistrict
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_16) %>"
-          mongosh_server_test_version: "latest-alpha"
+          mongosh_server_test_version: "latest-alpha-enterprise"
           mongosh_test_force_api_strict: "1"
   - name: compile_artifact
     depends_on:
@@ -864,7 +864,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_16) %>"
-          mongosh_server_test_version: "<% out(mVersion) %>"
+          mongosh_server_test_version: "<% out(mVersion) %>-enterprise"
           mongosh_test_e2e_force_fips: "<% out(fipsVariant === 'fips' ? '1' : '') %>"
   <% } } } %>
 

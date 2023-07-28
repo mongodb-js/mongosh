@@ -1792,10 +1792,13 @@ describe('Shard', function () {
     const shardId = 'rs-shard0';
 
     const [mongos, rs0, rs1] = startTestCluster(
-      // --sharded 0 creates a setup without any initial shards
-      ['--replicaset', '--sharded', '0', '--csrs'],
-      ['--replicaset', '--name', `${shardId}-0`, '--shardsvr'],
-      ['--replicaset', '--name', `${shardId}-1`, '--shardsvr']
+      // shards: 0 creates a setup without any initial shards
+      { topology: 'sharded', shards: 0 },
+      {
+        topology: 'replset',
+        args: ['--replSet', `${shardId}-0`, '--shardsvr'],
+      },
+      { topology: 'replset', args: ['--replSet', `${shardId}-1`, '--shardsvr'] }
     );
 
     before(async function () {

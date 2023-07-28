@@ -1,15 +1,14 @@
 import child_process from 'child_process';
-import crypto from 'crypto';
-import { once } from 'events';
 import { promises as fs } from 'fs';
 import { MongoClient, MongoClientOptions } from 'mongodb';
 import path from 'path';
-import rimraf from 'rimraf';
 import semver from 'semver';
 import { URL } from 'url';
 import { promisify } from 'util';
 import which from 'which';
-import { downloadMongoDb } from '../packages/build/src/download-mongodb';
+import { ConnectionString } from 'mongodb-connection-string-url';
+import { MongoCluster, MongoClusterOptions } from 'mongodb-runner';
+import { downloadMongoDb } from '@mongodb-js/mongodb-downloader';
 import { downloadCryptLibrary } from '../packages/build/src/packaging/download-crypt-library';
 
 const execFile = promisify(child_process.execFile);
@@ -21,192 +20,11 @@ function ciLog(...args: any[]) {
   }
 }
 
-// Return the stat results or, if the file does not exist, `undefined`.
-async function statIfExists(path: string): Promise<ReturnType<typeof fs.stat> | undefined> {
-  try {
-    return await fs.stat(path);
-  } catch (err: any) {
-    if (err.code === 'ENOENT') {
-      return undefined;
-    }
-    throw err;
-  }
-}
-
 // Return the path to the temporary directory and ensure that it exists.
 async function getTmpdir(): Promise<string> {
   const tmpdir = path.resolve(__dirname, '..', 'tmp');
   await fs.mkdir(tmpdir, { recursive: true });
   return tmpdir;
-}
-
-async function tryExtensions(base: string): Promise<[ string, Error ]> {
-  let lastErr = new Error('unreachable');
-  for (const ext of ['', '.exe', '.bat']) {
-    try {
-      await fs.stat(base + ext);
-      return [ base + ext, lastErr ];
-    } catch (err: any) {
-      lastErr = err;
-      ciLog('File does not exist or is inaccessible', base + ext);
-    }
-  }
-  return [ '', lastErr ];
-}
-
-async function findPython3() {
-  try {
-    if (process.env.DISTRO_ID?.startsWith('windows-')) {
-      throw new Error('python3 on Windows in evergreen CI is broken but `python` is working python3');
-    }
-    await which('python3');
-    return 'python3';
-  } catch {
-    ciLog('Did not find python3 in PATH');
-    try {
-      // Fun fact on the side: Python 2.x writes the version to stderr,
-      // Python 3.x writes to stdout.
-      const { stdout } = await execFile('python', ['-V']);
-      if (stdout.includes('Python 3')) {
-        return 'python';
-      } else {
-        throw new Error('python is not Python 3.x');
-      }
-    } catch {
-      ciLog('Did not find python as Python 3.x in PATH');
-      const pythonEnv = process.env.PYTHON;
-      if (pythonEnv) {
-        const { stdout } = await execFile(pythonEnv as string, ['-V']);
-        if (stdout.includes('Python 3')) {
-          return pythonEnv as string;
-        }
-      }
-    }
-  }
-  throw new Error('Could not find Python 3.x installation, install mlaunch manually');
-}
-
-// Get the path we use to spawn mlaunch, and potential environment variables
-// necessary to run it successfully. This tries to install it locally if it
-// cannot find an existing installation.
-let mlaunchPath: { exec: string[], env: Record<string,string> } | undefined;
-export async function getMlaunchPath(): Promise<{ exec: string[], env: Record<string,string> }> {
-  const tmpdir = await getTmpdir();
-  if (mlaunchPath !== undefined) {
-    return mlaunchPath;
-  }
-
-  try {
-    // If `mlaunch` is already in the PATH: Great, we're done.
-    const mlaunchBinary = await which('mlaunch');
-    const filehandle: any = await fs.open(mlaunchBinary, 'r');
-    try {
-      const startOfMlaunchFile = (await filehandle.read({ length: 100 })).buffer.toString('utf8').trim();
-      if (startOfMlaunchFile.match(/^#!(\S+)python3?\r?\n/)) {
-        return mlaunchPath = { exec: [ await findPython3(), mlaunchBinary ], env: {} };
-      }
-    } finally {
-      await filehandle.close();
-    }
-    return mlaunchPath = { exec: [ mlaunchBinary ], env: {} };
-  } catch {
-    ciLog('Did not find mlaunch in PATH');
-  }
-
-  // Figure out where python3 might live (python3, python, $PYTHON).
-  const python = await findPython3();
-
-  // Install mlaunch, preferably locally and otherwise attempt to do so globally.
-  try {
-    const mlaunchPy = path.join(tmpdir, 'bin', 'mlaunch');
-    let [ exec ] = await tryExtensions(mlaunchPy);
-    if (exec) {
-      return mlaunchPath = { exec: [ python, exec ], env: { PYTHONPATH: tmpdir } };
-    }
-    ciLog('Trying to install mlaunch in ', tmpdir);
-    // Pin pymongo to 3.12.2 because mlaunch does not seem to be compatible
-    // with 4.0, see https://jira.mongodb.org/browse/MONGOSH-1072
-    // Also pin mlaunch to 1.6.4, since we have Python 3.6 in CI and 1.7.0
-    // drops Python 3.6 support.
-    await execFile('pip3', ['install', '--no-cache-dir', '--target', tmpdir, 'mtools[mlaunch]==1.6.4', 'pymongo==3.12.2']);
-    ciLog('Installation complete');
-    [ exec ] = await tryExtensions(mlaunchPy);
-    if (exec) {
-      return mlaunchPath = { exec: [ python, exec ], env: { PYTHONPATH: tmpdir } };
-    }
-  } catch {}
-
-  // Figure out the most likely target path for pip3 --user and use mlaunch
-  // from there.
-  const pythonBase = (await execFile(python, ['-m', 'site', '--user-base'])).stdout.trim();
-  const pythonPath = (await execFile(python, ['-m', 'site', '--user-site'])).stdout.trim();
-  const mlaunchExec = path.join(pythonBase, 'bin', 'mlaunch');
-  {
-    const [ exec ] = await tryExtensions(mlaunchExec);
-    if (exec) {
-      return { exec: [ python, exec ], env: { PYTHONPATH: pythonPath } };
-    }
-  }
-  ciLog('Trying to install mlaunch in ', { pythonBase, pythonPath });
-  await execFile('pip3', ['install', '--no-cache-dir', '--user', 'mtools[mlaunch]']);
-  ciLog('Installation complete');
-  const [ exec, lastErr ] = await tryExtensions(mlaunchExec);
-  if (exec) {
-    return { exec: [ python, exec ], env: { PYTHONPATH: pythonPath } };
-  }
-  throw lastErr;
-}
-
-type MlaunchCommand = 'init' | 'start' | 'stop' | 'list' | 'kill';
-// Run a specific mlaunch command, trying to ensure that `mlaunch` is accessible
-// and installing it if necessary.
-async function execMlaunch(command: MlaunchCommand, ...args: string[]): Promise<void> {
-  const mlaunchPath = await getMlaunchPath();
-
-  // command could be part of args, but the extra typechecking here has helped
-  // me at least once.
-  const fullCmd = [...mlaunchPath.exec, command, ...args];
-  // console.info('Running command', fullCmd.join(' '));
-  const proc = child_process.spawn(fullCmd[0], fullCmd.slice(1), {
-    env: { ...process.env, ...mlaunchPath.env },
-    stdio: 'inherit'
-  });
-  await once(proc, 'exit');
-  // console.info('Successfully ran command', fullCmd.join(' '));
-}
-
-// Remove all potential leftover mlaunch instances.
-export async function clearMlaunch({ killAllMongod = false } = {}) {
-  if (killAllMongod) {
-    for (const proc of ['mongod', 'mongos']) {
-      try {
-        if (process.platform === 'win32') {
-          await execFile('taskkill', ['/IM', `${proc}.exe`, '/F']);
-        } else {
-          await execFile('killall', [proc]);
-        }
-      } catch (err: any) {
-        console.warn(`Cleaning up ${proc} instances failed:`, err);
-      }
-    }
-  }
-  const tmpdir = await getTmpdir();
-  for await (const { name } of await fs.opendir(tmpdir)) {
-    if (name.startsWith('mlaunch-')) {
-      const fullPath = path.join(tmpdir, name);
-      try {
-        await execMlaunch('kill', '--dir', fullPath);
-      } catch (err: any) {
-        console.warn(`mlaunch kill in ${fullPath} failed:`, err);
-      }
-      try {
-        await promisify(rimraf)(fullPath);
-      } catch (err: any) {
-        console.warn(`Removing ${fullPath} failed:`, err);
-      }
-    }
-  }
-  await promisify(rimraf)(path.join(tmpdir, '.current-port'));
 }
 
 // Represents one running test server instance.
@@ -236,21 +54,29 @@ export class MongodSetup {
     throw new Error('Server not managed');
   }
 
-  async connectionString(): Promise<string> {
-    return this._connectionString;
+  async connectionString(searchParams: Partial<Record<keyof MongoClientOptions, string>> = {}, uriOptions: Partial<ConnectionString> = {}): Promise<string> {
+    if (Object.keys(searchParams).length + Object.keys(uriOptions).length === 0) {
+      return this._connectionString;
+    }
+
+    const url = await this.connectionStringUrl();
+    for (const [key, value] of Object.entries(searchParams))
+      url.searchParams.set(key, value);
+    for (const [key, value] of Object.entries(uriOptions))
+      (url as any)[key] = value;
+    return url.toString();
   }
 
-  async host(): Promise<string> {
-    return new URL(await this.connectionString()).hostname;
+  async connectionStringUrl(): Promise<ConnectionString> {
+    return new ConnectionString(await this.connectionString());
   }
 
   async port(): Promise<string> {
-    // 27017 is the default port for mongodb:// URLs.
-    return new URL(await this.connectionString()).port ?? '27017';
+    return (await this.hostport()).split(':').reverse()[0];
   }
 
   async hostport(): Promise<string> {
-    return `${await this.host()}:${await this.port()}`;
+    return (await this.connectionStringUrl()).hosts[0];
   }
 
   async serverVersion(): Promise<string> {
@@ -295,77 +121,31 @@ export class MongodSetup {
   }
 }
 
-// Spawn mlaunch with a specific set of arguments.
-export class MlaunchSetup extends MongodSetup {
-  _args: string[];
-  _mlaunchdir = '';
+// Spawn a mongodb-runner-managed instance with a specific set of arguments.
+export class MongoRunnerSetup extends MongodSetup {
+  _opts: Partial<MongoClusterOptions>;
+  _cluster: MongoCluster | undefined;
 
-  constructor(args: string[] = []) {
+  constructor(opts: Partial<MongoClusterOptions> = {}) {
     super();
-    this._args = args;
+    this._opts = opts;
   }
 
   async start(): Promise<void> {
-    if (this._mlaunchdir) return;
-    const random = (await promisify(crypto.randomBytes)(16)).toString('hex');
-    const tag = `${process.pid}-${random}`;
+    if (this._cluster) return;
+    this._cluster = await MongoCluster.start({
+      topology: 'standalone',
+      tmpDir: await getTmpdir(),
+      version: process.env.MONGOSH_SERVER_TEST_VERSION,
+      ...this._opts
+    })
 
-    const tmpdir = await getTmpdir();
-    this._mlaunchdir = path.join(tmpdir, `mlaunch-${tag}`);
-
-    const args = this._args;
-    if (!args.includes('--replicaset') && !args.includes('--single')) {
-      args.push('--single');
-    }
-
-    let port: number;
-    if (args.includes('--port')) {
-      const index = args.indexOf('--port');
-      port = +args.splice(index, 2)[1];
-    } else {
-      // If no port was specified, we pick one in the range [30000, 40000].
-      // We pick by writing to a file, looking up the index at which we wrote,
-      // and adding that to the base port, so that there is a low likelihood of
-      // port collisions between different test runs even when two tests call
-      // startMlaunch() at the same time.
-      // Ideally, we would handle failures from port conflicts that occur when
-      // mlaunch starts, but we don't currently have access to that information
-      // until .start() is called.
-      const portfile = path.join(tmpdir, '.current-port');
-      await fs.appendFile(portfile, `${tag}\n`);
-      const portfileContent = (await fs.readFile(portfile, 'utf8')).split('\n');
-      const writeIndex = portfileContent.indexOf(tag);
-      if (writeIndex === -1) {
-        throw new Error(`Could not figure out port number, ${portfile} may be corrupt`);
-      }
-      port = 30000 + (writeIndex * 30) % 10000;
-    }
-
-    // Make sure mongod and mongos are accessible
-    const binarypath = await ensureMongodAvailable();
-    if (binarypath) {
-      args.unshift('--binarypath', binarypath);
-      this._bindir = binarypath;
-    }
-
-    if (await statIfExists(this._mlaunchdir)) {
-      // There might be leftovers from previous runs. Remove them.
-      await execMlaunch('kill', '--dir', this._mlaunchdir);
-      await promisify(rimraf)(this._mlaunchdir);
-    }
-    await fs.mkdir(this._mlaunchdir, { recursive: true });
-    await execMlaunch('init', '--dir', this._mlaunchdir, '--port', `${port}`, ...args);
-    this._setConnectionString(`mongodb://localhost:${port}`);
+    this._setConnectionString(this._cluster.connectionString);
   }
 
   async stop(): Promise<void> {
-    if (!this._mlaunchdir) return;
-    await execMlaunch('stop', '--dir', this._mlaunchdir);
-    try {
-      await promisify(rimraf)(this._mlaunchdir);
-    } catch (err: any) {
-      console.error(`Cannot remove directory ${this._mlaunchdir}`, err);
-    }
+    await this._cluster?.close();
+    this._cluster = undefined;
   }
 }
 
@@ -374,23 +154,6 @@ async function getInstalledMongodVersion(): Promise<string> {
   const { stdout } = await execFile('mongod', ['--version']);
   const { version } = stdout.match(/^db version (?<version>.+)$/m)!.groups as any;
   return version;
-}
-
-export async function ensureMongodAvailable(mongodVersion = process.env.MONGOSH_SERVER_TEST_VERSION): Promise<string | null> {
-  try {
-    if (/-community/.test(String(mongodVersion))) {
-      console.info(`Explicitly requesting community server with ${mongodVersion}, downloading...`);
-      throw new Error();
-    }
-    const version = await getInstalledMongodVersion();
-    if (mongodVersion && !semver.satisfies(version, mongodVersion)) {
-      console.info(`global mongod is ${version}, wanted ${mongodVersion}, downloading...`);
-      throw new Error();
-    }
-    return null;
-  } catch {
-    return await downloadMongoDb(path.resolve(__dirname, '..', 'tmp'), mongodVersion);
-  }
 }
 
 export async function downloadCurrentCryptSharedLibrary(): Promise<string> {
@@ -419,19 +182,19 @@ export async function downloadCurrentCryptSharedLibrary(): Promise<string> {
  * @returns {MongodSetup} - Object with information about the started server.
  */
 let sharedSetup : MongodSetup | null = null;
-export function startTestServer(shareMode: 'shared' | 'not-shared', ...args: string[]): MongodSetup {
+export function startTestServer(shareMode: 'shared' | 'not-shared', args: Partial<MongoClusterOptions> = {}): MongodSetup {
   if (shareMode === 'shared' && process.env.MONGOSH_TEST_SERVER_URL) {
     return new MongodSetup(process.env.MONGOSH_TEST_SERVER_URL);
   }
 
   let server : MongodSetup;
   if (shareMode === 'shared') {
-    if (args.length > 0) {
+    if (Object.keys(args).length > 0) {
       throw new Error('Cannot specify arguments for shared mongod');
     }
-    server = sharedSetup ?? (sharedSetup = new MlaunchSetup());
+    server = sharedSetup ?? (sharedSetup = new MongoRunnerSetup());
   } else {
-    server = new MlaunchSetup(args);
+    server = new MongoRunnerSetup(args);
   }
 
   before(async function() {
@@ -459,8 +222,8 @@ global.after?.(async function() {
 
 // The same as startTestServer(), except that this starts multiple servers
 // in parallel in the same before() call.
-export function startTestCluster(...argLists: string[][]): MongodSetup[] {
-  const servers = argLists.map(args => new MlaunchSetup(args));
+export function startTestCluster(...argLists: Partial<MongoClusterOptions>[]): MongodSetup[] {
+  const servers = argLists.map(args => new MongoRunnerSetup(args));
 
   before(async function() {
     this.timeout(90_000 + 30_000 * servers.length);

@@ -1,6 +1,6 @@
 import path from 'path';
 import { validatePackageVariant } from './config';
-import { downloadMongoDb } from './download-mongodb';
+import { downloadMongoDb } from '@mongodb-js/mongodb-downloader';
 import { getArtifactUrl } from './evergreen';
 import { triggerRelease } from './local';
 import type { ReleaseCommand } from './release';
