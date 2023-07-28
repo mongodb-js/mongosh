@@ -32,9 +32,27 @@ else
   [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 
   set +x # nvm is very verbose
-  echo nvm install --no-progress $NODE_JS_VERSION && nvm alias default $NODE_JS_VERSION
-  nvm install --no-progress $NODE_JS_VERSION
-  nvm alias default $NODE_JS_VERSION
+
+  # A few distros where pre-built node20 does not work out of the box and hence
+  # needs to be built from source
+  if [[ "${DISTRO_ID}" =~ ^(amazon|debian9|rhel7|suse|ubuntu18) ]];
+  then
+    # Building from source requires up to date toolchain in path
+    ORIGINAL_PATH="${PATH}"
+    export PATH="/opt/mongodbtoolchain/v4/bin:${ORIGINAL_PATH}"
+    export CC=gcc
+    export CXX=c++
+
+    echo nvm install -s --no-progress $NODE_JS_VERSION && nvm alias default $NODE_JS_VERSION
+    nvm install -s --no-progress $NODE_JS_VERSION
+    nvm alias default $NODE_JS_VERSION
+    export PATH="${ORIGINAL_PATH}"
+  else
+    echo nvm install --no-progress $NODE_JS_VERSION && nvm alias default $NODE_JS_VERSION
+    nvm install --no-progress $NODE_JS_VERSION
+    nvm alias default $NODE_JS_VERSION
+  fi
+  nvm use $NODE_JS_VERSION
   set -x
 
   if env PATH="/opt/chefdk/gitbin:$PATH" git --version | grep -q 'git version 1.'; then
@@ -44,6 +62,11 @@ else
       cd git-2 &&
       make -j8 NO_EXPAT=1)
   fi
+
+  which node
+  whereis node
+  which npm
+  whereis npm
 
   npm cache clear --force || true # Try to work around `Cannot read property 'pickAlgorithm' of null` errors in CI
   # Started observing CI failures on RHEL 7.2 (s390x) for installing npm, all
