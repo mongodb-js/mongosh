@@ -10435,6 +10435,25 @@ tasks:
         vars:
           node_js_version: "16.20.1"
           dockerfile: debian11-deb
+  - name: pkg_test_docker_deb_x64_debian12_deb
+    tags: ["smoke-test"]
+    depends_on:
+      - name: package_and_upload_artifact_deb_x64
+        variant: linux_package
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          source_package_variant: deb-x64
+      - func: write_preload_script
+      - func: install
+        vars:
+          node_js_version: "16.20.1"
+          npm_deps_mode: cli_build
+      - func: test_artifact_docker
+        vars:
+          node_js_version: "16.20.1"
+          dockerfile: debian12-deb
   - name: pkg_test_docker_rpm_x64_centos7_rpm
     tags: ["smoke-test"]
     depends_on:
@@ -10796,6 +10815,25 @@ tasks:
         vars:
           node_js_version: "16.20.1"
           dockerfile: ubuntu22.04-fips-deb
+  - name: pkg_test_docker_deb_x64_openssl3_debian12_deb
+    tags: ["smoke-test"]
+    depends_on:
+      - name: package_and_upload_artifact_deb_x64_openssl3
+        variant: linux_package
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          source_package_variant: deb-x64-openssl3
+      - func: write_preload_script
+      - func: install
+        vars:
+          node_js_version: "16.20.1"
+          npm_deps_mode: cli_build
+      - func: test_artifact_docker
+        vars:
+          node_js_version: "16.20.1"
+          dockerfile: debian12-deb
   - name: pkg_test_docker_rpm_x64_openssl3_rocky8_epel_rpm
     tags: ["smoke-test"]
     depends_on:
@@ -10986,6 +11024,25 @@ tasks:
         vars:
           node_js_version: "16.20.1"
           dockerfile: debian11-deb
+  - name: pkg_test_docker_deb_arm64_debian12_deb
+    tags: ["smoke-test"]
+    depends_on:
+      - name: package_and_upload_artifact_deb_arm64
+        variant: linux_package
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          source_package_variant: deb-arm64
+      - func: write_preload_script
+      - func: install
+        vars:
+          node_js_version: "16.20.1"
+          npm_deps_mode: cli_build
+      - func: test_artifact_docker
+        vars:
+          node_js_version: "16.20.1"
+          dockerfile: debian12-deb
   - name: pkg_test_docker_rpm_arm64_rocky8_rpm
     tags: ["smoke-test"]
     depends_on:
@@ -11736,6 +11793,11 @@ buildvariants:
     run_on: rhel80-small
     tasks:
       - name: e2e_tests_linux_x64
+  - name: e2e_rhel90_x64
+    display_name: "RHEL 9.0 x64 (E2E Tests)"
+    run_on: rhel90-small
+    tasks:
+      - name: e2e_tests_linux_x64
   - name: e2e_rhel83_x64
     display_name: "RHEL 8.3 x64 (E2E Tests, FIPS-available OS)"
     run_on: rhel83-fips
@@ -11743,6 +11805,13 @@ buildvariants:
       - name: e2e_tests_linux_x64
       - name: e2e_tests_linux_x64_openssl11
       - name: e2e_tests_linux_x64_openssl11_fips
+  - name: e2e_rhel92_x64
+    display_name: "RHEL 9.2 x64 (E2E Tests, FIPS-available OS)"
+    run_on: rhel92-fips
+    tasks:
+      - name: e2e_tests_linux_x64
+      - name: e2e_tests_linux_x64_openssl3
+      - name: e2e_tests_linux_x64_openssl3_fips
   - name: e2e_ubuntu1804_x64
     display_name: "Ubuntu 18.04 x64 (E2E Tests)"
     run_on: ubuntu1804-small
@@ -11754,6 +11823,12 @@ buildvariants:
     tasks:
       - name: e2e_tests_linux_x64
       - name: e2e_tests_linux_x64_openssl11
+  - name: e2e_ubuntu2204_x64
+    display_name: "Ubuntu 22.04 x64 (E2E Tests)"
+    run_on: ubuntu2204-small
+    tasks:
+      - name: e2e_tests_linux_x64
+      - name: e2e_tests_linux_x64_openssl3
   - name: e2e_debian9_x64
     display_name: "Debian 9 x64 (E2E Tests)"
     run_on: debian92-small
@@ -11781,6 +11856,11 @@ buildvariants:
     run_on: amazon2-small
     tasks:
       - name: e2e_tests_linux_x64
+  - name: e2e_amazon2023_x64
+    display_name: "Amazon Linux 2023 x64 (E2E Tests)"
+    run_on: amazon2023.0-small
+    tasks:
+      - name: e2e_tests_linux_x64
   - name: e2e_suse12_x64
     display_name: "SLES 12 x64 (E2E Tests)"
     run_on: suse12-sp5-small
@@ -11802,14 +11882,29 @@ buildvariants:
     tasks:
       - name: e2e_tests_linux_arm64
       - name: e2e_tests_linux_arm64_openssl11
+  - name: e2e_ubuntu2204_arm64
+    display_name: "Ubuntu 22.04 arm64 (E2E Tests)"
+    run_on: ubuntu2204-arm64-small
+    tasks:
+      - name: e2e_tests_linux_arm64
   - name: e2e_amazon2_arm64
     display_name: "Amazon Linux 2 arm64 (E2E Tests)"
     run_on: amazon2-arm64-small
     tasks:
       - name: e2e_tests_linux_arm64
+  - name: e2e_amazon2023_arm64
+    display_name: "Amazon Linux 2023 arm64 (E2E Tests)"
+    run_on: amazon2023.0-arm64-small
+    tasks:
+      - name: e2e_tests_linux_arm64
   - name: e2e_rhel82_arm64
     display_name: "RHEL 8.2 arm64 (E2E Tests)"
     run_on: rhel82-arm64-small
+    tasks:
+      - name: e2e_tests_linux_arm64
+  - name: e2e_rhel90_arm64
+    display_name: "RHEL 9.0 arm64 (E2E Tests)"
+    run_on: rhel90-arm64-small
     tasks:
       - name: e2e_tests_linux_arm64
   - name: e2e_rhel81_ppc64le
@@ -11984,6 +12079,7 @@ buildvariants:
       - name: pkg_test_docker_deb_x64_debian9_deb
       - name: pkg_test_docker_deb_x64_debian10_deb
       - name: pkg_test_docker_deb_x64_debian11_deb
+      - name: pkg_test_docker_deb_x64_debian12_deb
       - name: pkg_test_docker_rpm_x64_centos7_rpm
       - name: pkg_test_docker_rpm_x64_amazonlinux2_rpm
       - name: pkg_test_docker_rpm_x64_amazonlinux2023_rpm
@@ -12003,6 +12099,7 @@ buildvariants:
       - name: pkg_test_docker_rpm_x64_openssl11_fedora34_rpm
       - name: pkg_test_docker_deb_x64_openssl3_ubuntu22_04_deb
       - name: pkg_test_docker_deb_x64_openssl3_ubuntu22_04_fips_deb
+      - name: pkg_test_docker_deb_x64_openssl3_debian12_deb
       - name: pkg_test_docker_rpm_x64_openssl3_rocky8_epel_rpm
       - name: pkg_test_docker_rpm_x64_openssl3_rocky9_rpm
       - name: pkg_test_docker_rpm_x64_openssl3_rocky9_fips_rpm
@@ -12017,6 +12114,7 @@ buildvariants:
       - name: pkg_test_docker_deb_arm64_ubuntu22_04_deb
       - name: pkg_test_docker_deb_arm64_debian10_deb
       - name: pkg_test_docker_deb_arm64_debian11_deb
+      - name: pkg_test_docker_deb_arm64_debian12_deb
       - name: pkg_test_docker_rpm_arm64_rocky8_rpm
       - name: pkg_test_docker_rpm_arm64_rocky9_rpm
       - name: pkg_test_docker_rpm_arm64_fedora34_rpm
