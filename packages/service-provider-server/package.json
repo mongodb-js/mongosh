@@ -53,7 +53,7 @@
     "aws4": "^1.11.0",
     "mongodb": "^5.7.0",
     "mongodb-connection-string-url": "^2.6.0",
-    "saslprep": "mongodb-js/saslprep#v1.0.4"
+    "saslprep": "npm:@mongodb-js/saslprep@^1.1.0"
   },
   "optionalDependencies": {
     "kerberos": "^2.0.0",
