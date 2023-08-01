@@ -203,14 +203,6 @@ export function processDigestPassword(
   return { digestPassword: true };
 }
 
-const SHARDING_VERSION_FIELD_EXCLUSION = {
-  minCompatibleVersion: 0,
-  currentVersion: 0,
-  excluding: 0,
-  upgradeId: 0,
-  upgradeState: 0,
-};
-
 /**
  * Return an object which will become a ShardingStatusResult
  * @param mongo
@@ -232,7 +224,16 @@ export async function getPrintableShardStatus(
   const changelogColl = configDB.getCollection('changelog');
 
   const [version, shards, mostRecentMongos] = await Promise.all([
-    versionColl.findOne({}, SHARDING_VERSION_FIELD_EXCLUSION),
+    versionColl.findOne(
+      {},
+      {
+        minCompatibleVersion: 0,
+        currentVersion: 0,
+        excluding: 0,
+        upgradeId: 0,
+        upgradeState: 0,
+      }
+    ),
     shardsColl.find().then((cursor) => cursor.sort({ _id: 1 }).toArray()),
     mongosColl
       .find()
