@@ -228,7 +228,6 @@ export async function getPrintableShardStatus(
       {},
       {
         minCompatibleVersion: 0,
-        currentVersion: 0,
         excluding: 0,
         upgradeId: 0,
         upgradeState: 0,
@@ -606,6 +605,7 @@ export async function getPrintableShardStatus(
     })
   );
 
+  delete result.shardingVersion.currentVersion;
   return result;
 }
 
