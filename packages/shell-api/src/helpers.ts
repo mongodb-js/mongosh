@@ -203,6 +203,14 @@ export function processDigestPassword(
   return { digestPassword: true };
 }
 
+const SHARDING_VERSION_FIELD_EXCLUSION = {
+  minCompatibleVersion: 0,
+  currentVersion: 0,
+  excluding: 0,
+  upgradeId: 0,
+  upgradeState: 0,
+};
+
 /**
  * Return an object which will become a ShardingStatusResult
  * @param mongo
@@ -224,7 +232,7 @@ export async function getPrintableShardStatus(
   const changelogColl = configDB.getCollection('changelog');
 
   const [version, shards, mostRecentMongos] = await Promise.all([
-    versionColl.findOne(),
+    versionColl.findOne({}, SHARDING_VERSION_FIELD_EXCLUSION),
     shardsColl.find().then((cursor) => cursor.sort({ _id: 1 }).toArray()),
     mongosColl
       .find()
@@ -346,7 +354,7 @@ export async function getPrintableShardStatus(
     })(),
     (async (): Promise<void> => {
       // Actionlog and version checking only works on 2.7 and greater
-      let versionHasActionlog = false;
+      let versionHasActionlog = !version.currentVersion; // means that we are in a version where it is deprecated (SERVER-68888)
       const metaDataVersion = version.currentVersion;
       if (metaDataVersion > 5) {
         versionHasActionlog = true;
@@ -596,6 +604,7 @@ export async function getPrintableShardStatus(
       return { database: db, collections: Object.fromEntries(collList) };
     })
   );
+
   return result;
 }
 
