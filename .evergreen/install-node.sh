@@ -63,11 +63,6 @@ else
       make -j8 NO_EXPAT=1)
   fi
 
-  which node
-  whereis node
-  which npm
-  whereis npm
-
   npm cache clear --force || true # Try to work around `Cannot read property 'pickAlgorithm' of null` errors in CI
   # Started observing CI failures on RHEL 7.2 (s390x) for installing npm, all
   # related to network issues hence adding a retry with backoff here.
