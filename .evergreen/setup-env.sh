@@ -19,7 +19,7 @@ if [ "$OS" != "Windows_NT" ]; then
   export PATH="$NVM_BIN:$PATH"
 
   export CC=gcc
-  export CXX=c++
+  export CXX=g++
 
   echo "Using gcc version:"
   gcc --version

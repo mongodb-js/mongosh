@@ -41,7 +41,7 @@ else
     ORIGINAL_PATH="${PATH}"
     export PATH="/opt/mongodbtoolchain/v4/bin:${ORIGINAL_PATH}"
     export CC=gcc
-    export CXX=c++
+    export CXX=g++
 
     echo nvm install -s --no-progress $NODE_JS_VERSION && nvm alias default $NODE_JS_VERSION
     nvm install -s --no-progress $NODE_JS_VERSION
