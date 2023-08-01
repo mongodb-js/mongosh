@@ -1191,14 +1191,9 @@ buildvariants:
     run_on: amazon2-large
     tasks:
       - name: e2e_tests_linux_x64
-  - name: e2e_suse12_x64
-    display_name: "SLES 12 x64 (E2E Tests)"
-    run_on: suse12-sp5-large
-    tasks:
-      - name: e2e_tests_linux_x64
   - name: e2e_suse15_x64
     display_name: "SLES 15 x64 (E2E Tests)"
-    run_on: suse15-large
+    run_on: suse15sp4-large
     tasks:
       - name: e2e_tests_linux_x64
   - name: e2e_ubuntu1804_arm64
