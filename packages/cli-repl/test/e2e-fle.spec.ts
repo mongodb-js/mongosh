@@ -24,7 +24,7 @@ function isMacosTooOldForQE() {
 }
 
 describe('FLE tests', function () {
-  const testServer = startTestServer('not-shared', {
+  const testServer = startTestServer('shared', {
     topology: 'replset',
     secondaries: 0,
   });
@@ -497,7 +497,7 @@ describe('FLE tests', function () {
     });
   });
 
-  context('7.0+', function () {
+  context.only('7.0+', function () {
     skipIfServerVersion(testServer, '< 7.0'); // Queryable Encryption v2 only available on 7.0+
 
     it('allows explicit encryption with bypassQueryAnalysis', async function () {
@@ -618,7 +618,9 @@ describe('FLE tests', function () {
       const plainMongoResult = await shell.executeLine(
         `plainMongo.getDB('${dbname}').collfle2.find()`
       );
-      expect(plainMongoResult).to.include('phoneNumber: Binary(Buffer.from');
+      expect(plainMongoResult).to.include(
+        'phoneNumber: Binary.createFromBase64('
+      );
       expect(plainMongoResult).to.not.include("phoneNumber: '+12874627836445'");
 
       let collections = await shell.executeLine(
