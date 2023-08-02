@@ -12,6 +12,12 @@ describe('snippet integration tests', function () {
   let shell: TestShell;
   let makeTestShell: () => TestShell;
   beforeEach(async function () {
+    if (process.env.DISTRO_ID === 'rhel92-fips') {
+      // TODO: The HTTPS requests we are making for snippet support do not work
+      // with the FIPS configuration on the RHEL 9.2 FIPS-enabled machines.
+      return this.skip();
+    }
+
     makeTestShell = () =>
       TestShell.start({
         args: ['--nodb'],
