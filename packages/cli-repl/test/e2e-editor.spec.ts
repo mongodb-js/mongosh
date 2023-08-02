@@ -1,9 +1,6 @@
 import { expect } from 'chai';
 import path from 'path';
 import { promises as fs } from 'fs';
-import { promisify } from 'util';
-import rimraf from 'rimraf';
-
 import { eventually } from '../../../testing/eventually';
 import { TestShell } from './test-shell';
 import {
@@ -47,7 +44,7 @@ describe('external editor e2e', function () {
   afterEach(async function () {
     await TestShell.killall.call(this);
     try {
-      await promisify(rimraf)(homedir);
+      await fs.rm(homedir, { recursive: true, force: true });
     } catch (err: any) {
       // On Windows in CI, this can fail with EPERM for some reason.
       // If it does, just log the error instead of failing all tests.

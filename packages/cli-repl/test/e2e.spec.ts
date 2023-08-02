@@ -9,7 +9,6 @@ import {
 } from '../../../testing/integration-testing-hooks';
 import { promises as fs, createReadStream } from 'fs';
 import { promisify } from 'util';
-import rimraf from 'rimraf';
 import path from 'path';
 import os from 'os';
 import { readReplLogfile, setTemporaryHomeDirectory } from './repl-helpers';
@@ -1162,7 +1161,7 @@ describe('e2e', function () {
     afterEach(async function () {
       await TestShell.killall.call(this);
       try {
-        await promisify(rimraf)(homedir);
+        fs.rm(homedir, { recursive: true, force: true });
       } catch (err: any) {
         // On Windows in CI, this can fail with EPERM for some reason.
         // If it does, just log the error instead of failing all tests.
