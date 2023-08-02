@@ -33,7 +33,7 @@ else
 
   set +x # nvm is very verbose
   echo nvm install --no-progress $NODE_JS_VERSION && nvm alias default $NODE_JS_VERSION
-  nvm install --no-progress $NODE_JS_VERSION
+  bash "$BASEDIR/retry-with-backoff.sh" nvm install --no-progress $NODE_JS_VERSION
   nvm alias default $NODE_JS_VERSION
   set -x
 
