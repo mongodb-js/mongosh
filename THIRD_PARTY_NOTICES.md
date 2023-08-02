@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Fri Jul 28 2023.
+This document was automatically generated on Tue Aug 01 2023.
 
 ## List of dependencies
 
@@ -366,7 +366,6 @@ Package|Version|License
 **[safe-buffer](#115052870841b125f6e9deb1b800b99ed9c660f269050eafb32c84bdd9211f12)**|5.1.2|MIT
 **[safe-buffer](#952cf236ee56e7de5ea7e772caf3e256866f9dbdffc492539c48cd8c15ac9674)**|5.2.1|MIT
 **[safer-buffer](#2fb14d3728e4ebf313be4634b146bd90cd3ad3559157baec03b64eec0878a0ba)**|2.1.2|MIT
-**[saslprep](#650475af3b2a0c96fc8e5d09155f96dccd1a6b720da0197b0ea1121968883b25)**|1.0.4|MIT
 **[semver](#c2244b3979a8f8d37bf67622a3fcc46bf41a0bb61410aa8a0d38b2070d212612)**|7.5.4|ISC
 **[send](#a5aa96052b8bf57c58c38d6fae3a3b7d94ec212b6100f58a8260eb2f6a8cff6d)**|0.18.0|MIT
 **[serve-static](#03156d123ff3a9482fa09d97af4668d5e2ae058c4e3d2c67fe4a1c0c072403f0)**|1.15.0|MIT
@@ -29501,37 +29500,6 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
       
-
-
-<a id="650475af3b2a0c96fc8e5d09155f96dccd1a6b720da0197b0ea1121968883b25"></a>
-### [saslprep](https://www.npmjs.com/package/saslprep) (version 1.0.4)
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      Copyright (c) 2014 Dmitry Tsvettsikh
-      
-      Permission is hereby granted, free of charge, to any person
-      obtaining a copy of this software and associated documentation
-      files (the "Software"), to deal in the Software without
-      restriction, including without limitation the rights to use,
-      copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the
-      Software is furnished to do so, subject to the following
-      conditions:
-      
-      The above copyright notice and this permission notice shall be
-      included in all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-      OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-      NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-      HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-      WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-      FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-      OTHER DEALINGS IN THE SOFTWARE.
 
 
 <a id="c2244b3979a8f8d37bf67622a3fcc46bf41a0bb61410aa8a0d38b2070d212612"></a>
