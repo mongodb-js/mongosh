@@ -1010,7 +1010,7 @@ buildvariants:
       <% } %>
   - name: darwin
     display_name: "MacOS Mojave"
-    run_on: macos-1014
+    run_on: macos-1100
     expansions:
       executable_os_id: darwin-x64
     tasks:
@@ -1272,19 +1272,19 @@ buildvariants:
     tasks:
       - name: pkg_test_ssh_win32_x64
       - name: pkg_test_ssh_win32msi_x64
-  - name: pkg_smoke_tests_macos_1014_x64
-    display_name: "package smoke tests (macos 10.14 x64)"
-    run_on: macos-1014
-    tasks:
-      - name: pkg_test_macos_darwin_x64
   - name: pkg_smoke_tests_macos_1100_x64
     display_name: "package smoke tests (macos 11.00 x64)"
     run_on: macos-1100
     tasks:
       - name: pkg_test_macos_darwin_x64
-  - name: pkg_smoke_tests_macos_arm64
-    display_name: "package smoke tests (macos arm64)"
+  - name: pkg_smoke_tests_macos_1100_arm64
+    display_name: "package smoke tests (macos 11.00 arm64)"
     run_on: macos-1100-arm64
+    tasks:
+      - name: pkg_test_macos_darwin_arm64
+  - name: pkg_smoke_tests_macos_1300_arm64
+    display_name: "package smoke tests (macos 13.00 arm64)"
+    run_on: macos-1300-arm64
     tasks:
       - name: pkg_test_macos_darwin_arm64
   - name: pkg_smoke_tests_rhel72_s390x
