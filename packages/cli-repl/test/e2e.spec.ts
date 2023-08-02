@@ -1161,7 +1161,7 @@ describe('e2e', function () {
     afterEach(async function () {
       await TestShell.killall.call(this);
       try {
-        fs.rm(homedir, { recursive: true, force: true });
+        await fs.rm(homedir, { recursive: true, force: true });
       } catch (err: any) {
         // On Windows in CI, this can fail with EPERM for some reason.
         // If it does, just log the error instead of failing all tests.
