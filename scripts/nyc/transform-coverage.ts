@@ -69,9 +69,9 @@ export function transformCoverageFiles(
         // in which the file metadata from different coverage reports are not exact matches
         // for each other (different source maps, line/column numbers). That leads
         // nyc to generate lower coverage numbers than it otherwise would.
-        // TODO: Investigate why this mismatch occurs (e.g.: some difference between
-        // running a package's own tests vs. using a package from another package's tests
-        // and then using the transpiled code from lib/ or dist/).
+        // TODO(MONGOSH-1551): Investigate why this mismatch occurs (e.g.: some difference
+        // between running a package's own tests vs. using a package from another package's
+        // tests and then using the transpiled code from lib/ or dist/).
         fileMetadata[p] ??= fileCoverage;
         const { s, b, f } = fileCoverage;
         coverage[p] = {
