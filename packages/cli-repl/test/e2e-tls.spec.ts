@@ -12,8 +12,6 @@ import {
   readReplLogfile,
 } from './repl-helpers';
 import { TestShell } from './test-shell';
-import { promisify } from 'util';
-import rimraf from 'rimraf';
 
 // TLS requires matching hostnames, so here we need to explicitly
 // specify `localhost` + IPv4 instead of `127.0.0.1`
@@ -110,7 +108,7 @@ describe('e2e TLS', function () {
 
     after(async function () {
       try {
-        await promisify(rimraf)(homedir);
+        await fs.rm(homedir, { recursive: true, force: true });
       } catch (err: any) {
         // On Windows in CI, this can fail with EPERM for some reason.
         // If it does, just log the error instead of failing all tests.
