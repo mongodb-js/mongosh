@@ -164,7 +164,7 @@ describe('getPrintableShardStatus', function () {
 
   it('returns an object with sharding information', async function () {
     const status = await getPrintableShardStatus(configDatabase, false);
-    expect(status.shardingVersion.currentVersion).to.be.a('number');
+    expect(status.shardingVersion.clusterId).to.be.instanceOf(bson.ObjectId);
     expect(status.shards.map(({ host }) => host)).to.include(
       'shard01/localhost:27018,localhost:27019,localhost:27020'
     );
@@ -179,6 +179,21 @@ describe('getPrintableShardStatus', function () {
     );
     expect(status.databases).to.have.lengthOf(1);
     expect(status.databases[0].database._id).to.equal('config');
+  });
+
+  describe('hides all internal deprecated fields in shardingVersion', function () {
+    for (const hiddenField of [
+      'minCompatibleVersion',
+      'currentVersion',
+      'excluding',
+      'upgradeId',
+      'upgradeState',
+    ]) {
+      it(`does not show ${hiddenField} in shardingVersion`, async function () {
+        const status = await getPrintableShardStatus(configDatabase, false);
+        expect(status.shardingVersion[hiddenField]).to.equal(undefined);
+      });
+    }
   });
 
   it('returns whether the balancer is currently running', async function () {
