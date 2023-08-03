@@ -8,6 +8,9 @@ interface Coverage {
 interface FileCoverage {
   path: string;
   inputSourceMap?: InputSourceMap;
+  s: unknown;
+  b: unknown;
+  f: unknown;
 }
 
 interface InputSourceMap {
@@ -17,8 +20,10 @@ interface InputSourceMap {
 
 export function transformCoverageFiles(
 	projectRoot: string,
+  unifyFileMetadata: 'unify' | 'keep',
   pathTransformer: (path: string) => string
 ): void {
+  const fileMetadata = Object.create(null);
   const nycOutput = path.join(projectRoot, '.nyc_output');
 
   if (!fs.existsSync(nycOutput)) {
@@ -35,13 +40,16 @@ export function transformCoverageFiles(
   for (const file of coverageFiles) {
     process.stdout.write(`... ${file} `);
     const content = fs.readFileSync(file, { encoding: 'utf-8' });
-    if (!content) {
-      console.log('+');
+
+    const coverage: Coverage = content ? JSON.parse(content) : null;
+    if (!coverage || Object.keys(coverage).length === 0) {
+      // Just drop/remove empty files.
+      fs.unlinkSync(file);
+      console.log('-');
       continue;
     }
 
-    const coverage: Coverage = JSON.parse(content);
-    Object.keys(coverage).forEach(p => {
+    for (let p of Object.keys(coverage)) {
       const fileCoverage = coverage[p];
       delete coverage[p];
 
@@ -54,8 +62,24 @@ export function transformCoverageFiles(
         sm.sources = sm.sources.map(pathTransformer);
       }
 
-      coverage[p] = fileCoverage;
-    });
+      if (unifyFileMetadata === 'keep') {
+        coverage[p] = fileCoverage;
+      } else {
+        // When preparing for the final report, we sometimes end up in a situation
+        // in which the file metadata from different coverage reports are not exact matches
+        // for each other (different source maps, line/column numbers). That leads
+        // nyc to generate lower coverage numbers than it otherwise would.
+        // TODO(MONGOSH-1551): Investigate why this mismatch occurs (e.g.: some difference
+        // between running a package's own tests vs. using a package from another package's
+        // tests and then using the transpiled code from lib/ or dist/).
+        fileMetadata[p] ??= fileCoverage;
+        const { s, b, f } = fileCoverage;
+        coverage[p] = {
+          ...fileMetadata[p],
+          s, b, f
+        };
+      }
+    }
     fs.writeFileSync(file, JSON.stringify(coverage, null, 0), { encoding: 'utf-8' });
     console.log(`*`);
   }

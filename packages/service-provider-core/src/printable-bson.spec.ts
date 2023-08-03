@@ -67,12 +67,6 @@ describe('BSON printers', function () {
     expect(inspect(new bson.Code('abc'))).to.equal('Code("abc")');
   });
 
-  it('formats BinData correctly', function () {
-    expect(inspect(new bson.Binary('abc'))).to.equal(
-      'Binary(Buffer.from("616263", "hex"), 0)'
-    );
-  });
-
   it('formats BSONRegExp correctly', function () {
     expect(inspect(new bson.BSONRegExp('(?-i)AA_', 'im'))).to.equal(
       'BSONRegExp("(?-i)AA_", "im")'
@@ -99,5 +93,11 @@ describe('BSON printers', function () {
         )
       )
     ).to.equal('MD5("0123456789abcdef0123456789abcdef")');
+  });
+
+  it('formats any other value with the new format using createfromBase64', function () {
+    expect(
+      inspect(bson.Binary.createFromBase64('SGVsbG8sIFdvcmxkIQo='))
+    ).to.equal('Binary.createFromBase64("SGVsbG8sIFdvcmxkIQo=")');
   });
 });

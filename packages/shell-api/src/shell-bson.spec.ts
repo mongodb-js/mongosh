@@ -150,6 +150,13 @@ describe('Shell BSON', function () {
       expect(s._bsontype).to.equal('ObjectId');
       expect(s.toHexString().slice(0, 8)).to.equal('12345678');
     });
+    it('can be created using createFromHexString', function () {
+      const s = shellBson.ObjectId.createFromHexString(
+        '64c122afaf44ca299136bbc3'
+      );
+      expect(s._bsontype).to.equal('ObjectId');
+      expect(s.toHexString()).to.equal('64c122afaf44ca299136bbc3');
+    });
     it('has help and other metadata', async function () {
       const s = shellBson.ObjectId();
       expect((await toShellResult(s.help)).type).to.equal('Help');
@@ -702,6 +709,14 @@ describe('Shell BSON', function () {
         );
       }
       expect.fail('Expecting error, nothing thrown');
+    });
+  });
+
+  describe('Binary', function () {
+    it('creates a Binary value using createFromBase64', function () {
+      const n = shellBson.Binary.createFromBase64('SGVsbG8sIFdvcmxkIQo=');
+      expect(n).to.be.instanceOf(bson.Binary);
+      expect(n.value()).to.equal('Hello, World!\n');
     });
   });
 
