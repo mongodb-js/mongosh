@@ -24,7 +24,7 @@ function isMacosTooOldForQE() {
 }
 
 describe('FLE tests', function () {
-  const testServer = startTestServer('shared', {
+  const testServer = startTestServer('not-shared', {
     topology: 'replset',
     secondaries: 0,
   });
@@ -497,7 +497,7 @@ describe('FLE tests', function () {
     });
   });
 
-  context.only('7.0+', function () {
+  context('7.0+', function () {
     skipIfServerVersion(testServer, '< 7.0'); // Queryable Encryption v2 only available on 7.0+
 
     it('allows explicit encryption with bypassQueryAnalysis', async function () {
