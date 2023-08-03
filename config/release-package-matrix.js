@@ -20,7 +20,7 @@ exports.RELEASE_PACKAGE_MATRIX = [
     compileBuildVariant: 'linux_x64_build',
     packages: [
       { name: 'linux-x64', description: 'Linux Tarball 64-bit', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu20.04-tgz'] },
-      { name: 'deb-x64', description: 'Debian / Ubuntu 64-bit', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu18.04-deb', 'ubuntu20.04-deb', 'ubuntu22.04-deb', 'ubuntu22.04-nohome-deb', 'debian9-deb', 'debian10-deb', 'debian11-deb'] },
+      { name: 'deb-x64', description: 'Debian / Ubuntu 64-bit', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu18.04-deb', 'ubuntu20.04-deb', 'ubuntu22.04-deb', 'ubuntu22.04-nohome-deb', 'debian9-deb', 'debian10-deb', 'debian11-deb', 'debian12-deb'] },
       { name: 'rpm-x64', description: 'RHEL / CentOS / Fedora / Suse 64-bit', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['centos7-rpm', 'amazonlinux2-rpm', 'amazonlinux2023-rpm', 'rocky8-rpm', 'rocky9-rpm', 'fedora34-rpm', 'suse12-rpm', 'suse15-rpm', 'amazonlinux1-rpm'] }
     ]
   },
@@ -38,7 +38,7 @@ exports.RELEASE_PACKAGE_MATRIX = [
     compileBuildVariant: 'linux_x64_build_openssl3',
     packages: [
       { name: 'linux-x64-openssl3', description: 'Linux Tarball 64-bit (shared OpenSSL 3)', packageOn: 'linux_package', smokeTestKind: 'none' },
-      { name: 'deb-x64-openssl3', description: 'Debian / Ubuntu 64-bit (shared OpenSSL 3)', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu22.04-deb', 'ubuntu22.04-fips-deb'] },
+      { name: 'deb-x64-openssl3', description: 'Debian / Ubuntu 64-bit (shared OpenSSL 3)', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu22.04-deb', 'ubuntu22.04-fips-deb', 'debian12-deb'] },
       { name: 'rpm-x64-openssl3', description: 'RHEL / CentOS 64-bit (shared OpenSSL 3)', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['rocky8-epel-rpm', 'rocky9-rpm', 'rocky9-fips-rpm', 'amazonlinux2023-rpm'] }
     ]
   },
@@ -47,7 +47,7 @@ exports.RELEASE_PACKAGE_MATRIX = [
     compileBuildVariant: 'linux_arm64_build',
     packages: [
       { name: 'linux-arm64', description: 'Linux Tarball arm64', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu20.04-tgz'] },
-      { name: 'deb-arm64', description: 'Debian / Ubuntu arm64', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu18.04-deb', 'ubuntu20.04-deb', 'ubuntu22.04-deb', 'debian10-deb', 'debian11-deb'] },
+      { name: 'deb-arm64', description: 'Debian / Ubuntu arm64', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu18.04-deb', 'ubuntu20.04-deb', 'ubuntu22.04-deb', 'debian10-deb', 'debian11-deb', 'debian12-deb'] },
       { name: 'rpm-arm64', description: 'RHEL / CentOS arm64', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['rocky8-rpm', 'rocky9-rpm', 'fedora34-rpm', 'amazonlinux2-rpm', 'amazonlinux2023-rpm'] }
     ]
   },
