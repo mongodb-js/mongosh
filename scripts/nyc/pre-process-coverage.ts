@@ -5,6 +5,7 @@ import { transformCoverageFiles } from './transform-coverage';
 const projectRoot = path.resolve(__dirname, '..', '..');
 transformCoverageFiles(
   projectRoot,
+  'unify',
   (p) => {
     if (p.startsWith(projectRoot)) {
       // try and make this idempotent
