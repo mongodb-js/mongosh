@@ -1853,7 +1853,7 @@ export default class Collection extends ShellApiWithMongoClass {
 
       return await this._aggregateAndScaleCollStats(collStats, scale);
     } catch (e: any) {
-      if (e?.code === 13388) {
+      if (e?.codeName === 'StaleConfig' || e?.code === 13388) {
         // Fallback to the deprecated way of fetching that folks can still
         // fetch the stats of sharded timeseries collections. SERVER-72686
         try {
