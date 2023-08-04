@@ -978,8 +978,8 @@ describe('Auth e2e', function () {
           });
           if (
             (await preTestShell.waitForExit()) === 1 &&
-            preTestShell.output.includes(
-              'digital envelope routines::unsupported'
+            preTestShell.output.match(
+              /digital envelope routines::unsupported|SSL routines::library has no ciphers/
             )
           ) {
             return this.skip();
