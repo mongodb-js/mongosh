@@ -23,7 +23,8 @@ else
       sed -i "$HOME/.npmrc" -e 's/^prefix=.*$//'
     fi
   fi
-  export NVM_DIR="$HOME/.nvm"
+  export NVM_DIR="$BASEDIR/.nvm"
+  mkdir -p "${NVM_DIR}"
 
   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
 
