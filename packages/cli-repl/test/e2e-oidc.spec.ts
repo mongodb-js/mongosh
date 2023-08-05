@@ -235,9 +235,10 @@ describe('OIDC auth e2e', function () {
     await verifyUser(shell, 'testuser', 'testServer-group');
     await shell.executeLine('db.getMongo().setReadPref("primaryPreferred");');
     await verifyUser(shell, 'testuser', 'testServer-group');
-    await shell.executeLine(
-      `db = connect(${JSON.stringify(cs + '/?authMechanism=MONGODB-OIDC')})`
-    );
+    const cs2 = await testServer.connectionString({
+      authMechanism: 'MONGODB-OIDC',
+    });
+    await shell.executeLine(`db = connect(${JSON.stringify(cs2)})`);
     await verifyUser(shell, 'testuser', 'testServer-group');
     shell.assertNoErrors();
     expect(tokenFetches).to.equal(1);
@@ -255,8 +256,9 @@ describe('OIDC auth e2e', function () {
     await shell.waitForPrompt();
 
     await verifyUser(shell, 'testuser', 'testServer-group');
-    const cs2 =
-      (await testServer2.connectionString()) + '/?authMechanism=MONGODB-OIDC';
+    const cs2 = await testServer2.connectionString({
+      authMechanism: 'MONGODB-OIDC',
+    });
     await shell.executeLine(`db = connect(${JSON.stringify(cs2)})`);
     await verifyUser(shell, 'testuser', 'testServer2-group');
     shell.assertNoErrors();

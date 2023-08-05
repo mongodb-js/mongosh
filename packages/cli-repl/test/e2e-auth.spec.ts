@@ -149,7 +149,10 @@ describe('Auth e2e', function () {
           await assertUserAuth();
         });
         it('digestPassword', async function () {
-          if (process.env.MONGOSH_TEST_E2E_FORCE_FIPS) {
+          if (
+            process.env.MONGOSH_TEST_E2E_FORCE_FIPS ||
+            process.env.DISTRO_ID === 'rhel92-fips'
+          ) {
             return this.skip(); // No SCRAM-SHA-1 in FIPS mode
           }
           await shell.executeLine(`use ${dbName}`);
@@ -212,7 +215,10 @@ describe('Auth e2e', function () {
           shell.assertNoErrors();
         });
         it('digestPassword', async function () {
-          if (process.env.MONGOSH_TEST_E2E_FORCE_FIPS) {
+          if (
+            process.env.MONGOSH_TEST_E2E_FORCE_FIPS ||
+            process.env.DISTRO_ID === 'rhel92-fips'
+          ) {
             return this.skip(); // No SCRAM-SHA-1 in FIPS mode
           }
           await shell.executeLine(`use ${dbName}`);
@@ -930,7 +936,10 @@ describe('Auth e2e', function () {
     });
     context('with specific auth mechanisms', function () {
       it('can auth with SCRAM-SHA-1', async function () {
-        if (process.env.MONGOSH_TEST_E2E_FORCE_FIPS) {
+        if (
+          process.env.MONGOSH_TEST_E2E_FORCE_FIPS ||
+          process.env.DISTRO_ID === 'rhel92-fips'
+        ) {
           return this.skip(); // No SCRAM-SHA-1 in FIPS mode
         }
         const connectionString = await testServer.connectionString();
@@ -954,6 +963,29 @@ describe('Auth e2e', function () {
         shell.assertNoErrors();
       });
       it('provides a helpful error message for SCRAM-SHA-1 in FIPS mode', async function () {
+        {
+          // This test is not particularly meaningful if we're using the system OpenSSL installation
+          // and it is not properly configured for FIPS to begin with. This is the case on e.g.
+          // Ubuntu 22.04 in evergreen CI.
+          const preTestShell = TestShell.start({
+            args: [
+              '--quiet',
+              '--nodb',
+              '--tlsFIPSMode',
+              '--eval',
+              'tls.createSecureContext()',
+            ],
+          });
+          if (
+            (await preTestShell.waitForExit()) === 1 &&
+            preTestShell.output.includes(
+              'digital envelope routines::unsupported'
+            )
+          ) {
+            return this.skip();
+          }
+        }
+
         const connectionString = await testServer.connectionString();
         shell = TestShell.start({
           args: [
