@@ -1,5 +1,5 @@
 # Regenerate using `npm run update-evergreen-config`
-exec_timeout_secs: 3600
+exec_timeout_secs: 10800
 
 post_error_fails_task: true
 post:

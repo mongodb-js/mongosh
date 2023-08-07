@@ -59,7 +59,7 @@ const ALL_UNIT_TEST_BUILD_VARIANTS = ['darwin_unit', 'linux_unit', 'win32_unit']
 const { RELEASE_PACKAGE_MATRIX } = require('../config/release-package-matrix');
 
 %>
-exec_timeout_secs: 3600
+exec_timeout_secs: 10800
 
 post_error_fails_task: true
 post:
