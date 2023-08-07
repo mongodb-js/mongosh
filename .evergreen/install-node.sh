@@ -38,25 +38,7 @@ else
   # needs to be built from source
   if [[ "${DISTRO_ID}" =~ ^(amazon(1|2)-|debian9|rhel7|ubuntu18) ]];
   then
-    # Building from source requires up to date toolchain in path
-    ORIGINAL_PATH="${PATH}"
-    export PATH="/opt/mongodbtoolchain/v4/bin:/opt/mongodbtoolchain/v3/bin:${ORIGINAL_PATH}"
-    export CC=gcc
-    export CXX=g++
-
-    echo "Using gcc version:"
-    (which gcc && gcc --version)
-
-    echo "Using g++ version:"
-    (which g++ && g++ --version)
-
-    echo "Using python3 version:"
-    (which python3 && python3 --version) || true
-
-    echo nvm install -s --no-progress $NODE_JS_VERSION && nvm alias default $NODE_JS_VERSION
-    nvm install -s --no-progress $NODE_JS_VERSION
-    nvm alias default $NODE_JS_VERSION
-    export PATH="${ORIGINAL_PATH}"
+    . "$BASEDIR/install-node-source.sh"
   else
     echo nvm install --no-progress $NODE_JS_VERSION && nvm alias default $NODE_JS_VERSION
     nvm install --no-progress $NODE_JS_VERSION
