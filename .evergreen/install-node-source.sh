@@ -39,7 +39,7 @@ pushd "${NODE_JS_SOURCE_PATH}"
 # Apply the patch for lazy importing bz2. We only apply the bz2 patch as of now
 # but later, when needed, we can expand this to apply all the patches in the
 # patch directory
-git apply "${ROOT_DIR}/scripts/nodejs-patches/001-configure-bz2.patch"
+patch -p1 < "${ROOT_DIR}/scripts/nodejs-patches/001-configure-bz2.patch"
 
 ./configure --prefix "${NODE_JS_INSTALL_DIR}"
 
