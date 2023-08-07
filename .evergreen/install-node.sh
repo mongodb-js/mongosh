@@ -36,7 +36,7 @@ else
 
   # A few distros where pre-built node20 does not work out of the box and hence
   # needs to be built from source
-  if [[ "${DISTRO_ID}" =~ ^(amazon(1|2)-|debian9|rhel7|ubuntu18) ]];
+  if [[ "${DISTRO_ID}" =~ ^(amazon(1|2)-|debian9|rhel7|ubuntu18) ]] && [[ "$NODE_JS_VERSION" =~ ^20 ]];
   then
     . "$BASEDIR/install-node-source.sh"
   else
