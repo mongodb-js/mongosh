@@ -61,6 +61,15 @@ exports.RELEASE_PACKAGE_MATRIX = [
     ]
   },
   {
+    executableOsId: 'linux-arm64-openssl3',
+    compileBuildVariant: 'linux_arm64_build_openssl3',
+    packages: [
+      { name: 'linux-arm64-openssl3', description: 'Linux Tarball arm64 (shared OpenSSL 3)', packageOn: 'linux_package', smokeTestKind: 'none' },
+      { name: 'deb-arm64-openssl3', description: 'Debian / Ubuntu arm64 (shared OpenSSL 3)', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu22.04-deb', 'ubuntu22.04-fips-deb', 'debian12-deb'] },
+      { name: 'rpm-arm64-openssl3', description: 'RHEL / CentOS arm64 (shared OpenSSL 3)', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['rocky8-epel-rpm', 'rocky9-rpm', 'rocky9-fips-rpm', 'amazonlinux2023-rpm'] }
+    ]
+  },
+  {
     executableOsId: 'linux-ppc64le',
     compileBuildVariant: 'linux_ppc64le_build',
     packages: [

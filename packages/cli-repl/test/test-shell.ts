@@ -99,6 +99,8 @@ export class TestShell {
           pid: shell.process.pid,
           output: shell.output,
           rawOutput: shell.rawOutput,
+          exitCode: shell.process.exitCode,
+          signal: shell.process.signalCode,
         });
       }
     }
