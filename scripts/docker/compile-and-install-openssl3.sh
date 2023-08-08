@@ -27,8 +27,8 @@ tar xvzf openssl-*.tar.gz
 rm -f openssl-*.tar.gz
 
 # Remove possibly existing system OpenSSL 3 libraries
-rm -f /lib/x86_64-linux-gnu/libcrypto.so.3
-rm -f /lib/x86_64-linux-gnu/libssl.so.3
+rm -f /lib/{x86_64,aarch64}-linux-gnu/libcrypto.so.3
+rm -f /lib/{x86_64,aarch64}-linux-gnu/libssl.so.3
 
 pushd openssl-*
 # Compile and install OpenSSL.

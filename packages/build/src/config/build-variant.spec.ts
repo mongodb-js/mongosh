@@ -4,7 +4,7 @@ import { ALL_PACKAGE_VARIANTS } from './build-variant';
 describe('BuildVariant', function () {
   describe('all build variants', function () {
     it('has all of them', function () {
-      expect(ALL_PACKAGE_VARIANTS).to.have.length(23);
+      expect(ALL_PACKAGE_VARIANTS).to.have.length(26);
       expect(ALL_PACKAGE_VARIANTS).to.contain('win32msi-x64');
       expect(ALL_PACKAGE_VARIANTS).to.contain('darwin-x64');
       expect(ALL_PACKAGE_VARIANTS).to.contain('deb-x64');
