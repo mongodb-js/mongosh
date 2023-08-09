@@ -10,6 +10,7 @@ export interface PackageInformation {
   packageOn: string;
   smokeTestKind: 'docker' | 'rpmextract' | 'debextract' | 'none';
   smokeTestDockerfiles?: string[];
+  serverLikeTargetList: string[];
 }
 
 export declare const RELEASE_PACKAGE_MATRIX: ExecutablePackageInformation[];

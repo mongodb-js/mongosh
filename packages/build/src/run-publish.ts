@@ -71,6 +71,7 @@ export async function runPublish(
     config.packageInformation as PackageInformationProvider,
     config.downloadCenterAwsKey || '',
     config.downloadCenterAwsSecret || '',
+    config.injectedJsonFeedFile || '',
     !!config.isDryRun
   );
 
