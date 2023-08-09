@@ -27,6 +27,9 @@ echo "Using g++ version:"
 echo "Using python3 version:"
 (which python3 && python3 --version) || true
 
+# Without enough allowed file descriptors the Node build fails
+ulimit -n 4096
+
 echo "Will install Node.js v${NODE_JS_VERSION}"
 
 # Download and unpack node source
