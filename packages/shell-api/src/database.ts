@@ -33,7 +33,6 @@ import {
   type Document,
   type WriteConcern,
   type ListCollectionsOptions,
-  ReadPreference,
 } from '@mongosh/service-provider-core';
 import { AggregationCursor, RunCommandCursor, CommandResult } from './index';
 import {
@@ -158,7 +157,6 @@ export default class Database extends ShellApiWithMongoClass {
       this._name,
       adjustRunCommand(cmd, this._instanceState.shellBson),
       {
-        readPreference: 'primaryPreferred',
         ...(await this._baseOptions()),
         ...options,
       }
