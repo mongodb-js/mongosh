@@ -38,7 +38,7 @@
     "mongodb-connection-string-url": "^2.6.0"
   },
   "devDependencies": {
-    "@mongodb-js/devtools-connect": "^2.2.1",
+    "@mongodb-js/devtools-connect": "^2.3.1",
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
