@@ -1151,7 +1151,7 @@ describe('Collection', function () {
           expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
             database.getName(),
             { dropIndexes: collection.getName(), index: '*' },
-            {}
+            { readPreference: 'primaryPreferred' }
           );
         });
       });
