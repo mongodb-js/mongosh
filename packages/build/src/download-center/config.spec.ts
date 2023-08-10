@@ -385,7 +385,7 @@ describe('DownloadCenter config', function () {
     });
   });
 
-  describe.only('createJsonFeedEntry', function () {
+  describe('createJsonFeedEntry', function () {
     it('generates a config that only refers to `arch` or `target` values known to the server', async function () {
       const fullJson = await (
         await fetch('https://downloads.mongodb.org/full.json')
