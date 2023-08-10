@@ -26,13 +26,14 @@ import {
   getBadge,
 } from './helpers';
 
-import type {
-  ChangeStreamOptions,
-  CommandOperationOptions,
-  CreateCollectionOptions,
-  Document,
-  WriteConcern,
-  ListCollectionsOptions,
+import {
+  type ChangeStreamOptions,
+  type CommandOperationOptions,
+  type CreateCollectionOptions,
+  type Document,
+  type WriteConcern,
+  type ListCollectionsOptions,
+  ReadPreference,
 } from '@mongosh/service-provider-core';
 import { AggregationCursor, RunCommandCursor, CommandResult } from './index';
 import {
@@ -149,8 +150,23 @@ export default class Database extends ShellApiWithMongoClass {
   }
 
   // Private helpers to avoid sending telemetry events for internal calls. Public so rs/sh can use them
-
   public async _runCommand(
+    cmd: Document,
+    options: CommandOperationOptions = {}
+  ): Promise<Document> {
+    return this._mongo._serviceProvider.runCommandWithCheck(
+      this._name,
+      adjustRunCommand(cmd, this._instanceState.shellBson),
+      {
+        readPreference: 'primaryPreferred',
+        ...(await this._baseOptions()),
+        ...options,
+      }
+    );
+  }
+
+  // Private helpers to avoid sending telemetry events for internal calls. Public so rs/sh can use them
+  public async _runReadCommand(
     cmd: Document,
     options: CommandOperationOptions = {}
   ): Promise<Document> {
@@ -711,7 +727,7 @@ export default class Database extends ShellApiWithMongoClass {
       { usersInfo: { user: username, db: this._name } },
       options
     );
-    const result = await this._runCommand(command);
+    const result = await this._runReadCommand(command);
     if (result.users === undefined) {
       throw new MongoshInternalError(
         'No users were returned from the userInfo command'
@@ -730,7 +746,7 @@ export default class Database extends ShellApiWithMongoClass {
   async getUsers(options: Document = {}): Promise<Document> {
     this._emitDatabaseApiCall('getUsers', { options: options });
     const command = adaptOptions({}, { usersInfo: 1 }, options);
-    return await this._runCommand(command);
+    return await this._runReadCommand(command);
   }
 
   @returnsPromise
@@ -973,7 +989,7 @@ export default class Database extends ShellApiWithMongoClass {
       { rolesInfo: { role: rolename, db: this._name } },
       options
     );
-    const result = await this._runCommand(command);
+    const result = await this._runReadCommand(command);
     if (result.roles === undefined) {
       throw new MongoshInternalError(
         'No roles returned from rolesInfo command'
@@ -992,7 +1008,7 @@ export default class Database extends ShellApiWithMongoClass {
   async getRoles(options: Document = {}): Promise<Document> {
     this._emitDatabaseApiCall('getRoles', { options: options });
     const command = adaptOptions({}, { rolesInfo: 1 }, options);
-    return await this._runCommand(command);
+    return await this._runReadCommand(command);
   }
 
   async _getCurrentOperations(opts: Document | boolean): Promise<Document[]> {
@@ -1133,7 +1149,7 @@ export default class Database extends ShellApiWithMongoClass {
   @apiVersions([])
   async isMaster(): Promise<Document> {
     this._emitDatabaseApiCall('isMaster', {});
-    const result = await this._runCommand({
+    const result = await this._runReadCommand({
       isMaster: 1,
     });
     result.isWritablePrimary = result.ismaster;
@@ -1146,7 +1162,7 @@ export default class Database extends ShellApiWithMongoClass {
   async hello(): Promise<Document> {
     this._emitDatabaseApiCall('hello', {});
     try {
-      this._cachedHello = await this._runCommand({
+      this._cachedHello = await this._runReadCommand({
         hello: 1,
       });
       return this._cachedHello;
@@ -1192,7 +1208,7 @@ export default class Database extends ShellApiWithMongoClass {
       scaleOrOptions = { scale: scaleOrOptions };
     }
     this._emitDatabaseApiCall('stats', { scale: scaleOrOptions.scale });
-    return await this._runCommand({
+    return await this._runReadCommand({
       dbStats: 1,
       scale: 1,
       ...scaleOrOptions,
@@ -1325,7 +1341,7 @@ export default class Database extends ShellApiWithMongoClass {
   @apiVersions([])
   async getProfilingStatus(): Promise<Document> {
     this._emitDatabaseApiCall('getProfilingStatus', {});
-    return await this._runCommand({
+    return await this._runReadCommand({
       profile: -1,
     });
   }
@@ -1448,7 +1464,7 @@ export default class Database extends ShellApiWithMongoClass {
   @apiVersions([])
   async listCommands(): Promise<CommandResult> {
     this._emitDatabaseApiCall('listCommands', {});
-    const result = await this._runCommand({
+    const result = await this._runReadCommand({
       listCommands: 1,
     });
     if (!result || result.commands === undefined) {
