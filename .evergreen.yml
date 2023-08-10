@@ -6026,7 +6026,7 @@ tasks:
       - func: checkout
       - func: compile_ts
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
 
   - name: check
     depends_on:
@@ -6036,11 +6036,11 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: check
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
 
   - name: check_coverage
     depends_on:
@@ -6050,11 +6050,11 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: check_coverage
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
 
   ###
   # UNIT TESTS
@@ -6069,12 +6069,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n16_arg_parser"
           mongosh_run_only_in_package: "arg-parser"
@@ -6105,12 +6105,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n16_async_rewriter2"
           mongosh_run_only_in_package: "async-rewriter2"
@@ -6141,12 +6141,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n16_autocomplete"
           mongosh_run_only_in_package: "autocomplete"
@@ -6177,12 +6177,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n16_browser_repl"
           mongosh_run_only_in_package: "browser-repl"
@@ -6213,12 +6213,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n16_browser_runtime_core"
           mongosh_run_only_in_package: "browser-runtime-core"
@@ -6249,12 +6249,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n16_browser_runtime_electron"
           mongosh_run_only_in_package: "browser-runtime-electron"
@@ -6285,12 +6285,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n16_build"
           mongosh_run_only_in_package: "build"
@@ -6321,12 +6321,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.0.x-community"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m40xc_n16_cli_repl"
           mongosh_run_only_in_package: "cli-repl"
@@ -6339,12 +6339,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.0.x"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m40xe_n16_cli_repl"
           mongosh_run_only_in_package: "cli-repl"
@@ -6357,12 +6357,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x-community"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m42xc_n16_cli_repl"
           mongosh_run_only_in_package: "cli-repl"
@@ -6375,12 +6375,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m42xe_n16_cli_repl"
           mongosh_run_only_in_package: "cli-repl"
@@ -6393,12 +6393,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x-community"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m44xc_n16_cli_repl"
           mongosh_run_only_in_package: "cli-repl"
@@ -6411,12 +6411,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m44xe_n16_cli_repl"
           mongosh_run_only_in_package: "cli-repl"
@@ -6429,12 +6429,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x-community"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m50xc_n16_cli_repl"
           mongosh_run_only_in_package: "cli-repl"
@@ -6447,12 +6447,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m50xe_n16_cli_repl"
           mongosh_run_only_in_package: "cli-repl"
@@ -6465,12 +6465,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "6.0.x-community"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m60xc_n16_cli_repl"
           mongosh_run_only_in_package: "cli-repl"
@@ -6483,12 +6483,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "6.0.x"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m60xe_n16_cli_repl"
           mongosh_run_only_in_package: "cli-repl"
@@ -6501,12 +6501,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "latest-alpha-enterprise"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "mlatest_n16_cli_repl"
           mongosh_run_only_in_package: "cli-repl"
@@ -6717,12 +6717,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n16_connectivity_tests"
           mongosh_run_only_in_package: "connectivity-tests"
@@ -6753,12 +6753,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n16_editor"
           mongosh_run_only_in_package: "editor"
@@ -6789,12 +6789,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n16_errors"
           mongosh_run_only_in_package: "errors"
@@ -6825,12 +6825,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n16_history"
           mongosh_run_only_in_package: "history"
@@ -6861,12 +6861,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n16_i18n"
           mongosh_run_only_in_package: "i18n"
@@ -6897,12 +6897,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.0.x-community"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m40xc_n16_java_shell"
           mongosh_run_only_in_package: "java-shell"
@@ -6915,12 +6915,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.0.x"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m40xe_n16_java_shell"
           mongosh_run_only_in_package: "java-shell"
@@ -6933,12 +6933,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x-community"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m42xc_n16_java_shell"
           mongosh_run_only_in_package: "java-shell"
@@ -6951,12 +6951,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m42xe_n16_java_shell"
           mongosh_run_only_in_package: "java-shell"
@@ -6969,12 +6969,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x-community"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m44xc_n16_java_shell"
           mongosh_run_only_in_package: "java-shell"
@@ -6987,12 +6987,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m44xe_n16_java_shell"
           mongosh_run_only_in_package: "java-shell"
@@ -7005,12 +7005,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x-community"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m50xc_n16_java_shell"
           mongosh_run_only_in_package: "java-shell"
@@ -7023,12 +7023,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m50xe_n16_java_shell"
           mongosh_run_only_in_package: "java-shell"
@@ -7041,12 +7041,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "6.0.x-community"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m60xc_n16_java_shell"
           mongosh_run_only_in_package: "java-shell"
@@ -7059,12 +7059,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "6.0.x"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m60xe_n16_java_shell"
           mongosh_run_only_in_package: "java-shell"
@@ -7077,12 +7077,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "latest-alpha-enterprise"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "mlatest_n16_java_shell"
           mongosh_run_only_in_package: "java-shell"
@@ -7293,12 +7293,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n16_js_multiline_to_singleline"
           mongosh_run_only_in_package: "js-multiline-to-singleline"
@@ -7329,12 +7329,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n16_logging"
           mongosh_run_only_in_package: "logging"
@@ -7365,12 +7365,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.0.x-community"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m40xc_n16_mongosh"
           mongosh_run_only_in_package: "mongosh"
@@ -7383,12 +7383,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.0.x"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m40xe_n16_mongosh"
           mongosh_run_only_in_package: "mongosh"
@@ -7401,12 +7401,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x-community"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m42xc_n16_mongosh"
           mongosh_run_only_in_package: "mongosh"
@@ -7419,12 +7419,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m42xe_n16_mongosh"
           mongosh_run_only_in_package: "mongosh"
@@ -7437,12 +7437,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x-community"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m44xc_n16_mongosh"
           mongosh_run_only_in_package: "mongosh"
@@ -7455,12 +7455,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m44xe_n16_mongosh"
           mongosh_run_only_in_package: "mongosh"
@@ -7473,12 +7473,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x-community"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m50xc_n16_mongosh"
           mongosh_run_only_in_package: "mongosh"
@@ -7491,12 +7491,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m50xe_n16_mongosh"
           mongosh_run_only_in_package: "mongosh"
@@ -7509,12 +7509,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "6.0.x-community"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m60xc_n16_mongosh"
           mongosh_run_only_in_package: "mongosh"
@@ -7527,12 +7527,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "6.0.x"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m60xe_n16_mongosh"
           mongosh_run_only_in_package: "mongosh"
@@ -7545,12 +7545,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "latest-alpha-enterprise"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "mlatest_n16_mongosh"
           mongosh_run_only_in_package: "mongosh"
@@ -7761,12 +7761,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.0.x-community"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m40xc_n16_node_runtime_worker_thread"
           mongosh_run_only_in_package: "node-runtime-worker-thread"
@@ -7779,12 +7779,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.0.x"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m40xe_n16_node_runtime_worker_thread"
           mongosh_run_only_in_package: "node-runtime-worker-thread"
@@ -7797,12 +7797,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x-community"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m42xc_n16_node_runtime_worker_thread"
           mongosh_run_only_in_package: "node-runtime-worker-thread"
@@ -7815,12 +7815,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m42xe_n16_node_runtime_worker_thread"
           mongosh_run_only_in_package: "node-runtime-worker-thread"
@@ -7833,12 +7833,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x-community"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m44xc_n16_node_runtime_worker_thread"
           mongosh_run_only_in_package: "node-runtime-worker-thread"
@@ -7851,12 +7851,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m44xe_n16_node_runtime_worker_thread"
           mongosh_run_only_in_package: "node-runtime-worker-thread"
@@ -7869,12 +7869,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x-community"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m50xc_n16_node_runtime_worker_thread"
           mongosh_run_only_in_package: "node-runtime-worker-thread"
@@ -7887,12 +7887,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m50xe_n16_node_runtime_worker_thread"
           mongosh_run_only_in_package: "node-runtime-worker-thread"
@@ -7905,12 +7905,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "6.0.x-community"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m60xc_n16_node_runtime_worker_thread"
           mongosh_run_only_in_package: "node-runtime-worker-thread"
@@ -7923,12 +7923,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "6.0.x"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m60xe_n16_node_runtime_worker_thread"
           mongosh_run_only_in_package: "node-runtime-worker-thread"
@@ -7941,12 +7941,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "latest-alpha-enterprise"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "mlatest_n16_node_runtime_worker_thread"
           mongosh_run_only_in_package: "node-runtime-worker-thread"
@@ -8157,12 +8157,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n16_service_provider_core"
           mongosh_run_only_in_package: "service-provider-core"
@@ -8193,12 +8193,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.0.x-community"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m40xc_n16_service_provider_server"
           mongosh_run_only_in_package: "service-provider-server"
@@ -8211,12 +8211,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.0.x"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m40xe_n16_service_provider_server"
           mongosh_run_only_in_package: "service-provider-server"
@@ -8229,12 +8229,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x-community"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m42xc_n16_service_provider_server"
           mongosh_run_only_in_package: "service-provider-server"
@@ -8247,12 +8247,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m42xe_n16_service_provider_server"
           mongosh_run_only_in_package: "service-provider-server"
@@ -8265,12 +8265,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x-community"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m44xc_n16_service_provider_server"
           mongosh_run_only_in_package: "service-provider-server"
@@ -8283,12 +8283,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m44xe_n16_service_provider_server"
           mongosh_run_only_in_package: "service-provider-server"
@@ -8301,12 +8301,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x-community"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m50xc_n16_service_provider_server"
           mongosh_run_only_in_package: "service-provider-server"
@@ -8319,12 +8319,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m50xe_n16_service_provider_server"
           mongosh_run_only_in_package: "service-provider-server"
@@ -8337,12 +8337,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "6.0.x-community"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m60xc_n16_service_provider_server"
           mongosh_run_only_in_package: "service-provider-server"
@@ -8355,12 +8355,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "6.0.x"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m60xe_n16_service_provider_server"
           mongosh_run_only_in_package: "service-provider-server"
@@ -8373,12 +8373,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "latest-alpha-enterprise"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "mlatest_n16_service_provider_server"
           mongosh_run_only_in_package: "service-provider-server"
@@ -8589,12 +8589,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.0.x-community"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m40xc_n16_shell_api"
           mongosh_run_only_in_package: "shell-api"
@@ -8607,12 +8607,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.0.x"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m40xe_n16_shell_api"
           mongosh_run_only_in_package: "shell-api"
@@ -8625,12 +8625,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x-community"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m42xc_n16_shell_api"
           mongosh_run_only_in_package: "shell-api"
@@ -8643,12 +8643,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m42xe_n16_shell_api"
           mongosh_run_only_in_package: "shell-api"
@@ -8661,12 +8661,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x-community"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m44xc_n16_shell_api"
           mongosh_run_only_in_package: "shell-api"
@@ -8679,12 +8679,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m44xe_n16_shell_api"
           mongosh_run_only_in_package: "shell-api"
@@ -8697,12 +8697,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x-community"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m50xc_n16_shell_api"
           mongosh_run_only_in_package: "shell-api"
@@ -8715,12 +8715,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m50xe_n16_shell_api"
           mongosh_run_only_in_package: "shell-api"
@@ -8733,12 +8733,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "6.0.x-community"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m60xc_n16_shell_api"
           mongosh_run_only_in_package: "shell-api"
@@ -8751,12 +8751,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "6.0.x"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "m60xe_n16_shell_api"
           mongosh_run_only_in_package: "shell-api"
@@ -8769,12 +8769,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "latest-alpha-enterprise"
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "mlatest_n16_shell_api"
           mongosh_run_only_in_package: "shell-api"
@@ -8985,12 +8985,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n16_shell_evaluator"
           mongosh_run_only_in_package: "shell-evaluator"
@@ -9021,12 +9021,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n16_snippet_manager"
           mongosh_run_only_in_package: "snippet-manager"
@@ -9057,12 +9057,12 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n16_types"
           mongosh_run_only_in_package: "types"
@@ -9097,11 +9097,11 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test_vscode
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
   - name: test_connectivity
     tags: ["extra-integration-test"]
     depends_on:
@@ -9111,11 +9111,11 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: test_connectivity
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
   - name: test_apistrict
     tags: ["extra-integration-test"]
     depends_on:
@@ -9125,11 +9125,11 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_apistrict
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "latest-alpha-enterprise"
           mongosh_test_force_api_strict: "1"
   - name: compile_artifact
@@ -9140,11 +9140,11 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: compile_artifact
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
 
   - name: generate_license_and_vulnerability_report
     depends_on:
@@ -9154,11 +9154,11 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: generate_license_and_vulnerability_report
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
 
   ###
   # E2E TESTS
@@ -9172,14 +9172,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: darwin-x64
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: "1"
   - name: e2e_tests_darwin_x64
@@ -9191,14 +9191,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: darwin-x64
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_darwin_x64_50x_fips
@@ -9210,14 +9210,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: darwin-x64
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "5.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
   - name: e2e_tests_darwin_x64_50x
@@ -9229,14 +9229,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: darwin-x64
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "5.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_darwin_x64_700rc10_fips
@@ -9248,14 +9248,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: darwin-x64
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "7.0.0-rc10-enterprise"
           mongosh_test_e2e_force_fips: "1"
   - name: e2e_tests_darwin_x64_700rc10
@@ -9267,14 +9267,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: darwin-x64
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "7.0.0-rc10-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_darwin_arm64_fips
@@ -9286,14 +9286,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: darwin-arm64
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: "1"
   - name: e2e_tests_darwin_arm64
@@ -9305,14 +9305,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: darwin-arm64
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_darwin_arm64_50x_fips
@@ -9324,14 +9324,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: darwin-arm64
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "5.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
   - name: e2e_tests_darwin_arm64_50x
@@ -9343,14 +9343,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: darwin-arm64
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "5.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_darwin_arm64_700rc10_fips
@@ -9362,14 +9362,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: darwin-arm64
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "7.0.0-rc10-enterprise"
           mongosh_test_e2e_force_fips: "1"
   - name: e2e_tests_darwin_arm64_700rc10
@@ -9381,14 +9381,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: darwin-arm64
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "7.0.0-rc10-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_x64_fips
@@ -9400,14 +9400,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: "1"
   - name: e2e_tests_linux_x64
@@ -9419,14 +9419,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_x64_50x_fips
@@ -9438,14 +9438,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "5.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
   - name: e2e_tests_linux_x64_50x
@@ -9457,14 +9457,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "5.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_x64_700rc10_fips
@@ -9476,14 +9476,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "7.0.0-rc10-enterprise"
           mongosh_test_e2e_force_fips: "1"
   - name: e2e_tests_linux_x64_700rc10
@@ -9495,14 +9495,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "7.0.0-rc10-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_x64_openssl11_fips
@@ -9514,14 +9514,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64-openssl11
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: "1"
   - name: e2e_tests_linux_x64_openssl11
@@ -9533,14 +9533,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64-openssl11
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_x64_openssl11_50x_fips
@@ -9552,14 +9552,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64-openssl11
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "5.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
   - name: e2e_tests_linux_x64_openssl11_50x
@@ -9571,14 +9571,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64-openssl11
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "5.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_x64_openssl11_700rc10_fips
@@ -9590,14 +9590,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64-openssl11
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "7.0.0-rc10-enterprise"
           mongosh_test_e2e_force_fips: "1"
   - name: e2e_tests_linux_x64_openssl11_700rc10
@@ -9609,14 +9609,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64-openssl11
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "7.0.0-rc10-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_x64_openssl3_fips
@@ -9628,14 +9628,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64-openssl3
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: "1"
   - name: e2e_tests_linux_x64_openssl3
@@ -9647,14 +9647,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64-openssl3
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_x64_openssl3_50x_fips
@@ -9666,14 +9666,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64-openssl3
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "5.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
   - name: e2e_tests_linux_x64_openssl3_50x
@@ -9685,14 +9685,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64-openssl3
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "5.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_x64_openssl3_700rc10_fips
@@ -9704,14 +9704,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64-openssl3
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "7.0.0-rc10-enterprise"
           mongosh_test_e2e_force_fips: "1"
   - name: e2e_tests_linux_x64_openssl3_700rc10
@@ -9723,14 +9723,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64-openssl3
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "7.0.0-rc10-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_arm64_fips
@@ -9742,14 +9742,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: "1"
   - name: e2e_tests_linux_arm64
@@ -9761,14 +9761,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_arm64_50x_fips
@@ -9780,14 +9780,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "5.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
   - name: e2e_tests_linux_arm64_50x
@@ -9799,14 +9799,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "5.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_arm64_700rc10_fips
@@ -9818,14 +9818,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "7.0.0-rc10-enterprise"
           mongosh_test_e2e_force_fips: "1"
   - name: e2e_tests_linux_arm64_700rc10
@@ -9837,14 +9837,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "7.0.0-rc10-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_arm64_openssl11_fips
@@ -9856,14 +9856,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64-openssl11
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: "1"
   - name: e2e_tests_linux_arm64_openssl11
@@ -9875,14 +9875,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64-openssl11
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_arm64_openssl11_50x_fips
@@ -9894,14 +9894,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64-openssl11
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "5.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
   - name: e2e_tests_linux_arm64_openssl11_50x
@@ -9913,14 +9913,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64-openssl11
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "5.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_arm64_openssl11_700rc10_fips
@@ -9932,14 +9932,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64-openssl11
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "7.0.0-rc10-enterprise"
           mongosh_test_e2e_force_fips: "1"
   - name: e2e_tests_linux_arm64_openssl11_700rc10
@@ -9951,14 +9951,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64-openssl11
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "7.0.0-rc10-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_arm64_openssl3_fips
@@ -9970,14 +9970,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64-openssl3
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: "1"
   - name: e2e_tests_linux_arm64_openssl3
@@ -9989,14 +9989,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64-openssl3
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_arm64_openssl3_50x_fips
@@ -10008,14 +10008,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64-openssl3
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "5.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
   - name: e2e_tests_linux_arm64_openssl3_50x
@@ -10027,14 +10027,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64-openssl3
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "5.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_arm64_openssl3_700rc10_fips
@@ -10046,14 +10046,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64-openssl3
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "7.0.0-rc10-enterprise"
           mongosh_test_e2e_force_fips: "1"
   - name: e2e_tests_linux_arm64_openssl3_700rc10
@@ -10065,14 +10065,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64-openssl3
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "7.0.0-rc10-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_ppc64le_fips
@@ -10084,14 +10084,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-ppc64le
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: "1"
   - name: e2e_tests_linux_ppc64le
@@ -10103,14 +10103,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-ppc64le
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_ppc64le_50x_fips
@@ -10122,14 +10122,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-ppc64le
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "5.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
   - name: e2e_tests_linux_ppc64le_50x
@@ -10141,14 +10141,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-ppc64le
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "5.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_ppc64le_700rc10_fips
@@ -10160,14 +10160,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-ppc64le
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "7.0.0-rc10-enterprise"
           mongosh_test_e2e_force_fips: "1"
   - name: e2e_tests_linux_ppc64le_700rc10
@@ -10179,14 +10179,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-ppc64le
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "7.0.0-rc10-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_s390x_fips
@@ -10198,14 +10198,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-s390x
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: "1"
   - name: e2e_tests_linux_s390x
@@ -10217,14 +10217,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-s390x
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_s390x_50x_fips
@@ -10236,14 +10236,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-s390x
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "5.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
   - name: e2e_tests_linux_s390x_50x
@@ -10255,14 +10255,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-s390x
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "5.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_s390x_700rc10_fips
@@ -10274,14 +10274,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-s390x
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "7.0.0-rc10-enterprise"
           mongosh_test_e2e_force_fips: "1"
   - name: e2e_tests_linux_s390x_700rc10
@@ -10293,14 +10293,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-s390x
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "7.0.0-rc10-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_win32_fips
@@ -10312,14 +10312,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: win32
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: "1"
   - name: e2e_tests_win32
@@ -10331,14 +10331,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: win32
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_win32_50x_fips
@@ -10350,14 +10350,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: win32
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "5.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
   - name: e2e_tests_win32_50x
@@ -10369,14 +10369,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: win32
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "5.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_win32_700rc10_fips
@@ -10388,14 +10388,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: win32
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "7.0.0-rc10-enterprise"
           mongosh_test_e2e_force_fips: "1"
   - name: e2e_tests_win32_700rc10
@@ -10407,14 +10407,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: win32
       - func: run_e2e_tests
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           mongosh_server_test_version: "7.0.0-rc10-enterprise"
           mongosh_test_e2e_force_fips: ""
 
@@ -10430,10 +10430,10 @@ tasks:
       - func: install
         vars:
           npm_deps_mode: cli_build
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
       - func: package_and_upload_artifact
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           package_variant: darwin-x64
           executable_os_id: darwin-x64
   - name: package_and_upload_artifact_darwin_arm64
@@ -10445,10 +10445,10 @@ tasks:
       - func: install
         vars:
           npm_deps_mode: cli_build
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
       - func: package_and_upload_artifact
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           package_variant: darwin-arm64
           executable_os_id: darwin-arm64
   - name: package_and_upload_artifact_linux_x64
@@ -10460,10 +10460,10 @@ tasks:
       - func: install
         vars:
           npm_deps_mode: cli_build
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
       - func: package_and_upload_artifact
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           package_variant: linux-x64
           executable_os_id: linux-x64
   - name: package_and_upload_artifact_deb_x64
@@ -10475,10 +10475,10 @@ tasks:
       - func: install
         vars:
           npm_deps_mode: cli_build
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
       - func: package_and_upload_artifact
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           package_variant: deb-x64
           executable_os_id: linux-x64
   - name: package_and_upload_artifact_rpm_x64
@@ -10490,10 +10490,10 @@ tasks:
       - func: install
         vars:
           npm_deps_mode: cli_build
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
       - func: package_and_upload_artifact
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           package_variant: rpm-x64
           executable_os_id: linux-x64
   - name: package_and_upload_artifact_linux_x64_openssl11
@@ -10505,10 +10505,10 @@ tasks:
       - func: install
         vars:
           npm_deps_mode: cli_build
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
       - func: package_and_upload_artifact
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           package_variant: linux-x64-openssl11
           executable_os_id: linux-x64-openssl11
   - name: package_and_upload_artifact_deb_x64_openssl11
@@ -10520,10 +10520,10 @@ tasks:
       - func: install
         vars:
           npm_deps_mode: cli_build
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
       - func: package_and_upload_artifact
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           package_variant: deb-x64-openssl11
           executable_os_id: linux-x64-openssl11
   - name: package_and_upload_artifact_rpm_x64_openssl11
@@ -10535,10 +10535,10 @@ tasks:
       - func: install
         vars:
           npm_deps_mode: cli_build
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
       - func: package_and_upload_artifact
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           package_variant: rpm-x64-openssl11
           executable_os_id: linux-x64-openssl11
   - name: package_and_upload_artifact_linux_x64_openssl3
@@ -10550,10 +10550,10 @@ tasks:
       - func: install
         vars:
           npm_deps_mode: cli_build
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
       - func: package_and_upload_artifact
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           package_variant: linux-x64-openssl3
           executable_os_id: linux-x64-openssl3
   - name: package_and_upload_artifact_deb_x64_openssl3
@@ -10565,10 +10565,10 @@ tasks:
       - func: install
         vars:
           npm_deps_mode: cli_build
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
       - func: package_and_upload_artifact
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           package_variant: deb-x64-openssl3
           executable_os_id: linux-x64-openssl3
   - name: package_and_upload_artifact_rpm_x64_openssl3
@@ -10580,10 +10580,10 @@ tasks:
       - func: install
         vars:
           npm_deps_mode: cli_build
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
       - func: package_and_upload_artifact
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           package_variant: rpm-x64-openssl3
           executable_os_id: linux-x64-openssl3
   - name: package_and_upload_artifact_linux_arm64
@@ -10595,10 +10595,10 @@ tasks:
       - func: install
         vars:
           npm_deps_mode: cli_build
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
       - func: package_and_upload_artifact
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           package_variant: linux-arm64
           executable_os_id: linux-arm64
   - name: package_and_upload_artifact_deb_arm64
@@ -10610,10 +10610,10 @@ tasks:
       - func: install
         vars:
           npm_deps_mode: cli_build
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
       - func: package_and_upload_artifact
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           package_variant: deb-arm64
           executable_os_id: linux-arm64
   - name: package_and_upload_artifact_rpm_arm64
@@ -10625,10 +10625,10 @@ tasks:
       - func: install
         vars:
           npm_deps_mode: cli_build
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
       - func: package_and_upload_artifact
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           package_variant: rpm-arm64
           executable_os_id: linux-arm64
   - name: package_and_upload_artifact_linux_arm64_openssl11
@@ -10640,10 +10640,10 @@ tasks:
       - func: install
         vars:
           npm_deps_mode: cli_build
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
       - func: package_and_upload_artifact
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           package_variant: linux-arm64-openssl11
           executable_os_id: linux-arm64-openssl11
   - name: package_and_upload_artifact_deb_arm64_openssl11
@@ -10655,10 +10655,10 @@ tasks:
       - func: install
         vars:
           npm_deps_mode: cli_build
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
       - func: package_and_upload_artifact
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           package_variant: deb-arm64-openssl11
           executable_os_id: linux-arm64-openssl11
   - name: package_and_upload_artifact_rpm_arm64_openssl11
@@ -10670,10 +10670,10 @@ tasks:
       - func: install
         vars:
           npm_deps_mode: cli_build
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
       - func: package_and_upload_artifact
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           package_variant: rpm-arm64-openssl11
           executable_os_id: linux-arm64-openssl11
   - name: package_and_upload_artifact_linux_arm64_openssl3
@@ -10685,10 +10685,10 @@ tasks:
       - func: install
         vars:
           npm_deps_mode: cli_build
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
       - func: package_and_upload_artifact
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           package_variant: linux-arm64-openssl3
           executable_os_id: linux-arm64-openssl3
   - name: package_and_upload_artifact_deb_arm64_openssl3
@@ -10700,10 +10700,10 @@ tasks:
       - func: install
         vars:
           npm_deps_mode: cli_build
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
       - func: package_and_upload_artifact
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           package_variant: deb-arm64-openssl3
           executable_os_id: linux-arm64-openssl3
   - name: package_and_upload_artifact_rpm_arm64_openssl3
@@ -10715,10 +10715,10 @@ tasks:
       - func: install
         vars:
           npm_deps_mode: cli_build
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
       - func: package_and_upload_artifact
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           package_variant: rpm-arm64-openssl3
           executable_os_id: linux-arm64-openssl3
   - name: package_and_upload_artifact_linux_ppc64le
@@ -10730,10 +10730,10 @@ tasks:
       - func: install
         vars:
           npm_deps_mode: cli_build
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
       - func: package_and_upload_artifact
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           package_variant: linux-ppc64le
           executable_os_id: linux-ppc64le
   - name: package_and_upload_artifact_rpm_ppc64le
@@ -10745,10 +10745,10 @@ tasks:
       - func: install
         vars:
           npm_deps_mode: cli_build
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
       - func: package_and_upload_artifact
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           package_variant: rpm-ppc64le
           executable_os_id: linux-ppc64le
   - name: package_and_upload_artifact_linux_s390x
@@ -10760,10 +10760,10 @@ tasks:
       - func: install
         vars:
           npm_deps_mode: cli_build
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
       - func: package_and_upload_artifact
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           package_variant: linux-s390x
           executable_os_id: linux-s390x
   - name: package_and_upload_artifact_rpm_s390x
@@ -10775,10 +10775,10 @@ tasks:
       - func: install
         vars:
           npm_deps_mode: cli_build
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
       - func: package_and_upload_artifact
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           package_variant: rpm-s390x
           executable_os_id: linux-s390x
   - name: package_and_upload_artifact_win32_x64
@@ -10790,10 +10790,10 @@ tasks:
       - func: install
         vars:
           npm_deps_mode: cli_build
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
       - func: package_and_upload_artifact
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           package_variant: win32-x64
           executable_os_id: win32
   - name: package_and_upload_artifact_win32msi_x64
@@ -10805,10 +10805,10 @@ tasks:
       - func: install
         vars:
           npm_deps_mode: cli_build
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
       - func: package_and_upload_artifact
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           package_variant: win32msi-x64
           executable_os_id: win32
 
@@ -10852,11 +10852,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: ubuntu20.04-tgz
   - name: pkg_test_docker_deb_x64_ubuntu18_04_deb
     tags: ["smoke-test"]
@@ -10871,11 +10871,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: ubuntu18.04-deb
   - name: pkg_test_docker_deb_x64_ubuntu20_04_deb
     tags: ["smoke-test"]
@@ -10890,11 +10890,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: ubuntu20.04-deb
   - name: pkg_test_docker_deb_x64_ubuntu22_04_deb
     tags: ["smoke-test"]
@@ -10909,11 +10909,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: ubuntu22.04-deb
   - name: pkg_test_docker_deb_x64_ubuntu22_04_nohome_deb
     tags: ["smoke-test"]
@@ -10928,11 +10928,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: ubuntu22.04-nohome-deb
   - name: pkg_test_docker_deb_x64_debian9_deb
     tags: ["smoke-test"]
@@ -10947,11 +10947,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: debian9-deb
   - name: pkg_test_docker_deb_x64_debian10_deb
     tags: ["smoke-test"]
@@ -10966,11 +10966,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: debian10-deb
   - name: pkg_test_docker_deb_x64_debian11_deb
     tags: ["smoke-test"]
@@ -10985,11 +10985,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: debian11-deb
   - name: pkg_test_docker_deb_x64_debian12_deb
     tags: ["smoke-test"]
@@ -11004,11 +11004,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: debian12-deb
   - name: pkg_test_docker_rpm_x64_centos7_rpm
     tags: ["smoke-test"]
@@ -11023,11 +11023,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: centos7-rpm
   - name: pkg_test_docker_rpm_x64_amazonlinux2_rpm
     tags: ["smoke-test"]
@@ -11042,11 +11042,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: amazonlinux2-rpm
   - name: pkg_test_docker_rpm_x64_amazonlinux2023_rpm
     tags: ["smoke-test"]
@@ -11061,11 +11061,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: amazonlinux2023-rpm
   - name: pkg_test_docker_rpm_x64_rocky8_rpm
     tags: ["smoke-test"]
@@ -11080,11 +11080,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: rocky8-rpm
   - name: pkg_test_docker_rpm_x64_rocky9_rpm
     tags: ["smoke-test"]
@@ -11099,11 +11099,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: rocky9-rpm
   - name: pkg_test_docker_rpm_x64_fedora34_rpm
     tags: ["smoke-test"]
@@ -11118,11 +11118,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: fedora34-rpm
   - name: pkg_test_docker_rpm_x64_suse12_rpm
     tags: ["smoke-test"]
@@ -11137,11 +11137,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: suse12-rpm
   - name: pkg_test_docker_rpm_x64_suse15_rpm
     tags: ["smoke-test"]
@@ -11156,11 +11156,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: suse15-rpm
   - name: pkg_test_docker_rpm_x64_amazonlinux1_rpm
     tags: ["smoke-test"]
@@ -11175,11 +11175,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: amazonlinux1-rpm
   - name: pkg_test_docker_deb_x64_openssl11_ubuntu20_04_deb
     tags: ["smoke-test"]
@@ -11194,11 +11194,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: ubuntu20.04-deb
   - name: pkg_test_docker_deb_x64_openssl11_debian10_deb
     tags: ["smoke-test"]
@@ -11213,11 +11213,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: debian10-deb
   - name: pkg_test_docker_deb_x64_openssl11_debian11_deb
     tags: ["smoke-test"]
@@ -11232,11 +11232,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: debian11-deb
   - name: pkg_test_docker_rpm_x64_openssl11_centos7_epel_rpm
     tags: ["smoke-test"]
@@ -11251,11 +11251,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: centos7-epel-rpm
   - name: pkg_test_docker_rpm_x64_openssl11_amazonlinux2_rpm
     tags: ["smoke-test"]
@@ -11270,11 +11270,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: amazonlinux2-rpm
   - name: pkg_test_docker_rpm_x64_openssl11_rocky8_rpm
     tags: ["smoke-test"]
@@ -11289,11 +11289,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: rocky8-rpm
   - name: pkg_test_docker_rpm_x64_openssl11_rocky9_rpm
     tags: ["smoke-test"]
@@ -11308,11 +11308,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: rocky9-rpm
   - name: pkg_test_docker_rpm_x64_openssl11_fedora34_rpm
     tags: ["smoke-test"]
@@ -11327,11 +11327,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: fedora34-rpm
   - name: pkg_test_docker_deb_x64_openssl3_ubuntu22_04_deb
     tags: ["smoke-test"]
@@ -11346,11 +11346,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: ubuntu22.04-deb
   - name: pkg_test_docker_deb_x64_openssl3_ubuntu22_04_fips_deb
     tags: ["smoke-test"]
@@ -11365,11 +11365,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: ubuntu22.04-fips-deb
   - name: pkg_test_docker_deb_x64_openssl3_debian12_deb
     tags: ["smoke-test"]
@@ -11384,11 +11384,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: debian12-deb
   - name: pkg_test_docker_rpm_x64_openssl3_rocky8_epel_rpm
     tags: ["smoke-test"]
@@ -11403,11 +11403,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: rocky8-epel-rpm
   - name: pkg_test_docker_rpm_x64_openssl3_rocky9_rpm
     tags: ["smoke-test"]
@@ -11422,11 +11422,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: rocky9-rpm
   - name: pkg_test_docker_rpm_x64_openssl3_rocky9_fips_rpm
     tags: ["smoke-test"]
@@ -11441,11 +11441,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: rocky9-fips-rpm
   - name: pkg_test_docker_rpm_x64_openssl3_amazonlinux2023_rpm
     tags: ["smoke-test"]
@@ -11460,11 +11460,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: amazonlinux2023-rpm
   - name: pkg_test_docker_linux_arm64_ubuntu20_04_tgz
     tags: ["smoke-test"]
@@ -11479,11 +11479,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: ubuntu20.04-tgz
   - name: pkg_test_docker_deb_arm64_ubuntu18_04_deb
     tags: ["smoke-test"]
@@ -11498,11 +11498,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: ubuntu18.04-deb
   - name: pkg_test_docker_deb_arm64_ubuntu20_04_deb
     tags: ["smoke-test"]
@@ -11517,11 +11517,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: ubuntu20.04-deb
   - name: pkg_test_docker_deb_arm64_ubuntu22_04_deb
     tags: ["smoke-test"]
@@ -11536,11 +11536,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: ubuntu22.04-deb
   - name: pkg_test_docker_deb_arm64_debian10_deb
     tags: ["smoke-test"]
@@ -11555,11 +11555,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: debian10-deb
   - name: pkg_test_docker_deb_arm64_debian11_deb
     tags: ["smoke-test"]
@@ -11574,11 +11574,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: debian11-deb
   - name: pkg_test_docker_deb_arm64_debian12_deb
     tags: ["smoke-test"]
@@ -11593,11 +11593,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: debian12-deb
   - name: pkg_test_docker_rpm_arm64_rocky8_rpm
     tags: ["smoke-test"]
@@ -11612,11 +11612,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: rocky8-rpm
   - name: pkg_test_docker_rpm_arm64_rocky9_rpm
     tags: ["smoke-test"]
@@ -11631,11 +11631,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: rocky9-rpm
   - name: pkg_test_docker_rpm_arm64_fedora34_rpm
     tags: ["smoke-test"]
@@ -11650,11 +11650,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: fedora34-rpm
   - name: pkg_test_docker_rpm_arm64_amazonlinux2_rpm
     tags: ["smoke-test"]
@@ -11669,11 +11669,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: amazonlinux2-rpm
   - name: pkg_test_docker_rpm_arm64_amazonlinux2023_rpm
     tags: ["smoke-test"]
@@ -11688,11 +11688,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: amazonlinux2023-rpm
   - name: pkg_test_docker_deb_arm64_openssl11_ubuntu20_04_deb
     tags: ["smoke-test"]
@@ -11707,11 +11707,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: ubuntu20.04-deb
   - name: pkg_test_docker_deb_arm64_openssl11_debian10_deb
     tags: ["smoke-test"]
@@ -11726,11 +11726,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: debian10-deb
   - name: pkg_test_docker_deb_arm64_openssl11_debian11_deb
     tags: ["smoke-test"]
@@ -11745,11 +11745,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: debian11-deb
   - name: pkg_test_docker_rpm_arm64_openssl11_rocky8_rpm
     tags: ["smoke-test"]
@@ -11764,11 +11764,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: rocky8-rpm
   - name: pkg_test_docker_rpm_arm64_openssl11_rocky9_rpm
     tags: ["smoke-test"]
@@ -11783,11 +11783,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: rocky9-rpm
   - name: pkg_test_docker_rpm_arm64_openssl11_fedora34_rpm
     tags: ["smoke-test"]
@@ -11802,11 +11802,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: fedora34-rpm
   - name: pkg_test_docker_rpm_arm64_openssl11_amazonlinux2_rpm
     tags: ["smoke-test"]
@@ -11821,11 +11821,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: amazonlinux2-rpm
   - name: pkg_test_docker_deb_arm64_openssl3_ubuntu22_04_deb
     tags: ["smoke-test"]
@@ -11840,11 +11840,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: ubuntu22.04-deb
   - name: pkg_test_docker_deb_arm64_openssl3_ubuntu22_04_fips_deb
     tags: ["smoke-test"]
@@ -11859,11 +11859,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: ubuntu22.04-fips-deb
   - name: pkg_test_docker_deb_arm64_openssl3_debian12_deb
     tags: ["smoke-test"]
@@ -11878,11 +11878,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: debian12-deb
   - name: pkg_test_docker_rpm_arm64_openssl3_rocky8_epel_rpm
     tags: ["smoke-test"]
@@ -11897,11 +11897,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: rocky8-epel-rpm
   - name: pkg_test_docker_rpm_arm64_openssl3_rocky9_rpm
     tags: ["smoke-test"]
@@ -11916,11 +11916,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: rocky9-rpm
   - name: pkg_test_docker_rpm_arm64_openssl3_rocky9_fips_rpm
     tags: ["smoke-test"]
@@ -11935,11 +11935,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: rocky9-fips-rpm
   - name: pkg_test_docker_rpm_arm64_openssl3_amazonlinux2023_rpm
     tags: ["smoke-test"]
@@ -11954,11 +11954,11 @@ tasks:
       - func: write_preload_script
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           dockerfile: amazonlinux2023-rpm
   - name: pkg_test_rpmextract_rpm_ppc64le
     tags: ["smoke-test"]
@@ -12043,11 +12043,11 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: release_draft
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
   - name: release_publish_dry_run
     git_tag_only: true
     exec_timeout_secs: 86400
@@ -12057,11 +12057,11 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: release_publish_dry_run
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
   - name: release_publish
     tags: ["publish"]
     git_tag_only: true
@@ -12073,11 +12073,11 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
           npm_deps_mode: all
       - func: release_publish
         vars:
-          node_js_version: "16.20.1"
+          node_js_version: "16.20.2"
 
 # Need to run builds for every possible build variant.
 buildvariants:
