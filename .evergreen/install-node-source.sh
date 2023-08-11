@@ -46,7 +46,7 @@ patch -p1 < "${ROOT_DIR}/scripts/nodejs-patches/001-configure-bz2.patch"
 
 ./configure --prefix "${NODE_JS_INSTALL_DIR}"
 
-ncpu=$(expr $(nproc 2> /dev/null | echo 5) - 1)
+ncpu=$(expr $(nproc 2> /dev/null || echo 5) - 1)
 make "-j${ncpu}"
 make "-j${ncpu}" install
 
