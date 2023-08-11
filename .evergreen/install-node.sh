@@ -38,7 +38,7 @@ else
   # needs to be built from source
   if [[ "${DISTRO_ID}" =~ ^(amazon(1|2)-|debian9|rhel7|ubuntu18) ]] && [[ "$NODE_JS_VERSION" =~ ^20 ]];
   then
-    . "$BASEDIR/install-node-source.sh"
+    bash "$BASEDIR/install-node-source.sh"
   else
     echo nvm install --no-progress $NODE_JS_VERSION && nvm alias default $NODE_JS_VERSION
     nvm install --no-progress $NODE_JS_VERSION
