@@ -1,10 +1,10 @@
 FROM amazonlinux:2023
 
 # On RHEL9 and based-distros, an additional configuration option
-# `rh-allow-sha1-signatures` is present which is not recognizable to Node.js and
-# hence the mongosh binary fails to run. Explicitly for such distros we disable
-# effect of --openssl-shared-config flag which is pushed by boxednode when
-# bundling Node.js
+  # `rh-allow-sha1-signatures` is present which is not recognizable to the
+  # OpenSSL version bundled with Node.js and hence the mongosh binary fails to
+  # run. Explicitly on those hosts we disable effect of --openssl-shared-config
+  # flag which is pushed by boxednode when bundling Node.js
 ENV OPENSSL_CONF=""
 
 ARG artifact_url=""
