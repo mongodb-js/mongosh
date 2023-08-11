@@ -51,6 +51,3 @@ make "-j${ncpu}"
 make "-j${ncpu}" install
 
 popd
-
-# Cleanup
-export PATH="${ORIGINAL_PATH}"
