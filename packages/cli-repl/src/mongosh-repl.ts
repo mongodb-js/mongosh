@@ -204,7 +204,8 @@ class MongoshNodeRepl implements EvaluationListener {
    * or print any user prompt.
    */
   async initialize(
-    serviceProvider: ServiceProvider
+    serviceProvider: ServiceProvider,
+    moreRecentMongoshVersion?: string | null
   ): Promise<InitializationToken> {
     const instanceState = new ShellInstanceState(
       serviceProvider,
@@ -225,7 +226,7 @@ class MongoshNodeRepl implements EvaluationListener {
         (mongodVersion ? mongodVersion + ' ' : '') +
         `(API Version ${apiVersion})`;
     }
-    await this.greet(mongodVersion);
+    await this.greet(mongodVersion, moreRecentMongoshVersion);
     await this.printBasicConnectivityWarning(instanceState);
 
     this.inspectCompact = await this.getConfig('inspectCompact');
@@ -494,7 +495,10 @@ class MongoshNodeRepl implements EvaluationListener {
   /**
    * The greeting for the shell, showing server and shell version.
    */
-  async greet(mongodVersion: string): Promise<void> {
+  async greet(
+    mongodVersion: string,
+    moreRecentMongoshVersion?: string | null
+  ): Promise<void> {
     if (this.shellCliOptions.quiet) {
       return;
     }
@@ -511,6 +515,15 @@ class MongoshNodeRepl implements EvaluationListener {
     if (!(await this.getConfig('disableGreetingMessage'))) {
       text += `${TELEMETRY_GREETING_MESSAGE}\n`;
       await this.setConfig('disableGreetingMessage', true);
+    }
+    if (moreRecentMongoshVersion) {
+      text += `mongosh ${this.clr(
+        moreRecentMongoshVersion,
+        'bold'
+      )} is available for download: ${this.clr(
+        'https://www.mongodb.com/try/download/shell',
+        'mongosh:uri'
+      )}`;
     }
     this.output.write(text);
   }
