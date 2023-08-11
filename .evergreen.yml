@@ -5677,7 +5677,7 @@ functions:
           NODE_JS_VERSION: ${node_js_version}
           AWS_AUTH_IAM_ACCESS_KEY_ID: ${devtools_ci_aws_key}
           AWS_AUTH_IAM_SECRET_ACCESS_KEY: ${devtools_ci_aws_secret}
-          DISABLE_OPENSSL_SHARED_CONFIG: ${disable_openssl_shared_config}
+          DISABLE_OPENSSL_SHARED_CONFIG_FOR_BUNDLED_OPENSSL: ${disable_openssl_shared_config_for_bundled_openssl}
           E2E_TASK_NAME: ${task_name}
 
   ###
@@ -9186,7 +9186,7 @@ tasks:
           node_js_version: "20.5.1"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: "1"
-          disable_openssl_shared_config: ${disable_openssl_shared_config|false}
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_darwin_x64
     tags: ["e2e-test"]
     depends_on:
@@ -9206,7 +9206,7 @@ tasks:
           node_js_version: "20.5.1"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
-          disable_openssl_shared_config: ${disable_openssl_shared_config|false}
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_darwin_x64_700rc10_fips
     tags: ["e2e-test"]
     depends_on:
@@ -9226,7 +9226,7 @@ tasks:
           node_js_version: "20.5.1"
           mongosh_server_test_version: "7.0.0-rc10-enterprise"
           mongosh_test_e2e_force_fips: "1"
-          disable_openssl_shared_config: ${disable_openssl_shared_config|false}
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_darwin_x64_700rc10
     tags: ["e2e-test"]
     depends_on:
@@ -9246,7 +9246,7 @@ tasks:
           node_js_version: "20.5.1"
           mongosh_server_test_version: "7.0.0-rc10-enterprise"
           mongosh_test_e2e_force_fips: ""
-          disable_openssl_shared_config: ${disable_openssl_shared_config|false}
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_darwin_arm64_fips
     tags: ["e2e-test"]
     depends_on:
@@ -9266,7 +9266,7 @@ tasks:
           node_js_version: "20.5.1"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: "1"
-          disable_openssl_shared_config: ${disable_openssl_shared_config|false}
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_darwin_arm64
     tags: ["e2e-test"]
     depends_on:
@@ -9286,7 +9286,7 @@ tasks:
           node_js_version: "20.5.1"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
-          disable_openssl_shared_config: ${disable_openssl_shared_config|false}
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_darwin_arm64_700rc10_fips
     tags: ["e2e-test"]
     depends_on:
@@ -9306,7 +9306,7 @@ tasks:
           node_js_version: "20.5.1"
           mongosh_server_test_version: "7.0.0-rc10-enterprise"
           mongosh_test_e2e_force_fips: "1"
-          disable_openssl_shared_config: ${disable_openssl_shared_config|false}
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_darwin_arm64_700rc10
     tags: ["e2e-test"]
     depends_on:
@@ -9326,7 +9326,7 @@ tasks:
           node_js_version: "20.5.1"
           mongosh_server_test_version: "7.0.0-rc10-enterprise"
           mongosh_test_e2e_force_fips: ""
-          disable_openssl_shared_config: ${disable_openssl_shared_config|false}
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_linux_x64_fips
     tags: ["e2e-test"]
     depends_on:
@@ -9346,7 +9346,7 @@ tasks:
           node_js_version: "20.5.1"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: "1"
-          disable_openssl_shared_config: ${disable_openssl_shared_config|false}
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_linux_x64
     tags: ["e2e-test"]
     depends_on:
@@ -9366,7 +9366,7 @@ tasks:
           node_js_version: "20.5.1"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
-          disable_openssl_shared_config: ${disable_openssl_shared_config|false}
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_linux_x64_700rc10_fips
     tags: ["e2e-test"]
     depends_on:
@@ -9386,7 +9386,7 @@ tasks:
           node_js_version: "20.5.1"
           mongosh_server_test_version: "7.0.0-rc10-enterprise"
           mongosh_test_e2e_force_fips: "1"
-          disable_openssl_shared_config: ${disable_openssl_shared_config|false}
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_linux_x64_700rc10
     tags: ["e2e-test"]
     depends_on:
@@ -9406,7 +9406,7 @@ tasks:
           node_js_version: "20.5.1"
           mongosh_server_test_version: "7.0.0-rc10-enterprise"
           mongosh_test_e2e_force_fips: ""
-          disable_openssl_shared_config: ${disable_openssl_shared_config|false}
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_linux_x64_openssl11_fips
     tags: ["e2e-test"]
     depends_on:
@@ -9426,7 +9426,7 @@ tasks:
           node_js_version: "20.5.1"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: "1"
-          disable_openssl_shared_config: ${disable_openssl_shared_config|false}
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_linux_x64_openssl11
     tags: ["e2e-test"]
     depends_on:
@@ -9446,7 +9446,7 @@ tasks:
           node_js_version: "20.5.1"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
-          disable_openssl_shared_config: ${disable_openssl_shared_config|false}
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_linux_x64_openssl11_700rc10_fips
     tags: ["e2e-test"]
     depends_on:
@@ -9466,7 +9466,7 @@ tasks:
           node_js_version: "20.5.1"
           mongosh_server_test_version: "7.0.0-rc10-enterprise"
           mongosh_test_e2e_force_fips: "1"
-          disable_openssl_shared_config: ${disable_openssl_shared_config|false}
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_linux_x64_openssl11_700rc10
     tags: ["e2e-test"]
     depends_on:
@@ -9486,7 +9486,7 @@ tasks:
           node_js_version: "20.5.1"
           mongosh_server_test_version: "7.0.0-rc10-enterprise"
           mongosh_test_e2e_force_fips: ""
-          disable_openssl_shared_config: ${disable_openssl_shared_config|false}
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_linux_x64_openssl3_fips
     tags: ["e2e-test"]
     depends_on:
@@ -9506,7 +9506,7 @@ tasks:
           node_js_version: "20.5.1"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: "1"
-          disable_openssl_shared_config: ${disable_openssl_shared_config|false}
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_linux_x64_openssl3
     tags: ["e2e-test"]
     depends_on:
@@ -9526,7 +9526,7 @@ tasks:
           node_js_version: "20.5.1"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
-          disable_openssl_shared_config: ${disable_openssl_shared_config|false}
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_linux_x64_openssl3_700rc10_fips
     tags: ["e2e-test"]
     depends_on:
@@ -9546,7 +9546,7 @@ tasks:
           node_js_version: "20.5.1"
           mongosh_server_test_version: "7.0.0-rc10-enterprise"
           mongosh_test_e2e_force_fips: "1"
-          disable_openssl_shared_config: ${disable_openssl_shared_config|false}
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_linux_x64_openssl3_700rc10
     tags: ["e2e-test"]
     depends_on:
@@ -9566,7 +9566,7 @@ tasks:
           node_js_version: "20.5.1"
           mongosh_server_test_version: "7.0.0-rc10-enterprise"
           mongosh_test_e2e_force_fips: ""
-          disable_openssl_shared_config: ${disable_openssl_shared_config|false}
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_linux_arm64_fips
     tags: ["e2e-test"]
     depends_on:
@@ -9586,7 +9586,7 @@ tasks:
           node_js_version: "20.5.1"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: "1"
-          disable_openssl_shared_config: ${disable_openssl_shared_config|false}
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_linux_arm64
     tags: ["e2e-test"]
     depends_on:
@@ -9606,7 +9606,7 @@ tasks:
           node_js_version: "20.5.1"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
-          disable_openssl_shared_config: ${disable_openssl_shared_config|false}
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_linux_arm64_700rc10_fips
     tags: ["e2e-test"]
     depends_on:
@@ -9626,7 +9626,7 @@ tasks:
           node_js_version: "20.5.1"
           mongosh_server_test_version: "7.0.0-rc10-enterprise"
           mongosh_test_e2e_force_fips: "1"
-          disable_openssl_shared_config: ${disable_openssl_shared_config|false}
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_linux_arm64_700rc10
     tags: ["e2e-test"]
     depends_on:
@@ -9646,7 +9646,7 @@ tasks:
           node_js_version: "20.5.1"
           mongosh_server_test_version: "7.0.0-rc10-enterprise"
           mongosh_test_e2e_force_fips: ""
-          disable_openssl_shared_config: ${disable_openssl_shared_config|false}
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_linux_arm64_openssl11_fips
     tags: ["e2e-test"]
     depends_on:
@@ -9666,7 +9666,7 @@ tasks:
           node_js_version: "20.5.1"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: "1"
-          disable_openssl_shared_config: ${disable_openssl_shared_config|false}
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_linux_arm64_openssl11
     tags: ["e2e-test"]
     depends_on:
@@ -9686,7 +9686,7 @@ tasks:
           node_js_version: "20.5.1"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
-          disable_openssl_shared_config: ${disable_openssl_shared_config|false}
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_linux_arm64_openssl11_700rc10_fips
     tags: ["e2e-test"]
     depends_on:
@@ -9706,7 +9706,7 @@ tasks:
           node_js_version: "20.5.1"
           mongosh_server_test_version: "7.0.0-rc10-enterprise"
           mongosh_test_e2e_force_fips: "1"
-          disable_openssl_shared_config: ${disable_openssl_shared_config|false}
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_linux_arm64_openssl11_700rc10
     tags: ["e2e-test"]
     depends_on:
@@ -9726,7 +9726,7 @@ tasks:
           node_js_version: "20.5.1"
           mongosh_server_test_version: "7.0.0-rc10-enterprise"
           mongosh_test_e2e_force_fips: ""
-          disable_openssl_shared_config: ${disable_openssl_shared_config|false}
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_linux_arm64_openssl3_fips
     tags: ["e2e-test"]
     depends_on:
@@ -9746,7 +9746,7 @@ tasks:
           node_js_version: "20.5.1"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: "1"
-          disable_openssl_shared_config: ${disable_openssl_shared_config|false}
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_linux_arm64_openssl3
     tags: ["e2e-test"]
     depends_on:
@@ -9766,7 +9766,7 @@ tasks:
           node_js_version: "20.5.1"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
-          disable_openssl_shared_config: ${disable_openssl_shared_config|false}
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_linux_arm64_openssl3_700rc10_fips
     tags: ["e2e-test"]
     depends_on:
@@ -9786,7 +9786,7 @@ tasks:
           node_js_version: "20.5.1"
           mongosh_server_test_version: "7.0.0-rc10-enterprise"
           mongosh_test_e2e_force_fips: "1"
-          disable_openssl_shared_config: ${disable_openssl_shared_config|false}
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_linux_arm64_openssl3_700rc10
     tags: ["e2e-test"]
     depends_on:
@@ -9806,7 +9806,7 @@ tasks:
           node_js_version: "20.5.1"
           mongosh_server_test_version: "7.0.0-rc10-enterprise"
           mongosh_test_e2e_force_fips: ""
-          disable_openssl_shared_config: ${disable_openssl_shared_config|false}
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_linux_ppc64le_fips
     tags: ["e2e-test"]
     depends_on:
@@ -9826,7 +9826,7 @@ tasks:
           node_js_version: "20.5.1"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: "1"
-          disable_openssl_shared_config: ${disable_openssl_shared_config|false}
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_linux_ppc64le
     tags: ["e2e-test"]
     depends_on:
@@ -9846,7 +9846,7 @@ tasks:
           node_js_version: "20.5.1"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
-          disable_openssl_shared_config: ${disable_openssl_shared_config|false}
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_linux_ppc64le_700rc10_fips
     tags: ["e2e-test"]
     depends_on:
@@ -9866,7 +9866,7 @@ tasks:
           node_js_version: "20.5.1"
           mongosh_server_test_version: "7.0.0-rc10-enterprise"
           mongosh_test_e2e_force_fips: "1"
-          disable_openssl_shared_config: ${disable_openssl_shared_config|false}
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_linux_ppc64le_700rc10
     tags: ["e2e-test"]
     depends_on:
@@ -9886,7 +9886,7 @@ tasks:
           node_js_version: "20.5.1"
           mongosh_server_test_version: "7.0.0-rc10-enterprise"
           mongosh_test_e2e_force_fips: ""
-          disable_openssl_shared_config: ${disable_openssl_shared_config|false}
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_linux_s390x_fips
     tags: ["e2e-test"]
     depends_on:
@@ -9906,7 +9906,7 @@ tasks:
           node_js_version: "20.5.1"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: "1"
-          disable_openssl_shared_config: ${disable_openssl_shared_config|false}
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_linux_s390x
     tags: ["e2e-test"]
     depends_on:
@@ -9926,7 +9926,7 @@ tasks:
           node_js_version: "20.5.1"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
-          disable_openssl_shared_config: ${disable_openssl_shared_config|false}
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_linux_s390x_700rc10_fips
     tags: ["e2e-test"]
     depends_on:
@@ -9946,7 +9946,7 @@ tasks:
           node_js_version: "20.5.1"
           mongosh_server_test_version: "7.0.0-rc10-enterprise"
           mongosh_test_e2e_force_fips: "1"
-          disable_openssl_shared_config: ${disable_openssl_shared_config|false}
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_linux_s390x_700rc10
     tags: ["e2e-test"]
     depends_on:
@@ -9966,7 +9966,7 @@ tasks:
           node_js_version: "20.5.1"
           mongosh_server_test_version: "7.0.0-rc10-enterprise"
           mongosh_test_e2e_force_fips: ""
-          disable_openssl_shared_config: ${disable_openssl_shared_config|false}
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_win32_fips
     tags: ["e2e-test"]
     depends_on:
@@ -9986,7 +9986,7 @@ tasks:
           node_js_version: "20.5.1"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: "1"
-          disable_openssl_shared_config: ${disable_openssl_shared_config|false}
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_win32
     tags: ["e2e-test"]
     depends_on:
@@ -10006,7 +10006,7 @@ tasks:
           node_js_version: "20.5.1"
           mongosh_server_test_version: "stable-enterprise"
           mongosh_test_e2e_force_fips: ""
-          disable_openssl_shared_config: ${disable_openssl_shared_config|false}
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_win32_700rc10_fips
     tags: ["e2e-test"]
     depends_on:
@@ -10026,7 +10026,7 @@ tasks:
           node_js_version: "20.5.1"
           mongosh_server_test_version: "7.0.0-rc10-enterprise"
           mongosh_test_e2e_force_fips: "1"
-          disable_openssl_shared_config: ${disable_openssl_shared_config|false}
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   - name: e2e_tests_win32_700rc10
     tags: ["e2e-test"]
     depends_on:
@@ -10046,7 +10046,7 @@ tasks:
           node_js_version: "20.5.1"
           mongosh_server_test_version: "7.0.0-rc10-enterprise"
           mongosh_test_e2e_force_fips: ""
-          disable_openssl_shared_config: ${disable_openssl_shared_config|false}
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
 
   ###
   # PACKAGING
@@ -12127,7 +12127,7 @@ buildvariants:
     display_name: "RHEL 9.0 x64 (E2E Tests)"
     run_on: rhel90-small
     expansions:
-      disable_openssl_shared_config: true
+      disable_openssl_shared_config_for_bundled_openssl: true
     tasks:
       - name: e2e_tests_linux_x64
   - name: e2e_rhel83_x64
@@ -12182,7 +12182,7 @@ buildvariants:
     display_name: "Amazon Linux 2023 x64 (E2E Tests)"
     run_on: amazon2023.0-small
     expansions:
-      disable_openssl_shared_config: true
+      disable_openssl_shared_config_for_bundled_openssl: true
     tasks:
       - name: e2e_tests_linux_x64_700rc10
   - name: e2e_suse15_x64
@@ -12216,7 +12216,7 @@ buildvariants:
     display_name: "Amazon Linux 2023 arm64 (E2E Tests)"
     run_on: amazon2023.0-arm64-small
     expansions:
-      disable_openssl_shared_config: true
+      disable_openssl_shared_config_for_bundled_openssl: true
     tasks:
       - name: e2e_tests_linux_arm64_700rc10
   - name: e2e_rhel82_arm64
@@ -12228,7 +12228,7 @@ buildvariants:
     display_name: "RHEL 9.0 arm64 (E2E Tests)"
     run_on: rhel90-arm64-small
     expansions:
-      disable_openssl_shared_config: true
+      disable_openssl_shared_config_for_bundled_openssl: true
     tasks:
       - name: e2e_tests_linux_arm64
       - name: e2e_tests_linux_arm64_openssl3

@@ -2,7 +2,7 @@
 set -e
 export NODE_JS_VERSION=${NODE_JS_VERSION}
 
-if [[ "$DISABLE_OPENSSL_SHARED_CONFIG" == "true" ]] && [[ ! "$E2E_TASK_NAME" =~ openssl(3|11) ]]; then
+if [[ "$DISABLE_OPENSSL_SHARED_CONFIG_FOR_BUNDLED_OPENSSL" == "true" ]] && [[ ! "$E2E_TASK_NAME" =~ openssl(3|11) ]]; then
   # On RHEL9 and based-distros, an additional configuration option
   # `rh-allow-sha1-signatures` is present which is not recognizable to the
   # OpenSSL version bundled with Node.js and hence the mongosh binary fails to
