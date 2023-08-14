@@ -33,9 +33,18 @@ else
   [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 
   set +x # nvm is very verbose
-  echo nvm install --no-progress $NODE_JS_VERSION && nvm alias default $NODE_JS_VERSION
-  nvm install --no-progress $NODE_JS_VERSION
-  nvm alias default $NODE_JS_VERSION
+
+  # A few distros where pre-built node20 does not work out of the box and hence
+  # needs to be built from source
+  if [[ "${DISTRO_ID}" =~ ^(amazon(1|2)-|debian9|rhel7|ubuntu18) ]] && [[ "$NODE_JS_VERSION" =~ ^20 ]];
+  then
+    bash "$BASEDIR/install-node-source.sh"
+  else
+    echo nvm install --no-progress $NODE_JS_VERSION && nvm alias default $NODE_JS_VERSION
+    nvm install --no-progress $NODE_JS_VERSION
+    nvm alias default $NODE_JS_VERSION
+  fi
+  nvm use $NODE_JS_VERSION
   set -x
 
   if env PATH="/opt/chefdk/gitbin:$PATH" git --version | grep -q 'git version 1.'; then

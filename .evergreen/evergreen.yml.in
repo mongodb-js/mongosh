@@ -2,7 +2,7 @@
 <%
 const path = require('path');
 
-const NODE_JS_VERSION_14 = require('./node-14-latest.json').version;
+const NODE_JS_VERSION_20 = require('./node-20-latest.json').version;
 const NODE_JS_VERSION_16 = require('./node-16-latest.json').version;
 
 const MONGODB_VERSIONS = [
@@ -17,8 +17,8 @@ const MONGODB_VERSIONS = [
   { shortName: 'latest', versionSpec: 'latest-alpha-enterprise' }
 ];
 const NODE_VERSIONS = [
-  { shortName: '16', versionSpec: NODE_JS_VERSION_16, skipNodeVersionCheck: '' },
-  { shortName: '14', versionSpec: NODE_JS_VERSION_14, skipNodeVersionCheck: '1' }
+  { shortName: '20', versionSpec: NODE_JS_VERSION_20, skipNodeVersionCheck: '' },
+  { shortName: '16', versionSpec: NODE_JS_VERSION_16, skipNodeVersionCheck: '' }
 ];
 
 const pathToPackages = path.join(__dirname, '..', 'packages');
@@ -57,7 +57,7 @@ const ALL_UNIT_TEST_BUILD_VARIANTS = ['darwin_unit', 'linux_unit', 'win32_unit']
 const { RELEASE_PACKAGE_MATRIX } = require('../config/release-package-matrix');
 
 %>
-exec_timeout_secs: 3600
+exec_timeout_secs: 10800
 
 post_error_fails_task: true
 post:
@@ -113,6 +113,7 @@ functions:
         script: |
           export NODE_JS_VERSION=${node_js_version}
           export NPM_DEPS_MODE=cli_build
+          export DISTRO_ID=${distro_id}
           source .evergreen/install-node.sh
           source .evergreen/install-npm-deps.sh
           npm run bootstrap-ci
@@ -139,6 +140,7 @@ functions:
         script: |
           export NODE_JS_VERSION=${node_js_version}
           export NPM_DEPS_MODE=${npm_deps_mode}
+          export DISTRO_ID=${distro_id}
           source .evergreen/install-node.sh
           source .evergreen/install-npm-deps.sh
     - command: s3.get
@@ -374,6 +376,8 @@ functions:
           NODE_JS_VERSION: ${node_js_version}
           AWS_AUTH_IAM_ACCESS_KEY_ID: ${devtools_ci_aws_key}
           AWS_AUTH_IAM_SECRET_ACCESS_KEY: ${devtools_ci_aws_secret}
+          DISABLE_OPENSSL_SHARED_CONFIG_FOR_BUNDLED_OPENSSL: ${disable_openssl_shared_config_for_bundled_openssl}
+          E2E_TASK_NAME: ${task_name}
 
   ###
   # PACKAGING AND UPLOADING
@@ -725,7 +729,7 @@ tasks:
       - func: checkout
       - func: compile_ts
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
 
   - name: check
     depends_on:
@@ -735,11 +739,11 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
           npm_deps_mode: all
       - func: check
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
 
   - name: check_coverage
     depends_on:
@@ -749,11 +753,11 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
           npm_deps_mode: cli_build
       - func: check_coverage
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
 
   ###
   # UNIT TESTS
@@ -792,11 +796,11 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
           npm_deps_mode: all
       - func: test_vscode
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
   - name: test_connectivity
     tags: ["extra-integration-test"]
     depends_on:
@@ -806,11 +810,11 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
           npm_deps_mode: all
       - func: test_connectivity
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
   - name: test_apistrict
     tags: ["extra-integration-test"]
     depends_on:
@@ -820,11 +824,11 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
           npm_deps_mode: cli_build
       - func: test_apistrict
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
           mongosh_server_test_version: "latest-alpha-enterprise"
           mongosh_test_force_api_strict: "1"
   - name: compile_artifact
@@ -835,11 +839,11 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
           npm_deps_mode: cli_build
       - func: compile_artifact
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
 
   - name: generate_license_and_vulnerability_report
     depends_on:
@@ -849,18 +853,18 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
           npm_deps_mode: cli_build
       - func: generate_license_and_vulnerability_report
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
 
   ###
   # E2E TESTS
   ###
   <% for (const { executableOsId, compileBuildVariant } of RELEASE_PACKAGE_MATRIX) {
     // TODO(MONGOSH-1548): Account for 7.0.0 GA release when it happens
-    for (const mVersion of ['stable', '5.0.x', '7.0.0-rc10']) {
+    for (const mVersion of ['stable', '7.0.0-rc10']) {
       for (const fipsVariant of ['fips', 'nofips']) {
     %>
   - name: e2e_tests_<% out(executableOsId.replace(/-/g, '_')) %><% out(mVersion === 'stable' ? '' : '_' + mVersion.replace(/[^a-zA-Z0-9]/g, '')) %><% out(fipsVariant === 'fips' ? '_fips' : '') %>
@@ -872,16 +876,17 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
           npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: <% out(executableOsId) %>
       - func: run_e2e_tests
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
           mongosh_server_test_version: "<% out(mVersion) %>-enterprise"
           mongosh_test_e2e_force_fips: "<% out(fipsVariant === 'fips' ? '1' : '') %>"
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   <% } } } %>
 
   ###
@@ -898,10 +903,10 @@ tasks:
       - func: install
         vars:
           npm_deps_mode: cli_build
-          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
       - func: package_and_upload_artifact
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
           package_variant: <% out(packageVariant) %>
           executable_os_id: <% out(executableOsId) %>
   <% } } %>
@@ -937,11 +942,11 @@ tasks:
        case 'docker': { %>
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
           npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
           dockerfile: <% out(dockerfile) %>
     <% }; break;
     // We don't have docker for platforms other than x64, so for those we just
@@ -976,11 +981,11 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
           npm_deps_mode: all
       - func: release_draft
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
   - name: release_publish_dry_run
     git_tag_only: true
     exec_timeout_secs: 86400
@@ -990,11 +995,11 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
           npm_deps_mode: all
       - func: release_publish_dry_run
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
   - name: release_publish
     tags: ["publish"]
     git_tag_only: true
@@ -1006,11 +1011,11 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
           npm_deps_mode: all
       - func: release_publish
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
 
 # Need to run builds for every possible build variant.
 buildvariants:
@@ -1051,7 +1056,7 @@ buildvariants:
 
   - name: linux_unit
     display_name: "Ubuntu 18.04 x64 (Unit tests)"
-    run_on: ubuntu1804-small
+    run_on: ubuntu1804-large
     tasks:
       - name: compile_ts
       - name: check
@@ -1068,7 +1073,7 @@ buildvariants:
       - name: check_coverage
   - name: linux_package
     display_name: "Ubuntu 18.04 x64 (Packaging)"
-    run_on: ubuntu1804-small
+    run_on: ubuntu1804-large
     tasks:
       <% for (const { executableOsId, packages } of RELEASE_PACKAGE_MATRIX) {
           for (const { name: packageVariant } of packages) {
@@ -1100,14 +1105,14 @@ buildvariants:
       - name: compile_artifact
   - name: linux_arm64_build
     display_name: "Amazon 2 arm64 (build)"
-    run_on: amazon2-arm64-small
+    run_on: amazon2-arm64-large
     expansions:
       executable_os_id: linux-arm64
     tasks:
       - name: compile_artifact
   - name: linux_arm64_build_openssl11
     display_name: "Amazon 2 arm64 (build, shared OpenSSL 1.1)"
-    run_on: amazon2-arm64-small
+    run_on: amazon2-arm64-large
     expansions:
       executable_os_id: linux-arm64-openssl11
       mongosh_shared_openssl: openssl11
@@ -1130,7 +1135,7 @@ buildvariants:
       - name: compile_artifact
   - name: linux_s390x_build
     display_name: "RHEL 7.2 s390x (build)"
-    run_on: rhel72-zseries-small
+    run_on: rhel72-zseries-large
     expansions:
       executable_os_id: linux-s390x
     tasks:
@@ -1138,12 +1143,12 @@ buildvariants:
 
   - name: e2e_rhel70_x64
     display_name: "RHEL 7.0 x64 (E2E Tests)"
-    run_on: rhel70-small
+    run_on: rhel70-large
     tasks:
       - name: e2e_tests_linux_x64
   - name: e2e_rhel76_x64
     display_name: "RHEL 7.6 x64 (E2E Tests)"
-    run_on: rhel76-small
+    run_on: rhel76-large
     tasks:
       - name: e2e_tests_linux_x64
   - name: e2e_rhel80_x64
@@ -1154,6 +1159,8 @@ buildvariants:
   - name: e2e_rhel90_x64
     display_name: "RHEL 9.0 x64 (E2E Tests)"
     run_on: rhel90-small
+    expansions:
+      disable_openssl_shared_config_for_bundled_openssl: true
     tasks:
       - name: e2e_tests_linux_x64
   - name: e2e_rhel83_x64
@@ -1172,7 +1179,7 @@ buildvariants:
       - name: e2e_tests_linux_x64_openssl3_fips
   - name: e2e_ubuntu1804_x64
     display_name: "Ubuntu 18.04 x64 (E2E Tests)"
-    run_on: ubuntu1804-small
+    run_on: ubuntu1804-large
     tasks:
       - name: e2e_tests_linux_x64
   - name: e2e_ubuntu2004_x64
@@ -1187,11 +1194,6 @@ buildvariants:
     tasks:
       - name: e2e_tests_linux_x64
       - name: e2e_tests_linux_x64_openssl3
-  - name: e2e_debian9_x64
-    display_name: "Debian 9 x64 (E2E Tests)"
-    run_on: debian92-small
-    tasks:
-      - name: e2e_tests_linux_x64_50x
   - name: e2e_debian10_x64
     display_name: "Debian 10 x64 (E2E Tests)"
     run_on: debian10-small
@@ -1204,34 +1206,31 @@ buildvariants:
     tasks:
       - name: e2e_tests_linux_x64
       - name: e2e_tests_linux_x64_openssl11
-  - name: e2e_amazon1_x64
-    display_name: "Amazon Linux 1 x64 (E2E Tests)"
-    run_on: amazon1-2018-small
-    tasks:
-      - name: e2e_tests_linux_x64_50x
   - name: e2e_amazon2_x64
     display_name: "Amazon Linux 2 x64 (E2E Tests)"
-    run_on: amazon2-small
+    run_on: amazon2-large
     tasks:
       - name: e2e_tests_linux_x64
   - name: e2e_amazon2023_x64
     display_name: "Amazon Linux 2023 x64 (E2E Tests)"
     run_on: amazon2023.0-small
+    expansions:
+      disable_openssl_shared_config_for_bundled_openssl: true
     tasks:
       - name: e2e_tests_linux_x64_700rc10
   - name: e2e_suse12_x64
     display_name: "SLES 12 x64 (E2E Tests)"
-    run_on: suse12-sp5-small
+    run_on: suse12-sp5-large
     tasks:
       - name: e2e_tests_linux_x64
   - name: e2e_suse15_x64
     display_name: "SLES 15 x64 (E2E Tests)"
-    run_on: suse15-small
+    run_on: suse15sp4-large
     tasks:
       - name: e2e_tests_linux_x64
   - name: e2e_ubuntu1804_arm64
     display_name: "Ubuntu 18.04 arm64 (E2E Tests)"
-    run_on: ubuntu1804-arm64-small
+    run_on: ubuntu1804-arm64-large
     tasks:
       - name: e2e_tests_linux_arm64
   - name: e2e_ubuntu2004_arm64
@@ -1248,12 +1247,14 @@ buildvariants:
       - name: e2e_tests_linux_arm64_openssl3
   - name: e2e_amazon2_arm64
     display_name: "Amazon Linux 2 arm64 (E2E Tests)"
-    run_on: amazon2-arm64-small
+    run_on: amazon2-arm64-large
     tasks:
       - name: e2e_tests_linux_arm64
   - name: e2e_amazon2023_arm64
     display_name: "Amazon Linux 2023 arm64 (E2E Tests)"
     run_on: amazon2023.0-arm64-small
+    expansions:
+      disable_openssl_shared_config_for_bundled_openssl: true
     tasks:
       - name: e2e_tests_linux_arm64_700rc10
   - name: e2e_rhel82_arm64
@@ -1264,6 +1265,8 @@ buildvariants:
   - name: e2e_rhel90_arm64
     display_name: "RHEL 9.0 arm64 (E2E Tests)"
     run_on: rhel90-arm64-small
+    expansions:
+      disable_openssl_shared_config_for_bundled_openssl: true
     tasks:
       - name: e2e_tests_linux_arm64
       - name: e2e_tests_linux_arm64_openssl3
@@ -1274,7 +1277,7 @@ buildvariants:
       - name: e2e_tests_linux_ppc64le
   - name: e2e_rhel72_s390x
     display_name: "RHEL 7.2 s390x (E2E Tests)"
-    run_on: rhel72-zseries-small
+    run_on: rhel72-zseries-large
     tasks:
       - name: e2e_tests_linux_s390x
   - name: e2e_rhel83_s390x
@@ -1312,7 +1315,7 @@ buildvariants:
 
   - name: pkg_smoke_tests_docker_x64
     display_name: "package smoke tests (x64 Docker)"
-    run_on: ubuntu1804-small
+    run_on: ubuntu1804-large
     tasks:
   <% for (const { packages, executableOsId } of RELEASE_PACKAGE_MATRIX) {
       if (executableOsId.includes('linux-x64')) {
