@@ -2241,4 +2241,70 @@ describe('CliRepl', function () {
       expect(o.parentHandle).to.equal('foo-bar');
     });
   });
+
+  context('mongosh 2.x deprecation warnings', function () {
+    const actualReport = process.report;
+    beforeEach(function () {
+      delete (process as any).report;
+      (process.report as any) = {
+        getReport() {
+          return {
+            header: {
+              glibcVersionRuntime: '2.08',
+            },
+          };
+        },
+      };
+
+      delete (process as any).version;
+      process.version = 'v16.21.1';
+
+      cliReplOptions.shellCliOptions = { nodb: true };
+    });
+
+    afterEach(function () {
+      process.report = actualReport;
+      process.version = process.versions.node;
+    });
+
+    it('prints a deprecation warning when running on platforms with GLIBC < 2.28', async function () {
+      cliRepl = new CliRepl(cliReplOptions);
+      await cliRepl.start('', {});
+      expect(output).to.include('Deprecation warnings:');
+      expect(output).to.include(
+        'Using mongosh on the current operating system is deprecated, and support may be removed in a future release.'
+      );
+      expect(output).to.include(
+        'See https://www.mongodb.com/docs/mongodb-shell/ for documentation on supported platforms.'
+      );
+    });
+
+    it('prints a deprecation warning when running on Node.js < 20.0.0', async function () {
+      cliRepl = new CliRepl(cliReplOptions);
+      await cliRepl.start('', {});
+      expect(output).to.include('Deprecation warnings:');
+      expect(output).to.include(
+        'Using mongosh with Node.js versions lower than 20.0.0 is deprecated, and support will be removed in a future release.'
+      );
+      expect(output).to.include(
+        'See https://www.mongodb.com/docs/mongodb-shell/ for documentation on supported platforms.'
+      );
+    });
+
+    it('does not print any deprecation warning when CLI is ran with --quiet flag', async function () {
+      cliReplOptions.shellCliOptions.quiet = true;
+      cliRepl = new CliRepl(cliReplOptions);
+      await cliRepl.start('', {});
+      expect(output).not.to.include('Deprecation warnings:');
+      expect(output).not.to.include(
+        'Using mongosh on the current operating system is deprecated, and support may be removed in a future release.'
+      );
+      expect(output).not.to.include(
+        'Using mongosh with Node.js versions lower than 20.0.0 is deprecated, and support will be removed in a future release.'
+      );
+      expect(output).not.to.include(
+        'See https://www.mongodb.com/docs/mongodb-shell/ for documentation on supported platforms.'
+      );
+    });
+  });
 });

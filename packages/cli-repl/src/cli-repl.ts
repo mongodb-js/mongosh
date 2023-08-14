@@ -422,6 +422,9 @@ export class CliRepl implements MongoshIOProvider {
       await snippetManager?.loadAllSnippets();
     }
     await this.loadRcFiles();
+
+    this.verifyPlatformSupport();
+
     // We only enable/disable here, since the rc file/command line scripts
     // can disable the telemetry setting.
     this.setTelemetryEnabled(await this.getConfig('enableTelemetry'));
@@ -792,6 +795,75 @@ export class CliRepl implements MongoshIOProvider {
         CliReplErrors.NodeVersionMismatch
       );
       await this._fatalError(warning);
+    }
+  }
+
+  verifyPlatformSupport(): void {
+    if (this.cliOptions.quiet) {
+      return;
+    }
+
+    // Typings for process.getReport haven't been updated
+    // (https://github.com/DefinitelyTyped/DefinitelyTyped/issues/40140)
+    const processReport = process.report?.getReport() as unknown as
+      | {
+          header: {
+            glibcVersionRuntime: string;
+          };
+        }
+      | undefined;
+    if (!processReport) {
+      return;
+    }
+
+    const satisfiesGLIBCRequirement = (glibcVersion: string): boolean => {
+      const RECOMMENDED_GLIBC_MAJOR = 2;
+      const RECOMMENDED_GLIBC_MINOR = 28;
+      // GLIBC versions don't necessarily have a patch version in them
+      // (https://sourceware.org/glibc/wiki/Glibc%20Timeline) which is why we
+      // don't exec for that
+      const GLIBC_REGEX = /(?<major>\d+)\.(?<minor>\d+)/;
+      const execResult = GLIBC_REGEX.exec(glibcVersion);
+      if (!execResult || !execResult.groups) {
+        return true;
+      }
+
+      const { major, minor } = execResult.groups;
+      if (parseInt(major, 10) < RECOMMENDED_GLIBC_MAJOR) {
+        return false;
+      }
+
+      if (parseInt(minor, 10) < RECOMMENDED_GLIBC_MINOR) {
+        return false;
+      }
+
+      return true;
+    };
+
+    const warnings: string[] = [];
+    if (!satisfiesGLIBCRequirement(processReport.header.glibcVersionRuntime)) {
+      warnings.push(
+        '  - Using mongosh on the current operating system is deprecated, and support may be removed in a future release.'
+      );
+    }
+
+    const RECOMMENDED_NODEJS = '>=20.0.0';
+    if (!semver.satisfies(process.version, RECOMMENDED_NODEJS)) {
+      warnings.push(
+        '  - Using mongosh with Node.js versions lower than 20.0.0 is deprecated, and support will be removed in a future release.'
+      );
+    }
+
+    if (warnings.length) {
+      const deprecationWarning = [
+        'Deprecation warnings:',
+        ...warnings,
+        'See https://www.mongodb.com/docs/mongodb-shell/ for documentation on supported platforms.',
+      ].join('\n');
+
+      this.output.write(
+        this.clr(`\n${deprecationWarning}\n`, 'mongosh:warning')
+      );
     }
   }
 
