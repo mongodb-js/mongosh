@@ -10,6 +10,8 @@ import type { Config, PackageVariant } from './config';
 export { getArtifactUrl, downloadMongoDb };
 
 if (require.main === module) {
+  Error.stackTraceLimit = 200;
+
   (async () => {
     const command = process.argv[2];
     if (
