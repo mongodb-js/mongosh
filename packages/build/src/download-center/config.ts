@@ -28,6 +28,7 @@ import { once } from 'events';
 import fetch from 'node-fetch';
 import path from 'path';
 import { promisify } from 'util';
+import semver from 'semver';
 
 const delay = promisify(setTimeout);
 
@@ -223,9 +224,9 @@ export async function createJsonFeedEntry(
           arch: getServerLikeArchName(arch),
           distro: distro,
           targets: getServerLikeTargetList(packageVariant),
-          sharedOpenssl: url.includes('shared-openssl11')
+          sharedOpenssl: url.includes('-openssl11')
             ? 'openssl11'
-            : filename.includes('shared-openssl3')
+            : filename.includes('-openssl3')
             ? 'openssl3'
             : undefined,
           archive: {
@@ -253,6 +254,7 @@ function mergeFeeds(...args: (JsonFeed | undefined)[]): JsonFeed {
       else newFeed.versions.splice(index, 1, version);
     }
   }
+  newFeed.versions.sort((a, b) => semver.rcompare(a.version, b.version));
   return newFeed;
 }
 
