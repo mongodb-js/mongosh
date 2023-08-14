@@ -86,6 +86,11 @@ export class UpdateNotificationManager {
     });
 
     if (response.status === 304 /* Not Modified, i.e. ETag matched */) {
+      response.body
+        .on('error', () => {
+          /* ignore response content and errors */
+        })
+        .resume();
       localFileContents = { ...localFileContents, lastChecked: Date.now() };
       await fs.writeFile(localFilePath, JSON.stringify(localFileContents));
       return;

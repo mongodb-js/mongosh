@@ -511,11 +511,6 @@ class MongoshNodeRepl implements EvaluationListener {
       'Using Mongosh',
       'mongosh:section-header'
     )}:\t\t${version}\n`;
-    text += `${MONGOSH_WIKI}\n`;
-    if (!(await this.getConfig('disableGreetingMessage'))) {
-      text += `${TELEMETRY_GREETING_MESSAGE}\n`;
-      await this.setConfig('disableGreetingMessage', true);
-    }
     if (moreRecentMongoshVersion) {
       text += `mongosh ${this.clr(
         moreRecentMongoshVersion,
@@ -523,7 +518,12 @@ class MongoshNodeRepl implements EvaluationListener {
       )} is available for download: ${this.clr(
         'https://www.mongodb.com/try/download/shell',
         'mongosh:uri'
-      )}`;
+      )}\n`;
+    }
+    text += `${MONGOSH_WIKI}\n`;
+    if (!(await this.getConfig('disableGreetingMessage'))) {
+      text += `${TELEMETRY_GREETING_MESSAGE}\n`;
+      await this.setConfig('disableGreetingMessage', true);
     }
     this.output.write(text);
   }
