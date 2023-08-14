@@ -816,41 +816,42 @@ export class CliRepl implements MongoshIOProvider {
       return;
     }
 
-    const satisfiesGLIBCRequirement = (glibcVersion: string): boolean => {
-      const RECOMMENDED_GLIBC_MAJOR = 2;
-      const RECOMMENDED_GLIBC_MINOR = 28;
-      // GLIBC versions don't necessarily have a patch version in them
-      // (https://sourceware.org/glibc/wiki/Glibc%20Timeline) which is why we
-      // don't exec for that
-      const GLIBC_REGEX = /(?<major>\d+)\.(?<minor>\d+)/;
-      const execResult = GLIBC_REGEX.exec(glibcVersion);
-      if (!execResult || !execResult.groups) {
+    const warnings: string[] = [];
+    const RECOMMENDED_GLIBC = '>=2.28.0';
+    const RECOMMENDED_OPENSSL = '>=3.0.0';
+    const RECOMMENDED_NODEJS = '>=20.0.0';
+    const semverRangeCheck = (
+      semverLikeVersion: string,
+      range: string
+    ): boolean => {
+      const semverVersion = semver.valid(semver.coerce(semverLikeVersion));
+      // We don't push warnings for versions where we can't reliably get a
+      // semver like version string
+      if (!semverVersion) {
         return true;
       }
 
-      const { major, minor } = execResult.groups;
-      if (parseInt(major, 10) < RECOMMENDED_GLIBC_MAJOR) {
-        return false;
-      }
-
-      if (parseInt(minor, 10) < RECOMMENDED_GLIBC_MINOR) {
-        return false;
-      }
-
-      return true;
+      return semver.satisfies(semverVersion, range);
     };
-
-    const warnings: string[] = [];
+    const satisfiesGLIBCRequirement = (glibcVersion: string) =>
+      semverRangeCheck(glibcVersion, RECOMMENDED_GLIBC);
     if (!satisfiesGLIBCRequirement(processReport.header.glibcVersionRuntime)) {
       warnings.push(
         '  - Using mongosh on the current operating system is deprecated, and support may be removed in a future release.'
       );
     }
 
-    const RECOMMENDED_NODEJS = '>=20.0.0';
+    const satisfiesOpenSSLRequirement = (opensslVersion: string) =>
+      semverRangeCheck(opensslVersion, RECOMMENDED_OPENSSL);
+    if (!satisfiesOpenSSLRequirement(process.versions.openssl)) {
+      warnings.push(
+        '  - Using mongosh with OpenSSL versions lower than 3.0.0 is deprecated, and support may be removed in a future release.'
+      );
+    }
+
     if (!semver.satisfies(process.version, RECOMMENDED_NODEJS)) {
       warnings.push(
-        '  - Using mongosh with Node.js versions lower than 20.0.0 is deprecated, and support will be removed in a future release.'
+        '  - Using mongosh with Node.js versions lower than 20.0.0 is deprecated, and support may be removed in a future release.'
       );
     }
 
