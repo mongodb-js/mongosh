@@ -45,9 +45,15 @@ export async function createAndPublishDownloadCenterConfig(
     accessKeyId: awsAccessKeyId,
     secretAccessKey: awsSecretAccessKey,
   });
-  const existingDownloadCenterConfig = await dlcenter.downloadConfig(
-    CONFIGURATION_KEY
-  );
+  let existingDownloadCenterConfig: DownloadCenterConfig | undefined;
+  try {
+    existingDownloadCenterConfig = await dlcenter.downloadConfig(
+      CONFIGURATION_KEY
+    );
+  } catch (err: any) {
+    console.warn('Failed to get existing download center config', err);
+    if (err?.code !== 'NoSuchKey') throw err;
+  }
 
   const getVersionConfig = () =>
     createVersionConfig(packageInformation, publicArtifactBaseUrl);
@@ -59,7 +65,7 @@ export async function createAndPublishDownloadCenterConfig(
     : createDownloadCenterConfig(getVersionConfig);
 
   console.warn('Created download center config:');
-  //console.dir(config, { depth: Infinity });
+  console.dir(config, { depth: Infinity });
 
   validateConfigSchema(config);
 
@@ -69,13 +75,20 @@ export async function createAndPublishDownloadCenterConfig(
     secretAccessKey: awsSecretAccessKey,
   });
   const jsonFeedArtifactkey = `${ARTIFACTS_FOLDER}/mongosh.json`;
-  const existingJsonFeedText = await dlcenterArtifacts.downloadAsset(
-    jsonFeedArtifactkey
-  );
-  const existingJsonFeed = existingJsonFeedText
+  let existingJsonFeedText;
+  try {
+    existingJsonFeedText = await dlcenterArtifacts.downloadAsset(
+      jsonFeedArtifactkey
+    );
+  } catch (err: any) {
+    console.warn('Failed to get existing JSON feed text', err);
+    if (err?.code !== 'NoSuchKey') throw err;
+  }
+
+  const existingJsonFeed: JsonFeed | undefined = existingJsonFeedText
     ? JSON.parse(existingJsonFeedText.toString())
     : undefined;
-  const injectedJsonFeed = injectedJsonFeedFile
+  const injectedJsonFeed: JsonFeed | undefined = injectedJsonFeedFile
     ? JSON.parse(await fs.readFile(injectedJsonFeedFile, 'utf8'))
     : undefined;
   const currentJsonFeedEntry = await createJsonFeedEntry(
@@ -86,7 +99,7 @@ export async function createAndPublishDownloadCenterConfig(
     versions: [currentJsonFeedEntry],
   };
   console.warn('Adding new JSON feed entry:');
-  //console.dir(currentJsonFeedEntry, { depth: Infinity });
+  console.dir(currentJsonFeedEntry, { depth: Infinity });
 
   const newJsonFeed = mergeFeeds(
     existingJsonFeed,
@@ -227,7 +240,7 @@ export async function createJsonFeedEntry(
   };
 }
 
-function mergeFeeds(...args: JsonFeed[]): JsonFeed {
+function mergeFeeds(...args: (JsonFeed | undefined)[]): JsonFeed {
   const newFeed: JsonFeed = {
     versions: [],
   };
