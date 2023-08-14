@@ -1,6 +1,1058 @@
 {
   "versions": [
     {
+      "version": "1.10.5",
+      "githash": "bb658a0758c886a751f0798df7ce805a3fe911c4",
+      "downloads": [
+        {
+          "arch": "arm64",
+          "targets": [
+            "amazon2",
+            "amazon2023",
+            "rhel81",
+            "rhel82",
+            "rhel83",
+            "rhel90"
+          ],
+          "archive": {
+            "type": "rpm",
+            "url": "https://downloads.mongodb.com/compass/mongodb-mongosh-1.10.5.aarch64.rpm",
+            "sha256": "51113f69ae1de6954a98aaedede90f83982d74ba241ad27295b45afac16a52c5",
+            "sha1": "111807b2944590ace798d6e401cba0a5b2ebdc50"
+          }
+        },
+        {
+          "arch": "ppc64le",
+          "targets": [
+            "rhel81",
+            "rhel82",
+            "rhel83",
+            "rhel90"
+          ],
+          "archive": {
+            "type": "rpm",
+            "url": "https://downloads.mongodb.com/compass/mongodb-mongosh-1.10.5.ppc64le.rpm",
+            "sha256": "38dcb8fc0b60ac3ea4feb1c50c9aadbab1f3041fe69a4eac9b48e44346b689ec",
+            "sha1": "9f7e1fcb04d94c20def1d3ef96c0189931c8c970"
+          }
+        },
+        {
+          "arch": "s390x",
+          "targets": [
+            "rhel72",
+            "rhel80",
+            "rhel81",
+            "rhel82",
+            "rhel83",
+            "rhel90"
+          ],
+          "archive": {
+            "type": "rpm",
+            "url": "https://downloads.mongodb.com/compass/mongodb-mongosh-1.10.5.s390x.rpm",
+            "sha256": "653cec979cd5e7c7adceff440742e6739ebcd014049b96fd5525073a04628f0c",
+            "sha1": "bdda87f475682236a95151eea8e168094971de00"
+          }
+        },
+        {
+          "arch": "x86_64",
+          "targets": [
+            "rhel70",
+            "rhel71",
+            "rhel72",
+            "rhel80",
+            "rhel81",
+            "rhel82",
+            "rhel83",
+            "rhel90",
+            "amazon",
+            "amazon2",
+            "amazon2023",
+            "suse12",
+            "suse15"
+          ],
+          "archive": {
+            "type": "rpm",
+            "url": "https://downloads.mongodb.com/compass/mongodb-mongosh-1.10.5.x86_64.rpm",
+            "sha256": "eff6f092b0f077eb0a53aeb86740fa5585c8e3b0bbb0619329af9b2a6f4107fd",
+            "sha1": "de98dea77cbd43522c2c6864dcfb538e8274c4db"
+          }
+        },
+        {
+          "arch": "arm64",
+          "targets": [
+            "amazon2",
+            "amazon2023",
+            "rhel81",
+            "rhel82",
+            "rhel83",
+            "rhel90"
+          ],
+          "sharedOpenssl": "openssl11",
+          "archive": {
+            "type": "rpm",
+            "url": "https://downloads.mongodb.com/compass/mongodb-mongosh-shared-openssl11-1.10.5.aarch64.rpm",
+            "sha256": "3c483caf6183523b327d4c1405e0e33fb90d8583f603ac0d41d0172b873697cd",
+            "sha1": "dd93e03aee94de4f046f9a9b3ad5ce511238fca9"
+          }
+        },
+        {
+          "arch": "x86_64",
+          "targets": [
+            "rhel70",
+            "rhel71",
+            "rhel72",
+            "rhel80",
+            "rhel81",
+            "rhel82",
+            "rhel83",
+            "rhel90",
+            "amazon",
+            "amazon2",
+            "amazon2023",
+            "suse12",
+            "suse15"
+          ],
+          "sharedOpenssl": "openssl11",
+          "archive": {
+            "type": "rpm",
+            "url": "https://downloads.mongodb.com/compass/mongodb-mongosh-shared-openssl11-1.10.5.x86_64.rpm",
+            "sha256": "38cbe3c24eef7a6f311e222ec8df7d3cfc36ff2e69c7c9da323defb879094d38",
+            "sha1": "dc5ee0840f5ea05a9202a324a0fcfe998336cd0f"
+          }
+        },
+        {
+          "arch": "x86_64",
+          "targets": [
+            "ubuntu1804",
+            "ubuntu2004",
+            "ubuntu2204",
+            "debian92",
+            "debian10",
+            "debian11",
+            "debian12"
+          ],
+          "sharedOpenssl": "openssl11",
+          "archive": {
+            "type": "deb",
+            "url": "https://downloads.mongodb.com/compass/mongodb-mongosh-shared-openssl11_1.10.5_amd64.deb",
+            "sha256": "d14dc05c4534a7af94c8ecfb8ad62358399a006a83badb1441b7a9803e8fcc69",
+            "sha1": "fc0724016dc63fd9e9b7928eb3735da2d14264a9"
+          }
+        },
+        {
+          "arch": "arm64",
+          "targets": [
+            "ubuntu1804",
+            "ubuntu2004",
+            "ubuntu2204",
+            "debian92",
+            "debian10",
+            "debian11",
+            "debian12"
+          ],
+          "sharedOpenssl": "openssl11",
+          "archive": {
+            "type": "deb",
+            "url": "https://downloads.mongodb.com/compass/mongodb-mongosh-shared-openssl11_1.10.5_arm64.deb",
+            "sha256": "4af530b7bd4ac2766c070c5ef3691b98693decf31cb634968de920579f07ea3c",
+            "sha1": "e95f9f1812cef6a94438785184dbe011f5e027c7"
+          }
+        },
+        {
+          "arch": "arm64",
+          "targets": [
+            "amazon2",
+            "amazon2023",
+            "rhel81",
+            "rhel82",
+            "rhel83",
+            "rhel90"
+          ],
+          "sharedOpenssl": "openssl3",
+          "archive": {
+            "type": "rpm",
+            "url": "https://downloads.mongodb.com/compass/mongodb-mongosh-shared-openssl3-1.10.5.aarch64.rpm",
+            "sha256": "8c09f3a9ff65913ef449a3cccb4af665f9383f9f2885d13bae2c56b75a65d429",
+            "sha1": "8e7c64e01475213ebafcde520555b3704fb430c1"
+          }
+        },
+        {
+          "arch": "x86_64",
+          "targets": [
+            "rhel70",
+            "rhel71",
+            "rhel72",
+            "rhel80",
+            "rhel81",
+            "rhel82",
+            "rhel83",
+            "rhel90",
+            "amazon",
+            "amazon2",
+            "amazon2023",
+            "suse12",
+            "suse15"
+          ],
+          "sharedOpenssl": "openssl3",
+          "archive": {
+            "type": "rpm",
+            "url": "https://downloads.mongodb.com/compass/mongodb-mongosh-shared-openssl3-1.10.5.x86_64.rpm",
+            "sha256": "c098a9a05023aac0ae49808bcec8b0ad9944c38775e2aab9c5632436dc833a3c",
+            "sha1": "00334d486a74e3da3910571be45206b244e65210"
+          }
+        },
+        {
+          "arch": "x86_64",
+          "targets": [
+            "ubuntu1804",
+            "ubuntu2004",
+            "ubuntu2204",
+            "debian92",
+            "debian10",
+            "debian11",
+            "debian12"
+          ],
+          "sharedOpenssl": "openssl3",
+          "archive": {
+            "type": "deb",
+            "url": "https://downloads.mongodb.com/compass/mongodb-mongosh-shared-openssl3_1.10.5_amd64.deb",
+            "sha256": "9b64c27482ed9a3a260e0bf582ee82d83cf9d5e89d5ae1b37342827e7626fe91",
+            "sha1": "3fd7e3baa918994c076eb73f2351360e2a825e70"
+          }
+        },
+        {
+          "arch": "arm64",
+          "targets": [
+            "ubuntu1804",
+            "ubuntu2004",
+            "ubuntu2204",
+            "debian92",
+            "debian10",
+            "debian11",
+            "debian12"
+          ],
+          "sharedOpenssl": "openssl3",
+          "archive": {
+            "type": "deb",
+            "url": "https://downloads.mongodb.com/compass/mongodb-mongosh-shared-openssl3_1.10.5_arm64.deb",
+            "sha256": "305d269aaba552ddf09cc868a63d442f9521528ae3bf11fff49f67c33fb34723",
+            "sha1": "b62ae614e0cbe9da09feb38d2e7ec3374baa5158"
+          }
+        },
+        {
+          "arch": "x86_64",
+          "targets": [
+            "ubuntu1804",
+            "ubuntu2004",
+            "ubuntu2204",
+            "debian92",
+            "debian10",
+            "debian11",
+            "debian12"
+          ],
+          "archive": {
+            "type": "deb",
+            "url": "https://downloads.mongodb.com/compass/mongodb-mongosh_1.10.5_amd64.deb",
+            "sha256": "a74e467f91c31eaa611f277b1b995a6509dec2c65ef43c60bdb25c1653139f2b",
+            "sha1": "fcd3ddb1f44775fb5cb5089cf0f41f3b34cb31f7"
+          }
+        },
+        {
+          "arch": "arm64",
+          "targets": [
+            "ubuntu1804",
+            "ubuntu2004",
+            "ubuntu2204",
+            "debian92",
+            "debian10",
+            "debian11",
+            "debian12"
+          ],
+          "archive": {
+            "type": "deb",
+            "url": "https://downloads.mongodb.com/compass/mongodb-mongosh_1.10.5_arm64.deb",
+            "sha256": "42e4209817bef6f183f251489f2e44d21279bcfbf6eae8a249e2faca0f0a3350",
+            "sha1": "921431f6c62f65a9de5bc770460cde5d0e0f3f4d"
+          }
+        },
+        {
+          "arch": "arm64",
+          "targets": [
+            "macos"
+          ],
+          "archive": {
+            "type": "zip",
+            "url": "https://downloads.mongodb.com/compass/mongosh-1.10.5-darwin-arm64.zip",
+            "sha256": "e4897b4f68b6400d4f6cd22f2dd584c574a6c71c4c95df7656ae0bc63f57556f",
+            "sha1": "709584e98ac08082d583123d9ed1a081444032d2"
+          }
+        },
+        {
+          "arch": "x86_64",
+          "targets": [
+            "macos"
+          ],
+          "archive": {
+            "type": "zip",
+            "url": "https://downloads.mongodb.com/compass/mongosh-1.10.5-darwin-x64.zip",
+            "sha256": "d72e1910f0cf37319c845ce7a88bab2d9a902eb341c538ca24fb3b3ea8774fcd",
+            "sha1": "d57f287220139c3aa41fd63c6a3c65e482058160"
+          }
+        },
+        {
+          "arch": "arm64",
+          "targets": [
+            "amazon2",
+            "amazon2023",
+            "rhel81",
+            "rhel82",
+            "rhel83",
+            "rhel90",
+            "ubuntu1804",
+            "ubuntu2004",
+            "ubuntu2204",
+            "debian92",
+            "debian10",
+            "debian11",
+            "debian12"
+          ],
+          "sharedOpenssl": "openssl11",
+          "archive": {
+            "type": "tgz",
+            "url": "https://downloads.mongodb.com/compass/mongosh-1.10.5-linux-arm64-openssl11.tgz",
+            "sha256": "395292af649a95a58ac73b6c2497269b90a5bdb02bede80adcc51ef8e2a326f7",
+            "sha1": "a066121a9fb37826f69a2a674e15c092cd4e2fd2"
+          }
+        },
+        {
+          "arch": "arm64",
+          "targets": [
+            "amazon2",
+            "amazon2023",
+            "rhel81",
+            "rhel82",
+            "rhel83",
+            "rhel90",
+            "ubuntu1804",
+            "ubuntu2004",
+            "ubuntu2204",
+            "debian92",
+            "debian10",
+            "debian11",
+            "debian12"
+          ],
+          "sharedOpenssl": "openssl3",
+          "archive": {
+            "type": "tgz",
+            "url": "https://downloads.mongodb.com/compass/mongosh-1.10.5-linux-arm64-openssl3.tgz",
+            "sha256": "f857f24095a263fecbb252eb46062fd8a020d278360168cc12a46d011949a0b1",
+            "sha1": "bf2c859ca9f828db97b1e1d79f02d50451b4c0ca"
+          }
+        },
+        {
+          "arch": "arm64",
+          "targets": [
+            "amazon2",
+            "amazon2023",
+            "rhel81",
+            "rhel82",
+            "rhel83",
+            "rhel90",
+            "ubuntu1804",
+            "ubuntu2004",
+            "ubuntu2204",
+            "debian92",
+            "debian10",
+            "debian11",
+            "debian12"
+          ],
+          "archive": {
+            "type": "tgz",
+            "url": "https://downloads.mongodb.com/compass/mongosh-1.10.5-linux-arm64.tgz",
+            "sha256": "027d187d92a9e546bb3193fca778a47d52f2f36ed7e4a760c2651464193ae55b",
+            "sha1": "53d8d00ac9e351e818e0bdec5cd4c33dd064b3b7"
+          }
+        },
+        {
+          "arch": "ppc64le",
+          "targets": [
+            "rhel81",
+            "rhel82",
+            "rhel83",
+            "rhel90"
+          ],
+          "archive": {
+            "type": "tgz",
+            "url": "https://downloads.mongodb.com/compass/mongosh-1.10.5-linux-ppc64le.tgz",
+            "sha256": "50f8c93ea776976518f8336ad2486473c17b0f469b3fd9ee207c997ff77d8f1e",
+            "sha1": "2353c62f473f911e6068639b2478f7eb9b91820e"
+          }
+        },
+        {
+          "arch": "s390x",
+          "targets": [
+            "rhel72",
+            "rhel80",
+            "rhel81",
+            "rhel82",
+            "rhel83",
+            "rhel90"
+          ],
+          "archive": {
+            "type": "tgz",
+            "url": "https://downloads.mongodb.com/compass/mongosh-1.10.5-linux-s390x.tgz",
+            "sha256": "9707a8bfd3b00c05da65dff2125164748c662316635678421b3383f84f9b1b67",
+            "sha1": "46e41c5eb6c087151c8399bb43132a283b710ab1"
+          }
+        },
+        {
+          "arch": "x86_64",
+          "targets": [
+            "rhel70",
+            "rhel71",
+            "rhel72",
+            "rhel80",
+            "rhel81",
+            "rhel82",
+            "rhel83",
+            "rhel90",
+            "amazon",
+            "amazon2",
+            "amazon2023",
+            "suse12",
+            "suse15",
+            "ubuntu1804",
+            "ubuntu2004",
+            "ubuntu2204",
+            "debian92",
+            "debian10",
+            "debian11",
+            "debian12"
+          ],
+          "sharedOpenssl": "openssl11",
+          "archive": {
+            "type": "tgz",
+            "url": "https://downloads.mongodb.com/compass/mongosh-1.10.5-linux-x64-openssl11.tgz",
+            "sha256": "143e830030a586120e8f734fb62b845a81e3fd5ad42aa7fb309cd14335ac5db1",
+            "sha1": "97ef5dfbea8c414a7ee2462d35721c881d79e516"
+          }
+        },
+        {
+          "arch": "x86_64",
+          "targets": [
+            "rhel70",
+            "rhel71",
+            "rhel72",
+            "rhel80",
+            "rhel81",
+            "rhel82",
+            "rhel83",
+            "rhel90",
+            "amazon",
+            "amazon2",
+            "amazon2023",
+            "suse12",
+            "suse15",
+            "ubuntu1804",
+            "ubuntu2004",
+            "ubuntu2204",
+            "debian92",
+            "debian10",
+            "debian11",
+            "debian12"
+          ],
+          "sharedOpenssl": "openssl3",
+          "archive": {
+            "type": "tgz",
+            "url": "https://downloads.mongodb.com/compass/mongosh-1.10.5-linux-x64-openssl3.tgz",
+            "sha256": "1aefc40cac84adc55ae5f94be4753625c2cb85d89abb6e63be4fd4115a3b44a5",
+            "sha1": "cff41d17ba38246778c6ae4e574c6e243a4e26f5"
+          }
+        },
+        {
+          "arch": "x86_64",
+          "targets": [
+            "rhel70",
+            "rhel71",
+            "rhel72",
+            "rhel80",
+            "rhel81",
+            "rhel82",
+            "rhel83",
+            "rhel90",
+            "amazon",
+            "amazon2",
+            "amazon2023",
+            "suse12",
+            "suse15",
+            "ubuntu1804",
+            "ubuntu2004",
+            "ubuntu2204",
+            "debian92",
+            "debian10",
+            "debian11",
+            "debian12"
+          ],
+          "archive": {
+            "type": "tgz",
+            "url": "https://downloads.mongodb.com/compass/mongosh-1.10.5-linux-x64.tgz",
+            "sha256": "18038b6ef4f3d572f10390affe9f95d72d34349b7a0c55a70633d5c578d87c1c",
+            "sha1": "a83e11e43863d500a09b3c6d6102329f6605fe23"
+          }
+        },
+        {
+          "arch": "x86_64",
+          "targets": [
+            "windows"
+          ],
+          "archive": {
+            "type": "zip",
+            "url": "https://downloads.mongodb.com/compass/mongosh-1.10.5-win32-x64.zip",
+            "sha256": "91b8ba7b973c6e43adab11d28a927c026172a21944547a9a724711b0495122b4",
+            "sha1": "2c4c907e4e8fb65367324c1695161a12b37935a4"
+          }
+        },
+        {
+          "arch": "x86_64",
+          "targets": [
+            "windows"
+          ],
+          "archive": {
+            "type": "msi",
+            "url": "https://downloads.mongodb.com/compass/mongosh-1.10.5-x64.msi",
+            "sha256": "1a66c13c5093c7af91706886470203872123e8d15cac7f403160ab7344dfb42b",
+            "sha1": "f1153562d2b331f0669c60335fc2b60441a9bcb1"
+          }
+        }
+      ]
+    },
+    {
+      "version": "1.10.4",
+      "githash": "13cdffcd9f7930fa3e996a9cf454e89f963c297a",
+      "downloads": [
+        {
+          "arch": "arm64",
+          "targets": [
+            "amazon2",
+            "amazon2023",
+            "rhel81",
+            "rhel82",
+            "rhel83",
+            "rhel90"
+          ],
+          "archive": {
+            "type": "rpm",
+            "url": "https://downloads.mongodb.com/compass/mongodb-mongosh-1.10.4.aarch64.rpm",
+            "sha256": "153e7ebe624beb63ffaa168e39193034c99d47de56a2fa0f7e168880db333423",
+            "sha1": "5c1c0f408a64750812a27d193ba8518ccf0e2893"
+          }
+        },
+        {
+          "arch": "ppc64le",
+          "targets": [
+            "rhel81",
+            "rhel82",
+            "rhel83",
+            "rhel90"
+          ],
+          "archive": {
+            "type": "rpm",
+            "url": "https://downloads.mongodb.com/compass/mongodb-mongosh-1.10.4.ppc64le.rpm",
+            "sha256": "736d16668aa31977c0a70d86d958f6e506f6b6b92853f5faa42b796762a61641",
+            "sha1": "443848f4081298ba3aafe6793ca0b1187213344e"
+          }
+        },
+        {
+          "arch": "s390x",
+          "targets": [
+            "rhel72",
+            "rhel80",
+            "rhel81",
+            "rhel82",
+            "rhel83",
+            "rhel90"
+          ],
+          "archive": {
+            "type": "rpm",
+            "url": "https://downloads.mongodb.com/compass/mongodb-mongosh-1.10.4.s390x.rpm",
+            "sha256": "572b188167f0ae55c5a66452939250766b660f2229dfbd167456ebaab53dfdef",
+            "sha1": "98bb5565cbba39701f75d79b237fb6fcd3fba7fa"
+          }
+        },
+        {
+          "arch": "x86_64",
+          "targets": [
+            "rhel70",
+            "rhel71",
+            "rhel72",
+            "rhel80",
+            "rhel81",
+            "rhel82",
+            "rhel83",
+            "rhel90",
+            "amazon",
+            "amazon2",
+            "amazon2023",
+            "suse12",
+            "suse15"
+          ],
+          "archive": {
+            "type": "rpm",
+            "url": "https://downloads.mongodb.com/compass/mongodb-mongosh-1.10.4.x86_64.rpm",
+            "sha256": "009828ae80872fb9eb74f5a9ef55d3489089728989d3eb898c6d1405e72ec267",
+            "sha1": "84e6bfcb5b6105d3606c92f20596d36d568f8772"
+          }
+        },
+        {
+          "arch": "arm64",
+          "targets": [
+            "amazon2",
+            "amazon2023",
+            "rhel81",
+            "rhel82",
+            "rhel83",
+            "rhel90"
+          ],
+          "sharedOpenssl": "openssl11",
+          "archive": {
+            "type": "rpm",
+            "url": "https://downloads.mongodb.com/compass/mongodb-mongosh-shared-openssl11-1.10.4.aarch64.rpm",
+            "sha256": "1f5c18f442066ad8f0b6fb2543d9a8590a242d977a8836be36157ab64812834c",
+            "sha1": "01bf095643bf8beadf5b5d35be4e334751c38e2c"
+          }
+        },
+        {
+          "arch": "x86_64",
+          "targets": [
+            "rhel70",
+            "rhel71",
+            "rhel72",
+            "rhel80",
+            "rhel81",
+            "rhel82",
+            "rhel83",
+            "rhel90",
+            "amazon",
+            "amazon2",
+            "amazon2023",
+            "suse12",
+            "suse15"
+          ],
+          "sharedOpenssl": "openssl11",
+          "archive": {
+            "type": "rpm",
+            "url": "https://downloads.mongodb.com/compass/mongodb-mongosh-shared-openssl11-1.10.4.x86_64.rpm",
+            "sha256": "429f3983dffc6d56ce6c12645b320dd7ce178cdf5d214889f13f000b66379d52",
+            "sha1": "f428d872bf453ed188a4eaf10bd25cb8b1e1c136"
+          }
+        },
+        {
+          "arch": "x86_64",
+          "targets": [
+            "ubuntu1804",
+            "ubuntu2004",
+            "ubuntu2204",
+            "debian92",
+            "debian10",
+            "debian11",
+            "debian12"
+          ],
+          "sharedOpenssl": "openssl11",
+          "archive": {
+            "type": "deb",
+            "url": "https://downloads.mongodb.com/compass/mongodb-mongosh-shared-openssl11_1.10.4_amd64.deb",
+            "sha256": "077c79b7626f25e8062020d8e3dbd8aaee6bc4f11f6cbdf9bb59596ec846049a",
+            "sha1": "65a9e883a810471fff11dda7f8b20719b69db85b"
+          }
+        },
+        {
+          "arch": "arm64",
+          "targets": [
+            "ubuntu1804",
+            "ubuntu2004",
+            "ubuntu2204",
+            "debian92",
+            "debian10",
+            "debian11",
+            "debian12"
+          ],
+          "sharedOpenssl": "openssl11",
+          "archive": {
+            "type": "deb",
+            "url": "https://downloads.mongodb.com/compass/mongodb-mongosh-shared-openssl11_1.10.4_arm64.deb",
+            "sha256": "e5be8bfc47343b8f2253397371b3cb55dbeece94f6564311b783fe04fd31ce0e",
+            "sha1": "fae77e31649fd0a2d3536f86ad557e77f7ce3523"
+          }
+        },
+        {
+          "arch": "arm64",
+          "targets": [
+            "amazon2",
+            "amazon2023",
+            "rhel81",
+            "rhel82",
+            "rhel83",
+            "rhel90"
+          ],
+          "sharedOpenssl": "openssl3",
+          "archive": {
+            "type": "rpm",
+            "url": "https://downloads.mongodb.com/compass/mongodb-mongosh-shared-openssl3-1.10.4.aarch64.rpm",
+            "sha256": "34860c462b9ed36a3a6c654382bb20a8392a0f4c084139ed2939daa984010860",
+            "sha1": "69e245cf926170cbeb4e7ff47c13e4e3000fc8ee"
+          }
+        },
+        {
+          "arch": "x86_64",
+          "targets": [
+            "rhel70",
+            "rhel71",
+            "rhel72",
+            "rhel80",
+            "rhel81",
+            "rhel82",
+            "rhel83",
+            "rhel90",
+            "amazon",
+            "amazon2",
+            "amazon2023",
+            "suse12",
+            "suse15"
+          ],
+          "sharedOpenssl": "openssl3",
+          "archive": {
+            "type": "rpm",
+            "url": "https://downloads.mongodb.com/compass/mongodb-mongosh-shared-openssl3-1.10.4.x86_64.rpm",
+            "sha256": "f6be3505783b1a633a1a1bfb529d351da9edb67cdcab76482c8af358cbf5802d",
+            "sha1": "07ce2f8e9150d299ea1c3fab267fd32b247ca6b2"
+          }
+        },
+        {
+          "arch": "x86_64",
+          "targets": [
+            "ubuntu1804",
+            "ubuntu2004",
+            "ubuntu2204",
+            "debian92",
+            "debian10",
+            "debian11",
+            "debian12"
+          ],
+          "sharedOpenssl": "openssl3",
+          "archive": {
+            "type": "deb",
+            "url": "https://downloads.mongodb.com/compass/mongodb-mongosh-shared-openssl3_1.10.4_amd64.deb",
+            "sha256": "c15e3283c3416fb6efdfcfddd0813abeb8d84f19ef911ccff42e8eb12fc67040",
+            "sha1": "434be3fe1bc47d3968c4d871550aa0e9937a7488"
+          }
+        },
+        {
+          "arch": "arm64",
+          "targets": [
+            "ubuntu1804",
+            "ubuntu2004",
+            "ubuntu2204",
+            "debian92",
+            "debian10",
+            "debian11",
+            "debian12"
+          ],
+          "sharedOpenssl": "openssl3",
+          "archive": {
+            "type": "deb",
+            "url": "https://downloads.mongodb.com/compass/mongodb-mongosh-shared-openssl3_1.10.4_arm64.deb",
+            "sha256": "1ca5afa7850d3d5959ceb377ceb8eb5ad604dabae36db176a5d0eb315046cb0a",
+            "sha1": "117e33975906f5415f19ca3ab7b0ca16f837bfa9"
+          }
+        },
+        {
+          "arch": "x86_64",
+          "targets": [
+            "ubuntu1804",
+            "ubuntu2004",
+            "ubuntu2204",
+            "debian92",
+            "debian10",
+            "debian11",
+            "debian12"
+          ],
+          "archive": {
+            "type": "deb",
+            "url": "https://downloads.mongodb.com/compass/mongodb-mongosh_1.10.4_amd64.deb",
+            "sha256": "7eff027795b30f80ade2ae2e66bbd47a052166a1bf0d1d88a558cbcc3ce74b03",
+            "sha1": "dd13e9872012a0014246a72d6d7df549e12346b8"
+          }
+        },
+        {
+          "arch": "arm64",
+          "targets": [
+            "ubuntu1804",
+            "ubuntu2004",
+            "ubuntu2204",
+            "debian92",
+            "debian10",
+            "debian11",
+            "debian12"
+          ],
+          "archive": {
+            "type": "deb",
+            "url": "https://downloads.mongodb.com/compass/mongodb-mongosh_1.10.4_arm64.deb",
+            "sha256": "e96ace4f1336128c56c38582e9c8d12a18c6d8b3ac9108d893258d351223d588",
+            "sha1": "2080ea67c2972977ac29f558af0192028b206cab"
+          }
+        },
+        {
+          "arch": "arm64",
+          "targets": [
+            "macos"
+          ],
+          "archive": {
+            "type": "zip",
+            "url": "https://downloads.mongodb.com/compass/mongosh-1.10.4-darwin-arm64.zip",
+            "sha256": "9dd2fdb0c30a388b714451fc19fbd64f1960e1e8a64cfc05c97f76b4b68d08db",
+            "sha1": "1b3f123d82acb8c288357d5f41fa2a5db721abd4"
+          }
+        },
+        {
+          "arch": "x86_64",
+          "targets": [
+            "macos"
+          ],
+          "archive": {
+            "type": "zip",
+            "url": "https://downloads.mongodb.com/compass/mongosh-1.10.4-darwin-x64.zip",
+            "sha256": "b6d9425bafd897b66c7ab392b0396ea2bf21dca89d080573eec81db40b414a43",
+            "sha1": "ffaae3116ac4f907633b7b4210494ac8131fdd37"
+          }
+        },
+        {
+          "arch": "arm64",
+          "targets": [
+            "amazon2",
+            "amazon2023",
+            "rhel81",
+            "rhel82",
+            "rhel83",
+            "rhel90",
+            "ubuntu1804",
+            "ubuntu2004",
+            "ubuntu2204",
+            "debian92",
+            "debian10",
+            "debian11",
+            "debian12"
+          ],
+          "sharedOpenssl": "openssl11",
+          "archive": {
+            "type": "tgz",
+            "url": "https://downloads.mongodb.com/compass/mongosh-1.10.4-linux-arm64-openssl11.tgz",
+            "sha256": "128551812727575a7f65cea26ccbdf619f439c3043c08268af93c88be4a42bbe",
+            "sha1": "1a1b4402720b58db2a7537f93ba32416390c42e0"
+          }
+        },
+        {
+          "arch": "arm64",
+          "targets": [
+            "amazon2",
+            "amazon2023",
+            "rhel81",
+            "rhel82",
+            "rhel83",
+            "rhel90",
+            "ubuntu1804",
+            "ubuntu2004",
+            "ubuntu2204",
+            "debian92",
+            "debian10",
+            "debian11",
+            "debian12"
+          ],
+          "sharedOpenssl": "openssl3",
+          "archive": {
+            "type": "tgz",
+            "url": "https://downloads.mongodb.com/compass/mongosh-1.10.4-linux-arm64-openssl3.tgz",
+            "sha256": "70ab862a7b3f51cadd57dc8a57e6a4a742615b6bff151abf0f986440e8c6c022",
+            "sha1": "427383bff41ab90d3a3a296e5f71e546d8efdc50"
+          }
+        },
+        {
+          "arch": "arm64",
+          "targets": [
+            "amazon2",
+            "amazon2023",
+            "rhel81",
+            "rhel82",
+            "rhel83",
+            "rhel90",
+            "ubuntu1804",
+            "ubuntu2004",
+            "ubuntu2204",
+            "debian92",
+            "debian10",
+            "debian11",
+            "debian12"
+          ],
+          "archive": {
+            "type": "tgz",
+            "url": "https://downloads.mongodb.com/compass/mongosh-1.10.4-linux-arm64.tgz",
+            "sha256": "7ad7f174f5539b918510cb612432351595ce27cb5791afe80586d42be9c120c2",
+            "sha1": "5e8d6d71a6bac2815b12bfb97913e68eb8b7d183"
+          }
+        },
+        {
+          "arch": "ppc64le",
+          "targets": [
+            "rhel81",
+            "rhel82",
+            "rhel83",
+            "rhel90"
+          ],
+          "archive": {
+            "type": "tgz",
+            "url": "https://downloads.mongodb.com/compass/mongosh-1.10.4-linux-ppc64le.tgz",
+            "sha256": "46ea5e1f244780b1d4ba748eff3cf44c23a632a737d38055cff8f4a2e0ec289a",
+            "sha1": "a42da6e366553e3dfb1a63ec90a924fdddc1b90f"
+          }
+        },
+        {
+          "arch": "s390x",
+          "targets": [
+            "rhel72",
+            "rhel80",
+            "rhel81",
+            "rhel82",
+            "rhel83",
+            "rhel90"
+          ],
+          "archive": {
+            "type": "tgz",
+            "url": "https://downloads.mongodb.com/compass/mongosh-1.10.4-linux-s390x.tgz",
+            "sha256": "8d46e48f88a86990a70478e355c9e84d3a1da662d34a690b78a01e2e8f5a962b",
+            "sha1": "b897bc83a67993a99aad42e5d5b106852ad2ab7e"
+          }
+        },
+        {
+          "arch": "x86_64",
+          "targets": [
+            "rhel70",
+            "rhel71",
+            "rhel72",
+            "rhel80",
+            "rhel81",
+            "rhel82",
+            "rhel83",
+            "rhel90",
+            "amazon",
+            "amazon2",
+            "amazon2023",
+            "suse12",
+            "suse15",
+            "ubuntu1804",
+            "ubuntu2004",
+            "ubuntu2204",
+            "debian92",
+            "debian10",
+            "debian11",
+            "debian12"
+          ],
+          "sharedOpenssl": "openssl11",
+          "archive": {
+            "type": "tgz",
+            "url": "https://downloads.mongodb.com/compass/mongosh-1.10.4-linux-x64-openssl11.tgz",
+            "sha256": "e09f7daee2bf7502488fb7a24c1ae29f643eb8ee80a1aad8866c23b3a38e3387",
+            "sha1": "f2b1a1791c56a7339627002f91bec4e098c5f3e6"
+          }
+        },
+        {
+          "arch": "x86_64",
+          "targets": [
+            "rhel70",
+            "rhel71",
+            "rhel72",
+            "rhel80",
+            "rhel81",
+            "rhel82",
+            "rhel83",
+            "rhel90",
+            "amazon",
+            "amazon2",
+            "amazon2023",
+            "suse12",
+            "suse15",
+            "ubuntu1804",
+            "ubuntu2004",
+            "ubuntu2204",
+            "debian92",
+            "debian10",
+            "debian11",
+            "debian12"
+          ],
+          "sharedOpenssl": "openssl3",
+          "archive": {
+            "type": "tgz",
+            "url": "https://downloads.mongodb.com/compass/mongosh-1.10.4-linux-x64-openssl3.tgz",
+            "sha256": "fd9d17be05d206c6f741368b3e780864f3c268c146be076335b550312ec18f57",
+            "sha1": "7b866e76c0dca5db7f2e7791ca2cdfba1f38af25"
+          }
+        },
+        {
+          "arch": "x86_64",
+          "targets": [
+            "rhel70",
+            "rhel71",
+            "rhel72",
+            "rhel80",
+            "rhel81",
+            "rhel82",
+            "rhel83",
+            "rhel90",
+            "amazon",
+            "amazon2",
+            "amazon2023",
+            "suse12",
+            "suse15",
+            "ubuntu1804",
+            "ubuntu2004",
+            "ubuntu2204",
+            "debian92",
+            "debian10",
+            "debian11",
+            "debian12"
+          ],
+          "archive": {
+            "type": "tgz",
+            "url": "https://downloads.mongodb.com/compass/mongosh-1.10.4-linux-x64.tgz",
+            "sha256": "74ea45e780ece0d4f804b894ea90e759ff1d0bd7ce23d10967a2f77110e6a634",
+            "sha1": "28fb19cd098157a23739138f36e4d6f275bee7eb"
+          }
+        },
+        {
+          "arch": "x86_64",
+          "targets": [
+            "windows"
+          ],
+          "archive": {
+            "type": "zip",
+            "url": "https://downloads.mongodb.com/compass/mongosh-1.10.4-win32-x64.zip",
+            "sha256": "b605ebc1bc7b26e27a27751aa87fb12296d7f395ab711f7d5c493b61b75e197e",
+            "sha1": "4c4f349080f669da1e7268f2a4ccae0e1ea5ce56"
+          }
+        },
+        {
+          "arch": "x86_64",
+          "targets": [
+            "windows"
+          ],
+          "archive": {
+            "type": "msi",
+            "url": "https://downloads.mongodb.com/compass/mongosh-1.10.4-x64.msi",
+            "sha256": "625d62b22709054dda18a342d49e5dfbc16c22ec1a94aed00bd0d358a54c0ce5",
+            "sha1": "59722433d6c091f289039c4e11559f35927a9307"
+          }
+        }
+      ]
+    },
+    {
       "version": "1.10.3",
       "githash": "5df718faed3916fc5ce637f953eef2f913b14303",
       "downloads": [
@@ -279,6 +1331,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl11",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.10.3-linux-arm64-openssl11.tgz",
@@ -366,6 +1419,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl11",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.10.3-linux-x64-openssl11.tgz",
@@ -397,6 +1451,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl3",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.10.3-linux-x64-openssl3.tgz",
@@ -740,6 +1795,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl11",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.10.2-linux-arm64-openssl11.tgz",
@@ -827,6 +1883,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl11",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.10.2-linux-x64-openssl11.tgz",
@@ -858,6 +1915,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl3",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.10.2-linux-x64-openssl3.tgz",
@@ -1201,6 +2259,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl11",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.10.1-linux-arm64-openssl11.tgz",
@@ -1288,6 +2347,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl11",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.10.1-linux-x64-openssl11.tgz",
@@ -1319,6 +2379,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl3",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.10.1-linux-x64-openssl3.tgz",
@@ -1662,6 +2723,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl11",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.10.0-linux-arm64-openssl11.tgz",
@@ -1749,6 +2811,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl11",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.10.0-linux-x64-openssl11.tgz",
@@ -1780,6 +2843,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl3",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.10.0-linux-x64-openssl3.tgz",
@@ -2123,6 +3187,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl11",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.9.1-linux-arm64-openssl11.tgz",
@@ -2210,6 +3275,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl11",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.9.1-linux-x64-openssl11.tgz",
@@ -2241,6 +3307,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl3",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.9.1-linux-x64-openssl3.tgz",
@@ -2584,6 +3651,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl11",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.9.0-linux-arm64-openssl11.tgz",
@@ -2671,6 +3739,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl11",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.9.0-linux-x64-openssl11.tgz",
@@ -2702,6 +3771,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl3",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.9.0-linux-x64-openssl3.tgz",
@@ -3045,6 +4115,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl11",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.8.2-linux-arm64-openssl11.tgz",
@@ -3132,6 +4203,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl11",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.8.2-linux-x64-openssl11.tgz",
@@ -3163,6 +4235,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl3",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.8.2-linux-x64-openssl3.tgz",
@@ -3506,6 +4579,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl11",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.8.1-linux-arm64-openssl11.tgz",
@@ -3593,6 +4667,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl11",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.8.1-linux-x64-openssl11.tgz",
@@ -3624,6 +4699,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl3",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.8.1-linux-x64-openssl3.tgz",
@@ -3967,6 +5043,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl11",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.8.0-linux-arm64-openssl11.tgz",
@@ -4054,6 +5131,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl11",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.8.0-linux-x64-openssl11.tgz",
@@ -4085,6 +5163,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl3",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.8.0-linux-x64-openssl3.tgz",
@@ -4428,6 +5507,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl11",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.7.1-linux-arm64-openssl11.tgz",
@@ -4515,6 +5595,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl11",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.7.1-linux-x64-openssl11.tgz",
@@ -4546,6 +5627,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl3",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.7.1-linux-x64-openssl3.tgz",
@@ -4889,6 +5971,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl11",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.7.0-linux-arm64-openssl11.tgz",
@@ -4976,6 +6059,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl11",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.7.0-linux-x64-openssl11.tgz",
@@ -5007,6 +6091,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl3",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.7.0-linux-x64-openssl3.tgz",
@@ -5350,6 +6435,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl11",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.6.2-linux-arm64-openssl11.tgz",
@@ -5437,6 +6523,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl11",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.6.2-linux-x64-openssl11.tgz",
@@ -5468,6 +6555,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl3",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.6.2-linux-x64-openssl3.tgz",
@@ -5811,6 +6899,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl11",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.6.1-linux-arm64-openssl11.tgz",
@@ -5898,6 +6987,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl11",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.6.1-linux-x64-openssl11.tgz",
@@ -5929,6 +7019,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl3",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.6.1-linux-x64-openssl3.tgz",
@@ -6272,6 +7363,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl11",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.6.0-linux-arm64-openssl11.tgz",
@@ -6359,6 +7451,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl11",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.6.0-linux-x64-openssl11.tgz",
@@ -6390,6 +7483,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl3",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.6.0-linux-x64-openssl3.tgz",
@@ -6733,6 +7827,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl11",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.5.4-linux-arm64-openssl11.tgz",
@@ -6820,6 +7915,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl11",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.5.4-linux-x64-openssl11.tgz",
@@ -6851,6 +7947,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl3",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.5.4-linux-x64-openssl3.tgz",
@@ -7194,6 +8291,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl11",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.5.3-linux-arm64-openssl11.tgz",
@@ -7281,6 +8379,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl11",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.5.3-linux-x64-openssl11.tgz",
@@ -7312,6 +8411,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl3",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.5.3-linux-x64-openssl3.tgz",
@@ -7655,6 +8755,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl11",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.5.2-linux-arm64-openssl11.tgz",
@@ -7742,6 +8843,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl11",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.5.2-linux-x64-openssl11.tgz",
@@ -7773,6 +8875,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl3",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.5.2-linux-x64-openssl3.tgz",
@@ -8116,6 +9219,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl11",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.5.1-linux-arm64-openssl11.tgz",
@@ -8203,6 +9307,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl11",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.5.1-linux-x64-openssl11.tgz",
@@ -8234,6 +9339,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl3",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.5.1-linux-x64-openssl3.tgz",
@@ -8690,6 +9796,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl11",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.5.0-linux-arm64-openssl11.tgz",
@@ -8777,6 +9884,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl11",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.5.0-linux-x64-openssl11.tgz",
@@ -8808,6 +9916,7 @@
             "debian11",
             "debian12"
           ],
+          "sharedOpenssl": "openssl3",
           "archive": {
             "type": "tgz",
             "url": "https://downloads.mongodb.com/compass/mongosh-1.5.0-linux-x64-openssl3.tgz",

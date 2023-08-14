@@ -106,7 +106,7 @@ for (const release of productionReleases) {
       return {
         arch,
         targets,
-        sharedOpenssl: name.includes('shared-openssl11') ? 'openssl11' : name.includes('shared-openssl3') ? 'openssl3' : undefined,
+        sharedOpenssl: name.includes('-openssl11') ? 'openssl11' : name.includes('-openssl3') ? 'openssl3' : undefined,
         archive: {
           type: path.extname(name).replace(/^\./, ''),
           url: url,
