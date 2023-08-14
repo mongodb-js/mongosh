@@ -94,6 +94,18 @@ repos:
     repos:
       - apt/debian/dists/bullseye/mongodb-org
 
+  - name: debian12
+    type: deb
+    code_name: "bookworm"
+    bucket: repo.mongodb.org
+    edition: org
+    component: main
+    architectures:
+      - amd64
+      - arm64
+    repos:
+      - apt/debian/dists/bookworm/mongodb-org
+
   - name: ubuntu1804
     type: deb
     code_name: "bionic"
@@ -254,6 +266,18 @@ repos:
       - arm64
     repos:
       - apt/debian/dists/bullseye/mongodb-enterprise
+
+  - name: debian12
+    type: deb
+    code_name: "bookworm"
+    bucket: repo.mongodb.com
+    edition: enterprise
+    component: main
+    architectures:
+      - amd64
+      - arm64
+    repos:
+      - apt/debian/dists/bookworm/mongodb-enterprise
 
   - name: ubuntu1804
     type: deb
