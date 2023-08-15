@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import type { SinonStubbedInstance as StubbedInstance } from 'sinon';
+import type { StubbedInstance } from 'ts-sinon';
 import sinon, { stubInterface } from 'ts-sinon';
 import { signatures, toShellResult } from './index';
 import ChangeStreamCursor from './change-stream-cursor';

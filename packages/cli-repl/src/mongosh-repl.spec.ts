@@ -8,7 +8,7 @@ import { EventEmitter, once } from 'events';
 import path from 'path';
 import type { Duplex } from 'stream';
 import { PassThrough } from 'stream';
-import type { SinonStubbedInstance as StubbedInstance } from 'sinon';
+import type { StubbedInstance } from 'ts-sinon';
 import { stubInterface } from 'ts-sinon';
 import { promisify } from 'util';
 import {

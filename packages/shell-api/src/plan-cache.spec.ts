@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import PlanCache from './plan-cache';
 import { ALL_PLATFORMS, ALL_TOPOLOGIES, ServerVersions } from './enums';
 import { signatures, toShellResult } from './index';
-import type { SinonStubbedInstance as StubbedInstance } from 'sinon';
+import type { StubbedInstance } from 'ts-sinon';
 import { stubInterface } from 'ts-sinon';
 import type Collection from './collection';
 import type AggregationCursor from './aggregation-cursor';

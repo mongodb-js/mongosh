@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { rephraseMongoError } from './mongo-errors';
 import Mongo from './mongo';
-import type { SinonStubbedInstance as StubbedInstance } from 'sinon';
+import type { StubbedInstance } from 'ts-sinon';
 import { stubInterface } from 'ts-sinon';
 import type { ServiceProvider } from '@mongosh/service-provider-core';
 import { bson } from '@mongosh/service-provider-core';

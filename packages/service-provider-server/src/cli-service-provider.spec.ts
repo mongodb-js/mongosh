@@ -2,7 +2,7 @@ import { CommonErrors } from '@mongosh/errors';
 import chai, { expect } from 'chai';
 import { Collection, Db, MongoClient } from 'mongodb';
 import sinonChai from 'sinon-chai';
-import type { SinonStubbedInstance as StubbedInstance } from 'sinon';
+import type { StubbedInstance } from 'ts-sinon';
 import sinon, { stubInterface } from 'ts-sinon';
 import type { DevtoolsConnectOptions } from './cli-service-provider';
 import CliServiceProvider from './cli-service-provider';

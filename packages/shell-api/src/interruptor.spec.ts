@@ -2,7 +2,7 @@ import type { ServiceProvider } from '@mongosh/service-provider-core';
 import { bson } from '@mongosh/service-provider-core';
 import { expect } from 'chai';
 import type { EventEmitter } from 'events';
-import type { SinonStubbedInstance as StubbedInstance } from 'sinon';
+import type { StubbedInstance } from 'ts-sinon';
 import { stubInterface } from 'ts-sinon';
 import Database from './database';
 import Mongo from './mongo';

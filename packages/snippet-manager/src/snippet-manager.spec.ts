@@ -3,7 +3,7 @@ import { signatures } from '@mongosh/shell-api';
 import { SnippetManager } from './snippet-manager';
 import chai, { expect } from 'chai';
 import sinonChai from 'sinon-chai';
-import type { SinonStubbedInstance as StubbedInstance } from 'sinon';
+import type { StubbedInstance } from 'ts-sinon';
 import sinon, { stubInterface } from 'ts-sinon';
 import { once } from 'events';
 import http from 'http';

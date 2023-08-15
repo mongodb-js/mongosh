@@ -13,7 +13,7 @@ import chai, { expect } from 'chai';
 import { EventEmitter } from 'events';
 import semver from 'semver';
 import sinonChai from 'sinon-chai';
-import type { SinonStubbedInstance as StubbedInstance } from 'sinon';
+import type { StubbedInstance } from 'ts-sinon';
 import { stubInterface } from 'ts-sinon';
 import { ensureMaster } from '../../../testing/helpers';
 import type { MongodSetup } from '../../../testing/integration-testing-hooks';
