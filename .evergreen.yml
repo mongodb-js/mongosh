@@ -10691,7 +10691,7 @@ buildvariants:
 
   - name: linux_unit
     display_name: "Ubuntu 18.04 x64 (Unit tests)"
-    run_on: ubuntu1804-large
+    run_on: ubuntu2004-small
     tasks:
       - name: compile_ts
       - name: check
@@ -10822,12 +10822,12 @@ buildvariants:
       - name: test_apistrict
   - name: linux_coverage
     display_name: "Coverage Check"
-    run_on: ubuntu1804-small
+    run_on: ubuntu2004-small
     tasks:
       - name: check_coverage
   - name: linux_package
     display_name: "Ubuntu 18.04 x64 (Packaging)"
-    run_on: ubuntu1804-large
+    run_on: ubuntu2004-small
     tasks:
       - name: package_and_upload_artifact_linux_x64
       - name: package_and_upload_artifact_deb_x64
@@ -10891,7 +10891,7 @@ buildvariants:
       - name: compile_artifact
   - name: linux_arm64_build_openssl3
     display_name: "Amazon 2 arm64 (build, shared OpenSSL 3)"
-    run_on: amazon2-arm64-small
+    run_on: amazon2-arm64-large
     expansions:
       executable_os_id: linux-arm64-openssl3
       mongosh_shared_openssl: openssl3
@@ -10989,9 +10989,14 @@ buildvariants:
       disable_openssl_shared_config_for_bundled_openssl: true
     tasks:
       - name: e2e_tests_linux_x64_700rc10
+  - name: e2e_suse12_x64
+    display_name: "SLES 12 x64 (E2E Tests)"
+    run_on: suse12-sp5-large
+    tasks:
+      - name: e2e_tests_linux_x64
   - name: e2e_suse15_x64
     display_name: "SLES 15 x64 (E2E Tests)"
-    run_on: suse15sp4-large
+    run_on: suse15sp4-small
     tasks:
       - name: e2e_tests_linux_x64
   - name: e2e_ubuntu1804_arm64
@@ -11182,7 +11187,7 @@ buildvariants:
 
   - name: pkg_smoke_tests_docker_x64
     display_name: "package smoke tests (x64 Docker)"
-    run_on: ubuntu1804-large
+    run_on: ubuntu2004-small
     tasks:
       - name: pkg_test_docker_linux_x64_ubuntu20_04_tgz
       - name: pkg_test_docker_deb_x64_ubuntu18_04_deb
@@ -11219,7 +11224,7 @@ buildvariants:
       - name: pkg_test_docker_rpm_x64_openssl3_amazonlinux2023_rpm
   - name: pkg_smoke_tests_docker_arm64
     display_name: "package smoke tests (arm64 Docker)"
-    run_on: ubuntu1804-arm64-small
+    run_on: ubuntu2004-arm64-small
     tasks:
       - name: pkg_test_docker_linux_arm64_ubuntu20_04_tgz
       - name: pkg_test_docker_deb_arm64_ubuntu18_04_deb
@@ -11249,7 +11254,7 @@ buildvariants:
       - name: pkg_test_docker_rpm_arm64_openssl3_amazonlinux2023_rpm
   - name: pkg_smoke_tests_win32
     display_name: "package smoke tests (win32)"
-    run_on: ubuntu1804-small
+    run_on: ubuntu2004-small
     tasks:
       - name: pkg_test_ssh_win32_x64
       - name: pkg_test_ssh_win32msi_x64
@@ -11286,7 +11291,7 @@ buildvariants:
 
   - name: draft_publish_release
     display_name: "Draft/Publish Release"
-    run_on: ubuntu1804-small
+    run_on: ubuntu2004-small
     tasks:
       - name: release_draft
       - name: release_publish_dry_run
