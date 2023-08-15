@@ -31,9 +31,13 @@ export async function downloadCryptLibrary(
   );
   // Download mongodb for latest server version, including rapid releases
   // (for the platforms that they exist for, i.e. for ppc64le/s390x only pick stable releases).
-  const versionSpec = /ppc64|s390x/.exec(opts.arch || process.arch)
-    ? 'stable'
-    : 'continuous';
+  let versionSpec = 'continuous';
+  if (/ppc64/.test(opts.arch || process.arch)) {
+    versionSpec = 'stable';
+  }
+  if (/s390x/.test(opts.arch || process.arch)) {
+    versionSpec = '6.0.x'; // The 7.x+ server releases don't have RHEL7-compatible crypt_shared libraries
+  }
   const libdir = await downloadMongoDb(cryptTmpTargetDir, versionSpec, opts);
   const cryptLibrary = path.join(
     libdir,
