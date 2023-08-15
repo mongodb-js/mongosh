@@ -14,10 +14,10 @@ import path from 'path';
 import os from 'os';
 import { readReplLogfile, setTemporaryHomeDirectory } from './repl-helpers';
 import { bson } from '@mongosh/service-provider-core';
-import type { Server as HTTPServer, RequestListener } from 'http';
+import type { Server as HTTPServer } from 'http';
 import { createServer as createHTTPServer } from 'http';
 import { once } from 'events';
-import { AddressInfo } from 'net';
+import type { AddressInfo } from 'net';
 const { EJSON } = bson;
 
 describe('e2e', function () {
