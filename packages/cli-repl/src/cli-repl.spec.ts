@@ -2302,6 +2302,23 @@ describe('CliRepl', function () {
       }
     });
 
+    it('does not print a platform unsupported deprecation warning when GLIBC information is not present (non-linux systems)', async function () {
+      delete (process as any).report;
+      (process.report as any) = {
+        getReport() {
+          return {
+            header: {},
+          };
+        },
+      };
+      cliRepl = new CliRepl(cliReplOptions);
+      await cliRepl.start('', {});
+
+      expect(output).to.not.include(
+        'Using mongosh on the current operating system is deprecated, and support may be removed in a future release.'
+      );
+    });
+
     it('prints a deprecation warning when running with OpenSSL < 3.0.0, otherwise not', async function () {
       for (const { version, deprecated } of [
         { version: '4.0.1+uniqssl', deprecated: false },

@@ -808,7 +808,7 @@ export class CliRepl implements MongoshIOProvider {
     const processReport = process.report?.getReport() as unknown as
       | {
           header: {
-            glibcVersionRuntime: string;
+            glibcVersionRuntime?: string;
           };
         }
       | undefined;
@@ -835,7 +835,10 @@ export class CliRepl implements MongoshIOProvider {
     };
     const satisfiesGLIBCRequirement = (glibcVersion: string) =>
       semverRangeCheck(glibcVersion, RECOMMENDED_GLIBC);
-    if (!satisfiesGLIBCRequirement(processReport.header.glibcVersionRuntime)) {
+    if (
+      processReport.header.glibcVersionRuntime !== undefined &&
+      !satisfiesGLIBCRequirement(processReport.header.glibcVersionRuntime)
+    ) {
       warnings.push(
         '  - Using mongosh on the current operating system is deprecated, and support may be removed in a future release.'
       );
