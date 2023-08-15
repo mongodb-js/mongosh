@@ -5,7 +5,7 @@ import { fail } from 'assert';
 import chai, { expect } from 'chai';
 import sinonChai from 'sinon-chai';
 import type { EventEmitter } from 'events';
-import type { StubbedInstance } from 'ts-sinon';
+import type { SinonStubbedInstance as StubbedInstance } from 'sinon';
 import { stubInterface } from 'ts-sinon';
 import Bulk, { BulkFindOp } from './bulk';
 import Collection from './collection';

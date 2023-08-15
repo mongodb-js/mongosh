@@ -1,6 +1,6 @@
 import chai, { expect } from 'chai';
 import sinonChai from 'sinon-chai';
-import type { StubbedInstance } from 'ts-sinon';
+import type { SinonStubbedInstance as StubbedInstance } from 'sinon';
 import sinon, { stubInterface } from 'ts-sinon';
 import type { EventEmitter } from 'events';
 import { ALL_PLATFORMS, ALL_SERVER_VERSIONS, ALL_TOPOLOGIES } from './enums';

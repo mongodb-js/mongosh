@@ -9,7 +9,7 @@ import {
   ALL_TOPOLOGIES,
   ALL_API_VERSIONS,
 } from './enums';
-import type { StubbedInstance } from 'ts-sinon';
+import type { SinonStubbedInstance as StubbedInstance } from 'sinon';
 import sinon, { stubInterface } from 'ts-sinon';
 import Mongo from './mongo';
 import type {

@@ -7,7 +7,7 @@ import {
   ALL_TOPOLOGIES,
 } from './enums';
 import { signatures, toShellResult } from './index';
-import type { StubbedInstance } from 'ts-sinon';
+import type { SinonStubbedInstance as StubbedInstance } from 'sinon';
 import { stubInterface } from 'ts-sinon';
 import type {
   ReadConcern,

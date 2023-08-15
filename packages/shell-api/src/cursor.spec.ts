@@ -10,7 +10,7 @@ import {
 } from './enums';
 import chai from 'chai';
 import sinonChai from 'sinon-chai';
-import type { StubbedInstance } from 'ts-sinon';
+import type { SinonStubbedInstance as StubbedInstance } from 'sinon';
 import sinon, { stubInterface } from 'ts-sinon';
 import {
   CommonErrors,
