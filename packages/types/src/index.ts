@@ -165,6 +165,15 @@ export interface EditorReadVscodeExtensionsFailedEvent {
   error: Error;
 }
 
+export interface FetchingUpdateMetadataEvent {
+  updateURL: string;
+  localFilePath: string;
+}
+
+export interface FetchingUpdateMetadataCompleteEvent {
+  latest: string | null;
+}
+
 export interface MongoshBusEventsMap extends ConnectEventMap {
   /**
    * Signals a connection to a MongoDB instance has been established
@@ -347,6 +356,13 @@ export interface MongoshBusEventsMap extends ConnectEventMap {
   'mongosh-editor:read-vscode-extensions-failed': (
     ev: EditorReadVscodeExtensionsFailedEvent
   ) => void;
+
+  /** Signals that fetching update metadata has started. */
+  'mongosh:fetching-update-metadata': (ev: FetchingUpdateMetadataEvent) => void;
+  /** Signals that fetching update metadata has completed. */
+  'mongosh:fetching-update-metadata-complete': (
+    ev: FetchingUpdateMetadataCompleteEvent
+  ) => void;
 }
 
 export interface MongoshBus {
@@ -457,6 +473,7 @@ export class CliUserConfig extends SnippetShellUserConfig {
   oidcRedirectURI: undefined | string = undefined;
   oidcTrustedEndpoints: undefined | string[] = undefined;
   browser: undefined | false | string = undefined;
+  updateURL = 'https://downloads.mongodb.com/compass/mongosh.json';
 }
 
 export class CliUserConfigValidator extends SnippetShellUserConfigValidator {
@@ -521,6 +538,11 @@ export class CliUserConfigValidator extends SnippetShellUserConfigValidator {
           typeof value !== 'string'
         ) {
           return `${key} must be undefined, false, or a command string`;
+        }
+        return null;
+      case 'updateURL':
+        if (typeof value !== 'string' || (value.trim() && !isValidUrl(value))) {
+          return `${key} must be a valid URL or empty`;
         }
         return null;
       default:

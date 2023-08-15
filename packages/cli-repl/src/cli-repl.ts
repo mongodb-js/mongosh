@@ -41,6 +41,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { promisify } from 'util';
 import { getOsInfo } from './get-os-info';
+import { UpdateNotificationManager } from './update-notification-manager';
 
 /**
  * Connecting text key.
@@ -113,6 +114,7 @@ export class CliRepl implements MongoshIOProvider {
   closing = false;
   isContainerizedEnvironment = false;
   hasOnDiskTelemetryId = false;
+  updateNotificationManager = new UpdateNotificationManager();
 
   /**
    * Instantiate the new CLI Repl.
@@ -280,7 +282,7 @@ export class CliRepl implements MongoshIOProvider {
         is_containerized: this.isContainerizedEnvironment,
         ...(await getOsInfo()),
       },
-      require('../package.json').version
+      version
     );
 
     if (analyticsSetupError) {
@@ -296,6 +298,9 @@ export class CliRepl implements MongoshIOProvider {
     }
 
     this.globalConfig = await this.loadGlobalConfigFile();
+
+    // Needs to happen after loading the mongosh config file(s)
+    void this.fetchMongoshUpdateUrl();
 
     if (driverOptions.autoEncryption) {
       const origExtraOptions = driverOptions.autoEncryption.extraOptions ?? {};
@@ -342,7 +347,8 @@ export class CliRepl implements MongoshIOProvider {
       throw err;
     }
     const initialized = await this.mongoshRepl.initialize(
-      initialServiceProvider
+      initialServiceProvider,
+      await this.getMoreRecentMongoshVersion()
     );
     this.injectReplFunctions();
 
@@ -1013,5 +1019,52 @@ export class CliRepl implements MongoshIOProvider {
       driverOptions.parentHandle ??= process.env.MONGOSH_OIDC_PARENT_HANDLE;
     }
     return driverOptions;
+  }
+
+  async fetchMongoshUpdateUrl() {
+    if (
+      this.cliOptions.quiet ||
+      process.env.CI ||
+      process.env.IS_CI ||
+      this.isContainerizedEnvironment
+    ) {
+      // No point in telling users about new versions if we are in
+      // a CI or Docker-like environment. or the user has explicitly
+      // requested no additional output.
+      return;
+    }
+
+    try {
+      const updateURL = (await this.getConfig('updateURL')).trim();
+      if (!updateURL) return;
+
+      const localFilePath = this.shellHomeDirectory.localPath(
+        'update-metadata.json'
+      );
+
+      this.bus.emit('mongosh:fetching-update-metadata', {
+        updateURL,
+        localFilePath,
+      });
+      await this.updateNotificationManager.fetchUpdateMetadata(
+        updateURL,
+        localFilePath
+      );
+      this.bus.emit('mongosh:fetching-update-metadata-complete', {
+        latest:
+          await this.updateNotificationManager.getLatestVersionIfMoreRecent(''),
+      });
+    } catch (err: any) {
+      this.bus.emit('mongosh:error', err, 'startup');
+    }
+  }
+
+  async getMoreRecentMongoshVersion() {
+    const { version } = require('../package.json');
+    return await this.updateNotificationManager.getLatestVersionIfMoreRecent(
+      process.env
+        .MONGOSH_ASSUME_DIFFERENT_VERSION_FOR_UPDATE_NOTIFICATION_TEST ||
+        version
+    );
   }
 }

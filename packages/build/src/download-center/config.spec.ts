@@ -8,7 +8,12 @@ import {
   createDownloadCenterConfig,
   getUpdatedDownloadCenterConfig,
   createAndPublishDownloadCenterConfig,
+  createJsonFeedEntry,
 } from './config';
+import { Server as HTTPServer, createServer as createHTTPServer } from 'http';
+import { once } from 'events';
+import path from 'path';
+import fetch from 'node-fetch';
 
 const packageInformation = (version: string) =>
   ((packageVariant: PackageVariant) => {
@@ -180,13 +185,36 @@ describe('DownloadCenter config', function () {
     let dlCenter: sinon.SinonStub;
     let uploadConfig: sinon.SinonStub;
     let downloadConfig: sinon.SinonStub;
+    let uploadAsset: sinon.SinonStub;
+    let downloadAsset: sinon.SinonStub;
+    let mockHttpServer: HTTPServer;
+    let baseUrl: string;
 
-    beforeEach(function () {
+    beforeEach(async function () {
       uploadConfig = sinon.stub();
       downloadConfig = sinon.stub();
+      uploadAsset = sinon.stub();
+      downloadAsset = sinon.stub();
       dlCenter = sinon.stub();
 
-      dlCenter.returns({ downloadConfig, uploadConfig });
+      dlCenter.returns({
+        downloadConfig,
+        uploadConfig,
+        uploadAsset,
+        downloadAsset,
+      });
+      mockHttpServer = createHTTPServer((req, res) => {
+        res.writeHead(200, undefined, { 'content-type': 'text/plain' });
+        res.end(req.url);
+      });
+      mockHttpServer.listen(0);
+      await once(mockHttpServer, 'listening');
+      baseUrl = `http://127.0.0.1:${(mockHttpServer.address() as any).port}/`;
+    });
+
+    afterEach(async function () {
+      mockHttpServer.close();
+      await once(mockHttpServer, 'close');
     });
 
     context('when a configuration does not exist', function () {
@@ -195,12 +223,19 @@ describe('DownloadCenter config', function () {
           packageInformation('1.2.2'),
           'accessKey',
           'secretKey',
+          '',
           false,
-          dlCenter as any
+          dlCenter as any,
+          baseUrl
         );
 
         expect(dlCenter).to.have.been.calledWith({
           bucket: 'info-mongodb-com',
+          accessKeyId: 'accessKey',
+          secretAccessKey: 'secretKey',
+        });
+        expect(dlCenter).to.have.been.calledWith({
+          bucket: 'downloads.10gen.com',
           accessKeyId: 'accessKey',
           secretAccessKey: 'secretKey',
         });
@@ -229,6 +264,30 @@ describe('DownloadCenter config', function () {
           supported_browsers_link: '',
           tutorial_link: 'test',
         });
+
+        expect(uploadAsset).to.be.calledOnce;
+        const [assetKey, uploadedAsset] = uploadAsset.lastCall.args;
+        expect(assetKey).to.equal('compass/mongosh.json');
+        const jsonFeedData = JSON.parse(uploadedAsset);
+        expect(Object.keys(jsonFeedData)).to.deep.equal(['versions']);
+        expect(jsonFeedData.versions).to.have.lengthOf(1);
+        expect(jsonFeedData.versions[0].version).to.equal('1.2.2');
+        expect(
+          jsonFeedData.versions[0].downloads.find(
+            (d: any) => d.arch === 'x86_64' && d.distro === 'darwin'
+          )
+        ).to.deep.equal({
+          arch: 'x86_64',
+          distro: 'darwin',
+          targets: ['macos'],
+          archive: {
+            type: 'zip',
+            url: `${baseUrl}mongosh-1.2.2-darwin-x64.zip`,
+            sha256:
+              'ed8922ef572c307634150bf78ea02338349949f29245123884b1318cdc402dd9',
+            sha1: '4f1b987549703c58940be9f8582f4032374b1074',
+          },
+        });
       });
     });
 
@@ -244,16 +303,41 @@ describe('DownloadCenter config', function () {
           )
         );
 
+        const existingUploadedJsonFeed = require(path.resolve(
+          __dirname,
+          '..',
+          '..',
+          'test',
+          'fixtures',
+          'mongosh-versions.json'
+        ));
+        existingUploadedJsonFeed.versions[0].version = '1.10.2';
+        downloadAsset.returns(JSON.stringify(existingUploadedJsonFeed));
+
         await createAndPublishDownloadCenterConfig(
           packageInformation('2.0.0'),
           'accessKey',
           'secretKey',
+          path.resolve(
+            __dirname,
+            '..',
+            '..',
+            'test',
+            'fixtures',
+            'mongosh-versions.json'
+          ),
           false,
-          dlCenter as any
+          dlCenter as any,
+          baseUrl
         );
 
         expect(dlCenter).to.have.been.calledWith({
           bucket: 'info-mongodb-com',
+          accessKeyId: 'accessKey',
+          secretAccessKey: 'secretKey',
+        });
+        expect(dlCenter).to.have.been.calledWith({
+          bucket: 'downloads.10gen.com',
           accessKeyId: 'accessKey',
           secretAccessKey: 'secretKey',
         });
@@ -285,7 +369,56 @@ describe('DownloadCenter config', function () {
           supported_browsers_link: '',
           tutorial_link: 'test',
         });
+
+        expect(uploadAsset).to.be.calledOnce;
+        const [assetKey, uploadedAsset] = uploadAsset.lastCall.args;
+        expect(assetKey).to.equal('compass/mongosh.json');
+        const jsonFeedData = JSON.parse(uploadedAsset);
+        expect(Object.keys(jsonFeedData)).to.deep.equal(['versions']);
+        expect(jsonFeedData.versions).to.have.lengthOf(3);
+        expect(jsonFeedData.versions.map((v: any) => v.version)).to.deep.equal([
+          '2.0.0',
+          '1.10.3',
+          '1.10.2',
+        ]);
       });
+    });
+  });
+
+  describe('createJsonFeedEntry', function () {
+    it('generates a config that only refers to `arch` or `target` values known to the server', async function () {
+      const fullJson = await (
+        await fetch('https://downloads.mongodb.org/full.json')
+      ).json();
+      const serverArchs = [
+        ...new Set<string>(
+          fullJson.versions.flatMap((v: any) =>
+            v.downloads.flatMap((d: any) => d.arch)
+          )
+        ),
+      ].filter(Boolean);
+      const serverTargets = [
+        ...new Set<string>(
+          fullJson.versions.flatMap((v: any) =>
+            v.downloads.flatMap((d: any) => d.target)
+          )
+        ),
+      ].filter(Boolean);
+
+      const mongoshJsonFeedEntry = await createJsonFeedEntry(
+        packageInformation('2.0.0'),
+        'skip://'
+      );
+      const mongoshArchs = [
+        ...new Set(mongoshJsonFeedEntry.downloads.flatMap((d) => d.arch)),
+      ];
+      const mongoshTargets = [
+        ...new Set(mongoshJsonFeedEntry.downloads.flatMap((d) => d.targets)),
+      ].filter((t) => t !== 'debian12'); // debian12 is not part of the server platform list at the time of writing
+
+      for (const arch of mongoshArchs) expect(serverArchs).to.include(arch);
+      for (const target of mongoshTargets)
+        expect(serverTargets).to.include(target);
     });
   });
 });

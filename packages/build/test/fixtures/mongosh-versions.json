@@ -1,0 +1,27 @@
+{
+  "versions": [
+    {
+      "version": "1.10.3",
+      "githash": "5df718faed3916fc5ce637f953eef2f913b14303",
+      "downloads": [
+        {
+          "arch": "arm64",
+          "targets": [
+            "amazon2",
+            "amazon2023",
+            "rhel81",
+            "rhel82",
+            "rhel83",
+            "rhel90"
+          ],
+          "archive": {
+            "type": "rpm",
+            "url": "https://downloads.mongodb.com/compass/mongodb-mongosh-1.10.3.aarch64.rpm",
+            "sha256": "6916b07a3ef70b08188ad86898ac91554eb6ee9604784a233e9beed7d3b23afb",
+            "sha1": "27fc32b2fa5a43a933846e87f7f04653738bd1c2"
+          }
+        }
+      ]
+    }
+  ]
+}

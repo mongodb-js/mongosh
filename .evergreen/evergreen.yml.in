@@ -281,9 +281,9 @@ functions:
           {
           export NODE_JS_VERSION=${node_js_version}
           source .evergreen/setup-env.sh
-          (cd scripts/docker && docker build -t ubuntu18.04-xvfb -f ubuntu18.04-xvfb.Dockerfile .)
+          (cd scripts/docker && docker build -t ubuntu22.04-xvfb -f ubuntu22.04-xvfb.Dockerfile .)
           docker run \
-            --rm -v $PWD:/tmp/build ubuntu18.04-xvfb \
+            --rm -v $PWD:/tmp/build ubuntu22.04-xvfb \
             -c 'cd /tmp/build && ./testing/test-vscode.sh'
           }
   test_connectivity:
@@ -861,8 +861,7 @@ tasks:
   # E2E TESTS
   ###
   <% for (const { executableOsId, compileBuildVariant } of RELEASE_PACKAGE_MATRIX) {
-    // TODO(MONGOSH-1548): Account for 7.0.0 GA release when it happens
-    for (const mVersion of ['stable', '5.0.x', '7.0.0-rc10']) {
+    for (const mVersion of ['stable', '5.0.x', '6.0.x']) {
       for (const fipsVariant of ['fips', 'nofips']) {
     %>
   - name: e2e_tests_<% out(executableOsId.replace(/-/g, '_')) %><% out(mVersion === 'stable' ? '' : '_' + mVersion.replace(/[^a-zA-Z0-9]/g, '')) %><% out(fipsVariant === 'fips' ? '_fips' : '') %>
@@ -1176,7 +1175,7 @@ buildvariants:
     display_name: "Ubuntu 18.04 x64 (E2E Tests)"
     run_on: ubuntu1804-small
     tasks:
-      - name: e2e_tests_linux_x64
+      - name: e2e_tests_linux_x64_60x
   - name: e2e_ubuntu2004_x64
     display_name: "Ubuntu 20.04 x64 (E2E Tests)"
     run_on: ubuntu2004-small
@@ -1198,8 +1197,8 @@ buildvariants:
     display_name: "Debian 10 x64 (E2E Tests)"
     run_on: debian10-small
     tasks:
-      - name: e2e_tests_linux_x64
-      - name: e2e_tests_linux_x64_openssl11
+      - name: e2e_tests_linux_x64_60x
+      - name: e2e_tests_linux_x64_openssl11_60x
   - name: e2e_debian11_x64
     display_name: "Debian 11 x64 (E2E Tests)"
     run_on: debian11-small
@@ -1220,7 +1219,7 @@ buildvariants:
     display_name: "Amazon Linux 2023 x64 (E2E Tests)"
     run_on: amazon2023.0-small
     tasks:
-      - name: e2e_tests_linux_x64_700rc10
+      - name: e2e_tests_linux_x64
   - name: e2e_suse12_x64
     display_name: "SLES 12 x64 (E2E Tests)"
     run_on: suse12-sp5-small
@@ -1235,7 +1234,7 @@ buildvariants:
     display_name: "Ubuntu 18.04 arm64 (E2E Tests)"
     run_on: ubuntu1804-arm64-small
     tasks:
-      - name: e2e_tests_linux_arm64
+      - name: e2e_tests_linux_arm64_60x
   - name: e2e_ubuntu2004_arm64
     display_name: "Ubuntu 20.04 arm64 (E2E Tests)"
     run_on: ubuntu2004-arm64-small
@@ -1257,7 +1256,7 @@ buildvariants:
     display_name: "Amazon Linux 2023 arm64 (E2E Tests)"
     run_on: amazon2023.0-arm64-small
     tasks:
-      - name: e2e_tests_linux_arm64_700rc10
+      - name: e2e_tests_linux_arm64
   - name: e2e_rhel82_arm64
     display_name: "RHEL 8.2 arm64 (E2E Tests)"
     run_on: rhel82-arm64-small
@@ -1278,7 +1277,7 @@ buildvariants:
     display_name: "RHEL 7.2 s390x (E2E Tests)"
     run_on: rhel72-zseries-small
     tasks:
-      - name: e2e_tests_linux_s390x
+      - name: e2e_tests_linux_s390x_60x
   - name: e2e_rhel83_s390x
     display_name: "RHEL 8.3 s390x (E2E Tests)"
     run_on: rhel83-zseries-small
