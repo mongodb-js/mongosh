@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { spawnSync } from 'child_process';
 import { promises as fs } from 'fs';
 import * as path from 'path';
-import sinon from 'ts-sinon';
+import sinon from 'sinon';
 import { withTempPackageEach } from '../../../test/helpers';
 import { createPackage } from './create-package';
 import { createZipPackage } from './zip';

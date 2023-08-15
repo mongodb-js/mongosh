@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import sinon from 'ts-sinon';
+import sinon from 'sinon';
 import { withRetries } from './';
 
 describe('withRetries', function () {

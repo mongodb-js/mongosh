@@ -7,7 +7,7 @@ import { PassThrough } from 'stream';
 import { promisify, inspect } from 'util';
 import { once } from 'events';
 import chai, { expect } from 'chai';
-import sinon from 'ts-sinon';
+import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import { tick } from '../test/repl-helpers';
 chai.use(sinonChai);

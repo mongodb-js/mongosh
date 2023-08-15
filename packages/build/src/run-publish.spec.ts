@@ -1,5 +1,5 @@
 import chai, { expect } from 'chai';
-import sinon from 'ts-sinon';
+import sinon from 'sinon';
 import type { writeBuildInfo as writeBuildInfoType } from './build-info';
 import { Barque } from './barque';
 import type {
