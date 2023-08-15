@@ -14,6 +14,10 @@ import path from 'path';
 import os from 'os';
 import { readReplLogfile, setTemporaryHomeDirectory } from './repl-helpers';
 import { bson } from '@mongosh/service-provider-core';
+import type { Server as HTTPServer } from 'http';
+import { createServer as createHTTPServer } from 'http';
+import { once } from 'events';
+import type { AddressInfo } from 'net';
 const { EJSON } = bson;
 
 describe('e2e', function () {
@@ -1307,6 +1311,71 @@ describe('e2e', function () {
         it('does not load .mongoshrc.js if --norc is passed', async function () {
           shell = await startTestShell('--norc');
           shell.assertNotContainsOutput('hi from mongoshrc');
+        });
+      });
+
+      describe('update notification', function () {
+        let httpServer: HTTPServer;
+        let httpServerUrl: string;
+
+        beforeEach(async function () {
+          httpServer = createHTTPServer((req, res) => {
+            res.end(
+              JSON.stringify({
+                versions: [{ version: '2023.4.15' }],
+              })
+            );
+          });
+          httpServer.listen(0);
+          await once(httpServer, 'listening');
+          httpServerUrl = `http://127.0.0.1:${
+            (httpServer.address() as AddressInfo).port
+          }`;
+        });
+
+        afterEach(async function () {
+          httpServer.close();
+          await once(httpServer, 'close');
+        });
+
+        it('shows an update notification if a newer version is available', async function () {
+          {
+            const shell = await startTestShell('--quiet');
+            await shell.executeLine(
+              `config.set("updateURL", ${JSON.stringify(httpServerUrl)})`
+            );
+            shell.writeInputLine('exit');
+            await shell.waitForExit();
+          }
+
+          delete env.CI;
+          delete env.IS_CI;
+          env.MONGOSH_ASSUME_DIFFERENT_VERSION_FOR_UPDATE_NOTIFICATION_TEST =
+            '1.0.0';
+          {
+            const shell = await startTestShell();
+            await eventually(async () => {
+              expect(
+                JSON.parse(
+                  await fs.readFile(
+                    path.join(logBasePath, 'update-metadata.json'),
+                    'utf-8'
+                  )
+                ).latestKnownMongoshVersion
+              ).to.be.a('string');
+            });
+            shell.writeInputLine('exit');
+            await shell.waitForExit();
+          }
+
+          {
+            const shell = await startTestShell();
+            shell.writeInputLine('exit');
+            await shell.waitForExit();
+            shell.assertContainsOutput(
+              'mongosh 2023.4.15 is available for download: https://www.mongodb.com/try/download/shell'
+            );
+          }
         });
       });
     });
