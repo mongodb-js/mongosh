@@ -218,6 +218,7 @@ const MAPPINGS: {
   tlsAllowInvalidHostnames: (i, v) =>
     setUrlParam(i, 'tlsAllowInvalidHostnames', v),
   tlsCAFile: (i, v) => setUrlParam(i, 'tlsCAFile', v),
+  // @ts-expect-error TBD
   tlsCRLFile: (i, v) => setUrlParam(i, 'sslCRL', v),
   tlsCertificateKeyFile: (i, v) => setUrlParam(i, 'tlsCertificateKeyFile', v),
   tlsCertificateKeyFilePassword: (i, v) =>

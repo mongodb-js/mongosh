@@ -44,11 +44,11 @@
     "@aws-sdk/credential-providers": "^3.347.1",
     "@mongosh/errors": "0.0.0-dev.0",
     "bson": "^5.3.0",
-    "mongodb": "^5.7.0",
+    "mongodb": "^6.0.0-alpha.0",
     "mongodb-build-info": "^1.6.2"
   },
   "optionalDependencies": {
-    "mongodb-client-encryption": "^2.8.0"
+    "mongodb-client-encryption": "^6.0.0-alpha.3"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",

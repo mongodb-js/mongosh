@@ -98,13 +98,13 @@ export default class Session extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
-  async commitTransaction(): Promise<Document> {
-    return await this._session.commitTransaction();
+  async commitTransaction(): Promise<void> {
+    await this._session.commitTransaction();
   }
 
   @returnsPromise
-  async abortTransaction(): Promise<Document> {
-    return await this._session.abortTransaction();
+  async abortTransaction(): Promise<void> {
+    await this._session.abortTransaction();
   }
 
   @returnsPromise
