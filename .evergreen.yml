@@ -5580,9 +5580,9 @@ functions:
           {
           export NODE_JS_VERSION=${node_js_version}
           source .evergreen/setup-env.sh
-          (cd scripts/docker && docker build -t ubuntu18.04-xvfb -f ubuntu18.04-xvfb.Dockerfile .)
+          (cd scripts/docker && docker build -t ubuntu22.04-xvfb -f ubuntu22.04-xvfb.Dockerfile .)
           docker run \
-            --rm -v $PWD:/tmp/build ubuntu18.04-xvfb \
+            --rm -v $PWD:/tmp/build ubuntu22.04-xvfb \
             -c 'cd /tmp/build && ./testing/test-vscode.sh'
           }
   test_connectivity:
@@ -9239,7 +9239,7 @@ tasks:
           node_js_version: "16.20.2"
           mongosh_server_test_version: "5.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
-  - name: e2e_tests_darwin_x64_700rc10_fips
+  - name: e2e_tests_darwin_x64_60x_fips
     tags: ["e2e-test"]
     depends_on:
       - name: compile_artifact
@@ -9256,9 +9256,9 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.2"
-          mongosh_server_test_version: "7.0.0-rc10-enterprise"
+          mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
-  - name: e2e_tests_darwin_x64_700rc10
+  - name: e2e_tests_darwin_x64_60x
     tags: ["e2e-test"]
     depends_on:
       - name: compile_artifact
@@ -9275,7 +9275,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.2"
-          mongosh_server_test_version: "7.0.0-rc10-enterprise"
+          mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_darwin_arm64_fips
     tags: ["e2e-test"]
@@ -9353,7 +9353,7 @@ tasks:
           node_js_version: "16.20.2"
           mongosh_server_test_version: "5.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
-  - name: e2e_tests_darwin_arm64_700rc10_fips
+  - name: e2e_tests_darwin_arm64_60x_fips
     tags: ["e2e-test"]
     depends_on:
       - name: compile_artifact
@@ -9370,9 +9370,9 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.2"
-          mongosh_server_test_version: "7.0.0-rc10-enterprise"
+          mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
-  - name: e2e_tests_darwin_arm64_700rc10
+  - name: e2e_tests_darwin_arm64_60x
     tags: ["e2e-test"]
     depends_on:
       - name: compile_artifact
@@ -9389,7 +9389,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.2"
-          mongosh_server_test_version: "7.0.0-rc10-enterprise"
+          mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_x64_fips
     tags: ["e2e-test"]
@@ -9467,7 +9467,7 @@ tasks:
           node_js_version: "16.20.2"
           mongosh_server_test_version: "5.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
-  - name: e2e_tests_linux_x64_700rc10_fips
+  - name: e2e_tests_linux_x64_60x_fips
     tags: ["e2e-test"]
     depends_on:
       - name: compile_artifact
@@ -9484,9 +9484,9 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.2"
-          mongosh_server_test_version: "7.0.0-rc10-enterprise"
+          mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
-  - name: e2e_tests_linux_x64_700rc10
+  - name: e2e_tests_linux_x64_60x
     tags: ["e2e-test"]
     depends_on:
       - name: compile_artifact
@@ -9503,7 +9503,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.2"
-          mongosh_server_test_version: "7.0.0-rc10-enterprise"
+          mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_x64_openssl11_fips
     tags: ["e2e-test"]
@@ -9581,7 +9581,7 @@ tasks:
           node_js_version: "16.20.2"
           mongosh_server_test_version: "5.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
-  - name: e2e_tests_linux_x64_openssl11_700rc10_fips
+  - name: e2e_tests_linux_x64_openssl11_60x_fips
     tags: ["e2e-test"]
     depends_on:
       - name: compile_artifact
@@ -9598,9 +9598,9 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.2"
-          mongosh_server_test_version: "7.0.0-rc10-enterprise"
+          mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
-  - name: e2e_tests_linux_x64_openssl11_700rc10
+  - name: e2e_tests_linux_x64_openssl11_60x
     tags: ["e2e-test"]
     depends_on:
       - name: compile_artifact
@@ -9617,7 +9617,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.2"
-          mongosh_server_test_version: "7.0.0-rc10-enterprise"
+          mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_x64_openssl3_fips
     tags: ["e2e-test"]
@@ -9695,7 +9695,7 @@ tasks:
           node_js_version: "16.20.2"
           mongosh_server_test_version: "5.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
-  - name: e2e_tests_linux_x64_openssl3_700rc10_fips
+  - name: e2e_tests_linux_x64_openssl3_60x_fips
     tags: ["e2e-test"]
     depends_on:
       - name: compile_artifact
@@ -9712,9 +9712,9 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.2"
-          mongosh_server_test_version: "7.0.0-rc10-enterprise"
+          mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
-  - name: e2e_tests_linux_x64_openssl3_700rc10
+  - name: e2e_tests_linux_x64_openssl3_60x
     tags: ["e2e-test"]
     depends_on:
       - name: compile_artifact
@@ -9731,7 +9731,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.2"
-          mongosh_server_test_version: "7.0.0-rc10-enterprise"
+          mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_arm64_fips
     tags: ["e2e-test"]
@@ -9809,7 +9809,7 @@ tasks:
           node_js_version: "16.20.2"
           mongosh_server_test_version: "5.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
-  - name: e2e_tests_linux_arm64_700rc10_fips
+  - name: e2e_tests_linux_arm64_60x_fips
     tags: ["e2e-test"]
     depends_on:
       - name: compile_artifact
@@ -9826,9 +9826,9 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.2"
-          mongosh_server_test_version: "7.0.0-rc10-enterprise"
+          mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
-  - name: e2e_tests_linux_arm64_700rc10
+  - name: e2e_tests_linux_arm64_60x
     tags: ["e2e-test"]
     depends_on:
       - name: compile_artifact
@@ -9845,7 +9845,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.2"
-          mongosh_server_test_version: "7.0.0-rc10-enterprise"
+          mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_arm64_openssl11_fips
     tags: ["e2e-test"]
@@ -9923,7 +9923,7 @@ tasks:
           node_js_version: "16.20.2"
           mongosh_server_test_version: "5.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
-  - name: e2e_tests_linux_arm64_openssl11_700rc10_fips
+  - name: e2e_tests_linux_arm64_openssl11_60x_fips
     tags: ["e2e-test"]
     depends_on:
       - name: compile_artifact
@@ -9940,9 +9940,9 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.2"
-          mongosh_server_test_version: "7.0.0-rc10-enterprise"
+          mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
-  - name: e2e_tests_linux_arm64_openssl11_700rc10
+  - name: e2e_tests_linux_arm64_openssl11_60x
     tags: ["e2e-test"]
     depends_on:
       - name: compile_artifact
@@ -9959,7 +9959,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.2"
-          mongosh_server_test_version: "7.0.0-rc10-enterprise"
+          mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_arm64_openssl3_fips
     tags: ["e2e-test"]
@@ -10037,7 +10037,7 @@ tasks:
           node_js_version: "16.20.2"
           mongosh_server_test_version: "5.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
-  - name: e2e_tests_linux_arm64_openssl3_700rc10_fips
+  - name: e2e_tests_linux_arm64_openssl3_60x_fips
     tags: ["e2e-test"]
     depends_on:
       - name: compile_artifact
@@ -10054,9 +10054,9 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.2"
-          mongosh_server_test_version: "7.0.0-rc10-enterprise"
+          mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
-  - name: e2e_tests_linux_arm64_openssl3_700rc10
+  - name: e2e_tests_linux_arm64_openssl3_60x
     tags: ["e2e-test"]
     depends_on:
       - name: compile_artifact
@@ -10073,7 +10073,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.2"
-          mongosh_server_test_version: "7.0.0-rc10-enterprise"
+          mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_ppc64le_fips
     tags: ["e2e-test"]
@@ -10151,7 +10151,7 @@ tasks:
           node_js_version: "16.20.2"
           mongosh_server_test_version: "5.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
-  - name: e2e_tests_linux_ppc64le_700rc10_fips
+  - name: e2e_tests_linux_ppc64le_60x_fips
     tags: ["e2e-test"]
     depends_on:
       - name: compile_artifact
@@ -10168,9 +10168,9 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.2"
-          mongosh_server_test_version: "7.0.0-rc10-enterprise"
+          mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
-  - name: e2e_tests_linux_ppc64le_700rc10
+  - name: e2e_tests_linux_ppc64le_60x
     tags: ["e2e-test"]
     depends_on:
       - name: compile_artifact
@@ -10187,7 +10187,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.2"
-          mongosh_server_test_version: "7.0.0-rc10-enterprise"
+          mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_s390x_fips
     tags: ["e2e-test"]
@@ -10265,7 +10265,7 @@ tasks:
           node_js_version: "16.20.2"
           mongosh_server_test_version: "5.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
-  - name: e2e_tests_linux_s390x_700rc10_fips
+  - name: e2e_tests_linux_s390x_60x_fips
     tags: ["e2e-test"]
     depends_on:
       - name: compile_artifact
@@ -10282,9 +10282,9 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.2"
-          mongosh_server_test_version: "7.0.0-rc10-enterprise"
+          mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
-  - name: e2e_tests_linux_s390x_700rc10
+  - name: e2e_tests_linux_s390x_60x
     tags: ["e2e-test"]
     depends_on:
       - name: compile_artifact
@@ -10301,7 +10301,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.2"
-          mongosh_server_test_version: "7.0.0-rc10-enterprise"
+          mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_win32_fips
     tags: ["e2e-test"]
@@ -10379,7 +10379,7 @@ tasks:
           node_js_version: "16.20.2"
           mongosh_server_test_version: "5.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
-  - name: e2e_tests_win32_700rc10_fips
+  - name: e2e_tests_win32_60x_fips
     tags: ["e2e-test"]
     depends_on:
       - name: compile_artifact
@@ -10396,9 +10396,9 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.2"
-          mongosh_server_test_version: "7.0.0-rc10-enterprise"
+          mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: "1"
-  - name: e2e_tests_win32_700rc10
+  - name: e2e_tests_win32_60x
     tags: ["e2e-test"]
     depends_on:
       - name: compile_artifact
@@ -10415,7 +10415,7 @@ tasks:
       - func: run_e2e_tests
         vars:
           node_js_version: "16.20.2"
-          mongosh_server_test_version: "7.0.0-rc10-enterprise"
+          mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
 
   ###
@@ -12516,7 +12516,7 @@ buildvariants:
     display_name: "Ubuntu 18.04 x64 (E2E Tests)"
     run_on: ubuntu1804-small
     tasks:
-      - name: e2e_tests_linux_x64
+      - name: e2e_tests_linux_x64_60x
   - name: e2e_ubuntu2004_x64
     display_name: "Ubuntu 20.04 x64 (E2E Tests)"
     run_on: ubuntu2004-small
@@ -12538,8 +12538,8 @@ buildvariants:
     display_name: "Debian 10 x64 (E2E Tests)"
     run_on: debian10-small
     tasks:
-      - name: e2e_tests_linux_x64
-      - name: e2e_tests_linux_x64_openssl11
+      - name: e2e_tests_linux_x64_60x
+      - name: e2e_tests_linux_x64_openssl11_60x
   - name: e2e_debian11_x64
     display_name: "Debian 11 x64 (E2E Tests)"
     run_on: debian11-small
@@ -12560,7 +12560,7 @@ buildvariants:
     display_name: "Amazon Linux 2023 x64 (E2E Tests)"
     run_on: amazon2023.0-small
     tasks:
-      - name: e2e_tests_linux_x64_700rc10
+      - name: e2e_tests_linux_x64
   - name: e2e_suse12_x64
     display_name: "SLES 12 x64 (E2E Tests)"
     run_on: suse12-sp5-small
@@ -12575,7 +12575,7 @@ buildvariants:
     display_name: "Ubuntu 18.04 arm64 (E2E Tests)"
     run_on: ubuntu1804-arm64-small
     tasks:
-      - name: e2e_tests_linux_arm64
+      - name: e2e_tests_linux_arm64_60x
   - name: e2e_ubuntu2004_arm64
     display_name: "Ubuntu 20.04 arm64 (E2E Tests)"
     run_on: ubuntu2004-arm64-small
@@ -12597,7 +12597,7 @@ buildvariants:
     display_name: "Amazon Linux 2023 arm64 (E2E Tests)"
     run_on: amazon2023.0-arm64-small
     tasks:
-      - name: e2e_tests_linux_arm64_700rc10
+      - name: e2e_tests_linux_arm64
   - name: e2e_rhel82_arm64
     display_name: "RHEL 8.2 arm64 (E2E Tests)"
     run_on: rhel82-arm64-small
@@ -12618,7 +12618,7 @@ buildvariants:
     display_name: "RHEL 7.2 s390x (E2E Tests)"
     run_on: rhel72-zseries-small
     tasks:
-      - name: e2e_tests_linux_s390x
+      - name: e2e_tests_linux_s390x_60x
   - name: e2e_rhel83_s390x
     display_name: "RHEL 8.3 s390x (E2E Tests)"
     run_on: rhel83-zseries-small

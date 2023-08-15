@@ -809,7 +809,10 @@ describe('FLE tests', function () {
     });
 
     it('allows automatic range encryption', async function () {
-      if (isMacosTooOldForQE()) {
+      // TODO(MONGOSH-1550): On s390x, we are using the 6.0.x RHEL7 shared library,
+      // which does not support QE rangePreview. That's just fine for preview, but
+      // we should switch to the 7.0.x RHEL8 shared library for Range GA.
+      if (isMacosTooOldForQE() || process.arch === 's390x') {
         return this.skip();
       }
 
