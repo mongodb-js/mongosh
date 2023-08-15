@@ -1,4 +1,5 @@
 import { RELEASE_PACKAGE_MATRIX } from '../../../../config/release-package-matrix';
+import assert from 'assert';
 
 export type Distro = 'win32' | 'win32msi' | 'darwin' | 'linux' | 'deb' | 'rpm';
 export type Arch = 'x64' | 's390x' | 'arm64' | 'ppc64le';
@@ -17,6 +18,12 @@ export const ALL_PACKAGE_VARIANTS = Object.freeze(
     packages.map(({ name }) => name)
   )
 ) as readonly PackageVariant[];
+
+// Ensure no duplicates
+assert.strictEqual(
+  ALL_PACKAGE_VARIANTS.length,
+  new Set(ALL_PACKAGE_VARIANTS).size
+);
 
 export function validatePackageVariant(
   variant?: PackageVariant
@@ -67,6 +74,31 @@ export function getRPMArchName(arch: Arch): string {
     default:
       throw new Error(`${arch} is not a valid arch value`);
   }
+}
+
+export function getServerLikeArchName(arch: Arch): string {
+  switch (arch) {
+    case 'x64':
+      return 'x86_64';
+    case 's390x':
+    case 'ppc64le':
+    case 'arm64':
+      return arch;
+    default:
+      throw new Error(`${arch} is not a valid arch value`);
+  }
+}
+
+export function getServerLikeTargetList(variant: PackageVariant): string[] {
+  for (const { packages } of RELEASE_PACKAGE_MATRIX) {
+    for (const pkg of packages) {
+      if (pkg.name === variant) {
+        return pkg.serverLikeTargetList;
+      }
+    }
+  }
+
+  throw new Error(`${variant} is not a valid build variant`);
 }
 
 export function getDownloadCenterDistroDescription(

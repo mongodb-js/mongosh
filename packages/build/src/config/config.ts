@@ -25,6 +25,7 @@ export interface Config {
   evgAwsSecret?: string;
   downloadCenterAwsKey?: string;
   downloadCenterAwsSecret?: string;
+  injectedJsonFeedFile?: string;
   githubToken?: string;
   segmentKey?: string;
   notarySigningKeyName?: string;

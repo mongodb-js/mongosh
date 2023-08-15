@@ -38,6 +38,7 @@ type PPARepository =
   | 'debian92'
   | 'debian10'
   | 'debian11'
+  | 'debian12'
   | 'rhel70'
   | 'rhel80'
   | 'rhel90'
@@ -73,6 +74,7 @@ export function getReposAndArch(packageVariant: PackageVariant): {
           'debian92',
           'debian10',
           'debian11',
+          'debian12',
         ],
         arch: getDebArchName(getArch(packageVariant)),
       };
@@ -315,6 +317,8 @@ export class Barque {
         return `${base}/apt/debian/dists/stretch/mongodb-${edition}/${packageFolderVersion}/main/binary-${targetArchitecture}/${packageFileName}`;
       case 'debian11':
         return `${base}/apt/debian/dists/bullseye/mongodb-${edition}/${packageFolderVersion}/main/binary-${targetArchitecture}/${packageFileName}`;
+      case 'debian12':
+        return `${base}/apt/debian/dists/bookworm/mongodb-${edition}/${packageFolderVersion}/main/binary-${targetArchitecture}/${packageFileName}`;
       case 'rhel70':
         return `${base}/yum/redhat/7/mongodb-${edition}/${packageFolderVersion}/${targetArchitecture}/RPMS/${packageFileName}`;
       case 'rhel80':
