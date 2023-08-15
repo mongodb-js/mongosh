@@ -28,6 +28,8 @@ import type {
   EditorRunEditCommandEvent,
   EditorReadVscodeExtensionsDoneEvent,
   EditorReadVscodeExtensionsFailedEvent,
+  FetchingUpdateMetadataEvent,
+  FetchingUpdateMetadataCompleteEvent,
 } from '@mongosh/types';
 import { inspect } from 'util';
 import type { MongoLogWriter } from 'mongodb-log-writer';
@@ -684,6 +686,36 @@ export function setupLoggerAndTelemetry(
         {
           ...ev,
           error: ev.error.message,
+        }
+      );
+    }
+  );
+
+  bus.on(
+    'mongosh:fetching-update-metadata',
+    function (ev: FetchingUpdateMetadataEvent) {
+      log.info(
+        'MONGOSH',
+        mongoLogId(1_000_000_052),
+        'startup',
+        'Fetching update metadata',
+        {
+          ...ev,
+        }
+      );
+    }
+  );
+
+  bus.on(
+    'mongosh:fetching-update-metadata-complete',
+    function (ev: FetchingUpdateMetadataCompleteEvent) {
+      log.info(
+        'MONGOSH',
+        mongoLogId(1_000_000_053),
+        'startup',
+        'Fetching update metadata complete',
+        {
+          ...ev,
         }
       );
     }
