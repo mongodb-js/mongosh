@@ -93,6 +93,7 @@ module.exports = {
   evgAwsSecret: process.env.AWS_SECRET,
   downloadCenterAwsKey: process.env.DOWNLOAD_CENTER_AWS_KEY,
   downloadCenterAwsSecret: process.env.DOWNLOAD_CENTER_AWS_SECRET,
+  injectedJsonFeedFile: path.join(ROOT, 'config', 'mongosh-versions.json'),
   githubToken: process.env.GITHUB_TOKEN,
   segmentKey: process.env.SEGMENT_API_KEY,
   isCi: process.env.IS_CI === 'true',

@@ -292,6 +292,7 @@ describe('CliRepl', function () {
           'oidcRedirectURI',
           'oidcTrustedEndpoints',
           'browser',
+          'updateURL',
         ]);
       });
 

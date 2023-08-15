@@ -45,7 +45,7 @@
     }
   },
   "dependencies": {
-    "@mongodb-js/devtools-connect": "^2.2.1",
+    "@mongodb-js/devtools-connect": "^2.3.1",
     "@mongosh/errors": "0.0.0-dev.0",
     "@mongosh/service-provider-core": "0.0.0-dev.0",
     "@mongosh/types": "0.0.0-dev.0",

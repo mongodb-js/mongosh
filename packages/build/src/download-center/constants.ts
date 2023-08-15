@@ -17,3 +17,6 @@ export const ARTIFACTS_BUCKET = 'downloads.10gen.com' as const;
  * The S3 "folder" for uploaded artifacts.
  */
 export const ARTIFACTS_FOLDER = 'compass' as const;
+
+export const ARTIFACTS_URL_PUBLIC_BASE =
+  'https://downloads.mongodb.com/compass/' as const;
