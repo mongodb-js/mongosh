@@ -157,6 +157,7 @@ export default class Database extends ShellApiWithMongoClass {
       this._name,
       adjustRunCommand(cmd, this._instanceState.shellBson),
       {
+        readPreference: this._mongo.getReadPref(),
         ...(await this._baseOptions()),
         ...options,
       }
