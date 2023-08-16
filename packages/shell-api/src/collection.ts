@@ -1612,7 +1612,7 @@ export default class Collection extends ShellApiWithMongoClass {
    * This function provides the deprecated fallback in those instances.
    */
   async _getLegacyCollStats(scale: number) {
-    const result = await this._database._runCommand({
+    const result = await this._database._runReadCommand({
       collStats: this._name,
       scale: scale || 1,
     });
@@ -2047,7 +2047,7 @@ export default class Collection extends ShellApiWithMongoClass {
     if (typeof options === 'boolean') {
       options = { full: options };
     }
-    return await this._database._runCommand({
+    return await this._database._runReadCommand({
       validate: this._name,
       ...options,
     });
