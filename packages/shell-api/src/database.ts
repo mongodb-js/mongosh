@@ -50,6 +50,7 @@ import { ShellApiErrors } from './error-codes';
 import type {
   CreateEncryptedCollectionOptions,
   CheckMetadataConsistencyOptions,
+  RunCommandOptions,
 } from '@mongosh/service-provider-core';
 
 export type CollectionNamesWithTypes = {
@@ -157,7 +158,6 @@ export default class Database extends ShellApiWithMongoClass {
       this._name,
       adjustRunCommand(cmd, this._instanceState.shellBson),
       {
-        readPreference: this._mongo.getReadPref(),
         ...(await this._baseOptions()),
         ...options,
       }
@@ -356,7 +356,10 @@ export default class Database extends ShellApiWithMongoClass {
    */
   @returnsPromise
   @apiVersions([1])
-  async runCommand(cmd: string | Document): Promise<Document> {
+  async runCommand(
+    cmd: string | Document,
+    options?: RunCommandOptions
+  ): Promise<Document> {
     assertArgsDefinedType([cmd], [['string', 'object']], 'Database.runCommand');
     if (typeof cmd === 'string') {
       cmd = { [cmd]: 1 };
@@ -364,9 +367,9 @@ export default class Database extends ShellApiWithMongoClass {
 
     const hiddenCommands = new RegExp(HIDDEN_COMMANDS);
     if (!Object.keys(cmd).some((k) => hiddenCommands.test(k))) {
-      this._emitDatabaseApiCall('runCommand', { cmd });
+      this._emitDatabaseApiCall('runCommand', { cmd, options });
     }
-    return this._runCommand(cmd);
+    return this._runCommand(cmd, options);
   }
 
   /**
