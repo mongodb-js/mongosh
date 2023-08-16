@@ -3,6 +3,7 @@ import chai, { expect } from 'chai';
 import sinonChai from 'sinon-chai';
 import { mapCliToDriver } from './arg-mapper';
 import type { DevtoolsConnectOptions } from '@mongodb-js/devtools-connect';
+import { promises as fs } from 'fs';
 chai.use(sinonChai);
 
 const INIT_STATE: Readonly<ConnectionInfo> = {
@@ -140,19 +141,21 @@ describe('arg-mapper.mapCliToDriver', function () {
   context('when cli args have tlsCAFile', function () {
     const cliOptions: CliOptions = { tlsCAFile: 'ca' };
 
-    it('maps the same argument', function () {
-      expect(optionsTest(cliOptions)).to.deep.equal({
+    it('maps the same argument', async function () {
+      expect(await optionsTest(cliOptions)).to.deep.equal({
         cs: 'mongodb://localhost/?tlsCAFile=ca',
       });
     });
   });
 
   context('when cli args have tlsCRLFile', function () {
-    const cliOptions: CliOptions = { tlsCRLFile: 'key' };
+    const cliOptions: CliOptions = { tlsCRLFile: __filename };
 
-    it('maps to sslCRL', function () {
-      expect(optionsTest(cliOptions)).to.deep.equal({
-        cs: 'mongodb://localhost/?sslCRL=key',
+    it('maps to sslCRL', async function () {
+      expect(await optionsTest(cliOptions)).to.deep.equal({
+        driver: {
+          crl: await fs.readFile(__filename),
+        },
       });
     });
   });

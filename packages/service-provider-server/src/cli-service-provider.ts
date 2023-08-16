@@ -716,7 +716,13 @@ class CliServiceProvider
     options: FindOneAndDeleteOptions = {},
     dbOptions?: DbOptions
   ): Promise<Document | null> {
-    options = { ...this.baseCmdOptions, ...options };
+    // TODO(MONGOSH-XXX): Consider removing the includeResultMetadata default
+    // since `false` is what gives the spec-compliant driver behavior.
+    options = {
+      includeResultMetadata: true,
+      ...this.baseCmdOptions,
+      ...options,
+    };
     return this.db(database, dbOptions)
       .collection(collection)
       .findOneAndDelete(filter, options);
@@ -743,6 +749,7 @@ class CliServiceProvider
     dbOptions?: DbOptions
   ): Promise<Document> {
     const findOneAndReplaceOptions: any = {
+      includeResultMetadata: true,
       ...this.baseCmdOptions,
       ...options,
     };
@@ -772,7 +779,11 @@ class CliServiceProvider
     options: FindOneAndUpdateOptions = {},
     dbOptions?: DbOptions
   ): Promise<Document> {
-    const findOneAndUpdateOptions = { ...this.baseCmdOptions, ...options };
+    const findOneAndUpdateOptions = {
+      includeResultMetadata: true,
+      ...this.baseCmdOptions,
+      ...options,
+    };
 
     return this.db(database, dbOptions)
       .collection(collection)
