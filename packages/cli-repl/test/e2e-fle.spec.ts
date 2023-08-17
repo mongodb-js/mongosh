@@ -717,10 +717,6 @@ describe('FLE tests', function () {
       expect(parseInt(dekCount.trim(), 10)).to.equal(1);
     });
     it('allows explicit range encryption with bypassQueryAnalysis', async function () {
-      if (isMacosTooOldForQE()) {
-        return this.skip();
-      }
-
       // No --cryptSharedLibPath since bypassQueryAnalysis is also a community edition feature
       const shell = TestShell.start({ args: ['--nodb'] });
       const uri = JSON.stringify(await testServer.connectionString());
@@ -805,7 +801,7 @@ describe('FLE tests', function () {
       // TODO(MONGOSH-1550): On s390x, we are using the 6.0.x RHEL7 shared library,
       // which does not support QE rangePreview. That's just fine for preview, but
       // we should switch to the 7.0.x RHEL8 shared library for Range GA.
-      if (isMacosTooOldForQE() || process.arch === 's390x') {
+      if (process.arch === 's390x') {
         return this.skip();
       }
 
