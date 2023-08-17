@@ -10,11 +10,13 @@ source .evergreen/setup-env.sh
 tar xvzf dist.tgz
 
 if ! [[ "$PACKAGE_VARIANT" =~ $VARIANT_UPLOADLIST_REGEX ]]; then
-  echo "'$PACKAGE_VARIANT' is not going to be packaged and uploaded because it is not in the '$VARIANT_UPLOADLIST_REGEX'."
+  echo "'$PACKAGE_VARIANT' is not going to be packaged and uploaded because it is not in the VARIANT_UPLOADLIST_REGEX '$VARIANT_UPLOADLIST_REGEX'."
   echo "If you need the package variant to be packaged and uploaded, change the VARIANT_UPLOADLIST_REGEX variable in .evergreen/package-and-upload-artifact.sh"
   echo "Early exiting the pipeline with a success, due to this is an expected behaviour."
   exit 0
 fi
+
+echo "'$PACKAGE_VARIANT' is going to be package and upload as it matches the VARIANT_UPLOADLIST_REGEX."
 
 if [ "$(uname)" == Linux ]; then
   mkdir -p tmp
