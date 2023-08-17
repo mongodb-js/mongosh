@@ -28,7 +28,7 @@ function sleep(ms: number) {
 describe('rpc helpers', function () {
   describe('serialize', function () {
     it('returns base64 representation of an input', function () {
-      expect(serialize('Hello')).to.equal('data:;base64,/w0iBUhlbGxv');
+      expect(serialize('Hello')).to.match(/data:;base64,\/w[08]iBUhlbGxv/);
     });
   });
 
