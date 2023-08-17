@@ -1,7 +1,5 @@
 export DISTRO_UPLOADLIST_REGEX="^(rhel70|win|rhel81-power8|amazon2-arm64|macos)"
-
-mkdir -p tmp/
-export COMPILING_CONTEXT_FILE=tmp/compiling-context.yml
+export COMPILING_CONTEXT_FILE=/tmp/compiling-context.yml
 
 if ! [[ "$DISTRO_ID" =~ $DISTRO_UPLOADLIST_REGEX ]]; then
   echo "'$DISTRO_ID' will be disabled as it is not part of the DISTRO_UPLOADLIST_REGEX '$DISTRO_UPLOADLIST_REGEX'."
