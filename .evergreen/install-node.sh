@@ -5,7 +5,7 @@ export BASEDIR="$PWD/.evergreen"
 if [ "$OS" == "Windows_NT" ]; then
   powershell "$(cygpath -w "$BASEDIR")"/InstallNode.ps1
   . "$BASEDIR/setup-env.sh"
-  mkdir -p "$BASEDIR/npm-8" && (cd "$BASEDIR/npm-8" && echo '{}' > package.json && npm i npm@8.x)
+  mkdir -p "$BASEDIR/npm-8" && (cd "$BASEDIR/npm-8" && echo '{}' > package.json && npm i npm@9.x)
 
   curl -sSfLO https://raw.githubusercontent.com/mongodb-js/compass/42e6142ae08be6fec944b80ff6289e6bcd11badf/.evergreen/node-gyp-bug-workaround.sh && bash node-gyp-bug-workaround.sh
 else
@@ -58,7 +58,7 @@ else
   npm cache clear --force || true # Try to work around `Cannot read property 'pickAlgorithm' of null` errors in CI
   # Started observing CI failures on RHEL 7.2 (s390x) for installing npm, all
   # related to network issues hence adding a retry with backoff here.
-  bash "$BASEDIR/retry-with-backoff.sh" npm i -g npm@8.x
+  bash "$BASEDIR/retry-with-backoff.sh" npm i -g npm@9.x
 fi
 
 . "$BASEDIR/setup-env.sh"
