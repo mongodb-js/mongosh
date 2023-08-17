@@ -5650,7 +5650,7 @@ functions:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
         local_file: src/dist.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-${executable_os_id}{extra_upload_tag|}.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-${executable_os_id}{extra_upload_tag}.tgz
         bucket: mciuploads
         permissions: public-read
         content_type: application/x-gzip
@@ -5660,7 +5660,7 @@ functions:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
         local_file: src/dist.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-${executable_os_id}{extra_upload_tag|}.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-${executable_os_id}{extra_upload_tag}.tgz
         bucket: mciuploads
 
   ###
