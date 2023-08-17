@@ -1,6 +1,7 @@
 import { expect } from 'chai';
+import sinon from 'sinon';
 import type { StubbedInstance } from 'ts-sinon';
-import sinon, { stubInterface } from 'ts-sinon';
+import { stubInterface } from 'ts-sinon';
 import Shard from './shard';
 import {
   ADMIN_DB,

@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import type { StubbedInstance } from 'ts-sinon';
-import sinon, { stubInterface } from 'ts-sinon';
+import sinon from 'sinon';
+import { stubInterface } from 'ts-sinon';
 import { signatures, toShellResult } from './index';
 import AggregationCursor from './aggregation-cursor';
 import {
