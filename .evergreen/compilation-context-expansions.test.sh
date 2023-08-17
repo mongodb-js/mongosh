@@ -66,4 +66,4 @@ for TEST in $TEST_CASES ; do
   fi
 done
 
-exit 0
+exit $EXIT_VAL
