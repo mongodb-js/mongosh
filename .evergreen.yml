@@ -10437,44 +10437,6 @@ tasks:
           node_js_version: "16.20.2"
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
-  - name: e2e_tests_darwin_x64_70x_fips
-    tags: ["e2e-test"]
-    depends_on:
-      - name: compile_artifact
-        variant: darwin
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          node_js_version: "16.20.2"
-          npm_deps_mode: cli_build
-      - func: download_compiled_artifact
-        vars:
-          executable_os_id: darwin-x64
-      - func: run_e2e_tests
-        vars:
-          node_js_version: "16.20.2"
-          mongosh_server_test_version: "7.0.x-enterprise"
-          mongosh_test_e2e_force_fips: "1"
-  - name: e2e_tests_darwin_x64_70x
-    tags: ["e2e-test"]
-    depends_on:
-      - name: compile_artifact
-        variant: darwin
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          node_js_version: "16.20.2"
-          npm_deps_mode: cli_build
-      - func: download_compiled_artifact
-        vars:
-          executable_os_id: darwin-x64
-      - func: run_e2e_tests
-        vars:
-          node_js_version: "16.20.2"
-          mongosh_server_test_version: "7.0.x-enterprise"
-          mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_darwin_arm64_fips
     tags: ["e2e-test"]
     depends_on:
@@ -10588,44 +10550,6 @@ tasks:
         vars:
           node_js_version: "16.20.2"
           mongosh_server_test_version: "6.0.x-enterprise"
-          mongosh_test_e2e_force_fips: ""
-  - name: e2e_tests_darwin_arm64_70x_fips
-    tags: ["e2e-test"]
-    depends_on:
-      - name: compile_artifact
-        variant: darwin_arm64
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          node_js_version: "16.20.2"
-          npm_deps_mode: cli_build
-      - func: download_compiled_artifact
-        vars:
-          executable_os_id: darwin-arm64
-      - func: run_e2e_tests
-        vars:
-          node_js_version: "16.20.2"
-          mongosh_server_test_version: "7.0.x-enterprise"
-          mongosh_test_e2e_force_fips: "1"
-  - name: e2e_tests_darwin_arm64_70x
-    tags: ["e2e-test"]
-    depends_on:
-      - name: compile_artifact
-        variant: darwin_arm64
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          node_js_version: "16.20.2"
-          npm_deps_mode: cli_build
-      - func: download_compiled_artifact
-        vars:
-          executable_os_id: darwin-arm64
-      - func: run_e2e_tests
-        vars:
-          node_js_version: "16.20.2"
-          mongosh_server_test_version: "7.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_x64_fips
     tags: ["e2e-test"]
@@ -10741,44 +10665,6 @@ tasks:
           node_js_version: "16.20.2"
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
-  - name: e2e_tests_linux_x64_70x_fips
-    tags: ["e2e-test"]
-    depends_on:
-      - name: compile_artifact
-        variant: linux_x64_build
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          node_js_version: "16.20.2"
-          npm_deps_mode: cli_build
-      - func: download_compiled_artifact
-        vars:
-          executable_os_id: linux-x64
-      - func: run_e2e_tests
-        vars:
-          node_js_version: "16.20.2"
-          mongosh_server_test_version: "7.0.x-enterprise"
-          mongosh_test_e2e_force_fips: "1"
-  - name: e2e_tests_linux_x64_70x
-    tags: ["e2e-test"]
-    depends_on:
-      - name: compile_artifact
-        variant: linux_x64_build
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          node_js_version: "16.20.2"
-          npm_deps_mode: cli_build
-      - func: download_compiled_artifact
-        vars:
-          executable_os_id: linux-x64
-      - func: run_e2e_tests
-        vars:
-          node_js_version: "16.20.2"
-          mongosh_server_test_version: "7.0.x-enterprise"
-          mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_x64_openssl11_fips
     tags: ["e2e-test"]
     depends_on:
@@ -10892,44 +10778,6 @@ tasks:
         vars:
           node_js_version: "16.20.2"
           mongosh_server_test_version: "6.0.x-enterprise"
-          mongosh_test_e2e_force_fips: ""
-  - name: e2e_tests_linux_x64_openssl11_70x_fips
-    tags: ["e2e-test"]
-    depends_on:
-      - name: compile_artifact
-        variant: linux_x64_build_openssl11
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          node_js_version: "16.20.2"
-          npm_deps_mode: cli_build
-      - func: download_compiled_artifact
-        vars:
-          executable_os_id: linux-x64-openssl11
-      - func: run_e2e_tests
-        vars:
-          node_js_version: "16.20.2"
-          mongosh_server_test_version: "7.0.x-enterprise"
-          mongosh_test_e2e_force_fips: "1"
-  - name: e2e_tests_linux_x64_openssl11_70x
-    tags: ["e2e-test"]
-    depends_on:
-      - name: compile_artifact
-        variant: linux_x64_build_openssl11
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          node_js_version: "16.20.2"
-          npm_deps_mode: cli_build
-      - func: download_compiled_artifact
-        vars:
-          executable_os_id: linux-x64-openssl11
-      - func: run_e2e_tests
-        vars:
-          node_js_version: "16.20.2"
-          mongosh_server_test_version: "7.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_x64_openssl3_fips
     tags: ["e2e-test"]
@@ -11045,44 +10893,6 @@ tasks:
           node_js_version: "16.20.2"
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
-  - name: e2e_tests_linux_x64_openssl3_70x_fips
-    tags: ["e2e-test"]
-    depends_on:
-      - name: compile_artifact
-        variant: linux_x64_build_openssl3
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          node_js_version: "16.20.2"
-          npm_deps_mode: cli_build
-      - func: download_compiled_artifact
-        vars:
-          executable_os_id: linux-x64-openssl3
-      - func: run_e2e_tests
-        vars:
-          node_js_version: "16.20.2"
-          mongosh_server_test_version: "7.0.x-enterprise"
-          mongosh_test_e2e_force_fips: "1"
-  - name: e2e_tests_linux_x64_openssl3_70x
-    tags: ["e2e-test"]
-    depends_on:
-      - name: compile_artifact
-        variant: linux_x64_build_openssl3
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          node_js_version: "16.20.2"
-          npm_deps_mode: cli_build
-      - func: download_compiled_artifact
-        vars:
-          executable_os_id: linux-x64-openssl3
-      - func: run_e2e_tests
-        vars:
-          node_js_version: "16.20.2"
-          mongosh_server_test_version: "7.0.x-enterprise"
-          mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_arm64_fips
     tags: ["e2e-test"]
     depends_on:
@@ -11196,44 +11006,6 @@ tasks:
         vars:
           node_js_version: "16.20.2"
           mongosh_server_test_version: "6.0.x-enterprise"
-          mongosh_test_e2e_force_fips: ""
-  - name: e2e_tests_linux_arm64_70x_fips
-    tags: ["e2e-test"]
-    depends_on:
-      - name: compile_artifact
-        variant: linux_arm64_build
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          node_js_version: "16.20.2"
-          npm_deps_mode: cli_build
-      - func: download_compiled_artifact
-        vars:
-          executable_os_id: linux-arm64
-      - func: run_e2e_tests
-        vars:
-          node_js_version: "16.20.2"
-          mongosh_server_test_version: "7.0.x-enterprise"
-          mongosh_test_e2e_force_fips: "1"
-  - name: e2e_tests_linux_arm64_70x
-    tags: ["e2e-test"]
-    depends_on:
-      - name: compile_artifact
-        variant: linux_arm64_build
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          node_js_version: "16.20.2"
-          npm_deps_mode: cli_build
-      - func: download_compiled_artifact
-        vars:
-          executable_os_id: linux-arm64
-      - func: run_e2e_tests
-        vars:
-          node_js_version: "16.20.2"
-          mongosh_server_test_version: "7.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_arm64_openssl11_fips
     tags: ["e2e-test"]
@@ -11349,44 +11121,6 @@ tasks:
           node_js_version: "16.20.2"
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
-  - name: e2e_tests_linux_arm64_openssl11_70x_fips
-    tags: ["e2e-test"]
-    depends_on:
-      - name: compile_artifact
-        variant: linux_arm64_build_openssl11
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          node_js_version: "16.20.2"
-          npm_deps_mode: cli_build
-      - func: download_compiled_artifact
-        vars:
-          executable_os_id: linux-arm64-openssl11
-      - func: run_e2e_tests
-        vars:
-          node_js_version: "16.20.2"
-          mongosh_server_test_version: "7.0.x-enterprise"
-          mongosh_test_e2e_force_fips: "1"
-  - name: e2e_tests_linux_arm64_openssl11_70x
-    tags: ["e2e-test"]
-    depends_on:
-      - name: compile_artifact
-        variant: linux_arm64_build_openssl11
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          node_js_version: "16.20.2"
-          npm_deps_mode: cli_build
-      - func: download_compiled_artifact
-        vars:
-          executable_os_id: linux-arm64-openssl11
-      - func: run_e2e_tests
-        vars:
-          node_js_version: "16.20.2"
-          mongosh_server_test_version: "7.0.x-enterprise"
-          mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_arm64_openssl3_fips
     tags: ["e2e-test"]
     depends_on:
@@ -11500,44 +11234,6 @@ tasks:
         vars:
           node_js_version: "16.20.2"
           mongosh_server_test_version: "6.0.x-enterprise"
-          mongosh_test_e2e_force_fips: ""
-  - name: e2e_tests_linux_arm64_openssl3_70x_fips
-    tags: ["e2e-test"]
-    depends_on:
-      - name: compile_artifact
-        variant: linux_arm64_build_openssl3
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          node_js_version: "16.20.2"
-          npm_deps_mode: cli_build
-      - func: download_compiled_artifact
-        vars:
-          executable_os_id: linux-arm64-openssl3
-      - func: run_e2e_tests
-        vars:
-          node_js_version: "16.20.2"
-          mongosh_server_test_version: "7.0.x-enterprise"
-          mongosh_test_e2e_force_fips: "1"
-  - name: e2e_tests_linux_arm64_openssl3_70x
-    tags: ["e2e-test"]
-    depends_on:
-      - name: compile_artifact
-        variant: linux_arm64_build_openssl3
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          node_js_version: "16.20.2"
-          npm_deps_mode: cli_build
-      - func: download_compiled_artifact
-        vars:
-          executable_os_id: linux-arm64-openssl3
-      - func: run_e2e_tests
-        vars:
-          node_js_version: "16.20.2"
-          mongosh_server_test_version: "7.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_ppc64le_fips
     tags: ["e2e-test"]
@@ -11653,44 +11349,6 @@ tasks:
           node_js_version: "16.20.2"
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
-  - name: e2e_tests_linux_ppc64le_70x_fips
-    tags: ["e2e-test"]
-    depends_on:
-      - name: compile_artifact
-        variant: linux_ppc64le_build
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          node_js_version: "16.20.2"
-          npm_deps_mode: cli_build
-      - func: download_compiled_artifact
-        vars:
-          executable_os_id: linux-ppc64le
-      - func: run_e2e_tests
-        vars:
-          node_js_version: "16.20.2"
-          mongosh_server_test_version: "7.0.x-enterprise"
-          mongosh_test_e2e_force_fips: "1"
-  - name: e2e_tests_linux_ppc64le_70x
-    tags: ["e2e-test"]
-    depends_on:
-      - name: compile_artifact
-        variant: linux_ppc64le_build
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          node_js_version: "16.20.2"
-          npm_deps_mode: cli_build
-      - func: download_compiled_artifact
-        vars:
-          executable_os_id: linux-ppc64le
-      - func: run_e2e_tests
-        vars:
-          node_js_version: "16.20.2"
-          mongosh_server_test_version: "7.0.x-enterprise"
-          mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_linux_s390x_fips
     tags: ["e2e-test"]
     depends_on:
@@ -11805,44 +11463,6 @@ tasks:
           node_js_version: "16.20.2"
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
-  - name: e2e_tests_linux_s390x_70x_fips
-    tags: ["e2e-test"]
-    depends_on:
-      - name: compile_artifact
-        variant: linux_s390x_build
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          node_js_version: "16.20.2"
-          npm_deps_mode: cli_build
-      - func: download_compiled_artifact
-        vars:
-          executable_os_id: linux-s390x
-      - func: run_e2e_tests
-        vars:
-          node_js_version: "16.20.2"
-          mongosh_server_test_version: "7.0.x-enterprise"
-          mongosh_test_e2e_force_fips: "1"
-  - name: e2e_tests_linux_s390x_70x
-    tags: ["e2e-test"]
-    depends_on:
-      - name: compile_artifact
-        variant: linux_s390x_build
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          node_js_version: "16.20.2"
-          npm_deps_mode: cli_build
-      - func: download_compiled_artifact
-        vars:
-          executable_os_id: linux-s390x
-      - func: run_e2e_tests
-        vars:
-          node_js_version: "16.20.2"
-          mongosh_server_test_version: "7.0.x-enterprise"
-          mongosh_test_e2e_force_fips: ""
   - name: e2e_tests_win32_fips
     tags: ["e2e-test"]
     depends_on:
@@ -11956,44 +11576,6 @@ tasks:
         vars:
           node_js_version: "16.20.2"
           mongosh_server_test_version: "6.0.x-enterprise"
-          mongosh_test_e2e_force_fips: ""
-  - name: e2e_tests_win32_70x_fips
-    tags: ["e2e-test"]
-    depends_on:
-      - name: compile_artifact
-        variant: win32_build
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          node_js_version: "16.20.2"
-          npm_deps_mode: cli_build
-      - func: download_compiled_artifact
-        vars:
-          executable_os_id: win32
-      - func: run_e2e_tests
-        vars:
-          node_js_version: "16.20.2"
-          mongosh_server_test_version: "7.0.x-enterprise"
-          mongosh_test_e2e_force_fips: "1"
-  - name: e2e_tests_win32_70x
-    tags: ["e2e-test"]
-    depends_on:
-      - name: compile_artifact
-        variant: win32_build
-    commands:
-      - func: checkout
-      - func: install
-        vars:
-          node_js_version: "16.20.2"
-          npm_deps_mode: cli_build
-      - func: download_compiled_artifact
-        vars:
-          executable_os_id: win32
-      - func: run_e2e_tests
-        vars:
-          node_js_version: "16.20.2"
-          mongosh_server_test_version: "7.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
 
   ###
