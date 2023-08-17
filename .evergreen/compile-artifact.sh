@@ -71,3 +71,5 @@ dist/mongosh --build-info
 dist/mongosh --build-info | grep -q '"distributionKind": "compiled"'
 
 tar cvzf dist.tgz dist
+
+source .evergreen/compilation-context-expansions.sh
