@@ -7,7 +7,7 @@ import path from 'path';
 import { promises as fs } from 'fs';
 import { promisify } from 'util';
 import rimraf from 'rimraf';
-import sinon from 'ts-sinon';
+import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 
 import type { EditorOptions } from './editor';
