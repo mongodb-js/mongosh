@@ -185,19 +185,18 @@ export default class Bulk extends ShellApiWithMongoClass {
   @returnsPromise
   @apiVersions([1])
   async execute(writeConcern?: WriteConcern): Promise<BulkWriteResult> {
-    // @ts-expect-error TODO(MONGOSH-1507) fix the typing
-    const { result } = await this._serviceProviderBulkOp.execute();
+    const result = await this._serviceProviderBulkOp.execute();
     this._executed = true;
     this._emitBulkApiCall('execute', { writeConcern: writeConcern });
     return new BulkWriteResult(
       !!result.ok, // acknowledged
-      result.nInserted,
+      result.insertedCount,
       result.insertedIds,
-      result.nMatched,
-      result.nModified,
-      result.nRemoved,
-      result.nUpserted,
-      result.upserted
+      result.matchedCount,
+      result.modifiedCount,
+      result.deletedCount,
+      result.upsertedCount,
+      result.upsertedIds
     );
   }
 
