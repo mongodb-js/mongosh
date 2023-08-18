@@ -357,7 +357,7 @@ functions:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
         local_file: src/dist.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-${executable_os_id}{extra_upload_tag}.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-${executable_os_id}${extra_upload_tag}.tgz
         bucket: mciuploads
         permissions: public-read
         content_type: application/x-gzip
@@ -367,7 +367,7 @@ functions:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
         local_file: src/dist.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-${executable_os_id}{extra_upload_tag}.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-${executable_os_id}${extra_upload_tag}.tgz
         bucket: mciuploads
 
   ###
@@ -1144,13 +1144,6 @@ buildvariants:
       executable_os_id: linux-arm64
     tasks:
       - name: compile_artifact
-  - name: linux_arm64_build_a2023
-    display_name: "Amazon 2023 arm64 (build)"
-    run_on: amazon2023.0-arm64-small
-    expansions:
-      executable_os_id: linux-arm64
-    tasks:
-      - name: compile_artifact
   - name: linux_arm64_build_openssl11
     display_name: "Amazon 2 arm64 (build, shared OpenSSL 1.1)"
     run_on: amazon2-arm64-large
@@ -1159,25 +1152,9 @@ buildvariants:
       mongosh_shared_openssl: openssl11
     tasks:
       - name: compile_artifact
-  - name: linux_arm64_build_openssl11_a2023
-    display_name: "Amazon 2023 arm64 (build, shared OpenSSL 1.1)"
-    run_on: amazon2023.0-arm64-small
-    expansions:
-      executable_os_id: linux-arm64-openssl11
-      mongosh_shared_openssl: openssl11
-    tasks:
-      - name: compile_artifact
   - name: linux_arm64_build_openssl3
     display_name: "Amazon 2 arm64 (build, shared OpenSSL 3)"
     run_on: amazon2-arm64-large
-    expansions:
-      executable_os_id: linux-arm64-openssl3
-      mongosh_shared_openssl: openssl3
-    tasks:
-      - name: compile_artifact
-  - name: linux_arm64_build_openssl3_a2023
-    display_name: "Amazon 2023 arm64 (build, shared OpenSSL 3)"
-    run_on: amazon2023.0-arm64-small
     expansions:
       executable_os_id: linux-arm64-openssl3
       mongosh_shared_openssl: openssl3
