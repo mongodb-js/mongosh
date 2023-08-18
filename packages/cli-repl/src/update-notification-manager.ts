@@ -6,6 +6,7 @@ interface MongoshUpdateLocalFileContents {
   lastChecked?: number;
   latestKnownMongoshVersion?: string;
   etag?: string;
+  updateURL?: string;
 }
 
 // Utility for fetching metadata about potentially available newer versions
@@ -64,6 +65,11 @@ export class UpdateNotificationManager {
         // ignore possibly corrupted file contents
       }
 
+      if (localFileContents?.updateURL !== updateURL) {
+        // Invalidate local cache if the source URL has changed.
+        localFileContents = undefined;
+      }
+
       if (localFileContents?.latestKnownMongoshVersion) {
         this.latestKnownMongoshVersion =
           localFileContents.latestKnownMongoshVersion;
@@ -109,6 +115,7 @@ export class UpdateNotificationManager {
       ?.sort(semver.rcompare)?.[0];
 
     localFileContents = {
+      updateURL,
       lastChecked: Date.now(),
       etag: response.headers.get('etag') ?? undefined,
       latestKnownMongoshVersion: this.latestKnownMongoshVersion,
