@@ -10574,25 +10574,6 @@ tasks:
         vars:
           node_js_version: "20.5.1"
           dockerfile: ubuntu22.04-nohome-deb
-  - name: pkg_test_docker_deb_x64_debian9_deb
-    tags: ["smoke-test"]
-    depends_on:
-      - name: package_and_upload_artifact_deb_x64
-        variant: linux_package
-    commands:
-      - func: checkout
-      - func: get_artifact_url
-        vars:
-          source_package_variant: deb-x64
-      - func: write_preload_script
-      - func: install
-        vars:
-          node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
-      - func: test_artifact_docker
-        vars:
-          node_js_version: "20.5.1"
-          dockerfile: debian9-deb
   - name: pkg_test_docker_deb_x64_debian10_deb
     tags: ["smoke-test"]
     depends_on:
@@ -10802,25 +10783,6 @@ tasks:
         vars:
           node_js_version: "20.5.1"
           dockerfile: suse15-rpm
-  - name: pkg_test_docker_rpm_x64_amazonlinux1_rpm
-    tags: ["smoke-test"]
-    depends_on:
-      - name: package_and_upload_artifact_rpm_x64
-        variant: linux_package
-    commands:
-      - func: checkout
-      - func: get_artifact_url
-        vars:
-          source_package_variant: rpm-x64
-      - func: write_preload_script
-      - func: install
-        vars:
-          node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
-      - func: test_artifact_docker
-        vars:
-          node_js_version: "20.5.1"
-          dockerfile: amazonlinux1-rpm
   - name: pkg_test_docker_deb_x64_openssl11_ubuntu20_04_deb
     tags: ["smoke-test"]
     depends_on:
@@ -12439,7 +12401,6 @@ buildvariants:
       - name: pkg_test_docker_deb_x64_ubuntu20_04_deb
       - name: pkg_test_docker_deb_x64_ubuntu22_04_deb
       - name: pkg_test_docker_deb_x64_ubuntu22_04_nohome_deb
-      - name: pkg_test_docker_deb_x64_debian9_deb
       - name: pkg_test_docker_deb_x64_debian10_deb
       - name: pkg_test_docker_deb_x64_debian11_deb
       - name: pkg_test_docker_deb_x64_debian12_deb
@@ -12451,7 +12412,6 @@ buildvariants:
       - name: pkg_test_docker_rpm_x64_fedora34_rpm
       - name: pkg_test_docker_rpm_x64_suse12_rpm
       - name: pkg_test_docker_rpm_x64_suse15_rpm
-      - name: pkg_test_docker_rpm_x64_amazonlinux1_rpm
       - name: pkg_test_docker_deb_x64_openssl11_ubuntu20_04_deb
       - name: pkg_test_docker_deb_x64_openssl11_debian10_deb
       - name: pkg_test_docker_deb_x64_openssl11_debian11_deb
