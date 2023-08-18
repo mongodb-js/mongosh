@@ -335,17 +335,12 @@ functions:
       params:
         file: tmp/expansions.yaml
         redacted: true
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          export DISTRO_ID=${distro_id}
     - command: subprocess.exec
       params:
         working_dir: src
         binary: bash .evergreen/compile-artifact.sh
         env:
+          DISTRO_ID: ${distro_id}
           NODE_JS_VERSION: ${node_js_version}
           MONGOSH_SHARED_OPENSSL: ${mongosh_shared_openssl}
     - command: expansions.update
