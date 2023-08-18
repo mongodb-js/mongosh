@@ -141,8 +141,8 @@ describe('arg-mapper.mapCliToDriver', function () {
   context('when cli args have tlsCAFile', function () {
     const cliOptions: CliOptions = { tlsCAFile: 'ca' };
 
-    it('maps the same argument', async function () {
-      expect(await optionsTest(cliOptions)).to.deep.equal({
+    it('maps the same argument', function () {
+      expect(optionsTest(cliOptions)).to.deep.equal({
         cs: 'mongodb://localhost/?tlsCAFile=ca',
       });
     });
@@ -152,7 +152,7 @@ describe('arg-mapper.mapCliToDriver', function () {
     const cliOptions: CliOptions = { tlsCRLFile: __filename };
 
     it('maps to sslCRL', async function () {
-      expect(await optionsTest(cliOptions)).to.deep.equal({
+      expect(optionsTest(cliOptions)).to.deep.equal({
         driver: {
           crl: await fs.readFile(__filename),
         },
