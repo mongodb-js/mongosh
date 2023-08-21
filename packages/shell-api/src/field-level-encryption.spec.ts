@@ -450,34 +450,12 @@ describe('Field Level Encryption', function () {
         } as any;
         sp.find.returns(c);
         const result = await keyVault.getKey(KEY_ID);
-        expect(sp.find).to.have.been.calledTwice;
+        expect(sp.find).to.have.been.calledOnce;
         expect(sp.find).to.have.been.calledWith(DB, COLL, { _id: KEY_ID }, {});
-        expect(result._cursor).to.deep.equal(c);
-        expect(result._id).to.equal(1);
-        expect(await result.next()).to.deep.equal({ _id: 1 });
+        expect(result).to.deep.equal({ _id: 1 });
       });
-      it('avoids running .find() twice if the cursor supports rewinding', async function () {
-        const c = {
-          next() {
-            return { _id: 1 };
-          },
-          limit() {},
-          rewind: sinon.stub(),
-        } as any;
-        sp.find.returns(c);
-        const result = await keyVault.getKey(KEY_ID);
-        expect(sp.find).to.have.been.calledOnceWithExactly(
-          DB,
-          COLL,
-          { _id: KEY_ID },
-          {}
-        );
-        expect(c.rewind).to.have.been.calledOnceWithExactly();
-        expect(result._cursor).to.deep.equal(c);
-        expect(result._id).to.equal(1);
-        expect(await result.next()).to.deep.equal({ _id: 1 });
-      });
-      it('works when no result is returned', async function () {
+
+      it('returns null when no result is returned', async function () {
         const c = {
           next() {
             return null;
@@ -486,14 +464,9 @@ describe('Field Level Encryption', function () {
         } as any;
         sp.find.returns(c);
         const result = await keyVault.getKey(KEY_ID);
-        expect(sp.find).to.have.been.calledTwice;
+        expect(sp.find).to.have.been.calledOnce;
         expect(sp.find).to.have.been.calledWith(DB, COLL, { _id: KEY_ID }, {});
-        expect(result._cursor).to.deep.equal(c);
-        expect(result._id).to.equal(undefined);
-        expect(inspect(result)).to.include(
-          'no result -- will return `null` in future mongosh versions'
-        );
-        expect(await result.next()).to.deep.equal(null);
+        expect(result).to.equal(null);
       });
     });
     describe('getKeyByAltName', function () {
@@ -507,16 +480,14 @@ describe('Field Level Encryption', function () {
         const keyaltname = 'abc';
         sp.find.returns(c);
         const result = await keyVault.getKeyByAltName(keyaltname);
-        expect(sp.find).to.have.been.calledTwice;
+        expect(sp.find).to.have.been.calledOnce;
         expect(sp.find).to.have.been.calledWith(
           DB,
           COLL,
           { keyAltNames: keyaltname },
           {}
         );
-        expect(result._cursor).to.deep.equal(c);
-        expect(result._id).to.equal(1);
-        expect(await result.next()).to.deep.equal({ _id: 1 });
+        expect(result).to.deep.equal({ _id: 1 });
       });
     });
     describe('getKeys', function () {
