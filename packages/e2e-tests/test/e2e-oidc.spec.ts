@@ -22,6 +22,10 @@ describe('OIDC auth e2e', function () {
 
   const fetchBrowserFixture = `"${path.resolve(
     __dirname,
+    '..',
+    '..',
+    'cli-repl',
+    'test',
     'fixtures',
     'curl.js'
   )}"`;

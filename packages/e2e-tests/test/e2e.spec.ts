@@ -831,6 +831,10 @@ describe('e2e', function () {
       it('interrupts file execution', async function () {
         const filename = path.resolve(
           __dirname,
+          '..',
+          '..',
+          'cli-repl',
+          'test',
           'fixtures',
           'load',
           'long-sleep.js'
@@ -886,6 +890,10 @@ describe('e2e', function () {
       it('interrupts load()', async function () {
         const filename = path.resolve(
           __dirname,
+          '..',
+          '..',
+          'cli-repl',
+          'test',
           'fixtures',
           'load',
           'infinite-loop.js'
@@ -970,7 +978,15 @@ describe('e2e', function () {
 
     it('reads and runs the vscode extension example playground', async function () {
       createReadStream(
-        path.resolve(__dirname, 'fixtures', 'exampleplayground.js')
+        path.resolve(
+          __dirname,
+          '..',
+          '..',
+          'cli-repl',
+          'test',
+          'fixtures',
+          'exampleplayground.js'
+        )
       ).pipe(shell.process.stdin);
       await eventually(() => {
         shell.assertContainsOutput("{ _id: 'xyz', totalSaleAmount: 150 }");
@@ -984,7 +1000,15 @@ describe('e2e', function () {
       // This script doesn't work if evaluated as a whole, only when evaluated
       // line-by-line, due to Automatic Semicolon Insertion (ASI).
       createReadStream(
-        path.resolve(__dirname, 'fixtures', 'asi-script.js')
+        path.resolve(
+          __dirname,
+          '..',
+          '..',
+          'cli-repl',
+          'test',
+          'fixtures',
+          'asi-script.js'
+        )
       ).pipe(shell.process.stdin);
       await eventually(() => {
         shell.assertContainsOutput('admin;system.version;');
@@ -997,10 +1021,26 @@ describe('e2e', function () {
     beforeEach(async function () {
       shell = TestShell.start({
         args: ['--nodb'],
-        cwd: path.resolve(__dirname, 'fixtures', 'require-base'),
+        cwd: path.resolve(
+          __dirname,
+          '..',
+          '..',
+          'cli-repl',
+          'test',
+          'fixtures',
+          'require-base'
+        ),
         env: {
           ...process.env,
-          NODE_PATH: path.resolve(__dirname, 'fixtures', 'node-path'),
+          NODE_PATH: path.resolve(
+            __dirname,
+            '..',
+            '..',
+            'cli-repl',
+            'test',
+            'fixtures',
+            'node-path'
+          ),
         },
       });
       await shell.waitForPrompt();
@@ -1033,7 +1073,15 @@ describe('e2e', function () {
       it('loads a file from the command line as requested', async function () {
         const shell = TestShell.start({
           args: ['--nodb', './hello1.js'],
-          cwd: path.resolve(__dirname, 'fixtures', 'load'),
+          cwd: path.resolve(
+            __dirname,
+            '..',
+            '..',
+            'cli-repl',
+            'test',
+            'fixtures',
+            'load'
+          ),
         });
         await eventually(() => {
           shell.assertContainsOutput('hello one');
@@ -1049,7 +1097,15 @@ describe('e2e', function () {
       it('drops into shell if --shell is used', async function () {
         const shell = TestShell.start({
           args: ['--nodb', '--shell', './hello1.js'],
-          cwd: path.resolve(__dirname, 'fixtures', 'load'),
+          cwd: path.resolve(
+            __dirname,
+            '..',
+            '..',
+            'cli-repl',
+            'test',
+            'fixtures',
+            'load'
+          ),
         });
         await shell.waitForPrompt();
         shell.assertContainsOutput('hello one');
@@ -1060,7 +1116,15 @@ describe('e2e', function () {
       it('fails with the error if the loaded script throws', async function () {
         const shell = TestShell.start({
           args: ['--nodb', '--shell', './throw.js'],
-          cwd: path.resolve(__dirname, 'fixtures', 'load'),
+          cwd: path.resolve(
+            __dirname,
+            '..',
+            '..',
+            'cli-repl',
+            'test',
+            'fixtures',
+            'load'
+          ),
         });
         await eventually(() => {
           shell.assertContainsOutput('Error: uh oh');
@@ -1652,6 +1716,10 @@ describe('e2e', function () {
     it('runs Node.js scripts as they are when using MONGOSH_RUN_NODE_SCRIPT', async function () {
       const filename = path.resolve(
         __dirname,
+        '..',
+        '..',
+        'cli-repl',
+        'test',
         'fixtures',
         'simple-console-log.js'
       );
