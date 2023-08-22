@@ -1,4 +1,7 @@
 # Regenerate using `npm run update-evergreen-config`
+# https://jira.mongodb.org/browse/EVG-20276
+unset_function_vars: true
+
 <%
 const path = require('path');
 

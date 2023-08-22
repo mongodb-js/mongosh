@@ -27,7 +27,7 @@
     "test-e2e-ci": "lerna run --stream test-e2e-ci",
     "test-apistrict-ci": "lerna run --stream test-apistrict-ci",
     "test-connectivity": "lerna run --stream test-connectivity",
-    "test-evergreen-expansions": "sh .evergreen/compilation-context-expansions.test.sh",
+    "test-evergreen-expansions": "bash .evergreen/compilation-context-expansions.test.sh",
     "replace-package": "node scripts/replace-package.js",
     "test-nodedriver": "bash .evergreen/test-node-driver.sh",
     "compile": "lerna run compile",
