@@ -71,7 +71,7 @@ export default class StreamProcessor extends ShellApiWithMongoClass {
   async _sampleFrom(cursorId: number) {
     let currentCursorId = cursorId;
     // keep pulling until end of stream
-    while (currentCursorId !== 0) {
+    while (String(currentCursorId) !== '0') {
       const res = await this._streams._runStreamCommand({
         getMoreSampleStreamProcessor: this.name,
         cursorId: currentCursorId,
