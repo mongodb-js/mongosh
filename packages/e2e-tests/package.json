@@ -24,8 +24,6 @@
     "check": "npm run lint && npm run depcheck",
     "depcheck": "depcheck",
     "prepublish": "npm run compile",
-    "webpack-build": "npm run compile && webpack --mode production",
-    "webpack-build-dev": "npm run compile && webpack --mode development",
     "prettier": "prettier",
     "reformat": "npm run prettier -- --write . && npm run eslint --fix"
   },
@@ -35,19 +33,6 @@
   },
   "engines": {
     "node": ">=16.15.0"
-  },
-  "mongosh": {
-    "ciRequiredOptionalDependencies": {
-      "macos-export-certificate-and-key": [
-        "darwin"
-      ],
-      "win-export-certificate-and-key": [
-        "win32"
-      ],
-      "get-console-process-list": [
-        "win32"
-      ]
-    }
   },
   "dependencies": {
     "@mongosh/service-provider-core": "0.0.0-dev.0",
@@ -71,8 +56,7 @@
     "mongodb": "^5.7.0",
     "node-fetch": "^2.6.1",
     "prettier": "^2.8.8",
-    "rimraf": "^3.0.2",
-    "webpack-merge": "^5.8.0"
+    "rimraf": "^3.0.2"
   },
   "optionalDependencies": {
     "get-console-process-list": "^1.0.4",
