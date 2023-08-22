@@ -1,5 +1,5 @@
 ignores:
- - '@mongodb-js/cli-repl'
+ - '@mongosh/cli-repl'
  - '@mongodb-js/eslint-config-mongosh'
  - '@mongodb-js/tsconfig-mongosh'
  - '@mongodb-js/prettier-config-devtools'

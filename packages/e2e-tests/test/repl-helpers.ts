@@ -1,21 +1,13 @@
 import { promises as fs } from 'fs';
 import { promisify } from 'util';
 import path from 'path';
-import { once } from 'events';
 import rimraf from 'rimraf';
-import chai, { expect } from 'chai';
-import sinon from 'sinon';
+import chai from 'chai';
 import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
-import type { MongoshBus, MongoshBusEventsMap } from '@mongosh/types';
 
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
-
-// MongoshNodeRepl performs no I/O, so it's safe to assume that all operations
-// finish within a single nextTick/microtask cycle. We can use `setImmediate()`
-// to wait for these to finish.
-const tick = promisify(setImmediate);
 
 // We keep an additional index as we might create two temp directories
 // at the same time stamp leading to conflicts
@@ -53,38 +45,6 @@ function useTmpdir(): { readonly path: string } {
     },
   };
 }
-
-async function waitBus<K extends keyof MongoshBusEventsMap>(
-  bus: MongoshBus,
-  event: K
-): Promise<
-  MongoshBusEventsMap[K] extends (...args: infer P) => any ? P : never
-> {
-  return (await once(bus as any, event)) as any;
-}
-
-async function waitEval(bus: MongoshBus) {
-  // Wait for the (possibly I/O-performing) evaluation to complete and then
-  // wait another tick for the result to be flushed to the output stream.
-  await waitBus(bus, 'mongosh:eval-complete');
-  await tick();
-}
-
-async function waitCompletion(bus: MongoshBus) {
-  await waitBus(bus, 'mongosh:autocompletion-complete');
-  await tick();
-}
-
-const fakeTTYProps = {
-  isTTY: true,
-  isRaw: true,
-  setRawMode() {
-    return false;
-  },
-  getColorDepth() {
-    return 256;
-  },
-};
 
 async function readReplLogfile(logPath: string) {
   return (await fs.readFile(logPath, 'utf8'))
@@ -169,15 +129,9 @@ const setTemporaryHomeDirectory = () => {
   return { homedir, env };
 };
 
+// eslint-disable-next-line mocha/no-exports
 export {
-  expect,
-  sinon,
   useTmpdir,
-  tick,
-  waitBus,
-  waitEval,
-  waitCompletion,
-  fakeTTYProps,
   readReplLogfile,
   fakeExternalEditor,
   setTemporaryHomeDirectory,

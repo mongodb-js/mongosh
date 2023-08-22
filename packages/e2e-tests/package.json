@@ -27,7 +27,6 @@
   "dependencies": {
     "@mongosh/cli-repl": "0.0.0-dev.0",
     "@mongosh/service-provider-core": "0.0.0-dev.0",
-    "@mongosh/types": "0.0.0-dev.0",
     "strip-ansi": "^6.0.0"
   },
   "devDependencies": {
@@ -44,7 +43,6 @@
     "lodash": "^4.17.21",
     "moment": "^2.29.1",
     "mongodb": "^5.7.0",
-    "node-fetch": "^2.6.1",
     "prettier": "^2.8.8",
     "rimraf": "^3.0.2"
   }
