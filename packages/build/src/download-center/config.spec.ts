@@ -46,8 +46,8 @@ describe('DownloadCenter config', function () {
     it('has an artifact for MacOS x64 (10.14+)', function () {
       const version = createVersionConfig(packageInformation('1.2.2'));
       const platforms = version.platform.filter(
-        (p) => (p.os as string) === 'MacOS x64 (10.14+)'
-      ) as any as PlatformWithPackages[];
+        (p) => p.os === 'MacOS x64 (10.14+)'
+      );
       expect(platforms).to.have.length(1);
       expect(platforms[0].packages.links[0].name).to.include('zip');
       expect(platforms[0].packages.links[0].download_link).to.include(
@@ -60,7 +60,7 @@ describe('DownloadCenter config', function () {
       const platforms = version.platform.filter(
         (p) => p.os.startsWith('Linux x64') && p.arch === 'x64'
       );
-      expect(platforms).to.have.length(3);
+      expect(platforms).to.have.length(1);
       expect(
         platforms.flatMap((p) => p.packages.links.map((l) => l.download_link))
       ).to.deep.equal([
@@ -88,7 +88,7 @@ describe('DownloadCenter config', function () {
       const platforms = version.platform.filter(
         (p) => p.os.startsWith('RHEL') && p.arch === 'x64'
       );
-      expect(platforms).to.have.length(3);
+      expect(platforms).to.have.length(1);
       expect(
         platforms.flatMap((p) => p.packages.links.map((l) => l.download_link))
       ).to.deep.equal([
@@ -103,7 +103,7 @@ describe('DownloadCenter config', function () {
       const platforms = version.platform.filter(
         (p) => p.os.startsWith('Debian') && p.arch === 'x64'
       );
-      expect(platforms).to.have.length(3);
+      expect(platforms).to.have.length(1);
       expect(
         platforms.flatMap((p) => p.packages.links.map((l) => l.download_link))
       ).to.deep.equal([
