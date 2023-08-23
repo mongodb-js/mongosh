@@ -138,9 +138,9 @@ export function getUpdatedDownloadCenterConfig(
   });
 
   if (matchingMajorVersionIdx === -1) {
-    currentVersions.push(versionConfig as any);
+    currentVersions.push(versionConfig);
   } else {
-    currentVersions[matchingMajorVersionIdx] = versionConfig as any;
+    currentVersions[matchingMajorVersionIdx] = versionConfig;
   }
 
   return {
@@ -155,7 +155,7 @@ export function createDownloadCenterConfig(
 ): DownloadCenterConfig {
   const versionConfig = getVersionConfig();
   return {
-    versions: [versionConfig as any],
+    versions: [versionConfig],
     manual_link: 'https://docs.mongodb.org/manual/products/mongosh',
     release_notes_link: `https://github.com/mongodb-js/mongosh/releases/tag/v${versionConfig.version}`,
     previous_releases_link: '',
