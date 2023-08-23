@@ -14,5 +14,5 @@ npm run mark-ci-required-optional-dependencies
 
 npm run evergreen-release bump
 
-echo "npm packages after bootstrap"
+echo "npm packages after installation"
 npm ls || true
