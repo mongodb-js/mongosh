@@ -26,12 +26,14 @@ if [ x"$NPM_DEPS_MODE" = x"cli_build" ]; then
   # to installing with --ignore-scripts (i.e. do not attempt to build addons).
   (npm ci -w @mongosh/build -w @mongosh/cli-repl && test -e packages/service-provider-server/node_modules/mongodb-client-encryption) || \
     npm ci -w @mongosh/cli-repl --ignore-scripts
+  npm run compile-cli
 
 elif [ x"$NPM_DEPS_MODE" = x"all" ]; then
   # Install app packages, all dependencies including optional ones after running
   # mark-ci-required-optional-dependencies. Fail if we can't install an optional
   # dep.
   npm ci
+  npm run compile
 else
   echo "invalid value of NPM_DEPS_MODE: '$NPM_DEPS_MODE'"
   exit 1
@@ -40,6 +42,5 @@ fi
 echo "npm packages after required-optional-dependencies"
 npm ls || true
 
-npm run compile
 
 npm run evergreen-release bump
