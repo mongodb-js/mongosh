@@ -33,7 +33,7 @@ ulimit -n 4096
 echo "Will install Node.js v${NODE_JS_VERSION}"
 
 # Download and unpack node source
-curl -s --url "${NODE_JS_SOURCE_URL}" -o "${NODE_JS_TARBALL_PATH}"
+bash "$BASEDIR/retry-with-backoff.sh" curl -s --url "${NODE_JS_SOURCE_URL}" -o "${NODE_JS_TARBALL_PATH}"
 tar xzvf "$NODE_JS_TARBALL_PATH" --directory "${EVGDIR}"
 
 # Move into node source DIR
