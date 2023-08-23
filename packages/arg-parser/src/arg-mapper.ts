@@ -5,7 +5,6 @@ import {
   ConnectionString,
   CommaAndColonSeparatedRecord,
 } from 'mongodb-connection-string-url';
-import fs from 'fs';
 
 // Each of these helper functions take a ConnectionInfo as an input,
 // and return a transformed ConnectionInfo as their output.
@@ -150,24 +149,6 @@ function setOIDC<Key extends keyof OIDCOptions>(
   return setDriver(i, 'oidc', { ...i.driverOptions.oidc, [key]: value });
 }
 
-type BufferDriverOptions = Exclude<
-  {
-    [K in keyof DevtoolsConnectOptions]: Buffer extends DevtoolsConnectOptions[K]
-      ? K
-      : never;
-  }[keyof DevtoolsConnectOptions],
-  undefined
->;
-function setDriverFile<Key extends BufferDriverOptions>(
-  i: Readonly<ConnectionInfo>,
-  key: Key,
-  value: string
-): ConnectionInfo {
-  // TODO(MONGOSH-XXX): Make this async
-  const contents = fs.readFileSync(value);
-  return setDriver(i, key, contents);
-}
-
 // Return an ALLOWED_HOSTS value that matches the hosts listed in the connection string of `i`,
 // including possible SRV "sibling" domains.
 function matchingAllowedHosts(i: Readonly<ConnectionInfo>): string[] {
@@ -237,7 +218,8 @@ const MAPPINGS: {
   tlsAllowInvalidHostnames: (i, v) =>
     setUrlParam(i, 'tlsAllowInvalidHostnames', v),
   tlsCAFile: (i, v) => setUrlParam(i, 'tlsCAFile', v),
-  tlsCRLFile: (i, v) => setDriverFile(i, 'crl', v),
+  // @ts-expect-error NODE-5566 in driver 6.0.0 GA
+  tlsCRLFile: (i, v) => setUrlParam(i, 'tlsCRLFile', v),
   tlsCertificateKeyFile: (i, v) => setUrlParam(i, 'tlsCertificateKeyFile', v),
   tlsCertificateKeyFilePassword: (i, v) =>
     setUrlParam(i, 'tlsCertificateKeyFilePassword', v),
