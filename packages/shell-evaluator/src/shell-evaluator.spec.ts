@@ -1,5 +1,5 @@
 import { expect, use } from 'chai';
-import sinon from 'ts-sinon';
+import sinon from 'sinon';
 const sinonChai = require('sinon-chai'); // weird with import
 use(sinonChai);
 

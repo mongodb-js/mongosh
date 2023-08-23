@@ -1,5 +1,5 @@
 import chai, { expect } from 'chai';
-import sinon from 'ts-sinon';
+import sinon from 'sinon';
 import type { Config } from './config';
 import type { uploadArtifactToEvergreen } from './evergreen';
 import type { PackageFile } from './packaging';

@@ -5,6 +5,7 @@ ignores:
  - '@typescript-eslint/parser'
  - '@typescript-eslint/eslint-plugin'
  - chai
+ - sinon
  - sinon-chai
  - ts-sinon
  - eslint-plugin-mocha

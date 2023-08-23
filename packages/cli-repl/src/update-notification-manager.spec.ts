@@ -45,7 +45,10 @@ describe('UpdateNotificationManager', function () {
     expect(await manager.getLatestVersionIfMoreRecent('')).to.equal(null);
     expect(reqHandler).to.have.been.calledOnce;
     const fileContents = JSON.parse(await fs.readFile(filename, 'utf-8'));
-    expect(Object.keys(fileContents)).to.deep.equal(['lastChecked']);
+    expect(Object.keys(fileContents)).to.deep.equal([
+      'updateURL',
+      'lastChecked',
+    ]);
     expect(fileContents.lastChecked).to.be.a('number');
   });
 
@@ -54,6 +57,13 @@ describe('UpdateNotificationManager', function () {
     await manager.fetchUpdateMetadata(httpServerUrl, filename);
     await manager.fetchUpdateMetadata(httpServerUrl, filename);
     expect(reqHandler).to.have.been.calledOnce;
+  });
+
+  it('does not re-use existing data if the updateURL value has changed', async function () {
+    const manager = new UpdateNotificationManager();
+    await manager.fetchUpdateMetadata(httpServerUrl, filename);
+    await manager.fetchUpdateMetadata(httpServerUrl + '/?foo=bar', filename);
+    expect(reqHandler).to.have.been.calledTwice;
   });
 
   it('caches 304 responses if the server supports ETag-based caching', async function () {

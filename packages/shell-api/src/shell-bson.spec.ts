@@ -5,7 +5,7 @@ import {
   deserialize as bsonDeserialize,
 } from 'bson';
 import { expect } from 'chai';
-import sinon from 'ts-sinon';
+import sinon from 'sinon';
 import { ALL_SERVER_VERSIONS } from './enums';
 import { toShellResult } from './index';
 import constructShellBson from './shell-bson';

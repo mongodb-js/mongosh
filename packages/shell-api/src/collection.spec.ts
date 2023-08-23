@@ -1,6 +1,7 @@
 import { expect, use } from 'chai';
 import type { StubbedInstance } from 'ts-sinon';
-import sinon, { stubInterface } from 'ts-sinon';
+import sinon from 'sinon';
+import { stubInterface } from 'ts-sinon';
 import type { EventEmitter } from 'events';
 import { signatures, toShellResult } from './index';
 import {

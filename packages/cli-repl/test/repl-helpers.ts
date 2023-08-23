@@ -3,7 +3,7 @@ import { promisify } from 'util';
 import path from 'path';
 import { once } from 'events';
 import chai, { expect } from 'chai';
-import sinon from 'ts-sinon';
+import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
 import type { MongoshBus, MongoshBusEventsMap } from '@mongosh/types';

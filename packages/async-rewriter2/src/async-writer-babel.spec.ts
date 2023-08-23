@@ -3,7 +3,7 @@ import childProcess from 'child_process';
 import path from 'path';
 import { promisify } from 'util';
 import vm from 'vm';
-import sinon from 'ts-sinon';
+import sinon from 'sinon';
 import chai, { expect } from 'chai';
 import sinonChai from 'sinon-chai';
 chai.use(sinonChai);

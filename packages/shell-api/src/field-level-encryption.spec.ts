@@ -12,8 +12,9 @@ import { EventEmitter } from 'events';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { Duplex } from 'stream';
+import sinon from 'sinon';
 import type { StubbedInstance } from 'ts-sinon';
-import sinon, { stubInterface } from 'ts-sinon';
+import { stubInterface } from 'ts-sinon';
 import type Database from './database';
 import { signatures, toShellResult } from './decorators';
 import {

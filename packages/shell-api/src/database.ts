@@ -1420,6 +1420,7 @@ export default class Database extends ShellApiWithMongoClass {
     return new CommandResult('ListCommandsResult', result.commands);
   }
 
+  @serverVersions([ServerVersions.earliest, '5.1.0'])
   @deprecated
   @returnsPromise
   @apiVersions([])
