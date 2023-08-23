@@ -3,7 +3,10 @@ import {
   validateConfigSchema,
 } from '@mongodb-js/dl-center';
 import { major as majorVersion } from 'semver';
-import type { DownloadCenterConfig } from '@mongodb-js/dl-center/dist/download-center-config';
+import type {
+  DownloadCenterConfig,
+  PlatformWithPackages,
+} from '@mongodb-js/dl-center/dist/download-center-config';
 import {
   ARTIFACTS_BUCKET,
   ARTIFACTS_FOLDER,
@@ -19,6 +22,7 @@ import {
   getDistro,
   getServerLikeArchName,
   getServerLikeTargetList,
+  getDownloadCenterPackageType,
 } from '../config';
 import type { PackageInformationProvider } from '../packaging';
 import { getPackageFile } from '../packaging';
@@ -134,9 +138,9 @@ export function getUpdatedDownloadCenterConfig(
   });
 
   if (matchingMajorVersionIdx === -1) {
-    currentVersions.push(versionConfig);
+    currentVersions.push(versionConfig as any);
   } else {
-    currentVersions[matchingMajorVersionIdx] = versionConfig;
+    currentVersions[matchingMajorVersionIdx] = versionConfig as any;
   }
 
   return {
@@ -151,7 +155,7 @@ export function createDownloadCenterConfig(
 ): DownloadCenterConfig {
   const versionConfig = getVersionConfig();
   return {
-    versions: [versionConfig],
+    versions: [versionConfig as any],
     manual_link: 'https://docs.mongodb.org/manual/products/mongosh',
     release_notes_link: `https://github.com/mongodb-js/mongosh/releases/tag/v${versionConfig.version}`,
     previous_releases_link: '',
@@ -166,17 +170,30 @@ export function createVersionConfig(
   publicArtifactBaseUrl: string = ARTIFACTS_URL_PUBLIC_BASE
 ) {
   const { version } = packageInformation('linux-x64').metadata;
-  return {
-    _id: version,
-    version: version,
-    platform: ALL_PACKAGE_VARIANTS.map((packageVariant: PackageVariant) => ({
+  const platformMap: Map<string, PlatformWithPackages> = new Map();
+
+  for (const packageVariant of ALL_PACKAGE_VARIANTS) {
+    const platformName = getDownloadCenterDistroDescription(packageVariant);
+    const currentPlatform = platformMap.get(platformName) || {
       arch: getArch(packageVariant),
-      os: getDistro(packageVariant),
-      name: getDownloadCenterDistroDescription(packageVariant),
+      os: getDownloadCenterDistroDescription(packageVariant),
+      packages: { links: [] },
+    };
+
+    currentPlatform.packages.links.push({
+      name: getDownloadCenterPackageType(packageVariant),
       download_link:
         publicArtifactBaseUrl +
         getPackageFile(packageVariant, packageInformation).path,
-    })),
+    });
+
+    platformMap.set(platformName, currentPlatform);
+  }
+
+  return {
+    _id: version,
+    version: version,
+    platform: [...platformMap.values()],
   } as const;
 }
 
