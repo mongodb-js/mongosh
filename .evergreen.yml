@@ -57,8 +57,6 @@ functions:
           export NPM_DEPS_MODE=cli_build
           source .evergreen/install-node.sh
           source .evergreen/install-npm-deps.sh
-          npm run bootstrap-ci
-          npm run compile
           tar cvzf compiled-ts.tgz packages/*/{lib,dist}
     - command: s3.put
       params:

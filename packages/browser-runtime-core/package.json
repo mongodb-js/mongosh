@@ -24,7 +24,6 @@
     "preprepublish": "rimraf ./lib",
     "prepublish": "npm run compile",
     "compile": "tsc -p tsconfig.json",
-    "bootstrap": "npm run compile",
     "prettier": "prettier",
     "reformat": "npm run prettier -- --write . && npm run eslint --fix"
   },

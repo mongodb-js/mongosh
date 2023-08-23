@@ -27,7 +27,6 @@
     "webpack-build": "npm run compile && webpack --mode production",
     "webpack-build-dev": "npm run compile && webpack --mode development",
     "compile": "tsc -p tsconfig.json",
-    "bootstrap": "npm run compile",
     "prepublish": "npm run webpack-build",
     "prettier": "prettier",
     "reformat": "npm run prettier -- --write . && npm run eslint --fix"
