@@ -3,23 +3,6 @@ import ServiceProvider, { ServiceProviderCore } from './service-provider';
 import getConnectInfo, { ConnectInfo } from './connect-info';
 import type { ReplPlatform } from './platform';
 const DEFAULT_DB = 'test';
-import {
-  ObjectId,
-  DBRef,
-  MaxKey,
-  MinKey,
-  Timestamp,
-  BSONSymbol,
-  Code,
-  Decimal128,
-  Int32,
-  Long,
-  Binary,
-  calculateObjectSize,
-  Double,
-  EJSON,
-  BSONRegExp,
-} from 'bson';
 import { bsonStringifiers } from './printable-bson';
 import ShellAuthOptions from './shell-auth-options';
 export * from './all-transport-types';
@@ -32,23 +15,7 @@ export {
   CheckMetadataConsistencyOptions,
 } from './admin';
 
-const bson = {
-  ObjectId,
-  DBRef,
-  MaxKey,
-  MinKey,
-  Timestamp,
-  BSONSymbol,
-  Code,
-  Decimal128,
-  Int32,
-  Long,
-  Binary,
-  calculateObjectSize,
-  Double,
-  EJSON,
-  BSONRegExp,
-};
+export { bson } from './bson-export';
 
 export {
   ServiceProvider,
@@ -57,7 +24,6 @@ export {
   ReplPlatform,
   DEFAULT_DB,
   ServiceProviderCore,
-  bson,
   bsonStringifiers,
   ConnectInfo,
 };
