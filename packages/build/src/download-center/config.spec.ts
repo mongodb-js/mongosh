@@ -43,10 +43,10 @@ describe('DownloadCenter config', function () {
       expect(version.version).to.equal('1.2.2');
     });
 
-    it('has an artifact for MacOS 64-bit (10.14+)', function () {
+    it('has an artifact for MacOS x64 (10.14+)', function () {
       const version = createVersionConfig(packageInformation('1.2.2'));
       const platforms = version.platform.filter(
-        (p) => (p.os as string) === 'MacOS 64-bit (10.14+)'
+        (p) => (p.os as string) === 'MacOS x64 (10.14+)'
       ) as any as PlatformWithPackages[];
       expect(platforms).to.have.length(1);
       expect(platforms[0].packages.links[0].name).to.include('zip');
@@ -58,7 +58,7 @@ describe('DownloadCenter config', function () {
     it('has an artifact for linux', function () {
       const version = createVersionConfig(packageInformation('1.2.2'));
       const platforms = version.platform.filter(
-        (p) => p.os.startsWith('Linux 64-bit') && p.arch === 'x64'
+        (p) => p.os.startsWith('Linux x64') && p.arch === 'x64'
       );
       expect(platforms).to.have.length(3);
       expect(
@@ -73,7 +73,7 @@ describe('DownloadCenter config', function () {
     it('has an MSI and ZIP artifacts for windows', function () {
       const version = createVersionConfig(packageInformation('1.2.2'));
       const [platform] = version.platform.filter(
-        (p) => p.os === 'Windows 64-bit (8.1+)'
+        (p) => p.os === 'Windows x64 (8.1+)'
       );
       expect(platform.packages.links[0].download_link).to.contain(
         'win32-x64.zip'
