@@ -1,4 +1,6 @@
 # Regenerate using `npm run update-evergreen-config`
+# https://jira.mongodb.org/browse/EVG-20276
+unset_function_vars: true
 exec_timeout_secs: 10800
 
 post_error_fails_task: true
@@ -5645,7 +5647,7 @@ functions:
     - command: expansions.update
       params:
         ignore_missing_file: false
-        file: /tmp/compiling-context.yml
+        file: tmp/compiling-context.yml
     - command: s3.put
       params:
         aws_key: ${aws_key}
