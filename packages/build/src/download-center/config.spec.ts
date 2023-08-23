@@ -35,7 +35,7 @@ const packageInformation = (version: string) =>
     };
   }) as PackageInformationProvider;
 
-describe.only('DownloadCenter config', function () {
+describe('DownloadCenter config', function () {
   describe('createVersionConfig', function () {
     it('sets the version correctly', function () {
       const version = createVersionConfig(packageInformation('1.2.2'));
