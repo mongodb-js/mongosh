@@ -194,7 +194,7 @@ export function createVersionConfig(
     _id: version,
     version: version,
     platform: [...platformMap.values()],
-  } as const;
+  };
 }
 
 interface JsonFeed {
