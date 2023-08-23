@@ -28,7 +28,7 @@ exports.RELEASE_PACKAGE_MATRIX = [
     compileBuildVariant: 'linux_x64_build',
     packages: [
       { name: 'linux-x64', description: 'Linux x64', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu20.04-tgz'], serverLikeTargetList: [...allLinux] },
-      { name: 'deb-x64', description: 'Debian / Ubuntu (18.04+) x64', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu18.04-deb', 'ubuntu20.04-deb', 'ubuntu22.04-deb', 'ubuntu22.04-nohome-deb', 'debian9-deb', 'debian10-deb', 'debian11-deb', 'debian12-deb'], serverLikeTargetList: [...ubuntu1804AndAboveAndDebBased] },
+      { name: 'deb-x64', description: 'Debian (10+) / Ubuntu (18.04+) x64', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu18.04-deb', 'ubuntu20.04-deb', 'ubuntu22.04-deb', 'ubuntu22.04-nohome-deb', 'debian9-deb', 'debian10-deb', 'debian11-deb', 'debian12-deb'], serverLikeTargetList: [...ubuntu1804AndAboveAndDebBased] },
       { name: 'rpm-x64', description: 'RHEL / CentOS (7+) x64', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['centos7-rpm', 'amazonlinux2-rpm', 'amazonlinux2023-rpm', 'rocky8-rpm', 'rocky9-rpm', 'fedora34-rpm', 'suse12-rpm', 'suse15-rpm', 'amazonlinux1-rpm'], serverLikeTargetList: [...rhel70AndAboveAndRpmBased] }
     ]
   },
@@ -37,7 +37,7 @@ exports.RELEASE_PACKAGE_MATRIX = [
     compileBuildVariant: 'linux_x64_build_openssl11',
     packages: [
       { name: 'linux-x64-openssl11', description: 'Linux x64 (shared OpenSSL 1.1)', packageOn: 'linux_package', smokeTestKind: 'none', serverLikeTargetList: [...allLinux] },
-      { name: 'deb-x64-openssl11', description: 'Debian (+10) / Ubuntu (18.04+) x64 (shared OpenSSL 1.1)', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu20.04-deb', 'debian10-deb', 'debian11-deb'], serverLikeTargetList: [...ubuntu1804AndAboveAndDebBased] },
+      { name: 'deb-x64-openssl11', description: 'Debian (10+) / Ubuntu (18.04+) x64 (shared OpenSSL 1.1)', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu20.04-deb', 'debian10-deb', 'debian11-deb'], serverLikeTargetList: [...ubuntu1804AndAboveAndDebBased] },
       { name: 'rpm-x64-openssl11', description: 'RHEL / CentOS (7+) x64 (shared OpenSSL 1.1)', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['centos7-epel-rpm', 'amazonlinux2-rpm', 'rocky8-rpm', 'rocky9-rpm', 'fedora34-rpm'], serverLikeTargetList: [...rhel70AndAboveAndRpmBased] }
     ]
   },
@@ -46,7 +46,7 @@ exports.RELEASE_PACKAGE_MATRIX = [
     compileBuildVariant: 'linux_x64_build_openssl3',
     packages: [
       { name: 'linux-x64-openssl3', description: 'Linux x64 (shared OpenSSL 3)', packageOn: 'linux_package', smokeTestKind: 'none', serverLikeTargetList: [...allLinux] },
-      { name: 'deb-x64-openssl3', description: 'Debian (+10) / Ubuntu (18.04+) x64 (shared OpenSSL 3)', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu22.04-deb', 'ubuntu22.04-fips-deb', 'debian12-deb'], serverLikeTargetList: [...ubuntu1804AndAboveAndDebBased] },
+      { name: 'deb-x64-openssl3', description: 'Debian (10+) / Ubuntu (18.04+) x64 (shared OpenSSL 3)', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu22.04-deb', 'ubuntu22.04-fips-deb', 'debian12-deb'], serverLikeTargetList: [...ubuntu1804AndAboveAndDebBased] },
       { name: 'rpm-x64-openssl3', description: 'RHEL / CentOS (7+) x64 (shared OpenSSL 3)', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['rocky8-epel-rpm', 'rocky9-rpm', 'rocky9-fips-rpm', 'amazonlinux2023-rpm'], serverLikeTargetList: [...rhel70AndAboveAndRpmBased] }
     ]
   },
@@ -55,7 +55,7 @@ exports.RELEASE_PACKAGE_MATRIX = [
     compileBuildVariant: 'linux_arm64_build',
     packages: [
       { name: 'linux-arm64', description: 'Linux arm64', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu20.04-tgz'], serverLikeTargetList: [...al2AndAbove] },
-      { name: 'deb-arm64', description: 'Debian (+10) / Ubuntu (18.04+) arm64', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu18.04-deb', 'ubuntu20.04-deb', 'ubuntu22.04-deb', 'debian10-deb', 'debian11-deb', 'debian12-deb'], serverLikeTargetList: [...ubuntu1804AndAboveAndDebBased] },
+      { name: 'deb-arm64', description: 'Debian (10+) / Ubuntu (18.04+) arm64', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu18.04-deb', 'ubuntu20.04-deb', 'ubuntu22.04-deb', 'debian10-deb', 'debian11-deb', 'debian12-deb'], serverLikeTargetList: [...ubuntu1804AndAboveAndDebBased] },
       { name: 'rpm-arm64', description: 'RHEL / CentOS (7+) arm64', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['rocky8-rpm', 'rocky9-rpm', 'fedora34-rpm', 'amazonlinux2-rpm', 'amazonlinux2023-rpm'], serverLikeTargetList: [...al2AndAbove] }
     ]
   },
@@ -64,7 +64,7 @@ exports.RELEASE_PACKAGE_MATRIX = [
     compileBuildVariant: 'linux_arm64_build_openssl11',
     packages: [
       { name: 'linux-arm64-openssl11', description: 'Linux arm64 (shared OpenSSL 1.1)', packageOn: 'linux_package', smokeTestKind: 'none', serverLikeTargetList: [...al2AndAbove] },
-      { name: 'deb-arm64-openssl11', description: 'Debian (+10) / Ubuntu (18.04+) arm64 (shared OpenSSL 1.1)', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu20.04-deb', 'debian10-deb', 'debian11-deb'], serverLikeTargetList: [...ubuntu1804AndAboveAndDebBased] },
+      { name: 'deb-arm64-openssl11', description: 'Debian (10+) / Ubuntu (18.04+) arm64 (shared OpenSSL 1.1)', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu20.04-deb', 'debian10-deb', 'debian11-deb'], serverLikeTargetList: [...ubuntu1804AndAboveAndDebBased] },
       { name: 'rpm-arm64-openssl11', description: 'RHEL / CentOS (7+) arm64 (shared OpenSSL 1.1)', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['rocky8-rpm', 'rocky9-rpm', 'fedora34-rpm', 'amazonlinux2-rpm'], serverLikeTargetList: [...al2AndAbove] }
     ]
   },
@@ -73,7 +73,7 @@ exports.RELEASE_PACKAGE_MATRIX = [
     compileBuildVariant: 'linux_arm64_build_openssl3',
     packages: [
       { name: 'linux-arm64-openssl3', description: 'Linux arm64 (shared OpenSSL 3)', packageOn: 'linux_package', smokeTestKind: 'none', serverLikeTargetList: [...al2AndAbove] },
-      { name: 'deb-arm64-openssl3', description: 'Debian (+10) / Ubuntu (18.04+) arm64 (shared OpenSSL 3)', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu22.04-deb', 'ubuntu22.04-fips-deb', 'debian12-deb'], serverLikeTargetList: [...ubuntu1804AndAboveAndDebBased] },
+      { name: 'deb-arm64-openssl3', description: 'Debian (10+) / Ubuntu (18.04+) arm64 (shared OpenSSL 3)', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu22.04-deb', 'ubuntu22.04-fips-deb', 'debian12-deb'], serverLikeTargetList: [...ubuntu1804AndAboveAndDebBased] },
       { name: 'rpm-arm64-openssl3', description: 'RHEL / CentOS (7+) arm64 (shared OpenSSL 3)', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['rocky8-epel-rpm', 'rocky9-rpm', 'rocky9-fips-rpm', 'amazonlinux2023-rpm'], serverLikeTargetList: [...al2AndAbove] }
     ]
   },
