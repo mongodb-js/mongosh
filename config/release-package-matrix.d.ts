@@ -8,7 +8,6 @@ export interface PackageInformation {
   name: string;
   description: string;
   packageOn: string;
-  packageType: 'dmg' | 'tar.gz' | 'deb' | 'rpm' | 'zip' | 'msi';
   smokeTestKind: 'docker' | 'rpmextract' | 'debextract' | 'none';
   smokeTestDockerfiles?: string[];
   serverLikeTargetList: string[];

@@ -22,7 +22,6 @@ import {
   getDistro,
   getServerLikeArchName,
   getServerLikeTargetList,
-  getDownloadCenterPackageType,
 } from '../config';
 import type { PackageInformationProvider } from '../packaging';
 import { getPackageFile } from '../packaging';
@@ -33,6 +32,7 @@ import fetch from 'node-fetch';
 import path from 'path';
 import { promisify } from 'util';
 import semver from 'semver';
+import { getFileExtension } from '../packaging/package';
 
 const delay = promisify(setTimeout);
 
@@ -181,7 +181,7 @@ export function createVersionConfig(
     };
 
     currentPlatform.packages.links.push({
-      name: getDownloadCenterPackageType(packageVariant),
+      name: getFileExtension(packageVariant),
       download_link:
         publicArtifactBaseUrl +
         getPackageFile(packageVariant, packageInformation).path,
