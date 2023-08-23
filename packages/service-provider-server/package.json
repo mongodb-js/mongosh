@@ -13,6 +13,7 @@
   },
   "scripts": {
     "compile": "tsc -p tsconfig.json",
+    "bootstrap": "npm run compile",
     "test": "cross-env TS_NODE_PROJECT=../../configs/tsconfig-mongosh/tsconfig.test.json mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 -r ts-node/register \"./src/**/*.spec.ts\"",
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
     "prepublish": "npm run compile",

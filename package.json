@@ -8,11 +8,8 @@
   "homepage": "https://github.com/mongodb-js/mongosh",
   "author": "Compass Team <compass@mongodb.com>",
   "scripts": {
-    "prebootstrap-with-chromium": "npm install",
-    "bootstrap-with-chromium": "lerna bootstrap --concurrency=1",
-    "prebootstrap": "npm install",
-    "bootstrap": "cross-env PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 lerna bootstrap --concurrency=1",
-    "bootstrap-ci": "lerna bootstrap --ci",
+    "bootstrap-with-chromium": "npm install && lerna run bootstrap",
+    "bootstrap": "cross-env PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 npm install && lerna run bootstrap",
     "clean": "lerna clean -y && rm -Rf node_modules",
     "check": "lerna run check --since HEAD --exclude-dependents",
     "check-ci": "npm run check --workspaces --if-present",

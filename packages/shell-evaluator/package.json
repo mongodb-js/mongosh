@@ -11,6 +11,7 @@
     "check": "npm run lint && npm run depcheck",
     "depcheck": "depcheck",
     "compile": "tsc -p tsconfig.json",
+    "bootstrap": "npm run compile",
     "prepublish": "npm run compile",
     "prettier": "prettier",
     "reformat": "npm run prettier -- --write . && npm run eslint --fix"
