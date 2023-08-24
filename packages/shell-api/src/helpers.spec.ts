@@ -5,6 +5,7 @@ import {
   getPrintableShardStatus,
   scaleIndividualShardStatistics,
   tsToSeconds,
+  validateExplainableVerbosity,
 } from './helpers';
 import { Database, Mongo, ShellInstanceState } from './index';
 import constructShellBson from './shell-bson';
@@ -37,6 +38,28 @@ describe('dataFormat', function () {
     expect(dataFormat(4096 * 4096)).to.equal('16MiB');
     expect(dataFormat(4096 * 4096 * 4096)).to.equal('64GiB');
     expect(dataFormat(4096 * 4096 * 4096 * 1000)).to.equal('64000GiB');
+  });
+});
+
+describe('validateExplainableVerbosity', function () {
+  const legacyMappings = [
+    { input: true, expected: 'allPlansExecution' },
+    { input: false, expected: 'queryPlanner' },
+    { input: undefined, expected: 'queryPlanner' },
+  ];
+
+  describe('legacy mappings', function () {
+    for (const { input, expected } of legacyMappings) {
+      it(`maps ${input} to ${expected}`, function () {
+        expect(validateExplainableVerbosity(input)).to.be.equal(expected);
+      });
+    }
+  });
+
+  it('keeps the provided verbosity if a mapping does not apply', function () {
+    expect(validateExplainableVerbosity('allPlansExecution')).to.be.equal(
+      'allPlansExecution'
+    );
   });
 });
 
