@@ -8,7 +8,7 @@ describe('e2e startup banners', function () {
   skipIfApiStrict();
   afterEach(TestShell.cleanup);
 
-  const testServer = startTestServer('shared');
+  const testServer = startTestServer('e2e-banners', 'shared');
 
   context('without special configuration', function () {
     it('shows startup warnings', async function () {

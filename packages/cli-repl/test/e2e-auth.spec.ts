@@ -72,7 +72,7 @@ function createAssertUserAuth(db, connectionString, dbName): Function {
 describe('Auth e2e', function () {
   skipIfApiStrict(); // connectionStatus is unversioned.
 
-  const testServer = startTestServer('shared');
+  const testServer = startTestServer('e2e-auth', 'shared');
   let assertUserExists;
   let assertUserAuth;
   let assertRoleExists;

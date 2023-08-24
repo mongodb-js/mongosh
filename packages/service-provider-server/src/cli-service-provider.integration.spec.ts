@@ -16,7 +16,7 @@ import ConnectionString from 'mongodb-connection-string-url';
 import { dummyOptions } from './cli-service-provider.spec';
 
 describe('CliServiceProvider [integration]', function () {
-  const testServer = startTestServer('shared');
+  const testServer = startTestServer('cli-service-provider', 'shared');
 
   let serviceProvider: CliServiceProvider;
   let client: MongoClient;

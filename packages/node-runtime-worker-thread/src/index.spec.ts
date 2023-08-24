@@ -148,7 +148,10 @@ describe('WorkerRuntime', function () {
   });
 
   describe('getCompletions', function () {
-    const testServer = startTestServer('shared');
+    const testServer = startTestServer(
+      'node-runtime-worker-thread-getCompletions',
+      'shared'
+    );
 
     it('should return completions', async function () {
       runtime = new WorkerRuntime(
@@ -162,7 +165,10 @@ describe('WorkerRuntime', function () {
   });
 
   describe('getShellPrompt', function () {
-    const testServer = startTestServer('shared');
+    const testServer = startTestServer(
+      'node-runtime-worker-thread-getShellPrompt',
+      'shared'
+    );
 
     it('should return prompt when connected to the server', async function () {
       runtime = new WorkerRuntime(
@@ -195,7 +201,10 @@ describe('WorkerRuntime', function () {
   });
 
   describe('eventEmitter', function () {
-    const testServer = startTestServer('shared');
+    const testServer = startTestServer(
+      'node-runtime-worker-thread-eventEmitter',
+      'shared'
+    );
 
     it('should propagate emitted events from worker', async function () {
       const eventEmitter = createMockEventEmitter();

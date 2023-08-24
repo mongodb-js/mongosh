@@ -930,7 +930,7 @@ describe('Mongo', function () {
   });
 
   describe('integration', function () {
-    const testServer = startTestServer('shared');
+    const testServer = startTestServer('mongo', 'shared');
     let serviceProvider;
     let instanceState: ShellInstanceState;
     let uri: string;

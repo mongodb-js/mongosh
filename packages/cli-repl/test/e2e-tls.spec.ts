@@ -139,14 +139,18 @@ describe('e2e TLS', function () {
         });
         afterEach(TestShell.cleanup);
 
-        const server = startTestServer('not-shared', {
-          args: [
-            serverTlsModeOption,
-            serverTlsModeValue,
-            serverTlsCertificateKeyFileOption,
-            SERVER_KEY,
-          ],
-        });
+        const server = startTestServer(
+          'e2e-tls-no-cli-valid-srv',
+          'not-shared',
+          {
+            args: [
+              serverTlsModeOption,
+              serverTlsModeValue,
+              serverTlsCertificateKeyFileOption,
+              SERVER_KEY,
+            ],
+          }
+        );
 
         it('works with matching CA (args)', async function () {
           const shell = TestShell.start({
@@ -372,16 +376,20 @@ describe('e2e TLS', function () {
           await TestShell.cleanup.call(this);
         });
 
-        const server = startTestServer('not-shared', {
-          args: [
-            serverTlsModeOption,
-            serverTlsModeValue,
-            serverTlsCertificateKeyFileOption,
-            SERVER_KEY,
-            serverTlsCAFileOption,
-            CA_CERT,
-          ],
-        });
+        const server = startTestServer(
+          'e2e-tls-valid-cli-valid-srv',
+          'not-shared',
+          {
+            args: [
+              serverTlsModeOption,
+              serverTlsModeValue,
+              serverTlsCertificateKeyFileOption,
+              SERVER_KEY,
+              serverTlsCAFileOption,
+              CA_CERT,
+            ],
+          }
+        );
         const certUser =
           'emailAddress=tester@example.com,CN=Wonderwoman,OU=DevTools Testers,O=MongoDB';
 
@@ -672,7 +680,7 @@ describe('e2e TLS', function () {
         await TestShell.killall();
       });
 
-      const server = startTestServer('not-shared', {
+      const server = startTestServer('e2e-tls-invalid-srv', 'not-shared', {
         args: [
           serverTlsModeOption,
           serverTlsModeValue,

@@ -857,6 +857,7 @@ describe('ReplicaSet', function () {
     const replId = 'rs0';
 
     const [srv0, srv1, srv2, srv3] = startTestCluster(
+      'replica-set-standard',
       { args: ['--replSet', replId] },
       { args: ['--replSet', replId] },
       { args: ['--replSet', replId] },
@@ -1103,6 +1104,7 @@ describe('ReplicaSet', function () {
     const replId = 'rspsa';
 
     const [srv0, srv1, srv2] = startTestCluster(
+      'replica-set-pa-psa',
       { args: ['--replSet', replId] },
       { args: ['--replSet', replId] },
       { args: ['--replSet', replId] }

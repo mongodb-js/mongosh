@@ -1014,7 +1014,7 @@ describe('CliRepl', function () {
   });
 
   context('with an actual server', function () {
-    const testServer = startTestServer('shared');
+    const testServer = startTestServer('cli-repl-shared', 'shared');
 
     beforeEach(async function () {
       cliReplOptions.shellCliOptions.connectionSpecifier =
@@ -1972,7 +1972,7 @@ describe('CliRepl', function () {
 
   context('with a replset node', function () {
     verifyAutocompletion({
-      testServer: startTestServer('not-shared', {
+      testServer: startTestServer('cli-repl-autocompletion', 'not-shared', {
         topology: 'replset',
         secondaries: 0,
       }),
@@ -1985,7 +1985,7 @@ describe('CliRepl', function () {
 
   context('with a mongos', function () {
     verifyAutocompletion({
-      testServer: startTestServer('not-shared', {
+      testServer: startTestServer('cli-repl-autocompletion', 'not-shared', {
         topology: 'sharded',
         shards: 1,
         secondaries: 0,
@@ -1999,9 +1999,13 @@ describe('CliRepl', function () {
 
   context('with an auth-required mongod', function () {
     verifyAutocompletion({
-      testServer: startTestServer('not-shared', {
-        args: ['--auth'],
-      }),
+      testServer: startTestServer(
+        'cli-repl-autocompletion-auth',
+        'not-shared',
+        {
+          args: ['--auth'],
+        }
+      ),
       wantWatch: false,
       wantShardDistribution: false,
       hasCollectionNames: false,

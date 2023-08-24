@@ -123,20 +123,40 @@ export class MongodSetup {
 
 // Spawn a mongodb-runner-managed instance with a specific set of arguments.
 export class MongoRunnerSetup extends MongodSetup {
+  private static _usedDirPrefix: Record<string, 0> = {};
+
+  private static _buildDirPath(id: string, version?: string, topology?: string) {
+    const prefix = [id, version, topology].filter(Boolean).join('-');
+
+    this._usedDirPrefix[prefix] ??= 0;
+
+    const idx = this._usedDirPrefix[prefix];
+    this._usedDirPrefix[prefix]++;
+
+    return `${prefix}-${idx}`;
+  }
+
+  _id: string;
   _opts: Partial<MongoClusterOptions>;
   _cluster: MongoCluster | undefined;
 
-  constructor(opts: Partial<MongoClusterOptions> = {}) {
+  constructor(id: string, opts: Partial<MongoClusterOptions> = {}) {
     super();
+    this._id = id;
     this._opts = opts;
   }
 
   async start(): Promise<void> {
     if (this._cluster) return;
+    const tmpDir = await getTmpdir();
+    const version = process.env.MONGOSH_SERVER_TEST_VERSION;
+    const dirPath = MongoRunnerSetup._buildDirPath(this._id, version, this._opts.topology);
+
     this._cluster = await MongoCluster.start({
       topology: 'standalone',
-      tmpDir: await getTmpdir(),
-      version: process.env.MONGOSH_SERVER_TEST_VERSION,
+      tmpDir: path.join(tmpDir, 'mongodb-runner', 'dbs', dirPath),
+      logDir: path.join(tmpDir, 'mongodb-runner', 'logs', dirPath),
+      version: version,
       ...this._opts
     })
 
@@ -182,7 +202,7 @@ export async function downloadCurrentCryptSharedLibrary(): Promise<string> {
  * @returns {MongodSetup} - Object with information about the started server.
  */
 let sharedSetup : MongodSetup | null = null;
-export function startTestServer(shareMode: 'shared' | 'not-shared', args: Partial<MongoClusterOptions> = {}): MongodSetup {
+export function startTestServer(id: string, shareMode: 'shared' | 'not-shared', args: Partial<MongoClusterOptions> = {}): MongodSetup {
   if (shareMode === 'shared' && process.env.MONGOSH_TEST_SERVER_URL) {
     return new MongodSetup(process.env.MONGOSH_TEST_SERVER_URL);
   }
@@ -192,9 +212,9 @@ export function startTestServer(shareMode: 'shared' | 'not-shared', args: Partia
     if (Object.keys(args).length > 0) {
       throw new Error('Cannot specify arguments for shared mongod');
     }
-    server = sharedSetup ?? (sharedSetup = new MongoRunnerSetup());
+    server = sharedSetup ?? (sharedSetup = new MongoRunnerSetup(id));
   } else {
-    server = new MongoRunnerSetup(args);
+    server = new MongoRunnerSetup(id, args);
   }
 
   before(async function() {
@@ -222,8 +242,8 @@ global.after?.(async function() {
 
 // The same as startTestServer(), except that this starts multiple servers
 // in parallel in the same before() call.
-export function startTestCluster(...argLists: Partial<MongoClusterOptions>[]): MongodSetup[] {
-  const servers = argLists.map(args => new MongoRunnerSetup(args));
+export function startTestCluster(id: string, ...argLists: Partial<MongoClusterOptions>[]): MongodSetup[] {
+  const servers = argLists.map(args => new MongoRunnerSetup(id, args));
 
   before(async function() {
     this.timeout(90_000 + 30_000 * servers.length);

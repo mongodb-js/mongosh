@@ -26,7 +26,7 @@ const compileExpr = (templ, ...subs): any => {
 };
 
 describe('Shell API (integration)', function () {
-  const testServer = startTestServer('shared');
+  const testServer = startTestServer('shell-api', 'shared');
   this.timeout(60000);
   let serviceProvider: CliServiceProvider;
 

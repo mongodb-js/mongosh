@@ -103,7 +103,10 @@ describe('assertArgsDefinedType', function () {
 });
 
 describe('getPrintableShardStatus', function () {
-  const testServer = startTestServer('shared');
+  const testServer = startTestServer(
+    'shell-api-getPrintableShardStatus',
+    'shared'
+  );
 
   let mongo: Mongo;
   let configDatabase: Database;

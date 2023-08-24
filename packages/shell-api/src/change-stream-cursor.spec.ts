@@ -118,7 +118,9 @@ describe('ChangeStreamCursor', function () {
     });
   });
   describe('integration', function () {
-    const [srv0] = startTestCluster({ topology: 'replset' });
+    const [srv0] = startTestCluster('change-stream-cursor', {
+      topology: 'replset',
+    });
     let serviceProvider: CliServiceProvider;
     let instanceState: ShellInstanceState;
     let mongo: Mongo;

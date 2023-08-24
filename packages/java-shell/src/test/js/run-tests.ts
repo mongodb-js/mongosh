@@ -5,7 +5,7 @@ import { startTestServer } from '../../../../../testing/integration-testing-hook
 
 describe('java-shell tests', function() {
   this.timeout(1_000_000);
-  const testServer = startTestServer('shared');
+  const testServer = startTestServer('java-shell', 'shared');
   const packageRoot = path.resolve(__dirname, '..', '..', '..') + '/';
 
   before(async function () {

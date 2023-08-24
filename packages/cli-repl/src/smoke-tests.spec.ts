@@ -6,7 +6,7 @@ import {
 } from '../../../testing/integration-testing-hooks';
 
 describe('smoke tests', function () {
-  const testServer = startTestServer('shared');
+  const testServer = startTestServer('smoke', 'shared');
   let cryptLibrary: string;
 
   before(async function () {

@@ -5,7 +5,7 @@ import { TestShell } from './test-shell';
 import { startTestServer } from '../../../testing/integration-testing-hooks';
 
 describe('BSON e2e', function () {
-  const testServer = startTestServer('shared');
+  const testServer = startTestServer('e2e-bson', 'shared');
   let db;
   let client;
   let shell: TestShell;

@@ -761,7 +761,7 @@ describe('Field Level Encryption', function () {
   });
 
   describe('integration', function () {
-    const testServer = startTestServer('shared');
+    const testServer = startTestServer('fle', 'shared');
     let dbname: string;
     let uri: string;
     let serviceProvider;

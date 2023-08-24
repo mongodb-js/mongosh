@@ -169,7 +169,10 @@ describe('worker', function () {
     });
 
     describe('shell-api results', function () {
-      const testServer = startTestServer('shared');
+      const testServer = startTestServer(
+        'worker-runtime-shell-api-results',
+        'shared'
+      );
       const db = `test-db-${Date.now().toString(16)}`;
       let exposed: Exposed<unknown>;
 
@@ -462,7 +465,10 @@ describe('worker', function () {
   });
 
   describe('getShellPrompt', function () {
-    const testServer = startTestServer('shared');
+    const testServer = startTestServer(
+      'worker-runtime-getShellPrompt',
+      'shared'
+    );
 
     it('should return prompt when connected to the server', async function () {
       const { init, getShellPrompt } = caller;
@@ -476,7 +482,10 @@ describe('worker', function () {
   });
 
   describe('getCompletions', function () {
-    const testServer = startTestServer('shared');
+    const testServer = startTestServer(
+      'worker-runtime-getCompletions',
+      'shared'
+    );
 
     it('should return completions', async function () {
       const { init, getCompletions } = caller;
