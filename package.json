@@ -60,7 +60,8 @@
     "where": "monorepo-where",
     "reformat": "npm run reformat --workspaces --if-present",
     "prepare": "husky install",
-    "precommit": "precommit"
+    "precommit": "precommit",
+    "preinstall": "node scripts/sort-workspaces.js"
   },
   "config": {
     "unsafe-perm": true
@@ -123,31 +124,30 @@
     "yaml": "^1.10.0"
   },
   "workspaces": [
-    "configs/eslint-config-mongosh",
-    "configs/tsconfig-mongosh",
-    "packages/errors",
-    "packages/i18n",
-    "packages/arg-parser",
-    "packages/history",
-    "packages/service-provider-core",
-    "packages/types",
     "packages/async-rewriter2",
-    "packages/shell-api",
+    "packages/build",
+    "packages/errors",
+    "packages/history",
+    "packages/java-shell",
     "packages/js-multiline-to-singleline",
+    "packages/types",
+    "scripts/docker",
+    "packages/i18n",
+    "packages/logging",
+    "packages/service-provider-core",
+    "packages/arg-parser",
+    "packages/service-provider-server",
+    "packages/shell-api",
     "packages/autocomplete",
     "packages/shell-evaluator",
+    "packages/snippet-manager",
     "packages/browser-runtime-core",
     "packages/editor",
-    "packages/logging",
-    "packages/service-provider-server",
-    "packages/snippet-manager",
-    "packages/cli-repl",
     "packages/browser-runtime-electron",
-    "packages/node-runtime-worker-thread",
+    "packages/cli-repl",
     "packages/mongosh",
-    "packages/java-shell",
-    "packages/connectivity-tests",
-    "packages/build",
-    "packages/browser-repl"
+    "packages/node-runtime-worker-thread",
+    "packages/browser-repl",
+    "packages/connectivity-tests"
   ]
 }
