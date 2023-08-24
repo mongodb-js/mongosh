@@ -831,10 +831,6 @@ describe('e2e', function () {
       it('interrupts file execution', async function () {
         const filename = path.resolve(
           __dirname,
-          '..',
-          '..',
-          'cli-repl',
-          'test',
           'fixtures',
           'load',
           'long-sleep.js'
@@ -890,10 +886,6 @@ describe('e2e', function () {
       it('interrupts load()', async function () {
         const filename = path.resolve(
           __dirname,
-          '..',
-          '..',
-          'cli-repl',
-          'test',
           'fixtures',
           'load',
           'infinite-loop.js'
@@ -978,15 +970,7 @@ describe('e2e', function () {
 
     it('reads and runs the vscode extension example playground', async function () {
       createReadStream(
-        path.resolve(
-          __dirname,
-          '..',
-          '..',
-          'cli-repl',
-          'test',
-          'fixtures',
-          'exampleplayground.js'
-        )
+        path.resolve(__dirname, 'fixtures', 'exampleplayground.js')
       ).pipe(shell.process.stdin);
       await eventually(() => {
         shell.assertContainsOutput("{ _id: 'xyz', totalSaleAmount: 150 }");
@@ -1000,15 +984,7 @@ describe('e2e', function () {
       // This script doesn't work if evaluated as a whole, only when evaluated
       // line-by-line, due to Automatic Semicolon Insertion (ASI).
       createReadStream(
-        path.resolve(
-          __dirname,
-          '..',
-          '..',
-          'cli-repl',
-          'test',
-          'fixtures',
-          'asi-script.js'
-        )
+        path.resolve(__dirname, 'fixtures', 'asi-script.js')
       ).pipe(shell.process.stdin);
       await eventually(() => {
         shell.assertContainsOutput('admin;system.version;');
@@ -1021,26 +997,10 @@ describe('e2e', function () {
     beforeEach(async function () {
       shell = TestShell.start({
         args: ['--nodb'],
-        cwd: path.resolve(
-          __dirname,
-          '..',
-          '..',
-          'cli-repl',
-          'test',
-          'fixtures',
-          'require-base'
-        ),
+        cwd: path.resolve(__dirname, 'fixtures', 'require-base'),
         env: {
           ...process.env,
-          NODE_PATH: path.resolve(
-            __dirname,
-            '..',
-            '..',
-            'cli-repl',
-            'test',
-            'fixtures',
-            'node-path'
-          ),
+          NODE_PATH: path.resolve(__dirname, 'fixtures', 'node-path'),
         },
       });
       await shell.waitForPrompt();
