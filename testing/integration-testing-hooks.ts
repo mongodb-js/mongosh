@@ -202,36 +202,38 @@ export async function downloadCurrentCryptSharedLibrary(): Promise<string> {
  * @returns {MongodSetup} - Object with information about the started server.
  */
 let sharedSetup : MongodSetup | null = null;
-export function startTestServer(id: string, shareMode: 'shared' | 'not-shared', args: Partial<MongoClusterOptions> = {}): MongodSetup {
-  if (shareMode === 'shared' && process.env.MONGOSH_TEST_SERVER_URL) {
-    return new MongodSetup(process.env.MONGOSH_TEST_SERVER_URL);
-  }
-
-  let server : MongodSetup;
-  if (shareMode === 'shared') {
-    if (Object.keys(args).length > 0) {
-      throw new Error('Cannot specify arguments for shared mongod');
-    }
-    server = sharedSetup ?? (sharedSetup = new MongoRunnerSetup(id));
-  } else {
-    server = new MongoRunnerSetup(id, args);
-  }
-
+export function startTestServer(id: string, args: Partial<MongoClusterOptions> = {}): MongodSetup {
+  const server = new MongoRunnerSetup(id, args);
   before(async function() {
     this.timeout(120_000);  // Include potential mongod download time.
     await server.start();
   });
 
   after(async function() {
-    // Clean the shared server only up once we're done with everything.
-    if (shareMode !== 'shared') {
-      this.timeout(30_000);
-      await server.stop();
-    }
+    this.timeout(30_000);
+    await server.stop();
   });
 
   return server;
 }
+
+export function startSharedTestServer(): MongodSetup {
+  if (process.env.MONGOSH_TEST_SERVER_URL) {
+    return new MongodSetup(process.env.MONGOSH_TEST_SERVER_URL);
+  }
+
+  const server = sharedSetup ?? (sharedSetup = new MongoRunnerSetup('shared'));
+
+  before(async function() {
+    this.timeout(120_000);  // Include potential mongod download time.
+    await server.start();
+  });
+
+  // NOTE: no after hook here, cause the shared server is only
+  // cleaned up once we're done with everything.
+  return server;
+}
+
 
 global.after?.(async function() {
   if (sharedSetup !== null) {

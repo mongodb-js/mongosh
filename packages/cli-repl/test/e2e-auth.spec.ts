@@ -5,7 +5,7 @@ import { eventually } from '../../../testing/eventually';
 import { TestShell } from './test-shell';
 import {
   skipIfApiStrict,
-  startTestServer,
+  startSharedTestServer,
 } from '../../../testing/integration-testing-hooks';
 
 function createAssertUserExists(db, dbName): Function {
@@ -72,7 +72,7 @@ function createAssertUserAuth(db, connectionString, dbName): Function {
 describe('Auth e2e', function () {
   skipIfApiStrict(); // connectionStatus is unversioned.
 
-  const testServer = startTestServer('e2e-auth', 'shared');
+  const testServer = startSharedTestServer();
   let assertUserExists;
   let assertUserAuth;
   let assertRoleExists;

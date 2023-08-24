@@ -4,8 +4,8 @@ import { MongoClient } from 'mongodb';
 import { eventually } from '../../../testing/eventually';
 import { TestShell } from './test-shell';
 import {
-  startTestServer,
   skipIfServerVersion,
+  startSharedTestServer,
 } from '../../../testing/integration-testing-hooks';
 import { promises as fs, createReadStream } from 'fs';
 import { promisify } from 'util';
@@ -20,7 +20,7 @@ import type { AddressInfo } from 'net';
 const { EJSON } = bson;
 
 describe('e2e', function () {
-  const testServer = startTestServer('e2e-cli-repl', 'shared');
+  const testServer = startSharedTestServer();
 
   afterEach(TestShell.cleanup);
 

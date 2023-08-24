@@ -31,7 +31,7 @@ import { ClientEncryption, KeyVault } from './field-level-encryption';
 import Mongo from './mongo';
 import ShellInstanceState from './shell-instance-state';
 import { CliServiceProvider } from '../../service-provider-server';
-import { startTestServer } from '../../../testing/integration-testing-hooks';
+import { startSharedTestServer } from '../../../testing/integration-testing-hooks';
 import {
   makeFakeHTTPConnection,
   fakeAWSHandlers,
@@ -761,7 +761,7 @@ describe('Field Level Encryption', function () {
   });
 
   describe('integration', function () {
-    const testServer = startTestServer('fle', 'shared');
+    const testServer = startSharedTestServer();
     let dbname: string;
     let uri: string;
     let serviceProvider;

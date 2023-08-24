@@ -7,9 +7,9 @@ import type Database from './database';
 import type Collection from './collection';
 import type AggregationCursor from './aggregation-cursor';
 import {
-  startTestServer,
   skipIfServerVersion,
   skipIfApiStrict,
+  startSharedTestServer,
 } from '../../../testing/integration-testing-hooks';
 import { toShellResult, Topologies } from './index';
 import type { Document } from '@mongosh/service-provider-core';
@@ -26,7 +26,7 @@ const compileExpr = (templ, ...subs): any => {
 };
 
 describe('Shell API (integration)', function () {
-  const testServer = startTestServer('shell-api', 'shared');
+  const testServer = startSharedTestServer();
   this.timeout(60000);
   let serviceProvider: CliServiceProvider;
 
