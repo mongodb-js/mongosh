@@ -437,7 +437,7 @@ export default class ShellInstanceState {
   }
 
   async onInterruptExecution(): Promise<boolean> {
-    this.interrupted.set();
+    await this.interrupted.set();
     this.currentCursor = null;
 
     this.resumeMongosAfterInterrupt = await Promise.all(

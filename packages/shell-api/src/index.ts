@@ -33,6 +33,7 @@ import {
   TypeSignature,
 } from './decorators';
 import { Topologies, ServerVersions } from './enums';
+import { InterruptFlag } from './interruptor';
 
 export {
   AggregationCursor,
@@ -68,4 +69,5 @@ export {
   TypeSignature,
   OnLoadResult,
   ShellPlugin,
+  InterruptFlag,
 };

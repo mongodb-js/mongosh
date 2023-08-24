@@ -72,28 +72,21 @@ export class Streams extends ShellApiWithMongoClass {
     };
     const sp = this.getProcessor(name);
 
-    const stopAndDrop = () => {
-      sp.stop()
-        .then(() => sp.drop())
-        .catch(() => {
-          /* ignore */
-        });
-    };
-
-    try {
-      await sp._sampleFrom(cursorId);
-    } catch (err) {
-      // try to stop and drop the temp processor on error
-      // wait until execution resumed if its interrupted
-      const isInterrupted = err instanceof MongoshInterruptedError;
-      Promise.resolve(
-        isInterrupted ? this._instanceState.onResumeExecution() : 0
-      )
-        .then(stopAndDrop)
-        .catch(() => void 0);
-
-      throw err;
+    async function stopAndDrop() {
+      try {
+        await sp.stop();
+        await sp.drop();
+      } catch {
+        /* ignore */
+      }
     }
+
+    await this._instanceState.interrupted.withOverrideInterruptBehavior(
+      async () => {
+        await sp._sampleFrom(cursorId);
+      },
+      stopAndDrop
+    );
 
     // stop and drop the temp processor if reached the end of sample
     return stopAndDrop();
