@@ -184,19 +184,8 @@ export async function downloadCurrentCryptSharedLibrary(): Promise<string> {
 }
 
 /**
- * Starts a local server unless the `MONGOSH_TEST_SERVER_URL`
- * environment variable is set.
- *
- * It returns an object with information that can be used to connect to the
+ * Starts a local server and returns an object with information that can be used to connect to the
  * server.
- *
- * If env.MONGOSH_TEST_SERVER_URL is set it assumes a server
- * is already running on that uri and returns an object whose
- * .connectionString() method points to the contents of that environment
- * variable.
- *
- * If `shareMode` is `shared`, then no arguments may be passed. In that case,
- * this may re-use an existing test server managed by this process.
  *
  * @export
  * @returns {MongodSetup} - Object with information about the started server.
@@ -217,6 +206,18 @@ export function startTestServer(id: string, args: Partial<MongoClusterOptions> =
   return server;
 }
 
+
+/**
+ * Starts or reuse an existing shared local server managed by this process.
+ *
+ * If env.MONGOSH_TEST_SERVER_URL is set it assumes a server
+ * is already running on that uri and returns an object whose
+ * .connectionString() method points to the contents of that environment
+ * variable instead.
+ *
+ * @export
+ * @returns {MongodSetup} - Object with information about the started server.
+ */
 export function startSharedTestServer(): MongodSetup {
   if (process.env.MONGOSH_TEST_SERVER_URL) {
     return new MongodSetup(process.env.MONGOSH_TEST_SERVER_URL);
@@ -233,7 +234,6 @@ export function startSharedTestServer(): MongodSetup {
   // cleaned up once we're done with everything.
   return server;
 }
-
 
 global.after?.(async function() {
   if (sharedSetup !== null) {
