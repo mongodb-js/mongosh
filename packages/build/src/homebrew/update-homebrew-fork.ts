@@ -17,7 +17,7 @@ export async function updateHomebrewFork(
   params: UpdateHomebrewParameters
 ): Promise<string | undefined> {
   const branchName = `mongosh-${params.packageVersion}-${params.packageSha}`;
-  const formulaPath = 'Formula/mongosh.rb';
+  const formulaPath = 'Formula/m/mongosh.rb';
 
   const { content: currentContent, blobSha } =
     await params.homebrewCore.getFileContent(formulaPath, 'master');
