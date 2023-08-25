@@ -69,12 +69,12 @@ export function adaptAggregateOptions(options: any = {}): {
 }
 
 export function validateExplainableVerbosity(
-  verbosity: ExplainVerbosityLike
+  verbosity?: ExplainVerbosityLike
 ): ExplainVerbosityLike & string {
   // Legacy shell behavior.
   if (verbosity === true) {
     verbosity = 'allPlansExecution';
-  } else if (verbosity === false) {
+  } else if (verbosity === false || verbosity === undefined) {
     verbosity = 'queryPlanner';
   }
 

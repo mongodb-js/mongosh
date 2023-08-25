@@ -114,3 +114,15 @@ export function getDownloadCenterDistroDescription(
 
   throw new Error(`${variant} is not a valid build variant`);
 }
+
+export function getDownloadCenterPackageType(variant: PackageVariant): string {
+  for (const { packages } of RELEASE_PACKAGE_MATRIX) {
+    for (const pkg of packages) {
+      if (pkg.name === variant) {
+        return pkg.packageType;
+      }
+    }
+  }
+
+  throw new Error(`${variant} is not a valid build variant`);
+}
