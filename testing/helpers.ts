@@ -62,7 +62,7 @@ export function createRetriableMethod<T extends { [K in F]: (...args: any[]) => 
   const func = target[method];
 
   if (typeof func !== 'function') {
-    throw new Error(`${method.toString()} is not a method on replica set`);
+    throw new Error(`${method.toString()} is not a method`);
   }
 
   let timeout = 0;
