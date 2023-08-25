@@ -1,11 +1,14 @@
-export async function eventually(fn: Function, opts: { frequency?: number; timeout?: number } = {}): Promise<any> {
+export async function eventually(fn: Function, opts: { initialInterval?: number; timeout?: number, backoffFactor?: number } = {}): Promise<any> {
   const options = {
-    frequency: 100,
+    initialInterval: 100,
     timeout: 10000,
+    backoffFactor: 1, // no backoff
     ...opts
   };
 
-  let attempts = Math.round(options.timeout / options.frequency);
+  let attempts = calculateAttempts(options);
+  let currentInterval = options.initialInterval;
+
   let err;
 
   while (attempts) {
@@ -18,7 +21,9 @@ export async function eventually(fn: Function, opts: { frequency?: number; timeo
       err = e;
     }
 
-    await new Promise(resolve => setTimeout(resolve, options.frequency));
+    await new Promise(resolve => setTimeout(resolve, currentInterval));
+
+    currentInterval *= options.backoffFactor;
   }
 
   Object.assign(err, {
@@ -28,3 +33,17 @@ export async function eventually(fn: Function, opts: { frequency?: number; timeo
   });
   throw err;
 }
+
+function calculateAttempts(options: { initialInterval: number; timeout: number; backoffFactor: number; }): number {
+  let totalInterval = 0;
+  let attempts = 0;
+  let interval = options.initialInterval;
+
+  while (totalInterval + interval <= options.timeout) {
+    totalInterval += interval;
+    interval *= options.backoffFactor;
+    attempts++;
+  }
+  return attempts;
+}
+
