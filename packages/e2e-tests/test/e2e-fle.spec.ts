@@ -127,7 +127,7 @@ describe('FLE tests', function () {
                 }
               : {}),
           },
-          cwd: path.join(__dirname, 'fixtures'),
+          cwd: path.join(__dirname, '..', '..', 'cli-repl', 'test', 'fixtures'),
         });
 
         if (withEnvVarCredentials) {

@@ -1033,7 +1033,15 @@ describe('e2e', function () {
       it('loads a file from the command line as requested', async function () {
         const shell = TestShell.start({
           args: ['--nodb', './hello1.js'],
-          cwd: path.resolve(__dirname, 'fixtures', 'load'),
+          cwd: path.resolve(
+            __dirname,
+            '..',
+            '..',
+            'cli-repl',
+            'test',
+            'fixtures',
+            'load'
+          ),
         });
         await eventually(() => {
           shell.assertContainsOutput('hello one');
@@ -1049,7 +1057,15 @@ describe('e2e', function () {
       it('drops into shell if --shell is used', async function () {
         const shell = TestShell.start({
           args: ['--nodb', '--shell', './hello1.js'],
-          cwd: path.resolve(__dirname, 'fixtures', 'load'),
+          cwd: path.resolve(
+            __dirname,
+            '..',
+            '..',
+            'cli-repl',
+            'test',
+            'fixtures',
+            'load'
+          ),
         });
         await shell.waitForPrompt();
         shell.assertContainsOutput('hello one');
@@ -1060,7 +1076,15 @@ describe('e2e', function () {
       it('fails with the error if the loaded script throws', async function () {
         const shell = TestShell.start({
           args: ['--nodb', '--shell', './throw.js'],
-          cwd: path.resolve(__dirname, 'fixtures', 'load'),
+          cwd: path.resolve(
+            __dirname,
+            '..',
+            '..',
+            'cli-repl',
+            'test',
+            'fixtures',
+            'load'
+          ),
         });
         await eventually(() => {
           shell.assertContainsOutput('Error: uh oh');
@@ -1652,6 +1676,10 @@ describe('e2e', function () {
     it('runs Node.js scripts as they are when using MONGOSH_RUN_NODE_SCRIPT', async function () {
       const filename = path.resolve(
         __dirname,
+        '..',
+        '..',
+        'cli-repl',
+        'test',
         'fixtures',
         'simple-console-log.js'
       );
