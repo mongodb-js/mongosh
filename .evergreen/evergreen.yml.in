@@ -114,10 +114,8 @@ functions:
         shell: bash
         script: |
           export NODE_JS_VERSION=${node_js_version}
-          export NPM_DEPS_MODE=cli_build
           source .evergreen/install-node.sh
           source .evergreen/install-npm-deps.sh
-          npm run bootstrap-ci
           npm run compile
           tar cvzf compiled-ts.tgz packages/*/{lib,dist}
     - command: s3.put
@@ -140,7 +138,6 @@ functions:
         shell: bash
         script: |
           export NODE_JS_VERSION=${node_js_version}
-          export NPM_DEPS_MODE=${npm_deps_mode}
           source .evergreen/install-node.sh
           source .evergreen/install-npm-deps.sh
     - command: s3.get
@@ -738,7 +735,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_16) %>"
-          npm_deps_mode: all
       - func: check
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_16) %>"
@@ -752,7 +748,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_16) %>"
-          npm_deps_mode: cli_build
       - func: check_coverage
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_16) %>"
@@ -772,7 +767,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "<% out(nVersion) %>"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "<% out(mVersion || '') %>"
@@ -795,7 +789,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_16) %>"
-          npm_deps_mode: all
       - func: test_vscode
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_16) %>"
@@ -809,7 +802,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_16) %>"
-          npm_deps_mode: all
       - func: test_connectivity
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_16) %>"
@@ -823,7 +815,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_16) %>"
-          npm_deps_mode: cli_build
       - func: test_apistrict
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_16) %>"
@@ -838,7 +829,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_16) %>"
-          npm_deps_mode: cli_build
       - func: compile_artifact
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_16) %>"
@@ -852,7 +842,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_16) %>"
-          npm_deps_mode: cli_build
       - func: generate_license_and_vulnerability_report
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_16) %>"
@@ -874,7 +863,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_16) %>"
-          npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: <% out(executableOsId) %>
@@ -898,7 +886,6 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          npm_deps_mode: cli_build
           node_js_version: "<% out(NODE_JS_VERSION_16) %>"
       - func: package_and_upload_artifact
         vars:
@@ -939,7 +926,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_16) %>"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_16) %>"
@@ -978,7 +964,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_16) %>"
-          npm_deps_mode: all
       - func: release_draft
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_16) %>"
@@ -992,7 +977,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_16) %>"
-          npm_deps_mode: all
       - func: release_publish_dry_run
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_16) %>"
@@ -1008,7 +992,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_16) %>"
-          npm_deps_mode: all
       - func: release_publish
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_16) %>"

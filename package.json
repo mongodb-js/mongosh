@@ -8,11 +8,8 @@
   "homepage": "https://github.com/mongodb-js/mongosh",
   "author": "Compass Team <compass@mongodb.com>",
   "scripts": {
-    "prebootstrap-with-chromium": "npm install",
-    "bootstrap-with-chromium": "lerna bootstrap --concurrency=1",
-    "prebootstrap": "npm install",
-    "bootstrap": "cross-env PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 lerna bootstrap --concurrency=1",
-    "bootstrap-ci": "lerna bootstrap --ci",
+    "bootstrap-with-chromium": "npm install && npm run compile",
+    "bootstrap": "cross-env PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 npm install && npm run compile",
     "clean": "lerna clean -y && rm -Rf node_modules",
     "check": "lerna run check --since HEAD --exclude-dependents",
     "check-ci": "npm run check --workspaces --if-present",
@@ -29,7 +26,7 @@
     "test-connectivity": "npm run test-connectivity --workspaces --if-present",
     "replace-package": "node scripts/replace-package.js",
     "test-nodedriver": "bash .evergreen/test-node-driver.sh",
-    "compile": "lerna run compile",
+    "compile": "npm run compile --workspaces --if-present",
     "compile-cli": "lerna run compile --scope @mongosh/cli-repl --include-dependencies",
     "prestart-cli": "npm run compile-cli",
     "start-cli": "lerna exec npm start --scope @mongosh/cli-repl",
@@ -63,7 +60,8 @@
     "where": "monorepo-where",
     "reformat": "npm run reformat --workspaces --if-present",
     "prepare": "husky install",
-    "precommit": "precommit"
+    "precommit": "precommit",
+    "preinstall": "node scripts/sort-workspaces.js"
   },
   "config": {
     "unsafe-perm": true
@@ -126,8 +124,30 @@
     "yaml": "^1.10.0"
   },
   "workspaces": [
-    "configs/*",
-    "packages/*",
-    "scripts/docker"
+    "packages/async-rewriter2",
+    "packages/build",
+    "packages/errors",
+    "packages/history",
+    "packages/java-shell",
+    "packages/js-multiline-to-singleline",
+    "packages/types",
+    "scripts/docker",
+    "packages/i18n",
+    "packages/logging",
+    "packages/service-provider-core",
+    "packages/arg-parser",
+    "packages/service-provider-server",
+    "packages/shell-api",
+    "packages/autocomplete",
+    "packages/shell-evaluator",
+    "packages/snippet-manager",
+    "packages/browser-runtime-core",
+    "packages/editor",
+    "packages/browser-runtime-electron",
+    "packages/cli-repl",
+    "packages/mongosh",
+    "packages/node-runtime-worker-thread",
+    "packages/browser-repl",
+    "packages/connectivity-tests"
   ]
 }
