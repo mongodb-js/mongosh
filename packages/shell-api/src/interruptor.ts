@@ -95,7 +95,13 @@ export class InterruptFlag {
     this.interrupted = true;
     const err = new MongoshInterruptedError();
     for (const listener of [...this.onInterruptListeners]) {
-      await listener(err);
+      try {
+        await listener(err);
+      } catch {
+        // Not a lot we can do about an error in an interrupt listener.
+        // If the listener was added via `withOverrideInterruptBehavior()`,
+        // then that function also propagates the error back to the caller.
+      }
     }
   }
 
