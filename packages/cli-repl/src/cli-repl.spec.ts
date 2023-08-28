@@ -11,6 +11,7 @@ import { eventually } from '../../../testing/eventually';
 import type { MongodSetup } from '../../../testing/integration-testing-hooks';
 import {
   skipIfServerVersion,
+  startSharedTestServer,
   startTestServer,
 } from '../../../testing/integration-testing-hooks';
 import {
@@ -1014,7 +1015,7 @@ describe('CliRepl', function () {
   });
 
   context('with an actual server', function () {
-    const testServer = startTestServer('shared');
+    const testServer = startSharedTestServer();
 
     beforeEach(async function () {
       cliReplOptions.shellCliOptions.connectionSpecifier =
@@ -1972,7 +1973,7 @@ describe('CliRepl', function () {
 
   context('with a replset node', function () {
     verifyAutocompletion({
-      testServer: startTestServer('not-shared', {
+      testServer: startTestServer('cli-repl-autocompletion', {
         topology: 'replset',
         secondaries: 0,
       }),
@@ -1985,7 +1986,7 @@ describe('CliRepl', function () {
 
   context('with a mongos', function () {
     verifyAutocompletion({
-      testServer: startTestServer('not-shared', {
+      testServer: startTestServer('cli-repl-autocompletion', {
         topology: 'sharded',
         shards: 1,
         secondaries: 0,
@@ -1999,7 +2000,7 @@ describe('CliRepl', function () {
 
   context('with an auth-required mongod', function () {
     verifyAutocompletion({
-      testServer: startTestServer('not-shared', {
+      testServer: startTestServer('cli-repl-autocompletion-auth', {
         args: ['--auth'],
       }),
       wantWatch: false,

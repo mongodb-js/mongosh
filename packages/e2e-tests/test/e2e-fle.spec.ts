@@ -17,7 +17,7 @@ import path from 'path';
 import os from 'os';
 
 describe('FLE tests', function () {
-  const testServer = startTestServer('not-shared', {
+  const testServer = startTestServer('e2e-fle', {
     topology: 'replset',
     secondaries: 0,
   });

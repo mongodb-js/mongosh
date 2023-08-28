@@ -176,7 +176,7 @@ describe('Session', function () {
     });
   });
   describe('integration', function () {
-    const [srv0] = startTestCluster({ topology: 'replset' });
+    const [srv0] = startTestCluster('session', { topology: 'replset' });
     let serviceProvider: CliServiceProvider;
     let instanceState: ShellInstanceState;
     let mongo: Mongo;
