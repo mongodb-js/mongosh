@@ -40,7 +40,7 @@ import { inspect } from 'util';
 import Collection from './collection';
 import { dummyOptions } from './helpers.spec';
 
-const KEY_ID = new bson.Binary('MTIzNA==');
+const KEY_ID = bson.Binary.createFromBase64('MTIzNA==');
 const DB = 'encryption';
 const COLL = 'keys';
 const SCHEMA_MAP = {
@@ -626,7 +626,9 @@ describe('Field Level Encryption', function () {
         keyVaultNamespace: `${DB}.${COLL}`,
         kmsProviders: {
           local: {
-            key: new bson.Binary(Buffer.alloc(96).toString('base64')),
+            key: bson.Binary.createFromBase64(
+              Buffer.alloc(96).toString('base64')
+            ),
           },
         },
         schemaMap: SCHEMA_MAP,
@@ -652,7 +654,9 @@ describe('Field Level Encryption', function () {
         keyVaultNamespace: `${DB}.${COLL}`,
         kmsProviders: {
           local: {
-            key: new bson.Binary(Buffer.alloc(96).toString('base64')),
+            key: bson.Binary.createFromBase64(
+              Buffer.alloc(96).toString('base64')
+            ),
           },
         },
         schemaMap: SCHEMA_MAP,
@@ -674,7 +678,9 @@ describe('Field Level Encryption', function () {
         keyVaultNamespace: `${DB}.${COLL}`,
         kmsProviders: {
           local: {
-            key: new bson.Binary(Buffer.alloc(96).toString('base64')),
+            key: bson.Binary.createFromBase64(
+              Buffer.alloc(96).toString('base64')
+            ),
           },
         },
         schemaMap: SCHEMA_MAP,

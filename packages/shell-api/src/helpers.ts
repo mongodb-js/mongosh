@@ -892,7 +892,7 @@ export function processFLEOptions(
 
   const localKey = fleOptions.kmsProviders.local?.key;
   if (localKey && (localKey as BinaryType)._bsontype === 'Binary') {
-    const rawBuff = (localKey as BinaryType).value(true);
+    const rawBuff = (localKey as BinaryType).value();
     if (Buffer.isBuffer(rawBuff)) {
       autoEncryption.kmsProviders = {
         ...fleOptions.kmsProviders,

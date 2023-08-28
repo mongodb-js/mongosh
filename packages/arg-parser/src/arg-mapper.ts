@@ -218,7 +218,6 @@ const MAPPINGS: {
   tlsAllowInvalidHostnames: (i, v) =>
     setUrlParam(i, 'tlsAllowInvalidHostnames', v),
   tlsCAFile: (i, v) => setUrlParam(i, 'tlsCAFile', v),
-  // @ts-expect-error NODE-5566 in driver 6.0.0 GA
   tlsCRLFile: (i, v) => setUrlParam(i, 'tlsCRLFile', v),
   tlsCertificateKeyFile: (i, v) => setUrlParam(i, 'tlsCertificateKeyFile', v),
   tlsCertificateKeyFilePassword: (i, v) =>

@@ -519,7 +519,7 @@ describe('Shell BSON', function () {
     });
     it('generates a random UUID when no arguments are passed', function () {
       // https://en.wikipedia.org/wiki/Universally_unique_identifier#Format
-      expect(shellBson.UUID().value(true).toString('hex')).to.match(
+      expect(shellBson.UUID().value().toString('hex')).to.match(
         /^[a-z0-9]{12}4[a-z0-9]{3}[89ab][a-z0-9]{15}$/
       );
     });
