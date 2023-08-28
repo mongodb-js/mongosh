@@ -42,7 +42,7 @@ describe('inspect', function () {
 
     it('inspects UUID', function () {
       expect(
-        inspect(bson.Binary.createFromBase64('abcdefghiklmnopq', 4))
+        inspect(bson.Binary.createFromBase64('YWJjZGVmZ2hpa2xtbm9wcQ==', 4))
       ).to.equal('UUID("61626364-6566-6768-696b-6c6d6e6f7071")');
     });
 
@@ -54,7 +54,9 @@ describe('inspect', function () {
 
     it('inspects nested UUID', function () {
       expect(
-        inspect({ p: bson.Binary.createFromBase64('abcdefghiklmnopq', 4) })
+        inspect({
+          p: bson.Binary.createFromBase64('YWJjZGVmZ2hpa2xtbm9wcQ==', 4),
+        })
       ).to.equal('{ p: UUID("61626364-6566-6768-696b-6c6d6e6f7071") }');
     });
 

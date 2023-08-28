@@ -53,7 +53,6 @@
     "aws4": "^1.11.0",
     "mongodb": "^6.0.0-alpha.2",
     "mongodb-connection-string-url": "^2.6.0",
-    "saslprep": "npm:@mongodb-js/saslprep@^1.1.0",
     "socks": "^2.7.1"
   },
   "optionalDependencies": {
