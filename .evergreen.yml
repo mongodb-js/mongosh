@@ -74,11 +74,9 @@ functions:
         shell: bash
         script: |
           export NODE_JS_VERSION=${node_js_version}
-          export NPM_DEPS_MODE=cli_build
           export DISTRO_ID=${distro_id}
           source .evergreen/install-node.sh
           source .evergreen/install-npm-deps.sh
-          npm run bootstrap-ci
           npm run compile
           tar cvzf compiled-ts.tgz packages/*/{lib,dist}
     - command: s3.put
@@ -101,7 +99,6 @@ functions:
         shell: bash
         script: |
           export NODE_JS_VERSION=${node_js_version}
-          export NPM_DEPS_MODE=${npm_deps_mode}
           export DISTRO_ID=${distro_id}
           source .evergreen/install-node.sh
           source .evergreen/install-npm-deps.sh
@@ -668,6 +665,314 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-darwin_unit-mlatest_n16_cli_repl.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-darwin_unit-m42xc_n20_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m42xc_n20_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-darwin_unit-m42xc_n20_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-darwin_unit-m42xe_n20_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m42xe_n20_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-darwin_unit-m42xe_n20_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-darwin_unit-m44xc_n20_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m44xc_n20_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-darwin_unit-m44xc_n20_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-darwin_unit-m44xe_n20_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m44xe_n20_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-darwin_unit-m44xe_n20_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-darwin_unit-m50xc_n20_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m50xc_n20_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-darwin_unit-m50xc_n20_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-darwin_unit-m50xe_n20_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m50xe_n20_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-darwin_unit-m50xe_n20_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-darwin_unit-m60xc_n20_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m60xc_n20_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-darwin_unit-m60xc_n20_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-darwin_unit-m60xe_n20_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m60xe_n20_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-darwin_unit-m60xe_n20_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-darwin_unit-m70xc_n20_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m70xc_n20_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-darwin_unit-m70xc_n20_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-darwin_unit-m70xe_n20_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m70xe_n20_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-darwin_unit-m70xe_n20_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-darwin_unit-mlatest_n20_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-mlatest_n20_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-darwin_unit-mlatest_n20_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-darwin_unit-m42xc_n16_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m42xc_n16_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-darwin_unit-m42xc_n16_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-darwin_unit-m42xe_n16_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m42xe_n16_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-darwin_unit-m42xe_n16_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-darwin_unit-m44xc_n16_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m44xc_n16_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-darwin_unit-m44xc_n16_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-darwin_unit-m44xe_n16_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m44xe_n16_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-darwin_unit-m44xe_n16_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-darwin_unit-m50xc_n16_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m50xc_n16_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-darwin_unit-m50xc_n16_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-darwin_unit-m50xe_n16_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m50xe_n16_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-darwin_unit-m50xe_n16_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-darwin_unit-m60xc_n16_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m60xc_n16_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-darwin_unit-m60xc_n16_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-darwin_unit-m60xe_n16_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m60xe_n16_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-darwin_unit-m60xe_n16_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-darwin_unit-m70xc_n16_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m70xc_n16_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-darwin_unit-m70xc_n16_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-darwin_unit-m70xe_n16_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m70xe_n16_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-darwin_unit-m70xe_n16_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-darwin_unit-mlatest_n16_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-mlatest_n16_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-darwin_unit-mlatest_n16_e2e_tests.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -2348,6 +2653,314 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-linux_unit-mlatest_n16_cli_repl.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-linux_unit-m42xc_n20_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m42xc_n20_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-linux_unit-m42xc_n20_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-linux_unit-m42xe_n20_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m42xe_n20_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-linux_unit-m42xe_n20_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-linux_unit-m44xc_n20_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m44xc_n20_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-linux_unit-m44xc_n20_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-linux_unit-m44xe_n20_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m44xe_n20_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-linux_unit-m44xe_n20_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-linux_unit-m50xc_n20_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m50xc_n20_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-linux_unit-m50xc_n20_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-linux_unit-m50xe_n20_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m50xe_n20_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-linux_unit-m50xe_n20_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-linux_unit-m60xc_n20_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m60xc_n20_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-linux_unit-m60xc_n20_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-linux_unit-m60xe_n20_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m60xe_n20_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-linux_unit-m60xe_n20_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-linux_unit-m70xc_n20_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m70xc_n20_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-linux_unit-m70xc_n20_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-linux_unit-m70xe_n20_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m70xe_n20_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-linux_unit-m70xe_n20_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-linux_unit-mlatest_n20_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-mlatest_n20_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-linux_unit-mlatest_n20_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-linux_unit-m42xc_n16_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m42xc_n16_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-linux_unit-m42xc_n16_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-linux_unit-m42xe_n16_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m42xe_n16_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-linux_unit-m42xe_n16_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-linux_unit-m44xc_n16_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m44xc_n16_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-linux_unit-m44xc_n16_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-linux_unit-m44xe_n16_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m44xe_n16_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-linux_unit-m44xe_n16_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-linux_unit-m50xc_n16_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m50xc_n16_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-linux_unit-m50xc_n16_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-linux_unit-m50xe_n16_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m50xe_n16_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-linux_unit-m50xe_n16_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-linux_unit-m60xc_n16_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m60xc_n16_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-linux_unit-m60xc_n16_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-linux_unit-m60xe_n16_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m60xe_n16_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-linux_unit-m60xe_n16_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-linux_unit-m70xc_n16_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m70xc_n16_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-linux_unit-m70xc_n16_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-linux_unit-m70xe_n16_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m70xe_n16_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-linux_unit-m70xe_n16_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-linux_unit-mlatest_n16_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-mlatest_n16_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-linux_unit-mlatest_n16_e2e_tests.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -4340,6 +4953,314 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
+        local_file: src/nyc-output-win32_unit-m42xc_n20_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m42xc_n20_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-win32_unit-m42xc_n20_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-win32_unit-m42xe_n20_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m42xe_n20_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-win32_unit-m42xe_n20_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-win32_unit-m44xc_n20_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m44xc_n20_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-win32_unit-m44xc_n20_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-win32_unit-m44xe_n20_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m44xe_n20_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-win32_unit-m44xe_n20_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-win32_unit-m50xc_n20_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m50xc_n20_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-win32_unit-m50xc_n20_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-win32_unit-m50xe_n20_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m50xe_n20_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-win32_unit-m50xe_n20_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-win32_unit-m60xc_n20_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m60xc_n20_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-win32_unit-m60xc_n20_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-win32_unit-m60xe_n20_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m60xe_n20_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-win32_unit-m60xe_n20_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-win32_unit-m70xc_n20_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m70xc_n20_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-win32_unit-m70xc_n20_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-win32_unit-m70xe_n20_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m70xe_n20_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-win32_unit-m70xe_n20_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-win32_unit-mlatest_n20_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-mlatest_n20_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-win32_unit-mlatest_n20_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-win32_unit-m42xc_n16_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m42xc_n16_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-win32_unit-m42xc_n16_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-win32_unit-m42xe_n16_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m42xe_n16_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-win32_unit-m42xe_n16_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-win32_unit-m44xc_n16_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m44xc_n16_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-win32_unit-m44xc_n16_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-win32_unit-m44xe_n16_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m44xe_n16_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-win32_unit-m44xe_n16_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-win32_unit-m50xc_n16_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m50xc_n16_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-win32_unit-m50xc_n16_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-win32_unit-m50xe_n16_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m50xe_n16_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-win32_unit-m50xe_n16_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-win32_unit-m60xc_n16_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m60xc_n16_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-win32_unit-m60xc_n16_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-win32_unit-m60xe_n16_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m60xe_n16_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-win32_unit-m60xe_n16_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-win32_unit-m70xc_n16_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m70xc_n16_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-win32_unit-m70xc_n16_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-win32_unit-m70xe_n16_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m70xe_n16_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-win32_unit-m70xe_n16_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-win32_unit-mlatest_n16_e2e_tests.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-mlatest_n16_e2e_tests.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-win32_unit-mlatest_n16_e2e_tests.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
         local_file: src/nyc-output-win32_unit-n20_editor.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-n20_editor.tgz
         bucket: mciuploads
@@ -6066,7 +6987,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: check
         vars:
           node_js_version: "20.5.1"
@@ -6080,7 +7000,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: check_coverage
         vars:
           node_js_version: "20.5.1"
@@ -6099,7 +7018,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -6117,7 +7035,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -6135,7 +7052,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -6153,7 +7069,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -6171,7 +7086,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -6189,7 +7103,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -6207,7 +7120,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -6225,7 +7137,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -6243,7 +7154,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -6261,7 +7171,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -6279,7 +7188,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -6297,7 +7205,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -6315,7 +7222,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -6333,7 +7239,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -6351,7 +7256,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x-community"
@@ -6369,7 +7273,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x"
@@ -6387,7 +7290,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x-community"
@@ -6405,7 +7307,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x"
@@ -6423,7 +7324,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x-community"
@@ -6441,7 +7341,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x"
@@ -6459,7 +7358,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "6.0.x-community"
@@ -6477,7 +7375,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "6.0.x"
@@ -6495,7 +7392,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "7.0.x-community"
@@ -6513,7 +7409,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "7.0.x"
@@ -6531,7 +7426,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "latest-alpha-enterprise"
@@ -6549,7 +7443,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x-community"
@@ -6567,7 +7460,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x"
@@ -6585,7 +7477,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x-community"
@@ -6603,7 +7494,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x"
@@ -6621,7 +7511,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x-community"
@@ -6639,7 +7528,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x"
@@ -6657,7 +7545,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "6.0.x-community"
@@ -6675,7 +7562,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "6.0.x"
@@ -6693,7 +7579,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "7.0.x-community"
@@ -6711,7 +7596,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "7.0.x"
@@ -6729,7 +7613,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "latest-alpha-enterprise"
@@ -6747,7 +7630,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -6765,7 +7647,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -6773,6 +7654,380 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n16_connectivity_tests"
           mongosh_run_only_in_package: "connectivity-tests"
+  - name: test_m42xc_n20_e2e_tests
+    tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux_unit
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.5.1"
+      - func: test
+        vars:
+          mongosh_server_test_version: "4.2.x-community"
+          node_js_version: "20.5.1"
+          mongosh_skip_node_version_check: ""
+          mongosh_test_id: "m42xc_n20_e2e_tests"
+          mongosh_run_only_in_package: "e2e-tests"
+  - name: test_m42xe_n20_e2e_tests
+    tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux_unit
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.5.1"
+      - func: test
+        vars:
+          mongosh_server_test_version: "4.2.x"
+          node_js_version: "20.5.1"
+          mongosh_skip_node_version_check: ""
+          mongosh_test_id: "m42xe_n20_e2e_tests"
+          mongosh_run_only_in_package: "e2e-tests"
+  - name: test_m44xc_n20_e2e_tests
+    tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux_unit
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.5.1"
+      - func: test
+        vars:
+          mongosh_server_test_version: "4.4.x-community"
+          node_js_version: "20.5.1"
+          mongosh_skip_node_version_check: ""
+          mongosh_test_id: "m44xc_n20_e2e_tests"
+          mongosh_run_only_in_package: "e2e-tests"
+  - name: test_m44xe_n20_e2e_tests
+    tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux_unit
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.5.1"
+      - func: test
+        vars:
+          mongosh_server_test_version: "4.4.x"
+          node_js_version: "20.5.1"
+          mongosh_skip_node_version_check: ""
+          mongosh_test_id: "m44xe_n20_e2e_tests"
+          mongosh_run_only_in_package: "e2e-tests"
+  - name: test_m50xc_n20_e2e_tests
+    tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux_unit
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.5.1"
+      - func: test
+        vars:
+          mongosh_server_test_version: "5.0.x-community"
+          node_js_version: "20.5.1"
+          mongosh_skip_node_version_check: ""
+          mongosh_test_id: "m50xc_n20_e2e_tests"
+          mongosh_run_only_in_package: "e2e-tests"
+  - name: test_m50xe_n20_e2e_tests
+    tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux_unit
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.5.1"
+      - func: test
+        vars:
+          mongosh_server_test_version: "5.0.x"
+          node_js_version: "20.5.1"
+          mongosh_skip_node_version_check: ""
+          mongosh_test_id: "m50xe_n20_e2e_tests"
+          mongosh_run_only_in_package: "e2e-tests"
+  - name: test_m60xc_n20_e2e_tests
+    tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux_unit
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.5.1"
+      - func: test
+        vars:
+          mongosh_server_test_version: "6.0.x-community"
+          node_js_version: "20.5.1"
+          mongosh_skip_node_version_check: ""
+          mongosh_test_id: "m60xc_n20_e2e_tests"
+          mongosh_run_only_in_package: "e2e-tests"
+  - name: test_m60xe_n20_e2e_tests
+    tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux_unit
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.5.1"
+      - func: test
+        vars:
+          mongosh_server_test_version: "6.0.x"
+          node_js_version: "20.5.1"
+          mongosh_skip_node_version_check: ""
+          mongosh_test_id: "m60xe_n20_e2e_tests"
+          mongosh_run_only_in_package: "e2e-tests"
+  - name: test_m70xc_n20_e2e_tests
+    tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux_unit
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.5.1"
+      - func: test
+        vars:
+          mongosh_server_test_version: "7.0.x-community"
+          node_js_version: "20.5.1"
+          mongosh_skip_node_version_check: ""
+          mongosh_test_id: "m70xc_n20_e2e_tests"
+          mongosh_run_only_in_package: "e2e-tests"
+  - name: test_m70xe_n20_e2e_tests
+    tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux_unit
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.5.1"
+      - func: test
+        vars:
+          mongosh_server_test_version: "7.0.x"
+          node_js_version: "20.5.1"
+          mongosh_skip_node_version_check: ""
+          mongosh_test_id: "m70xe_n20_e2e_tests"
+          mongosh_run_only_in_package: "e2e-tests"
+  - name: test_mlatest_n20_e2e_tests
+    tags: ["unit-test","mlatest"]
+    depends_on:
+      - name: compile_ts
+        variant: linux_unit
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.5.1"
+      - func: test
+        vars:
+          mongosh_server_test_version: "latest-alpha-enterprise"
+          node_js_version: "20.5.1"
+          mongosh_skip_node_version_check: ""
+          mongosh_test_id: "mlatest_n20_e2e_tests"
+          mongosh_run_only_in_package: "e2e-tests"
+  - name: test_m42xc_n16_e2e_tests
+    tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux_unit
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "16.20.2"
+      - func: test
+        vars:
+          mongosh_server_test_version: "4.2.x-community"
+          node_js_version: "16.20.2"
+          mongosh_skip_node_version_check: ""
+          mongosh_test_id: "m42xc_n16_e2e_tests"
+          mongosh_run_only_in_package: "e2e-tests"
+  - name: test_m42xe_n16_e2e_tests
+    tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux_unit
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "16.20.2"
+      - func: test
+        vars:
+          mongosh_server_test_version: "4.2.x"
+          node_js_version: "16.20.2"
+          mongosh_skip_node_version_check: ""
+          mongosh_test_id: "m42xe_n16_e2e_tests"
+          mongosh_run_only_in_package: "e2e-tests"
+  - name: test_m44xc_n16_e2e_tests
+    tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux_unit
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "16.20.2"
+      - func: test
+        vars:
+          mongosh_server_test_version: "4.4.x-community"
+          node_js_version: "16.20.2"
+          mongosh_skip_node_version_check: ""
+          mongosh_test_id: "m44xc_n16_e2e_tests"
+          mongosh_run_only_in_package: "e2e-tests"
+  - name: test_m44xe_n16_e2e_tests
+    tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux_unit
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "16.20.2"
+      - func: test
+        vars:
+          mongosh_server_test_version: "4.4.x"
+          node_js_version: "16.20.2"
+          mongosh_skip_node_version_check: ""
+          mongosh_test_id: "m44xe_n16_e2e_tests"
+          mongosh_run_only_in_package: "e2e-tests"
+  - name: test_m50xc_n16_e2e_tests
+    tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux_unit
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "16.20.2"
+      - func: test
+        vars:
+          mongosh_server_test_version: "5.0.x-community"
+          node_js_version: "16.20.2"
+          mongosh_skip_node_version_check: ""
+          mongosh_test_id: "m50xc_n16_e2e_tests"
+          mongosh_run_only_in_package: "e2e-tests"
+  - name: test_m50xe_n16_e2e_tests
+    tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux_unit
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "16.20.2"
+      - func: test
+        vars:
+          mongosh_server_test_version: "5.0.x"
+          node_js_version: "16.20.2"
+          mongosh_skip_node_version_check: ""
+          mongosh_test_id: "m50xe_n16_e2e_tests"
+          mongosh_run_only_in_package: "e2e-tests"
+  - name: test_m60xc_n16_e2e_tests
+    tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux_unit
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "16.20.2"
+      - func: test
+        vars:
+          mongosh_server_test_version: "6.0.x-community"
+          node_js_version: "16.20.2"
+          mongosh_skip_node_version_check: ""
+          mongosh_test_id: "m60xc_n16_e2e_tests"
+          mongosh_run_only_in_package: "e2e-tests"
+  - name: test_m60xe_n16_e2e_tests
+    tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux_unit
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "16.20.2"
+      - func: test
+        vars:
+          mongosh_server_test_version: "6.0.x"
+          node_js_version: "16.20.2"
+          mongosh_skip_node_version_check: ""
+          mongosh_test_id: "m60xe_n16_e2e_tests"
+          mongosh_run_only_in_package: "e2e-tests"
+  - name: test_m70xc_n16_e2e_tests
+    tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux_unit
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "16.20.2"
+      - func: test
+        vars:
+          mongosh_server_test_version: "7.0.x-community"
+          node_js_version: "16.20.2"
+          mongosh_skip_node_version_check: ""
+          mongosh_test_id: "m70xc_n16_e2e_tests"
+          mongosh_run_only_in_package: "e2e-tests"
+  - name: test_m70xe_n16_e2e_tests
+    tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux_unit
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "16.20.2"
+      - func: test
+        vars:
+          mongosh_server_test_version: "7.0.x"
+          node_js_version: "16.20.2"
+          mongosh_skip_node_version_check: ""
+          mongosh_test_id: "m70xe_n16_e2e_tests"
+          mongosh_run_only_in_package: "e2e-tests"
+  - name: test_mlatest_n16_e2e_tests
+    tags: ["unit-test","mlatest"]
+    depends_on:
+      - name: compile_ts
+        variant: linux_unit
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "16.20.2"
+      - func: test
+        vars:
+          mongosh_server_test_version: "latest-alpha-enterprise"
+          node_js_version: "16.20.2"
+          mongosh_skip_node_version_check: ""
+          mongosh_test_id: "mlatest_n16_e2e_tests"
+          mongosh_run_only_in_package: "e2e-tests"
   - name: test_n20_editor
     tags: ["unit-test"]
     depends_on:
@@ -6783,7 +8038,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -6801,7 +8055,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -6819,7 +8072,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -6837,7 +8089,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -6855,7 +8106,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -6873,7 +8123,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -6891,7 +8140,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -6909,7 +8157,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -6927,7 +8174,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x-community"
@@ -6945,7 +8191,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x"
@@ -6963,7 +8208,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x-community"
@@ -6981,7 +8225,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x"
@@ -6999,7 +8242,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x-community"
@@ -7017,7 +8259,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x"
@@ -7035,7 +8276,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "6.0.x-community"
@@ -7053,7 +8293,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "6.0.x"
@@ -7071,7 +8310,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "7.0.x-community"
@@ -7089,7 +8327,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "7.0.x"
@@ -7107,7 +8344,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "latest-alpha-enterprise"
@@ -7125,7 +8361,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x-community"
@@ -7143,7 +8378,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x"
@@ -7161,7 +8395,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x-community"
@@ -7179,7 +8412,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x"
@@ -7197,7 +8429,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x-community"
@@ -7215,7 +8446,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x"
@@ -7233,7 +8463,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "6.0.x-community"
@@ -7251,7 +8480,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "6.0.x"
@@ -7269,7 +8497,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "7.0.x-community"
@@ -7287,7 +8514,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "7.0.x"
@@ -7305,7 +8531,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "latest-alpha-enterprise"
@@ -7323,7 +8548,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -7341,7 +8565,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -7359,7 +8582,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -7377,7 +8599,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -7395,7 +8616,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x-community"
@@ -7413,7 +8633,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x"
@@ -7431,7 +8650,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x-community"
@@ -7449,7 +8667,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x"
@@ -7467,7 +8684,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x-community"
@@ -7485,7 +8701,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x"
@@ -7503,7 +8718,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "6.0.x-community"
@@ -7521,7 +8735,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "6.0.x"
@@ -7539,7 +8752,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "7.0.x-community"
@@ -7557,7 +8769,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "7.0.x"
@@ -7575,7 +8786,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "latest-alpha-enterprise"
@@ -7593,7 +8803,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x-community"
@@ -7611,7 +8820,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x"
@@ -7629,7 +8837,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x-community"
@@ -7647,7 +8854,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x"
@@ -7665,7 +8871,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x-community"
@@ -7683,7 +8888,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x"
@@ -7701,7 +8905,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "6.0.x-community"
@@ -7719,7 +8922,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "6.0.x"
@@ -7737,7 +8939,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "7.0.x-community"
@@ -7755,7 +8956,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "7.0.x"
@@ -7773,7 +8973,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "latest-alpha-enterprise"
@@ -7791,7 +8990,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x-community"
@@ -7809,7 +9007,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x"
@@ -7827,7 +9024,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x-community"
@@ -7845,7 +9041,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x"
@@ -7863,7 +9058,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x-community"
@@ -7881,7 +9075,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x"
@@ -7899,7 +9092,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "6.0.x-community"
@@ -7917,7 +9109,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "6.0.x"
@@ -7935,7 +9126,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "7.0.x-community"
@@ -7953,7 +9143,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "7.0.x"
@@ -7971,7 +9160,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "latest-alpha-enterprise"
@@ -7989,7 +9177,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x-community"
@@ -8007,7 +9194,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x"
@@ -8025,7 +9211,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x-community"
@@ -8043,7 +9228,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x"
@@ -8061,7 +9245,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x-community"
@@ -8079,7 +9262,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x"
@@ -8097,7 +9279,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "6.0.x-community"
@@ -8115,7 +9296,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "6.0.x"
@@ -8133,7 +9313,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "7.0.x-community"
@@ -8151,7 +9330,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "7.0.x"
@@ -8169,7 +9347,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "latest-alpha-enterprise"
@@ -8187,7 +9364,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -8205,7 +9381,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -8223,7 +9398,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x-community"
@@ -8241,7 +9415,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x"
@@ -8259,7 +9432,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x-community"
@@ -8277,7 +9449,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x"
@@ -8295,7 +9466,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x-community"
@@ -8313,7 +9483,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x"
@@ -8331,7 +9500,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "6.0.x-community"
@@ -8349,7 +9517,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "6.0.x"
@@ -8367,7 +9534,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "7.0.x-community"
@@ -8385,7 +9551,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "7.0.x"
@@ -8403,7 +9568,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "latest-alpha-enterprise"
@@ -8421,7 +9585,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x-community"
@@ -8439,7 +9602,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x"
@@ -8457,7 +9619,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x-community"
@@ -8475,7 +9636,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x"
@@ -8493,7 +9653,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x-community"
@@ -8511,7 +9670,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x"
@@ -8529,7 +9687,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "6.0.x-community"
@@ -8547,7 +9704,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "6.0.x"
@@ -8565,7 +9721,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "7.0.x-community"
@@ -8583,7 +9738,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "7.0.x"
@@ -8601,7 +9755,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "latest-alpha-enterprise"
@@ -8619,7 +9772,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x-community"
@@ -8637,7 +9789,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x"
@@ -8655,7 +9806,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x-community"
@@ -8673,7 +9823,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x"
@@ -8691,7 +9840,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x-community"
@@ -8709,7 +9857,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x"
@@ -8727,7 +9874,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "6.0.x-community"
@@ -8745,7 +9891,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "6.0.x"
@@ -8763,7 +9908,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "7.0.x-community"
@@ -8781,7 +9925,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "7.0.x"
@@ -8799,7 +9942,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "latest-alpha-enterprise"
@@ -8817,7 +9959,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x-community"
@@ -8835,7 +9976,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.2.x"
@@ -8853,7 +9993,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x-community"
@@ -8871,7 +10010,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "4.4.x"
@@ -8889,7 +10027,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x-community"
@@ -8907,7 +10044,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "5.0.x"
@@ -8925,7 +10061,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "6.0.x-community"
@@ -8943,7 +10078,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "6.0.x"
@@ -8961,7 +10095,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "7.0.x-community"
@@ -8979,7 +10112,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "7.0.x"
@@ -8997,7 +10129,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: "latest-alpha-enterprise"
@@ -9015,7 +10146,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -9033,7 +10163,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -9051,7 +10180,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -9069,7 +10197,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -9087,7 +10214,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -9105,7 +10231,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "16.20.2"
-          npm_deps_mode: all
       - func: test
         vars:
           mongosh_server_test_version: ""
@@ -9127,7 +10252,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test_vscode
         vars:
           node_js_version: "20.5.1"
@@ -9141,7 +10265,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: test_connectivity
         vars:
           node_js_version: "20.5.1"
@@ -9155,7 +10278,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_apistrict
         vars:
           node_js_version: "20.5.1"
@@ -9170,7 +10292,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: compile_artifact
         vars:
           node_js_version: "20.5.1"
@@ -9184,7 +10305,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: generate_license_and_vulnerability_report
         vars:
           node_js_version: "20.5.1"
@@ -9202,7 +10322,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: darwin-x64
@@ -9222,7 +10341,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: darwin-x64
@@ -9242,7 +10360,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: darwin-x64
@@ -9262,7 +10379,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: darwin-x64
@@ -9282,7 +10398,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: darwin-arm64
@@ -9302,7 +10417,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: darwin-arm64
@@ -9322,7 +10436,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: darwin-arm64
@@ -9342,7 +10455,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: darwin-arm64
@@ -9362,7 +10474,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64
@@ -9382,7 +10493,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64
@@ -9402,7 +10512,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64
@@ -9422,7 +10531,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64
@@ -9442,7 +10550,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64-openssl11
@@ -9462,7 +10569,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64-openssl11
@@ -9482,7 +10588,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64-openssl11
@@ -9502,7 +10607,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64-openssl11
@@ -9522,7 +10626,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64-openssl3
@@ -9542,7 +10645,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64-openssl3
@@ -9562,7 +10664,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64-openssl3
@@ -9582,7 +10683,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64-openssl3
@@ -9602,7 +10702,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64
@@ -9622,7 +10721,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64
@@ -9642,7 +10740,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64
@@ -9662,7 +10759,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64
@@ -9682,7 +10778,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64-openssl11
@@ -9702,7 +10797,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64-openssl11
@@ -9722,7 +10816,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64-openssl11
@@ -9742,7 +10835,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64-openssl11
@@ -9762,7 +10854,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64-openssl3
@@ -9782,7 +10873,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64-openssl3
@@ -9802,7 +10892,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64-openssl3
@@ -9822,7 +10911,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64-openssl3
@@ -9842,7 +10930,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-ppc64le
@@ -9862,7 +10949,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-ppc64le
@@ -9882,7 +10968,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-ppc64le
@@ -9902,7 +10987,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-ppc64le
@@ -9922,7 +11006,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-s390x
@@ -9942,7 +11025,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-s390x
@@ -9962,7 +11044,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-s390x
@@ -9982,7 +11063,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-s390x
@@ -10002,7 +11082,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: win32
@@ -10022,7 +11101,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: win32
@@ -10042,7 +11120,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: win32
@@ -10062,7 +11139,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: download_compiled_artifact
         vars:
           executable_os_id: win32
@@ -10084,7 +11160,6 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          npm_deps_mode: cli_build
           node_js_version: "20.5.1"
       - func: package_and_upload_artifact
         vars:
@@ -10099,7 +11174,6 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          npm_deps_mode: cli_build
           node_js_version: "20.5.1"
       - func: package_and_upload_artifact
         vars:
@@ -10114,7 +11188,6 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          npm_deps_mode: cli_build
           node_js_version: "20.5.1"
       - func: package_and_upload_artifact
         vars:
@@ -10129,7 +11202,6 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          npm_deps_mode: cli_build
           node_js_version: "20.5.1"
       - func: package_and_upload_artifact
         vars:
@@ -10144,7 +11216,6 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          npm_deps_mode: cli_build
           node_js_version: "20.5.1"
       - func: package_and_upload_artifact
         vars:
@@ -10159,7 +11230,6 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          npm_deps_mode: cli_build
           node_js_version: "20.5.1"
       - func: package_and_upload_artifact
         vars:
@@ -10174,7 +11244,6 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          npm_deps_mode: cli_build
           node_js_version: "20.5.1"
       - func: package_and_upload_artifact
         vars:
@@ -10189,7 +11258,6 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          npm_deps_mode: cli_build
           node_js_version: "20.5.1"
       - func: package_and_upload_artifact
         vars:
@@ -10204,7 +11272,6 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          npm_deps_mode: cli_build
           node_js_version: "20.5.1"
       - func: package_and_upload_artifact
         vars:
@@ -10219,7 +11286,6 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          npm_deps_mode: cli_build
           node_js_version: "20.5.1"
       - func: package_and_upload_artifact
         vars:
@@ -10234,7 +11300,6 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          npm_deps_mode: cli_build
           node_js_version: "20.5.1"
       - func: package_and_upload_artifact
         vars:
@@ -10249,7 +11314,6 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          npm_deps_mode: cli_build
           node_js_version: "20.5.1"
       - func: package_and_upload_artifact
         vars:
@@ -10264,7 +11328,6 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          npm_deps_mode: cli_build
           node_js_version: "20.5.1"
       - func: package_and_upload_artifact
         vars:
@@ -10279,7 +11342,6 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          npm_deps_mode: cli_build
           node_js_version: "20.5.1"
       - func: package_and_upload_artifact
         vars:
@@ -10294,7 +11356,6 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          npm_deps_mode: cli_build
           node_js_version: "20.5.1"
       - func: package_and_upload_artifact
         vars:
@@ -10309,7 +11370,6 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          npm_deps_mode: cli_build
           node_js_version: "20.5.1"
       - func: package_and_upload_artifact
         vars:
@@ -10324,7 +11384,6 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          npm_deps_mode: cli_build
           node_js_version: "20.5.1"
       - func: package_and_upload_artifact
         vars:
@@ -10339,7 +11398,6 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          npm_deps_mode: cli_build
           node_js_version: "20.5.1"
       - func: package_and_upload_artifact
         vars:
@@ -10354,7 +11412,6 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          npm_deps_mode: cli_build
           node_js_version: "20.5.1"
       - func: package_and_upload_artifact
         vars:
@@ -10369,7 +11426,6 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          npm_deps_mode: cli_build
           node_js_version: "20.5.1"
       - func: package_and_upload_artifact
         vars:
@@ -10384,7 +11440,6 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          npm_deps_mode: cli_build
           node_js_version: "20.5.1"
       - func: package_and_upload_artifact
         vars:
@@ -10399,7 +11454,6 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          npm_deps_mode: cli_build
           node_js_version: "20.5.1"
       - func: package_and_upload_artifact
         vars:
@@ -10414,7 +11468,6 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          npm_deps_mode: cli_build
           node_js_version: "20.5.1"
       - func: package_and_upload_artifact
         vars:
@@ -10429,7 +11482,6 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          npm_deps_mode: cli_build
           node_js_version: "20.5.1"
       - func: package_and_upload_artifact
         vars:
@@ -10444,7 +11496,6 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          npm_deps_mode: cli_build
           node_js_version: "20.5.1"
       - func: package_and_upload_artifact
         vars:
@@ -10459,7 +11510,6 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          npm_deps_mode: cli_build
           node_js_version: "20.5.1"
       - func: package_and_upload_artifact
         vars:
@@ -10508,7 +11558,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -10527,7 +11576,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -10546,7 +11594,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -10565,7 +11612,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -10584,7 +11630,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -10603,7 +11648,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -10622,7 +11666,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -10641,7 +11684,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -10660,7 +11702,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -10679,7 +11720,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -10698,7 +11738,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -10717,7 +11756,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -10736,7 +11774,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -10755,7 +11792,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -10774,7 +11810,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -10793,7 +11828,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -10812,7 +11846,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -10831,7 +11864,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -10850,7 +11882,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -10869,7 +11900,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -10888,7 +11918,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -10907,7 +11936,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -10926,7 +11954,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -10945,7 +11972,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -10964,7 +11990,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -10983,7 +12008,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -11002,7 +12026,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -11021,7 +12044,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -11040,7 +12062,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -11059,7 +12080,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -11078,7 +12098,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -11097,7 +12116,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -11116,7 +12134,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -11135,7 +12152,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -11154,7 +12170,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -11173,7 +12188,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -11192,7 +12206,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -11211,7 +12224,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -11230,7 +12242,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -11249,7 +12260,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -11268,7 +12278,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -11287,7 +12296,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -11306,7 +12314,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -11325,7 +12332,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -11344,7 +12350,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -11363,7 +12368,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -11382,7 +12386,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -11401,7 +12404,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -11420,7 +12422,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -11439,7 +12440,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -11458,7 +12458,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -11477,7 +12476,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -11496,7 +12494,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -11515,7 +12512,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -11534,7 +12530,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -11553,7 +12548,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -11572,7 +12566,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: cli_build
       - func: test_artifact_docker
         vars:
           node_js_version: "20.5.1"
@@ -11661,7 +12654,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: release_draft
         vars:
           node_js_version: "20.5.1"
@@ -11675,7 +12667,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: release_publish_dry_run
         vars:
           node_js_version: "20.5.1"
@@ -11691,7 +12682,6 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.5.1"
-          npm_deps_mode: all
       - func: release_publish
         vars:
           node_js_version: "20.5.1"
@@ -11741,6 +12731,28 @@ buildvariants:
       - name: test_m70xc_n16_cli_repl
       - name: test_m70xe_n16_cli_repl
       - name: test_mlatest_n16_cli_repl
+      - name: test_m42xc_n20_e2e_tests
+      - name: test_m42xe_n20_e2e_tests
+      - name: test_m44xc_n20_e2e_tests
+      - name: test_m44xe_n20_e2e_tests
+      - name: test_m50xc_n20_e2e_tests
+      - name: test_m50xe_n20_e2e_tests
+      - name: test_m60xc_n20_e2e_tests
+      - name: test_m60xe_n20_e2e_tests
+      - name: test_m70xc_n20_e2e_tests
+      - name: test_m70xe_n20_e2e_tests
+      - name: test_mlatest_n20_e2e_tests
+      - name: test_m42xc_n16_e2e_tests
+      - name: test_m42xe_n16_e2e_tests
+      - name: test_m44xc_n16_e2e_tests
+      - name: test_m44xe_n16_e2e_tests
+      - name: test_m50xc_n16_e2e_tests
+      - name: test_m50xe_n16_e2e_tests
+      - name: test_m60xc_n16_e2e_tests
+      - name: test_m60xe_n16_e2e_tests
+      - name: test_m70xc_n16_e2e_tests
+      - name: test_m70xe_n16_e2e_tests
+      - name: test_mlatest_n16_e2e_tests
       - name: test_n20_editor
       - name: test_n16_editor
       - name: test_n20_errors
@@ -11892,6 +12904,28 @@ buildvariants:
       - name: test_m70xc_n16_cli_repl
       - name: test_m70xe_n16_cli_repl
       - name: test_mlatest_n16_cli_repl
+      - name: test_m42xc_n20_e2e_tests
+      - name: test_m42xe_n20_e2e_tests
+      - name: test_m44xc_n20_e2e_tests
+      - name: test_m44xe_n20_e2e_tests
+      - name: test_m50xc_n20_e2e_tests
+      - name: test_m50xe_n20_e2e_tests
+      - name: test_m60xc_n20_e2e_tests
+      - name: test_m60xe_n20_e2e_tests
+      - name: test_m70xc_n20_e2e_tests
+      - name: test_m70xe_n20_e2e_tests
+      - name: test_mlatest_n20_e2e_tests
+      - name: test_m42xc_n16_e2e_tests
+      - name: test_m42xe_n16_e2e_tests
+      - name: test_m44xc_n16_e2e_tests
+      - name: test_m44xe_n16_e2e_tests
+      - name: test_m50xc_n16_e2e_tests
+      - name: test_m50xe_n16_e2e_tests
+      - name: test_m60xc_n16_e2e_tests
+      - name: test_m60xe_n16_e2e_tests
+      - name: test_m70xc_n16_e2e_tests
+      - name: test_m70xe_n16_e2e_tests
+      - name: test_mlatest_n16_e2e_tests
       - name: test_n20_editor
       - name: test_n16_editor
       - name: test_n20_errors
@@ -12304,6 +13338,28 @@ buildvariants:
       - name: test_m70xc_n16_cli_repl
       - name: test_m70xe_n16_cli_repl
       - name: test_mlatest_n16_cli_repl
+      - name: test_m42xc_n20_e2e_tests
+      - name: test_m42xe_n20_e2e_tests
+      - name: test_m44xc_n20_e2e_tests
+      - name: test_m44xe_n20_e2e_tests
+      - name: test_m50xc_n20_e2e_tests
+      - name: test_m50xe_n20_e2e_tests
+      - name: test_m60xc_n20_e2e_tests
+      - name: test_m60xe_n20_e2e_tests
+      - name: test_m70xc_n20_e2e_tests
+      - name: test_m70xe_n20_e2e_tests
+      - name: test_mlatest_n20_e2e_tests
+      - name: test_m42xc_n16_e2e_tests
+      - name: test_m42xe_n16_e2e_tests
+      - name: test_m44xc_n16_e2e_tests
+      - name: test_m44xe_n16_e2e_tests
+      - name: test_m50xc_n16_e2e_tests
+      - name: test_m50xe_n16_e2e_tests
+      - name: test_m60xc_n16_e2e_tests
+      - name: test_m60xe_n16_e2e_tests
+      - name: test_m70xc_n16_e2e_tests
+      - name: test_m70xe_n16_e2e_tests
+      - name: test_mlatest_n16_e2e_tests
       - name: test_n20_editor
       - name: test_n16_editor
       - name: test_n20_errors

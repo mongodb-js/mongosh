@@ -7,7 +7,7 @@ export async function generateUpdatedFormula(
   isDryRun: boolean
 ): Promise<string | null> {
   const currentFormula = await homebrewCore.getFileContent(
-    'Formula/mongosh.rb',
+    'Formula/m/mongosh.rb',
     'master'
   );
 

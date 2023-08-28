@@ -1,0 +1,52 @@
+{
+  "name": "@mongosh/e2e-tests",
+  "version": "0.0.0-dev.0",
+  "description": "MongoDB Shell E2E Tests Package",
+  "homepage": "https://github.com/mongodb-js/mongosh",
+  "author": "Compass Team <compass@mongodb.com>",
+  "manufacturer": "MongoDB Inc.",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mongodb-js/mongosh.git"
+  },
+  "scripts": {
+    "test": "exit 0",
+    "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
+    "test-e2e": "cross-env TS_NODE_PROJECT=../../configs/tsconfig-mongosh/tsconfig.test.json mocha -r \"../../scripts/import-expansions.js\" --timeout 15000 --colors -r ts-node/register \"./test/e2e*.spec.ts\"",
+    "test-e2e-ci": "cross-env TS_NODE_PROJECT=../../configs/tsconfig-mongosh/tsconfig.test.json mocha -r \"../../scripts/import-expansions.js\" --timeout 15000 --colors -r ts-node/register \"./test/e2e*.spec.ts\"",
+    "eslint": "eslint",
+    "lint": "npm run eslint . && npm run prettier -- --check .",
+    "check": "npm run lint && npm run depcheck",
+    "depcheck": "depcheck",
+    "prepublish": "npm run compile",
+    "prettier": "prettier",
+    "reformat": "npm run prettier -- --write . && npm run eslint --fix"
+  },
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=16.15.0"
+  },
+  "dependencies": {
+    "@mongosh/cli-repl": "0.0.0-dev.0",
+    "@mongosh/service-provider-core": "0.0.0-dev.0",
+    "strip-ansi": "^6.0.0"
+  },
+  "devDependencies": {
+    "@mongodb-js/eslint-config-mongosh": "^1.0.0",
+    "@mongodb-js/oidc-mock-provider": "^0.3.0",
+    "@mongodb-js/prettier-config-devtools": "^1.0.1",
+    "@mongodb-js/tsconfig-mongosh": "^1.0.0",
+    "@types/chai-as-promised": "^7.1.3",
+    "@types/node": "^14.14.6",
+    "@types/rimraf": "^3.0.0",
+    "chai-as-promised": "^7.1.1",
+    "depcheck": "^1.4.3",
+    "eslint": "^7.25.0",
+    "lodash": "^4.17.21",
+    "moment": "^2.29.1",
+    "mongodb": "^5.7.0",
+    "node-fetch": "^2.6.1",
+    "prettier": "^2.8.8",
+    "rimraf": "^3.0.2"
+  }
+}
