@@ -36,7 +36,7 @@ jobs:
 
       - name: Install Dependencies and Compile
         run: |
-          npm ci
+          npm ci --legacy-peer-deps
           npm run compile
 
       - name: Update THIRD_PARTY_NOTICES.md
