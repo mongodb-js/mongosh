@@ -3,10 +3,7 @@ import {
   validateConfigSchema,
 } from '@mongodb-js/dl-center';
 import { major as majorVersion } from 'semver';
-import type {
-  DownloadCenterConfig,
-  PlatformWithPackages,
-} from '@mongodb-js/dl-center/dist/download-center-config';
+import type { DownloadCenterConfig } from '@mongodb-js/dl-center/dist/download-center-config';
 import {
   ARTIFACTS_BUCKET,
   ARTIFACTS_FOLDER,
@@ -22,7 +19,6 @@ import {
   getDistro,
   getServerLikeArchName,
   getServerLikeTargetList,
-  getDownloadCenterPackageType,
 } from '../config';
 import type { PackageInformationProvider } from '../packaging';
 import { getPackageFile } from '../packaging';
@@ -170,31 +166,18 @@ export function createVersionConfig(
   publicArtifactBaseUrl: string = ARTIFACTS_URL_PUBLIC_BASE
 ) {
   const { version } = packageInformation('linux-x64').metadata;
-  const platformMap: Map<string, PlatformWithPackages> = new Map();
-
-  for (const packageVariant of ALL_PACKAGE_VARIANTS) {
-    const platformName = getDownloadCenterDistroDescription(packageVariant);
-    const currentPlatform = platformMap.get(platformName) || {
-      arch: getArch(packageVariant),
-      os: getDownloadCenterDistroDescription(packageVariant),
-      packages: { links: [] },
-    };
-
-    currentPlatform.packages.links.push({
-      name: getDownloadCenterPackageType(packageVariant),
-      download_link:
-        publicArtifactBaseUrl +
-        getPackageFile(packageVariant, packageInformation).path,
-    });
-
-    platformMap.set(platformName, currentPlatform);
-  }
-
   return {
     _id: version,
     version: version,
-    platform: [...platformMap.values()],
-  };
+    platform: ALL_PACKAGE_VARIANTS.map((packageVariant: PackageVariant) => ({
+      arch: getArch(packageVariant),
+      os: getDistro(packageVariant),
+      name: getDownloadCenterDistroDescription(packageVariant),
+      download_link:
+        publicArtifactBaseUrl +
+        getPackageFile(packageVariant, packageInformation).path,
+    })),
+  } as const;
 }
 
 interface JsonFeed {

@@ -67,7 +67,10 @@ export class TestShell {
 
       shellProcess = spawn(
         'node',
-        [path.resolve(__dirname, '..', 'bin', 'mongosh.js'), ...args],
+        [
+          path.resolve(__dirname, '..', '..', 'cli-repl', 'bin', 'mongosh.js'),
+          ...args,
+        ],
         {
           stdio: ['pipe', 'pipe', 'pipe'],
           env: env,
