@@ -5,7 +5,7 @@ import { PassThrough } from 'stream';
 import Nanobus from 'nanobus';
 import path from 'path';
 import { promises as fs } from 'fs';
-import sinon from 'ts-sinon';
+import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 
 import type { EditorOptions } from './editor';

@@ -1,5 +1,8 @@
 import { CommonErrors } from '@mongosh/errors';
-import type { ServiceProvider } from '@mongosh/service-provider-core';
+import type {
+  ServiceProvider,
+  BulkWriteResult as SPBulkWriteResult,
+} from '@mongosh/service-provider-core';
 import { bson } from '@mongosh/service-provider-core';
 import { fail } from 'assert';
 import chai, { expect } from 'chai';
@@ -82,14 +85,14 @@ describe('Bulk API', function () {
           let innerStub: StubbedInstance<any>;
           const bulkWriteResult = {
             ok: 1,
-            nInserted: 1,
+            insertedCount: 1,
             insertedIds: { 0: new bson.ObjectId() },
-            nMatched: 0,
-            nModified: 0,
-            nRemoved: 0,
-            nUpserted: 0,
-            upserted: [],
-          };
+            matchedCount: 0,
+            modifiedCount: 0,
+            deletedCount: 0,
+            upsertedCount: 0,
+            upsertedIds: { 0: new bson.ObjectId() },
+          } satisfies Partial<SPBulkWriteResult>;
           beforeEach(function () {
             bus = stubInterface<EventEmitter>();
             serviceProvider = stubInterface<ServiceProvider>();
@@ -160,12 +163,12 @@ describe('Bulk API', function () {
           });
           describe('execute', function () {
             it('calls innerBulk.execute', async function () {
-              innerStub.execute.returns({ result: bulkWriteResult });
+              innerStub.execute.returns(bulkWriteResult);
               await bulk.execute();
               expect(innerStub.execute).to.have.been.calledWith();
             });
             it('returns new BulkWriteResult', async function () {
-              innerStub.execute.returns({ result: bulkWriteResult });
+              innerStub.execute.returns(bulkWriteResult);
               const res = await bulk.execute();
               expect((await toShellResult(res)).type).to.equal(
                 'BulkWriteResult'
@@ -173,13 +176,13 @@ describe('Bulk API', function () {
               expect(res).to.deep.equal(
                 new BulkWriteResult(
                   !!bulkWriteResult.ok, // acknowledged
-                  bulkWriteResult.nInserted,
+                  bulkWriteResult.insertedCount,
                   bulkWriteResult.insertedIds,
-                  bulkWriteResult.nMatched,
-                  bulkWriteResult.nModified,
-                  bulkWriteResult.nRemoved,
-                  bulkWriteResult.nUpserted,
-                  bulkWriteResult.upserted
+                  bulkWriteResult.matchedCount,
+                  bulkWriteResult.modifiedCount,
+                  bulkWriteResult.deletedCount,
+                  bulkWriteResult.upsertedCount,
+                  bulkWriteResult.upsertedIds
                 )
               );
               expect(bulk._executed).to.equal(true);

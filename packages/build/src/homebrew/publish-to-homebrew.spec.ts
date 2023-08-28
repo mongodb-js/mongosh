@@ -1,5 +1,5 @@
 import chai, { expect } from 'chai';
-import sinon from 'ts-sinon';
+import sinon from 'sinon';
 import type { GithubRepo } from '@mongodb-js/devtools-github-repo';
 import { publishToHomebrew } from './publish-to-homebrew';
 

@@ -1,5 +1,5 @@
 import chai, { expect } from 'chai';
-import sinon from 'ts-sinon';
+import sinon from 'sinon';
 import type { Config } from './config';
 import { ALL_PACKAGE_VARIANTS } from './config';
 import type { uploadArtifactToDownloadCenter as uploadArtifactToDownloadCenterFn } from './download-center';

@@ -58,18 +58,6 @@ repos:
 #
 ####################
 
-  - name: debian92
-    type: deb
-    code_name: "stretch"
-    bucket: repo.mongodb.org
-    edition: org
-    component: main
-    architectures:
-      - amd64
-      - arm64
-    repos:
-      - apt/debian/dists/stretch/mongodb-org
-
   - name: debian10
     type: deb
     code_name: "buster"
@@ -230,18 +218,6 @@ repos:
 # Enterprise Repos:
 #
 ####################
-
-  - name: debian92
-    type: deb
-    code_name: "stretch"
-    bucket: repo.mongodb.com
-    edition: enterprise
-    component: main
-    architectures:
-      - amd64
-      - arm64
-    repos:
-      - apt/debian/dists/stretch/mongodb-enterprise
 
   - name: debian10
     type: deb

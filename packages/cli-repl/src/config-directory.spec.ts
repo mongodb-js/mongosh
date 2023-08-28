@@ -2,7 +2,7 @@ import { ConfigManager, ShellHomeDirectory } from './config-directory';
 import path from 'path';
 import { promises as fs } from 'fs';
 import chai, { expect } from 'chai';
-import sinon from 'ts-sinon';
+import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import { bson } from '@mongosh/service-provider-core';
 const { EJSON } = bson;

@@ -1,4 +1,4 @@
-import sinon from 'ts-sinon';
+import sinon from 'sinon';
 import Help from './help';
 import { toShellResult } from './index';
 import { expect } from 'chai';
