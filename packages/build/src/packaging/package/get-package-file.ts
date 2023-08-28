@@ -12,48 +12,23 @@ export interface PackageFile {
   contentType: string;
 }
 
-type PackageFileExtension = 'dmg' | 'tgz' | 'deb' | 'rpm' | 'zip' | 'msi';
-
-export function getFileExtension(
-  packageVariant: PackageVariant
-): PackageFileExtension {
-  switch (getDistro(packageVariant)) {
-    case 'linux':
-      return 'tgz';
-    case 'rpm':
-      return 'rpm';
-    case 'deb':
-      return 'deb';
-    case 'darwin':
-    case 'win32':
-      return 'zip';
-    case 'win32msi':
-      return 'msi';
-    default:
-      throw new Error(`Unknown build variant: ${packageVariant}`);
-  }
-}
-
 export function getPackageFile(
   packageVariant: PackageVariant,
   packageInformation: PackageInformationProvider
 ): PackageFile {
   const { version, name, debName, rpmName } =
     packageInformation(packageVariant).metadata;
-
-  const fileExtension = getFileExtension(packageVariant);
-
   switch (getDistro(packageVariant)) {
     case 'linux':
       return {
-        path: `${name}-${version}-${packageVariant}.${fileExtension}`,
+        path: `${name}-${version}-${packageVariant}.tgz`,
         contentType: 'application/gzip',
       };
     case 'rpm':
       return {
         path: `${rpmName}-${version}.${getRPMArchName(
           getArch(packageVariant)
-        )}.${fileExtension}`,
+        )}.rpm`,
         contentType: 'application/x-rpm',
       };
     case 'deb':
@@ -63,18 +38,18 @@ export function getPackageFile(
       return {
         path: `${debName}_${version}_${getDebArchName(
           getArch(packageVariant)
-        )}.${fileExtension}`,
+        )}.deb`,
         contentType: 'application/vnd.debian.binary-package',
       };
     case 'darwin':
     case 'win32':
       return {
-        path: `${name}-${version}-${packageVariant}.${fileExtension}`,
+        path: `${name}-${version}-${packageVariant}.zip`,
         contentType: 'application/zip',
       };
     case 'win32msi':
       return {
-        path: `${name}-${version}-${getArch(packageVariant)}.${fileExtension}`,
+        path: `${name}-${version}-${getArch(packageVariant)}.msi`,
         contentType: 'application/x-msi',
       };
     default:

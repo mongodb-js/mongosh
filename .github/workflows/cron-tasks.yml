@@ -37,7 +37,6 @@ jobs:
       - name: Install Dependencies and Compile
         run: |
           npm ci
-          npm run bootstrap-ci
           npm run compile
 
       - name: Update THIRD_PARTY_NOTICES.md
