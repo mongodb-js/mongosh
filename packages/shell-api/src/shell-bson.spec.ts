@@ -389,7 +389,7 @@ describe('Shell BSON', function () {
   describe('BinData', function () {
     it('expects strings as base 64', function () {
       const b = shellBson.BinData(128, b64_1234);
-      expect(b.value()).to.equal(utf_1234);
+      expect(b.toString()).to.equal(utf_1234);
     });
     it('has help and other metadata', async function () {
       const s = shellBson.BinData(128, b64_1234);
@@ -443,11 +443,11 @@ describe('Shell BSON', function () {
     });
 
     it('equals BinData', function () {
-      expect(b.value()).to.equal(h.value());
+      expect(b.value()).to.deep.equal(h.value());
       expect(b.sub_type).to.equal(h.sub_type);
     });
     it('equals 1234', function () {
-      expect(h.value()).to.equal(utf_1234);
+      expect(h.toString()).to.equal(utf_1234);
     });
     it('has subtype', function () {
       expect(h.sub_type).to.equal(128);
@@ -498,11 +498,11 @@ describe('Shell BSON', function () {
       h = shellBson.UUID(hex_1234);
     });
     it('equals BinData', function () {
-      expect(b.value()).to.equal(h.value());
+      expect(b.value()).to.deep.equal(h.value());
       expect(b.sub_type).to.equal(h.sub_type);
     });
     it('equals 1234', function () {
-      expect(h.value()).to.equal(utf_1234);
+      expect(h.toString()).to.equal(utf_1234);
     });
     it('has subtype', function () {
       expect(h.sub_type).to.equal(4);
@@ -515,7 +515,9 @@ describe('Shell BSON', function () {
     it('strips dashes from input', function () {
       expect(
         shellBson.UUID('01234567-89ab-cdef-0123-456789abcdef').value()
-      ).to.equal(shellBson.UUID('0123456789abcdef0123456789abcdef').value());
+      ).to.deep.equal(
+        shellBson.UUID('0123456789abcdef0123456789abcdef').value()
+      );
     });
     it('generates a random UUID when no arguments are passed', function () {
       // https://en.wikipedia.org/wiki/Universally_unique_identifier#Format
@@ -540,11 +542,11 @@ describe('Shell BSON', function () {
       h = shellBson.MD5(hex_1234);
     });
     it('equals BinData', function () {
-      expect(b.value()).to.equal(h.value());
+      expect(b.value()).to.deep.equal(h.value());
       expect(b.sub_type).to.equal(h.sub_type);
     });
     it('equals 1234', function () {
-      expect(h.value()).to.equal(utf_1234);
+      expect(h.toString()).to.equal(utf_1234);
     });
     it('has subtype', function () {
       expect(h.sub_type).to.equal(5);
@@ -716,7 +718,7 @@ describe('Shell BSON', function () {
     it('creates a Binary value using createFromBase64', function () {
       const n = shellBson.Binary.createFromBase64('SGVsbG8sIFdvcmxkIQo=');
       expect(n).to.be.instanceOf(bson.Binary);
-      expect(n.value()).to.equal('Hello, World!\n');
+      expect(n.toString()).to.equal('Hello, World!\n');
     });
   });
 
