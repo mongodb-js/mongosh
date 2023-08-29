@@ -331,7 +331,7 @@ class CliServiceProvider
   async getConnectionInfo(): Promise<ConnectionInfo> {
     const topology = this.getTopology();
     const { version } = require('../package.json');
-    const [buildInfo = null, atlasVersion = null, fcv = null] =
+    const [buildInfo = null, atlasVersion = null, fcv = null, atlascliInfo] =
       await Promise.all([
         this.runCommandWithCheck(
           'admin',
@@ -348,14 +348,25 @@ class CliServiceProvider
           { getParameter: 1, featureCompatibilityVersion: 1 },
           this.baseCmdOptions
         ).catch(() => {}),
+        this.runCommandWithCheck(
+          'admin',
+          {
+            count: 'atlascli',
+            query: { managedClusterType: 'atlasCliLocalDevCluster' },
+          },
+          this.baseCmdOptions
+        ).catch(() => ({ n: 0 })),
       ]);
+
+    const isLocalAtlasCli = Number(atlascliInfo.n) > 0;
 
     const extraConnectionInfo = getConnectInfo(
       this.uri?.toString() ?? '',
       version,
       buildInfo,
       atlasVersion,
-      topology
+      topology,
+      isLocalAtlasCli
     );
 
     return {
