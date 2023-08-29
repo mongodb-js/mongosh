@@ -1087,6 +1087,10 @@ export function functionCtorWithoutProps<
     return new ClassCtor(...args);
   }
   Object.setPrototypeOf(fnCtor, Object.getPrototypeOf(ClassCtor));
+  const nameDescriptor = Object.getOwnPropertyDescriptor(ClassCtor, 'name');
+  if (nameDescriptor) {
+    Object.defineProperty(fnCtor, 'name', nameDescriptor);
+  }
   return fnCtor as any;
 }
 

@@ -171,10 +171,6 @@ describe('Shell BSON', function () {
       }
       expect.fail('Expecting error, nothing thrown');
     });
-    it('allows toString() with Node.js-specific encoding arguments (legacy)', function () {
-      const s = shellBson.ObjectId();
-      expect(s.toString('utf-16le')).to.have.lengthOf(6);
-    });
   });
   describe('BSONSymbol', function () {
     it('without new', function () {
@@ -428,10 +424,6 @@ describe('Shell BSON', function () {
         return expect(e.message).to.contain('string, got number');
       }
       expect.fail('Expecting error, nothing thrown');
-    });
-    it('allows toString() with Node.js-specific encoding arguments (legacy)', function () {
-      const s = shellBson.BinData(128, b64_1234);
-      expect(s.toString('utf-16le')).to.equal('\u3231\u3433');
     });
   });
   describe('HexData', function () {
@@ -748,10 +740,10 @@ describe('Shell BSON', function () {
   });
 
   describe('BSON constructor properties', function () {
-    it('matches original BSON constructor properties', function () {
-      for (const key of Object.keys(bson)) {
+    for (const key of Object.keys(bson)) {
+      it(`matches original BSON constructor properties (${key})`, function () {
         if (!(key in shellBson) || bson[key] === shellBson[key]) {
-          continue;
+          return;
         }
 
         const bsonProperties = Object.getOwnPropertyDescriptors(bson[key]);
@@ -761,18 +753,25 @@ describe('Shell BSON', function () {
         delete shellProperties.help; // Not expected from the original BSON.
         delete shellProperties.length; // Function length can vary depending on the specific arguments in TS.
         delete bsonProperties.length;
-        delete shellProperties.index; // ObjectId.index is a random number
         delete bsonProperties.index; // ObjectId.index is a random number
         delete shellProperties.toBSON; // toBSON is something we add for MaxKey/MinKey as a shell-specific extension
         delete shellProperties.prototype?.writable; // We don't want to care about writable vs non-writable prototypes
         delete bsonProperties.prototype?.writable;
+
+        // Non-public methods:
+        delete bsonProperties.fromExtendedJSON; // Long.fromExtendedJSON was not made public on purpose
+        delete bsonProperties.BSON_BINARY_SUBTYPE_DEFAULT; // private
+        delete bsonProperties.createPk; // @internal
+        delete bsonProperties.getInc; // private
+        delete bsonProperties.is; // private
+
         try {
           expect(shellProperties).to.deep.equal(bsonProperties);
         } catch (err: any) {
           err.message += ` (${key})`;
           throw err;
         }
-      }
-    });
+      });
+    }
   });
 });
