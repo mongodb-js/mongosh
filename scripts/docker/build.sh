@@ -4,7 +4,7 @@ set -e
 cd "$(dirname "$0")"
 
 # Used for verifying that we actually have a working csfle shared library
-[ -x node_modules/mongodb-crypt-library-version ] || ((cd ../.. && npm ci --legacy-peer-deps) && cp -r ../../node_modules node_modules)
+[ -x node_modules/mongodb-crypt-library-version ] || ((cd ../.. && npm ci) && cp -r ../../node_modules node_modules)
 
 if [ x"$ARTIFACT_URL" = x"" ]; then
   SHA=`git rev-parse origin/main`
