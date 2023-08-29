@@ -163,12 +163,12 @@ class MongoshNodeRepl implements EvaluationListener {
   ioProvider: MongoshIOProvider;
   onClearCommand?: EvaluationListener['onClearCommand'];
   insideAutoCompleteOrGetPrompt: boolean;
-  inspectCompact?: number | boolean = 0;
-  inspectDepth?: number = 0;
+  inspectCompact: number | boolean = 0;
+  inspectDepth = 0;
   started = false;
-  showStackTraces?: boolean = false;
+  showStackTraces = false;
   loadNestingLevel = 0;
-  redactHistory?: 'keep' | 'remove' | 'remove-redact' = 'remove';
+  redactHistory: 'keep' | 'remove' | 'remove-redact' = 'remove';
   rawValueToShellResult: WeakMap<any, ShellResult> = new WeakMap();
 
   constructor(options: MongoshNodeReplOptions) {
@@ -229,10 +229,14 @@ class MongoshNodeRepl implements EvaluationListener {
     await this.greet(mongodVersion, moreRecentMongoshVersion);
     await this.printBasicConnectivityWarning(instanceState);
 
-    this.inspectCompact = await this.getConfig('inspectCompact');
-    this.inspectDepth = await this.getConfig('inspectDepth');
-    this.showStackTraces = await this.getConfig('showStackTraces');
-    this.redactHistory = await this.getConfig('redactHistory');
+    this.inspectCompact =
+      (await this.getConfig('inspectCompact')) ?? this.inspectCompact;
+    this.inspectDepth =
+      (await this.getConfig('inspectDepth')) ?? this.inspectDepth;
+    this.showStackTraces =
+      (await this.getConfig('showStackTraces')) ?? this.showStackTraces;
+    this.redactHistory =
+      (await this.getConfig('redactHistory')) ?? this.redactHistory;
 
     const repl = asyncRepl.start({
       start: prettyRepl.start,
