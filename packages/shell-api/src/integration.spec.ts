@@ -424,7 +424,7 @@ describe('Shell API (integration)', function () {
             modifiedCount,
             upsertedCount,
           }).to.deep.equal({
-            acknowledged: 1,
+            acknowledged: true,
             insertedId: null,
             matchedCount: 1,
             modifiedCount: 1,
