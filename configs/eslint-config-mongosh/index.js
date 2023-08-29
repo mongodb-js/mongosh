@@ -18,7 +18,6 @@ const tempRules = {
 
   'filename-rules/match': 1,
 
-  'no-useless-escape': 1,
   'no-prototype-builtins': 1,
   'no-case-declarations': 1,
 };

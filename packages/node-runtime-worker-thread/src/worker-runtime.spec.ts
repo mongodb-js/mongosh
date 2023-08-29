@@ -91,7 +91,7 @@ describe('worker', function () {
     expect(err).to.be.instanceof(Error);
     expect(err)
       .to.have.property('message')
-      .match(/Can\'t call evaluate before shell runtime is initiated/);
+      .match(/Can't call evaluate before shell runtime is initiated/);
   });
 
   describe('evaluate', function () {
@@ -455,7 +455,7 @@ describe('worker', function () {
         expect(err)
           .to.have.property('message')
           .match(
-            /Can\'t run another evaluation while the previous is not finished/
+            /Can't run another evaluation while the previous is not finished/
           );
       });
     });

@@ -455,7 +455,7 @@ describe('e2e', function () {
             }
           });`);
 
-          expect(result).to.match(/Violations\:/);
+          expect(result).to.match(/Violations:/);
           // Two duplicated ids
           expect(result).to.match(/ids: \[\s+ObjectId.+?\s+?ObjectId.+?\s+\]/m);
         });
@@ -700,7 +700,7 @@ describe('e2e', function () {
             validator: {
               $and: [
                 { phone: { $type: "string" } },
-                { email: { $regex: /@mongodb\.com$/ } },
+                { email: { $regex: /@mongodb.com$/ } },
                 { status: { $in: [ "Unknown", "Incomplete" ] } }
               ]
             }
@@ -717,7 +717,7 @@ describe('e2e', function () {
             validator: {
               $and: [
                 { phone: { $type: "string" } },
-                { email: { $regex: /@mongodb\.com$/ } },
+                { email: { $regex: /@mongodb.com$/ } },
                 { status: { $in: [ "Unknown", "Incomplete" ] } }
               ]
             }

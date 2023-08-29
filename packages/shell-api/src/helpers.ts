@@ -485,7 +485,7 @@ export async function getPrintableShardStatus(
   result.databases = await Promise.all(
     databases.map(async (db) => {
       const escapeRegex = (string: string): string => {
-        return string.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+        return string.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
       };
       const colls = await (
         await configDB

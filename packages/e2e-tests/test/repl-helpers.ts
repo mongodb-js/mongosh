@@ -89,6 +89,7 @@ const fakeExternalEditor = async ({
       if (${JSON.stringify(flags ?? '')}) {
         assert.deepStrictEqual((${JSON.stringify(
           flags
+          // eslint-disable-next-line no-useless-escape
         )}).split(/\s+/), process.argv.slice(2, -1));
       }
 
