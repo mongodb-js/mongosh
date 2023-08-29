@@ -20,7 +20,6 @@ const tempRules = {
 
   'no-useless-escape': 1,
   'no-prototype-builtins': 1,
-  'no-async-promise-executor': 1,
   'no-case-declarations': 1,
 };
 

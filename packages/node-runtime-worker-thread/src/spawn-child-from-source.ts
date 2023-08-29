@@ -25,6 +25,7 @@ export default function spawnChildFromSource(
   _stdout: StdioNull | StdioPipe = 'inherit',
   _stderr: StdioNull | StdioPipe = 'inherit'
 ): Promise<ChildProcess> {
+  // eslint-disable-next-line no-async-promise-executor
   return new Promise(async (resolve, reject) => {
     const readyToken = Date.now().toString(32);
 
