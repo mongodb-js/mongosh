@@ -13,7 +13,6 @@ export class ChildProcessEvaluationListener {
   >;
 
   constructor(workerRuntime: WorkerRuntime, childProcess: ChildProcess) {
-    // @ts-expect-error TODO(MONGOSH-1506) fix the typing
     this.exposedListener = exposeAll(
       {
         onPrompt(question, type) {
@@ -44,10 +43,16 @@ export class ChildProcessEvaluationListener {
           );
         },
         getConfig(key) {
-          return workerRuntime.evaluationListener?.getConfig?.(key);
+          return (
+            workerRuntime.evaluationListener?.getConfig?.(key) ??
+            (Promise.resolve() as Promise<never>)
+          );
         },
         listConfigOptions() {
-          return workerRuntime.evaluationListener?.listConfigOptions?.();
+          return (
+            workerRuntime.evaluationListener?.listConfigOptions?.() ??
+            (Promise.resolve() as Promise<never>)
+          );
         },
         onClearCommand() {
           return workerRuntime.evaluationListener?.onClearCommand?.();
