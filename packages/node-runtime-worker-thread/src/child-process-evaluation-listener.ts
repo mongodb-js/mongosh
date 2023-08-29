@@ -13,7 +13,6 @@ export class ChildProcessEvaluationListener {
   >;
 
   constructor(workerRuntime: WorkerRuntime, childProcess: ChildProcess) {
-    // @ts-expect-error TODO(MONGOSH-1506) fix the typing
     this.exposedListener = exposeAll(
       {
         onPrompt(question, type) {

@@ -555,7 +555,7 @@ export class CliUserConfigValidator extends SnippetShellUserConfigValidator {
 }
 
 export interface ConfigProvider<T> {
-  getConfig<K extends keyof T>(key: K): Promise<T[K]>;
+  getConfig<K extends keyof T>(key: K): Promise<T[K] | undefined> | undefined;
   setConfig<K extends keyof T>(
     key: K,
     value: T[K]
@@ -565,7 +565,7 @@ export interface ConfigProvider<T> {
     key: K,
     value: T[K]
   ): Promise<string | null>;
-  listConfigOptions(): string[] | Promise<string[]>;
+  listConfigOptions(): string[] | undefined | Promise<string[]>;
 }
 
 function isValidUrl(url: string): boolean {
