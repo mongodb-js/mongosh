@@ -161,7 +161,7 @@ export default interface Writable {
     filter: Document,
     options: FindOneAndDeleteOptions,
     dbOptions?: DbOptions
-  ): Promise<Document>;
+  ): Promise<Document | null>;
 
   /**
    * Find one document and replace it.

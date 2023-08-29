@@ -44,7 +44,6 @@ import {
 import type {
   AnyBulkWriteOperation,
   BulkWriteOptions,
-  CollStatsOptions,
   CountOptions,
   CountDocumentsOptions,
   ChangeStreamOptions,
@@ -88,12 +87,6 @@ import { HIDDEN_COMMANDS } from '@mongosh/history';
 import PlanCache from './plan-cache';
 import ChangeStreamCursor from './change-stream-cursor';
 import { ShellApiErrors } from './error-codes';
-
-type CollStatsShellOptions = CollStatsOptions & {
-  indexDetails?: boolean;
-  indexDetailsKey?: Document;
-  indexDetailsName?: string;
-};
 
 @shellApiClassDefault
 @addSourceToResults
@@ -472,7 +465,7 @@ export default class Collection extends ShellApiWithMongoClass {
   @apiVersions([1])
   async findAndModify(
     options: FindAndModifyMethodShellOptions
-  ): Promise<Document> {
+  ): Promise<Document | null> {
     assertArgsDefinedType([options], [true], 'Collection.findAndModify');
     assertKeysDefined(options, ['query']);
     this._emitCollectionApiCall('findAndModify', {
@@ -589,7 +582,7 @@ export default class Collection extends ShellApiWithMongoClass {
   async findOneAndDelete(
     filter: Document,
     options: FindOneAndDeleteOptions = {}
-  ): Promise<Document> {
+  ): Promise<Document | null> {
     assertArgsDefinedType([filter], [true], 'Collection.findOneAndDelete');
     this._emitCollectionApiCall('findOneAndDelete', { filter, options });
     const result = await this._mongo._serviceProvider.findOneAndDelete(
@@ -599,10 +592,10 @@ export default class Collection extends ShellApiWithMongoClass {
       { ...(await this._database._baseOptions()), ...options }
     );
 
-    if (options.explain) {
+    if (options.explain && result) {
       return markAsExplainOutput(result);
     }
-    return result.value;
+    return result?.value;
   }
 
   /**
@@ -1869,10 +1862,8 @@ export default class Collection extends ShellApiWithMongoClass {
 
   @returnsPromise
   @apiVersions([])
-  async stats(
-    originalOptions: CollStatsShellOptions | number = {}
-  ): Promise<Document> {
-    const options: CollStatsShellOptions =
+  async stats(originalOptions: Document | number = {}): Promise<Document> {
+    const options: Document =
       typeof originalOptions === 'number'
         ? { scale: originalOptions }
         : originalOptions;

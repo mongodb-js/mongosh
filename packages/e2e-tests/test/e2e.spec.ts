@@ -393,7 +393,7 @@ describe('e2e', function () {
 
     it('fle addon is available', async function () {
       const result = await shell.executeLine(
-        '`<${typeof db._mongo._serviceProvider.fle.ClientEncryption}>`'
+        '`<${typeof db._mongo._serviceProvider.createClientEncryption}>`'
       );
       expect(result).to.include('<function>');
     });

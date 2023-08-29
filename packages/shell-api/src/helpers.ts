@@ -892,7 +892,7 @@ export function processFLEOptions(
 
   const localKey = fleOptions.kmsProviders.local?.key;
   if (localKey && (localKey as BinaryType)._bsontype === 'Binary') {
-    const rawBuff = (localKey as BinaryType).value(true);
+    const rawBuff = (localKey as BinaryType).value();
     if (Buffer.isBuffer(rawBuff)) {
       autoEncryption.kmsProviders = {
         ...fleOptions.kmsProviders,
@@ -1077,9 +1077,9 @@ export function shallowClone<T>(input: T): T {
 // class A {}; B = functionCtor(A);
 // A() // throws
 // B() // does not throw, returns instance of A
-export function functionCtor<T extends Function & { new (...args: any): any }>(
-  ClassCtor: T
-): T {
+export function functionCtorWithoutProps<
+  T extends Function & { new (...args: any): any }
+>(ClassCtor: T): { new (...args: ConstructorParameters<T>): T } {
   function fnCtor(...args: any[]) {
     if (new.target) {
       return Reflect.construct(ClassCtor, args, new.target);
@@ -1087,7 +1087,10 @@ export function functionCtor<T extends Function & { new (...args: any): any }>(
     return new ClassCtor(...args);
   }
   Object.setPrototypeOf(fnCtor, Object.getPrototypeOf(ClassCtor));
-  Object.defineProperties(fnCtor, Object.getOwnPropertyDescriptors(ClassCtor));
+  const nameDescriptor = Object.getOwnPropertyDescriptor(ClassCtor, 'name');
+  if (nameDescriptor) {
+    Object.defineProperty(fnCtor, 'name', nameDescriptor);
+  }
   return fnCtor as any;
 }
 
@@ -1121,6 +1124,22 @@ export function assignAll(target: {}, ...sources: {}[]): any {
   Object.defineProperties(target, newDescriptorMap);
 
   return target;
+}
+
+// pick() but account for descriptor properties and ensure that the set of passed
+// keys matches the public properties of O exactly
+export function pickWithExactKeyMatch<
+  K extends string,
+  O extends Record<K, unknown>
+>(o: Record<string, never> extends Omit<O, K> ? O : never, keys: K[]): O {
+  return Object.create(
+    Object.getPrototypeOf(o),
+    Object.fromEntries(
+      Object.entries(Object.getOwnPropertyDescriptors(o)).filter(([k]) =>
+        (keys as string[]).includes(k)
+      )
+    )
+  );
 }
 
 // Take a document from config.collections and return a corresponding match filter

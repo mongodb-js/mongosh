@@ -107,18 +107,15 @@ export class ClientEncryption extends ShellApiWithMongoClass {
     super();
     this._mongo = mongo;
 
-    const fle = mongo._serviceProvider.fle;
-    if (!fle) {
-      throw new MongoshRuntimeError('FLE API is not available');
-    }
-
     // ClientEncryption does not take a schemaMap and will fail if it receives one
     const fleOptions = { ...this._mongo._fleOptions };
     delete fleOptions.schemaMap;
     delete fleOptions.encryptedFieldsMap;
 
-    this._libmongocrypt = new fle.ClientEncryption(
-      mongo._serviceProvider.getRawClient(),
+    if (!mongo._serviceProvider.createClientEncryption) {
+      throw new MongoshRuntimeError('FLE API is not available');
+    }
+    this._libmongocrypt = mongo._serviceProvider.createClientEncryption(
       fleOptions as ClientEncryptionOptions
     );
   }

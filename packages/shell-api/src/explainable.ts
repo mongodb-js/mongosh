@@ -169,7 +169,7 @@ export default class Explainable extends ShellApiWithMongoClass {
   @apiVersions([1])
   async findAndModify(
     options: FindAndModifyMethodShellOptions
-  ): Promise<Document> {
+  ): Promise<Document | null> {
     this._emitExplainableApiCall('findAndModify', { options });
     return this._collection.findAndModify({
       ...options,
@@ -182,7 +182,7 @@ export default class Explainable extends ShellApiWithMongoClass {
   async findOneAndDelete(
     filter: Document,
     options: FindOneAndDeleteOptions = {}
-  ): Promise<Document> {
+  ): Promise<Document | null> {
     this._emitExplainableApiCall('findOneAndDelete', { filter, options });
     return this._collection.findOneAndDelete(filter, {
       ...options,
