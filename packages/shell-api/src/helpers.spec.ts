@@ -13,7 +13,7 @@ import type { ServiceProvider } from '@mongosh/service-provider-core';
 import { bson } from '@mongosh/service-provider-core';
 import type { DevtoolsConnectOptions } from '../../service-provider-server';
 import { CliServiceProvider } from '../../service-provider-server'; // avoid cyclic dep just for test
-import { startTestServer } from '../../../testing/integration-testing-hooks';
+import { startSharedTestServer } from '../../../testing/integration-testing-hooks';
 import { makeFakeConfigDatabase } from '../../../testing/shard-test-fake-data';
 import sinon from 'ts-sinon';
 import chai, { expect } from 'chai';
@@ -126,7 +126,7 @@ describe('assertArgsDefinedType', function () {
 });
 
 describe('getPrintableShardStatus', function () {
-  const testServer = startTestServer('shared');
+  const testServer = startSharedTestServer();
 
   let mongo: Mongo;
   let configDatabase: Database;

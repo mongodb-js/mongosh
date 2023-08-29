@@ -72,6 +72,12 @@ post:
       script: |
         mkdir -p npm-logs
         tar cvzf npm-logs.tgz npm-logs
+
+        if [ -d "src/tmp/mongodb-runner/logs" ]; then
+            tar cvzf mongodb-runner-logs.tgz -C src/tmp/mongodb-runner logs
+        else
+            echo "Directory src/tmp/logs does not exist. Skipping."
+        fi
   - command: s3.put
     params:
       aws_key: ${aws_key}
@@ -82,6 +88,18 @@ post:
       permissions: private
       visibility: signed
       content_type: application/x-gzip
+  - command: s3.put
+    params:
+      aws_key: ${aws_key}
+      aws_secret: ${aws_secret}
+      local_file: mongodb-runner-logs.tgz
+      remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongodb-runner-logs-${build_variant}-${task_name}-${task_id}.tgz
+      bucket: mciuploads
+      permissions: private
+      visibility: signed
+      content_type: application/x-gzip
+      optional: true
+
 
 # Functions are any command that can be run.
 #

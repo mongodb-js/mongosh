@@ -2,10 +2,10 @@ import { expect } from 'chai';
 import { MongoClient } from 'mongodb';
 import { bson } from '@mongosh/service-provider-core';
 import { TestShell } from './test-shell';
-import { startTestServer } from '../../../testing/integration-testing-hooks';
+import { startSharedTestServer } from '../../../testing/integration-testing-hooks';
 
 describe('BSON e2e', function () {
-  const testServer = startTestServer('shared');
+  const testServer = startSharedTestServer();
   let db;
   let client;
   let shell: TestShell;

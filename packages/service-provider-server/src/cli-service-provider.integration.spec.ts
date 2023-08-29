@@ -5,8 +5,8 @@ import { EventEmitter } from 'events';
 import { MongoClient } from 'mongodb';
 import type { Db } from 'mongodb';
 import {
-  startTestServer,
   skipIfServerVersion,
+  startSharedTestServer,
 } from '../../../testing/integration-testing-hooks';
 import type {
   DbOptions,
@@ -16,7 +16,7 @@ import ConnectionString from 'mongodb-connection-string-url';
 import { dummyOptions } from './cli-service-provider.spec';
 
 describe('CliServiceProvider [integration]', function () {
-  const testServer = startTestServer('shared');
+  const testServer = startSharedTestServer();
 
   let serviceProvider: CliServiceProvider;
   let client: MongoClient;
