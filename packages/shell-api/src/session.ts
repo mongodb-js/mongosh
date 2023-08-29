@@ -115,7 +115,6 @@ export default class Session extends ShellApiWithMongoClass {
     assertArgsDefinedType([fn, options], ['function', [undefined, 'object']]);
     // The driver doesn't automatically ensure that fn is an async
     // function/convert its return type to a Promise, so we do that here.
-    // @ts-expect-error Current types don't match reality
     return await this._session.withTransaction(async () => await fn(), options);
   }
 }

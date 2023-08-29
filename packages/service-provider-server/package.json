@@ -45,7 +45,8 @@
     }
   },
   "dependencies": {
-    "@mongodb-js/devtools-connect": "^2.3.1",
+    "@mongodb-js/devtools-connect": "^2.4.1",
+    "@mongodb-js/oidc-plugin": "^0.3.0",
     "@mongosh/errors": "0.0.0-dev.0",
     "@mongosh/service-provider-core": "0.0.0-dev.0",
     "@mongosh/types": "0.0.0-dev.0",
@@ -56,7 +57,7 @@
     "socks": "^2.7.1"
   },
   "optionalDependencies": {
-    "kerberos": "^2.0.0",
+    "kerberos": "^2.0.2",
     "mongodb-client-encryption": "^6.0.0"
   },
   "devDependencies": {

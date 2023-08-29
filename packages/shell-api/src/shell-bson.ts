@@ -31,6 +31,10 @@ function constructHelp(className: string): Help {
   return new Help(classHelp);
 }
 
+type LongWithoutAccidentallyExposedMethods = Omit<
+  typeof BSON.Long,
+  'fromExtendedJSON'
+>;
 interface ShellBsonBase {
   DBRef: (
     namespace: string,
@@ -60,7 +64,7 @@ interface ShellBsonBase {
   Decimal128: typeof BSON.Decimal128;
   BSONSymbol: typeof BSON.BSONSymbol;
   Int32: typeof BSON.Int32;
-  Long: typeof BSON.Long;
+  Long: LongWithoutAccidentallyExposedMethods;
   Binary: typeof BSON.Binary;
   Double: typeof BSON.Double;
   EJSON: typeof BSON.EJSON;
@@ -348,29 +352,31 @@ export default function constructShellBson(
     ),
     Long: assignAll(
       functionCtorWithoutProps(bson.Long),
-      pickWithExactKeyMatch(bson.Long, [
-        'prototype',
-        'fromExtendedJSON',
-        'fromValue',
-        'isLong',
-        'fromBytesBE',
-        'fromBytesLE',
-        'fromBytes',
-        'fromString',
-        'fromBigInt',
-        'fromNumber',
-        'fromInt',
-        'fromBits',
-        'MIN_VALUE',
-        'MAX_VALUE',
-        'NEG_ONE',
-        'UONE',
-        'ONE',
-        'UZERO',
-        'ZERO',
-        'MAX_UNSIGNED_VALUE',
-        'TWO_PWR_24',
-      ])
+      pickWithExactKeyMatch(
+        bson.Long as LongWithoutAccidentallyExposedMethods,
+        [
+          'prototype',
+          'fromValue',
+          'isLong',
+          'fromBytesBE',
+          'fromBytesLE',
+          'fromBytes',
+          'fromString',
+          'fromBigInt',
+          'fromNumber',
+          'fromInt',
+          'fromBits',
+          'MIN_VALUE',
+          'MAX_VALUE',
+          'NEG_ONE',
+          'UONE',
+          'ONE',
+          'UZERO',
+          'ZERO',
+          'MAX_UNSIGNED_VALUE',
+          'TWO_PWR_24',
+        ]
+      )
     ),
     Binary: assignAll(
       functionCtorWithoutProps(bson.Binary),
