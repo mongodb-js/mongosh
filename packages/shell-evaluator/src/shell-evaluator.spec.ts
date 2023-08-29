@@ -87,7 +87,7 @@ describe('ShellEvaluator', function () {
       expect(itSpy).to.have.been.calledWith();
     });
 
-    it('forwards the exitquit command (exit)', async function () {
+    it('forwards the exit/quit command (exit)', async function () {
       const dontCallEval = () => {
         throw new Error('unreachable');
       };
