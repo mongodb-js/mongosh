@@ -680,12 +680,12 @@ describe('completer.completer', function () {
   });
 
   context('for shell commands', function () {
-    it('completes partial commands', async function () {
+    it('completes partial commands (sho)', async function () {
       const i = 'sho';
       expect(await completer(noParams, i)).to.deep.equal([['show'], i]);
     });
 
-    it('completes partial commands', async function () {
+    it('completes partial commands (show)', async function () {
       const i = 'show';
       const result = await completer(noParams, i);
       expect(result[0]).to.contain('show databases');

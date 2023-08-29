@@ -1700,7 +1700,7 @@ describe('CliRepl', function () {
         expect(exitCode).to.equal(0);
       });
 
-      it('isInteractive() is true for --eval with --shell', async function () {
+      it('isInteractive() is true for --eval with --shell (eval)', async function () {
         const filename1 = path.resolve(
           __dirname,
           '..',
@@ -1742,7 +1742,7 @@ describe('CliRepl', function () {
         expect(exitCode).to.equal(0);
       });
 
-      it('isInteractive() is true for --eval with --shell', async function () {
+      it('isInteractive() is true for --eval with --shell (filenames)', async function () {
         const filename1 = path.resolve(
           __dirname,
           '..',
