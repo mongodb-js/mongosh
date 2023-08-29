@@ -163,12 +163,12 @@ class MongoshNodeRepl implements EvaluationListener {
   ioProvider: MongoshIOProvider;
   onClearCommand?: EvaluationListener['onClearCommand'];
   insideAutoCompleteOrGetPrompt: boolean;
-  inspectCompact: number | boolean = 0;
-  inspectDepth = 0;
+  inspectCompact?: number | boolean = 0;
+  inspectDepth?: number = 0;
   started = false;
-  showStackTraces = false;
+  showStackTraces?: boolean = false;
   loadNestingLevel = 0;
-  redactHistory: 'keep' | 'remove' | 'remove-redact' = 'remove';
+  redactHistory?: 'keep' | 'remove' | 'remove-redact' = 'remove';
   rawValueToShellResult: WeakMap<any, ShellResult> = new WeakMap();
 
   constructor(options: MongoshNodeReplOptions) {
@@ -938,7 +938,7 @@ class MongoshNodeRepl implements EvaluationListener {
    */
   async getConfig<K extends keyof CliUserConfig>(
     key: K
-  ): Promise<CliUserConfig[K]> {
+  ): Promise<CliUserConfig[K] | undefined> {
     return this.ioProvider.getConfig(key);
   }
 
@@ -992,7 +992,7 @@ class MongoshNodeRepl implements EvaluationListener {
   /**
    * Implements listConfigOptions from the {@link ConfigProvider} interface.
    */
-  listConfigOptions(): Promise<string[]> | string[] {
+  listConfigOptions(): Promise<string[]> | string[] | undefined {
     return this.ioProvider.listConfigOptions();
   }
 

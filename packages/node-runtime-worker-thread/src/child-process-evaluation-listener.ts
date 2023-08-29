@@ -43,16 +43,10 @@ export class ChildProcessEvaluationListener {
           );
         },
         getConfig(key) {
-          return (
-            workerRuntime.evaluationListener?.getConfig?.(key) ??
-            (Promise.resolve() as Promise<never>)
-          );
+          return workerRuntime.evaluationListener?.getConfig?.(key);
         },
         listConfigOptions() {
-          return (
-            workerRuntime.evaluationListener?.listConfigOptions?.() ??
-            (Promise.resolve() as Promise<never>)
-          );
+          return workerRuntime.evaluationListener?.listConfigOptions?.();
         },
         onClearCommand() {
           return workerRuntime.evaluationListener?.onClearCommand?.();
