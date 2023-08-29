@@ -101,6 +101,7 @@ const translations: Catalog = {
       additionalErrorResult: 'Result',
       additionalErrorViolations: 'Violations',
       additionalErrorWriteErrors: 'Write Errors',
+      errorCausedBy: 'Caused by',
     },
     'uri-generator': {
       'no-host-port':
