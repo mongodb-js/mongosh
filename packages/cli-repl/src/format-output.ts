@@ -25,6 +25,12 @@ export type FormatOptions = {
   bugReportErrorMessageInfo?: string;
 };
 
+const fullDepthInspectOptions = {
+  depth: Infinity,
+  maxArrayLength: Infinity,
+  maxStringLength: Infinity,
+};
+
 function formatBytes(value: number): string {
   const precision = value <= 1000 ? '0' : '0.00';
   return numeral(value).format(precision + ' ib');
@@ -48,13 +54,13 @@ export default function formatOutput(
   const { value, type } = evaluationResult;
 
   if (type === 'Cursor' || type === 'AggregationCursor') {
-    return formatCursor(value, { ...options, maxArrayLength: Infinity });
+    return formatCursor(value, { ...options, ...fullDepthInspectOptions });
   }
 
   if (type === 'CursorIterationResult') {
     return formatCursorIterationResult(value, {
       ...options,
-      maxArrayLength: Infinity,
+      ...fullDepthInspectOptions,
     });
   }
 
@@ -128,9 +134,7 @@ Use db.getCollection('system.profile').find() to show raw profile entries.`,
   if (type === 'ExplainOutput' || type === 'ExplainableCursor') {
     return formatSimpleType(value, {
       ...options,
-      depth: Infinity,
-      maxArrayLength: Infinity,
-      maxStringLength: Infinity,
+      ...fullDepthInspectOptions,
     });
   }
 
@@ -266,7 +270,10 @@ export function formatError(error: Error, options: FormatOptions): string {
       'mongosh:additional-error-info',
       options
     )}: `;
-    result += inspect((error as any).errInfo, options);
+    result += inspect((error as any).errInfo, {
+      ...options,
+      ...fullDepthInspectOptions,
+    });
   }
   if ((error as any).result) {
     result += `\n${clr(
@@ -274,7 +281,10 @@ export function formatError(error: Error, options: FormatOptions): string {
       'mongosh:additional-error-info',
       options
     )}: `;
-    result += inspect((error as any).result, options);
+    result += inspect((error as any).result, {
+      ...options,
+      ...fullDepthInspectOptions,
+    });
   }
   if ((error as any).writeErrors) {
     result += `\n${clr(
@@ -282,7 +292,10 @@ export function formatError(error: Error, options: FormatOptions): string {
       'mongosh:additional-error-info',
       options
     )}: `;
-    result += inspect((error as any).writeErrors, options);
+    result += inspect((error as any).writeErrors, {
+      ...options,
+      ...fullDepthInspectOptions,
+    });
   }
   if ((error as any).violations) {
     result += `\n${clr(
@@ -290,7 +303,10 @@ export function formatError(error: Error, options: FormatOptions): string {
       'mongosh:additional-error-info',
       options
     )}: `;
-    result += inspect((error as any).violations, options);
+    result += inspect((error as any).violations, {
+      ...options,
+      ...fullDepthInspectOptions,
+    });
   }
 
   return result;

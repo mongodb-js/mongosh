@@ -120,7 +120,29 @@ for (const colors of [false, true]) {
           expect(output).to.equal('no cursor');
         });
       });
+
+      context(
+        'when the CursorIterationResult contains deeply nested values',
+        function () {
+          it('returns the deeply nested values', function () {
+            const output = stripAnsiColors(
+              format({
+                value: {
+                  documents: [{ nested: [[[[[1]]]]] }],
+                  cursorHasMore: false,
+                },
+                type: 'CursorIterationResult',
+              })
+            );
+
+            expect(output.replace(/\s/g, '')).to.equal(
+              '[{nested:[[[[[1]]]]]}]'
+            );
+          });
+        }
+      );
     });
+
     context('when the result is an Error', function () {
       it('returns only name and message', function () {
         const output = stripAnsiColors(
