@@ -939,6 +939,10 @@ describe('CliServiceProvider', function () {
       dbStub.command.callsFake(async () => {
         return { ok: 1 };
       });
+      dbStub.collection.callsFake((): any => {
+        // eslint-disable-next-line @typescript-eslint/require-await
+        return { countDocuments: async () => 0 };
+      });
       clientStub.db.returns(dbStub);
       clientStub.topology = { s: {} };
       serviceProvider = new CliServiceProvider(
@@ -962,7 +966,11 @@ describe('CliServiceProvider', function () {
       expect(info.extraInfo.is_local_atlas).to.equal(false);
       expect(info.extraInfo.is_localhost).to.equal(true);
       expect(info.extraInfo.fcv).to.equal(undefined);
-      expect(dbStub.command).to.have.callCount(4);
+      expect(dbStub.command).to.have.callCount(3);
+      expect(
+        dbStub.collection,
+        'calls countDocument on collection to check local atlas cli support'
+      ).to.have.callCount(1);
     });
 
     context('when connected to a DocumentDB deployment', function () {

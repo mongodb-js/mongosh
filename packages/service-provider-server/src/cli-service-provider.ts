@@ -348,17 +348,12 @@ class CliServiceProvider
           { getParameter: 1, featureCompatibilityVersion: 1 },
           this.baseCmdOptions
         ).catch(() => {}),
-        this.runCommandWithCheck(
-          'admin',
-          {
-            count: 'atlascli',
-            query: { managedClusterType: 'atlasCliLocalDevCluster' },
-          },
-          this.baseCmdOptions
-        ).catch(() => ({ n: 0 })),
+        this.countDocuments('admin', 'atlascli', {
+          managedClusterType: 'atlasCliLocalDevCluster',
+        }).catch(() => 0),
       ]);
 
-    const isLocalAtlasCli = Number(atlascliInfo.n) > 0;
+    const isLocalAtlasCli = !!atlascliInfo;
 
     const extraConnectionInfo = getConnectInfo(
       this.uri?.toString() ?? '',

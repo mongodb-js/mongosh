@@ -497,7 +497,7 @@ export default class ShellInstanceState {
     if (extraConnectionInfo?.is_data_federation) {
       return 'AtlasDataFederation';
     } else if (extraConnectionInfo?.is_local_atlas) {
-      return 'Atlas Local Dev';
+      return 'LocalDev';
     } else if (extraConnectionInfo?.is_atlas) {
       return 'Atlas';
     } else if (
