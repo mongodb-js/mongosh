@@ -167,7 +167,7 @@ for (const colors of [false, true]) {
 
       it('provides violation info if present', function () {
         const err = Object.assign(new Error('Something went wrong.'), {
-          violations: [{ ids: [1] }],
+          violations: [{ ids: [1, { deeply: { nested: [[['something']]] } }] }],
         });
         const output = stripAnsiColors(
           format({
@@ -176,8 +176,8 @@ for (const colors of [false, true]) {
           })
         );
 
-        expect(output).to.equal(
-          '\rError: Something went wrong.\nViolations: [ { ids: [ 1 ] } ]'
+        expect(output.replace(/\s/g, '')).to.equal(
+          "Error:Somethingwentwrong.Violations:[{ids:[1,{deeply:{nested:[[['something']]]}}]}]"
         );
       });
 
@@ -193,7 +193,6 @@ for (const colors of [false, true]) {
           })
         );
 
-        console.log({ output });
         expect(output).to.equal(
           '\rError: Something went wrong\nCaused by: \n\rError: Something else went wrong'
         );
