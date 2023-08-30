@@ -3,8 +3,7 @@
 const shared = require('@mongodb-js/eslint-config-devtools');
 const common = require('@mongodb-js/eslint-config-devtools/common');
 
-// TODO(MONGOSH-1508) we need to turn these back into errors (and fix them) or ticket them
-const tempRules = {
+const extraJSRules = {
   'jsx-a11y/no-autofocus': 1,
   'jsx-a11y/click-events-have-key-events': 1,
   'jsx-a11y/no-static-element-interactions': 1,
@@ -17,18 +16,20 @@ const tempRules = {
   // this would disallow our locale files' filenames like de_DE.ts
   'filename-rules/match': 1,
 
+  // TODO(MONGOSH-1580): re-enable this rule
   'no-case-declarations': 1,
 };
 
 // TODO(MONGOSH-1508) we need to turn these back into errors (and fix them) or ticket them
 const tempTypescriptRules = {
+  // this rule causes many false positives, so we leave it to just warn
   '@typescript-eslint/no-unnecessary-type-assertion': 1,
+
   '@typescript-eslint/restrict-plus-operands': 1,
   '@typescript-eslint/no-var-requires': 1,
   '@typescript-eslint/restrict-template-expressions': 1,
   '@typescript-eslint/no-empty-function': 1,
   '@typescript-eslint/no-misused-promises': 1,
-  '@typescript-eslint/consistent-type-imports': 1,
   '@typescript-eslint/unbound-method': 1,
   '@typescript-eslint/no-implied-eval': 1,
   '@typescript-eslint/no-unused-vars': 1,
@@ -49,21 +50,21 @@ module.exports = {
       ...common.jsOverrides,
       rules: {
         ...common.jsRules,
-        ...tempRules,
+        ...extraJSRules,
       },
     },
     {
       ...common.jsxOverrides,
       rules: {
         ...common.jsxRules,
-        ...tempRules,
+        ...extraJSRules,
       },
     },
     {
       ...common.tsOverrides,
       rules: {
         ...common.tsRules,
-        ...tempRules,
+        ...extraJSRules,
         ...tempTypescriptRules,
       },
     },
@@ -71,7 +72,7 @@ module.exports = {
       ...common.tsxOverrides,
       rules: {
         ...common.tsxRules,
-        ...tempRules,
+        ...extraJSRules,
         ...tempTypescriptRules,
       },
     },
@@ -79,7 +80,7 @@ module.exports = {
       ...common.testOverrides,
       rules: {
         ...common.testRules,
-        ...tempRules,
+        ...extraJSRules,
       },
     },
     {
@@ -87,7 +88,7 @@ module.exports = {
       files: ['**/*.spec.ts', '**/*.spec.tsx', '**/*.test.tsx', '**/*.test.ts'],
       rules: {
         ...common.testRules,
-        ...tempRules,
+        ...extraJSRules,
         ...tempTypescriptRules,
       },
     },

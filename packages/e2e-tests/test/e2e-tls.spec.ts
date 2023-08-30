@@ -4,8 +4,8 @@ import path from 'path';
 import {
   skipIfEnvServerVersion,
   startTestServer,
-  MongodSetup,
 } from '../../../testing/integration-testing-hooks';
+import type { MongodSetup } from '../../../testing/integration-testing-hooks';
 import {
   useTmpdir,
   setTemporaryHomeDirectory,
