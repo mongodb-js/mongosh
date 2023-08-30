@@ -19,7 +19,6 @@ const tempRules = {
   // this would disallow our locale files' filenames like de_DE.ts
   'filename-rules/match': 1,
 
-  'no-prototype-builtins': 1,
   'no-case-declarations': 1,
 };
 

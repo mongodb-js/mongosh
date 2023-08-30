@@ -323,7 +323,10 @@ export async function getPrintableShardStatus(
     (async (): Promise<void> => {
       // Output the balancer window
       const settings = await settingsColl.findOne({ _id: 'balancer' });
-      if (settings !== null && settings.hasOwnProperty('activeWindow')) {
+      if (
+        settings !== null &&
+        Object.prototype.hasOwnProperty.call(settings, 'activeWindow')
+      ) {
         const balSettings = settings.activeWindow;
         balancerRes[
           'Balancer active window is set between'
