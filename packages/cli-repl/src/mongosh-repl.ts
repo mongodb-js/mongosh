@@ -485,6 +485,7 @@ class MongoshNodeRepl implements EvaluationListener {
    *
    * @param _initializationToken A value obtained by calling {@link MongoshNodeRepl.initialize}.
    */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async startRepl(_initializationToken: InitializationToken): Promise<void> {
     this.started = true;
     const { repl } = this.runtimeState();

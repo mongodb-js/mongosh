@@ -31,8 +31,6 @@ const tempTypescriptRules = {
   '@typescript-eslint/no-empty-function': 1,
   '@typescript-eslint/no-misused-promises': 1,
   '@typescript-eslint/unbound-method': 1,
-  '@typescript-eslint/no-implied-eval': 1,
-  '@typescript-eslint/no-unused-vars': 1,
   '@typescript-eslint/prefer-regexp-exec': 1,
   '@typescript-eslint/ban-types': 1,
 };
