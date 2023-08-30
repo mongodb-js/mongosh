@@ -696,15 +696,17 @@ describe('e2e', function () {
         skipIfServerVersion(testServer, '<= 4.4');
 
         it('displays errInfo to the user', async function () {
+          /* eslint-disable no-useless-escape */
           await shell.executeLine(`db.createCollection('contacts', {
             validator: {
               $and: [
                 { phone: { $type: "string" } },
-                { email: { $regex: /@mongodb.com$/ } },
+                { email: { $regex: /@mongodb\.com$/ } },
                 { status: { $in: [ "Unknown", "Incomplete" ] } }
               ]
             }
           });`);
+          /* eslint-enable no-useless-escape */
           const result = await shell.executeLine(`db.contacts.insertOne({
             email: "test@mongodb.com", status: "Unknown"
           });`);
