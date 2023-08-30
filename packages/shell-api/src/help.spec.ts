@@ -16,9 +16,7 @@ describe('Help', function () {
         (await toShellResult(new Help({ help: 'help' }, { translate }))).type
       ).to.equal('Help');
     });
-  });
 
-  describe('#toShellResult', function () {
     it('returns the Help a plain object', async function () {
       const properties = {
         help: 'help',

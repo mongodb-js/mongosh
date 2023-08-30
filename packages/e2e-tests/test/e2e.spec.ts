@@ -472,22 +472,22 @@ describe('e2e', function () {
       it('number', async function () {
         expect(await shell.executeLine('1')).to.include('1');
         shell.assertNoErrors();
-        it('string', async function () {
-          expect(await shell.executeLine('"string"')).to.include('string');
-          shell.assertNoErrors();
-        });
-        it('undefined', async function () {
-          await shell.executeLine('undefined');
-          shell.assertNoErrors();
-        });
-        it('null', async function () {
-          expect(await shell.executeLine('null')).to.include('null');
-          shell.assertNoErrors();
-        });
-        it('bool', async function () {
-          expect(await shell.executeLine('true')).to.include('true');
-          shell.assertNoErrors();
-        });
+      });
+      it('string', async function () {
+        expect(await shell.executeLine('"string"')).to.include('string');
+        shell.assertNoErrors();
+      });
+      it('undefined', async function () {
+        await shell.executeLine('undefined');
+        shell.assertNoErrors();
+      });
+      it('null', async function () {
+        expect(await shell.executeLine('null')).to.include('null');
+        shell.assertNoErrors();
+      });
+      it('bool', async function () {
+        expect(await shell.executeLine('true')).to.include('true');
+        shell.assertNoErrors();
       });
     });
     it('runs a complete function', async function () {
