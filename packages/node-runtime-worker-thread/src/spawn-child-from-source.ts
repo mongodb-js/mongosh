@@ -41,7 +41,7 @@ export default function spawnChildFromSource(
           );
         })
         .catch((err: any) => {
-          throw err;
+          reject(err);
         });
       return;
     }
