@@ -12,9 +12,7 @@ const tempRules = {
 
   'mocha/no-exports': 1,
   'mocha/max-top-level-suites': 1,
-  'mocha/no-identical-title': 1,
   'mocha/no-sibling-hooks': 1,
-  'mocha/no-nested-tests': 1,
 
   'filename-rules/match': 1,
 
