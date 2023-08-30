@@ -176,7 +176,7 @@ describe('ShellInstanceState', function () {
 
         await instanceState.fetchConnectionInfo();
         const prompt = await instanceState.getDefaultPrompt();
-        expect(prompt).to.equal('LocalDev test> ');
+        expect(prompt).to.equal('AtlasLocalDev test> ');
       });
     });
 
