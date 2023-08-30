@@ -16,6 +16,7 @@ const tempRules = {
   'mocha/no-sibling-hooks': 1,
   'mocha/no-nested-tests': 1,
 
+  // this would disallow our locale files' filenames like de_DE.ts
   'filename-rules/match': 1,
 
   'no-prototype-builtins': 1,
