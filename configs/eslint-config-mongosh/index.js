@@ -20,17 +20,23 @@ const extraJSRules = {
   'no-case-declarations': 1,
 };
 
-// TODO(MONGOSH-1508) we need to turn these back into errors (and fix them) or ticket them
-const tempTypescriptRules = {
+const extraTypescriptRules = {
   // this rule causes many false positives, so we leave it to just warn
   '@typescript-eslint/no-unnecessary-type-assertion': 1,
 
+  // TODO(MONGOSH-1581): re-enable this rule
   '@typescript-eslint/restrict-plus-operands': 1,
+  // TODO(MONGOSH-1582): re-enable this rule
   '@typescript-eslint/no-var-requires': 1,
+  // TODO(MONGOSH-1583): re-enable this rule
   '@typescript-eslint/restrict-template-expressions': 1,
+  // TODO(MONGOSH-1584): re-enable this rule
   '@typescript-eslint/no-empty-function': 1,
+  // TODO(MONGOSH-1585): re-enable this rule
   '@typescript-eslint/no-misused-promises': 1,
+  // TODO(MONGOSH-1586): re-enable this rule
   '@typescript-eslint/unbound-method': 1,
+  // TODO(MONGOSH-1587): re-enable this rule
   '@typescript-eslint/ban-types': 1,
 };
 
@@ -62,7 +68,7 @@ module.exports = {
       rules: {
         ...common.tsRules,
         ...extraJSRules,
-        ...tempTypescriptRules,
+        ...extraTypescriptRules,
       },
     },
     {
@@ -70,7 +76,7 @@ module.exports = {
       rules: {
         ...common.tsxRules,
         ...extraJSRules,
-        ...tempTypescriptRules,
+        ...extraTypescriptRules,
       },
     },
     {
@@ -86,7 +92,7 @@ module.exports = {
       rules: {
         ...common.testRules,
         ...extraJSRules,
-        ...tempTypescriptRules,
+        ...extraTypescriptRules,
       },
     },
   ],
