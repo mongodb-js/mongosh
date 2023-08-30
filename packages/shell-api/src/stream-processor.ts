@@ -40,6 +40,10 @@ export default class StreamProcessor extends ShellApiWithMongoClass {
 
   @returnsPromise
   async drop() {
+    return this._drop();
+  }
+
+  async _drop() {
     return await this._streams._runStreamCommand({
       dropStreamProcessor: this.name,
     });
@@ -67,7 +71,6 @@ export default class StreamProcessor extends ShellApiWithMongoClass {
     return this._sampleFrom(r.cursorId as number);
   }
 
-  @returnsPromise
   async _sampleFrom(cursorId: number) {
     let currentCursorId = cursorId;
     // keep pulling until end of stream

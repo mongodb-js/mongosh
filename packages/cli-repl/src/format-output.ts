@@ -82,7 +82,7 @@ export default function formatOutput(
     return formatListCommands(value, options);
   }
 
-  if (type === 'ListStreamProcessorsResult') {
+  if (type === 'StreamsListResult') {
     return inspect(value, {
       ...options,
       depth: Infinity,

@@ -1,7 +1,6 @@
 import type { Document } from 'bson';
 import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
 
-import { MongoshInterruptedError } from './interruptor';
 import {
   returnsPromise,
   shellApiClassDefault,
@@ -72,24 +71,21 @@ export class Streams extends ShellApiWithMongoClass {
     };
     const sp = this.getProcessor(name);
 
-    async function stopAndDrop() {
+    async function dropSp() {
       try {
-        await sp.stop();
-        await sp.drop();
+        await sp._drop();
       } catch {
-        /* ignore */
+        // ignore
       }
     }
 
     await this._instanceState.interrupted.withOverrideInterruptBehavior(
-      async () => {
-        await sp._sampleFrom(cursorId);
-      },
-      stopAndDrop
+      () => sp._sampleFrom(cursorId),
+      dropSp
     );
 
-    // stop and drop the temp processor if reached the end of sample
-    return stopAndDrop();
+    // drop the temp processor if reached the end of sample
+    return dropSp();
   }
 
   @returnsPromise
@@ -140,28 +136,25 @@ export class Streams extends ShellApiWithMongoClass {
 
     return Object.defineProperties(sps, {
       [asPrintable]: { value: () => rawProcessors },
-      [shellApiType]: { value: 'ListStreamProcessorsResult' },
+      [shellApiType]: { value: 'StreamsListResult' },
     });
   }
 
   @returnsPromise
   async listConnections(filter: Document) {
-    return this._runStreamCommand({
+    const result = await this._runStreamCommand({
       listStreamConnections: 1,
       filter,
+    });
+    if (result.ok !== 1) {
+      return result;
+    }
+    return Object.defineProperties(result.connections, {
+      [shellApiType]: { value: 'StreamsListResult' },
     });
   }
 
   async _runStreamCommand(cmd: Document, options: Document = {}) {
-    const { _mongo, _instanceState } = this;
-    const interruptable = _instanceState.interrupted.asPromise();
-    try {
-      return await Promise.race([
-        _mongo._serviceProvider.runCommand(ADMIN_DB, cmd, options), // run cmd
-        interruptable.promise, // unless interruppted
-      ]);
-    } finally {
-      interruptable.destroy();
-    }
+    return this._mongo._serviceProvider.runCommand(ADMIN_DB, cmd, options); // run cmd
   }
 }
