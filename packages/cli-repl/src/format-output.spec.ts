@@ -120,7 +120,29 @@ for (const colors of [false, true]) {
           expect(output).to.equal('no cursor');
         });
       });
+
+      context(
+        'when the CursorIterationResult contains deeply nested values',
+        function () {
+          it('returns the deeply nested values', function () {
+            const output = stripAnsiColors(
+              format({
+                value: {
+                  documents: [{ nested: [[[[[1]]]]] }],
+                  cursorHasMore: false,
+                },
+                type: 'CursorIterationResult',
+              })
+            );
+
+            expect(output.replace(/\s/g, '')).to.equal(
+              '[{nested:[[[[[1]]]]]}]'
+            );
+          });
+        }
+      );
     });
+
     context('when the result is an Error', function () {
       it('returns only name and message', function () {
         const output = stripAnsiColors(
@@ -167,7 +189,7 @@ for (const colors of [false, true]) {
 
       it('provides violation info if present', function () {
         const err = Object.assign(new Error('Something went wrong.'), {
-          violations: [{ ids: [1] }],
+          violations: [{ ids: [1, { deeply: { nested: [[['something']]] } }] }],
         });
         const output = stripAnsiColors(
           format({
@@ -176,8 +198,8 @@ for (const colors of [false, true]) {
           })
         );
 
-        expect(output).to.equal(
-          '\rError: Something went wrong.\nViolations: [ { ids: [ 1 ] } ]'
+        expect(output.replace(/\s/g, '')).to.equal(
+          "Error:Somethingwentwrong.Violations:[{ids:[1,{deeply:{nested:[[['something']]]}}]}]"
         );
       });
     });
