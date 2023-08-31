@@ -6876,7 +6876,7 @@ functions:
           set -e
           set -x
           {
-          . preload.shortName
+          . preload.sh
           ./usr/bin/mongosh --smokeTests
           }
 
