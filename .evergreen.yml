@@ -61,22 +61,34 @@ post:
 functions:
   checkout:
     - command: git.get_project
+      type: system
       params:
         directory: src
   compile_ts:
     - command: expansions.write
+      type: system
       params:
         file: tmp/expansions.yaml
         redacted: true
     - command: shell.exec
+      type: setup
       params:
         working_dir: src
         shell: bash
+        env:
+          NODE_JS_VERSION: ${node_js_version}
+          DISTRO_ID: ${distro_id}
         script: |
-          export NODE_JS_VERSION=${node_js_version}
-          export DISTRO_ID=${distro_id}
           source .evergreen/install-node.sh
           source .evergreen/install-npm-deps.sh
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        env:
+          NODE_JS_VERSION: ${node_js_version}
+        script: |
+          source .evergreen/setup-env.sh
           npm run compile
           tar cvzf compiled-ts.tgz packages/*/{lib,dist}
     - command: s3.put
@@ -90,19 +102,23 @@ functions:
         content_type: application/x-gzip
   install:
     - command: expansions.write
+      type: system
       params:
         file: tmp/expansions.yaml
         redacted: true
     - command: shell.exec
+      type: setup
       params:
         working_dir: src
         shell: bash
+        env:
+          NODE_JS_VERSION: ${node_js_version}
+          DISTRO_ID: ${distro_id}
         script: |
-          export NODE_JS_VERSION=${node_js_version}
-          export DISTRO_ID=${distro_id}
           source .evergreen/install-node.sh
           source .evergreen/install-npm-deps.sh
     - command: s3.get
+      type: setup
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
@@ -110,6 +126,7 @@ functions:
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/compiled-ts.tgz
         bucket: mciuploads
     - command: shell.exec
+      type: setup
       params:
         working_dir: src
         shell: bash
@@ -120,15 +137,17 @@ functions:
       params:
         working_dir: src
         shell: bash
+        env:
+          NODE_JS_VERSION: ${node_js_version}
         script: |
           set -e
           {
-          export NODE_JS_VERSION=${node_js_version}
           source .evergreen/setup-env.sh
           npm run check-ci
           }
   test:
     - command: expansions.write
+      type: system
       params:
         file: tmp/expansions.yaml
         redacted: true
@@ -139,14 +158,14 @@ functions:
         script: |
           set -e
           {
-          export NODE_JS_VERSION=${node_js_version}
-          export MONGOSH_RUN_ONLY_IN_PACKAGE=${mongosh_run_only_in_package}
           source .evergreen/setup-env.sh
           npm run test-ci
           echo "Archiving current coverage result..."
           tar cvzf nyc-output.tgz .nyc_output
           }
         env:
+          NODE_JS_VERSION: ${node_js_version}
+          MONGOSH_RUN_ONLY_IN_PACKAGE: ${mongosh_run_only_in_package}
           AWS_AUTH_IAM_ACCESS_KEY_ID: ${devtools_ci_aws_key}
           AWS_AUTH_IAM_SECRET_ACCESS_KEY: ${devtools_ci_aws_secret}
     - command: s3.put
@@ -6482,10 +6501,11 @@ functions:
       params:
         working_dir: src
         shell: bash
+        env:
+          NODE_JS_VERSION: ${node_js_version}
         script: |
           set -e
           {
-          export NODE_JS_VERSION=${node_js_version}
           source .evergreen/setup-env.sh
           npm run report-coverage-ci
           echo "Creating coverage tarball..."
@@ -6505,10 +6525,11 @@ functions:
       params:
         working_dir: src
         shell: bash
+        env:
+          NODE_JS_VERSION: ${node_js_version}
         script: |
           set -e
           {
-          export NODE_JS_VERSION=${node_js_version}
           source .evergreen/setup-env.sh
           npm run check-coverage
           }
@@ -6518,10 +6539,11 @@ functions:
       params:
         working_dir: src
         shell: bash
+        env:
+          NODE_JS_VERSION: ${node_js_version}
         script: |
           set -e
           {
-          export NODE_JS_VERSION=${node_js_version}
           source .evergreen/setup-env.sh
           (cd scripts/docker && docker build -t ubuntu22.04-xvfb -f ubuntu22.04-xvfb.Dockerfile .)
           docker run \
@@ -6530,6 +6552,7 @@ functions:
           }
   test_connectivity:
     - command: expansions.write
+      type: system
       params:
         file: tmp/expansions.yaml
         redacted: true
@@ -6537,15 +6560,17 @@ functions:
       params:
         working_dir: src
         shell: bash
+        env:
+          NODE_JS_VERSION: ${node_js_version}
         script: |
           set -e
           {
-          export NODE_JS_VERSION=${node_js_version}
           source .evergreen/setup-env.sh
           npm run test-connectivity
           }
   test_apistrict:
     - command: expansions.write
+      type: system
       params:
         file: tmp/expansions.yaml
         redacted: true
@@ -6553,10 +6578,11 @@ functions:
       params:
         working_dir: src
         shell: bash
+        env:
+          NODE_JS_VERSION: ${node_js_version}
         script: |
           set -e
           {
-          export NODE_JS_VERSION=${node_js_version}
           source .evergreen/setup-env.sh
           npm run test-apistrict-ci
           }
@@ -6572,6 +6598,7 @@ functions:
   ###
   compile_artifact:
     - command: expansions.write
+      type: system
       params:
         file: tmp/expansions.yaml
         redacted: true
@@ -6598,6 +6625,7 @@ functions:
         content_type: application/x-gzip
   download_compiled_artifact:
     - command: s3.get
+      type: setup
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
@@ -6612,6 +6640,7 @@ functions:
   ###
   run_e2e_tests:
     - command: expansions.write
+      type: system
       params:
         file: tmp/expansions.yaml
         redacted: true
@@ -6645,11 +6674,13 @@ functions:
   ###
   package_and_upload_artifact:
     - command: expansions.write
+      type: setup
       params:
         file: tmp/expansions.yaml
         redacted: true
         # TODO: REPLACE WITH CALLING download_compiled_artifact BEFORE
     - command: s3.get
+      type: setup
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
@@ -6677,6 +6708,7 @@ functions:
         content_type: application/x-gzip
   get_artifact_url:
     - command: s3.get
+      type: setup
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
@@ -6686,6 +6718,7 @@ functions:
 
   write_preload_script:
     - command: shell.exec
+      type: setup
       params:
         working_dir: src
         shell: bash
@@ -6705,12 +6738,14 @@ functions:
           PRELOAD_SCRIPT
   spawn_host:
     - command: host.create
+      type: setup
       params:
         provider: ec2
         distro: ${distro}
         security_group_ids:
           - sg-097bff6dd0d1d31d0 # Magic string that's needed for SSH'ing.
     - command: host.list
+      type: setup
       params:
         num_hosts: 1
         path: buildhosts.yml # Write the host information to disk.
@@ -6718,6 +6753,7 @@ functions:
         wait: true
   run_pkg_tests_through_ssh:
     - command: shell.exec
+      type: setup
       params:
         shell: bash
         script: |
@@ -6738,6 +6774,37 @@ functions:
           PRELOAD_SCRIPT_PATH: ${preload_script_path}
   test_artifact_docker:
     - command: shell.exec
+      type: setup
+      params:
+        working_dir: src
+        shell: bash
+        env:
+          NODE_JS_VERSION: ${node_js_version}
+        script: |
+          set -e
+          set -x
+          {
+          . .evergreen/setup-env.sh
+          . preload.sh
+          ./scripts/docker/build.sh ${dockerfile}
+          }
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        env:
+          NODE_JS_VERSION: ${node_js_version}
+        script: |
+          set -e
+          set -x
+          {
+          . .evergreen/setup-env.sh
+          . preload.sh
+          ./scripts/docker/run.sh ${dockerfile} --smokeTests
+          }
+  test_artifact_macos:
+    - command: shell.exec
+      type: setup
       params:
         working_dir: src
         shell: bash
@@ -6745,13 +6812,10 @@ functions:
           set -e
           set -x
           {
-          export NODE_JS_VERSION=${node_js_version}
-          . .evergreen/setup-env.sh
           . preload.sh
-          ./scripts/docker/build.sh ${dockerfile}
-          ./scripts/docker/run.sh ${dockerfile} --smokeTests
+          curl -sSfL "$ARTIFACT_URL" > mongosh.zip
+          unzip mongosh.zip
           }
-  test_artifact_macos:
     - command: shell.exec
       params:
         working_dir: src
@@ -6762,12 +6826,11 @@ functions:
           {
           system_profiler SPSoftwareDataType # for debugging
           . preload.sh
-          curl -sSfL "$ARTIFACT_URL" > mongosh.zip
-          unzip mongosh.zip
           ./mongosh-*/bin/mongosh --smokeTests
           }
   test_artifact_rpmextract:
     - command: shell.exec
+      type: setup
       params:
         working_dir: src
         shell: bash
@@ -6778,10 +6841,22 @@ functions:
           . preload.sh
           curl -sSfL "$ARTIFACT_URL" > mongosh.rpm
           rpm2cpio mongosh.rpm | cpio -idmv
+          unzip mongosh.zip
+          }
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          set -x
+          {
+          . preload.sh
           ./usr/bin/mongosh --smokeTests
           }
   test_artifact_debextract:
     - command: shell.exec
+      type: setup
       params:
         working_dir: src
         shell: bash
@@ -6792,11 +6867,22 @@ functions:
           . preload.sh
           curl -sSfL "$ARTIFACT_URL" > mongosh.deb
           dpkg -x mongosh.deb .
+          }
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          set -x
+          {
+          . preload.sh
           ./usr/bin/mongosh --smokeTests
           }
 
   generate_license_and_vulnerability_report:
     - command: expansions.write
+      type: system
       params:
         file: tmp/expansions.yaml
         redacted: true
@@ -6899,6 +6985,7 @@ functions:
 
   release_draft:
     - command: expansions.write
+      type: system
       params:
         file: tmp/expansions.yaml
         redacted: true
@@ -6917,6 +7004,7 @@ functions:
 
   release_publish_dry_run:
     - command: expansions.write
+      type: system
       params:
         file: tmp/expansions.yaml
         redacted: true
@@ -6936,6 +7024,7 @@ functions:
 
   release_publish:
     - command: expansions.write
+      type: system
       params:
         file: tmp/expansions.yaml
         redacted: true
@@ -12689,7 +12778,7 @@ tasks:
 # Need to run builds for every possible build variant.
 buildvariants:
   - name: darwin_unit
-    display_name: "MacOS Mojave (Unit tests)"
+    display_name: "MacOS Big Sur (Unit tests)"
     run_on: macos-1100
     expansions:
       executable_os_id: darwin-x64
@@ -12840,7 +12929,7 @@ buildvariants:
       - name: test_n20_types
       - name: test_n16_types
   - name: darwin
-    display_name: "MacOS Mojave"
+    display_name: "MacOS Big Sur"
     run_on: macos-1100
     expansions:
       executable_os_id: darwin-x64
@@ -12849,13 +12938,6 @@ buildvariants:
       - name: e2e_tests_darwin_x64
       - name: package_and_upload_artifact_darwin_x64
       - name: package_and_upload_artifact_darwin_arm64
-  - name: darwin_1100
-    display_name: "MacOS Big Sur"
-    run_on: macos-1100
-    expansions:
-      executable_os_id: darwin-x64
-    tasks:
-      - name: e2e_tests_darwin_x64
   - name: darwin_arm64
     display_name: "MacOS Big Sur (arm64)"
     run_on: macos-1100-arm64
@@ -12863,6 +12945,7 @@ buildvariants:
       executable_os_id: darwin-arm64
     tasks:
       - name: compile_artifact
+      - name: e2e_tests_darwin_arm64
 
   - name: linux_unit
     display_name: "Ubuntu 18.04 x64 (Unit tests)"
