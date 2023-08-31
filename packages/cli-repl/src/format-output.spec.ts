@@ -202,6 +202,23 @@ for (const colors of [false, true]) {
           "Error:Somethingwentwrong.Violations:[{ids:[1,{deeply:{nested:[[['something']]]}}]}]"
         );
       });
+
+      it('provides cause info if present', function () {
+        // @ts-expect-error Need to eventually update types for built-in JS
+        const err = new Error('Something went wrong', {
+          cause: new Error('Something else went wrong'),
+        });
+        const output = stripAnsiColors(
+          format({
+            value: err,
+            type: 'Error',
+          })
+        );
+
+        expect(output).to.equal(
+          '\rError: Something went wrong\nCaused by: \n\rError: Something else went wrong'
+        );
+      });
     });
 
     context('when the result is ShowDatabasesResult', function () {

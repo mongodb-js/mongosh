@@ -308,6 +308,18 @@ export function formatError(error: Error, options: FormatOptions): string {
       ...fullDepthInspectOptions,
     });
   }
+  if ((error as any).cause) {
+    result += `\n${clr(
+      i18n.__('cli-repl.cli-repl.errorCausedBy'),
+      'mongosh:additional-error-info',
+      options
+    )}: \n`;
+    const { cause } = error as any;
+    result +=
+      Object.prototype.toString.call(cause) === '[object Error]'
+        ? formatError(cause, options)
+        : inspect(cause, options);
+  }
 
   return result;
 }
