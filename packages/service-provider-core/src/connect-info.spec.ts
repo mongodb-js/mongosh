@@ -80,6 +80,7 @@ describe('getConnectInfo', function () {
       node_version: process.version,
       server_os: 'osx',
       uri: ATLAS_URI,
+      is_local_atlas: false,
     };
     expect(
       getConnectInfo(
@@ -87,7 +88,8 @@ describe('getConnectInfo', function () {
         '0.0.6',
         BUILD_INFO,
         ATLAS_VERSION,
-        TOPOLOGY_WITH_CREDENTIALS
+        TOPOLOGY_WITH_CREDENTIALS,
+        false
       )
     ).to.deep.equal(output);
   });
@@ -111,6 +113,7 @@ describe('getConnectInfo', function () {
       node_version: process.version,
       server_os: 'osx',
       uri: ATLAS_URI,
+      is_local_atlas: false,
     };
     expect(
       getConnectInfo(
@@ -118,7 +121,8 @@ describe('getConnectInfo', function () {
         '0.0.6',
         BUILD_INFO,
         ATLAS_VERSION,
-        TOPOLOGY_NO_CREDENTIALS
+        TOPOLOGY_NO_CREDENTIALS,
+        false
       )
     ).to.deep.equal(output);
   });
@@ -175,9 +179,17 @@ describe('getConnectInfo', function () {
       node_version: process.version,
       server_os: 'osx',
       uri: '',
+      is_local_atlas: true,
     };
     expect(
-      getConnectInfo('', '0.0.6', BUILD_INFO, null, TOPOLOGY_WITH_CREDENTIALS)
+      getConnectInfo(
+        '',
+        '0.0.6',
+        BUILD_INFO,
+        null,
+        TOPOLOGY_WITH_CREDENTIALS,
+        true
+      )
     ).to.deep.equal(output);
   });
 
@@ -200,9 +212,10 @@ describe('getConnectInfo', function () {
       node_version: process.version,
       server_os: null,
       uri: '',
+      is_local_atlas: false,
     };
     expect(
-      getConnectInfo('', '0.0.6', null, null, TOPOLOGY_WITH_CREDENTIALS)
+      getConnectInfo('', '0.0.6', null, null, TOPOLOGY_WITH_CREDENTIALS, false)
     ).to.deep.equal(output);
   });
 });

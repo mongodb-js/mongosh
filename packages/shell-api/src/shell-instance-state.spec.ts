@@ -178,6 +178,19 @@ describe('ShellInstanceState', function () {
         const prompt = await instanceState.getDefaultPrompt();
         expect(prompt).to.equal('Atlas test> ');
       });
+
+      it('infers local atlas from extraInfo', async function () {
+        serviceProvider.getConnectionInfo.resolves({
+          extraInfo: {
+            uri: 'mongodb://localhost/',
+            is_local_atlas: true,
+          },
+        });
+
+        await instanceState.fetchConnectionInfo();
+        const prompt = await instanceState.getDefaultPrompt();
+        expect(prompt).to.equal('AtlasLocalDev test> ');
+      });
     });
 
     describe('MongoDB Enterprise prefix', function () {
