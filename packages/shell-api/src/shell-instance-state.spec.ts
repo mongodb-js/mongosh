@@ -108,6 +108,19 @@ describe('ShellInstanceState', function () {
       expect(prompt).to.equal('> ');
     });
 
+    it('returns correct prompt for stream', async function () {
+      serviceProvider.getConnectionInfo.resolves({
+        extraInfo: {
+          uri: 'mongodb://atlas-stream-65a5f1cd6d50457be377be7b-1dekw.virginia-usa.a.query.mongodb-dev.net/',
+          is_stream: true,
+        },
+      });
+
+      await instanceState.fetchConnectionInfo();
+      const prompt = await instanceState.getDefaultPrompt();
+      expect(prompt).to.equal('AtlasStreamProcessing> ');
+    });
+
     describe('Atlas Data Lake prefix', function () {
       it('inferred from extraInfo', async function () {
         serviceProvider.getConnectionInfo.resolves({
@@ -164,6 +177,19 @@ describe('ShellInstanceState', function () {
         await instanceState.fetchConnectionInfo();
         const prompt = await instanceState.getDefaultPrompt();
         expect(prompt).to.equal('Atlas test> ');
+      });
+
+      it('infers local atlas from extraInfo', async function () {
+        serviceProvider.getConnectionInfo.resolves({
+          extraInfo: {
+            uri: 'mongodb://localhost/',
+            is_local_atlas: true,
+          },
+        });
+
+        await instanceState.fetchConnectionInfo();
+        const prompt = await instanceState.getDefaultPrompt();
+        expect(prompt).to.equal('AtlasLocalDev test> ');
       });
     });
 

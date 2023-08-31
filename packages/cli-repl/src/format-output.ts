@@ -88,6 +88,14 @@ export default function formatOutput(
     return formatListCommands(value, options);
   }
 
+  if (type === 'StreamsListResult') {
+    return inspect(value, {
+      ...options,
+      depth: Infinity,
+      maxArrayLength: Infinity,
+    });
+  }
+
   if (type === 'ShowProfileResult') {
     if (value.count === 0) {
       return clr(

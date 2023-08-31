@@ -852,7 +852,7 @@ describe('Mongo', function () {
         await mongo.watch(pipeline);
         expect(serviceProvider.watch).to.have.been.calledWith(pipeline, {});
       });
-      it('calls serviceProvider.watch when given no args', async function () {
+      it('calls serviceProvider.watch when given pipeline and ops args', async function () {
         const pipeline = [{ $match: { operationType: 'insertOne' } }];
         const ops = { batchSize: 1 };
         await mongo.watch(pipeline, ops);

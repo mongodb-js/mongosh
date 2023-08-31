@@ -453,7 +453,7 @@ describe('Editor', function () {
       expect(result).to.be.equal('fn = function() { console.log(222); };');
     });
 
-    it('returns an assignment statement for an identifier', function () {
+    it('returns an assignment statement for a statement', function () {
       const result = editor._prepareResult({
         originalCode: '111',
         modifiedCode: '222',

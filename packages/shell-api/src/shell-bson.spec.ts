@@ -280,7 +280,7 @@ describe('Shell BSON', function () {
       }
       expect.fail('Expecting error, nothing thrown');
     });
-    it('errors for wrong type of arg 1', function () {
+    it('errors for wrong type of arg 2', function () {
       try {
         (shellBson.Code as any)('code', 1);
       } catch (e: any) {

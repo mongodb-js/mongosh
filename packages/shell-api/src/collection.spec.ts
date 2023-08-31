@@ -2422,7 +2422,7 @@ describe('Collection', function () {
           collection._name
         );
       });
-      it('calls serviceProvider.watch when given no args', async function () {
+      it('calls serviceProvider.watch when given pipeline and ops args', async function () {
         const pipeline = [{ $match: { operationType: 'insertOne' } }];
         const ops = { batchSize: 1 };
         await collection.watch(pipeline, ops);
