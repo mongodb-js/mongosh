@@ -2682,6 +2682,54 @@ const translations: Catalog = {
           },
         },
       },
+      Streams: {
+        help: {
+          description: 'Streams',
+          attributes: {
+            process: {
+              description:
+                'Allows a user to process streams of data in the shell interactively and quickly iterate building a stream processor as they go.',
+            },
+            createStreamProcessor: {
+              description: 'Create a named stream processor.',
+            },
+            getProcessor: {
+              description: 'Get a stream processor with specified name.',
+            },
+            listStreamProcessors: {
+              description: 'Show a list of all the named stream processors.',
+            },
+            listConnections: {
+              description:
+                'Show a list of all the named connections for this instance from the Connection Registry.',
+            },
+          },
+        },
+      },
+      StreamProcessor: {
+        help: {
+          description: 'Stream processor',
+          attributes: {
+            start: {
+              description: 'Start a named stream processor.',
+            },
+            stop: {
+              description: 'Stop a named stream processor.',
+            },
+            drop: {
+              description: 'Drop a named stream processor.',
+            },
+            sample: {
+              description:
+                'Return a sample of the results from a named stream processor.',
+            },
+            stats: {
+              description:
+                'Return stats captured from a named stream processor.',
+            },
+          },
+        },
+      },
     },
   },
   'transport-browser': {

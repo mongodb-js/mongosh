@@ -13,6 +13,7 @@ export interface ConnectInfo {
   is_enterprise: boolean;
   auth_type?: string;
   is_data_federation: boolean;
+  is_stream: boolean;
   dl_version?: string;
   atlas_version?: string;
   is_genuine: boolean;
@@ -54,6 +55,7 @@ export default function getConnectInfo(
     is_enterprise: getBuildInfo.isEnterprise(buildInfo),
     auth_type,
     is_data_federation,
+    is_stream: getBuildInfo.isAtlasStream(uri),
     dl_version,
     atlas_version: atlasVersion?.atlasVersion ?? null,
     is_genuine,
