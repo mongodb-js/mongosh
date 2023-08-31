@@ -143,6 +143,7 @@ describe('getConnectInfo', function () {
       dl_version: null,
       atlas_version: null,
       is_genuine: true,
+      is_local_atlas: false,
       non_genuine_server_name: 'mongodb',
       server_arch: 'x86_64',
       node_version: process.version,
@@ -155,7 +156,8 @@ describe('getConnectInfo', function () {
         '0.0.6',
         BUILD_INFO,
         null,
-        TOPOLOGY_WITH_CREDENTIALS
+        TOPOLOGY_WITH_CREDENTIALS,
+        false
       )
     ).to.deep.equal(output);
   });
