@@ -619,7 +619,6 @@ functions:
           . preload.sh
           curl -sSfL "$ARTIFACT_URL" > mongosh.rpm
           rpm2cpio mongosh.rpm | cpio -idmv
-          unzip mongosh.zip
           }
     - command: shell.exec
       params:
