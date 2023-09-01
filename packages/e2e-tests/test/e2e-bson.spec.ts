@@ -2,10 +2,10 @@ import { expect } from 'chai';
 import { MongoClient } from 'mongodb';
 import { bson } from '@mongosh/service-provider-core';
 import { TestShell } from './test-shell';
-import { startTestServer } from '../../../testing/integration-testing-hooks';
+import { startSharedTestServer } from '../../../testing/integration-testing-hooks';
 
 describe('BSON e2e', function () {
-  const testServer = startTestServer('shared');
+  const testServer = startSharedTestServer();
   let db;
   let client;
   let shell: TestShell;
@@ -33,9 +33,9 @@ describe('BSON e2e', function () {
   describe('printed BSON', function () {
     const outputDoc = {
       ObjectId: 'ObjectId("5f16b8bebe434dc98cdfc9ca")',
-      DBRef1: 'DBRef("a", ObjectId("5f16b8bebe434dc98cdfc9cb"), "db")',
-      DBRef2: 'DBRef("a", \'5f16b8bebe434dc98cdfc9cb\', "db")',
-      DBRef3: 'DBRef("a", { x: \'5f16b8bebe434dc98cdfc9cb\' }, "db")',
+      DBRef1: 'DBRef("a", ObjectId("5f16b8bebe434dc98cdfc9cb"), \'db\')',
+      DBRef2: "DBRef(\"a\", '5f16b8bebe434dc98cdfc9cb', 'db')",
+      DBRef3: "DBRef(\"a\", { x: '5f16b8bebe434dc98cdfc9cb' }, 'db')",
       MinKey: 'MinKey()',
       MaxKey: 'MaxKey()',
       NumberInt: 'Int32(32)',
@@ -44,7 +44,7 @@ describe('BSON e2e', function () {
       Symbol: 'abc',
       Code: 'Code("abc")',
       NumberDecimal: 'Decimal128("1")',
-      BinData: 'Binary(Buffer.from("31323334", "hex"), 128)',
+      BinData: 'Binary.createFromBase64("MTIzNA==", 128)',
       ISODate: 'ISODate("2021-05-04T15:49:33.000Z")',
       RegExp: '/match/',
     };
@@ -105,7 +105,7 @@ describe('BSON e2e', function () {
         Symbol: new BSONSymbol('abc'),
         Code: new Code('abc'),
         NumberDecimal: NumberDecimal('1'),
-        BinData: BinData(128, 'MTIzNA=='),
+        BinData: Binary.createFromBase64("MTIzNA==", 128),
         ISODate: ISODate("2021-05-04T15:49:33.000Z"),
         RegExp: /match/
       }\n`;
@@ -215,7 +215,7 @@ describe('BSON e2e', function () {
       await shell.executeLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
       expect(await shell.executeLine('db.test.findOne().value')).to.include(
-        'Binary(Buffer.from("31323334", "hex"), 128)'
+        'Binary.createFromBase64("MTIzNA==", 128)'
       );
       shell.assertNoErrors();
     });
@@ -322,7 +322,7 @@ describe('BSON e2e', function () {
     it('BinData prints when created by user', async function () {
       const value = 'BinData(128, "MTIzNA==")';
       expect(await shell.executeLine(value)).to.include(
-        'Binary(Buffer.from("31323334", "hex"), 128)'
+        'Binary.createFromBase64("MTIzNA==", 128)'
       );
       shell.assertNoErrors();
     });
@@ -339,7 +339,7 @@ describe('BSON e2e', function () {
     it('BinData prints as BinData when created as invalid UUID', async function () {
       const value = 'UUID("abcdef")';
       expect(await shell.executeLine(value)).to.include(
-        'Binary(Buffer.from("abcdef", "hex"), 4)'
+        'Binary.createFromBase64("q83v", 4)'
       );
       shell.assertNoErrors();
     });

@@ -21,6 +21,7 @@ describe('e2e direct connection', function () {
   context('to a replica set', function () {
     const replSetId = 'replset';
     const [rs0, rs1, rs2] = startTestCluster(
+      'e2e-direct-connection',
       { args: ['--replSet', replSetId] },
       { args: ['--replSet', replSetId] },
       { args: ['--replSet', replSetId] }
@@ -129,7 +130,7 @@ describe('e2e direct connection', function () {
           await shell.waitForPrompt();
           await shell.executeLine('use admin');
           await shell.executeLine('db.runCommand({ listCollections: 1 })');
-          shell.assertContainsOutput("name: 'system.version'");
+          shell.assertContainsOutput('MongoServerError: not primary');
         });
 
         it('lists collections when readPreference is set via Mongo', async function () {
@@ -142,7 +143,7 @@ describe('e2e direct connection', function () {
             'db.getMongo().setReadPref("secondaryPreferred")'
           );
           await shell.executeLine('db.runCommand({ listCollections: 1 })');
-          shell.assertContainsOutput("name: 'system.version'");
+          shell.assertContainsOutput('MongoServerError: not primary');
         });
 
         it('fails to list databases without explicit readPreference', async function () {
@@ -397,6 +398,17 @@ describe('e2e direct connection', function () {
           await shell.waitForPrompt();
           await shell.executeLine('db.runCommand({connectionStatus: 1})');
           shell.assertContainsOutput("user: 'anna'");
+        });
+        it('drops indexes even if a read preference is specified in the connection url', async function () {
+          const shell = TestShell.start({
+            args: [await rs0.connectionString({ readPreference: 'secondary' })],
+          });
+
+          await shell.waitForPrompt();
+          await shell.executeLine('db.mydb.test.createIndex({ field: 1 })');
+          await shell.executeLine('db.mydb.test.dropIndexes({ field: 1 })');
+          shell.assertContainsOutput('nIndexesWas: 2');
+          shell.assertContainsOutput('ok: 1');
         });
       });
 

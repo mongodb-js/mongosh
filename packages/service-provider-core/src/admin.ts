@@ -20,8 +20,9 @@ import type {
   AzureEncryptionKeyOptions,
   ClientEncryption as MongoCryptClientEncryption,
   ClientEncryptionDataKeyProvider,
-  FLE,
   GCPEncryptionKeyOptions,
+  ClientEncryption,
+  ClientEncryptionOptions,
 } from './all-fle-types';
 
 export interface CreateEncryptedCollectionOptions {
@@ -139,7 +140,7 @@ export default interface Admin {
   /**
    * The FLE implementation for access to the client-side encryption API.
    */
-  fle?: FLE | undefined;
+  createClientEncryption?(options: ClientEncryptionOptions): ClientEncryption;
 
   /**
    * The FLE options passed to the client, if any.

@@ -64,7 +64,7 @@ if [ x"$PREBUILT_OSNAME" != x"" ]; then
   rm -rf prebuilts
 else
   if [ `uname` = Darwin ]; then
-    export CFLAGS="-mmacosx-version-min=10.13";
+    export CFLAGS="-mmacosx-version-min=10.15";
   fi
 
   if [ -z "$CMAKE" ]; then CMAKE=cmake; fi

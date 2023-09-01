@@ -120,7 +120,29 @@ for (const colors of [false, true]) {
           expect(output).to.equal('no cursor');
         });
       });
+
+      context(
+        'when the CursorIterationResult contains deeply nested values',
+        function () {
+          it('returns the deeply nested values', function () {
+            const output = stripAnsiColors(
+              format({
+                value: {
+                  documents: [{ nested: [[[[[1]]]]] }],
+                  cursorHasMore: false,
+                },
+                type: 'CursorIterationResult',
+              })
+            );
+
+            expect(output.replace(/\s/g, '')).to.equal(
+              '[{nested:[[[[[1]]]]]}]'
+            );
+          });
+        }
+      );
     });
+
     context('when the result is an Error', function () {
       it('returns only name and message', function () {
         const output = stripAnsiColors(
@@ -167,7 +189,24 @@ for (const colors of [false, true]) {
 
       it('provides violation info if present', function () {
         const err = Object.assign(new Error('Something went wrong.'), {
-          violations: [{ ids: [1] }],
+          violations: [{ ids: [1, { deeply: { nested: [[['something']]] } }] }],
+        });
+        const output = stripAnsiColors(
+          format({
+            value: err,
+            type: 'Error',
+          })
+        );
+
+        expect(output.replace(/\s/g, '')).to.equal(
+          "Error:Somethingwentwrong.Violations:[{ids:[1,{deeply:{nested:[[['something']]]}}]}]"
+        );
+      });
+
+      it('provides cause info if present', function () {
+        // @ts-expect-error Need to eventually update types for built-in JS
+        const err = new Error('Something went wrong', {
+          cause: new Error('Something else went wrong'),
         });
         const output = stripAnsiColors(
           format({
@@ -177,7 +216,7 @@ for (const colors of [false, true]) {
         );
 
         expect(output).to.equal(
-          '\rError: Something went wrong.\nViolations: [ { ids: [ 1 ] } ]'
+          '\rError: Something went wrong\nCaused by: \n\rError: Something else went wrong'
         );
       });
     });

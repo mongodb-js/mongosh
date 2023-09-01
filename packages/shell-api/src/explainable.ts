@@ -133,7 +133,7 @@ export default class Explainable extends ShellApiWithMongoClass {
     this._emitExplainableApiCall('count', { query, options });
     // This is the only one that currently lacks explicit driver support.
     return markAsExplainOutput(
-      await this._collection._database._runCommand({
+      await this._collection._database._runReadCommand({
         explain: {
           count: `${this._collection._name}`,
           query,
@@ -169,7 +169,7 @@ export default class Explainable extends ShellApiWithMongoClass {
   @apiVersions([1])
   async findAndModify(
     options: FindAndModifyMethodShellOptions
-  ): Promise<Document> {
+  ): Promise<Document | null> {
     this._emitExplainableApiCall('findAndModify', { options });
     return this._collection.findAndModify({
       ...options,
@@ -182,7 +182,7 @@ export default class Explainable extends ShellApiWithMongoClass {
   async findOneAndDelete(
     filter: Document,
     options: FindOneAndDeleteOptions = {}
-  ): Promise<Document> {
+  ): Promise<Document | null> {
     this._emitExplainableApiCall('findOneAndDelete', { filter, options });
     return this._collection.findOneAndDelete(filter, {
       ...options,

@@ -101,6 +101,7 @@ const translations: Catalog = {
       additionalErrorResult: 'Result',
       additionalErrorViolations: 'Violations',
       additionalErrorWriteErrors: 'Write Errors',
+      errorCausedBy: 'Caused by',
     },
     'uri-generator': {
       'no-host-port':
@@ -1455,23 +1456,6 @@ const translations: Catalog = {
               description:
                 'Prints the collection.stats for each collection in the db.',
               example: 'db.printCollectionStats(scale)',
-            },
-            getFreeMonitoringStatus: {
-              link: 'https://docs.mongodb.com/manual/reference/method/db.getFreeMonitoringStatus',
-              description: 'Calls the getFreeMonitoringStatus command',
-              example: 'db.getFreeMonitoringStatus()',
-            },
-            enableFreeMonitoring: {
-              link: 'https://docs.mongodb.com/manual/reference/method/db.enableFreeMonitoring',
-              description:
-                'returns the db enableFreeMonitoring. uses the setFreeMonitoring command',
-              example: 'db.enableFreeMonitoring()',
-            },
-            disableFreeMonitoring: {
-              link: 'https://docs.mongodb.com/manual/reference/method/db.disableFreeMonitoring',
-              description:
-                'returns the db disableFreeMonitoring. uses the setFreeMonitoring command',
-              example: 'db.disableFreeMonitoring()',
             },
             getProfilingStatus: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.getProfilingStatus',

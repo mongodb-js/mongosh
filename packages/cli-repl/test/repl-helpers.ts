@@ -2,7 +2,6 @@ import { promises as fs } from 'fs';
 import { promisify } from 'util';
 import path from 'path';
 import { once } from 'events';
-import rimraf from 'rimraf';
 import chai, { expect } from 'chai';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
@@ -39,7 +38,7 @@ function useTmpdir(): { readonly path: string } {
 
   afterEach(async () => {
     try {
-      await promisify(rimraf)(tmpdir);
+      await fs.rm(tmpdir, { recursive: true, force: true });
     } catch (err: any) {
       // On Windows in CI, this can fail with EPERM for some reason.
       // If it does, just log the error instead of failing all tests.

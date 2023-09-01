@@ -67,15 +67,15 @@ function attachInspectMethods(obj: any): void {
   }
 
   // Add obj[util.inspect.custom] if it does not exist and we can provide it.
-  const bsontype = obj._bsontype;
-  const stringifier = bsonStringifiers[bsontype];
+  const bsontype = obj._bsontype as keyof typeof bsonStringifiers;
   if (
     bsontype &&
-    stringifier &&
+    bsontype in bsonStringifiers &&
+    bsonStringifiers[bsontype] &&
     !(properties as any)[customInspect] &&
     !Object.isSealed(obj)
   ) {
-    tryAddInspect(obj, stringifier);
+    tryAddInspect(obj, bsonStringifiers[bsontype]);
   } else if (isDate(obj)) {
     tryAddInspect(obj, function (this: Date): string {
       return this.toISOString();

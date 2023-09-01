@@ -150,9 +150,9 @@ describe('arg-mapper.mapCliToDriver', function () {
   context('when cli args have tlsCRLFile', function () {
     const cliOptions: CliOptions = { tlsCRLFile: 'key' };
 
-    it('maps to sslCRL', function () {
+    it('maps to tlsCRLFile', function () {
       expect(optionsTest(cliOptions)).to.deep.equal({
-        cs: 'mongodb://localhost/?sslCRL=key',
+        cs: 'mongodb://localhost/?tlsCRLFile=key',
       });
     });
   });

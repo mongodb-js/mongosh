@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import { MongoClient } from 'mongodb';
 import {
-  startTestServer,
   skipIfServerVersion,
+  startSharedTestServer,
 } from '../../../testing/integration-testing-hooks';
 import { forceCloseMongoClient } from './mongodb-patches';
 import { promisify } from 'util';
@@ -10,7 +10,7 @@ import { promisify } from 'util';
 const delay = promisify(setTimeout);
 
 describe('forceCloseMongoClient [integration]', function () {
-  const testServer = startTestServer('shared');
+  const testServer = startSharedTestServer();
 
   context('for server >= 4.1', function () {
     skipIfServerVersion(testServer, '< 4.1');

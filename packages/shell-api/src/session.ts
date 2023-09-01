@@ -98,20 +98,20 @@ export default class Session extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
-  async commitTransaction(): Promise<Document> {
-    return await this._session.commitTransaction();
+  async commitTransaction(): Promise<void> {
+    await this._session.commitTransaction();
   }
 
   @returnsPromise
-  async abortTransaction(): Promise<Document> {
-    return await this._session.abortTransaction();
+  async abortTransaction(): Promise<void> {
+    await this._session.abortTransaction();
   }
 
   @returnsPromise
   async withTransaction<T extends (...args: any) => any>(
     fn: T,
     options: TransactionOptions = {}
-  ): Promise<Document | undefined> {
+  ): Promise<ReturnType<T>> {
     assertArgsDefinedType([fn, options], ['function', [undefined, 'object']]);
     // The driver doesn't automatically ensure that fn is an async
     // function/convert its return type to a Promise, so we do that here.
