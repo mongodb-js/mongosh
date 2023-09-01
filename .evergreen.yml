@@ -2382,20 +2382,6 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux_unit-m42xe_n20_cli_repl.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m42xe_n20_cli_repl.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-linux_unit-m42xe_n20_cli_repl.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
         local_file: src/nyc-output-linux_unit-m44xc_n20_cli_repl.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m44xc_n20_cli_repl.tgz
         bucket: mciuploads
@@ -2532,20 +2518,6 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-linux_unit-m42xc_n16_cli_repl.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux_unit-m42xe_n16_cli_repl.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m42xe_n16_cli_repl.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-linux_unit-m42xe_n16_cli_repl.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -2690,20 +2662,6 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux_unit-m42xe_n20_e2e_tests.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m42xe_n20_e2e_tests.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-linux_unit-m42xe_n20_e2e_tests.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
         local_file: src/nyc-output-linux_unit-m44xc_n20_e2e_tests.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m44xc_n20_e2e_tests.tgz
         bucket: mciuploads
@@ -2840,20 +2798,6 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-linux_unit-m42xc_n16_e2e_tests.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux_unit-m42xe_n16_e2e_tests.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m42xe_n16_e2e_tests.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-linux_unit-m42xe_n16_e2e_tests.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -3474,20 +3418,6 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux_unit-m42xe_n20_node_runtime_worker_thread.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m42xe_n20_node_runtime_worker_thread.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-linux_unit-m42xe_n20_node_runtime_worker_thread.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
         local_file: src/nyc-output-linux_unit-m44xc_n20_node_runtime_worker_thread.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m44xc_n20_node_runtime_worker_thread.tgz
         bucket: mciuploads
@@ -3624,20 +3554,6 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-linux_unit-m42xc_n16_node_runtime_worker_thread.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux_unit-m42xe_n16_node_runtime_worker_thread.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m42xe_n16_node_runtime_worker_thread.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-linux_unit-m42xe_n16_node_runtime_worker_thread.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -3810,20 +3726,6 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux_unit-m42xe_n20_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m42xe_n20_service_provider_server.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-linux_unit-m42xe_n20_service_provider_server.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
         local_file: src/nyc-output-linux_unit-m44xc_n20_service_provider_server.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m44xc_n20_service_provider_server.tgz
         bucket: mciuploads
@@ -3960,20 +3862,6 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-linux_unit-m42xc_n16_service_provider_server.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux_unit-m42xe_n16_service_provider_server.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m42xe_n16_service_provider_server.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-linux_unit-m42xe_n16_service_provider_server.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -4118,20 +4006,6 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux_unit-m42xe_n20_shell_api.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m42xe_n20_shell_api.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-linux_unit-m42xe_n20_shell_api.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
         local_file: src/nyc-output-linux_unit-m44xc_n20_shell_api.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m44xc_n20_shell_api.tgz
         bucket: mciuploads
@@ -4268,20 +4142,6 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-linux_unit-m42xc_n16_shell_api.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux_unit-m42xe_n16_shell_api.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m42xe_n16_shell_api.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-linux_unit-m42xe_n16_shell_api.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -12965,7 +12825,6 @@ buildvariants:
       - name: test_n20_build
       - name: test_n16_build
       - name: test_m42xc_n20_cli_repl
-      - name: test_m42xe_n20_cli_repl
       - name: test_m44xc_n20_cli_repl
       - name: test_m44xe_n20_cli_repl
       - name: test_m50xc_n20_cli_repl
@@ -12976,7 +12835,6 @@ buildvariants:
       - name: test_m70xe_n20_cli_repl
       - name: test_mlatest_n20_cli_repl
       - name: test_m42xc_n16_cli_repl
-      - name: test_m42xe_n16_cli_repl
       - name: test_m44xc_n16_cli_repl
       - name: test_m44xe_n16_cli_repl
       - name: test_m50xc_n16_cli_repl
@@ -12987,7 +12845,6 @@ buildvariants:
       - name: test_m70xe_n16_cli_repl
       - name: test_mlatest_n16_cli_repl
       - name: test_m42xc_n20_e2e_tests
-      - name: test_m42xe_n20_e2e_tests
       - name: test_m44xc_n20_e2e_tests
       - name: test_m44xe_n20_e2e_tests
       - name: test_m50xc_n20_e2e_tests
@@ -12998,7 +12855,6 @@ buildvariants:
       - name: test_m70xe_n20_e2e_tests
       - name: test_mlatest_n20_e2e_tests
       - name: test_m42xc_n16_e2e_tests
-      - name: test_m42xe_n16_e2e_tests
       - name: test_m44xc_n16_e2e_tests
       - name: test_m44xe_n16_e2e_tests
       - name: test_m50xc_n16_e2e_tests
@@ -13043,7 +12899,6 @@ buildvariants:
       - name: test_n20_logging
       - name: test_n16_logging
       - name: test_m42xc_n20_node_runtime_worker_thread
-      - name: test_m42xe_n20_node_runtime_worker_thread
       - name: test_m44xc_n20_node_runtime_worker_thread
       - name: test_m44xe_n20_node_runtime_worker_thread
       - name: test_m50xc_n20_node_runtime_worker_thread
@@ -13054,7 +12909,6 @@ buildvariants:
       - name: test_m70xe_n20_node_runtime_worker_thread
       - name: test_mlatest_n20_node_runtime_worker_thread
       - name: test_m42xc_n16_node_runtime_worker_thread
-      - name: test_m42xe_n16_node_runtime_worker_thread
       - name: test_m44xc_n16_node_runtime_worker_thread
       - name: test_m44xe_n16_node_runtime_worker_thread
       - name: test_m50xc_n16_node_runtime_worker_thread
@@ -13067,7 +12921,6 @@ buildvariants:
       - name: test_n20_service_provider_core
       - name: test_n16_service_provider_core
       - name: test_m42xc_n20_service_provider_server
-      - name: test_m42xe_n20_service_provider_server
       - name: test_m44xc_n20_service_provider_server
       - name: test_m44xe_n20_service_provider_server
       - name: test_m50xc_n20_service_provider_server
@@ -13078,7 +12931,6 @@ buildvariants:
       - name: test_m70xe_n20_service_provider_server
       - name: test_mlatest_n20_service_provider_server
       - name: test_m42xc_n16_service_provider_server
-      - name: test_m42xe_n16_service_provider_server
       - name: test_m44xc_n16_service_provider_server
       - name: test_m44xe_n16_service_provider_server
       - name: test_m50xc_n16_service_provider_server
@@ -13089,7 +12941,6 @@ buildvariants:
       - name: test_m70xe_n16_service_provider_server
       - name: test_mlatest_n16_service_provider_server
       - name: test_m42xc_n20_shell_api
-      - name: test_m42xe_n20_shell_api
       - name: test_m44xc_n20_shell_api
       - name: test_m44xe_n20_shell_api
       - name: test_m50xc_n20_shell_api
@@ -13100,7 +12951,6 @@ buildvariants:
       - name: test_m70xe_n20_shell_api
       - name: test_mlatest_n20_shell_api
       - name: test_m42xc_n16_shell_api
-      - name: test_m42xe_n16_shell_api
       - name: test_m44xc_n16_shell_api
       - name: test_m44xe_n16_shell_api
       - name: test_m50xc_n16_shell_api

@@ -37,20 +37,25 @@ const MONGOSH_PACKAGES = fs.readdirSync(pathToPackages, { withFileTypes: true })
 const ALL_UNIT_TESTS = [];
 for (const packageInfo of MONGOSH_PACKAGES) {
   for (const { shortName: nShort, versionSpec: nVersion, skipNodeVersionCheck } of NODE_VERSIONS) {
+    const defaultVariants = ['darwin', 'linux', 'win32'];
     if (packageInfo.unitTestsOnly) {
       const id = `n${nShort}_${packageInfo.name.replace(/-/g, '_')}`;
       ALL_UNIT_TESTS.push({
         id, nShort, nVersion, skipNodeVersionCheck,
         packageName: packageInfo.name,
-        variants: packageInfo.variants
+        variants: packageInfo.variants ?? defaultVariants
       });
     } else {
       for (const { shortName: mShort, versionSpec: mVersion } of MONGODB_VERSIONS) {
+        const defaultVariantsForMdbServerTest = (mShort === '42xe') ?
+          // The MongoDB 4.2 enterprise server does not work on Ubuntu 20.04
+          defaultVariants.filter(v => v !== 'linux') :
+          defaultVariants;
         const id = `m${mShort}_n${nShort}_${packageInfo.name.replace(/-/g, '_')}`;
         ALL_UNIT_TESTS.push({
           id, nShort, nVersion, mShort, mVersion, skipNodeVersionCheck,
           packageName: packageInfo.name,
-          variants: packageInfo.variants
+          variants: packageInfo.variants ?? defaultVariantsForMdbServerTest
         });
       }
     }
@@ -242,7 +247,7 @@ functions:
 
   check_coverage:
     <% for (let buildVariant of ALL_UNIT_TEST_BUILD_VARIANTS) {
-        for (let unitTest of ALL_UNIT_TESTS.filter(t => !t.variants || t.variants.includes(buildVariant.replace(/_unit$/, '')))) { %>
+        for (let unitTest of ALL_UNIT_TESTS.filter(t => t.variants.includes(buildVariant.replace(/_unit$/, '')))) { %>
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -1124,7 +1129,7 @@ buildvariants:
       executable_os_id: darwin-x64
     tasks:
       - name: check
-      <% for (const test of ALL_UNIT_TESTS.filter(t => !t.variants || t.variants.includes('darwin'))) { %>
+      <% for (const test of ALL_UNIT_TESTS.filter(t => t.variants.includes('darwin'))) { %>
       - name: test_<% out(test.id) %>
       <% } %>
   - name: darwin
@@ -1152,7 +1157,7 @@ buildvariants:
     tasks:
       - name: compile_ts
       - name: check
-      <% for (const test of ALL_UNIT_TESTS.filter(t => !t.variants || t.variants.includes('linux'))) { %>
+      <% for (const test of ALL_UNIT_TESTS.filter(t => t.variants.includes('linux'))) { %>
       - name: test_<% out(test.id) %>
       <% } %>
       - name: test_vscode
@@ -1408,7 +1413,7 @@ buildvariants:
       executable_os_id: win32
     tasks:
       - name: check
-      <% for (const test of ALL_UNIT_TESTS.filter(t => !t.variants || t.variants.includes('win32'))) { %>
+      <% for (const test of ALL_UNIT_TESTS.filter(t => t.variants.includes('win32'))) { %>
       - name: test_<% out(test.id) %>
       <% } %>
   - name: win32
