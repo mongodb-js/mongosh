@@ -74,6 +74,11 @@ export default ({
               // at the top-level (i.e. no block scoping).
               const asAssignments = [];
               for (const decl of path.node.declarations) {
+                if (
+                  (decl.id as babel.types.Identifier).name ===
+                  this.completionRecordId.name
+                )
+                  return;
                 // Copy variable names.
                 this.variables.push((decl.id as babel.types.Identifier).name);
                 if (decl.init) {
@@ -133,6 +138,38 @@ export default ({
             return;
           }
         }
+
+        // If a statement potentially acts as one that generates the completion record
+        // for the top-level code, assign its result to a variable that stores that
+        // completion record.
+        // We are *not* using babel's path.getCompletionRecords() method here because
+        // that, despite its name, actually *mutates* the tree as a side-effect, see
+        // https://jira.mongodb.org/browse/MONGOSH-1579 for an example.
+        if (
+          path.isExpressionWrapper() && // can contribute completion record?
+          !path.getFunctionParent() && // is for the top-level code we're moving to an IIFE?
+          !(
+            // not already transformed?
+            (
+              path.isExpressionStatement() &&
+              path.node.expression.type === 'AssignmentExpression' &&
+              path.node.expression.left.type === 'Identifier' &&
+              path.node.expression.left.name === this.completionRecordId.name
+            )
+          )
+        ) {
+          path.replaceWith(
+            t.expressionStatement(
+              t.assignmentExpression(
+                '=',
+                this.completionRecordId,
+                path.node.expression
+              )
+            )
+          );
+          return;
+        }
+
         // All other declarations are currently either about TypeScript
         // or ES modules. We treat them like non-declaration statements here
         // and move them into the generated IIFE.
@@ -142,6 +179,9 @@ export default ({
       },
       Program: {
         enter(path) {
+          if (this.hasFinishedMoving) return;
+          this.completionRecordId = path.scope.generateUidIdentifier('cr');
+
           // If the body of the program consists of a single string literal,
           // we want to intepret it as such and not as a directive (that is,
           // a "use strict"-like thing).
@@ -166,12 +206,6 @@ export default ({
           // code inside an IIFE.
           if (this.hasFinishedMoving) return;
           this.hasFinishedMoving = true;
-          this.completionRecordId = path.scope.generateUidIdentifier('cr');
-          this.movedStatements.unshift(
-            t.variableDeclaration('var', [
-              t.variableDeclarator(this.completionRecordId),
-            ])
-          );
           path.replaceWith(
             t.program(
               [
@@ -185,7 +219,13 @@ export default ({
                   t.callExpression(
                     t.arrowFunctionExpression(
                       [],
-                      t.blockStatement(this.movedStatements)
+                      t.blockStatement([
+                        t.variableDeclaration('var', [
+                          t.variableDeclarator(this.completionRecordId),
+                        ]),
+                        ...this.movedStatements,
+                        t.returnStatement(this.completionRecordId),
+                      ])
                     ),
                     []
                   )
@@ -193,39 +233,6 @@ export default ({
               ],
               path.node.directives
             )
-          );
-        },
-      },
-      BlockStatement: {
-        exit(path): void {
-          if (!this.hasFinishedMoving) return;
-          // After creating the function, we look for completion records and
-          // turn them into return statements. This applies only to body of
-          // the single top-level function that we just created.
-          if (!path.parentPath.isArrowFunctionExpression()) return;
-          if (path.parentPath.getFunctionParent()) return;
-          if (this.addedCompletionRecords) return;
-          this.addedCompletionRecords = true;
-          const records = path.getCompletionRecords();
-          for (const record of records) {
-            // ExpressionWrapper = ExpressionStatement | ParenthesizedExpression
-            if (record.isExpressionWrapper()) {
-              record.replaceWith(
-                t.expressionStatement(
-                  t.assignmentExpression(
-                    '=',
-                    this.completionRecordId,
-                    record.node.expression
-                  )
-                )
-              );
-            }
-          }
-          path.replaceWith(
-            t.blockStatement([
-              ...path.node.body,
-              t.returnStatement(this.completionRecordId),
-            ])
           );
         },
       },
