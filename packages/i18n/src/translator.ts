@@ -66,7 +66,7 @@ class Translator {
    * @param {string} locale - The locale.
    */
   setLocale(locale: string): void {
-    if (MAPPINGS.hasOwnProperty(locale)) {
+    if (Object.prototype.hasOwnProperty.call(MAPPINGS, locale)) {
       this.locale = locale;
       this.catalog = MAPPINGS[locale];
     } else {

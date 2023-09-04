@@ -5,7 +5,6 @@ import {
   ShellApiWithMongoClass,
 } from './decorators';
 import type {
-  Document,
   ClientSessionOptions,
   ClientSession,
   TransactionOptions,

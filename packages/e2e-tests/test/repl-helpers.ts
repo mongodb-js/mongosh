@@ -89,7 +89,7 @@ const fakeExternalEditor = async ({
       if (${JSON.stringify(flags ?? '')}) {
         assert.deepStrictEqual((${JSON.stringify(
           flags
-        )}).split(/\s+/), process.argv.slice(2, -1));
+        )}).split(/\\s+/), process.argv.slice(2, -1));
       }
 
       await writeFile(tmpDoc, ${JSON.stringify(output)}, { mode: 0o600 });

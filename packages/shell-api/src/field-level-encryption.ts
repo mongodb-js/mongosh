@@ -23,7 +23,7 @@ import type Collection from './collection';
 import Cursor from './cursor';
 import type { DeleteResult } from './result';
 import { assertArgsDefinedType, assertKeysDefined } from './helpers';
-import { asPrintable, shellApiType } from './enums';
+import { asPrintable } from './enums';
 import { redactURICredentials } from '@mongosh/history';
 import type Mongo from './mongo';
 import {
@@ -31,7 +31,6 @@ import {
   MongoshInvalidInputError,
   MongoshRuntimeError,
 } from '@mongosh/errors';
-import type ShellInstanceState from './shell-instance-state';
 import type { CreateEncryptedCollectionOptions } from '@mongosh/service-provider-core';
 
 export type ClientSideFieldLevelEncryptionKmsProvider = Omit<

@@ -331,7 +331,10 @@ export async function getPrintableShardStatus(
     (async (): Promise<void> => {
       // Output the balancer window
       const settings = await settingsColl.findOne({ _id: 'balancer' });
-      if (settings !== null && settings.hasOwnProperty('activeWindow')) {
+      if (
+        settings !== null &&
+        Object.prototype.hasOwnProperty.call(settings, 'activeWindow')
+      ) {
         const balSettings = settings.activeWindow;
         balancerRes[
           'Balancer active window is set between'
@@ -493,7 +496,7 @@ export async function getPrintableShardStatus(
   result.databases = await Promise.all(
     databases.map(async (db) => {
       const escapeRegex = (string: string): string => {
-        return string.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+        return string.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
       };
       const colls = await (
         await configDB
