@@ -675,6 +675,7 @@ export default class Mongo extends ShellApiClass {
       'maxCommitTimeMS',
     ] as const;
     function assertAllTransactionOptionsUsed(
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       _options: (typeof allTransactionOptions)[number]
     ) {
       // These typechecks might look weird, but will tell us if we are missing
@@ -693,6 +694,7 @@ export default class Mongo extends ShellApiClass {
 
     const allSessionOptions = ['causalConsistency', 'snapshot'] as const;
     function assertAllSessionOptionsUsed(
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       _options: (typeof allSessionOptions)[number] | 'defaultTransactionOptions'
     ) {}
     assertAllSessionOptionsUsed('' as keyof ClientSessionOptions);

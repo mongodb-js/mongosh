@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 // MongoDB Playground
 // To disable this template go to Settings | MongoDB | Use Default Template For Playground.
 // Make sure you are connected to enable completions and to be able to run a playground.

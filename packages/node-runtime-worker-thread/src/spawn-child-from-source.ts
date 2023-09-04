@@ -25,7 +25,7 @@ export default function spawnChildFromSource(
   _stdout: StdioNull | StdioPipe = 'inherit',
   _stderr: StdioNull | StdioPipe = 'inherit'
 ): Promise<ChildProcess> {
-  return new Promise(async (resolve, reject) => {
+  return new Promise((resolve, reject) => {
     const readyToken = Date.now().toString(32);
 
     const childProcess = spawn(process.execPath, {
@@ -34,11 +34,16 @@ export default function spawnChildFromSource(
     });
 
     if (!childProcess.stdin) {
-      await kill(childProcess);
-
-      return reject(
-        new Error("Can't write src to the spawned process, missing stdin")
-      );
+      kill(childProcess)
+        .then(() => {
+          reject(
+            new Error("Can't write src to the spawned process, missing stdin")
+          );
+        })
+        .catch((err: any) => {
+          reject(err);
+        });
+      return;
     }
 
     // eslint-disable-next-line prefer-const

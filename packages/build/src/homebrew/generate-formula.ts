@@ -11,8 +11,8 @@ export async function generateUpdatedFormula(
     'master'
   );
 
-  const urlMatch = /url \"([^"]+)\"/g.exec(currentFormula.content);
-  const shaMatch = /sha256 \"([^"]+)\"/g.exec(currentFormula.content);
+  const urlMatch = /url "([^"]+)"/g.exec(currentFormula.content);
+  const shaMatch = /sha256 "([^"]+)"/g.exec(currentFormula.content);
 
   if (!urlMatch || !shaMatch) {
     throw new Error(
@@ -45,9 +45,9 @@ export async function generateUpdatedFormula(
   }
 
   let newFormula = currentFormula.content;
-  newFormula = newFormula.replace(/url \"([^"]+)\"/g, `url "${newUrl}"`);
+  newFormula = newFormula.replace(/url "([^"]+)"/g, `url "${newUrl}"`);
   newFormula = newFormula.replace(
-    /sha256 \"([^"]+)\"/g,
+    /sha256 "([^"]+)"/g,
     `sha256 "${context.sha}"`
   );
   return newFormula;

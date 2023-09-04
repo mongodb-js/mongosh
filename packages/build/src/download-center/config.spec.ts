@@ -10,7 +10,8 @@ import {
   createAndPublishDownloadCenterConfig,
   createJsonFeedEntry,
 } from './config';
-import { Server as HTTPServer, createServer as createHTTPServer } from 'http';
+import { createServer as createHTTPServer } from 'http';
+import type { Server as HTTPServer } from 'http';
 import { once } from 'events';
 import path from 'path';
 import fetch from 'node-fetch';

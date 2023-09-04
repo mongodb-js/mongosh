@@ -10,6 +10,7 @@ if (
   // @ts-ignore
   typeof TextEncoder !== 'function'
 ) {
+  // eslint-disable-next-line @typescript-eslint/no-implied-eval
   Object.assign(Function('return this')(), textEncodingPolyfill());
 }
 
