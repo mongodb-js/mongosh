@@ -38,7 +38,7 @@ const evaluationLock = new Lock();
 function ensureRuntime(methodName: string): Runtime {
   if (!runtime) {
     throw new Error(
-      `Can\'t call ${methodName} before shell runtime is initiated`
+      `Can't call ${methodName} before shell runtime is initiated`
     );
   }
 

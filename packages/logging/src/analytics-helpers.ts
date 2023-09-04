@@ -79,8 +79,8 @@ class Queue<T> {
  * (e.g. because we are running without an API key).
  */
 export class NoopAnalytics implements MongoshAnalytics {
-  identify(_info: any): void {}
-  track(_info: any): void {}
+  identify(): void {}
+  track(): void {}
   flush(cb: () => void) {
     cb();
   }

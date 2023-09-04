@@ -5,7 +5,6 @@ import type Cursor from './cursor';
 import Explainable from './explainable';
 import type Database from './database';
 import type Collection from './collection';
-import type AggregationCursor from './aggregation-cursor';
 import {
   skipIfServerVersion,
   skipIfApiStrict,

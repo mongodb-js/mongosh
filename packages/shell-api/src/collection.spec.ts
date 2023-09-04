@@ -1553,12 +1553,14 @@ describe('Collection', function () {
         });
         it('not returned when no args', async function () {
           const result = await collection.stats();
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { indexDetails, ...expectedResultWithoutIndexDetails } =
             expectedResult;
           expect(result).to.deep.equal(expectedResultWithoutIndexDetails);
         });
         it('not returned when options indexDetails: false', async function () {
           const result = await collection.stats({ indexDetails: false });
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { indexDetails, ...expectedResultWithoutIndexDetails } =
             expectedResult;
           expect(result).to.deep.equal(expectedResultWithoutIndexDetails);

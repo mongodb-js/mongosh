@@ -36,7 +36,6 @@ import {
   makeFakeHTTPConnection,
   fakeAWSHandlers,
 } from '../../../testing/fake-kms';
-import { inspect } from 'util';
 import Collection from './collection';
 import { dummyOptions } from './helpers.spec';
 
