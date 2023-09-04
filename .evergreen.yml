@@ -3054,20 +3054,6 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux_unit-m42xe_n20_java_shell.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m42xe_n20_java_shell.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-linux_unit-m42xe_n20_java_shell.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
         local_file: src/nyc-output-linux_unit-m44xc_n20_java_shell.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m44xc_n20_java_shell.tgz
         bucket: mciuploads
@@ -3204,20 +3190,6 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-linux_unit-m42xc_n16_java_shell.tgz
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/nyc-output-linux_unit-m42xe_n16_java_shell.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m42xe_n16_java_shell.tgz
-        bucket: mciuploads
-    - command: shell.exec
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          tar xvzf nyc-output-linux_unit-m42xe_n16_java_shell.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -12873,7 +12845,6 @@ buildvariants:
       - name: test_n20_i18n
       - name: test_n16_i18n
       - name: test_m42xc_n20_java_shell
-      - name: test_m42xe_n20_java_shell
       - name: test_m44xc_n20_java_shell
       - name: test_m44xe_n20_java_shell
       - name: test_m50xc_n20_java_shell
@@ -12884,7 +12855,6 @@ buildvariants:
       - name: test_m70xe_n20_java_shell
       - name: test_mlatest_n20_java_shell
       - name: test_m42xc_n16_java_shell
-      - name: test_m42xe_n16_java_shell
       - name: test_m44xc_n16_java_shell
       - name: test_m44xe_n16_java_shell
       - name: test_m50xc_n16_java_shell

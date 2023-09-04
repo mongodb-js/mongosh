@@ -47,15 +47,16 @@ for (const packageInfo of MONGOSH_PACKAGES) {
       });
     } else {
       for (const { shortName: mShort, versionSpec: mVersion } of MONGODB_VERSIONS) {
-        const defaultVariantsForMdbServerTest = (mShort === '42xe') ?
+        let variants = packageInfo.variants ?? defaultVariants;
+        variants = (mShort === '42xe') ?
           // The MongoDB 4.2 enterprise server does not work on Ubuntu 20.04
-          defaultVariants.filter(v => v !== 'linux') :
-          defaultVariants;
+          variants.filter(v => v !== 'linux') :
+          variants;
         const id = `m${mShort}_n${nShort}_${packageInfo.name.replace(/-/g, '_')}`;
         ALL_UNIT_TESTS.push({
           id, nShort, nVersion, mShort, mVersion, skipNodeVersionCheck,
           packageName: packageInfo.name,
-          variants: packageInfo.variants ?? defaultVariantsForMdbServerTest
+          variants
         });
       }
     }
