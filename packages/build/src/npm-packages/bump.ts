@@ -15,11 +15,12 @@ export async function bumpNpmPackages(version: string): Promise<void> {
   const monorepoRootPath = path.resolve(__dirname, '..', '..', '..', '..');
   const packages = await getPackagesInTopologicalOrder(monorepoRootPath);
 
+  const workspaceNames = packages.map((p) => p.name);
+
   const locations = [monorepoRootPath, ...packages.map((p) => p.location)];
 
   for (const location of locations) {
     const packageJsonPath = path.join(location, 'package.json');
-    console.log({ packageJsonPath });
     const packageJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf8'));
 
     packageJson.version = version;
@@ -33,10 +34,8 @@ export async function bumpNpmPackages(version: string): Promise<void> {
         continue;
       }
 
-      for (const [name, currentVersion] of Object.entries(
-        packageJson[grouping]
-      )) {
-        if (currentVersion !== PLACEHOLDER_VERSION) {
+      for (const name of Object.keys(packageJson[grouping])) {
+        if (!workspaceNames.includes(name)) {
           continue;
         }
         packageJson[grouping][name] = version;
