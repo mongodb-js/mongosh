@@ -640,6 +640,7 @@ describe('e2e TLS', function () {
         'requireTLS',
         '--tlsCertificateKeyFile',
         SERVER_INVALIDHOST_KEY,
+        '--tlsAllowConnectionsWithoutCertificates',
       ],
     });
 
