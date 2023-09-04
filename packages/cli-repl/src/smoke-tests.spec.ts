@@ -1,12 +1,12 @@
 import { runSmokeTests } from './smoke-tests';
 import path from 'path';
 import {
-  startTestServer,
   downloadCurrentCryptSharedLibrary,
+  startSharedTestServer,
 } from '../../../testing/integration-testing-hooks';
 
 describe('smoke tests', function () {
-  const testServer = startTestServer('shared');
+  const testServer = startSharedTestServer();
   let cryptLibrary: string;
 
   before(async function () {

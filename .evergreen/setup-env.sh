@@ -1,7 +1,7 @@
 set -e
 set -x
 export BASEDIR="$PWD/.evergreen"
-export PATH="/cygdrive/c/python/Python311/Scripts:/cygdrive/c/python/Python311:/cygdrive/c/Python311/Scripts:/cygdrive/c/Python311:/opt/python/3.6/bin:$BASEDIR/mingit/cmd:$BASEDIR/mingit/mingw64/libexec/git-core:$BASEDIR/git-2:$BASEDIR/npm-8/node_modules/.bin:$BASEDIR/node-v$NODE_JS_VERSION-win-x64:/opt/java/jdk16/bin:/opt/chefdk/gitbin:/cygdrive/c/cmake/bin:/opt/mongodbtoolchain/v3/bin:$PATH"
+export PATH="/cygdrive/c/python/Python311/Scripts:/cygdrive/c/python/Python311:/cygdrive/c/Python311/Scripts:/cygdrive/c/Python311:/opt/python/3.6/bin:$BASEDIR/mingit/cmd:$BASEDIR/mingit/mingw64/libexec/git-core:$BASEDIR/git-2:$BASEDIR/npm-9/node_modules/.bin:$BASEDIR/node-v$NODE_JS_VERSION-win-x64:/opt/java/jdk16/bin:/opt/chefdk/gitbin:/cygdrive/c/cmake/bin:/opt/mongodbtoolchain/v4/bin:/opt/mongodbtoolchain/v3/bin:$PATH"
 export IS_MONGOSH_EVERGREEN_CI=1
 export DEBUG="mongodb*,$DEBUG"
 
@@ -19,13 +19,13 @@ if [ "$OS" != "Windows_NT" ]; then
   export PATH="$NVM_BIN:$PATH"
 
   export CC=gcc
-  export CXX=c++
+  export CXX=g++
 
   echo "Using gcc version:"
-  gcc --version
+  (which gcc && gcc --version)
 
   echo "Using g++ version:"
-  g++ --version
+  (which g++ && g++ --version)
 
   if [ -x "$BASEDIR/git-2/git" ]; then
     export GIT_EXEC_PATH="$BASEDIR/git-2"

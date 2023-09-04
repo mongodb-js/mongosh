@@ -33,6 +33,7 @@ import { TransformMongoErrorPlugin } from './mongo-errors';
 import NoDatabase from './no-db';
 import type { ShellBson } from './shell-bson';
 import constructShellBson from './shell-bson';
+import { Streams } from './streams';
 
 /**
  * The subset of CLI options that is relevant for the shell API's behavior itself.
@@ -226,6 +227,7 @@ export default class ShellInstanceState {
     this.currentDb = newDb;
     this.context.rs = new ReplicaSet(this.currentDb);
     this.context.sh = new Shard(this.currentDb);
+    this.context.sp = Streams.newInstance(this.currentDb);
     this.fetchConnectionInfo().catch((err) =>
       this.messageBus.emit('mongosh:error', err, 'shell-api')
     );
@@ -281,6 +283,7 @@ export default class ShellInstanceState {
 
     contextObject.rs = new ReplicaSet(this.currentDb);
     contextObject.sh = new Shard(this.currentDb);
+    contextObject.sp = Streams.newInstance(this.currentDb);
 
     const setFunc = (newDb: any): Database => {
       if (getShellApiType(newDb) !== 'Database') {
@@ -434,7 +437,7 @@ export default class ShellInstanceState {
   }
 
   async onInterruptExecution(): Promise<boolean> {
-    this.interrupted.set();
+    await this.interrupted.set();
     this.currentCursor = null;
 
     this.resumeMongosAfterInterrupt = await Promise.all(
@@ -481,6 +484,10 @@ export default class ShellInstanceState {
 
   // eslint-disable-next-line @typescript-eslint/require-await
   async getDefaultPrompt(): Promise<string> {
+    if (this.connectionInfo?.extraInfo?.is_stream) {
+      return 'AtlasStreamProcessing> ';
+    }
+
     const prefix = this.getDefaultPromptPrefix();
     const topologyInfo = this.getTopologySpecificPrompt();
     let dbname = '';
@@ -496,6 +503,8 @@ export default class ShellInstanceState {
     const extraConnectionInfo = this.connectionInfo?.extraInfo;
     if (extraConnectionInfo?.is_data_federation) {
       return 'AtlasDataFederation';
+    } else if (extraConnectionInfo?.is_local_atlas) {
+      return 'AtlasLocalDev';
     } else if (extraConnectionInfo?.is_atlas) {
       return 'Atlas';
     } else if (

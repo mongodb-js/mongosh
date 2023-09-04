@@ -101,6 +101,7 @@ const translations: Catalog = {
       additionalErrorResult: 'Result',
       additionalErrorViolations: 'Violations',
       additionalErrorWriteErrors: 'Write Errors',
+      errorCausedBy: 'Caused by',
     },
     'uri-generator': {
       'no-host-port':
@@ -1456,23 +1457,6 @@ const translations: Catalog = {
                 'Prints the collection.stats for each collection in the db.',
               example: 'db.printCollectionStats(scale)',
             },
-            getFreeMonitoringStatus: {
-              link: 'https://docs.mongodb.com/manual/reference/method/db.getFreeMonitoringStatus',
-              description: 'Calls the getFreeMonitoringStatus command',
-              example: 'db.getFreeMonitoringStatus()',
-            },
-            enableFreeMonitoring: {
-              link: 'https://docs.mongodb.com/manual/reference/method/db.enableFreeMonitoring',
-              description:
-                'returns the db enableFreeMonitoring. uses the setFreeMonitoring command',
-              example: 'db.enableFreeMonitoring()',
-            },
-            disableFreeMonitoring: {
-              link: 'https://docs.mongodb.com/manual/reference/method/db.disableFreeMonitoring',
-              description:
-                'returns the db disableFreeMonitoring. uses the setFreeMonitoring command',
-              example: 'db.disableFreeMonitoring()',
-            },
             getProfilingStatus: {
               link: 'https://docs.mongodb.com/manual/reference/method/db.getProfilingStatus',
               description:
@@ -2678,6 +2662,54 @@ const translations: Catalog = {
                 'Creates a new collection with a list of encrypted fields each with unique and auto-created data encryption keys (DEKs). This method should be invoked on a connection instantiated with queryable encryption options.',
               example:
                 'db.getMongo().getClientEncryption().createEncryptedCollection( "dbName", "collName", { "provider": "<kmsProvider>", "createCollectionOptions": { "encryptedFields": { ... }, ...<otherOptions> } })',
+            },
+          },
+        },
+      },
+      Streams: {
+        help: {
+          description: 'Streams',
+          attributes: {
+            process: {
+              description:
+                'Allows a user to process streams of data in the shell interactively and quickly iterate building a stream processor as they go.',
+            },
+            createStreamProcessor: {
+              description: 'Create a named stream processor.',
+            },
+            getProcessor: {
+              description: 'Get a stream processor with specified name.',
+            },
+            listStreamProcessors: {
+              description: 'Show a list of all the named stream processors.',
+            },
+            listConnections: {
+              description:
+                'Show a list of all the named connections for this instance from the Connection Registry.',
+            },
+          },
+        },
+      },
+      StreamProcessor: {
+        help: {
+          description: 'Stream processor',
+          attributes: {
+            start: {
+              description: 'Start a named stream processor.',
+            },
+            stop: {
+              description: 'Stop a named stream processor.',
+            },
+            drop: {
+              description: 'Drop a named stream processor.',
+            },
+            sample: {
+              description:
+                'Return a sample of the results from a named stream processor.',
+            },
+            stats: {
+              description:
+                'Return stats captured from a named stream processor.',
             },
           },
         },

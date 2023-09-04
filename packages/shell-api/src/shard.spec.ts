@@ -1793,6 +1793,7 @@ describe('Shard', function () {
     const shardId = 'rs-shard0';
 
     const [mongos, rs0, rs1] = startTestCluster(
+      'shard',
       // shards: 0 creates a setup without any initial shards
       { topology: 'sharded', shards: 0 },
       {

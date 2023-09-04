@@ -7,8 +7,9 @@ import type {
   OperationOptions,
   RunCommandCursor,
   RunCursorCommandOptions,
+  ClientEncryptionOptions,
 } from 'mongodb';
-import { MongoClient, ReadPreference, BSON } from 'mongodb';
+import { MongoClient, ReadPreference, BSON, ClientEncryption } from 'mongodb';
 
 import type {
   ServiceProvider,
@@ -58,7 +59,6 @@ import type {
   WriteConcern,
   ChangeStreamOptions,
   ChangeStream,
-  FLE,
   AutoEncryptionOptions,
   ClientEncryption as MongoCryptClientEncryption,
 } from '@mongosh/service-provider-core';
@@ -239,7 +239,6 @@ class CliServiceProvider
   private currentClientOptions: DevtoolsConnectOptions;
   private dbcache: WeakMap<MongoClient, Map<string, Db>>;
   public baseCmdOptions: OperationOptions; // public for testing
-  public fle: FLE | undefined;
   private bus: MongoshBus;
 
   /**
@@ -270,21 +269,6 @@ class CliServiceProvider
     this.currentClientOptions = clientOptions;
     this.baseCmdOptions = { ...DEFAULT_BASE_OPTIONS }; // currently do not have any user-specified connection-wide command options, but I imagine we will eventually
     this.dbcache = new WeakMap();
-    this.fle = CliServiceProvider.getLibmongocryptBindings();
-  }
-
-  private static getLibmongocryptBindings(): FLE | undefined {
-    try {
-      // The .extension() call may seem unnecessary, since that is the default
-      // for the top-level exports from mongodb-client-encryption anyway.
-      // However, for the browser runtime, we externalize mongodb-client-encryption
-      // since it is a native addon package; that means that if 'mongodb' is
-      // included in the bundle, it won't be able to find it, and instead needs
-      // to receive it as an explicitly passed dependency.
-      return require('mongodb-client-encryption').extension(require('mongodb'));
-    } catch {
-      return undefined;
-    }
   }
 
   static getVersionInformation(): DependencyVersionInfo {
@@ -298,8 +282,7 @@ class CliServiceProvider
     return {
       nodeDriverVersion: tryCall(() => require('mongodb/package.json').version),
       libmongocryptVersion: tryCall(
-        () =>
-          this.getLibmongocryptBindings()?.ClientEncryption.libmongocryptVersion
+        () => ClientEncryption.libmongocryptVersion // getter that actually loads the native addon (!)
       ),
       libmongocryptNodeBindingsVersion: tryCall(
         () => require('mongodb-client-encryption/package.json').version
@@ -331,7 +314,7 @@ class CliServiceProvider
   async getConnectionInfo(): Promise<ConnectionInfo> {
     const topology = this.getTopology();
     const { version } = require('../package.json');
-    const [buildInfo = null, atlasVersion = null, fcv = null] =
+    const [buildInfo = null, atlasVersion = null, fcv = null, atlascliInfo] =
       await Promise.all([
         this.runCommandWithCheck(
           'admin',
@@ -348,14 +331,20 @@ class CliServiceProvider
           { getParameter: 1, featureCompatibilityVersion: 1 },
           this.baseCmdOptions
         ).catch(() => {}),
+        this.countDocuments('admin', 'atlascli', {
+          managedClusterType: 'atlasCliLocalDevCluster',
+        }).catch(() => 0),
       ]);
+
+    const isLocalAtlasCli = !!atlascliInfo;
 
     const extraConnectionInfo = getConnectInfo(
       this.uri?.toString() ?? '',
       version,
       buildInfo,
       atlasVersion,
-      topology
+      topology,
+      isLocalAtlasCli
     );
 
     return {
@@ -732,8 +721,14 @@ class CliServiceProvider
     filter: Document = {},
     options: FindOneAndDeleteOptions = {},
     dbOptions?: DbOptions
-  ): Promise<Document> {
-    options = { ...this.baseCmdOptions, ...options };
+  ): Promise<Document | null> {
+    // TODO(MONGOSH-XXX): Consider removing the includeResultMetadata default
+    // since `false` is what gives the spec-compliant driver behavior.
+    options = {
+      includeResultMetadata: true,
+      ...this.baseCmdOptions,
+      ...options,
+    };
     return this.db(database, dbOptions)
       .collection(collection)
       .findOneAndDelete(filter, options);
@@ -760,6 +755,7 @@ class CliServiceProvider
     dbOptions?: DbOptions
   ): Promise<Document> {
     const findOneAndReplaceOptions: any = {
+      includeResultMetadata: true,
       ...this.baseCmdOptions,
       ...options,
     };
@@ -789,7 +785,11 @@ class CliServiceProvider
     options: FindOneAndUpdateOptions = {},
     dbOptions?: DbOptions
   ): Promise<Document> {
-    const findOneAndUpdateOptions = { ...this.baseCmdOptions, ...options };
+    const findOneAndUpdateOptions = {
+      includeResultMetadata: true,
+      ...this.baseCmdOptions,
+      ...options,
+    };
 
     return this.db(database, dbOptions)
       .collection(collection)
@@ -1398,6 +1398,10 @@ class CliServiceProvider
     return this.db(database, dbOptions)
       .collection(collection)
       .updateSearchIndex(indexName, definition);
+  }
+
+  createClientEncryption(options: ClientEncryptionOptions): ClientEncryption {
+    return new ClientEncryption(this.mongoClient, options);
   }
 }
 

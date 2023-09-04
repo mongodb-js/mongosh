@@ -1,13 +1,14 @@
 # Regenerate using `npm run update-evergreen-config`
+# https://jira.mongodb.org/browse/EVG-20276
+unset_function_vars: true
+
 <%
 const path = require('path');
 
-const NODE_JS_VERSION_14 = require('./node-14-latest.json').version;
+const NODE_JS_VERSION_20 = require('./node-20-latest.json').version;
 const NODE_JS_VERSION_16 = require('./node-16-latest.json').version;
 
 const MONGODB_VERSIONS = [
-  { shortName: '40xc', versionSpec: '4.0.x-community' },
-  { shortName: '40xe', versionSpec: '4.0.x' },
   { shortName: '42xc', versionSpec: '4.2.x-community' },
   { shortName: '42xe', versionSpec: '4.2.x' },
   { shortName: '44xc', versionSpec: '4.4.x-community' },
@@ -16,11 +17,13 @@ const MONGODB_VERSIONS = [
   { shortName: '50xe', versionSpec: '5.0.x' },
   { shortName: '60xc', versionSpec: '6.0.x-community' },
   { shortName: '60xe', versionSpec: '6.0.x' },
+  { shortName: '70xc', versionSpec: '7.0.x-community' },
+  { shortName: '70xe', versionSpec: '7.0.x' },
   { shortName: 'latest', versionSpec: 'latest-alpha-enterprise' }
 ];
 const NODE_VERSIONS = [
-  { shortName: '16', versionSpec: NODE_JS_VERSION_16, skipNodeVersionCheck: '' },
-  { shortName: '14', versionSpec: NODE_JS_VERSION_14, skipNodeVersionCheck: '1' }
+  { shortName: '20', versionSpec: NODE_JS_VERSION_20, skipNodeVersionCheck: '' },
+  { shortName: '16', versionSpec: NODE_JS_VERSION_16, skipNodeVersionCheck: '' }
 ];
 
 const pathToPackages = path.join(__dirname, '..', 'packages');
@@ -59,7 +62,7 @@ const ALL_UNIT_TEST_BUILD_VARIANTS = ['darwin_unit', 'linux_unit', 'win32_unit']
 const { RELEASE_PACKAGE_MATRIX } = require('../config/release-package-matrix');
 
 %>
-exec_timeout_secs: 3600
+exec_timeout_secs: 10800
 
 post_error_fails_task: true
 post:
@@ -69,6 +72,12 @@ post:
       script: |
         mkdir -p npm-logs
         tar cvzf npm-logs.tgz npm-logs
+
+        if [ -d "src/tmp/mongodb-runner/logs" ]; then
+            tar cvzf mongodb-runner-logs.tgz -C src/tmp/mongodb-runner logs
+        else
+            echo "Directory src/tmp/logs does not exist. Skipping."
+        fi
   - command: s3.put
     params:
       aws_key: ${aws_key}
@@ -79,6 +88,18 @@ post:
       permissions: private
       visibility: signed
       content_type: application/x-gzip
+  - command: s3.put
+    params:
+      aws_key: ${aws_key}
+      aws_secret: ${aws_secret}
+      local_file: mongodb-runner-logs.tgz
+      remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongodb-runner-logs-${build_variant}-${task_name}-${task_id}.tgz
+      bucket: mciuploads
+      permissions: private
+      visibility: signed
+      content_type: application/x-gzip
+      optional: true
+
 
 # Functions are any command that can be run.
 #
@@ -101,21 +122,34 @@ post:
 functions:
   checkout:
     - command: git.get_project
+      type: system
       params:
         directory: src
   compile_ts:
     - command: expansions.write
+      type: system
       params:
         file: tmp/expansions.yaml
         redacted: true
     - command: shell.exec
+      type: setup
       params:
         working_dir: src
         shell: bash
+        env:
+          NODE_JS_VERSION: ${node_js_version}
+          DISTRO_ID: ${distro_id}
         script: |
-          export NODE_JS_VERSION=${node_js_version}
           source .evergreen/install-node.sh
           source .evergreen/install-npm-deps.sh
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        env:
+          NODE_JS_VERSION: ${node_js_version}
+        script: |
+          source .evergreen/setup-env.sh
           npm run compile
           tar cvzf compiled-ts.tgz packages/*/{lib,dist}
     - command: s3.put
@@ -129,18 +163,23 @@ functions:
         content_type: application/x-gzip
   install:
     - command: expansions.write
+      type: system
       params:
         file: tmp/expansions.yaml
         redacted: true
     - command: shell.exec
+      type: setup
       params:
         working_dir: src
         shell: bash
+        env:
+          NODE_JS_VERSION: ${node_js_version}
+          DISTRO_ID: ${distro_id}
         script: |
-          export NODE_JS_VERSION=${node_js_version}
           source .evergreen/install-node.sh
           source .evergreen/install-npm-deps.sh
     - command: s3.get
+      type: setup
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
@@ -148,6 +187,7 @@ functions:
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/compiled-ts.tgz
         bucket: mciuploads
     - command: shell.exec
+      type: setup
       params:
         working_dir: src
         shell: bash
@@ -158,15 +198,17 @@ functions:
       params:
         working_dir: src
         shell: bash
+        env:
+          NODE_JS_VERSION: ${node_js_version}
         script: |
           set -e
           {
-          export NODE_JS_VERSION=${node_js_version}
           source .evergreen/setup-env.sh
           npm run check-ci
           }
   test:
     - command: expansions.write
+      type: system
       params:
         file: tmp/expansions.yaml
         redacted: true
@@ -177,14 +219,14 @@ functions:
         script: |
           set -e
           {
-          export NODE_JS_VERSION=${node_js_version}
-          export MONGOSH_RUN_ONLY_IN_PACKAGE=${mongosh_run_only_in_package}
           source .evergreen/setup-env.sh
           npm run test-ci
           echo "Archiving current coverage result..."
           tar cvzf nyc-output.tgz .nyc_output
           }
         env:
+          NODE_JS_VERSION: ${node_js_version}
+          MONGOSH_RUN_ONLY_IN_PACKAGE: ${mongosh_run_only_in_package}
           AWS_AUTH_IAM_ACCESS_KEY_ID: ${devtools_ci_aws_key}
           AWS_AUTH_IAM_SECRET_ACCESS_KEY: ${devtools_ci_aws_secret}
     - command: s3.put
@@ -237,10 +279,11 @@ functions:
       params:
         working_dir: src
         shell: bash
+        env:
+          NODE_JS_VERSION: ${node_js_version}
         script: |
           set -e
           {
-          export NODE_JS_VERSION=${node_js_version}
           source .evergreen/setup-env.sh
           npm run report-coverage-ci
           echo "Creating coverage tarball..."
@@ -260,10 +303,11 @@ functions:
       params:
         working_dir: src
         shell: bash
+        env:
+          NODE_JS_VERSION: ${node_js_version}
         script: |
           set -e
           {
-          export NODE_JS_VERSION=${node_js_version}
           source .evergreen/setup-env.sh
           npm run check-coverage
           }
@@ -273,10 +317,11 @@ functions:
       params:
         working_dir: src
         shell: bash
+        env:
+          NODE_JS_VERSION: ${node_js_version}
         script: |
           set -e
           {
-          export NODE_JS_VERSION=${node_js_version}
           source .evergreen/setup-env.sh
           (cd scripts/docker && docker build -t ubuntu22.04-xvfb -f ubuntu22.04-xvfb.Dockerfile .)
           docker run \
@@ -285,6 +330,7 @@ functions:
           }
   test_connectivity:
     - command: expansions.write
+      type: system
       params:
         file: tmp/expansions.yaml
         redacted: true
@@ -292,15 +338,17 @@ functions:
       params:
         working_dir: src
         shell: bash
+        env:
+          NODE_JS_VERSION: ${node_js_version}
         script: |
           set -e
           {
-          export NODE_JS_VERSION=${node_js_version}
           source .evergreen/setup-env.sh
           npm run test-connectivity
           }
   test_apistrict:
     - command: expansions.write
+      type: system
       params:
         file: tmp/expansions.yaml
         redacted: true
@@ -308,10 +356,11 @@ functions:
       params:
         working_dir: src
         shell: bash
+        env:
+          NODE_JS_VERSION: ${node_js_version}
         script: |
           set -e
           {
-          export NODE_JS_VERSION=${node_js_version}
           source .evergreen/setup-env.sh
           npm run test-apistrict-ci
           }
@@ -327,6 +376,7 @@ functions:
   ###
   compile_artifact:
     - command: expansions.write
+      type: system
       params:
         file: tmp/expansions.yaml
         redacted: true
@@ -335,24 +385,30 @@ functions:
         working_dir: src
         binary: bash .evergreen/compile-artifact.sh
         env:
+          DISTRO_ID: ${distro_id}
           NODE_JS_VERSION: ${node_js_version}
           MONGOSH_SHARED_OPENSSL: ${mongosh_shared_openssl}
+    - command: expansions.update
+      params:
+        ignore_missing_file: false
+        file: tmp/compiling-context.yml
     - command: s3.put
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
         local_file: src/dist.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-${executable_os_id}.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-${executable_os_id}${extra_upload_tag}.tgz
         bucket: mciuploads
         permissions: public-read
         content_type: application/x-gzip
   download_compiled_artifact:
     - command: s3.get
+      type: setup
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
         local_file: src/dist.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-${executable_os_id}.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-${executable_os_id}${extra_upload_tag}.tgz
         bucket: mciuploads
 
   ###
@@ -362,6 +418,7 @@ functions:
   ###
   run_e2e_tests:
     - command: expansions.write
+      type: system
       params:
         file: tmp/expansions.yaml
         redacted: true
@@ -373,6 +430,8 @@ functions:
           NODE_JS_VERSION: ${node_js_version}
           AWS_AUTH_IAM_ACCESS_KEY_ID: ${devtools_ci_aws_key}
           AWS_AUTH_IAM_SECRET_ACCESS_KEY: ${devtools_ci_aws_secret}
+          DISABLE_OPENSSL_SHARED_CONFIG_FOR_BUNDLED_OPENSSL: ${disable_openssl_shared_config_for_bundled_openssl}
+          E2E_TASK_NAME: ${task_name}
 
   ###
   # PACKAGING AND UPLOADING
@@ -393,11 +452,13 @@ functions:
   ###
   package_and_upload_artifact:
     - command: expansions.write
+      type: setup
       params:
         file: tmp/expansions.yaml
         redacted: true
         # TODO: REPLACE WITH CALLING download_compiled_artifact BEFORE
     - command: s3.get
+      type: setup
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
@@ -425,6 +486,7 @@ functions:
         content_type: application/x-gzip
   get_artifact_url:
     - command: s3.get
+      type: setup
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
@@ -434,6 +496,7 @@ functions:
 
   write_preload_script:
     - command: shell.exec
+      type: setup
       params:
         working_dir: src
         shell: bash
@@ -453,12 +516,14 @@ functions:
           PRELOAD_SCRIPT
   spawn_host:
     - command: host.create
+      type: setup
       params:
         provider: ec2
         distro: ${distro}
         security_group_ids:
           - sg-097bff6dd0d1d31d0 # Magic string that's needed for SSH'ing.
     - command: host.list
+      type: setup
       params:
         num_hosts: 1
         path: buildhosts.yml # Write the host information to disk.
@@ -466,6 +531,7 @@ functions:
         wait: true
   run_pkg_tests_through_ssh:
     - command: shell.exec
+      type: setup
       params:
         shell: bash
         script: |
@@ -486,6 +552,37 @@ functions:
           PRELOAD_SCRIPT_PATH: ${preload_script_path}
   test_artifact_docker:
     - command: shell.exec
+      type: setup
+      params:
+        working_dir: src
+        shell: bash
+        env:
+          NODE_JS_VERSION: ${node_js_version}
+        script: |
+          set -e
+          set -x
+          {
+          . .evergreen/setup-env.sh
+          . preload.sh
+          ./scripts/docker/build.sh ${dockerfile}
+          }
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        env:
+          NODE_JS_VERSION: ${node_js_version}
+        script: |
+          set -e
+          set -x
+          {
+          . .evergreen/setup-env.sh
+          . preload.sh
+          ./scripts/docker/run.sh ${dockerfile} --smokeTests
+          }
+  test_artifact_macos:
+    - command: shell.exec
+      type: setup
       params:
         working_dir: src
         shell: bash
@@ -493,13 +590,10 @@ functions:
           set -e
           set -x
           {
-          export NODE_JS_VERSION=${node_js_version}
-          . .evergreen/setup-env.sh
           . preload.sh
-          ./scripts/docker/build.sh ${dockerfile}
-          ./scripts/docker/run.sh ${dockerfile} --smokeTests
+          curl -sSfL "$ARTIFACT_URL" > mongosh.zip
+          unzip mongosh.zip
           }
-  test_artifact_macos:
     - command: shell.exec
       params:
         working_dir: src
@@ -510,12 +604,11 @@ functions:
           {
           system_profiler SPSoftwareDataType # for debugging
           . preload.sh
-          curl -sSfL "$ARTIFACT_URL" > mongosh.zip
-          unzip mongosh.zip
           ./mongosh-*/bin/mongosh --smokeTests
           }
   test_artifact_rpmextract:
     - command: shell.exec
+      type: setup
       params:
         working_dir: src
         shell: bash
@@ -526,10 +619,21 @@ functions:
           . preload.sh
           curl -sSfL "$ARTIFACT_URL" > mongosh.rpm
           rpm2cpio mongosh.rpm | cpio -idmv
+          }
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          set -x
+          {
+          . preload.sh
           ./usr/bin/mongosh --smokeTests
           }
   test_artifact_debextract:
     - command: shell.exec
+      type: setup
       params:
         working_dir: src
         shell: bash
@@ -540,11 +644,22 @@ functions:
           . preload.sh
           curl -sSfL "$ARTIFACT_URL" > mongosh.deb
           dpkg -x mongosh.deb .
+          }
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          set -x
+          {
+          . preload.sh
           ./usr/bin/mongosh --smokeTests
           }
 
   generate_license_and_vulnerability_report:
     - command: expansions.write
+      type: system
       params:
         file: tmp/expansions.yaml
         redacted: true
@@ -647,6 +762,7 @@ functions:
 
   release_draft:
     - command: expansions.write
+      type: system
       params:
         file: tmp/expansions.yaml
         redacted: true
@@ -665,6 +781,7 @@ functions:
 
   release_publish_dry_run:
     - command: expansions.write
+      type: system
       params:
         file: tmp/expansions.yaml
         redacted: true
@@ -684,6 +801,7 @@ functions:
 
   release_publish:
     - command: expansions.write
+      type: system
       params:
         file: tmp/expansions.yaml
         redacted: true
@@ -724,7 +842,7 @@ tasks:
       - func: checkout
       - func: compile_ts
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
 
   - name: check
     depends_on:
@@ -734,10 +852,10 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
       - func: check
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
 
   - name: check_coverage
     depends_on:
@@ -747,14 +865,14 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
       - func: check_coverage
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
 
   ###
   # UNIT TESTS
-  # E.g. test_m40xc_n12 stands for mongod 4.0.x, community edition, Node.js 12
+  # E.g. test_m60xc_n16 stands for mongod 6.0.x, community edition, Node.js 16
   ###
   <% for (const { id, nShort, nVersion, mShort, mVersion, skipNodeVersionCheck, packageName } of ALL_UNIT_TESTS) { %>
   - name: test_<% out(id) %>
@@ -788,10 +906,10 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
       - func: test_vscode
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
   - name: test_connectivity
     tags: ["extra-integration-test"]
     depends_on:
@@ -801,10 +919,10 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
       - func: test_connectivity
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
   - name: test_apistrict
     tags: ["extra-integration-test"]
     depends_on:
@@ -814,10 +932,10 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
       - func: test_apistrict
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
           mongosh_server_test_version: "latest-alpha-enterprise"
           mongosh_test_force_api_strict: "1"
   - name: compile_artifact
@@ -828,10 +946,10 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
       - func: compile_artifact
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
 
   - name: generate_license_and_vulnerability_report
     depends_on:
@@ -841,16 +959,16 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
       - func: generate_license_and_vulnerability_report
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
 
   ###
   # E2E TESTS
   ###
   <% for (const { executableOsId, compileBuildVariant } of RELEASE_PACKAGE_MATRIX) {
-    for (const mVersion of ['stable', '5.0.x', '6.0.x']) {
+    for (const mVersion of ['stable', '6.0.x']) {
       for (const fipsVariant of ['fips', 'nofips']) {
     %>
   - name: e2e_tests_<% out(executableOsId.replace(/-/g, '_')) %><% out(mVersion === 'stable' ? '' : '_' + mVersion.replace(/[^a-zA-Z0-9]/g, '')) %><% out(fipsVariant === 'fips' ? '_fips' : '') %>
@@ -862,15 +980,16 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
       - func: download_compiled_artifact
         vars:
           executable_os_id: <% out(executableOsId) %>
       - func: run_e2e_tests
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
           mongosh_server_test_version: "<% out(mVersion) %>-enterprise"
           mongosh_test_e2e_force_fips: "<% out(fipsVariant === 'fips' ? '1' : '') %>"
+          disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
   <% } } } %>
 
   ###
@@ -886,10 +1005,10 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
       - func: package_and_upload_artifact
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
           package_variant: <% out(packageVariant) %>
           executable_os_id: <% out(executableOsId) %>
   <% } } %>
@@ -925,10 +1044,10 @@ tasks:
        case 'docker': { %>
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
       - func: test_artifact_docker
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
           dockerfile: <% out(dockerfile) %>
     <% }; break;
     // We don't have docker for platforms other than x64, so for those we just
@@ -963,10 +1082,10 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
       - func: release_draft
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
   - name: release_publish_dry_run
     git_tag_only: true
     exec_timeout_secs: 86400
@@ -976,10 +1095,10 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
       - func: release_publish_dry_run
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
   - name: release_publish
     tags: ["publish"]
     git_tag_only: true
@@ -991,15 +1110,15 @@ tasks:
       - func: checkout
       - func: install
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
       - func: release_publish
         vars:
-          node_js_version: "<% out(NODE_JS_VERSION_16) %>"
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
 
 # Need to run builds for every possible build variant.
 buildvariants:
   - name: darwin_unit
-    display_name: "MacOS Mojave (Unit tests)"
+    display_name: "MacOS Big Sur (Unit tests)"
     run_on: macos-1100
     expansions:
       executable_os_id: darwin-x64
@@ -1009,8 +1128,8 @@ buildvariants:
       - name: test_<% out(test.id) %>
       <% } %>
   - name: darwin
-    display_name: "MacOS Mojave"
-    run_on: macos-1014
+    display_name: "MacOS Big Sur"
+    run_on: macos-1100
     expansions:
       executable_os_id: darwin-x64
     tasks:
@@ -1018,13 +1137,6 @@ buildvariants:
       - name: e2e_tests_darwin_x64
       - name: package_and_upload_artifact_darwin_x64
       - name: package_and_upload_artifact_darwin_arm64
-  - name: darwin_1100
-    display_name: "MacOS Big Sur"
-    run_on: macos-1100
-    expansions:
-      executable_os_id: darwin-x64
-    tasks:
-      - name: e2e_tests_darwin_x64
   - name: darwin_arm64
     display_name: "MacOS Big Sur (arm64)"
     run_on: macos-1100-arm64
@@ -1032,10 +1144,11 @@ buildvariants:
       executable_os_id: darwin-arm64
     tasks:
       - name: compile_artifact
+      - name: e2e_tests_darwin_arm64
 
   - name: linux_unit
     display_name: "Ubuntu 18.04 x64 (Unit tests)"
-    run_on: ubuntu1804-small
+    run_on: ubuntu2004-small
     tasks:
       - name: compile_ts
       - name: check
@@ -1047,12 +1160,12 @@ buildvariants:
       - name: test_apistrict
   - name: linux_coverage
     display_name: "Coverage Check"
-    run_on: ubuntu1804-small
+    run_on: ubuntu2004-small
     tasks:
       - name: check_coverage
   - name: linux_package
     display_name: "Ubuntu 18.04 x64 (Packaging)"
-    run_on: ubuntu1804-small
+    run_on: ubuntu2004-small
     tasks:
       <% for (const { executableOsId, packages } of RELEASE_PACKAGE_MATRIX) {
           for (const { name: packageVariant } of packages) {
@@ -1066,9 +1179,24 @@ buildvariants:
       executable_os_id: linux-x64
     tasks:
       - name: compile_artifact
+  - name: linux_x64_build_rhel8
+    display_name: "RHEL 8.0 x64 (build)"
+    run_on: rhel80-small
+    expansions:
+      executable_os_id: linux-x64
+    tasks:
+      - name: compile_artifact
   - name: linux_x64_build_openssl11
     display_name: "RHEL 7.0 x64 (build, shared OpenSSL 1.1)"
     run_on: rhel70-build
+    expansions:
+      executable_os_id: linux-x64-openssl11
+      mongosh_shared_openssl: openssl11
+    tasks:
+      - name: compile_artifact
+  - name: linux_x64_build_openssl11_rhel8
+    display_name: "RHEL 8.0 x64 (build, shared OpenSSL 1.1)"
+    run_on: rhel80-small
     expansions:
       executable_os_id: linux-x64-openssl11
       mongosh_shared_openssl: openssl11
@@ -1082,16 +1210,24 @@ buildvariants:
       mongosh_shared_openssl: openssl3
     tasks:
       - name: compile_artifact
+  - name: linux_x64_build_openssl3_rhel8
+    display_name: "RHEL 8.0 x64 (build, shared OpenSSL 3)"
+    run_on: rhel80-small
+    expansions:
+      executable_os_id: linux-x64-openssl3
+      mongosh_shared_openssl: openssl3
+    tasks:
+      - name: compile_artifact
   - name: linux_arm64_build
     display_name: "Amazon 2 arm64 (build)"
-    run_on: amazon2-arm64-small
+    run_on: amazon2-arm64-large
     expansions:
       executable_os_id: linux-arm64
     tasks:
       - name: compile_artifact
   - name: linux_arm64_build_openssl11
     display_name: "Amazon 2 arm64 (build, shared OpenSSL 1.1)"
-    run_on: amazon2-arm64-small
+    run_on: amazon2-arm64-large
     expansions:
       executable_os_id: linux-arm64-openssl11
       mongosh_shared_openssl: openssl11
@@ -1099,7 +1235,7 @@ buildvariants:
       - name: compile_artifact
   - name: linux_arm64_build_openssl3
     display_name: "Amazon 2 arm64 (build, shared OpenSSL 3)"
-    run_on: amazon2-arm64-small
+    run_on: amazon2-arm64-large
     expansions:
       executable_os_id: linux-arm64-openssl3
       mongosh_shared_openssl: openssl3
@@ -1114,7 +1250,7 @@ buildvariants:
       - name: compile_artifact
   - name: linux_s390x_build
     display_name: "RHEL 7.2 s390x (build)"
-    run_on: rhel72-zseries-small
+    run_on: rhel72-zseries-large
     expansions:
       executable_os_id: linux-s390x
     tasks:
@@ -1122,12 +1258,12 @@ buildvariants:
 
   - name: e2e_rhel70_x64
     display_name: "RHEL 7.0 x64 (E2E Tests)"
-    run_on: rhel70-small
+    run_on: rhel70-large
     tasks:
       - name: e2e_tests_linux_x64
   - name: e2e_rhel76_x64
     display_name: "RHEL 7.6 x64 (E2E Tests)"
-    run_on: rhel76-small
+    run_on: rhel76-large
     tasks:
       - name: e2e_tests_linux_x64
   - name: e2e_rhel80_x64
@@ -1138,6 +1274,8 @@ buildvariants:
   - name: e2e_rhel90_x64
     display_name: "RHEL 9.0 x64 (E2E Tests)"
     run_on: rhel90-small
+    expansions:
+      disable_openssl_shared_config_for_bundled_openssl: true
     tasks:
       - name: e2e_tests_linux_x64
   - name: e2e_rhel83_x64
@@ -1156,7 +1294,7 @@ buildvariants:
       - name: e2e_tests_linux_x64_openssl3_fips
   - name: e2e_ubuntu1804_x64
     display_name: "Ubuntu 18.04 x64 (E2E Tests)"
-    run_on: ubuntu1804-small
+    run_on: ubuntu1804-large
     tasks:
       - name: e2e_tests_linux_x64_60x
   - name: e2e_ubuntu2004_x64
@@ -1171,11 +1309,6 @@ buildvariants:
     tasks:
       - name: e2e_tests_linux_x64
       - name: e2e_tests_linux_x64_openssl3
-  - name: e2e_debian9_x64
-    display_name: "Debian 9 x64 (E2E Tests)"
-    run_on: debian92-small
-    tasks:
-      - name: e2e_tests_linux_x64_50x
   - name: e2e_debian10_x64
     display_name: "Debian 10 x64 (E2E Tests)"
     run_on: debian10-small
@@ -1188,34 +1321,31 @@ buildvariants:
     tasks:
       - name: e2e_tests_linux_x64
       - name: e2e_tests_linux_x64_openssl11
-  - name: e2e_amazon1_x64
-    display_name: "Amazon Linux 1 x64 (E2E Tests)"
-    run_on: amazon1-2018-small
-    tasks:
-      - name: e2e_tests_linux_x64_50x
   - name: e2e_amazon2_x64
     display_name: "Amazon Linux 2 x64 (E2E Tests)"
-    run_on: amazon2-small
+    run_on: amazon2-large
     tasks:
       - name: e2e_tests_linux_x64
   - name: e2e_amazon2023_x64
     display_name: "Amazon Linux 2023 x64 (E2E Tests)"
     run_on: amazon2023.0-small
+    expansions:
+      disable_openssl_shared_config_for_bundled_openssl: true
     tasks:
       - name: e2e_tests_linux_x64
   - name: e2e_suse12_x64
     display_name: "SLES 12 x64 (E2E Tests)"
-    run_on: suse12-sp5-small
+    run_on: suse12-sp5-large
     tasks:
       - name: e2e_tests_linux_x64
   - name: e2e_suse15_x64
     display_name: "SLES 15 x64 (E2E Tests)"
-    run_on: suse15-small
+    run_on: suse15sp4-small
     tasks:
       - name: e2e_tests_linux_x64
   - name: e2e_ubuntu1804_arm64
     display_name: "Ubuntu 18.04 arm64 (E2E Tests)"
-    run_on: ubuntu1804-arm64-small
+    run_on: ubuntu1804-arm64-large
     tasks:
       - name: e2e_tests_linux_arm64_60x
   - name: e2e_ubuntu2004_arm64
@@ -1232,12 +1362,14 @@ buildvariants:
       - name: e2e_tests_linux_arm64_openssl3
   - name: e2e_amazon2_arm64
     display_name: "Amazon Linux 2 arm64 (E2E Tests)"
-    run_on: amazon2-arm64-small
+    run_on: amazon2-arm64-large
     tasks:
       - name: e2e_tests_linux_arm64
   - name: e2e_amazon2023_arm64
     display_name: "Amazon Linux 2023 arm64 (E2E Tests)"
     run_on: amazon2023.0-arm64-small
+    expansions:
+      disable_openssl_shared_config_for_bundled_openssl: true
     tasks:
       - name: e2e_tests_linux_arm64
   - name: e2e_rhel82_arm64
@@ -1248,6 +1380,8 @@ buildvariants:
   - name: e2e_rhel90_arm64
     display_name: "RHEL 9.0 arm64 (E2E Tests)"
     run_on: rhel90-arm64-small
+    expansions:
+      disable_openssl_shared_config_for_bundled_openssl: true
     tasks:
       - name: e2e_tests_linux_arm64
       - name: e2e_tests_linux_arm64_openssl3
@@ -1258,7 +1392,7 @@ buildvariants:
       - name: e2e_tests_linux_ppc64le
   - name: e2e_rhel72_s390x
     display_name: "RHEL 7.2 s390x (E2E Tests)"
-    run_on: rhel72-zseries-small
+    run_on: rhel72-zseries-large
     tasks:
       - name: e2e_tests_linux_s390x_60x
   - name: e2e_rhel83_s390x
@@ -1296,7 +1430,7 @@ buildvariants:
 
   - name: pkg_smoke_tests_docker_x64
     display_name: "package smoke tests (x64 Docker)"
-    run_on: ubuntu1804-small
+    run_on: ubuntu2004-small
     tasks:
   <% for (const { packages, executableOsId } of RELEASE_PACKAGE_MATRIX) {
       if (executableOsId.includes('linux-x64')) {
@@ -1306,7 +1440,7 @@ buildvariants:
   <% } } } } %>
   - name: pkg_smoke_tests_docker_arm64
     display_name: "package smoke tests (arm64 Docker)"
-    run_on: ubuntu1804-arm64-small
+    run_on: ubuntu2004-arm64-small
     tasks:
   <% for (const { packages, executableOsId } of RELEASE_PACKAGE_MATRIX) {
       if (executableOsId.includes('linux-arm64')) {
@@ -1316,23 +1450,23 @@ buildvariants:
   <% } } } } %>
   - name: pkg_smoke_tests_win32
     display_name: "package smoke tests (win32)"
-    run_on: ubuntu1804-small
+    run_on: ubuntu2004-small
     tasks:
       - name: pkg_test_ssh_win32_x64
       - name: pkg_test_ssh_win32msi_x64
-  - name: pkg_smoke_tests_macos_1014_x64
-    display_name: "package smoke tests (macos 10.14 x64)"
-    run_on: macos-1014
-    tasks:
-      - name: pkg_test_macos_darwin_x64
   - name: pkg_smoke_tests_macos_1100_x64
     display_name: "package smoke tests (macos 11.00 x64)"
     run_on: macos-1100
     tasks:
       - name: pkg_test_macos_darwin_x64
-  - name: pkg_smoke_tests_macos_arm64
-    display_name: "package smoke tests (macos arm64)"
+  - name: pkg_smoke_tests_macos_1100_arm64
+    display_name: "package smoke tests (macos 11.00 arm64)"
     run_on: macos-1100-arm64
+    tasks:
+      - name: pkg_test_macos_darwin_arm64
+  - name: pkg_smoke_tests_macos_1300_arm64
+    display_name: "package smoke tests (macos 13.00 arm64)"
+    run_on: macos-1300-arm64
     tasks:
       - name: pkg_test_macos_darwin_arm64
   - name: pkg_smoke_tests_rhel72_s390x
@@ -1353,7 +1487,7 @@ buildvariants:
 
   - name: draft_publish_release
     display_name: "Draft/Publish Release"
-    run_on: ubuntu1804-small
+    run_on: ubuntu2004-small
     tasks:
       - name: release_draft
       - name: release_publish_dry_run

@@ -10,7 +10,6 @@ export type {
   ClientSession,
   CloseOptions,
   CollationOptions,
-  CollStatsOptions,
   Collection,
   CommandOperationOptions,
   CountDocumentsOptions,

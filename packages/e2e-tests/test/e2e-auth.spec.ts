@@ -5,7 +5,7 @@ import { eventually } from '../../../testing/eventually';
 import { TestShell } from './test-shell';
 import {
   skipIfApiStrict,
-  startTestServer,
+  startSharedTestServer,
 } from '../../../testing/integration-testing-hooks';
 
 function createAssertUserExists(db, dbName): Function {
@@ -72,7 +72,7 @@ function createAssertUserAuth(db, connectionString, dbName): Function {
 describe('Auth e2e', function () {
   skipIfApiStrict(); // connectionStatus is unversioned.
 
-  const testServer = startTestServer('shared');
+  const testServer = startSharedTestServer();
   let assertUserExists;
   let assertUserAuth;
   let assertRoleExists;
@@ -630,7 +630,7 @@ describe('Auth e2e', function () {
           expect(output).to.include("role: 'anna2'");
           shell.assertNoErrors();
         });
-        it('getRoles with rolesInfo field', async function () {
+        it('getRoles with rolesInfo field for other db', async function () {
           await shell.executeLine(`use ${dbName}`);
           expect(
             await shell.executeLine(
@@ -639,7 +639,7 @@ describe('Auth e2e', function () {
           ).to.include('roles: []');
           shell.assertNoErrors();
         });
-        it('getRoles with rolesInfo field', async function () {
+        it('getRoles with rolesInfo field for the current db', async function () {
           await shell.executeLine(`use ${dbName}`);
           const output = await shell.executeLine(
             `db.getRoles( {rolesInfo: { db: "${dbName}", role: "anna" } })`

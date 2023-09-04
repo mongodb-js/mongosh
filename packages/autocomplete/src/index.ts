@@ -24,6 +24,7 @@ export interface AutocompleteParameters {
         is_atlas: boolean;
         is_data_federation: boolean;
         server_version: string;
+        is_local_atlas: boolean;
       };
   apiVersionInfo: () => { version: string; strict: boolean } | undefined;
   getCollectionCompletionsForCurrentDb: (
@@ -296,7 +297,7 @@ function isAcceptable(
     !connectionInfo ||
     (connectionInfo.is_data_federation
       ? entry.env.includes(ADL)
-      : connectionInfo.is_atlas
+      : connectionInfo.is_atlas || connectionInfo.is_local_atlas
       ? entry.env.includes(ATLAS)
       : entry.env.includes(ON_PREM));
   return isAcceptableVersion && isAcceptableEnvironment;

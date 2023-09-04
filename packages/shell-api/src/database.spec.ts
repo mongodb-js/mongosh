@@ -2461,171 +2461,6 @@ describe('Database', function () {
       });
     });
 
-    describe('getFreeMonitoringStatus', function () {
-      it('calls serviceProvider.runCommandWithCheck on the database', async function () {
-        serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
-        await database.getFreeMonitoringStatus();
-
-        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
-          ADMIN_DB,
-          {
-            getFreeMonitoringStatus: 1,
-          }
-        );
-      });
-
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async function () {
-        const expectedResult = { ok: 1 };
-        serviceProvider.runCommandWithCheck.resolves(expectedResult);
-        const result = await database.getFreeMonitoringStatus();
-        expect(result).to.deep.equal(expectedResult);
-      });
-
-      it('throws if serviceProvider.runCommandWithCheck rejects', async function () {
-        const expectedError = new Error();
-        serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const caughtError = await database
-          .getFreeMonitoringStatus()
-          .catch((e) => e);
-        expect(caughtError).to.equal(expectedError);
-      });
-    });
-
-    describe('disableFreeMonitoring', function () {
-      it('calls serviceProvider.runCommandWithCheck on the database with options', async function () {
-        serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
-        await database.disableFreeMonitoring();
-
-        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
-          ADMIN_DB,
-          {
-            setFreeMonitoring: 1,
-            action: 'disable',
-          }
-        );
-      });
-
-      it('returns whatever serviceProvider.runCommandWithCheck returns', async function () {
-        const expectedResult = { ok: 1 };
-        serviceProvider.runCommandWithCheck.resolves(expectedResult);
-        const result = await database.disableFreeMonitoring();
-        expect(result).to.deep.equal(expectedResult);
-      });
-
-      it('throws if serviceProvider.runCommandWithCheck rejects', async function () {
-        const expectedError = new Error();
-        serviceProvider.runCommandWithCheck.rejects(expectedError);
-        const caughtError = await database
-          .disableFreeMonitoring()
-          .catch((e) => e);
-        expect(caughtError).to.equal(expectedError);
-      });
-    });
-
-    describe('enableFreeMonitoring', function () {
-      it('throws if serviceProvider isWritablePrimary is false', async function () {
-        serviceProvider.runCommandWithCheck.resolves({
-          isWritablePrimary: false,
-        });
-        const caughtError = await database
-          .enableFreeMonitoring()
-          .catch((e) => e);
-        expect(caughtError).to.be.instanceOf(MongoshInvalidInputError);
-        expect(caughtError.code).to.equal(CommonErrors.InvalidOperation);
-      });
-
-      it('calls serviceProvider.runCommand on the database', async function () {
-        serviceProvider.runCommandWithCheck
-          .onCall(0)
-          .resolves({ isWritablePrimary: true });
-        serviceProvider.runCommandWithCheck.onCall(1).resolves({ ok: 1 });
-        await database.enableFreeMonitoring();
-
-        expect(serviceProvider.runCommandWithCheck).to.have.been.calledWith(
-          ADMIN_DB,
-          {
-            setFreeMonitoring: 1,
-            action: 'enable',
-          }
-        );
-      });
-
-      it('returns whatever serviceProvider.runCommand returns if enabled', async function () {
-        const expectedFMState = { ok: 1, state: 'enabled' };
-
-        serviceProvider.runCommandWithCheck
-          .onCall(0)
-          .resolves({ isWritablePrimary: true });
-        serviceProvider.runCommandWithCheck.onCall(1).resolves({ ok: 1 });
-        serviceProvider.runCommandWithCheck.onCall(2).resolves(expectedFMState);
-        const result = await database.enableFreeMonitoring();
-        expect(result).to.deep.equal(expectedFMState);
-      });
-      it('returns warning if not enabled', async function () {
-        serviceProvider.runCommandWithCheck
-          .onCall(0)
-          .resolves({ isWritablePrimary: true });
-        serviceProvider.runCommandWithCheck.onCall(1).resolves({ ok: 1 });
-        serviceProvider.runCommandWithCheck
-          .onCall(2)
-          .resolves({ ok: 1, enabled: false });
-        serviceProvider.runCommandWithCheck
-          .onCall(3)
-          .resolves({ cloudFreeMonitoringEndpointURL: 'URL' });
-        const result = await database.enableFreeMonitoring();
-        expect(result).to.include('URL');
-      });
-
-      it('returns warning if returns ok: 0 with auth error', async function () {
-        serviceProvider.runCommandWithCheck
-          .onCall(0)
-          .resolves({ isWritablePrimary: true });
-        serviceProvider.runCommandWithCheck.onCall(1).resolves({ ok: 1 });
-        serviceProvider.runCommandWithCheck
-          .onCall(2)
-          .resolves({ ok: 0, codeName: 'Unauthorized' });
-        const result = await database.enableFreeMonitoring();
-        expect(result).to.be.a('string');
-        expect(result).to.include('privilege');
-      });
-      it('returns warning if throws with auth error', async function () {
-        const expectedError = new Error();
-        (expectedError as any).codeName = 'Unauthorized';
-        serviceProvider.runCommandWithCheck
-          .onCall(0)
-          .resolves({ isWritablePrimary: true });
-        serviceProvider.runCommandWithCheck.onCall(1).resolves({ ok: 1 });
-        serviceProvider.runCommandWithCheck.onCall(2).rejects(expectedError);
-        const result = await database.enableFreeMonitoring();
-        expect(result).to.be.a('string');
-        expect(result).to.include('privilege');
-      });
-
-      it('throws if throws with non-auth error', async function () {
-        serviceProvider.runCommandWithCheck
-          .onCall(0)
-          .resolves({ isWritablePrimary: true });
-        serviceProvider.runCommandWithCheck.onCall(1).resolves({ ok: 1 });
-        serviceProvider.runCommandWithCheck.onCall(2).rejects(new Error());
-
-        const error = await database.enableFreeMonitoring().catch((e) => e);
-        expect(error).to.be.instanceOf(MongoshRuntimeError);
-        expect(error.code).to.equal(CommonErrors.CommandFailed);
-      });
-
-      it('throws if serviceProvider.runCommand rejects without auth error', async function () {
-        const expectedError = new Error();
-        serviceProvider.runCommandWithCheck
-          .onCall(0)
-          .resolves({ isWritablePrimary: true });
-        serviceProvider.runCommandWithCheck.onCall(1).rejects(expectedError);
-        const caughtError = await database
-          .enableFreeMonitoring()
-          .catch((e) => e);
-        expect(caughtError).to.equal(expectedError);
-      });
-    });
-
     describe('getProfilingStatus', function () {
       it('calls serviceProvider.runCommandWithCheck on the database', async function () {
         serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
@@ -2991,7 +2826,7 @@ describe('Database', function () {
           database._name
         );
       });
-      it('calls serviceProvider.watch when given no args', async function () {
+      it('calls serviceProvider.watch when given pipeline and ops args', async function () {
         const pipeline = [{ $match: { operationType: 'insertOne' } }];
         const ops = { batchSize: 1 };
         await database.watch(pipeline, ops);
@@ -3139,7 +2974,6 @@ describe('Database', function () {
     };
     const ignore = [
       'auth',
-      'enableFreeMonitoring',
       'cloneDatabase',
       'cloneCollection',
       'copyDatabase',

@@ -5,8 +5,6 @@ import { PassThrough } from 'stream';
 import Nanobus from 'nanobus';
 import path from 'path';
 import { promises as fs } from 'fs';
-import { promisify } from 'util';
-import rimraf from 'rimraf';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 
@@ -39,7 +37,7 @@ function useTmpdir(): { readonly path: string } {
 
   afterEach(async function () {
     try {
-      await promisify(rimraf)(tmpdir);
+      await fs.rm(tmpdir, { recursive: true, force: true });
     } catch (err: any) {
       // On Windows in CI, this can fail with EPERM for some reason.
       // If it does, just log the error instead of failing all tests.
@@ -455,7 +453,7 @@ describe('Editor', function () {
       expect(result).to.be.equal('fn = function() { console.log(222); };');
     });
 
-    it('returns an assignment statement for an identifier', function () {
+    it('returns an assignment statement for a statement', function () {
       const result = editor._prepareResult({
         originalCode: '111',
         modifiedCode: '222',

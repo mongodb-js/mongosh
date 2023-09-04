@@ -7,9 +7,9 @@ import type Database from './database';
 import type Collection from './collection';
 import type AggregationCursor from './aggregation-cursor';
 import {
-  startTestServer,
   skipIfServerVersion,
   skipIfApiStrict,
+  startSharedTestServer,
 } from '../../../testing/integration-testing-hooks';
 import { toShellResult, Topologies } from './index';
 import type { Document } from '@mongosh/service-provider-core';
@@ -26,7 +26,7 @@ const compileExpr = (templ, ...subs): any => {
 };
 
 describe('Shell API (integration)', function () {
-  const testServer = startTestServer('shared');
+  const testServer = startSharedTestServer();
   this.timeout(60000);
   let serviceProvider: CliServiceProvider;
 
@@ -409,28 +409,26 @@ describe('Shell API (integration)', function () {
         });
 
         it('returns update result correctly', function () {
-          it('returns update result correctly', function () {
-            const {
-              acknowledged,
-              insertedId,
-              matchedCount,
-              modifiedCount,
-              upsertedCount,
-            } = result;
+          const {
+            acknowledged,
+            insertedId,
+            matchedCount,
+            modifiedCount,
+            upsertedCount,
+          } = result;
 
-            expect({
-              acknowledged,
-              insertedId,
-              matchedCount,
-              modifiedCount,
-              upsertedCount,
-            }).to.deep.equal({
-              acknowledged: 1,
-              insertedId: null,
-              matchedCount: 1,
-              modifiedCount: 1,
-              upsertedCount: 0,
-            });
+          expect({
+            acknowledged,
+            insertedId,
+            matchedCount,
+            modifiedCount,
+            upsertedCount,
+          }).to.deep.equal({
+            acknowledged: true,
+            insertedId: null,
+            matchedCount: 1,
+            modifiedCount: 1,
+            upsertedCount: 0,
           });
         });
       });

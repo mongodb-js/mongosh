@@ -428,6 +428,9 @@ export class CliRepl implements MongoshIOProvider {
       await snippetManager?.loadAllSnippets();
     }
     await this.loadRcFiles();
+
+    this.verifyPlatformSupport();
+
     // We only enable/disable here, since the rc file/command line scripts
     // can disable the telemetry setting.
     this.setTelemetryEnabled(await this.getConfig('enableTelemetry'));
@@ -798,6 +801,79 @@ export class CliRepl implements MongoshIOProvider {
         CliReplErrors.NodeVersionMismatch
       );
       await this._fatalError(warning);
+    }
+  }
+
+  verifyPlatformSupport(): void {
+    if (this.cliOptions.quiet) {
+      return;
+    }
+
+    // Typings for process.getReport haven't been updated
+    // (https://github.com/DefinitelyTyped/DefinitelyTyped/issues/40140)
+    const processReport = process.report?.getReport() as unknown as
+      | {
+          header: {
+            glibcVersionRuntime?: string;
+          };
+        }
+      | undefined;
+    if (!processReport) {
+      return;
+    }
+
+    const warnings: string[] = [];
+    const RECOMMENDED_GLIBC = '>=2.28.0';
+    const RECOMMENDED_OPENSSL = '>=3.0.0';
+    const RECOMMENDED_NODEJS = '>=20.0.0';
+    const semverRangeCheck = (
+      semverLikeVersion: string,
+      range: string
+    ): boolean => {
+      const semverVersion = semver.valid(semver.coerce(semverLikeVersion));
+      // We don't push warnings for versions where we can't reliably get a
+      // semver like version string
+      if (!semverVersion) {
+        return true;
+      }
+
+      return semver.satisfies(semverVersion, range);
+    };
+    const satisfiesGLIBCRequirement = (glibcVersion: string) =>
+      semverRangeCheck(glibcVersion, RECOMMENDED_GLIBC);
+    if (
+      processReport.header.glibcVersionRuntime !== undefined &&
+      !satisfiesGLIBCRequirement(processReport.header.glibcVersionRuntime)
+    ) {
+      warnings.push(
+        '  - Using mongosh on the current operating system is deprecated, and support may be removed in a future release.'
+      );
+    }
+
+    const satisfiesOpenSSLRequirement = (opensslVersion: string) =>
+      semverRangeCheck(opensslVersion, RECOMMENDED_OPENSSL);
+    if (!satisfiesOpenSSLRequirement(process.versions.openssl)) {
+      warnings.push(
+        '  - Using mongosh with OpenSSL versions lower than 3.0.0 is deprecated, and support may be removed in a future release.'
+      );
+    }
+
+    if (!semver.satisfies(process.version, RECOMMENDED_NODEJS)) {
+      warnings.push(
+        '  - Using mongosh with Node.js versions lower than 20.0.0 is deprecated, and support may be removed in a future release.'
+      );
+    }
+
+    if (warnings.length) {
+      const deprecationWarning = [
+        'Deprecation warnings:',
+        ...warnings,
+        'See https://www.mongodb.com/docs/mongodb-shell/ for documentation on supported platforms.',
+      ].join('\n');
+
+      this.output.write(
+        this.clr(`\n${deprecationWarning}\n`, 'mongosh:warning')
+      );
     }
   }
 

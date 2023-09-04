@@ -229,10 +229,14 @@ class MongoshNodeRepl implements EvaluationListener {
     await this.greet(mongodVersion, moreRecentMongoshVersion);
     await this.printBasicConnectivityWarning(instanceState);
 
-    this.inspectCompact = await this.getConfig('inspectCompact');
-    this.inspectDepth = await this.getConfig('inspectDepth');
-    this.showStackTraces = await this.getConfig('showStackTraces');
-    this.redactHistory = await this.getConfig('redactHistory');
+    this.inspectCompact =
+      (await this.getConfig('inspectCompact')) ?? this.inspectCompact;
+    this.inspectDepth =
+      (await this.getConfig('inspectDepth')) ?? this.inspectDepth;
+    this.showStackTraces =
+      (await this.getConfig('showStackTraces')) ?? this.showStackTraces;
+    this.redactHistory =
+      (await this.getConfig('redactHistory')) ?? this.redactHistory;
 
     const repl = asyncRepl.start({
       start: prettyRepl.start,
@@ -749,6 +753,7 @@ class MongoshNodeRepl implements EvaluationListener {
         message: result.message || result.errmsg,
         name: result.name || 'MongoshInternalError',
         stack: result.stack,
+        cause: result.cause,
       };
       this.bus.emit('mongosh:error', output, 'repl');
       return this.formatError(output);
@@ -938,7 +943,7 @@ class MongoshNodeRepl implements EvaluationListener {
    */
   async getConfig<K extends keyof CliUserConfig>(
     key: K
-  ): Promise<CliUserConfig[K]> {
+  ): Promise<CliUserConfig[K] | undefined> {
     return this.ioProvider.getConfig(key);
   }
 
@@ -992,7 +997,7 @@ class MongoshNodeRepl implements EvaluationListener {
   /**
    * Implements listConfigOptions from the {@link ConfigProvider} interface.
    */
-  listConfigOptions(): Promise<string[]> | string[] {
+  listConfigOptions(): Promise<string[]> | string[] | undefined {
     return this.ioProvider.listConfigOptions();
   }
 
