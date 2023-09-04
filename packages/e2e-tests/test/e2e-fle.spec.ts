@@ -14,7 +14,6 @@ import { once } from 'events';
 import { serialize } from 'v8';
 import { inspect } from 'util';
 import path from 'path';
-import os from 'os';
 
 describe('FLE tests', function () {
   const testServer = startTestServer('e2e-fle', {
