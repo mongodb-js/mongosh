@@ -5,7 +5,7 @@ const rhel80AndAbove = ['rhel80', ...rhel81AndAbove]
 const rhel72AndAbove = ['rhel72', ...rhel80AndAbove]
 const al2AndAbove = ['amazon2', 'amazon2023', ...rhel81AndAbove]
 const rhel70AndAboveAndRpmBased = ['rhel70', 'rhel71', ...rhel72AndAbove, 'amazon', ...al2AndAbove, 'suse12', 'suse15']
-const ubuntu1804AndAboveAndDebBased = ['ubuntu1804', 'ubuntu1804', 'ubuntu2004', 'ubuntu2204', 'debian92', 'debian10', 'debian11', 'debian12']
+const ubuntu1804AndAboveAndDebBased = ['ubuntu1804', 'ubuntu1804', 'ubuntu2004', 'ubuntu2204', 'debian10', 'debian11', 'debian12']
 const allLinux = [...rhel70AndAboveAndRpmBased, ...ubuntu1804AndAboveAndDebBased]
 
 exports.RELEASE_PACKAGE_MATRIX = [
@@ -28,8 +28,8 @@ exports.RELEASE_PACKAGE_MATRIX = [
     compileBuildVariant: 'linux_x64_build',
     packages: [
       { name: 'linux-x64', description: 'Linux Tarball 64-bit', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu20.04-tgz'], serverLikeTargetList: [...allLinux] },
-      { name: 'deb-x64', description: 'Debian / Ubuntu 64-bit', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu18.04-deb', 'ubuntu20.04-deb', 'ubuntu22.04-deb', 'ubuntu22.04-nohome-deb', 'debian9-deb', 'debian10-deb', 'debian11-deb', 'debian12-deb'], serverLikeTargetList: [...ubuntu1804AndAboveAndDebBased] },
-      { name: 'rpm-x64', description: 'RHEL / CentOS / Fedora / Suse 64-bit', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['centos7-rpm', 'amazonlinux2-rpm', 'amazonlinux2023-rpm', 'rocky8-rpm', 'rocky9-rpm', 'fedora34-rpm', 'suse12-rpm', 'suse15-rpm', 'amazonlinux1-rpm'], serverLikeTargetList: [...rhel70AndAboveAndRpmBased] }
+      { name: 'deb-x64', description: 'Debian / Ubuntu 64-bit', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu18.04-deb', 'ubuntu20.04-deb', 'ubuntu22.04-deb', 'ubuntu22.04-nohome-deb', 'debian10-deb', 'debian11-deb', 'debian12-deb'], serverLikeTargetList: [...ubuntu1804AndAboveAndDebBased] },
+      { name: 'rpm-x64', description: 'RHEL / CentOS / Fedora / Suse 64-bit', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['centos7-rpm', 'amazonlinux2-rpm', 'amazonlinux2023-rpm', 'rocky8-rpm', 'rocky9-rpm', 'fedora34-rpm', 'suse12-rpm', 'suse15-rpm'], serverLikeTargetList: [...rhel70AndAboveAndRpmBased] }
     ]
   },
   {

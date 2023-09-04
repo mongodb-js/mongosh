@@ -69,14 +69,14 @@ describe('OIDC auth e2e', function () {
       '--setParameter',
       'enableTestCommands=true',
     ];
-    testServer = new MongoRunnerSetup({
+    testServer = new MongoRunnerSetup('e2e-oidc', {
       args: [
         '--setParameter',
         `oidcIdentityProviders=${JSON.stringify([serverOidcConfig])}`,
         ...commonOidcServerArgs,
       ],
     });
-    testServer2 = new MongoRunnerSetup({
+    testServer2 = new MongoRunnerSetup('e2e-oidc', {
       args: [
         '--setParameter',
         `oidcIdentityProviders=${JSON.stringify([

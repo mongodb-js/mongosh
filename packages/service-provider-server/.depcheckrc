@@ -14,5 +14,7 @@ ignores:
 # See: https://github.com/mongodb-js/mongosh/pull/1149
 # See: https://jira.mongodb.org/browse/NODE-5005
  - aws4
+# peer dep of devtools-connect
+ - '@mongodb-js/oidc-plugin'
 ignore-patterns:
  - .eslintrc.js

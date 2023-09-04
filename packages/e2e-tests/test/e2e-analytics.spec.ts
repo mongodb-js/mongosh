@@ -6,6 +6,7 @@ import { TestShell } from './test-shell';
 describe('e2e Analytics Node', function () {
   const replSetName = 'replicaSet';
   const [rs0, rs1, rs2, rs3] = startTestCluster(
+    'e2e-analytics-node',
     { args: ['--replSet', replSetName] },
     { args: ['--replSet', replSetName] },
     { args: ['--replSet', replSetName] },

@@ -13,12 +13,14 @@ export interface ConnectInfo {
   is_enterprise: boolean;
   auth_type?: string;
   is_data_federation: boolean;
+  is_stream: boolean;
   dl_version?: string;
   atlas_version?: string;
   is_genuine: boolean;
   non_genuine_server_name: string;
   node_version: string;
   uri: string;
+  is_local_atlas: boolean;
 }
 
 export default function getConnectInfo(
@@ -26,7 +28,8 @@ export default function getConnectInfo(
   mongoshVersion: string,
   buildInfo: any,
   atlasVersion: any,
-  topology: any
+  topology: any,
+  isLocalAtlas: boolean
 ): ConnectInfo {
   buildInfo ??= {}; // We're currently not getting buildInfo with --apiStrict.
   const { isGenuine: is_genuine, serverName: non_genuine_server_name } =
@@ -54,9 +57,11 @@ export default function getConnectInfo(
     is_enterprise: getBuildInfo.isEnterprise(buildInfo),
     auth_type,
     is_data_federation,
+    is_stream: getBuildInfo.isAtlasStream(uri),
     dl_version,
     atlas_version: atlasVersion?.atlasVersion ?? null,
     is_genuine,
     non_genuine_server_name,
+    is_local_atlas: isLocalAtlas,
   };
 }

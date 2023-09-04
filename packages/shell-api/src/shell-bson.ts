@@ -12,7 +12,12 @@ import {
   MongoshInternalError,
   MongoshInvalidInputError,
 } from '@mongosh/errors';
-import { assertArgsDefinedType, functionCtor, assignAll } from './helpers';
+import {
+  assertArgsDefinedType,
+  functionCtorWithoutProps,
+  assignAll,
+  pickWithExactKeyMatch,
+} from './helpers';
 import { randomBytes } from 'crypto';
 
 function constructHelp(className: string): Help {
@@ -26,6 +31,10 @@ function constructHelp(className: string): Help {
   return new Help(classHelp);
 }
 
+type LongWithoutAccidentallyExposedMethods = Omit<
+  typeof BSON.Long,
+  'fromExtendedJSON'
+>;
 interface ShellBsonBase {
   DBRef: (
     namespace: string,
@@ -55,7 +64,7 @@ interface ShellBsonBase {
   Decimal128: typeof BSON.Decimal128;
   BSONSymbol: typeof BSON.BSONSymbol;
   Int32: typeof BSON.Int32;
-  Long: typeof BSON.Long;
+  Long: LongWithoutAccidentallyExposedMethods;
   Binary: typeof BSON.Binary;
   Double: typeof BSON.Double;
   EJSON: typeof BSON.EJSON;
@@ -121,9 +130,6 @@ export default function constructShellBson(
   (bson.BSONSymbol as any).prototype.deprecated = true;
 
   const bsonPkg: ShellBson = {
-    // TODO(MONGOSH-1319): Use an allowlist of static properties inherited from
-    // the bson library rather than including all. In particular, exclude static
-    // methods marked as @internal from our exposed functions.
     DBRef: assignAll(function DBRef(
       namespace: string,
       oid: any,
@@ -137,7 +143,7 @@ export default function constructShellBson(
       );
       return new bson.DBRef(namespace, oid, db, fields);
     },
-    bson.DBRef),
+    pickWithExactKeyMatch(bson.DBRef, ['prototype'])),
     // DBPointer not available in the bson 1.x library, but depreciated since 1.6
     bsonsize: function bsonsize(object: any): number {
       assertArgsDefinedType([object], ['object'], 'bsonsize');
@@ -148,42 +154,27 @@ export default function constructShellBson(
       function MaxKey(): typeof bson.MaxKey.prototype {
         return new bson.MaxKey();
       },
-      bson.MaxKey,
+      pickWithExactKeyMatch(bson.MaxKey, ['prototype']),
       { toBSON: () => new bson.MaxKey() }
     ),
     MinKey: assignAll(
       function MinKey(): typeof bson.MinKey.prototype {
         return new bson.MinKey();
       },
-      bson.MinKey,
+      pickWithExactKeyMatch(bson.MinKey, ['prototype']),
       { toBSON: () => new bson.MinKey() }
     ),
-    ObjectId: assignAll(
-      function ObjectId(
-        id?: string | number | typeof bson.ObjectId.prototype | Buffer
-      ): typeof bson.ObjectId.prototype {
-        assertArgsDefinedType(
-          [id],
-          [[undefined, 'string', 'number', 'object']],
-          'ObjectId'
-        );
-        return new bson.ObjectId(id);
-      },
-      bson.ObjectId,
-      {
-        // TODO(MONGOSH-1319): Remove legacy shims for bson v4.x methods
-        prototype: assignAll(bson.ObjectId.prototype, {
-          get generationTime() {
-            return Math.floor(
-              (this as unknown as typeof bson.ObjectId.prototype)
-                .getTimestamp()
-                .valueOf() / 1000
-            );
-          },
-          toString: makeLegacytoStringWrapper(bson.ObjectId.prototype.toString),
-        }),
-      }
-    ),
+    ObjectId: assignAll(function ObjectId(
+      id?: string | number | typeof bson.ObjectId.prototype | Buffer
+    ): typeof bson.ObjectId.prototype {
+      assertArgsDefinedType(
+        [id],
+        [[undefined, 'string', 'number', 'object']],
+        'ObjectId'
+      );
+      return new bson.ObjectId(id);
+    },
+    pickWithExactKeyMatch(bson.ObjectId, ['prototype', 'cacheHexString', 'generate', 'createFromTime', 'createFromHexString', 'createFromBase64', 'isValid'])),
     Timestamp: assignAll(function Timestamp(
       t?: number | typeof bson.Long.prototype | { t: number; i: number },
       i?: number
@@ -198,7 +189,7 @@ export default function constructShellBson(
       );
       // Order of Timestamp() arguments is reversed in mongo/mongosh and the driver:
       // https://jira.mongodb.org/browse/MONGOSH-930
-      // TODO(MONGOSH-1319): Drop support for the two-argument variant of Timestamp().
+      // TODO(maybe at some point...): Drop support for the two-argument variant of Timestamp().
       if (typeof t === 'object' && t !== null && 't' in t && 'i' in t) {
         return new bson.Timestamp(t);
       } else if (i !== undefined || typeof t === 'number') {
@@ -206,7 +197,7 @@ export default function constructShellBson(
       }
       return new bson.Timestamp(t as typeof bson.Long.prototype);
     },
-    bson.Timestamp),
+    pickWithExactKeyMatch(bson.Timestamp, ['prototype', 'fromInt', 'fromNumber', 'fromBits', 'fromString', 'MAX_VALUE'])),
     Code: assignAll(function Code(
       c: string | Function = '',
       s?: any
@@ -221,7 +212,7 @@ export default function constructShellBson(
       );
       return new bson.Code(c, s);
     },
-    bson.Code),
+    pickWithExactKeyMatch(bson.Code, ['prototype'])),
     NumberDecimal: assignAll(
       function NumberDecimal(s = '0'): typeof bson.Decimal128.prototype {
         assertArgsDefinedType(
@@ -347,29 +338,79 @@ export default function constructShellBson(
       { prototype: bson.Binary.prototype }
     ),
     // Add the driver types to bsonPkg so we can deprecate the shell ones later
-    Decimal128: functionCtor(bson.Decimal128),
-    BSONSymbol: functionCtor(bson.BSONSymbol),
-    Int32: functionCtor(bson.Int32),
-    Long: functionCtor(bson.Long),
+    Decimal128: assignAll(
+      functionCtorWithoutProps(bson.Decimal128),
+      pickWithExactKeyMatch(bson.Decimal128, ['prototype', 'fromString'])
+    ),
+    BSONSymbol: assignAll(
+      functionCtorWithoutProps(bson.BSONSymbol),
+      pickWithExactKeyMatch(bson.BSONSymbol, ['prototype'])
+    ),
+    Int32: assignAll(
+      functionCtorWithoutProps(bson.Int32),
+      pickWithExactKeyMatch(bson.Int32, ['prototype'])
+    ),
+    Long: assignAll(
+      functionCtorWithoutProps(bson.Long),
+      pickWithExactKeyMatch(
+        bson.Long as LongWithoutAccidentallyExposedMethods,
+        [
+          'prototype',
+          'fromValue',
+          'isLong',
+          'fromBytesBE',
+          'fromBytesLE',
+          'fromBytes',
+          'fromString',
+          'fromBigInt',
+          'fromNumber',
+          'fromInt',
+          'fromBits',
+          'MIN_VALUE',
+          'MAX_VALUE',
+          'NEG_ONE',
+          'UONE',
+          'ONE',
+          'UZERO',
+          'ZERO',
+          'MAX_UNSIGNED_VALUE',
+          'TWO_PWR_24',
+        ]
+      )
+    ),
     Binary: assignAll(
-      function Binary(...args: ConstructorParameters<typeof bson.Binary>) {
-        return new bson.Binary(...args);
-      },
-      bson.Binary,
-      {
-        // TODO(MONGOSH-1319): Remove legacy shims for bson v4.x methods
-        prototype: assignAll(bson.Binary.prototype, {
-          toString: makeLegacytoStringWrapper(bson.Binary.prototype.toString),
-        }),
-      }
+      functionCtorWithoutProps(bson.Binary),
+      pickWithExactKeyMatch(bson.Binary, [
+        'prototype',
+        'createFromBase64',
+        'createFromHexString',
+        'BUFFER_SIZE',
+        'SUBTYPE_DEFAULT',
+        'SUBTYPE_FUNCTION',
+        'SUBTYPE_BYTE_ARRAY',
+        'SUBTYPE_UUID_OLD',
+        'SUBTYPE_UUID',
+        'SUBTYPE_MD5',
+        'SUBTYPE_ENCRYPTED',
+        'SUBTYPE_COLUMN',
+        'SUBTYPE_USER_DEFINED',
+      ])
     ),
-    Double: functionCtor(bson.Double),
-    BSONRegExp: functionCtor(bson.BSONRegExp),
+    Double: assignAll(
+      functionCtorWithoutProps(bson.Double),
+      pickWithExactKeyMatch(bson.Double, ['prototype'])
+    ),
+    BSONRegExp: assignAll(
+      functionCtorWithoutProps(bson.BSONRegExp),
+      pickWithExactKeyMatch(bson.BSONRegExp, ['prototype', 'parseOptions'])
+    ),
     // Clone EJSON here so that it's not a frozen object in the shell
-    EJSON: Object.create(
-      Object.getPrototypeOf(bson.EJSON),
-      Object.getOwnPropertyDescriptors(bson.EJSON)
-    ),
+    EJSON: pickWithExactKeyMatch(bson.EJSON, [
+      'parse',
+      'serialize',
+      'stringify',
+      'deserialize',
+    ]),
   };
 
   for (const className of Object.keys(bsonPkg) as (keyof ShellBson)[]) {
@@ -378,18 +419,4 @@ export default function constructShellBson(
     Object.setPrototypeOf(bsonPkg[className].help, help);
   }
   return bsonPkg;
-}
-
-function makeLegacytoStringWrapper<
-  T extends { toString(encoding?: BufferEncoding): string }
->(originalToString: T['toString']): T['toString'] {
-  return function toString(this: T, encoding?: BufferEncoding) {
-    if (['hex', 'base64', 'utf8', undefined].includes(encoding)) {
-      return originalToString.call(this, encoding);
-    }
-    return Buffer.from(
-      originalToString.call(this, 'base64'),
-      'base64'
-    ).toString(encoding);
-  };
 }

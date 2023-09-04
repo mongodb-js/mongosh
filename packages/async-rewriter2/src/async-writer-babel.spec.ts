@@ -238,6 +238,12 @@ describe('AsyncWriter', function () {
         runTranspiledCode('{ var a = new A(); class A {} }')
       ).to.throw();
     });
+
+    it('does not silently remove break; inside switch', function () {
+      expect(
+        runTranspiledCode('switch (1) { case 1: 1; break; case 2: 2; break;}')
+      ).to.equal(1);
+    });
   });
 
   context('implicit awaiting', function () {

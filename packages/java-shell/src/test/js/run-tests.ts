@@ -1,11 +1,11 @@
 import { spawn } from 'child_process';
 import path from 'path';
 import { once } from 'events';
-import { startTestServer } from '../../../../../testing/integration-testing-hooks';
+import { startSharedTestServer } from '../../../../../testing/integration-testing-hooks';
 
 describe('java-shell tests', function() {
   this.timeout(1_000_000);
-  const testServer = startTestServer('shared');
+  const testServer = startSharedTestServer();
   const packageRoot = path.resolve(__dirname, '..', '..', '..') + '/';
 
   before(async function () {

@@ -754,6 +754,7 @@ class MongoshNodeRepl implements EvaluationListener {
         message: result.message || result.errmsg,
         name: result.name || 'MongoshInternalError',
         stack: result.stack,
+        cause: result.cause,
       };
       this.bus.emit('mongosh:error', output, 'repl');
       return this.formatError(output);

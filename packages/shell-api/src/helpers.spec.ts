@@ -5,6 +5,7 @@ import {
   getPrintableShardStatus,
   scaleIndividualShardStatistics,
   tsToSeconds,
+  validateExplainableVerbosity,
 } from './helpers';
 import { Database, Mongo, ShellInstanceState } from './index';
 import constructShellBson from './shell-bson';
@@ -12,7 +13,7 @@ import type { ServiceProvider } from '@mongosh/service-provider-core';
 import { bson } from '@mongosh/service-provider-core';
 import type { DevtoolsConnectOptions } from '../../service-provider-server';
 import { CliServiceProvider } from '../../service-provider-server'; // avoid cyclic dep just for test
-import { startTestServer } from '../../../testing/integration-testing-hooks';
+import { startSharedTestServer } from '../../../testing/integration-testing-hooks';
 import { makeFakeConfigDatabase } from '../../../testing/shard-test-fake-data';
 import sinon from 'ts-sinon';
 import chai, { expect } from 'chai';
@@ -37,6 +38,28 @@ describe('dataFormat', function () {
     expect(dataFormat(4096 * 4096)).to.equal('16MiB');
     expect(dataFormat(4096 * 4096 * 4096)).to.equal('64GiB');
     expect(dataFormat(4096 * 4096 * 4096 * 1000)).to.equal('64000GiB');
+  });
+});
+
+describe('validateExplainableVerbosity', function () {
+  const legacyMappings = [
+    { input: true, expected: 'allPlansExecution' },
+    { input: false, expected: 'queryPlanner' },
+    { input: undefined, expected: 'queryPlanner' },
+  ];
+
+  describe('legacy mappings', function () {
+    for (const { input, expected } of legacyMappings) {
+      it(`maps ${input} to ${expected}`, function () {
+        expect(validateExplainableVerbosity(input)).to.be.equal(expected);
+      });
+    }
+  });
+
+  it('keeps the provided verbosity if a mapping does not apply', function () {
+    expect(validateExplainableVerbosity('allPlansExecution')).to.be.equal(
+      'allPlansExecution'
+    );
   });
 });
 
@@ -103,7 +126,7 @@ describe('assertArgsDefinedType', function () {
 });
 
 describe('getPrintableShardStatus', function () {
-  const testServer = startTestServer('shared');
+  const testServer = startSharedTestServer();
 
   let mongo: Mongo;
   let configDatabase: Database;
@@ -164,7 +187,7 @@ describe('getPrintableShardStatus', function () {
 
   it('returns an object with sharding information', async function () {
     const status = await getPrintableShardStatus(configDatabase, false);
-    expect(status.shardingVersion.currentVersion).to.be.a('number');
+    expect(status.shardingVersion.clusterId).to.be.instanceOf(bson.ObjectId);
     expect(status.shards.map(({ host }) => host)).to.include(
       'shard01/localhost:27018,localhost:27019,localhost:27020'
     );
@@ -179,6 +202,21 @@ describe('getPrintableShardStatus', function () {
     );
     expect(status.databases).to.have.lengthOf(1);
     expect(status.databases[0].database._id).to.equal('config');
+  });
+
+  describe('hides all internal deprecated fields in shardingVersion', function () {
+    for (const hiddenField of [
+      'minCompatibleVersion',
+      'currentVersion',
+      'excluding',
+      'upgradeId',
+      'upgradeState',
+    ]) {
+      it(`does not show ${hiddenField} in shardingVersion`, async function () {
+        const status = await getPrintableShardStatus(configDatabase, false);
+        expect(status.shardingVersion[hiddenField]).to.equal(undefined);
+      });
+    }
   });
 
   it('returns whether the balancer is currently running', async function () {

@@ -218,7 +218,7 @@ const MAPPINGS: {
   tlsAllowInvalidHostnames: (i, v) =>
     setUrlParam(i, 'tlsAllowInvalidHostnames', v),
   tlsCAFile: (i, v) => setUrlParam(i, 'tlsCAFile', v),
-  tlsCRLFile: (i, v) => setUrlParam(i, 'sslCRL', v),
+  tlsCRLFile: (i, v) => setUrlParam(i, 'tlsCRLFile', v),
   tlsCertificateKeyFile: (i, v) => setUrlParam(i, 'tlsCertificateKeyFile', v),
   tlsCertificateKeyFilePassword: (i, v) =>
     setUrlParam(i, 'tlsCertificateKeyFilePassword', v),

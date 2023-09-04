@@ -10,10 +10,8 @@
     "url": "git://github.com/mongodb-js/mongosh.git"
   },
   "scripts": {
-    "test": "exit 0",
+    "test": "cross-env TS_NODE_PROJECT=../../configs/tsconfig-mongosh/tsconfig.test.json mocha -r \"../../scripts/import-expansions.js\" --timeout 15000 --colors -r ts-node/register \"./test/e2e*.spec.ts\"",
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
-    "test-e2e": "cross-env TS_NODE_PROJECT=../../configs/tsconfig-mongosh/tsconfig.test.json mocha -r \"../../scripts/import-expansions.js\" --timeout 15000 --colors -r ts-node/register \"./test/e2e*.spec.ts\"",
-    "test-e2e-ci": "cross-env TS_NODE_PROJECT=../../configs/tsconfig-mongosh/tsconfig.test.json mocha -r \"../../scripts/import-expansions.js\" --timeout 15000 --colors -r ts-node/register \"./test/e2e*.spec.ts\"",
     "eslint": "eslint",
     "lint": "npm run eslint . && npm run prettier -- --check .",
     "check": "npm run lint && npm run depcheck",
@@ -44,7 +42,7 @@
     "eslint": "^7.25.0",
     "lodash": "^4.17.21",
     "moment": "^2.29.1",
-    "mongodb": "^5.7.0",
+    "mongodb": "^6.0.0",
     "node-fetch": "^2.6.1",
     "prettier": "^2.8.8",
     "rimraf": "^3.0.2"

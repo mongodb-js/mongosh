@@ -1,7 +1,8 @@
 import util from 'util';
 import {expect} from 'chai';
 
-const delay = util.promisify(setTimeout);
+export const delay = util.promisify(setTimeout);
+
 export const ensureMaster = async(cls, timeout, hp): Promise<void> => {
   while (!(await cls.hello()).isWritablePrimary) {
     if (timeout > 32000) {
@@ -28,7 +29,7 @@ export const ensureSessionExists = async(mongo, timeout, sessionId): Promise<voi
   }
 };
 
-export const ensureResult = async(timeout, getFn, testFn, failMsg): Promise<any> => {
+export const ensureResult = async <T = any>(timeout: number, getFn: () => T | Promise<T>, testFn: (T) => boolean, failMsg: string): Promise<any> => {
   let result = await getFn();
   while(!testFn(result)) {
     if (timeout > 1000) {
@@ -44,3 +45,57 @@ export const ensureResult = async(timeout, getFn, testFn, failMsg): Promise<any>
   return result;
 };
 
+export function createRetriableMethod<T extends { [K in F]: (...args: any[]) => Promise<any> }, F extends keyof T>(
+  target: T,
+  method: F,
+  options?: {
+    totalRetries?: number,
+    initialSleepInterval?: number,
+    backoffFactor?: number,
+    noiseThreshold: number,
+  }
+): (...args: Parameters<T[F]>) => ReturnType<T[F]> {
+  const totalRetries = options?.totalRetries ?? 12;
+  const initialSleepInterval = options?.initialSleepInterval ?? 1000;
+  const backoffFactor = options?.backoffFactor ?? 1.3;
+  const noiseThreshold = options?.noiseThreshold ?? 0.8;
+  const func = target[method];
+
+  if (typeof func !== 'function') {
+    throw new Error(`${method.toString()} is not a method`);
+  }
+
+  let timeout = 0;
+  const retriableFunc = async(...args: any) => {
+    let lastErr;
+    let sleepInterval = initialSleepInterval;
+    for (let i = 0; i < totalRetries; i++) {
+      try {
+        return await func.apply(target, args);
+      } catch (e) {
+        // start to be noisy after % of attempts failed
+        if (i > (totalRetries * noiseThreshold)) {
+          console.info(`${method.toString()} did not succeed yet. Error:`, e);
+        }
+
+        timeout += sleepInterval;
+        lastErr = e;
+
+        if (i + 1 < totalRetries) {
+          await delay(sleepInterval);
+          sleepInterval *= backoffFactor;
+        }
+      }
+    }
+
+    Object.assign(lastErr, {
+      timedOut: true,
+      timeout,
+      message: `[Timed out ${timeout}ms] - ${String(method)} - ${lastErr.message}`
+    });
+
+    throw lastErr;
+  };
+
+  return retriableFunc as T[F];
+}

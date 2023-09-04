@@ -3,7 +3,7 @@ import chai, { expect } from 'chai';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import type { MongoshBus } from '@mongosh/types';
-import { startTestServer } from '../../../testing/integration-testing-hooks';
+import { startSharedTestServer } from '../../../testing/integration-testing-hooks';
 import { WorkerRuntime } from '../dist/index';
 
 import type { DevtoolsConnectOptions } from '@mongosh/service-provider-server';
@@ -148,7 +148,7 @@ describe('WorkerRuntime', function () {
   });
 
   describe('getCompletions', function () {
-    const testServer = startTestServer('shared');
+    const testServer = startSharedTestServer();
 
     it('should return completions', async function () {
       runtime = new WorkerRuntime(
@@ -162,7 +162,7 @@ describe('WorkerRuntime', function () {
   });
 
   describe('getShellPrompt', function () {
-    const testServer = startTestServer('shared');
+    const testServer = startSharedTestServer();
 
     it('should return prompt when connected to the server', async function () {
       runtime = new WorkerRuntime(
@@ -195,7 +195,7 @@ describe('WorkerRuntime', function () {
   });
 
   describe('eventEmitter', function () {
-    const testServer = startTestServer('shared');
+    const testServer = startSharedTestServer();
 
     it('should propagate emitted events from worker', async function () {
       const eventEmitter = createMockEventEmitter();

@@ -1,6 +1,6 @@
 import {
-  startTestServer,
   skipIfApiStrict,
+  startSharedTestServer,
 } from '../../../testing/integration-testing-hooks';
 import { TestShell } from './test-shell';
 
@@ -8,7 +8,7 @@ describe('e2e startup banners', function () {
   skipIfApiStrict();
   afterEach(TestShell.cleanup);
 
-  const testServer = startTestServer('shared');
+  const testServer = startSharedTestServer();
 
   context('without special configuration', function () {
     it('shows startup warnings', async function () {

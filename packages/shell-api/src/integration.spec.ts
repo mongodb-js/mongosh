@@ -6,9 +6,9 @@ import Explainable from './explainable';
 import type Database from './database';
 import type Collection from './collection';
 import {
-  startTestServer,
   skipIfServerVersion,
   skipIfApiStrict,
+  startSharedTestServer,
 } from '../../../testing/integration-testing-hooks';
 import { toShellResult, Topologies } from './index';
 import type { Document } from '@mongosh/service-provider-core';
@@ -25,7 +25,7 @@ const compileExpr = (templ, ...subs): any => {
 };
 
 describe('Shell API (integration)', function () {
-  const testServer = startTestServer('shared');
+  const testServer = startSharedTestServer();
   this.timeout(60000);
   let serviceProvider: CliServiceProvider;
 
