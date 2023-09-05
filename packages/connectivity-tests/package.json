@@ -1,5 +1,5 @@
 {
-  "name": "connectivity-tests",
+  "name": "@mongosh/connectivity-tests",
   "version": "0.0.0-dev.0",
   "private": true,
   "license": "Apache-2.0",

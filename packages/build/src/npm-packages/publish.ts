@@ -33,6 +33,7 @@ export function publishNpmPackages(
       [
         'publish',
         'from-package',
+        '--no-private',
         '--no-changelog',
         '--no-push',
         '--exact',
