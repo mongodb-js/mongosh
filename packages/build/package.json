@@ -42,6 +42,7 @@
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
+    "@mongodb-js/monorepo-tools": "^1.1.10",
     "@types/command-exists": "^1.2.0",
     "@types/cross-spawn": "^6.0.2",
     "@types/download": "^8.0.1",
