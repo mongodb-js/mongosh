@@ -6,7 +6,9 @@
   "scripts": {
     "test": "echo only run as part of test-connectivity",
     "test-connectivity": "bash test/all.sh",
-    "test-ci": "node ../../scripts/run-if-package-requested.js npm test"
+    "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
+    "test-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test",
+    "test-ci-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test-ci"
   },
   "devDependencies": {
     "mongosh": "0.0.0-dev.0"

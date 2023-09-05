@@ -52,7 +52,7 @@ export async function release(
 
   if (command === 'bump') {
     // updates the version of internal packages to reflect the tagged one
-    bumpNpmPackages(config.version);
+    await bumpNpmPackages(config.version);
     return;
   }
 

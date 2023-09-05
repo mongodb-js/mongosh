@@ -35,7 +35,9 @@
     "lint": "prettier --check .",
     "reformat": "prettier --write .",
     "test": "echo \"no tests\"",
-    "test-ci": "npm run test"
+    "test-ci": "npm run test",
+    "test-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test",
+    "test-ci-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test-ci"
   },
   "repository": {
     "type": "git",
