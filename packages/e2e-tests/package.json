@@ -1,6 +1,7 @@
 {
   "name": "@mongosh/e2e-tests",
   "version": "0.0.0-dev.0",
+  "private": true,
   "description": "MongoDB Shell E2E Tests Package",
   "homepage": "https://github.com/mongodb-js/mongosh",
   "author": "Compass Team <compass@mongodb.com>",
@@ -16,7 +17,6 @@
     "lint": "npm run eslint . && npm run prettier -- --check .",
     "check": "npm run lint && npm run depcheck",
     "depcheck": "depcheck",
-    "prepublish": "npm run compile",
     "prettier": "prettier",
     "reformat": "npm run prettier -- --write . && npm run eslint --fix"
   },
