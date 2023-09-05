@@ -61,13 +61,16 @@ export function markBumpedFilesAsAssumeUnchanged(
   assumeUnchanged: boolean,
   spawnSyncFn: typeof spawnSync = spawnSync
 ): void {
-  const filesToAssume = [path.resolve(PROJECT_ROOT, 'lerna.json')];
-  packages.forEach(({ location }) => {
+  const filesToAssume = [
+    path.resolve(PROJECT_ROOT, 'lerna.json'),
+    path.resolve(PROJECT_ROOT, 'package.json'),
+    path.resolve(PROJECT_ROOT, 'package-lock.json'),
+  ];
+  for (const { location } of packages) {
     filesToAssume.push(path.resolve(location, 'package.json'));
-    filesToAssume.push(path.resolve(location, 'package-lock.json'));
-  });
+  }
 
-  filesToAssume.forEach((f) => {
+  for (const f of filesToAssume) {
     spawnSyncFn(
       'git',
       [
@@ -85,5 +88,5 @@ export function markBumpedFilesAsAssumeUnchanged(
     console.info(
       `File ${f} is now ${assumeUnchanged ? '' : 'NOT '}assumed to be unchanged`
     );
-  });
+  }
 }

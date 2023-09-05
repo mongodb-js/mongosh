@@ -24,3 +24,4 @@ dist.tgz
 compiled-ts.tgz
 mongocryptd.pid
 .sbom
+.nvm
