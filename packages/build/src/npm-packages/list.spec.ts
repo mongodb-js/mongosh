@@ -26,12 +26,13 @@ describe('npm-packages list', function () {
     beforeEach(function () {
       expectedFiles = [
         path.resolve(__dirname, '..', '..', '..', '..', 'lerna.json'),
+        path.resolve(__dirname, '..', '..', '..', '..', 'package.json'),
+        path.resolve(__dirname, '..', '..', '..', '..', 'package-lock.json'),
       ];
       packages = listNpmPackages();
-      packages.forEach(({ location }) => {
+      for (const { location } of packages) {
         expectedFiles.push(path.resolve(location, 'package.json'));
-        expectedFiles.push(path.resolve(location, 'package-lock.json'));
-      });
+      }
 
       spawnSync = sinon.stub();
     });
