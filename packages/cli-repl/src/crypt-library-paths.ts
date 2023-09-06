@@ -24,6 +24,7 @@ export async function getCryptLibraryPaths(
 ): Promise<CryptLibraryPathResult> {
   const execPath = pretendProcessExecPathForTesting ?? process.execPath;
 
+  // eslint-disable-next-line @typescript-eslint/consistent-type-imports
   let getCryptSharedLibraryVersion: typeof import('mongodb-crypt-library-version');
   try {
     getCryptSharedLibraryVersion = require('mongodb-crypt-library-version');

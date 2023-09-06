@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { bson } from './index';
 import { inspect } from 'util';
-import makePrintableBson from './printable-bson';
+import { makePrintableBson } from './printable-bson';
 
 describe('BSON printers', function () {
   before('make BSON objects printable', function () {
@@ -19,12 +19,12 @@ describe('BSON printers', function () {
       inspect(
         new bson.DBRef('a', new bson.ObjectId('5f16b8bebe434dc98cdfc9cb'), 'db')
       )
-    ).to.equal('DBRef("a", ObjectId("5f16b8bebe434dc98cdfc9cb"), "db")');
+    ).to.equal('DBRef("a", ObjectId("5f16b8bebe434dc98cdfc9cb"), \'db\')');
     expect(inspect(new bson.DBRef('a', 'foo' as any, 'db'))).to.equal(
-      'DBRef("a", \'foo\', "db")'
+      "DBRef(\"a\", 'foo', 'db')"
     );
     expect(inspect(new bson.DBRef('a', { x: 1 } as any, 'db'))).to.equal(
-      'DBRef("a", { x: 1 }, "db")'
+      'DBRef("a", { x: 1 }, \'db\')'
     );
   });
 
@@ -67,12 +67,6 @@ describe('BSON printers', function () {
     expect(inspect(new bson.Code('abc'))).to.equal('Code("abc")');
   });
 
-  it('formats BinData correctly', function () {
-    expect(inspect(new bson.Binary('abc'))).to.equal(
-      'Binary(Buffer.from("616263", "hex"), 0)'
-    );
-  });
-
   it('formats BSONRegExp correctly', function () {
     expect(inspect(new bson.BSONRegExp('(?-i)AA_', 'im'))).to.equal(
       'BSONRegExp("(?-i)AA_", "im")'
@@ -99,5 +93,11 @@ describe('BSON printers', function () {
         )
       )
     ).to.equal('MD5("0123456789abcdef0123456789abcdef")');
+  });
+
+  it('formats any other value with the new format using createfromBase64', function () {
+    expect(
+      inspect(bson.Binary.createFromBase64('SGVsbG8sIFdvcmxkIQo='))
+    ).to.equal('Binary.createFromBase64("SGVsbG8sIFdvcmxkIQo=", 0)');
   });
 });

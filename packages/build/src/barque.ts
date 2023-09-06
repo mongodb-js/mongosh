@@ -35,7 +35,6 @@ type PPARepository =
   | 'ubuntu1804'
   | 'ubuntu2004'
   | 'ubuntu2204'
-  | 'debian92'
   | 'debian10'
   | 'debian11'
   | 'debian12'
@@ -71,7 +70,6 @@ export function getReposAndArch(packageVariant: PackageVariant): {
           'ubuntu1804',
           'ubuntu2004',
           'ubuntu2204',
-          'debian92',
           'debian10',
           'debian11',
           'debian12',
@@ -311,10 +309,8 @@ export class Barque {
         return `${base}/apt/ubuntu/dists/focal/mongodb-${edition}/${packageFolderVersion}/multiverse/binary-${targetArchitecture}/${packageFileName}`;
       case 'ubuntu2204':
         return `${base}/apt/ubuntu/dists/jammy/mongodb-${edition}/${packageFolderVersion}/multiverse/binary-${targetArchitecture}/${packageFileName}`;
-      case 'debian92':
-        return `${base}/apt/debian/dists/buster/mongodb-${edition}/${packageFolderVersion}/main/binary-${targetArchitecture}/${packageFileName}`;
       case 'debian10':
-        return `${base}/apt/debian/dists/stretch/mongodb-${edition}/${packageFolderVersion}/main/binary-${targetArchitecture}/${packageFileName}`;
+        return `${base}/apt/debian/dists/buster/mongodb-${edition}/${packageFolderVersion}/main/binary-${targetArchitecture}/${packageFileName}`;
       case 'debian11':
         return `${base}/apt/debian/dists/bullseye/mongodb-${edition}/${packageFolderVersion}/main/binary-${targetArchitecture}/${packageFileName}`;
       case 'debian12':

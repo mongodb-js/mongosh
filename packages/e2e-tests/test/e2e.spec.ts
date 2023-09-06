@@ -4,12 +4,11 @@ import { MongoClient } from 'mongodb';
 import { eventually } from '../../../testing/eventually';
 import { TestShell } from './test-shell';
 import {
-  startTestServer,
   skipIfServerVersion,
+  startSharedTestServer,
 } from '../../../testing/integration-testing-hooks';
 import { promises as fs, createReadStream } from 'fs';
 import { promisify } from 'util';
-import rimraf from 'rimraf';
 import path from 'path';
 import os from 'os';
 import { readReplLogfile, setTemporaryHomeDirectory } from './repl-helpers';
@@ -21,7 +20,7 @@ import type { AddressInfo } from 'net';
 const { EJSON } = bson;
 
 describe('e2e', function () {
-  const testServer = startTestServer('shared');
+  const testServer = startSharedTestServer();
 
   afterEach(TestShell.cleanup);
 
@@ -394,7 +393,7 @@ describe('e2e', function () {
 
     it('fle addon is available', async function () {
       const result = await shell.executeLine(
-        '`<${typeof db._mongo._serviceProvider.fle.ClientEncryption}>`'
+        '`<${typeof db._mongo._serviceProvider.createClientEncryption}>`'
       );
       expect(result).to.include('<function>');
     });
@@ -455,7 +454,7 @@ describe('e2e', function () {
             }
           });`);
 
-          expect(result).to.match(/Violations\:/);
+          expect(result).to.match(/Violations:/);
           // Two duplicated ids
           expect(result).to.match(/ids: \[\s+ObjectId.+?\s+?ObjectId.+?\s+\]/m);
         });
@@ -472,22 +471,22 @@ describe('e2e', function () {
       it('number', async function () {
         expect(await shell.executeLine('1')).to.include('1');
         shell.assertNoErrors();
-        it('string', async function () {
-          expect(await shell.executeLine('"string"')).to.include('string');
-          shell.assertNoErrors();
-        });
-        it('undefined', async function () {
-          await shell.executeLine('undefined');
-          shell.assertNoErrors();
-        });
-        it('null', async function () {
-          expect(await shell.executeLine('null')).to.include('null');
-          shell.assertNoErrors();
-        });
-        it('bool', async function () {
-          expect(await shell.executeLine('true')).to.include('true');
-          shell.assertNoErrors();
-        });
+      });
+      it('string', async function () {
+        expect(await shell.executeLine('"string"')).to.include('string');
+        shell.assertNoErrors();
+      });
+      it('undefined', async function () {
+        await shell.executeLine('undefined');
+        shell.assertNoErrors();
+      });
+      it('null', async function () {
+        expect(await shell.executeLine('null')).to.include('null');
+        shell.assertNoErrors();
+      });
+      it('bool', async function () {
+        expect(await shell.executeLine('true')).to.include('true');
+        shell.assertNoErrors();
       });
     });
     it('runs a complete function', async function () {
@@ -696,6 +695,7 @@ describe('e2e', function () {
         skipIfServerVersion(testServer, '<= 4.4');
 
         it('displays errInfo to the user', async function () {
+          /* eslint-disable no-useless-escape */
           await shell.executeLine(`db.createCollection('contacts', {
             validator: {
               $and: [
@@ -705,6 +705,7 @@ describe('e2e', function () {
               ]
             }
           });`);
+          /* eslint-enable no-useless-escape */
           const result = await shell.executeLine(`db.contacts.insertOne({
             email: "test@mongodb.com", status: "Unknown"
           });`);
@@ -717,7 +718,7 @@ describe('e2e', function () {
             validator: {
               $and: [
                 { phone: { $type: "string" } },
-                { email: { $regex: /@mongodb\.com$/ } },
+                { email: { $regex: /@mongodb.com$/ } },
                 { status: { $in: [ "Unknown", "Incomplete" ] } }
               ]
             }
@@ -1033,7 +1034,15 @@ describe('e2e', function () {
       it('loads a file from the command line as requested', async function () {
         const shell = TestShell.start({
           args: ['--nodb', './hello1.js'],
-          cwd: path.resolve(__dirname, 'fixtures', 'load'),
+          cwd: path.resolve(
+            __dirname,
+            '..',
+            '..',
+            'cli-repl',
+            'test',
+            'fixtures',
+            'load'
+          ),
         });
         await eventually(() => {
           shell.assertContainsOutput('hello one');
@@ -1049,7 +1058,15 @@ describe('e2e', function () {
       it('drops into shell if --shell is used', async function () {
         const shell = TestShell.start({
           args: ['--nodb', '--shell', './hello1.js'],
-          cwd: path.resolve(__dirname, 'fixtures', 'load'),
+          cwd: path.resolve(
+            __dirname,
+            '..',
+            '..',
+            'cli-repl',
+            'test',
+            'fixtures',
+            'load'
+          ),
         });
         await shell.waitForPrompt();
         shell.assertContainsOutput('hello one');
@@ -1060,7 +1077,15 @@ describe('e2e', function () {
       it('fails with the error if the loaded script throws', async function () {
         const shell = TestShell.start({
           args: ['--nodb', '--shell', './throw.js'],
-          cwd: path.resolve(__dirname, 'fixtures', 'load'),
+          cwd: path.resolve(
+            __dirname,
+            '..',
+            '..',
+            'cli-repl',
+            'test',
+            'fixtures',
+            'load'
+          ),
         });
         await eventually(() => {
           shell.assertContainsOutput('Error: uh oh');
@@ -1166,7 +1191,7 @@ describe('e2e', function () {
     afterEach(async function () {
       await TestShell.killall.call(this);
       try {
-        await promisify(rimraf)(homedir);
+        await fs.rm(homedir, { recursive: true, force: true });
       } catch (err: any) {
         // On Windows in CI, this can fail with EPERM for some reason.
         // If it does, just log the error instead of failing all tests.
@@ -1652,6 +1677,10 @@ describe('e2e', function () {
     it('runs Node.js scripts as they are when using MONGOSH_RUN_NODE_SCRIPT', async function () {
       const filename = path.resolve(
         __dirname,
+        '..',
+        '..',
+        'cli-repl',
+        'test',
         'fixtures',
         'simple-console-log.js'
       );

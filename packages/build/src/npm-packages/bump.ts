@@ -1,10 +1,9 @@
-import { LERNA_BIN, PLACEHOLDER_VERSION, PROJECT_ROOT } from './constants';
-import { spawnSync } from '../helpers/spawn-sync';
+import { promises as fs } from 'fs';
+import path from 'path';
+import { PLACEHOLDER_VERSION } from './constants';
+import { getPackagesInTopologicalOrder } from '@mongodb-js/monorepo-tools';
 
-export function bumpNpmPackages(
-  version: string,
-  spawnSyncFn: typeof spawnSync = spawnSync
-): void {
+export async function bumpNpmPackages(version: string): Promise<void> {
   if (!version || version === PLACEHOLDER_VERSION) {
     console.info(
       'mongosh: Not bumping package version, keeping at placeholder'
@@ -13,27 +12,39 @@ export function bumpNpmPackages(
   }
 
   console.info(`mongosh: Bumping package versions to ${version}`);
-  spawnSyncFn(
-    LERNA_BIN,
-    [
-      'version',
-      version,
-      '--no-changelog',
-      '--no-push',
-      '--exact',
-      '--no-git-tag-version',
-      '--force-publish',
-      '--yes',
-    ],
-    {
-      stdio: 'inherit',
-      cwd: PROJECT_ROOT,
-      encoding: 'utf8',
+  const monorepoRootPath = path.resolve(__dirname, '..', '..', '..', '..');
+  const packages = await getPackagesInTopologicalOrder(monorepoRootPath);
+
+  const workspaceNames = packages.map((p) => p.name);
+
+  const locations = [monorepoRootPath, ...packages.map((p) => p.location)];
+
+  for (const location of locations) {
+    const packageJsonPath = path.join(location, 'package.json');
+    const packageJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf8'));
+
+    packageJson.version = version;
+    for (const grouping of [
+      'dependencies',
+      'devDependencies',
+      'optionalDependencies',
+      'peerDependencies',
+    ]) {
+      if (!packageJson[grouping]) {
+        continue;
+      }
+
+      for (const name of Object.keys(packageJson[grouping])) {
+        if (!workspaceNames.includes(name)) {
+          continue;
+        }
+        packageJson[grouping][name] = version;
+      }
     }
-  );
-  spawnSyncFn('git', ['status', '--porcelain'], {
-    stdio: 'inherit',
-    cwd: PROJECT_ROOT,
-    encoding: 'utf8',
-  });
+
+    await fs.writeFile(
+      packageJsonPath,
+      JSON.stringify(packageJson, null, 2) + '\n'
+    );
+  }
 }

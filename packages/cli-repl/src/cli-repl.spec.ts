@@ -11,6 +11,7 @@ import { eventually } from '../../../testing/eventually';
 import type { MongodSetup } from '../../../testing/integration-testing-hooks';
 import {
   skipIfServerVersion,
+  startSharedTestServer,
   startTestServer,
 } from '../../../testing/integration-testing-hooks';
 import {
@@ -1014,7 +1015,7 @@ describe('CliRepl', function () {
   });
 
   context('with an actual server', function () {
-    const testServer = startTestServer('shared');
+    const testServer = startSharedTestServer();
 
     beforeEach(async function () {
       cliReplOptions.shellCliOptions.connectionSpecifier =
@@ -1700,7 +1701,7 @@ describe('CliRepl', function () {
         expect(exitCode).to.equal(0);
       });
 
-      it('isInteractive() is true for --eval with --shell', async function () {
+      it('isInteractive() is true for --eval with --shell (eval)', async function () {
         const filename1 = path.resolve(
           __dirname,
           '..',
@@ -1742,7 +1743,7 @@ describe('CliRepl', function () {
         expect(exitCode).to.equal(0);
       });
 
-      it('isInteractive() is true for --eval with --shell', async function () {
+      it('isInteractive() is true for --eval with --shell (filenames)', async function () {
         const filename1 = path.resolve(
           __dirname,
           '..',
@@ -1972,7 +1973,7 @@ describe('CliRepl', function () {
 
   context('with a replset node', function () {
     verifyAutocompletion({
-      testServer: startTestServer('not-shared', {
+      testServer: startTestServer('cli-repl-autocompletion', {
         topology: 'replset',
         secondaries: 0,
       }),
@@ -1985,7 +1986,7 @@ describe('CliRepl', function () {
 
   context('with a mongos', function () {
     verifyAutocompletion({
-      testServer: startTestServer('not-shared', {
+      testServer: startTestServer('cli-repl-autocompletion', {
         topology: 'sharded',
         shards: 1,
         secondaries: 0,
@@ -1999,7 +2000,7 @@ describe('CliRepl', function () {
 
   context('with an auth-required mongod', function () {
     verifyAutocompletion({
-      testServer: startTestServer('not-shared', {
+      testServer: startTestServer('cli-repl-autocompletion-auth', {
         args: ['--auth'],
       }),
       wantWatch: false,
@@ -2240,6 +2241,177 @@ describe('CliRepl', function () {
         ALLOWED_HOSTS: ['*.my-trusted-cluster.net'],
       });
       expect(o.parentHandle).to.equal('foo-bar');
+    });
+  });
+
+  context('mongosh 2.x deprecation warnings', function () {
+    const actualReport = process.report;
+    const actualVersions = process.versions;
+    beforeEach(function () {
+      cliReplOptions.shellCliOptions = { nodb: true };
+    });
+
+    afterEach(function () {
+      delete (process as any).report;
+      (process as any).report = actualReport;
+
+      delete (process.versions as any).openssl;
+      (process.versions as any).openssl = actualVersions.openssl;
+
+      delete (process as any).version;
+      (process as any).version = actualVersions.node;
+    });
+
+    it('prints a deprecation warning when running on platforms with GLIBC < 2.28, otherwise not', async function () {
+      for (const { version, deprecated } of [
+        { version: '3.0+glibcstring', deprecated: false },
+        { version: '2.28.2', deprecated: false },
+        { version: '2.28', deprecated: false },
+        // This might look like is deprecated but since this is not a valid
+        // semver even after co-ercion, we don't push warnings for such versions
+        { version: '1.08', deprecated: false },
+        { version: '2.21', deprecated: true },
+        { version: '2.21-glibcstring', deprecated: true },
+        { version: '2.21.4', deprecated: true },
+        { version: '1.3.8', deprecated: true },
+      ]) {
+        delete (process as any).report;
+        (process.report as any) = {
+          getReport() {
+            return {
+              header: {
+                glibcVersionRuntime: version,
+              },
+            };
+          },
+        };
+        cliRepl = new CliRepl(cliReplOptions);
+        await cliRepl.start('', {});
+
+        if (deprecated) {
+          expect(output).to.include('Deprecation warnings:');
+          expect(output).to.include(
+            'Using mongosh on the current operating system is deprecated, and support may be removed in a future release.'
+          );
+          expect(output).to.include(
+            'See https://www.mongodb.com/docs/mongodb-shell/ for documentation on supported platforms.'
+          );
+        } else {
+          expect(output).to.not.include(
+            'Using mongosh on the current operating system is deprecated, and support may be removed in a future release.'
+          );
+        }
+      }
+    });
+
+    it('does not print a platform unsupported deprecation warning when GLIBC information is not present (non-linux systems)', async function () {
+      delete (process as any).report;
+      (process.report as any) = {
+        getReport() {
+          return {
+            header: {},
+          };
+        },
+      };
+      cliRepl = new CliRepl(cliReplOptions);
+      await cliRepl.start('', {});
+
+      expect(output).to.not.include(
+        'Using mongosh on the current operating system is deprecated, and support may be removed in a future release.'
+      );
+    });
+
+    it('prints a deprecation warning when running with OpenSSL < 3.0.0, otherwise not', async function () {
+      for (const { version, deprecated } of [
+        { version: '4.0.1+uniqssl', deprecated: false },
+        { version: '4.0', deprecated: false },
+        { version: '3.0+uniqssl', deprecated: false },
+        { version: '3.0', deprecated: false },
+        { version: '2.21', deprecated: true },
+        { version: '2.21-uniqssl', deprecated: true },
+        { version: '2.21.4', deprecated: true },
+        { version: '1.3.8', deprecated: true },
+      ]) {
+        delete (process.versions as any).openssl;
+        (process.versions as any).openssl = version;
+
+        cliRepl = new CliRepl(cliReplOptions);
+        await cliRepl.start('', {});
+        if (deprecated) {
+          expect(output).to.include('Deprecation warnings:');
+          expect(output).to.include(
+            'Using mongosh with OpenSSL versions lower than 3.0.0 is deprecated, and support may be removed in a future release.'
+          );
+          expect(output).to.include(
+            'See https://www.mongodb.com/docs/mongodb-shell/ for documentation on supported platforms.'
+          );
+        } else {
+          expect(output).to.not.include(
+            'Using mongosh with OpenSSL versions lower than 3.0.0 is deprecated, and support may be removed in a future release.'
+          );
+        }
+      }
+    });
+
+    it('prints a deprecation warning when running on Node.js < 20.0.0', async function () {
+      for (const { version, deprecated } of [
+        { version: 'v20.5.1', deprecated: false },
+        { version: '20.0.0', deprecated: false },
+        { version: '18.0.0', deprecated: true },
+        { version: '16.20.3', deprecated: true },
+      ]) {
+        delete (process as any).version;
+        (process as any).version = version;
+
+        cliRepl = new CliRepl(cliReplOptions);
+        await cliRepl.start('', {});
+
+        if (deprecated) {
+          expect(output).to.include('Deprecation warnings:');
+          expect(output).to.include(
+            'Using mongosh with Node.js versions lower than 20.0.0 is deprecated, and support may be removed in a future release.'
+          );
+          expect(output).to.include(
+            'See https://www.mongodb.com/docs/mongodb-shell/ for documentation on supported platforms.'
+          );
+        } else {
+          expect(output).to.not.include(
+            'Using mongosh with Node.js versions lower than 20.0.0 is deprecated, and support may be removed in a future release.'
+          );
+        }
+      }
+    });
+
+    it('does not print any deprecation warning when CLI is ran with --quiet flag', async function () {
+      // Setting all the possible situation for a deprecation warning
+      process.version = '16.20.3';
+      process.versions.openssl = '1.1.11';
+      (process.report as any) = {
+        getReport() {
+          return {
+            header: {
+              glibcVersionRuntime: '1.27',
+            },
+          };
+        },
+      };
+
+      cliReplOptions.shellCliOptions.quiet = true;
+      cliRepl = new CliRepl(cliReplOptions);
+      await cliRepl.start('', {});
+      expect(output).not.to.include('Deprecation warnings:');
+      expect(output).not.to.include(
+        'Using mongosh on the current operating system is deprecated, and support may be removed in a future release.'
+      );
+      expect(output).not.to.include(
+        'Using mongosh with Node.js versions lower than 20.0.0 is deprecated, and support will be removed in a future release.'
+      );
+      expect(output).not.to.include(
+        'Using mongosh with OpenSSL versions lower than 3.0.0 is deprecated, and support may be removed in a future release.'
+      );
+      expect(output).not.to.include(
+        'See https://www.mongodb.com/docs/mongodb-shell/ for documentation on supported platforms.'
+      );
     });
   });
 });

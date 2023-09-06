@@ -32,7 +32,7 @@ describe('OIDC auth e2e', function () {
     if (
       process.platform !== 'linux' ||
       !process.env.MONGOSH_SERVER_TEST_VERSION ||
-      process.env.MONGOSH_SERVER_TEST_VERSION.includes('-community') ||
+      !process.env.MONGOSH_SERVER_TEST_VERSION.includes('-enterprise') ||
       !(
         process.env.MONGOSH_SERVER_TEST_VERSION.includes('latest-alpha') ||
         +process.env.MONGOSH_SERVER_TEST_VERSION.split('.')[0] >= 7
@@ -69,14 +69,14 @@ describe('OIDC auth e2e', function () {
       '--setParameter',
       'enableTestCommands=true',
     ];
-    testServer = new MongoRunnerSetup({
+    testServer = new MongoRunnerSetup('e2e-oidc', {
       args: [
         '--setParameter',
         `oidcIdentityProviders=${JSON.stringify([serverOidcConfig])}`,
         ...commonOidcServerArgs,
       ],
     });
-    testServer2 = new MongoRunnerSetup({
+    testServer2 = new MongoRunnerSetup('e2e-oidc', {
       args: [
         '--setParameter',
         `oidcIdentityProviders=${JSON.stringify([

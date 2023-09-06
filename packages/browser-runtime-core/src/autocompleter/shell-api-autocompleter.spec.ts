@@ -9,6 +9,7 @@ const standalone440 = {
     is_atlas: false,
     is_data_federation: false,
     server_version: '4.4.0',
+    is_local_atlas: false,
   }),
   getCollectionCompletionsForCurrentDb: () => ['bananas'],
   getDatabaseCompletions: () => ['databaseOne'],

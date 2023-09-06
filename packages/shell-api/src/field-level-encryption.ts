@@ -23,7 +23,7 @@ import type Collection from './collection';
 import Cursor from './cursor';
 import type { DeleteResult } from './result';
 import { assertArgsDefinedType, assertKeysDefined } from './helpers';
-import { asPrintable, shellApiType } from './enums';
+import { asPrintable } from './enums';
 import { redactURICredentials } from '@mongosh/history';
 import type Mongo from './mongo';
 import {
@@ -31,7 +31,6 @@ import {
   MongoshInvalidInputError,
   MongoshRuntimeError,
 } from '@mongosh/errors';
-import type ShellInstanceState from './shell-instance-state';
 import type { CreateEncryptedCollectionOptions } from '@mongosh/service-provider-core';
 
 export type ClientSideFieldLevelEncryptionKmsProvider = Omit<
@@ -97,79 +96,6 @@ const isMasterKey = (
   );
 };
 
-// The KeyVault.getKey() and KeyVault.getKeyByAltName() are special because:
-// - the legacy shell and mongosh versions up to 1.5.4 return a *cursor* (that returns at most one document)
-// - drivers implementing the key management API return a *document* (or null)
-// The driver API design is the right choice here. While we are migrating to it, to keep
-// backwards compatibility with previous mongosh versions, we return a Proxy object
-// that returns the document but provides access to cursor methods, either by
-// rewinding the cursor from which we retrieved the result document (if possible)
-// or re-creating the cursor altogether.
-// Unfortunately, we cannot return a Proxy for `null` in the no-result case, so
-// we return a Proxy for a dummy object in that case.
-const NO_RESULT_PLACEHOLDER_DOC = Object.freeze({
-  // A bit hacky but probably as good as it gets.
-  [Symbol('no result -- will return `null` in future mongosh versions')]: true,
-});
-async function makeSingleDocReturnValue(
-  makeCursor: () => Promise<Cursor>,
-  method: string,
-  instanceState: ShellInstanceState
-): Promise<Document> {
-  let cursor = await makeCursor();
-  let doc: Document | null = null;
-  try {
-    doc = await cursor.limit(1).next();
-  } catch {
-    /* ignore */
-  } finally {
-    if (typeof cursor._cursor.rewind === 'function') {
-      cursor._cursor.rewind();
-    } else {
-      // Not all service providers provide a .rewind() function,
-      // fall back to just re-creating the cursor.
-      cursor = await makeCursor();
-    }
-  }
-
-  const warn = () => {
-    void instanceState.printDeprecationWarning(
-      `${method} returns a single document and will stop providing cursor methods in future versions of mongosh.`
-    );
-  };
-  return new Proxy(doc ?? NO_RESULT_PLACEHOLDER_DOC, {
-    get(target, property, receiver) {
-      if (property === shellApiType) {
-        return 'Document';
-      }
-      if (property === asPrintable) {
-        return;
-      }
-      if (property in target) {
-        return Reflect.get(target, property, receiver);
-      }
-      if (typeof property !== 'symbol' && property in cursor) {
-        warn();
-      }
-      return Reflect.get(cursor, property);
-    },
-
-    getOwnPropertyDescriptor(target, property) {
-      if (property in target) {
-        return Reflect.getOwnPropertyDescriptor(target, property);
-      }
-      if (typeof property !== 'symbol' && property in cursor) {
-        warn();
-      }
-      return Reflect.getOwnPropertyDescriptor(cursor, property);
-    },
-
-    has(target, property) {
-      return property in target || property in cursor;
-    },
-  });
-}
-
 @shellApiClassDefault
 @classPlatforms(['CLI'])
 export class ClientEncryption extends ShellApiWithMongoClass {
@@ -180,18 +106,15 @@ export class ClientEncryption extends ShellApiWithMongoClass {
     super();
     this._mongo = mongo;
 
-    const fle = mongo._serviceProvider.fle;
-    if (!fle) {
-      throw new MongoshRuntimeError('FLE API is not available');
-    }
-
     // ClientEncryption does not take a schemaMap and will fail if it receives one
     const fleOptions = { ...this._mongo._fleOptions };
     delete fleOptions.schemaMap;
     delete fleOptions.encryptedFieldsMap;
 
-    this._libmongocrypt = new fle.ClientEncryption(
-      mongo._serviceProvider.getRawClient(),
+    if (!mongo._serviceProvider.createClientEncryption) {
+      throw new MongoshRuntimeError('FLE API is not available');
+    }
+    this._libmongocrypt = mongo._serviceProvider.createClientEncryption(
       fleOptions as ClientEncryptionOptions
     );
   }
@@ -459,28 +382,20 @@ export class KeyVault extends ShellApiWithMongoClass {
     );
   }
 
-  @returnType('Cursor')
   @apiVersions([1])
   @returnsPromise
-  async getKey(keyId: BinaryType): Promise<Document> {
+  async getKey(keyId: BinaryType): Promise<Document | null> {
     assertArgsDefinedType([keyId], [true], 'KeyVault.getKey');
-    return await makeSingleDocReturnValue(
-      () => this._keyColl.find({ _id: keyId }),
-      'KeyVault.getKey',
-      this._instanceState
-    );
+    const cursor = await this._keyColl.find({ _id: keyId });
+    return await cursor.limit(1).next();
   }
 
-  @returnType('Cursor')
   @apiVersions([1])
   @returnsPromise
-  async getKeyByAltName(keyAltName: string): Promise<Document> {
+  async getKeyByAltName(keyAltName: string): Promise<Document | null> {
     assertArgsDefinedType([keyAltName], ['string'], 'KeyVault.getKeyByAltName');
-    return await makeSingleDocReturnValue(
-      () => this._keyColl.find({ keyAltNames: keyAltName }),
-      'KeyVault.getKeyByAltName',
-      this._instanceState
-    );
+    const cursor = await this._keyColl.find({ keyAltNames: keyAltName });
+    return await cursor.limit(1).next();
   }
 
   // eslint-disable-next-line @typescript-eslint/require-await

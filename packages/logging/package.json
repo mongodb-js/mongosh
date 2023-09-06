@@ -17,11 +17,11 @@
     "node": ">=14.15.1"
   },
   "dependencies": {
-    "@mongodb-js/devtools-connect": "^2.3.1",
+    "@mongodb-js/devtools-connect": "^2.4.1",
     "@mongosh/errors": "0.0.0-dev.0",
     "@mongosh/history": "0.0.0-dev.0",
     "@mongosh/types": "0.0.0-dev.0",
-    "mongodb-log-writer": "^1.3.0",
+    "mongodb-log-writer": "^1.4.0",
     "mongodb-redact": "^0.2.2"
   },
   "devDependencies": {
@@ -35,6 +35,8 @@
   "scripts": {
     "test": "mocha -r \"../../scripts/import-expansions.js\" --timeout 15000 -r ts-node/register \"./src/**/*.spec.ts\"",
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
+    "test-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test",
+    "test-ci-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test-ci",
     "eslint": "eslint",
     "lint": "npm run eslint . && npm run prettier -- --check .",
     "check": "npm run lint && npm run depcheck",

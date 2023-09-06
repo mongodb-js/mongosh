@@ -28,13 +28,13 @@ describe('interruptor', function () {
           interruptError = e;
         });
         expect(interruptError).to.be.undefined;
-        interruptFlag.set();
+        await interruptFlag.set();
         await promisify(process.nextTick)();
         expect(interruptError).to.be.instanceOf(MongoshInterruptedError);
       });
 
       it('rejects immediately if the interrupt happened before', async function () {
-        interruptFlag.set();
+        await interruptFlag.set();
 
         interruptPromise = interruptFlag.asPromise();
         let interruptError: MongoshInterruptedError | undefined;
@@ -74,7 +74,7 @@ describe('interruptor', function () {
     });
 
     it('causes an interrupt error to be thrown on entry', async function () {
-      instanceState.interrupted.set();
+      await instanceState.interrupted.set();
       try {
         await database.runCommand({ some: 1 });
       } catch (e: any) {
@@ -87,7 +87,7 @@ describe('interruptor', function () {
     });
 
     it('causes an interrupt error to be thrown on exit', async function () {
-      let resolveCall: (result: any) => void;
+      let resolveCall!: (result: any) => void;
       serviceProvider.runCommandWithCheck.resolves(
         new Promise((resolve) => {
           resolveCall = resolve;
@@ -97,7 +97,7 @@ describe('interruptor', function () {
       const runCommand = database.runCommand({ some: 1 });
       await new Promise(setImmediate);
       await new Promise(setImmediate); // ticks due to db._baseOptions() being async
-      instanceState.interrupted.set();
+      await instanceState.interrupted.set();
       resolveCall({ ok: 1 });
 
       try {

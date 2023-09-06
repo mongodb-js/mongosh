@@ -1,15 +1,35 @@
-import { bson as BSON } from './index';
+import { bson as BSON } from './bson-export';
 import { inspect } from 'util';
 const inspectCustom = Symbol.for('nodejs.util.inspect.custom');
+type BSONClassKey = (typeof BSON)[Exclude<
+  keyof typeof BSON,
+  'EJSON' | 'calculateObjectSize'
+>]['prototype']['_bsontype'];
+
+// Turn e.g. 'new Double(...)' into 'Double(...)' but preserve possible leading whitespace
+function removeNewFromInspectResult(str: string): string {
+  return String(str).replace(/^(\s*)(new )/, '$1');
+}
+
+// Create a Node.js-util-inspect() style custom inspect function that
+// strips 'new ' from inspect results but otherwise uses the Node.js
+// driver's bson library's inspect functions.
+function makeClasslessInspect<K extends BSONClassKey>(className: K) {
+  const originalInspect = BSON[className].prototype.inspect;
+  return function (
+    this: (typeof BSON)[typeof className]['prototype'],
+    ...args: any
+  ) {
+    return removeNewFromInspectResult(originalInspect.apply(this, args as any));
+  };
+}
 
 export const bsonStringifiers: Record<
-  string,
+  BSONClassKey | 'ObjectID',
   (this: any, depth: any, options: any) => string
 > = {
-  ObjectId: function (this: typeof BSON.ObjectId.prototype): string {
-    return `ObjectId("${this.toHexString()}")`;
-  },
-
+  ObjectId: makeClasslessInspect('ObjectId'),
+  ObjectID: makeClasslessInspect('ObjectId'),
   DBRef: function (
     this: typeof BSON.DBRef.prototype,
     depth: any,
@@ -17,51 +37,21 @@ export const bsonStringifiers: Record<
   ): string {
     return (
       `DBRef("${this.collection}", ` +
-      inspect(this.oid, options) +
-      (this.db ? `, "${this.db}"` : '') +
+      inspect(this.oid, options) + // The driver's inspect() does not account for non-ObjectID oid values
+      (this.db ? `, ${inspect(this.db, options)}` : '') +
       ')'
     );
   },
-
-  MaxKey: function (this: typeof BSON.MaxKey.prototype): string {
-    return 'MaxKey()';
-  },
-
-  MinKey: function (this: typeof BSON.MinKey.prototype): string {
-    return 'MinKey()';
-  },
-
-  Timestamp: function (this: typeof BSON.Timestamp.prototype): string {
-    return `Timestamp({ t: ${this.getHighBits()}, i: ${this.getLowBits()} })`;
-  },
-
-  BSONSymbol: function (this: typeof BSON.BSONSymbol.prototype): string {
-    return `BSONSymbol("${this.valueOf()}")`;
-  },
-
-  Code: function (this: typeof BSON.Code.prototype): string {
-    const j = this.toJSON();
-    return `Code("${j.code}"${j.scope ? `, ${JSON.stringify(j.scope)}` : ''})`;
-  },
-
-  Decimal128: function (this: typeof BSON.Decimal128.prototype): string {
-    return `Decimal128("${this.toString()}")`;
-  },
-
-  Int32: function (this: typeof BSON.Int32.prototype): string {
-    return `Int32(${this.valueOf()})`;
-  },
-
-  Long: function (this: typeof BSON.Long.prototype): string {
-    return `Long("${this.toString()}"${this.unsigned ? ', true' : ''})`;
-  },
-
-  BSONRegExp: function (this: typeof BSON.BSONRegExp.prototype): string {
-    return `BSONRegExp(${JSON.stringify(this.pattern)}, ${JSON.stringify(
-      this.options
-    )})`;
-  },
-
+  MaxKey: makeClasslessInspect('MaxKey'),
+  MinKey: makeClasslessInspect('MinKey'),
+  Timestamp: makeClasslessInspect('Timestamp'),
+  BSONSymbol: makeClasslessInspect('BSONSymbol'),
+  Code: makeClasslessInspect('Code'),
+  Decimal128: makeClasslessInspect('Decimal128'),
+  Int32: makeClasslessInspect('Int32'),
+  Long: makeClasslessInspect('Long'),
+  Double: makeClasslessInspect('Double'),
+  BSONRegExp: makeClasslessInspect('BSONRegExp'),
   Binary: function (this: typeof BSON.Binary.prototype): string {
     const hexString = this.toString('hex');
     switch (this.sub_type) {
@@ -80,18 +70,19 @@ export const bsonStringifiers: Record<
       // In case somebody did something weird and used an UUID with a
       // non-standard length, fall through.
       default:
-        return `Binary(Buffer.from("${hexString}", "hex"), ${this.sub_type})`;
+        return `Binary.createFromBase64("${this.toString('base64')}", ${
+          this.sub_type
+        })`;
     }
   },
 };
-bsonStringifiers.ObjectID = bsonStringifiers.ObjectId;
 
 /**
  * This method modifies the BSON class passed in as argument. This is required so that
  * we can have the driver return our BSON classes without having to write our own serializer.
  * @param {Object} bson
  */
-export default function (bson?: typeof BSON): void {
+export function makePrintableBson(bson?: typeof BSON): void {
   if (!bson) {
     bson = BSON;
   }
@@ -102,14 +93,7 @@ export default function (bson?: typeof BSON): void {
     }
     const cls = bson[key as keyof typeof BSON];
     for (const key of [inspectCustom, 'inspect']) {
-      try {
-        (cls as any).prototype[key] = stringifier;
-      } catch {
-        // This may fail because bson.ObjectId.prototype[toString] can exist as a
-        // read-only property. https://github.com/mongodb/js-bson/pull/412 takes
-        // care of this. In the CLI repl and Compass this still works fine, because
-        // those are on bson@1.x.
-      }
+      (cls as any).prototype[key] = stringifier;
     }
   }
 }

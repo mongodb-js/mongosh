@@ -15,6 +15,8 @@
     "compile": "tsc -p tsconfig.json",
     "test": "cross-env TS_NODE_PROJECT=../../configs/tsconfig-mongosh/tsconfig.test.json mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 -r ts-node/register \"./src/**/*.spec.ts\"",
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
+    "test-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test",
+    "test-ci-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test-ci",
     "prepublish": "npm run compile",
     "eslint": "eslint",
     "lint": "npm run eslint . && npm run prettier -- --check .",
@@ -45,19 +47,20 @@
     }
   },
   "dependencies": {
-    "@mongodb-js/devtools-connect": "^2.3.1",
+    "@mongodb-js/devtools-connect": "^2.4.1",
+    "@mongodb-js/oidc-plugin": "^0.3.0",
     "@mongosh/errors": "0.0.0-dev.0",
     "@mongosh/service-provider-core": "0.0.0-dev.0",
     "@mongosh/types": "0.0.0-dev.0",
     "@types/sinon-chai": "^3.2.4",
     "aws4": "^1.11.0",
-    "mongodb": "^5.7.0",
+    "mongodb": "^6.0.0",
     "mongodb-connection-string-url": "^2.6.0",
-    "saslprep": "npm:@mongodb-js/saslprep@^1.1.0"
+    "socks": "^2.7.1"
   },
   "optionalDependencies": {
-    "kerberos": "^2.0.0",
-    "mongodb-client-encryption": "^2.8.0"
+    "kerberos": "2.0.1",
+    "mongodb-client-encryption": "^6.0.0"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",

@@ -22,6 +22,8 @@
     "report-supported-api": "ts-node bin/report-supported-api.ts",
     "test": "cross-env TS_NODE_PROJECT=../../configs/tsconfig-mongosh/tsconfig.test.json mocha -r \"../../scripts/import-expansions.js\" --timeout 60000 -r ts-node/register \"./src/**/*.spec.ts\"",
     "test-ci": "node ../../scripts/run-if-package-requested.js npm test",
+    "test-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test",
+    "test-ci-coverage": "nyc --no-clean --cwd ../.. --reporter=none npm run test-ci",
     "test-apistrict-ci": "cross-env MONGOSH_TEST_FORCE_API_STRICT=1 npm run test-ci",
     "prepublish": "npm run compile",
     "prettier": "prettier",
@@ -50,10 +52,10 @@
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
     "@mongosh/types": "0.0.0-dev.0",
-    "bson": "^5.3.0",
+    "bson": "^6.0.0",
     "depcheck": "^1.4.3",
     "eslint": "^7.25.0",
-    "mongodb": "^5.7.0",
+    "mongodb": "^6.0.0",
     "prettier": "^2.8.8",
     "semver": "^7.5.3"
   }

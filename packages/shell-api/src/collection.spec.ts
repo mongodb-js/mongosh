@@ -1553,12 +1553,14 @@ describe('Collection', function () {
         });
         it('not returned when no args', async function () {
           const result = await collection.stats();
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { indexDetails, ...expectedResultWithoutIndexDetails } =
             expectedResult;
           expect(result).to.deep.equal(expectedResultWithoutIndexDetails);
         });
         it('not returned when options indexDetails: false', async function () {
           const result = await collection.stats({ indexDetails: false });
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { indexDetails, ...expectedResultWithoutIndexDetails } =
             expectedResult;
           expect(result).to.deep.equal(expectedResultWithoutIndexDetails);
@@ -2422,7 +2424,7 @@ describe('Collection', function () {
           collection._name
         );
       });
-      it('calls serviceProvider.watch when given no args', async function () {
+      it('calls serviceProvider.watch when given pipeline and ops args', async function () {
         const pipeline = [{ $match: { operationType: 'insertOne' } }];
         const ops = { batchSize: 1 };
         await collection.watch(pipeline, ops);

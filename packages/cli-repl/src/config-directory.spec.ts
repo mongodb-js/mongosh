@@ -1,8 +1,6 @@
 import { ConfigManager, ShellHomeDirectory } from './config-directory';
-import rimraf from 'rimraf';
 import path from 'path';
 import { promises as fs } from 'fs';
-import { promisify } from 'util';
 import chai, { expect } from 'chai';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
@@ -46,7 +44,7 @@ describe('home directory management', function () {
   });
 
   afterEach(async function () {
-    await promisify(rimraf)(path.resolve(base, '..'));
+    await fs.rm(path.resolve(base, '..'), { recursive: true, force: true });
   });
 
   describe('ShellHomeDirectory', function () {

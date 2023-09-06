@@ -85,6 +85,7 @@ describe('npm-packages publishNpmPackages', function () {
       [
         'publish',
         'from-package',
+        '--no-private',
         '--no-changelog',
         '--no-push',
         '--exact',

@@ -29,8 +29,8 @@ class Mongosh < Formula
   end
 
   test do
-    assert_match "ECONNREFUSED 0.0.0.0:1", shell_output("#{bin}/mongosh \"mongodb://0.0.0.0:1\" 2>&1", 1)
-    assert_match "#ok#", shell_output("#{bin}/mongosh --nodb --eval \"print('#ok#')\"")
+    assert_match "ECONNREFUSED 0.0.0.0:1", shell_output("#{bin}/mongosh \\"mongodb://0.0.0.0:1\\" 2>&1", 1)
+    assert_match "#ok#", shell_output("#{bin}/mongosh --nodb --eval \\"print('#ok#')\\"")
   end
 end`;
 
@@ -40,7 +40,7 @@ describe('Homebrew generate-formula', function () {
 
   beforeEach(function () {
     getFileContent = sinon.stub();
-    getFileContent.withArgs('Formula/mongosh.rb', 'master').resolves({
+    getFileContent.withArgs('Formula/m/mongosh.rb', 'master').resolves({
       blobSha: 'blobSha',
       content: VALID_FORMULA,
     });
@@ -75,8 +75,8 @@ class Mongosh < Formula
   end
 
   test do
-    assert_match "ECONNREFUSED 0.0.0.0:1", shell_output("#{bin}/mongosh \"mongodb://0.0.0.0:1\" 2>&1", 1)
-    assert_match "#ok#", shell_output("#{bin}/mongosh --nodb --eval \"print('#ok#')\"")
+    assert_match "ECONNREFUSED 0.0.0.0:1", shell_output("#{bin}/mongosh \\"mongodb://0.0.0.0:1\\" 2>&1", 1)
+    assert_match "#ok#", shell_output("#{bin}/mongosh --nodb --eval \\"print('#ok#')\\"")
   end
 end`;
     expect(

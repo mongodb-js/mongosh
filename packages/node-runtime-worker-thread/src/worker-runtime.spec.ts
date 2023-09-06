@@ -5,7 +5,7 @@ import chai, { expect } from 'chai';
 import sinonChai from 'sinon-chai';
 import sinon from 'sinon';
 import { EJSON, ObjectId } from 'bson';
-import { startTestServer } from '../../../testing/integration-testing-hooks';
+import { startSharedTestServer } from '../../../testing/integration-testing-hooks';
 import type { Caller, Exposed } from './rpc';
 import { cancel, close, createCaller, exposeAll } from './rpc';
 import { deserializeEvaluationResult } from './serializer';
@@ -91,7 +91,7 @@ describe('worker', function () {
     expect(err).to.be.instanceof(Error);
     expect(err)
       .to.have.property('message')
-      .match(/Can\'t call evaluate before shell runtime is initiated/);
+      .match(/Can't call evaluate before shell runtime is initiated/);
   });
 
   describe('evaluate', function () {
@@ -169,7 +169,7 @@ describe('worker', function () {
     });
 
     describe('shell-api results', function () {
-      const testServer = startTestServer('shared');
+      const testServer = startSharedTestServer();
       const db = `test-db-${Date.now().toString(16)}`;
       let exposed: Exposed<unknown>;
 
@@ -455,14 +455,14 @@ describe('worker', function () {
         expect(err)
           .to.have.property('message')
           .match(
-            /Can\'t run another evaluation while the previous is not finished/
+            /Can't run another evaluation while the previous is not finished/
           );
       });
     });
   });
 
   describe('getShellPrompt', function () {
-    const testServer = startTestServer('shared');
+    const testServer = startSharedTestServer();
 
     it('should return prompt when connected to the server', async function () {
       const { init, getShellPrompt } = caller;
@@ -476,7 +476,7 @@ describe('worker', function () {
   });
 
   describe('getCompletions', function () {
-    const testServer = startTestServer('shared');
+    const testServer = startSharedTestServer();
 
     it('should return completions', async function () {
       const { init, getCompletions } = caller;

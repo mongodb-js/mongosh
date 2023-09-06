@@ -12,6 +12,7 @@ const standalone600 = {
     is_atlas: false,
     is_data_federation: false,
     server_version: '6.0.0',
+    is_local_atlas: false,
   }),
   getCollectionCompletionsForCurrentDb: () => collections,
   getDatabaseCompletions: () => databases,
@@ -23,6 +24,7 @@ const standalone440 = {
     is_atlas: false,
     is_data_federation: false,
     server_version: '4.4.0',
+    is_local_atlas: false,
   }),
   getCollectionCompletionsForCurrentDb: () => collections,
   getDatabaseCompletions: () => databases,
@@ -45,6 +47,7 @@ const sharded440 = {
     is_atlas: false,
     is_data_federation: false,
     server_version: '4.4.0',
+    is_local_atlas: false,
   }),
   getCollectionCompletionsForCurrentDb: () => collections,
   getDatabaseCompletions: () => databases,
@@ -57,6 +60,7 @@ const standalone300 = {
     is_atlas: false,
     is_data_federation: false,
     server_version: '3.0.0',
+    is_local_atlas: false,
   }),
   getCollectionCompletionsForCurrentDb: () => collections,
   getDatabaseCompletions: () => databases,
@@ -68,6 +72,20 @@ const datalake440 = {
     is_atlas: true,
     is_data_federation: true,
     server_version: '4.4.0',
+    is_local_atlas: false,
+  }),
+  getCollectionCompletionsForCurrentDb: () => collections,
+  getDatabaseCompletions: () => databases,
+};
+
+const localAtlas600 = {
+  topology: () => Topologies.Standalone,
+  apiVersionInfo: () => undefined,
+  connectionInfo: () => ({
+    is_atlas: false,
+    is_data_federation: false,
+    server_version: '6.0.0',
+    is_local_atlas: true,
   }),
   getCollectionCompletionsForCurrentDb: () => collections,
   getDatabaseCompletions: () => databases,
@@ -244,6 +262,19 @@ describe('completer.completer', function () {
       const i = 'db.shipwrecks.aggregate([ { $sq';
       expect(await completer(standalone440, i)).to.deep.equal([
         ['db.shipwrecks.aggregate([ { $sqrt'],
+        i,
+      ]);
+    });
+  });
+
+  context('local atlas', function () {
+    it('includes them when connected to local atlas', async function () {
+      const i = 'db.shipwrecks.aggregate([ { $sea';
+      expect(await completer(localAtlas600, i)).to.deep.equal([
+        [
+          'db.shipwrecks.aggregate([ { $search',
+          'db.shipwrecks.aggregate([ { $searchMeta',
+        ],
         i,
       ]);
     });
@@ -680,12 +711,12 @@ describe('completer.completer', function () {
   });
 
   context('for shell commands', function () {
-    it('completes partial commands', async function () {
+    it('completes partial commands (sho)', async function () {
       const i = 'sho';
       expect(await completer(noParams, i)).to.deep.equal([['show'], i]);
     });
 
-    it('completes partial commands', async function () {
+    it('completes partial commands (show)', async function () {
       const i = 'show';
       const result = await completer(noParams, i);
       expect(result[0]).to.contain('show databases');

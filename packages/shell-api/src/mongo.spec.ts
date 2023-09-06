@@ -30,8 +30,8 @@ import {
 } from '@mongosh/errors';
 import { CliServiceProvider } from '../../service-provider-server';
 import {
-  startTestServer,
   skipIfServerVersion,
+  startSharedTestServer,
 } from '../../../testing/integration-testing-hooks';
 import { dummyOptions } from './helpers.spec';
 
@@ -852,7 +852,7 @@ describe('Mongo', function () {
         await mongo.watch(pipeline);
         expect(serviceProvider.watch).to.have.been.calledWith(pipeline, {});
       });
-      it('calls serviceProvider.watch when given no args', async function () {
+      it('calls serviceProvider.watch when given pipeline and ops args', async function () {
         const pipeline = [{ $match: { operationType: 'insertOne' } }];
         const ops = { batchSize: 1 };
         await mongo.watch(pipeline, ops);
@@ -930,7 +930,7 @@ describe('Mongo', function () {
   });
 
   describe('integration', function () {
-    const testServer = startTestServer('shared');
+    const testServer = startSharedTestServer();
     let serviceProvider;
     let instanceState: ShellInstanceState;
     let uri: string;

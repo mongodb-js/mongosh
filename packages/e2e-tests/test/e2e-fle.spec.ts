@@ -14,17 +14,9 @@ import { once } from 'events';
 import { serialize } from 'v8';
 import { inspect } from 'util';
 import path from 'path';
-import os from 'os';
-
-function isMacosTooOldForQE() {
-  // Indexed search is not supported on macOS 10.14 (which in turn is
-  // not supported by 6.0+ servers anyway).
-  // See e.g. https://jira.mongodb.org/browse/MONGOCRYPT-440
-  return os.type() === 'Darwin' && +os.release().split('.')[0] < 20;
-}
 
 describe('FLE tests', function () {
-  const testServer = startTestServer('not-shared', {
+  const testServer = startTestServer('e2e-fle', {
     topology: 'replset',
     secondaries: 0,
   });
@@ -127,7 +119,7 @@ describe('FLE tests', function () {
                 }
               : {}),
           },
-          cwd: path.join(__dirname, 'fixtures'),
+          cwd: path.join(__dirname, '..', '..', 'cli-repl', 'test', 'fixtures'),
         });
 
         if (withEnvVarCredentials) {
@@ -365,7 +357,9 @@ describe('FLE tests', function () {
       `plainMongo.getDB('${dbname}').coll.find()`
     );
     expect(plainMongoResult).to.include("phoneNumber: '+98173247931847'");
-    expect(plainMongoResult).to.include('phoneNumber: Binary(Buffer.from');
+    expect(plainMongoResult).to.include(
+      'phoneNumber: Binary.createFromBase64('
+    );
     expect(plainMongoResult).to.not.include("phoneNumber: '+12874627836445'");
   });
 
@@ -498,11 +492,7 @@ describe('FLE tests', function () {
   context('7.0+', function () {
     skipIfServerVersion(testServer, '< 7.0'); // Queryable Encryption v2 only available on 7.0+
 
-    it('allows explicit encryption with bypassQueryAnalysis', async function () {
-      if (isMacosTooOldForQE()) {
-        return this.skip();
-      }
-
+    it('allows explicit enryption with bypassQueryAnalysis', async function () {
       // No --cryptSharedLibPath since bypassQueryAnalysis is also a community edition feature
       const shell = TestShell.start({ args: ['--nodb'] });
       const uri = JSON.stringify(await testServer.connectionString());
@@ -616,7 +606,9 @@ describe('FLE tests', function () {
       const plainMongoResult = await shell.executeLine(
         `plainMongo.getDB('${dbname}').collfle2.find()`
       );
-      expect(plainMongoResult).to.include('phoneNumber: Binary(Buffer.from');
+      expect(plainMongoResult).to.include(
+        'phoneNumber: Binary.createFromBase64('
+      );
       expect(plainMongoResult).to.not.include("phoneNumber: '+12874627836445'");
 
       let collections = await shell.executeLine(
@@ -724,10 +716,6 @@ describe('FLE tests', function () {
       expect(parseInt(dekCount.trim(), 10)).to.equal(1);
     });
     it('allows explicit range encryption with bypassQueryAnalysis', async function () {
-      if (isMacosTooOldForQE()) {
-        return this.skip();
-      }
-
       // No --cryptSharedLibPath since bypassQueryAnalysis is also a community edition feature
       const shell = TestShell.start({ args: ['--nodb'] });
       const uri = JSON.stringify(await testServer.connectionString());
@@ -812,7 +800,7 @@ describe('FLE tests', function () {
       // TODO(MONGOSH-1550): On s390x, we are using the 6.0.x RHEL7 shared library,
       // which does not support QE rangePreview. That's just fine for preview, but
       // we should switch to the 7.0.x RHEL8 shared library for Range GA.
-      if (isMacosTooOldForQE() || process.arch === 's390x') {
+      if (process.arch === 's390x') {
         return this.skip();
       }
 
@@ -967,104 +955,5 @@ describe('FLE tests', function () {
       await runSingleLine('keyVault.deleteKey(keyId).deletedCount')
     ).to.equal('1');
     expect(await runSingleLine('db.keyVault.countDocuments()')).to.equal('0');
-  });
-
-  it('allows a migration path for users from cursor getKey[ByAltName] to single document getKey[ByAltName]', async function () {
-    const shell = TestShell.start({
-      args: [
-        await testServer.connectionString(),
-        `--cryptSharedLibPath=${cryptLibrary}`,
-      ],
-    });
-    await shell.waitForPrompt();
-    // Wrapper for executeLine that expects single-line output
-    const runSingleLine = async (line) =>
-      (await shell.executeLine(line)).split('\n')[0].trim();
-    await runSingleLine(
-      'local = { key: BinData(0, "kh4Gv2N8qopZQMQYMEtww/AkPsIrXNmEMxTrs3tUoTQZbZu4msdRUaR8U5fXD7A7QXYHcEvuu4WctJLoT+NvvV3eeIg3MD+K8H9SR794m/safgRHdIfy6PD+rFpvmFbY") }'
-    );
-    await runSingleLine(`keyMongo = Mongo(db.getMongo(), { \
-      keyVaultNamespace: '${dbname}.keyVault', \
-      kmsProviders: { local }, \
-      explicitEncryptionOnly: true \
-    });`);
-    await runSingleLine(`use('${dbname}')`);
-    await runSingleLine('keyVault = keyMongo.getKeyVault();');
-    await runSingleLine(
-      'keyId = keyVault.createKey("local", "", ["testaltname"]);'
-    );
-
-    // Can access values with cursor methods, but get a deprecation warning
-    {
-      const output = await shell.executeLine(
-        'keyVault.getKey(keyId).next().masterKey.provider'
-      );
-      expect(output).to.include(
-        'DeprecationWarning: KeyVault.getKey returns a single document and will stop providing cursor methods in future versions of mongosh'
-      );
-      expect(output).to.match(/\blocal\b/);
-    }
-    {
-      const output = await shell.executeLine(
-        'keyVault.getKeyByAltName("testaltname").next().masterKey.provider'
-      );
-      expect(output).to.include(
-        'DeprecationWarning: KeyVault.getKeyByAltName returns a single document and will stop providing cursor methods in future versions of mongosh'
-      );
-      expect(output).to.match(/\blocal\b/);
-    }
-
-    // Can access values on document directly
-    {
-      const output = await shell.executeLine(
-        'keyVault.getKey(keyId).masterKey.provider'
-      );
-      expect(output).to.not.include('DeprecationWarning');
-      expect(output).to.match(/\blocal\b/);
-    }
-    {
-      const output = await shell.executeLine(
-        'keyVault.getKeyByAltName("testaltname").masterKey.provider'
-      );
-      expect(output).to.not.include('DeprecationWarning');
-      expect(output).to.match(/\blocal\b/);
-    }
-
-    // Works when no doc is returned
-    {
-      const output = await shell.executeLine('keyVault.getKey("nonexistent")');
-      expect(output).to.include(
-        'no result -- will return `null` in future mongosh versions'
-      );
-    }
-    {
-      const output = await shell.executeLine(
-        'keyVault.getKeyByAltName("nonexistent")'
-      );
-      expect(output).to.include(
-        'no result -- will return `null` in future mongosh versions'
-      );
-    }
-
-    // Hack to reset deprecation warning cache
-    await shell.executeLine(
-      'db.getMongo()._instanceState.warningsShown.clear()'
-    );
-
-    // Works when no doc is returned with cursor methods
-    {
-      const output = await shell.executeLine(
-        'keyVault.getKey("nonexistent").next()'
-      );
-      expect(output).to.include('DeprecationWarning');
-      expect(output).to.match(/\bnull\b/);
-    }
-    {
-      const output = await shell.executeLine(
-        'keyVault.getKeyByAltName("nonexistent").next()'
-      );
-      expect(output).to.include('DeprecationWarning');
-      expect(output).to.match(/\bnull\b/);
-    }
   });
 });
