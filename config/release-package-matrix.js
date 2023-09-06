@@ -9,19 +9,19 @@ const ubuntu1804AndAboveAndDebBased = ['ubuntu1804', 'ubuntu1804', 'ubuntu2004',
 const allLinux = [...rhel70AndAboveAndRpmBased, ...ubuntu1804AndAboveAndDebBased]
 
 const publicDescriptions = {
-  darwin_x64: 'MacOS x64 (10.14+)',
+  darwin_x64: 'MacOS x64 (11.0+)',
   darwin_arm64: 'MacOS M1 (11.0+)',
   linux_x64: 'Linux x64',
   linux_arm64: 'Linux arm64',
-  debian_x64: 'Debian (10+) / Ubuntu (18.04+) x64',
-  debian_arm64: 'Debian (10+) / Ubuntu (18.04+) arm64',
-  rhel_x64: 'RHEL / CentOS (7+) x64',
-  rhel_arm64: 'RHEL / CentOS (7+) arm64',
+  debian_x64: 'Debian (11+) / Ubuntu (20.04+) x64',
+  debian_arm64: 'Debian (11+) / Ubuntu (20.04+) arm64',
+  rhel_x64: 'RHEL / CentOS (8+) x64',
+  rhel_arm64: 'RHEL / CentOS (8+) arm64',
   linux_ppc64le: 'Linux ppc64le',
-  rhel_ppc64le: 'RHEL / CentOS (7+) ppc64le',
+  rhel_ppc64le: 'RHEL / CentOS (8+) ppc64le',
   linux_s390x: 'Linux ppc64le',
-  rhel_s390x: 'RHEL / CentOS (7+) ppc64le',
-  win32_x64: 'Windows x64 (8.1+)'
+  rhel_s390x: 'RHEL / CentOS (8+) ppc64le',
+  win32_x64: 'Windows x64 (10+)'
 };
 
 exports.RELEASE_PACKAGE_MATRIX = [
