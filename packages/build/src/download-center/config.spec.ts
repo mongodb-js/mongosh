@@ -134,7 +134,7 @@ describe('DownloadCenter config', function () {
 
   describe('getUpdatedDownloadCenterConfig', function () {
     context('when the current release is a new major bump', function () {
-      it('adds a new entry for the current release to the download center config, while keeping the other major versions', function () {
+      it('adds a new entry for the current release to the download center config, while keeping the other major versions, sorted by semver', function () {
         const getVersionConfig1x = sinon.stub().returns({ version: '1.2.2' });
         const getVersionConfig2x = sinon.stub().returns({ version: '2.0.0' });
         const existingDownloadCenterConfig =
@@ -147,7 +147,7 @@ describe('DownloadCenter config', function () {
         );
 
         expect(updatedConfig).to.deep.equal({
-          versions: [{ version: '1.2.2' }, { version: '2.0.0' }],
+          versions: [{ version: '2.0.0' }, { version: '1.2.2' }],
           manual_link: 'https://docs.mongodb.org/manual/products/mongosh',
           release_notes_link: `https://github.com/mongodb-js/mongosh/releases/tag/v2.0.0`, // Release notes link will point to the current release being made
           previous_releases_link: '',
@@ -179,7 +179,7 @@ describe('DownloadCenter config', function () {
           );
 
           expect(configWith21x).to.deep.equal({
-            versions: [{ version: '1.2.2' }, { version: '2.1.0' }],
+            versions: [{ version: '2.1.0' }, { version: '1.2.2' }],
             manual_link: 'https://docs.mongodb.org/manual/products/mongosh',
             release_notes_link: `https://github.com/mongodb-js/mongosh/releases/tag/v2.1.0`, // Release notes link will point to the current release being made
             previous_releases_link: '',

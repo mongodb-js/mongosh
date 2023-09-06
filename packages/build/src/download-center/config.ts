@@ -143,6 +143,8 @@ export function getUpdatedDownloadCenterConfig(
     currentVersions[matchingMajorVersionIdx] = versionConfig;
   }
 
+  currentVersions.sort((a, b) => semver.rcompare(a.version, b.version));
+
   return {
     ...downloadedConfig,
     versions: currentVersions,
