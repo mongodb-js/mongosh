@@ -369,8 +369,8 @@ describe('DownloadCenter config', function () {
 
         expect(uploadedConfig).to.deep.equal({
           versions: [
-            { _id: '1.2.2', version: '1.2.2', platform: [] },
             { _id: '2.0.0', version: '2.0.0', platform: [] },
+            { _id: '1.2.2', version: '1.2.2', platform: [] },
           ],
           manual_link: 'https://docs.mongodb.org/manual/products/mongosh',
           release_notes_link:
