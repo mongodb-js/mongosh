@@ -41,10 +41,10 @@ describe('DownloadCenter config', function () {
       expect(version.version).to.equal('1.2.2');
     });
 
-    it('has an artifact for MacOS x64 (10.14+)', function () {
+    it('has an artifact for darwin', function () {
       const version = createVersionConfig(packageInformation('1.2.2'));
       const platforms = version.platform.filter(
-        (p) => p.os === 'MacOS x64 (10.14+)'
+        (p) => p.os === 'MacOS x64 (11.0+)'
       );
       expect(platforms).to.have.length(1);
       expect(platforms[0].packages.links[0].name).to.include('zip');
@@ -71,7 +71,7 @@ describe('DownloadCenter config', function () {
     it('has an MSI and ZIP artifacts for windows', function () {
       const version = createVersionConfig(packageInformation('1.2.2'));
       const [platform] = version.platform.filter(
-        (p) => p.os === 'Windows x64 (8.1+)'
+        (p) => p.os === 'Windows x64 (10+)'
       );
       expect(platform.packages.links[0].download_link).to.contain(
         'win32-x64.zip'
