@@ -2,7 +2,6 @@ import * as path from 'path';
 import { once } from 'events';
 import { promises as fs } from 'fs';
 import type { Readable } from 'stream';
-import childProcess from 'child_process';
 
 import { bson } from '@mongosh/service-provider-core';
 import { makeMultilineJSIntoSingleLine } from '@mongosh/js-multiline-to-singleline';
@@ -237,7 +236,8 @@ export class Editor {
       code,
     });
 
-    const proc = childProcess.spawn(editor, [path.basename(tmpDoc)], {
+    const { spawn } = require('child_process');
+    const proc = spawn(editor, [path.basename(tmpDoc)], {
       stdio: 'inherit',
       cwd: path.dirname(tmpDoc),
       shell: true,

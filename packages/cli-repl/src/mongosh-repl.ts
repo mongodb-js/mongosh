@@ -23,9 +23,7 @@ import askcharacter from 'askcharacter';
 import askpassword from 'askpassword';
 import { Console } from 'console';
 import { once } from 'events';
-import prettyRepl from 'pretty-repl';
 import type { ReplOptions, REPLServer } from 'repl';
-import { start as replStart } from 'repl';
 import type { Readable, Writable } from 'stream';
 import { PassThrough } from 'stream';
 import type { ReadStream, WriteStream } from 'tty';
@@ -119,7 +117,7 @@ function fixupReplForNodeBug38314(repl: REPLServer): void {
     const evalFn = (code: any, ctx: any, filename: any, cb: any) =>
       cb(new Error('err'));
     const prompt = 'prompt#';
-    replStart({ input, output, eval: evalFn as any, prompt });
+    require('repl').start({ input, output, eval: evalFn as any, prompt });
     input.end('s\n');
     if (!String(output.read()).includes('prompt#prompt#')) {
       return; // All good, nothing to do here.
@@ -239,7 +237,7 @@ class MongoshNodeRepl implements EvaluationListener {
       (await this.getConfig('redactHistory')) ?? this.redactHistory;
 
     const repl = asyncRepl.start({
-      start: prettyRepl.start,
+      start: require('pretty-repl').start,
       input: this.lineByLineInput as unknown as Readable,
       output: this.output,
       prompt: '',

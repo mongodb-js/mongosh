@@ -21,7 +21,12 @@ const config = {
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'mongosh.js',
-    libraryTarget: 'commonjs2',
+    library: {
+      name: 'mongosh',
+      // Doesn't really matter, we're not exposing anything here, but using `var`
+      // integrates more easily with snapshot building than e.g. CommonJS
+      type: 'var',
+    },
   },
   plugins: [webpackDependenciesPlugin],
   entry: './lib/run.js',

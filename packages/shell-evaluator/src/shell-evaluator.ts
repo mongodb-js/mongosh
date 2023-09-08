@@ -5,6 +5,7 @@ import {
   EvaluationListener,
 } from '@mongosh/shell-api';
 import AsyncWriter from '@mongosh/async-rewriter2';
+import v8 from 'v8';
 
 type EvaluationFunction = (
   input: string,
@@ -13,6 +14,14 @@ type EvaluationFunction = (
 ) => Promise<any>;
 
 import { HIDDEN_COMMANDS, redactSensitiveData } from '@mongosh/history';
+
+let hasAlreadyRunGlobalRuntimeSupportEval = false;
+if ((v8 as any)?.startupSnapshot?.isBuildingSnapshot?.()) {
+  (v8 as any).startupSnapshot.addSerializeCallback(() => {
+    eval(new AsyncWriter().runtimeSupportCode());
+    hasAlreadyRunGlobalRuntimeSupportEval = true;
+  });
+}
 
 type ResultHandler<EvaluationResultType> = (
   value: any
@@ -85,7 +94,9 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
       // db.test.find().toArray() is a Promise for an Array from the context
       // in which the shell-api package lives and not from the context inside
       // the REPL (i.e. `db.test.find().toArray() instanceof Array` is `false`).
-      eval(supportCode);
+      if (!hasAlreadyRunGlobalRuntimeSupportEval) {
+        eval(supportCode);
+      }
       rewrittenInput = supportCode + ';\n' + rewrittenInput;
     }
 

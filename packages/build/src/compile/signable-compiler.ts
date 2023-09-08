@@ -175,7 +175,7 @@ export class SignableCompiler {
         .concat(macKeychainAddon ? [macKeychainAddon] : []),
       preCompileHook,
       executableMetadata: this.executableMetadata,
-      useCodeCache: true,
+      useNodeSnapshot: true,
     });
   }
 }

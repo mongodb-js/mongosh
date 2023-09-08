@@ -1,6 +1,10 @@
 import semver from 'semver';
 import { promises as fs } from 'fs';
-import fetch from 'node-fetch';
+import type { RequestInfo, RequestInit, Response } from 'node-fetch';
+
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+const fetch = (url: RequestInfo, init?: RequestInit): Promise<Response> =>
+  require('node-fetch')(url, init);
 
 interface MongoshUpdateLocalFileContents {
   lastChecked?: number;

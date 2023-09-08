@@ -1,11 +1,9 @@
-import { Domain } from 'domain';
 import type { EventEmitter } from 'events';
 import type { ReadStream } from 'tty';
 import isRecoverableError from 'is-recoverable-error';
 import type { ReadLineOptions } from 'readline';
-import { Interface } from 'readline';
 import type { ReplOptions, REPLServer } from 'repl';
-import { Recoverable, start as originalStart } from 'repl';
+import type { start as originalStart } from 'repl';
 import { promisify } from 'util';
 
 // Utility, inverse of Readonly<T>
@@ -75,6 +73,7 @@ function getPrompt(repl: any): string {
  * synchronous, and integrates nicely with Ctrl+C handling in that respect.
  */
 export function start(opts: AsyncREPLOptions): REPLServer {
+  const { Recoverable, start: originalStart } = require('repl');
   const { asyncEval, wrapCallbackError = (err) => err, onAsyncSigint } = opts;
   if (onAsyncSigint) {
     (opts as ReplOptions).breakEvalOnSigint = true;
@@ -131,6 +130,7 @@ export function start(opts: AsyncREPLOptions): REPLServer {
     //    temporarily been disable for .editor
     // 5. The REPL thinks that the empty string is supposed to be the prompt
     //    even after .editor is done.
+    const { Interface } = require('readline');
     Interface.prototype.setPrompt.call(repl, '');
 
     try {
@@ -255,6 +255,7 @@ function wrapNoSyncDomainError<Args extends any[], Ret>(
   fn: (...args: Args) => Ret
 ) {
   return (...args: Args): Ret => {
+    const { Domain } = require('domain');
     const origEmit = Domain.prototype.emit;
 
     // When the Node.js core REPL encounters an exception during synchronous
