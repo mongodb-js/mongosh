@@ -219,8 +219,12 @@ describe('analytics helpers', function () {
 
       expect(events).to.have.lengthOf(4);
       expect(
-        events.filter((e) => e[0] === 'track').map((e) => e[1].event)
-      ).to.deep.eq(['hi', 'hi', 'hi']);
+        events
+          .filter((e) => e[0] === 'track')
+          .map((e) => e[1].event)
+          .join(',')
+        // can't be fully sure which instance 'won' the lock because fs operations are inherently subject to race conditions
+      ).to.match(/^(hi,hi,hi|bye,bye,bye)$/);
     });
   });
 });
