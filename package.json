@@ -48,7 +48,7 @@
     "update-authors": "ts-node -P configs/tsconfig-mongosh/tsconfig.common.json scripts/generate-authors.ts",
     "preupdate-third-party-notices": "npm run webpack-build -w packages/cli-repl",
     "update-third-party-notices": "mongodb-sbom-tools generate-3rd-party-notices --product='mongosh' --dependencies=.sbom/dependencies.json > THIRD_PARTY_NOTICES.md",
-    "update-node-js-versions": "npx @pkgjs/nv ls v14 > .evergreen/node-14-latest.json && npx @pkgjs/nv ls v16 > .evergreen/node-16-latest.json",
+    "update-node-js-versions": "npx @pkgjs/nv ls v20 > .evergreen/node-20-latest.json && npx @pkgjs/nv ls v16 > .evergreen/node-16-latest.json",
     "update-evergreen-config": "npm run test-evergreen-expansions && node .evergreen/generate-evergreen-yml.js .evergreen/evergreen.yml.in > .evergreen.yml",
     "mark-ci-required-optional-dependencies": "ts-node scripts/mark-ci-required-optional-dependencies.ts",
     "write-node-js-dep": "echo '[{\"name\": \".node.js\", \"version\":\"'\"$NODE_JS_VERSION\"'\"}]' > .sbom/node-js-dep.json",
