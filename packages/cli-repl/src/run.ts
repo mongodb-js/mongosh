@@ -1,12 +1,15 @@
 let fipsError: Error | undefined;
-if (process.argv.includes('--tlsFIPSMode')) {
-  // FIPS mode should be enabled before we run any other code, including any dependencies.
-  try {
-    require('crypto').setFips(1);
-  } catch (err: any) {
-    fipsError = err;
+function enableFipsIfRequested() {
+  if (process.argv.includes('--tlsFIPSMode')) {
+    // FIPS mode should be enabled before we run any other code, including any dependencies.
+    try {
+      require('crypto').setFips(1);
+    } catch (err: any) {
+      fipsError = err;
+    }
   }
 }
+enableFipsIfRequested();
 
 import { CliRepl } from './cli-repl';
 import { parseCliArgs } from './arg-parser';
@@ -33,7 +36,10 @@ if ((v8 as any)?.startupSnapshot?.isBuildingSnapshot?.()) {
     });
   }
 
-  (v8 as any).startupSnapshot.setDeserializeMainFunction(() => void main());
+  (v8 as any).startupSnapshot.setDeserializeMainFunction(() => {
+    enableFipsIfRequested();
+    void main();
+  });
 } else {
   void main();
 }
