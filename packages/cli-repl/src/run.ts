@@ -27,6 +27,12 @@ import crypto from 'crypto';
 import net from 'net';
 import v8 from 'v8';
 
+// Import a few nested deps of dependencies that cannot be included in the
+// primary snapshot eagerly.
+import '@mongodb-js/saslprep'; // Driver dependency
+import 'socks'; // Driver dependency
+import 'emphasize'; // Dependency of pretty-repl
+
 if ((v8 as any)?.startupSnapshot?.isBuildingSnapshot?.()) {
   {
     const console = require('console');
