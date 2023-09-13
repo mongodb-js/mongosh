@@ -185,8 +185,9 @@ export class SnippetManager implements ShellPlugin {
     return this._instanceState.messageBus;
   }
 
-  fetch(url: string) {
-    return require('node-fetch')(url);
+  async fetch(url: string) {
+    const fetch = await import('node-fetch');
+    return await fetch.default(url);
   }
 
   async prepareNpm(): Promise<string[]> {
