@@ -13,6 +13,7 @@ import {
   ARTIFACTS_URL_PUBLIC_BASE,
   CONFIGURATION_KEY,
   CONFIGURATIONS_BUCKET,
+  ARTIFACTS_FALLBACK,
 } from './constants';
 import type { PackageVariant } from '../config';
 import {
@@ -57,7 +58,11 @@ export async function createAndPublishDownloadCenterConfig(
     );
   } catch (err: any) {
     console.warn('Failed to get existing download center config', err);
-    if (err?.code !== 'NoSuchKey') throw err;
+    if (err?.code !== 'NoSuchKey') {
+      throw err;
+    } else {
+      existingDownloadCenterConfig = { ...ARTIFACTS_FALLBACK };
+    }
   }
 
   const getVersionConfig = () =>

@@ -226,6 +226,65 @@ describe('DownloadCenter config', function () {
     });
 
     context('when a configuration does not exist', function () {
+      it('publishes the created configuration with the fallback provided in fallback.json', async function () {
+        downloadConfig.throws({ code: 'NoSuchKey' });
+
+        await createAndPublishDownloadCenterConfig(
+          packageInformation('2.0.1'),
+          'accessKey',
+          'secretKey',
+          '',
+          false,
+          dlCenter as any,
+          baseUrl
+        );
+
+        expect(dlCenter).to.have.been.calledWith({
+          bucket: 'info-mongodb-com',
+          accessKeyId: 'accessKey',
+          secretAccessKey: 'secretKey',
+        });
+        expect(dlCenter).to.have.been.calledWith({
+          bucket: 'downloads.10gen.com',
+          accessKeyId: 'accessKey',
+          secretAccessKey: 'secretKey',
+        });
+
+        expect(uploadConfig).to.be.calledOnce;
+
+        const [uploadKey, uploadedConfig] = uploadConfig.lastCall.args;
+        expect(uploadKey).to.equal(
+          'com-download-center/mongosh.multiversion.json'
+        );
+
+        // Versions have platform info as well which we already verify in
+        // createVersionConfig specs hence trimming it down here
+        uploadedConfig.versions = (
+          uploadedConfig as DownloadCenterConfig
+        ).versions.map((version) => ({
+          ...version,
+          platform: [],
+        }));
+
+        expect(uploadedConfig).to.deep.equal({
+          versions: [
+            { _id: '2.0.1', version: '2.0.1', platform: [] },
+            { _id: '1.10.6', version: '1.10.6', platform: [] },
+          ],
+          manual_link: 'https://docs.mongodb.org/manual/products/mongosh',
+          release_notes_link:
+            'https://github.com/mongodb-js/mongosh/releases/tag/v2.0.1',
+          previous_releases_link: '',
+          development_releases_link: '',
+          supported_browsers_link: '',
+          tutorial_link: 'test',
+        });
+
+        expect(uploadAsset).to.be.calledOnce;
+        const [assetKey] = uploadAsset.lastCall.args;
+        expect(assetKey).to.equal('compass/mongosh.json');
+      });
+
       it('publishes the created configuration', async function () {
         await createAndPublishDownloadCenterConfig(
           packageInformation('1.2.2'),
@@ -251,7 +310,9 @@ describe('DownloadCenter config', function () {
         expect(uploadConfig).to.be.calledOnce;
 
         const [uploadKey, uploadedConfig] = uploadConfig.lastCall.args;
-        expect(uploadKey).to.equal('com-download-center/mongosh.json');
+        expect(uploadKey).to.equal(
+          'com-download-center/mongosh.multiversion.json'
+        );
 
         // Versions have platform info as well which we already verify in
         // createVersionConfig specs hence trimming it down here
@@ -353,7 +414,9 @@ describe('DownloadCenter config', function () {
         expect(uploadConfig).to.be.calledOnce;
 
         const [uploadKey, uploadedConfig] = uploadConfig.lastCall.args;
-        expect(uploadKey).to.equal('com-download-center/mongosh.json');
+        expect(uploadKey).to.equal(
+          'com-download-center/mongosh.multiversion.json'
+        );
 
         // Versions have platform info as well which we already verify in
         // createVersionConfig specs hence trimming it down here
