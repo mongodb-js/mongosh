@@ -2,10 +2,12 @@ let fipsError: Error | undefined;
 function enableFipsIfRequested() {
   if (process.argv.includes('--tlsFIPSMode')) {
     // FIPS mode should be enabled before we run any other code, including any dependencies.
+    // We still wrap this into a function so we can also call it immediately after
+    // entering the snapshot main function.
     try {
       require('crypto').setFips(1);
     } catch (err: any) {
-      fipsError = err;
+      fipsError ??= err;
     }
   }
 }
@@ -27,6 +29,7 @@ import crypto from 'crypto';
 import net from 'net';
 import v8 from 'v8';
 
+// TS does not yet have type definitions for v8.startupSnapshot
 if ((v8 as any)?.startupSnapshot?.isBuildingSnapshot?.()) {
   // Import a few nested deps of dependencies that cannot be included in the
   // primary snapshot eagerly.
@@ -56,6 +59,8 @@ async function main() {
     // For uncompiled mongosh: node /path/to/this/file script ... -> node script ...
     // FOr compiled mongosh: mongosh mongosh script ... -> mongosh script ...
     process.argv.splice(1, 1);
+    // 'module' is not supported in startup snapshots yet.
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     (require('module').runMain as any)(process.argv[1]);
     return;
   }

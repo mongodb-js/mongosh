@@ -175,6 +175,9 @@ export class SignableCompiler {
         .concat(macKeychainAddon ? [macKeychainAddon] : []),
       preCompileHook,
       executableMetadata: this.executableMetadata,
+      // Node.js startup snapshots are an experimental feature of Node.js.
+      // If, at some point, something breaks because of it, we can always
+      // go back to using `useCodeCache: true` only.
       useNodeSnapshot: true,
     });
   }

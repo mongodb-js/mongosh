@@ -186,6 +186,7 @@ export class SnippetManager implements ShellPlugin {
   }
 
   async fetch(url: string) {
+    // 'http' is not supported in startup snapshots yet.
     const fetch = await import('node-fetch');
     return await fetch.default(url);
   }
@@ -458,6 +459,8 @@ export class SnippetManager implements ShellPlugin {
     });
     interrupted.checkpoint();
 
+    // 'child_process' is not supported in startup snapshots yet.
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const spawn = require('cross-spawn');
     const proc = spawn(cmd, args, {
       cwd: this.installdir,

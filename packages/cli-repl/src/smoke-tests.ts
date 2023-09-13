@@ -131,7 +131,8 @@ async function runSmokeTest({
   exitCode?: number;
   includeStderr?: boolean;
 }): Promise<void> {
-  // eslint-disable-next-line @typescript-eslint/consistent-type-imports
+  // 'child_process' is not supported in startup snapshots yet.
+  // eslint-disable-next-line
   const { spawn } = require('child_process') as typeof import('child_process');
   const proc = spawn(executable, [...args], {
     stdio: ['pipe', 'pipe', includeStderr ? 'pipe' : 'inherit'],

@@ -73,6 +73,8 @@ function getPrompt(repl: any): string {
  * synchronous, and integrates nicely with Ctrl+C handling in that respect.
  */
 export function start(opts: AsyncREPLOptions): REPLServer {
+  // 'repl' is not supported in startup snapshots yet.
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const { Recoverable, start: originalStart } = require('repl');
   const { asyncEval, wrapCallbackError = (err) => err, onAsyncSigint } = opts;
   if (onAsyncSigint) {
@@ -117,6 +119,9 @@ export function start(opts: AsyncREPLOptions): REPLServer {
 
     // Use public getPrompt() API once available (Node.js 15+)
     const origPrompt = getPrompt(repl);
+    // 'readline' is not supported in startup snapshots yet.
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { Interface } = require('readline');
     // Disable printing prompts while we're evaluating code. We're using the
     // readline superclass method instead of the REPL one here, because the REPL
     // one stores the prompt to later be reset in case of dropping into .editor
@@ -130,7 +135,6 @@ export function start(opts: AsyncREPLOptions): REPLServer {
     //    temporarily been disable for .editor
     // 5. The REPL thinks that the empty string is supposed to be the prompt
     //    even after .editor is done.
-    const { Interface } = require('readline');
     Interface.prototype.setPrompt.call(repl, '');
 
     try {
@@ -255,6 +259,8 @@ function wrapNoSyncDomainError<Args extends any[], Ret>(
   fn: (...args: Args) => Ret
 ) {
   return (...args: Args): Ret => {
+    // 'domain' is not supported in startup snapshots yet.
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { Domain } = require('domain');
     const origEmit = Domain.prototype.emit;
 

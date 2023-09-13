@@ -468,6 +468,8 @@ export class CliRepl implements MongoshIOProvider {
     if (!apiKey) {
       throw new Error('no analytics API key defined');
     }
+    // 'http' is not supported in startup snapshots yet.
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const Analytics = require('analytics-node');
     this.segmentAnalytics = new Analytics(
       apiKey,

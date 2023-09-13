@@ -1,4 +1,4 @@
-import type * as babel from '@babel/core';
+import * as babel from '@babel/core';
 import type * as BabelTypes from '@babel/types';
 
 // Babel plugin that turns all single-line // comments into /* ... */ block comments
@@ -108,7 +108,7 @@ export function makeMultilineJSIntoSingleLine(src: string): string {
   let postASI: string;
   try {
     postASI =
-      require('@babel/core').transformSync(src, {
+      babel.transformSync(src, {
         retainLines: true,
         compact: false,
         code: true,

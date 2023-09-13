@@ -638,6 +638,8 @@ export function setupLoggerAndTelemetry(
 
   // Log ids 1_000_000_034 through 1_000_000_042 are reserved for the
   // devtools-connect package which was split out from mongosh.
+  // 'mongodb' is not supported in startup snapshots yet.
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const { hookLogger } = require('@mongodb-js/devtools-connect');
   hookLogger(bus, log, 'mongosh', redactURICredentials);
 

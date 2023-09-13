@@ -236,7 +236,10 @@ export class Editor {
       code,
     });
 
-    const { spawn } = require('child_process');
+    // 'child_process' is not supported in startup snapshots yet.
+    // eslint-disable-next-line
+    const { spawn } =
+      require('child_process') as typeof import('child_process');
     const proc = spawn(editor, [path.basename(tmpDoc)], {
       stdio: 'inherit',
       cwd: path.dirname(tmpDoc),

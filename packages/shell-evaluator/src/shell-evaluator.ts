@@ -5,7 +5,6 @@ import {
   EvaluationListener,
 } from '@mongosh/shell-api';
 import AsyncWriter from '@mongosh/async-rewriter2';
-import v8 from 'v8';
 
 type EvaluationFunction = (
   input: string,
@@ -16,8 +15,15 @@ type EvaluationFunction = (
 import { HIDDEN_COMMANDS, redactSensitiveData } from '@mongosh/history';
 
 let hasAlreadyRunGlobalRuntimeSupportEval = false;
-if ((v8 as any)?.startupSnapshot?.isBuildingSnapshot?.()) {
-  (v8 as any).startupSnapshot.addSerializeCallback(() => {
+// `v8.startupSnapshot` is currently untyped, might as well use `any`.
+let v8: any;
+try {
+  v8 = require('v8');
+} catch {
+  /* not Node.js */
+}
+if (v8?.startupSnapshot?.isBuildingSnapshot?.()) {
+  v8.startupSnapshot.addSerializeCallback(() => {
     eval(new AsyncWriter().runtimeSupportCode());
     hasAlreadyRunGlobalRuntimeSupportEval = true;
   });
