@@ -1,0 +1,334 @@
+{
+  "versions": [
+    {
+      "_id": "1.10.6",
+      "version": "1.10.6",
+      "platform": [
+        {
+          "arch": "x64",
+          "os": "darwin",
+          "name": "MacOS 64-bit (10.14+)",
+          "download_link": "https://downloads.mongodb.com/compass/mongosh-1.10.6-darwin-x64.zip"
+        },
+        {
+          "arch": "arm64",
+          "os": "darwin",
+          "name": "MacOS M1 (11.0+)",
+          "download_link": "https://downloads.mongodb.com/compass/mongosh-1.10.6-darwin-arm64.zip"
+        },
+        {
+          "arch": "x64",
+          "os": "linux",
+          "name": "Linux Tarball 64-bit",
+          "download_link": "https://downloads.mongodb.com/compass/mongosh-1.10.6-linux-x64.tgz"
+        },
+        {
+          "arch": "x64",
+          "os": "deb",
+          "name": "Debian / Ubuntu 64-bit",
+          "download_link": "https://downloads.mongodb.com/compass/mongodb-mongosh_1.10.6_amd64.deb"
+        },
+        {
+          "arch": "x64",
+          "os": "rpm",
+          "name": "RHEL / CentOS / Fedora / Suse 64-bit",
+          "download_link": "https://downloads.mongodb.com/compass/mongodb-mongosh-1.10.6.x86_64.rpm"
+        },
+        {
+          "arch": "x64",
+          "os": "linux",
+          "name": "Linux Tarball 64-bit (shared OpenSSL 1.1)",
+          "download_link": "https://downloads.mongodb.com/compass/mongosh-1.10.6-linux-x64-openssl11.tgz"
+        },
+        {
+          "arch": "x64",
+          "os": "deb",
+          "name": "Debian / Ubuntu 64-bit (shared OpenSSL 1.1)",
+          "download_link": "https://downloads.mongodb.com/compass/mongodb-mongosh-shared-openssl11_1.10.6_amd64.deb"
+        },
+        {
+          "arch": "x64",
+          "os": "rpm",
+          "name": "RHEL / CentOS 64-bit (shared OpenSSL 1.1)",
+          "download_link": "https://downloads.mongodb.com/compass/mongodb-mongosh-shared-openssl3_1.10.6_amd64.deb"
+        },
+        {
+          "arch": "x64",
+          "os": "linux",
+          "name": "Linux Tarball 64-bit (shared OpenSSL 3)",
+          "download_link": "https://downloads.mongodb.com/compass/mongosh-1.10.6-linux-x64-openssl3.tgz"
+        },
+        {
+          "arch": "x64",
+          "os": "deb",
+          "name": "Debian / Ubuntu 64-bit (shared OpenSSL 3)",
+          "download_link": "https://downloads.mongodb.com/compass/mongodb-mongosh-shared-openssl3_1.10.6_arm64.deb"
+        },
+        {
+          "arch": "x64",
+          "os": "rpm",
+          "name": "RHEL / CentOS 64-bit (shared OpenSSL 3)",
+          "download_link": "https://downloads.mongodb.com/compass/mongodb-mongosh-shared-openssl3_1.10.6_arm64.deb"
+        },
+        {
+          "arch": "arm64",
+          "os": "linux",
+          "name": "Linux Tarball arm64",
+          "download_link": "https://downloads.mongodb.com/compass/mongosh-1.10.6-linux-arm64.tgz"
+        },
+        {
+          "arch": "arm64",
+          "os": "deb",
+          "name": "Debian / Ubuntu arm64",
+          "download_link": "https://downloads.mongodb.com/compass/mongodb-mongosh_1.10.6_arm64.deb"
+        },
+        {
+          "arch": "arm64",
+          "os": "rpm",
+          "name": "RHEL / CentOS arm64",
+          "download_link": "https://downloads.mongodb.com/compass/mongodb-mongosh-1.10.6.aarch64.rpm"
+        },
+        {
+          "arch": "arm64",
+          "os": "linux",
+          "name": "Linux Tarball arm64 (shared OpenSSL 1.1)",
+          "download_link": "https://downloads.mongodb.com/compass/mongosh-1.10.6-linux-arm64-openssl11.tgz"
+        },
+        {
+          "arch": "arm64",
+          "os": "deb",
+          "name": "Debian / Ubuntu arm64 (shared OpenSSL 1.1)",
+          "download_link": "https://downloads.mongodb.com/compass/mongodb-mongosh-shared-openssl11_1.10.6_arm64.deb"
+        },
+        {
+          "arch": "arm64",
+          "os": "rpm",
+          "name": "Redhat / Centos arm64 (shared OpenSSL 1.1)",
+          "download_link": "https://downloads.mongodb.com/compass/mongodb-mongosh-shared-openssl11-1.10.6.aarch64.rpm"
+        },
+        {
+          "arch": "arm64",
+          "os": "linux",
+          "name": "Linux Tarball arm64 (shared OpenSSL 3)",
+          "download_link": "https://downloads.mongodb.com/compass/mongosh-1.10.6-linux-arm64-openssl3.tgz"
+        },
+        {
+          "arch": "arm64",
+          "os": "deb",
+          "name": "Debian / Ubuntu arm64 (shared OpenSSL 3)",
+          "download_link": "https://downloads.mongodb.com/compass/mongodb-mongosh-shared-openssl3_1.10.6_amd64.deb"
+        },
+        {
+          "arch": "arm64",
+          "os": "rpm",
+          "name": "RHEL / CentOS arm64 (shared OpenSSL 3)",
+          "download_link": "https://downloads.mongodb.com/compass/mongodb-mongosh-shared-openssl3-1.10.6.aarch64.rpm"
+        },
+        {
+          "arch": "ppc64le",
+          "os": "linux",
+          "name": "Linux Tarball ppc64le",
+          "download_link": "https://downloads.mongodb.com/compass/mongosh-1.10.6-linux-ppc64le.tgz"
+        },
+        {
+          "arch": "ppc64le",
+          "os": "rpm",
+          "name": "Redhat / Centos ppc64le",
+          "download_link": "https://downloads.mongodb.com/compass/mongodb-mongosh-1.10.6.ppc64le.rpm"
+        },
+        {
+          "arch": "s390x",
+          "os": "linux",
+          "name": "Linux Tarball s390x",
+          "download_link": "https://downloads.mongodb.com/compass/mongosh-1.10.6-linux-s390x.tgz"
+        },
+        {
+          "arch": "s390x",
+          "os": "rpm",
+          "name": "Redhat / Centos s390x",
+          "download_link": "https://downloads.mongodb.com/compass/mongodb-mongosh-1.10.6.s390x.rpm"
+        },
+        {
+          "arch": "x64",
+          "os": "win32",
+          "name": "Windows 64-bit (8.1+)",
+          "download_link": "https://downloads.mongodb.com/compass/mongosh-1.10.6-win32-x64.zip"
+        },
+        {
+          "arch": "x64",
+          "os": "win32msi",
+          "name": "Windows 64-bit (8.1+) (MSI)",
+          "download_link": "https://downloads.mongodb.com/compass/mongosh-1.10.6-x64.msi"
+        }
+      ]
+    },
+    {
+      "_id": "2.0.0",
+      "version": "2.0.0",
+      "platform": [
+        {
+          "arch": "x64",
+          "os": "darwin",
+          "name": "MacOS 64-bit (10.14+)",
+          "download_link": "https://downloads.mongodb.com/compass/mongosh-2.0.0-darwin-x64.zip"
+        },
+        {
+          "arch": "arm64",
+          "os": "darwin",
+          "name": "MacOS M1 (11.0+)",
+          "download_link": "https://downloads.mongodb.com/compass/mongosh-2.0.0-darwin-arm64.zip"
+        },
+        {
+          "arch": "x64",
+          "os": "linux",
+          "name": "Linux Tarball 64-bit",
+          "download_link": "https://downloads.mongodb.com/compass/mongosh-2.0.0-linux-x64.tgz"
+        },
+        {
+          "arch": "x64",
+          "os": "deb",
+          "name": "Debian / Ubuntu 64-bit",
+          "download_link": "https://downloads.mongodb.com/compass/mongodb-mongosh_2.0.0_amd64.deb"
+        },
+        {
+          "arch": "x64",
+          "os": "rpm",
+          "name": "RHEL / CentOS / Fedora / Suse 64-bit",
+          "download_link": "https://downloads.mongodb.com/compass/mongodb-mongosh-2.0.0.x86_64.rpm"
+        },
+        {
+          "arch": "x64",
+          "os": "linux",
+          "name": "Linux Tarball 64-bit (shared OpenSSL 1.1)",
+          "download_link": "https://downloads.mongodb.com/compass/mongosh-2.0.0-linux-x64-openssl11.tgz"
+        },
+        {
+          "arch": "x64",
+          "os": "deb",
+          "name": "Debian / Ubuntu 64-bit (shared OpenSSL 1.1)",
+          "download_link": "https://downloads.mongodb.com/compass/mongodb-mongosh-shared-openssl11_2.0.0_amd64.deb"
+        },
+        {
+          "arch": "x64",
+          "os": "rpm",
+          "name": "RHEL / CentOS 64-bit (shared OpenSSL 1.1)",
+          "download_link": "https://downloads.mongodb.com/compass/mongodb-mongosh-shared-openssl11-2.0.0.x86_64.rpm"
+        },
+        {
+          "arch": "x64",
+          "os": "linux",
+          "name": "Linux Tarball 64-bit (shared OpenSSL 3)",
+          "download_link": "https://downloads.mongodb.com/compass/mongosh-2.0.0-linux-x64-openssl3.tgz"
+        },
+        {
+          "arch": "x64",
+          "os": "deb",
+          "name": "Debian / Ubuntu 64-bit (shared OpenSSL 3)",
+          "download_link": "https://downloads.mongodb.com/compass/mongodb-mongosh-shared-openssl3_2.0.0_amd64.deb"
+        },
+        {
+          "arch": "x64",
+          "os": "rpm",
+          "name": "RHEL / CentOS 64-bit (shared OpenSSL 3)",
+          "download_link": "https://downloads.mongodb.com/compass/mongodb-mongosh-shared-openssl3-2.0.0.x86_64.rpm"
+        },
+        {
+          "arch": "arm64",
+          "os": "linux",
+          "name": "Linux Tarball arm64",
+          "download_link": "https://downloads.mongodb.com/compass/mongosh-2.0.0-linux-arm64.tgz"
+        },
+        {
+          "arch": "arm64",
+          "os": "deb",
+          "name": "Debian / Ubuntu arm64",
+          "download_link": "https://downloads.mongodb.com/compass/mongodb-mongosh_2.0.0_arm64.deb"
+        },
+        {
+          "arch": "arm64",
+          "os": "rpm",
+          "name": "RHEL / CentOS arm64",
+          "download_link": "https://downloads.mongodb.com/compass/mongodb-mongosh-2.0.0.aarch64.rpm"
+        },
+        {
+          "arch": "arm64",
+          "os": "linux",
+          "name": "Linux Tarball arm64 (shared OpenSSL 1.1)",
+          "download_link": "https://downloads.mongodb.com/compass/mongosh-2.0.0-linux-arm64-openssl11.tgz"
+        },
+        {
+          "arch": "arm64",
+          "os": "deb",
+          "name": "Debian / Ubuntu arm64 (shared OpenSSL 1.1)",
+          "download_link": "https://downloads.mongodb.com/compass/mongodb-mongosh-shared-openssl11_2.0.0_arm64.deb"
+        },
+        {
+          "arch": "arm64",
+          "os": "rpm",
+          "name": "Redhat / Centos arm64 (shared OpenSSL 1.1)",
+          "download_link": "https://downloads.mongodb.com/compass/mongodb-mongosh-shared-openssl11-2.0.0.aarch64.rpm"
+        },
+        {
+          "arch": "arm64",
+          "os": "linux",
+          "name": "Linux Tarball arm64 (shared OpenSSL 3)",
+          "download_link": "https://downloads.mongodb.com/compass/mongosh-2.0.0-linux-arm64-openssl3.tgz"
+        },
+        {
+          "arch": "arm64",
+          "os": "deb",
+          "name": "Debian / Ubuntu arm64 (shared OpenSSL 3)",
+          "download_link": "https://downloads.mongodb.com/compass/mongodb-mongosh-shared-openssl3_2.0.0_arm64.deb"
+        },
+        {
+          "arch": "arm64",
+          "os": "rpm",
+          "name": "RHEL / CentOS arm64 (shared OpenSSL 3)",
+          "download_link": "https://downloads.mongodb.com/compass/mongodb-mongosh-shared-openssl3-2.0.0.aarch64.rpm"
+        },
+        {
+          "arch": "ppc64le",
+          "os": "linux",
+          "name": "Linux Tarball ppc64le",
+          "download_link": "https://downloads.mongodb.com/compass/mongosh-2.0.0-linux-ppc64le.tgz"
+        },
+        {
+          "arch": "ppc64le",
+          "os": "rpm",
+          "name": "Redhat / Centos ppc64le",
+          "download_link": "https://downloads.mongodb.com/compass/mongodb-mongosh-2.0.0.ppc64le.rpm"
+        },
+        {
+          "arch": "s390x",
+          "os": "linux",
+          "name": "Linux Tarball s390x",
+          "download_link": "https://downloads.mongodb.com/compass/mongosh-2.0.0-linux-s390x.tgz"
+        },
+        {
+          "arch": "s390x",
+          "os": "rpm",
+          "name": "Redhat / Centos s390x",
+          "download_link": "https://downloads.mongodb.com/compass/mongodb-mongosh-2.0.0.s390x.rpm"
+        },
+        {
+          "arch": "x64",
+          "os": "win32",
+          "name": "Windows 64-bit (8.1+)",
+          "download_link": "https://downloads.mongodb.com/compass/mongosh-2.0.0-win32-x64.zip"
+        },
+        {
+          "arch": "x64",
+          "os": "win32msi",
+          "name": "Windows 64-bit (8.1+) (MSI)",
+          "download_link": "https://downloads.mongodb.com/compass/mongosh-2.0.0-x64.msi"
+        }
+      ]
+    }
+  ],
+  "manual_link": "https://docs.mongodb.org/manual/products/mongosh",
+  "release_notes_link": "https://github.com/mongodb-js/mongosh/releases/tag/v2.0.0",
+  "previous_releases_link": "",
+  "development_releases_link": "",
+  "supported_browsers_link": "",
+  "tutorial_link": "test"
+}

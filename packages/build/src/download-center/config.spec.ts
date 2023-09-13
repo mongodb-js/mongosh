@@ -43,23 +43,25 @@ describe('DownloadCenter config', function () {
 
     it('has an artifact for darwin', function () {
       const version = createVersionConfig(packageInformation('1.2.2'));
-      const platforms = version.platform.filter((p) => p.os === 'darwin');
-      expect(platforms).to.have.length(2);
-      expect(platforms[0].download_link).to.include(
-        'mongosh-1.2.2-darwin-x64.zip'
+      const platforms = version.platform.filter(
+        (p) => p.os === 'MacOS x64 (11.0+)'
       );
-      expect(platforms[1].download_link).to.include(
-        'mongosh-1.2.2-darwin-arm64.zip'
+      expect(platforms).to.have.length(1);
+      expect(platforms[0].packages.links[0].name).to.include('zip');
+      expect(platforms[0].packages.links[0].download_link).to.include(
+        'mongosh-1.2.2-darwin-x64.zip'
       );
     });
 
     it('has an artifact for linux', function () {
       const version = createVersionConfig(packageInformation('1.2.2'));
       const platforms = version.platform.filter(
-        (p) => p.os === 'linux' && p.arch === 'x64'
+        (p) => p.os.startsWith('Linux x64') && p.arch === 'x64'
       );
-      expect(platforms).to.have.length(3);
-      expect(platforms.map((p) => p.download_link)).to.deep.equal([
+      expect(platforms).to.have.length(1);
+      expect(
+        platforms.flatMap((p) => p.packages.links.map((l) => l.download_link))
+      ).to.deep.equal([
         'https://downloads.mongodb.com/compass/mongosh-1.2.2-linux-x64.tgz',
         'https://downloads.mongodb.com/compass/mongosh-1.2.2-linux-x64-openssl11.tgz',
         'https://downloads.mongodb.com/compass/mongosh-1.2.2-linux-x64-openssl3.tgz',
@@ -68,23 +70,26 @@ describe('DownloadCenter config', function () {
 
     it('has an MSI and ZIP artifacts for windows', function () {
       const version = createVersionConfig(packageInformation('1.2.2'));
-      const platforms = version.platform.filter(
-        (p) => p.os === 'win32' || p.os === 'win32msi'
+      const [platform] = version.platform.filter(
+        (p) => p.os === 'Windows x64 (10+)'
       );
-      expect(platforms).to.have.length(2);
-      expect(platforms.map((p) => p.download_link)).to.deep.equal([
-        'https://downloads.mongodb.com/compass/mongosh-1.2.2-win32-x64.zip',
-        'https://downloads.mongodb.com/compass/mongosh-1.2.2-x64.msi',
-      ]);
+      expect(platform.packages.links[0].download_link).to.contain(
+        'win32-x64.zip'
+      );
+      expect(platform.packages.links[0].name).to.equal('zip');
+      expect(platform.packages.links[1].download_link).to.contain('x64.msi');
+      expect(platform.packages.links[1].name).to.contain('msi');
     });
 
     it('has an artifact for rpm', function () {
       const version = createVersionConfig(packageInformation('1.2.2'));
       const platforms = version.platform.filter(
-        (p) => p.os === 'rpm' && p.arch === 'x64'
+        (p) => p.os.startsWith('RHEL') && p.arch === 'x64'
       );
-      expect(platforms).to.have.length(3);
-      expect(platforms.map((p) => p.download_link)).to.deep.equal([
+      expect(platforms).to.have.length(1);
+      expect(
+        platforms.flatMap((p) => p.packages.links.map((l) => l.download_link))
+      ).to.deep.equal([
         'https://downloads.mongodb.com/compass/mongodb-mongosh-1.2.2.x86_64.rpm',
         'https://downloads.mongodb.com/compass/mongodb-mongosh-shared-openssl11-1.2.2.x86_64.rpm',
         'https://downloads.mongodb.com/compass/mongodb-mongosh-shared-openssl3-1.2.2.x86_64.rpm',
@@ -94,10 +99,12 @@ describe('DownloadCenter config', function () {
     it('has an artifact for deb', function () {
       const version = createVersionConfig(packageInformation('1.2.2'));
       const platforms = version.platform.filter(
-        (p) => p.os === 'deb' && p.arch === 'x64'
+        (p) => p.os.startsWith('Debian') && p.arch === 'x64'
       );
-      expect(platforms).to.have.length(3);
-      expect(platforms.map((p) => p.download_link)).to.deep.equal([
+      expect(platforms).to.have.length(1);
+      expect(
+        platforms.flatMap((p) => p.packages.links.map((l) => l.download_link))
+      ).to.deep.equal([
         'https://downloads.mongodb.com/compass/mongodb-mongosh_1.2.2_amd64.deb',
         'https://downloads.mongodb.com/compass/mongodb-mongosh-shared-openssl11_1.2.2_amd64.deb',
         'https://downloads.mongodb.com/compass/mongodb-mongosh-shared-openssl3_1.2.2_amd64.deb',
@@ -124,7 +131,7 @@ describe('DownloadCenter config', function () {
 
   describe('getUpdatedDownloadCenterConfig', function () {
     context('when the current release is a new major bump', function () {
-      it('adds a new entry for the current release to the download center config, while keeping the other major versions', function () {
+      it('adds a new entry for the current release to the download center config, while keeping the other major versions, sorted by semver', function () {
         const getVersionConfig1x = sinon.stub().returns({ version: '1.2.2' });
         const getVersionConfig2x = sinon.stub().returns({ version: '2.0.0' });
         const existingDownloadCenterConfig =
@@ -137,7 +144,7 @@ describe('DownloadCenter config', function () {
         );
 
         expect(updatedConfig).to.deep.equal({
-          versions: [{ version: '1.2.2' }, { version: '2.0.0' }],
+          versions: [{ version: '2.0.0' }, { version: '1.2.2' }],
           manual_link: 'https://docs.mongodb.org/manual/products/mongosh',
           release_notes_link: `https://github.com/mongodb-js/mongosh/releases/tag/v2.0.0`, // Release notes link will point to the current release being made
           previous_releases_link: '',
@@ -169,7 +176,7 @@ describe('DownloadCenter config', function () {
           );
 
           expect(configWith21x).to.deep.equal({
-            versions: [{ version: '1.2.2' }, { version: '2.1.0' }],
+            versions: [{ version: '2.1.0' }, { version: '1.2.2' }],
             manual_link: 'https://docs.mongodb.org/manual/products/mongosh',
             release_notes_link: `https://github.com/mongodb-js/mongosh/releases/tag/v2.1.0`, // Release notes link will point to the current release being made
             previous_releases_link: '',
@@ -219,6 +226,65 @@ describe('DownloadCenter config', function () {
     });
 
     context('when a configuration does not exist', function () {
+      it('publishes the created configuration with the fallback provided in fallback.json', async function () {
+        downloadConfig.throws({ code: 'NoSuchKey' });
+
+        await createAndPublishDownloadCenterConfig(
+          packageInformation('2.0.1'),
+          'accessKey',
+          'secretKey',
+          '',
+          false,
+          dlCenter as any,
+          baseUrl
+        );
+
+        expect(dlCenter).to.have.been.calledWith({
+          bucket: 'info-mongodb-com',
+          accessKeyId: 'accessKey',
+          secretAccessKey: 'secretKey',
+        });
+        expect(dlCenter).to.have.been.calledWith({
+          bucket: 'downloads.10gen.com',
+          accessKeyId: 'accessKey',
+          secretAccessKey: 'secretKey',
+        });
+
+        expect(uploadConfig).to.be.calledOnce;
+
+        const [uploadKey, uploadedConfig] = uploadConfig.lastCall.args;
+        expect(uploadKey).to.equal(
+          'com-download-center/mongosh.multiversion.json'
+        );
+
+        // Versions have platform info as well which we already verify in
+        // createVersionConfig specs hence trimming it down here
+        uploadedConfig.versions = (
+          uploadedConfig as DownloadCenterConfig
+        ).versions.map((version) => ({
+          ...version,
+          platform: [],
+        }));
+
+        expect(uploadedConfig).to.deep.equal({
+          versions: [
+            { _id: '2.0.1', version: '2.0.1', platform: [] },
+            { _id: '1.10.6', version: '1.10.6', platform: [] },
+          ],
+          manual_link: 'https://docs.mongodb.org/manual/products/mongosh',
+          release_notes_link:
+            'https://github.com/mongodb-js/mongosh/releases/tag/v2.0.1',
+          previous_releases_link: '',
+          development_releases_link: '',
+          supported_browsers_link: '',
+          tutorial_link: 'test',
+        });
+
+        expect(uploadAsset).to.be.calledOnce;
+        const [assetKey] = uploadAsset.lastCall.args;
+        expect(assetKey).to.equal('compass/mongosh.json');
+      });
+
       it('publishes the created configuration', async function () {
         await createAndPublishDownloadCenterConfig(
           packageInformation('1.2.2'),
@@ -244,7 +310,9 @@ describe('DownloadCenter config', function () {
         expect(uploadConfig).to.be.calledOnce;
 
         const [uploadKey, uploadedConfig] = uploadConfig.lastCall.args;
-        expect(uploadKey).to.equal('com-download-center/mongosh.json');
+        expect(uploadKey).to.equal(
+          'com-download-center/mongosh.multiversion.json'
+        );
 
         // Versions have platform info as well which we already verify in
         // createVersionConfig specs hence trimming it down here
@@ -346,7 +414,9 @@ describe('DownloadCenter config', function () {
         expect(uploadConfig).to.be.calledOnce;
 
         const [uploadKey, uploadedConfig] = uploadConfig.lastCall.args;
-        expect(uploadKey).to.equal('com-download-center/mongosh.json');
+        expect(uploadKey).to.equal(
+          'com-download-center/mongosh.multiversion.json'
+        );
 
         // Versions have platform info as well which we already verify in
         // createVersionConfig specs hence trimming it down here
@@ -359,8 +429,8 @@ describe('DownloadCenter config', function () {
 
         expect(uploadedConfig).to.deep.equal({
           versions: [
-            { _id: '1.2.2', version: '1.2.2', platform: [] },
             { _id: '2.0.0', version: '2.0.0', platform: [] },
+            { _id: '1.2.2', version: '1.2.2', platform: [] },
           ],
           manual_link: 'https://docs.mongodb.org/manual/products/mongosh',
           release_notes_link:

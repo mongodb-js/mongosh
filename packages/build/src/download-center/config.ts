@@ -3,13 +3,17 @@ import {
   validateConfigSchema,
 } from '@mongodb-js/dl-center';
 import { major as majorVersion } from 'semver';
-import type { DownloadCenterConfig } from '@mongodb-js/dl-center/dist/download-center-config';
+import type {
+  DownloadCenterConfig,
+  PlatformWithPackages,
+} from '@mongodb-js/dl-center/dist/download-center-config';
 import {
   ARTIFACTS_BUCKET,
   ARTIFACTS_FOLDER,
   ARTIFACTS_URL_PUBLIC_BASE,
   CONFIGURATION_KEY,
   CONFIGURATIONS_BUCKET,
+  ARTIFACTS_FALLBACK,
 } from './constants';
 import type { PackageVariant } from '../config';
 import {
@@ -19,6 +23,7 @@ import {
   getDistro,
   getServerLikeArchName,
   getServerLikeTargetList,
+  getDownloadCenterPackageType,
 } from '../config';
 import type { PackageInformationProvider } from '../packaging';
 import { getPackageFile } from '../packaging';
@@ -53,7 +58,11 @@ export async function createAndPublishDownloadCenterConfig(
     );
   } catch (err: any) {
     console.warn('Failed to get existing download center config', err);
-    if (err?.code !== 'NoSuchKey') throw err;
+    if (err?.code !== 'NoSuchKey') {
+      throw err;
+    } else {
+      existingDownloadCenterConfig = { ...ARTIFACTS_FALLBACK };
+    }
   }
 
   const getVersionConfig = () =>
@@ -139,6 +148,8 @@ export function getUpdatedDownloadCenterConfig(
     currentVersions[matchingMajorVersionIdx] = versionConfig;
   }
 
+  currentVersions.sort((a, b) => semver.rcompare(a.version, b.version));
+
   return {
     ...downloadedConfig,
     versions: currentVersions,
@@ -166,18 +177,31 @@ export function createVersionConfig(
   publicArtifactBaseUrl: string = ARTIFACTS_URL_PUBLIC_BASE
 ) {
   const { version } = packageInformation('linux-x64').metadata;
-  return {
-    _id: version,
-    version: version,
-    platform: ALL_PACKAGE_VARIANTS.map((packageVariant: PackageVariant) => ({
+  const platformMap: Map<string, PlatformWithPackages> = new Map();
+
+  for (const packageVariant of ALL_PACKAGE_VARIANTS) {
+    const platformName = getDownloadCenterDistroDescription(packageVariant);
+    const currentPlatform = platformMap.get(platformName) || {
       arch: getArch(packageVariant),
-      os: getDistro(packageVariant),
-      name: getDownloadCenterDistroDescription(packageVariant),
+      os: getDownloadCenterDistroDescription(packageVariant),
+      packages: { links: [] },
+    };
+
+    currentPlatform.packages.links.push({
+      name: getDownloadCenterPackageType(packageVariant),
       download_link:
         publicArtifactBaseUrl +
         getPackageFile(packageVariant, packageInformation).path,
-    })),
-  } as const;
+    });
+
+    platformMap.set(platformName, currentPlatform);
+  }
+
+  return {
+    _id: version,
+    version: version,
+    platform: [...platformMap.values()],
+  };
 }
 
 interface JsonFeed {
