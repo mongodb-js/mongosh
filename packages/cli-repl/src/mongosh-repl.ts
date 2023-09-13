@@ -25,7 +25,6 @@ import { Console } from 'console';
 import { once } from 'events';
 import type { ReplOptions, REPLServer } from 'repl';
 import type { Readable, Writable } from 'stream';
-import { PassThrough } from 'stream';
 import type { ReadStream, WriteStream } from 'tty';
 import { callbackify, promisify } from 'util';
 import * as asyncRepl from './async-repl';
