@@ -1,4 +1,3 @@
-import { spawn } from 'child_process';
 import assert from 'assert';
 import { once } from 'events';
 import { redactURICredentials } from '@mongosh/history';
@@ -132,6 +131,9 @@ async function runSmokeTest({
   exitCode?: number;
   includeStderr?: boolean;
 }): Promise<void> {
+  // 'child_process' is not supported in startup snapshots yet.
+  // eslint-disable-next-line
+  const { spawn } = require('child_process') as typeof import('child_process');
   const proc = spawn(executable, [...args], {
     stdio: ['pipe', 'pipe', includeStderr ? 'pipe' : 'inherit'],
   });

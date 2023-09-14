@@ -14,6 +14,21 @@ type EvaluationFunction = (
 
 import { HIDDEN_COMMANDS, redactSensitiveData } from '@mongosh/history';
 
+let hasAlreadyRunGlobalRuntimeSupportEval = false;
+// `v8.startupSnapshot` is currently untyped, might as well use `any`.
+let v8: any;
+try {
+  v8 = require('v8');
+} catch {
+  /* not Node.js */
+}
+if (v8?.startupSnapshot?.isBuildingSnapshot?.()) {
+  v8.startupSnapshot.addSerializeCallback(() => {
+    eval(new AsyncWriter().runtimeSupportCode());
+    hasAlreadyRunGlobalRuntimeSupportEval = true;
+  });
+}
+
 type ResultHandler<EvaluationResultType> = (
   value: any
 ) => EvaluationResultType | Promise<EvaluationResultType>;
@@ -85,7 +100,9 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
       // db.test.find().toArray() is a Promise for an Array from the context
       // in which the shell-api package lives and not from the context inside
       // the REPL (i.e. `db.test.find().toArray() instanceof Array` is `false`).
-      eval(supportCode);
+      if (!hasAlreadyRunGlobalRuntimeSupportEval) {
+        eval(supportCode);
+      }
       rewrittenInput = supportCode + ';\n' + rewrittenInput;
     }
 

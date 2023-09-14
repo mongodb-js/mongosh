@@ -23,11 +23,8 @@ import askcharacter from 'askcharacter';
 import askpassword from 'askpassword';
 import { Console } from 'console';
 import { once } from 'events';
-import prettyRepl from 'pretty-repl';
 import type { ReplOptions, REPLServer } from 'repl';
-import { start as replStart } from 'repl';
 import type { Readable, Writable } from 'stream';
-import { PassThrough } from 'stream';
 import type { ReadStream, WriteStream } from 'tty';
 import { callbackify, promisify } from 'util';
 import * as asyncRepl from './async-repl';
@@ -103,49 +100,6 @@ type MongoshRuntimeState = {
 type Mutable<T> = {
   -readonly [P in keyof T]: T[P];
 };
-
-/**
- * Helper function that tests whether the bug referenced in
- * https://github.com/nodejs/node/pull/38314 is present, and if it is,
- * monkey-patches the repl instance in question to avoid it.
- *
- * @param repl The REPLServer instance to patch
- */
-function fixupReplForNodeBug38314(repl: REPLServer): void {
-  {
-    // Check whether bug is present:
-    const input = new PassThrough();
-    const output = new PassThrough();
-    const evalFn = (code: any, ctx: any, filename: any, cb: any) =>
-      cb(new Error('err'));
-    const prompt = 'prompt#';
-    replStart({ input, output, eval: evalFn as any, prompt });
-    input.end('s\n');
-    if (!String(output.read()).includes('prompt#prompt#')) {
-      return; // All good, nothing to do here.
-    }
-  }
-
-  // If it is, fix up the REPL's domain 'error' listener to not call displayPrompt()
-  const domain = (repl as any)._domain;
-  const domainErrorListeners = domain.listeners('error');
-  const origListener = domainErrorListeners.find(
-    (fn: any) => fn.name === 'debugDomainError'
-  );
-  if (!origListener) {
-    throw new Error('Could not find REPL domain error listener');
-  }
-  domain.removeListener('error', origListener);
-  domain.on('error', function (this: any, err: Error) {
-    const origDisplayPrompt = repl.displayPrompt;
-    repl.displayPrompt = () => {};
-    try {
-      origListener.call(this, err);
-    } finally {
-      repl.displayPrompt = origDisplayPrompt;
-    }
-  });
-}
 
 /**
  * An instance of a `mongosh` REPL, without any of the actual I/O.
@@ -239,7 +193,9 @@ class MongoshNodeRepl implements EvaluationListener {
       (await this.getConfig('redactHistory')) ?? this.redactHistory;
 
     const repl = asyncRepl.start({
-      start: prettyRepl.start,
+      // 'repl' is not supported in startup snapshots yet.
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      start: require('pretty-repl').start,
       input: this.lineByLineInput as unknown as Readable,
       output: this.output,
       prompt: '',
@@ -255,7 +211,6 @@ class MongoshNodeRepl implements EvaluationListener {
       onAsyncSigint: this.onAsyncSigint.bind(this),
       ...this.nodeReplOptions,
     });
-    fixupReplForNodeBug38314(repl);
 
     const console = new Console({
       stdout: this.output,

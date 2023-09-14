@@ -2,6 +2,7 @@ import {
   MongoshUnimplementedError,
   MongoshInvalidInputError,
 } from '@mongosh/errors';
+import { createRequire } from 'module';
 
 type TlsCertificateExporter = (
   search: { subject: string } | { thumbprint: Buffer }
@@ -42,18 +43,16 @@ export function getTlsCertificateSelector(
   }
 }
 
-declare global {
-  const __non_webpack_require__: undefined | typeof require;
-}
-
 function getCertificateExporter(): TlsCertificateExporter | undefined {
   if (process.env.TEST_OS_EXPORT_CERTIFICATE_AND_KEY_PATH) {
-    if (typeof __non_webpack_require__ === 'function') {
-      return __non_webpack_require__(
-        process.env.TEST_OS_EXPORT_CERTIFICATE_AND_KEY_PATH
-      );
-    }
-    return require(process.env.TEST_OS_EXPORT_CERTIFICATE_AND_KEY_PATH);
+    // Not using require() directly because that ends up referring
+    // to the webpack require, and even __non_webpack_require__ doesn't
+    // fully give us what we need because that can refer to the Node.js
+    // internal require() when running from a snapshot, not the public
+    // require().
+    return createRequire(__filename)(
+      process.env.TEST_OS_EXPORT_CERTIFICATE_AND_KEY_PATH
+    );
   }
 
   try {

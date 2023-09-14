@@ -8,8 +8,9 @@ import type {
   RunCommandCursor,
   RunCursorCommandOptions,
   ClientEncryptionOptions,
+  MongoClient,
+  ReadPreference,
 } from 'mongodb';
-import { MongoClient, ReadPreference, BSON, ClientEncryption } from 'mongodb';
 
 import type {
   ServiceProvider,
@@ -68,10 +69,7 @@ import {
   ServiceProviderCore,
 } from '@mongosh/service-provider-core';
 
-import {
-  connectMongoClient,
-  DevtoolsConnectOptions,
-} from '@mongodb-js/devtools-connect';
+import type { DevtoolsConnectOptions } from '@mongodb-js/devtools-connect';
 import { MongoshCommandFailed, MongoshInternalError } from '@mongosh/errors';
 import type { MongoshBus } from '@mongosh/types';
 import { forceCloseMongoClient } from './mongodb-patches';
@@ -84,22 +82,46 @@ import type { CreateEncryptedCollectionOptions } from '@mongosh/service-provider
 import type { DevtoolsConnectionState } from '@mongodb-js/devtools-connect';
 import { isDeepStrictEqual } from 'util';
 
-const bsonlib = {
-  Binary: BSON.Binary,
-  Code: BSON.Code,
-  DBRef: BSON.DBRef,
-  Double: BSON.Double,
-  Int32: BSON.Int32,
-  Long: BSON.Long,
-  MinKey: BSON.MinKey,
-  MaxKey: BSON.MaxKey,
-  ObjectId: BSON.ObjectId,
-  Timestamp: BSON.Timestamp,
-  Decimal128: BSON.Decimal128,
-  BSONSymbol: BSON.BSONSymbol,
-  calculateObjectSize: BSON.calculateObjectSize,
-  EJSON: BSON.EJSON,
-  BSONRegExp: BSON.BSONRegExp,
+// 'mongodb' is not supported in startup snapshots yet.
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+function driver(): typeof import('mongodb') {
+  return require('mongodb');
+}
+
+const bsonlib = () => {
+  const {
+    Binary,
+    Code,
+    DBRef,
+    Double,
+    Int32,
+    Long,
+    MinKey,
+    MaxKey,
+    ObjectId,
+    Timestamp,
+    Decimal128,
+    BSONSymbol,
+    BSONRegExp,
+    BSON,
+  } = driver();
+  return {
+    Binary,
+    Code,
+    DBRef,
+    Double,
+    Int32,
+    Long,
+    MinKey,
+    MaxKey,
+    ObjectId,
+    Timestamp,
+    Decimal128,
+    BSONSymbol,
+    calculateObjectSize: BSON.calculateObjectSize,
+    EJSON: BSON.EJSON,
+    BSONRegExp,
+  };
 };
 
 type DropDatabaseResult = {
@@ -205,6 +227,9 @@ class CliServiceProvider
       };
     }
 
+    const { MongoClient: MongoClientCtor } = driver();
+    const { connectMongoClient } = require('@mongodb-js/devtools-connect');
+
     let client: MongoClient;
     let state: DevtoolsConnectionState | undefined;
     if (cliOptions.nodb) {
@@ -218,13 +243,16 @@ class CliServiceProvider
       delete clientOptionsCopy.parentHandle;
       delete clientOptionsCopy.parentState;
       delete clientOptionsCopy.useSystemCA;
-      client = new MongoClient(connectionString.toString(), clientOptionsCopy);
+      client = new MongoClientCtor(
+        connectionString.toString(),
+        clientOptionsCopy
+      );
     } else {
       ({ client, state } = await connectMongoClient(
         connectionString.toString(),
         clientOptions,
         bus,
-        MongoClient
+        MongoClientCtor
       ));
     }
     clientOptions.parentState = state;
@@ -255,7 +283,7 @@ class CliServiceProvider
     clientOptions: DevtoolsConnectOptions,
     uri?: ConnectionString
   ) {
-    super(bsonlib);
+    super(bsonlib());
 
     this.bus = bus;
     this.mongoClient = mongoClient;
@@ -282,7 +310,7 @@ class CliServiceProvider
     return {
       nodeDriverVersion: tryCall(() => require('mongodb/package.json').version),
       libmongocryptVersion: tryCall(
-        () => ClientEncryption.libmongocryptVersion // getter that actually loads the native addon (!)
+        () => driver().ClientEncryption.libmongocryptVersion // getter that actually loads the native addon (!)
       ),
       libmongocryptNodeBindingsVersion: tryCall(
         () => require('mongodb-client-encryption/package.json').version
@@ -296,11 +324,13 @@ class CliServiceProvider
   ): Promise<CliServiceProvider> {
     const connectionString = new ConnectionString(uri);
     const clientOptions = this.processDriverOptions(connectionString, options);
+    const { MongoClient: MongoClientCtor } = driver();
+    const { connectMongoClient } = require('@mongodb-js/devtools-connect');
     const { client, state } = await connectMongoClient(
       connectionString.toString(),
       clientOptions,
       this.bus,
-      MongoClient
+      MongoClientCtor
     );
     clientOptions.parentState = state;
     return new CliServiceProvider(
@@ -1199,6 +1229,7 @@ class CliServiceProvider
   readPreferenceFromOptions(
     options?: Omit<ReadPreferenceFromOptions, 'session'>
   ): ReadPreferenceLike | undefined {
+    const { ReadPreference } = driver();
     return ReadPreference.fromOptions(options);
   }
 
@@ -1208,6 +1239,8 @@ class CliServiceProvider
    * @param options
    */
   async resetConnectionOptions(options: MongoClientOptions): Promise<void> {
+    const { MongoClient: MongoClientCtor } = driver();
+    const { connectMongoClient } = require('@mongodb-js/devtools-connect');
     this.bus.emit('mongosh-sp:reset-connection-options');
     this.currentClientOptions = {
       ...this.currentClientOptions,
@@ -1221,7 +1254,7 @@ class CliServiceProvider
       (this.uri as ConnectionString).toString(),
       clientOptions,
       this.bus,
-      MongoClient
+      MongoClientCtor
     );
     try {
       await this.mongoClient.close();
@@ -1400,7 +1433,10 @@ class CliServiceProvider
       .updateSearchIndex(indexName, definition);
   }
 
-  createClientEncryption(options: ClientEncryptionOptions): ClientEncryption {
+  createClientEncryption(
+    options: ClientEncryptionOptions
+  ): MongoCryptClientEncryption {
+    const { ClientEncryption } = driver();
     return new ClientEncryption(this.mongoClient, options);
   }
 }

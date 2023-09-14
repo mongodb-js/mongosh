@@ -11,10 +11,8 @@ import path from 'path';
 import { promisify, isDeepStrictEqual } from 'util';
 import { Console } from 'console';
 import { promises as fs } from 'fs';
-import spawn from 'cross-spawn';
 import stream, { PassThrough } from 'stream';
 import { once } from 'events';
-import fetch from 'node-fetch';
 import tar from 'tar';
 import zlib from 'zlib';
 import bson from 'bson';
@@ -187,6 +185,12 @@ export class SnippetManager implements ShellPlugin {
     return this._instanceState.messageBus;
   }
 
+  async fetch(url: string) {
+    // 'http' is not supported in startup snapshots yet.
+    const fetch = await import('node-fetch');
+    return await fetch.default(url);
+  }
+
   async prepareNpm(): Promise<string[]> {
     const npmdir = path.join(this.installdir, 'node_modules', 'npm');
     const npmclipath = path.join(npmdir, 'bin', 'npm-cli.js');
@@ -225,7 +229,7 @@ export class SnippetManager implements ShellPlugin {
 
     const npmMetadataURL = (await this.registryBaseUrl()) + '/npm/latest';
     interrupted.checkpoint();
-    const npmMetadataResponse = await fetch(npmMetadataURL);
+    const npmMetadataResponse = await this.fetch(npmMetadataURL);
     if (!npmMetadataResponse.ok) {
       this.messageBus.emit('mongosh-snippets:npm-download-failed', {
         npmMetadataURL,
@@ -248,7 +252,7 @@ export class SnippetManager implements ShellPlugin {
     }
     interrupted.checkpoint();
     await this.print(`Downloading npm from ${npmTarballURL}...`);
-    const npmTarball = await fetch(npmTarballURL);
+    const npmTarball = await this.fetch(npmTarballURL);
     if (!npmTarball.ok) {
       this.messageBus.emit('mongosh-snippets:npm-download-failed', {
         npmMetadataURL,
@@ -317,7 +321,7 @@ export class SnippetManager implements ShellPlugin {
           // Fetch all index files.
           repoData = await Promise.all(
             sourceURLs.map(async (url: string) => {
-              const repoRes = await fetch(url);
+              const repoRes = await this.fetch(url);
               if (!repoRes.ok) {
                 this.messageBus.emit('mongosh-snippets:fetch-index-error', {
                   action: 'fetch',
@@ -454,6 +458,10 @@ export class SnippetManager implements ShellPlugin {
       args: [cmd, ...args],
     });
     interrupted.checkpoint();
+
+    // 'child_process' is not supported in startup snapshots yet.
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const spawn = require('cross-spawn');
     const proc = spawn(cmd, args, {
       cwd: this.installdir,
       env: { ...process.env, MONGOSH_RUN_NODE_SCRIPT: '1' },

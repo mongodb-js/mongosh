@@ -12,7 +12,7 @@ import type { CliOptions, DevtoolsConnectOptions } from '@mongosh/arg-parser';
 import { SnippetManager } from '@mongosh/snippet-manager';
 import { Editor } from '@mongosh/editor';
 import { redactSensitiveData } from '@mongosh/history';
-import Analytics from 'analytics-node';
+import type Analytics from 'analytics-node';
 import askpassword from 'askpassword';
 import { EventEmitter, once } from 'events';
 import yaml from 'js-yaml';
@@ -468,6 +468,9 @@ export class CliRepl implements MongoshIOProvider {
     if (!apiKey) {
       throw new Error('no analytics API key defined');
     }
+    // 'http' is not supported in startup snapshots yet.
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const Analytics = require('analytics-node');
     this.segmentAnalytics = new Analytics(
       apiKey,
       {

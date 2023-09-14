@@ -1,35 +1,73 @@
 let fipsError: Error | undefined;
-if (process.argv.includes('--tlsFIPSMode')) {
-  // FIPS mode should be enabled before we run any other code, including any dependencies.
-  try {
-    require('crypto').setFips(1);
-  } catch (err: any) {
-    fipsError = err;
+function enableFipsIfRequested() {
+  if (process.argv.includes('--tlsFIPSMode')) {
+    // FIPS mode should be enabled before we run any other code, including any dependencies.
+    // We still wrap this into a function so we can also call it immediately after
+    // entering the snapshot main function.
+    try {
+      require('crypto').setFips(1);
+    } catch (err: any) {
+      fipsError ??= err;
+    }
   }
 }
+enableFipsIfRequested();
 
+import { CliRepl } from './cli-repl';
+import { parseCliArgs } from './arg-parser';
+import { runSmokeTests } from './smoke-tests';
+import { USAGE } from './constants';
 import { buildInfo } from './build-info';
-import { runMain } from 'module';
+import { getStoragePaths, getGlobalConfigPaths } from './config-directory';
+import { getCryptLibraryPaths } from './crypt-library-paths';
+import { getTlsCertificateSelector } from './tls-certificate-selector';
+import { redactURICredentials } from '@mongosh/history';
+import { generateConnectionInfoFromCliArgs } from '@mongosh/arg-parser';
+import askcharacter from 'askcharacter';
+import { PassThrough } from 'stream';
 import crypto from 'crypto';
 import net from 'net';
+import v8 from 'v8';
 
-// eslint-disable-next-line @typescript-eslint/no-floating-promises
-(async () => {
+// TS does not yet have type definitions for v8.startupSnapshot
+if ((v8 as any)?.startupSnapshot?.isBuildingSnapshot?.()) {
+  // Import a few nested deps of dependencies that cannot be included in the
+  // primary snapshot eagerly.
+  require('@mongodb-js/saslprep'); // Driver dependency
+  require('socks'); // Driver dependency
+  require('emphasize'); // Dependency of pretty-repl
+
+  {
+    const console = require('console');
+    const ConsoleCtor = console.Console;
+    (v8 as any).startupSnapshot.addDeserializeCallback(() => {
+      console.Console = ConsoleCtor;
+    });
+  }
+
+  (v8 as any).startupSnapshot.setDeserializeMainFunction(() => {
+    enableFipsIfRequested();
+    void main();
+  });
+} else {
+  void main();
+}
+
+// eslint-disable-next-line complexity
+async function main() {
   if (process.env.MONGOSH_RUN_NODE_SCRIPT) {
     // For uncompiled mongosh: node /path/to/this/file script ... -> node script ...
     // FOr compiled mongosh: mongosh mongosh script ... -> mongosh script ...
     process.argv.splice(1, 1);
-    (runMain as any)(process.argv[1]);
+    // 'module' is not supported in startup snapshots yet.
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    (require('module').runMain as any)(process.argv[1]);
     return;
   }
 
   let repl;
   let isSingleConsoleProcess = false;
   try {
-    const { parseCliArgs } = await import('./arg-parser');
-    const { generateConnectionInfoFromCliArgs } = await import(
-      '@mongosh/arg-parser'
-    );
     (net as any)?.setDefaultAutoSelectFamily?.(true);
 
     const options = parseCliArgs(process.argv);
@@ -73,7 +111,6 @@ import net from 'net';
     }
 
     if (options.help) {
-      const { USAGE } = await import('./constants');
       console.log(USAGE);
       return;
     }
@@ -87,7 +124,6 @@ import net from 'net';
       return;
     }
     if (options.smokeTests) {
-      const { runSmokeTests } = await import('./smoke-tests');
       const smokeTestServer = process.env.MONGOSH_SMOKE_TEST_SERVER;
       const cryptLibraryOpts = options.cryptSharedLibPath
         ? [`--cryptSharedLibPath=${options.cryptSharedLibPath}`]
@@ -110,27 +146,6 @@ import net from 'net';
       }
       return;
     }
-
-    // Common case: We want to actually start as mongosh.
-    // We lazy-load the larger dependencies here to speed up startup in the
-    // less common cases (particularly because the cloud team wants --version
-    // to be fast).
-    // Note that when we add snapshot support, we will most likely have
-    // to move these back to be import statements at the top of the file.
-    // See https://jira.mongodb.org/browse/MONGOSH-1214 for some context.
-    const [
-      { CliRepl },
-      { getStoragePaths, getGlobalConfigPaths },
-      { getCryptLibraryPaths },
-      { getTlsCertificateSelector },
-      { redactURICredentials },
-    ] = await Promise.all([
-      await import('./cli-repl'),
-      await import('./config-directory'),
-      await import('./crypt-library-paths'),
-      await import('./tls-certificate-selector'),
-      await import('@mongosh/history'),
-    ]);
 
     if (process.execPath === process.argv[1]) {
       // Remove the built-in Node.js listener that prints e.g. deprecation
@@ -209,7 +224,6 @@ import net from 'net';
       repl.bus.emit('mongosh:error', e, 'startup');
     }
     if (isSingleConsoleProcess) {
-      const askcharacter = (await import('askcharacter')).default;
       // In single-process-console mode, it's confusing for the window to be
       // closed immediately after receiving an error. In that case, ask the
       // user to explicitly close the window.
@@ -219,7 +233,7 @@ import net from 'net';
     }
     process.exit(1);
   }
-})();
+}
 
 /**
  * Helper to set the window title for the terminal that stdout is
@@ -249,13 +263,11 @@ function setTerminalWindowTitle(title: string): void {
  * @returns The written user input
  */
 async function ask(prompt: string): Promise<string> {
-  const { createInterface } = await import('readline');
-  const { PassThrough } = await import('stream');
-
   // Copy stdin to a second stream so that we can still attach it
   // to the main mongosh REPL instance later without conflicts.
   const stdinCopy = process.stdin.pipe(new PassThrough());
   try {
+    const { createInterface } = require('readline');
     const readlineInterface = createInterface({
       input: stdinCopy,
       output: process.stdout,
