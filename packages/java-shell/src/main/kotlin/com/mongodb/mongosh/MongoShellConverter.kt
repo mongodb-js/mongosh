@@ -203,7 +203,7 @@ internal class MongoShellConverter(private val context: MongoShellContext, priva
                     BsonBinarySubType.UUID_LEGACY.value -> UuidRepresentation.JAVA_LEGACY
                     else -> null
                 }
-                if (uuidRepresentation != null) {
+                if (uuidRepresentation != null && binary.data.size == 16) {
                     UUIDResult(UuidHelper.decodeBinaryToUuid(binary.data, binary.type, uuidRepresentation))
                 }
                 else BinaryResult(Binary(binary.type, binary.data))
