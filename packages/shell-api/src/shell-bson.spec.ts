@@ -764,6 +764,7 @@ describe('Shell BSON', function () {
         delete bsonProperties.createPk; // @internal
         delete bsonProperties.getInc; // private
         delete bsonProperties.is; // private
+        delete bsonProperties._fromString; // private
 
         try {
           expect(shellProperties).to.deep.equal(bsonProperties);
