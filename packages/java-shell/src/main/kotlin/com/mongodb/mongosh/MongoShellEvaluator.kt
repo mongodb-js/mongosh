@@ -6,6 +6,7 @@ import org.graalvm.polyglot.Source
 import org.graalvm.polyglot.Value
 import org.graalvm.polyglot.proxy.ProxyExecutable
 import org.intellij.lang.annotations.Language
+import java.security.SecureRandom
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
@@ -37,7 +38,7 @@ internal class MongoShellEvaluator(client: MongoClient?, private val context: Mo
         toShellResultFn = global.getMember("toShellResult")
         getShellApiTypeFn = global.getMember("getShellApiType")
         shellInstanceState.invokeMember("setCtx", context.bindings)
-        initContext(context.bindings)
+        initContext(context.bindings, global)
     }
 
     private fun resultHandler() = context.jsFun { args ->
@@ -51,13 +52,24 @@ internal class MongoShellEvaluator(client: MongoClient?, private val context: Mo
         }
     }
 
-    private fun initContext(bindings: Value) {
+    private fun initContext(bindings: Value, global: Value) {
         val date = context.eval("(dateHelper) => function inner() { return dateHelper(new.target !== undefined, ...arguments) }", "dateHelper_script")
-                .execute(ProxyExecutable { args -> dateHelper(args[0].asBoolean(), args.drop(1)) })
+            .execute(ProxyExecutable { args -> dateHelper(args[0].asBoolean(), args.drop(1)) })
         date["now"] = ProxyExecutable { System.currentTimeMillis() }
         bindings["Date"] = date
         bindings["ISODate"] = context.jsFun { args -> dateHelper(true, args.toList()) }
-        bindings["UUID"] = context.jsFun { args -> if (args.isEmpty()) UUID.randomUUID() else UUID.fromString(args[0].asString()) }
+        val secureRandom = SecureRandom()
+        global["crypto"]!!["randomBytes"] = context.jsFun { args ->
+            // randomBytes method is used to generate UUID bson object
+            // here we use SecureRandom to generate cryptographically strong random numbers
+            // java.util.UUID also uses SecureRandom
+            if (args.size != 1) {
+                throw IllegalArgumentException("Expected one argument. Got ${args.size} ${args.contentToString()}")
+            }
+            val randomBytes = ByteArray(args[0].asInt())
+            secureRandom.nextBytes(randomBytes)
+            return@jsFun converter.toBuffer(randomBytes) // Buffer must be used because .toString('hex') will be invoked on the object
+        }
     }
 
     private fun shellResult(printable: Value, type: String): Value {

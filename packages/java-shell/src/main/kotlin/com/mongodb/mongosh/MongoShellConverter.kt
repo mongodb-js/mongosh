@@ -7,6 +7,7 @@ import com.mongodb.mongosh.service.Either
 import com.mongodb.mongosh.service.Left
 import com.mongodb.mongosh.service.Right
 import org.bson.*
+import org.bson.internal.UuidHelper
 import org.bson.json.JsonReader
 import org.bson.types.*
 import org.graalvm.polyglot.Value
@@ -91,6 +92,14 @@ internal class MongoShellConverter(private val context: MongoShellContext, priva
             array.setArrayElement(index.toLong(), toJs(v))
         }
         return array
+    }
+
+    fun toBuffer(array: ByteArray): Value {
+        val jsArray = context.eval("new Buffer(${array.size})")
+        array.forEachIndexed { index, v ->
+            jsArray.setArrayElement(index.toLong(), v)
+        }
+        return jsArray
     }
 
     fun <T> toJsPromise(promise: Either<T>): Value {
@@ -189,7 +198,15 @@ internal class MongoShellConverter(private val context: MongoShellContext, priva
             v.instanceOf(context, bsonTypes.numberLong) -> LongResult(JsonReader(v.invokeMember("toExtendedJSON").toString()).readInt64())
             v.instanceOf(context, bsonTypes.binData) -> {
                 val binary = JsonReader(v.invokeMember("toExtendedJSON").toString()).readBinaryData()
-                BinaryResult(Binary(binary.type, binary.data))
+                val uuidRepresentation = when (binary.type) {
+                    BsonBinarySubType.UUID_STANDARD.value -> UuidRepresentation.STANDARD
+                    BsonBinarySubType.UUID_LEGACY.value -> UuidRepresentation.JAVA_LEGACY
+                    else -> null
+                }
+                if (uuidRepresentation != null && binary.data.size == 16) {
+                    UUIDResult(UuidHelper.decodeBinaryToUuid(binary.data, binary.type, uuidRepresentation))
+                }
+                else BinaryResult(Binary(binary.type, binary.data))
             }
             v.instanceOf(context, bsonTypes.hexData) -> {
                 val binary = JsonReader(v.invokeMember("toExtendedJSON").toString()).readBinaryData()

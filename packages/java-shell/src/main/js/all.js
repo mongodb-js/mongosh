@@ -7,22 +7,18 @@ process.cwd = process.cwd || (() => '/');
 globalThis.btoa = globalThis.btoa || (data => Buffer.from(data, 'latin1').toString('base64'));
 globalThis.atob = globalThis.atob || (data => Buffer.from(data, 'base64').toString('latin1'));
 
-// The BSON package tries to use crypto.randomBytes(), but that throws
-// in the current browserify replacement for that package.
-// We provide a low-quality polyfill for now.
-// https://jira.mongodb.org/browse/MONGOSH-988
+// crypto.randomBytes() is required by BSON package
+// but that throws error in the current browserify replacement for that package.
+// Here we create crypto object that will be linked to BSON package
+// we provide proper implementation of randomBytes in Kotlin in MongoShellEvaluator
 const crypto = require('crypto');
 try {
     crypto.randomBytes(1);
 } catch (err) {
     crypto.randomBytes = function(size) {
-        const uint8Array = new Uint8Array(size);
-        for (var i = 0; i < uint8Array.length; i++) {
-            uint8Array[i] = Math.random() * 256;
-        }
-        return size;
+        throw new Error('randomBytes is not implemented');
     };
-};
+}
 
 require('../../../../service-provider-core'); // Ensure TextEncoder polyfill is loaded early enough
 const ShellApi = require('../../../../shell-api/');
@@ -34,4 +30,5 @@ _global = {
     ShellEvaluator: ShellEvaluator,
     toShellResult: ShellApi.toShellResult,
     getShellApiType: ShellApi.getShellApiType,
+    crypto: crypto
 };
