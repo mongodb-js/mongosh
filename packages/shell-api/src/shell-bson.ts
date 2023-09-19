@@ -340,7 +340,11 @@ export default function constructShellBson(
     // Add the driver types to bsonPkg so we can deprecate the shell ones later
     Decimal128: assignAll(
       functionCtorWithoutProps(bson.Decimal128),
-      pickWithExactKeyMatch(bson.Decimal128, ['prototype', 'fromString'])
+      pickWithExactKeyMatch(bson.Decimal128, [
+        'prototype',
+        'fromString',
+        'fromStringWithRounding',
+      ])
     ),
     BSONSymbol: assignAll(
       functionCtorWithoutProps(bson.BSONSymbol),
