@@ -177,13 +177,11 @@ class MongoshNodeRepl implements EvaluationListener {
     let mongodVersion = extraInfo?.is_stream
       ? 'Atlas Stream Processing'
       : buildInfo?.version;
-    if (!extraInfo?.is_stream) {
-      const apiVersion = serviceProvider.getRawClient()?.serverApi?.version;
-      if (apiVersion) {
-        mongodVersion =
-          (mongodVersion ? mongodVersion + ' ' : '') +
-          `(API Version ${apiVersion})`;
-      }
+    const apiVersion = serviceProvider.getRawClient()?.serverApi?.version;
+    if (apiVersion) {
+      mongodVersion =
+        (mongodVersion ? mongodVersion + ' ' : '') +
+        `(API Version ${apiVersion})`;
     }
     await this.greet(mongodVersion, moreRecentMongoshVersion);
     await this.printBasicConnectivityWarning(instanceState);
@@ -461,7 +459,7 @@ class MongoshNodeRepl implements EvaluationListener {
    * The greeting for the shell, showing server and shell version.
    */
   async greet(
-    mongodVersion?: string,
+    mongodVersion: string,
     moreRecentMongoshVersion?: string | null
   ): Promise<void> {
     if (this.shellCliOptions.quiet) {
@@ -469,7 +467,7 @@ class MongoshNodeRepl implements EvaluationListener {
     }
     const { version } = require('../package.json');
     let text = '';
-    if (mongodVersion && !this.shellCliOptions.nodb) {
+    if (!this.shellCliOptions.nodb) {
       text += `Using MongoDB:\t\t${mongodVersion}\n`;
     }
     text += `${this.clr(
