@@ -1309,4 +1309,28 @@ describe('MongoshNodeRepl', function () {
       expect(output).to.not.match(/Using MongoDB/);
     });
   });
+
+  context('with is_stream: true', function () {
+    beforeEach(async function () {
+      sp.getConnectionInfo.resolves({
+        extraInfo: {
+          uri: 'mongodb://localhost:27017/test',
+          is_localhost: true,
+          is_stream: true,
+        },
+        buildInfo: {
+          version: '4.4.1',
+        },
+      });
+      mongoshReplOptions.shellCliOptions = {
+        nodb: false,
+      };
+      mongoshRepl = new MongoshNodeRepl(mongoshReplOptions);
+      await mongoshRepl.initialize(serviceProvider);
+    });
+
+    it('shows Atlas Stream Processing', function () {
+      expect(output).to.match(/Using MongoDB:\t\tAtlas Stream Processing/);
+    });
+  });
 });

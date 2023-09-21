@@ -173,7 +173,10 @@ class MongoshNodeRepl implements EvaluationListener {
     instanceState.setEvaluationListener(this);
     await instanceState.fetchConnectionInfo();
 
-    let mongodVersion = instanceState.connectionInfo.buildInfo?.version;
+    const { buildInfo, extraInfo } = instanceState.connectionInfo;
+    let mongodVersion = extraInfo?.is_stream
+      ? 'Atlas Stream Processing'
+      : buildInfo?.version;
     const apiVersion = serviceProvider.getRawClient()?.serverApi?.version;
     if (apiVersion) {
       mongodVersion =
