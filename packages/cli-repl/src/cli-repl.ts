@@ -871,7 +871,7 @@ export class CliRepl implements MongoshIOProvider {
       const deprecationWarning = [
         'Deprecation warnings:',
         ...warnings,
-        'See https://www.mongodb.com/docs/mongodb-shell/ for documentation on supported platforms.',
+        'See https://www.mongodb.com/docs/mongodb-shell/install/#supported-operating-systems for documentation on supported platforms.',
       ].join('\n');
 
       this.output.write(

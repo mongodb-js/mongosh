@@ -2294,7 +2294,7 @@ describe('CliRepl', function () {
             'Using mongosh on the current operating system is deprecated, and support may be removed in a future release.'
           );
           expect(output).to.include(
-            'See https://www.mongodb.com/docs/mongodb-shell/ for documentation on supported platforms.'
+            'See https://www.mongodb.com/docs/mongodb-shell/install/#supported-operating-systems for documentation on supported platforms.'
           );
         } else {
           expect(output).to.not.include(
@@ -2343,7 +2343,7 @@ describe('CliRepl', function () {
             'Using mongosh with OpenSSL versions lower than 3.0.0 is deprecated, and support may be removed in a future release.'
           );
           expect(output).to.include(
-            'See https://www.mongodb.com/docs/mongodb-shell/ for documentation on supported platforms.'
+            'See https://www.mongodb.com/docs/mongodb-shell/install/#supported-operating-systems for documentation on supported platforms.'
           );
         } else {
           expect(output).to.not.include(
@@ -2372,7 +2372,7 @@ describe('CliRepl', function () {
             'Using mongosh with Node.js versions lower than 20.0.0 is deprecated, and support may be removed in a future release.'
           );
           expect(output).to.include(
-            'See https://www.mongodb.com/docs/mongodb-shell/ for documentation on supported platforms.'
+            'See https://www.mongodb.com/docs/mongodb-shell/install/#supported-operating-systems for documentation on supported platforms.'
           );
         } else {
           expect(output).to.not.include(
@@ -2410,7 +2410,7 @@ describe('CliRepl', function () {
         'Using mongosh with OpenSSL versions lower than 3.0.0 is deprecated, and support may be removed in a future release.'
       );
       expect(output).not.to.include(
-        'See https://www.mongodb.com/docs/mongodb-shell/ for documentation on supported platforms.'
+        'See https://www.mongodb.com/docs/mongodb-shell/install/#supported-operating-systems for documentation on supported platforms.'
       );
     });
   });
