@@ -176,9 +176,11 @@ export class SignableCompiler {
       preCompileHook,
       executableMetadata: this.executableMetadata,
       // Node.js startup snapshots are an experimental feature of Node.js.
-      // If, at some point, something breaks because of it, we can always
-      // go back to using `useCodeCache: true` only.
-      useNodeSnapshot: true,
+      // TODO(MONGOSH-1605): Re-enable startup snapshots after figuring out
+      // issues with running the binary when CPU features differ
+      // significantly.
+      useCodeCache: true,
+      // useNodeSnapshot: true,
     });
   }
 }
