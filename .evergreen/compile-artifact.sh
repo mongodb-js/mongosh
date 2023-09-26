@@ -45,8 +45,8 @@ elif [ -n "$MONGOSH_SHARED_OPENSSL" ]; then
     exit 1
   fi
 
-  tar xzvf openssl-*.tar.gz  
-  
+  tar xzvf openssl-*.tar.gz
+
   # pushd fails on RHEL8 because openssl-* expands to 2 different files. For example:
   # pushd openssl-1.1.1o openssl-1.1.1o.tar.gz
   # .evergreen/compile-artifact.sh: line 49: pushd: too many arguments
@@ -75,6 +75,22 @@ npm run evergreen-release compile
 dist/mongosh --version
 dist/mongosh --build-info
 dist/mongosh --build-info | grep -q '"distributionKind": "compiled"'
+
+if uname -a | grep -q 'Linux.*x86_64'; then
+  # Very crude test to check whether the generated executable was built
+  # with -mavx when it should not have been. Ideally, we'd be running
+  # on older hardware to verify minimum requirements, but that's not easily
+  # possible in CI, so we just check whether the generated executable contains
+  # a specific (common) AVX instruction. We can't just check whether the
+  # instruction exists at all in the executable or not, because Node.js
+  # includes libraries that provide both AVX and non-AVX versions of their
+  # code (and similar for other hardware features) and then choose which code
+  # path to take at runtime.
+  # As of mongosh 2.0.1, the difference is 308 vs 5084, so take 1250
+  # as the cutoff at which we need to be 'suspicious' that we might have
+  # accidentally raised hardware requirements by changing how we compile mongosh.
+  test $(objdump -d dist/mongosh | grep '\bvmovd\b' | wc -l) -lt 1250
+fi
 
 tar cvzf dist.tgz dist
 
