@@ -43,7 +43,7 @@
     "prettier": "^2.8.8"
   },
   "dependencies": {
-    "@mongodb-js/mongodb-constants": "^0.2.2",
+    "@mongodb-js/mongodb-constants": "^0.7.1",
     "@mongosh/shell-api": "0.0.0-dev.0",
     "semver": "^7.5.4"
   }
