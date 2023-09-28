@@ -13,14 +13,14 @@ const publicDescriptions = {
   darwin_arm64: 'MacOS M1 (11.0+)',
   linux_x64: 'Linux x64',
   linux_arm64: 'Linux arm64',
-  debian_x64: 'Debian (11+) / Ubuntu (20.04+) x64',
-  debian_arm64: 'Debian (11+) / Ubuntu (20.04+) arm64',
-  rhel_x64: 'RHEL / CentOS (8+) x64',
-  rhel_arm64: 'RHEL / CentOS (8+) arm64',
+  debian_x64: 'Debian (10+) / Ubuntu (18.04+) x64',
+  debian_arm64: 'Debian (10+) / Ubuntu (18.04+) arm64',
+  rhel_x64: 'RHEL / CentOS (7+) x64',
+  rhel_arm64: 'RHEL / CentOS (7+) arm64',
   linux_ppc64le: 'Linux ppc64le',
-  rhel_ppc64le: 'RHEL / CentOS (8+) ppc64le',
-  linux_s390x: 'Linux ppc64le',
-  rhel_s390x: 'RHEL / CentOS (8+) ppc64le',
+  rhel_ppc64le: 'RHEL / CentOS (7+) ppc64le',
+  linux_s390x: 'Linux s390x',
+  rhel_s390x: 'RHEL / CentOS (7+) s390x',
   win32_x64: 'Windows x64 (10+)'
 };
 
