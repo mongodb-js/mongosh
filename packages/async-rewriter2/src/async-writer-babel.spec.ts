@@ -390,11 +390,21 @@ describe('AsyncWriter', function () {
       expect(implicitlyAsyncFn).to.have.callCount(10);
     });
 
-    it('can use for loops as weird assignments', async function () {
+    it('can use for loops as weird assignments (sync)', async function () {
       const obj = { foo: null };
       implicitlyAsyncFn.resolves(obj);
       await runTranspiledCode(
         'for (implicitlyAsyncFn().foo of ["foo", "bar"]);'
+      );
+      expect(implicitlyAsyncFn).to.have.callCount(2);
+      expect(obj.foo).to.equal('bar');
+    });
+
+    it('can use for loops as weird assignments (async)', async function () {
+      const obj = { foo: null };
+      implicitlyAsyncFn.resolves(obj);
+      await runTranspiledCode(
+        '(async() => { for await (implicitlyAsyncFn().foo of ["foo", "bar"]); })()'
       );
       expect(implicitlyAsyncFn).to.have.callCount(2);
       expect(obj.foo).to.equal('bar');
@@ -995,16 +1005,16 @@ describe('AsyncWriter', function () {
       expect(() => runTranspiledCode('var db = {}; db.testx();')).to.throw(
         'db.testx is not a function'
       );
-      // (Note: The following ones would give better error messages in regular code)
+      // (Note: The following one would give better error messages in regular code)
       expect(() =>
         runTranspiledCode('var db = {}; new Promise(db.foo)')
       ).to.throw('Promise resolver undefined is not a function');
       expect(() =>
         runTranspiledCode('var db = {}; for (const a of db.foo) {}')
-      ).to.throw(/undefined is not iterable/);
+      ).to.throw(/db.foo is not iterable/);
       expect(() =>
         runTranspiledCode('var db = {}; for (const a of db[0]) {}')
-      ).to.throw(/undefined is not iterable/);
+      ).to.throw(/db\[0\] is not iterable/);
       expect(() => runTranspiledCode('for (const a of 8) {}')).to.throw(
         '8 is not iterable'
       );

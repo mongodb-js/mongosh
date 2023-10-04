@@ -28,7 +28,9 @@ interface AsyncFunctionIdentifiers {
   expressionHolder: babel.types.Identifier;
   markSyntheticPromise: babel.types.Identifier;
   isSyntheticPromise: babel.types.Identifier;
+  adaptAsyncIterableToSyncIterable: babel.types.Identifier;
   syntheticPromiseSymbol: babel.types.Identifier;
+  syntheticAsyncIterableSymbol: babel.types.Identifier;
   demangleError: babel.types.Identifier;
   assertNotSyntheticPromise: babel.types.Identifier;
 }
@@ -45,6 +47,7 @@ export default ({
   const isGeneratedInnerFunction = asNodeKey(
     Symbol('isGeneratedInnerFunction')
   );
+  const isWrappedForOfLoop = asNodeKey(Symbol('isWrappedForOfLoop'));
   const isGeneratedHelper = asNodeKey(Symbol('isGeneratedHelper'));
   const isOriginalBody = asNodeKey(Symbol('isOriginalBody'));
   const isAlwaysSyncFunction = asNodeKey(Symbol('isAlwaysSyncFunction'));
@@ -79,6 +82,47 @@ export default ({
           'SyntheticPromiseInAlwaysSyncContext');
       }
       return p;
+    }
+  `);
+
+  const adaptAsyncIterableToSyncIterableTemplate = babel.template.statement(`
+    function AAITSI_IDENTIFIER(original) {
+      const SAI_IDENTIFIER = Symbol.for("@@mongosh.syntheticAsyncIterable");
+      if (!original || !original[SAI_IDENTIFIER]) {
+        return { iterable: original, isSyntheticAsyncIterable: false };
+      }
+      const originalIterator = original[Symbol.asyncIterator]();
+      let next;
+      let returned;
+
+      return {
+        isSyntheticAsyncIterable: true,
+        iterable: {
+          [Symbol.iterator]() {
+            return this;
+          },
+          next() {
+            let _next = next;
+            next = undefined;
+            return _next;
+          },
+          return(value) {
+            returned = { value };
+            return {
+              value,
+              done: true
+            }
+          },
+          async expectNext() {
+            next ??= await originalIterator.next();
+          },
+          async syncReturn() {
+            if (returned) {
+              await originalIterator.return(returned.value);
+            }
+          }
+        }
+      }
     }
   `);
 
@@ -137,6 +181,26 @@ export default ({
     }
   `);
 
+  const forOfLoopTemplate = babel.template.statement(`{
+    const ITERABLE_INFO = AAITSI_IDENTIFIER(ORIGINAL_ITERABLE);
+    const ITERABLE_ISAI = (ITERABLE_INFO).isSyntheticAsyncIterable;
+    const ITERABLE = (ITERABLE_INFO).iterable;
+
+    try {
+      ITERABLE_ISAI && await (ITERABLE).expectNext();
+      for (const ITEM of (ORIGINAL_ITERABLE_SOURCE, ITERABLE)) {
+        ORIGINAL_DECLARATION;
+        try {
+          ORIGINAL_BODY;
+        } finally {
+          ITERABLE_ISAI && await (ITERABLE).expectNext();
+        }
+      }
+    } finally {
+      ITERABLE_ISAI && await (ITERABLE).syncReturn();
+    }
+  }`);
+
   // If we encounter an error object, we fix up the error message from something
   // like `("a" , foo(...)(...)) is not a function` to `a is not a function`.
   // For that, we look for a) the U+FEFF markers we use to tag the original source
@@ -163,6 +227,34 @@ export default ({
     SYNC_RETURN_VALUE_IDENTIFIER = NODE,
     FUNCTION_STATE_IDENTIFIER === 'async' ? SYNC_RETURN_VALUE_IDENTIFIER : null
   )`);
+
+  // Transform expression `foo` into
+  // `('\uFEFFfoo\uFEFF', ex = foo, isSyntheticPromise(ex) ? await ex : ex)`
+  // The first part of the sequence expression is used to identify this
+  // expression for re-writing error messages, so that we can transform
+  // TypeError: ((intermediate value)(intermediate value) , (intermediate value)(intermediate value)(intermediate value)).findx is not a function
+  // back into
+  // TypeError: db.test.findx is not a function
+  // The U+FEFF markers are only used to rule out any practical chance of
+  // user code accidentally being recognized as the original source code.
+  // We limit the string length so that long expressions (e.g. those
+  // containing functions) are not included in full length.
+  function getOriginalSourceString(
+    { file }: { file: babel.BabelFile },
+    node: babel.Node,
+    { wrap = true } = {}
+  ): babel.types.StringLiteral {
+    const prettyOriginalString = limitStringLength(
+      node.start !== undefined
+        ? file.code.slice(node.start ?? undefined, node.end ?? undefined)
+        : '<unknown>',
+      24
+    );
+
+    if (!wrap) return t.stringLiteral(prettyOriginalString);
+
+    return t.stringLiteral('\ufeff' + prettyOriginalString + '\ufeff');
+  }
 
   return {
     pre(file: babel.BabelFile) {
@@ -212,12 +304,18 @@ export default ({
         const isSyntheticPromise =
           existingIdentifiers?.isSyntheticPromise ??
           path.scope.generateUidIdentifier('isp');
+        const adaptAsyncIterableToSyncIterable =
+          existingIdentifiers?.adaptAsyncIterableToSyncIterable ??
+          path.scope.generateUidIdentifier('aaitsi');
         const assertNotSyntheticPromise =
           existingIdentifiers?.assertNotSyntheticPromise ??
           path.scope.generateUidIdentifier('ansp');
         const syntheticPromiseSymbol =
           existingIdentifiers?.syntheticPromiseSymbol ??
           path.scope.generateUidIdentifier('sp');
+        const syntheticAsyncIterableSymbol =
+          existingIdentifiers?.syntheticAsyncIterableSymbol ??
+          path.scope.generateUidIdentifier('sai');
         const demangleError =
           existingIdentifiers?.demangleError ??
           path.scope.generateUidIdentifier('de');
@@ -228,8 +326,10 @@ export default ({
           expressionHolder,
           markSyntheticPromise,
           isSyntheticPromise,
+          adaptAsyncIterableToSyncIterable,
           assertNotSyntheticPromise,
           syntheticPromiseSymbol,
+          syntheticAsyncIterableSymbol,
           demangleError,
         };
         path.parentPath.setData(identifierGroupKey, identifiersGroup);
@@ -270,6 +370,13 @@ export default ({
                 markSyntheticPromiseTemplate({
                   MSP_IDENTIFIER: markSyntheticPromise,
                   SP_IDENTIFIER: syntheticPromiseSymbol,
+                }),
+                { [isGeneratedHelper]: true }
+              ),
+              Object.assign(
+                adaptAsyncIterableToSyncIterableTemplate({
+                  AAITSI_IDENTIFIER: adaptAsyncIterableToSyncIterable,
+                  SAI_IDENTIFIER: syntheticAsyncIterableSymbol,
                 }),
                 { [isGeneratedHelper]: true }
               ),
@@ -556,22 +663,15 @@ export default ({
             isSyntheticPromise,
             assertNotSyntheticPromise,
           } = identifierGroup;
-          const prettyOriginalString = limitStringLength(
-            path.node.start !== undefined
-              ? this.file.code.slice(
-                  path.node.start ?? undefined,
-                  path.node.end ?? undefined
-                )
-              : '<unknown>',
-            24
-          );
 
           if (!functionParent.node.async) {
             // Transform expression `foo` into `assertNotSyntheticPromise(foo, 'foo')`.
             path.replaceWith(
               Object.assign(
                 assertNotSyntheticExpressionTemplate({
-                  ORIGINAL_SOURCE: t.stringLiteral(prettyOriginalString),
+                  ORIGINAL_SOURCE: getOriginalSourceString(this, path.node, {
+                    wrap: false,
+                  }),
                   NODE: path.node,
                   ANSP_IDENTIFIER: assertNotSyntheticPromise,
                 }),
@@ -581,24 +681,10 @@ export default ({
             return;
           }
 
-          // Transform expression `foo` into
-          // `('\uFEFFfoo\uFEFF', ex = foo, isSyntheticPromise(ex) ? await ex : ex)`
-          // The first part of the sequence expression is used to identify this
-          // expression for re-writing error messages, so that we can transform
-          // TypeError: ((intermediate value)(intermediate value) , (intermediate value)(intermediate value)(intermediate value)).findx is not a function
-          // back into
-          // TypeError: db.test.findx is not a function
-          // The U+FEFF markers are only used to rule out any practical chance of
-          // user code accidentally being recognized as the original source code.
-          // We limit the string length so that long expressions (e.g. those
-          // containing functions) are not included in full length.
-          const originalSource = t.stringLiteral(
-            '\ufeff' + prettyOriginalString + '\ufeff'
-          );
           path.replaceWith(
             Object.assign(
               awaitSyntheticPromiseTemplate({
-                ORIGINAL_SOURCE: originalSource,
+                ORIGINAL_SOURCE: getOriginalSourceString(this, path.node),
                 EXPRESSION_HOLDER: expressionHolder,
                 ISP_IDENTIFIER: isSyntheticPromise,
                 NODE: path.node,
@@ -644,6 +730,63 @@ export default ({
             )
           );
         },
+      },
+      ForOfStatement(path) {
+        if (path.node.await) return;
+
+        if (
+          path.find(
+            (path) => path.isFunction() || !!path.node[isGeneratedHelper]
+          )?.node?.[isGeneratedHelper]
+        ) {
+          return path.skip();
+        }
+
+        if (
+          path.find(
+            (path) => path.isFunction() || !!path.node[isWrappedForOfLoop]
+          )?.node?.[isWrappedForOfLoop]
+        ) {
+          return;
+        }
+
+        const identifierGroup: AsyncFunctionIdentifiers | null = path
+          .findParent((path) => !!path.getData(identifierGroupKey))
+          ?.getData(identifierGroupKey);
+        if (!identifierGroup)
+          throw new Error('Missing identifier group for ForOfStatement');
+        const { adaptAsyncIterableToSyncIterable } = identifierGroup;
+        const item = path.scope.generateUidIdentifier('i');
+        path.replaceWith(
+          Object.assign(
+            forOfLoopTemplate({
+              ORIGINAL_ITERABLE: path.node.right,
+              ORIGINAL_ITERABLE_SOURCE: getOriginalSourceString(
+                this,
+                path.node.right
+              ),
+              ORIGINAL_DECLARATION:
+                path.node.left.type === 'VariableDeclaration'
+                  ? t.variableDeclaration(
+                      path.node.left.kind,
+                      path.node.left.declarations.map((d) => ({
+                        ...d,
+                        init: item,
+                      }))
+                    )
+                  : t.expressionStatement(
+                      t.assignmentExpression('=', path.node.left, item)
+                    ),
+              ORIGINAL_BODY: path.node.body,
+              ITERABLE_INFO: path.scope.generateUidIdentifier('ii'),
+              ITERABLE_ISAI: path.scope.generateUidIdentifier('isai'),
+              ITERABLE: path.scope.generateUidIdentifier('it'),
+              ITEM: item,
+              AAITSI_IDENTIFIER: adaptAsyncIterableToSyncIterable,
+            }),
+            { [isWrappedForOfLoop]: true }
+          )
+        );
       },
     },
   };

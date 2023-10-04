@@ -72,6 +72,10 @@ export default class ChangeStreamCursor extends ShellApiWithMongoClass {
     return this._cursor.tryNext();
   }
 
+  get [Symbol.for('@@mongosh.syntheticAsyncIterable')]() {
+    return true;
+  }
+
   async *[Symbol.asyncIterator]() {
     let doc;
     while ((doc = await this.tryNext()) !== null) {

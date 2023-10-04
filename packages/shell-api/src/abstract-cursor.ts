@@ -90,6 +90,10 @@ export abstract class AbstractCursor<
     return result;
   }
 
+  get [Symbol.for('@@mongosh.syntheticAsyncIterable')]() {
+    return true;
+  }
+
   async *[Symbol.asyncIterator]() {
     let doc;
     // !== null should suffice, but some stubs in our tests return 'undefined'
