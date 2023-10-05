@@ -57,6 +57,24 @@ describe('AsyncWriter', function () {
           [Symbol.for('@@mongosh.uncatchable')]: true,
         });
       },
+      regularIterable: function* () {
+        yield* [1, 2, 3];
+      },
+      regularAsyncIterable: async function* () {
+        await Promise.resolve();
+        yield* [1, 2, 3];
+      },
+      implicitlyAsyncIterable: function () {
+        return Object.assign(
+          (async function* () {
+            await Promise.resolve();
+            yield* [1, 2, 3];
+          })(),
+          {
+            [Symbol.for('@@mongosh.syntheticAsyncIterable')]: true,
+          }
+        );
+      },
     });
     runTranspiledCode = (code: string, context?: any) => {
       const transpiled = asyncWriter.process(code);
@@ -543,6 +561,44 @@ describe('AsyncWriter', function () {
       expect(await ret).to.equal('bar');
     });
 
+    context('for-of', function () {
+      it('can iterate over implicit iterables', async function () {
+        expect(
+          await runTranspiledCode(`(function() {
+            let sum = 0;
+            for (const value of implicitlyAsyncIterable())
+              sum += value;
+            return sum;
+        })()`)
+        ).to.equal(6);
+      });
+
+      it('can iterate over implicit iterables in async functions', async function () {
+        expect(
+          await runTranspiledCode(`(async function() {
+            let sum = 0;
+            for (const value of implicitlyAsyncIterable())
+              sum += value;
+            return sum;
+        })()`)
+        ).to.equal(6);
+      });
+
+      it('can implicitly yield* inside of async generator functions', async function () {
+        expect(
+          await runTranspiledCode(`(async function() {
+          const gen = (async function*() {
+            yield* implicitlyAsyncIterable();
+          })();
+          let sum = 0;
+          for await (const value of gen)
+            sum += value;
+          return sum;
+        })()`)
+        ).to.equal(6);
+      });
+    });
+
     context('invalid implicit awaits', function () {
       beforeEach(function () {
         runUntranspiledCode(asyncWriter.runtimeSupportCode());
@@ -593,6 +649,45 @@ describe('AsyncWriter', function () {
         ).to.throw(
           '[ASYNC-10012] Result of expression "compareFn(...args)" cannot be used in this context'
         );
+      });
+
+      context('for-of', function () {
+        it('cannot implicitly yield* inside of generator functions', function () {
+          expect(() =>
+            runTranspiledCode(`(function() {
+            const gen = (function*() {
+              yield* implicitlyAsyncIterable();
+            })();
+            for (const value of gen) return value;
+          })()`)
+          ).to.throw(
+            '[ASYNC-10013] Result of expression "implicitlyAsyncIterable()" cannot be iterated in this context'
+          );
+        });
+
+        it('cannot implicitly for-of inside of generator functions', function () {
+          expect(() =>
+            runTranspiledCode(`(function() {
+            const gen = (function*() {
+              for (const item of implicitlyAsyncIterable()) yield item;
+            })();
+            for (const value of gen) return value;
+          })()`)
+          ).to.throw(
+            '[ASYNC-10013] Result of expression "implicitlyAsyncIterable()" cannot be iterated in this context'
+          );
+        });
+
+        it('cannot implicitly for-of await inside of class constructors', function () {
+          expect(
+            () =>
+              runTranspiledCode(`class A {
+            constructor() { for (this.foo of implicitlyAsyncIterable()) {} }
+          }; new A()`).value
+          ).to.throw(
+            '[ASYNC-10013] Result of expression "implicitlyAsyncIterable()" cannot be iterated in this context'
+          );
+        });
       });
     });
   });
@@ -1040,7 +1135,7 @@ describe('AsyncWriter', function () {
         runTranspiledCode(
           'globalThis.abcdefghijklmnopqrstuvwxyz = {}; abcdefghijklmnopqrstuvwxyz()'
         )
-      ).to.throw('abcdefghijklm ... uvwxyz is not a function');
+      ).to.throw('abcdefghijklmn ... uvwxyz is not a function');
     });
   });
 

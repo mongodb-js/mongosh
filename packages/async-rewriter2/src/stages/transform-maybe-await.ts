@@ -56,8 +56,9 @@ export default ({
   // of helpers which are available inside the function.
   const identifierGroupKey = '@@mongosh.identifierGroup';
 
-  const syntheticPromiseSymbolTemplate = babel.template.statement(`
+  const syntheticPromiseSymbolTemplate = babel.template.statements(`
     const SP_IDENTIFIER = Symbol.for("@@mongosh.syntheticPromise");
+    const SAI_IDENTIFIER = Symbol.for("@@mongosh.syntheticAsyncIterable");
   `);
 
   const markSyntheticPromiseTemplate = babel.template.statement(`
@@ -75,11 +76,16 @@ export default ({
   `);
 
   const assertNotSyntheticPromiseTemplate = babel.template.statement(`
-    function ANSP_IDENTIFIER(p, s) {
+    function ANSP_IDENTIFIER(p, s, i = false) {
       if (p && p[SP_IDENTIFIER]) {
         throw new CUSTOM_ERROR_BUILDER(
           'Result of expression "' + s + '" cannot be used in this context',
           'SyntheticPromiseInAlwaysSyncContext');
+      }
+      if (i && p && p[SAI_IDENTIFIER]) {
+        throw new CUSTOM_ERROR_BUILDER(
+          'Result of expression "' + s + '" cannot be iterated in this context',
+          'SyntheticAsyncIterableInAlwaysSyncContext');
       }
       return p;
     }
@@ -87,7 +93,6 @@ export default ({
 
   const adaptAsyncIterableToSyncIterableTemplate = babel.template.statement(`
     function AAITSI_IDENTIFIER(original) {
-      const SAI_IDENTIFIER = Symbol.for("@@mongosh.syntheticAsyncIterable");
       if (!original || !original[SAI_IDENTIFIER]) {
         return { iterable: original, isSyntheticAsyncIterable: false };
       }
@@ -169,10 +174,6 @@ export default ({
     }
   );
 
-  const assertNotSyntheticExpressionTemplate = babel.template.expression(`
-    ANSP_IDENTIFIER(NODE, ORIGINAL_SOURCE)
-  `);
-
   const rethrowTemplate = babel.template.statement(`
     try {
       ORIGINAL_CODE;
@@ -248,7 +249,7 @@ export default ({
       node.start !== undefined
         ? file.code.slice(node.start ?? undefined, node.end ?? undefined)
         : '<unknown>',
-      24
+      25
     );
 
     if (!wrap) return t.stringLiteral(prettyOriginalString);
@@ -349,11 +350,11 @@ export default ({
         const commonHelpers = existingIdentifiers
           ? []
           : [
-              Object.assign(
-                syntheticPromiseSymbolTemplate({
-                  SP_IDENTIFIER: syntheticPromiseSymbol,
-                }),
-                { [isGeneratedHelper]: true }
+              ...syntheticPromiseSymbolTemplate({
+                SP_IDENTIFIER: syntheticPromiseSymbol,
+                SAI_IDENTIFIER: syntheticAsyncIterableSymbol,
+              }).map((helper) =>
+                Object.assign(helper, { [isGeneratedHelper]: true })
               ),
               Object.assign(
                 expressionHolderVariableTemplate({
@@ -400,6 +401,7 @@ export default ({
             assertNotSyntheticPromiseTemplate({
               ANSP_IDENTIFIER: assertNotSyntheticPromise,
               SP_IDENTIFIER: syntheticPromiseSymbol,
+              SAI_IDENTIFIER: syntheticAsyncIterableSymbol,
               CUSTOM_ERROR_BUILDER:
                 (this as any).opts.customErrorBuilder ?? t.identifier('Error'),
             }),
@@ -666,17 +668,23 @@ export default ({
 
           if (!functionParent.node.async) {
             // Transform expression `foo` into `assertNotSyntheticPromise(foo, 'foo')`.
+            const args = [
+              path.node,
+              getOriginalSourceString(this, path.node, {
+                wrap: false,
+              }),
+            ];
+            if (
+              (path.parent.type === 'ForOfStatement' &&
+                path.node === path.parent.right) ||
+              (path.parent.type === 'YieldExpression' && path.parent.delegate)
+            ) {
+              args.push(t.booleanLiteral(true));
+            }
             path.replaceWith(
-              Object.assign(
-                assertNotSyntheticExpressionTemplate({
-                  ORIGINAL_SOURCE: getOriginalSourceString(this, path.node, {
-                    wrap: false,
-                  }),
-                  NODE: path.node,
-                  ANSP_IDENTIFIER: assertNotSyntheticPromise,
-                }),
-                { [isGeneratedHelper]: true }
-              )
+              Object.assign(t.callExpression(assertNotSyntheticPromise, args), {
+                [isGeneratedHelper]: true,
+              })
             );
             return;
           }
@@ -732,7 +740,7 @@ export default ({
         },
       },
       ForOfStatement(path) {
-        if (path.node.await) return;
+        if (path.node.await || !path.getFunctionParent()?.node.async) return;
 
         if (
           path.find(
