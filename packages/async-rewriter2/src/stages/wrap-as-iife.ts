@@ -116,7 +116,11 @@ export default ({
               path.remove();
             }
             return;
-          } else if (path.isClassDeclaration() && path.parentPath.isProgram()) {
+          } else if (
+            path.isClassDeclaration() &&
+            path.parentPath.isProgram() &&
+            path.node.id
+          ) {
             // Convert this declaration into an assignment expression, i.e.
             // `class A {}` becomes `A = class A {}`.
             // Unlike `var`
