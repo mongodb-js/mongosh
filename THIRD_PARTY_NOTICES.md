@@ -74,15 +74,15 @@ Package|Version|License
 **[@aws-sdk/util-user-agent-node](#a7911babe39d5988a9678b5a623aa785b7febbdad634d53c64a4e67c835dfc23)**|3.357.0|Apache-2.0
 **[@aws-sdk/util-utf8-browser](#2795b0b92f423e7c40e34b18269590f7f512482d043ec08b9037fe41768fda53)**|3.259.0|Apache-2.0
 **[@aws-sdk/util-utf8](#3a9e339321010eee73115d5193d3ed5371e5dcc2d79353b195e0a25a051b3d71)**|3.310.0|Apache-2.0
-**[@babel/code-frame](#5293e905002773884fcc1b217ab09c15d9613b82d597be93c3b7b1c78e073387)**|7.22.5|MIT
+**[@babel/code-frame](#1f028660353155c15abfd37304fc55d9e3e53c9092913c2d6b1380ec890ca2aa)**|7.22.13|MIT
 **[@babel/compat-data](#040e3fd0e7a0b4552a3f8489b25a7a491503c1c0195bdff4d5a299978580bb09)**|7.22.6|MIT
 **[@babel/core](#80a714f9483b1d686ead84632236401cd8ad37e1f1ca77031ecceb3737e7bfdf)**|7.22.8|MIT
-**[@babel/generator](#73e68a04e6c131fb5dad587e86a6b1d9baf7054e899e8e3c02efd6bc949ff9d8)**|7.22.7|MIT
+**[@babel/generator](#3509a9eda396e4967eb4ade30d3c910d44249047bf5e4ddae01d541b0dff2284)**|7.23.0|MIT
 **[@babel/helper-annotate-as-pure](#029a306089573d76f9def44953787148e1b886d6f554efd9b97b9e7c226a0bb7)**|7.22.5|MIT
 **[@babel/helper-compilation-targets](#ddb1b04574b605b4dc54988dafb8b4ba18186c6d98f1dbe3092f6f497014dcd7)**|7.22.6|MIT
 **[@babel/helper-create-class-features-plugin](#d2166351773e9521e4d01ec546c75d2232431346e67706ff70378cb68835d638)**|7.22.10|MIT
-**[@babel/helper-environment-visitor](#4cf7589ab9e3ed8692f5e3f5396b1ca63d374efe2798d42c198c09bcdc392ff0)**|7.22.5|MIT
-**[@babel/helper-function-name](#51f1a0fa82f64b08abbccec276ebd9b2107c9181fe6f11308e138ceb41ea6efd)**|7.22.5|MIT
+**[@babel/helper-environment-visitor](#9f872d3cbd278e84dd463130fe1a2d9b66ac2fab913902d5e7fbe6e3d53029c5)**|7.22.20|MIT
+**[@babel/helper-function-name](#0d9ad4a8ded8aa6ad84f7001163182578234dafce3bc4a37354c4e7a2f49e195)**|7.23.0|MIT
 **[@babel/helper-hoist-variables](#e89c74a7002d7364feafa178934b62aed74d2d3849bd45f1d195ceea1d0ff380)**|7.22.5|MIT
 **[@babel/helper-member-expression-to-functions](#a4b70dbf2d35802a3d8c37e07c5cf031678d08474ef4ab11a6d7e5e3a3143626)**|7.22.5|MIT
 **[@babel/helper-module-imports](#2f61d531a4cd99b192afb0cad6abc07fff8c221a6e626b6f8929fc9674428094)**|7.22.5|MIT
@@ -94,13 +94,13 @@ Package|Version|License
 **[@babel/helper-skip-transparent-expression-wrappers](#3680d72a3e5058442cc8966d761775227dc7296f71c862ab179c463d5caeb58b)**|7.22.5|MIT
 **[@babel/helper-split-export-declaration](#2f47cc2b7fe1c026742640af9190a7f9163faecb332a5b0717a76415e215ea1d)**|7.22.6|MIT
 **[@babel/helper-string-parser](#149908f6f248dc03088fc69ea568914fe824a3db73b5c6c3fccee483cf5ea8a4)**|7.22.5|MIT
-**[@babel/helper-validator-identifier](#c2f7d8aa11c267c065393bb7a79ff05309303c9d3771c0be5a1b9009c0edab8b)**|7.22.5|MIT
+**[@babel/helper-validator-identifier](#b98e4f333229567cd14c45f975f8790c55df32254602572fb44f811dc65e1a3e)**|7.22.20|MIT
 **[@babel/helper-validator-option](#deada2cd042f06e8fd213df49ced5a41c1d2b99bf4d5f5b6d553719b3bbef43d)**|7.22.5|MIT
 **[@babel/helpers](#cb1e18e6d46d89abd6ba3ec9218d7de7d12a4a2a123de99f25fbe74273486c85)**|7.22.6|MIT
-**[@babel/highlight](#048a3797f3b99d6d0ee62ff5b0070dbba54646060b26ad52c65e97f7d5824d34)**|7.22.5|MIT
+**[@babel/highlight](#c3f39ed214bc95c7a4f36115d2a44166416b0a3deca3807e19cf43f8c3c97992)**|7.22.20|MIT
 **[@babel/parser](#c6d1b39f8ba907386ce051c3c7812099926586a80551cf1898e4cfad6423632a)**|7.16.4|MIT
-**[@babel/parser](#7e10ac3bfdb2fb6c1acb0e9fd656a62c0896c4a128e7b6763c990156371324e7)**|7.22.6|MIT
 **[@babel/parser](#6184d832a9387cc6c79182d111fe4f69ae4621a524254f6d66f8fb841691da21)**|7.22.7|MIT
+**[@babel/parser](#e7d24bd4d33cf5dfbb8d42d588389a0df1d5a11fd875e181c5ab46dbe07d54b6)**|7.23.0|MIT
 **[@babel/plugin-syntax-jsx](#92b0c9e2acd6beca918c90ecdc4cc5973ac7c517f7dee4ef88df317effdfa44b)**|7.22.5|MIT
 **[@babel/plugin-syntax-typescript](#b6fc5c65f4e7013bf626b2718813ae149f1b5fe0ce1bad1e28ec66f87e0cc536)**|7.22.5|MIT
 **[@babel/plugin-transform-destructuring](#c97fc3729e02faa151dc6eb84560e5aba3f15e1b409cf5ed2a58431f96660368)**|7.22.5|MIT
@@ -109,9 +109,9 @@ Package|Version|License
 **[@babel/plugin-transform-shorthand-properties](#b93c2977332c87c88bb42733c298a494df63eb1ad048aab45aa7a57960fbce6e)**|7.22.5|MIT
 **[@babel/plugin-transform-typescript](#437780f6ebf94210e1eae184d082efbeed204ad21e9c1ea386fac9b4981bcbf5)**|7.22.10|MIT
 **[@babel/preset-typescript](#98ef09dd3dc2481c1ac9e23d6809726082706962813dedac9ab80f49bca1b812)**|7.22.5|MIT
-**[@babel/template](#2d19869004558ea0613775e10a2a67252e23b8d31741e2d64a9ce80aa35a87fe)**|7.22.5|MIT
-**[@babel/traverse](#47c04166ad15274bbf088302be86682e4419ab8507a61402a77e0db5d6453873)**|7.22.8|MIT
-**[@babel/types](#f7e475154649b8143ba8f06dc304de20cdc374b2707b5c0468fc2c141c65db21)**|7.22.5|MIT
+**[@babel/template](#3c75119e7609dea949724f8fca09fa5070562bec09a8f3bb3ad4d5301aa67ce0)**|7.22.15|MIT
+**[@babel/traverse](#30097e39f159c2eb3863a791d6a98f23c7d5ac1cac6578a2deb827a48fefc7a0)**|7.23.2|MIT
+**[@babel/types](#c7dd9bf0ec2fff59ef38d47c554dbc3077e5a8ef660e9bfd6a705292c0b26f0c)**|7.23.0|MIT
 **[@hapi/hoek](#a306f63b06e22206da212d9805ac6d378591ee24cb90b85f5f84eeee9e418a87)**|9.3.0|BSD-3-Clause
 **[@hapi/topo](#c08672fb909d4d2d143fdec500a195120eeb0ac994445f970a7b9410041e3848)**|5.1.0|BSD-3-Clause
 **[@jridgewell/gen-mapping](#1e660067f4d1364dc830c372517d8ec92eddc9af7eaa6b1e698d478b286abafa)**|0.1.1|MIT
@@ -14959,8 +14959,8 @@ License files:
          limitations under the License.
 
 
-<a id="5293e905002773884fcc1b217ab09c15d9613b82d597be93c3b7b1c78e073387"></a>
-### [@babel/code-frame](https://www.npmjs.com/package/@babel/code-frame) (version 7.22.5)
+<a id="1f028660353155c15abfd37304fc55d9e3e53c9092913c2d6b1380ec890ca2aa"></a>
+### [@babel/code-frame](https://www.npmjs.com/package/@babel/code-frame) (version 7.22.13)
 License tags: MIT
 
 License files:
@@ -15055,8 +15055,8 @@ License files:
       
 
 
-<a id="73e68a04e6c131fb5dad587e86a6b1d9baf7054e899e8e3c02efd6bc949ff9d8"></a>
-### [@babel/generator](https://www.npmjs.com/package/@babel/generator) (version 7.22.7)
+<a id="3509a9eda396e4967eb4ade30d3c910d44249047bf5e4ddae01d541b0dff2284"></a>
+### [@babel/generator](https://www.npmjs.com/package/@babel/generator) (version 7.23.0)
 License tags: MIT
 
 License files:
@@ -15183,8 +15183,8 @@ License files:
       
 
 
-<a id="4cf7589ab9e3ed8692f5e3f5396b1ca63d374efe2798d42c198c09bcdc392ff0"></a>
-### [@babel/helper-environment-visitor](https://www.npmjs.com/package/@babel/helper-environment-visitor) (version 7.22.5)
+<a id="9f872d3cbd278e84dd463130fe1a2d9b66ac2fab913902d5e7fbe6e3d53029c5"></a>
+### [@babel/helper-environment-visitor](https://www.npmjs.com/package/@babel/helper-environment-visitor) (version 7.22.20)
 License tags: MIT
 
 License files:
@@ -15215,8 +15215,8 @@ License files:
       
 
 
-<a id="51f1a0fa82f64b08abbccec276ebd9b2107c9181fe6f11308e138ceb41ea6efd"></a>
-### [@babel/helper-function-name](https://www.npmjs.com/package/@babel/helper-function-name) (version 7.22.5)
+<a id="0d9ad4a8ded8aa6ad84f7001163182578234dafce3bc4a37354c4e7a2f49e195"></a>
+### [@babel/helper-function-name](https://www.npmjs.com/package/@babel/helper-function-name) (version 7.23.0)
 License tags: MIT
 
 License files:
@@ -15599,8 +15599,8 @@ License files:
       
 
 
-<a id="c2f7d8aa11c267c065393bb7a79ff05309303c9d3771c0be5a1b9009c0edab8b"></a>
-### [@babel/helper-validator-identifier](https://www.npmjs.com/package/@babel/helper-validator-identifier) (version 7.22.5)
+<a id="b98e4f333229567cd14c45f975f8790c55df32254602572fb44f811dc65e1a3e"></a>
+### [@babel/helper-validator-identifier](https://www.npmjs.com/package/@babel/helper-validator-identifier) (version 7.22.20)
 License tags: MIT
 
 License files:
@@ -15695,8 +15695,8 @@ License files:
       
 
 
-<a id="048a3797f3b99d6d0ee62ff5b0070dbba54646060b26ad52c65e97f7d5824d34"></a>
-### [@babel/highlight](https://www.npmjs.com/package/@babel/highlight) (version 7.22.5)
+<a id="c3f39ed214bc95c7a4f36115d2a44166416b0a3deca3807e19cf43f8c3c97992"></a>
+### [@babel/highlight](https://www.npmjs.com/package/@babel/highlight) (version 7.22.20)
 License tags: MIT
 
 License files:
@@ -15756,8 +15756,8 @@ License files:
       
 
 
-<a id="7e10ac3bfdb2fb6c1acb0e9fd656a62c0896c4a128e7b6763c990156371324e7"></a>
-### [@babel/parser](https://www.npmjs.com/package/@babel/parser) (version 7.22.6)
+<a id="6184d832a9387cc6c79182d111fe4f69ae4621a524254f6d66f8fb841691da21"></a>
+### [@babel/parser](https://www.npmjs.com/package/@babel/parser) (version 7.22.7)
 License tags: MIT
 
 License files:
@@ -15785,8 +15785,8 @@ License files:
       
 
 
-<a id="6184d832a9387cc6c79182d111fe4f69ae4621a524254f6d66f8fb841691da21"></a>
-### [@babel/parser](https://www.npmjs.com/package/@babel/parser) (version 7.22.7)
+<a id="e7d24bd4d33cf5dfbb8d42d588389a0df1d5a11fd875e181c5ab46dbe07d54b6"></a>
+### [@babel/parser](https://www.npmjs.com/package/@babel/parser) (version 7.23.0)
 License tags: MIT
 
 License files:
@@ -16070,8 +16070,8 @@ License files:
       
 
 
-<a id="2d19869004558ea0613775e10a2a67252e23b8d31741e2d64a9ce80aa35a87fe"></a>
-### [@babel/template](https://www.npmjs.com/package/@babel/template) (version 7.22.5)
+<a id="3c75119e7609dea949724f8fca09fa5070562bec09a8f3bb3ad4d5301aa67ce0"></a>
+### [@babel/template](https://www.npmjs.com/package/@babel/template) (version 7.22.15)
 License tags: MIT
 
 License files:
@@ -16102,8 +16102,8 @@ License files:
       
 
 
-<a id="47c04166ad15274bbf088302be86682e4419ab8507a61402a77e0db5d6453873"></a>
-### [@babel/traverse](https://www.npmjs.com/package/@babel/traverse) (version 7.22.8)
+<a id="30097e39f159c2eb3863a791d6a98f23c7d5ac1cac6578a2deb827a48fefc7a0"></a>
+### [@babel/traverse](https://www.npmjs.com/package/@babel/traverse) (version 7.23.2)
 License tags: MIT
 
 License files:
@@ -16134,8 +16134,8 @@ License files:
       
 
 
-<a id="f7e475154649b8143ba8f06dc304de20cdc374b2707b5c0468fc2c141c65db21"></a>
-### [@babel/types](https://www.npmjs.com/package/@babel/types) (version 7.22.5)
+<a id="c7dd9bf0ec2fff59ef38d47c554dbc3077e5a8ef660e9bfd6a705292c0b26f0c"></a>
+### [@babel/types](https://www.npmjs.com/package/@babel/types) (version 7.23.0)
 License tags: MIT
 
 License files:
