@@ -59,7 +59,7 @@
     "socks": "^2.7.1"
   },
   "optionalDependencies": {
-    "kerberos": "2.0.1",
+    "kerberos": "^2.0.3",
     "mongodb-client-encryption": "^6.0.0"
   },
   "devDependencies": {
