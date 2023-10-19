@@ -274,7 +274,7 @@ describe('MongoshNodeRepl', function () {
     it('prints Date objects using the ISODate constructor variant', async function () {
       input.write('new Date(1620143373000)\n');
       await waitEval(bus);
-      expect(output).to.include('ISODate("2021-05-04T15:49:33.000Z")');
+      expect(output).to.include("ISODate('2021-05-04T15:49:33.000Z')");
     });
 
     it('handles a long series of errors', async function () {

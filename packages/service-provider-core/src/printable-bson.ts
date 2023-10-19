@@ -1,5 +1,4 @@
 import { bson as BSON } from './bson-export';
-import { inspect } from 'util';
 const inspectCustom = Symbol.for('nodejs.util.inspect.custom');
 type BSONClassKey = (typeof BSON)[Exclude<
   keyof typeof BSON,
