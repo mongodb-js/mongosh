@@ -10,7 +10,7 @@ describe('BSON printers', function () {
 
   it('formats ObjectIds correctly', function () {
     expect(inspect(new bson.ObjectId('5fa5694f88211043b23c7f11'))).to.equal(
-      'ObjectId("5fa5694f88211043b23c7f11")'
+      "ObjectId('5fa5694f88211043b23c7f11')"
     );
   });
 
@@ -19,12 +19,12 @@ describe('BSON printers', function () {
       inspect(
         new bson.DBRef('a', new bson.ObjectId('5f16b8bebe434dc98cdfc9cb'), 'db')
       )
-    ).to.equal('DBRef("a", ObjectId("5f16b8bebe434dc98cdfc9cb"), \'db\')');
+    ).to.equal("DBRef('a', ObjectId('5f16b8bebe434dc98cdfc9cb'), 'db')");
     expect(inspect(new bson.DBRef('a', 'foo' as any, 'db'))).to.equal(
-      "DBRef(\"a\", 'foo', 'db')"
+      "DBRef('a', 'foo', 'db')"
     );
     expect(inspect(new bson.DBRef('a', { x: 1 } as any, 'db'))).to.equal(
-      'DBRef("a", { x: 1 }, \'db\')'
+      "DBRef('a', { x: 1 }, 'db')"
     );
   });
 
@@ -38,18 +38,18 @@ describe('BSON printers', function () {
   });
 
   it('formats NumberLong correctly', function () {
-    expect(inspect(bson.Long.fromString('64'))).to.equal('Long("64")');
+    expect(inspect(bson.Long.fromString('64'))).to.equal("Long('64')");
   });
 
   it('formats unsigned NumberLong correctly', function () {
     expect(inspect(bson.Long.fromString('64', true))).to.equal(
-      'Long("64", true)'
+      "Long('64', true)"
     );
   });
 
   it('formats NumberDecimal correctly', function () {
     expect(inspect(bson.Decimal128.fromString('1'))).to.equal(
-      'Decimal128("1")'
+      "Decimal128('1')"
     );
   });
 
@@ -60,16 +60,16 @@ describe('BSON printers', function () {
   });
 
   it('formats Symbol correctly', function () {
-    expect(inspect(new bson.BSONSymbol('abc'))).to.equal('BSONSymbol("abc")');
+    expect(inspect(new bson.BSONSymbol('abc'))).to.equal("BSONSymbol('abc')");
   });
 
   it('formats Code correctly', function () {
-    expect(inspect(new bson.Code('abc'))).to.equal('Code("abc")');
+    expect(inspect(new bson.Code('abc'))).to.equal("Code('abc')");
   });
 
   it('formats BSONRegExp correctly', function () {
     expect(inspect(new bson.BSONRegExp('(?-i)AA_', 'im'))).to.equal(
-      'BSONRegExp("(?-i)AA_", "im")'
+      "BSONRegExp('(?-i)AA_', 'im')"
     );
   });
 
@@ -81,7 +81,7 @@ describe('BSON printers', function () {
           4
         )
       )
-    ).to.equal('UUID("01234567-89ab-cdef-0123-456789abcdef")');
+    ).to.equal("UUID('01234567-89ab-cdef-0123-456789abcdef')");
   });
 
   it('formats MD5s correctly', function () {
@@ -92,12 +92,12 @@ describe('BSON printers', function () {
           5
         )
       )
-    ).to.equal('MD5("0123456789abcdef0123456789abcdef")');
+    ).to.equal("MD5('0123456789abcdef0123456789abcdef')");
   });
 
   it('formats any other value with the new format using createfromBase64', function () {
     expect(
       inspect(bson.Binary.createFromBase64('SGVsbG8sIFdvcmxkIQo='))
-    ).to.equal('Binary.createFromBase64("SGVsbG8sIFdvcmxkIQo=", 0)');
+    ).to.equal("Binary.createFromBase64('SGVsbG8sIFdvcmxkIQo=', 0)");
   });
 });

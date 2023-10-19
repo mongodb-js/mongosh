@@ -344,7 +344,7 @@ function dateInspect(this: Date, depth: number, options: any): string {
   if (isNaN(this.valueOf())) {
     return options.stylize('Invalid Date', 'date');
   }
-  return `ISODate("${this.toISOString()}")`;
+  return `ISODate('${this.toISOString()}')`;
 }
 
 function inspect(output: any, options: FormatOptions): any {

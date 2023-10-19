@@ -32,20 +32,21 @@ describe('BSON e2e', function () {
   afterEach(TestShell.cleanup);
   describe('printed BSON', function () {
     const outputDoc = {
-      ObjectId: 'ObjectId("5f16b8bebe434dc98cdfc9ca")',
-      DBRef1: 'DBRef("a", ObjectId("5f16b8bebe434dc98cdfc9cb"), \'db\')',
-      DBRef2: "DBRef(\"a\", '5f16b8bebe434dc98cdfc9cb', 'db')",
-      DBRef3: "DBRef(\"a\", { x: '5f16b8bebe434dc98cdfc9cb' }, 'db')",
+      ObjectId: "ObjectId('5f16b8bebe434dc98cdfc9ca')",
+      DBRef1: "DBRef('a', ObjectId('5f16b8bebe434dc98cdfc9cb'), 'db')",
+      DBRef2: "DBRef('a', '5f16b8bebe434dc98cdfc9cb', 'db')",
+      DBRef3: "DBRef('a', { x: '5f16b8bebe434dc98cdfc9cb' }, 'db')",
       MinKey: 'MinKey()',
       MaxKey: 'MaxKey()',
       NumberInt: 'Int32(32)',
-      NumberLong: 'Long("64")',
+      NumberLong: "Long('64')",
       Timestamp: 'Timestamp({ t: 100, i: 1 })',
-      Symbol: 'abc',
-      Code: 'Code("abc")',
-      NumberDecimal: 'Decimal128("1")',
-      BinData: 'Binary.createFromBase64("MTIzNA==", 128)',
-      ISODate: 'ISODate("2021-05-04T15:49:33.000Z")',
+      Symbol: "BSONSymbol('abc')",
+      SymbolRawValue: "'abc'",
+      Code: "Code('abc')",
+      NumberDecimal: "Decimal128('1')",
+      BinData: "Binary.createFromBase64('MTIzNA==', 128)",
+      ISODate: "ISODate('2021-05-04T15:49:33.000Z')",
       RegExp: '/match/',
     };
     it('Entire doc prints when returned from the server', async function () {
@@ -83,12 +84,16 @@ describe('BSON e2e', function () {
       expect(output).to.include(outputDoc.MinKey);
       expect(output).to.include(outputDoc.MaxKey);
       expect(output).to.include(outputDoc.Timestamp);
-      expect(output).to.include(outputDoc.Symbol);
+      expect(output).to.include(outputDoc.SymbolRawValue);
       expect(output).to.include(outputDoc.Code);
       expect(output).to.include(outputDoc.NumberDecimal);
       expect(output).to.include(outputDoc.BinData);
       expect(output).to.include(outputDoc.ISODate);
       expect(output).to.include(outputDoc.RegExp);
+      const unpromotedOutput = await shell.executeLine(
+        'db.test.findOne({}, {}, { promoteValues: false })'
+      );
+      expect(unpromotedOutput).to.include(outputDoc.Symbol);
       shell.assertNoErrors();
     });
     it('Entire doc prints when created by user', async function () {
@@ -125,12 +130,22 @@ describe('BSON e2e', function () {
       expect(output).to.include(outputDoc.RegExp);
       shell.assertNoErrors();
     });
+    it('Entire doc equals itself when being re-evaluated', async function () {
+      const input = Object.entries(outputDoc)
+        .map(([key, value]) => `${key}: ${value}`)
+        .join(',');
+      const firstOutput = await shell.executeLine(`a = ({${input}})`);
+      const printedObject = firstOutput.match(/^\{[\s\S]+\}$/m)?.[0];
+      await shell.executeLine(`b = ${printedObject}`);
+      await shell.executeLine(`assert.deepStrictEqual(a, b)`);
+      shell.assertNoErrors();
+    });
     it('ObjectId prints when returned from the server', async function () {
       const value = new bson.ObjectId('5f16b8bebe434dc98cdfc9ca');
       await shell.executeLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
       expect(await shell.executeLine('db.test.findOne().value')).to.include(
-        'ObjectId("5f16b8bebe434dc98cdfc9ca")'
+        "ObjectId('5f16b8bebe434dc98cdfc9ca')"
       );
       shell.assertNoErrors();
     });
@@ -142,7 +157,7 @@ describe('BSON e2e', function () {
       await shell.executeLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
       expect(await shell.executeLine('db.test.findOne().value')).to.include(
-        'DBRef("coll", ObjectId("5f16b8bebe434dc98cdfc9ca"))'
+        "DBRef('coll', ObjectId('5f16b8bebe434dc98cdfc9ca'))"
       );
       shell.assertNoErrors();
     });
@@ -169,7 +184,7 @@ describe('BSON e2e', function () {
       await shell.executeLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
       expect(await shell.executeLine('db.test.findOne().value')).to.include(
-        'Long("64")'
+        "Long('64')"
       );
       shell.assertNoErrors();
     });
@@ -178,7 +193,7 @@ describe('BSON e2e', function () {
       await shell.executeLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
       expect(await shell.executeLine('db.test.findOne().value')).to.include(
-        'Long("345678654321234561")'
+        "Long('345678654321234561')"
       );
       shell.assertNoErrors();
     });
@@ -196,7 +211,7 @@ describe('BSON e2e', function () {
       await shell.executeLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
       expect(await shell.executeLine('db.test.findOne().value')).to.include(
-        'Code("abc")'
+        "Code('abc')"
       );
       shell.assertNoErrors();
     });
@@ -205,7 +220,7 @@ describe('BSON e2e', function () {
       await shell.executeLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
       expect(await shell.executeLine('db.test.findOne().value')).to.include(
-        'Decimal128("1")'
+        "Decimal128('1')"
       );
       shell.assertNoErrors();
     });
@@ -215,7 +230,7 @@ describe('BSON e2e', function () {
       await shell.executeLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
       expect(await shell.executeLine('db.test.findOne().value')).to.include(
-        'Binary.createFromBase64("MTIzNA==", 128)'
+        "Binary.createFromBase64('MTIzNA==', 128)"
       );
       shell.assertNoErrors();
     });
@@ -224,7 +239,7 @@ describe('BSON e2e', function () {
       await shell.executeLine(`use ${dbName}`);
       await db.collection('test').insertOne({ value: value });
       expect(await shell.executeLine('db.test.findOne().value')).to.include(
-        'ISODate("2021-05-04T15:49:33.000Z")'
+        "ISODate('2021-05-04T15:49:33.000Z')"
       );
       shell.assertNoErrors();
     });
@@ -245,16 +260,16 @@ describe('BSON e2e', function () {
         await shell.executeLine(
           'db.test.findOne({}, {}, { bsonRegExp: true }).value'
         )
-      ).to.include(String.raw`BSONRegExp("(?-i)A\"A_", "im")`);
+      ).to.include(String.raw`BSONRegExp('(?-i)A"A_', 'im')`);
       shell.assertNoErrors();
     });
     it('ObjectId prints when created by user', async function () {
-      const value = 'ObjectId("5f16b8bebe434dc98cdfc9ca")';
+      const value = "ObjectId('5f16b8bebe434dc98cdfc9ca')";
       expect(await shell.executeLine(value)).to.include(value);
       shell.assertNoErrors();
     });
     it('DBRef prints when created by user', async function () {
-      const value = 'DBRef("coll", ObjectId("5f16b8bebe434dc98cdfc9ca"))';
+      const value = "DBRef('coll', ObjectId('5f16b8bebe434dc98cdfc9ca'))";
       expect(await shell.executeLine(value)).to.include(value);
       shell.assertNoErrors();
     });
@@ -275,13 +290,13 @@ describe('BSON e2e', function () {
     });
     it('NumberLong prints when created by user', async function () {
       const value = 'NumberLong("64")';
-      expect(await shell.executeLine(value)).to.include('Long("64")');
+      expect(await shell.executeLine(value)).to.include("Long('64')");
       shell.assertNoErrors();
     });
     it('NumberLong prints when created by user (> MAX_SAFE_INTEGER)', async function () {
       const value = 'NumberLong("345678654321234561")';
       expect(await shell.executeLine(value)).to.include(
-        'Long("345678654321234561")'
+        "Long('345678654321234561')"
       );
       shell.assertNoErrors();
     });
@@ -299,54 +314,56 @@ describe('BSON e2e', function () {
     });
     it('Symbol prints when created by user', async function () {
       const value = 'new BSONSymbol("symbol")';
-      expect(await shell.executeLine(value)).to.include('"symbol"');
+      expect(await shell.executeLine(value)).to.include("BSONSymbol('symbol')");
       shell.assertNoErrors();
     });
     it('Code prints when created by user', async function () {
       const value = 'new Code("abc")';
-      expect(await shell.executeLine(value)).to.include('Code("abc")');
+      expect(await shell.executeLine(value)).to.include("Code('abc')");
       shell.assertNoErrors();
     });
     it('Code with scope prints when created by user', async function () {
       const value = 'new Code("abc", { s: 1 })';
-      expect(await shell.executeLine(value)).to.include('Code("abc", {"s":1})');
+      expect(await shell.executeLine(value)).to.include(
+        "Code('abc', { s: 1 })"
+      );
       shell.assertNoErrors();
     });
     it('Decimal128 prints when created by user', async function () {
       const value = 'NumberDecimal("100")';
-      expect(await shell.executeLine(value)).to.include('Decimal128("100")');
+      expect(await shell.executeLine(value)).to.include("Decimal128('100')");
       shell.assertNoErrors();
     });
     // NOTE this is a slight change from the old shell, since the old shell just
     // printed the raw input, while this one converts it to a string.
     it('BinData prints when created by user', async function () {
-      const value = 'BinData(128, "MTIzNA==")';
+      const value = "BinData(128, 'MTIzNA==')";
       expect(await shell.executeLine(value)).to.include(
-        'Binary.createFromBase64("MTIzNA==", 128)'
+        "Binary.createFromBase64('MTIzNA==', 128)"
       );
       shell.assertNoErrors();
     });
     it('BinData prints as UUID when created by user as such', async function () {
-      const value = 'UUID("01234567-89ab-cdef-0123-456789abcdef")';
+      const value = "UUID('01234567-89ab-cdef-0123-456789abcdef')";
       expect(await shell.executeLine(value)).to.include(value);
       shell.assertNoErrors();
     });
     it('BinData prints as MD5 when created by user as such', async function () {
-      const value = 'MD5("0123456789abcdef0123456789abcdef")';
+      const value = "MD5('0123456789abcdef0123456789abcdef')";
       expect(await shell.executeLine(value)).to.include(value);
       shell.assertNoErrors();
     });
     it('BinData prints as BinData when created as invalid UUID', async function () {
       const value = 'UUID("abcdef")';
       expect(await shell.executeLine(value)).to.include(
-        'Binary.createFromBase64("q83v", 4)'
+        "Binary.createFromBase64('q83v', 4)"
       );
       shell.assertNoErrors();
     });
     it('ISODate prints when created by user', async function () {
       const value = 'ISODate("2021-05-04T15:49:33.000Z")';
       expect(await shell.executeLine(value)).to.include(
-        'ISODate("2021-05-04T15:49:33.000Z")'
+        "ISODate('2021-05-04T15:49:33.000Z')"
       );
       shell.assertNoErrors();
     });
@@ -358,7 +375,7 @@ describe('BSON e2e', function () {
     it('BSONRegExp prints when created by user', async function () {
       const value = 'BSONRegExp(`(?-i)A"A_`, "im")';
       expect(await shell.executeLine(value)).to.include(
-        String.raw`BSONRegExp("(?-i)A\"A_", "im")`
+        String.raw`BSONRegExp('(?-i)A"A_', 'im')`
       );
       shell.assertNoErrors();
     });
