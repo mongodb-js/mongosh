@@ -794,6 +794,19 @@ describe('e2e', function () {
         const result = await shell.executeLine('out[1]');
         expect(result).to.include('i: 1');
       });
+
+      it('works with for-of iteration', async function () {
+        await shell.executeLine('out = [];');
+        const before =
+          await shell.executeLine(`for (const doc of db.coll.find()) {
+          print('enter for-of');
+          out.push(db.coll.findOne({_id:doc._id}));
+          print('leave for-of');
+        } print('after');`);
+        expect(before).to.match(/(enter for-of\r?\nleave for-of\r?\n){3}after/);
+        const result = await shell.executeLine('out[1]');
+        expect(result).to.include('i: 1');
+      });
     });
   });
 

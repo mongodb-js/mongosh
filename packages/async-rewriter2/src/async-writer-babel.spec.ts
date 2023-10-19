@@ -57,6 +57,24 @@ describe('AsyncWriter', function () {
           [Symbol.for('@@mongosh.uncatchable')]: true,
         });
       },
+      regularIterable: function* () {
+        yield* [1, 2, 3];
+      },
+      regularAsyncIterable: async function* () {
+        await Promise.resolve();
+        yield* [1, 2, 3];
+      },
+      implicitlyAsyncIterable: function () {
+        return Object.assign(
+          (async function* () {
+            await Promise.resolve();
+            yield* [1, 2, 3];
+          })(),
+          {
+            [Symbol.for('@@mongosh.syntheticAsyncIterable')]: true,
+          }
+        );
+      },
     });
     runTranspiledCode = (code: string, context?: any) => {
       const transpiled = asyncWriter.process(code);
@@ -390,11 +408,21 @@ describe('AsyncWriter', function () {
       expect(implicitlyAsyncFn).to.have.callCount(10);
     });
 
-    it('can use for loops as weird assignments', async function () {
+    it('can use for loops as weird assignments (sync)', async function () {
       const obj = { foo: null };
       implicitlyAsyncFn.resolves(obj);
       await runTranspiledCode(
         'for (implicitlyAsyncFn().foo of ["foo", "bar"]);'
+      );
+      expect(implicitlyAsyncFn).to.have.callCount(2);
+      expect(obj.foo).to.equal('bar');
+    });
+
+    it('can use for loops as weird assignments (async)', async function () {
+      const obj = { foo: null };
+      implicitlyAsyncFn.resolves(obj);
+      await runTranspiledCode(
+        '(async() => { for await (implicitlyAsyncFn().foo of ["foo", "bar"]); })()'
       );
       expect(implicitlyAsyncFn).to.have.callCount(2);
       expect(obj.foo).to.equal('bar');
@@ -533,6 +561,44 @@ describe('AsyncWriter', function () {
       expect(await ret).to.equal('bar');
     });
 
+    context('for-of', function () {
+      it('can iterate over implicit iterables', async function () {
+        expect(
+          await runTranspiledCode(`(function() {
+            let sum = 0;
+            for (const value of implicitlyAsyncIterable())
+              sum += value;
+            return sum;
+        })()`)
+        ).to.equal(6);
+      });
+
+      it('can iterate over implicit iterables in async functions', async function () {
+        expect(
+          await runTranspiledCode(`(async function() {
+            let sum = 0;
+            for (const value of implicitlyAsyncIterable())
+              sum += value;
+            return sum;
+        })()`)
+        ).to.equal(6);
+      });
+
+      it('can implicitly yield* inside of async generator functions', async function () {
+        expect(
+          await runTranspiledCode(`(async function() {
+          const gen = (async function*() {
+            yield* implicitlyAsyncIterable();
+          })();
+          let sum = 0;
+          for await (const value of gen)
+            sum += value;
+          return sum;
+        })()`)
+        ).to.equal(6);
+      });
+    });
+
     context('invalid implicit awaits', function () {
       beforeEach(function () {
         runUntranspiledCode(asyncWriter.runtimeSupportCode());
@@ -583,6 +649,45 @@ describe('AsyncWriter', function () {
         ).to.throw(
           '[ASYNC-10012] Result of expression "compareFn(...args)" cannot be used in this context'
         );
+      });
+
+      context('for-of', function () {
+        it('cannot implicitly yield* inside of generator functions', function () {
+          expect(() =>
+            runTranspiledCode(`(function() {
+            const gen = (function*() {
+              yield* implicitlyAsyncIterable();
+            })();
+            for (const value of gen) return value;
+          })()`)
+          ).to.throw(
+            '[ASYNC-10013] Result of expression "implicitlyAsyncIterable()" cannot be iterated in this context'
+          );
+        });
+
+        it('cannot implicitly for-of inside of generator functions', function () {
+          expect(() =>
+            runTranspiledCode(`(function() {
+            const gen = (function*() {
+              for (const item of implicitlyAsyncIterable()) yield item;
+            })();
+            for (const value of gen) return value;
+          })()`)
+          ).to.throw(
+            '[ASYNC-10013] Result of expression "implicitlyAsyncIterable()" cannot be iterated in this context'
+          );
+        });
+
+        it('cannot implicitly for-of await inside of class constructors', function () {
+          expect(
+            () =>
+              runTranspiledCode(`class A {
+            constructor() { for (this.foo of implicitlyAsyncIterable()) {} }
+          }; new A()`).value
+          ).to.throw(
+            '[ASYNC-10013] Result of expression "implicitlyAsyncIterable()" cannot be iterated in this context'
+          );
+        });
       });
     });
   });
@@ -995,16 +1100,16 @@ describe('AsyncWriter', function () {
       expect(() => runTranspiledCode('var db = {}; db.testx();')).to.throw(
         'db.testx is not a function'
       );
-      // (Note: The following ones would give better error messages in regular code)
+      // (Note: The following one would give better error messages in regular code)
       expect(() =>
         runTranspiledCode('var db = {}; new Promise(db.foo)')
       ).to.throw('Promise resolver undefined is not a function');
       expect(() =>
         runTranspiledCode('var db = {}; for (const a of db.foo) {}')
-      ).to.throw(/undefined is not iterable/);
+      ).to.throw(/db.foo is not iterable/);
       expect(() =>
         runTranspiledCode('var db = {}; for (const a of db[0]) {}')
-      ).to.throw(/undefined is not iterable/);
+      ).to.throw(/db\[0\] is not iterable/);
       expect(() => runTranspiledCode('for (const a of 8) {}')).to.throw(
         '8 is not iterable'
       );
@@ -1030,7 +1135,7 @@ describe('AsyncWriter', function () {
         runTranspiledCode(
           'globalThis.abcdefghijklmnopqrstuvwxyz = {}; abcdefghijklmnopqrstuvwxyz()'
         )
-      ).to.throw('abcdefghijklm ... uvwxyz is not a function');
+      ).to.throw('abcdefghijklmn ... uvwxyz is not a function');
     });
   });
 
