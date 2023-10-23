@@ -33,6 +33,7 @@ export const USAGE = `
         )}
         --quiet                                ${i18n.__('cli-repl.args.quiet')}
         --shell                                ${i18n.__('cli-repl.args.shell')}
+        --eject                                ${i18n.__('cli-repl.args.eject')}
         --nodb                                 ${i18n.__('cli-repl.args.nodb')}
         --norc                                 ${i18n.__('cli-repl.args.norc')}
         --eval [arg]                           ${i18n.__('cli-repl.args.eval')}

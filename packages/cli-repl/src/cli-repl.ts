@@ -224,6 +224,8 @@ export class CliRepl implements MongoshIOProvider {
     driverUri: string,
     driverOptions: DevtoolsConnectOptions
   ): Promise<void> {
+    const { eject } = this.cliOptions;
+
     const { version } = require('../package.json');
     await this.verifyNodeVersion();
 
@@ -346,14 +348,20 @@ export class CliRepl implements MongoshIOProvider {
       }
       throw err;
     }
-    const initialized = await this.mongoshRepl.initialize(
-      initialServiceProvider,
-      await this.getMoreRecentMongoshVersion()
-    );
-    this.injectReplFunctions();
+
+    // no repl if we're gonna eject
+    let initialized;
+    if (!eject) {
+      initialized = await this.mongoshRepl.initialize(
+        initialServiceProvider,
+        await this.getMoreRecentMongoshVersion()
+      );
+      this.injectReplFunctions();
+    }
 
     const commandLineLoadFiles = this.cliOptions.fileNames ?? [];
     const evalScripts = this.cliOptions.eval ?? [];
+    // TODO: these should probably be false if we're gonna eject?
     const willExecuteCommandLineScripts =
       commandLineLoadFiles.length > 0 || evalScripts.length > 0;
     const willEnterInteractiveMode =
@@ -371,48 +379,59 @@ export class CliRepl implements MongoshIOProvider {
     }
 
     let snippetManager: SnippetManager | undefined;
-    if (this.config.snippetIndexSourceURLs !== '') {
-      snippetManager = SnippetManager.create({
-        installdir: this.shellHomeDirectory.roamingPath('snippets'),
+    // no snippets if we're gonna eject
+    if (!eject) {
+      if (this.config.snippetIndexSourceURLs !== '') {
+        snippetManager = SnippetManager.create({
+          installdir: this.shellHomeDirectory.roamingPath('snippets'),
+          instanceState: this.mongoshRepl.runtimeState().instanceState,
+          skipInitialIndexLoad: !willEnterInteractiveMode,
+        });
+      }
+    }
+
+    // no editor if we're gonna eject
+    if (!eject) {
+      Editor.create({
+        input: this.input,
+        vscodeDir: this.shellHomeDirectory.rcPath('.vscode'),
+        tmpDir: this.shellHomeDirectory.localPath('editor'),
         instanceState: this.mongoshRepl.runtimeState().instanceState,
-        skipInitialIndexLoad: !willEnterInteractiveMode,
+        loadExternalCode: this.mongoshRepl.loadExternalCode.bind(
+          this.mongoshRepl
+        ),
       });
     }
 
-    Editor.create({
-      input: this.input,
-      vscodeDir: this.shellHomeDirectory.rcPath('.vscode'),
-      tmpDir: this.shellHomeDirectory.localPath('editor'),
-      instanceState: this.mongoshRepl.runtimeState().instanceState,
-      loadExternalCode: this.mongoshRepl.loadExternalCode.bind(
-        this.mongoshRepl
-      ),
-    });
-
-    if (willExecuteCommandLineScripts) {
-      this.mongoshRepl.setIsInteractive(willEnterInteractiveMode);
-      this.bus.emit('mongosh:start-loading-cli-scripts', {
-        usesShellOption: !!this.cliOptions.shell,
-      });
-      const exitCode = await this.loadCommandLineFilesAndEval(
-        commandLineLoadFiles,
-        evalScripts
-      );
-      if (exitCode !== 0) {
-        await this.exit(exitCode);
-        return;
+    // don't do the usual execution of command line scripts if we're gonna eject
+    if (!eject) {
+      if (willExecuteCommandLineScripts) {
+        this.mongoshRepl.setIsInteractive(willEnterInteractiveMode);
+        this.bus.emit('mongosh:start-loading-cli-scripts', {
+          usesShellOption: !!this.cliOptions.shell,
+        });
+        const exitCode = await this.loadCommandLineFilesAndEval(
+          commandLineLoadFiles,
+          evalScripts
+        );
+        if (exitCode !== 0) {
+          await this.exit(exitCode);
+          return;
+        }
+        if (!this.cliOptions.shell) {
+          // We flush the telemetry data as part of exiting. Make sure we have
+          // the right config value.
+          this.setTelemetryEnabled(await this.getConfig('enableTelemetry'));
+          await this.exit(0);
+          return;
+        }
+      } else {
+        this.mongoshRepl.setIsInteractive(true);
       }
-      if (!this.cliOptions.shell) {
-        // We flush the telemetry data as part of exiting. Make sure we have
-        // the right config value.
-        this.setTelemetryEnabled(await this.getConfig('enableTelemetry'));
-        await this.exit(0);
-        return;
-      }
-    } else {
-      this.mongoshRepl.setIsInteractive(true);
     }
-    if (!this.cliOptions.norc) {
+
+    // no snippets if we're gonna eject
+    if (!this.cliOptions.norc && !eject) {
       /**
        * We are deliberately loading snippets only after handling command line
        * scripts and files:
@@ -427,15 +446,38 @@ export class CliRepl implements MongoshIOProvider {
        */
       await snippetManager?.loadAllSnippets();
     }
-    await this.loadRcFiles();
+
+    // TODO: loadRcFiles uses this.mongoshRepl, so we'll have to provide alternative code
+    if (!eject) {
+      await this.loadRcFiles();
+    }
 
     this.verifyPlatformSupport();
 
     // We only enable/disable here, since the rc file/command line scripts
     // can disable the telemetry setting.
     this.setTelemetryEnabled(await this.getConfig('enableTelemetry'));
-    this.bus.emit('mongosh:start-mongosh-repl', { version });
-    await this.mongoshRepl.startRepl(initialized);
+    if (!eject && initialized) {
+      this.bus.emit('mongosh:start-mongosh-repl', { version });
+      await this.mongoshRepl.startRepl(initialized);
+    }
+
+    // TODO: we should probably depend on ts-node somewhere
+    (await import('ts-node')).register({
+      /* options */
+    });
+
+    // TODO: relative paths aren't work well here in development because cwd is packages/cli-repl
+    const fileName = commandLineLoadFiles[0];
+    console.log(`executing ${fileName}...`);
+
+    // TODO: would be nice if we could also dynamically import .js files and have ESM syntax work
+    const script = await import(fileName);
+
+    // TODO: we could pass all sorts of info here, not just the client
+    await script.run({ client: initialServiceProvider.mongoClient });
+
+    await this.exit(0);
   }
 
   injectReplFunctions(): void {

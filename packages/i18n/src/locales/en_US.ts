@@ -19,6 +19,7 @@ const translations: Catalog = {
       version: 'Show version information',
       quiet: 'Silence output from the shell during the connection process',
       shell: 'Run the shell after executing files',
+      eject: 'Execute a script rather than entering the REPL',
       nodb: "Don't connect to mongod on startup - no 'db address' [arg] expected",
       norc: "Will not run the '.mongoshrc.js' file on start up",
       eval: 'Evaluate javascript',

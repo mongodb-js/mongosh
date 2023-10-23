@@ -57,6 +57,7 @@ const OPTIONS = {
     'apiDeprecationErrors',
     'apiStrict',
     'buildInfo',
+    'eject',
     'help',
     'ipv6',
     'nodb',

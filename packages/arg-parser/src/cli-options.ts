@@ -54,4 +54,5 @@ export interface CliOptions {
   oidcRedirectUri?: string;
   oidcTrustedEndpoint?: boolean;
   browser?: string | false;
+  eject?: boolean;
 }
