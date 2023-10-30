@@ -43,7 +43,7 @@ describe('inspect', function () {
     it('inspects UUID', function () {
       expect(
         inspect(bson.Binary.createFromBase64('YWJjZGVmZ2hpa2xtbm9wcQ==', 4))
-      ).to.equal('UUID("61626364-6566-6768-696b-6c6d6e6f7071")');
+      ).to.equal("UUID('61626364-6566-6768-696b-6c6d6e6f7071')");
     });
 
     it('inspects nested ObjectId', function () {
@@ -57,7 +57,7 @@ describe('inspect', function () {
         inspect({
           p: bson.Binary.createFromBase64('YWJjZGVmZ2hpa2xtbm9wcQ==', 4),
         })
-      ).to.equal('{ p: UUID("61626364-6566-6768-696b-6c6d6e6f7071") }');
+      ).to.equal("{ p: UUID('61626364-6566-6768-696b-6c6d6e6f7071') }");
     });
 
     it('does not require BSON types to be instances of the current bson library', function () {
