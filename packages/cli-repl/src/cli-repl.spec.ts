@@ -1575,7 +1575,7 @@ describe('CliRepl', function () {
           cliRepl,
           await testServer.connectionString()
         );
-        expect(output).to.match(/Inserted: ObjectId\("[a-z0-9]{24}"\)/);
+        expect(output).to.match(/Inserted: ObjectId\('[a-z0-9]{24}'\)/);
         expect(exitCode).to.equal(0);
       });
 
@@ -1596,7 +1596,7 @@ describe('CliRepl', function () {
           cliRepl,
           await testServer.connectionString()
         );
-        expect(output).to.match(/Inserted: ObjectId\("[a-z0-9]{24}"\)/);
+        expect(output).to.match(/Inserted: ObjectId\('[a-z0-9]{24}'\)/);
         expect(exitCode).to.equal(0);
       });
 
@@ -1614,7 +1614,7 @@ describe('CliRepl', function () {
 
         cliRepl = new CliRepl(cliReplOptions);
         await cliRepl.start(await testServer.connectionString(), {});
-        expect(output).to.match(/Inserted: ObjectId\("[a-z0-9]{24}"\)/);
+        expect(output).to.match(/Inserted: ObjectId\('[a-z0-9]{24}'\)/);
         expect(exitCode).to.equal(null);
 
         input.write(

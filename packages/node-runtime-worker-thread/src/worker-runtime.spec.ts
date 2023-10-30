@@ -559,7 +559,7 @@ describe('worker', function () {
 
         expect(evalListener.onPrint).to.have.been.calledWith([
           {
-            printable: 'ObjectId("62a209b0c7dc31e23ab9da45")',
+            printable: "ObjectId('62a209b0c7dc31e23ab9da45')",
             source: undefined,
             type: 'InspectResult',
           },

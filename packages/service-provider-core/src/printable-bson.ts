@@ -1,5 +1,4 @@
 import { bson as BSON } from './bson-export';
-import { inspect } from 'util';
 const inspectCustom = Symbol.for('nodejs.util.inspect.custom');
 type BSONClassKey = (typeof BSON)[Exclude<
   keyof typeof BSON,
@@ -24,24 +23,14 @@ function makeClasslessInspect<K extends BSONClassKey>(className: K) {
   };
 }
 
+const binaryInspect = makeClasslessInspect('Binary');
 export const bsonStringifiers: Record<
   BSONClassKey | 'ObjectID',
   (this: any, depth: any, options: any) => string
 > = {
   ObjectId: makeClasslessInspect('ObjectId'),
   ObjectID: makeClasslessInspect('ObjectId'),
-  DBRef: function (
-    this: typeof BSON.DBRef.prototype,
-    depth: any,
-    options: any
-  ): string {
-    return (
-      `DBRef("${this.collection}", ` +
-      inspect(this.oid, options) + // The driver's inspect() does not account for non-ObjectID oid values
-      (this.db ? `, ${inspect(this.db, options)}` : '') +
-      ')'
-    );
-  },
+  DBRef: makeClasslessInspect('DBRef'),
   MaxKey: makeClasslessInspect('MaxKey'),
   MinKey: makeClasslessInspect('MinKey'),
   Timestamp: makeClasslessInspect('Timestamp'),
@@ -52,11 +41,14 @@ export const bsonStringifiers: Record<
   Long: makeClasslessInspect('Long'),
   Double: makeClasslessInspect('Double'),
   BSONRegExp: makeClasslessInspect('BSONRegExp'),
-  Binary: function (this: typeof BSON.Binary.prototype): string {
+  Binary: function (
+    this: typeof BSON.Binary.prototype,
+    ...args: any[]
+  ): string {
     const hexString = this.toString('hex');
     switch (this.sub_type) {
       case BSON.Binary.SUBTYPE_MD5:
-        return `MD5("${hexString}")`;
+        return `MD5('${hexString}')`;
       case BSON.Binary.SUBTYPE_UUID:
         if (hexString.length === 32) {
           // Format '0123456789abcdef0123456789abcdef' into
@@ -65,14 +57,12 @@ export const bsonStringifiers: Record<
             .exec(hexString)!
             .slice(1, 6)
             .join('-');
-          return `UUID("${asUUID}")`;
+          return `UUID('${asUUID}')`;
         }
       // In case somebody did something weird and used an UUID with a
       // non-standard length, fall through.
       default:
-        return `Binary.createFromBase64("${this.toString('base64')}", ${
-          this.sub_type
-        })`;
+        return binaryInspect.apply(this, args);
     }
   },
 };

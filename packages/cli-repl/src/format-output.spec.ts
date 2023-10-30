@@ -30,7 +30,7 @@ for (const colors of [false, true]) {
     context('when the result is a date', function () {
       it('returns the inspection', function () {
         expect(format({ value: new Date(1234567890000) })).to.include(
-          'ISODate("2009-02-13T23:31:30.000Z")'
+          "ISODate('2009-02-13T23:31:30.000Z')"
         );
         expect(format({ value: new Date(NaN) })).to.include('Invalid Date');
       });
