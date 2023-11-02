@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Mon Oct 30 2023.
+This document was automatically generated on Thu Nov 02 2023.
 
 ## List of dependencies
 
@@ -325,7 +325,7 @@ Package|Version|License
 **[mongodb-crypt-library-version](#531dc8c5761d69d24f5e39457de5812ed3781da937aa64f94ed6f659bd72c142)**|1.0.3|Apache-2.0
 **[mongodb-log-writer](#92b9322261e5c6d1ebe6fbd92f6328ec309a3d462531f2d8213c4762033cc793)**|1.4.0|Apache-2.0
 **[mongodb-redact](#00a2cfed57df1e8b912b751b08bee4de24ad0189840c99820ebc00c1b219a421)**|0.2.2|Apache-2.0
-**[mongodb](#8d4d7bf37e7d97705a5f585350e91646960b1c432ae02c4f6c172ffe70daa190)**|6.0.0|Apache-2.0
+**[mongodb](#b6b99be64770f46c6f5b097e3495ba21054e35723b71337e08d126cda4baa846)**|6.2.0|Apache-2.0
 **[ms](#484b814b85d5028e34246147c8fc901d33570202bd7cdc3703c0ed1078eba0aa)**|2.0.0|MIT
 **[ms](#0a987b2f79ff37005e452a5afa7dacd3042061a7077054d2ba9cabacd88506d2)**|2.1.2|MIT
 **[ms](#2083576c5af8054927640b4788059806d07e250a26066c9ccb2d928394fb9226)**|2.1.3|MIT
@@ -27951,8 +27951,8 @@ License files:
       
 
 
-<a id="8d4d7bf37e7d97705a5f585350e91646960b1c432ae02c4f6c172ffe70daa190"></a>
-### [mongodb](https://www.npmjs.com/package/mongodb) (version 6.0.0)
+<a id="b6b99be64770f46c6f5b097e3495ba21054e35723b71337e08d126cda4baa846"></a>
+### [mongodb](https://www.npmjs.com/package/mongodb) (version 6.2.0)
 License tags: Apache-2.0
 
 License files:
