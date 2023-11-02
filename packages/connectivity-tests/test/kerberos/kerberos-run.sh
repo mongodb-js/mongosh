@@ -5,7 +5,7 @@ set -x
 CONNECTION_STATUS_COMMAND='db.runCommand({ connectionStatus: 1 }).authInfo.authenticatedUsers'
 CONNECTION_STATUS_CHECK_STRING="user: 'mongodb.user@EXAMPLE.COM"
 
-MONGOSH=/tmp/mongosh/packages/mongosh/bin/mongosh.js
+MONGOSH=/tmp/bin/mongosh
 
 FAILED=no
 ANY_FAILED=no
@@ -52,7 +52,7 @@ function test_simple_gssapi_explicit() {
 
   $MONGOSH --host mongodb-kerberos-1.example.com  --port 27017 --username 'mongodb.user@EXAMPLE.COM' --authenticationMechanism GSSAPI --quiet --eval "${CONNECTION_STATUS_COMMAND}" |
     grep -Fq "${CONNECTION_STATUS_CHECK_STRING}" ||
-    FAILED="Can't connect to mongodb-kerberos-1 using explicit parameters"
+    FAILED="Can't connect to mongodb-kerberos-1 using explicit parameters ($?)"
 
   check_failed
 }
@@ -64,7 +64,7 @@ function test_simple_gssapi_uri() {
 
   $MONGOSH "${CONNECTION_STRING}" --quiet --eval "${CONNECTION_STATUS_COMMAND}" |
     grep -Fq "${CONNECTION_STATUS_CHECK_STRING}" ||
-    FAILED="Can't connect to mongodb-kerberos-1 using connection string"
+    FAILED="Can't connect to mongodb-kerberos-1 using connection string ($?)"
 
   check_failed
 }
@@ -74,7 +74,7 @@ function test_alternate_gssapi_explicit() {
 
   $MONGOSH --host mongodb-kerberos-2.example.com  --port 27017 --username 'mongodb.user@EXAMPLE.COM' --authenticationMechanism GSSAPI --gssapiServiceName alternate --quiet --eval "${CONNECTION_STATUS_COMMAND}" |
     grep -Fq "${CONNECTION_STATUS_CHECK_STRING}" ||
-    FAILED="Can't connect to mongodb-kerberos-2 using explicit parameters"
+    FAILED="Can't connect to mongodb-kerberos-2 using explicit parameters ($?)"
 
   check_failed
 }
@@ -86,7 +86,7 @@ function test_alternate_gssapi_uri() {
 
   $MONGOSH "${CONNECTION_STRING}" --quiet --eval "${CONNECTION_STATUS_COMMAND}" |
     grep -Fq "${CONNECTION_STATUS_CHECK_STRING}" ||
-    FAILED="Can't connect to mongodb-kerberos-2 using connection string"
+    FAILED="Can't connect to mongodb-kerberos-2 using connection string ($?)"
 
   check_failed
 }
@@ -95,7 +95,7 @@ function test_cross_gssapi_explicit_expect_fail() {
   printf "test_cross_gssapi_explicit_expect_fail ... "
 
   $MONGOSH --host mongodb-kerberos-3.examplecrossrealm.com  --port 27017 --username 'mongodb.user@EXAMPLE.COM' --authenticationMechanism GSSAPI --quiet --eval "${CONNECTION_STATUS_COMMAND}" |
-    grep -Fq "${CONNECTION_STATUS_CHECK_STRING}" && FAILED="Can't connect to mongodb-kerberos-3 using explicit parameters"
+    grep -Fq "${CONNECTION_STATUS_CHECK_STRING}" && FAILED="Can't connect to mongodb-kerberos-3 using explicit parameters ($?)"
 
   check_failed
 }
@@ -105,7 +105,7 @@ function test_cross_gssapi_explicit() {
 
   $MONGOSH --host mongodb-kerberos-3.examplecrossrealm.com  --port 27017 --username 'mongodb.user@EXAMPLE.COM' --authenticationMechanism GSSAPI --quiet --eval "${CONNECTION_STATUS_COMMAND}" |
     grep -Fq "${CONNECTION_STATUS_CHECK_STRING}" ||
-    FAILED="Can't connect to mongodb-kerberos-3 using explicit parameters"
+    FAILED="Can't connect to mongodb-kerberos-3 using explicit parameters ($?)"
 
   check_failed
 }
@@ -115,9 +115,12 @@ function test_cross_gssapi_uri() {
 
   CONNECTION_STRING="mongodb://mongodb.user%40EXAMPLE.COM@mongodb-kerberos-3.examplecrossrealm.com:27017/?authMechanism=GSSAPI"
 
+  $MONGOSH "${CONNECTION_STRING}" --quiet --eval "${CONNECTION_STATUS_COMMAND}"
+  echo "xxxxxxxxxxxxxxxxx $?"
+
   $MONGOSH "${CONNECTION_STRING}" --quiet --eval "${CONNECTION_STATUS_COMMAND}" |
     grep -Fq "${CONNECTION_STATUS_CHECK_STRING}" ||
-    FAILED="Can't connect to mongodb-kerberos-3 using connection string"
+    FAILED="Can't connect to mongodb-kerberos-3 using connection string ($?)"
 
   check_failed
 }
