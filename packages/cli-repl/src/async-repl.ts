@@ -96,7 +96,6 @@ export function start(opts: AsyncREPLOptions): REPLServer {
     return wasInRawMode;
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-misused-promises
   (repl as Mutable<typeof repl>).eval = (
     input: string,
     context: any,
