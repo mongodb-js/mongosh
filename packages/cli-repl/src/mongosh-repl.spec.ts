@@ -1286,6 +1286,9 @@ describe('MongoshNodeRepl', function () {
     });
 
     it('does not show a prompt', async function () {
+      process.on('warning', (warning) =>
+        console.error(warning.toString().toUpperCase())
+      );
       await mongoshRepl.loadExternalCode(
         'setImmediate(() => { throw new Error(); })',
         '<eval>'
@@ -1331,6 +1334,24 @@ describe('MongoshNodeRepl', function () {
 
     it('shows Atlas Stream Processing', function () {
       expect(output).to.match(/Using MongoDB:\t\tAtlas Stream Processing/);
+    });
+  });
+
+  context('loadExternalCode()', function () {
+    beforeEach(async function () {
+      await mongoshRepl.initialize(serviceProvider);
+      // No .start() call here.
+    });
+
+    it('emits no nodejs warnings', async function () {
+      const warnings: unknown[] = [];
+      process.on('warning', (warning) => warnings.push(warning));
+      await mongoshRepl.loadExternalCode(
+        'setImmediate(() => { throw new Error(); })',
+        '<eval>'
+      );
+      await tick();
+      expect(warnings).to.have.lengthOf(0);
     });
   });
 });
