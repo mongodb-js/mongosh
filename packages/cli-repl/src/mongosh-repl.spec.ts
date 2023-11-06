@@ -1286,9 +1286,6 @@ describe('MongoshNodeRepl', function () {
     });
 
     it('does not show a prompt', async function () {
-      process.on('warning', (warning) =>
-        console.error(warning.toString().toUpperCase())
-      );
       await mongoshRepl.loadExternalCode(
         'setImmediate(() => { throw new Error(); })',
         '<eval>'
