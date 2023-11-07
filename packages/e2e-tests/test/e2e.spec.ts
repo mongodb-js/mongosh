@@ -258,7 +258,7 @@ describe('e2e', function () {
     });
   });
 
-  describe.only('set db', function () {
+  describe('set db', function () {
     for (const { mode, dbname, dbnameUri } of [
       {
         mode: 'no special characetrs',
