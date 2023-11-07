@@ -787,6 +787,12 @@ describe('Mongo', function () {
         expect(msg).to.equal('switched to db moo1');
         expect(instanceState.context.db.getName()).to.equal('moo1');
       });
+      it('works if the db name conflicts with Object.prototype', function () {
+        instanceState.context.db = new NoDatabase();
+        const msg = mongo.use('toString');
+        expect(msg).to.equal('switched to db toString');
+        expect(instanceState.context.db.getName()).to.equal('toString');
+      });
     });
     describe('deprecated mongo methods', function () {
       it('setSlaveOk', function () {
