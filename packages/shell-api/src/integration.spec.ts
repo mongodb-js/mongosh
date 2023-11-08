@@ -1199,8 +1199,7 @@ describe('Shell API (integration)', function () {
 
           const cursor = await collection.aggregate(
             [
-              { $match: { x: 0 } },
-              { $project: { x: 1 } },
+              { $collStats: {} },
               {
                 $count: 'count',
               },
