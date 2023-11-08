@@ -1333,4 +1333,22 @@ describe('MongoshNodeRepl', function () {
       expect(output).to.match(/Using MongoDB:\t\tAtlas Stream Processing/);
     });
   });
+
+  context('loadExternalCode()', function () {
+    beforeEach(async function () {
+      await mongoshRepl.initialize(serviceProvider);
+      // No .start() call here.
+    });
+
+    it('emits no nodejs warnings', async function () {
+      const warnings: unknown[] = [];
+      process.on('warning', (warning) => warnings.push(warning));
+      await mongoshRepl.loadExternalCode(
+        'setImmediate(() => { throw new Error(); })',
+        '<eval>'
+      );
+      await tick();
+      expect(warnings).to.have.lengthOf(0);
+    });
+  });
 });

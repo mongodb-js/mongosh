@@ -96,160 +96,168 @@ export function start(opts: AsyncREPLOptions): REPLServer {
     return wasInRawMode;
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-misused-promises
-  (repl as Mutable<typeof repl>).eval = async (
+  (repl as Mutable<typeof repl>).eval = (
     input: string,
     context: any,
     filename: string,
     callback: (err: Error | null, result?: any) => void
-  ): Promise<void> => {
-    let previouslyInRawMode;
+  ): void => {
+    async function _eval() {
+      let previouslyInRawMode;
 
-    if (onAsyncSigint) {
-      // Unset raw mode during evaluation so that Ctrl+C raises a signal. This
-      // is something REPL already does while originalEval is running, but as
-      // the actual eval result might be a promise that we will be awaiting, we
-      // want the raw mode to be disabled for the whole duration of our custom
-      // async eval
-      previouslyInRawMode = setRawMode(false);
-    }
-
-    let result;
-    repl.emit(evalStart, { input } as EvalStartEvent);
-
-    // Use public getPrompt() API once available (Node.js 15+)
-    const origPrompt = getPrompt(repl);
-    // 'readline' is not supported in startup snapshots yet.
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { Interface } = require('readline');
-    // Disable printing prompts while we're evaluating code. We're using the
-    // readline superclass method instead of the REPL one here, because the REPL
-    // one stores the prompt to later be reset in case of dropping into .editor
-    // mode. In particular, the following sequence of results is what we want
-    // to avoid:
-    // 1. .editor entered
-    // 2. Some code entered
-    // 3. Tab used for autocompletion, leading to this evaluation being called
-    //    while the REPL prompt is still turned off due to .editor
-    // 4. Evaluation ends, we use .setPrompt() to restore the prompt that has
-    //    temporarily been disable for .editor
-    // 5. The REPL thinks that the empty string is supposed to be the prompt
-    //    even after .editor is done.
-    Interface.prototype.setPrompt.call(repl, '');
-
-    try {
-      let exitEventPending = false;
-      const exitListener = () => {
-        exitEventPending = true;
-      };
-      let previousExitListeners: any[] = [];
-
-      let sigintListener: (() => void) | undefined = undefined;
-      let replSigint: RestoreEvents | undefined = undefined;
-      let processSigint: RestoreEvents | undefined = undefined;
-
-      try {
-        result = await new Promise((resolve, reject) => {
-          if (onAsyncSigint) {
-            // Handle SIGINT (Ctrl+C) that occurs while we are stuck in `await`
-            // by racing a listener for 'SIGINT' against the evalResult Promise.
-            // We remove all 'SIGINT' listeners and install our own.
-            sigintListener = async (): Promise<void> => {
-              let interruptHandled = false;
-              try {
-                interruptHandled = await onAsyncSigint();
-              } catch (e: any) {
-                // ignore
-              } finally {
-                // Reject with an exception similar to one thrown by Node.js
-                // itself if the `customEval` itself is interrupted
-                // and the asyncSigint handler did not deal with it
-                reject(
-                  interruptHandled
-                    ? undefined
-                    : new Error(
-                        'Asynchronous execution was interrupted by `SIGINT`'
-                      )
-                );
-              }
-            };
-
-            replSigint = disableEvent(repl, 'SIGINT');
-            processSigint = disableEvent(process, 'SIGINT');
-
-            repl.once('SIGINT', sigintListener);
-          }
-
-          // The REPL may become over-eager and emit 'exit' events while our
-          // evaluation is still in progress (because it doesn't expect async
-          // evaluation). If that happens, defer the event until later.
-          previousExitListeners = repl.rawListeners('exit');
-          repl.removeAllListeners('exit');
-          repl.once('exit', exitListener);
-
-          const evalResult = asyncEval(originalEval, input, context, filename);
-
-          if (sigintListener !== undefined) {
-            process.once('SIGINT', sigintListener);
-          }
-          evalResult.then(resolve, reject);
-        });
-      } finally {
-        // Restore raw mode
-        if (typeof previouslyInRawMode !== 'undefined') {
-          setRawMode(previouslyInRawMode);
-        }
-
-        // Remove our 'SIGINT' listener and re-install the REPL one(s).
-        if (sigintListener !== undefined) {
-          repl.removeListener('SIGINT', sigintListener);
-          process.removeListener('SIGINT', sigintListener);
-        }
-        // See https://github.com/microsoft/TypeScript/issues/43287 for context on
-        // why `as any` is needed.
-        (replSigint as any)?.restore?.();
-        (processSigint as any)?.restore?.();
-
-        if (getPrompt(repl) === '') {
-          Interface.prototype.setPrompt.call(repl, origPrompt);
-        }
-
-        repl.removeListener('exit', exitListener);
-        for (const listener of previousExitListeners) {
-          repl.on('exit', listener);
-        }
-        if (exitEventPending) {
-          process.nextTick(() => repl.emit('exit'));
-        }
+      if (onAsyncSigint) {
+        // Unset raw mode during evaluation so that Ctrl+C raises a signal. This
+        // is something REPL already does while originalEval is running, but as
+        // the actual eval result might be a promise that we will be awaiting, we
+        // want the raw mode to be disabled for the whole duration of our custom
+        // async eval
+        previouslyInRawMode = setRawMode(false);
       }
-    } catch (err: any) {
+
+      let result;
+      repl.emit(evalStart, { input } as EvalStartEvent);
+
+      // Use public getPrompt() API once available (Node.js 15+)
+      const origPrompt = getPrompt(repl);
+      // 'readline' is not supported in startup snapshots yet.
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const { Interface } = require('readline');
+      // Disable printing prompts while we're evaluating code. We're using the
+      // readline superclass method instead of the REPL one here, because the REPL
+      // one stores the prompt to later be reset in case of dropping into .editor
+      // mode. In particular, the following sequence of results is what we want
+      // to avoid:
+      // 1. .editor entered
+      // 2. Some code entered
+      // 3. Tab used for autocompletion, leading to this evaluation being called
+      //    while the REPL prompt is still turned off due to .editor
+      // 4. Evaluation ends, we use .setPrompt() to restore the prompt that has
+      //    temporarily been disable for .editor
+      // 5. The REPL thinks that the empty string is supposed to be the prompt
+      //    even after .editor is done.
+      Interface.prototype.setPrompt.call(repl, '');
+
       try {
-        if (isRecoverableError(input)) {
+        let exitEventPending = false;
+        const exitListener = () => {
+          exitEventPending = true;
+        };
+        let previousExitListeners: any[] = [];
+
+        let sigintListener: (() => void) | undefined = undefined;
+        let replSigint: RestoreEvents | undefined = undefined;
+        let processSigint: RestoreEvents | undefined = undefined;
+
+        try {
+          result = await new Promise((resolve, reject) => {
+            if (onAsyncSigint) {
+              // Handle SIGINT (Ctrl+C) that occurs while we are stuck in `await`
+              // by racing a listener for 'SIGINT' against the evalResult Promise.
+              // We remove all 'SIGINT' listeners and install our own.
+              sigintListener = async (): Promise<void> => {
+                let interruptHandled = false;
+                try {
+                  interruptHandled = await onAsyncSigint();
+                } catch (e: any) {
+                  // ignore
+                } finally {
+                  // Reject with an exception similar to one thrown by Node.js
+                  // itself if the `customEval` itself is interrupted
+                  // and the asyncSigint handler did not deal with it
+                  reject(
+                    interruptHandled
+                      ? undefined
+                      : new Error(
+                          'Asynchronous execution was interrupted by `SIGINT`'
+                        )
+                  );
+                }
+              };
+
+              replSigint = disableEvent(repl, 'SIGINT');
+              processSigint = disableEvent(process, 'SIGINT');
+
+              repl.once('SIGINT', sigintListener);
+            }
+
+            // The REPL may become over-eager and emit 'exit' events while our
+            // evaluation is still in progress (because it doesn't expect async
+            // evaluation). If that happens, defer the event until later.
+            previousExitListeners = repl.rawListeners('exit');
+            repl.removeAllListeners('exit');
+            repl.once('exit', exitListener);
+
+            const evalResult = asyncEval(
+              originalEval,
+              input,
+              context,
+              filename
+            );
+
+            if (sigintListener !== undefined) {
+              process.once('SIGINT', sigintListener);
+            }
+            evalResult.then(resolve, reject);
+          });
+        } finally {
+          // Restore raw mode
+          if (typeof previouslyInRawMode !== 'undefined') {
+            setRawMode(previouslyInRawMode);
+          }
+
+          // Remove our 'SIGINT' listener and re-install the REPL one(s).
+          if (sigintListener !== undefined) {
+            repl.removeListener('SIGINT', sigintListener);
+            process.removeListener('SIGINT', sigintListener);
+          }
+          // See https://github.com/microsoft/TypeScript/issues/43287 for context on
+          // why `as any` is needed.
+          (replSigint as any)?.restore?.();
+          (processSigint as any)?.restore?.();
+
+          if (getPrompt(repl) === '') {
+            Interface.prototype.setPrompt.call(repl, origPrompt);
+          }
+
+          repl.removeListener('exit', exitListener);
+          for (const listener of previousExitListeners) {
+            repl.on('exit', listener);
+          }
+          if (exitEventPending) {
+            process.nextTick(() => repl.emit('exit'));
+          }
+        }
+      } catch (err: any) {
+        try {
+          if (isRecoverableError(input)) {
+            repl.emit(evalFinish, {
+              input,
+              success: false,
+              err,
+              recoverable: true,
+            } as EvalFinishEvent);
+            return callback(new Recoverable(err));
+          }
           repl.emit(evalFinish, {
             input,
             success: false,
             err,
-            recoverable: true,
+            recoverable: false,
           } as EvalFinishEvent);
-          return callback(new Recoverable(err));
+          return callback(err);
+        } catch (callbackErr: any) {
+          return callback(wrapCallbackError(callbackErr));
         }
-        repl.emit(evalFinish, {
-          input,
-          success: false,
-          err,
-          recoverable: false,
-        } as EvalFinishEvent);
-        return callback(err);
+      }
+      try {
+        repl.emit(evalFinish, { input, success: true } as EvalFinishEvent);
+        return callback(null, result);
       } catch (callbackErr: any) {
         return callback(wrapCallbackError(callbackErr));
       }
     }
-    try {
-      repl.emit(evalFinish, { input, success: true } as EvalFinishEvent);
-      return callback(null, result);
-    } catch (callbackErr: any) {
-      return callback(wrapCallbackError(callbackErr));
-    }
+
+    _eval().catch((e) => callback(e));
   };
 
   return repl;
