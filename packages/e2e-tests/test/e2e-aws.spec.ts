@@ -1,3 +1,6 @@
+import os from 'os';
+import path from 'path';
+import { promises as fs } from 'fs';
 import { expect } from 'chai';
 import { spawnSync } from 'child_process';
 import { TestShell } from './test-shell';
@@ -292,6 +295,88 @@ describe('e2e AWS AUTH', function () {
           'db.runCommand({ connectionStatus: 1 })'
         );
         expect(connectionStatus).to.contain(`user: '${expectedAssumedRole}'`);
+      });
+    });
+  });
+
+  context('with aws profile', function () {
+    const awsConfigPath = path.join(
+      os.tmpdir(),
+      `aws-config-${new Date().getTime()}-${Math.random()}`
+    );
+
+    before(async function () {
+      const contents = `
+[default]
+aws_access_key_id=${AWS_ACCESS_KEY_ID}
+aws_secret_access_key=${AWS_SECRET_ACCESS_KEY}
+
+[user1]
+aws_access_key_id=${AWS_ACCESS_KEY_ID}
+aws_secret_access_key=${AWS_SECRET_ACCESS_KEY}
+
+[invalid]
+aws_access_key_id=invalid
+aws_secret_access_key=invalid
+      `;
+      await fs.writeFile(awsConfigPath, contents, { encoding: 'utf8' });
+    });
+
+    after(async function () {
+      await fs.unlink(awsConfigPath);
+    });
+
+    context('with default aws profile', function () {
+      it('connects for the IAM user', async function () {
+        const shell = TestShell.start({
+          args: [getConnectionString()],
+          env: {
+            ...process.env,
+            AWS_SHARED_CREDENTIALS_FILE: awsConfigPath,
+          },
+        });
+        const result = await shell.waitForPromptOrExit();
+        expect(result.state).to.equal('prompt');
+
+        const connectionStatus = await shell.executeLine(
+          'db.runCommand({ connectionStatus: 1 })'
+        );
+        expect(connectionStatus).to.contain(`user: '${AWS_IAM_USER_ARN}'`);
+      });
+    });
+
+    context('with AWS_PROFILE=user1 env var', function () {
+      it('connects for the IAM user', async function () {
+        const shell = TestShell.start({
+          args: [getConnectionString()],
+          env: {
+            ...process.env,
+            AWS_SHARED_CREDENTIALS_FILE: awsConfigPath,
+            AWS_PROFILE: 'user1',
+          },
+        });
+        const result = await shell.waitForPromptOrExit();
+        expect(result.state).to.equal('prompt');
+
+        const connectionStatus = await shell.executeLine(
+          'db.runCommand({ connectionStatus: 1 })'
+        );
+        expect(connectionStatus).to.contain(`user: '${AWS_IAM_USER_ARN}'`);
+      });
+    });
+
+    context('with AWS_PROFILE=invalid env var', function () {
+      it('fails to connect', async function () {
+        const shell = TestShell.start({
+          args: [getConnectionString()],
+          env: {
+            ...process.env,
+            AWS_SHARED_CREDENTIALS_FILE: awsConfigPath,
+            AWS_PROFILE: 'invalid',
+          },
+        });
+        const result = await shell.waitForPromptOrExit();
+        expect(result.state).to.equal('exit');
       });
     });
   });
