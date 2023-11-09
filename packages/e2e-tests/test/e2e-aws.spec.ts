@@ -319,7 +319,6 @@ aws_secret_access_key=${AWS_SECRET_ACCESS_KEY}
 aws_access_key_id=invalid
 aws_secret_access_key=invalid
       `;
-      console.log({ awsConfigPath, contents });
       await fs.writeFile(awsConfigPath, contents, { encoding: 'utf8' });
     });
 
