@@ -308,17 +308,18 @@ describe('e2e AWS AUTH', function () {
     before(async function () {
       const contents = `
 [default]
-aws_access_key_id=${AWS_ACCESS_KEY_ID}
-aws_secret_access_key=${AWS_SECRET_ACCESS_KEY}
+aws_access_key_id = ${AWS_ACCESS_KEY_ID}
+aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}
 
-[user1]
-aws_access_key_id=${AWS_ACCESS_KEY_ID}
-aws_secret_access_key=${AWS_SECRET_ACCESS_KEY}
+[profile user1]
+aws_access_key_id = ${AWS_ACCESS_KEY_ID}
+aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}
 
-[invalid]
-aws_access_key_id=invalid
-aws_secret_access_key=invalid
+[profile invalid]
+aws_access_key_id = invalid
+aws_secret_access_key = invalid
       `;
+      console.log({ awsConfigPath });
       await fs.writeFile(awsConfigPath, contents, { encoding: 'utf8' });
     });
 
