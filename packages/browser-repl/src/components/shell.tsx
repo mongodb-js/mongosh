@@ -34,6 +34,7 @@ const shellContainer = css({
     cursor: 'pointer',
   },
   '& pre, & code': {
+    fontFamily: 'inherit',
     background: 'transparent',
     border: '0px transparent',
     padding: 0,
