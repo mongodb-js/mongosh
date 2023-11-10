@@ -28,6 +28,9 @@ export const USAGE = `
     -f, --file [arg]                           ${i18n.__('cli-repl.args.file')}
         --host [arg]                           ${i18n.__('cli-repl.args.host')}
         --port [arg]                           ${i18n.__('cli-repl.args.port')}
+        --build-info                           ${i18n.__(
+          'cli-repl.args.buildInfo'
+        )}
         --version                              ${i18n.__(
           'cli-repl.args.version'
         )}

@@ -15,6 +15,7 @@ CLI interface for [MongoDB Shell][mongosh], an extension to Node.js REPL with Mo
     -f, --file [arg]                           Load the specified mongosh script
         --host [arg]                           Server to connect to
         --port [arg]                           Port to connect to
+        --build-info                           Show build information
         --version                              Show version information
         --quiet                                Silence output from the shell during the connection process
         --shell                                Run the shell after executing files

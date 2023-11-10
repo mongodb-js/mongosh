@@ -16,6 +16,7 @@ const translations: Catalog = {
       ipv6: 'Enable IPv6 support (disabled by default)',
       host: 'Server to connect to',
       port: 'Port to connect to',
+      buildInfo: 'Show build information',
       version: 'Show version information',
       quiet: 'Silence output from the shell during the connection process',
       shell: 'Run the shell after executing files',
