@@ -71,7 +71,7 @@ type Mutable<T> = {
 @classPlatforms(['CLI'])
 export default class Mongo extends ShellApiClass {
   private __serviceProvider: ServiceProvider | null = null;
-  public _databases: Record<string, Database>;
+  public readonly _databases: Record<string, Database> = Object.create(null);
   public _instanceState: ShellInstanceState;
   public _connectionInfo: ConnectionInfo;
   private _explicitEncryptionOnly = false;
@@ -89,7 +89,6 @@ export default class Mongo extends ShellApiClass {
   ) {
     super();
     this._instanceState = instanceState;
-    this._databases = {};
     if (sp) {
       this.__serviceProvider = sp;
     }

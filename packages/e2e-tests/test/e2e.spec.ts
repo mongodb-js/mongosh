@@ -270,10 +270,15 @@ describe('e2e', function () {
         dbname: "ä:-,🐈_'[!?%",
         dbnameUri: "ä:-,🐈_'[!%3F%25",
       },
+      {
+        mode: 'Object.prototype dbname',
+        dbname: 'hasOwnProperty',
+        dbnameUri: 'hasOwnProperty',
+      },
     ]) {
       context(mode, function () {
         describe('via host:port/test', function () {
-          let shell;
+          let shell: TestShell;
           beforeEach(async function () {
             shell = TestShell.start({
               args: [`${await testServer.hostport()}/${dbname}`],
@@ -287,7 +292,7 @@ describe('e2e', function () {
           });
         });
         describe('via mongodb://uri', function () {
-          let shell;
+          let shell: TestShell;
           beforeEach(async function () {
             shell = TestShell.start({
               args: [`mongodb://${await testServer.hostport()}/${dbnameUri}`],
@@ -301,7 +306,7 @@ describe('e2e', function () {
           });
         });
         describe('legacy db only', function () {
-          let shell;
+          let shell: TestShell;
           beforeEach(async function () {
             const port = await testServer.port();
             shell = TestShell.start({ args: [dbname, `--port=${port}`] });
@@ -310,6 +315,22 @@ describe('e2e', function () {
           });
           it('db set correctly', async function () {
             expect(await shell.executeLine('db')).to.include(dbname);
+            shell.assertNoErrors();
+          });
+        });
+        describe('via use() method', function () {
+          let shell: TestShell;
+          beforeEach(async function () {
+            shell = TestShell.start({
+              args: [`mongodb://${await testServer.hostport()}/`],
+            });
+            await shell.waitForPrompt();
+            shell.assertNoErrors();
+          });
+          it('db set correctly', async function () {
+            expect(
+              await shell.executeLine(`use(${JSON.stringify(dbname)})`)
+            ).to.include(dbname);
             shell.assertNoErrors();
           });
         });
