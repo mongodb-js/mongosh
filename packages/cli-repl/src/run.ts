@@ -13,6 +13,7 @@ function enableFipsIfRequested() {
 }
 enableFipsIfRequested();
 
+import util from 'util';
 import { CliRepl } from './cli-repl';
 import { parseCliArgs } from './arg-parser';
 import { runSmokeTests } from './smoke-tests';
@@ -220,6 +221,7 @@ async function main() {
     });
   } catch (e: any) {
     console.error(`${e?.name}: ${e?.message}`);
+    console.error('full error: ' + util.inspect(e, { depth: null }));
     if (repl !== undefined) {
       repl.bus.emit('mongosh:error', e, 'startup');
     }
