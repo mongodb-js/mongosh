@@ -33,6 +33,39 @@ function getSystemArch(): (typeof process)['arch'] {
     : process.arch;
 }
 
+export function baseBuildInfo(): Omit<BuildInfo, 'deps'> {
+  const runtimeData = {
+    nodeVersion: process.version,
+    opensslVersion: process.versions.openssl,
+    sharedOpenssl: !!process.config.variables.node_shared_openssl,
+    // Runtime arch can differ e.g. because x64 binaries can run
+    // on M1 cpus
+    runtimeArch: getSystemArch(),
+    // Runtime platform can differ e.g. because homebrew on macOS uses
+    // npm packages published from Linux
+    runtimePlatform: process.platform,
+  };
+
+  try {
+    return {
+      ...require('./build-info.json'),
+      ...runtimeData,
+    };
+  } catch {
+    const { version } = require('../package.json');
+    return {
+      version,
+      distributionKind: 'unpackaged',
+      buildArch: process.arch,
+      buildPlatform: process.platform,
+      buildTarget: 'unknown',
+      buildTime: null,
+      gitVersion: null,
+      ...runtimeData,
+    };
+  }
+}
+
 /**
  * Return an object with information about this mongosh instance,
  * in particular, when it was built and how.
@@ -47,36 +80,9 @@ export async function buildInfo({
     ...CliServiceProvider.getVersionInformation(),
   };
 
-  const runtimeData = {
-    nodeVersion: process.version,
-    opensslVersion: process.versions.openssl,
-    sharedOpenssl: !!process.config.variables.node_shared_openssl,
-    // Runtime arch can differ e.g. because x64 binaries can run
-    // on M1 cpus
-    runtimeArch: getSystemArch(),
-    // Runtime platform can differ e.g. because homebrew on macOS uses
-    // npm packages published from Linux
-    runtimePlatform: process.platform,
-    deps: { ...dependencyVersionInfo },
-  };
-
-  try {
-    const buildInfo = { ...require('./build-info.json'), ...runtimeData };
-    if (!withSegmentApiKey) {
-      delete buildInfo.segmentApiKey;
-    }
-    return buildInfo;
-  } catch {
-    const { version } = require('../package.json');
-    return {
-      version,
-      distributionKind: 'unpackaged',
-      buildArch: process.arch,
-      buildPlatform: process.platform,
-      buildTarget: 'unknown',
-      buildTime: null,
-      gitVersion: null,
-      ...runtimeData,
-    };
+  const buildInfo = { ...baseBuildInfo(), deps: { ...dependencyVersionInfo } };
+  if (!withSegmentApiKey) {
+    delete buildInfo.segmentApiKey;
   }
+  return buildInfo;
 }

@@ -17,7 +17,7 @@ import { CliRepl } from './cli-repl';
 import { parseCliArgs } from './arg-parser';
 import { runSmokeTests } from './smoke-tests';
 import { USAGE } from './constants';
-import { buildInfo } from './build-info';
+import { baseBuildInfo, buildInfo } from './build-info';
 import { getStoragePaths, getGlobalConfigPaths } from './config-directory';
 import { getCryptLibraryPaths } from './crypt-library-paths';
 import { getTlsCertificateSelector } from './tls-certificate-selector';
@@ -116,7 +116,7 @@ async function main() {
     }
 
     if (options.version) {
-      console.log((await buildInfo()).version);
+      console.log(baseBuildInfo().version);
       return;
     }
     if (options.buildInfo) {
