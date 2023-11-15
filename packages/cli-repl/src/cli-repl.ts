@@ -42,7 +42,7 @@ import path from 'path';
 import { promisify } from 'util';
 import { getOsInfo } from './get-os-info';
 import { UpdateNotificationManager } from './update-notification-manager';
-import { getTimingData, markTime } from './startup-timing';
+import { markTime } from './startup-timing';
 
 /**
  * Connecting text key.
