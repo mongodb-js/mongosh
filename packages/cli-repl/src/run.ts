@@ -13,6 +13,7 @@ function enableFipsIfRequested() {
 }
 enableFipsIfRequested();
 
+import { markTime } from './startup-timing';
 import { CliRepl } from './cli-repl';
 import { parseCliArgs } from './arg-parser';
 import { runSmokeTests } from './smoke-tests';
@@ -47,6 +48,8 @@ if ((v8 as any)?.startupSnapshot?.isBuildingSnapshot?.()) {
 
   (v8 as any).startupSnapshot.setDeserializeMainFunction(() => {
     enableFipsIfRequested();
+    markTime('loaded pre-snapshot deps');
+
     void main();
   });
 } else {
@@ -55,6 +58,7 @@ if ((v8 as any)?.startupSnapshot?.isBuildingSnapshot?.()) {
 
 // eslint-disable-next-line complexity
 async function main() {
+  markTime('entered main');
   if (process.env.MONGOSH_RUN_NODE_SCRIPT) {
     // For uncompiled mongosh: node /path/to/this/file script ... -> node script ...
     // FOr compiled mongosh: mongosh mongosh script ... -> mongosh script ...
@@ -213,6 +217,7 @@ async function main() {
       shellHomePaths: shellHomePaths,
       globalConfigPaths: globalConfigPaths,
     });
+    markTime('entering repl.start()');
     await repl.start(connectionInfo.connectionString, {
       productName: 'MongoDB Shell',
       productDocsLink: 'https://www.mongodb.com/docs/mongodb-shell/',
