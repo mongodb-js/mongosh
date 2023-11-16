@@ -35,6 +35,7 @@ import formatOutput, { formatError } from './format-output';
 import { makeMultilineJSIntoSingleLine } from '@mongosh/js-multiline-to-singleline';
 import { LineByLineInput } from './line-by-line-input';
 import type { FormatOptions } from './format-output';
+import { markTime } from './startup-timing';
 
 /**
  * All CLI flags that are useful for {@link MongoshNodeRepl}.
@@ -168,10 +169,12 @@ class MongoshNodeRepl implements EvaluationListener {
     );
     const shellEvaluator = new ShellEvaluator(
       instanceState,
-      (value: any) => value
+      (value: any) => value,
+      markTime
     );
     instanceState.setEvaluationListener(this);
     await instanceState.fetchConnectionInfo();
+    markTime('fetched connection info');
 
     const { buildInfo, extraInfo } = instanceState.connectionInfo;
     let mongodVersion = extraInfo?.is_stream
@@ -185,6 +188,7 @@ class MongoshNodeRepl implements EvaluationListener {
     }
     await this.greet(mongodVersion, moreRecentMongoshVersion);
     await this.printBasicConnectivityWarning(instanceState);
+    markTime('greeted');
 
     this.inspectCompact =
       (await this.getConfig('inspectCompact')) ?? this.inspectCompact;
@@ -194,6 +198,7 @@ class MongoshNodeRepl implements EvaluationListener {
       (await this.getConfig('showStackTraces')) ?? this.showStackTraces;
     this.redactHistory =
       (await this.getConfig('redactHistory')) ?? this.redactHistory;
+    markTime('fetched config vars');
 
     const repl = asyncRepl.start({
       // 'repl' is not supported in startup snapshots yet.
@@ -342,6 +347,7 @@ class MongoshNodeRepl implements EvaluationListener {
     // https://github.com/nodejs/node/issues/36773
     (repl as Mutable<typeof repl>).line = '';
 
+    markTime('created repl object');
     const historyFile = this.ioProvider.getHistoryFilePath();
     try {
       await promisify(repl.setupHistory).call(repl, historyFile);
@@ -404,6 +410,7 @@ class MongoshNodeRepl implements EvaluationListener {
       this.output.write(this.writer(warn) + '\n');
     }
 
+    markTime('set up history file');
     (repl as any).on(asyncRepl.evalStart, () => {
       this.bus.emit('mongosh:evaluate-started');
     });
@@ -435,6 +442,7 @@ class MongoshNodeRepl implements EvaluationListener {
       }
     }
 
+    markTime('finished initialization');
     return { __initialized: 'yes' };
   }
 
@@ -537,6 +545,7 @@ class MongoshNodeRepl implements EvaluationListener {
     context: any,
     filename: string
   ): Promise<any> {
+    markTime('start repl eval');
     if (!this.insideAutoCompleteOrGetPrompt) {
       this.lineByLineInput.enableBlockOnNewLine();
     }
@@ -590,6 +599,7 @@ class MongoshNodeRepl implements EvaluationListener {
       }
       throw err;
     } finally {
+      markTime('done repl eval');
       if (!this.insideAutoCompleteOrGetPrompt && !interrupted) {
         // In case of an interrupt, onAsyncSigint will print the prompt when completed
         repl.setPrompt(await this.getShellPrompt());
@@ -598,6 +608,7 @@ class MongoshNodeRepl implements EvaluationListener {
       if (this.loadNestingLevel <= 1) {
         this.bus.emit('mongosh:eval-complete'); // For testing purposes.
       }
+      markTime('re-set prompt');
     }
   }
 

@@ -37,15 +37,18 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
   private resultHandler: ResultHandler<EvaluationResultType>;
   private hasAppliedAsyncWriterRuntimeSupport = true;
   private asyncWriter: AsyncWriter;
+  private markTime?: (label: string) => void;
 
   constructor(
     instanceState: ShellInstanceState,
-    resultHandler: ResultHandler<EvaluationResultType> = toShellResult as any
+    resultHandler: ResultHandler<EvaluationResultType> = toShellResult as any,
+    markTime?: (label: string) => void
   ) {
     this.instanceState = instanceState;
     this.resultHandler = resultHandler;
     this.asyncWriter = new AsyncWriter();
     this.hasAppliedAsyncWriterRuntimeSupport = false;
+    this.markTime = markTime;
   }
 
   /**
@@ -83,7 +86,9 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
       return shellApi[cmd](...argv);
     }
 
+    this.markTime?.('start async rewrite');
     let rewrittenInput = this.asyncWriter.process(input);
+    this.markTime?.('done async rewrite');
 
     const hiddenCommands = RegExp(HIDDEN_COMMANDS, 'g');
     if (!hiddenCommands.test(input) && !hiddenCommands.test(rewrittenInput)) {
@@ -94,6 +99,7 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
 
     if (!this.hasAppliedAsyncWriterRuntimeSupport) {
       this.hasAppliedAsyncWriterRuntimeSupport = true;
+      this.markTime?.('start runtimeSupportCode processing');
       const supportCode = this.asyncWriter.runtimeSupportCode();
       // Eval twice: We need the modified prototypes to be present in both
       // the evaluation context and the current one, because e.g. the value of
@@ -103,6 +109,7 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
       if (!hasAlreadyRunGlobalRuntimeSupportEval) {
         eval(supportCode);
       }
+      this.markTime?.('done global runtimeSupportCode processing');
       rewrittenInput = supportCode + ';\n' + rewrittenInput;
     }
 
@@ -110,6 +117,8 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
       return await originalEval(rewrittenInput, context, filename);
     } catch (err: any) {
       throw this.instanceState.transformError(err);
+    } finally {
+      this.markTime?.('finished evaluating processed code');
     }
   }
 

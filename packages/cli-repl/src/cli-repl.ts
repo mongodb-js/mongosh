@@ -42,6 +42,7 @@ import path from 'path';
 import { promisify } from 'util';
 import { getOsInfo } from './get-os-info';
 import { UpdateNotificationManager } from './update-notification-manager';
+import { markTime } from './startup-timing';
 
 /**
  * Connecting text key.
@@ -226,9 +227,11 @@ export class CliRepl implements MongoshIOProvider {
   ): Promise<void> {
     const { version } = require('../package.json');
     await this.verifyNodeVersion();
+    markTime('verified node version');
 
     this.isContainerizedEnvironment =
       await this.getIsContainerizedEnvironment();
+    markTime('checked containerized environment');
 
     if (!this.cliOptions.nodb) {
       const cs = new ConnectionString(driverUri);
@@ -249,19 +252,23 @@ export class CliRepl implements MongoshIOProvider {
     } catch (err: any) {
       this.warnAboutInaccessibleFile(err);
     }
+    markTime('ensured shell homedir');
 
     await this.logManager.cleanupOldLogfiles();
+    markTime('cleaned up log files');
     const logger = await this.logManager.createLogWriter();
     if (!this.cliOptions.quiet) {
       this.output.write(`Current Mongosh Log ID:\t${logger.logId}\n`);
     }
     this.logWriter = logger;
+    markTime('instantiated log writer');
 
     logger.info('MONGOSH', mongoLogId(1_000_000_000), 'log', 'Starting log', {
       execPath: process.execPath,
       envInfo: redactSensitiveData(this.getLoggedEnvironmentVariables()),
       ...(await buildInfo()),
     });
+    markTime('logged initial message');
 
     let analyticsSetupError: Error | null = null;
     try {
@@ -272,6 +279,7 @@ export class CliRepl implements MongoshIOProvider {
       analyticsSetupError = err;
     }
 
+    markTime('created analytics instance');
     setupLoggerAndTelemetry(
       this.bus,
       logger,
@@ -284,6 +292,7 @@ export class CliRepl implements MongoshIOProvider {
       },
       version
     );
+    markTime('completed telemetry setup');
 
     if (analyticsSetupError) {
       this.bus.emit('mongosh:error', analyticsSetupError, 'analytics');
@@ -298,6 +307,7 @@ export class CliRepl implements MongoshIOProvider {
     }
 
     this.globalConfig = await this.loadGlobalConfigFile();
+    markTime('read global config files');
 
     // Needs to happen after loading the mongosh config file(s)
     void this.fetchMongoshUpdateUrl();
@@ -331,6 +341,7 @@ export class CliRepl implements MongoshIOProvider {
     }
 
     driverOptions = await this.prepareOIDCOptions(driverOptions);
+    markTime('prepared OIDC options');
 
     let initialServiceProvider;
     try {
@@ -346,10 +357,12 @@ export class CliRepl implements MongoshIOProvider {
       }
       throw err;
     }
+    markTime('completed SP setup');
     const initialized = await this.mongoshRepl.initialize(
       initialServiceProvider,
       await this.getMoreRecentMongoshVersion()
     );
+    markTime('initialized mongosh repl');
     this.injectReplFunctions();
 
     const commandLineLoadFiles = this.cliOptions.fileNames ?? [];
@@ -388,6 +401,7 @@ export class CliRepl implements MongoshIOProvider {
         this.mongoshRepl
       ),
     });
+    markTime('set up editor');
 
     if (willExecuteCommandLineScripts) {
       this.mongoshRepl.setIsInteractive(willEnterInteractiveMode);
@@ -425,9 +439,12 @@ export class CliRepl implements MongoshIOProvider {
        * - Programmatic users who really want a dependency on a snippet can use
        *   snippet('load-all') to explicitly load snippets
        */
+      markTime('start load snippets');
       await snippetManager?.loadAllSnippets();
+      markTime('done load snippets');
     }
     await this.loadRcFiles();
+    markTime('loaded rc files');
 
     this.verifyPlatformSupport();
 
@@ -435,6 +452,7 @@ export class CliRepl implements MongoshIOProvider {
     // can disable the telemetry setting.
     this.setTelemetryEnabled(await this.getConfig('enableTelemetry'));
     this.bus.emit('mongosh:start-mongosh-repl', { version });
+    markTime('starting repl');
     await this.mongoshRepl.startRepl(initialized);
   }
 
@@ -514,6 +532,7 @@ export class CliRepl implements MongoshIOProvider {
     let lastEvalResult: any;
     let exitCode = 0;
     try {
+      markTime('start eval scripts');
       for (const script of evalScripts) {
         this.bus.emit('mongosh:eval-cli-script');
         lastEvalResult = await this.mongoshRepl.loadExternalCode(
@@ -521,6 +540,7 @@ export class CliRepl implements MongoshIOProvider {
           '@(shell eval)'
         );
       }
+      markTime('finished eval scripts');
     } catch (err) {
       // We have two distinct flows of control in the exception case;
       // if we are running in --json mode, we treat the error as a
@@ -559,6 +579,7 @@ export class CliRepl implements MongoshIOProvider {
       this.output.write(formattedResult + '\n');
     }
 
+    markTime('wrote eval output, start loading external files');
     for (const file of files) {
       if (!this.cliOptions.quiet) {
         this.output.write(
@@ -567,6 +588,7 @@ export class CliRepl implements MongoshIOProvider {
       }
       await this.mongoshRepl.loadExternalFile(file);
     }
+    markTime('finished external files');
     return exitCode;
   }
 
@@ -951,6 +973,7 @@ export class CliRepl implements MongoshIOProvider {
    * Close all open resources held by this REPL instance.
    */
   async close(): Promise<void> {
+    markTime('start closing');
     if (this.closing) {
       return;
     }
@@ -970,6 +993,7 @@ export class CliRepl implements MongoshIOProvider {
         await new Promise((resolve) => this.output.write('', resolve));
       }
     }
+    markTime('output flushed');
     this.closing = true;
     const analytics = this.toggleableAnalytics;
     let flushError: string | null = null;
@@ -978,6 +1002,7 @@ export class CliRepl implements MongoshIOProvider {
       const flushStart = Date.now();
       try {
         await promisify(analytics.flush.bind(analytics))();
+        markTime('flushed analytics');
       } catch (err: any) {
         flushError = err.message;
       } finally {
@@ -995,6 +1020,7 @@ export class CliRepl implements MongoshIOProvider {
       }
     );
     await this.logWriter?.flush();
+    markTime('flushed log writer');
     this.bus.emit('mongosh:closed');
   }
 
