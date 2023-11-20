@@ -12,15 +12,18 @@ export type MongoshAnalyticsIdentity =
     };
 
 type AnalyticsIdentifyMessage = MongoshAnalyticsIdentity & {
-  traits: { platform: string };
+  traits: { platform: string; session_id: string };
+  timestamp?: Date;
 };
 
 type AnalyticsTrackMessage = MongoshAnalyticsIdentity & {
   event: string;
   properties: {
     mongosh_version: string;
+    session_id: string;
     [key: string]: any;
   };
+  timestamp?: Date;
 };
 
 /**
@@ -90,6 +93,12 @@ type AnalyticsEventsQueueItem =
   | ['identify', Parameters<MongoshAnalytics['identify']>]
   | ['track', Parameters<MongoshAnalytics['track']>];
 
+function addTimestamp<T extends { timestamp?: Date }>(
+  message: T
+): T & { timestamp: Date } {
+  return { ...message, timestamp: message.timestamp ?? new Date() };
+}
+
 /**
  * An implementation of MongoshAnalytics that forwards to another implementation
  * and can be enabled/paused/disabled.
@@ -112,12 +121,12 @@ export class ToggleableAnalytics implements MongoshAnalytics {
 
   identify(...args: Parameters<MongoshAnalytics['identify']>): void {
     this._validateArgs(args);
-    this._queue.push(['identify', args]);
+    this._queue.push(['identify', [addTimestamp(args[0])]]);
   }
 
   track(...args: Parameters<MongoshAnalytics['track']>): void {
     this._validateArgs(args);
-    this._queue.push(['track', args]);
+    this._queue.push(['track', [addTimestamp(args[0])]]);
   }
 
   enable() {
@@ -262,6 +271,7 @@ export class ThrottledAnalytics implements MongoshAnalytics {
   }
 
   identify(message: AnalyticsIdentifyMessage): void {
+    message = addTimestamp(message);
     if (this.currentUserId) {
       throw new Error('Identify can only be called once per user session');
     }
@@ -280,7 +290,7 @@ export class ThrottledAnalytics implements MongoshAnalytics {
   }
 
   track(message: AnalyticsTrackMessage): void {
-    this.trackQueue.push(message);
+    this.trackQueue.push(addTimestamp(message));
   }
 
   // Tries to restore persisted throttle state and returns `true` if telemetry can

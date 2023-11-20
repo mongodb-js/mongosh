@@ -8,6 +8,8 @@ import { ToggleableAnalytics, ThrottledAnalytics } from './analytics-helpers';
 
 const wait = promisify(setTimeout);
 
+const timestamp = new Date();
+
 describe('analytics helpers', function () {
   let events: any[];
   let target: MongoshAnalytics;
@@ -32,11 +34,16 @@ describe('analytics helpers', function () {
       const toggleable = new ToggleableAnalytics(target);
       expect(events).to.have.lengthOf(0);
 
-      toggleable.identify({ userId: 'me', traits: { platform: '1234' } });
+      toggleable.identify({
+        userId: 'me',
+        traits: { platform: '1234', session_id: 'abc' },
+        timestamp,
+      });
       toggleable.track({
         userId: 'me',
         event: 'something',
-        properties: { mongosh_version: '1.2.3' },
+        properties: { mongosh_version: '1.2.3', session_id: 'abc' },
+        timestamp,
       });
       expect(events).to.have.lengthOf(0);
 
@@ -46,7 +53,8 @@ describe('analytics helpers', function () {
       toggleable.track({
         userId: 'me',
         event: 'something2',
-        properties: { mongosh_version: '1.2.3' },
+        properties: { mongosh_version: '1.2.3', session_id: 'abc' },
+        timestamp,
       });
       expect(events).to.have.lengthOf(3);
 
@@ -54,7 +62,8 @@ describe('analytics helpers', function () {
       toggleable.track({
         userId: 'me',
         event: 'something3',
-        properties: { mongosh_version: '1.2.3' },
+        properties: { mongosh_version: '1.2.3', session_id: 'abc' },
+        timestamp,
       });
       expect(events).to.have.lengthOf(3);
 
@@ -63,13 +72,21 @@ describe('analytics helpers', function () {
       toggleable.enable();
 
       expect(events).to.deep.equal([
-        ['identify', { userId: 'me', traits: { platform: '1234' } }],
+        [
+          'identify',
+          {
+            userId: 'me',
+            traits: { platform: '1234', session_id: 'abc' },
+            timestamp,
+          },
+        ],
         [
           'track',
           {
             userId: 'me',
             event: 'something',
-            properties: { mongosh_version: '1.2.3' },
+            properties: { mongosh_version: '1.2.3', session_id: 'abc' },
+            timestamp,
           },
         ],
         [
@@ -77,7 +94,8 @@ describe('analytics helpers', function () {
           {
             userId: 'me',
             event: 'something2',
-            properties: { mongosh_version: '1.2.3' },
+            properties: { mongosh_version: '1.2.3', session_id: 'abc' },
+            timestamp,
           },
         ],
       ]);
@@ -102,16 +120,16 @@ describe('analytics helpers', function () {
   describe('ThrottledAnalytics', function () {
     const metadataPath = os.tmpdir();
     const userId = 'u-' + Date.now();
-    const iEvt = { userId, traits: { platform: 'what' } };
+    const iEvt = { userId, traits: { platform: 'what', session_id: 'abc' } };
     const tEvt = {
       userId,
       event: 'hi',
-      properties: { mongosh_version: '1.2.3' },
+      properties: { mongosh_version: '1.2.3', session_id: 'abc' },
     };
     const t2Evt = {
       userId,
       event: 'bye',
-      properties: { mongosh_version: '1.2.3' },
+      properties: { mongosh_version: '1.2.3', session_id: 'abc' },
     };
 
     afterEach(async function () {
