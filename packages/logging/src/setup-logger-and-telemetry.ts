@@ -72,9 +72,16 @@ export function setupLoggerAndTelemetry(
   userTraits: any,
   mongosh_version: string
 ): void {
-  const { logId } = log;
+  const { logId: session_id } = log;
   let userId: string;
   let telemetryAnonymousId: string;
+
+  userTraits = { ...userTraits, session_id };
+
+  const trackProperties = {
+    mongosh_version,
+    session_id,
+  };
 
   const getTelemetryUserIdentity = () => {
     if (telemetryAnonymousId) {
@@ -115,7 +122,7 @@ export function setupLoggerAndTelemetry(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { uri: _uri, ...argsWithoutUri } = args;
     const params = {
-      session_id: logId,
+      session_id,
       userId,
       telemetryAnonymousId,
       connectionUri,
@@ -133,8 +140,7 @@ export function setupLoggerAndTelemetry(
       ...getTelemetryUserIdentity(),
       event: 'New Connection',
       properties: {
-        mongosh_version,
-        session_id: logId,
+        ...trackProperties,
         ...argsWithoutUri,
       },
     });
@@ -212,7 +218,7 @@ export function setupLoggerAndTelemetry(
         ...getTelemetryUserIdentity(),
         event: 'Error',
         properties: {
-          mongosh_version,
+          ...trackProperties,
           name: mongoshError.name,
           code: mongoshError.code,
           scope: mongoshError.scope,
@@ -258,7 +264,7 @@ export function setupLoggerAndTelemetry(
       ...getTelemetryUserIdentity(),
       event: 'Use',
       properties: {
-        mongosh_version,
+        ...trackProperties,
       },
     });
   });
@@ -276,7 +282,7 @@ export function setupLoggerAndTelemetry(
       ...getTelemetryUserIdentity(),
       event: 'Show',
       properties: {
-        mongosh_version,
+        ...trackProperties,
         method: args.method,
       },
     });
@@ -325,7 +331,7 @@ export function setupLoggerAndTelemetry(
       ...getTelemetryUserIdentity(),
       event: hasStartedMongoshRepl ? 'Script Loaded' : 'Script Loaded CLI',
       properties: {
-        mongosh_version,
+        ...trackProperties,
         nested: args.nested,
         ...(hasStartedMongoshRepl ? {} : { shell: usesShellOption }),
       },
@@ -344,7 +350,7 @@ export function setupLoggerAndTelemetry(
       ...getTelemetryUserIdentity(),
       event: 'Script Evaluated',
       properties: {
-        mongosh_version,
+        ...trackProperties,
         shell: usesShellOption,
       },
     });
@@ -362,7 +368,7 @@ export function setupLoggerAndTelemetry(
       ...getTelemetryUserIdentity(),
       event: 'Mongoshrc Loaded',
       properties: {
-        mongosh_version,
+        ...trackProperties,
       },
     });
   });
@@ -379,7 +385,7 @@ export function setupLoggerAndTelemetry(
       ...getTelemetryUserIdentity(),
       event: 'Mongorc Warning',
       properties: {
-        mongosh_version,
+        ...trackProperties,
       },
     });
   });
@@ -564,7 +570,7 @@ export function setupLoggerAndTelemetry(
           ...getTelemetryUserIdentity(),
           event: 'Snippet Install',
           properties: {
-            mongosh_version,
+            ...trackProperties,
           },
         });
       }
@@ -616,7 +622,7 @@ export function setupLoggerAndTelemetry(
         ...getTelemetryUserIdentity(),
         event: 'Deprecated Method',
         properties: {
-          mongosh_version,
+          ...trackProperties,
           ...entry,
         },
       });
@@ -626,7 +632,7 @@ export function setupLoggerAndTelemetry(
         ...getTelemetryUserIdentity(),
         event: 'API Call',
         properties: {
-          mongosh_version,
+          ...trackProperties,
           ...entry,
           count,
         },

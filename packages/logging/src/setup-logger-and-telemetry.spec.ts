@@ -351,6 +351,7 @@ describe('setupLoggerAndTelemetry', function () {
           traits: {
             platform: process.platform,
             arch: process.arch,
+            session_id: '5fb3c20ee1507e894e5340f3',
           },
         },
       ],
@@ -361,6 +362,7 @@ describe('setupLoggerAndTelemetry', function () {
           traits: {
             platform: process.platform,
             arch: process.arch,
+            session_id: '5fb3c20ee1507e894e5340f3',
           },
         },
       ],
@@ -385,6 +387,7 @@ describe('setupLoggerAndTelemetry', function () {
           event: 'Error',
           properties: {
             mongosh_version: '1.0.0',
+            session_id: '5fb3c20ee1507e894e5340f3',
             name: 'MongoshInvalidInputError',
             code: 'CLIREPL-1005',
             scope: 'CLIREPL',
@@ -399,6 +402,7 @@ describe('setupLoggerAndTelemetry', function () {
           event: 'Error',
           properties: {
             mongosh_version: '1.0.0',
+            session_id: '5fb3c20ee1507e894e5340f3',
             name: 'MongoshInvalidInputError',
             code: 'CLIREPL-1005',
             scope: 'CLIREPL',
@@ -411,7 +415,10 @@ describe('setupLoggerAndTelemetry', function () {
         {
           anonymousId: '53defe995fa47e6c13102d9d',
           event: 'Use',
-          properties: { mongosh_version: '1.0.0' },
+          properties: {
+            mongosh_version: '1.0.0',
+            session_id: '5fb3c20ee1507e894e5340f3',
+          },
         },
       ],
       [
@@ -421,6 +428,7 @@ describe('setupLoggerAndTelemetry', function () {
           event: 'Show',
           properties: {
             mongosh_version: '1.0.0',
+            session_id: '5fb3c20ee1507e894e5340f3',
             method: 'dbs',
           },
         },
@@ -431,6 +439,7 @@ describe('setupLoggerAndTelemetry', function () {
           event: 'Script Loaded CLI',
           properties: {
             mongosh_version: '1.0.0',
+            session_id: '5fb3c20ee1507e894e5340f3',
             nested: true,
             shell: true,
           },
@@ -443,6 +452,7 @@ describe('setupLoggerAndTelemetry', function () {
           event: 'Script Loaded',
           properties: {
             mongosh_version: '1.0.0',
+            session_id: '5fb3c20ee1507e894e5340f3',
             nested: false,
           },
           anonymousId: '53defe995fa47e6c13102d9d',
@@ -454,6 +464,7 @@ describe('setupLoggerAndTelemetry', function () {
           event: 'Mongoshrc Loaded',
           properties: {
             mongosh_version: '1.0.0',
+            session_id: '5fb3c20ee1507e894e5340f3',
           },
           anonymousId: '53defe995fa47e6c13102d9d',
         },
@@ -464,6 +475,7 @@ describe('setupLoggerAndTelemetry', function () {
           event: 'Mongorc Warning',
           properties: {
             mongosh_version: '1.0.0',
+            session_id: '5fb3c20ee1507e894e5340f3',
           },
           anonymousId: '53defe995fa47e6c13102d9d',
         },
@@ -474,6 +486,7 @@ describe('setupLoggerAndTelemetry', function () {
           event: 'Script Evaluated',
           properties: {
             mongosh_version: '1.0.0',
+            session_id: '5fb3c20ee1507e894e5340f3',
             shell: true,
           },
           anonymousId: '53defe995fa47e6c13102d9d',
@@ -486,6 +499,7 @@ describe('setupLoggerAndTelemetry', function () {
           event: 'Snippet Install',
           properties: {
             mongosh_version: '1.0.0',
+            session_id: '5fb3c20ee1507e894e5340f3',
           },
         },
       ],
@@ -575,6 +589,7 @@ describe('setupLoggerAndTelemetry', function () {
           event: 'Deprecated Method',
           properties: {
             mongosh_version: '1.0.0',
+            session_id: '5fb3c20ee1507e894e5340f3',
             class: 'Database',
             method: 'cloneDatabase',
           },
@@ -587,6 +602,7 @@ describe('setupLoggerAndTelemetry', function () {
           event: 'Deprecated Method',
           properties: {
             mongosh_version: '1.0.0',
+            session_id: '5fb3c20ee1507e894e5340f3',
             class: 'Database',
             method: 'copyDatabase',
           },
@@ -599,6 +615,7 @@ describe('setupLoggerAndTelemetry', function () {
           event: 'Deprecated Method',
           properties: {
             mongosh_version: '1.0.0',
+            session_id: '5fb3c20ee1507e894e5340f3',
             class: 'Database',
             method: 'mangleDatabase',
           },
@@ -611,6 +628,7 @@ describe('setupLoggerAndTelemetry', function () {
           event: 'API Call',
           properties: {
             mongosh_version: '1.0.0',
+            session_id: '5fb3c20ee1507e894e5340f3',
             class: 'Database',
             method: 'cloneDatabase',
             count: 3,
@@ -624,6 +642,7 @@ describe('setupLoggerAndTelemetry', function () {
           event: 'API Call',
           properties: {
             mongosh_version: '1.0.0',
+            session_id: '5fb3c20ee1507e894e5340f3',
             class: 'Database',
             method: 'copyDatabase',
             count: 1,
