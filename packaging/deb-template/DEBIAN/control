@@ -9,3 +9,4 @@ Maintainer: {{maintainer}}
 Homepage: {{homepage}}
 Description: {{description}}
 Depends: {{debDepends}}
+Recommends: {{debRecommends}}

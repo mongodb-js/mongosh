@@ -10,6 +10,7 @@ import type {
   ClientEncryptionOptions,
   MongoClient,
   ReadPreference,
+  MongoMissingDependencyError,
 } from 'mongodb';
 
 import type {
@@ -185,6 +186,7 @@ interface DependencyVersionInfo {
   nodeDriverVersion?: string;
   libmongocryptVersion?: string;
   libmongocryptNodeBindingsVersion?: string;
+  kerberosVersion?: string;
 }
 
 /**
@@ -315,7 +317,82 @@ class CliServiceProvider
       libmongocryptNodeBindingsVersion: tryCall(
         () => require('mongodb-client-encryption/package.json').version
       ),
+      kerberosVersion: tryCall(() => require('kerberos/package.json').version),
     };
+  }
+
+  maybeThrowBetterMissingOptionalDependencyError(
+    err: MongoMissingDependencyError
+  ): never {
+    if (err.message.includes('kerberos')) {
+      try {
+        require('kerberos');
+      } catch (cause) {
+        if (
+          typeof cause === 'object' &&
+          cause &&
+          'message' in cause &&
+          typeof cause.message === 'string'
+        ) {
+          // @ts-expect-error `cause` is ES2022+
+          throw new Error(`Could not load kerberos package: ${cause.message}`, {
+            cause,
+          });
+        }
+      }
+    }
+    if (err.message.includes('mongodb-client-encryption')) {
+      try {
+        require('mongodb-client-encryption');
+      } catch (cause) {
+        if (
+          typeof cause === 'object' &&
+          cause &&
+          'message' in cause &&
+          typeof cause.message === 'string'
+        ) {
+          // https://jira.mongodb.org/browse/MONGOSH-1216
+          const extra =
+            'boxednode' in process
+              ? ''
+              : '\n(If you are installing mongosh through homebrew or npm, consider downlading mongosh from https://www.mongodb.com/try/download/shell instead)';
+          throw new Error(
+            `Could not load mongodb-client-encryption package: ${cause.message}${extra}`,
+            // @ts-expect-error `cause` is ES2022+
+            { cause }
+          );
+        }
+      }
+    }
+    throw err;
+  }
+
+  async connectMongoClient(
+    connectionString: ConnectionString | string,
+    clientOptions: DevtoolsConnectOptions
+  ): Promise<{ client: MongoClient; state: DevtoolsConnectionState }> {
+    const { MongoClient: MongoClientCtor } = driver();
+    const { connectMongoClient } = require('@mongodb-js/devtools-connect');
+    try {
+      return await connectMongoClient(
+        connectionString.toString(),
+        clientOptions,
+        this.bus,
+        MongoClientCtor
+      );
+    } catch (err: unknown) {
+      if (
+        typeof err === 'object' &&
+        err &&
+        'name' in err &&
+        err.name === 'MongoMissingDependencyError'
+      ) {
+        this.maybeThrowBetterMissingOptionalDependencyError(
+          err as MongoMissingDependencyError
+        );
+      }
+      throw err;
+    }
   }
 
   async getNewConnection(
@@ -324,13 +401,9 @@ class CliServiceProvider
   ): Promise<CliServiceProvider> {
     const connectionString = new ConnectionString(uri);
     const clientOptions = this.processDriverOptions(connectionString, options);
-    const { MongoClient: MongoClientCtor } = driver();
-    const { connectMongoClient } = require('@mongodb-js/devtools-connect');
-    const { client, state } = await connectMongoClient(
+    const { client, state } = await this.connectMongoClient(
       connectionString.toString(),
-      clientOptions,
-      this.bus,
-      MongoClientCtor
+      clientOptions
     );
     clientOptions.parentState = state;
     return new CliServiceProvider(
@@ -1239,8 +1312,6 @@ class CliServiceProvider
    * @param options
    */
   async resetConnectionOptions(options: MongoClientOptions): Promise<void> {
-    const { MongoClient: MongoClientCtor } = driver();
-    const { connectMongoClient } = require('@mongodb-js/devtools-connect');
     this.bus.emit('mongosh-sp:reset-connection-options');
     this.currentClientOptions = {
       ...this.currentClientOptions,
@@ -1250,11 +1321,9 @@ class CliServiceProvider
       this.uri as ConnectionString,
       this.currentClientOptions
     );
-    const { client, state } = await connectMongoClient(
+    const { client, state } = await this.connectMongoClient(
       (this.uri as ConnectionString).toString(),
-      clientOptions,
-      this.bus,
-      MongoClientCtor
+      clientOptions
     );
     try {
       await this.mongoClient.close();
