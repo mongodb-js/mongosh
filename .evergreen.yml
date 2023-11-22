@@ -6394,6 +6394,8 @@ functions:
         shell: bash
         env:
           NODE_JS_VERSION: ${node_js_version}
+          TEST_MONGOSH_EXECUTABLE: ${test_mongosh_executable|}
+          KERBEROS_JUMPHOST_DOCKERFILE: ${kerberos_jumphost_dockerfile|}
         script: |
           set -e
           {
@@ -6464,6 +6466,13 @@ functions:
         local_file: src/dist.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-${executable_os_id}${extra_upload_tag}.tgz
         bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf dist.tgz
 
   ###
   # E2E TEST EXECUTION
@@ -11070,6 +11079,370 @@ tasks:
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
 
   ###
+  # EXECUTABLE CONNECTIVITY TESTS
+  ###
+  - name: executable_connectivity_test_linux_x64_rocky8
+    tags: ["connectivity-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: linux_x64_build
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.9.0"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-x64
+      - func: test_connectivity
+        vars:
+          node_js_version: "20.9.0"
+          test_mongosh_executable: dist/mongosh
+          kerberos_jumphost_dockerfile: "Dockerfile.rocky8"
+  - name: executable_connectivity_test_linux_x64_ubuntu2004
+    tags: ["connectivity-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: linux_x64_build
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.9.0"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-x64
+      - func: test_connectivity
+        vars:
+          node_js_version: "20.9.0"
+          test_mongosh_executable: dist/mongosh
+          kerberos_jumphost_dockerfile: "Dockerfile.ubuntu2004"
+  - name: executable_connectivity_test_linux_x64_node20
+    tags: ["connectivity-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: linux_x64_build
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.9.0"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-x64
+      - func: test_connectivity
+        vars:
+          node_js_version: "20.9.0"
+          test_mongosh_executable: dist/mongosh
+          kerberos_jumphost_dockerfile: "Dockerfile.node20"
+  - name: executable_connectivity_test_linux_x64_rocky9
+    tags: ["connectivity-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: linux_x64_build
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.9.0"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-x64
+      - func: test_connectivity
+        vars:
+          node_js_version: "20.9.0"
+          test_mongosh_executable: dist/mongosh
+          kerberos_jumphost_dockerfile: "Dockerfile.rocky9"
+  - name: executable_connectivity_test_linux_x64_ubuntu2204
+    tags: ["connectivity-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: linux_x64_build
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.9.0"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-x64
+      - func: test_connectivity
+        vars:
+          node_js_version: "20.9.0"
+          test_mongosh_executable: dist/mongosh
+          kerberos_jumphost_dockerfile: "Dockerfile.ubuntu2204"
+  - name: executable_connectivity_test_linux_x64_openssl11_rocky8
+    tags: ["connectivity-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: linux_x64_build_openssl11
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.9.0"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-x64-openssl11
+      - func: test_connectivity
+        vars:
+          node_js_version: "20.9.0"
+          test_mongosh_executable: dist/mongosh
+          kerberos_jumphost_dockerfile: "Dockerfile.rocky8"
+  - name: executable_connectivity_test_linux_x64_openssl11_ubuntu2004
+    tags: ["connectivity-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: linux_x64_build_openssl11
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.9.0"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-x64-openssl11
+      - func: test_connectivity
+        vars:
+          node_js_version: "20.9.0"
+          test_mongosh_executable: dist/mongosh
+          kerberos_jumphost_dockerfile: "Dockerfile.ubuntu2004"
+  - name: executable_connectivity_test_linux_x64_openssl3_node20
+    tags: ["connectivity-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: linux_x64_build_openssl3
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.9.0"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-x64-openssl3
+      - func: test_connectivity
+        vars:
+          node_js_version: "20.9.0"
+          test_mongosh_executable: dist/mongosh
+          kerberos_jumphost_dockerfile: "Dockerfile.node20"
+  - name: executable_connectivity_test_linux_x64_openssl3_rocky9
+    tags: ["connectivity-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: linux_x64_build_openssl3
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.9.0"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-x64-openssl3
+      - func: test_connectivity
+        vars:
+          node_js_version: "20.9.0"
+          test_mongosh_executable: dist/mongosh
+          kerberos_jumphost_dockerfile: "Dockerfile.rocky9"
+  - name: executable_connectivity_test_linux_x64_openssl3_ubuntu2204
+    tags: ["connectivity-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: linux_x64_build_openssl3
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.9.0"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-x64-openssl3
+      - func: test_connectivity
+        vars:
+          node_js_version: "20.9.0"
+          test_mongosh_executable: dist/mongosh
+          kerberos_jumphost_dockerfile: "Dockerfile.ubuntu2204"
+  - name: executable_connectivity_test_linux_arm64_rocky8
+    tags: ["connectivity-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: linux_arm64_build
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.9.0"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64
+      - func: test_connectivity
+        vars:
+          node_js_version: "20.9.0"
+          test_mongosh_executable: dist/mongosh
+          kerberos_jumphost_dockerfile: "Dockerfile.rocky8"
+  - name: executable_connectivity_test_linux_arm64_ubuntu2004
+    tags: ["connectivity-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: linux_arm64_build
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.9.0"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64
+      - func: test_connectivity
+        vars:
+          node_js_version: "20.9.0"
+          test_mongosh_executable: dist/mongosh
+          kerberos_jumphost_dockerfile: "Dockerfile.ubuntu2004"
+  - name: executable_connectivity_test_linux_arm64_node20
+    tags: ["connectivity-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: linux_arm64_build
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.9.0"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64
+      - func: test_connectivity
+        vars:
+          node_js_version: "20.9.0"
+          test_mongosh_executable: dist/mongosh
+          kerberos_jumphost_dockerfile: "Dockerfile.node20"
+  - name: executable_connectivity_test_linux_arm64_rocky9
+    tags: ["connectivity-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: linux_arm64_build
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.9.0"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64
+      - func: test_connectivity
+        vars:
+          node_js_version: "20.9.0"
+          test_mongosh_executable: dist/mongosh
+          kerberos_jumphost_dockerfile: "Dockerfile.rocky9"
+  - name: executable_connectivity_test_linux_arm64_ubuntu2204
+    tags: ["connectivity-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: linux_arm64_build
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.9.0"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64
+      - func: test_connectivity
+        vars:
+          node_js_version: "20.9.0"
+          test_mongosh_executable: dist/mongosh
+          kerberos_jumphost_dockerfile: "Dockerfile.ubuntu2204"
+  - name: executable_connectivity_test_linux_arm64_openssl11_rocky8
+    tags: ["connectivity-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: linux_arm64_build_openssl11
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.9.0"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64-openssl11
+      - func: test_connectivity
+        vars:
+          node_js_version: "20.9.0"
+          test_mongosh_executable: dist/mongosh
+          kerberos_jumphost_dockerfile: "Dockerfile.rocky8"
+  - name: executable_connectivity_test_linux_arm64_openssl11_ubuntu2004
+    tags: ["connectivity-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: linux_arm64_build_openssl11
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.9.0"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64-openssl11
+      - func: test_connectivity
+        vars:
+          node_js_version: "20.9.0"
+          test_mongosh_executable: dist/mongosh
+          kerberos_jumphost_dockerfile: "Dockerfile.ubuntu2004"
+  - name: executable_connectivity_test_linux_arm64_openssl3_node20
+    tags: ["connectivity-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: linux_arm64_build_openssl3
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.9.0"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64-openssl3
+      - func: test_connectivity
+        vars:
+          node_js_version: "20.9.0"
+          test_mongosh_executable: dist/mongosh
+          kerberos_jumphost_dockerfile: "Dockerfile.node20"
+  - name: executable_connectivity_test_linux_arm64_openssl3_rocky9
+    tags: ["connectivity-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: linux_arm64_build_openssl3
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.9.0"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64-openssl3
+      - func: test_connectivity
+        vars:
+          node_js_version: "20.9.0"
+          test_mongosh_executable: dist/mongosh
+          kerberos_jumphost_dockerfile: "Dockerfile.rocky9"
+  - name: executable_connectivity_test_linux_arm64_openssl3_ubuntu2204
+    tags: ["connectivity-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: linux_arm64_build_openssl3
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.9.0"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64-openssl3
+      - func: test_connectivity
+        vars:
+          node_js_version: "20.9.0"
+          test_mongosh_executable: dist/mongosh
+          kerberos_jumphost_dockerfile: "Dockerfile.ubuntu2204"
+
+  ###
   # PACKAGING
   ###
   - name: package_and_upload_artifact_darwin_x64
@@ -12565,6 +12938,8 @@ tasks:
         variant: "*"
       - name: ".e2e-test"
         variant: "*"
+      - name: ".connectivity-test"
+        variant: "*"
       - name: check
         variant: "*"
       - name: ".unit-test"
@@ -13366,7 +13741,7 @@ buildvariants:
       - name: compile_artifact
 
   - name: pkg_smoke_tests_docker_x64
-    display_name: "package smoke tests (x64 Docker)"
+    display_name: "package smoke (x64 Docker)"
     run_on: ubuntu2004-small
     tasks:
       - name: pkg_test_docker_linux_x64_ubuntu20_04_tgz
@@ -13401,7 +13776,7 @@ buildvariants:
       - name: pkg_test_docker_rpm_x64_openssl3_rocky9_fips_rpm
       - name: pkg_test_docker_rpm_x64_openssl3_amazonlinux2023_rpm
   - name: pkg_smoke_tests_docker_arm64
-    display_name: "package smoke tests (arm64 Docker)"
+    display_name: "package smoke (arm64 Docker)"
     run_on: ubuntu2004-arm64-small
     tasks:
       - name: pkg_test_docker_linux_arm64_ubuntu20_04_tgz
@@ -13430,6 +13805,53 @@ buildvariants:
       - name: pkg_test_docker_rpm_arm64_openssl3_rocky9_rpm
       - name: pkg_test_docker_rpm_arm64_openssl3_rocky9_fips_rpm
       - name: pkg_test_docker_rpm_arm64_openssl3_amazonlinux2023_rpm
+  - name: exec_connectitivty_tests_docker_x64_openssl11
+    display_name: "executable connectivity tests (x64 Docker for OpenSSL 1.1 base OS)"
+    run_on: ubuntu2004-small
+    tasks:
+      - name: executable_connectivity_test_linux_x64_rocky8
+      - name: executable_connectivity_test_linux_x64_ubuntu2004
+      - name: executable_connectivity_test_linux_x64_node20
+      - name: executable_connectivity_test_linux_x64_rocky9
+      - name: executable_connectivity_test_linux_x64_ubuntu2204
+      - name: executable_connectivity_test_linux_x64_openssl11_rocky8
+      - name: executable_connectivity_test_linux_x64_openssl11_ubuntu2004
+  - name: exec_connectitivty_tests_docker_arm64_openssl11
+    display_name: "executable connectivity tests (arm64 Docker for OpenSSL 1.1 base OS)"
+    run_on: ubuntu2004-arm64-small
+    tasks:
+      - name: executable_connectivity_test_linux_arm64_rocky8
+      - name: executable_connectivity_test_linux_arm64_ubuntu2004
+      - name: executable_connectivity_test_linux_arm64_node20
+      - name: executable_connectivity_test_linux_arm64_rocky9
+      - name: executable_connectivity_test_linux_arm64_ubuntu2204
+      - name: executable_connectivity_test_linux_arm64_openssl11_rocky8
+      - name: executable_connectivity_test_linux_arm64_openssl11_ubuntu2004
+  - name: exec_connectitivty_tests_docker_x64_openssl3
+    display_name: "executable connectivity tests (x64 Docker for OpenSSL 3 base OS)"
+    run_on: ubuntu2204-small
+    tasks:
+      - name: executable_connectivity_test_linux_x64_rocky8
+      - name: executable_connectivity_test_linux_x64_ubuntu2004
+      - name: executable_connectivity_test_linux_x64_node20
+      - name: executable_connectivity_test_linux_x64_rocky9
+      - name: executable_connectivity_test_linux_x64_ubuntu2204
+      - name: executable_connectivity_test_linux_x64_openssl3_node20
+      - name: executable_connectivity_test_linux_x64_openssl3_rocky9
+      - name: executable_connectivity_test_linux_x64_openssl3_ubuntu2204
+  # TODO: Re-enable after docker-compose is available on an arm64 distro
+  #- name: exec_connectitivty_tests_docker_arm64_openssl3
+  #  display_name: "executable connectivity tests (arm64 Docker for OpenSSL 3 base OS)"
+  #  run_on: ubuntu2204-arm64-small
+  #  tasks:
+  #    - name: executable_connectivity_test_linux_arm64_rocky8
+  #    - name: executable_connectivity_test_linux_arm64_ubuntu2004
+  #    - name: executable_connectivity_test_linux_arm64_node20
+  #    - name: executable_connectivity_test_linux_arm64_rocky9
+  #    - name: executable_connectivity_test_linux_arm64_ubuntu2204
+  #    - name: executable_connectivity_test_linux_arm64_openssl3_node20
+  #    - name: executable_connectivity_test_linux_arm64_openssl3_rocky9
+  #    - name: executable_connectivity_test_linux_arm64_openssl3_ubuntu2204
   - name: pkg_smoke_tests_win32
     display_name: "package smoke tests (win32)"
     run_on: ubuntu2004-small

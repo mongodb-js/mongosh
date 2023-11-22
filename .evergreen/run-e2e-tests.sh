@@ -12,7 +12,6 @@ if [[ "$DISABLE_OPENSSL_SHARED_CONFIG_FOR_BUNDLED_OPENSSL" == "true" ]] && [[ ! 
 fi
 
 source .evergreen/setup-env.sh
-tar xvzf dist.tgz
 dist/mongosh --version
 
 export MONGOSH_TEST_EXECUTABLE_PATH="$(pwd)/dist/mongosh"

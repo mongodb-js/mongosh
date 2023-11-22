@@ -346,6 +346,8 @@ functions:
         shell: bash
         env:
           NODE_JS_VERSION: ${node_js_version}
+          TEST_MONGOSH_EXECUTABLE: ${test_mongosh_executable|}
+          KERBEROS_JUMPHOST_DOCKERFILE: ${kerberos_jumphost_dockerfile|}
         script: |
           set -e
           {
@@ -416,6 +418,13 @@ functions:
         local_file: src/dist.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-${executable_os_id}${extra_upload_tag}.tgz
         bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf dist.tgz
 
   ###
   # E2E TEST EXECUTION
@@ -999,6 +1008,35 @@ tasks:
   <% } } } %>
 
   ###
+  # EXECUTABLE CONNECTIVITY TESTS
+  ###
+  <% const executableConnectivityTests = [];
+  for (const { executableOsId, compileBuildVariant, kerberosConnectivityTestDockerfiles = [] } of RELEASE_PACKAGE_MATRIX) {
+    for (const dockerFile of kerberosConnectivityTestDockerfiles) {
+      const taskName = `executable_connectivity_test_${executableOsId.replace(/-/g, '_')}_${dockerFile.replace(/-/g, '_')}`;
+      executableConnectivityTests.push({ executableOsId, taskName });
+    %>
+  - name: <% out(taskName) %>
+    tags: ["connectivity-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: <% out(compileBuildVariant) %>
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: <% out(executableOsId) %>
+      - func: test_connectivity
+        vars:
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+          test_mongosh_executable: dist/mongosh
+          kerberos_jumphost_dockerfile: "Dockerfile.<% out(dockerFile) %>"
+  <% } } %>
+
+  ###
   # PACKAGING
   ###
   <% for (const { executableOsId, compileBuildVariant, packages } of RELEASE_PACKAGE_MATRIX) {
@@ -1022,10 +1060,14 @@ tasks:
   ###
   # SMOKE TESTS
   ###
-  <% for (const { packages } of RELEASE_PACKAGE_MATRIX) {
+  <%
+  const packageSmokeTestTasks = [];
+  for (const { packages, executableOsId } of RELEASE_PACKAGE_MATRIX) {
        for (const { name, packageOn, smokeTestKind, smokeTestDockerfiles } of packages) if (smokeTestKind !== 'none') {
-        for (const dockerfile of smokeTestDockerfiles || ['']) { %>
-  - name: pkg_test_<% out(`${smokeTestKind}_${name}${dockerfile ? `_${dockerfile}` : ''}`.replace(/[-.]/g, '_')) %>
+        for (const dockerfile of smokeTestDockerfiles || ['']) {
+          const taskName = `pkg_test_${smokeTestKind}_${name}${dockerfile ? `_${dockerfile}` : ''}`.replace(/[-.]/g, '_');
+          packageSmokeTestTasks.push({taskName, executableOsId}); %>
+  - name: <% out(taskName) %>
     tags: ["smoke-test"]
     depends_on:
       - name: package_and_upload_artifact_<% out(name.replace(/-/g, '_')) %>
@@ -1079,6 +1121,8 @@ tasks:
       - name: ".extra-integration-test"
         variant: "*"
       - name: ".e2e-test"
+        variant: "*"
+      - name: ".connectivity-test"
         variant: "*"
       - name: check
         variant: "*"
@@ -1435,25 +1479,54 @@ buildvariants:
       - name: compile_artifact
 
   - name: pkg_smoke_tests_docker_x64
-    display_name: "package smoke tests (x64 Docker)"
+    display_name: "package smoke (x64 Docker)"
     run_on: ubuntu2004-small
     tasks:
-  <% for (const { packages, executableOsId } of RELEASE_PACKAGE_MATRIX) {
-      if (executableOsId.includes('linux-x64')) {
-       for (const { name, smokeTestKind, smokeTestDockerfiles } of packages) if (smokeTestKind !== 'none') {
-        for (const dockerfile of smokeTestDockerfiles || []) { %>
-      - name: pkg_test_<% out(`${smokeTestKind}_${name}${dockerfile ? `_${dockerfile}` : ''}`.replace(/[-.]/g, '_')) %>
-  <% } } } } %>
+  <% for (const { taskName, executableOsId } of packageSmokeTestTasks) {
+      if (executableOsId.includes('linux-x64')) { %>
+      - name: <% out(taskName) %>
+  <% } } %>
   - name: pkg_smoke_tests_docker_arm64
-    display_name: "package smoke tests (arm64 Docker)"
+    display_name: "package smoke (arm64 Docker)"
     run_on: ubuntu2004-arm64-small
     tasks:
-  <% for (const { packages, executableOsId } of RELEASE_PACKAGE_MATRIX) {
-      if (executableOsId.includes('linux-arm64')) {
-       for (const { name, smokeTestKind, smokeTestDockerfiles } of packages) if (smokeTestKind !== 'none') {
-        for (const dockerfile of smokeTestDockerfiles || []) { %>
-      - name: pkg_test_<% out(`${smokeTestKind}_${name}${dockerfile ? `_${dockerfile}` : ''}`.replace(/[-.]/g, '_')) %>
-  <% } } } } %>
+  <% for (const { taskName, executableOsId } of packageSmokeTestTasks) {
+      if (executableOsId.includes('linux-arm64')) { %>
+      - name: <% out(taskName) %>
+  <% } } %>
+  - name: exec_connectitivty_tests_docker_x64_openssl11
+    display_name: "executable connectivity tests (x64 Docker for OpenSSL 1.1 base OS)"
+    run_on: ubuntu2004-small
+    tasks:
+  <% for (const { taskName, executableOsId } of executableConnectivityTests) {
+      if (executableOsId.includes('linux-x64') && !taskName.includes('openssl3')) { %>
+      - name: <% out(taskName) %>
+  <% } } %>
+  - name: exec_connectitivty_tests_docker_arm64_openssl11
+    display_name: "executable connectivity tests (arm64 Docker for OpenSSL 1.1 base OS)"
+    run_on: ubuntu2004-arm64-small
+    tasks:
+  <% for (const { taskName, executableOsId } of executableConnectivityTests) {
+      if (executableOsId.includes('linux-arm64') && !taskName.includes('openssl3')) { %>
+      - name: <% out(taskName) %>
+  <% } } %>
+  - name: exec_connectitivty_tests_docker_x64_openssl3
+    display_name: "executable connectivity tests (x64 Docker for OpenSSL 3 base OS)"
+    run_on: ubuntu2204-small
+    tasks:
+  <% for (const { taskName, executableOsId } of executableConnectivityTests) {
+      if (executableOsId.includes('linux-x64') && !taskName.includes('openssl11')) { %>
+      - name: <% out(taskName) %>
+  <% } } %>
+  # TODO: Re-enable after docker-compose is available on an arm64 distro
+  #- name: exec_connectitivty_tests_docker_arm64_openssl3
+  #  display_name: "executable connectivity tests (arm64 Docker for OpenSSL 3 base OS)"
+  #  run_on: ubuntu2204-arm64-small
+  #  tasks:
+  <% for (const { taskName, executableOsId } of executableConnectivityTests) {
+      if (executableOsId.includes('linux-arm64') && !taskName.includes('openssl11')) { %>
+  #    - name: <% out(taskName) %>
+  <% } } %>
   - name: pkg_smoke_tests_win32
     display_name: "package smoke tests (win32)"
     run_on: ubuntu2004-small

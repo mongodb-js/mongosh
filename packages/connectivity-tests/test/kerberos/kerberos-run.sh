@@ -5,7 +5,7 @@ set -x
 CONNECTION_STATUS_COMMAND='db.runCommand({ connectionStatus: 1 }).authInfo.authenticatedUsers'
 CONNECTION_STATUS_CHECK_STRING="user: 'mongodb.user@EXAMPLE.COM"
 
-MONGOSH=/tmp/mongosh/packages/mongosh/bin/mongosh.js
+MONGOSH=/tmp/mongosh/${TEST_MONGOSH_EXECUTABLE:-packages/mongosh/bin/mongosh.js}
 
 FAILED=no
 ANY_FAILED=no

@@ -24,6 +24,9 @@ const publicDescriptions = {
   win32_x64: 'Windows x64 (10+)'
 };
 
+const krbConnTestsOpenSSL11 = ['rocky8', 'ubuntu2004'];
+const krbConnTestsOpenSSL3 = ['node20', 'rocky9', 'ubuntu2204'];
+
 exports.RELEASE_PACKAGE_MATRIX = [
   {
     executableOsId: 'darwin-x64',
@@ -42,6 +45,7 @@ exports.RELEASE_PACKAGE_MATRIX = [
   {
     executableOsId: 'linux-x64',
     compileBuildVariant: 'linux_x64_build',
+    kerberosConnectivityTestDockerfiles: [...krbConnTestsOpenSSL11, ...krbConnTestsOpenSSL3],
     packages: [
       { name: 'linux-x64', description: publicDescriptions.linux_x64, packageType: 'tgz', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu20.04-tgz'], serverLikeTargetList: [...allLinux] },
       { name: 'deb-x64', description: publicDescriptions.debian_x64, packageType: 'deb', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu18.04-deb', 'ubuntu20.04-deb', 'ubuntu22.04-deb', 'ubuntu22.04-nohome-deb', 'debian10-deb', 'debian11-deb', 'debian12-deb'], serverLikeTargetList: [...ubuntu1804AndAboveAndDebBased] },
@@ -51,6 +55,7 @@ exports.RELEASE_PACKAGE_MATRIX = [
   {
     executableOsId: 'linux-x64-openssl11',
     compileBuildVariant: 'linux_x64_build_openssl11',
+    kerberosConnectivityTestDockerfiles: [...krbConnTestsOpenSSL11],
     packages: [
       { name: 'linux-x64-openssl11', description: publicDescriptions.linux_x64, packageType: 'tgz with shared OpenSSL 1.1', packageOn: 'linux_package', smokeTestKind: 'none', serverLikeTargetList: [...allLinux] },
       { name: 'deb-x64-openssl11', description: publicDescriptions.debian_x64, packageType: 'deb with shared OpenSSL 1.1', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu20.04-deb', 'debian10-deb', 'debian11-deb'], serverLikeTargetList: [...ubuntu1804AndAboveAndDebBased] },
@@ -60,6 +65,7 @@ exports.RELEASE_PACKAGE_MATRIX = [
   {
     executableOsId: 'linux-x64-openssl3',
     compileBuildVariant: 'linux_x64_build_openssl3',
+    kerberosConnectivityTestDockerfiles: [...krbConnTestsOpenSSL3],
     packages: [
       { name: 'linux-x64-openssl3', description: publicDescriptions.linux_x64, packageType: 'tgz with shared OpenSSL 3', packageOn: 'linux_package', smokeTestKind: 'none', serverLikeTargetList: [...allLinux] },
       { name: 'deb-x64-openssl3', description: publicDescriptions.debian_x64, packageType: 'deb with shared OpenSSL 1.1', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu22.04-deb', 'ubuntu22.04-fips-deb', 'debian12-deb'], serverLikeTargetList: [...ubuntu1804AndAboveAndDebBased] },
@@ -69,6 +75,7 @@ exports.RELEASE_PACKAGE_MATRIX = [
   {
     executableOsId: 'linux-arm64',
     compileBuildVariant: 'linux_arm64_build',
+    kerberosConnectivityTestDockerfiles: [...krbConnTestsOpenSSL11, ...krbConnTestsOpenSSL3],
     packages: [
       { name: 'linux-arm64', description: publicDescriptions.linux_arm64, packageType: 'tgz', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu20.04-tgz'], serverLikeTargetList: [...al2AndAbove] },
       { name: 'deb-arm64', description: publicDescriptions.debian_arm64, packageType: 'deb', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu18.04-deb', 'ubuntu20.04-deb', 'ubuntu22.04-deb', 'debian10-deb', 'debian11-deb', 'debian12-deb'], serverLikeTargetList: [...ubuntu1804AndAboveAndDebBased] },
@@ -78,6 +85,7 @@ exports.RELEASE_PACKAGE_MATRIX = [
   {
     executableOsId: 'linux-arm64-openssl11',
     compileBuildVariant: 'linux_arm64_build_openssl11',
+    kerberosConnectivityTestDockerfiles: [...krbConnTestsOpenSSL11],
     packages: [
       { name: 'linux-arm64-openssl11', description: publicDescriptions.linux_arm64, packageType: 'tgz with shared OpenSSL 1.1', packageOn: 'linux_package', smokeTestKind: 'none', serverLikeTargetList: [...al2AndAbove] },
       { name: 'deb-arm64-openssl11', description: publicDescriptions.debian_arm64, packageType: 'deb with shared OpenSSL 1.1', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu20.04-deb', 'debian10-deb', 'debian11-deb'], serverLikeTargetList: [...ubuntu1804AndAboveAndDebBased] },
@@ -87,6 +95,7 @@ exports.RELEASE_PACKAGE_MATRIX = [
   {
     executableOsId: 'linux-arm64-openssl3',
     compileBuildVariant: 'linux_arm64_build_openssl3',
+    kerberosConnectivityTestDockerfiles: [...krbConnTestsOpenSSL3],
     packages: [
       { name: 'linux-arm64-openssl3', description: publicDescriptions.linux_arm64, packageType: 'tgz with shared OpenSSL 3', packageOn: 'linux_package', smokeTestKind: 'none', serverLikeTargetList: [...al2AndAbove] },
       { name: 'deb-arm64-openssl3', description: publicDescriptions.debian_arm64, packageType: 'deb with shared OpenSSL 3', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu22.04-deb', 'ubuntu22.04-fips-deb', 'debian12-deb'], serverLikeTargetList: [...ubuntu1804AndAboveAndDebBased] },

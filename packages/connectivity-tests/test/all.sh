@@ -11,10 +11,16 @@ mkdir -p "$TEST_TMPDIR"
 cd "$TEST_TMPDIR"
 export TEST_TMPDIR="$PWD"
 
+if [[ -z "$TEST_MONGOSH_EXECUTABLE" ]]; then
+  export MONGOSH=mongosh
+else
+  export MONGOSH="${MONGOSH_ROOT_DIR}/${TEST_MONGOSH_EXECUTABLE}"
+fi
+
 git clone git@github.com:mongodb-js/devtools-docker-test-envs.git test-envs
 cd test-envs
 
-git checkout f029f9e3a9cc006a6aeb60d941b4f8d87ae4bc95
+git checkout ca4bacd23e6f7ea07618c303b20556e3e4c9c2e6
 
 "$CONNECTIVITY_TEST_SOURCE_DIR/ldap.sh"
 "$CONNECTIVITY_TEST_SOURCE_DIR/localhost.sh"
