@@ -393,20 +393,6 @@ export class SampledAnalytics implements MongoshAnalytics {
     this.target = configuration.target || new NoopAnalytics();
   }
 
-  static enabledForAll(target?: MongoshAnalytics): MongoshAnalytics {
-    return new SampledAnalytics({
-      target,
-      sampling: () => true,
-    });
-  }
-
-  static disabledForAll(target?: MongoshAnalytics): MongoshAnalytics {
-    return new SampledAnalytics({
-      target,
-      sampling: () => false,
-    });
-  }
-
   get enabled(): boolean {
     return this.isEnabled;
   }

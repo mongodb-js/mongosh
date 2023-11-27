@@ -260,9 +260,11 @@ describe('analytics helpers', function () {
     };
 
     it('should send the event forward when sampled', function () {
-      const analytics = SampledAnalytics.enabledForAll(
-        target
-      ) as SampledAnalytics;
+      const analytics = new SampledAnalytics({
+        target,
+        sampling: () => true,
+      });
+
       expect(analytics.enabled).to.be.true;
 
       analytics.identify(iEvt);
@@ -272,9 +274,11 @@ describe('analytics helpers', function () {
     });
 
     it('should not send the event forward when not sampled', function () {
-      const analytics = SampledAnalytics.disabledForAll(
-        target
-      ) as SampledAnalytics;
+      const analytics = new SampledAnalytics({
+        target,
+        sampling: () => false,
+      });
+
       expect(analytics.enabled).to.be.false;
 
       analytics.identify(iEvt);
