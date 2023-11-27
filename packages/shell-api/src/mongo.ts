@@ -61,6 +61,7 @@ import { KeyVault, ClientEncryption } from './field-level-encryption';
 import { ShellApiErrors } from './error-codes';
 import type { LogEntry } from './log-entry';
 import { parseAnyLogEntry } from './log-entry';
+import { MongoshBusEventsMap } from '@mongosh/types';
 
 /* Utility, inverse of Readonly<T> */
 type Mutable<T> = {
@@ -371,10 +372,19 @@ export default class Mongo extends ShellApiClass {
     const db = this._instanceState.currentDb;
     // legacy shell:
     // https://github.com/mongodb/mongo/blob/a6df396047a77b90bf1ce9463eecffbee16fb864/src/mongo/shell/utils.js#L900-L1226
-    tracked &&
-      this._instanceState.messageBus.emit('mongosh:show', {
-        method: `show ${cmd}`,
-      });
+
+    const sendTelemetry = <K extends keyof MongoshBusEventsMap>(
+      event: K,
+      ...args: MongoshBusEventsMap[K] extends (...args: infer P) => any
+        ? P
+        : never
+    ) => {
+      tracked && this._instanceState.messageBus.emit(event, ...args);
+    };
+
+    sendTelemetry('mongosh:show', {
+      method: `show ${cmd}`,
+    });
 
     switch (cmd) {
       case 'databases':
@@ -434,11 +444,7 @@ export default class Mongo extends ShellApiClass {
             );
           }
         } catch (error: any) {
-          this._instanceState.messageBus.emit(
-            'mongosh:error',
-            error,
-            'shell-api'
-          );
+          sendTelemetry('mongosh:error', error, 'shell-api');
           return new CommandResult('ShowBannerResult', null);
         }
 
@@ -464,11 +470,7 @@ export default class Mongo extends ShellApiClass {
         try {
           helloResult = await db.hello();
         } catch (error: any) {
-          this._instanceState.messageBus.emit(
-            'mongosh:error',
-            error,
-            'shell-api'
-          );
+          sendTelemetry('mongosh:error', error, 'shell-api');
           return new CommandResult('ShowBannerResult', null);
         }
         if (helloResult.automationServiceDescriptor) {
@@ -503,7 +505,7 @@ export default class Mongo extends ShellApiClass {
           `'${cmd}' is not a valid argument for "show".`,
           CommonErrors.InvalidArgument
         );
-        this._instanceState.messageBus.emit('mongosh:error', err, 'shell-api');
+        sendTelemetry('mongosh:error', err, 'shell-api');
         throw err;
     }
   }
