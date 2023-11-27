@@ -4,7 +4,11 @@ import fs from 'fs';
 import { promisify } from 'util';
 import { expect } from 'chai';
 import type { MongoshAnalytics } from './analytics-helpers';
-import { ToggleableAnalytics, ThrottledAnalytics } from './analytics-helpers';
+import {
+  ToggleableAnalytics,
+  ThrottledAnalytics,
+  SampledAnalytics,
+} from './analytics-helpers';
 
 const wait = promisify(setTimeout);
 
@@ -243,6 +247,59 @@ describe('analytics helpers', function () {
           .join(',')
         // can't be fully sure which instance 'won' the lock because fs operations are inherently subject to race conditions
       ).to.match(/^(hi,hi,hi|bye,bye,bye)$/);
+    });
+  });
+
+  describe('SampledAnalytics', function () {
+    const userId = `u-${Date.now()}`;
+    const iEvt = { userId, traits: { platform: 'what', session_id: 'abc' } };
+    const tEvt = {
+      userId,
+      event: 'hi',
+      properties: { mongosh_version: '1.2.3', session_id: 'abc' },
+    };
+
+    it('should sample by default a 30% of open sessions with an error margin of ±1%', function () {
+      const expectedPercentage = 30;
+      // sampling is random based, so we must consider an error margin, for example, ±1%
+      const errorMargin = 1;
+
+      let totalSample = 0;
+      let enabledSamples = 0;
+
+      for (let i = 0; i < 100_000; i++) {
+        // evenly distributed randoms are more evenly with more samples
+        totalSample++;
+        enabledSamples += SampledAnalytics.default(target).enabled ? 1 : 0;
+      }
+
+      const sampledPercentage = (enabledSamples / totalSample) * 100;
+      expect(sampledPercentage).to.be.greaterThan(
+        expectedPercentage - errorMargin
+      );
+      expect(sampledPercentage).to.be.lessThan(
+        expectedPercentage + errorMargin
+      );
+    });
+
+    it('should send the event forward when sampled', function () {
+      const analytics = SampledAnalytics.enabledForAll(target);
+      expect(analytics.enabled).to.be.true;
+
+      analytics.identify(iEvt);
+      analytics.track(tEvt);
+
+      expect(events.length).to.equal(2);
+    });
+
+    it('should not send the event forward when not sampled', function () {
+      const analytics = SampledAnalytics.disabledForAll(target);
+      expect(analytics.enabled).to.be.false;
+
+      analytics.identify(iEvt);
+      analytics.track(tEvt);
+
+      expect(events.length).to.equal(0);
     });
   });
 });

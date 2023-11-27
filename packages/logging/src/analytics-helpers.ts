@@ -378,3 +378,69 @@ export class ThrottledAnalytics implements MongoshAnalytics {
     });
   }
 }
+
+type SampledAnalyticsOptions = {
+  target: MongoshAnalytics;
+  /**
+   * Sampling options. If not provided, sampling will be defaulted to 100% of sessions.
+   * Also, from an exposed environment standpoint, providing a MONGOSH_ANALYTICS_SAMPLE
+   * environment variable with a truthy value will force the sampling to 100%.
+   *
+   * The sampling configuration can be changed, however, by default it will be a Math.random
+   * bounded from 0 to 100. If you are going to configure it use a evenly distributed random function.
+   */
+  sampling: {
+    percentage: number;
+    samplingFunction: () => number;
+  } | null;
+};
+
+export class SampledAnalytics implements MongoshAnalytics {
+  private isEnabled: boolean;
+
+  private constructor(private configuration: SampledAnalyticsOptions) {
+    this.configuration.sampling ??= {
+      percentage: 30,
+      samplingFunction: () => Math.random() * 100,
+    };
+
+    const shouldBeSampled =
+      this.configuration.sampling.samplingFunction() <=
+      this.configuration.sampling.percentage;
+    this.isEnabled = !!process.env.MONGOSH_ANALYTICS_SAMPLE || shouldBeSampled;
+  }
+
+  static default(target: MongoshAnalytics): SampledAnalytics {
+    return new SampledAnalytics({ target, sampling: null });
+  }
+
+  static enabledForAll(target: MongoshAnalytics): SampledAnalytics {
+    return new SampledAnalytics({
+      target,
+      sampling: { percentage: 100, samplingFunction: () => 1 },
+    });
+  }
+
+  static disabledForAll(target: MongoshAnalytics): SampledAnalytics {
+    return new SampledAnalytics({
+      target,
+      sampling: { percentage: 0, samplingFunction: () => 1 },
+    });
+  }
+
+  get enabled(): boolean {
+    return this.isEnabled;
+  }
+
+  identify(message: AnalyticsIdentifyMessage): void {
+    this.isEnabled && this.configuration.target.identify(message);
+  }
+
+  track(message: AnalyticsTrackMessage): void {
+    this.isEnabled && this.configuration.target.track(message);
+  }
+
+  flush(callback: (err?: Error | undefined) => void): void {
+    this.isEnabled && this.configuration.target.flush(callback);
+  }
+}
