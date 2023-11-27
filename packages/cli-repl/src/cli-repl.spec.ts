@@ -1208,6 +1208,7 @@ describe('CliRepl', function () {
         };
 
         beforeEach(async function () {
+          process.env.MONGOSH_ANALYTICS_SAMPLE = 'true';
           requests = [];
           srv = http
             .createServer((req, res) => {
