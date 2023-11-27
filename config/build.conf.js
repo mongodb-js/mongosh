@@ -165,10 +165,11 @@ module.exports = {
               []
           )
         ],
-        debDepends: 'libc6 (>= 2.17), libgssapi-krb5-2' + (
+        debDepends: 'libc6 (>= 2.17)' + (
           SHARED_OPENSSL_TAG === 'openssl11' ? ', libssl1.1' :
             SHARED_OPENSSL_TAG === 'openssl3' ? ', libssl3' : ''
         ),
+        debRecommends: 'libgssapi-krb5-2',
         fullName: 'MongoDB Shell',
         version: CLI_REPL_PACKAGE_JSON.version,
         description: CLI_REPL_PACKAGE_JSON.description,

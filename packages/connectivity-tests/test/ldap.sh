@@ -4,7 +4,7 @@ set -x
 
 function try_connect_explicit() {
   echo 'db.runCommand({ connectionStatus: 1 }).authInfo.authenticatedUsers' |
-    (mongosh \
+    ("${MONGOSH}" \
       --host localhost \
       --port 30017 \
       --username "$1" \
@@ -16,7 +16,7 @@ function try_connect_explicit() {
 
 function try_connect_connection_string() {
   echo 'db.runCommand({ connectionStatus: 1 }).authInfo.authenticatedUsers' |
-    (mongosh "$1" | grep -Fq "$2" && echo 'no') || echo 'yes'
+    ("${MONGOSH}" "$1" | grep -Fq "$2" && echo 'no') || echo 'yes'
 }
 
 function test_for_version() {

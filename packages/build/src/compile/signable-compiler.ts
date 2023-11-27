@@ -168,6 +168,10 @@ export class SignableCompiler {
         // Custom env vars for sccache:
         AWS_ACCESS_KEY_ID: process.env.DEVTOOLS_CI_AWS_KEY,
         AWS_SECRET_ACCESS_KEY: process.env.DEVTOOLS_CI_AWS_SECRET,
+        // https://jira.mongodb.org/browse/MONGOSH-1628
+        ...(process.platform === 'linux' && {
+          GYP_DEFINES: 'kerberos_use_rtld=true',
+        }),
       },
       addons: [fleAddon, osDnsAddon, kerberosAddon, cryptLibraryVersionAddon]
         .concat(winCAAddon ? [winCAAddon] : [])

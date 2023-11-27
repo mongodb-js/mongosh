@@ -58,7 +58,7 @@ function test_connection_string() {
 
   CONNECTION_STRING="mongodb+srv://${ATLAS_USERNAME}:${ATLAS_PASSWORD}@${ATLAS_HOSTNAME}/admin"
 
-  echo "${CONNECTION_STATUS_COMMAND}" | mongosh "${CONNECTION_STRING}" |
+  echo "${CONNECTION_STATUS_COMMAND}" | "${MONGOSH}" "${CONNECTION_STRING}" |
     grep -Fq "${CONNECTION_STATUS_CHECK_STRING}" ||
     FAILED="Can't connect to Atlas using connection string with username and password"
 
@@ -69,7 +69,7 @@ function test_atlas_in_logs() {
   printf "test_atlas_in_logs ... "
 
   CONNECTION_STRING="mongodb+srv://${ATLAS_USERNAME}:${ATLAS_PASSWORD}@${ATLAS_HOSTNAME}/admin"
-  LOG_ID=$(echo "exit" | mongosh "${CONNECTION_STRING}" | sed -n -e 's/Current Mongosh Log ID:\t//p')
+  LOG_ID=$(echo "exit" | "${MONGOSH}" "${CONNECTION_STRING}" | sed -n -e 's/Current Mongosh Log ID:\t//p')
   LOG_PATH="${HOME}/.mongodb/mongosh/${LOG_ID}_log"
 
   cat "${LOG_PATH}" | grep -Fq '"is_atlas":true' ||
@@ -84,7 +84,7 @@ function test_credentials_masking() {
   CONNECTION_STRING="mongodb+srv://${ATLAS_USERNAME}:${ATLAS_PASSWORD}@${ATLAS_HOSTNAME}/admin"
   MASKED_CREDENTIALS_STRING="mongodb+srv://<credentials>@${ATLAS_HOSTNAME}/admin"
 
-  echo "${CONNECTION_STATUS_COMMAND}" | mongosh "${CONNECTION_STRING}" |
+  echo "${CONNECTION_STATUS_COMMAND}" | "${MONGOSH}" "${CONNECTION_STRING}" |
     grep -Fq "${MASKED_CREDENTIALS_STRING}" ||
     FAILED="When connecting, credentials are not masked in the connection string"
 
@@ -97,7 +97,7 @@ function test_cli_args() {
   CONNECTION_STRING="mongodb+srv://${ATLAS_HOSTNAME}/admin"
 
   echo "${CONNECTION_STATUS_COMMAND}" |
-    mongosh "${CONNECTION_STRING}" --username "${ATLAS_USERNAME}" --password "${ATLAS_PASSWORD}" |
+    "${MONGOSH}" "${CONNECTION_STRING}" --username "${ATLAS_USERNAME}" --password "${ATLAS_PASSWORD}" |
     grep -Fq "${CONNECTION_STATUS_CHECK_STRING}" ||
     FAILED="Can't connect to Atlas using connection string and username and password arguments"
 
@@ -110,7 +110,7 @@ function test_password_prompt() {
   CONNECTION_STRING="mongodb+srv://${ATLAS_HOSTNAME}/admin"
 
   echo -e "${ATLAS_PASSWORD}\n${CONNECTION_STATUS_COMMAND}" |
-    mongosh "${CONNECTION_STRING}" --username "${ATLAS_USERNAME}" |
+    "${MONGOSH}" "${CONNECTION_STRING}" --username "${ATLAS_USERNAME}" |
     grep -Fq "${CONNECTION_STATUS_CHECK_STRING}" ||
     FAILED="Can't connect to Atlas using password prompt"
 
@@ -123,7 +123,7 @@ function test_data_lake() {
   CONNECTION_STRING="mongodb://${ATLAS_DATA_LAKE_HOSTNAME}/admin"
 
   echo "${CONNECTION_STATUS_COMMAND}" |
-    mongosh "${CONNECTION_STRING}" \
+    "${MONGOSH}" "${CONNECTION_STRING}" \
       --tls \
       --authenticationDatabase admin \
       --username "${ATLAS_USERNAME}" \
@@ -140,7 +140,7 @@ function test_serverless() {
   CONNECTION_STRING="mongodb+srv://${ATLAS_SERVERLESS_HOSTNAME}/admin"
 
   echo "${CONNECTION_STATUS_COMMAND}" |
-    mongosh "${CONNECTION_STRING}" \
+    "${MONGOSH}" "${CONNECTION_STRING}" \
       --username "${ATLAS_USERNAME}" \
       --password "${ATLAS_PASSWORD}" |
     grep -Fq "${CONNECTION_STATUS_CHECK_STRING}" ||
@@ -154,7 +154,7 @@ function test_srv_without_nodejs_dns() {
 
   CONNECTION_STRING="mongodb+srv://${ATLAS_USERNAME}:${ATLAS_PASSWORD}@${ATLAS_HOSTNAME}/admin"
 
-  echo "${CONNECTION_STATUS_COMMAND}" | NODE_OPTIONS="-r ${MONGOSH_ROOT_DIR}/testing/disable-dns-srv.js" mongosh "${CONNECTION_STRING}" |
+  echo "${CONNECTION_STATUS_COMMAND}" | NODE_OPTIONS="-r ${MONGOSH_ROOT_DIR}/testing/disable-dns-srv.js" "${MONGOSH}" "${CONNECTION_STRING}" |
     grep -Fq "${CONNECTION_STATUS_CHECK_STRING}" ||
     FAILED="Can't connect to Atlas using connection string without Node.js SRV/TXT DNS support"
 

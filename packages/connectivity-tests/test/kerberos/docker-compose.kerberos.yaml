@@ -3,7 +3,10 @@ services:
   kerberos_jumphost:
     build:
       context: $CONNECTIVITY_TEST_SOURCE_DIR/kerberos
-    depends_on: 
+      dockerfile: $KERBEROS_JUMPHOST_DOCKERFILE
+    environment:
+      - TEST_MONGOSH_EXECUTABLE
+    depends_on:
       - kdc-kadmin
       - kdc-kadmin2
       - mongodb1

@@ -1,6 +1,7 @@
 export interface ExecutablePackageInformation {
   executableOsId: string;
   compileBuildVariant: string;
+  kerberosConnectivityTestDockerfiles?: string[];
   packages: PackageInformation[];
 }
 
