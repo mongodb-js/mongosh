@@ -43,6 +43,7 @@ import { promisify } from 'util';
 import { getOsInfo } from './get-os-info';
 import { UpdateNotificationManager } from './update-notification-manager';
 import { markTime } from './startup-timing';
+import { SampledAnalytics } from '@mongosh/logging/lib/analytics-helpers';
 
 /**
  * Connecting text key.
@@ -500,13 +501,15 @@ export class CliRepl implements MongoshIOProvider {
       } as any /* axiosConfig and axiosRetryConfig are existing options, but don't have type definitions */
     );
     this.toggleableAnalytics = new ToggleableAnalytics(
-      new ThrottledAnalytics({
-        target: this.segmentAnalytics,
-        throttle: {
-          rate: 30,
-          metadataPath: this.shellHomeDirectory.paths.shellLocalDataPath,
-        },
-      })
+      SampledAnalytics.default(
+        new ThrottledAnalytics({
+          target: this.segmentAnalytics,
+          throttle: {
+            rate: 30,
+            metadataPath: this.shellHomeDirectory.paths.shellLocalDataPath,
+          },
+        })
+      )
     );
   }
 

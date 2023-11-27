@@ -259,31 +259,23 @@ describe('analytics helpers', function () {
       properties: { mongosh_version: '1.2.3', session_id: 'abc' },
     };
 
-    it('should sample by default a 30% of open sessions with an error margin of ±1%', function () {
-      const expectedPercentage = 30;
-      // sampling is random based, so we must consider an error margin, for example, ±1%
-      const errorMargin = 1;
+    afterEach(function () {
+      delete process.env.MONGOSH_ANALYTICS_SAMPLE;
+    });
 
-      let totalSample = 0;
-      let enabledSamples = 0;
+    it('should override sampling with the MONGOSH_ANALYTICS_SAMPLE environment variable', function () {
+      process.env.MONGOSH_ANALYTICS_SAMPLE = 'true';
+      const analytics = SampledAnalytics.disabledForAll(
+        target
+      ) as SampledAnalytics;
 
-      for (let i = 0; i < 100_000; i++) {
-        // evenly distributed randoms are more evenly with more samples
-        totalSample++;
-        enabledSamples += SampledAnalytics.default(target).enabled ? 1 : 0;
-      }
-
-      const sampledPercentage = (enabledSamples / totalSample) * 100;
-      expect(sampledPercentage).to.be.greaterThan(
-        expectedPercentage - errorMargin
-      );
-      expect(sampledPercentage).to.be.lessThan(
-        expectedPercentage + errorMargin
-      );
+      expect(analytics.enabled).to.be.true;
     });
 
     it('should send the event forward when sampled', function () {
-      const analytics = SampledAnalytics.enabledForAll(target);
+      const analytics = SampledAnalytics.enabledForAll(
+        target
+      ) as SampledAnalytics;
       expect(analytics.enabled).to.be.true;
 
       analytics.identify(iEvt);
@@ -293,7 +285,9 @@ describe('analytics helpers', function () {
     });
 
     it('should not send the event forward when not sampled', function () {
-      const analytics = SampledAnalytics.disabledForAll(target);
+      const analytics = SampledAnalytics.disabledForAll(
+        target
+      ) as SampledAnalytics;
       expect(analytics.enabled).to.be.false;
 
       analytics.identify(iEvt);

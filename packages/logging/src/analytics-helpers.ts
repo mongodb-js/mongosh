@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { performance } from 'perf_hooks';
 
 export type MongoshAnalyticsIdentity =
   | {
@@ -380,7 +381,7 @@ export class ThrottledAnalytics implements MongoshAnalytics {
 }
 
 type SampledAnalyticsOptions = {
-  target: MongoshAnalytics;
+  target?: MongoshAnalytics;
   /**
    * Sampling options. If not provided, sampling will be defaulted to 100% of sessions.
    * Also, from an exposed environment standpoint, providing a MONGOSH_ANALYTICS_SAMPLE
@@ -391,40 +392,43 @@ type SampledAnalyticsOptions = {
    */
   sampling: {
     percentage: number;
-    samplingFunction: () => number;
+    samplingFunction: (percentage: number) => boolean;
   } | null;
 };
 
 export class SampledAnalytics implements MongoshAnalytics {
   private isEnabled: boolean;
+  private target: MongoshAnalytics;
 
-  private constructor(private configuration: SampledAnalyticsOptions) {
-    this.configuration.sampling ??= {
+  private constructor(configuration: SampledAnalyticsOptions) {
+    configuration.sampling ??= {
       percentage: 30,
-      samplingFunction: () => Math.random() * 100,
+      samplingFunction: (percentage) => Math.random() * 100 < percentage,
     };
 
-    const shouldBeSampled =
-      this.configuration.sampling.samplingFunction() <=
-      this.configuration.sampling.percentage;
+    const shouldBeSampled = configuration.sampling.samplingFunction(
+      configuration.sampling.percentage
+    );
+
     this.isEnabled = !!process.env.MONGOSH_ANALYTICS_SAMPLE || shouldBeSampled;
+    this.target = configuration.target || new NoopAnalytics();
   }
 
-  static default(target: MongoshAnalytics): SampledAnalytics {
+  static default(target?: MongoshAnalytics): MongoshAnalytics {
     return new SampledAnalytics({ target, sampling: null });
   }
 
-  static enabledForAll(target: MongoshAnalytics): SampledAnalytics {
+  static enabledForAll(target?: MongoshAnalytics): MongoshAnalytics {
     return new SampledAnalytics({
       target,
-      sampling: { percentage: 100, samplingFunction: () => 1 },
+      sampling: { percentage: 100, samplingFunction: () => true },
     });
   }
 
-  static disabledForAll(target: MongoshAnalytics): SampledAnalytics {
+  static disabledForAll(target?: MongoshAnalytics): MongoshAnalytics {
     return new SampledAnalytics({
       target,
-      sampling: { percentage: 0, samplingFunction: () => 1 },
+      sampling: { percentage: 0, samplingFunction: () => false },
     });
   }
 
@@ -433,14 +437,14 @@ export class SampledAnalytics implements MongoshAnalytics {
   }
 
   identify(message: AnalyticsIdentifyMessage): void {
-    this.isEnabled && this.configuration.target.identify(message);
+    this.isEnabled && this.target.identify(message);
   }
 
   track(message: AnalyticsTrackMessage): void {
-    this.isEnabled && this.configuration.target.track(message);
+    this.isEnabled && this.target.track(message);
   }
 
   flush(callback: (err?: Error | undefined) => void): void {
-    this.isEnabled && this.configuration.target.flush(callback);
+    this.isEnabled && this.target.flush(callback);
   }
 }
