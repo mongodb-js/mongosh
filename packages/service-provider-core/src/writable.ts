@@ -385,7 +385,11 @@ export default interface Writable {
     database: string,
     collection: string,
     // TODO(MONGOSH-1471): use SearchIndexDescription[] once available
-    specs: { name: string; definition: Document }[],
+    specs: {
+      name: string;
+      type?: 'search' | 'vectorSearch';
+      definition: Document;
+    }[],
     dbOptions?: DbOptions
   ): Promise<string[]>;
 

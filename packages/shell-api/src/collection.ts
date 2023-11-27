@@ -2315,8 +2315,13 @@ export default class Collection extends ShellApiWithMongoClass {
   // TODO(MONGOSH-1471): use SearchIndexDescription once available
   async createSearchIndex(
     indexName?: string | Document,
+    type?: 'search' | 'vectorSearch' | Document,
     definition?: Document
   ): Promise<string> {
+    if (typeof type === 'object' && type !== null) {
+      definition = type;
+      type = undefined;
+    }
     if (typeof indexName === 'object' && indexName !== null) {
       definition = indexName;
       indexName = undefined;
@@ -2329,6 +2334,9 @@ export default class Collection extends ShellApiWithMongoClass {
       [
         {
           name: (indexName as string | undefined) ?? 'default',
+          // Omitting type when it is 'search' for compat with older servers
+          ...(type &&
+            type !== 'search' && { type: type as 'search' | 'vectorSearch' }),
           definition: { ...definition },
         },
       ]
@@ -2341,13 +2349,21 @@ export default class Collection extends ShellApiWithMongoClass {
   @apiVersions([])
   // TODO(MONGOSH-1471): use SearchIndexDescription once available
   async createSearchIndexes(
-    specs: { name: string; definition: Document }[]
+    specs: {
+      name: string;
+      type?: 'search' | 'vectorSearch';
+      definition: Document;
+    }[]
   ): Promise<string[]> {
     this._emitCollectionApiCall('createSearchIndexes', { specs });
     return await this._mongo._serviceProvider.createSearchIndexes(
       this._database._name,
       this._name,
-      specs
+      // Omitting type when it is 'search' for compat with older servers
+      specs.map(({ type, ...spec }) => ({
+        ...spec,
+        ...(type && type !== 'search' && { type }),
+      }))
     );
   }
 
