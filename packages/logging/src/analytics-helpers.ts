@@ -383,7 +383,7 @@ export class ThrottledAnalytics implements MongoshAnalytics {
 type SampledAnalyticsOptions = {
   target?: MongoshAnalytics;
   /**
-   * Sampling options. If not provided, sampling will be defaulted to 100% of sessions.
+   * Sampling options. If not provided, sampling will be defaulted to 30% of sessions.
    * Also, from an exposed environment standpoint, providing a MONGOSH_ANALYTICS_SAMPLE
    * environment variable with a truthy value will force the sampling to 100%.
    *
