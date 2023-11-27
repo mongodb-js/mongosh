@@ -406,6 +406,6 @@ export class SampledAnalytics implements MongoshAnalytics {
   }
 
   flush(callback: (err?: Error | undefined) => void): void {
-    this.isEnabled && this.target.flush(callback);
+    this.target.flush(callback);
   }
 }
