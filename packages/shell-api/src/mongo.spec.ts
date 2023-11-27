@@ -119,7 +119,7 @@ describe('Mongo', function () {
       database = stubInterface<Database>();
       instanceState.currentDb = database;
     });
-    describe.only('show', function () {
+    describe('show', function () {
       it('should send telemetry by default', async function () {
         serviceProvider.listDatabases.resolves({ ok: 1, databases: [] });
         await mongo.show('dbs');
