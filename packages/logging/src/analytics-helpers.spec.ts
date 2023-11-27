@@ -259,19 +259,6 @@ describe('analytics helpers', function () {
       properties: { mongosh_version: '1.2.3', session_id: 'abc' },
     };
 
-    afterEach(function () {
-      delete process.env.MONGOSH_ANALYTICS_SAMPLE;
-    });
-
-    it('should override sampling with the MONGOSH_ANALYTICS_SAMPLE environment variable', function () {
-      process.env.MONGOSH_ANALYTICS_SAMPLE = 'true';
-      const analytics = SampledAnalytics.disabledForAll(
-        target
-      ) as SampledAnalytics;
-
-      expect(analytics.enabled).to.be.true;
-    });
-
     it('should send the event forward when sampled', function () {
       const analytics = SampledAnalytics.enabledForAll(
         target

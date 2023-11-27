@@ -381,53 +381,29 @@ export class ThrottledAnalytics implements MongoshAnalytics {
 
 type SampledAnalyticsOptions = {
   target?: MongoshAnalytics;
-  /**
-   * Sampling options. If not provided, sampling will be defaulted to 30% of sessions.
-   * Also, from an exposed environment standpoint, providing a MONGOSH_ANALYTICS_SAMPLE
-   * environment variable with a truthy value will force the sampling to 100%.
-   *
-   * The sampling configuration can be changed, however, by default it will be a Math.random
-   * bounded from 0 to 100. If you are going to configure it use a evenly distributed random function.
-   */
-  sampling: {
-    percentage: number;
-    samplingFunction: (percentage: number) => boolean;
-  } | null;
+  sampling: () => boolean;
 };
 
 export class SampledAnalytics implements MongoshAnalytics {
   private isEnabled: boolean;
   private target: MongoshAnalytics;
 
-  private constructor(configuration: SampledAnalyticsOptions) {
-    configuration.sampling ??= {
-      percentage: 30,
-      samplingFunction: (percentage) => Math.random() * 100 < percentage,
-    };
-
-    const shouldBeSampled = configuration.sampling.samplingFunction(
-      configuration.sampling.percentage
-    );
-
-    this.isEnabled = !!process.env.MONGOSH_ANALYTICS_SAMPLE || shouldBeSampled;
+  constructor(configuration: SampledAnalyticsOptions) {
+    this.isEnabled = configuration.sampling();
     this.target = configuration.target || new NoopAnalytics();
-  }
-
-  static default(target?: MongoshAnalytics): MongoshAnalytics {
-    return new SampledAnalytics({ target, sampling: null });
   }
 
   static enabledForAll(target?: MongoshAnalytics): MongoshAnalytics {
     return new SampledAnalytics({
       target,
-      sampling: { percentage: 100, samplingFunction: () => true },
+      sampling: () => true,
     });
   }
 
   static disabledForAll(target?: MongoshAnalytics): MongoshAnalytics {
     return new SampledAnalytics({
       target,
-      sampling: { percentage: 0, samplingFunction: () => false },
+      sampling: () => false,
     });
   }
 
