@@ -61,7 +61,6 @@ import { KeyVault, ClientEncryption } from './field-level-encryption';
 import { ShellApiErrors } from './error-codes';
 import type { LogEntry } from './log-entry';
 import { parseAnyLogEntry } from './log-entry';
-import type { MongoshBusEventsMap } from '@mongosh/types';
 
 /* Utility, inverse of Readonly<T> */
 type Mutable<T> = {
