@@ -373,18 +373,10 @@ export default class Mongo extends ShellApiClass {
     // legacy shell:
     // https://github.com/mongodb/mongo/blob/a6df396047a77b90bf1ce9463eecffbee16fb864/src/mongo/shell/utils.js#L900-L1226
 
-    const sendTelemetry = <K extends keyof MongoshBusEventsMap>(
-      event: K,
-      ...args: MongoshBusEventsMap[K] extends (...args: infer P) => any
-        ? P
-        : never
-    ) => {
-      tracked && this._instanceState.messageBus.emit(event, ...args);
-    };
-
-    sendTelemetry('mongosh:show', {
-      method: `show ${cmd}`,
-    });
+    tracked &&
+      this._instanceState.messageBus.emit('mongosh:show', {
+        method: `show ${cmd}`,
+      });
 
     switch (cmd) {
       case 'databases':
@@ -444,7 +436,11 @@ export default class Mongo extends ShellApiClass {
             );
           }
         } catch (error: any) {
-          sendTelemetry('mongosh:error', error, 'shell-api');
+          this._instanceState.messageBus.emit(
+            'mongosh:error',
+            error,
+            'shell-api'
+          );
           return new CommandResult('ShowBannerResult', null);
         }
 
@@ -470,7 +466,11 @@ export default class Mongo extends ShellApiClass {
         try {
           helloResult = await db.hello();
         } catch (error: any) {
-          sendTelemetry('mongosh:error', error, 'shell-api');
+          this._instanceState.messageBus.emit(
+            'mongosh:error',
+            error,
+            'shell-api'
+          );
           return new CommandResult('ShowBannerResult', null);
         }
         if (helloResult.automationServiceDescriptor) {
@@ -505,7 +505,7 @@ export default class Mongo extends ShellApiClass {
           `'${cmd}' is not a valid argument for "show".`,
           CommonErrors.InvalidArgument
         );
-        sendTelemetry('mongosh:error', err, 'shell-api');
+        this._instanceState.messageBus.emit('mongosh:error', err, 'shell-api');
         throw err;
     }
   }
