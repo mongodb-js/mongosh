@@ -2586,7 +2586,7 @@ describe('Collection', function () {
       });
 
       context('with name, options and type !== search', function () {
-        it('calls serviceProvider.createIndexes', async function () {
+        it('calls serviceProvider.createSearchIndexes', async function () {
           await collection.createSearchIndex('my-index', 'vectorSearch', {
             mappings: { dynamic: true },
           });
@@ -2606,7 +2606,7 @@ describe('Collection', function () {
       });
 
       context('with name, options and type === search', function () {
-        it('calls serviceProvider.createIndexes', async function () {
+        it('calls serviceProvider.createSearchIndexes', async function () {
           await collection.createSearchIndex('my-index', 'search', {
             mappings: { dynamic: true },
           });
@@ -2620,7 +2620,7 @@ describe('Collection', function () {
       });
 
       context('with options and type but no name', function () {
-        it('calls serviceProvider.createIndexes', async function () {
+        it('calls serviceProvider.createSearchIndexes', async function () {
           await collection.createSearchIndex(
             { mappings: { dynamic: true } },
             'vectorSearch'
