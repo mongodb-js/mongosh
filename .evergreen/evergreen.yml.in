@@ -1518,14 +1518,13 @@ buildvariants:
       if (executableOsId.includes('linux-x64') && !taskName.includes('openssl11')) { %>
       - name: <% out(taskName) %>
   <% } } %>
-  # TODO: Re-enable after docker-compose is available on an arm64 distro
-  #- name: exec_connectitivty_tests_docker_arm64_openssl3
-  #  display_name: "executable connectivity tests (arm64 Docker for OpenSSL 3 base OS)"
-  #  run_on: ubuntu2204-arm64-small
-  #  tasks:
+  - name: exec_connectitivty_tests_docker_arm64_openssl3
+    display_name: "executable connectivity tests (arm64 Docker for OpenSSL 3 base OS)"
+    run_on: ubuntu2204-arm64-small
+    tasks:
   <% for (const { taskName, executableOsId } of executableConnectivityTests) {
       if (executableOsId.includes('linux-arm64') && !taskName.includes('openssl11')) { %>
-  #    - name: <% out(taskName) %>
+      - name: <% out(taskName) %>
   <% } } %>
   - name: pkg_smoke_tests_win32
     display_name: "package smoke tests (win32)"
