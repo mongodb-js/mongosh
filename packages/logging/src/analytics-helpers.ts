@@ -378,3 +378,34 @@ export class ThrottledAnalytics implements MongoshAnalytics {
     });
   }
 }
+
+type SampledAnalyticsOptions = {
+  target?: MongoshAnalytics;
+  sampling: () => boolean;
+};
+
+export class SampledAnalytics implements MongoshAnalytics {
+  private isEnabled: boolean;
+  private target: MongoshAnalytics;
+
+  constructor(configuration: SampledAnalyticsOptions) {
+    this.isEnabled = configuration.sampling();
+    this.target = configuration.target || new NoopAnalytics();
+  }
+
+  get enabled(): boolean {
+    return this.isEnabled;
+  }
+
+  identify(message: AnalyticsIdentifyMessage): void {
+    this.isEnabled && this.target.identify(message);
+  }
+
+  track(message: AnalyticsTrackMessage): void {
+    this.isEnabled && this.target.track(message);
+  }
+
+  flush(callback: (err?: Error | undefined) => void): void {
+    this.target.flush(callback);
+  }
+}

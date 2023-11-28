@@ -4,7 +4,11 @@ import fs from 'fs';
 import { promisify } from 'util';
 import { expect } from 'chai';
 import type { MongoshAnalytics } from './analytics-helpers';
-import { ToggleableAnalytics, ThrottledAnalytics } from './analytics-helpers';
+import {
+  ToggleableAnalytics,
+  ThrottledAnalytics,
+  SampledAnalytics,
+} from './analytics-helpers';
 
 const wait = promisify(setTimeout);
 
@@ -243,6 +247,44 @@ describe('analytics helpers', function () {
           .join(',')
         // can't be fully sure which instance 'won' the lock because fs operations are inherently subject to race conditions
       ).to.match(/^(hi,hi,hi|bye,bye,bye)$/);
+    });
+  });
+
+  describe('SampledAnalytics', function () {
+    const userId = `u-${Date.now()}`;
+    const iEvt = { userId, traits: { platform: 'what', session_id: 'abc' } };
+    const tEvt = {
+      userId,
+      event: 'hi',
+      properties: { mongosh_version: '1.2.3', session_id: 'abc' },
+    };
+
+    it('should send the event forward when sampled', function () {
+      const analytics = new SampledAnalytics({
+        target,
+        sampling: () => true,
+      });
+
+      expect(analytics.enabled).to.be.true;
+
+      analytics.identify(iEvt);
+      analytics.track(tEvt);
+
+      expect(events.length).to.equal(2);
+    });
+
+    it('should not send the event forward when not sampled', function () {
+      const analytics = new SampledAnalytics({
+        target,
+        sampling: () => false,
+      });
+
+      expect(analytics.enabled).to.be.false;
+
+      analytics.identify(iEvt);
+      analytics.track(tEvt);
+
+      expect(events.length).to.equal(0);
     });
   });
 });
