@@ -510,7 +510,7 @@ export class CliRepl implements MongoshIOProvider {
           },
         }),
         sampling: () =>
-          !!process.env.MONGOSH_ANALYTICS_SAMPLE || Math.random() < 0.3,
+          !!process.env.MONGOSH_ANALYTICS_SAMPLE || Math.random() <= 0.01,
       })
     );
   }
