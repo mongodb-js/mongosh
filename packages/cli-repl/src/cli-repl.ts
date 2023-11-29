@@ -34,6 +34,7 @@ import {
   setupLoggerAndTelemetry,
   ToggleableAnalytics,
   ThrottledAnalytics,
+  SampledAnalytics,
 } from '@mongosh/logging';
 import type { MongoshBus } from '@mongosh/types';
 import { CliUserConfig, CliUserConfigValidator } from '@mongosh/types';
@@ -500,12 +501,16 @@ export class CliRepl implements MongoshIOProvider {
       } as any /* axiosConfig and axiosRetryConfig are existing options, but don't have type definitions */
     );
     this.toggleableAnalytics = new ToggleableAnalytics(
-      new ThrottledAnalytics({
-        target: this.segmentAnalytics,
-        throttle: {
-          rate: 30,
-          metadataPath: this.shellHomeDirectory.paths.shellLocalDataPath,
-        },
+      new SampledAnalytics({
+        target: new ThrottledAnalytics({
+          target: this.segmentAnalytics,
+          throttle: {
+            rate: 30,
+            metadataPath: this.shellHomeDirectory.paths.shellLocalDataPath,
+          },
+        }),
+        sampling: () =>
+          !!process.env.MONGOSH_ANALYTICS_SAMPLE || Math.random() <= 0.01,
       })
     );
   }

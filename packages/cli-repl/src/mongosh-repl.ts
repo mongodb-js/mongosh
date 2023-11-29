@@ -431,9 +431,9 @@ class MongoshNodeRepl implements EvaluationListener {
       // https://github.com/mongodb/mongo/blob/a6df396047a77b90bf1ce9463eecffbee16fb864/src/mongo/shell/mongo_main.cpp#L1003-L1026
       const { shellApi } = instanceState;
       const banners = await Promise.all([
-        (async () => await shellApi.show('startupWarnings'))(),
-        (async () => await shellApi.show('automationNotices'))(),
-        (async () => await shellApi.show('nonGenuineMongoDBCheck'))(),
+        (async () => await shellApi._untrackedShow('startupWarnings'))(),
+        (async () => await shellApi._untrackedShow('automationNotices'))(),
+        (async () => await shellApi._untrackedShow('nonGenuineMongoDBCheck'))(),
       ]);
       for (const banner of banners) {
         if (banner.value) {

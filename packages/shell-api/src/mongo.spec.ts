@@ -120,6 +120,24 @@ describe('Mongo', function () {
       instanceState.currentDb = database;
     });
     describe('show', function () {
+      it('should send telemetry by default', async function () {
+        serviceProvider.listDatabases.resolves({ ok: 1, databases: [] });
+        await mongo.show('dbs');
+
+        expect(bus.emit).to.have.been.calledWith('mongosh:show', {
+          method: 'show dbs',
+        });
+      });
+
+      it('should not send telemetry when disabled', async function () {
+        serviceProvider.listDatabases.resolves({ ok: 1, databases: [] });
+        await mongo.show('dbs', undefined, false);
+
+        expect(bus.emit).to.not.have.been.calledWith('mongosh:show', {
+          method: 'show dbs',
+        });
+      });
+
       ['databases', 'dbs'].forEach((t) => {
         describe(t, function () {
           it('calls serviceProvider.listDatabases on the admin database', async function () {

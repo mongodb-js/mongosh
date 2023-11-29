@@ -226,6 +226,18 @@ describe('ShellApi', function () {
         expect(mongo.show).to.have.been.calledWith('databases');
       });
     });
+    describe('_untrackedShow', function () {
+      beforeEach(async function () {
+        await instanceState.shellApi._untrackedShow('databases');
+      });
+      it('calls show with arg and without telemetry', function () {
+        expect(mongo.show).to.have.been.calledWith(
+          'databases',
+          undefined,
+          false
+        );
+      });
+    });
     describe('it', function () {
       it('returns empty result if no current cursor', async function () {
         instanceState.currentCursor = null;
