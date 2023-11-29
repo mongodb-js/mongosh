@@ -147,29 +147,33 @@ export function setupLoggerAndTelemetry(
     });
   });
 
-  bus.on('mongosh:start-session', function (args: SessionStartedEvent) {
-    const params = {
-      session_id,
-      userId,
-      telemetryAnonymousId,
-      ...args,
-    };
+  const toSnakeCase = (str: string): string => {
+    const matches = str.match(
+      /[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+/g
+    );
+    if (!matches) {
+      return str;
+    }
 
-    log.info(
-      'MONGOSH',
-      mongoLogId(1_000_000_004),
-      'session',
-      'Session started',
-      params
+    return matches.map((x) => x.toLowerCase()).join('_');
+  };
+
+  bus.on('mongosh:start-session', function (args: SessionStartedEvent) {
+    const normalisedTimingsArray = Object.entries(args.timings).map(
+      ([key, duration]) => {
+        const snakeCaseKey = toSnakeCase(key);
+        return [snakeCaseKey, duration];
+      }
     );
 
+    const normalisedTimings = Object.fromEntries(normalisedTimingsArray);
     analytics.track({
       ...getTelemetryUserIdentity(),
       event: 'Startup Time',
       properties: {
         ...trackProperties,
-        isInteractive: args.isInteractive,
-        ...args.timings,
+        is_interactive: args.isInteractive,
+        ...normalisedTimings,
       },
     });
   });

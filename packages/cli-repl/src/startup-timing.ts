@@ -33,14 +33,16 @@ export function summariseTimingData(timingData: [string, string, number][]): {
   [key: string]: number;
 } {
   const durationByCategory = new Map<string, number>();
+  let lastTimestamp = 0;
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   for (const [category, _, time] of timingData) {
-    const timeInMs = time / 1_000_000;
-    const duration = Math.max(
-      (durationByCategory.get(category) || 0, timeInMs)
-    );
-    durationByCategory.set(category, duration);
+    const durationInNs = time - lastTimestamp;
+    const durationInMs = durationInNs / 1_000_000;
+    const durationSum = (durationByCategory.get(category) || 0) + durationInMs;
+    durationByCategory.set(category, durationSum);
+
+    lastTimestamp = time;
   }
 
   return Object.fromEntries(durationByCategory.entries());

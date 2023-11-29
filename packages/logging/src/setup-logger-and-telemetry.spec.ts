@@ -60,6 +60,14 @@ describe('setupLoggerAndTelemetry', function () {
       is_atlas: false,
       node_version: 'v12.19.0',
     } as any);
+    bus.emit('mongosh:start-session', {
+      isInteractive: true,
+      timings: {
+        'BoxedNode Bindings': 50,
+        NodeREPL: 100,
+      },
+    });
+
     bus.emit(
       'mongosh:error',
       new MongoshInvalidInputError('meow', 'CLIREPL-1005', { cause: 'x' }),
@@ -377,6 +385,20 @@ describe('setupLoggerAndTelemetry', function () {
             is_localhost: true,
             is_atlas: false,
             node_version: 'v12.19.0',
+          },
+        },
+      ],
+      [
+        'track',
+        {
+          anonymousId: '53defe995fa47e6c13102d9d',
+          event: 'Startup Time',
+          properties: {
+            is_interactive: true,
+            boxed_node_bindings: 50,
+            node_repl: 100,
+            mongosh_version: '1.0.0',
+            session_id: '5fb3c20ee1507e894e5340f3',
           },
         },
       ],
