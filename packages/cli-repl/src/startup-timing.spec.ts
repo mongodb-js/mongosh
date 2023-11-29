@@ -2,7 +2,7 @@ import { TimingCategories, type TimingCategory } from '@mongosh/types';
 import { summariseTimingData } from './startup-timing';
 import { expect } from 'chai';
 
-describe.only('startup timing', function () {
+describe('startup timing', function () {
   describe('summariseTimingData', function () {
     it('should calculate durations of each category in milliseconds', function () {
       const timingData: [TimingCategory, string, number][] = [
