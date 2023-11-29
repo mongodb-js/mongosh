@@ -144,6 +144,50 @@ describe('WorkerRuntime', function () {
           .to.have.property('stack')
           .matches(/SyntaxError: Syntax!/);
       });
+
+      it('COMPASS-5919 - correctly serializes babel parse errors', async function () {
+        /**
+         * babel syntax errors have a `clone()` method, which breaks structured cloning
+         */
+        runtime = new WorkerRuntime('mongodb://nodb/', dummyOptions, {
+          nodb: true,
+        });
+
+        const err: Error = await runtime.evaluate('1 +* 3').catch((e) => e);
+
+        expect(err).to.be.instanceof(Error);
+        expect(err).to.have.property('name', 'SyntaxError');
+      });
+
+      context(
+        'when `evaluate` returns an error that has a function property',
+        function () {
+          it('removes the function property from the error', async function () {
+            runtime = new WorkerRuntime('mongodb://nodb/', dummyOptions, {
+              nodb: true,
+            });
+
+            const script = `
+          class CustomError extends Error {
+            constructor() {
+              super('custom error');
+            }
+            foo() {
+              return 'hello, world';
+            }
+          }
+          throw new CustomError();
+          `;
+
+            const err: Error = await runtime.evaluate(script).catch((e) => e);
+
+            expect(err).to.be.instanceof(Error);
+            expect(err).to.have.property('name', 'Error');
+            expect(err).not.to.have.property('foo');
+            expect(err).to.have.property('message', 'custom error');
+          });
+        }
+      );
     });
   });
 
