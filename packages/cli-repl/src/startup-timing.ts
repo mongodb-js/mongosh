@@ -1,30 +1,53 @@
-const jsTimingEntries: [string, bigint][] = [];
-const timing: {
-  markTime: (label: string) => void;
-  getTimingData: () => [string, number][];
-} = !process.env.MONGOSH_SHOW_TIMING_DATA
-  ? {
-      markTime: () => {
-        /* ignore */
-      },
-      getTimingData: () => [],
-    }
-  : (process as any).boxednode
-  ? {
-      markTime: (process as any).boxednode.markTime,
-      getTimingData: (process as any).boxednode.getTimingData,
-    }
-  : {
-      markTime: (label: string) => {
-        jsTimingEntries.push([label, process.hrtime.bigint()]);
-      },
-      getTimingData: () => {
-        const data = jsTimingEntries.sort((a, b) => Number(a[1] - b[1]));
-        // Adjust times so that process initialization happens at time 0
-        return data.map(([label, time]) => [label, Number(time - data[0][1])]);
-      },
-    };
+import {
+  TimingCategories,
+  type TimingCategory,
+  type TimingInterface,
+} from '@mongosh/types';
 
+const jsTimingEntries: [string, string, bigint][] = [];
+
+function linkTimingInterface(): TimingInterface {
+  const boxedNode = (process as any).boxednode;
+
+  // If we are bundled with boxednode, just use the provided interface
+  if (boxedNode) {
+    return {
+      markTime: boxedNode.markTime,
+      getTimingData: boxedNode.getTimingData,
+    };
+  }
+
+  // Otherwise, use a JS implementation (mostly for development)
+  return {
+    markTime: (category, label) =>
+      jsTimingEntries.push([category, label, process.hrtime.bigint()]),
+    getTimingData: () => {
+      const data = jsTimingEntries.sort((a, b) => Number(a[2] - b[2]));
+      // Adjust times so that process initialization happens at time 0
+      return data.map(([category, label, time]) => [
+        category,
+        label,
+        Number(time - data[0][2]),
+      ]);
+    },
+  };
+}
+
+export function summariseTimingData(
+  timingData: [TimingCategory, string, number][]
+): [TimingCategory, number][] {
+  const durationByCategory = new Map<TimingCategory, number>();
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  for (const [category, _, time] of timingData) {
+    const duration = Math.max((durationByCategory.get(category) || 0, time));
+    durationByCategory.set(category, duration);
+  }
+
+  return Array.from(durationByCategory.entries());
+}
+
+const timing: TimingInterface = linkTimingInterface();
 export const markTime = timing.markTime;
 export const getTimingData = timing.getTimingData;
 
@@ -35,11 +58,12 @@ if (process.env.MONGOSH_SHOW_TIMING_DATA) {
       console.log(JSON.stringify(rawTimingData));
     } else {
       console.table(
-        rawTimingData.map(([label, time], i) => [
+        rawTimingData.map(([category, label, time], i) => [
+          category,
           label,
           `${(time / 1_000_000).toFixed(2)}ms`,
           i > 0
-            ? `+${((time - rawTimingData[i - 1][1]) / 1_000_000).toFixed(2)}ms`
+            ? `+${((time - rawTimingData[i - 1][2]) / 1_000_000).toFixed(2)}ms`
             : '',
         ])
       );
@@ -47,4 +71,4 @@ if (process.env.MONGOSH_SHOW_TIMING_DATA) {
   });
 }
 
-markTime('cli-repl timing initialized');
+markTime(TimingCategories.REPLInstantiation, 'cli-repl timing initialized');

@@ -174,12 +174,24 @@ export interface FetchingUpdateMetadataCompleteEvent {
   latest: string | null;
 }
 
+export interface SessionStartedEvent {
+  isInteractive: boolean;
+  timings: {
+    [category: string]: number;
+  };
+}
+
 export interface MongoshBusEventsMap extends ConnectEventMap {
   /**
    * Signals a connection to a MongoDB instance has been established
    * or the used database changed.
    */
   'mongosh:connect': (ev: ConnectEvent) => void;
+  /**
+   * Signals when a session is started, that will enable the REPL on interactive
+   * sessions or close on non-interactive sessions.
+   */
+  'mongosh:start-session': (ev: SessionStartedEvent) => void;
   /**
    * Signals that the shell is started by a new user.
    */
@@ -585,3 +597,25 @@ function isValidUrl(url: string): boolean {
   /* eslint-enable @typescript-eslint/ban-ts-comment */
   return true; // Currently no overlap between URL-less environments and environments with config options.
 }
+
+export const TimingCategories = {
+  REPLInstantiation: 'REPLInstantiation',
+  UserConfigLoading: 'UserConfigLoading',
+  DriverSetup: 'DriverSetup',
+  Logging: 'Logging',
+  SnippetLoading: 'SnippetLoading',
+  Snapshot: 'Snapshot',
+  ResourceFileLoading: 'ResourceFileLoading',
+  AsyncRewrite: 'AsyncRewrite',
+  Eval: 'Eval',
+  EvalFile: 'EvalFile',
+  Telemetry: 'Telemetry',
+  Main: 'Main',
+} as const;
+
+export type TimingCategory =
+  (typeof TimingCategories)[keyof typeof TimingCategories];
+export type TimingInterface = {
+  markTime: (category: TimingCategory, label: string) => void;
+  getTimingData: () => [string, string, number][];
+};
