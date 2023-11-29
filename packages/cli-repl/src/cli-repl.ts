@@ -47,7 +47,7 @@ import path from 'path';
 import { promisify } from 'util';
 import { getOsInfo } from './get-os-info';
 import { UpdateNotificationManager } from './update-notification-manager';
-import { markTime } from './startup-timing';
+import { getTimingData, markTime, summariseTimingData } from './startup-timing';
 
 /**
  * Connecting text key.
@@ -420,7 +420,11 @@ export class CliRepl implements MongoshIOProvider {
         commandLineLoadFiles,
         evalScripts
       );
-      // HERE!
+
+      this.bus.emit('mongosh:start-session', {
+        isInteractive: false,
+        timings: summariseTimingData(getTimingData()),
+      });
       if (exitCode !== 0) {
         await this.exit(exitCode);
         return;
@@ -465,7 +469,10 @@ export class CliRepl implements MongoshIOProvider {
     this.bus.emit('mongosh:start-mongosh-repl', { version });
     markTime(TimingCategories.REPLInstantiation, 'starting repl');
     await this.mongoshRepl.startRepl(initialized);
-    // HERE
+    this.bus.emit('mongosh:start-session', {
+      isInteractive: true,
+      timings: summariseTimingData(getTimingData()),
+    });
   }
 
   injectReplFunctions(): void {

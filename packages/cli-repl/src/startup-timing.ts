@@ -1,8 +1,4 @@
-import {
-  TimingCategories,
-  type TimingCategory,
-  type TimingInterface,
-} from '@mongosh/types';
+import { TimingCategories, type TimingInterface } from '@mongosh/types';
 
 const jsTimingEntries: [string, string, bigint][] = [];
 
@@ -33,18 +29,21 @@ function linkTimingInterface(): TimingInterface {
   };
 }
 
-export function summariseTimingData(
-  timingData: [TimingCategory, string, number][]
-): [TimingCategory, number][] {
-  const durationByCategory = new Map<TimingCategory, number>();
+export function summariseTimingData(timingData: [string, string, number][]): {
+  [key: string]: number;
+} {
+  const durationByCategory = new Map<string, number>();
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   for (const [category, _, time] of timingData) {
-    const duration = Math.max((durationByCategory.get(category) || 0, time));
+    const timeInMs = time / 1_000_000;
+    const duration = Math.max(
+      (durationByCategory.get(category) || 0, timeInMs)
+    );
     durationByCategory.set(category, duration);
   }
 
-  return Array.from(durationByCategory.entries());
+  return Object.fromEntries(durationByCategory.entries());
 }
 
 const timing: TimingInterface = linkTimingInterface();

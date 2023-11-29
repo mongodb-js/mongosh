@@ -30,6 +30,7 @@ import type {
   EditorReadVscodeExtensionsFailedEvent,
   FetchingUpdateMetadataEvent,
   FetchingUpdateMetadataCompleteEvent,
+  SessionStartedEvent,
 } from '@mongosh/types';
 import { inspect } from 'util';
 import type { MongoLogWriter } from 'mongodb-log-writer';
@@ -142,6 +143,33 @@ export function setupLoggerAndTelemetry(
       properties: {
         ...trackProperties,
         ...argsWithoutUri,
+      },
+    });
+  });
+
+  bus.on('mongosh:start-session', function (args: SessionStartedEvent) {
+    const params = {
+      session_id,
+      userId,
+      telemetryAnonymousId,
+      ...args,
+    };
+
+    log.info(
+      'MONGOSH',
+      mongoLogId(1_000_000_004),
+      'session',
+      'Session started',
+      params
+    );
+
+    analytics.track({
+      ...getTelemetryUserIdentity(),
+      event: 'Startup Time',
+      properties: {
+        ...trackProperties,
+        isInteractive: args.isInteractive,
+        ...args.timings,
       },
     });
   });
