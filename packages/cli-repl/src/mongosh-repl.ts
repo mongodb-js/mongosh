@@ -18,7 +18,11 @@ import {
 import type { ShellResult } from '@mongosh/shell-evaluator';
 import { ShellEvaluator } from '@mongosh/shell-evaluator';
 import type { ConfigProvider, MongoshBus } from '@mongosh/types';
-import { CliUserConfig, CliUserConfigValidator } from '@mongosh/types';
+import {
+  CliUserConfig,
+  CliUserConfigValidator,
+  TimingCategories,
+} from '@mongosh/types';
 import askcharacter from 'askcharacter';
 import askpassword from 'askpassword';
 import { Console } from 'console';
@@ -174,7 +178,7 @@ class MongoshNodeRepl implements EvaluationListener {
     );
     instanceState.setEvaluationListener(this);
     await instanceState.fetchConnectionInfo();
-    markTime('fetched connection info');
+    markTime(TimingCategories.REPLInstantiation, 'fetched connection info');
 
     const { buildInfo, extraInfo } = instanceState.connectionInfo;
     let mongodVersion = extraInfo?.is_stream
@@ -188,7 +192,7 @@ class MongoshNodeRepl implements EvaluationListener {
     }
     await this.greet(mongodVersion, moreRecentMongoshVersion);
     await this.printBasicConnectivityWarning(instanceState);
-    markTime('greeted');
+    markTime(TimingCategories.REPLInstantiation, 'greeted');
 
     this.inspectCompact =
       (await this.getConfig('inspectCompact')) ?? this.inspectCompact;
@@ -198,7 +202,7 @@ class MongoshNodeRepl implements EvaluationListener {
       (await this.getConfig('showStackTraces')) ?? this.showStackTraces;
     this.redactHistory =
       (await this.getConfig('redactHistory')) ?? this.redactHistory;
-    markTime('fetched config vars');
+    markTime(TimingCategories.UserConfigLoading, 'fetched config vars');
 
     const repl = asyncRepl.start({
       // 'repl' is not supported in startup snapshots yet.
@@ -347,7 +351,7 @@ class MongoshNodeRepl implements EvaluationListener {
     // https://github.com/nodejs/node/issues/36773
     (repl as Mutable<typeof repl>).line = '';
 
-    markTime('created repl object');
+    markTime(TimingCategories.REPLInstantiation, 'created repl object');
     const historyFile = this.ioProvider.getHistoryFilePath();
     try {
       await promisify(repl.setupHistory).call(repl, historyFile);
@@ -410,7 +414,7 @@ class MongoshNodeRepl implements EvaluationListener {
       this.output.write(this.writer(warn) + '\n');
     }
 
-    markTime('set up history file');
+    markTime(TimingCategories.UserConfigLoading, 'set up history file');
     (repl as any).on(asyncRepl.evalStart, () => {
       this.bus.emit('mongosh:evaluate-started');
     });
@@ -442,7 +446,7 @@ class MongoshNodeRepl implements EvaluationListener {
       }
     }
 
-    markTime('finished initialization');
+    markTime(TimingCategories.REPLInstantiation, 'finished initialization');
     return { __initialized: 'yes' };
   }
 
@@ -545,7 +549,7 @@ class MongoshNodeRepl implements EvaluationListener {
     context: any,
     filename: string
   ): Promise<any> {
-    markTime('start repl eval');
+    markTime(TimingCategories.Eval, 'start repl eval');
     if (!this.insideAutoCompleteOrGetPrompt) {
       this.lineByLineInput.enableBlockOnNewLine();
     }
@@ -599,7 +603,7 @@ class MongoshNodeRepl implements EvaluationListener {
       }
       throw err;
     } finally {
-      markTime('done repl eval');
+      markTime(TimingCategories.Eval, 'done repl eval');
       if (!this.insideAutoCompleteOrGetPrompt && !interrupted) {
         // In case of an interrupt, onAsyncSigint will print the prompt when completed
         repl.setPrompt(await this.getShellPrompt());
@@ -608,7 +612,7 @@ class MongoshNodeRepl implements EvaluationListener {
       if (this.loadNestingLevel <= 1) {
         this.bus.emit('mongosh:eval-complete'); // For testing purposes.
       }
-      markTime('re-set prompt');
+      markTime(TimingCategories.Eval, 're-set prompt');
     }
   }
 

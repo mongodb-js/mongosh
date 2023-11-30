@@ -29,6 +29,7 @@ import { PassThrough } from 'stream';
 import crypto from 'crypto';
 import net from 'net';
 import v8 from 'v8';
+import { TimingCategories } from '@mongosh/types';
 
 // TS does not yet have type definitions for v8.startupSnapshot
 if ((v8 as any)?.startupSnapshot?.isBuildingSnapshot?.()) {
@@ -48,7 +49,7 @@ if ((v8 as any)?.startupSnapshot?.isBuildingSnapshot?.()) {
 
   (v8 as any).startupSnapshot.setDeserializeMainFunction(() => {
     enableFipsIfRequested();
-    markTime('loaded pre-snapshot deps');
+    markTime(TimingCategories.Snapshot, 'loaded pre-snapshot deps');
 
     void main();
   });
@@ -58,7 +59,7 @@ if ((v8 as any)?.startupSnapshot?.isBuildingSnapshot?.()) {
 
 // eslint-disable-next-line complexity
 async function main() {
-  markTime('entered main');
+  markTime(TimingCategories.Main, 'entered main');
   if (process.env.MONGOSH_RUN_NODE_SCRIPT) {
     // For uncompiled mongosh: node /path/to/this/file script ... -> node script ...
     // FOr compiled mongosh: mongosh mongosh script ... -> mongosh script ...
@@ -217,7 +218,7 @@ async function main() {
       shellHomePaths: shellHomePaths,
       globalConfigPaths: globalConfigPaths,
     });
-    markTime('entering repl.start()');
+    markTime(TimingCategories.REPLInstantiation, 'entering repl.start()');
     await repl.start(connectionInfo.connectionString, {
       productName: 'MongoDB Shell',
       productDocsLink: 'https://www.mongodb.com/docs/mongodb-shell/',

@@ -4,6 +4,29 @@ import { setupLoggerAndTelemetry } from './';
 import { EventEmitter } from 'events';
 import { MongoshInvalidInputError } from '@mongosh/errors';
 import type { MongoshBus } from '@mongosh/types';
+import { toSnakeCase } from './setup-logger-and-telemetry';
+
+describe('toSnakeCase', function () {
+  const useCases = [
+    { input: 'MongoDB REPL', output: 'mongo_db_repl' },
+    {
+      input: 'Node.js REPL Instantiation',
+      output: 'node_js_repl_instantiation',
+    },
+    { input: 'A', output: 'a' },
+    {
+      input: 'OneLongThingInPascalCase',
+      output: 'one_long_thing_in_pascal_case',
+    },
+    { input: 'Removes .Dots in Node.js', output: 'removes_dots_in_node_js' },
+  ];
+
+  for (const { input, output } of useCases) {
+    it(`should convert ${input} to ${output}`, function () {
+      expect(toSnakeCase(input)).to.equal(output);
+    });
+  }
+});
 
 describe('setupLoggerAndTelemetry', function () {
   let logOutput: any[];
@@ -60,6 +83,14 @@ describe('setupLoggerAndTelemetry', function () {
       is_atlas: false,
       node_version: 'v12.19.0',
     } as any);
+    bus.emit('mongosh:start-session', {
+      isInteractive: true,
+      timings: {
+        'BoxedNode Bindings': 50,
+        NodeREPL: 100,
+      },
+    });
+
     bus.emit(
       'mongosh:error',
       new MongoshInvalidInputError('meow', 'CLIREPL-1005', { cause: 'x' }),
@@ -377,6 +408,20 @@ describe('setupLoggerAndTelemetry', function () {
             is_localhost: true,
             is_atlas: false,
             node_version: 'v12.19.0',
+          },
+        },
+      ],
+      [
+        'track',
+        {
+          anonymousId: '53defe995fa47e6c13102d9d',
+          event: 'Startup Time',
+          properties: {
+            is_interactive: true,
+            boxed_node_bindings: 50,
+            node_repl: 100,
+            mongosh_version: '1.0.0',
+            session_id: '5fb3c20ee1507e894e5340f3',
           },
         },
       ],
