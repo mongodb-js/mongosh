@@ -1,4 +1,8 @@
-import { TimingCategories, type TimingInterface } from '@mongosh/types';
+import {
+  TimingCategories,
+  type TimingCategory,
+  type TimingInterface,
+} from '@mongosh/types';
 
 const jsTimingEntries: [string, string, bigint][] = [];
 
@@ -29,7 +33,9 @@ function linkTimingInterface(): TimingInterface {
   };
 }
 
-export function summariseTimingData(timingData: [string, string, number][]): {
+export function summariseTimingData(
+  timingData: [string | TimingCategory, string, number][]
+): {
   [key: string]: number;
 } {
   const durationByCategory = new Map<string, number>();
