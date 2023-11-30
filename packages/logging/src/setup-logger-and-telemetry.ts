@@ -59,6 +59,20 @@ class MultiSet<T extends Record<string, any>> {
   }
 }
 
+/**
+ * It transforms a random string into snake case. Snake case is completely
+ * lowercase and uses '_' to separate words. For example:
+ *
+ * 'Random String' => 'random_string'
+ *
+ * It will also remove any non alphanumeric characters to ensure the string
+ * is compatible with Segment. For example:
+ *
+ * 'Node.js REPL Instantiation' => 'node_js_repl_instantiation'
+ *
+ * @param str Any non snake-case formatted string
+ * @returns The snake-case formatted string
+ */
 export function toSnakeCase(str: string): string {
   const matches = str.match(
     /[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+/g
