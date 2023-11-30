@@ -59,6 +59,17 @@ class MultiSet<T extends Record<string, any>> {
   }
 }
 
+export function toSnakeCase(str: string): string {
+  const matches = str.match(
+    /[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+/g
+  );
+  if (!matches) {
+    return str;
+  }
+
+  return matches.map((x) => x.toLowerCase()).join('_');
+}
+
 /**
  * Connect a MongoshBus instance that emits events to logging and analytics providers.
  *
@@ -146,17 +157,6 @@ export function setupLoggerAndTelemetry(
       },
     });
   });
-
-  const toSnakeCase = (str: string): string => {
-    const matches = str.match(
-      /[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+/g
-    );
-    if (!matches) {
-      return str;
-    }
-
-    return matches.map((x) => x.toLowerCase()).join('_');
-  };
 
   bus.on('mongosh:start-session', function (args: SessionStartedEvent) {
     const normalisedTimingsArray = Object.entries(args.timings).map(
