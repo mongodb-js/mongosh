@@ -63,6 +63,8 @@ class MultiSet<T extends Record<string, any>> {
  * It transforms a random string into snake case. Snake case is completely
  * lowercase and uses '_' to separate words. For example:
  *
+ * This function defines a "word" as a sequence of characters until the next `.` or capital letter.
+ *
  * 'Random String' => 'random_string'
  *
  * It will also remove any non alphanumeric characters to ensure the string
