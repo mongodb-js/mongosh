@@ -27,7 +27,10 @@ function getNames<T>(obj: T): (keyof T)[] {
  */
 export function serializeError(err: Error) {
   // Name is the only constructor property we care about
-  const keys = getNames(err).concat('name');
+  const keys = getNames(err)
+    .concat('name')
+    // structured cloning cannot handle functions
+    .filter((key) => typeof err[key] !== 'function');
   return keys.reduce((acc, key) => {
     (acc as any)[key] = err[key];
     return acc;
