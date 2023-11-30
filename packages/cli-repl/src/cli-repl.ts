@@ -413,18 +413,21 @@ export class CliRepl implements MongoshIOProvider {
 
     if (willExecuteCommandLineScripts) {
       this.mongoshRepl.setIsInteractive(willEnterInteractiveMode);
-      this.bus.emit('mongosh:start-loading-cli-scripts', {
-        usesShellOption: !!this.cliOptions.shell,
-      });
-      const exitCode = await this.loadCommandLineFilesAndEval(
-        commandLineLoadFiles,
-        evalScripts
-      );
 
       this.bus.emit('mongosh:start-session', {
         isInteractive: false,
         timings: summariseTimingData(getTimingData()),
       });
+
+      this.bus.emit('mongosh:start-loading-cli-scripts', {
+        usesShellOption: !!this.cliOptions.shell,
+      });
+
+      const exitCode = await this.loadCommandLineFilesAndEval(
+        commandLineLoadFiles,
+        evalScripts
+      );
+
       if (exitCode !== 0) {
         await this.exit(exitCode);
         return;
