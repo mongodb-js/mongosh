@@ -13839,19 +13839,18 @@ buildvariants:
       - name: executable_connectivity_test_linux_x64_openssl3_node20
       - name: executable_connectivity_test_linux_x64_openssl3_rocky9
       - name: executable_connectivity_test_linux_x64_openssl3_ubuntu2204
-  # TODO: Re-enable after docker-compose is available on an arm64 distro
-  #- name: exec_connectitivty_tests_docker_arm64_openssl3
-  #  display_name: "executable connectivity tests (arm64 Docker for OpenSSL 3 base OS)"
-  #  run_on: ubuntu2204-arm64-small
-  #  tasks:
-  #    - name: executable_connectivity_test_linux_arm64_rocky8
-  #    - name: executable_connectivity_test_linux_arm64_ubuntu2004
-  #    - name: executable_connectivity_test_linux_arm64_node20
-  #    - name: executable_connectivity_test_linux_arm64_rocky9
-  #    - name: executable_connectivity_test_linux_arm64_ubuntu2204
-  #    - name: executable_connectivity_test_linux_arm64_openssl3_node20
-  #    - name: executable_connectivity_test_linux_arm64_openssl3_rocky9
-  #    - name: executable_connectivity_test_linux_arm64_openssl3_ubuntu2204
+  - name: exec_connectitivty_tests_docker_arm64_openssl3
+    display_name: "executable connectivity tests (arm64 Docker for OpenSSL 3 base OS)"
+    run_on: ubuntu2204-arm64-small
+    tasks:
+      - name: executable_connectivity_test_linux_arm64_rocky8
+      - name: executable_connectivity_test_linux_arm64_ubuntu2004
+      - name: executable_connectivity_test_linux_arm64_node20
+      - name: executable_connectivity_test_linux_arm64_rocky9
+      - name: executable_connectivity_test_linux_arm64_ubuntu2204
+      - name: executable_connectivity_test_linux_arm64_openssl3_node20
+      - name: executable_connectivity_test_linux_arm64_openssl3_rocky9
+      - name: executable_connectivity_test_linux_arm64_openssl3_ubuntu2204
   - name: pkg_smoke_tests_win32
     display_name: "package smoke tests (win32)"
     run_on: ubuntu2004-small
