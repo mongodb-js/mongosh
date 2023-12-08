@@ -28,13 +28,19 @@ export function getLatestDraftOrReleaseTagFromLog(
     encoding: 'utf-8',
   });
 
+  console.error({ gitTags });
+
   const tagDetails = extractTags(
     gitTags.stdout.split('\n'),
     versionRestriction
   );
+
+  console.error({ tagDetails });
   const sortedTagsWithCommit = tagDetails.sort((t1, t2) => {
     return -1 * semver.compare(t1.semverName, t2.semverName);
   });
+
+  console.error({ sortedTagsWithCommit });
 
   if (!sortedTagsWithCommit.length) {
     return undefined;
