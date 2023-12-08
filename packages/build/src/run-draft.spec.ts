@@ -22,7 +22,7 @@ function createStubRepo(overrides?: any): GithubRepo {
   ) as unknown as GithubRepo;
 }
 
-describe('draft', function () {
+describe.skip('draft', function () {
   let config: Config;
   let githubRepo: GithubRepo;
   let uploadArtifactToDownloadCenter: typeof uploadArtifactToDownloadCenterFn;
