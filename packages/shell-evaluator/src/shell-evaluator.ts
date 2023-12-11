@@ -13,6 +13,7 @@ type EvaluationFunction = (
 ) => Promise<any>;
 
 import { HIDDEN_COMMANDS, redactSensitiveData } from '@mongosh/history';
+import { TimingCategories, type TimingCategory } from '@mongosh/types';
 
 let hasAlreadyRunGlobalRuntimeSupportEval = false;
 // `v8.startupSnapshot` is currently untyped, might as well use `any`.
@@ -37,12 +38,12 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
   private resultHandler: ResultHandler<EvaluationResultType>;
   private hasAppliedAsyncWriterRuntimeSupport = true;
   private asyncWriter: AsyncWriter;
-  private markTime?: (label: string) => void;
+  private markTime?: (category: TimingCategory, label: string) => void;
 
   constructor(
     instanceState: ShellInstanceState,
     resultHandler: ResultHandler<EvaluationResultType> = toShellResult as any,
-    markTime?: (label: string) => void
+    markTime?: (category: TimingCategory, label: string) => void
   ) {
     this.instanceState = instanceState;
     this.resultHandler = resultHandler;
@@ -86,9 +87,9 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
       return shellApi[cmd](...argv);
     }
 
-    this.markTime?.('start async rewrite');
+    this.markTime?.(TimingCategories.AsyncRewrite, 'start async rewrite');
     let rewrittenInput = this.asyncWriter.process(input);
-    this.markTime?.('done async rewrite');
+    this.markTime?.(TimingCategories.AsyncRewrite, 'done async rewrite');
 
     const hiddenCommands = RegExp(HIDDEN_COMMANDS, 'g');
     if (!hiddenCommands.test(input) && !hiddenCommands.test(rewrittenInput)) {
@@ -99,7 +100,10 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
 
     if (!this.hasAppliedAsyncWriterRuntimeSupport) {
       this.hasAppliedAsyncWriterRuntimeSupport = true;
-      this.markTime?.('start runtimeSupportCode processing');
+      this.markTime?.(
+        TimingCategories.AsyncRewrite,
+        'start runtimeSupportCode processing'
+      );
       const supportCode = this.asyncWriter.runtimeSupportCode();
       // Eval twice: We need the modified prototypes to be present in both
       // the evaluation context and the current one, because e.g. the value of
@@ -109,16 +113,26 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
       if (!hasAlreadyRunGlobalRuntimeSupportEval) {
         eval(supportCode);
       }
-      this.markTime?.('done global runtimeSupportCode processing');
+      this.markTime?.(
+        TimingCategories.AsyncRewrite,
+        'done global runtimeSupportCode processing'
+      );
       rewrittenInput = supportCode + ';\n' + rewrittenInput;
     }
 
     try {
+      this.markTime?.(
+        TimingCategories.Eval,
+        'started evaluating processed code'
+      );
       return await originalEval(rewrittenInput, context, filename);
     } catch (err: any) {
       throw this.instanceState.transformError(err);
     } finally {
-      this.markTime?.('finished evaluating processed code');
+      this.markTime?.(
+        TimingCategories.Eval,
+        'finished evaluating processed code'
+      );
     }
   }
 

@@ -363,13 +363,19 @@ export default class Mongo extends ShellApiClass {
 
   @returnsPromise
   @apiVersions([1])
-  async show(cmd: string, arg?: string): Promise<CommandResult> {
+  async show(
+    cmd: string,
+    arg?: string,
+    tracked = true
+  ): Promise<CommandResult> {
     const db = this._instanceState.currentDb;
     // legacy shell:
     // https://github.com/mongodb/mongo/blob/a6df396047a77b90bf1ce9463eecffbee16fb864/src/mongo/shell/utils.js#L900-L1226
-    this._instanceState.messageBus.emit('mongosh:show', {
-      method: `show ${cmd}`,
-    });
+
+    tracked &&
+      this._instanceState.messageBus.emit('mongosh:show', {
+        method: `show ${cmd}`,
+      });
 
     switch (cmd) {
       case 'databases':
