@@ -2584,6 +2584,61 @@ describe('Collection', function () {
           );
         });
       });
+
+      context('with name, options and type !== search', function () {
+        it('calls serviceProvider.createSearchIndexes', async function () {
+          await collection.createSearchIndex('my-index', 'vectorSearch', {
+            mappings: { dynamic: true },
+          });
+
+          expect(serviceProvider.createSearchIndexes).to.have.been.calledWith(
+            'db1',
+            'coll1',
+            [
+              {
+                name: 'my-index',
+                type: 'vectorSearch',
+                definition: { mappings: { dynamic: true } },
+              },
+            ]
+          );
+        });
+      });
+
+      context('with name, options and type === search', function () {
+        it('calls serviceProvider.createSearchIndexes', async function () {
+          await collection.createSearchIndex('my-index', 'search', {
+            mappings: { dynamic: true },
+          });
+
+          expect(serviceProvider.createSearchIndexes).to.have.been.calledWith(
+            'db1',
+            'coll1',
+            [{ name: 'my-index', definition: { mappings: { dynamic: true } } }]
+          );
+        });
+      });
+
+      context('with options and type but no name', function () {
+        it('calls serviceProvider.createSearchIndexes', async function () {
+          await collection.createSearchIndex(
+            { mappings: { dynamic: true } },
+            'vectorSearch'
+          );
+
+          expect(serviceProvider.createSearchIndexes).to.have.been.calledWith(
+            'db1',
+            'coll1',
+            [
+              {
+                name: 'default',
+                type: 'vectorSearch',
+                definition: { mappings: { dynamic: true } },
+              },
+            ]
+          );
+        });
+      });
     });
 
     describe('createSearchIndexes', function () {
@@ -2595,6 +2650,8 @@ describe('Collection', function () {
         await collection.createSearchIndexes([
           { name: 'foo', definition: { mappings: { dynamic: true } } },
           { name: 'bar', definition: {} },
+          { name: 'sch', type: 'search', definition: {} },
+          { name: 'vec', type: 'vectorSearch', definition: {} },
         ]);
 
         expect(serviceProvider.createSearchIndexes).to.have.been.calledWith(
@@ -2603,6 +2660,8 @@ describe('Collection', function () {
           [
             { name: 'foo', definition: { mappings: { dynamic: true } } },
             { name: 'bar', definition: {} },
+            { name: 'sch', definition: {} },
+            { name: 'vec', type: 'vectorSearch', definition: {} },
           ]
         );
       });
