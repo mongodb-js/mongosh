@@ -22,12 +22,13 @@ function createStubRepo(overrides?: any): GithubRepo {
   ) as unknown as GithubRepo;
 }
 
-describe('draft', function () {
+describe.only('draft', function () {
   let config: Config;
   let githubRepo: GithubRepo;
   let uploadArtifactToDownloadCenter: typeof uploadArtifactToDownloadCenterFn;
   let downloadArtifactFromEvergreen: typeof downloadArtifactFromEvergreenFn;
   let notarizeArtifact: typeof notarizeArtifactFn;
+  let sign: sinon.SinonSpy;
 
   beforeEach(function () {
     config = { ...dummyConfig };
@@ -37,6 +38,11 @@ describe('draft', function () {
       Promise.resolve('filename')
     );
     notarizeArtifact = sinon.spy();
+    sign = sinon.spy();
+  });
+
+  afterEach(function () {
+    sinon.restore();
   });
 
   describe('runDraft', function () {
@@ -62,7 +68,8 @@ describe('draft', function () {
           uploadArtifactToDownloadCenter,
           downloadArtifactFromEvergreen,
           ensureGithubReleaseExistsAndUpdateChangelog,
-          notarizeArtifact
+          notarizeArtifact,
+          sign
         );
       });
 
@@ -81,11 +88,24 @@ describe('draft', function () {
           ALL_PACKAGE_VARIANTS.length
         );
       });
+      context('when USE_GARASIGN is not set in the environment', function () {
+        it('asks the notary service to sign files', function () {
+          expect(notarizeArtifact).to.have.been.callCount(
+            ALL_PACKAGE_VARIANTS.length
+          );
+        });
+      });
 
-      it('asks the notary service to sign files', function () {
-        expect(notarizeArtifact).to.have.been.callCount(
-          ALL_PACKAGE_VARIANTS.length
-        );
+      context('when USE_GARASIGN is set in the environment', function () {
+        before(function () {
+          process.env.USE_GARASIGN = 'true';
+        });
+        after(function () {
+          delete process.env['USE_GARASIGN'];
+        });
+        it('downloads existing artifacts from evergreen', function () {
+          expect(sign).to.have.been.callCount(ALL_PACKAGE_VARIANTS.length);
+        });
       });
 
       it('uploads artifacts to download center', function () {

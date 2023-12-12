@@ -8,6 +8,7 @@ import { notarizeArtifact as notarizeArtifactFn } from './packaging';
 import { generateChangelog as generateChangelogFn } from './git';
 import type { GithubRepo } from '@mongodb-js/devtools-github-repo';
 import { getPackageFile } from './packaging';
+import { sign } from '@mongodb-js/signing-utils';
 
 export async function runDraft(
   config: Config,
@@ -15,8 +16,10 @@ export async function runDraft(
   uploadToDownloadCenter: typeof uploadArtifactToDownloadCenterFn = uploadArtifactToDownloadCenterFn,
   downloadArtifactFromEvergreen: typeof downloadArtifactFromEvergreenFn = downloadArtifactFromEvergreenFn,
   ensureGithubReleaseExistsAndUpdateChangelog: typeof ensureGithubReleaseExistsAndUpdateChangelogFn = ensureGithubReleaseExistsAndUpdateChangelogFn,
-  notarizeArtifact: typeof notarizeArtifactFn = notarizeArtifactFn
+  notarizeArtifact: typeof notarizeArtifactFn = notarizeArtifactFn,
+  garasignSigningFn: typeof sign = sign
 ): Promise<void> {
+  process.env['USE_GARASIGN'] = 'true';
   if (
     !config.triggeringGitTag ||
     !getReleaseVersionFromTag(config.triggeringGitTag)
@@ -57,23 +60,30 @@ export async function runDraft(
     const downloadedArtifact = await downloadArtifactFromEvergreen(
       tarballFile.path,
       config.project as string,
-      config.triggeringGitTag,
+      config.triggeringGitTag!,
       tmpDir
     );
 
     let signatureFile: string | undefined;
     try {
-      await notarizeArtifact(downloadedArtifact, {
-        signingKeyName: config.notarySigningKeyName || '',
-        authToken: config.notaryAuthToken || '',
-        signingComment: 'Evergreen Automatic Signing (mongosh)',
-      });
+      if (process.env.USE_GARASIGN === 'true') {
+        await garasignSigningFn(downloadedArtifact, {
+          client: 'local',
+          signingMethod: 'gpg',
+        });
+      } else {
+        await notarizeArtifact(downloadedArtifact, {
+          signingKeyName: config.notarySigningKeyName || '',
+          authToken: config.notaryAuthToken || '',
+          signingComment: 'Evergreen Automatic Signing (mongosh)',
+        });
+      }
       signatureFile = downloadedArtifact + '.sig';
       await fs.access(signatureFile, fsConstants.R_OK);
     } catch (err: any) {
-      console.warn(
-        `Skipping expected signature file for ${downloadedArtifact}: ${err.message}`
-      );
+      // console.warn(
+      //   `Skipping expected signature file for ${downloadedArtifact}: ${err.message}`
+      // );
       signatureFile = undefined;
     }
 
