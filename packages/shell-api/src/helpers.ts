@@ -195,6 +195,10 @@ export function processDigestPassword(
         CommonErrors.InvalidArgument
       );
     }
+    // NOTE: this code has raised a code scanning alert about the "use of a broken or weak cryptographic algorithm":
+    // we inherited this code from `mongo`, and we cannot replace MD5 with a different algorithm, since MD5 is part of the SCRAM-SHA-1 protocol,
+    // and the purpose of `passwordDigestor=client` is to improve the security of SCRAM-SHA-1, allowing the creation of new users
+    // without the need to communicate their password to the server.
     const hash = crypto.createHash('md5');
     hash.update(`${username}:mongo:${command.pwd}`);
     const digested = hash.digest('hex');
