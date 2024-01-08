@@ -3,6 +3,8 @@ set -x
 
 npm ci --verbose
 
+echo "MONOGDB_VERSION_OVERRIDE:$MONOGDB_VERSION_OVERRIDE"
+
 # if MONOGDB_VERSION_OVERRIDE is set, then we want to replace the package version
 if [[ -n "$MONOGDB_VERSION_OVERRIDE" ]]; then
   export REPLACE_PACKAGE="mongodb:$MONOGDB_VERSION_OVERRIDE"
