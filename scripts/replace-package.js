@@ -1,12 +1,11 @@
-// Replace a package with symlinks to a specific directory.
 // Example:
-// REPLACE_PACKAGE=mongodb:/home/src/node-mongodb-native node scripts/replace-package.js
-// will make 'mongodb' point to '/home/src/node-mongodb-native' in the root
-// directory and all lerna packages.
+// REPLACE_PACKAGE=mongodb:latest node scripts/replace-package.js
+// will replace the 'mongodb' dep's version with latest in the root directory
+// and all packages.
 'use strict';
 const fs = require('fs');
 const path = require('path');
-const { pathToFileURL } = require('url');
+const { execSync } = require('child_process');
 
 const replacement = process.env.REPLACE_PACKAGE;
 if (!replacement) {
@@ -17,11 +16,20 @@ if (!parsed || !parsed.groups.from || !parsed.groups.to) {
   throw new Error('Invalid format for REPLACE_PACKAGE');
 }
 
-const { from, to } = parsed.groups;
+function resolveTag(from, to) {
+  return execSync(`npm dist-tag ls '${from}@${to}' | awk -F ': ' '/^${to}/ {print \$2}'`).toString().trim();
+}
+
+const { from, to: _to } = parsed.groups;
+
+// npm install doesn't seem to do anything if you're updating a
+// package-lock.json file that already has the dep to a tag like nightly, but it
+// does do something if you change it to the exact version.
+const to = _to === 'nightly' ? resolveTag(from, _to) : _to;
+
 for (const dir of ['.', ...fs.readdirSync('packages').map(dir => path.join('packages', dir))]) {
   const packageJson = path.join(dir, 'package.json');
   if (fs.existsSync(packageJson)) {
-    const target = pathToFileURL(path.resolve(to)).href;
     const contents = JSON.parse(fs.readFileSync(packageJson));
     for (const deps of [
       contents.dependencies,
@@ -29,7 +37,7 @@ for (const dir of ['.', ...fs.readdirSync('packages').map(dir => path.join('pack
       contents.optionalDependencies
     ]) {
       if (deps && deps[from]) {
-        console.info('Replacing', from, 'in', dir, 'with', target);
+        console.info(`Replacing deps[${from}]: ${deps[from]} with ${to}`);
         deps[from] = to;
       }
     }

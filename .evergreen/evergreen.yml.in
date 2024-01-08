@@ -145,6 +145,7 @@ functions:
         env:
           NODE_JS_VERSION: ${node_js_version}
           DISTRO_ID: ${distro_id}
+          MONOGDB_DRIVER_VERSION_OVERRIDE: ${mongodb_driver_version_override}
         script: |
           source .evergreen/install-node.sh
           source .evergreen/install-npm-deps.sh
@@ -181,6 +182,7 @@ functions:
         env:
           NODE_JS_VERSION: ${node_js_version}
           DISTRO_ID: ${distro_id}
+          MONOGDB_DRIVER_VERSION_OVERRIDE: ${mongodb_driver_version_override}
         script: |
           source .evergreen/install-node.sh
           source .evergreen/install-npm-deps.sh

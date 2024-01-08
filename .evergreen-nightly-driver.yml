@@ -1,0 +1,7 @@
+# https://github.com/evergreen-ci/evergreen/blob/main/docs/Project-Configuration/Parameterized-Builds.md#project-config
+parameters:
+  - key: mongodb_driver_version_override
+    value: nightly
+
+include:
+  - filename: .evergreen.yml
