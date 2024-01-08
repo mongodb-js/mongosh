@@ -17,7 +17,7 @@ if (!parsed || !parsed.groups.from || !parsed.groups.to) {
 }
 
 function resolveTag(from, to) {
-  return execSync(`npm dist-tag ls ${from}@${to} | awk -F ': ' '/^${to}/ {print \$2}'`).toString().trim();
+  return execSync(`npm dist-tag ls '${from}@${to}' | awk -F ': ' '/^${to}/ {print \$2}'`).toString().trim();
 }
 
 const { from, to: _to } = parsed.groups;
