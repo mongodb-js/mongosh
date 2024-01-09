@@ -1,7 +1,8 @@
 import { constants as fsConstants, promises as fs } from 'fs';
 import path from 'path';
 import { inspect } from 'util';
-import { Config, getDistro } from '../config';
+import type { Config } from '../config';
+import { getDistro } from '../config';
 import { validatePackageVariant } from '../config';
 import { ArtifactMetadata } from '../release';
 import { downloadCryptLibrary } from './download-crypt-library';
