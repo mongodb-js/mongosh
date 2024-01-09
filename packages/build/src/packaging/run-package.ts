@@ -1,12 +1,13 @@
 import { constants as fsConstants, promises as fs } from 'fs';
 import path from 'path';
-import type { Config } from '../config';
+import { inspect } from 'util';
+import { Config, getDistro } from '../config';
 import { validatePackageVariant } from '../config';
 import { ArtifactMetadata } from '../release';
 import { downloadCryptLibrary } from './download-crypt-library';
 import { downloadManpage } from './download-manpage';
 import { notarizeArtifact } from './notary-service';
-import type { PackageFile } from './package';
+import { PackageFile } from './package';
 import { createPackage } from './package';
 
 export async function runPackage(config: Config): Promise<ArtifactMetadata> {
@@ -40,8 +41,10 @@ export async function runPackage(config: Config): Promise<ArtifactMetadata> {
   };
 
   const packaged = await runCreatePackage();
+  const filesToUpload = [packaged];
 
   if (packageVariant === 'win32msi-x64') {
+    // windows builds are signed in-place
     await notarizeArtifact(packaged.path, {
       signingKeyName: config.notarySigningKeyName || '',
       authToken: config.notaryAuthToken || '',
@@ -49,5 +52,37 @@ export async function runPackage(config: Config): Promise<ArtifactMetadata> {
     });
   }
 
-  return new ArtifactMetadata([packaged]);
+  const arch = getDistro(
+    config.packageVariant ??
+      (() => {
+        throw new Error(
+          'Undefined package variant in config\n' +
+            inspect(config, { depth: Infinity })
+        );
+      })()
+  );
+  if (['linux', 'deb', 'rpm'].includes(arch)) {
+    const expectedSignatureFile = packaged.path + '.sig';
+
+    console.error({
+      message: `signing file - ${packaged.path} ${expectedSignatureFile}`,
+    });
+
+    await notarizeArtifact(packaged.path, {
+      signingKeyName: config.notarySigningKeyName || '',
+      authToken: config.notaryAuthToken || '',
+      signingComment: 'Evergreen Automatic Signing (mongosh)',
+    });
+
+    await fs.access(expectedSignatureFile, fsConstants.R_OK);
+    console.error({
+      message: `successfully signed file - ${packaged.path} ${expectedSignatureFile}`,
+    });
+    filesToUpload.push(
+      new PackageFile(expectedSignatureFile, 'gpg signature file')
+    );
+  }
+
+  console.error({ filesToUpload });
+  return new ArtifactMetadata(filesToUpload);
 }
