@@ -2,13 +2,14 @@ import { constants as fsConstants, promises as fs } from 'fs';
 import path from 'path';
 import type { Config } from '../config';
 import { validatePackageVariant } from '../config';
+import { ArtifactMetadata } from '../release';
 import { downloadCryptLibrary } from './download-crypt-library';
 import { downloadManpage } from './download-manpage';
 import { notarizeArtifact } from './notary-service';
 import type { PackageFile } from './package';
 import { createPackage } from './package';
 
-export async function runPackage(config: Config): Promise<PackageFile> {
+export async function runPackage(config: Config): Promise<ArtifactMetadata> {
   const packageVariant = config.packageVariant;
   validatePackageVariant(packageVariant);
 
@@ -48,5 +49,5 @@ export async function runPackage(config: Config): Promise<PackageFile> {
     });
   }
 
-  return packaged;
+  return new ArtifactMetadata([packaged]);
 }

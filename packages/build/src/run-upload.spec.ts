@@ -2,7 +2,7 @@ import chai, { expect } from 'chai';
 import sinon from 'sinon';
 import type { Config } from './config';
 import type { uploadArtifactToEvergreen } from './evergreen';
-import type { PackageFile } from './packaging';
+import { PackageFile } from './packaging';
 import { runUpload } from './run-upload';
 import { dummyConfig } from '../test/helpers';
 
@@ -16,7 +16,10 @@ describe('do-upload', function () {
   beforeEach(function () {
     config = { ...dummyConfig };
 
-    tarballFile = { path: 'path', contentType: 'application/gzip' };
+    tarballFile = PackageFile.fromObject({
+      path: 'path',
+      contentType: 'application/gzip',
+    });
     uploadToEvergreen = sinon.spy();
   });
 

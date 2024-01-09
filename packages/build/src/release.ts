@@ -17,7 +17,7 @@ import {
 import { GithubRepo } from '@mongodb-js/devtools-github-repo';
 import { publishToHomebrew } from './homebrew';
 import { bumpNpmPackages, publishNpmPackages } from './npm-packages';
-import { runPackage } from './packaging';
+import { PackageFile, runPackage } from './packaging';
 import { runDraft } from './run-draft';
 import { runPublish } from './run-publish';
 import { runUpload } from './run-upload';
@@ -29,7 +29,26 @@ export type ReleaseCommand =
   | 'upload'
   | 'draft'
   | 'publish';
+export class ArtifactMetadata {
+  constructor(public artifacts: PackageFile[]) {}
 
+  static fromJSON(json: string): ArtifactMetadata {
+    const jsonObject = JSON.parse(json);
+
+    if (!('artifacts' in jsonObject)) {
+      throw new Error('missing key artifacts in JSON' + json);
+    }
+
+    const { artifacts } = jsonObject;
+    if (!Array.isArray(artifacts)) {
+      throw new Error('must be array');
+    }
+
+    return new ArtifactMetadata(
+      artifacts.map((o) => PackageFile.fromObject(o))
+    );
+  }
+}
 /**
  * Run release specific commands.
  * @param command The command to run
@@ -95,13 +114,15 @@ export async function release(
       JSON.stringify(tarballFile)
     );
   } else if (command === 'upload') {
-    const tarballFile = JSON.parse(
+    const artifactMetadata = ArtifactMetadata.fromJSON(
       await fs.readFile(
         path.join(config.outputDir, '.artifact_metadata'),
         'utf8'
       )
     );
-    await runUpload(config, tarballFile, uploadArtifactToEvergreen);
+    for (const file of artifactMetadata.artifacts) {
+      await runUpload(config, file, uploadArtifactToEvergreen);
+    }
   } else if (command === 'draft') {
     await runDraft(
       config,
