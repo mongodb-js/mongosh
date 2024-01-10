@@ -11,6 +11,7 @@ import { notarizeArtifact } from './notary-service';
 import { PackageFile } from './package';
 import { createPackage } from './package';
 
+// @ts-expect-error asdf
 import * as notarize from '@mongodb-js/mongodb-notary-service-client';
 
 export async function runPackage(config: Config): Promise<ArtifactMetadata> {
