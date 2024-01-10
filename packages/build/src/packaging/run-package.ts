@@ -11,6 +11,8 @@ import { notarizeArtifact } from './notary-service';
 import { PackageFile } from './package';
 import { createPackage } from './package';
 
+import * as notarize from '@mongodb-js/mongodb-notary-service-client';
+
 export async function runPackage(config: Config): Promise<ArtifactMetadata> {
   const packageVariant = config.packageVariant;
   validatePackageVariant(packageVariant);
@@ -69,11 +71,13 @@ export async function runPackage(config: Config): Promise<ArtifactMetadata> {
       message: `signing file - ${packaged.path} ${expectedSignatureFile}`,
     });
 
-    await notarizeArtifact(packaged.path, {
-      signingKeyName: config.notarySigningKeyName || '',
-      authToken: config.notaryAuthToken || '',
-      signingComment: 'Evergreen Automatic Signing (mongosh)',
-    });
+    process.env = {
+      ...process.env,
+      NOTARY_SIGNING_KEY: config.notarySigningKeyName,
+      NOTARY_AUTH_TOKEN: config.notaryAuthToken,
+      NOTARY_URL: 'http://notary-service.build.10gen.cc:5000',
+    };
+    await notarize(packaged.path);
 
     await fs.access(expectedSignatureFile, fsConstants.R_OK);
     console.error({
