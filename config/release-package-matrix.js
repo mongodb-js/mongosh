@@ -68,8 +68,8 @@ exports.RELEASE_PACKAGE_MATRIX = [
     kerberosConnectivityTestDockerfiles: [...krbConnTestsOpenSSL3],
     packages: [
       { name: 'linux-x64-openssl3', description: publicDescriptions.linux_x64, packageType: 'tgz with shared OpenSSL 3', packageOn: 'linux_package', smokeTestKind: 'none', serverLikeTargetList: [...allLinux] },
-      { name: 'deb-x64-openssl3', description: publicDescriptions.debian_x64, packageType: 'deb with shared OpenSSL 1.1', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu22.04-deb', 'ubuntu22.04-fips-deb', 'debian12-deb'], serverLikeTargetList: [...ubuntu1804AndAboveAndDebBased] },
-      { name: 'rpm-x64-openssl3', description: publicDescriptions.rhel_x64, packageType: 'rpm with shared OpenSSL 1.1', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['rocky8-epel-rpm', 'rocky9-rpm', 'rocky9-fips-rpm', 'amazonlinux2023-rpm'], serverLikeTargetList: [...rhel70AndAboveAndRpmBased] }
+      { name: 'deb-x64-openssl3', description: publicDescriptions.debian_x64, packageType: 'deb with shared OpenSSL 3', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu22.04-deb', 'ubuntu22.04-fips-deb', 'debian12-deb'], serverLikeTargetList: [...ubuntu1804AndAboveAndDebBased] },
+      { name: 'rpm-x64-openssl3', description: publicDescriptions.rhel_x64, packageType: 'rpm with shared OpenSSL 3', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['rocky8-epel-rpm', 'rocky9-rpm', 'rocky9-fips-rpm', 'amazonlinux2023-rpm'], serverLikeTargetList: [...rhel70AndAboveAndRpmBased] }
     ]
   },
   {
