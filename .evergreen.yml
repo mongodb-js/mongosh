@@ -1,6 +1,11 @@
 # Regenerate using `npm run update-evergreen-config`
 # https://jira.mongodb.org/browse/EVG-20276
 unset_function_vars: true
+
+# https://github.com/evergreen-ci/evergreen/blob/main/docs/Project-Configuration/Parameterized-Builds.md#project-config
+parameters:
+  - key: mongodb_driver_version_override
+    value: 
 exec_timeout_secs: 10800
 
 post_error_fails_task: true
@@ -12986,6 +12991,7 @@ tasks:
 # Need to run builds for every possible build variant.
 buildvariants:
   - name: darwin_unit
+    disabled: false
     display_name: "MacOS Big Sur (Unit tests)"
     run_on: macos-1100
     expansions:
@@ -13137,6 +13143,7 @@ buildvariants:
       - name: test_n20_types
       - name: test_n16_types
   - name: darwin
+    disabled: false
     display_name: "MacOS Big Sur"
     run_on: macos-1100
     expansions:
@@ -13147,6 +13154,7 @@ buildvariants:
       - name: package_and_upload_artifact_darwin_x64
       - name: package_and_upload_artifact_darwin_arm64
   - name: darwin_arm64
+    disabled: false
     display_name: "MacOS Big Sur (arm64)"
     run_on: macos-1100-arm64
     expansions:
@@ -13156,6 +13164,7 @@ buildvariants:
       - name: e2e_tests_darwin_arm64
 
   - name: linux_unit
+    disabled: false
     display_name: "Ubuntu 18.04 x64 (Unit tests)"
     run_on: ubuntu2004-small
     tasks:
@@ -13317,11 +13326,13 @@ buildvariants:
       - name: test_connectivity
       - name: test_apistrict
   - name: linux_coverage
+    disabled: false
     display_name: "Coverage Check"
     run_on: ubuntu2004-small
     tasks:
       - name: check_coverage
   - name: linux_package
+    disabled: false
     display_name: "Ubuntu 18.04 x64 (Packaging)"
     run_on: ubuntu2004-small
     tasks:
@@ -13348,6 +13359,7 @@ buildvariants:
       - name: package_and_upload_artifact_linux_s390x
       - name: package_and_upload_artifact_rpm_s390x
   - name: linux_x64_build
+    disabled: false
     display_name: "RHEL 7.0 x64 (build)"
     run_on: rhel70-build
     expansions:
@@ -13355,6 +13367,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
   - name: linux_x64_build_rhel8
+    disabled: false
     display_name: "RHEL 8.0 x64 (build)"
     run_on: rhel80-small
     expansions:
@@ -13362,6 +13375,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
   - name: linux_x64_build_openssl11
+    disabled: false
     display_name: "RHEL 7.0 x64 (build, shared OpenSSL 1.1)"
     run_on: rhel70-build
     expansions:
@@ -13370,6 +13384,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
   - name: linux_x64_build_openssl11_rhel8
+    disabled: false
     display_name: "RHEL 8.0 x64 (build, shared OpenSSL 1.1)"
     run_on: rhel80-small
     expansions:
@@ -13378,6 +13393,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
   - name: linux_x64_build_openssl3
+    disabled: false
     display_name: "RHEL 7.0 x64 (build, shared OpenSSL 3)"
     run_on: rhel70-build
     expansions:
@@ -13386,6 +13402,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
   - name: linux_x64_build_openssl3_rhel8
+    disabled: false
     display_name: "RHEL 8.0 x64 (build, shared OpenSSL 3)"
     run_on: rhel80-small
     expansions:
@@ -13394,6 +13411,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
   - name: linux_arm64_build
+    disabled: false
     display_name: "Amazon 2 arm64 (build)"
     run_on: amazon2-arm64-large
     expansions:
@@ -13401,6 +13419,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
   - name: linux_arm64_build_openssl11
+    disabled: false
     display_name: "Amazon 2 arm64 (build, shared OpenSSL 1.1)"
     run_on: amazon2-arm64-large
     expansions:
@@ -13409,6 +13428,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
   - name: linux_arm64_build_openssl3
+    disabled: false
     display_name: "Amazon 2 arm64 (build, shared OpenSSL 3)"
     run_on: amazon2-arm64-large
     expansions:
@@ -13417,6 +13437,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
   - name: linux_ppc64le_build
+    disabled: false
     display_name: "RHEL 8.1 PPC (build)"
     run_on: rhel81-power8-small
     expansions:
@@ -13424,6 +13445,7 @@ buildvariants:
     tasks:
       - name: compile_artifact
   - name: linux_s390x_build
+    disabled: false
     display_name: "RHEL 7.2 s390x (build)"
     run_on: rhel72-zseries-large
     expansions:
@@ -13432,21 +13454,25 @@ buildvariants:
       - name: compile_artifact
 
   - name: e2e_rhel70_x64
+    disabled: false
     display_name: "RHEL 7.0 x64 (E2E Tests)"
     run_on: rhel70-large
     tasks:
       - name: e2e_tests_linux_x64
   - name: e2e_rhel76_x64
+    disabled: false
     display_name: "RHEL 7.6 x64 (E2E Tests)"
     run_on: rhel76-large
     tasks:
       - name: e2e_tests_linux_x64
   - name: e2e_rhel80_x64
+    disabled: false
     display_name: "RHEL 8.0 x64 (E2E Tests)"
     run_on: rhel80-small
     tasks:
       - name: e2e_tests_linux_x64
   - name: e2e_rhel90_x64
+    disabled: false
     display_name: "RHEL 9.0 x64 (E2E Tests)"
     run_on: rhel90-small
     expansions:
@@ -13454,6 +13480,7 @@ buildvariants:
     tasks:
       - name: e2e_tests_linux_x64
   - name: e2e_rhel83_x64
+    disabled: false
     display_name: "RHEL 8.3 x64 (E2E Tests, FIPS-available OS)"
     run_on: rhel83-fips
     tasks:
@@ -13461,6 +13488,7 @@ buildvariants:
       - name: e2e_tests_linux_x64_openssl11
       - name: e2e_tests_linux_x64_openssl11_fips
   - name: e2e_rhel92_x64
+    disabled: false
     display_name: "RHEL 9.2 x64 (E2E Tests, FIPS-available OS)"
     run_on: rhel92-fips
     tasks:
@@ -13468,40 +13496,47 @@ buildvariants:
       - name: e2e_tests_linux_x64_openssl3
       - name: e2e_tests_linux_x64_openssl3_fips
   - name: e2e_ubuntu1804_x64
+    disabled: false
     display_name: "Ubuntu 18.04 x64 (E2E Tests)"
     run_on: ubuntu1804-large
     tasks:
       - name: e2e_tests_linux_x64_60x
   - name: e2e_ubuntu2004_x64
+    disabled: false
     display_name: "Ubuntu 20.04 x64 (E2E Tests)"
     run_on: ubuntu2004-small
     tasks:
       - name: e2e_tests_linux_x64
       - name: e2e_tests_linux_x64_openssl11
   - name: e2e_ubuntu2204_x64
+    disabled: false
     display_name: "Ubuntu 22.04 x64 (E2E Tests)"
     run_on: ubuntu2204-small
     tasks:
       - name: e2e_tests_linux_x64
       - name: e2e_tests_linux_x64_openssl3
   - name: e2e_debian10_x64
+    disabled: false
     display_name: "Debian 10 x64 (E2E Tests)"
     run_on: debian10-small
     tasks:
       - name: e2e_tests_linux_x64_60x
       - name: e2e_tests_linux_x64_openssl11_60x
   - name: e2e_debian11_x64
+    disabled: false
     display_name: "Debian 11 x64 (E2E Tests)"
     run_on: debian11-small
     tasks:
       - name: e2e_tests_linux_x64
       - name: e2e_tests_linux_x64_openssl11
   - name: e2e_amazon2_x64
+    disabled: false
     display_name: "Amazon Linux 2 x64 (E2E Tests)"
     run_on: amazon2-large
     tasks:
       - name: e2e_tests_linux_x64
   - name: e2e_amazon2023_x64
+    disabled: false
     display_name: "Amazon Linux 2023 x64 (E2E Tests)"
     run_on: amazon2023.0-small
     expansions:
@@ -13509,38 +13544,45 @@ buildvariants:
     tasks:
       - name: e2e_tests_linux_x64
   - name: e2e_suse12_x64
+    disabled: false
     display_name: "SLES 12 x64 (E2E Tests)"
     run_on: suse12-sp5-large
     tasks:
       - name: e2e_tests_linux_x64
   - name: e2e_suse15_x64
+    disabled: false
     display_name: "SLES 15 x64 (E2E Tests)"
     run_on: suse15sp4-small
     tasks:
       - name: e2e_tests_linux_x64
   - name: e2e_ubuntu1804_arm64
+    disabled: false
     display_name: "Ubuntu 18.04 arm64 (E2E Tests)"
     run_on: ubuntu1804-arm64-large
     tasks:
       - name: e2e_tests_linux_arm64_60x
   - name: e2e_ubuntu2004_arm64
+    disabled: false
     display_name: "Ubuntu 20.04 arm64 (E2E Tests)"
     run_on: ubuntu2004-arm64-small
     tasks:
       - name: e2e_tests_linux_arm64
       - name: e2e_tests_linux_arm64_openssl11
   - name: e2e_ubuntu2204_arm64
+    disabled: false
     display_name: "Ubuntu 22.04 arm64 (E2E Tests)"
     run_on: ubuntu2204-arm64-small
     tasks:
       - name: e2e_tests_linux_arm64
       - name: e2e_tests_linux_arm64_openssl3
   - name: e2e_amazon2_arm64
+    disabled: false
     display_name: "Amazon Linux 2 arm64 (E2E Tests)"
     run_on: amazon2-arm64-large
     tasks:
       - name: e2e_tests_linux_arm64
   - name: e2e_amazon2023_arm64
+    disabled: false
     display_name: "Amazon Linux 2023 arm64 (E2E Tests)"
     run_on: amazon2023.0-arm64-small
     expansions:
@@ -13548,11 +13590,13 @@ buildvariants:
     tasks:
       - name: e2e_tests_linux_arm64
   - name: e2e_rhel82_arm64
+    disabled: false
     display_name: "RHEL 8.2 arm64 (E2E Tests)"
     run_on: rhel82-arm64-small
     tasks:
       - name: e2e_tests_linux_arm64
   - name: e2e_rhel90_arm64
+    disabled: false
     display_name: "RHEL 9.0 arm64 (E2E Tests)"
     run_on: rhel90-arm64-small
     expansions:
@@ -13561,22 +13605,26 @@ buildvariants:
       - name: e2e_tests_linux_arm64
       - name: e2e_tests_linux_arm64_openssl3
   - name: e2e_rhel81_ppc64le
+    disabled: false
     display_name: "RHEL 8.1 PPC (E2E Tests)"
     run_on: rhel81-power8-small
     tasks:
       - name: e2e_tests_linux_ppc64le
   - name: e2e_rhel72_s390x
+    disabled: false
     display_name: "RHEL 7.2 s390x (E2E Tests)"
     run_on: rhel72-zseries-large
     tasks:
       - name: e2e_tests_linux_s390x_60x
   - name: e2e_rhel83_s390x
+    disabled: false
     display_name: "RHEL 8.3 s390x (E2E Tests)"
     run_on: rhel83-zseries-small
     tasks:
       - name: e2e_tests_linux_s390x
 
   - name: win32_unit
+    disabled: false
     display_name: "Windows (Unit tests)"
     run_on: windows-vsCurrent-small
     expansions:
@@ -13726,6 +13774,7 @@ buildvariants:
       - name: test_n20_types
       - name: test_n16_types
   - name: win32
+    disabled: false
     display_name: "Windows VS 2019"
     run_on: windows-64-vs2019-small
     expansions:
@@ -13735,6 +13784,7 @@ buildvariants:
       - name: package_and_upload_artifact_win32_x64
       - name: package_and_upload_artifact_win32msi_x64
   - name: win32_build
+    disabled: false
     display_name: "Windows VS 2019 (build)"
     run_on: windows-64-vs2019-build
     expansions:
@@ -13743,6 +13793,7 @@ buildvariants:
       - name: compile_artifact
 
   - name: pkg_smoke_tests_docker_x64
+    disabled: false
     display_name: "package smoke (x64 Docker)"
     run_on: ubuntu2004-small
     tasks:
@@ -13778,6 +13829,7 @@ buildvariants:
       - name: pkg_test_docker_rpm_x64_openssl3_rocky9_fips_rpm
       - name: pkg_test_docker_rpm_x64_openssl3_amazonlinux2023_rpm
   - name: pkg_smoke_tests_docker_arm64
+    disabled: false
     display_name: "package smoke (arm64 Docker)"
     run_on: ubuntu2004-arm64-small
     tasks:
@@ -13808,6 +13860,7 @@ buildvariants:
       - name: pkg_test_docker_rpm_arm64_openssl3_rocky9_fips_rpm
       - name: pkg_test_docker_rpm_arm64_openssl3_amazonlinux2023_rpm
   - name: exec_connectitivty_tests_docker_x64_openssl11
+    disabled: false
     display_name: "executable connectivity tests (x64 Docker for OpenSSL 1.1 base OS)"
     run_on: ubuntu2004-small
     tasks:
@@ -13819,6 +13872,7 @@ buildvariants:
       - name: executable_connectivity_test_linux_x64_openssl11_rocky8
       - name: executable_connectivity_test_linux_x64_openssl11_ubuntu2004
   - name: exec_connectitivty_tests_docker_arm64_openssl11
+    disabled: false
     display_name: "executable connectivity tests (arm64 Docker for OpenSSL 1.1 base OS)"
     run_on: ubuntu2004-arm64-small
     tasks:
@@ -13830,6 +13884,7 @@ buildvariants:
       - name: executable_connectivity_test_linux_arm64_openssl11_rocky8
       - name: executable_connectivity_test_linux_arm64_openssl11_ubuntu2004
   - name: exec_connectitivty_tests_docker_x64_openssl3
+    disabled: false
     display_name: "executable connectivity tests (x64 Docker for OpenSSL 3 base OS)"
     run_on: ubuntu2204-small
     tasks:
@@ -13842,6 +13897,7 @@ buildvariants:
       - name: executable_connectivity_test_linux_x64_openssl3_rocky9
       - name: executable_connectivity_test_linux_x64_openssl3_ubuntu2204
   - name: exec_connectitivty_tests_docker_arm64_openssl3
+    disabled: false
     display_name: "executable connectivity tests (arm64 Docker for OpenSSL 3 base OS)"
     run_on: ubuntu2204-arm64-small
     tasks:
@@ -13854,43 +13910,51 @@ buildvariants:
       - name: executable_connectivity_test_linux_arm64_openssl3_rocky9
       - name: executable_connectivity_test_linux_arm64_openssl3_ubuntu2204
   - name: pkg_smoke_tests_win32
+    disabled: false
     display_name: "package smoke tests (win32)"
     run_on: ubuntu2004-small
     tasks:
       - name: pkg_test_ssh_win32_x64
       - name: pkg_test_ssh_win32msi_x64
   - name: pkg_smoke_tests_macos_1100_x64
+    disabled: false
     display_name: "package smoke tests (macos 11.00 x64)"
     run_on: macos-1100
     tasks:
       - name: pkg_test_macos_darwin_x64
   - name: pkg_smoke_tests_macos_1100_arm64
+    disabled: false
     display_name: "package smoke tests (macos 11.00 arm64)"
     run_on: macos-1100-arm64
     tasks:
       - name: pkg_test_macos_darwin_arm64
   - name: pkg_smoke_tests_macos_1300_arm64
+    disabled: false
     display_name: "package smoke tests (macos 13.00 arm64)"
     run_on: macos-1300-arm64
     tasks:
       - name: pkg_test_macos_darwin_arm64
   - name: pkg_smoke_tests_rhel72_s390x
+    disabled: false
     display_name: "package smoke tests (RHEL 7.2 s390x)"
     run_on: rhel72-zseries-small
     tasks:
       - name: pkg_test_rpmextract_rpm_s390x
   - name: pkg_smoke_tests_rhel83_s390x
+    disabled: false
     display_name: "package smoke tests (RHEL 8.3 s390x)"
     run_on: rhel83-zseries-small
     tasks:
       - name: pkg_test_rpmextract_rpm_s390x
   - name: pkg_smoke_tests_rhel81_ppc64le
+    disabled: false
     display_name: "package smoke tests (RHEL 8.1 ppc64le)"
     run_on: rhel81-power8-small
     tasks:
       - name: pkg_test_rpmextract_rpm_ppc64le
 
   - name: draft_publish_release
+    disabled: false
     display_name: "Draft/Publish Release"
     run_on: ubuntu2004-small
     tasks:
@@ -13899,6 +13963,7 @@ buildvariants:
       - name: release_publish
 
   - name: generate_license_and_vulnerability_report
+    disabled: false
     display_name: "License and Vulnerability Report"
     run_on: ubuntu2004-small
     tasks:
