@@ -19,7 +19,6 @@ export async function runDraft(
   notarizeArtifact: typeof notarizeArtifactFn = notarizeArtifactFn,
   garasignSigningFn: typeof sign = sign
 ): Promise<void> {
-  process.env['USE_GARASIGN'] = 'true';
   if (
     !config.triggeringGitTag ||
     !getReleaseVersionFromTag(config.triggeringGitTag)
