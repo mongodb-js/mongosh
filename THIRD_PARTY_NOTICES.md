@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Sun Jan 14 2024.
+This document was automatically generated on Wed Jan 17 2024.
 
 ## List of dependencies
 
@@ -238,7 +238,7 @@ Package|Version|License
 **[file-uri-to-path](#9eb41790b1cce0829afe7926edf4be80e0dd6927cd8376c00a54a8fc86f8943e)**|1.0.0|MIT
 **[finalhandler](#aadbd97218305f5ef51f7cb49d1c13630ab07088c492cde98e13190d5b4ad820)**|1.1.2|MIT
 **[finalhandler](#ea05ab0484759171733963b2131d01cfd1ca89ab89ecde290a3aac01ec5b0c47)**|1.2.0|MIT
-**[follow-redirects](#003cc620c6dc02bc88b76fea6e75d5850ec850ad02d0e827e3f857762eeec94a)**|1.15.2|MIT
+**[follow-redirects](#30bcd3105e6534494d6865828cb528778c917e1f68ba83f9ec42c31c62da8511)**|1.15.4|MIT
 **[format](#353f24aaf04248dcf73d044f735588066fbd0102ebc5e29ef75c8ee4e4f285dc)**|0.2.2|MIT
 **[forwarded](#2d7f4275b09b041fd821b7672ebae7c9ccad3c87f3f37b6bd91306973c02b9a3)**|0.2.0|MIT
 **[fresh](#d7c677c373e09a5e9c7fe1d1ce69ca3147fe0455bf5606a26251970181d9efc4)**|0.5.2|MIT
@@ -23588,8 +23588,8 @@ License files:
       
 
 
-<a id="003cc620c6dc02bc88b76fea6e75d5850ec850ad02d0e827e3f857762eeec94a"></a>
-### [follow-redirects](https://www.npmjs.com/package/follow-redirects) (version 1.15.2)
+<a id="30bcd3105e6534494d6865828cb528778c917e1f68ba83f9ec42c31c62da8511"></a>
+### [follow-redirects](https://www.npmjs.com/package/follow-redirects) (version 1.15.4)
 License tags: MIT
 
 License files:
