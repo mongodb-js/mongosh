@@ -2,11 +2,6 @@
 # https://jira.mongodb.org/browse/EVG-20276
 unset_function_vars: true
 
-patch_aliases:
-  - alias: "nightly-driver"
-    variant_tags: ["nightly-driver"]
-    task: ".*"
-
 <%
 const path = require('path');
 

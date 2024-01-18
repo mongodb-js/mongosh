@@ -1,11 +1,6 @@
 # Regenerate using `npm run update-evergreen-config`
 # https://jira.mongodb.org/browse/EVG-20276
 unset_function_vars: true
-
-patch_aliases:
-  - alias: "nightly-driver"
-    variant_tags: ["nightly-driver"]
-    task: ".*"
 exec_timeout_secs: 10800
 
 post_error_fails_task: true
@@ -13163,7 +13158,7 @@ buildvariants:
   - name: linux_unit
     display_name: "Ubuntu 18.04 x64 (Unit tests)"
     run_on: ubuntu2004-small
-    tags: ["driver-nightly"]
+    tags: ["nightly-driver"]
     tasks:
       - name: compile_ts
       - name: check
