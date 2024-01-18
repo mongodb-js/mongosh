@@ -1201,6 +1201,7 @@ buildvariants:
   - name: linux_unit
     display_name: "Ubuntu 18.04 x64 (Unit tests)"
     run_on: ubuntu2004-small
+    tags: ["nightly-driver"]
     tasks:
       - name: compile_ts
       - name: check
@@ -1218,6 +1219,7 @@ buildvariants:
   - name: linux_package
     display_name: "Ubuntu 18.04 x64 (Packaging)"
     run_on: ubuntu2004-small
+    tags: ["nightly-driver"]
     tasks:
       <% for (const { executableOsId, packages } of RELEASE_PACKAGE_MATRIX) {
           for (const { name: packageVariant } of packages) {
@@ -1229,6 +1231,7 @@ buildvariants:
     run_on: rhel70-build
     expansions:
       executable_os_id: linux-x64
+    tags: ["nightly-driver"]
     tasks:
       - name: compile_artifact
   - name: linux_x64_build_rhel8
@@ -1236,6 +1239,7 @@ buildvariants:
     run_on: rhel80-small
     expansions:
       executable_os_id: linux-x64
+    tags: ["nightly-driver"]
     tasks:
       - name: compile_artifact
   - name: linux_x64_build_openssl11
@@ -1244,6 +1248,7 @@ buildvariants:
     expansions:
       executable_os_id: linux-x64-openssl11
       mongosh_shared_openssl: openssl11
+    tags: ["nightly-driver"]
     tasks:
       - name: compile_artifact
   - name: linux_x64_build_openssl11_rhel8
@@ -1252,6 +1257,7 @@ buildvariants:
     expansions:
       executable_os_id: linux-x64-openssl11
       mongosh_shared_openssl: openssl11
+    tags: ["nightly-driver"]
     tasks:
       - name: compile_artifact
   - name: linux_x64_build_openssl3
@@ -1260,6 +1266,7 @@ buildvariants:
     expansions:
       executable_os_id: linux-x64-openssl3
       mongosh_shared_openssl: openssl3
+    tags: ["nightly-driver"]
     tasks:
       - name: compile_artifact
   - name: linux_x64_build_openssl3_rhel8
@@ -1268,6 +1275,7 @@ buildvariants:
     expansions:
       executable_os_id: linux-x64-openssl3
       mongosh_shared_openssl: openssl3
+    tags: ["nightly-driver"]
     tasks:
       - name: compile_artifact
   - name: linux_arm64_build
@@ -1311,16 +1319,19 @@ buildvariants:
   - name: e2e_rhel70_x64
     display_name: "RHEL 7.0 x64 (E2E Tests)"
     run_on: rhel70-large
+    tags: ["nightly-driver"]
     tasks:
       - name: e2e_tests_linux_x64
   - name: e2e_rhel76_x64
     display_name: "RHEL 7.6 x64 (E2E Tests)"
     run_on: rhel76-large
+    tags: ["nightly-driver"]
     tasks:
       - name: e2e_tests_linux_x64
   - name: e2e_rhel80_x64
     display_name: "RHEL 8.0 x64 (E2E Tests)"
     run_on: rhel80-small
+    tags: ["nightly-driver"]
     tasks:
       - name: e2e_tests_linux_x64
   - name: e2e_rhel90_x64
@@ -1328,11 +1339,13 @@ buildvariants:
     run_on: rhel90-small
     expansions:
       disable_openssl_shared_config_for_bundled_openssl: true
+    tags: ["nightly-driver"]
     tasks:
       - name: e2e_tests_linux_x64
   - name: e2e_rhel83_x64
     display_name: "RHEL 8.3 x64 (E2E Tests, FIPS-available OS)"
     run_on: rhel83-fips
+    tags: ["nightly-driver"]
     tasks:
       - name: e2e_tests_linux_x64
       - name: e2e_tests_linux_x64_openssl11
@@ -1340,6 +1353,7 @@ buildvariants:
   - name: e2e_rhel92_x64
     display_name: "RHEL 9.2 x64 (E2E Tests, FIPS-available OS)"
     run_on: rhel92-fips
+    tags: ["nightly-driver"]
     tasks:
       - name: e2e_tests_linux_x64
       - name: e2e_tests_linux_x64_openssl3
@@ -1347,35 +1361,41 @@ buildvariants:
   - name: e2e_ubuntu1804_x64
     display_name: "Ubuntu 18.04 x64 (E2E Tests)"
     run_on: ubuntu1804-large
+    tags: ["nightly-driver"]
     tasks:
       - name: e2e_tests_linux_x64_60x
   - name: e2e_ubuntu2004_x64
     display_name: "Ubuntu 20.04 x64 (E2E Tests)"
     run_on: ubuntu2004-small
+    tags: ["nightly-driver"]
     tasks:
       - name: e2e_tests_linux_x64
       - name: e2e_tests_linux_x64_openssl11
   - name: e2e_ubuntu2204_x64
     display_name: "Ubuntu 22.04 x64 (E2E Tests)"
     run_on: ubuntu2204-small
+    tags: ["nightly-driver"]
     tasks:
       - name: e2e_tests_linux_x64
       - name: e2e_tests_linux_x64_openssl3
   - name: e2e_debian10_x64
     display_name: "Debian 10 x64 (E2E Tests)"
     run_on: debian10-small
+    tags: ["nightly-driver"]
     tasks:
       - name: e2e_tests_linux_x64_60x
       - name: e2e_tests_linux_x64_openssl11_60x
   - name: e2e_debian11_x64
     display_name: "Debian 11 x64 (E2E Tests)"
     run_on: debian11-small
+    tags: ["nightly-driver"]
     tasks:
       - name: e2e_tests_linux_x64
       - name: e2e_tests_linux_x64_openssl11
   - name: e2e_amazon2_x64
     display_name: "Amazon Linux 2 x64 (E2E Tests)"
     run_on: amazon2-large
+    tags: ["nightly-driver"]
     tasks:
       - name: e2e_tests_linux_x64
   - name: e2e_amazon2023_x64
@@ -1383,16 +1403,19 @@ buildvariants:
     run_on: amazon2023.0-small
     expansions:
       disable_openssl_shared_config_for_bundled_openssl: true
+    tags: ["nightly-driver"]
     tasks:
       - name: e2e_tests_linux_x64
   - name: e2e_suse12_x64
     display_name: "SLES 12 x64 (E2E Tests)"
     run_on: suse12-sp5-large
+    tags: ["nightly-driver"]
     tasks:
       - name: e2e_tests_linux_x64
   - name: e2e_suse15_x64
     display_name: "SLES 15 x64 (E2E Tests)"
     run_on: suse15sp4-small
+    tags: ["nightly-driver"]
     tasks:
       - name: e2e_tests_linux_x64
   - name: e2e_ubuntu1804_arm64
@@ -1483,6 +1506,7 @@ buildvariants:
   - name: pkg_smoke_tests_docker_x64
     display_name: "package smoke (x64 Docker)"
     run_on: ubuntu2004-small
+    tags: ["nightly-driver"]
     tasks:
   <% for (const { taskName, executableOsId } of packageSmokeTestTasks) {
       if (executableOsId.includes('linux-x64')) { %>
@@ -1491,6 +1515,7 @@ buildvariants:
   - name: pkg_smoke_tests_docker_arm64
     display_name: "package smoke (arm64 Docker)"
     run_on: ubuntu2004-arm64-small
+    tags: ["nightly-driver"]
     tasks:
   <% for (const { taskName, executableOsId } of packageSmokeTestTasks) {
       if (executableOsId.includes('linux-arm64')) { %>
@@ -1499,6 +1524,7 @@ buildvariants:
   - name: exec_connectitivty_tests_docker_x64_openssl11
     display_name: "executable connectivity tests (x64 Docker for OpenSSL 1.1 base OS)"
     run_on: ubuntu2004-small
+    tags: ["nightly-driver"]
     tasks:
   <% for (const { taskName, executableOsId } of executableConnectivityTests) {
       if (executableOsId.includes('linux-x64') && !taskName.includes('openssl3')) { %>
@@ -1515,6 +1541,7 @@ buildvariants:
   - name: exec_connectitivty_tests_docker_x64_openssl3
     display_name: "executable connectivity tests (x64 Docker for OpenSSL 3 base OS)"
     run_on: ubuntu2204-small
+    tags: ["nightly-driver"]
     tasks:
   <% for (const { taskName, executableOsId } of executableConnectivityTests) {
       if (executableOsId.includes('linux-x64') && !taskName.includes('openssl11')) { %>

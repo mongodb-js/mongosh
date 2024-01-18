@@ -9,7 +9,13 @@ echo "MONOGDB_DRIVER_VERSION_OVERRIDE:$MONOGDB_DRIVER_VERSION_OVERRIDE"
 if [[ -n "$MONOGDB_DRIVER_VERSION_OVERRIDE" ]]; then
   export REPLACE_PACKAGE="mongodb:$MONOGDB_DRIVER_VERSION_OVERRIDE"
   npm run replace-package
-  npm ci --verbose --force # force because of issues with peer deps and semver pre-releases
+  # force because of issues with peer deps and semver pre-releases,
+  # install rather than ci because `npm ci` can only install packages when your
+  # package.json and package-lock.json or npm-shrinkwrap.json are in sync.
+  # NOTE: this won't work on some more exotic platforms because not every dep
+  # can be installed on them. That's why we only run on linux x64 platforms when
+  # we set MONOGDB_DRIVER_VERSION_OVERRIDE=nightly in CI
+  npm i --verbose --force
 fi
 
 # if we rewrote this script in javascript using just builtin node modules we could skip the npm ci above
