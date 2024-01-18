@@ -2,6 +2,11 @@
 # https://jira.mongodb.org/browse/EVG-20276
 unset_function_vars: true
 
+patch_aliases:
+  - alias: "nightly-driver"
+    variant_tags: ["nightly-driver"]
+    task: ".*"
+
 <%
 const path = require('path');
 
@@ -1201,6 +1206,7 @@ buildvariants:
   - name: linux_unit
     display_name: "Ubuntu 18.04 x64 (Unit tests)"
     run_on: ubuntu2004-small
+    tags: ["nightly-driver"]
     tasks:
       - name: compile_ts
       - name: check
