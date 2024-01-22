@@ -44,6 +44,6 @@
     "eslint": "^7.25.0",
     "handlebars": "^4.7.7",
     "prettier": "^2.8.8",
-    "typescript": "^5.0.4"
+    "typescript": "^5.3.3"
   }
 }
