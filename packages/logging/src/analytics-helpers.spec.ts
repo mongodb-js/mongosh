@@ -27,8 +27,8 @@ describe('analytics helpers', function () {
       track(info: any) {
         events.push(['track', info]);
       },
-      flush(cb) {
-        cb();
+      async flush() {
+        return Promise.resolve();
       },
     };
   });
@@ -153,7 +153,7 @@ describe('analytics helpers', function () {
       analytics.track(tEvt);
       analytics.track(tEvt);
       analytics.track(tEvt);
-      await promisify(analytics.flush.bind(analytics))();
+      await analytics.flush();
       expect(events).to.have.lengthOf(5);
     });
 
@@ -166,7 +166,7 @@ describe('analytics helpers', function () {
       for (let i = 0; i < 100; i++) {
         analytics.track(tEvt);
       }
-      await promisify(analytics.flush.bind(analytics))();
+      await analytics.flush();
       expect(events).to.have.lengthOf(5);
     });
 
@@ -184,7 +184,7 @@ describe('analytics helpers', function () {
       for (let i = 0; i < 100; i++) {
         analytics.track(tEvt);
       }
-      await promisify(analytics.flush.bind(analytics))();
+      await analytics.flush();
       expect(events).to.have.lengthOf(10);
     });
 
@@ -199,7 +199,7 @@ describe('analytics helpers', function () {
       a1.identify(iEvt);
       a1.track(tEvt);
       a1.track(tEvt);
-      await promisify(a1.flush.bind(a1))();
+      await a1.flush();
       expect(events).to.have.lengthOf(3);
 
       // second "session"
@@ -211,7 +211,7 @@ describe('analytics helpers', function () {
       for (let i = 0; i < 100; i++) {
         a2.track(tEvt);
       }
-      await promisify(a2.flush.bind(a2))();
+      await a2.flush();
       expect(events).to.have.lengthOf(5);
     });
 
@@ -236,8 +236,8 @@ describe('analytics helpers', function () {
       a1.track(tEvt);
       a2.track(t2Evt);
 
-      await promisify(a1.flush.bind(a1))();
-      await promisify(a2.flush.bind(a2))();
+      await a1.flush();
+      await a2.flush();
 
       expect(events).to.have.lengthOf(4);
       expect(

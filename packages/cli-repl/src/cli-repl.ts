@@ -12,7 +12,7 @@ import type { CliOptions, DevtoolsConnectOptions } from '@mongosh/arg-parser';
 import { SnippetManager } from '@mongosh/snippet-manager';
 import { Editor } from '@mongosh/editor';
 import { redactSensitiveData } from '@mongosh/history';
-import type Analytics from 'analytics-node';
+import type { Analytics as SegmentAnalytics } from '@segment/analytics-node';
 import askpassword from 'askpassword';
 import { EventEmitter, once } from 'events';
 import yaml from 'js-yaml';
@@ -113,7 +113,7 @@ export class CliRepl implements MongoshIOProvider {
   input: Readable;
   output: Writable;
   analyticsOptions?: AnalyticsOptions;
-  segmentAnalytics?: Analytics;
+  segmentAnalytics?: SegmentAnalytics;
   toggleableAnalytics: ToggleableAnalytics = new ToggleableAnalytics();
   warnedAboutInaccessibleFiles = false;
   onExit: (code?: number) => Promise<never>;
@@ -510,17 +510,12 @@ export class CliRepl implements MongoshIOProvider {
     }
     // 'http' is not supported in startup snapshots yet.
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const Analytics = require('analytics-node');
-    this.segmentAnalytics = new Analytics(
-      apiKey,
-      {
-        ...this.analyticsOptions,
-        axiosConfig: {
-          timeout: 1000,
-        },
-        axiosRetryConfig: { retries: 0 },
-      } as any /* axiosConfig and axiosRetryConfig are existing options, but don't have type definitions */
-    );
+    const { Analytics } = require('@segment/analytics-node');
+    this.segmentAnalytics = new Analytics({
+      writeKey: apiKey,
+      ...this.analyticsOptions,
+      // TODO
+    });
     this.toggleableAnalytics = new ToggleableAnalytics(
       new SampledAnalytics({
         target: new ThrottledAnalytics({
