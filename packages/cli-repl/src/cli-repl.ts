@@ -513,8 +513,9 @@ export class CliRepl implements MongoshIOProvider {
     const { Analytics } = require('@segment/analytics-node');
     this.segmentAnalytics = new Analytics({
       writeKey: apiKey,
+      maxRetries: 0,
+      httpRequestTimeout: 1000,
       ...this.analyticsOptions,
-      // TODO
     });
     this.toggleableAnalytics = new ToggleableAnalytics(
       new SampledAnalytics({
