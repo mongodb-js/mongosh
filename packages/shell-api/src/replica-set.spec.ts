@@ -32,7 +32,7 @@ import {
   ALL_TOPOLOGIES,
 } from './enums';
 import { dummyOptions } from './helpers.spec';
-import { signatures, toShellResult } from './index';
+import { Collection, signatures, toShellResult } from './index';
 import Mongo from './mongo';
 import type { ReplSetConfig, ReplSetMemberConfig } from './replica-set';
 import ReplicaSet from './replica-set';
@@ -1057,6 +1057,7 @@ describe('ReplicaSet', function () {
         ).to.deep.include({ ok: 1 });
       });
     });
+
     describe('configureQueryAnalyzer()', function () {
       skipIfServerVersion(srv0, '< 7.0'); // analyzeShardKey will only be added in 7.0 which is not included in stable yet
 
@@ -1088,6 +1089,41 @@ describe('ReplicaSet', function () {
           oldConfiguration: { mode: 'full', samplesPerSecond: 1 },
           newConfiguration: { mode: 'off' },
         });
+      });
+    });
+
+    describe('validate [replica set mode]', function () {
+      // Tested here because since https://jira.mongodb.org/browse/MONGOSH-1664 background: true
+      // does not work on standalone nodes anymore
+      skipIfApiStrict();
+      skipIfServerVersion(srv0, '< 5.0');
+      let collection: Collection;
+
+      beforeEach(async function () {
+        collection = db.getCollection('test');
+        await collection.insertOne({ foo: 'bar' });
+      });
+
+      it('validate can be used to validate a collection', async function () {
+        expect((await collection.validate({ full: true })).valid).to.equal(
+          true
+        );
+      });
+
+      it('validate accepts a background option', async function () {
+        expect(
+          (await collection.validate({ full: false, background: true })).valid
+        ).to.equal(true);
+      });
+
+      it('validate fails with background: true and full: true', async function () {
+        try {
+          await collection.validate({ full: true, background: true });
+          expect.fail('missed exception');
+        } catch (err: any) {
+          expect(err.name).to.equal('MongoServerError');
+          expect(err.codeName).to.equal('InvalidOptions');
+        }
       });
     });
   });

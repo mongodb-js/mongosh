@@ -1303,7 +1303,9 @@ describe('Shell API (integration)', function () {
       });
     });
 
-    describe('validate', function () {
+    describe('validate [standalone mode]', function () {
+      // other options are tested in the ReplicaSet suite because they are not available
+      // in standalone mode
       skipIfApiStrict();
       skipIfServerVersion(testServer, '< 5.0');
 
@@ -1321,21 +1323,6 @@ describe('Shell API (integration)', function () {
         expect(
           (await collection.validate({ full: true, repair: true })).valid
         ).to.equal(true);
-      });
-
-      it('validate accepts a background option', async function () {
-        expect(
-          (await collection.validate({ full: false, background: true })).valid
-        ).to.equal(true);
-      });
-
-      it('validate fails with background: true and full: true', async function () {
-        try {
-          await collection.validate({ full: true, background: true });
-          expect.fail('missed exception');
-        } catch (err: any) {
-          expect(err.name).to.equal('MongoServerError');
-        }
       });
     });
   });
