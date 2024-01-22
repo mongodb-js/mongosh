@@ -820,9 +820,9 @@ export function returnType(returnType: string) {
  * Calling the constructor will automatically emit a telemetry event but
  * will **not** print an automatic deprecation warning (see `printDeprecationWarning`).
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function classDeprecated<T extends { prototype: any }>(
   constructor: T,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   context: ClassDecoratorContext
 ): void {
   constructor.prototype.deprecated = true;
@@ -847,9 +847,9 @@ export function platforms(platforms: ReplPlatform[]) {
  * @param platformsArray The platforms the method is supported on
  */
 export function classPlatforms(platformsArray: ReplPlatform[]): Function {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   return function addSourceToResults<T extends { prototype: any }>(
     constructor: T,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     context: ClassDecoratorContext
   ): void {
     constructor.prototype.platforms = platformsArray;
@@ -860,9 +860,9 @@ export function classPlatforms(platformsArray: ReplPlatform[]): Function {
  * Marks the decorated class that for all methods in the class additional
  * source information of the call will be added to the calls returned result.
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function addSourceToResults<T extends { prototype: any }>(
   constructor: T,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   context: ClassDecoratorContext
 ): void {
   (constructor as any)[addSourceToResultsSymbol] = true;
