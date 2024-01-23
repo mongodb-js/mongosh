@@ -80,6 +80,8 @@ class ShellConfig extends ShellApiClass {
     return `Setting "${key}" has been changed`;
   }
 
+  // @ts-expect-error TS does not understand that the return type templating
+  // always interacts well with the decorators
   @returnsPromise
   async get<K extends keyof ShellUserConfig>(
     key: K

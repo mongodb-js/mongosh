@@ -448,8 +448,12 @@ export const toIgnore = ['constructor', 'help', 'toJSON'];
  * @param constructor The target class.
  * @param hasHelp Whether the class has own help information or not.
  */
-function shellApiClassGeneric(constructor: Function, hasHelp: boolean): void {
-  const className = constructor.name;
+function shellApiClassGeneric<T extends { prototype: any }>(
+  constructor: T,
+  hasHelp: boolean,
+  context: ClassDecoratorContext
+): void {
+  const className = context.name!;
   const classHelpKeyPrefix = `shell-api.classes.${className}.help`;
   const classHelp: ClassHelp = {
     help: `${classHelpKeyPrefix}.description`,
@@ -594,16 +598,22 @@ function shellApiClassGeneric(constructor: Function, hasHelp: boolean): void {
 /**
  * Marks a class as being a Shell API class including help information.
  */
-export function shellApiClassDefault(constructor: Function): void {
-  shellApiClassGeneric(constructor, true);
+export function shellApiClassDefault<T extends { prototype: any }>(
+  constructor: T,
+  context: ClassDecoratorContext
+): void {
+  return shellApiClassGeneric(constructor, true, context);
 }
 
 /**
  * Marks a class as being a Shell API class without help information
  * (e.g. a superclass of other classes).
  */
-export function shellApiClassNoHelp(constructor: Function): void {
-  shellApiClassGeneric(constructor, false);
+export function shellApiClassNoHelp<T extends { prototype: any }>(
+  constructor: T,
+  context: ClassDecoratorContext
+): void {
+  return shellApiClassGeneric(constructor, false, context);
 }
 
 /**
@@ -615,11 +625,11 @@ export function shellApiClassNoHelp(constructor: Function): void {
  * @param orig The function to be wrapped.
  * @returns The wrapped function.
  */
-function markImplicitlyAwaited<T extends (...args: any) => Promise<any>>(
-  orig: T
-): (...args: Parameters<T>) => Promise<any> {
-  function wrapper(this: any, ...args: any[]) {
-    const origResult = orig.call(this, ...args);
+function markImplicitlyAwaited<This, Args extends any[], Return>(
+  orig: (this: This, ...args: Args) => Promise<Return>
+): (this: This, ...args: Args) => Promise<Return> {
+  function wrapper(this: This, ...args: Args[]) {
+    const origResult = orig.call(this, ...(args as any));
     return addHiddenDataProperty(
       origResult,
       Symbol.for('@@mongosh.syntheticPromise'),
@@ -644,13 +654,13 @@ function markImplicitlyAwaited<T extends (...args: any) => Promise<any>>(
  *
  * @param versionArray An array of supported server versions
  */
-export function serverVersions(versionArray: [string, string]): Function {
-  return function (
-    _target: any,
-    _propertyKey: string,
-    descriptor: PropertyDescriptor
-  ): void {
-    descriptor.value.serverVersions = versionArray;
+export function serverVersions(serverVersions: [string, string]) {
+  return function <T extends Function>(
+    value: T,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    context: ClassMethodDecoratorContext
+  ): T & { serverVersions: [string, string] } {
+    return Object.assign(value, { serverVersions });
   };
 }
 
@@ -662,20 +672,18 @@ export function serverVersions(versionArray: [string, string]): Function {
  *
  * @param versionArray An array of supported API versions
  */
-export function apiVersions(
-  versionArray: [] | [number] | [number, number]
-): Function {
-  return function (
-    _target: any,
-    _propertyKey: string,
-    descriptor: PropertyDescriptor
-  ): void {
+export function apiVersions(versionArray: [] | [number] | [number, number]) {
+  return function <T extends Function>(
+    value: T,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    context: ClassMethodDecoratorContext
+  ): T & { apiVersions: [number, number] } {
     if (versionArray.length === 0) {
       versionArray = [0, 0];
     } else if (versionArray.length === 1) {
       versionArray = [versionArray[0], Infinity];
     }
-    descriptor.value.apiVersions = versionArray;
+    return Object.assign(value, { apiVersions: versionArray });
   };
 }
 
@@ -688,12 +696,12 @@ export function apiVersions(
  *
  * **Important:** To exclude the method from autocompletion use `@serverVersions`.
  */
-export function deprecated(
-  _target: any,
-  _propertyKey: string,
-  descriptor: PropertyDescriptor
-): void {
-  descriptor.value.deprecated = true;
+export function deprecated<T extends Function>(
+  value: T,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  context: ClassMethodDecoratorContext
+): T & { deprecated: true } {
+  return Object.assign(value, { deprecated: true } as const);
 }
 
 /**
@@ -703,13 +711,13 @@ export function deprecated(
  *
  * @param topologiesArray The topologies for which the method is available
  */
-export function topologies(topologiesArray: Topologies[]): Function {
-  return function (
-    _target: any,
-    _propertyKey: string,
-    descriptor: PropertyDescriptor
-  ): void {
-    descriptor.value.topologies = topologiesArray;
+export function topologies(topologies: Topologies[]) {
+  return function <T extends Function>(
+    value: T,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    context: ClassMethodDecoratorContext
+  ): T & { topologies: Topologies[] } {
+    return Object.assign(value, { topologies });
   };
 }
 
@@ -721,17 +729,17 @@ export const nonAsyncFunctionsReturningPromises: string[] = []; // For testing.
  * Note: a test will verify that the `nonAsyncFunctionsReturningPromises` is empty, i.e. **every**
  * method that is decorated with `@returnsPromise` must be an `async` method.
  */
-export function returnsPromise(
-  _target: any,
-  _propertyKey: string,
-  descriptor: PropertyDescriptor
-): void {
-  const originalFunction = descriptor.value;
-  originalFunction.returnsPromise = true;
-
-  async function wrapper(this: any, ...args: any[]) {
+export function returnsPromise<This, Args extends any[], Return>(
+  originalFunction: (this: This, ...args: Args) => Promise<Return>,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  context: ClassMethodDecoratorContext<
+    This,
+    (this: This, ...args: Args) => Promise<Return>
+  >
+): ((this: This, ...args: Args) => Promise<Return>) & { returnsPromise: true } {
+  async function wrapper(this: This, ...args: Args[]): Promise<Return> {
     try {
-      return await originalFunction.call(this, ...args);
+      return await originalFunction.call(this, ...(args as any));
     } finally {
       if (
         typeof setTimeout === 'function' &&
@@ -747,23 +755,25 @@ export function returnsPromise(
     wrapper,
     Object.getOwnPropertyDescriptors(originalFunction)
   );
-  descriptor.value = markImplicitlyAwaited(wrapper);
 
   if (originalFunction.constructor.name !== 'AsyncFunction') {
     nonAsyncFunctionsReturningPromises.push(originalFunction.name);
   }
+  return Object.assign(markImplicitlyAwaited(wrapper), {
+    returnsPromise: true,
+  } as const);
 }
 
 /**
  * Marks the deocrated method as executable in the shell in a POSIX-shell-like
  * fashion, e.g. `show foo` which is translated into a call to `show('foo')`.
  */
-export function directShellCommand(
-  _target: any,
-  _propertyKey: string,
-  descriptor: PropertyDescriptor
-): void {
-  descriptor.value.isDirectShellCommand = true;
+export function directShellCommand<T extends Function>(
+  value: T,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  context: ClassMethodDecoratorContext
+): T & { isDirectShellCommand: true } {
+  return Object.assign(value, { isDirectShellCommand: true } as const);
 }
 
 /**
@@ -776,14 +786,14 @@ export function directShellCommand(
  * @param completer The completer to use for autocomplete
  */
 export function shellCommandCompleter(
-  completer: ShellCommandCompleter
-): Function {
-  return function (
-    _target: any,
-    _propertyKey: string,
-    descriptor: PropertyDescriptor
-  ): void {
-    descriptor.value.shellCommandCompleter = completer;
+  shellCommandCompleter: ShellCommandCompleter
+) {
+  return function <T extends Function>(
+    value: T,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    context: ClassMethodDecoratorContext
+  ): T & { shellCommandCompleter: ShellCommandCompleter } {
+    return Object.assign(value, { shellCommandCompleter });
   };
 }
 
@@ -794,13 +804,13 @@ export function shellCommandCompleter(
  *
  * @param type The Shell API return type of the method
  */
-export function returnType(type: string): Function {
-  return function (
-    _target: any,
-    _propertyKey: string,
-    descriptor: PropertyDescriptor
-  ): void {
-    descriptor.value.returnType = type;
+export function returnType(returnType: string) {
+  return function <T extends Function>(
+    value: T,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    context: ClassMethodDecoratorContext
+  ): T & { returnType: string } {
+    return Object.assign(value, { returnType });
   };
 }
 
@@ -810,7 +820,11 @@ export function returnType(type: string): Function {
  * Calling the constructor will automatically emit a telemetry event but
  * will **not** print an automatic deprecation warning (see `printDeprecationWarning`).
  */
-export function classDeprecated(constructor: Function): void {
+export function classDeprecated<T extends { prototype: any }>(
+  constructor: T,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  context: ClassDecoratorContext
+): void {
   constructor.prototype.deprecated = true;
 }
 
@@ -818,13 +832,13 @@ export function classDeprecated(constructor: Function): void {
  * Marks the decorated method as only being supported on the given platforms.
  * @param platformsArray The platforms the method is supported on
  */
-export function platforms(platformsArray: ReplPlatform[]): Function {
-  return function (
-    _target: any,
-    _propertyKey: string,
-    descriptor: PropertyDescriptor
-  ): void {
-    descriptor.value.platforms = platformsArray;
+export function platforms(platforms: ReplPlatform[]) {
+  return function <T extends Function>(
+    value: T,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    context: ClassMethodDecoratorContext
+  ): T & { platforms: ReplPlatform[] } {
+    return Object.assign(value, { platforms });
   };
 }
 
@@ -833,7 +847,11 @@ export function platforms(platformsArray: ReplPlatform[]): Function {
  * @param platformsArray The platforms the method is supported on
  */
 export function classPlatforms(platformsArray: ReplPlatform[]): Function {
-  return function (constructor: Function): void {
+  return function addSourceToResults<T extends { prototype: any }>(
+    constructor: T,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    context: ClassDecoratorContext
+  ): void {
     constructor.prototype.platforms = platformsArray;
   };
 }
@@ -842,6 +860,10 @@ export function classPlatforms(platformsArray: ReplPlatform[]): Function {
  * Marks the decorated class that for all methods in the class additional
  * source information of the call will be added to the calls returned result.
  */
-export function addSourceToResults(constructor: Function): void {
+export function addSourceToResults<T extends { prototype: any }>(
+  constructor: T,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  context: ClassDecoratorContext
+): void {
   (constructor as any)[addSourceToResultsSymbol] = true;
 }
