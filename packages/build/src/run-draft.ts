@@ -1,21 +1,62 @@
-import { promises as fs, constants as fsConstants } from 'fs';
+import { promises as fs } from 'fs';
 import path from 'path';
 import type { Config } from './config';
 import { ALL_PACKAGE_VARIANTS, getReleaseVersionFromTag } from './config';
 import { uploadArtifactToDownloadCenter as uploadArtifactToDownloadCenterFn } from './download-center';
 import { downloadArtifactFromEvergreen as downloadArtifactFromEvergreenFn } from './evergreen';
-import { notarizeArtifact as notarizeArtifactFn } from './packaging';
 import { generateChangelog as generateChangelogFn } from './git';
 import type { GithubRepo } from '@mongodb-js/devtools-github-repo';
+import type { PackageFile } from './packaging';
 import { getPackageFile } from './packaging';
+
+/**
+ *
+ * @param config The `Config` for the current CI run.
+ * @param packageInfo The `PackageInfo` for the artifact to download.
+ * @param downloadDirectory The directory into which to download artifacts.
+ * @param downloadArtifactFromEvergreen The function to use to download artifacts.  Used for testing.
+ * @returns A Promise.allSettled() result with the format [artifact promise result, signature file promise result]
+ */
+function downloadArtifacts(
+  config: Config,
+  packageInfo: PackageFile,
+  downloadDirectory: string,
+  downloadArtifactFromEvergreen: typeof downloadArtifactFromEvergreenFn = downloadArtifactFromEvergreenFn
+) {
+  const downloadedArtifact$ = downloadArtifactFromEvergreen(
+    packageInfo.path,
+    config.project as string,
+    config.triggeringGitTag!,
+    downloadDirectory
+  ).catch((e) => {
+    console.warn(
+      `Failed to download artifact ${packageInfo.path}: ${e.message}`
+    );
+    throw e;
+  });
+
+  const signatureFilePath = `${packageInfo.path}.sig`;
+  const signatureFile$ = downloadArtifactFromEvergreen(
+    signatureFilePath,
+    config.project as string,
+    config.triggeringGitTag!,
+    downloadDirectory
+  ).catch((e) => {
+    console.warn(
+      `Failed to download signature file for ${signatureFilePath}: ${e.message}`
+    );
+    throw e;
+  });
+
+  return Promise.allSettled([downloadedArtifact$, signatureFile$]);
+}
 
 export async function runDraft(
   config: Config,
   githubRepo: GithubRepo,
   uploadToDownloadCenter: typeof uploadArtifactToDownloadCenterFn = uploadArtifactToDownloadCenterFn,
   downloadArtifactFromEvergreen: typeof downloadArtifactFromEvergreenFn = downloadArtifactFromEvergreenFn,
-  ensureGithubReleaseExistsAndUpdateChangelog: typeof ensureGithubReleaseExistsAndUpdateChangelogFn = ensureGithubReleaseExistsAndUpdateChangelogFn,
-  notarizeArtifact: typeof notarizeArtifactFn = notarizeArtifactFn
+  ensureGithubReleaseExistsAndUpdateChangelog: typeof ensureGithubReleaseExistsAndUpdateChangelogFn = ensureGithubReleaseExistsAndUpdateChangelogFn
 ): Promise<void> {
   if (
     !config.triggeringGitTag ||
@@ -49,40 +90,34 @@ export async function runDraft(
   await fs.mkdir(tmpDir, { recursive: true });
 
   for await (const variant of ALL_PACKAGE_VARIANTS) {
-    const tarballFile = getPackageFile(variant, config.packageInformation);
-    console.info(
-      `mongosh: processing artifact for ${variant} - ${tarballFile.path}`
+    const packageInfo = getPackageFile(variant, config.packageInformation);
+
+    const [artifact, signatureFile] = await downloadArtifacts(
+      config,
+      packageInfo,
+      tmpDir,
+      downloadArtifactFromEvergreen
     );
 
-    const downloadedArtifact = await downloadArtifactFromEvergreen(
-      tarballFile.path,
-      config.project as string,
-      config.triggeringGitTag,
-      tmpDir
-    );
-
-    let signatureFile: string | undefined;
-    try {
-      await notarizeArtifact(downloadedArtifact, {
-        signingKeyName: config.notarySigningKeyName || '',
-        authToken: config.notaryAuthToken || '',
-        signingComment: 'Evergreen Automatic Signing (mongosh)',
-      });
-      signatureFile = downloadedArtifact + '.sig';
-      await fs.access(signatureFile, fsConstants.R_OK);
-    } catch (err: any) {
-      console.warn(
-        `Skipping expected signature file for ${downloadedArtifact}: ${err.message}`
-      );
-      signatureFile = undefined;
+    if (artifact.status === 'rejected') {
+      // If we fail to download an artifact, we continue
+      continue;
     }
+    const downloadedArtifact = artifact.value;
 
     await Promise.all(
       [
-        [downloadedArtifact, tarballFile.contentType],
-        [signatureFile, 'application/pgp-signature'],
+        [downloadedArtifact, packageInfo.contentType],
+        [
+          // If we fail to download a signature file, we've already logged a message but we just continue.
+          // Some artifacts have signatures embedded, so it's expected that some will not be present.
+          signatureFile.status === 'fulfilled'
+            ? signatureFile.value
+            : undefined,
+          'application/pgp-signature',
+        ],
       ].flatMap(([path, contentType]) =>
-        path
+        typeof path === 'string'
           ? [
               uploadToDownloadCenter(
                 path,
