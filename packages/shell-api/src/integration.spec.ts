@@ -1323,18 +1323,18 @@ describe('Shell API (integration)', function () {
         ).to.equal(true);
       });
 
-      it('validate accepts a background option', async function () {
-        expect(
-          (await collection.validate({ full: false, background: true })).valid
-        ).to.equal(true);
-      });
-
+      // We cannot positively test background: true since it may take a while for
+      // the collection can be 'ready' to be validated on recent (7.3+) server versions,
+      // but we can test that specific argument combinations will be rejected.
       it('validate fails with background: true and full: true', async function () {
         try {
           await collection.validate({ full: true, background: true });
           expect.fail('missed exception');
         } catch (err: any) {
           expect(err.name).to.equal('MongoServerError');
+          expect(err.codeName).to.match(
+            /^(CommandNotSupported|InvalidOptions)$/
+          );
         }
       });
     });
