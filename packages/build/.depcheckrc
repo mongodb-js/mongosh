@@ -12,5 +12,6 @@ ignores:
  - eslint-config-mongodb-js
  # transitive type dependency of @types/tmp-promise
  - '@types/tmp'
+ - '@types/ssh2'
 ignore-patterns:
  - .eslintrc.js

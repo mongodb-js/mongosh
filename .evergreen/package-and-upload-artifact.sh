@@ -18,8 +18,11 @@ if [ "$(uname)" == Linux ]; then
     -e NODE_JS_VERSION \
     -e PACKAGE_VARIANT \
     -e ARTIFACT_URL_FILE="/tmp/build/artifact-url.txt" \
-    --rm -v $PWD:/tmp/build --network host rocky8-package \
-    -c 'cd /tmp/build && npm run evergreen-release package && npm run evergreen-release upload'
+        --user "$(id -u):$(id -g)" \
+    --rm -v $PWD:$PWD -w $PWD --network host rocky8-package \
+    -c 'npm run evergreen-release package'
+  npm run evergreen-release sign
+  npm run evergreen-release upload
 else
   if [[ "$OS" == "Windows_NT" && "$PACKAGE_VARIANT" == "win32msi-x64" ]]; then
     # We have to setup a python venv for the notary client to work

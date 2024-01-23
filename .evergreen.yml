@@ -134,6 +134,83 @@ functions:
         shell: bash
         script: |
           tar xvzf compiled-ts.tgz
+  spawn-signing-server:
+    # spawn
+    - command: host.create
+      type: setup
+      params:
+        provider: ec2
+        distro: ubuntu2004-large
+        security_group_ids:
+          - sg-097bff6dd0d1d31d0 # Magic string that's needed for SSH'ing.
+    # write host info (this file will be read by signingtool when connection to ssh server)
+    - command: host.list
+      params:
+        num_hosts: 1
+        path: spawned_hosts.json
+        timeout_seconds: 1200
+        wait: true
+    # copy ssh key (this key will be used to connect to ssh server)
+    - command: shell.exec
+      params:
+        shell: bash
+        script: |
+          set -e
+          {
+          set +x
+          echo '${__project_aws_ssh_key_value}' > ~/.ssh/mcipacker.pem
+          chmod 0600 ~/.ssh/mcipacker.pem
+          set -x
+          }
+    # wait for host to be ready
+    - command: shell.exec
+      params:
+        exec_as_string: true
+        shell: bash
+        script: |
+          set -e
+          user=ubuntu
+          hostname=$(tr -d '"[]{}' < spawned_hosts.json | cut -d , -f 1 | awk -F : '{print $2}')
+          identity_file=$(echo ~/.ssh/mcipacker.pem)
+          attempts=0
+          connection_attempts=25
+          ## Check for remote connectivity
+          while ! ssh \
+            -i "$identity_file" \
+            -o ConnectTimeout=10 \
+            -o ForwardAgent=yes \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=no \
+            "$(printf "%s@%s" "$user" "$hostname")" \
+            exit
+          do
+            if [ "$attempts" -ge "$connection_attempts" ]; then
+              echo "SSH connection failed after $connection_attempts attempts. Exiting..."
+              exit 1
+            fi
+            printf "SSH connection attempt %d/%d failed. Retrying...\n" "$((attempts++))" "$connection_attempts"
+            ## sleep for Permission denied (publickey) errors
+            sleep 20
+          done
+          echo "SSH connection established after $attempts attempts"
+    
+          # Write the host info so that it can be used by the signing tool
+          if [[ $OSTYPE == "cygwin" ]]; then
+            identity_file=$(cygpath -wa "$identity_file")
+          else
+            identity_file=$(eval echo "$identity_file")
+          fi
+          cat <<EOL > signing_host_info.yml
+          SIGNING_SERVER_HOSTNAME: $hostname
+          SIGNING_SERVER_PRIVATE_KEY: $identity_file
+          SIGNING_SERVER_USERNAME: $user
+          SIGNING_SERVER_PORT: 22
+          EOL
+    # Update the expansions
+    - command: expansions.update
+      params:
+        file: signing_host_info.yml
+
   check:
     - command: shell.exec
       params:
@@ -6534,6 +6611,7 @@ functions:
       params:
         working_dir: src
         binary: bash .evergreen/package-and-upload-artifact.sh
+        add_expansions_to_env: true
         env:
           NODE_JS_VERSION: ${node_js_version}
           DISTRO_ID_OVERRIDE: ${distro_id}
@@ -11456,6 +11534,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.9.0"
+      - func: spawn-signing-server
       - func: package_and_upload_artifact
         vars:
           node_js_version: "20.9.0"
@@ -11470,6 +11549,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.9.0"
+      - func: spawn-signing-server
       - func: package_and_upload_artifact
         vars:
           node_js_version: "20.9.0"
@@ -11484,6 +11564,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.9.0"
+      - func: spawn-signing-server
       - func: package_and_upload_artifact
         vars:
           node_js_version: "20.9.0"
@@ -11498,6 +11579,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.9.0"
+      - func: spawn-signing-server
       - func: package_and_upload_artifact
         vars:
           node_js_version: "20.9.0"
@@ -11512,6 +11594,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.9.0"
+      - func: spawn-signing-server
       - func: package_and_upload_artifact
         vars:
           node_js_version: "20.9.0"
@@ -11526,6 +11609,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.9.0"
+      - func: spawn-signing-server
       - func: package_and_upload_artifact
         vars:
           node_js_version: "20.9.0"
@@ -11540,6 +11624,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.9.0"
+      - func: spawn-signing-server
       - func: package_and_upload_artifact
         vars:
           node_js_version: "20.9.0"
@@ -11554,6 +11639,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.9.0"
+      - func: spawn-signing-server
       - func: package_and_upload_artifact
         vars:
           node_js_version: "20.9.0"
@@ -11568,6 +11654,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.9.0"
+      - func: spawn-signing-server
       - func: package_and_upload_artifact
         vars:
           node_js_version: "20.9.0"
@@ -11582,6 +11669,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.9.0"
+      - func: spawn-signing-server
       - func: package_and_upload_artifact
         vars:
           node_js_version: "20.9.0"
@@ -11596,6 +11684,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.9.0"
+      - func: spawn-signing-server
       - func: package_and_upload_artifact
         vars:
           node_js_version: "20.9.0"
@@ -11610,6 +11699,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.9.0"
+      - func: spawn-signing-server
       - func: package_and_upload_artifact
         vars:
           node_js_version: "20.9.0"
@@ -11624,6 +11714,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.9.0"
+      - func: spawn-signing-server
       - func: package_and_upload_artifact
         vars:
           node_js_version: "20.9.0"
@@ -11638,6 +11729,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.9.0"
+      - func: spawn-signing-server
       - func: package_and_upload_artifact
         vars:
           node_js_version: "20.9.0"
@@ -11652,6 +11744,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.9.0"
+      - func: spawn-signing-server
       - func: package_and_upload_artifact
         vars:
           node_js_version: "20.9.0"
@@ -11666,6 +11759,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.9.0"
+      - func: spawn-signing-server
       - func: package_and_upload_artifact
         vars:
           node_js_version: "20.9.0"
@@ -11680,6 +11774,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.9.0"
+      - func: spawn-signing-server
       - func: package_and_upload_artifact
         vars:
           node_js_version: "20.9.0"
@@ -11694,6 +11789,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.9.0"
+      - func: spawn-signing-server
       - func: package_and_upload_artifact
         vars:
           node_js_version: "20.9.0"
@@ -11708,6 +11804,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.9.0"
+      - func: spawn-signing-server
       - func: package_and_upload_artifact
         vars:
           node_js_version: "20.9.0"
@@ -11722,6 +11819,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.9.0"
+      - func: spawn-signing-server
       - func: package_and_upload_artifact
         vars:
           node_js_version: "20.9.0"
@@ -11736,6 +11834,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.9.0"
+      - func: spawn-signing-server
       - func: package_and_upload_artifact
         vars:
           node_js_version: "20.9.0"
@@ -11750,6 +11849,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.9.0"
+      - func: spawn-signing-server
       - func: package_and_upload_artifact
         vars:
           node_js_version: "20.9.0"
@@ -11764,6 +11864,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.9.0"
+      - func: spawn-signing-server
       - func: package_and_upload_artifact
         vars:
           node_js_version: "20.9.0"
@@ -11778,6 +11879,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.9.0"
+      - func: spawn-signing-server
       - func: package_and_upload_artifact
         vars:
           node_js_version: "20.9.0"
@@ -11792,6 +11894,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.9.0"
+      - func: spawn-signing-server
       - func: package_and_upload_artifact
         vars:
           node_js_version: "20.9.0"
@@ -11806,6 +11909,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.9.0"
+      - func: spawn-signing-server
       - func: package_and_upload_artifact
         vars:
           node_js_version: "20.9.0"
