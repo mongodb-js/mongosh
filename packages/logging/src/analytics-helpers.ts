@@ -361,7 +361,7 @@ export class ThrottledAnalytics implements MongoshAnalytics {
 
     try {
       await this.restorePromise;
-    } catch (err) {
+    } catch {
       // Ignored.
     }
 
