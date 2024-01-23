@@ -4,7 +4,6 @@ import type { Config } from './config';
 import { ALL_PACKAGE_VARIANTS } from './config';
 import type { uploadArtifactToDownloadCenter as uploadArtifactToDownloadCenterFn } from './download-center';
 import type { downloadArtifactFromEvergreen as downloadArtifactFromEvergreenFn } from './evergreen';
-import type { notarizeArtifact as notarizeArtifactFn } from './packaging';
 import type { generateChangelog as generateChangelogFn } from './git';
 import { GithubRepo } from '@mongodb-js/devtools-github-repo';
 import {
