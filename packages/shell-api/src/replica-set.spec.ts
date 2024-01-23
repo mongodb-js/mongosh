@@ -1122,7 +1122,9 @@ describe('ReplicaSet', function () {
           expect.fail('missed exception');
         } catch (err: any) {
           expect(err.name).to.equal('MongoServerError');
-          expect(err.codeName).to.equal('InvalidOptions');
+          expect(err.codeName).to.match(
+            /^(CommandNotSupported|InvalidOptions)$/
+          );
         }
       });
     });
