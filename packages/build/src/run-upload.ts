@@ -1,4 +1,3 @@
-import fs from 'fs';
 import type { Config } from './config';
 import { getReleaseVersionFromTag } from './config';
 import type { uploadArtifactToEvergreen as uploadArtifactToEvergreenFn } from './evergreen';
@@ -8,7 +7,7 @@ export async function runUpload(
   config: Config,
   tarballFile: PackageFile,
   uploadToEvergreen: typeof uploadArtifactToEvergreenFn
-): Promise<void> {
+): Promise<string> {
   for (const key of ['evgAwsKey', 'evgAwsSecret', 'project', 'revision']) {
     if (typeof (config as any)[key] !== 'string') {
       throw new Error(`Missing build config key: ${key}`);
@@ -30,7 +29,5 @@ export async function runUpload(
     revisionOrVersion
   );
 
-  if (config.artifactUrlFile) {
-    await fs.promises.writeFile(config.artifactUrlFile, uploadedArtifactUrl);
-  }
+  return uploadedArtifactUrl;
 }

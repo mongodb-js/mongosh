@@ -4,7 +4,7 @@ RUN dnf repolist
 RUN dnf -y install 'dnf-command(config-manager)'
 RUN dnf config-manager --set-enabled powertools
 RUN dnf -y install epel-release
-RUN dnf -y install python3 rpm-build dpkg-devel dpkg-dev git
+RUN dnf -y install python3 rpm-build dpkg-devel dpkg-dev git sudo
 
 # Add Node.js
 RUN curl -sL https://rpm.nodesource.com/setup_20.x | bash -
@@ -14,5 +14,7 @@ RUN npm i -g npm@9.x
 # set to /root and consequently $HOME/.npm was not writable
 RUN mkdir -p /tmp/home
 ENV HOME=/tmp/home
+RUN mkdir "/tmp/home/.npm"
+RUN sudo chown -R 1000:1000 "/tmp/home/.npm"
 
 ENTRYPOINT [ "bash" ]

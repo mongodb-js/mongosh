@@ -23,10 +23,11 @@ if (require.main === module) {
         'draft',
         'publish',
         'trigger-release',
+        'sign',
       ].includes(command)
     ) {
       throw new Error(
-        'USAGE: npm run evergreen-release <bump|compile|package|upload|draft|publish|trigger-release>'
+        'USAGE: npm run evergreen-release <bump|compile|package|upload|draft|publish|sign|trigger-release>'
       );
     }
 

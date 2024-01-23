@@ -2,7 +2,7 @@ import path from 'path';
 import type { PackageVariant } from '../../config';
 import { getDistro, getArch } from '../../config';
 import { createDebianPackage as createDebianPackageFn } from './debian';
-import type { PackageFile } from './get-package-file';
+import { PackageFile } from './get-package-file';
 import { getPackageFile } from './get-package-file';
 import { createMsiPackage as createMsiPackageFn } from './msi';
 import type { PackageInformation } from './package-information';
@@ -63,8 +63,8 @@ export async function createPackage(
       throw new Error(`Unhandled build variant: ${packageVariant}`);
   }
 
-  return {
+  return PackageFile({
     ...tarballFile,
     path: fullTarballFilePath,
-  };
+  });
 }
