@@ -13,6 +13,7 @@
   },
   "scripts": {
     "compile": "tsc -p tsconfig.json",
+    "api-generate": "api-extractor run ; ts-node bin/api-postprocess.ts",
     "pretest": "npm run compile",
     "eslint": "eslint",
     "lint": "npm run eslint . && npm run prettier -- --check .",
@@ -48,6 +49,7 @@
     "mongodb-redact": "^0.2.2"
   },
   "devDependencies": {
+    "@microsoft/api-extractor": "^7.39.3",
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",

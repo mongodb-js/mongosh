@@ -22,6 +22,10 @@ import type {
   FindAndModifyMethodShellOptions,
   RemoveShellOptions,
   MapReduceShellOptions,
+  GenericCollectionSchema,
+  GenericDatabaseSchema,
+  GenericServerSideSchema,
+  StringKey,
 } from './helpers';
 import {
   adaptAggregateOptions,
@@ -88,13 +92,37 @@ import PlanCache from './plan-cache';
 import ChangeStreamCursor from './change-stream-cursor';
 import { ShellApiErrors } from './error-codes';
 
+export type Collection<
+  M extends GenericServerSideSchema = GenericServerSideSchema,
+  D extends GenericDatabaseSchema = M[keyof M],
+  C extends GenericCollectionSchema = D[keyof D],
+  N extends StringKey<D> = StringKey<D>
+> = CollectionImpl<M, D, C, N> & {
+  [k in StringKey<D> as k extends `${N}.${infer S}` ? S : never]: Collection<
+    M,
+    D,
+    D[k],
+    k
+  >;
+};
+
 @shellApiClassDefault
 @addSourceToResults
-export default class Collection extends ShellApiWithMongoClass {
-  _mongo: Mongo;
-  _database: Database;
-  _name: string;
-  constructor(mongo: Mongo, database: Database, name: string) {
+export class CollectionImpl<
+  M extends GenericServerSideSchema = GenericServerSideSchema,
+  D extends GenericDatabaseSchema = M[keyof M],
+  C extends GenericCollectionSchema = D[keyof D],
+  N extends StringKey<D> = StringKey<D>
+> extends ShellApiWithMongoClass {
+  _mongo: Mongo<M>;
+  _database: Database<M, D>;
+  _name: N;
+
+  _typeLaunder(): Collection<M, D> {
+    return this as Collection<M, D>;
+  }
+
+  constructor(mongo: Mongo<M>, database: Database<M, D>, name: N) {
     super();
     this._mongo = mongo;
     this._database = database;
@@ -513,7 +541,7 @@ export default class Collection extends ShellApiWithMongoClass {
     query: Document = {},
     projection?: Document,
     options: FindOptions = {}
-  ): Promise<Document | null> {
+  ): Promise<C['schema'] | null> {
     if (projection) {
       options.projection = projection;
     }
@@ -1406,7 +1434,7 @@ export default class Collection extends ShellApiWithMongoClass {
    * @return {Database}
    */
   @returnType('Database')
-  getDB(): Database {
+  getDB(): Database<M, D> {
     this._emitCollectionApiCall('getDB');
     return this._database;
   }
@@ -1417,7 +1445,7 @@ export default class Collection extends ShellApiWithMongoClass {
    * @return {Mongo}
    */
   @returnType('Mongo')
-  getMongo(): Mongo {
+  getMongo(): Mongo<M> {
     this._emitCollectionApiCall('getMongo');
     return this._mongo;
   }
@@ -1547,9 +1575,9 @@ export default class Collection extends ShellApiWithMongoClass {
     return `${this._database._name}.${this._name}`;
   }
 
-  getName(): string {
+  getName(): N {
     this._emitCollectionApiCall('getName');
-    return `${this._name}`;
+    return this._name;
   }
 
   @returnsPromise
@@ -1596,7 +1624,7 @@ export default class Collection extends ShellApiWithMongoClass {
   explain(verbosity: ExplainVerbosityLike = 'queryPlanner'): Explainable {
     verbosity = validateExplainableVerbosity(verbosity);
     this._emitCollectionApiCall('explain', { verbosity });
-    return new Explainable(this._mongo, this, verbosity);
+    return new Explainable(this._mongo, this._typeLaunder(), verbosity);
   }
 
   /**
@@ -1754,7 +1782,7 @@ export default class Collection extends ShellApiWithMongoClass {
     }
 
     const ns = `${this._database._name}.${this._name}`;
-    const config = this._mongo.getDB('config');
+    const config = this._mongo.getDB('config' as StringKey<M>);
     if (collStats[0].shard) {
       result.shards = shardStats;
     }
@@ -1964,7 +1992,7 @@ export default class Collection extends ShellApiWithMongoClass {
       true,
       await this._database._baseOptions()
     );
-    return new Bulk(this, innerBulk, true);
+    return new Bulk(this._typeLaunder(), innerBulk, true);
   }
 
   @returnsPromise
@@ -1978,14 +2006,14 @@ export default class Collection extends ShellApiWithMongoClass {
       false,
       await this._database._baseOptions()
     );
-    return new Bulk(this, innerBulk);
+    return new Bulk(this._typeLaunder(), innerBulk);
   }
 
   @returnType('PlanCache')
   @apiVersions([])
   getPlanCache(): PlanCache {
     this._emitCollectionApiCall('getPlanCache');
-    return new PlanCache(this);
+    return new PlanCache(this._typeLaunder());
   }
 
   @returnsPromise
@@ -2061,7 +2089,7 @@ export default class Collection extends ShellApiWithMongoClass {
     this._emitCollectionApiCall('getShardDistribution', {});
 
     const result = {} as Document;
-    const config = this._mongo.getDB('config');
+    const config = this._mongo.getDB('config' as StringKey<M>);
     const ns = `${this._database._name}.${this._name}`;
 
     const configCollectionsInfo = await config
@@ -2234,7 +2262,7 @@ export default class Collection extends ShellApiWithMongoClass {
   @apiVersions([1])
   async hideIndex(index: string | Document): Promise<Document> {
     this._emitCollectionApiCall('hideIndex');
-    return setHideIndex(this, index, true);
+    return setHideIndex(this._typeLaunder(), index, true);
   }
 
   @serverVersions(['4.4.0', ServerVersions.latest])
@@ -2242,7 +2270,7 @@ export default class Collection extends ShellApiWithMongoClass {
   @apiVersions([1])
   async unhideIndex(index: string | Document): Promise<Document> {
     this._emitCollectionApiCall('unhideIndex');
-    return setHideIndex(this, index, false);
+    return setHideIndex(this._typeLaunder(), index, false);
   }
 
   @serverVersions(['7.0.0', ServerVersions.latest])
@@ -2396,3 +2424,5 @@ export default class Collection extends ShellApiWithMongoClass {
     );
   }
 }
+
+export default Collection;

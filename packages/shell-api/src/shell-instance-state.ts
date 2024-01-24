@@ -132,7 +132,7 @@ export interface ShellPlugin {
  * shell API is concerned) and keeps track of all open connections (a.k.a. Mongo
  * instances).
  */
-export default class ShellInstanceState {
+export class ShellInstanceState {
   public currentCursor:
     | Cursor
     | AggregationCursor
@@ -652,3 +652,5 @@ export default class ShellInstanceState {
     }
   }
 }
+
+export default ShellInstanceState;

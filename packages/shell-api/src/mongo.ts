@@ -19,36 +19,37 @@ import {
   topologies,
   deprecated,
 } from './decorators';
-import type {
-  ChangeStreamOptions,
-  ClientSessionOptions,
-  CommandOperationOptions,
-  Document,
-  ListDatabasesOptions,
-  ReadConcernLevel,
-  ReadPreference,
-  ReadPreferenceLike,
-  ReadPreferenceMode,
-  ServiceProvider,
-  TransactionOptions,
-  MongoClientOptions,
-  AutoEncryptionOptions as SPAutoEncryption,
-  ServerApi,
-  ServerApiVersion,
-  WriteConcern,
+import {
+  type ChangeStreamOptions,
+  type ClientSessionOptions,
+  type CommandOperationOptions,
+  type Document,
+  type ListDatabasesOptions,
+  type ReadConcernLevel,
+  type ReadPreference,
+  type ReadPreferenceLike,
+  type ReadPreferenceMode,
+  type ServiceProvider,
+  type TransactionOptions,
+  type MongoClientOptions,
+  type AutoEncryptionOptions as SPAutoEncryption,
+  type ServerApi,
+  type ServerApiVersion,
+  type WriteConcern,
 } from '@mongosh/service-provider-core';
 import type { ConnectionInfo } from '@mongosh/arg-parser';
 import {
   mapCliToDriver,
   generateConnectionInfoFromCliArgs,
 } from '@mongosh/arg-parser';
-import type Collection from './collection';
-import Database from './database';
+import type { Database } from './database';
+import { DatabaseImpl } from './database';
 import type ShellInstanceState from './shell-instance-state';
 import { CommandResult } from './result';
 import { redactURICredentials } from '@mongosh/history';
 import { asPrintable, ServerVersions, Topologies } from './enums';
 import Session from './session';
+import type { GenericServerSideSchema, StringKey } from './helpers';
 import {
   assertArgsDefinedType,
   processFLEOptions,
@@ -61,6 +62,7 @@ import { KeyVault, ClientEncryption } from './field-level-encryption';
 import { ShellApiErrors } from './error-codes';
 import type { LogEntry } from './log-entry';
 import { parseAnyLogEntry } from './log-entry';
+import type { Collection } from './collection';
 
 /* Utility, inverse of Readonly<T> */
 type Mutable<T> = {
@@ -69,16 +71,19 @@ type Mutable<T> = {
 
 @shellApiClassDefault
 @classPlatforms(['CLI'])
-export default class Mongo extends ShellApiClass {
+export default class Mongo<
+  M extends GenericServerSideSchema = GenericServerSideSchema
+> extends ShellApiClass {
   private __serviceProvider: ServiceProvider | null = null;
-  public readonly _databases: Record<string, Database> = Object.create(null);
+  public readonly _databases: Record<StringKey<M>, Database<M>> =
+    Object.create(null);
   public _instanceState: ShellInstanceState;
   public _connectionInfo: ConnectionInfo;
   private _explicitEncryptionOnly = false;
   private _keyVault: KeyVault | undefined; // need to keep it around so that the ShellApi ClientEncryption class can access it
   private _clientEncryption: ClientEncryption | undefined;
   private _readPreferenceWasExplicitlyRequested = false;
-  private _cachedDatabaseNames: string[] = [];
+  private _cachedDatabaseNames: StringKey<M>[] = [];
 
   constructor(
     instanceState: ShellInstanceState,
@@ -248,7 +253,7 @@ export default class Mongo extends ShellApiClass {
     }
   }
 
-  _getDb(name: string): Database {
+  _getDb<K extends StringKey<M>>(name: K): Database<M, M[K]> {
     assertArgsDefinedType([name], ['string']);
     if (!isValidDatabaseName(name)) {
       throw new MongoshInvalidInputError(
@@ -258,20 +263,22 @@ export default class Mongo extends ShellApiClass {
     }
 
     if (!(name in this._databases)) {
-      this._databases[name] = new Database(this, name);
+      this._databases[name] = new DatabaseImpl(this, name)._typeLaunder();
     }
-    return this._databases[name];
+    return this._databases[name] as Database<M, M[K]>;
   }
 
   @returnType('Database')
-  getDB(db: string): Database {
+  getDB<K extends StringKey<M>>(db: K): Database<M, M[K]> {
     assertArgsDefinedType([db], ['string'], 'Mongo.getDB');
     this._instanceState.messageBus.emit('mongosh:getDB', { db });
     return this._getDb(db);
   }
 
   @returnType('Collection')
-  getCollection(name: string): Collection {
+  getCollection<KD extends StringKey<M>, KC extends StringKey<M[KD]>>(
+    name: `${KD}.${KC}`
+  ): Collection<M, M[KD], M[KD][KC]> {
     assertArgsDefinedType([name], ['string']);
     const { db, coll } = /^(?<db>[^.]+)\.(?<coll>.+)$/.exec(name)?.groups ?? {};
     if (!db || !coll) {
@@ -280,14 +287,18 @@ export default class Mongo extends ShellApiClass {
         CommonErrors.InvalidArgument
       );
     }
-    return this._getDb(db).getCollection(coll);
+    return this._getDb(db as StringKey<M>).getCollection(coll) as Collection<
+      M,
+      M[KD],
+      M[KD][KC]
+    >;
   }
 
   getURI(): string {
     return this._uri;
   }
 
-  use(db: string): string {
+  use(db: StringKey<M>): string {
     assertArgsDefinedType([db], ['string'], 'Mongo.use');
     this._instanceState.messageBus.emit('mongosh:use', { db });
 
@@ -356,9 +367,13 @@ export default class Mongo extends ShellApiClass {
 
   @returnsPromise
   @apiVersions([1])
-  async getDBNames(options: ListDatabasesOptions = {}): Promise<string[]> {
+  async getDBNames(
+    options: ListDatabasesOptions = {}
+  ): Promise<StringKey<M>[]> {
     this._emitMongoApiCall('getDBNames', { options });
-    return (await this._listDatabases(options)).databases.map((db) => db.name);
+    return (await this._listDatabases(options)).databases.map(
+      (db) => db.name as StringKey<M>
+    );
   }
 
   @returnsPromise
@@ -830,17 +845,23 @@ export default class Mongo extends ShellApiClass {
     for (const approach of [
       // Try $documents if available (NB: running $documents on an empty db requires SERVER-63811 i.e. 6.0.3+).
       () =>
-        this.getDB('_fakeDbForMongoshCSKTH').aggregate([
+        this.getDB('_fakeDbForMongoshCSKTH' as StringKey<M>).aggregate([
           { $documents: [{}] },
           ...pipeline,
         ]),
-      () => this.getDB('admin').aggregate([{ $documents: [{}] }, ...pipeline]),
+      () =>
+        this.getDB('admin' as StringKey<M>).aggregate([
+          { $documents: [{}] },
+          ...pipeline,
+        ]),
       // If that fails, try a default collection like admin.system.version.
       () =>
-        this.getDB('admin').getCollection('system.version').aggregate(pipeline),
+        this.getDB('admin' as StringKey<M>)
+          .getCollection('system.version')
+          .aggregate(pipeline),
       // If that fails, try using $collStats for local.oplog.rs.
       () =>
-        this.getDB('local')
+        this.getDB('local' as StringKey<M>)
           .getCollection('oplog.rs')
           .aggregate([{ $collStats: {} }, ...pipeline]),
     ]) {
