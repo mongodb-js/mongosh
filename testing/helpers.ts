@@ -54,12 +54,12 @@ export function createRetriableMethod<T extends { [K in F]: (...args: any[]) => 
     backoffFactor?: number,
     noiseThreshold: number,
   }
-): (...args: Parameters<T[F]>) => ReturnType<T[F]> {
+): T[F] {
   const totalRetries = options?.totalRetries ?? 12;
   const initialSleepInterval = options?.initialSleepInterval ?? 1000;
   const backoffFactor = options?.backoffFactor ?? 1.3;
   const noiseThreshold = options?.noiseThreshold ?? 0.8;
-  const func = target[method];
+  const func: T[F] = target[method];
 
   if (typeof func !== 'function') {
     throw new Error(`${method.toString()} is not a method`);
@@ -67,7 +67,7 @@ export function createRetriableMethod<T extends { [K in F]: (...args: any[]) => 
 
   let timeout = 0;
   const retriableFunc = async(...args: any) => {
-    let lastErr;
+    let lastErr: any;
     let sleepInterval = initialSleepInterval;
     for (let i = 0; i < totalRetries; i++) {
       try {
