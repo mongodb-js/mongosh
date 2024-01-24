@@ -19,31 +19,31 @@ import {
   topologies,
   deprecated,
 } from './decorators';
-import type {
-  ChangeStreamOptions,
-  ClientSessionOptions,
-  CommandOperationOptions,
-  Document,
-  ListDatabasesOptions,
-  ReadConcernLevel,
-  ReadPreference,
-  ReadPreferenceLike,
-  ReadPreferenceMode,
-  ServiceProvider,
-  TransactionOptions,
-  MongoClientOptions,
-  AutoEncryptionOptions as SPAutoEncryption,
-  ServerApi,
-  ServerApiVersion,
-  WriteConcern,
+import {
+  type ChangeStreamOptions,
+  type ClientSessionOptions,
+  type CommandOperationOptions,
+  type Document,
+  type ListDatabasesOptions,
+  type ReadConcernLevel,
+  type ReadPreference,
+  type ReadPreferenceLike,
+  type ReadPreferenceMode,
+  type ServiceProvider,
+  type TransactionOptions,
+  type MongoClientOptions,
+  type AutoEncryptionOptions as SPAutoEncryption,
+  type ServerApi,
+  type ServerApiVersion,
+  type WriteConcern,
 } from '@mongosh/service-provider-core';
 import type { ConnectionInfo } from '@mongosh/arg-parser';
 import {
   mapCliToDriver,
   generateConnectionInfoFromCliArgs,
 } from '@mongosh/arg-parser';
-import type Collection from './collection';
-import Database from './database';
+import type { Database } from './database';
+import { DatabaseImpl } from './database';
 import type ShellInstanceState from './shell-instance-state';
 import { CommandResult } from './result';
 import { redactURICredentials } from '@mongosh/history';
@@ -62,6 +62,7 @@ import { KeyVault, ClientEncryption } from './field-level-encryption';
 import { ShellApiErrors } from './error-codes';
 import type { LogEntry } from './log-entry';
 import { parseAnyLogEntry } from './log-entry';
+import type { Collection } from './collection';
 
 /* Utility, inverse of Readonly<T> */
 type Mutable<T> = {
@@ -262,9 +263,9 @@ export default class Mongo<
     }
 
     if (!(name in this._databases)) {
-      this._databases[name] = new Database(this, name);
+      this._databases[name] = new DatabaseImpl(this, name)._typeLaunder();
     }
-    return this._databases[name];
+    return this._databases[name] as Database<M, M[K]>;
   }
 
   @returnType('Database')
@@ -286,7 +287,11 @@ export default class Mongo<
         CommonErrors.InvalidArgument
       );
     }
-    return this._getDb(db as StringKey<M>).getCollection(coll);
+    return this._getDb(db as StringKey<M>).getCollection(coll) as Collection<
+      M,
+      M[KD],
+      M[KD][KC]
+    >;
   }
 
   getURI(): string {

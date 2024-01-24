@@ -116,6 +116,13 @@ type MongodbServerSchema = {
         _id: ObjectId;
         foo: number;
       }
+    },
+    with: { schema: never },
+    'with.dots': {
+      schema: {
+        _id: ObjectId;
+        bar: string;
+      }
     }
   }
 }

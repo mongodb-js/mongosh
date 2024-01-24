@@ -1,5 +1,6 @@
 import type Mongo from './mongo';
-import Collection from './collection';
+import type Collection from './collection';
+import { CollectionImpl } from './collection';
 import {
   returnsPromise,
   returnType,
@@ -70,26 +71,37 @@ type AuthDoc = {
   mechanism?: string;
 };
 
-@shellApiClassDefault
-export default class Database<
+export type Database<
   M extends GenericServerSideSchema = GenericServerSideSchema,
-  D extends GenericDatabaseSchema = M[keyof M]
+  D extends GenericDatabaseSchema = GenericDatabaseSchema
+> = DatabaseImpl<M, D> & {
+  [k in StringKey<D>]: Collection<M, D, D[k], k>;
+};
+
+@shellApiClassDefault
+export class DatabaseImpl<
+  M extends GenericServerSideSchema = GenericServerSideSchema,
+  D extends GenericDatabaseSchema = GenericDatabaseSchema
 > extends ShellApiWithMongoClass {
   _mongo: Mongo<M>;
   _name: StringKey<M>;
-  _collections: Record<string, Collection>;
+  _collections: Record<string, Collection<M, D>>;
   _session: Session | undefined;
   _cachedCollectionNames: StringKey<D>[] = [];
   _cachedHello: Document | null = null;
+
+  _typeLaunder(): Database<M, D> {
+    return this as Database<M, D>;
+  }
 
   constructor(mongo: Mongo<M>, name: StringKey<M>, session?: Session) {
     super();
     this._mongo = mongo;
     this._name = name;
-    const collections: Record<string, Collection> = Object.create(null);
+    const collections: Record<string, Collection<M, D>> = Object.create(null);
     this._collections = collections;
     this._session = session;
-    const proxy = new Proxy(this, {
+    const proxy = new Proxy(this._typeLaunder(), {
       get: (target, prop): any => {
         if (prop in target) {
           return (target as any)[prop];
@@ -104,7 +116,11 @@ export default class Database<
         }
 
         if (!collections[prop]) {
-          collections[prop] = new Collection(mongo, proxy, prop);
+          collections[prop] = new CollectionImpl(
+            mongo,
+            proxy,
+            prop
+          )._typeLaunder();
         }
 
         return collections[prop];
@@ -449,13 +465,13 @@ export default class Database<
     assertArgsDefinedType([db], ['string'], 'Database.getSiblingDB');
     this._emitDatabaseApiCall('getSiblingDB', { db });
     if (this._session) {
-      return this._session.getDatabase(db);
+      return this._session.getDatabase(db) as Database<M, M[K]>;
     }
     return this._mongo._getDb(db);
   }
 
   @returnType('Collection')
-  getCollection<K extends StringKey<D>>(coll: K): Collection<M, D, D[K]> {
+  getCollection<K extends StringKey<D>>(coll: K): Collection<M, D, D[K], K> {
     assertArgsDefinedType([coll], ['string'], 'Database.getColl');
     this._emitDatabaseApiCall('getCollection', { coll });
     if (!isValidCollectionName(coll)) {
@@ -465,13 +481,17 @@ export default class Database<
       );
     }
 
-    const collections: Record<string, Collection> = this._collections;
+    const collections: Record<string, Collection<M, D>> = this._collections;
 
     if (!collections[coll]) {
-      collections[coll] = new Collection(this._mongo, this, coll);
+      collections[coll] = new CollectionImpl(
+        this._mongo,
+        this._typeLaunder(),
+        coll
+      )._typeLaunder();
     }
 
-    return collections[coll];
+    return collections[coll] as Collection<M, D, D[K], K>;
   }
 
   @returnsPromise
@@ -1471,7 +1491,7 @@ export default class Database<
   async printShardingStatus(verbose = false): Promise<CommandResult> {
     this._emitDatabaseApiCall('printShardingStatus', { verbose });
     const result = await getPrintableShardStatus(
-      await getConfigDB(this),
+      await getConfigDB(this._typeLaunder()),
       verbose
     );
     return new CommandResult('StatsResult', result);
@@ -1760,3 +1780,5 @@ export default class Database<
     });
   }
 }
+
+export default Database;

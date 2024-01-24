@@ -92,17 +92,36 @@ import PlanCache from './plan-cache';
 import ChangeStreamCursor from './change-stream-cursor';
 import { ShellApiErrors } from './error-codes';
 
-@shellApiClassDefault
-@addSourceToResults
-export class Collection<
+export type Collection<
   M extends GenericServerSideSchema = GenericServerSideSchema,
   D extends GenericDatabaseSchema = M[keyof M],
-  C extends GenericCollectionSchema = D[keyof D]
+  C extends GenericCollectionSchema = D[keyof D],
+  N extends StringKey<D> = StringKey<D>
+> = CollectionImpl<M, D, C, N> & {
+  [k in keyof D as k extends `${N}.${infer S}` ? S : never]: Collection<
+    M,
+    D,
+    D[k]
+  >;
+};
+
+@shellApiClassDefault
+@addSourceToResults
+export class CollectionImpl<
+  M extends GenericServerSideSchema = GenericServerSideSchema,
+  D extends GenericDatabaseSchema = M[keyof M],
+  C extends GenericCollectionSchema = D[keyof D],
+  N extends StringKey<D> = StringKey<D>
 > extends ShellApiWithMongoClass {
   _mongo: Mongo<M>;
   _database: Database<M, D>;
-  _name: StringKey<D>;
-  constructor(mongo: Mongo<M>, database: Database<M, D>, name: StringKey<D>) {
+  _name: N;
+
+  _typeLaunder(): Collection<M, D> {
+    return this as Collection<M, D>;
+  }
+
+  constructor(mongo: Mongo<M>, database: Database<M, D>, name: N) {
     super();
     this._mongo = mongo;
     this._database = database;
@@ -1555,9 +1574,9 @@ export class Collection<
     return `${this._database._name}.${this._name}`;
   }
 
-  getName(): string {
+  getName(): N {
     this._emitCollectionApiCall('getName');
-    return `${this._name}`;
+    return this._name;
   }
 
   @returnsPromise
@@ -1604,7 +1623,7 @@ export class Collection<
   explain(verbosity: ExplainVerbosityLike = 'queryPlanner'): Explainable {
     verbosity = validateExplainableVerbosity(verbosity);
     this._emitCollectionApiCall('explain', { verbosity });
-    return new Explainable(this._mongo, this, verbosity);
+    return new Explainable(this._mongo, this._typeLaunder(), verbosity);
   }
 
   /**
@@ -1972,7 +1991,7 @@ export class Collection<
       true,
       await this._database._baseOptions()
     );
-    return new Bulk(this, innerBulk, true);
+    return new Bulk(this._typeLaunder(), innerBulk, true);
   }
 
   @returnsPromise
@@ -1986,14 +2005,14 @@ export class Collection<
       false,
       await this._database._baseOptions()
     );
-    return new Bulk(this, innerBulk);
+    return new Bulk(this._typeLaunder(), innerBulk);
   }
 
   @returnType('PlanCache')
   @apiVersions([])
   getPlanCache(): PlanCache {
     this._emitCollectionApiCall('getPlanCache');
-    return new PlanCache(this);
+    return new PlanCache(this._typeLaunder());
   }
 
   @returnsPromise
@@ -2242,7 +2261,7 @@ export class Collection<
   @apiVersions([1])
   async hideIndex(index: string | Document): Promise<Document> {
     this._emitCollectionApiCall('hideIndex');
-    return setHideIndex(this, index, true);
+    return setHideIndex(this._typeLaunder(), index, true);
   }
 
   @serverVersions(['4.4.0', ServerVersions.latest])
@@ -2250,7 +2269,7 @@ export class Collection<
   @apiVersions([1])
   async unhideIndex(index: string | Document): Promise<Document> {
     this._emitCollectionApiCall('unhideIndex');
-    return setHideIndex(this, index, false);
+    return setHideIndex(this._typeLaunder(), index, false);
   }
 
   @serverVersions(['7.0.0', ServerVersions.latest])
