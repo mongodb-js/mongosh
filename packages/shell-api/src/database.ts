@@ -11,6 +11,11 @@ import {
   ShellApiWithMongoClass,
 } from './decorators';
 import { asPrintable, ServerVersions, Topologies } from './enums';
+import type {
+  GenericDatabaseSchema,
+  GenericServerSideSchema,
+  StringKey,
+} from './helpers';
 import {
   adaptAggregateOptions,
   adaptOptions,
@@ -66,15 +71,18 @@ type AuthDoc = {
 };
 
 @shellApiClassDefault
-export default class Database extends ShellApiWithMongoClass {
-  _mongo: Mongo;
-  _name: string;
+export default class Database<
+  M extends GenericServerSideSchema = GenericServerSideSchema,
+  D extends GenericDatabaseSchema = M[keyof M]
+> extends ShellApiWithMongoClass {
+  _mongo: Mongo<M>;
+  _name: StringKey<M>;
   _collections: Record<string, Collection>;
   _session: Session | undefined;
-  _cachedCollectionNames: string[] = [];
+  _cachedCollectionNames: StringKey<D>[] = [];
   _cachedHello: Document | null = null;
 
-  constructor(mongo: Mongo, name: string, session?: Session) {
+  constructor(mongo: Mongo<M>, name: StringKey<M>, session?: Session) {
     super();
     this._mongo = mongo;
     this._name = name;
@@ -308,11 +316,11 @@ export default class Database extends ShellApiWithMongoClass {
   }
 
   @returnType('Mongo')
-  getMongo(): Mongo {
+  getMongo(): Mongo<M> {
     return this._mongo;
   }
 
-  getName(): string {
+  getName(): StringKey<M> {
     return this._name;
   }
 
@@ -323,9 +331,9 @@ export default class Database extends ShellApiWithMongoClass {
    */
   @returnsPromise
   @apiVersions([1])
-  async getCollectionNames(): Promise<string[]> {
+  async getCollectionNames(): Promise<StringKey<D>[]> {
     this._emitDatabaseApiCall('getCollectionNames');
-    return this._getCollectionNames();
+    return (await this._getCollectionNames()) as StringKey<D>[];
   }
 
   /**
@@ -437,7 +445,7 @@ export default class Database extends ShellApiWithMongoClass {
   }
 
   @returnType('Database')
-  getSiblingDB(db: string): Database {
+  getSiblingDB<K extends StringKey<M>>(db: K): Database<M, M[K]> {
     assertArgsDefinedType([db], ['string'], 'Database.getSiblingDB');
     this._emitDatabaseApiCall('getSiblingDB', { db });
     if (this._session) {
@@ -447,7 +455,7 @@ export default class Database extends ShellApiWithMongoClass {
   }
 
   @returnType('Collection')
-  getCollection(coll: string): Collection {
+  getCollection<K extends StringKey<D>>(coll: K): Collection<M, D, D[K]> {
     assertArgsDefinedType([coll], ['string'], 'Database.getColl');
     this._emitDatabaseApiCall('getCollection', { coll });
     if (!isValidCollectionName(coll)) {

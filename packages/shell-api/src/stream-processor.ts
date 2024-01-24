@@ -11,7 +11,7 @@ import {
 import type { Streams } from './streams';
 
 @shellApiClassDefault
-export default class StreamProcessor extends ShellApiWithMongoClass {
+export class StreamProcessor extends ShellApiWithMongoClass {
   constructor(public _streams: Streams, public name: string) {
     super();
   }
@@ -108,3 +108,4 @@ export default class StreamProcessor extends ShellApiWithMongoClass {
     return;
   }
 }
+export default StreamProcessor;

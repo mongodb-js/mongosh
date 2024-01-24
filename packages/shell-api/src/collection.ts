@@ -22,6 +22,10 @@ import type {
   FindAndModifyMethodShellOptions,
   RemoveShellOptions,
   MapReduceShellOptions,
+  GenericCollectionSchema,
+  GenericDatabaseSchema,
+  GenericServerSideSchema,
+  StringKey,
 } from './helpers';
 import {
   adaptAggregateOptions,
@@ -90,11 +94,15 @@ import { ShellApiErrors } from './error-codes';
 
 @shellApiClassDefault
 @addSourceToResults
-export default class Collection extends ShellApiWithMongoClass {
-  _mongo: Mongo;
-  _database: Database;
-  _name: string;
-  constructor(mongo: Mongo, database: Database, name: string) {
+export class Collection<
+  M extends GenericServerSideSchema = GenericServerSideSchema,
+  D extends GenericDatabaseSchema = M[keyof M],
+  C extends GenericCollectionSchema = D[keyof D]
+> extends ShellApiWithMongoClass {
+  _mongo: Mongo<M>;
+  _database: Database<M, D>;
+  _name: StringKey<D>;
+  constructor(mongo: Mongo<M>, database: Database<M, D>, name: StringKey<D>) {
     super();
     this._mongo = mongo;
     this._database = database;
@@ -513,7 +521,7 @@ export default class Collection extends ShellApiWithMongoClass {
     query: Document = {},
     projection?: Document,
     options: FindOptions = {}
-  ): Promise<Document | null> {
+  ): Promise<C['schema'] | null> {
     if (projection) {
       options.projection = projection;
     }
@@ -1406,7 +1414,7 @@ export default class Collection extends ShellApiWithMongoClass {
    * @return {Database}
    */
   @returnType('Database')
-  getDB(): Database {
+  getDB(): Database<M, D> {
     this._emitCollectionApiCall('getDB');
     return this._database;
   }
@@ -1417,7 +1425,7 @@ export default class Collection extends ShellApiWithMongoClass {
    * @return {Mongo}
    */
   @returnType('Mongo')
-  getMongo(): Mongo {
+  getMongo(): Mongo<M> {
     this._emitCollectionApiCall('getMongo');
     return this._mongo;
   }
@@ -1754,7 +1762,7 @@ export default class Collection extends ShellApiWithMongoClass {
     }
 
     const ns = `${this._database._name}.${this._name}`;
-    const config = this._mongo.getDB('config');
+    const config = this._mongo.getDB('config' as StringKey<M>);
     if (collStats[0].shard) {
       result.shards = shardStats;
     }
@@ -2061,7 +2069,7 @@ export default class Collection extends ShellApiWithMongoClass {
     this._emitCollectionApiCall('getShardDistribution', {});
 
     const result = {} as Document;
-    const config = this._mongo.getDB('config');
+    const config = this._mongo.getDB('config' as StringKey<M>);
     const ns = `${this._database._name}.${this._name}`;
 
     const configCollectionsInfo = await config
@@ -2396,3 +2404,5 @@ export default class Collection extends ShellApiWithMongoClass {
     );
   }
 }
+
+export default Collection;
