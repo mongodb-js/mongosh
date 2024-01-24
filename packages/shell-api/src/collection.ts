@@ -98,10 +98,11 @@ export type Collection<
   C extends GenericCollectionSchema = D[keyof D],
   N extends StringKey<D> = StringKey<D>
 > = CollectionImpl<M, D, C, N> & {
-  [k in keyof D as k extends `${N}.${infer S}` ? S : never]: Collection<
+  [k in StringKey<D> as k extends `${N}.${infer S}` ? S : never]: Collection<
     M,
     D,
-    D[k]
+    D[k],
+    k
   >;
 };
 
