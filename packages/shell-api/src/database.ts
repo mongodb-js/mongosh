@@ -52,7 +52,6 @@ import type {
   CheckMetadataConsistencyOptions,
   RunCommandOptions,
 } from '@mongosh/service-provider-core';
-import { MongoServerError } from 'mongodb';
 
 export type CollectionNamesWithTypes = {
   name: string;
@@ -366,7 +365,6 @@ export default class Database extends ShellApiWithMongoClass {
       cmd = { [cmd]: 1 };
     }
 
-    // TODO paula
     try {
       const hiddenCommands = new RegExp(HIDDEN_COMMANDS);
       if (!Object.keys(cmd).some((k) => hiddenCommands.test(k))) {
@@ -375,9 +373,8 @@ export default class Database extends ShellApiWithMongoClass {
       return await this._runCommand(cmd, options);
     } catch (error: any) {
       if (error.codeName === 'NotPrimaryNoSecondaryOk') {
-        const message = `MongoServerError: not primary - consider passing the readPreference option e.g. db.runCommand({command}, { readPreference: "secondaryPreferred"})`;
+        const message = `not primary - consider passing the readPreference option e.g. db.runCommand({command}, { readPreference: "secondaryPreferred"})`;
         (error as Error).message = message;
-        // throw new MongoServerError({ message });
       }
       throw error;
     }

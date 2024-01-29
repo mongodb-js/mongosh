@@ -323,6 +323,21 @@ describe('Database', function () {
           }
         );
       });
+
+      it('rephrases the "NotPrimaryNoSecondaryOk" error (version 2)', async function () {
+        const originalError = {
+          message: 'old message',
+          codeName: 'NotPrimaryNoSecondaryOk',
+          code: 13435,
+        }; // Partial<MongoServerError>
+        serviceProvider.runCommandWithCheck.rejects(originalError);
+        const caughtError = await database
+          .runCommand({ someCommand: 'someCollection' })
+          .catch((e) => e);
+        expect(caughtError.message).to.contain(
+          'e.g. db.runCommand({command}, { readPreference: "secondaryPreferred"})'
+        );
+      });
     });
 
     describe('adminCommand', function () {
