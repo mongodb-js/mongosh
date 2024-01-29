@@ -85,7 +85,28 @@ Evergreen builds and _patches_ are triggered in multiple ways. The Mongo Shell p
 
 The following image shows an overview on the different stages of the build in Evergreen.
 
-![Evergreen Stages](./evergreen-flow.svg)
+```mermaid
+graph TB
+    start(("When triggered by CI or Draft Tag")) --> compile[Compile]
+    compile --> tests[Tests]
+    compile -->|"generates"| binary[Binary Executable]
+    binary -->|"is uploaded to"| s3a[Evergreen S3]
+    compile -->|"when Compile is successful"| package[Package]
+    compile -->|"when Compile is successful"| e2e[E2E Tests]
+    package -->|"generates"| distributable[Distributable Package]
+    distributable -->|"is uploaded to"| s3b[Evergreen S3]
+    package -->|"when Package is successful"| smoke[Smoke Tests]
+    e2e -->|"when all (E2E) Tests are successful"| draftCheck{Is triggered by draft tag?}
+    draftCheck -->|Yes| draft[Draft]
+    draftCheck -->|No| publish[Publish]
+    draft -->|"downloads all Distributable Packages"| downloadCenter[Download Center]
+    draft -->|"publishes all distributable Packages to Draft Release"| gitHubRelease[GitHub Release]
+    downloadCenter -->|"uploads Release Configuration"| barque[Barque]
+    gitHubRelease --> barque
+    barque -->|"Triggers Barque PPA update"| ppaUpdate[MongoDB PPA]
+    publish -->|"Creates new PR with updated formula"| homebrew[Official Homebrew Repository]
+    publish -->|"Publishes npm Packages"| npmRegistry[npm Registry]
+```
 
 #### Tests
 

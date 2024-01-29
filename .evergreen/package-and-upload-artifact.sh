@@ -9,12 +9,18 @@ source .evergreen/setup-env.sh
 tar xvzf dist.tgz
 
 if [ "$(uname)" == Linux ]; then
+  # copy the expanions file into a location accessible by the docker container
   mkdir -p tmp
-  cp "$(pwd)/../tmp/expansions.yaml" tmp/expansions.yaml
-  (cd scripts/docker && docker build -t rocky8-package -f rocky8-package.Dockerfile .)
+  EVERGREEN_EXPANSIONS_PATH=$(pwd)/tmp/expansions.yaml
+  cp "$(pwd)/../tmp/expansions.yaml" $EVERGREEN_EXPANSIONS_PATH
+
+  # build the docker image
+  (cd scripts/docker && docker build --build-arg USER_ID=$(id -u) --build-arg GROUP_ID=$(id -g) -t rocky8-package -f rocky8-package.Dockerfile .)
+
+  # package, sign and upload
   echo Starting Docker container packaging
   docker run -e PUPPETEER_SKIP_CHROMIUM_DOWNLOAD \
-    -e EVERGREEN_EXPANSIONS_PATH=/tmp/build/tmp/expansions.yaml \
+    -e EVERGREEN_EXPANSIONS_PATH=$EVERGREEN_EXPANSIONS_PATH \
     -e NODE_JS_VERSION \
     -e PACKAGE_VARIANT \
     -e ARTIFACT_URL_FILE="/tmp/build/artifact-url.txt" \
