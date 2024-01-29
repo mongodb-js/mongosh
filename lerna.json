@@ -1,6 +1,6 @@
 {
   "packages": [
-    "config/*",
+    "configs/*",
     "packages/*",
     "scripts/docker"
   ],
