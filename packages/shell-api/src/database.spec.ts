@@ -31,6 +31,8 @@ import {
   MongoshUnimplementedError,
 } from '@mongosh/errors';
 import type { ClientEncryption } from './field-level-encryption';
+import type { MongoServerError } from 'mongodb';
+
 chai.use(sinonChai);
 
 describe('Database', function () {
@@ -325,11 +327,11 @@ describe('Database', function () {
       });
 
       it('rephrases the "NotPrimaryNoSecondaryOk" error (version 2)', async function () {
-        const originalError = {
+        const originalError: Partial<MongoServerError> = {
           message: 'old message',
           codeName: 'NotPrimaryNoSecondaryOk',
           code: 13435,
-        }; // Partial<MongoServerError>
+        };
         serviceProvider.runCommandWithCheck.rejects(originalError);
         const caughtError = await database
           .runCommand({ someCommand: 'someCollection' })
