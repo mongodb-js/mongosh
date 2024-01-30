@@ -12,7 +12,7 @@ const ERROR_REPHRASES: MongoErrorRephrase[] = [
     replacement: (message) =>
       message.includes('db.runCommand')
         ? message
-        : 'not primary and secondaryOk=false - consider using db.getMongo().setReadPref() or readPreference in the connection string',
+        : 'not primary - consider using db.getMongo().setReadPref() or readPreference in the connection string',
   },
 ];
 
