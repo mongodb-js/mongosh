@@ -326,7 +326,7 @@ describe('Database', function () {
         );
       });
 
-      it('rephrases the "NotPrimaryNoSecondaryOk" error (version 2)', async function () {
+      it('rephrases the "NotPrimaryNoSecondaryOk" error', async function () {
         const originalError: Partial<MongoServerError> = {
           message: 'old message',
           codeName: 'NotPrimaryNoSecondaryOk',
@@ -337,7 +337,7 @@ describe('Database', function () {
           .runCommand({ someCommand: 'someCollection' })
           .catch((e) => e);
         expect(caughtError.message).to.contain(
-          'e.g. db.runCommand({command}, { readPreference: "secondaryPreferred"})'
+          'e.g. db.runCommand({ command }, { readPreference: "secondaryPreferred" })'
         );
       });
     });

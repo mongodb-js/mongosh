@@ -373,7 +373,7 @@ export default class Database extends ShellApiWithMongoClass {
       return await this._runCommand(cmd, options);
     } catch (error: any) {
       if (error.codeName === 'NotPrimaryNoSecondaryOk') {
-        const message = `not primary - consider passing the readPreference option e.g. db.runCommand({ command }, { readPreference: 'secondaryPreferred' })`;
+        const message = `not primary - consider passing the readPreference option e.g. db.runCommand({ command }, { readPreference: "secondaryPreferred" })`;
         (error as Error).message = message;
       }
       throw error;
