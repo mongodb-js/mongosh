@@ -126,14 +126,16 @@
     "lerna": "^7.1.5"
   },
   "workspaces": [
+    "configs/eslint-config-mongosh",
+    "configs/tsconfig-mongosh",
     "packages/async-rewriter2",
     "packages/build",
-    "packages/errors",
     "packages/history",
     "packages/java-shell",
     "packages/js-multiline-to-singleline",
     "packages/types",
     "scripts/docker",
+    "packages/errors",
     "packages/i18n",
     "packages/logging",
     "packages/service-provider-core",

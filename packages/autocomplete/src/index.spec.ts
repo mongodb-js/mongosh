@@ -460,9 +460,9 @@ describe('completer.completer', function () {
       ]);
       expect(await completer(standalone600, query)).to.deep.equal([
         [
-          'db.aggregate([{$documents',
           'db.aggregate([{$changeStream',
           'db.aggregate([{$currentOp',
+          'db.aggregate([{$documents',
           'db.aggregate([{$listLocalSessions',
         ],
         query,
