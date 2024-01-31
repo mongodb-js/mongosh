@@ -365,11 +365,19 @@ export default class Database extends ShellApiWithMongoClass {
       cmd = { [cmd]: 1 };
     }
 
-    const hiddenCommands = new RegExp(HIDDEN_COMMANDS);
-    if (!Object.keys(cmd).some((k) => hiddenCommands.test(k))) {
-      this._emitDatabaseApiCall('runCommand', { cmd, options });
+    try {
+      const hiddenCommands = new RegExp(HIDDEN_COMMANDS);
+      if (!Object.keys(cmd).some((k) => hiddenCommands.test(k))) {
+        this._emitDatabaseApiCall('runCommand', { cmd, options });
+      }
+      return await this._runCommand(cmd, options);
+    } catch (error: any) {
+      if (error.codeName === 'NotPrimaryNoSecondaryOk') {
+        const message = `not primary - consider passing the readPreference option e.g. db.runCommand({ command }, { readPreference: "secondaryPreferred" })`;
+        (error as Error).message = message;
+      }
+      throw error;
     }
-    return this._runCommand(cmd, options);
   }
 
   /**

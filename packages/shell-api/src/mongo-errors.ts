@@ -9,8 +9,10 @@ const ERROR_REPHRASES: MongoErrorRephrase[] = [
   {
     // NotPrimaryNoSecondaryOk (also used for old terminology)
     code: 13435,
-    replacement:
-      'not primary and secondaryOk=false - consider using db.getMongo().setReadPref() or readPreference in the connection string',
+    replacement: (message) =>
+      message.includes('db.runCommand')
+        ? message
+        : 'not primary - consider using db.getMongo().setReadPref() or readPreference in the connection string',
   },
 ];
 
