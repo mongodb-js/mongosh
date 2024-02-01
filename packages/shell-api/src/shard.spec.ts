@@ -1835,6 +1835,7 @@ describe('Shard', function () {
         .toArray();
       expect(members.length).to.equal(2);
       await sh._database.getSiblingDB(dbName).dropDatabase();
+      await sh._database.getSiblingDB(dbName).createCollection('unsharded');
     });
 
     after(function () {
@@ -1901,19 +1902,25 @@ describe('Shard', function () {
     });
     describe('turn on sharding', function () {
       it('enableSharding for a db', async function () {
-        expect((await sh.status()).value.databases.length).to.equal(1);
-        expect((await sh.enableSharding(dbName)).ok).to.equal(1);
-        expect((await sh.status()).value.databases.length).to.equal(2);
+        expect((await sh.status()).value.databases.length).to.oneOf([1, 2]);
+        expect((await sh.enableSharding(dbName)).ok).to.equal(1); // This may not have any effect on newer server versions
+        expect((await sh.status()).value.databases.length).to.be.oneOf([1, 2]);
       });
       it('enableSharding for a collection and modify documents in it', async function () {
         expect(
-          Object.keys((await sh.status()).value.databases[1].collections).length
-        ).to.equal(0);
+          Object.keys(
+            (await sh.status()).value.databases.find(
+              (d) => d.database._id === 'test'
+            )?.collections ?? []
+          )
+        ).to.deep.equal([]);
         expect(
           (await sh.shardCollection(ns, { key: 1 })).collectionsharded
         ).to.equal(ns);
         expect(
-          (await sh.status()).value.databases[1].collections[ns].shardKey
+          (await sh.status()).value.databases.find(
+            (d) => d.database._id === 'test'
+          ).collections[ns].shardKey
         ).to.deep.equal({ key: 1 });
 
         const db = instanceState.currentDb.getSiblingDB(dbName);
@@ -2122,6 +2129,7 @@ describe('Shard', function () {
       });
       it('fails when running against an unsharded collection', async function () {
         try {
+          await db.createCollection('test');
           await db.getCollection('test').getShardDistribution();
         } catch (err: any) {
           expect(err.name).to.equal('MongoshInvalidInputError');

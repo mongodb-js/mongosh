@@ -92,6 +92,17 @@ function getAssertCaller(caller?: string): string {
   return caller ? ` (${caller})` : '';
 }
 
+// Fields to add to a $match/filter on config.collections to only get
+// collections that are actually sharded
+export const onlyShardedCollectionsInConfigFilter = {
+  // dropped is gone on newer server versions, so check for !== true
+  // rather than for === false (SERVER-51880 and related)
+  dropped: { $ne: true },
+  // unsplittable introduced in PM-3364 to mark unsharded collections
+  // that are still being tracked in the catalog
+  unsplittable: { $ne: true },
+} as const;
+
 export function assertArgsDefinedType(
   args: any[],
   expectedTypes: Array<true | string | Array<string | undefined>>,
@@ -487,9 +498,24 @@ export async function getPrintableShardStatus(
   ]);
   result.balancer = balancerRes;
 
-  const databases = await (await configDB.getCollection('databases').find())
-    .sort({ name: 1 })
-    .toArray();
+  // All databases in config.databases + those implicitly referenced
+  // by a sharded collection in config.collections
+  const databases = await (
+    await configDB.getCollection('databases').aggregate([
+      { $sort: { _id: 1 } },
+      {
+        $unionWith: {
+          coll: 'collections',
+          pipeline: [
+            { $match: { onlyShardedCollectionsInConfigFilter } },
+            { $project: { _id: { $first: { $split: ['$_id', '.'] } } } },
+          ],
+        },
+      },
+      { $group: { _id: '$_id', info: { $mergeObjects: '$$ROOT' } } },
+      { $replaceRoot: { newRoot: '$info' } },
+    ])
+  ).toArray();
 
   // Special case the config db, since it doesn't have a record in config.databases.
   databases.push({ _id: 'config', primary: 'config', partitioned: true });
@@ -497,23 +523,23 @@ export async function getPrintableShardStatus(
     return a._id.localeCompare(b._id);
   });
 
-  result.databases = await Promise.all(
-    databases.map(async (db) => {
-      const escapeRegex = (string: string): string => {
-        return string.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
-      };
-      const colls = await (
-        await configDB
-          .getCollection('collections')
-          .find({ _id: new RegExp('^' + escapeRegex(db._id) + '\\.') })
-      )
-        .sort({ _id: 1 })
-        .toArray();
+  result.databases = (
+    await Promise.all(
+      databases.map(async (db) => {
+        const escapeRegex = (string: string): string => {
+          return string.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+        };
+        const colls = await (
+          await configDB.getCollection('collections').find({
+            _id: new RegExp('^' + escapeRegex(db._id) + '\\.'),
+            ...onlyShardedCollectionsInConfigFilter,
+          })
+        )
+          .sort({ _id: 1 })
+          .toArray();
 
-      const collList: any = await Promise.all(
-        colls
-          .filter((coll) => !coll.dropped)
-          .map(async (coll) => {
+        const collList = await Promise.all(
+          colls.map(async (coll) => {
             const collRes = {} as any;
             collRes.shardKey = coll.key;
             collRes.unique = !!coll.unique;
@@ -605,12 +631,13 @@ export async function getPrintableShardStatus(
             }
             collRes.chunks = chunksRes;
             collRes.tags = tagsRes;
-            return [coll._id, collRes];
+            return [coll._id, collRes] as const;
           })
-      );
-      return { database: db, collections: Object.fromEntries(collList) };
-    })
-  );
+        );
+        return { database: db, collections: Object.fromEntries(collList) };
+      })
+    )
+  ).filter((dbEntry) => !!dbEntry);
 
   delete result.shardingVersion.currentVersion;
   return result;
