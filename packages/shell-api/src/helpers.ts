@@ -18,7 +18,7 @@ import {
 } from '@mongosh/errors';
 import crypto from 'crypto';
 import type Database from './database';
-import type Collection from './collection';
+import Collection from './collection';
 import type { CursorIterationResult } from './result';
 import { ShellApiErrors } from './error-codes';
 import type {
@@ -27,7 +27,7 @@ import type {
   bson,
 } from '@mongosh/service-provider-core';
 import type { ClientSideFieldLevelEncryptionOptions } from './field-level-encryption';
-import type { AutoEncryptionOptions } from 'mongodb';
+import { Db, type AutoEncryptionOptions } from 'mongodb';
 import { shellApiType } from './enums';
 import type { AbstractCursor } from './abstract-cursor';
 import type ChangeStreamCursor from './change-stream-cursor';
@@ -500,22 +500,26 @@ export async function getPrintableShardStatus(
 
   // All databases in config.databases + those implicitly referenced
   // by a sharded collection in config.collections
-  const databases = await (
-    await configDB.getCollection('databases').aggregate([
-      { $sort: { _id: 1 } },
-      {
-        $unionWith: {
-          coll: 'collections',
-          pipeline: [
-            { $match: { onlyShardedCollectionsInConfigFilter } },
-            { $project: { _id: { $first: { $split: ['$_id', '.'] } } } },
-          ],
-        },
-      },
-      { $group: { _id: '$_id', info: { $mergeObjects: '$$ROOT' } } },
-      { $replaceRoot: { newRoot: '$info' } },
-    ])
-  ).toArray();
+  // (could become a single pipeline using $unionWith when we drop 4.2 server support)
+  const [databases, collections] = await Promise.all([
+    (async () =>
+      await (await configDB.getCollection('databases').find())
+        .sort({ _id: 1 })
+        .toArray())(),
+    (async () =>
+      await (
+        await configDB.getCollection('collections').find({
+          ...onlyShardedCollectionsInConfigFilter,
+        })
+      )
+        .sort({ _id: 1 })
+        .toArray())(),
+  ]);
+  for (const coll of collections) {
+    if (!databases.find((db) => coll._id.startsWith(db._id + '.'))) {
+      databases.push({ _id: coll._id.split('.') });
+    }
+  }
 
   // Special case the config db, since it doesn't have a record in config.databases.
   databases.push({ _id: 'config', primary: 'config', partitioned: true });
@@ -526,17 +530,9 @@ export async function getPrintableShardStatus(
   result.databases = (
     await Promise.all(
       databases.map(async (db) => {
-        const escapeRegex = (string: string): string => {
-          return string.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
-        };
-        const colls = await (
-          await configDB.getCollection('collections').find({
-            _id: new RegExp('^' + escapeRegex(db._id) + '\\.'),
-            ...onlyShardedCollectionsInConfigFilter,
-          })
-        )
-          .sort({ _id: 1 })
-          .toArray();
+        const colls = collections.filter((coll) =>
+          coll._id.startsWith(db._id + '.')
+        );
 
         const collList = await Promise.all(
           colls.map(async (coll) => {
