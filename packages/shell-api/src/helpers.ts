@@ -515,14 +515,15 @@ export async function getPrintableShardStatus(
         .sort({ _id: 1 })
         .toArray())(),
   ]);
+  // Special case the config db, since it doesn't have a record in config.databases.
+  databases.push({ _id: 'config', primary: 'config', partitioned: true });
+
   for (const coll of collections) {
     if (!databases.find((db) => coll._id.startsWith(db._id + '.'))) {
-      databases.push({ _id: coll._id.split('.') });
+      databases.push({ _id: coll._id.split('.')[0] });
     }
   }
 
-  // Special case the config db, since it doesn't have a record in config.databases.
-  databases.push({ _id: 'config', primary: 'config', partitioned: true });
   databases.sort((a: any, b: any): number => {
     return a._id.localeCompare(b._id);
   });
