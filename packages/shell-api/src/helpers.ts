@@ -18,7 +18,7 @@ import {
 } from '@mongosh/errors';
 import crypto from 'crypto';
 import type Database from './database';
-import Collection from './collection';
+import type Collection from './collection';
 import type { CursorIterationResult } from './result';
 import { ShellApiErrors } from './error-codes';
 import type {
@@ -27,7 +27,7 @@ import type {
   bson,
 } from '@mongosh/service-provider-core';
 import type { ClientSideFieldLevelEncryptionOptions } from './field-level-encryption';
-import { Db, type AutoEncryptionOptions } from 'mongodb';
+import { type AutoEncryptionOptions } from 'mongodb';
 import { shellApiType } from './enums';
 import type { AbstractCursor } from './abstract-cursor';
 import type ChangeStreamCursor from './change-stream-cursor';
