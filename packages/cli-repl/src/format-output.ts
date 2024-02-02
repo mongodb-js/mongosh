@@ -253,7 +253,12 @@ export function formatError(error: Error, options: FormatOptions): string {
   if (error.name) {
     result += `\r${clr(error.name, 'mongosh:error', options)}`;
     const codeName = (error as CodedError).codeName;
-    if (codeName) result += `\r[${codeName}]`;
+    if (codeName)
+      result += `${clr(
+        `[` + (codeName as string) + `]`,
+        'mongosh:error',
+        options
+      )}`;
     result += ': ';
   }
   if (error.message) result += error.message;
