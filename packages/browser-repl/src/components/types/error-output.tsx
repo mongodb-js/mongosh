@@ -4,7 +4,7 @@ import { isShouldReportAsBugError } from '@mongosh/errors';
 
 import { SimpleTypeOutput } from './simple-type-output';
 import { Expandable } from '../utils/expandable';
-import { CodedError } from '@mongosh/types';
+import type { CodedError } from '@mongosh/types';
 
 interface ErrorOutputProps {
   value: any;
