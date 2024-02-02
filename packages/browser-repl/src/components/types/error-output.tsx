@@ -4,7 +4,7 @@ import { isShouldReportAsBugError } from '@mongosh/errors';
 
 import { SimpleTypeOutput } from './simple-type-output';
 import { Expandable } from '../utils/expandable';
-import type { CodedError } from '@mongosh/types';
+import type { MongoServerError } from 'mongodb';
 
 interface ErrorOutputProps {
   value: any;
@@ -16,7 +16,7 @@ export class ErrorOutput extends Component<ErrorOutputProps> {
   };
 
   renderCollapsed(toggle: () => void): JSX.Element {
-    const { name, message, codeName } = this.props.value as CodedError;
+    const { name, message, codeName } = this.props.value as MongoServerError;
     const formattedName = name + (codeName ? `[${codeName}]` : '');
     return (
       <div>

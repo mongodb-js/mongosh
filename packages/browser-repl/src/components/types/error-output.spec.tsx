@@ -3,10 +3,9 @@ import { expect } from '../../../testing/chai';
 import { render, mount } from '../../../testing/enzyme';
 
 import { ErrorOutput } from './error-output';
-import type { CodedError } from '@mongosh/types';
 
 describe('ErrorOutput', function () {
-  class MongoError extends Error implements CodedError {
+  class MongoError extends Error {
     code: number;
     codeName: string;
     errorInfo: string;

@@ -1,5 +1,4 @@
 /* eslint no-control-regex: 0 */
-import type { CodedError } from '@mongosh/types';
 import formatRaw from './format-output';
 import { expect } from 'chai';
 
@@ -157,7 +156,7 @@ for (const colors of [false, true]) {
       });
 
       it('returns name, codeName and message - MongoError', function () {
-        class MongoError extends Error implements CodedError {
+        class MongoError extends Error {
           code: number;
           codeName: string;
           constructor(

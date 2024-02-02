@@ -619,8 +619,3 @@ export type TimingInterface = {
   markTime: (category: TimingCategory, label: string) => void;
   getTimingData: () => [string, string, number][];
 };
-
-export interface CodedError extends Error {
-  code?: number;
-  codeName?: string;
-}
