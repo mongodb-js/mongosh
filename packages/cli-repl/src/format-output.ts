@@ -249,7 +249,12 @@ function formatListCommands(
 
 export function formatError(error: Error, options: FormatOptions): string {
   let result = '';
-  if (error.name) result += `\r${clr(error.name, 'mongosh:error', options)}: `;
+  if (error.name) {
+    result += `\r${clr(error.name, 'mongosh:error', options)}`;
+    const codeName = (error as CodedError).codeName;
+    if (codeName) result += `\r[${codeName}]`;
+    result += ': ';
+  }
   if (error.message) result += error.message;
   if (isShouldReportAsBugError(error)) {
     result +=
