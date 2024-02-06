@@ -9,7 +9,7 @@ import type {
   CollectionNamesWithTypes,
 } from '@mongosh/shell-api';
 import { isShouldReportAsBugError } from '@mongosh/errors';
-import { MongoServerError } from 'mongodb';
+import type { MongoServerError } from 'mongodb';
 
 type EvaluationResult = {
   value: any;
