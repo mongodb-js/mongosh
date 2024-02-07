@@ -116,7 +116,9 @@ describe('e2e direct connection', function () {
           await shell.waitForPrompt();
           await shell.executeLine('use admin');
           await shell.executeLine('db.runCommand({ listCollections: 1 })');
-          shell.assertContainsError('MongoServerError: not primary');
+          shell.assertContainsError(
+            'MongoServerError[NotPrimaryNoSecondaryOk]: not primary'
+          );
         });
 
         it('lists collections when readPreference is in the connection string', async function () {
@@ -130,7 +132,9 @@ describe('e2e direct connection', function () {
           await shell.waitForPrompt();
           await shell.executeLine('use admin');
           await shell.executeLine('db.runCommand({ listCollections: 1 })');
-          shell.assertContainsOutput('MongoServerError: not primary');
+          shell.assertContainsOutput(
+            'MongoServerError[NotPrimaryNoSecondaryOk]: not primary'
+          );
         });
 
         it('lists collections when readPreference is set via Mongo', async function () {
@@ -143,7 +147,9 @@ describe('e2e direct connection', function () {
             'db.getMongo().setReadPref("secondaryPreferred")'
           );
           await shell.executeLine('db.runCommand({ listCollections: 1 })');
-          shell.assertContainsOutput('MongoServerError: not primary');
+          shell.assertContainsOutput(
+            'MongoServerError[NotPrimaryNoSecondaryOk]: not primary'
+          );
         });
 
         it('fails to list databases without explicit readPreference', async function () {
@@ -153,7 +159,9 @@ describe('e2e direct connection', function () {
           await shell.waitForPrompt();
           await shell.executeLine('use admin');
           await shell.executeLine('db.getMongo().getDBs()');
-          shell.assertContainsError('MongoServerError: not primary');
+          shell.assertContainsError(
+            'MongoServerError[NotPrimaryNoSecondaryOk]: not primary'
+          );
         });
 
         it('lists databases when readPreference is in the connection string', async function () {

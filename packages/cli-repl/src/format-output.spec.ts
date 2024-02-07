@@ -144,7 +144,7 @@ for (const colors of [false, true]) {
     });
 
     context('when the result is an Error', function () {
-      it('returns only name and message', function () {
+      it('returns only name and message - generic Error', function () {
         const output = stripAnsiColors(
           format({
             value: new Error('Something went wrong.'),
@@ -153,6 +153,40 @@ for (const colors of [false, true]) {
         );
 
         expect(output).to.equal('\rError: Something went wrong.');
+      });
+
+      it('returns name, codeName and message - MongoError', function () {
+        class MongoError extends Error {
+          code: number;
+          codeName: string;
+          constructor(
+            message: string,
+            code: number,
+            codeName: string,
+            name: string
+          ) {
+            super(message);
+            this.code = code;
+            this.codeName = codeName;
+            this.name = name;
+          }
+        }
+
+        const output = stripAnsiColors(
+          format({
+            value: new MongoError(
+              'Something went wrong.',
+              123,
+              'ErrorCode',
+              'MongoError'
+            ),
+            type: 'Error',
+          })
+        );
+
+        expect(output).to.equal(
+          '\rMongoError[ErrorCode]: Something went wrong.'
+        );
       });
 
       it('provides errInfo information if present', function () {
