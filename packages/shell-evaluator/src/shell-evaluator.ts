@@ -25,7 +25,9 @@ try {
 }
 if (v8?.startupSnapshot?.isBuildingSnapshot?.()) {
   v8.startupSnapshot.addSerializeCallback(() => {
+    // Ensure that any lazy loading performed by Babel is part of the snapshot
     eval(new AsyncWriter().runtimeSupportCode());
+    eval(new AsyncWriter().process('1+1'));
     hasAlreadyRunGlobalRuntimeSupportEval = true;
   });
 }
