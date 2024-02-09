@@ -39,7 +39,7 @@ import formatOutput, { formatError } from './format-output';
 import { makeMultilineJSIntoSingleLine } from '@mongosh/js-multiline-to-singleline';
 import { LineByLineInput } from './line-by-line-input';
 import type { FormatOptions } from './format-output';
-import { markTime } from './startup-timing';
+import { markTime, getTimingData } from './startup-timing';
 
 /**
  * All CLI flags that are useful for {@link MongoshNodeRepl}.
@@ -234,6 +234,13 @@ class MongoshNodeRepl implements EvaluationListener {
     delete repl.context.__non_webpack_require__;
     this.onClearCommand = console.clear.bind(console);
     repl.context.console = console;
+    repl.context.__loadExternalCode = (code: string) => {
+      return Object.assign(this.loadExternalCode(String(code), '<external>'), {
+        [Symbol.for('@@mongosh.syntheticPromise')]: true,
+      });
+    };
+    repl.context.__markTime = markTime;
+    repl.context.__getTimingData = getTimingData;
 
     // Copy our context's Date object into the inner one because we have a custom
     // util.inspect override for Date objects.

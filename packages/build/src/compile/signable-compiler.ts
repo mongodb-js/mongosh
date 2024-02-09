@@ -183,8 +183,8 @@ export class SignableCompiler {
       // TODO(MONGOSH-1605): Re-enable startup snapshots after figuring out
       // issues with running the binary when CPU features differ
       // significantly.
-      useCodeCache: true,
-      // useNodeSnapshot: true,
+      useCodeCache: process.env.MONGOSH_SNAPSHOT_COMPILE ? undefined : true,
+      useNodeSnapshot: process.env.MONGOSH_SNAPSHOT_COMPILE ? true : undefined,
     });
   }
 }

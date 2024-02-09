@@ -243,12 +243,17 @@ function wrapWithApiChecks<T extends (...args: any[]) => any>(
   fn: T,
   className: string
 ): (args: Parameters<T>) => ReturnType<T> {
+  const N = `${className}.${fn.name}`;
   const wrapper = (fn as any).returnsPromise
     ? markImplicitlyAwaited(async function (
         this: any,
         ...args: any[]
       ): Promise<any> {
         const instanceState = getShellInstanceState(this);
+        instanceState?.context?.__markTime?.(
+          'Invoke',
+          `Start to invoke ${N} [async]`
+        );
         emitApiCallTelemetry(instanceState, className, fn, true);
         const interruptFlag = instanceState?.interrupted;
         interruptFlag?.checkpoint();
@@ -272,12 +277,20 @@ function wrapWithApiChecks<T extends (...args: any[]) => any>(
           if (interrupt) {
             interrupt.destroy();
           }
+          instanceState?.context?.__markTime?.(
+            'Invoke',
+            `Finished invoking ${N} [async]`
+          );
         }
         interruptFlag?.checkpoint();
         return result;
       })
     : function (this: any, ...args: any[]): any {
         const instanceState = getShellInstanceState(this);
+        instanceState?.context?.__markTime?.(
+          'Invoke',
+          `Start to invoke ${N} [sync]`
+        );
         emitApiCallTelemetry(instanceState, className, fn, false);
         const interruptFlag = instanceState?.interrupted;
         interruptFlag?.checkpoint();
@@ -293,6 +306,10 @@ function wrapWithApiChecks<T extends (...args: any[]) => any>(
           if (instanceState) {
             instanceState.apiCallDepth--;
           }
+          instanceState?.context?.__markTime?.(
+            'Invoke',
+            `Finished invoking ${N} [sync]`
+          );
         }
         interruptFlag?.checkpoint();
         return result;
