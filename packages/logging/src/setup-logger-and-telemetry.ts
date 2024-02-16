@@ -111,15 +111,9 @@ export function setupLoggerAndTelemetry(
     session_id,
   };
 
-  const getTelemetryUserIdentity = () => {
-    if (telemetryAnonymousId) {
-      return {
-        anonymousId: telemetryAnonymousId,
-      };
-    }
-
-    return { userId };
-  };
+  const getTelemetryUserIdentity = () => ({
+    anonymousId: telemetryAnonymousId ?? userId,
+  });
 
   // We emit different analytics events for loading files and evaluating scripts
   // depending on whether we're already in the REPL or not yet. We store the
@@ -219,17 +213,13 @@ export function setupLoggerAndTelemetry(
     }) {
       if (updatedTelemetryUserIdentity.anonymousId) {
         telemetryAnonymousId = updatedTelemetryUserIdentity.anonymousId;
-        analytics.identify({
-          anonymousId: updatedTelemetryUserIdentity.anonymousId,
-          traits: userTraits,
-        });
       } else {
         userId = updatedTelemetryUserIdentity.userId;
-        analytics.identify({
-          userId: updatedTelemetryUserIdentity.userId,
-          traits: userTraits,
-        });
       }
+      analytics.identify({
+        ...getTelemetryUserIdentity(),
+        traits: userTraits,
+      });
       log.info('MONGOSH', mongoLogId(1_000_000_005), 'config', 'User updated');
     }
   );

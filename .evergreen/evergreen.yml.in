@@ -513,24 +513,18 @@ functions:
 
   write_preload_script:
     - command: shell.exec
+      silent: true
       type: setup
       params:
         working_dir: src
         shell: bash
+        env:
+          connectivity_test_atlas_username: ${connectivity_test_atlas_username}
+          connectivity_test_atlas_password: ${connectivity_test_atlas_password}
+          connectivity_test_atlas_hostname: ${connectivity_test_atlas_hostname}
         script: |
           set -e
-          set +x
-          cat <<PRELOAD_SCRIPT > preload.sh
-          echo "Preload script starting"
-          set -e
-          set -x
-          export ARTIFACT_URL=$(cat ../artifact-url.txt)
-          export IS_CI=1
-          set +x
-          export MONGOSH_SMOKE_TEST_SERVER="mongodb+srv://${connectivity_test_atlas_username}:${connectivity_test_atlas_password}@${connectivity_test_atlas_hostname}/"
-          echo "Preload script done"
-          set -x
-          PRELOAD_SCRIPT
+          .evergreen/create-preload-script.sh
   spawn_host:
     - command: host.create
       type: setup
@@ -548,17 +542,16 @@ functions:
         wait: true
   run_pkg_tests_through_ssh:
     - command: shell.exec
+      silent: true
       type: setup
       params:
+        working_dir: src
         shell: bash
+        env:
+          __project_aws_ssh_key_value: ${__project_aws_ssh_key_value}
         script: |
           set -e
-          {
-          set +x
-          echo '${__project_aws_ssh_key_value}' > ~/.ssh/mcipacker.pem
-          chmod 0600 ~/.ssh/mcipacker.pem
-          set -x
-          }
+          .evergreen/setup-ssh-key.sh
     - command: subprocess.exec
       params:
         working_dir: src
@@ -803,18 +796,16 @@ functions:
         file: tmp/expansions.yaml
         redacted: true
     - command: shell.exec
+      silent: true
+      env:
+        devtoolsbot_npm_token: ${devtoolsbot_npm_token}
+        node_js_version: ${node_js_version}
       params:
         working_dir: src
         shell: bash
         script: |
           set -e
-          {
-          echo "//registry.npmjs.org/:_authToken=${devtoolsbot_npm_token}" > .npmrc
-          export NODE_JS_VERSION=${node_js_version}
-          source .evergreen/setup-env.sh
-          export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
-          npm run evergreen-release publish -- --dry-run
-          }
+          .evergreen/run-evergreen-release.sh -- --dry-run
 
   release_publish:
     - command: expansions.write
@@ -823,18 +814,16 @@ functions:
         file: tmp/expansions.yaml
         redacted: true
     - command: shell.exec
+      silent: true
+      env:
+        devtoolsbot_npm_token: ${devtoolsbot_npm_token}
+        node_js_version: ${node_js_version}
       params:
         working_dir: src
         shell: bash
         script: |
           set -e
-          {
-          echo "//registry.npmjs.org/:_authToken=${devtoolsbot_npm_token}" > .npmrc
-          export NODE_JS_VERSION=${node_js_version}
-          source .evergreen/setup-env.sh
-          export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
-          npm run evergreen-release publish
-          }
+          .evergreen/run-evergreen-release.sh
 
 # Tasks will show up as the individual blocks in the Evergreen UI that can
 # pass or fail.

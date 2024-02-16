@@ -1596,7 +1596,7 @@ describe('e2e', function () {
       const shell = TestShell.start({
         args: [
           'mongodb://' +
-            'verymuchnonexistentdomainname'.repeat(10) +
+            'verymuchnonexistentdomainname'.repeat(4) +
             '.mongodb.net/',
         ],
       });

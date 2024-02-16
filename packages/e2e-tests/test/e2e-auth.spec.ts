@@ -282,7 +282,7 @@ describe('Auth e2e', function () {
               shell.assertContainsOutput('{ n: 2, ok: 1 }');
             } catch {
               // The 5.0+ server responds with a Long.
-              shell.assertContainsOutput('{ n: Long("2"), ok: 1 }');
+              shell.assertContainsOutput("{ n: Long('2'), ok: 1 }");
             }
           });
           const result = await db.command({ usersInfo: 1 });
@@ -492,7 +492,7 @@ describe('Auth e2e', function () {
               shell.assertContainsOutput('{ n: 2, ok: 1 }');
             } catch {
               // The 5.0+ server responds with a Long.
-              shell.assertContainsOutput('{ n: Long("2"), ok: 1 }');
+              shell.assertContainsOutput("{ n: Long('2'), ok: 1 }");
             }
           });
           const result = await db.command({ rolesInfo: 1 });

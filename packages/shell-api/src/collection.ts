@@ -40,6 +40,7 @@ import {
   shouldRunAggregationImmediately,
   coerceToJSNumber,
   buildConfigChunksCollectionMatch,
+  onlyShardedCollectionsInConfigFilter,
 } from './helpers';
 import type {
   AnyBulkWriteOperation,
@@ -1762,9 +1763,7 @@ export default class Collection extends ShellApiWithMongoClass {
     try {
       result.sharded = !!(await config.getCollection('collections').findOne({
         _id: timeseriesBucketsNs ?? ns,
-        // Dropped is gone on newer server versions, so check for !== true
-        // rather than for === false (SERVER-51880 and related).
-        dropped: { $ne: true },
+        ...onlyShardedCollectionsInConfigFilter,
       }));
     } catch (e) {
       // A user might not have permissions to check the config. In which
@@ -2068,9 +2067,7 @@ export default class Collection extends ShellApiWithMongoClass {
       .getCollection('collections')
       .findOne({
         _id: ns,
-        // dropped is gone on newer server versions, so check for !== true
-        // rather than for === false (SERVER-51880 and related)
-        dropped: { $ne: true },
+        ...onlyShardedCollectionsInConfigFilter,
       });
     if (!configCollectionsInfo) {
       throw new MongoshInvalidInputError(

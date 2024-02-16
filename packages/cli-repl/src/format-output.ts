@@ -9,6 +9,7 @@ import type {
   CollectionNamesWithTypes,
 } from '@mongosh/shell-api';
 import { isShouldReportAsBugError } from '@mongosh/errors';
+import type { MongoServerError } from 'mongodb';
 
 type EvaluationResult = {
   value: any;
@@ -249,7 +250,17 @@ function formatListCommands(
 
 export function formatError(error: Error, options: FormatOptions): string {
   let result = '';
-  if (error.name) result += `\r${clr(error.name, 'mongosh:error', options)}: `;
+  if (error.name) {
+    result += `\r${clr(error.name, 'mongosh:error', options)}`;
+    const codeName = (error as MongoServerError).codeName;
+    if (codeName)
+      result += `${clr(
+        `[` + (codeName as string) + `]`,
+        'mongosh:error',
+        options
+      )}`;
+    result += ': ';
+  }
   if (error.message) result += error.message;
   if (isShouldReportAsBugError(error)) {
     result +=
