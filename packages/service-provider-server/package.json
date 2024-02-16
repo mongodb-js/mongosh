@@ -56,7 +56,7 @@
     "aws4": "^1.11.0",
     "mongodb": "^6.3.0",
     "mongodb-connection-string-url": "^3.0.0",
-    "socks": "^2.7.1"
+    "socks": "^2.7.3"
   },
   "optionalDependencies": {
     "kerberos": "^2.1.0",
