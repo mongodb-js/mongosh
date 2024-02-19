@@ -6561,7 +6561,7 @@ functions:
 
   write_preload_script:
     - command: shell.exec
-      silent: true
+      # silent: true
       type: setup
       params:
         working_dir: src
@@ -6590,7 +6590,7 @@ functions:
         wait: true
   run_pkg_tests_through_ssh:
     - command: shell.exec
-      silent: true
+      # silent: true
       type: setup
       params:
         working_dir: src
@@ -6844,13 +6844,13 @@ functions:
         file: tmp/expansions.yaml
         redacted: true
     - command: shell.exec
-      silent: true
-      env:
-        devtoolsbot_npm_token: ${devtoolsbot_npm_token}
-        node_js_version: ${node_js_version}
+      # silent: true
       params:
         working_dir: src
         shell: bash
+        env:
+          devtoolsbot_npm_token: ${devtoolsbot_npm_token}
+          node_js_version: ${node_js_version}
         script: |
           set -e
           .evergreen/run-evergreen-release.sh -- --dry-run
@@ -6862,13 +6862,13 @@ functions:
         file: tmp/expansions.yaml
         redacted: true
     - command: shell.exec
-      silent: true
-      env:
-        devtoolsbot_npm_token: ${devtoolsbot_npm_token}
-        node_js_version: ${node_js_version}
+      # silent: true
       params:
         working_dir: src
         shell: bash
+        env:
+          devtoolsbot_npm_token: ${devtoolsbot_npm_token}
+          node_js_version: ${node_js_version}
         script: |
           set -e
           .evergreen/run-evergreen-release.sh
