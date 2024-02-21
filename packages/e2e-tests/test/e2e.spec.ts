@@ -1604,6 +1604,20 @@ describe('e2e', function () {
       expect(exitCode).to.equal(1);
     });
 
+    it('fails fast for ENOTFOUND/EINVAL errors', async function () {
+      // Very long & nonexistent domain can result in EINVAL in Node.js >= 20.11
+      // In lower versions, it would be ENOTFOUND
+      const shell = TestShell.start({
+        args: [
+          'mongodb://' +
+            'verymuchnonexistentdomainname'.repeat(10) +
+            '.mongodb.net/',
+        ],
+      });
+      const exitCode = await shell.waitForExit();
+      expect(exitCode).to.equal(1);
+    });
+
     it('fails fast for ECONNREFUSED errors to a single host', async function () {
       const shell = TestShell.start({ args: ['--port', '1'] });
       const result = await shell.waitForPromptOrExit();
