@@ -128,7 +128,6 @@
   "workspaces": [
     "configs/eslint-config-mongosh",
     "configs/tsconfig-mongosh",
-    "scripts/docker",
     "packages/async-rewriter2",
     "packages/build",
     "packages/errors",
@@ -136,6 +135,7 @@
     "packages/java-shell",
     "packages/js-multiline-to-singleline",
     "packages/types",
+    "scripts/docker",
     "packages/i18n",
     "packages/logging",
     "packages/service-provider-core",
