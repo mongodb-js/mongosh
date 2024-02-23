@@ -48,7 +48,7 @@ exports.RELEASE_PACKAGE_MATRIX = [
     kerberosConnectivityTestDockerfiles: [...krbConnTestsOpenSSL11, ...krbConnTestsOpenSSL3],
     packages: [
       { name: 'linux-x64', description: publicDescriptions.linux_x64, packageType: 'tgz', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu20.04-tgz'], serverLikeTargetList: [...allLinux] },
-      { name: 'deb-x64', description: publicDescriptions.debian_x64, packageType: 'deb', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu18.04-deb', 'ubuntu20.04-deb', 'ubuntu22.04-deb', 'ubuntu22.04-nohome-deb', 'debian10-deb', 'debian11-deb', 'debian12-deb'], serverLikeTargetList: [...ubuntu1804AndAboveAndDebBased] },
+      { name: 'deb-x64', description: publicDescriptions.debian_x64, packageType: 'deb', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu18.04-deb', 'ubuntu20.04-deb', 'ubuntu22.04-deb', 'ubuntu22.04-nohome-deb', 'ubuntu22.04-qemu-deb', 'debian10-deb', 'debian11-deb', 'debian12-deb'], serverLikeTargetList: [...ubuntu1804AndAboveAndDebBased] },
       { name: 'rpm-x64', description: publicDescriptions.rhel_x64, packageType: 'rpm', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['centos7-rpm', 'amazonlinux2-rpm', 'amazonlinux2023-rpm', 'rocky8-rpm', 'rocky9-rpm', 'fedora34-rpm', 'suse12-rpm', 'suse15-rpm'], serverLikeTargetList: [...rhel70AndAboveAndRpmBased] }
     ]
   },
@@ -78,7 +78,7 @@ exports.RELEASE_PACKAGE_MATRIX = [
     kerberosConnectivityTestDockerfiles: [...krbConnTestsOpenSSL11, ...krbConnTestsOpenSSL3],
     packages: [
       { name: 'linux-arm64', description: publicDescriptions.linux_arm64, packageType: 'tgz', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu20.04-tgz'], serverLikeTargetList: [...al2AndAbove] },
-      { name: 'deb-arm64', description: publicDescriptions.debian_arm64, packageType: 'deb', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu18.04-deb', 'ubuntu20.04-deb', 'ubuntu22.04-deb', 'debian10-deb', 'debian11-deb', 'debian12-deb'], serverLikeTargetList: [...ubuntu1804AndAboveAndDebBased] },
+      { name: 'deb-arm64', description: publicDescriptions.debian_arm64, packageType: 'deb', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['ubuntu18.04-deb', 'ubuntu20.04-deb', 'ubuntu22.04-deb', 'ubuntu22.04-nohome-deb', 'ubuntu22.04-qemu-deb', 'debian10-deb', 'debian11-deb', 'debian12-deb'], serverLikeTargetList: [...ubuntu1804AndAboveAndDebBased] },
       { name: 'rpm-arm64', description: publicDescriptions.rhel_arm64, packageType: 'rpm', packageOn: 'linux_package', smokeTestKind: 'docker', smokeTestDockerfiles: ['rocky8-rpm', 'rocky9-rpm', 'fedora34-rpm', 'amazonlinux2-rpm', 'amazonlinux2023-rpm'], serverLikeTargetList: [...al2AndAbove] }
     ]
   },
