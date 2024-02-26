@@ -41,7 +41,7 @@ const completions = autocomplete(serverVersion, line);
 // ]
 ```
 
-Autocomplete is based on currently implemeted APIs in [@mongosh/shell-api](https://www.npmjs.com/package/@mongosh/shell-api)
+Autocomplete is based on currently implemented APIs in [@mongosh/shell-api](https://www.npmjs.com/package/@mongosh/shell-api)
 
 ## Installation
 
