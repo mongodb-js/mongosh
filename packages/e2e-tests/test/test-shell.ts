@@ -6,6 +6,7 @@ import type {
 } from 'child_process';
 import { spawn } from 'child_process';
 import { once } from 'events';
+import { inspect } from 'util';
 import path from 'path';
 import stripAnsi from 'strip-ansi';
 import { eventually } from '../../../testing/eventually';
@@ -245,9 +246,7 @@ export class TestShell {
     const onlyOutputLines = this._getOutputLines();
     if (!matches(onlyOutputLines.join('\n'), expectedOutput)) {
       throw new assert.AssertionError({
-        message: `Expected shell output to include ${JSON.stringify(
-          expectedOutput
-        )}`,
+        message: `Expected shell output to include ${inspect(expectedOutput)}`,
         actual: this._output,
         expected: expectedOutput,
       });
@@ -259,9 +258,7 @@ export class TestShell {
 
     if (!allErrors.find((error) => matches(error, expectedError))) {
       throw new assert.AssertionError({
-        message: `Expected shell errors to include ${JSON.stringify(
-          expectedError
-        )}`,
+        message: `Expected shell errors to include ${inspect(expectedError)}`,
         actual: this._output,
         expected: expectedError,
       });
@@ -272,7 +269,7 @@ export class TestShell {
     const onlyOutputLines = this._getOutputLines();
     if (matches(onlyOutputLines.join('\n'), unexpectedOutput)) {
       throw new assert.AssertionError({
-        message: `Expected shell output not  to include ${JSON.stringify(
+        message: `Expected shell output not  to include ${inspect(
           unexpectedOutput
         )}`,
         actual: this._output,
