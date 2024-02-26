@@ -115,6 +115,8 @@ describe('e2e TLS', function () {
           '--tlsCertificateKeyFile',
           SERVER_KEY,
           '--tlsAllowConnectionsWithoutCertificates',
+          '--tlsCAFile',
+          CA_CERT,
         ],
       });
 
@@ -184,7 +186,9 @@ describe('e2e TLS', function () {
         });
         const result = await shell.waitForPromptOrExit();
         expect(result.state).to.equal('exit');
-        shell.assertContainsOutput('unable to verify the first certificate');
+        shell.assertContainsOutput(
+          /unable to verify the first certificate|self[- ]signed certificate in certificate chain/
+        );
       });
 
       it('fails with invalid CA (connection string)', async function () {
@@ -199,7 +203,9 @@ describe('e2e TLS', function () {
         });
         const result = await shell.waitForPromptOrExit();
         expect(result.state).to.equal('exit');
-        shell.assertContainsOutput('unable to verify the first certificate');
+        shell.assertContainsOutput(
+          /unable to verify the first certificate|self[- ]signed certificate in certificate chain/
+        );
       });
 
       it('fails when providing a CRL including the servers cert', async function () {
@@ -640,6 +646,8 @@ describe('e2e TLS', function () {
         'requireTLS',
         '--tlsCertificateKeyFile',
         SERVER_INVALIDHOST_KEY,
+        '--tlsCAFile',
+        CA_CERT,
         '--tlsAllowConnectionsWithoutCertificates',
       ],
     });
