@@ -9,7 +9,6 @@ import type {
   RunCursorCommandOptions,
   ClientEncryptionOptions,
   MongoClient,
-  ReadPreference,
   MongoMissingDependencyError,
 } from 'mongodb';
 
@@ -82,12 +81,13 @@ import { EventEmitter } from 'events';
 import type { CreateEncryptedCollectionOptions } from '@mongosh/service-provider-core';
 import type { DevtoolsConnectionState } from '@mongodb-js/devtools-connect';
 import { isDeepStrictEqual } from 'util';
-
-// 'mongodb' is not supported in startup snapshots yet.
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports
-function driver(): typeof import('mongodb') {
-  return require('mongodb');
-}
+import * as driver from 'mongodb';
+import {
+  MongoClient as MongoClientCtor,
+  ReadPreference,
+  ClientEncryption,
+} from 'mongodb';
+import { connectMongoClient } from '@mongodb-js/devtools-connect';
 
 const bsonlib = () => {
   const {
@@ -105,7 +105,7 @@ const bsonlib = () => {
     BSONSymbol,
     BSONRegExp,
     BSON,
-  } = driver();
+  } = driver;
   return {
     Binary,
     Code,
@@ -229,9 +229,6 @@ class CliServiceProvider
       };
     }
 
-    const { MongoClient: MongoClientCtor } = driver();
-    const { connectMongoClient } = require('@mongodb-js/devtools-connect');
-
     let client: MongoClient;
     let state: DevtoolsConnectionState | undefined;
     if (cliOptions.nodb) {
@@ -312,7 +309,7 @@ class CliServiceProvider
     return {
       nodeDriverVersion: tryCall(() => require('mongodb/package.json').version),
       libmongocryptVersion: tryCall(
-        () => driver().ClientEncryption.libmongocryptVersion // getter that actually loads the native addon (!)
+        () => ClientEncryption.libmongocryptVersion // getter that actually loads the native addon (!)
       ),
       libmongocryptNodeBindingsVersion: tryCall(
         () => require('mongodb-client-encryption/package.json').version
@@ -371,8 +368,6 @@ class CliServiceProvider
     connectionString: ConnectionString | string,
     clientOptions: DevtoolsConnectOptions
   ): Promise<{ client: MongoClient; state: DevtoolsConnectionState }> {
-    const { MongoClient: MongoClientCtor } = driver();
-    const { connectMongoClient } = require('@mongodb-js/devtools-connect');
     try {
       return await connectMongoClient(
         connectionString.toString(),
@@ -1302,7 +1297,6 @@ class CliServiceProvider
   readPreferenceFromOptions(
     options?: Omit<ReadPreferenceFromOptions, 'session'>
   ): ReadPreferenceLike | undefined {
-    const { ReadPreference } = driver();
     return ReadPreference.fromOptions(options);
   }
 
@@ -1509,7 +1503,6 @@ class CliServiceProvider
   createClientEncryption(
     options: ClientEncryptionOptions
   ): MongoCryptClientEncryption {
-    const { ClientEncryption } = driver();
     return new ClientEncryption(this.mongoClient, options);
   }
 }
