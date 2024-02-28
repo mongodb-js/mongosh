@@ -33,6 +33,7 @@
     "prepublish": "npm run compile",
     "webpack-build": "npm run compile && webpack --mode production",
     "webpack-build-dev": "npm run compile && webpack --mode development",
+    "start-snapshot": "rm -f snapshot.blob && node --snapshot-blob snapshot.blob --build-snapshot dist/mongosh.js && node --snapshot-blob snapshot.blob dist/mongosh.js",
     "prettier": "prettier",
     "reformat": "npm run prettier -- --write . && npm run eslint --fix"
   },

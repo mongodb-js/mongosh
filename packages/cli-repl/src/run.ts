@@ -45,6 +45,7 @@ if ((v8 as any)?.startupSnapshot?.isBuildingSnapshot?.()) {
     (v8 as any).startupSnapshot.addDeserializeCallback(() => {
       console.Console = ConsoleCtor;
       // Work around Node.js caching the cwd when snapshotting
+      // https://github.com/nodejs/node/pull/51901
       process.chdir('.');
     });
   }

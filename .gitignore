@@ -25,3 +25,4 @@ compiled-ts.tgz
 mongocryptd.pid
 .sbom
 .nvm
+snapshot.blob
