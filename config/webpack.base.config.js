@@ -27,7 +27,7 @@ module.exports = {
       // This is similar to https://github.com/babel/babel/issues/12442,
       // @babel/code-frame loads chalk loads supports-color which checks
       // for TTY color support during startup rather than at runtime
-      '@babel/code-frame': makeLazyForwardModule('@babel/code-frame')
+      '@babel/code-frame': makeLazyForwardModule('@babel/code-frame'),
     }
   },
 
@@ -84,15 +84,19 @@ function makeLazyForwardModule(pkg) {
 
   const moduleContents = require(pkg);
   let source = `'use strict';\nlet _cache;\n`;
-  source += `function orig() {\n_cache = require(${S(require.resolve(pkg))}); orig = () => _cache; return _cache;\n}`;
-  source += `module.exports = {};`;
+  source += `function orig() {\n_cache = require(${S(require.resolve(pkg))}); orig = () => _cache; return _cache;\n}\n`;
+  if (typeof moduleContents === 'function') {
+    source += `module.exports = function(...args) { return orig().apply(this, args); };\n`;
+  } else {
+    source += `module.exports = {};\n`;
+  }
   let i = 0;
   for (const key of Object.keys(moduleContents)) {
     if (typeof moduleContents[key] === 'function') {
       source += `module.exports[${S(key)}] = function(...args) { return orig()[${S(key)}].apply(this, args); };\n`;
     } else {
       source += `let value_${i}, value_${i}_set = false;\n`
-      source += `Object.defineProperty(module.exports, {
+      source += `Object.defineProperty(module.exports, ${S(key)}, {
         enumerable: true, configurable: true,
         get() {
           if (value_${i}_set) return value_${i};
