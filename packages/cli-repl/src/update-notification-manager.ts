@@ -95,9 +95,15 @@ export class UpdateNotificationManager {
         : {},
     });
 
+    if (!response.body) {
+      throw new Error(
+        `Missing body from ${updateURL}: ${response.status} ${response.statusText}`
+      );
+    }
+
     if (response.status === 304 /* Not Modified, i.e. ETag matched */) {
       response.body
-        .on('error', () => {
+        .once('error', () => {
           /* ignore response content and errors */
         })
         .resume();
@@ -112,8 +118,8 @@ export class UpdateNotificationManager {
       );
     }
 
-    const jsonContents = await response.json();
-    this.latestKnownMongoshVersion = (jsonContents?.versions as any[])
+    const jsonContents = (await response.json()) as { versions?: any[] };
+    this.latestKnownMongoshVersion = jsonContents?.versions
       ?.map((v: any) => v.version as string)
       ?.filter((v) => !semver.prerelease(v))
       ?.sort(semver.rcompare)?.[0];

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 'use strict';
-const fetch = require('node-fetch');
+import fetch from 'node-fetch';
 
 // fetch() an URL and ignore the response body
 (async function() {

@@ -50,6 +50,12 @@ export interface SnippetIndexFile {
   sourceURL: string;
 }
 
+interface NpmMetaDataResponse {
+  dist?: {
+    tarball?: string;
+  };
+}
+
 const indexFileSchema = joi.object({
   indexFileVersion: joi.number().integer().max(1).required(),
 
@@ -240,7 +246,9 @@ export class SnippetManager implements ShellPlugin {
       );
     }
     interrupted.checkpoint();
-    const npmTarballURL = (await npmMetadataResponse.json())?.dist?.tarball;
+    const npmTarballURL = (
+      (await npmMetadataResponse.json()) as NpmMetaDataResponse
+    )?.dist?.tarball;
     if (!npmTarballURL) {
       this.messageBus.emit('mongosh-snippets:npm-download-failed', {
         npmMetadataURL,
@@ -253,7 +261,7 @@ export class SnippetManager implements ShellPlugin {
     interrupted.checkpoint();
     await this.print(`Downloading npm from ${npmTarballURL}...`);
     const npmTarball = await this.fetch(npmTarballURL);
-    if (!npmTarball.ok) {
+    if (!npmTarball.ok || !npmTarball.body) {
       this.messageBus.emit('mongosh-snippets:npm-download-failed', {
         npmMetadataURL,
         npmTarballURL,

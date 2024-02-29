@@ -42,7 +42,7 @@
     "cross-spawn": "^7.0.3",
     "escape-string-regexp": "^4.0.0",
     "joi": "^17.4.0",
-    "node-fetch": "^2.6.1",
+    "node-fetch": "^3.3.2",
     "tar": "^6.1.15"
   },
   "devDependencies": {
@@ -50,7 +50,7 @@
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
     "@types/cross-spawn": "^6.0.2",
-    "@types/node-fetch": "^2.6.4",
+    "@types/node-fetch": "^2.6.11",
     "@types/tar": "^4.0.4",
     "depcheck": "^1.4.3",
     "eslint": "^7.25.0",
