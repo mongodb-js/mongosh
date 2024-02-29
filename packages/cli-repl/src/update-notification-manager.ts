@@ -95,15 +95,9 @@ export class UpdateNotificationManager {
         : {},
     });
 
-    if (!response.body) {
-      throw new Error(
-        `Missing body from ${updateURL}: ${response.status} ${response.statusText}`
-      );
-    }
-
     if (response.status === 304 /* Not Modified, i.e. ETag matched */) {
       response.body
-        .once('error', () => {
+        ?.once('error', () => {
           /* ignore response content and errors */
         })
         .resume();
@@ -112,7 +106,7 @@ export class UpdateNotificationManager {
       return;
     }
 
-    if (!response.ok) {
+    if (!response.ok || !response.body) {
       throw new Error(
         `Unexpected status code fetching ${updateURL}: ${response.status} ${response.statusText}`
       );
