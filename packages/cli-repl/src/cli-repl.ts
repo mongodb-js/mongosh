@@ -100,7 +100,7 @@ type CliUserConfigOnDisk = Partial<CliUserConfig> &
 export class CliRepl implements MongoshIOProvider {
   mongoshRepl: MongoshNodeRepl;
   bus: MongoshBus;
-  cliOptions: CliOptions;
+  cliOptions: Readonly<CliOptions>;
   getCryptLibraryPaths?: (bus: MongoshBus) => Promise<CryptLibraryPathResult>;
   cachedCryptLibraryPath?: Promise<CryptLibraryPathResult>;
   shellHomeDirectory: ShellHomeDirectory;
@@ -186,8 +186,17 @@ export class CliRepl implements MongoshIOProvider {
       this.bus.emit('mongosh:error', err, 'io');
     });
 
+    let jsContext = this.cliOptions.jsContext;
+    if (jsContext === 'auto' || !jsContext) {
+      jsContext = CliRepl.getFileAndEvalInfo(this.cliOptions)
+        .willEnterInteractiveMode
+        ? 'repl'
+        : 'plain-vm';
+    }
+
     this.mongoshRepl = new MongoshNodeRepl({
       ...options,
+      shellCliOptions: { ...this.cliOptions, jsContext },
       nodeReplOptions: options.nodeReplOptions ?? {
         terminal: process.env.MONGOSH_FORCE_TERMINAL ? true : undefined,
       },
@@ -373,12 +382,12 @@ export class CliRepl implements MongoshIOProvider {
     markTime(TimingCategories.REPLInstantiation, 'initialized mongosh repl');
     this.injectReplFunctions();
 
-    const commandLineLoadFiles = this.cliOptions.fileNames ?? [];
-    const evalScripts = this.cliOptions.eval ?? [];
-    const willExecuteCommandLineScripts =
-      commandLineLoadFiles.length > 0 || evalScripts.length > 0;
-    const willEnterInteractiveMode =
-      !willExecuteCommandLineScripts || !!this.cliOptions.shell;
+    const {
+      commandLineLoadFiles,
+      evalScripts,
+      willEnterInteractiveMode,
+      willExecuteCommandLineScripts,
+    } = CliRepl.getFileAndEvalInfo(this.cliOptions);
 
     if (
       (evalScripts.length === 0 ||
@@ -478,13 +487,33 @@ export class CliRepl implements MongoshIOProvider {
     });
   }
 
+  private static getFileAndEvalInfo(cliOptions: CliOptions): {
+    commandLineLoadFiles: string[];
+    evalScripts: string[];
+    willExecuteCommandLineScripts: boolean;
+    willEnterInteractiveMode: boolean;
+  } {
+    const commandLineLoadFiles = cliOptions.fileNames ?? [];
+    const evalScripts = cliOptions.eval ?? [];
+    const willExecuteCommandLineScripts =
+      commandLineLoadFiles.length > 0 || evalScripts.length > 0;
+    const willEnterInteractiveMode =
+      !willExecuteCommandLineScripts || !!cliOptions.shell;
+    return {
+      commandLineLoadFiles,
+      evalScripts,
+      willEnterInteractiveMode,
+      willExecuteCommandLineScripts,
+    };
+  }
+
   injectReplFunctions(): void {
     const functions = {
       async buildInfo() {
         return await buildInfo();
       },
     } as const;
-    const { context } = this.mongoshRepl.runtimeState().repl;
+    const { context } = this.mongoshRepl.runtimeState();
     for (const [name, impl] of Object.entries(functions)) {
       context[name] = (...args: Parameters<typeof impl>) => {
         return Object.assign(impl(...args), {

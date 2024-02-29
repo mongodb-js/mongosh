@@ -160,7 +160,7 @@ export class TestShell {
     return this._rawOutput;
   }
 
-  get process(): ChildProcess {
+  get process(): ChildProcessWithoutNullStreams {
     return this._process;
   }
 

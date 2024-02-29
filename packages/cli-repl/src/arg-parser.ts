@@ -31,6 +31,7 @@ const OPTIONS = {
     'gssapiServiceName',
     'sspiHostnameCanonicalization',
     'sspiRealmOverride',
+    'jsContext',
     'host',
     'keyVaultNamespace',
     'kmsURL',

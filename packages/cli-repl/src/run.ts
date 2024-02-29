@@ -228,7 +228,10 @@ async function main() {
       ...connectionInfo.driverOptions,
     });
   } catch (e: any) {
-    console.error(`${e?.name}: ${e?.message}`);
+    // for debugging
+    if (process.env.MONGOSH_DISPLAY_STARTUP_STACK_TRACE)
+      console.error(e?.stack);
+    else console.error(`${e?.name}: ${e?.message}`);
     if (repl !== undefined) {
       repl.bus.emit('mongosh:error', e, 'startup');
     }
