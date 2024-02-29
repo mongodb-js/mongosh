@@ -5,7 +5,8 @@ export BASEDIR="$PWD/.evergreen"
 if [ "$OS" == "Windows_NT" ]; then
   powershell "$(cygpath -w "$BASEDIR")"/InstallNode.ps1
   . "$BASEDIR/setup-env.sh"
-  mkdir -p "$BASEDIR/npm-9" && (cd "$BASEDIR/npm-9" && echo '{}' > package.json && npm i npm@9.x)
+  mkdir -p "$BASEDIR/npm-10" && (cd "$BASEDIR/npm-10" && echo '{}' > package.json && npm i npm@10.x)
+  # using npm 10 because npm 9.9.3 does not install well on windows
 
   curl -sSfLO https://raw.githubusercontent.com/mongodb-js/compass/42e6142ae08be6fec944b80ff6289e6bcd11badf/.evergreen/node-gyp-bug-workaround.sh && bash node-gyp-bug-workaround.sh
 else
