@@ -2,7 +2,9 @@
   "extends": "@mongodb-js/tsconfig-mongosh/tsconfig.common.json",
   "compilerOptions": {
     "outDir": "./lib",
-    "allowJs": true
+    "allowJs": true,
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext"
   },
   "include": ["src/**/*"],
   "exclude": ["./src/**/*.spec.*"]
