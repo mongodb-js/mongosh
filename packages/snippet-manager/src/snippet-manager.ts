@@ -341,11 +341,12 @@ export class SnippetManager implements ShellPlugin {
                   `The specified index file ${url} could not be read: ${repoRes.statusText}`
                 );
               }
-              const rawData = await repoRes.buffer();
+              const arrayBuffer = await repoRes.arrayBuffer();
+              const buffer = Buffer.from(arrayBuffer);
               let data;
               try {
                 data = await unpackBSON<Omit<SnippetIndexFile, 'sourceURL'>>(
-                  rawData
+                  buffer
                 );
               } catch (err: any) {
                 this.messageBus.emit('mongosh-snippets:fetch-index-error', {
