@@ -17,6 +17,7 @@ import tar from 'tar';
 import zlib from 'zlib';
 import bson from 'bson';
 import joi from 'joi';
+import importNodeFetch from '@mongosh/import-node-fetch';
 const pipeline = promisify(stream.pipeline);
 const brotliCompress = promisify(zlib.brotliCompress);
 const brotliDecompress = promisify(zlib.brotliDecompress);
@@ -191,9 +192,10 @@ export class SnippetManager implements ShellPlugin {
     return this._instanceState.messageBus;
   }
 
-  async fetch(url: string) {
+  async fetch(url: string): Promise<any> {
+    // TODO: find type without importing node-fetch
     // 'http' is not supported in startup snapshots yet.
-    const fetch = await import('node-fetch');
+    const fetch = await importNodeFetch();
     return await fetch.default(url);
   }
 
