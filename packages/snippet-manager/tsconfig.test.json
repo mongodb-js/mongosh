@@ -1,0 +1,6 @@
+{
+  "extends": "@mongodb-js/tsconfig-mongosh/tsconfig.test.json",
+  "compilerOptions": {
+    "moduleResolution": "NodeNext"
+  }
+}
