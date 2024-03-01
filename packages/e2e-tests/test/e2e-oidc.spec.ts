@@ -23,7 +23,7 @@ describe('OIDC auth e2e', function () {
   const fetchBrowserFixture = `"${path.resolve(
     __dirname,
     'fixtures',
-    'curl.js'
+    'curl.mjs'
   )}"`;
 
   skipIfEnvServerVersion('< 7.0');
