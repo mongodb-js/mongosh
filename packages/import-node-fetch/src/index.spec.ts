@@ -17,6 +17,7 @@ describe('makeMultilineJSIntoSingleLine', function () {
     const fetch = await importNodeFetch();
 
     expect(fetch).to.exist;
-    expect(fetch).to.be.a('function');
+    expect(fetch).to.haveOwnProperty('default');
+    expect(fetch.default).to.be.a('function');
   });
 });
