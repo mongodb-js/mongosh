@@ -733,35 +733,35 @@ class MongoshNodeRepl implements EvaluationListener {
     const { repl, context } = this.runtimeState();
     if (repl) {
       return await promisify(repl.eval.bind(repl))(input, context, filename);
-    } else {
-      let asyncSigintHandler!: () => void;
-      const asyncSigintPromise = new Promise((resolve, reject) => {
-        asyncSigintHandler = () => {
-          void this.onAsyncSigint();
-          setImmediate(() =>
-            reject(
-              new Error('Asynchronous execution was interrupted by `SIGINT`')
-            )
-          );
-        };
-      });
-      try {
-        process.addListener('SIGINT', asyncSigintHandler);
-        return await Promise.race([
-          asyncSigintPromise,
-          this.eval(
-            (input, context, filename) =>
-              new Script(input, { filename }).runInContext(context, {
-                breakOnSigint: true,
-              }),
-            input,
-            context,
-            filename
-          ),
-        ]);
-      } finally {
-        process.removeListener('SIGINT', asyncSigintHandler);
-      }
+    }
+
+    let asyncSigintHandler!: () => void;
+    const asyncSigintPromise = new Promise((resolve, reject) => {
+      asyncSigintHandler = () => {
+        void this.onAsyncSigint();
+        setImmediate(() =>
+          reject(
+            new Error('Asynchronous execution was interrupted by `SIGINT`')
+          )
+        );
+      };
+    });
+    try {
+      process.addListener('SIGINT', asyncSigintHandler);
+      return await Promise.race([
+        asyncSigintPromise,
+        this.eval(
+          (input, context, filename) =>
+            new Script(input, { filename }).runInContext(context, {
+              breakOnSigint: true,
+            }),
+          input,
+          context,
+          filename
+        ),
+      ]);
+    } finally {
+      process.removeListener('SIGINT', asyncSigintHandler);
     }
   }
 
