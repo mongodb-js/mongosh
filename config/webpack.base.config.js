@@ -33,6 +33,10 @@ module.exports = {
     "node:https": "commonjs2 https",
     "node:stream": "commonjs2 stream",
     "node:zlib": "commonjs2 zlib", 
+    "node:url": "commonjs2 url",
+    "node:util": "commonjs2 util",
+    "node:events": "commonjs2 events",
+    "node:net": "commonjs2 net",
     electron: "commonjs2 electron" // optional dep of the OIDC plugin
   },
 
