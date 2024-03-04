@@ -968,11 +968,12 @@ class MongoshNodeRepl implements EvaluationListener {
    * Provides the current set of output formatting options used for this shell.
    */
   getFormatOptions(): FormatOptions {
-    const output = this.output as WriteStream;
+    const output: Writable &
+      Partial<Pick<WriteStream, 'isTTY' | 'getColorDepth'>> = this.output;
     return {
       colors:
         this._runtimeState?.repl?.useColors ??
-        (output.isTTY && output.getColorDepth() > 1),
+        !!(output.isTTY && (output?.getColorDepth?.() ?? 0) > 1),
       compact: this.inspectCompact,
       depth: this.inspectDepth,
       showStackTraces: this.showStackTraces,
