@@ -44,7 +44,6 @@ import {
 } from '@mongosh/types';
 import { promises as fs } from 'fs';
 import path from 'path';
-import { promisify } from 'util';
 import { getOsInfo } from './get-os-info';
 import { UpdateNotificationManager } from './update-notification-manager';
 import { getTimingData, markTime, summariseTimingData } from './startup-timing';
@@ -1024,7 +1023,7 @@ export class CliRepl implements MongoshIOProvider {
     if (analytics) {
       const flushStart = Date.now();
       try {
-        await promisify(analytics.flush.bind(analytics))();
+        await analytics.flush();
         markTime(TimingCategories.Telemetry, 'flushed analytics');
       } catch (err: any) {
         flushError = err.message;

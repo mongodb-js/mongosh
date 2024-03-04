@@ -1202,6 +1202,7 @@ describe('CliRepl', function () {
         let srv: http.Server;
         let host: string;
         let requests: any[];
+        let totalEventsTracked = 0;
         let telemetryDelay = 0;
         const setTelemetryDelay = (val: number) => {
           telemetryDelay = val;
@@ -1210,6 +1211,7 @@ describe('CliRepl', function () {
         beforeEach(async function () {
           process.env.MONGOSH_ANALYTICS_SAMPLE = 'true';
           requests = [];
+          totalEventsTracked = 0;
           srv = http
             .createServer((req, res) => {
               let body = '';
@@ -1220,8 +1222,9 @@ describe('CliRepl', function () {
                 })
                 .on('end', async () => {
                   requests.push({ req, body });
-                  res.writeHead(200);
+                  totalEventsTracked += JSON.parse(body).batch.length;
                   await delay(telemetryDelay);
+                  res.writeHead(200);
                   res.end('Ok\n');
                 });
             })
@@ -1244,19 +1247,26 @@ describe('CliRepl', function () {
         });
 
         it('timeouts fast', async function () {
-          setTelemetryDelay(10000);
+          // The `httpRequestTimeout` of our Segment Analytics is set to
+          // 1000ms which makes these requests fail as they exceed the timeout.
+          // Segment will silently fail http request errors when tracking and flushing.
+          // This will cause the test to fail if the system running the tests is
+          //  unable to flush telemetry in 1500ms.
+          this.timeout(2500);
+          setTelemetryDelay(5000);
           await cliRepl.start(await testServer.connectionString(), {});
           input.write('use somedb;\n');
           input.write('exit\n');
           await waitBus(cliRepl.bus, 'mongosh:closed');
-          const analyticsLog = (await log()).find(
+          const analyticsLog = (await log()).filter(
             (entry) =>
               entry.ctx === 'analytics' &&
               entry.msg === 'Flushed outstanding data'
           );
-          expect(analyticsLog).to.have.nested.property(
+          expect(analyticsLog).to.have.lengthOf(1);
+          expect(analyticsLog[0]).to.have.nested.property(
             'attr.flushError',
-            'timeout of 1000ms exceeded'
+            null // Although the flush request will time out, it does not error.
           );
         });
 
@@ -1386,7 +1396,7 @@ describe('CliRepl', function () {
           );
           expect(flushEntry.attr.flushError).to.equal(null);
           expect(flushEntry.attr.flushDuration).to.be.a('number');
-          expect(requests).to.have.lengthOf(2);
+          expect(totalEventsTracked).to.equal(4);
         });
 
         it('sends out telemetry data for command line scripts', async function () {
@@ -1396,7 +1406,7 @@ describe('CliRepl', function () {
             cliRepl,
             await testServer.connectionString()
           );
-          expect(requests).to.have.lengthOf(2);
+          expect(totalEventsTracked).to.equal(5);
         });
 
         it('sends out telemetry if the repl is running in an interactive mode in a containerized environment', async function () {
@@ -1408,7 +1418,7 @@ describe('CliRepl', function () {
           input.write('db.hello()\n');
           input.write('exit\n');
           await waitBus(cliRepl.bus, 'mongosh:closed');
-          expect(requests).to.have.lengthOf(2);
+          expect(totalEventsTracked).to.equal(4);
         });
 
         it('does not send out telemetry if the user starts with a no-telemetry config', async function () {
