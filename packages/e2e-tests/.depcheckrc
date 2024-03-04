@@ -14,3 +14,10 @@ ignores:
  - eslint-config-mongodb-js
 ignore-patterns:
  - .eslintrc.js
+parsers:
+  '**/*.mjs':
+    - 'es6'
+  '**/*.js':
+    - 'es6'
+  '**/*.ts':
+    - 'typescript'
