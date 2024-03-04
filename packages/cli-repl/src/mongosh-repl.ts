@@ -1127,6 +1127,10 @@ class MongoshNodeRepl implements EvaluationListener {
     }
     return '> ';
   }
+
+  jsContext(): JSContext {
+    return this.runtimeState().repl ? 'repl' : 'plain-vm';
+  }
 }
 
 /**

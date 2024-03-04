@@ -183,6 +183,7 @@ export function setupLoggerAndTelemetry(
       properties: {
         ...trackProperties,
         is_interactive: args.isInteractive,
+        js_context: args.jsContext,
         ...normalisedTimings,
       },
     });

@@ -425,6 +425,7 @@ export class CliRepl implements MongoshIOProvider {
 
       this.bus.emit('mongosh:start-session', {
         isInteractive: false,
+        jsContext: this.mongoshRepl.jsContext(),
         timings: summariseTimingData(getTimingData()),
       });
 
@@ -483,6 +484,7 @@ export class CliRepl implements MongoshIOProvider {
     await this.mongoshRepl.startRepl(initialized);
     this.bus.emit('mongosh:start-session', {
       isInteractive: true,
+      jsContext: this.mongoshRepl.jsContext(),
       timings: summariseTimingData(getTimingData()),
     });
   }
