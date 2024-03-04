@@ -6561,7 +6561,7 @@ functions:
 
   write_preload_script:
     - command: shell.exec
-      silent: true
+      # silent: true
       type: setup
       params:
         working_dir: src
@@ -6590,7 +6590,7 @@ functions:
         wait: true
   run_pkg_tests_through_ssh:
     - command: shell.exec
-      silent: true
+      # silent: true
       type: setup
       params:
         working_dir: src
@@ -6844,13 +6844,13 @@ functions:
         file: tmp/expansions.yaml
         redacted: true
     - command: shell.exec
-      silent: true
-      env:
-        devtoolsbot_npm_token: ${devtoolsbot_npm_token}
-        node_js_version: ${node_js_version}
+      # silent: true
       params:
         working_dir: src
         shell: bash
+        env:
+          devtoolsbot_npm_token: ${devtoolsbot_npm_token}
+          node_js_version: ${node_js_version}
         script: |
           set -e
           .evergreen/run-evergreen-release.sh -- --dry-run
@@ -6862,13 +6862,13 @@ functions:
         file: tmp/expansions.yaml
         redacted: true
     - command: shell.exec
-      silent: true
-      env:
-        devtoolsbot_npm_token: ${devtoolsbot_npm_token}
-        node_js_version: ${node_js_version}
+      # silent: true
       params:
         working_dir: src
         shell: bash
+        env:
+          devtoolsbot_npm_token: ${devtoolsbot_npm_token}
+          node_js_version: ${node_js_version}
         script: |
           set -e
           .evergreen/run-evergreen-release.sh
@@ -11918,6 +11918,24 @@ tasks:
         vars:
           node_js_version: "20.11.1"
           dockerfile: ubuntu22.04-nohome-deb
+  - name: pkg_test_docker_deb_x64_ubuntu22_04_qemu_deb
+    tags: ["smoke-test"]
+    depends_on:
+      - name: package_and_upload_artifact_deb_x64
+        variant: linux_package
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          source_package_variant: deb-x64
+      - func: write_preload_script
+      - func: install
+        vars:
+          node_js_version: "20.11.1"
+      - func: test_artifact_docker
+        vars:
+          node_js_version: "20.11.1"
+          dockerfile: ubuntu22.04-qemu-deb
   - name: pkg_test_docker_deb_x64_debian10_deb
     tags: ["smoke-test"]
     depends_on:
@@ -12458,6 +12476,42 @@ tasks:
         vars:
           node_js_version: "20.11.1"
           dockerfile: ubuntu22.04-deb
+  - name: pkg_test_docker_deb_arm64_ubuntu22_04_nohome_deb
+    tags: ["smoke-test"]
+    depends_on:
+      - name: package_and_upload_artifact_deb_arm64
+        variant: linux_package
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          source_package_variant: deb-arm64
+      - func: write_preload_script
+      - func: install
+        vars:
+          node_js_version: "20.11.1"
+      - func: test_artifact_docker
+        vars:
+          node_js_version: "20.11.1"
+          dockerfile: ubuntu22.04-nohome-deb
+  - name: pkg_test_docker_deb_arm64_ubuntu22_04_qemu_deb
+    tags: ["smoke-test"]
+    depends_on:
+      - name: package_and_upload_artifact_deb_arm64
+        variant: linux_package
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          source_package_variant: deb-arm64
+      - func: write_preload_script
+      - func: install
+        vars:
+          node_js_version: "20.11.1"
+      - func: test_artifact_docker
+        vars:
+          node_js_version: "20.11.1"
+          dockerfile: ubuntu22.04-qemu-deb
   - name: pkg_test_docker_deb_arm64_debian10_deb
     tags: ["smoke-test"]
     depends_on:
@@ -13764,6 +13818,7 @@ buildvariants:
       - name: pkg_test_docker_deb_x64_ubuntu20_04_deb
       - name: pkg_test_docker_deb_x64_ubuntu22_04_deb
       - name: pkg_test_docker_deb_x64_ubuntu22_04_nohome_deb
+      - name: pkg_test_docker_deb_x64_ubuntu22_04_qemu_deb
       - name: pkg_test_docker_deb_x64_debian10_deb
       - name: pkg_test_docker_deb_x64_debian11_deb
       - name: pkg_test_docker_deb_x64_debian12_deb
@@ -13799,6 +13854,8 @@ buildvariants:
       - name: pkg_test_docker_deb_arm64_ubuntu18_04_deb
       - name: pkg_test_docker_deb_arm64_ubuntu20_04_deb
       - name: pkg_test_docker_deb_arm64_ubuntu22_04_deb
+      - name: pkg_test_docker_deb_arm64_ubuntu22_04_nohome_deb
+      - name: pkg_test_docker_deb_arm64_ubuntu22_04_qemu_deb
       - name: pkg_test_docker_deb_arm64_debian10_deb
       - name: pkg_test_docker_deb_arm64_debian11_deb
       - name: pkg_test_docker_deb_arm64_debian12_deb

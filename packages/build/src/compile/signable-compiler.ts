@@ -180,11 +180,11 @@ export class SignableCompiler {
       preCompileHook,
       executableMetadata: this.executableMetadata,
       // Node.js startup snapshots are an experimental feature of Node.js.
-      // TODO(MONGOSH-1605): Re-enable startup snapshots after figuring out
-      // issues with running the binary when CPU features differ
-      // significantly.
-      useCodeCache: true,
-      // useNodeSnapshot: true,
+      // useCodeCache: true,
+      useNodeSnapshot: true,
+      // To account for the fact that we are manually patching Node.js to include
+      // https://github.com/nodejs/node/pull/50453 until we have caught up with upstream
+      nodeSnapshotConfigFlags: ['WithoutCodeCache'],
     });
   }
 }

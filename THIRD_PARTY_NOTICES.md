@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Fri Feb 16 2024.
+This document was automatically generated on Sun Mar 03 2024.
 
 ## List of dependencies
 
@@ -268,7 +268,7 @@ Package|Version|License
 **[inflight](#58f7b00ba3c4a1d25ba2ad81d2ed2c707a52f84b185f49898630344f82ef0dd1)**|1.0.6|ISC
 **[inherits](#3eafa9bfb872baf192e837ab771da2e95e983ee682371a2b1c579e518e96f7b4)**|2.0.4|ISC
 **[ini](#2269ab4bd2e1fa90571f520780ab5499f6d49da3b7daee9b9dfdad9e93c33a18)**|1.3.8|ISC
-**[ip](#33b800e533214fc453224c9f9638baadd7f665810f85320b60145d7348a69e58)**|2.0.0|MIT
+**[ip-address](#8de6e89459554be8a933663b25ae1d1ffee71458028fa8cbe5d68b349438a8c8)**|9.0.5|MIT
 **[ipaddr.js](#38a5a1606dbc89a9c65a28d1e9ebe3c8d323e107a77c495a56dbf522211676d2)**|1.9.1|MIT
 **[ipaddr.js](#f4e32bbb7cff356d748ba3bc8ca95b860f4bccd19fe9f7299a4664f19d471dbb)**|2.0.1|MIT
 **[ipv6-normalize](#7a4346dbf206011966449898fcd37178a9be89acf6dff120b676d4c4d0dec203)**|1.0.1|MIT
@@ -289,6 +289,8 @@ Package|Version|License
 **[js-beautify](#dd973d91f66bccebf0e1bbdc59b9dd48c24160efc326d0c2e4c7fec33a2749c7)**|1.14.7|MIT
 **[js-tokens](#f4371f095c6f087cf41433031f8c612e21a4258b18cb4e847ffae73905e146d4)**|4.0.0|MIT
 **[js-yaml](#b7325d630b0ab313450fcd188788f6ee374aadd75df4969a9e3c48507ef88bdf)**|4.1.0|MIT
+**[jsbn](#82c9822c7d914bb274ffde07a3a8a71c3b1a2e3b337b7e2cefa461cad0f4fa10)**|0.1.1|MIT
+**[jsbn](#936d5c89291f7b505f688e45ff8261d3f225f96e0e981fd0366a9efda9e0e7f2)**|1.1.0|MIT
 **[jsesc](#253e8a44fc188759c5ce35330e4f20aacf1d0253d7e8d7dffd4a1f884a10ce1e)**|2.5.2|MIT
 **[json5](#16281c6ea25e0cec4bc0bb8c01d1759d66992776381bf9c5af6959bec47d2f77)**|2.2.3|MIT
 **[kerberos](#05c7d2f17faccacb505a07f79ccba22ce089aa668a8bef64de84cf5dcd4f585e)**|2.1.0|Apache-2.0
@@ -389,8 +391,10 @@ Package|Version|License
 **[simple-concat](#7e08f893385d0a6d7059029da3885e8346ad01eb58d6e4561612d2fb653c15ec)**|1.0.1|MIT
 **[simple-get](#c2c12990b6319daff653bdf953cadfa368185f0edc671124fb1028f6979df829)**|4.0.1|MIT
 **[smart-buffer](#bc8fbee089eb9cddf673c4c9dbc15edd13839063c27e2814009b6a0448065875)**|4.2.0|MIT
-**[socks](#16837d081453b731932951f203fc17778642c71f7cdc0c4557bc2dbd68a6fd1d)**|2.7.1|MIT
+**[socks](#541393e678793f3a0579e0108e39aa91dac4670ed34be0b0989712a70f93ff9f)**|2.7.3|MIT
 **[sparse-bitfield](#0cbcf2cac3ff859d288ae5ffc2c793bbd2430b120f5930bd09b6dba7259086d7)**|3.0.3|MIT
+**[sprintf-js](#e11ec48bf96758ddf04f42c2c95ea51ad711fa453969128790f03561160475b2)**|1.0.3|BSD-3-Clause
+**[sprintf-js](#d8b6ff1ba6436283de681a756ad453428005e61986c5113a3a8088ced2b36eb7)**|1.1.3|BSD-3-Clause
 **[statuses](#6165f7e7a4b9414f0f231934efd1bee7beaefd68102476c794268770fe463ead)**|1.5.0|MIT
 **[statuses](#a347e5a1994ef74647a2af80f58030a572f71173d5c1dfc0ce6eb55f4005b17d)**|2.0.1|MIT
 **[string_decoder](#b7999058a36380603fb66d82d8b9e36ddb8f0e5b81cd3f3233f31eac12b793fe)**|1.3.0|MIT
@@ -25154,9 +25158,33 @@ License files:
       
 
 
-<a id="33b800e533214fc453224c9f9638baadd7f665810f85320b60145d7348a69e58"></a>
-### [ip](https://www.npmjs.com/package/ip) (version 2.0.0)
+<a id="8de6e89459554be8a933663b25ae1d1ffee71458028fa8cbe5d68b349438a8c8"></a>
+### [ip-address](https://www.npmjs.com/package/ip-address) (version 9.0.5)
 License tags: MIT
+
+License files:
+* LICENSE:
+
+      Copyright (C) 2011 by Beau Gunderson
+      
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+      
+      The above copyright notice and this permission notice shall be included in
+      all copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+      THE SOFTWARE.
+      
 
 
 <a id="38a5a1606dbc89a9c65a28d1e9ebe3c8d323e107a77c495a56dbf522211676d2"></a>
@@ -25592,6 +25620,105 @@ License files:
       LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
+      
+
+
+<a id="82c9822c7d914bb274ffde07a3a8a71c3b1a2e3b337b7e2cefa461cad0f4fa10"></a>
+### [jsbn](https://www.npmjs.com/package/jsbn) (version 0.1.1)
+License tags: MIT
+
+License files:
+* LICENSE:
+
+      Licensing
+      ---------
+      
+      This software is covered under the following copyright:
+      
+      /*
+       * Copyright (c) 2003-2005  Tom Wu
+       * All Rights Reserved.
+       *
+       * Permission is hereby granted, free of charge, to any person obtaining
+       * a copy of this software and associated documentation files (the
+       * "Software"), to deal in the Software without restriction, including
+       * without limitation the rights to use, copy, modify, merge, publish,
+       * distribute, sublicense, and/or sell copies of the Software, and to
+       * permit persons to whom the Software is furnished to do so, subject to
+       * the following conditions:
+       *
+       * The above copyright notice and this permission notice shall be
+       * included in all copies or substantial portions of the Software.
+       *
+       * THE SOFTWARE IS PROVIDED "AS-IS" AND WITHOUT WARRANTY OF ANY KIND, 
+       * EXPRESS, IMPLIED OR OTHERWISE, INCLUDING WITHOUT LIMITATION, ANY 
+       * WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  
+       *
+       * IN NO EVENT SHALL TOM WU BE LIABLE FOR ANY SPECIAL, INCIDENTAL,
+       * INDIRECT OR CONSEQUENTIAL DAMAGES OF ANY KIND, OR ANY DAMAGES WHATSOEVER
+       * RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER OR NOT ADVISED OF
+       * THE POSSIBILITY OF DAMAGE, AND ON ANY THEORY OF LIABILITY, ARISING OUT
+       * OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+       *
+       * In addition, the following condition applies:
+       *
+       * All redistributions must retain an intact copy of this copyright notice
+       * and disclaimer.
+       */
+      
+      Address all questions regarding this license to:
+      
+        Tom Wu
+        tjw@cs.Stanford.EDU
+
+
+<a id="936d5c89291f7b505f688e45ff8261d3f225f96e0e981fd0366a9efda9e0e7f2"></a>
+### [jsbn](https://www.npmjs.com/package/jsbn) (version 1.1.0)
+License tags: MIT
+
+License files:
+* LICENSE:
+
+      Licensing
+      ---------
+      
+      This software is covered under the following copyright:
+      
+      /*
+       * Copyright (c) 2003-2005  Tom Wu
+       * All Rights Reserved.
+       *
+       * Permission is hereby granted, free of charge, to any person obtaining
+       * a copy of this software and associated documentation files (the
+       * "Software"), to deal in the Software without restriction, including
+       * without limitation the rights to use, copy, modify, merge, publish,
+       * distribute, sublicense, and/or sell copies of the Software, and to
+       * permit persons to whom the Software is furnished to do so, subject to
+       * the following conditions:
+       *
+       * The above copyright notice and this permission notice shall be
+       * included in all copies or substantial portions of the Software.
+       *
+       * THE SOFTWARE IS PROVIDED "AS-IS" AND WITHOUT WARRANTY OF ANY KIND, 
+       * EXPRESS, IMPLIED OR OTHERWISE, INCLUDING WITHOUT LIMITATION, ANY 
+       * WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  
+       *
+       * IN NO EVENT SHALL TOM WU BE LIABLE FOR ANY SPECIAL, INCIDENTAL,
+       * INDIRECT OR CONSEQUENTIAL DAMAGES OF ANY KIND, OR ANY DAMAGES WHATSOEVER
+       * RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER OR NOT ADVISED OF
+       * THE POSSIBILITY OF DAMAGE, AND ON ANY THEORY OF LIABILITY, ARISING OUT
+       * OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+       *
+       * In addition, the following condition applies:
+       *
+       * All redistributions must retain an intact copy of this copyright notice
+       * and disclaimer.
+       */
+      
+      Address all questions regarding this license to:
+      
+        Tom Wu
+        tjw@cs.Stanford.EDU
       
 
 
@@ -30155,8 +30282,8 @@ License files:
       
 
 
-<a id="16837d081453b731932951f203fc17778642c71f7cdc0c4557bc2dbd68a6fd1d"></a>
-### [socks](https://www.npmjs.com/package/socks) (version 2.7.1)
+<a id="541393e678793f3a0579e0108e39aa91dac4670ed34be0b0989712a70f93ff9f"></a>
+### [socks](https://www.npmjs.com/package/socks) (version 2.7.3)
 License tags: MIT
 
 License files:
@@ -30213,6 +30340,74 @@ License files:
       LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
+      
+
+
+<a id="e11ec48bf96758ddf04f42c2c95ea51ad711fa453969128790f03561160475b2"></a>
+### [sprintf-js](https://www.npmjs.com/package/sprintf-js) (version 1.0.3)
+License tags: BSD-3-Clause
+
+License files:
+* LICENSE:
+
+      Copyright (c) 2007-2014, Alexandru Marasteanu <hello [at) alexei (dot] ro>
+      All rights reserved.
+      
+      Redistribution and use in source and binary forms, with or without
+      modification, are permitted provided that the following conditions are met:
+      * Redistributions of source code must retain the above copyright
+        notice, this list of conditions and the following disclaimer.
+      * Redistributions in binary form must reproduce the above copyright
+        notice, this list of conditions and the following disclaimer in the
+        documentation and/or other materials provided with the distribution.
+      * Neither the name of this software nor the names of its contributors may be
+        used to endorse or promote products derived from this software without
+        specific prior written permission.
+      
+      THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+      ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+      WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+      DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR
+      ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+      (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+      LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+      ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+      (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+      SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+      
+
+
+<a id="d8b6ff1ba6436283de681a756ad453428005e61986c5113a3a8088ced2b36eb7"></a>
+### [sprintf-js](https://www.npmjs.com/package/sprintf-js) (version 1.1.3)
+License tags: BSD-3-Clause
+
+License files:
+* LICENSE:
+
+      Copyright (c) 2007-present, Alexandru Mărășteanu <hello@alexei.ro>
+      All rights reserved.
+      
+      Redistribution and use in source and binary forms, with or without
+      modification, are permitted provided that the following conditions are met:
+      * Redistributions of source code must retain the above copyright
+        notice, this list of conditions and the following disclaimer.
+      * Redistributions in binary form must reproduce the above copyright
+        notice, this list of conditions and the following disclaimer in the
+        documentation and/or other materials provided with the distribution.
+      * Neither the name of this software nor the names of its contributors may be
+        used to endorse or promote products derived from this software without
+        specific prior written permission.
+      
+      THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+      ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+      WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+      DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR
+      ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+      (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+      LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+      ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+      (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+      SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       
 
 
