@@ -27,9 +27,12 @@ module.exports = {
 
   externals: {
     "node:crypto": "commonjs2 crypto",
+    // node-fetch https://github.com/node-fetch/node-fetch/blob/8b3320d2a7c07bce4afc6b2bf6c3bbddda85b01f/src/index.js#L9
+    "node:buffer": "commonjs2 buffer",
     "node:http": "commonjs2 http",
     "node:https": "commonjs2 https",
-    "node:zlib": "commonjs2 zlib",
+    "node:stream": "commonjs2 stream",
+    "node:zlib": "commonjs2 zlib", 
     electron: "commonjs2 electron" // optional dep of the OIDC plugin
   },
 
