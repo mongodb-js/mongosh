@@ -15,7 +15,8 @@ export default async function importNodeFetch(): Promise<TNodeFetch> {
       err &&
       typeof err === 'object' &&
       'code' in err &&
-      err.code === 'ERR_REQUIRE_ESM'
+      err.code === 'ERR_REQUIRE_ESM' &&
+      typeof __webpack_require__ === 'undefined'
     ) {
       // This means that the import() above was transpiled to require()
       // and that that require() called failed because it saw actual on-disk ESM.

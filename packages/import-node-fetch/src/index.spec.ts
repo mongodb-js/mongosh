@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import importNodeFetch from './';
 
-describe('makeMultilineJSIntoSingleLine', function () {
+describe('import-node-fetch', function () {
   it('Fails to import node-fetch normally', async function () {
     let failed = false;
     try {
