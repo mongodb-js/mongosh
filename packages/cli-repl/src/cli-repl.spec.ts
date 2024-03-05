@@ -1176,7 +1176,10 @@ describe('CliRepl', function () {
     it('does not emit warnings when connecting multiple times', async function () {
       await cliRepl.start(await testServer.connectionString(), {});
       let warnings = 0;
-      const warningListener = () => warnings++;
+      const warningListener = (warning) => {
+        console.log('Unexpected warning', warning);
+        warnings++;
+      };
       process.on('warning', warningListener);
       try {
         input.write(
