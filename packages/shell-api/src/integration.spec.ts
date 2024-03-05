@@ -2557,7 +2557,11 @@ describe('Shell API (integration)', function () {
         await loadQueryCache(collection);
         const planCache = collection.getPlanCache();
         const res = await planCache.list();
-        expect(res.length).to.equal(4);
+        // SERVER-82677 means that the number of plans actually stored can
+        // vary because queries get deduplicated, even if there are exact
+        // indexes matching one query but not the other one during deduplication.
+        expect(res).to.have.lengthOf.at.least(2);
+        expect(res).to.have.lengthOf.at.most(4);
       });
       it('lists projection with args', async function () {
         await loadQueryCache(collection);
@@ -2565,13 +2569,11 @@ describe('Shell API (integration)', function () {
         const res = await planCache.list([{ $project: { queryHash: 1 } }]);
         // The 6.0 server greatly reduces the expectations we can make here,
         // so just assert that query hashes are returned.
-        expect(res).to.have.lengthOf(4);
-        expect(res.map((doc) => Object.keys(doc))).to.deep.equal([
-          ['queryHash'],
-          ['queryHash'],
-          ['queryHash'],
-          ['queryHash'],
-        ]);
+        expect(res).to.have.lengthOf.at.least(2);
+        expect(res).to.have.lengthOf.at.most(4);
+        expect([
+          ...new Set(res.map((doc) => JSON.stringify(Object.keys(doc)))),
+        ]).to.deep.equal(['["queryHash"]']);
       });
     });
     describe('clear', function () {
@@ -2579,7 +2581,9 @@ describe('Shell API (integration)', function () {
       it('clears list', async function () {
         await loadQueryCache(collection);
         const planCache = collection.getPlanCache();
-        expect((await planCache.list()).length).to.equal(4);
+        const res = await planCache.list();
+        expect(res).to.have.lengthOf.at.least(2);
+        expect(res).to.have.lengthOf.at.most(4);
         const clearRes = await planCache.clear();
         expect(clearRes.ok).to.equal(1);
         expect((await planCache.list()).length).to.equal(0);
@@ -2591,10 +2595,12 @@ describe('Shell API (integration)', function () {
         const query = { quantity: { $gte: 5 }, type: 'apparel' };
         await loadQueryCache(collection);
         const planCache = collection.getPlanCache();
-        expect((await planCache.list()).length).to.equal(4);
+        const res = await planCache.list();
+        expect(res).to.have.lengthOf.at.least(2);
+        expect(res).to.have.lengthOf.at.most(4);
         const clearRes = await planCache.clearPlansByQuery(query);
         expect(clearRes.ok).to.equal(1);
-        expect((await planCache.list()).length).to.equal(3);
+        expect((await planCache.list()).length).to.equal(res.length - 1);
       });
     });
   });
