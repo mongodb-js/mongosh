@@ -52,7 +52,9 @@ describe('setupLoggerAndTelemetry', function () {
     track(info: any) {
       analyticsOutput.push(['track', info]);
     },
-    flush() {},
+    async flush() {
+      return Promise.resolve();
+    },
   };
 
   beforeEach(function () {

@@ -12,7 +12,7 @@ import type { CliOptions, DevtoolsConnectOptions } from '@mongosh/arg-parser';
 import { SnippetManager } from '@mongosh/snippet-manager';
 import { Editor } from '@mongosh/editor';
 import { redactSensitiveData } from '@mongosh/history';
-import type Analytics from 'analytics-node';
+import type { Analytics as SegmentAnalytics } from '@segment/analytics-node';
 import askpassword from 'askpassword';
 import { EventEmitter, once } from 'events';
 import yaml from 'js-yaml';
@@ -44,7 +44,6 @@ import {
 } from '@mongosh/types';
 import { promises as fs } from 'fs';
 import path from 'path';
-import { promisify } from 'util';
 import { getOsInfo } from './get-os-info';
 import { UpdateNotificationManager } from './update-notification-manager';
 import { getTimingData, markTime, summariseTimingData } from './startup-timing';
@@ -113,7 +112,7 @@ export class CliRepl implements MongoshIOProvider {
   input: Readable;
   output: Writable;
   analyticsOptions?: AnalyticsOptions;
-  segmentAnalytics?: Analytics;
+  segmentAnalytics?: SegmentAnalytics;
   toggleableAnalytics: ToggleableAnalytics = new ToggleableAnalytics();
   warnedAboutInaccessibleFiles = false;
   onExit: (code?: number) => Promise<never>;
@@ -510,17 +509,13 @@ export class CliRepl implements MongoshIOProvider {
     }
     // 'http' is not supported in startup snapshots yet.
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const Analytics = require('analytics-node');
-    this.segmentAnalytics = new Analytics(
-      apiKey,
-      {
-        ...this.analyticsOptions,
-        axiosConfig: {
-          timeout: 1000,
-        },
-        axiosRetryConfig: { retries: 0 },
-      } as any /* axiosConfig and axiosRetryConfig are existing options, but don't have type definitions */
-    );
+    const { Analytics } = require('@segment/analytics-node');
+    this.segmentAnalytics = new Analytics({
+      writeKey: apiKey,
+      maxRetries: 0,
+      httpRequestTimeout: 1000,
+      ...this.analyticsOptions,
+    });
     this.toggleableAnalytics = new ToggleableAnalytics(
       new SampledAnalytics({
         target: new ThrottledAnalytics({
@@ -1028,7 +1023,7 @@ export class CliRepl implements MongoshIOProvider {
     if (analytics) {
       const flushStart = Date.now();
       try {
-        await promisify(analytics.flush.bind(analytics))();
+        await analytics.flush();
         markTime(TimingCategories.Telemetry, 'flushed analytics');
       } catch (err: any) {
         flushError = err.message;
