@@ -37,6 +37,11 @@ module.exports = {
     "node:util": "commonjs2 util",
     "node:events": "commonjs2 events",
     "node:net": "commonjs2 net",
+    // https://github.com/node-fetch/node-fetch/blob/8b3320d2a7c07bce4afc6b2bf6c3bbddda85b01f/test/main.js#L2
+    "node:dns": "commonjs2 dns",
+    "node:fs": "commonjs2 fs",
+    "node:path": "commonjs2 path",
+    "node:vm": "commonjs2 vm",
     electron: "commonjs2 electron" // optional dep of the OIDC plugin
   },
 
