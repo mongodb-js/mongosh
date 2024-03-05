@@ -477,7 +477,7 @@ describe('CliRepl', function () {
           expect(e.name).to.equal('MongoshWarning');
           expect((e as any).code).to.equal(CliReplErrors.NodeVersionMismatch);
         } finally {
-          process.version = process.versions.node;
+          process.version = `v${process.versions.node}`;
           process.env.MONGOSH_SKIP_NODE_VERSION_CHECK =
             origVersionCheckEnvVar || '';
         }
