@@ -176,6 +176,7 @@ export interface FetchingUpdateMetadataCompleteEvent {
 
 export interface SessionStartedEvent {
   isInteractive: boolean;
+  jsContext: string;
   timings: {
     [category: string]: number;
   };
