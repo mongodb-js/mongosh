@@ -54,6 +54,30 @@ export async function runSmokeTests(
       exitCode: 0,
     },
     {
+      input: '',
+      output: /Hello World!/,
+      includeStderr: false,
+      testArgs: [
+        '--nodb',
+        '--eval',
+        'print("He" + "llo" + " Wor" + "ld!")',
+        '--jsContext=plain-vm',
+      ],
+      exitCode: 0,
+    },
+    {
+      input: '',
+      output: /Hello World!/,
+      includeStderr: false,
+      testArgs: [
+        '--nodb',
+        '--eval',
+        'print("He" + "llo" + " Wor" + "ld!")',
+        '--jsContext=repl',
+      ],
+      exitCode: 0,
+    },
+    {
       input: 'crypto.createHash("md5").update("hello").digest("hex")',
       output: expectFipsSupport
         ? /disabled for FIPS|digital envelope routines::unsupported/i

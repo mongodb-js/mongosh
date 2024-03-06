@@ -19,6 +19,12 @@ import { once } from 'events';
 import type { AddressInfo } from 'net';
 const { EJSON } = bson;
 
+const jsContextFlagCombinations: `--jsContext=${'plain-vm' | 'repl'}`[][] = [
+  [],
+  ['--jsContext=plain-vm'],
+  ['--jsContext=repl'],
+];
+
 describe('e2e', function () {
   const testServer = startSharedTestServer();
 
@@ -862,37 +868,41 @@ describe('e2e', function () {
       }
     });
 
-    describe('non-interactive', function () {
-      it('interrupts file execution', async function () {
-        const filename = path.resolve(
-          __dirname,
-          'fixtures',
-          'load',
-          'long-sleep.js'
-        );
-        const shell = TestShell.start({
-          args: ['--nodb', filename],
-          removeSigintListeners: true,
-          forceTerminal: true,
-        });
+    for (const jsContextFlags of jsContextFlagCombinations) {
+      describe(`non-interactive (${JSON.stringify(
+        jsContextFlags
+      )})`, function () {
+        it('interrupts file execution', async function () {
+          const filename = path.resolve(
+            __dirname,
+            'fixtures',
+            'load',
+            'long-sleep.js'
+          );
+          const shell = TestShell.start({
+            args: ['--nodb', ...jsContextFlags, filename],
+            removeSigintListeners: true,
+            forceTerminal: true,
+          });
 
-        await eventually(() => {
-          if (shell.output.includes('Long sleep')) {
-            return;
-          }
-          throw new Error('Waiting for the file to load...');
-        });
+          await eventually(() => {
+            if (shell.output.includes('Long sleep')) {
+              return;
+            }
+            throw new Error('Waiting for the file to load...');
+          });
 
-        shell.kill('SIGINT');
+          shell.kill('SIGINT');
 
-        await eventually(() => {
-          if (shell.output.includes('MongoshInterruptedError')) {
-            return;
-          }
-          throw new Error('Waiting for the interruption...');
+          await eventually(() => {
+            if (shell.output.includes('MongoshInterruptedError')) {
+              return;
+            }
+            throw new Error('Waiting for the interruption...');
+          });
         });
       });
-    });
+    }
 
     describe('interactive', function () {
       let shell: TestShell;
@@ -1063,105 +1073,189 @@ describe('e2e', function () {
     });
   });
 
-  describe('files loaded from command line', function () {
-    context('file from disk', function () {
-      it('loads a file from the command line as requested', async function () {
-        const shell = TestShell.start({
-          args: ['--nodb', './hello1.js'],
-          cwd: path.resolve(
-            __dirname,
-            '..',
-            '..',
-            'cli-repl',
-            'test',
-            'fixtures',
-            'load'
-          ),
+  for (const jsContextFlags of jsContextFlagCombinations) {
+    describe(`files loaded from command line (${JSON.stringify(
+      jsContextFlags
+    )})`, function () {
+      context('file from disk', function () {
+        it('loads a file from the command line as requested', async function () {
+          const shell = TestShell.start({
+            args: ['--nodb', ...jsContextFlags, './hello1.js'],
+            cwd: path.resolve(
+              __dirname,
+              '..',
+              '..',
+              'cli-repl',
+              'test',
+              'fixtures',
+              'load'
+            ),
+          });
+          await eventually(() => {
+            shell.assertContainsOutput('hello one');
+          });
+          // We can't assert the exit code here currently because that breaks
+          // when run under coverage, as we currently specify the location of
+          // coverage files via a relative path and nyc fails to write to that
+          // when started from a changed cwd.
+          await shell.waitForExit();
+          shell.assertNoErrors();
         });
-        await eventually(() => {
-          shell.assertContainsOutput('hello one');
-        });
-        // We can't assert the exit code here currently because that breaks
-        // when run under coverage, as we currently specify the location of
-        // coverage files via a relative path and nyc fails to write to that
-        // when started from a changed cwd.
-        await shell.waitForExit();
-        shell.assertNoErrors();
+
+        if (!jsContextFlags.includes('--jsContext=plain-vm')) {
+          it('drops into shell if --shell is used', async function () {
+            const shell = TestShell.start({
+              args: ['--nodb', ...jsContextFlags, '--shell', './hello1.js'],
+              cwd: path.resolve(
+                __dirname,
+                '..',
+                '..',
+                'cli-repl',
+                'test',
+                'fixtures',
+                'load'
+              ),
+            });
+            await shell.waitForPrompt();
+            shell.assertContainsOutput('hello one');
+            expect(await shell.executeLine('2 ** 16 + 1')).to.include('65537');
+            shell.assertNoErrors();
+          });
+
+          it('fails with the error if the loaded script throws', async function () {
+            const shell = TestShell.start({
+              args: ['--nodb', ...jsContextFlags, '--shell', './throw.js'],
+              cwd: path.resolve(
+                __dirname,
+                '..',
+                '..',
+                'cli-repl',
+                'test',
+                'fixtures',
+                'load'
+              ),
+            });
+            await eventually(() => {
+              shell.assertContainsOutput('Error: uh oh');
+            });
+            expect(await shell.waitForExit()).to.equal(1);
+          });
+        }
       });
 
-      it('drops into shell if --shell is used', async function () {
-        const shell = TestShell.start({
-          args: ['--nodb', '--shell', './hello1.js'],
-          cwd: path.resolve(
-            __dirname,
-            '..',
-            '..',
-            'cli-repl',
-            'test',
-            'fixtures',
-            'load'
-          ),
+      context('--eval', function () {
+        const script = 'const a = "hello", b = " one"; a + b';
+        it('loads a script from the command line as requested', async function () {
+          const shell = TestShell.start({
+            args: ['--nodb', ...jsContextFlags, '--eval', script],
+          });
+          await eventually(() => {
+            shell.assertContainsOutput('hello one');
+          });
+          expect(await shell.waitForExit()).to.equal(0);
+          shell.assertNoErrors();
         });
-        await shell.waitForPrompt();
-        shell.assertContainsOutput('hello one');
-        expect(await shell.executeLine('2 ** 16 + 1')).to.include('65537');
-        shell.assertNoErrors();
-      });
 
-      it('fails with the error if the loaded script throws', async function () {
-        const shell = TestShell.start({
-          args: ['--nodb', '--shell', './throw.js'],
-          cwd: path.resolve(
-            __dirname,
-            '..',
-            '..',
-            'cli-repl',
-            'test',
-            'fixtures',
-            'load'
-          ),
+        if (!jsContextFlags.includes('--jsContext=plain-vm')) {
+          it('drops into shell if --shell is used', async function () {
+            const shell = TestShell.start({
+              args: ['--nodb', ...jsContextFlags, '--eval', script, '--shell'],
+            });
+            await shell.waitForPrompt();
+            shell.assertContainsOutput('hello one');
+            expect(await shell.executeLine('2 ** 16 + 1')).to.include('65537');
+            shell.assertNoErrors();
+          });
+        }
+
+        it('fails with the error if the loaded script throws synchronously', async function () {
+          const shell = TestShell.start({
+            args: [
+              '--nodb',
+              ...jsContextFlags,
+              '--eval',
+              'throw new Error("uh oh")',
+            ],
+          });
+          await eventually(() => {
+            shell.assertContainsOutput('Error: uh oh');
+          });
+          expect(await shell.waitForExit()).to.equal(1);
         });
-        await eventually(() => {
-          shell.assertContainsOutput('Error: uh oh');
+
+        it('fails with the error if the loaded script throws asynchronously (setImmediate)', async function () {
+          const shell = TestShell.start({
+            args: [
+              '--nodb',
+              ...jsContextFlags,
+              '--eval',
+              'setImmediate(() => { throw new Error("uh oh"); })',
+            ],
+          });
+          await eventually(() => {
+            shell.assertContainsOutput('Error: uh oh');
+          });
+          expect(await shell.waitForExit()).to.equal(
+            jsContextFlags.includes('--jsContext=repl') ? 0 : 1
+          );
         });
-        expect(await shell.waitForExit()).to.equal(1);
+
+        it('fails with the error if the loaded script throws asynchronously (Promise)', async function () {
+          const shell = TestShell.start({
+            args: [
+              '--nodb',
+              ...jsContextFlags,
+              '--eval',
+              'void Promise.resolve().then(() => { throw new Error("uh oh"); })',
+            ],
+          });
+          await eventually(() => {
+            shell.assertContainsOutput('Error: uh oh');
+          });
+          expect(await shell.waitForExit()).to.equal(
+            jsContextFlags.includes('--jsContext=repl') ? 0 : 1
+          );
+        });
+
+        it('runs scripts in the right environment', async function () {
+          const script = `(async() => {
+          await ${/* ensure asyncness */ 0};
+          return {
+            usingPlainVMContext: !!globalThis[Symbol.for("@@mongosh.usingPlainVMContext")],
+            executionAsyncId: async_hooks.executionAsyncId()
+          };
+        })()`;
+          const shell = TestShell.start({
+            args: [
+              '--nodb',
+              ...jsContextFlags,
+              '--quiet',
+              '--json',
+              '--eval',
+              script,
+            ],
+          });
+          expect(await shell.waitForExit()).to.equal(0);
+
+          // Check that:
+          //  - the script runs in the expected environment
+          //  - async promise tracking is enabled if and only if we are running in REPL mode
+          // The latter is particularly important because the performance benefits of
+          // avoiding REPL mode mostly stem from the lack of async promise tracking.
+          const result = EJSON.parse(shell.output);
+          expect(result.usingPlainVMContext).to.deep.equal(
+            !jsContextFlags.includes('--jsContext=repl')
+          );
+          if (result.usingPlainVMContext) {
+            expect(result.executionAsyncId).to.equal(0);
+          } else {
+            expect(result.executionAsyncId).to.be.greaterThan(1);
+          }
+          shell.assertNoErrors();
+        });
       });
     });
-
-    context('--eval', function () {
-      const script = 'const a = "hello", b = " one"; a + b';
-      it('loads a script from the command line as requested', async function () {
-        const shell = TestShell.start({
-          args: ['--nodb', '--eval', script],
-        });
-        await eventually(() => {
-          shell.assertContainsOutput('hello one');
-        });
-        expect(await shell.waitForExit()).to.equal(0);
-        shell.assertNoErrors();
-      });
-
-      it('drops into shell if --shell is used', async function () {
-        const shell = TestShell.start({
-          args: ['--nodb', '--eval', script, '--shell'],
-        });
-        await shell.waitForPrompt();
-        shell.assertContainsOutput('hello one');
-        expect(await shell.executeLine('2 ** 16 + 1')).to.include('65537');
-        shell.assertNoErrors();
-      });
-
-      it('fails with the error if the loaded script throws', async function () {
-        const shell = TestShell.start({
-          args: ['--nodb', '--eval', 'throw new Error("uh oh")'],
-        });
-        await eventually(() => {
-          shell.assertContainsOutput('Error: uh oh');
-        });
-        expect(await shell.waitForExit()).to.equal(1);
-      });
-    });
-  });
+  }
 
   describe('config, logging and rc file', function () {
     let homedir: string;

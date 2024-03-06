@@ -290,7 +290,7 @@ async function getHashes(
   let is4xxError = false;
   try {
     const response = await fetch(url);
-    if (!response.ok) {
+    if (!response.ok || !response.body) {
       is4xxError ||= response.status >= 400 && response.status < 500;
       throw new Error(`unexpected response ${response.statusText} for ${url}`);
     }

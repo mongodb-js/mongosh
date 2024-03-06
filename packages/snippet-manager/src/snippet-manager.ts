@@ -17,6 +17,8 @@ import tar from 'tar';
 import zlib from 'zlib';
 import bson from 'bson';
 import joi from 'joi';
+import importNodeFetch from '@mongosh/import-node-fetch';
+import type { Response } from '@mongosh/import-node-fetch';
 const pipeline = promisify(stream.pipeline);
 const brotliCompress = promisify(zlib.brotliCompress);
 const brotliDecompress = promisify(zlib.brotliDecompress);
@@ -48,6 +50,12 @@ export interface SnippetIndexFile {
   index: SnippetDescription[];
   metadata: { homepage: string };
   sourceURL: string;
+}
+
+interface NpmMetaDataResponse {
+  dist?: {
+    tarball?: string;
+  };
 }
 
 const indexFileSchema = joi.object({
@@ -185,9 +193,9 @@ export class SnippetManager implements ShellPlugin {
     return this._instanceState.messageBus;
   }
 
-  async fetch(url: string) {
+  async fetch(url: string): Promise<Response> {
     // 'http' is not supported in startup snapshots yet.
-    const fetch = await import('node-fetch');
+    const fetch = await importNodeFetch();
     return await fetch.default(url);
   }
 
@@ -240,7 +248,9 @@ export class SnippetManager implements ShellPlugin {
       );
     }
     interrupted.checkpoint();
-    const npmTarballURL = (await npmMetadataResponse.json())?.dist?.tarball;
+    const npmTarballURL = (
+      (await npmMetadataResponse.json()) as NpmMetaDataResponse
+    )?.dist?.tarball;
     if (!npmTarballURL) {
       this.messageBus.emit('mongosh-snippets:npm-download-failed', {
         npmMetadataURL,
@@ -253,7 +263,7 @@ export class SnippetManager implements ShellPlugin {
     interrupted.checkpoint();
     await this.print(`Downloading npm from ${npmTarballURL}...`);
     const npmTarball = await this.fetch(npmTarballURL);
-    if (!npmTarball.ok) {
+    if (!npmTarball.ok || !npmTarball.body) {
       this.messageBus.emit('mongosh-snippets:npm-download-failed', {
         npmMetadataURL,
         npmTarballURL,
@@ -332,11 +342,12 @@ export class SnippetManager implements ShellPlugin {
                   `The specified index file ${url} could not be read: ${repoRes.statusText}`
                 );
               }
-              const rawData = await repoRes.buffer();
+              const arrayBuffer = await repoRes.arrayBuffer();
+              const buffer = Buffer.from(arrayBuffer);
               let data;
               try {
                 data = await unpackBSON<Omit<SnippetIndexFile, 'sourceURL'>>(
-                  rawData
+                  buffer
                 );
               } catch (err: any) {
                 this.messageBus.emit('mongosh-snippets:fetch-index-error', {
