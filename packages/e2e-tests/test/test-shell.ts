@@ -215,8 +215,9 @@ export class TestShell {
     this._process.kill(signal);
   }
 
-  writeInput(chars: string): void {
+  writeInput(chars: string, { end = false } = {}): void {
     this._process.stdin.write(chars);
+    if (end) this._process.stdin.end();
   }
 
   writeInputLine(chars: string): void {
