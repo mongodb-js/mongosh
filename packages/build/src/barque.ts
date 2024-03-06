@@ -416,7 +416,7 @@ export class Barque {
    */
   async extractLatestCurator(dest: string): Promise<any> {
     const response = await fetch(LATEST_CURATOR);
-    if (response.ok) {
+    if (response.ok && response.body) {
       return pipeline(response.body, zlib.createGunzip(), tar.extract(dest));
     }
   }

@@ -6,15 +6,5 @@ module.exports = {
   parserOptions: {
     tsconfigRootDir: fixCygwinPath(__dirname),
     project: ['./tsconfig-lint.json'],
-    sourceType: 'module',
-    ecmaVersion: 'latest',
   },
-  overrides: [
-    {
-      files: ['**/*.js', '**/*.mjs', '**/*.ts'],
-      rules: {
-        'no-console': 0,
-      },
-    },
-  ],
 };

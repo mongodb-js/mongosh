@@ -477,7 +477,7 @@ describe('CliRepl', function () {
           expect(e.name).to.equal('MongoshWarning');
           expect((e as any).code).to.equal(CliReplErrors.NodeVersionMismatch);
         } finally {
-          process.version = process.versions.node;
+          process.version = `v${process.versions.node}`;
           process.env.MONGOSH_SKIP_NODE_VERSION_CHECK =
             origVersionCheckEnvVar || '';
         }
@@ -1215,7 +1215,10 @@ describe('CliRepl', function () {
     it('does not emit warnings when connecting multiple times', async function () {
       await cliRepl.start(await testServer.connectionString(), {});
       let warnings = 0;
-      const warningListener = () => warnings++;
+      const warningListener = (warning) => {
+        console.log('Unexpected warning', warning);
+        warnings++;
+      };
       process.on('warning', warningListener);
       try {
         input.write(

@@ -1,10 +1,15 @@
 import semver from 'semver';
 import { promises as fs } from 'fs';
-import type { RequestInfo, RequestInit, Response } from 'node-fetch';
+import importNodeFetch from '@mongosh/import-node-fetch';
+import type {
+  RequestInfo,
+  RequestInit,
+  Response,
+} from '@mongosh/import-node-fetch';
 
 // 'http' is not supported in startup snapshots yet.
 const fetch = async (url: RequestInfo, init?: RequestInit): Promise<Response> =>
-  await (await import('node-fetch')).default(url, init);
+  await (await importNodeFetch()).default(url, init);
 
 interface MongoshUpdateLocalFileContents {
   lastChecked?: number;
@@ -97,7 +102,7 @@ export class UpdateNotificationManager {
 
     if (response.status === 304 /* Not Modified, i.e. ETag matched */) {
       response.body
-        .on('error', () => {
+        ?.once('error', () => {
           /* ignore response content and errors */
         })
         .resume();
@@ -106,14 +111,14 @@ export class UpdateNotificationManager {
       return;
     }
 
-    if (!response.ok) {
+    if (!response.ok || !response.body) {
       throw new Error(
         `Unexpected status code fetching ${updateURL}: ${response.status} ${response.statusText}`
       );
     }
 
-    const jsonContents = await response.json();
-    this.latestKnownMongoshVersion = (jsonContents?.versions as any[])
+    const jsonContents = (await response.json()) as { versions?: any[] };
+    this.latestKnownMongoshVersion = jsonContents?.versions
       ?.map((v: any) => v.version as string)
       ?.filter((v) => !semver.prerelease(v))
       ?.sort(semver.rcompare)?.[0];
