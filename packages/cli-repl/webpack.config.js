@@ -63,7 +63,6 @@ const config = {
   },
 
   externals: {
-    'node:crypto': 'commonjs2 crypto',
     electron: 'commonjs2 electron', // optional dep of the OIDC plugin
     ...Object.fromEntries(eagerNodeBuiltins.map((m) => [m, `commonjs2 ${m}`])),
     ...Object.fromEntries(
