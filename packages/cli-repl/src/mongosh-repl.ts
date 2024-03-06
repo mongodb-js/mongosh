@@ -897,6 +897,10 @@ class MongoshNodeRepl implements EvaluationListener {
     question: string,
     type: 'password' | 'yesno'
   ): Promise<string> {
+    // Make sure we are in async evaluation mode, see comments in the
+    // function for details
+    await enterAsynchronousExecutionForPrompt();
+
     if (type === 'password') {
       const passwordPromise = askpassword({
         input: this.input,
@@ -1147,6 +1151,36 @@ function isErrorLike(value: any): boolean {
   } catch (err: any) {
     throw new MongoshInternalError(err?.message || String(err));
   }
+}
+
+async function enterAsynchronousExecutionForPrompt(): Promise<void> {
+  // Make sure we always start out in an asynchronous state when
+  // presenting a prompt to the user.
+  // This is to work around/solve https://jira.mongodb.org/browse/MONGOSH-1667,
+  // where the sequence of events was as follows:
+  //
+  //  1. User types input (in raw mode), which contains a call to e.g.
+  //     passwordPrompt().
+  //  2. Our AsyncRepl implementation disables raw mode (for Ctrl+C support).
+  //  3. The Node.js REPL implementation disables raw mode (also for Ctrl+C
+  //      support, but targeting synchronous execution only).
+  //  4. The prompt implementation enables raw mode (to prevent echoing input)
+  //     while in the synchronous portion of evaluation, then waits for input.
+  //  5. Synchronous evaluation ends and the Node.js REPL restores the previous
+  //     raw mode, i.e. disabled it, because that is the state our AsyncRepl set
+  //     just before the Node.js REPL started evaluating.
+  //     (The prompt implementation observed this "auto-reset" but assumed it was
+  //     an intentional override of its own set-raw-mode behavior).
+  //  6. The prompt value (e.g. password) is entered and echoes back to the
+  //     terminal because raw mode is disabled.
+  //  7. Only after that does the AsyncRepl instance restore raw mode for
+  //     getting user input.
+  //
+  // Solving this issue by ensuring that the prompt is unaffected by our REPL
+  // raw mode setting/resetting seems like a reasonably self-contained approach
+  // to this issue.
+
+  await new Promise(setImmediate);
 }
 
 export default MongoshNodeRepl;
