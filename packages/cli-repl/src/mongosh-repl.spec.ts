@@ -1312,7 +1312,7 @@ describe('MongoshNodeRepl', function () {
     });
 
     context('pre-specified user-provided prompt', function () {
-      it.only('does not attempt to run the prompt in parallel with initial input', async function () {
+      it('does not attempt to run the prompt in parallel with initial input', async function () {
         output = '';
         const initialized = await mongoshRepl.initialize(serviceProvider);
         await mongoshRepl.loadExternalCode(
