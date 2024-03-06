@@ -1,9 +1,14 @@
 import semver from 'semver';
 import { promises as fs } from 'fs';
 import importNodeFetch from '@mongosh/import-node-fetch';
+import type {
+  RequestInfo,
+  RequestInit,
+  Response,
+} from '@mongosh/import-node-fetch';
 
 // 'http' is not supported in startup snapshots yet.
-const fetch = async (url: any, init?: any): Promise<any> =>
+const fetch = async (url: RequestInfo, init?: RequestInit): Promise<Response> =>
   await (await importNodeFetch()).default(url, init);
 
 interface MongoshUpdateLocalFileContents {

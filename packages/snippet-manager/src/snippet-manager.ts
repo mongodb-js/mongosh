@@ -18,7 +18,7 @@ import zlib from 'zlib';
 import bson from 'bson';
 import joi from 'joi';
 import importNodeFetch from '@mongosh/import-node-fetch';
-import type { TNodeFetch } from '@mongosh/import-node-fetch';
+import type { Response } from '@mongosh/import-node-fetch';
 const pipeline = promisify(stream.pipeline);
 const brotliCompress = promisify(zlib.brotliCompress);
 const brotliDecompress = promisify(zlib.brotliDecompress);
@@ -193,7 +193,7 @@ export class SnippetManager implements ShellPlugin {
     return this._instanceState.messageBus;
   }
 
-  async fetch(url: string): Promise<InstanceType<TNodeFetch['Response']>> {
+  async fetch(url: string): Promise<Response> {
     // 'http' is not supported in startup snapshots yet.
     const fetch = await importNodeFetch();
     return await fetch.default(url);
