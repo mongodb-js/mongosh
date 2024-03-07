@@ -1,5 +1,6 @@
 /* eslint-disable no-control-regex */
 import { expect } from 'chai';
+import type { Db } from 'mongodb';
 import { MongoClient } from 'mongodb';
 import { eventually } from '../../../testing/eventually';
 import { TestShell } from './test-shell';
@@ -346,7 +347,7 @@ describe('e2e', function () {
 
   describe('set appName', function () {
     context('with default appName', function () {
-      let shell;
+      let shell: TestShell;
       beforeEach(async function () {
         shell = TestShell.start({
           args: [`mongodb://${await testServer.hostport()}/`],
@@ -367,7 +368,7 @@ describe('e2e', function () {
     });
 
     context('with custom appName', function () {
-      let shell;
+      let shell: TestShell;
       beforeEach(async function () {
         shell = TestShell.start({
           args: [`mongodb://${await testServer.hostport()}/?appName=Felicia`],
@@ -388,10 +389,10 @@ describe('e2e', function () {
   });
 
   describe('with connection string', function () {
-    let db;
-    let client;
+    let db: Db;
+    let client: MongoClient;
     let shell: TestShell;
-    let dbName;
+    let dbName: string;
 
     beforeEach(async function () {
       const connectionString = await testServer.connectionString();
@@ -409,7 +410,7 @@ describe('e2e', function () {
     afterEach(async function () {
       await db.dropDatabase();
 
-      client.close();
+      await client.close();
     });
 
     it('version', async function () {
@@ -963,7 +964,7 @@ describe('e2e', function () {
   });
 
   describe('printing', function () {
-    let shell;
+    let shell: TestShell;
     beforeEach(async function () {
       shell = TestShell.start({ args: ['--nodb'] });
       await shell.waitForPrompt();
@@ -1038,7 +1039,7 @@ describe('e2e', function () {
   });
 
   describe('Node.js builtin APIs in the shell', function () {
-    let shell;
+    let shell: TestShell;
     beforeEach(async function () {
       shell = TestShell.start({
         args: ['--nodb'],
@@ -1589,9 +1590,9 @@ describe('e2e', function () {
   });
 
   describe('versioned API', function () {
-    let db;
-    let dbName;
-    let client;
+    let db: Db;
+    let dbName: string;
+    let client: MongoClient;
 
     beforeEach(async function () {
       dbName = `test-${Date.now()}`;
@@ -1605,7 +1606,7 @@ describe('e2e', function () {
 
     afterEach(async function () {
       await db.dropDatabase();
-      client.close();
+      await client.close();
     });
 
     context('pre-4.4', function () {
