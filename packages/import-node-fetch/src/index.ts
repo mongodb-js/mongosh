@@ -2,6 +2,8 @@
 export type TNodeFetch = typeof import('node-fetch');
 export type { Request, Response, RequestInfo, RequestInit } from 'node-fetch';
 
+declare const __webpack_require__: unknown;
+
 export default async function importNodeFetch(): Promise<TNodeFetch> {
   // Node-fetch is an ESM module from 3.x
   // Importing ESM modules to CommonJS is possible with a dynamic import.
