@@ -533,11 +533,13 @@ class MongoshNodeRepl implements EvaluationListener {
         'Cannot start REPL when not in REPL evaluation mode'
       );
     }
+    // Set up the prompt before consuming input so that we do not end up
+    // running the prompt function in parallel with actual input code.
+    repl.setPrompt(await this.getShellPrompt());
     // Only start reading from the input *after* we set up everything, including
-    // instanceState.setCtx().
+    // instanceState.setCtx() and configuring the REPL prompt.
     this.lineByLineInput.start();
     this.input.resume();
-    repl.setPrompt(await this.getShellPrompt());
     repl.displayPrompt();
   }
 
