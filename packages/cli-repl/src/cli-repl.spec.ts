@@ -1288,15 +1288,16 @@ describe('CliRepl', function () {
           setTelemetryDelay(0);
         });
 
-        it('timeouts fast', async function () {
+        it('times out fast', async function () {
+          const testStartMs = Date.now();
           // The `httpRequestTimeout` of our Segment Analytics is set to
           // 1000ms which makes these requests fail as they exceed the timeout.
           // Segment will silently fail http request errors when tracking and flushing.
           // This will cause the test to fail if the system running the tests is
           //  unable to flush telemetry in 1500ms.
-          this.timeout(2500);
           setTelemetryDelay(5000);
           await cliRepl.start(await testServer.connectionString(), {});
+          this.timeout(Date.now() - testStartMs + 2500); // Do not include connection time in 2.5s timeout
           input.write('use somedb;\n');
           input.write('exit\n');
           await waitBus(cliRepl.bus, 'mongosh:closed');
