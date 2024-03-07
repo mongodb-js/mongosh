@@ -1451,6 +1451,38 @@ describe('CliRepl', function () {
           expect(totalEventsTracked).to.equal(5);
         });
 
+        it('sends out telemetry data for multiple command line scripts', async function () {
+          cliReplOptions.shellCliOptions.eval = [
+            'db.hello(); db.hello();',
+            'db.hello()',
+          ];
+          cliRepl = new CliRepl(cliReplOptions);
+          await startWithExpectedImmediateExit(
+            cliRepl,
+            await testServer.connectionString()
+          );
+          expect(totalEventsTracked).to.equal(7);
+
+          const apiEvents = requests
+            .map((req) =>
+              JSON.parse(req.body).batch.filter(
+                (entry) => entry.event === 'API Call'
+              )
+            )
+            .flat();
+          expect(apiEvents).to.have.lengthOf(2);
+          expect(
+            apiEvents.map((e) => [
+              e.properties.class,
+              e.properties.method,
+              e.properties.count,
+            ])
+          ).to.deep.equal([
+            ['Database', 'hello', 2],
+            ['Database', 'hello', 1],
+          ]);
+        });
+
         it('sends out telemetry if the repl is running in an interactive mode in a containerized environment', async function () {
           cliRepl = new CliRepl(cliReplOptions);
           cliRepl.getIsContainerizedEnvironment = () => {
