@@ -262,6 +262,26 @@ describe('e2e', function () {
       }
       expect(buffer).to.include('"i": 99999');
     });
+    it('handles custom prompt() function in conjunction with line-by-line input well', async function () {
+      // https://jira.mongodb.org/browse/MONGOSH-1617
+      shell = TestShell.start({
+        args: [
+          '--nodb',
+          '--shell',
+          '--eval',
+          'prompt = () => {sleep(1);return "x>"}',
+        ],
+      });
+      // The number of newlines here matters
+      shell.writeInput(
+        'sleep(100);print([1,2,3,4,5,6,7,8,9,10].reduce(\n(a,b) => { return a*b; }, 1))\n\n\n\n',
+        { end: true }
+      );
+      const exitCode = await shell.waitForExit();
+      expect(exitCode).to.equal(0);
+      shell.assertContainsOutput('3628800');
+      shell.assertNoErrors();
+    });
   });
 
   describe('set db', function () {
@@ -1034,6 +1054,25 @@ describe('e2e', function () {
       await eventually(() => {
         shell.assertContainsOutput('admin;system.version;');
       });
+    });
+
+    it('works fine with custom prompts', async function () {
+      // https://jira.mongodb.org/browse/MONGOSH-1617
+      shell = TestShell.start({
+        args: [
+          await testServer.connectionString(),
+          '--eval',
+          'prompt = () => db.stats().db',
+          '--shell',
+        ],
+      });
+      shell.writeInput(
+        '[db.hello()].reduce(\n() => { return 11111*11111; },0)\n\n\n',
+        { end: true }
+      );
+      await shell.waitForExit();
+      shell.assertContainsOutput('123454321');
+      shell.assertNoErrors();
     });
   });
 

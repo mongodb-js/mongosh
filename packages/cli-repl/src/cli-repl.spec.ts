@@ -1288,15 +1288,16 @@ describe('CliRepl', function () {
           setTelemetryDelay(0);
         });
 
-        it('timeouts fast', async function () {
+        it('times out fast', async function () {
+          const testStartMs = Date.now();
           // The `httpRequestTimeout` of our Segment Analytics is set to
           // 1000ms which makes these requests fail as they exceed the timeout.
           // Segment will silently fail http request errors when tracking and flushing.
           // This will cause the test to fail if the system running the tests is
           //  unable to flush telemetry in 1500ms.
-          this.timeout(2500);
           setTelemetryDelay(5000);
           await cliRepl.start(await testServer.connectionString(), {});
+          this.timeout(Date.now() - testStartMs + 2500); // Do not include connection time in 2.5s timeout
           input.write('use somedb;\n');
           input.write('exit\n');
           await waitBus(cliRepl.bus, 'mongosh:closed');
@@ -1449,6 +1450,38 @@ describe('CliRepl', function () {
             await testServer.connectionString()
           );
           expect(totalEventsTracked).to.equal(5);
+        });
+
+        it('sends out telemetry data for multiple command line scripts', async function () {
+          cliReplOptions.shellCliOptions.eval = [
+            'db.hello(); db.hello();',
+            'db.hello()',
+          ];
+          cliRepl = new CliRepl(cliReplOptions);
+          await startWithExpectedImmediateExit(
+            cliRepl,
+            await testServer.connectionString()
+          );
+          expect(totalEventsTracked).to.equal(7);
+
+          const apiEvents = requests
+            .map((req) =>
+              JSON.parse(req.body).batch.filter(
+                (entry) => entry.event === 'API Call'
+              )
+            )
+            .flat();
+          expect(apiEvents).to.have.lengthOf(2);
+          expect(
+            apiEvents.map((e) => [
+              e.properties.class,
+              e.properties.method,
+              e.properties.count,
+            ])
+          ).to.deep.equal([
+            ['Database', 'hello', 2],
+            ['Database', 'hello', 1],
+          ]);
         });
 
         it('sends out telemetry if the repl is running in an interactive mode in a containerized environment', async function () {
