@@ -503,6 +503,8 @@ class MongoshNodeRepl implements EvaluationListener {
     }
 
     markTime(TimingCategories.UserConfigLoading, 'set up history file');
+
+    // Similar calls are added for plain-vm evaluation below
     (repl as any).on(asyncRepl.evalStart, () => {
       this.bus.emit('mongosh:evaluate-started');
     });
@@ -748,6 +750,7 @@ class MongoshNodeRepl implements EvaluationListener {
         );
       };
     });
+    this.bus.emit('mongosh:evaluate-started');
     try {
       process.addListener('SIGINT', asyncSigintHandler);
       return await Promise.race([
@@ -764,6 +767,7 @@ class MongoshNodeRepl implements EvaluationListener {
       ]);
     } finally {
       process.removeListener('SIGINT', asyncSigintHandler);
+      this.bus.emit('mongosh:evaluate-finished');
     }
   }
 

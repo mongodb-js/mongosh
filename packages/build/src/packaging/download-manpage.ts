@@ -13,6 +13,9 @@ export async function downloadManpage(
 ) {
   await fs.mkdir(destination, { recursive: true });
   const response = await fetch(url);
+  if (!response.ok || !response.body) {
+    throw new Error(`Unexpected response while fetching ${url}`);
+  }
   await promisify(pipeline)(response.body, tar.x({ cwd: destination }));
   await promisify(pipeline)(
     createReadStream(join(destination, basename(name, '.gz'))),

@@ -81,7 +81,7 @@ export function start(opts: AsyncREPLOptions): REPLServer {
     (opts as ReplOptions).breakEvalOnSigint = true;
   }
 
-  const repl = (opts.start ?? originalStart)(opts);
+  const repl: REPLServer = (opts.start ?? originalStart)(opts);
   const originalEval = promisify(
     wrapPauseInput(repl.input, wrapNoSyncDomainError(repl.eval.bind(repl)))
     // string, Context, string is not string, any, string
