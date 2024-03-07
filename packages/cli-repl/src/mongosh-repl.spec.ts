@@ -898,6 +898,7 @@ describe('MongoshNodeRepl', function () {
         input.write('const pw = passwordPrompt()\n');
         await tick();
         expect(output).to.include('Enter password');
+        expect((input as any).isRaw).to.equal(true); // MONGOSH-1667
 
         output = '';
         input.write('hello!\n');
@@ -914,6 +915,7 @@ describe('MongoshNodeRepl', function () {
         input.write('pw = passwordPrompt(); 0\n');
         await tick();
         expect(output).to.include('Enter password');
+        expect((input as any).isRaw).to.equal(true);
 
         output = '';
         input.write('hello!\u0003'); // Ctrl+C
@@ -932,6 +934,7 @@ describe('MongoshNodeRepl', function () {
         input.write('const answer = booleanPrompt("shall we play a game?")\n');
         await tick();
         expect(output).to.include('shall we play a game?:');
+        expect((input as any).isRaw).to.equal(true);
 
         input.write('Y');
         await waitEval(bus);
@@ -948,6 +951,7 @@ describe('MongoshNodeRepl', function () {
         input.write('const answer = booleanPrompt("shall we play a game?")\n');
         await tick();
         expect(output).to.include('shall we play a game?:');
+        expect((input as any).isRaw).to.equal(true);
 
         input.write('q');
         await tick();
@@ -972,6 +976,7 @@ describe('MongoshNodeRepl', function () {
         input.write('const answer = booleanPrompt("shall we play a game?")\n');
         await tick();
         expect(output).to.include('shall we play a game?:');
+        expect((input as any).isRaw).to.equal(true);
 
         input.write('\n');
         await waitEval(bus);
@@ -986,6 +991,7 @@ describe('MongoshNodeRepl', function () {
         input.write('answer = booleanPrompt("shall we play a game?")\n');
         await tick();
         expect(output).to.include('shall we play a game?:');
+        expect((input as any).isRaw).to.equal(true);
 
         input.write('\u0003'); // Ctrl+C
         await waitEval(bus);
