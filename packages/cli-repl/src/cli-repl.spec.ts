@@ -609,6 +609,7 @@ describe('CliRepl', function () {
                 'hello1.js'
               );
               cliReplOptions.shellCliOptions.fileNames = [filename1];
+              cliReplOptions.shellCliOptions.quiet = false;
               cliRepl = new CliRepl(cliReplOptions);
               await startWithExpectedImmediateExit(cliRepl, '');
               expect(output).to.include(`Loading file: ${filename1}`);
@@ -634,6 +635,7 @@ describe('CliRepl', function () {
                 'hello2.js'
               );
               cliReplOptions.shellCliOptions.fileNames = [filename1, filename2];
+              cliReplOptions.shellCliOptions.quiet = false;
               cliRepl = new CliRepl(cliReplOptions);
               await startWithExpectedImmediateExit(cliRepl, '');
               expect(output).to.include(`Loading file: ${filename1}`);
@@ -643,7 +645,7 @@ describe('CliRepl', function () {
               expect(exitCode).to.equal(0);
             });
 
-            it('does not print filenames if --quiet is passed', async function () {
+            it('does not print filenames if --quiet is implied', async function () {
               const filename1 = path.resolve(
                 __dirname,
                 '..',
@@ -653,7 +655,6 @@ describe('CliRepl', function () {
                 'hello1.js'
               );
               cliReplOptions.shellCliOptions.fileNames = [filename1];
-              cliReplOptions.shellCliOptions.quiet = true;
               cliRepl = new CliRepl(cliReplOptions);
               await startWithExpectedImmediateExit(cliRepl, '');
               expect(output).not.to.include('Loading file');
@@ -671,6 +672,7 @@ describe('CliRepl', function () {
                 'throw.js'
               );
               cliReplOptions.shellCliOptions.fileNames = [filename1];
+              cliReplOptions.shellCliOptions.quiet = false;
               cliRepl = new CliRepl(cliReplOptions);
               try {
                 await cliRepl.start('', {});
@@ -1641,6 +1643,7 @@ describe('CliRepl', function () {
           'hello1.js'
         );
         cliReplOptions.shellCliOptions.fileNames = [filename1];
+        cliReplOptions.shellCliOptions.quiet = false;
         cliRepl = new CliRepl(cliReplOptions);
         await startWithExpectedImmediateExit(
           cliRepl,
@@ -1669,6 +1672,7 @@ describe('CliRepl', function () {
           'hello2.js'
         );
         cliReplOptions.shellCliOptions.fileNames = [filename1, filename2];
+        cliReplOptions.shellCliOptions.quiet = false;
         cliRepl = new CliRepl(cliReplOptions);
         await startWithExpectedImmediateExit(
           cliRepl,

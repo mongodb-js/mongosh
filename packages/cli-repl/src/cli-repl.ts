@@ -186,16 +186,16 @@ export class CliRepl implements MongoshIOProvider {
     });
 
     let jsContext = this.cliOptions.jsContext;
+    const { willEnterInteractiveMode, quiet } = CliRepl.getFileAndEvalInfo(
+      this.cliOptions
+    );
     if (jsContext === 'auto' || !jsContext) {
-      jsContext = CliRepl.getFileAndEvalInfo(this.cliOptions)
-        .willEnterInteractiveMode
-        ? 'repl'
-        : 'plain-vm';
+      jsContext = willEnterInteractiveMode ? 'repl' : 'plain-vm';
     }
 
     this.mongoshRepl = new MongoshNodeRepl({
       ...options,
-      shellCliOptions: { ...this.cliOptions, jsContext },
+      shellCliOptions: { ...this.cliOptions, jsContext, quiet },
       nodeReplOptions: options.nodeReplOptions ?? {
         terminal: process.env.MONGOSH_FORCE_TERMINAL ? true : undefined,
       },
@@ -273,7 +273,8 @@ export class CliRepl implements MongoshIOProvider {
     await this.logManager.cleanupOldLogfiles();
     markTime(TimingCategories.Logging, 'cleaned up log files');
     const logger = await this.logManager.createLogWriter();
-    if (!this.cliOptions.quiet) {
+    const { quiet } = CliRepl.getFileAndEvalInfo(this.cliOptions);
+    if (!quiet) {
       this.output.write(`Current Mongosh Log ID:\t${logger.logId}\n`);
     }
     this.logWriter = logger;
@@ -493,6 +494,7 @@ export class CliRepl implements MongoshIOProvider {
     evalScripts: string[];
     willExecuteCommandLineScripts: boolean;
     willEnterInteractiveMode: boolean;
+    quiet: boolean;
   } {
     const commandLineLoadFiles = cliOptions.fileNames ?? [];
     const evalScripts = cliOptions.eval ?? [];
@@ -500,11 +502,14 @@ export class CliRepl implements MongoshIOProvider {
       commandLineLoadFiles.length > 0 || evalScripts.length > 0;
     const willEnterInteractiveMode =
       !willExecuteCommandLineScripts || !!cliOptions.shell;
+    const quiet =
+      cliOptions.quiet ?? !(cliOptions.verbose ?? willEnterInteractiveMode);
     return {
       commandLineLoadFiles,
       evalScripts,
       willEnterInteractiveMode,
       willExecuteCommandLineScripts,
+      quiet,
     };
   }
 
@@ -633,8 +638,9 @@ export class CliRepl implements MongoshIOProvider {
 
     markTime(TimingCategories.Eval, 'wrote eval output');
     markTime(TimingCategories.EvalFile, 'start loading external files');
+    const { quiet } = CliRepl.getFileAndEvalInfo(this.cliOptions);
     for (const file of files) {
-      if (!this.cliOptions.quiet) {
+      if (!quiet) {
         this.output.write(
           `Loading file: ${this.clr(file, 'mongosh:filename')}\n`
         );
@@ -786,7 +792,8 @@ export class CliRepl implements MongoshIOProvider {
     driverUri: string,
     driverOptions: DevtoolsConnectOptions
   ): Promise<CliServiceProvider> {
-    if (!this.cliOptions.nodb && !this.cliOptions.quiet) {
+    const { quiet } = CliRepl.getFileAndEvalInfo(this.cliOptions);
+    if (!this.cliOptions.nodb && !quiet) {
       this.output.write(
         i18n.__(CONNECTING) +
           '\t\t' +
