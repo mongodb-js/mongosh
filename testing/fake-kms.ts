@@ -28,21 +28,22 @@ export function makeFakeHTTPServer(handlerList: HandlerList): FakeHTTPServer {
   // side.
   const server = http.createServer({ insecureHTTPParser: true }, (req, res) => {
     (server as FakeHTTPServer).requests.push(req);
-    let handler: HandlerFunction | undefined;
+    let foundHandler: HandlerFunction | undefined;
     const host = req.headers['host'];
     for (const potentialHandler of handlerList) {
-      if (potentialHandler.host.test(host)) {
-        handler = potentialHandler.handler;
+      if (potentialHandler.host.test(host ?? '')) {
+        foundHandler = potentialHandler.handler;
         break;
       }
     }
-    if (!handler) {
+    if (!foundHandler) {
       res.writeHead(404, {
         'Content-Type': 'text/plain'
       });
       res.end(`Host ${host} not found`);
       return;
     }
+    const handler = foundHandler; // Makes TS happy
 
     let body = '';
     req.setEncoding('utf8').on('data', chunk => { body += chunk; });
@@ -50,7 +51,7 @@ export function makeFakeHTTPServer(handlerList: HandlerList): FakeHTTPServer {
       res.writeHead(200, {
         'Content-Type': 'application/json'
       });
-      res.end(JSON.stringify(handler({ url: req.url, body })));
+      res.end(JSON.stringify(handler({ url: req.url ?? '', body })));
     });
   });
   return Object.assign(server, { requests: [] });

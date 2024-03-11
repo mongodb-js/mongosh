@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+import type { Db } from 'mongodb';
 import { MongoClient } from 'mongodb';
 import { bson } from '@mongosh/service-provider-core';
 import { TestShell } from './test-shell';
@@ -6,10 +7,10 @@ import { startSharedTestServer } from '../../../testing/integration-testing-hook
 
 describe('BSON e2e', function () {
   const testServer = startSharedTestServer();
-  let db;
-  let client;
+  let db: Db;
+  let client: MongoClient;
   let shell: TestShell;
-  let dbName;
+  let dbName: string;
 
   beforeEach(async function () {
     const connectionString = await testServer.connectionString();

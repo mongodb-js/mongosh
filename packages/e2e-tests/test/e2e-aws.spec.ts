@@ -4,7 +4,7 @@ import { TestShell } from './test-shell';
 
 function assertEnvVariable(variableName: string): string {
   if (process.env.MONGOSH_TEST_FORCE_API_STRICT) {
-    return undefined;
+    return '';
   }
   const value = process.env[variableName];
   if (!value) {
@@ -16,7 +16,7 @@ function assertEnvVariable(variableName: string): string {
       console.error(
         `Expected environment variable but was not set: ${variableName}`
       );
-      return undefined;
+      return '';
     }
   }
   return value;

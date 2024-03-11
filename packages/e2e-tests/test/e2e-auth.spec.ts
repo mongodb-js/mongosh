@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import type { MongoClientOptions } from 'mongodb';
+import type { Db, Document, MongoClientOptions } from 'mongodb';
 import { MongoClient } from 'mongodb';
 import { eventually } from '../../../testing/eventually';
 import { TestShell } from './test-shell';
@@ -8,7 +8,8 @@ import {
   startSharedTestServer,
 } from '../../../testing/integration-testing-hooks';
 
-function createAssertUserExists(db, dbName): Function {
+type AssertUserExists = (opts?: Document, username?: string) => Promise<void>;
+function createAssertUserExists(db: Db, dbName: string): AssertUserExists {
   return async (opts = {}, username = 'anna'): Promise<void> => {
     const result = await db.command({ usersInfo: 1 });
     expect(result.users.length).to.equal(1);
@@ -21,7 +22,12 @@ function createAssertUserExists(db, dbName): Function {
   };
 }
 
-function createAssertRoleExists(db, dbName): Function {
+type AssertRoleExists = (
+  roles: Document[],
+  privileges: Document[],
+  rolename?: string
+) => Promise<void>;
+function createAssertRoleExists(db: Db, dbName: string): AssertRoleExists {
   return async (roles, privileges, rolename = 'anna'): Promise<void> => {
     const result = await db.command({
       rolesInfo: 1,
@@ -45,7 +51,16 @@ function createAssertRoleExists(db, dbName): Function {
   };
 }
 
-function createAssertUserAuth(db, connectionString, dbName): Function {
+type AssertUserAuth = (
+  pwd?: string,
+  username?: string,
+  keepClient?: boolean
+) => Promise<void | MongoClient>;
+function createAssertUserAuth(
+  db: Db,
+  connectionString: string,
+  dbName: string
+): AssertUserAuth {
   return async (
     pwd = 'pwd',
     username = 'anna',
@@ -73,16 +88,16 @@ describe('Auth e2e', function () {
   skipIfApiStrict(); // connectionStatus is unversioned.
 
   const testServer = startSharedTestServer();
-  let assertUserExists;
-  let assertUserAuth;
-  let assertRoleExists;
+  let assertUserExists: AssertUserExists;
+  let assertUserAuth: AssertUserAuth;
+  let assertRoleExists: AssertRoleExists;
 
-  let db;
-  let client;
+  let db: Db;
+  let client: MongoClient;
   let shell: TestShell;
   let dbName: string;
-  let examplePrivilege1;
-  let examplePrivilege2;
+  let examplePrivilege1: Document;
+  let examplePrivilege2: Document;
 
   describe('with regular URI', function () {
     beforeEach(async function () {
@@ -113,7 +128,7 @@ describe('Auth e2e', function () {
       await db.dropDatabase();
       await db.command({ dropAllUsersFromDatabase: 1 });
 
-      client.close();
+      await client.close();
     });
     afterEach(TestShell.cleanup);
 
@@ -316,7 +331,7 @@ describe('Auth e2e', function () {
           const result = await db.command({ usersInfo: 1 });
           expect(result.users.length).to.equal(1);
           const user = result.users[0];
-          expect(user.roles.map((k) => k.role)).to.have.members([
+          expect(user.roles.map((k: any) => k.role)).to.have.members([
             'dbOwner',
             'dbAdmin',
             'userAdmin',
@@ -1120,7 +1135,7 @@ describe('Auth e2e', function () {
       await db.dropDatabase();
       await db.command({ dropAllUsersFromDatabase: 1 });
 
-      client.close();
+      await client.close();
     });
     afterEach(TestShell.cleanup);
   });
