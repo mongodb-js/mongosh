@@ -3,11 +3,14 @@ import {
   skipIfApiStrict,
   skipIfEnvServerVersion,
 } from '../../../testing/integration-testing-hooks';
+import { promises as fs } from 'fs';
 import type { OIDCMockProviderConfig } from '@mongodb-js/oidc-mock-provider';
 import { OIDCMockProvider } from '@mongodb-js/oidc-mock-provider';
 import { TestShell } from './test-shell';
 import path from 'path';
 import { expect } from 'chai';
+import { createServer as createHTTPSServer } from 'https';
+import { getCertPath, useTmpdir } from './repl-helpers';
 
 describe('OIDC auth e2e', function () {
   skipIfApiStrict(); // connectionStatus is unversioned.
@@ -18,7 +21,9 @@ describe('OIDC auth e2e', function () {
   let testServer2: MongoRunnerSetup;
   let oidcMockProviderConfig: OIDCMockProviderConfig;
   let oidcMockProvider: OIDCMockProvider;
+  let oidcMockProviderHttps: OIDCMockProvider;
   let shell: TestShell;
+  const tmpdir = useTmpdir();
 
   const fetchBrowserFixture = `"${path.resolve(
     __dirname,
@@ -53,7 +58,24 @@ describe('OIDC auth e2e', function () {
         return getTokenPayload(metadata);
       },
     };
-    oidcMockProvider = await OIDCMockProvider.create(oidcMockProviderConfig);
+    const httpsServerKeyCertBundle = await fs.readFile(
+      getCertPath('server.bundle.pem')
+    );
+    [oidcMockProvider, oidcMockProviderHttps] = await Promise.all([
+      OIDCMockProvider.create(oidcMockProviderConfig),
+      OIDCMockProvider.create({
+        ...oidcMockProviderConfig,
+        createHTTPServer(requestListener) {
+          return createHTTPSServer(
+            {
+              key: httpsServerKeyCertBundle,
+              cert: httpsServerKeyCertBundle,
+            },
+            requestListener
+          );
+        },
+      }),
+    ]);
     const serverOidcConfig = {
       issuer: oidcMockProvider.issuer,
       clientId: 'testServer',
@@ -69,18 +91,30 @@ describe('OIDC auth e2e', function () {
       '--setParameter',
       'enableTestCommands=true',
     ];
-    testServer = new MongoRunnerSetup('e2e-oidc', {
+    testServer = new MongoRunnerSetup('e2e-oidc-test1', {
       args: [
         '--setParameter',
         `oidcIdentityProviders=${JSON.stringify([serverOidcConfig])}`,
         ...commonOidcServerArgs,
       ],
     });
-    testServer2 = new MongoRunnerSetup('e2e-oidc', {
+    testServer2 = new MongoRunnerSetup('e2e-oidc-test2', {
       args: [
         '--setParameter',
         `oidcIdentityProviders=${JSON.stringify([
-          { ...serverOidcConfig, clientId: 'testServer2' },
+          {
+            ...serverOidcConfig,
+            clientId: 'testServer2',
+            matchPattern: '^testuser$',
+            authNamePrefix: 'dev',
+          },
+          {
+            ...serverOidcConfig,
+            clientId: 'testServer2',
+            matchPattern: '^httpsIdPtestuser$',
+            authNamePrefix: 'https',
+            issuer: oidcMockProviderHttps.issuer,
+          },
         ])}`,
         ...commonOidcServerArgs,
       ],
@@ -110,6 +144,7 @@ describe('OIDC auth e2e', function () {
       testServer?.stop(),
       testServer2?.stop(),
       oidcMockProvider?.close(),
+      oidcMockProviderHttps?.close(),
     ]);
   });
 
@@ -245,9 +280,10 @@ describe('OIDC auth e2e', function () {
   });
 
   it('re-authenticates when connecting to a different endpoint from the same shell', async function () {
+    const urlOptions = { username: 'testuser' }; // Make sure these match between the two connections
     shell = TestShell.start({
       args: [
-        await testServer.connectionString(),
+        await testServer.connectionString({}, urlOptions),
         '--authenticationMechanism=MONGODB-OIDC',
         '--oidcRedirectUri=http://localhost:0/',
         `--browser=${fetchBrowserFixture}`,
@@ -256,9 +292,12 @@ describe('OIDC auth e2e', function () {
     await shell.waitForPrompt();
 
     await verifyUser(shell, 'testuser', 'testServer-group');
-    const cs2 = await testServer2.connectionString({
-      authMechanism: 'MONGODB-OIDC',
-    });
+    const cs2 = await testServer2.connectionString(
+      {
+        authMechanism: 'MONGODB-OIDC',
+      },
+      urlOptions
+    );
     await shell.executeLine(`db = connect(${JSON.stringify(cs2)})`);
     await verifyUser(shell, 'testuser', 'testServer2-group');
     shell.assertNoErrors();
@@ -312,5 +351,52 @@ describe('OIDC auth e2e', function () {
     expect(tokenFetches).to.equal(1);
     shell.assertNoErrors();
     shell2.assertNoErrors();
+  });
+
+  it('can apply --useSystemCA to the IdP https endpoint', async function () {
+    await fs.mkdir(path.join(tmpdir.path, 'certs'), { recursive: true });
+    await fs.copyFile(
+      getCertPath('ca.crt'),
+      path.join(tmpdir.path, 'certs', 'somefilename.crt')
+    );
+
+    shell = TestShell.start({
+      args: [
+        await testServer2.connectionString(
+          {},
+          { username: 'httpsIdPtestuser' }
+        ),
+        '--authenticationMechanism=MONGODB-OIDC',
+        '--oidcRedirectUri=http://localhost:0/',
+        `--browser=${fetchBrowserFixture}`,
+        '--tlsUseSystemCA',
+      ],
+      env: {
+        ...process.env,
+        SSL_CERT_DIR: path.join(tmpdir.path, 'certs') + '',
+        MONGOSH_E2E_TEST_CURL_ALLOW_INVALID_TLS: '1',
+      },
+    });
+    await shell.waitForExit();
+    // We cannot make the mongod server accept the mock IdP's certificate,
+    // so the best we can verify here is that auth failed *on the server*
+    shell.assertContainsOutput(/MongoServerError: Authentication failed/);
+
+    // Negative test: Without --tlsUseSystemCA, mongosh fails earlier:
+    shell = TestShell.start({
+      args: [
+        await testServer2.connectionString(
+          {},
+          { username: 'httpsIdPtestuser' }
+        ),
+        '--authenticationMechanism=MONGODB-OIDC',
+        '--oidcRedirectUri=http://localhost:0/',
+        `--browser=${fetchBrowserFixture}`,
+      ],
+    });
+    await shell.waitForExit();
+    shell.assertContainsOutput(
+      /Unable to fetch issuer metadata for "https:\/\/localhost:\d+"/
+    );
   });
 });
