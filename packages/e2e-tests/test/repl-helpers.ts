@@ -129,10 +129,23 @@ const setTemporaryHomeDirectory = () => {
   return { homedir, env };
 };
 
+function getCertPath(filename: string): string {
+  return path.join(
+    __dirname,
+    '..',
+    '..',
+    '..',
+    'testing',
+    'certificates',
+    filename
+  );
+}
+
 // eslint-disable-next-line mocha/no-exports
 export {
   useTmpdir,
   readReplLogfile,
   fakeExternalEditor,
   setTemporaryHomeDirectory,
+  getCertPath,
 };

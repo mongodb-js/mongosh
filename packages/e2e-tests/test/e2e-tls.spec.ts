@@ -7,6 +7,7 @@ import {
   useTmpdir,
   setTemporaryHomeDirectory,
   readReplLogfile,
+  getCertPath,
 } from './repl-helpers';
 import { TestShell } from './test-shell';
 
@@ -26,17 +27,6 @@ async function connectionStringWithLocalhost(
   return cs.toString();
 }
 
-function getCertPath(filename: string): string {
-  return path.join(
-    __dirname,
-    '..',
-    '..',
-    '..',
-    'testing',
-    'certificates',
-    filename
-  );
-}
 const CA_CERT = getCertPath('ca.crt');
 const NON_CA_CERT = getCertPath('non-ca.crt');
 const CLIENT_CERT = getCertPath('client.bundle.pem');
