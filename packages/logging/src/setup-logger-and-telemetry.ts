@@ -36,6 +36,7 @@ import { inspect } from 'util';
 import type { MongoLogWriter } from 'mongodb-log-writer';
 import { mongoLogId } from 'mongodb-log-writer';
 import type { MongoshAnalytics } from './analytics-helpers';
+import { hookLogger } from '@mongodb-js/devtools-connect';
 
 /**
  * A helper class for keeping track of how often specific events occurred.
@@ -685,7 +686,6 @@ export function setupLoggerAndTelemetry(
   // devtools-connect package which was split out from mongosh.
   // 'mongodb' is not supported in startup snapshots yet.
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { hookLogger } = require('@mongodb-js/devtools-connect');
   hookLogger(bus, log, 'mongosh', redactURICredentials);
 
   bus.on('mongosh-sp:reset-connection-options', function () {

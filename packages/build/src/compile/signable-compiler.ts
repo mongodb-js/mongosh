@@ -184,7 +184,7 @@ export class SignableCompiler {
       useNodeSnapshot: true,
       // To account for the fact that we are manually patching Node.js to include
       // https://github.com/nodejs/node/pull/50453 until we have caught up with upstream
-      nodeSnapshotConfigFlags: ['WithoutCodeCache'],
+      nodeSnapshotConfigFlags: ['Default'],
     });
   }
 }

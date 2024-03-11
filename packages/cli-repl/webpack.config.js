@@ -1,11 +1,22 @@
 'use strict';
 const fs = require('fs');
+const Module = require('module');
 const crypto = require('crypto');
 const { merge } = require('webpack-merge');
 const path = require('path');
 const { WebpackDependenciesPlugin } = require('@mongodb-js/sbom-tools');
 
 const baseWebpackConfig = require('../../config/webpack.base.config');
+
+// Builtins that the driver and/or devtools-connect refer to but which
+// cannot be snapshotted yet
+// https://github.com/nodejs/node/pull/50943 addresses some of this,
+// we can try to remove at least child_process once we are using a
+// Node.js version that supports it.
+const lazyNodeBuiltins = ['http', 'https', 'tls', 'child_process'];
+const eagerNodeBuiltins = Module.builtinModules.filter(
+  (m) => !lazyNodeBuiltins.includes(m)
+);
 
 const webpackDependenciesPlugin = new WebpackDependenciesPlugin({
   outputFilename: path.resolve(
@@ -38,7 +49,29 @@ const config = {
       // @babel/code-frame loads chalk loads supports-color which checks
       // for TTY color support during startup rather than at runtime
       '@babel/code-frame': makeLazyForwardModule('@babel/code-frame'),
+      // express is used by oidc-plugin but is a) quite heavy and rarely used
+      // b) uses http, which is not a supported module for snapshots at this point.
+      express: makeLazyForwardModule('express'),
+      'openid-client': makeLazyForwardModule('openid-client'),
+      ...Object.fromEntries(
+        lazyNodeBuiltins.map((m) => [m, makeLazyForwardModule(m)])
+      ),
+      ...Object.fromEntries(
+        lazyNodeBuiltins.map((m) => [`node:${m}`, makeLazyForwardModule(m)])
+      ),
     },
+  },
+
+  externals: {
+    electron: 'commonjs2 electron', // optional dep of the OIDC plugin
+    ...Object.fromEntries(eagerNodeBuiltins.map((m) => [m, `commonjs2 ${m}`])),
+    ...Object.fromEntries(
+      Module.builtinModules.map((m) => [`node:${m}`, `commonjs2 ${m}`])
+    ), // node: builtin specifiers need to be always declared as externals in webpack right now
+  },
+
+  externalsPresets: {
+    node: false,
   },
 };
 
@@ -57,11 +90,13 @@ function makeLazyForwardModule(pkg) {
     crypto.createHash('sha256').update(pkg).digest('hex').slice(0, 16) + '.js'
   );
 
+  const realRequire = Module.isBuiltin(pkg)
+    ? `__non_webpack_require__(${S(pkg)})`
+    : `require(${S(require.resolve(pkg))})`;
+
   const moduleContents = require(pkg);
   let source = `'use strict';\nlet _cache;\n`;
-  source += `function orig() {\n_cache = require(${S(
-    require.resolve(pkg)
-  )}); orig = () => _cache; return _cache;\n}\n`;
+  source += `function orig() {\n_cache = ${realRequire}; orig = () => _cache; return _cache;\n}\n`;
   if (typeof moduleContents === 'function') {
     source += `module.exports = function(...args) { return orig().apply(this, args); };\n`;
   } else {
