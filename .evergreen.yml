@@ -6957,6 +6957,24 @@ functions:
           set -e
           .evergreen/run-evergreen-release.sh
 
+  run_perf_tests:
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          set -x
+          # fix rh-allow-sha1-signatures error, see run-e2e-tests.sh
+          export OPENSSL_CONF=""
+          npx -y mongodb-runner exec -t standalone --version=7.0.x-enterprise -- \
+            sh -c 'MONGOSH_SMOKE_TEST_SERVER="$MONGODB_URI" ./dist/mongosh --perfTests > perf_results.json'
+        env:
+          DISTRO_ID: ${distro_id}
+    - command: perf.send
+      params:
+        file: src/perf_results.json
+
 # Tasks will show up as the individual blocks in the Evergreen UI that can
 # pass or fail.
 #
@@ -10426,6 +10444,20 @@ tasks:
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+  - name: perf_tests_darwin_x64
+    tags: ["perf-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: darwin
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.11.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: darwin-x64
+      - func: run_perf_tests
   - name: e2e_tests_darwin_arm64_fips
     tags: ["e2e-test"]
     depends_on:
@@ -10502,6 +10534,20 @@ tasks:
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+  - name: perf_tests_darwin_arm64
+    tags: ["perf-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: darwin_arm64
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.11.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: darwin-arm64
+      - func: run_perf_tests
   - name: e2e_tests_linux_x64_fips
     tags: ["e2e-test"]
     depends_on:
@@ -10578,6 +10624,20 @@ tasks:
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+  - name: perf_tests_linux_x64
+    tags: ["perf-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: linux_x64_build
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.11.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-x64
+      - func: run_perf_tests
   - name: e2e_tests_linux_x64_openssl11_fips
     tags: ["e2e-test"]
     depends_on:
@@ -10654,6 +10714,20 @@ tasks:
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+  - name: perf_tests_linux_x64_openssl11
+    tags: ["perf-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: linux_x64_build_openssl11
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.11.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-x64-openssl11
+      - func: run_perf_tests
   - name: e2e_tests_linux_x64_openssl3_fips
     tags: ["e2e-test"]
     depends_on:
@@ -10730,6 +10804,20 @@ tasks:
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+  - name: perf_tests_linux_x64_openssl3
+    tags: ["perf-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: linux_x64_build_openssl3
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.11.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-x64-openssl3
+      - func: run_perf_tests
   - name: e2e_tests_linux_arm64_fips
     tags: ["e2e-test"]
     depends_on:
@@ -10806,6 +10894,20 @@ tasks:
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+  - name: perf_tests_linux_arm64
+    tags: ["perf-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: linux_arm64_build
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.11.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64
+      - func: run_perf_tests
   - name: e2e_tests_linux_arm64_openssl11_fips
     tags: ["e2e-test"]
     depends_on:
@@ -10882,6 +10984,20 @@ tasks:
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+  - name: perf_tests_linux_arm64_openssl11
+    tags: ["perf-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: linux_arm64_build_openssl11
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.11.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64-openssl11
+      - func: run_perf_tests
   - name: e2e_tests_linux_arm64_openssl3_fips
     tags: ["e2e-test"]
     depends_on:
@@ -10958,6 +11074,20 @@ tasks:
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+  - name: perf_tests_linux_arm64_openssl3
+    tags: ["perf-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: linux_arm64_build_openssl3
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.11.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64-openssl3
+      - func: run_perf_tests
   - name: e2e_tests_linux_ppc64le_fips
     tags: ["e2e-test"]
     depends_on:
@@ -11034,6 +11164,20 @@ tasks:
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+  - name: perf_tests_linux_ppc64le
+    tags: ["perf-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: linux_ppc64le_build
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.11.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-ppc64le
+      - func: run_perf_tests
   - name: e2e_tests_linux_s390x_fips
     tags: ["e2e-test"]
     depends_on:
@@ -11110,6 +11254,20 @@ tasks:
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+  - name: perf_tests_linux_s390x
+    tags: ["perf-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: linux_s390x_build
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.11.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-s390x
+      - func: run_perf_tests
   - name: e2e_tests_win32_fips
     tags: ["e2e-test"]
     depends_on:
@@ -11186,6 +11344,20 @@ tasks:
           mongosh_server_test_version: "6.0.x-enterprise"
           mongosh_test_e2e_force_fips: ""
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
+  - name: perf_tests_win32
+    tags: ["perf-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: win32_build
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.11.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: win32
+      - func: run_perf_tests
 
   ###
   # EXECUTABLE CONNECTIVITY TESTS
@@ -13516,7 +13688,7 @@ buildvariants:
       - name: package_and_upload_artifact_rpm_s390x
   - name: linux_x64_build
     display_name: "RHEL 7.0 x64 (build)"
-    run_on: rhel70-build
+    run_on: rhel70-xlarge
     expansions:
       executable_os_id: linux-x64
     tags: ["nightly-driver"]
@@ -13524,7 +13696,7 @@ buildvariants:
       - name: compile_artifact
   - name: linux_x64_build_rhel8
     display_name: "RHEL 8.0 x64 (build)"
-    run_on: rhel80-small
+    run_on: rhel80-build
     expansions:
       executable_os_id: linux-x64
     tags: ["nightly-driver"]
@@ -13532,7 +13704,7 @@ buildvariants:
       - name: compile_artifact
   - name: linux_x64_build_openssl11
     display_name: "RHEL 7.0 x64 (build, shared OpenSSL 1.1)"
-    run_on: rhel70-build
+    run_on: rhel70-xlarge
     expansions:
       executable_os_id: linux-x64-openssl11
       mongosh_shared_openssl: openssl11
@@ -13541,7 +13713,7 @@ buildvariants:
       - name: compile_artifact
   - name: linux_x64_build_openssl11_rhel8
     display_name: "RHEL 8.0 x64 (build, shared OpenSSL 1.1)"
-    run_on: rhel80-small
+    run_on: rhel80-build
     expansions:
       executable_os_id: linux-x64-openssl11
       mongosh_shared_openssl: openssl11
@@ -13550,7 +13722,7 @@ buildvariants:
       - name: compile_artifact
   - name: linux_x64_build_openssl3
     display_name: "RHEL 7.0 x64 (build, shared OpenSSL 3)"
-    run_on: rhel70-build
+    run_on: rhel70-xlarge
     expansions:
       executable_os_id: linux-x64-openssl3
       mongosh_shared_openssl: openssl3
@@ -13559,7 +13731,7 @@ buildvariants:
       - name: compile_artifact
   - name: linux_x64_build_openssl3_rhel8
     display_name: "RHEL 8.0 x64 (build, shared OpenSSL 3)"
-    run_on: rhel80-small
+    run_on: rhel80-build
     expansions:
       executable_os_id: linux-x64-openssl3
       mongosh_shared_openssl: openssl3
@@ -14100,3 +14272,9 @@ buildvariants:
     run_on: ubuntu2004-small
     tasks:
       - name: generate_license_and_vulnerability_report
+
+  - name: perf_tests
+    display_name: "Performance Tests"
+    run_on: rhel90-dbx-perf-large
+    tasks:
+      - name: perf_tests_linux_x64
