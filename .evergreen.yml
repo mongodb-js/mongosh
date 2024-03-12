@@ -1110,6 +1110,34 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
+        local_file: src/nyc-output-darwin_unit-n20_import_node_fetch.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-n20_import_node_fetch.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-darwin_unit-n20_import_node_fetch.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-darwin_unit-n16_import_node_fetch.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-n16_import_node_fetch.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-darwin_unit-n16_import_node_fetch.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
         local_file: src/nyc-output-darwin_unit-n20_js_multiline_to_singleline.tgz
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-n20_js_multiline_to_singleline.tgz
         bucket: mciuploads
@@ -3038,6 +3066,34 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-linux_unit-n16_i18n.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-linux_unit-n20_import_node_fetch.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-n20_import_node_fetch.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-linux_unit-n20_import_node_fetch.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-linux_unit-n16_import_node_fetch.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-n16_import_node_fetch.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-linux_unit-n16_import_node_fetch.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -5222,6 +5278,34 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-win32_unit-n16_i18n.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-win32_unit-n20_import_node_fetch.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-n20_import_node_fetch.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-win32_unit-n20_import_node_fetch.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-win32_unit-n16_import_node_fetch.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-n16_import_node_fetch.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-win32_unit-n16_import_node_fetch.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -8084,6 +8168,40 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n16_i18n"
           mongosh_run_only_in_package: "i18n"
+  - name: test_n20_import_node_fetch
+    tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux_unit
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.11.1"
+      - func: test
+        vars:
+          mongosh_server_test_version: ""
+          node_js_version: "20.11.1"
+          mongosh_skip_node_version_check: ""
+          mongosh_test_id: "n20_import_node_fetch"
+          mongosh_run_only_in_package: "import-node-fetch"
+  - name: test_n16_import_node_fetch
+    tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux_unit
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "16.20.2"
+      - func: test
+        vars:
+          mongosh_server_test_version: ""
+          node_js_version: "16.20.2"
+          mongosh_skip_node_version_check: ""
+          mongosh_test_id: "n16_import_node_fetch"
+          mongosh_run_only_in_package: "import-node-fetch"
   - name: test_m42xc_n20_java_shell
     tags: ["unit-test"]
     depends_on:
@@ -13101,6 +13219,8 @@ buildvariants:
       - name: test_n16_history
       - name: test_n20_i18n
       - name: test_n16_i18n
+      - name: test_n20_import_node_fetch
+      - name: test_n16_import_node_fetch
       - name: test_n20_js_multiline_to_singleline
       - name: test_n16_js_multiline_to_singleline
       - name: test_n20_logging
@@ -13265,6 +13385,8 @@ buildvariants:
       - name: test_n16_history
       - name: test_n20_i18n
       - name: test_n16_i18n
+      - name: test_n20_import_node_fetch
+      - name: test_n16_import_node_fetch
       - name: test_m42xc_n20_java_shell
       - name: test_m44xc_n20_java_shell
       - name: test_m44xe_n20_java_shell
@@ -13713,6 +13835,8 @@ buildvariants:
       - name: test_n16_history
       - name: test_n20_i18n
       - name: test_n16_i18n
+      - name: test_n20_import_node_fetch
+      - name: test_n16_import_node_fetch
       - name: test_n20_js_multiline_to_singleline
       - name: test_n16_js_multiline_to_singleline
       - name: test_n20_logging

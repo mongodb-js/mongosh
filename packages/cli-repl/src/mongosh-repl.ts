@@ -40,12 +40,21 @@ import { makeMultilineJSIntoSingleLine } from '@mongosh/js-multiline-to-singleli
 import { LineByLineInput } from './line-by-line-input';
 import type { FormatOptions } from './format-output';
 import { markTime } from './startup-timing';
+import type { Context } from 'vm';
+import { Script, createContext, runInContext } from 'vm';
+
+declare const __non_webpack_require__: any;
 
 /**
  * All CLI flags that are useful for {@link MongoshNodeRepl}.
  */
 export type MongoshCliOptions = ShellCliOptions & {
   quiet?: boolean;
+  /**
+   * Whether to instantiate a Node.js REPL instance, including support
+   * for async error tracking, or not.
+   */
+  jsContext?: JSContext;
 };
 
 /**
@@ -64,6 +73,8 @@ export type MongoshIOProvider = Omit<
   getCryptLibraryOptions(): Promise<AutoEncryptionOptions['extraOptions']>;
   bugReportErrorMessageInfo?(): string | undefined;
 };
+
+export type JSContext = 'repl' | 'plain-vm';
 
 /**
  * Options required for MongoshNodeRepl instance to communicate with
@@ -97,7 +108,8 @@ export type InitializationToken = { __initialized: 'yes' };
 type MongoshRuntimeState = {
   shellEvaluator: ShellEvaluator<any>;
   instanceState: ShellInstanceState;
-  repl: REPLServer;
+  repl: REPLServer | null;
+  context: Context;
   console: Console;
 };
 
@@ -204,40 +216,83 @@ class MongoshNodeRepl implements EvaluationListener {
       (await this.getConfig('redactHistory')) ?? this.redactHistory;
     markTime(TimingCategories.UserConfigLoading, 'fetched config vars');
 
-    const repl = asyncRepl.start({
-      // 'repl' is not supported in startup snapshots yet.
+    let repl: REPLServer | null = null;
+    let context: Context;
+    if (this.shellCliOptions.jsContext !== 'plain-vm') {
+      repl = asyncRepl.start({
+        // 'repl' is not supported in startup snapshots yet.
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        start: require('pretty-repl').start,
+        input: this.lineByLineInput as unknown as Readable,
+        output: this.output,
+        prompt: '',
+        writer: this.writer.bind(this),
+        breakEvalOnSigint: true,
+        preview: false,
+        asyncEval: this.eval.bind(this),
+        historySize: await this.getConfig('historyLength'),
+        wrapCallbackError: (err: Error) =>
+          Object.assign(new MongoshInternalError(err.message), {
+            stack: err.stack,
+          }),
+        onAsyncSigint: this.onAsyncSigint.bind(this),
+        ...this.nodeReplOptions,
+      });
+      context = repl.context;
+    } else {
+      // https://nodejs.org/api/repl.html#replbuiltinmodules not represented in TS types
+      // repl is not supported in startup snapshots yet
       // eslint-disable-next-line @typescript-eslint/no-var-requires
-      start: require('pretty-repl').start,
-      input: this.lineByLineInput as unknown as Readable,
-      output: this.output,
-      prompt: '',
-      writer: this.writer.bind(this),
-      breakEvalOnSigint: true,
-      preview: false,
-      asyncEval: this.eval.bind(this),
-      historySize: await this.getConfig('historyLength'),
-      wrapCallbackError: (err: Error) =>
-        Object.assign(new MongoshInternalError(err.message), {
-          stack: err.stack,
-        }),
-      onAsyncSigint: this.onAsyncSigint.bind(this),
-      ...this.nodeReplOptions,
-    });
+      const { builtinModules: nodeReplBuiltinModules } = require('repl');
+      context = createContext();
+      // Allow tests to easily verify that they are in the right environment,
+      // and fetch a list of built-in global property names
+      const jsBuiltinGlobalNames = runInContext(
+        'globalThis[Symbol.for("@@mongosh.usingPlainVMContext")] = true;' +
+          'Object.getOwnPropertyNames(globalThis)',
+        context
+      );
+      // copy over things like setTimeout, Crypto, URL, etc.
+      for (const nodeJsGlobal of Object.getOwnPropertyNames(globalThis)) {
+        if (!jsBuiltinGlobalNames.includes(nodeJsGlobal))
+          Object.defineProperty(context, nodeJsGlobal, {
+            ...Object.getOwnPropertyDescriptor(globalThis, nodeJsGlobal),
+          });
+      }
+      // make built-in modules like `fs` available as global variables
+      for (const builtin of nodeReplBuiltinModules as string[]) {
+        let value;
+        Object.defineProperty(context, builtin, {
+          enumerable: false,
+          configurable: true,
+          get() {
+            return (value ??=
+              typeof __non_webpack_require__ === 'function'
+                ? __non_webpack_require__(builtin)
+                : require(builtin));
+          },
+          set(v) {
+            value = v;
+          },
+        });
+      }
+      context.global = context;
+    }
 
     const console = new Console({
       stdout: this.output,
       stderr: this.output,
       colorMode: this.getFormatOptions().colors,
     });
-    delete repl.context.parcelRequire; // MONGOSH-965
-    delete repl.context.__webpack_require__;
-    delete repl.context.__non_webpack_require__;
+    delete context.parcelRequire; // MONGOSH-965
+    delete context.__webpack_require__;
+    delete context.__non_webpack_require__;
     this.onClearCommand = console.clear.bind(console);
-    repl.context.console = console;
+    context.console = console;
 
     // Copy our context's Date object into the inner one because we have a custom
     // util.inspect override for Date objects.
-    repl.context.Date = Date;
+    context.Date = Date;
 
     {
       // Node.js 18+ defines `crypto` in the REPL to be the global WebCrypto object,
@@ -245,13 +300,13 @@ class MongoshNodeRepl implements EvaluationListener {
       // separately from the Node.js upgrade cycle, so we always use the Node.js builtin
       // module for now.
       const globalCryptoDescriptor =
-        Object.getOwnPropertyDescriptor(repl.context, 'crypto') ?? {};
+        Object.getOwnPropertyDescriptor(context, 'crypto') ?? {};
       if (
         globalCryptoDescriptor.value?.subtle ||
         globalCryptoDescriptor.get?.call(null)?.subtle
       ) {
-        delete repl.context.crypto;
-        repl.context.crypto = await import('node:crypto');
+        delete context.crypto;
+        context.crypto = await import('node:crypto');
       }
     }
 
@@ -259,8 +314,41 @@ class MongoshNodeRepl implements EvaluationListener {
       shellEvaluator,
       instanceState,
       repl,
+      context,
       console,
     };
+
+    markTime(
+      TimingCategories.REPLInstantiation,
+      'basic repl/vm initialization complete'
+    );
+
+    await this.finishInitializingNodeRepl();
+    instanceState.setCtx(context);
+
+    if (!this.shellCliOptions.nodb && !this.shellCliOptions.quiet) {
+      // cf. legacy shell:
+      // https://github.com/mongodb/mongo/blob/a6df396047a77b90bf1ce9463eecffbee16fb864/src/mongo/shell/mongo_main.cpp#L1003-L1026
+      const { shellApi } = instanceState;
+      const banners = await Promise.all([
+        (async () => await shellApi._untrackedShow('startupWarnings'))(),
+        (async () => await shellApi._untrackedShow('automationNotices'))(),
+        (async () => await shellApi._untrackedShow('nonGenuineMongoDBCheck'))(),
+      ]);
+      for (const banner of banners) {
+        if (banner.value) {
+          await shellApi.print(banner);
+        }
+      }
+    }
+
+    markTime(TimingCategories.REPLInstantiation, 'finished initialization');
+    return { __initialized: 'yes' };
+  }
+
+  private async finishInitializingNodeRepl(): Promise<void> {
+    const { repl, instanceState } = this.runtimeState();
+    if (!repl) return;
 
     const origReplCompleter = promisify(repl.completer.bind(repl)); // repl.completer is callback-style
     const mongoshCompleter = completer.bind(
@@ -415,6 +503,8 @@ class MongoshNodeRepl implements EvaluationListener {
     }
 
     markTime(TimingCategories.UserConfigLoading, 'set up history file');
+
+    // Similar calls are added for plain-vm evaluation below
     (repl as any).on(asyncRepl.evalStart, () => {
       this.bus.emit('mongosh:evaluate-started');
     });
@@ -427,27 +517,6 @@ class MongoshNodeRepl implements EvaluationListener {
         /* ... */
       });
     });
-
-    instanceState.setCtx(repl.context);
-
-    if (!this.shellCliOptions.nodb && !this.shellCliOptions.quiet) {
-      // cf. legacy shell:
-      // https://github.com/mongodb/mongo/blob/a6df396047a77b90bf1ce9463eecffbee16fb864/src/mongo/shell/mongo_main.cpp#L1003-L1026
-      const { shellApi } = instanceState;
-      const banners = await Promise.all([
-        (async () => await shellApi._untrackedShow('startupWarnings'))(),
-        (async () => await shellApi._untrackedShow('automationNotices'))(),
-        (async () => await shellApi._untrackedShow('nonGenuineMongoDBCheck'))(),
-      ]);
-      for (const banner of banners) {
-        if (banner.value) {
-          await shellApi.print(banner);
-        }
-      }
-    }
-
-    markTime(TimingCategories.REPLInstantiation, 'finished initialization');
-    return { __initialized: 'yes' };
   }
 
   /**
@@ -459,11 +528,18 @@ class MongoshNodeRepl implements EvaluationListener {
   async startRepl(_initializationToken: InitializationToken): Promise<void> {
     this.started = true;
     const { repl } = this.runtimeState();
+    if (!repl) {
+      throw new MongoshInternalError(
+        'Cannot start REPL when not in REPL evaluation mode'
+      );
+    }
+    // Set up the prompt before consuming input so that we do not end up
+    // running the prompt function in parallel with actual input code.
+    repl.setPrompt(await this.getShellPrompt());
     // Only start reading from the input *after* we set up everything, including
-    // instanceState.setCtx().
+    // instanceState.setCtx() and configuring the REPL prompt.
     this.lineByLineInput.start();
     this.input.resume();
-    repl.setPrompt(await this.getShellPrompt());
     repl.displayPrompt();
   }
 
@@ -604,7 +680,7 @@ class MongoshNodeRepl implements EvaluationListener {
       throw err;
     } finally {
       markTime(TimingCategories.Eval, 'done repl eval');
-      if (!this.insideAutoCompleteOrGetPrompt && !interrupted) {
+      if (!this.insideAutoCompleteOrGetPrompt && !interrupted && repl) {
         // In case of an interrupt, onAsyncSigint will print the prompt when completed
         repl.setPrompt(await this.getShellPrompt());
       }
@@ -658,8 +734,41 @@ class MongoshNodeRepl implements EvaluationListener {
     input: string,
     filename: string
   ): Promise<ShellResult> {
-    const { repl } = this.runtimeState();
-    return await promisify(repl.eval.bind(repl))(input, repl.context, filename);
+    const { repl, context } = this.runtimeState();
+    if (repl) {
+      return await promisify(repl.eval.bind(repl))(input, context, filename);
+    }
+
+    let asyncSigintHandler!: () => void;
+    const asyncSigintPromise = new Promise((resolve, reject) => {
+      asyncSigintHandler = () => {
+        void this.onAsyncSigint();
+        setImmediate(() =>
+          reject(
+            new Error('Asynchronous execution was interrupted by `SIGINT`')
+          )
+        );
+      };
+    });
+    this.bus.emit('mongosh:evaluate-started');
+    try {
+      process.addListener('SIGINT', asyncSigintHandler);
+      return await Promise.race([
+        asyncSigintPromise,
+        this.eval(
+          (input, context, filename) =>
+            new Script(input, { filename }).runInContext(context, {
+              breakOnSigint: true,
+            }),
+          input,
+          context,
+          filename
+        ),
+      ]);
+    } finally {
+      process.removeListener('SIGINT', asyncSigintHandler);
+      this.bus.emit('mongosh:evaluate-finished');
+    }
   }
 
   /**
@@ -709,7 +818,9 @@ class MongoshNodeRepl implements EvaluationListener {
     this.bus.emit('mongosh:interrupt-complete'); // For testing purposes.
 
     const { repl } = this.runtimeState();
-    repl.setPrompt(await this.getShellPrompt());
+    if (repl) {
+      repl.setPrompt(await this.getShellPrompt());
+    }
 
     return true;
   }
@@ -792,6 +903,10 @@ class MongoshNodeRepl implements EvaluationListener {
     question: string,
     type: 'password' | 'yesno'
   ): Promise<string> {
+    // Make sure we are in async evaluation mode, see comments in the
+    // function for details
+    await enterAsynchronousExecutionForPrompt();
+
     if (type === 'password') {
       const passwordPromise = askpassword({
         input: this.input,
@@ -863,11 +978,12 @@ class MongoshNodeRepl implements EvaluationListener {
    * Provides the current set of output formatting options used for this shell.
    */
   getFormatOptions(): FormatOptions {
-    const output = this.output as WriteStream;
+    const output: Writable &
+      Partial<Pick<WriteStream, 'isTTY' | 'getColorDepth'>> = this.output;
     return {
       colors:
         this._runtimeState?.repl?.useColors ??
-        (output.isTTY && output.getColorDepth() > 1),
+        !!(output.isTTY && (output?.getColorDepth?.() ?? 0) > 1),
       compact: this.inspectCompact,
       depth: this.inspectDepth,
       showStackTraces: this.showStackTraces,
@@ -896,7 +1012,7 @@ class MongoshNodeRepl implements EvaluationListener {
     const rs = this._runtimeState;
     if (rs) {
       this._runtimeState = null;
-      rs.repl.close();
+      rs.repl?.close();
       await rs.instanceState.close(true);
       await new Promise((resolve) => this.output.write('', resolve));
     }
@@ -988,11 +1104,11 @@ class MongoshNodeRepl implements EvaluationListener {
    * Figure out the current prompt to use.
    */
   private async getShellPrompt(): Promise<string> {
-    const { repl, instanceState } = this.runtimeState();
+    const { context, instanceState } = this.runtimeState();
 
     try {
       this.insideAutoCompleteOrGetPrompt = true;
-      if (typeof repl.context.prompt !== 'undefined') {
+      if (typeof context.prompt !== 'undefined') {
         const promptResult = await this.loadExternalCode(
           `
         (() => {
@@ -1021,6 +1137,10 @@ class MongoshNodeRepl implements EvaluationListener {
     }
     return '> ';
   }
+
+  jsContext(): JSContext {
+    return this.runtimeState().repl ? 'repl' : 'plain-vm';
+  }
 }
 
 /**
@@ -1037,6 +1157,36 @@ function isErrorLike(value: any): boolean {
   } catch (err: any) {
     throw new MongoshInternalError(err?.message || String(err));
   }
+}
+
+async function enterAsynchronousExecutionForPrompt(): Promise<void> {
+  // Make sure we always start out in an asynchronous state when
+  // presenting a prompt to the user.
+  // This is to work around/solve https://jira.mongodb.org/browse/MONGOSH-1667,
+  // where the sequence of events was as follows:
+  //
+  //  1. User types input (in raw mode), which contains a call to e.g.
+  //     passwordPrompt().
+  //  2. Our AsyncRepl implementation disables raw mode (for Ctrl+C support).
+  //  3. The Node.js REPL implementation disables raw mode (also for Ctrl+C
+  //      support, but targeting synchronous execution only).
+  //  4. The prompt implementation enables raw mode (to prevent echoing input)
+  //     while in the synchronous portion of evaluation, then waits for input.
+  //  5. Synchronous evaluation ends and the Node.js REPL restores the previous
+  //     raw mode, i.e. disabled it, because that is the state our AsyncRepl set
+  //     just before the Node.js REPL started evaluating.
+  //     (The prompt implementation observed this "auto-reset" but assumed it was
+  //     an intentional override of its own set-raw-mode behavior).
+  //  6. The prompt value (e.g. password) is entered and echoes back to the
+  //     terminal because raw mode is disabled.
+  //  7. Only after that does the AsyncRepl instance restore raw mode for
+  //     getting user input.
+  //
+  // Solving this issue by ensuring that the prompt is unaffected by our REPL
+  // raw mode setting/resetting seems like a reasonably self-contained approach
+  // to this issue.
+
+  await new Promise(setImmediate);
 }
 
 export default MongoshNodeRepl;

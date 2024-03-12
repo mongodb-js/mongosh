@@ -52,7 +52,9 @@ describe('setupLoggerAndTelemetry', function () {
     track(info: any) {
       analyticsOutput.push(['track', info]);
     },
-    flush() {},
+    async flush() {
+      return Promise.resolve();
+    },
   };
 
   beforeEach(function () {
@@ -85,6 +87,7 @@ describe('setupLoggerAndTelemetry', function () {
     } as any);
     bus.emit('mongosh:start-session', {
       isInteractive: true,
+      jsContext: 'foo',
       timings: {
         'BoxedNode Bindings': 50,
         NodeREPL: 100,
@@ -418,6 +421,7 @@ describe('setupLoggerAndTelemetry', function () {
           event: 'Startup Time',
           properties: {
             is_interactive: true,
+            js_context: 'foo',
             boxed_node_bindings: 50,
             node_repl: 100,
             mongosh_version: '1.0.0',

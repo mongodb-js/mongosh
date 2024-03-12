@@ -23,6 +23,11 @@ import MongoshNodeRepl from './mongosh-repl';
 import { parseAnyLogEntry } from '../../shell-api/src/log-entry';
 import stripAnsi from 'strip-ansi';
 
+function nonnull<T>(value: T | null | undefined): NonNullable<T> {
+  if (!value) throw new Error();
+  return value;
+}
+
 const delay = promisify(setTimeout);
 
 const multilineCode = `(function() {
@@ -280,7 +285,7 @@ describe('MongoshNodeRepl', function () {
     it('handles a long series of errors', async function () {
       input.write('-asdf();\n'.repeat(20));
       await waitEval(bus);
-      expect(mongoshRepl.runtimeState().repl.listenerCount('SIGINT')).to.equal(
+      expect(mongoshRepl.runtimeState().repl?.listenerCount('SIGINT')).to.equal(
         1
       );
     });
@@ -548,7 +553,7 @@ describe('MongoshNodeRepl', function () {
             await tick();
             input.write('"bar" })\n');
             await tick();
-            expect(mongoshRepl.runtimeState().repl.context.obj).to.deep.equal({
+            expect(mongoshRepl.runtimeState().context.obj).to.deep.equal({
               foo: 'bar',
             });
             expect(output).not.to.include('obj = ({ foo: "bar" })');
@@ -571,7 +576,7 @@ describe('MongoshNodeRepl', function () {
             await tick();
             input.write('\u0004'); // Ctrl+D
             await tick();
-            expect(mongoshRepl.runtimeState().repl.context.obj).to.deep.equal({
+            expect(mongoshRepl.runtimeState().context.obj).to.deep.equal({
               foo: 'baz',
             });
             expect(output).not.to.include('obj = ({ foo: "baz" })');
@@ -596,7 +601,7 @@ describe('MongoshNodeRepl', function () {
             await tick();
             input.write('"bar" })\n');
             await tick();
-            expect(mongoshRepl.runtimeState().repl.context.obj).to.deep.equal({
+            expect(mongoshRepl.runtimeState().context.obj).to.deep.equal({
               foo: 'bar',
             });
             expect(output).not.to.include('obj = ({ foo: "bar" })');
@@ -638,7 +643,10 @@ describe('MongoshNodeRepl', function () {
 
           it('does not crash if hitting enter and then up', async function () {
             input.write('\n');
-            await once(mongoshRepl.runtimeState().repl, 'flushHistory');
+            await once(
+              nonnull(mongoshRepl.runtimeState().repl),
+              'flushHistory'
+            );
             input.write(`${arrowUp}`);
             await tick();
           });
@@ -646,11 +654,20 @@ describe('MongoshNodeRepl', function () {
           context('redaction', function () {
             it('removes sensitive commands by default', async function () {
               input.write('connect\n');
-              await once(mongoshRepl.runtimeState().repl, 'flushHistory');
+              await once(
+                nonnull(mongoshRepl.runtimeState().repl),
+                'flushHistory'
+              );
               input.write('connection\n');
-              await once(mongoshRepl.runtimeState().repl, 'flushHistory');
+              await once(
+                nonnull(mongoshRepl.runtimeState().repl),
+                'flushHistory'
+              );
               input.write('db.test.insert({ email: "foo@example.org" })\n');
-              await once(mongoshRepl.runtimeState().repl, 'flushHistory');
+              await once(
+                nonnull(mongoshRepl.runtimeState().repl),
+                'flushHistory'
+              );
 
               expect(getHistory()).to.deep.equal([
                 'db.test.insert({ email: "foo@example.org" })',
@@ -662,11 +679,20 @@ describe('MongoshNodeRepl', function () {
               input.write('config.set("redactHistory", "keep");\n');
               await tick();
               input.write('connect\n');
-              await once(mongoshRepl.runtimeState().repl, 'flushHistory');
+              await once(
+                nonnull(mongoshRepl.runtimeState().repl),
+                'flushHistory'
+              );
               input.write('connection\n');
-              await once(mongoshRepl.runtimeState().repl, 'flushHistory');
+              await once(
+                nonnull(mongoshRepl.runtimeState().repl),
+                'flushHistory'
+              );
               input.write('db.test.insert({ email: "foo@example.org" })\n');
-              await once(mongoshRepl.runtimeState().repl, 'flushHistory');
+              await once(
+                nonnull(mongoshRepl.runtimeState().repl),
+                'flushHistory'
+              );
 
               expect(getHistory()).to.deep.equal([
                 'db.test.insert({ email: "foo@example.org" })',
@@ -680,11 +706,20 @@ describe('MongoshNodeRepl', function () {
               input.write('config.set("redactHistory", "remove-redact");\n');
               await tick();
               input.write('connect\n');
-              await once(mongoshRepl.runtimeState().repl, 'flushHistory');
+              await once(
+                nonnull(mongoshRepl.runtimeState().repl),
+                'flushHistory'
+              );
               input.write('connection\n');
-              await once(mongoshRepl.runtimeState().repl, 'flushHistory');
+              await once(
+                nonnull(mongoshRepl.runtimeState().repl),
+                'flushHistory'
+              );
               input.write('db.test.insert({ email: "foo@example.org" })\n');
-              await once(mongoshRepl.runtimeState().repl, 'flushHistory');
+              await once(
+                nonnull(mongoshRepl.runtimeState().repl),
+                'flushHistory'
+              );
 
               expect(getHistory()).to.deep.equal([
                 'db.test.insert({ email: "<email>" })',
@@ -783,11 +818,9 @@ describe('MongoshNodeRepl', function () {
 
     it('does not refresh the prompt if a window resize occurs while evaluating', async function () {
       let resolveInProgress;
-      mongoshRepl.runtimeState().repl.context.inProgress = new Promise(
-        (resolve) => {
-          resolveInProgress = resolve;
-        }
-      );
+      mongoshRepl.runtimeState().context.inProgress = new Promise((resolve) => {
+        resolveInProgress = resolve;
+      });
       input.write('inProgress\n');
       await tick();
 
@@ -887,7 +920,7 @@ describe('MongoshNodeRepl', function () {
     context('user prompts', function () {
       beforeEach(function () {
         // No boolean equivalent for 'passwordPrompt' in the API, so provide one:
-        mongoshRepl.runtimeState().repl.context.booleanPrompt = (question) => {
+        mongoshRepl.runtimeState().context.booleanPrompt = (question) => {
           return Object.assign(mongoshRepl.onPrompt(question, 'yesno'), {
             [Symbol.for('@@mongosh.syntheticPromise')]: true,
           });
@@ -898,6 +931,7 @@ describe('MongoshNodeRepl', function () {
         input.write('const pw = passwordPrompt()\n');
         await tick();
         expect(output).to.include('Enter password');
+        expect((input as any).isRaw).to.equal(true); // MONGOSH-1667
 
         output = '';
         input.write('hello!\n');
@@ -914,6 +948,7 @@ describe('MongoshNodeRepl', function () {
         input.write('pw = passwordPrompt(); 0\n');
         await tick();
         expect(output).to.include('Enter password');
+        expect((input as any).isRaw).to.equal(true);
 
         output = '';
         input.write('hello!\u0003'); // Ctrl+C
@@ -932,6 +967,7 @@ describe('MongoshNodeRepl', function () {
         input.write('const answer = booleanPrompt("shall we play a game?")\n');
         await tick();
         expect(output).to.include('shall we play a game?:');
+        expect((input as any).isRaw).to.equal(true);
 
         input.write('Y');
         await waitEval(bus);
@@ -948,6 +984,7 @@ describe('MongoshNodeRepl', function () {
         input.write('const answer = booleanPrompt("shall we play a game?")\n');
         await tick();
         expect(output).to.include('shall we play a game?:');
+        expect((input as any).isRaw).to.equal(true);
 
         input.write('q');
         await tick();
@@ -972,6 +1009,7 @@ describe('MongoshNodeRepl', function () {
         input.write('const answer = booleanPrompt("shall we play a game?")\n');
         await tick();
         expect(output).to.include('shall we play a game?:');
+        expect((input as any).isRaw).to.equal(true);
 
         input.write('\n');
         await waitEval(bus);
@@ -986,6 +1024,7 @@ describe('MongoshNodeRepl', function () {
         input.write('answer = booleanPrompt("shall we play a game?")\n');
         await tick();
         expect(output).to.include('shall we play a game?:');
+        expect((input as any).isRaw).to.equal(true);
 
         input.write('\u0003'); // Ctrl+C
         await waitEval(bus);
@@ -1275,6 +1314,29 @@ describe('MongoshNodeRepl', function () {
         await waitEval(bus);
         expect(output).not.to.contain('foobar');
         expect(output).to.contain('> ');
+      });
+    });
+
+    context('pre-specified user-provided prompt', function () {
+      it('does not attempt to run the prompt in parallel with initial input', async function () {
+        output = '';
+        const initialized = await mongoshRepl.initialize(serviceProvider);
+        await mongoshRepl.loadExternalCode(
+          `prompt = () => {
+          if (globalThis.isEvaluating) print('FAILED -- Parallel execution detected!');
+          globalThis.isEvaluating = true;
+          sleep(100);
+          globalThis.isEvaluating = false;
+          return '> ';
+        };`,
+          'test'
+        );
+        expect(mongoshRepl.runtimeState().context.prompt).to.be.a('function');
+        // Queue up input *before* starting the REPL itself
+        input.write('prompt()\n');
+        await mongoshRepl.startRepl(initialized);
+        await waitEval(bus);
+        expect(output).not.to.include('FAILED');
       });
     });
   });

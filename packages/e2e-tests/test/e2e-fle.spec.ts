@@ -168,7 +168,7 @@ describe('FLE tests', function () {
         // The actual assertion here:
         if (
           !kmsServer.requests.some((req) =>
-            req.headers.authorization.includes(accessKeyId)
+            req.headers.authorization?.includes(accessKeyId)
           ) ||
           (withSessionToken &&
             !kmsServer.requests.some(
@@ -235,7 +235,7 @@ describe('FLE tests', function () {
     );
     await shell.executeLine(`db = plainMongo.getDB('${dbname}')`);
     const keyVaultContents = await shell.executeLine('db.keyVault.find()');
-    expect(keyVaultContents).to.include(uuidRegexp.exec(keyId)[1]);
+    expect(keyVaultContents).to.include(uuidRegexp.exec(keyId)?.[1]);
   });
 
   it('works when a schemaMap option has been passed', async function () {
@@ -269,7 +269,7 @@ describe('FLE tests', function () {
     );
     await shell.executeLine(`db = plainMongo.getDB('${dbname}')`);
     const keyVaultContents = await shell.executeLine('db.keyVault.find()');
-    expect(keyVaultContents).to.include(uuidRegexp.exec(keyId)[1]);
+    expect(keyVaultContents).to.include(uuidRegexp.exec(keyId)?.[1]);
 
     await shell.executeLine(
       'clientEncryption = keyMongo.getClientEncryption();'
@@ -901,7 +901,7 @@ describe('FLE tests', function () {
     });
     await shell.waitForPrompt();
     // Wrapper for executeLine that expects single-line output
-    const runSingleLine = async (line) =>
+    const runSingleLine = async (line: string) =>
       (await shell.executeLine(line)).split('\n')[0].trim();
     await runSingleLine(
       'local = { key: BinData(0, "kh4Gv2N8qopZQMQYMEtww/AkPsIrXNmEMxTrs3tUoTQZbZu4msdRUaR8U5fXD7A7QXYHcEvuu4WctJLoT+NvvV3eeIg3MD+K8H9SR794m/safgRHdIfy6PD+rFpvmFbY") }'

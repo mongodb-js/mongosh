@@ -477,7 +477,7 @@ describe('CliRepl', function () {
           expect(e.name).to.equal('MongoshWarning');
           expect((e as any).code).to.equal(CliReplErrors.NodeVersionMismatch);
         } finally {
-          process.version = process.versions.node;
+          process.version = `v${process.versions.node}`;
           process.env.MONGOSH_SKIP_NODE_VERSION_CHECK =
             origVersionCheckEnvVar || '';
         }
@@ -590,135 +590,174 @@ describe('CliRepl', function () {
         });
       });
 
-      context('files loaded from command line', function () {
-        it('load a file if it has been specified on the command line', async function () {
-          const filename1 = path.resolve(
-            __dirname,
-            '..',
-            'test',
-            'fixtures',
-            'load',
-            'hello1.js'
-          );
-          cliReplOptions.shellCliOptions.fileNames = [filename1];
-          cliRepl = new CliRepl(cliReplOptions);
-          await startWithExpectedImmediateExit(cliRepl, '');
-          expect(output).to.include(`Loading file: ${filename1}`);
-          expect(output).to.include('hello one');
-          expect(exitCode).to.equal(0);
-        });
+      for (const jsContext of ['repl', 'plain-vm', undefined] as const) {
+        context(
+          `files loaded from command line (jsContext: ${
+            jsContext ?? 'default'
+          })`,
+          function () {
+            beforeEach(function () {
+              cliReplOptions.shellCliOptions.jsContext = jsContext;
+            });
+            it('load a file if it has been specified on the command line', async function () {
+              const filename1 = path.resolve(
+                __dirname,
+                '..',
+                'test',
+                'fixtures',
+                'load',
+                'hello1.js'
+              );
+              cliReplOptions.shellCliOptions.fileNames = [filename1];
+              cliRepl = new CliRepl(cliReplOptions);
+              await startWithExpectedImmediateExit(cliRepl, '');
+              expect(output).to.include(`Loading file: ${filename1}`);
+              expect(output).to.include('hello one');
+              expect(exitCode).to.equal(0);
+            });
 
-        it('load two files if it has been specified on the command line', async function () {
-          const filename1 = path.resolve(
-            __dirname,
-            '..',
-            'test',
-            'fixtures',
-            'load',
-            'hello1.js'
-          );
-          const filename2 = path.resolve(
-            __dirname,
-            '..',
-            'test',
-            'fixtures',
-            'load',
-            'hello2.js'
-          );
-          cliReplOptions.shellCliOptions.fileNames = [filename1, filename2];
-          cliRepl = new CliRepl(cliReplOptions);
-          await startWithExpectedImmediateExit(cliRepl, '');
-          expect(output).to.include(`Loading file: ${filename1}`);
-          expect(output).to.include('hello one');
-          expect(output).to.include(`Loading file: ${filename2}`);
-          expect(output).to.include('hello two');
-          expect(exitCode).to.equal(0);
-        });
+            it('load two files if it has been specified on the command line', async function () {
+              const filename1 = path.resolve(
+                __dirname,
+                '..',
+                'test',
+                'fixtures',
+                'load',
+                'hello1.js'
+              );
+              const filename2 = path.resolve(
+                __dirname,
+                '..',
+                'test',
+                'fixtures',
+                'load',
+                'hello2.js'
+              );
+              cliReplOptions.shellCliOptions.fileNames = [filename1, filename2];
+              cliRepl = new CliRepl(cliReplOptions);
+              await startWithExpectedImmediateExit(cliRepl, '');
+              expect(output).to.include(`Loading file: ${filename1}`);
+              expect(output).to.include('hello one');
+              expect(output).to.include(`Loading file: ${filename2}`);
+              expect(output).to.include('hello two');
+              expect(exitCode).to.equal(0);
+            });
 
-        it('does not print filenames if --quiet is passed', async function () {
-          const filename1 = path.resolve(
-            __dirname,
-            '..',
-            'test',
-            'fixtures',
-            'load',
-            'hello1.js'
-          );
-          cliReplOptions.shellCliOptions.fileNames = [filename1];
-          cliReplOptions.shellCliOptions.quiet = true;
-          cliRepl = new CliRepl(cliReplOptions);
-          await startWithExpectedImmediateExit(cliRepl, '');
-          expect(output).not.to.include('Loading file');
-          expect(output).to.include('hello one');
-          expect(exitCode).to.equal(0);
-        });
+            it('does not print filenames if --quiet is passed', async function () {
+              const filename1 = path.resolve(
+                __dirname,
+                '..',
+                'test',
+                'fixtures',
+                'load',
+                'hello1.js'
+              );
+              cliReplOptions.shellCliOptions.fileNames = [filename1];
+              cliReplOptions.shellCliOptions.quiet = true;
+              cliRepl = new CliRepl(cliReplOptions);
+              await startWithExpectedImmediateExit(cliRepl, '');
+              expect(output).not.to.include('Loading file');
+              expect(output).to.include('hello one');
+              expect(exitCode).to.equal(0);
+            });
 
-        it('forwards the error it if loading the file throws', async function () {
-          const filename1 = path.resolve(
-            __dirname,
-            '..',
-            'test',
-            'fixtures',
-            'load',
-            'throw.js'
-          );
-          cliReplOptions.shellCliOptions.fileNames = [filename1];
-          cliRepl = new CliRepl(cliReplOptions);
-          try {
-            await cliRepl.start('', {});
-          } catch (err: any) {
-            expect(err.message).to.include('uh oh');
+            it('forwards the error it if loading the file throws', async function () {
+              const filename1 = path.resolve(
+                __dirname,
+                '..',
+                'test',
+                'fixtures',
+                'load',
+                'throw.js'
+              );
+              cliReplOptions.shellCliOptions.fileNames = [filename1];
+              cliRepl = new CliRepl(cliReplOptions);
+              try {
+                await cliRepl.start('', {});
+              } catch (err: any) {
+                expect(err.message).to.include('uh oh');
+              }
+              expect(output).to.include('Loading file');
+              expect(output).not.to.include('uh oh');
+            });
+
+            it('evaluates code passed through --eval (single argument)', async function () {
+              cliReplOptions.shellCliOptions.eval = [
+                '"i am" + " being evaluated"',
+              ];
+              cliRepl = new CliRepl(cliReplOptions);
+              await startWithExpectedImmediateExit(cliRepl, '');
+              expect(output).to.include('i am being evaluated');
+              expect(exitCode).to.equal(0);
+            });
+
+            it('forwards the error if the script passed to --eval throws (single argument)', async function () {
+              cliReplOptions.shellCliOptions.eval = [
+                'throw new Error("oh no")',
+              ];
+              cliRepl = new CliRepl(cliReplOptions);
+              try {
+                await cliRepl.start('', {});
+              } catch (err: any) {
+                expect(err.message).to.include('oh no');
+              }
+              expect(output).not.to.include('oh no');
+            });
+
+            it('evaluates code passed through --eval (multiple arguments)', async function () {
+              cliReplOptions.shellCliOptions.eval = [
+                'X = "i am"; "asdfghjkl"',
+                'X + " being evaluated"',
+              ];
+              cliRepl = new CliRepl(cliReplOptions);
+              await startWithExpectedImmediateExit(cliRepl, '');
+              expect(output).to.not.include('asdfghjkl');
+              expect(output).to.include('i am being evaluated');
+              expect(exitCode).to.equal(0);
+            });
+
+            it('forwards the error if the script passed to --eval throws (multiple arguments)', async function () {
+              cliReplOptions.shellCliOptions.eval = [
+                'throw new Error("oh no")',
+                'asdfghjkl',
+              ];
+              cliRepl = new CliRepl(cliReplOptions);
+              try {
+                await cliRepl.start('', {});
+              } catch (err: any) {
+                expect(err.message).to.include('oh no');
+              }
+              expect(output).to.not.include('asdfghjkl');
+              expect(output).not.to.include('oh no');
+            });
+
+            it('evaluates code in the expected environment (non-interactive)', async function () {
+              cliReplOptions.shellCliOptions.eval = [
+                'print(":::" + (globalThis[Symbol.for("@@mongosh.usingPlainVMContext")] ? "plain-vm" : "repl"))',
+              ];
+              cliRepl = new CliRepl(cliReplOptions);
+              await startWithExpectedImmediateExit(cliRepl, '');
+              expect(output).to.include(`:::${jsContext ?? 'plain-vm'}`);
+              expect(exitCode).to.equal(0);
+            });
+
+            if (jsContext !== 'plain-vm') {
+              it('evaluates code in the expected environment (interactive)', async function () {
+                cliReplOptions.shellCliOptions.eval = [
+                  'print(":::" + (globalThis[Symbol.for("@@mongosh.usingPlainVMContext")] ? "plain-vm" : "repl"))',
+                ];
+                cliReplOptions.shellCliOptions.shell = true;
+                cliRepl = new CliRepl(cliReplOptions);
+                await cliRepl.start('', {});
+                input.write('exit\n');
+                await waitBus(cliRepl.bus, 'mongosh:closed');
+                expect(output).to.include(`:::${jsContext ?? 'repl'}`);
+                expect(exitCode).to.equal(0);
+              });
+            }
           }
-          expect(output).to.include('Loading file');
-          expect(output).not.to.include('uh oh');
-        });
-
-        it('evaluates code passed through --eval (single argument)', async function () {
-          cliReplOptions.shellCliOptions.eval = ['"i am" + " being evaluated"'];
-          cliRepl = new CliRepl(cliReplOptions);
-          await startWithExpectedImmediateExit(cliRepl, '');
-          expect(output).to.include('i am being evaluated');
-          expect(exitCode).to.equal(0);
-        });
-
-        it('forwards the error if the script passed to --eval throws (single argument)', async function () {
-          cliReplOptions.shellCliOptions.eval = ['throw new Error("oh no")'];
-          cliRepl = new CliRepl(cliReplOptions);
-          try {
-            await cliRepl.start('', {});
-          } catch (err: any) {
-            expect(err.message).to.include('oh no');
-          }
-          expect(output).not.to.include('oh no');
-        });
-
-        it('evaluates code passed through --eval (multiple arguments)', async function () {
-          cliReplOptions.shellCliOptions.eval = [
-            'X = "i am"; "asdfghjkl"',
-            'X + " being evaluated"',
-          ];
-          cliRepl = new CliRepl(cliReplOptions);
-          await startWithExpectedImmediateExit(cliRepl, '');
-          expect(output).to.not.include('asdfghjkl');
-          expect(output).to.include('i am being evaluated');
-          expect(exitCode).to.equal(0);
-        });
-
-        it('forwards the error if the script passed to --eval throws (multiple arguments)', async function () {
-          cliReplOptions.shellCliOptions.eval = [
-            'throw new Error("oh no")',
-            'asdfghjkl',
-          ];
-          cliRepl = new CliRepl(cliReplOptions);
-          try {
-            await cliRepl.start('', {});
-          } catch (err: any) {
-            expect(err.message).to.include('oh no');
-          }
-          expect(output).to.not.include('asdfghjkl');
-          expect(output).not.to.include('oh no');
-        });
-      });
+        );
+      }
 
       context('in --json mode', function () {
         beforeEach(function () {
@@ -1176,7 +1215,10 @@ describe('CliRepl', function () {
     it('does not emit warnings when connecting multiple times', async function () {
       await cliRepl.start(await testServer.connectionString(), {});
       let warnings = 0;
-      const warningListener = () => warnings++;
+      const warningListener = (warning) => {
+        console.log('Unexpected warning', warning);
+        warnings++;
+      };
       process.on('warning', warningListener);
       try {
         input.write(
@@ -1202,6 +1244,7 @@ describe('CliRepl', function () {
         let srv: http.Server;
         let host: string;
         let requests: any[];
+        let totalEventsTracked = 0;
         let telemetryDelay = 0;
         const setTelemetryDelay = (val: number) => {
           telemetryDelay = val;
@@ -1210,6 +1253,7 @@ describe('CliRepl', function () {
         beforeEach(async function () {
           process.env.MONGOSH_ANALYTICS_SAMPLE = 'true';
           requests = [];
+          totalEventsTracked = 0;
           srv = http
             .createServer((req, res) => {
               let body = '';
@@ -1220,8 +1264,9 @@ describe('CliRepl', function () {
                 })
                 .on('end', async () => {
                   requests.push({ req, body });
-                  res.writeHead(200);
+                  totalEventsTracked += JSON.parse(body).batch.length;
                   await delay(telemetryDelay);
+                  res.writeHead(200);
                   res.end('Ok\n');
                 });
             })
@@ -1243,20 +1288,28 @@ describe('CliRepl', function () {
           setTelemetryDelay(0);
         });
 
-        it('timeouts fast', async function () {
-          setTelemetryDelay(10000);
+        it('times out fast', async function () {
+          const testStartMs = Date.now();
+          // The `httpRequestTimeout` of our Segment Analytics is set to
+          // 1000ms which makes these requests fail as they exceed the timeout.
+          // Segment will silently fail http request errors when tracking and flushing.
+          // This will cause the test to fail if the system running the tests is
+          //  unable to flush telemetry in 1500ms.
+          setTelemetryDelay(5000);
           await cliRepl.start(await testServer.connectionString(), {});
+          this.timeout(Date.now() - testStartMs + 2500); // Do not include connection time in 2.5s timeout
           input.write('use somedb;\n');
           input.write('exit\n');
           await waitBus(cliRepl.bus, 'mongosh:closed');
-          const analyticsLog = (await log()).find(
+          const analyticsLog = (await log()).filter(
             (entry) =>
               entry.ctx === 'analytics' &&
               entry.msg === 'Flushed outstanding data'
           );
-          expect(analyticsLog).to.have.nested.property(
+          expect(analyticsLog).to.have.lengthOf(1);
+          expect(analyticsLog[0]).to.have.nested.property(
             'attr.flushError',
-            'timeout of 1000ms exceeded'
+            null // Although the flush request will time out, it does not error.
           );
         });
 
@@ -1386,7 +1439,7 @@ describe('CliRepl', function () {
           );
           expect(flushEntry.attr.flushError).to.equal(null);
           expect(flushEntry.attr.flushDuration).to.be.a('number');
-          expect(requests).to.have.lengthOf(2);
+          expect(totalEventsTracked).to.equal(4);
         });
 
         it('sends out telemetry data for command line scripts', async function () {
@@ -1396,7 +1449,39 @@ describe('CliRepl', function () {
             cliRepl,
             await testServer.connectionString()
           );
-          expect(requests).to.have.lengthOf(2);
+          expect(totalEventsTracked).to.equal(5);
+        });
+
+        it('sends out telemetry data for multiple command line scripts', async function () {
+          cliReplOptions.shellCliOptions.eval = [
+            'db.hello(); db.hello();',
+            'db.hello()',
+          ];
+          cliRepl = new CliRepl(cliReplOptions);
+          await startWithExpectedImmediateExit(
+            cliRepl,
+            await testServer.connectionString()
+          );
+          expect(totalEventsTracked).to.equal(7);
+
+          const apiEvents = requests
+            .map((req) =>
+              JSON.parse(req.body).batch.filter(
+                (entry) => entry.event === 'API Call'
+              )
+            )
+            .flat();
+          expect(apiEvents).to.have.lengthOf(2);
+          expect(
+            apiEvents.map((e) => [
+              e.properties.class,
+              e.properties.method,
+              e.properties.count,
+            ])
+          ).to.deep.equal([
+            ['Database', 'hello', 2],
+            ['Database', 'hello', 1],
+          ]);
         });
 
         it('sends out telemetry if the repl is running in an interactive mode in a containerized environment', async function () {
@@ -1408,7 +1493,7 @@ describe('CliRepl', function () {
           input.write('db.hello()\n');
           input.write('exit\n');
           await waitBus(cliRepl.bus, 'mongosh:closed');
-          expect(requests).to.have.lengthOf(2);
+          expect(totalEventsTracked).to.equal(4);
         });
 
         it('does not send out telemetry if the user starts with a no-telemetry config', async function () {
