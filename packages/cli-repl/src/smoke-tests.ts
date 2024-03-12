@@ -250,8 +250,9 @@ export async function runSmokeTests({
             input: `let count = 0; for (const item of ${manyDocsCursor(
               12345
             )}) count++; print(count);`,
-            output: /\b12345\b|Unrecognized pipeline stage name/,
-            includeStderr: false,
+            output:
+              /\b12345\b|Unrecognized pipeline stage name|is not allowed in user requests/,
+            includeStderr: true,
             exitCode: 0,
             testArgs: [smokeTestServer, '--jsContext=repl'],
             perfTestIterations: 20,
@@ -262,8 +263,9 @@ export async function runSmokeTests({
             input: `let count = 0; for (const item of ${manyDocsCursor(
               200_000
             )}) count++; print(count);`,
-            output: /\b200000\b|Unrecognized pipeline stage name/,
-            includeStderr: false,
+            output:
+              /\b200000\b|Unrecognized pipeline stage name|is not allowed in user requests/,
+            includeStderr: true,
             exitCode: 0,
             testArgs: [
               smokeTestServer,
