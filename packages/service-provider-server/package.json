@@ -54,7 +54,7 @@
     "@mongosh/types": "0.0.0-dev.0",
     "@types/sinon-chai": "^3.2.4",
     "aws4": "^1.12.0",
-    "mongodb": "^6.4.0",
+    "mongodb": "^6.5.0",
     "mongodb-connection-string-url": "^3.0.0",
     "socks": "^2.8.1"
   },
