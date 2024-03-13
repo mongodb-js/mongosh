@@ -253,7 +253,6 @@ export async function runSmokeTests({
             output:
               /\b12345\b|Unrecognized pipeline stage name|is not allowed in user requests/,
             includeStderr: true,
-            exitCode: 0,
             testArgs: [smokeTestServer, '--jsContext=repl'],
             perfTestIterations: 20,
             tags: ['db', 'cursor_iteration'],
@@ -266,7 +265,6 @@ export async function runSmokeTests({
             output:
               /\b200000\b|Unrecognized pipeline stage name|is not allowed in user requests/,
             includeStderr: true,
-            exitCode: 0,
             testArgs: [
               smokeTestServer,
               '--file=$INPUT_AS_FILE',
