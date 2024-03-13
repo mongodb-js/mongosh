@@ -397,6 +397,7 @@ export default function constructShellBson(
         'SUBTYPE_MD5',
         'SUBTYPE_ENCRYPTED',
         'SUBTYPE_COLUMN',
+        'SUBTYPE_SENSITIVE',
         'SUBTYPE_USER_DEFINED',
       ])
     ),
