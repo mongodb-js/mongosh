@@ -58,11 +58,13 @@ const OPTIONS = {
     'apiDeprecationErrors',
     'apiStrict',
     'buildInfo',
+    'exposeAsyncRewriter',
     'help',
     'ipv6',
     'nodb',
     'norc',
     'oidcTrustedEndpoint',
+    'perfTests',
     'quiet',
     'retryWrites',
     'shell',
@@ -155,6 +157,7 @@ function isConnectionSpecifier(arg?: string): boolean {
  */
 export function parseCliArgs(args: string[]): CliOptions & {
   smokeTests: boolean;
+  perfTests: boolean;
   buildInfo: boolean;
   _argParseWarnings: string[];
 } {
@@ -163,6 +166,7 @@ export function parseCliArgs(args: string[]): CliOptions & {
 
   const parsed = parser(programArgs, OPTIONS) as unknown as CliOptions & {
     smokeTests: boolean;
+    perfTests: boolean;
     buildInfo: boolean;
     _argParseWarnings: string[];
     _?: string[];

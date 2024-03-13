@@ -20,6 +20,7 @@ export interface CliOptions {
   cryptSharedLibPath?: string;
   db?: string;
   eval?: string[];
+  exposeAsyncRewriter?: boolean; // internal testing only
   gssapiServiceName?: string;
   sspiHostnameCanonicalization?: string;
   sspiRealmOverride?: string;

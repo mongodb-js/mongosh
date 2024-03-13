@@ -41,16 +41,19 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
   private hasAppliedAsyncWriterRuntimeSupport = true;
   private asyncWriter: AsyncWriter;
   private markTime?: (category: TimingCategory, label: string) => void;
+  private exposeAsyncRewriter: boolean;
 
   constructor(
     instanceState: ShellInstanceState,
     resultHandler: ResultHandler<EvaluationResultType> = toShellResult as any,
-    markTime?: (category: TimingCategory, label: string) => void
+    markTime?: (category: TimingCategory, label: string) => void,
+    exposeAsyncRewriter?: boolean
   ) {
     this.instanceState = instanceState;
     this.resultHandler = resultHandler;
     this.asyncWriter = new AsyncWriter();
     this.hasAppliedAsyncWriterRuntimeSupport = false;
+    this.exposeAsyncRewriter = !!exposeAsyncRewriter;
     this.markTime = markTime;
   }
 
@@ -87,6 +90,10 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
       !(argv[0] ?? '').startsWith('(')
     ) {
       return shellApi[cmd](...argv);
+    }
+
+    if (this.exposeAsyncRewriter) {
+      (context as any).__asyncRewrite = () => this.asyncWriter.process(input);
     }
 
     this.markTime?.(TimingCategories.AsyncRewrite, 'start async rewrite');

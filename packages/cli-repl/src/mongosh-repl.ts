@@ -55,6 +55,7 @@ export type MongoshCliOptions = ShellCliOptions & {
    * for async error tracking, or not.
    */
   jsContext?: JSContext;
+  exposeAsyncRewriter?: boolean;
 };
 
 /**
@@ -186,7 +187,8 @@ class MongoshNodeRepl implements EvaluationListener {
     const shellEvaluator = new ShellEvaluator(
       instanceState,
       (value: any) => value,
-      markTime
+      markTime,
+      !!this.shellCliOptions.exposeAsyncRewriter
     );
     instanceState.setEvaluationListener(this);
     await instanceState.fetchConnectionInfo();

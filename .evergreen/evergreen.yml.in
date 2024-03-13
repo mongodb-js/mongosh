@@ -825,6 +825,24 @@ functions:
           set -e
           .evergreen/run-evergreen-release.sh
 
+  run_perf_tests:
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          set -x
+          # fix rh-allow-sha1-signatures error, see run-e2e-tests.sh
+          export OPENSSL_CONF=""
+          npx -y mongodb-runner exec -t standalone --version=7.0.x-enterprise -- \
+            sh -c 'MONGOSH_SMOKE_TEST_SERVER="$MONGODB_URI" ./dist/mongosh --perfTests > perf_results.json'
+        env:
+          DISTRO_ID: ${distro_id}
+    - command: perf.send
+      params:
+        file: src/perf_results.json
+
 # Tasks will show up as the individual blocks in the Evergreen UI that can
 # pass or fail.
 #
@@ -996,7 +1014,22 @@ tasks:
           mongosh_server_test_version: "<% out(mVersion) %>-enterprise"
           mongosh_test_e2e_force_fips: "<% out(fipsVariant === 'fips' ? '1' : '') %>"
           disable_openssl_shared_config_for_bundled_openssl: ${disable_openssl_shared_config_for_bundled_openssl|false}
-  <% } } } %>
+  <% } } %>
+  - name: perf_tests_<% out(executableOsId.replace(/-/g, '_')) %>
+    tags: ["perf-test"]
+    depends_on:
+      - name: compile_artifact
+        variant: <% out(compileBuildVariant) %>
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: <% out(executableOsId) %>
+      - func: run_perf_tests
+  <% } %>
 
   ###
   # EXECUTABLE CONNECTIVITY TESTS
@@ -1225,7 +1258,7 @@ buildvariants:
       - name: compile_artifact
   - name: linux_x64_build_rhel8
     display_name: "RHEL 8.0 x64 (build)"
-    run_on: rhel80-small
+    run_on: rhel80-build
     expansions:
       executable_os_id: linux-x64
     tags: ["nightly-driver"]
@@ -1242,7 +1275,7 @@ buildvariants:
       - name: compile_artifact
   - name: linux_x64_build_openssl11_rhel8
     display_name: "RHEL 8.0 x64 (build, shared OpenSSL 1.1)"
-    run_on: rhel80-small
+    run_on: rhel80-build
     expansions:
       executable_os_id: linux-x64-openssl11
       mongosh_shared_openssl: openssl11
@@ -1260,7 +1293,7 @@ buildvariants:
       - name: compile_artifact
   - name: linux_x64_build_openssl3_rhel8
     display_name: "RHEL 8.0 x64 (build, shared OpenSSL 3)"
-    run_on: rhel80-small
+    run_on: rhel80-build
     expansions:
       executable_os_id: linux-x64-openssl3
       mongosh_shared_openssl: openssl3
@@ -1594,3 +1627,9 @@ buildvariants:
     run_on: ubuntu2004-small
     tasks:
       - name: generate_license_and_vulnerability_report
+
+  - name: perf_tests
+    display_name: "Performance Tests"
+    run_on: rhel90-dbx-perf-large
+    tasks:
+      - name: perf_tests_linux_x64

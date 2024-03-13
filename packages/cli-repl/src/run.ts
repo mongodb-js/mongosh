@@ -131,26 +131,25 @@ async function main() {
       console.log(JSON.stringify(await buildInfo(), null, '  '));
       return;
     }
-    if (options.smokeTests) {
+    if (options.smokeTests || options.perfTests) {
       const smokeTestServer = process.env.MONGOSH_SMOKE_TEST_SERVER;
       const cryptLibraryOpts = options.cryptSharedLibPath
         ? [`--cryptSharedLibPath=${options.cryptSharedLibPath}`]
         : [];
       if (process.execPath === process.argv[1]) {
         // This is the compiled binary. Use only the path to it.
-        await runSmokeTests(
+        await runSmokeTests({
           smokeTestServer,
-          process.execPath,
-          ...cryptLibraryOpts
-        );
+          args: [process.execPath, ...cryptLibraryOpts],
+          wantPerformanceTesting: !!options.perfTests,
+        });
       } else {
         // This is not the compiled binary. Use node + this script.
-        await runSmokeTests(
+        await runSmokeTests({
           smokeTestServer,
-          process.execPath,
-          process.argv[1],
-          ...cryptLibraryOpts
-        );
+          args: [process.execPath, process.argv[1], ...cryptLibraryOpts],
+          wantPerformanceTesting: !!options.perfTests,
+        });
       }
       return;
     }
