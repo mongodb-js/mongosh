@@ -13688,7 +13688,7 @@ buildvariants:
       - name: package_and_upload_artifact_rpm_s390x
   - name: linux_x64_build
     display_name: "RHEL 7.0 x64 (build)"
-    run_on: rhel70-xlarge
+    run_on: rhel70-build
     expansions:
       executable_os_id: linux-x64
     tags: ["nightly-driver"]
@@ -13704,7 +13704,7 @@ buildvariants:
       - name: compile_artifact
   - name: linux_x64_build_openssl11
     display_name: "RHEL 7.0 x64 (build, shared OpenSSL 1.1)"
-    run_on: rhel70-xlarge
+    run_on: rhel70-build
     expansions:
       executable_os_id: linux-x64-openssl11
       mongosh_shared_openssl: openssl11
@@ -13722,7 +13722,7 @@ buildvariants:
       - name: compile_artifact
   - name: linux_x64_build_openssl3
     display_name: "RHEL 7.0 x64 (build, shared OpenSSL 3)"
-    run_on: rhel70-xlarge
+    run_on: rhel70-build
     expansions:
       executable_os_id: linux-x64-openssl3
       mongosh_shared_openssl: openssl3
