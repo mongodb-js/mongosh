@@ -109,32 +109,26 @@ describe('e2e direct connection', function () {
           shell.assertContainsOutput(`setName: '${replSetId}'`);
         });
 
-        it('fails to list collections without explicit readPreference', async function () {
+        it('lists collections without explicit readPreference', async function () {
           const shell = TestShell.start({
             args: [`${await rs1.connectionString()}`],
           });
           await shell.waitForPrompt();
           await shell.executeLine('use admin');
           await shell.executeLine('db.runCommand({ listCollections: 1 })');
-          shell.assertContainsError(
-            'MongoServerError[NotPrimaryNoSecondaryOk]: not primary'
-          );
+          shell.assertContainsOutput("name: 'system.version'");
         });
 
-        it('lists collections when readPreference is in the connection string', async function () {
+        it('lists collections when an incompatible readPreference is provided', async function () {
           const shell = TestShell.start({
-            args: [
-              await rs1.connectionString({
-                readPreference: 'secondaryPreferred',
-              }),
-            ],
+            args: [`${await rs1.connectionString()}`],
           });
           await shell.waitForPrompt();
           await shell.executeLine('use admin');
-          await shell.executeLine('db.runCommand({ listCollections: 1 })');
-          shell.assertContainsOutput(
-            'MongoServerError[NotPrimaryNoSecondaryOk]: not primary'
+          await shell.executeLine(
+            'db.runCommand({ listCollections: 1 }, { readPreference: "primary" })'
           );
+          shell.assertContainsOutput("name: 'system.version'");
         });
 
         it('lists collections when readPreference is set via Mongo', async function () {
@@ -147,34 +141,28 @@ describe('e2e direct connection', function () {
             'db.getMongo().setReadPref("secondaryPreferred")'
           );
           await shell.executeLine('db.runCommand({ listCollections: 1 })');
-          shell.assertContainsOutput(
-            'MongoServerError[NotPrimaryNoSecondaryOk]: not primary'
-          );
+          shell.assertContainsOutput("name: 'system.version'");
         });
 
-        it('fails to list databases without explicit readPreference', async function () {
+        it('slists databases without explicit readPreference', async function () {
           const shell = TestShell.start({
             args: [await rs1.connectionString()],
           });
           await shell.waitForPrompt();
           await shell.executeLine('use admin');
           await shell.executeLine('db.getMongo().getDBs()');
-          shell.assertContainsError(
-            'MongoServerError[NotPrimaryNoSecondaryOk]: not primary'
-          );
+          shell.assertContainsOutput("name: 'admin'");
         });
 
-        it('lists databases when readPreference is in the connection string', async function () {
+        it('lists databases when an incompatible readPreference is provided', async function () {
           const shell = TestShell.start({
-            args: [
-              await rs1.connectionString({
-                readPreference: 'secondaryPreferred',
-              }),
-            ],
+            args: [await rs1.connectionString()],
           });
           await shell.waitForPrompt();
           await shell.executeLine('use admin');
-          await shell.executeLine('db.getMongo().getDBs()');
+          await shell.executeLine(
+            'db.getMongo().getDBs({ readPreference: "primary" })'
+          );
           shell.assertContainsOutput("name: 'admin'");
         });
 
