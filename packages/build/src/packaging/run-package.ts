@@ -4,7 +4,6 @@ import type { Config } from '../config';
 import { validatePackageVariant } from '../config';
 import { downloadCryptLibrary } from './download-crypt-library';
 import { downloadManpage } from './download-manpage';
-import { notarizeArtifact } from './notary-service';
 import type { PackageFile } from './package';
 import { createPackage } from './package';
 
@@ -39,14 +38,5 @@ export async function runPackage(config: Config): Promise<PackageFile> {
   };
 
   const packaged = await runCreatePackage();
-
-  if (packageVariant === 'win32msi-x64') {
-    await notarizeArtifact(packaged.path, {
-      signingKeyName: config.notarySigningKeyName || '',
-      authToken: config.notaryAuthToken || '',
-      signingComment: 'Evergreen Automatic Signing (mongosh)',
-    });
-  }
-
   return packaged;
 }

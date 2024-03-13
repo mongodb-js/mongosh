@@ -4,7 +4,6 @@ import type { Config } from './config';
 import { ALL_PACKAGE_VARIANTS } from './config';
 import type { uploadArtifactToDownloadCenter as uploadArtifactToDownloadCenterFn } from './download-center';
 import type { downloadArtifactFromEvergreen as downloadArtifactFromEvergreenFn } from './evergreen';
-import type { notarizeArtifact as notarizeArtifactFn } from './packaging';
 import type { generateChangelog as generateChangelogFn } from './git';
 import { GithubRepo } from '@mongodb-js/devtools-github-repo';
 import {
@@ -27,7 +26,6 @@ describe('draft', function () {
   let githubRepo: GithubRepo;
   let uploadArtifactToDownloadCenter: typeof uploadArtifactToDownloadCenterFn;
   let downloadArtifactFromEvergreen: typeof downloadArtifactFromEvergreenFn;
-  let notarizeArtifact: typeof notarizeArtifactFn;
 
   beforeEach(function () {
     config = { ...dummyConfig };
@@ -36,7 +34,6 @@ describe('draft', function () {
     downloadArtifactFromEvergreen = sinon.spy(() =>
       Promise.resolve('filename')
     );
-    notarizeArtifact = sinon.spy();
   });
 
   describe('runDraft', function () {
@@ -61,8 +58,7 @@ describe('draft', function () {
           githubRepo,
           uploadArtifactToDownloadCenter,
           downloadArtifactFromEvergreen,
-          ensureGithubReleaseExistsAndUpdateChangelog,
-          notarizeArtifact
+          ensureGithubReleaseExistsAndUpdateChangelog
         );
       });
 
@@ -78,12 +74,6 @@ describe('draft', function () {
 
       it('downloads existing artifacts from evergreen', function () {
         expect(downloadArtifactFromEvergreen).to.have.been.callCount(
-          ALL_PACKAGE_VARIANTS.length
-        );
-      });
-
-      it('asks the notary service to sign files', function () {
-        expect(notarizeArtifact).to.have.been.callCount(
           ALL_PACKAGE_VARIANTS.length
         );
       });
@@ -112,8 +102,7 @@ describe('draft', function () {
         githubRepo,
         uploadArtifactToDownloadCenter,
         downloadArtifactFromEvergreen,
-        ensureGithubReleaseExistsAndUpdateChangelog,
-        notarizeArtifact
+        ensureGithubReleaseExistsAndUpdateChangelog
       );
       expect(ensureGithubReleaseExistsAndUpdateChangelog).to.not.have.been
         .called;
@@ -136,8 +125,7 @@ describe('draft', function () {
           githubRepo,
           uploadArtifactToDownloadCenter,
           downloadArtifactFromEvergreen,
-          ensureGithubReleaseExistsAndUpdateChangelog,
-          notarizeArtifact
+          ensureGithubReleaseExistsAndUpdateChangelog
         );
       } catch (e: any) {
         expect(e.message).to.contain('Missing package information from config');
@@ -146,7 +134,6 @@ describe('draft', function () {
         expect(downloadArtifactFromEvergreen).to.not.have.been.called;
         expect(uploadArtifactToDownloadCenter).to.not.have.been.called;
         expect(uploadReleaseAsset).to.not.have.been.called;
-        expect(notarizeArtifact).to.not.have.been.called;
         return;
       }
       expect.fail('Expected error');
