@@ -138,9 +138,12 @@ async function main() {
         : [];
       if (process.execPath === process.argv[1]) {
         // This is the compiled binary. Use only the path to it.
+        const execPath =
+          process.env.MONGOSH_SMOKE_TEST_TARGET ?? process.execPath;
+        console.error(`Running smoke tests targeting ${execPath}`);
         await runSmokeTests({
           smokeTestServer,
-          args: [process.execPath, ...cryptLibraryOpts],
+          args: [execPath, ...cryptLibraryOpts],
           wantPerformanceTesting: !!options.perfTests,
         });
       } else {
