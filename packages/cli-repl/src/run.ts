@@ -38,6 +38,8 @@ if ((v8 as any)?.startupSnapshot?.isBuildingSnapshot?.()) {
   require('@mongodb-js/saslprep'); // Driver dependency
   require('socks'); // Driver dependency
   require('emphasize'); // Dependency of pretty-repl
+  require('ipv6-normalize'); // Dependency of devtools-connect via os-dns-native
+  require('bindings'); // Used by various native dependencies but not a native dep itself
 
   {
     const console = require('console');
