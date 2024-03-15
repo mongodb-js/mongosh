@@ -4,10 +4,10 @@ import type { Config } from './config';
 import { ALL_PACKAGE_VARIANTS, getReleaseVersionFromTag } from './config';
 import { uploadArtifactToDownloadCenter as uploadArtifactToDownloadCenterFn } from './download-center';
 import { downloadArtifactFromEvergreen as downloadArtifactFromEvergreenFn } from './evergreen';
-import { notarizeArtifact as notarizeArtifactFn } from './packaging';
 import { generateChangelog as generateChangelogFn } from './git';
 import type { GithubRepo } from '@mongodb-js/devtools-github-repo';
 import { getPackageFile } from './packaging';
+import { sign as signArtifactFn } from '@mongodb-js/signing-utils';
 
 export async function runDraft(
   config: Config,
@@ -15,7 +15,7 @@ export async function runDraft(
   uploadToDownloadCenter: typeof uploadArtifactToDownloadCenterFn = uploadArtifactToDownloadCenterFn,
   downloadArtifactFromEvergreen: typeof downloadArtifactFromEvergreenFn = downloadArtifactFromEvergreenFn,
   ensureGithubReleaseExistsAndUpdateChangelog: typeof ensureGithubReleaseExistsAndUpdateChangelogFn = ensureGithubReleaseExistsAndUpdateChangelogFn,
-  notarizeArtifact: typeof notarizeArtifactFn = notarizeArtifactFn
+  signArtifact: typeof signArtifactFn = signArtifactFn
 ): Promise<void> {
   if (
     !config.triggeringGitTag ||
@@ -61,13 +61,14 @@ export async function runDraft(
       tmpDir
     );
 
+    const clientOptions = {
+      client: 'local' as const,
+      signingMethod: getSigningMethod(tarballFile.path),
+    };
+
     let signatureFile: string | undefined;
     try {
-      await notarizeArtifact(downloadedArtifact, {
-        signingKeyName: config.notarySigningKeyName || '',
-        authToken: config.notaryAuthToken || '',
-        signingComment: 'Evergreen Automatic Signing (mongosh)',
-      });
+      await signArtifact(downloadedArtifact, clientOptions);
       signatureFile = downloadedArtifact + '.sig';
       await fs.access(signatureFile, fsConstants.R_OK);
     } catch (err: any) {
@@ -98,6 +99,18 @@ export async function runDraft(
           : []
       )
     );
+  }
+}
+
+function getSigningMethod(src: string) {
+  switch (path.extname(src)) {
+    case '.exe':
+    case '.msi':
+      return 'jsign' as const;
+    case '.rpm':
+      return 'rpm_gpg' as const;
+    default:
+      return 'gpg' as const;
   }
 }
 
