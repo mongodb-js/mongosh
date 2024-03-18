@@ -13651,7 +13651,8 @@ buildvariants:
       - name: test_n16_snippet_manager
       - name: test_n20_types
       - name: test_n16_types
-      - name: test_vscode
+      # TODO: (MONGOSH-1740) Re-enable this after fixing the linked ticket
+      # - name: test_vscode
       - name: test_connectivity
       - name: test_apistrict
   - name: linux_coverage
