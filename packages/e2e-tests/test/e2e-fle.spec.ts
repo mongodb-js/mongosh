@@ -715,7 +715,11 @@ describe('FLE tests', function () {
       // Since there is only one field to be encrypted hence there would only be one DEK in our keyvault collection
       expect(parseInt(dekCount.trim(), 10)).to.equal(1);
     });
+
     it('allows explicit range encryption with bypassQueryAnalysis', async function () {
+      // TODO(MONGOSH-1742): Server 8.0 drops "rangePreview" algorithm and adds
+      // "range". Re-enable these when the change is finalized
+      skipIfServerVersion(testServer, '>= 8.0.0-alpha');
       // No --cryptSharedLibPath since bypassQueryAnalysis is also a community edition feature
       const shell = TestShell.start({ args: ['--nodb'] });
       const uri = JSON.stringify(await testServer.connectionString());
@@ -797,6 +801,10 @@ describe('FLE tests', function () {
     });
 
     it('allows automatic range encryption', async function () {
+      // TODO(MONGOSH-1742): Server 8.0 drops "rangePreview" algorithm and adds
+      // "range". Re-enable these when the change is finalized
+      skipIfServerVersion(testServer, '>= 8.0.0-alpha');
+
       // TODO(MONGOSH-1550): On s390x, we are using the 6.0.x RHEL7 shared library,
       // which does not support QE rangePreview. That's just fine for preview, but
       // we should switch to the 7.0.x RHEL8 shared library for Range GA.
