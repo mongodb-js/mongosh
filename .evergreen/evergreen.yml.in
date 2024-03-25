@@ -805,6 +805,7 @@ functions:
           node_js_version: ${node_js_version}
         script: |
           set -e
+          export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
           .evergreen/run-evergreen-release.sh -- --dry-run
 
   release_publish:
@@ -823,6 +824,7 @@ functions:
           node_js_version: ${node_js_version}
         script: |
           set -e
+          export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
           .evergreen/run-evergreen-release.sh
 
   run_perf_tests:
@@ -922,7 +924,6 @@ tasks:
   # INTEGRATION TESTS
   ###
   - name: test_vscode
-    tags: ["extra-integration-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -976,6 +977,7 @@ tasks:
           node_js_version: "<% out(NODE_JS_VERSION_20) %>"
 
   - name: generate_license_and_vulnerability_report
+    tags: ["extra-integration-test"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
