@@ -15,5 +15,7 @@ ignores:
  - '@mongodb-js/saslprep'
  - socks
  - emphasize
+ - ipv6-normalize
+ - bindings
 ignore-patterns:
  - .eslintrc.js
