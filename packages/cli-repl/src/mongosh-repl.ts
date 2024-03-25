@@ -279,6 +279,9 @@ class MongoshNodeRepl implements EvaluationListener {
         });
       }
       context.global = context;
+      context.require = require('node:module').createRequire(
+        process.cwd() + '/index.js'
+      );
     }
 
     const console = new Console({
