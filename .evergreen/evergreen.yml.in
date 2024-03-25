@@ -1232,8 +1232,7 @@ buildvariants:
       <% for (const test of ALL_UNIT_TESTS.filter(t => t.variants.includes('linux'))) { %>
       - name: test_<% out(test.id) %>
       <% } %>
-      # TODO: (MONGOSH-1740) Re-enable this after fixing the linked ticket
-      # - name: test_vscode
+      - name: test_vscode
       - name: test_connectivity
       - name: test_apistrict
   - name: linux_coverage
