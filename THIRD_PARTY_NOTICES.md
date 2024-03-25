@@ -410,7 +410,7 @@ Package|Version|License
 **[system-ca](#3522fc607365a0831259d285455f827874a15cf872d94258c71f3f8d8ddee1f6)**|1.0.2|Apache-2.0
 **[tar-fs](#8e5bae5073977abd61cb5549abc7581354454558aedf4a4002b91e6fd7b9830d)**|2.1.1|MIT
 **[tar-stream](#5605712784129d10d2559e12f8031603f0cf4e5ff206f09356e4bf1dc5ab1168)**|1.6.2|MIT
-**[tar](#cc21c59bdcdcec255875267161043f1898e20041e2c0c866b5e4bfe1f66f9c2c)**|6.1.15|ISC
+**[tar](#8bb3ceb646ea33186c42416eb9a4191d844ba4a9a59571a8deb01683c7b60c3a)**|6.2.1|ISC
 **[text-table](#408475075eb207dd5ae8858365d5b39a25bebe2b757601c43164cec36f315b23)**|0.2.0|MIT
 **[titleize](#36b49586e2b5f60bee2c757b90d19871a99822f92e2b2e19202ef9efb9595766)**|3.0.0|MIT
 **[to-buffer](#5934a0e0ea92470fb3bbe2a1d6869494c53208b1b06aaee8ffd31e4e040e4e85)**|1.1.1|MIT
@@ -31169,8 +31169,8 @@ License files:
       THE SOFTWARE.
 
 
-<a id="cc21c59bdcdcec255875267161043f1898e20041e2c0c866b5e4bfe1f66f9c2c"></a>
-### [tar](https://www.npmjs.com/package/tar) (version 6.1.15)
+<a id="8bb3ceb646ea33186c42416eb9a4191d844ba4a9a59571a8deb01683c7b60c3a"></a>
+### [tar](https://www.npmjs.com/package/tar) (version 6.2.1)
 License tags: ISC
 
 License files:
