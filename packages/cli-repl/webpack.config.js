@@ -102,14 +102,22 @@ function makeLazyForwardModule(pkg) {
   } else {
     source += `module.exports = {};\n`;
   }
+  const proxyProps = Object.getOwnPropertyNames(Reflect);
+  source += `const { ${proxyProps
+    .map((prop) => `${prop}: R_${prop}`)
+    .join(', ')} } = Reflect;\n`;
   let i = 0;
   for (const key of Object.keys(moduleContents)) {
     if (typeof moduleContents[key] === 'function') {
-      source += `module.exports[${S(
-        key
-      )}] = function(...args) { return orig()[${S(
-        key
-      )}].apply(this, args); };\n`;
+      source += `module.exports[${S(key)}] = new Proxy(function() {}, {
+        ${proxyProps
+          .map(
+            (prop) => `${prop}(_target, ...args) {
+          return R_${prop}(orig()[${S(key)}], ...args);
+        }`
+          )
+          .join(',\n')}
+      });\n`;
     } else {
       source += `let value_${i}, value_${i}_set = false;\n`;
       source += `Object.defineProperty(module.exports, ${S(key)}, {

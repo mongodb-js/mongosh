@@ -38,10 +38,6 @@ describe('OIDC auth e2e', function () {
       process.platform !== 'linux' ||
       !process.env.MONGOSH_SERVER_TEST_VERSION ||
       !process.env.MONGOSH_SERVER_TEST_VERSION.includes('-enterprise') ||
-      !(
-        process.env.MONGOSH_SERVER_TEST_VERSION.includes('latest-alpha') ||
-        +process.env.MONGOSH_SERVER_TEST_VERSION.split('.')[0] >= 7
-      ) ||
       +process.version.slice(1).split('.')[0] < 16
     ) {
       // OIDC is only supported on Linux in the 7.0+ enterprise server,
