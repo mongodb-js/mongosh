@@ -1486,6 +1486,19 @@ describe('e2e', function () {
 
           expect((await fs.stat(historyPath)).mode & 0o077).to.equal(0);
         });
+
+        it('redacts secrets', async function () {
+          await shell.executeLine('db.auth("myusername", "mypassword")');
+          await shell.executeLine('a = 42');
+          await shell.executeLine('foo = "bar"');
+          shell.writeInput('.exit\n');
+          await shell.waitForExit();
+
+          const contents = await fs.readFile(historyPath, 'utf8');
+          expect(contents).to.not.match(/mypassword/);
+          expect(contents).to.match(/^a = 42$/m);
+          expect(contents).to.match(/^foo = "bar"$/m);
+        });
       });
 
       describe('mongoshrc', function () {
