@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Tue Mar 26 2024.
+This document was automatically generated on Wed Mar 27 2024.
 
 ## List of dependencies
 
@@ -175,7 +175,7 @@ Package|Version|License
 **[big-integer](#eb3eaa39f6d9126fdf0b39f43641e13908ba5ab8b70af073669d23cc768335b5)**|1.6.52|Unlicense
 **[bindings](#acdb65ce90d2786593049f690752613250632fd5aeaa2960152abc4f0e8f3a44)**|1.5.0|MIT
 **[bl](#a665ea6dffc925870ff11bcb4b8b477d4db5bba410ea1ab72d2048190b34e19e)**|1.2.3|MIT
-**[body-parser](#ce9b0bd46f4a4c18cbfa690b1ef460daa8c98ab0ac44a855e6c409650372882d)**|1.20.1|MIT
+**[body-parser](#6b44aee8dd5ecc9ca689f12bdce5cd72765171cc2d1b935f50040be51871621a)**|1.20.2|MIT
 **[bowser](#03c8dec5cdbec1db30c4a501c0caf600245f4bd74d3d6f23eb55edffac14c8c3)**|2.11.0|MIT
 **[bplist-parser](#a012056f1b32796d923573a3b1ef72cf36943d95e5e2f6af0f7eeab57a21be24)**|0.2.0|MIT
 **[brace-expansion](#2ba3ee23cc6a2718243e9c0c59ce154058f292965f563aa291b459a414e863cb)**|1.1.11|MIT
@@ -200,12 +200,12 @@ Package|Version|License
 **[concat-map](#629d11316d75747318cc391ff3112edcd20cd8caab3768f3a5fdd920e110dc22)**|0.0.1|MIT
 **[config-chain](#d43148ec4e9c8cac9e15277d86afc87973b0538d96092edbd71396d40b57d5c0)**|1.1.13|MIT
 **[content-disposition](#b0fd3fa1e97f5d899f52e84c86cd6d0a077cabef2388f531bf62f1f1dbdbc371)**|0.5.4|MIT
-**[content-type](#0bcddb6e21540f6d7a81f756ab41cdc27674b934ffed1996a26532bad8693841)**|1.0.4|MIT
+**[content-type](#65e9de41d2cef0ed95875e387bc56dae50b05d41b1a7868ed68c32834843bbab)**|1.0.5|MIT
 **[convert-source-map](#3fd403e08667d2dfb45e092b838d63d7b9b81664ca47d42aa2f058336da34dac)**|1.1.3|MIT
 **[convert-source-map](#0acf0ab7734deb5e364e5150eb235062022893835b113aa11e0c7e9065fa5073)**|1.8.0|MIT
 **[cookie-signature](#28f6116b52488ac66a14424869fc346f611bea6c894e7d0f7f2ca701deb8e49c)**|1.0.6|MIT
 **[cookie](#3e008828d29a22304571d10c58b106a8bef5907201487c16f3fb5fd6fabb16a9)**|0.4.2|MIT
-**[cookie](#9bf3d499045a2314903d567785cc2592bafc25b36c343a6fa843d86c5722ca74)**|0.5.0|MIT
+**[cookie](#c396652ff004385e7bdb8398e37493d5f4144e475282a413ec52f1d3fdaf25da)**|0.6.0|MIT
 **[core-util-is](#31f9375081d39ad369df4ed795b2f399287432f0b6579229579e26883fa75085)**|1.0.3|MIT
 **[cross-spawn](#67de3a765808182ee1018c35bc07d7a023a8d645e98cc32814dcac2fc2c427ff)**|7.0.3|MIT
 **[data-uri-to-buffer](#496bb13aeb7c14308e5c8c3e20ea81509260ff27a35abfc39b316ced3c5d6860)**|4.0.1|MIT
@@ -237,7 +237,7 @@ Package|Version|License
 **[execa](#4172423d3420d919e31613f23914ef325af8a3bf9ed3c6110a4053369b1cfddd)**|5.1.1|MIT
 **[execa](#099ba5f976333854bfd5aa2237fd12d883c4477af76007a7963109833edef012)**|7.2.0|MIT
 **[expand-template](#46d3e73ca0d4a8c14e99252386f0a5c1a4fd8b2747331373d7b4da97105c15bb)**|2.0.3|(MIT OR WTFPL)
-**[express](#6a8f65878b3ac34fcd9207d98e3401577dfa8a8f05385f26237468ca21cbff06)**|4.18.2|MIT
+**[express](#2f6758d3407b167482b6e5939a39adfae4627f3ca3939e7ebd8f944423a1e069)**|4.19.2|MIT
 **[fast-xml-parser](#211b0c376cc0366cba9e0c1769c1a3f669cede9770cfd604ee189baf55f5bb5f)**|4.2.5|MIT
 **[fault](#387740fc7544e813d0a9ad480550d0bb536270783b1ce8c1ee83cd7d18b1472e)**|1.0.4|MIT
 **[fetch-blob](#9a40c73e2482c1cc651991133722a6fedd12dc752d2858a21da24395e6fc8461)**|3.2.0|MIT
@@ -372,7 +372,7 @@ Package|Version|License
 **[punycode](#3fe331f5536b72438f24d644ea9804b5e462f791a4c72a6d94f37193af1086aa)**|2.3.1|MIT
 **[qs](#f0014afee41bfb4a111252068b917fc6a9a61ea307f982526a7082ea503f9040)**|6.11.0|BSD-3-Clause
 **[range-parser](#e973789240fef3c00f359e6acc8570dd769b70ee8b29fdcb679897fa2d696bff)**|1.2.1|MIT
-**[raw-body](#9449aaab66dcce53805e5931e78769da5b56ef0b10f483a3d0dcb227834ac37a)**|2.5.1|MIT
+**[raw-body](#fc0f8cf1771db07ef15ce7dafcac6db8e351607bb82caf0e5838f1769a796266)**|2.5.2|MIT
 **[rc](#0dd705bd5862b4c60ed88e6b4a6f5ece23c627c97f6928233d32aefdd463c3f7)**|1.2.8|(BSD-2-Clause OR MIT OR Apache-2.0)
 **[readable-stream](#8f2e1b78e9d8c62cbe33ca0c9055ab55b3025f7c3ac146f29c102adbdc187bf1)**|2.3.7|MIT
 **[resolve-mongodb-srv](#03a4ef5ab221cf911850680b02d12725ee85632cbaa726a73c9be1595788d767)**|1.1.3|Apache-2.0
@@ -21347,8 +21347,8 @@ License files:
       
 
 
-<a id="ce9b0bd46f4a4c18cbfa690b1ef460daa8c98ab0ac44a855e6c409650372882d"></a>
-### [body-parser](https://www.npmjs.com/package/body-parser) (version 1.20.1)
+<a id="6b44aee8dd5ecc9ca689f12bdce5cd72765171cc2d1b935f50040be51871621a"></a>
+### [body-parser](https://www.npmjs.com/package/body-parser) (version 1.20.2)
 License tags: MIT
 
 License files:
@@ -22496,8 +22496,8 @@ License files:
       
 
 
-<a id="0bcddb6e21540f6d7a81f756ab41cdc27674b934ffed1996a26532bad8693841"></a>
-### [content-type](https://www.npmjs.com/package/content-type) (version 1.0.4)
+<a id="65e9de41d2cef0ed95875e387bc56dae50b05d41b1a7868ed68c32834843bbab"></a>
+### [content-type](https://www.npmjs.com/package/content-type) (version 1.0.5)
 License tags: MIT
 
 License files:
@@ -22633,8 +22633,8 @@ License files:
       
 
 
-<a id="9bf3d499045a2314903d567785cc2592bafc25b36c343a6fa843d86c5722ca74"></a>
-### [cookie](https://www.npmjs.com/package/cookie) (version 0.5.0)
+<a id="c396652ff004385e7bdb8398e37493d5f4144e475282a413ec52f1d3fdaf25da"></a>
+### [cookie](https://www.npmjs.com/package/cookie) (version 0.6.0)
 License tags: MIT
 
 License files:
@@ -23672,8 +23672,8 @@ License files:
       THE SOFTWARE.
 
 
-<a id="6a8f65878b3ac34fcd9207d98e3401577dfa8a8f05385f26237468ca21cbff06"></a>
-### [express](https://www.npmjs.com/package/express) (version 4.18.2)
+<a id="2f6758d3407b167482b6e5939a39adfae4627f3ca3939e7ebd8f944423a1e069"></a>
+### [express](https://www.npmjs.com/package/express) (version 4.19.2)
 License tags: MIT
 
 License files:
@@ -29672,8 +29672,8 @@ License files:
       
 
 
-<a id="9449aaab66dcce53805e5931e78769da5b56ef0b10f483a3d0dcb227834ac37a"></a>
-### [raw-body](https://www.npmjs.com/package/raw-body) (version 2.5.1)
+<a id="fc0f8cf1771db07ef15ce7dafcac6db8e351607bb82caf0e5838f1769a796266"></a>
+### [raw-body](https://www.npmjs.com/package/raw-body) (version 2.5.2)
 License tags: MIT
 
 License files:
