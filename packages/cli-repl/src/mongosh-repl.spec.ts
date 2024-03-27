@@ -840,24 +840,27 @@ describe('MongoshNodeRepl', function () {
     });
 
     context('thrown non-Errors', function () {
+      before(function () {
+        if (+process.version.split('.')[0].slice(1) < 20) this.skip();
+      });
+
       it('allows `throw null`', async function () {
         output = '';
         input.write('throw null;\n');
         await waitEval(bus);
-        // We do verify that both `Error` and `null` are syntax-highlighted here.
-        expect(output).to.match(
-          /\x1b\[\d+mError\x1b\[\d+m: \x1b\[\d+mnull\x1b\[\d+m/
-        );
+        // Neither `Error` nor `null` are syntax-highlighted here
+        // because since Node.js 20.12.0+ the output stream needs
+        // to look like a TTY (instead of only requiring terminal: true
+        // on the REPL options object).
+        expect(output).to.include('Error: null');
       });
 
       it('allows `throw number`', async function () {
         output = '';
         input.write('throw 123;\n');
         await waitEval(bus);
-        // We do verify that both `Error` and `123` are syntax-highlighted here.
-        expect(output).to.match(
-          /\x1b\[\d+mError\x1b\[\d+m: \x1b\[\d+m123\x1b\[\d+m/
-        );
+        // Similar to the test above, this is no longer syntax-highlighted.
+        expect(output).to.include('Error: 123');
       });
     });
   });
@@ -1034,6 +1037,28 @@ describe('MongoshNodeRepl', function () {
         input.write('answer\n');
         await waitEval(bus);
         expect(output).to.include('ReferenceError');
+      });
+    });
+
+    context('thrown non-Errors with syntax highlighting', function () {
+      it('allows `throw null`', async function () {
+        output = '';
+        input.write('throw null;\n');
+        await waitEval(bus);
+        // We do verify that both `Error` and `null` are syntax-highlighted here.
+        expect(output).to.match(
+          /\x1b\[\d+mError\x1b\[\d+m: \x1b\[\d+mnull\x1b\[\d+m/
+        );
+      });
+
+      it('allows `throw number`', async function () {
+        output = '';
+        input.write('throw 123;\n');
+        await waitEval(bus);
+        // We do verify that both `Error` and `123` are syntax-highlighted here.
+        expect(output).to.match(
+          /\x1b\[\d+mError\x1b\[\d+m: \x1b\[\d+m123\x1b\[\d+m/
+        );
       });
     });
   });

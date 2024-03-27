@@ -45,13 +45,20 @@ else
   # needs to be built from source
   if [[ "${DISTRO_ID}" =~ ^(amazon2-|rhel7|ubuntu18|suse12) ]] && [[ "$NODE_JS_VERSION" =~ ^20 ]];
   then
-    bash "$BASEDIR/install-node-source.sh"
+    NODE_JS_SOURCE_VERSION="$NODE_JS_VERSION"
+    if echo $NODE_JS_VERSION | grep -q ^20 ; then
+      # Node.js 20.11.1 is the last 20.x that builds out of the box on RHEL7
+      # https://github.com/nodejs/node/issues/52223
+      NODE_JS_SOURCE_VERSION=20.11.1
+    fi
+    env NODE_JS_VERSION="$NODE_JS_SOURCE_VERSION" bash "$BASEDIR/install-node-source.sh"
+    nvm use $NODE_JS_SOURCE_VERSION
   else
     echo nvm install --no-progress $NODE_JS_VERSION && nvm alias default $NODE_JS_VERSION
     nvm install --no-progress $NODE_JS_VERSION
     nvm alias default $NODE_JS_VERSION
+    nvm use $NODE_JS_VERSION
   fi
-  nvm use $NODE_JS_VERSION
   set -x
 
   if env PATH="/opt/chefdk/gitbin:$PATH" git --version | grep -q 'git version 1.'; then
