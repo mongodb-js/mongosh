@@ -172,6 +172,15 @@ export class SignableCompiler {
         ...(process.platform === 'linux' && {
           GYP_DEFINES: 'kerberos_use_rtld=true',
         }),
+        // Work around https://github.com/nodejs/node/issues/52229
+        CFLAGS: [
+          process.env.CFLAGS,
+          '-DNODE_API_EXPERIMENTAL_NOGC_ENV_OPT_OUT=1 -DNAPI_EXPERIMENTAL=1',
+        ].join(' '),
+        CXXFLAGS: [
+          process.env.CXXFLAGS,
+          '-DNODE_API_EXPERIMENTAL_NOGC_ENV_OPT_OUT=1 -DNAPI_EXPERIMENTAL=1',
+        ].join(' '),
       },
       addons: [fleAddon, osDnsAddon, kerberosAddon, cryptLibraryVersionAddon]
         .concat(winCAAddon ? [winCAAddon] : [])
