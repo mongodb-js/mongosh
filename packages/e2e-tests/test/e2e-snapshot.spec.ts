@@ -61,7 +61,11 @@ describe('e2e startup banners', function () {
             TestShell.runAndGetOutputWithoutErrors({ args })
           )
         )
-      ).map((output) => JSON.parse(output).sort() as string[]);
+      ).map((output) =>
+        (JSON.parse(output) as string[])
+          .sort()
+          .map((pkg) => pkg.replace(/\\/g, '/'))
+      );
 
       // Ensure that: atSnapshotTime ⊆ atNodbEvalTime ⊆ atDbEvalTime ⊆ atReplEvalTime ⊆ all
       expectIsSubset(atSnapshotTime, atNodbEvalTime);
