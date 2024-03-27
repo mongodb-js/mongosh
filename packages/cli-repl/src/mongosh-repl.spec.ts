@@ -840,6 +840,10 @@ describe('MongoshNodeRepl', function () {
     });
 
     context('thrown non-Errors', function () {
+      before(function () {
+        if (+process.version.split('.')[0].slice(1) < 20) this.skip();
+      });
+
       it('allows `throw null`', async function () {
         output = '';
         input.write('throw null;\n');
