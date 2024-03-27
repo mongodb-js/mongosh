@@ -5,6 +5,9 @@ const crypto = require('crypto');
 const { merge } = require('webpack-merge');
 const path = require('path');
 const { WebpackDependenciesPlugin } = require('@mongodb-js/sbom-tools');
+const {
+  WebpackEnableReverseModuleLookupPlugin,
+} = require('../../scripts/webpack-enable-reverse-module-lookup-plugin.js');
 
 const baseWebpackConfig = require('../../config/webpack.base.config');
 
@@ -29,6 +32,11 @@ const webpackDependenciesPlugin = new WebpackDependenciesPlugin({
   includeExternalProductionDependencies: true,
 });
 
+const enableReverseModuleLookupPlugin =
+  new WebpackEnableReverseModuleLookupPlugin({
+    outputFilename: path.resolve(__dirname, 'dist', 'add-module-mapping.js'),
+  });
+
 /** @type import('webpack').Configuration */
 const config = {
   output: {
@@ -41,7 +49,7 @@ const config = {
       type: 'var',
     },
   },
-  plugins: [webpackDependenciesPlugin],
+  plugins: [webpackDependenciesPlugin, enableReverseModuleLookupPlugin],
   entry: './lib/run.js',
   resolve: {
     alias: {
@@ -83,7 +91,13 @@ module.exports = merge(baseWebpackConfig, config);
 // startup that should depend on runtime state.
 function makeLazyForwardModule(pkg) {
   const S = JSON.stringify;
-  const tmpdir = path.resolve(__dirname, '..', 'tmp', 'lazy-webpack-modules');
+  const tmpdir = path.resolve(
+    __dirname,
+    '..',
+    '..',
+    'tmp',
+    'lazy-webpack-modules'
+  );
   fs.mkdirSync(tmpdir, { recursive: true });
   const filename = path.join(
     tmpdir,

@@ -30,22 +30,22 @@ function matches(str: string, pattern: string | RegExp): boolean {
     : pattern.test(str);
 }
 
+export interface TestShellOptions {
+  args: string[];
+  env?: Record<string, string>;
+  removeSigintListeners?: boolean;
+  cwd?: string;
+  forceTerminal?: boolean;
+  consumeStdio?: boolean;
+}
+
 /**
  * Test shell helper class.
  */
 export class TestShell {
   private static _openShells: TestShell[] = [];
 
-  static start(
-    options: {
-      args: string[];
-      env?: Record<string, string>;
-      removeSigintListeners?: boolean;
-      cwd?: string;
-      forceTerminal?: boolean;
-      consumeStdio?: boolean;
-    } = { args: [] }
-  ): TestShell {
+  static start(options: TestShellOptions = { args: [] }): TestShell {
     let shellProcess: ChildProcessWithoutNullStreams;
 
     let env = options.env || process.env;
@@ -93,6 +93,15 @@ export class TestShell {
     TestShell._openShells.push(shell);
 
     return shell;
+  }
+
+  static async runAndGetOutputWithoutErrors(
+    options: TestShellOptions
+  ): Promise<string> {
+    const shell = this.start(options);
+    await shell.waitForExit();
+    shell.assertNoErrors();
+    return shell.output;
   }
 
   static async killall(): Promise<void> {
