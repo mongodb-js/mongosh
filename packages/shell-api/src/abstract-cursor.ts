@@ -138,8 +138,14 @@ export abstract class AbstractCursor<
 
   @returnsPromise
   async toArray(): Promise<Document[]> {
-    if (this._canDelegateIterationToUnderlyingCursor())
+    // toArray is always defined for driver cursors, but not necessarily
+    // in tests
+    if (
+      typeof this._cursor.toArray === 'function' &&
+      this._canDelegateIterationToUnderlyingCursor()
+    ) {
       return await this._cursor.toArray();
+    }
 
     const result = [];
     for await (const doc of this) {
