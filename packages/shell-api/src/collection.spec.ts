@@ -209,8 +209,7 @@ describe('Collection', function () {
 
       it('returns an AggregationCursor that wraps the service provider one', async function () {
         const toArrayResult = [{ foo: 'bar' }];
-        serviceProviderCursor.tryNext.onFirstCall().resolves({ foo: 'bar' });
-        serviceProviderCursor.tryNext.onSecondCall().resolves(null);
+        serviceProviderCursor.toArray.resolves(toArrayResult);
         serviceProvider.aggregate.returns(serviceProviderCursor);
 
         const cursor = await collection.aggregate([

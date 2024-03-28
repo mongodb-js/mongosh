@@ -22,6 +22,14 @@ import {
 chai.use(sinonChai);
 const { expect } = chai;
 
+async function allItemsFromAsyncIterable<T>(
+  iterable: AsyncIterable<T>
+): Promise<T[]> {
+  const list: T[] = [];
+  for await (const item of iterable) list.push(item);
+  return list;
+}
+
 describe('Cursor', function () {
   describe('help', function () {
     const apiClass = new Cursor(
@@ -40,7 +48,7 @@ describe('Cursor', function () {
       expect(signatures.Cursor.type).to.equal('Cursor');
     });
     it('map signature', function () {
-      expect(signatures.Cursor.attributes.map).to.deep.equal({
+      expect(signatures.Cursor.attributes?.map).to.deep.equal({
         type: 'function',
         returnsPromise: false,
         deprecated: false,
@@ -107,7 +115,7 @@ describe('Cursor', function () {
     } as any;
     describe('#addOption', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
-      let shellApiCursor;
+      let shellApiCursor: Cursor;
 
       beforeEach(function () {
         spCursor = stubInterface<ServiceProviderCursor>();
@@ -147,7 +155,7 @@ describe('Cursor', function () {
 
     describe('#allowPartialResults', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
-      let shellApiCursor;
+      let shellApiCursor: Cursor;
 
       beforeEach(function () {
         spCursor = stubInterface<ServiceProviderCursor>();
@@ -162,7 +170,7 @@ describe('Cursor', function () {
 
     describe('#allowDiskUse', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
-      let shellApiCursor;
+      let shellApiCursor: Cursor;
 
       beforeEach(function () {
         spCursor = stubInterface<ServiceProviderCursor>();
@@ -187,7 +195,7 @@ describe('Cursor', function () {
 
     describe('#batchSize', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
-      let shellApiCursor;
+      let shellApiCursor: Cursor;
 
       beforeEach(function () {
         spCursor = stubInterface<ServiceProviderCursor>();
@@ -202,22 +210,22 @@ describe('Cursor', function () {
 
     describe('#close', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
-      let shellApiCursor;
+      let shellApiCursor: Cursor;
 
       beforeEach(function () {
         spCursor = stubInterface<ServiceProviderCursor>();
         shellApiCursor = new Cursor(mongo, spCursor);
       });
 
-      it('closes the cursor', function () {
-        shellApiCursor.close();
+      it('closes the cursor', async function () {
+        await shellApiCursor.close();
         expect(spCursor.close).to.have.been.called;
       });
     });
 
     describe('#collation', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
-      let shellApiCursor;
+      let shellApiCursor: Cursor;
       const coll = { locale: 'en' };
 
       beforeEach(function () {
@@ -234,7 +242,7 @@ describe('Cursor', function () {
 
     describe('#comment', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
-      let shellApiCursor;
+      let shellApiCursor: Cursor;
       const cmt = 'hi';
 
       beforeEach(function () {
@@ -250,7 +258,7 @@ describe('Cursor', function () {
 
     describe('#count', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
-      let shellApiCursor;
+      let shellApiCursor: Cursor;
 
       beforeEach(function () {
         spCursor = stubInterface<ServiceProviderCursor>();
@@ -271,7 +279,7 @@ describe('Cursor', function () {
 
     describe('#hasNext', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
-      let shellApiCursor;
+      let shellApiCursor: Cursor;
 
       beforeEach(function () {
         spCursor = stubInterface<ServiceProviderCursor>();
@@ -287,7 +295,7 @@ describe('Cursor', function () {
 
     describe('#tryNext', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
-      let shellApiCursor;
+      let shellApiCursor: Cursor;
 
       beforeEach(function () {
         spCursor = stubInterface<ServiceProviderCursor>();
@@ -341,7 +349,7 @@ describe('Cursor', function () {
 
     describe('#hint', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
-      let shellApiCursor;
+      let shellApiCursor: Cursor;
       const index = 'a_1';
 
       beforeEach(function () {
@@ -357,7 +365,7 @@ describe('Cursor', function () {
 
     describe('#limit', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
-      let shellApiCursor;
+      let shellApiCursor: Cursor;
       const value = 6;
 
       beforeEach(function () {
@@ -373,7 +381,7 @@ describe('Cursor', function () {
 
     describe('#max', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
-      let shellApiCursor;
+      let shellApiCursor: Cursor;
       const value = { a: 1 };
 
       beforeEach(function () {
@@ -389,7 +397,7 @@ describe('Cursor', function () {
 
     describe('#maxTimeMS', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
-      let shellApiCursor;
+      let shellApiCursor: Cursor;
       const value = 5000;
 
       beforeEach(function () {
@@ -405,7 +413,7 @@ describe('Cursor', function () {
 
     describe('#maxAwaitTimeMS', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
-      let shellApiCursor;
+      let shellApiCursor: Cursor;
       const value = 5000;
 
       beforeEach(function () {
@@ -421,7 +429,7 @@ describe('Cursor', function () {
 
     describe('#min', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
-      let shellApiCursor;
+      let shellApiCursor: Cursor;
       const value = { a: 1 };
 
       beforeEach(function () {
@@ -437,7 +445,7 @@ describe('Cursor', function () {
 
     describe('#noCursorTimeout', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
-      let shellApiCursor;
+      let shellApiCursor: Cursor;
 
       beforeEach(function () {
         spCursor = stubInterface<ServiceProviderCursor>();
@@ -455,7 +463,7 @@ describe('Cursor', function () {
 
     describe('#oplogReplay', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
-      let shellApiCursor;
+      let shellApiCursor: Cursor;
 
       beforeEach(function () {
         spCursor = stubInterface<ServiceProviderCursor>();
@@ -473,7 +481,7 @@ describe('Cursor', function () {
 
     describe('#projection', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
-      let shellApiCursor;
+      let shellApiCursor: Cursor;
       const value = { a: 1 };
 
       beforeEach(function () {
@@ -489,7 +497,7 @@ describe('Cursor', function () {
 
     describe('#readPref', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
-      let shellApiCursor;
+      let shellApiCursor: Cursor;
       let fromOptionsStub;
       const value = 'primary';
       const tagSet = [{ nodeType: 'ANALYTICS' }];
@@ -523,7 +531,7 @@ describe('Cursor', function () {
 
     describe('#readConcern', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
-      let shellApiCursor;
+      let shellApiCursor: Cursor;
       const value = 'local';
 
       beforeEach(function () {
@@ -541,7 +549,7 @@ describe('Cursor', function () {
 
     describe('#returnKey', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
-      let shellApiCursor;
+      let shellApiCursor: Cursor;
       const value = true;
 
       beforeEach(function () {
@@ -557,7 +565,7 @@ describe('Cursor', function () {
 
     describe('#showRecordId', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
-      let shellApiCursor;
+      let shellApiCursor: Cursor;
       const value = true;
 
       beforeEach(function () {
@@ -573,7 +581,7 @@ describe('Cursor', function () {
 
     describe('#objsLeftInBatch', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
-      let shellApiCursor;
+      let shellApiCursor: Cursor;
 
       beforeEach(function () {
         spCursor = stubInterface<ServiceProviderCursor>();
@@ -589,7 +597,7 @@ describe('Cursor', function () {
 
     describe('#skip', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
-      let shellApiCursor;
+      let shellApiCursor: Cursor;
       const value = 6;
 
       beforeEach(function () {
@@ -605,7 +613,7 @@ describe('Cursor', function () {
 
     describe('#sort', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
-      let shellApiCursor;
+      let shellApiCursor: Cursor;
       const value = { a: 1 };
 
       beforeEach(function () {
@@ -621,7 +629,7 @@ describe('Cursor', function () {
 
     describe('#tailable', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
-      let shellApiCursor;
+      let shellApiCursor: Cursor;
 
       beforeEach(function () {
         spCursor = stubInterface<ServiceProviderCursor>();
@@ -653,7 +661,7 @@ describe('Cursor', function () {
 
     describe('#itcount', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
-      let shellApiCursor;
+      let shellApiCursor: Cursor;
 
       beforeEach(function () {
         spCursor = stubInterface<ServiceProviderCursor>();
@@ -670,8 +678,8 @@ describe('Cursor', function () {
     });
 
     describe('#explain', function () {
-      let nativeCursorStub;
-      let shellApiCursor;
+      let nativeCursorStub: StubbedInstance<ServiceProviderCursor>;
+      let shellApiCursor: Cursor;
 
       beforeEach(function () {
         nativeCursorStub = stubInterface<ServiceProviderCursor>();
@@ -784,7 +792,7 @@ describe('Cursor', function () {
 
     describe('#maxScan', function () {
       let spCursor: StubbedInstance<ServiceProviderCursor>;
-      let shellApiCursor;
+      let shellApiCursor: Cursor;
 
       beforeEach(function () {
         spCursor = stubInterface<ServiceProviderCursor>();
@@ -805,8 +813,8 @@ describe('Cursor', function () {
     });
 
     describe('toShellResult', function () {
-      let shellApiCursor;
-      let i;
+      let shellApiCursor: Cursor;
+      let i: number;
 
       beforeEach(function () {
         i = 0;
@@ -844,6 +852,63 @@ describe('Cursor', function () {
         const result = (await toShellResult(shellApiCursor)).printable;
         expect(i).to.equal(20);
         expect(result).to.have.nested.property('documents.length', 20);
+      });
+    });
+
+    describe('#toArray', function () {
+      let spCursor: StubbedInstance<ServiceProviderCursor>;
+      let shellApiCursor: Cursor;
+
+      beforeEach(function () {
+        spCursor = stubInterface<ServiceProviderCursor>();
+        shellApiCursor = new Cursor(mongo, spCursor);
+      });
+
+      it('delegates to the underlying cursor if no transform method was specified', async function () {
+        const docs = [{ a: 1 }, { a: 2 }, { a: 3 }];
+        spCursor.toArray.resolves(docs);
+        const result = await shellApiCursor.toArray();
+        expect(result).to.deep.equal(docs);
+        expect(spCursor.tryNext).to.not.have.been.called;
+      });
+
+      it('performs manual iteration if a transform method was specified', async function () {
+        const docs = [{ a: 1 }, { a: 2 }, { a: 3 }, null];
+        spCursor.tryNext.callsFake(() => Promise.resolve(docs.shift()));
+        shellApiCursor.map(({ a }) => ({ b: a }));
+        const result = await shellApiCursor.toArray();
+        expect(result).to.deep.equal([{ b: 1 }, { b: 2 }, { b: 3 }]);
+        expect(spCursor.toArray).to.not.have.been.called;
+      });
+    });
+
+    describe('#async iteration', function () {
+      let spCursor: StubbedInstance<ServiceProviderCursor>;
+      let shellApiCursor: Cursor;
+
+      beforeEach(function () {
+        spCursor = stubInterface<ServiceProviderCursor>();
+        shellApiCursor = new Cursor(mongo, spCursor);
+      });
+
+      it('delegates to the underlying cursor if no transform method was specified', async function () {
+        const docs = [{ a: 1 }, { a: 2 }, { a: 3 }];
+        // eslint-disable-next-line @typescript-eslint/require-await
+        spCursor[Symbol.asyncIterator].callsFake(async function* () {
+          yield* docs;
+        });
+        const result = await allItemsFromAsyncIterable(shellApiCursor);
+        expect(result).to.deep.equal(docs);
+        expect(spCursor.tryNext).to.not.have.been.called;
+      });
+
+      it('performs manual iteration if a transform method was specified', async function () {
+        const docs = [{ a: 1 }, { a: 2 }, { a: 3 }, null];
+        spCursor.tryNext.callsFake(() => Promise.resolve(docs.shift()));
+        shellApiCursor.map(({ a }) => ({ b: a }));
+        const result = await allItemsFromAsyncIterable(shellApiCursor);
+        expect(result).to.deep.equal([{ b: 1 }, { b: 2 }, { b: 3 }]);
+        expect(spCursor[Symbol.asyncIterator]).to.not.have.been.called;
       });
     });
   });
