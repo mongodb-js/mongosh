@@ -1187,8 +1187,9 @@ export class CliRepl implements MongoshIOProvider {
   }
 
   async fetchMongoshUpdateUrl() {
+    const { quiet } = CliRepl.getFileAndEvalInfo(this.cliOptions);
     if (
-      this.cliOptions.quiet ||
+      quiet ||
       process.env.CI ||
       process.env.IS_CI ||
       this.isContainerizedEnvironment
@@ -1224,7 +1225,7 @@ export class CliRepl implements MongoshIOProvider {
     }
   }
 
-  async getMoreRecentMongoshVersion() {
+  async getMoreRecentMongoshVersion(): Promise<string | null> {
     const { version } = require('../package.json');
     return await this.updateNotificationManager.getLatestVersionIfMoreRecent(
       process.env

@@ -992,6 +992,31 @@ describe('CliRepl', function () {
           );
         });
       });
+
+      it('does not attempt to load information about new releases with --eval and no explicit --no-quiet', async function () {
+        cliReplOptions.shellCliOptions.eval = ['1+1'];
+        cliRepl = new CliRepl(cliReplOptions);
+        let fetchingUpdateMetadataCalls = 0;
+        cliRepl.bus.on(
+          'mongosh:fetching-update-metadata',
+          () => fetchingUpdateMetadataCalls++
+        );
+        await startWithExpectedImmediateExit(cliRepl, '');
+        expect(fetchingUpdateMetadataCalls).to.equal(0);
+      });
+
+      it('does attempt to load information about new releases in --no-quiet mode', async function () {
+        cliReplOptions.shellCliOptions.eval = ['1+1'];
+        cliReplOptions.shellCliOptions.quiet = false;
+        cliRepl = new CliRepl(cliReplOptions);
+        let fetchingUpdateMetadataCalls = 0;
+        cliRepl.bus.on(
+          'mongosh:fetching-update-metadata',
+          () => fetchingUpdateMetadataCalls++
+        );
+        await startWithExpectedImmediateExit(cliRepl, '');
+        expect(fetchingUpdateMetadataCalls).to.equal(1);
+      });
     });
 
     verifyAutocompletion({
