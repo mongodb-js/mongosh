@@ -46,6 +46,7 @@
   },
   "dependencies": {
     "@mongosh/async-rewriter2": "2.4.8",
+    "@mongosh/async-rewriter3": "1.0.0",
     "@mongosh/history": "2.4.6",
     "@mongosh/shell-api": "^3.10.3"
   }
