@@ -120,6 +120,7 @@ export class CliRepl implements MongoshIOProvider {
   isContainerizedEnvironment = false;
   hasOnDiskTelemetryId = false;
   updateNotificationManager = new UpdateNotificationManager();
+  fetchMongoshUpdateUrlRegardlessOfCiEnvironment = false; // for testing
 
   /**
    * Instantiate the new CLI Repl.
@@ -1190,9 +1191,10 @@ export class CliRepl implements MongoshIOProvider {
     const { quiet } = CliRepl.getFileAndEvalInfo(this.cliOptions);
     if (
       quiet ||
-      process.env.CI ||
-      process.env.IS_CI ||
-      this.isContainerizedEnvironment
+      (!this.fetchMongoshUpdateUrlRegardlessOfCiEnvironment &&
+        (process.env.CI ||
+          process.env.IS_CI ||
+          this.isContainerizedEnvironment))
     ) {
       // No point in telling users about new versions if we are in
       // a CI or Docker-like environment. or the user has explicitly
