@@ -11,7 +11,11 @@ module.exports = {
         test: /\.ts$/,
         use: [{ loader: 'ts-loader' }],
         exclude: [/node_modules/]
-      }
+      },
+      /*{
+        test: /\.wasm$/,
+        type: 'asset/source',
+      },*/
     ]
   },
 
@@ -51,6 +55,7 @@ module.exports = {
   },
 
   output: {
+    chunkFormat: false,
     strictModuleErrorHandling: true,
     strictModuleExceptionHandling: true,
   },
@@ -63,5 +68,9 @@ module.exports = {
       analyzerMode: 'static',
       openAnalyzer: false
     })
-  ]
+  ],
+
+  experiments: {
+    asyncWebAssembly: true
+  },
 };
