@@ -2,7 +2,8 @@ import { MongoshInternalError } from '@mongosh/errors';
 import { bson } from '@mongosh/service-provider-core';
 import { once } from 'events';
 import { promises as fs } from 'fs';
-import http from 'http';
+import type { Server as HTTPServer } from 'http';
+import http, { createServer as createHTTPServer } from 'http';
 import path from 'path';
 import type { Duplex } from 'stream';
 import { PassThrough } from 'stream';
@@ -29,6 +30,7 @@ import type { CliReplOptions } from './cli-repl';
 import { CliRepl } from './cli-repl';
 import { CliReplErrors } from './error-codes';
 import type { DevtoolsConnectOptions } from '@mongosh/service-provider-server';
+import type { AddressInfo } from 'net';
 const { EJSON } = bson;
 
 const delay = promisify(setTimeout);
@@ -138,7 +140,7 @@ describe('CliRepl', function () {
         const content = await fs.readFile(path.join(tmpdir.path, 'config'), {
           encoding: 'utf8',
         });
-        expect((EJSON.parse(content) as any).enableTelemetry).to.be.false;
+        expect(EJSON.parse(content).enableTelemetry).to.be.false;
       });
 
       it('does not store config options on disk that have not been changed', async function () {
@@ -188,7 +190,7 @@ describe('CliRepl', function () {
         const content = await fs.readFile(path.join(tmpdir.path, 'config'), {
           encoding: 'utf8',
         });
-        expect((EJSON.parse(content) as any).inspectDepth).equal(Infinity);
+        expect(EJSON.parse(content).inspectDepth).equal(Infinity);
       });
 
       it('emits exit when asked to, Node.js-style', async function () {
@@ -990,6 +992,62 @@ describe('CliRepl', function () {
           expect(output).to.include(
             "redactHistory must be one of 'keep', 'remove', or 'remove-redact'"
           );
+        });
+      });
+
+      context('showing update information', function () {
+        let httpServer: HTTPServer;
+        let httpServerUrl: string;
+
+        beforeEach(async function () {
+          httpServer = createHTTPServer((req, res) => {
+            res.end(
+              JSON.stringify({
+                versions: [{ version: '2023.4.15' }],
+              })
+            );
+          });
+          httpServer.listen(0);
+          await once(httpServer, 'listening');
+          httpServerUrl = `http://127.0.0.1:${
+            (httpServer.address() as AddressInfo).port
+          }`;
+        });
+
+        afterEach(async function () {
+          httpServer.close();
+          await once(httpServer, 'close');
+        });
+
+        it('does not attempt to load information about new releases with --eval and no explicit --no-quiet', async function () {
+          cliReplOptions.shellCliOptions.eval = ['1+1'];
+          cliRepl = new CliRepl(cliReplOptions);
+          cliRepl.fetchMongoshUpdateUrlRegardlessOfCiEnvironment = true;
+          cliRepl.config.updateURL = httpServerUrl;
+          let fetchingUpdateMetadataCalls = 0;
+          cliRepl.bus.on(
+            'mongosh:fetching-update-metadata',
+            () => fetchingUpdateMetadataCalls++
+          );
+          await startWithExpectedImmediateExit(cliRepl, '');
+          expect(fetchingUpdateMetadataCalls).to.equal(0);
+        });
+
+        it('does attempt to load information about new releases in --no-quiet mode', async function () {
+          cliReplOptions.shellCliOptions.eval = ['1+1'];
+          cliReplOptions.shellCliOptions.quiet = false;
+          cliRepl = new CliRepl(cliReplOptions);
+          cliRepl.fetchMongoshUpdateUrlRegardlessOfCiEnvironment = true;
+          cliRepl.config.updateURL = httpServerUrl;
+          let fetchingUpdateMetadataCalls = 0;
+          cliRepl.bus.on(
+            'mongosh:fetching-update-metadata',
+            () => fetchingUpdateMetadataCalls++
+          );
+          const requestPromise = once(httpServer, 'request');
+          await startWithExpectedImmediateExit(cliRepl, '');
+          expect(fetchingUpdateMetadataCalls).to.equal(1);
+          await requestPromise;
         });
       });
     });
