@@ -22,7 +22,7 @@
     "webpack": "webpack",
     "postwebpack": "rm -f dist/*.html && node scripts/webpack-include-wasm.js",
     "webpack-build": "npm run webpack -- --mode production",
-    "webpack-build-dev": "npm run webpack webpack -- --mode development"
+    "webpack-build-dev": "npm run webpack -- --mode development"
   },
   "devDependencies": {
     "@wasm-tool/wasm-pack-plugin": "^1.7.0",
