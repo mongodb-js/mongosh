@@ -1,3 +1,4 @@
+use std::collections::VecDeque;
 use wasm_bindgen::prelude::*;
 use rslint_parser::{ast::{ArrowExpr, CallExpr, Expr, ExprOrBlock, FnDecl, FnExpr, ReturnStmt}, parse_text, AstNode, SyntaxNode, TextSize};
 
@@ -25,15 +26,15 @@ fn is_block(body: &ExprOrBlock) -> bool {
     }
 }
 
-fn fn_start_insertion(body: &ExprOrBlock) -> Vec<Insertion> {
-    let mut ret = Vec::new();
+fn fn_start_insertion(body: &ExprOrBlock) -> VecDeque<Insertion> {
+    let mut ret = VecDeque::new();
     let mut offset = body.syntax().text_range().start();
     if !is_block(body) {
-        ret.push(Insertion::new(offset, "{"));
+        ret.push_back(Insertion::new(offset, "{"));
     } else {
         offset = offset.checked_add(1.into()).unwrap();
     }
-    ret.push(Insertion::new(offset, r#"
+    ret.push_back(Insertion::new(offset, r#"
         const _syntheticPromise = Symbol.for('@@mongosh.syntheticPromise');
 
         function _markSyntheticPromise(p) {
@@ -53,22 +54,22 @@ fn fn_start_insertion(body: &ExprOrBlock) -> Vec<Insertion> {
         "#
     ));
     if !is_block(body) {
-        ret.push(Insertion::new(
+        ret.push_back(Insertion::new(
             offset,
              "return ("
         ));
     }
     ret
 }
-fn fn_end_insertion(body: &ExprOrBlock) -> Vec<Insertion> {
-    let mut ret = Vec::new();
+fn fn_end_insertion(body: &ExprOrBlock) -> VecDeque<Insertion> {
+    let mut ret = VecDeque::new();
     let mut offset = body.syntax().text_range().end();
     if is_block(body) {
         offset = offset.checked_sub(1.into()).unwrap();
     } else {
-        ret.push(Insertion::new(offset, ");"));
+        ret.push_back(Insertion::new(offset, ");"));
     }
-    ret.push(Insertion::new(
+    ret.push_back(Insertion::new(
         offset,
         r#"
         } catch (err) {
@@ -98,17 +99,18 @@ fn fn_end_insertion(body: &ExprOrBlock) -> Vec<Insertion> {
         "#
     ));
     if !is_block(body) {
-        ret.push(Insertion::new(offset, "}"));
+        ret.push_back(Insertion::new(offset, "}"));
     }
     ret
 }
 
-fn collect_insertions(node: &SyntaxNode, has_function_parent: bool) -> Vec<Insertion> {
+fn collect_insertions(node: &SyntaxNode, nesting_depth: u32) -> VecDeque<Insertion> {
     let is_function_node = FnExpr::can_cast(node.kind()) || FnDecl::can_cast(node.kind()) || ArrowExpr::can_cast(node.kind());
-    let mut insertions = Vec::new();
+    let has_function_parent = nesting_depth > 0;
+    let mut insertions = VecDeque::new();
     for child in node.children() {
         let range = child.text_range();
-        let child_insertions = &mut collect_insertions(&child, has_function_parent || is_function_node);
+        let child_insertions = &mut collect_insertions(&child, nesting_depth + if is_function_node { 1 } else { 0 });
         if FnDecl::can_cast(child.kind()) {
             let as_fn = FnDecl::cast(child).unwrap();
             if as_fn.async_token().is_none() {
@@ -129,9 +131,9 @@ fn collect_insertions(node: &SyntaxNode, has_function_parent: bool) -> Vec<Inser
                 let mut is_dot_call_expression = false;
                 if has_function_parent {
                     if is_returned_expression {
-                        insertions.push(Insertion::new(range.start(), "(_synchronousReturnValue = "));
+                        insertions.push_back(Insertion::new(range.start(), "(_synchronousReturnValue = "));
                     }
-                    insertions.push(Insertion::new(range.start(), "(_ex = "));
+                    insertions.push_back(Insertion::new(range.start(), "(_ex = "));
                 }
 
                 match as_expr {
@@ -154,7 +156,7 @@ fn collect_insertions(node: &SyntaxNode, has_function_parent: bool) -> Vec<Inser
                     Expr::DotExpr(_) => {
                         if is_called_expression {
                             is_dot_call_expression = true;
-                            insertions.pop();
+                            insertions.pop_back();
                         }
                         insertions.append(child_insertions);
                     }
@@ -164,10 +166,10 @@ fn collect_insertions(node: &SyntaxNode, has_function_parent: bool) -> Vec<Inser
                 }
                 if has_function_parent {
                     if !is_dot_call_expression {
-                        insertions.push(Insertion::new(range.end(), ", _isp(_ex) ? await _ex : _ex)"));
+                        insertions.push_back(Insertion::new(range.end(), ", _isp(_ex) ? await _ex : _ex)"));
                     }
                     if is_returned_expression {
-                        insertions.push(Insertion::new(
+                        insertions.push_back(Insertion::new(
                             range.end(),
                             ", _functionState === 'async' ? _synchronousReturnValue : null)"
                         ));
@@ -182,13 +184,13 @@ fn collect_insertions(node: &SyntaxNode, has_function_parent: bool) -> Vec<Inser
 #[wasm_bindgen]
 pub fn async_rewrite(input: String, with_debug_tags: bool) -> String {
     let parsed = parse_text(input.as_str(), 0);
-    let mut insertions = collect_insertions(&parsed.syntax(), false);
+    let mut insertions = collect_insertions(&parsed.syntax(), 0);
     let mut i = 0;
     for insertion in &mut insertions {
         i += 1;
         insertion.original_ordering = Some(i);
     }
-    insertions.sort_by(|a, b| a.offset.cmp(&b.offset));
+    insertions.make_contiguous().sort_by(|a, b| a.offset.cmp(&b.offset));
 
     let mut result = input.to_string();
     let mut debug_tag = "".to_string();
@@ -197,7 +199,8 @@ pub fn async_rewrite(input: String, with_debug_tags: bool) -> String {
         if with_debug_tags {
             debug_tag = [
                 "/*i", insertion.original_ordering.unwrap().to_string().as_str(), "@",
-                u32::from(insertion.offset).to_string().as_str(), "*/"
+                u32::from(insertion.offset).to_string().as_str(),
+                if insertion.text.contains("/*") { "" } else { "*/" }
             ].concat();
         }
         result = [before, debug_tag.as_str(), insertion.text, debug_tag.as_str(), after].concat();
