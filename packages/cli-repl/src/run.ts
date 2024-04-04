@@ -30,6 +30,7 @@ import crypto from 'crypto';
 import net from 'net';
 import v8 from 'v8';
 import { TimingCategories } from '@mongosh/types';
+import './webpack-self-inspection';
 
 // TS does not yet have type definitions for v8.startupSnapshot
 if ((v8 as any)?.startupSnapshot?.isBuildingSnapshot?.()) {
