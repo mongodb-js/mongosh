@@ -65,10 +65,7 @@ impl InsertionList {
 }
 
 fn is_block(body: &ExprOrBlock) -> bool {
-    match body {
-        ExprOrBlock::Block(_) => { true }
-        ExprOrBlock::Expr(_) => { false }
-    }
+    return matches!(body, ExprOrBlock::Block(_));
 }
 
 fn make_start_fn_insertion(offset: TextSize) -> Insertion {
@@ -165,15 +162,13 @@ fn add_all_variables_from_declaration(patterns: impl Iterator<Item = impl Borrow
                 p.name().map(|name| ret.add_variable(name.to_string()));
             },
             Pattern::RestPattern(p) => {
-                let pat = p.pat();
-                if pat.is_some() {
-                    ret.append(&mut add_all_variables_from_declaration([&pat.unwrap()].into_iter()));
+                if let Some(pat) = p.pat() {
+                    ret.append(&mut add_all_variables_from_declaration([&pat].into_iter()));
                 }
             },
             Pattern::AssignPattern(p) => {
-                let key = p.key();
-                if key.is_some() {
-                    ret.append(&mut add_all_variables_from_declaration([&key.unwrap()].into_iter()));
+                if let Some(key) = p.key() {
+                    ret.append(&mut add_all_variables_from_declaration([&key].into_iter()));
                 }
             },
             Pattern::ObjectPattern(p) => {
@@ -183,8 +178,8 @@ fn add_all_variables_from_declaration(patterns: impl Iterator<Item = impl Borrow
                             ret.append(&mut add_all_variables_from_declaration([&Pattern::AssignPattern(p)].into_iter()));
                         }
                         ObjectPatternProp::KeyValuePattern(p) => {
-                            if p.key().is_some() {
-                                match p.key().unwrap() {
+                            if let Some(key) = p.key() {
+                                match key {
                                     PropName::Ident(ident) => {
                                         ret.add_variable(ident.text());
                                     }
@@ -276,12 +271,12 @@ fn collect_insertions(node: &SyntaxNode, nesting_depth: u32) -> InsertionList {
         if ExprStmt::can_cast(child.kind()) && !has_function_parent {
             let as_expr_stmt = ExprStmt::cast(child).unwrap();
             let expr_range = as_expr_stmt.expr().map(|e| e.syntax().text_range());
-            if expr_range.is_some() {
-                insertions.push_back(Insertion::new(expr_range.unwrap().start(), "_cr = ("));
+            if let Some(start) = expr_range.map(|r| r.start()) {
+                insertions.push_back(Insertion::new(start, "_cr = ("));
             }
             insertions.append(child_insertions);
-            if expr_range.is_some() {
-                insertions.push_back(Insertion::new(expr_range.unwrap().end(), ")"));
+            if let Some(end) = expr_range.map(|r| r.end()) {
+                insertions.push_back(Insertion::new(end, ")"));
             }
             continue;
         }
