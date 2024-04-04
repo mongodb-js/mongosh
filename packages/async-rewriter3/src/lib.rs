@@ -1,6 +1,6 @@
 use std::{borrow::Borrow, collections::VecDeque};
 use wasm_bindgen::prelude::*;
-use rslint_parser::{ast::{ArrowExpr, CallExpr, ClassDecl, Expr, ExprOrBlock, FnDecl, FnExpr, ObjectPatternProp, Pattern, PropName, ReturnStmt, VarDecl}, parse_text, AstNode, SyntaxNode, TextSize};
+use rslint_parser::{ast::{ArrowExpr, AssignExpr, CallExpr, ClassDecl, Expr, ExprOrBlock, ExprStmt, FnDecl, FnExpr, ObjectPatternProp, Pattern, PropName, ReturnStmt, UnaryExpr, VarDecl}, parse_text, AstNode, SyntaxNode, TextSize};
 
 #[derive(Debug)]
 enum InsertionText {
@@ -73,7 +73,7 @@ fn is_block(body: &ExprOrBlock) -> bool {
 
 fn make_start_fn_insertion(offset: TextSize) -> Insertion {
     Insertion::new(offset, r#"
-    const _syntheticPromise = Symbol.for('@@mongosh.syntheticPromise');
+    ;const _syntheticPromise = Symbol.for('@@mongosh.syntheticPromise');
 
     function _markSyntheticPromise(p) {
         return Object.defineProperty(p, _syntheticPromise, {
@@ -273,6 +273,18 @@ fn collect_insertions(node: &SyntaxNode, nesting_depth: u32) -> InsertionList {
             }
             continue;
         }
+        if ExprStmt::can_cast(child.kind()) && !has_function_parent {
+            let as_expr_stmt = ExprStmt::cast(child).unwrap();
+            let expr_range = as_expr_stmt.expr().map(|e| e.syntax().text_range());
+            if expr_range.is_some() {
+                insertions.push_back(Insertion::new(expr_range.unwrap().start(), "_cr = ("));
+            }
+            insertions.append(child_insertions);
+            if expr_range.is_some() {
+                insertions.push_back(Insertion::new(expr_range.unwrap().end(), ")"));
+            }
+            continue;
+        }
 
         match Expr::cast(child) {
             None => {
@@ -285,7 +297,13 @@ fn collect_insertions(node: &SyntaxNode, nesting_depth: u32) -> InsertionList {
                 if is_returned_expression {
                     insertions.push_back(Insertion::new(range.start(), "(_synchronousReturnValue = "));
                 }
-                insertions.push_back(Insertion::new(range.start(), "(_ex = "));
+                let is_lhs_of_assign_expr = (AssignExpr::can_cast(as_expr.syntax().parent().unwrap().kind()) &&
+                    AssignExpr::cast(as_expr.syntax().parent().unwrap()).unwrap().lhs().unwrap().syntax().text_range() ==
+                    as_expr.syntax().text_range()) || UnaryExpr::can_cast(as_expr.syntax().parent().unwrap().kind());
+
+                if !is_lhs_of_assign_expr {
+                    insertions.push_back(Insertion::new(range.start(), "(_ex = "));
+                }
 
                 match as_expr {
                     Expr::ArrowExpr(as_fn) => {
@@ -315,7 +333,7 @@ fn collect_insertions(node: &SyntaxNode, nesting_depth: u32) -> InsertionList {
                         insertions.append(child_insertions);
                     },
                 }
-                if !is_dot_call_expression {
+                if !is_dot_call_expression && !is_lhs_of_assign_expr {
                     insertions.push_back(Insertion::new(range.end(), ", _isp(_ex) ? await _ex : _ex)"));
                 }
                 if is_returned_expression {
@@ -344,9 +362,11 @@ pub fn async_rewrite(input: String, with_debug_tags: bool) -> String {
         }
     }
     let end = input.len().try_into().unwrap();
-    insertions.push_back(Insertion::new(TextSize::new(0), "(async () => {"));
+    insertions.push_back(Insertion::new(TextSize::new(0), "(() => {"));
     insertions.push_back(make_start_fn_insertion(TextSize::new(0)));
+    insertions.push_back(Insertion::new(TextSize::new(0), "var _cr;"));
     insertions.append(&mut collected_insertions);
+    insertions.push_back(Insertion::new(TextSize::new(end), "; return _synchronousReturnValue = _cr;"));
     insertions.push_back(make_end_fn_insertion(input.len().try_into().unwrap()));
     insertions.push_back(Insertion::new(TextSize::new(end), "})()"));
 
