@@ -109,6 +109,7 @@ module.exports = {
     repo: 'mongosh'
   },
   artifactUrlFile: process.env.ARTIFACT_URL_FILE,
+  artifactUrlExtraTag: process.env.ARTIFACT_URL_EXTRA_TAG,
   cryptSharedLibPath: CRYPT_LIBRARY_PATH,
   packageInformation: packageVariant => {
     // The shared-openssl suffix for the current package identifer, e.g. 'openssl11'.

@@ -115,7 +115,8 @@ post:
 #   test_connectivity - Runs extra connectivity tests.
 #   test_apistrict - Runs shell API and CLI tests with --apiStrict --apiDeprecationErrors.
 #   compile_artifact - Compile the release binary.
-#   package_and_upload_artifact - Upload the release binary to S3.
+#   package_artifact - Upload the release binary together with other files to S3.
+#   sign_artifact - Get a package file from S3, sign it, put it back into S3.
 #   test_linux_artifact - Test that the built artifact works where we expect it to.
 #                         We use this to verify that e.g. the Ubuntu-built release
 #                         binary also works on RHEL and Debian.
@@ -449,21 +450,23 @@ functions:
   ###
   # PACKAGING AND UPLOADING
   #
-  # package_and_upload_artifact generates a distributable package out of the compiled artifact,
+  # package_artifact generates a distributable package out of the compiled artifact,
   # i.e. it expects it to have been downloaded already. The distributable package will be uploaded
   # to a specifc Evergreen S3 bucket for later use.
+  # sign_artifact signs and/or notarizes the distributable package as appropriate.
   #
   # The URL to download the distributable package can be retrieved by get_artifact_url.
   #
-  # package_and_upload_artifact expects the following arguments:
+  # package_artifact expects the following arguments:
   # - distro_id
   # - package_variant
   # - executable_os_id
   #
-  # get_artifact_url expects the following arguments:
+  # get_artifact_url and put_artifact_url expects the following arguments:
   # - package_variant
+  # - signature_tag (either 'signed' or 'unsigned')
   ###
-  package_and_upload_artifact:
+  package_artifact:
     - command: expansions.write
       type: setup
       params:
@@ -477,14 +480,30 @@ functions:
           NODE_JS_VERSION: ${node_js_version}
           DISTRO_ID_OVERRIDE: ${distro_id}
           PACKAGE_VARIANT: ${package_variant}
+          ARTIFACT_URL_EXTRA_TAG: unsigned
+  sign_artifact:
+    - command: expansions.write
+      type: setup
+      params:
+        file: tmp/expansions.yaml
+        redacted: true
+    - command: subprocess.exec
+      params:
+        working_dir: src
+        binary: bash .evergreen/sign-packaged-artifact.sh
+        env:
+          NODE_JS_VERSION: ${node_js_version}
+          DISTRO_ID_OVERRIDE: ${distro_id}
+          PACKAGE_VARIANT: ${package_variant}
           MACOS_NOTARY_KEY: ${macos_notary_key}
           MACOS_NOTARY_SECRET: ${macos_notary_secret}
+  put_artifact_url:
     - command: s3.put
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/artifact-url.txt
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/artifact-url-${package_variant}.txt
+        local_file: artifact-url.txt
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/artifact-url-${package_variant}-${signature_tag}.txt
         bucket: mciuploads
         permissions: public-read
         content_type: application/x-gzip
@@ -495,7 +514,7 @@ functions:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
         local_file: artifact-url.txt
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/artifact-url-${source_package_variant}.txt
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/artifact-url-${package_variant}-${signature_tag}.txt
         bucket: mciuploads
 
   write_preload_script:
@@ -844,7 +863,8 @@ functions:
 #   test_connectivity - Runs extra connectivity tests.
 #   test_apistrict - Runs shell API and CLI tests with --apiStrict --apiDeprecationErrors.
 #   compile_artifact - Compile the release binary.
-#   package_and_upload_artifact - Upload the release binary to S3.
+#   package_artifact - Upload the release binary together with other files to S3.
+#   sign_artifact - Get a package file from S3, sign it, put it back into S3.
 #   test_linux_artifact - Test that the built artifact works where we expect it to.
 #   release_publish - Publishes the npm packages and uploads the tarballs.
 #   generate_license_and_vulnerability_report - Generates a report of vulnerabilities affecting the bundled application.
@@ -1054,7 +1074,7 @@ tasks:
   ###
   <% for (const { executableOsId, compileBuildVariant, packages } of RELEASE_PACKAGE_MATRIX) {
        for (const { name: packageVariant } of packages) { %>
-  - name: package_and_upload_artifact_<% out(packageVariant.replace(/-/g, '_')) %>
+  - name: package_artifact_<% out(packageVariant.replace(/-/g, '_')) %>
     depends_on:
       - name: compile_artifact
         variant: <% out(compileBuildVariant) %>
@@ -1066,11 +1086,36 @@ tasks:
       - func: download_compiled_artifact
         vars:
           executable_os_id: <% out(executableOsId) %>
-      - func: package_and_upload_artifact
+      - func: package_artifact
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_20) %>"
           package_variant: <% out(packageVariant) %>
           executable_os_id: <% out(executableOsId) %>
+      - func: put_artifact_url
+        vars:
+          package_variant: <% out(packageVariant) %>
+          signature_tag: unsigned
+  - name: sign_artifact_<% out(packageVariant.replace(/-/g, '_')) %>
+    depends_on:
+      - name: package_artifact_<% out(packageVariant.replace(/-/g, '_')) %>
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+      - func: get_artifact_url
+        vars:
+          package_variant: <% out(packageVariant) %>
+          signature_tag: unsigned
+      - func: sign_artifact
+        vars:
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+          package_variant: <% out(packageVariant) %>
+      - func: put_artifact_url
+        vars:
+          package_variant: <% out(packageVariant) %>
+          signature_tag: signed
   <% } } %>
 
   ###
@@ -1086,13 +1131,14 @@ tasks:
   - name: <% out(taskName) %>
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_<% out(name.replace(/-/g, '_')) %>
-        variant: <% out(packageOn) %>
+      - name: sign_artifact_<% out(name.replace(/-/g, '_')) %>
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: <% out(name) %>
+          package_variant: <% out(name) %>
+          signature_tag: signed
       - func: write_preload_script
     <% switch (smokeTestKind) {
       case 'ssh': { %>
@@ -1201,8 +1247,10 @@ buildvariants:
     tasks:
       - name: compile_artifact
       - name: e2e_tests_darwin_x64
-      - name: package_and_upload_artifact_darwin_x64
-      - name: package_and_upload_artifact_darwin_arm64
+      - name: package_artifact_darwin_x64
+      - name: sign_artifact_darwin_x64
+      - name: package_artifact_darwin_arm64
+      - name: sign_artifact_darwin_arm64
   - name: darwin_arm64
     display_name: "MacOS Big Sur (arm64)"
     run_on: macos-1100-arm64
@@ -1213,7 +1261,7 @@ buildvariants:
       - name: e2e_tests_darwin_arm64
 
   - name: linux_unit
-    display_name: "Ubuntu 18.04 x64 (Unit tests)"
+    display_name: "Ubuntu 20.04 x64 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
     tasks:
@@ -1231,15 +1279,18 @@ buildvariants:
     tasks:
       - name: check_coverage
   - name: linux_package
-    display_name: "Ubuntu 18.04 x64 (Packaging)"
+    display_name: "Ubuntu 20.04 x64 (Packaging)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
     tasks:
       <% for (const { executableOsId, packages } of RELEASE_PACKAGE_MATRIX) {
           for (const { name: packageVariant } of packages) {
             if (executableOsId.startsWith('linux')) { %>
-      - name: package_and_upload_artifact_<% out(packageVariant.replace(/-/g, '_')) %>
+      - name: package_artifact_<% out(packageVariant.replace(/-/g, '_')) %>
+      - name: sign_artifact_<% out(packageVariant.replace(/-/g, '_')) %>
       <% } } } %>
+      - name: sign_artifact_win32_x64
+      - name: sign_artifact_win32msi_x64
   - name: linux_x64_build
     display_name: "RHEL 7.0 x64 (build)"
     run_on: rhel70-build
@@ -1507,8 +1558,8 @@ buildvariants:
       executable_os_id: win32
     tasks:
       - name: e2e_tests_win32
-      - name: package_and_upload_artifact_win32_x64
-      - name: package_and_upload_artifact_win32msi_x64
+      - name: package_artifact_win32_x64
+      - name: package_artifact_win32msi_x64
   - name: win32_build
     display_name: "Windows VS 2019 (build)"
     run_on: windows-64-vs2019-build

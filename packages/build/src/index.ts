@@ -22,6 +22,7 @@ if (require.main === module) {
         'upload',
         'draft',
         'publish',
+        'sign',
         'trigger-release',
       ].includes(command)
     ) {
