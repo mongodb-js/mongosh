@@ -6603,15 +6603,6 @@ functions:
       params:
         file: tmp/expansions.yaml
         redacted: true
-        # TODO: REPLACE WITH CALLING download_compiled_artifact BEFORE
-    - command: s3.get
-      type: setup
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/dist.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-${executable_os_id}.tgz
-        bucket: mciuploads
     - command: subprocess.exec
       params:
         working_dir: src
@@ -11735,6 +11726,9 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.12.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: darwin-x64
       - func: package_and_upload_artifact
         vars:
           node_js_version: "20.12.1"
@@ -11749,6 +11743,9 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.12.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: darwin-arm64
       - func: package_and_upload_artifact
         vars:
           node_js_version: "20.12.1"
@@ -11763,6 +11760,9 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.12.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-x64
       - func: package_and_upload_artifact
         vars:
           node_js_version: "20.12.1"
@@ -11777,6 +11777,9 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.12.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-x64
       - func: package_and_upload_artifact
         vars:
           node_js_version: "20.12.1"
@@ -11791,6 +11794,9 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.12.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-x64
       - func: package_and_upload_artifact
         vars:
           node_js_version: "20.12.1"
@@ -11805,6 +11811,9 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.12.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-x64-openssl11
       - func: package_and_upload_artifact
         vars:
           node_js_version: "20.12.1"
@@ -11819,6 +11828,9 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.12.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-x64-openssl11
       - func: package_and_upload_artifact
         vars:
           node_js_version: "20.12.1"
@@ -11833,6 +11845,9 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.12.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-x64-openssl11
       - func: package_and_upload_artifact
         vars:
           node_js_version: "20.12.1"
@@ -11847,6 +11862,9 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.12.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-x64-openssl3
       - func: package_and_upload_artifact
         vars:
           node_js_version: "20.12.1"
@@ -11861,6 +11879,9 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.12.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-x64-openssl3
       - func: package_and_upload_artifact
         vars:
           node_js_version: "20.12.1"
@@ -11875,6 +11896,9 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.12.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-x64-openssl3
       - func: package_and_upload_artifact
         vars:
           node_js_version: "20.12.1"
@@ -11889,6 +11913,9 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.12.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64
       - func: package_and_upload_artifact
         vars:
           node_js_version: "20.12.1"
@@ -11903,6 +11930,9 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.12.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64
       - func: package_and_upload_artifact
         vars:
           node_js_version: "20.12.1"
@@ -11917,6 +11947,9 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.12.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64
       - func: package_and_upload_artifact
         vars:
           node_js_version: "20.12.1"
@@ -11931,6 +11964,9 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.12.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64-openssl11
       - func: package_and_upload_artifact
         vars:
           node_js_version: "20.12.1"
@@ -11945,6 +11981,9 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.12.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64-openssl11
       - func: package_and_upload_artifact
         vars:
           node_js_version: "20.12.1"
@@ -11959,6 +11998,9 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.12.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64-openssl11
       - func: package_and_upload_artifact
         vars:
           node_js_version: "20.12.1"
@@ -11973,6 +12015,9 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.12.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64-openssl3
       - func: package_and_upload_artifact
         vars:
           node_js_version: "20.12.1"
@@ -11987,6 +12032,9 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.12.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64-openssl3
       - func: package_and_upload_artifact
         vars:
           node_js_version: "20.12.1"
@@ -12001,6 +12049,9 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.12.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64-openssl3
       - func: package_and_upload_artifact
         vars:
           node_js_version: "20.12.1"
@@ -12015,6 +12066,9 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.12.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-ppc64le
       - func: package_and_upload_artifact
         vars:
           node_js_version: "20.12.1"
@@ -12029,6 +12083,9 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.12.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-ppc64le
       - func: package_and_upload_artifact
         vars:
           node_js_version: "20.12.1"
@@ -12043,6 +12100,9 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.12.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-s390x
       - func: package_and_upload_artifact
         vars:
           node_js_version: "20.12.1"
@@ -12057,6 +12117,9 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.12.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-s390x
       - func: package_and_upload_artifact
         vars:
           node_js_version: "20.12.1"
@@ -12071,6 +12134,9 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.12.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: win32
       - func: package_and_upload_artifact
         vars:
           node_js_version: "20.12.1"
@@ -12085,6 +12151,9 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.12.1"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: win32
       - func: package_and_upload_artifact
         vars:
           node_js_version: "20.12.1"
