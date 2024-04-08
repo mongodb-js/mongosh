@@ -125,6 +125,10 @@ export class SignableCompiler {
       path: await findModulePath('cli-repl', 'mongodb-crypt-library-version'),
       requireRegexp: /\bmongodb_crypt_library_version\.node$/,
     };
+    const glibcVersionAddon = {
+      path: await findModulePath('cli-repl', 'glibc-version'),
+      requireRegexp: /\bglibc_version\.node$/,
+    };
     // Warning! Until https://jira.mongodb.org/browse/MONGOSH-990,
     // packages/service-provider-server *also* has a copy of these.
     // We use the versions included in packages/cli-repl here, so these
@@ -173,7 +177,13 @@ export class SignableCompiler {
           GYP_DEFINES: 'kerberos_use_rtld=true',
         }),
       },
-      addons: [fleAddon, osDnsAddon, kerberosAddon, cryptLibraryVersionAddon]
+      addons: [
+        fleAddon,
+        osDnsAddon,
+        kerberosAddon,
+        cryptLibraryVersionAddon,
+        glibcVersionAddon,
+      ]
         .concat(winCAAddon ? [winCAAddon] : [])
         .concat(winConsoleProcessListAddon ? [winConsoleProcessListAddon] : [])
         .concat(macKeychainAddon ? [macKeychainAddon] : []),

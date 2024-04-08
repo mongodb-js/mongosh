@@ -44,6 +44,7 @@ export function baseBuildInfo(): Omit<BuildInfo, 'deps'> {
     // Runtime platform can differ e.g. because homebrew on macOS uses
     // npm packages published from Linux
     runtimePlatform: process.platform,
+    runtimeGlibcVersion: getGlibcVersion(),
   };
 
   try {
@@ -85,4 +86,15 @@ export async function buildInfo({
     delete buildInfo.segmentApiKey;
   }
   return buildInfo;
+}
+
+let cachedGlibcVersion: string | undefined | null = null;
+export function getGlibcVersion(): string | undefined {
+  if (process.platform !== 'linux') return undefined;
+  if (cachedGlibcVersion !== null) return cachedGlibcVersion;
+  try {
+    return (cachedGlibcVersion = require('glibc-version')());
+  } catch {
+    return (cachedGlibcVersion = undefined);
+  }
 }
