@@ -6,4 +6,4 @@ set -x
 export NODE_JS_VERSION=${node_js_version}
 source .evergreen/setup-env.sh
 export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
-npm run evergreen-release publish $@
+npm run evergreen-release $@

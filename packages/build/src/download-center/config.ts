@@ -28,16 +28,12 @@ import {
 import type { PackageInformationProvider } from '../packaging';
 import { getPackageFile } from '../packaging';
 import { promises as fs } from 'fs';
-import { createHash } from 'crypto';
-import { once } from 'events';
-import fetch from 'node-fetch';
 import path from 'path';
-import { promisify } from 'util';
 import semver from 'semver';
-
-const delay = promisify(setTimeout);
+import { hashListFiles } from '../run-download-and-list-artifacts';
 
 export async function createAndPublishDownloadCenterConfig(
+  outputDir: string,
   packageInformation: PackageInformationProvider,
   awsAccessKeyId: string,
   awsSecretAccessKey: string,
@@ -102,6 +98,7 @@ export async function createAndPublishDownloadCenterConfig(
     ? JSON.parse(await fs.readFile(injectedJsonFeedFile, 'utf8'))
     : undefined;
   const currentJsonFeedEntry = await createJsonFeedEntry(
+    outputDir,
     packageInformation,
     publicArtifactBaseUrl
   );
@@ -227,6 +224,7 @@ interface JsonFeedDownloadEntry {
 }
 
 export async function createJsonFeedEntry(
+  outputDir: string,
   packageInformation: PackageInformationProvider,
   publicArtifactBaseUrl: string
 ): Promise<JsonFeedVersionEntry> {
@@ -242,7 +240,7 @@ export async function createJsonFeedEntry(
           packageInformation
         ).path;
         const url = publicArtifactBaseUrl + filename;
-        const { sha1, sha256 } = await getHashes(url);
+        const { sha1, sha256 } = await getHashes(outputDir, filename);
 
         return {
           arch: getServerLikeArchName(arch),
@@ -283,33 +281,26 @@ function mergeFeeds(...args: (JsonFeed | undefined)[]): JsonFeed {
 }
 
 async function getHashes(
-  url: string,
-  retriesLeft = 5
+  outputDir: string,
+  packagedFilename: string
 ): Promise<{ sha1: string; sha256: string }> {
-  if (new URL(url).protocol === 'skip:') return { sha1: '', sha256: '' }; // for testing only
-  let is4xxError = false;
-  try {
-    const response = await fetch(url);
-    if (!response.ok || !response.body) {
-      is4xxError ||= response.status >= 400 && response.status < 500;
-      throw new Error(`unexpected response ${response.statusText} for ${url}`);
-    }
-    const sha256 = createHash('sha256');
-    const sha1 = createHash('sha1');
-    response.body.pipe(sha256);
-    response.body.pipe(sha1);
-    await Promise.all([once(sha1, 'finish'), once(sha256, 'finish')]);
-    return { sha1: sha1.digest('hex'), sha256: sha256.digest('hex') };
-  } catch (err) {
-    if (is4xxError || retriesLeft === 0) throw err;
-    console.error(
-      'Got error',
-      err,
-      'while trying to hash file',
-      url,
-      ', retrying...'
-    );
-    await delay(5000);
-    return await getHashes(url, retriesLeft - 1);
-  }
+  return Object.fromEntries(
+    await Promise.all(
+      hashListFiles.map(async ({ filename, hash }) => {
+        const content = await fs.readFile(
+          path.join(outputDir, filename),
+          'utf8'
+        );
+        const line = content
+          .split('\n')
+          .find((line) => line.endsWith(packagedFilename));
+        if (!line) {
+          throw new Error(
+            `Could not find entry for ${packagedFilename} in ${filename}`
+          );
+        }
+        return [hash, line.trim().split(/\s/)[0]] as const;
+      })
+    )
+  ) as { sha1: string; sha256: string };
 }

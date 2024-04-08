@@ -20,6 +20,7 @@ import { runDraft } from './run-draft';
 import { runPublish } from './run-publish';
 import { runUpload } from './run-upload';
 import { runSign } from './packaging/run-sign';
+import { runDownloadAndListArtifacts } from './run-download-and-list-artifacts';
 
 export type ReleaseCommand =
   | 'bump'
@@ -27,6 +28,7 @@ export type ReleaseCommand =
   | 'package'
   | 'sign'
   | 'upload'
+  | 'download-and-list-artifacts'
   | 'draft'
   | 'publish';
 
@@ -101,6 +103,8 @@ export async function release(
       uploadArtifactToDownloadCenter,
       downloadArtifactFromEvergreen
     );
+  } else if (command === 'download-and-list-artifacts') {
+    await runDownloadAndListArtifacts(config);
   } else if (command === 'publish') {
     const barque = new Barque(config);
     await runPublish(

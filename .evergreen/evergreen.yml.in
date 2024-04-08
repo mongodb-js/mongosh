@@ -795,6 +795,33 @@ functions:
           npm run evergreen-release draft
           }
 
+  release_publish_download_and_list_artifacts:
+    - command: expansions.write
+      type: system
+      params:
+        file: tmp/expansions.yaml
+        redacted: true
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        env:
+          node_js_version: ${node_js_version}
+        script: |
+          set -e
+          export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
+          .evergreen/run-evergreen-release.sh download-and-list-artifacts
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          set -x
+          ls -lh dist/
+          cat -n dist/SHASUMS1.txt
+          cat -n dist/SHASUMS256.txt
+
   release_publish_dry_run:
     - command: expansions.write
       type: system
@@ -812,7 +839,7 @@ functions:
         script: |
           set -e
           export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
-          .evergreen/run-evergreen-release.sh -- --dry-run
+          .evergreen/run-evergreen-release.sh publish -- --dry-run
 
   release_publish:
     - command: expansions.write
@@ -831,7 +858,7 @@ functions:
         script: |
           set -e
           export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
-          .evergreen/run-evergreen-release.sh
+          .evergreen/run-evergreen-release.sh publish
 
   run_perf_tests:
     - command: shell.exec
@@ -1208,6 +1235,9 @@ tasks:
       - func: install
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+      - func: release_publish_download_and_list_artifacts
+        vars:
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
       - func: release_publish_dry_run
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_20) %>"
@@ -1221,6 +1251,9 @@ tasks:
     commands:
       - func: checkout
       - func: install
+        vars:
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+      - func: release_publish_download_and_list_artifacts
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_20) %>"
       - func: release_publish

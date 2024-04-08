@@ -167,6 +167,7 @@ describe('publish', function () {
       );
 
       expect(createAndPublishDownloadCenterConfig).to.have.been.calledWith(
+        config.outputDir,
         config.packageInformation,
         config.downloadCenterAwsKey,
         config.downloadCenterAwsSecret
