@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Sun Apr 07 2024.
+This document was automatically generated on Mon Apr 08 2024.
 
 ## List of dependencies
 
@@ -103,6 +103,7 @@ Package|Version|License
 **[@mongosh/snippet-manager](#006cfa776d20db3be61c3aa50333c13f27382e2b5a835f17fd767b3033ee8578)**|0.0.0-dev.0|Apache-2.0
 **[@mongosh/types](#932433394a8cb7344aad5f815684a707037efcf157408109bb8845d018333dac)**|0.0.0-dev.0|Apache-2.0
 **[@nicolo-ribaudo/semver-v6](#0db933ddbe9acfd097ee5ee08e4afb1f4f7a64ef9712f95fef7958494c8e02cd)**|6.3.3|ISC
+**[@one-ini/wasm](#6aca526b8422bf437f742c50072eb83ba3514db8deb4030046affbd54c8944bc)**|0.1.1|MIT
 **[@segment/analytics-core](#4df204335137c1be0e2456e45c1b988a6eda1959ef34664939db7d4ebe0e72d6)**|1.4.1|MIT
 **[@segment/analytics-generic-utils](#f064ef211464a877de186ba80a2b881afe7d01d63b2dce26ed1617bea73cc8e8)**|1.1.1|MIT
 **[@segment/analytics-node](#58e7b7b66af2e3048a6aaf463674230cd63cd4670c15f54c7b398b9322fb3512)**|1.3.0|MIT
@@ -222,7 +223,7 @@ Package|Version|License
 **[destroy](#b0d735940e17a041d544c301b27489e5d09c3032fa11e7832f03be6541182fd6)**|1.2.0|MIT
 **[detect-libc](#75227d1b1c09630ea361abee4d27101e350832bbeab9640a013c82662408b467)**|2.0.1|Apache-2.0
 **[dset](#0ad3cccee140cec056ad5553443d2c3609cb002e279e2820cada2d6cb85c883d)**|3.1.3|MIT
-**[editorconfig](#495b0fb61ff987539296d5b40550ad544a53b42471e10d690a92f375708a4b52)**|0.15.3|MIT
+**[editorconfig](#5d11fbb599a741b68e0df122e2068b939694534afa08c629595c22fb8aa70bb7)**|1.0.4|MIT
 **[ee-first](#e2746902c758ae8a6f91ffb9618cd53717f936cb33c6323e65b6b7b24f7ebefe)**|1.1.1|MIT
 **[electron-to-chromium](#c70cbde8d6193b752f659ebc3043d31cf61f1798ac9b66688f3ca51a9144445a)**|1.4.449|ISC
 **[emphasize](#b711799b584fffd03c11645b8ecdb22af7dc831b5f827be5add0501d543e0c48)**|4.2.0|MIT
@@ -290,7 +291,8 @@ Package|Version|License
 **[isexe](#2f62e711a6921973ef3f9650fd3e06585fd3842e34078c8fa959481738600405)**|2.0.0|ISC
 **[joi](#3dbf18f89935aa8b3578d1d6c306f899e3e018ed55c07e1fa81d1d7d4d00623f)**|17.8.3|BSD-3-Clause
 **[jose](#7c6ba2890a65df8d382e1b102b311651675d0ed5fd5443e911c520b18e93f62f)**|4.15.5|MIT
-**[js-beautify](#dd973d91f66bccebf0e1bbdc59b9dd48c24160efc326d0c2e4c7fec33a2749c7)**|1.14.7|MIT
+**[js-beautify](#4d9446c42fb3dfd9b4130a7d3a0b2014c777cebed3243efef61c2a606c8b3e02)**|1.15.1|MIT
+**[js-cookie](#f53439f108d887a45acefce4403f678c2f64b23a3a897f3dbf60927ff4ac25fd)**|3.0.5|MIT
 **[js-tokens](#f4371f095c6f087cf41433031f8c612e21a4258b18cb4e847ffae73905e146d4)**|4.0.0|MIT
 **[js-yaml](#b7325d630b0ab313450fcd188788f6ee374aadd75df4969a9e3c48507ef88bdf)**|4.1.0|MIT
 **[jsbn](#82c9822c7d914bb274ffde07a3a8a71c3b1a2e3b337b7e2cefa461cad0f4fa10)**|0.1.1|MIT
@@ -388,7 +390,6 @@ Package|Version|License
 **[shebang-command](#a9cba97b71b818fb0a4978f8b14875ae118f292a19ffa97c8b2d848f9a897d89)**|2.0.0|MIT
 **[shebang-regex](#849fb37298f1c4dcdeb6065edc4242918c7533bcfda5c67747e6ce4620c587bb)**|3.0.0|MIT
 **[side-channel](#90d899d6f4d9080f6f0557879cc46c095d553b16e105525a7ed156113a6e1ead)**|1.0.4|MIT
-**[sigmund](#b7bc393e5a232bcdbb43c9634479890abf328baafea4bd42382331ef113761e9)**|1.0.1|ISC
 **[signal-exit](#5ad551060d44370794e770309e198719e94f939e46a3ea537b776c9c4fdad9e4)**|3.0.7|ISC
 **[simple-concat](#7e08f893385d0a6d7059029da3885e8346ad01eb58d6e4561612d2fb653c15ec)**|1.0.1|MIT
 **[simple-get](#c2c12990b6319daff653bdf953cadfa368185f0edc671124fb1028f6979df829)**|4.0.1|MIT
@@ -11424,6 +11425,37 @@ License files:
       WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
       ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
       IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+      
+
+
+<a id="6aca526b8422bf437f742c50072eb83ba3514db8deb4030046affbd54c8944bc"></a>
+### [@one-ini/wasm](https://www.npmjs.com/package/@one-ini/wasm) (version 0.1.1)
+License tags: MIT
+
+License files:
+* LICENSE:
+
+      MIT License
+      
+      Copyright (c) 2019 Jed Mao
+      
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+      
+      The above copyright notice and this permission notice shall be included in all
+      copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE.
       
 
 
@@ -23267,8 +23299,8 @@ License files:
       
 
 
-<a id="495b0fb61ff987539296d5b40550ad544a53b42471e10d690a92f375708a4b52"></a>
-### [editorconfig](https://www.npmjs.com/package/editorconfig) (version 0.15.3)
+<a id="5d11fbb599a741b68e0df122e2068b939694534afa08c629595c22fb8aa70bb7"></a>
+### [editorconfig](https://www.npmjs.com/package/editorconfig) (version 1.0.4)
 License tags: MIT
 
 License files:
@@ -25801,8 +25833,8 @@ License files:
       
 
 
-<a id="dd973d91f66bccebf0e1bbdc59b9dd48c24160efc326d0c2e4c7fec33a2749c7"></a>
-### [js-beautify](https://www.npmjs.com/package/js-beautify) (version 1.14.7)
+<a id="4d9446c42fb3dfd9b4130a7d3a0b2014c777cebed3243efef61c2a606c8b3e02"></a>
+### [js-beautify](https://www.npmjs.com/package/js-beautify) (version 1.15.1)
 License tags: MIT
 
 License files:
@@ -25817,6 +25849,37 @@ License files:
       The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
       
       THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+      
+
+
+<a id="f53439f108d887a45acefce4403f678c2f64b23a3a897f3dbf60927ff4ac25fd"></a>
+### [js-cookie](https://www.npmjs.com/package/js-cookie) (version 3.0.5)
+License tags: MIT
+
+License files:
+* LICENSE:
+
+      MIT License
+      
+      Copyright (c) 2018 Copyright 2018 Klaus Hartl, Fagner Brack, GitHub Contributors
+      
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+      
+      The above copyright notice and this permission notice shall be included in all
+      copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE.
       
 
 
@@ -30365,31 +30428,6 @@ License files:
       LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
-      
-
-
-<a id="b7bc393e5a232bcdbb43c9634479890abf328baafea4bd42382331ef113761e9"></a>
-### [sigmund](https://www.npmjs.com/package/sigmund) (version 1.0.1)
-License tags: ISC
-
-License files:
-* LICENSE:
-
-      The ISC License
-      
-      Copyright (c) Isaac Z. Schlueter and Contributors
-      
-      Permission to use, copy, modify, and/or distribute this software for any
-      purpose with or without fee is hereby granted, provided that the above
-      copyright notice and this permission notice appear in all copies.
-      
-      THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-      WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-      MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-      ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-      WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-      ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
-      IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
       
 
 
