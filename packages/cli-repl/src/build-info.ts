@@ -15,6 +15,7 @@ export interface BuildInfo {
   opensslVersion: string;
   sharedOpenssl: boolean;
   segmentApiKey?: string;
+  runtimeGlibcVersion: string;
   deps: ReturnType<typeof CliServiceProvider.getVersionInformation>;
 }
 
@@ -44,7 +45,7 @@ export function baseBuildInfo(): Omit<BuildInfo, 'deps'> {
     // Runtime platform can differ e.g. because homebrew on macOS uses
     // npm packages published from Linux
     runtimePlatform: process.platform,
-    runtimeGlibcVersion: getGlibcVersion(),
+    runtimeGlibcVersion: getGlibcVersion() ?? 'N/A',
   };
 
   try {
