@@ -54,6 +54,9 @@
       ],
       "get-console-process-list": [
         "win32"
+      ],
+      "glibc-version": [
+        "linux"
       ]
     }
   },
