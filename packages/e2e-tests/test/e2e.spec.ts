@@ -102,7 +102,7 @@ describe('e2e', function () {
         processReport = JSON.parse(shell.output);
       }
       expect(data.runtimeGlibcVersion).to.equal(
-        processReport.header.glibcVersionRuntime
+        processReport.header.glibcVersionRuntime ?? 'N/A'
       );
     });
 
