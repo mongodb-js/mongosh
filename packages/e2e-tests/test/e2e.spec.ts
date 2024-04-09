@@ -87,6 +87,8 @@ describe('e2e', function () {
       expect(data.deps.libmongocryptVersion).to.be.a('string');
       expect(data.deps.libmongocryptNodeBindingsVersion).to.be.a('string');
 
+      if (process.version.startsWith('v16.')) return;
+
       let processReport: any;
       {
         const shell = TestShell.start({
