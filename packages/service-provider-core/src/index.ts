@@ -1,5 +1,8 @@
 import './textencoder-polyfill'; // for mongodb-connection-string-url in the java-shell
-import ServiceProvider, { ServiceProviderCore } from './service-provider';
+import ServiceProvider, {
+  ServiceProviderCore,
+  SynchronousServiceProvider,
+} from './service-provider';
 import getConnectInfo, { ConnectInfo } from './connect-info';
 import type { ReplPlatform } from './platform';
 const DEFAULT_DB = 'test';
@@ -18,6 +21,7 @@ export {
 export { bson } from './bson-export';
 
 export {
+  SynchronousServiceProvider,
   ServiceProvider,
   ShellAuthOptions,
   getConnectInfo,

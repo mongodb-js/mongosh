@@ -15,6 +15,14 @@ export default interface ServiceProvider
     Closable,
     Admin {}
 
+export type SynchronousServiceProvider = {
+  [k in keyof ServiceProvider]: ServiceProvider[k] extends (
+    ...args: infer A
+  ) => Promise<infer R>
+    ? (...args: A) => R
+    : ServiceProvider[k];
+};
+
 export class ServiceProviderCore {
   public bsonLibrary: typeof BSON;
   constructor(bsonLibrary?: typeof BSON) {

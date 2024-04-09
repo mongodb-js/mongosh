@@ -42,7 +42,7 @@ export class OpenContextRuntime implements Runtime {
   ) {
     this.interpreterEnvironment = interpreterEnvironment;
     this.instanceState = new ShellInstanceState(
-      serviceProvider,
+      serviceProvider as any,
       messageBus || new EventEmitter()
     );
     this.instanceState.isInteractive = true;

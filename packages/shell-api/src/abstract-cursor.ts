@@ -59,9 +59,9 @@ export abstract class AbstractCursor<
     return this;
   }
 
-  @returnsPromise
-  async close(): Promise<void> {
-    await this._cursor.close();
+  //@returnsPromise
+  /*async*/ close(): /*Promise<*/ void /*>*/ {
+    /*await*/ void this._cursor.close();
   }
 
   @returnsPromise
@@ -76,20 +76,20 @@ export abstract class AbstractCursor<
     }
   }
 
-  @returnsPromise
-  async hasNext(): Promise<boolean> {
-    return this._cursor.hasNext();
+  //@returnsPromise
+  /*async*/ hasNext(): /*Promise<*/ boolean /*>*/ {
+    return this._cursor.hasNext() as any;
   }
 
-  @returnsPromise
-  async tryNext(): Promise<Document | null> {
+  //@returnsPromise
+  /*async*/ tryNext(): /*Promise<*/ Document | null /*>*/ {
     return this._tryNext();
   }
 
-  async _tryNext(): Promise<Document | null> {
-    let result = await this._cursor.tryNext();
+  /*async*/ _tryNext(): /*Promise<*/ Document | null /*>*/ {
+    let result = /*await*/ this._cursor.tryNext();
     if (result !== null && this._transform !== null) {
-      result = await this._transform(result);
+      result = /*await*/ this._transform(result);
     }
     return result;
   }
@@ -102,19 +102,19 @@ export abstract class AbstractCursor<
     return true;
   }
 
-  async *[Symbol.asyncIterator]() {
-    if (
-      this._cursor[Symbol.asyncIterator] &&
+  /*  async*/ *[Symbol.iterator]() {
+    /*if (
+      this._cursor[Symbol.iterator] &&
       this._canDelegateIterationToUnderlyingCursor()
     ) {
       yield* this._cursor;
-      return;
-    }
+      //return;
+    }*/
 
     let doc;
     // !== null should suffice, but some stubs in our tests return 'undefined'
     // eslint-disable-next-line eqeqeq
-    while ((doc = await this._tryNext()) != null) {
+    while ((doc = /*await*/ this._tryNext()) != null) {
       yield doc;
     }
   }
@@ -127,28 +127,28 @@ export abstract class AbstractCursor<
     return this.isClosed() && this.objsLeftInBatch() === 0;
   }
 
-  @returnsPromise
-  async itcount(): Promise<number> {
+  //@returnsPromise
+  /*async */ itcount(): /*Promise<*/ number /*>*/ {
     let count = 0;
-    while (await this._tryNext()) {
+    while (/*await*/ this._tryNext()) {
       count++;
     }
     return count;
   }
 
-  @returnsPromise
-  async toArray(): Promise<Document[]> {
+  //@returnsPromise
+  /*async*/ toArray(): /*Promise<*/ Document[] /*>*/ {
     // toArray is always defined for driver cursors, but not necessarily
     // in tests
     if (
       typeof this._cursor.toArray === 'function' &&
       this._canDelegateIterationToUnderlyingCursor()
     ) {
-      return await this._cursor.toArray();
+      return /*await*/ this._cursor.toArray() as any;
     }
 
     const result = [];
-    for await (const doc of this) {
+    for (/*await*/ const doc of this) {
       result.push(doc);
     }
     return result;
@@ -176,11 +176,11 @@ export abstract class AbstractCursor<
     return this;
   }
 
-  @returnsPromise
-  async next(): Promise<Document | null> {
-    let result = await this._cursor.next();
+  //@returnsPromise
+  /*async*/ next(): /*Promise<*/ Document | null /*>*/ {
+    let result = /*await*/ this._cursor.next();
     if (result !== null && this._transform !== null) {
-      result = await this._transform(result);
+      result = /*await*/ this._transform(result);
     }
     return result;
   }

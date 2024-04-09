@@ -155,7 +155,7 @@ export default class Collection extends ShellApiWithMongoClass {
    *
    * @returns {Promise} The promise of aggregation results.
    */
-  async aggregate(
+  /*async aggregate(
     pipeline: Document[],
     options: Document & { explain?: never }
   ): Promise<AggregationCursor>;
@@ -163,11 +163,12 @@ export default class Collection extends ShellApiWithMongoClass {
     pipeline: Document[],
     options: Document & { explain: ExplainVerbosityLike }
   ): Promise<Document>;
-  async aggregate(...stages: Document[]): Promise<AggregationCursor>;
-  @returnsPromise
+  async aggregate(...stages: Document[]): Promise<AggregationCursor>;*/
+  //@returnsPromise
   @returnType('AggregationCursor')
   @apiVersions([1])
-  async aggregate(...args: any[]): Promise<any> {
+  /*async*/
+  aggregate(...args: any[]): /*Promise<*/ any /*>*/ {
     let options;
     let pipeline;
     if (args.length === 0 || Array.isArray(args[0])) {
@@ -184,15 +185,15 @@ export default class Collection extends ShellApiWithMongoClass {
       this._database._name,
       this._name,
       pipeline,
-      { ...(await this._database._baseOptions()), ...aggOptions },
+      { .../*await*/ this._database._baseOptions(), ...aggOptions },
       dbOptions
     );
     const cursor = new AggregationCursor(this._mongo, providerCursor);
 
     if (explain) {
-      return await cursor.explain(explain);
+      return /*await*/ cursor.explain(explain);
     } else if (shouldRunAggregationImmediately(pipeline)) {
-      await cursor.hasNext();
+      /*await*/ cursor.hasNext();
     }
 
     this._mongo._instanceState.currentCursor = cursor;
@@ -409,17 +410,18 @@ export default class Collection extends ShellApiWithMongoClass {
    *
    * @returns {Integer} The promise of the count.
    */
-  @returnsPromise
+  //@returnsPromise
   @serverVersions(['4.0.3', ServerVersions.latest])
   @apiVersions([1])
-  async estimatedDocumentCount(
+  /*async*/
+  estimatedDocumentCount(
     options: EstimatedDocumentCountOptions = {}
-  ): Promise<number> {
+  ): /*Promise<*/ number /*>*/ {
     this._emitCollectionApiCall('estimatedDocumentCount', { options });
     return this._mongo._serviceProvider.estimatedDocumentCount(
       this._database._name,
       this._name,
-      { ...(await this._database._baseOptions()), ...options }
+      { .../*await*/ this._database._baseOptions(), ...options }
     );
   }
 
@@ -436,12 +438,13 @@ export default class Collection extends ShellApiWithMongoClass {
    */
   @returnType('Cursor')
   @apiVersions([1])
-  @returnsPromise
-  async find(
+  //@returnsPromise
+  /*async*/
+  find(
     query?: Document,
     projection?: Document,
     options: FindOptions = {}
-  ): Promise<Cursor> {
+  ): /*Promise<*/ Cursor /*>*/ {
     if (projection) {
       options.projection = projection;
     }
@@ -453,7 +456,7 @@ export default class Collection extends ShellApiWithMongoClass {
         this._database._name,
         this._name,
         query,
-        { ...(await this._database._baseOptions()), ...options }
+        { .../*await*/ this._database._baseOptions(), ...options }
       )
     );
 
@@ -507,14 +510,15 @@ export default class Collection extends ShellApiWithMongoClass {
    *
    * @returns {Cursor} The promise of the cursor.
    */
-  @returnsPromise
+  //@returnsPromise
   @returnType('Document')
   @apiVersions([1])
-  async findOne(
+  /*async*/
+  findOne(
     query: Document = {},
     projection?: Document,
     options: FindOptions = {}
-  ): Promise<Document | null> {
+  ): /*Promise<*/ Document | null /*>*/ {
     if (projection) {
       options.projection = projection;
     }
@@ -526,7 +530,7 @@ export default class Collection extends ShellApiWithMongoClass {
         this._database._name,
         this._name,
         query,
-        { ...(await this._database._baseOptions()), ...options }
+        { .../*await*/ this._database._baseOptions(), ...options }
       )
     )
       .limit(1)
@@ -2057,6 +2061,7 @@ export default class Collection extends ShellApiWithMongoClass {
   @topologies([Topologies.Sharded])
   @apiVersions([])
   async getShardDistribution(): Promise<CommandResult> {
+    throw new Error(); /*
     this._emitCollectionApiCall('getShardDistribution', {});
 
     const result = {} as Document;
@@ -2169,7 +2174,7 @@ export default class Collection extends ShellApiWithMongoClass {
       ];
     }
     result.Totals = totalValue;
-    return new CommandResult('StatsResult', result);
+    return new CommandResult('StatsResult', result);*/
   }
 
   @serverVersions(['3.1.0', ServerVersions.latest])

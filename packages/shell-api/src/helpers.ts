@@ -228,6 +228,7 @@ export async function getPrintableShardStatus(
   configDB: Database,
   verbose: boolean
 ): Promise<Document> {
+  throw new Error(); /*
   const result = {} as any;
 
   // configDB is a DB object that contains the sharding metadata of interest.
@@ -637,7 +638,7 @@ export async function getPrintableShardStatus(
   ).filter((dbEntry) => !!dbEntry);
 
   delete result.shardingVersion.currentVersion;
-  return result;
+  return result;*/
 }
 
 export async function getConfigDB(db: Database): Promise<Database> {
@@ -899,6 +900,7 @@ export function assertCLI(platform: ReplPlatform, features: string): void {
 export function processFLEOptions(
   fleOptions: ClientSideFieldLevelEncryptionOptions
 ): AutoEncryptionOptions {
+  throw new Error('No FLE support'); /*
   assertKeysDefined(fleOptions, ['keyVaultNamespace', 'kmsProviders']);
   Object.keys(fleOptions).forEach((k) => {
     if (
@@ -957,7 +959,7 @@ export function processFLEOptions(
   if (fleOptions.tlsOptions !== undefined) {
     autoEncryption.tlsOptions = fleOptions.tlsOptions;
   }
-  return autoEncryption;
+  return autoEncryption;*/
 }
 
 // The then?: never check is to make sure this doesn't accidentally get applied

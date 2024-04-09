@@ -62,6 +62,7 @@ import type {
   ChangeStream,
   AutoEncryptionOptions,
   ClientEncryption as MongoCryptClientEncryption,
+  SynchronousServiceProvider,
 } from '@mongosh/service-provider-core';
 import {
   getConnectInfo,
@@ -77,7 +78,7 @@ import {
   ConnectionString,
   CommaAndColonSeparatedRecord,
 } from 'mongodb-connection-string-url';
-import { EventEmitter } from 'events';
+import { EventEmitter, once } from 'events';
 import type { CreateEncryptedCollectionOptions } from '@mongosh/service-provider-core';
 import type { DevtoolsConnectionState } from '@mongodb-js/devtools-connect';
 import { isDeepStrictEqual } from 'util';
@@ -88,6 +89,15 @@ import {
   ClientEncryption,
 } from 'mongodb';
 import { connectMongoClient } from '@mongodb-js/devtools-connect';
+import type { MessagePort } from 'worker_threads';
+import {
+  MessageChannel,
+  Worker,
+  parentPort,
+  receiveMessageOnPort,
+  workerData,
+} from 'worker_threads';
+import assert from 'assert';
 
 const bsonlib = () => {
   const {
@@ -132,7 +142,7 @@ type DropDatabaseResult = {
 
 type ConnectionInfo = {
   buildInfo: any;
-  topology: any;
+  //topology: any;
   extraInfo: ExtraConnectionInfo;
 };
 type ExtraConnectionInfo = ReturnType<typeof getConnectInfo> & { fcv?: string };
@@ -187,6 +197,317 @@ interface DependencyVersionInfo {
   libmongocryptVersion?: string;
   libmongocryptNodeBindingsVersion?: string;
   kerberosVersion?: string;
+}
+
+export class SynchronousCliServiceProvider
+  extends ServiceProviderCore
+  implements SynchronousServiceProvider
+{
+  static async connect(
+    this: typeof SynchronousCliServiceProvider,
+    uri: string,
+    driverOptions: DevtoolsConnectOptions,
+    cliOptions: { nodb?: boolean } = {},
+    bus: MongoshBus = new EventEmitter()
+  ): Promise<SynchronousCliServiceProvider> {
+    const sp = new this(bus);
+    await sp.start({ uri, driverOptions, cliOptions });
+    return sp;
+  }
+
+  private bus: MongoshBus;
+  private worker: Worker;
+  private callPort: MessagePort;
+  private remotePort: MessagePort;
+  private flag: Int32Array;
+  public readonly platform = 'CLI';
+  public readonly initialDb = 'test';
+
+  constructor(bus: MongoshBus) {
+    super(bsonlib());
+    const sab = new SharedArrayBuffer(4);
+    this.flag = new Int32Array(sab);
+    const channel = new MessageChannel();
+    this.callPort = channel.port1;
+    this.remotePort = channel.port2;
+
+    this.bus = bus;
+    this.worker = new Worker(
+      `require(${JSON.stringify(
+        __filename
+      )}).SynchronousCliServiceProvider.runWorker();
+    `,
+      { eval: true, workerData: { flag: this.flag } }
+    );
+    const origEmit: any = this.bus.emit;
+    this.worker.on('message', (msg: any) => {
+      if (msg.msg === 'BUS') origEmit.call(this.bus, ...msg.args);
+    });
+    this.bus.emit = (...args: any) => {
+      this.worker.postMessage({ msg: 'BUS', args });
+      return origEmit.call(this.bus, ...args);
+    };
+  }
+
+  async start(options: {
+    uri: string;
+    driverOptions: DevtoolsConnectOptions;
+    cliOptions: { nodb?: boolean };
+  }) {
+    this.worker.postMessage(
+      {
+        msg: 'START',
+        options: JSON.parse(JSON.stringify(options)),
+        callPort: this.remotePort,
+      },
+      [this.remotePort]
+    );
+
+    let msg;
+    do {
+      [msg] = await once(this.worker, 'message');
+    } while (msg.msg !== 'STARTED');
+  }
+
+  close(): void {
+    void this.worker.terminate();
+  }
+
+  static async runWorker(): Promise<void> {
+    if (!parentPort || !workerData)
+      throw new Error('Can only call runWorker inside a Worker thread');
+    const flag = workerData.flag as Int32Array;
+
+    const [msg] = await once(parentPort, 'message');
+    assert.strictEqual(msg.msg, 'START');
+    const { uri, driverOptions, cliOptions } = msg.options;
+    const callPort: MessagePort = msg.callPort;
+
+    const ee = new EventEmitter();
+    const forwardingBus = {
+      on(...args: Parameters<(typeof ee)['on']>) {
+        return ee.on(...args);
+      },
+      once(...args: Parameters<(typeof ee)['once']>) {
+        return ee.once(...args);
+      },
+      emit(...args: Parameters<(typeof ee)['emit']>) {
+        const ret = ee.emit(...args);
+        parentPort?.postMessage({
+          msg: 'BUS',
+          args,
+        });
+        Atomics.add(flag, 0, 1);
+        Atomics.notify(flag, 0);
+        return ret;
+      },
+    };
+
+    // eslint-disable-next-line prefer-const
+    let realSp: CliServiceProvider | undefined;
+    parentPort.on('message', (msg: any) => {
+      if (msg.msg === 'BUS') {
+        (ee as any).emit(...msg.args);
+      }
+    });
+    const savedObjects: any[] = [];
+    callPort.on('message', (msg: any) => {
+      if (msg.msg === 'CALL') {
+        void (async () => {
+          try {
+            if (!realSp) {
+              throw new Error('No SP initialized yet');
+            }
+            const target: any =
+              msg.self === null ? realSp : savedObjects[msg.self];
+            let result = await target[msg.fn](...msg.args);
+            if (msg.save) {
+              result = savedObjects.push(result) - 1;
+            }
+            callPort.postMessage({
+              msg: 'RESPONSE',
+              result,
+            });
+          } catch (err: any) {
+            callPort.postMessage({
+              msg: 'RESPONSE',
+              err: {
+                base: err,
+                props: {
+                  name: err.name,
+                  message: err.message,
+                  stack: err.stack,
+                },
+              },
+            });
+          }
+          Atomics.add(flag, 0, 1);
+          Atomics.notify(flag, 0);
+        })();
+      }
+    });
+
+    realSp = await CliServiceProvider.connect(
+      uri,
+      driverOptions,
+      cliOptions,
+      forwardingBus
+    );
+    parentPort.postMessage({ msg: 'STARTED' });
+  }
+
+  _call<
+    K extends keyof {
+      [k in keyof CliServiceProvider as CliServiceProvider[k] extends (
+        ...args: any
+      ) => any
+        ? k
+        : never]: CliServiceProvider[k];
+    }
+  >(
+    save: boolean,
+    self: null | string,
+    fn: K,
+    ...args: Parameters<CliServiceProvider[K]>
+  ) {
+    this.callPort.postMessage({
+      msg: 'CALL',
+      fn,
+      args,
+      save,
+      self,
+    });
+    do {
+      const value = Atomics.load(this.flag, 0);
+      const { message } = receiveMessageOnPort(this.callPort) ?? {};
+      if (!message) Atomics.wait(this.flag, 0, value);
+      else {
+        if (message.err) {
+          const err =
+            Object.prototype.toString.call(message.err.base) ===
+            '[object Error]'
+              ? message.err.base
+              : new Error(message.err.props.message);
+          Object.assign(err, message.err.props);
+          throw err;
+        }
+        return message.result;
+      }
+      // eslint-disable-next-line no-constant-condition
+    } while (true);
+  }
+
+  aggregate = makeCursorCall('aggregate');
+  aggregateDb = makeCursorCall('aggregateDb');
+  count = makeCall('count');
+  countDocuments = makeCall('countDocuments');
+  distinct = makeCall('distinct');
+  estimatedDocumentCount = makeCall('estimatedDocumentCount');
+  find = makeCursorCall('find');
+  findOneAndDelete = makeCall('findOneAndDelete');
+  findOneAndReplace = makeCall('findOneAndReplace');
+  findOneAndUpdate = makeCall('findOneAndUpdate');
+  getIndexes = makeCall('getIndexes');
+  listCollections = makeCall('listCollections');
+  readPreferenceFromOptions = makeCall('readPreferenceFromOptions');
+  watch = makeCall('watch');
+  getSearchIndexes = makeCall('getSearchIndexes');
+  runCommand = makeCall('runCommand');
+  runCommandWithCheck = makeCall('runCommandWithCheck');
+  runCursorCommand = makeCursorCall('runCursorCommand');
+  dropCollection = makeCall('dropCollection');
+  dropDatabase = makeCall('dropDatabase');
+  dropSearchIndex = makeCall('dropSearchIndex');
+  bulkWrite = makeCall('bulkWrite');
+  deleteMany = makeCall('deleteMany');
+  deleteOne = makeCall('deleteOne');
+  insertMany = makeCall('insertMany');
+  insertOne = makeCall('insertOne');
+  replaceOne = makeCall('replaceOne');
+  updateMany = makeCall('updateMany');
+  updateSearchIndex = makeCall('updateSearchIndex');
+  updateOne = makeCall('updateOne');
+  createSearchIndexes = makeCall('createSearchIndexes');
+  createIndexes = makeCall('createIndexes') as any;
+  renameCollection = makeCall('renameCollection');
+  initializeBulkOp = makeCall('initializeBulkOp');
+  suspend = makeCall('suspend');
+  listDatabases = makeCall('listDatabases');
+  getURI = makeCall('getURI');
+  getConnectionInfo = makeCall('getConnectionInfo');
+  authenticate = makeCall('authenticate');
+  createCollection = makeCall('createCollection');
+  getReadConcern = makeCall('getReadConcern');
+  getReadPreference = makeCall('getReadPreference');
+  getWriteConcern = makeCall('getWriteConcern');
+  resetConnectionOptions = makeCall('resetConnectionOptions');
+  startSession = makeCall('startSession');
+
+  getNewConnection(): never {
+    throw new Error('not implemented ');
+  }
+  getRawClient(): never {
+    throw new Error('not implemented ');
+  }
+}
+function makeCall<
+  K extends keyof {
+    [k in keyof CliServiceProvider as CliServiceProvider[k] extends (
+      ...args: any
+    ) => any
+      ? k
+      : never]: CliServiceProvider[k];
+  }
+>(
+  fn: K
+): (
+  this: SynchronousCliServiceProvider,
+  ...args: Parameters<CliServiceProvider[K]>
+) => ReturnType<CliServiceProvider[K]> extends Promise<infer R> ? R : never {
+  return function (...args: Parameters<CliServiceProvider[K]>) {
+    return this._call(false, null, fn, ...args);
+  };
+}
+function makeCursorCall<
+  K extends keyof {
+    [k in keyof CliServiceProvider as CliServiceProvider[k] extends (
+      ...args: any
+    ) => driver.AbstractCursor
+      ? k
+      : never]: CliServiceProvider[k];
+  }
+>(
+  fn: K
+): (
+  this: SynchronousCliServiceProvider,
+  ...args: Parameters<CliServiceProvider[K]>
+) => ReturnType<CliServiceProvider[K]> extends Promise<infer R> ? R : never {
+  return function (...args: Parameters<CliServiceProvider[K]>) {
+    const cursor = this._call(true, null, fn, ...args);
+    return {
+      next: (...args: any) => {
+        return (this as any)._call(false, cursor, 'next', ...args);
+      },
+      tryNext: (...args: any) => {
+        return (this as any)._call(false, cursor, 'tryNext', ...args);
+      },
+      limit: (...args: any) => {
+        return (this as any)._call(false, cursor, 'limit', ...args);
+      },
+      skip: (...args: any) => {
+        return (this as any)._call(false, cursor, 'skip', ...args);
+      },
+      count: (...args: any) => {
+        return (this as any)._call(false, cursor, 'count', ...args);
+      },
+      hasNext: (...args: any) => {
+        return (this as any)._call(false, cursor, 'hasNext', ...args);
+      },
+      close: (...args: any) => {
+        return (this as any)._call(false, cursor, 'close', ...args);
+      },
+    } as any;
+  };
 }
 
 /**
@@ -447,7 +768,7 @@ class CliServiceProvider
 
     return {
       buildInfo: buildInfo,
-      topology: topology,
+      //topology: topology,
       extraInfo: {
         ...extraConnectionInfo,
         fcv: fcv?.featureCompatibilityVersion?.version,

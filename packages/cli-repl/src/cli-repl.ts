@@ -7,7 +7,7 @@ import { redactURICredentials } from '@mongosh/history';
 import i18n from '@mongosh/i18n';
 import type { AutoEncryptionOptions } from '@mongosh/service-provider-core';
 import { bson } from '@mongosh/service-provider-core';
-import { CliServiceProvider } from '@mongosh/service-provider-server';
+import { SynchronousCliServiceProvider } from '@mongosh/service-provider-server';
 import type { CliOptions, DevtoolsConnectOptions } from '@mongosh/arg-parser';
 import { SnippetManager } from '@mongosh/snippet-manager';
 import { Editor } from '@mongosh/editor';
@@ -792,7 +792,7 @@ export class CliRepl implements MongoshIOProvider {
   async connect(
     driverUri: string,
     driverOptions: DevtoolsConnectOptions
-  ): Promise<CliServiceProvider> {
+  ): Promise<SynchronousCliServiceProvider> {
     const { quiet } = CliRepl.getFileAndEvalInfo(this.cliOptions);
     if (!this.cliOptions.nodb && !quiet) {
       this.output.write(
@@ -802,7 +802,7 @@ export class CliRepl implements MongoshIOProvider {
           '\n'
       );
     }
-    return await CliServiceProvider.connect(
+    return await SynchronousCliServiceProvider.connect(
       driverUri,
       driverOptions,
       this.cliOptions,

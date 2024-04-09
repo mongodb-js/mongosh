@@ -157,7 +157,7 @@ export default interface Readable {
   /**
    * Get currently known topology information.
    */
-  getTopology(): any;
+  getTopology?(): any;
 
   /**
    * Returns an array that holds a list of documents that identify and

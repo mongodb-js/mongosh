@@ -97,16 +97,17 @@ export default class Cursor extends AggregateOrFindCursor<ServiceProviderCursor>
   }
 
   @serverVersions([ServerVersions.earliest, '4.0.0'])
-  @returnsPromise
+  //@returnsPromise
   @deprecated
-  async count(): Promise<number> {
+  /*async*/
+  count(): Promise<number> {
     return this._cursor.count();
   }
 
-  @returnsPromise
-  async hasNext(): Promise<boolean> {
+  //@returnsPromise
+  /*async*/ hasNext(): /*Promise<*/ boolean /*>*/ {
     if (this._tailable) {
-      await this._instanceState.printWarning(
+      /*await */ void this._instanceState.printWarning(
         'If this is a tailable cursor with awaitData, and there are no documents in the batch, this method ' +
           'will will block. Use tryNext if you want to check if there are any documents without waiting.'
       );
@@ -145,10 +146,10 @@ export default class Cursor extends AggregateOrFindCursor<ServiceProviderCursor>
     return this;
   }
 
-  @returnsPromise
-  async next(): Promise<Document | null> {
+  //  @returnsPromise
+  /*async*/ next(): /*Promise<*/ Document | null /*>*/ {
     if (this._tailable) {
-      await this._instanceState.printWarning(
+      /*await*/ void this._instanceState.printWarning(
         'If this is a tailable cursor with awaitData, and there are no documents in the batch, this' +
           ' method will will block. Use tryNext if you want to check if there are any documents without waiting.'
       );
@@ -197,8 +198,8 @@ export default class Cursor extends AggregateOrFindCursor<ServiceProviderCursor>
     return this;
   }
 
-  @returnsPromise
-  async size(): Promise<number> {
+  //@returnsPromise
+  /*async*/ size(): Promise<number> {
     return this._cursor.count();
   }
 
