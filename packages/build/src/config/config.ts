@@ -43,6 +43,7 @@ export interface Config {
   packageInformation?: PackageInformationProvider;
   cryptSharedLibPath: string;
   artifactUrlFile?: string;
+  artifactUrlExtraTag?: string;
   manpage?: ManPageConfig;
   isDryRun?: boolean;
 }

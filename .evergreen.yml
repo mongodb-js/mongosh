@@ -1,6 +1,4 @@
-# Regenerate using `npm run update-evergreen-config`
-# https://jira.mongodb.org/browse/EVG-20276
-unset_function_vars: true
+
 exec_timeout_secs: 10800
 
 post_error_fails_task: true
@@ -52,7 +50,8 @@ post:
 #   test_connectivity - Runs extra connectivity tests.
 #   test_apistrict - Runs shell API and CLI tests with --apiStrict --apiDeprecationErrors.
 #   compile_artifact - Compile the release binary.
-#   package_and_upload_artifact - Upload the release binary to S3.
+#   package_artifact - Upload the release binary together with other files to S3.
+#   sign_artifact - Get a package file from S3, sign it, put it back into S3.
 #   test_linux_artifact - Test that the built artifact works where we expect it to.
 #                         We use this to verify that e.g. the Ubuntu-built release
 #                         binary also works on RHEL and Debian.
@@ -6585,35 +6584,28 @@ functions:
   ###
   # PACKAGING AND UPLOADING
   #
-  # package_and_upload_artifact generates a distributable package out of the compiled artifact,
+  # package_artifact generates a distributable package out of the compiled artifact,
   # i.e. it expects it to have been downloaded already. The distributable package will be uploaded
   # to a specifc Evergreen S3 bucket for later use.
+  # sign_artifact signs and/or notarizes the distributable package as appropriate.
   #
   # The URL to download the distributable package can be retrieved by get_artifact_url.
   #
-  # package_and_upload_artifact expects the following arguments:
+  # package_artifact expects the following arguments:
   # - distro_id
   # - package_variant
   # - executable_os_id
   #
-  # get_artifact_url expects the following arguments:
+  # get_artifact_url and put_artifact_url expects the following arguments:
   # - package_variant
+  # - signature_tag (either 'signed' or 'unsigned')
   ###
-  package_and_upload_artifact:
+  package_artifact:
     - command: expansions.write
       type: setup
       params:
         file: tmp/expansions.yaml
         redacted: true
-        # TODO: REPLACE WITH CALLING download_compiled_artifact BEFORE
-    - command: s3.get
-      type: setup
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/dist.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-${executable_os_id}.tgz
-        bucket: mciuploads
     - command: subprocess.exec
       params:
         working_dir: src
@@ -6622,14 +6614,30 @@ functions:
           NODE_JS_VERSION: ${node_js_version}
           DISTRO_ID_OVERRIDE: ${distro_id}
           PACKAGE_VARIANT: ${package_variant}
+          ARTIFACT_URL_EXTRA_TAG: unsigned
+  sign_artifact:
+    - command: expansions.write
+      type: setup
+      params:
+        file: tmp/expansions.yaml
+        redacted: true
+    - command: subprocess.exec
+      params:
+        working_dir: src
+        binary: bash .evergreen/sign-packaged-artifact.sh
+        env:
+          NODE_JS_VERSION: ${node_js_version}
+          DISTRO_ID_OVERRIDE: ${distro_id}
+          PACKAGE_VARIANT: ${package_variant}
           MACOS_NOTARY_KEY: ${macos_notary_key}
           MACOS_NOTARY_SECRET: ${macos_notary_secret}
+  put_artifact_url:
     - command: s3.put
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/artifact-url.txt
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/artifact-url-${package_variant}.txt
+        local_file: artifact-url.txt
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/artifact-url-${package_variant}-${signature_tag}.txt
         bucket: mciuploads
         permissions: public-read
         content_type: application/x-gzip
@@ -6640,7 +6648,7 @@ functions:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
         local_file: artifact-url.txt
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/artifact-url-${source_package_variant}.txt
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/artifact-url-${package_variant}-${signature_tag}.txt
         bucket: mciuploads
 
   write_preload_script:
@@ -6921,6 +6929,33 @@ functions:
           npm run evergreen-release draft
           }
 
+  release_publish_download_and_list_artifacts:
+    - command: expansions.write
+      type: system
+      params:
+        file: tmp/expansions.yaml
+        redacted: true
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        env:
+          node_js_version: ${node_js_version}
+        script: |
+          set -e
+          export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
+          .evergreen/run-evergreen-release.sh download-and-list-artifacts
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          set -x
+          ls -lh dist/
+          cat -n dist/SHASUMS1.txt
+          cat -n dist/SHASUMS256.txt
+
   release_publish_dry_run:
     - command: expansions.write
       type: system
@@ -6938,7 +6973,7 @@ functions:
         script: |
           set -e
           export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
-          .evergreen/run-evergreen-release.sh -- --dry-run
+          .evergreen/run-evergreen-release.sh publish -- --dry-run
 
   release_publish:
     - command: expansions.write
@@ -6957,7 +6992,7 @@ functions:
         script: |
           set -e
           export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
-          .evergreen/run-evergreen-release.sh
+          .evergreen/run-evergreen-release.sh publish
 
   run_perf_tests:
     - command: shell.exec
@@ -6989,7 +7024,8 @@ functions:
 #   test_connectivity - Runs extra connectivity tests.
 #   test_apistrict - Runs shell API and CLI tests with --apiStrict --apiDeprecationErrors.
 #   compile_artifact - Compile the release binary.
-#   package_and_upload_artifact - Upload the release binary to S3.
+#   package_artifact - Upload the release binary together with other files to S3.
+#   sign_artifact - Get a package file from S3, sign it, put it back into S3.
 #   test_linux_artifact - Test that the built artifact works where we expect it to.
 #   release_publish - Publishes the npm packages and uploads the tarballs.
 #   generate_license_and_vulnerability_report - Generates a report of vulnerabilities affecting the bundled application.
@@ -11728,7 +11764,7 @@ tasks:
   ###
   # PACKAGING
   ###
-  - name: package_and_upload_artifact_darwin_x64
+  - name: package_artifact_darwin_x64
     depends_on:
       - name: compile_artifact
         variant: darwin
@@ -11737,12 +11773,40 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.12.1"
-      - func: package_and_upload_artifact
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: darwin-x64
+      - func: package_artifact
         vars:
           node_js_version: "20.12.1"
           package_variant: darwin-x64
           executable_os_id: darwin-x64
-  - name: package_and_upload_artifact_darwin_arm64
+      - func: put_artifact_url
+        vars:
+          package_variant: darwin-x64
+          signature_tag: unsigned
+  - name: sign_artifact_darwin_x64
+    depends_on:
+      - name: package_artifact_darwin_x64
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.1"
+      - func: get_artifact_url
+        vars:
+          package_variant: darwin-x64
+          signature_tag: unsigned
+      - func: sign_artifact
+        vars:
+          node_js_version: "20.12.1"
+          package_variant: darwin-x64
+      - func: put_artifact_url
+        vars:
+          package_variant: darwin-x64
+          signature_tag: signed
+  - name: package_artifact_darwin_arm64
     depends_on:
       - name: compile_artifact
         variant: darwin_arm64
@@ -11751,12 +11815,40 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.12.1"
-      - func: package_and_upload_artifact
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: darwin-arm64
+      - func: package_artifact
         vars:
           node_js_version: "20.12.1"
           package_variant: darwin-arm64
           executable_os_id: darwin-arm64
-  - name: package_and_upload_artifact_linux_x64
+      - func: put_artifact_url
+        vars:
+          package_variant: darwin-arm64
+          signature_tag: unsigned
+  - name: sign_artifact_darwin_arm64
+    depends_on:
+      - name: package_artifact_darwin_arm64
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.1"
+      - func: get_artifact_url
+        vars:
+          package_variant: darwin-arm64
+          signature_tag: unsigned
+      - func: sign_artifact
+        vars:
+          node_js_version: "20.12.1"
+          package_variant: darwin-arm64
+      - func: put_artifact_url
+        vars:
+          package_variant: darwin-arm64
+          signature_tag: signed
+  - name: package_artifact_linux_x64
     depends_on:
       - name: compile_artifact
         variant: linux_x64_build
@@ -11765,12 +11857,40 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.12.1"
-      - func: package_and_upload_artifact
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-x64
+      - func: package_artifact
         vars:
           node_js_version: "20.12.1"
           package_variant: linux-x64
           executable_os_id: linux-x64
-  - name: package_and_upload_artifact_deb_x64
+      - func: put_artifact_url
+        vars:
+          package_variant: linux-x64
+          signature_tag: unsigned
+  - name: sign_artifact_linux_x64
+    depends_on:
+      - name: package_artifact_linux_x64
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.1"
+      - func: get_artifact_url
+        vars:
+          package_variant: linux-x64
+          signature_tag: unsigned
+      - func: sign_artifact
+        vars:
+          node_js_version: "20.12.1"
+          package_variant: linux-x64
+      - func: put_artifact_url
+        vars:
+          package_variant: linux-x64
+          signature_tag: signed
+  - name: package_artifact_deb_x64
     depends_on:
       - name: compile_artifact
         variant: linux_x64_build
@@ -11779,12 +11899,40 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.12.1"
-      - func: package_and_upload_artifact
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-x64
+      - func: package_artifact
         vars:
           node_js_version: "20.12.1"
           package_variant: deb-x64
           executable_os_id: linux-x64
-  - name: package_and_upload_artifact_rpm_x64
+      - func: put_artifact_url
+        vars:
+          package_variant: deb-x64
+          signature_tag: unsigned
+  - name: sign_artifact_deb_x64
+    depends_on:
+      - name: package_artifact_deb_x64
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.1"
+      - func: get_artifact_url
+        vars:
+          package_variant: deb-x64
+          signature_tag: unsigned
+      - func: sign_artifact
+        vars:
+          node_js_version: "20.12.1"
+          package_variant: deb-x64
+      - func: put_artifact_url
+        vars:
+          package_variant: deb-x64
+          signature_tag: signed
+  - name: package_artifact_rpm_x64
     depends_on:
       - name: compile_artifact
         variant: linux_x64_build
@@ -11793,12 +11941,40 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.12.1"
-      - func: package_and_upload_artifact
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-x64
+      - func: package_artifact
         vars:
           node_js_version: "20.12.1"
           package_variant: rpm-x64
           executable_os_id: linux-x64
-  - name: package_and_upload_artifact_linux_x64_openssl11
+      - func: put_artifact_url
+        vars:
+          package_variant: rpm-x64
+          signature_tag: unsigned
+  - name: sign_artifact_rpm_x64
+    depends_on:
+      - name: package_artifact_rpm_x64
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.1"
+      - func: get_artifact_url
+        vars:
+          package_variant: rpm-x64
+          signature_tag: unsigned
+      - func: sign_artifact
+        vars:
+          node_js_version: "20.12.1"
+          package_variant: rpm-x64
+      - func: put_artifact_url
+        vars:
+          package_variant: rpm-x64
+          signature_tag: signed
+  - name: package_artifact_linux_x64_openssl11
     depends_on:
       - name: compile_artifact
         variant: linux_x64_build_openssl11
@@ -11807,12 +11983,40 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.12.1"
-      - func: package_and_upload_artifact
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-x64-openssl11
+      - func: package_artifact
         vars:
           node_js_version: "20.12.1"
           package_variant: linux-x64-openssl11
           executable_os_id: linux-x64-openssl11
-  - name: package_and_upload_artifact_deb_x64_openssl11
+      - func: put_artifact_url
+        vars:
+          package_variant: linux-x64-openssl11
+          signature_tag: unsigned
+  - name: sign_artifact_linux_x64_openssl11
+    depends_on:
+      - name: package_artifact_linux_x64_openssl11
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.1"
+      - func: get_artifact_url
+        vars:
+          package_variant: linux-x64-openssl11
+          signature_tag: unsigned
+      - func: sign_artifact
+        vars:
+          node_js_version: "20.12.1"
+          package_variant: linux-x64-openssl11
+      - func: put_artifact_url
+        vars:
+          package_variant: linux-x64-openssl11
+          signature_tag: signed
+  - name: package_artifact_deb_x64_openssl11
     depends_on:
       - name: compile_artifact
         variant: linux_x64_build_openssl11
@@ -11821,12 +12025,40 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.12.1"
-      - func: package_and_upload_artifact
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-x64-openssl11
+      - func: package_artifact
         vars:
           node_js_version: "20.12.1"
           package_variant: deb-x64-openssl11
           executable_os_id: linux-x64-openssl11
-  - name: package_and_upload_artifact_rpm_x64_openssl11
+      - func: put_artifact_url
+        vars:
+          package_variant: deb-x64-openssl11
+          signature_tag: unsigned
+  - name: sign_artifact_deb_x64_openssl11
+    depends_on:
+      - name: package_artifact_deb_x64_openssl11
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.1"
+      - func: get_artifact_url
+        vars:
+          package_variant: deb-x64-openssl11
+          signature_tag: unsigned
+      - func: sign_artifact
+        vars:
+          node_js_version: "20.12.1"
+          package_variant: deb-x64-openssl11
+      - func: put_artifact_url
+        vars:
+          package_variant: deb-x64-openssl11
+          signature_tag: signed
+  - name: package_artifact_rpm_x64_openssl11
     depends_on:
       - name: compile_artifact
         variant: linux_x64_build_openssl11
@@ -11835,12 +12067,40 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.12.1"
-      - func: package_and_upload_artifact
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-x64-openssl11
+      - func: package_artifact
         vars:
           node_js_version: "20.12.1"
           package_variant: rpm-x64-openssl11
           executable_os_id: linux-x64-openssl11
-  - name: package_and_upload_artifact_linux_x64_openssl3
+      - func: put_artifact_url
+        vars:
+          package_variant: rpm-x64-openssl11
+          signature_tag: unsigned
+  - name: sign_artifact_rpm_x64_openssl11
+    depends_on:
+      - name: package_artifact_rpm_x64_openssl11
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.1"
+      - func: get_artifact_url
+        vars:
+          package_variant: rpm-x64-openssl11
+          signature_tag: unsigned
+      - func: sign_artifact
+        vars:
+          node_js_version: "20.12.1"
+          package_variant: rpm-x64-openssl11
+      - func: put_artifact_url
+        vars:
+          package_variant: rpm-x64-openssl11
+          signature_tag: signed
+  - name: package_artifact_linux_x64_openssl3
     depends_on:
       - name: compile_artifact
         variant: linux_x64_build_openssl3
@@ -11849,12 +12109,40 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.12.1"
-      - func: package_and_upload_artifact
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-x64-openssl3
+      - func: package_artifact
         vars:
           node_js_version: "20.12.1"
           package_variant: linux-x64-openssl3
           executable_os_id: linux-x64-openssl3
-  - name: package_and_upload_artifact_deb_x64_openssl3
+      - func: put_artifact_url
+        vars:
+          package_variant: linux-x64-openssl3
+          signature_tag: unsigned
+  - name: sign_artifact_linux_x64_openssl3
+    depends_on:
+      - name: package_artifact_linux_x64_openssl3
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.1"
+      - func: get_artifact_url
+        vars:
+          package_variant: linux-x64-openssl3
+          signature_tag: unsigned
+      - func: sign_artifact
+        vars:
+          node_js_version: "20.12.1"
+          package_variant: linux-x64-openssl3
+      - func: put_artifact_url
+        vars:
+          package_variant: linux-x64-openssl3
+          signature_tag: signed
+  - name: package_artifact_deb_x64_openssl3
     depends_on:
       - name: compile_artifact
         variant: linux_x64_build_openssl3
@@ -11863,12 +12151,40 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.12.1"
-      - func: package_and_upload_artifact
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-x64-openssl3
+      - func: package_artifact
         vars:
           node_js_version: "20.12.1"
           package_variant: deb-x64-openssl3
           executable_os_id: linux-x64-openssl3
-  - name: package_and_upload_artifact_rpm_x64_openssl3
+      - func: put_artifact_url
+        vars:
+          package_variant: deb-x64-openssl3
+          signature_tag: unsigned
+  - name: sign_artifact_deb_x64_openssl3
+    depends_on:
+      - name: package_artifact_deb_x64_openssl3
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.1"
+      - func: get_artifact_url
+        vars:
+          package_variant: deb-x64-openssl3
+          signature_tag: unsigned
+      - func: sign_artifact
+        vars:
+          node_js_version: "20.12.1"
+          package_variant: deb-x64-openssl3
+      - func: put_artifact_url
+        vars:
+          package_variant: deb-x64-openssl3
+          signature_tag: signed
+  - name: package_artifact_rpm_x64_openssl3
     depends_on:
       - name: compile_artifact
         variant: linux_x64_build_openssl3
@@ -11877,12 +12193,40 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.12.1"
-      - func: package_and_upload_artifact
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-x64-openssl3
+      - func: package_artifact
         vars:
           node_js_version: "20.12.1"
           package_variant: rpm-x64-openssl3
           executable_os_id: linux-x64-openssl3
-  - name: package_and_upload_artifact_linux_arm64
+      - func: put_artifact_url
+        vars:
+          package_variant: rpm-x64-openssl3
+          signature_tag: unsigned
+  - name: sign_artifact_rpm_x64_openssl3
+    depends_on:
+      - name: package_artifact_rpm_x64_openssl3
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.1"
+      - func: get_artifact_url
+        vars:
+          package_variant: rpm-x64-openssl3
+          signature_tag: unsigned
+      - func: sign_artifact
+        vars:
+          node_js_version: "20.12.1"
+          package_variant: rpm-x64-openssl3
+      - func: put_artifact_url
+        vars:
+          package_variant: rpm-x64-openssl3
+          signature_tag: signed
+  - name: package_artifact_linux_arm64
     depends_on:
       - name: compile_artifact
         variant: linux_arm64_build
@@ -11891,12 +12235,40 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.12.1"
-      - func: package_and_upload_artifact
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64
+      - func: package_artifact
         vars:
           node_js_version: "20.12.1"
           package_variant: linux-arm64
           executable_os_id: linux-arm64
-  - name: package_and_upload_artifact_deb_arm64
+      - func: put_artifact_url
+        vars:
+          package_variant: linux-arm64
+          signature_tag: unsigned
+  - name: sign_artifact_linux_arm64
+    depends_on:
+      - name: package_artifact_linux_arm64
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.1"
+      - func: get_artifact_url
+        vars:
+          package_variant: linux-arm64
+          signature_tag: unsigned
+      - func: sign_artifact
+        vars:
+          node_js_version: "20.12.1"
+          package_variant: linux-arm64
+      - func: put_artifact_url
+        vars:
+          package_variant: linux-arm64
+          signature_tag: signed
+  - name: package_artifact_deb_arm64
     depends_on:
       - name: compile_artifact
         variant: linux_arm64_build
@@ -11905,12 +12277,40 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.12.1"
-      - func: package_and_upload_artifact
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64
+      - func: package_artifact
         vars:
           node_js_version: "20.12.1"
           package_variant: deb-arm64
           executable_os_id: linux-arm64
-  - name: package_and_upload_artifact_rpm_arm64
+      - func: put_artifact_url
+        vars:
+          package_variant: deb-arm64
+          signature_tag: unsigned
+  - name: sign_artifact_deb_arm64
+    depends_on:
+      - name: package_artifact_deb_arm64
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.1"
+      - func: get_artifact_url
+        vars:
+          package_variant: deb-arm64
+          signature_tag: unsigned
+      - func: sign_artifact
+        vars:
+          node_js_version: "20.12.1"
+          package_variant: deb-arm64
+      - func: put_artifact_url
+        vars:
+          package_variant: deb-arm64
+          signature_tag: signed
+  - name: package_artifact_rpm_arm64
     depends_on:
       - name: compile_artifact
         variant: linux_arm64_build
@@ -11919,12 +12319,40 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.12.1"
-      - func: package_and_upload_artifact
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64
+      - func: package_artifact
         vars:
           node_js_version: "20.12.1"
           package_variant: rpm-arm64
           executable_os_id: linux-arm64
-  - name: package_and_upload_artifact_linux_arm64_openssl11
+      - func: put_artifact_url
+        vars:
+          package_variant: rpm-arm64
+          signature_tag: unsigned
+  - name: sign_artifact_rpm_arm64
+    depends_on:
+      - name: package_artifact_rpm_arm64
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.1"
+      - func: get_artifact_url
+        vars:
+          package_variant: rpm-arm64
+          signature_tag: unsigned
+      - func: sign_artifact
+        vars:
+          node_js_version: "20.12.1"
+          package_variant: rpm-arm64
+      - func: put_artifact_url
+        vars:
+          package_variant: rpm-arm64
+          signature_tag: signed
+  - name: package_artifact_linux_arm64_openssl11
     depends_on:
       - name: compile_artifact
         variant: linux_arm64_build_openssl11
@@ -11933,12 +12361,40 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.12.1"
-      - func: package_and_upload_artifact
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64-openssl11
+      - func: package_artifact
         vars:
           node_js_version: "20.12.1"
           package_variant: linux-arm64-openssl11
           executable_os_id: linux-arm64-openssl11
-  - name: package_and_upload_artifact_deb_arm64_openssl11
+      - func: put_artifact_url
+        vars:
+          package_variant: linux-arm64-openssl11
+          signature_tag: unsigned
+  - name: sign_artifact_linux_arm64_openssl11
+    depends_on:
+      - name: package_artifact_linux_arm64_openssl11
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.1"
+      - func: get_artifact_url
+        vars:
+          package_variant: linux-arm64-openssl11
+          signature_tag: unsigned
+      - func: sign_artifact
+        vars:
+          node_js_version: "20.12.1"
+          package_variant: linux-arm64-openssl11
+      - func: put_artifact_url
+        vars:
+          package_variant: linux-arm64-openssl11
+          signature_tag: signed
+  - name: package_artifact_deb_arm64_openssl11
     depends_on:
       - name: compile_artifact
         variant: linux_arm64_build_openssl11
@@ -11947,12 +12403,40 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.12.1"
-      - func: package_and_upload_artifact
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64-openssl11
+      - func: package_artifact
         vars:
           node_js_version: "20.12.1"
           package_variant: deb-arm64-openssl11
           executable_os_id: linux-arm64-openssl11
-  - name: package_and_upload_artifact_rpm_arm64_openssl11
+      - func: put_artifact_url
+        vars:
+          package_variant: deb-arm64-openssl11
+          signature_tag: unsigned
+  - name: sign_artifact_deb_arm64_openssl11
+    depends_on:
+      - name: package_artifact_deb_arm64_openssl11
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.1"
+      - func: get_artifact_url
+        vars:
+          package_variant: deb-arm64-openssl11
+          signature_tag: unsigned
+      - func: sign_artifact
+        vars:
+          node_js_version: "20.12.1"
+          package_variant: deb-arm64-openssl11
+      - func: put_artifact_url
+        vars:
+          package_variant: deb-arm64-openssl11
+          signature_tag: signed
+  - name: package_artifact_rpm_arm64_openssl11
     depends_on:
       - name: compile_artifact
         variant: linux_arm64_build_openssl11
@@ -11961,12 +12445,40 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.12.1"
-      - func: package_and_upload_artifact
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64-openssl11
+      - func: package_artifact
         vars:
           node_js_version: "20.12.1"
           package_variant: rpm-arm64-openssl11
           executable_os_id: linux-arm64-openssl11
-  - name: package_and_upload_artifact_linux_arm64_openssl3
+      - func: put_artifact_url
+        vars:
+          package_variant: rpm-arm64-openssl11
+          signature_tag: unsigned
+  - name: sign_artifact_rpm_arm64_openssl11
+    depends_on:
+      - name: package_artifact_rpm_arm64_openssl11
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.1"
+      - func: get_artifact_url
+        vars:
+          package_variant: rpm-arm64-openssl11
+          signature_tag: unsigned
+      - func: sign_artifact
+        vars:
+          node_js_version: "20.12.1"
+          package_variant: rpm-arm64-openssl11
+      - func: put_artifact_url
+        vars:
+          package_variant: rpm-arm64-openssl11
+          signature_tag: signed
+  - name: package_artifact_linux_arm64_openssl3
     depends_on:
       - name: compile_artifact
         variant: linux_arm64_build_openssl3
@@ -11975,12 +12487,40 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.12.1"
-      - func: package_and_upload_artifact
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64-openssl3
+      - func: package_artifact
         vars:
           node_js_version: "20.12.1"
           package_variant: linux-arm64-openssl3
           executable_os_id: linux-arm64-openssl3
-  - name: package_and_upload_artifact_deb_arm64_openssl3
+      - func: put_artifact_url
+        vars:
+          package_variant: linux-arm64-openssl3
+          signature_tag: unsigned
+  - name: sign_artifact_linux_arm64_openssl3
+    depends_on:
+      - name: package_artifact_linux_arm64_openssl3
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.1"
+      - func: get_artifact_url
+        vars:
+          package_variant: linux-arm64-openssl3
+          signature_tag: unsigned
+      - func: sign_artifact
+        vars:
+          node_js_version: "20.12.1"
+          package_variant: linux-arm64-openssl3
+      - func: put_artifact_url
+        vars:
+          package_variant: linux-arm64-openssl3
+          signature_tag: signed
+  - name: package_artifact_deb_arm64_openssl3
     depends_on:
       - name: compile_artifact
         variant: linux_arm64_build_openssl3
@@ -11989,12 +12529,40 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.12.1"
-      - func: package_and_upload_artifact
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64-openssl3
+      - func: package_artifact
         vars:
           node_js_version: "20.12.1"
           package_variant: deb-arm64-openssl3
           executable_os_id: linux-arm64-openssl3
-  - name: package_and_upload_artifact_rpm_arm64_openssl3
+      - func: put_artifact_url
+        vars:
+          package_variant: deb-arm64-openssl3
+          signature_tag: unsigned
+  - name: sign_artifact_deb_arm64_openssl3
+    depends_on:
+      - name: package_artifact_deb_arm64_openssl3
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.1"
+      - func: get_artifact_url
+        vars:
+          package_variant: deb-arm64-openssl3
+          signature_tag: unsigned
+      - func: sign_artifact
+        vars:
+          node_js_version: "20.12.1"
+          package_variant: deb-arm64-openssl3
+      - func: put_artifact_url
+        vars:
+          package_variant: deb-arm64-openssl3
+          signature_tag: signed
+  - name: package_artifact_rpm_arm64_openssl3
     depends_on:
       - name: compile_artifact
         variant: linux_arm64_build_openssl3
@@ -12003,12 +12571,40 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.12.1"
-      - func: package_and_upload_artifact
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64-openssl3
+      - func: package_artifact
         vars:
           node_js_version: "20.12.1"
           package_variant: rpm-arm64-openssl3
           executable_os_id: linux-arm64-openssl3
-  - name: package_and_upload_artifact_linux_ppc64le
+      - func: put_artifact_url
+        vars:
+          package_variant: rpm-arm64-openssl3
+          signature_tag: unsigned
+  - name: sign_artifact_rpm_arm64_openssl3
+    depends_on:
+      - name: package_artifact_rpm_arm64_openssl3
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.1"
+      - func: get_artifact_url
+        vars:
+          package_variant: rpm-arm64-openssl3
+          signature_tag: unsigned
+      - func: sign_artifact
+        vars:
+          node_js_version: "20.12.1"
+          package_variant: rpm-arm64-openssl3
+      - func: put_artifact_url
+        vars:
+          package_variant: rpm-arm64-openssl3
+          signature_tag: signed
+  - name: package_artifact_linux_ppc64le
     depends_on:
       - name: compile_artifact
         variant: linux_ppc64le_build
@@ -12017,12 +12613,40 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.12.1"
-      - func: package_and_upload_artifact
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-ppc64le
+      - func: package_artifact
         vars:
           node_js_version: "20.12.1"
           package_variant: linux-ppc64le
           executable_os_id: linux-ppc64le
-  - name: package_and_upload_artifact_rpm_ppc64le
+      - func: put_artifact_url
+        vars:
+          package_variant: linux-ppc64le
+          signature_tag: unsigned
+  - name: sign_artifact_linux_ppc64le
+    depends_on:
+      - name: package_artifact_linux_ppc64le
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.1"
+      - func: get_artifact_url
+        vars:
+          package_variant: linux-ppc64le
+          signature_tag: unsigned
+      - func: sign_artifact
+        vars:
+          node_js_version: "20.12.1"
+          package_variant: linux-ppc64le
+      - func: put_artifact_url
+        vars:
+          package_variant: linux-ppc64le
+          signature_tag: signed
+  - name: package_artifact_rpm_ppc64le
     depends_on:
       - name: compile_artifact
         variant: linux_ppc64le_build
@@ -12031,12 +12655,40 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.12.1"
-      - func: package_and_upload_artifact
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-ppc64le
+      - func: package_artifact
         vars:
           node_js_version: "20.12.1"
           package_variant: rpm-ppc64le
           executable_os_id: linux-ppc64le
-  - name: package_and_upload_artifact_linux_s390x
+      - func: put_artifact_url
+        vars:
+          package_variant: rpm-ppc64le
+          signature_tag: unsigned
+  - name: sign_artifact_rpm_ppc64le
+    depends_on:
+      - name: package_artifact_rpm_ppc64le
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.1"
+      - func: get_artifact_url
+        vars:
+          package_variant: rpm-ppc64le
+          signature_tag: unsigned
+      - func: sign_artifact
+        vars:
+          node_js_version: "20.12.1"
+          package_variant: rpm-ppc64le
+      - func: put_artifact_url
+        vars:
+          package_variant: rpm-ppc64le
+          signature_tag: signed
+  - name: package_artifact_linux_s390x
     depends_on:
       - name: compile_artifact
         variant: linux_s390x_build
@@ -12045,12 +12697,40 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.12.1"
-      - func: package_and_upload_artifact
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-s390x
+      - func: package_artifact
         vars:
           node_js_version: "20.12.1"
           package_variant: linux-s390x
           executable_os_id: linux-s390x
-  - name: package_and_upload_artifact_rpm_s390x
+      - func: put_artifact_url
+        vars:
+          package_variant: linux-s390x
+          signature_tag: unsigned
+  - name: sign_artifact_linux_s390x
+    depends_on:
+      - name: package_artifact_linux_s390x
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.1"
+      - func: get_artifact_url
+        vars:
+          package_variant: linux-s390x
+          signature_tag: unsigned
+      - func: sign_artifact
+        vars:
+          node_js_version: "20.12.1"
+          package_variant: linux-s390x
+      - func: put_artifact_url
+        vars:
+          package_variant: linux-s390x
+          signature_tag: signed
+  - name: package_artifact_rpm_s390x
     depends_on:
       - name: compile_artifact
         variant: linux_s390x_build
@@ -12059,12 +12739,40 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.12.1"
-      - func: package_and_upload_artifact
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-s390x
+      - func: package_artifact
         vars:
           node_js_version: "20.12.1"
           package_variant: rpm-s390x
           executable_os_id: linux-s390x
-  - name: package_and_upload_artifact_win32_x64
+      - func: put_artifact_url
+        vars:
+          package_variant: rpm-s390x
+          signature_tag: unsigned
+  - name: sign_artifact_rpm_s390x
+    depends_on:
+      - name: package_artifact_rpm_s390x
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.1"
+      - func: get_artifact_url
+        vars:
+          package_variant: rpm-s390x
+          signature_tag: unsigned
+      - func: sign_artifact
+        vars:
+          node_js_version: "20.12.1"
+          package_variant: rpm-s390x
+      - func: put_artifact_url
+        vars:
+          package_variant: rpm-s390x
+          signature_tag: signed
+  - name: package_artifact_win32_x64
     depends_on:
       - name: compile_artifact
         variant: win32_build
@@ -12073,12 +12781,40 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.12.1"
-      - func: package_and_upload_artifact
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: win32
+      - func: package_artifact
         vars:
           node_js_version: "20.12.1"
           package_variant: win32-x64
           executable_os_id: win32
-  - name: package_and_upload_artifact_win32msi_x64
+      - func: put_artifact_url
+        vars:
+          package_variant: win32-x64
+          signature_tag: unsigned
+  - name: sign_artifact_win32_x64
+    depends_on:
+      - name: package_artifact_win32_x64
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.1"
+      - func: get_artifact_url
+        vars:
+          package_variant: win32-x64
+          signature_tag: unsigned
+      - func: sign_artifact
+        vars:
+          node_js_version: "20.12.1"
+          package_variant: win32-x64
+      - func: put_artifact_url
+        vars:
+          package_variant: win32-x64
+          signature_tag: signed
+  - name: package_artifact_win32msi_x64
     depends_on:
       - name: compile_artifact
         variant: win32_build
@@ -12087,11 +12823,39 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.12.1"
-      - func: package_and_upload_artifact
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: win32
+      - func: package_artifact
         vars:
           node_js_version: "20.12.1"
           package_variant: win32msi-x64
           executable_os_id: win32
+      - func: put_artifact_url
+        vars:
+          package_variant: win32msi-x64
+          signature_tag: unsigned
+  - name: sign_artifact_win32msi_x64
+    depends_on:
+      - name: package_artifact_win32msi_x64
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.1"
+      - func: get_artifact_url
+        vars:
+          package_variant: win32msi-x64
+          signature_tag: unsigned
+      - func: sign_artifact
+        vars:
+          node_js_version: "20.12.1"
+          package_variant: win32msi-x64
+      - func: put_artifact_url
+        vars:
+          package_variant: win32msi-x64
+          signature_tag: signed
 
   ###
   # SMOKE TESTS
@@ -12099,37 +12863,40 @@ tasks:
   - name: pkg_test_macos_darwin_x64
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_darwin_x64
-        variant: darwin
+      - name: sign_artifact_darwin_x64
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: darwin-x64
+          package_variant: darwin-x64
+          signature_tag: signed
       - func: write_preload_script
       - func: test_artifact_macos
   - name: pkg_test_macos_darwin_arm64
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_darwin_arm64
-        variant: darwin
+      - name: sign_artifact_darwin_arm64
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: darwin-arm64
+          package_variant: darwin-arm64
+          signature_tag: signed
       - func: write_preload_script
       - func: test_artifact_macos
   - name: pkg_test_docker_linux_x64_ubuntu20_04_tgz
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_linux_x64
-        variant: linux_package
+      - name: sign_artifact_linux_x64
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: linux-x64
+          package_variant: linux-x64
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -12141,13 +12908,14 @@ tasks:
   - name: pkg_test_docker_deb_x64_ubuntu18_04_deb
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_deb_x64
-        variant: linux_package
+      - name: sign_artifact_deb_x64
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: deb-x64
+          package_variant: deb-x64
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -12159,13 +12927,14 @@ tasks:
   - name: pkg_test_docker_deb_x64_ubuntu20_04_deb
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_deb_x64
-        variant: linux_package
+      - name: sign_artifact_deb_x64
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: deb-x64
+          package_variant: deb-x64
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -12177,13 +12946,14 @@ tasks:
   - name: pkg_test_docker_deb_x64_ubuntu22_04_deb
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_deb_x64
-        variant: linux_package
+      - name: sign_artifact_deb_x64
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: deb-x64
+          package_variant: deb-x64
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -12195,13 +12965,14 @@ tasks:
   - name: pkg_test_docker_deb_x64_ubuntu22_04_nohome_deb
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_deb_x64
-        variant: linux_package
+      - name: sign_artifact_deb_x64
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: deb-x64
+          package_variant: deb-x64
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -12213,13 +12984,14 @@ tasks:
   - name: pkg_test_docker_deb_x64_ubuntu22_04_qemu_deb
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_deb_x64
-        variant: linux_package
+      - name: sign_artifact_deb_x64
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: deb-x64
+          package_variant: deb-x64
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -12231,13 +13003,14 @@ tasks:
   - name: pkg_test_docker_deb_x64_debian10_deb
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_deb_x64
-        variant: linux_package
+      - name: sign_artifact_deb_x64
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: deb-x64
+          package_variant: deb-x64
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -12249,13 +13022,14 @@ tasks:
   - name: pkg_test_docker_deb_x64_debian11_deb
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_deb_x64
-        variant: linux_package
+      - name: sign_artifact_deb_x64
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: deb-x64
+          package_variant: deb-x64
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -12267,13 +13041,14 @@ tasks:
   - name: pkg_test_docker_deb_x64_debian12_deb
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_deb_x64
-        variant: linux_package
+      - name: sign_artifact_deb_x64
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: deb-x64
+          package_variant: deb-x64
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -12285,13 +13060,14 @@ tasks:
   - name: pkg_test_docker_rpm_x64_centos7_rpm
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_rpm_x64
-        variant: linux_package
+      - name: sign_artifact_rpm_x64
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: rpm-x64
+          package_variant: rpm-x64
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -12303,13 +13079,14 @@ tasks:
   - name: pkg_test_docker_rpm_x64_amazonlinux2_rpm
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_rpm_x64
-        variant: linux_package
+      - name: sign_artifact_rpm_x64
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: rpm-x64
+          package_variant: rpm-x64
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -12321,13 +13098,14 @@ tasks:
   - name: pkg_test_docker_rpm_x64_amazonlinux2023_rpm
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_rpm_x64
-        variant: linux_package
+      - name: sign_artifact_rpm_x64
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: rpm-x64
+          package_variant: rpm-x64
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -12339,13 +13117,14 @@ tasks:
   - name: pkg_test_docker_rpm_x64_rocky8_rpm
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_rpm_x64
-        variant: linux_package
+      - name: sign_artifact_rpm_x64
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: rpm-x64
+          package_variant: rpm-x64
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -12357,13 +13136,14 @@ tasks:
   - name: pkg_test_docker_rpm_x64_rocky9_rpm
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_rpm_x64
-        variant: linux_package
+      - name: sign_artifact_rpm_x64
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: rpm-x64
+          package_variant: rpm-x64
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -12375,13 +13155,14 @@ tasks:
   - name: pkg_test_docker_rpm_x64_fedora34_rpm
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_rpm_x64
-        variant: linux_package
+      - name: sign_artifact_rpm_x64
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: rpm-x64
+          package_variant: rpm-x64
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -12393,13 +13174,14 @@ tasks:
   - name: pkg_test_docker_rpm_x64_suse12_rpm
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_rpm_x64
-        variant: linux_package
+      - name: sign_artifact_rpm_x64
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: rpm-x64
+          package_variant: rpm-x64
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -12411,13 +13193,14 @@ tasks:
   - name: pkg_test_docker_rpm_x64_suse15_rpm
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_rpm_x64
-        variant: linux_package
+      - name: sign_artifact_rpm_x64
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: rpm-x64
+          package_variant: rpm-x64
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -12429,13 +13212,14 @@ tasks:
   - name: pkg_test_docker_deb_x64_openssl11_ubuntu20_04_deb
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_deb_x64_openssl11
-        variant: linux_package
+      - name: sign_artifact_deb_x64_openssl11
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: deb-x64-openssl11
+          package_variant: deb-x64-openssl11
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -12447,13 +13231,14 @@ tasks:
   - name: pkg_test_docker_deb_x64_openssl11_debian10_deb
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_deb_x64_openssl11
-        variant: linux_package
+      - name: sign_artifact_deb_x64_openssl11
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: deb-x64-openssl11
+          package_variant: deb-x64-openssl11
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -12465,13 +13250,14 @@ tasks:
   - name: pkg_test_docker_deb_x64_openssl11_debian11_deb
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_deb_x64_openssl11
-        variant: linux_package
+      - name: sign_artifact_deb_x64_openssl11
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: deb-x64-openssl11
+          package_variant: deb-x64-openssl11
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -12483,13 +13269,14 @@ tasks:
   - name: pkg_test_docker_rpm_x64_openssl11_centos7_epel_rpm
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_rpm_x64_openssl11
-        variant: linux_package
+      - name: sign_artifact_rpm_x64_openssl11
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: rpm-x64-openssl11
+          package_variant: rpm-x64-openssl11
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -12501,13 +13288,14 @@ tasks:
   - name: pkg_test_docker_rpm_x64_openssl11_amazonlinux2_rpm
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_rpm_x64_openssl11
-        variant: linux_package
+      - name: sign_artifact_rpm_x64_openssl11
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: rpm-x64-openssl11
+          package_variant: rpm-x64-openssl11
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -12519,13 +13307,14 @@ tasks:
   - name: pkg_test_docker_rpm_x64_openssl11_rocky8_rpm
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_rpm_x64_openssl11
-        variant: linux_package
+      - name: sign_artifact_rpm_x64_openssl11
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: rpm-x64-openssl11
+          package_variant: rpm-x64-openssl11
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -12537,13 +13326,14 @@ tasks:
   - name: pkg_test_docker_rpm_x64_openssl11_rocky9_rpm
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_rpm_x64_openssl11
-        variant: linux_package
+      - name: sign_artifact_rpm_x64_openssl11
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: rpm-x64-openssl11
+          package_variant: rpm-x64-openssl11
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -12555,13 +13345,14 @@ tasks:
   - name: pkg_test_docker_rpm_x64_openssl11_fedora34_rpm
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_rpm_x64_openssl11
-        variant: linux_package
+      - name: sign_artifact_rpm_x64_openssl11
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: rpm-x64-openssl11
+          package_variant: rpm-x64-openssl11
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -12573,13 +13364,14 @@ tasks:
   - name: pkg_test_docker_deb_x64_openssl3_ubuntu22_04_deb
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_deb_x64_openssl3
-        variant: linux_package
+      - name: sign_artifact_deb_x64_openssl3
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: deb-x64-openssl3
+          package_variant: deb-x64-openssl3
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -12591,13 +13383,14 @@ tasks:
   - name: pkg_test_docker_deb_x64_openssl3_ubuntu22_04_fips_deb
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_deb_x64_openssl3
-        variant: linux_package
+      - name: sign_artifact_deb_x64_openssl3
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: deb-x64-openssl3
+          package_variant: deb-x64-openssl3
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -12609,13 +13402,14 @@ tasks:
   - name: pkg_test_docker_deb_x64_openssl3_debian12_deb
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_deb_x64_openssl3
-        variant: linux_package
+      - name: sign_artifact_deb_x64_openssl3
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: deb-x64-openssl3
+          package_variant: deb-x64-openssl3
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -12627,13 +13421,14 @@ tasks:
   - name: pkg_test_docker_rpm_x64_openssl3_rocky8_epel_rpm
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_rpm_x64_openssl3
-        variant: linux_package
+      - name: sign_artifact_rpm_x64_openssl3
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: rpm-x64-openssl3
+          package_variant: rpm-x64-openssl3
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -12645,13 +13440,14 @@ tasks:
   - name: pkg_test_docker_rpm_x64_openssl3_rocky9_rpm
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_rpm_x64_openssl3
-        variant: linux_package
+      - name: sign_artifact_rpm_x64_openssl3
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: rpm-x64-openssl3
+          package_variant: rpm-x64-openssl3
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -12663,13 +13459,14 @@ tasks:
   - name: pkg_test_docker_rpm_x64_openssl3_rocky9_fips_rpm
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_rpm_x64_openssl3
-        variant: linux_package
+      - name: sign_artifact_rpm_x64_openssl3
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: rpm-x64-openssl3
+          package_variant: rpm-x64-openssl3
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -12681,13 +13478,14 @@ tasks:
   - name: pkg_test_docker_rpm_x64_openssl3_amazonlinux2023_rpm
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_rpm_x64_openssl3
-        variant: linux_package
+      - name: sign_artifact_rpm_x64_openssl3
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: rpm-x64-openssl3
+          package_variant: rpm-x64-openssl3
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -12699,13 +13497,14 @@ tasks:
   - name: pkg_test_docker_linux_arm64_ubuntu20_04_tgz
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_linux_arm64
-        variant: linux_package
+      - name: sign_artifact_linux_arm64
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: linux-arm64
+          package_variant: linux-arm64
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -12717,13 +13516,14 @@ tasks:
   - name: pkg_test_docker_deb_arm64_ubuntu18_04_deb
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_deb_arm64
-        variant: linux_package
+      - name: sign_artifact_deb_arm64
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: deb-arm64
+          package_variant: deb-arm64
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -12735,13 +13535,14 @@ tasks:
   - name: pkg_test_docker_deb_arm64_ubuntu20_04_deb
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_deb_arm64
-        variant: linux_package
+      - name: sign_artifact_deb_arm64
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: deb-arm64
+          package_variant: deb-arm64
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -12753,13 +13554,14 @@ tasks:
   - name: pkg_test_docker_deb_arm64_ubuntu22_04_deb
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_deb_arm64
-        variant: linux_package
+      - name: sign_artifact_deb_arm64
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: deb-arm64
+          package_variant: deb-arm64
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -12771,13 +13573,14 @@ tasks:
   - name: pkg_test_docker_deb_arm64_ubuntu22_04_nohome_deb
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_deb_arm64
-        variant: linux_package
+      - name: sign_artifact_deb_arm64
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: deb-arm64
+          package_variant: deb-arm64
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -12789,13 +13592,14 @@ tasks:
   - name: pkg_test_docker_deb_arm64_ubuntu22_04_qemu_deb
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_deb_arm64
-        variant: linux_package
+      - name: sign_artifact_deb_arm64
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: deb-arm64
+          package_variant: deb-arm64
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -12807,13 +13611,14 @@ tasks:
   - name: pkg_test_docker_deb_arm64_debian10_deb
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_deb_arm64
-        variant: linux_package
+      - name: sign_artifact_deb_arm64
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: deb-arm64
+          package_variant: deb-arm64
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -12825,13 +13630,14 @@ tasks:
   - name: pkg_test_docker_deb_arm64_debian11_deb
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_deb_arm64
-        variant: linux_package
+      - name: sign_artifact_deb_arm64
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: deb-arm64
+          package_variant: deb-arm64
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -12843,13 +13649,14 @@ tasks:
   - name: pkg_test_docker_deb_arm64_debian12_deb
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_deb_arm64
-        variant: linux_package
+      - name: sign_artifact_deb_arm64
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: deb-arm64
+          package_variant: deb-arm64
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -12861,13 +13668,14 @@ tasks:
   - name: pkg_test_docker_rpm_arm64_rocky8_rpm
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_rpm_arm64
-        variant: linux_package
+      - name: sign_artifact_rpm_arm64
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: rpm-arm64
+          package_variant: rpm-arm64
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -12879,13 +13687,14 @@ tasks:
   - name: pkg_test_docker_rpm_arm64_rocky9_rpm
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_rpm_arm64
-        variant: linux_package
+      - name: sign_artifact_rpm_arm64
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: rpm-arm64
+          package_variant: rpm-arm64
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -12897,13 +13706,14 @@ tasks:
   - name: pkg_test_docker_rpm_arm64_fedora34_rpm
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_rpm_arm64
-        variant: linux_package
+      - name: sign_artifact_rpm_arm64
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: rpm-arm64
+          package_variant: rpm-arm64
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -12915,13 +13725,14 @@ tasks:
   - name: pkg_test_docker_rpm_arm64_amazonlinux2_rpm
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_rpm_arm64
-        variant: linux_package
+      - name: sign_artifact_rpm_arm64
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: rpm-arm64
+          package_variant: rpm-arm64
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -12933,13 +13744,14 @@ tasks:
   - name: pkg_test_docker_rpm_arm64_amazonlinux2023_rpm
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_rpm_arm64
-        variant: linux_package
+      - name: sign_artifact_rpm_arm64
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: rpm-arm64
+          package_variant: rpm-arm64
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -12951,13 +13763,14 @@ tasks:
   - name: pkg_test_docker_deb_arm64_openssl11_ubuntu20_04_deb
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_deb_arm64_openssl11
-        variant: linux_package
+      - name: sign_artifact_deb_arm64_openssl11
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: deb-arm64-openssl11
+          package_variant: deb-arm64-openssl11
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -12969,13 +13782,14 @@ tasks:
   - name: pkg_test_docker_deb_arm64_openssl11_debian10_deb
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_deb_arm64_openssl11
-        variant: linux_package
+      - name: sign_artifact_deb_arm64_openssl11
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: deb-arm64-openssl11
+          package_variant: deb-arm64-openssl11
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -12987,13 +13801,14 @@ tasks:
   - name: pkg_test_docker_deb_arm64_openssl11_debian11_deb
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_deb_arm64_openssl11
-        variant: linux_package
+      - name: sign_artifact_deb_arm64_openssl11
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: deb-arm64-openssl11
+          package_variant: deb-arm64-openssl11
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -13005,13 +13820,14 @@ tasks:
   - name: pkg_test_docker_rpm_arm64_openssl11_rocky8_rpm
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_rpm_arm64_openssl11
-        variant: linux_package
+      - name: sign_artifact_rpm_arm64_openssl11
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: rpm-arm64-openssl11
+          package_variant: rpm-arm64-openssl11
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -13023,13 +13839,14 @@ tasks:
   - name: pkg_test_docker_rpm_arm64_openssl11_rocky9_rpm
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_rpm_arm64_openssl11
-        variant: linux_package
+      - name: sign_artifact_rpm_arm64_openssl11
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: rpm-arm64-openssl11
+          package_variant: rpm-arm64-openssl11
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -13041,13 +13858,14 @@ tasks:
   - name: pkg_test_docker_rpm_arm64_openssl11_fedora34_rpm
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_rpm_arm64_openssl11
-        variant: linux_package
+      - name: sign_artifact_rpm_arm64_openssl11
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: rpm-arm64-openssl11
+          package_variant: rpm-arm64-openssl11
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -13059,13 +13877,14 @@ tasks:
   - name: pkg_test_docker_rpm_arm64_openssl11_amazonlinux2_rpm
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_rpm_arm64_openssl11
-        variant: linux_package
+      - name: sign_artifact_rpm_arm64_openssl11
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: rpm-arm64-openssl11
+          package_variant: rpm-arm64-openssl11
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -13077,13 +13896,14 @@ tasks:
   - name: pkg_test_docker_deb_arm64_openssl3_ubuntu22_04_deb
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_deb_arm64_openssl3
-        variant: linux_package
+      - name: sign_artifact_deb_arm64_openssl3
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: deb-arm64-openssl3
+          package_variant: deb-arm64-openssl3
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -13095,13 +13915,14 @@ tasks:
   - name: pkg_test_docker_deb_arm64_openssl3_ubuntu22_04_fips_deb
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_deb_arm64_openssl3
-        variant: linux_package
+      - name: sign_artifact_deb_arm64_openssl3
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: deb-arm64-openssl3
+          package_variant: deb-arm64-openssl3
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -13113,13 +13934,14 @@ tasks:
   - name: pkg_test_docker_deb_arm64_openssl3_debian12_deb
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_deb_arm64_openssl3
-        variant: linux_package
+      - name: sign_artifact_deb_arm64_openssl3
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: deb-arm64-openssl3
+          package_variant: deb-arm64-openssl3
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -13131,13 +13953,14 @@ tasks:
   - name: pkg_test_docker_rpm_arm64_openssl3_rocky8_epel_rpm
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_rpm_arm64_openssl3
-        variant: linux_package
+      - name: sign_artifact_rpm_arm64_openssl3
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: rpm-arm64-openssl3
+          package_variant: rpm-arm64-openssl3
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -13149,13 +13972,14 @@ tasks:
   - name: pkg_test_docker_rpm_arm64_openssl3_rocky9_rpm
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_rpm_arm64_openssl3
-        variant: linux_package
+      - name: sign_artifact_rpm_arm64_openssl3
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: rpm-arm64-openssl3
+          package_variant: rpm-arm64-openssl3
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -13167,13 +13991,14 @@ tasks:
   - name: pkg_test_docker_rpm_arm64_openssl3_rocky9_fips_rpm
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_rpm_arm64_openssl3
-        variant: linux_package
+      - name: sign_artifact_rpm_arm64_openssl3
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: rpm-arm64-openssl3
+          package_variant: rpm-arm64-openssl3
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -13185,13 +14010,14 @@ tasks:
   - name: pkg_test_docker_rpm_arm64_openssl3_amazonlinux2023_rpm
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_rpm_arm64_openssl3
-        variant: linux_package
+      - name: sign_artifact_rpm_arm64_openssl3
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: rpm-arm64-openssl3
+          package_variant: rpm-arm64-openssl3
+          signature_tag: signed
       - func: write_preload_script
       - func: install
         vars:
@@ -13203,37 +14029,40 @@ tasks:
   - name: pkg_test_rpmextract_rpm_ppc64le
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_rpm_ppc64le
-        variant: linux_package
+      - name: sign_artifact_rpm_ppc64le
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: rpm-ppc64le
+          package_variant: rpm-ppc64le
+          signature_tag: signed
       - func: write_preload_script
       - func: test_artifact_rpmextract
   - name: pkg_test_rpmextract_rpm_s390x
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_rpm_s390x
-        variant: linux_package
+      - name: sign_artifact_rpm_s390x
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: rpm-s390x
+          package_variant: rpm-s390x
+          signature_tag: signed
       - func: write_preload_script
       - func: test_artifact_rpmextract
   - name: pkg_test_ssh_win32_x64
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_win32_x64
-        variant: win32
+      - name: sign_artifact_win32_x64
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: win32-x64
+          package_variant: win32-x64
+          signature_tag: signed
       - func: write_preload_script
       - func: spawn_host
         vars:
@@ -13246,13 +14075,14 @@ tasks:
   - name: pkg_test_ssh_win32msi_x64
     tags: ["smoke-test"]
     depends_on:
-      - name: package_and_upload_artifact_win32msi_x64
-        variant: win32
+      - name: sign_artifact_win32msi_x64
+        variant: "*"
     commands:
       - func: checkout
       - func: get_artifact_url
         vars:
-          source_package_variant: win32msi-x64
+          package_variant: win32msi-x64
+          signature_tag: signed
       - func: write_preload_script
       - func: spawn_host
         vars:
@@ -13299,6 +14129,9 @@ tasks:
       - func: install
         vars:
           node_js_version: "20.12.1"
+      - func: release_publish_download_and_list_artifacts
+        vars:
+          node_js_version: "20.12.1"
       - func: release_publish_dry_run
         vars:
           node_js_version: "20.12.1"
@@ -13312,6 +14145,9 @@ tasks:
     commands:
       - func: checkout
       - func: install
+        vars:
+          node_js_version: "20.12.1"
+      - func: release_publish_download_and_list_artifacts
         vars:
           node_js_version: "20.12.1"
       - func: release_publish
@@ -13481,8 +14317,10 @@ buildvariants:
     tasks:
       - name: compile_artifact
       - name: e2e_tests_darwin_x64
-      - name: package_and_upload_artifact_darwin_x64
-      - name: package_and_upload_artifact_darwin_arm64
+      - name: package_artifact_darwin_x64
+      - name: sign_artifact_darwin_x64
+      - name: package_artifact_darwin_arm64
+      - name: sign_artifact_darwin_arm64
   - name: darwin_arm64
     display_name: "MacOS Big Sur (arm64)"
     run_on: macos-1100-arm64
@@ -13493,7 +14331,7 @@ buildvariants:
       - name: e2e_tests_darwin_arm64
 
   - name: linux_unit
-    display_name: "Ubuntu 18.04 x64 (Unit tests)"
+    display_name: "Ubuntu 20.04 x64 (Unit tests)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
     tasks:
@@ -13662,32 +14500,56 @@ buildvariants:
     tasks:
       - name: check_coverage
   - name: linux_package
-    display_name: "Ubuntu 18.04 x64 (Packaging)"
+    display_name: "Ubuntu 20.04 x64 (Packaging)"
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
     tasks:
-      - name: package_and_upload_artifact_linux_x64
-      - name: package_and_upload_artifact_deb_x64
-      - name: package_and_upload_artifact_rpm_x64
-      - name: package_and_upload_artifact_linux_x64_openssl11
-      - name: package_and_upload_artifact_deb_x64_openssl11
-      - name: package_and_upload_artifact_rpm_x64_openssl11
-      - name: package_and_upload_artifact_linux_x64_openssl3
-      - name: package_and_upload_artifact_deb_x64_openssl3
-      - name: package_and_upload_artifact_rpm_x64_openssl3
-      - name: package_and_upload_artifact_linux_arm64
-      - name: package_and_upload_artifact_deb_arm64
-      - name: package_and_upload_artifact_rpm_arm64
-      - name: package_and_upload_artifact_linux_arm64_openssl11
-      - name: package_and_upload_artifact_deb_arm64_openssl11
-      - name: package_and_upload_artifact_rpm_arm64_openssl11
-      - name: package_and_upload_artifact_linux_arm64_openssl3
-      - name: package_and_upload_artifact_deb_arm64_openssl3
-      - name: package_and_upload_artifact_rpm_arm64_openssl3
-      - name: package_and_upload_artifact_linux_ppc64le
-      - name: package_and_upload_artifact_rpm_ppc64le
-      - name: package_and_upload_artifact_linux_s390x
-      - name: package_and_upload_artifact_rpm_s390x
+      - name: package_artifact_linux_x64
+      - name: sign_artifact_linux_x64
+      - name: package_artifact_deb_x64
+      - name: sign_artifact_deb_x64
+      - name: package_artifact_rpm_x64
+      - name: sign_artifact_rpm_x64
+      - name: package_artifact_linux_x64_openssl11
+      - name: sign_artifact_linux_x64_openssl11
+      - name: package_artifact_deb_x64_openssl11
+      - name: sign_artifact_deb_x64_openssl11
+      - name: package_artifact_rpm_x64_openssl11
+      - name: sign_artifact_rpm_x64_openssl11
+      - name: package_artifact_linux_x64_openssl3
+      - name: sign_artifact_linux_x64_openssl3
+      - name: package_artifact_deb_x64_openssl3
+      - name: sign_artifact_deb_x64_openssl3
+      - name: package_artifact_rpm_x64_openssl3
+      - name: sign_artifact_rpm_x64_openssl3
+      - name: package_artifact_linux_arm64
+      - name: sign_artifact_linux_arm64
+      - name: package_artifact_deb_arm64
+      - name: sign_artifact_deb_arm64
+      - name: package_artifact_rpm_arm64
+      - name: sign_artifact_rpm_arm64
+      - name: package_artifact_linux_arm64_openssl11
+      - name: sign_artifact_linux_arm64_openssl11
+      - name: package_artifact_deb_arm64_openssl11
+      - name: sign_artifact_deb_arm64_openssl11
+      - name: package_artifact_rpm_arm64_openssl11
+      - name: sign_artifact_rpm_arm64_openssl11
+      - name: package_artifact_linux_arm64_openssl3
+      - name: sign_artifact_linux_arm64_openssl3
+      - name: package_artifact_deb_arm64_openssl3
+      - name: sign_artifact_deb_arm64_openssl3
+      - name: package_artifact_rpm_arm64_openssl3
+      - name: sign_artifact_rpm_arm64_openssl3
+      - name: package_artifact_linux_ppc64le
+      - name: sign_artifact_linux_ppc64le
+      - name: package_artifact_rpm_ppc64le
+      - name: sign_artifact_rpm_ppc64le
+      - name: package_artifact_linux_s390x
+      - name: sign_artifact_linux_s390x
+      - name: package_artifact_rpm_s390x
+      - name: sign_artifact_rpm_s390x
+      - name: sign_artifact_win32_x64
+      - name: sign_artifact_win32msi_x64
   - name: linux_x64_build
     display_name: "RHEL 7.0 x64 (build)"
     run_on: rhel70-build
@@ -14096,8 +14958,8 @@ buildvariants:
       executable_os_id: win32
     tasks:
       - name: e2e_tests_win32
-      - name: package_and_upload_artifact_win32_x64
-      - name: package_and_upload_artifact_win32msi_x64
+      - name: package_artifact_win32_x64
+      - name: package_artifact_win32msi_x64
   - name: win32_build
     display_name: "Windows VS 2019 (build)"
     run_on: windows-64-vs2019-build

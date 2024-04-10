@@ -27,16 +27,11 @@ export async function runPackage(config: Config): Promise<PackageFile> {
     );
   }
 
-  const runCreatePackage = async (): Promise<PackageFile> => {
-    return await createPackage(
-      config.outputDir,
-      packageVariant,
-      (config.packageInformation as Required<Config>['packageInformation'])(
-        packageVariant
-      )
-    );
-  };
-
-  const packaged = await runCreatePackage();
-  return packaged;
+  return await createPackage(
+    config.outputDir,
+    packageVariant,
+    (config.packageInformation as Required<Config>['packageInformation'])(
+      packageVariant
+    )
+  );
 }

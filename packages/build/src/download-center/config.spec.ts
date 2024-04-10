@@ -1,8 +1,8 @@
 import type { DownloadCenterConfig } from '@mongodb-js/dl-center/dist/download-center-config';
-import type { PackageInformationProvider } from '../packaging';
+import { getPackageFile, type PackageInformationProvider } from '../packaging';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import type { PackageVariant } from '../config';
+import { ALL_PACKAGE_VARIANTS, type PackageVariant } from '../config';
 import {
   createVersionConfig,
   createDownloadCenterConfig,
@@ -10,9 +10,7 @@ import {
   createAndPublishDownloadCenterConfig,
   createJsonFeedEntry,
 } from './config';
-import { createServer as createHTTPServer } from 'http';
-import type { Server as HTTPServer } from 'http';
-import { once } from 'events';
+import { promises as fs } from 'fs';
 import path from 'path';
 import fetch from 'node-fetch';
 
@@ -34,6 +32,42 @@ const packageInformation = (version: string) =>
   }) as PackageInformationProvider;
 
 describe('DownloadCenter config', function () {
+  let outputDir: string;
+  beforeEach(async function () {
+    outputDir = path.join(
+      __dirname,
+      '..',
+      '..',
+      '..',
+      '..',
+      'tmp',
+      `downloadcenter-outputdir-${Date.now()}`
+    );
+    await fs.mkdir(outputDir, { recursive: true });
+
+    const testVersions = ['2.0.1', '2.0.0', '1.2.2'];
+    const allFiles = testVersions
+      .flatMap((version) =>
+        ALL_PACKAGE_VARIANTS.map(
+          (packageVariant) =>
+            getPackageFile(packageVariant, packageInformation(version)).path
+        )
+      )
+      .flatMap((file) => [file, `${file}.sig`]);
+    await fs.writeFile(
+      path.join(outputDir, 'SHASUMS1.txt'),
+      allFiles.map((f) => `ghjklm  ${f}`).join('\n')
+    );
+    await fs.writeFile(
+      path.join(outputDir, 'SHASUMS256.txt'),
+      allFiles.map((f) => `abcdef  ${f}`).join('\n')
+    );
+  });
+
+  afterEach(async function () {
+    await fs.rm(outputDir, { recursive: true });
+  });
+
   describe('createVersionConfig', function () {
     it('sets the version correctly', function () {
       const version = createVersionConfig(packageInformation('1.2.2'));
@@ -195,10 +229,9 @@ describe('DownloadCenter config', function () {
     let downloadConfig: sinon.SinonStub;
     let uploadAsset: sinon.SinonStub;
     let downloadAsset: sinon.SinonStub;
-    let mockHttpServer: HTTPServer;
     let baseUrl: string;
 
-    beforeEach(async function () {
+    beforeEach(function () {
       uploadConfig = sinon.stub();
       downloadConfig = sinon.stub();
       uploadAsset = sinon.stub();
@@ -211,18 +244,7 @@ describe('DownloadCenter config', function () {
         uploadAsset,
         downloadAsset,
       });
-      mockHttpServer = createHTTPServer((req, res) => {
-        res.writeHead(200, undefined, { 'content-type': 'text/plain' });
-        res.end(req.url);
-      });
-      mockHttpServer.listen(0);
-      await once(mockHttpServer, 'listening');
-      baseUrl = `http://127.0.0.1:${(mockHttpServer.address() as any).port}/`;
-    });
-
-    afterEach(async function () {
-      mockHttpServer.close();
-      await once(mockHttpServer, 'close');
+      baseUrl = `http://127.0.0.1/`;
     });
 
     context('when a configuration does not exist', function () {
@@ -230,6 +252,7 @@ describe('DownloadCenter config', function () {
         downloadConfig.throws({ code: 'NoSuchKey' });
 
         await createAndPublishDownloadCenterConfig(
+          outputDir,
           packageInformation('2.0.1'),
           'accessKey',
           'secretKey',
@@ -287,6 +310,7 @@ describe('DownloadCenter config', function () {
 
       it('publishes the created configuration', async function () {
         await createAndPublishDownloadCenterConfig(
+          outputDir,
           packageInformation('1.2.2'),
           'accessKey',
           'secretKey',
@@ -352,9 +376,8 @@ describe('DownloadCenter config', function () {
           archive: {
             type: 'zip',
             url: `${baseUrl}mongosh-1.2.2-darwin-x64.zip`,
-            sha256:
-              'ed8922ef572c307634150bf78ea02338349949f29245123884b1318cdc402dd9',
-            sha1: '4f1b987549703c58940be9f8582f4032374b1074',
+            sha256: 'abcdef',
+            sha1: 'ghjklm',
           },
         });
       });
@@ -384,6 +407,7 @@ describe('DownloadCenter config', function () {
         downloadAsset.returns(JSON.stringify(existingUploadedJsonFeed));
 
         await createAndPublishDownloadCenterConfig(
+          outputDir,
           packageInformation('2.0.0'),
           'accessKey',
           'secretKey',
@@ -477,6 +501,7 @@ describe('DownloadCenter config', function () {
       ].filter(Boolean);
 
       const mongoshJsonFeedEntry = await createJsonFeedEntry(
+        outputDir,
         packageInformation('2.0.0'),
         'skip://'
       );

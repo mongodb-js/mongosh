@@ -1,6 +1,4 @@
 import { Octokit } from '@octokit/rest';
-import { promises as fs } from 'fs';
-import path from 'path';
 import { writeBuildInfo } from './build-info';
 import { Barque } from './barque';
 import { runCompile } from './compile';
@@ -21,12 +19,16 @@ import { runPackage } from './packaging';
 import { runDraft } from './run-draft';
 import { runPublish } from './run-publish';
 import { runUpload } from './run-upload';
+import { runSign } from './packaging/run-sign';
+import { runDownloadAndListArtifacts } from './run-download-and-list-artifacts';
 
 export type ReleaseCommand =
   | 'bump'
   | 'compile'
   | 'package'
+  | 'sign'
   | 'upload'
+  | 'download-and-list-artifacts'
   | 'draft'
   | 'publish';
 
@@ -89,19 +91,11 @@ export async function release(
   if (command === 'compile') {
     await runCompile(config);
   } else if (command === 'package') {
-    const tarballFile = await runPackage(config);
-    await fs.writeFile(
-      path.join(config.outputDir, '.artifact_metadata'),
-      JSON.stringify(tarballFile)
-    );
+    await runPackage(config);
+  } else if (command === 'sign') {
+    await runSign(config);
   } else if (command === 'upload') {
-    const tarballFile = JSON.parse(
-      await fs.readFile(
-        path.join(config.outputDir, '.artifact_metadata'),
-        'utf8'
-      )
-    );
-    await runUpload(config, tarballFile, uploadArtifactToEvergreen);
+    await runUpload(config, uploadArtifactToEvergreen);
   } else if (command === 'draft') {
     await runDraft(
       config,
@@ -109,6 +103,8 @@ export async function release(
       uploadArtifactToDownloadCenter,
       downloadArtifactFromEvergreen
     );
+  } else if (command === 'download-and-list-artifacts') {
+    await runDownloadAndListArtifacts(config);
   } else if (command === 'publish') {
     const barque = new Barque(config);
     await runPublish(

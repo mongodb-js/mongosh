@@ -4,7 +4,6 @@ import type { Config } from './config';
 import { ALL_PACKAGE_VARIANTS } from './config';
 import type { uploadArtifactToDownloadCenter as uploadArtifactToDownloadCenterFn } from './download-center';
 import type { downloadArtifactFromEvergreen as downloadArtifactFromEvergreenFn } from './evergreen';
-import type { sign as signArtifactFn } from '@mongodb-js/signing-utils';
 import type { generateChangelog as generateChangelogFn } from './git';
 import { GithubRepo } from '@mongodb-js/devtools-github-repo';
 import {
@@ -27,7 +26,6 @@ describe('draft', function () {
   let githubRepo: GithubRepo;
   let uploadArtifactToDownloadCenter: typeof uploadArtifactToDownloadCenterFn;
   let downloadArtifactFromEvergreen: typeof downloadArtifactFromEvergreenFn;
-  let signArtifact: typeof signArtifactFn;
 
   beforeEach(function () {
     config = { ...dummyConfig };
@@ -36,8 +34,6 @@ describe('draft', function () {
     downloadArtifactFromEvergreen = sinon.spy(() =>
       Promise.resolve('filename')
     );
-
-    signArtifact = sinon.spy();
   });
 
   describe('runDraft', function () {
@@ -62,8 +58,7 @@ describe('draft', function () {
           githubRepo,
           uploadArtifactToDownloadCenter,
           downloadArtifactFromEvergreen,
-          ensureGithubReleaseExistsAndUpdateChangelog,
-          signArtifact
+          ensureGithubReleaseExistsAndUpdateChangelog
         );
       });
 
@@ -79,25 +74,19 @@ describe('draft', function () {
 
       it('downloads existing artifacts from evergreen', function () {
         expect(downloadArtifactFromEvergreen).to.have.been.callCount(
-          ALL_PACKAGE_VARIANTS.length
-        );
-      });
-
-      it('signs files', function () {
-        expect(signArtifact).to.have.been.callCount(
-          ALL_PACKAGE_VARIANTS.length
+          ALL_PACKAGE_VARIANTS.length * 2 // artifacts + signatures
         );
       });
 
       it('uploads artifacts to download center', function () {
         expect(uploadArtifactToDownloadCenter).to.have.been.callCount(
-          ALL_PACKAGE_VARIANTS.length
+          ALL_PACKAGE_VARIANTS.length * 2
         );
       });
 
       it('uploads the artifacts to the github release', function () {
         expect(uploadReleaseAsset).to.have.been.callCount(
-          ALL_PACKAGE_VARIANTS.length
+          ALL_PACKAGE_VARIANTS.length * 2
         );
       });
     });
@@ -113,8 +102,7 @@ describe('draft', function () {
         githubRepo,
         uploadArtifactToDownloadCenter,
         downloadArtifactFromEvergreen,
-        ensureGithubReleaseExistsAndUpdateChangelog,
-        signArtifact
+        ensureGithubReleaseExistsAndUpdateChangelog
       );
       expect(ensureGithubReleaseExistsAndUpdateChangelog).to.not.have.been
         .called;
@@ -137,8 +125,7 @@ describe('draft', function () {
           githubRepo,
           uploadArtifactToDownloadCenter,
           downloadArtifactFromEvergreen,
-          ensureGithubReleaseExistsAndUpdateChangelog,
-          signArtifact
+          ensureGithubReleaseExistsAndUpdateChangelog
         );
       } catch (e: any) {
         expect(e.message).to.contain('Missing package information from config');
@@ -147,7 +134,6 @@ describe('draft', function () {
         expect(downloadArtifactFromEvergreen).to.not.have.been.called;
         expect(uploadArtifactToDownloadCenter).to.not.have.been.called;
         expect(uploadReleaseAsset).to.not.have.been.called;
-        expect(signArtifact).to.not.have.been.called;
         return;
       }
       expect.fail('Expected error');
