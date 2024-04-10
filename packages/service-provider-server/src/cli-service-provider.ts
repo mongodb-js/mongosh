@@ -231,9 +231,17 @@ export class SynchronousCliServiceProvider
     this.remotePort = channel.port2;
 
     this.bus = bus;
+    let source: string;
+    try {
+      source = require('./wrapped.js');
+    } catch (err: any) {
+      throw new Error(
+        `Could not get Worker thread source code: ${err.message}`
+      );
+    }
     this.worker = new Worker(
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-      `${require('./wrapped.js')}; SynchronousCliServiceProvider.runWorker();`,
+      `${source}; SynchronousCliServiceProvider.runWorker();`,
       { eval: true, workerData: { flag: this.flag } }
     );
     const origEmit: any = this.bus.emit;
