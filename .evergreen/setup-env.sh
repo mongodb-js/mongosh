@@ -19,6 +19,8 @@ fi
 echo "TERM variable is set to '${TERM:-}'"
 
 if [ "$OS" != "Windows_NT" ]; then
+  source $HOME/.cargo/env
+
   if [ `uname` = Darwin ]; then
     echo "Using clang version:"
     (which clang && clang --version)
