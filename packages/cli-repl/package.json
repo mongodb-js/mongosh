@@ -54,6 +54,9 @@
       ],
       "get-console-process-list": [
         "win32"
+      ],
+      "glibc-version": [
+        "linux"
       ]
     }
   },
@@ -111,6 +114,7 @@
   },
   "optionalDependencies": {
     "get-console-process-list": "^1.0.4",
+    "glibc-version": "^1.0.0",
     "macos-export-certificate-and-key": "^1.1.1",
     "mongodb-crypt-library-version": "^1.0.3",
     "win-export-certificate-and-key": "^1.1.1"

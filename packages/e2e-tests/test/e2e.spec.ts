@@ -61,6 +61,7 @@ describe('e2e', function () {
         'sharedOpenssl',
         'runtimeArch',
         'runtimePlatform',
+        'runtimeGlibcVersion',
         'deps',
       ]);
       expect(data.version).to.be.a('string');
@@ -85,6 +86,26 @@ describe('e2e', function () {
       expect(data.deps.nodeDriverVersion).to.be.a('string');
       expect(data.deps.libmongocryptVersion).to.be.a('string');
       expect(data.deps.libmongocryptNodeBindingsVersion).to.be.a('string');
+
+      if (process.version.startsWith('v16.')) return;
+
+      let processReport: any;
+      {
+        const shell = TestShell.start({
+          args: [
+            '--quiet',
+            '--nodb',
+            '--json=relaxed',
+            '--eval',
+            'process.report.getReport()',
+          ],
+        });
+        await shell.waitForExit();
+        processReport = JSON.parse(shell.output);
+      }
+      expect(data.runtimeGlibcVersion).to.equal(
+        processReport.header.glibcVersionRuntime ?? 'N/A'
+      );
     });
 
     it('provides build info via the buildInfo() builtin', async function () {

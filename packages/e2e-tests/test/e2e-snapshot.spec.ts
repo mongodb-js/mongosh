@@ -132,7 +132,7 @@ describe('e2e startup banners', function () {
       );
       verifyAllInCategoryMatch(
         'nodb-eval',
-        /^node_modules\/(kerberos|mongodb-client-encryption)\//
+        /^node_modules\/(kerberos|mongodb-client-encryption|glibc-version)\//
       );
       verifyAllThatMatchAreInCategory(
         'not-loaded',

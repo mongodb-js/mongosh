@@ -2438,16 +2438,12 @@ describe('CliRepl', function () {
   });
 
   context('mongosh 2.x deprecation warnings', function () {
-    const actualReport = process.report;
     const actualVersions = process.versions;
     beforeEach(function () {
       cliReplOptions.shellCliOptions = { nodb: true };
     });
 
     afterEach(function () {
-      delete (process as any).report;
-      (process as any).report = actualReport;
-
       delete (process.versions as any).openssl;
       (process.versions as any).openssl = actualVersions.openssl;
 
@@ -2468,17 +2464,8 @@ describe('CliRepl', function () {
         { version: '2.21.4', deprecated: true },
         { version: '1.3.8', deprecated: true },
       ]) {
-        delete (process as any).report;
-        (process.report as any) = {
-          getReport() {
-            return {
-              header: {
-                glibcVersionRuntime: version,
-              },
-            };
-          },
-        };
         cliRepl = new CliRepl(cliReplOptions);
+        cliRepl.getGlibcVersion = () => version;
         await cliRepl.start('', {});
 
         if (deprecated) {
@@ -2498,15 +2485,8 @@ describe('CliRepl', function () {
     });
 
     it('does not print a platform unsupported deprecation warning when GLIBC information is not present (non-linux systems)', async function () {
-      delete (process as any).report;
-      (process.report as any) = {
-        getReport() {
-          return {
-            header: {},
-          };
-        },
-      };
       cliRepl = new CliRepl(cliReplOptions);
+      cliRepl.getGlibcVersion = () => undefined;
       await cliRepl.start('', {});
 
       expect(output).to.not.include(
@@ -2579,15 +2559,7 @@ describe('CliRepl', function () {
       // Setting all the possible situation for a deprecation warning
       process.version = '16.20.3';
       process.versions.openssl = '1.1.11';
-      (process.report as any) = {
-        getReport() {
-          return {
-            header: {
-              glibcVersionRuntime: '1.27',
-            },
-          };
-        },
-      };
+      cliRepl.getGlibcVersion = () => '1.27';
 
       cliReplOptions.shellCliOptions.quiet = true;
       cliRepl = new CliRepl(cliReplOptions);
