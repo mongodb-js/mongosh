@@ -89,15 +89,13 @@ import {
   ClientEncryption,
 } from 'mongodb';
 import { connectMongoClient } from '@mongodb-js/devtools-connect';
-import type { MessagePort } from 'worker_threads';
-import {
-  MessageChannel,
-  Worker,
-  parentPort,
-  receiveMessageOnPort,
-  workerData,
-} from 'worker_threads';
+import type { MessagePort, Worker } from 'worker_threads';
 import assert from 'assert';
+
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+function worker_threads(): typeof import('worker_threads') {
+  return require('worker_threads');
+}
 
 const bsonlib = () => {
   const {
@@ -227,16 +225,15 @@ export class SynchronousCliServiceProvider
     super(bsonlib());
     const sab = new SharedArrayBuffer(4);
     this.flag = new Int32Array(sab);
+    const { MessageChannel, Worker } = worker_threads();
     const channel = new MessageChannel();
     this.callPort = channel.port1;
     this.remotePort = channel.port2;
 
     this.bus = bus;
     this.worker = new Worker(
-      `require(${JSON.stringify(
-        __filename
-      )}).SynchronousCliServiceProvider.runWorker();
-    `,
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+      `${require('./wrapped.js')}; SynchronousCliServiceProvider.runWorker();`,
       { eval: true, workerData: { flag: this.flag } }
     );
     const origEmit: any = this.bus.emit;
@@ -274,6 +271,7 @@ export class SynchronousCliServiceProvider
   }
 
   static async runWorker(): Promise<void> {
+    const { parentPort, workerData } = worker_threads();
     if (!parentPort || !workerData)
       throw new Error('Can only call runWorker inside a Worker thread');
     const flag = workerData.flag as Int32Array;
@@ -370,6 +368,7 @@ export class SynchronousCliServiceProvider
     fn: K,
     ...args: Parameters<CliServiceProvider[K]>
   ) {
+    const { receiveMessageOnPort } = worker_threads();
     this.callPort.postMessage({
       msg: 'CALL',
       fn,
