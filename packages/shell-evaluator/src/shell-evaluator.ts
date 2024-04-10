@@ -57,7 +57,7 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
   ) {
     this.instanceState = instanceState;
     this.resultHandler = resultHandler;
-    const AsyncWriterCls = process.env.MONGOSH_EXPERIMENT_ASYNC_REWRITER3
+    const AsyncWriterCls = !process.env.MONGOSH_NO_EXPERIMENT_ASYNC_REWRITER3
       ? AsyncWriter3
       : AsyncWriter2;
     this.asyncWriter = new AsyncWriterCls();
