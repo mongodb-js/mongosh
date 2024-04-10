@@ -783,12 +783,14 @@ functions:
         shell: bash
         script: |
           set -e
+          set -x
           ls -lh dist/
           if [ x"${triggered_by_git_tag}" == x"" ]; then
             tag=$(git describe --tags --always --dirty)
           else
             tag="${triggered_by_git_tag}"
           fi
+          echo "Setting version for papertrail to $tag, with product ${product}"
           version="${tag:1}"
           cat <<EOT > trace-expansions.yml
           release_version: "$version"
@@ -805,7 +807,7 @@ functions:
         product: ${product}
         version: ${release_version}
         filenames:
-          - "src/dist/*"
+          - "dist/*"
 
   release_draft:
     - command: expansions.write
