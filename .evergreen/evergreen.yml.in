@@ -158,7 +158,7 @@ functions:
         script: |
           source .evergreen/setup-env.sh
           npm run compile
-          tar cvzf compiled-ts.tgz packages/*/{lib,dist}
+          tar cvzf compiled-ts.tgz packages/*/{lib,dist,pkg,target}
     - command: s3.put
       params:
         aws_key: ${aws_key}

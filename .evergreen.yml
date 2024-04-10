@@ -91,7 +91,7 @@ functions:
         script: |
           source .evergreen/setup-env.sh
           npm run compile
-          tar cvzf compiled-ts.tgz packages/*/{lib,dist}
+          tar cvzf compiled-ts.tgz packages/*/{lib,dist,pkg,target}
     - command: s3.put
       params:
         aws_key: ${aws_key}
@@ -238,6 +238,314 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-darwin_unit-n16_async_rewriter2.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-darwin_unit-m42xc_n20_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m42xc_n20_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-darwin_unit-m42xc_n20_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-darwin_unit-m42xe_n20_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m42xe_n20_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-darwin_unit-m42xe_n20_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-darwin_unit-m44xc_n20_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m44xc_n20_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-darwin_unit-m44xc_n20_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-darwin_unit-m44xe_n20_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m44xe_n20_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-darwin_unit-m44xe_n20_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-darwin_unit-m50xc_n20_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m50xc_n20_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-darwin_unit-m50xc_n20_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-darwin_unit-m50xe_n20_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m50xe_n20_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-darwin_unit-m50xe_n20_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-darwin_unit-m60xc_n20_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m60xc_n20_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-darwin_unit-m60xc_n20_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-darwin_unit-m60xe_n20_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m60xe_n20_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-darwin_unit-m60xe_n20_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-darwin_unit-m70xc_n20_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m70xc_n20_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-darwin_unit-m70xc_n20_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-darwin_unit-m70xe_n20_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m70xe_n20_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-darwin_unit-m70xe_n20_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-darwin_unit-mlatest_n20_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-mlatest_n20_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-darwin_unit-mlatest_n20_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-darwin_unit-m42xc_n16_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m42xc_n16_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-darwin_unit-m42xc_n16_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-darwin_unit-m42xe_n16_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m42xe_n16_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-darwin_unit-m42xe_n16_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-darwin_unit-m44xc_n16_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m44xc_n16_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-darwin_unit-m44xc_n16_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-darwin_unit-m44xe_n16_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m44xe_n16_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-darwin_unit-m44xe_n16_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-darwin_unit-m50xc_n16_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m50xc_n16_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-darwin_unit-m50xc_n16_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-darwin_unit-m50xe_n16_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m50xe_n16_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-darwin_unit-m50xe_n16_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-darwin_unit-m60xc_n16_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m60xc_n16_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-darwin_unit-m60xc_n16_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-darwin_unit-m60xe_n16_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m60xe_n16_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-darwin_unit-m60xe_n16_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-darwin_unit-m70xc_n16_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m70xc_n16_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-darwin_unit-m70xc_n16_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-darwin_unit-m70xe_n16_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-m70xe_n16_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-darwin_unit-m70xe_n16_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-darwin_unit-mlatest_n16_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-darwin_unit-mlatest_n16_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-darwin_unit-mlatest_n16_async_rewriter3.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -2282,6 +2590,286 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-linux_unit-n16_async_rewriter2.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-linux_unit-m42xc_n20_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m42xc_n20_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-linux_unit-m42xc_n20_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-linux_unit-m44xc_n20_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m44xc_n20_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-linux_unit-m44xc_n20_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-linux_unit-m44xe_n20_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m44xe_n20_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-linux_unit-m44xe_n20_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-linux_unit-m50xc_n20_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m50xc_n20_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-linux_unit-m50xc_n20_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-linux_unit-m50xe_n20_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m50xe_n20_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-linux_unit-m50xe_n20_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-linux_unit-m60xc_n20_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m60xc_n20_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-linux_unit-m60xc_n20_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-linux_unit-m60xe_n20_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m60xe_n20_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-linux_unit-m60xe_n20_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-linux_unit-m70xc_n20_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m70xc_n20_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-linux_unit-m70xc_n20_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-linux_unit-m70xe_n20_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m70xe_n20_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-linux_unit-m70xe_n20_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-linux_unit-mlatest_n20_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-mlatest_n20_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-linux_unit-mlatest_n20_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-linux_unit-m42xc_n16_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m42xc_n16_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-linux_unit-m42xc_n16_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-linux_unit-m44xc_n16_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m44xc_n16_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-linux_unit-m44xc_n16_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-linux_unit-m44xe_n16_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m44xe_n16_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-linux_unit-m44xe_n16_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-linux_unit-m50xc_n16_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m50xc_n16_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-linux_unit-m50xc_n16_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-linux_unit-m50xe_n16_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m50xe_n16_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-linux_unit-m50xe_n16_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-linux_unit-m60xc_n16_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m60xc_n16_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-linux_unit-m60xc_n16_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-linux_unit-m60xe_n16_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m60xe_n16_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-linux_unit-m60xe_n16_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-linux_unit-m70xc_n16_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m70xc_n16_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-linux_unit-m70xc_n16_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-linux_unit-m70xe_n16_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-m70xe_n16_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-linux_unit-m70xe_n16_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-linux_unit-mlatest_n16_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-linux_unit-mlatest_n16_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-linux_unit-mlatest_n16_async_rewriter3.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -4438,6 +5026,314 @@ functions:
         script: |
           set -e
           tar xvzf nyc-output-win32_unit-n16_async_rewriter2.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-win32_unit-m42xc_n20_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m42xc_n20_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-win32_unit-m42xc_n20_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-win32_unit-m42xe_n20_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m42xe_n20_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-win32_unit-m42xe_n20_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-win32_unit-m44xc_n20_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m44xc_n20_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-win32_unit-m44xc_n20_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-win32_unit-m44xe_n20_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m44xe_n20_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-win32_unit-m44xe_n20_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-win32_unit-m50xc_n20_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m50xc_n20_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-win32_unit-m50xc_n20_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-win32_unit-m50xe_n20_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m50xe_n20_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-win32_unit-m50xe_n20_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-win32_unit-m60xc_n20_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m60xc_n20_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-win32_unit-m60xc_n20_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-win32_unit-m60xe_n20_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m60xe_n20_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-win32_unit-m60xe_n20_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-win32_unit-m70xc_n20_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m70xc_n20_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-win32_unit-m70xc_n20_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-win32_unit-m70xe_n20_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m70xe_n20_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-win32_unit-m70xe_n20_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-win32_unit-mlatest_n20_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-mlatest_n20_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-win32_unit-mlatest_n20_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-win32_unit-m42xc_n16_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m42xc_n16_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-win32_unit-m42xc_n16_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-win32_unit-m42xe_n16_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m42xe_n16_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-win32_unit-m42xe_n16_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-win32_unit-m44xc_n16_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m44xc_n16_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-win32_unit-m44xc_n16_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-win32_unit-m44xe_n16_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m44xe_n16_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-win32_unit-m44xe_n16_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-win32_unit-m50xc_n16_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m50xc_n16_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-win32_unit-m50xc_n16_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-win32_unit-m50xe_n16_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m50xe_n16_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-win32_unit-m50xe_n16_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-win32_unit-m60xc_n16_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m60xc_n16_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-win32_unit-m60xc_n16_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-win32_unit-m60xe_n16_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m60xe_n16_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-win32_unit-m60xe_n16_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-win32_unit-m70xc_n16_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m70xc_n16_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-win32_unit-m70xc_n16_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-win32_unit-m70xe_n16_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-m70xe_n16_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-win32_unit-m70xe_n16_async_rewriter3.tgz
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/nyc-output-win32_unit-mlatest_n16_async_rewriter3.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/nyc-output-win32_unit-mlatest_n16_async_rewriter3.tgz
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          tar xvzf nyc-output-win32_unit-mlatest_n16_async_rewriter3.tgz
     - command: s3.get
       params:
         aws_key: ${aws_key}
@@ -7100,6 +7996,380 @@ tasks:
           mongosh_skip_node_version_check: ""
           mongosh_test_id: "n16_async_rewriter2"
           mongosh_run_only_in_package: "async-rewriter2"
+  - name: test_m42xc_n20_async_rewriter3
+    tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux_unit
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.0"
+      - func: test
+        vars:
+          mongosh_server_test_version: "4.2.x"
+          node_js_version: "20.12.0"
+          mongosh_skip_node_version_check: ""
+          mongosh_test_id: "m42xc_n20_async_rewriter3"
+          mongosh_run_only_in_package: "async-rewriter3"
+  - name: test_m42xe_n20_async_rewriter3
+    tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux_unit
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.0"
+      - func: test
+        vars:
+          mongosh_server_test_version: "4.2.x-enterprise"
+          node_js_version: "20.12.0"
+          mongosh_skip_node_version_check: ""
+          mongosh_test_id: "m42xe_n20_async_rewriter3"
+          mongosh_run_only_in_package: "async-rewriter3"
+  - name: test_m44xc_n20_async_rewriter3
+    tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux_unit
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.0"
+      - func: test
+        vars:
+          mongosh_server_test_version: "4.4.x"
+          node_js_version: "20.12.0"
+          mongosh_skip_node_version_check: ""
+          mongosh_test_id: "m44xc_n20_async_rewriter3"
+          mongosh_run_only_in_package: "async-rewriter3"
+  - name: test_m44xe_n20_async_rewriter3
+    tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux_unit
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.0"
+      - func: test
+        vars:
+          mongosh_server_test_version: "4.4.x-enterprise"
+          node_js_version: "20.12.0"
+          mongosh_skip_node_version_check: ""
+          mongosh_test_id: "m44xe_n20_async_rewriter3"
+          mongosh_run_only_in_package: "async-rewriter3"
+  - name: test_m50xc_n20_async_rewriter3
+    tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux_unit
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.0"
+      - func: test
+        vars:
+          mongosh_server_test_version: "5.0.x"
+          node_js_version: "20.12.0"
+          mongosh_skip_node_version_check: ""
+          mongosh_test_id: "m50xc_n20_async_rewriter3"
+          mongosh_run_only_in_package: "async-rewriter3"
+  - name: test_m50xe_n20_async_rewriter3
+    tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux_unit
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.0"
+      - func: test
+        vars:
+          mongosh_server_test_version: "5.0.x-enterprise"
+          node_js_version: "20.12.0"
+          mongosh_skip_node_version_check: ""
+          mongosh_test_id: "m50xe_n20_async_rewriter3"
+          mongosh_run_only_in_package: "async-rewriter3"
+  - name: test_m60xc_n20_async_rewriter3
+    tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux_unit
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.0"
+      - func: test
+        vars:
+          mongosh_server_test_version: "6.0.x"
+          node_js_version: "20.12.0"
+          mongosh_skip_node_version_check: ""
+          mongosh_test_id: "m60xc_n20_async_rewriter3"
+          mongosh_run_only_in_package: "async-rewriter3"
+  - name: test_m60xe_n20_async_rewriter3
+    tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux_unit
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.0"
+      - func: test
+        vars:
+          mongosh_server_test_version: "6.0.x-enterprise"
+          node_js_version: "20.12.0"
+          mongosh_skip_node_version_check: ""
+          mongosh_test_id: "m60xe_n20_async_rewriter3"
+          mongosh_run_only_in_package: "async-rewriter3"
+  - name: test_m70xc_n20_async_rewriter3
+    tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux_unit
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.0"
+      - func: test
+        vars:
+          mongosh_server_test_version: "7.0.x"
+          node_js_version: "20.12.0"
+          mongosh_skip_node_version_check: ""
+          mongosh_test_id: "m70xc_n20_async_rewriter3"
+          mongosh_run_only_in_package: "async-rewriter3"
+  - name: test_m70xe_n20_async_rewriter3
+    tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux_unit
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.0"
+      - func: test
+        vars:
+          mongosh_server_test_version: "7.0.x-enterprise"
+          node_js_version: "20.12.0"
+          mongosh_skip_node_version_check: ""
+          mongosh_test_id: "m70xe_n20_async_rewriter3"
+          mongosh_run_only_in_package: "async-rewriter3"
+  - name: test_mlatest_n20_async_rewriter3
+    tags: ["unit-test","mlatest"]
+    depends_on:
+      - name: compile_ts
+        variant: linux_unit
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.0"
+      - func: test
+        vars:
+          mongosh_server_test_version: "latest-alpha-enterprise"
+          node_js_version: "20.12.0"
+          mongosh_skip_node_version_check: ""
+          mongosh_test_id: "mlatest_n20_async_rewriter3"
+          mongosh_run_only_in_package: "async-rewriter3"
+  - name: test_m42xc_n16_async_rewriter3
+    tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux_unit
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "16.20.2"
+      - func: test
+        vars:
+          mongosh_server_test_version: "4.2.x"
+          node_js_version: "16.20.2"
+          mongosh_skip_node_version_check: ""
+          mongosh_test_id: "m42xc_n16_async_rewriter3"
+          mongosh_run_only_in_package: "async-rewriter3"
+  - name: test_m42xe_n16_async_rewriter3
+    tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux_unit
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "16.20.2"
+      - func: test
+        vars:
+          mongosh_server_test_version: "4.2.x-enterprise"
+          node_js_version: "16.20.2"
+          mongosh_skip_node_version_check: ""
+          mongosh_test_id: "m42xe_n16_async_rewriter3"
+          mongosh_run_only_in_package: "async-rewriter3"
+  - name: test_m44xc_n16_async_rewriter3
+    tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux_unit
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "16.20.2"
+      - func: test
+        vars:
+          mongosh_server_test_version: "4.4.x"
+          node_js_version: "16.20.2"
+          mongosh_skip_node_version_check: ""
+          mongosh_test_id: "m44xc_n16_async_rewriter3"
+          mongosh_run_only_in_package: "async-rewriter3"
+  - name: test_m44xe_n16_async_rewriter3
+    tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux_unit
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "16.20.2"
+      - func: test
+        vars:
+          mongosh_server_test_version: "4.4.x-enterprise"
+          node_js_version: "16.20.2"
+          mongosh_skip_node_version_check: ""
+          mongosh_test_id: "m44xe_n16_async_rewriter3"
+          mongosh_run_only_in_package: "async-rewriter3"
+  - name: test_m50xc_n16_async_rewriter3
+    tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux_unit
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "16.20.2"
+      - func: test
+        vars:
+          mongosh_server_test_version: "5.0.x"
+          node_js_version: "16.20.2"
+          mongosh_skip_node_version_check: ""
+          mongosh_test_id: "m50xc_n16_async_rewriter3"
+          mongosh_run_only_in_package: "async-rewriter3"
+  - name: test_m50xe_n16_async_rewriter3
+    tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux_unit
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "16.20.2"
+      - func: test
+        vars:
+          mongosh_server_test_version: "5.0.x-enterprise"
+          node_js_version: "16.20.2"
+          mongosh_skip_node_version_check: ""
+          mongosh_test_id: "m50xe_n16_async_rewriter3"
+          mongosh_run_only_in_package: "async-rewriter3"
+  - name: test_m60xc_n16_async_rewriter3
+    tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux_unit
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "16.20.2"
+      - func: test
+        vars:
+          mongosh_server_test_version: "6.0.x"
+          node_js_version: "16.20.2"
+          mongosh_skip_node_version_check: ""
+          mongosh_test_id: "m60xc_n16_async_rewriter3"
+          mongosh_run_only_in_package: "async-rewriter3"
+  - name: test_m60xe_n16_async_rewriter3
+    tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux_unit
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "16.20.2"
+      - func: test
+        vars:
+          mongosh_server_test_version: "6.0.x-enterprise"
+          node_js_version: "16.20.2"
+          mongosh_skip_node_version_check: ""
+          mongosh_test_id: "m60xe_n16_async_rewriter3"
+          mongosh_run_only_in_package: "async-rewriter3"
+  - name: test_m70xc_n16_async_rewriter3
+    tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux_unit
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "16.20.2"
+      - func: test
+        vars:
+          mongosh_server_test_version: "7.0.x"
+          node_js_version: "16.20.2"
+          mongosh_skip_node_version_check: ""
+          mongosh_test_id: "m70xc_n16_async_rewriter3"
+          mongosh_run_only_in_package: "async-rewriter3"
+  - name: test_m70xe_n16_async_rewriter3
+    tags: ["unit-test"]
+    depends_on:
+      - name: compile_ts
+        variant: linux_unit
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "16.20.2"
+      - func: test
+        vars:
+          mongosh_server_test_version: "7.0.x-enterprise"
+          node_js_version: "16.20.2"
+          mongosh_skip_node_version_check: ""
+          mongosh_test_id: "m70xe_n16_async_rewriter3"
+          mongosh_run_only_in_package: "async-rewriter3"
+  - name: test_mlatest_n16_async_rewriter3
+    tags: ["unit-test","mlatest"]
+    depends_on:
+      - name: compile_ts
+        variant: linux_unit
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "16.20.2"
+      - func: test
+        vars:
+          mongosh_server_test_version: "latest-alpha-enterprise"
+          node_js_version: "16.20.2"
+          mongosh_skip_node_version_check: ""
+          mongosh_test_id: "mlatest_n16_async_rewriter3"
+          mongosh_run_only_in_package: "async-rewriter3"
   - name: test_n20_autocomplete
     tags: ["unit-test"]
     depends_on:
@@ -13331,6 +14601,28 @@ buildvariants:
       - name: test_n16_arg_parser
       - name: test_n20_async_rewriter2
       - name: test_n16_async_rewriter2
+      - name: test_m42xc_n20_async_rewriter3
+      - name: test_m42xe_n20_async_rewriter3
+      - name: test_m44xc_n20_async_rewriter3
+      - name: test_m44xe_n20_async_rewriter3
+      - name: test_m50xc_n20_async_rewriter3
+      - name: test_m50xe_n20_async_rewriter3
+      - name: test_m60xc_n20_async_rewriter3
+      - name: test_m60xe_n20_async_rewriter3
+      - name: test_m70xc_n20_async_rewriter3
+      - name: test_m70xe_n20_async_rewriter3
+      - name: test_mlatest_n20_async_rewriter3
+      - name: test_m42xc_n16_async_rewriter3
+      - name: test_m42xe_n16_async_rewriter3
+      - name: test_m44xc_n16_async_rewriter3
+      - name: test_m44xe_n16_async_rewriter3
+      - name: test_m50xc_n16_async_rewriter3
+      - name: test_m50xe_n16_async_rewriter3
+      - name: test_m60xc_n16_async_rewriter3
+      - name: test_m60xe_n16_async_rewriter3
+      - name: test_m70xc_n16_async_rewriter3
+      - name: test_m70xe_n16_async_rewriter3
+      - name: test_mlatest_n16_async_rewriter3
       - name: test_n20_autocomplete
       - name: test_n16_autocomplete
       - name: test_n20_browser_repl
@@ -13503,6 +14795,26 @@ buildvariants:
       - name: test_n16_arg_parser
       - name: test_n20_async_rewriter2
       - name: test_n16_async_rewriter2
+      - name: test_m42xc_n20_async_rewriter3
+      - name: test_m44xc_n20_async_rewriter3
+      - name: test_m44xe_n20_async_rewriter3
+      - name: test_m50xc_n20_async_rewriter3
+      - name: test_m50xe_n20_async_rewriter3
+      - name: test_m60xc_n20_async_rewriter3
+      - name: test_m60xe_n20_async_rewriter3
+      - name: test_m70xc_n20_async_rewriter3
+      - name: test_m70xe_n20_async_rewriter3
+      - name: test_mlatest_n20_async_rewriter3
+      - name: test_m42xc_n16_async_rewriter3
+      - name: test_m44xc_n16_async_rewriter3
+      - name: test_m44xe_n16_async_rewriter3
+      - name: test_m50xc_n16_async_rewriter3
+      - name: test_m50xe_n16_async_rewriter3
+      - name: test_m60xc_n16_async_rewriter3
+      - name: test_m60xe_n16_async_rewriter3
+      - name: test_m70xc_n16_async_rewriter3
+      - name: test_m70xe_n16_async_rewriter3
+      - name: test_mlatest_n16_async_rewriter3
       - name: test_n20_autocomplete
       - name: test_n16_autocomplete
       - name: test_n20_browser_runtime_core
@@ -13949,6 +15261,28 @@ buildvariants:
       - name: test_n16_arg_parser
       - name: test_n20_async_rewriter2
       - name: test_n16_async_rewriter2
+      - name: test_m42xc_n20_async_rewriter3
+      - name: test_m42xe_n20_async_rewriter3
+      - name: test_m44xc_n20_async_rewriter3
+      - name: test_m44xe_n20_async_rewriter3
+      - name: test_m50xc_n20_async_rewriter3
+      - name: test_m50xe_n20_async_rewriter3
+      - name: test_m60xc_n20_async_rewriter3
+      - name: test_m60xe_n20_async_rewriter3
+      - name: test_m70xc_n20_async_rewriter3
+      - name: test_m70xe_n20_async_rewriter3
+      - name: test_mlatest_n20_async_rewriter3
+      - name: test_m42xc_n16_async_rewriter3
+      - name: test_m42xe_n16_async_rewriter3
+      - name: test_m44xc_n16_async_rewriter3
+      - name: test_m44xe_n16_async_rewriter3
+      - name: test_m50xc_n16_async_rewriter3
+      - name: test_m50xe_n16_async_rewriter3
+      - name: test_m60xc_n16_async_rewriter3
+      - name: test_m60xe_n16_async_rewriter3
+      - name: test_m70xc_n16_async_rewriter3
+      - name: test_m70xe_n16_async_rewriter3
+      - name: test_mlatest_n16_async_rewriter3
       - name: test_n20_autocomplete
       - name: test_n16_autocomplete
       - name: test_n20_browser_runtime_core
