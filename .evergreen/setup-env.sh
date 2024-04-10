@@ -29,6 +29,8 @@ if [ "$OS" != "Windows_NT" ]; then
   if which realpath; then # No realpath on macOS, but also not needed there
     export HOME="$(realpath "$HOME")" # Needed to de-confuse nvm when /home is a symlink
   fi
+  source $HOME/.cargo/env
+
   export NVM_DIR="$BASEDIR/.nvm"
   echo "Setting NVM environment home: $NVM_DIR"
   [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
