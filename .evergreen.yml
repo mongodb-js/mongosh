@@ -6910,6 +6910,37 @@ functions:
         content_type: text/markdown
         optional: true
 
+  papertrail_trace:
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          ls -lh dist/
+          if [ x"${triggered_by_git_tag}" == x"" ]; then
+            tag=$(git describe --tags --always --dirty)
+          else
+            tag="${triggered_by_git_tag}"
+          fi
+          version="${tag:1}"
+          cat <<EOT > trace-expansions.yml
+          release_version: "$version"
+          EOT
+          cat trace-expansions.yml
+    - command: expansions.update
+      params:
+        file: src/trace-expansions.yml
+    - command: papertrail.trace
+      params:
+        working_dir: "src"
+        key_id: ${papertrail_key_id}
+        secret_key: ${papertrail_secret_key}
+        product: ${product}
+        version: ${release_version}
+        filenames:
+          - "dist/*"
+
   release_draft:
     - command: expansions.write
       type: system
@@ -11802,6 +11833,9 @@ tasks:
         vars:
           node_js_version: "20.12.1"
           package_variant: darwin-x64
+      - func: papertrail_trace
+        vars:
+          product: "mongosh-dev"
       - func: put_artifact_url
         vars:
           package_variant: darwin-x64
@@ -11844,6 +11878,9 @@ tasks:
         vars:
           node_js_version: "20.12.1"
           package_variant: darwin-arm64
+      - func: papertrail_trace
+        vars:
+          product: "mongosh-dev"
       - func: put_artifact_url
         vars:
           package_variant: darwin-arm64
@@ -11886,6 +11923,9 @@ tasks:
         vars:
           node_js_version: "20.12.1"
           package_variant: linux-x64
+      - func: papertrail_trace
+        vars:
+          product: "mongosh-dev"
       - func: put_artifact_url
         vars:
           package_variant: linux-x64
@@ -11928,6 +11968,9 @@ tasks:
         vars:
           node_js_version: "20.12.1"
           package_variant: deb-x64
+      - func: papertrail_trace
+        vars:
+          product: "mongosh-dev"
       - func: put_artifact_url
         vars:
           package_variant: deb-x64
@@ -11970,6 +12013,9 @@ tasks:
         vars:
           node_js_version: "20.12.1"
           package_variant: rpm-x64
+      - func: papertrail_trace
+        vars:
+          product: "mongosh-dev"
       - func: put_artifact_url
         vars:
           package_variant: rpm-x64
@@ -12012,6 +12058,9 @@ tasks:
         vars:
           node_js_version: "20.12.1"
           package_variant: linux-x64-openssl11
+      - func: papertrail_trace
+        vars:
+          product: "mongosh-dev"
       - func: put_artifact_url
         vars:
           package_variant: linux-x64-openssl11
@@ -12054,6 +12103,9 @@ tasks:
         vars:
           node_js_version: "20.12.1"
           package_variant: deb-x64-openssl11
+      - func: papertrail_trace
+        vars:
+          product: "mongosh-dev"
       - func: put_artifact_url
         vars:
           package_variant: deb-x64-openssl11
@@ -12096,6 +12148,9 @@ tasks:
         vars:
           node_js_version: "20.12.1"
           package_variant: rpm-x64-openssl11
+      - func: papertrail_trace
+        vars:
+          product: "mongosh-dev"
       - func: put_artifact_url
         vars:
           package_variant: rpm-x64-openssl11
@@ -12138,6 +12193,9 @@ tasks:
         vars:
           node_js_version: "20.12.1"
           package_variant: linux-x64-openssl3
+      - func: papertrail_trace
+        vars:
+          product: "mongosh-dev"
       - func: put_artifact_url
         vars:
           package_variant: linux-x64-openssl3
@@ -12180,6 +12238,9 @@ tasks:
         vars:
           node_js_version: "20.12.1"
           package_variant: deb-x64-openssl3
+      - func: papertrail_trace
+        vars:
+          product: "mongosh-dev"
       - func: put_artifact_url
         vars:
           package_variant: deb-x64-openssl3
@@ -12222,6 +12283,9 @@ tasks:
         vars:
           node_js_version: "20.12.1"
           package_variant: rpm-x64-openssl3
+      - func: papertrail_trace
+        vars:
+          product: "mongosh-dev"
       - func: put_artifact_url
         vars:
           package_variant: rpm-x64-openssl3
@@ -12264,6 +12328,9 @@ tasks:
         vars:
           node_js_version: "20.12.1"
           package_variant: linux-arm64
+      - func: papertrail_trace
+        vars:
+          product: "mongosh-dev"
       - func: put_artifact_url
         vars:
           package_variant: linux-arm64
@@ -12306,6 +12373,9 @@ tasks:
         vars:
           node_js_version: "20.12.1"
           package_variant: deb-arm64
+      - func: papertrail_trace
+        vars:
+          product: "mongosh-dev"
       - func: put_artifact_url
         vars:
           package_variant: deb-arm64
@@ -12348,6 +12418,9 @@ tasks:
         vars:
           node_js_version: "20.12.1"
           package_variant: rpm-arm64
+      - func: papertrail_trace
+        vars:
+          product: "mongosh-dev"
       - func: put_artifact_url
         vars:
           package_variant: rpm-arm64
@@ -12390,6 +12463,9 @@ tasks:
         vars:
           node_js_version: "20.12.1"
           package_variant: linux-arm64-openssl11
+      - func: papertrail_trace
+        vars:
+          product: "mongosh-dev"
       - func: put_artifact_url
         vars:
           package_variant: linux-arm64-openssl11
@@ -12432,6 +12508,9 @@ tasks:
         vars:
           node_js_version: "20.12.1"
           package_variant: deb-arm64-openssl11
+      - func: papertrail_trace
+        vars:
+          product: "mongosh-dev"
       - func: put_artifact_url
         vars:
           package_variant: deb-arm64-openssl11
@@ -12474,6 +12553,9 @@ tasks:
         vars:
           node_js_version: "20.12.1"
           package_variant: rpm-arm64-openssl11
+      - func: papertrail_trace
+        vars:
+          product: "mongosh-dev"
       - func: put_artifact_url
         vars:
           package_variant: rpm-arm64-openssl11
@@ -12516,6 +12598,9 @@ tasks:
         vars:
           node_js_version: "20.12.1"
           package_variant: linux-arm64-openssl3
+      - func: papertrail_trace
+        vars:
+          product: "mongosh-dev"
       - func: put_artifact_url
         vars:
           package_variant: linux-arm64-openssl3
@@ -12558,6 +12643,9 @@ tasks:
         vars:
           node_js_version: "20.12.1"
           package_variant: deb-arm64-openssl3
+      - func: papertrail_trace
+        vars:
+          product: "mongosh-dev"
       - func: put_artifact_url
         vars:
           package_variant: deb-arm64-openssl3
@@ -12600,6 +12688,9 @@ tasks:
         vars:
           node_js_version: "20.12.1"
           package_variant: rpm-arm64-openssl3
+      - func: papertrail_trace
+        vars:
+          product: "mongosh-dev"
       - func: put_artifact_url
         vars:
           package_variant: rpm-arm64-openssl3
@@ -12642,6 +12733,9 @@ tasks:
         vars:
           node_js_version: "20.12.1"
           package_variant: linux-ppc64le
+      - func: papertrail_trace
+        vars:
+          product: "mongosh-dev"
       - func: put_artifact_url
         vars:
           package_variant: linux-ppc64le
@@ -12684,6 +12778,9 @@ tasks:
         vars:
           node_js_version: "20.12.1"
           package_variant: rpm-ppc64le
+      - func: papertrail_trace
+        vars:
+          product: "mongosh-dev"
       - func: put_artifact_url
         vars:
           package_variant: rpm-ppc64le
@@ -12726,6 +12823,9 @@ tasks:
         vars:
           node_js_version: "20.12.1"
           package_variant: linux-s390x
+      - func: papertrail_trace
+        vars:
+          product: "mongosh-dev"
       - func: put_artifact_url
         vars:
           package_variant: linux-s390x
@@ -12768,6 +12868,9 @@ tasks:
         vars:
           node_js_version: "20.12.1"
           package_variant: rpm-s390x
+      - func: papertrail_trace
+        vars:
+          product: "mongosh-dev"
       - func: put_artifact_url
         vars:
           package_variant: rpm-s390x
@@ -12810,6 +12913,9 @@ tasks:
         vars:
           node_js_version: "20.12.1"
           package_variant: win32-x64
+      - func: papertrail_trace
+        vars:
+          product: "mongosh-dev"
       - func: put_artifact_url
         vars:
           package_variant: win32-x64
@@ -12852,6 +12958,9 @@ tasks:
         vars:
           node_js_version: "20.12.1"
           package_variant: win32msi-x64
+      - func: papertrail_trace
+        vars:
+          product: "mongosh-dev"
       - func: put_artifact_url
         vars:
           package_variant: win32msi-x64
@@ -14132,6 +14241,9 @@ tasks:
       - func: release_publish_download_and_list_artifacts
         vars:
           node_js_version: "20.12.1"
+      - func: papertrail_trace
+        vars:
+          product: "mongosh-draft"
       - func: release_publish_dry_run
         vars:
           node_js_version: "20.12.1"
@@ -14150,6 +14262,9 @@ tasks:
       - func: release_publish_download_and_list_artifacts
         vars:
           node_js_version: "20.12.1"
+      - func: papertrail_trace
+        vars:
+          product: "mongosh"
       - func: release_publish
         vars:
           node_js_version: "20.12.1"
