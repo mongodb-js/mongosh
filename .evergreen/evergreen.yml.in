@@ -805,7 +805,7 @@ functions:
         product: ${product}
         version: ${release_version}
         filenames:
-          - "dist/*"
+          - "src/dist/*"
 
   release_draft:
     - command: expansions.write
