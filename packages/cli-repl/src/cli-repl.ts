@@ -19,7 +19,7 @@ import yaml from 'js-yaml';
 import ConnectionString from 'mongodb-connection-string-url';
 import semver from 'semver';
 import type { Readable, Writable } from 'stream';
-import { buildInfo } from './build-info';
+import { buildInfo, getGlibcVersion } from './build-info';
 import type { StyleDefinition } from './clr';
 import type { ShellHomePaths } from './config-directory';
 import { ConfigManager, ShellHomeDirectory } from './config-directory';
@@ -120,6 +120,8 @@ export class CliRepl implements MongoshIOProvider {
   isContainerizedEnvironment = false;
   hasOnDiskTelemetryId = false;
   updateNotificationManager = new UpdateNotificationManager();
+  fetchMongoshUpdateUrlRegardlessOfCiEnvironment = false; // for testing
+  cachedGlibcVersion: null | string | undefined = null;
 
   /**
    * Instantiate the new CLI Repl.
@@ -889,23 +891,16 @@ export class CliRepl implements MongoshIOProvider {
     }
   }
 
+  // Factored out for testing
+  getGlibcVersion = getGlibcVersion;
+
   verifyPlatformSupport(): void {
-    if (this.cliOptions.quiet) {
+    const { quiet } = CliRepl.getFileAndEvalInfo(this.cliOptions);
+    if (quiet) {
       return;
     }
 
-    // Typings for process.getReport haven't been updated
-    // (https://github.com/DefinitelyTyped/DefinitelyTyped/issues/40140)
-    const processReport = process.report?.getReport() as unknown as
-      | {
-          header: {
-            glibcVersionRuntime?: string;
-          };
-        }
-      | undefined;
-    if (!processReport) {
-      return;
-    }
+    const glibcVersion = this.getGlibcVersion();
 
     const warnings: string[] = [];
     const RECOMMENDED_GLIBC = '>=2.28.0';
@@ -927,8 +922,8 @@ export class CliRepl implements MongoshIOProvider {
     const satisfiesGLIBCRequirement = (glibcVersion: string) =>
       semverRangeCheck(glibcVersion, RECOMMENDED_GLIBC);
     if (
-      processReport.header.glibcVersionRuntime !== undefined &&
-      !satisfiesGLIBCRequirement(processReport.header.glibcVersionRuntime)
+      glibcVersion !== undefined &&
+      !satisfiesGLIBCRequirement(glibcVersion)
     ) {
       warnings.push(
         '  - Using mongosh on the current operating system is deprecated, and support may be removed in a future release.'
@@ -1187,11 +1182,13 @@ export class CliRepl implements MongoshIOProvider {
   }
 
   async fetchMongoshUpdateUrl() {
+    const { quiet } = CliRepl.getFileAndEvalInfo(this.cliOptions);
     if (
-      this.cliOptions.quiet ||
-      process.env.CI ||
-      process.env.IS_CI ||
-      this.isContainerizedEnvironment
+      quiet ||
+      (!this.fetchMongoshUpdateUrlRegardlessOfCiEnvironment &&
+        (process.env.CI ||
+          process.env.IS_CI ||
+          this.isContainerizedEnvironment))
     ) {
       // No point in telling users about new versions if we are in
       // a CI or Docker-like environment. or the user has explicitly
@@ -1224,7 +1221,7 @@ export class CliRepl implements MongoshIOProvider {
     }
   }
 
-  async getMoreRecentMongoshVersion() {
+  async getMoreRecentMongoshVersion(): Promise<string | null> {
     const { version } = require('../package.json');
     return await this.updateNotificationManager.getLatestVersionIfMoreRecent(
       process.env

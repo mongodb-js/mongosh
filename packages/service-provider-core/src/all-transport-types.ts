@@ -8,7 +8,6 @@ export type {
   ChangeStream,
   ChangeStreamOptions,
   ClientSession,
-  CloseOptions,
   CollationOptions,
   Collection,
   CommandOperationOptions,

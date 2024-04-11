@@ -5,6 +5,9 @@ const crypto = require('crypto');
 const { merge } = require('webpack-merge');
 const path = require('path');
 const { WebpackDependenciesPlugin } = require('@mongodb-js/sbom-tools');
+const {
+  WebpackEnableReverseModuleLookupPlugin,
+} = require('../../scripts/webpack-enable-reverse-module-lookup-plugin.js');
 
 const baseWebpackConfig = require('../../config/webpack.base.config');
 
@@ -29,6 +32,11 @@ const webpackDependenciesPlugin = new WebpackDependenciesPlugin({
   includeExternalProductionDependencies: true,
 });
 
+const enableReverseModuleLookupPlugin =
+  new WebpackEnableReverseModuleLookupPlugin({
+    outputFilename: path.resolve(__dirname, 'dist', 'add-module-mapping.js'),
+  });
+
 /** @type import('webpack').Configuration */
 const config = {
   output: {
@@ -41,7 +49,7 @@ const config = {
       type: 'var',
     },
   },
-  plugins: [webpackDependenciesPlugin],
+  plugins: [webpackDependenciesPlugin, enableReverseModuleLookupPlugin],
   entry: './lib/run.js',
   resolve: {
     alias: {
@@ -83,7 +91,13 @@ module.exports = merge(baseWebpackConfig, config);
 // startup that should depend on runtime state.
 function makeLazyForwardModule(pkg) {
   const S = JSON.stringify;
-  const tmpdir = path.resolve(__dirname, '..', 'tmp', 'lazy-webpack-modules');
+  const tmpdir = path.resolve(
+    __dirname,
+    '..',
+    '..',
+    'tmp',
+    'lazy-webpack-modules'
+  );
   fs.mkdirSync(tmpdir, { recursive: true });
   const filename = path.join(
     tmpdir,
@@ -102,14 +116,22 @@ function makeLazyForwardModule(pkg) {
   } else {
     source += `module.exports = {};\n`;
   }
+  const proxyProps = Object.getOwnPropertyNames(Reflect);
+  source += `const { ${proxyProps
+    .map((prop) => `${prop}: R_${prop}`)
+    .join(', ')} } = Reflect;\n`;
   let i = 0;
   for (const key of Object.keys(moduleContents)) {
     if (typeof moduleContents[key] === 'function') {
-      source += `module.exports[${S(
-        key
-      )}] = function(...args) { return orig()[${S(
-        key
-      )}].apply(this, args); };\n`;
+      source += `module.exports[${S(key)}] = new Proxy(function() {}, {
+        ${proxyProps
+          .map(
+            (prop) => `${prop}(_target, ...args) {
+          return R_${prop}(orig()[${S(key)}], ...args);
+        }`
+          )
+          .join(',\n')}
+      });\n`;
     } else {
       source += `let value_${i}, value_${i}_set = false;\n`;
       source += `Object.defineProperty(module.exports, ${S(key)}, {

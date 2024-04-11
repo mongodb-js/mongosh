@@ -61,6 +61,7 @@ describe('e2e', function () {
         'sharedOpenssl',
         'runtimeArch',
         'runtimePlatform',
+        'runtimeGlibcVersion',
         'deps',
       ]);
       expect(data.version).to.be.a('string');
@@ -85,6 +86,26 @@ describe('e2e', function () {
       expect(data.deps.nodeDriverVersion).to.be.a('string');
       expect(data.deps.libmongocryptVersion).to.be.a('string');
       expect(data.deps.libmongocryptNodeBindingsVersion).to.be.a('string');
+
+      if (process.version.startsWith('v16.')) return;
+
+      let processReport: any;
+      {
+        const shell = TestShell.start({
+          args: [
+            '--quiet',
+            '--nodb',
+            '--json=relaxed',
+            '--eval',
+            'process.report.getReport()',
+          ],
+        });
+        await shell.waitForExit();
+        processReport = JSON.parse(shell.output);
+      }
+      expect(data.runtimeGlibcVersion).to.equal(
+        processReport.header.glibcVersionRuntime ?? 'N/A'
+      );
     });
 
     it('provides build info via the buildInfo() builtin', async function () {
@@ -1485,6 +1506,19 @@ describe('e2e', function () {
           await shell.waitForExit();
 
           expect((await fs.stat(historyPath)).mode & 0o077).to.equal(0);
+        });
+
+        it('redacts secrets', async function () {
+          await shell.executeLine('db.auth("myusername", "mypassword")');
+          await shell.executeLine('a = 42');
+          await shell.executeLine('foo = "bar"');
+          shell.writeInput('.exit\n');
+          await shell.waitForExit();
+
+          const contents = await fs.readFile(historyPath, 'utf8');
+          expect(contents).to.not.match(/mypassword/);
+          expect(contents).to.match(/^a = 42$/m);
+          expect(contents).to.match(/^foo = "bar"$/m);
         });
       });
 

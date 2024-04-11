@@ -176,9 +176,9 @@ export async function runSmokeTests({
       perfTestIterations: 0,
     },
     {
-      name: 'async_rewrite',
+      name: 'async_rewrite_foreach',
       input:
-        'for (let i = 0; i < 100; i++) __asyncRewrite(String([].forEach)); print("done")',
+        'for (let i = 0; i < 100; i++) __asyncRewrite(String([].forEach).replace("function", "function forEach")); print("done")',
       output: /done/,
       includeStderr: false,
       testArgs: ['--exposeAsyncRewriter', '--nodb'],

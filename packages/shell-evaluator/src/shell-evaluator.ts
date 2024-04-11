@@ -93,7 +93,8 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
     }
 
     if (this.exposeAsyncRewriter) {
-      (context as any).__asyncRewrite = () => this.asyncWriter.process(input);
+      (context as any).__asyncRewrite = (rewriteInput: string) =>
+        this.asyncWriter.process(rewriteInput);
     }
 
     this.markTime?.(TimingCategories.AsyncRewrite, 'start async rewrite');

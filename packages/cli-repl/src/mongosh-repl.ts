@@ -279,6 +279,9 @@ class MongoshNodeRepl implements EvaluationListener {
         });
       }
       context.global = context;
+      context.require = require('node:module').createRequire(
+        process.cwd() + '/index.js'
+      );
     }
 
     const console = new Console({
@@ -448,7 +451,7 @@ class MongoshNodeRepl implements EvaluationListener {
       // repl.history is an array of previous commands. We need to hijack the
       // value we just typed, and shift it off the history array if the info is
       // sensitive.
-      repl.on('flushHistory', () => {
+      repl.on('line', () => {
         if (this.redactHistory !== 'keep') {
           const history: string[] = (repl as any).history;
           changeHistory(

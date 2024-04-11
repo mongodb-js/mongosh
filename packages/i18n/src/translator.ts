@@ -1,5 +1,4 @@
 import { MongoshInternalError } from '@mongosh/errors';
-import Mustache from 'mustache';
 import type Catalog from './catalog';
 import de_DE from './locales/de_DE';
 import en_US from './locales/en_US';
@@ -16,12 +15,6 @@ const MAPPINGS: Record<string, Catalog> = {
   en_US: en_US,
   de_DE: de_DE,
 };
-
-/**
- * The help template.
- */
-const TEMPLATE =
-  '{{description}}\n\n' + '{{link}}\n\n' + '{{example}}\n\n' + '{{returns}}';
 
 /**
  * The translator class.
@@ -102,7 +95,9 @@ class Translator {
     if (typeof value === 'string') {
       return value;
     }
-    return Mustache.render(TEMPLATE, value);
+
+    const { description = '', link = '', example = '', returns = '' } = value;
+    return `${description}\n\n${link}\n\n${example}\n\n${returns}`;
   }
 
   private find(key: string): string | undefined {
