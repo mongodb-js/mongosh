@@ -776,6 +776,38 @@ functions:
         content_type: text/markdown
         optional: true
 
+  papertrail_trace:
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          set -x
+          ls -lh dist/
+          if [ x"${triggered_by_git_tag}" == x"" ]; then
+            tag=$(git describe --tags --always --dirty)
+          else
+            tag="${triggered_by_git_tag}"
+          fi
+          echo "Setting version for papertrail to $tag, with product ${product}"
+          version="$(echo $tag | sed -e 's/^[vr]//')"
+          cat <<EOT > trace-expansions.yml
+          release_version: "$version"
+          EOT
+          cat trace-expansions.yml
+    - command: expansions.update
+      params:
+        file: src/trace-expansions.yml
+    - command: papertrail.trace
+      params:
+        key_id: ${papertrail_key_id}
+        secret_key: ${papertrail_secret_key}
+        product: ${product}
+        version: ${release_version}
+        filenames:
+          - "src/dist/*"
+
   release_draft:
     - command: expansions.write
       type: system
@@ -1139,6 +1171,9 @@ tasks:
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_20) %>"
           package_variant: <% out(packageVariant) %>
+      - func: papertrail_trace
+        vars:
+          product: "mongosh-dev"
       - func: put_artifact_url
         vars:
           package_variant: <% out(packageVariant) %>
@@ -1238,6 +1273,9 @@ tasks:
       - func: release_publish_download_and_list_artifacts
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+      - func: papertrail_trace
+        vars:
+          product: "mongosh-draft"
       - func: release_publish_dry_run
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_20) %>"
@@ -1256,6 +1294,9 @@ tasks:
       - func: release_publish_download_and_list_artifacts
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+      - func: papertrail_trace
+        vars:
+          product: "mongosh"
       - func: release_publish
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_20) %>"
