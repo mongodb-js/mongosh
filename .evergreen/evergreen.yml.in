@@ -791,7 +791,7 @@ functions:
             tag="${triggered_by_git_tag}"
           fi
           echo "Setting version for papertrail to $tag, with product ${product}"
-          version="${tag:1}"
+          version="$(echo $tag | sed -e 's/^[vr]//')"
           cat <<EOT > trace-expansions.yml
           release_version: "$version"
           EOT
@@ -801,13 +801,12 @@ functions:
         file: src/trace-expansions.yml
     - command: papertrail.trace
       params:
-        working_dir: "src"
         key_id: ${papertrail_key_id}
         secret_key: ${papertrail_secret_key}
         product: ${product}
         version: ${release_version}
         filenames:
-          - "dist/*"
+          - "src/dist/*"
 
   release_draft:
     - command: expansions.write
