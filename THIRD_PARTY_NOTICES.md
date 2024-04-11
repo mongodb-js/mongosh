@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Wed Apr 10 2024.
+This document was automatically generated on Thu Apr 11 2024.
 
 ## List of dependencies
 
@@ -251,13 +251,12 @@ Package|Version|License
 **[fresh](#d7c677c373e09a5e9c7fe1d1ce69ca3147fe0455bf5606a26251970181d9efc4)**|0.5.2|MIT
 **[fs-constants](#9961a9f7535cded379a7696ad6d002a62d4826a3a8c2ffb5624383b942c879e5)**|1.0.0|MIT
 **[fs-minipass](#c2c405232aa58245a067fead9e0e8bd8330cda684111af434bcab882090c44fa)**|2.1.0|ISC
-**[fs.realpath](#19b1a53bad4db3fad74d2cf95667123db1ec2c92c2bf448aa1db37a500eb6c3b)**|1.0.0|ISC
 **[function-bind](#872e2c89d12c23c0eeb66c0909b68465356ae48c68f552a0e81e50629ba59592)**|1.1.1|MIT
 **[gensync](#c49cbe8d63515db5596a717f0d65eab2f06a623b4f1dfbd512d61bbdccf1aa4c)**|1.0.0-beta.2|MIT
 **[get-intrinsic](#8c326fc540fa9aca408f40d393cc527a6fd12b5bc47de7f9945d411cda676003)**|1.2.0|MIT
 **[get-stream](#8d24427d88f4f3193411b16e6dbdfc05d0edc3ce08460a1c73ec55718470e28c)**|6.0.1|MIT
 **[github-from-package](#8cba969ea116f44491f4fbb8b391c0ab40408fc2e5380f81bc8e8e42b55fff8b)**|0.0.0|MIT
-**[glob](#a477634d819b5270ce527d9e52d5e1f0ee623988f8d5bab9ad3e5cc4a6cfd02b)**|7.2.0|ISC
+**[glob](#e599c799df987453e4d62dc8a966f91c0baf40945fc4e97e02beee24a716b48b)**|10.3.12|ISC
 **[globals](#749052b146da20b19c298de835e7cacd7f6d1f0a87a8422e538ccdfeaa69b0a5)**|11.12.0|MIT
 **[handle-backspaces](#97244e653f1930f4c2bc81c7374cafdb1132e1b539cebcbebb92bc65f0198036)**|1.0.0|Apache-2.0
 **[has-flag](#e2f50bddacaae4f231bda078470fd90f19fd780e9c2bc721710a09bcdd536d1a)**|3.0.0|MIT
@@ -273,7 +272,6 @@ Package|Version|License
 **[human-signals](#62680fd7715b22b948ad9771bc3f0de13d753f68f6478afdda970d4393faa754)**|4.3.1|Apache-2.0
 **[iconv-lite](#7d9ca5eb7c6d1a6f1b3b2db04e94ca19cc04caa10d923fca7d7942d47aa505fe)**|0.4.24|MIT
 **[ieee754](#cd57362ec5808e8de614038de757fa4866fd712142ebd6eb9790fcc6724d9aa1)**|1.1.13|BSD-3-Clause
-**[inflight](#58f7b00ba3c4a1d25ba2ad81d2ed2c707a52f84b185f49898630344f82ef0dd1)**|1.0.6|ISC
 **[inherits](#3eafa9bfb872baf192e837ab771da2e95e983ee682371a2b1c579e518e96f7b4)**|2.0.4|ISC
 **[ini](#2269ab4bd2e1fa90571f520780ab5499f6d49da3b7daee9b9dfdad9e93c33a18)**|1.3.8|ISC
 **[ip-address](#8de6e89459554be8a933663b25ae1d1ffee71458028fa8cbe5d68b349438a8c8)**|9.0.5|MIT
@@ -359,7 +357,6 @@ Package|Version|License
 **[openid-client](#03ada662ee390db4436dc7bd38857b43e2a0407275d27e422ff915ec7738b035)**|5.6.5|MIT
 **[os-dns-native](#ccaac4b6b7b65be11aed2a61b109713be87bd047a65d3f552022671ab10b4872)**|1.2.0|MIT
 **[parseurl](#c3fdd1b6fb725cb30e8fed82cf929953b46129d347d8404a4a51b633389fbae8)**|1.3.3|MIT
-**[path-is-absolute](#4e27c6801c87897a2e351cd898ca28074dc33c7053687a25cb2ca7d1e457eeb7)**|1.0.1|MIT
 **[path-key](#e1a2a032096ace66b422351e00b11b0229e42e4b49c2146f439f8fe442218451)**|3.1.1|MIT
 **[path-key](#8e0734b8abb76579df2174822606e692914e985fc58363a78e6ad4b2a4a5831f)**|4.0.0|MIT
 **[path-to-regexp](#4db5679c99a0dc8ff8ccdf6366c06b318a3e81ee0a4c2f4958ac2327f96d0d44)**|0.1.7|MIT
@@ -24083,59 +24080,6 @@ License files:
       
 
 
-<a id="19b1a53bad4db3fad74d2cf95667123db1ec2c92c2bf448aa1db37a500eb6c3b"></a>
-### [fs.realpath](https://www.npmjs.com/package/fs.realpath) (version 1.0.0)
-License tags: ISC
-
-License files:
-* LICENSE:
-
-      The ISC License
-      
-      Copyright (c) Isaac Z. Schlueter and Contributors
-      
-      Permission to use, copy, modify, and/or distribute this software for any
-      purpose with or without fee is hereby granted, provided that the above
-      copyright notice and this permission notice appear in all copies.
-      
-      THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-      WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-      MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-      ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-      WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-      ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
-      IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-      
-      ----
-      
-      This library bundles a version of the `fs.realpath` and `fs.realpathSync`
-      methods from Node.js v0.10 under the terms of the Node.js MIT license.
-      
-      Node's license follows, also included at the header of `old.js` which contains
-      the licensed code:
-      
-        Copyright Joyent, Inc. and other Node contributors.
-      
-        Permission is hereby granted, free of charge, to any person obtaining a
-        copy of this software and associated documentation files (the "Software"),
-        to deal in the Software without restriction, including without limitation
-        the rights to use, copy, modify, merge, publish, distribute, sublicense,
-        and/or sell copies of the Software, and to permit persons to whom the
-        Software is furnished to do so, subject to the following conditions:
-      
-        The above copyright notice and this permission notice shall be included in
-        all copies or substantial portions of the Software.
-      
-        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-        IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-        FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-        AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-        LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-        FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-        DEALINGS IN THE SOFTWARE.
-      
-
-
 <a id="872e2c89d12c23c0eeb66c0909b68465356ae48c68f552a0e81e50629ba59592"></a>
 ### [function-bind](https://www.npmjs.com/package/function-bind) (version 1.1.1)
 License tags: MIT
@@ -24261,8 +24205,8 @@ License files:
       
 
 
-<a id="a477634d819b5270ce527d9e52d5e1f0ee623988f8d5bab9ad3e5cc4a6cfd02b"></a>
-### [glob](https://www.npmjs.com/package/glob) (version 7.2.0)
+<a id="e599c799df987453e4d62dc8a966f91c0baf40945fc4e97e02beee24a716b48b"></a>
+### [glob](https://www.npmjs.com/package/glob) (version 10.3.12)
 License tags: ISC
 
 License files:
@@ -24270,7 +24214,7 @@ License files:
 
       The ISC License
       
-      Copyright (c) Isaac Z. Schlueter and Contributors
+      Copyright (c) 2009-2023 Isaac Z. Schlueter and Contributors
       
       Permission to use, copy, modify, and/or distribute this software for any
       purpose with or without fee is hereby granted, provided that the above
@@ -24283,12 +24227,6 @@ License files:
       WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
       ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
       IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-      
-      ## Glob Logo
-      
-      Glob's logo created by Tanya Brassie <http://tanyabrassie.com/>, licensed
-      under a Creative Commons Attribution-ShareAlike 4.0 International License
-      https://creativecommons.org/licenses/by-sa/4.0/
       
 
 
@@ -25437,31 +25375,6 @@ License files:
       3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
       
       THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-      
-
-
-<a id="58f7b00ba3c4a1d25ba2ad81d2ed2c707a52f84b185f49898630344f82ef0dd1"></a>
-### [inflight](https://www.npmjs.com/package/inflight) (version 1.0.6)
-License tags: ISC
-
-License files:
-* LICENSE:
-
-      The ISC License
-      
-      Copyright (c) Isaac Z. Schlueter
-      
-      Permission to use, copy, modify, and/or distribute this software for any
-      purpose with or without fee is hereby granted, provided that the above
-      copyright notice and this permission notice appear in all copies.
-      
-      THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-      WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-      MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-      ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-      WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-      ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
-      IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
       
 
 
@@ -29297,37 +29210,6 @@ License files:
       CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
       TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
       SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-      
-
-
-<a id="4e27c6801c87897a2e351cd898ca28074dc33c7053687a25cb2ca7d1e457eeb7"></a>
-### [path-is-absolute](https://www.npmjs.com/package/path-is-absolute) (version 1.0.1)
-License tags: MIT
-
-License files:
-* license:
-
-      The MIT License (MIT)
-      
-      Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in
-      all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-      THE SOFTWARE.
       
 
 
