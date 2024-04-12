@@ -29,6 +29,7 @@ export async function runDownloadAndListArtifacts(
   const packageInformation =
     config.packageInformation as Required<Config>['packageInformation'];
 
+  await fs.mkdir(config.outputDir, { recursive: true });
   const fileList = await Promise.all(
     ALL_PACKAGE_VARIANTS.map(async (packageVariant: PackageVariant) => {
       const packageFilename = getPackageFile(
