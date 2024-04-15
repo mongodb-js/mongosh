@@ -293,13 +293,13 @@ async function getHashes(
         );
         const line = content
           .split('\n')
-          .find((line) => line.endsWith(packagedFilename));
+          .find((line) => line.trim().startsWith(packagedFilename));
         if (!line) {
           throw new Error(
             `Could not find entry for ${packagedFilename} in ${filename}`
           );
         }
-        return [hash, line.trim().split(/\s/)[0]] as const;
+        return [hash, line.trim().split(/\s+/)[1]] as const;
       })
     )
   ) as { sha1: string; sha256: string };
