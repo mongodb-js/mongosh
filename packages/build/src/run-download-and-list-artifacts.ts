@@ -17,7 +17,8 @@ export const hashListFiles = [
 
 export async function runDownloadAndListArtifacts(
   config: Config,
-  publicArtifactBaseUrl: string = ARTIFACTS_URL_PUBLIC_BASE
+  publicArtifactBaseUrl: string = ARTIFACTS_URL_PUBLIC_BASE,
+  hashFileWriteMode: 'normal' | 'append-to-hash-file-for-testing' = 'normal'
 ): Promise<void> {
   const requiredConfigKeys: (keyof Config)[] = ['outputDir'];
   for (const key of requiredConfigKeys) {
@@ -66,7 +67,10 @@ export async function runDownloadAndListArtifacts(
         .filter(Boolean)
         .map((file) => `${file?.filename}  ${file?.[hash]}`)
         .join('\n') + '\n';
-    await fs.writeFile(filepath, contents);
+    await (hashFileWriteMode === 'normal' ? fs.writeFile : fs.appendFile)(
+      filepath,
+      contents
+    );
     console.log('wrote hash list to', filepath);
   }
 }
