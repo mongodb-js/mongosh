@@ -3,7 +3,8 @@ import type {
   AutoEncryptionOptions,
   ConnectInfo,
   ServerApi,
-  ServiceProvider,
+  //ServiceProvider,
+  SynchronousServiceProvider,
   TopologyDescription,
 } from '@mongosh/service-provider-core';
 import { DEFAULT_DB } from '@mongosh/service-provider-core';
@@ -141,7 +142,7 @@ export default class ShellInstanceState {
     | null;
   public currentDb: Database;
   public messageBus: MongoshBus;
-  public initialServiceProvider: ServiceProvider; // the initial service provider
+  public initialServiceProvider: SynchronousServiceProvider; // the initial service provider
   public connectionInfo: any;
   public context: any;
   public mongos: Mongo[];
@@ -166,7 +167,7 @@ export default class ShellInstanceState {
   private alreadyTransformedErrors = new WeakMap<Error, Error>();
 
   constructor(
-    initialServiceProvider: ServiceProvider,
+    initialServiceProvider: SynchronousServiceProvider,
     messageBus: any = new EventEmitter(),
     cliOptions: ShellCliOptions = {}
   ) {
@@ -308,7 +309,7 @@ export default class ShellInstanceState {
     this.messageBus.emit('mongosh:setCtx', { method: 'setCtx', arguments: {} });
   }
 
-  get currentServiceProvider(): ServiceProvider {
+  get currentServiceProvider(): SynchronousServiceProvider {
     try {
       return this.currentDb._mongo._serviceProvider;
     } catch (err: any) {
@@ -338,7 +339,7 @@ export default class ShellInstanceState {
     return {
       topology: () => {
         let topology: Topologies;
-        const topologyDescription = this.currentServiceProvider.getTopology()
+        const topologyDescription = this.currentServiceProvider.getTopology?.()
           ?.description as TopologyDescription;
         // TODO: once a driver with NODE-3011 is available set type to TopologyType | undefined
         const topologyType: string | undefined = topologyDescription?.type;
@@ -429,11 +430,12 @@ export default class ShellInstanceState {
   }
 
   apiVersionInfo(): Required<ServerApi> | undefined {
+    return undefined; /*
     const { serverApi } =
       this.currentServiceProvider.getRawClient()?.options ?? {};
     return serverApi?.version
       ? { strict: false, deprecationErrors: false, ...serverApi }
-      : undefined;
+      : undefined;*/
   }
 
   async onInterruptExecution(): Promise<boolean> {
@@ -518,7 +520,8 @@ export default class ShellInstanceState {
 
   private getTopologySpecificPrompt(): string {
     // TODO: once a driver with NODE-3011 is available set type to TopologyDescription
-    const description = this.currentServiceProvider.getTopology()?.description;
+    const description =
+      this.currentServiceProvider.getTopology?.()?.description;
     if (!description) {
       return '';
     }

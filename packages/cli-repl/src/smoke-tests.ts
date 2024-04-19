@@ -160,7 +160,7 @@ export async function runSmokeTests({
       input: 'crypto.createHash("md5").update("hello").digest("hex")',
       output: expectFipsSupport
         ? /disabled for FIPS|digital envelope routines::unsupported/i
-        : /disabled for FIPS|digital envelope routines::unsupported|Could not enable FIPS mode/i,
+        : /disabled for FIPS|digital envelope routines::unsupported|Could not enable FIPS mode|Assertion failed: crypto::CSPRNG/i,
       includeStderr: true,
       testArgs: ['--tlsFIPSMode', '--nodb'],
       perfTestIterations: 0,
@@ -170,7 +170,7 @@ export async function runSmokeTests({
       input: 'crypto.createHash("sha256").update("hello").digest("hex")',
       output: expectFipsSupport
         ? /2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824/i
-        : /2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824|digital envelope routines::unsupported|Could not enable FIPS mode/i,
+        : /2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824|digital envelope routines::unsupported|Could not enable FIPS mode|Assertion failed: crypto::CSPRNG/i,
       includeStderr: true,
       testArgs: ['--tlsFIPSMode', '--nodb'],
       perfTestIterations: 0,

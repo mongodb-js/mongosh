@@ -3,7 +3,7 @@ import { MongoshInternalError, MongoshWarning } from '@mongosh/errors';
 import { changeHistory } from '@mongosh/history';
 import type {
   AutoEncryptionOptions,
-  ServiceProvider,
+  //ServiceProvider,
 } from '@mongosh/service-provider-core';
 import type {
   EvaluationListener,
@@ -42,6 +42,7 @@ import type { FormatOptions } from './format-output';
 import { markTime } from './startup-timing';
 import type { Context } from 'vm';
 import { Script, createContext, runInContext } from 'vm';
+import type { SynchronousServiceProvider } from '@mongosh/service-provider-core';
 
 declare const __non_webpack_require__: any;
 
@@ -176,7 +177,7 @@ class MongoshNodeRepl implements EvaluationListener {
    * or print any user prompt.
    */
   async initialize(
-    serviceProvider: ServiceProvider,
+    serviceProvider: SynchronousServiceProvider,
     moreRecentMongoshVersion?: string | null
   ): Promise<InitializationToken> {
     const instanceState = new ShellInstanceState(
@@ -198,7 +199,7 @@ class MongoshNodeRepl implements EvaluationListener {
     let mongodVersion = extraInfo?.is_stream
       ? 'Atlas Stream Processing'
       : buildInfo?.version;
-    const apiVersion = serviceProvider.getRawClient()?.serverApi?.version;
+    const apiVersion = undefined; //serviceProvider.getRawClient()?.serverApi?.version;
     if (apiVersion) {
       mongodVersion =
         (mongodVersion ? mongodVersion + ' ' : '') +

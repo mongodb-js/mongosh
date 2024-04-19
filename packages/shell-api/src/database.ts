@@ -105,17 +105,17 @@ export default class Database extends ShellApiWithMongoClass {
     return proxy;
   }
 
-  async _baseOptions(): Promise<CommandOperationOptions> {
+  /*async*/ _baseOptions(): /*Promise<*/ CommandOperationOptions /*>*/ {
     const options: CommandOperationOptions = {};
     if (this._session) {
       options.session = this._session._session;
     }
-    const maxTimeMS = await this._instanceState.shellApi.config.get(
+    /*const maxTimeMS = await this._instanceState.shellApi.config.get(
       'maxTimeMS'
     );
     if (typeof maxTimeMS === 'number') {
       options.maxTimeMS = maxTimeMS;
-    }
+    }*/
     return options;
   }
 
@@ -165,16 +165,16 @@ export default class Database extends ShellApiWithMongoClass {
   }
 
   // Private helpers to avoid sending telemetry events for internal calls. Public so rs/sh can use them
-  public async _runReadCommand(
+  public /* async*/ _runReadCommand(
     cmd: Document,
     options: CommandOperationOptions = {}
-  ): Promise<Document> {
+  ): /*Promise<*/ Document /*>*/ {
     return this._mongo._serviceProvider.runCommandWithCheck(
       this._name,
       adjustRunCommand(cmd, this._instanceState.shellBson),
       {
         ...this._mongo._getExplicitlyRequestedReadPref(),
-        ...(await this._baseOptions()),
+        .../*await*/ this._baseOptions(),
         ...options,
       }
     );
@@ -185,7 +185,7 @@ export default class Database extends ShellApiWithMongoClass {
     options: CommandOperationOptions = {}
   ): Promise<Document> {
     return this.getSiblingDB('admin')._runCommand(cmd, {
-      ...(await this._baseOptions()),
+      .../*await*/ this._baseOptions(),
       ...options,
     });
   }
@@ -414,13 +414,14 @@ export default class Database extends ShellApiWithMongoClass {
    * @param options
    * @returns {Promise} The promise of aggregation results.
    */
-  @returnsPromise
+  //@returnsPromise
   @returnType('AggregationCursor')
   @apiVersions([1])
-  async aggregate(
+  /*async*/
+  aggregate(
     pipeline: Document[],
     options?: Document
-  ): Promise<AggregationCursor> {
+  ): /*Promise<*/ AggregationCursor /*>*/ {
     assertArgsDefinedType([pipeline], [true], 'Database.aggregate');
     this._emitDatabaseApiCall('aggregate', { options, pipeline });
 
@@ -429,15 +430,15 @@ export default class Database extends ShellApiWithMongoClass {
     const providerCursor = this._mongo._serviceProvider.aggregateDb(
       this._name,
       pipeline,
-      { ...(await this._baseOptions()), ...aggOptions },
+      { .../*await*/ this._baseOptions(), ...aggOptions },
       dbOptions
     );
     const cursor = new AggregationCursor(this._mongo, providerCursor);
 
     if (explain) {
-      return await cursor.explain(explain);
+      return /*await*/ cursor.explain(explain);
     } else if (shouldRunAggregationImmediately(pipeline)) {
-      await cursor.hasNext();
+      /*await*/ cursor.hasNext();
     }
 
     this._mongo._instanceState.currentCursor = cursor;
@@ -1155,30 +1156,32 @@ export default class Database extends ShellApiWithMongoClass {
     return info.bits;
   }
 
-  @returnsPromise
+  //@returnsPromise
   @apiVersions([])
-  async isMaster(): Promise<Document> {
+  /*async */
+  isMaster(): /*Promise<*/ Document /*>*/ {
     this._emitDatabaseApiCall('isMaster', {});
-    const result = await this._runReadCommand({
+    const result = /* await*/ this._runReadCommand({
       isMaster: 1,
     });
     result.isWritablePrimary = result.ismaster;
     return result;
   }
 
-  @returnsPromise
+  //@returnsPromise
   @apiVersions([1])
   @serverVersions(['5.0.0', ServerVersions.latest])
-  async hello(): Promise<Document> {
+  /*async*/
+  hello(): /*Promise<*/ Document /*>*/ {
     this._emitDatabaseApiCall('hello', {});
     try {
-      this._cachedHello = await this._runReadCommand({
+      this._cachedHello = /* await*/ this._runReadCommand({
         hello: 1,
       });
       return this._cachedHello;
     } catch (err: any) {
       if (err?.codeName === 'CommandNotFound') {
-        const result = await this.isMaster();
+        const result = /*await*/ this.isMaster();
         delete result.ismaster;
         this._cachedHello = result;
         return this._cachedHello;

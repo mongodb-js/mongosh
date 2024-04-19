@@ -4,7 +4,7 @@ import {
   ShellResult,
   EvaluationListener,
 } from '@mongosh/shell-api';
-import AsyncWriter from '@mongosh/async-rewriter2';
+//import AsyncWriter from '@mongosh/async-rewriter2';
 
 type EvaluationFunction = (
   input: string,
@@ -15,13 +15,13 @@ type EvaluationFunction = (
 import { HIDDEN_COMMANDS, redactSensitiveData } from '@mongosh/history';
 import { TimingCategories, type TimingCategory } from '@mongosh/types';
 
-let hasAlreadyRunGlobalRuntimeSupportEval = false;
+/*let hasAlreadyRunGlobalRuntimeSupportEval = false;
 // `v8.startupSnapshot` is currently untyped, might as well use `any`.
 let v8: any;
 try {
   v8 = require('v8');
 } catch {
-  /* not Node.js */
+  /* not Node.js * /
 }
 if (v8?.startupSnapshot?.isBuildingSnapshot?.()) {
   v8.startupSnapshot.addSerializeCallback(() => {
@@ -30,7 +30,7 @@ if (v8?.startupSnapshot?.isBuildingSnapshot?.()) {
     eval(new AsyncWriter().process('1+1'));
     hasAlreadyRunGlobalRuntimeSupportEval = true;
   });
-}
+}*/
 
 type ResultHandler<EvaluationResultType> = (
   value: any
@@ -38,8 +38,8 @@ type ResultHandler<EvaluationResultType> = (
 class ShellEvaluator<EvaluationResultType = ShellResult> {
   private instanceState: ShellInstanceState;
   private resultHandler: ResultHandler<EvaluationResultType>;
-  private hasAppliedAsyncWriterRuntimeSupport = true;
-  private asyncWriter: AsyncWriter;
+  //private hasAppliedAsyncWriterRuntimeSupport = true;
+  //private asyncWriter: AsyncWriter;
   private markTime?: (category: TimingCategory, label: string) => void;
   private exposeAsyncRewriter: boolean;
 
@@ -51,8 +51,8 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
   ) {
     this.instanceState = instanceState;
     this.resultHandler = resultHandler;
-    this.asyncWriter = new AsyncWriter();
-    this.hasAppliedAsyncWriterRuntimeSupport = false;
+    //this.asyncWriter = new AsyncWriter();
+    //this.hasAppliedAsyncWriterRuntimeSupport = false;
     this.exposeAsyncRewriter = !!exposeAsyncRewriter;
     this.markTime = markTime;
   }
@@ -93,12 +93,11 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
     }
 
     if (this.exposeAsyncRewriter) {
-      (context as any).__asyncRewrite = (rewriteInput: string) =>
-        this.asyncWriter.process(rewriteInput);
+      (context as any).__asyncRewrite = (rewriteInput: string) => rewriteInput; //this.asyncWriter.process(rewriteInput);
     }
 
     this.markTime?.(TimingCategories.AsyncRewrite, 'start async rewrite');
-    let rewrittenInput = this.asyncWriter.process(input);
+    const rewrittenInput = input; // this.asyncWriter.process(input);
     this.markTime?.(TimingCategories.AsyncRewrite, 'done async rewrite');
 
     const hiddenCommands = RegExp(HIDDEN_COMMANDS, 'g');
@@ -107,7 +106,7 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
         input: redactSensitiveData(trimmedInput),
       });
     }
-
+    /*
     if (!this.hasAppliedAsyncWriterRuntimeSupport) {
       this.hasAppliedAsyncWriterRuntimeSupport = true;
       this.markTime?.(
@@ -128,7 +127,7 @@ class ShellEvaluator<EvaluationResultType = ShellResult> {
         'done global runtimeSupportCode processing'
       );
       rewrittenInput = supportCode + ';\n' + rewrittenInput;
-    }
+    }*/
 
     try {
       this.markTime?.(

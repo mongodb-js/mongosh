@@ -29,13 +29,14 @@ import type {
   ReadPreference,
   ReadPreferenceLike,
   ReadPreferenceMode,
-  ServiceProvider,
+  //ServiceProvider,
   TransactionOptions,
   MongoClientOptions,
   AutoEncryptionOptions as SPAutoEncryption,
   ServerApi,
   ServerApiVersion,
   WriteConcern,
+  SynchronousServiceProvider,
 } from '@mongosh/service-provider-core';
 import type { ConnectionInfo } from '@mongosh/arg-parser';
 import {
@@ -70,7 +71,7 @@ type Mutable<T> = {
 @shellApiClassDefault
 @classPlatforms(['CLI'])
 export default class Mongo extends ShellApiClass {
-  private __serviceProvider: ServiceProvider | null = null;
+  private __serviceProvider: SynchronousServiceProvider | null = null;
   public readonly _databases: Record<string, Database> = Object.create(null);
   public _instanceState: ShellInstanceState;
   public _connectionInfo: ConnectionInfo;
@@ -85,7 +86,7 @@ export default class Mongo extends ShellApiClass {
     uri?: string | Mongo,
     fleOptions?: ClientSideFieldLevelEncryptionOptions,
     otherOptions?: { api?: ServerApi | ServerApiVersion },
-    sp?: ServiceProvider
+    sp?: SynchronousServiceProvider
   ) {
     super();
     this._instanceState = instanceState;
@@ -156,7 +157,7 @@ export default class Mongo extends ShellApiClass {
   // generally speaking, it's always there, so instead of using a type of
   // `ServiceProvider | null` and a data property, we use a getter that throws
   // if used too early.
-  get _serviceProvider(): ServiceProvider {
+  get _serviceProvider(): SynchronousServiceProvider {
     if (this.__serviceProvider === null) {
       throw new MongoshInternalError(
         'No ServiceProvider available for this mongo',
@@ -167,7 +168,7 @@ export default class Mongo extends ShellApiClass {
   }
 
   // For testing.
-  set _serviceProvider(sp: ServiceProvider) {
+  set _serviceProvider(sp: SynchronousServiceProvider) {
     this.__serviceProvider = sp;
   }
 
@@ -228,6 +229,7 @@ export default class Mongo extends ShellApiClass {
       };
     }
     const parentProvider = this._instanceState.initialServiceProvider;
+    // eslint-disable-next-line no-useless-catch
     try {
       this.__serviceProvider = await parentProvider.getNewConnection(
         this._uri,
@@ -237,13 +239,13 @@ export default class Mongo extends ShellApiClass {
       // If the initial provider had TLS enabled, and we're not able to connect,
       // and the new URL does not contain a SSL/TLS indicator, we add a notice
       // about the fact that the behavior differs from the legacy shell here.
-      if (
+      /*if (
         e?.name === 'MongoServerSelectionError' &&
         parentProvider.getRawClient()?.options?.tls &&
         !/\b(ssl|tls)=/.exec(this._uri)
       ) {
         e.message += ' (is ?tls=true missing from the connection string?)';
-      }
+      }*/
       throw e;
     }
   }

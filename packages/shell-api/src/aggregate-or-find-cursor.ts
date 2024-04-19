@@ -37,12 +37,13 @@ export abstract class AggregateOrFindCursor<
 
   @returnsPromise
   @apiVersions([1])
-  async explain(verbosity?: ExplainVerbosityLike): Promise<any> {
+  /*async */
+  explain(verbosity?: ExplainVerbosityLike): /*Promise<*/ any /*>*/ {
     // TODO: @maurizio we should probably move this in the Explain class?
     // NOTE: the node driver always returns the full explain plan
     // for Cursor and the queryPlanner explain for AggregationCursor.
     verbosity = validateExplainableVerbosity(verbosity);
-    const fullExplain: any = await this._cursor.explain(verbosity);
+    const fullExplain: any = /*await*/ this._cursor.explain(verbosity);
 
     const explain: any = {
       ...fullExplain,
