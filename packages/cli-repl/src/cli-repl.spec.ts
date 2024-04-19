@@ -1594,6 +1594,43 @@ describe('CliRepl', function () {
           expect(requests).to.have.lengthOf(0);
         });
 
+        it('does not let the user modify telemetry settings with global force-disable-telemetry config', async function () {
+          const globalConfigFile = path.join(tmpdir.path, 'globalconfig.conf');
+          await fs.writeFile(
+            globalConfigFile,
+            'mongosh:\n  forceDisableTelemetry: true'
+          );
+
+          cliReplOptions.globalConfigPaths = [globalConfigFile];
+          cliRepl = new CliRepl(cliReplOptions);
+          await cliRepl.start(await testServer.connectionString(), {});
+
+          output = '';
+          input.write('enableTelemetry()\n');
+          await waitEval(cliRepl.bus);
+          expect(output).to.include(
+            "Cannot modify telemetry settings while 'forceDisableTelemetry' is set to true"
+          );
+
+          output = '';
+          input.write('disableTelemetry()\n');
+          await waitEval(cliRepl.bus);
+          expect(output).to.include(
+            "Cannot modify telemetry settings while 'forceDisableTelemetry' is set to true"
+          );
+
+          output = '';
+          input.write('config.set("enableTelemetry", true)\n');
+          await waitEval(cliRepl.bus);
+          expect(output).to.include(
+            "Cannot modify telemetry settings while 'forceDisableTelemetry' is set to true"
+          );
+
+          input.write('exit\n');
+          await waitBus(cliRepl.bus, 'mongosh:closed');
+          expect(requests).to.have.lengthOf(0);
+        });
+
         it('does not send out telemetry if the user only runs a script for disabling telemetry', async function () {
           cliReplOptions.shellCliOptions.eval = ['disableTelemetry()'];
           cliRepl = new CliRepl(cliReplOptions);
