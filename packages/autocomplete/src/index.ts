@@ -98,6 +98,10 @@ async function completer(
     .attributes as TypeSignatureAttributes;
   const SHARD_COMPLETE = shellSignatures.Shard
     .attributes as TypeSignatureAttributes;
+  const SP_COMPLETIONS = shellSignatures.Streams
+    .attributes as TypeSignatureAttributes;
+  const SP_INSTANCE_COMPLETIONS = shellSignatures.StreamProcessor
+    .attributes as TypeSignatureAttributes;
 
   // Split at space-to-non-space transitions when looking at this as a command,
   // because multiple spaces (e.g. 'show  collections') are valid in commands.
@@ -265,6 +269,20 @@ async function completer(
       splitLine
     );
     return [hits.length ? hits : [], line];
+  } else if (/\bsp\b/.exec(firstLineEl)) {
+    let expressions: TypeSignatureAttributes | undefined;
+    if (splitLine.length === 2) {
+      expressions = SP_COMPLETIONS;
+    } else if (splitLine.length === 3) {
+      // something like sp.spName.start()
+      expressions = SP_INSTANCE_COMPLETIONS;
+    }
+
+    const hits =
+      expressions &&
+      filterShellAPI(params, expressions, elToComplete, splitLine);
+
+    return [hits?.length ? hits : [], line];
   }
 
   return [[], line];
