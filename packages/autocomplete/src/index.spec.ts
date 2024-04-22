@@ -836,4 +836,22 @@ describe('completer.completer', function () {
       expect(await completer(apiStrictParams, i)).to.deep.equal([[], i]);
     });
   });
+
+  context('with stream processing sp', function () {
+    it('completes supported methods sp.listStreamProcessor', async function () {
+      const i = 'sp.listS';
+      expect(await completer(apiStrictParams, i)).to.deep.equal([
+        ['sp.listStreamProcessors'],
+        i,
+      ]);
+    });
+
+    it('completes methods on processors like sp.name.drop', async function () {
+      const i = 'sp.processorName.d';
+      expect(await completer(apiStrictParams, i)).to.deep.equal([
+        ['sp.processorName.drop'],
+        i,
+      ]);
+    });
+  });
 });

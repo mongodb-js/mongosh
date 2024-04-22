@@ -940,7 +940,6 @@ describe('Shell API (integration)', function () {
             'numBucketsClosedDueToCount',
             'numBucketsClosedDueToSize',
             'numBucketsClosedDueToTimeForward',
-            'numBucketsClosedDueToTimeBackward',
             'numBucketsClosedDueToMemoryThreshold',
             'numCommits',
             'numWaits',
