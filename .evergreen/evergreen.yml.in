@@ -117,6 +117,7 @@ post:
 #   compile_artifact - Compile the release binary.
 #   package_artifact - Upload the release binary together with other files to S3.
 #   sign_artifact - Get a package file from S3, sign it, put it back into S3.
+#   verify_artifact - Verify if the package was successfully signed using Garasign.
 #   test_linux_artifact - Test that the built artifact works where we expect it to.
 #                         We use this to verify that e.g. the Ubuntu-built release
 #                         binary also works on RHEL and Debian.
@@ -497,6 +498,19 @@ functions:
           PACKAGE_VARIANT: ${package_variant}
           MACOS_NOTARY_KEY: ${macos_notary_key}
           MACOS_NOTARY_SECRET: ${macos_notary_secret}
+  verify_artifact:
+    - command: expansions.write
+      type: setup
+      params:
+        file: tmp/expansions.yaml
+        redacted: true
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          .evergreen/verify-packaged-artifact.sh
   put_artifact_url:
     - command: s3.put
       params:
@@ -1178,6 +1192,17 @@ tasks:
         vars:
           package_variant: <% out(packageVariant) %>
           signature_tag: signed
+  - name: verify_artifact_<% out(packageVariant.replace(/-/g, '_')) %>
+    depends_on:
+      - name: sign_artifact_<% out(packageVariant.replace(/-/g, '_')) %>
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          package_variant: <% out(packageVariant) %>
+          signature_tag: signed
+      - func: verify_artifact
   <% } } %>
 
   ###
@@ -1365,6 +1390,36 @@ buildvariants:
       <% } } } %>
       - name: sign_artifact_win32_x64
       - name: sign_artifact_win32msi_x64
+  - name: verify_debian_artifact
+    display_name: "Ubuntu 20.04 x64 (Verification)"
+    run_on: ubuntu2004-small
+    tasks:
+      <% for (const { packages } of RELEASE_PACKAGE_MATRIX) {
+          for (const { name: packageVariant } of packages) {
+            if (packageVariant.startsWith('deb')) { %>
+      - name: verify_artifact_<% out(packageVariant.replace(/-/g, '_')) %>
+      <% } } } %>
+  - name: verify_rhel_artifact
+    display_name: "RHEL (Verification)"
+    run_on: rhel80-small
+    tasks:
+      <% for (const { packages } of RELEASE_PACKAGE_MATRIX) {
+          for (const { name: packageVariant } of packages) {
+            if (packageVariant.startsWith('rpm')) { %>
+      - name: verify_artifact_<% out(packageVariant.replace(/-/g, '_')) %>
+      <% } } } %>
+  - name: verify_windows_artifact
+    display_name: "Windows (Verification)"
+    run_on: windows-vsCurrent-small
+    tasks:
+      - name: verify_artifact_win32_x64
+      - name: verify_artifact_win32msi_x64
+  - name: verify_mac_artifact
+    display_name: "MacOS (Verification)"
+    run_on: macos-1100
+    tasks:
+      - name: verify_artifact_darwin_arm64
+      - name: verify_artifact_darwin_x64
   - name: linux_x64_build
     display_name: "RHEL 7.0 x64 (build)"
     run_on: rhel70-build
