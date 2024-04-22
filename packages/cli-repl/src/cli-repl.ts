@@ -844,6 +844,11 @@ export class CliRepl implements MongoshIOProvider {
     }
     this.config[key] = value;
     if (key === 'enableTelemetry') {
+      if (this.forceDisableTelemetry) {
+        throw new MongoshRuntimeError(
+          "Cannot modify telemetry settings while 'forceDisableTelemetry' is set to true"
+        );
+      }
       this.setTelemetryEnabled(this.config.enableTelemetry);
       this.bus.emit('mongosh:update-user', {
         userId: this.config.userId,
