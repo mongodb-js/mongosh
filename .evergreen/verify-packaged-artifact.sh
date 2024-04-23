@@ -9,55 +9,55 @@ MONGOSH_KEY="https://pgp.mongodb.com/mongosh.asc"
 ARTIFACTS_DIR="dist"
 
 trap_handler() {
-    local code=$?
-    if [ $code -eq 0 ]; then
-        echo "Verification successful"
-    else
-        echo "Verification failed with exit code $code"
-        cat "$TMP_FILE"
-    fi
-    rm -f "$TMP_FILE"
-    rm -rf "$GPG_HOME"
-    exit $code
+  local code=$?
+  if [ $code -eq 0 ]; then
+    echo "Verification successful"
+  else
+    echo "Verification failed with exit code $code"
+    cat "$TMP_FILE"
+  fi
+  rm -f "$TMP_FILE"
+  rm -rf "$GPG_HOME"
+  exit $code
 }
 
 trap trap_handler ERR EXIT
 
 verify_using_gpg() {
-    echo "Verifying $1 using gpg"
-    gpg --homedir $GPG_HOME --verify $ARTIFACTS_DIR/$1.sig $ARTIFACTS_DIR/$1 > "$TMP_FILE" 2>&1
+  echo "Verifying $1 using gpg"
+  gpg --homedir $GPG_HOME --verify $ARTIFACTS_DIR/$1.sig $ARTIFACTS_DIR/$1 > "$TMP_FILE" 2>&1
 }
 
 verify_using_powershell() {
-    echo "Verifying $1 using powershell"
-    powershell Get-AuthenticodeSignature -FilePath $ARTIFACTS_DIR/$1 > "$TMP_FILE" 2>&1
+  echo "Verifying $1 using powershell"
+  powershell Get-AuthenticodeSignature -FilePath $ARTIFACTS_DIR/$1 > "$TMP_FILE" 2>&1
 }
 
 verify_using_codesign() {
-    echo "Verifying $1 using codesign"
-    codesign -dv --verbose=4 $ARTIFACTS_DIR/$1 > "$TMP_FILE" 2>&1
+  echo "Verifying $1 using codesign"
+  codesign -dv --verbose=4 $ARTIFACTS_DIR/$1 > "$TMP_FILE" 2>&1
 }
 
 verify_using_rpm() {
-    # RPM packages are signed using gpg and the signature is embedded in the package.
-    # Here, we need to import the key in `rpm` and then verify the signature.
-    echo "Importing key into rpm"
-    rpm --dbpath "$GPG_HOME" --import $MONGOSH_KEY > "$TMP_FILE" 2>&1
-    # Even if the file is not signed, the command below will exit with 0 and output something like: digests OK
-    # So we need to check the output of the command to see if the file is signed successfully.
-    echo "Verifying $1 using rpm"
-    output=$(rpm --dbpath "$GPG_HOME" -K $ARTIFACTS_DIR/$1)
+  # RPM packages are signed using gpg and the signature is embedded in the package.
+  # Here, we need to import the key in `rpm` and then verify the signature.
+  echo "Importing key into rpm"
+  rpm --dbpath "$GPG_HOME" --import $MONGOSH_KEY > "$TMP_FILE" 2>&1
+  # Even if the file is not signed, the command below will exit with 0 and output something like: digests OK
+  # So we need to check the output of the command to see if the file is signed successfully.
+  echo "Verifying $1 using rpm"
+  output=$(rpm --dbpath "$GPG_HOME" -K $ARTIFACTS_DIR/$1)
 
-    # Check if the output contains the string "pgp md5 OK"
-    if [[ $output != *"digests signatures OK"* ]]; then
-        echo "File $1 is not signed"
-        exit 1
-    fi
+  # Check if the output contains the string "pgp md5 OK"
+  if [[ $output != *"digests signatures OK"* ]]; then
+    echo "File $1 is not signed"
+    exit 1
+  fi
 }
 
 setup_gpg() {
-    echo "Importing mongosh public key"
-    curl $MONGOSH_KEY | gpg --homedir $GPG_HOME --import > "$TMP_FILE" 2>&1
+  echo "Importing mongosh public key"
+  curl $MONGOSH_KEY | gpg --homedir $GPG_HOME --import > "$TMP_FILE" 2>&1
 }
 
 BASEDIR="$PWD/.evergreen"
@@ -70,21 +70,21 @@ ls -lh "$ARTIFACTS_DIR"
 ARTIFACT_FILE_NAME=$(basename $(cat "$ARTIFACT_URL_FILE"))
 
 if [[ $ARTIFACT_FILE_NAME == *.dmg ]]; then
-    verify_using_codesign $ARTIFACT_FILE_NAME
+  verify_using_codesign $ARTIFACT_FILE_NAME
 elif [[ $ARTIFACT_FILE_NAME == *.msi ]] || [[ $ARTIFACT_FILE_NAME == *.exe ]]; then
-    verify_using_powershell $ARTIFACT_FILE_NAME
+  verify_using_powershell $ARTIFACT_FILE_NAME
 else
-    # Skip testing on windows
-    if [[ $OSTYPE == "cygwin" ]]; then
-        echo "Skipping ZIP verification on Windows"
-        exit 0
-    fi
-    setup_gpg
-    if [[ $ARTIFACT_FILE_NAME == *.rpm ]]; then
-        verify_using_rpm $ARTIFACT_FILE_NAME
-    else
-        echo "Downloading the GPG signature file"
-        (cd "$ARTIFACTS_DIR" && bash "$BASEDIR/retry-with-backoff.sh" curl -sSfLO --url "$(cat "$ARTIFACT_URL_FILE").sig")
-        verify_using_gpg $ARTIFACT_FILE_NAME
-    fi
+  # Skip testing on windows as it requires gpg setup
+  if [[ $OSTYPE == "cygwin" ]]; then
+    echo "Skipping ZIP verification on Windows"
+    exit 0
+  fi
+  setup_gpg
+  if [[ $ARTIFACT_FILE_NAME == *.rpm ]]; then
+    verify_using_rpm $ARTIFACT_FILE_NAME
+  else
+    echo "Downloading the GPG signature file"
+    (cd "$ARTIFACTS_DIR" && bash "$BASEDIR/retry-with-backoff.sh" curl -sSfLO --url "$(cat "$ARTIFACT_URL_FILE").sig")
+    verify_using_gpg $ARTIFACT_FILE_NAME
+  fi
 fi
