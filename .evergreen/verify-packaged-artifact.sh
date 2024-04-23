@@ -6,7 +6,7 @@ set -x
 GPG_HOME=$(mktemp -d)
 TMP_FILE=$(mktemp)
 MONGOSH_KEY="https://pgp.mongodb.com/mongosh.asc"
-ARTIFACTS_DIR="$PWD/dist"
+ARTIFACTS_DIR="dist"
 
 trap_handler() {
     local code=$?
@@ -30,7 +30,6 @@ verify_using_gpg() {
 
 verify_using_powershell() {
     echo "Verifying $1 using powershell"
-    # todo: the path is incorrect for cygwin
     powershell Get-AuthenticodeSignature -FilePath $ARTIFACTS_DIR/$1 > "$TMP_FILE" 2>&1
 }
 
@@ -65,8 +64,8 @@ BASEDIR="$PWD/.evergreen"
 ARTIFACT_URL_FILE="$PWD/../artifact-url.txt"
 
 echo "Downloading artifact from URL: $(cat $ARTIFACT_URL_FILE)"
-(mkdir -p dist/ && cd dist/ && bash "$BASEDIR/retry-with-backoff.sh" curl -sSfLO --url "$(cat "$ARTIFACT_URL_FILE")")
-ls -lh dist/
+(mkdir -p "$ARTIFACTS_DIR" && cd "$ARTIFACTS_DIR" && bash "$BASEDIR/retry-with-backoff.sh" curl -sSfLO --url "$(cat "$ARTIFACT_URL_FILE")")
+ls -lh "$ARTIFACTS_DIR"
 
 ARTIFACT_FILE_NAME=$(basename $(cat "$ARTIFACT_URL_FILE"))
 
@@ -85,7 +84,7 @@ else
         verify_using_rpm $ARTIFACT_FILE_NAME
     else
         echo "Downloading the GPG signature file"
-        (cd dist/ && bash "$BASEDIR/retry-with-backoff.sh" curl -sSfLO --url "$(cat "$ARTIFACT_URL_FILE").sig")
+        (cd "$ARTIFACTS_DIR" && bash "$BASEDIR/retry-with-backoff.sh" curl -sSfLO --url "$(cat "$ARTIFACT_URL_FILE").sig")
         verify_using_gpg $ARTIFACT_FILE_NAME
     fi
 fi
