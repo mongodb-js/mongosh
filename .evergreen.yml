@@ -15576,6 +15576,33 @@ buildvariants:
   - name: draft_publish_release
     display_name: "Draft/Publish Release"
     run_on: ubuntu2004-small
+    depends_on:
+      - name: verify_artifact_darwin_x64
+      - name: verify_artifact_darwin_arm64
+      - name: verify_artifact_linux_x64
+      - name: verify_artifact_deb_x64
+      - name: verify_artifact_rpm_x64
+      - name: verify_artifact_linux_x64_openssl11
+      - name: verify_artifact_deb_x64_openssl11
+      - name: verify_artifact_rpm_x64_openssl11
+      - name: verify_artifact_linux_x64_openssl3
+      - name: verify_artifact_deb_x64_openssl3
+      - name: verify_artifact_rpm_x64_openssl3
+      - name: verify_artifact_linux_arm64
+      - name: verify_artifact_deb_arm64
+      - name: verify_artifact_rpm_arm64
+      - name: verify_artifact_linux_arm64_openssl11
+      - name: verify_artifact_deb_arm64_openssl11
+      - name: verify_artifact_rpm_arm64_openssl11
+      - name: verify_artifact_linux_arm64_openssl3
+      - name: verify_artifact_deb_arm64_openssl3
+      - name: verify_artifact_rpm_arm64_openssl3
+      - name: verify_artifact_linux_ppc64le
+      - name: verify_artifact_rpm_ppc64le
+      - name: verify_artifact_linux_s390x
+      - name: verify_artifact_rpm_s390x
+      - name: verify_artifact_win32_x64
+      - name: verify_artifact_win32msi_x64
     tasks:
       - name: release_draft
       - name: release_publish_dry_run
