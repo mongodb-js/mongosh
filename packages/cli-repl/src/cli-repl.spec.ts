@@ -1519,6 +1519,38 @@ describe('CliRepl', function () {
             cliRepl,
             await testServer.connectionString()
           );
+          expect(
+            requests
+              .flatMap((req) =>
+                JSON.parse(req.body).batch.map((entry) => entry.event)
+              )
+              .sort()
+              .filter(Boolean)
+          ).to.deep.equal(['API Call', 'Script Evaluated', 'Startup Time']);
+          expect(totalEventsTracked).to.equal(4);
+        });
+
+        it('includes an additional event for connection info if not in quiet mode', async function () {
+          cliReplOptions.shellCliOptions.eval = ['db.hello()'];
+          cliReplOptions.shellCliOptions.quiet = false;
+          cliRepl = new CliRepl(cliReplOptions);
+          await startWithExpectedImmediateExit(
+            cliRepl,
+            await testServer.connectionString()
+          );
+          expect(
+            requests
+              .flatMap((req) =>
+                JSON.parse(req.body).batch.map((entry) => entry.event)
+              )
+              .sort()
+              .filter(Boolean)
+          ).to.deep.equal([
+            'API Call',
+            'New Connection',
+            'Script Evaluated',
+            'Startup Time',
+          ]);
           expect(totalEventsTracked).to.equal(5);
         });
 
@@ -1532,7 +1564,7 @@ describe('CliRepl', function () {
             cliRepl,
             await testServer.connectionString()
           );
-          expect(totalEventsTracked).to.equal(7);
+          expect(totalEventsTracked).to.equal(6);
 
           const apiEvents = requests
             .map((req) =>
