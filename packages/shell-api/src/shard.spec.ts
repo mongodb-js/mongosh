@@ -866,7 +866,11 @@ describe('Shard', function () {
       });
 
       it('prints a deprecation warning for mongodb >= 6.0.3', async function () {
-        instanceState.connectionInfo.buildInfo.version = '6.0.3-alpha0';
+        serviceProvider.getConnectionInfo.resolves({
+          extraInfo: { uri: '' },
+          buildInfo: { version: '6.0.3-alpha0' },
+          topology: null,
+        });
         serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
         serviceProvider.updateOne.resolves({ acknowledged: 1 } as any);
         await shard.enableAutoSplit();
@@ -943,7 +947,11 @@ describe('Shard', function () {
       });
 
       it('prints a deprecation warning for mongodb >= 6.0.3', async function () {
-        instanceState.connectionInfo.buildInfo.version = '6.0.3-alpha0';
+        serviceProvider.getConnectionInfo.resolves({
+          extraInfo: { uri: '' },
+          buildInfo: { version: '6.0.3-alpha0' },
+          topology: null,
+        });
         serviceProvider.runCommandWithCheck.resolves({ ok: 1 });
         serviceProvider.updateOne.resolves({ acknowledged: 1 } as any);
         await shard.disableAutoSplit();

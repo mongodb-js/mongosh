@@ -1519,6 +1519,19 @@ describe('CliRepl', function () {
             cliRepl,
             await testServer.connectionString()
           );
+          expect(
+            requests
+              .flatMap((req) =>
+                JSON.parse(req.body).batch.map((entry) => entry.event)
+              )
+              .sort()
+              .filter(Boolean)
+          ).to.deep.equal([
+            'API Call',
+            'New Connection',
+            'Script Evaluated',
+            'Startup Time',
+          ]);
           expect(totalEventsTracked).to.equal(5);
         });
 

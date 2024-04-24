@@ -22,6 +22,8 @@ describe('ShellInstanceState', function () {
     serviceProvider.bsonLibrary = bson;
     serviceProvider.getConnectionInfo.resolves({
       extraInfo: { uri: 'mongodb://localhost/' },
+      buildInfo: {},
+      topology: null,
     });
     evaluationListener = stubInterface<EvaluationListener>();
     instanceState = new ShellInstanceState(serviceProvider);
@@ -41,7 +43,7 @@ describe('ShellInstanceState', function () {
 
     it('provides printing ability for shell API objects', async function () {
       await run('print(db)');
-      expect(evaluationListener.onPrint.lastCall.args[0][0].type).to.equal(
+      expect(evaluationListener.onPrint?.lastCall.args[0][0].type).to.equal(
         'Database'
       );
     });
@@ -84,6 +86,8 @@ describe('ShellInstanceState', function () {
     const setupServiceProviderWithTopology = (topology: any) => {
       serviceProvider.getConnectionInfo.resolves({
         extraInfo: { uri: 'mongodb://localhost/' },
+        buildInfo: {},
+        topology: null,
       });
       serviceProvider.getTopology.returns(topology);
     };
@@ -94,6 +98,8 @@ describe('ShellInstanceState', function () {
       serviceProvider.bsonLibrary = bson;
       serviceProvider.getConnectionInfo.resolves({
         extraInfo: { uri: 'mongodb://localhost/' },
+        buildInfo: {},
+        topology: null,
       });
       instanceState = new ShellInstanceState(
         serviceProvider,
@@ -114,6 +120,8 @@ describe('ShellInstanceState', function () {
           uri: 'mongodb://atlas-stream-65a5f1cd6d50457be377be7b-1dekw.virginia-usa.a.query.mongodb-dev.net/',
           is_stream: true,
         },
+        buildInfo: {},
+        topology: null,
       });
 
       await instanceState.fetchConnectionInfo();
@@ -128,6 +136,8 @@ describe('ShellInstanceState', function () {
             uri: 'mongodb://localhost/',
             is_data_federation: true,
           },
+          buildInfo: {},
+          topology: null,
         });
 
         await instanceState.fetchConnectionInfo();
@@ -143,6 +153,8 @@ describe('ShellInstanceState', function () {
             is_atlas: true,
             is_data_federation: true,
           },
+          buildInfo: {},
+          topology: null,
         });
 
         await instanceState.fetchConnectionInfo();
@@ -158,6 +170,8 @@ describe('ShellInstanceState', function () {
             uri: 'mongodb://localhost/',
             is_atlas: true,
           },
+          buildInfo: {},
+          topology: null,
         });
 
         await instanceState.fetchConnectionInfo();
@@ -172,6 +186,8 @@ describe('ShellInstanceState', function () {
             is_enterprise: true,
             is_atlas: true,
           },
+          buildInfo: {},
+          topology: null,
         });
 
         await instanceState.fetchConnectionInfo();
@@ -185,6 +201,8 @@ describe('ShellInstanceState', function () {
             uri: 'mongodb://localhost/',
             is_local_atlas: true,
           },
+          buildInfo: {},
+          topology: null,
         });
 
         await instanceState.fetchConnectionInfo();
@@ -197,6 +215,8 @@ describe('ShellInstanceState', function () {
       it('inferred from extraInfo', async function () {
         serviceProvider.getConnectionInfo.resolves({
           extraInfo: { uri: 'mongodb://localhost/', is_enterprise: true },
+          buildInfo: {},
+          topology: null,
         });
 
         await instanceState.fetchConnectionInfo();
@@ -208,6 +228,7 @@ describe('ShellInstanceState', function () {
         serviceProvider.getConnectionInfo.resolves({
           extraInfo: { uri: 'mongodb://localhost/' },
           buildInfo: { modules: ['other', 'enterprise'] },
+          topology: null,
         });
 
         await instanceState.fetchConnectionInfo();
@@ -345,6 +366,8 @@ describe('ShellInstanceState', function () {
             is_atlas: true,
             atlas_version: '20210330.0.0.1617063608',
           },
+          buildInfo: {},
+          topology: null,
         });
 
         await instanceState.fetchConnectionInfo();
@@ -381,6 +404,8 @@ describe('ShellInstanceState', function () {
             is_atlas: true,
             atlas_version: '20210330.0.0.1617063608',
           },
+          buildInfo: {},
+          topology: null,
         });
 
         await instanceState.fetchConnectionInfo();

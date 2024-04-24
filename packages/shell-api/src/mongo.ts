@@ -485,7 +485,8 @@ export default class Mongo extends ShellApiClass {
         // Although very unlikely but if we cannot determine wether we are connected to a fake mongodb
         // or not, we assume that we are connected to a real mongodb and won't show the warning
         const isGenuine =
-          this._instanceState.connectionInfo?.extraInfo?.is_genuine ?? true;
+          (await this._instanceState.fetchConnectionInfo())?.extraInfo
+            ?.is_genuine ?? true;
         if (isGenuine) {
           return new CommandResult('ShowBannerResult', null);
         }

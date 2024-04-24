@@ -45,6 +45,9 @@ describe('MongoshNodeRepl', function () {
   let ioProvider: MongoshIOProvider;
   let sp: StubbedInstance<ServiceProvider>;
   let serviceProvider: ServiceProvider;
+  let calledServiceProviderFunctions: () => Partial<
+    Record<keyof ServiceProvider, number>
+  >;
   let config: Record<string, any>;
   const tmpdir = useTmpdir();
 
@@ -83,9 +86,16 @@ describe('MongoshNodeRepl', function () {
       buildInfo: {
         version: '4.4.1',
       },
+      topology: null,
     });
     sp.runCommandWithCheck.resolves({ ok: 1 });
     serviceProvider = sp;
+    calledServiceProviderFunctions = () =>
+      Object.fromEntries(
+        Object.keys(sp)
+          .map((key) => [key, sp[key]?.callCount])
+          .filter(([, count]) => !!count)
+      );
 
     mongoshReplOptions = {
       input: input,
@@ -128,6 +138,7 @@ describe('MongoshNodeRepl', function () {
         /You can opt-out by running the .*disableTelemetry\(\).* command/
       );
       expect(config.disableGreetingMessage).to.equal(true);
+      expect(sp.getConnectionInfo).to.have.been.calledOnce;
     });
 
     it('evaluates javascript', async function () {
@@ -1248,6 +1259,7 @@ describe('MongoshNodeRepl', function () {
           version: '4.4.1',
           modules: ['enterprise'],
         },
+        topology: null,
       });
 
       const initialized = await mongoshRepl.initialize(serviceProvider);
@@ -1279,6 +1291,7 @@ describe('MongoshNodeRepl', function () {
           version: '4.4.1',
           modules: ['enterprise'],
         },
+        topology: null,
       };
 
       sp.getConnectionInfo.resolves(connectionInfo);
@@ -1408,6 +1421,7 @@ describe('MongoshNodeRepl', function () {
         buildInfo: {
           version: '4.4.1',
         },
+        topology: null,
       });
       mongoshReplOptions.shellCliOptions = {
         nodb: false,
@@ -1436,6 +1450,33 @@ describe('MongoshNodeRepl', function () {
       );
       await tick();
       expect(warnings).to.have.lengthOf(0);
+    });
+  });
+
+  context('interactions with the server during startup', function () {
+    it('calls a number of service provider functions by default', async function () {
+      await mongoshRepl.initialize(serviceProvider);
+      const calledFunctions = calledServiceProviderFunctions();
+      expect(Object.keys(calledFunctions).sort()).to.deep.equal([
+        'getConnectionInfo',
+        'getFleOptions',
+        'getRawClient',
+        'getURI',
+        'runCommandWithCheck',
+      ]);
+    });
+
+    it('does not wait for getConnectionInfo in quiet plain-vm mode', async function () {
+      mongoshRepl.shellCliOptions.quiet = true;
+      mongoshRepl.shellCliOptions.jsContext = 'plain-vm';
+      sp.getConnectionInfo.callsFake(
+        () =>
+          new Promise(() => {
+            /* never resolve */
+          })
+      );
+      await mongoshRepl.initialize(serviceProvider);
+      expect(serviceProvider.getConnectionInfo).to.have.been.calledOnce;
     });
   });
 });

@@ -21,10 +21,10 @@ export interface AutocompleteParameters {
   connectionInfo: () =>
     | undefined
     | {
-        is_atlas: boolean;
-        is_data_federation: boolean;
-        server_version: string;
-        is_local_atlas: boolean;
+        is_atlas?: boolean;
+        is_data_federation?: boolean;
+        server_version?: string;
+        is_local_atlas?: boolean;
       };
   apiVersionInfo: () => { version: string; strict: boolean } | undefined;
   getCollectionCompletionsForCurrentDb: (

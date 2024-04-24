@@ -2716,9 +2716,11 @@ describe('Shell API (integration)', function () {
       skipIfApiStrict();
 
       it('returns information about the connection', async function () {
-        expect(instanceState.connectionInfo.buildInfo.version).to.equal(
+        const fetchedInfo = await instanceState.fetchConnectionInfo();
+        expect(fetchedInfo.buildInfo.version).to.equal(
           await database.version()
         );
+        expect(instanceState.cachedConnectionInfo()).to.equal(fetchedInfo);
       });
     });
 

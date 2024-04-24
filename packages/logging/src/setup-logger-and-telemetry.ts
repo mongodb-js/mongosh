@@ -141,7 +141,7 @@ export function setupLoggerAndTelemetry(
   );
 
   bus.on('mongosh:connect', function (args: ConnectEvent) {
-    const connectionUri = redactURICredentials(args.uri);
+    const connectionUri = args.uri && redactURICredentials(args.uri);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { uri: _uri, ...argsWithoutUri } = args;
     const params = {

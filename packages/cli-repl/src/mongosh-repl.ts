@@ -179,11 +179,14 @@ class MongoshNodeRepl implements EvaluationListener {
     serviceProvider: ServiceProvider,
     moreRecentMongoshVersion?: string | null
   ): Promise<InitializationToken> {
+    const usePlainVMContext = this.shellCliOptions.jsContext === 'plain-vm';
+
     const instanceState = new ShellInstanceState(
       serviceProvider,
       this.bus,
       this.shellCliOptions
     );
+
     const shellEvaluator = new ShellEvaluator(
       instanceState,
       (value: any) => value,
@@ -191,20 +194,37 @@ class MongoshNodeRepl implements EvaluationListener {
       !!this.shellCliOptions.exposeAsyncRewriter
     );
     instanceState.setEvaluationListener(this);
-    await instanceState.fetchConnectionInfo();
-    markTime(TimingCategories.REPLInstantiation, 'fetched connection info');
 
-    const { buildInfo, extraInfo } = instanceState.connectionInfo;
-    let mongodVersion = extraInfo?.is_stream
-      ? 'Atlas Stream Processing'
-      : buildInfo?.version;
-    const apiVersion = serviceProvider.getRawClient()?.serverApi?.version;
-    if (apiVersion) {
-      mongodVersion =
-        (mongodVersion ? mongodVersion + ' ' : '') +
-        `(API Version ${apiVersion})`;
+    // Fetch connection metadata if not in quiet mode or in REPL mode:
+    // not-quiet mode -> We'll need it for the greeting message (and need it now)
+    // REPL mode -> We'll want it for fast autocomplete (and need it soon-ish, but not now)
+    instanceState.setPreFetchCollectionAndDatabaseNames(!usePlainVMContext);
+    // `if` commented out because we currently still want the connection info for
+    // logging/telemetry but we may want to revisit that in the future:
+    // if (!this.shellCliOptions.quiet || !usePlainVMContext)
+    {
+      const connectionInfoPromise = instanceState.fetchConnectionInfo();
+      connectionInfoPromise.catch(() => {
+        // Ignore potential unhandled rejection warning
+      });
+      if (!this.shellCliOptions.quiet) {
+        const connectionInfo = await connectionInfoPromise;
+        markTime(TimingCategories.REPLInstantiation, 'fetched connection info');
+
+        const { buildInfo, extraInfo } = connectionInfo ?? {};
+        let mongodVersion = extraInfo?.is_stream
+          ? 'Atlas Stream Processing'
+          : buildInfo?.version;
+        const apiVersion = serviceProvider.getRawClient()?.serverApi?.version;
+        if (apiVersion) {
+          mongodVersion =
+            (mongodVersion ? mongodVersion + ' ' : '') +
+            `(API Version ${apiVersion})`;
+        }
+        await this.greet(mongodVersion, moreRecentMongoshVersion);
+      }
     }
-    await this.greet(mongodVersion, moreRecentMongoshVersion);
+
     await this.printBasicConnectivityWarning(instanceState);
     markTime(TimingCategories.REPLInstantiation, 'greeted');
 
@@ -220,7 +240,7 @@ class MongoshNodeRepl implements EvaluationListener {
 
     let repl: REPLServer | null = null;
     let context: Context;
-    if (this.shellCliOptions.jsContext !== 'plain-vm') {
+    if (!usePlainVMContext) {
       repl = asyncRepl.start({
         // 'repl' is not supported in startup snapshots yet.
         // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -791,7 +811,7 @@ class MongoshNodeRepl implements EvaluationListener {
     this.output.write('Stopping execution...');
 
     const mongodVersion: string | undefined =
-      instanceState.connectionInfo.buildInfo?.version;
+      instanceState.cachedConnectionInfo()?.buildInfo?.version;
     if (mongodVersion?.match(/^(4\.0\.|3\.)\d+/)) {
       this.output.write(
         this.clr(
