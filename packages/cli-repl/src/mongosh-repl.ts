@@ -199,7 +199,10 @@ class MongoshNodeRepl implements EvaluationListener {
     // not-quiet mode -> We'll need it for the greeting message (and need it now)
     // REPL mode -> We'll want it for fast autocomplete (and need it soon-ish, but not now)
     instanceState.setPreFetchCollectionAndDatabaseNames(!usePlainVMContext);
-    if (!this.shellCliOptions.quiet || !usePlainVMContext) {
+    // `if` commented out because we currently still want the connection info for
+    // logging/telemetry but we may want to revisit that in the future:
+    // if (!this.shellCliOptions.quiet || !usePlainVMContext)
+    {
       const connectionInfoPromise = instanceState.fetchConnectionInfo();
       connectionInfoPromise.catch(() => {
         // Ignore potential unhandled rejection warning

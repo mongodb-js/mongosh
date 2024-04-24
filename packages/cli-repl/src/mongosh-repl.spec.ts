@@ -1457,21 +1457,26 @@ describe('MongoshNodeRepl', function () {
     it('calls a number of service provider functions by default', async function () {
       await mongoshRepl.initialize(serviceProvider);
       const calledFunctions = calledServiceProviderFunctions();
-      expect(calledFunctions).to.include.keys(
+      expect(Object.keys(calledFunctions).sort()).to.deep.equal([
         'getConnectionInfo',
-        'runCommandWithCheck'
-      );
+        'getFleOptions',
+        'getRawClient',
+        'getURI',
+        'runCommandWithCheck',
+      ]);
     });
 
-    it('does not get connection info in --quiet no-REPL mode', async function () {
+    it('does not wait for getConnectionInfo in quiet plain-vm mode', async function () {
       mongoshRepl.shellCliOptions.quiet = true;
       mongoshRepl.shellCliOptions.jsContext = 'plain-vm';
+      sp.getConnectionInfo.callsFake(
+        () =>
+          new Promise(() => {
+            /* never resolve */
+          })
+      );
       await mongoshRepl.initialize(serviceProvider);
-      const calledFunctions = calledServiceProviderFunctions();
-      expect(Object.keys(calledFunctions).sort()).to.deep.equal([
-        'getFleOptions',
-        'getURI',
-      ]);
+      expect(serviceProvider.getConnectionInfo).to.have.been.calledOnce;
     });
   });
 });
