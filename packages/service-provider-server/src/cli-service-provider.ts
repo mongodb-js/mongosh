@@ -62,9 +62,10 @@ import type {
   ChangeStream,
   AutoEncryptionOptions,
   ClientEncryption as MongoCryptClientEncryption,
+  ConnectionInfo,
 } from '@mongosh/service-provider-core';
 import {
-  getConnectInfo,
+  getConnectExtraInfo,
   DEFAULT_DB,
   ServiceProviderCore,
 } from '@mongosh/service-provider-core';
@@ -129,13 +130,6 @@ type DropDatabaseResult = {
   ok: 0 | 1;
   dropped?: string;
 };
-
-type ConnectionInfo = {
-  buildInfo: any;
-  topology: any;
-  extraInfo: ExtraConnectionInfo;
-};
-type ExtraConnectionInfo = ReturnType<typeof getConnectInfo> & { fcv?: string };
 
 /**
  * Default driver options we always use.
@@ -436,7 +430,7 @@ class CliServiceProvider
 
     const isLocalAtlasCli = !!atlascliInfo;
 
-    const extraConnectionInfo = getConnectInfo(
+    const extraConnectionInfo = getConnectExtraInfo(
       this.uri?.toString() ?? '',
       version,
       buildInfo,

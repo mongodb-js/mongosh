@@ -33,7 +33,7 @@ export class OpenContextRuntime implements Runtime {
   private shellEvaluator: ShellEvaluator;
   private instanceState: ShellInstanceState;
   private evaluationListener: RuntimeEvaluationListener | null = null;
-  private updatedConnectionInfoPromise: Promise<void> | null = null;
+  private updatedConnectionInfoPromise: Promise<unknown> | null = null;
 
   constructor(
     serviceProvider: ServiceProvider,

@@ -1,7 +1,8 @@
 import { CommonErrors, MongoshInvalidInputError } from '@mongosh/errors';
 import type {
   AutoEncryptionOptions,
-  ConnectInfo,
+  ConnectionExtraInfo,
+  ConnectionInfo,
   ServerApi,
   ServiceProvider,
   TopologyDescription,
@@ -50,7 +51,7 @@ export interface ShellCliOptions {
 export interface AutocompleteParameters {
   topology: () => Topologies;
   apiVersionInfo: () => Required<ServerApi> | undefined;
-  connectionInfo: () => ConnectInfo | undefined;
+  connectionInfo: () => ConnectionExtraInfo | undefined;
   getCollectionCompletionsForCurrentDb: (collName: string) => Promise<string[]>;
   getDatabaseCompletions: (dbName: string) => Promise<string[]>;
 }
@@ -142,7 +143,16 @@ export default class ShellInstanceState {
   public currentDb: Database;
   public messageBus: MongoshBus;
   public initialServiceProvider: ServiceProvider; // the initial service provider
-  public connectionInfo: any;
+  private connectionInfoCache: {
+    // Caching/lazy-loading functionality for the ServiceProvider's getConnectionInfo()
+    // return value. We store the ServiceProvider instance for which we are
+    // fetching/have fetched connection info to avoid duplicate fetches.
+    forSp: ServiceProvider;
+    // If fetching is in progress, this is a Promise, otherwise the resolved
+    // return value (or undefined if we have not fetched yet).
+    // Autocompletion makes use of the ability to access this purely synchronously.
+    info: Promise<ConnectionInfo> | ConnectionInfo | undefined;
+  };
   public context: any;
   public mongos: Mongo[];
   public shellApi: ShellApi;
@@ -164,6 +174,7 @@ export default class ShellInstanceState {
 
   private plugins: ShellPlugin[] = [new TransformMongoErrorPlugin()];
   private alreadyTransformedErrors = new WeakMap<Error, Error>();
+  private preFetchCollectionAndDatabaseNames = true;
 
   constructor(
     initialServiceProvider: ServiceProvider,
@@ -180,7 +191,10 @@ export default class ShellInstanceState {
       }
     );
     this.mongos = [];
-    this.connectionInfo = { buildInfo: {} };
+    this.connectionInfoCache = {
+      forSp: this.initialServiceProvider,
+      info: undefined,
+    };
     if (!cliOptions.nodb) {
       const mongo = new Mongo(
         this,
@@ -202,25 +216,58 @@ export default class ShellInstanceState {
     this.evaluationListener = {};
   }
 
-  async fetchConnectionInfo(): Promise<void> {
+  async fetchConnectionInfo(): Promise<ConnectionInfo | undefined> {
     if (!this.cliOptions.nodb) {
-      this.connectionInfo =
-        await this.currentServiceProvider.getConnectionInfo();
+      const serviceProvider = this.currentServiceProvider;
+      if (
+        serviceProvider === this.connectionInfoCache.forSp &&
+        this.connectionInfoCache.info
+      ) {
+        // Already fetched connection info for the current service provider.
+        return this.connectionInfoCache.info;
+      }
+      const connectionInfoPromise = serviceProvider.getConnectionInfo();
+      this.connectionInfoCache = {
+        forSp: serviceProvider,
+        info: connectionInfoPromise,
+      };
+      let connectionInfo: ConnectionInfo | undefined;
+      try {
+        connectionInfo = await connectionInfoPromise;
+      } finally {
+        if (this.connectionInfoCache.info === connectionInfoPromise)
+          this.connectionInfoCache.info = connectionInfo;
+      }
+
       const apiVersionInfo = this.apiVersionInfo();
       this.messageBus.emit('mongosh:connect', {
-        ...this.connectionInfo.extraInfo,
+        ...connectionInfo?.extraInfo,
         api_version: apiVersionInfo?.version,
         api_strict: apiVersionInfo?.strict,
         api_deprecation_errors: apiVersionInfo?.deprecationErrors,
-        uri: redactInfo(this.connectionInfo.extraInfo.uri),
+        uri: redactInfo(connectionInfo?.extraInfo?.uri),
       });
+      return connectionInfo;
     }
+    return undefined;
+  }
+
+  cachedConnectionInfo(): ConnectionInfo | undefined {
+    const connectionInfo = this.connectionInfoCache.info;
+    return (
+      (connectionInfo && 'extraInfo' in connectionInfo && connectionInfo) ||
+      undefined
+    );
   }
 
   async close(force: boolean): Promise<void> {
     for (const mongo of [...this.mongos]) {
       await mongo.close(force);
     }
+  }
+
+  public setPreFetchCollectionAndDatabaseNames(value: boolean): void {
+    this.preFetchCollectionAndDatabaseNames = value;
   }
 
   public setDbFunc(newDb: any): Database {
@@ -231,13 +278,19 @@ export default class ShellInstanceState {
     this.fetchConnectionInfo().catch((err) =>
       this.messageBus.emit('mongosh:error', err, 'shell-api')
     );
-    // Pre-fetch for autocompletion.
-    this.currentDb
-      ._getCollectionNamesForCompletion()
-      .catch((err) => this.messageBus.emit('mongosh:error', err, 'shell-api'));
-    this.currentDb._mongo
-      ._getDatabaseNamesForCompletion()
-      .catch((err) => this.messageBus.emit('mongosh:error', err, 'shell-api'));
+    if (this.preFetchCollectionAndDatabaseNames) {
+      // Pre-fetch for autocompletion.
+      this.currentDb
+        ._getCollectionNamesForCompletion()
+        .catch((err) =>
+          this.messageBus.emit('mongosh:error', err, 'shell-api')
+        );
+      this.currentDb._mongo
+        ._getDatabaseNamesForCompletion()
+        .catch((err) =>
+          this.messageBus.emit('mongosh:error', err, 'shell-api')
+        );
+    }
     this.currentCursor = null;
     return newDb;
   }
@@ -310,7 +363,9 @@ export default class ShellInstanceState {
 
   get currentServiceProvider(): ServiceProvider {
     try {
-      return this.currentDb._mongo._serviceProvider;
+      return (
+        this.currentDb._mongo._serviceProvider ?? this.initialServiceProvider
+      );
     } catch (err: any) {
       if (err?.code === ShellApiErrors.NotConnected) {
         return this.initialServiceProvider;
@@ -387,7 +442,7 @@ export default class ShellInstanceState {
         return this.apiVersionInfo();
       },
       connectionInfo: () => {
-        return this.connectionInfo.extraInfo;
+        return this.cachedConnectionInfo()?.extraInfo ?? undefined;
       },
       getCollectionCompletionsForCurrentDb: async (
         collName: string
@@ -484,12 +539,13 @@ export default class ShellInstanceState {
 
   // eslint-disable-next-line @typescript-eslint/require-await
   async getDefaultPrompt(): Promise<string> {
-    if (this.connectionInfo?.extraInfo?.is_stream) {
+    const connectionInfo = await this.fetchConnectionInfo();
+    if (connectionInfo?.extraInfo?.is_stream) {
       return 'AtlasStreamProcessing> ';
     }
 
-    const prefix = this.getDefaultPromptPrefix();
-    const topologyInfo = this.getTopologySpecificPrompt();
+    const prefix = await this.getDefaultPromptPrefix();
+    const topologyInfo = await this.getTopologySpecificPrompt();
     let dbname = '';
     try {
       dbname = this.currentDb.getName();
@@ -499,8 +555,9 @@ export default class ShellInstanceState {
     return `${[prefix, topologyInfo, dbname].filter(Boolean).join(' ')}> `;
   }
 
-  private getDefaultPromptPrefix(): string {
-    const extraConnectionInfo = this.connectionInfo?.extraInfo;
+  private async getDefaultPromptPrefix(): Promise<string> {
+    const connectionInfo = await this.fetchConnectionInfo();
+    const extraConnectionInfo = connectionInfo?.extraInfo;
     if (extraConnectionInfo?.is_data_federation) {
       return 'AtlasDataFederation';
     } else if (extraConnectionInfo?.is_local_atlas) {
@@ -509,14 +566,15 @@ export default class ShellInstanceState {
       return 'Atlas';
     } else if (
       extraConnectionInfo?.is_enterprise ||
-      this.connectionInfo?.buildInfo?.modules?.indexOf('enterprise') >= 0
+      connectionInfo?.buildInfo?.modules?.indexOf('enterprise') >= 0
     ) {
       return 'Enterprise';
     }
     return '';
   }
 
-  private getTopologySpecificPrompt(): string {
+  private async getTopologySpecificPrompt(): Promise<string> {
+    const connectionInfo = await this.fetchConnectionInfo();
     // TODO: once a driver with NODE-3011 is available set type to TopologyDescription
     const description = this.currentServiceProvider.getTopology()?.description;
     if (!description) {
@@ -541,7 +599,7 @@ export default class ShellInstanceState {
         serverTypePrompt = '[primary]';
         break;
       case 'Sharded':
-        serverTypePrompt = this.connectionInfo?.extraInfo?.atlas_version
+        serverTypePrompt = connectionInfo?.extraInfo?.atlas_version
           ? ''
           : '[mongos]';
         break;

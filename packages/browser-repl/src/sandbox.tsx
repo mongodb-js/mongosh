@@ -14,6 +14,7 @@ import {
 import { IframeRuntime } from './iframe-runtime';
 import { Shell } from './index';
 import type { ShellOutputEntry } from './components/shell-output-line';
+import type { ConnectionInfo } from '@mongosh/service-provider-core';
 
 injectGlobal({
   body: {
@@ -94,12 +95,13 @@ class DemoServiceProvider {
     };
   }
 
-  async getConnectionInfo(): Promise<object> {
+  async getConnectionInfo(): Promise<ConnectionInfo> {
     return {
       buildInfo: await this.buildInfo(),
       extraInfo: {
         uri: 'mongodb://localhost/',
       },
+      topology: null,
     };
   }
 

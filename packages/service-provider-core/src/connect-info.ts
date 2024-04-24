@@ -2,35 +2,35 @@
 
 import getBuildInfo from 'mongodb-build-info';
 
-export interface ConnectInfo {
-  is_atlas: boolean;
-  is_localhost: boolean;
-  is_do: boolean;
-  server_version: string;
-  mongosh_version: string;
+export interface ConnectionExtraInfo {
+  is_atlas?: boolean;
+  is_localhost?: boolean;
+  is_do?: boolean;
+  server_version?: string;
+  mongosh_version?: string;
   server_os?: string;
   server_arch?: string;
-  is_enterprise: boolean;
+  is_enterprise?: boolean;
   auth_type?: string;
-  is_data_federation: boolean;
-  is_stream: boolean;
+  is_data_federation?: boolean;
+  is_stream?: boolean;
   dl_version?: string;
   atlas_version?: string;
-  is_genuine: boolean;
-  non_genuine_server_name: string;
-  node_version: string;
+  is_genuine?: boolean;
+  non_genuine_server_name?: string;
+  node_version?: string;
   uri: string;
-  is_local_atlas: boolean;
+  is_local_atlas?: boolean;
 }
 
-export default function getConnectInfo(
+export default function getConnectExtraInfo(
   uri: string,
   mongoshVersion: string,
   buildInfo: any,
   atlasVersion: any,
   topology: any,
   isLocalAtlas: boolean
-): ConnectInfo {
+): ConnectionExtraInfo {
   buildInfo ??= {}; // We're currently not getting buildInfo with --apiStrict.
   const { isGenuine: is_genuine, serverName: non_genuine_server_name } =
     getBuildInfo.getGenuineMongoDB(uri);

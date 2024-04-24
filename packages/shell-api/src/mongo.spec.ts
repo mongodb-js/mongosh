@@ -437,9 +437,11 @@ describe('Mongo', function () {
 
       describe('nonGenuineMongoDBCheck', function () {
         it('returns no warnings for a genuine mongodb connection', async function () {
-          instanceState.connectionInfo = {
-            extraInfo: { is_genuine: true },
-          };
+          serviceProvider.getConnectionInfo.resolves({
+            extraInfo: { is_genuine: true, uri: '' },
+            buildInfo: {},
+            topology: null,
+          });
 
           const result = await mongo.show('nonGenuineMongoDBCheck');
           expect(result.type).to.equal('ShowBannerResult');
@@ -450,9 +452,11 @@ describe('Mongo', function () {
           'when connected deployment is not a genuine mongodb deployment',
           function () {
             beforeEach(function () {
-              instanceState.connectionInfo = {
-                extraInfo: { is_genuine: false },
-              };
+              serviceProvider.getConnectionInfo.resolves({
+                extraInfo: { is_genuine: false, uri: '' },
+                buildInfo: {},
+                topology: null,
+              });
             });
 
             const warning = [
