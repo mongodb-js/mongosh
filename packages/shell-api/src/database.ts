@@ -421,6 +421,11 @@ export default class Database extends ShellApiWithMongoClass {
     pipeline: Document[],
     options?: Document
   ): Promise<AggregationCursor> {
+    if ('background' in (options ?? {})) {
+      this._instanceState.printWarning(
+        'the background option is not currently supported and will be ignored.'
+      );
+    }
     assertArgsDefinedType([pipeline], [true], 'Database.aggregate');
     this._emitDatabaseApiCall('aggregate', { options, pipeline });
 

@@ -177,6 +177,11 @@ export default class Collection extends ShellApiWithMongoClass {
       options = {};
       pipeline = args || [];
     }
+    if ('background' in options) {
+      this._instanceState.printWarning(
+        'the background option is not currently supported and will be ignored.'
+      );
+    }
     this._emitCollectionApiCall('aggregate', { options, pipeline });
     const { aggOptions, dbOptions, explain } = adaptAggregateOptions(options);
 
