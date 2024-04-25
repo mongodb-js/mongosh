@@ -74,17 +74,15 @@ if [[ $ARTIFACT_FILE_NAME == *.dmg ]]; then
 elif [[ $ARTIFACT_FILE_NAME == *.msi ]] || [[ $ARTIFACT_FILE_NAME == *.exe ]]; then
   verify_using_powershell $ARTIFACT_FILE_NAME
 else
-  # Skip testing on windows as it requires gpg setup
-  if [[ $OSTYPE == "cygwin" ]]; then
-    echo "Skipping ZIP verification on Windows"
+  # If we are on windows or mac, we skip the gpg verification
+  # 1. Windows because it requires gpg setup
+  # 2. MacOS as the archives are not signed but the contents of the zip are signed
+  #    (check './sign-packaged-artifact.sh') and hence we don't have any .sig file.
+  if [[ $OSTYPE == "cygwin" ]] || [[ $OSTYPE == "darwin"* ]]; then
+    echo "Skipping GPG verification on {$OSTYPE}"
     exit 0
   fi
-  if [[ $OSTYPE == "darwin" ]]; then
-    # Currently for macos, the archives are not signed but the contents of the zip are signed
-    # (check './sign-packaged-artifact.sh') and hence we don't have any .sig file.
-    echo "Skipping ZIP verification on MacOS"
-    exit 0
-  fi
+
   setup_gpg
   if [[ $ARTIFACT_FILE_NAME == *.rpm ]]; then
     verify_using_rpm $ARTIFACT_FILE_NAME
