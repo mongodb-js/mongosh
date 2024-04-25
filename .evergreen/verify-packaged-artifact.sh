@@ -79,6 +79,12 @@ else
     echo "Skipping ZIP verification on Windows"
     exit 0
   fi
+  if [[ $OSTYPE == "darwin" ]]; then
+    # Currently for macos, the archives are not signed but the contents of the zip are signed
+    # (check './sign-packaged-artifact.sh') and hence we don't have any .sig file.
+    echo "Skipping ZIP verification on MacOS"
+    exit 0
+  fi
   setup_gpg
   if [[ $ARTIFACT_FILE_NAME == *.rpm ]]; then
     verify_using_rpm $ARTIFACT_FILE_NAME

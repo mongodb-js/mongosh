@@ -1193,6 +1193,7 @@ tasks:
           package_variant: <% out(packageVariant) %>
           signature_tag: signed
   - name: verify_artifact_<% out(packageVariant.replace(/-/g, '_')) %>
+    tags: ["smoke-test"]
     depends_on:
       - name: sign_artifact_<% out(packageVariant.replace(/-/g, '_')) %>
         variant: "*"
@@ -1789,11 +1790,6 @@ buildvariants:
   - name: draft_publish_release
     display_name: "Draft/Publish Release"
     run_on: ubuntu2004-small
-    depends_on:
-      <% for (const { packages } of RELEASE_PACKAGE_MATRIX) {
-       for (const { name: packageVariant } of packages) { %>
-      - name: verify_artifact_<% out(packageVariant.replace(/-/g, '_')) %>
-      <% } } %>
     tasks:
       - name: release_draft
       - name: release_publish_dry_run
