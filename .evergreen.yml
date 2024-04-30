@@ -14950,36 +14950,42 @@ buildvariants:
       - name: sign_artifact_linux_x64
       - name: package_artifact_deb_x64
       - name: sign_artifact_deb_x64
+      - name: verify_artifact_deb_x64
       - name: package_artifact_rpm_x64
       - name: sign_artifact_rpm_x64
       - name: package_artifact_linux_x64_openssl11
       - name: sign_artifact_linux_x64_openssl11
       - name: package_artifact_deb_x64_openssl11
       - name: sign_artifact_deb_x64_openssl11
+      - name: verify_artifact_deb_x64_openssl11
       - name: package_artifact_rpm_x64_openssl11
       - name: sign_artifact_rpm_x64_openssl11
       - name: package_artifact_linux_x64_openssl3
       - name: sign_artifact_linux_x64_openssl3
       - name: package_artifact_deb_x64_openssl3
       - name: sign_artifact_deb_x64_openssl3
+      - name: verify_artifact_deb_x64_openssl3
       - name: package_artifact_rpm_x64_openssl3
       - name: sign_artifact_rpm_x64_openssl3
       - name: package_artifact_linux_arm64
       - name: sign_artifact_linux_arm64
       - name: package_artifact_deb_arm64
       - name: sign_artifact_deb_arm64
+      - name: verify_artifact_deb_arm64
       - name: package_artifact_rpm_arm64
       - name: sign_artifact_rpm_arm64
       - name: package_artifact_linux_arm64_openssl11
       - name: sign_artifact_linux_arm64_openssl11
       - name: package_artifact_deb_arm64_openssl11
       - name: sign_artifact_deb_arm64_openssl11
+      - name: verify_artifact_deb_arm64_openssl11
       - name: package_artifact_rpm_arm64_openssl11
       - name: sign_artifact_rpm_arm64_openssl11
       - name: package_artifact_linux_arm64_openssl3
       - name: sign_artifact_linux_arm64_openssl3
       - name: package_artifact_deb_arm64_openssl3
       - name: sign_artifact_deb_arm64_openssl3
+      - name: verify_artifact_deb_arm64_openssl3
       - name: package_artifact_rpm_arm64_openssl3
       - name: sign_artifact_rpm_arm64_openssl3
       - name: package_artifact_linux_ppc64le
@@ -14992,18 +14998,8 @@ buildvariants:
       - name: sign_artifact_rpm_s390x
       - name: sign_artifact_win32_x64
       - name: sign_artifact_win32msi_x64
-  - name: verify_debian_artifact
-    display_name: "Ubuntu 20.04 x64 (Verification)"
-    run_on: ubuntu2004-small
-    tasks:
-      - name: verify_artifact_deb_x64
-      - name: verify_artifact_deb_x64_openssl11
-      - name: verify_artifact_deb_x64_openssl3
-      - name: verify_artifact_deb_arm64
-      - name: verify_artifact_deb_arm64_openssl11
-      - name: verify_artifact_deb_arm64_openssl3
   - name: verify_rhel_artifact
-    display_name: "RHEL (Verification)"
+    display_name: "RHEL (Signature Verification)"
     run_on: rhel80-small
     tasks:
       - name: verify_artifact_rpm_x64
@@ -15015,13 +15011,13 @@ buildvariants:
       - name: verify_artifact_rpm_ppc64le
       - name: verify_artifact_rpm_s390x
   - name: verify_windows_artifact
-    display_name: "Windows (Verification)"
+    display_name: "Windows (Signature Verification)"
     run_on: windows-vsCurrent-small
     tasks:
       - name: verify_artifact_win32_x64
       - name: verify_artifact_win32msi_x64
   - name: verify_mac_artifact
-    display_name: "MacOS (Verification)"
+    display_name: "MacOS (Signature Verification)"
     run_on: macos-1100
     tasks:
       - name: verify_artifact_darwin_arm64

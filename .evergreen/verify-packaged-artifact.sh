@@ -48,7 +48,7 @@ verify_using_rpm() {
   echo "Verifying $1 using rpm"
   output=$(rpm --dbpath "$GPG_HOME" -K $ARTIFACTS_DIR/$1)
 
-  # Check if the output contains the string "pgp md5 OK"
+  # Check if the output contains the string "digests signatures OK"
   if [[ $output != *"digests signatures OK"* ]]; then
     echo "File $1 is not signed"
     exit 1

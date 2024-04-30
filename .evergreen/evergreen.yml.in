@@ -1388,20 +1388,14 @@ buildvariants:
             if (executableOsId.startsWith('linux')) { %>
       - name: package_artifact_<% out(packageVariant.replace(/-/g, '_')) %>
       - name: sign_artifact_<% out(packageVariant.replace(/-/g, '_')) %>
+      <% if (packageVariant.startsWith('deb')) { %>
+      - name: verify_artifact_<% out(packageVariant.replace(/-/g, '_')) %>
+      <% } %>
       <% } } } %>
       - name: sign_artifact_win32_x64
       - name: sign_artifact_win32msi_x64
-  - name: verify_debian_artifact
-    display_name: "Ubuntu 20.04 x64 (Verification)"
-    run_on: ubuntu2004-small
-    tasks:
-      <% for (const { packages } of RELEASE_PACKAGE_MATRIX) {
-          for (const { name: packageVariant } of packages) {
-            if (packageVariant.startsWith('deb')) { %>
-      - name: verify_artifact_<% out(packageVariant.replace(/-/g, '_')) %>
-      <% } } } %>
   - name: verify_rhel_artifact
-    display_name: "RHEL (Verification)"
+    display_name: "RHEL (Signature Verification)"
     run_on: rhel80-small
     tasks:
       <% for (const { packages } of RELEASE_PACKAGE_MATRIX) {
@@ -1410,13 +1404,13 @@ buildvariants:
       - name: verify_artifact_<% out(packageVariant.replace(/-/g, '_')) %>
       <% } } } %>
   - name: verify_windows_artifact
-    display_name: "Windows (Verification)"
+    display_name: "Windows (Signature Verification)"
     run_on: windows-vsCurrent-small
     tasks:
       - name: verify_artifact_win32_x64
       - name: verify_artifact_win32msi_x64
   - name: verify_mac_artifact
-    display_name: "MacOS (Verification)"
+    display_name: "MacOS (Signature Verification)"
     run_on: macos-1100
     tasks:
       - name: verify_artifact_darwin_arm64
