@@ -17,7 +17,10 @@ export async function runDownloadCryptLibrary(config: Config): Promise<void> {
     fsConstants.COPYFILE_FICLONE
   );
   await fs.writeFile(
-    path.join(path.dirname(cryptLibrary), `.${cryptLibrary}.version`),
+    path.join(
+      path.dirname(cryptLibrary),
+      `.${path.basename(cryptLibrary)}.version`
+    ),
     cryptLibraryVersion
   );
 }
