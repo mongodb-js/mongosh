@@ -6530,10 +6530,6 @@ functions:
           DISTRO_ID: ${distro_id}
           NODE_JS_VERSION: ${node_js_version}
           MONGOSH_SHARED_OPENSSL: ${mongosh_shared_openssl}
-    - command: expansions.update
-      params:
-        ignore_missing_file: false
-        file: tmp/compiling-context.yml
   upload_sbom:
     - command: s3.put
       params:
@@ -6554,6 +6550,20 @@ functions:
         permissions: public-read
         content_type: text/plain
   upload_compiled_artifact:
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        env:
+          DISTRO_ID: ${distro_id}
+        script: |
+          set -e
+          set -x
+          bash .evergreen/compilation-context-expansions.sh
+    - command: expansions.update
+      params:
+        ignore_missing_file: false
+        file: tmp/compiling-context.yml
     - command: s3.put
       params:
         aws_key: ${aws_key}
