@@ -1187,3 +1187,7 @@ export function buildConfigChunksCollectionMatch(
     ? { uuid: configCollectionsInfo.uuid } // new format
     : { ns: configCollectionsInfo._id }; // old format
 }
+
+export const aggregateBackgroundOptionNotSupportedHelp =
+  'the background option is not supported by the aggregate method and will be ignored, ' +
+  'use runCommand to use { background: true } with Atlas Data Federation';
