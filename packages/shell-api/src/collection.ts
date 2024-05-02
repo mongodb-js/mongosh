@@ -179,7 +179,7 @@ export default class Collection extends ShellApiWithMongoClass {
       pipeline = args || [];
     }
     if ('background' in options) {
-      this._instanceState.printWarning(
+      await this._instanceState.printWarning(
         aggregateBackgroundOptionNotSupportedHelp
       );
     }

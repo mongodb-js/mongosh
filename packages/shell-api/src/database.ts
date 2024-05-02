@@ -423,7 +423,7 @@ export default class Database extends ShellApiWithMongoClass {
     options?: Document
   ): Promise<AggregationCursor> {
     if ('background' in (options ?? {})) {
-      this._instanceState.printWarning(
+      await this._instanceState.printWarning(
         aggregateBackgroundOptionNotSupportedHelp
       );
     }
