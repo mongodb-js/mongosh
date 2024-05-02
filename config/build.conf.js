@@ -48,7 +48,7 @@ const EXECUTABLE_PATH = path.join(OUTPUT_DIR, process.platform === 'win32' ? 'mo
  * We use the name mongosh_crypt_v1 to avoid conflicts with users
  * potentially installing the 'proper' crypt shared library.
  */
-const CRYPT_LIBRARY_PATH = path.resolve(TMP_DIR, 'mongosh_crypt_v1.' + SHARED_LIBRARY_SUFFIX);
+const CRYPT_LIBRARY_PATH = path.resolve(OUTPUT_DIR, 'mongosh_crypt_v1.' + SHARED_LIBRARY_SUFFIX);
 
 /**
  * Build info JSON data file.
@@ -148,7 +148,11 @@ module.exports = {
         {
           sourceFilePath: path.resolve(__dirname, '..', 'THIRD_PARTY_NOTICES.md'),
           packagedFilePath: 'THIRD_PARTY_NOTICES'
-        }
+        },
+        {
+          sourceFilePath: path.resolve(EXECUTABLE_PATH, '.sbom.json'),
+          packagedFilePath: '.sbom.json'
+        },
       ],
       manpage: {
         sourceFilePath: path.resolve(TMP_DIR, 'manpage', MANPAGE_NAME),

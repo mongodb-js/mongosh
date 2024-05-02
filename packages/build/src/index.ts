@@ -17,6 +17,7 @@ const validCommands: (ReleaseCommand | 'trigger-release')[] = [
   'draft',
   'publish',
   'sign',
+  'download-crypt-shared-library',
   'download-and-list-artifacts',
   'trigger-release',
 ] as const;

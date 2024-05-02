@@ -91,7 +91,3 @@ if uname -a | grep -q 'Linux.*x86_64'; then
   # accidentally raised hardware requirements by changing how we compile mongosh.
   test $(objdump -d dist/mongosh | grep '\bvmovd\b' | wc -l) -lt 1250
 fi
-
-tar cvzf dist.tgz dist
-
-source .evergreen/compilation-context-expansions.sh

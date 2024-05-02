@@ -2,13 +2,13 @@
 import path from 'path';
 import { promises as fs, constants as fsConstants } from 'fs';
 import type { DownloadOptions } from '@mongodb-js/mongodb-downloader';
-import { downloadMongoDb } from '@mongodb-js/mongodb-downloader';
+import { downloadMongoDbWithVersionInfo } from '@mongodb-js/mongodb-downloader';
 import type { PackageVariant } from '../config';
 import { getDistro, getArch } from '../config';
 
 export async function downloadCryptLibrary(
   variant: PackageVariant | 'host'
-): Promise<string> {
+): Promise<{ cryptLibrary: string; version: string }> {
   const opts: DownloadOptions = {};
   opts.arch = variant === 'host' ? undefined : getArch(variant);
   opts.distro = variant === 'host' ? undefined : lookupReleaseDistro(variant);
@@ -38,7 +38,8 @@ export async function downloadCryptLibrary(
   if (/s390x/.test(opts.arch || process.arch)) {
     versionSpec = '6.0.x'; // The 7.x+ server releases don't have RHEL7-compatible crypt_shared libraries
   }
-  const libdir = await downloadMongoDb(cryptTmpTargetDir, versionSpec, opts);
+  const { downloadedBinDir: libdir, version } =
+    await downloadMongoDbWithVersionInfo(cryptTmpTargetDir, versionSpec, opts);
   const cryptLibrary = path.join(
     libdir,
     (await fs.readdir(libdir)).find((filename) =>
@@ -47,8 +48,8 @@ export async function downloadCryptLibrary(
   );
   // Make sure that the binary exists and is readable.
   await fs.access(cryptLibrary, fsConstants.R_OK);
-  console.info('mongosh: downloaded', cryptLibrary);
-  return cryptLibrary;
+  console.info('mongosh: downloaded', cryptLibrary, 'version', version);
+  return { cryptLibrary, version };
 }
 
 function lookupReleaseDistro(packageVariant: PackageVariant): string {
