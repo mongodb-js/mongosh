@@ -332,24 +332,32 @@ export default class ShellApi extends ShellApiClass {
   @returnsPromise
   @platforms(['CLI'])
   async enableTelemetry(): Promise<any> {
-    const result = await this._instanceState.evaluationListener.setConfig?.(
-      'enableTelemetry',
-      true
-    );
-    if (result === 'success') {
-      return i18n.__('cli-repl.cli-repl.enabledTelemetry');
+    try {
+      const result = await this._instanceState.evaluationListener.setConfig?.(
+        'enableTelemetry',
+        true
+      );
+      if (result === 'success') {
+        return i18n.__('cli-repl.cli-repl.enabledTelemetry');
+      }
+    } catch (err: unknown) {
+      return String(err);
     }
   }
 
   @returnsPromise
   @platforms(['CLI'])
   async disableTelemetry(): Promise<any> {
-    const result = await this._instanceState.evaluationListener.setConfig?.(
-      'enableTelemetry',
-      false
-    );
-    if (result === 'success') {
-      return i18n.__('cli-repl.cli-repl.disabledTelemetry');
+    try {
+      const result = await this._instanceState.evaluationListener.setConfig?.(
+        'enableTelemetry',
+        false
+      );
+      if (result === 'success') {
+        return i18n.__('cli-repl.cli-repl.disabledTelemetry');
+      }
+    } catch (err: unknown) {
+      return String(err);
     }
   }
 

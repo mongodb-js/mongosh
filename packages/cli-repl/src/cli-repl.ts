@@ -225,7 +225,8 @@ export class CliRepl implements MongoshIOProvider {
   get forceDisableTelemetry(): boolean {
     return (
       this.globalConfig?.forceDisableTelemetry ||
-      (this.isContainerizedEnvironment && !this.mongoshRepl.isInteractive)
+      (this.isContainerizedEnvironment && !this.mongoshRepl.isInteractive) ||
+      !!process.env.MONGOSH_FORCE_DISABLE_TELEMETRY_FOR_TESTING
     );
   }
 
