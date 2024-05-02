@@ -2,6 +2,7 @@
 set -e
 set -x
 npm run evergreen-release download-crypt-shared-library
+rm -vrf .sbom && mkdir -vp .sbom
 npm run write-node-js-dep
 npm run create-purls-file
 cp .sbom/purls.txt dist/.purls.txt
