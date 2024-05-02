@@ -425,6 +425,7 @@ functions:
         script: |
           set -e
           set -x
+          tar cvzf dist.tgz dist
           bash .evergreen/compilation-context-expansions.sh
     - command: expansions.update
       params:
