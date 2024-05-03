@@ -6,6 +6,9 @@ cd $(pwd)
 
 source .evergreen/setup-env.sh
 
+# make sure our .sbom files are freshly created
+rm -vrf .sbom && mkdir -vp .sbom
+
 if uname -a | grep -q 'Linux.*x86_64'; then
   rm -rf "tmp/.sccache"
   mkdir -p "tmp/.sccache"
@@ -91,3 +94,9 @@ if uname -a | grep -q 'Linux.*x86_64'; then
   # accidentally raised hardware requirements by changing how we compile mongosh.
   test $(objdump -d dist/mongosh | grep '\bvmovd\b' | wc -l) -lt 1250
 fi
+
+npm run write-node-js-dep
+npm run create-purls-file
+cp .sbom/purls.txt dist/.purls.txt
+
+cat dist/.purls.txt

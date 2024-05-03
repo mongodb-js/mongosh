@@ -2,10 +2,6 @@
 set -e
 set -x
 npm run evergreen-release download-crypt-shared-library
-rm -vrf .sbom && mkdir -vp .sbom
-npm run write-node-js-dep
-npm run create-purls-file
-cp .sbom/purls.txt dist/.purls.txt
 echo "pkg:generic/mongo_crypt_shared@$(cat dist/.mongo_crypt_*.version)" >> dist/.purls.txt
 
 cat dist/.purls.txt
