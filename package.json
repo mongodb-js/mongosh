@@ -106,7 +106,7 @@
     "husky": "^8.0.3",
     "mocha": "^10.2.0",
     "mongodb": "^6.5.0",
-    "mongodb-runner": "^5.4.6",
+    "mongodb-runner": "^5.6.1",
     "node-gyp": "^9.0.0",
     "nyc": "^15.1.0",
     "pkg-up": "^3.1.0",
