@@ -4,8 +4,8 @@ const path = require('path');
 const os = require('os');
 
 const SHARED_LIBRARY_SUFFIX =
-  process.platform === 'win32' ? 'dll' :
-  process.platform === 'darwin' ? 'dylib' : 'so';
+  (process.env.PACKAGE_VARIANT ?? process.platform).startsWith('win32') ? 'dll' :
+  (process.env.PACKAGE_VARIANT ?? process.platform).startsWith('darwin') ? 'dylib' : 'so';
 
 /**
  * The project root.
