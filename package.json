@@ -53,7 +53,7 @@
     "update-node-js-versions": "npx @pkgjs/nv ls v20 > .evergreen/node-20-latest.json && npx @pkgjs/nv ls v16 > .evergreen/node-16-latest.json",
     "update-evergreen-config": "npm run test-evergreen-expansions && node .evergreen/generate-evergreen-yml.js .evergreen/evergreen.yml.in > .evergreen.yml",
     "mark-ci-required-optional-dependencies": "ts-node scripts/mark-ci-required-optional-dependencies.ts",
-    "write-node-js-dep": "echo '[{\"name\": \".node.js\", \"version\":\"'\"$NODE_JS_VERSION\"'\"}]' > .sbom/node-js-dep.json",
+    "write-node-js-dep": "node scripts/write-nodejs-dep > .sbom/node-js-dep.json",
     "scan-node-js": "mongodb-sbom-tools scan-node-js --version=$NODE_JS_VERSION > .sbom/node-js-vuln.json",
     "snyk-test": "node scripts/snyk-test.js",
     "pregenerate-vulnerability-report": "npm run create-dependency-sbom-lists && npm run snyk-test && npm run scan-node-js",
