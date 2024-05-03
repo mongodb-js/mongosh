@@ -6530,6 +6530,37 @@ functions:
           DISTRO_ID: ${distro_id}
           NODE_JS_VERSION: ${node_js_version}
           MONGOSH_SHARED_OPENSSL: ${mongosh_shared_openssl}
+  upload_sbom:
+    - command: s3.put
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/dist/.sbom.json
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-${executable_os_id}${extra_upload_tag}-sbom.json
+        bucket: mciuploads
+        permissions: public-read
+        content_type: application/json
+    - command: s3.put
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/dist/.purls.txt
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-${executable_os_id}${extra_upload_tag}-purls.txt
+        bucket: mciuploads
+        permissions: public-read
+        content_type: text/plain
+  upload_compiled_artifact:
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        env:
+          DISTRO_ID: ${distro_id}
+        script: |
+          set -e
+          set -x
+          tar cvzf dist.tgz dist
+          bash .evergreen/compilation-context-expansions.sh
     - command: expansions.update
       params:
         ignore_missing_file: false
@@ -6601,6 +6632,17 @@ functions:
   # - package_variant
   # - signature_tag (either 'signed' or 'unsigned')
   ###
+  add_crypt_shared_and_sbom:
+    - command: subprocess.exec
+      params:
+        working_dir: src
+        binary: bash .evergreen/download-crypt-shared-and-generate-sbom.sh
+        env:
+          NODE_JS_VERSION: ${node_js_version}
+          DISTRO_ID_OVERRIDE: ${distro_id}
+          PACKAGE_VARIANT: ${package_variant}
+          ARTIFACTORY_USERNAME: ${artifactory_username}
+          ARTIFACTORY_PASSWORD: ${artifactory_password}
   package_artifact:
     - command: expansions.write
       type: setup
@@ -6822,11 +6864,6 @@ functions:
           }
 
   generate_license_and_vulnerability_report:
-    - command: expansions.write
-      type: system
-      params:
-        file: tmp/expansions.yaml
-        redacted: true
     - command: shell.exec
       params:
         working_dir: src
@@ -6839,7 +6876,6 @@ functions:
           JIRA_API_TOKEN: ${jira_api_token}
         script: |
           set -e
-          export NODE_JS_VERSION=${node_js_version}
           source .evergreen/setup-env.sh
 
           # validate licenses, we first remove THIRD_PARTY_NOTICES.md, so we are sure
@@ -10434,6 +10470,9 @@ tasks:
       - func: compile_artifact
         vars:
           node_js_version: "20.12.2"
+      - func: upload_compiled_artifact
+        vars:
+          node_js_version: "20.12.2"
 
   - name: generate_license_and_vulnerability_report
     tags: ["extra-integration-test"]
@@ -11810,7 +11849,7 @@ tasks:
   ###
   # PACKAGING
   ###
-  - name: package_artifact_darwin_x64
+  - name: add_crypt_shared_and_sbom_darwin_x64
     depends_on:
       - name: compile_artifact
         variant: darwin
@@ -11822,6 +11861,31 @@ tasks:
       - func: download_compiled_artifact
         vars:
           executable_os_id: darwin-x64
+      - func: add_crypt_shared_and_sbom
+        vars:
+          package_variant: darwin-x64
+          executable_os_id: darwin-x64
+      - func: upload_sbom
+        vars:
+          executable_os_id: darwin-x64
+          extra_upload_tag: -darwin-x64-sbom
+      - func: upload_compiled_artifact
+        vars:
+          executable_os_id: darwin-x64
+          extra_upload_tag: -darwin-x64-complete
+  - name: package_artifact_darwin_x64
+    depends_on:
+      - name: add_crypt_shared_and_sbom_darwin_x64
+        variant: linux_package
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.2"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: darwin-x64
+          extra_upload_tag: -darwin-x64-complete
       - func: package_artifact
         vars:
           node_js_version: "20.12.2"
@@ -11867,7 +11931,7 @@ tasks:
           package_variant: darwin-x64
           signature_tag: signed
       - func: verify_artifact
-  - name: package_artifact_darwin_arm64
+  - name: add_crypt_shared_and_sbom_darwin_arm64
     depends_on:
       - name: compile_artifact
         variant: darwin_arm64
@@ -11879,6 +11943,31 @@ tasks:
       - func: download_compiled_artifact
         vars:
           executable_os_id: darwin-arm64
+      - func: add_crypt_shared_and_sbom
+        vars:
+          package_variant: darwin-arm64
+          executable_os_id: darwin-arm64
+      - func: upload_sbom
+        vars:
+          executable_os_id: darwin-arm64
+          extra_upload_tag: -darwin-arm64-sbom
+      - func: upload_compiled_artifact
+        vars:
+          executable_os_id: darwin-arm64
+          extra_upload_tag: -darwin-arm64-complete
+  - name: package_artifact_darwin_arm64
+    depends_on:
+      - name: add_crypt_shared_and_sbom_darwin_arm64
+        variant: linux_package
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.2"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: darwin-arm64
+          extra_upload_tag: -darwin-arm64-complete
       - func: package_artifact
         vars:
           node_js_version: "20.12.2"
@@ -11924,7 +12013,7 @@ tasks:
           package_variant: darwin-arm64
           signature_tag: signed
       - func: verify_artifact
-  - name: package_artifact_linux_x64
+  - name: add_crypt_shared_and_sbom_linux_x64
     depends_on:
       - name: compile_artifact
         variant: linux_x64_build
@@ -11936,6 +12025,31 @@ tasks:
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64
+      - func: add_crypt_shared_and_sbom
+        vars:
+          package_variant: linux-x64
+          executable_os_id: linux-x64
+      - func: upload_sbom
+        vars:
+          executable_os_id: linux-x64
+          extra_upload_tag: -linux-x64-sbom
+      - func: upload_compiled_artifact
+        vars:
+          executable_os_id: linux-x64
+          extra_upload_tag: -linux-x64-complete
+  - name: package_artifact_linux_x64
+    depends_on:
+      - name: add_crypt_shared_and_sbom_linux_x64
+        variant: linux_package
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.2"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-x64
+          extra_upload_tag: -linux-x64-complete
       - func: package_artifact
         vars:
           node_js_version: "20.12.2"
@@ -11981,7 +12095,7 @@ tasks:
           package_variant: linux-x64
           signature_tag: signed
       - func: verify_artifact
-  - name: package_artifact_deb_x64
+  - name: add_crypt_shared_and_sbom_deb_x64
     depends_on:
       - name: compile_artifact
         variant: linux_x64_build
@@ -11993,6 +12107,31 @@ tasks:
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64
+      - func: add_crypt_shared_and_sbom
+        vars:
+          package_variant: deb-x64
+          executable_os_id: linux-x64
+      - func: upload_sbom
+        vars:
+          executable_os_id: linux-x64
+          extra_upload_tag: -deb-x64-sbom
+      - func: upload_compiled_artifact
+        vars:
+          executable_os_id: linux-x64
+          extra_upload_tag: -deb-x64-complete
+  - name: package_artifact_deb_x64
+    depends_on:
+      - name: add_crypt_shared_and_sbom_deb_x64
+        variant: linux_package
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.2"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-x64
+          extra_upload_tag: -deb-x64-complete
       - func: package_artifact
         vars:
           node_js_version: "20.12.2"
@@ -12038,7 +12177,7 @@ tasks:
           package_variant: deb-x64
           signature_tag: signed
       - func: verify_artifact
-  - name: package_artifact_rpm_x64
+  - name: add_crypt_shared_and_sbom_rpm_x64
     depends_on:
       - name: compile_artifact
         variant: linux_x64_build
@@ -12050,6 +12189,31 @@ tasks:
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64
+      - func: add_crypt_shared_and_sbom
+        vars:
+          package_variant: rpm-x64
+          executable_os_id: linux-x64
+      - func: upload_sbom
+        vars:
+          executable_os_id: linux-x64
+          extra_upload_tag: -rpm-x64-sbom
+      - func: upload_compiled_artifact
+        vars:
+          executable_os_id: linux-x64
+          extra_upload_tag: -rpm-x64-complete
+  - name: package_artifact_rpm_x64
+    depends_on:
+      - name: add_crypt_shared_and_sbom_rpm_x64
+        variant: linux_package
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.2"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-x64
+          extra_upload_tag: -rpm-x64-complete
       - func: package_artifact
         vars:
           node_js_version: "20.12.2"
@@ -12095,7 +12259,7 @@ tasks:
           package_variant: rpm-x64
           signature_tag: signed
       - func: verify_artifact
-  - name: package_artifact_linux_x64_openssl11
+  - name: add_crypt_shared_and_sbom_linux_x64_openssl11
     depends_on:
       - name: compile_artifact
         variant: linux_x64_build_openssl11
@@ -12107,6 +12271,31 @@ tasks:
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64-openssl11
+      - func: add_crypt_shared_and_sbom
+        vars:
+          package_variant: linux-x64-openssl11
+          executable_os_id: linux-x64-openssl11
+      - func: upload_sbom
+        vars:
+          executable_os_id: linux-x64-openssl11
+          extra_upload_tag: -linux-x64-openssl11-sbom
+      - func: upload_compiled_artifact
+        vars:
+          executable_os_id: linux-x64-openssl11
+          extra_upload_tag: -linux-x64-openssl11-complete
+  - name: package_artifact_linux_x64_openssl11
+    depends_on:
+      - name: add_crypt_shared_and_sbom_linux_x64_openssl11
+        variant: linux_package
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.2"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-x64-openssl11
+          extra_upload_tag: -linux-x64-openssl11-complete
       - func: package_artifact
         vars:
           node_js_version: "20.12.2"
@@ -12152,7 +12341,7 @@ tasks:
           package_variant: linux-x64-openssl11
           signature_tag: signed
       - func: verify_artifact
-  - name: package_artifact_deb_x64_openssl11
+  - name: add_crypt_shared_and_sbom_deb_x64_openssl11
     depends_on:
       - name: compile_artifact
         variant: linux_x64_build_openssl11
@@ -12164,6 +12353,31 @@ tasks:
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64-openssl11
+      - func: add_crypt_shared_and_sbom
+        vars:
+          package_variant: deb-x64-openssl11
+          executable_os_id: linux-x64-openssl11
+      - func: upload_sbom
+        vars:
+          executable_os_id: linux-x64-openssl11
+          extra_upload_tag: -deb-x64-openssl11-sbom
+      - func: upload_compiled_artifact
+        vars:
+          executable_os_id: linux-x64-openssl11
+          extra_upload_tag: -deb-x64-openssl11-complete
+  - name: package_artifact_deb_x64_openssl11
+    depends_on:
+      - name: add_crypt_shared_and_sbom_deb_x64_openssl11
+        variant: linux_package
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.2"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-x64-openssl11
+          extra_upload_tag: -deb-x64-openssl11-complete
       - func: package_artifact
         vars:
           node_js_version: "20.12.2"
@@ -12209,7 +12423,7 @@ tasks:
           package_variant: deb-x64-openssl11
           signature_tag: signed
       - func: verify_artifact
-  - name: package_artifact_rpm_x64_openssl11
+  - name: add_crypt_shared_and_sbom_rpm_x64_openssl11
     depends_on:
       - name: compile_artifact
         variant: linux_x64_build_openssl11
@@ -12221,6 +12435,31 @@ tasks:
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64-openssl11
+      - func: add_crypt_shared_and_sbom
+        vars:
+          package_variant: rpm-x64-openssl11
+          executable_os_id: linux-x64-openssl11
+      - func: upload_sbom
+        vars:
+          executable_os_id: linux-x64-openssl11
+          extra_upload_tag: -rpm-x64-openssl11-sbom
+      - func: upload_compiled_artifact
+        vars:
+          executable_os_id: linux-x64-openssl11
+          extra_upload_tag: -rpm-x64-openssl11-complete
+  - name: package_artifact_rpm_x64_openssl11
+    depends_on:
+      - name: add_crypt_shared_and_sbom_rpm_x64_openssl11
+        variant: linux_package
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.2"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-x64-openssl11
+          extra_upload_tag: -rpm-x64-openssl11-complete
       - func: package_artifact
         vars:
           node_js_version: "20.12.2"
@@ -12266,7 +12505,7 @@ tasks:
           package_variant: rpm-x64-openssl11
           signature_tag: signed
       - func: verify_artifact
-  - name: package_artifact_linux_x64_openssl3
+  - name: add_crypt_shared_and_sbom_linux_x64_openssl3
     depends_on:
       - name: compile_artifact
         variant: linux_x64_build_openssl3
@@ -12278,6 +12517,31 @@ tasks:
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64-openssl3
+      - func: add_crypt_shared_and_sbom
+        vars:
+          package_variant: linux-x64-openssl3
+          executable_os_id: linux-x64-openssl3
+      - func: upload_sbom
+        vars:
+          executable_os_id: linux-x64-openssl3
+          extra_upload_tag: -linux-x64-openssl3-sbom
+      - func: upload_compiled_artifact
+        vars:
+          executable_os_id: linux-x64-openssl3
+          extra_upload_tag: -linux-x64-openssl3-complete
+  - name: package_artifact_linux_x64_openssl3
+    depends_on:
+      - name: add_crypt_shared_and_sbom_linux_x64_openssl3
+        variant: linux_package
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.2"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-x64-openssl3
+          extra_upload_tag: -linux-x64-openssl3-complete
       - func: package_artifact
         vars:
           node_js_version: "20.12.2"
@@ -12323,7 +12587,7 @@ tasks:
           package_variant: linux-x64-openssl3
           signature_tag: signed
       - func: verify_artifact
-  - name: package_artifact_deb_x64_openssl3
+  - name: add_crypt_shared_and_sbom_deb_x64_openssl3
     depends_on:
       - name: compile_artifact
         variant: linux_x64_build_openssl3
@@ -12335,6 +12599,31 @@ tasks:
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64-openssl3
+      - func: add_crypt_shared_and_sbom
+        vars:
+          package_variant: deb-x64-openssl3
+          executable_os_id: linux-x64-openssl3
+      - func: upload_sbom
+        vars:
+          executable_os_id: linux-x64-openssl3
+          extra_upload_tag: -deb-x64-openssl3-sbom
+      - func: upload_compiled_artifact
+        vars:
+          executable_os_id: linux-x64-openssl3
+          extra_upload_tag: -deb-x64-openssl3-complete
+  - name: package_artifact_deb_x64_openssl3
+    depends_on:
+      - name: add_crypt_shared_and_sbom_deb_x64_openssl3
+        variant: linux_package
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.2"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-x64-openssl3
+          extra_upload_tag: -deb-x64-openssl3-complete
       - func: package_artifact
         vars:
           node_js_version: "20.12.2"
@@ -12380,7 +12669,7 @@ tasks:
           package_variant: deb-x64-openssl3
           signature_tag: signed
       - func: verify_artifact
-  - name: package_artifact_rpm_x64_openssl3
+  - name: add_crypt_shared_and_sbom_rpm_x64_openssl3
     depends_on:
       - name: compile_artifact
         variant: linux_x64_build_openssl3
@@ -12392,6 +12681,31 @@ tasks:
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-x64-openssl3
+      - func: add_crypt_shared_and_sbom
+        vars:
+          package_variant: rpm-x64-openssl3
+          executable_os_id: linux-x64-openssl3
+      - func: upload_sbom
+        vars:
+          executable_os_id: linux-x64-openssl3
+          extra_upload_tag: -rpm-x64-openssl3-sbom
+      - func: upload_compiled_artifact
+        vars:
+          executable_os_id: linux-x64-openssl3
+          extra_upload_tag: -rpm-x64-openssl3-complete
+  - name: package_artifact_rpm_x64_openssl3
+    depends_on:
+      - name: add_crypt_shared_and_sbom_rpm_x64_openssl3
+        variant: linux_package
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.2"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-x64-openssl3
+          extra_upload_tag: -rpm-x64-openssl3-complete
       - func: package_artifact
         vars:
           node_js_version: "20.12.2"
@@ -12437,7 +12751,7 @@ tasks:
           package_variant: rpm-x64-openssl3
           signature_tag: signed
       - func: verify_artifact
-  - name: package_artifact_linux_arm64
+  - name: add_crypt_shared_and_sbom_linux_arm64
     depends_on:
       - name: compile_artifact
         variant: linux_arm64_build
@@ -12449,6 +12763,31 @@ tasks:
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64
+      - func: add_crypt_shared_and_sbom
+        vars:
+          package_variant: linux-arm64
+          executable_os_id: linux-arm64
+      - func: upload_sbom
+        vars:
+          executable_os_id: linux-arm64
+          extra_upload_tag: -linux-arm64-sbom
+      - func: upload_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64
+          extra_upload_tag: -linux-arm64-complete
+  - name: package_artifact_linux_arm64
+    depends_on:
+      - name: add_crypt_shared_and_sbom_linux_arm64
+        variant: linux_package
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.2"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64
+          extra_upload_tag: -linux-arm64-complete
       - func: package_artifact
         vars:
           node_js_version: "20.12.2"
@@ -12494,7 +12833,7 @@ tasks:
           package_variant: linux-arm64
           signature_tag: signed
       - func: verify_artifact
-  - name: package_artifact_deb_arm64
+  - name: add_crypt_shared_and_sbom_deb_arm64
     depends_on:
       - name: compile_artifact
         variant: linux_arm64_build
@@ -12506,6 +12845,31 @@ tasks:
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64
+      - func: add_crypt_shared_and_sbom
+        vars:
+          package_variant: deb-arm64
+          executable_os_id: linux-arm64
+      - func: upload_sbom
+        vars:
+          executable_os_id: linux-arm64
+          extra_upload_tag: -deb-arm64-sbom
+      - func: upload_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64
+          extra_upload_tag: -deb-arm64-complete
+  - name: package_artifact_deb_arm64
+    depends_on:
+      - name: add_crypt_shared_and_sbom_deb_arm64
+        variant: linux_package
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.2"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64
+          extra_upload_tag: -deb-arm64-complete
       - func: package_artifact
         vars:
           node_js_version: "20.12.2"
@@ -12551,7 +12915,7 @@ tasks:
           package_variant: deb-arm64
           signature_tag: signed
       - func: verify_artifact
-  - name: package_artifact_rpm_arm64
+  - name: add_crypt_shared_and_sbom_rpm_arm64
     depends_on:
       - name: compile_artifact
         variant: linux_arm64_build
@@ -12563,6 +12927,31 @@ tasks:
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64
+      - func: add_crypt_shared_and_sbom
+        vars:
+          package_variant: rpm-arm64
+          executable_os_id: linux-arm64
+      - func: upload_sbom
+        vars:
+          executable_os_id: linux-arm64
+          extra_upload_tag: -rpm-arm64-sbom
+      - func: upload_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64
+          extra_upload_tag: -rpm-arm64-complete
+  - name: package_artifact_rpm_arm64
+    depends_on:
+      - name: add_crypt_shared_and_sbom_rpm_arm64
+        variant: linux_package
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.2"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64
+          extra_upload_tag: -rpm-arm64-complete
       - func: package_artifact
         vars:
           node_js_version: "20.12.2"
@@ -12608,7 +12997,7 @@ tasks:
           package_variant: rpm-arm64
           signature_tag: signed
       - func: verify_artifact
-  - name: package_artifact_linux_arm64_openssl11
+  - name: add_crypt_shared_and_sbom_linux_arm64_openssl11
     depends_on:
       - name: compile_artifact
         variant: linux_arm64_build_openssl11
@@ -12620,6 +13009,31 @@ tasks:
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64-openssl11
+      - func: add_crypt_shared_and_sbom
+        vars:
+          package_variant: linux-arm64-openssl11
+          executable_os_id: linux-arm64-openssl11
+      - func: upload_sbom
+        vars:
+          executable_os_id: linux-arm64-openssl11
+          extra_upload_tag: -linux-arm64-openssl11-sbom
+      - func: upload_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64-openssl11
+          extra_upload_tag: -linux-arm64-openssl11-complete
+  - name: package_artifact_linux_arm64_openssl11
+    depends_on:
+      - name: add_crypt_shared_and_sbom_linux_arm64_openssl11
+        variant: linux_package
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.2"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64-openssl11
+          extra_upload_tag: -linux-arm64-openssl11-complete
       - func: package_artifact
         vars:
           node_js_version: "20.12.2"
@@ -12665,7 +13079,7 @@ tasks:
           package_variant: linux-arm64-openssl11
           signature_tag: signed
       - func: verify_artifact
-  - name: package_artifact_deb_arm64_openssl11
+  - name: add_crypt_shared_and_sbom_deb_arm64_openssl11
     depends_on:
       - name: compile_artifact
         variant: linux_arm64_build_openssl11
@@ -12677,6 +13091,31 @@ tasks:
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64-openssl11
+      - func: add_crypt_shared_and_sbom
+        vars:
+          package_variant: deb-arm64-openssl11
+          executable_os_id: linux-arm64-openssl11
+      - func: upload_sbom
+        vars:
+          executable_os_id: linux-arm64-openssl11
+          extra_upload_tag: -deb-arm64-openssl11-sbom
+      - func: upload_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64-openssl11
+          extra_upload_tag: -deb-arm64-openssl11-complete
+  - name: package_artifact_deb_arm64_openssl11
+    depends_on:
+      - name: add_crypt_shared_and_sbom_deb_arm64_openssl11
+        variant: linux_package
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.2"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64-openssl11
+          extra_upload_tag: -deb-arm64-openssl11-complete
       - func: package_artifact
         vars:
           node_js_version: "20.12.2"
@@ -12722,7 +13161,7 @@ tasks:
           package_variant: deb-arm64-openssl11
           signature_tag: signed
       - func: verify_artifact
-  - name: package_artifact_rpm_arm64_openssl11
+  - name: add_crypt_shared_and_sbom_rpm_arm64_openssl11
     depends_on:
       - name: compile_artifact
         variant: linux_arm64_build_openssl11
@@ -12734,6 +13173,31 @@ tasks:
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64-openssl11
+      - func: add_crypt_shared_and_sbom
+        vars:
+          package_variant: rpm-arm64-openssl11
+          executable_os_id: linux-arm64-openssl11
+      - func: upload_sbom
+        vars:
+          executable_os_id: linux-arm64-openssl11
+          extra_upload_tag: -rpm-arm64-openssl11-sbom
+      - func: upload_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64-openssl11
+          extra_upload_tag: -rpm-arm64-openssl11-complete
+  - name: package_artifact_rpm_arm64_openssl11
+    depends_on:
+      - name: add_crypt_shared_and_sbom_rpm_arm64_openssl11
+        variant: linux_package
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.2"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64-openssl11
+          extra_upload_tag: -rpm-arm64-openssl11-complete
       - func: package_artifact
         vars:
           node_js_version: "20.12.2"
@@ -12779,7 +13243,7 @@ tasks:
           package_variant: rpm-arm64-openssl11
           signature_tag: signed
       - func: verify_artifact
-  - name: package_artifact_linux_arm64_openssl3
+  - name: add_crypt_shared_and_sbom_linux_arm64_openssl3
     depends_on:
       - name: compile_artifact
         variant: linux_arm64_build_openssl3
@@ -12791,6 +13255,31 @@ tasks:
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64-openssl3
+      - func: add_crypt_shared_and_sbom
+        vars:
+          package_variant: linux-arm64-openssl3
+          executable_os_id: linux-arm64-openssl3
+      - func: upload_sbom
+        vars:
+          executable_os_id: linux-arm64-openssl3
+          extra_upload_tag: -linux-arm64-openssl3-sbom
+      - func: upload_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64-openssl3
+          extra_upload_tag: -linux-arm64-openssl3-complete
+  - name: package_artifact_linux_arm64_openssl3
+    depends_on:
+      - name: add_crypt_shared_and_sbom_linux_arm64_openssl3
+        variant: linux_package
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.2"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64-openssl3
+          extra_upload_tag: -linux-arm64-openssl3-complete
       - func: package_artifact
         vars:
           node_js_version: "20.12.2"
@@ -12836,7 +13325,7 @@ tasks:
           package_variant: linux-arm64-openssl3
           signature_tag: signed
       - func: verify_artifact
-  - name: package_artifact_deb_arm64_openssl3
+  - name: add_crypt_shared_and_sbom_deb_arm64_openssl3
     depends_on:
       - name: compile_artifact
         variant: linux_arm64_build_openssl3
@@ -12848,6 +13337,31 @@ tasks:
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64-openssl3
+      - func: add_crypt_shared_and_sbom
+        vars:
+          package_variant: deb-arm64-openssl3
+          executable_os_id: linux-arm64-openssl3
+      - func: upload_sbom
+        vars:
+          executable_os_id: linux-arm64-openssl3
+          extra_upload_tag: -deb-arm64-openssl3-sbom
+      - func: upload_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64-openssl3
+          extra_upload_tag: -deb-arm64-openssl3-complete
+  - name: package_artifact_deb_arm64_openssl3
+    depends_on:
+      - name: add_crypt_shared_and_sbom_deb_arm64_openssl3
+        variant: linux_package
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.2"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64-openssl3
+          extra_upload_tag: -deb-arm64-openssl3-complete
       - func: package_artifact
         vars:
           node_js_version: "20.12.2"
@@ -12893,7 +13407,7 @@ tasks:
           package_variant: deb-arm64-openssl3
           signature_tag: signed
       - func: verify_artifact
-  - name: package_artifact_rpm_arm64_openssl3
+  - name: add_crypt_shared_and_sbom_rpm_arm64_openssl3
     depends_on:
       - name: compile_artifact
         variant: linux_arm64_build_openssl3
@@ -12905,6 +13419,31 @@ tasks:
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-arm64-openssl3
+      - func: add_crypt_shared_and_sbom
+        vars:
+          package_variant: rpm-arm64-openssl3
+          executable_os_id: linux-arm64-openssl3
+      - func: upload_sbom
+        vars:
+          executable_os_id: linux-arm64-openssl3
+          extra_upload_tag: -rpm-arm64-openssl3-sbom
+      - func: upload_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64-openssl3
+          extra_upload_tag: -rpm-arm64-openssl3-complete
+  - name: package_artifact_rpm_arm64_openssl3
+    depends_on:
+      - name: add_crypt_shared_and_sbom_rpm_arm64_openssl3
+        variant: linux_package
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.2"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-arm64-openssl3
+          extra_upload_tag: -rpm-arm64-openssl3-complete
       - func: package_artifact
         vars:
           node_js_version: "20.12.2"
@@ -12950,7 +13489,7 @@ tasks:
           package_variant: rpm-arm64-openssl3
           signature_tag: signed
       - func: verify_artifact
-  - name: package_artifact_linux_ppc64le
+  - name: add_crypt_shared_and_sbom_linux_ppc64le
     depends_on:
       - name: compile_artifact
         variant: linux_ppc64le_build
@@ -12962,6 +13501,31 @@ tasks:
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-ppc64le
+      - func: add_crypt_shared_and_sbom
+        vars:
+          package_variant: linux-ppc64le
+          executable_os_id: linux-ppc64le
+      - func: upload_sbom
+        vars:
+          executable_os_id: linux-ppc64le
+          extra_upload_tag: -linux-ppc64le-sbom
+      - func: upload_compiled_artifact
+        vars:
+          executable_os_id: linux-ppc64le
+          extra_upload_tag: -linux-ppc64le-complete
+  - name: package_artifact_linux_ppc64le
+    depends_on:
+      - name: add_crypt_shared_and_sbom_linux_ppc64le
+        variant: linux_package
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.2"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-ppc64le
+          extra_upload_tag: -linux-ppc64le-complete
       - func: package_artifact
         vars:
           node_js_version: "20.12.2"
@@ -13007,7 +13571,7 @@ tasks:
           package_variant: linux-ppc64le
           signature_tag: signed
       - func: verify_artifact
-  - name: package_artifact_rpm_ppc64le
+  - name: add_crypt_shared_and_sbom_rpm_ppc64le
     depends_on:
       - name: compile_artifact
         variant: linux_ppc64le_build
@@ -13019,6 +13583,31 @@ tasks:
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-ppc64le
+      - func: add_crypt_shared_and_sbom
+        vars:
+          package_variant: rpm-ppc64le
+          executable_os_id: linux-ppc64le
+      - func: upload_sbom
+        vars:
+          executable_os_id: linux-ppc64le
+          extra_upload_tag: -rpm-ppc64le-sbom
+      - func: upload_compiled_artifact
+        vars:
+          executable_os_id: linux-ppc64le
+          extra_upload_tag: -rpm-ppc64le-complete
+  - name: package_artifact_rpm_ppc64le
+    depends_on:
+      - name: add_crypt_shared_and_sbom_rpm_ppc64le
+        variant: linux_package
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.2"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-ppc64le
+          extra_upload_tag: -rpm-ppc64le-complete
       - func: package_artifact
         vars:
           node_js_version: "20.12.2"
@@ -13064,7 +13653,7 @@ tasks:
           package_variant: rpm-ppc64le
           signature_tag: signed
       - func: verify_artifact
-  - name: package_artifact_linux_s390x
+  - name: add_crypt_shared_and_sbom_linux_s390x
     depends_on:
       - name: compile_artifact
         variant: linux_s390x_build
@@ -13076,6 +13665,31 @@ tasks:
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-s390x
+      - func: add_crypt_shared_and_sbom
+        vars:
+          package_variant: linux-s390x
+          executable_os_id: linux-s390x
+      - func: upload_sbom
+        vars:
+          executable_os_id: linux-s390x
+          extra_upload_tag: -linux-s390x-sbom
+      - func: upload_compiled_artifact
+        vars:
+          executable_os_id: linux-s390x
+          extra_upload_tag: -linux-s390x-complete
+  - name: package_artifact_linux_s390x
+    depends_on:
+      - name: add_crypt_shared_and_sbom_linux_s390x
+        variant: linux_package
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.2"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-s390x
+          extra_upload_tag: -linux-s390x-complete
       - func: package_artifact
         vars:
           node_js_version: "20.12.2"
@@ -13121,7 +13735,7 @@ tasks:
           package_variant: linux-s390x
           signature_tag: signed
       - func: verify_artifact
-  - name: package_artifact_rpm_s390x
+  - name: add_crypt_shared_and_sbom_rpm_s390x
     depends_on:
       - name: compile_artifact
         variant: linux_s390x_build
@@ -13133,6 +13747,31 @@ tasks:
       - func: download_compiled_artifact
         vars:
           executable_os_id: linux-s390x
+      - func: add_crypt_shared_and_sbom
+        vars:
+          package_variant: rpm-s390x
+          executable_os_id: linux-s390x
+      - func: upload_sbom
+        vars:
+          executable_os_id: linux-s390x
+          extra_upload_tag: -rpm-s390x-sbom
+      - func: upload_compiled_artifact
+        vars:
+          executable_os_id: linux-s390x
+          extra_upload_tag: -rpm-s390x-complete
+  - name: package_artifact_rpm_s390x
+    depends_on:
+      - name: add_crypt_shared_and_sbom_rpm_s390x
+        variant: linux_package
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.2"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: linux-s390x
+          extra_upload_tag: -rpm-s390x-complete
       - func: package_artifact
         vars:
           node_js_version: "20.12.2"
@@ -13178,7 +13817,7 @@ tasks:
           package_variant: rpm-s390x
           signature_tag: signed
       - func: verify_artifact
-  - name: package_artifact_win32_x64
+  - name: add_crypt_shared_and_sbom_win32_x64
     depends_on:
       - name: compile_artifact
         variant: win32_build
@@ -13190,6 +13829,31 @@ tasks:
       - func: download_compiled_artifact
         vars:
           executable_os_id: win32
+      - func: add_crypt_shared_and_sbom
+        vars:
+          package_variant: win32-x64
+          executable_os_id: win32
+      - func: upload_sbom
+        vars:
+          executable_os_id: win32
+          extra_upload_tag: -win32-x64-sbom
+      - func: upload_compiled_artifact
+        vars:
+          executable_os_id: win32
+          extra_upload_tag: -win32-x64-complete
+  - name: package_artifact_win32_x64
+    depends_on:
+      - name: add_crypt_shared_and_sbom_win32_x64
+        variant: linux_package
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.2"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: win32
+          extra_upload_tag: -win32-x64-complete
       - func: package_artifact
         vars:
           node_js_version: "20.12.2"
@@ -13235,7 +13899,7 @@ tasks:
           package_variant: win32-x64
           signature_tag: signed
       - func: verify_artifact
-  - name: package_artifact_win32msi_x64
+  - name: add_crypt_shared_and_sbom_win32msi_x64
     depends_on:
       - name: compile_artifact
         variant: win32_build
@@ -13247,6 +13911,31 @@ tasks:
       - func: download_compiled_artifact
         vars:
           executable_os_id: win32
+      - func: add_crypt_shared_and_sbom
+        vars:
+          package_variant: win32msi-x64
+          executable_os_id: win32
+      - func: upload_sbom
+        vars:
+          executable_os_id: win32
+          extra_upload_tag: -win32msi-x64-sbom
+      - func: upload_compiled_artifact
+        vars:
+          executable_os_id: win32
+          extra_upload_tag: -win32msi-x64-complete
+  - name: package_artifact_win32msi_x64
+    depends_on:
+      - name: add_crypt_shared_and_sbom_win32msi_x64
+        variant: linux_package
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.2"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: win32
+          extra_upload_tag: -win32msi-x64-complete
       - func: package_artifact
         vars:
           node_js_version: "20.12.2"
@@ -14946,56 +15635,82 @@ buildvariants:
     run_on: ubuntu2004-small
     tags: ["nightly-driver"]
     tasks:
+      - name: add_crypt_shared_and_sbom_darwin_x64
+      - name: add_crypt_shared_and_sbom_darwin_arm64
+      - name: add_crypt_shared_and_sbom_linux_x64
       - name: package_artifact_linux_x64
       - name: sign_artifact_linux_x64
+      - name: add_crypt_shared_and_sbom_deb_x64
       - name: package_artifact_deb_x64
       - name: sign_artifact_deb_x64
       - name: verify_artifact_deb_x64
+      - name: add_crypt_shared_and_sbom_rpm_x64
       - name: package_artifact_rpm_x64
       - name: sign_artifact_rpm_x64
+      - name: add_crypt_shared_and_sbom_linux_x64_openssl11
       - name: package_artifact_linux_x64_openssl11
       - name: sign_artifact_linux_x64_openssl11
+      - name: add_crypt_shared_and_sbom_deb_x64_openssl11
       - name: package_artifact_deb_x64_openssl11
       - name: sign_artifact_deb_x64_openssl11
       - name: verify_artifact_deb_x64_openssl11
+      - name: add_crypt_shared_and_sbom_rpm_x64_openssl11
       - name: package_artifact_rpm_x64_openssl11
       - name: sign_artifact_rpm_x64_openssl11
+      - name: add_crypt_shared_and_sbom_linux_x64_openssl3
       - name: package_artifact_linux_x64_openssl3
       - name: sign_artifact_linux_x64_openssl3
+      - name: add_crypt_shared_and_sbom_deb_x64_openssl3
       - name: package_artifact_deb_x64_openssl3
       - name: sign_artifact_deb_x64_openssl3
       - name: verify_artifact_deb_x64_openssl3
+      - name: add_crypt_shared_and_sbom_rpm_x64_openssl3
       - name: package_artifact_rpm_x64_openssl3
       - name: sign_artifact_rpm_x64_openssl3
+      - name: add_crypt_shared_and_sbom_linux_arm64
       - name: package_artifact_linux_arm64
       - name: sign_artifact_linux_arm64
+      - name: add_crypt_shared_and_sbom_deb_arm64
       - name: package_artifact_deb_arm64
       - name: sign_artifact_deb_arm64
       - name: verify_artifact_deb_arm64
+      - name: add_crypt_shared_and_sbom_rpm_arm64
       - name: package_artifact_rpm_arm64
       - name: sign_artifact_rpm_arm64
+      - name: add_crypt_shared_and_sbom_linux_arm64_openssl11
       - name: package_artifact_linux_arm64_openssl11
       - name: sign_artifact_linux_arm64_openssl11
+      - name: add_crypt_shared_and_sbom_deb_arm64_openssl11
       - name: package_artifact_deb_arm64_openssl11
       - name: sign_artifact_deb_arm64_openssl11
       - name: verify_artifact_deb_arm64_openssl11
+      - name: add_crypt_shared_and_sbom_rpm_arm64_openssl11
       - name: package_artifact_rpm_arm64_openssl11
       - name: sign_artifact_rpm_arm64_openssl11
+      - name: add_crypt_shared_and_sbom_linux_arm64_openssl3
       - name: package_artifact_linux_arm64_openssl3
       - name: sign_artifact_linux_arm64_openssl3
+      - name: add_crypt_shared_and_sbom_deb_arm64_openssl3
       - name: package_artifact_deb_arm64_openssl3
       - name: sign_artifact_deb_arm64_openssl3
       - name: verify_artifact_deb_arm64_openssl3
+      - name: add_crypt_shared_and_sbom_rpm_arm64_openssl3
       - name: package_artifact_rpm_arm64_openssl3
       - name: sign_artifact_rpm_arm64_openssl3
+      - name: add_crypt_shared_and_sbom_linux_ppc64le
       - name: package_artifact_linux_ppc64le
       - name: sign_artifact_linux_ppc64le
+      - name: add_crypt_shared_and_sbom_rpm_ppc64le
       - name: package_artifact_rpm_ppc64le
       - name: sign_artifact_rpm_ppc64le
+      - name: add_crypt_shared_and_sbom_linux_s390x
       - name: package_artifact_linux_s390x
       - name: sign_artifact_linux_s390x
+      - name: add_crypt_shared_and_sbom_rpm_s390x
       - name: package_artifact_rpm_s390x
       - name: sign_artifact_rpm_s390x
+      - name: add_crypt_shared_and_sbom_win32_x64
+      - name: add_crypt_shared_and_sbom_win32msi_x64
       - name: sign_artifact_win32_x64
       - name: sign_artifact_win32msi_x64
   - name: verify_rhel_artifact
