@@ -47,7 +47,7 @@
     "generate-error-overview": "npm run generate-error-overview --workspace @mongosh/errors",
     "update-authors": "ts-node -P configs/tsconfig-mongosh/tsconfig.common.json scripts/generate-authors.ts",
     "create-dependency-sbom-lists": "npm run webpack-build -w packages/cli-repl && npm run write-node-js-dep && npm run create-purls-file",
-    "create-purls-file": "cat .sbom/dependencies.json .sbom/node-js-dep.json | jq -r '.[] | if .name != \".node.js\" then \"pkg:npm/\" + .name + \"@\" + .version else \"pkg:generic/node@\" + .version end' > .sbom/purls.txt",
+    "create-purls-file": "node scripts/create-purls.js .sbom/dependencies.json .sbom/node-js-dep.json > .sbom/purls.txt",
     "preupdate-third-party-notices": "npm run create-dependency-sbom-lists",
     "update-third-party-notices": "mongodb-sbom-tools generate-3rd-party-notices --product='mongosh' --dependencies=.sbom/dependencies.json > THIRD_PARTY_NOTICES.md",
     "update-node-js-versions": "npx @pkgjs/nv ls v20 > .evergreen/node-20-latest.json && npx @pkgjs/nv ls v16 > .evergreen/node-16-latest.json",
