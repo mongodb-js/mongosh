@@ -380,7 +380,7 @@ Package|Version|License
 **[safe-buffer](#952cf236ee56e7de5ea7e772caf3e256866f9dbdffc492539c48cd8c15ac9674)**|5.2.1|MIT
 **[safer-buffer](#2fb14d3728e4ebf313be4634b146bd90cd3ad3559157baec03b64eec0878a0ba)**|2.1.2|MIT
 **[semver](#8b8f657069cf84b7ca932ab17eb24a0a55a8053ccd2a36c03185dadab64db3f8)**|6.3.1|ISC
-**[semver](#c2244b3979a8f8d37bf67622a3fcc46bf41a0bb61410aa8a0d38b2070d212612)**|7.5.4|ISC
+**[semver](#91fed21fcd28c91926ebe4e1967f2215934bb8253962246c6ec07b1c308ec8ef)**|7.6.0|ISC
 **[send](#a5aa96052b8bf57c58c38d6fae3a3b7d94ec212b6100f58a8260eb2f6a8cff6d)**|0.18.0|MIT
 **[serve-static](#03156d123ff3a9482fa09d97af4668d5e2ae058c4e3d2c67fe4a1c0c072403f0)**|1.15.0|MIT
 **[setprototypeof](#7787a1d3bc2f39b65d75407d5d8d02d8ddb70f1cdb74897f15115e995fb64a56)**|1.2.0|ISC
@@ -30128,8 +30128,8 @@ License files:
       
 
 
-<a id="c2244b3979a8f8d37bf67622a3fcc46bf41a0bb61410aa8a0d38b2070d212612"></a>
-### [semver](https://www.npmjs.com/package/semver) (version 7.5.4)
+<a id="91fed21fcd28c91926ebe4e1967f2215934bb8253962246c6ec07b1c308ec8ef"></a>
+### [semver](https://www.npmjs.com/package/semver) (version 7.6.0)
 License tags: ISC
 
 License files:
