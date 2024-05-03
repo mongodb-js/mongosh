@@ -15,5 +15,5 @@ docker login artifactory.corp.mongodb.com --username ${ARTIFACTORY_USERNAME} --p
 set -x
 
 docker pull artifactory.corp.mongodb.com/release-tools-container-registry-public-local/silkbomb:1.0
-docker run -it --rm -v ${PWD}:/pwd artifactory.corp.mongodb.com/release-tools-container-registry-public-local/silkbomb:1.0 update \
+docker run --rm -v ${PWD}:/pwd artifactory.corp.mongodb.com/release-tools-container-registry-public-local/silkbomb:1.0 update \
   --purls /pwd/dist/.purls.txt --sbom_out /pwd/dist/.sbom.json
