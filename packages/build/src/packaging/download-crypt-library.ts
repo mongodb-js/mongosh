@@ -9,9 +9,12 @@ import { getDistro, getArch } from '../config';
 export async function downloadCryptLibrary(
   variant: PackageVariant | 'host'
 ): Promise<{ cryptLibrary: string; version: string }> {
-  const opts: DownloadOptions = {};
+  let opts: DownloadOptions = {};
   opts.arch = variant === 'host' ? undefined : getArch(variant);
-  opts.distro = variant === 'host' ? undefined : lookupReleaseDistro(variant);
+  opts = {
+    ...opts,
+    ...(variant === 'host' ? undefined : lookupReleaseDistro(variant)),
+  };
   opts.enterprise = true;
   opts.crypt_shared = true;
   console.info(
@@ -52,28 +55,31 @@ export async function downloadCryptLibrary(
   return { cryptLibrary, version };
 }
 
-function lookupReleaseDistro(packageVariant: PackageVariant): string {
+function lookupReleaseDistro(packageVariant: PackageVariant): {
+  platform?: string;
+  distro?: string;
+} {
   switch (getDistro(packageVariant)) {
     case 'win32':
     case 'win32msi':
-      return 'win32';
+      return { platform: 'win32' };
     case 'darwin':
-      return 'darwin';
+      return { platform: 'darwin' };
     default:
       break;
   }
   // Pick the variant with the lowest supported glibc version.
   switch (getArch(packageVariant)) {
     case 'ppc64le':
-      return 'rhel81';
+      return { platform: 'linux', distro: 'rhel81' };
     case 's390x':
-      return 'rhel72';
+      return { platform: 'linux', distro: 'rhel72' };
     case 'arm64':
-      return 'amazon2';
+      return { platform: 'linux', distro: 'amazon2' };
     case 'x64':
-      return 'rhel70';
+      return { platform: 'linux', distro: 'rhel70' };
     default:
       break;
   }
-  return '';
+  return {};
 }
