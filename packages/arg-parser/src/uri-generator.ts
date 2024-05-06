@@ -186,8 +186,9 @@ function parseHostOption(value: string | undefined): {
     !hosts.every((host) =>
       /^([A-Za-z0-9._-]+|\[[0-9a-fA-F:]+\])(:\d+)?$/.test(host)
     )
-  )
+  ) {
     return {};
+  }
   return { replSetName, hosts };
 }
 
@@ -227,11 +228,11 @@ function generateUriNormalized(options: CliOptions): ConnectionString {
   // The --host argument has the format
   // [<replSetName>/]<hostname1>[<:port>][,<hostname2>[<:port>][,<...>]]
   const { replSetName, hosts } = parseHostOption(options.host);
-  if (hosts) {
+  if (replSetName || (hosts ?? []).length > 1) {
     const connectionString = new ConnectionString(
       `mongodb://replacemeHost/${encodeURIComponent(uri || '')}`
     );
-    connectionString.hosts = validateHostSeedList(hosts, options.port);
+    connectionString.hosts = validateHostSeedList(hosts ?? [], options.port);
     if (replSetName)
       connectionString.searchParams.set('replicaSet', replSetName);
     return addShellConnectionStringParameters(connectionString);
