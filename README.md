@@ -25,6 +25,7 @@ variable. For detailed instructions for each of our supported platforms, please 
 ## CLI Usage
 
 <!-- AUTOMATICALLY_INSERT_CLI_USAGE -->
+
 ```shell
   $ mongosh [options] [db address] [file names (ending in .js or .mongodb)]
 
@@ -51,6 +52,9 @@ variable. For detailed instructions for each of our supported platforms, please 
         --authenticationDatabase [arg]         User source (defaults to dbname)
         --authenticationMechanism [arg]        Authentication mechanism
         --awsIamSessionToken [arg]             AWS IAM Temporary Session Token ID
+        --gssapiServiceName [arg]              Service name to use when authenticating using GSSAPI/Kerberos
+        --sspiHostnameCanonicalization [arg]   Specify the SSPI hostname canonicalization (none or forward, available on Windows)
+        --sspiRealmOverride [arg]              Specify the SSPI server realm (available on Windows)
 
   TLS Options:
 
@@ -98,6 +102,7 @@ variable. For detailed instructions for each of our supported platforms, please 
 
   For more information on usage: https://docs.mongodb.com/mongodb-shell.
 ```
+
 <!-- /AUTOMATICALLY_INSERT_CLI_USAGE -->
 
 ## Local Development
