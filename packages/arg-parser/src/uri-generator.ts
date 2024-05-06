@@ -260,7 +260,7 @@ function generateUriNormalized(options: CliOptions): ConnectionString {
 
   // Capture host, port and db from the string and generate a URI from
   // the parts. If there is a db part, it *must* start with /.
-  const uriMatch = /^([A-Za-z0-9][A-Za-z0-9._-]+):?(\d+)?(?:\/(\S*))?$/gi;
+  const uriMatch = /^([A-Za-z0-9][A-Za-z0-9._-]+)(?::(\d+))?(?:\/(\S*))?$/gi;
   let parts: string[] | null = uriMatch.exec(uri);
 
   if (parts === null) {
