@@ -8,3 +8,10 @@ npm i -g mongosh
 
 This package is a convenience distribution of mongosh. To download a fully supported version
 of mongosh, visit https://www.mongodb.com/try/download/shell.
+
+## Usage
+
+## CLI Usage
+
+<!-- AUTOMATICALLY_INSERT_CLI_USAGE -->
+<!-- /AUTOMATICALLY_INSERT_CLI_USAGE -->

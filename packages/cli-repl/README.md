@@ -9,6 +9,8 @@ of mongosh, visit https://www.mongodb.com/try/download/shell.
 
 ## Usage
 
+<!-- AUTOMATICALLY_INSERT_CLI_USAGE -->
+
 ```shell
   $ mongosh [options] [db address] [file names (ending in .js or .mongodb)]
 
@@ -82,6 +84,8 @@ of mongosh, visit https://www.mongodb.com/try/download/shell.
   For more information on usage: https://docs.mongodb.com/mongodb-shell.
 
 ```
+
+<!-- /AUTOMATICALLY_INSERT_CLI_USAGE -->
 
 ### Log Format
 

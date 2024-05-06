@@ -23,6 +23,8 @@ variable. For detailed instructions for each of our supported platforms, please 
 [installation documentation](https://docs.mongodb.com/mongodb-shell/install#mdb-shell-install).
 
 ## CLI Usage
+
+<!-- AUTOMATICALLY_INSERT_CLI_USAGE -->
 ```shell
   $ mongosh [options] [db address] [file names (ending in .js or .mongodb)]
 
@@ -96,6 +98,7 @@ variable. For detailed instructions for each of our supported platforms, please 
 
   For more information on usage: https://docs.mongodb.com/mongodb-shell.
 ```
+<!-- /AUTOMATICALLY_INSERT_CLI_USAGE -->
 
 ## Local Development
 
