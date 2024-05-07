@@ -47,16 +47,15 @@
     }
   },
   "dependencies": {
-    "@mongodb-js/devtools-connect": "^2.6.0",
+    "@mongodb-js/devtools-connect": "^2.6.1",
     "@mongodb-js/oidc-plugin": "^0.4.0",
     "@mongosh/errors": "0.0.0-dev.0",
     "@mongosh/service-provider-core": "0.0.0-dev.0",
     "@mongosh/types": "0.0.0-dev.0",
-    "@types/sinon-chai": "^3.2.4",
     "aws4": "^1.12.0",
-    "mongodb": "^6.5.0",
+    "mongodb": "^6.6.1",
     "mongodb-connection-string-url": "^3.0.0",
-    "socks": "^2.8.1"
+    "socks": "^2.8.3"
   },
   "optionalDependencies": {
     "kerberos": "^2.1.0",
@@ -66,6 +65,7 @@
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
+    "@types/sinon-chai": "^3.2.4",
     "depcheck": "^1.4.3",
     "eslint": "^7.25.0",
     "prettier": "^2.8.8"

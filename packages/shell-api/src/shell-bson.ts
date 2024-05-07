@@ -352,7 +352,7 @@ export default function constructShellBson(
     ),
     Int32: assignAll(
       functionCtorWithoutProps(bson.Int32),
-      pickWithExactKeyMatch(bson.Int32, ['prototype'])
+      pickWithExactKeyMatch(bson.Int32, ['prototype', 'fromString'])
     ),
     Long: assignAll(
       functionCtorWithoutProps(bson.Long),
@@ -366,6 +366,7 @@ export default function constructShellBson(
           'fromBytesLE',
           'fromBytes',
           'fromString',
+          'fromStringStrict',
           'fromBigInt',
           'fromNumber',
           'fromInt',
@@ -403,7 +404,7 @@ export default function constructShellBson(
     ),
     Double: assignAll(
       functionCtorWithoutProps(bson.Double),
-      pickWithExactKeyMatch(bson.Double, ['prototype'])
+      pickWithExactKeyMatch(bson.Double, ['prototype', 'fromString'])
     ),
     BSONRegExp: assignAll(
       functionCtorWithoutProps(bson.BSONRegExp),
