@@ -145,7 +145,7 @@ export class Editor {
   }
 
   _isVscodeApp(cmd: string): boolean {
-    const regex = /^(.*)[/\\]?[cC]ode(.exe)?(\s(.*))?$/;
+    const regex = /[/\\]?[cC]ode(.exe)?(\s|$)/;
     return regex.test(cmd);
   }
 
