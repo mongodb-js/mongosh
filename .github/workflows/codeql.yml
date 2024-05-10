@@ -19,6 +19,11 @@ on:
     branches: [ "main" ]
   schedule:
     - cron: '30 20 * * 1'
+  workflow_run:
+    workflows: ["Update automatically generated files"]
+    types:
+      - completed
+    branches: [ "main" ]
 
 jobs:
   analyze:
