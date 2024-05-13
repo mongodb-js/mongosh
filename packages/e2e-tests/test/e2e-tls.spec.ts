@@ -601,7 +601,9 @@ describe('e2e TLS', function () {
           'Could not resolve certificate specification'
         );
       } else if (process.platform === 'darwin') {
-        shell.assertContainsOutput('Could not find a matching certificate');
+        shell.assertContainsOutput(
+          /Could not find a matching certificate|The specified item could not be found in the keychain/
+        );
       } else {
         shell.assertContainsOutput(
           'tlsCertificateSelector is not supported on this platform'
