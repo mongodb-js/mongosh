@@ -52,6 +52,6 @@
   },
   "dependencies": {
     "interruptor": "^1.0.1",
-    "system-ca": "^1.0.2"
+    "system-ca": "^1.0.3"
   }
 }
