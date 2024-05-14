@@ -9,6 +9,8 @@ of mongosh, visit https://www.mongodb.com/try/download/shell.
 
 ## Usage
 
+<!-- AUTOMATICALLY_INSERT_CLI_USAGE -->
+
 ```shell
   $ mongosh [options] [db address] [file names (ending in .js or .mongodb)]
 
@@ -35,6 +37,9 @@ of mongosh, visit https://www.mongodb.com/try/download/shell.
         --authenticationDatabase [arg]         User source (defaults to dbname)
         --authenticationMechanism [arg]        Authentication mechanism
         --awsIamSessionToken [arg]             AWS IAM Temporary Session Token ID
+        --gssapiServiceName [arg]              Service name to use when authenticating using GSSAPI/Kerberos
+        --sspiHostnameCanonicalization [arg]   Specify the SSPI hostname canonicalization (none or forward, available on Windows)
+        --sspiRealmOverride [arg]              Specify the SSPI server realm (available on Windows)
 
   TLS Options:
 
@@ -45,6 +50,7 @@ of mongosh, visit https://www.mongodb.com/try/download/shell.
         --tlsAllowInvalidHostnames             Allow connections to servers with non-matching hostnames
         --tlsAllowInvalidCertificates          Allow connections to servers with invalid certificates
         --tlsCertificateSelector [arg]         TLS Certificate in system store (Windows and macOS only)
+        --tlsCRLFile [arg]                     Specifies the .pem file that contains the Certificate Revocation List
         --tlsDisabledProtocols [arg]           Comma separated list of TLS protocols to disable [TLS1_0,TLS1_1,TLS1_2]
         --tlsUseSystemCA                       Load the operating system trusted certificate list
         --tlsFIPSMode                          Enable the system TLS library's FIPS mode
@@ -80,8 +86,9 @@ of mongosh, visit https://www.mongodb.com/try/download/shell.
         $ mongosh mongodb://192.168.0.5:9999/ships
 
   For more information on usage: https://docs.mongodb.com/mongodb-shell.
-
 ```
+
+<!-- /AUTOMATICALLY_INSERT_CLI_USAGE -->
 
 ### Log Format
 

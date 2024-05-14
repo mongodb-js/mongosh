@@ -66,6 +66,12 @@ jobs:
           git add .evergreen.yml
           git commit --no-allow-empty -m "chore: update evergreen config" || true
 
+      - name: Regenerate CLI usage text in README files
+        run: |
+          npm run update-cli-usage-text packages/*/*.md *.md
+          git add packages/*/*.md *.md
+          git commit --no-allow-empty -m "chore: update CLI usage text" || true
+
       - name: Create pull request
         id: cpr
         uses: peter-evans/create-pull-request@v6
