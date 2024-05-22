@@ -41,6 +41,7 @@ import {
   coerceToJSNumber,
   buildConfigChunksCollectionMatch,
   onlyShardedCollectionsInConfigFilter,
+  aggregateBackgroundOptionNotSupportedHelp,
 } from './helpers';
 import type {
   AnyBulkWriteOperation,
@@ -176,6 +177,11 @@ export default class Collection extends ShellApiWithMongoClass {
     } else {
       options = {};
       pipeline = args || [];
+    }
+    if ('background' in options) {
+      await this._instanceState.printWarning(
+        aggregateBackgroundOptionNotSupportedHelp
+      );
     }
     this._emitCollectionApiCall('aggregate', { options, pipeline });
     const { aggOptions, dbOptions, explain } = adaptAggregateOptions(options);

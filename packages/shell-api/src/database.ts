@@ -24,6 +24,7 @@ import {
   shouldRunAggregationImmediately,
   adjustRunCommand,
   getBadge,
+  aggregateBackgroundOptionNotSupportedHelp,
 } from './helpers';
 
 import {
@@ -421,6 +422,11 @@ export default class Database extends ShellApiWithMongoClass {
     pipeline: Document[],
     options?: Document
   ): Promise<AggregationCursor> {
+    if ('background' in (options ?? {})) {
+      await this._instanceState.printWarning(
+        aggregateBackgroundOptionNotSupportedHelp
+      );
+    }
     assertArgsDefinedType([pipeline], [true], 'Database.aggregate');
     this._emitDatabaseApiCall('aggregate', { options, pipeline });
 

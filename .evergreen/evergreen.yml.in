@@ -119,6 +119,7 @@ post:
 #   compile_artifact - Compile the release binary.
 #   package_artifact - Upload the release binary together with other files to S3.
 #   sign_artifact - Get a package file from S3, sign it, put it back into S3.
+#   verify_artifact - Verify if the package was successfully signed using Garasign.
 #   test_linux_artifact - Test that the built artifact works where we expect it to.
 #                         We use this to verify that e.g. the Ubuntu-built release
 #                         binary also works on RHEL and Debian.
@@ -397,6 +398,37 @@ functions:
           DISTRO_ID: ${distro_id}
           NODE_JS_VERSION: ${node_js_version}
           MONGOSH_SHARED_OPENSSL: ${mongosh_shared_openssl}
+  upload_sbom:
+    - command: s3.put
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/dist/.sbom.json
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-${executable_os_id}${extra_upload_tag}-sbom.json
+        bucket: mciuploads
+        permissions: public-read
+        content_type: application/json
+    - command: s3.put
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/dist/.purls.txt
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-${executable_os_id}${extra_upload_tag}-purls.txt
+        bucket: mciuploads
+        permissions: public-read
+        content_type: text/plain
+  upload_compiled_artifact:
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        env:
+          DISTRO_ID: ${distro_id}
+        script: |
+          set -e
+          set -x
+          tar cvzf dist.tgz dist
+          bash .evergreen/compilation-context-expansions.sh
     - command: expansions.update
       params:
         ignore_missing_file: false
@@ -468,6 +500,17 @@ functions:
   # - package_variant
   # - signature_tag (either 'signed' or 'unsigned')
   ###
+  add_crypt_shared_and_sbom:
+    - command: subprocess.exec
+      params:
+        working_dir: src
+        binary: bash .evergreen/download-crypt-shared-and-generate-sbom.sh
+        env:
+          NODE_JS_VERSION: ${node_js_version}
+          DISTRO_ID_OVERRIDE: ${distro_id}
+          PACKAGE_VARIANT: ${package_variant}
+          ARTIFACTORY_USERNAME: ${artifactory_username}
+          ARTIFACTORY_PASSWORD: ${artifactory_password}
   package_artifact:
     - command: expansions.write
       type: setup
@@ -499,6 +542,19 @@ functions:
           PACKAGE_VARIANT: ${package_variant}
           MACOS_NOTARY_KEY: ${macos_notary_key}
           MACOS_NOTARY_SECRET: ${macos_notary_secret}
+  verify_artifact:
+    - command: expansions.write
+      type: setup
+      params:
+        file: tmp/expansions.yaml
+        redacted: true
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          .evergreen/verify-packaged-artifact.sh
   put_artifact_url:
     - command: s3.put
       params:
@@ -676,11 +732,6 @@ functions:
           }
 
   generate_license_and_vulnerability_report:
-    - command: expansions.write
-      type: system
-      params:
-        file: tmp/expansions.yaml
-        redacted: true
     - command: shell.exec
       params:
         working_dir: src
@@ -693,7 +744,6 @@ functions:
           JIRA_API_TOKEN: ${jira_api_token}
         script: |
           set -e
-          export NODE_JS_VERSION=${node_js_version}
           source .evergreen/setup-env.sh
 
           # validate licenses, we first remove THIRD_PARTY_NOTICES.md, so we are sure
@@ -1043,6 +1093,9 @@ tasks:
       - func: compile_artifact
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+      - func: upload_compiled_artifact
+        vars:
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
 
   - name: generate_license_and_vulnerability_report
     tags: ["extra-integration-test"]
@@ -1135,7 +1188,7 @@ tasks:
   ###
   <% for (const { executableOsId, compileBuildVariant, packages } of RELEASE_PACKAGE_MATRIX) {
        for (const { name: packageVariant } of packages) { %>
-  - name: package_artifact_<% out(packageVariant.replace(/-/g, '_')) %>
+  - name: add_crypt_shared_and_sbom_<% out(packageVariant.replace(/-/g, '_')) %>
     depends_on:
       - name: compile_artifact
         variant: <% out(compileBuildVariant) %>
@@ -1147,6 +1200,31 @@ tasks:
       - func: download_compiled_artifact
         vars:
           executable_os_id: <% out(executableOsId) %>
+      - func: add_crypt_shared_and_sbom
+        vars:
+          package_variant: <% out(packageVariant) %>
+          executable_os_id: <% out(executableOsId) %>
+      - func: upload_sbom
+        vars:
+          executable_os_id: <% out(executableOsId) %>
+          extra_upload_tag: -<% out(packageVariant) %>-sbom
+      - func: upload_compiled_artifact
+        vars:
+          executable_os_id: <% out(executableOsId) %>
+          extra_upload_tag: -<% out(packageVariant) %>-complete
+  - name: package_artifact_<% out(packageVariant.replace(/-/g, '_')) %>
+    depends_on:
+      - name: add_crypt_shared_and_sbom_<% out(packageVariant.replace(/-/g, '_')) %>
+        variant: linux_package
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+      - func: download_compiled_artifact
+        vars:
+          executable_os_id: <% out(executableOsId) %>
+          extra_upload_tag: -<% out(packageVariant) %>-complete
       - func: package_artifact
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_20) %>"
@@ -1180,6 +1258,18 @@ tasks:
         vars:
           package_variant: <% out(packageVariant) %>
           signature_tag: signed
+  - name: verify_artifact_<% out(packageVariant.replace(/-/g, '_')) %>
+    tags: ["smoke-test"]
+    depends_on:
+      - name: sign_artifact_<% out(packageVariant.replace(/-/g, '_')) %>
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          package_variant: <% out(packageVariant) %>
+          signature_tag: signed
+      - func: verify_artifact
   <% } } %>
 
   ###
@@ -1360,13 +1450,39 @@ buildvariants:
     tags: ["nightly-driver"]
     tasks:
       <% for (const { executableOsId, packages } of RELEASE_PACKAGE_MATRIX) {
-          for (const { name: packageVariant } of packages) {
+          for (const { name: packageVariant } of packages) { %>
+      - name: add_crypt_shared_and_sbom_<% out(packageVariant.replace(/-/g, '_')) %>
+      <%
             if (executableOsId.startsWith('linux')) { %>
       - name: package_artifact_<% out(packageVariant.replace(/-/g, '_')) %>
       - name: sign_artifact_<% out(packageVariant.replace(/-/g, '_')) %>
+      <% if (packageVariant.startsWith('deb')) { %>
+      - name: verify_artifact_<% out(packageVariant.replace(/-/g, '_')) %>
+      <% } %>
       <% } } } %>
       - name: sign_artifact_win32_x64
       - name: sign_artifact_win32msi_x64
+  - name: verify_rhel_artifact
+    display_name: "RHEL (Signature Verification)"
+    run_on: rhel80-small
+    tasks:
+      <% for (const { packages } of RELEASE_PACKAGE_MATRIX) {
+          for (const { name: packageVariant } of packages) {
+            if (packageVariant.startsWith('rpm')) { %>
+      - name: verify_artifact_<% out(packageVariant.replace(/-/g, '_')) %>
+      <% } } } %>
+  - name: verify_windows_artifact
+    display_name: "Windows (Signature Verification)"
+    run_on: windows-vsCurrent-small
+    tasks:
+      - name: verify_artifact_win32_x64
+      - name: verify_artifact_win32msi_x64
+  - name: verify_mac_artifact
+    display_name: "MacOS (Signature Verification)"
+    run_on: macos-1100
+    tasks:
+      - name: verify_artifact_darwin_arm64
+      - name: verify_artifact_darwin_x64
   - name: linux_x64_build
     display_name: "RHEL 7.0 x64 (build)"
     run_on: rhel70-build

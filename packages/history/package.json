@@ -35,8 +35,8 @@
     "unitTestsOnly": true
   },
   "dependencies": {
-    "mongodb-connection-string-url": "^3.0.0",
-    "mongodb-redact": "^0.2.2"
+    "mongodb-connection-string-url": "^3.0.1",
+    "mongodb-redact": "^0.2.3"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
@@ -44,8 +44,8 @@
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
     "depcheck": "^1.4.3",
     "eslint": "^7.25.0",
-    "mongodb-connection-string-url": "^3.0.0",
-    "mongodb-redact": "^0.2.2",
+    "mongodb-connection-string-url": "^3.0.1",
+    "mongodb-redact": "^0.2.3",
     "prettier": "^2.8.8"
   }
 }

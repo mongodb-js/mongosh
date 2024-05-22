@@ -1,3 +1,5 @@
+name: Update automatically generated files
+
 on:
   # Once a week or on pushes to main
   schedule:
@@ -54,6 +56,7 @@ jobs:
         run: |
           npm run generate-error-overview
           mv error-overview.md error-overview.rst packages/errors/generated/
+          npm run reformat
           git add packages/errors/generated
           git commit --no-allow-empty -m "chore: update error documentation" || true
 
@@ -62,6 +65,12 @@ jobs:
           npm run update-evergreen-config
           git add .evergreen.yml
           git commit --no-allow-empty -m "chore: update evergreen config" || true
+
+      - name: Regenerate CLI usage text in README files
+        run: |
+          npm run update-cli-usage-text packages/*/*.md *.md
+          git add packages/*/*.md *.md
+          git commit --no-allow-empty -m "chore: update CLI usage text" || true
 
       - name: Create pull request
         id: cpr

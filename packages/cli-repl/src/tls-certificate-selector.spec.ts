@@ -74,7 +74,7 @@ describe('arg-mapper.applyTlsCertificateSelector', function () {
         return this.skip();
       }
       expect(() => getTlsCertificateSelector('subject=Foo Bar')).to.throw(
-        /Could not find a matching certificate/
+        /Could not find a matching certificate|The specified item could not be found in the keychain/
       );
     });
   });

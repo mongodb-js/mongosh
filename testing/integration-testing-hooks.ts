@@ -178,9 +178,9 @@ async function getInstalledMongodVersion(): Promise<string> {
 
 export async function downloadCurrentCryptSharedLibrary(): Promise<string> {
   if (process.platform === 'linux') {
-    return await downloadCryptLibrary(`linux-${process.arch.replace('ppc64', 'ppc64le')}` as any);
+    return (await downloadCryptLibrary(`linux-${process.arch.replace('ppc64', 'ppc64le')}` as any)).cryptLibrary;
   }
-  return downloadCryptLibrary('host');
+  return (await downloadCryptLibrary('host')).cryptLibrary;
 }
 
 /**

@@ -2447,7 +2447,10 @@ describe('CliRepl', function () {
       cliRepl = new CliRepl(cliReplOptions);
       await cliRepl.start('', {});
 
-      const o = await cliRepl.prepareOIDCOptions({} as any);
+      const o = await cliRepl.prepareOIDCOptions(
+        'mongodb://localhost/',
+        {} as any
+      );
       expect(o.oidc?.allowedFlows).to.deep.equal(['auth-code']);
       expect(o.oidc?.notifyDeviceFlow).to.be.a('function');
       expect(o.authMechanismProperties).to.deep.equal({});
@@ -2470,7 +2473,7 @@ describe('CliRepl', function () {
       let o: DevtoolsConnectOptions;
       process.env.MONGOSH_OIDC_PARENT_HANDLE = 'foo-bar';
       try {
-        o = await cliRepl.prepareOIDCOptions({} as any);
+        o = await cliRepl.prepareOIDCOptions('mongodb://localhost/', {} as any);
       } finally {
         delete process.env.MONGOSH_OIDC_PARENT_HANDLE;
       }

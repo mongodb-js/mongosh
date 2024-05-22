@@ -78,22 +78,23 @@
     "@mongosh/types": "0.0.0-dev.0",
     "@segment/analytics-node": "^1.3.0",
     "ansi-escape-sequences": "^5.1.2",
-    "askcharacter": "^1.0.0",
-    "askpassword": "^1.2.4",
+    "askcharacter": "^2.0.4",
+    "askpassword": "^2.0.2",
     "escape-string-regexp": "^4.0.0",
     "is-recoverable-error": "^1.0.3",
     "js-yaml": "^4.1.0",
-    "mongodb-connection-string-url": "^3.0.0",
-    "mongodb-log-writer": "^1.4.0",
+    "mongodb-connection-string-url": "^3.0.1",
+    "mongodb-log-writer": "^1.4.2",
     "numeral": "^2.0.6",
-    "pretty-repl": "^4.0.0",
+    "pretty-repl": "^4.0.1",
+    "proxy-agent": "^6.4.0",
     "semver": "^7.5.4",
     "strip-ansi": "^6.0.0",
     "text-table": "^0.2.0",
     "yargs-parser": "^20.2.4"
   },
   "devDependencies": {
-    "mongodb": "^6.5.0",
+    "mongodb": "^6.6.2",
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
     "@mongodb-js/sbom-tools": "^0.5.2",
@@ -115,8 +116,8 @@
   "optionalDependencies": {
     "get-console-process-list": "^1.0.4",
     "glibc-version": "^1.0.0",
-    "macos-export-certificate-and-key": "^1.1.1",
-    "mongodb-crypt-library-version": "^1.0.3",
-    "win-export-certificate-and-key": "^1.1.1"
+    "macos-export-certificate-and-key": "^1.1.2",
+    "mongodb-crypt-library-version": "^1.0.5",
+    "win-export-certificate-and-key": "^1.1.2"
   }
 }

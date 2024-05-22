@@ -2,16 +2,19 @@
 import path from 'path';
 import { promises as fs, constants as fsConstants } from 'fs';
 import type { DownloadOptions } from '@mongodb-js/mongodb-downloader';
-import { downloadMongoDb } from '@mongodb-js/mongodb-downloader';
+import { downloadMongoDbWithVersionInfo } from '@mongodb-js/mongodb-downloader';
 import type { PackageVariant } from '../config';
 import { getDistro, getArch } from '../config';
 
 export async function downloadCryptLibrary(
   variant: PackageVariant | 'host'
-): Promise<string> {
-  const opts: DownloadOptions = {};
+): Promise<{ cryptLibrary: string; version: string }> {
+  let opts: DownloadOptions = {};
   opts.arch = variant === 'host' ? undefined : getArch(variant);
-  opts.distro = variant === 'host' ? undefined : lookupReleaseDistro(variant);
+  opts = {
+    ...opts,
+    ...(variant === 'host' ? undefined : lookupReleaseDistro(variant)),
+  };
   opts.enterprise = true;
   opts.crypt_shared = true;
   console.info(
@@ -38,7 +41,8 @@ export async function downloadCryptLibrary(
   if (/s390x/.test(opts.arch || process.arch)) {
     versionSpec = '6.0.x'; // The 7.x+ server releases don't have RHEL7-compatible crypt_shared libraries
   }
-  const libdir = await downloadMongoDb(cryptTmpTargetDir, versionSpec, opts);
+  const { downloadedBinDir: libdir, version } =
+    await downloadMongoDbWithVersionInfo(cryptTmpTargetDir, versionSpec, opts);
   const cryptLibrary = path.join(
     libdir,
     (await fs.readdir(libdir)).find((filename) =>
@@ -47,32 +51,35 @@ export async function downloadCryptLibrary(
   );
   // Make sure that the binary exists and is readable.
   await fs.access(cryptLibrary, fsConstants.R_OK);
-  console.info('mongosh: downloaded', cryptLibrary);
-  return cryptLibrary;
+  console.info('mongosh: downloaded', cryptLibrary, 'version', version);
+  return { cryptLibrary, version };
 }
 
-function lookupReleaseDistro(packageVariant: PackageVariant): string {
+function lookupReleaseDistro(packageVariant: PackageVariant): {
+  platform?: string;
+  distro?: string;
+} {
   switch (getDistro(packageVariant)) {
     case 'win32':
     case 'win32msi':
-      return 'win32';
+      return { platform: 'win32' };
     case 'darwin':
-      return 'darwin';
+      return { platform: 'darwin' };
     default:
       break;
   }
   // Pick the variant with the lowest supported glibc version.
   switch (getArch(packageVariant)) {
     case 'ppc64le':
-      return 'rhel81';
+      return { platform: 'linux', distro: 'rhel81' };
     case 's390x':
-      return 'rhel72';
+      return { platform: 'linux', distro: 'rhel72' };
     case 'arm64':
-      return 'amazon2';
+      return { platform: 'linux', distro: 'amazon2' };
     case 'x64':
-      return 'rhel70';
+      return { platform: 'linux', distro: 'rhel70' };
     default:
       break;
   }
-  return '';
+  return {};
 }

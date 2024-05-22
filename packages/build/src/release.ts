@@ -21,6 +21,7 @@ import { runPublish } from './run-publish';
 import { runUpload } from './run-upload';
 import { runSign } from './packaging/run-sign';
 import { runDownloadAndListArtifacts } from './run-download-and-list-artifacts';
+import { runDownloadCryptLibrary } from './packaging/run-download-crypt-library';
 
 export type ReleaseCommand =
   | 'bump'
@@ -28,6 +29,7 @@ export type ReleaseCommand =
   | 'package'
   | 'sign'
   | 'upload'
+  | 'download-crypt-shared-library'
   | 'download-and-list-artifacts'
   | 'draft'
   | 'publish';
@@ -92,6 +94,8 @@ export async function release(
     await runCompile(config);
   } else if (command === 'package') {
     await runPackage(config);
+  } else if (command === 'download-crypt-shared-library') {
+    await runDownloadCryptLibrary(config);
   } else if (command === 'sign') {
     await runSign(config);
   } else if (command === 'upload') {
