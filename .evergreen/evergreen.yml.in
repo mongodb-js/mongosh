@@ -15,6 +15,8 @@ const MONGODB_VERSIONS = [
   { shortName: '60xe', versionSpec: '6.0.x-enterprise' },
   { shortName: '70xc', versionSpec: '7.0.x' },
   { shortName: '70xe', versionSpec: '7.0.x-enterprise' },
+  { shortName: '80xc', versionSpec: '>= 8.0.0-rc4' },
+  { shortName: '80xe', versionSpec: '>= 8.0.0-rc4-enterprise' },
   { shortName: 'latest', versionSpec: 'latest-alpha-enterprise' }
 ];
 const NODE_VERSIONS = [
