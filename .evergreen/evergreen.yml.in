@@ -398,7 +398,7 @@ functions:
           DISTRO_ID: ${distro_id}
           NODE_JS_VERSION: ${node_js_version}
           MONGOSH_SHARED_OPENSSL: ${mongosh_shared_openssl}
-  upload_sbom:
+  upload_sbom_and_static_analysis:
     - command: s3.put
       params:
         aws_key: ${aws_key}
@@ -417,6 +417,15 @@ functions:
         bucket: mciuploads
         permissions: public-read
         content_type: text/plain
+    - command: s3.put
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/static-analysis-report.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-${executable_os_id}${extra_upload_tag}-static-analysis-report.tgz
+        bucket: mciuploads
+        permissions: private
+        content_type: application/json
   upload_compiled_artifact:
     - command: shell.exec
       params:
@@ -1204,7 +1213,7 @@ tasks:
         vars:
           package_variant: <% out(packageVariant) %>
           executable_os_id: <% out(executableOsId) %>
-      - func: upload_sbom
+      - func: upload_sbom_and_static_analysis
         vars:
           executable_os_id: <% out(executableOsId) %>
           extra_upload_tag: -<% out(packageVariant) %>-sbom
