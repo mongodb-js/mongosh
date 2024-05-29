@@ -25,6 +25,7 @@ import type {
   OrderedBulkOperation,
   UnorderedBulkOperation,
 } from './all-transport-types';
+import { ServiceProviderRunCommandCursor } from './cursors';
 
 /**
  * Interface for write operations in the CRUD specification.
@@ -70,7 +71,7 @@ export default interface Writable {
     spec: Document,
     options: RunCursorCommandOptions,
     dbOptions?: DbOptions
-  ): RunCommandCursor;
+  ): ServiceProviderRunCommandCursor;
 
   /**
    * Drop a database
