@@ -100,7 +100,7 @@ export default class Cursor extends AggregateOrFindCursor<ServiceProviderFindCur
   @returnsPromise
   @deprecated
   async count(): Promise<number> {
-    return this._cursor.count();
+    return await this._cursor.count();
   }
 
   @returnsPromise
@@ -199,7 +199,7 @@ export default class Cursor extends AggregateOrFindCursor<ServiceProviderFindCur
 
   @returnsPromise
   async size(): Promise<number> {
-    return this._cursor.count();
+    return await this._cursor.count();
   }
 
   @returnType('Cursor')

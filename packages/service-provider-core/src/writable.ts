@@ -1,4 +1,4 @@
-import type { RunCommandCursor, RunCursorCommandOptions } from 'mongodb';
+import type { RunCursorCommandOptions } from 'mongodb';
 import type {
   Document,
   InsertOneOptions,
@@ -25,7 +25,7 @@ import type {
   OrderedBulkOperation,
   UnorderedBulkOperation,
 } from './all-transport-types';
-import { ServiceProviderRunCommandCursor } from './cursors';
+import type { ServiceProviderRunCommandCursor } from './cursors';
 
 /**
  * Interface for write operations in the CRUD specification.

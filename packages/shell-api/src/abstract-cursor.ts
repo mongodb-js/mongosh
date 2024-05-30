@@ -78,7 +78,7 @@ export abstract class AbstractCursor<
 
   @returnsPromise
   async hasNext(): Promise<boolean> {
-    return this._cursor.hasNext();
+    return await this._cursor.hasNext();
   }
 
   @returnsPromise

@@ -38,6 +38,7 @@ export interface ServiceProviderAggregationOrFindCursor<TSchema = Document>
   withReadConcern(readConcern: ReadConcernLike): this;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ServiceProviderRunCommandCursor<TSchema = Document>
   extends ServiceProviderAbstractCursor<TSchema> {}
 
@@ -57,6 +58,7 @@ export interface ServiceProviderFindCursor<TSchema = Document>
   showRecordId(value: boolean): void;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ServiceProviderAggregationCursor<TSchema = Document>
   extends ServiceProviderAggregationOrFindCursor<TSchema> {}
 

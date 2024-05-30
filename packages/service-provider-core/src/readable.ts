@@ -13,7 +13,7 @@ import type {
   ReadPreferenceLike,
 } from './all-transport-types';
 import type { ChangeStreamOptions } from './all-transport-types';
-import {
+import type {
   ServiceProviderAggregationCursor,
   ServiceProviderChangeStream,
   ServiceProviderFindCursor,
