@@ -15497,6 +15497,25 @@ tasks:
         vars:
           node_js_version: "20.12.2"
           dockerfile: ubuntu22.04-qemu-deb
+  - name: pkg_test_docker_deb_x64_ubuntu24_04_deb
+    tags: ["smoke-test"]
+    depends_on:
+      - name: sign_artifact_deb_x64
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          package_variant: deb-x64
+          signature_tag: signed
+      - func: write_preload_script
+      - func: install
+        vars:
+          node_js_version: "20.12.2"
+      - func: test_artifact_docker
+        vars:
+          node_js_version: "20.12.2"
+          dockerfile: ubuntu24.04-deb
   - name: pkg_test_docker_deb_x64_debian10_deb
     tags: ["smoke-test"]
     depends_on:
@@ -15706,6 +15725,25 @@ tasks:
         vars:
           node_js_version: "20.12.2"
           dockerfile: suse15-rpm
+  - name: pkg_test_docker_rpm_x64_oraclelinux9_rpm
+    tags: ["smoke-test"]
+    depends_on:
+      - name: sign_artifact_rpm_x64
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          package_variant: rpm-x64
+          signature_tag: signed
+      - func: write_preload_script
+      - func: install
+        vars:
+          node_js_version: "20.12.2"
+      - func: test_artifact_docker
+        vars:
+          node_js_version: "20.12.2"
+          dockerfile: oraclelinux9-rpm
   - name: pkg_test_docker_deb_x64_openssl11_ubuntu20_04_deb
     tags: ["smoke-test"]
     depends_on:
@@ -16105,6 +16143,25 @@ tasks:
         vars:
           node_js_version: "20.12.2"
           dockerfile: ubuntu22.04-qemu-deb
+  - name: pkg_test_docker_deb_arm64_ubuntu24_04_deb
+    tags: ["smoke-test"]
+    depends_on:
+      - name: sign_artifact_deb_arm64
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: get_artifact_url
+        vars:
+          package_variant: deb-arm64
+          signature_tag: signed
+      - func: write_preload_script
+      - func: install
+        vars:
+          node_js_version: "20.12.2"
+      - func: test_artifact_docker
+        vars:
+          node_js_version: "20.12.2"
+          dockerfile: ubuntu24.04-deb
   - name: pkg_test_docker_deb_arm64_debian10_deb
     tags: ["smoke-test"]
     depends_on:
@@ -17602,6 +17659,7 @@ buildvariants:
       - name: pkg_test_docker_deb_x64_ubuntu22_04_deb
       - name: pkg_test_docker_deb_x64_ubuntu22_04_nohome_deb
       - name: pkg_test_docker_deb_x64_ubuntu22_04_qemu_deb
+      - name: pkg_test_docker_deb_x64_ubuntu24_04_deb
       - name: pkg_test_docker_deb_x64_debian10_deb
       - name: pkg_test_docker_deb_x64_debian11_deb
       - name: pkg_test_docker_deb_x64_debian12_deb
@@ -17613,6 +17671,7 @@ buildvariants:
       - name: pkg_test_docker_rpm_x64_fedora34_rpm
       - name: pkg_test_docker_rpm_x64_suse12_rpm
       - name: pkg_test_docker_rpm_x64_suse15_rpm
+      - name: pkg_test_docker_rpm_x64_oraclelinux9_rpm
       - name: pkg_test_docker_deb_x64_openssl11_ubuntu20_04_deb
       - name: pkg_test_docker_deb_x64_openssl11_debian10_deb
       - name: pkg_test_docker_deb_x64_openssl11_debian11_deb
@@ -17639,6 +17698,7 @@ buildvariants:
       - name: pkg_test_docker_deb_arm64_ubuntu22_04_deb
       - name: pkg_test_docker_deb_arm64_ubuntu22_04_nohome_deb
       - name: pkg_test_docker_deb_arm64_ubuntu22_04_qemu_deb
+      - name: pkg_test_docker_deb_arm64_ubuntu24_04_deb
       - name: pkg_test_docker_deb_arm64_debian10_deb
       - name: pkg_test_docker_deb_arm64_debian11_deb
       - name: pkg_test_docker_deb_arm64_debian12_deb
