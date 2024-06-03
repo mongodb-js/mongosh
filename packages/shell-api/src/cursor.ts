@@ -14,7 +14,7 @@ import {
 } from './decorators';
 import { ServerVersions, CURSOR_FLAGS } from './enums';
 import type {
-  FindCursor as ServiceProviderCursor,
+  ServiceProviderFindCursor,
   CursorFlag,
   Document,
   CollationOptions,
@@ -27,10 +27,10 @@ import type Mongo from './mongo';
 import { AggregateOrFindCursor } from './aggregate-or-find-cursor';
 
 @shellApiClassDefault
-export default class Cursor extends AggregateOrFindCursor<ServiceProviderCursor> {
+export default class Cursor extends AggregateOrFindCursor<ServiceProviderFindCursor> {
   _tailable = false;
 
-  constructor(mongo: Mongo, cursor: ServiceProviderCursor) {
+  constructor(mongo: Mongo, cursor: ServiceProviderFindCursor) {
     super(mongo, cursor);
   }
 
@@ -100,7 +100,7 @@ export default class Cursor extends AggregateOrFindCursor<ServiceProviderCursor>
   @returnsPromise
   @deprecated
   async count(): Promise<number> {
-    return this._cursor.count();
+    return await this._cursor.count();
   }
 
   @returnsPromise
@@ -199,7 +199,7 @@ export default class Cursor extends AggregateOrFindCursor<ServiceProviderCursor>
 
   @returnsPromise
   async size(): Promise<number> {
-    return this._cursor.count();
+    return await this._cursor.count();
   }
 
   @returnType('Cursor')
