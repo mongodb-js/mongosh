@@ -7548,6 +7548,7 @@ functions:
           PACKAGE_VARIANT: ${package_variant}
           ARTIFACTORY_USERNAME: ${artifactory_username}
           ARTIFACTORY_PASSWORD: ${artifactory_password}
+          GITHUB_TOKEN: ${github_token}
   package_artifact:
     - command: expansions.write
       type: setup
