@@ -296,7 +296,6 @@ Package|Version|License
 **[inherits](#3eafa9bfb872baf192e837ab771da2e95e983ee682371a2b1c579e518e96f7b4)**|2.0.4|ISC
 **[ini](#2269ab4bd2e1fa90571f520780ab5499f6d49da3b7daee9b9dfdad9e93c33a18)**|1.3.8|ISC
 **[ip-address](#8de6e89459554be8a933663b25ae1d1ffee71458028fa8cbe5d68b349438a8c8)**|9.0.5|MIT
-**[ip](#ab1366cafd8e22addbc2e91f07e80437457e0e982a4f29e5d78721213cbda814)**|1.1.9|MIT
 **[ipaddr.js](#38a5a1606dbc89a9c65a28d1e9ebe3c8d323e107a77c495a56dbf522211676d2)**|1.9.1|MIT
 **[ipaddr.js](#f4e32bbb7cff356d748ba3bc8ca95b860f4bccd19fe9f7299a4664f19d471dbb)**|2.0.1|MIT
 **[ipv6-normalize](#7a4346dbf206011966449898fcd37178a9be89acf6dff120b676d4c4d0dec203)**|1.0.1|MIT
@@ -383,7 +382,7 @@ Package|Version|License
 **[openid-client](#03ada662ee390db4436dc7bd38857b43e2a0407275d27e422ff915ec7738b035)**|5.6.5|MIT
 **[os-dns-native](#ed8fb030877b8f0494551fd7f55288d885b2ddcece35dd7134434ad5c4c704de)**|1.2.1|MIT
 **[pac-proxy-agent](#d929aa4b571d00150e5d18c075522dfded8c205f9cb6e03e79765524e91b31c8)**|7.0.1|MIT
-**[pac-resolver](#45e9b0b7b6602e22f7843538ad258e740195db969c1675dd8244bf06172668f4)**|7.0.0|MIT
+**[pac-resolver](#7935fe0839f6e2b7c51abcc08705a6096eff5670dc2bdc3819fd096b8d114d8b)**|7.0.1|MIT
 **[parseurl](#c3fdd1b6fb725cb30e8fed82cf929953b46129d347d8404a4a51b633389fbae8)**|1.3.3|MIT
 **[path-key](#e1a2a032096ace66b422351e00b11b0229e42e4b49c2146f439f8fe442218451)**|3.1.1|MIT
 **[path-key](#8e0734b8abb76579df2174822606e692914e985fc58363a78e6ad4b2a4a5831f)**|4.0.0|MIT
@@ -25969,11 +25968,6 @@ License files:
       
 
 
-<a id="ab1366cafd8e22addbc2e91f07e80437457e0e982a4f29e5d78721213cbda814"></a>
-### [ip](https://www.npmjs.com/package/ip) (version 1.1.9)
-License tags: MIT
-
-
 <a id="38a5a1606dbc89a9c65a28d1e9ebe3c8d323e107a77c495a56dbf522211676d2"></a>
 ### [ipaddr.js](https://www.npmjs.com/package/ipaddr.js) (version 1.9.1)
 License tags: MIT
@@ -29780,9 +29774,35 @@ License files:
 License tags: MIT
 
 
-<a id="45e9b0b7b6602e22f7843538ad258e740195db969c1675dd8244bf06172668f4"></a>
-### [pac-resolver](https://www.npmjs.com/package/pac-resolver) (version 7.0.0)
+<a id="7935fe0839f6e2b7c51abcc08705a6096eff5670dc2bdc3819fd096b8d114d8b"></a>
+### [pac-resolver](https://www.npmjs.com/package/pac-resolver) (version 7.0.1)
 License tags: MIT
+
+License files:
+* LICENSE:
+
+      (The MIT License)
+      
+      Copyright (c) 2013 Nathan Rajlich <nathan@tootallnate.net>
+      
+      Permission is hereby granted, free of charge, to any person obtaining
+      a copy of this software and associated documentation files (the
+      'Software'), to deal in the Software without restriction, including
+      without limitation the rights to use, copy, modify, merge, publish,
+      distribute, sublicense, and/or sell copies of the Software, and to
+      permit persons to whom the Software is furnished to do so, subject to
+      the following conditions:
+      
+      The above copyright notice and this permission notice shall be
+      included in all copies or substantial portions of the Software.
+      
+      THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
+      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+      IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+      CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+      TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+      SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 <a id="c3fdd1b6fb725cb30e8fed82cf929953b46129d347d8404a4a51b633389fbae8"></a>
