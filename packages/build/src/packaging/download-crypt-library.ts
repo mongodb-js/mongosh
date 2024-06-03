@@ -71,9 +71,8 @@ function lookupReleaseDistro(packageVariant: PackageVariant): {
   // Pick the variant with the lowest supported glibc version.
   switch (getArch(packageVariant)) {
     case 'ppc64le':
-      return { platform: 'linux', distro: 'rhel81' };
     case 's390x':
-      return { platform: 'linux', distro: 'rhel72' };
+      return { platform: 'linux', distro: 'rhel81' };
     case 'arm64':
       return { platform: 'linux', distro: 'amazon2' };
     case 'x64':

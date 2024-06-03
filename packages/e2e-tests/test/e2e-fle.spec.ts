@@ -717,10 +717,6 @@ describe('FLE tests', function () {
     });
 
     context('using rangePreview algorithm', function () {
-      // TODO(MONGOSH-1742): Server 8.0 drops "rangePreview" algorithm and adds
-      // "range". Re-enable these when the change is finalized
-      skipIfServerVersion(testServer, '>= 8.0.0-alpha');
-
       it('allows explicit range encryption with bypassQueryAnalysis', async function () {
         // No --cryptSharedLibPath since bypassQueryAnalysis is also a community edition feature
         const shell = TestShell.start({ args: ['--nodb'] });
