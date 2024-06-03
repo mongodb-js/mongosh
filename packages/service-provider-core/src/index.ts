@@ -19,6 +19,14 @@ export {
 export { bson } from './bson-export';
 
 export {
+  ServiceProviderAbstractCursor,
+  ServiceProviderAggregationCursor,
+  ServiceProviderFindCursor,
+  ServiceProviderRunCommandCursor,
+  ServiceProviderChangeStream,
+} from './cursors';
+
+export {
   ServiceProvider,
   ShellAuthOptions,
   getConnectExtraInfo,

@@ -8,9 +8,9 @@ import {
 import type Mongo from './mongo';
 import type {
   Document,
-  FindCursor as ServiceProviderCursor,
-  AggregationCursor as ServiceProviderAggregationCursor,
-  RunCommandCursor as ServiceProviderRunCommandCursor,
+  ServiceProviderFindCursor,
+  ServiceProviderAggregationCursor,
+  ServiceProviderRunCommandCursor,
 } from '@mongosh/service-provider-core';
 import { asPrintable } from './enums';
 import { CursorIterationResult } from './result';
@@ -20,7 +20,7 @@ import { iterate } from './helpers';
 export abstract class AbstractCursor<
   CursorType extends
     | ServiceProviderAggregationCursor
-    | ServiceProviderCursor
+    | ServiceProviderFindCursor
     | ServiceProviderRunCommandCursor
 > extends ShellApiWithMongoClass {
   _mongo: Mongo;
@@ -78,7 +78,7 @@ export abstract class AbstractCursor<
 
   @returnsPromise
   async hasNext(): Promise<boolean> {
-    return this._cursor.hasNext();
+    return await this._cursor.hasNext();
   }
 
   @returnsPromise
