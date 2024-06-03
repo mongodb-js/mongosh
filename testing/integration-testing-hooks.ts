@@ -124,7 +124,7 @@ export class MongoRunnerSetup extends MongodSetup {
   private static _usedDirPrefix: Record<string, 0> = {};
 
   private static _buildDirPath(id: string, version?: string, topology?: string) {
-    const prefix = [id, version, topology].filter(Boolean).join('-').replace(/[^a-zA-Z0-9_-.]/g, '');
+    const prefix = [id, version, topology].filter(Boolean).join('-').replace(/[^a-zA-Z0-9_.-]/g, '');
 
     this._usedDirPrefix[prefix] ??= 0;
 
