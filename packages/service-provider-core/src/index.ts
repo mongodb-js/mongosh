@@ -24,6 +24,7 @@ export {
   ServiceProviderFindCursor,
   ServiceProviderRunCommandCursor,
   ServiceProviderChangeStream,
+  ServiceProviderAnyCursor,
 } from './cursors';
 
 export {
