@@ -17,7 +17,7 @@ import {
 type TypeSignatureAttributes = { [key: string]: TypeSignature };
 
 export interface AutocompleteParameters {
-  topology: () => Topologies;
+  topology: () => Topologies | undefined;
   connectionInfo: () =>
     | undefined
     | {
@@ -373,18 +373,20 @@ function filterShellAPI(
         +apiVersionInfo.version <= acceptableApiVersions[1];
     } else {
       const serverVersion = params.connectionInfo()?.server_version;
-      if (!serverVersion) return true;
-
       const acceptableVersions = completions[c].serverVersions;
       isAcceptableVersion =
         !acceptableVersions ||
+        !serverVersion ||
         (semver.gte(serverVersion, acceptableVersions[0]) &&
           semver.lte(serverVersion, acceptableVersions[1]));
     }
 
     const acceptableTopologies = completions[c].topologies;
+    const topology = params.topology();
     const isAcceptableTopology =
-      !acceptableTopologies || acceptableTopologies.includes(params.topology());
+      !acceptableTopologies ||
+      !topology ||
+      acceptableTopologies.includes(topology);
 
     return isAcceptableVersion && isAcceptableTopology;
   });

@@ -49,7 +49,7 @@ export interface ShellCliOptions {
  * from the autocompleter implementation.
  */
 export interface AutocompleteParameters {
-  topology: () => Topologies;
+  topology: () => Topologies | undefined;
   apiVersionInfo: () => Required<ServerApi> | undefined;
   connectionInfo: () => ConnectionExtraInfo | undefined;
   getCollectionCompletionsForCurrentDb: (collName: string) => Promise<string[]>;
@@ -394,7 +394,8 @@ export default class ShellInstanceState {
       topology: () => {
         let topology: Topologies;
         const topologyDescription = this.currentServiceProvider.getTopology()
-          ?.description as TopologyDescription;
+          ?.description as TopologyDescription | undefined;
+        if (!topologyDescription) return undefined;
         // TODO: once a driver with NODE-3011 is available set type to TopologyType | undefined
         const topologyType: string | undefined = topologyDescription?.type;
         switch (topologyType) {
@@ -413,8 +414,8 @@ export default class ShellInstanceState {
             // We're connected to a single server, but that doesn't necessarily
             // mean that that server isn't part of a replset or sharding setup
             // if we're using directConnection=true (which we do by default).
-            if (topologyDescription.servers.size === 1) {
-              const [server] = topologyDescription.servers.values();
+            if (topologyDescription?.servers.size === 1) {
+              const [server] = topologyDescription?.servers.values();
               switch (server.type) {
                 case 'Mongos':
                   topology = Topologies.Sharded;

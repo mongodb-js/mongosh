@@ -92,7 +92,7 @@ const localAtlas600 = {
 };
 
 const noParams = {
-  topology: () => Topologies.Standalone,
+  topology: () => undefined,
   apiVersionInfo: () => undefined,
   connectionInfo: () => undefined,
   getCollectionCompletionsForCurrentDb: () => collections,
