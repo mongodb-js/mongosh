@@ -67,3 +67,10 @@ export interface ServiceProviderChangeStream<TSchema = Document>
   next(): Promise<TSchema>;
   readonly resumeToken: ResumeToken;
 }
+
+export type ServiceProviderAnyCursor<TSchema = Document> =
+  | ServiceProviderAggregationCursor<TSchema>
+  | ServiceProviderFindCursor<TSchema>
+  | ServiceProviderRunCommandCursor<TSchema>
+  | ServiceProviderFindCursor<TSchema>
+  | ServiceProviderChangeStream<TSchema>;

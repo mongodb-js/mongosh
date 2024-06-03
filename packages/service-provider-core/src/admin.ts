@@ -13,7 +13,11 @@ import type {
   AutoEncryptionOptions,
   Collection,
 } from './all-transport-types';
-import type { bson as BSON, ConnectionExtraInfo } from './index';
+import type {
+  bson as BSON,
+  ConnectionExtraInfo,
+  ServiceProvider,
+} from './index';
 import type { ReplPlatform } from './platform';
 import type {
   AWSEncryptionKeyOptions,
@@ -83,7 +87,10 @@ export default interface Admin {
    * @param uri
    * @param options
    */
-  getNewConnection(uri: string, options: MongoClientOptions): Promise<any>; // returns the ServiceProvider instance
+  getNewConnection(
+    uri: string,
+    options: MongoClientOptions
+  ): Promise<ServiceProvider>;
 
   /**
    * Return the URI for the current connection, if this ServiceProvider is connected.
