@@ -7453,6 +7453,7 @@ functions:
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-${executable_os_id}${extra_upload_tag}-static-analysis-report.tgz
         bucket: mciuploads
         permissions: private
+        visibility: signed
         content_type: application/json
   upload_compiled_artifact:
     - command: shell.exec
