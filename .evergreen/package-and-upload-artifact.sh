@@ -11,7 +11,7 @@ tar xvzf dist.tgz
 if [ "$(uname)" == Linux ]; then
   mkdir -p tmp
   cp "$(pwd)/../tmp/expansions.yaml" tmp/expansions.yaml
-  (cd scripts/docker && docker build -t rocky8-package -f rocky8-package.Dockerfile .)
+  (cd scripts/docker && bash "$BASEDIR/retry-with-backoff.sh" docker build -t rocky8-package -f rocky8-package.Dockerfile .)
   echo Starting Docker container packaging
   docker run -e PUPPETEER_SKIP_CHROMIUM_DOWNLOAD \
     -e EVERGREEN_EXPANSIONS_PATH=/tmp/build/tmp/expansions.yaml \
