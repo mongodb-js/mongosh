@@ -7548,7 +7548,9 @@ functions:
           PACKAGE_VARIANT: ${package_variant}
           ARTIFACTORY_USERNAME: ${artifactory_username}
           ARTIFACTORY_PASSWORD: ${artifactory_password}
+          # for static analysis report generation
           GITHUB_TOKEN: ${github_token}
+          GITHUB_PR_NUMBER: ${github_pr_number}
   package_artifact:
     - command: expansions.write
       type: setup
