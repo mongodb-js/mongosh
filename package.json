@@ -60,6 +60,9 @@
     "pregenerate-vulnerability-report": "npm run create-dependency-sbom-lists && npm run snyk-test && npm run scan-node-js",
     "generate-vulnerability-report": "mongodb-sbom-tools generate-vulnerability-report --snyk-reports=.sbom/snyk-test-result.json,.sbom/node-js-vuln.json --dependencies=.sbom/dependencies.json,.sbom/node-js-dep.json --fail-on=high > .sbom/vulnerability-report.md",
     "create-vulnerability-tickets": "mongodb-sbom-tools generate-vulnerability-report --snyk-reports=.sbom/snyk-test-result.json,.sbom/node-js-vuln.json --dependencies=.sbom/dependencies.json,.sbom/node-js-dep.json --create-jira-issues",
+    "precreate-static-analysis-report": "npm run create-dependency-sbom-lists",
+    "create-static-analysis-report": "mongodb-sbom-tools fetch-codeql-results --sarif-dest=.sbom/codeql.sarif.json --dependencies=.sbom/dependencies.json --exclude-repos=mongodb-js/kerberos",
+    "postcreate-static-analysis-report": "mongodb-sbom-tools sarif-to-markdown --sarif=.sbom/codeql.sarif.json --md=.sbom/codeql.md",
     "where": "monorepo-where",
     "reformat": "npm run reformat --workspaces --if-present",
     "prepare": "husky install",
@@ -91,7 +94,7 @@
   "devDependencies": {
     "@babel/compat-data": "^7.9.0",
     "@mongodb-js/monorepo-tools": "^1.1.10",
-    "@mongodb-js/sbom-tools": "^0.5.2",
+    "@mongodb-js/sbom-tools": "^0.6.2",
     "@types/chai": "^4.2.5",
     "@types/mocha": "^5.2.7",
     "@types/node": "^14.14.6",
