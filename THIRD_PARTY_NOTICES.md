@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Mon Jun 03 2024.
+This document was automatically generated on Thu Jun 06 2024.
 
 ## List of dependencies
 
@@ -203,7 +203,7 @@ Package|Version|License
 **[color-convert](#55c87baa2843a3df1bf7eb7ad8e5c1329afea9bef4e94386d484de20b03c119b)**|2.0.1|MIT
 **[color-name](#e7c2ecd62026cf51768973c2e972505cab32d45b9368aa35105af0a68839ad37)**|1.1.3|MIT
 **[color-name](#66a8b5479032c7b05b81caf8cef9ed81be452b9f3f299868af0167900a4db262)**|1.1.4|MIT
-**[commander](#24ab11e1b73368dedbb70b1985003bf0636191bc7885dee47c5861cfa74a24eb)**|2.20.3|MIT
+**[commander](#e47f67c7d9819c6ea4aff6c23f632c2c18b17afeed9dc25536a7c58844d04890)**|10.0.1|MIT
 **[concat-map](#629d11316d75747318cc391ff3112edcd20cd8caab3768f3a5fdd920e110dc22)**|0.0.1|MIT
 **[config-chain](#d43148ec4e9c8cac9e15277d86afc87973b0538d96092edbd71396d40b57d5c0)**|1.1.13|MIT
 **[content-disposition](#b0fd3fa1e97f5d899f52e84c86cd6d0a077cabef2388f531bf62f1f1dbdbc371)**|0.5.4|MIT
@@ -22620,8 +22620,8 @@ License files:
       THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-<a id="24ab11e1b73368dedbb70b1985003bf0636191bc7885dee47c5861cfa74a24eb"></a>
-### [commander](https://www.npmjs.com/package/commander) (version 2.20.3)
+<a id="e47f67c7d9819c6ea4aff6c23f632c2c18b17afeed9dc25536a7c58844d04890"></a>
+### [commander](https://www.npmjs.com/package/commander) (version 10.0.1)
 License tags: MIT
 
 License files:

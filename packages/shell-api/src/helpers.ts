@@ -98,7 +98,7 @@ export const onlyShardedCollectionsInConfigFilter = {
   // dropped is gone on newer server versions, so check for !== true
   // rather than for === false (SERVER-51880 and related)
   dropped: { $ne: true },
-  // unsplittable introduced in PM-3364 to mark unsharded collections
+  // unsplittable introduced in SPM-3364 to mark unsharded collections
   // that are still being tracked in the catalog
   unsplittable: { $ne: true },
 } as const;
