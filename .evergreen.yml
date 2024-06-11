@@ -7426,7 +7426,7 @@ functions:
           DISTRO_ID: ${distro_id}
           NODE_JS_VERSION: ${node_js_version}
           MONGOSH_SHARED_OPENSSL: ${mongosh_shared_openssl}
-  upload_sbom_and_static_analysis:
+  upload_sbom_and_first_party_deps:
     - command: s3.put
       params:
         aws_key: ${aws_key}
@@ -7449,11 +7449,10 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/static-analysis-report.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-${executable_os_id}${extra_upload_tag}-static-analysis-report.tgz
+        local_file: src/.sbom/first-party-deps.json
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-${executable_os_id}${extra_upload_tag}-first-party-deps.json
         bucket: mciuploads
-        permissions: private
-        visibility: signed
+        permissions: public-read
         content_type: application/json
   upload_compiled_artifact:
     - command: shell.exec
@@ -7549,9 +7548,213 @@ functions:
           PACKAGE_VARIANT: ${package_variant}
           ARTIFACTORY_USERNAME: ${artifactory_username}
           ARTIFACTORY_PASSWORD: ${artifactory_password}
-          # for static analysis report generation
+  create_first_party_vulnerability_report:
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/.sbom/mongosh-darwin-x64-darwin-x64-sbom-first-party-deps.json
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-darwin-x64-darwin-x64-sbom-first-party-deps.json
+        bucket: mciuploads
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/.sbom/mongosh-darwin-arm64-darwin-arm64-sbom-first-party-deps.json
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-darwin-arm64-darwin-arm64-sbom-first-party-deps.json
+        bucket: mciuploads
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/.sbom/mongosh-linux-x64-linux-x64-sbom-first-party-deps.json
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-x64-linux-x64-sbom-first-party-deps.json
+        bucket: mciuploads
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/.sbom/mongosh-linux-x64-deb-x64-sbom-first-party-deps.json
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-x64-deb-x64-sbom-first-party-deps.json
+        bucket: mciuploads
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/.sbom/mongosh-linux-x64-rpm-x64-sbom-first-party-deps.json
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-x64-rpm-x64-sbom-first-party-deps.json
+        bucket: mciuploads
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/.sbom/mongosh-linux-x64-openssl11-linux-x64-openssl11-sbom-first-party-deps.json
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-x64-openssl11-linux-x64-openssl11-sbom-first-party-deps.json
+        bucket: mciuploads
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/.sbom/mongosh-linux-x64-openssl11-deb-x64-openssl11-sbom-first-party-deps.json
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-x64-openssl11-deb-x64-openssl11-sbom-first-party-deps.json
+        bucket: mciuploads
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/.sbom/mongosh-linux-x64-openssl11-rpm-x64-openssl11-sbom-first-party-deps.json
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-x64-openssl11-rpm-x64-openssl11-sbom-first-party-deps.json
+        bucket: mciuploads
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/.sbom/mongosh-linux-x64-openssl3-linux-x64-openssl3-sbom-first-party-deps.json
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-x64-openssl3-linux-x64-openssl3-sbom-first-party-deps.json
+        bucket: mciuploads
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/.sbom/mongosh-linux-x64-openssl3-deb-x64-openssl3-sbom-first-party-deps.json
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-x64-openssl3-deb-x64-openssl3-sbom-first-party-deps.json
+        bucket: mciuploads
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/.sbom/mongosh-linux-x64-openssl3-rpm-x64-openssl3-sbom-first-party-deps.json
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-x64-openssl3-rpm-x64-openssl3-sbom-first-party-deps.json
+        bucket: mciuploads
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/.sbom/mongosh-linux-arm64-linux-arm64-sbom-first-party-deps.json
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-arm64-linux-arm64-sbom-first-party-deps.json
+        bucket: mciuploads
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/.sbom/mongosh-linux-arm64-deb-arm64-sbom-first-party-deps.json
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-arm64-deb-arm64-sbom-first-party-deps.json
+        bucket: mciuploads
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/.sbom/mongosh-linux-arm64-rpm-arm64-sbom-first-party-deps.json
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-arm64-rpm-arm64-sbom-first-party-deps.json
+        bucket: mciuploads
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/.sbom/mongosh-linux-arm64-openssl11-linux-arm64-openssl11-sbom-first-party-deps.json
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-arm64-openssl11-linux-arm64-openssl11-sbom-first-party-deps.json
+        bucket: mciuploads
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/.sbom/mongosh-linux-arm64-openssl11-deb-arm64-openssl11-sbom-first-party-deps.json
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-arm64-openssl11-deb-arm64-openssl11-sbom-first-party-deps.json
+        bucket: mciuploads
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/.sbom/mongosh-linux-arm64-openssl11-rpm-arm64-openssl11-sbom-first-party-deps.json
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-arm64-openssl11-rpm-arm64-openssl11-sbom-first-party-deps.json
+        bucket: mciuploads
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/.sbom/mongosh-linux-arm64-openssl3-linux-arm64-openssl3-sbom-first-party-deps.json
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-arm64-openssl3-linux-arm64-openssl3-sbom-first-party-deps.json
+        bucket: mciuploads
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/.sbom/mongosh-linux-arm64-openssl3-deb-arm64-openssl3-sbom-first-party-deps.json
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-arm64-openssl3-deb-arm64-openssl3-sbom-first-party-deps.json
+        bucket: mciuploads
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/.sbom/mongosh-linux-arm64-openssl3-rpm-arm64-openssl3-sbom-first-party-deps.json
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-arm64-openssl3-rpm-arm64-openssl3-sbom-first-party-deps.json
+        bucket: mciuploads
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/.sbom/mongosh-linux-ppc64le-linux-ppc64le-sbom-first-party-deps.json
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-ppc64le-linux-ppc64le-sbom-first-party-deps.json
+        bucket: mciuploads
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/.sbom/mongosh-linux-ppc64le-rpm-ppc64le-sbom-first-party-deps.json
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-ppc64le-rpm-ppc64le-sbom-first-party-deps.json
+        bucket: mciuploads
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/.sbom/mongosh-linux-s390x-linux-s390x-sbom-first-party-deps.json
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-s390x-linux-s390x-sbom-first-party-deps.json
+        bucket: mciuploads
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/.sbom/mongosh-linux-s390x-rpm-s390x-sbom-first-party-deps.json
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-s390x-rpm-s390x-sbom-first-party-deps.json
+        bucket: mciuploads
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/.sbom/mongosh-win32-win32-x64-sbom-first-party-deps.json
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-win32-win32-x64-sbom-first-party-deps.json
+        bucket: mciuploads
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/.sbom/mongosh-win32-win32msi-x64-sbom-first-party-deps.json
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-win32-win32msi-x64-sbom-first-party-deps.json
+        bucket: mciuploads
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          export NODE_JS_VERSION=${node_js_version}
+          source .evergreen/setup-env.sh
+          .evergreen/create-static-analysis-report.sh
+        env:
+          NODE_JS_VERSION: ${node_js_version}
+          FIRST_PARTY_DEPENDENCY_FILENAMES: .sbom/mongosh-darwin-x64-darwin-x64-sbom-first-party-deps.json,.sbom/mongosh-darwin-arm64-darwin-arm64-sbom-first-party-deps.json,.sbom/mongosh-linux-x64-linux-x64-sbom-first-party-deps.json,.sbom/mongosh-linux-x64-deb-x64-sbom-first-party-deps.json,.sbom/mongosh-linux-x64-rpm-x64-sbom-first-party-deps.json,.sbom/mongosh-linux-x64-openssl11-linux-x64-openssl11-sbom-first-party-deps.json,.sbom/mongosh-linux-x64-openssl11-deb-x64-openssl11-sbom-first-party-deps.json,.sbom/mongosh-linux-x64-openssl11-rpm-x64-openssl11-sbom-first-party-deps.json,.sbom/mongosh-linux-x64-openssl3-linux-x64-openssl3-sbom-first-party-deps.json,.sbom/mongosh-linux-x64-openssl3-deb-x64-openssl3-sbom-first-party-deps.json,.sbom/mongosh-linux-x64-openssl3-rpm-x64-openssl3-sbom-first-party-deps.json,.sbom/mongosh-linux-arm64-linux-arm64-sbom-first-party-deps.json,.sbom/mongosh-linux-arm64-deb-arm64-sbom-first-party-deps.json,.sbom/mongosh-linux-arm64-rpm-arm64-sbom-first-party-deps.json,.sbom/mongosh-linux-arm64-openssl11-linux-arm64-openssl11-sbom-first-party-deps.json,.sbom/mongosh-linux-arm64-openssl11-deb-arm64-openssl11-sbom-first-party-deps.json,.sbom/mongosh-linux-arm64-openssl11-rpm-arm64-openssl11-sbom-first-party-deps.json,.sbom/mongosh-linux-arm64-openssl3-linux-arm64-openssl3-sbom-first-party-deps.json,.sbom/mongosh-linux-arm64-openssl3-deb-arm64-openssl3-sbom-first-party-deps.json,.sbom/mongosh-linux-arm64-openssl3-rpm-arm64-openssl3-sbom-first-party-deps.json,.sbom/mongosh-linux-ppc64le-linux-ppc64le-sbom-first-party-deps.json,.sbom/mongosh-linux-ppc64le-rpm-ppc64le-sbom-first-party-deps.json,.sbom/mongosh-linux-s390x-linux-s390x-sbom-first-party-deps.json,.sbom/mongosh-linux-s390x-rpm-s390x-sbom-first-party-deps.json,.sbom/mongosh-win32-win32-x64-sbom-first-party-deps.json,.sbom/mongosh-win32-win32msi-x64-sbom-first-party-deps.json
           GITHUB_TOKEN: ${github_token}
           GITHUB_PR_NUMBER: ${github_pr_number}
+    - command: s3.put
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/static-analysis-report.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-static-analysis-report.tgz
+        bucket: mciuploads
+        permissions: private
+        visibility: signed
+        content_type: application/x-gzip
   package_artifact:
     - command: expansions.write
       type: setup
@@ -13235,6 +13438,7 @@ tasks:
   # PACKAGING
   ###
   - name: add_crypt_shared_and_sbom_darwin_x64
+    tags: ["add-sbom-task"]
     depends_on:
       - name: compile_artifact
         variant: darwin
@@ -13250,7 +13454,7 @@ tasks:
         vars:
           package_variant: darwin-x64
           executable_os_id: darwin-x64
-      - func: upload_sbom_and_static_analysis
+      - func: upload_sbom_and_first_party_deps
         vars:
           executable_os_id: darwin-x64
           extra_upload_tag: -darwin-x64-sbom
@@ -13317,6 +13521,7 @@ tasks:
           signature_tag: signed
       - func: verify_artifact
   - name: add_crypt_shared_and_sbom_darwin_arm64
+    tags: ["add-sbom-task"]
     depends_on:
       - name: compile_artifact
         variant: darwin_arm64
@@ -13332,7 +13537,7 @@ tasks:
         vars:
           package_variant: darwin-arm64
           executable_os_id: darwin-arm64
-      - func: upload_sbom_and_static_analysis
+      - func: upload_sbom_and_first_party_deps
         vars:
           executable_os_id: darwin-arm64
           extra_upload_tag: -darwin-arm64-sbom
@@ -13399,6 +13604,7 @@ tasks:
           signature_tag: signed
       - func: verify_artifact
   - name: add_crypt_shared_and_sbom_linux_x64
+    tags: ["add-sbom-task"]
     depends_on:
       - name: compile_artifact
         variant: linux_x64_build
@@ -13414,7 +13620,7 @@ tasks:
         vars:
           package_variant: linux-x64
           executable_os_id: linux-x64
-      - func: upload_sbom_and_static_analysis
+      - func: upload_sbom_and_first_party_deps
         vars:
           executable_os_id: linux-x64
           extra_upload_tag: -linux-x64-sbom
@@ -13481,6 +13687,7 @@ tasks:
           signature_tag: signed
       - func: verify_artifact
   - name: add_crypt_shared_and_sbom_deb_x64
+    tags: ["add-sbom-task"]
     depends_on:
       - name: compile_artifact
         variant: linux_x64_build
@@ -13496,7 +13703,7 @@ tasks:
         vars:
           package_variant: deb-x64
           executable_os_id: linux-x64
-      - func: upload_sbom_and_static_analysis
+      - func: upload_sbom_and_first_party_deps
         vars:
           executable_os_id: linux-x64
           extra_upload_tag: -deb-x64-sbom
@@ -13563,6 +13770,7 @@ tasks:
           signature_tag: signed
       - func: verify_artifact
   - name: add_crypt_shared_and_sbom_rpm_x64
+    tags: ["add-sbom-task"]
     depends_on:
       - name: compile_artifact
         variant: linux_x64_build
@@ -13578,7 +13786,7 @@ tasks:
         vars:
           package_variant: rpm-x64
           executable_os_id: linux-x64
-      - func: upload_sbom_and_static_analysis
+      - func: upload_sbom_and_first_party_deps
         vars:
           executable_os_id: linux-x64
           extra_upload_tag: -rpm-x64-sbom
@@ -13645,6 +13853,7 @@ tasks:
           signature_tag: signed
       - func: verify_artifact
   - name: add_crypt_shared_and_sbom_linux_x64_openssl11
+    tags: ["add-sbom-task"]
     depends_on:
       - name: compile_artifact
         variant: linux_x64_build_openssl11
@@ -13660,7 +13869,7 @@ tasks:
         vars:
           package_variant: linux-x64-openssl11
           executable_os_id: linux-x64-openssl11
-      - func: upload_sbom_and_static_analysis
+      - func: upload_sbom_and_first_party_deps
         vars:
           executable_os_id: linux-x64-openssl11
           extra_upload_tag: -linux-x64-openssl11-sbom
@@ -13727,6 +13936,7 @@ tasks:
           signature_tag: signed
       - func: verify_artifact
   - name: add_crypt_shared_and_sbom_deb_x64_openssl11
+    tags: ["add-sbom-task"]
     depends_on:
       - name: compile_artifact
         variant: linux_x64_build_openssl11
@@ -13742,7 +13952,7 @@ tasks:
         vars:
           package_variant: deb-x64-openssl11
           executable_os_id: linux-x64-openssl11
-      - func: upload_sbom_and_static_analysis
+      - func: upload_sbom_and_first_party_deps
         vars:
           executable_os_id: linux-x64-openssl11
           extra_upload_tag: -deb-x64-openssl11-sbom
@@ -13809,6 +14019,7 @@ tasks:
           signature_tag: signed
       - func: verify_artifact
   - name: add_crypt_shared_and_sbom_rpm_x64_openssl11
+    tags: ["add-sbom-task"]
     depends_on:
       - name: compile_artifact
         variant: linux_x64_build_openssl11
@@ -13824,7 +14035,7 @@ tasks:
         vars:
           package_variant: rpm-x64-openssl11
           executable_os_id: linux-x64-openssl11
-      - func: upload_sbom_and_static_analysis
+      - func: upload_sbom_and_first_party_deps
         vars:
           executable_os_id: linux-x64-openssl11
           extra_upload_tag: -rpm-x64-openssl11-sbom
@@ -13891,6 +14102,7 @@ tasks:
           signature_tag: signed
       - func: verify_artifact
   - name: add_crypt_shared_and_sbom_linux_x64_openssl3
+    tags: ["add-sbom-task"]
     depends_on:
       - name: compile_artifact
         variant: linux_x64_build_openssl3
@@ -13906,7 +14118,7 @@ tasks:
         vars:
           package_variant: linux-x64-openssl3
           executable_os_id: linux-x64-openssl3
-      - func: upload_sbom_and_static_analysis
+      - func: upload_sbom_and_first_party_deps
         vars:
           executable_os_id: linux-x64-openssl3
           extra_upload_tag: -linux-x64-openssl3-sbom
@@ -13973,6 +14185,7 @@ tasks:
           signature_tag: signed
       - func: verify_artifact
   - name: add_crypt_shared_and_sbom_deb_x64_openssl3
+    tags: ["add-sbom-task"]
     depends_on:
       - name: compile_artifact
         variant: linux_x64_build_openssl3
@@ -13988,7 +14201,7 @@ tasks:
         vars:
           package_variant: deb-x64-openssl3
           executable_os_id: linux-x64-openssl3
-      - func: upload_sbom_and_static_analysis
+      - func: upload_sbom_and_first_party_deps
         vars:
           executable_os_id: linux-x64-openssl3
           extra_upload_tag: -deb-x64-openssl3-sbom
@@ -14055,6 +14268,7 @@ tasks:
           signature_tag: signed
       - func: verify_artifact
   - name: add_crypt_shared_and_sbom_rpm_x64_openssl3
+    tags: ["add-sbom-task"]
     depends_on:
       - name: compile_artifact
         variant: linux_x64_build_openssl3
@@ -14070,7 +14284,7 @@ tasks:
         vars:
           package_variant: rpm-x64-openssl3
           executable_os_id: linux-x64-openssl3
-      - func: upload_sbom_and_static_analysis
+      - func: upload_sbom_and_first_party_deps
         vars:
           executable_os_id: linux-x64-openssl3
           extra_upload_tag: -rpm-x64-openssl3-sbom
@@ -14137,6 +14351,7 @@ tasks:
           signature_tag: signed
       - func: verify_artifact
   - name: add_crypt_shared_and_sbom_linux_arm64
+    tags: ["add-sbom-task"]
     depends_on:
       - name: compile_artifact
         variant: linux_arm64_build
@@ -14152,7 +14367,7 @@ tasks:
         vars:
           package_variant: linux-arm64
           executable_os_id: linux-arm64
-      - func: upload_sbom_and_static_analysis
+      - func: upload_sbom_and_first_party_deps
         vars:
           executable_os_id: linux-arm64
           extra_upload_tag: -linux-arm64-sbom
@@ -14219,6 +14434,7 @@ tasks:
           signature_tag: signed
       - func: verify_artifact
   - name: add_crypt_shared_and_sbom_deb_arm64
+    tags: ["add-sbom-task"]
     depends_on:
       - name: compile_artifact
         variant: linux_arm64_build
@@ -14234,7 +14450,7 @@ tasks:
         vars:
           package_variant: deb-arm64
           executable_os_id: linux-arm64
-      - func: upload_sbom_and_static_analysis
+      - func: upload_sbom_and_first_party_deps
         vars:
           executable_os_id: linux-arm64
           extra_upload_tag: -deb-arm64-sbom
@@ -14301,6 +14517,7 @@ tasks:
           signature_tag: signed
       - func: verify_artifact
   - name: add_crypt_shared_and_sbom_rpm_arm64
+    tags: ["add-sbom-task"]
     depends_on:
       - name: compile_artifact
         variant: linux_arm64_build
@@ -14316,7 +14533,7 @@ tasks:
         vars:
           package_variant: rpm-arm64
           executable_os_id: linux-arm64
-      - func: upload_sbom_and_static_analysis
+      - func: upload_sbom_and_first_party_deps
         vars:
           executable_os_id: linux-arm64
           extra_upload_tag: -rpm-arm64-sbom
@@ -14383,6 +14600,7 @@ tasks:
           signature_tag: signed
       - func: verify_artifact
   - name: add_crypt_shared_and_sbom_linux_arm64_openssl11
+    tags: ["add-sbom-task"]
     depends_on:
       - name: compile_artifact
         variant: linux_arm64_build_openssl11
@@ -14398,7 +14616,7 @@ tasks:
         vars:
           package_variant: linux-arm64-openssl11
           executable_os_id: linux-arm64-openssl11
-      - func: upload_sbom_and_static_analysis
+      - func: upload_sbom_and_first_party_deps
         vars:
           executable_os_id: linux-arm64-openssl11
           extra_upload_tag: -linux-arm64-openssl11-sbom
@@ -14465,6 +14683,7 @@ tasks:
           signature_tag: signed
       - func: verify_artifact
   - name: add_crypt_shared_and_sbom_deb_arm64_openssl11
+    tags: ["add-sbom-task"]
     depends_on:
       - name: compile_artifact
         variant: linux_arm64_build_openssl11
@@ -14480,7 +14699,7 @@ tasks:
         vars:
           package_variant: deb-arm64-openssl11
           executable_os_id: linux-arm64-openssl11
-      - func: upload_sbom_and_static_analysis
+      - func: upload_sbom_and_first_party_deps
         vars:
           executable_os_id: linux-arm64-openssl11
           extra_upload_tag: -deb-arm64-openssl11-sbom
@@ -14547,6 +14766,7 @@ tasks:
           signature_tag: signed
       - func: verify_artifact
   - name: add_crypt_shared_and_sbom_rpm_arm64_openssl11
+    tags: ["add-sbom-task"]
     depends_on:
       - name: compile_artifact
         variant: linux_arm64_build_openssl11
@@ -14562,7 +14782,7 @@ tasks:
         vars:
           package_variant: rpm-arm64-openssl11
           executable_os_id: linux-arm64-openssl11
-      - func: upload_sbom_and_static_analysis
+      - func: upload_sbom_and_first_party_deps
         vars:
           executable_os_id: linux-arm64-openssl11
           extra_upload_tag: -rpm-arm64-openssl11-sbom
@@ -14629,6 +14849,7 @@ tasks:
           signature_tag: signed
       - func: verify_artifact
   - name: add_crypt_shared_and_sbom_linux_arm64_openssl3
+    tags: ["add-sbom-task"]
     depends_on:
       - name: compile_artifact
         variant: linux_arm64_build_openssl3
@@ -14644,7 +14865,7 @@ tasks:
         vars:
           package_variant: linux-arm64-openssl3
           executable_os_id: linux-arm64-openssl3
-      - func: upload_sbom_and_static_analysis
+      - func: upload_sbom_and_first_party_deps
         vars:
           executable_os_id: linux-arm64-openssl3
           extra_upload_tag: -linux-arm64-openssl3-sbom
@@ -14711,6 +14932,7 @@ tasks:
           signature_tag: signed
       - func: verify_artifact
   - name: add_crypt_shared_and_sbom_deb_arm64_openssl3
+    tags: ["add-sbom-task"]
     depends_on:
       - name: compile_artifact
         variant: linux_arm64_build_openssl3
@@ -14726,7 +14948,7 @@ tasks:
         vars:
           package_variant: deb-arm64-openssl3
           executable_os_id: linux-arm64-openssl3
-      - func: upload_sbom_and_static_analysis
+      - func: upload_sbom_and_first_party_deps
         vars:
           executable_os_id: linux-arm64-openssl3
           extra_upload_tag: -deb-arm64-openssl3-sbom
@@ -14793,6 +15015,7 @@ tasks:
           signature_tag: signed
       - func: verify_artifact
   - name: add_crypt_shared_and_sbom_rpm_arm64_openssl3
+    tags: ["add-sbom-task"]
     depends_on:
       - name: compile_artifact
         variant: linux_arm64_build_openssl3
@@ -14808,7 +15031,7 @@ tasks:
         vars:
           package_variant: rpm-arm64-openssl3
           executable_os_id: linux-arm64-openssl3
-      - func: upload_sbom_and_static_analysis
+      - func: upload_sbom_and_first_party_deps
         vars:
           executable_os_id: linux-arm64-openssl3
           extra_upload_tag: -rpm-arm64-openssl3-sbom
@@ -14875,6 +15098,7 @@ tasks:
           signature_tag: signed
       - func: verify_artifact
   - name: add_crypt_shared_and_sbom_linux_ppc64le
+    tags: ["add-sbom-task"]
     depends_on:
       - name: compile_artifact
         variant: linux_ppc64le_build
@@ -14890,7 +15114,7 @@ tasks:
         vars:
           package_variant: linux-ppc64le
           executable_os_id: linux-ppc64le
-      - func: upload_sbom_and_static_analysis
+      - func: upload_sbom_and_first_party_deps
         vars:
           executable_os_id: linux-ppc64le
           extra_upload_tag: -linux-ppc64le-sbom
@@ -14957,6 +15181,7 @@ tasks:
           signature_tag: signed
       - func: verify_artifact
   - name: add_crypt_shared_and_sbom_rpm_ppc64le
+    tags: ["add-sbom-task"]
     depends_on:
       - name: compile_artifact
         variant: linux_ppc64le_build
@@ -14972,7 +15197,7 @@ tasks:
         vars:
           package_variant: rpm-ppc64le
           executable_os_id: linux-ppc64le
-      - func: upload_sbom_and_static_analysis
+      - func: upload_sbom_and_first_party_deps
         vars:
           executable_os_id: linux-ppc64le
           extra_upload_tag: -rpm-ppc64le-sbom
@@ -15039,6 +15264,7 @@ tasks:
           signature_tag: signed
       - func: verify_artifact
   - name: add_crypt_shared_and_sbom_linux_s390x
+    tags: ["add-sbom-task"]
     depends_on:
       - name: compile_artifact
         variant: linux_s390x_build
@@ -15054,7 +15280,7 @@ tasks:
         vars:
           package_variant: linux-s390x
           executable_os_id: linux-s390x
-      - func: upload_sbom_and_static_analysis
+      - func: upload_sbom_and_first_party_deps
         vars:
           executable_os_id: linux-s390x
           extra_upload_tag: -linux-s390x-sbom
@@ -15121,6 +15347,7 @@ tasks:
           signature_tag: signed
       - func: verify_artifact
   - name: add_crypt_shared_and_sbom_rpm_s390x
+    tags: ["add-sbom-task"]
     depends_on:
       - name: compile_artifact
         variant: linux_s390x_build
@@ -15136,7 +15363,7 @@ tasks:
         vars:
           package_variant: rpm-s390x
           executable_os_id: linux-s390x
-      - func: upload_sbom_and_static_analysis
+      - func: upload_sbom_and_first_party_deps
         vars:
           executable_os_id: linux-s390x
           extra_upload_tag: -rpm-s390x-sbom
@@ -15203,6 +15430,7 @@ tasks:
           signature_tag: signed
       - func: verify_artifact
   - name: add_crypt_shared_and_sbom_win32_x64
+    tags: ["add-sbom-task"]
     depends_on:
       - name: compile_artifact
         variant: win32_build
@@ -15218,7 +15446,7 @@ tasks:
         vars:
           package_variant: win32-x64
           executable_os_id: win32
-      - func: upload_sbom_and_static_analysis
+      - func: upload_sbom_and_first_party_deps
         vars:
           executable_os_id: win32
           extra_upload_tag: -win32-x64-sbom
@@ -15285,6 +15513,7 @@ tasks:
           signature_tag: signed
       - func: verify_artifact
   - name: add_crypt_shared_and_sbom_win32msi_x64
+    tags: ["add-sbom-task"]
     depends_on:
       - name: compile_artifact
         variant: win32_build
@@ -15300,7 +15529,7 @@ tasks:
         vars:
           package_variant: win32msi-x64
           executable_os_id: win32
-      - func: upload_sbom_and_static_analysis
+      - func: upload_sbom_and_first_party_deps
         vars:
           executable_os_id: win32
           extra_upload_tag: -win32msi-x64-sbom
@@ -16659,6 +16888,19 @@ tasks:
           admin_user_name: Administrator
           onhost_script_path: .evergreen/test-package-win32.sh
           preload_script_path: preload.sh
+  - name: create_first_party_vulnerability_report
+    tags: ["extra-integration-test"]
+    depends_on:
+      - name: ".add-sbom-task"
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "20.12.2"
+      - func: create_first_party_vulnerability_report 
+        vars:
+          node_js_version: "20.12.2"
 
   ###
   # RELEASE TASKS

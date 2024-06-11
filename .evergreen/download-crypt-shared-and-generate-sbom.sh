@@ -16,5 +16,4 @@ docker pull artifactory.corp.mongodb.com/release-tools-container-registry-public
 docker run --rm -v ${PWD}:/pwd artifactory.corp.mongodb.com/release-tools-container-registry-public-local/silkbomb:1.0 update \
   --purls /pwd/dist/.purls.txt --sbom_out /pwd/dist/.sbom.json
 
-npm run create-static-analysis-report
-(cd .sbom && tar czvf ../static-analysis-report.tgz codeql.md codeql.sarif.json)
+npm run create-dependency-sbom-lists

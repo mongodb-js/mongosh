@@ -398,7 +398,7 @@ functions:
           DISTRO_ID: ${distro_id}
           NODE_JS_VERSION: ${node_js_version}
           MONGOSH_SHARED_OPENSSL: ${mongosh_shared_openssl}
-  upload_sbom_and_static_analysis:
+  upload_sbom_and_first_party_deps:
     - command: s3.put
       params:
         aws_key: ${aws_key}
@@ -421,11 +421,10 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/static-analysis-report.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-${executable_os_id}${extra_upload_tag}-static-analysis-report.tgz
+        local_file: src/.sbom/first-party-deps.json
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-${executable_os_id}${extra_upload_tag}-first-party-deps.json
         bucket: mciuploads
-        permissions: private
-        visibility: signed
+        permissions: public-read
         content_type: application/json
   upload_compiled_artifact:
     - command: shell.exec
@@ -521,9 +520,45 @@ functions:
           PACKAGE_VARIANT: ${package_variant}
           ARTIFACTORY_USERNAME: ${artifactory_username}
           ARTIFACTORY_PASSWORD: ${artifactory_password}
-          # for static analysis report generation
+  create_first_party_vulnerability_report:
+  <%
+  let firstPartyDepsFilenames = []; 
+  for (const { executableOsId, packages } of RELEASE_PACKAGE_MATRIX) {
+       for (const { name: packageVariant } of packages) { 
+        const filename = `mongosh-${executableOsId}-${packageVariant}-sbom-first-party-deps.json`;
+        firstPartyDepsFilenames.push(filename); %>
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/.sbom/<% out(filename) %>
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/<% out(filename) %>
+        bucket: mciuploads
+  <% } } %>
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          export NODE_JS_VERSION=${node_js_version}
+          source .evergreen/setup-env.sh
+          .evergreen/create-static-analysis-report.sh
+        env:
+          NODE_JS_VERSION: ${node_js_version}
+          FIRST_PARTY_DEPENDENCY_FILENAMES: <% out(firstPartyDepsFilenames.map(f => `.sbom/${f}`).join(',')) %>
           GITHUB_TOKEN: ${github_token}
           GITHUB_PR_NUMBER: ${github_pr_number}
+    - command: s3.put
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/static-analysis-report.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-static-analysis-report.tgz
+        bucket: mciuploads
+        permissions: private
+        visibility: signed
+        content_type: application/x-gzip
   package_artifact:
     - command: expansions.write
       type: setup
@@ -1202,6 +1237,7 @@ tasks:
   <% for (const { executableOsId, compileBuildVariant, packages } of RELEASE_PACKAGE_MATRIX) {
        for (const { name: packageVariant } of packages) { %>
   - name: add_crypt_shared_and_sbom_<% out(packageVariant.replace(/-/g, '_')) %>
+    tags: ["add-sbom-task"]
     depends_on:
       - name: compile_artifact
         variant: <% out(compileBuildVariant) %>
@@ -1217,7 +1253,7 @@ tasks:
         vars:
           package_variant: <% out(packageVariant) %>
           executable_os_id: <% out(executableOsId) %>
-      - func: upload_sbom_and_static_analysis
+      - func: upload_sbom_and_first_party_deps
         vars:
           executable_os_id: <% out(executableOsId) %>
           extra_upload_tag: -<% out(packageVariant) %>-sbom
@@ -1338,6 +1374,19 @@ tasks:
         throw new Error(`pkg ${name} is missing a valid smoke test indicator`);
     } %>
   <% } } } %>
+  - name: create_first_party_vulnerability_report
+    tags: ["extra-integration-test"]
+    depends_on:
+      - name: ".add-sbom-task"
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+      - func: create_first_party_vulnerability_report 
+        vars:
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
 
   ###
   # RELEASE TASKS
