@@ -1126,7 +1126,7 @@ export default class Database extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
-  @apiVersions([]) // TODO: Update this after https://jira.mongodb.org/browse/PM-2327
+  @apiVersions([]) // TODO: Update this after https://jira.mongodb.org/browse/SPM-2327
   async version(): Promise<string> {
     this._emitDatabaseApiCall('version', {});
     const info: Document = await this._runAdminCommand({
@@ -1144,7 +1144,7 @@ export default class Database extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
-  @apiVersions([]) // TODO: Maybe update this after https://jira.mongodb.org/browse/PM-2327
+  @apiVersions([]) // TODO: Maybe update this after https://jira.mongodb.org/browse/SPM-2327
   async serverBits(): Promise<Document> {
     this._emitDatabaseApiCall('serverBits', {});
     const info: Document = await this._runAdminCommand({

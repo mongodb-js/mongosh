@@ -7426,7 +7426,7 @@ functions:
           DISTRO_ID: ${distro_id}
           NODE_JS_VERSION: ${node_js_version}
           MONGOSH_SHARED_OPENSSL: ${mongosh_shared_openssl}
-  upload_sbom:
+  upload_sbom_and_static_analysis:
     - command: s3.put
       params:
         aws_key: ${aws_key}
@@ -7445,6 +7445,16 @@ functions:
         bucket: mciuploads
         permissions: public-read
         content_type: text/plain
+    - command: s3.put
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/static-analysis-report.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-${executable_os_id}${extra_upload_tag}-static-analysis-report.tgz
+        bucket: mciuploads
+        permissions: private
+        visibility: signed
+        content_type: application/json
   upload_compiled_artifact:
     - command: shell.exec
       params:
@@ -7539,6 +7549,9 @@ functions:
           PACKAGE_VARIANT: ${package_variant}
           ARTIFACTORY_USERNAME: ${artifactory_username}
           ARTIFACTORY_PASSWORD: ${artifactory_password}
+          # for static analysis report generation
+          GITHUB_TOKEN: ${github_token}
+          GITHUB_PR_NUMBER: ${github_pr_number}
   package_artifact:
     - command: expansions.write
       type: setup
@@ -13237,7 +13250,7 @@ tasks:
         vars:
           package_variant: darwin-x64
           executable_os_id: darwin-x64
-      - func: upload_sbom
+      - func: upload_sbom_and_static_analysis
         vars:
           executable_os_id: darwin-x64
           extra_upload_tag: -darwin-x64-sbom
@@ -13319,7 +13332,7 @@ tasks:
         vars:
           package_variant: darwin-arm64
           executable_os_id: darwin-arm64
-      - func: upload_sbom
+      - func: upload_sbom_and_static_analysis
         vars:
           executable_os_id: darwin-arm64
           extra_upload_tag: -darwin-arm64-sbom
@@ -13401,7 +13414,7 @@ tasks:
         vars:
           package_variant: linux-x64
           executable_os_id: linux-x64
-      - func: upload_sbom
+      - func: upload_sbom_and_static_analysis
         vars:
           executable_os_id: linux-x64
           extra_upload_tag: -linux-x64-sbom
@@ -13483,7 +13496,7 @@ tasks:
         vars:
           package_variant: deb-x64
           executable_os_id: linux-x64
-      - func: upload_sbom
+      - func: upload_sbom_and_static_analysis
         vars:
           executable_os_id: linux-x64
           extra_upload_tag: -deb-x64-sbom
@@ -13565,7 +13578,7 @@ tasks:
         vars:
           package_variant: rpm-x64
           executable_os_id: linux-x64
-      - func: upload_sbom
+      - func: upload_sbom_and_static_analysis
         vars:
           executable_os_id: linux-x64
           extra_upload_tag: -rpm-x64-sbom
@@ -13647,7 +13660,7 @@ tasks:
         vars:
           package_variant: linux-x64-openssl11
           executable_os_id: linux-x64-openssl11
-      - func: upload_sbom
+      - func: upload_sbom_and_static_analysis
         vars:
           executable_os_id: linux-x64-openssl11
           extra_upload_tag: -linux-x64-openssl11-sbom
@@ -13729,7 +13742,7 @@ tasks:
         vars:
           package_variant: deb-x64-openssl11
           executable_os_id: linux-x64-openssl11
-      - func: upload_sbom
+      - func: upload_sbom_and_static_analysis
         vars:
           executable_os_id: linux-x64-openssl11
           extra_upload_tag: -deb-x64-openssl11-sbom
@@ -13811,7 +13824,7 @@ tasks:
         vars:
           package_variant: rpm-x64-openssl11
           executable_os_id: linux-x64-openssl11
-      - func: upload_sbom
+      - func: upload_sbom_and_static_analysis
         vars:
           executable_os_id: linux-x64-openssl11
           extra_upload_tag: -rpm-x64-openssl11-sbom
@@ -13893,7 +13906,7 @@ tasks:
         vars:
           package_variant: linux-x64-openssl3
           executable_os_id: linux-x64-openssl3
-      - func: upload_sbom
+      - func: upload_sbom_and_static_analysis
         vars:
           executable_os_id: linux-x64-openssl3
           extra_upload_tag: -linux-x64-openssl3-sbom
@@ -13975,7 +13988,7 @@ tasks:
         vars:
           package_variant: deb-x64-openssl3
           executable_os_id: linux-x64-openssl3
-      - func: upload_sbom
+      - func: upload_sbom_and_static_analysis
         vars:
           executable_os_id: linux-x64-openssl3
           extra_upload_tag: -deb-x64-openssl3-sbom
@@ -14057,7 +14070,7 @@ tasks:
         vars:
           package_variant: rpm-x64-openssl3
           executable_os_id: linux-x64-openssl3
-      - func: upload_sbom
+      - func: upload_sbom_and_static_analysis
         vars:
           executable_os_id: linux-x64-openssl3
           extra_upload_tag: -rpm-x64-openssl3-sbom
@@ -14139,7 +14152,7 @@ tasks:
         vars:
           package_variant: linux-arm64
           executable_os_id: linux-arm64
-      - func: upload_sbom
+      - func: upload_sbom_and_static_analysis
         vars:
           executable_os_id: linux-arm64
           extra_upload_tag: -linux-arm64-sbom
@@ -14221,7 +14234,7 @@ tasks:
         vars:
           package_variant: deb-arm64
           executable_os_id: linux-arm64
-      - func: upload_sbom
+      - func: upload_sbom_and_static_analysis
         vars:
           executable_os_id: linux-arm64
           extra_upload_tag: -deb-arm64-sbom
@@ -14303,7 +14316,7 @@ tasks:
         vars:
           package_variant: rpm-arm64
           executable_os_id: linux-arm64
-      - func: upload_sbom
+      - func: upload_sbom_and_static_analysis
         vars:
           executable_os_id: linux-arm64
           extra_upload_tag: -rpm-arm64-sbom
@@ -14385,7 +14398,7 @@ tasks:
         vars:
           package_variant: linux-arm64-openssl11
           executable_os_id: linux-arm64-openssl11
-      - func: upload_sbom
+      - func: upload_sbom_and_static_analysis
         vars:
           executable_os_id: linux-arm64-openssl11
           extra_upload_tag: -linux-arm64-openssl11-sbom
@@ -14467,7 +14480,7 @@ tasks:
         vars:
           package_variant: deb-arm64-openssl11
           executable_os_id: linux-arm64-openssl11
-      - func: upload_sbom
+      - func: upload_sbom_and_static_analysis
         vars:
           executable_os_id: linux-arm64-openssl11
           extra_upload_tag: -deb-arm64-openssl11-sbom
@@ -14549,7 +14562,7 @@ tasks:
         vars:
           package_variant: rpm-arm64-openssl11
           executable_os_id: linux-arm64-openssl11
-      - func: upload_sbom
+      - func: upload_sbom_and_static_analysis
         vars:
           executable_os_id: linux-arm64-openssl11
           extra_upload_tag: -rpm-arm64-openssl11-sbom
@@ -14631,7 +14644,7 @@ tasks:
         vars:
           package_variant: linux-arm64-openssl3
           executable_os_id: linux-arm64-openssl3
-      - func: upload_sbom
+      - func: upload_sbom_and_static_analysis
         vars:
           executable_os_id: linux-arm64-openssl3
           extra_upload_tag: -linux-arm64-openssl3-sbom
@@ -14713,7 +14726,7 @@ tasks:
         vars:
           package_variant: deb-arm64-openssl3
           executable_os_id: linux-arm64-openssl3
-      - func: upload_sbom
+      - func: upload_sbom_and_static_analysis
         vars:
           executable_os_id: linux-arm64-openssl3
           extra_upload_tag: -deb-arm64-openssl3-sbom
@@ -14795,7 +14808,7 @@ tasks:
         vars:
           package_variant: rpm-arm64-openssl3
           executable_os_id: linux-arm64-openssl3
-      - func: upload_sbom
+      - func: upload_sbom_and_static_analysis
         vars:
           executable_os_id: linux-arm64-openssl3
           extra_upload_tag: -rpm-arm64-openssl3-sbom
@@ -14877,7 +14890,7 @@ tasks:
         vars:
           package_variant: linux-ppc64le
           executable_os_id: linux-ppc64le
-      - func: upload_sbom
+      - func: upload_sbom_and_static_analysis
         vars:
           executable_os_id: linux-ppc64le
           extra_upload_tag: -linux-ppc64le-sbom
@@ -14959,7 +14972,7 @@ tasks:
         vars:
           package_variant: rpm-ppc64le
           executable_os_id: linux-ppc64le
-      - func: upload_sbom
+      - func: upload_sbom_and_static_analysis
         vars:
           executable_os_id: linux-ppc64le
           extra_upload_tag: -rpm-ppc64le-sbom
@@ -15041,7 +15054,7 @@ tasks:
         vars:
           package_variant: linux-s390x
           executable_os_id: linux-s390x
-      - func: upload_sbom
+      - func: upload_sbom_and_static_analysis
         vars:
           executable_os_id: linux-s390x
           extra_upload_tag: -linux-s390x-sbom
@@ -15123,7 +15136,7 @@ tasks:
         vars:
           package_variant: rpm-s390x
           executable_os_id: linux-s390x
-      - func: upload_sbom
+      - func: upload_sbom_and_static_analysis
         vars:
           executable_os_id: linux-s390x
           extra_upload_tag: -rpm-s390x-sbom
@@ -15205,7 +15218,7 @@ tasks:
         vars:
           package_variant: win32-x64
           executable_os_id: win32
-      - func: upload_sbom
+      - func: upload_sbom_and_static_analysis
         vars:
           executable_os_id: win32
           extra_upload_tag: -win32-x64-sbom
@@ -15287,7 +15300,7 @@ tasks:
         vars:
           package_variant: win32msi-x64
           executable_os_id: win32
-      - func: upload_sbom
+      - func: upload_sbom_and_static_analysis
         vars:
           executable_os_id: win32
           extra_upload_tag: -win32msi-x64-sbom

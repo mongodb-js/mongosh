@@ -306,7 +306,7 @@ function isAcceptable(
   } else {
     isAcceptableVersion =
       !entry[versionKey] ||
-      // TODO: when https://jira.mongodb.org/browse/PM-2327 is done we can rely on server_version being present
+      // TODO: when https://jira.mongodb.org/browse/SPM-2327 is done we can rely on server_version being present
       !connectionInfo?.server_version ||
       semver.gte(connectionInfo.server_version, entry[versionKey] as string);
   }
