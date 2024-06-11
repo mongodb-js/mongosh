@@ -524,6 +524,10 @@ functions:
           # for static analysis report generation
           GITHUB_TOKEN: ${github_token}
           GITHUB_PR_NUMBER: ${github_pr_number}
+          # for Silk SBOM integration
+          SILK_ASSET_GROUP: mongosh-${executable_os_id}
+          SILK_CLIENT_ID: ${silk_client_id}
+          SILK_CLIENT_SECRET: ${silk_client_secret}
   package_artifact:
     - command: expansions.write
       type: setup
