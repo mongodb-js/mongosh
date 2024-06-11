@@ -522,7 +522,7 @@ describe('DownloadCenter config', function () {
       ];
       const mongoshTargets = [
         ...new Set(mongoshJsonFeedEntry.downloads.flatMap((d) => d.targets)),
-      ].filter((t) => t !== 'debian12'); // debian12 is not part of the server platform list at the time of writing
+      ].filter((t) => t !== 'ubuntu2404'); // ubuntu2404 is not part of the server platform list at the time of writing
 
       for (const arch of mongoshArchs) expect(serverArchs).to.include(arch);
       for (const target of mongoshTargets)
