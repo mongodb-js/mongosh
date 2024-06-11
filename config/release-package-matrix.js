@@ -4,7 +4,7 @@ const rhel81AndAbove = ['rhel81', 'rhel82', 'rhel83', 'rhel90']
 const rhel80AndAbove = ['rhel80', ...rhel81AndAbove]
 const rhel72AndAbove = ['rhel72', ...rhel80AndAbove]
 const al2AndAbove = ['amazon2', 'amazon2023', ...rhel81AndAbove]
-const rhel70AndAboveAndRpmBased = ['rhel70', 'rhel71', ...rhel72AndAbove, 'amazon', ...al2AndAbove, 'suse12', 'suse15', 'oraclelinux9']
+const rhel70AndAboveAndRpmBased = ['rhel70', 'rhel71', ...rhel72AndAbove, 'amazon', ...al2AndAbove, 'suse12', 'suse15']
 const ubuntu1804AndAboveAndDebBased = ['ubuntu1804', 'ubuntu1804', 'ubuntu2004', 'ubuntu2204', 'ubuntu2404', 'debian10', 'debian11', 'debian12']
 const allLinux = [...rhel70AndAboveAndRpmBased, ...ubuntu1804AndAboveAndDebBased]
 
