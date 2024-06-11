@@ -520,6 +520,7 @@ functions:
           PACKAGE_VARIANT: ${package_variant}
           ARTIFACTORY_USERNAME: ${artifactory_username}
           ARTIFACTORY_PASSWORD: ${artifactory_password}
+          GITHUB_PR_NUMBER: ${github_pr_number}
   create_first_party_vulnerability_report:
   <%
   let firstPartyDepsFilenames = []; 
@@ -1502,10 +1503,11 @@ buildvariants:
       - name: test_connectivity
       - name: test_apistrict
   - name: linux_coverage
-    display_name: "Coverage Check"
+    display_name: "Coverage and Static Analysis Check"
     run_on: ubuntu2004-small
     tasks:
       - name: check_coverage
+      - name: create_first_party_vulnerability_report
   - name: linux_package
     display_name: "Ubuntu 20.04 x64 (Packaging)"
     run_on: ubuntu2004-small
