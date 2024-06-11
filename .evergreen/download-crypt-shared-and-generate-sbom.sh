@@ -25,10 +25,10 @@ trap trap_handler ERR EXIT
 docker pull artifactory.corp.mongodb.com/release-tools-container-registry-public-local/silkbomb:1.0
 docker run --rm -v ${PWD}:/pwd artifactory.corp.mongodb.com/release-tools-container-registry-public-local/silkbomb:1.0 update \
   --purls /pwd/dist/.purls.txt --sbom-out /pwd/dist/.sbom-lite.json
-docker run --rm -v ${PWD}:/pwd artifactory.corp.mongodb.com/release-tools-container-registry-public-local/silkbomb:1.0 upload \
-  --env-file silkbomb.env --silk-asset-group "${SILK_ASSET_GROUP}" --sbom-in /pwd/dist/.sbom-lite.json
-docker run --rm -v ${PWD}:/pwd artifactory.corp.mongodb.com/release-tools-container-registry-public-local/silkbomb:1.0 download \
-  --env-file silkbomb.env --silk-asset-group "${SILK_ASSET_GROUP}" --sbom-out /pwd/dist/.sbom.json
+docker run --env-file silkbomb.env --rm -v ${PWD}:/pwd artifactory.corp.mongodb.com/release-tools-container-registry-public-local/silkbomb:1.0 upload \
+  --silk-asset-group "${SILK_ASSET_GROUP}" --sbom-in /pwd/dist/.sbom-lite.json
+docker run --env-file silkbomb.env --rm -v ${PWD}:/pwd artifactory.corp.mongodb.com/release-tools-container-registry-public-local/silkbomb:1.0 download \
+  --silk-asset-group "${SILK_ASSET_GROUP}" --sbom-out /pwd/dist/.sbom.json
 
 npm run create-static-analysis-report
 (cd .sbom && tar czvf ../static-analysis-report.tgz codeql.md codeql.sarif.json)
