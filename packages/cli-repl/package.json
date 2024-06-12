@@ -114,7 +114,7 @@
     "webpack-merge": "^5.8.0"
   },
   "optionalDependencies": {
-    "get-console-process-list": "^1.0.4",
+    "get-console-process-list": "^1.0.5",
     "glibc-version": "^1.0.0",
     "macos-export-certificate-and-key": "^1.1.2",
     "mongodb-crypt-library-version": "^1.0.5",
