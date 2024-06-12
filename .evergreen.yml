@@ -7471,6 +7471,7 @@ functions:
         bucket: mciuploads
         permissions: public-read
         content_type: application/x-gzip
+  upload_first_party_deps_list:
     - command: s3.put
       params:
         aws_key: ${aws_key}
@@ -11956,6 +11957,9 @@ tasks:
         vars:
           node_js_version: "20.12.2"
       - func: upload_compiled_artifact
+        vars:
+          node_js_version: "20.12.2"
+      - func: upload_first_party_deps_list
         vars:
           node_js_version: "20.12.2"
 
