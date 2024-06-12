@@ -521,7 +521,7 @@ functions:
           ARTIFACTORY_USERNAME: ${artifactory_username}
           ARTIFACTORY_PASSWORD: ${artifactory_password}
           GITHUB_PR_NUMBER: ${github_pr_number}
-  create_first_party_vulnerability_report:
+  create_static_analysis_report:
   <%
   let firstPartyDepsFilenames = []; 
   for (const { executableOsId, packages } of RELEASE_PACKAGE_MATRIX) {
@@ -1130,6 +1130,7 @@ tasks:
           mongosh_server_test_version: "latest-alpha-enterprise"
           mongosh_test_force_api_strict: "1"
   - name: compile_artifact
+    tags: ["compile-artifact"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -1374,17 +1375,17 @@ tasks:
         throw new Error(`pkg ${name} is missing a valid smoke test indicator`);
     } %>
   <% } } } %>
-  - name: create_first_party_vulnerability_report
+  - name: create_static_analysis_report
     tags: ["extra-integration-test"]
     depends_on:
-      - name: ".add-sbom-task"
+      - name: ".compile-artifact"
         variant: "*"
     commands:
       - func: checkout
       - func: install
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_20) %>"
-      - func: create_first_party_vulnerability_report 
+      - func: create_static_analysis_report 
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_20) %>"
 
@@ -1506,7 +1507,7 @@ buildvariants:
     run_on: ubuntu2004-small
     tasks:
       - name: check_coverage
-      - name: create_first_party_vulnerability_report
+      - name: create_static_analysis_report
   - name: linux_package
     display_name: "Ubuntu 20.04 x64 (Packaging)"
     run_on: ubuntu2004-small
