@@ -7426,7 +7426,7 @@ functions:
           DISTRO_ID: ${distro_id}
           NODE_JS_VERSION: ${node_js_version}
           MONGOSH_SHARED_OPENSSL: ${mongosh_shared_openssl}
-  upload_sbom_and_first_party_deps:
+  upload_sbom:
     - command: s3.put
       params:
         aws_key: ${aws_key}
@@ -7445,15 +7445,6 @@ functions:
         bucket: mciuploads
         permissions: public-read
         content_type: text/plain
-    - command: s3.put
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/.sbom/first-party-deps.json
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-${executable_os_id}${extra_upload_tag}-first-party-deps.json
-        bucket: mciuploads
-        permissions: public-read
-        content_type: application/json
   upload_compiled_artifact:
     - command: shell.exec
       params:
@@ -7479,6 +7470,15 @@ functions:
         bucket: mciuploads
         permissions: public-read
         content_type: application/x-gzip
+    - command: s3.put
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/.sbom/first-party-deps.json
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-${executable_os_id}${extra_upload_tag}-first-party-deps.json
+        bucket: mciuploads
+        permissions: public-read
+        content_type: application/json
   download_compiled_artifact:
     - command: s3.get
       type: setup
@@ -7554,183 +7554,78 @@ functions:
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/.sbom/mongosh-darwin-x64-darwin-x64-sbom-first-party-deps.json
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-darwin-x64-darwin-x64-sbom-first-party-deps.json
+        local_file: src/.sbom/mongosh-darwin-x64-first-party-deps.json
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-darwin-x64-first-party-deps.json
         bucket: mciuploads
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/.sbom/mongosh-darwin-arm64-darwin-arm64-sbom-first-party-deps.json
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-darwin-arm64-darwin-arm64-sbom-first-party-deps.json
+        local_file: src/.sbom/mongosh-darwin-arm64-first-party-deps.json
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-darwin-arm64-first-party-deps.json
         bucket: mciuploads
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/.sbom/mongosh-linux-x64-linux-x64-sbom-first-party-deps.json
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-x64-linux-x64-sbom-first-party-deps.json
+        local_file: src/.sbom/mongosh-linux-x64-first-party-deps.json
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-x64-first-party-deps.json
         bucket: mciuploads
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/.sbom/mongosh-linux-x64-deb-x64-sbom-first-party-deps.json
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-x64-deb-x64-sbom-first-party-deps.json
+        local_file: src/.sbom/mongosh-linux-x64-openssl11-first-party-deps.json
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-x64-openssl11-first-party-deps.json
         bucket: mciuploads
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/.sbom/mongosh-linux-x64-rpm-x64-sbom-first-party-deps.json
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-x64-rpm-x64-sbom-first-party-deps.json
+        local_file: src/.sbom/mongosh-linux-x64-openssl3-first-party-deps.json
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-x64-openssl3-first-party-deps.json
         bucket: mciuploads
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/.sbom/mongosh-linux-x64-openssl11-linux-x64-openssl11-sbom-first-party-deps.json
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-x64-openssl11-linux-x64-openssl11-sbom-first-party-deps.json
+        local_file: src/.sbom/mongosh-linux-arm64-first-party-deps.json
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-arm64-first-party-deps.json
         bucket: mciuploads
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/.sbom/mongosh-linux-x64-openssl11-deb-x64-openssl11-sbom-first-party-deps.json
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-x64-openssl11-deb-x64-openssl11-sbom-first-party-deps.json
+        local_file: src/.sbom/mongosh-linux-arm64-openssl11-first-party-deps.json
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-arm64-openssl11-first-party-deps.json
         bucket: mciuploads
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/.sbom/mongosh-linux-x64-openssl11-rpm-x64-openssl11-sbom-first-party-deps.json
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-x64-openssl11-rpm-x64-openssl11-sbom-first-party-deps.json
+        local_file: src/.sbom/mongosh-linux-arm64-openssl3-first-party-deps.json
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-arm64-openssl3-first-party-deps.json
         bucket: mciuploads
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/.sbom/mongosh-linux-x64-openssl3-linux-x64-openssl3-sbom-first-party-deps.json
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-x64-openssl3-linux-x64-openssl3-sbom-first-party-deps.json
+        local_file: src/.sbom/mongosh-linux-ppc64le-first-party-deps.json
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-ppc64le-first-party-deps.json
         bucket: mciuploads
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/.sbom/mongosh-linux-x64-openssl3-deb-x64-openssl3-sbom-first-party-deps.json
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-x64-openssl3-deb-x64-openssl3-sbom-first-party-deps.json
+        local_file: src/.sbom/mongosh-linux-s390x-first-party-deps.json
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-s390x-first-party-deps.json
         bucket: mciuploads
     - command: s3.get
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/.sbom/mongosh-linux-x64-openssl3-rpm-x64-openssl3-sbom-first-party-deps.json
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-x64-openssl3-rpm-x64-openssl3-sbom-first-party-deps.json
-        bucket: mciuploads
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/.sbom/mongosh-linux-arm64-linux-arm64-sbom-first-party-deps.json
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-arm64-linux-arm64-sbom-first-party-deps.json
-        bucket: mciuploads
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/.sbom/mongosh-linux-arm64-deb-arm64-sbom-first-party-deps.json
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-arm64-deb-arm64-sbom-first-party-deps.json
-        bucket: mciuploads
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/.sbom/mongosh-linux-arm64-rpm-arm64-sbom-first-party-deps.json
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-arm64-rpm-arm64-sbom-first-party-deps.json
-        bucket: mciuploads
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/.sbom/mongosh-linux-arm64-openssl11-linux-arm64-openssl11-sbom-first-party-deps.json
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-arm64-openssl11-linux-arm64-openssl11-sbom-first-party-deps.json
-        bucket: mciuploads
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/.sbom/mongosh-linux-arm64-openssl11-deb-arm64-openssl11-sbom-first-party-deps.json
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-arm64-openssl11-deb-arm64-openssl11-sbom-first-party-deps.json
-        bucket: mciuploads
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/.sbom/mongosh-linux-arm64-openssl11-rpm-arm64-openssl11-sbom-first-party-deps.json
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-arm64-openssl11-rpm-arm64-openssl11-sbom-first-party-deps.json
-        bucket: mciuploads
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/.sbom/mongosh-linux-arm64-openssl3-linux-arm64-openssl3-sbom-first-party-deps.json
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-arm64-openssl3-linux-arm64-openssl3-sbom-first-party-deps.json
-        bucket: mciuploads
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/.sbom/mongosh-linux-arm64-openssl3-deb-arm64-openssl3-sbom-first-party-deps.json
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-arm64-openssl3-deb-arm64-openssl3-sbom-first-party-deps.json
-        bucket: mciuploads
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/.sbom/mongosh-linux-arm64-openssl3-rpm-arm64-openssl3-sbom-first-party-deps.json
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-arm64-openssl3-rpm-arm64-openssl3-sbom-first-party-deps.json
-        bucket: mciuploads
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/.sbom/mongosh-linux-ppc64le-linux-ppc64le-sbom-first-party-deps.json
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-ppc64le-linux-ppc64le-sbom-first-party-deps.json
-        bucket: mciuploads
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/.sbom/mongosh-linux-ppc64le-rpm-ppc64le-sbom-first-party-deps.json
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-ppc64le-rpm-ppc64le-sbom-first-party-deps.json
-        bucket: mciuploads
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/.sbom/mongosh-linux-s390x-linux-s390x-sbom-first-party-deps.json
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-s390x-linux-s390x-sbom-first-party-deps.json
-        bucket: mciuploads
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/.sbom/mongosh-linux-s390x-rpm-s390x-sbom-first-party-deps.json
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-linux-s390x-rpm-s390x-sbom-first-party-deps.json
-        bucket: mciuploads
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/.sbom/mongosh-win32-win32-x64-sbom-first-party-deps.json
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-win32-win32-x64-sbom-first-party-deps.json
-        bucket: mciuploads
-    - command: s3.get
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/.sbom/mongosh-win32-win32msi-x64-sbom-first-party-deps.json
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-win32-win32msi-x64-sbom-first-party-deps.json
+        local_file: src/.sbom/mongosh-win32-first-party-deps.json
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-win32-first-party-deps.json
         bucket: mciuploads
     - command: shell.exec
       params:
@@ -7743,7 +7638,7 @@ functions:
           .evergreen/create-static-analysis-report.sh
         env:
           NODE_JS_VERSION: ${node_js_version}
-          FIRST_PARTY_DEPENDENCY_FILENAMES: .sbom/mongosh-darwin-x64-darwin-x64-sbom-first-party-deps.json,.sbom/mongosh-darwin-arm64-darwin-arm64-sbom-first-party-deps.json,.sbom/mongosh-linux-x64-linux-x64-sbom-first-party-deps.json,.sbom/mongosh-linux-x64-deb-x64-sbom-first-party-deps.json,.sbom/mongosh-linux-x64-rpm-x64-sbom-first-party-deps.json,.sbom/mongosh-linux-x64-openssl11-linux-x64-openssl11-sbom-first-party-deps.json,.sbom/mongosh-linux-x64-openssl11-deb-x64-openssl11-sbom-first-party-deps.json,.sbom/mongosh-linux-x64-openssl11-rpm-x64-openssl11-sbom-first-party-deps.json,.sbom/mongosh-linux-x64-openssl3-linux-x64-openssl3-sbom-first-party-deps.json,.sbom/mongosh-linux-x64-openssl3-deb-x64-openssl3-sbom-first-party-deps.json,.sbom/mongosh-linux-x64-openssl3-rpm-x64-openssl3-sbom-first-party-deps.json,.sbom/mongosh-linux-arm64-linux-arm64-sbom-first-party-deps.json,.sbom/mongosh-linux-arm64-deb-arm64-sbom-first-party-deps.json,.sbom/mongosh-linux-arm64-rpm-arm64-sbom-first-party-deps.json,.sbom/mongosh-linux-arm64-openssl11-linux-arm64-openssl11-sbom-first-party-deps.json,.sbom/mongosh-linux-arm64-openssl11-deb-arm64-openssl11-sbom-first-party-deps.json,.sbom/mongosh-linux-arm64-openssl11-rpm-arm64-openssl11-sbom-first-party-deps.json,.sbom/mongosh-linux-arm64-openssl3-linux-arm64-openssl3-sbom-first-party-deps.json,.sbom/mongosh-linux-arm64-openssl3-deb-arm64-openssl3-sbom-first-party-deps.json,.sbom/mongosh-linux-arm64-openssl3-rpm-arm64-openssl3-sbom-first-party-deps.json,.sbom/mongosh-linux-ppc64le-linux-ppc64le-sbom-first-party-deps.json,.sbom/mongosh-linux-ppc64le-rpm-ppc64le-sbom-first-party-deps.json,.sbom/mongosh-linux-s390x-linux-s390x-sbom-first-party-deps.json,.sbom/mongosh-linux-s390x-rpm-s390x-sbom-first-party-deps.json,.sbom/mongosh-win32-win32-x64-sbom-first-party-deps.json,.sbom/mongosh-win32-win32msi-x64-sbom-first-party-deps.json
+          FIRST_PARTY_DEPENDENCY_FILENAMES: .sbom/mongosh-darwin-x64-first-party-deps.json,.sbom/mongosh-darwin-arm64-first-party-deps.json,.sbom/mongosh-linux-x64-first-party-deps.json,.sbom/mongosh-linux-x64-openssl11-first-party-deps.json,.sbom/mongosh-linux-x64-openssl3-first-party-deps.json,.sbom/mongosh-linux-arm64-first-party-deps.json,.sbom/mongosh-linux-arm64-openssl11-first-party-deps.json,.sbom/mongosh-linux-arm64-openssl3-first-party-deps.json,.sbom/mongosh-linux-ppc64le-first-party-deps.json,.sbom/mongosh-linux-s390x-first-party-deps.json,.sbom/mongosh-win32-first-party-deps.json
           GITHUB_TOKEN: ${github_token}
           GITHUB_PR_NUMBER: ${github_pr_number}
     - command: s3.put
@@ -13455,7 +13350,7 @@ tasks:
         vars:
           package_variant: darwin-x64
           executable_os_id: darwin-x64
-      - func: upload_sbom_and_first_party_deps
+      - func: upload_sbom
         vars:
           executable_os_id: darwin-x64
           extra_upload_tag: -darwin-x64-sbom
@@ -13538,7 +13433,7 @@ tasks:
         vars:
           package_variant: darwin-arm64
           executable_os_id: darwin-arm64
-      - func: upload_sbom_and_first_party_deps
+      - func: upload_sbom
         vars:
           executable_os_id: darwin-arm64
           extra_upload_tag: -darwin-arm64-sbom
@@ -13621,7 +13516,7 @@ tasks:
         vars:
           package_variant: linux-x64
           executable_os_id: linux-x64
-      - func: upload_sbom_and_first_party_deps
+      - func: upload_sbom
         vars:
           executable_os_id: linux-x64
           extra_upload_tag: -linux-x64-sbom
@@ -13704,7 +13599,7 @@ tasks:
         vars:
           package_variant: deb-x64
           executable_os_id: linux-x64
-      - func: upload_sbom_and_first_party_deps
+      - func: upload_sbom
         vars:
           executable_os_id: linux-x64
           extra_upload_tag: -deb-x64-sbom
@@ -13787,7 +13682,7 @@ tasks:
         vars:
           package_variant: rpm-x64
           executable_os_id: linux-x64
-      - func: upload_sbom_and_first_party_deps
+      - func: upload_sbom
         vars:
           executable_os_id: linux-x64
           extra_upload_tag: -rpm-x64-sbom
@@ -13870,7 +13765,7 @@ tasks:
         vars:
           package_variant: linux-x64-openssl11
           executable_os_id: linux-x64-openssl11
-      - func: upload_sbom_and_first_party_deps
+      - func: upload_sbom
         vars:
           executable_os_id: linux-x64-openssl11
           extra_upload_tag: -linux-x64-openssl11-sbom
@@ -13953,7 +13848,7 @@ tasks:
         vars:
           package_variant: deb-x64-openssl11
           executable_os_id: linux-x64-openssl11
-      - func: upload_sbom_and_first_party_deps
+      - func: upload_sbom
         vars:
           executable_os_id: linux-x64-openssl11
           extra_upload_tag: -deb-x64-openssl11-sbom
@@ -14036,7 +13931,7 @@ tasks:
         vars:
           package_variant: rpm-x64-openssl11
           executable_os_id: linux-x64-openssl11
-      - func: upload_sbom_and_first_party_deps
+      - func: upload_sbom
         vars:
           executable_os_id: linux-x64-openssl11
           extra_upload_tag: -rpm-x64-openssl11-sbom
@@ -14119,7 +14014,7 @@ tasks:
         vars:
           package_variant: linux-x64-openssl3
           executable_os_id: linux-x64-openssl3
-      - func: upload_sbom_and_first_party_deps
+      - func: upload_sbom
         vars:
           executable_os_id: linux-x64-openssl3
           extra_upload_tag: -linux-x64-openssl3-sbom
@@ -14202,7 +14097,7 @@ tasks:
         vars:
           package_variant: deb-x64-openssl3
           executable_os_id: linux-x64-openssl3
-      - func: upload_sbom_and_first_party_deps
+      - func: upload_sbom
         vars:
           executable_os_id: linux-x64-openssl3
           extra_upload_tag: -deb-x64-openssl3-sbom
@@ -14285,7 +14180,7 @@ tasks:
         vars:
           package_variant: rpm-x64-openssl3
           executable_os_id: linux-x64-openssl3
-      - func: upload_sbom_and_first_party_deps
+      - func: upload_sbom
         vars:
           executable_os_id: linux-x64-openssl3
           extra_upload_tag: -rpm-x64-openssl3-sbom
@@ -14368,7 +14263,7 @@ tasks:
         vars:
           package_variant: linux-arm64
           executable_os_id: linux-arm64
-      - func: upload_sbom_and_first_party_deps
+      - func: upload_sbom
         vars:
           executable_os_id: linux-arm64
           extra_upload_tag: -linux-arm64-sbom
@@ -14451,7 +14346,7 @@ tasks:
         vars:
           package_variant: deb-arm64
           executable_os_id: linux-arm64
-      - func: upload_sbom_and_first_party_deps
+      - func: upload_sbom
         vars:
           executable_os_id: linux-arm64
           extra_upload_tag: -deb-arm64-sbom
@@ -14534,7 +14429,7 @@ tasks:
         vars:
           package_variant: rpm-arm64
           executable_os_id: linux-arm64
-      - func: upload_sbom_and_first_party_deps
+      - func: upload_sbom
         vars:
           executable_os_id: linux-arm64
           extra_upload_tag: -rpm-arm64-sbom
@@ -14617,7 +14512,7 @@ tasks:
         vars:
           package_variant: linux-arm64-openssl11
           executable_os_id: linux-arm64-openssl11
-      - func: upload_sbom_and_first_party_deps
+      - func: upload_sbom
         vars:
           executable_os_id: linux-arm64-openssl11
           extra_upload_tag: -linux-arm64-openssl11-sbom
@@ -14700,7 +14595,7 @@ tasks:
         vars:
           package_variant: deb-arm64-openssl11
           executable_os_id: linux-arm64-openssl11
-      - func: upload_sbom_and_first_party_deps
+      - func: upload_sbom
         vars:
           executable_os_id: linux-arm64-openssl11
           extra_upload_tag: -deb-arm64-openssl11-sbom
@@ -14783,7 +14678,7 @@ tasks:
         vars:
           package_variant: rpm-arm64-openssl11
           executable_os_id: linux-arm64-openssl11
-      - func: upload_sbom_and_first_party_deps
+      - func: upload_sbom
         vars:
           executable_os_id: linux-arm64-openssl11
           extra_upload_tag: -rpm-arm64-openssl11-sbom
@@ -14866,7 +14761,7 @@ tasks:
         vars:
           package_variant: linux-arm64-openssl3
           executable_os_id: linux-arm64-openssl3
-      - func: upload_sbom_and_first_party_deps
+      - func: upload_sbom
         vars:
           executable_os_id: linux-arm64-openssl3
           extra_upload_tag: -linux-arm64-openssl3-sbom
@@ -14949,7 +14844,7 @@ tasks:
         vars:
           package_variant: deb-arm64-openssl3
           executable_os_id: linux-arm64-openssl3
-      - func: upload_sbom_and_first_party_deps
+      - func: upload_sbom
         vars:
           executable_os_id: linux-arm64-openssl3
           extra_upload_tag: -deb-arm64-openssl3-sbom
@@ -15032,7 +14927,7 @@ tasks:
         vars:
           package_variant: rpm-arm64-openssl3
           executable_os_id: linux-arm64-openssl3
-      - func: upload_sbom_and_first_party_deps
+      - func: upload_sbom
         vars:
           executable_os_id: linux-arm64-openssl3
           extra_upload_tag: -rpm-arm64-openssl3-sbom
@@ -15115,7 +15010,7 @@ tasks:
         vars:
           package_variant: linux-ppc64le
           executable_os_id: linux-ppc64le
-      - func: upload_sbom_and_first_party_deps
+      - func: upload_sbom
         vars:
           executable_os_id: linux-ppc64le
           extra_upload_tag: -linux-ppc64le-sbom
@@ -15198,7 +15093,7 @@ tasks:
         vars:
           package_variant: rpm-ppc64le
           executable_os_id: linux-ppc64le
-      - func: upload_sbom_and_first_party_deps
+      - func: upload_sbom
         vars:
           executable_os_id: linux-ppc64le
           extra_upload_tag: -rpm-ppc64le-sbom
@@ -15281,7 +15176,7 @@ tasks:
         vars:
           package_variant: linux-s390x
           executable_os_id: linux-s390x
-      - func: upload_sbom_and_first_party_deps
+      - func: upload_sbom
         vars:
           executable_os_id: linux-s390x
           extra_upload_tag: -linux-s390x-sbom
@@ -15364,7 +15259,7 @@ tasks:
         vars:
           package_variant: rpm-s390x
           executable_os_id: linux-s390x
-      - func: upload_sbom_and_first_party_deps
+      - func: upload_sbom
         vars:
           executable_os_id: linux-s390x
           extra_upload_tag: -rpm-s390x-sbom
@@ -15447,7 +15342,7 @@ tasks:
         vars:
           package_variant: win32-x64
           executable_os_id: win32
-      - func: upload_sbom_and_first_party_deps
+      - func: upload_sbom
         vars:
           executable_os_id: win32
           extra_upload_tag: -win32-x64-sbom
@@ -15530,7 +15425,7 @@ tasks:
         vars:
           package_variant: win32msi-x64
           executable_os_id: win32
-      - func: upload_sbom_and_first_party_deps
+      - func: upload_sbom
         vars:
           executable_os_id: win32
           extra_upload_tag: -win32msi-x64-sbom

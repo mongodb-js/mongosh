@@ -398,7 +398,7 @@ functions:
           DISTRO_ID: ${distro_id}
           NODE_JS_VERSION: ${node_js_version}
           MONGOSH_SHARED_OPENSSL: ${mongosh_shared_openssl}
-  upload_sbom_and_first_party_deps:
+  upload_sbom:
     - command: s3.put
       params:
         aws_key: ${aws_key}
@@ -417,15 +417,6 @@ functions:
         bucket: mciuploads
         permissions: public-read
         content_type: text/plain
-    - command: s3.put
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/.sbom/first-party-deps.json
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-${executable_os_id}${extra_upload_tag}-first-party-deps.json
-        bucket: mciuploads
-        permissions: public-read
-        content_type: application/json
   upload_compiled_artifact:
     - command: shell.exec
       params:
@@ -451,6 +442,15 @@ functions:
         bucket: mciuploads
         permissions: public-read
         content_type: application/x-gzip
+    - command: s3.put
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/.sbom/first-party-deps.json
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-${executable_os_id}${extra_upload_tag}-first-party-deps.json
+        bucket: mciuploads
+        permissions: public-read
+        content_type: application/json
   download_compiled_artifact:
     - command: s3.get
       type: setup
@@ -525,8 +525,7 @@ functions:
   <%
   let firstPartyDepsFilenames = []; 
   for (const { executableOsId, packages } of RELEASE_PACKAGE_MATRIX) {
-       for (const { name: packageVariant } of packages) { 
-        const filename = `mongosh-${executableOsId}-${packageVariant}-sbom-first-party-deps.json`;
+        const filename = `mongosh-${executableOsId}-first-party-deps.json`;
         firstPartyDepsFilenames.push(filename); %>
     - command: s3.get
       params:
@@ -535,7 +534,7 @@ functions:
         local_file: src/.sbom/<% out(filename) %>
         remote_file: mongosh/binaries/${revision}/${revision_order_id}/<% out(filename) %>
         bucket: mciuploads
-  <% } } %>
+  <% } %>
     - command: shell.exec
       params:
         working_dir: src
@@ -1254,7 +1253,7 @@ tasks:
         vars:
           package_variant: <% out(packageVariant) %>
           executable_os_id: <% out(executableOsId) %>
-      - func: upload_sbom_and_first_party_deps
+      - func: upload_sbom
         vars:
           executable_os_id: <% out(executableOsId) %>
           extra_upload_tag: -<% out(packageVariant) %>-sbom

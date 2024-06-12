@@ -100,3 +100,5 @@ npm run create-purls-file
 cp .sbom/purls.txt dist/.purls.txt
 
 cat dist/.purls.txt
+
+npm run create-dependency-sbom-lists
