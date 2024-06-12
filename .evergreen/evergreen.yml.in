@@ -398,7 +398,8 @@ functions:
           DISTRO_ID: ${distro_id}
           NODE_JS_VERSION: ${node_js_version}
           MONGOSH_SHARED_OPENSSL: ${mongosh_shared_openssl}
-  upload_sbom_and_static_analysis:
+          GITHUB_PR_NUMBER: ${github_pr_number}
+  upload_sbom:
     - command: s3.put
       params:
         aws_key: ${aws_key}
@@ -417,16 +418,6 @@ functions:
         bucket: mciuploads
         permissions: public-read
         content_type: text/plain
-    - command: s3.put
-      params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/static-analysis-report.tgz
-        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-${executable_os_id}${extra_upload_tag}-static-analysis-report.tgz
-        bucket: mciuploads
-        permissions: private
-        visibility: signed
-        content_type: application/json
   upload_compiled_artifact:
     - command: shell.exec
       params:
@@ -452,6 +443,16 @@ functions:
         bucket: mciuploads
         permissions: public-read
         content_type: application/x-gzip
+  upload_first_party_deps_list:
+    - command: s3.put
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/.sbom/first-party-deps.json
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-${executable_os_id}${extra_upload_tag}-first-party-deps.json
+        bucket: mciuploads
+        permissions: public-read
+        content_type: application/json
   download_compiled_artifact:
     - command: s3.get
       type: setup
@@ -521,9 +522,44 @@ functions:
           PACKAGE_VARIANT: ${package_variant}
           ARTIFACTORY_USERNAME: ${artifactory_username}
           ARTIFACTORY_PASSWORD: ${artifactory_password}
-          # for static analysis report generation
+  create_static_analysis_report:
+  <%
+  let firstPartyDepsFilenames = []; 
+  for (const { executableOsId, packages } of RELEASE_PACKAGE_MATRIX) {
+        const filename = `mongosh-${executableOsId}-first-party-deps.json`;
+        firstPartyDepsFilenames.push(filename); %>
+    - command: s3.get
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/.sbom/<% out(filename) %>
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/<% out(filename) %>
+        bucket: mciuploads
+  <% } %>
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        script: |
+          set -e
+          export NODE_JS_VERSION=${node_js_version}
+          source .evergreen/setup-env.sh
+          .evergreen/create-static-analysis-report.sh
+        env:
+          NODE_JS_VERSION: ${node_js_version}
+          FIRST_PARTY_DEPENDENCY_FILENAMES: <% out(firstPartyDepsFilenames.map(f => `.sbom/${f}`).join(',')) %>
           GITHUB_TOKEN: ${github_token}
           GITHUB_PR_NUMBER: ${github_pr_number}
+    - command: s3.put
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/static-analysis-report.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-static-analysis-report.tgz
+        bucket: mciuploads
+        permissions: private
+        visibility: signed
+        content_type: application/x-gzip
   package_artifact:
     - command: expansions.write
       type: setup
@@ -1095,6 +1131,7 @@ tasks:
           mongosh_server_test_version: "latest-alpha-enterprise"
           mongosh_test_force_api_strict: "1"
   - name: compile_artifact
+    tags: ["compile-artifact"]
     depends_on:
       - name: compile_ts
         variant: linux_unit
@@ -1107,6 +1144,9 @@ tasks:
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_20) %>"
       - func: upload_compiled_artifact
+        vars:
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+      - func: upload_first_party_deps_list
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_20) %>"
 
@@ -1202,6 +1242,7 @@ tasks:
   <% for (const { executableOsId, compileBuildVariant, packages } of RELEASE_PACKAGE_MATRIX) {
        for (const { name: packageVariant } of packages) { %>
   - name: add_crypt_shared_and_sbom_<% out(packageVariant.replace(/-/g, '_')) %>
+    tags: ["add-sbom-task"]
     depends_on:
       - name: compile_artifact
         variant: <% out(compileBuildVariant) %>
@@ -1217,7 +1258,7 @@ tasks:
         vars:
           package_variant: <% out(packageVariant) %>
           executable_os_id: <% out(executableOsId) %>
-      - func: upload_sbom_and_static_analysis
+      - func: upload_sbom
         vars:
           executable_os_id: <% out(executableOsId) %>
           extra_upload_tag: -<% out(packageVariant) %>-sbom
@@ -1338,6 +1379,19 @@ tasks:
         throw new Error(`pkg ${name} is missing a valid smoke test indicator`);
     } %>
   <% } } } %>
+  - name: create_static_analysis_report
+    tags: ["extra-integration-test"]
+    depends_on:
+      - name: ".compile-artifact"
+        variant: "*"
+    commands:
+      - func: checkout
+      - func: install
+        vars:
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
+      - func: create_static_analysis_report 
+        vars:
+          node_js_version: "<% out(NODE_JS_VERSION_20) %>"
 
   ###
   # RELEASE TASKS
@@ -1453,10 +1507,11 @@ buildvariants:
       - name: test_connectivity
       - name: test_apistrict
   - name: linux_coverage
-    display_name: "Coverage Check"
+    display_name: "Coverage and Static Analysis Check"
     run_on: ubuntu2004-small
     tasks:
       - name: check_coverage
+      - name: create_static_analysis_report
   - name: linux_package
     display_name: "Ubuntu 20.04 x64 (Packaging)"
     run_on: ubuntu2004-small
