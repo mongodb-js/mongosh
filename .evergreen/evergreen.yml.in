@@ -554,6 +554,16 @@ functions:
           FIRST_PARTY_DEPENDENCY_FILENAMES: <% out(firstPartyDepsFilenames.map(f => `.sbom/${f}`).join(',')) %>
           GITHUB_TOKEN: ${github_token}
           GITHUB_PR_NUMBER: ${github_pr_number}
+    - command: s3.put
+      params:
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/static-analysis-report.tgz
+        remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-static-analysis-report.tgz
+        bucket: mciuploads
+        permissions: private
+        visibility: signed
+        content_type: application/x-gzip
   package_artifact:
     - command: expansions.write
       type: setup
