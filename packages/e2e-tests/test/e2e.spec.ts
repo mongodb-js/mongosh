@@ -1530,6 +1530,7 @@ describe('e2e', function () {
           expect((await fs.stat(historyPath)).mode & 0o077).to.equal(0);
         });
 
+        // Security-relevant test -- description covered `history` package tests.
         it('redacts secrets', async function () {
           await shell.executeLine('db.auth("myusername", "mypassword")');
           await shell.executeLine('a = 42');
