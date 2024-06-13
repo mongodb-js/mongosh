@@ -94,10 +94,10 @@
     "yargs-parser": "^20.2.4"
   },
   "devDependencies": {
-    "mongodb": "^6.6.2",
+    "mongodb": "^6.7.0",
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
     "@mongodb-js/prettier-config-devtools": "^1.0.1",
-    "@mongodb-js/sbom-tools": "^0.5.2",
+    "@mongodb-js/sbom-tools": "^0.7.0",
     "@mongodb-js/tsconfig-mongosh": "^1.0.0",
     "@types/ansi-escape-sequences": "^4.0.0",
     "@types/js-yaml": "^4.0.5",
@@ -114,7 +114,7 @@
     "webpack-merge": "^5.8.0"
   },
   "optionalDependencies": {
-    "get-console-process-list": "^1.0.4",
+    "get-console-process-list": "^1.0.5",
     "glibc-version": "^1.0.0",
     "macos-export-certificate-and-key": "^1.1.2",
     "mongodb-crypt-library-version": "^1.0.5",

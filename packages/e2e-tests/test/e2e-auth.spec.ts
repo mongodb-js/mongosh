@@ -84,6 +84,13 @@ function createAssertUserAuth(
   };
 }
 
+/**
+ * @securityTest Authentication End-to-End Tests
+ *
+ * While mongosh is a client-side application and therefore, in many cases not responsible
+ * for correct authentication, we still consider any failure in our authentication tests
+ * a potential warning sign for security-relevant impact.
+ */
 describe('Auth e2e', function () {
   skipIfApiStrict(); // connectionStatus is unversioned.
 

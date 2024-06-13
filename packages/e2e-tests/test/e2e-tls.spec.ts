@@ -38,6 +38,13 @@ const SERVER_KEY = getCertPath('server.bundle.pem');
 const SERVER_INVALIDHOST_KEY = getCertPath('server-invalidhost.bundle.pem');
 const CRL_INCLUDING_SERVER = getCertPath('ca-server.crl');
 
+/**
+ * @securityTest TLS End-to-End Tests
+ *
+ * Our TLS tests verify that core security properties of TLS connections
+ * are applied appropriately for mongosh, in particular certificate validation
+ * and compliance with user-specified behavior that is specific to TLS connectivity.
+ */
 describe('e2e TLS', function () {
   let homedir: string;
   let env: Record<string, string>;

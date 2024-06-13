@@ -29,6 +29,3 @@ docker run --env-file silkbomb.env --rm -v ${PWD}:/pwd artifactory.corp.mongodb.
   --silk-asset-group "${SILK_ASSET_GROUP}" --sbom-in /pwd/dist/.sbom-lite.json
 docker run --env-file silkbomb.env --rm -v ${PWD}:/pwd artifactory.corp.mongodb.com/release-tools-container-registry-public-local/silkbomb:1.0 download \
   --silk-asset-group "${SILK_ASSET_GROUP}" --sbom-out /pwd/dist/.sbom.json
-
-npm run create-static-analysis-report
-(cd .sbom && tar czvf ../static-analysis-report.tgz codeql.md codeql.sarif.json)
