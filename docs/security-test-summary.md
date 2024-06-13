@@ -32,7 +32,7 @@ by MongoDB, we give special consideration to our OpenID Connect database authent
 feature, as it involves client applications performing actions based on directions
 received from the database server.
 
-Additional, since the shell supports connections to multiple different endpoints in the
+Additionally, since the shell supports connections to multiple different endpoints in the
 same application, these tests ensure that OIDC authentication for distinct endpoints
 happens in isolation.
 
