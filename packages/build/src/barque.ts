@@ -152,11 +152,11 @@ export class Barque {
         notaryKeyName: 'server-7.0',
         notaryToken: process.env.SIGNING_AUTH_TOKEN_70 ?? '',
       },
-      {
-        version: '8.0.0',
-        notaryKeyName: 'server-8.0',
-        notaryToken: process.env.SIGNING_AUTH_TOKEN_80 ?? '',
-      },
+      //{
+      //  version: '8.0.0',
+      //  notaryKeyName: 'server-8.0',
+      //  notaryToken: process.env.SIGNING_AUTH_TOKEN_80 ?? '',
+      //},
     ];
   }
 
