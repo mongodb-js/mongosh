@@ -35,9 +35,14 @@ git clone https://github.com/mongodb-js/mongodb-client-encryption --branch "$MON
 
 cd mongodb-client-encryption
 
+unset IS_WINDOWS
+case $(uname -a) in
+  CYGWIN*|MINGW32*|MSYS*|MINGW*) IS_WINDOWS="true";;
+esac
+
 # The script in `mongodb-js/mongodb-client-encryption` will download or build the libmongocrypt version specified in
 # mongodb-client-encryption's package.json at "mongodb:libmongocrypt"
-npm run install:libmongocrypt
+npm run install:libmongocrypt ${IS_WINDOWS:+--build}
 
 # The "deps" directory will be populated
 # Structure:
