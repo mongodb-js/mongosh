@@ -43,6 +43,7 @@ esac
 # The script in `mongodb-js/mongodb-client-encryption` will download or build the libmongocrypt version specified in
 # mongodb-client-encryption's package.json at "mongodb:libmongocrypt"
 npm run install:libmongocrypt ${IS_WINDOWS:+--build}
+npm run prepare
 
 # The "deps" directory will be populated
 # Structure:
