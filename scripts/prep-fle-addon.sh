@@ -31,7 +31,7 @@ cd "$BUILDROOT"
 
 echo Using mongodb-client-encryption at git tag "$MONGODB_CLIENT_ENCRYPTION_VERSION"
 
-git clone https://github.com/mongodb-js/mongodb-client-encryption --branch "$MONGODB_CLIENT_ENCRYPTION_VERSION" --depth 2
+git clone https://github.com/mongodb-js/mongodb-client-encryption --branch chore-fix-build-on-intel-mac --depth 2
 
 cd mongodb-client-encryption
 
@@ -42,8 +42,7 @@ esac
 
 # The script in `mongodb-js/mongodb-client-encryption` will download or build the libmongocrypt version specified in
 # mongodb-client-encryption's package.json at "mongodb:libmongocrypt"
-npm run install:libmongocrypt -- ${IS_WINDOWS:+--build}
-npm run prepare
+npm run install:libmongocrypt -- --no-macos-universal ${IS_WINDOWS:+--build}
 
 # The "deps" directory will be populated
 # Structure:
