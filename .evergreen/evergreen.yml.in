@@ -522,9 +522,13 @@ functions:
           PACKAGE_VARIANT: ${package_variant}
           ARTIFACTORY_USERNAME: ${artifactory_username}
           ARTIFACTORY_PASSWORD: ${artifactory_password}
+          # for Silk SBOM integration
+          SILK_ASSET_GROUP: mongosh-${executable_os_id}
+          SILK_CLIENT_ID: ${silk_client_id}
+          SILK_CLIENT_SECRET: ${silk_client_secret}
   create_static_analysis_report:
   <%
-  let firstPartyDepsFilenames = []; 
+  let firstPartyDepsFilenames = [];
   for (const { executableOsId, packages } of RELEASE_PACKAGE_MATRIX) {
         const filename = `mongosh-${executableOsId}-first-party-deps.json`;
         firstPartyDepsFilenames.push(filename); %>
@@ -1391,7 +1395,7 @@ tasks:
       - func: install
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_20) %>"
-      - func: create_static_analysis_report 
+      - func: create_static_analysis_report
         vars:
           node_js_version: "<% out(NODE_JS_VERSION_20) %>"
 
