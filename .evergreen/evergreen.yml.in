@@ -816,8 +816,10 @@ functions:
             cat .sbom/vulnerability-report.md
           fi
 
-          # Fails if the report failed and is not a patch, including during releases:
           if [[ "${is_patch}" != "true" ]]; then
+            # Run `snyk monitor` to keep `main` tracked
+            npx snyk monitor --org=dcd6db53-1532-4e65-beca-55db83f2cd52 --file=package-lock.json
+            # Fails if the report failed and is not a patch, including during releases:
             exit $return_code
           fi
 
