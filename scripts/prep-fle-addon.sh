@@ -40,6 +40,23 @@ case $(uname -a) in
   CYGWIN*|MINGW32*|MSYS*|MINGW*) IS_WINDOWS="true";;
 esac
 
+if [[ $IS_WINDOWS == "true" ]]; then
+  CMAKE_VERSION="3.25.1"
+  archive="cmake-$CMAKE_VERSION-windows-x86_64.zip"
+  url="https://github.com/Kitware/CMake/releases/download/v$CMAKE_VERSION/cmake-$CMAKE_VERSION-windows-x86_64.zip"
+  extract_dir="cmake_$CMAKE_VERSION"
+  curl --retry 5 -LsS --max-time 120 --fail --output "$archive" "$url"
+  unzip -o -qq "$archive" -d "cmake_$CMAKE_VERSION"
+  mv -- $extract_dir/cmake-$CMAKE_VERSION-*/* "$extract_dir"
+  chmod +x $extract_dir/bin/*
+
+  PATH=$PWD/$extract_dir/bin:$PATH
+  export PATH
+  hash -r
+  which cmake
+  cmake --version
+fi
+
 # The script in `mongodb-js/mongodb-client-encryption` will download or build the libmongocrypt version specified in
 # mongodb-client-encryption's package.json at "mongodb:libmongocrypt"
 npm run install:libmongocrypt -- --no-macos-universal ${IS_WINDOWS:+--build}
