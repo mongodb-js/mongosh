@@ -1,0 +1,35 @@
+diff --git a/configure.py b/configure.py
+index f189ba2bf0..9b2d993bb3 100755
+--- a/configure.py
++++ b/configure.py
+@@ -1344,7 +1344,9 @@ def configure_node(o):
+
+   o['variables']['want_separate_host_toolset'] = int(cross_compiling)
+
++  # Enable branch protection for arm64
+   if target_arch == 'arm64':
++    o['cflags']+=['-msign-return-address=all']
+     o['variables']['arm_fpu'] = options.arm_fpu or 'neon'
+
+   if options.node_snapshot_main is not None:
+diff --git a/node.gyp b/node.gyp
+index 67909bdeb8..1b36b6537e 100644
+--- a/node.gyp
++++ b/node.gyp
+@@ -466,6 +466,7 @@
+     },
+
+     'conditions': [
++<<<<<<< HEAD
+       # Pointer authentication for ARM64.
+       ['target_arch=="arm64"', {
+           'target_conditions': [
+@@ -481,6 +482,8 @@
+               }],
+           ],
+       }],
++=======
++>>>>>>> parent of c21b2bee72 (build: fix arm64 cross-compilation)
+       ['OS in "aix os400"', {
+         'ldflags': [
+           '-Wl,-bnoerrmsg',
