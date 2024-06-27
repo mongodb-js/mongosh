@@ -11,9 +11,16 @@ post:
         tar cvzf npm-logs.tgz npm-logs
 
         if [ -d "src/tmp/mongodb-runner/logs" ]; then
-            tar cvzf mongodb-runner-logs.tgz -C src/tmp/mongodb-runner logs
+          tar cvzf mongodb-runner-logs.tgz -C src/tmp/mongodb-runner logs
         else
-            echo "Directory src/tmp/logs does not exist. Skipping."
+          echo "Directory src/tmp/logs does not exist. Skipping."
+        fi
+
+        if [ -d "$HOME/.mongodb/mongosh" ]; then
+          TARGET="$PWD/mongosh-logs.tgz"
+          (cd $HOME/.mongodb && tar cvzf "$TARGET" mongosh/*_log)
+        else
+          echo "Directory ~/.mongodb/mongosh does not exist. Skipping."
         fi
   - command: s3.put
     params:
@@ -25,6 +32,17 @@ post:
       permissions: private
       visibility: signed
       content_type: application/x-gzip
+  - command: s3.put
+    params:
+      aws_key: ${aws_key}
+      aws_secret: ${aws_secret}
+      local_file: mongosh-logs.tgz
+      remote_file: mongosh/binaries/${revision}/${revision_order_id}/mongosh-logs-${build_variant}-${task_name}-${task_id}.tgz
+      bucket: mciuploads
+      permissions: private
+      visibility: signed
+      content_type: application/x-gzip
+      optional: true
   - command: s3.put
     params:
       aws_key: ${aws_key}
