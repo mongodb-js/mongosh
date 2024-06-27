@@ -1,27 +1,13 @@
-diff --git a/configure.py b/configure.py
-index f189ba2bf0..9b2d993bb3 100755
---- a/configure.py
-+++ b/configure.py
-@@ -1344,7 +1344,9 @@ def configure_node(o):
-
-   o['variables']['want_separate_host_toolset'] = int(cross_compiling)
-
-+  # Enable branch protection for arm64
-   if target_arch == 'arm64':
-+    o['cflags']+=['-msign-return-address=all']
-     o['variables']['arm_fpu'] = options.arm_fpu or 'neon'
-
-   if options.node_snapshot_main is not None:
 diff --git a/node.gyp b/node.gyp
-index 67909bdeb8..b38250a8cc 100644
+index 67909bdeb8..f1d9d15e5b 100644
 --- a/node.gyp
 +++ b/node.gyp
-@@ -466,21 +466,6 @@
+@@ -466,20 +466,8 @@
      },
-
+ 
      'conditions': [
 -      # Pointer authentication for ARM64.
--      ['target_arch=="arm64"', {
+       ['target_arch=="arm64"', {
 -          'target_conditions': [
 -              ['_toolset=="host"', {
 -                  'conditions': [
@@ -34,7 +20,7 @@ index 67909bdeb8..b38250a8cc 100644
 -                  'cflags': ['-mbranch-protection=standard'],
 -              }],
 -          ],
--      }],
++        'cflags': ['-mbranch-protection=standard'],  # Pointer authentication.
+       }],
        ['OS in "aix os400"', {
          'ldflags': [
-           '-Wl,-bnoerrmsg',
