@@ -25,9 +25,10 @@ export default class StreamProcessor extends ShellApiWithMongoClass {
   }
 
   @returnsPromise
-  async start() {
+  async start(options: Document = {}) {
     return await this._streams._runStreamCommand({
       startStreamProcessor: this.name,
+      ...options,
     });
   }
 
