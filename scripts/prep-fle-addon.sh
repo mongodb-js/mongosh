@@ -31,7 +31,7 @@ cd "$BUILDROOT"
 
 echo Using mongodb-client-encryption at git tag "$MONGODB_CLIENT_ENCRYPTION_VERSION"
 
-git clone https://github.com/mongodb-js/mongodb-client-encryption --depth 2
+git clone https://github.com/mongodb-js/mongodb-client-encryption --branch "$MONGODB_CLIENT_ENCRYPTION_VERSION" --depth 2
 
 cd mongodb-client-encryption
 
