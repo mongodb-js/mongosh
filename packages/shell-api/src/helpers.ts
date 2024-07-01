@@ -614,18 +614,30 @@ export async function getPrintableShardStatus(
               );
             }
 
-            const tagsRes: any[] = [];
-            for await (const tag of (
+            const tags = await (
               await configDB.getCollection('tags').find({
                 ns: coll._id,
               })
-            ).sort({ min: 1 })) {
-              tagsRes.push({
-                tag: tag.tag,
-                min: tag.min,
-                max: tag.max,
-              });
+            )
+              .sort({ min: 1 })
+              .toArray();
+            const tagsRes: any[] = [];
+
+            // NOTE: this will return tags as a string, and will print ugly BSON
+            if (tags.length < 20 || verbose) {
+              for (const tag of tags) {
+                tagsRes.push({
+                  tag: tag.tag,
+                  min: tag.min,
+                  max: tag.max,
+                });
+              }
+            } else {
+              tagsRes.push(
+                'too many tags to print, use verbose if you want to force print'
+              );
             }
+
             collRes.chunks = chunksRes;
             collRes.tags = tagsRes;
             return [coll._id, collRes] as const;

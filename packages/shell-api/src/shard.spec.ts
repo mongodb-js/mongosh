@@ -2032,6 +2032,42 @@ describe('Shard', function () {
         );
         expect((await sh.status()).value.shards[0].tags).to.deep.equal([]);
       });
+      it('shows a full array if tags less than 20', async function () {
+        const db = instanceState.currentDb.getSiblingDB(dbName);
+        await db.getCollection('coll').createIndex({ key: 1 });
+        for (let i = 0; i < 19; i++) {
+          await db.getCollection('coll').insertOne({ key: 'A', value: i * 10 });
+          await sh.addShardToZone(`${shardId}-0`, `zone${i}`);
+          await sh.updateZoneKeyRange(
+            ns,
+            { key: i * 10 - 10 },
+            { key: i * 10 },
+            `zone${i}`
+          );
+          await sh.addShardTag(`${shardId}-0`, `zone${i}`);
+        }
+
+        const tags = (await sh.status()).value.databases.find(
+          (d) => d.database._id === 'test'
+        ).collections[ns].tags;
+        expect(tags.length).to.equal(19);
+      });
+      it('shows tags as a string when there are too many', async function () {
+        await sh.addShardToZone(`${shardId}-0`, 'zone19');
+        await sh.updateZoneKeyRange(ns, { key: 180 }, { key: 190 }, 'zone19');
+        await sh.addShardTag(`${shardId}-0`, 'zone19');
+
+        const databases = (await sh.status()).value.databases;
+        const collections = databases.find(
+          (d) => d.database._id === 'test'
+        ).collections;
+        const tags = collections[ns].tags;
+
+        expect(tags.length).to.equal(1);
+        expect(tags[0]).to.equal(
+          'too many tags to print, use verbose if you want to force print'
+        );
+      });
     });
     describe('balancer', function () {
       it('reports balancer state', async function () {
