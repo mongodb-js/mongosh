@@ -1,18 +1,16 @@
 import path from 'path';
 import { once } from 'events';
-import { Worker } from 'worker_threads';
 import chai, { expect } from 'chai';
 import sinonChai from 'sinon-chai';
-import sinon from 'sinon';
 import { EJSON, ObjectId } from 'bson';
 import { startSharedTestServer } from '../../../testing/integration-testing-hooks';
 import type { Caller, Exposed } from './rpc';
 import { cancel, close, createCaller, exposeAll } from './rpc';
 import { deserializeEvaluationResult } from './serializer';
-import type { WorkerRuntime } from './worker-runtime';
+import type { WorkerRuntime } from './child-process';
 import type { RuntimeEvaluationResult } from '@mongosh/browser-runtime-core';
-import { interrupt } from 'interruptor';
 import { dummyOptions } from './index.spec';
+import { type ChildProcess, spawn } from 'child_process';
 
 chai.use(sinonChai);
 
@@ -21,20 +19,22 @@ const workerThreadModule = path.resolve(
   __dirname,
   '..',
   'dist',
-  'worker-runtime.js'
+  'child-process.js'
 );
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-describe('worker', function () {
-  let worker: Worker;
+describe('child-process', function () {
+  let childProcess: ChildProcess;
   let caller: Caller<WorkerRuntime>;
 
   beforeEach(async function () {
-    worker = new Worker(workerThreadModule);
-    await once(worker, 'message');
+    childProcess = spawn(process.execPath, [workerThreadModule], {
+      stdio: ['inherit', 'inherit', 'pipe', 'ipc'],
+    });
+    await once(childProcess, 'message');
 
     caller = createCaller(
       [
@@ -45,7 +45,7 @@ describe('worker', function () {
         'setEvaluationListener',
         'interrupt',
       ],
-      worker
+      childProcess
     );
     const origEvaluate = caller.evaluate;
     caller.evaluate = (code: string): Promise<any> & { cancel(): void } => {
@@ -55,20 +55,9 @@ describe('worker', function () {
     };
   });
 
-  afterEach(async function () {
-    if (worker) {
-      // There is a Node.js bug that causes worker process to still be ref-ed
-      // after termination. To work around that, we are unrefing worker manually
-      // *immediately* after terminate method is called even though it should
-      // not be necessary. If this is not done in rare cases our test suite can
-      // get stuck. Even though the issue is fixed we would still need to keep
-      // this workaround for compat reasons.
-      //
-      // See: https://github.com/nodejs/node/pull/37319
-      const terminationPromise = worker.terminate();
-      worker.unref();
-      await terminationPromise;
-      worker = null;
+  afterEach(function () {
+    if (childProcess) {
+      childProcess.kill();
     }
 
     if (caller) {
@@ -351,7 +340,7 @@ describe('worker', function () {
                 getConfig() {},
                 validateConfig() {},
               },
-              worker
+              childProcess
             );
 
             const { init, evaluate } = caller;
@@ -487,214 +476,6 @@ describe('worker', function () {
 
       expect(completions).to.deep.contain({
         completion: 'db.coll1.find',
-      });
-    });
-  });
-
-  describe('evaluationListener', function () {
-    const spySandbox = sinon.createSandbox();
-
-    const createSpiedEvaluationListener = () => {
-      const evalListener = {
-        onPrint() {},
-        onPrompt() {
-          return '123';
-        },
-        getConfig() {},
-        setConfig() {},
-        resetConfig() {},
-        validateConfig() {},
-        listConfigOptions() {
-          return ['displayBatchSize'];
-        },
-        onRunInterruptible() {},
-      };
-
-      spySandbox.spy(evalListener, 'onPrint');
-      spySandbox.spy(evalListener, 'onPrompt');
-      spySandbox.spy(evalListener, 'getConfig');
-      spySandbox.spy(evalListener, 'setConfig');
-      spySandbox.spy(evalListener, 'resetConfig');
-      spySandbox.spy(evalListener, 'validateConfig');
-      spySandbox.spy(evalListener, 'listConfigOptions');
-      spySandbox.spy(evalListener, 'onRunInterruptible');
-
-      return evalListener;
-    };
-
-    let exposed: Exposed<unknown>;
-
-    afterEach(function () {
-      if (exposed) {
-        exposed[close]();
-        exposed = null;
-      }
-
-      spySandbox.restore();
-    });
-
-    describe('onPrint', function () {
-      it('should be called when shell evaluates `print`', async function () {
-        const { init, evaluate } = caller;
-        const evalListener = createSpiedEvaluationListener();
-
-        exposed = exposeAll(evalListener, worker);
-
-        await init('mongodb://nodb/', dummyOptions, { nodb: true });
-        await evaluate('print("Hi!")');
-
-        expect(evalListener.onPrint).to.have.been.calledWith([
-          { printable: 'Hi!', source: undefined, type: null },
-        ]);
-      });
-
-      it('should correctly serialize bson objects', async function () {
-        const { init, evaluate } = caller;
-        const evalListener = createSpiedEvaluationListener();
-
-        exposed = exposeAll(evalListener, worker);
-
-        await init('mongodb://nodb/', dummyOptions, { nodb: true });
-        await evaluate('print(new ObjectId("62a209b0c7dc31e23ab9da45"))');
-
-        expect(evalListener.onPrint).to.have.been.calledWith([
-          {
-            printable: "ObjectId('62a209b0c7dc31e23ab9da45')",
-            source: undefined,
-            type: 'InspectResult',
-          },
-        ]);
-      });
-    });
-
-    describe('onPrompt', function () {
-      it('should be called when shell evaluates `passwordPrompt`', async function () {
-        const { init, evaluate } = caller;
-        const evalListener = createSpiedEvaluationListener();
-
-        exposed = exposeAll(evalListener, worker);
-
-        await init('mongodb://nodb/', dummyOptions, { nodb: true });
-        const password = await evaluate('passwordPrompt()');
-
-        expect(evalListener.onPrompt).to.have.been.called;
-        expect(password.printable).to.equal('123');
-      });
-    });
-
-    describe('getConfig', function () {
-      it('should be called when shell evaluates `config.get()`', async function () {
-        const { init, evaluate } = caller;
-        const evalListener = createSpiedEvaluationListener();
-
-        exposed = exposeAll(evalListener, worker);
-
-        await init('mongodb://nodb/', dummyOptions, { nodb: true });
-
-        await evaluate('config.get("key")');
-        expect(evalListener.getConfig).to.have.been.calledWith('key');
-      });
-    });
-
-    describe('setConfig', function () {
-      it('should be called when shell evaluates `config.set()`', async function () {
-        const { init, evaluate } = caller;
-        const evalListener = createSpiedEvaluationListener();
-
-        exposed = exposeAll(evalListener, worker);
-
-        await init('mongodb://nodb/', dummyOptions, { nodb: true });
-
-        await evaluate('config.set("displayBatchSize", 200)');
-        expect(evalListener.validateConfig).to.have.been.calledWith(
-          'displayBatchSize',
-          200
-        );
-        expect(evalListener.setConfig).to.have.been.calledWith(
-          'displayBatchSize',
-          200
-        );
-      });
-    });
-
-    describe('resetConfig', function () {
-      it('should be called when shell evaluates `config.reset()`', async function () {
-        const { init, evaluate } = caller;
-        const evalListener = createSpiedEvaluationListener();
-
-        exposed = exposeAll(evalListener, worker);
-
-        await init('mongodb://nodb/', dummyOptions, { nodb: true });
-
-        await evaluate('config.reset("displayBatchSize")');
-        expect(evalListener.resetConfig).to.have.been.calledWith(
-          'displayBatchSize'
-        );
-      });
-    });
-
-    describe('listConfigOptions', function () {
-      it('should be called when shell evaluates `config[asPrintable]`', async function () {
-        const { init, evaluate } = caller;
-        const evalListener = createSpiedEvaluationListener();
-
-        exposed = exposeAll(evalListener, worker);
-
-        await init('mongodb://nodb/', dummyOptions, { nodb: true });
-
-        await evaluate(`
-        var JSSymbol = Object.getOwnPropertySymbols(Array.prototype)[0].constructor;
-        config[JSSymbol.for("@@mongosh.asPrintable")]()`);
-        expect(evalListener.listConfigOptions).to.have.been.calledWith();
-      });
-    });
-
-    describe('onRunInterruptible', function () {
-      it('should call callback when interruptible evaluation starts and ends', async function () {
-        const { init, evaluate } = caller;
-        const evalListener = createSpiedEvaluationListener();
-
-        exposed = exposeAll(evalListener, worker);
-
-        await init('mongodb://nodb/', dummyOptions, { nodb: true });
-        await evaluate('1+1');
-
-        const [firstCall, secondCall] = (
-          evalListener.onRunInterruptible as sinon.SinonSpy
-        ).args;
-
-        expect(firstCall[0]).to.have.property('__id');
-        expect(secondCall[0]).to.equal(null);
-      });
-
-      it('should return a handle that allows to interrupt the evaluation', async function () {
-        const { init, evaluate } = caller;
-        const evalListener = createSpiedEvaluationListener();
-
-        exposed = exposeAll(evalListener, worker);
-
-        await init('mongodb://nodb/', dummyOptions, { nodb: true });
-
-        let err: Error;
-
-        try {
-          await Promise.all([
-            evaluate('while(true){}'),
-            (async () => {
-              await sleep(50);
-              const handle = (evalListener.onRunInterruptible as sinon.SinonSpy)
-                .args[0][0];
-              interrupt(handle);
-            })(),
-          ]);
-        } catch (e: any) {
-          err = e;
-        }
-
-        expect(err).to.be.instanceof(Error);
-        expect(err)
-          .to.have.property('message')
-          .match(/Script execution was interrupted/);
       });
     });
   });

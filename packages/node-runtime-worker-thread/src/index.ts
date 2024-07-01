@@ -11,11 +11,9 @@ import type {
 import type { MongoshBus } from '@mongosh/types';
 import path from 'path';
 import { EventEmitter, once } from 'events';
-import { kill } from './spawn-child-from-source';
 import type { Caller } from './rpc';
 import { createCaller, cancel } from './rpc';
-import { ChildProcessEvaluationListener } from './child-process-evaluation-listener';
-import type { WorkerRuntime as WorkerThreadWorkerRuntime } from './worker-runtime';
+import type { WorkerRuntime as WorkerThreadWorkerRuntime } from './child-process';
 import {
   deserializeEvaluationResult,
   serializeConnectOptions,
@@ -27,6 +25,16 @@ type DevtoolsConnectOptions = Parameters<
   (typeof CompassServiceProvider)['connect']
 >[1];
 type ChildProcessRuntime = Caller<WorkerThreadWorkerRuntime>;
+
+async function kill(
+  childProcess: ChildProcess,
+  code: NodeJS.Signals | number = 'SIGTERM'
+) {
+  childProcess.kill(code);
+  if (childProcess.exitCode === null && childProcess.signalCode === null) {
+    await once(childProcess, 'exit');
+  }
+}
 
 function parseStderrToError(str: string): Error | null {
   const [, errorMessageWithStack] = str
@@ -67,8 +75,6 @@ class WorkerRuntime implements Runtime {
 
   private childProcessMongoshBus!: ChildProcessMongoshBus;
 
-  private childProcessEvaluationListener!: ChildProcessEvaluationListener;
-
   private childProcess!: ChildProcess;
 
   private childProcessRuntime!: ChildProcessRuntime;
@@ -78,7 +84,7 @@ class WorkerRuntime implements Runtime {
   private childProcessProxySrcPath: string =
     process.env
       .CHILD_PROCESS_PROXY_SRC_PATH_DO_NOT_USE_THIS_EXCEPT_FOR_TESTING ||
-    path.resolve(__dirname, 'child-process-proxy.js');
+    path.resolve(__dirname, 'child-process.js');
 
   constructor(
     uri: string,
@@ -141,8 +147,8 @@ class WorkerRuntime implements Runtime {
 
     // We expect the amount of listeners to be more than the default value of 10
     // but probably not more than ~25 (all exposed methods on
-    // ChildProcessEvaluationListener and ChildProcessMongoshBus + any
-    // concurrent in-flight calls on ChildProcessRuntime) at once
+    // ChildProcessMongoshBus + any concurrent in-flight calls
+    // on ChildProcessRuntime) at once
     this.childProcess.setMaxListeners(25);
 
     this.childProcessRuntime = createCaller(
@@ -154,11 +160,6 @@ class WorkerRuntime implements Runtime {
         'getShellPrompt',
         'interrupt',
       ],
-      this.childProcess
-    );
-
-    this.childProcessEvaluationListener = new ChildProcessEvaluationListener(
-      this,
       this.childProcess
     );
 
@@ -209,10 +210,6 @@ class WorkerRuntime implements Runtime {
 
     if (this.childProcessRuntime) {
       this.childProcessRuntime[cancel]();
-    }
-
-    if (this.childProcessEvaluationListener) {
-      this.childProcessEvaluationListener.terminate();
     }
 
     if (this.childProcessMongoshBus) {

@@ -1,37 +1,28 @@
-/* istanbul ignore file */
-/* ^^^ we test the dist directly, so isntanbul can't calculate the coverage correctly */
-
-import { parentPort, isMainThread } from 'worker_threads';
 import type {
   Completion,
   Runtime,
-  RuntimeEvaluationListener,
   RuntimeEvaluationResult,
 } from '@mongosh/browser-runtime-core';
 import { ElectronRuntime } from '@mongosh/browser-runtime-electron';
 import type { ServiceProvider } from '@mongosh/service-provider-core';
 import { CompassServiceProvider } from '@mongosh/service-provider-server';
-import { exposeAll, createCaller } from './rpc';
+import { exposeAll } from './rpc';
 import {
   serializeEvaluationResult,
   deserializeConnectOptions,
 } from './serializer';
-import type { MongoshBus } from '@mongosh/types';
 import type { UNLOCKED } from './lock';
 import { Lock } from './lock';
 import type { InterruptHandle } from 'interruptor';
-import { runInterruptible } from 'interruptor';
+import { runInterruptible, interrupt as nativeInterrupt } from 'interruptor';
 
 type DevtoolsConnectOptions = Parameters<
   (typeof CompassServiceProvider)['connect']
 >[1];
 
-if (!parentPort || isMainThread) {
-  throw new Error('Worker runtime can be used only in a worker thread');
-}
-
 let runtime: Runtime | null = null;
 let provider: ServiceProvider | null = null;
+let interruptHandle: InterruptHandle | null = null;
 
 const evaluationLock = new Lock();
 
@@ -44,49 +35,6 @@ function ensureRuntime(methodName: string): Runtime {
 
   return runtime;
 }
-
-export type WorkerRuntimeEvaluationListener = RuntimeEvaluationListener & {
-  onRunInterruptible(handle: InterruptHandle | null): void;
-};
-
-const evaluationListener = createCaller<WorkerRuntimeEvaluationListener>(
-  [
-    'onPrint',
-    'onPrompt',
-    'getConfig',
-    'setConfig',
-    'resetConfig',
-    'validateConfig',
-    'listConfigOptions',
-    'onClearCommand',
-    'onExit',
-    'onRunInterruptible',
-  ],
-  parentPort,
-  {
-    onPrint: function (
-      results: RuntimeEvaluationResult[]
-    ): RuntimeEvaluationResult[][] {
-      // We're transforming an args array, so we have to return an array of
-      // args. onPrint only takes one arg which is an array of
-      // RuntimeEvaluationResult so in this case it will just return a
-      // single-element array that itself is an array.
-      return [results.map(serializeEvaluationResult)];
-    },
-  }
-);
-
-const messageBus: MongoshBus = Object.assign(
-  createCaller(['emit'], parentPort),
-  {
-    on() {
-      throw new Error("Can't call `on` method on worker runtime MongoshBus");
-    },
-    once() {
-      throw new Error("Can't call `once` method on worker runtime MongoshBus");
-    },
-  }
-);
 
 export type WorkerRuntime = Runtime & {
   init(
@@ -116,10 +64,9 @@ const workerRuntime: WorkerRuntime = {
       uri,
       deserializeConnectOptions(driverOptions),
       cliOptions,
-      messageBus
+      process
     );
-    runtime = new ElectronRuntime(provider as ServiceProvider, messageBus);
-    runtime.setEvaluationListener(evaluationListener);
+    runtime = new ElectronRuntime(provider as ServiceProvider, process);
   },
 
   async evaluate(code: string) {
@@ -136,16 +83,14 @@ const workerRuntime: WorkerRuntime = {
     try {
       evaluationPromise = runInterruptible((handle) => {
         try {
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          evaluationListener.onRunInterruptible(handle);
+          interruptHandle = handle;
           return ensureRuntime('evaluate').evaluate(code);
         } finally {
           interrupted = false;
         }
       });
     } finally {
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      evaluationListener.onRunInterruptible(null);
+      interruptHandle = null;
 
       if (interrupted) {
         // If we were interrupted, we can't know which newly require()ed modules
@@ -193,20 +138,15 @@ const workerRuntime: WorkerRuntime = {
   },
 
   interrupt() {
+    if (interruptHandle) {
+      nativeInterrupt(interruptHandle);
+    }
     return evaluationLock.unlock();
   },
 };
 
-// We expect the amount of listeners to be more than the default value of 10 but
-// probably not more than ~25 (all exposed methods on
-// ChildProcessEvaluationListener and ChildProcessMongoshBus + any concurrent
-// in-flight calls on ChildProcessRuntime) at once
-parentPort.setMaxListeners(25);
-
-exposeAll(workerRuntime, parentPort);
+exposeAll(workerRuntime, process);
 
 process.nextTick(() => {
-  if (parentPort) {
-    parentPort.postMessage('ready');
-  }
+  process.send?.('ready');
 });
