@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 /* ^^^ we test the dist directly, so isntanbul can't calculate the coverage correctly */
 
 import type {
