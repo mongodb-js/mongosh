@@ -1,12 +1,13 @@
 import type {
   Completion,
   Runtime,
+  RuntimeEvaluationListener,
   RuntimeEvaluationResult,
 } from '@mongosh/browser-runtime-core';
 import { ElectronRuntime } from '@mongosh/browser-runtime-electron';
 import type { ServiceProvider } from '@mongosh/service-provider-core';
 import { CompassServiceProvider } from '@mongosh/service-provider-server';
-import { exposeAll } from './rpc';
+import { createCaller, exposeAll } from './rpc';
 import {
   serializeEvaluationResult,
   deserializeConnectOptions,
@@ -33,6 +34,32 @@ function ensureRuntime(methodName: string): Runtime {
 
   return runtime;
 }
+
+const evaluationListener = createCaller<RuntimeEvaluationListener>(
+  [
+    'onPrint',
+    'onPrompt',
+    'getConfig',
+    'setConfig',
+    'resetConfig',
+    'validateConfig',
+    'listConfigOptions',
+    'onClearCommand',
+    'onExit',
+  ],
+  process,
+  {
+    onPrint: function (
+      results: RuntimeEvaluationResult[]
+    ): RuntimeEvaluationResult[][] {
+      // We're transforming an args array, so we have to return an array of
+      // args. onPrint only takes one arg which is an array of
+      // RuntimeEvaluationResult so in this case it will just return a
+      // single-element array that itself is an array.
+      return [results.map(serializeEvaluationResult)];
+    },
+  }
+);
 
 export type WorkerRuntime = Runtime & {
   init(
@@ -89,6 +116,7 @@ const workerRuntime: WorkerRuntime = {
       process
     );
     runtime = new ElectronRuntime(provider as ServiceProvider, process);
+    runtime.setEvaluationListener(evaluationListener);
   },
 
   async evaluate(code: string) {

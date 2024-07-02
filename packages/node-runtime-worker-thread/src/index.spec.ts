@@ -192,7 +192,7 @@ describe('WorkerRuntime', function () {
     });
   });
 
-  describe.skip('setEvaluationListener', function () {
+  describe('setEvaluationListener', function () {
     it('allows to set evaluation listener for runtime', async function () {
       const evalListener = {
         onPrompt: sinon.spy(() => 'password123'),

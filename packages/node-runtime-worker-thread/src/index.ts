@@ -13,6 +13,7 @@ import path from 'path';
 import { EventEmitter, once } from 'events';
 import type { Caller } from './rpc';
 import { createCaller, cancel } from './rpc';
+import { ChildProcessEvaluationListener } from './child-process-evaluation-listener';
 import type { WorkerRuntime as WorkerThreadWorkerRuntime } from './child-process';
 import {
   deserializeEvaluationResult,
@@ -74,6 +75,8 @@ class WorkerRuntime implements Runtime {
   private eventEmitter: MongoshBus;
 
   private childProcessMongoshBus!: ChildProcessMongoshBus;
+
+  private childProcessEvaluationListener!: ChildProcessEvaluationListener;
 
   private childProcess!: ChildProcess;
 
@@ -147,8 +150,8 @@ class WorkerRuntime implements Runtime {
 
     // We expect the amount of listeners to be more than the default value of 10
     // but probably not more than ~25 (all exposed methods on
-    // ChildProcessMongoshBus + any concurrent in-flight calls
-    // on ChildProcessRuntime) at once
+    // ChildProcessEvaluationListener and ChildProcessMongoshBus + any
+    // concurrent in-flight calls on ChildProcessRuntime) at once
     this.childProcess.setMaxListeners(25);
 
     this.childProcessRuntime = createCaller(
@@ -160,6 +163,11 @@ class WorkerRuntime implements Runtime {
         'getShellPrompt',
         'interrupt',
       ],
+      this.childProcess
+    );
+
+    this.childProcessEvaluationListener = new ChildProcessEvaluationListener(
+      this,
       this.childProcess
     );
 
@@ -210,6 +218,10 @@ class WorkerRuntime implements Runtime {
 
     if (this.childProcessRuntime) {
       this.childProcessRuntime[cancel]();
+    }
+
+    if (this.childProcessEvaluationListener) {
+      this.childProcessEvaluationListener.terminate();
     }
 
     if (this.childProcessMongoshBus) {
