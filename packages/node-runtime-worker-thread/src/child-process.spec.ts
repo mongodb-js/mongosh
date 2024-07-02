@@ -2,6 +2,7 @@ import path from 'path';
 import { once } from 'events';
 import chai, { expect } from 'chai';
 import sinonChai from 'sinon-chai';
+import sinon from 'sinon';
 import { EJSON, ObjectId } from 'bson';
 import { startSharedTestServer } from '../../../testing/integration-testing-hooks';
 import type { Caller, Exposed } from './rpc';
@@ -11,7 +12,6 @@ import type { WorkerRuntime } from './child-process';
 import type { RuntimeEvaluationResult } from '@mongosh/browser-runtime-core';
 import { dummyOptions } from './index.spec';
 import { type ChildProcess, spawn } from 'child_process';
-import sinon from 'sinon';
 
 chai.use(sinonChai);
 
