@@ -11,6 +11,7 @@ import type { WorkerRuntime } from './child-process';
 import type { RuntimeEvaluationResult } from '@mongosh/browser-runtime-core';
 import { dummyOptions } from './index.spec';
 import { type ChildProcess, spawn } from 'child_process';
+import sinon from 'sinon';
 
 chai.use(sinonChai);
 
@@ -471,6 +472,165 @@ describe('child-process', function () {
 
       expect(completions).to.deep.contain({
         completion: 'db.coll1.find',
+      });
+    });
+  });
+
+  describe('evaluationListener', function () {
+    const spySandbox = sinon.createSandbox();
+
+    const createSpiedEvaluationListener = () => {
+      const evalListener = {
+        onPrint() {},
+        onPrompt() {
+          return '123';
+        },
+        getConfig() {},
+        setConfig() {},
+        resetConfig() {},
+        validateConfig() {},
+        listConfigOptions() {
+          return ['displayBatchSize'];
+        },
+        onRunInterruptible() {},
+      };
+
+      spySandbox.spy(evalListener, 'onPrint');
+      spySandbox.spy(evalListener, 'onPrompt');
+      spySandbox.spy(evalListener, 'getConfig');
+      spySandbox.spy(evalListener, 'setConfig');
+      spySandbox.spy(evalListener, 'resetConfig');
+      spySandbox.spy(evalListener, 'validateConfig');
+      spySandbox.spy(evalListener, 'listConfigOptions');
+      spySandbox.spy(evalListener, 'onRunInterruptible');
+
+      return evalListener;
+    };
+
+    let exposed: Exposed<unknown>;
+
+    afterEach(function () {
+      if (exposed) {
+        exposed[close]();
+        exposed = null;
+      }
+
+      spySandbox.restore();
+    });
+
+    describe('onPrint', function () {
+      it('should be called when shell evaluates `print`', async function () {
+        const { init, evaluate } = caller;
+        const evalListener = createSpiedEvaluationListener();
+
+        exposed = exposeAll(evalListener, childProcess);
+
+        await init('mongodb://nodb/', dummyOptions, { nodb: true });
+        await evaluate('print("Hi!")');
+
+        expect(evalListener.onPrint).to.have.been.calledWith([
+          { printable: 'Hi!', source: undefined, type: null },
+        ]);
+      });
+
+      it('should correctly serialize bson objects', async function () {
+        const { init, evaluate } = caller;
+        const evalListener = createSpiedEvaluationListener();
+
+        exposed = exposeAll(evalListener, childProcess);
+
+        await init('mongodb://nodb/', dummyOptions, { nodb: true });
+        await evaluate('print(new ObjectId("62a209b0c7dc31e23ab9da45"))');
+
+        expect(evalListener.onPrint).to.have.been.calledWith([
+          {
+            printable: "ObjectId('62a209b0c7dc31e23ab9da45')",
+            source: undefined,
+            type: 'InspectResult',
+          },
+        ]);
+      });
+    });
+
+    describe('onPrompt', function () {
+      it('should be called when shell evaluates `passwordPrompt`', async function () {
+        const { init, evaluate } = caller;
+        const evalListener = createSpiedEvaluationListener();
+
+        exposed = exposeAll(evalListener, childProcess);
+
+        await init('mongodb://nodb/', dummyOptions, { nodb: true });
+        const password = await evaluate('passwordPrompt()');
+
+        expect(evalListener.onPrompt).to.have.been.called;
+        expect(password.printable).to.equal('123');
+      });
+    });
+
+    describe('getConfig', function () {
+      it('should be called when shell evaluates `config.get()`', async function () {
+        const { init, evaluate } = caller;
+        const evalListener = createSpiedEvaluationListener();
+
+        exposed = exposeAll(evalListener, childProcess);
+
+        await init('mongodb://nodb/', dummyOptions, { nodb: true });
+
+        await evaluate('config.get("key")');
+        expect(evalListener.getConfig).to.have.been.calledWith('key');
+      });
+    });
+
+    describe('setConfig', function () {
+      it('should be called when shell evaluates `config.set()`', async function () {
+        const { init, evaluate } = caller;
+        const evalListener = createSpiedEvaluationListener();
+
+        exposed = exposeAll(evalListener, childProcess);
+
+        await init('mongodb://nodb/', dummyOptions, { nodb: true });
+
+        await evaluate('config.set("displayBatchSize", 200)');
+        expect(evalListener.validateConfig).to.have.been.calledWith(
+          'displayBatchSize',
+          200
+        );
+        expect(evalListener.setConfig).to.have.been.calledWith(
+          'displayBatchSize',
+          200
+        );
+      });
+    });
+
+    describe('resetConfig', function () {
+      it('should be called when shell evaluates `config.reset()`', async function () {
+        const { init, evaluate } = caller;
+        const evalListener = createSpiedEvaluationListener();
+
+        exposed = exposeAll(evalListener, childProcess);
+
+        await init('mongodb://nodb/', dummyOptions, { nodb: true });
+
+        await evaluate('config.reset("displayBatchSize")');
+        expect(evalListener.resetConfig).to.have.been.calledWith(
+          'displayBatchSize'
+        );
+      });
+    });
+
+    describe('listConfigOptions', function () {
+      it('should be called when shell evaluates `config[asPrintable]`', async function () {
+        const { init, evaluate } = caller;
+        const evalListener = createSpiedEvaluationListener();
+
+        exposed = exposeAll(evalListener, childProcess);
+
+        await init('mongodb://nodb/', dummyOptions, { nodb: true });
+
+        await evaluate(`
+        var JSSymbol = Object.getOwnPropertySymbols(Array.prototype)[0].constructor;
+        config[JSSymbol.for("@@mongosh.asPrintable")]()`);
+        expect(evalListener.listConfigOptions).to.have.been.calledWith();
       });
     });
   });
