@@ -110,9 +110,6 @@ describe('Explainable', function () {
     });
 
     describe('find', function () {
-      let explainResult: Document;
-      const expectedExplainResult = { ok: 1 };
-
       context('without options', function () {
         let cursorStub;
         let explainResult;
@@ -161,17 +158,36 @@ describe('Explainable', function () {
       });
 
       context('with options', function () {
-        beforeEach(function () {
-          collection.aggregate = sinon.spy(() =>
-            Promise.resolve(expectedExplainResult)
-          ) as any;
+        let cursorStub;
+        let explainResult;
+
+        beforeEach(async function () {
+          explainResult = { ok: 1 };
+
+          const cursorSpy = {
+            explain: sinon.spy(() => explainResult),
+          } as unknown;
+          collection.find = sinon.spy(() =>
+            Promise.resolve(cursorSpy as Cursor)
+          );
+
+          cursorStub = await explainable.find({}, undefined, {
+            collation: { locale: 'simple' },
+          });
         });
 
-        it('returns the explain result', async function () {
-          explainResult = await explainable.aggregate([{ pipeline: 1 }], {
-            aggregate: 1,
-          });
-          expect(explainResult).to.equal(expectedExplainResult);
+        it('calls collection.find with arguments', function () {
+          expect(collection.find).to.have.been.calledOnceWithExactly(
+            {},
+            undefined,
+            { collation: { locale: 'simple' } }
+          );
+        });
+
+        it('returns an cursor that has toShellResult when evaluated', async function () {
+          expect((await toShellResult(cursorStub)).type).to.equal(
+            'ExplainableCursor'
+          );
         });
       });
     });
