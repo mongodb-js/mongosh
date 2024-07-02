@@ -1568,6 +1568,14 @@ describe('Shell API (integration)', function () {
           'serverInfo',
         ]);
       });
+
+      it('the explainable cursor reflects collation', async function () {
+        const cursor = await explainable.find({}, undefined, {
+          collation: { locale: 'simple' },
+        });
+        const result = await toShellResult(cursor);
+        expect(result.printable.command.collation.locale).to.be.equal('simple');
+      });
     });
 
     describe('aggregate', function () {
