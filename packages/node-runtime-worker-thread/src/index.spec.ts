@@ -321,7 +321,7 @@ describe('WorkerRuntime', function () {
         .match(/Async script execution was interrupted/);
     });
 
-    it.skip('should interrupt in-flight synchronous tasks', async function () {
+    it('should interrupt in-flight synchronous tasks', async function () {
       runtime = new WorkerRuntime('mongodb://nodb/', dummyOptions, {
         nodb: true,
       });
@@ -348,7 +348,7 @@ describe('WorkerRuntime', function () {
         .match(/Script execution was interrupted/);
     });
 
-    it.skip('should allow to evaluate again after interruption', async function () {
+    it('should allow to evaluate again after interruption', async function () {
       runtime = new WorkerRuntime('mongodb://nodb/', dummyOptions, {
         nodb: true,
       });

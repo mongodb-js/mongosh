@@ -22,10 +22,6 @@ const workerThreadModule = path.resolve(
   'child-process.js'
 );
 
-function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
 describe('child-process', function () {
   let childProcess: ChildProcess;
   let caller: Caller<WorkerRuntime>;
@@ -43,7 +39,6 @@ describe('child-process', function () {
         'getCompletions',
         'getShellPrompt',
         'setEvaluationListener',
-        'interrupt',
       ],
       childProcess
     );
@@ -477,33 +472,6 @@ describe('child-process', function () {
       expect(completions).to.deep.contain({
         completion: 'db.coll1.find',
       });
-    });
-  });
-
-  describe('interrupt', function () {
-    it('should interrupt in-flight async tasks', async function () {
-      const { init, evaluate, interrupt } = caller;
-
-      await init('mongodb://nodb/', dummyOptions, { nodb: true });
-
-      let err: Error;
-
-      try {
-        await Promise.all([
-          evaluate('sleep(100000)'),
-          (async () => {
-            await sleep(10);
-            await interrupt();
-          })(),
-        ]);
-      } catch (e: any) {
-        err = e;
-      }
-
-      expect(err).to.be.instanceof(Error);
-      expect(err)
-        .to.have.property('message')
-        .match(/Async script execution was interrupted/);
     });
   });
 });
