@@ -1,7 +1,6 @@
 /* istanbul ignore file */
 /* ^^^ we test the dist directly, so isntanbul can't calculate the coverage correctly */
 
-import { parentPort, isMainThread } from 'worker_threads';
 import type {
   Completion,
   Runtime,
@@ -19,16 +18,11 @@ import {
 import type { MongoshBus } from '@mongosh/types';
 import type { UNLOCKED } from './lock';
 import { Lock } from './lock';
-import type { InterruptHandle } from 'interruptor';
-import { runInterruptible } from 'interruptor';
 
 type DevtoolsConnectOptions = Parameters<
   (typeof CompassServiceProvider)['connect']
 >[1];
-
-if (!parentPort || isMainThread) {
-  throw new Error('Worker runtime can be used only in a worker thread');
-}
+type EvaluationResult = void | RuntimeEvaluationResult | UNLOCKED;
 
 let runtime: Runtime | null = null;
 let provider: ServiceProvider | null = null;
@@ -45,11 +39,7 @@ function ensureRuntime(methodName: string): Runtime {
   return runtime;
 }
 
-export type WorkerRuntimeEvaluationListener = RuntimeEvaluationListener & {
-  onRunInterruptible(handle: InterruptHandle | null): void;
-};
-
-const evaluationListener = createCaller<WorkerRuntimeEvaluationListener>(
+const evaluationListener = createCaller<RuntimeEvaluationListener>(
   [
     'onPrint',
     'onPrompt',
@@ -60,9 +50,8 @@ const evaluationListener = createCaller<WorkerRuntimeEvaluationListener>(
     'listConfigOptions',
     'onClearCommand',
     'onExit',
-    'onRunInterruptible',
   ],
-  parentPort,
+  process,
   {
     onPrint: function (
       results: RuntimeEvaluationResult[]
@@ -76,17 +65,14 @@ const evaluationListener = createCaller<WorkerRuntimeEvaluationListener>(
   }
 );
 
-const messageBus: MongoshBus = Object.assign(
-  createCaller(['emit'], parentPort),
-  {
-    on() {
-      throw new Error("Can't call `on` method on worker runtime MongoshBus");
-    },
-    once() {
-      throw new Error("Can't call `once` method on worker runtime MongoshBus");
-    },
-  }
-);
+const messageBus: MongoshBus = Object.assign(createCaller(['emit'], process), {
+  on() {
+    throw new Error("Can't call `on` method on worker runtime MongoshBus");
+  },
+  once() {
+    throw new Error("Can't call `once` method on worker runtime MongoshBus");
+  },
+});
 
 export type WorkerRuntime = Runtime & {
   init(
@@ -94,9 +80,33 @@ export type WorkerRuntime = Runtime & {
     driverOptions?: DevtoolsConnectOptions,
     cliOptions?: { nodb?: boolean }
   ): Promise<void>;
-
-  interrupt(): boolean;
 };
+
+// If we were interrupted, we can't know which newly require()ed modules
+// have successfully been loaded, so we restore everything to its
+// previous state.
+function clearRequireCache(previousRequireCache: string[]) {
+  for (const key of Object.keys(require.cache)) {
+    if (!previousRequireCache.includes(key)) {
+      delete require.cache[key];
+    }
+  }
+}
+
+function throwIfInterrupted(
+  result: EvaluationResult,
+  previousRequireCache: string[]
+): asserts result is RuntimeEvaluationResult {
+  if (evaluationLock.isUnlockToken(result)) {
+    clearRequireCache(previousRequireCache);
+    throw new Error('Async script execution was interrupted');
+  }
+
+  if (typeof result === 'undefined') {
+    clearRequireCache(previousRequireCache);
+    throw new Error('Script execution was interrupted');
+  }
+}
 
 const workerRuntime: WorkerRuntime = {
   async init(
@@ -129,52 +139,18 @@ const workerRuntime: WorkerRuntime = {
       );
     }
 
-    let interrupted = true;
-    let evaluationPromise: void | Promise<RuntimeEvaluationResult>;
     const previousRequireCache = Object.keys(require.cache);
+    let result: EvaluationResult;
 
     try {
-      evaluationPromise = runInterruptible((handle) => {
-        try {
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          evaluationListener.onRunInterruptible(handle);
-          return ensureRuntime('evaluate').evaluate(code);
-        } finally {
-          interrupted = false;
-        }
-      });
-    } finally {
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      evaluationListener.onRunInterruptible(null);
-
-      if (interrupted) {
-        // If we were interrupted, we can't know which newly require()ed modules
-        // have successfully been loaded, so we restore everything to its
-        // previous state.
-        for (const key of Object.keys(require.cache)) {
-          if (!previousRequireCache.includes(key)) {
-            delete require.cache[key];
-          }
-        }
-      }
-    }
-
-    let result: void | RuntimeEvaluationResult | UNLOCKED;
-
-    try {
-      result = await Promise.race([evaluationPromise, evaluationLock.lock()]);
+      result = await Promise.race([
+        ensureRuntime('evaluate').evaluate(code),
+        evaluationLock.lock(),
+      ]);
     } finally {
       evaluationLock.unlock();
     }
-
-    if (evaluationLock.isUnlockToken(result)) {
-      throw new Error('Async script execution was interrupted');
-    }
-
-    if (typeof result === 'undefined' || interrupted === true) {
-      throw new Error('Script execution was interrupted');
-    }
-
+    throwIfInterrupted(result, previousRequireCache);
     return serializeEvaluationResult(result);
   },
 
@@ -191,22 +167,16 @@ const workerRuntime: WorkerRuntime = {
       'Evaluation listener can not be directly set on the worker runtime'
     );
   },
-
-  interrupt() {
-    return evaluationLock.unlock();
-  },
 };
 
-// We expect the amount of listeners to be more than the default value of 10 but
-// probably not more than ~25 (all exposed methods on
-// ChildProcessEvaluationListener and ChildProcessMongoshBus + any concurrent
-// in-flight calls on ChildProcessRuntime) at once
-parentPort.setMaxListeners(25);
+exposeAll(workerRuntime, process);
 
-exposeAll(workerRuntime, parentPort);
+// For async tasks, then an interrupt is received, we need to unlock the
+// evaluation lock so that it resolves and workerRuntime.evaluate throws.
+process.on('SIGINT', () => {
+  evaluationLock.unlock();
+});
 
 process.nextTick(() => {
-  if (parentPort) {
-    parentPort.postMessage('ready');
-  }
+  process.send?.('ready');
 });

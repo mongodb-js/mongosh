@@ -1,6 +1,5 @@
 import path from 'path';
 import { once } from 'events';
-import { Worker } from 'worker_threads';
 import chai, { expect } from 'chai';
 import sinonChai from 'sinon-chai';
 import sinon from 'sinon';
@@ -9,10 +8,10 @@ import { startSharedTestServer } from '../../../testing/integration-testing-hook
 import type { Caller, Exposed } from './rpc';
 import { cancel, close, createCaller, exposeAll } from './rpc';
 import { deserializeEvaluationResult } from './serializer';
-import type { WorkerRuntime } from './worker-runtime';
+import type { WorkerRuntime } from './child-process';
 import type { RuntimeEvaluationResult } from '@mongosh/browser-runtime-core';
-import { interrupt } from 'interruptor';
 import { dummyOptions } from './index.spec';
+import { type ChildProcess, spawn } from 'child_process';
 
 chai.use(sinonChai);
 
@@ -21,20 +20,18 @@ const workerThreadModule = path.resolve(
   __dirname,
   '..',
   'dist',
-  'worker-runtime.js'
+  'child-process.js'
 );
 
-function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-describe('worker', function () {
-  let worker: Worker;
+describe('child-process', function () {
+  let childProcess: ChildProcess;
   let caller: Caller<WorkerRuntime>;
 
   beforeEach(async function () {
-    worker = new Worker(workerThreadModule);
-    await once(worker, 'message');
+    childProcess = spawn(process.execPath, [workerThreadModule], {
+      stdio: ['inherit', 'inherit', 'pipe', 'ipc'],
+    });
+    await once(childProcess, 'message');
 
     caller = createCaller(
       [
@@ -43,9 +40,8 @@ describe('worker', function () {
         'getCompletions',
         'getShellPrompt',
         'setEvaluationListener',
-        'interrupt',
       ],
-      worker
+      childProcess
     );
     const origEvaluate = caller.evaluate;
     caller.evaluate = (code: string): Promise<any> & { cancel(): void } => {
@@ -55,20 +51,9 @@ describe('worker', function () {
     };
   });
 
-  afterEach(async function () {
-    if (worker) {
-      // There is a Node.js bug that causes worker process to still be ref-ed
-      // after termination. To work around that, we are unrefing worker manually
-      // *immediately* after terminate method is called even though it should
-      // not be necessary. If this is not done in rare cases our test suite can
-      // get stuck. Even though the issue is fixed we would still need to keep
-      // this workaround for compat reasons.
-      //
-      // See: https://github.com/nodejs/node/pull/37319
-      const terminationPromise = worker.terminate();
-      worker.unref();
-      await terminationPromise;
-      worker = null;
+  afterEach(function () {
+    if (childProcess) {
+      childProcess.kill();
     }
 
     if (caller) {
@@ -351,7 +336,7 @@ describe('worker', function () {
                 getConfig() {},
                 validateConfig() {},
               },
-              worker
+              childProcess
             );
 
             const { init, evaluate } = caller;
@@ -538,7 +523,7 @@ describe('worker', function () {
         const { init, evaluate } = caller;
         const evalListener = createSpiedEvaluationListener();
 
-        exposed = exposeAll(evalListener, worker);
+        exposed = exposeAll(evalListener, childProcess);
 
         await init('mongodb://nodb/', dummyOptions, { nodb: true });
         await evaluate('print("Hi!")');
@@ -552,7 +537,7 @@ describe('worker', function () {
         const { init, evaluate } = caller;
         const evalListener = createSpiedEvaluationListener();
 
-        exposed = exposeAll(evalListener, worker);
+        exposed = exposeAll(evalListener, childProcess);
 
         await init('mongodb://nodb/', dummyOptions, { nodb: true });
         await evaluate('print(new ObjectId("62a209b0c7dc31e23ab9da45"))');
@@ -572,7 +557,7 @@ describe('worker', function () {
         const { init, evaluate } = caller;
         const evalListener = createSpiedEvaluationListener();
 
-        exposed = exposeAll(evalListener, worker);
+        exposed = exposeAll(evalListener, childProcess);
 
         await init('mongodb://nodb/', dummyOptions, { nodb: true });
         const password = await evaluate('passwordPrompt()');
@@ -587,7 +572,7 @@ describe('worker', function () {
         const { init, evaluate } = caller;
         const evalListener = createSpiedEvaluationListener();
 
-        exposed = exposeAll(evalListener, worker);
+        exposed = exposeAll(evalListener, childProcess);
 
         await init('mongodb://nodb/', dummyOptions, { nodb: true });
 
@@ -601,7 +586,7 @@ describe('worker', function () {
         const { init, evaluate } = caller;
         const evalListener = createSpiedEvaluationListener();
 
-        exposed = exposeAll(evalListener, worker);
+        exposed = exposeAll(evalListener, childProcess);
 
         await init('mongodb://nodb/', dummyOptions, { nodb: true });
 
@@ -622,7 +607,7 @@ describe('worker', function () {
         const { init, evaluate } = caller;
         const evalListener = createSpiedEvaluationListener();
 
-        exposed = exposeAll(evalListener, worker);
+        exposed = exposeAll(evalListener, childProcess);
 
         await init('mongodb://nodb/', dummyOptions, { nodb: true });
 
@@ -638,7 +623,7 @@ describe('worker', function () {
         const { init, evaluate } = caller;
         const evalListener = createSpiedEvaluationListener();
 
-        exposed = exposeAll(evalListener, worker);
+        exposed = exposeAll(evalListener, childProcess);
 
         await init('mongodb://nodb/', dummyOptions, { nodb: true });
 
@@ -647,82 +632,6 @@ describe('worker', function () {
         config[JSSymbol.for("@@mongosh.asPrintable")]()`);
         expect(evalListener.listConfigOptions).to.have.been.calledWith();
       });
-    });
-
-    describe('onRunInterruptible', function () {
-      it('should call callback when interruptible evaluation starts and ends', async function () {
-        const { init, evaluate } = caller;
-        const evalListener = createSpiedEvaluationListener();
-
-        exposed = exposeAll(evalListener, worker);
-
-        await init('mongodb://nodb/', dummyOptions, { nodb: true });
-        await evaluate('1+1');
-
-        const [firstCall, secondCall] = (
-          evalListener.onRunInterruptible as sinon.SinonSpy
-        ).args;
-
-        expect(firstCall[0]).to.have.property('__id');
-        expect(secondCall[0]).to.equal(null);
-      });
-
-      it('should return a handle that allows to interrupt the evaluation', async function () {
-        const { init, evaluate } = caller;
-        const evalListener = createSpiedEvaluationListener();
-
-        exposed = exposeAll(evalListener, worker);
-
-        await init('mongodb://nodb/', dummyOptions, { nodb: true });
-
-        let err: Error;
-
-        try {
-          await Promise.all([
-            evaluate('while(true){}'),
-            (async () => {
-              await sleep(50);
-              const handle = (evalListener.onRunInterruptible as sinon.SinonSpy)
-                .args[0][0];
-              interrupt(handle);
-            })(),
-          ]);
-        } catch (e: any) {
-          err = e;
-        }
-
-        expect(err).to.be.instanceof(Error);
-        expect(err)
-          .to.have.property('message')
-          .match(/Script execution was interrupted/);
-      });
-    });
-  });
-
-  describe('interrupt', function () {
-    it('should interrupt in-flight async tasks', async function () {
-      const { init, evaluate, interrupt } = caller;
-
-      await init('mongodb://nodb/', dummyOptions, { nodb: true });
-
-      let err: Error;
-
-      try {
-        await Promise.all([
-          evaluate('sleep(100000)'),
-          (async () => {
-            await sleep(10);
-            await interrupt();
-          })(),
-        ]);
-      } catch (e: any) {
-        err = e;
-      }
-
-      expect(err).to.be.instanceof(Error);
-      expect(err)
-        .to.have.property('message')
-        .match(/Async script execution was interrupted/);
     });
   });
 });

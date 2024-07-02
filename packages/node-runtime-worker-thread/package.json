@@ -51,7 +51,6 @@
     "webpack-merge": "^5.8.0"
   },
   "dependencies": {
-    "interruptor": "^1.0.1",
     "system-ca": "^1.0.3"
   }
 }

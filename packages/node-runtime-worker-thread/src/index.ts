@@ -11,11 +11,10 @@ import type {
 import type { MongoshBus } from '@mongosh/types';
 import path from 'path';
 import { EventEmitter, once } from 'events';
-import { kill } from './spawn-child-from-source';
 import type { Caller } from './rpc';
 import { createCaller, cancel } from './rpc';
 import { ChildProcessEvaluationListener } from './child-process-evaluation-listener';
-import type { WorkerRuntime as WorkerThreadWorkerRuntime } from './worker-runtime';
+import type { WorkerRuntime as WorkerThreadWorkerRuntime } from './child-process';
 import {
   deserializeEvaluationResult,
   serializeConnectOptions,
@@ -27,6 +26,16 @@ type DevtoolsConnectOptions = Parameters<
   (typeof CompassServiceProvider)['connect']
 >[1];
 type ChildProcessRuntime = Caller<WorkerThreadWorkerRuntime>;
+
+async function kill(
+  childProcess: ChildProcess,
+  code: NodeJS.Signals | number = 'SIGTERM'
+) {
+  childProcess.kill(code);
+  if (childProcess.exitCode === null && childProcess.signalCode === null) {
+    await once(childProcess, 'exit');
+  }
+}
 
 function parseStderrToError(str: string): Error | null {
   const [, errorMessageWithStack] = str
@@ -78,7 +87,7 @@ class WorkerRuntime implements Runtime {
   private childProcessProxySrcPath: string =
     process.env
       .CHILD_PROCESS_PROXY_SRC_PATH_DO_NOT_USE_THIS_EXCEPT_FOR_TESTING ||
-    path.resolve(__dirname, 'child-process-proxy.js');
+    path.resolve(__dirname, 'child-process.js');
 
   constructor(
     uri: string,
@@ -222,7 +231,7 @@ class WorkerRuntime implements Runtime {
 
   async interrupt() {
     await this.initWorkerPromise;
-    return this.childProcessRuntime.interrupt();
+    return this.childProcess.kill('SIGINT');
   }
 
   async waitForRuntimeToBeReady() {
