@@ -211,7 +211,7 @@ describe('WorkerRuntime', function () {
     });
   });
 
-  describe.skip('eventEmitter', function () {
+  describe('eventEmitter', function () {
     const testServer = startSharedTestServer();
 
     it('should propagate emitted events from worker', async function () {

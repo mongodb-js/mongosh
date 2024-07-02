@@ -7,11 +7,12 @@ import type {
 import { ElectronRuntime } from '@mongosh/browser-runtime-electron';
 import type { ServiceProvider } from '@mongosh/service-provider-core';
 import { CompassServiceProvider } from '@mongosh/service-provider-server';
-import { createCaller, exposeAll } from './rpc';
+import { exposeAll, createCaller } from './rpc';
 import {
   serializeEvaluationResult,
   deserializeConnectOptions,
 } from './serializer';
+import type { MongoshBus } from '@mongosh/types';
 import type { UNLOCKED } from './lock';
 import { Lock } from './lock';
 
@@ -60,6 +61,15 @@ const evaluationListener = createCaller<RuntimeEvaluationListener>(
     },
   }
 );
+
+const messageBus: MongoshBus = Object.assign(createCaller(['emit'], process), {
+  on() {
+    throw new Error("Can't call `on` method on worker runtime MongoshBus");
+  },
+  once() {
+    throw new Error("Can't call `once` method on worker runtime MongoshBus");
+  },
+});
 
 export type WorkerRuntime = Runtime & {
   init(
@@ -113,9 +123,9 @@ const workerRuntime: WorkerRuntime = {
       uri,
       deserializeConnectOptions(driverOptions),
       cliOptions,
-      process
+      messageBus
     );
-    runtime = new ElectronRuntime(provider as ServiceProvider, process);
+    runtime = new ElectronRuntime(provider as ServiceProvider, messageBus);
     runtime.setEvaluationListener(evaluationListener);
   },
 
