@@ -231,7 +231,7 @@ class WorkerRuntime implements Runtime {
 
   async interrupt() {
     await this.initWorkerPromise;
-    this.childProcess.kill('SIGINT');
+    return this.childProcess.kill('SIGINT');
   }
 
   async waitForRuntimeToBeReady() {
