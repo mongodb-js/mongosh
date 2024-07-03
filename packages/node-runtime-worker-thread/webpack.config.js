@@ -16,15 +16,12 @@ const config = {
     'mongodb-client-encryption': 'commonjs2 mongodb-client-encryption',
     kerberos: 'commonjs2 kerberos',
     snappy: 'commonjs2 snappy',
-    interruptor: 'commonjs2 interruptor',
     'os-dns-native': 'commonjs2 os-dns-native',
     'system-ca': 'commonjs2 system-ca',
   },
 };
 
-module.exports = ['index', 'child-process-proxy', 'worker-runtime'].map(
-  (entry) => ({
-    entry: { [entry]: path.resolve(__dirname, 'src', `${entry}.ts`) },
-    ...merge(baseWebpackConfig, config),
-  })
-);
+module.exports = ['index', 'child-process'].map((entry) => ({
+  entry: { [entry]: path.resolve(__dirname, 'src', `${entry}.ts`) },
+  ...merge(baseWebpackConfig, config),
+}));
