@@ -2040,8 +2040,8 @@ describe('Shard', function () {
           await sh.addShardToZone(`${shardId}-0`, `zone${i}`);
           await sh.updateZoneKeyRange(
             ns,
-            { key: i * 10 - 10 },
             { key: i * 10 },
+            { key: i * 10 + 10 },
             `zone${i}`
           );
           await sh.addShardTag(`${shardId}-0`, `zone${i}`);
@@ -2054,7 +2054,7 @@ describe('Shard', function () {
       });
       it('shows tags as a string when there are too many', async function () {
         await sh.addShardToZone(`${shardId}-0`, 'zone19');
-        await sh.updateZoneKeyRange(ns, { key: 180 }, { key: 190 }, 'zone19');
+        await sh.updateZoneKeyRange(ns, { key: 190 }, { key: 200 }, 'zone19');
         await sh.addShardTag(`${shardId}-0`, 'zone19');
 
         const databases = (await sh.status()).value.databases;
