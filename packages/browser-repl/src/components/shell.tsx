@@ -62,6 +62,11 @@ interface ShellProps {
    */
   onHistoryChanged: (history: readonly string[]) => void;
 
+  /**
+   * A function called each time the text in the shell input is changed
+   */
+  onInputChanged?: (input: string) => void;
+
   /* If set, the shell will omit or redact entries containing sensitive
    * info from history. Defaults to `false`.
    */
@@ -84,6 +89,16 @@ interface ShellProps {
   /* A function called when an operation has completed (both error and success).
    */
   onOperationEnd: () => void;
+
+  /**
+   * Initial value in the shell input field
+   */
+  initialInput?: string;
+
+  /**
+   * A set of input strings to evaluate right after shell is mounted
+   */
+  initialEvaluate?: string | string[];
 
   /* An array of entries to be displayed in the output area.
    *
@@ -128,6 +143,7 @@ export class Shell extends Component<ShellProps, ShellState> {
     onOutputChanged: noop,
     maxOutputLength: 1000,
     maxHistoryLength: 1000,
+    initialInput: '',
     initialOutput: [],
     initialHistory: [],
   };
@@ -147,8 +163,16 @@ export class Shell extends Component<ShellProps, ShellState> {
 
   componentDidMount(): void {
     this.scrollToBottom();
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.updateShellPrompt();
+    void this.updateShellPrompt().then(async () => {
+      if (this.props.initialEvaluate) {
+        const evalLines = Array.isArray(this.props.initialEvaluate)
+          ? this.props.initialEvaluate
+          : [this.props.initialEvaluate];
+        for (const input of evalLines) {
+          await this.onInput(input);
+        }
+      }
+    });
   }
 
   componentDidUpdate(): void {
@@ -351,7 +375,7 @@ export class Shell extends Component<ShellProps, ShellState> {
     this.editor = editor;
   };
 
-  private focusEditor = (): void => {
+  focusEditor = (): void => {
     this.editor?.focus();
   };
 
@@ -379,6 +403,8 @@ export class Shell extends Component<ShellProps, ShellState> {
 
     return (
       <ShellInput
+        initialText={this.props.initialInput}
+        onTextChange={this.props.onInputChanged}
         prompt={this.state.shellPrompt}
         autocompleter={this.props.runtime}
         history={this.state.history}

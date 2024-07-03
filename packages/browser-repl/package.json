@@ -10,14 +10,14 @@
   "exports": {
     ".": {
       "types": "./lib/index.d.ts",
-      "require": "./lib/index.js"
+      "default": "./lib/index.js"
     },
     "./shell": {
       "types": "./lib/components/shell.d.ts",
-      "require": "./lib/components/shell.js"
+      "default": "./lib/components/shell.js"
     },
     "./package.json": {
-      "require": "./package.json"
+      "default": "./package.json"
     }
   },
   "scripts": {
