@@ -516,4 +516,11 @@ describe('<Shell />', function () {
       expect(wrapper.find('ShellInput').prop('prompt')).to.equal('abc>');
     });
   });
+
+  it('sets initial text for the shell input', function () {
+    wrapper = mount(
+      <Shell runtime={fakeRuntime} initialInput="db.coll.find({})" />
+    );
+    expect(wrapper.find('Editor').prop('value')).to.eq('db.coll.find({})');
+  });
 });

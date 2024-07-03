@@ -154,6 +154,8 @@ const IframeRuntimeExample: React.FunctionComponent = () => {
   const [redactInfo, setRedactInfo] = useState(false);
   const [maxOutputLength, setMaxOutputLength] = useState(1000);
   const [maxHistoryLength, setMaxHistoryLength] = useState(1000);
+  const [initialInput, setInitialInput] = useState('');
+  const [initialEvaluate, setInitialEvaluate] = useState<string[]>([]);
   const [initialOutput] = useState<ShellOutputEntry[]>([
     { format: 'output', value: { foo: 1, bar: true, buz: function () {} } },
   ]);
@@ -171,8 +173,8 @@ const IframeRuntimeExample: React.FunctionComponent = () => {
   }, []);
 
   const key = useMemo(() => {
-    return initialHistory.join('');
-  }, [initialHistory]);
+    return initialHistory.concat(initialInput, initialEvaluate).join('');
+  }, [initialHistory, initialInput, initialEvaluate]);
 
   return (
     <div className={sandboxContainer}>
@@ -183,6 +185,8 @@ const IframeRuntimeExample: React.FunctionComponent = () => {
           redactInfo={redactInfo}
           maxOutputLength={maxOutputLength}
           maxHistoryLength={maxHistoryLength}
+          initialInput={initialInput}
+          initialEvaluate={initialEvaluate.filter(Boolean)}
           initialOutput={initialOutput}
           initialHistory={initialHistory.filter(Boolean)}
         />
@@ -259,6 +263,38 @@ const IframeRuntimeExample: React.FunctionComponent = () => {
             value={initialHistory.join('\n')}
             onChange={(evt) => {
               setInitialHistory(evt.currentTarget.value.split('\n'));
+            }}
+            className={cx(textarea, textInput)}
+          />
+        </FormFieldContainer>
+
+        <FormFieldContainer className={formField}>
+          <Label id="initialInputLabel" htmlFor="initialInput">
+            initialInput
+          </Label>
+          <Description>Initial value in the shell input field</Description>
+          <TextInput
+            className={textInput}
+            aria-labelledby="initialInputLabel"
+            value={initialInput}
+            onChange={(evt) => {
+              setInitialInput(evt.currentTarget.value);
+            }}
+          />
+        </FormFieldContainer>
+
+        <FormFieldContainer className={formField}>
+          <Label id="initialEvaluateLabel" htmlFor="initialEvaluate">
+            initialEvaluate
+          </Label>
+          <Description>
+            A set of input strings to evaluate right after shell is mounted
+          </Description>
+          <TextArea
+            aria-labelledby="initialEvaluate"
+            value={initialEvaluate.join('\n')}
+            onChange={(evt) => {
+              setInitialEvaluate(evt.currentTarget.value.split('\n'));
             }}
             className={cx(textarea, textInput)}
           />
