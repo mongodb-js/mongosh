@@ -6,7 +6,7 @@ index f189ba2bf0..2602f6403e 100755
    o['variables']['want_separate_host_toolset'] = int(cross_compiling)
 
    if target_arch == 'arm64':
-+    o['cflags']+=['-msign-return-address=all','-march=armv8']
++    o['cflags']+=['-msign-return-address=all','-march=armv8-a']
      o['variables']['arm_fpu'] = options.arm_fpu or 'neon'
 
    if options.node_snapshot_main is not None:
