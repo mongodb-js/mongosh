@@ -7,9 +7,9 @@ index f189ba2bf0..2602f6403e 100755
 
    if target_arch == 'arm64':
 +    o['cflags']+=['-msign-return-address=all','-march=armv8-a','-mcpu=cortex-a53']
-     o['variables']['arm_fpu'] = options.arm_fpu or 'crypto-neon-fp-armv8'
+-    o['variables']['arm_fpu'] = options.arm_fpu or 'neon'
++    o['variables']['arm_fpu'] = options.arm_fpu or 'crypto-neon-fp-armv8'
 
-   if options.node_snapshot_main is not None:
 diff --git a/node.gyp b/node.gyp
 index 67909bdeb8..b38250a8cc 100644
 --- node.gyp 	2024-06-28 10:58:19
