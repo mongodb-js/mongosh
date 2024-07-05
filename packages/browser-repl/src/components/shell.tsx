@@ -162,15 +162,18 @@ export class Shell extends Component<ShellProps, ShellState> {
   };
 
   componentDidMount(): void {
+    // Store the intial prop value on mount so that we're not using potentially
+    // updated one when actually running the lines
+    let evalLines: string[] = [];
+    if (this.props.initialEvaluate) {
+      evalLines = Array.isArray(this.props.initialEvaluate)
+        ? this.props.initialEvaluate
+        : [this.props.initialEvaluate];
+    }
     this.scrollToBottom();
     void this.updateShellPrompt().then(async () => {
-      if (this.props.initialEvaluate) {
-        const evalLines = Array.isArray(this.props.initialEvaluate)
-          ? this.props.initialEvaluate
-          : [this.props.initialEvaluate];
-        for (const input of evalLines) {
-          await this.onInput(input);
-        }
+      for (const input of evalLines) {
+        await this.onInput(input);
       }
     });
   }
