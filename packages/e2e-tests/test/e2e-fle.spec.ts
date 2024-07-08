@@ -14,6 +14,7 @@ import { once } from 'events';
 import { serialize } from 'v8';
 import { inspect } from 'util';
 import path from 'path';
+import semver from 'semver';
 
 describe('FLE tests', function () {
   const testServer = startTestServer('e2e-fle', {
@@ -716,158 +717,19 @@ describe('FLE tests', function () {
       expect(parseInt(dekCount.trim(), 10)).to.equal(1);
     });
 
-    context(
-      'using rangePreview algorithm when server is > 7 and < 8',
-      function () {
-        skipIfServerVersion(testServer, '>= 8.0.0');
+    context('using rangePreview/range algorithm', function () {
+      // rangePreview was renamed to range in 8.0
+      let rangeType: 'range' | 'rangePreview' = 'range';
+      let rangeAlgorithm: 'Range' | 'RangePreview' = 'Range';
 
-        it('allows explicit range encryption with bypassQueryAnalysis', async function () {
-          // No --cryptSharedLibPath since bypassQueryAnalysis is also a community edition feature
-          const shell = TestShell.start({ args: ['--nodb'] });
-          const uri = JSON.stringify(await testServer.connectionString());
+      beforeEach(async function () {
+        const serverVersion = await testServer.serverVersion();
+        if (semver.lt(serverVersion, '8.0.0')) {
+          rangeType = 'rangePreview';
+          rangeAlgorithm = 'RangePreview';
+        }
+      });
 
-          await shell.waitForPrompt();
-
-          await shell.executeLine(`{
-          client = Mongo(${uri}, {
-            keyVaultNamespace: '${dbname}.keyVault',
-            kmsProviders: { local: { key: 'A'.repeat(128) } },
-            bypassQueryAnalysis: true
-          });
-  
-          keyVault = client.getKeyVault();
-          clientEncryption = client.getClientEncryption();
-  
-          // Create necessary data key
-          dataKey = keyVault.createKey('local');
-  
-          rangeOptions = {
-            sparsity: Long(1),
-            min: new Date('1970'),
-            max: new Date('2100')
-          };
-          coll = client.getDB('${dbname}').encryptiontest;
-          client.getDB('${dbname}').createCollection('encryptiontest', {
-            encryptedFields: {
-              fields: [{
-                keyId: dataKey,
-                path: 'v',
-                bsonType: 'date',
-                queries: [{
-                  queryType: 'rangePreview',
-                  contention: 4,
-                  ...rangeOptions
-                }]
-              }]
-            }
-          });
-  
-          // Encrypt and insert data encrypted with specified data key
-          for (let year = 1990; year < 2010; year++) {
-            const insertPayload = clientEncryption.encrypt(
-              dataKey,
-              new Date(year + '-02-02T12:45:16.277Z'),
-              {
-                algorithm: 'RangePreview',
-                contentionFactor: 4,
-                rangeOptions
-              });
-            coll.insertOne({ v: insertPayload, year });
-          }
-        }`);
-          expect(
-            await shell.executeLine('({ count: coll.countDocuments() })')
-          ).to.include('{ count: 20 }');
-
-          await shell.executeLine(`{
-        findPayload = clientEncryption.encryptExpression(dataKey, {
-          $and: [ { v: {$gt: new Date('1992')} }, { v: {$lt: new Date('1999')} } ]
-        }, {
-          algorithm: 'RangePreview',
-          queryType: 'rangePreview',
-          contentionFactor: 4,
-          rangeOptions
-        });
-        }`);
-
-          // Make sure the find payload allows searching for the encrypted values
-          const out = await shell.executeLine(
-            "\
-          coll.find(findPayload) \
-            .toArray() \
-            .map(d => d.year) \
-            .sort() \
-            .join(',')"
-          );
-          expect(out).to.include('1992,1993,1994,1995,1996,1997,1998');
-        });
-
-        it('allows automatic range encryption', async function () {
-          // TODO(MONGOSH-1550): On s390x, we are using the 6.0.x RHEL7 shared library,
-          // which does not support QE rangePreview. That's just fine for preview, but
-          // we should switch to the 7.0.x RHEL8 shared library for Range GA.
-          if (process.arch === 's390x') {
-            return this.skip();
-          }
-
-          const shell = TestShell.start({
-            args: ['--nodb', `--cryptSharedLibPath=${cryptLibrary}`],
-          });
-          const uri = JSON.stringify(await testServer.connectionString());
-
-          await shell.waitForPrompt();
-
-          await shell.executeLine(`{
-          client = Mongo(${uri}, {
-            keyVaultNamespace: '${dbname}.keyVault',
-            kmsProviders: { local: { key: 'A'.repeat(128) } }
-          });
-  
-          dataKey = client.getKeyVault().createKey('local');
-  
-          coll = client.getDB('${dbname}').encryptiontest;
-          client.getDB('${dbname}').createCollection('encryptiontest', {
-            encryptedFields: {
-              fields: [{
-                keyId: dataKey,
-                path: 'v',
-                bsonType: 'date',
-                queries: [{
-                  queryType: 'rangePreview',
-                  contention: 4,
-                  sparsity: 1,
-                  min: new Date('1970'),
-                  max: new Date('2100')
-                }]
-              }]
-            }
-          });
-  
-          for (let year = 1990; year < 2010; year++) {
-            coll.insertOne({ v: new Date(year + '-02-02T12:45:16.277Z'), year })
-          }
-        }`);
-          expect(
-            await shell.executeLine('({ count: coll.countDocuments() })')
-          ).to.include('{ count: 20 }');
-
-          // Make sure the find payload allows searching for the encrypted values
-          const out = await shell.executeLine(
-            "\
-          coll.find({ v: {$gt: new Date('1992'), $lt: new Date('1999') } }) \
-            .toArray() \
-            .map(d => d.year) \
-            .sort() \
-            .join(',')"
-          );
-          expect(out).to.include('1992,1993,1994,1995,1996,1997,1998');
-        });
-      }
-    );
-
-    context('using range algorithm when server is > 8', function () {
-      // range is only available on 8.0+
-      skipIfServerVersion(testServer, '< 8.0');
       it('allows explicit range encryption with bypassQueryAnalysis', async function () {
         // No --cryptSharedLibPath since bypassQueryAnalysis is also a community edition feature
         const shell = TestShell.start({ args: ['--nodb'] });
@@ -901,7 +763,7 @@ describe('FLE tests', function () {
                 path: 'v',
                 bsonType: 'date',
                 queries: [{
-                  queryType: 'range',
+                  queryType: '${rangeType}',
                   contention: 4,
                   ...rangeOptions
                 }]
@@ -915,7 +777,7 @@ describe('FLE tests', function () {
               dataKey,
               new Date(year + '-02-02T12:45:16.277Z'),
               {
-                algorithm: 'Range',
+                algorithm: '${rangeAlgorithm}',
                 contentionFactor: 4,
                 rangeOptions
               });
@@ -930,8 +792,8 @@ describe('FLE tests', function () {
         findPayload = clientEncryption.encryptExpression(dataKey, {
           $and: [ { v: {$gt: new Date('1992')} }, { v: {$lt: new Date('1999')} } ]
         }, {
-          algorithm: 'Range',
-          queryType: 'range',
+          algorithm: '${rangeAlgorithm}',
+          queryType: '${rangeType}',
           contentionFactor: 4,
           rangeOptions
         });
@@ -980,7 +842,7 @@ describe('FLE tests', function () {
                 path: 'v',
                 bsonType: 'date',
                 queries: [{
-                  queryType: 'range',
+                  queryType: '${rangeType}',
                   contention: 4,
                   sparsity: 1,
                   min: new Date('1970'),
