@@ -2,10 +2,10 @@ import React, { Component } from 'react';
 import type { EditorRef } from '@mongodb-js/compass-editor';
 import {
   css,
-  ThemeProvider,
-  Theme,
   palette,
   fontFamilies,
+  useDarkMode,
+  cx,
 } from '@mongodb-js/compass-components';
 import type { Runtime } from '@mongosh/browser-runtime-core';
 import { changeHistory } from '@mongosh/history';
@@ -19,8 +19,6 @@ const shellContainer = css({
   fontSize: '13px',
   lineHeight: '24px',
   fontFamily: fontFamilies.code,
-  backgroundColor: palette.gray.dark4,
-  color: palette.gray.light3,
   padding: '4px 0',
   width: '100%',
   height: '100%',
@@ -44,6 +42,16 @@ const shellContainer = css({
     color: 'inherit',
     tabSize: 2,
   },
+});
+
+const shellContainerLightModeStyles = css({
+  backgroundColor: palette.white,
+  color: palette.black,
+});
+
+const shellContainerDarkModeStyles = css({
+  backgroundColor: palette.gray.dark4,
+  color: palette.gray.light3,
 });
 
 interface ShellProps {
@@ -118,6 +126,10 @@ interface ShellProps {
    * Note: new entries will not be appended to the array.
    */
   initialHistory: readonly string[];
+
+  darkMode?: boolean;
+
+  className?: string;
 }
 
 interface ShellState {
@@ -135,7 +147,7 @@ const noop = (): void => {
 /**
  * The browser-repl Shell component
  */
-export class Shell extends Component<ShellProps, ShellState> {
+export class _Shell extends Component<ShellProps, ShellState> {
   static defaultProps = {
     onHistoryChanged: noop,
     onOperationStarted: noop,
@@ -422,24 +434,38 @@ export class Shell extends Component<ShellProps, ShellState> {
 
   render(): JSX.Element {
     return (
-      <ThemeProvider theme={{ theme: Theme.Dark, enabled: true }}>
-        <div
-          data-testid="shell"
-          className={shellContainer}
-          onClick={this.onShellClicked}
-        >
-          <div>
-            <ShellOutput output={this.state.output} />
-          </div>
-          <div
-            ref={(el): void => {
-              this.shellInputElement = el;
-            }}
-          >
-            {this.renderInput()}
-          </div>
+      <div
+        data-testid="shell"
+        className={cx(
+          shellContainer,
+          this.props.darkMode
+            ? shellContainerDarkModeStyles
+            : shellContainerLightModeStyles,
+          this.props.className
+        )}
+        onClick={this.onShellClicked}
+      >
+        <div>
+          <ShellOutput output={this.state.output} />
         </div>
-      </ThemeProvider>
+        <div
+          ref={(el): void => {
+            this.shellInputElement = el;
+          }}
+        >
+          {this.renderInput()}
+        </div>
+      </div>
     );
   }
 }
+
+type DefaultProps = keyof (typeof _Shell)['defaultProps'];
+
+export const Shell = function ShellWithDarkMode(
+  props: Omit<ShellProps, DefaultProps | 'darkMode'> &
+    Partial<Pick<ShellProps, DefaultProps>>
+) {
+  const darkMode = useDarkMode();
+  return <_Shell darkMode={darkMode} {...props}></_Shell>;
+};

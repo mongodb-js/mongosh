@@ -1,10 +1,5 @@
 import React, { Component } from 'react';
-import { SpinLoader, css, palette } from '@mongodb-js/compass-components';
-
-// TODO: Add dark mode to compass components spinner
-const shellLoader = css({
-  '& div': { borderTopColor: palette.green.light2 },
-});
+import { SpinLoader } from '@mongodb-js/compass-components';
 
 interface ShellLoaderProps {
   size?: string;
@@ -18,7 +13,7 @@ export default class ShellLoader extends Component<ShellLoaderProps> {
   render() {
     const { size } = this.props;
     return (
-      <div className={shellLoader}>
+      <div>
         <SpinLoader size={size} />
       </div>
     );

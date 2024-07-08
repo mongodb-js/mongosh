@@ -4,7 +4,7 @@ import { expect } from '../../testing/chai';
 import type { ReactWrapper, ShallowWrapper } from '../../testing/enzyme';
 import { mount, shallow } from '../../testing/enzyme';
 import { PasswordPrompt } from './password-prompt';
-import { Shell } from './shell';
+import { _Shell as Shell } from './shell';
 import { ShellInput } from './shell-input';
 import { ShellOutput } from './shell-output';
 import type { ShellOutputEntry } from './shell-output-line';

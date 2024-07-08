@@ -2,6 +2,8 @@ import ReactDOM from 'react-dom';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   css,
+  ThemeProvider,
+  Theme,
   Description,
   FormFieldContainer,
   Label,
@@ -151,6 +153,7 @@ class DemoServiceProvider {
 const runtime = new IframeRuntime(new DemoServiceProvider() as any);
 
 const IframeRuntimeExample: React.FunctionComponent = () => {
+  const [darkMode, setDarkMode] = useState(true);
   const [redactInfo, setRedactInfo] = useState(false);
   const [maxOutputLength, setMaxOutputLength] = useState(1000);
   const [maxHistoryLength, setMaxHistoryLength] = useState(1000);
@@ -163,6 +166,8 @@ const IframeRuntimeExample: React.FunctionComponent = () => {
     'show dbs',
     'db.coll.stats()',
     '{x: 1, y: {z: 2}, k: [1, 2, 3]}',
+    'passwordPrompt()',
+    '(() => { throw new Error("Whoops!"); })()',
   ]);
 
   useEffect(() => {
@@ -179,19 +184,37 @@ const IframeRuntimeExample: React.FunctionComponent = () => {
   return (
     <div className={sandboxContainer}>
       <div className={shellContainer}>
-        <Shell
-          key={key}
-          runtime={runtime}
-          redactInfo={redactInfo}
-          maxOutputLength={maxOutputLength}
-          maxHistoryLength={maxHistoryLength}
-          initialInput={initialInput}
-          initialEvaluate={initialEvaluate.filter(Boolean)}
-          initialOutput={initialOutput}
-          initialHistory={initialHistory.filter(Boolean)}
-        />
+        <ThemeProvider
+          theme={{ theme: darkMode ? Theme.Dark : Theme.Light, enabled: true }}
+        >
+          <Shell
+            key={key}
+            runtime={runtime}
+            redactInfo={redactInfo}
+            maxOutputLength={maxOutputLength}
+            maxHistoryLength={maxHistoryLength}
+            initialInput={initialInput}
+            initialEvaluate={initialEvaluate.filter(Boolean)}
+            initialOutput={initialOutput}
+            initialHistory={initialHistory.filter(Boolean)}
+          />
+        </ThemeProvider>
       </div>
       <div className={controlsContainer}>
+        <FormFieldContainer className={formField}>
+          <Label id="darkModeLabel" htmlFor="darkMode">
+            darkMode
+          </Label>
+          <Description>Toggle shell dark mode</Description>
+          <Toggle
+            aria-labelledby="darkModeLabel"
+            id="darkMode"
+            size="small"
+            checked={darkMode}
+            onChange={setDarkMode}
+          />
+        </FormFieldContainer>
+
         <FormFieldContainer className={formField}>
           <Label id="redactInfoLabel" htmlFor="redactInfo">
             redactInfo
