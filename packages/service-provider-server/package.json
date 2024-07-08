@@ -53,13 +53,13 @@
     "@mongosh/service-provider-core": "0.0.0-dev.0",
     "@mongosh/types": "0.0.0-dev.0",
     "aws4": "^1.12.0",
-    "mongodb": "^6.7.0",
+    "mongodb": "^6.8.0",
     "mongodb-connection-string-url": "^3.0.1",
     "socks": "^2.8.3"
   },
   "optionalDependencies": {
     "kerberos": "^2.1.0",
-    "mongodb-client-encryption": "^6.0.0"
+    "mongodb-client-encryption": "^6.0.1"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
