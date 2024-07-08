@@ -937,7 +937,7 @@ export function processFLEOptions(
     }
   } else {
     // TODO: switch from any to KMSProviders (@mongosh/service-provider-core) once
-    // https://github.com/mongodb/node-mongodb-native/pull/4160/files is released.
+    // https://github.com/mongodb/node-mongodb-native/pull/4165/files is released.
     autoEncryption.kmsProviders = {
       ...fleOptions.kmsProviders,
     } as any;

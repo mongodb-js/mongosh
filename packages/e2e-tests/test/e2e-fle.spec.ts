@@ -15,7 +15,7 @@ import { serialize } from 'v8';
 import { inspect } from 'util';
 import path from 'path';
 
-describe.only('FLE tests', function () {
+describe('FLE tests', function () {
   const testServer = startTestServer('e2e-fle', {
     topology: 'replset',
     secondaries: 0,
