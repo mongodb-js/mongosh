@@ -462,10 +462,11 @@ export class _Shell extends Component<ShellProps, ShellState> {
 
 type DefaultProps = keyof (typeof _Shell)['defaultProps'];
 
-export const Shell = function ShellWithDarkMode(
-  props: Omit<ShellProps, DefaultProps | 'darkMode'> &
+export const Shell = React.forwardRef<
+  _Shell,
+  Omit<ShellProps, DefaultProps | 'darkMode'> &
     Partial<Pick<ShellProps, DefaultProps>>
-) {
+>(function ShellWithDarkMode(props, ref) {
   const darkMode = useDarkMode();
-  return <_Shell darkMode={darkMode} {...props}></_Shell>;
-};
+  return <_Shell darkMode={darkMode} ref={ref} {...props}></_Shell>;
+});
