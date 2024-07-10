@@ -436,7 +436,7 @@ Package|Version|License
 **[strnum](#84f6b71bdd647bcb9588183f13dc0b7a0c5b0a3103b2fc7e8e95012c0d6c631d)**|1.0.5|MIT
 **[supports-color](#113926f6cb42a3d41d1c11fb1209faf789d78f51fb458da90c61e5c1a2307a8e)**|5.5.0|MIT
 **[supports-color](#b97a30572cac0a03b8cf442bc01621a041d5714550984f25cb71fac2587edbd6)**|7.2.0|MIT
-**[system-ca](#9e5b405b0ec07c010c543203b3ad3b444dd02a42efb8f14f4b2a19b9fe7ab48e)**|1.0.3|Apache-2.0
+**[system-ca](#c2c7305095bb1ca56f7fc09b2f13d3c299e06e8d5ed0e0e84ac0872767291401)**|2.0.0|Apache-2.0
 **[tar-fs](#8e5bae5073977abd61cb5549abc7581354454558aedf4a4002b91e6fd7b9830d)**|2.1.1|MIT
 **[tar-stream](#5605712784129d10d2559e12f8031603f0cf4e5ff206f09356e4bf1dc5ab1168)**|1.6.2|MIT
 **[tar](#8bb3ceb646ea33186c42416eb9a4191d844ba4a9a59571a8deb01683c7b60c3a)**|6.2.1|ISC
@@ -31561,8 +31561,8 @@ License files:
       
 
 
-<a id="9e5b405b0ec07c010c543203b3ad3b444dd02a42efb8f14f4b2a19b9fe7ab48e"></a>
-### [system-ca](https://www.npmjs.com/package/system-ca) (version 1.0.3)
+<a id="c2c7305095bb1ca56f7fc09b2f13d3c299e06e8d5ed0e0e84ac0872767291401"></a>
+### [system-ca](https://www.npmjs.com/package/system-ca) (version 2.0.0)
 License tags: Apache-2.0
 
 License files:
