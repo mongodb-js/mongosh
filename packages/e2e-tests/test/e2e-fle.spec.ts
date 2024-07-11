@@ -716,8 +716,8 @@ describe('FLE tests', function () {
       expect(parseInt(dekCount.trim(), 10)).to.equal(1);
     });
 
-    context('using rangePreview algorithm', function () {
-      // TODO(MONGOSH-1742): Server 8.0 drops "rangePreview" algorithm and adds
+    context('using range algorithm', function () {
+      // TODO(MONGOSH-1742): Server 8.0 drops "range" algorithm and adds
       // "range". Re-enable these when the change is finalized
       skipIfServerVersion(testServer, '>= 8.0.0-alpha');
 
@@ -734,13 +734,13 @@ describe('FLE tests', function () {
             kmsProviders: { local: { key: 'A'.repeat(128) } },
             bypassQueryAnalysis: true
           });
-  
+
           keyVault = client.getKeyVault();
           clientEncryption = client.getClientEncryption();
-  
+
           // Create necessary data key
           dataKey = keyVault.createKey('local');
-  
+
           rangeOptions = {
             sparsity: Long(1),
             min: new Date('1970'),
@@ -754,21 +754,21 @@ describe('FLE tests', function () {
                 path: 'v',
                 bsonType: 'date',
                 queries: [{
-                  queryType: 'rangePreview',
+                  queryType: 'range',
                   contention: 4,
                   ...rangeOptions
                 }]
               }]
             }
           });
-  
+
           // Encrypt and insert data encrypted with specified data key
           for (let year = 1990; year < 2010; year++) {
             const insertPayload = clientEncryption.encrypt(
               dataKey,
               new Date(year + '-02-02T12:45:16.277Z'),
               {
-                algorithm: 'RangePreview',
+                algorithm: 'range',
                 contentionFactor: 4,
                 rangeOptions
               });
@@ -783,8 +783,8 @@ describe('FLE tests', function () {
         findPayload = clientEncryption.encryptExpression(dataKey, {
           $and: [ { v: {$gt: new Date('1992')} }, { v: {$lt: new Date('1999')} } ]
         }, {
-          algorithm: 'RangePreview',
-          queryType: 'rangePreview',
+          algorithm: 'Range',
+          queryType: 'range',
           contentionFactor: 4,
           rangeOptions
         });
@@ -804,7 +804,7 @@ describe('FLE tests', function () {
 
       it('allows automatic range encryption', async function () {
         // TODO(MONGOSH-1550): On s390x, we are using the 6.0.x RHEL7 shared library,
-        // which does not support QE rangePreview. That's just fine for preview, but
+        // which does not support QE range. That's just fine for preview, but
         // we should switch to the 7.0.x RHEL8 shared library for Range GA.
         if (process.arch === 's390x') {
           return this.skip();
@@ -822,9 +822,9 @@ describe('FLE tests', function () {
             keyVaultNamespace: '${dbname}.keyVault',
             kmsProviders: { local: { key: 'A'.repeat(128) } }
           });
-  
+
           dataKey = client.getKeyVault().createKey('local');
-  
+
           coll = client.getDB('${dbname}').encryptiontest;
           client.getDB('${dbname}').createCollection('encryptiontest', {
             encryptedFields: {
@@ -833,7 +833,7 @@ describe('FLE tests', function () {
                 path: 'v',
                 bsonType: 'date',
                 queries: [{
-                  queryType: 'rangePreview',
+                  queryType: 'range',
                   contention: 4,
                   sparsity: 1,
                   min: new Date('1970'),
@@ -842,7 +842,7 @@ describe('FLE tests', function () {
               }]
             }
           });
-  
+
           for (let year = 1990; year < 2010; year++) {
             coll.insertOne({ v: new Date(year + '-02-02T12:45:16.277Z'), year })
           }

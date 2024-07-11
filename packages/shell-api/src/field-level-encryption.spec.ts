@@ -269,8 +269,8 @@ describe('Field Level Encryption', function () {
       };
 
       const options = {
-        algorithm: 'RangePreview',
-        queryType: 'rangePreview',
+        algorithm: 'Range',
+        queryType: 'range',
         contentionFactor: 0,
         rangeOptions: {
           sparsity: new bson.Long(1),
