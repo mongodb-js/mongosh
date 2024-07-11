@@ -275,7 +275,7 @@ describe('Field Level Encryption', function () {
         rangeOptions: {
           sparsity: new bson.Long(1),
         },
-      } as const;
+      } as any; // TODO Needs a driver update to get correct types.
 
       it('calls encryptExpression with algorithm on libmongoc', async function () {
         libmongoc.encryptExpression.resolves();
