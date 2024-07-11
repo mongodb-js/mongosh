@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **mongosh**.
-This document was automatically generated on Sun Jun 16 2024.
+This document was automatically generated on Wed Jul 10 2024.
 
 ## List of dependencies
 
@@ -350,7 +350,7 @@ Package|Version|License
 **[mongodb-connection-string-url](#2e1146256a89ebd24e3398881e03807fe363d58444e6b7952ea50bd6108707bc)**|3.0.1|Apache-2.0
 **[mongodb-crypt-library-version](#003bd2892d6f6fdac0613ba8f9a2fbb054ddd1c26901e1d2fc7e83861b21cf4d)**|1.0.5|Apache-2.0
 **[mongodb-log-writer](#c4945018f8490fc8e56e1414e262fcf1b802800e05cd15f2bd6b7a9d0b94af85)**|1.4.2|Apache-2.0
-**[mongodb-redact](#f2e211a75ccc2bd1c32144837dbd44675e30fd51a9e4e60b8ba3bc0b1750af38)**|0.2.3|Apache-2.0
+**[mongodb-redact](#9dfa40be1a8ba1ded5ec7d6df21649a218c35e135bcf2f4543a03bf68274cd24)**|1.1.0|Apache-2.0
 **[mongodb](#d7483daab94fde07ac4a7920bd6d7070eec5f48fdf516669acd398920978d9fe)**|6.7.0|Apache-2.0
 **[ms](#484b814b85d5028e34246147c8fc901d33570202bd7cdc3703c0ed1078eba0aa)**|2.0.0|MIT
 **[ms](#0a987b2f79ff37005e452a5afa7dacd3042061a7077054d2ba9cabacd88506d2)**|2.1.2|MIT
@@ -436,7 +436,7 @@ Package|Version|License
 **[strnum](#84f6b71bdd647bcb9588183f13dc0b7a0c5b0a3103b2fc7e8e95012c0d6c631d)**|1.0.5|MIT
 **[supports-color](#113926f6cb42a3d41d1c11fb1209faf789d78f51fb458da90c61e5c1a2307a8e)**|5.5.0|MIT
 **[supports-color](#b97a30572cac0a03b8cf442bc01621a041d5714550984f25cb71fac2587edbd6)**|7.2.0|MIT
-**[system-ca](#9e5b405b0ec07c010c543203b3ad3b444dd02a42efb8f14f4b2a19b9fe7ab48e)**|1.0.3|Apache-2.0
+**[system-ca](#c2c7305095bb1ca56f7fc09b2f13d3c299e06e8d5ed0e0e84ac0872767291401)**|2.0.0|Apache-2.0
 **[tar-fs](#8e5bae5073977abd61cb5549abc7581354454558aedf4a4002b91e6fd7b9830d)**|2.1.1|MIT
 **[tar-stream](#5605712784129d10d2559e12f8031603f0cf4e5ff206f09356e4bf1dc5ab1168)**|1.6.2|MIT
 **[tar](#8bb3ceb646ea33186c42416eb9a4191d844ba4a9a59571a8deb01683c7b60c3a)**|6.2.1|ISC
@@ -28553,8 +28553,8 @@ License files:
       
 
 
-<a id="f2e211a75ccc2bd1c32144837dbd44675e30fd51a9e4e60b8ba3bc0b1750af38"></a>
-### [mongodb-redact](https://www.npmjs.com/package/mongodb-redact) (version 0.2.3)
+<a id="9dfa40be1a8ba1ded5ec7d6df21649a218c35e135bcf2f4543a03bf68274cd24"></a>
+### [mongodb-redact](https://www.npmjs.com/package/mongodb-redact) (version 1.1.0)
 License tags: Apache-2.0
 
 License files:
@@ -31561,8 +31561,8 @@ License files:
       
 
 
-<a id="9e5b405b0ec07c010c543203b3ad3b444dd02a42efb8f14f4b2a19b9fe7ab48e"></a>
-### [system-ca](https://www.npmjs.com/package/system-ca) (version 1.0.3)
+<a id="c2c7305095bb1ca56f7fc09b2f13d3c299e06e8d5ed0e0e84ac0872767291401"></a>
+### [system-ca](https://www.npmjs.com/package/system-ca) (version 2.0.0)
 License tags: Apache-2.0
 
 License files:

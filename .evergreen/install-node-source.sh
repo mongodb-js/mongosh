@@ -6,6 +6,7 @@ ROOT_DIR="$PWD"
 EVGDIR="$ROOT_DIR/.evergreen"
 NVM_DIR="$EVGDIR/.nvm"
 ORIGINAL_PATH="${PATH}"
+
 export PATH="/opt/mongodbtoolchain/v4/bin:/opt/mongodbtoolchain/v3/bin:${ORIGINAL_PATH}"
 export CC=gcc
 export CXX=g++

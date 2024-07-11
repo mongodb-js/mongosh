@@ -118,6 +118,6 @@
     "glibc-version": "^1.0.0",
     "macos-export-certificate-and-key": "^1.1.2",
     "mongodb-crypt-library-version": "^1.0.5",
-    "win-export-certificate-and-key": "^1.1.2"
+    "win-export-certificate-and-key": "^2.0.0"
   }
 }

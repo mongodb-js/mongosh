@@ -17,12 +17,12 @@
     "node": ">=14.15.1"
   },
   "dependencies": {
-    "@mongodb-js/devtools-connect": "^3.0.1",
+    "@mongodb-js/devtools-connect": "^3.0.2",
     "@mongosh/errors": "0.0.0-dev.0",
     "@mongosh/history": "0.0.0-dev.0",
     "@mongosh/types": "0.0.0-dev.0",
     "mongodb-log-writer": "^1.4.2",
-    "mongodb-redact": "^0.2.3"
+    "mongodb-redact": "^1.1.0"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-mongosh": "^1.0.0",
